@@ -109,6 +109,7 @@ void PropagateCommandPanel::Initialize()
 
 void PropagateCommandPanel::Setup( wxWindow *parent)
 {
+
     //loj: 2/13/04 added
     wxBoxSizer *theMiddleBoxSizer = new wxBoxSizer(wxVERTICAL);
     
@@ -268,15 +269,20 @@ void PropagateCommandPanel::Setup( wxWindow *parent)
     editButton->Enable(false);
     synchComboBox->Enable(false);
     helpButton->Enable(false);
+    
+    applyButton->Enable(false);
 }
 
 void PropagateCommandPanel::GetData()
 {
     // Display Propagator
+    //if ( !propSetupName.empty() ) // waw: Error - returns type 'String'??
     propGrid->SetCellValue( 0, 0, wxT(propSetupName.c_str()) );
     MessageInterface::ShowMessage("PropagateCommandPanel::GetData() propSetupName = " +
                                   propSetupName + "\n");
     
+    //loj: 2/11/04 propGrid->SetCellValue( 0, 0, propNameString );
+
     // Display Spacecraft column
     if ( !scList.empty() )
     {
@@ -307,33 +313,39 @@ void PropagateCommandPanel::GetData()
 
 void PropagateCommandPanel::SetData()
 {
-    //wxComboBox saving
-    //synchComboBox;
-    //equalityComboBox;
-    
-    //wxTextCtrl saving
-    // waw: theStopCond->SetGoal(newGoal);
-    //descriptionTextCtrl->GetValue() waw: if/how will this be saved back?
-    //variableTextCtrl->GetValue() waw: if/how will this be saved back?
-    //theStopCond->SetRepeatCount(atof(repeatTextCtrl->GetValue)); waw: waiting for Linda
-    theStopCond->SetTolerance(atof(toleranceTextCtrl->GetValue().c_str()));
-    
-    Integer id = thePropagateCommand->GetParameterID("ElapsedSeconds");
-    thePropagateCommand->SetRealParameter(id, atof(valueTextCtrl->GetValue()));
- 
+    //loj: 2/12/04 added
     //wxString newGoalStr;
+    
+    double newGoal = atof(valueTextCtrl->GetValue());
+    
     //newGoalStr.Printf("%f", newGoal);
+    theStopCond->SetGoal(newGoal);
+    Integer id = thePropagateCommand->GetParameterID("ElapsedSeconds");
+    
+    //MessageInterface::ShowMessage("PropagateCommandPanel::SetData() new Goal = " +
+    //                              std::string(newGoalStr.c_str()) + "\n");
+    
+    thePropagateCommand->SetRealParameter(id, newGoal);
+    
     //newGoal = thePropagateCommand->GetRealParameter(id);
     //newGoalStr.Printf("%f", newGoal);
     //MessageInterface::ShowMessage("PropagateCommandPanel::SetData() new Goal = " +
     //                              std::string(newGoalStr.c_str()) + "\n");
-        //MessageInterface::ShowMessage("PropagateCommandPanel::SetData() new Goal = " +
-    //                              std::string(newGoalStr.c_str()) + "\n");    
+    
 }
 
 void PropagateCommandPanel::OnTextUpdate(wxCommandEvent& event)
 {
-    applyButton->Enable(true);
+    if ( event.GetEventObject() == valueTextCtrl )           
+        applyButton->Enable(true);
+    else if ( event.GetEventObject() == repeatTextCtrl )
+        applyButton->Enable(true);
+    else if ( event.GetEventObject() == toleranceTextCtrl )
+        applyButton->Enable(true);
+    else if ( event.GetEventObject() == descriptionTextCtrl )
+        applyButton->Enable(true);
+    else
+        event.Skip();
 }
 
 void PropagateCommandPanel::OnTextMaxLen(wxCommandEvent& event)
@@ -343,7 +355,12 @@ void PropagateCommandPanel::OnTextMaxLen(wxCommandEvent& event)
 
 void PropagateCommandPanel::OnComboSelection(wxCommandEvent& event)
 {    
-    applyButton->Enable(true);
+    if ( event.GetEventObject() == synchComboBox )         
+        applyButton->Enable(true);
+    else if ( event.GetEventObject() == equalityComboBox )
+        applyButton->Enable(true);
+    else
+        event.Skip();
 }
 
 void PropagateCommandPanel::OnButton(wxCommandEvent& event)
@@ -437,10 +454,7 @@ void PropagateCommandPanel::CreateScript()
 {
     //not MAC mode
     //----------------------------------------------------------------
-/* **** NOTE:  it is temporary until it is fixed for Mac  ***************
 #if !defined __WXMAC__
-******************************* */
-#if 1 
     // Create a document manager
     mDocManager = new wxDocManager;
 
