@@ -16,46 +16,56 @@
 #ifndef PropagationConfigPanel_hpp
 #define PropagationConfigPanel_hpp
 
-// gui includes
 #include <wx/sizer.h>
 #include <wx/control.h>
 #include <wx/textctrl.h>
 #include <wx/combobox.h>
 #include <wx/checkbox.h>
 #include <wx/button.h>
-#include <wx/variant.h>
-#include <wx/string.h>
 
 #include "gmatwxdefs.hpp"
-#include "ViewTextFrame.hpp"
-#include "DocViewFrame.hpp"
-#include "TextEditView.hpp"
-#include "TextDocument.hpp"
-#include "MdiTextEditView.hpp"
-#include "MdiDocViewFrame.hpp"
-//#include "PointMassSelectionDialog.hpp"
-
-// base include
 #include "gmatdefs.hpp"
 #include "GuiInterpreter.hpp"
+#include "GmatAppData.hpp"
 #include "Propagator.hpp"
 #include "Integrator.hpp"
 #include "RungeKutta89.hpp"
-#include "PropSetup.hpp"
 #include "PhysicalModel.hpp"
-#include "ForceModel.hpp"
-#include "SolarSystem.hpp"
-#include "CelestialBody.hpp"
-#include "Planet.hpp"
 
 class PropagationConfigPanel : public wxPanel
 {
 public:
-    // constructor
-    PropagationConfigPanel(wxWindow *parent, const wxString &propName);
-    
-private:             
-    wxStaticText *integratorStaticText;
+    // constructors
+    PropagationConfigPanel(wxWindow *parent, const wxString &propSetupName);
+       
+private:
+    wxBoxSizer *item0;
+    wxBoxSizer *item1;
+    wxBoxSizer *item4;
+    wxBoxSizer *item32;
+    wxBoxSizer *item68;
+
+    wxStaticBoxSizer *item5;
+    wxStaticBoxSizer *item28;
+    wxStaticBoxSizer *item30;
+    wxStaticBoxSizer *item45;
+    wxStaticBoxSizer *item59;
+    wxStaticBoxSizer *item64;
+
+    wxFlexGridSizer *integratorGridSizer;
+    wxFlexGridSizer *item61;
+
+    wxStaticBox *item6;
+    wxStaticBox *item29;
+    wxStaticBox *item31;
+    wxStaticBox *item37;
+    wxStaticBox *item46;
+    wxStaticBox *item51;
+    wxStaticBox *item60;
+    wxStaticBox *item65;
+                
+    wxStaticText *item2;
+    wxStaticText *item8;
     wxStaticText *setting1StaticText;
     wxStaticText *setting2StaticText;
     wxStaticText *setting3StaticText;
@@ -73,6 +83,7 @@ private:
     wxStaticText *item54;
     wxStaticText *item56;
                 
+    wxTextCtrl *item3;
     wxTextCtrl *setting1TextCtrl;
     wxTextCtrl *setting2TextCtrl;
     wxTextCtrl *setting3TextCtrl;
@@ -82,111 +93,44 @@ private:
     wxTextCtrl *setting7TextCtrl;
     wxTextCtrl *setting8TextCtrl;
     wxTextCtrl *setting9TextCtrl;
-    wxTextCtrl *bodyTextCtrl;
-    wxTextCtrl *gravityDegreeTextCtrl;
-    wxTextCtrl *gravityOrderTextCtrl;
-    wxTextCtrl *magneticDegreeTextCtrl;
-    wxTextCtrl *magneticOrderTextCtrl;
-    wxTextCtrl *pmEditTextCtrl;
+    wxTextCtrl *item34;
+    wxTextCtrl *item39;
+    wxTextCtrl *item41;
+    wxTextCtrl *item43;
+    wxTextCtrl *item53;
+    wxTextCtrl *item55;
+    wxTextCtrl *item57;
+    wxTextCtrl *item62;
 
-    wxComboBox *integratorComboBox;
-    wxComboBox *bodyComboBox;
-    wxComboBox *atmosComboBox;
-    wxComboBox *gravityTypeComboBox;
-    wxComboBox *magneticTypeComboBox;
+    wxComboBox *integratorTypeComboBox;
+    wxComboBox *item33;
+    wxComboBox *item48;
 
-    wxCheckBox *srpCheckBox;
+    wxCheckBox *item66;
 
-    wxButton *bodyButton;
-    wxButton *searchGravityButton;
-    wxButton *setupButton;
-    wxButton *searchMagneticButton;
-    wxButton *editMassButton;
-    wxButton *editPressureButton;
-    wxButton *okButton;
-    wxButton *applyButton;
-    wxButton *cancelButton;
-    wxButton *helpButton;
-    wxButton *scriptButton;
-    
-    wxArrayString  thePointMassBodies;
-    
-    wxString integratorString;
-    wxString primaryBodyString;
-    wxString propNameString;
-    
-    wxDocManager *mDocManager;
-    wxDocTemplate *mDocTemplate;
-    ViewTextFrame *mTextFrame;
-    
-    Integer numOfIntegrators;
-    Integer numOfBodies;
-    Integer numOfAtmosTypes;
-    Integer numOfForces;
-    Integer numOfMagFields;
-    Integer numOfGraFields;
-    Integer orderID;
-    Integer degreeID;
-    
-    bool useSRP;
-    
-    StringArray bodiesInUse;
-    StringArray currentSelectedBodies;
-    
-    //PointMassSelectionDialog *pmSelectionDialog;
+    wxButton *item35;
+    wxButton *item44;
+    wxButton *item49;
+    wxButton *item58;
+    wxButton *item63;
+    wxButton *item67;
+    wxButton *item69;
+    wxButton *item70;
+    wxButton *item71;
     
     GuiInterpreter *theGuiInterpreter;
-    Propagator     *thePropagator;
-    Integrator     *theIntegrator;
-    RungeKutta89   *theRK89;
-    PropSetup      *thePropSetup;
-    PhysicalModel  *thePhysicalModel;
-    ForceModel     *theForceModel;
-    SolarSystem    *theSolarSystem;
-    CelestialBody  *theCelestialBody;    
+    Propagator *thePropagator;
+    Integrator *theIntegrator;
+    //RungeKutta89 *theRK89;
+    PhysicalModel *thePhysicalModel;
    
-    // Layout & data handling methods
-    void Initialize();
-    void Setup(wxWindow *parent);
+    void OnButton(wxCommandEvent& event);
+    void OnOK();
+    void OnApply();
+    void OnCancel();
+    void Setup(wxWindow *parent, const wxString &propSetupName);
     void GetData();
     void SetData();
-    void DisplayIntegratorData();
-    void DisplayPrimaryBodyData();
-    void DisplayForceData(); //loj: 2/11/04 added
-    void DisplayGravityFieldData();
-    void DisplayAtmosphereModelData();
-    void DisplayMagneticFieldData();
-    void DisplayPointMassData();
-    void DisplaySRPData();
-    void CreateScript();
-    wxMenuBar* CreateScriptWindowMenu(const std::string &docType);
-    
-    // Text control event method
-    void OnIntegratorTextUpdate();
-    void OnGravityTextUpdate();
-    void OnMagneticTextUpdate();
-    
-    // Checkbox event method
-    void OnSRPCheckBoxChange();
-    
-    // Combobox event method
-    void OnIntegratorSelection();
-    void OnBodySelection();
-    void OnGravitySelection();
-    void OnAtmosphereSelection();
-    
-    // Button event methods
-    void OnScriptButton();
-    void OnOKButton();
-    void OnApplyButton();
-    void OnCancelButton();
-    void OnHelpButton();
-    void OnAddButton();
-    void OnGravSearchButton();
-    void OnSetupButton();
-    void OnMagSearchButton();
-    void OnPMEditButton();
-    void OnSRPEditButton();
 
     // any class wishing to process wxWindows events must use this macro
     DECLARE_EVENT_TABLE();
@@ -194,40 +138,13 @@ private:
     // IDs for the controls and the menu commands
     enum
     {     
-        ID_TEXT = 42000,
+        ID_TEXT = 10000,
         ID_TEXTCTRL,
-        ID_TEXTCTRL_PROP,
-        ID_TEXTCTRL_INTG1,
-        ID_TEXTCTRL_INTG2,
-        ID_TEXTCTRL_INTG3,
-        ID_TEXTCTRL_INTG4,
-        ID_TEXTCTRL_INTG5,
-        ID_TEXTCTRL_INTG6,
-        ID_TEXTCTRL_INTG7,
-        ID_TEXTCTRL_INTG8,
-        ID_TEXTCTRL_INTG9,
-        ID_TEXTCTRL_GRAV1,
-        ID_TEXTCTRL_GRAV2,
-        ID_TEXTCTRL_MAGN1,
-        ID_TEXTCTRL_MAGN2,
-        ID_CHECKBOX,
-        ID_CB_INTGR,
-        ID_CB_BODY,
-        ID_CB_GRAV,
-        ID_CB_ATMOS,
-        ID_CB_MAG,
-        ID_BUTTON_SCRIPT,
-        ID_BUTTON_OK,
-        ID_BUTTON_APPLY,
-        ID_BUTTON_CANCEL,
-        ID_BUTTON_HELP,
-        ID_BUTTON_ADD_BODY,
-        ID_BUTTON_GRAV_SEARCH,
-        ID_BUTTON_SETUP,
-        ID_BUTTON_MAG_SEARCH,
-        ID_BUTTON_PM_EDIT,
-        ID_BUTTON_SRP_EDIT 
+        ID_COMBO,
+        ID_BUTTON,
+        ID_CHECKBOX
     };
+
 };
 
 #endif // PropagationConfigPanel_hpp
