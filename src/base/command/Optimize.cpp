@@ -37,7 +37,7 @@
 //#define DEBUG_CALLBACK
 //#define DEBUG_OPTIMIZE_CONSTRUCTION
 //#define DEBUG_OPTIMIZE_INIT
-
+#define DEBUG_OPTIMIZE_EXECUTION
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
@@ -365,25 +365,18 @@ bool Optimize::Initialize()
    bool retval = SolverBranchCommand::Initialize();
 
    if (retval == true) 
-   {
-      // Optimizer specific initialization goes here: // wcs - why is this done twice?
-      if ((mapObj = FindObject(optimizerName)) == NULL) 
-      {
-         std::string errorString = "Optimize command cannot find optimizer \"";
-         errorString += optimizerName;
-         errorString += "\"";
-         throw CommandException(errorString);
-      }
-
       retval = optimizer->Initialize();
+
+   // Register callbacks for external optimizers
+   if (optimizer->IsOfType("ExternalOptimizer"))
+   {
+      // NOTE that in the future we may have a callback to/from a non_MATLAB
+      // external optimizer
+      #if defined __USE_MATLAB__
+         if (optimizer->GetStringParameter("SourceType") == "MATLAB")
+            gmatInt->RegisterCallbackServer(this);
+      #endif
    }
-   // NOTE that in the future we may have a callback to/from a non_MATLAB
-   // external optimizer
-   #if defined __USE_MATLAB__
-      if (optimizer->IsOfType("ExternalOptimizer") &&
-         (optimizer->GetStringParameter("SourceType") == "MATLAB"))
-         gmatInt->RegisterCallbackServer(this);
-   #endif
 
    return retval;
 }
@@ -437,24 +430,49 @@ bool Optimize::Execute()
       state = optimizer->GetState();
       
    }
-   /*  Revisit this if/when we add non-external optimizers !!!!!!!!!!!!!!!!!!!!!
-    * This should be commented out for the fmincon optimizer 
-    * (branch should be executed from ExecuteCallback)
-   */
-/*
-   if (branchExecuting)
+
+   // Branch based on the optimizer model; handle internal optimizers first
+   if (optimizer->IsSolverInternal())
    {
-      //retval = ExecuteBranch(); */
-      //callbackData = "10.0 20.0"; // *************** TEMPORARY testing *********
-      //ExecuteCallback();  // *************** TEMPORARY testing *****************
-     /* if (!branchExecuting && (state == Solver::FINISHED))
-      {
-         commandComplete = true;
-      }  
+      #ifdef DEBUG_OPTIMIZE_EXECUTION
+         MessageInterface::ShowMessage("Executing the Internal Optimizer %s\n", 
+            optimizer->GetName().c_str());
+      #endif
+
+      switch (state) 
+         {
+            case Solver::FINISHED:
+               // Final clean-up
+               commandComplete = true;
+               #ifdef DEBUG_OPTIMIZE_COMMANDS
+                  MessageInterface::ShowMessage(
+                  "Optimize::Execute - solver in FINISHED state\n");
+               #endif
+               optimizerConverged = true;
+
+               // Run once more to publish the data from the converged state
+               if (!commandComplete)
+               {
+                  ResetLoopData();
+                  branchExecuting = true;
+                  publisher->SetRunState(Gmat::SOLVEDPASS);
+               }
+               break;
+
+            default:
+               MessageInterface::ShowMessage("Optimize::invalid state %d\n",
+                     state);
+               branchExecuting = false;
+               commandComplete  = true;
+               optimizerConverged = true;
+         }
    }
    else
    {
-*/
+      #ifdef DEBUG_OPTIMIZE_EXECUTION
+         MessageInterface::ShowMessage("Executing the External Optimizer %s\n", 
+            optimizer->GetName().c_str());
+      #endif
       GmatCommand *currentCmd;
       publisher->SetRunState(Gmat::SOLVING);
       
@@ -484,39 +502,8 @@ bool Optimize::Execute()
                MessageInterface::ShowMessage(
                "Optimize::Execute - solver in RUNEXTERNAL state\n");
             #endif
-//            // Execute the nominal sequence
-//            if (!commandComplete) 
-//            {
-//               branchExecuting = true;
-//               ResetLoopData();
-//            }
             break;
                
-          /*     
-         case Solver::NOMINAL:
-            // Execute the nominal sequence
-            if (!commandComplete) 
-            {
-               branchExecuting = true;
-               ResetLoopData();
-            }
-            break;
-               
-         case Solver::CHECKINGRUN:
-            // Check for convergence; this is done in the optimizer state
-            // machine, so this case is a NoOp for the Optimize command
-            break;
-   
-         case Solver::PERTURBING:
-            branchExecuting = true;
-            ResetLoopData();
-            break;
-               
-         case Solver::CALCULATING:
-            // Calculate the next set of variables to use; this is performed in
-            // the optimizer -- nothing to be done here
-            break;
-         */      
          case Solver::FINISHED:
             // Final clean-up
             commandComplete = true;
@@ -534,16 +521,11 @@ bool Optimize::Execute()
                publisher->SetRunState(Gmat::SOLVEDPASS);
             }
             break;
-          /*     
-         case Solver::ITERATING:     // Intentional fall-through
-         */
-         default:
-         MessageInterface::ShowMessage("Optimize:: invalid state %d\n");
-            //throw CommandException(
-            //   "Invalid state in the Optimize state machine");
 
+         default:
+            MessageInterface::ShowMessage("Optimize::invalid state %d\n",state);
       }
-   //}
+   }
 
    if (!branchExecuting)
    {

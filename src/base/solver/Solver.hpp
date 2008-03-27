@@ -70,6 +70,9 @@ public:
    Solver(const Solver& sol);
    Solver&             operator=(const Solver& sol);
 
+   bool                IsSolverInternal()
+   {  return isInternal; }
+   
    virtual SolverState GetState();
    virtual SolverState GetNestedState();
    virtual SolverState AdvanceState();
@@ -156,6 +159,10 @@ public:
                                       const std::string &resultType = "") = 0;
 
 protected:
+   /// Flag indicating if this Solver runs integrated into GMAT, or through
+   /// an external controller like MATLAB
+   bool                isInternal;
+   
    /// Current state for the state machine
    SolverState         currentState;
    /// current nested state

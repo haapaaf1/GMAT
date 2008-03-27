@@ -102,6 +102,8 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_BODY, ResourceTree::OnAddBody)
    EVT_MENU(POPUP_ADD_DIFF_CORR, ResourceTree::OnAddDiffCorr)
    EVT_MENU(POPUP_ADD_SQP, ResourceTree::OnAddSqp)
+   EVT_MENU(POPUP_ADD_STEEPDESCENT, ResourceTree::OnAddSteepDescent)
+   EVT_MENU(POPUP_ADD_VF13, ResourceTree::OnAddVF13)
    EVT_MENU(POPUP_ADD_REPORT_FILE, ResourceTree::OnAddReportFile)
    EVT_MENU(POPUP_ADD_XY_PLOT, ResourceTree::OnAddXyPlot)
    EVT_MENU(POPUP_ADD_OPENGL_PLOT, ResourceTree::OnAddOpenGlPlot)
@@ -2011,6 +2013,60 @@ void ResourceTree::OnAddSqp(wxCommandEvent &event)
 
 
 //------------------------------------------------------------------------------
+// void OnAddSteepDescent(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+/**
+ * Add a steepest descent optimizer to solvers folder
+ *
+ * @param <event> command event
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::OnAddSteepDescent(wxCommandEvent &event)
+{
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName("SteepestDescent", 1);   
+   GmatBase *obj = theGuiInterpreter->CreateObject("SteepestDescent", newName);
+   
+   if (obj != NULL)
+   {
+      wxString name = newName.c_str();
+      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+                 new GmatTreeItemData(name, GmatTree::SQP));
+      Expand(item);
+      
+      theGuiManager->UpdateSolver();
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnAddVF13(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+/**
+ * Add a VF13ad optimizer to solvers folder
+ *
+ * @param <event> command event
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::OnAddVF13(wxCommandEvent &event)
+{
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName("VF13ad", 1);   
+   GmatBase *obj = theGuiInterpreter->CreateObject("VF13ad", newName);
+   
+   if (obj != NULL)
+   {
+      wxString name = newName.c_str();
+      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+                 new GmatTreeItemData(name, GmatTree::SQP));
+      Expand(item);
+      
+      theGuiManager->UpdateSolver();
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // void OnAddReportFile(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
@@ -3063,11 +3119,13 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
    case GmatTree::BOUNDARY_SOLVER_FOLDER:
       menu->Append(POPUP_ADD_DIFF_CORR, wxT("DifferentialCorrector"));
       menu->Append(POPUP_ADD_BROYDEN, wxT("Broyden"));
-      menu->Enable(POPUP_ADD_BROYDEN, false);
+      menu->Enable(POPUP_ADD_BROYDEN, false); 
       break;
    case GmatTree::OPTIMIZER_FOLDER:
       menu->Append(POPUP_ADD_QUASI_NEWTON, wxT("Quasi-Newton"));
       menu->Append(POPUP_ADD_SQP, wxT("SQP (fmincon)"));
+      menu->Append(POPUP_ADD_STEEPDESCENT, wxT("SteepestDescent"));
+      menu->Append(POPUP_ADD_VF13, wxT("Powell VF13ad"));
       menu->Enable(POPUP_ADD_QUASI_NEWTON, false);
       break;
    case GmatTree::SUBSCRIBER_FOLDER:

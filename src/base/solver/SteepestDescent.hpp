@@ -18,10 +18,11 @@
 //------------------------------------------------------------------------------
 
 
-#ifndef STEEPESTDESCENT_HPP_
-#define STEEPESTDESCENT_HPP_
+#ifndef SteepestDescent_hpp
+#define hpp
 
-#include "Optimizer.hpp"
+#include "InternalOptimizer.hpp"
+#include "Gradient.hpp"
 
 /**
  * The SteepestDescent optimizer if the prototypical optimization method.  While
@@ -31,7 +32,7 @@
  * and repeat until the magnitude of the gradient is small enough to declare
  * victory.
  */
-class SteepestDescent : public Optimizer
+class SteepestDescent : public InternalOptimizer
 {
 public:
 	SteepestDescent(const std::string &name);
@@ -48,14 +49,14 @@ public:
    virtual bool         TakeAction(const std::string &action,
                                    const std::string &actionData = "");
    virtual bool         Initialize();
+   virtual Solver::SolverState
+                        AdvanceState();
    virtual bool         Optimize();
-
 protected:
    std::string          objectiveName;
    Real                 objectiveValue;
-   std::vector<Real>    achieved;
-   std::vector<Real>    gradient;   
-//   static Integer       instanceCount;
+   
+   Gradient             gradientCalculator;
    
    enum
    {

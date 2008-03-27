@@ -79,6 +79,7 @@ Solver::STYLE_TEXT[MaxStyle - NORMAL_STYLE] =
 //------------------------------------------------------------------------------
 Solver::Solver(const std::string &type, const std::string &name) :
    GmatBase                (Gmat::SOLVER, type, name),
+   isInternal              (true),   
    currentState            (INITIALIZING),
    nestedState             (INITIALIZING),
    textFileMode            ("Normal"),
@@ -132,6 +133,7 @@ Solver::~Solver()
 //------------------------------------------------------------------------------
 Solver::Solver(const Solver &sol) :
    GmatBase                (sol),
+   isInternal              (sol.isInternal),   
    currentState            (sol.currentState),
    nestedState             (sol.currentState),
    textFileMode            (sol.textFileMode),
@@ -200,7 +202,7 @@ Solver& Solver::operator=(const Solver &sol)
    instanceNumber        = sol.instanceNumber;
    pertNumber            = sol.pertNumber;
 
-    return *this;
+   return *this;
 }
 
 //------------------------------------------------------------------------------
@@ -248,7 +250,7 @@ bool Solver::Initialize()
 
    #ifdef DEBUG_SOLVER_INIT
       MessageInterface::ShowMessage(
-         "In Solver::Initialzie - about to prepare text file for output\n");
+         "In Solver::Initialize - about to prepare text file for output\n");
    #endif
    // Prepare the text file for output
    if (solverTextFile != "")
@@ -309,8 +311,7 @@ bool Solver::Finalize()
  * @return The ID used for the variable.
  */
 //------------------------------------------------------------------------------
-Integer Solver::SetSolverVariables(Real *data,
-                                                  const std::string &name)
+Integer Solver::SetSolverVariables(Real *data, const std::string &name)
 {
    if (variableNames[variableCount] != name)
       throw SolverException("Mismatch between parsed and configured variable");
@@ -325,7 +326,8 @@ Integer Solver::SetSolverVariables(Real *data,
    catch(const std::exception &re)
    {
       throw SolverException(
-            "Range error setting variable or perturbation in SetSolverVariables\n");
+              "Range error setting variable or perturbation in "
+              "SetSolverVariables\n");
    }
    // Sanity check min and max
    if (data[2] >= data[3])

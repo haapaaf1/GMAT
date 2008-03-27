@@ -126,6 +126,8 @@ private:
    void OnAddOpenGlPlot(wxCommandEvent &event);
    void OnAddDiffCorr(wxCommandEvent &event);
    void OnAddSqp(wxCommandEvent &event);
+   void OnAddSteepDescent(wxCommandEvent &event);
+   void OnAddVF13(wxCommandEvent &event);
    void OnAddVariable(wxCommandEvent &event);
    void OnAddArray(wxCommandEvent &event);
    void OnAddString(wxCommandEvent &event);
@@ -191,6 +193,8 @@ private:
       POPUP_ADD_BROYDEN,
       POPUP_ADD_QUASI_NEWTON,
       POPUP_ADD_SQP,
+      POPUP_ADD_STEEPDESCENT,
+      POPUP_ADD_VF13,
       
       POPUP_ADD_SUBSCRIBER,
       POPUP_ADD_REPORT_FILE,

@@ -64,7 +64,7 @@ Optimizer::Optimizer(std::string typeName, std::string name) :
    converged               (false),
    eqConstraintCount       (0),
    ineqConstraintCount     (0)
- {
+{
    objectTypeNames.push_back("Optimizer");
    parameterCount = OptimizerParamCount;
 }

@@ -347,8 +347,12 @@ OBJECTS = \
     solarsys/Star.o \
     solver/DifferentialCorrector.o \
     solver/Optimizer.o \
+    solver/InternalOptimizer.o \
     solver/Solver.o \
     solver/SteepestDescent.o \
+    solver/Gradient.o \
+    solver/Jacobian.o \
+    solver/LineSearch.o \
     spacecraft/Converter.o \
     spacecraft/Formation.o \
     spacecraft/FuelTank.o \
