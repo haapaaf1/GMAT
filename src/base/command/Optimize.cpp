@@ -434,13 +434,56 @@ bool Optimize::Execute()
    // Branch based on the optimizer model; handle internal optimizers first
    if (optimizer->IsSolverInternal())
    {
-      #ifdef DEBUG_OPTIMIZE_EXECUTION
-         MessageInterface::ShowMessage("Executing the Internal Optimizer %s\n", 
-            optimizer->GetName().c_str());
-      #endif
-
-      switch (state) 
+      if (branchExecuting)
+      {
+         retval = ExecuteBranch();
+         if (!branchExecuting && (state == Solver::FINISHED))
          {
+            commandComplete = true;
+         }  
+      }
+      else
+      {
+         #ifdef DEBUG_OPTIMIZE_EXECUTION
+            MessageInterface::ShowMessage(
+               "Executing the Internal Optimizer %s\n", 
+               optimizer->GetName().c_str());
+         #endif
+            
+         GmatCommand *currentCmd;
+   
+         switch (state) 
+         {
+            case Solver::INITIALIZING:
+               currentCmd = branch[0];
+               optimizerConverged = false;
+               while (currentCmd != this)  
+               {
+                  std::string type = currentCmd->GetTypeName();
+                  if ((type == "Optimize") || (type == "Vary") ||
+                      (type == "Minimize") || (type == "NonlinearConstraint"))
+                     currentCmd->Execute();
+                  currentCmd = currentCmd->GetNext();
+               }
+               StoreLoopData();
+               break;
+
+            case Solver::NOMINAL:
+               // Execute the nominal sequence
+               if (!commandComplete) {
+                  branchExecuting = true;
+                  ResetLoopData();
+               }
+               break;
+                  
+            case Solver::PERTURBING:
+               branchExecuting = true;
+               ResetLoopData();
+               break;
+                  
+            case Solver::CALCULATING:
+               break;
+                  
             case Solver::FINISHED:
                // Final clean-up
                commandComplete = true;
@@ -466,6 +509,7 @@ bool Optimize::Execute()
                commandComplete  = true;
                optimizerConverged = true;
          }
+      }
    }
    else
    {

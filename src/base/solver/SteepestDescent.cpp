@@ -22,7 +22,6 @@
 #include "MessageInterface.hpp"
 
 #define SD_DEBUG_STATE_MACHINE
-
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
@@ -139,6 +138,13 @@ Solver::SolverState  SteepestDescent::AdvanceState()
    switch (currentState)
    {
       case INITIALIZING:
+         #ifdef SD_DEBUG_STATE_MACHINE
+            MessageInterface::ShowMessage("Entered state machine; "
+                  "INITIALIZING\n");
+         #endif
+         iterationsTaken = 0;
+         WriteToTextFile();
+//         ReportProgress();
          CompleteInitialization();
       
          #ifdef SD_DEBUG_STATE_MACHINE
@@ -146,11 +152,16 @@ Solver::SolverState  SteepestDescent::AdvanceState()
                "SteepestDescent State Transitions from %d to %d\n", 
                INITIALIZING, currentState);
          #endif
-         // ReportProgress();
          break;
       
       case NOMINAL:
+         #ifdef SD_DEBUG_STATE_MACHINE
+            MessageInterface::ShowMessage("Entered state machine; "
+                  "NOMINAL\n");
+         #endif
+//         ReportProgress();
          RunNominal();
+//         ReportProgress();
          #ifdef SD_DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage(
                "SteepestDescent State Transitions from %d to %d\n", NOMINAL,
@@ -159,17 +170,11 @@ Solver::SolverState  SteepestDescent::AdvanceState()
          // ReportProgress();
          break;
    
-      case CHECKINGRUN:
-         CheckCompletion();
-         #ifdef SD_DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage(
-               "SteepestDescent State Transitions from %d to %d\n", CHECKINGRUN,
-               currentState);
-         #endif
-         // ReportProgress();
-         break;
-   
       case PERTURBING:
+         #ifdef SD_DEBUG_STATE_MACHINE
+            MessageInterface::ShowMessage("Entered state machine; "
+                  "PERTURBING\n");
+         #endif
          RunPerturbation();
          #ifdef SD_DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage(
@@ -179,7 +184,39 @@ Solver::SolverState  SteepestDescent::AdvanceState()
          // ReportProgress();
          break;
    
+      case Solver::CALCULATING:
+         #ifdef SD_DEBUG_STATE_MACHINE
+            MessageInterface::ShowMessage("Entered state machine; "
+                  "CALCULATING\n");
+         #endif
+//         ReportProgress();
+         CalculateParameters();
+         #ifdef SD_DEBUG_STATE_MACHINE
+            MessageInterface::ShowMessage(
+               "SteepestDescent State Transitions from %d to %d\n", CALCULATING,
+               currentState);
+         #endif
+         break;
+            
+      case CHECKINGRUN:
+         #ifdef SD_DEBUG_STATE_MACHINE
+            MessageInterface::ShowMessage("Entered state machine; "
+                  "CHECKINGRUN\n");
+         #endif
+         CheckCompletion();
+         #ifdef SD_DEBUG_STATE_MACHINE
+            MessageInterface::ShowMessage(
+               "SteepestDescent State Transitions from %d to %d\n", CHECKINGRUN,
+               currentState);
+         #endif
+         // ReportProgress();
+         break;
+   
       case FINISHED:
+         #ifdef SD_DEBUG_STATE_MACHINE
+            MessageInterface::ShowMessage("Entered state machine; "
+                  "FINISHED\n");
+         #endif
          RunComplete();
          #ifdef SD_DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage(
@@ -293,23 +330,54 @@ bool SteepestDescent::Initialize()
 //------------------------------------------------------------------------------
 void SteepestDescent::RunNominal()
 {
-   currentState = CHECKINGRUN;
+   pertNumber = -1;
+   currentState = PERTURBING;
 }
 
 void SteepestDescent::RunPerturbation()
 {
-   currentState = FINISHED;
+   // Calculate the perts, one at a time
+   if (pertNumber != -1)
+      // Back out the last pert applied
+      variable.at(pertNumber) = lastUnperturbedValue;
+   ++pertNumber;
+
+   if (pertNumber == variableCount)  // Current set of perts have been run
+   {
+      currentState = CALCULATING;
+      pertNumber = -1;
+      return;
+   }
+
+   lastUnperturbedValue = variable.at(pertNumber);
+   variable.at(pertNumber) += perturbation.at(pertNumber);
+   pertDirection.at(pertNumber) = 1.0;
+   
+   if (variable[pertNumber] > variableMaximum[pertNumber])
+   {
+      pertDirection.at(pertNumber) = -1.0;
+      variable[pertNumber] -= 2.0 * perturbation[pertNumber];
+   }    
+   if (variable[pertNumber] < variableMinimum[pertNumber])
+   {
+      pertDirection.at(pertNumber) = -1.0;
+      variable[pertNumber] -= 2.0 * perturbation[pertNumber];
+   }
+       
+   WriteToTextFile();
 }
 
 
 void SteepestDescent::CalculateParameters()
 {
+   gradientCalculator.Calculate(gradient);
+   currentState = CHECKINGRUN;
 }
 
 
 void SteepestDescent::CheckCompletion()
 {
-   currentState = PERTURBING;
+   currentState = FINISHED;
 }
 
 

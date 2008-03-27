@@ -57,6 +57,7 @@ protected:
    Real                 objectiveValue;
    
    Gradient             gradientCalculator;
+   std::vector<Real>    gradient;
    
    enum
    {
