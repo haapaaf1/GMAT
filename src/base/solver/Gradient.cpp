@@ -1,0 +1,146 @@
+#include "Gradient.hpp"
+#include "SolverException.hpp"
+
+#include "MessageInterface.hpp"
+
+
+#define DEBUG_GRADIENT
+
+Gradient::Gradient() :
+   nominal        (9876.54321),
+   calcMode       (FORWARD_DIFFERENCE)
+{
+}
+
+Gradient::~Gradient()
+{
+}
+
+Gradient::Gradient(const Gradient &grad) :
+   nominal           (grad.nominal),
+   pert              (grad.pert),
+   plusPertEffect    (grad.plusPertEffect),
+   minusPertEffect   (grad.minusPertEffect),
+   gradient          (grad.gradient),
+   calcMode          (grad.calcMode)
+{
+}
+
+Gradient& Gradient::operator=(const Gradient &grad)
+{
+   if (&grad != this)
+   {
+      nominal = grad.nominal;
+      pert = grad.pert;
+      plusPertEffect = grad.plusPertEffect;
+      minusPertEffect = grad.minusPertEffect;
+      gradient = grad.gradient;
+      calcMode = grad.calcMode;
+   }
+   
+   return *this;
+}
+
+void Gradient::Achieved(Integer pertNumber, Real dx, Real value)
+{
+   if (pertNumber == -1)
+   {
+      #ifdef DEBUG_GRADIENT
+         MessageInterface::ShowMessage(
+            "Setting Gradient Nominal Value to %.12lf\n", value);
+      #endif
+      nominal = value;
+   }
+   else
+   {
+      if (pertNumber >= (Integer)pert.size())
+         throw SolverException(
+               "Invalid pert element when calculating a gradient.");
+
+      #ifdef DEBUG_GRADIENT
+         MessageInterface::ShowMessage(
+            "   Gradient Pert %d, size %.12lf gives %.12lf\n", pertNumber, dx, 
+            value);
+      #endif
+      
+      pert[pertNumber] = dx;
+      plusPertEffect[pertNumber] = value;
+   }
+}
+
+
+void Gradient::SetDifferenceMode(gradientMode mode)
+{
+   calcMode = mode;
+}
+
+bool Gradient::Initialize(UnsignedInt varCount)
+{
+   pert.assign(varCount, 0.0);
+   plusPertEffect.assign(varCount, 0.0);
+   minusPertEffect.assign(varCount, 0.0);
+   gradient.assign(varCount, 0.0);
+   
+   #ifdef DEBUG_GRADIENT
+      MessageInterface::ShowMessage(
+         "Gradient initialized in mode %d with %d variables\n", calcMode, 
+         varCount);
+   #endif
+
+   return true;
+}
+
+
+bool Gradient::Calculate(std::vector<Real> &grad)
+{
+   if (calcMode == USER_SUPPLIED)
+      return true;
+ 
+   UnsignedInt gradSize = pert.size();
+   for (UnsignedInt i = 0; i < gradSize; ++i)
+   {
+      if (pert[i] == 0.0)
+         throw SolverException(
+               "Perturbation of size 0.0 found in gradient calculation");
+
+      #ifdef DEBUG_GRADIENT
+         MessageInterface::ShowMessage(
+            "   Finding Gradient in mode %d\n", calcMode);
+      #endif
+
+      switch (calcMode) 
+      {
+         case FORWARD_DIFFERENCE:
+            gradient[i] = (plusPertEffect[i] - nominal) / pert[i];
+            break;
+            
+         case CENTRAL_DIFFERENCE:
+//            gradient[i] = (plusPertEffect[i] - minusPertEffect[i]) / 
+//                          (2.0 * pert[i]);
+//            break;
+            
+         case BACKWARD_DIFFERENCE:
+//            gradient[i] = (nominal - minusPertEffect[i]) / pert[i];
+//            break;
+            
+         default:
+            throw SolverException(
+                  "Gradient differencing mode is not available");
+      }
+   }
+
+   #ifdef DEBUG_GRADIENT
+      MessageInterface::ShowMessage(
+         "      Gradient = [");
+      for (UnsignedInt i = 0; i < gradSize; ++i)
+      {
+         MessageInterface::ShowMessage("%.12lf", gradient[i]);
+         if (i < gradSize - 1)
+            MessageInterface::ShowMessage(", ");
+      }
+      MessageInterface::ShowMessage("]\n");
+   #endif
+
+   grad = gradient;
+   return true;
+}
