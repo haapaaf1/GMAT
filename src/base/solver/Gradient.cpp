@@ -1,14 +1,14 @@
 #include "Gradient.hpp"
-#include "SolverException.hpp"
 
+#include "SolverException.hpp"
 #include "MessageInterface.hpp"
 
 
 #define DEBUG_GRADIENT
 
-Gradient::Gradient() :
-   nominal        (9876.54321),
-   calcMode       (FORWARD_DIFFERENCE)
+Gradient::Gradient() : 
+   DerivativeModel   (),
+   nominal           (9876.54321)
 {
 }
 
@@ -16,13 +16,10 @@ Gradient::~Gradient()
 {
 }
 
-Gradient::Gradient(const Gradient &grad) :
+Gradient::Gradient(const Gradient &grad) : 
+   DerivativeModel   (grad),
    nominal           (grad.nominal),
-   pert              (grad.pert),
-   plusPertEffect    (grad.plusPertEffect),
-   minusPertEffect   (grad.minusPertEffect),
-   gradient          (grad.gradient),
-   calcMode          (grad.calcMode)
+   gradient          (grad.gradient)
 {
 }
 
@@ -30,10 +27,8 @@ Gradient& Gradient::operator=(const Gradient &grad)
 {
    if (&grad != this)
    {
+      DerivativeModel::operator=(grad);
       nominal = grad.nominal;
-      pert = grad.pert;
-      plusPertEffect = grad.plusPertEffect;
-      minusPertEffect = grad.minusPertEffect;
       gradient = grad.gradient;
       calcMode = grad.calcMode;
    }
@@ -41,7 +36,23 @@ Gradient& Gradient::operator=(const Gradient &grad)
    return *this;
 }
 
-void Gradient::Achieved(Integer pertNumber, Real dx, Real value)
+bool Gradient::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
+{
+   DerivativeModel::Initialize(varCount);
+   gradient.assign(varCount, 0.0);
+   
+   #ifdef DEBUG_GRADIENT
+      MessageInterface::ShowMessage(
+         "Gradient initialized in mode %d with %d variables\n", calcMode, 
+         varCount);
+   #endif
+
+   return true;
+}
+
+
+void Gradient::Achieved(Integer pertNumber, Integer componentId, Real dx, 
+                        Real value, bool plusEffect)
 {
    if (pertNumber == -1)
    {
@@ -53,41 +64,8 @@ void Gradient::Achieved(Integer pertNumber, Real dx, Real value)
    }
    else
    {
-      if (pertNumber >= (Integer)pert.size())
-         throw SolverException(
-               "Invalid pert element when calculating a gradient.");
-
-      #ifdef DEBUG_GRADIENT
-         MessageInterface::ShowMessage(
-            "   Gradient Pert %d, size %.12lf gives %.12lf\n", pertNumber, dx, 
-            value);
-      #endif
-      
-      pert[pertNumber] = dx;
-      plusPertEffect[pertNumber] = value;
+      DerivativeModel::Achieved(pertNumber, componentId, dx, value, plusEffect);
    }
-}
-
-
-void Gradient::SetDifferenceMode(gradientMode mode)
-{
-   calcMode = mode;
-}
-
-bool Gradient::Initialize(UnsignedInt varCount)
-{
-   pert.assign(varCount, 0.0);
-   plusPertEffect.assign(varCount, 0.0);
-   minusPertEffect.assign(varCount, 0.0);
-   gradient.assign(varCount, 0.0);
-   
-   #ifdef DEBUG_GRADIENT
-      MessageInterface::ShowMessage(
-         "Gradient initialized in mode %d with %d variables\n", calcMode, 
-         varCount);
-   #endif
-
-   return true;
 }
 
 

@@ -1,11 +1,27 @@
-#ifndef JACOBIAN_H_
-#define JACOBIAN_H_
+#ifndef Jacobian_hpp
+#define Jacobian_hpp
 
-class Jacobian
+#include "DerivativeModel.hpp"
+
+class Jacobian : public DerivativeModel
 {
 public:
 	Jacobian();
 	virtual ~Jacobian();
+	Jacobian(const Jacobian &jac);
+	Jacobian&            operator=(const Jacobian &jac);
+   
+   virtual bool         Initialize(UnsignedInt varCount, 
+                                   UnsignedInt componentCount);
+   virtual void         Achieved(Integer pertNumber, Integer componentId,
+                                 Real dx, Real value, bool plusEffect = true);
+   bool                 Calculate(std::vector<Real> &jac);
+
+protected:
+   UnsignedInt                         numVariables;
+   UnsignedInt                         numComponents;    
+   std::vector<Real>                   nominal;
+   std::vector<Real>                   jacobian;
 };
 
-#endif /*JACOBIAN_H_*/
+#endif /*Jacobian_hpp*/

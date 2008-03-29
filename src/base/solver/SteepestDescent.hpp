@@ -23,6 +23,7 @@
 
 #include "InternalOptimizer.hpp"
 #include "Gradient.hpp"
+#include "Jacobian.hpp"
 
 /**
  * The SteepestDescent optimizer if the prototypical optimization method.  While
@@ -56,8 +57,15 @@ protected:
    std::string          objectiveName;
    Real                 objectiveValue;
    
+   UnsignedInt          equalityCount;
+   UnsignedInt          constraintCount;
+   StringArray          equalityConstraints;
+   StringArray          inequalityConstraints;
+   
    Gradient             gradientCalculator;
    std::vector<Real>    gradient;
+   Jacobian             jacobianCalculator;
+   std::vector<Real>    jacobian;
    
    enum
    {

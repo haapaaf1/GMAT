@@ -268,6 +268,12 @@ Integer SteepestDescent::SetSolverResults(Real *data,
    if (type == "Objective")
       objectiveName = name;
  
+   if (type == "EqConstraint")
+      equalityConstraints.push_back(name);
+   
+   if (type == "IneqConstraint")
+      inequalityConstraints.push_back(name);
+ 
    return InternalOptimizer::SetSolverResults(data, name, type);
 }
 
@@ -285,15 +291,25 @@ Integer SteepestDescent::SetSolverResults(Real *data,
 void SteepestDescent::SetResultValue(Integer id, Real value,
                                            const std::string &resultType)
 {
-    if (currentState == NOMINAL) 
-    {
-       gradientCalculator.Achieved(-1, 0.0, value);
-    }
-        
-    if (currentState == PERTURBING) 
-    {
-       gradientCalculator.Achieved(pertNumber, perturbation[pertNumber], value);
-    }
+   MessageInterface::ShowMessage("Setting SD result for id = %d, type = %s\n", 
+         id, resultType.c_str());
+
+   // Gradients use the objective function
+   if (resultType == "Objective")
+   {
+      if (currentState == NOMINAL) 
+      {
+         gradientCalculator.Achieved(-1, id, 0.0, value);
+      }
+           
+      if (currentState == PERTURBING) 
+      {
+         gradientCalculator.Achieved(pertNumber, id, perturbation[pertNumber], 
+                                     value);
+      }
+   }
+   
+   /// Add code for the constraint feeds here
 }
 
 
@@ -310,7 +326,16 @@ bool SteepestDescent::Initialize()
    bool retval = InternalOptimizer::Initialize();
    
    if (retval)
-      retval = gradientCalculator.Initialize(variableNames.size());
+      retval = gradientCalculator.Initialize(variable.size());
+   
+   if (retval)
+   {
+      equalityCount   = equalityConstraints.size();
+      constraintCount = inequalityConstraints.size() + equalityCount;
+      
+      if (constraintCount > 0)
+         retval = jacobianCalculator.Initialize(variableCount, constraintCount);
+   }
    
    #if DEBUG_SD_INIT
    MessageInterface::ShowMessage
