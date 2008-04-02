@@ -39,6 +39,8 @@ Solver::PARAMETER_TEXT[SolverParamCount - GmatBaseParamCount] =
    "Variables",
    "MaximumIterations",
    "NumberOfVariables",
+   "RegisteredVariables",
+   "RegisteredComponents",
 };
 
 const Gmat::ParameterType
@@ -48,6 +50,8 @@ Solver::PARAMETER_TYPE[SolverParamCount - GmatBaseParamCount] =
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
    Gmat::STRINGARRAY_TYPE,
+   Gmat::INTEGER_TYPE,
+   Gmat::INTEGER_TYPE,
    Gmat::INTEGER_TYPE,
    Gmat::INTEGER_TYPE,
 };
@@ -96,7 +100,9 @@ Solver::Solver(const std::string &type, const std::string &name) :
    //variableMaximumStep     (NULL),
    pertNumber              (-999), // is this right?
    initialized             (false),
-   instanceNumber          (0)       // 0 indicates 1st instance w/ this name
+   instanceNumber          (0),    // 0 indicates 1st instance w/ this name
+   registeredVariableCount (0),
+   registeredComponentCount(0)
 {
    objectTypes.push_back(Gmat::SOLVER);
    objectTypeNames.push_back("Solver");
@@ -151,7 +157,9 @@ Solver::Solver(const Solver &sol) :
    pertNumber              (sol.pertNumber),
    initialized             (false),
    solverTextFile          (sol.solverTextFile),
-   instanceNumber          (sol.instanceNumber)
+   instanceNumber          (sol.instanceNumber),
+   registeredVariableCount (sol.registeredVariableCount),
+   registeredComponentCount(sol.registeredComponentCount)
 {
    #ifdef DEBUG_SOLVER_INIT
       MessageInterface::ShowMessage(
@@ -177,14 +185,16 @@ Solver::Solver(const Solver &sol) :
 //------------------------------------------------------------------------------
 Solver& Solver::operator=(const Solver &sol)
 {
-    if (&sol == this)
-        return *this;
+   if (&sol == this)
+      return *this;
 
-   variableCount         = sol.variableCount;
-   iterationsTaken       = 0;
-   maxIterations         = sol.maxIterations;
-   initialized           = false;
-   solverTextFile        = sol.solverTextFile;
+   registeredVariableCount  = sol.registeredVariableCount;
+   registeredComponentCount = sol.registeredComponentCount;
+   variableCount            = sol.variableCount;
+   iterationsTaken          = 0;
+   maxIterations            = sol.maxIterations;
+   initialized              = false;
+   solverTextFile           = sol.solverTextFile;
    
    variableNames.clear();
    //variable.clear();
@@ -604,7 +614,11 @@ std::string Solver::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool Solver::IsParameterReadOnly(const Integer id) const
 {
-   if (id == NUMBER_OF_VARIABLES)  return true;
+   if ((id == NUMBER_OF_VARIABLES) ||
+       (id == RegisteredVariables) ||
+       (id == RegisteredComponents))
+      return true;
+
    return GmatBase::IsParameterReadOnly(id);
 }
 
@@ -665,18 +679,29 @@ Integer Solver::GetIntegerParameter(const Integer id) const
 Integer Solver::SetIntegerParameter(const Integer id,
                                     const Integer value)
 {
+   MessageInterface::ShowMessage("Setting '%s' to integer %d\n",
+         GetParameterText(id).c_str(), value);
    if (id == maxIterationsID)
    {
       if (value > 0)
          maxIterations = value;
       else
-//         MessageInterface::ShowMessage(
-//            "Iteration count for %s must be > 0; requested value was %d\n",
-//            instanceName.c_str(), value);
          throw SolverException(
             "The value entered for the maximum iterations on " + instanceName +
             " is not an allowed value. The allowed value is: [Integer > 0].");
       return maxIterations;
+   }
+   
+   if (id == RegisteredVariables)
+   {
+      registeredVariableCount = value;
+      return registeredVariableCount;
+   }
+   
+   if (id == RegisteredComponents)
+   {
+      registeredComponentCount = value;
+      return registeredComponentCount;
    }
     
    return GmatBase::SetIntegerParameter(id, value);

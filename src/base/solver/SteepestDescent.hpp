@@ -57,11 +57,6 @@ protected:
    std::string          objectiveName;
    Real                 objectiveValue;
    
-   UnsignedInt          equalityCount;
-   UnsignedInt          constraintCount;
-   StringArray          equalityConstraints;
-   StringArray          inequalityConstraints;
-   
    Gradient             gradientCalculator;
    std::vector<Real>    gradient;
    Jacobian             jacobianCalculator;

@@ -215,6 +215,13 @@ protected:
    Integer              instanceNumber;
    /// The solver text file
    std::ofstream        textFile;
+   
+   // Counters for the numbers of elements sued -- these are a convenience, and 
+   // might not be used in all Solvers
+   /// The (optional) count of the variables set using a Vary command
+   Integer              registeredVariableCount;
+   /// The (optional) count of the elements used as goals or constraints
+   Integer              registeredComponentCount;
       
    /// Generic solver parameters.
    enum
@@ -225,6 +232,8 @@ protected:
       variableNamesID,
       maxIterationsID,
       NUMBER_OF_VARIABLES,
+      RegisteredVariables,
+      RegisteredComponents,
       SolverParamCount
    };
    

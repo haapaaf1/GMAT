@@ -1,3 +1,4 @@
+//$Id$
 /**
  * Base class for gradients, Jacobians, Hessians, and so forth.
  */
@@ -31,6 +32,7 @@ public:
 
 protected:
    derivativeMode       calcMode;
+   Integer              variableCount;
 
    std::vector<Real>    pert;
    std::vector<Real>    plusPertEffect;

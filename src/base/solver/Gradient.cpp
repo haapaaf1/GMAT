@@ -1,10 +1,30 @@
+//$Id$
+//------------------------------------------------------------------------------
+//                         Optimizer
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG06CA54C
+//
+// Author: Darrel J. Conway/Thinking Systems, Inc.
+// Created: 2008.03.26
+//
+/**
+ * Cladsss used to calculate gradients.  
+ * 
+ * Currently only supports finite differences using forward differencing.
+ */
+
 #include "Gradient.hpp"
 
 #include "SolverException.hpp"
 #include "MessageInterface.hpp"
 
 
-#define DEBUG_GRADIENT
+// #define DEBUG_GRADIENT
 
 Gradient::Gradient() : 
    DerivativeModel   (),

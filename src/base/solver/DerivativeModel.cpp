@@ -1,14 +1,20 @@
+//$Id$
+/**
+ * Base class for gradients, Jacobians, Hessians, and so forth.
+ */
+
 #include "DerivativeModel.hpp"
 
 #include "SolverException.hpp"
 #include "MessageInterface.hpp"
 
 
-#define DEBUG_DERIVMODEL
+//#define DEBUG_DERIVMODEL
 
 
 DerivativeModel::DerivativeModel() :
-   calcMode          (FORWARD_DIFFERENCE)
+   calcMode          (FORWARD_DIFFERENCE),
+   variableCount     (0)
 {
 }
 
@@ -18,6 +24,7 @@ DerivativeModel::~DerivativeModel()
 
 DerivativeModel::DerivativeModel(const DerivativeModel& dm) :
    calcMode          (dm.calcMode),
+   variableCount     (dm.variableCount),
    pert              (dm.pert),
    plusPertEffect    (dm.plusPertEffect),
    minusPertEffect   (dm.minusPertEffect)
@@ -30,6 +37,7 @@ DerivativeModel& DerivativeModel::operator=(const DerivativeModel& dm)
    if (&dm != this)
    {
       calcMode = dm.calcMode;
+      variableCount = dm.variableCount;
       pert = dm.pert;
       plusPertEffect = dm.plusPertEffect;
       minusPertEffect = dm.minusPertEffect;
@@ -54,7 +62,8 @@ bool DerivativeModel::Initialize(UnsignedInt varCount,
       throw SolverException(
             "DerivativeModel cannot initialize because elementCount == 0");
    
-   pert.assign(elementCount, 0.0);
+   variableCount = varCount;
+   pert.assign(varCount, 0.0);
    plusPertEffect.assign(elementCount, 0.0);
    minusPertEffect.assign(elementCount, 0.0);
    
@@ -83,15 +92,16 @@ void DerivativeModel::Achieved(Integer pertNumber, Integer componentId, Real dx,
 
       #ifdef DEBUG_DERIVMODEL
          MessageInterface::ShowMessage(
-            "   Perturbation #%d, size %.12lf gives %.12lf\n", pertNumber, dx, 
-            value);
+            "   %s perturbation #%d, size %.12lf gives %.12lf for id %d\n", 
+            (plusEffect ? "Positive" : "Negative"), pertNumber, dx, value, 
+            componentId);
       #endif
       
       pert[pertNumber] = dx;
       if (plusEffect)
-         plusPertEffect[pertNumber] = value;
+         plusPertEffect[pertNumber + componentId * variableCount] = value;
       else
-         minusPertEffect[pertNumber] = value;
+         minusPertEffect[pertNumber + componentId * variableCount] = value;
    }
 }
 

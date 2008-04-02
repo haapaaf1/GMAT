@@ -32,12 +32,14 @@
    static GmatInterface *gmatInt = GmatInterface::Instance();
 #endif
 
+   
 //#define DEBUG_OPTIMIZER_PARSING
 //#define DEBUG_OPTIMIZE_COMMANDS
 //#define DEBUG_CALLBACK
 //#define DEBUG_OPTIMIZE_CONSTRUCTION
 //#define DEBUG_OPTIMIZE_INIT
-#define DEBUG_OPTIMIZE_EXECUTION
+//#define DEBUG_OPTIMIZE_EXECUTION
+   
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
@@ -340,6 +342,7 @@ bool Optimize::Initialize()
    std::vector<GmatCommand*>::iterator node;
    GmatCommand *currentCmd;
 
+   Integer constraintCount = 0, variableCount = 0, objectiveCount = 0;
    for (node = branch.begin(); node != branch.end(); ++node)
    {
       currentCmd = *node;
@@ -354,10 +357,31 @@ bool Optimize::Initialize()
                "   Optimize Command %d:  %s\n", ++nodeNum, 
                currentCmd->GetTypeName().c_str());       
          #endif
+         
          if ((currentCmd->GetTypeName() == "Vary") || 
              (currentCmd->GetTypeName() == "Minimize") ||
              (currentCmd->GetTypeName() == "NonlinearConstraint"))
+         {
             currentCmd->SetRefObject(optimizer, Gmat::SOLVER, optimizerName);
+            if (optimizer->IsSolverInternal())
+            {
+               if (currentCmd->GetTypeName() == "Minimize")
+                  ++objectiveCount;
+               if (currentCmd->GetTypeName() == "NonlinearConstraint")
+               {
+                  ++constraintCount;
+               }
+               if (currentCmd->GetTypeName() == "Vary")
+                  ++variableCount;
+               
+               #ifdef DEBUG_OPTIMIZE_EXECUTION
+                  MessageInterface::ShowMessage(
+                     "   *** COUNTS: %d Costs, %d Variables, %d Constraints ***\n",
+                     objectiveCount, variableCount, constraintCount);
+               #endif
+            }               
+         }
+         
          currentCmd = currentCmd->GetNext();
       }
    }
@@ -365,8 +389,18 @@ bool Optimize::Initialize()
    bool retval = SolverBranchCommand::Initialize();
 
    if (retval == true) 
+   {
+      if (optimizer->IsSolverInternal())
+      {
+         optimizer->SetIntegerParameter(
+               optimizer->GetParameterID("RegisteredVariables"), variableCount);
+         optimizer->SetIntegerParameter(
+               optimizer->GetParameterID("RegisteredComponents"), 
+               constraintCount);
+      }
       retval = optimizer->Initialize();
-
+   }
+   
    // Register callbacks for external optimizers
    if (optimizer->IsOfType("ExternalOptimizer"))
    {
