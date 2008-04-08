@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                              SteepestDescent
+//                              VF13ad
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -10,36 +10,41 @@
 // number NNG06CA54C
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
-// Created: 2007/05/23
+// Created: 2008/04/03
 //
 /**
  * Implementation for the steepest descent optimizer. 
+ * 
+ * This is prototype code.  Interested parties need to roll the VF13ad optimizer
+ * code into a separate library and link to it.  Contact Thinking Systems for
+ * details.
  */
 //------------------------------------------------------------------------------
 
 
-#ifndef SteepestDescent_hpp
+#ifndef VF13ad_hpp
 #define hpp
 
 #include "InternalOptimizer.hpp"
 #include "Gradient.hpp"
 #include "Jacobian.hpp"
 
+
 /**
- * The SteepestDescent optimizer is the prototypical optimization method.  While
+ * The VF13ad optimizer if the prototypical optimization method.  While
  * not the most efficient method, it is the simplest to implement, since all it 
  * needs to do is run nominal trajectories, calculate gradients (via finite 
  * differences if no analytic form exists), scan in the "downhill" direction, 
  * and repeat until the magnitude of the gradient is small enough to declare
  * victory.
  */
-class SteepestDescent : public InternalOptimizer
+class VF13ad : public InternalOptimizer
 {
 public:
-	SteepestDescent(const std::string &name);
-	virtual ~SteepestDescent();
-   SteepestDescent(const SteepestDescent& sd);
-   SteepestDescent& operator=(const SteepestDescent& sd);
+	VF13ad(const std::string &name);
+	virtual ~VF13ad();
+   VF13ad(const VF13ad& sd);
+   VF13ad& operator=(const VF13ad& sd);
    
    virtual Integer      SetSolverResults(Real *data,
                                         const std::string &name,
@@ -55,25 +60,24 @@ public:
    virtual bool         Optimize();
 protected:
    std::string          objectiveName;
-   Real                 objectiveValue;
    
    Gradient             gradientCalculator;
-   std::vector<Real>    gradient;
    Jacobian             jacobianCalculator;
    std::vector<Real>    jacobian;
-   
+   Integer              retCode;
+
    enum
    {
       goalNameID = SolverParamCount,
 //      constraintNameID,
       useCentralDifferencesID,
-      SteepestDescentParamCount
+      VF13adParamCount
    };
 
-   static const std::string      PARAMETER_TEXT[SteepestDescentParamCount -
+   static const std::string      PARAMETER_TEXT[VF13adParamCount -
                                               SolverParamCount];
    static const Gmat::ParameterType
-                                 PARAMETER_TYPE[SteepestDescentParamCount -
+                                 PARAMETER_TYPE[VF13adParamCount -
                                               SolverParamCount];
 
    // State machine methods
@@ -90,6 +94,7 @@ protected:
    
    virtual void                  WriteToTextFile(
                                     SolverState stateToUse = UNDEFINED_STATE);
+   std::string                   InterpretRetCode(Integer retCode);
 };
 
-#endif /*STEEPESTDESCENT_HPP_*/
+#endif /*VF13ad_HPP_*/

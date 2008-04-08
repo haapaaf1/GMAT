@@ -929,6 +929,12 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
          AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::SQP));
       }
+      else if (solver->IsOfType("Optimizer"))
+      {
+      	// Set generic optimizer stuff here!
+         AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+                    new GmatTreeItemData(wxT(objName), GmatTree::SQP));
+      }
    };
       
    if (size > 0)

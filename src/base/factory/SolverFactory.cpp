@@ -24,6 +24,7 @@
 // Headers for the supported Solvers
 //#include "QuasiNewton.hpp"
 #include "SteepestDescent.hpp"
+#include "VF13ad.hpp"
 
 #ifdef __USE_MATLAB__
 #include "FminconOptimizer.hpp"
@@ -69,6 +70,8 @@ Solver* SolverFactory::CreateSolver(const std::string &ofType,
    //   return new QuasiNewton(withName);
    else if (ofType == "SteepestDescent")
       return new SteepestDescent(withName);
+   else if (ofType == "VF13ad")
+      return new VF13ad(withName);
    // else if (ofType == "Broyden")
    //   return new Broyden(withName);
    //else if (ofType == "ParametricScanner")
@@ -95,6 +98,7 @@ SolverFactory::SolverFactory() :
    {
       //creatables.push_back("QuasiNewton");
       creatables.push_back("SteepestDescent");
+      creatables.push_back("VF13ad");
       
       #if defined __USE_MATLAB__
       creatables.push_back("FminconOptimizer");
@@ -139,6 +143,7 @@ SolverFactory::SolverFactory(const SolverFactory& fact) :
    {
       //creatables.push_back("QuasiNewton");
       creatables.push_back("SteepestDescent");
+      creatables.push_back("VF13ad");
       
       #if defined __USE_MATLAB__
       creatables.push_back("FminconOptimizer");

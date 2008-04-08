@@ -69,9 +69,9 @@ HEADERS = -Iinclude \
           -I../gui/output \
           -I../gui/foundation \
           -I../gui/plot \
-          -I../gui/mission
-
-
+          -I../gui/mission \
+          \
+          -I../../ThirdParty/VF13ad
 
 clean : archclean
 
@@ -350,6 +350,7 @@ OBJECTS = \
     solver/InternalOptimizer.o \
     solver/Solver.o \
     solver/SteepestDescent.o \
+    solver/VF13ad.o \
     solver/DerivativeModel.o \
     solver/Gradient.o \
     solver/Jacobian.o \

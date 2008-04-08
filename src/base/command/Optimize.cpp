@@ -517,6 +517,9 @@ bool Optimize::Execute()
                   
             case Solver::CALCULATING:
                break;
+               
+            case Solver::CHECKINGRUN:
+               break;
                   
             case Solver::FINISHED:
                // Final clean-up

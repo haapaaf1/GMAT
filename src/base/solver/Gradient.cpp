@@ -13,7 +13,7 @@
 // Created: 2008.03.26
 //
 /**
- * Cladsss used to calculate gradients.  
+ * Class used to calculate gradients.  
  * 
  * Currently only supports finite differences using forward differencing.
  */

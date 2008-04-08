@@ -679,8 +679,6 @@ Integer Solver::GetIntegerParameter(const Integer id) const
 Integer Solver::SetIntegerParameter(const Integer id,
                                     const Integer value)
 {
-   MessageInterface::ShowMessage("Setting '%s' to integer %d\n",
-         GetParameterText(id).c_str(), value);
    if (id == maxIterationsID)
    {
       if (value > 0)
