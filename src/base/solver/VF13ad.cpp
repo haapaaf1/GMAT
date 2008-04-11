@@ -24,6 +24,7 @@
 
 #include "VF13ad.hpp"
 #include "MessageInterface.hpp"
+#include <sstream>
 
 extern "C"
 {
@@ -64,7 +65,17 @@ VF13ad::PARAMETER_TYPE[VF13adParamCount - SolverParamCount] =
 
 VF13ad::VF13ad(const std::string &name) :
    InternalOptimizer       ("VF13ad", name),
-   retCode                 (-1)
+   retCode                 (-1),
+   workspaceLength         (200),
+   numConstraints          (0),
+   varLength               (1),
+   iprint                  (1), 
+   integerWorkspace        (NULL),
+   workspace               (NULL),
+   grad                    (NULL),
+   vars                    (NULL),
+   constraints             (NULL),
+   cJacobian               (NULL)
 {
    objectTypeNames.push_back("VF13ad");
    objectiveFnName = "SDObjective";
@@ -81,7 +92,17 @@ VF13ad::~VF13ad()
 VF13ad::VF13ad(const VF13ad& sd) :
    InternalOptimizer       (sd),
    jacobian                (sd.jacobian),
-   retCode                 (sd.retCode)
+   retCode                 (sd.retCode),
+   workspaceLength         (sd.workspaceLength),
+   numConstraints          (sd.numConstraints),
+   varLength               (sd.varLength),
+   iprint                  (sd.iprint), 
+   integerWorkspace        (NULL),
+   workspace               (NULL),
+   grad                    (NULL),
+   vars                    (NULL),
+   constraints             (NULL),
+   cJacobian               (NULL)
 {
 }
 
@@ -136,6 +157,7 @@ bool VF13ad::TakeAction(const std::string &action,
    if (action == "Reset")
    {
       currentState = INITIALIZING;
+      FreeArrays();
       return true;
    }
 
@@ -164,7 +186,9 @@ Solver::SolverState  VF13ad::AdvanceState()
          #endif
          iterationsTaken = 0;
          WriteToTextFile();
-//         ReportProgress();
+         ReportProgress();
+         if (vars == NULL)
+            Initialize();
          CompleteInitialization();
       
          #ifdef VF13_DEBUG_STATE_MACHINE
@@ -179,7 +203,7 @@ Solver::SolverState  VF13ad::AdvanceState()
             MessageInterface::ShowMessage("Entered state machine; "
                   "NOMINAL\n");
          #endif
-//         ReportProgress();
+         ReportProgress();
          RunNominal();
 //         ReportProgress();
          #ifdef VF13_DEBUG_STATE_MACHINE
@@ -211,6 +235,7 @@ Solver::SolverState  VF13ad::AdvanceState()
          #endif
 //         ReportProgress();
          CalculateParameters();
+//         ReportProgress();
          #ifdef VF13_DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage(
                "VF13ad State Transitions from %d to %d\n", CALCULATING,
@@ -237,6 +262,7 @@ Solver::SolverState  VF13ad::AdvanceState()
             MessageInterface::ShowMessage("Entered state machine; "
                   "FINISHED\n");
          #endif
+         ReportProgress();
          RunComplete();
          #ifdef VF13_DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage(
@@ -336,10 +362,19 @@ void VF13ad::SetResultValue(Integer id, Real value,
       // build the correct ID number
       Integer idToUse;
       if (resultType == "EqConstraint")
+      {
          idToUse = id - 1000;
+         if (currentState == NOMINAL) 
+            eqConstraintValues[idToUse] = value;
+      }
       else
-         idToUse = id - 2000 + eqConstraintCount;
-      
+      {
+         idToUse = id - 2000;
+         if (currentState == NOMINAL) 
+            ineqConstraintValues[idToUse] = value;
+         idToUse += eqConstraintCount;
+      }
+
       if (currentState == NOMINAL) 
       {
          jacobianCalculator.Achieved(-1, idToUse, 0.0, value);
@@ -347,8 +382,8 @@ void VF13ad::SetResultValue(Integer id, Real value,
            
       if (currentState == PERTURBING) 
       {
-         jacobianCalculator.Achieved(pertNumber, idToUse, perturbation[pertNumber], 
-                                     value);
+         jacobianCalculator.Achieved(pertNumber, idToUse, 
+               perturbation[pertNumber], value);
       }
       
    }
@@ -367,6 +402,12 @@ void VF13ad::SetResultValue(Integer id, Real value,
 //------------------------------------------------------------------------------
 bool VF13ad::Initialize()
 {
+//   #ifdef DEBUG_VF13_INIT
+      MessageInterface::ShowMessage("VF13ad::Initialize() entered for %s; "
+            "%d variables and %d constraints\n", instanceName.c_str(), 
+            registeredVariableCount, registeredComponentCount);
+//   #endif
+      
    // Variable initialization is in the Solver code
    bool retval = InternalOptimizer::Initialize();
    
@@ -380,14 +421,46 @@ bool VF13ad::Initialize()
                registeredComponentCount);
    }
    
-   #ifdef DEBUG_VF13_INIT
-   MessageInterface::ShowMessage
-      ("VF13ad::Initialize() completed; %d variables and %d constraints\n",
-       registeredVariableCount, registeredComponentCount);
-   #endif
-
-   retCode = -1;
+   for (int i = 0; i < registeredVariableCount; ++i)
+   {
+      gradient.push_back(0.0);
+      for (int j = 0; j < registeredComponentCount; ++j)
+         jacobian.push_back(0.0);
+   }
    
+   retCode = -1;
+   numConstraints = registeredComponentCount;
+   varLength = registeredVariableCount + 1;
+   iprint   = 1; 
+   
+   workspaceLength = (Integer)(5.0 * registeredVariableCount * 
+         registeredVariableCount / 2.0 + 43.0 * registeredVariableCount / 2.0 + 
+         14 + 6 * registeredComponentCount + 2);
+
+   workspace = new Real[workspaceLength];
+   grad = new Real[registeredVariableCount];
+   vars = new Real[registeredVariableCount];
+   if (registeredComponentCount > 0)
+   {
+      #ifdef DEBUG_VF13_CALL
+         MessageInterface::ShowMessage("%d variables and %d constraints\n",
+               varLength - 1, numConstraints);
+      #endif
+      cJacobian   = new Real[varLength*registeredComponentCount];
+      constraints = new Real[registeredComponentCount];
+   }
+   else
+   {
+      cJacobian = NULL;
+      constraints = NULL;
+   }
+   integerWorkspace = new Integer[varLength];
+
+//   #ifdef DEBUG_VF13_INIT
+      MessageInterface::ShowMessage
+         ("VF13ad::Initialize() completed; %d variables and %d constraints\n",
+          registeredVariableCount, registeredComponentCount);
+//   #endif
    return retval;
 }
 
@@ -427,12 +500,12 @@ void VF13ad::RunPerturbation()
    if (variable[pertNumber] > variableMaximum[pertNumber])
    {
       pertDirection.at(pertNumber) = -1.0;
-      variable[pertNumber] -= 2.0 * perturbation[pertNumber];
+      variable.at(pertNumber) -= 2.0 * perturbation.at(pertNumber);
    }    
-   if (variable[pertNumber] < variableMinimum[pertNumber])
+   if (variable.at(pertNumber) < variableMinimum.at(pertNumber))
    {
       pertDirection.at(pertNumber) = -1.0;
-      variable[pertNumber] -= 2.0 * perturbation[pertNumber];
+      variable.at(pertNumber) -= 2.0 * perturbation.at(pertNumber);
    }
        
    WriteToTextFile();
@@ -445,67 +518,51 @@ void VF13ad::CalculateParameters()
    if (eqConstraintCount + ineqConstraintCount > 0)
       jacobianCalculator.Calculate(jacobian);
    currentState = CHECKINGRUN;
+   
+   #ifdef VF13_DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage(
+            "Raw Gradient and Jacobian Information\n   Gradient: [");
+      for (std::vector<Real>::iterator i = gradient.begin(); 
+           i != gradient.end(); ++i)
+         MessageInterface::ShowMessage(" %.12lf ", *i);
+      MessageInterface::ShowMessage("]\n   Jacobian: [");
+      for (std::vector<Real>::iterator i = jacobian.begin(); 
+           i != jacobian.end(); ++i)
+         MessageInterface::ShowMessage(" %.12lf ", *i);
+      MessageInterface::ShowMessage("]\n\n");
+   #endif
 }
 
 
 void VF13ad::CheckCompletion()
 {
-   // Most or all of these should move into initialization
-   Real     *workspace;
-   Real     *grad;
-   Real     *vars;
-   Real     *constraints;
-   Real     *cJacobian;
-   Integer  workspaceLength;
-   Integer  numConstraints = eqConstraintCount + ineqConstraintCount;
-   Integer  varLength = variableCount + 1;
-   
-   Integer  iprint   = 0; 
-   Integer  *integerWorkspace;
-   
+   if (vars == NULL)
+      throw SolverException("Solver is uninitialized!\n");
+
    #ifdef DEBUG_VF13_CALL
       MessageInterface::ShowMessage("VF13ad Check Completion, input settings:\n"
             "   N:   %d\n   M:   %d\nMEQ: %d\n",
             variableCount, numConstraints, eqConstraintCount);
    #endif 
    
-   workspaceLength = (Integer)(5.0 * variableCount * variableCount / 2.0 + 
-         43.0 * variableCount / 2.0 + 14 + 6 * numConstraints + 2);
-
-   workspace = new Real[workspaceLength];
-   grad = new Real[variableCount];
-   vars = new Real[variableCount];
-   if (numConstraints > 0)
-   {
-      #ifdef DEBUG_VF13_CALL
-         MessageInterface::ShowMessage("%d variables and %d constraints\n",
-               varLength - 1, numConstraints);
-      #endif
-      cJacobian   = new Real[varLength*numConstraints];
-      constraints = new Real[numConstraints];
-   }
-   else
-   {
-      cJacobian = NULL;
-      constraints = NULL;
-   }
-   integerWorkspace = new Integer[varLength];
-
    for (Integer i = 0; i < variableCount; ++i)
    {
-      vars[i] = variable[i];
-      grad[i] = gradient[i];
+      vars[i] = variable.at(i);
+      grad[i] = gradient.at(i);
       
       for (Integer j = 0; j < numConstraints; ++j)
       {
-         // Note that VF13ad indexes opposite to standard Jacobian notations --
-         // the rows increment the constraints for a variable variation, while
-         // the columns increment the variables for specific constraints Sigh.
-         cJacobian[i + varLength * j] = jacobian[i + variableCount * j];
+         cJacobian[i + varLength * j] = jacobian.at(i + variableCount * j);
       }
    }
 
-//   #ifdef DEBUG_VF13_CALL
+   for (Integer j = 0; j < eqConstraintCount; ++j)
+      constraints[j] = eqConstraintValues.at(j);
+   for (Integer j = eqConstraintCount; j < numConstraints; ++j)
+      constraints[j] = ineqConstraintValues.at(j - eqConstraintCount);
+      
+
+   #ifdef DEBUG_VF13_CALL
       MessageInterface::ShowMessage("   X:  [");
       for (Integer i = 0; i < variableCount; ++i)
       {
@@ -535,7 +592,7 @@ void VF13ad::CheckCompletion()
                   MessageInterface::ShowMessage("[");
                MessageInterface::ShowMessage("%.12lf", 
                      cJacobian[i*numConstraints+j]);
-               if (i < numConstraints - 1)
+               if (j < numConstraints - 1)
                   MessageInterface::ShowMessage(", ");
             }
             MessageInterface::ShowMessage("]\n        ");
@@ -562,7 +619,22 @@ void VF13ad::CheckCompletion()
             MessageInterface::ShowMessage(", ");
       }
       MessageInterface::ShowMessage("]\n");
-
+      
+      MessageInterface::ShowMessage("   cJac = ");
+      for (Integer i = 0; i < numConstraints; ++i)
+      {
+         for (Integer j = 0; j < variableCount; ++j)
+         {
+            if (j == 0)
+               MessageInterface::ShowMessage("[");
+            MessageInterface::ShowMessage("%.12lf", cJacobian[i * varLength + j]);
+            if (j < variableCount-1)
+               MessageInterface::ShowMessage(", ");
+         }
+         MessageInterface::ShowMessage("]\n          ");
+      }
+      MessageInterface::ShowMessage("\n");
+      
       MessageInterface::ShowMessage("   numVars              %d\n", 
             variableCount); 
       MessageInterface::ShowMessage("   numConstraints       %d\n", 
@@ -588,7 +660,7 @@ void VF13ad::CheckCompletion()
             tolerance);
       MessageInterface::ShowMessage("   iprint               %d\n", iprint);
       MessageInterface::ShowMessage("   retCode              %d\n\n", retCode);
-//   #endif
+   #endif
 
    vf13ad_(
          &variableCount,
@@ -608,9 +680,7 @@ void VF13ad::CheckCompletion()
          &workspaceLength,  
          integerWorkspace);
    
-   MessageInterface::ShowMessage(InterpretRetCode(retCode));
-   
-//   #ifdef DEBUG_VF13_CALL
+   #ifdef DEBUG_VF13_CALL
       MessageInterface::ShowMessage("After calling vf13ad, retcode = %d\n", 
                retCode);
          MessageInterface::ShowMessage("   vars = [");
@@ -621,45 +691,23 @@ void VF13ad::CheckCompletion()
                MessageInterface::ShowMessage(", ");
          }
          MessageInterface::ShowMessage("]\n");
-//   #endif   
+   #endif   
 
    if (retCode == 0)
    {
       for (Integer i = 0; i < variableCount; ++i)
-         variable[i] = vars[i];
+         variable.at(i) = vars[i];
 
       currentState = NOMINAL;
    }
    else
       currentState = FINISHED;
    
-   delete [] workspace;
-   delete [] grad;
-   delete [] vars;
-   if (numConstraints > 0)
-   {
-      delete [] cJacobian;
-      delete [] constraints;
-   }
-   delete [] integerWorkspace;
+   ++iterationsTaken;
 }
 
 
 void VF13ad::RunComplete()
-{
-}
-
-
-//------------------------------------------------------------------------------
-// Math methods used when runnignthe state machine
-//------------------------------------------------------------------------------
-
-void VF13ad::CalculateJacobian()
-{
-}
-
-
-void VF13ad::LineSearch()
 {
 }
 
@@ -670,6 +718,21 @@ void VF13ad::LineSearch()
 
 void VF13ad::FreeArrays()
 {
+   
+   delete [] workspace;
+   delete [] grad;
+   delete [] vars;
+   if (numConstraints > 0)
+   {
+      delete [] cJacobian;
+      delete [] constraints;
+   }
+   delete [] integerWorkspace;
+
+   
+   workspace = grad = vars = cJacobian = constraints = NULL;
+   integerWorkspace = NULL;
+
 }
 
 
@@ -696,6 +759,12 @@ std::string VF13ad::InterpretRetCode(Integer retCode)
    
    switch (retCode)
    {
+      case -1:
+      case -101:
+      case -111:
+         retString += ": Optimization ready to start.\n";
+         break;
+      
       case 0:
          retString += ": Optimization is proceeding as expected.\n";
          break;
@@ -749,3 +818,112 @@ std::string VF13ad::InterpretRetCode(Integer retCode)
    
    return retString;
 }
+
+
+//------------------------------------------------------------------------------
+//  std::string GetProgressString()
+//------------------------------------------------------------------------------
+/**
+ * Generates a string that reporting the current differential corrector state.
+ */
+//------------------------------------------------------------------------------
+std::string VF13ad::GetProgressString()
+{
+   StringArray::iterator current;
+   Integer i;
+   std::stringstream progress;
+   progress.str("");
+   progress.precision(12);
+
+   if (initialized)
+   {
+      switch (currentState)
+      {
+         case NOMINAL:
+            progress << instanceName << " Iteration " << iterationsTaken+1
+                     << "; Nominal Pass\n   Variables:  ";
+            // Iterate through the variables, writing them to the string
+            for (current = variableNames.begin(), i = 0;
+                 current != variableNames.end(); ++current)
+            {
+               if (current != variableNames.begin())
+                  progress << ", ";
+               progress << *current << " = " << variable[i++];
+            }
+            progress << "\n   VF13 State: " 
+                     << InterpretRetCode(retCode) << "\n";
+            break;
+
+         case PERTURBING:  // does this apply to optimization??
+            progress << "   Completed iteration " << iterationsTaken
+                     << ", pert " << pertNumber+1 << " ("
+                     << variableNames[pertNumber] << " = "
+                     << variable[pertNumber] << ")\n";
+            break;
+
+         case CALCULATING:
+            // Just forces a blank line
+            break;
+
+         case CHECKINGRUN:
+//            // Iterate through the constraints, writing them to the file
+//            progress << "   Equality Constraints and achieved values:\n      ";
+//
+//            for (current = eqConstraintNames.begin(), i = 0;
+//                 current != eqConstraintNames.end(); ++current)
+//            {
+//               if (current != eqConstraintNames.begin())
+//                  progress << ",  ";
+//                  // does this make sense???
+//               //progress << *current << "  Desired: " << eqConstaint[i]
+//               //         << "  Achieved: " << nominal[i];
+//               ++i;
+//            }
+//
+//           progress << "   Inequality Constraints and achieved values:\n      ";
+//
+//            for (current = ineqConstraintNames.begin(), i = 0;
+//                 current != ineqConstraintNames.end(); ++current)
+//            {
+//               if (current != ineqConstraintNames.begin())
+//                  progress << ",  ";
+//                  // does this make sense???
+//               //progress << *current << "  Desired: " << eqConstaint[i]
+//               //         << "  Achieved: " << nominal[i];
+//               ++i;
+//            }
+
+            break;
+
+         case FINISHED:
+            progress << "\n*** Optimization Completed in " << iterationsTaken
+                     << " iterations";
+                     
+            if (iterationsTaken > maxIterations)
+               progress << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                        << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                        << "!!! WARNING: Optimizer did NOT converge in "
+                        << maxIterations << " iterations!"
+                        << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                        << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+            
+            progress << "\nFinal Variable values:\n";
+            // Iterate through the variables, writing them to the string
+            for (current = variableNames.begin(), i = 0;
+                 current != variableNames.end(); ++current)
+               progress << "   " << *current << " = " << variable[i++] << "\n";
+            progress << "   " << InterpretRetCode(retCode) << "\n";
+
+            break;
+
+         default:
+            progress << Optimizer::GetProgressString();
+      }
+   }
+   else
+      return Solver::GetProgressString();
+      
+   return progress.str();
+
+}
+

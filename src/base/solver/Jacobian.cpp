@@ -49,8 +49,11 @@ bool Jacobian::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
    numComponents = componentCount;
    UnsignedInt elementCount = numVariables * numComponents;
    
-   nominal.assign(numComponents, 0.0);
-   jacobian.assign(elementCount, 0.0);
+   for (UnsignedInt i = 0; i < numComponents; ++i)
+      nominal.push_back(0.0);
+   
+   for (UnsignedInt i = 0; i < elementCount; ++i)
+      jacobian.push_back(0.0);
    
    #ifdef DEBUG_JACOBIAN
       MessageInterface::ShowMessage(
@@ -72,7 +75,7 @@ void Jacobian::Achieved(Integer pertNumber, Integer componentId,
                value);
       #endif
 
-      nominal[componentId] = value;
+      nominal.at(componentId) = value;
    }
    else
    {

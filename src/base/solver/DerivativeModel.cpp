@@ -63,9 +63,20 @@ bool DerivativeModel::Initialize(UnsignedInt varCount,
             "DerivativeModel cannot initialize because elementCount == 0");
    
    variableCount = varCount;
-   pert.assign(varCount, 0.0);
-   plusPertEffect.assign(elementCount, 0.0);
-   minusPertEffect.assign(elementCount, 0.0);
+   
+   pert.clear();
+   for (int i = 0; i < variableCount; ++i)
+   {
+      pert.push_back(0.0);
+   }
+   
+   plusPertEffect.clear();
+   minusPertEffect.clear();
+   for (UnsignedInt i = 0; i < elementCount; ++i)
+   {
+      plusPertEffect.push_back(0.0);
+      minusPertEffect.push_back(0.0);
+   }
    
    #ifdef DEBUG_DERIVMODEL
       MessageInterface::ShowMessage(
@@ -97,11 +108,11 @@ void DerivativeModel::Achieved(Integer pertNumber, Integer componentId, Real dx,
             componentId);
       #endif
       
-      pert[pertNumber] = dx;
+      pert.at(pertNumber) = dx;
       if (plusEffect)
-         plusPertEffect[pertNumber + componentId * variableCount] = value;
+         plusPertEffect.at(pertNumber + componentId * variableCount) = value;
       else
-         minusPertEffect[pertNumber + componentId * variableCount] = value;
+         minusPertEffect.at(pertNumber + componentId * variableCount) = value;
    }
 }
 

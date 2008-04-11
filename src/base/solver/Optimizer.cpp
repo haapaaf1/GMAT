@@ -276,7 +276,9 @@ std::string Optimizer::GetProgressString()
                Integer localIneqCount     = ineqConstraintNames.size();
                progress << "************************************************"
                         << "********\n"
-                        << "*** Performing Fmincon Optimization "
+                        << "*** Performing "
+                        << typeName 
+                        << " Optimization "
                         << "(using \"" << instanceName << "\")\n";
 
                // Write out the setup data
@@ -294,26 +296,32 @@ std::string Optimizer::GetProgressString()
                   progress << *current;
                }
 
-               progress << "\n   Equality Constraints:  ";
-
-               for (current = eqConstraintNames.begin(), i = 0;
-                    current != eqConstraintNames.end(); ++current)
+               if (localEqCount > 0)
                {
-                  if (current != eqConstraintNames.begin())
-                     progress << ", ";
-                  progress << *current;
+                  progress << "\n   Equality Constraints:  ";
+   
+                  for (current = eqConstraintNames.begin(), i = 0;
+                       current != eqConstraintNames.end(); ++current)
+                  {
+                     if (current != eqConstraintNames.begin())
+                        progress << ", ";
+                     progress << *current;
+                  }
                }
-
-               progress << "\n   Inequality Constraints:  ";
-
-               for (current = ineqConstraintNames.begin(), i = 0;
-                    current != ineqConstraintNames.end(); ++current)
+               
+               if (localIneqCount > 0)
                {
-                  if (current != ineqConstraintNames.begin())
-                     progress << ", ";
-                  progress << *current;
+                  progress << "\n   Inequality Constraints:  ";
+   
+                  for (current = ineqConstraintNames.begin(), i = 0;
+                       current != ineqConstraintNames.end(); ++current)
+                  {
+                     if (current != ineqConstraintNames.begin())
+                        progress << ", ";
+                     progress << *current;
+                  }
                }
-
+               
                progress << "\n****************************"
                         << "****************************";
             }

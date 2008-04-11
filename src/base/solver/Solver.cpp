@@ -269,15 +269,15 @@ bool Solver::Initialize()
       FileManager *fm;
       fm = FileManager::Instance();
       std::string outPath = fm->GetFullPathname(FileManager::OUTPUT_PATH);
-      solverTextFile = outPath + solverTextFile;
+      std::string fullSolverTextFile = outPath + solverTextFile;
    
       if (textFile.is_open())
          textFile.close();
       
       if (instanceNumber == 1)
-         textFile.open(solverTextFile.c_str());
+         textFile.open(fullSolverTextFile.c_str());
       else
-         textFile.open(solverTextFile.c_str(), std::ios::app);
+         textFile.open(fullSolverTextFile.c_str(), std::ios::app);
       if (!textFile.is_open())
          throw SolverException("Error opening targeter text file " +
                                solverTextFile);

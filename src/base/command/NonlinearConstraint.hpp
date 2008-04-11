@@ -95,10 +95,11 @@ protected:
       TOLERANCE,
       NonlinearConstraintParamCount
    };
+
    static const std::string
-                       PARAMETER_TEXT[NonlinearConstraintParamCount - GmatCommandParamCount];
+          PARAMETER_TEXT[NonlinearConstraintParamCount - GmatCommandParamCount];
    static const Gmat::ParameterType
-                       PARAMETER_TYPE[NonlinearConstraintParamCount - GmatCommandParamCount];
+          PARAMETER_TYPE[NonlinearConstraintParamCount - GmatCommandParamCount];
 
    enum Operator
    {

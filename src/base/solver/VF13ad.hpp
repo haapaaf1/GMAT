@@ -87,14 +87,26 @@ protected:
    virtual void                  CheckCompletion();
    virtual void                  RunComplete();
 
-   // Methods used to evaluate the gradient and line search
-   void                          CalculateJacobian();
-   void                          LineSearch();
    void                          FreeArrays();
    
    virtual void                  WriteToTextFile(
                                     SolverState stateToUse = UNDEFINED_STATE);
    std::string                   InterpretRetCode(Integer retCode);
+   std::string                   GetProgressString();
+   
+   // Working variables used in the VF13 parameters
+   Integer                       workspaceLength;
+   Integer                       numConstraints;
+   Integer                       varLength;
+   Integer                       iprint; 
+   
+   // Arrays allocated in Initialize() and freed through an action(?)
+   Integer                       *integerWorkspace;
+   Real                          *workspace;
+   Real                          *grad;
+   Real                          *vars;
+   Real                          *constraints;
+   Real                          *cJacobian;
 };
 
 #endif /*VF13ad_HPP_*/

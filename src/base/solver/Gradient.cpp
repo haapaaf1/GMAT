@@ -59,8 +59,11 @@ Gradient& Gradient::operator=(const Gradient &grad)
 bool Gradient::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
 {
    DerivativeModel::Initialize(varCount);
-   gradient.assign(varCount, 0.0);
    
+   gradient.clear();   
+   for (UnsignedInt i = 0; i < varCount; ++i)
+      gradient.push_back(0.0);
+
    #ifdef DEBUG_GRADIENT
       MessageInterface::ShowMessage(
          "Gradient initialized in mode %d with %d variables\n", calcMode, 
@@ -97,7 +100,13 @@ bool Gradient::Calculate(std::vector<Real> &grad)
    UnsignedInt gradSize = pert.size();
    for (UnsignedInt i = 0; i < gradSize; ++i)
    {
-      if (pert[i] == 0.0)
+      #ifdef DEBUG_GRADIENT
+            MessageInterface::ShowMessage(
+                  "   Component %d of %d, pert = %.12lf\n", i, gradSize, 
+                  pert.at(i));
+      #endif   
+
+            if (pert.at(i) == 0.0)
          throw SolverException(
                "Perturbation of size 0.0 found in gradient calculation");
 
@@ -109,7 +118,7 @@ bool Gradient::Calculate(std::vector<Real> &grad)
       switch (calcMode) 
       {
          case FORWARD_DIFFERENCE:
-            gradient[i] = (plusPertEffect[i] - nominal) / pert[i];
+            gradient.at(i) = (plusPertEffect.at(i) - nominal) / pert.at(i);
             break;
             
          case CENTRAL_DIFFERENCE:
