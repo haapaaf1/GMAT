@@ -65,7 +65,7 @@ VF13ad::PARAMETER_TYPE[VF13adParamCount - SolverParamCount] =
 
 VF13ad::VF13ad(const std::string &name) :
    InternalOptimizer       ("VF13ad", name),
-   retCode                 (-1),
+   retCode                 (-101),
    workspaceLength         (200),
    numConstraints          (0),
    varLength               (1),
@@ -235,7 +235,7 @@ Solver::SolverState  VF13ad::AdvanceState()
          #endif
 //         ReportProgress();
          CalculateParameters();
-//         ReportProgress();
+         ReportProgress();
          #ifdef VF13_DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage(
                "VF13ad State Transitions from %d to %d\n", CALCULATING,
@@ -254,7 +254,6 @@ Solver::SolverState  VF13ad::AdvanceState()
                "VF13ad State Transitions from %d to %d\n", CHECKINGRUN,
                currentState);
          #endif
-         // ReportProgress();
          break;
    
       case FINISHED:
@@ -402,11 +401,11 @@ void VF13ad::SetResultValue(Integer id, Real value,
 //------------------------------------------------------------------------------
 bool VF13ad::Initialize()
 {
-//   #ifdef DEBUG_VF13_INIT
+   #ifdef DEBUG_VF13_INIT
       MessageInterface::ShowMessage("VF13ad::Initialize() entered for %s; "
             "%d variables and %d constraints\n", instanceName.c_str(), 
             registeredVariableCount, registeredComponentCount);
-//   #endif
+   #endif
       
    // Variable initialization is in the Solver code
    bool retval = InternalOptimizer::Initialize();
@@ -428,7 +427,7 @@ bool VF13ad::Initialize()
          jacobian.push_back(0.0);
    }
    
-   retCode = -1;
+   retCode = -101;
    numConstraints = registeredComponentCount;
    varLength = registeredVariableCount + 1;
    iprint   = 1; 
@@ -436,7 +435,7 @@ bool VF13ad::Initialize()
    workspaceLength = (Integer)(5.0 * registeredVariableCount * 
          registeredVariableCount / 2.0 + 43.0 * registeredVariableCount / 2.0 + 
          14 + 6 * registeredComponentCount + 2);
-
+   
    workspace = new Real[workspaceLength];
    grad = new Real[registeredVariableCount];
    vars = new Real[registeredVariableCount];
@@ -456,11 +455,17 @@ bool VF13ad::Initialize()
    }
    integerWorkspace = new Integer[varLength];
 
-//   #ifdef DEBUG_VF13_INIT
+   #ifdef DEBUG_VF13_INIT
       MessageInterface::ShowMessage
          ("VF13ad::Initialize() completed; %d variables and %d constraints\n",
           registeredVariableCount, registeredComponentCount);
-//   #endif
+   #endif
+
+   // Constrain the step sizes (default is a very large number, and thus 
+   // basically unconstrained.
+   for (Integer i = 0; i < registeredVariableCount; ++i)
+      workspace[numConstraints + i] = variableMaximumStep[i];
+         
    return retval;
 }
 
@@ -552,14 +557,17 @@ void VF13ad::CheckCompletion()
       
       for (Integer j = 0; j < numConstraints; ++j)
       {
-         cJacobian[i + varLength * j] = jacobian.at(i + variableCount * j);
+         if (j < eqConstraintCount)
+            cJacobian[i + varLength * j] = jacobian.at(i + variableCount * j);
+         else
+            cJacobian[i + varLength * j] = -jacobian.at(i + variableCount * j);
       }
    }
 
    for (Integer j = 0; j < eqConstraintCount; ++j)
       constraints[j] = eqConstraintValues.at(j);
    for (Integer j = eqConstraintCount; j < numConstraints; ++j)
-      constraints[j] = ineqConstraintValues.at(j - eqConstraintCount);
+      constraints[j] = -ineqConstraintValues.at(j - eqConstraintCount);
       
 
    #ifdef DEBUG_VF13_CALL
@@ -755,12 +763,13 @@ void VF13ad::WriteToTextFile(SolverState stateToUse)
 
 std::string VF13ad::InterpretRetCode(Integer retCode)
 {
-   std::string retString = instanceName;
+   std::string retString = "";
    
    switch (retCode)
    {
       case -1:
       case -101:
+      case -110:
       case -111:
          retString += ": Optimization ready to start.\n";
          break;
@@ -850,8 +859,8 @@ std::string VF13ad::GetProgressString()
                   progress << ", ";
                progress << *current << " = " << variable[i++];
             }
-            progress << "\n   VF13 State: " 
-                     << InterpretRetCode(retCode) << "\n";
+            progress << "\n   " << instanceName << " State" 
+                     << InterpretRetCode(retCode);
             break;
 
          case PERTURBING:  // does this apply to optimization??
@@ -866,32 +875,32 @@ std::string VF13ad::GetProgressString()
             break;
 
          case CHECKINGRUN:
-//            // Iterate through the constraints, writing them to the file
-//            progress << "   Equality Constraints and achieved values:\n      ";
-//
-//            for (current = eqConstraintNames.begin(), i = 0;
-//                 current != eqConstraintNames.end(); ++current)
-//            {
-//               if (current != eqConstraintNames.begin())
-//                  progress << ",  ";
-//                  // does this make sense???
-//               //progress << *current << "  Desired: " << eqConstaint[i]
-//               //         << "  Achieved: " << nominal[i];
-//               ++i;
-//            }
-//
-//           progress << "   Inequality Constraints and achieved values:\n      ";
-//
-//            for (current = ineqConstraintNames.begin(), i = 0;
-//                 current != ineqConstraintNames.end(); ++current)
-//            {
-//               if (current != ineqConstraintNames.begin())
-//                  progress << ",  ";
-//                  // does this make sense???
-//               //progress << *current << "  Desired: " << eqConstaint[i]
-//               //         << "  Achieved: " << nominal[i];
-//               ++i;
-//            }
+            if (eqConstraintCount > 0)
+            {
+               // Iterate through the constraints, writing them to the file
+               progress << "   Equality Constraint Variances:\n";
+   
+               for (current = eqConstraintNames.begin(), i = 0;
+                    current != eqConstraintNames.end(); ++current)
+               {
+                  progress << "      Delta " << (*current) << " = " 
+                           << constraints[i] << "\n";
+                  ++i;
+               }
+            }
+
+            if (ineqConstraintCount > 0)
+            {
+               progress << "   Inequality Constraint Variances:\n";
+
+               for (current = ineqConstraintNames.begin(), i = eqConstraintCount;
+                    current != ineqConstraintNames.end(); ++current)
+               {
+                  progress << "      Delta " << (*current) << " = " 
+                           << constraints[i] << "\n";
+                  ++i;
+               }
+            }
 
             break;
 
@@ -912,7 +921,7 @@ std::string VF13ad::GetProgressString()
             for (current = variableNames.begin(), i = 0;
                  current != variableNames.end(); ++current)
                progress << "   " << *current << " = " << variable[i++] << "\n";
-            progress << "   " << InterpretRetCode(retCode) << "\n";
+            progress << instanceName << InterpretRetCode(retCode) << "\n";
 
             break;
 
