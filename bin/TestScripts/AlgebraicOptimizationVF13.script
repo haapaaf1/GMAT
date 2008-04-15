@@ -52,7 +52,7 @@ Optimize vf13;
 
     GMAT G =  X2 + X1;
     NonlinearConstraint vf13( G = 8 );
-    NonlinearConstraint vf13( X1 >= 6 );
+%    NonlinearConstraint vf13( X1 >= 6 );
 
 EndOptimize;
 

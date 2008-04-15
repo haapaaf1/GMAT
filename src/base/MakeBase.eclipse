@@ -411,12 +411,15 @@ OBJECTS = \
     util/TimeSystemConverter.o \
     util/TimeTypes.o \
     util/UtcDate.o \
+    \
     $(TCPIP_OBJECTS)
     
 #    $(BRIDGEOBJECTS)
 
 
-FORTRAN_OBJECTS = solarsys/msise90_sub.o
+FORTRAN_OBJECTS = solarsys/msise90_sub.o ../../ThirdParty/VF13ad/VF13.o ../../ThirdParty/VF13ad/VF13DEP.o 
+
+
 
     # parameter/EquinoctialParameters.o \
     # stopcond/BaseStopCondition.o \
@@ -437,9 +440,19 @@ $(BRIDGEOBJECTS): %.o: %.cpp %.hpp
 endif
 
 
-# Specific instructions for the fortran code
+## Specific instructions for the fortran code
 solarsys/msise90_sub.o: solarsys/msise90_sub.for
 	$(FORTRAN) -c solarsys/msise90_sub.for -o solarsys/msise90_sub.o $(F77_FLAGS) 
+
+../../ThirdParty/VF13ad/VF13.o: ../../ThirdParty/VF13ad/VF13.for
+	$(FORTRAN) -c ../../ThirdParty/VF13ad/VF13.for -o ../../ThirdParty/VF13ad/VF13.o $(F77_FLAGS) 
+
+../../ThirdParty/VF13ad/VF13DEP.o: ../../ThirdParty/VF13ad/VF13DEP.for
+	$(FORTRAN) -c ../../ThirdParty/VF13ad/VF13DEP.for -o ../../ThirdParty/VF13ad/VF13DEP.o $(F77_FLAGS) 
+
+#solarsys/msise90_sub.o: solarsys/msise90_sub.c
+#	gcc -c solarsys/msise90_sub.c -o solarsys/msise90_sub.o $(HEADERS) $(CPP_FLAGS) 
+
 
 # Instructions for the console app interfaces
 interpreter/GuiInterpreterConsole.o : interpreter/GuiInterpreter.cpp \
