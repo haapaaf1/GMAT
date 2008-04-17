@@ -615,11 +615,12 @@ std::string Solver::GetParameterTypeString(const Integer id) const
 bool Solver::IsParameterReadOnly(const Integer id) const
 {
    if ((id == NUMBER_OF_VARIABLES) ||
+       (id == variableNamesID) ||
        (id == RegisteredVariables) ||
        (id == RegisteredComponents))
       return true;
 
-   return GmatBase::IsParameterReadOnly(id);
+   return false;//GmatBase::IsParameterReadOnly(id);
 }
 
 

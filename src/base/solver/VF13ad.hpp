@@ -46,6 +46,28 @@ public:
    VF13ad(const VF13ad& sd);
    VF13ad& operator=(const VF13ad& sd);
    
+   virtual bool                 IsParameterReadOnly(const Integer id) const;
+   virtual bool                 IsParameterReadOnly(
+                                       const std::string &label) const;
+   virtual Gmat::ParameterType  GetParameterType(const Integer id) const;
+   virtual std::string          GetParameterTypeString(const Integer id) const;
+   virtual std::string          GetParameterText(const Integer id) const;
+   virtual Integer              GetParameterID(const std::string &str) const;
+   virtual std::string          GetStringParameter(const Integer id) const;
+   virtual bool                 SetStringParameter(const Integer id, 
+                                       const std::string &value);
+   virtual std::string          GetStringParameter(
+                                       const std::string &label) const;
+   virtual bool                 SetStringParameter(const std::string &label, 
+                                       const std::string &value);
+   virtual bool                 GetBooleanParameter(const Integer id) const;
+   virtual bool                 SetBooleanParameter(const Integer id, 
+                                       const bool value);
+   virtual bool                 GetBooleanParameter(
+                                       const std::string &label) const;
+   virtual bool                 SetBooleanParameter(const std::string &label, 
+                                       const bool value);
+
    virtual Integer      SetSolverResults(Real *data,
                                         const std::string &name,
                                         const std::string &type = "");
@@ -65,20 +87,20 @@ protected:
    Jacobian             jacobianCalculator;
    std::vector<Real>    jacobian;
    Integer              retCode;
+   bool                 useCentralDifferences;
 
    enum
    {
-      goalNameID = SolverParamCount,
-//      constraintNameID,
+      goalNameID = InternalOptimizerParamCount,
       useCentralDifferencesID,
       VF13adParamCount
    };
 
    static const std::string      PARAMETER_TEXT[VF13adParamCount -
-                                              SolverParamCount];
+                                                OptimizerParamCount];
    static const Gmat::ParameterType
                                  PARAMETER_TYPE[VF13adParamCount -
-                                              SolverParamCount];
+                                                OptimizerParamCount];
 
    // State machine methods
    virtual void                  RunNominal();

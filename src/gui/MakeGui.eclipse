@@ -187,6 +187,7 @@ OBJECTS = \
     solarsys/SolarSystemWindow.o \
     solarsys/UniversePanel.o \
     solver/DCSetupPanel.o \
+    solver/SolverSetupPanel.o \
     solver/SQPSetupPanel.o \
     solver/SolverCreatePanel.o \
     solver/SolverGoalsPanel.o \
@@ -204,7 +205,7 @@ OBJECTS = \
 
 $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	cp -f $(WXTARGET) ../../bin/.
+	mv -f $(WXTARGET)* ../../bin/.
 
 macrez:
 	echo "linking Carbon and wx resource files ......."

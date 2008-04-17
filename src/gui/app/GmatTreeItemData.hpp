@@ -151,6 +151,7 @@ namespace GmatTree
       BROYDEN,
       QUASI_NEWTON,
       SQP,
+      Solver,
       
       REPORT_FILE,
       XY_PLOT,

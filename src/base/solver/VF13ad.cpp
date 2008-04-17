@@ -42,18 +42,16 @@ extern "C"
 //------------------------------------------------------------------------------
 
 const std::string
-VF13ad::PARAMETER_TEXT[VF13adParamCount - SolverParamCount] =
+VF13ad::PARAMETER_TEXT[VF13adParamCount - OptimizerParamCount] =
 {
-//   "Objective",
-//   "Constraint",
+   "goalName",
    "UseCentralDifferences"
 };
 
 const Gmat::ParameterType
-VF13ad::PARAMETER_TYPE[VF13adParamCount - SolverParamCount] =
+VF13ad::PARAMETER_TYPE[VF13adParamCount - OptimizerParamCount] =
 {
-   Gmat::STRINGARRAY_TYPE,
-//   Gmat::STRINGARRAY_TYPE,
+   Gmat::STRING_TYPE,
    Gmat::BOOLEAN_TYPE
 };
 
@@ -66,6 +64,7 @@ VF13ad::PARAMETER_TYPE[VF13adParamCount - SolverParamCount] =
 VF13ad::VF13ad(const std::string &name) :
    InternalOptimizer       ("VF13ad", name),
    retCode                 (-101),
+   useCentralDifferences   (false),
    workspaceLength         (200),
    numConstraints          (0),
    varLength               (1),
@@ -81,6 +80,10 @@ VF13ad::VF13ad(const std::string &name) :
    objectiveFnName = "SDObjective";
    tolerance       = 1.0e-5;
    maxIterations   = 200;
+   
+   parameterCount = VF13adParamCount;
+   
+   MessageInterface::ShowMessage("VF13 parameter count = %d\n", parameterCount);
 }
 
 
@@ -93,6 +96,7 @@ VF13ad::VF13ad(const VF13ad& sd) :
    InternalOptimizer       (sd),
    jacobian                (sd.jacobian),
    retCode                 (sd.retCode),
+   useCentralDifferences   (sd.useCentralDifferences),
    workspaceLength         (sd.workspaceLength),
    numConstraints          (sd.numConstraints),
    varLength               (sd.varLength),
@@ -125,6 +129,276 @@ GmatBase* VF13ad::Clone() const
 {
    return new VF13ad(*this);
 }
+
+bool VF13ad::IsParameterReadOnly(const Integer id) const
+{
+   if (id == goalNameID)
+      return true;
+
+   return InternalOptimizer::IsParameterReadOnly(id);
+}
+
+bool VF13ad::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
+
+//---------------------------------------------------------------------------
+//  Gmat::ParameterType GetParameterType(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the enumerated type of the object.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The enumeration for the type of the parameter, or
+ *         UNKNOWN_PARAMETER_TYPE.
+ */
+Gmat::ParameterType VF13ad::GetParameterType(const Integer id) const
+{
+   if (id >= InternalOptimizerParamCount && id < VF13adParamCount)
+      return PARAMETER_TYPE[id - InternalOptimizerParamCount];
+      
+   return InternalOptimizer::GetParameterType(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  std::string GetParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the string associated with a parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return Text description for the type of the parameter, or the empty
+ *         string ("").
+ */
+std::string VF13ad::GetParameterTypeString(const Integer id) const
+{
+   return InternalOptimizer::PARAM_TYPE_STRING[GetParameterType(id)];
+}
+
+
+//---------------------------------------------------------------------------
+//  std::string GetParameterText(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the description for the parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return String description for the requested parameter.
+ *
+ * @note The parameter strings should not include any white space
+ */
+std::string VF13ad::GetParameterText(const Integer id) const
+{
+   if (id >= InternalOptimizerParamCount && id < VF13adParamCount)
+      return PARAMETER_TEXT[id - InternalOptimizerParamCount];
+   return InternalOptimizer::GetParameterText(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  Integer GetParameterID(const std::string &str) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the ID for the parameter given its description.
+ *
+ * @param <str> Description for the parameter.
+ *
+ * @return the parameter ID, or -1 if there is no associated ID.
+ */
+//---------------------------------------------------------------------------
+Integer VF13ad::GetParameterID(const std::string &str) const
+{
+   for (Integer i = InternalOptimizerParamCount; i < VF13adParamCount; i++)
+   {
+      if (str == PARAMETER_TEXT[i - InternalOptimizerParamCount])
+         return i;
+   }
+   
+   return InternalOptimizer::GetParameterID(str);
+}
+
+
+//---------------------------------------------------------------------------
+//  std::string GetStringParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve a string parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The string stored for this parameter, or throw ab=n exception if 
+ *         there is no string association.
+ */
+std::string VF13ad::GetStringParameter(const Integer id) const
+{
+   if (id == goalNameID)
+      return objectiveName;
+      
+   return InternalOptimizer::GetStringParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetStringParameter(const Integer id, const std::string &value)
+//---------------------------------------------------------------------------
+/**
+ * Change the value of a string parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ * @param <value> The new string for this parameter.
+ *
+ * @return true if the string is stored, throw if the parameter is not stored.
+ */
+bool VF13ad::SetStringParameter(const Integer id, const std::string &value)
+{
+   if (id == goalNameID)
+   {
+      objectiveName = value;
+      return true;
+   }
+   
+   return InternalOptimizer::SetStringParameter(id, value);
+}
+
+//---------------------------------------------------------------------------
+//  std::string GetStringParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve a string parameter.
+ *
+ * @param <label> The (string) label for the parameter.
+ *
+ * @return The string stored for this parameter, or the empty string if there
+ *         is no string association.
+ */
+std::string VF13ad::GetStringParameter(const std::string &label) const
+{
+   Integer id = GetParameterID(label);
+   return GetStringParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetStringParameter(const std::string &label, const std::string &value)
+//---------------------------------------------------------------------------
+/**
+ * Change the value of a string parameter.
+ *
+ * @param <label> The (string) label for the parameter.
+ * @param <value> The new string for this parameter.
+ *
+ * @return true if the string is stored, false if not.
+ */
+bool VF13ad::SetStringParameter(const std::string &label, 
+                                  const std::string &value)
+{
+   Integer id = GetParameterID(label);
+   return SetStringParameter(id, value);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool GetBooleanParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve a boolean parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return the boolean value for this parameter, or throw an exception if the
+ *         parameter access in invalid.
+ */
+bool VF13ad::GetBooleanParameter(const Integer id) const
+{
+   if (id == useCentralDifferencesID)
+      return useCentralDifferences;
+   
+   return InternalOptimizer::GetBooleanParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetBooleanParameter(const Integer id, const bool value)
+//---------------------------------------------------------------------------
+/**
+ * Sets the value for a boolean parameter.
+ *
+ * @param id The integer ID for the parameter.
+ * @param value The new value.
+ * 
+ * @return the boolean value for this parameter, or throw an exception if the 
+ *         parameter is invalid or not boolean.
+ */
+bool VF13ad::SetBooleanParameter(const Integer id, const bool value)
+{
+   if (id == useCentralDifferencesID)
+   {
+      useCentralDifferences = value;
+      return true;
+   }
+   
+   return InternalOptimizer::SetBooleanParameter(id, value);
+}
+
+//---------------------------------------------------------------------------
+//  bool GetBooleanParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve a boolean parameter.
+ *
+ * @param <label> The (string) label for the parameter.
+ *
+ * @return the boolean value for this parameter, or false if the parameter is
+ *         not boolean.
+ */
+bool VF13ad::GetBooleanParameter(const std::string &label) const
+{
+   Integer id = GetParameterID(label);
+   return GetBooleanParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetBooleanParameter(const std::string &label, const bool value)
+//---------------------------------------------------------------------------
+/**
+ * Sets the value for a boolean parameter.
+ *
+ * @param <label> The (string) label for the parameter.
+ *
+ * @return the boolean value for this parameter, or false if the parameter is
+ *         not boolean.
+ */
+bool VF13ad::SetBooleanParameter(const std::string &label, const bool value)
+{
+   Integer id = GetParameterID(label);
+   return SetBooleanParameter(id, value);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -124,6 +124,23 @@ Optimizer&
    return *this;
 }
 
+bool Optimizer::IsParameterReadOnly(const Integer id) const
+{
+   if ((id == OBJECTIVE_FUNCTION) ||
+       (id == EQUALITY_CONSTRAINT_NAMES) ||
+       (id == INEQUALITY_CONSTRAINT_NAMES))
+      return true;
+      
+   return Solver::IsParameterReadOnly(id);
+}
+
+
+bool Optimizer::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
+
 bool Optimizer::Initialize()
 {
    if (variableNames.size() == 0)  // constraints are not required

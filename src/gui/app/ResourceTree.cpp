@@ -430,6 +430,7 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
       break;
    case GmatTree::DIFF_CORR:
    case GmatTree::SQP:
+   case GmatTree::Solver:
       theGuiManager->UpdateSolver();
       break;
    case GmatTree::BARYCENTER:
@@ -933,7 +934,7 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
       {
       	// Set generic optimizer stuff here!
          AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
-                    new GmatTreeItemData(wxT(objName), GmatTree::SQP));
+                    new GmatTreeItemData(wxT(objName), GmatTree::Solver));
       }
    };
       
@@ -1469,6 +1470,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
         (itemType == GmatTree::OPENGL_PLOT) ||
         (itemType == GmatTree::DIFF_CORR) ||
         (itemType == GmatTree::SQP) ||
+        (itemType == GmatTree::Solver) ||
         (itemType == GmatTree::BARYCENTER) ||
         (itemType == GmatTree::VARIABLE) ||
         (itemType == GmatTree::LIBRATION_POINT) )
@@ -2037,7 +2039,7 @@ void ResourceTree::OnAddSteepDescent(wxCommandEvent &event)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
-                 new GmatTreeItemData(name, GmatTree::SQP));
+                 new GmatTreeItemData(name, GmatTree::Solver));
       Expand(item);
       
       theGuiManager->UpdateSolver();
@@ -2064,7 +2066,7 @@ void ResourceTree::OnAddVF13(wxCommandEvent &event)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
-                 new GmatTreeItemData(name, GmatTree::SQP));
+                 new GmatTreeItemData(name, GmatTree::Solver));
       Expand(item);
       
       theGuiManager->UpdateSolver();
@@ -3247,6 +3249,7 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
    case GmatTree::DIFF_CORR:
       return mBoundarySolverItem;
    case GmatTree::SQP:
+   case GmatTree::Solver:
       return mOptimizerItem;
    case GmatTree::REPORT_FILE:
    case GmatTree::XY_PLOT:
@@ -3319,6 +3322,7 @@ GmatTree::IconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType itemType)
    case GmatTree::LIBRATION_POINT:
    case GmatTree::DIFF_CORR:
    case GmatTree::SQP:
+   case GmatTree::Solver:
       return GmatTree::ICON_DEFAULT;
    default:
       if (itemType >= GmatTree::RESOURCES_FOLDER &&

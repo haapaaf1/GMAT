@@ -32,6 +32,13 @@ public:
    InternalOptimizer&      operator=(const InternalOptimizer& opt);
 
    virtual bool        Initialize();
+   
+protected:
+   
+   enum
+   {
+      InternalOptimizerParamCount = OptimizerParamCount
+   };
 };
 
 #endif /*InternalOptimizer_hpp*/

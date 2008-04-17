@@ -44,6 +44,9 @@ public:
 
    virtual std::string GetProgressString();
 
+   virtual bool         IsParameterReadOnly(const Integer id) const;
+   virtual bool         IsParameterReadOnly(const std::string &label) const;
+
 
    // Access methods overriden from the base class
 
