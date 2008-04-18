@@ -110,6 +110,8 @@ protected:
       OptimizerParamCount
    };
    
+   /// Flag that is toggled when a Minimize command registers itself
+   bool              objectiveDefined;
    /// name of the objective function
    std::string       objectiveFnName;
    /// latest value obtained for the objective function

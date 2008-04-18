@@ -58,7 +58,8 @@ const Integer Optimizer::INEQ_CONST_START = 2000;
 
 Optimizer::Optimizer(std::string typeName, std::string name) :
    Solver                  (typeName, name),
-   objectiveFnName         ("Objective"),
+   objectiveDefined        (false),
+   objectiveFnName         (""),
    cost                    (0.0),   // valid value?
    tolerance               (0.0),   // valid value?
    converged               (false),
@@ -78,7 +79,8 @@ Optimizer::~Optimizer()
 
 Optimizer::Optimizer(const Optimizer &opt) :
    Solver                  (opt),
-   objectiveFnName         ("Objective"),
+   objectiveDefined        (false),
+   objectiveFnName         (""),
    cost                    (opt.cost), 
    tolerance               (opt.tolerance), 
    converged               (false),
@@ -186,6 +188,8 @@ Integer Optimizer::SetSolverResults(Real *data,
    {
       // need to check here if the name is not the same as the 
       // objectiveFnName? (error)
+      objectiveDefined = true;
+      objectiveFnName = name;
       cost = data[0];
       return 0;
    }

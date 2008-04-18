@@ -222,6 +222,16 @@ protected:
    Integer              registeredVariableCount;
    /// The (optional) count of the elements used as goals or constraints
    Integer              registeredComponentCount;
+   
+   // Options for the Vary command
+   /// Determines if can control absolute range
+   bool                 AllowScaleFactors;
+   /// Determines if can control absolute range
+   bool                 AllowRangeLimits;
+   /// Determines if can control step limiting 
+   bool                 AllowStepsizeLimit;
+   /// Determines if individual variables can set perts
+   bool                 AllowIndependentPerts;
       
    /// Generic solver parameters.
    enum
@@ -234,6 +244,10 @@ protected:
       NUMBER_OF_VARIABLES,
       RegisteredVariables,
       RegisteredComponents,
+      AllowScaleSetting,
+      AllowRangeSettings,
+      AllowStepsizeSetting,
+      AllowVariablePertSetting,
       SolverParamCount
    };
    

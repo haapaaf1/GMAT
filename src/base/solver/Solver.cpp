@@ -41,6 +41,10 @@ Solver::PARAMETER_TEXT[SolverParamCount - GmatBaseParamCount] =
    "NumberOfVariables",
    "RegisteredVariables",
    "RegisteredComponents",
+   "AllowScaleSetting",
+   "AllowRangeSettings",
+   "AllowStepsizeSetting",
+   "AllowVariablePertSetting",
 };
 
 const Gmat::ParameterType
@@ -54,6 +58,10 @@ Solver::PARAMETER_TYPE[SolverParamCount - GmatBaseParamCount] =
    Gmat::INTEGER_TYPE,
    Gmat::INTEGER_TYPE,
    Gmat::INTEGER_TYPE,
+   Gmat::BOOLEAN_TYPE,
+   Gmat::BOOLEAN_TYPE,
+   Gmat::BOOLEAN_TYPE,
+   Gmat::BOOLEAN_TYPE,
 };
 
 const std::string    
@@ -102,7 +110,11 @@ Solver::Solver(const std::string &type, const std::string &name) :
    initialized             (false),
    instanceNumber          (0),    // 0 indicates 1st instance w/ this name
    registeredVariableCount (0),
-   registeredComponentCount(0)
+   registeredComponentCount(0),
+   AllowScaleFactors       (true),
+   AllowRangeLimits        (true),
+   AllowStepsizeLimit      (true),
+   AllowIndependentPerts   (true)
 {
    objectTypes.push_back(Gmat::SOLVER);
    objectTypeNames.push_back("Solver");
@@ -159,7 +171,10 @@ Solver::Solver(const Solver &sol) :
    solverTextFile          (sol.solverTextFile),
    instanceNumber          (sol.instanceNumber),
    registeredVariableCount (sol.registeredVariableCount),
-   registeredComponentCount(sol.registeredComponentCount)
+   registeredComponentCount(sol.registeredComponentCount),
+   AllowRangeLimits        (sol.AllowRangeLimits),
+   AllowStepsizeLimit      (sol.AllowStepsizeLimit),
+   AllowIndependentPerts   (sol.AllowIndependentPerts)
 {
    #ifdef DEBUG_SOLVER_INIT
       MessageInterface::ShowMessage(
@@ -617,7 +632,10 @@ bool Solver::IsParameterReadOnly(const Integer id) const
    if ((id == NUMBER_OF_VARIABLES) ||
        (id == variableNamesID) ||
        (id == RegisteredVariables) ||
-       (id == RegisteredComponents))
+       (id == RegisteredComponents) ||
+       (id == AllowRangeSettings) ||
+       (id == AllowStepsizeSetting) ||
+       (id == AllowVariablePertSetting))
       return true;
 
    return false;//GmatBase::IsParameterReadOnly(id);
@@ -723,10 +741,22 @@ Integer Solver::SetIntegerParameter(const Integer id,
 //------------------------------------------------------------------------------
 bool Solver::GetBooleanParameter(const Integer id) const
 {
-    if (id == ShowProgressID)
-        return showProgress;
-
-    return GmatBase::GetBooleanParameter(id);
+   if (id == ShowProgressID)
+       return showProgress;
+   
+   if (id == AllowScaleSetting)
+      return AllowScaleFactors;
+    
+   if (id == AllowRangeSettings)
+      return AllowRangeLimits;
+   
+   if (id == AllowStepsizeSetting)
+      return AllowStepsizeLimit;
+   
+   if (id == AllowVariablePertSetting)
+      return AllowIndependentPerts;
+   
+   return GmatBase::GetBooleanParameter(id);
 }
 
 

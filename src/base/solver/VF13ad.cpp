@@ -80,10 +80,8 @@ VF13ad::VF13ad(const std::string &name) :
    objectiveFnName = "SDObjective";
    tolerance       = 1.0e-5;
    maxIterations   = 200;
-   
    parameterCount = VF13adParamCount;
-   
-   MessageInterface::ShowMessage("VF13 parameter count = %d\n", parameterCount);
+   AllowRangeLimits = false;
 }
 
 
@@ -776,16 +774,17 @@ void VF13ad::RunPerturbation()
    variable.at(pertNumber) += perturbation.at(pertNumber);
    pertDirection.at(pertNumber) = 1.0;
    
-   if (variable[pertNumber] > variableMaximum[pertNumber])
-   {
-      pertDirection.at(pertNumber) = -1.0;
-      variable.at(pertNumber) -= 2.0 * perturbation.at(pertNumber);
-   }    
-   if (variable.at(pertNumber) < variableMinimum.at(pertNumber))
-   {
-      pertDirection.at(pertNumber) = -1.0;
-      variable.at(pertNumber) -= 2.0 * perturbation.at(pertNumber);
-   }
+   // Ranging is not supported in VF13ad
+   //   if (variable[pertNumber] > variableMaximum[pertNumber])
+   //   {
+   //      pertDirection.at(pertNumber) = -1.0;
+   //      variable.at(pertNumber) -= 2.0 * perturbation.at(pertNumber);
+   //   }    
+   //   if (variable.at(pertNumber) < variableMinimum.at(pertNumber))
+   //   {
+   //      pertDirection.at(pertNumber) = -1.0;
+   //      variable.at(pertNumber) -= 2.0 * perturbation.at(pertNumber);
+   //   }
        
    WriteToTextFile();
 }
@@ -793,7 +792,8 @@ void VF13ad::RunPerturbation()
 
 void VF13ad::CalculateParameters()
 {
-   gradientCalculator.Calculate(gradient);
+   if (objectiveDefined)
+      gradientCalculator.Calculate(gradient);
    if (eqConstraintCount + ineqConstraintCount > 0)
       jacobianCalculator.Calculate(jacobian);
    currentState = CHECKINGRUN;
@@ -827,7 +827,11 @@ void VF13ad::CheckCompletion()
    for (Integer i = 0; i < variableCount; ++i)
    {
       vars[i] = variable.at(i);
-      grad[i] = gradient.at(i);
+      
+      if (objectiveDefined)
+         grad[i] = gradient.at(i);
+      else
+         grad[i] = 0.0;
       
       for (Integer j = 0; j < numConstraints; ++j)
       {

@@ -104,7 +104,7 @@ SolutionData = '------------- Solution Data -----------------'
 %-----------------Create and Setup the Optimizer------------------
 %-----------------------------------------------------------------
 Create VF13ad vf13
-vf13.Tolerance = 1.0e-6
+vf13.Tolerance = 1.0e-11
 vf13.MaximumIterations = 1000;
 
 

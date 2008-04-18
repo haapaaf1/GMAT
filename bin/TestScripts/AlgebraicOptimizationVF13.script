@@ -41,16 +41,16 @@ GMAT Data.ColumnWidth = 20;
 Optimize vf13;
 
     %  Vary the independent variables
-%    Vary vf13( Sat.X = 20  , {Perturbation = 0.000001, Upper = 10, Lower = -10, MaxStep = 25 } );
-%    Vary vf13( Sat.Y = 20  , {Perturbation = 0.000001, Upper = 10, Lower = -10, MaxStep = 25 } );
-    Vary vf13( Sat.X = 20  , {Perturbation = 0.000001, MaxStep = 25 } );
-    Vary vf13( Sat.Y = 20  , {Perturbation = 0.000001, MaxStep = 25 } );
+    Vary vf13( Sat.X = 20  , {Perturbation = 0.000001, Upper = 10, Lower = -10, MaxStep = 25 } );
+    Vary vf13( Sat.Y = 20  , {Perturbation = 0.000001, Upper = 10, Lower = -10, MaxStep = 25 } );
+%    Vary vf13( Sat.X = 20  , {Perturbation = 0.000001, MaxStep = 25 } );
+%    Vary vf13( Sat.Y = 20  , {Perturbation = 0.000001, MaxStep = 25 } );
     GMAT X1 = Sat.X;
     GMAT X2 = Sat.Y;
    
     %  The cost function and Minimize command
     GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-%    Minimize vf13(F);
+    Minimize vf13(F);
 
     GMAT G =  X2 + X1;
     NonlinearConstraint vf13( G = 8 );
