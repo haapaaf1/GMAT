@@ -179,6 +179,20 @@ bool Moderator::Initialize(bool fromGui)
          (".....created  (%p)theScriptInterpreter\n", theScriptInterpreter);
       #endif
       
+      // Load the dynamic libraries
+      MessageInterface::ShowMessage("Defining VFLib...");
+      DynamicLibrary *vflib = new DynamicLibrary("VF13Optimizer");
+      MessageInterface::ShowMessage("...Loading VFLib...");
+      if (vflib->LoadDynamicLibrary())
+      {
+         MessageInterface::ShowMessage("...Success...Closing");
+         delete vflib;
+         MessageInterface::ShowMessage("...VFLib closed\n");
+      }
+      else
+         MessageInterface::ShowMessage("...VFLib did not open.\n");
+
+      
       // Create default SolarSystem
       theDefaultSolarSystem = CreateSolarSystem("DefaultSolarSystem");
       

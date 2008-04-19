@@ -171,6 +171,8 @@ OBJECTS = \
     coordsystem/TOEEcAxes.o \
     coordsystem/TOEEqAxes.o \
     coordsystem/TrueOfDateAxes.o \
+    executive/DynamicLibrary.o \
+    executive/DynamicLoader.o \
     executive/FileManager.o \
     executive/Moderator.o \
     executive/PublisherException.o \

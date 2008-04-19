@@ -29,6 +29,9 @@
 #include "ConfigManager.hpp"
 #include "Publisher.hpp"
 #include "FileManager.hpp"
+// dynamic libraries
+#include "DynamicLoader.hpp"
+#include "DynamicLibrary.hpp"
 // core
 #include "AtmosphereModel.hpp"
 #include "Attitude.hpp"
