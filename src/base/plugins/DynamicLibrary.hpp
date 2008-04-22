@@ -25,6 +25,7 @@
 
 
 #include "gmatdefs.hpp"
+#include "Factory.hpp"
 
 
 class DynamicLibrary
@@ -37,6 +38,9 @@ public:
 
    bool                 LoadDynamicLibrary();
    void                 (*GetFunction(const std::string &funName))();
+
+   Integer              GetFactoryCount();
+   Factory*             GetGmatFactory(Integer index = 0);
    
 protected:
    std::string          libName;

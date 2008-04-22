@@ -57,6 +57,7 @@ HEADERS = -I../base/include \
           -I../base/interpolator \
           -I../base/interface \
           -I../base/parameter \
+          -I../base/plugins \
           -I../base/configs \
           -I../base/burn \
           -I../base/solver \

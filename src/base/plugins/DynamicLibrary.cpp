@@ -104,7 +104,7 @@ void (*DynamicLibrary::GetFunction(const std::string &funName))()
    #ifdef __WIN32__
       func = (void(*)())GetProcAddress((HINSTANCE)libHandle, funName.c_str());
    #else
-      func = dlsym(libHandle, funName.c_str());
+      func = (void(*)())dlsym(libHandle, funName.c_str());
    #endif
       
    if (func == NULL)
@@ -113,4 +113,44 @@ void (*DynamicLibrary::GetFunction(const std::string &funName))()
             funName + "\"\n");
    
    return func;
+}
+
+
+Integer DynamicLibrary::GetFactoryCount()
+{
+   if (libHandle == NULL)
+      throw GmatBaseException("Library " + libName + " has not been opened "
+            "successfully; cannot search for factories \n");
+   
+   Integer (*FactoryCount)() = NULL;
+
+   try
+   {
+      FactoryCount = (Integer(*)())GetFunction("FactoryCount");
+   }
+   catch (GmatBaseException& ex)
+   {
+      return 0;
+   }
+   
+   return FactoryCount();   
+}
+
+
+Factory* DynamicLibrary::GetGmatFactory(Integer index)
+{
+   if (libHandle == NULL)
+      throw GmatBaseException("Library " + libName + " has not been opened "
+            "successfully; cannot search for factories \n");
+   
+   bool    (*GetFactory)(Integer, Factory*) = NULL;
+   Factory *theFactory = NULL;
+
+   GetFactory = (bool(*)(Integer, Factory*))GetFunction("GetFactoryPointer");
+   if (GetFactory(index, theFactory) == false)
+      MessageInterface::ShowMessage(
+            "Cannot access factory #%d in the \"%s\" library\n", index, 
+            libName.c_str());
+      
+   return theFactory;
 }

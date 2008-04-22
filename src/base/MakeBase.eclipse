@@ -56,6 +56,7 @@ HEADERS = -Iinclude \
           -Iinterpolator \
           -Iinterface \
           -Iparameter \
+          -Iplugins \
           -Iconfigs \
           -Iburn \
           -Isolver \
@@ -171,8 +172,6 @@ OBJECTS = \
     coordsystem/TOEEcAxes.o \
     coordsystem/TOEEqAxes.o \
     coordsystem/TrueOfDateAxes.o \
-    executive/DynamicLibrary.o \
-    executive/DynamicLoader.o \
     executive/FileManager.o \
     executive/Moderator.o \
     executive/PublisherException.o \
@@ -315,6 +314,8 @@ OBJECTS = \
     parameter/TimeString.o \
     parameter/Variable.o \
     parameter/VariableWrapper.o \
+    plugins/DynamicLibrary.o \
+    plugins/DynamicLoader.o \
     propagator/AdamsBashforthMoulton.o \
     propagator/BulirschStoer.o \
     propagator/Cowell.o \
@@ -419,7 +420,9 @@ OBJECTS = \
 #    $(BRIDGEOBJECTS)
 
 
-FORTRAN_OBJECTS = solarsys/msise90_sub.o ../../ThirdParty/VF13ad/VF13.o ../../ThirdParty/VF13ad/VF13DEP.o 
+FORTRAN_OBJECTS = solarsys/msise90_sub.o 
+
+# ../../ThirdParty/VF13ad/VF13.o ../../ThirdParty/VF13ad/VF13DEP.o 
 
 
 
