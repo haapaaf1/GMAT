@@ -1,3 +1,25 @@
+//$Id$
+//------------------------------------------------------------------------------
+//                              DynamicLibrary
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG06CA54C
+//
+// Author: Darrel J. Conway, Thinking Systems, Inc.
+// Created: 2008/04/18
+//
+/**
+ * Implementation for library code loaded at run time.
+ * 
+ * This is prototype code.
+ */
+//------------------------------------------------------------------------------
+
+
 #include "DynamicLibrary.hpp"
 
 #include "GmatBaseException.hpp"
@@ -70,17 +92,17 @@ bool DynamicLibrary::LoadDynamicLibrary()
    return true;
 }
 
-void *DynamicLibrary::GetFunction(std::string &funName)
+void (*DynamicLibrary::GetFunction(const std::string &funName))()
 {
    if (libHandle == NULL)
       throw GmatBaseException("Library " + libName + 
             " has not been opened successfully; cannot search for function \"" + 
             funName + "\"\n");
    
-   void *func = NULL;
+   void (*func)() = NULL;
    
    #ifdef __WIN32__
-      func = (void*) GetProcAddress((HINSTANCE)libHandle, funName.c_str());
+      func = (void(*)())GetProcAddress((HINSTANCE)libHandle, funName.c_str());
    #else
       func = dlsym(libHandle, funName.c_str());
    #endif

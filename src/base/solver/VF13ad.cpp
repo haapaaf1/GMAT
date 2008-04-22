@@ -1,4 +1,4 @@
-// $Id$
+//$Id$
 //------------------------------------------------------------------------------
 //                              VF13ad
 //------------------------------------------------------------------------------
@@ -25,6 +25,9 @@
 #include "VF13ad.hpp"
 #include "MessageInterface.hpp"
 #include <sstream>
+
+// THIS IS TEMPORARY TO TEST STUFF -- DELETE IT ASAP!!!
+#include "Moderator.hpp"
 
 extern "C"
 {
@@ -673,12 +676,21 @@ void VF13ad::SetResultValue(Integer id, Real value,
 //------------------------------------------------------------------------------
 bool VF13ad::Initialize()
 {
+   /// @note The current DLL implementation here is a kludge, and requires a 
+   /// Moderator pointer.  This must be fixed for the production code!
+   Moderator *theModerator = Moderator::Instance();
+      
+   if (theModerator->IsLibraryLoaded("VF13Optimizer") == false)
+      throw SolverException(
+            "VF13AD cannot execute -- the HSL library is missing!\n");
+      
+
    #ifdef DEBUG_VF13_INIT
       MessageInterface::ShowMessage("VF13ad::Initialize() entered for %s; "
             "%d variables and %d constraints\n", instanceName.c_str(), 
             registeredVariableCount, registeredComponentCount);
    #endif
-      
+
    // Variable initialization is in the Solver code
    bool retval = InternalOptimizer::Initialize();
    
@@ -815,6 +827,17 @@ void VF13ad::CalculateParameters()
 
 void VF13ad::CheckCompletion()
 {
+   void (*vf13Function)();
+
+   /// @note The current DLL implementation here is a kludge, and requires a 
+   /// Moderator pointer.  This must be fixed for the production code!
+   Moderator *theModerator = Moderator::Instance();
+   vf13Function = theModerator->GetDynamicFunction("vf13ad_", 
+         "VF13Optimizer");
+   if (vf13Function == NULL)
+      throw SolverException(
+            "VF13AD cannot execute -- Cannot locate the function vf13ad_!\n");
+   
    if (vars == NULL)
       throw SolverException("Solver is uninitialized!\n");
 
@@ -847,7 +870,6 @@ void VF13ad::CheckCompletion()
    for (Integer j = eqConstraintCount; j < numConstraints; ++j)
       constraints[j] = -ineqConstraintValues.at(j - eqConstraintCount);
       
-
    #ifdef DEBUG_VF13_CALL
       MessageInterface::ShowMessage("   X:  [");
       for (Integer i = 0; i < variableCount; ++i)
@@ -947,8 +969,16 @@ void VF13ad::CheckCompletion()
       MessageInterface::ShowMessage("   iprint               %d\n", iprint);
       MessageInterface::ShowMessage("   retCode              %d\n\n", retCode);
    #endif
-
-   vf13ad_(
+      
+   void (*vf13ad)(Integer*, Integer*, Integer*, Real*, Real*, Real*, Real*,
+         Real*, Integer*, Integer*, Real*, Integer*, Integer*, Real*, Integer*,  
+         Integer*);
+   
+   vf13ad = (void (*)(Integer*, Integer*, Integer*, Real*, Real*, Real*, Real*,
+         Real*, Integer*, Integer*, Real*, Integer*, Integer*, Real*, Integer*,  
+         Integer*))vf13Function; 
+   
+   vf13ad(
          &variableCount,
          &numConstraints,
          &eqConstraintCount,

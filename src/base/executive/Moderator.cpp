@@ -180,18 +180,8 @@ bool Moderator::Initialize(bool fromGui)
       #endif
       
       // Load the dynamic libraries
-      MessageInterface::ShowMessage("Defining VFLib...");
-      DynamicLibrary *vflib = new DynamicLibrary("VF13Optimizer");
-      MessageInterface::ShowMessage("...Loading VFLib...");
-      if (vflib->LoadDynamicLibrary())
-      {
-         MessageInterface::ShowMessage("...Success...Closing");
-         delete vflib;
-         MessageInterface::ShowMessage("...VFLib closed\n");
-      }
-      else
-         MessageInterface::ShowMessage("...VFLib did not open.\n");
-
+      MessageInterface::ShowMessage("Loading VFLib...");
+      LoadLibrary("VF13Optimizer");
       
       // Create default SolarSystem
       theDefaultSolarSystem = CreateSolarSystem("DefaultSolarSystem");
@@ -344,6 +334,15 @@ void Moderator::Finalize()
          delete cmd;
          cmd = NULL;
          commands[0] = NULL;
+      }
+
+      // Close out the user libraries
+      std::map<std::string, DynamicLibrary*>::iterator i;
+      for (i = userLibraries.begin(); i != userLibraries.end(); ++i)
+      {
+         delete i->second;
+         i->second = NULL;
+         MessageInterface::ShowMessage("Closed %s.\n", i->first.c_str());
       }
       
 //       #if DEBUG_FINALIZE
@@ -5299,4 +5298,44 @@ Moderator::Moderator()
 //------------------------------------------------------------------------------
 Moderator::~Moderator()
 {
+}
+
+// Dynamic library code
+bool Moderator::LoadLibrary(const std::string &libraryName)
+{
+   bool retval = false;
+   DynamicLibrary *theLib = new DynamicLibrary(libraryName);
+   MessageInterface::ShowMessage("...Loading Library \"%s\"", 
+         libraryName.c_str());
+   if (theLib->LoadDynamicLibrary())
+   {
+      userLibraries[libraryName] = theLib;
+      MessageInterface::ShowMessage("...Success!\n");
+      retval = true;
+   }
+   else
+   {
+      MessageInterface::ShowMessage("...Library did not open.\n");
+      delete theLib;
+   }
+   
+   return retval;
+}
+
+bool Moderator::IsLibraryLoaded(const std::string &libName)
+{
+   bool retval = false;
+   if (userLibraries.find(libName) != userLibraries.end())
+      retval = true;
+   
+   return retval;
+}
+
+void (*Moderator::GetDynamicFunction(const std::string &funName, 
+      const std::string &libraryName))()
+{
+   void (*theFunction)() = NULL;
+   if (IsLibraryLoaded(libraryName))
+      theFunction = userLibraries[libraryName]->GetFunction(funName);
+   return theFunction;
 }

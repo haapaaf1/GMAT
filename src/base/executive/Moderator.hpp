@@ -288,6 +288,12 @@ public:
    std::string GetScript(Gmat::WriteMode mode = Gmat::SCRIPTING);
    Integer RunScript(Integer sandboxNum = 1);
    
+   // Dynamic library access code
+   bool   LoadLibrary(const std::string &libraryName);
+   bool   IsLibraryLoaded(const std::string &libName);
+   void   (*GetDynamicFunction(const std::string &funName, 
+         const std::string &libraryName))();
+   
 private:
 
    // initialization
@@ -362,6 +368,9 @@ private:
    ItrfCoefficientsFile *theItrfFile;
    LeapSecsFileReader *theLeapSecsFile;
    Gmat::RunState runState;
+   
+   // Dynamic library data structures
+   std::map<std::string, DynamicLibrary*>   userLibraries;
 };
 
 #endif // Moderator_hpp
