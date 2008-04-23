@@ -179,9 +179,8 @@ bool Moderator::Initialize(bool fromGui)
          (".....created  (%p)theScriptInterpreter\n", theScriptInterpreter);
       #endif
       
-      // Load the dynamic libraries
-      MessageInterface::ShowMessage("Loading VFLib...");
-      LoadLibrary("VF13Optimizer");
+      // Load the dynamic libraries and plugins
+      LoadPlugins();
       
       // Create default SolarSystem
       theDefaultSolarSystem = CreateSolarSystem("DefaultSolarSystem");
@@ -5300,13 +5299,46 @@ Moderator::~Moderator()
 {
 }
 
+void Moderator::LoadPlugins()
+{
+   // This is done for all plugins in the startup file
+   std::string libName = "VF13Optimizer";
+   MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+         libName.c_str());
+   
+   LoadAPlugin(libName);
+   libName = "AbsentLibrary";
+   MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+         libName.c_str());
+      
+   LoadAPlugin(libName);
+}
+
+void Moderator::LoadAPlugin(std::string pluginName)
+{
+   DynamicLibrary *theLib = LoadLibrary(pluginName);
+   
+   if (theLib != NULL)
+   {
+      Integer fc = theLib->GetFactoryCount();
+      if (fc > 0)
+      {
+         // Do the GMAT factory dance
+      }
+      else
+         MessageInterface::ShowMessage(
+               "Library %s does not contain a factory\n", pluginName.c_str());
+   }
+   else
+      MessageInterface::ShowMessage(
+            "Unable to load the dynamic library \"%s\"\n", pluginName.c_str());
+}
+
 // Dynamic library code
-bool Moderator::LoadLibrary(const std::string &libraryName)
+DynamicLibrary *Moderator::LoadLibrary(const std::string &libraryName)
 {
    bool retval = false;
    DynamicLibrary *theLib = new DynamicLibrary(libraryName);
-   MessageInterface::ShowMessage("...Loading Library \"%s\"", 
-         libraryName.c_str());
    if (theLib->LoadDynamicLibrary())
    {
       userLibraries[libraryName] = theLib;
@@ -5317,9 +5349,10 @@ bool Moderator::LoadLibrary(const std::string &libraryName)
    {
       MessageInterface::ShowMessage("...Library did not open.\n");
       delete theLib;
+      theLib = NULL;
    }
    
-   return retval;
+   return theLib;
 }
 
 bool Moderator::IsLibraryLoaded(const std::string &libName)

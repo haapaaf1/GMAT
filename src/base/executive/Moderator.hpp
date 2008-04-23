@@ -30,7 +30,6 @@
 #include "Publisher.hpp"
 #include "FileManager.hpp"
 // dynamic libraries
-#include "DynamicLoader.hpp"
 #include "DynamicLibrary.hpp"
 // core
 #include "AtmosphereModel.hpp"
@@ -289,7 +288,9 @@ public:
    Integer RunScript(Integer sandboxNum = 1);
    
    // Dynamic library access code
-   bool   LoadLibrary(const std::string &libraryName);
+   void   LoadPlugins();
+   void   LoadAPlugin(std::string pluginName);
+   DynamicLibrary *LoadLibrary(const std::string &libraryName);
    bool   IsLibraryLoaded(const std::string &libName);
    void   (*GetDynamicFunction(const std::string &funName, 
          const std::string &libraryName))();
