@@ -110,6 +110,8 @@ public:
    // to check subscriber
    bool ValidateSubscriber(GmatBase *obj);
    
+   void BuildCreatableObjectMaps();
+   
 protected:
    
    /// A pointer to the ScriptReadWriter used when reading or writing script.

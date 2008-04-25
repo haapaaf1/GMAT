@@ -729,8 +729,9 @@ Factory* FactoryManager::FindFactory(Gmat::ObjectType ofType,
                
                if ((*s).compare(objType) == 0)
                {
-                  //MessageInterface::ShowMessage
-                  //   ("FactoryManager::FindFactory() Found factory:%s\n", forType.c_str());
+//                  MessageInterface::ShowMessage
+//                     ("FactoryManager::FindFactory() Found factory: %s\n", 
+//                           forType.c_str());
                   return (*f);
                }
                ++s;
@@ -771,8 +772,9 @@ const StringArray& FactoryManager::GetList(Gmat::ObjectType ofType)
          StringArray objs = (*f)->GetListOfCreatableObjects();
          if (!objs.empty())
             entireList.insert(entireList.end(), objs.begin(), objs.end());
-         
-         break;
+            
+         // No, No, No!!!  There may be multiple factories of a given type!!!
+         //break;
       }
       ++f;
    }

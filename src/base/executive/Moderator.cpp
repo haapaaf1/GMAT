@@ -5303,14 +5303,19 @@ void Moderator::LoadPlugins()
 {
    // This is done for all plugins in the startup file
    std::string libName = "VF13Optimizer";
-   MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
          libName.c_str());
-   
+   #endif
    LoadAPlugin(libName);
-   libName = "AbsentLibrary";
-   MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+
+   libName = "libgmatPlugins";
+
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
          libName.c_str());
-      
+   #endif
    LoadAPlugin(libName);
 }
 
@@ -5324,6 +5329,40 @@ void Moderator::LoadAPlugin(std::string pluginName)
       if (fc > 0)
       {
          // Do the GMAT factory dance
+         #ifdef DEBUG_PLUGIN_REGISTRATION
+            MessageInterface::ShowMessage(
+               "Library %s contains %d %s.\n", pluginName.c_str(), fc,
+               ( fc==1 ? "factory" : "factories"));
+   		#endif
+   		      
+         // Now pass factories to the FactoryManager
+         Factory *newFactory = NULL;
+         for (Integer i = 0; i < fc; ++i)
+         {
+            newFactory = theLib->GetGmatFactory(i);
+            if (newFactory != NULL)
+            {
+               if (theFactoryManager->RegisterFactory(newFactory) == false)
+                  MessageInterface::ShowMessage(
+                        "Factory %d in library %s failed to register with the "
+                        "Factory Manager.\n", i, pluginName.c_str());
+               else
+               {
+                  #ifdef DEBUG_PLUGIN_REGISTRATION
+                     MessageInterface::ShowMessage(
+                        "Factory %d in library %s is now registered with the "
+                        "Factory Manager!\n", i, pluginName.c_str());
+                  #endif
+                  
+                  theGuiInterpreter->BuildCreatableObjectMaps();
+                  theScriptInterpreter->BuildCreatableObjectMaps();
+               }
+            } 
+            else
+               MessageInterface::ShowMessage(
+                     "Factory %d in library %s was not constructed; a NULL "
+                     "pointer was returned instead.\n", i, pluginName.c_str());
+         }
       }
       else
          MessageInterface::ShowMessage(
@@ -5342,12 +5381,12 @@ DynamicLibrary *Moderator::LoadLibrary(const std::string &libraryName)
    if (theLib->LoadDynamicLibrary())
    {
       userLibraries[libraryName] = theLib;
-      MessageInterface::ShowMessage("...Success!\n");
       retval = true;
    }
    else
    {
-      MessageInterface::ShowMessage("...Library did not open.\n");
+      MessageInterface::ShowMessage(" *** Library %s did not open.\n",
+      		libraryName.c_str());
       delete theLib;
       theLib = NULL;
    }

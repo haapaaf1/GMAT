@@ -635,6 +635,7 @@ bool Solver::IsParameterReadOnly(const Integer id) const
        (id == RegisteredComponents) ||
        (id == AllowRangeSettings) ||
        (id == AllowStepsizeSetting) ||
+       (id == AllowScaleSetting) ||
        (id == AllowVariablePertSetting))
       return true;
 

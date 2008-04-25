@@ -21,10 +21,15 @@
 #include "gmatdefs.hpp"
 #include "SolverFactory.hpp"
 
+//#define __LOCAL_VF13AD__
+
 // Headers for the supported Solvers
 //#include "QuasiNewton.hpp"
 #include "SteepestDescent.hpp"
+
+#ifdef __LOCAL_VF13AD__
 #include "VF13ad.hpp"
+#endif
 
 #ifdef __USE_MATLAB__
 #include "FminconOptimizer.hpp"
@@ -70,8 +75,12 @@ Solver* SolverFactory::CreateSolver(const std::string &ofType,
    //   return new QuasiNewton(withName);
    else if (ofType == "SteepestDescent")
       return new SteepestDescent(withName);
-   else if (ofType == "VF13ad")
-      return new VF13ad(withName);
+      
+	#ifdef __LOCAL_VF13AD__
+   	else if (ofType == "VF13ad")
+      	return new VF13ad(withName);
+	#endif
+
    // else if (ofType == "Broyden")
    //   return new Broyden(withName);
    //else if (ofType == "ParametricScanner")
@@ -98,7 +107,10 @@ SolverFactory::SolverFactory() :
    {
       //creatables.push_back("QuasiNewton");
       creatables.push_back("SteepestDescent");
-      creatables.push_back("VF13ad");
+
+		#ifdef __LOCAL_VF13AD__
+      	creatables.push_back("VF13ad");
+		#endif
       
       #if defined __USE_MATLAB__
       creatables.push_back("FminconOptimizer");
@@ -143,7 +155,10 @@ SolverFactory::SolverFactory(const SolverFactory& fact) :
    {
       //creatables.push_back("QuasiNewton");
       creatables.push_back("SteepestDescent");
-      creatables.push_back("VF13ad");
+
+		#ifdef __LOCAL_VF13AD__
+      	creatables.push_back("VF13ad");
+		#endif
       
       #if defined __USE_MATLAB__
       creatables.push_back("FminconOptimizer");

@@ -23,6 +23,7 @@
 #include "DynamicLibrary.hpp"
 
 #include "GmatBaseException.hpp"
+#include "MessageInterface.hpp"
 
 // Platform specific library loader routines
 #ifdef __WIN32__
@@ -84,6 +85,9 @@ bool DynamicLibrary::LoadDynamicLibrary()
    #else
       nameWithPath += UNIX_EXTENSION;
       libHandle = dlopen(nameWithPath.c_str(), RTLD_LAZY);
+      
+      if (libHandle == NULL)
+         MessageInterface::ShowMessage("\n%s\n", dlerror());
    #endif
       
    if (libHandle == NULL)
@@ -126,7 +130,7 @@ Integer DynamicLibrary::GetFactoryCount()
 
    try
    {
-      FactoryCount = (Integer(*)())GetFunction("FactoryCount");
+      FactoryCount = (Integer(*)())GetFunction("GetFactoryCount");
    }
    catch (GmatBaseException& ex)
    {
@@ -143,11 +147,11 @@ Factory* DynamicLibrary::GetGmatFactory(Integer index)
       throw GmatBaseException("Library " + libName + " has not been opened "
             "successfully; cannot search for factories \n");
    
-   bool    (*GetFactory)(Integer, Factory*) = NULL;
-   Factory *theFactory = NULL;
-
-   GetFactory = (bool(*)(Integer, Factory*))GetFunction("GetFactoryPointer");
-   if (GetFactory(index, theFactory) == false)
+   Factory* (*GetFactory)(Integer) = NULL;
+   GetFactory = (Factory*(*)(Integer))GetFunction("GetFactoryPointer");
+   
+   Factory *theFactory = GetFactory(index);
+   if (theFactory == NULL)
       MessageInterface::ShowMessage(
             "Cannot access factory #%d in the \"%s\" library\n", index, 
             libName.c_str());
