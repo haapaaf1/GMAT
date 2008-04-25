@@ -3191,6 +3191,7 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
       break;
    case GmatTree::DIFF_CORR:
    case GmatTree::SQP:
+   case GmatTree::Solver:
       objType = Gmat::SOLVER;
       break;
    case GmatTree::REPORT_FILE:
