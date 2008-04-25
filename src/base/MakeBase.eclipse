@@ -88,7 +88,7 @@ archclean :
 	rm -rf $(CONSOLETARGET)
 	rm -rf ../matlab/gmat_mex/src/*.o
 
-OBJECTS = \
+ROOTOBJECTS = \
     attitude/Attitude.o \
     attitude/AttitudeException.o \
     attitude/CSFixed.o \
@@ -353,7 +353,6 @@ OBJECTS = \
     solver/InternalOptimizer.o \
     solver/Solver.o \
     solver/SteepestDescent.o \
-    solver/VF13ad.o \
     solver/DerivativeModel.o \
     solver/Gradient.o \
     solver/Jacobian.o \
@@ -418,6 +417,12 @@ OBJECTS = \
     $(TCPIP_OBJECTS)
     
 #    $(BRIDGEOBJECTS)
+
+ifeq (LOCAL_VF13,1)
+OBJECTS = $(ROOTOBJECTS) solver/VF13ad.o
+else
+OBJECTS = $(ROOTOBJECTS)
+endif
 
 
 FORTRAN_OBJECTS = solarsys/msise90_sub.o 
