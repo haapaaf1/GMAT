@@ -73,8 +73,6 @@ HEADERS = -Iinclude \
           -I../gui/foundation \
           -I../gui/plot \
           -I../gui/mission \
-          \
-          -I../../ThirdParty/VF13ad
 
 clean : archclean
 
@@ -90,7 +88,7 @@ archclean :
 	rm -rf $(CONSOLETARGET)
 	rm -rf ../matlab/gmat_mex/src/*.o
 
-ROOTOBJECTS = \
+OBJECTS = \
     attitude/Attitude.o \
     attitude/AttitudeException.o \
     attitude/CSFixed.o \
@@ -420,18 +418,8 @@ ROOTOBJECTS = \
     
 #    $(BRIDGEOBJECTS)
 
-ifeq (LOCAL_VF13,1)
-OBJECTS = $(ROOTOBJECTS) solver/VF13ad.o
-else
-OBJECTS = $(ROOTOBJECTS)
-endif
-
 
 FORTRAN_OBJECTS = solarsys/msise90_sub.o 
-
-# ../../ThirdParty/VF13ad/VF13.o ../../ThirdParty/VF13ad/VF13DEP.o 
-
-
 
     # parameter/EquinoctialParameters.o \
     # stopcond/BaseStopCondition.o \
@@ -455,12 +443,6 @@ endif
 ## Specific instructions for the fortran code
 solarsys/msise90_sub.o: solarsys/msise90_sub.for
 	$(FORTRAN) -c solarsys/msise90_sub.for -o solarsys/msise90_sub.o $(F77_FLAGS) 
-
-../../ThirdParty/VF13ad/VF13.o: ../../ThirdParty/VF13ad/VF13.for
-	$(FORTRAN) -c ../../ThirdParty/VF13ad/VF13.for -o ../../ThirdParty/VF13ad/VF13.o $(F77_FLAGS) 
-
-../../ThirdParty/VF13ad/VF13DEP.o: ../../ThirdParty/VF13ad/VF13DEP.for
-	$(FORTRAN) -c ../../ThirdParty/VF13ad/VF13DEP.for -o ../../ThirdParty/VF13ad/VF13DEP.o $(F77_FLAGS) 
 
 #solarsys/msise90_sub.o: solarsys/msise90_sub.c
 #	gcc -c solarsys/msise90_sub.c -o solarsys/msise90_sub.o $(HEADERS) $(CPP_FLAGS) 
