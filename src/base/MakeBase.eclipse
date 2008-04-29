@@ -23,13 +23,15 @@ TARGET = $(WXTARGET)
 # Note: ExternalOptimizer also uses some wx code, so it is included here
 
 ifeq ($(USE_MATLAB),1)
-BRIDGEOBJECTS = executive/MessageInterface.o \
+BRIDGEOBJECTS = util/MessageInterface.o \
+                util/MessageReceiver.o \
                 executive/PlotInterface.o \
                 interpreter/GuiInterpreter.o \
                 solver/ExternalOptimizer.o \
                 solver/FminconOptimizer.o       
 else
-BRIDGEOBJECTS = executive/MessageInterface.o \
+BRIDGEOBJECTS = util/MessageInterface.o \
+                util/MessageReceiver.o \
                 executive/PlotInterface.o \
                 interpreter/GuiInterpreter.o
 endif

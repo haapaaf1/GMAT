@@ -112,6 +112,7 @@ OBJECTS = \
     app/GmatNotebook.o \
     app/GmatServer.o \
     app/GmatTreeItemData.o \
+    app/GuiMessageReceiver.o \
     app/InteractiveMatlabDialog.o \
     app/MissionTreeItemData.o \
     app/RunScriptFolderDialog.o \

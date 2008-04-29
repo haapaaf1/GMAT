@@ -28,6 +28,7 @@
 #include "ViewTextFrame.hpp"
 #include "GmatAppData.hpp"
 #include "Moderator.hpp"
+#include "GuiMessageReceiver.hpp"
 
 //loj: We don't need these.
 //#include "wx/mdi.h"
@@ -55,7 +56,10 @@ IMPLEMENT_APP(GmatApp)
 //------------------------------------------------------------------------------
 GmatApp::GmatApp()
 {
-    theModerator = (Moderator *)NULL;
+   GuiMessageReceiver *theMessageReceiver = GuiMessageReceiver::Instance();
+   MessageInterface::SetMessageReceiver(theMessageReceiver);
+   
+   theModerator = (Moderator *)NULL;
 }
 
 
@@ -71,7 +75,7 @@ bool GmatApp::OnInit()
    bool status = false;
    
    try
-   {      
+   {  
       // create MessageWindow and save in GmatApp for later use
       GmatAppData::theMessageWindow =
          new ViewTextFrame((wxFrame *)NULL, _T("Message Window"),

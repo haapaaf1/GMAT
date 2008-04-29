@@ -90,6 +90,20 @@ bool DynamicLibrary::LoadDynamicLibrary()
          MessageInterface::ShowMessage("\n%s\n", dlerror());
    #endif
       
+   // Set the MessageReceiver if the Library needs it
+   try
+   {
+      void (*SetMR)(MessageReceiver*) = NULL;
+      
+      SetMR = (void (*)(MessageReceiver*))GetFunction("SetMessageReceiver");
+      MessageReceiver* mr = MessageInterface::GetMessageReceiver();
+      SetMR(mr);
+   }
+   catch (GmatBaseException& ex)
+   {
+      // Just ignore these exceptions
+   }
+      
    if (libHandle == NULL)
       return false;
    
