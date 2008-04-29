@@ -24,6 +24,7 @@
 
 #include "GmatBaseException.hpp"
 #include "MessageInterface.hpp"
+#include "MessageReceiver.hpp"
 
 // Platform specific library loader routines
 #ifdef __WIN32__
