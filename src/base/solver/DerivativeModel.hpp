@@ -29,6 +29,7 @@ public:
                                    UnsignedInt componentCount = 1);
    virtual void         Achieved(Integer pertNumber, Integer componentId, 
                                  Real dx, Real value, bool plusEffect = true);
+   virtual bool         Calculate(std::vector<Real> &) = 0;
 
 protected:
    derivativeMode       calcMode;
