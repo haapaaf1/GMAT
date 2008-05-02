@@ -26,7 +26,7 @@ namespace Gmat
 class MessageReceiver
 {
 public:
-   // DErived classes must implement the singleton accessor:
+   // Derived classes must implement the singleton accessor:
    // static MessageReceiver*  Instance();
    
    virtual void ShowMessage(const std::string &msg) = 0;
