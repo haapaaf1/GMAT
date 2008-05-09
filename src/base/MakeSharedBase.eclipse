@@ -7,9 +7,9 @@
 
 include ../BuildEnv.mk
 
-WXTARGET = lib/libGmatGui.a
+WXTARGET = lib/libGmatGui.so
 
-CONSOLETARGET = lib/libGmatConsole.a
+CONSOLETARGET = lib/libGmatConsole.so
 
 ifeq ($(CONSOLE_APP),1)
 TARGET = $(CONSOLETARGET)
@@ -426,8 +426,8 @@ FORTRAN_OBJECTS = solarsys/msise90_sub.o
 
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
 	mkdir -p lib
-	ar rs $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
-	ranlib $(TARGET)
+	$(CPP) -shared -Wl -o$(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) --out-implib
+#	ranlib $(TARGET)
 
 $(OBJECTS): %.o: %.cpp %.hpp
 	$(CPP) $(CPPFLAGS) $(HEADERS) -c -o $@ $<

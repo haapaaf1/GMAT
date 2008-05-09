@@ -5302,7 +5302,7 @@ Moderator::~Moderator()
 void Moderator::LoadPlugins()
 {
    // This is done for all plugins in the startup file
-   std::string libName = "VF13Optimizer";
+   std::string libName = "libVF13Optimizer";
 
    #ifdef DEBUG_PLUGIN_REGISTRATION
       MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
@@ -5310,13 +5310,13 @@ void Moderator::LoadPlugins()
    #endif
    LoadAPlugin(libName);
 
-   libName = "libgmatPlugins";
-
-   #ifdef DEBUG_PLUGIN_REGISTRATION
-      MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
-         libName.c_str());
-   #endif
-   LoadAPlugin(libName);
+//   libName = "libgmatPlugins";
+//
+//   #ifdef DEBUG_PLUGIN_REGISTRATION
+//      MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+//         libName.c_str());
+//   #endif
+//   LoadAPlugin(libName);
 }
 
 void Moderator::LoadAPlugin(std::string pluginName)
