@@ -5,6 +5,7 @@
 
 
 // #define DEBUG_JACOBIAN
+// #define DEBUG_JACOBIAN_DETAILS
 
 Jacobian::Jacobian() :
    DerivativeModel         (),
@@ -112,7 +113,7 @@ bool Jacobian::Calculate(std::vector<Real> &jac)
 
                #ifdef DEBUG_JACOBIAN_DETAILS      
                   MessageInterface::ShowMessage(
-                     "         [%d]: (%.12lf - %.12lf) / %.12lf = %.12lf\n", 
+                     "         FD[%d]: (%.12lf - %.12lf) / %.12lf = %.12lf\n", 
                      rowStart+i, plusPertEffect[rowStart+i], nominal[j], 
                      pert[i], jacobian[rowStart+i]);
                #endif
@@ -120,13 +121,34 @@ bool Jacobian::Calculate(std::vector<Real> &jac)
                break;
                
             case CENTRAL_DIFFERENCE:
-//               jacobian[i] = (plusPertEffect[rowStart+i] - minusPertEffect[rowStart+i]) / 
-//                             (2.0 * pert[i]);
-//               break;
+               jacobian[rowStart+i] = (plusPertEffect[rowStart+i] - 
+                             minusPertEffect[rowStart+i]) / 
+                             (2.0 * pert[i]);
+
+               #ifdef DEBUG_JACOBIAN_DETAILS      
+                  MessageInterface::ShowMessage(
+                     "         CD[%d]: (%.12lf - %.12lf) / 2 * %.12lf = %.12lf\n", 
+                     rowStart+i, plusPertEffect[rowStart+i], 
+                     minusPertEffect[rowStart+i], pert[i], 
+                     jacobian[rowStart+i]);
+               #endif
+               
+               break;
                
             case BACKWARD_DIFFERENCE:
-//               jacobian[i] = (nominal - minusPertEffect[rowStart+i]) / pert[i];
-//               break;
+               jacobian[rowStart+i] = (nominal[j] - 
+                              minusPertEffect[rowStart+i]) / 
+                              pert[i];
+
+               #ifdef DEBUG_JACOBIAN_DETAILS      
+                  MessageInterface::ShowMessage(
+                     "         CD[%d]: (%.12lf - %.12lf) / %.12lf = %.12lf\n", 
+                     rowStart+i, minusPertEffect[rowStart+i], 
+                     nominal[j], pert[i], 
+                     jacobian[rowStart+i]);
+               #endif
+               
+               break;
                
             default:
                throw SolverException(

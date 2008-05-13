@@ -10,7 +10,7 @@
 
 class DerivativeModel
 {
-protected:
+public:
    enum derivativeMode {
       FORWARD_DIFFERENCE,
       CENTRAL_DIFFERENCE,

@@ -118,17 +118,32 @@ bool Gradient::Calculate(std::vector<Real> &grad)
       switch (calcMode) 
       {
          case FORWARD_DIFFERENCE:
+            #ifdef DEBUG_GRADIENT
+            MessageInterface::ShowMessage("   FD[%d]:  %.15lf - %.15lf / %.15lf\n", 
+                  i, plusPertEffect[i], nominal, pert[i]);
+            #endif
+
             gradient.at(i) = (plusPertEffect.at(i) - nominal) / pert.at(i);
             break;
             
          case CENTRAL_DIFFERENCE:
-//            gradient[i] = (plusPertEffect[i] - minusPertEffect[i]) / 
-//                          (2.0 * pert[i]);
-//            break;
+            #ifdef DEBUG_GRADIENT
+            MessageInterface::ShowMessage("   CD[%d]:  %.15lf - %.15lf / 2 * %.15lf\n", 
+                  i, plusPertEffect[i], minusPertEffect[i], pert[i]);
+            #endif
+
+            gradient[i] = (plusPertEffect[i] - minusPertEffect[i]) / 
+                          (2.0 * pert[i]);
+            break;
             
          case BACKWARD_DIFFERENCE:
-//            gradient[i] = (nominal - minusPertEffect[i]) / pert[i];
-//            break;
+            #ifdef DEBUG_GRADIENT
+            MessageInterface::ShowMessage("   BD[%d]:  %.15lf - %.15lf / %.15lf\n", 
+                  i, nominal, minusPertEffect[i], pert[i]);
+            #endif
+
+            gradient[i] = (nominal - minusPertEffect[i]) / pert[i];
+            break;
             
          default:
             throw SolverException(

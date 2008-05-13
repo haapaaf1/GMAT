@@ -1,0 +1,64 @@
+%  Script Mission - Optimization Example
+%
+%  This script demonstrates how to use an Optimize sequence
+%
+%  REVSION HISTORY
+%  $Id: Ex_AlgebraicOptimization.script,v 1.4 2007/07/26 19:12:57 edove Exp $
+
+%-----------------------------------------------------------------
+%---------------------- Create Spacecraft ------------------------
+%-----------------------------------------------------------------
+Create Spacecraft Sat;
+GMAT Sat.DisplayStateType = Cartesian;
+
+%-----------------------------------------------------------------
+%-----------------Create and Setup the Optimizer------------------
+%-----------------------------------------------------------------
+Create VF13ad vf13;
+GMAT vf13.Tolerance = 1e-09;
+GMAT vf13.MaximumIterations = 2;
+GMAT vf13.UseCentralDifferences = true;
+
+%-----------------------------------------------------------------
+%-----------------Create Variable and Arrays ---------------------
+%-----------------------------------------------------------------
+Create Variable X1 X2 F G
+
+%-----------------------------------------------------------------
+%------------------------------OutPut-----------------------------
+%-----------------------------------------------------------------
+
+Create ReportFile Data; 
+GMAT Data.Filename = ./output/SampleMissions/Ex_AlgebraicOptimization.report;
+GMAT Data.Precision = 16;
+GMAT Data.WriteHeaders = On;
+GMAT Data.ColumnWidth = 20;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-----------------------------------------------------------------
+%----------------- Run the Optimization Loop ---------------------
+%-----------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Optimize vf13;
+
+    %  Vary the independent variables
+    Vary vf13( Sat.X = 20  , {Perturbation = 0.000001, Upper = 10, Lower = -10, MaxStep = 25 } );
+    Vary vf13( Sat.Y = 20  , {Perturbation = 0.000001, Upper = 10, Lower = -10, MaxStep = 25 } );
+%    Vary vf13( Sat.X = 20  , {Perturbation = 0.000001, MaxStep = 25 } );
+%    Vary vf13( Sat.Y = 20  , {Perturbation = 0.000001, MaxStep = 25 } );
+    GMAT X1 = Sat.X;
+    GMAT X2 = Sat.Y;
+   
+    %  The cost function and Minimize command
+    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+    Minimize vf13(F);
+
+    GMAT G =  X2 + X1;
+    NonlinearConstraint vf13( G = 8 );
+%    NonlinearConstraint vf13( X1 >= 6 );
+
+EndOptimize;
+
+Report Data F G
+Report Data Sat.X Sat.Y Sat.Z
