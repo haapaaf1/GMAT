@@ -16,7 +16,7 @@ GMAT Sat.DisplayStateType = Cartesian;
 %-----------------------------------------------------------------
 Create VF13ad vf13;
 GMAT vf13.Tolerance = 1e-09;
-GMAT vf13.MaximumIterations = 2;
+GMAT vf13.MaximumIterations = 200;
 GMAT vf13.UseCentralDifferences = true;
 
 %-----------------------------------------------------------------
