@@ -18,7 +18,7 @@ public:
    bool                 Calculate(std::vector<Real> &jac);
 
 protected:
-   UnsignedInt                         numVariables;
+//   UnsignedInt                         numVariables;
    UnsignedInt                         numComponents;    
    std::vector<Real>                   nominal;
    std::vector<Real>                   jacobian;

@@ -1,4 +1,4 @@
-//$Id$
+//$Id: DerivativeModel.hpp,v 1.2 2008/05/15 21:26:13 djc Exp $
 /**
  * Base class for gradients, Jacobians, Hessians, and so forth.
  */

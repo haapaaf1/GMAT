@@ -9,7 +9,6 @@
 
 Jacobian::Jacobian() :
    DerivativeModel         (),
-   numVariables            (0),
    numComponents           (0)
 {
 }
@@ -20,7 +19,6 @@ Jacobian::~Jacobian()
 
 Jacobian::Jacobian(const Jacobian &jac) :
    DerivativeModel         (jac),
-   numVariables            (jac.numVariables),
    numComponents           (jac.numComponents)
 {
    
@@ -32,7 +30,6 @@ Jacobian& Jacobian::operator=(const Jacobian &jac)
    {
       DerivativeModel::operator=(jac);
       
-      numVariables  = jac.numVariables;
       numComponents = jac.numComponents;
       
       jacobian      = jac.jacobian;
@@ -46,9 +43,8 @@ bool Jacobian::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
 {
    DerivativeModel::Initialize(varCount, componentCount);
 
-   numVariables = varCount;
    numComponents = componentCount;
-   UnsignedInt elementCount = numVariables * numComponents;
+   UnsignedInt elementCount = variableCount * numComponents;
    
    for (UnsignedInt i = 0; i < numComponents; ++i)
       nominal.push_back(0.0);
@@ -58,8 +54,9 @@ bool Jacobian::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
    
    #ifdef DEBUG_JACOBIAN
       MessageInterface::ShowMessage(
-         "Jacobian initialized in mode %d with %d variables and %d components\n", 
-         calcMode, varCount, componentCount);
+         "Jacobian initialized in mode %d with %d variables and %d components "
+         "giving %d entries\n", calcMode, varCount, componentCount, 
+         elementCount);
    #endif
 
    return true;
@@ -89,9 +86,7 @@ bool Jacobian::Calculate(std::vector<Real> &jac)
    if (calcMode == USER_SUPPLIED)
       return true;
  
-   UnsignedInt pertSize = pert.size();
-   UnsignedInt compSize = jacobian.size() / pertSize;
-   for (UnsignedInt i = 0; i < pertSize; ++i)
+   for (UnsignedInt i = 0; i < (UnsignedInt)variableCount; ++i)
    {
       if (pert[i] == 0.0)
          throw SolverException(
@@ -102,14 +97,14 @@ bool Jacobian::Calculate(std::vector<Real> &jac)
             "   Finding Jacobian in mode %d\n", calcMode);
       #endif
          
-      for (UnsignedInt j = 0; j < compSize; ++j)
+      for (UnsignedInt j = 0; j < numComponents; ++j)
       {
-         UnsignedInt rowStart = j * pertSize;
+         UnsignedInt rowStart = j * variableCount;
          switch (calcMode) 
          {
             case FORWARD_DIFFERENCE:
-               jacobian[rowStart+i] = (plusPertEffect[rowStart+i] - nominal[j])/ 
-                                       pert[i];
+               jacobian.at(rowStart+i) = (plusPertEffect.at(rowStart+i) - nominal.at(j))/ 
+                                       pert.at(i);
 
                #ifdef DEBUG_JACOBIAN_DETAILS      
                   MessageInterface::ShowMessage(
