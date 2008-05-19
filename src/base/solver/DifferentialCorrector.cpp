@@ -1025,11 +1025,26 @@ void DifferentialCorrector::InvertJacobian()
 {
    Rmatrix jac(variableCount, goalCount);
    for (Integer i = 0; i < variableCount; ++i)
-      for (Integer j = 0; j < variableCount; ++j)
+      for (Integer j = 0; j < goalCount; ++j)
          jac(i,j) = jacobian[i][j];
          
-   Rmatrix inv = jac.Inverse();
-   for (Integer i = 0; i < variableCount; ++i)
+   Rmatrix inv;
+   if (variableCount == goalCount)
+      inv = jac.Inverse();
+   else
+      inv = jac.Pseudoinverse();
+   
+   #ifdef DEBUG_DC_INVERSIONS
+      std::string preface = "   ";
+      if (variableCount == goalCount)
+         MessageInterface::ShowMessage("Inverse:\n%s\n", 
+               (inv.ToString(16, false, preface).c_str()));
+      else
+         MessageInterface::ShowMessage("PseudoInverse:\n%s\n", 
+               inv.ToString(16, false, preface).c_str());
+   #endif
+
+   for (Integer i = 0; i < goalCount; ++i)
       for (Integer j = 0; j < variableCount; ++j)
          inverseJacobian[i][j] = inv(i,j);
 }
