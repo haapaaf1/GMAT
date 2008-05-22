@@ -50,6 +50,7 @@ public:
       CALCULATING,
       CHECKINGRUN,
       RUNEXTERNAL,
+      RUNSPECIAL,             // Run initial state or solution w/o solving
       FINISHED,
       UNDEFINED_STATE         // This one should stay at the end of the list.
    };

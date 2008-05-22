@@ -210,7 +210,7 @@ Report DataReport Sat4.X Sat4.Y Sat4.Z Sat4.VX Sat4.VY Sat4.VZ;
 Target DC;
 
      Vary DC(Burn1.V = 0.0001, {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
-     Vary DC(Burn1.N = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
+%     Vary DC(Burn1.N = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
      Vary DC(Burn1.B = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
      
      Maneuver Burn1(Sat2);
@@ -218,7 +218,7 @@ Target DC;
      Propagate  RKV_LowEarth(Sat1, Sat2, Sat3, Sat4, {Sat1.ElapsedSecs = 5498.65387429});
      
      Achieve DC(Sat2.VX = Sat1.VX, {Tolerance = 0.0001});
-%     Achieve DC(Sat2.VY = Sat1.VY, {Tolerance = 0.0001});
+     Achieve DC(Sat2.VY = Sat1.VY, {Tolerance = 0.0001});
      Achieve DC(Sat2.VZ = Sat1.VZ, {Tolerance = 0.0001});
      
 EndTarget;

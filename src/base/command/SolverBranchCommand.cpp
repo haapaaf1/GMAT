@@ -33,9 +33,18 @@
  */
 //------------------------------------------------------------------------------
 SolverBranchCommand::SolverBranchCommand(const std::string &typeStr) :
-   BranchCommand(typeStr)
+   BranchCommand  (typeStr),
+   startMode      (RUN_AND_SOLVE),
+   exitMode       (DISCARD_AND_CONTINUE),
+   specialState   (Solver::INITIALIZING)
 {
+   parameterCount = SolverBranchCommandParamCount;
    objectTypeNames.push_back("SolverBranchCommand");
+   
+   solverModes.push_back("RunInitialGuess");
+   solverModes.push_back("Solve");
+//   solverModes.push_back("RunCorrected");
+
 }
 
 //------------------------------------------------------------------------------
@@ -60,7 +69,10 @@ SolverBranchCommand::~SolverBranchCommand()
  */
 //------------------------------------------------------------------------------
 SolverBranchCommand::SolverBranchCommand(const SolverBranchCommand& sbc) :
-   BranchCommand(sbc)
+   BranchCommand  (sbc),
+   startMode      (sbc.startMode),
+   exitMode       (sbc.exitMode),
+   specialState   (Solver::INITIALIZING)
 {
 }
 
@@ -81,6 +93,9 @@ SolverBranchCommand& SolverBranchCommand::operator=(
    if (&sbc != this)
    {
       BranchCommand::operator=(sbc);
+      startMode    = sbc.startMode;
+      exitMode     = sbc.exitMode;
+      specialState = Solver::INITIALIZING;
    }
    
    return *this;
@@ -262,4 +277,173 @@ void SolverBranchCommand::FreeLoopData()
       localStore.pop_back();
       delete obj;
    }
+}
+
+
+bool SolverBranchCommand::TakeAction(const std::string &action, 
+      const std::string &actionData)
+{
+   return BranchCommand::TakeAction(action, actionData);
+}
+
+
+// Parameter access methods
+
+//------------------------------------------------------------------------------
+//  std::string GetParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Read accessor for parameter names.
+ *
+ * @param <id> the ID of the parameter.
+ *
+ * @return the text string for the parameter.
+ */
+//------------------------------------------------------------------------------
+std::string SolverBranchCommand::GetParameterText(const Integer id) const
+{
+   if (id == SOLVER_SOLVE_MODE)
+      return "SolveMode";
+    
+   return BranchCommand::GetParameterText(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer GetParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * Read accessor for parameter IDs.
+ *
+ * @param <str> the text description of the parameter.
+ *
+ * @return the integer ID for the parameter.
+ */
+//------------------------------------------------------------------------------
+Integer SolverBranchCommand::GetParameterID(const std::string &str) const
+{
+   if (str == "SolveMode")
+      return SOLVER_SOLVE_MODE;
+   if (str == "SolveModeOptions")
+      return SOLVER_SOLVE_MODE_OPTIONS;
+    
+   return BranchCommand::GetParameterID(str);
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType GetParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Read accessor for parameter types.
+ *
+ * @param <id> the integer ID of the parameter.
+ *
+ * @return the type of the parameter.
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType SolverBranchCommand::GetParameterType(const Integer id) const
+{
+   if (id == SOLVER_SOLVE_MODE)
+      return Gmat::STRING_TYPE;
+   if (id == SOLVER_SOLVE_MODE_OPTIONS)
+      return Gmat::STRINGARRAY_TYPE;
+    
+   return BranchCommand::GetParameterType(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  std::string GetParameterTypeString(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Read accessor for parameter type data description.
+ *
+ * @param <id> the integer ID of the parameter.
+ *
+ * @return a string describing the type of the parameter.
+ */
+//------------------------------------------------------------------------------
+std::string SolverBranchCommand::GetParameterTypeString(const Integer id) const
+{
+   if (id == SOLVER_SOLVE_MODE)
+      return PARAM_TYPE_STRING[Gmat::STRING_TYPE];
+   if (id == SOLVER_SOLVE_MODE_OPTIONS)
+      return PARAM_TYPE_STRING[Gmat::STRINGARRAY_TYPE];
+    
+   return BranchCommand::GetParameterTypeString(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  bool SetStringParameter(const Integer id, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Write accessor for string parameters.
+ *
+ * @param <id> the integer ID of the parameter.
+ * @param <value> the new string stored in the parameter.
+ *
+ * @return true on success, false on failure.
+ */
+//------------------------------------------------------------------------------
+bool SolverBranchCommand::SetStringParameter(const Integer id, const std::string &value)
+{
+   if (id == SOLVER_SOLVE_MODE) 
+   {
+      if (value == "RunInitialGuess")
+         startMode = RUN_INITIAL_GUESS;
+      if (value == "Solve")
+         startMode = RUN_AND_SOLVE;
+      if (value == "RunCorrected")
+         startMode = RUN_SOLUTION;
+      return true;
+   }
+    
+   return BranchCommand::SetStringParameter(id, value);
+}
+
+std::string SolverBranchCommand::GetStringParameter(const Integer id) const
+{
+   if (id == SOLVER_SOLVE_MODE) 
+   {
+      if (startMode == RUN_INITIAL_GUESS)
+         return "RunInitialGuess";
+      if (startMode == RUN_AND_SOLVE)
+         return "Solve";
+      if (startMode == RUN_SOLUTION)
+         return "RunCorrected";
+   }
+   
+   return BranchCommand::GetStringParameter(id);
+}
+
+
+std::string SolverBranchCommand::GetStringParameter(const std::string &label) const
+{
+   return GetStringParameter(GetParameterID(label));
+}
+
+
+const StringArray& SolverBranchCommand::GetStringArrayParameter(const Integer id) const
+{
+   if (id == SOLVER_SOLVE_MODE_OPTIONS)
+      return solverModes;
+   
+   return BranchCommand::GetStringArrayParameter(id);
+}
+
+
+const StringArray& SolverBranchCommand::GetStringArrayParameter(const std::string &label) const
+{
+   return GetStringArrayParameter(GetParameterID(label));
+}
+
+
+
+
+// Tells the Solver to update the initial values of the variables with the 
+// most recent solved state. 
+void SolverBranchCommand::ApplySolution()
+{
 }

@@ -30,6 +30,8 @@
 
 //#define DEBUG_STATE_MACHINE
 //#define DEBUG_DC_INIT 1
+//#define DEBUG_JACOBIAN
+
 
 //---------------------------------
 // static data
@@ -679,12 +681,12 @@ bool DifferentialCorrector::Initialize()
       throw SolverException(errorMessage);
    }
    
-   if (localGoalCount > localVariableCount)
-   {
-      std::string errorMessage = "Targeter cannot initialize: ";
-      errorMessage += "More goals than variables\n";
-      throw SolverException(errorMessage);
-   }
+//   if (localGoalCount > localVariableCount)
+//   {
+//      std::string errorMessage = "Targeter cannot initialize: ";
+//      errorMessage += "More goals than variables\n";
+//      throw SolverException(errorMessage);
+//   }
 
    
    FreeArrays();
@@ -704,44 +706,25 @@ bool DifferentialCorrector::Initialize()
    Integer i;
    achieved        = new Real*[localVariableCount];
    jacobian        = new Real*[localVariableCount];
-   inverseJacobian = new Real*[localVariableCount];
    ludMatrix       = new Real*[localVariableCount];
    for (i = 0; i < localVariableCount; ++i)
    {
-      jacobian[i]        = new Real[localVariableCount];
-      inverseJacobian[i] = new Real[localVariableCount];
+      jacobian[i]        = new Real[localGoalCount];
       achieved[i]        = new Real[localGoalCount];
       ludMatrix[i]       = new Real[localVariableCount];
         
       // Initialize to the identity matrix
       jacobian[i][i] = 1.0;
-      inverseJacobian[i][i] = 1.0;
-        
-      // Set default values for min and max parameters
-      //variable[i]            =  0.0;
-      //variableMinimum[i]     = -9.999e300;
-      //variableMaximum[i]     =  9.999e300;
-      //variableMaximumStep[i] =  9.999e300;
-      //perturbation[i]        =  1.0e-04;
    }
 
+   inverseJacobian = new Real*[localGoalCount];
+   for (i = 0; i < localGoalCount; ++i)
+   {
+      inverseJacobian[i] = new Real[localVariableCount];
+   }
+      
    Solver::Initialize(); // for commented stuff, moved to Solver
    
-   // Prepare the text file for output
-   //if (solverTextFile != "")
-   //{
-   //   if (instanceNumber == 1)
-   //      textFile.open(solverTextFile.c_str());
-   //   else
-   //      textFile.open(solverTextFile.c_str(), std::ios::app);
-   //   if (!textFile.is_open())
-   //      throw SolverException("Error opening targeter text file " +
-   //                            solverTextFile);
-   //   textFile.precision(16);
-   //   WriteToTextFile();
-   //}
-   
-    
    // Allocate the LU arrays
    indx = new Integer[variableCount];
    b = new Real[variableCount];
@@ -1026,7 +1009,13 @@ void DifferentialCorrector::InvertJacobian()
    Rmatrix jac(variableCount, goalCount);
    for (Integer i = 0; i < variableCount; ++i)
       for (Integer j = 0; j < goalCount; ++j)
+      {
+         #ifdef DEBUG_JACOBIAN
+            MessageInterface::ShowMessage("   jacobian[%d][%d] = %.14lf\n", i, 
+                  j, jacobian[i][j]);
+         #endif
          jac(i,j) = jacobian[i][j];
+      }
          
    Rmatrix inv;
    if (variableCount == goalCount)
@@ -1046,7 +1035,14 @@ void DifferentialCorrector::InvertJacobian()
 
    for (Integer i = 0; i < goalCount; ++i)
       for (Integer j = 0; j < variableCount; ++j)
+      {
          inverseJacobian[i][j] = inv(i,j);
+         #ifdef DEBUG_JACOBIAN
+            MessageInterface::ShowMessage(
+                  "   inverseJacobian[%d][%d] = %.14lf\n", i, j, 
+                  inverseJacobian[i][j]);
+         #endif
+      }
 }
 
 
@@ -1062,43 +1058,7 @@ void DifferentialCorrector::InvertJacobian()
 void DifferentialCorrector::FreeArrays()
 {
    Solver::FreeArrays();
-   /*
-   if (textFile.is_open())
-   {
-      textFile.flush();
-      textFile.close();
-   }
-        
-   if (variable)
-   {
-      delete [] variable;
-      variable = NULL;
-   }
-    
-    if (perturbation)
-   {
-      delete [] perturbation;
-      perturbation = NULL;
-   }
-            
-   if (variableMinimum)
-   {
-      delete [] variableMinimum;
-      variableMinimum = NULL;
-   }
 
-   if (variableMaximum)
-   {
-      delete [] variableMaximum;
-      variableMaximum = NULL;
-   }
-
-   if (variableMaximumStep)
-   {
-      delete [] variableMaximumStep;
-      variableMaximumStep = NULL;
-   }
-   */
    if (goal)
    {
       delete [] goal;
@@ -1135,7 +1095,7 @@ void DifferentialCorrector::FreeArrays()
 
    if (inverseJacobian)
    {
-      for (Integer i = 0; i < variableCount; ++i)
+      for (Integer i = 0; i < goalCount; ++i)
          delete [] inverseJacobian[i];
       delete [] inverseJacobian;
       inverseJacobian = NULL;
@@ -1433,9 +1393,9 @@ void DifferentialCorrector::WriteToTextFile(SolverState stateToUse)
             }
             
             textFile << "\n\nInverse Jacobian:\n";
-            for (i = 0; i < variableCount; ++i)
+            for (i = 0; i < goalCount; ++i)
             {
-               for (j = 0; j < goalCount; ++j)
+               for (j = 0; j < variableCount; ++j)
                {
                   textFile << "   " << inverseJacobian[i][j];
                }

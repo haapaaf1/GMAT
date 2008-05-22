@@ -119,10 +119,10 @@ Target& Target::operator=(const Target& t)
 /**
  * Adds a command to the targeter loop.
  *
- * This method calls the SolverBranchCommand base class method that adds a command
- * to the command sequence that branches off of the main mission sequence.  This
- * extension was needed so that the EndTarget command can be set to point back 
- * to the head of the targeter loop.
+ * This method calls the SolverBranchCommand base class method that adds a 
+ * commandto the command sequence that branches off of the main mission 
+ * sequence.  This extension was needed so that the EndTarget command can be set 
+ * to point back to the head of the targeter loop.
  *
  * @param cmd The command that gets appended.
  *
@@ -159,8 +159,9 @@ bool Target::Append(GmatCommand *cmd)
       ++nestLevel;
 
    #ifdef DEBUG_TARGETER_PARSING
-       MessageInterface::ShowMessage("\nTarget::Append for \"%s\" nest level = %d",
-                                     generatingString.c_str(), nestLevel);
+       MessageInterface::ShowMessage(
+             "\nTarget::Append for \"%s\" nest level = %d",
+             generatingString.c_str(), nestLevel);
    #endif
 
    return true;
@@ -378,6 +379,7 @@ bool Target::SetStringParameter(const Integer id, const std::string &value)
 }
 
 
+
 //---------------------------------------------------------------------------
 //  bool GetBooleanParameter(const Integer id) const
 //---------------------------------------------------------------------------
@@ -475,6 +477,7 @@ bool Target::Initialize()
    // Set the local copy of the targeter on each node
    std::vector<GmatCommand*>::iterator node;
    GmatCommand *current;
+   specialState = Solver::INITIALIZING;
 
    for (node = branch.begin(); node != branch.end(); ++node)
    {
@@ -535,7 +538,7 @@ bool Target::Execute()
    bool retval = true;
 
    // Drive through the state machine.
-   Solver::SolverState state = targeter->GetState();
+   Solver::SolverState state = targeter->GetState(); //Solver::UNDEFINED_STATE;
    
    #ifdef DEBUG_TARGET_COMMANDS
       MessageInterface::ShowMessage("TargetExecute(%c%c%c%d)\n",
@@ -543,7 +546,8 @@ bool Target::Execute()
          (commandComplete?'Y':'N'),
          (branchExecuting?'Y':'N'),
          state);
-      MessageInterface::ShowMessage("   targeterConverged=%d\n", targeterConverged);
+      MessageInterface::ShowMessage("   targeterConverged=%d\n", 
+            targeterConverged);
    #endif
       
    // Attempt to reset if recalled   
@@ -551,6 +555,7 @@ bool Target::Execute()
    {
       commandComplete = false;
       commandExecuting = false;
+      specialState = Solver::INITIALIZING;
    }  
 
    if (!commandExecuting) 
@@ -578,7 +583,8 @@ bool Target::Execute()
    if (branchExecuting)
    {
       retval = ExecuteBranch();
-      if (!branchExecuting && (state == Solver::FINISHED))
+      if (!branchExecuting && 
+          ((state == Solver::FINISHED) || (specialState == Solver::FINISHED)))
       {
          commandComplete = true;
       }  
@@ -589,64 +595,156 @@ bool Target::Execute()
    
       publisher->SetRunState(Gmat::SOLVING);
       
-      switch (state) {
-         case Solver::INITIALIZING:
-            // Finalize initialization of the targeter data
-            currentCmd = branch[0];
-            targeterConverged = false;
-            while (currentCmd != this)  {
-               std::string type = currentCmd->GetTypeName();
-               if ((type == "Target") || (type == "Vary") ||
-                   (type == "Achieve"))
-                  currentCmd->Execute();
-               currentCmd = currentCmd->GetNext();
-            }
-            StoreLoopData();
-            break;
-               
-         case Solver::NOMINAL:
-            // Execute the nominal sequence
-            if (!commandComplete) {
-               branchExecuting = true;
-               ResetLoopData();
-            }
-            break;
-               
-         case Solver::CHECKINGRUN:
-            // Check for convergence; this is done in the targeter state
-            // machine, so this case is a NoOp for the Target command
-            break;
-   
-         case Solver::PERTURBING:
-            branchExecuting = true;
-            ResetLoopData();
-            break;
-               
-         case Solver::CALCULATING:
-            // Calculate the next set of variables to use; this is performed in
-            // the targeter -- nothing to be done here
-            break;
-               
-         case Solver::FINISHED:
-            // Final clean-up
-            targeterConverged = true;
-            
-            // Run once more to publish the data from the converged state
-            if (!commandComplete)
+      switch (startMode)
+      {
+         case RUN_INITIAL_GUESS:
+            #ifdef DEBUG_START_MODE
+               MessageInterface::ShowMessage(
+                     "Running as RUN_INITIAL_GUESS, specialState = %d\n",
+                     specialState);
+            #endif
+            switch (specialState) 
             {
-               ResetLoopData();
-               branchExecuting = true;
-               publisher->SetRunState(Gmat::SOLVEDPASS);
+               case Solver::INITIALIZING:
+                  // Finalize initialization of the targeter data
+                  currentCmd = branch[0];
+                  targeterConverged = false;
+                  while (currentCmd != this)  
+                  {
+                     std::string type = currentCmd->GetTypeName();
+                     if ((type == "Target") || (type == "Vary") ||
+                         (type == "Achieve"))
+                        currentCmd->Execute();
+                     currentCmd = currentCmd->GetNext();
+                  }
+                  StoreLoopData();
+                  specialState = Solver::NOMINAL;
+
+                  if (!branchExecuting)
+                  {
+                     targeter->AdvanceState();
+
+                     if (targeter->GetState() == Solver::FINISHED) 
+                     {
+                        targeterConverged = true;
+                     }
+                  }
+                  break;
+                     
+               case Solver::NOMINAL:
+                  // Execute the nominal sequence
+                  if (!commandComplete) 
+                  {
+                     branchExecuting = true;
+                     ResetLoopData();
+                  }
+                  specialState = Solver::RUNSPECIAL;
+                  break;
+                  
+               case Solver::RUNSPECIAL:
+                  // Run once more to publish the data from the converged state
+                  if (!commandComplete)
+                  {
+                     ResetLoopData();
+                     branchExecuting = true;
+                     publisher->SetRunState(Gmat::SOLVEDPASS);
+                  }
+                  targeter->Finalize();
+                  specialState = Solver::FINISHED;
+
+                  // Final clean-up
+                  targeterConverged = true;
+                  break;
+                  
+               case Solver::FINISHED:
+                  specialState = Solver::INITIALIZING;
+                  break;
+
+               default:
+                  break;
+            }                     
+            break;
+            
+         case RUN_SOLUTION:
+            #ifdef DEBUG_START_MODE
+               MessageInterface::ShowMessage(
+                     "Running as RUN_SOLUTION, state = %d\n", state);
+            #endif
+            throw SolverException(
+                  "Run Solution is not yet implemented for the Target "
+                  "command\n");
+            break;
+         
+         case RUN_AND_SOLVE:
+         default:
+            #ifdef DEBUG_START_MODE
+               MessageInterface::ShowMessage(
+                     "Running as RUN_AND_SOLVE or default, state = %d\n", 
+                     state);
+            #endif
+            switch (state) 
+            {
+               case Solver::INITIALIZING:
+                  // Finalize initialization of the targeter data
+                  currentCmd = branch[0];
+                  targeterConverged = false;
+                  while (currentCmd != this)  
+                  {
+                     std::string type = currentCmd->GetTypeName();
+                     if ((type == "Target") || (type == "Vary") ||
+                         (type == "Achieve"))
+                        currentCmd->Execute();
+                     currentCmd = currentCmd->GetNext();
+                  }
+                  StoreLoopData();
+                  break;
+                     
+               case Solver::NOMINAL:
+                  // Execute the nominal sequence
+                  if (!commandComplete) 
+                  {
+                     branchExecuting = true;
+                     ResetLoopData();
+                  }
+                  break;
+                     
+               case Solver::CHECKINGRUN:
+                  // Check for convergence; this is done in the targeter state
+                  // machine, so this case is a NoOp for the Target command
+                  break;
+         
+               case Solver::PERTURBING:
+                  branchExecuting = true;
+                  ResetLoopData();
+                  break;
+                     
+               case Solver::CALCULATING:
+                  // Calculate the next set of variables to use; this is 
+                  // performed in the targeter -- nothing to be done here
+                  break;
+                     
+               case Solver::FINISHED:
+                  // Final clean-up
+                  targeterConverged = true;
+                  
+                  // Run once more to publish the data from the converged state
+                  if (!commandComplete)
+                  {
+                     ResetLoopData();
+                     branchExecuting = true;
+                     publisher->SetRunState(Gmat::SOLVEDPASS);
+                  }
+                  break;
+                     
+               case Solver::ITERATING:     // Intentional fall-through
+               default:
+                  throw CommandException(
+                     "Invalid state in the Targeter state machine");
             }
             break;
-               
-         case Solver::ITERATING:     // Intentional fall-through
-         default:
-            throw CommandException(
-               "Invalid state in the Targeter state machine");
       }
    }
-   
+
    if (!branchExecuting)
    {
       targeter->AdvanceState();
@@ -655,12 +753,13 @@ bool Target::Execute()
          targeterConverged = true;
       }
    }
-
+   
    // Pass spacecraft data to the targeter for reporting in debug mode
    if (targeterInDebugMode)
    {
       std::string dbgData = "";
-      for (ObjectArray::iterator i = localStore.begin(); i < localStore.end(); ++i)
+      for (ObjectArray::iterator i = localStore.begin(); i < localStore.end(); 
+           ++i)
       {
          dbgData += (*i)->GetGeneratingString() + "\n---\n";
       }

@@ -74,7 +74,7 @@ protected:
 
    enum
    {
-      OPTIMIZER_NAME = BranchCommandParamCount,
+      OPTIMIZER_NAME = SolverBranchCommandParamCount,
       OPTIMIZER_CONVERGED,
       OptimizeParamCount
    };

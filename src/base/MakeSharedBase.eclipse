@@ -427,6 +427,7 @@ FORTRAN_OBJECTS = solarsys/msise90_sub.o
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
 	mkdir -p lib
 	$(CPP) -shared -Wl -o$(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) --out-implib
+	cp -f $(TARGET) ../../bin
 #	ranlib $(TARGET)
 
 $(OBJECTS): %.o: %.cpp %.hpp
