@@ -46,14 +46,14 @@
 const std::string
 Optimize::PARAMETER_TEXT[OptimizeParamCount - SolverBranchCommandParamCount] =
 {
-   "OptimizerName",
+//   "OptimizerName",
    "OptimizerConverged",
 };
 
 const Gmat::ParameterType
 Optimize::PARAMETER_TYPE[OptimizeParamCount - SolverBranchCommandParamCount] =
 {
-   Gmat::STRING_TYPE,
+//   Gmat::STRING_TYPE,
    Gmat::BOOLEAN_TYPE,
 };
 
@@ -66,7 +66,7 @@ Optimize::PARAMETER_TYPE[OptimizeParamCount - SolverBranchCommandParamCount] =
 //------------------------------------------------------------------------------
 Optimize::Optimize() :
    SolverBranchCommand ("Optimize"),
-   optimizerName       (""),
+//   optimizerName       (""),
    optimizer           (NULL),
    optimizerConverged  (false),
    optimizerInDebugMode(false)
@@ -83,7 +83,7 @@ Optimize::Optimize() :
 //------------------------------------------------------------------------------
 Optimize::Optimize(const Optimize& o) :
    SolverBranchCommand  (o),
-   optimizerName        (o.optimizerName),
+//   optimizerName        (o.optimizerName),
    optimizer            (NULL),
    optimizerConverged   (false),
    optimizerInDebugMode (o.optimizerInDebugMode)
@@ -105,7 +105,7 @@ Optimize& Optimize::operator=(const Optimize& o)
     
    GmatCommand::operator=(o);
 
-   optimizerName        = o.optimizerName;
+//   optimizerName        = o.optimizerName;
    optimizer            = NULL;
    optimizerConverged   = false;
    optimizerInDebugMode = o.optimizerInDebugMode;
@@ -184,11 +184,11 @@ const std::string& Optimize::GetGeneratingString(Gmat::WriteMode mode,
 {
    if (mode == Gmat::NO_COMMENTS)
    {
-      generatingString = "Optimize " + optimizerName + ";";
+      generatingString = "Optimize " + solverName + ";";
       return generatingString;
    }
    
-   generatingString = prefix + "Optimize " + optimizerName + ";";
+   generatingString = prefix + "Optimize " + solverName + ";";
    return SolverBranchCommand::GetGeneratingString(mode, prefix, useName);
 }
 
@@ -201,8 +201,8 @@ bool Optimize::RenameRefObject(const Gmat::ObjectType type,
 {
    if (type == Gmat::SOLVER)
    {
-      if (optimizerName == oldName)
-         optimizerName = newName;
+      if (solverName == oldName)
+         solverName = newName;
    }
    
    return true;
@@ -257,8 +257,8 @@ std::string Optimize::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 std::string Optimize::GetStringParameter(const Integer id) const
 {
-   if (id == OPTIMIZER_NAME)
-      return optimizerName;
+//   if (id == OPTIMIZER_NAME)
+//      return optimizerName;
     
    return SolverBranchCommand::GetStringParameter(id);
 }
@@ -268,11 +268,11 @@ std::string Optimize::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 bool Optimize::SetStringParameter(const Integer id, const std::string &value)
 {
-   if (id == OPTIMIZER_NAME) 
-   {
-      optimizerName = value;
-      return true;
-   }
+//   if (id == OPTIMIZER_NAME) 
+//   {
+//      optimizerName = value;
+//      return true;
+//   }
     
    return SolverBranchCommand::SetStringParameter(id, value);
 }
@@ -294,7 +294,7 @@ bool Optimize::GetBooleanParameter(const Integer id) const
 std::string Optimize::GetRefObjectName(const Gmat::ObjectType type) const
 {
    if (type == Gmat::SOLVER)
-      return optimizerName;
+      return solverName;
    return SolverBranchCommand::GetRefObjectName(type);
 }
 
@@ -306,7 +306,7 @@ bool Optimize::SetRefObjectName(const Gmat::ObjectType type,
 {
    if (type == Gmat::SOLVER) 
    {
-      optimizerName = name;
+      solverName = name;
       return true;
    }
    return SolverBranchCommand::SetRefObjectName(type, name);
@@ -322,10 +322,10 @@ bool Optimize::Initialize()
    #endif
    
    GmatBase *mapObj = NULL;
-   if ((mapObj = FindObject(optimizerName)) == NULL) 
+   if ((mapObj = FindObject(solverName)) == NULL) 
    {
       std::string errorString = "Optimize command cannot find optimizer \"";
-      errorString += optimizerName;
+      errorString += solverName;
       errorString += "\"";
       throw CommandException(errorString);
    }
@@ -362,7 +362,7 @@ bool Optimize::Initialize()
              (currentCmd->GetTypeName() == "Minimize") ||
              (currentCmd->GetTypeName() == "NonlinearConstraint"))
          {
-            currentCmd->SetRefObject(optimizer, Gmat::SOLVER, optimizerName);
+            currentCmd->SetRefObject(optimizer, Gmat::SOLVER, solverName);
             if (optimizer->IsSolverInternal())
             {
                if (currentCmd->GetTypeName() == "Minimize")

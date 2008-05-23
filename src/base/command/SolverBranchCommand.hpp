@@ -39,6 +39,9 @@ public:
    virtual bool            TakeAction(const std::string &action, 
                                       const std::string &actionData = "");
    
+   // Handle parsing internally
+   virtual bool InterpretAction();
+   
    // Parameter access methods
    virtual std::string GetParameterText(const Integer id) const;
    virtual Integer     GetParameterID(const std::string &str) const;
@@ -69,9 +72,11 @@ protected:
    enum solverExitMode
    {
       DISCARD_AND_CONTINUE,
-      SAVE_AND_CONTINUE
+      SAVE_AND_CONTINUE,
+      STOP
    };
    
+   std::string         solverName;
    solverStartMode     startMode;
    solverExitMode      exitMode;
    Solver::SolverState specialState;
@@ -93,6 +98,9 @@ protected:
    /// Local store of the objects that we'll need to reset
    ObjectArray         localStore;
 
+   // Parsing function for SolveMode and ExitMode
+   void                CheckForOptions(std::string &opts);
+   
    // Methods used to save the starting point for the loops
    virtual void        StoreLoopData();
    virtual void        ResetLoopData();
@@ -102,7 +110,8 @@ protected:
    
    enum
    {
-      SOLVER_SOLVE_MODE  = BranchCommandParamCount,
+      SOLVER_NAME_ID  = BranchCommandParamCount,
+      SOLVER_SOLVE_MODE,
       SOLVER_EXIT_MODE,
       SOLVER_SOLVE_MODE_OPTIONS,
       SOLVER_EXIT_MODE_OPTIONS,

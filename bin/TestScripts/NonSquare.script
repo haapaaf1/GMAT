@@ -185,7 +185,7 @@ Report DataReport Sat3.X Sat3.Y Sat3.Z Sat3.VX Sat3.VY Sat3.VZ;
 Report DataReport Sat4.X Sat4.Y Sat4.Z Sat4.VX Sat4.VY Sat4.VZ;
 
 %  Target for rendezvous
-Target DC;
+Target DC {SolveMode = Solve};
 
      Vary DC(Burn1.V = 0.0001, {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
      Vary DC(Burn1.N = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
@@ -207,7 +207,7 @@ Report DataReport Sat3.X Sat3.Y Sat3.Z Sat3.VX Sat3.VY Sat3.VZ;
 Report DataReport Sat4.X Sat4.Y Sat4.Z Sat4.VX Sat4.VY Sat4.VZ;
 
 %  Target for rendezvous
-Target DC;
+Target DC {SolveMode = RunInitialGuess};
 
      Vary DC(Burn1.V = 0.0001, {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
 %     Vary DC(Burn1.N = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});

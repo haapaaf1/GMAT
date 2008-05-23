@@ -34,6 +34,7 @@ private:
    GmatCommand *theCommand;
    
    wxComboBox *mSolverComboBox;
+   wxComboBox *mSolverModeComboBox;
    
    // methods inherited from GmatPanel
    virtual void Create();

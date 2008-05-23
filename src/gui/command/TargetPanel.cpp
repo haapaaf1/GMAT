@@ -92,8 +92,6 @@ void TargetPanel::Create()
    mSolverModeComboBox =
       new wxComboBox(this, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(180,-1),
                      theOptions, wxCB_READONLY);
-//      theGuiManager->GetBoundarySolverComboBox(this, ID_COMBO, wxSize(180,-1));
-   
    
    wxFlexGridSizer *pageSizer = new wxFlexGridSizer(2);
    

@@ -34,14 +34,14 @@
 //------------------------------------------------------------------------------
 Target::Target() :
    SolverBranchCommand("Target"),
-   targeterName       (""),
+//   targeterName       (""),
    targeter           (NULL),
    targeterConverged  (false),
-   targeterNameID     (parameterCount),
+//   targeterNameID     (parameterCount),
    TargeterConvergedID(parameterCount+1),
    targeterInDebugMode(false)
 {
-   parameterCount += 2;
+   parameterCount += 1; // 2;
    objectTypeNames.push_back("Target");
 }
 
@@ -71,10 +71,10 @@ Target::~Target()
 //------------------------------------------------------------------------------
 Target::Target(const Target& t) :
    SolverBranchCommand (t),
-   targeterName        (t.targeterName),
+//   targeterName        (t.targeterName),
    targeter            (NULL),
    targeterConverged   (false),
-   targeterNameID      (t.targeterNameID),
+//   targeterNameID      (t.targeterNameID),
    TargeterConvergedID (t.TargeterConvergedID),
    targeterInDebugMode (t.targeterInDebugMode)
 {
@@ -101,10 +101,10 @@ Target& Target::operator=(const Target& t)
     
    GmatCommand::operator=(t);
 
-   targeterName        = t.targeterName;
+//   targeterName        = t.targeterName;
    targeter            = NULL;
    targeterConverged   = false;
-   targeterNameID      = t.targeterNameID;
+//   targeterNameID      = t.targeterNameID;
    TargeterConvergedID = t.TargeterConvergedID;
    targeterInDebugMode = t.targeterInDebugMode;
    localStore.clear();
@@ -210,11 +210,11 @@ const std::string& Target::GetGeneratingString(Gmat::WriteMode mode,
 {
    if (mode == Gmat::NO_COMMENTS)
    {
-      generatingString = "Target " + targeterName + ";";
+      generatingString = "Target " + solverName + ";";
       return generatingString;
    }
    
-   generatingString = prefix + "Target " + targeterName + ";";
+   generatingString = prefix + "Target " + solverName + ";";
    return SolverBranchCommand::GetGeneratingString(mode, prefix, useName);
 }
 
@@ -239,8 +239,8 @@ bool Target::RenameRefObject(const Gmat::ObjectType type,
 {
    if (type == Gmat::SOLVER)
    {
-      if (targeterName == oldName)
-         targeterName = newName;
+      if (solverName == oldName)
+         solverName = newName;
    }
 
    SolverBranchCommand::RenameRefObject(type, oldName, newName);
@@ -263,7 +263,7 @@ bool Target::RenameRefObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 std::string Target::GetParameterText(const Integer id) const
 {
-   if (id == targeterNameID)
+   if (id == SOLVER_NAME_ID)
       return "Targeter";
     
    return SolverBranchCommand::GetParameterText(id);
@@ -284,7 +284,7 @@ std::string Target::GetParameterText(const Integer id) const
 Integer Target::GetParameterID(const std::string &str) const
 {
    if (str == "Targeter")
-      return targeterNameID;
+      return SOLVER_NAME_ID;
    if (str == "TargeterConverged")
       return TargeterConvergedID;
     
@@ -305,7 +305,7 @@ Integer Target::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType Target::GetParameterType(const Integer id) const
 {
-   if (id == targeterNameID)
+   if (id == SOLVER_NAME_ID)
       return Gmat::STRING_TYPE;
    if (id == TargeterConvergedID)
       return Gmat::BOOLEAN_TYPE;
@@ -327,7 +327,7 @@ Gmat::ParameterType Target::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 std::string Target::GetParameterTypeString(const Integer id) const
 {
-   if (id == targeterNameID)
+   if (id == SOLVER_NAME_ID)
       return PARAM_TYPE_STRING[Gmat::STRING_TYPE];
    if (id == TargeterConvergedID)
       return PARAM_TYPE_STRING[Gmat::BOOLEAN_TYPE];
@@ -349,8 +349,8 @@ std::string Target::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 std::string Target::GetStringParameter(const Integer id) const
 {
-   if (id == targeterNameID)
-      return targeterName;
+   if (id == SOLVER_NAME_ID)
+      return solverName;
     
    return SolverBranchCommand::GetStringParameter(id);
 }
@@ -370,8 +370,8 @@ std::string Target::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 bool Target::SetStringParameter(const Integer id, const std::string &value)
 {
-   if (id == targeterNameID) {
-      targeterName = value;
+   if (id == SOLVER_NAME_ID) {
+      solverName = value;
       return true;
    }
     
@@ -418,7 +418,7 @@ bool Target::GetBooleanParameter(const Integer id) const
 std::string Target::GetRefObjectName(const Gmat::ObjectType type) const
 {
    if (type == Gmat::SOLVER)
-      return targeterName;
+      return solverName;
    return SolverBranchCommand::GetRefObjectName(type);
 }
 
@@ -439,7 +439,7 @@ bool Target::SetRefObjectName(const Gmat::ObjectType type,
                               const std::string &name)
 {
    if (type == Gmat::SOLVER) {
-      targeterName = name;
+      solverName = name;
       return true;
    }
    return SolverBranchCommand::SetRefObjectName(type, name);
@@ -458,10 +458,10 @@ bool Target::SetRefObjectName(const Gmat::ObjectType type,
 bool Target::Initialize()
 {
    GmatBase *mapObj = NULL;
-   if ((mapObj = FindObject(targeterName)) == NULL) 
+   if ((mapObj = FindObject(solverName)) == NULL) 
    {
       std::string errorString = "Target command cannot find targeter \"";
-      errorString += targeterName;
+      errorString += solverName;
       errorString += "\"";
       throw CommandException(errorString);
    }
@@ -495,7 +495,7 @@ bool Target::Initialize()
          #endif
          if ((current->GetTypeName() == "Vary") || 
              (current->GetTypeName() == "Achieve"))
-            current->SetRefObject(targeter, Gmat::SOLVER, targeterName);
+            current->SetRefObject(targeter, Gmat::SOLVER, solverName);
          current = current->GetNext();
       }
    }
@@ -504,10 +504,10 @@ bool Target::Initialize()
 
    if (retval == true) {
       // Targeter specific initialization goes here:
-      if (FindObject(targeterName) == NULL) 
+      if (FindObject(solverName) == NULL) 
       {
          std::string errorString = "Target command cannot find targeter \"";
-         errorString += targeterName;
+         errorString += solverName;
          errorString += "\"";
          throw CommandException(errorString);
       }
