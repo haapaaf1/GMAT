@@ -440,6 +440,43 @@ void SolverBranchCommand::CheckForOptions(std::string &opts)
 }
 
 
+std::string SolverBranchCommand::GetSolverOptionText()
+{
+   std::string optionString = "";
+   
+   if (!((startMode == RUN_AND_SOLVE) && (exitMode == DISCARD_AND_CONTINUE)))
+   {
+      bool startModeSet = false;
+      optionString += " {";
+      
+      // Handle the SolveMode options
+      if (startMode == RUN_INITIAL_GUESS)
+      {
+         optionString += "SolveMode = RunInitialGuess";
+         startModeSet = true;
+      }
+      
+      // Next handle the ExitMode options
+      if (exitMode == SAVE_AND_CONTINUE)
+      {
+         if (startModeSet)
+            optionString += ", ";
+         optionString += "ExitMode = SaveAndContinue";
+      }
+      if (exitMode == STOP)
+      {
+         if (startModeSet)
+            optionString += ", ";
+         optionString += "ExitMode = Stop";
+      }
+      
+      optionString += "}";
+   }
+   
+   return optionString;
+}
+
+
 bool SolverBranchCommand::TakeAction(const std::string &action, 
       const std::string &actionData)
 {
@@ -462,6 +499,8 @@ bool SolverBranchCommand::TakeAction(const std::string &action,
 //------------------------------------------------------------------------------
 std::string SolverBranchCommand::GetParameterText(const Integer id) const
 {
+   if (id == SOLVER_NAME_ID)
+      return "SolverName";
    if (id == SOLVER_SOLVE_MODE)
       return "SolveMode";
     
@@ -482,6 +521,8 @@ std::string SolverBranchCommand::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer SolverBranchCommand::GetParameterID(const std::string &str) const
 {
+   if (str == "SolverName")
+      return SOLVER_NAME_ID;
    if (str == "SolveMode")
       return SOLVER_SOLVE_MODE;
    if (str == "SolveModeOptions")
@@ -504,6 +545,8 @@ Integer SolverBranchCommand::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType SolverBranchCommand::GetParameterType(const Integer id) const
 {
+   if (id == SOLVER_NAME_ID)
+      return Gmat::STRING_TYPE;
    if (id == SOLVER_SOLVE_MODE)
       return Gmat::STRING_TYPE;
    if (id == SOLVER_SOLVE_MODE_OPTIONS)
@@ -526,6 +569,8 @@ Gmat::ParameterType SolverBranchCommand::GetParameterType(const Integer id) cons
 //------------------------------------------------------------------------------
 std::string SolverBranchCommand::GetParameterTypeString(const Integer id) const
 {
+   if (id == SOLVER_NAME_ID)
+      return PARAM_TYPE_STRING[Gmat::STRING_TYPE];
    if (id == SOLVER_SOLVE_MODE)
       return PARAM_TYPE_STRING[Gmat::STRING_TYPE];
    if (id == SOLVER_SOLVE_MODE_OPTIONS)
@@ -549,6 +594,12 @@ std::string SolverBranchCommand::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 bool SolverBranchCommand::SetStringParameter(const Integer id, const std::string &value)
 {
+   if (id == SOLVER_NAME_ID)
+   {
+      solverName = value;
+      return true;
+   }
+
    if (id == SOLVER_SOLVE_MODE) 
    {
       if (value == "RunInitialGuess")
@@ -565,7 +616,10 @@ bool SolverBranchCommand::SetStringParameter(const Integer id, const std::string
 
 std::string SolverBranchCommand::GetStringParameter(const Integer id) const
 {
-   if (id == SOLVER_SOLVE_MODE) 
+   if (id == SOLVER_NAME_ID)
+      return solverName;
+
+      if (id == SOLVER_SOLVE_MODE) 
    {
       if (startMode == RUN_INITIAL_GUESS)
          return "RunInitialGuess";

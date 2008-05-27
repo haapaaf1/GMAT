@@ -117,7 +117,7 @@ RefEpoch = Sat.A1ModJulian;
 %  two impulsive maneuvers.  The optimization variables are the 
 %  the components of both delta vs (6 variables).... and the TOF
 Iterate = 0;
-Optimize vf13 {SolveMode = RunInitialGuess, ExitMode = DiscardAndContinue}
+Optimize vf13 {SolveMode = Solve, ExitMode = DiscardAndContinue}
     
    %  Increment the loop counter
    Iterate = Iterate + 1;

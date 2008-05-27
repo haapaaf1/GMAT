@@ -208,13 +208,23 @@ const std::string& Target::GetGeneratingString(Gmat::WriteMode mode,
                                                const std::string &prefix,
                                                const std::string &useName)
 {
-   if (mode == Gmat::NO_COMMENTS)
+   generatingString = "";
+   
+   if (mode != Gmat::NO_COMMENTS)
    {
-      generatingString = "Target " + solverName + ";";
-      return generatingString;
+      generatingString = prefix;
    }
    
-   generatingString = prefix + "Target " + solverName + ";";
+   generatingString += "Target " + solverName;
+   
+   // Handle the option strings
+   generatingString += GetSolverOptionText();
+   
+   generatingString += ";";
+
+   if (mode == Gmat::NO_COMMENTS)
+      return generatingString;
+
    return SolverBranchCommand::GetGeneratingString(mode, prefix, useName);
 }
 
@@ -567,7 +577,6 @@ bool Target::Execute()
 
       FreeLoopData();
       StoreLoopData();
-
 
       retval = SolverBranchCommand::Execute();
 

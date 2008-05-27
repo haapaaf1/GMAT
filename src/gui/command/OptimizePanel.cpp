@@ -116,7 +116,7 @@ void OptimizePanel::LoadData()
       mObject = theCommand;
       
       std::string solverName =
-         theCommand->GetStringParameter(theCommand->GetParameterID("OptimizerName"));
+         theCommand->GetStringParameter("SolverName");
       
       mSolverComboBox->SetValue(solverName.c_str());
       
@@ -141,7 +141,7 @@ void OptimizePanel::SaveData()
       std::string solverName = mSolverComboBox->GetValue().c_str();
       std::string solverMode = mSolverModeComboBox->GetValue().c_str();
 
-      theCommand->SetStringParameter(theCommand->GetParameterID("OptimizerName"),
+      theCommand->SetStringParameter(theCommand->GetParameterID("SolverName"),
                                      solverName);
       theCommand->SetStringParameter(theCommand->GetParameterID("SolveMode"), 
             solverMode);

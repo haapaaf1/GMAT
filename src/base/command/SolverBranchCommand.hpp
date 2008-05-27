@@ -98,8 +98,10 @@ protected:
    /// Local store of the objects that we'll need to reset
    ObjectArray         localStore;
 
-   // Parsing function for SolveMode and ExitMode
+   /// Parsing function for SolveMode and ExitMode
    void                CheckForOptions(std::string &opts);
+   /// Returns the text for options that are not set to the default values
+   std::string GetSolverOptionText();
    
    // Methods used to save the starting point for the loops
    virtual void        StoreLoopData();
