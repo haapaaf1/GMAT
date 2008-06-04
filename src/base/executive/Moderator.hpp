@@ -108,8 +108,9 @@ public:
    SolarSystem* GetDefaultSolarSystem();
    SolarSystem* CreateSolarSystem(const std::string &name);
    SolarSystem* GetSolarSystemInUse();
-   bool SetSolarSystemInUse(const std::string &name);
    void SetSolarSystemInUse(SolarSystem *ss);
+   void SetInternalSolarSystem(SolarSystem *ss);
+   bool SetSolarSystemInUse(const std::string &name);
    
    // CalculatedPoint
    CalculatedPoint* CreateCalculatedPoint(const std::string &type,
@@ -369,6 +370,7 @@ private:
    
    SolarSystem *theDefaultSolarSystem;
    SolarSystem *theSolarSystemInUse;
+   SolarSystem *theInternalSolarSystem;
    CoordinateSystem *theInternalCoordSystem;
    StringArray theSpacePointList;
    EopFile *theEopFile;

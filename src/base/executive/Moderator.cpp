@@ -510,7 +510,7 @@ void Moderator::SetObjectMap(ObjectMap *objMap)
            i != objMap->end(); ++i)
       {
          MessageInterface::ShowMessage
-            ("   %30s  <%s>\n", i->first.c_str(),
+            ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
              i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
       }
       #endif
@@ -571,7 +571,7 @@ GmatBase* Moderator::FindObject(const std::string &name)
         i != objectMapInUse->end(); ++i)
    {
       MessageInterface::ShowMessage
-         ("   %30s  <%s>\n", i->first.c_str(),
+         ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
           i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
    }
    #endif
@@ -582,6 +582,7 @@ GmatBase* Moderator::FindObject(const std::string &name)
       obj = (*objectMapInUse)[newName];
    
    // If object not found, try SolarSystem
+   // @todo - We want to use SolarSystem that Sandbox uses
    if (obj == NULL)
    {
       SolarSystem *ss = NULL;
@@ -590,12 +591,36 @@ GmatBase* Moderator::FindObject(const std::string &name)
          ss = (SolarSystem*)pos->second;
       
       if (ss)
+      {
          obj = (GmatBase*)(ss->GetBody(newName));
+         #if DEBUG_FIND_OBJECT
+         if (obj)
+         {
+            MessageInterface::ShowMessage
+               ("   Found '%s' from the SolarSystem <%p> in the map\n",
+                name.c_str(), ss);
+         }
+         #endif
+      }
+   }
+   
+   // If object still not found, try internal SolarSystem
+   if (obj == NULL && theInternalSolarSystem != NULL)
+   {
+      obj = (GmatBase*)(theInternalSolarSystem->GetBody(newName));
+      #if DEBUG_FIND_OBJECT
+      if (obj)
+      {
+         MessageInterface::ShowMessage
+            ("   Found '%s' from the InternalSolarSystem <%p>\n", name.c_str(),
+             theInternalSolarSystem);
+      }
+      #endif
    }
    
    #if DEBUG_FIND_OBJECT
    MessageInterface::ShowMessage
-      ("Moderator::FindObject() returning <%p><%s>\n", obj,
+      ("Moderator::FindObject() '%s' returning <%p><%s>\n", name.c_str(), obj,
        (obj ? obj->GetTypeName().c_str() : "NULL"));
    #endif
    
@@ -1034,6 +1059,16 @@ void Moderator::SetSolarSystemInUse(SolarSystem *ss)
    else
       throw GmatBaseException
          ("Moderator::SetSolarSystemInUse() cannot set NULL SolarSystem\n");
+}
+
+
+//------------------------------------------------------------------------------
+// void SetInternalSolarSystem(SolarSystem *ss)
+//------------------------------------------------------------------------------
+void Moderator::SetInternalSolarSystem(SolarSystem *ss)
+{
+   if (ss != NULL)
+      theInternalSolarSystem = ss;
 }
 
 
@@ -4787,9 +4822,15 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
    param->SetSolarSystem(theSolarSystemInUse);
    param->SetInternalCoordSystem(theInternalCoordSystem);
    
+   //MessageInterface::ShowMessage
+   //   ("==>SetParameterRefObject() name='%s', newDep='%s'\n", name.c_str(), newDep.c_str());
+   
    if (newDep != "")
-      if (param->NeedCoordSystem())
-         param->AddRefObject(FindObject(newDep));
+      param->AddRefObject(FindObject(newDep));
+   
+   // I'm not sure if we always use EarthMJ2000Eq (loj: 2008.06.03)
+   if (param->NeedCoordSystem())
+      param->AddRefObject(FindObject("EarthMJ2000Eq"));
    
    // create parameter dependent coordinate system
    if (type == "Longitude" || type == "Latitude" || type == "Altitude" ||
