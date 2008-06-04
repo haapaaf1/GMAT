@@ -113,10 +113,14 @@ MathTree& MathTree::operator=(const MathTree &mt)
 //------------------------------------------------------------------------------
 const StringArray& MathTree::GetGmatFunctionNames()
 {
-   #ifdef DEBUG_GMAT_FUNCTION
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("MathTree::GetGmatFunctionNames() returning %d GmatFunctions\n",
-       theGmatFunctionNames.size());
+      ("MathTree::GetGmatFunctionNames() theTopNode type=%s, desc='%s' returning "
+       "%d GmatFunctions\n", theTopNode->GetTypeName().c_str(),
+       theTopNode->GetName().c_str(), theGmatFunctionNames.size());
+   for (UnsignedInt i=0; i<theGmatFunctionNames.size(); i++)
+      MessageInterface::ShowMessage("   '%s'\n", theGmatFunctionNames[i].c_str());
+   
    #endif
    
    return theGmatFunctionNames;
@@ -148,7 +152,8 @@ void MathTree::SetFunction(Function *function)
 {
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("MathTree::SetFunction() function=%p\n", function);
+      ("MathTree::SetFunction() function=<%p>, name='%s'\n", function,
+       function->GetName().c_str());
    #endif
    
    if (theTopNode == NULL)
@@ -156,7 +161,7 @@ void MathTree::SetFunction(Function *function)
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   Calling SetFunctionToRunner() theTopNode=%s, %s\n",
+      ("   Calling SetFunctionToRunner() theTopNode type=%s, desc='%s'\n",
        theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
    #endif
    
@@ -290,7 +295,7 @@ void MathTree::SetObjectMap(ObjectMap *map)
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   Calling SetObjectMapToRunner() theTopNode=%s, %s\n",
+      ("   Calling SetObjectMapToRunner() theTopNode type='%s', desc='%s'\n",
        theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
    #endif
    
@@ -322,7 +327,7 @@ void MathTree::SetGlobalObjectMap(ObjectMap *map)
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   Calling SetGlobalObjectMapToRunner() theTopNode=%s, %s\n",
+      ("   Calling SetGlobalObjectMapToRunner() theTopNode type='%s', desc='%s'\n",
        theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
    #endif
    
@@ -348,7 +353,7 @@ void MathTree::SetSolarSystem(SolarSystem *ss)
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   Calling SetSolarSystemToRunner() theTopNode=%s, %s\n",
+      ("   Calling SetSolarSystemToRunner() theTopNode type='%s', desc='%s'\n",
        theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
    #endif
    
@@ -374,7 +379,7 @@ void MathTree::SetTransientForces(std::vector<PhysicalModel*> *tf)
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   Calling SetTransientForcesToRunner() theTopNode=%s, %s\n",
+      ("   Calling SetTransientForcesToRunner() theTopNode type=%s, desc='%s'\n",
        theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
    #endif
    
@@ -624,7 +629,7 @@ void MathTree::SetObjectMapToRunner(MathNode *node, ObjectMap *map)
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   node type='%s', name='%s'\n", node->GetTypeName().c_str(),
+      ("   node type='%s', desc='%s'\n", node->GetTypeName().c_str(),
        node->GetName().c_str());
    #endif
    
@@ -657,7 +662,7 @@ void MathTree::SetGlobalObjectMapToRunner(MathNode *node, ObjectMap *map)
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   node type='%s', name='%s'\n", node->GetTypeName().c_str(),
+      ("   node type='%s', desc='%s'\n", node->GetTypeName().c_str(),
        node->GetName().c_str());
    #endif
    
@@ -690,7 +695,7 @@ void MathTree::SetSolarSystemToRunner(MathNode *node, SolarSystem *ss)
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   node type='%s', name='%s'\n", node->GetTypeName().c_str(),
+      ("   node type='%s', desc='%s'\n", node->GetTypeName().c_str(),
        node->GetName().c_str());
    #endif
    
@@ -723,7 +728,7 @@ void MathTree::SetTransientForcesToRunner(MathNode *node, std::vector<PhysicalMo
    
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("   node type='%s', name='%s'\n", node->GetTypeName().c_str(),
+      ("   node type='%s', desc='%s'\n", node->GetTypeName().c_str(),
        node->GetName().c_str());
    #endif
    

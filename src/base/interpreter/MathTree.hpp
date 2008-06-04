@@ -21,9 +21,6 @@
 
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
-//#include "MathNode.hpp"
-//#include "ElementWrapper.hpp"
-//#include "Function.hpp"
 #include <map>
 
 // Forward references for GMAT core objects
