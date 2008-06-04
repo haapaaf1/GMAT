@@ -105,7 +105,6 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
 DifferentialCorrector::~DifferentialCorrector()
 {
    FreeArrays();
-   MessageInterface::ShowMessage("TTFN from %s\n", instanceName.c_str());
 }
 
 
