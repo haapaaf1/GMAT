@@ -1740,8 +1740,8 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
 {
    #ifdef DEBUG_SANDBOX_GMATFUNCTION
       MessageInterface::ShowMessage(
-         "Now entering HandleGmatFunction with command of type %s\n",
-         (cmd->GetTypeName()).c_str());
+         "Now entering HandleGmatFunction with command of type %s, '%s'\n",
+         (cmd->GetTypeName()).c_str(), cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
    #endif
    bool OK = false;
    StringArray gfList;
@@ -1801,15 +1801,19 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
             {
                #ifdef DEBUG_SANDBOX_GMATFUNCTION
                   MessageInterface::ShowMessage(
-                     "CallFunction or Assignment (%s) detected ... now processing\n",
-                     (cmd->GetTypeName()).c_str());
+                     "CallFunction or Assignment (%s)'%s' detected in FCS... now processing\n",
+                     (fcsCmd->GetTypeName()).c_str(),
+                     fcsCmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
                #endif
+
+               // LOJ: Let's handle GmatFunction first (2008.06.02)
+               OK += HandleGmatFunction(fcsCmd, &globalObjectMap);
                // do not set the non-global object map here; it will need to be
                // setup y the FunctionManager at execution
                fcsCmd->SetGlobalObjectMap(&globalObjectMap);
                fcsCmd->SetSolarSystem(solarSys);
                fcsCmd->SetTransientForces(&transientForces);
-               OK += HandleGmatFunction(fcsCmd, &globalObjectMap);
+               //OK += HandleGmatFunction(fcsCmd, &globalObjectMap); //(loj: moved up)
                ////if (!(fcsCmd->Initialize())) 
                ////   return false;
                if (fcsCmd->GetTypeName() == "CallFunction") 
