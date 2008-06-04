@@ -40,10 +40,10 @@
 #include "Assignment.hpp"
 
 
+//#define DEBUG_HANDLE_ERROR
 //#define DEBUG_VALIDATE_COMMAND
 //#define DEBUG_WRAPPERS
 //#define DEBUG_CHECK_OBJECT
-//#define DEBUG_HANDLE_ERROR
 //#define DEBUG_CREATE_PARAM
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_FUNCTION
@@ -93,6 +93,8 @@ Validator::~Validator()
 void Validator::SetSolarSystem(SolarSystem *ss)
 {
    theSolarSystem = ss;
+   // Set SolarSyste to use for the Moderator
+   theModerator->SetInternalSolarSystem(ss);
 }
 
 
@@ -153,6 +155,9 @@ void Validator::SetFunction(Function *func)
 //------------------------------------------------------------------------------
 bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
 {
+   if (obj == NULL)
+      return false;
+   
    continueOnError = contOnError;
    
    #ifdef DEBUG_CHECK_OBJECT
@@ -422,6 +427,13 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, bool manage)
             return HandleError();
          }
       }
+   }
+   
+   // Let's try branch command
+   if ((cmd->GetChildCommand(0)) != NULL)
+   {
+      if (!ValidateSubCommand(cmd, 0))
+         return false;
    }
    
    #ifdef DEBUG_VALIDATE_COMMAND
@@ -1270,7 +1282,7 @@ bool Validator::ValidateSaveCommand(GmatBase *obj)
    
    ObjectTypeArray refTypes = obj->GetRefObjectTypeArray();
    
-   #ifdef DEBUG_CHECK_OBJECT
+   #ifdef DEBUG_VALIDATE_COMMAND
    for (UnsignedInt i=0; i<refTypes.size(); i++)
       MessageInterface::ShowMessage
          ("   %s\n", GmatBase::GetObjectTypeString(refTypes[i]).c_str());
@@ -1280,7 +1292,7 @@ bool Validator::ValidateSaveCommand(GmatBase *obj)
    
    for (UnsignedInt j=0; j<refNames.size(); j++)
    {
-      #ifdef DEBUG_CHECK_OBJECT
+      #ifdef DEBUG_VALIDATE_COMMAND
       MessageInterface::ShowMessage("For Save, name = %s\n", refNames.at(j).c_str()); 
       #endif
       
@@ -1311,6 +1323,76 @@ bool Validator::ValidateSaveCommand(GmatBase *obj)
    }
    
    return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// bool ValidateSubCommand(GmatCommand *brCmd, Integer level)
+//------------------------------------------------------------------------------
+bool Validator::ValidateSubCommand(GmatCommand *brCmd, Integer level)
+{
+   #ifdef DEBUG_VALIDATE_COMMAND
+   MessageInterface::ShowMessage
+      ("ValidateSubCommand() %s, level=%d\n", brCmd->GetTypeName().c_str(), level);
+   #endif
+   
+   GmatCommand* current = brCmd;
+   Integer childNo = 0;
+   GmatCommand* nextInBranch;
+   GmatCommand* child;
+   std::string cmdstr;
+   
+   while((child = current->GetChildCommand(childNo)) != NULL)
+   {
+      nextInBranch = child;
+      
+      while ((nextInBranch != NULL) && (nextInBranch != current))
+      {
+         for (int i=0; i<=level; i++)
+         {
+            #ifdef DEBUG_VALIDATE_COMMAND
+            MessageInterface::ShowMessage("---");
+            #endif
+         }
+         
+         cmdstr = nextInBranch->GetGeneratingString(Gmat::NO_COMMENTS) + "\n";
+         
+         #ifdef DEBUG_VALIDATE_COMMAND
+         MessageInterface::ShowMessage("%s", cmdstr.c_str());
+         #endif
+         
+         if (!ValidateCommand(nextInBranch, false, true))
+         {
+            MessageInterface::ShowMessage
+               ("==> ValidateCommand() returned false\n");
+            return false;
+         }
+         
+         if (!CheckUndefinedReference(nextInBranch))
+         {
+            MessageInterface::ShowMessage
+               ("==> CheckUndefinedReference() returned false\n");
+             return false;
+         }
+         
+         if (nextInBranch->GetChildCommand() != NULL)
+            if (!ValidateSubCommand(nextInBranch, level+1))
+            {
+               MessageInterface::ShowMessage
+                  ("==> ValidateSubCommand() returned false\n");
+               return false;
+            }
+         
+         nextInBranch = nextInBranch->GetNext();
+      }
+      
+      ++childNo;
+   }
+   
+   #ifdef DEBUG_VALIDATE_COMMAND
+   MessageInterface::ShowMessage("ValidateSubCommand() returning true\n");
+   #endif
+   return true;
 }
 
 

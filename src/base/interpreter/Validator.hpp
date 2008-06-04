@@ -80,6 +80,8 @@ public:
    
 protected:
    
+   bool ValidateSubCommand(GmatCommand *cmd, Integer level);
+   bool SubCommand(GmatCommand *cmd, Integer level);
    bool HandleError();
    
    Moderator       *theModerator;
