@@ -31,7 +31,7 @@
 //#define DEBUG_STATE_MACHINE
 //#define DEBUG_DC_INIT 1
 //#define DEBUG_JACOBIAN
-
+//#define DEBUG_VARIABLES_CALCS
 
 //---------------------------------
 // static data
@@ -507,78 +507,6 @@ bool DifferentialCorrector::TakeAction(const std::string &action,
 
 
 //------------------------------------------------------------------------------
-//  Integer SetSolverVariables(Real *data, const std::string &name)
-//------------------------------------------------------------------------------
-/**
- * Derived classes use this method to pass in parameter data specific to
- * the algorithm implemented.
- * 
- * @param <data> An array of data appropriate to the variables used in the
- *               algorithm.
- * @param <name> A label for the data parameter.  Defaults to the empty
- *               string.
- * 
- * @return The ID used for the variable.
- */
-//------------------------------------------------------------------------------
-/*
-Integer DifferentialCorrector::SetSolverVariables(Real *data,
-                                                  const std::string &name)
-{
-   if (variableNames[variableCount] != name)
-      throw SolverException("Mismatch between parsed and configured variable");
-
-   variable[variableCount] = data[0];
-   perturbation[variableCount] = data[1];
-   // Sanity check min and max
-   if (data[2] >= data[3])
-   {
-      std::stringstream errMsg;
-      errMsg << "Minimum allowed variable value (received " << data[2]
-             << ") must be less than maximum (received " << data[3] << ")";
-      throw SolverException(errMsg.str());
-   }
-   if (data[4] <= 0.0)
-   {
-      std::stringstream errMsg;
-      errMsg << "Largest allowed step must be positive! (received "
-             << data[4] << ")";
-      throw SolverException(errMsg.str());
-   }
-
-   variableMinimum[variableCount] = data[2];
-   variableMaximum[variableCount] = data[3];
-   variableMaximumStep[variableCount] = data[4];
-   ++variableCount;
-
-   return variableCount-1;
-}
-*/
-
-//------------------------------------------------------------------------------
-//  Real GetSolverVariable(Integer id)
-//------------------------------------------------------------------------------
-/**
- * Interface used to access Variable values.
- * 
- * @param <id> The ID used for the variable.
- * 
- * @return The value used for this variable
- */
-//------------------------------------------------------------------------------
-/*
-Real DifferentialCorrector::GetSolverVariable(Integer id)
-{
-   if (id >= variableCount)
-      throw SolverException(
-         "DifferentialCorrector member requested a parameter outside the range "
-         "of the configured variables.");
-
-   return variable[id];
-}
-*/
-
-//------------------------------------------------------------------------------
 // Integer SetSolverResults(Real *data, const std::string &name)
 //------------------------------------------------------------------------------
 /**
@@ -888,40 +816,67 @@ void DifferentialCorrector::RunPerturbation()
 //------------------------------------------------------------------------------
 void DifferentialCorrector::CalculateParameters()
 {
-    // Build and invert the sensitivity matrix
-    CalculateJacobian();
-    InvertJacobian();
+   // Build and invert the sensitivity matrix
+   CalculateJacobian();
+   InvertJacobian();
     
-    Real delta;
-    // Apply the inverse Jacobian to build the next set of variables
-    for (Integer i = 0; i < variableCount; ++i)
-    {
-        delta = 0.0;
-        for (Integer j = 0; j < goalCount; j++)
-            delta += inverseJacobian[j][i] * (goal[j] - nominal[j]);
+   std::vector<Real> delta;
 
-        // Ensure that delta is not larger than the max allowed step
-        try
-        {
-           if (fabs(delta) > variableMaximumStep.at(i))
-              delta = ((delta > 0.0) ? variableMaximumStep.at(i) :
-                                      -variableMaximumStep.at(i));
-           variable.at(i) += delta;
-
-           // Ensure that variable[i] is in the allowed range
-           if (variable.at(i) < variableMinimum.at(i))
-              variable.at(i) = variableMinimum.at(i);
-           if (variable.at(i) > variableMaximum.at(i))
-              variable.at(i) = variableMaximum.at(i);
-        }
-        catch(std::exception &re)
-        {
-           throw SolverException("Range error in Solver::CalculateParameters\n");
-        }
-    }
+   // Apply the inverse Jacobian to build the next set of variables
+   for (Integer i = 0; i < variableCount; ++i)
+   {
+      delta.push_back(0.0);
+      for (Integer j = 0; j < goalCount; j++)
+         delta[i] += inverseJacobian[j][i] * (goal[j] - nominal[j]);
+   }
     
-    WriteToTextFile();
-    currentState = NOMINAL;
+   Real multiplier = 1.0, maxDelta;
+    
+   // First validate the variable changes
+   for (Integer i = 0; i < variableCount; ++i)
+   {    
+      if (fabs(delta.at(i)) > variableMaximumStep.at(i))
+      {
+         maxDelta = fabs(variableMaximumStep.at(i) / delta.at(i));
+         if (maxDelta < multiplier)
+            multiplier = maxDelta; 
+      }
+   }
+    
+   #ifdef DEBUG_VARIABLES_CALCS
+      MessageInterface::ShowMessage("Variable Values; Multiplier = %.15lf\n",
+            multiplier);
+   #endif
+
+   for (Integer i = 0; i < variableCount; ++i)
+   {    
+      // Ensure that delta is not larger than the max allowed step
+      try
+      {
+         #ifdef DEBUG_VARIABLES_CALCS
+            MessageInterface::ShowMessage(
+                  "   %d:  %.15lf  +  %.15lf  *  %.15lf", i, variable.at(i),
+                  delta.at(i), multiplier);                       
+         #endif
+         variable.at(i) += delta.at(i) * multiplier;
+         #ifdef DEBUG_VARIABLES_CALCS
+            MessageInterface::ShowMessage("  ->  %.15lf\n", variable.at(i));                       
+         #endif
+
+         // Ensure that variable[i] is in the allowed range
+         if (variable.at(i) < variableMinimum.at(i))
+            variable.at(i) = variableMinimum.at(i);
+         if (variable.at(i) > variableMaximum.at(i))
+            variable.at(i) = variableMaximum.at(i);
+      }
+      catch(std::exception &re)
+      {
+         throw SolverException("Range error in Solver::CalculateParameters\n");
+      }
+   }
+    
+   WriteToTextFile();
+   currentState = NOMINAL;
 }
 
 
@@ -1097,7 +1052,7 @@ void DifferentialCorrector::FreeArrays()
    {
       for (Integer i = 0; i < goalCount; ++i)
          delete [] inverseJacobian[i];
-      delete [] inverseJacobian;
+      delete [] inverseJacobian; 
       inverseJacobian = NULL;
    }
     
