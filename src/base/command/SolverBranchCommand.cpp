@@ -381,10 +381,12 @@ bool SolverBranchCommand::InterpretAction()
 void SolverBranchCommand::CheckForOptions(std::string &opts)
 {
    StringArray chunks = parser.SeparateBrackets(opts, "{}", ", ", true);
-   
-   MessageInterface::ShowMessage("Chunks from \"%s\":\n", opts.c_str());
-   for (StringArray::iterator i = chunks.begin(); i != chunks.end(); ++i)
-      MessageInterface::ShowMessage("   \"%s\"\n", i->c_str());
+
+   #ifdef DEBUG_PARSING
+      MessageInterface::ShowMessage("Chunks from \"%s\":\n", opts.c_str());
+      for (StringArray::iterator i = chunks.begin(); i != chunks.end(); ++i)
+         MessageInterface::ShowMessage("   \"%s\"\n", i->c_str());
+   #endif
    
    for (StringArray::iterator i = chunks.begin(); i != chunks.end(); ++i)
    {

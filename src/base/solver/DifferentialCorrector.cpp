@@ -609,21 +609,18 @@ bool DifferentialCorrector::Initialize()
       throw SolverException(errorMessage);
    }
    
-//   if (localGoalCount > localVariableCount)
+//   if (localGoalCount < localVariableCount)
 //   {
-//      std::string errorMessage = "Targeter cannot initialize: ";
-//      errorMessage += "More goals than variables\n";
-//      throw SolverException(errorMessage);
+//      // std::string errorMessage = "Targeter cannot initialize: ";
+//      // errorMessage += "Fewer goals than variables\n";
+//      // throw SolverException(errorMessage);
+//      
+//      MessageInterface::ShowMessage("WARNING!!!  The Differenential Corrector "
+//            "Code is unstable for the overconstrained problem (Fewer goals "
+//            "than variables); reruns may crash.\n");
 //   }
-
    
    FreeArrays();
-   
-   //variable            = new Real[localVariableCount];
-   //perturbation        = new Real[localVariableCount];
-   //variableMinimum     = new Real[localVariableCount];
-   //variableMaximum     = new Real[localVariableCount];
-   //variableMaximumStep = new Real[localVariableCount];
    
    // Setup the goal data structures
    goal      = new Real[localGoalCount];
@@ -640,9 +637,6 @@ bool DifferentialCorrector::Initialize()
       jacobian[i]        = new Real[localGoalCount];
       achieved[i]        = new Real[localGoalCount];
       ludMatrix[i]       = new Real[localVariableCount];
-        
-      // Initialize to the identity matrix
-      jacobian[i][i] = 1.0;
    }
 
    inverseJacobian = new Real*[localGoalCount];
@@ -657,12 +651,11 @@ bool DifferentialCorrector::Initialize()
    indx = new Integer[variableCount];
    b = new Real[variableCount];
     
-   //initialized = true;  // moved to Solver
-   //iterationsTaken = 0;
    #if DEBUG_DC_INIT
-   MessageInterface::ShowMessage
-      ("DifferentialCorrector::Initialize() completed\n");
+      MessageInterface::ShowMessage
+            ("DifferentialCorrector::Initialize() completed\n");
    #endif
+
    return true;
 }
 
@@ -961,6 +954,10 @@ void DifferentialCorrector::CalculateJacobian()
 //------------------------------------------------------------------------------
 void DifferentialCorrector::InvertJacobian()
 {
+   #ifdef DEBUG_JACOBIAN
+      MessageInterface::ShowMessage("Inverting %d by %d Jacobian\n", 
+            variableCount, goalCount);
+   #endif
    Rmatrix jac(variableCount, goalCount);
    for (Integer i = 0; i < variableCount; ++i)
       for (Integer j = 0; j < goalCount; ++j)
@@ -978,6 +975,11 @@ void DifferentialCorrector::InvertJacobian()
    else
       inv = jac.Pseudoinverse();
    
+   #ifdef DEBUG_JACOBIAN
+      MessageInterface::ShowMessage("Inverse Jacobian is %d by %d\n", 
+            variableCount, goalCount);
+   #endif
+
    #ifdef DEBUG_DC_INVERSIONS
       std::string preface = "   ";
       if (variableCount == goalCount)
@@ -1035,7 +1037,9 @@ void DifferentialCorrector::FreeArrays()
    if (achieved)
    {
       for (Integer i = 0; i < goalCount; ++i)
+      {
          delete [] achieved[i];
+      }
       delete [] achieved;
       achieved = NULL;
    }
@@ -1043,7 +1047,9 @@ void DifferentialCorrector::FreeArrays()
    if (jacobian)
    {
       for (Integer i = 0; i < variableCount; ++i)
+      {
          delete [] jacobian[i];
+      }
       delete [] jacobian;
       jacobian = NULL;
    }
@@ -1051,8 +1057,10 @@ void DifferentialCorrector::FreeArrays()
    if (inverseJacobian)
    {
       for (Integer i = 0; i < goalCount; ++i)
+      {
          delete [] inverseJacobian[i];
-      delete [] inverseJacobian; 
+      }
+      delete [] inverseJacobian;
       inverseJacobian = NULL;
    }
     
@@ -1071,7 +1079,9 @@ void DifferentialCorrector::FreeArrays()
    if (ludMatrix)
    {
       for (Integer i = 0; i < variableCount; ++i)
+      {
          delete [] ludMatrix[i];
+      }
       delete [] ludMatrix;
       ludMatrix = NULL;
    }
