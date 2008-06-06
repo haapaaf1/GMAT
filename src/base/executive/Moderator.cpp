@@ -5576,6 +5576,7 @@ Moderator::Moderator()
    theDefaultSolarSystem = NULL;
    theSolarSystemInUse = NULL;
    theInternalCoordSystem = NULL;
+   theInternalSolarSystem = NULL;
    runState = Gmat::IDLE;
    
    // The motivation of adding this data member was due to Parameter creation
