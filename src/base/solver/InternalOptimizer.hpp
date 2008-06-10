@@ -10,10 +10,10 @@
 // number NNG06CA54C
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
-// Created: 2007/05/23
+// Created: 2007/03/27
 //
 /**
- * Implementation for the steepest descent optimizer. 
+ * Definition of the internal optimizer. 
  */
 //------------------------------------------------------------------------------
 
@@ -23,6 +23,9 @@
 
 #include "Optimizer.hpp"
 
+/**
+ * Defines the interfaces used by Optimizers that run integral to GMAT.  
+ */
 class GMAT_API InternalOptimizer : public Optimizer
 {
 public:
@@ -34,7 +37,7 @@ public:
    virtual bool        Initialize();
    
 protected:
-   
+   /// The itemized parameters for internal optimizers
    enum
    {
       InternalOptimizerParamCount = OptimizerParamCount

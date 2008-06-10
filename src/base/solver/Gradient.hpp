@@ -1,9 +1,31 @@
+//$Id: Gradient.hpp 5536 2008-05-31 00:03:25Z djcinsb $
+//------------------------------------------------------------------------------
+//                              Gradient
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG06CA54C
+//
+// Created: 2008/03/28
+//
+/**
+ * Base class for gradient calculations used by the Solvers.
+ */
+//------------------------------------------------------------------------------
+
 #ifndef Gradient_hpp
 #define Gradient_hpp
 
 #include "DerivativeModel.hpp"
 
-
+/**
+ * Implements gradient calculations using finite differencing in one of three
+ * modes: forward differenced, central differenced, or backwards differenced.
+ * The class also makes provision for a user specified gradient.
+ */
 class Gradient : public DerivativeModel
 {
 public:
@@ -19,7 +41,9 @@ public:
    bool                 Calculate(std::vector<Real> &grad);
 
 protected:
+   /// The result of a nominal run, used for forward or backward differencing
    Real                 nominal;
+   /// The gradient vector
    std::vector<Real>    gradient;
 };
 

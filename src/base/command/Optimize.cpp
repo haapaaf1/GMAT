@@ -32,7 +32,6 @@
    static GmatInterface *gmatInt = GmatInterface::Instance();
 #endif
 
-   
 //#define DEBUG_OPTIMIZER_PARSING
 //#define DEBUG_OPTIMIZE_COMMANDS
 //#define DEBUG_CALLBACK
@@ -46,14 +45,14 @@
 const std::string
 Optimize::PARAMETER_TEXT[OptimizeParamCount - SolverBranchCommandParamCount] =
 {
-//   "OptimizerName",
+   "OptimizerName",
    "OptimizerConverged",
 };
 
 const Gmat::ParameterType
 Optimize::PARAMETER_TYPE[OptimizeParamCount - SolverBranchCommandParamCount] =
 {
-//   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
    Gmat::BOOLEAN_TYPE,
 };
 
@@ -278,11 +277,11 @@ std::string Optimize::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 bool Optimize::SetStringParameter(const Integer id, const std::string &value)
 {
-//   if (id == OPTIMIZER_NAME) 
-//   {
-//      optimizerName = value;
-//      return true;
-//   }
+   if (id == OPTIMIZER_NAME) 
+   {
+      solverName = value;
+      return true;
+   }
     
    return SolverBranchCommand::SetStringParameter(id, value);
 }

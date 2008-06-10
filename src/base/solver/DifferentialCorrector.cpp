@@ -32,6 +32,12 @@
 //#define DEBUG_DC_INIT 1
 //#define DEBUG_JACOBIAN
 //#define DEBUG_VARIABLES_CALCS
+//#define DEBUG_TARGETING_MODES
+
+// Turn on other debug if working on modes
+#ifdef DEBUG_TARGETING_MODES
+   #define DEBUG_STATE_MACHINE
+#endif
 
 //---------------------------------
 // static data
@@ -83,7 +89,6 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   ludMatrix               (NULL),
    useCentralDifferences   (false)  //,
    //initialized             (false),
    //instanceNumber          (0)       // 0 indicates 1st instance w/ this name
@@ -128,7 +133,6 @@ DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
    //pertNumber              (dc.pertNumber),
    indx                    (NULL),
    b                       (NULL),
-   ludMatrix               (NULL),
    useCentralDifferences   (dc.useCentralDifferences)  //,
    //initialized             (false),
    //solverTextFile          (dc.solverTextFile),
@@ -502,6 +506,17 @@ bool DifferentialCorrector::TakeAction(const std::string &action,
       }
    }
 
+   if (action == "SetMode")
+   {
+      currentState = INITIALIZING;
+      // initialized = false;
+      // Set nominal out of range to force retarget when in a loop
+      for (Integer i = 0; i < goalCount; ++i)
+      {
+         nominal[i] = goal[i] + 10.0 * tolerance[i];
+      }
+   }
+
    return Solver::TakeAction(action, actionData);
 }
 
@@ -573,6 +588,11 @@ bool DifferentialCorrector::UpdateSolverGoal(Integer id, Real newValue)
 void DifferentialCorrector::SetResultValue(Integer id, Real value,
                                            const std::string &resultType)
 {
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage(
+            "   State %d received id %d    value = %.12lf\n", currentState, id, 
+            value);
+   #endif
     if (currentState == NOMINAL) {
         nominal[id] = value;
     }
@@ -609,17 +629,6 @@ bool DifferentialCorrector::Initialize()
       throw SolverException(errorMessage);
    }
    
-//   if (localGoalCount < localVariableCount)
-//   {
-//      // std::string errorMessage = "Targeter cannot initialize: ";
-//      // errorMessage += "Fewer goals than variables\n";
-//      // throw SolverException(errorMessage);
-//      
-//      MessageInterface::ShowMessage("WARNING!!!  The Differenential Corrector "
-//            "Code is unstable for the overconstrained problem (Fewer goals "
-//            "than variables); reruns may crash.\n");
-//   }
-   
    FreeArrays();
    
    // Setup the goal data structures
@@ -631,12 +640,10 @@ bool DifferentialCorrector::Initialize()
    Integer i;
    achieved        = new Real*[localVariableCount];
    jacobian        = new Real*[localVariableCount];
-   ludMatrix       = new Real*[localVariableCount];
    for (i = 0; i < localVariableCount; ++i)
    {
       jacobian[i]        = new Real[localGoalCount];
       achieved[i]        = new Real[localGoalCount];
-      ludMatrix[i]       = new Real[localVariableCount];
    }
 
    inverseJacobian = new Real*[localGoalCount];
@@ -671,73 +678,131 @@ bool DifferentialCorrector::Initialize()
 //------------------------------------------------------------------------------
 Solver::SolverState DifferentialCorrector::AdvanceState()
 {
-   switch (currentState)
+   switch (currentMode)
    {
-      case INITIALIZING:
-         #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered state machine; INITIALIZING\n");
+      case INITIAL_GUESS:
+         #ifdef DEBUG_TARGETING_MODES
+            MessageInterface::ShowMessage(
+                  "Running in INITIAL_GUESS mode; state = %d\n", currentState);
          #endif
-         iterationsTaken = 0;
-         WriteToTextFile();
-         ReportProgress();
-         CompleteInitialization();
+            switch (currentState)
+            {
+               case INITIALIZING:
+                  #ifdef DEBUG_STATE_MACHINE
+                     MessageInterface::ShowMessage(
+                           "Entered state machine; INITIALIZING\n");
+                  #endif
+                  iterationsTaken = 0;
+                  WriteToTextFile();
+                  ReportProgress();
+                  CompleteInitialization();
+                  break;
+                     
+               case NOMINAL:
+                  #ifdef DEBUG_STATE_MACHINE
+                     MessageInterface::ShowMessage(
+                           "Entered state machine; NOMINAL\n");
+                  #endif
+                  WriteToTextFile();
+                  currentState = FINISHED;
+                  break;
+                  
+               case FINISHED:
+               default:
+                  #ifdef DEBUG_STATE_MACHINE
+                     MessageInterface::ShowMessage(
+                           "Entered state machine; FINISHED\n");
+                  #endif
+                  RunComplete();
+                  ReportProgress();
+                  break;
+            }
          break;
-            
-      case NOMINAL:
-         #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered state machine; NOMINAL\n");
+         
+      case SOLVE:
+      default:
+         #ifdef DEBUG_TARGETING_MODES
+            MessageInterface::ShowMessage(
+                  "Running in SOLVE or default mode; state = %d\n", 
+                  currentState);
          #endif
-         ReportProgress();
-         RunNominal();
-         ReportProgress();
-         break;
-        
-      case PERTURBING:
-         #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered state machine; PERTURBING\n");
-         #endif
-         ReportProgress();
-         RunPerturbation();
-         break;
-        
-      case CALCULATING:
-         #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered state machine; CALCULATING\n");
-         #endif
-         ReportProgress();
-         CalculateParameters();
-         break;
-        
-      case CHECKINGRUN:
-          #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered state machine; CHECKINGRUN\n");
-         #endif
-        CheckCompletion();
-         ++iterationsTaken;
-         if (iterationsTaken > maxIterations)
+         switch (currentState)
          {
-            MessageInterface::ShowMessage("Differential corrector %s %s\n",
-               instanceName.c_str(),
-               "has exceeded to maximum number of allowed iterations.");
-            currentState = FINISHED;
+            case INITIALIZING:
+               #ifdef DEBUG_STATE_MACHINE
+                  MessageInterface::ShowMessage(
+                        "Entered state machine; INITIALIZING\n");
+               #endif
+               iterationsTaken = 0;
+               WriteToTextFile();
+               ReportProgress();
+               CompleteInitialization();
+               break;
+                  
+            case NOMINAL:
+               #ifdef DEBUG_STATE_MACHINE
+                  MessageInterface::ShowMessage(
+                        "Entered state machine; NOMINAL\n");
+               #endif
+               ReportProgress();
+               RunNominal();
+               ReportProgress();
+               break;
+              
+            case PERTURBING:
+               #ifdef DEBUG_STATE_MACHINE
+                  MessageInterface::ShowMessage(
+                        "Entered state machine; PERTURBING\n");
+               #endif
+               ReportProgress();
+               RunPerturbation();
+               break;
+              
+            case CALCULATING:
+               #ifdef DEBUG_STATE_MACHINE
+                  MessageInterface::ShowMessage(
+                        "Entered state machine; CALCULATING\n");
+               #endif
+               ReportProgress();
+               CalculateParameters();
+               break;
+              
+            case CHECKINGRUN:
+                #ifdef DEBUG_STATE_MACHINE
+                  MessageInterface::ShowMessage(
+                        "Entered state machine; CHECKINGRUN\n");
+               #endif
+              CheckCompletion();
+               ++iterationsTaken;
+               if (iterationsTaken > maxIterations)
+               {
+                  MessageInterface::ShowMessage(
+                        "Differential corrector %s %s\n", instanceName.c_str(),
+                        "has exceeded to maximum number of allowed "
+                        "iterations.");
+                  currentState = FINISHED;
+               }
+               break;
+              
+            case FINISHED:
+               #ifdef DEBUG_STATE_MACHINE
+                  MessageInterface::ShowMessage(
+                        "Entered state machine; FINISHED\n");
+               #endif
+               RunComplete();
+               ReportProgress();
+               break;
+              
+            case ITERATING:             // Intentional drop-through
+            default:
+               #ifdef DEBUG_STATE_MACHINE
+                  MessageInterface::ShowMessage("Entered state machine; "
+                     "Bad state for a differential corrector.\n");
+               #endif
+               throw SolverException(
+                     "Solver state not supported for the targeter");
          }
          break;
-        
-      case FINISHED:
-         #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered state machine; FINISHED\n");
-         #endif
-         RunComplete();
-         ReportProgress();
-         break;
-        
-      case ITERATING:             // Intentional drop-through
-      default:
-         #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered state machine; "
-               "Bad state for a differential corrector.\n");
-         #endif
-         throw SolverException("Solver state not supported for the targeter");
    }
      
    return currentState;
@@ -1036,10 +1101,8 @@ void DifferentialCorrector::FreeArrays()
     
    if (achieved)
    {
-      for (Integer i = 0; i < goalCount; ++i)
-      {
+      for (Integer i = 0; i < variableCount; ++i)
          delete [] achieved[i];
-      }
       delete [] achieved;
       achieved = NULL;
    }
@@ -1047,9 +1110,7 @@ void DifferentialCorrector::FreeArrays()
    if (jacobian)
    {
       for (Integer i = 0; i < variableCount; ++i)
-      {
          delete [] jacobian[i];
-      }
       delete [] jacobian;
       jacobian = NULL;
    }
@@ -1057,9 +1118,7 @@ void DifferentialCorrector::FreeArrays()
    if (inverseJacobian)
    {
       for (Integer i = 0; i < goalCount; ++i)
-      {
          delete [] inverseJacobian[i];
-      }
       delete [] inverseJacobian;
       inverseJacobian = NULL;
    }
@@ -1074,16 +1133,6 @@ void DifferentialCorrector::FreeArrays()
    {
       delete [] b;
       b = NULL;
-   }
-    
-   if (ludMatrix)
-   {
-      for (Integer i = 0; i < variableCount; ++i)
-      {
-         delete [] ludMatrix[i];
-      }
-      delete [] ludMatrix;
-      ludMatrix = NULL;
    }
 }
 
@@ -1143,6 +1192,11 @@ std::string DifferentialCorrector::GetProgressString()
                   progress << *current;
                }
 
+               if (solverMode != "")
+                  progress << "\n   SolverMode:  "
+                           << solverMode;
+               
+
                progress << "\n****************************"
                         << "****************************";
             }
@@ -1157,7 +1211,6 @@ std::string DifferentialCorrector::GetProgressString()
             {
                if (current != variableNames.begin())
                   progress << ", ";
-               //progress << *current << " = " << variable[i++];
                progress << *current << " = " << variable.at(i++);
             }
             break;
@@ -1191,22 +1244,45 @@ std::string DifferentialCorrector::GetProgressString()
             break;
 
          case FINISHED:
-            progress << "\n*** Targeting Completed in " << iterationsTaken
-                     << " iterations";
-                     
-            if (iterationsTaken > maxIterations)
-               progress << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-                     << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-                     << "!!! WARNING: Targeter did NOT converge!"
-                     << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-                     << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+            switch (currentMode)
+            {
+               case INITIAL_GUESS:
+                  progress << "\n*** Targeting Completed Initial Guess Run\n"
+                           << "***\n   Variable Values:\n";
+                  for (current = variableNames.begin(), i = 0;
+                       current != variableNames.end(); ++current)
+                     progress << "      " << *current 
+                              << " = " << variable.at(i++) << "\n";
+                  progress << "\n   Goal Values:\n";
+                  for (current = goalNames.begin(), i = 0;
+                       current != goalNames.end(); ++current)
+                  {
+                     progress << "      " << *current 
+                              << "  Desired: " << goal[i]
+                              << "  Achieved: " << nominal[i] << "\n";
+                     ++i;
+                  }
+                  break;
+                  
+               case SOLVE:
+               default:
+                  progress << "\n*** Targeting Completed in " << iterationsTaken
+                           << " iterations";
+                           
+                  if (iterationsTaken > maxIterations)
+                     progress << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                           << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                           << "!!! WARNING: Targeter did NOT converge!"
+                           << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                           << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
-            progress << "\nFinal Variable values:\n";
-            // Iterate through the variables, writing them to the string
-            for (current = variableNames.begin(), i = 0;
-                 current != variableNames.end(); ++current)
-               //progress << "   " << *current << " = " << variable[i++] << "\n";
-               progress << "   " << *current << " = " << variable.at(i++) << "\n";
+                  progress << "\nFinal Variable values:\n";
+                  // Iterate through the variables, writing them to the string
+                  for (current = variableNames.begin(), i = 0;
+                       current != variableNames.end(); ++current)
+                     progress << "   " << *current << " = " 
+                              << variable.at(i++) << "\n";
+            }
             break;
 
          case ITERATING:     // Intentional fall through
@@ -1270,7 +1346,12 @@ void DifferentialCorrector::WriteToTextFile(SolverState stateToUse)
                {
                   textFile << *current << "\n***    ";
                }
-                 
+
+               if (solverMode != "")
+                  textFile << "\n*** SolverMode:  "
+                           << solverMode
+                           <<"\n***    ";
+
                textFile << "\n****************************"
                         << "****************************\n"
                         << std::endl;

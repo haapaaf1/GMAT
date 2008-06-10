@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            SolverBranchCommand
 //------------------------------------------------------------------------------
@@ -24,7 +24,6 @@
 
 #include "BranchCommand.hpp"
 #include "Solver.hpp"
-
 
 class SolverBranchCommand : public BranchCommand
 {
@@ -119,7 +118,6 @@ protected:
       SOLVER_EXIT_MODE_OPTIONS,
       SolverBranchCommandParamCount
    };
-   
    
 };
 

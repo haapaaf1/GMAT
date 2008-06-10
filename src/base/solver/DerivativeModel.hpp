@@ -1,16 +1,34 @@
-//$Id: DerivativeModel.hpp,v 1.2 2008/05/15 21:26:13 djc Exp $
+//$Id: DerivativeModel.hpp 5536 2008-05-31 00:03:25Z djcinsb $
+//------------------------------------------------------------------------------
+//                           DerivativeModel
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG06CA54C
+//
+// Created: 2008/03/28
+//
 /**
- * Base class for gradients, Jacobians, Hessians, and so forth.
+ * Base class for derivatives used by the Solvers.
  */
+//------------------------------------------------------------------------------
 
-#ifndef DERIVATIVEMODEL_HPP_
-#define DERIVATIVEMODEL_HPP_
+#ifndef DerivativeModel_hpp
+#define DerivativeModel_hpp
 
 #include "gmatdefs.hpp"
 
+
+/**
+ * Base class for gradients, Jacobians, Hessians, and so forth.
+ */
 class DerivativeModel
 {
 public:
+   /// Enumerated mode options used when calculating derivatives 
    enum derivativeMode {
       FORWARD_DIFFERENCE,
       CENTRAL_DIFFERENCE,
@@ -20,7 +38,7 @@ public:
 
 public:
    DerivativeModel();
-   virtual ~DerivativeModel() = 0;         // Abstract to prevent instantiation
+   virtual ~DerivativeModel();
    DerivativeModel(const DerivativeModel& dm);
    DerivativeModel&     operator=(const DerivativeModel& dm);
 	
@@ -32,12 +50,21 @@ public:
    virtual bool         Calculate(std::vector<Real> &) = 0;
 
 protected:
+   /// Specifier for the calculation mode
    derivativeMode       calcMode;
+   /// The total number of variables in the model
    Integer              variableCount;
 
+   /** 
+    * The perturbation step taken for finite differencing.  The current model 
+    * assumes forward and backward steps have the same magnitude when using 
+    * central differencing.
+    */
    std::vector<Real>    pert;
+   /// The results of a forward perturbation
    std::vector<Real>    plusPertEffect;
+   /// The results of a backward perturbation
    std::vector<Real>    minusPertEffect;
 };
 
-#endif /*DERIVATIVEMODEL_HPP_*/
+#endif /*DerivativeModel_hpp*/

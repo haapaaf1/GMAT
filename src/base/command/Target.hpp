@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Target
 //------------------------------------------------------------------------------
@@ -86,7 +86,6 @@ protected:
    Solver              *targeter;
    /// Flag indicating is the targeter has converged
    bool                targeterConverged;
-   
     
    // Parameter IDs 
    /// ID for the burn object

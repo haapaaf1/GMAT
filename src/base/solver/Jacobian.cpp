@@ -1,3 +1,21 @@
+//$Id: Jacobian.cpp 5536 2008-05-31 00:03:25Z djcinsb $
+//------------------------------------------------------------------------------
+//                              Jacobian
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG06CA54C
+//
+// Created: 2008/03/27
+//
+/**
+ * Base class for Jacobian calculations used by the Solvers.
+ */
+//------------------------------------------------------------------------------
+
 #include "Jacobian.hpp"
 
 #include "SolverException.hpp"
@@ -7,16 +25,49 @@
 // #define DEBUG_JACOBIAN
 // #define DEBUG_JACOBIAN_DETAILS
 
+
+//-----------------------------------------
+// public methods
+//-----------------------------------------
+
+
+//------------------------------------------------------------------------------
+// Jacobian()
+//------------------------------------------------------------------------------
+/**
+ * Default constructor
+ * 
+ * @return A new instance of the class, configured with default data
+ */
+//------------------------------------------------------------------------------
 Jacobian::Jacobian() :
    DerivativeModel         (),
    numComponents           (0)
 {
 }
 
+//------------------------------------------------------------------------------
+// ~Jacobian()
+//------------------------------------------------------------------------------
+/**
+ * Destructor
+ */
+//------------------------------------------------------------------------------
 Jacobian::~Jacobian()
 {
 }
 
+//------------------------------------------------------------------------------
+// Jacobian(const Jacobian& jac) 
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor
+ * 
+ * @param jac The Jacobian instance that is copied to the new one.
+ * 
+ * @return A new instance of the class, configured to match the input instance
+ */
+//------------------------------------------------------------------------------
 Jacobian::Jacobian(const Jacobian &jac) :
    DerivativeModel         (jac),
    numComponents           (jac.numComponents)
@@ -24,6 +75,19 @@ Jacobian::Jacobian(const Jacobian &jac) :
    
 }
 
+//------------------------------------------------------------------------------
+// Jacobian& operator=(const Jacobian &jac)
+//------------------------------------------------------------------------------
+/**
+ * Jacobian assignment operator
+ * 
+ * Copies the data from another Jacobian instance into this one.
+ * 
+ * @param jac The supplier of the Jacobian data.
+ * 
+ * @return A reference to this instance
+ */
+//------------------------------------------------------------------------------
 Jacobian& Jacobian::operator=(const Jacobian &jac)
 {
    if (&jac != this)
@@ -39,6 +103,18 @@ Jacobian& Jacobian::operator=(const Jacobian &jac)
    return *this;
 }
 
+//------------------------------------------------------------------------------
+// bool Initialize(UnsignedInt varCount, UnsignedInt componentCount)
+//------------------------------------------------------------------------------
+/**
+ * Method used to set up the internal Jacobian data structures prior to use.
+ * 
+ * @param varCount The number of variables used in this set of calculations.
+ * @param componentCount The number of dependent parameters
+ * 
+ * @return true if initialization succeeds
+ */
+//------------------------------------------------------------------------------
 bool Jacobian::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
 {
    DerivativeModel::Initialize(varCount, componentCount);
@@ -62,6 +138,26 @@ bool Jacobian::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
    return true;
 }
 
+//------------------------------------------------------------------------------
+// void Achieved(Integer pertNumber, Integer componentId, Real dx, Real value, 
+//               bool plusEffect)
+//------------------------------------------------------------------------------
+/**
+ * Method used to specify values obtained for the dependent parameters.
+ * 
+ * This method sets values for nominal and perturbed runs of the Mission Control 
+ * Sequence, for later use in calculation of the Jacobian.  
+ * 
+ * @param pertNumber  Number of the perturbation being run, or -1 for a 
+ *                    nominal run.
+ * @param componentId Identity of the dependent parameter being reported.
+ * @param dx          The size of the perturbation
+ * @param value       The resulting value of the dependent parameter
+ * @param plusEffect  true for positive perturbations, false for negative, so 
+ *                    that the differencing model can place the results in the 
+ *                    correct vector.
+ */
+//------------------------------------------------------------------------------
 void Jacobian::Achieved(Integer pertNumber, Integer componentId, 
                         Real dx, Real value, bool plusEffect)
 {
@@ -81,11 +177,31 @@ void Jacobian::Achieved(Integer pertNumber, Integer componentId,
    }
 }
 
+//------------------------------------------------------------------------------
+// bool Calculate(std::vector<Real> &jac)
+//------------------------------------------------------------------------------
+/**
+ * Calculates the Jacobian.
+ * 
+ * This method calculates the Jacobian using the specified differencing mode and
+ * puts the results in the input vector.
+ * 
+ * The Jacobian data is filled column by column.  The final data in the vector 
+ * is tabulated one row at a time -- for example, if there are 3 variables v0, 
+ * v1, and v2 and two dependent parameters p0 and p1, the Jacobian vector 
+ * contains these six elements on return from this method:
+ * 
+ *    jac = [dp0/dv0 dp0/dv1 dp0/dv2 dp1/dv0 dp1/dv1 dp1/dv2]
+ * 
+ * @note User supplied Jacobians are not yet implemented.
+ * 
+ * @param jac The vector that receives the calculated Jacobian.
+ * 
+ * @return true if the calculation succeeds.
+ */
+//------------------------------------------------------------------------------
 bool Jacobian::Calculate(std::vector<Real> &jac)
 {
-   if (calcMode == USER_SUPPLIED)
-      return true;
- 
    for (UnsignedInt i = 0; i < (UnsignedInt)variableCount; ++i)
    {
       if (pert[i] == 0.0)
@@ -145,6 +261,7 @@ bool Jacobian::Calculate(std::vector<Real> &jac)
                
                break;
                
+            case USER_SUPPLIED:
             default:
                throw SolverException(
                      "Jacobian differencing mode is not available");

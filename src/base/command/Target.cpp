@@ -38,7 +38,7 @@ Target::Target() :
    targeter           (NULL),
    targeterConverged  (false),
 //   targeterNameID     (parameterCount),
-   TargeterConvergedID(parameterCount+1),
+   TargeterConvergedID(parameterCount),
    targeterInDebugMode(false)
 {
    parameterCount += 1; // 2;
@@ -389,7 +389,6 @@ bool Target::SetStringParameter(const Integer id, const std::string &value)
 }
 
 
-
 //---------------------------------------------------------------------------
 //  bool GetBooleanParameter(const Integer id) const
 //---------------------------------------------------------------------------
@@ -482,7 +481,9 @@ bool Target::Initialize()
    mapObj->TakeAction("IncrementInstanceCount");
    
    if (targeter->GetStringParameter("ReportStyle") == "Debug")
-      targeterInDebugMode = true;      
+      targeterInDebugMode = true;
+   targeter->SetStringParameter("SolverMode", 
+         GetStringParameter(SOLVER_SOLVE_MODE));
     
    // Set the local copy of the targeter on each node
    std::vector<GmatCommand*>::iterator node;
@@ -548,7 +549,7 @@ bool Target::Execute()
    bool retval = true;
 
    // Drive through the state machine.
-   Solver::SolverState state = targeter->GetState(); //Solver::UNDEFINED_STATE;
+   Solver::SolverState state = targeter->GetState();
    
    #ifdef DEBUG_TARGET_COMMANDS
       MessageInterface::ShowMessage("TargetExecute(%c%c%c%d)\n",
@@ -577,6 +578,7 @@ bool Target::Execute()
 
       FreeLoopData();
       StoreLoopData();
+
 
       retval = SolverBranchCommand::Execute();
 
@@ -609,8 +611,8 @@ bool Target::Execute()
          case RUN_INITIAL_GUESS:
             #ifdef DEBUG_START_MODE
                MessageInterface::ShowMessage(
-                     "Running as RUN_INITIAL_GUESS, specialState = %d\n",
-                     specialState);
+                     "Running as RUN_INITIAL_GUESS, specialState = %d, currentState = %d\n",
+                     specialState, targeter->GetState());
             #endif
             switch (specialState) 
             {
@@ -628,16 +630,6 @@ bool Target::Execute()
                   }
                   StoreLoopData();
                   specialState = Solver::NOMINAL;
-
-                  if (!branchExecuting)
-                  {
-                     targeter->AdvanceState();
-
-                     if (targeter->GetState() == Solver::FINISHED) 
-                     {
-                        targeterConverged = true;
-                     }
-                  }
                   break;
                      
                case Solver::NOMINAL:
@@ -753,7 +745,7 @@ bool Target::Execute()
             break;
       }
    }
-
+   
    if (!branchExecuting)
    {
       targeter->AdvanceState();
@@ -762,7 +754,7 @@ bool Target::Execute()
          targeterConverged = true;
       }
    }
-   
+
    // Pass spacecraft data to the targeter for reporting in debug mode
    if (targeterInDebugMode)
    {

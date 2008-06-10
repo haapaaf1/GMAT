@@ -64,7 +64,16 @@ public:
       DEBUG_STYLE,
       MaxStyle
    };
-    
+
+   /// Modes that the state machine can use when running
+   enum MachineMode
+   {
+      SOLVE = 7000,
+      INITIAL_GUESS,
+      RUN_CORRECTED,
+      UNKNOWN_MODE
+   };
+
 public:
    Solver(const std::string &type, const std::string &name);
    virtual ~Solver();
@@ -233,6 +242,10 @@ protected:
    bool                 AllowStepsizeLimit;
    /// Determines if individual variables can set perts
    bool                 AllowIndependentPerts;
+   /// Solver mode used for this instance
+   std::string          solverMode;
+   /// State macjhine settign for the solver mode
+   MachineMode          currentMode;
       
    /// Generic solver parameters.
    enum
@@ -249,6 +262,7 @@ protected:
       AllowRangeSettings,
       AllowStepsizeSetting,
       AllowVariablePertSetting,
+      SolverModeID,
       SolverParamCount
    };
    

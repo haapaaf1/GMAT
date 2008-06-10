@@ -1,6 +1,6 @@
-//$Id: Gradient.cpp,v 1.2 2008/05/15 21:26:13 djc Exp $
+//$Id: Gradient.cpp 5536 2008-05-31 00:03:25Z djcinsb $
 //------------------------------------------------------------------------------
-//                         Optimizer
+//                                Gradient
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,10 +13,10 @@
 // Created: 2008.03.26
 //
 /**
- * Class used to calculate gradients.  
- * 
- * Currently only supports finite differences using forward differencing.
+ * Class used to calculate gradients.
  */
+//------------------------------------------------------------------------------
+
 
 #include "Gradient.hpp"
 
@@ -26,16 +26,54 @@
 
 // #define DEBUG_GRADIENT
 
+
+//-----------------------------------------
+// public methods
+//-----------------------------------------
+
+
+//------------------------------------------------------------------------------
+// Gradient()
+//------------------------------------------------------------------------------
+/**
+ * Default constructor
+ * 
+ * @return A new instance of the class, configured with default data
+ */
+//------------------------------------------------------------------------------
 Gradient::Gradient() : 
    DerivativeModel   (),
    nominal           (9876.54321)
 {
 }
 
+//-----------------------------------------
+// public methods
+//-----------------------------------------
+
+
+//------------------------------------------------------------------------------
+// ~Gradient()
+//------------------------------------------------------------------------------
+/**
+ * Destructor
+ */
+//------------------------------------------------------------------------------
 Gradient::~Gradient()
 {
 }
 
+//------------------------------------------------------------------------------
+// Gradient(const Gradient &grad)
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor
+ * 
+ * @param grad The Gradient instance that is copied to the new one.
+ * 
+ * @return A new instance of the class, configured to match the input instance
+ */
+//------------------------------------------------------------------------------
 Gradient::Gradient(const Gradient &grad) : 
    DerivativeModel   (grad),
    nominal           (grad.nominal),
@@ -43,6 +81,19 @@ Gradient::Gradient(const Gradient &grad) :
 {
 }
 
+//------------------------------------------------------------------------------
+// Gradient& operator=(const Gradient &grad)
+//------------------------------------------------------------------------------
+/**
+ * Gradient assignment operator
+ * 
+ * Copies the data from another Gradient instance into this one.
+ * 
+ * @param grad The supplier of the Gradient data.
+ * 
+ * @return A reference to this instance
+ */
+//------------------------------------------------------------------------------
 Gradient& Gradient::operator=(const Gradient &grad)
 {
    if (&grad != this)
@@ -56,6 +107,18 @@ Gradient& Gradient::operator=(const Gradient &grad)
    return *this;
 }
 
+//------------------------------------------------------------------------------
+// bool Initialize(UnsignedInt varCount, UnsignedInt componentCount)
+//------------------------------------------------------------------------------
+/**
+ * Method used to set up the internal Gradient data structures prior to use.
+ * 
+ * @param varCount The number of variables used in this set of calculations.
+ * @param componentCount The number of dependent parameters
+ * 
+ * @return true if initialization succeeds
+ */
+//------------------------------------------------------------------------------
 bool Gradient::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
 {
    DerivativeModel::Initialize(varCount);
@@ -74,6 +137,26 @@ bool Gradient::Initialize(UnsignedInt varCount, UnsignedInt componentCount)
 }
 
 
+//------------------------------------------------------------------------------
+// void Achieved(Integer pertNumber, Integer componentId, Real dx, Real value, 
+//               bool plusEffect)
+//------------------------------------------------------------------------------
+/**
+ * Method used to specify values obtained for the dependent parameters.
+ * 
+ * This method sets values for nominal and perturbed runs of the Mission Control 
+ * Sequence, for later use in calculation of the gradient.  
+ * 
+ * @param pertNumber  Number of the perturbation being run, or -1 for a 
+ *                    nominal run.
+ * @param componentId Identity of the dependent parameter being reported.
+ * @param dx          The size of the perturbation
+ * @param value       The resulting value of the dependent parameter
+ * @param plusEffect  true for positive perturbations, false for negative, so 
+ *                    that the differencing model can place the results in the 
+ *                    correct vector.
+ */
+//------------------------------------------------------------------------------
 void Gradient::Achieved(Integer pertNumber, Integer componentId, Real dx, 
                         Real value, bool plusEffect)
 {
@@ -92,6 +175,22 @@ void Gradient::Achieved(Integer pertNumber, Integer componentId, Real dx,
 }
 
 
+//------------------------------------------------------------------------------
+// bool Calculate(std::vector<Real> &grad)
+//------------------------------------------------------------------------------
+/**
+ * Calculates the gradient.
+ * 
+ * This method calculates the gradient using the specified differencing mode and
+ * puts the results in the input vector.
+ * 
+ * @note User supplied gradients are not yet implemented.
+ * 
+ * @param grad The vector that receives the calculated gradient.
+ * 
+ * @return true if the calculation succeeds.
+ */
+//------------------------------------------------------------------------------
 bool Gradient::Calculate(std::vector<Real> &grad)
 {
    if (calcMode == USER_SUPPLIED)

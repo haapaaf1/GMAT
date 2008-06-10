@@ -606,10 +606,14 @@ bool SolverBranchCommand::SetStringParameter(const Integer id, const std::string
    {
       if (value == "RunInitialGuess")
          startMode = RUN_INITIAL_GUESS;
-      if (value == "Solve")
+      else if (value == "Solve")
          startMode = RUN_AND_SOLVE;
-      if (value == "RunCorrected")
+      else if (value == "RunCorrected")
          startMode = RUN_SOLUTION;
+      else
+         throw CommandException("Unknown solver mode \"" + value + 
+               "\"; known values are {\"Run InitialGuess\", \"Solve\" "
+               "\"RunCorrected\"}");
       return true;
    }
     
@@ -621,7 +625,7 @@ std::string SolverBranchCommand::GetStringParameter(const Integer id) const
    if (id == SOLVER_NAME_ID)
       return solverName;
 
-      if (id == SOLVER_SOLVE_MODE) 
+   if (id == SOLVER_SOLVE_MODE) 
    {
       if (startMode == RUN_INITIAL_GUESS)
          return "RunInitialGuess";

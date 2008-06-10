@@ -1,7 +1,21 @@
-//$Id: DerivativeModel.cpp,v 1.2 2008/05/15 21:26:13 djc Exp $
+//$Id: DerivativeModel.cpp 5536 2008-05-31 00:03:25Z djcinsb $
+//------------------------------------------------------------------------------
+//                           DerivativeModel
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG06CA54C
+//
+// Created: 2008/03/28
+//
 /**
  * Base class for gradients, Jacobians, Hessians, and so forth.
  */
+//------------------------------------------------------------------------------
+
 
 #include "DerivativeModel.hpp"
 
@@ -12,16 +26,48 @@
 //#define DEBUG_DERIVMODEL
 
 
+//-----------------------------------------
+// public methods
+//-----------------------------------------
+
+
+//------------------------------------------------------------------------------
+// DerivativeModel()
+//------------------------------------------------------------------------------
+/**
+ * Default constructor (Called via a derived class)
+ * 
+ * @return A new instance of the class, configured with default data
+ */
+//------------------------------------------------------------------------------
 DerivativeModel::DerivativeModel() :
    calcMode          (FORWARD_DIFFERENCE),
    variableCount     (0)
 {
 }
 
+//------------------------------------------------------------------------------
+// DerivativeModel()
+//------------------------------------------------------------------------------
+/**
+ * Destructor (Called via a derived class)
+ */
+//------------------------------------------------------------------------------
 DerivativeModel::~DerivativeModel()
 {
 }
 
+//------------------------------------------------------------------------------
+// DerivativeModel(const DerivativeModel& dm)
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor (Called via a derived class)
+ * 
+ * @param dm The DerivativeModel that is copied into this one.
+ * 
+ * @return A new instance of the class, configured with default data
+ */
+//------------------------------------------------------------------------------
 DerivativeModel::DerivativeModel(const DerivativeModel& dm) :
    calcMode          (dm.calcMode),
    variableCount     (dm.variableCount),
@@ -32,6 +78,19 @@ DerivativeModel::DerivativeModel(const DerivativeModel& dm) :
    
 }
 
+//------------------------------------------------------------------------------
+// DerivativeModel& operator=(const DerivativeModel &dm)
+//------------------------------------------------------------------------------
+/**
+ * DerivativeModel assignment operator
+ * 
+ * Copies the data from another DerivativeModel instance into this one.
+ * 
+ * @param dm The supplier of the DerivativeModel data.
+ * 
+ * @return A reference to this instance
+ */
+//------------------------------------------------------------------------------
 DerivativeModel& DerivativeModel::operator=(const DerivativeModel& dm)
 {
    if (&dm != this)
@@ -47,12 +106,34 @@ DerivativeModel& DerivativeModel::operator=(const DerivativeModel& dm)
 }
 
 
+//------------------------------------------------------------------------------
+// void SetDifferenceMode(derivativeMode mode)
+//------------------------------------------------------------------------------
+/**
+ * Sets the mode used to calculate the derivative.
+ * 
+ * @param mode The new difference mode.  Difference modes are idempotent.
+ */
+//------------------------------------------------------------------------------
 void DerivativeModel::SetDifferenceMode(derivativeMode mode)
 {
    calcMode = mode;
 }
 
 
+//------------------------------------------------------------------------------
+// bool Initialize(UnsignedInt varCount, UnsignedInt componentCount)
+//------------------------------------------------------------------------------
+/**
+ * Method used to set up the internal DerivativeModel data structures prior to 
+ * use.
+ * 
+ * @param varCount The number of variables used in this set of calculations.
+ * @param componentCount The number of dependent parameters
+ * 
+ * @return true if initialization succeeds
+ */
+//------------------------------------------------------------------------------
 bool DerivativeModel::Initialize(UnsignedInt varCount, 
                                  UnsignedInt componentCount)
 {
@@ -88,6 +169,28 @@ bool DerivativeModel::Initialize(UnsignedInt varCount,
 }
 
 
+//------------------------------------------------------------------------------
+// void Achieved(Integer pertNumber, Integer componentId, Real dx, Real value, 
+//               bool plusEffect)
+//------------------------------------------------------------------------------
+/**
+ * Method used to specify values obtained for the dependent parameters.
+ * 
+ * This method sets values for nominal and perturbed runs of the Mission Control 
+ * Sequence, for later use in calculation of the derivative.  
+ * 
+ * @param pertNumber  Number of the perturbation being run, or -1 for a 
+ *                    nominal run.  (Nominal run data should be handled in the 
+ *                    derived classes; if the call reaches this method, an 
+ *                    exception is thrown.)
+ * @param componentId Identity of the dependent parameter being reported.
+ * @param dx          The size of the perturbation
+ * @param value       The resulting value of the dependent parameter
+ * @param plusEffect  true for positive perturbations, false for negative, so 
+ *                    that the differencing model can place the results in the 
+ *                    correct vector.
+ */
+//------------------------------------------------------------------------------
 void DerivativeModel::Achieved(Integer pertNumber, Integer componentId, Real dx, 
                                Real value, bool plusEffect)
 {
@@ -115,5 +218,3 @@ void DerivativeModel::Achieved(Integer pertNumber, Integer componentId, Real dx,
          minusPertEffect.at(pertNumber + componentId * variableCount) = value;
    }
 }
-
-

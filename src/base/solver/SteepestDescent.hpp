@@ -32,6 +32,9 @@
  * differences if no analytic form exists), scan in the "downhill" direction, 
  * and repeat until the magnitude of the gradient is small enough to declare
  * victory.
+ * 
+ * @note The steepest descent optimizer is not yet implemented; once a line 
+ * search utility exists, it can be completed.
  */
 class SteepestDescent : public InternalOptimizer
 {
