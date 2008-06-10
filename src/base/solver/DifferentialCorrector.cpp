@@ -703,9 +703,7 @@ Solver::SolverState DifferentialCorrector::AdvanceState()
                      MessageInterface::ShowMessage(
                            "Entered state machine; NOMINAL\n");
                   #endif
-                  //ReportProgress();
                   WriteToTextFile();
-                  //ReportProgress();
                   currentState = FINISHED;
                   break;
                   
@@ -1261,7 +1259,9 @@ std::string DifferentialCorrector::GetProgressString()
                   {
                      progress << "      " << *current 
                               << "  Desired: " << goal[i]
-                              << "  Achieved: " << nominal[i] << "\n";
+                              << "  Achieved: " << nominal[i]
+                              << "  Variance: " << (goal[i] - nominal[i])
+                              << "\n";
                      ++i;
                   }
                   break;

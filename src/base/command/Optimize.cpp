@@ -45,14 +45,14 @@
 const std::string
 Optimize::PARAMETER_TEXT[OptimizeParamCount - SolverBranchCommandParamCount] =
 {
-//   "OptimizerName",
+   "OptimizerName",
    "OptimizerConverged",
 };
 
 const Gmat::ParameterType
 Optimize::PARAMETER_TYPE[OptimizeParamCount - SolverBranchCommandParamCount] =
 {
-//   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
    Gmat::BOOLEAN_TYPE,
 };
 
@@ -266,8 +266,8 @@ std::string Optimize::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 std::string Optimize::GetStringParameter(const Integer id) const
 {
-//   if (id == OPTIMIZER_NAME)
-//      return optimizerName;
+   if (id == OPTIMIZER_NAME)
+      return solverName;
     
    return SolverBranchCommand::GetStringParameter(id);
 }
@@ -277,11 +277,11 @@ std::string Optimize::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 bool Optimize::SetStringParameter(const Integer id, const std::string &value)
 {
-//   if (id == OPTIMIZER_NAME) 
-//   {
-//      optimizerName = value;
-//      return true;
-//   }
+   if (id == OPTIMIZER_NAME) 
+   {
+      solverName = value;
+      return true;
+   }
     
    return SolverBranchCommand::SetStringParameter(id, value);
 }

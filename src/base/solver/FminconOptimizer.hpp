@@ -35,7 +35,7 @@ public:
    FminconOptimizer&   operator=(const FminconOptimizer& opt);
 
    virtual bool        Initialize();
-   virtual SolverState AdvanceState(SolverState inState = UNDEFINED_STATE);
+   virtual SolverState AdvanceState();
    virtual StringArray AdvanceNestedState(std::vector<Real> vars);
    virtual bool        Optimize();
 

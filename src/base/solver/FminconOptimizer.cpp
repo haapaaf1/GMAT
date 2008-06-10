@@ -130,6 +130,9 @@ FminconOptimizer::FminconOptimizer(std::string name) :
    //functionPath = "/Users/wcshoan/dev/Ec_GMAT/bin/files/matlab_functions";
    //OpenConnection();  
    // ********* END temporary prototype, testing, etc. *****************************//
+   
+   AllowStepsizeLimit = false;
+   AllowIndependentPerts = false;
 }
 
 
@@ -195,7 +198,7 @@ bool FminconOptimizer::Initialize()
    return true;
 }
 
-Solver::SolverState FminconOptimizer::AdvanceState(SolverState inState)
+Solver::SolverState FminconOptimizer::AdvanceState()
 {
    switch (currentState)
    {

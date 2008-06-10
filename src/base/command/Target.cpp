@@ -524,8 +524,6 @@ bool Target::Initialize()
       }
 
       retval = targeter->Initialize();
-      targeter->SetStringParameter("SolverMode", 
-            SolverBranchCommand::GetStringParameter(SOLVER_SOLVE_MODE));
    }
         
    return retval;
