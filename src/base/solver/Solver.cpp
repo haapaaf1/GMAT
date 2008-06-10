@@ -25,6 +25,7 @@
 
 //#define DEBUG_SOLVER_INIT
 //#define DEBUG_SOLVER_CALC
+//#define DEBUG_STATE_MACHINE
 
 //---------------------------------
 // static data
@@ -45,6 +46,7 @@ Solver::PARAMETER_TEXT[SolverParamCount - GmatBaseParamCount] =
    "AllowRangeSettings",
    "AllowStepsizeSetting",
    "AllowVariablePertSetting",
+   "SolverMode"
 };
 
 const Gmat::ParameterType
@@ -62,6 +64,7 @@ Solver::PARAMETER_TYPE[SolverParamCount - GmatBaseParamCount] =
    Gmat::BOOLEAN_TYPE,
    Gmat::BOOLEAN_TYPE,
    Gmat::BOOLEAN_TYPE,
+   Gmat::STRING_TYPE,
 };
 
 const std::string    
@@ -114,7 +117,9 @@ Solver::Solver(const std::string &type, const std::string &name) :
    AllowScaleFactors       (true),
    AllowRangeLimits        (true),
    AllowStepsizeLimit      (true),
-   AllowIndependentPerts   (true)
+   AllowIndependentPerts   (true),
+   solverMode              (""),
+   currentMode             (SOLVE)
 {
    objectTypes.push_back(Gmat::SOLVER);
    objectTypeNames.push_back("Solver");
@@ -174,7 +179,9 @@ Solver::Solver(const Solver &sol) :
    registeredComponentCount(sol.registeredComponentCount),
    AllowRangeLimits        (sol.AllowRangeLimits),
    AllowStepsizeLimit      (sol.AllowStepsizeLimit),
-   AllowIndependentPerts   (sol.AllowIndependentPerts)
+   AllowIndependentPerts   (sol.AllowIndependentPerts),
+   solverMode              (sol.solverMode),
+   currentMode             (sol.currentMode)
 {
    #ifdef DEBUG_SOLVER_INIT
       MessageInterface::ShowMessage(
@@ -226,7 +233,9 @@ Solver& Solver::operator=(const Solver &sol)
    debugString           = sol.debugString;
    instanceNumber        = sol.instanceNumber;
    pertNumber            = sol.pertNumber;
-
+   solverMode            = sol.solverMode;
+   currentMode           = sol.currentMode;
+         
    return *this;
 }
 
@@ -409,7 +418,12 @@ Real Solver::GetSolverVariable(Integer id)
          "Solver member requested a parameter outside the range "
          "of the configured variables.");
 
-   //return variable[id];
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage(
+            "   State %d setting variable %d    to value = %.12lf\n", 
+            currentState, id, variable.at(id));
+   #endif
+
    return variable.at(id); 
 }
 
@@ -453,41 +467,41 @@ Solver::SolverState Solver::GetNestedState()
 //------------------------------------------------------------------------------
 Solver::SolverState Solver::AdvanceState()
 {
-    switch (currentState) {
-        case INITIALIZING:
-            CompleteInitialization();
-            break;
+   switch (currentState) {
+      case INITIALIZING:
+         CompleteInitialization();
+         break;
         
-        case NOMINAL:
-            RunNominal();
-            break;
+      case NOMINAL:
+         RunNominal();
+         break;
         
-        case PERTURBING:
-            RunPerturbation();
-            break;
+      case PERTURBING:
+         RunPerturbation();
+         break;
         
-        case ITERATING:
-            RunIteration();
-            break;
+      case ITERATING:
+         RunIteration();
+         break;
         
-        case CALCULATING:
-            CalculateParameters();
-            break;
+      case CALCULATING:
+         CalculateParameters();
+         break;
         
-        case CHECKINGRUN:
-            CheckCompletion();
-            break;
+      case CHECKINGRUN:
+         CheckCompletion();
+         break;
         
-        case RUNEXTERNAL:
-            RunExternal();
-            break;
+      case RUNEXTERNAL:
+         RunExternal();
+         break;
         
-        case FINISHED:
-            RunComplete();
-            break;
+      case FINISHED:
+         RunComplete();
+         break;
         
-        default:
-            throw SolverException("Undefined Solver state");
+      default:
+         throw SolverException("Undefined Solver state");
     };
     
     ReportProgress();
@@ -636,7 +650,8 @@ bool Solver::IsParameterReadOnly(const Integer id) const
        (id == AllowRangeSettings) ||
        (id == AllowStepsizeSetting) ||
        (id == AllowScaleSetting) ||
-       (id == AllowVariablePertSetting))
+       (id == AllowVariablePertSetting) ||
+       (id == SolverModeID))
       return true;
 
    return false;//GmatBase::IsParameterReadOnly(id);
@@ -871,6 +886,22 @@ bool Solver::SetStringParameter(const Integer id, const std::string &value)
    if (id == variableNamesID) 
    {
       variableNames.push_back(value);
+      return true;
+   }
+
+   if (id == SolverModeID) 
+   {
+      if (value == "Solve")
+         currentMode = SOLVE;
+      else if (value == "RunInitialGuess")
+         currentMode = INITIAL_GUESS;
+      else if (value == "RunCorrected")
+         currentMode = RUN_CORRECTED;
+      else
+         throw SolverException("Solver mode " + value +
+                  "not recognized; allowed values are {\"Solve\", "
+                  "\"RunInitialGuess\", \"RunCorrected\"}");
+      solverMode = value;
       return true;
    }
 

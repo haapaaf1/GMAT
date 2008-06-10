@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                           TargetPanel
 //------------------------------------------------------------------------------
@@ -76,14 +76,30 @@ void TargetPanel::Create()
       new wxStaticText(this, ID_TEXT, wxT("Solver Name"), wxDefaultPosition,
                        wxDefaultSize, 0);
    
+   wxStaticText *solverModeStaticText =
+      new wxStaticText(this, ID_TEXT, wxT("Solver Mode"), wxDefaultPosition,
+                       wxDefaultSize, 0);
+   
    mSolverComboBox =
       theGuiManager->GetBoundarySolverComboBox(this, ID_COMBO, wxSize(180,-1));
    
+   StringArray options = theCommand->GetStringArrayParameter("SolveModeOptions");
+   wxArrayString theOptions;
+   
+   for (StringArray::iterator i = options.begin(); i != options.end(); ++i)
+      theOptions.Add(i->c_str());
+   
+   mSolverModeComboBox =
+      new wxComboBox(this, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(180,-1),
+                     theOptions, wxCB_READONLY);
    
    wxFlexGridSizer *pageSizer = new wxFlexGridSizer(2);
    
    pageSizer->Add(solverNameStaticText, 0, wxALIGN_CENTER|wxALL, bsize);
    pageSizer->Add(mSolverComboBox, 0, wxALIGN_CENTER|wxALL, bsize);
+
+   pageSizer->Add(solverModeStaticText, 0, wxALIGN_CENTER|wxALL, bsize);
+   pageSizer->Add(mSolverModeComboBox, 0, wxALIGN_CENTER|wxALL, bsize);
    
    theMiddleSizer->Add(pageSizer, 0, wxGROW, bsize);
 
@@ -104,6 +120,10 @@ void TargetPanel::LoadData()
          theCommand->GetStringParameter(theCommand->GetParameterID("Targeter"));
       
       mSolverComboBox->SetValue(solverName.c_str());
+       
+      std::string solverMode =
+               theCommand->GetStringParameter("SolveMode");
+      mSolverModeComboBox->SetValue(solverMode.c_str());
    }
    catch (BaseException &e)
    {
@@ -120,8 +140,13 @@ void TargetPanel::SaveData()
    try
    {
       std::string solverName = mSolverComboBox->GetValue().c_str();
+      std::string solverMode = mSolverModeComboBox->GetValue().c_str();
+
       theCommand->SetStringParameter(theCommand->GetParameterID("Targeter"),
                                      solverName);
+      theCommand->SetStringParameter(theCommand->GetParameterID("SolveMode"), 
+            solverMode);
+      
       EnableUpdate(false);
    }
    catch (BaseException &e)

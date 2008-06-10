@@ -195,7 +195,7 @@ bool FminconOptimizer::Initialize()
    return true;
 }
 
-Solver::SolverState FminconOptimizer::AdvanceState()
+Solver::SolverState FminconOptimizer::AdvanceState(SolverState inState)
 {
    switch (currentState)
    {
