@@ -1234,10 +1234,11 @@ std::string DifferentialCorrector::GetProgressString()
             for (current = goalNames.begin(), i = 0;
                  current != goalNames.end(); ++current)
             {
-               if (current != goalNames.begin())
-                  progress << ",  ";
-               progress << *current << "  Desired: " << goal[i]
-                        << "  Achieved: " << nominal[i];
+               progress << "      " << *current 
+                        << "  Desired: " << goal[i]
+                        << "  Achieved: " << nominal[i]
+                        << "  Variance: " << (goal[i] - nominal[i])
+                        << "\n";
                ++i;
             }
 
@@ -1259,7 +1260,9 @@ std::string DifferentialCorrector::GetProgressString()
                   {
                      progress << "      " << *current 
                               << "  Desired: " << goal[i]
-                              << "  Achieved: " << nominal[i] << "\n";
+                              << "  Achieved: " << nominal[i]
+                              << "  Variance: " << (goal[i] - nominal[i])
+                              << "\n";
                      ++i;
                   }
                   break;
@@ -1282,6 +1285,11 @@ std::string DifferentialCorrector::GetProgressString()
                        current != variableNames.end(); ++current)
                      progress << "   " << *current << " = " 
                               << variable.at(i++) << "\n";
+            }
+            
+            if (exitMode == DISCARD)
+            {
+               ResetVariables();
             }
             break;
 

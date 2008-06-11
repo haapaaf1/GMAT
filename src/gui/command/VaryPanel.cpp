@@ -458,6 +458,15 @@ void VaryPanel::OnSolverSelection(wxCommandEvent &event)
 }
 
 
+//------------------------------------------------------------------------------
+// void SetControlEnabling(GmatBase *slvr)
+//------------------------------------------------------------------------------
+/**
+ * Enables and disables variable controls based on what the solver supports.
+ * 
+ * @param slvr The Solver that the Vary command configured from this panel uses.
+ */
+//------------------------------------------------------------------------------
 void VaryPanel::SetControlEnabling(GmatBase *slvr)
 {
    if (slvr->GetBooleanParameter(slvr->GetParameterID("AllowScaleSetting")))

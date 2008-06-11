@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            SolverBranchCommand
 //------------------------------------------------------------------------------
@@ -35,6 +35,7 @@
 SolverBranchCommand::SolverBranchCommand(const std::string &typeStr) :
    BranchCommand  (typeStr),
    solverName     (""),
+   theSolver      (NULL),
    startMode      (RUN_AND_SOLVE),
    exitMode       (DISCARD_AND_CONTINUE),
    specialState   (Solver::INITIALIZING)
@@ -45,6 +46,10 @@ SolverBranchCommand::SolverBranchCommand(const std::string &typeStr) :
    solverModes.push_back("RunInitialGuess");
    solverModes.push_back("Solve");
 //   solverModes.push_back("RunCorrected");
+   
+   exitModes.push_back("DiscardAndContinue");
+   exitModes.push_back("SaveAndContinue");
+   exitModes.push_back("Stop");
 
 }
 
@@ -57,6 +62,8 @@ SolverBranchCommand::SolverBranchCommand(const std::string &typeStr) :
 //------------------------------------------------------------------------------
 SolverBranchCommand::~SolverBranchCommand()
 {
+   if (theSolver)
+      delete theSolver;
 }
 
 
@@ -72,6 +79,7 @@ SolverBranchCommand::~SolverBranchCommand()
 SolverBranchCommand::SolverBranchCommand(const SolverBranchCommand& sbc) :
    BranchCommand  (sbc),
    solverName     (sbc.solverName),
+   theSolver      (NULL),
    startMode      (sbc.startMode),
    exitMode       (sbc.exitMode),
    specialState   (Solver::INITIALIZING)
@@ -96,6 +104,7 @@ SolverBranchCommand& SolverBranchCommand::operator=(
    {
       BranchCommand::operator=(sbc);
       solverName   = sbc.solverName;
+      theSolver    = NULL;
       startMode    = sbc.startMode;
       exitMode     = sbc.exitMode;
       specialState = Solver::INITIALIZING;
@@ -127,6 +136,13 @@ GmatCommand* SolverBranchCommand::GetNext()
    // Set state back to RUNNING
    if (publisher)
       publisher->SetRunState(Gmat::RUNNING);
+   
+   if (((commandExecuting) && (commandComplete)) && (exitMode == STOP))
+   {
+      MessageInterface::ShowMessage(
+            "\nScript halted: Solver is running in ExitMode = \"Stop\"\n");
+      return NULL;
+   }
    
    return next;
 }
@@ -318,24 +334,6 @@ bool SolverBranchCommand::InterpretAction()
           generatingString.c_str());
    #endif
    
-//   Integer loc = -1;
-//   std::string solveType = "";
-//   
-//   if (IsOfType("Target"))
-//   {
-//      loc = generatingString.find("Target", 0) + 6;
-//      solveType = "Target";
-//   }
-//   else if (IsOfType("Optimize"))
-//   {
-//      loc = generatingString.find("Optimize", 0) + 8;
-//      solveType = "Optimize";
-//   }
-//   else
-//      throw CommandException(
-//            typeName + "::InterpretAction() did not find a recognized solver "
-//            "type in line:\n" + generatingString);
-
    StringArray blocks = parser.DecomposeBlock(generatingString);
 
    StringArray chunks = parser.SeparateBrackets(blocks[0], "{}", " ", false);
@@ -482,6 +480,42 @@ std::string SolverBranchCommand::GetSolverOptionText()
 bool SolverBranchCommand::TakeAction(const std::string &action, 
       const std::string &actionData)
 {
+   
+   MessageInterface::ShowMessage("Taking action %s\n", action.c_str());
+   
+   if (action == "ApplyCorrections")
+   {
+      if (theSolver == NULL)
+      {
+         MessageInterface::PopupMessage(Gmat::INFO_, 
+               "Please run the mission first.  Corrections cannot be applied "
+               "until the mission has been run\n");
+         return true;
+      }
+      // This action walks through the solver loop and passes the Solver's 
+      // variable values to the Vary commands that use that solver, updating the
+      // initial values for the variables.  The solver must have run once first,
+      // though it need not have converged.
+      Integer status = theSolver->GetIntegerParameter(
+            theSolver->GetParameterID("SolverStatus"));
+      
+      if ((status == Solver::CREATED) ||
+          (status == Solver::COPIED) ||
+          (status == Solver::INITIALIZED))
+      {
+         MessageInterface::PopupMessage(Gmat::INFO_, 
+               "Please run the mission first.  Corrections cannot be applied "
+               "until the mission has been run\n");
+         return true;
+      }
+      
+      // Walk through the solver loop, setting new variable values as needed
+      MessageInterface::PopupMessage(Gmat::INFO_, 
+            "Here's where the update goes!\n");
+   
+      return true;
+   }
+   
    return BranchCommand::TakeAction(action, actionData);
 }
 
@@ -527,8 +561,12 @@ Integer SolverBranchCommand::GetParameterID(const std::string &str) const
       return SOLVER_NAME_ID;
    if (str == "SolveMode")
       return SOLVER_SOLVE_MODE;
+   if (str == "ExitMode")
+      return SOLVER_EXIT_MODE;
    if (str == "SolveModeOptions")
       return SOLVER_SOLVE_MODE_OPTIONS;
+   if (str == "ExitModeOptions")
+      return SOLVER_EXIT_MODE_OPTIONS;
     
    return BranchCommand::GetParameterID(str);
 }
@@ -612,11 +650,26 @@ bool SolverBranchCommand::SetStringParameter(const Integer id, const std::string
          startMode = RUN_SOLUTION;
       else
          throw CommandException("Unknown solver mode \"" + value + 
-               "\"; known values are {\"Run InitialGuess\", \"Solve\" "
+               "\"; known values are {\"RunInitialGuess\", \"Solve\" "
                "\"RunCorrected\"}");
       return true;
    }
     
+   if (id == SOLVER_EXIT_MODE) 
+   {
+      if (value == "DiscardAndContinue")
+         exitMode = DISCARD_AND_CONTINUE;
+      else if (value == "SaveAndContinue")
+         exitMode = SAVE_AND_CONTINUE;
+      else if (value == "Stop")
+         exitMode = STOP;
+      else
+         throw CommandException("Unknown solver exit mode \"" + value + 
+               "\"; known values are {\"DiscardAndContinue\", "
+               "\"SaveAndContinue\", \"Stop\"}");
+      return true;
+   }
+   
    return BranchCommand::SetStringParameter(id, value);
 }
 
@@ -635,6 +688,16 @@ std::string SolverBranchCommand::GetStringParameter(const Integer id) const
          return "RunCorrected";
    }
    
+   if (id == SOLVER_EXIT_MODE) 
+   {
+      if (exitMode == DISCARD_AND_CONTINUE)
+         return "DiscardAndContinue";
+      if (exitMode == SAVE_AND_CONTINUE)
+         return "SaveAndContinue";
+      if (exitMode == STOP)
+         return "Stop";
+   }
+   
    return BranchCommand::GetStringParameter(id);
 }
 
@@ -649,6 +712,9 @@ const StringArray& SolverBranchCommand::GetStringArrayParameter(const Integer id
 {
    if (id == SOLVER_SOLVE_MODE_OPTIONS)
       return solverModes;
+   
+   if (id == SOLVER_EXIT_MODE_OPTIONS)
+      return exitModes;
    
    return BranchCommand::GetStringArrayParameter(id);
 }

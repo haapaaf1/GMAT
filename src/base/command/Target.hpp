@@ -80,10 +80,10 @@ public:
    
 
 protected:
-   /// The name of the spacecraft that gets maneuvered
+//   /// The name of the spacecraft that gets maneuvered
 //   std::string         targeterName;
-   /// The targeter instance used to manage the targeter state machine
-   Solver              *targeter;
+//   /// The targeter instance used to manage the targeter state machine
+//   Solver              *targeter;
    /// Flag indicating is the targeter has converged
    bool                targeterConverged;
     
