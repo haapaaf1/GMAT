@@ -65,6 +65,7 @@ HEADERS = -Iinclude \
           -Ifunction \
           -Icoordsystem \
           -Imath \
+          -Iplugin \
           -I../gui/include \
           -I../gui/include/bitmaps \
           -I../gui/app \
@@ -333,6 +334,7 @@ OBJECTS = \
     parameter/TimeString.o \
     parameter/Variable.o \
     parameter/VariableWrapper.o \
+    plugin/DynamicLibrary.o \
     propagator/AdamsBashforthMoulton.o \
     propagator/BulirschStoer.o \
     propagator/Cowell.o \
