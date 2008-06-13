@@ -179,7 +179,8 @@ public:
    
    bool                HasConfigurationChanged();
    virtual void        ConfigurationChanged(bool tf, bool setAll = false);
-
+   virtual bool        HasAFunction();
+   
 protected:
    enum
    {

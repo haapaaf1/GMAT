@@ -307,6 +307,10 @@ void CallFunction::SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
    #endif
 }
 
+bool CallFunction::HasAFunction()
+{
+   return true;
+}
 
 
 //------------------------------------------------------------------------------

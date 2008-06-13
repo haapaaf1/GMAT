@@ -1276,3 +1276,15 @@ const std::vector<GmatCommand*> BranchCommand::GetCommandsWithGmatFunctions()
    return cmdsWithFunctions;
 }
 
+bool BranchCommand::HasAFunction()
+{
+   #ifdef DEBUG_IS_FUNCTION
+      if (!current)
+         MessageInterface::ShowMessage("In HasAFunction and current is NULL\n");
+      else
+         MessageInterface::ShowMessage("In HasAFunction and current is of type %s\n",
+               (current->GetTypeName()).c_str());
+   #endif
+   if ((!current) || (current == this))       return false;
+   return current->HasAFunction();
+}

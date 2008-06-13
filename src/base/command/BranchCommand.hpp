@@ -71,6 +71,7 @@ public:
    // method to handle GmatFunctions
    const std::vector<GmatCommand*>
                            GetCommandsWithGmatFunctions();
+   virtual bool            HasAFunction();
 
 
 protected:

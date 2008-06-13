@@ -57,6 +57,8 @@ public:
    virtual void        SetObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void        SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
 
+   virtual bool        HasAFunction();
+
 
    virtual bool TakeAction(const std::string &action,
                           const std::string &actionData = "");

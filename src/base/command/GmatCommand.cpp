@@ -40,6 +40,7 @@
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_SEPARATE
 //#define DEBUG_GEN_STRING 1
+#define DEBUG_IS_FUNCTION
 
 //---------------------------------
 //  static members
@@ -1829,6 +1830,12 @@ void GmatCommand::ConfigurationChanged(bool tf, bool setAll)
    if (setAll)
       if (next)
          next->ConfigurationChanged(tf, setAll);
+}
+
+bool GmatCommand::HasAFunction()
+{
+   // this default implementation just returns false
+   return false;
 }
 
 

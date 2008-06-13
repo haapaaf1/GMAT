@@ -40,6 +40,7 @@ public:
    Assignment&          operator=(const Assignment& a);
    
    MathTree*            GetMathTree();
+   virtual bool         HasAFunction();
    const StringArray&   GetGmatFunctionNames();
    void                 SetMathWrappers();
    

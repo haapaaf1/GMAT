@@ -129,6 +129,12 @@ MathTree* Assignment::GetMathTree()
    return mathTree;
 }
 
+bool Assignment::HasAFunction()
+{
+   const StringArray fNames = GetGmatFunctionNames();
+   if (fNames.empty()) return false;
+   return true;
+}
 
 //------------------------------------------------------------------------------
 // const StringArray& GetGmatFunctionNames()
