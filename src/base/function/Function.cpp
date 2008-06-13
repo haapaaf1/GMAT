@@ -23,6 +23,7 @@
 
 //#define DEBUG_FUNCTION
 //#define DEBUG_FUNCTION_SET
+//#define DEBUG_FUNCTION_CALL_STACK
 
 //---------------------------------
 // static data
@@ -184,187 +185,28 @@ void Function::SetOutputTypes(WrapperTypeArray &outputTypes,
 
 
 //------------------------------------------------------------------------------
-// bool Initialize()
+// bool Initialize()  [default implementation]
 //------------------------------------------------------------------------------
 bool Function::Initialize()
 {
-   #ifdef DEBUG_FUNCTION
-      MessageInterface::ShowMessage("Entering Function::Initialize for function %s\n",
-            functionName.c_str());
-      MessageInterface::ShowMessage("   and FCS is %s set.\n", (fcs? "correctly" : "NOT"));
-      MessageInterface::ShowMessage("   Pointer for FCS is %p\n", fcs);
-      MessageInterface::ShowMessage("   First command in fcs is %s\n",
-            (fcs->GetTypeName()).c_str());         
-   #endif
-   if (!fcs) return false;
-   // Initialize the Validator - I think I need to do this each time - or do I?
-   validator.SetFunction(this);
-   validator.SetSolarSystem(solarSys);
-   std::map<std::string, GmatBase *>::iterator omi;
-   //loj: moved this block inside the while loop
-//    for (omi = objectStore->begin(); omi != objectStore->end(); ++omi)
-//       store.insert(std::make_pair(omi->first, omi->second));
-//    for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
-//       store.insert(std::make_pair(omi->first, omi->second));
-//    validator.SetObjectMap(&store);
-   
-   // add automatic objects to the FOS
-   for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
-   {
-      if (objectStore->find(omi->first) == objectStore->end())
-         objectStore->insert(std::make_pair(omi->first, omi->second));
-   }
-   // first, send all the commands the input wrappers
-   
-   GmatCommand *current = fcs;
-   std::map<std::string, ElementWrapper *>::iterator wi;
-   StringArray     wrapperList = current->GetWrapperObjectNameArray();
-   //ElementWrapper *wrapperObj  = NULL;
-   //unsigned int   sz           = 0;
-   
-   while (current)
-   {
-      #ifdef DEBUG_FUNCTION
-         if (!current)  MessageInterface::ShowMessage("Current is NULL!!!\n");
-         else MessageInterface::ShowMessage("   Now about to initialize command of type %s\n",
-               (current->GetTypeName()).c_str());         
-      #endif
-      current->SetObjectMap(objectStore);
-      current->SetGlobalObjectMap(globalObjectStore);
-      current->SetSolarSystem(solarSys);
-      current->SetTransientForces(forces);      
-      #ifdef DEBUG_FUNCTION
-         MessageInterface::ShowMessage("   Now about to send required wrappers to command of type %s\n",
-               (current->GetTypeName()).c_str());         
-      #endif
-      // (Re)set object map on Validator (necessary because objects may have been added to the 
-      // Local Object Store or Global Object Store during initialization of previous commands)
-      store.clear();
-      for (omi = objectStore->begin(); omi != objectStore->end(); ++omi)
-         store.insert(std::make_pair(omi->first, omi->second));
-      for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
-         store.insert(std::make_pair(omi->first, omi->second));
-      validator.SetObjectMap(&store);
-      
-      // Let's try to ValidateCommand here, this will validate the comand
-      // and create wrappers also
-      if (!validator.ValidateCommand(current, false, true))
-         return false;
-      if (!(current->Initialize()))
-         return false;
-      current = current->GetNext();
-   }
-   return true;
+    return true;
 }
 
 
 //------------------------------------------------------------------------------
-// bool Function::Execute()
+// bool Function::Execute()  [default implementation]
 //------------------------------------------------------------------------------
 bool Function::Execute()
 {
-   if (!fcs) return false;
-   GmatCommand *current = fcs;
-   while (current)
-   {
-      if (!(current->Execute()))
-         return false;
-      current = current->GetNext();
-   }
-   // create output wrappers and put into map
-   GmatBase *obj;
-   for (unsigned int jj = 0; jj < outputNames.size(); jj++)
-   {
-      if (!(obj = FindObject(outputNames.at(jj))))
-      {
-         std::string errMsg = "Function: Output \"" + outputNames.at(jj);
-         errMsg += " not found for function \"" + functionName + "\"";
-         throw FunctionException(errMsg);
-      }
-      ElementWrapper *outWrapper = validator.CreateElementWrapper(outputNames.at(jj), false, false);
-      outWrapper->SetRefObject(obj); 
-      outputArgMap[outputNames.at(jj)] = outWrapper;
-      #ifdef DEBUG_FUNCTION // --------------------------------------------------- debug ---
-         MessageInterface::ShowMessage("Function: Output wrapper created for %s\n", (outputNames.at(jj)).c_str());
-      #endif // -------------------------------------------------------------- end debug ---
-   }
-   //Finalize();  // @todo - ???
    return true; 
 }
 
 
 //------------------------------------------------------------------------------
-// Real Evaluate()
+// bool Function::Finalize()  [default implementation]
 //------------------------------------------------------------------------------
-Real Function::Evaluate()
-{
-   #ifdef DEBUG_FUNCTION
-   MessageInterface::ShowMessage
-      ("Function::Evaluate() <%p><%s> entered.\n", this, this->GetName().c_str());
-   #endif
-   
-   if (outputWrapperTypes.size() == 0)
-      throw FunctionException
-         ("The output argument of function \"" + functionName + "\" is not set.");
-   
-   if (!Execute())
-      throw FunctionException("Failed to execute function \"" + functionName + "\"");
-
-   // To be implemented
-   
-   Real r = -999.999;
-   
-   #ifdef DEBUG_FUNCTION
-   MessageInterface::ShowMessage("==> Function::Evaluate() returning %.9f\n", r);
-   #endif
-   
-   return r;
-}
-
-
-//------------------------------------------------------------------------------
-// Rmatrix MatrixEvaluate()
-//------------------------------------------------------------------------------
-Rmatrix Function::MatrixEvaluate()
-{
-   #ifdef DEBUG_FUNCTION
-   MessageInterface::ShowMessage
-      ("Function::MatrixEvaluate() <%p><%s> entered.\n", this, this->GetName().c_str());
-   #endif
-   
-   if (outputWrapperTypes.size() == 0)
-      throw FunctionException
-         ("The output argument of function \"" + functionName + "\" is not set.");
-   
-   if (!Execute())
-      throw FunctionException("Failed to execute function \"" + functionName + "\"");
-   
-   // To be implemented
-   Rmatrix rmat;
-   rmat.SetSize(outputRowCounts[0], outputColCounts[0]);
-   
-   #ifdef DEBUG_FUNCTION
-   MessageInterface::ShowMessage
-      ("Function::MatrixEvaluate() returning %s\n", rmat.ToString().c_str());
-   #endif
-   
-   return rmat;
-}
-
 void Function::Finalize()
 {
-   ; // @todo - finalize anything else that needs it as well
-   GmatCommand *current = fcs;
-   while (current)
-   {
-      #ifdef DEBUG_FUNCTION
-         if (!current)  MessageInterface::ShowMessage("Current is NULL!!!\n");
-         else MessageInterface::ShowMessage("   Now about to finalize (call RunComplete on) command %s\n",
-               (current->GetTypeName()).c_str());         
-      #endif
-      current->RunComplete();
-      current = current->GetNext();
-   }
 }
 
 void Function::SetObjectMap(std::map<std::string, GmatBase *> *map)
@@ -421,6 +263,12 @@ bool Function::SetFunctionControlSequence(GmatCommand *cmd)
    fcs = cmd;
    return true;
 }
+
+GmatBase* Function::GetFunctionControlSequence()
+{
+   return fcs;
+}
+
 
 bool Function::SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper)
 {

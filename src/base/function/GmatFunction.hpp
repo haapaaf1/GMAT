@@ -32,15 +32,31 @@ public:
    
    GmatFunction(const GmatFunction &copy);
    GmatFunction& operator=(const GmatFunction &right);
-   
+
+   // inherited from Function
+   virtual bool         Initialize();
+   virtual bool         Execute();
+   virtual void         Finalize();
+
    // inherited from GmatBase
-   virtual GmatBase* Clone() const;
+   virtual GmatBase*    Clone() const;
    virtual void         Copy(const GmatBase* orig);
    
    virtual bool         SetStringParameter(const Integer id, 
                                            const std::string &value);
    virtual bool         SetStringParameter(const std::string &label,
                                            const std::string &value);
+protected:
+   enum
+   {
+      GmatFunctionParamCount = FunctionParamCount  /// Count of the parameters for this class
+   };
+   
+//   static const std::string
+//      PARAMETER_TEXT[GmatFunctionParamCount - FunctionParamCount];
+//   static const Gmat::ParameterType
+//      PARAMETER_TYPE[GmatFunctionParamCount - FunctionParamCount];
+
 };
 
 #endif

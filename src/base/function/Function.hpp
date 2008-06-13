@@ -46,8 +46,6 @@ public:
                                        IntegerArray &colCounts);
    virtual bool         Initialize();
    virtual bool         Execute();
-   virtual Real         Evaluate();
-   virtual Rmatrix      MatrixEvaluate();
    virtual void         Finalize();
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
@@ -55,6 +53,7 @@ public:
    virtual void         SetTransientForces(std::vector<PhysicalModel*> *tf);
    virtual bool         IsFunctionControlSequenceSet();
    virtual bool         SetFunctionControlSequence(GmatCommand *cmd);
+   virtual GmatBase*    GetFunctionControlSequence();
    
    virtual bool         SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper);
    virtual ElementWrapper*
@@ -101,6 +100,7 @@ protected:
    StringArray inputNames;
    /// Function output names
    StringArray outputNames;
+   // @todo - should these next five items remain here or move to GmatFunction??
    /// Function input name and element wrapper map  // @todo - is this needed?
    std::map<std::string, ElementWrapper*> inputArgMap;
    /// Function output name element wrapper map
@@ -123,6 +123,7 @@ protected:
    /// transient forces to pass to the function
    std::vector<PhysicalModel *> 
                         *forces;
+   // @todo - should these next four items remain here or move to GmatFunction??
    /// the function control sequence
    GmatCommand          *fcs;
    /// objects automatically created on parsing (but for whom a references object cannot be
@@ -133,7 +134,7 @@ protected:
    Validator            validator;
    /// Object store needed by the validator
    std::map<std::string, GmatBase *>
-                        store;
+                        validatorStore;
 
    enum
    {
