@@ -76,24 +76,16 @@ protected:
    };
    
    std::string         solverName;
+   Solver              *theSolver; 
    solverStartMode     startMode;
    solverExitMode      exitMode;
    Solver::SolverState specialState;
    
-   /// Modes used in the targeter, filled in the derived classes
+   /// Modes used in the solver, filled in the derived classes
    StringArray         solverModes;    
+   /// Modes used to leave the solver, filled in the derived classes
+   StringArray         exitModes;    
 
-// THESE GO IN THE SOLVER:
-//   // States available during a mission run, for reporting purposes
-//   enum
-//   {
-//      READY = 0,
-//      CONVERGED,
-//      EXCEEDED_ITERATIONS,
-//      RAN_INITIAL_VALUES,
-//      FAILED
-//   };
-   
    /// Local store of the objects that we'll need to reset
    ObjectArray         localStore;
 

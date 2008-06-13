@@ -35,9 +35,7 @@
 Target::Target() :
    SolverBranchCommand("Target"),
 //   targeterName       (""),
-   targeter           (NULL),
    targeterConverged  (false),
-//   targeterNameID     (parameterCount),
    TargeterConvergedID(parameterCount),
    targeterInDebugMode(false)
 {
@@ -55,8 +53,6 @@ Target::Target() :
 //------------------------------------------------------------------------------
 Target::~Target()
 {
-   if (targeter)
-      delete targeter;
 }
 
     
@@ -71,10 +67,7 @@ Target::~Target()
 //------------------------------------------------------------------------------
 Target::Target(const Target& t) :
    SolverBranchCommand (t),
-//   targeterName        (t.targeterName),
-   targeter            (NULL),
    targeterConverged   (false),
-//   targeterNameID      (t.targeterNameID),
    TargeterConvergedID (t.TargeterConvergedID),
    targeterInDebugMode (t.targeterInDebugMode)
 {
@@ -101,10 +94,7 @@ Target& Target::operator=(const Target& t)
     
    GmatCommand::operator=(t);
 
-//   targeterName        = t.targeterName;
-   targeter            = NULL;
    targeterConverged   = false;
-//   targeterNameID      = t.targeterNameID;
    TargeterConvergedID = t.TargeterConvergedID;
    targeterInDebugMode = t.targeterInDebugMode;
    localStore.clear();
@@ -476,14 +466,16 @@ bool Target::Initialize()
    }
 
    // Clone the targeter for local use
-   targeter = (Solver *)(mapObj->Clone());
-   targeter->TakeAction("IncrementInstanceCount");
+   theSolver = (Solver *)(mapObj->Clone());
+   theSolver->TakeAction("IncrementInstanceCount");
    mapObj->TakeAction("IncrementInstanceCount");
    
-   if (targeter->GetStringParameter("ReportStyle") == "Debug")
+   if (theSolver->GetStringParameter("ReportStyle") == "Debug")
       targeterInDebugMode = true;
-   targeter->SetStringParameter("SolverMode", 
+   theSolver->SetStringParameter("SolverMode", 
          GetStringParameter(SOLVER_SOLVE_MODE));
+   theSolver->SetStringParameter("ExitMode", 
+         GetStringParameter(SOLVER_EXIT_MODE));
     
    // Set the local copy of the targeter on each node
    std::vector<GmatCommand*>::iterator node;
@@ -506,7 +498,7 @@ bool Target::Initialize()
          #endif
          if ((current->GetTypeName() == "Vary") || 
              (current->GetTypeName() == "Achieve"))
-            current->SetRefObject(targeter, Gmat::SOLVER, solverName);
+            current->SetRefObject(theSolver, Gmat::SOLVER, solverName);
          current = current->GetNext();
       }
    }
@@ -523,7 +515,7 @@ bool Target::Initialize()
          throw CommandException(errorString);
       }
 
-      retval = targeter->Initialize();
+      retval = theSolver->Initialize();
    }
         
    return retval;
@@ -549,7 +541,7 @@ bool Target::Execute()
    bool retval = true;
 
    // Drive through the state machine.
-   Solver::SolverState state = targeter->GetState();
+   Solver::SolverState state = theSolver->GetState();
    
    #ifdef DEBUG_TARGET_COMMANDS
       MessageInterface::ShowMessage("TargetExecute(%c%c%c%d)\n",
@@ -586,8 +578,8 @@ bool Target::Execute()
          MessageInterface::ShowMessage("Resetting the Differential Corrector\n");
       #endif
 
-      targeter->TakeAction("Reset");
-      state = targeter->GetState();
+      theSolver->TakeAction("Reset");
+      state = theSolver->GetState();
       
    }
    
@@ -612,7 +604,7 @@ bool Target::Execute()
             #ifdef DEBUG_START_MODE
                MessageInterface::ShowMessage(
                      "Running as RUN_INITIAL_GUESS, specialState = %d, currentState = %d\n",
-                     specialState, targeter->GetState());
+                     specialState, theSolver->GetState());
             #endif
             switch (specialState) 
             {
@@ -650,7 +642,7 @@ bool Target::Execute()
                      branchExecuting = true;
                      publisher->SetRunState(Gmat::SOLVEDPASS);
                   }
-                  targeter->Finalize();
+                  theSolver->Finalize();
                   specialState = Solver::FINISHED;
 
                   // Final clean-up
@@ -748,9 +740,9 @@ bool Target::Execute()
    
    if (!branchExecuting)
    {
-      targeter->AdvanceState();
+      theSolver->AdvanceState();
 
-      if (targeter->GetState() == Solver::FINISHED) {
+      if (theSolver->GetState() == Solver::FINISHED) {
          targeterConverged = true;
       }
    }
@@ -764,7 +756,7 @@ bool Target::Execute()
       {
          dbgData += (*i)->GetGeneratingString() + "\n---\n";
       }
-      targeter->SetDebugString(dbgData);
+      theSolver->SetDebugString(dbgData);
    }
    BuildCommandSummary(true);
    return retval;
@@ -780,8 +772,8 @@ bool Target::Execute()
 //------------------------------------------------------------------------------
 void Target::RunComplete()
 {
-   if (targeter != NULL)
-      targeter->Finalize();
+   if (theSolver != NULL)
+      theSolver->Finalize();
 
    //Call RunComplete of parent (loj: 2/23/06)
    //GmatCommand::RunComplete();

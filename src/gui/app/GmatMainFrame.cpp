@@ -366,6 +366,8 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    #endif
    //-----------------------------------------------------------------
    
+   msgTextCtrl->SetDefaultStyle(wxTextAttr(wxTELETYPE));
+   
    // A window w/sash for gmat notebook
    theMainWin = new wxSashLayoutWindow(this, ID_SASH_WINDOW,
                            wxDefaultPosition, wxSize(200, 30),

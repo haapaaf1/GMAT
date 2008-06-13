@@ -652,7 +652,7 @@ bool DifferentialCorrector::Initialize()
       inverseJacobian[i] = new Real[localVariableCount];
    }
       
-   Solver::Initialize(); // for commented stuff, moved to Solver
+   Solver::Initialize();
    
    // Allocate the LU arrays
    indx = new Integer[variableCount];
@@ -696,6 +696,7 @@ Solver::SolverState DifferentialCorrector::AdvanceState()
                   WriteToTextFile();
                   ReportProgress();
                   CompleteInitialization();
+                  status = INITIALIZED;
                   break;
                      
                case NOMINAL:
@@ -705,6 +706,7 @@ Solver::SolverState DifferentialCorrector::AdvanceState()
                   #endif
                   WriteToTextFile();
                   currentState = FINISHED;
+                  status = RUN;
                   break;
                   
                case FINISHED:
@@ -737,6 +739,7 @@ Solver::SolverState DifferentialCorrector::AdvanceState()
                WriteToTextFile();
                ReportProgress();
                CompleteInitialization();
+               status = INITIALIZED;
                break;
                   
             case NOMINAL:
@@ -747,6 +750,7 @@ Solver::SolverState DifferentialCorrector::AdvanceState()
                ReportProgress();
                RunNominal();
                ReportProgress();
+               status = RUN;
                break;
               
             case PERTURBING:
@@ -968,8 +972,11 @@ void DifferentialCorrector::CheckCompletion()
       RunPerturbation();
    }
    else
+   {
       // If converged, we're done
       currentState = FINISHED;
+      status = CONVERGED;
+   }
 }
 
 
@@ -1229,15 +1236,16 @@ std::string DifferentialCorrector::GetProgressString()
 
          case CHECKINGRUN:
             // Iterate through the goals, writing them to the file
-            progress << "   Goals and achieved values:\n      ";
+            progress << "   Goals and achieved values:\n";
 
             for (current = goalNames.begin(), i = 0;
                  current != goalNames.end(); ++current)
             {
-               if (current != goalNames.begin())
-                  progress << ",  ";
-               progress << *current << "  Desired: " << goal[i]
-                        << "  Achieved: " << nominal[i];
+               progress << "      " << *current 
+                        << "  Desired: " << goal[i]
+                        << "  Achieved: " << nominal[i]
+                        << "  Variance: " << (goal[i] - nominal[i])
+                        << "\n";
                ++i;
             }
 

@@ -86,10 +86,6 @@ protected:
    static const Gmat::ParameterType
           PARAMETER_TYPE[OptimizeParamCount - SolverBranchCommandParamCount];
    
-//   /// The name of the spacecraft that gets maneuvered
-//   std::string         optimizerName;
-   /// The optimizer instance used to manage the optimizer state machine
-   Solver              *optimizer;
    /// Flag indicating is the optimizer has converged
    bool                optimizerConverged;
    
