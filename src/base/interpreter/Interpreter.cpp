@@ -161,7 +161,35 @@ void Interpreter::Initialize()
       return;
    }
    
+   BuildCreatableObjectMaps();
+   
+   // Register aliases used in scripting.  Plugins cannot use aliases, so this 
+   // piece is performed outside of the creatable object map definitions.
+   RegisterAliases();
+
+   // Initialize TextParser command list
+   theTextParser.Initialize(commandList);
+   
+   initialized = true;
+}
+
+
+//------------------------------------------------------------------------------
+// void BuildCreatableObjectMaps()
+//------------------------------------------------------------------------------
+/**
+ * Constructs the lists of object type names available in the Factories.  
+ * 
+ * This method is called whenever factories are registered with the 
+ * FactoryManager.  During system startup, the Moderator makes this call after 
+ * registering the default factories.  The call is reissued whenever a user
+ * created factory is registered using the plug-in interfaces.
+ */
+//------------------------------------------------------------------------------
+void Interpreter::BuildCreatableObjectMaps()
+{
    // Build a mapping for all of the defined commands
+   commandList.clear();
    StringArray cmds = theModerator->GetListOfFactoryItems(Gmat::COMMAND);
    copy(cmds.begin(), cmds.end(), back_inserter(commandList));
    
@@ -184,42 +212,55 @@ void Interpreter::Initialize()
    }
    
    // Build a mapping for all of the defined objects
+   atmosphereList.clear();
    StringArray atms = theModerator->GetListOfFactoryItems(Gmat::ATMOSPHERE);
    copy(atms.begin(), atms.end(), back_inserter(atmosphereList));
    
+   attitudeList.clear();
    StringArray atts = theModerator->GetListOfFactoryItems(Gmat::ATTITUDE);
    copy(atts.begin(), atts.end(), back_inserter(attitudeList));
    
+   axisSystemList.clear();
    StringArray axes = theModerator->GetListOfFactoryItems(Gmat::AXIS_SYSTEM);
    copy(axes.begin(), axes.end(), back_inserter(axisSystemList));
    
+   burnList.clear();
    StringArray burns = theModerator->GetListOfFactoryItems(Gmat::BURN);
    copy(burns.begin(), burns.end(), back_inserter(burnList));
    
+   calculatedPointList.clear();
    StringArray cals = theModerator->GetListOfFactoryItems(Gmat::CALCULATED_POINT);
    copy(cals.begin(), cals.end(), back_inserter(calculatedPointList));
    
+   functionList.clear();
    StringArray fns = theModerator->GetListOfFactoryItems(Gmat::FUNCTION);
    copy(fns.begin(), fns.end(), back_inserter(functionList));
    
+   hardwareList.clear();
    StringArray hws = theModerator->GetListOfFactoryItems(Gmat::HARDWARE);
    copy(hws.begin(), hws.end(), back_inserter(hardwareList));
    
+   parameterList.clear();
    StringArray parms = theModerator->GetListOfFactoryItems(Gmat::PARAMETER);
    copy(parms.begin(), parms.end(), back_inserter(parameterList));
    
+   propagatorList.clear();
    StringArray props = theModerator->GetListOfFactoryItems(Gmat::PROPAGATOR);
    copy(props.begin(), props.end(), back_inserter(propagatorList));
    
+   physicalModelList.clear();
    StringArray forces = theModerator->GetListOfFactoryItems(Gmat::PHYSICAL_MODEL);
    copy(forces.begin(), forces.end(), back_inserter(physicalModelList));
    
+   solverList.clear();
    StringArray solvers = theModerator->GetListOfFactoryItems(Gmat::SOLVER);
    copy(solvers.begin(), solvers.end(), back_inserter(solverList));
    
+   stopcondList.clear();
    StringArray stops = theModerator->GetListOfFactoryItems(Gmat::STOP_CONDITION);
    copy(stops.begin(), stops.end(), back_inserter(stopcondList));
    
+   subscriberList.clear();
    StringArray subs = theModerator->GetListOfFactoryItems(Gmat::SUBSCRIBER);
    copy(subs.begin(), subs.end(), back_inserter(subscriberList));
    
@@ -283,13 +324,6 @@ void Interpreter::Initialize()
       MessageInterface::ShowMessage("\n");
    #endif
    
-   // Retister alias used in scripting
-   RegisterAliases();
-   
-   // Initialize TextParser command list
-   theTextParser.Initialize(commandList);
-   
-   initialized = true;
 }
 
 

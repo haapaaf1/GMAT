@@ -115,6 +115,8 @@ public:
    // to check subscriber
    bool ValidateSubscriber(GmatBase *obj);
    
+   void BuildCreatableObjectMaps();
+   
 protected:
    
    Moderator    *theModerator;
