@@ -113,6 +113,7 @@ OBJECTS = \
     app/GmatServer.o \
     app/GmatTreeItemData.o \
     app/GuiMessageReceiver.o \
+    app/GuiPlotReceiver.o \
     app/InteractiveMatlabDialog.o \
     app/MissionTreeItemData.o \
     app/RunScriptFolderDialog.o \

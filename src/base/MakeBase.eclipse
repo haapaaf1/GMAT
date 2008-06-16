@@ -14,26 +14,18 @@ CONSOLETARGET = lib/libGmatConsole.a
 ifeq ($(CONSOLE_APP),1)
 TARGET = $(CONSOLETARGET)
 # Console (no wx code) versions of these objects
-BRIDGEOBJECTS = executive/MessageInterfaceConsole.o \
-					executive/PlotInterfaceConsole.o \
-					interpreter/GuiInterpreterConsole.o
+BRIDGEOBJECTS = interpreter/GuiInterpreterConsole.o
 else
 TARGET = $(WXTARGET)
 # GUI versions of these objects
 # Note: ExternalOptimizer also uses some wx code, so it is included here
 
 ifeq ($(USE_MATLAB),1)
-BRIDGEOBJECTS = util/MessageInterface.o \
-                util/MessageReceiver.o \
-                executive/PlotInterface.o \
-                interpreter/GuiInterpreter.o \
+BRIDGEOBJECTS = interpreter/GuiInterpreter.o \
                 solver/ExternalOptimizer.o \
                 solver/FminconOptimizer.o       
 else
-BRIDGEOBJECTS = util/MessageInterface.o \
-                util/MessageReceiver.o \
-                executive/PlotInterface.o \
-                interpreter/GuiInterpreter.o
+BRIDGEOBJECTS = interpreter/GuiInterpreter.o
 endif
 endif
 
@@ -174,6 +166,8 @@ OBJECTS = \
     coordsystem/TrueOfDateAxes.o \
     executive/FileManager.o \
     executive/Moderator.o \
+    executive/PlotInterface.o \
+    executive/PlotReceiver.o \
     executive/PublisherException.o \
     executive/Publisher.o \
     executive/SandboxException.o \
@@ -396,6 +390,8 @@ OBJECTS = \
     util/Keplerian.o \
     util/LeapSecsFileReader.o \
     util/Linear.o \
+    util/MessageInterface.o \
+    util/MessageReceiver.o \
     util/ModKeplerian.o \
     util/RealUtilities.o \
     util/RgbColor.o \
@@ -453,12 +449,12 @@ interpreter/GuiInterpreterConsole.o : interpreter/GuiInterpreter.cpp \
 	$(CPP) $(CPPFLAGS) $(HEADERS) -c interpreter/GuiInterpreter.cpp \
 	                              -o interpreter/GuiInterpreterConsole.o
 
-executive/MessageInterfaceConsole.o : executive/MessageInterface.cpp \
-                                      executive/MessageInterface.hpp
-	$(CPP) $(CPPFLAGS) $(HEADERS) -c executive/MessageInterface.cpp \
-	                              -o executive/MessageInterfaceConsole.o
+#executive/MessageInterfaceConsole.o : executive/MessageInterface.cpp \
+#                                      executive/MessageInterface.hpp
+#	$(CPP) $(CPPFLAGS) $(HEADERS) -c executive/MessageInterface.cpp \
+#	                              -o executive/MessageInterfaceConsole.o
 
-executive/PlotInterfaceConsole.o : executive/PlotInterface.cpp \
-                                   executive/PlotInterface.hpp
-	$(CPP) $(CPPFLAGS) $(HEADERS) -c executive/PlotInterface.cpp \
-	                              -o executive/PlotInterfaceConsole.o
+#executive/PlotInterfaceConsole.o : executive/PlotInterface.cpp \
+#                                   executive/PlotInterface.hpp
+#	$(CPP) $(CPPFLAGS) $(HEADERS) -c executive/PlotInterface.cpp \
+#	                              -o executive/PlotInterfaceConsole.o

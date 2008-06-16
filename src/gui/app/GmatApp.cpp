@@ -28,7 +28,11 @@
 #include "ViewTextFrame.hpp"
 #include "GmatAppData.hpp"
 #include "Moderator.hpp"
+
+#include "MessageInterface.hpp"
+#include "PlotInterface.hpp"
 #include "GuiMessageReceiver.hpp"
+#include "GuiPlotReceiver.hpp"
 
 //loj: We don't need these.
 //#include "wx/mdi.h"
@@ -58,6 +62,9 @@ GmatApp::GmatApp()
 {
    GuiMessageReceiver *theMessageReceiver = GuiMessageReceiver::Instance();
    MessageInterface::SetMessageReceiver(theMessageReceiver);
+   
+   GuiPlotReceiver *thePlotReceiver = GuiPlotReceiver::Instance();
+   PlotInterface::SetPlotReceiver(thePlotReceiver);
    
    theModerator = (Moderator *)NULL;
 }

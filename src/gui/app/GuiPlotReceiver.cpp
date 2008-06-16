@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                             PlotInterface
+//                             GuiPlotReceiver
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,7 +13,7 @@
 // Created: 2003/12/18
 //
 /**
- * Implements PlotInterface class.
+ * Implements GuiPlotReceiver class.
  * This class updates OpenGL canvas, XY plot window
  */
 //------------------------------------------------------------------------------
@@ -29,7 +29,7 @@
 
 #endif
 
-#include "PlotInterface.hpp"
+#include "GuiPlotReceiver.hpp"
 #include "MessageInterface.hpp"
 
 //#define DEBUG_PLOTIF_GL 1
@@ -43,23 +43,32 @@
 //---------------------------------
 //  static data
 //---------------------------------
+GuiPlotReceiver* GuiPlotReceiver::theGuiPlotReceiver = NULL;
 
 //---------------------------------
 //  public functions
 //---------------------------------
 
+GuiPlotReceiver* GuiPlotReceiver::Instance()
+{
+   if (theGuiPlotReceiver == NULL)
+      theGuiPlotReceiver = new GuiPlotReceiver();
+   
+   return theGuiPlotReceiver;
+}
+
 //------------------------------------------------------------------------------
-//  PlotInterface()
+//  GuiPlotReceiver()
 //------------------------------------------------------------------------------
-PlotInterface::PlotInterface()
+GuiPlotReceiver::GuiPlotReceiver()
 {
 }
 
 
 //------------------------------------------------------------------------------
-//  ~PlotInterface()
+//  ~GuiPlotReceiver()
 //------------------------------------------------------------------------------
-PlotInterface::~PlotInterface()
+GuiPlotReceiver::~GuiPlotReceiver()
 {
 }
 
@@ -84,18 +93,14 @@ PlotInterface::~PlotInterface()
  * @param <numPtsToRedraw>  number of points to redraw during the run
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
+bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
                                        const std::string &oldName,
                                        bool drawEcPlane, bool drawXyPlane,
                                        bool drawWireFrame, bool drawAxes,
                                        bool drawGrid, bool drawSunLine,
                                        bool overlapPlot, bool usevpInfo, bool usepm,
                                        Integer numPtsToRedraw)
-{    
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
+{
    //-------------------------------------------------------
    // check if new MDI child frame is needed
    //-------------------------------------------------------
@@ -105,7 +110,7 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
    
    #if DEBUG_PLOTIF_GL_CREATE
    MessageInterface::ShowMessage
-      ("PlotInterface::CreateGlPlotWindow() MdiGlPlot::numChildren=%d, "
+      ("GuiPlotReceiver::CreateGlPlotWindow() MdiGlPlot::numChildren=%d, "
        "plotName=%s\n   oldName=%s\n", MdiGlPlot::numChildren,
        plotName.c_str(), oldName.c_str());
    #endif
@@ -121,7 +126,7 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
       
       #if DEBUG_PLOTIF_GL_CREATE
       MessageInterface::ShowMessage
-         ("PlotInterface::CreateGlPlotWindow() currPlotName[%d]=%s, addr=%p\n",
+         ("GuiPlotReceiver::CreateGlPlotWindow() currPlotName[%d]=%s, addr=%p\n",
           i, currPlotName.c_str(), frame);
       #endif
       
@@ -146,7 +151,7 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
    {
       #if DEBUG_PLOTIF_GL_CREATE
       MessageInterface::ShowMessage
-         ("PlotInterface::CreateGlPlotWindow() Creating MdiChildTrajFrame "
+         ("GuiPlotReceiver::CreateGlPlotWindow() Creating MdiChildTrajFrame "
           "%s\n", plotName.c_str());
       #endif
       
@@ -168,7 +173,7 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
       
       #if DEBUG_PLOTIF_GL_CREATE
       MessageInterface::ShowMessage
-         ("PlotInterface::CreateGlPlotWindow() frame->GetPlotName()=%s\n",
+         ("GuiPlotReceiver::CreateGlPlotWindow() frame->GetPlotName()=%s\n",
           frame->GetPlotName().c_str());
       #endif
       
@@ -180,14 +185,14 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
    {
       #if DEBUG_PLOTIF_GL_CREATE
       MessageInterface::ShowMessage
-         ("PlotInterface::CreateGlPlotWindow() PlotName:%s already exist.\n",
+         ("GuiPlotReceiver::CreateGlPlotWindow() PlotName:%s already exist.\n",
           plotName.c_str());
       #endif
    }
    
    #if DEBUG_PLOTIF_GL_CREATE
    MessageInterface::ShowMessage
-      ("PlotInterface::CreateGlPlotWindow() setting view options for %s\n",
+      ("GuiPlotReceiver::CreateGlPlotWindow() setting view options for %s\n",
        frame->GetPlotName().c_str());
    #endif
    
@@ -205,26 +210,21 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
    
    #if DEBUG_PLOTIF_GL_CREATE
    MessageInterface::ShowMessage
-      ("PlotInterface::CreateGlPlotWindow() returning true\n");
+      ("GuiPlotReceiver::CreateGlPlotWindow() returning true\n");
    #endif
    
    return true;
-#endif
 } //CreateGlPlotWindow()
 
 
 //------------------------------------------------------------------------------
 // void SetGlSolarSystem(const std::string &plotName, SolarSystem *ss)
 //------------------------------------------------------------------------------
-void PlotInterface::SetGlSolarSystem(const std::string &plotName, SolarSystem *ss)
+void GuiPlotReceiver::SetGlSolarSystem(const std::string &plotName, SolarSystem *ss)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-   
    #if DEBUG_PLOTIF_GL
    MessageInterface::ShowMessage
-      ("PlotInterface::SetGlSolarSystem() SolarSystem=%p\n", ss);
+      ("GuiPlotReceiver::SetGlSolarSystem() SolarSystem=%p\n", ss);
    #endif
    
    wxString owner = wxString(plotName.c_str());
@@ -239,26 +239,20 @@ void PlotInterface::SetGlSolarSystem(const std::string &plotName, SolarSystem *s
          frame->SetSolarSystem(ss);
       }
    }
-   
-#endif
 }
 
 
 //------------------------------------------------------------------------------
 // void SetGlObject(const std::string &plotName,  ...
 //------------------------------------------------------------------------------
-void PlotInterface::SetGlObject(const std::string &plotName,
+void GuiPlotReceiver::SetGlObject(const std::string &plotName,
                                 const StringArray &objNames,
                                 const UnsignedIntArray &objOrbitColors,
                                 const std::vector<SpacePoint*> &objArray)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-   
    #if DEBUG_PLOTIF_GL
    MessageInterface::ShowMessage
-      ("PlotInterface::SetGlObject() plotName:%s\n", plotName.c_str());
+      ("GuiPlotReceiver::SetGlObject() plotName:%s\n", plotName.c_str());
    #endif
    
    wxString owner = wxString(plotName.c_str());
@@ -273,25 +267,19 @@ void PlotInterface::SetGlObject(const std::string &plotName,
          frame->SetGlObject(objNames, objOrbitColors, objArray);
       }
    }
-   
-#endif
 }
 
 
 //------------------------------------------------------------------------------
 // static void SetGlCoordSystem(const std::string &plotName, ...
 //------------------------------------------------------------------------------
-void PlotInterface::SetGlCoordSystem(const std::string &plotName,
+void GuiPlotReceiver::SetGlCoordSystem(const std::string &plotName,
                                      CoordinateSystem *viewCs,
                                      CoordinateSystem *viewUpCs)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-
    #if DEBUG_PLOTIF_GL
    MessageInterface::ShowMessage
-      ("PlotInterface::SetGlCoordSystem() plotName:%s\n", plotName.c_str());
+      ("GuiPlotReceiver::SetGlCoordSystem() plotName:%s\n", plotName.c_str());
    #endif
    
    wxString owner = wxString(plotName.c_str());
@@ -306,15 +294,13 @@ void PlotInterface::SetGlCoordSystem(const std::string &plotName,
          frame->SetGlCoordSystem(viewCs, viewUpCs);
       }
    }
-#endif
-   
 }
 
 
 //------------------------------------------------------------------------------
 // void SetGlViewOption(const std::string &plotName, SpacePoint *vpRefObj, ...
 //------------------------------------------------------------------------------
-void PlotInterface::SetGlViewOption(const std::string &plotName,
+void GuiPlotReceiver::SetGlViewOption(const std::string &plotName,
                                     SpacePoint *vpRefObj, SpacePoint *vpVecObj,
                                     SpacePoint *vdObj, Real vsFactor,
                                     const Rvector3 &vpRefVec, const Rvector3 &vpVec,
@@ -322,13 +308,9 @@ void PlotInterface::SetGlViewOption(const std::string &plotName,
                                     bool usevpRefVec, bool usevpVec, bool usevdVec,
                                      bool useFixedFov, Real fov)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-   
    #if DEBUG_PLOTIF_GL
    MessageInterface::ShowMessage
-      ("PlotInterface::SetGlViewOption() plotName:%s\n", plotName.c_str());
+      ("GuiPlotReceiver::SetGlViewOption() plotName:%s\n", plotName.c_str());
    #endif
    
    wxString owner = wxString(plotName.c_str());
@@ -342,7 +324,7 @@ void PlotInterface::SetGlViewOption(const std::string &plotName,
       {
          #if DEBUG_PLOTIF_GL
          MessageInterface::ShowMessage
-            ("PlotInterface::SetGlViewOption() vpRefObj=%d, vsFactor=%f\n",
+            ("GuiPlotReceiver::SetGlViewOption() vpRefObj=%d, vsFactor=%f\n",
              vpRefObj, vsFactor);
          #endif
          
@@ -351,23 +333,18 @@ void PlotInterface::SetGlViewOption(const std::string &plotName,
                                 usevdVec, useFixedFov, fov);
       }
    }
-#endif
 }
 
 
 //------------------------------------------------------------------------------
 // void SetGlDrawOrbitFlag(const std::string &plotName, ...
 //------------------------------------------------------------------------------
-void PlotInterface::SetGlDrawOrbitFlag(const std::string &plotName,
+void GuiPlotReceiver::SetGlDrawOrbitFlag(const std::string &plotName,
                                        const std::vector<bool> &drawArray)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-   
    #if DEBUG_PLOTIF_GL
    MessageInterface::ShowMessage
-      ("PlotInterface::SetGlDrawOrbitFlag() plotName:%s\n", plotName.c_str());
+      ("GuiPlotReceiver::SetGlDrawOrbitFlag() plotName:%s\n", plotName.c_str());
    #endif
    
    wxString owner = wxString(plotName.c_str());
@@ -382,23 +359,18 @@ void PlotInterface::SetGlDrawOrbitFlag(const std::string &plotName,
          frame->SetGlDrawOrbitFlag(drawArray);
       }
    }
-#endif
 }
 
 
 //------------------------------------------------------------------------------
 // void SetGlShowObjectFlag(const std::string &plotName, ...
 //------------------------------------------------------------------------------
-void PlotInterface::SetGlShowObjectFlag(const std::string &plotName,
+void GuiPlotReceiver::SetGlShowObjectFlag(const std::string &plotName,
                                         const std::vector<bool> &showArray)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-   
    #if DEBUG_PLOTIF_GL
    MessageInterface::ShowMessage
-      ("PlotInterface::SetGlShowObjectFlag() plotName:%s\n", plotName.c_str());
+      ("GuiPlotReceiver::SetGlShowObjectFlag() plotName:%s\n", plotName.c_str());
    #endif
    
    wxString owner = wxString(plotName.c_str());
@@ -413,19 +385,15 @@ void PlotInterface::SetGlShowObjectFlag(const std::string &plotName,
          frame->SetGlShowObjectFlag(showArray);
       }
    }
-#endif
 }
 
 
 //------------------------------------------------------------------------------
 // void SetGlUpdateFrequency(const std::string &plotName, Integer updFreq)
 //------------------------------------------------------------------------------
-void PlotInterface::SetGlUpdateFrequency(const std::string &plotName,
+void GuiPlotReceiver::SetGlUpdateFrequency(const std::string &plotName,
                                          Integer updFreq)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
    wxString owner = wxString(plotName.c_str());
    MdiChildTrajFrame *frame = NULL;
    
@@ -438,7 +406,6 @@ void PlotInterface::SetGlUpdateFrequency(const std::string &plotName,
          frame->SetGlUpdateFrequency(updFreq);
       }
    }
-#endif
 }
 
 
@@ -449,12 +416,8 @@ void PlotInterface::SetGlUpdateFrequency(const std::string &plotName,
  * Checks if OpenGlPlot exist.
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::IsThere(const std::string &plotName)
+bool GuiPlotReceiver::IsThere(const std::string &plotName)
 {    
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
    if (GmatAppData::GetMainFrame() != NULL)
    {
       wxString owner = wxString(plotName.c_str());
@@ -472,7 +435,6 @@ bool PlotInterface::IsThere(const std::string &plotName)
    }
 
    return false;
-#endif
 }
 
 
@@ -485,17 +447,13 @@ bool PlotInterface::IsThere(const std::string &plotName)
  * @param <plotName> name of plot to be deleted
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::DeleteGlPlot(const std::string &plotName)
+bool GuiPlotReceiver::DeleteGlPlot(const std::string &plotName)
 {    
-#if defined __CONSOLE_APP__
-   return true;
-#else
-   
    if (GmatAppData::GetMainFrame() != NULL)
    {
       #if DEBUG_PLOTIF_GL_DELETE
       MessageInterface::ShowMessage
-         ("PlotInterface::DeleteGlPlot() plotName=%s\n", plotName.c_str());
+         ("GuiPlotReceiver::DeleteGlPlot() plotName=%s\n", plotName.c_str());
       #endif
       
       wxString owner = wxString(plotName.c_str());
@@ -515,7 +473,6 @@ bool PlotInterface::DeleteGlPlot(const std::string &plotName)
    }
    
    return true;
-#endif
 }
 
 
@@ -526,17 +483,13 @@ bool PlotInterface::DeleteGlPlot(const std::string &plotName)
  * Refreshes OpenGlPlot.
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::RefreshGlPlot(const std::string &plotName)
+bool GuiPlotReceiver::RefreshGlPlot(const std::string &plotName)
 {    
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
    if (GmatAppData::GetMainFrame() != NULL)
    {
       #if DEBUG_PLOTIF_GL
       MessageInterface::ShowMessage
-         ("PlotInterface::RefreshGlPlot() plotName=%s\n",plotName.c_str());
+         ("GuiPlotReceiver::RefreshGlPlot() plotName=%s\n",plotName.c_str());
       #endif
       
       wxString owner = wxString(plotName.c_str());
@@ -554,7 +507,6 @@ bool PlotInterface::RefreshGlPlot(const std::string &plotName)
    }
    
    return true;
-#endif
 }
 
 
@@ -565,17 +517,13 @@ bool PlotInterface::RefreshGlPlot(const std::string &plotName)
  * Sets end of run flag to OpenGlPlot.
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::SetGlEndOfRun(const std::string &plotName)
+bool GuiPlotReceiver::SetGlEndOfRun(const std::string &plotName)
 {    
-#if defined __CONSOLE_APP__
-   return true;
-#else
-   
    if (GmatAppData::GetMainFrame() != NULL)
    {
       #if DEBUG_PLOTIF_GL
          MessageInterface::ShowMessage
-            ("PlotInterface::SetGlEndOfRun() plotName=%s\n",plotName.c_str());
+            ("GuiPlotReceiver::SetGlEndOfRun() plotName=%s\n",plotName.c_str());
       #endif
       wxString owner = wxString(plotName.c_str());
       
@@ -592,7 +540,6 @@ bool PlotInterface::SetGlEndOfRun(const std::string &plotName)
    }
    
    return true;
-#endif
 }
 
 
@@ -603,7 +550,7 @@ bool PlotInterface::SetGlEndOfRun(const std::string &plotName)
  * Buffers data and updates OpenGL plow window if updateCanvas is true
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::UpdateGlPlot(const std::string &plotName,
+bool GuiPlotReceiver::UpdateGlPlot(const std::string &plotName,
                                  const std::string &oldName,
                                  const StringArray &scNames, const Real &time,
                                  const RealArray &posX, const RealArray &posY,
@@ -612,13 +559,9 @@ bool PlotInterface::UpdateGlPlot(const std::string &plotName,
                                  const UnsignedIntArray &scColors, bool solving,
                                  Integer solverOption, bool updateCanvas)
 {
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
    #if DEBUG_PLOTIF_GL_UPDATE
    MessageInterface::ShowMessage
-      ("PlotInterface::UpdateGlPlot() entered. time = %f\n", time);
+      ("GuiPlotReceiver::UpdateGlPlot() entered. time = %f\n", time);
    #endif
    
    bool updated = false;
@@ -632,7 +575,7 @@ bool PlotInterface::UpdateGlPlot(const std::string &plotName,
       
       #if DEBUG_PLOTIF_GL_UPDATE
       MessageInterface::ShowMessage
-         ("PlotInterface::UpdateGlPlot() frame[%d]->GetPlotName()=%s "
+         ("GuiPlotReceiver::UpdateGlPlot() frame[%d]->GetPlotName()=%s "
           "owner=%s\n", i, frame->GetPlotName().c_str(), owner.c_str());
       #endif
       
@@ -641,7 +584,7 @@ bool PlotInterface::UpdateGlPlot(const std::string &plotName,
          if (frame->GetPlotName().IsSameAs(owner.c_str()))
          {
             //MessageInterface::ShowMessage
-            //   ("PlotInterface::UpdateGlPlot() now updating GL plot...\n");
+            //   ("GuiPlotReceiver::UpdateGlPlot() now updating GL plot...\n");
             frame->UpdatePlot(scNames, time, posX, posY, posZ, velX, velY, velZ,
                               scColors, solving, solverOption, updateCanvas);
             
@@ -651,23 +594,18 @@ bool PlotInterface::UpdateGlPlot(const std::string &plotName,
    }
    
    return updated;
-   
-#endif
 } // end UpdateGlPlot()
 
 
 //------------------------------------------------------------------------------
 // bool TakeGlAction(const std::string &plotName, const std::string &action)
 //------------------------------------------------------------------------------
-bool PlotInterface::TakeGlAction(const std::string &plotName,
+bool GuiPlotReceiver::TakeGlAction(const std::string &plotName,
                                  const std::string &action)
 {
-#if defined __CONSOLE_APP__
-   return true;
-#else
    #if DEBUG_PLOTIF_GL_CLEAR
    MessageInterface::ShowMessage
-      ("PlotInterface::ClearGlSolverData() entered\n");
+      ("GuiPlotReceiver::ClearGlSolverData() entered\n");
    #endif
    
    bool retval = false;
@@ -681,7 +619,7 @@ bool PlotInterface::TakeGlAction(const std::string &plotName,
       
       #if DEBUG_PLOTIF_GL_CLEAR
       MessageInterface::ShowMessage
-         ("PlotInterface::ClearGlSolverData() frame[%d]->GetPlotName()=%s "
+         ("GuiPlotReceiver::ClearGlSolverData() frame[%d]->GetPlotName()=%s "
           "owner=%s\n", i, frame->GetPlotName().c_str(), owner.c_str());
       #endif
       
@@ -696,7 +634,6 @@ bool PlotInterface::TakeGlAction(const std::string &plotName,
    }
    
    return retval;
-#endif
 }
 
 
@@ -714,17 +651,13 @@ bool PlotInterface::TakeGlAction(const std::string &plotName,
  * @param <plotName> name of plot
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::CreateTsPlotWindow(const std::string &plotName,
+bool GuiPlotReceiver::CreateTsPlotWindow(const std::string &plotName,
                                        const std::string &oldName,
                                        const std::string &plotTitle,
                                        const std::string &xAxisTitle,
                                        const std::string &yAxisTitle,
                                        bool drawGrid)
 {    
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
    //-------------------------------------------------------
    // check if new MDI child frame needed
    //-------------------------------------------------------
@@ -746,7 +679,7 @@ bool PlotInterface::CreateTsPlotWindow(const std::string &plotName,
       {
          #if DEBUG_RENAME
          MessageInterface::ShowMessage
-            ("PlotInterface::CreateTsPlotWindow() currPlotName=%s, oldName=%s\n",
+            ("GuiPlotReceiver::CreateTsPlotWindow() currPlotName=%s, oldName=%s\n",
              currPlotName.c_str(), oldName.c_str());
          #endif
          
@@ -765,7 +698,7 @@ bool PlotInterface::CreateTsPlotWindow(const std::string &plotName,
         
       #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("PlotInterface::CreateTsPlotWindow() Creating new "
+         ("GuiPlotReceiver::CreateTsPlotWindow() Creating new "
           "MdiChildXyFrame\n   X Axis Title = %s  Y Axis Title = %s\n",
           xAxisTitle.c_str(), yAxisTitle.c_str());
       #endif
@@ -794,11 +727,10 @@ bool PlotInterface::CreateTsPlotWindow(const std::string &plotName,
    
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("PlotInterface::CreateTsPlotWindow() leaving\n");
+      ("GuiPlotReceiver::CreateTsPlotWindow() leaving\n");
    #endif
    
    return true;
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -810,16 +742,12 @@ bool PlotInterface::CreateTsPlotWindow(const std::string &plotName,
  * @param <plotName> name of plot to be deleted
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::DeleteTsPlot(const std::string &plotName)
+bool GuiPlotReceiver::DeleteTsPlot(const std::string &plotName)
 {    
-#if defined __CONSOLE_APP__
-   return true;
-#else
-   
    if (GmatAppData::GetMainFrame() != NULL)
    {
       #if DEBUG_PLOTIF_XY
-         MessageInterface::ShowMessage("PlotInterface::DeleteTsPlot()\n");
+         MessageInterface::ShowMessage("GuiPlotReceiver::DeleteTsPlot()\n");
       #endif
 
       wxString owner = wxString(plotName.c_str());
@@ -839,7 +767,6 @@ bool PlotInterface::DeleteTsPlot(const std::string &plotName)
    }
    
    return true;
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -852,15 +779,11 @@ bool PlotInterface::DeleteTsPlot(const std::string &plotName)
  * Adds a plot curve to XY plow window.
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::AddTsPlotCurve(const std::string &plotName, int curveIndex,
+bool GuiPlotReceiver::AddTsPlotCurve(const std::string &plotName, int curveIndex,
                                    int yOffset, Real yMin, Real yMax,
                                    const std::string &curveTitle,
                                    UnsignedInt penColor)
 {
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
    UnsignedInt localPenColor = penColor;
    if (penColor == 0) 
       localPenColor = 0xFFFFFF;
@@ -869,12 +792,12 @@ bool PlotInterface::AddTsPlotCurve(const std::string &plotName, int curveIndex,
    
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("PlotInterface::AddTsPlotCurve() entered."
+      ("GuiPlotReceiver::AddTsPlotCurve() entered."
        " plotName = " + plotName + " curveTitle = " + 
        curveTitle + "\n");
    
    MessageInterface::ShowMessage
-      ("PlotInterface::AddTsPlotCurve() numChildren = %d\n",
+      ("GuiPlotReceiver::AddTsPlotCurve() numChildren = %d\n",
        MdiTsPlot::numChildren);
    #endif
    
@@ -892,7 +815,6 @@ bool PlotInterface::AddTsPlotCurve(const std::string &plotName, int curveIndex,
    }
 
    return added;
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -903,16 +825,12 @@ bool PlotInterface::AddTsPlotCurve(const std::string &plotName, int curveIndex,
  * Deletes all plot curves in XY plow window.
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::DeleteAllTsPlotCurves(const std::string &plotName,
+bool GuiPlotReceiver::DeleteAllTsPlotCurves(const std::string &plotName,
                                           const std::string &oldName)
 {
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("PlotInterface::DeleteAllPlotCurve() plotName = %s "
+      ("GuiPlotReceiver::DeleteAllPlotCurve() plotName = %s "
        "numChildren = %d\n", plotName.c_str(),
        MdiTsPlot::numChildren);
    #endif
@@ -929,7 +847,6 @@ bool PlotInterface::DeleteAllTsPlotCurves(const std::string &plotName,
    }
    
    return true;
-#endif
 }
 
 
@@ -940,19 +857,15 @@ bool PlotInterface::DeleteAllTsPlotCurves(const std::string &plotName,
  * Deletes a plot curve to XY plow window.
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::DeleteTsPlotCurve(const std::string &plotName, int curveIndex)
+bool GuiPlotReceiver::DeleteTsPlotCurve(const std::string &plotName, int curveIndex)
 {
-#if defined __CONSOLE_APP__
-   return true;
-#else
-   
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("PlotInterface::DeleteTsPlotCurve() entered plotName = %s "
+      ("GuiPlotReceiver::DeleteTsPlotCurve() entered plotName = %s "
        "curveIndex = %d\n", plotName.c_str(), curveIndex);
    
    MessageInterface::ShowMessage
-      ("PlotInterface::DeleteTsPlotCurve() numChildren = %d\n",
+      ("GuiPlotReceiver::DeleteTsPlotCurve() numChildren = %d\n",
        MdiTsPlot::numChildren);
    #endif
 
@@ -968,22 +881,17 @@ bool PlotInterface::DeleteTsPlotCurve(const std::string &plotName, int curveInde
    }
 
    return true;
-#endif
 }
 
 
 //------------------------------------------------------------------------------
 // void ClearTsPlotData(const std::string &plotName))
 //------------------------------------------------------------------------------
-void PlotInterface::ClearTsPlotData(const std::string &plotName)
+void GuiPlotReceiver::ClearTsPlotData(const std::string &plotName)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("PlotInterface::ClearTsPlotData() numChildren = %d\n",
+      ("GuiPlotReceiver::ClearTsPlotData() numChildren = %d\n",
        MdiTsPlot::numChildren);
    #endif
    
@@ -998,21 +906,16 @@ void PlotInterface::ClearTsPlotData(const std::string &plotName)
          frame->ClearPlotData();
       }
    }
-#endif
 }
 
 //------------------------------------------------------------------------------
 // void TsPlotPenUp(const std::string &plotName))
 //------------------------------------------------------------------------------
-void PlotInterface::TsPlotPenUp(const std::string &plotName)
+void GuiPlotReceiver::TsPlotPenUp(const std::string &plotName)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("PlotInterface::TsPlotPenUp() numChildren = %d\n",
+         ("GuiPlotReceiver::TsPlotPenUp() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
    
@@ -1027,21 +930,16 @@ void PlotInterface::TsPlotPenUp(const std::string &plotName)
          frame->PenUp();
       }
    }
-#endif
 }
 
 //------------------------------------------------------------------------------
 // void TsPlotPenDown(const std::string &plotName))
 //------------------------------------------------------------------------------
-void PlotInterface::TsPlotPenDown(const std::string &plotName)
+void GuiPlotReceiver::TsPlotPenDown(const std::string &plotName)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("PlotInterface::TsPlotPenUp() numChildren = %d\n",
+         ("GuiPlotReceiver::TsPlotPenUp() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
    
@@ -1056,22 +954,17 @@ void PlotInterface::TsPlotPenDown(const std::string &plotName)
          frame->PenDown();
       }
    }
-#endif
 }
 
 //------------------------------------------------------------------------------
 // void SetTsPlotTitle(const std::string &plotName, const std::string &plotTitle)
 //------------------------------------------------------------------------------
-void PlotInterface::SetTsPlotTitle(const std::string &plotName,
+void GuiPlotReceiver::SetTsPlotTitle(const std::string &plotName,
                                    const std::string &plotTitle)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-   
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("PlotInterface::SetTsPlotTitle() plotName = %s "
+      ("GuiPlotReceiver::SetTsPlotTitle() plotName = %s "
        "plotTitle = %s\n", plotName.c_str(), plotTitle.c_str());
    #endif
    
@@ -1084,26 +977,21 @@ void PlotInterface::SetTsPlotTitle(const std::string &plotName,
       {
          #if DEBUG_PLOTIF_XY
             MessageInterface::ShowMessage
-               ("PlotInterface::SetTsPlotTitle() calling "
+               ("GuiPlotReceiver::SetTsPlotTitle() calling "
                 " frame->SetPlotTitle() \n");
          #endif
             
          frame->SetPlotTitle(wxString(plotTitle.c_str()));
       }
    }
-#endif
 }
 
 
 //------------------------------------------------------------------------------
 // void ShowTsPlotLegend(const std::string &plotName)
 //------------------------------------------------------------------------------
-void PlotInterface::ShowTsPlotLegend(const std::string &plotName)
+void GuiPlotReceiver::ShowTsPlotLegend(const std::string &plotName)
 {
-#if defined __CONSOLE_APP__
-   return;
-#else
-   
 //   MdiChildXyFrame *frame = NULL;
 //   for (int i=0; i<MdiTsPlot::numChildren; i++)
 //   {
@@ -1113,13 +1001,12 @@ void PlotInterface::ShowTsPlotLegend(const std::string &plotName)
 //      {
 //         #if DEBUG_PLOTIF_XY
 //            MessageInterface::ShowMessage
-//               ("PlotInterface::ShowTsPlotLegend() calling  frame->ShowPlotLegend() \n");
+//               ("GuiPlotReceiver::ShowTsPlotLegend() calling  frame->ShowPlotLegend() \n");
 //         #endif
 //            
 //         frame->ShowPlotLegend();
 //      }
 //   }
-#endif
 }
 
 
@@ -1132,37 +1019,33 @@ void PlotInterface::ShowTsPlotLegend(const std::string &plotName)
  * @param <plotName> name of xy plot
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::RefreshTsPlot(const std::string &plotName)
+bool GuiPlotReceiver::RefreshTsPlot(const std::string &plotName)
 {
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
    if (GmatAppData::GetMainFrame() != NULL)
    {        
       #if DEBUG_PLOTIF_XY_UPDATE
          MessageInterface::ShowMessage
-            ("PlotInterface::RefreshTsPlot() plotName=%s, numChildren=%d\n",
+            ("GuiPlotReceiver::RefreshTsPlot() plotName=%s, numChildren=%d\n",
              plotName.c_str(), MdiTsPlot::numChildren);
       #endif
       
       wxString owner = wxString(plotName.c_str());
 
       MdiChildTsFrame *frame = NULL;
-      //MessageInterface::ShowMessage("PlotInterface::RefreshTsPlot(1)\n");
+      //MessageInterface::ShowMessage("GuiPlotReceiver::RefreshTsPlot(1)\n");
       
       for (int i=0; i<MdiTsPlot::numChildren; i++)
       {
-         //MessageInterface::ShowMessage("PlotInterface::RefreshTsPlot(2)\n");
+         //MessageInterface::ShowMessage("GuiPlotReceiver::RefreshTsPlot(2)\n");
          frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
-         //MessageInterface::ShowMessage("PlotInterface::RefreshTsPlot(3)\n");
+         //MessageInterface::ShowMessage("GuiPlotReceiver::RefreshTsPlot(3)\n");
          if (frame)   
          {         
             if (frame->GetPlotName().IsSameAs(owner.c_str()))
             {
-               //MessageInterface::ShowMessage("PlotInterface::RefreshTsPlot(4)\n");
+               //MessageInterface::ShowMessage("GuiPlotReceiver::RefreshTsPlot(4)\n");
                frame->RedrawCurve();
-               //MessageInterface::ShowMessage("PlotInterface::RefreshTsPlot(5)\n");
+               //MessageInterface::ShowMessage("GuiPlotReceiver::RefreshTsPlot(5)\n");
                #if __WXMAC__  
                   frame->Refresh(true,NULL);
                #endif
@@ -1172,7 +1055,6 @@ bool PlotInterface::RefreshTsPlot(const std::string &plotName)
    }
    
    return true;
-#endif
 }
 
 
@@ -1192,7 +1074,7 @@ bool PlotInterface::RefreshTsPlot(const std::string &plotName)
  * @param <yvals> y values, should be in the order of curve added
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::UpdateTsPlot(const std::string &plotName,
+bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
                                  const std::string &oldName,
                                  const Real &xval, const Rvector &yvals,
                                  const std::string &plotTitle,
@@ -1200,16 +1082,12 @@ bool PlotInterface::UpdateTsPlot(const std::string &plotName,
                                  const std::string &yAxisTitle,
                                  bool updateCanvas, bool drawGrid)
 {
-#if defined __CONSOLE_APP__
-   return true;
-#else
-
    bool updated = false;
    wxString owner = wxString(plotName.c_str());
 
    #if DEBUG_PLOTIF_XY_UPDATE
    MessageInterface::ShowMessage
-      ("PlotInterface::UpdateTsPlot() numChildren = %d\n",
+      ("GuiPlotReceiver::UpdateTsPlot() numChildren = %d\n",
        MdiTsPlot::numChildren);
    #endif
    
@@ -1226,14 +1104,14 @@ bool PlotInterface::UpdateTsPlot(const std::string &plotName,
             int numCurves = frame->GetCurveCount();
             #if DEBUG_PLOTIF_XY_UPDATE
                MessageInterface::ShowMessage
-               ("PlotInterface::UpdateTsPlot() numCurves = %d\n", numCurves);
+               ("GuiPlotReceiver::UpdateTsPlot() numCurves = %d\n", numCurves);
             #endif
             
             for (int j=0; j<numCurves; j++)
             {
                #if DEBUG_PLOTIF_XY_UPDATE
                   MessageInterface::ShowMessage
-                  ("PlotInterface::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
+                  ("GuiPlotReceiver::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
                #endif
                 
                frame->AddDataPoints(j, xval, yvals(j));
@@ -1248,5 +1126,4 @@ bool PlotInterface::UpdateTsPlot(const std::string &plotName,
    }
    
    return updated;
-#endif
 }
