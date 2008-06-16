@@ -63,6 +63,7 @@ HEADERS = -I../base/include \
           -I../base/function \
           -I../base/math \
           -I../base/coordsystem \
+          -I../base/plugin \
           -Iinclude \
           -Iinclude/bitmaps \
           -Iinclude/il \

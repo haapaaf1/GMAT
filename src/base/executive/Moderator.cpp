@@ -279,11 +279,12 @@ bool Moderator::Initialize(bool fromGui)
 } // Initialize()
 
 
+
 //------------------------------------------------------------------------------
 // void Finalize()
 //------------------------------------------------------------------------------
 /*
- * Fininalizes the system by closing all opened files by deleting objects.
+ * Finalizes the system by closing all opened files by deleting objects.
  */
 //------------------------------------------------------------------------------
 void Moderator::Finalize()
@@ -342,6 +343,18 @@ void Moderator::Finalize()
          cmd = NULL;
          commands[0] = NULL;
       }
+      
+      // Close out the plug-in libraries
+      std::map<std::string, DynamicLibrary*>::iterator i;
+      for (i = userLibraries.begin(); i != userLibraries.end(); ++i)
+      {
+         delete i->second;
+         i->second = NULL;
+         #ifdef DEBUG_PLUGINS
+            MessageInterface::ShowMessage("Closed %s.\n", i->first.c_str());
+         #endif
+      }
+
       
 //       #if DEBUG_FINALIZE
 //       MessageInterface::ShowMessage
@@ -415,6 +428,210 @@ void Moderator::SetRunReady(bool flag)
 {
    isRunReady = flag;
 }
+
+//---------------------------- Plug-in modules ---------------------------------
+
+//------------------------------------------------------------------------------
+// void LoadPlugins()
+//------------------------------------------------------------------------------
+/**
+ * Method that loads in the plug-in libraries listed in a user's startup file.
+ * 
+ * The GMAT startup file may list one or more plug-in libraries by name.  This 
+ * method retrieves the list of libraries, and loads them into GMAT.
+ * 
+ * @note The current code looks for exactly one library -- the VF13ad library --
+ *       and loads it into GMAT if found.  The generic updates for any user 
+ *       library will be added in a later build.
+ */ 
+//------------------------------------------------------------------------------
+void Moderator::LoadPlugins()
+{
+   std::string libName;
+
+   // This is done for all plugins in the startup file
+
+#ifndef __WIN32__
+   
+   libName = "libVF13Optimizer";
+
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+         libName.c_str());
+   #endif
+   LoadAPlugin(libName);
+
+#else
+   
+   libName = "VF13Optimizer";
+
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+         libName.c_str());
+   #endif
+   LoadAPlugin(libName);
+   
+#endif
+}
+
+//------------------------------------------------------------------------------
+// void LoadAPlugin(std::string pluginName)
+//------------------------------------------------------------------------------
+/**
+ * Method that loads a plug-in library into memory.
+ * 
+ * This method loads a plug-in library into memory, and retrieves and registers 
+ * any Factories contained in that plug-in.  If the library is not found, this 
+ * method just returns.
+ * 
+ * @param pluginName The file name for the plug-in library.  The name should not 
+ *                   include the file extension (e.g. ".ddl" or ".so").
+ */ 
+//------------------------------------------------------------------------------
+void Moderator::LoadAPlugin(std::string pluginName)
+{
+   DynamicLibrary *theLib = LoadLibrary(pluginName);
+   
+   if (theLib != NULL)
+   {
+      Integer fc = theLib->GetFactoryCount();
+      if (fc > 0)
+      {
+         // Do the GMAT factory dance
+         #ifdef DEBUG_PLUGIN_REGISTRATION
+            MessageInterface::ShowMessage(
+               "Library %s contains %d %s.\n", pluginName.c_str(), fc,
+               ( fc==1 ? "factory" : "factories"));
+         #endif
+               
+         // Now pass factories to the FactoryManager
+         Factory *newFactory = NULL;
+         for (Integer i = 0; i < fc; ++i)
+         {
+            newFactory = theLib->GetGmatFactory(i);
+            if (newFactory != NULL)
+            {
+               if (theFactoryManager->RegisterFactory(newFactory) == false)
+                  MessageInterface::ShowMessage(
+                        "Factory %d in library %s failed to register with the "
+                        "Factory Manager.\n", i, pluginName.c_str());
+               else
+               {
+                  #ifdef DEBUG_PLUGIN_REGISTRATION
+                     MessageInterface::ShowMessage(
+                        "Factory %d in library %s is now registered with the "
+                        "Factory Manager!\n", i, pluginName.c_str());
+                  #endif
+                  
+                  theGuiInterpreter->BuildCreatableObjectMaps();
+                  theScriptInterpreter->BuildCreatableObjectMaps();
+               }
+            } 
+            else
+               MessageInterface::ShowMessage(
+                     "Factory %d in library %s was not constructed; a NULL "
+                     "pointer was returned instead.\n", i, pluginName.c_str());
+         }
+      }
+      else
+         MessageInterface::ShowMessage(
+               "Library %s does not contain a factory\n", pluginName.c_str());
+   }
+   else
+      MessageInterface::ShowMessage(
+            "Unable to load the dynamic library \"%s\"\n", pluginName.c_str());
+}
+
+//------------------------------------------------------------------------------
+// Dynamic library specific code
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// DynamicLibrary *LoadLibrary(const std::string &libraryName)
+//------------------------------------------------------------------------------
+/**
+ * Loads a dynamic library into memory.
+ * 
+ * Creates a DynamicLibrary object and uses that instance to provide the 
+ * interfaces GMAT uses to load a dynamic library into memory.  If the library 
+ * is not found or if it could not be loaded, a message is written out stating 
+ * that the library did not open.
+ * 
+ * @param libraryName The file name for the plug-in library.  The name should 
+ *                    not include the file extension.
+ * 
+ * @return The DynamicLibrary object that suppies teh library interfaces, or a 
+ *         NULL pointer if the library did not load.
+ */ 
+//------------------------------------------------------------------------------
+DynamicLibrary *Moderator::LoadLibrary(const std::string &libraryName)
+{
+   bool retval = false;
+   DynamicLibrary *theLib = new DynamicLibrary(libraryName);
+   if (theLib->LoadDynamicLibrary())
+   {
+      userLibraries[libraryName] = theLib;
+      retval = true;
+   }
+   else
+   {
+      MessageInterface::ShowMessage(" *** Library %s did not open.\n",
+            libraryName.c_str());
+      delete theLib;
+      theLib = NULL;
+   }
+   
+   return theLib;
+}
+
+//------------------------------------------------------------------------------
+// bool IsLibraryLoaded(const std::string &libName)
+//------------------------------------------------------------------------------
+/**
+ * Method that checks to see if a specified library has been loaded.
+ * 
+ * @param libName The name of the library.
+ * 
+ * @return true if the library has been loaded, false if not.
+ */ 
+//------------------------------------------------------------------------------
+bool Moderator::IsLibraryLoaded(const std::string &libName)
+{
+   bool retval = false;
+   if (userLibraries.find(libName) != userLibraries.end())
+      retval = true;
+   
+   return retval;
+}
+
+//------------------------------------------------------------------------------
+// void (*GetDynamicFunction(const std::string &funName, 
+//                           const std::string &libraryName))()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a specified function from a specified library.
+ * 
+ * @param funName The name of the requested function.
+ * @param libraryName Teh name of the library that contains the function.
+ * 
+ * @return A function pointer for the specified function, or NULL if the 
+ *         function is not found.  The returned function pointer has the 
+ *         signature
+ *             void (*)()
+ *         and should be cast to the correct signature.
+ */ 
+//------------------------------------------------------------------------------
+void (*Moderator::GetDynamicFunction(const std::string &funName, 
+      const std::string &libraryName))()
+{
+   void (*theFunction)() = NULL;
+   if (IsLibraryLoaded(libraryName))
+      theFunction = userLibraries[libraryName]->GetFunction(funName);
+   return theFunction;
+}
+
+//------------------------ End of Plug-in Code ---------------------------------
+
 
 //----- ObjectType
 //------------------------------------------------------------------------------

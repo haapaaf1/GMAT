@@ -57,6 +57,8 @@
 #include "EopFile.hpp"
 #include "ItrfCoefficientsFile.hpp"
 #include "LeapSecsFileReader.hpp"
+// plug-in code
+#include "DynamicLibrary.hpp"
 
 namespace Gmat
 {
@@ -73,6 +75,14 @@ public:
    void SetRunReady(bool flag = true);
    void SetShowFinalState(bool flag = true);
    
+   //----- Plug-in code
+   void LoadPlugins();
+   void LoadAPlugin(std::string pluginName);
+   DynamicLibrary *LoadLibrary(const std::string &libraryName);
+   bool IsLibraryLoaded(const std::string &libName);
+   void (*GetDynamicFunction(const std::string &funName, 
+                             const std::string &libraryName))();
+
    //----- ObjectType
    std::string GetObjectTypeString(Gmat::ObjectType type);  
    
@@ -377,6 +387,9 @@ private:
    ItrfCoefficientsFile *theItrfFile;
    LeapSecsFileReader *theLeapSecsFile;
    Gmat::RunState runState;
+
+   // Dynamic library data table
+   std::map<std::string, DynamicLibrary*>   userLibraries;
 };
 
 #endif // Moderator_hpp
