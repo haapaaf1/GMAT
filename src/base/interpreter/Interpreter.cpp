@@ -3226,8 +3226,8 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
             if (parsingDelayedBlock)
             {
                InterpreterException ex
-                  ("The field name \"" + toProp + "\" on object " + toOwner->GetName() +
-                   " is not permitted");
+                  ("The field name \"" + toProp + "\" on object \"" + toOwner->GetName() +
+                   "\" is not permitted");
                HandleErrorMessage(ex, lineNumber, currentLine, true);
                return false;
             }
