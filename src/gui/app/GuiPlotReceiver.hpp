@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                             PlotInterface
+//                             GuiPlotReceiver
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,11 +13,11 @@
 // Created: 2003/12/18
 //
 /**
- * Declares PlotInterface class.
+ * Declares GuiPlotReceiver class.
  */
 //------------------------------------------------------------------------------
-#ifndef PlotInterface_hpp
-#define PlotInterface_hpp
+#ifndef GuiPlotReceiver_hpp
+#define GuiPlotReceiver_hpp
 
 #include "gmatdefs.hpp"
 #include "Rvector.hpp"
@@ -25,15 +25,14 @@
 #include "CoordinateSystem.hpp"
 #include "PlotReceiver.hpp"
 
-class PlotInterface
+class GuiPlotReceiver : public PlotReceiver
 {
 
 public:
-   
-   static void SetPlotReceiver(PlotReceiver *pr);
+   static GuiPlotReceiver* Instance();
    
    // for OpenGL Plot
-   static bool CreateGlPlotWindow(const std::string &plotName,
+   virtual bool CreateGlPlotWindow(const std::string &plotName,
                                   const std::string &oldName,
                                   bool drawEcPlane, bool drawEqPlane,
                                   bool drawWireFrame, bool drawAxes, bool drawGrid,
@@ -41,18 +40,18 @@ public:
                                   bool usevpInfo, bool usepm,
                                   Integer numPtsToRedraw);
    
-   static void SetGlSolarSystem(const std::string &plotName, SolarSystem *ss);
+   virtual void SetGlSolarSystem(const std::string &plotName, SolarSystem *ss);
    
-   static void SetGlObject(const std::string &plotName,
+   virtual void SetGlObject(const std::string &plotName,
                            const StringArray &objNames,
                            const UnsignedIntArray &objOrbitColors,
                            const std::vector<SpacePoint*> &objArray);
    
-   static void SetGlCoordSystem(const std::string &plotName,
+   virtual void SetGlCoordSystem(const std::string &plotName,
                                 CoordinateSystem *viewCs,
                                 CoordinateSystem *viewUpCs);
    
-   static void SetGlViewOption(const std::string &plotName,
+   virtual void SetGlViewOption(const std::string &plotName,
                                SpacePoint *vpRefObj, SpacePoint *vpVecObj,
                                SpacePoint *vdObj, Real vsFactor,
                                const Rvector3 &vpRefVec, const Rvector3 &vpVec,
@@ -60,21 +59,21 @@ public:
                                bool usevpRefVec, bool usevpVec, bool usevdVec,
                                bool useFixedFov, Real fov);
    
-   static void SetGlDrawOrbitFlag(const std::string &plotName,
+   virtual void SetGlDrawOrbitFlag(const std::string &plotName,
                                   const std::vector<bool> &drawArray);
    
-   static void SetGlShowObjectFlag(const std::string &plotName,
+   virtual void SetGlShowObjectFlag(const std::string &plotName,
                                    const std::vector<bool> &showArray);
    
-   static void SetGlUpdateFrequency(const std::string &plotName, Integer updFreq);
+   virtual void SetGlUpdateFrequency(const std::string &plotName, Integer updFreq);
    
-   static bool IsThere(const std::string &plotName);
+   virtual bool IsThere(const std::string &plotName);
    
-   static bool DeleteGlPlot(const std::string &plotName);
-   static bool RefreshGlPlot(const std::string &plotName);
-   static bool SetGlEndOfRun(const std::string &plotName);
+   virtual bool DeleteGlPlot(const std::string &plotName);
+   virtual bool RefreshGlPlot(const std::string &plotName);
+   virtual bool SetGlEndOfRun(const std::string &plotName);
    
-   static bool UpdateGlPlot(const std::string &plotName,
+   virtual bool UpdateGlPlot(const std::string &plotName,
                             const std::string &oldName,
                             const StringArray &scNames, const Real &time,
                             const RealArray &posX, const RealArray &posY,
@@ -83,33 +82,33 @@ public:
                             const UnsignedIntArray &scColors, bool solving,
                             Integer solverOption, bool updateCanvas);
    
-   static bool TakeGlAction(const std::string &plotName,
+   virtual bool TakeGlAction(const std::string &plotName,
                             const std::string &action);
    
    // for XY plot
-   static bool CreateTsPlotWindow(const std::string &plotName,
+   virtual bool CreateTsPlotWindow(const std::string &plotName,
                                   const std::string &oldName,
                                   const std::string &plotTitle,
                                   const std::string &xAxisTitle,
                                   const std::string &yAxisTitle,
                                   bool drawGrid = false);
-   static bool DeleteTsPlot(const std::string &plotName);
-   static bool AddTsPlotCurve(const std::string &plotName, int curveIndex,
+   virtual bool DeleteTsPlot(const std::string &plotName);
+   virtual bool AddTsPlotCurve(const std::string &plotName, int curveIndex,
                               int yOffset, Real yMin, Real yMax,
                               const std::string &curveTitle,
                               UnsignedInt penColor);
-   static bool DeleteAllTsPlotCurves(const std::string &plotName,
+   virtual bool DeleteAllTsPlotCurves(const std::string &plotName,
                                      const std::string &oldName);
-   static bool DeleteTsPlotCurve(const std::string &plotName, int curveIndex);
-   static void ClearTsPlotData(const std::string &plotName);
-   static void TsPlotPenUp(const std::string &plotName);
-   static void TsPlotPenDown(const std::string &plotName);
+   virtual bool DeleteTsPlotCurve(const std::string &plotName, int curveIndex);
+   virtual void ClearTsPlotData(const std::string &plotName);
+   virtual void TsPlotPenUp(const std::string &plotName);
+   virtual void TsPlotPenDown(const std::string &plotName);
    
-   static void SetTsPlotTitle(const std::string &plotName,
+   virtual void SetTsPlotTitle(const std::string &plotName,
                               const std::string &plotTitle);
-   static void ShowTsPlotLegend(const std::string &plotName);
-   static bool RefreshTsPlot(const std::string &plotName);
-   static bool UpdateTsPlot(const std::string &plotName,
+   virtual void ShowTsPlotLegend(const std::string &plotName);
+   virtual bool RefreshTsPlot(const std::string &plotName);
+   virtual bool UpdateTsPlot(const std::string &plotName,
                             const std::string &oldName,
                             const Real &xval, const Rvector &yvals,
                             const std::string &plotTitle,
@@ -117,13 +116,13 @@ public:
                             const std::string &yAxisTitle,
                             bool updateCanvas, bool drawGrid);
    
-private:
 
-   PlotInterface();
-   ~PlotInterface();
    
-   static PlotReceiver *thePlotReceiver;
+private:
+   GuiPlotReceiver();
+   virtual ~GuiPlotReceiver();
 
+   static GuiPlotReceiver* theGuiPlotReceiver;
 };
 
 #endif

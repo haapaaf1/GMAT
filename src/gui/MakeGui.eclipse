@@ -1,3 +1,4 @@
+# $Id$
 # Eclipse makefile for the GMAT GUI
 # Initial Version - D. Conway - 2005/06/17
 # Modifed for Mac OS 10.3  W. Shoan - 2005.11.10
@@ -113,6 +114,7 @@ OBJECTS = \
     app/GmatNotebook.o \
     app/GmatServer.o \
     app/GmatTreeItemData.o \
+    app/GuiPlotReceiver.o \
     app/InteractiveMatlabDialog.o \
     app/MissionTreeItemData.o \
     app/RunScriptFolderDialog.o \
