@@ -86,6 +86,11 @@ ObjectInitializer::~ObjectInitializer()
 {
 }
 
+void ObjectInitializer::SetObjectMap(ObjectMap *objMap)
+{
+   LOS = objMap;
+}
+
 bool ObjectInitializer::InitializeObjects()
 {
    std::map<std::string, GmatBase *>::iterator omIter;
