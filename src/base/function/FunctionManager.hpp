@@ -33,6 +33,7 @@
 #include "SolarSystem.hpp"
 #include "PhysicalModel.hpp"
 #include "Validator.hpp"
+#include "ObjectInitializer.hpp"
 
 
 /**
@@ -65,9 +66,9 @@ public:
    virtual void         AddOutput(const std::string &withName, Integer atIndex = -999);
    virtual void         SetInputs(const StringArray &inputs);
    virtual void         SetOutputs(const StringArray &outputs);
+   virtual void         SetInternalCoordinateSystem(CoordinateSystem *internalCS);
    
    // Sequence methods
-   //virtual bool         Initialize();
    virtual bool         Execute();
    virtual Real         Evaluate();
    virtual Rmatrix      MatrixEvaluate();
@@ -129,12 +130,15 @@ protected:
    bool                 blankResult;
    /// Which type of output was saved last - real or rmatrix?
    std::string          outputType;
+   /// Object needed to initialize the FOS objects
+   ObjectInitializer    *objInit;
+   /// the internal coordinate system
+   CoordinateSystem     *intCS;
    
-   //virtual bool         BuildFunctionObjectStore();
-   //virtual bool         RefreshFunctionObjectStore();
-   GmatBase* FindObject(const std::string &name, bool arrayElementsAllowed = false);
-   GmatBase* CreateObject(const std::string &fromString);
-   void      SaveLastResult();
+   virtual bool         Initialize();
+   GmatBase*            FindObject(const std::string &name, bool arrayElementsAllowed = false);
+   GmatBase*            CreateObject(const std::string &fromString);
+   void                 SaveLastResult();
    
 };
 

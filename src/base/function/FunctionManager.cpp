@@ -34,6 +34,10 @@
 // static data
 //---------------------------------
 
+//---------------------------------
+// public methods
+//---------------------------------
+
 //------------------------------------------------------------------------------
 // FunctionManager()
 //------------------------------------------------------------------------------
@@ -50,7 +54,9 @@ FunctionManager::FunctionManager() :
    numVarsCreated    (0),
    realResult        (-999.99),
    blankResult       (false),
-   outputType        ("")
+   outputType        (""),
+   objInit           (NULL),
+   intCS             (NULL)
 {
 }
 
@@ -67,6 +73,7 @@ FunctionManager::~FunctionManager()
    functionObjectStore.clear();
    //inputWrappers.clear();
    outputWrappers.clear();
+   if (objInit) delete objInit;
 }
 
 
@@ -95,7 +102,9 @@ FunctionManager::FunctionManager(const FunctionManager &fm) :
    realResult          (fm.realResult),
    matResult           (fm.matResult),
    blankResult         (fm.blankResult),
-   outputType          (fm.outputType)
+   outputType          (fm.outputType),
+   objInit             (NULL),
+   intCS               (NULL)
 {
 }
 
@@ -131,6 +140,8 @@ FunctionManager& FunctionManager::operator=(const FunctionManager &fm)
       matResult           = fm.matResult;
       blankResult         = fm.blankResult;
       outputType          = fm.outputType;
+      objInit             = NULL;  
+      intCS               = fm.intCS;  // right?
    }
    
    return *this;
@@ -241,21 +252,28 @@ void FunctionManager::SetOutputs(const StringArray &outputs)
    outs = outputs;
 }
 
+void FunctionManager::SetInternalCoordinateSystem(CoordinateSystem *internalCS)
+{
+   intCS = internalCS;
+}
+
+
 // Sequence methods
-//virtual bool         Initialize();
+
 bool FunctionManager::Execute()
 {
    #ifdef DEBUG_FM_EXECUTE
       MessageInterface::ShowMessage("Entering FM::Execute for %s\n", fName.c_str());
    #endif
-   GmatBase *obj, *objFOS;
-   std::string objName;
    if (f == NULL)
    {
       std::string errMsg = "FunctionManager:: Unable to execute Function """;
       errMsg += fName + """ - pointer is NULL\n";
       throw FunctionException(errMsg);
    }
+   GmatBase *obj;
+   std::string objName;
+   
    // Initialize the Validator - I think I need to do this each time - or do I?
    validator.SetSolarSystem(solarSys);
    std::map<std::string, GmatBase *>::iterator omi;
@@ -282,81 +300,13 @@ bool FunctionManager::Execute()
          for (unsigned int qq = 0; qq < outs.size(); qq++)
             MessageInterface::ShowMessage("  outs[%d] = %s\n", qq, (outs.at(qq)).c_str());
    #endif
+      
    if (firstExecution)
    {
-      #ifdef DEBUG_FM_EXECUTE
-         MessageInterface::ShowMessage("in FM::Execute - firstExecution\n");
-      #endif
-      functionObjectStore.clear();
-      //inputWrappers.clear();
-      outputWrappers.clear();
-      numVarsCreated = 0;
-      // set up the FOS with the input objects
-      for (unsigned int ii=0; ii<ins.size(); ii++)
-      {
-         // if the input string does not refer to an object that can be located in the LOS or
-         // GOS, we must try to create an object for it, if it makes sense (e.g. numeric literal, 
-         // string literal, array element)
-         if (!(obj = FindObject(ins.at(ii))))
-         {
-            obj = CreateObject(ins.at(ii));
-            if (!obj)
-            {
-               std::string errMsg = "FunctionManager: Object not found or created for input string \"";
-               errMsg += ins.at(ii) + "\" for function \"";
-               errMsg += fName + "\"\n";
-               throw FunctionException(errMsg);
-            }
-         }
-         #ifdef DEBUG_FM_EXECUTE
-            MessageInterface::ShowMessage(
-                  "in FM::Execute: object \"%s\" of type \"%s\" found in LOS/GOS \n",
-                  (ins.at(ii)).c_str(), (obj->GetTypeName()).c_str());
-         #endif
-         // Clone the object, and insert it into the FOS
-         objFOS = obj->Clone();
-         objName = inNames.at(ii);
-         objFOS->SetName(objName);
-         functionObjectStore.insert(std::make_pair(objName,objFOS));
-         #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
-            MessageInterface::ShowMessage("Adding object %s to the FOS\n", objName.c_str());
-         #endif // -------------------------------------------------------------- end debug ---
-         // create an element wrapper for the input
-         ElementWrapper *inWrapper = validator.CreateElementWrapper(ins.at(ii), false, false);
-         inWrapper->SetRefObject(objFOS);
-         inputWrappers.insert(std::make_pair(objName, inWrapper));
-         #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
-            MessageInterface::ShowMessage("Created element wrapper of type %d for \"%s\"",
-                  inWrapper->GetWrapperType(), (ins.at(ii)).c_str());
-         #endif // -------------------------------------------------------------- end debug ---
-      }
-      // Outputs cannot be numeric or string literals or array elements, etc.
-      // They must be found in the object store; and we do not need to clone them
-      // Handle the case with one blank input (called from FunctionRunner) first
-      outputWrappers.clear();
-      if ((outs.size() == 1) && (outs.at(0) == ""))
-         blankResult = true;
-      else
-      {
-         for (unsigned int jj = 0; jj < outs.size(); jj++)
-         {
-            if (!(obj = FindObject(outs.at(jj))))
-            {
-               std::string errMsg = "Output \"" + outs.at(jj);
-               errMsg += " not found for function \"" + fName + "\"";
-               throw FunctionException(errMsg);
-            }
-            ElementWrapper *outWrapper = validator.CreateElementWrapper(outs.at(jj));
-            outWrapper->SetRefObject(obj); 
-            outputWrappers.push_back(outWrapper);
-            #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
-               MessageInterface::ShowMessage("Output wrapper set for %s\n", (outs.at(jj)).c_str());
-            #endif // -------------------------------------------------------------- end debug ---
-         }
-      }
+      Initialize();
       firstExecution = false;
    }
-   else // not the firstExecution
+   else
    {
       // Need to delete all items in the FOS that are not inputs (so that they can 
       // properly be created again in the FCS 
@@ -421,6 +371,7 @@ bool FunctionManager::Execute()
          (inputWrappers[objName])->SetRefObject(fosObj);  // is this necessary? I think so
       }
    }
+   
    // pass the FOS into the function
    f->SetObjectMap(&functionObjectStore);
    f->SetGlobalObjectMap(globalObjectStore);
@@ -438,6 +389,14 @@ bool FunctionManager::Execute()
       errMsg += f->GetStringParameter("FunctionName") + "\"\n";
       throw FunctionException(errMsg);
    }
+   // @todo - this probably needs to be moved to the right spot!!!! -- **************************
+   if (!objInit)  
+      objInit = new ObjectInitializer(solarSys, &functionObjectStore, globalObjectStore, intCS);
+   else
+      objInit->SetObjectMap(&functionObjectStore);
+   
+   //objInit->InitializeObjects();  // @todo - put this in the right place!!!!!
+   // -- ****************************************************************************************
    // Now, execute the function
    f->Execute();
    // Now get the output data
@@ -640,6 +599,100 @@ void FunctionManager::Finalize()
      // delete all contents of FOS here?
    if (f != NULL && f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
       f->Finalize();
+}
+
+//---------------------------------
+// protected methods
+//---------------------------------
+
+bool FunctionManager::Initialize()
+{
+   #ifdef DEBUG_FM_EXECUTE
+      MessageInterface::ShowMessage("Entering FM::Initialize for %s\n", fName.c_str());
+   #endif
+   if (!firstExecution) return true;
+   
+   GmatBase *obj, *objFOS;
+   std::string objName;
+   StringArray inNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
+
+   // Initialize the Validator - I think I need to do this each time - or do I?
+//   validator.SetSolarSystem(solarSys);
+//   std::map<std::string, GmatBase *>::iterator omi;
+//   for (omi = localObjectStore->begin(); omi != localObjectStore->end(); ++omi)
+//      combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
+//   for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
+//      combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
+   validator.SetObjectMap(&combinedObjectStore);
+
+   functionObjectStore.clear();
+   //inputWrappers.clear();
+   outputWrappers.clear();
+   numVarsCreated = 0;
+   // set up the FOS with the input objects
+   for (unsigned int ii=0; ii<ins.size(); ii++)
+   {
+      // if the input string does not refer to an object that can be located in the LOS or
+      // GOS, we must try to create an object for it, if it makes sense (e.g. numeric literal, 
+      // string literal, array element)
+      if (!(obj = FindObject(ins.at(ii))))
+      {
+         obj = CreateObject(ins.at(ii));
+         if (!obj)
+         {
+            std::string errMsg = "FunctionManager: Object not found or created for input string \"";
+            errMsg += ins.at(ii) + "\" for function \"";
+            errMsg += fName + "\"\n";
+            throw FunctionException(errMsg);
+         }
+      }
+      #ifdef DEBUG_FM_EXECUTE
+         MessageInterface::ShowMessage(
+               "in FM::Execute: object \"%s\" of type \"%s\" found in LOS/GOS \n",
+               (ins.at(ii)).c_str(), (obj->GetTypeName()).c_str());
+      #endif
+      // Clone the object, and insert it into the FOS
+      objFOS = obj->Clone();
+      objName = inNames.at(ii);
+      objFOS->SetName(objName);
+      functionObjectStore.insert(std::make_pair(objName,objFOS));
+      #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
+         MessageInterface::ShowMessage("Adding object %s to the FOS\n", objName.c_str());
+      #endif // -------------------------------------------------------------- end debug ---
+      // create an element wrapper for the input
+      ElementWrapper *inWrapper = validator.CreateElementWrapper(ins.at(ii), false, false);
+      inWrapper->SetRefObject(objFOS);
+      inputWrappers.insert(std::make_pair(objName, inWrapper));
+      #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
+         MessageInterface::ShowMessage("Created element wrapper of type %d for \"%s\"",
+               inWrapper->GetWrapperType(), (ins.at(ii)).c_str());
+      #endif // -------------------------------------------------------------- end debug ---
+   }
+   // Outputs cannot be numeric or string literals or array elements, etc.
+   // They must be found in the object store; and we do not need to clone them
+   // Handle the case with one blank input (called from FunctionRunner) first
+   outputWrappers.clear();
+   if ((outs.size() == 1) && (outs.at(0) == ""))
+      blankResult = true;
+   else
+   {
+      for (unsigned int jj = 0; jj < outs.size(); jj++)
+      {
+         if (!(obj = FindObject(outs.at(jj))))
+         {
+            std::string errMsg = "Output \"" + outs.at(jj);
+            errMsg += " not found for function \"" + fName + "\"";
+            throw FunctionException(errMsg);
+         }
+         ElementWrapper *outWrapper = validator.CreateElementWrapper(outs.at(jj));
+         outWrapper->SetRefObject(obj); 
+         outputWrappers.push_back(outWrapper);
+         #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
+            MessageInterface::ShowMessage("Output wrapper set for %s\n", (outs.at(jj)).c_str());
+         #endif // -------------------------------------------------------------- end debug ---
+      }
+   }
+   return true;
 }
 
 
