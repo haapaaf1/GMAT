@@ -1380,6 +1380,7 @@ bool CallFunction::SetInternalCoordSystem(CoordinateSystem *cs)
    /// @todo Check initialization and cloning for the internal CoordinateSystem.
    //internalCoordSys = (CoordinateSystem*)(cs->Clone());
    internalCoordSys = cs;
+   fm.SetInternalCoordinateSystem(internalCoordSys);
    return true;
 }
 
