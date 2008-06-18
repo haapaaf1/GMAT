@@ -23,7 +23,7 @@
 #include "gmatdefs.hpp"
 // executive
 #include "Sandbox.hpp"
-#include "GuiInterpreter.hpp"
+// #include "GuiInterpreter.hpp"
 #include "ScriptInterpreter.hpp"
 #include "FactoryManager.hpp"
 #include "ConfigManager.hpp"
@@ -87,9 +87,9 @@ public:
    std::string GetObjectTypeString(Gmat::ObjectType type);  
    
    //----- interpreter
-   static GuiInterpreter* GetGuiInterpreter();
+   static ScriptInterpreter* GetUiInterpreter();
    static ScriptInterpreter* GetScriptInterpreter();
-   static void SetGuiInterpreter(GuiInterpreter *guiInterp);
+   static void SetUiInterpreter(ScriptInterpreter *uiInterp);
    static void SetScriptInterpreter(ScriptInterpreter *scriptInterp);
    
    //----- object finding
@@ -302,6 +302,9 @@ public:
    std::string GetScript(Gmat::WriteMode mode = Gmat::SCRIPTING);
    Integer RunScript(Integer sandboxNum = 1);
    
+   // MATLAB Server Startup Interface
+   bool StartServer();
+   
 private:
 
    // initialization
@@ -371,7 +374,7 @@ private:
    ObjectMap *objectMapInUse;
    
    static Moderator *instance;
-   static GuiInterpreter *theGuiInterpreter;
+   static ScriptInterpreter *theUiInterpreter;
    static ScriptInterpreter *theScriptInterpreter;
    ConfigManager *theConfigManager;
    FactoryManager *theFactoryManager;

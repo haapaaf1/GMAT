@@ -1840,6 +1840,26 @@ bool GmatCommand::HasAFunction()
 
 
 //------------------------------------------------------------------------------
+// bool NeedsServerStartup()
+//------------------------------------------------------------------------------
+/**
+ * Indicates in the engine needs to start an external process to run the command
+ * 
+ * The Sandbox calls this method and tells the Moderator to start the MATLAB
+ * engine if a true value is returned.  Note that the method name is not MATLAB 
+ * specific; future builds may provide additional interfaces so that specific
+ * servers can be started -- for example, Octave -- rather than just assuming 
+ * that MATLAB is the engine to start.
+ * 
+ * @return true if a server needs to start, false otherwise.
+ */
+//------------------------------------------------------------------------------
+bool GmatCommand::NeedsServerStartup()
+{
+   return false;
+}
+
+//------------------------------------------------------------------------------
 // void ShowCommand(const std::string &prefix = "",
 //                  const std::string &title1, GmatCommand *cmd1,
 //                  const std::string &title2 = "", GmatCommand *cmd2 = NULL)

@@ -31,7 +31,12 @@ else
 TARGETS = $(WXTARGET)
 CLEANTARGET = archclean
 endif
+
+ifeq ($(SHARED_BASE), 0)
 LIBS = ../base/lib/libGmatGui.a
+else
+LIBS = ../base/lib/libGmatGui.dll
+endif
 
 all: prep $(TARGETS) 
 
@@ -110,6 +115,7 @@ OBJECTS = \
     app/GmatConnection.o \
     app/GmatMainFrame.o \
     app/GmatMenuBar.o \
+    app/GuiInterpreter.o \
     app/GuiMessageReceiver.o \
     app/GmatNotebook.o \
     app/GmatServer.o \
@@ -209,9 +215,20 @@ OBJECTS = \
     view/ViewTextDialog.o \
     view/ViewTextFrame.o 
 
+ifeq ($(SHARED_BASE), 0)
+
 $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
 	cp -f $(WXTARGET) ../../bin/.
+
+else
+
+$(WXTARGET) : $(OBJECTS) $(LIBS)
+	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	cp -f $(WXTARGET) ../../bin/.
+	cp -f $(LIBS) ../../bin/.
+
+endif
 
 macrez:
 	echo "linking Carbon and wx resource files ......."

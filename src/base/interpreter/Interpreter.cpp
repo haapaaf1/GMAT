@@ -326,6 +326,76 @@ void Interpreter::BuildCreatableObjectMaps()
    
 }
 
+//------------------------------------------------------------------------------
+// void SetInputFocus()
+//------------------------------------------------------------------------------
+/*
+ * Some GMAT UiInterpreters need to be able to obtain focus for message 
+ * processing.  This method is overridden to perform run complete actions for 
+ * those interpreters.
+ */
+//------------------------------------------------------------------------------
+void Interpreter::SetInputFocus()
+{}
+
+//------------------------------------------------------------------------------
+// void NotifyRunCompleted()
+//------------------------------------------------------------------------------
+/*
+ * Some GMAT UiInterpreters need to know when a run is finished.  This method is
+ * overridden to perform run complete actions for those interpreters.
+ */
+//------------------------------------------------------------------------------
+void Interpreter::NotifyRunCompleted()
+{} 
+
+//------------------------------------------------------------------------------
+// void NotifyRunCompleted(Integer type)
+//------------------------------------------------------------------------------
+/*
+ * Some GMAT UiInterpreters need to update their view into the configured 
+ * objects.  This method is overridden to perform those updates.  The parameter
+ * maps to the following values:
+ * 
+ *  1   Configured objects
+ *  2   Commands
+ *  3   Commands and configured objects
+ *  4   Outputs
+ *  5   Outputs and configured objects
+ *  6   Commands and Outputs
+ *  7   Everything (Commands, outputs, configured objects)
+ * 
+ * The default value is 7. 
+ */
+//------------------------------------------------------------------------------
+void Interpreter::UpdateView(Integer type)
+{}
+
+
+//------------------------------------------------------------------------------
+// void SetInputFocus()
+//------------------------------------------------------------------------------
+/*
+ * Some GMAT UiInterpreters need to take actions when a project is closed.  This
+ * method tells them to take those actions.
+ */
+//------------------------------------------------------------------------------
+void Interpreter::CloseCurrentProject()
+{}
+
+//------------------------------------------------------------------------------
+// void StartServer()
+//------------------------------------------------------------------------------
+/*
+ * Some GMAT Interpreters can start external servers -- for example, the MATLAB
+ * server.  This method is overridden to perform that startup.
+ */
+//------------------------------------------------------------------------------
+void Interpreter::StartServer()
+{
+   throw InterpreterException(
+         "This Interpreter cannot start the external server");
+}
 
 //------------------------------------------------------------------------------
 // void RegisterAliases()

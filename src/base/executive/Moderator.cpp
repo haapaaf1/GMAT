@@ -84,7 +84,7 @@
 // static data
 //---------------------------------
 Moderator* Moderator::instance = NULL;
-GuiInterpreter* Moderator::theGuiInterpreter = NULL;
+ScriptInterpreter* Moderator::theUiInterpreter = NULL;
 ScriptInterpreter* Moderator::theScriptInterpreter = NULL;
 
 
@@ -171,12 +171,13 @@ bool Moderator::Initialize(bool fromGui)
       
       // Create interpreters
       
-      theGuiInterpreter = GuiInterpreter::Instance();
+      // GuiInterpreter has been moved into the GUI code
+//      theGuiInterpreter = GuiInterpreter::Instance();
       
-      #if DEBUG_INITIALIZE
-      MessageInterface::ShowMessage
-         (".....created  (%p)theGuiInterpreter\n", theGuiInterpreter);
-      #endif
+//      #if DEBUG_INITIALIZE
+//      MessageInterface::ShowMessage
+//         (".....created  (%p)theGuiInterpreter\n", theGuiInterpreter);
+//      #endif
       
       theScriptInterpreter = ScriptInterpreter::Instance();      
       
@@ -523,7 +524,8 @@ void Moderator::LoadAPlugin(std::string pluginName)
                         "Factory Manager!\n", i, pluginName.c_str());
                   #endif
                   
-                  theGuiInterpreter->BuildCreatableObjectMaps();
+                  if (theUiInterpreter != NULL)
+                     theUiInterpreter->BuildCreatableObjectMaps();
                   theScriptInterpreter->BuildCreatableObjectMaps();
                }
             } 
@@ -663,9 +665,9 @@ std::string Moderator::GetObjectTypeString(Gmat::ObjectType type)
  * @return GuiInterpreter pointer
  */
 //------------------------------------------------------------------------------
-GuiInterpreter* Moderator::GetGuiInterpreter()
+ScriptInterpreter* Moderator::GetUiInterpreter()
 {
-   return theGuiInterpreter;
+   return theUiInterpreter;
 }
 
 //------------------------------------------------------------------------------
@@ -690,11 +692,12 @@ ScriptInterpreter* Moderator::GetScriptInterpreter()
  * Sets GuiInterpreter pointer.
  */
 //------------------------------------------------------------------------------
-void Moderator::SetGuiInterpreter(GuiInterpreter *guiInterp)
+void Moderator::SetUiInterpreter(ScriptInterpreter *uiInterp)
 {
    //loj: allow setting only for the first time?
-   if (theGuiInterpreter == NULL)
-      theGuiInterpreter = guiInterp;
+//   if (theUiInterpreter == NULL)
+   theUiInterpreter = uiInterp;
+   theUiInterpreter->BuildCreatableObjectMaps();
 }
 
 
@@ -3026,8 +3029,11 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    
    theScriptInterpreter->SetObjectMap(objectMapInUse, true);
    theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-   theGuiInterpreter->SetObjectMap(objectMapInUse, true);   
-   theGuiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+   if (theUiInterpreter != NULL)
+   {
+      theUiInterpreter->SetObjectMap(objectMapInUse, true);   
+      theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+   }
    
    GmatCommand *cmd = NULL;
    cmd = theScriptInterpreter->InterpretGmatFunction(funct);
@@ -3990,7 +3996,8 @@ Integer Moderator::RunMission(Integer sandboxNum)
    runState = Gmat::IDLE;
    thePublisher->SetRunState(runState);
    thePublisher->NotifyEndOfRun();
-   theGuiInterpreter->NotifyRunCompleted();
+   if (theUiInterpreter != NULL)
+      theUiInterpreter->NotifyRunCompleted();
    
    #if DEBUG_RUN > 1
    MessageInterface::ShowMessage("===> status=%d\n", status);
@@ -4090,7 +4097,8 @@ Gmat::RunState Moderator::GetUserInterrupt()
    #endif
    
    // give MainFrame input focus
-   theGuiInterpreter->SetInputFocus();
+   if (theUiInterpreter != NULL)
+      theUiInterpreter->SetInputFocus();
    return runState;
 }
 
@@ -4171,9 +4179,12 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
       // Set solar system in use and object map (loj: 2008.03.31)
       theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
       theScriptInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
-      theGuiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theGuiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
-      
+      if (theUiInterpreter != NULL)
+      {
+         theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+         theUiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+      }
+   
       status = theScriptInterpreter->Interpret(filename);
       
       if (readBack)
@@ -4298,8 +4309,11 @@ bool Moderator::InterpretScript(std::istringstream *ss, bool clearObjs)
       
       theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
       theScriptInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
-      theGuiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theGuiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+      if (theUiInterpreter != NULL)
+      {
+         theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+         theUiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+      }
       
       // Set istream and Interpret
       theScriptInterpreter->SetInStream(ss);
@@ -4430,6 +4444,23 @@ Integer Moderator::RunScript(Integer sandboxNum)
 {
    MessageInterface::ShowMessage("Moderator::RunScript() entered\n");
    return RunMission(sandboxNum);
+}
+
+//------------------------------------------------------------------------------
+// bool StartServer()
+//------------------------------------------------------------------------------
+/**
+ * Interface used to tell an Interpreter to start the MATLAB server.
+ */
+//------------------------------------------------------------------------------
+bool Moderator::StartServer()
+{
+   if (theUiInterpreter != NULL)
+   {
+      theUiInterpreter->StartServer();
+      return true;
+   }
+   return false;
 }
 
 //---------------------------------
@@ -4939,8 +4970,11 @@ void Moderator::CreateDefaultMission()
       // Set solar system in use and object map (loj: 2008.03.31)
       theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
       theScriptInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
-      theGuiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theGuiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+      if (theUiInterpreter != NULL)
+      {
+         theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+         theUiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+      }
       
       isRunReady = true;
    }

@@ -117,6 +117,12 @@ public:
    
    void BuildCreatableObjectMaps();
    
+   virtual void SetInputFocus();
+   virtual void NotifyRunCompleted();
+   virtual void UpdateView(Integer type = 7);
+   virtual void CloseCurrentProject();
+   virtual void StartServer();
+   
 protected:
    
    Moderator    *theModerator;

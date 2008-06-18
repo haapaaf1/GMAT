@@ -180,6 +180,7 @@ public:
    bool                HasConfigurationChanged();
    virtual void        ConfigurationChanged(bool tf, bool setAll = false);
    virtual bool        HasAFunction();
+   virtual bool        NeedsServerStartup();
    
 protected:
    enum

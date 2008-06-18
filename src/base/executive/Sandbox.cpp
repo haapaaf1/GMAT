@@ -610,6 +610,12 @@ bool Sandbox::Initialize()
       rv = current->Initialize();
       if (!rv)
          return false;
+      
+      // Check to see if the command needs a server startup
+      if (current->NeedsServerStartup())
+         if (moderator->StartServer() == false)
+            throw SandboxException("Unable to start the server needed by the " +
+                     (current->GetTypeName()) + " command");
 
       current = current->GetNext();
    }

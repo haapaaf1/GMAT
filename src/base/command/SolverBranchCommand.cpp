@@ -726,6 +726,32 @@ const StringArray& SolverBranchCommand::GetStringArrayParameter(const std::strin
 }
 
 
+//------------------------------------------------------------------------------
+// bool NeedsServerStartup()
+//------------------------------------------------------------------------------
+/**
+ * Indicates in the engine needs to start an external process to run the command
+ * 
+ * The Sandbox calls this method and tells the Moderator to start the MATLAB
+ * engine if a true value is returned.  Note that the method name is not MATLAB 
+ * specific; future builds may provide additional interfaces so that specific
+ * servers can be started -- for example, Octave -- rather than just assuming 
+ * that MATLAB is the engine to start.
+ * 
+ * @return true if a solver is an external solver, false otherwise.
+ */
+//------------------------------------------------------------------------------
+bool SolverBranchCommand::NeedsServerStartup()
+{
+   if (theSolver == NULL)
+      throw CommandException("The Solver pointer is not set in command\n" +
+               GetGeneratingString());
+   
+   if (theSolver->IsSolverInternal())
+      return false;
+   
+   return true;
+}
 
 //------------------------------------------------------------------------------
 // void ApplySolution()

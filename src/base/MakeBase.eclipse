@@ -8,22 +8,39 @@
 
 include ../BuildEnv.mk
 
+ifeq ($(SHARED_BASE), 0)
+
 WXTARGET = lib/libGmatGui.a
+
+else
+
+ifeq ($(LINUX_MAC), 1)
+ifdef MAC_SPECIFIC
+SHARED_EXTENSION = .dylib
+else
+SHARED_EXTENSION = .so
+endif
+else
+SHARED_EXTENSION = .dll
+endif
+
+WXTARGET = lib/libGmatGui$(SHARED_EXTENSION)
+
+endif
 
 CONSOLETARGET = lib/libGmatConsole.a
 
 ifeq ($(CONSOLE_APP),1)
 TARGET = $(CONSOLETARGET)
 # Console (no wx code) versions of these objects
-BRIDGEOBJECTS = interpreter/GuiInterpreterConsole.o
+BRIDGEOBJECTS = 
 else
 TARGET = $(WXTARGET)
 # GUI versions of these objects
 # Note: ExternalOptimizer also uses some wx code, so it is included here
 
 ifeq ($(USE_MATLAB),1)
-BRIDGEOBJECTS = interpreter/GuiInterpreter.o \
-                solver/ExternalOptimizer.o \
+BRIDGEOBJECTS = solver/ExternalOptimizer.o \
                 solver/FminconOptimizer.o       
 else
 BRIDGEOBJECTS = interpreter/GuiInterpreter.o
@@ -441,11 +458,15 @@ FORTRAN_OBJECTS = solarsys/msise90_sub.o
     # parameter/EquinoctialParameters.o \
     # stopcond/BaseStopCondition.o \
 
-
+ifeq ($(SHARED_BASE), 0)
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
 	mkdir -p lib
 	ar rs $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
 	ranlib $(TARGET)
+else
+$(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
+	$(CPP) -o $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(SHARED_LIB_FLAGS)
+endif	
 
 $(OBJECTS): %.o: %.cpp %.hpp
 	$(CPP) $(CPPFLAGS) $(HEADERS) -c -o $@ $<

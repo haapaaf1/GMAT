@@ -36,6 +36,7 @@
 #include "PlotInterface.hpp"
 #include "GuiMessageReceiver.hpp"
 #include "GuiPlotReceiver.hpp"
+#include "GuiInterpreter.hpp"
 
 
 //#define DEBUG_GMATAPP
@@ -87,8 +88,12 @@ bool GmatApp::OnInit()
       // initialize the moderator
       if (theModerator->Initialize(true))
       {
+         GuiInterpreter *guiInterp = GuiInterpreter::Instance();
+         theModerator->SetUiInterpreter(guiInterp);
+
          // get GuiInterpreter
-         gmatAppData->SetGuiInterpreter(theModerator->GetGuiInterpreter());
+         gmatAppData->SetGuiInterpreter(
+               (GuiInterpreter *)theModerator->GetUiInterpreter());
          
          // set default size
          wxSize size = wxSize(800, 600);

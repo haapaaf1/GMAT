@@ -57,6 +57,7 @@ public:
    virtual const StringArray& 
                        GetStringArrayParameter(const std::string &label) const;
 
+   virtual bool        NeedsServerStartup();
    
 protected:
    // Mode definitions for the state machine overrrides
