@@ -134,6 +134,10 @@ protected:
    ObjectInitializer    *objInit;
    /// the internal coordinate system
    CoordinateSystem     *intCS;
+   /// pointer to the function's function control sequence
+   GmatBase             *fcs;
+   /// current command being executed
+   GmatBase             *current;
    
    virtual bool         Initialize();
    GmatBase*            FindObject(const std::string &name, bool arrayElementsAllowed = false);

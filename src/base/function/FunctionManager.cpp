@@ -56,7 +56,9 @@ FunctionManager::FunctionManager() :
    blankResult       (false),
    outputType        (""),
    objInit           (NULL),
-   intCS             (NULL)
+   intCS             (NULL), 
+   fcs               (NULL),
+   current           (NULL)
 {
 }
 
@@ -104,7 +106,9 @@ FunctionManager::FunctionManager(const FunctionManager &fm) :
    blankResult         (fm.blankResult),
    outputType          (fm.outputType),
    objInit             (NULL),
-   intCS               (NULL)
+   intCS               (NULL), 
+   fcs                 (NULL),
+   current             (NULL)
 {
 }
 
@@ -142,6 +146,8 @@ FunctionManager& FunctionManager::operator=(const FunctionManager &fm)
       outputType          = fm.outputType;
       objInit             = NULL;  
       intCS               = fm.intCS;  // right?
+      fcs                 = NULL;
+      current             = NULL;
    }
    
    return *this;
@@ -389,7 +395,8 @@ bool FunctionManager::Execute()
       errMsg += f->GetStringParameter("FunctionName") + "\"\n";
       throw FunctionException(errMsg);
    }
-   // @todo - this probably needs to be moved to the right spot!!!! -- **************************
+   // -- ****************************************************************************************
+   // @todo - this probably needs to be moved to the right spot!!!! 
    if (!objInit)  
       objInit = new ObjectInitializer(solarSys, &functionObjectStore, globalObjectStore, intCS);
    else
@@ -399,6 +406,31 @@ bool FunctionManager::Execute()
    // -- ****************************************************************************************
    // Now, execute the function
    f->Execute();
+   // -- ****************************************************************************************
+   // @todo - here is the placeholder for calling the sequence from the FunctionManager ...
+//   bool isFunction = false;
+//   current = fcs;
+//   while (current)
+//   {
+//      isFunction = current->HasAFunction();
+//      #ifdef DEBUG_FM_EXECUTE
+//            MessageInterface::ShowMessage("In FunctionManager execute loop and next command (%s) %s a function call.\n",
+//                  (current->GetTypeName()).c_str(), isFunction? "HAS" : "DOES NOT HAVE");
+//      #endif
+//      if (isFunction)
+//      {
+//         ; // @todo - call stack stuff or function-cloning stuff goes here
+//      }
+//      if (!(current->Execute()))
+//         return false;
+//      if (isFunction)
+//      {
+//         ; // @todo - call stack stuff or function-cloning stuff goes here
+//      }
+//      current = current->GetNext();
+//   }
+   // @todo - need to figure out how to get output data if calling the sequence from here ...
+   // -- ****************************************************************************************
    // Now get the output data
    Real rval = -99999.999;
    Integer ival = -99999;
@@ -692,6 +724,8 @@ bool FunctionManager::Initialize()
          #endif // -------------------------------------------------------------- end debug ---
       }
    }
+   // get a pointer to the function's function control sequence
+   fcs = f->GetFunctionControlSequence();
    return true;
 }
 
