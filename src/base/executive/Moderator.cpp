@@ -74,7 +74,7 @@
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_PARAMETER_REF_OBJ 1
 //#define DEBUG_FIND_OBJECT 2
-
+// #define DEBUG_PLUGIN_REGISTRATION
 
 //#define __CREATE_DEFAULT_BC__
 //#define __SHOW_FINAL_STATE__
@@ -180,6 +180,8 @@ bool Moderator::Initialize(bool fromGui)
 //      #endif
       
       theScriptInterpreter = ScriptInterpreter::Instance();      
+      
+      LoadPlugins();
       
       #if DEBUG_INITIALIZE
       MessageInterface::ShowMessage
@@ -492,10 +494,11 @@ void Moderator::LoadPlugins()
 void Moderator::LoadAPlugin(std::string pluginName)
 {
    DynamicLibrary *theLib = LoadLibrary(pluginName);
-   
+
    if (theLib != NULL)
    {
       Integer fc = theLib->GetFactoryCount();
+
       if (fc > 0)
       {
          // Do the GMAT factory dance
