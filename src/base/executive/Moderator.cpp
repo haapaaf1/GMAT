@@ -697,8 +697,6 @@ ScriptInterpreter* Moderator::GetScriptInterpreter()
 //------------------------------------------------------------------------------
 void Moderator::SetUiInterpreter(ScriptInterpreter *uiInterp)
 {
-   //loj: allow setting only for the first time?
-//   if (theUiInterpreter == NULL)
    theUiInterpreter = uiInterp;
    theUiInterpreter->BuildCreatableObjectMaps();
 }
@@ -718,6 +716,21 @@ void Moderator::SetScriptInterpreter(ScriptInterpreter *scriptInterp)
       theScriptInterpreter = scriptInterp;
 }
 
+
+//------------------------------------------------------------------------------
+// void SetInterpreterMapAndSS(Interpreter *interp)
+//------------------------------------------------------------------------------
+/**
+ * Sets Interpreter ObjectMap and SolarSystem to current versions in use.
+ * 
+ * @param interp The Interpreter that is setup. 
+ */
+//------------------------------------------------------------------------------
+void Moderator::SetInterpreterMapAndSS(Interpreter *interp)
+{
+   interp->SetObjectMap(objectMapInUse, true);
+   interp->SetSolarSystemInUse(theSolarSystemInUse);
+}
 
 //----- object finding
 //------------------------------------------------------------------------------

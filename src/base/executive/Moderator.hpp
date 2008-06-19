@@ -92,6 +92,8 @@ public:
    static void SetUiInterpreter(ScriptInterpreter *uiInterp);
    static void SetScriptInterpreter(ScriptInterpreter *scriptInterp);
    
+   void SetInterpreterMapAndSS(Interpreter *interp);
+   
    //----- object finding
    void SetObjectMap(ObjectMap *objMap);
    GmatBase* FindObject(const std::string &name);

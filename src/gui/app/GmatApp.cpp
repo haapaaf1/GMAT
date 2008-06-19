@@ -90,6 +90,8 @@ bool GmatApp::OnInit()
       {
          GuiInterpreter *guiInterp = GuiInterpreter::Instance();
          theModerator->SetUiInterpreter(guiInterp);
+         theModerator->SetInterpreterMapAndSS(guiInterp);
+         guiInterp->BuildCreatableObjectMaps();
 
          // get GuiInterpreter
          gmatAppData->SetGuiInterpreter(
