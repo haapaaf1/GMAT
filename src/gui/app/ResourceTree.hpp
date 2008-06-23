@@ -129,6 +129,7 @@ private:
    void OnAddOpenGlPlot(wxCommandEvent &event);
    void OnAddDiffCorr(wxCommandEvent &event);
    void OnAddSqp(wxCommandEvent &event);
+   void OnAddSolver(wxCommandEvent &event);
    void OnAddVariable(wxCommandEvent &event);
    void OnAddArray(wxCommandEvent &event);
    void OnAddString(wxCommandEvent &event);

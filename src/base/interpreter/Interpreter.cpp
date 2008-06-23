@@ -326,6 +326,121 @@ void Interpreter::BuildCreatableObjectMaps()
    
 }
 
+
+//------------------------------------------------------------------------------
+// StringArray GetCreatableList(Gmat::ObjectType type, Integer subType)
+//------------------------------------------------------------------------------
+/**
+ * Returns the list of objects of a given type that can be built.
+ * 
+ * This method returns the list of object types supported by the current Factory 
+ * system.  A future build will allow specification of a subtype -- for example,
+ * for solvers, subtypes could be targeters, optimizers, iterators, and 
+ * odSolvers.  The subType parameter is included to support this feature when it
+ * becomes available.
+ * 
+ * @param type The Gmat::ObjectType requested.
+ * @param subType The subtype.
+ * 
+ * @return The list of creatable objects.
+ * 
+ * @note The current implementation only supports the types in the Interpreter's
+ *       lists of objects.  A future implementation should call 
+ *       Moderator::GetListOfFactoryItems() instead. 
+ */
+//------------------------------------------------------------------------------
+StringArray Interpreter::GetCreatableList(Gmat::ObjectType type, 
+      Integer subType)
+{
+   StringArray clist;
+   
+   switch (type)
+   {
+      case Gmat::ATMOSPHERE:
+         clist = atmosphereList;
+         break;
+         
+      case Gmat::ATTITUDE:
+         clist = attitudeList;
+         break;
+         
+      case Gmat::AXIS_SYSTEM:
+         clist = axisSystemList;
+         break;
+         
+      case Gmat::BURN:
+         clist = burnList;
+         break;
+         
+      case Gmat::CALCULATED_POINT:
+         clist = calculatedPointList;
+         break;
+         
+      case Gmat::COMMAND:
+         clist = commandList;
+         break;
+         
+      case Gmat::FUNCTION:
+         clist = functionList;
+         break;
+         
+      case Gmat::HARDWARE:
+         clist = hardwareList;
+         break;
+         
+      case Gmat::PARAMETER:
+         clist = parameterList;
+         break;
+         
+      case Gmat::PROPAGATOR:
+         clist = propagatorList;
+         break;
+         
+      case Gmat::PHYSICAL_MODEL:
+         clist = physicalModelList;
+         break;
+         
+      case Gmat::SOLVER:
+         clist = solverList;
+         break;
+         
+      case Gmat::STOP_CONDITION:
+         clist = stopcondList;
+         break;
+         
+      case Gmat::SUBSCRIBER:
+         clist = subscriberList;
+         break;
+         
+      // These are all intentional fall-throughs:
+      case Gmat::SPACECRAFT:
+      case Gmat::FORMATION:
+      case Gmat::SPACEOBJECT:
+      case Gmat::GROUND_STATION:
+      case Gmat::IMPULSIVE_BURN:
+      case Gmat::FINITE_BURN:
+      case Gmat::FORCE_MODEL:
+      case Gmat::TRANSIENT_FORCE:
+      case Gmat::INTERPOLATOR:
+      case Gmat::SOLAR_SYSTEM:
+      case Gmat::SPACE_POINT:
+      case Gmat::CELESTIAL_BODY:
+      case Gmat::LIBRATION_POINT:
+      case Gmat::BARYCENTER:
+      case Gmat::PROP_SETUP:
+      case Gmat::FUEL_TANK:
+      case Gmat::THRUSTER:
+      case Gmat::COORDINATE_SYSTEM:
+      case Gmat::MATH_NODE:
+      case Gmat::MATH_TREE:
+      case Gmat::UNKNOWN_OBJECT:
+      default:
+         break;
+   }
+   
+   return clist;
+}
+
 //------------------------------------------------------------------------------
 // void SetInputFocus()
 //------------------------------------------------------------------------------

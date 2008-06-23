@@ -203,6 +203,7 @@ OBJECTS = \
     solver/SQPSetupPanel.o \
     solver/SolverCreatePanel.o \
     solver/SolverGoalsPanel.o \
+    solver/SolverSetupPanel.o \
     solver/SolverVariablesPanel.o \
     spacecraft/AttitudePanel.o \
     spacecraft/BallisticsMassPanel.o \
@@ -219,14 +220,18 @@ ifeq ($(SHARED_BASE), 0)
 
 $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	cp -f $(WXTARGET) ../../bin/.
+	mv -f $(WXTARGET)* ../../bin/.
+
+#	cp -f $(WXTARGET) ../../bin/.
 
 else
 
 $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	cp -f $(WXTARGET) ../../bin/.
+	mv -f $(WXTARGET)* ../../bin/.
 	cp -f $(LIBS) ../../bin/.
+
+#	cp -f $(WXTARGET) ../../bin/.
 
 endif
 

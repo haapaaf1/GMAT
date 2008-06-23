@@ -78,6 +78,9 @@
 //#define DEBUG_RUN_SCRIPT_FOLDER 1
 //#define DEBUG_RESOURCE_TREE_UPDATE 1
 
+#define SOLVER_BEGIN 150
+#define SOLVER_END 200
+
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
 //------------------------------------------------------------------------------
@@ -103,6 +106,9 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_BODY, ResourceTree::OnAddBody)
    EVT_MENU(POPUP_ADD_DIFF_CORR, ResourceTree::OnAddDiffCorr)
    EVT_MENU(POPUP_ADD_SQP, ResourceTree::OnAddSqp)
+   EVT_MENU_RANGE(POPUP_ADD_SOLVER + SOLVER_BEGIN, \
+         POPUP_ADD_SOLVER + SOLVER_END, ResourceTree::OnAddSolver)
+//   EVT_MENU(POPUP_ADD_SOLVER, ResourceTree::OnAddSolver)
    EVT_MENU(POPUP_ADD_REPORT_FILE, ResourceTree::OnAddReportFile)
    EVT_MENU(POPUP_ADD_XY_PLOT, ResourceTree::OnAddXyPlot)
    EVT_MENU(POPUP_ADD_OPENGL_PLOT, ResourceTree::OnAddOpenGlPlot)
@@ -439,6 +445,7 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
       break;
    case GmatTree::DIFF_CORR:
    case GmatTree::SQP:
+   case GmatTree::SOLVER:
       theGuiManager->UpdateSolver();
       break;
    case GmatTree::BARYCENTER:
@@ -937,6 +944,12 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
       {
          AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::SQP));
+      }
+      else if (solver->IsOfType("Optimizer"))
+      {
+      	// Set generic optimizer stuff here!
+         AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+                    new GmatTreeItemData(wxT(objName), GmatTree::SOLVER));
       }
    };
       
@@ -1461,6 +1474,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
         (itemType == GmatTree::OPENGL_PLOT) ||
         (itemType == GmatTree::DIFF_CORR) ||
         (itemType == GmatTree::SQP) ||
+        (itemType == GmatTree::SOLVER) ||
         (itemType == GmatTree::BARYCENTER) ||
         (itemType == GmatTree::VARIABLE) ||
         (itemType == GmatTree::LIBRATION_POINT) )
@@ -2003,6 +2017,79 @@ void ResourceTree::OnAddSqp(wxCommandEvent &event)
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::SQP));
+      Expand(item);
+      
+      theGuiManager->UpdateSolver();
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnAddSolver(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+/**
+ * Add a generic solver to solvers folder
+ *
+ * @param <event> command event
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::OnAddSolver(wxCommandEvent &event)
+{
+   // This code shows how to retrieve a selection from a menu in wx.  It's a 
+   // pain!  First, add the elements as checkable items to the menu.  Then when
+   // one is checked, you can find it.  The event has a pointer to the top level 
+   // menu that triggered the event, so we start from there.
+   
+   // Get the menu we want.  Here it is a submenu, in the first element of the 
+   // top menu, so we get the submenu of the item at position 0.  The top menu
+   // is the event object for this event, so it is accessed by calling 
+   // event.GetEventObject(), and then cast to the correct pointer type.
+   wxMenu *theMenu = ((wxMenu*)(event.GetEventObject()))->
+                        FindItemByPosition(0)->GetSubMenu();
+   
+   // Error trap in case the menu structure changed.
+   if (theMenu == NULL)
+   {
+      MessageInterface::ShowMessage("Unable to add a Solver: NULL menu\n");
+      return;
+   }
+
+   // Now look for the string that the user selected
+   std::string selected;
+   for (size_t j = 0; j < theMenu->GetMenuItemCount(); ++j)
+   {
+      // Look at each item on the menu
+      wxMenuItem *current = theMenu->FindItemByPosition(j);
+      
+      #ifdef DEBUG_DYNAMIC_MENU
+         MessageInterface::ShowMessage("Item %d is '%s', %s\n", j, 
+               current->GetText().c_str(), 
+               (current->IsChecked() ? "Checked" : "Unchecked"));
+      #endif
+      // If the item is checked, it's the one we want.  (This bit assumes that 
+      // all items were unchecked initially.)
+      if (current->IsChecked())
+      {
+         // Set the text string to match the checked item
+         selected = current->GetText().c_str();
+         // Uncheck the item 
+         current->Check(false);
+      }
+      #ifdef DEBUG_DYNAMIC_MENU
+         MessageInterface::ShowMessage("   After setting, %s\n", 
+               (current->IsChecked() ? "Checked" : "Unchecked"));
+      #endif
+   }
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName(selected, 1);   
+
+   GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
+   
+   if (obj != NULL)
+   {
+      wxString name = newName.c_str();
+      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+                 new GmatTreeItemData(name, GmatTree::SOLVER));
       Expand(item);
       
       theGuiManager->UpdateSolver();
@@ -3096,6 +3183,9 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
 {
    wxMenu *menu = new wxMenu;
    
+   StringArray listOfObjects;
+   Integer newId;
+   
    switch (itemType)
    {
    case GmatTree::HARDWARE_FOLDER:
@@ -3115,6 +3205,24 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
       menu->Append(POPUP_ADD_QUASI_NEWTON, wxT("Quasi-Newton"));
       menu->Append(POPUP_ADD_SQP, wxT("SQP (fmincon)"));
       menu->Enable(POPUP_ADD_QUASI_NEWTON, false);
+
+      listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SOLVER);
+      newId = SOLVER_BEGIN;
+      for (StringArray::iterator i = listOfObjects.begin(); 
+           i != listOfObjects.end(); ++i, ++newId)
+      {
+         // Drop the ones that are already there for now
+         std::string solverType = (*i);
+         if ((solverType != "DifferentialCorrector") &&
+             (solverType != "FminconOptimizer") &&
+             (solverType != "Quasi-Newton"))
+         {
+            wxMenuItem* item = menu->AppendCheckItem(
+                  POPUP_ADD_SOLVER + newId, 
+                  wxT(solverType.c_str()));
+            item->Check(false);
+         }
+      }
       break;
    case GmatTree::SUBSCRIBER_FOLDER:
       menu->Append(POPUP_ADD_REPORT_FILE, wxT("ReportFile"));
@@ -3171,6 +3279,7 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
       break;
    case GmatTree::DIFF_CORR:
    case GmatTree::SQP:
+   case GmatTree::SOLVER:
       objType = Gmat::SOLVER;
       break;
    case GmatTree::REPORT_FILE:
@@ -3229,6 +3338,7 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
    case GmatTree::DIFF_CORR:
       return mBoundarySolverItem;
    case GmatTree::SQP:
+   case GmatTree::SOLVER:
       return mOptimizerItem;
    case GmatTree::REPORT_FILE:
    case GmatTree::XY_PLOT:
@@ -3301,6 +3411,7 @@ GmatTree::IconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType itemType)
    case GmatTree::LIBRATION_POINT:
    case GmatTree::DIFF_CORR:
    case GmatTree::SQP:
+   case GmatTree::SOLVER:
       return GmatTree::ICON_DEFAULT;
    default:
       if (itemType >= GmatTree::RESOURCES_FOLDER &&

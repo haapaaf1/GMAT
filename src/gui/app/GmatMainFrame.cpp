@@ -46,6 +46,7 @@
 #include "FiniteBurnSetupPanel.hpp"
 #include "DCSetupPanel.hpp"
 #include "SQPSetupPanel.hpp"
+#include "SolverSetupPanel.hpp"
 #include "ManeuverPanel.hpp"
 #include "BeginFiniteBurnPanel.hpp"
 #include "EndFiniteBurnPanel.hpp"
@@ -2160,6 +2161,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       break;
    case GmatTree::SQP:
       sizer->Add(new SQPSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      break;
+   case GmatTree::SOLVER:
+      sizer->Add(new SolverSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::REPORT_FILE:
       sizer->Add(new ReportFileSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);

@@ -116,7 +116,8 @@ public:
    bool ValidateSubscriber(GmatBase *obj);
    
    void BuildCreatableObjectMaps();
-   
+   StringArray GetCreatableList(Gmat::ObjectType type, Integer subType = 0);
+
    virtual void SetInputFocus();
    virtual void NotifyRunCompleted();
    virtual void UpdateView(Integer type = 7);
