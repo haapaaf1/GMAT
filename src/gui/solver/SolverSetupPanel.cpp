@@ -1,12 +1,36 @@
+//$Id$
+//------------------------------------------------------------------------------
+//                           SolverSetupPanel
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG06CA54C
+//
+// Author: Darrel Conway, Thinking Systems, Inc.
+// Created: 2008/04/17
+/**
+ * This class is a generic setup panel used by plug-in solvers.
+ */
+//------------------------------------------------------------------------------
+
 #include "SolverSetupPanel.hpp"
 #include "MessageInterface.hpp"
 
+
+
+//-----------------------------------------
+// static members
+//-----------------------------------------
 const wxString SolverSetupPanel::TF_SCHEMES[2] = 
    {
       wxT("false"),
       wxT("true")
    };
 
+/// wxWidget event mappings for the panel
 BEGIN_EVENT_TABLE(SolverSetupPanel, GmatPanel)
    EVT_COMBOBOX(ID_COMBOBOX, SolverSetupPanel::OnComboBoxChange)
    EVT_TEXT(ID_TEXTCTRL, SolverSetupPanel::OnTextChange)
@@ -14,8 +38,22 @@ BEGIN_EVENT_TABLE(SolverSetupPanel, GmatPanel)
 END_EVENT_TABLE()
 
 
+//-----------------------------------------
+// public methods
+//-----------------------------------------
+
+//------------------------------------------------------------------------------
+// SolverSetupPanel(wxWindow *parent, const wxString &name)
+//------------------------------------------------------------------------------
+/**
+ * Panel constructor
+ * 
+ * @param parent Owner for this panel
+ * @param name Name of the solver that is to be configured 
+ */
+//------------------------------------------------------------------------------
 SolverSetupPanel::SolverSetupPanel(wxWindow *parent, const wxString &name):
-   GmatPanel        (parent, name)
+   GmatPanel        (parent)
 {
    theSolver =
       (Solver*)theGuiInterpreter->GetConfiguredObject(name.c_str());
@@ -33,15 +71,37 @@ SolverSetupPanel::SolverSetupPanel(wxWindow *parent, const wxString &name):
    }
 }
 
+//------------------------------------------------------------------------------
+// ~SolverSetupPanel()
+//------------------------------------------------------------------------------
+/**
+ * Destructor.
+ */
+//------------------------------------------------------------------------------
 SolverSetupPanel::~SolverSetupPanel()
 {
 }
 
+//------------------------------------------------------------------------------
+// void Create()
+//------------------------------------------------------------------------------
+/**
+ * Inherited function that is called to create the panel.  This method calls the
+ * Setup() method.
+ */
+//------------------------------------------------------------------------------
 void SolverSetupPanel::Create()
 {
    Setup(this);
 }
 
+//------------------------------------------------------------------------------
+// void LoadData()
+//------------------------------------------------------------------------------
+/**
+ * Populates the panel with the configurable property data in the Solver 
+ */
+//------------------------------------------------------------------------------
 void SolverSetupPanel::LoadData()
 {
    // load data from the core engine
@@ -74,6 +134,13 @@ void SolverSetupPanel::LoadData()
 }
 
 
+//------------------------------------------------------------------------------
+// void SaveData()
+//------------------------------------------------------------------------------
+/**
+ * Passes configuration data from the panel to the Solver object
+ */
+//------------------------------------------------------------------------------
 void SolverSetupPanel::SaveData()
 {
    canClose = true;
@@ -96,6 +163,21 @@ void SolverSetupPanel::SaveData()
    }
 }
 
+//------------------------------------------------------------------------------
+// void Setup(wxWindow *parent)
+//------------------------------------------------------------------------------
+/**
+ * Uses the solver to build and populate the controls needed on the panel
+ * 
+ * This method walks through the properties of the Solver.  For each one that is
+ * writable, it creates a descriptor and control, and saves these pieces in the
+ * propertyDescriptors and propertyControls vectors.  The control indices in 
+ * these vectors are stored by name in the controlMap.  The controls are then
+ * places into a 2-column sizer for display on the panel.
+ * 
+ * @param parent The window that is getting setup (typically this window).
+ */
+//------------------------------------------------------------------------------
 void SolverSetupPanel::Setup(wxWindow *parent)
 {
    if (theSolver == NULL)
@@ -135,6 +217,19 @@ void SolverSetupPanel::Setup(wxWindow *parent)
    theMiddleSizer->Add(fGSMain, 0, wxALL|wxALIGN_CENTER, 5);
 }
 
+//------------------------------------------------------------------------------
+// wxControl* BuildControl(wxWindow *parent, Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Builds a wxWidget control for an object property
+ * 
+ * @param parent The window that owns the control
+ * @param index The index for the property that the constructed control 
+ *              represents
+ * 
+ * @return The new control
+ */
+//------------------------------------------------------------------------------
 wxControl *SolverSetupPanel::BuildControl(wxWindow *parent, Integer index)
 {
    wxControl *control = NULL;
@@ -163,6 +258,15 @@ wxControl *SolverSetupPanel::BuildControl(wxWindow *parent, Integer index)
    return control;
 }
 
+//------------------------------------------------------------------------------
+// void LoadControl(const std::string &label)
+//------------------------------------------------------------------------------
+/**
+ * Sets the data for a control
+ * 
+ * @param label The control's label
+ */
+//------------------------------------------------------------------------------
 void SolverSetupPanel::LoadControl(const std::string &label)
 {
    Integer index = theSolver->GetParameterID(label);
@@ -209,6 +313,15 @@ void SolverSetupPanel::LoadControl(const std::string &label)
 }
 
 
+//------------------------------------------------------------------------------
+// void SaveControl(const std::string &label)
+//------------------------------------------------------------------------------
+/**
+ * Passes a control's data to the Solver
+ * 
+ * @param label The string associated with the control.
+ */
+//------------------------------------------------------------------------------
 void SolverSetupPanel::SaveControl(const std::string &label)
 {
    Integer index = theSolver->GetParameterID(label);
@@ -264,7 +377,11 @@ void SolverSetupPanel::SaveControl(const std::string &label)
 // void OnComboBoxChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 /**
- * @note Activates the Apply button when text is changed
+ * Event handler for comboboxes
+ * 
+ * Activates the Apply button when selection is changed.
+ * 
+ * @param event The triggering event.
  */
 //------------------------------------------------------------------------------
 void SolverSetupPanel::OnComboBoxChange(wxCommandEvent& event)
@@ -278,7 +395,11 @@ void SolverSetupPanel::OnComboBoxChange(wxCommandEvent& event)
 // void OnTextChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 /**
- * @note Activates the Apply button when text is changed
+ * Event handler for text boxes
+ * 
+ * Activates the Apply button when text is changed.
+ * 
+ * @param event The triggering event.
  */
 //------------------------------------------------------------------------------
 void SolverSetupPanel::OnTextChange(wxCommandEvent& event)
@@ -286,4 +407,3 @@ void SolverSetupPanel::OnTextChange(wxCommandEvent& event)
    isTextModified = true;
    EnableUpdate(true);
 }
-
