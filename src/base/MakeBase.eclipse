@@ -11,13 +11,19 @@ include ../BuildEnv.mk
 ifeq ($(SHARED_BASE), 1)
 
 ifeq ($(LINUX_MAC), 1)
+
 ifdef MAC_SPECIFIC
 SHARED_EXTENSION = .dylib
 else
 SHARED_EXTENSION = .so
 endif
+
+SHARED_LIB_FLAGS = -shared -Wl --out-implib
+
 else
+
 SHARED_EXTENSION = .dll
+
 endif
 
 WXTARGET = lib/libGmatGui$(SHARED_EXTENSION)

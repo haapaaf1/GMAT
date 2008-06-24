@@ -74,6 +74,9 @@ private:
    wxTreeItemId mScriptFolderItem;
    wxTreeItemId mUniverseItem;
    
+   // Mapping for plug-in objects
+   std::map<Integer, std::string> pluginMap;
+   
    // objects
    GmatBase* GetObject(const std::string &name);
    void UpdateGuiItem(GmatTree::ItemType itemType);

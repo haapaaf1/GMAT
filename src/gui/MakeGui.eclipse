@@ -34,8 +34,23 @@ endif
 
 ifeq ($(SHARED_BASE), 1)
 
-# Needs to be updated for Linux and Mac
-LIBS = ../base/lib/libGmatGui.dll
+ifeq ($(LINUX_MAC), 1)
+
+ifdef MAC_SPECIFIC
+SHARED_EXTENSION = .dylib
+else
+SHARED_EXTENSION = .so
+endif
+
+LIBS = -L../base/lib -lGmatGui
+LIBNAME = ../base/lib/libGmatGui$(SHARED_EXTENSION)
+else
+
+LIBNAME = ../base/lib/libGmatGui.dll
+LIBS = $(LIBNAME)
+
+endif
+
 
 else
 
@@ -231,10 +246,10 @@ $(WXTARGET) : $(OBJECTS) $(LIBS)
 
 else
 
-$(WXTARGET) : $(OBJECTS) $(LIBS)
+$(WXTARGET) : $(OBJECTS) $(LIBNAME)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
 	mv -f $(WXTARGET)* ../../bin/.
-	cp -f $(LIBS) ../../bin/.
+	cp -f $(LIBNAME) ../../bin/.
 
 #	cp -f $(WXTARGET) ../../bin/.
 

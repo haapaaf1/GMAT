@@ -1981,6 +1981,8 @@ void ResourceTree::OnAddFiniteBurn(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddDiffCorr(wxCommandEvent &event)
 {
+MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
+
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("DC", 1);   
    GmatBase *obj = theGuiInterpreter->CreateObject("DifferentialCorrector", newName);
@@ -2008,6 +2010,8 @@ void ResourceTree::OnAddDiffCorr(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddSqp(wxCommandEvent &event)
 {
+MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
+
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("SQP", 1);   
    GmatBase *obj = theGuiInterpreter->CreateObject("FminconOptimizer", newName);
@@ -2029,57 +2033,18 @@ void ResourceTree::OnAddSqp(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
  * Add a generic solver to solvers folder
+ * 
+ * The code used here should be generalizable for other plugin elements as well.
  *
  * @param <event> command event
  */
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddSolver(wxCommandEvent &event)
 {
-   // This code shows how to retrieve a selection from a menu in wx.  It's a 
-   // pain!  First, add the elements as checkable items to the menu.  Then when
-   // one is checked, you can find it.  The event has a pointer to the top level 
-   // menu that triggered the event, so we start from there.
+   // Look up the plugin type based on the ID built with menu that selected it
+   std::string selected = pluginMap[event.GetId()];
    
-   // Get the menu we want.  Here it is a submenu, in the first element of the 
-   // top menu, so we get the submenu of the item at position 0.  The top menu
-   // is the event object for this event, so it is accessed by calling 
-   // event.GetEventObject(), and then cast to the correct pointer type.
-   wxMenu *theMenu = ((wxMenu*)(event.GetEventObject()))->
-                        FindItemByPosition(0)->GetSubMenu();
-   
-   // Error trap in case the menu structure changed.
-   if (theMenu == NULL)
-   {
-      MessageInterface::ShowMessage("Unable to add a Solver: NULL menu\n");
-      return;
-   }
-
-   // Now look for the string that the user selected
-   std::string selected;
-   for (size_t j = 0; j < theMenu->GetMenuItemCount(); ++j)
-   {
-      // Look at each item on the menu
-      wxMenuItem *current = theMenu->FindItemByPosition(j);
-      
-      #ifdef DEBUG_DYNAMIC_MENU
-         MessageInterface::ShowMessage("Item %d is '%s', %s\n", j, 
-               current->GetText().c_str(), 
-               (current->IsChecked() ? "Checked" : "Unchecked"));
-      #endif
-      // If the item is checked, it's the one we want.  (This bit assumes that 
-      // all items were unchecked initially.)
-      if (current->IsChecked())
-      {
-         // Set the text string to match the checked item
-         selected = current->GetText().c_str();
-         // Uncheck the item 
-         current->Check(false);
-      }
-      #ifdef DEBUG_DYNAMIC_MENU
-         MessageInterface::ShowMessage("   After setting, %s\n", 
-               (current->IsChecked() ? "Checked" : "Unchecked"));
-      #endif
-   }
+   // The rest is like the other tree additions
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName(selected, 1);   
 
@@ -3217,10 +3182,9 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
              (solverType != "FminconOptimizer") &&
              (solverType != "Quasi-Newton"))
          {
-            wxMenuItem* item = menu->AppendCheckItem(
-                  POPUP_ADD_SOLVER + newId, 
-                  wxT(solverType.c_str()));
-            item->Check(false);
+            // Save the ID and type name for event handling
+            pluginMap[POPUP_ADD_SOLVER + newId] = solverType;
+            menu->Append(POPUP_ADD_SOLVER + newId, wxT(solverType.c_str()));
          }
       }
       break;
