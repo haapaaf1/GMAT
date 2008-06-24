@@ -32,10 +32,15 @@ TARGETS = $(WXTARGET)
 CLEANTARGET = archclean
 endif
 
-ifeq ($(SHARED_BASE), 0)
-LIBS = ../base/lib/libGmatGui.a
-else
+ifeq ($(SHARED_BASE), 1)
+
+# Needs to be updated for Linux and Mac
 LIBS = ../base/lib/libGmatGui.dll
+
+else
+
+LIBS = ../base/lib/libGmatGui.a
+
 endif
 
 all: prep $(TARGETS) 

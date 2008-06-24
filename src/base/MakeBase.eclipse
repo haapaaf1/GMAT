@@ -8,11 +8,7 @@
 
 include ../BuildEnv.mk
 
-ifeq ($(SHARED_BASE), 0)
-
-WXTARGET = lib/libGmatGui.a
-
-else
+ifeq ($(SHARED_BASE), 1)
 
 ifeq ($(LINUX_MAC), 1)
 ifdef MAC_SPECIFIC
@@ -25,6 +21,10 @@ SHARED_EXTENSION = .dll
 endif
 
 WXTARGET = lib/libGmatGui$(SHARED_EXTENSION)
+
+else
+
+WXTARGET = lib/libGmatGui.a
 
 endif
 
@@ -458,14 +458,14 @@ FORTRAN_OBJECTS = solarsys/msise90_sub.o
     # parameter/EquinoctialParameters.o \
     # stopcond/BaseStopCondition.o \
 
-ifeq ($(SHARED_BASE), 0)
+ifeq ($(SHARED_BASE), 1)
+$(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
+	$(CPP) -o $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(SHARED_LIB_FLAGS)
+else
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
 	mkdir -p lib
 	ar rs $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
 	ranlib $(TARGET)
-else
-$(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
-	$(CPP) -o $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(SHARED_LIB_FLAGS)
 endif	
 
 $(OBJECTS): %.o: %.cpp %.hpp
