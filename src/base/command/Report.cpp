@@ -23,9 +23,12 @@
 #include "StringUtil.hpp"       // for GetArrayIndex()
 #include <sstream>
 
-//#define DEBUG_REPORTING 1
+//#define DEBUG_REPORT_OBJ
 //#define DEBUG_REPORT_SET
+//#define DEBUG_REPORT_INIT
+//#define DEBUG_REPORT_EXEC
 //#define DEBUG_WRAPPERS
+//#define DEBUG_OBJECT_MAP
 
 //---------------------------------
 // static data
@@ -64,6 +67,8 @@ Report::Report() :
    numParams    (0),
    needsHeaders (true)
 {
+   // GmatBase data
+   objectTypeNames.push_back("Report");
 }
 
 
@@ -460,7 +465,7 @@ const StringArray& Report::GetRefObjectNameArray(const Gmat::ObjectType type)
 bool Report::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                           const std::string &name, const Integer index)
 {
-   #ifdef DEBUG_REPORTING
+   #ifdef DEBUG_REPORT_OBJ
       MessageInterface::ShowMessage(
          "Report::SetRefObject received a %s named '%s', index=%d\n", 
          obj->GetTypeName().c_str(), obj->GetName().c_str(), index);
@@ -483,7 +488,7 @@ bool Report::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    }
    else if (type == Gmat::PARAMETER)
    {
-      #ifdef DEBUG_REPORTING
+      #ifdef DEBUG_REPORT_OBJ
          MessageInterface::ShowMessage("   Received %s as a Parameter\n", name.c_str());
       #endif
          
@@ -503,7 +508,7 @@ bool Report::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       #endif
    }
    
-   #ifdef DEBUG_REPORTING
+   #ifdef DEBUG_REPORT_OBJ
    MessageInterface::ShowMessage("Report::SetRefObject() returning true\n");
    #endif
    
@@ -636,6 +641,14 @@ bool Report::Initialize()
 {
    if (GmatCommand::Initialize() == false)
       return false;
+
+   #ifdef DEBUG_REPORT_INIT
+   MessageInterface::ShowMessage
+      ("Report::Initialize() entered, has %d parameter names\n", parmNames.size());
+   #endif
+   #ifdef DEBUG_OBJECT_MAP
+   ShowObjectMaps();
+   #endif
    
    parms.clear();
    GmatBase *object, *mapObj;
@@ -650,6 +663,11 @@ bool Report::Initialize()
       throw CommandException(
          "Object named \"" + rfName +
          "\" is not a ReportFile; Report command cannot execute\n");
+   
+   // Tell the ReportFile object that a command has requested its services
+   // Added this here so that ReportFile::Initialize() doesn't throw exception
+   // when there is no paramters to report (loj: 2008.06.11)
+   reporter->TakeAction("PassedToReport");
    
    needsHeaders =
       reporter->GetOnOffParameter(reporter->GetParameterID("WriteHeaders")) == "On";
@@ -666,6 +684,10 @@ bool Report::Initialize()
             object->GetName());
       parms.push_back((Parameter *)object);
    }
+   
+   #ifdef DEBUG_REPORT_INIT
+   MessageInterface::ShowMessage("Report::Initialize() returnin true.\n");
+   #endif
    
    return true;
 }
@@ -685,6 +707,10 @@ bool Report::Execute()
 {
    if (parms.empty())
       throw CommandException("Report command has no parameters to write\n");
+   
+   #ifdef DEBUG_REPORT_EXEC
+   MessageInterface::ShowMessage("Report::Execute() entered, has %d Parameters\n", parms.size());
+   #endif
    
    // Build the data as a string
    std::stringstream datastream;
@@ -724,9 +750,11 @@ bool Report::Execute()
       
       datastream.width(colWidth);
       
-      //MessageInterface::ShowMessage
-      //   (">>>>> Report::Execute() parameter=%s, returnType=%d\n", (*i)->GetName().c_str(),
-      //    (*i)->GetReturnType());
+      #ifdef DEBUG_REPORT_EXEC
+      MessageInterface::ShowMessage
+         (">>>>> Report::Execute() parameter=%s, returnType=%d\n", (*i)->GetName().c_str(),
+          (*i)->GetReturnType());
+      #endif
       
       if ((*i)->GetReturnType() == Gmat::REAL_TYPE)
       {
@@ -748,12 +776,12 @@ bool Report::Execute()
    }
    
    // Publish it
-// This is how it should be done:
-//   reportID = reporter->GetProviderId();
-//   #ifdef DEBUG_REPORTING
-//      MessageInterface::ShowMessage("Reporting to subscriber %d\n", reportID);
-//   #endif
-//   publisher->Publish(reportID, "Here is some data");
+   // This is how it should be done:
+   //reportID = reporter->GetProviderId();
+   //#ifdef DEBUG_REPORT_OBJ
+   //   MessageInterface::ShowMessage("Reporting to subscriber %d\n", reportID);
+   //#endif
+   //publisher->Publish(reportID, "Here is some data");
    
    // Publisher seems broken right now -- do it by hand
    std::string data = datastream.str();
@@ -795,7 +823,7 @@ bool Report::AddParameter(const std::string &paramName, Integer index,
 {
    #ifdef DEBUG_REPORT_SET
    MessageInterface::ShowMessage
-      ("Report::AddParameter() Adding parameter '%s', index=%d, param=<%p>\n",
+      ("Report::AddParameter() this=<%p>, Adding parameter '%s', index=%d, param=<%p>\n",
        this, paramName.c_str(), index, param);
    #endif
    
