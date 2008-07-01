@@ -1,4 +1,4 @@
-//$Id:  $
+//$Id$
 //------------------------------------------------------------------------------
 //                                  ObjectInitializer
 //------------------------------------------------------------------------------
@@ -28,6 +28,7 @@
 #include "CoordinateSystem.hpp"
 #include "GmatBaseException.hpp"  // need a specific one here?  ObjectExecption?
 #include "SubscriberException.hpp"
+#include "Publisher.hpp"
 
 //#define DEBUG_OBJECT_INITIALIZER
 
@@ -50,6 +51,7 @@ ObjectInitializer::ObjectInitializer(SolarSystem *solSys, ObjectMap *objMap,
    includeGOS (useGOS)
 {
    mod = Moderator::Instance();
+   publisher = Publisher::Instance();
 }
 
 ObjectInitializer::ObjectInitializer(const ObjectInitializer &objInit) :
@@ -61,6 +63,7 @@ ObjectInitializer::ObjectInitializer(const ObjectInitializer &objInit) :
    includeGOS (objInit.includeGOS)
 {
    mod = Moderator::Instance();
+   publisher = Publisher::Instance();
 }
 
 ObjectInitializer& ObjectInitializer::operator= (const ObjectInitializer &objInit)
@@ -73,6 +76,7 @@ ObjectInitializer& ObjectInitializer::operator= (const ObjectInitializer &objIni
       mod        = objInit.mod;
       cs         = objInit.cs;
       includeGOS = objInit.includeGOS;
+      publisher  = objInit.publisher;
    }
    
    return *this;
@@ -91,7 +95,7 @@ void ObjectInitializer::SetObjectMap(ObjectMap *objMap)
    LOS = objMap;
 }
 
-bool ObjectInitializer::InitializeObjects()
+bool ObjectInitializer::InitializeObjects(bool registerSubs)
 {
    std::map<std::string, GmatBase *>::iterator omIter;
    std::map<std::string, GmatBase *>::iterator omi;
@@ -106,7 +110,7 @@ bool ObjectInitializer::InitializeObjects()
     #ifdef DEBUG_OBJECT_INITIALIZER
        MessageInterface::ShowMessage("Internal Objects Initialized ...\n");
     #endif
-// Set J2000 Body for all SpacePoint derivatives before anything else
+   // Set J2000 Body for all SpacePoint derivatives before anything else
    // NOTE - at this point, everything should be in the SandboxObjectMap,
    // and the GlobalObjectMap should be empty
    #ifdef DEBUG_OBJECT_INITIALIZER
@@ -301,6 +305,10 @@ bool ObjectInitializer::InitializeObjects()
          ((Subscriber*)obj)->SetInternalCoordSystem(cs);
          ((Subscriber*)obj)->SetSolarSystem(ss);
          obj->Initialize();
+         
+         // Check if we need to register subscribers to the publisher (loj:2008.06.19)
+         if (registerSubs)
+            publisher->Subscribe((Subscriber*)obj);
       }
    }
    #ifdef DEBUG_OBJECT_INITIALIZER

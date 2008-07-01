@@ -1,4 +1,4 @@
-//$Id:  $
+//$Id$
 //------------------------------------------------------------------------------
 //                                  ObjectInitializer
 //------------------------------------------------------------------------------
@@ -31,7 +31,9 @@
 #include "CoordinateSystem.hpp"
 #include "AxisSystem.hpp"
 
-class Moderator;        // Forward reference for the moderator pointer
+// forward references
+class Moderator;
+class Publisher;
 
 class GMAT_API ObjectInitializer
 {
@@ -41,14 +43,14 @@ public:
    ObjectInitializer(const ObjectInitializer &objInit);
    ObjectInitializer& operator= (const ObjectInitializer &objInit);
    virtual ~ObjectInitializer();
-
+   
    //   void SetSolarSystem(SolarSystem *ss);
    void SetObjectMap(ObjectMap *objMap);
    //   void SetGlobalObjectMap(ObjectMap *globalObjMap);
    //   void SetCoordinateSystem(CoordinateSystem *internalCS);
-  
-   bool InitializeObjects();
-      
+   
+   bool InitializeObjects(bool registerSubs = false);
+   
 protected:
    
    SolarSystem      *ss;
@@ -56,6 +58,7 @@ protected:
    ObjectMap        *GOS;
    Moderator        *mod;
    CoordinateSystem *cs;
+   Publisher        *publisher;
    
    bool            includeGOS;
 
