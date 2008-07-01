@@ -94,12 +94,12 @@ public:
    
    void SetInterpreterMapAndSS(Interpreter *interp);
    
-   //----- object finding
+   //----- object map
    void SetObjectMap(ObjectMap *objMap);
-   GmatBase* FindObject(const std::string &name);
    
    //----- factory
    const StringArray& GetListOfFactoryItems(Gmat::ObjectType type);
+   const StringArray& GetListOfAllFactoryItems();
    
    //----- configuration
    const StringArray& GetListOfObjects(Gmat::ObjectType type);
@@ -119,7 +119,7 @@ public:
    // SolarSystem
    SolarSystem* GetDefaultSolarSystem();
    SolarSystem* CreateSolarSystem(const std::string &name);
-   SolarSystem* GetSolarSystemInUse();
+   SolarSystem* GetSolarSystemInUse(Integer manage = 1);
    void SetSolarSystemInUse(SolarSystem *ss);
    void SetInternalSolarSystem(SolarSystem *ss);
    bool SetSolarSystemInUse(const std::string &name);
@@ -173,11 +173,11 @@ public:
                               const std::string &name,
                               const std::string &ownerName = "",
                               const std::string &depName = "",
-                              bool manage = true);
+                              Integer manage = 1);
    Parameter* GetParameter(const std::string &name);
    
    // ForceModel
-   ForceModel* CreateForceModel(const std::string &name);
+   ForceModel* CreateForceModel(const std::string &name, Integer manage = 0);
    ForceModel* GetForceModel(const std::string &name);
    bool AddToForceModel(const std::string &forceModelName,
                         const std::string &forceName);
@@ -203,8 +203,10 @@ public:
    // CoordinateSystem
    CoordinateSystem* CreateCoordinateSystem(const std::string &name,
                                             bool createDefault = false,
-                                            bool internal = false);
-   CoordinateSystem* GetCoordinateSystem(const std::string &name);
+                                            bool internal = false,
+                                            Integer manage = 1);
+   CoordinateSystem* GetCoordinateSystem(const std::string &name,
+                                         Integer manage = 1);
    
    // Subscriber
    Subscriber* CreateSubscriber(const std::string &type,
@@ -216,7 +218,7 @@ public:
    // Function
    Function* CreateFunction(const std::string &type,
                             const std::string &name,
-                            bool manage = true);
+                            Integer manage = 1);
    Function* GetFunction(const std::string &name);
    
    //----- Non-Configurable Items
@@ -324,7 +326,11 @@ private:
    void SetParameterRefObject(Parameter *param, const std::string &type,
                               const std::string &name,
                               const std::string &ownerName,
-                              const std::string &depName);
+                              const std::string &depName, Integer manage);
+   
+   // object map
+   GmatBase* FindObject(const std::string &name);
+   bool AddObject(GmatBase *obj);
    
    // default objects
    Spacecraft* GetDefaultSpacecraft();
