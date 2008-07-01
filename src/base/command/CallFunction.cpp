@@ -67,8 +67,7 @@ CallFunction::CallFunction() :
    GmatCommand      ("CallFunction"),
    callcmds         (NULL),
    mFunction        (NULL),
-   mFunctionName    (""),
-   internalCoordSys (NULL)
+   mFunctionName    ("")
 {
    mNumInputParams = 0;
    mNumOutputParams = 0;
@@ -95,8 +94,7 @@ CallFunction::CallFunction(const CallFunction& cf) :
    GmatCommand     (cf),
    callcmds        (NULL),
    mFunction       (cf.mFunction),
-   mFunctionName   (cf.mFunctionName),
-   internalCoordSys  (NULL)
+   mFunctionName   (cf.mFunctionName)
 {
    mNumInputParams = cf.mNumInputParams;
    mNumOutputParams = cf.mNumOutputParams;
@@ -132,12 +130,190 @@ CallFunction& CallFunction::operator=(const CallFunction& cf)
    mInputList = cf.mInputList;
    mOutputList = cf.mOutputList;
    callcmds = NULL;           // Commands must be reinitialized
-   internalCoordSys = NULL;
    
    mInputListNames = cf.mInputListNames;
    mOutputListNames = cf.mOutputListNames;
 
    return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string FormEvalString()
+//  String format
+//    [Out1, Out2] = FunctionName(In1, In2, In3);
+//------------------------------------------------------------------------------
+std::string CallFunction::FormEvalString()
+{
+   std::string evalString = "";
+
+
+   // left hand side of evaluation string and equals (if necessary)
+   if (mOutputList.size() > 1)
+   {
+      evalString = evalString + "[";
+      Parameter *param = (Parameter *)mOutputList[0];
+      evalString = evalString + param->GetName();
+
+      for (unsigned int i=1; i<mOutputList.size(); i++)
+      {
+         param = (Parameter *)mOutputList[i];
+         evalString = evalString +", " + param->GetName();
+      }
+
+      evalString = evalString + "] = ";
+   }
+   else if (mOutputList.size() == 1)
+   {
+      Parameter *param = (Parameter *)mOutputList[0];
+      evalString = evalString + param->GetName();
+      evalString = evalString +" = ";
+   }
+   else if (mOutputList.size() == 0)
+   {
+      // no left hand side
+   }
+   else
+   {
+      // need to throw an exception here
+   }
+
+
+   // right hand side of evaluation string
+   // function name and left parenthesis
+   evalString = evalString + mFunction->GetName().c_str() + "(";
+
+
+   // input parameters
+   if (mInputList.size() > 0)
+   {
+      Parameter *param = (Parameter *)mInputList[0];
+      evalString = evalString + param->GetName();
+
+      for (unsigned int i=1; i<mInputList.size(); i++)
+      {
+         param = (Parameter *)mInputList[i];
+         evalString = evalString + ", " + param->GetName();
+      }
+   }
+
+   // right parenthesis and semi-colon
+   evalString = evalString + ");";
+
+   return evalString;
+}
+
+
+//------------------------------------------------------------------------------
+// bool AddInputParameter(const std::string &paramName, Integer index)
+//------------------------------------------------------------------------------
+bool CallFunction::AddInputParameter(const std::string &paramName, Integer index)
+{
+   if (paramName != "" && index == mNumInputParams)
+   {
+      mInputListNames.push_back(paramName);
+      mNumInputParams = mInputListNames.size();
+      mInputList.push_back(NULL);
+      fm.AddInput(paramName);
+      return true;
+   }
+   
+   return false;
+}
+
+
+//------------------------------------------------------------------------------
+// bool AddOutputParameter(const std::string &paramName, Integer index)
+//------------------------------------------------------------------------------
+bool CallFunction::AddOutputParameter(const std::string &paramName, Integer index)
+{
+   if (paramName != "" && index == mNumOutputParams)
+   {
+      mOutputListNames.push_back(paramName);
+      mNumOutputParams = mOutputListNames.size();
+      mOutputList.push_back(NULL);
+      fm.AddOutput(paramName);      
+      return true;
+   }
+
+   return false;
+}
+
+
+//------------------------------------------------------------------------------
+//  void SetObjectMap(std::map<std::string, GmatBase *> *map)
+//------------------------------------------------------------------------------
+/**
+ * Called by the Sandbox to set the local asset store used by the GmatCommand
+ * 
+ * @param <map> Pointer to the local object map
+ */
+//------------------------------------------------------------------------------
+void CallFunction::SetObjectMap(std::map<std::string, GmatBase *> *map)
+{
+   GmatCommand::SetObjectMap(map);
+   fm.SetObjectMap(map);
+}
+
+
+//------------------------------------------------------------------------------
+//  void SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
+//------------------------------------------------------------------------------
+/**
+ * Called by the Sandbox to set the global asset store used by the GmatCommand
+ * 
+ * @param <map> Pointer to the local object map
+ */
+//------------------------------------------------------------------------------
+void CallFunction::SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
+{
+   #ifdef DEBUG_GLOBAL_OBJECT_MAP
+   MessageInterface::ShowMessage
+      ("CallFunction::SetGlobalObjectMap() entered, mFunctionName='%s', "
+       "map=<%p>\n", mFunctionName.c_str(), map);
+   #endif
+   
+   GmatCommand::SetGlobalObjectMap(map);
+   
+   // Now, find the function object
+   GmatBase *mapObj = FindObject(mFunctionName);
+   
+   #ifdef DEBUG_GLOBAL_OBJECT_MAP
+   MessageInterface::ShowMessage
+      ("   mapObj=<%p><%s>\n", mapObj, mapObj ? mapObj->GetName().c_str() : "NULL");
+   #endif
+   
+   if (mapObj == NULL)
+   {
+      //throw CommandException("CallFunction command cannot find Function " +
+      //         mFunctionName + "\n");
+      ; // leave NULL for now
+   }
+   else
+   {
+      mFunction = (Function *)mapObj;
+      
+      #ifdef DEBUG_GLOBAL_OBJECT_MAP
+      MessageInterface::ShowMessage
+         ("   mFunction=<%p><%s>\n", mFunction, mFunction->GetName().c_str());
+      #endif
+      
+      fm.SetFunction(mFunction);
+   }
+   fm.SetGlobalObjectMap(map);
+   
+   #ifdef DEBUG_GLOBAL_OBJECT_MAP
+   MessageInterface::ShowMessage("CallFunction::SetGlobalObjectMap() exiting\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// bool HasAFunction()
+//------------------------------------------------------------------------------
+bool CallFunction::HasAFunction()
+{
+   return true;
 }
 
 
@@ -239,77 +415,6 @@ const std::string& CallFunction::GetGeneratingString(Gmat::WriteMode mode,
    
    // Then call the base class method
    return GmatCommand::GetGeneratingString(mode, prefix, useName);
-}
-
-//------------------------------------------------------------------------------
-//  void SetObjectMap(std::map<std::string, GmatBase *> *map)
-//------------------------------------------------------------------------------
-/**
- * Called by the Sandbox to set the local asset store used by the GmatCommand
- * 
- * @param <map> Pointer to the local object map
- */
-//------------------------------------------------------------------------------
-void CallFunction::SetObjectMap(std::map<std::string, GmatBase *> *map)
-{
-   GmatCommand::SetObjectMap(map);
-   fm.SetObjectMap(map);
-}
-
-//------------------------------------------------------------------------------
-//  void SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
-//------------------------------------------------------------------------------
-/**
- * Called by the Sandbox to set the global asset store used by the GmatCommand
- * 
- * @param <map> Pointer to the local object map
- */
-//------------------------------------------------------------------------------
-void CallFunction::SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
-{
-   #ifdef DEBUG_GLOBAL_OBJECT_MAP
-   MessageInterface::ShowMessage
-      ("CallFunction::SetGlobalObjectMap() entered, mFunctionName='%s', "
-       "map=<%p>\n", mFunctionName.c_str(), map);
-   #endif
-   
-   GmatCommand::SetGlobalObjectMap(map);
-   
-   // Now, find the function object
-   GmatBase *mapObj = FindObject(mFunctionName);
-   
-   #ifdef DEBUG_GLOBAL_OBJECT_MAP
-   MessageInterface::ShowMessage
-      ("   mapObj=<%p><%s>\n", mapObj, mapObj ? mapObj->GetName().c_str() : "NULL");
-   #endif
-   
-   if (mapObj == NULL)
-   {
-      //throw CommandException("CallFunction command cannot find Function " +
-      //         mFunctionName + "\n");
-      ; // leave NULL for now
-   }
-   else
-   {
-      mFunction = (Function *)mapObj;
-      
-      #ifdef DEBUG_GLOBAL_OBJECT_MAP
-      MessageInterface::ShowMessage
-         ("   mFunction=<%p><%s>\n", mFunction, mFunction->GetName().c_str());
-      #endif
-      
-      fm.SetFunction(mFunction);
-   }
-   fm.SetGlobalObjectMap(map);
-   
-   #ifdef DEBUG_GLOBAL_OBJECT_MAP
-   MessageInterface::ShowMessage("CallFunction::SetGlobalObjectMap() exiting\n");
-   #endif
-}
-
-bool CallFunction::HasAFunction()
-{
-   return true;
 }
 
 
@@ -877,42 +982,6 @@ bool CallFunction::Initialize()
 
 
 //------------------------------------------------------------------------------
-// bool AddInputParameter(const std::string &paramName, Integer index)
-//------------------------------------------------------------------------------
-bool CallFunction::AddInputParameter(const std::string &paramName, Integer index)
-{
-   if (paramName != "" && index == mNumInputParams)
-   {
-      mInputListNames.push_back(paramName);
-      mNumInputParams = mInputListNames.size();
-      mInputList.push_back(NULL);
-      fm.AddInput(paramName);
-      return true;
-   }
-   
-   return false;
-}
-
-
-//------------------------------------------------------------------------------
-// bool AddOutputParameter(const std::string &paramName, Integer index)
-//------------------------------------------------------------------------------
-bool CallFunction::AddOutputParameter(const std::string &paramName, Integer index)
-{
-   if (paramName != "" && index == mNumOutputParams)
-   {
-      mOutputListNames.push_back(paramName);
-      mNumOutputParams = mOutputListNames.size();
-      mOutputList.push_back(NULL);
-      fm.AddOutput(paramName);      
-      return true;
-   }
-
-   return false;
-}
-
-
-//------------------------------------------------------------------------------
 // bool Execute()
 //------------------------------------------------------------------------------
 bool CallFunction::Execute()
@@ -1273,72 +1342,6 @@ void CallFunction::EvalMatlabString(std::string evalString)
 
 
 //------------------------------------------------------------------------------
-// std::string FormEvalString()
-//  String format
-//    [Out1, Out2] = FunctionName(In1, In2, In3);
-//------------------------------------------------------------------------------
-std::string CallFunction::FormEvalString()
-{
-   std::string evalString = "";
-
-
-   // left hand side of evaluation string and equals (if necessary)
-   if (mOutputList.size() > 1)
-   {
-      evalString = evalString + "[";
-      Parameter *param = (Parameter *)mOutputList[0];
-      evalString = evalString + param->GetName();
-
-      for (unsigned int i=1; i<mOutputList.size(); i++)
-      {
-         param = (Parameter *)mOutputList[i];
-         evalString = evalString +", " + param->GetName();
-      }
-
-      evalString = evalString + "] = ";
-   }
-   else if (mOutputList.size() == 1)
-   {
-      Parameter *param = (Parameter *)mOutputList[0];
-      evalString = evalString + param->GetName();
-      evalString = evalString +" = ";
-   }
-   else if (mOutputList.size() == 0)
-   {
-      // no left hand side
-   }
-   else
-   {
-      // need to throw an exception here
-   }
-
-
-   // right hand side of evaluation string
-   // function name and left parenthesis
-   evalString = evalString + mFunction->GetName().c_str() + "(";
-
-
-   // input parameters
-   if (mInputList.size() > 0)
-   {
-      Parameter *param = (Parameter *)mInputList[0];
-      evalString = evalString + param->GetName();
-
-      for (unsigned int i=1; i<mInputList.size(); i++)
-      {
-         param = (Parameter *)mInputList[i];
-         evalString = evalString + ", " + param->GetName();
-      }
-   }
-
-   // right parenthesis and semi-colon
-   evalString = evalString + ");";
-
-   return evalString;
-}
-
-
-//------------------------------------------------------------------------------
 // void ClearInputParameters()
 //------------------------------------------------------------------------------
 void CallFunction::ClearInputParameters()
@@ -1361,7 +1364,7 @@ void CallFunction::ClearOutputParameters()
 
 
 //------------------------------------------------------------------------------
-// bool SetInternalCoordSystem(CoordinateSystem *cs)
+// void SetInternalCoordSystem(CoordinateSystem *cs)
 //------------------------------------------------------------------------------
 /**
  *  Sets the internal coordinate system used by the Sandbox.
@@ -1371,17 +1374,12 @@ void CallFunction::ClearOutputParameters()
  *  @return true if the command was added to the sequence, false if not.
  */
 //------------------------------------------------------------------------------
-bool CallFunction::SetInternalCoordSystem(CoordinateSystem *cs)
+void CallFunction::SetInternalCoordSystem(CoordinateSystem *cs)
 {
-   if (!cs)
-      return false;
-
-
    /// @todo Check initialization and cloning for the internal CoordinateSystem.
    //internalCoordSys = (CoordinateSystem*)(cs->Clone());
    internalCoordSys = cs;
    fm.SetInternalCoordinateSystem(internalCoordSys);
-   return true;
 }
 
 
