@@ -66,8 +66,8 @@ namespace GmatStringUtil
    
    StringArray SeparateBy(const std::string &str, const std::string &delim,
                           bool putBracketsTogether = false);
-   
    StringArray SeparateByComma(const std::string &str);
+   StringArray SeparateDots(const std::string &str);
    
    bool ToReal(const std::string &str, Real *value, bool trimParens = false);
    bool ToReal(const std::string &str, Real &value, bool trimParens = false);
@@ -75,6 +75,10 @@ namespace GmatStringUtil
    bool ToInteger(const std::string &str, Integer &value, bool trimParens = false);
    bool ToBoolean(const std::string &str, bool *value, bool trimParens = false);
    bool ToBoolean(const std::string &str, bool &value, bool trimParens = false);
+   
+   RealArray ToRealArray(const std::string &str);
+   IntegerArray ToIntegerArray(const std::string &str);
+   UnsignedIntArray ToUnsignedIntArray(const std::string &str);
    
    void ParseParameter(const std::string &str, std::string &type,
                        std::string &owner, std::string &dep);

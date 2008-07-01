@@ -775,6 +775,43 @@ StringArray GmatStringUtil::SeparateByComma(const std::string &str)
 }
 
 
+//-------------------------------------------------------------------------------
+// StringArray SeparateDots(const std::string &chunk)
+//-------------------------------------------------------------------------------
+/*
+ * Breaks string by dots, but keep decimal point number together.
+ *
+ * @param <chunk> input string to be break apart
+ *
+ * @return string array of parts
+ */
+//-------------------------------------------------------------------------------
+StringArray GmatStringUtil::SeparateDots(const std::string &chunk)
+{
+   Real rval;
+   StringArray parts;
+   
+   // Separate by dots if not a number
+   if (ToReal(chunk, rval))
+   {
+      parts.push_back(chunk);
+   }
+   else
+   {
+      StringTokenizer st(chunk, ".");
+      parts = st.GetAllTokens();
+   }
+   
+   #ifdef DEBUG_SEP_DOTS
+   for (UnsignedInt i=0; i<parts.size(); i++)
+      MessageInterface::ShowMessage
+         ("   parts[%d]=%s\n", i, parts[i].c_str());
+   #endif
+   
+   return parts;
+}
+
+
 //------------------------------------------------------------------------------
 // bool ToReal(const std::string &str, Real *value, bool trimParens = false)
 //------------------------------------------------------------------------------
@@ -979,6 +1016,111 @@ bool GmatStringUtil::ToBoolean(const std::string &str, bool &value, bool trimPar
    }
 
    return false;
+}
+
+
+//------------------------------------------------------------------------------
+// RealArray ToRealArray(const std::string &str)
+//------------------------------------------------------------------------------
+RealArray GmatStringUtil::ToRealArray(const std::string &str)
+{
+   MessageInterface::ShowMessage("ToRealArray() str='%s'\n", str.c_str());
+   
+   RealArray realArray;
+   
+   if (!IsBracketBalanced(str, "[]"))
+      return realArray;
+   
+   std::string str1 = RemoveOuterString(str, "[", "]");
+   str1 = Trim(str1);
+
+   if (str1 == "")
+      return realArray;
+   
+   StringArray vals = SeparateBy(str1, " ,");
+   Real rval;
+   
+   MessageInterface::ShowMessage("   vals.size()=%d\n", vals.size());
+   
+   for (UnsignedInt i=0; i<vals.size(); i++)
+   {
+      if (ToReal(vals[i], rval))
+          realArray.push_back(rval);
+      else
+         throw UtilityException
+            ("Invalid Real value \"" + vals[i] + "\" found in \"" + str + "\"");
+   }
+   
+   return realArray;
+}
+
+
+//------------------------------------------------------------------------------
+// IntegerArray ToIntegerArray(const std::string &str)
+//------------------------------------------------------------------------------
+IntegerArray GmatStringUtil::ToIntegerArray(const std::string &str)
+{
+   IntegerArray intArray;
+   
+   if (!IsBracketBalanced(str, "[]"))
+      return intArray;
+   
+   std::string str1 = RemoveOuterString(str, "[", "]");
+   str1 = Trim(str1);
+
+   if (str1 == "")
+      return intArray;
+   
+   StringArray vals = SeparateBy(str1, " ,");
+   Integer ival;
+   
+   for (UnsignedInt i=0; i<vals.size(); i++)
+   {
+      if (ToInteger(vals[i], ival))
+          intArray.push_back(ival);
+      else
+         throw UtilityException
+            ("Invalid Integer value \"" + vals[i] + "\" found in \"" + str + "\"");
+   }
+   
+   return intArray;
+}
+
+
+//------------------------------------------------------------------------------
+// UnsignedIntArray ToUnsignedIntArray(const std::string &str)
+//------------------------------------------------------------------------------
+/*
+ * Parse string to unsigned int array.
+ * [0 127 255] or [0, 127, 255] to array of 0, 127, 255.
+ */
+//------------------------------------------------------------------------------
+UnsignedIntArray GmatStringUtil::ToUnsignedIntArray(const std::string &str)
+{
+   UnsignedIntArray intArray;
+   
+   if (!IsBracketBalanced(str, "[]"))
+      return intArray;
+   
+   std::string str1 = RemoveOuterString(str, "[", "]");
+   str1 = Trim(str1);
+
+   if (str1 == "")
+      return intArray;
+   
+   StringArray vals = SeparateBy(str1, " ,");
+   Integer ival;
+   
+   for (UnsignedInt i=0; i<vals.size(); i++)
+   {
+      if (ToInteger(vals[i], ival))
+          intArray.push_back((UnsignedInt)ival);
+      else
+         throw UtilityException
+            ("Invalid Integer value \"" + vals[i] + "\" found in \"" + str + "\"");
+   }
+   
+   return intArray;
 }
 
 
@@ -2462,8 +2604,8 @@ std::string GmatStringUtil::RemoveOuterString(const std::string &str,
 {
    #if DEBUG_STRING_UTIL
    MessageInterface::ShowMessage
-      ("RemoveOuterString() entering str=\"%s\", bracketPair='%s'\n", str.c_str(),
-       bracketPair.c_str());
+      ("RemoveOuterString() entering str=\"%s\", start='%s', end='%s'\n", str.c_str(),
+       start.c_str(), end.c_str());
    #endif
    
    std::string str1 = str;
