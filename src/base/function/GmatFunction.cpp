@@ -23,8 +23,12 @@
 #include "StringUtil.hpp"        // for Trim()
 #include "MessageInterface.hpp"
 
-//#define DEBUG_GMAT_FUNCTION
 
+//#define DEBUG_FUNCTION
+//#define DEBUG_FUNCTION_SET
+//#define DEBUG_FUNCTION_INIT
+//#define DEBUG_FUNCTION_EXEC
+//#define DEBUG_FUNCTION_FINALIZE
 
 //---------------------------------
 // static data
@@ -84,7 +88,7 @@ GmatFunction::GmatFunction(const std::string &name) :
    }
    catch (GmatBaseException &e)
    {
-      #ifdef DEBUG_GMAT_FUNCTION
+      #ifdef DEBUG_FUNCTION
       MessageInterface::ShowMessage(e.GetFullMessage());
       #endif
       
@@ -96,13 +100,13 @@ GmatFunction::GmatFunction(const std::string &name) :
       }
       catch (GmatBaseException &e)
       {
-         #ifdef DEBUG_GMAT_FUNCTION
+         #ifdef DEBUG_FUNCTION
          MessageInterface::ShowMessage(e.GetFullMessage());
          #endif
       }
    }
    
-   #ifdef DEBUG_GMAT_FUNCTION
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("   Gmat functionPath=<%s>\n", functionPath.c_str());
    MessageInterface::ShowMessage
@@ -165,26 +169,23 @@ GmatFunction& GmatFunction::operator=(const GmatFunction& right)
 //------------------------------------------------------------------------------
 bool GmatFunction::Initialize()
 {
-   #ifdef DEBUG_GMAT_FUNCTION
+   #ifdef DEBUG_FUNCTION_INIT
       MessageInterface::ShowMessage("Entering GmatFunction::Initialize for function %s\n",
             functionName.c_str());
       MessageInterface::ShowMessage("   and FCS is %s set.\n", (fcs? "correctly" : "NOT"));
       MessageInterface::ShowMessage("   Pointer for FCS is %p\n", fcs);
       MessageInterface::ShowMessage("   First command in fcs is %s\n",
-            (fcs->GetTypeName()).c_str());         
+            (fcs->GetTypeName()).c_str());
    #endif
    if (!fcs) return false;
-   // Initialize the Validator - I think I need to do this each time - or do I?
-   validator.SetFunction(this);
-   validator.SetSolarSystem(solarSys);
-   std::map<std::string, GmatBase *>::iterator omi;
-   //loj: moved this block inside the while loop
-//    for (omi = objectStore->begin(); omi != objectStore->end(); ++omi)
-//       validatorStore.insert(std::make_pair(omi->first, omi->second));
-//    for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
-//       validatorStore.insert(std::make_pair(omi->first, omi->second));
-//    validator.SetObjectMap(&validatorStore);
    
+   Function::Initialize();
+   
+   // Initialize the Validator - I think I need to do this each time - or do I?
+   validator->SetFunction(this);
+   validator->SetSolarSystem(solarSys);
+   std::map<std::string, GmatBase *>::iterator omi;
+      
    // add automatic objects to the FOS
    for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
    {
@@ -197,16 +198,17 @@ bool GmatFunction::Initialize()
    
    while (current)
    {
-      #ifdef DEBUG_GMAT_FUNCTION
+      #ifdef DEBUG_FUNCTION_INIT
          if (!current)  MessageInterface::ShowMessage("Current is NULL!!!\n");
-         else MessageInterface::ShowMessage("   Now about to initialize command of type %s\n",
-               (current->GetTypeName()).c_str());         
+         else MessageInterface::ShowMessage("   Now about to initialize command of type %s\n   %s\n",
+                 (current->GetTypeName()).c_str(), current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       current->SetObjectMap(objectStore);
       current->SetGlobalObjectMap(globalObjectStore);
       current->SetSolarSystem(solarSys);
-      current->SetTransientForces(forces);      
-      #ifdef DEBUG_GMAT_FUNCTION
+      current->SetInternalCoordSystem(internalCoordSys);
+      current->SetTransientForces(forces);
+      #ifdef DEBUG_FUNCTION_INIT
          MessageInterface::ShowMessage("   Now about to send required wrappers to command of type %s\n",
                (current->GetTypeName()).c_str());         
       #endif
@@ -217,14 +219,20 @@ bool GmatFunction::Initialize()
          validatorStore.insert(std::make_pair(omi->first, omi->second));
       for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
          validatorStore.insert(std::make_pair(omi->first, omi->second));
-      validator.SetObjectMap(&validatorStore);
+      validator->SetObjectMap(&validatorStore);
       
       // Let's try to ValidateCommand here, this will validate the comand
       // and create wrappers also
-      if (!validator.ValidateCommand(current, false, true))
-         return false;
+      if (!validator->ValidateCommand(current, false, 2))
+      {
+         // get error message (loj: 2008.06.04)
+         StringArray errList = validator->GetErrorList();
+         throw FunctionException(errList[0] + " in the function \"" + functionPath + "\"");
+      }
+      
       if (!(current->Initialize()))
          return false;
+      
       current = current->GetNext();
    }
    return true;
@@ -232,21 +240,64 @@ bool GmatFunction::Initialize()
 
 
 //------------------------------------------------------------------------------
-// bool GmatFunction::Execute()
+// bool GmatFunction::Execute(ObjectInitializer *objInit)
 //------------------------------------------------------------------------------
-bool GmatFunction::Execute()
+bool GmatFunction::Execute(ObjectInitializer *objInit)
 {
    if (!fcs) return false;
+   if (!objInit) return false;
+   
+   #ifdef DEBUG_FUNCTION_EXEC
+   MessageInterface::ShowMessage
+      ("GmatFunction::Execute() entered for '%s' objectsInitialized=%d\n",
+       functionName.c_str(), objectsInitialized);
+   #endif
+   
    GmatCommand *current = fcs;
    bool        isFunction = false;
+   
    while (current)
    {
       // Call to IsNextAFunction is necessary for branch commands in particular
       isFunction = current->HasAFunction();
-      #ifdef DEBUG_GMAT_FUNCTION
-            MessageInterface::ShowMessage("In GmatFunction execute loop and next command (%s) %s a function call.\n",
-                  (current->GetTypeName()).c_str(), isFunction? "HAS" : "DOES NOT HAVE");
+      #ifdef DEBUG_FUNCTION_EXEC
+      MessageInterface::ShowMessage
+         ("......Function executing <%p><%s><%s>\n", current, current->GetTypeName().c_str(),
+          current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+      MessageInterface::ShowMessage
+         ("In GmatFunction execute loop and next command (%s) %s a function call.\n",
+          (current->GetTypeName()).c_str(), isFunction? "HAS" : "DOES NOT HAVE");
       #endif
+      
+      // Since we don't know where actual mission squence start, just check for command
+      // that is not NoOp, Create, and GMAT.
+      // Can we have simple command indicating beginning of the sequence,
+      // such as BeginMission? (loj: 2008.06.19)
+      if (!objectsInitialized)
+      {
+         if (current->GetTypeName() != "NoOp" && current->GetTypeName() != "Create" &&
+             current->GetTypeName() != "GMAT")
+         {
+            objectsInitialized = true;
+            
+            #ifdef DEBUG_FUNCTION_EXEC
+            MessageInterface::ShowMessage
+               ("\n============================ Begin initialization of local objects\n");
+            #endif
+            // Let's try initialzing local objects using ObjectInitializer (2008.06.19)
+            // We need to add subscribers to publisher, so pass true
+            if (!objInit->InitializeObjects(true))
+            {
+               // Should we throw an exception instead?
+               return false;
+            }
+            #ifdef DEBUG_FUNCTION_EXEC
+            MessageInterface::ShowMessage
+               ("============================ End  initialization of local objects\n");
+            #endif
+         }
+      }
+      
       if (isFunction)
       {
          ; // @todo - call stack stuff
@@ -269,10 +320,10 @@ bool GmatFunction::Execute()
          errMsg += " not found for function \"" + functionName + "\"";
          throw FunctionException(errMsg);
       }
-      ElementWrapper *outWrapper = validator.CreateElementWrapper(outputNames.at(jj), false, false);
+      ElementWrapper *outWrapper = validator->CreateElementWrapper(outputNames.at(jj), false, false);
       outWrapper->SetRefObject(obj); 
       outputArgMap[outputNames.at(jj)] = outWrapper;
-      #ifdef DEBUG_GMAT_FUNCTION // --------------------------------------------------- debug ---
+      #ifdef DEBUG_FUNCTION_EXEC // --------------------------------------------------- debug ---
          MessageInterface::ShowMessage("GmatFunction: Output wrapper created for %s\n", (outputNames.at(jj)).c_str());
       #endif // -------------------------------------------------------------- end debug ---
    }
@@ -280,13 +331,16 @@ bool GmatFunction::Execute()
 }
 
 
+//------------------------------------------------------------------------------
+// void Finalize()
+//------------------------------------------------------------------------------
 void GmatFunction::Finalize()
 {
    ; // @todo - finalize anything else that needs it as well
    GmatCommand *current = fcs;
    while (current)
    {
-      #ifdef DEBUG_FUNCTION
+      #ifdef DEBUG_FUNCTION_FINALIZE
          if (!current)  MessageInterface::ShowMessage("Current is NULL!!!\n");
          else MessageInterface::ShowMessage("   Now about to finalize (call RunComplete on) command %s\n",
                (current->GetTypeName()).c_str());         

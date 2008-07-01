@@ -22,6 +22,7 @@
 #define GmatFunction_hpp
 
 #include "Function.hpp"
+#include "ObjectInitializer.hpp"
 
 class GMAT_API GmatFunction : public Function
 {
@@ -32,12 +33,12 @@ public:
    
    GmatFunction(const GmatFunction &copy);
    GmatFunction& operator=(const GmatFunction &right);
-
+   
    // inherited from Function
    virtual bool         Initialize();
-   virtual bool         Execute();
+   virtual bool         Execute(ObjectInitializer *objInit);
    virtual void         Finalize();
-
+   
    // inherited from GmatBase
    virtual GmatBase*    Clone() const;
    virtual void         Copy(const GmatBase* orig);
@@ -47,6 +48,9 @@ public:
    virtual bool         SetStringParameter(const std::string &label,
                                            const std::string &value);
 protected:
+   
+   void DeleteLocalObjects(GmatCommand *cmd);
+   
    enum
    {
       GmatFunctionParamCount = FunctionParamCount  /// Count of the parameters for this class
