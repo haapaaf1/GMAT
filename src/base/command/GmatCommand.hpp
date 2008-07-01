@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  GmatCommand
 //------------------------------------------------------------------------------
@@ -71,7 +71,13 @@ public:
                            Gmat::WriteMode mode = Gmat::SCRIPTING,
                            const std::string &prefix = "",
                            const std::string &useName = "");
-           
+   
+   // Methods for function mode flag
+   // Added because we need to ignore some exceptions if in function mode
+   // such as "DefaultProp.FM = DefaultFM;" (LOJ: 2008.06.09)
+   void                 SetFunctionMode(bool val);
+   bool                 GetFunctionMode();
+   
    // other methods for setting up the object w.r.t the elements needed
    virtual const StringArray& 
                         GetWrapperObjectNameArray();
@@ -94,12 +100,14 @@ public:
    virtual GmatBase*    GetObject(const Gmat::ObjectType type, 
                                   const std::string objName = "");
    
+   virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
    virtual void         SetSolarSystem(SolarSystem *ss);
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
+   virtual ObjectMap*   GetObjectMap();
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetTransientForces(std::vector<PhysicalModel*> *tf);
-   
    virtual void         SetPublisher(Publisher *p);
+   virtual Publisher*   GetPublisher();
    
    // Access methods inherited from GmatBase
    virtual std::string GetParameterText(const Integer id) const;
@@ -159,7 +167,7 @@ public:
    
    Integer              DepthIncrement();
    bool                 HasPropStateChanged();
-            
+   
    //---------------------------------------------------------------------------
    //  bool GmatCommand::Execute()
    //---------------------------------------------------------------------------
@@ -206,6 +214,8 @@ protected:
    StringArray          objects;
    /// Flag used to determine if associations have been made
    bool                 initialized;
+   /// Flag used to indicate if command used in the function control sequence
+   bool                 inFunction;
    /// Pointer to the next GmatCommand in the sequence; NULL at the end
    GmatCommand          *next;
    /// Pointer to the previous GmatCommand in the sequence; NULL if at the start
@@ -220,6 +230,8 @@ protected:
                         *globalObjectMap;
    /// Solar System, set by the local Sandbox
    SolarSystem          *solarSys;
+   /// Internal coordinate system, set by the local Sandbox
+   CoordinateSystem     *internalCoordSys;
    /// transient forces to pass to the function
    std::vector<PhysicalModel *> 
                         *forces;
