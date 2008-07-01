@@ -302,8 +302,8 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    #ifdef DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("ScriptInterpreter::InterpretGmatFunction() returning retval=%d\n", retval);
-   std::string fcsStr = GmatCommandUtil::GetCommandSeqString(noOp);
-   MessageInterface::ShowMessage("---------- FCS of '%s'", fileName.c_str());
+   std::string fcsStr = GmatCommandUtil::GetCommandSeqString(noOp, true, true);
+   MessageInterface::ShowMessage("---------- FCS of '%s'\n", fileName.c_str());
    MessageInterface::ShowMessage(fcsStr); //Notes: Do not use %s for command string
    #endif
    

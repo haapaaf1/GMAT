@@ -516,9 +516,9 @@ void ConfigManager::AddObject(GmatBase *obj)
    std::string name = obj->GetName();
 
    #ifdef DEBUG_CONFIG_MEMORY
-      MessageInterface::ShowMessage("Adding %s\n", name.c_str());
+      MessageInterface::ShowMessage("Adding '%s'\n", name.c_str());
    #endif
-
+   
    if (mapping.find(name) != mapping.end())
    {
       name += " is already in the configuration table";
@@ -529,7 +529,7 @@ void ConfigManager::AddObject(GmatBase *obj)
       objects.push_back(obj);
       mapping[name] = obj;
    }
-
+   
    //loj: 4/6/09 until we can add TextEphemFile to resource tree, we don't want to
    // write to script file on save script.
 

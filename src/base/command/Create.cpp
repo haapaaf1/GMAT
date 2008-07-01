@@ -327,7 +327,7 @@ bool Create::Execute()
       std::map<std::string, GmatBase *>::iterator omi;
       MessageInterface::ShowMessage("   and at the start,  LOS contains:\n");
       for (omi = objectMap->begin(); omi != objectMap->end(); ++omi)
-         MessageInterface::ShowMessage("    %s of type %s\n",
+         MessageInterface::ShowMessage("    <%p>%s of type %s\n", omi->second,
                (omi->first).c_str(), ((omi->second)->GetTypeName()).c_str());
       MessageInterface::ShowMessage("   and at the start, sGOS contains:\n");
       for (omi = globalObjectMap->begin(); omi != globalObjectMap->end(); ++omi)
