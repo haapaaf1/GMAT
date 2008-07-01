@@ -226,13 +226,21 @@ bool Toggle::Initialize()
 bool Toggle::Execute()
 {
    #ifdef DEBUG_TOGGLE
-      MessageInterface::ShowMessage("Toggle::Execute() entered\n");
+      MessageInterface::ShowMessage
+         ("Toggle::Execute() entered, has %d subscriber(s)\n", subs.size());
    #endif
-
-   for (std::list<Subscriber *>::iterator s = subs.begin(); s != subs.end(); ++s) {
+      
+   for (std::list<Subscriber *>::iterator s = subs.begin(); s != subs.end(); ++s)
+   {      
+      #ifdef DEBUG_TOGGLE
+      MessageInterface::ShowMessage
+         ("Toggle::Execute() calling %s->Activate(%s)\n", (*s)->GetName().c_str(),
+          toggleState ? "true" : "false");
+      #endif
+      
       (*s)->Activate(toggleState);
    }
-    
+   
    char data[] = "Toggle executed\n\n";
    publisher->Publish(streamID, data, strlen(data));
    
