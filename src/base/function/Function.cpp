@@ -64,8 +64,11 @@ Function::Function(const std::string &typeStr, const std::string &name) :
    objectStore       (NULL),
    globalObjectStore (NULL),
    solarSys          (NULL),
+   internalCoordSys  (NULL),
    forces            (NULL),
-   fcs               (NULL)
+   fcs               (NULL),
+   validator         (NULL),
+   objectsInitialized (false)
 {
    objectTypes.push_back(Gmat::FUNCTION);
    objectTypeNames.push_back(typeStr);
@@ -106,8 +109,11 @@ Function::Function(const Function &f) :
    objectStore       (NULL),
    globalObjectStore (NULL),
    solarSys          (NULL),
+   internalCoordSys  (NULL),
    forces            (NULL),
-   fcs               (NULL)
+   fcs               (NULL),
+   validator         (f.validator),
+   objectsInitialized (false)
 {
    parameterCount = FunctionParamCount;
 }
@@ -136,8 +142,11 @@ Function& Function::operator=(const Function &f)
    objectStore       = NULL;
    globalObjectStore = NULL;
    solarSys          = f.solarSys;
+   internalCoordSys  = f.internalCoordSys;
    forces            = f.forces;
    fcs               = NULL;
+   validator         = f.validator;
+   objectsInitialized = f.objectsInitialized;
    inputNames        = f.inputNames;
    outputNames       = f.outputNames;
    //inputArgMap       = f.inputArgMap;   // do I want to do this?
@@ -189,14 +198,15 @@ void Function::SetOutputTypes(WrapperTypeArray &outputTypes,
 //------------------------------------------------------------------------------
 bool Function::Initialize()
 {
-    return true;
+   validator = Validator::Instance();
+   return true;
 }
 
 
 //------------------------------------------------------------------------------
-// bool Function::Execute()  [default implementation]
+// bool Function::Execute(ObjectInitializer *objInit)  [default implementation]
 //------------------------------------------------------------------------------
-bool Function::Execute()
+bool Function::Execute(ObjectInitializer *objInit)
 {
    return true; 
 }
@@ -234,7 +244,24 @@ void Function::SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
 
 void Function::SetSolarSystem(SolarSystem *ss)
 {
+   #ifdef DEBUG_FUNCTION_SET
+   MessageInterface::ShowMessage
+      ("Function::SetSolarSystem() entered, this='%s', ss=<%p>\n",
+       GetName().c_str(), ss);
+   #endif
+   
    solarSys = ss;
+}
+
+void Function::SetInternalCoordSystem(CoordinateSystem *cs)
+{
+   #ifdef DEBUG_FUNCTION_SET
+   MessageInterface::ShowMessage
+      ("Function::SetInternalCoordSystem() entered, this='%s', cs=<%p>\n",
+       GetName().c_str(), cs);
+   #endif
+   
+   internalCoordSys = cs;
 }
 
 void Function::SetTransientForces(std::vector<PhysicalModel*> *tf)
@@ -686,16 +713,31 @@ GmatBase* Function::FindObject(const std::string &name)
    std::string::size_type index = name.find('(');
    if (index != name.npos)
       newName = name.substr(0, index);
+   
    // Check for the object in the Local Object Store (LOS) first
-   if (objectStore->find(newName) == objectStore->end())
-   {
-     // If not found in the LOS, check the Global Object Store (GOS)
-      if (globalObjectStore->find(newName) == globalObjectStore->end())
-         return NULL;
-      else return (*globalObjectStore)[newName];
-   }
-   else
+   if (objectStore && objectStore->find(newName) != objectStore->end())
       return (*objectStore)[newName];
-   return NULL; // should never get to this point
+   
+   // If not found in the LOS, check the Global Object Store (GOS)
+   if (globalObjectStore && globalObjectStore->find(newName) != globalObjectStore->end())
+      return (*globalObjectStore)[newName];
+   
+   // Let's try SolarSystem (loj: 2008.06.12)
+   if (solarSys && solarSys->GetBody(newName))
+      return (GmatBase*)(solarSys->GetBody(newName));
+   
+   return NULL;
+   
+//    // Check for the object in the Local Object Store (LOS) first
+//    if (objectStore->find(newName) == objectStore->end())
+//    {
+//      // If not found in the LOS, check the Global Object Store (GOS)
+//       if (globalObjectStore->find(newName) == globalObjectStore->end())
+//          return NULL;
+//       else return (*globalObjectStore)[newName];
+//    }
+//    else
+//       return (*objectStore)[newName];
+//    return NULL; // should never get to this point
 }
 

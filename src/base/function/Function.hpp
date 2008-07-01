@@ -24,6 +24,7 @@
 #include "ElementWrapper.hpp"
 #include "PhysicalModel.hpp"
 #include "GmatCommand.hpp"
+#include "ObjectInitializer.hpp"
 #include "Validator.hpp"
 #include <map>
 
@@ -45,11 +46,12 @@ public:
                                        IntegerArray &rowCounts,
                                        IntegerArray &colCounts);
    virtual bool         Initialize();
-   virtual bool         Execute();
+   virtual bool         Execute(ObjectInitializer *objInit);
    virtual void         Finalize();
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetSolarSystem(SolarSystem *ss);
+   virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
    virtual void         SetTransientForces(std::vector<PhysicalModel*> *tf);
    virtual bool         IsFunctionControlSequenceSet();
    virtual bool         SetFunctionControlSequence(GmatCommand *cmd);
@@ -120,6 +122,8 @@ protected:
                         *globalObjectStore;
    /// Solar System, set by the local Sandbox, to pass to the function
    SolarSystem          *solarSys;
+   /// Internal CS, set by the local Sandbox, to pass to the function
+   CoordinateSystem     *internalCoordSys;
    /// transient forces to pass to the function
    std::vector<PhysicalModel *> 
                         *forces;
@@ -131,11 +135,12 @@ protected:
    std::map<std::string, GmatBase *>          
                         automaticObjects;
    // Validator used to create the ElementWrappers
-   Validator            validator;
+   Validator            *validator;
    /// Object store needed by the validator
    std::map<std::string, GmatBase *>
                         validatorStore;
-
+   bool objectsInitialized;
+   
    enum
    {
       FUNCTION_PATH = GmatBaseParamCount,
