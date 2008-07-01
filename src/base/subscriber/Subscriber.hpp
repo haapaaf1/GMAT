@@ -59,7 +59,7 @@ public:
    bool                 Add(Subscriber *s);
    bool                 Remove(Subscriber *s, const bool del);
    
-   void                 Activate(bool state = true);
+   virtual void         Activate(bool state = true);
    bool                 IsActive();
    
    virtual void         SetProviderId(Integer id);
@@ -140,6 +140,7 @@ protected:
    bool active;
    bool isEndOfReceive;
    bool isEndOfRun;
+   bool isInitialized;
    
    /// The current run state, so actions based on state can be taken
    Gmat::RunState runstate;
