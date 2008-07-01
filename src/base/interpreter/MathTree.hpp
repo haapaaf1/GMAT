@@ -29,6 +29,7 @@ class ElementWrapper;
 class Function;
 class SolarSystem;
 class PhysicalModel;
+class CoordinateSystem;
 
 class GMAT_API MathTree : public GmatBase
 {
@@ -60,6 +61,7 @@ public:
    void                 SetObjectMap(ObjectMap *map);
    void                 SetGlobalObjectMap(ObjectMap *map);
    void                 SetSolarSystem(SolarSystem *ss);
+   void                 SetInternalCoordSystem(CoordinateSystem *cs);
    void                 SetTransientForces(std::vector<PhysicalModel*> *tf);
    
    // Inherited (GmatBase) methods
@@ -94,6 +96,7 @@ protected:
    void SetObjectMapToRunner(MathNode *node, ObjectMap *map);
    void SetGlobalObjectMapToRunner(MathNode *node, ObjectMap *map);
    void SetSolarSystemToRunner(MathNode *node, SolarSystem *ss);
+   void SetInternalCoordSystemToRunner(MathNode *node, CoordinateSystem *cs);
    void SetTransientForcesToRunner(MathNode *node, std::vector<PhysicalModel*> *tf);
    bool RenameParameter(MathNode *node, const Gmat::ObjectType type,
                         const std::string &oldName, const std::string &newName);

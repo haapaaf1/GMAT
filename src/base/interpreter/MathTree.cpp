@@ -366,6 +366,32 @@ void MathTree::SetSolarSystem(SolarSystem *ss)
 
 
 //------------------------------------------------------------------------------
+// void SetInternalCoordSystem(CoordinateSystem *cs)
+//------------------------------------------------------------------------------
+void MathTree::SetInternalCoordSystem(CoordinateSystem *cs)
+{
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage("MathTree::SetGlobalObjectMap() cs=%p\n", cs);
+   #endif
+   
+   if (theTopNode == NULL)
+      return;
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("   Calling SetInternalCoordSystemToRunner() theTopNode type='%s', desc='%s'\n",
+       theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
+   #endif
+   
+   SetInternalCoordSystemToRunner(theTopNode, cs);
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage("MathTree::SetGlobalObjectMap() returning\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
 // void SetTransientForces(std::vector<PhysicalModel*> *tf)
 //------------------------------------------------------------------------------
 void MathTree::SetTransientForces(std::vector<PhysicalModel*> *tf)
@@ -710,6 +736,39 @@ void MathTree::SetSolarSystemToRunner(MathNode *node, SolarSystem *ss)
    
    MathNode *right = node->GetRight();
    SetSolarSystemToRunner(right, ss);
+}
+
+
+//------------------------------------------------------------------------------
+// void SetInternalCoordSystemToRunner(MathNode *node, CoordinateSystem *cs)
+//------------------------------------------------------------------------------
+void MathTree::SetInternalCoordSystemToRunner(MathNode *node, CoordinateSystem *cs)
+{
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("MathTree::SetInternalCoordSystemToRunner() node=%p, cs=%p\n", node, cs);
+   #endif
+   
+   if (node == NULL)
+      return;
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("   node type='%s', desc='%s'\n", node->GetTypeName().c_str(),
+       node->GetName().c_str());
+   #endif
+   
+   if (!node->IsFunction())
+      return;
+   
+   if (node->IsOfType("FunctionRunner"))
+      ((FunctionRunner*)(node))->SetInternalCoordSystem(cs);
+   
+   MathNode *left = node->GetLeft();   
+   SetInternalCoordSystemToRunner(left, cs);
+   
+   MathNode *right = node->GetRight();
+   SetInternalCoordSystemToRunner(right, cs);
 }
 
 
