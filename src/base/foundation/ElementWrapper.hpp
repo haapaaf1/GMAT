@@ -30,6 +30,9 @@
 #include "GmatBase.hpp"
 #include "Rmatrix.hpp"
 
+// forward references
+class SolarSystem;
+
 class GMAT_API ElementWrapper
 {
 public:
@@ -48,11 +51,23 @@ public:
    Gmat::WrapperDataType      GetWrapperType() const;
    
    virtual const StringArray& GetRefObjectNames();
+   virtual bool               SetRefObjectName(const std::string &name,
+                                               Integer index = 0);
    virtual GmatBase*          GetRefObject(const std::string &name = "");
    virtual bool               SetRefObject(GmatBase *obj);
+   
    virtual bool               RenameObject(const std::string &oldName, 
                                            const std::string &newName);
    
+   // static functions
+   static bool SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWrapper,
+                        SolarSystem *solarSys, ObjectMap *objMap,
+                        ObjectMap *globalObjMap);
+   
+   static GmatBase* FindObject(const std::string &name, SolarSystem *solarSys,
+                               ObjectMap *objMap, ObjectMap *globalObjMap);
+   
+   static void ShowObjectMaps(ObjectMap *objMap, ObjectMap *globalObjMap);
    
 //------------------------------------------------------------------------------
 //  Gmat::ParameterType  GetDataType() const
@@ -105,7 +120,7 @@ public:
    virtual Integer         EvaluateInteger() const;
    virtual bool            SetInteger(const Integer toValue); 
    virtual GmatBase*       EvaluateObject() const;
-   virtual bool            SetObject(const GmatBase *obj); 
+   virtual bool            SetObject(GmatBase *obj); 
    
 protected:  
 
