@@ -44,6 +44,7 @@ public:
    virtual void         SetObjectMap(ObjectMap *map);
    virtual void         SetGlobalObjectMap(ObjectMap *map);
    void                 SetSolarSystem(SolarSystem *ss);
+   void                 SetInternalCoordSystem(CoordinateSystem *cs);
    void                 SetTransientForces(std::vector<PhysicalModel*> *tf);
    
    // inherited from MathFunction

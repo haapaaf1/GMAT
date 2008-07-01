@@ -21,8 +21,6 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_FUNCTION
-//#define DEBUG_OBJECT_MAP
-//#define DEBUG_OBJECT_SET
 
 //---------------------------------
 // public methods
@@ -208,7 +206,7 @@ const StringArray& FunctionRunner::GetInputs()
 //------------------------------------------------------------------------------
 void FunctionRunner::SetObjectMap(ObjectMap *map)
 {
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("FunctionRunner::SetObjectMap() entered, theFunctionName='%s', "
        "map=<%p>\n", theFunctionName.c_str(), map);
@@ -230,7 +228,7 @@ void FunctionRunner::SetObjectMap(ObjectMap *map)
 //------------------------------------------------------------------------------
 void FunctionRunner::SetGlobalObjectMap(ObjectMap *map)
 {
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("FunctionRunner::SetGlobalObjectMap() entered, theFunctionName='%s', "
        "map=<%p>\n", theFunctionName.c_str(), map);
@@ -241,7 +239,7 @@ void FunctionRunner::SetGlobalObjectMap(ObjectMap *map)
    // Now, find the function object
    GmatBase *mapObj = FindObject(theFunctionName);
    
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("=> found the function: <%p><%s>\n", mapObj, mapObj ? mapObj->GetName().c_str() : "NULL");
    #endif
@@ -259,7 +257,7 @@ void FunctionRunner::SetGlobalObjectMap(ObjectMap *map)
    
    theFunctionManager.SetGlobalObjectMap(map);
    
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage("FunctionRunner::SetGlobalObjectMap() exiting\n");
    #endif
 }
@@ -276,7 +274,7 @@ void FunctionRunner::SetGlobalObjectMap(ObjectMap *map)
 //------------------------------------------------------------------------------
 void FunctionRunner::SetSolarSystem(SolarSystem *ss)
 {
-   #ifdef DEBUG_OBJECT_SET
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("FunctionRunner::SetSolarSystem() entered, theFunctionName='%s', "
        "ss=<%p>\n", theFunctionName.c_str(), ss);
@@ -284,8 +282,34 @@ void FunctionRunner::SetSolarSystem(SolarSystem *ss)
    
    theFunctionManager.SetSolarSystem(ss);
    
-   #ifdef DEBUG_OBJECT_SET
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage("FunctionRunner::SetSolarSystem() exiting\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+//  void SetInternalCoordSystem(CoordinateSystem *cs)
+//------------------------------------------------------------------------------
+/**
+ * Called by the MathTree to set the CoordinateSystem used by the GmatCommand and
+ * function objects.
+ * 
+ * @param <cs> Pointer to the CoordinateSystem
+ */
+//------------------------------------------------------------------------------
+void FunctionRunner::SetInternalCoordSystem(CoordinateSystem *cs)
+{
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("FunctionRunner::SetInternalCoordSystem() entered, theFunctionName='%s', "
+       "cs=<%p>\n", theFunctionName.c_str(), cs);
+   #endif
+   
+   theFunctionManager.SetInternalCoordinateSystem(cs);
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage("FunctionRunner::SetInternalCoordSystem() leaving\n");
    #endif
 }
 
@@ -301,7 +325,7 @@ void FunctionRunner::SetSolarSystem(SolarSystem *ss)
 //------------------------------------------------------------------------------
 void FunctionRunner::SetTransientForces(std::vector<PhysicalModel*> *tf)
 {
-   #ifdef DEBUG_OBJECT_SET
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("FunctionRunner::SetTransientForces() entered, theFunctionName='%s', "
        "tf=<%p>\n", theFunctionName.c_str(), tf);
@@ -309,7 +333,7 @@ void FunctionRunner::SetTransientForces(std::vector<PhysicalModel*> *tf)
    
    theFunctionManager.SetTransientForces(tf);
    
-   #ifdef DEBUG_OBJECT_SET
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage("FunctionRunner::SetTransientForces() exiting\n");
    #endif
 }
@@ -487,7 +511,7 @@ GmatBase* FunctionRunner::FindObject(const std::string &name)
    if (index != name.npos)
       newName = name.substr(0, index);
    
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("FunctionRunner::FindObject() theObjectMap=<%p>, theGlobalObjectMap=<%p>, "
        "newName='%s'\n", theObjectMap, theGlobalObjectMap, newName.c_str());
