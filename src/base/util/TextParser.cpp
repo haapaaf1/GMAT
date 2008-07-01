@@ -857,7 +857,7 @@ StringArray TextParser::Decompose(const std::string &chunk,
 // StringArray SeparateBrackets(const std::string &chunk,
 //                              const std::string &bracketPair,
 //                              const std::string &delim,
-//                              bool checkOuterBracket = true)
+//                              bool checkOuterBracket)
 //-------------------------------------------------------------------------------
 /*
  * Breaks chunk into parts separated by space or comma but keeps bracket together,
@@ -871,7 +871,7 @@ StringArray TextParser::Decompose(const std::string &chunk,
  * @param <chunk> input chunk to be break apart
  * @param <bracketPair> input bracket pair (open and close) to keep together
  *                      (), [], {}
- * @param <checkOuterBracket> true if outer bracket pair must be exist
+ * @param <checkOuterBracket> true if outer bracket pair must be exist (true)
  *
  * @exception <InterpreterException> thrown
  *    If checkOuterBracket is set to true, and there is no matching bracket pair
