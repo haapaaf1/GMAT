@@ -52,6 +52,7 @@ FunctionManager::FunctionManager() :
    f                 (NULL),
    firstExecution    (true),
    numVarsCreated    (0),
+   validator         (NULL),
    realResult        (-999.99),
    blankResult       (false),
    outputType        (""),
@@ -101,6 +102,7 @@ FunctionManager::FunctionManager(const FunctionManager &fm) :
    outputWrappers      (fm.outputWrappers), // is that right?
    firstExecution      (true),
    numVarsCreated      (fm.numVarsCreated),
+   validator           (NULL),
    realResult          (fm.realResult),
    matResult           (fm.matResult),
    blankResult         (fm.blankResult),
@@ -138,6 +140,7 @@ FunctionManager& FunctionManager::operator=(const FunctionManager &fm)
       outs                = fm.outs;
       firstExecution      = true;
       numVarsCreated      = fm.numVarsCreated;
+      validator           = NULL;
       //inputWrappers       = fm.inputWrappers; // is that right?
       outputWrappers      = fm.outputWrappers; // is that right?
       realResult          = fm.realResult;
@@ -261,6 +264,7 @@ void FunctionManager::SetOutputs(const StringArray &outputs)
 void FunctionManager::SetInternalCoordinateSystem(CoordinateSystem *internalCS)
 {
    intCS = internalCS;
+   if ((f) && (f->GetTypeName() == "GmatFunction"))   f->SetInternalCoordSystem(intCS);
 }
 
 
@@ -281,13 +285,16 @@ bool FunctionManager::Execute()
    std::string objName;
    
    // Initialize the Validator - I think I need to do this each time - or do I?
-   validator.SetSolarSystem(solarSys);
+   //validator.SetSolarSystem(solarSys);
+   if (validator == NULL)
+      validator = Validator::Instance();
+   
    std::map<std::string, GmatBase *>::iterator omi;
    for (omi = localObjectStore->begin(); omi != localObjectStore->end(); ++omi)
       combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
    for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
       combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
-   validator.SetObjectMap(&combinedObjectStore);
+   validator->SetObjectMap(&combinedObjectStore);
    #ifdef DEBUG_FUNCTION_MANAGER
       MessageInterface::ShowMessage("in FM::Execute - just set Validator's object map\n");
    #endif
@@ -405,7 +412,7 @@ bool FunctionManager::Execute()
    //objInit->InitializeObjects();  // @todo - put this in the right place!!!!!
    // -- ****************************************************************************************
    // Now, execute the function
-   f->Execute();
+   f->Execute(objInit);
    // -- ****************************************************************************************
    // @todo - here is the placeholder for calling the sequence from the FunctionManager ...
 //   bool isFunction = false;
@@ -649,13 +656,13 @@ bool FunctionManager::Initialize()
    StringArray inNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
 
    // Initialize the Validator - I think I need to do this each time - or do I?
-//   validator.SetSolarSystem(solarSys);
+//   validator->SetSolarSystem(solarSys);
 //   std::map<std::string, GmatBase *>::iterator omi;
 //   for (omi = localObjectStore->begin(); omi != localObjectStore->end(); ++omi)
 //      combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
 //   for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
 //      combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
-   validator.SetObjectMap(&combinedObjectStore);
+   validator->SetObjectMap(&combinedObjectStore);
 
    functionObjectStore.clear();
    //inputWrappers.clear();
@@ -692,7 +699,7 @@ bool FunctionManager::Initialize()
          MessageInterface::ShowMessage("Adding object %s to the FOS\n", objName.c_str());
       #endif // -------------------------------------------------------------- end debug ---
       // create an element wrapper for the input
-      ElementWrapper *inWrapper = validator.CreateElementWrapper(ins.at(ii), false, false);
+      ElementWrapper *inWrapper = validator->CreateElementWrapper(ins.at(ii), false, false);
       inWrapper->SetRefObject(objFOS);
       inputWrappers.insert(std::make_pair(objName, inWrapper));
       #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
@@ -716,7 +723,7 @@ bool FunctionManager::Initialize()
             errMsg += " not found for function \"" + fName + "\"";
             throw FunctionException(errMsg);
          }
-         ElementWrapper *outWrapper = validator.CreateElementWrapper(outs.at(jj));
+         ElementWrapper *outWrapper = validator->CreateElementWrapper(outs.at(jj));
          outWrapper->SetRefObject(obj); 
          outputWrappers.push_back(outWrapper);
          #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
@@ -793,7 +800,7 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
    {
       // otherwise, we assume it is something else, like array element.
       // NOTE that we are only allowing Real and Array here 
-      ElementWrapper *ew = validator.CreateElementWrapper(fromString);
+      ElementWrapper *ew = validator->CreateElementWrapper(fromString);
       if (ew)
       {
          Gmat::WrapperDataType wType = ew->GetWrapperType();

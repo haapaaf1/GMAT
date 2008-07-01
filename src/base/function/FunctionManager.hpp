@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  FunctionManager
 //------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ protected:
    /// Output Objects
    //ObjectArray          outObjects; 
    // Validator used to create the ElementWrappers
-   Validator            validator;
+   Validator            *validator;
    // Created objects for string or numeric literal inputs
    std::map<std::string, GmatBase *>
                         createdLiterals;
