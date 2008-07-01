@@ -351,18 +351,24 @@ bool ManageObject::MakeGlobal(const std::string &objName)
    {
       if (isInGOS)
       {
-         std::string ex = "Cannot add more than one object with name """;
-         ex += objName + """  to the Global Object Store\n";
-         throw CommandException(ex);
+         std::string ex = "ManageObject::MakeGlobal() Cannot add more than "
+            "one object with name \"";
+         ex += objName + "\" to the Global Object Store";
+         // Let's just ignore for now to run TargetHohmannTransfer.gmf (loj: 2008.06.05) 
+         //throw CommandException(ex);
+         MessageInterface::ShowMessage("*** WARNING *** " + ex + ", So ignored.\n");
       }
-      mapObj = (*objectMap)[objName];
-      objectMap->erase(objName);
-      globalObjectMap->insert(std::make_pair(objName,mapObj));
-      #ifdef DEBUG_MANAGE_OBJECT
-         MessageInterface::ShowMessage("ManageObject::MakeGlobal() objName %s inserted into GOS\n",
-               objName.c_str());
-      #endif
+      else
+      {
+         mapObj = (*objectMap)[objName];
+         objectMap->erase(objName);
+         globalObjectMap->insert(std::make_pair(objName,mapObj));
+         #ifdef DEBUG_MANAGE_OBJECT
+            MessageInterface::ShowMessage
+               ("ManageObject::MakeGlobal() objName %s inserted into GOS\n", objName.c_str());
+         #endif
       mapObj->SetIsGlobal(true);
+      }
    }
    else
    {
