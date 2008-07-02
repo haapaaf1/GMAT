@@ -823,11 +823,50 @@ bool Report::AddParameter(const std::string &paramName, Integer index,
 {
    #ifdef DEBUG_REPORT_SET
    MessageInterface::ShowMessage
-      ("Report::AddParameter() this=<%p>, Adding parameter '%s', index=%d, param=<%p>\n",
-       this, paramName.c_str(), index, param);
+      ("Report::AddParameter() this=<%p>, Adding parameter '%s', index=%d, "
+       "param=<%p>, numParams=%d\n", this, paramName.c_str(), index, param, numParams);
    #endif
    
-   if (paramName != "" && index == numParams)
+   if (paramName == "")
+   {
+      #ifdef DEBUG_REPORT_SET
+      MessageInterface::ShowMessage
+         ("Report::AddParameter() returning false, input paramName is blank\n");
+      #endif
+      return false;
+   }
+   
+   if (index < 0)
+   {
+      #ifdef DEBUG_REPORT_SET
+      MessageInterface::ShowMessage
+         ("Report::AddParameter() returning false, the index %d is less than 0\n");
+      #endif
+      return false;
+   }
+   
+   // Since numParam is incremented after adding to arrays, index range varies
+   // dependens on whether parameter ponter is NULL or not
+   if (param == NULL && index > numParams || param != NULL && index >= numParams)
+   {
+      #ifdef DEBUG_REPORT_SET
+      MessageInterface::ShowMessage
+         ("Report::AddParameter() returning false, the index %d is out of bounds, "
+          "it must be between 0 and %d\n", index, param ? numParams + 1 : numParams);
+      #endif
+      return false;
+   }
+   
+   if (param != NULL)
+   {
+      #ifdef DEBUG_REPORT_SET
+      MessageInterface::ShowMessage
+         ("   Set <%p>'%s' to index %d\n", param, paramName.c_str(), index);
+      #endif
+      parms[index] = param;
+   }
+   //if (paramName != "" && index == numParams)
+   else
    {
       #ifdef __NO_DUPLICATES__
       // if paramName not found, add
@@ -850,7 +889,7 @@ bool Report::AddParameter(const std::string &paramName, Integer index,
          
          #ifdef DEBUG_REPORT_SET
          MessageInterface::ShowMessage
-            ("   '%s' added, size=%d\n", paramName.c_str(), numParams);
+            ("   Added '%s', size=%d\n", paramName.c_str(), numParams);
          #endif
          
          return true;
