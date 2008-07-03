@@ -38,6 +38,8 @@
 //#define DEBUG_GMAT_FUNCTION
 //#define DEBUG_FILE_PATH
 //#define DEBUG_SET_PATH
+#define DEBUG_PLUGIN_DETECTION
+
 
 //---------------------------------
 // static data
@@ -1051,6 +1053,20 @@ const StringArray& FileManager::GetAllMatlabFunctionPaths()
 }
 
 
+//------------------------------------------------------------------------------
+// const StringArray& GetPluginList()
+//------------------------------------------------------------------------------
+/**
+ * Accesses the list of plug-in libraries parsed from the startup file.
+ * 
+ * @return The list of plug-in libraries
+ */
+//------------------------------------------------------------------------------
+const StringArray& FileManager::GetPluginList()
+{
+   return mPluginList;
+}
+
 //---------------------------------
 // private methods
 //---------------------------------
@@ -1128,6 +1144,14 @@ void FileManager::AddFileType(const std::string &type, const std::string &name)
          //   ("FileManager::AddFileType() expecting 'PATH/' in line:\n" +
          //    type + " = " + name);
       }
+   }
+   else if (type == "PLUGIN")
+   {
+      #ifdef DEBUG_PLUGIN_DETECTION
+         MessageInterface::ShowMessage("Adding plug-in %s to plugin list\n", 
+               name.c_str());
+      #endif
+      mPluginList.push_back(name);
    }
    else
    {

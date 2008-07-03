@@ -452,31 +452,31 @@ void Moderator::SetRunReady(bool flag)
 //------------------------------------------------------------------------------
 void Moderator::LoadPlugins()
 {
-   std::string libName;
+   StringArray pluginList = theFileManager->GetPluginList();
 
    // This is done for all plugins in the startup file
+   for (StringArray::const_iterator i = pluginList.begin(); 
+         i != pluginList.end(); ++i)
+   {
 
-#ifndef __WIN32__
+      #ifndef __WIN32__
    
-   libName = "libVF13Optimizer";
+         #ifdef DEBUG_PLUGIN_REGISTRATION
+            MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+               i->c_str());
+         #endif
+         LoadAPlugin(*i);
 
-   #ifdef DEBUG_PLUGIN_REGISTRATION
-      MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
-         libName.c_str());
-   #endif
-   LoadAPlugin(libName);
-
-#else
-   
-   libName = "VF13Optimizer";
-
-   #ifdef DEBUG_PLUGIN_REGISTRATION
-      MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
-         libName.c_str());
-   #endif
-   LoadAPlugin(libName);
-   
-#endif
+      #else
+         
+         #ifdef DEBUG_PLUGIN_REGISTRATION
+            MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+               i->c_str());
+         #endif
+         LoadAPlugin(*i);
+        
+      #endif
+   }
 }
 
 //------------------------------------------------------------------------------
