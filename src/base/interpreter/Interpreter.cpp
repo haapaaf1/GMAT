@@ -2367,7 +2367,8 @@ Parameter* Interpreter::CreateSystemParameter(const std::string &str)
    if (inFunctionMode)
       manage = 0;
    
-   Parameter *param = theValidator->CreateSystemParameter(str, manage);
+   bool paramCreated = false;
+   Parameter *param = theValidator->CreateSystemParameter(paramCreated, str, manage);
    
    #ifdef DEBUG_CREATE_PARAM
    MessageInterface::ShowMessage
