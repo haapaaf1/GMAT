@@ -73,7 +73,7 @@
 //#define DEBUG_CREATE_VAR 1
 //#define DEBUG_GMAT_FUNCTION 1
 //#define DEBUG_OBJECT_MAP
-//#define DEBUG_FIND_OBJECT 2
+//#define DEBUG_FIND_OBJECT 1
 //#define DEBUG_ADD_OBJECT 1
 //#define DEBUG_SOLAR_SYSTEM 1
 // #define DEBUG_PLUGIN_REGISTRATION
@@ -1206,10 +1206,20 @@ SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
    {
       ObjectMap::iterator pos = objectMapInUse->find("SolarSystem");
       if (pos != objectMapInUse->end())
+      {
          ss = (SolarSystem*)pos->second;
+         #if DEBUG_SOLAR_SYSTEM
+         MessageInterface::ShowMessage("   Using SolarSystem from objectMapInUse\n");
+         #endif
+      }
       
       if (ss == NULL)
+      {
          ss = theInternalSolarSystem;
+         #if DEBUG_SOLAR_SYSTEM
+         MessageInterface::ShowMessage("   Using Internal SolarSystem\n");
+         #endif
+      }      
    }
    else
    {
@@ -1249,7 +1259,15 @@ void Moderator::SetSolarSystemInUse(SolarSystem *ss)
 void Moderator::SetInternalSolarSystem(SolarSystem *ss)
 {
    if (ss != NULL)
+   {
+      #if DEBUG_SOLAR_SYSTEM
+      MessageInterface::ShowMessage
+         ("Moderator::SetInternalSolarSystem() entered, ss=<%p>'%s'\n",
+          ss, ss->GetName().c_str());
+      #endif
+      
       theInternalSolarSystem = ss;
+   }
 }
 
 
@@ -2551,15 +2569,13 @@ CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
          }
          
          // Call GetSolarSystemInUse() to get SolarSystem from configuration
-         // or object map is use (loj: 2008.06.27)
-         //CelestialBody *earth = theSolarSystemInUse->GetBody("Earth");
+         // or object map in use (loj: 2008.06.27)
          SolarSystem *ss = GetSolarSystemInUse(manage);
          CelestialBody *earth = ss->GetBody("Earth");
          
          // Set J2000Body and SolarSystem
          cs->SetStringParameter("J2000Body", "Earth");
          cs->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
-         //cs->SetSolarSystem(theSolarSystemInUse); // (loj: 2008.06.27)
          cs->SetSolarSystem(ss);
          cs->Initialize();
          
@@ -2614,7 +2630,7 @@ CoordinateSystem* Moderator::GetCoordinateSystem(const std::string &name,
    if (name == "")
       return NULL;
    else if (manage == 2)
-      return (CoordinateSystem*)FindObject(name);
+      return (CoordinateSystem*)FindObject(name, manage);
    else
       return theConfigManager->GetCoordinateSystem(name);
 }
@@ -2860,23 +2876,27 @@ StopCondition* Moderator::CreateStopCondition(const std::string &type,
 
 //------------------------------------------------------------------------------
 // AxisSystem* CreateAxisSystem(const std::string &type,
-//                              const std::string &name)
+//                              const std::string &name, Integer manage)
 //------------------------------------------------------------------------------
 /**
  * Creates a AxisSystem object by given type and name.
  *
  * @param <type> object type
  * @param <name> object name
+ * @param <manage>  0, if parameter is not managed
+ *                  1, if parameter is added to configuration (default)
+ *                  2, if Parameter is added to function object map
  *
  * @return a AxisSystem object pointer
  */
 //------------------------------------------------------------------------------
 AxisSystem* Moderator::CreateAxisSystem(const std::string &type,
-                                        const std::string &name)
+                                        const std::string &name, Integer manage)
 {
    #if DEBUG_CREATE_RESOURCE
-   MessageInterface::ShowMessage("Moderator::CreateAxisSystem() type = '%s', "
-                                 "name = '%s'\n", type.c_str(), name.c_str());
+   MessageInterface::ShowMessage
+      ("Moderator::CreateAxisSystem() type = '%s', name = '%s', manage=%d\n",
+       type.c_str(), name.c_str(), manage);
    #endif
    
    AxisSystem *axisSystem = theFactoryManager->CreateAxisSystem(type, name);
@@ -2898,8 +2918,8 @@ AxisSystem* Moderator::CreateAxisSystem(const std::string &type,
    // Used FindObject() instead of GetConfiguredObject() for GmatFunction implemenation
    ////axisSystem->SetOrigin((SpacePoint*)GetConfiguredObject(axisSystem->GetOriginName()));
    ////axisSystem->SetJ2000Body((SpacePoint*)GetConfiguredObject(axisSystem->GetJ2000BodyName()));
-   axisSystem->SetOrigin((SpacePoint*)FindObject(axisSystem->GetOriginName()));
-   axisSystem->SetJ2000Body((SpacePoint*)FindObject(axisSystem->GetJ2000BodyName()));
+   axisSystem->SetOrigin((SpacePoint*)FindObject(axisSystem->GetOriginName(), manage));
+   axisSystem->SetJ2000Body((SpacePoint*)FindObject(axisSystem->GetJ2000BodyName(), manage));
    
    // Notes: AxisSystem is not configured. It is local to CoordinateSystem
    // and gets deleted when CoordinateSystem is deleted.
@@ -5080,7 +5100,7 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
    if (ownerName != "")
    {
       param->SetRefObjectName(param->GetOwnerType(), ownerName);
-      param->AddRefObject((Parameter*)FindObject(ownerName));
+      param->AddRefObject((Parameter*)FindObject(ownerName, manage));
    }
    
    std::string newDep = depName;
@@ -5102,11 +5122,11 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
    #endif
    
    if (newDep != "")
-      param->AddRefObject(FindObject(newDep));
+      param->AddRefObject(FindObject(newDep, manage));
    
    // I'm not sure if we always use EarthMJ2000Eq (loj: 2008.06.03)
    if (param->NeedCoordSystem())
-      param->AddRefObject(FindObject("EarthMJ2000Eq"));
+      param->AddRefObject(FindObject("EarthMJ2000Eq", manage));
    
    // create parameter dependent coordinate system
    if (type == "Longitude" || type == "Latitude" || type == "Altitude" ||
@@ -5143,12 +5163,12 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
          CoordinateSystem *cs = CreateCoordinateSystem(axisName, false, false, manage);
          
          // create BodyFixedAxis with origin
-         AxisSystem *axis = CreateAxisSystem("BodyFixed", "BodyFixed_Earth");
+         AxisSystem *axis = CreateAxisSystem("BodyFixed", "BodyFixed_Earth", manage);
          cs->SetStringParameter("Origin", origin);
-         cs->SetRefObject(FindObject(origin), Gmat::SPACE_POINT, origin);
+         cs->SetRefObject(FindObject(origin, manage), Gmat::SPACE_POINT, origin);
          cs->SetRefObject(axis, Gmat::AXIS_SYSTEM, axis->GetName());
          cs->SetStringParameter("J2000Body", "Earth");
-         cs->SetRefObject(FindObject("Earth"), Gmat::SPACE_POINT, "Earth");
+         cs->SetRefObject(FindObject("Earth", manage), Gmat::SPACE_POINT, "Earth");
          cs->SetSolarSystem(theSolarSystemInUse);
          cs->Initialize();
          
@@ -5169,18 +5189,18 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
 
 // object map
 //------------------------------------------------------------------------------
-// GmatBase* FindObject(const std::string &name)
+// GmatBase* FindObject(const std::string &name, Integer manage)
 //------------------------------------------------------------------------------
 /*
  * Finds object from the objectMapInUse by name
  */
 //------------------------------------------------------------------------------
-GmatBase* Moderator::FindObject(const std::string &name)
+GmatBase* Moderator::FindObject(const std::string &name, Integer manage)
 {
    #if DEBUG_FIND_OBJECT
    MessageInterface::ShowMessage
-      ("Moderator::FindObject() entered, name='%s', objectMapInUse=<%p>\n",
-       name.c_str(), objectMapInUse);
+      ("Moderator::FindObject() entered, name='%s', manage=%d, objectMapInUse=<%p>\n",
+       name.c_str(), manage, objectMapInUse);
    #endif
    
    if (name == "")
@@ -5214,7 +5234,11 @@ GmatBase* Moderator::FindObject(const std::string &name)
    }
    
    #if DEBUG_FIND_OBJECT > 1
-   MessageInterface::ShowMessage("Here is the current Moderator object map:\n");
+   MessageInterface::ShowMessage
+      ("Here is the current Moderator object map<%p>:\n", objectMapInUse);
+   if (objectMapInUse == NULL)
+      MessageInterface::ShowMessage("The objectMapInUse is NULL\n");
+   
    for (std::map<std::string, GmatBase *>::iterator i = objectMapInUse->begin();
         i != objectMapInUse->end(); ++i)
    {
@@ -5230,13 +5254,9 @@ GmatBase* Moderator::FindObject(const std::string &name)
       obj = (*objectMapInUse)[newName];
    
    // If object not found, try SolarSystem
-   // @todo - We want to use SolarSystem that Sandbox uses
    if (obj == NULL)
    {
-      SolarSystem *ss = NULL;
-      ObjectMap::iterator pos = objectMapInUse->find("SolarSystem");
-      if (pos != objectMapInUse->end())
-         ss = (SolarSystem*)pos->second;
+      SolarSystem *ss = GetSolarSystemInUse(manage);
       
       if (ss)
       {
@@ -5250,20 +5270,6 @@ GmatBase* Moderator::FindObject(const std::string &name)
          }
          #endif
       }
-   }
-   
-   // If object still not found, try internal SolarSystem
-   if (obj == NULL && theInternalSolarSystem != NULL)
-   {
-      obj = (GmatBase*)(theInternalSolarSystem->GetBody(newName));
-      #if DEBUG_FIND_OBJECT
-      if (obj)
-      {
-         MessageInterface::ShowMessage
-            ("   Found '%s' from the InternalSolarSystem <%p>\n", name.c_str(),
-             theInternalSolarSystem);
-      }
-      #endif
    }
    
    #if DEBUG_FIND_OBJECT
@@ -5601,7 +5607,7 @@ void Moderator::AddSolarSystemToSandbox(Integer index)
    
    // Add LibrationPoint and Barycenter objects
    StringArray cpNames = theConfigManager->GetListOfItems(Gmat::CALCULATED_POINT);
-
+   
    CalculatedPoint *cp;
    for (Integer i=0; i<(Integer)cpNames.size(); i++)
    {

@@ -228,7 +228,8 @@ public:
    
    // AxisSystem
    AxisSystem* CreateAxisSystem(const std::string &type,
-                                const std::string &name);
+                                const std::string &name,
+                                Integer manage = 1);
    
    // MathNode
    MathNode* CreateMathNode(const std::string &type,
@@ -329,7 +330,7 @@ private:
                               const std::string &depName, Integer manage);
    
    // object map
-   GmatBase* FindObject(const std::string &name);
+   GmatBase* FindObject(const std::string &name, Integer manage = 1);
    bool AddObject(GmatBase *obj);
    
    // default objects
