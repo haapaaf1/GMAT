@@ -519,8 +519,9 @@ bool Subscriber::SetWrapperReference(GmatBase *obj, const std::string &name)
    {
       if (paramWrappers[i] == NULL)
          throw SubscriberException
-            ("Subscriber::SetWrapperReference() failed to set reference for "
-             "object named \"" + name + ".\"\nThe wrapper is NULL.\n");
+            ("Subscriber::SetWrapperReference() \"" + GetName() +
+             "\" failed to set reference for object named \"" + name +
+             ".\" The wrapper is NULL.\n");
       
       refname = paramWrappers[i]->GetDescription();
       if (paramWrappers[i]->GetWrapperType() == Gmat::ARRAY_ELEMENT)
@@ -534,7 +535,8 @@ bool Subscriber::SetWrapperReference(GmatBase *obj, const std::string &name)
    
    if (!nameFound)
       throw SubscriberException
-         ("Subscriber::SetWrapperReference() failed to find object named \"" +  name + "\"\n");
+         ("Subscriber::SetWrapperReference() \"" + GetName() +
+          "\" failed to find object named \"" +  name + "\"\n");
    
    #ifdef DEBUG_WRAPPER_CODE   
    MessageInterface::ShowMessage("   setting ref object of wrappers\n");
@@ -705,8 +707,9 @@ bool Subscriber::RenameRefObject(const Gmat::ObjectType type,
    {
       if (paramWrappers[i] == NULL)
          throw SubscriberException
-            ("Subscriber::SetWrapperReference() failed to set reference for "
-             "object named \"" + oldName + ".\"\nThe wrapper is NULL.\n");
+            ("Subscriber::SetWrapperReference() \"" + GetName() +
+             "\" failed to set reference for object named \"" + oldName +
+             ".\" The wrapper is NULL.\n");
       
       std::string desc = paramWrappers[i]->GetDescription();
       
