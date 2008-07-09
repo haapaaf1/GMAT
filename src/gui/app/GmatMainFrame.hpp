@@ -160,6 +160,7 @@ private:
    // event handling
    DECLARE_EVENT_TABLE();
    void OnProjectNew(wxCommandEvent &event);
+   void OnClearCurrentMission(wxCommandEvent &event);
    void OnLoadDefaultMission(wxCommandEvent &event);
    void OnSaveScriptAs(wxCommandEvent &event);
    void OnSaveScript(wxCommandEvent &event);
@@ -214,6 +215,7 @@ namespace GmatMenu
       MENU_FILE_SAVE_SCRIPT_AS,
       MENU_FILE_PRINT,
       MENU_LOAD_DEFAULT_MISSION,
+      MENU_EMPTY_PROJECT,
       
       MENU_PROJECT_PREFERENCES,
       MENU_PROJECT_PREFERENCES_FONT,
@@ -241,7 +243,7 @@ namespace GmatMenu
       MENU_TOOLS_FILE_COMPARE_NUMERIC,
       MENU_TOOLS_FILE_COMPARE_TEXT,
       MENU_TOOLS_GEN_TEXT_EPHEM_FILE,
-
+      
       MENU_HELP_TOPICS,
       
       TOOL_RUN,
