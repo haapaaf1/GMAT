@@ -49,7 +49,8 @@ public:
    virtual void               SetDescription(const std::string &str);
    virtual std::string        GetDescription() const;
    Gmat::WrapperDataType      GetWrapperType() const;
-   
+
+   virtual void               ClearRefObjectNames();
    virtual const StringArray& GetRefObjectNames();
    virtual bool               SetRefObjectName(const std::string &name,
                                                Integer index = 0);

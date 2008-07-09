@@ -152,6 +152,15 @@ Gmat::WrapperDataType ElementWrapper::GetWrapperType() const
 }
 
 //------------------------------------------------------------------------------
+// virtual void ClearRefObjectNames()
+//------------------------------------------------------------------------------
+void ElementWrapper::ClearRefObjectNames()
+{
+   refObjectNames.clear();
+}
+
+
+//------------------------------------------------------------------------------
 //  const StringArray&  GetRefObjectNames() 
 //------------------------------------------------------------------------------
 /**
