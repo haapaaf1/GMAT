@@ -418,7 +418,7 @@ bool PropSetup::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    
    switch (type)
    {
-   case Gmat::PROP_SETUP:
+   case Gmat::PROPAGATOR:
       SetPropagator((Propagator*)obj);
       return true;
    case Gmat::FORCE_MODEL:
