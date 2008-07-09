@@ -65,7 +65,8 @@ public:
                               const std::string &depName = "",
                               Integer manage = 1);
    Parameter* CreateArray( const std::string &arrayStr, Integer manage = 1);   
-   Parameter* CreateSystemParameter(const std::string &str, Integer manage = 1);
+   Parameter* CreateSystemParameter(bool &paramCreated, const std::string &str,
+                                    Integer manage = 1);
    AxisSystem* CreateAxisSystem(std::string type, GmatBase *owner);
    
    bool IsParameterType(const std::string &desc);
@@ -93,11 +94,16 @@ private:
    ElementWrapper* CreateParameterWrapper(Parameter *param,
                                           Gmat::WrapperDataType &itsType);
    ElementWrapper* CreatePropertyWrapper(GmatBase *obj, const std::string &type,
-                                         Integer manage);
+                                         Integer manage, bool checkSubProp = true);
+   ElementWrapper* CreateSubPropertyWrapper(GmatBase *obj,
+                                            const std::string &type,
+                                            Integer manage);
    
    bool ValidateSubCommand(GmatCommand *cmd, Integer level, Integer manage = 1);
    bool CreateCoordSystemProperty(GmatBase *obj, const std::string &prop,
                                   const std::string &value);
+   bool CreatePropSetupProperty(GmatBase *obj, const std::string &prop,
+                                const std::string &value);
    bool CreateForceModelProperty(GmatBase *obj, const std::string &prop,
                                  const std::string &value);
    bool HandleError();
