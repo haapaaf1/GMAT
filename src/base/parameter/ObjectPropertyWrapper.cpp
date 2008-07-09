@@ -177,19 +177,11 @@ const StringArray& ObjectPropertyWrapper::GetRefObjectNames()
       ("ObjectPropertyWrapper::GetRefObjectNames() entered, object=<%p><%s>'%s'\n   "
        "description='%s'\n",  object, object ? object->GetTypeName().c_str() : "NULL",
        object ? object->GetName().c_str() : "NULL", description.c_str());
+   MessageInterface::ShowMessage
+      ("   returning %d ref object names\n", refObjectNames.size());
+   for (UnsignedInt i=0; i<refObjectNames.size(); i++)
+   MessageInterface::ShowMessage("   '%s'\n", refObjectNames[i].c_str());
    #endif
-   
-   // @note
-   // Handle special case (loj: 2008.06.30)
-   // ForceModel:
-   //    PhysicalModel is created as local object, we don't want to add
-   // CoordinateSystem:
-   //    AxisSystem is created as local object, we don't want to add
-   
-   // @note Assumes there is only one ref. object for now
-   if (object && object->IsOfType(Gmat::PHYSICAL_MODEL) ||
-       object->IsOfType(Gmat::AXIS_SYSTEM))
-      refObjectNames.clear();
    
    return refObjectNames;
 }
