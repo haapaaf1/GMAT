@@ -1115,8 +1115,9 @@ void GmatMainFrame::CloseCurrentProject()
    MessageInterface::ShowMessage("   clearing trees and message window\n");
    #endif
    
-   theGuiInterpreter->ClearResource();
+   // clear command sequence before resource (loj: 2008.07.10)
    theGuiInterpreter->ClearCommandSeq();
+   theGuiInterpreter->ClearResource();
    MessageInterface::ClearMessage();
    
    GmatAppData *gmatAppData = GmatAppData::Instance();
@@ -1189,8 +1190,9 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
             (Gmat::ERROR_, "Errors were found in the script named \"%s\".\n"
              "Please fix all errors listed in message window.\n", filename.c_str());
          
-         theGuiInterpreter->ClearResource();
+         // Clear command sequence before resource (loj: 2008.07.10)
          theGuiInterpreter->ClearCommandSeq();
+         theGuiInterpreter->ClearResource();
       }
       
       if (success)
