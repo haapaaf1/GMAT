@@ -333,7 +333,7 @@ void Moderator::Finalize()
       MessageInterface::ShowMessage(".....clearing command sequence\n");
       #endif
       
-      ClearResource();
+      // Clear command sequence before resource (loj: 2008.07.10)
       ClearCommandSeq();
       
       if (!commands.empty())
@@ -348,6 +348,8 @@ void Moderator::Finalize()
          cmd = NULL;
          commands[0] = NULL;
       }
+      
+      ClearResource();
       
       // Close out the plug-in libraries
       std::map<std::string, DynamicLibrary*>::iterator i;
@@ -4211,8 +4213,9 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
    
    try
    {
-      ClearResource();
+      // Clear command sequence before resource (loj: 2008.07.10)
       ClearCommandSeq();
+      ClearResource();
       
       CreateSolarSystemInUse();
       
@@ -4336,8 +4339,9 @@ bool Moderator::InterpretScript(std::istringstream *ss, bool clearObjs)
       //clear both resource and command sequence
       if (clearObjs)
       {
-         ClearResource();
+         // Clear command sequence before resource (loj: 2008.07.10)
          ClearCommandSeq();
+         ClearResource();
       }
       
       CreateSolarSystemInUse();
