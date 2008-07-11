@@ -87,6 +87,7 @@ ForceModel::PARAMETER_TEXT[ForceModelParamCount - PhysicalModelParamCount] =
    "Degree",
    "Order",
    "PotentialFile",
+   "UserDefined"
 };
 
 
@@ -99,12 +100,13 @@ ForceModel::PARAMETER_TYPE[ForceModelParamCount - PhysicalModelParamCount] =
    Gmat::OBJECT_TYPE,       // "Drag",
    Gmat::ON_OFF_TYPE,       // "SRP",
    Gmat::ENUMERATION_TYPE,  // "ErrorControl",
-   Gmat::OBJECTARRAY_TYPE,   // "CoordinateSystemList"
+   Gmat::OBJECTARRAY_TYPE,  // "CoordinateSystemList"
    
    // owned object parameters
    Gmat::INTEGER_TYPE,      // "Degree",
    Gmat::INTEGER_TYPE,      // "Order",
    Gmat::STRING_TYPE,       // "PotentialFile",
+   Gmat::OBJECTARRAY_TYPE,  // "UserDefined",
 };
 
 
@@ -2046,6 +2048,9 @@ bool ForceModel::SetStringParameter(const Integer id, const std::string &value)
       case  DRAG:
          return false;
          
+      case  USER_DEFINED:
+         return false;
+         
 //       case  SRP:
 //          return false;
          
@@ -2164,7 +2169,10 @@ const StringArray& ForceModel::GetStringArrayParameter(const Integer id) const
    case POINT_MASSES:
       return BuildBodyList("PointMassForce");
    case COORDINATE_SYSTEM_LIST:
-      return BuildCoordinateList();   
+      return BuildCoordinateList();
+   case USER_DEFINED:
+      return BuildUserForceList();
+
    default:
       return PhysicalModel::GetStringArrayParameter(id);
     }
@@ -2297,6 +2305,29 @@ const StringArray& ForceModel::BuildCoordinateList() const
       }
    }
    return cslist;
+}
+
+//------------------------------------------------------------------------------
+// const StringArray& BuildUserForceList() const
+//------------------------------------------------------------------------------
+/**
+ * Builds the list of forces in the force model that are not part of the default
+ * set of forces.
+ * 
+ * @return The list of user forces.
+ */
+//------------------------------------------------------------------------------
+const StringArray& ForceModel::BuildUserForceList() const
+{
+   static StringArray uflist;
+   uflist.clear();
+
+   std::vector<PhysicalModel*>::const_iterator i;
+   for (i = forceList.begin(); i != forceList.end(); ++i) 
+      if ((*i)->IsUserForce())
+         uflist.push_back((*i)->GetTypeName());
+   
+   return uflist;
 }
 
 
@@ -2686,7 +2717,17 @@ std::string ForceModel::BuildForceNameString(PhysicalModel *force)
    
    // Add others here
    
-   return retval;
+   // Handle user defined forces
+   if (force->IsUserForce())
+      retval = force->GetName();
+      
+	#ifdef DEBUG_USER_FORCES
+		MessageInterface::ShowMessage("Force type %s named '%s' %s a user force\n",
+      	force->GetTypeName().c_str(), force->GetName().c_str(), 
+      	(force->IsUserForce() ? "is" : "is not"));
+	#endif
+	
+	return retval;
 }
 
 

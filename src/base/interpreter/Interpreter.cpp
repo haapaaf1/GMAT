@@ -4503,6 +4503,33 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
       #endif
       return true;
    }
+   // User defined forces
+   else if (pmType == "UserDefined")
+   {
+      StringArray udForces = theTextParser.SeparateBrackets(value, "{}", " ,");
+      
+      for (UnsignedInt i=0; i<udForces.size(); i++)
+      {
+         #ifdef DEBUG_SET_FORCE_MODEL
+            MessageInterface::ShowMessage("   User defined force[%d] = %s\n", 
+                  i, udForces[i].c_str());
+         #endif
+         
+         // We don't want to configure PhysicalModel, so set name after create
+         PhysicalModel *pm = (PhysicalModel*)CreateObject(udForces[i], "");
+         if (pm)
+         {
+            pm->SetName(udForces[i]);
+            forceModel->AddForce(pm);
+         }
+         else
+            throw InterpreterException(
+                        "User defined force \"" + udForces[i] + 
+                        "\" cannot be created\n");
+      }
+
+   }
+   
    
    //------------------------------------------------------------
    // Set ForceModel owned object properties

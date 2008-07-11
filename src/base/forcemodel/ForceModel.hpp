@@ -187,6 +187,8 @@ protected:
    StringArray forceTypeNames;
    /// Array of the forces
    std::vector<PhysicalModel *> forceList;
+   /// User defined forces
+   std::vector<PhysicalModel *> userForces;
    
    /// Epoch for the previous state
    Real previousTime;
@@ -217,6 +219,8 @@ protected:
    
    const StringArray&  BuildBodyList(std::string type) const;
    const StringArray&  BuildCoordinateList() const;
+   const StringArray&  BuildUserForceList() const;
+   
    virtual Integer     SetupSpacecraftData(GmatBase *sat, 
                                            PhysicalModel *pm, Integer i);
    void                UpdateTransientForces();
@@ -267,6 +271,7 @@ protected:
       DEGREE,
       ORDER,
       POTENTIAL_FILE,
+      USER_DEFINED,
       ForceModelParamCount
    };
    
