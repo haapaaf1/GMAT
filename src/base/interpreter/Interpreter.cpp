@@ -38,6 +38,7 @@
 #include "OnOffWrapper.hpp"
 #include "ObjectWrapper.hpp"
 #include "FileUtil.hpp"       // for DoesFileExist()
+#include "GmatGlobal.hpp"     // for GetMatlabFuncNameExt()
 #include <stack>              // for checking matching begin/end control logic
 #include <fstream>            // for checking GmatFunction declaration
 #include <sstream>            // for checking GmatFunction declaration
@@ -935,7 +936,13 @@ bool Interpreter::ValidateCommand(GmatCommand *cmd)
    // If in function mode, just return true,
    // ValidateCommand() is called from GmatFunction::Initialize()
    if (inFunctionMode)
+   {
+      #ifdef DEBUG_VALIDATE_COMMAND
+      MessageInterface::ShowMessage
+         ("Interpreter::ValidateCommand() in function mode, so just returning true\n");
+      #endif
       return true;
+   }
    
    bool isValid = theValidator->ValidateCommand(cmd, continueOnError, 1);
    
@@ -995,7 +1002,8 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
    const StringArray wrapperNames = sub->GetWrapperObjectNameArray();
    
    #ifdef DEBUG_WRAPPERS
-   MessageInterface::ShowMessage("In ValidateSubscriber, wrapper names are:\n");
+   MessageInterface::ShowMessage
+      ("In ValidateSubscriber, has %d wrapper names:\n", wrapperNames.size());
    for (Integer ii=0; ii < (Integer) wrapperNames.size(); ii++)
       MessageInterface::ShowMessage("   %s\n", wrapperNames[ii].c_str());
    #endif
@@ -1431,8 +1439,29 @@ bool Interpreter::AssembleCallFunctionCommand(GmatCommand *cmd,
    MessageInterface::ShowMessage("   Setting funcName '%s'\n", funcName.c_str());
    #endif
    
+   // Special case for MatlabFunction (loj: 2008.07.15)
+   // If in functin mode and function name is found from tempObjectNames,
+   // add an extension
+   std::string newFuncName = funcName;
+   
+   if (inFunctionMode)
+   {
+      if (find(tempObjectNames.begin(), tempObjectNames.end(), funcName) !=
+          tempObjectNames.end())
+      {
+         GmatGlobal *global = GmatGlobal::Instance();
+         newFuncName = funcName + global->GetMatlabFuncNameExt();
+         
+         #ifdef DEBUG_ASSEMBLE_CALL_FUNCTION
+         MessageInterface::ShowMessage
+            ("   '%s' found in tempObjectNames, so setting '%s' as function "
+             "name\n", funcName.c_str(), newFuncName.c_str());
+         #endif
+      }
+   }
+   
    // Set function name to CallFunction
-   retval = cmd->SetStringParameter("FunctionName", funcName);
+   retval = cmd->SetStringParameter("FunctionName", newFuncName);
    
    #ifdef DEBUG_ASSEMBLE_CALL_FUNCTION
    MessageInterface::ShowMessage("   Setting input\n");
@@ -2150,13 +2179,13 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
       return false;
    }
    
-   StringArray parts = GmatStringUtil::SeparateBy(objNameStr, " ", true);
+   StringArray objNames = GmatStringUtil::SeparateBy(objNameStr, " ", true);
    
    #ifdef DEBUG_ASSEMBLE_CREATE
-   WriteStringArray("Create object name parts", "", parts);
+   WriteStringArray("Create object names", "", objNames);
    #endif
    
-   if (parts.size() == 0)
+   if (objNames.size() == 0)
    {
       InterpreterException ex
          ("Missing object name found in " + cmd->GetTypeName() + " command");
@@ -2171,9 +2200,12 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
    
    try
    {
+      // if object is MatlabFunction make sure we add .m extenstion to avoid
+      // automatically creating GmatFunction in the Sandbox::HandleGmatFunction()
+      //(loj: 2008.07.14)
       cmd->SetStringParameter("ObjectType", objTypeStrToUse);
-      for (UnsignedInt i=0; i<parts.size(); i++)
-         cmd->SetStringParameter("ObjectNames", parts[i]);
+      for (UnsignedInt i=0; i<objNames.size(); i++)
+         cmd->SetStringParameter("ObjectNames", objNames[i]);
    }
    catch (BaseException &e)
    {
@@ -2189,7 +2221,7 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
    //-------------------------------------------------------------------
    std::string name;
    if (objTypeStrToUse == "Variable" || objTypeStrToUse == "Array")
-      name = parts[0];
+      name = objNames[0];
    
    #ifdef DEBUG_ASSEMBLE_CREATE
       MessageInterface::ShowMessage
@@ -2214,6 +2246,23 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
    // Send the object to the Create command
    //cmd->SetRefObject(obj, Gmat::UNKNOWN_OBJECT, obj->GetName());
    cmd->SetRefObject(obj, GmatBase::GetObjectType(objTypeStrToUse), obj->GetName());
+   
+   // Special case for MatlabFunction (loj: 2008.07.15)
+   // Since CallFunction does not know whether the function is Gmat or Matlab function,
+   // add an extention to indicate it is MatlabFunction so that Sandbox can create
+   // proper functions. Add the name to tempObjectNames so that when creating
+   // CallFunction or Assignment command, it can look in the array to figure out
+   // whether it is MatlabFunction or not.
+   if (objTypeStrToUse == "MatlabFunction")
+   {
+      for (UnsignedInt i=0; i<objNames.size(); i++)
+         tempObjectNames.push_back(objNames[i]);
+      
+      #ifdef DEBUG_ASSEMBLE_CREATE
+      MessageInterface::ShowMessage
+         ("   tempObjectNames.size()=%d\n", tempObjectNames.size());
+      #endif
+   }
    
    #ifdef DEBUG_ASSEMBLE_CREATE
    MessageInterface::ShowMessage
@@ -6057,3 +6106,19 @@ bool Interpreter::HandleMathTree(GmatCommand *cmd)
    
    return true;
 }
+
+
+//------------------------------------------------------------------------------
+// void Interpreter::ClearTempObjectNames()
+//------------------------------------------------------------------------------
+/*
+ * Clears temporary object name array.
+ * tempObjectNames is used for finding MatlabFunction names.
+ * This method is called from the ScriptInterpreter::InterpretGmatFunction()
+ */
+//------------------------------------------------------------------------------
+void Interpreter::ClearTempObjectNames()
+{
+   tempObjectNames.clear();
+}
+

@@ -141,6 +141,8 @@ protected:
    
    // Object map to be used for finding objects
    ObjectMap    *theObjectMap;
+   // String array to be used for finding temporary object names
+   StringArray  tempObjectNames;
    
    /// A pointer to the ScriptReadWriter used when reading or writing script.
    ScriptReadWriter  *theReadWriter;
@@ -284,6 +286,7 @@ protected:
    bool CheckFunctionDefinition(const std::string &funcPathAndName,
                                 GmatBase *function, bool fullCheck = true);
    bool BuildFunctionDefinition(const std::string &str);
+   void ClearTempObjectNames();
    
 private:
       
