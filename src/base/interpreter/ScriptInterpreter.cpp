@@ -287,6 +287,9 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    
    // Set build function definition flag
    hasFunctionDefinition = true;
+
+   // Clear temporay object names which currently holding MatlabFunction names
+   ClearTempObjectNames();
    
    // We don't want parse first comment as header, so set skipHeader to true.
    // Set function mode to true
