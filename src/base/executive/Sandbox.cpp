@@ -564,13 +564,17 @@ bool Sandbox::Initialize()
    // Initialize commands
    while (current)
    {
+      #if DEBUG_SANDBOX_INIT
+      MessageInterface::ShowMessage
+         ("Initializing %s command\n   \"%s\"\n",
+          current->GetTypeName().c_str(),
+          current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+      #endif
+      
       #ifdef DEBUG_SANDBOX_GMATFUNCTION
          MessageInterface::ShowMessage(
                "Initializing %s command\n",
                current->GetTypeName().c_str());
-         //"Initializing %s command\n   \"%s\"\n",
-         //current->GetTypeName().c_str(),
-         //current->GetGeneratingString(Gmat::SCRIPTING, "", "").c_str());
       #endif
          
       current->SetObjectMap(&objectMap);
@@ -1153,6 +1157,8 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
          (cmd->GetTypeName()).c_str(), cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
    #endif
    bool OK = false;
+   GmatGlobal *global = GmatGlobal::Instance();
+   std::string matlabExt = global->GetMatlabFuncNameExt();
    StringArray gfList;
    if (cmd->GetTypeName() == "CallFunction") 
    {
@@ -1175,8 +1181,23 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
       // if there is not already a function of that name, create it
       if (globalObjectMap.find(fName) == globalObjectMap.end())
       {
-         // assume that, if it's not in the GOS, we want a GmatFunction
-         f = moderator->CreateFunction("GmatFunction",fName, false);
+         // assume that, it is a GmatFunction unless function name doesn't have
+         // MatlabFunction name extension, so check for matlab name extension
+         if (fName.find(matlabExt) != fName.npos)
+         {
+            fName = fName.substr(0, fName.find(matlabExt));
+            #ifdef DEBUG_SANDBOX_GMATFUNCTION
+            MessageInterface::ShowMessage
+               ("   actual matlab function name='%s'\n", fName.c_str());
+            #endif
+            f = moderator->CreateFunction("MatlabFunction",fName, false);
+            // reset actual function name
+            cmd->SetStringParameter("FunctionName", fName);
+         }
+         else
+         {
+            f = moderator->CreateFunction("GmatFunction",fName, false);
+         }
          globalObjectMap.insert(std::make_pair(fName,f));
          if (cmd->GetTypeName() == "CallFunction")  
             ((CallFunction*)cmd)->SetRefObject(f,Gmat::FUNCTION,fName);
