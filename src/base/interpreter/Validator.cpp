@@ -301,7 +301,7 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    if (cmd->GetTypeName() != "BeginScript")
       genStr = cmd-> GetGeneratingString(Gmat::NO_COMMENTS);
    MessageInterface::ShowMessage
-      ("Validator::ValidateCommand() cmd=<%p><%s><%s>\n   continueOnError=%d, "
+      ("Validator::ValidateCommand() cmd=<%p><%s>'%s'\n   continueOnError=%d, "
        "manage=%d\n", cmd, cmd->GetTypeName().c_str(), genStr.c_str(),
        continueOnError, manage);
    MessageInterface::ShowMessage
@@ -326,7 +326,8 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    cmd->ClearWrappers();
    const StringArray wrapperNames = cmd->GetWrapperObjectNameArray();
    #if DBGLVL_WRAPPERS > 1
-      MessageInterface::ShowMessage("In Validate, wrapper names are:\n");
+      MessageInterface::ShowMessage
+         ("In ValidateCommand, has %d wrapper names:\n", wrapperNames.size());
       for (Integer ii=0; ii < (Integer) wrapperNames.size(); ii++)
          MessageInterface::ShowMessage("      %s\n", wrapperNames[ii].c_str());
    #endif
@@ -335,173 +336,11 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    if (theFunction != NULL)
       cmd->SetFunctionMode(true);
    
-   //---------------------------------------------------------------------------
-   // Special case for Assignment command (LHS = RHS).
-   // Since such as Sat.X can be both Parameter or ObjectProperty, we want to
-   // create a Parameter wapper if RHS is a Parameter for Assignment command.
-   // So special code is needed to tell the CreateElementWrapper() to check for
-   // Parameter first.
-   //---------------------------------------------------------------------------
+   // Handle Assignment command (LHS = RHS) separately
    if (cmd->GetTypeName() == "GMAT")
    {
-      Assignment *acmd = (Assignment*)cmd;
-      
-      std::string lhs = acmd->GetLHS();
-      std::string rhs = acmd->GetRHS();
-      
-      StringArray parts = GmatStringUtil::SeparateDots(lhs);
-      GmatBase *theObj = FindObject(parts[0]);
-      
-      // Check if lhs is PropSetup and need to create a Propagator
-      if (theObj != NULL &&
-          theObj->GetType() == Gmat::PROP_SETUP && parts.size() >= 2)
-      {
-         if (parts[1] == "Type")
-         {
-            if (!CreatePropSetupProperty(theObj, lhs, rhs))
-            {
-               MessageInterface::ShowMessage
-                  ("==> Validator::ValidateCommand() returning false\n");
-               return false;
-            }
-         }
-      }
-      
-      // Check if lhs is ForceModel and need to create a PhysicalModel
-      if (theObj != NULL &&
-          theObj->GetType() == Gmat::FORCE_MODEL && parts.size() >= 2)
-      {
-         if (parts[1] == "PrimaryBodies" || parts[1] == "PointMasses" ||
-             parts[1] == "SRP" || parts[1] == "Drag")
-         {
-            if (!CreateForceModelProperty(theObj, lhs, rhs))
-            {
-               MessageInterface::ShowMessage
-                  ("==> Validator::ValidateCommand() returning false\n");
-               return false;
-            }
-         }
-      }
-      
-      // Check if lhs is CoordinateSystem and need to create an AxisSystem
-      if (theObj != NULL &&
-          theObj->GetType() == Gmat::COORDINATE_SYSTEM && parts.size() >= 2)
-      {
-         if (parts[1] == "Axes")
-         {
-            if (!CreateCoordSystemProperty(theObj, lhs, rhs))
-            {
-               MessageInterface::ShowMessage
-                  ("==> Validator::ValidateCommand() returning false\n");
-               return false;
-            }
-         }
-      }
-      
-      //-------------------------------------------------------------------
-      // Handle LHS
-      //-------------------------------------------------------------------
-      try
-      {
-         
-         #if DBGLVL_WRAPPERS > 1
-         MessageInterface::ShowMessage("==========> Create Assignment LHS wrapper\n");
-         #endif
-         
-         ElementWrapper *ew = CreateElementWrapper(lhs, false, manage);
-         
-         if (ew == NULL)
-            return false;
-         
-         #if DBGLVL_WRAPPERS > 1
-         MessageInterface::ShowMessage
-            ("   (1)Setting ElementWrapper type %d for '%s' to '%s'\n",
-             ew->GetWrapperType(), ew->GetDescription().c_str(), typeName.c_str());
-         #endif
-         
-         if (cmd->SetElementWrapper(ew, lhs) == false)
-         {
-            theErrorMsg = "Failed to set ElementWrapper for LHS object \"" + lhs +
-               "\" in Assignment";
-            return HandleError();
-         }
-      }
-      catch (BaseException &ex)
-      {
-         theErrorMsg = ex.GetFullMessage();
-         return HandleError();
-      }
-      
-      //-------------------------------------------------------------------
-      // Handle RHS
-      //-------------------------------------------------------------------
-      /**
-       * @note
-       * Assignment::GetWrapperObjectNameArray() returns only RHS elements.
-       */
-      //-------------------------------------------------------------------
-      
-      for (StringArray::const_iterator i = wrapperNames.begin();
-           i != wrapperNames.end(); ++i)
-      {
-         std::string name = (*i);
-         if (name != "")
-         {
-            try
-            {                  
-               #if DBGLVL_WRAPPERS > 1
-               MessageInterface::ShowMessage("==========> Create Assignment RHS wrapper\n");
-               #endif
-               
-               ElementWrapper *ew = NULL;
-               if (IsParameterType(name))
-                  ew = CreateElementWrapper(name, true, manage);
-               else
-                  ew = CreateElementWrapper(name, false, manage);
-               
-               #if DBGLVL_WRAPPERS > 1
-               if (ew == NULL)
-                  MessageInterface::ShowMessage("   (2) ElementWrapper is NULL\n");
-               else
-                  MessageInterface::ShowMessage
-                     ("   (2)Setting ElementWrapper type %d for '%s' to '%s'\n",
-                      ew->GetWrapperType(), ew->GetDescription().c_str(), typeName.c_str());
-               #endif
-               
-               if (cmd->SetElementWrapper(ew, name) == false)
-               {
-                  theErrorMsg = "Failed to set ElementWrapper for RHS object \"" + name +
-                     "\" in Assignment";
-                  return HandleError();
-               }
-            }
-            catch (BaseException &ex)
-            {
-               theErrorMsg = ex.GetFullMessage();
-               return HandleError();
-            }
-         }
-      }
-      
-      // Set math wrappers to math tree
-      acmd->SetMathWrappers();
-      
-      // Handle special case for Formation in GmatFunction(loj: 2008.07.08)
-      // Since spacecrafts are add to formation when Assignment command
-      // is executed, it throws an exception of no spacecraft are set
-      // when Formation::BuildState() is called in Propagate::Initialzize().
-      // Formation.Add = {Sat1, Sat2}
-      if (theFunction != NULL && theObj != NULL &&
-          (theObj->IsOfType(Gmat::FORMATION) && lhs.find(".Add") != lhs.npos))
-      {
-         #if DBGLVL_WRAPPERS > 1
-         MessageInterface::ShowMessage("   Handling Formation Add\n");
-         #endif
-         TextParser tp;
-         StringArray names = tp.SeparateBrackets(rhs, "{}", " ,", false);
-         for (UnsignedInt i=0; i<names.size(); i++)
-            theObj->SetStringParameter("Add", names[i]);
-      }
+      if (!CreateAssignmentWrappers(cmd, manage))
+         return false;
    }
    else
    {
@@ -724,6 +563,217 @@ const StringArray& Validator::GetErrorList()
 //----------------------------
 // private methods
 //----------------------------
+
+
+//------------------------------------------------------------------------------
+// bool CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
+//------------------------------------------------------------------------------
+bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
+{
+   std::string typeName = cmd->GetTypeName();
+   const StringArray wrapperNames = cmd->GetWrapperObjectNameArray();
+   
+   //---------------------------------------------------------------------------
+   // Special case for Assignment command (LHS = RHS).
+   // Since such as Sat.X can be both Parameter or ObjectProperty, we want to
+   // create a Parameter wapper if RHS is a Parameter for Assignment command.
+   // So special code is needed to tell the CreateElementWrapper() to check for
+   // Parameter first.
+   //---------------------------------------------------------------------------
+   
+   Assignment *acmd = (Assignment*)cmd;
+   
+   std::string lhs = acmd->GetLHS();
+   std::string rhs = acmd->GetRHS();
+   
+   StringArray parts = GmatStringUtil::SeparateDots(lhs);
+   GmatBase *theObj = FindObject(parts[0]);
+   
+   // Check if lhs is PropSetup and need to create a Propagator
+   if (theObj != NULL &&
+       theObj->GetType() == Gmat::PROP_SETUP && parts.size() >= 2)
+   {
+      if (parts[1] == "Type")
+      {
+         if (!CreatePropSetupProperty(theObj, lhs, rhs))
+         {
+            MessageInterface::ShowMessage
+               ("==> Validator::ValidateCommand() returning false\n");
+            return false;
+         }
+      }
+   }
+   
+   // Check if lhs is ForceModel and need to create a PhysicalModel
+   if (theObj != NULL &&
+       theObj->GetType() == Gmat::FORCE_MODEL && parts.size() >= 2)
+   {
+      if (parts[1] == "PrimaryBodies" || parts[1] == "PointMasses" ||
+          parts[1] == "SRP" || parts[1] == "Drag")
+      {
+         if (!CreateForceModelProperty(theObj, lhs, rhs))
+         {
+            MessageInterface::ShowMessage
+               ("==> Validator::ValidateCommand() returning false\n");
+            return false;
+         }
+      }
+   }
+   
+   // Check if lhs is CoordinateSystem and need to create an AxisSystem
+   if (theObj != NULL &&
+       theObj->GetType() == Gmat::COORDINATE_SYSTEM && parts.size() >= 2)
+   {
+      if (parts[1] == "Axes")
+      {
+         if (!CreateCoordSystemProperty(theObj, lhs, rhs))
+         {
+            MessageInterface::ShowMessage
+               ("==> Validator::ValidateCommand() returning false\n");
+            return false;
+         }
+      }
+   }
+   
+   //-------------------------------------------------------------------
+   // Handle LHS
+   //-------------------------------------------------------------------
+   try
+   {         
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage("==========> Create Assignment LHS wrapper\n");
+      #endif
+      
+      ElementWrapper *ew = CreateElementWrapper(lhs, false, manage);
+      
+      if (ew == NULL)
+         return false;
+         
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage
+         ("   (1)Setting ElementWrapper type %d for '%s' to '%s'\n",
+          ew->GetWrapperType(), ew->GetDescription().c_str(), typeName.c_str());
+      #endif
+      
+      if (cmd->SetElementWrapper(ew, lhs) == false)
+      {
+         theErrorMsg = "Failed to set ElementWrapper for LHS object \"" + lhs +
+            "\" in Assignment";
+         return HandleError();
+      }
+   }
+   catch (BaseException &ex)
+   {
+      theErrorMsg = ex.GetFullMessage();
+      return HandleError();
+   }
+   
+   //-------------------------------------------------------------------
+   // Handle RHS
+   //-------------------------------------------------------------------
+   /**
+    * @note
+    * Assignment::GetWrapperObjectNameArray() returns only RHS elements.
+    */
+   //-------------------------------------------------------------------
+   
+   for (StringArray::const_iterator i = wrapperNames.begin();
+        i != wrapperNames.end(); ++i)
+   {
+      std::string name = (*i);
+      if (name != "")
+      {
+         try
+         {                  
+            #if DBGLVL_WRAPPERS > 1
+            MessageInterface::ShowMessage("==========> Create Assignment RHS wrapper\n");
+            #endif
+            
+            ElementWrapper *ew = NULL;
+            if (IsParameterType(name))
+               ew = CreateElementWrapper(name, true, manage);
+            else
+               ew = CreateElementWrapper(name, false, manage);
+            
+            #if DBGLVL_WRAPPERS > 1
+            if (ew == NULL)
+               MessageInterface::ShowMessage("   (2) ElementWrapper is NULL\n");
+            else
+               MessageInterface::ShowMessage
+                  ("   (2)Setting ElementWrapper type %d for '%s' to '%s'\n",
+                   ew->GetWrapperType(), ew->GetDescription().c_str(), typeName.c_str());
+            #endif
+            
+            if (cmd->SetElementWrapper(ew, name) == false)
+            {
+               theErrorMsg = "Failed to set ElementWrapper for RHS object \"" + name +
+                  "\" in Assignment";
+               return HandleError();
+            }
+         }
+         catch (BaseException &ex)
+         {
+            theErrorMsg = ex.GetFullMessage();
+            return HandleError();
+         }
+      }
+   }
+   
+   // Set math wrappers to math tree
+   acmd->SetMathWrappers();
+   
+   // Handle special case for Formation in GmatFunction(loj: 2008.07.08)
+   // Since spacecrafts are add to formation when Assignment command
+   // is executed, it throws an exception of no spacecraft are set
+   // when Formation::BuildState() is called in Propagate::Initialzize().
+   // Formation.Add = {Sat1, Sat2}
+   if (theFunction != NULL && theObj != NULL &&
+       (theObj->IsOfType(Gmat::FORMATION) && lhs.find(".Add") != lhs.npos))
+   {
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage("   Handling Formation Add\n");
+      #endif
+      TextParser tp;
+      StringArray names = tp.SeparateBrackets(rhs, "{}", " ,", false);
+      for (UnsignedInt i=0; i<names.size(); i++)
+         theObj->SetStringParameter("Add", names[i]);
+   }
+   
+   // Special case for ReporFile, we need to create a wrapper for each
+   // Parameter that is added to ReportFile,
+   // so call Interpreter::ValidateSubscriber() to create wrappers.
+   // ReportFile.Add = {Sat1.A1ModJulian, Sat1.EarthMJ2000Eq.X}
+   if (theFunction != NULL && theObj != NULL &&
+       (theObj->IsOfType("ReportFile") && lhs.find(".Add") != lhs.npos))
+   {
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage("   Handling ReportFile Add\n");
+      #endif
+      TextParser tp;
+      StringArray names = tp.SeparateBrackets(rhs, "{}", " ,", false);
+      for (UnsignedInt i=0; i<names.size(); i++)
+         theObj->SetStringParameter("Add", names[i]);
+      
+      if (theInterpreter != NULL)
+      {
+         if (!theInterpreter->ValidateSubscriber(theObj))
+         {
+            theErrorMsg = "Failed to create ElementWrapper for \"" +
+               theDescription + "\"";
+            return HandleError();
+         }
+      }
+      else
+      {
+         theErrorMsg = "Failed to create ElementWrapper for \"" +
+            theDescription + "\". The Interpreter is not set.";
+         return HandleError();
+      }
+   }
+   
+   return true;
+}
+
 
 //------------------------------------------------------------------------------
 // ElementWrapper* CreateSolarSystemWrapper(const std::string &owner, ...)
@@ -1587,8 +1637,8 @@ ElementWrapper* Validator::CreateValidWrapperWithDot(GmatBase *obj,
       else if (paramCreated)
       {
          // Multiple automatic objects are already created in CreateSystemParameter(),
-         // so create StringWrapper if the description has {}
-         // to handle ReportFile.Add = {sat1.A1ModJulian, sat1.EarthMJ2000Eq.X};
+         // so create StringWrapper if Parameters were created.
+         // ReportFile.Add = {sat1.A1ModJulian, sat1.EarthMJ2000Eq.X};
          #if DBGLVL_WRAPPERS > 1
          MessageInterface::ShowMessage
             ("In Validator(4), about to create a StringWrapper for \"%s\"\n",
@@ -1691,7 +1741,7 @@ ElementWrapper* Validator::CreatePropertyWrapper(GmatBase *obj,
    MessageInterface::ShowMessage
       ("Validator::CreatePropertyWrapper() entered, obj=<%p><%s><%s>, manage=%d, "
        "checkSubProp=%d\n", obj, obj ? obj->GetTypeName().c_str() : "NULL",
-       obj ? obj->GetName().c_str() : "NULL", manage);
+       obj ? obj->GetName().c_str() : "NULL", manage, checkSubProp);
    #endif
    
    if (obj == NULL)

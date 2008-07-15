@@ -74,6 +74,8 @@ public:
    bool ValidateSaveCommand(GmatBase *obj);
    
 private:
+
+   bool CreateAssignmentWrappers(GmatCommand *cmd, Integer manage);
    
    ElementWrapper* CreateSolarSystemWrapper(GmatBase *obj, const std::string &owner,
                                             const std::string &depobj,
