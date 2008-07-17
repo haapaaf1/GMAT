@@ -55,7 +55,7 @@
 //#define DEBUG_INITIALIZE 1
 //#define DEBUG_FINALIZE 1
 //#define DEBUG_INTERPRET 1
-//#define DEBUG_RUN 1
+//#define DEBUG_RUN 2
 //#define DEBUG_CREATE_COORDSYS 1
 //#define DEBUG_CREATE_RESOURCE 1
 //#define DEBUG_CREATE_PARAMETER 1
@@ -3036,7 +3036,8 @@ GmatCommand* Moderator::InterpretGmatFunction(const std::string &fileName)
    
    #if DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
-      ("Moderator::InterpretGmatFunction() returning <%p>\n", cmd);
+      ("Moderator::InterpretGmatFunction() returning <%p><%s>\n", cmd,
+       cmd->GetTypeName().c_str());
    #endif
    
    return cmd;
@@ -3064,13 +3065,17 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    #endif
    
    // If input objMap is NULL, use configured objects,
-   // use input object map otherwise
-   
-   //ObjectMap *objMapToUse = objMap;
-   objectMapInUse = objMap;
-   
+   // use input object map otherwise   
    if (objMap == NULL)
       objectMapInUse = theConfigManager->GetObjectMap();
+   else
+      objectMapInUse = objMap;
+   
+   #if DEBUG_GMAT_FUNCTION
+   MessageInterface::ShowMessage
+      ("   Setting objectMapInUse<%p> to theScriptInterpreter\n"
+       "   Setting theSolarSystemInUse<%p> to theScriptInterpreter\n");
+   #endif
    
    theScriptInterpreter->SetObjectMap(objectMapInUse, true);
    theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
@@ -3085,7 +3090,8 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    
    #if DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
-      ("Moderator::InterpretGmatFunction() returning <%p>\n", cmd);
+      ("Moderator::InterpretGmatFunction() returning <%p><%s>\n", cmd,
+       cmd->GetTypeName().c_str());
    #endif
    
    return cmd;
@@ -4217,20 +4223,21 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
       ClearCommandSeq();
       ClearResource();
       
-      CreateSolarSystemInUse();
-      
+      // Set object map in use (loj: 2008.07.16)
+      objectMapInUse = theConfigManager->GetObjectMap();      
+      CreateSolarSystemInUse();      
       // Need default CS's in case they are used in the script
       CreateDefaultCoordSystems();
       
       // Set solar system in use and object map (loj: 2008.03.31)
       theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theScriptInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+      theScriptInterpreter->SetObjectMap(objectMapInUse);
       if (theUiInterpreter != NULL)
       {
          theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-         theUiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+         theUiInterpreter->SetObjectMap(objectMapInUse);
       }
-   
+      
       status = theScriptInterpreter->Interpret(filename);
       
       if (readBack)
@@ -4344,6 +4351,8 @@ bool Moderator::InterpretScript(std::istringstream *ss, bool clearObjs)
          ClearResource();
       }
       
+      // Set object map in use (loj: 2008.07.16)
+      objectMapInUse = theConfigManager->GetObjectMap();      
       CreateSolarSystemInUse();
       CreateDefaultCoordSystems();
       
@@ -4355,11 +4364,11 @@ bool Moderator::InterpretScript(std::istringstream *ss, bool clearObjs)
       #endif
       
       theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theScriptInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+      theScriptInterpreter->SetObjectMap(objectMapInUse);
       if (theUiInterpreter != NULL)
       {
          theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-         theUiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
+         theUiInterpreter->SetObjectMap(objectMapInUse);
       }
       
       // Set istream and Interpret
@@ -5602,6 +5611,8 @@ void Moderator::AddSolarSystemToSandbox(Integer index)
    #if DEBUG_RUN
    MessageInterface::ShowMessage
       ("Moderator::AddSolarSystemToSandbox() entered\n");
+   MessageInterface::ShowMessage
+      ("   Adding theSolarSystemInUse<%p> to Sandbox\n", theSolarSystemInUse);
    #endif
    
    //If we are ready to configure SolarSystem by name
@@ -5616,6 +5627,13 @@ void Moderator::AddSolarSystemToSandbox(Integer index)
    for (Integer i=0; i<(Integer)cpNames.size(); i++)
    {
       cp = theConfigManager->GetCalculatedPoint(cpNames[i]);
+      
+      #if DEBUG_RUN
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>'%s' to Sandbox\n", cp,
+          cp->GetTypeName().c_str(), cp->GetName().c_str());
+      #endif
+      
       sandboxes[index]->AddObject(cp);
    }
 }
@@ -5629,6 +5647,8 @@ void Moderator::AddInternalCoordSystemToSandbox(Integer index)
    #if DEBUG_RUN
    MessageInterface::ShowMessage
       ("Moderator::AddInternalCoordSystemToSandbox() entered.\n");
+   MessageInterface::ShowMessage
+      ("   Adding theInternalCoordSystem<%p> to Sandbox\n", theInternalCoordSystem);
    #endif
    
    sandboxes[index]->SetInternalCoordSystem(theInternalCoordSystem);
@@ -5644,6 +5664,8 @@ void Moderator::AddPublisherToSandbox(Integer index)
    #if DEBUG_RUN
    MessageInterface::ShowMessage
       ("Moderator::AddPublisherToSandbox() entered.\n");
+   MessageInterface::ShowMessage
+      ("   Adding thePublisher<%p> to Sandbox\n", thePublisher);
    #endif
    
    thePublisher->UnsubscribeAll();
@@ -5669,7 +5691,8 @@ void Moderator::AddCoordSystemToSandbox(Integer index)
       cs = theConfigManager->GetCoordinateSystem(names[i]);
       #ifdef DEBUG_RUN
       MessageInterface::ShowMessage
-         ("   %s: %s\n", cs->GetTypeName().c_str(), cs->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", cs, cs->GetTypeName().c_str(),
+          cs->GetName().c_str());
       #endif
       sandboxes[index]->AddObject(cs);
    }
@@ -5692,9 +5715,10 @@ void Moderator::AddSpacecraftToSandbox(Integer index)
    for (Integer i=0; i<(Integer)scNames.size(); i++)
    {
       sc = (Spacecraft*)theConfigManager->GetSpacecraft(scNames[i]);
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", sc->GetTypeName().c_str(), sc->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", sc, sc->GetTypeName().c_str(),
+          sc->GetName().c_str());
       #endif
       sandboxes[index]->AddObject(sc);
    }
@@ -5705,9 +5729,10 @@ void Moderator::AddSpacecraftToSandbox(Integer index)
    for (Integer i=0; i<(Integer)hwNames.size(); i++)
    {
       hw = (Hardware*)theConfigManager->GetHardware(hwNames[i]);
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", hw->GetTypeName().c_str(), hw->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", hw, hw->GetTypeName().c_str(),
+          hw->GetName().c_str());
       #endif
       sandboxes[index]->AddObject(hw);
    }
@@ -5732,9 +5757,10 @@ void Moderator::AddFormationToSandbox(Integer index)
       obj = (Formation*)theConfigManager->GetSpacecraft(names[i]);
       sandboxes[index]->AddObject(obj);
       
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5758,9 +5784,10 @@ void Moderator::AddPropSetupToSandbox(Integer index)
       obj = theConfigManager->GetPropSetup(names[i]);
       sandboxes[index]->AddObject(obj);
       
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5784,9 +5811,10 @@ void Moderator::AddPropagatorToSandbox(Integer index)
       obj = theConfigManager->GetPropagator(names[i]);
       sandboxes[index]->AddObject(obj);
       
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5810,9 +5838,10 @@ void Moderator::AddForceModelToSandbox(Integer index)
       obj = theConfigManager->GetForceModel(names[i]);
       sandboxes[index]->AddObject(obj);
       
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5836,9 +5865,10 @@ void Moderator::AddBurnToSandbox(Integer index)
       obj = theConfigManager->GetBurn(names[i]);
       sandboxes[index]->AddObject(obj);
       
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5862,9 +5892,10 @@ void Moderator::AddSolverToSandbox(Integer index)
       obj = theConfigManager->GetSolver(names[i]);
       sandboxes[index]->AddObject(obj);
       
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5888,9 +5919,10 @@ void Moderator::AddSubscriberToSandbox(Integer index)
       obj = theConfigManager->GetSubscriber(names[i]);
       sandboxes[index]->AddSubscriber(obj);
       
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5916,7 +5948,8 @@ void Moderator::AddParameterToSandbox(Integer index)
       
       #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5940,9 +5973,10 @@ void Moderator::AddFunctionToSandbox(Integer index)
       obj = theConfigManager->GetFunction(names[i]);
       sandboxes[index]->AddObject(obj);
       
-      #ifdef DEBUG_RUN
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
-         ("   %s: %s\n", obj->GetTypeName().c_str(), obj->GetName().c_str());
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
       #endif
    }
 }
@@ -5962,6 +5996,11 @@ void Moderator::AddCommandToSandbox(Integer index)
 
    if (cmd != NULL)
    {
+      #if DEBUG_RUN > 1
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>\n", cmd, cmd->GetTypeName().c_str());
+      #endif
+      
       sandboxes[index]->AddCommand(cmd);
    }
 }
