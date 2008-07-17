@@ -42,6 +42,7 @@
 //#define DEBUG_SEPARATE
 //#define DEBUG_GEN_STRING 1
 //#define DEBUG_IS_FUNCTION
+//#define DEBUG_INTERPRET_PREFACE
 
 //---------------------------------
 //  static members
@@ -2018,9 +2019,24 @@ void GmatCommand::ShowObjectMaps()
 //------------------------------------------------------------------------------
 StringArray GmatCommand::InterpretPreface()
 {
+   #ifdef DEBUG_INTERPRET_PREFACE
+      MessageInterface::ShowMessage("In GmatCommand::InterpretPreface, generatingString = %s\n",
+            generatingString.c_str());
+   #endif
    parser.EvaluateBlock(generatingString);
    StringArray blocks = parser.DecomposeBlock(generatingString);
    StringArray chunks = parser.ChunkLine();
+   
+   #ifdef DEBUG_INTERPRET_PREFACE
+      MessageInterface::ShowMessage("   ater call to parser, generatingString = %s\n",
+            generatingString.c_str());
+      MessageInterface::ShowMessage("   and blocks are:\n");
+      for (unsigned int ii = 0; ii < blocks.size(); ii++)
+         MessageInterface::ShowMessage("      %s\n", (blocks.at(ii)).c_str());
+      MessageInterface::ShowMessage("   and chunks are:\n");
+      for (unsigned int ii = 0; ii < chunks.size(); ii++)
+         MessageInterface::ShowMessage("      %s\n", (chunks.at(ii)).c_str());
+   #endif
    
    // First comes the command keyword
    // @note "GMAT" keyword is automatically removed

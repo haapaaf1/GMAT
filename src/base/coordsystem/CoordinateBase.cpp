@@ -27,6 +27,8 @@
 #include "SpacePoint.hpp"
 #include "MessageInterface.hpp"
 
+//#define DEBUG_SET_SS
+
 //---------------------------------
 // static data
 //---------------------------------
