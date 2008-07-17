@@ -90,6 +90,11 @@ ObjectInitializer::~ObjectInitializer()
 {
 }
 
+void ObjectInitializer::SetSolarSystem(SolarSystem *solSys)
+{
+   ss = solSys;
+}
+
 void ObjectInitializer::SetObjectMap(ObjectMap *objMap)
 {
    LOS = objMap;
@@ -334,7 +339,14 @@ void ObjectInitializer::InitializeInternalObjects()
    SpacePoint *sp, *j2kBod;
    std::string j2kName, oName;
 
+   #ifdef DEBUG_OBJECT_INITIALIZER
+   if (!ss)
+      MessageInterface::ShowMessage("Solar System pointer is NULL!!!!!! ...\n");
+   #endif
    ss->Initialize();
+   #ifdef DEBUG_OBJECT_INITIALIZER
+      MessageInterface::ShowMessage(" ... and solar system is initialized  ...\n");
+   #endif
    
    // Set J2000 bodies for solar system objects -- should this happen here?
    const StringArray biu = ss->GetBodiesInUse();
@@ -348,6 +360,10 @@ void ObjectInitializer::InitializeInternalObjects()
 
    // set ref object for internal coordinate system
    cs->SetSolarSystem(ss);
+   #ifdef DEBUG_OBJECT_INITIALIZER
+      MessageInterface::ShowMessage(" ... and solar system is set on coordinate system  ...\n");
+      MessageInterface::ShowMessage(" ... about to call BuildReferences  ...\n");
+   #endif
 
    BuildReferences(cs);
 
@@ -368,6 +384,9 @@ void ObjectInitializer::InitializeInternalObjects()
          oName + "\" used for the internal coordinate system J2000 body");
    cs->SetRefObject(sp, Gmat::SPACE_POINT, oName);
 
+   #ifdef DEBUG_OBJECT_INITIALIZER
+      MessageInterface::ShowMessage(" ... about to call Initialize on cs  ...\n");
+   #endif
 
    cs->Initialize();
 }

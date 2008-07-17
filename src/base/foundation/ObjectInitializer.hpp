@@ -44,7 +44,7 @@ public:
    ObjectInitializer& operator= (const ObjectInitializer &objInit);
    virtual ~ObjectInitializer();
    
-   //   void SetSolarSystem(SolarSystem *ss);
+   void SetSolarSystem(SolarSystem *solSys);
    void SetObjectMap(ObjectMap *objMap);
    //   void SetGlobalObjectMap(ObjectMap *globalObjMap);
    //   void SetCoordinateSystem(CoordinateSystem *internalCS);
