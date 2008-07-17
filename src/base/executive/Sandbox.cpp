@@ -45,6 +45,7 @@
 //#define DEBUG_MODERATOR_CALLBACK
 //#define DEBUG_FM_INITIALIZATION
 //#define DEBUG_SANDBOX_GMATFUNCTION
+//#define DEBUG_SANDBOX_OBJINIT
 
 #ifdef DEBUG_SANDBOX_INIT
       std::map<std::string, GmatBase *>::iterator omIter;
@@ -494,7 +495,7 @@ bool Sandbox::Initialize()
    // Set J2000 Body for all SpacePoint derivatives before anything else
    // NOTE - at this point, everything should be in the SandboxObjectMap,
    // and the GlobalObjectMap should be empty
-   #ifdef DEBUG_SANDBOX_INIT
+   #ifdef DEBUG_SANDBOX_OBJINIT
       MessageInterface::ShowMessage("About to create the ObjectInitializer ... \n");
       MessageInterface::ShowMessage(" and the objInit pointer is %s\n",
             (objInit? "NOT NULL" : "NULL!!!"));
@@ -504,7 +505,7 @@ bool Sandbox::Initialize()
    objInit = new ObjectInitializer(solarSys, &objectMap, &globalObjectMap, internalCoordSys);
    try
    {
-      #ifdef DEBUG_SANDBOX_INIT
+      #ifdef DEBUG_SANDBOX_OBJINIT
          MessageInterface::ShowMessage(
                "About to call the ObjectInitializer::InitializeObjects ... \n");
       #endif
@@ -1151,118 +1152,124 @@ bool Sandbox::SetObjectByNameInMap(const std::string &name,
 bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
               std::map<std::string, GmatBase *> *usingMap)
 {
+#ifdef DEBUG_SANDBOX_GMATFUNCTION
+   MessageInterface::ShowMessage(
+      "Now entering HandleGmatFunction with command of type %s, '%s'\n",
+      (cmd->GetTypeName()).c_str(), cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+#endif
+bool OK = false;
+GmatGlobal *global = GmatGlobal::Instance();
+std::string matlabExt = global->GetMatlabFuncNameExt();
+StringArray gfList;
+bool        isMatlabFunction = false;
+if (cmd->GetTypeName() == "CallFunction") 
+{
+   std::string cfName = cmd->GetStringParameter("FunctionName");
+   gfList.push_back(cfName);
+}
+else if (cmd->IsOfType("Assignment"))  
+{
+   gfList = ((Assignment*) cmd)->GetGmatFunctionNames();
+}
+for (unsigned int ii = 0; ii < gfList.size(); ii++)
+{
+   std::string fName = gfList.at(ii);
+   Function *f;
+   isMatlabFunction = false;
+   // if it's a Matlab Function, remove the extension from the name before looking in the GOS
+   // (as Matlab function names are placed into the GOS without the extension)
+   if (fName.find(matlabExt) != fName.npos)
+   {
+      fName = fName.substr(0, fName.find(matlabExt));
+      #ifdef DEBUG_SANDBOX_GMATFUNCTION
+      MessageInterface::ShowMessage
+         ("   actual matlab function name='%s'\n", fName.c_str());
+      #endif
+      isMatlabFunction = true;
+   }
+   #ifdef DEBUG_SANDBOX_GMATFUNCTION
+      MessageInterface::ShowMessage("Now searching GOS for object %s\n",
+         (gfList.at(ii)).c_str());
+   #endif
+   // if there is not already a function of that name, create it
+   if (globalObjectMap.find(fName) == globalObjectMap.end())
+   {
+      if (isMatlabFunction)
+         f = moderator->CreateFunction("MatlabFunction",fName, false);
+      else
+         f = moderator->CreateFunction("GmatFunction",fName, false);
+      if (!f) 
+         throw SandboxException("Sandbox::HandleGmatFunction - error creating new function\n");
+      globalObjectMap.insert(std::make_pair(fName,f));
+   }
+   else // it's already in the GOS, so just grab it
+      f = (Function*) globalObjectMap[fName];
+   
+   if (cmd->GetTypeName() == "CallFunction")  
+   {
+      ((CallFunction*)cmd)->SetRefObject(f,Gmat::FUNCTION,fName);
+      cmd->SetStringParameter("FunctionName", fName);
+   }
+   else if (cmd->IsOfType("Assignment"))
+      ((Assignment*) cmd)->SetFunction(f);
+   
    #ifdef DEBUG_SANDBOX_GMATFUNCTION
       MessageInterface::ShowMessage(
-         "Now entering HandleGmatFunction with command of type %s, '%s'\n",
-         (cmd->GetTypeName()).c_str(), cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+         "Now handling function \"%s\", whose fcs is %s set.\n",
+         (f->GetStringParameter("FunctionName")).c_str(), 
+         ((f->IsFunctionControlSequenceSet())? "already" : "NOT"));
    #endif
-   bool OK = false;
-   GmatGlobal *global = GmatGlobal::Instance();
-   std::string matlabExt = global->GetMatlabFuncNameExt();
-   StringArray gfList;
-   if (cmd->GetTypeName() == "CallFunction") 
+
+   if ((f->GetTypeName() == "GmatFunction") &&
+       (!(f->IsFunctionControlSequenceSet())))
    {
-      std::string cfName = cmd->GetStringParameter("FunctionName");
-      gfList.push_back(cfName);
-   }
-   else if (cmd->IsOfType("Assignment"))  
-   {
-      gfList = ((Assignment*) cmd)->GetGmatFunctionNames();
-   }
-   for (unsigned int ii = 0; ii < gfList.size(); ii++)
-   {
-      std::string fName = gfList.at(ii);
-      Function *f;
       #ifdef DEBUG_SANDBOX_GMATFUNCTION
          MessageInterface::ShowMessage(
-            "Now searching globalObjectStore for object %s\n",
-            (gfList.at(ii)).c_str());
+            "About to call InterpretGmatFunction for function %s\n",
+            (f->GetStringParameter("FunctionName")).c_str());
       #endif
-      // if there is not already a function of that name, create it
-      if (globalObjectMap.find(fName) == globalObjectMap.end())
+      GmatCommand* fcs = moderator->InterpretGmatFunction(f, usingMap);
+      f->SetFunctionControlSequence(fcs);
+      GmatCommand* fcsCmd = fcs;
+      while (fcsCmd)
       {
-         // assume that, it is a GmatFunction unless function name doesn't have
-         // MatlabFunction name extension, so check for matlab name extension
-         if (fName.find(matlabExt) != fName.npos)
+         if ((fcsCmd->GetTypeName() == "CallFunction") ||
+             (fcsCmd->IsOfType("Assignment")))
          {
-            fName = fName.substr(0, fName.find(matlabExt));
             #ifdef DEBUG_SANDBOX_GMATFUNCTION
-            MessageInterface::ShowMessage
-               ("   actual matlab function name='%s'\n", fName.c_str());
+               MessageInterface::ShowMessage(
+                  "CallFunction or Assignment (%s)'%s' detected in FCS... now processing\n",
+                  (fcsCmd->GetTypeName()).c_str(),
+                  fcsCmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
             #endif
-            f = moderator->CreateFunction("MatlabFunction",fName, false);
-            // reset actual function name
-            cmd->SetStringParameter("FunctionName", fName);
-         }
-         else
-         {
-            f = moderator->CreateFunction("GmatFunction",fName, false);
-         }
-         globalObjectMap.insert(std::make_pair(fName,f));
-         if (cmd->GetTypeName() == "CallFunction")  
-            ((CallFunction*)cmd)->SetRefObject(f,Gmat::FUNCTION,fName);
-         else if (cmd->IsOfType("Assignment"))
-            ((Assignment*) cmd)->SetFunction(f);
-      }
-      f = (Function*) globalObjectMap[fName];
-      
-      #ifdef DEBUG_SANDBOX_GMATFUNCTION
-         MessageInterface::ShowMessage(
-            "Now handling function \"%s\", whose fcs is %s set.\n",
-            (f->GetStringParameter("FunctionName")).c_str(), 
-            ((f->IsFunctionControlSequenceSet())? "already" : "NOT"));
-      #endif
 
-      if ((f->GetTypeName() == "GmatFunction") &&
-          (!(f->IsFunctionControlSequenceSet())))
-      {
-         #ifdef DEBUG_SANDBOX_GMATFUNCTION
-            MessageInterface::ShowMessage(
-               "About to call InterpretGmatFunction for function %s\n",
-               (f->GetStringParameter("FunctionName")).c_str());
-         #endif
-         GmatCommand* fcs = moderator->InterpretGmatFunction(f, usingMap);
-         f->SetFunctionControlSequence(fcs);
-         GmatCommand* fcsCmd = fcs;
-         while (fcsCmd)
-         {
-            if ((fcsCmd->GetTypeName() == "CallFunction") ||
-                (fcsCmd->IsOfType("Assignment")))
-            {
-               #ifdef DEBUG_SANDBOX_GMATFUNCTION
-                  MessageInterface::ShowMessage(
-                     "CallFunction or Assignment (%s)'%s' detected in FCS... now processing\n",
-                     (fcsCmd->GetTypeName()).c_str(),
-                     fcsCmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
-               #endif
-
-               // LOJ: Let's handle GmatFunction first (2008.06.02)
-               OK += HandleGmatFunction(fcsCmd, &globalObjectMap);
-               // do not set the non-global object map here; it will need to be
-               // setup y the FunctionManager at execution
-               fcsCmd->SetGlobalObjectMap(&globalObjectMap);
-               fcsCmd->SetSolarSystem(solarSys);
-               fcsCmd->SetTransientForces(&transientForces);
-               //OK += HandleGmatFunction(fcsCmd, &globalObjectMap); //(loj: moved up)
-               ////if (!(fcsCmd->Initialize())) 
-               ////   return false;
-               if (fcsCmd->GetTypeName() == "CallFunction") 
-                  ((CallFunction *)fcsCmd)->SetInternalCoordSystem(internalCoordSys);
-            }
-            if (fcsCmd->IsOfType("BranchCommand"))
-            {
-               std::vector<GmatCommand*> cmdList = ((BranchCommand*) fcsCmd)->GetCommandsWithGmatFunctions();
-               Integer sz = (Integer) cmdList.size();
-               for (Integer jj = 0; jj < sz; jj++)
-               {
-                  HandleGmatFunction(cmdList.at(jj), &globalObjectMap);
-                  if ((cmdList.at(jj))->GetTypeName() == "CallFunction") 
-                     ((CallFunction *)cmdList.at(jj))->SetInternalCoordSystem(internalCoordSys);
-               }
-            }
-            fcsCmd = fcsCmd->GetNext();
+            // LOJ: Let's handle GmatFunction first (2008.06.02)
+            OK += HandleGmatFunction(fcsCmd, &globalObjectMap);
+            // do not set the non-global object map here; it will need to be
+            // setup y the FunctionManager at execution
+            fcsCmd->SetGlobalObjectMap(&globalObjectMap);
+            fcsCmd->SetSolarSystem(solarSys);
+            fcsCmd->SetTransientForces(&transientForces);
+            //OK += HandleGmatFunction(fcsCmd, &globalObjectMap); //(loj: moved up)
+            ////if (!(fcsCmd->Initialize())) 
+            ////   return false;
+            if (fcsCmd->GetTypeName() == "CallFunction") 
+               ((CallFunction *)fcsCmd)->SetInternalCoordSystem(internalCoordSys);
          }
+         if (fcsCmd->IsOfType("BranchCommand"))
+         {
+            std::vector<GmatCommand*> cmdList = ((BranchCommand*) fcsCmd)->GetCommandsWithGmatFunctions();
+            Integer sz = (Integer) cmdList.size();
+            for (Integer jj = 0; jj < sz; jj++)
+            {
+               HandleGmatFunction(cmdList.at(jj), &globalObjectMap);
+               if ((cmdList.at(jj))->GetTypeName() == "CallFunction") 
+                  ((CallFunction *)cmdList.at(jj))->SetInternalCoordSystem(internalCoordSys);
+            }
+         }
+         fcsCmd = fcsCmd->GetNext();
       }
    }
-   return OK;
+}
+return OK;
 }
