@@ -37,6 +37,7 @@ SolarSystem::PARAMETER_TEXT[SolarSystemParamCount - GmatBaseParamCount] =
 {
    "BodiesInUse",
    "NumberOfBodies",
+   "Ephemeris",
    "UseTTForEphemeris",
    "EphemerisUpdateInterval",
 };
@@ -46,6 +47,7 @@ SolarSystem::PARAMETER_TYPE[SolarSystemParamCount - GmatBaseParamCount] =
 {
    Gmat::STRINGARRAY_TYPE,
    Gmat::INTEGER_TYPE,
+   Gmat::STRINGARRAY_TYPE,
    Gmat::BOOLEAN_TYPE,
    Gmat::REAL_TYPE,
 };
@@ -1446,6 +1448,40 @@ bool SolarSystem::SetBooleanParameter(const std::string &label, const bool value
 
 
 //------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value)
+//------------------------------------------------------------------------------
+bool SolarSystem::SetStringParameter(const Integer id,
+                                     const std::string &value)
+{
+   if (id == EPHEMERIS)
+   {
+      StringArray parts = GmatStringUtil::SeparateBy(value, "{}, ");
+      for (UnsignedInt i=0; i<parts.size(); i++)
+         MessageInterface::ShowMessage
+            ("===> ephemType[%d] = '%s'\n", i, parts[i].c_str());
+      
+      Integer status = SetPlanetarySourceTypesInUse(parts);
+      if (status == 2)
+         return true;
+      else
+         return false;
+   }
+   
+   return GmatBase::SetStringParameter(id, value);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value)
+//------------------------------------------------------------------------------
+bool SolarSystem::SetStringParameter(const std::string &label,
+                                     const std::string &value)
+{
+   return SetStringParameter(GetParameterID(label), value);   
+}
+
+
+//------------------------------------------------------------------------------
 //  const StringArray&   GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
@@ -1460,8 +1496,11 @@ bool SolarSystem::SetBooleanParameter(const std::string &label, const bool value
 //------------------------------------------------------------------------------
 const StringArray& SolarSystem::GetStringArrayParameter(const Integer id) const
 {
-   if (id == BODIES_IN_USE) return bodyStrings;
-
+   if (id == BODIES_IN_USE)
+      return bodyStrings;
+   else if (id == EPHEMERIS)
+      return thePlanetarySourceTypes;
+   
    return GmatBase::GetStringArrayParameter(id);
 }
 
