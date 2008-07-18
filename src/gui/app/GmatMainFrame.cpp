@@ -2877,14 +2877,17 @@ void GmatMainFrame::OnFileCompareText(wxCommandEvent& event)
    wxArrayString compDirs = dlg.GetCompareDirectories();
    bool saveCompareResults = dlg.SaveCompareResults();
    wxString saveFileName = dlg.GetSaveFilename();
-
+   wxString basePrefix = dlg.GetBasePrefix();
+   wxArrayString compPrefixes = dlg.GetComparePrefixes();
+   
    #ifdef DEBUG_FILE_COMPARE
    MessageInterface::ShowMessage
       ("GmatMainFrame::OnFileCompareText() baseDir=%s\n   "
        "compDirs[0]=%s\n", baseDir.c_str(), compDirs[0].c_str());
    MessageInterface::ShowMessage
-      ("   numDirsToCompare=%d, numFilesToCompare=%d\n", numDirsToCompare,
-       numFilesToCompare);
+      ("   basePrefix='%s', comparePrefixex[0]='%s', numDirsToCompare=%d, "
+       "numFilesToCompare=%d\n", basePrefix.c_str(), compPrefixes[0].c_str(),
+       numDirsToCompare, numFilesToCompare);
    #endif
    
    wxTextCtrl *textCtrl = NULL;
@@ -2912,12 +2915,14 @@ void GmatMainFrame::OnFileCompareText(wxCommandEvent& event)
    int w, h;
    textFrame->GetSize(&w, &h);
    textFrame->SetSize(w+1, h+1);
-
+   
    // Get files in the base directory
    wxDir dir(baseDir);
    wxString filename;
    wxString filepath;
    wxArrayString baseFileNameArray;
+   wxArrayString noPrefixNameArray;
+   size_t prefixLen = basePrefix.Len();
    
    //How do I specify multiple file ext?
    bool cont = dir.GetFirst(&filename);
@@ -2926,11 +2931,20 @@ void GmatMainFrame::OnFileCompareText(wxCommandEvent& event)
       if (filename.Contains(".report") || filename.Contains(".txt") ||
           filename.Contains(".data") || filename.Contains(".script"))
       {
-         filepath = baseDir + "/" + filename;
-         
-         // remove any backup files
-         if (filename.Last() == 't' || filename.Last() == 'a')
-            baseFileNameArray.push_back(filepath.c_str());
+         // if file has prefix
+         if (filename.Left(prefixLen) == basePrefix)
+         {
+            filepath = baseDir + "/" + filename;
+            
+            // remove any backup files
+            if (filename.Last() == 't' || filename.Last() == 'a')
+            {
+               wxString noPrefixName = filename;
+               noPrefixName.Replace(basePrefix, "", false);
+               noPrefixNameArray.push_back(noPrefixName.c_str());
+               baseFileNameArray.push_back(filepath.c_str());
+            }
+         }
       }
       
       cont = dir.GetNext(&filename);
@@ -2938,7 +2952,7 @@ void GmatMainFrame::OnFileCompareText(wxCommandEvent& event)
    
    wxString tempStr;
    int fileCount = 0;
-   wxString baseFileName;
+   wxString noPrefixName, baseFileName;
    int file1DiffCount = 0;
    int file2DiffCount = 0;
    int file3DiffCount = 0;
@@ -2953,14 +2967,26 @@ void GmatMainFrame::OnFileCompareText(wxCommandEvent& event)
       
       tempStr.Printf("%d", i+1);
       textCtrl->AppendText("==> File Compare Count: " + tempStr + "\n");
-
-      baseFileName = baseFileNameArray[i];
-      wxFileName filename(baseFileName);
       
+      baseFileName = baseFileNameArray[i];
+      noPrefixName = noPrefixNameArray[i];
+      wxFileName filename(noPrefixName);
       wxArrayString compareNames;
       
+      #ifdef DEBUG_FILE_COMPARE
+      MessageInterface::ShowMessage("   baseFileName='%s'\n", baseFileName.c_str());
+      MessageInterface::ShowMessage("   noPrefixName='%s'\n", noPrefixName.c_str());
+      #endif
+      
       for (int j=0; j<numDirsToCompare; j++)
+      {
          compareNames.Add(filename.GetFullName());
+         
+         #ifdef DEBUG_FILE_COMPARE
+         MessageInterface::ShowMessage
+            ("   compareNames[%d]='%s'\n", j, compareNames[j].c_str());
+         #endif
+      }
       
       // set compare file names
       wxString filename1;
@@ -2968,14 +2994,14 @@ void GmatMainFrame::OnFileCompareText(wxCommandEvent& event)
       wxString filename3;
       
       if (numDirsToCompare >= 1)
-         filename1 = compDirs[0] + "/" + compareNames[0];
+         filename1 = compDirs[0] + "/" + compPrefixes[0] + compareNames[0];
       
       if (numDirsToCompare >= 2)
-         filename2 = compDirs[1] + "/" + compareNames[1];
+         filename2 = compDirs[1] + "/" + compPrefixes[1] + compareNames[1];
       
       if (numDirsToCompare >= 3)
-         filename3 = compDirs[2] + "/" + compareNames[2];
-
+         filename3 = compDirs[2] + "/" + compPrefixes[2] + compareNames[2];
+      
       StringArray output;
       
       output =
