@@ -56,6 +56,7 @@ public:
    virtual bool         IsFunctionControlSequenceSet();
    virtual bool         SetFunctionControlSequence(GmatCommand *cmd);
    virtual GmatBase*    GetFunctionControlSequence();
+   virtual std::string  GetFunctionPathAndName();
    
    virtual bool         SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper);
    virtual ElementWrapper*
@@ -156,6 +157,9 @@ protected:
       PARAMETER_TYPE[FunctionParamCount - GmatBaseParamCount];
    
    GmatBase* FindObject(const std::string &name);
+   
+   // for debug
+   void ShowObjects(const std::string &title);
    
 };
 

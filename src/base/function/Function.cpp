@@ -192,7 +192,6 @@ void Function::SetOutputTypes(WrapperTypeArray &outputTypes,
 }
 
 
-
 //------------------------------------------------------------------------------
 // bool Initialize()  [default implementation]
 //------------------------------------------------------------------------------
@@ -219,6 +218,9 @@ void Function::Finalize()
 {
 }
 
+//------------------------------------------------------------------------------
+// void SetObjectMap(std::map<std::string, GmatBase *> *map)
+//------------------------------------------------------------------------------
 void Function::SetObjectMap(std::map<std::string, GmatBase *> *map)
 {
    #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
@@ -237,11 +239,17 @@ void Function::SetObjectMap(std::map<std::string, GmatBase *> *map)
    objectStore = map;
 }
 
+//------------------------------------------------------------------------------
+// void SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
+//------------------------------------------------------------------------------
 void Function::SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
 {
    globalObjectStore = map;
 }
 
+//------------------------------------------------------------------------------
+// void SetSolarSystem(SolarSystem *ss)
+//------------------------------------------------------------------------------
 void Function::SetSolarSystem(SolarSystem *ss)
 {
    #ifdef DEBUG_FUNCTION_SET
@@ -253,6 +261,9 @@ void Function::SetSolarSystem(SolarSystem *ss)
    solarSys = ss;
 }
 
+//------------------------------------------------------------------------------
+// void SetInternalCoordSystem(CoordinateSystem *cs)
+//------------------------------------------------------------------------------
 void Function::SetInternalCoordSystem(CoordinateSystem *cs)
 {
    #ifdef DEBUG_FUNCTION_SET
@@ -264,17 +275,26 @@ void Function::SetInternalCoordSystem(CoordinateSystem *cs)
    internalCoordSys = cs;
 }
 
+//------------------------------------------------------------------------------
+// void SetTransientForces(std::vector<PhysicalModel*> *tf)
+//------------------------------------------------------------------------------
 void Function::SetTransientForces(std::vector<PhysicalModel*> *tf)
 {
    forces = tf;
 }
 
+//------------------------------------------------------------------------------
+// bool IsFunctionControlSequenceSet()
+//------------------------------------------------------------------------------
 bool Function::IsFunctionControlSequenceSet()
 {
    if (fcs != NULL) return true;
    return false;
 }
 
+//------------------------------------------------------------------------------
+// bool SetFunctionControlSequence(GmatCommand *cmd)
+//------------------------------------------------------------------------------
 bool Function::SetFunctionControlSequence(GmatCommand *cmd)
 {
    #ifdef DEBUG_FUNCTION
@@ -291,12 +311,25 @@ bool Function::SetFunctionControlSequence(GmatCommand *cmd)
    return true;
 }
 
+//------------------------------------------------------------------------------
+// GmatBase* GetFunctionControlSequence()
+//------------------------------------------------------------------------------
 GmatBase* Function::GetFunctionControlSequence()
 {
    return fcs;
 }
 
+//------------------------------------------------------------------------------
+// std::string GetFunctionPathAndName()
+//------------------------------------------------------------------------------
+std::string Function::GetFunctionPathAndName()
+{
+   return functionPath;
+}
 
+//------------------------------------------------------------------------------
+// bool SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper)
+//------------------------------------------------------------------------------
 bool Function::SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper)
 {
    #ifdef DEBUG_FUNCTION
@@ -334,6 +367,9 @@ ElementWrapper* Function::GetOutputArgument(Integer argNumber)
 }
 
 
+//------------------------------------------------------------------------------
+// ElementWrapper* GetOutputArgument(const std::string &byName)
+//------------------------------------------------------------------------------
 ElementWrapper* Function::GetOutputArgument(const std::string &byName)
 {
    #ifdef DEBUG_FUNCTION
@@ -350,11 +386,17 @@ ElementWrapper* Function::GetOutputArgument(const std::string &byName)
    return outputArgMap[byName];
 }
 
+//------------------------------------------------------------------------------
+// void AddAutomaticObject(const std::string &withName, GmatBase *obj)
+//------------------------------------------------------------------------------
 void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj)
 {
    automaticObjects.insert(std::make_pair(withName,obj));
 }
 
+//------------------------------------------------------------------------------
+// ObjectMap GetAutomaticObjects() const
+//------------------------------------------------------------------------------
 ObjectMap Function::GetAutomaticObjects() const
 {
    return automaticObjects;
@@ -739,5 +781,35 @@ GmatBase* Function::FindObject(const std::string &name)
 //    else
 //       return (*objectStore)[newName];
 //    return NULL; // should never get to this point
+}
+
+//------------------------------------------------------------------------------
+// void ShowObjects(const std::string &title)
+//------------------------------------------------------------------------------
+void Function::ShowObjects(const std::string &title)
+{
+   MessageInterface::ShowMessage(title);
+   MessageInterface::ShowMessage("this=<%p>, functionName='%s'\n", this, functionName.c_str());
+   MessageInterface::ShowMessage("========================================\n");
+   MessageInterface::ShowMessage("solarSys         = <%p>\n", solarSys);
+   MessageInterface::ShowMessage("internalCoordSys = <%p>\n", internalCoordSys);
+   MessageInterface::ShowMessage("forces           = <%p>\n", forces);
+   MessageInterface::ShowMessage
+      ("Here is objectStore <%p>, it has %d objects\n", objectStore,
+       objectStore->size());
+   for (std::map<std::string, GmatBase *>::iterator i = objectStore->begin();
+        i != objectStore->end(); ++i)
+      MessageInterface::ShowMessage
+         ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+          i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+   MessageInterface::ShowMessage
+      ("Here is globalObjectStore <%p>, it has %d objects\n", globalObjectStore,
+       globalObjectStore->size());
+   for (std::map<std::string, GmatBase *>::iterator i = globalObjectStore->begin();
+        i != globalObjectStore->end(); ++i)
+      MessageInterface::ShowMessage
+         ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+          i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+   MessageInterface::ShowMessage("========================================\n");   
 }
 
