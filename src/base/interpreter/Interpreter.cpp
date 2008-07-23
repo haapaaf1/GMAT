@@ -74,6 +74,7 @@
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_FIND_OBJECT
 //#define DEBUG_FIND_PROP_ID
+//#define DEBUG_FUNCTION
 //#define DBGLVL_FUNCTION_DEF 2
 
 //------------------------------------------------------------------------------
@@ -114,6 +115,10 @@ Interpreter::Interpreter(SolarSystem *ss, ObjectMap *objMap)
    {
       theObjectMap = objMap;
       theValidator->SetObjectMap(objMap);
+      #ifdef DEBUG_OBJECT_MAP
+      MessageInterface::ShowMessage
+         ("Interpreter setting object map <%p> to Validator\n", theObjectMap);
+      #endif
    }
    
    #ifdef DEBUG_INTERP
@@ -820,10 +825,16 @@ void Interpreter::SetObjectMap(ObjectMap *objMap, bool forFunction)
       if (forFunction)
       {
          #ifdef DEBUG_OBJECT_MAP
-         MessageInterface::ShowMessage("Here is the current object map:\n");
+         MessageInterface::ShowMessage
+            ("Interpreter::SetObjectMap() Here is the current object map <%p>, "
+             "it has %d objects\n", objMap, objMap->size());
          for (std::map<std::string, GmatBase *>::iterator i = objMap->begin();
               i != objMap->end(); ++i)
-            MessageInterface::ShowMessage("   %s\n", i->first.c_str());
+         {
+            MessageInterface::ShowMessage
+               ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+                i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+         }
          #endif
       }
       
@@ -857,6 +868,12 @@ ObjectMap* Interpreter::GetObjectMap()
 //------------------------------------------------------------------------------
 void Interpreter::SetFunction(Function *func)
 {
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("Interpreter::SetFunction() function=<%p>'%s'\n", func,
+       func ? func->GetName().c_str() : "NULL");
+   #endif
+   
    currentFunction = func;
    theValidator->SetFunction(func);
 }
@@ -2490,9 +2507,9 @@ Parameter* Interpreter::GetArrayIndex(const std::string &arrayStr,
        "colStr=<%s>, row=%d, col=%d\n", arrayStr.c_str(), name.c_str(),
        rowStr.c_str(), colStr.c_str(), row, col);
    #endif
-
+   
    Parameter *param = (Parameter*)FindObject(name);
-
+   
    // Note:
    // To catch errors as much as possible, limited return statement used
    // even when error found
@@ -5819,7 +5836,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       if (fileFuncName != funcName)
       {
          InterpreterException ex
-            ("The function name \"" + fileFuncName + "\" does not match with the"
+            ("The function name \"" + fileFuncName + "\" does not match with the "
              "GmatFunction file name \"" + funcPath + "\" referenced in \"" +
              function->GetName() + "\"\n");
          HandleError(ex, false);
@@ -6073,7 +6090,7 @@ bool Interpreter::HandleMathTree(GmatCommand *cmd)
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("Interpreter::HandleMathTree() '%s', It is a math equation\n",
-       cmd->GetGeneratingString(Gmat::NO_COMMENTS));
+       cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
    #endif
    
    Assignment *equation = (Assignment*)cmd;
