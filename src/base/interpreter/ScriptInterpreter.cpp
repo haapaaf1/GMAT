@@ -33,7 +33,7 @@
 //#define DEBUG_PARSE 1
 //#define DEBUG_PARSE_FOOTER 1
 //#define DEBUG_SET_COMMENTS 1
-//#define DEBUG_GMAT_FUNCTION 1
+//#define DBGLVL_GMAT_FUNCTION 1
 
 ScriptInterpreter *ScriptInterpreter::instance = NULL;
 
@@ -247,7 +247,7 @@ bool ScriptInterpreter::Interpret(const std::string &scriptfile)
 //------------------------------------------------------------------------------
 GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileName)
 {
-   #ifdef DEBUG_GMAT_FUNCTION
+   #if DBGLVL_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("ScriptInterpreter::InterpretGmatFunction()\n   filename = %s\n",
        fileName.c_str());
@@ -280,7 +280,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    SetInStream(&funcFile);
    GmatCommand *noOp = new NoOp;
    
-   #ifdef DEBUG_GMAT_FUNCTION
+   #if DBGLVL_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("ScriptInterpreter::InterpretGmatFunction() Create <%p>NoOp\n", noOp);
    #endif
@@ -302,7 +302,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    hasFunctionDefinition = false;
    currentFunction = NULL;
    
-   #ifdef DEBUG_GMAT_FUNCTION
+   #if DBGLVL_GMAT_FUNCTION > 1
    MessageInterface::ShowMessage
       ("ScriptInterpreter::InterpretGmatFunction() returning retval=%d\n", retval);
    std::string fcsStr = GmatCommandUtil::GetCommandSeqString(noOp, true, true);
@@ -336,7 +336,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(Function *funct)
    
    std::string fileName = funct->GetStringParameter("FunctionPath");
    
-   #ifdef DEBUG_GMAT_FUNCTION
+   #if DBGLVL_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("ScriptInterpreter::InterpretGmatFunction() function=%p\n   "
        "filename = %s\n", funct, fileName.c_str());
@@ -345,7 +345,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(Function *funct)
    // Set urrent function
    SetFunction(funct);
    
-   #ifdef DEBUG_GMAT_FUNCTION
+   #if DBGLVL_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("   currentFunction set to <%p>\n", currentFunction);
    #endif
