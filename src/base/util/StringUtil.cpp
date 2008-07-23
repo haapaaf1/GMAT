@@ -66,9 +66,9 @@ std::string GmatStringUtil::RemoveAll(const std::string &str, char ch,
  * It will set lastNumber to 0 if there is no number appended.
  *
  * @param str input string
- * @param lastNumber output number appended to string
+ * @param lastNumber the number appended to string to output
  *
- * @return string without last number found
+ * @return string without last number if number found
  *
  * For example,
  *    justString will return justString and set lastNumber to 0
@@ -88,8 +88,48 @@ std::string GmatStringUtil::RemoveLastNumber(const std::string &str,
    
    if (!ToInteger(str1, lastNumber))
       lastNumber = 0;
-
+   
    return str.substr(0, index+1);
+}
+
+
+//------------------------------------------------------------------------------
+// std::string RemoveLastString(const std::string &str, const std::string &lastStr)
+//------------------------------------------------------------------------------
+/* This method returns last string stripped off from the given input string if
+ * last string found
+ *
+ * @param str input string
+ * @param lastStr string to strip off
+ * @param removeAll set to true if lastStr is recursively removed
+ *
+ * @return string without last string if last string exist
+ *
+ * For example, if lastStr is XXX and removeAll is false 
+ *    inputStringXXX will return inputString
+ *    inputStringXXXXXX will return inputStringXXX
+ *    inputStringXXX will return inputStringXXX
+ * if lastStr is XXX and removeAll is true
+ *    inputStringXXX will return inputString
+ *    inputStringXXXXXX will return inputString 
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::RemoveLastString(const std::string &str,
+                                             const std::string &lastStr,
+                                             bool removeAll)
+{
+   std::string str1 = str;
+   
+   if (EndsWith(str1, lastStr))
+      str1 = str1.substr(0, str1.size() - lastStr.size());
+   
+   if (removeAll)
+   {
+      if (EndsWith(str1, lastStr))
+         return RemoveLastString(str1, lastStr, removeAll);
+   }
+   
+   return str1;
 }
 
 
@@ -2685,7 +2725,7 @@ bool GmatStringUtil::EndsWith(const std::string &str, const std::string &value)
  * Checks for valid name.
  *
  * Returns true if string is:
- *    1. not "GMAT", "Create", or "function" and
+ *    1. keyword (not "GMAT", "Create", or "function") and
  *    2. does not start with a number and
  *    3. contains only alphanumeric (underscore is allowed)
  *
@@ -2754,6 +2794,30 @@ bool GmatStringUtil::IsBlank(const std::string &text, bool ignoreEol)
    else
       return false;
 }
+
+
+//------------------------------------------------------------------------------
+// bool HasMissingQuote(const std::string &str, const std::string &quote)
+//------------------------------------------------------------------------------
+/*
+ * Checks if string has missing starting or ending quote.
+ * 
+ * @param  str    input text
+ * @param  quote  quote to be used for checking
+ *
+ * @return true if string has missing quote, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool GmatStringUtil::HasMissingQuote(const std::string &str,
+                                     const std::string &quote)
+{
+   if ((StartsWith(str, quote) && !EndsWith(str, quote)) ||
+       (!StartsWith(str, quote) && EndsWith(str, quote)))
+      return true;
+   
+   return false;
+}
+
 
 //------------------------------------------------------------------------------
 // Integer NumberOfOccurrences(const std::string &str, const char c)

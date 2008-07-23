@@ -33,6 +33,8 @@ namespace GmatStringUtil
    
    std::string RemoveAll(const std::string &str, char ch, Integer start = 0);
    std::string RemoveLastNumber(const std::string &str, Integer &lastNumber);
+   std::string RemoveLastString(const std::string &str, const std::string &lastStr,
+                                bool removeAll = false);
    
    std::string RemoveSpaceInBrackets(const std::string &str,
                                      const std::string &bracketPair);
@@ -122,6 +124,8 @@ namespace GmatStringUtil
    bool EndsWith(const std::string &str, const std::string &value);
    bool IsValidName(const std::string &str, bool ignoreBracket = false);
    bool IsBlank(const std::string &str, bool ignoreEol = false);
+   bool HasMissingQuote(const std::string &str, const std::string &quote);
+   bool HasMathOperators(const std::string &str);
    
    Integer NumberOfOccurrences(const std::string &str, const char c);
    
