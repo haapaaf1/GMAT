@@ -280,7 +280,7 @@ bool ElementWrapper::RenameObject(const std::string &oldName,
 Rmatrix ElementWrapper::EvaluateArray() const
 {
    throw GmatBaseException(
-      "EvaluateArray() method not valid for wrapper of non-Array type.\n");
+      "In ElementWrapper, EvaluateArray() method not valid for wrapper of non-Array type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -289,7 +289,7 @@ Rmatrix ElementWrapper::EvaluateArray() const
 bool ElementWrapper::SetArray(const Rmatrix &toValue)
 {
    throw GmatBaseException(
-      "SetArray() method not valid for wrapper of non-Array type.\n");
+      "In ElementWrapper, SetArray() method not valid for wrapper of non-Array type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -298,7 +298,7 @@ bool ElementWrapper::SetArray(const Rmatrix &toValue)
 std::string ElementWrapper::EvaluateString() const
 {
    throw GmatBaseException(
-      "EvaluateString() method not valid for wrapper of non-String type.\n");
+      "In ElementWrapper, EvaluateString() method not valid for wrapper of non-String type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -307,7 +307,7 @@ std::string ElementWrapper::EvaluateString() const
 bool ElementWrapper::SetString(const std::string &toValue)
 {
    throw GmatBaseException(
-      "SetString() method not valid for wrapper of non-String type.\n");
+      "In ElementWrapper, SetString() method not valid for wrapper of non-String type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -316,7 +316,7 @@ bool ElementWrapper::SetString(const std::string &toValue)
 std::string ElementWrapper::EvaluateOnOff() const
 {
    throw GmatBaseException(
-      "EvaluateOnOff() method not valid for wrapper of non-OnOff type.\n");
+      "In ElementWrapper, EvaluateOnOff() method not valid for wrapper of non-OnOff type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -325,7 +325,7 @@ std::string ElementWrapper::EvaluateOnOff() const
 bool ElementWrapper::SetOnOff(const std::string &toValue)
 {
    throw GmatBaseException(
-      "SetOnOff() method not valid for wrapper of non-OnOff type.\n");
+      "In ElementWrapper, SetOnOff() method not valid for wrapper of non-OnOff type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -334,7 +334,7 @@ bool ElementWrapper::SetOnOff(const std::string &toValue)
 bool ElementWrapper::EvaluateBoolean() const
 {
    throw GmatBaseException(
-      "EvaluateBoolean() method not valid for wrapper of non-Boolean type.\n");
+      "In ElementWrapper, EvaluateBoolean() method not valid for wrapper of non-Boolean type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -343,7 +343,7 @@ bool ElementWrapper::EvaluateBoolean() const
 bool ElementWrapper::SetBoolean(const bool toValue)
 {
    throw GmatBaseException(
-      "SetBoolean() method not valid for wrapper of non-Boolean type.\n");
+      "In ElementWrapper, SetBoolean() method not valid for wrapper of non-Boolean type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -352,7 +352,7 @@ bool ElementWrapper::SetBoolean(const bool toValue)
 Integer ElementWrapper::EvaluateInteger() const
 {
    throw GmatBaseException(
-      "EvaluateInteger() method not valid for wrapper of non-Integer type.\n");
+      "In ElementWrapper, EvaluateInteger() method not valid for wrapper of non-Integer type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -361,7 +361,7 @@ Integer ElementWrapper::EvaluateInteger() const
 bool ElementWrapper::SetInteger(const Integer toValue)
 {
    throw GmatBaseException(
-      "SetInteger() method not valid for wrapper of non-Integer type.\n");
+      "In ElementWrapper, SetInteger() method not valid for wrapper of non-Integer type.\n");
 }
 
 //---------------------------------------------------------------------------
@@ -370,7 +370,7 @@ bool ElementWrapper::SetInteger(const Integer toValue)
 GmatBase* ElementWrapper::EvaluateObject() const
 {
    throw GmatBaseException(
-      "EvaluateInteger() method not valid for wrapper of non-Object type.\n");
+      "In ElementWrapper, EvaluateObject() method not valid for wrapper of non-Object type.\n");
 }
 
 
@@ -380,7 +380,7 @@ GmatBase* ElementWrapper::EvaluateObject() const
 bool ElementWrapper::SetObject(GmatBase *obj)
 {
    throw GmatBaseException(
-      "SetObject() method not valid for wrapper of non-Object type.\n");
+      "In ElementWrapper, SetObject() method not valid for wrapper of non-Object type.\n");
 }
 
 
@@ -605,9 +605,13 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             lhsWrapper->SetString(rhsObj->GetName());
          else
          {
-            GmatBaseException ex;
-            ex.SetDetails("Cannot set \"%s\" to \"%s\"", rhs.c_str(), lhs.c_str());
-            throw ex;            
+            lhsWrapper->SetString(rhs);
+            
+            // Commented out to handle SolarSystem.Ephemeris = {SLP} (loj: 2008.07.16)            
+            //GmatBaseException ex;
+            //ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to \"%s\"",
+            //              rhs.c_str(), lhs.c_str());
+            //throw ex;
          }
          break;
       case Gmat::OBJECTARRAY_TYPE:
