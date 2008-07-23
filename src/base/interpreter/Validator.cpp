@@ -45,6 +45,7 @@
 //#define DEBUG_CREATE_PARAM
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_FUNCTION
+//#define DEBUG_SOLAR_SYSTEM
 //#define DEBUG_AUTO_PARAM
 //#define DEBUG_FIND_OBJECT
 //#define DEBUG_COORD_SYS_PROP
@@ -87,6 +88,12 @@ void Validator::SetSolarSystem(SolarSystem *ss)
    #endif
    
    theSolarSystem = ss;
+   
+   #ifdef DEBUG_SOLAR_SYSTEM
+   MessageInterface::ShowMessage
+      ("Validator::SetSolarSystem() Setting SolarSystem <%p> to Moderator\n", ss);
+   #endif
+   
    // Set SolarSyste to use for the Moderator
    theModerator->SetInternalSolarSystem(ss);
 }
@@ -102,17 +109,27 @@ void Validator::SetObjectMap(ObjectMap *objMap)
       #ifdef DEBUG_OBJECT_MAP
       if (theFunction)
       {
-         MessageInterface::ShowMessage("Here is the current Validator object map:\n");
+         MessageInterface::ShowMessage
+            ("Validator::SetObjectMap(), Here is the object map in use <%p>, "
+             "it has %d objects\n", objMap, objMap->size());
          for (std::map<std::string, GmatBase *>::iterator i = objMap->begin();
               i != objMap->end(); ++i)
          {
             MessageInterface::ShowMessage
-               ("   %30s  <%s>\n", i->first.c_str(),
+               ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
                 i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
          }
       }
       #endif
+      
       theObjectMap = objMap;
+
+      #ifdef DEBUG_OBJECT_MAP
+      MessageInterface::ShowMessage
+         ("Validator::SetObjectMap() Setting object map <%p> to Moderator\n",
+          objMap);
+      #endif
+      
       // Set object map to use for the Moderator
       theModerator->SetObjectMap(objMap);
    }
@@ -126,7 +143,8 @@ void Validator::SetFunction(Function *func)
 {
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("Validator::SetFunction() function=<%p><%s>\n", func, func->GetName().c_str());
+      ("Validator::SetFunction() function=<%p>'%s'\n", func,
+       func ? func->GetName().c_str() : "NULL");
    #endif
    
    theFunction = func;
@@ -301,7 +319,7 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    if (cmd->GetTypeName() != "BeginScript")
       genStr = cmd-> GetGeneratingString(Gmat::NO_COMMENTS);
    MessageInterface::ShowMessage
-      ("Validator::ValidateCommand() cmd=<%p><%s>'%s'\n   continueOnError=%d, "
+      ("Validator::ValidateCommand() cmd=<%p><%s>\"%s\"\n   continueOnError=%d, "
        "manage=%d\n", cmd, cmd->GetTypeName().c_str(), genStr.c_str(),
        continueOnError, manage);
    MessageInterface::ShowMessage
@@ -638,24 +656,26 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    //-------------------------------------------------------------------
    // Handle LHS
    //-------------------------------------------------------------------
+   ElementWrapper *leftEw = NULL;
+   
    try
    {         
       #if DBGLVL_WRAPPERS > 1
       MessageInterface::ShowMessage("==========> Create Assignment LHS wrapper\n");
       #endif
       
-      ElementWrapper *ew = CreateElementWrapper(lhs, false, manage);
+      leftEw = CreateElementWrapper(lhs, false, manage);
       
-      if (ew == NULL)
+      if (leftEw == NULL)
          return false;
-         
+      
       #if DBGLVL_WRAPPERS > 1
       MessageInterface::ShowMessage
          ("   (1)Setting ElementWrapper type %d for '%s' to '%s'\n",
-          ew->GetWrapperType(), ew->GetDescription().c_str(), typeName.c_str());
+          leftEw->GetWrapperType(), leftEw->GetDescription().c_str(), typeName.c_str());
       #endif
       
-      if (cmd->SetElementWrapper(ew, lhs) == false)
+      if (cmd->SetElementWrapper(leftEw, lhs) == false)
       {
          theErrorMsg = "Failed to set ElementWrapper for LHS object \"" + lhs +
             "\" in Assignment";
@@ -677,6 +697,31 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
     */
    //-------------------------------------------------------------------
    
+   #if DBGLVL_WRAPPERS > 1
+   MessageInterface::ShowMessage("==========> Create Assignment RHS wrapper\n");
+   MessageInterface::ShowMessage("   Has %d wrapper names\n", wrapperNames.size());
+   #endif
+   
+   // check if there is missing single quote in RHS if LHS is string type(loj: 2008.07.22)
+   // it will catch missing end quote
+   if (leftEw->GetDataType() == Gmat::STRING_TYPE ||
+       leftEw->GetDataType() == Gmat::STRINGARRAY_TYPE)
+   {
+      // first remove ending ; from the RHS
+      rhs = GmatStringUtil::RemoveLastString(rhs, ";");
+      if (GmatStringUtil::HasMissingQuote(rhs, "'"))
+      {
+         std::string fnName;
+         if (theFunction)
+            fnName = "GmatFunction \"" + theFunction->GetFunctionPathAndName() + "\"";
+         
+         theErrorMsg = "Assignment command has missing end quote on the "
+            "right-hand-side in " + fnName + "\n   \"" +
+            cmd->GetGeneratingString(Gmat::NO_COMMENTS) + "\"";
+         return HandleError();
+      }
+   }
+   
    for (StringArray::const_iterator i = wrapperNames.begin();
         i != wrapperNames.end(); ++i)
    {
@@ -685,10 +730,6 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
       {
          try
          {                  
-            #if DBGLVL_WRAPPERS > 1
-            MessageInterface::ShowMessage("==========> Create Assignment RHS wrapper\n");
-            #endif
-            
             ElementWrapper *ew = NULL;
             if (IsParameterType(name))
                ew = CreateElementWrapper(name, true, manage);
@@ -822,6 +863,7 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
       // GMAT SolarSystem.Earth.StateType   = Keplerian;
       // GMAT SolarSystem.Earth.InitalEpoch = 21544.500371
       // GMAT SolarSystem.Earth.SMA         = 149653978.978377
+      // GMAT SolarSystem.Ephemeris = {SLP}
       
       StringArray parts = GmatStringUtil::SeparateDots(depobj);
       std::string bodyName = parts[0];
@@ -1366,8 +1408,9 @@ Parameter* Validator::CreateSystemParameter(bool &paramCreated,
          
          #ifdef DEBUG_CREATE_PARAM
          MessageInterface::ShowMessage
-            ("   Parameter created with paramType='%s', ownerName='%s', depName='%s'\n",
-             paramType.c_str(), ownerName.c_str(), depName.c_str());
+            ("   Parameter created with paramType='%s', ownerName='%s', depName='%s', "
+             "theFunction=<%p>'%s'\n", paramType.c_str(), ownerName.c_str(), depName.c_str(),
+             theFunction, theFunction ? theFunction->GetName().c_str() : "NULL");
          #endif
          
          // Add unmanaged Parameter to function
@@ -1443,12 +1486,23 @@ Parameter* Validator::CreateParameter(const std::string &type,
        "depName='%s', manage=%d\n", type.c_str(), name.c_str(),
        ownerName.c_str(), depName.c_str(), manage);
    #endif
+
+   Parameter *param = NULL;
    
    // Check if create an array
    if (type == "Array")
-      return CreateArray(name, manage);
+      param = CreateArray(name, manage);
    else
-      return theModerator->CreateParameter(type, name, ownerName, depName, manage);
+      param = theModerator->CreateParameter(type, name, ownerName, depName, manage);
+   
+   #ifdef DEBUG_CREATE_PARAM
+   MessageInterface::ShowMessage
+      ("Validator::CreateParameter() returning <%p><%s>'%s'\n", param,
+       (param == NULL) ? "NULL" : param->GetTypeName().c_str(),
+       (param == NULL) ? "NULL" : param->GetName().c_str());
+   #endif
+   
+   return param;
 }
 
 
