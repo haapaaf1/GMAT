@@ -354,9 +354,15 @@ bool Assignment::InterpretAction()
    lhs = chunks[0];
    rhs = chunks[1]; 
    
+   // check if there is single quote in LHS(loj: 2008.07.22)
+   if (lhs.find("'") != lhs.npos)
+      throw CommandException("An assignment command is not allowed to contain "
+                             "single quote on the left-hand-side"); 
+   
    if (!GmatStringUtil::HasNoBrackets(lhs,true))
-      throw CommandException("An assignment command is not allowed to contain brackets, braces, or "
-         "parentheses (except to indicate an array element) on the left-hand-side");      
+      throw CommandException("An assignment command is not allowed to contain "
+         "brackets, braces, or parentheses (except to indicate an array element)"
+         " on the left-hand-side");
    
    // check for unexpected commas on the left-hand-side
    Integer commaPos = -1;
@@ -388,6 +394,33 @@ bool Assignment::InterpretAction()
          MessageInterface::ShowMessage
             ("   topNode=%s\n", topNode->GetTypeName().c_str());
       #endif
+      
+      // check if sting has missing start quote (loj: 2008.07.23)
+      // it will be an error only if rhs with blank space removed matches with
+      // any GmatFunction name without letter case
+      std::string str1 = rhs;
+      if (GmatStringUtil::EndsWith(str1, "'"))
+      {
+         #if DEBUG_EQUATION
+         MessageInterface::ShowMessage("   <%s> ends with '\n", str1.c_str());
+         #endif
+         
+         str1 = GmatStringUtil::RemoveLastString(str1, "'");
+         str1 = GmatStringUtil::RemoveAll(str1, ' ');
+         StringArray gmatFnNames = mp.GetGmatFunctionNames();
+         bool isError = false;
+         for (UnsignedInt i=0; i<gmatFnNames.size(); i++)
+         {
+            if (GmatStringUtil::ToUpper(str1) == GmatStringUtil::ToUpper(gmatFnNames[i]))
+            {
+               isError = true;
+               break;
+            }
+         }
+         if (isError)
+            throw CommandException("Found missing start quote on the right-hand-side"
+                                   " of an Assignment command");
+      }
       
       mathTree = new MathTree("MathTree", rhs);
       mathTree->SetTopNode(topNode);
@@ -688,6 +721,8 @@ const StringArray& Assignment::GetWrapperObjectNameArray()
    MessageInterface::ShowMessage
       ("Assignment::GetWrapperObjectNameArray() returning %d wrapper elements\n",
        wrapperObjectNames.size());
+   for (UnsignedInt i=0; i<wrapperObjectNames.size(); i++)
+      MessageInterface::ShowMessage("   '%s'\n", wrapperObjectNames[i].c_str());
    #endif
    
    return wrapperObjectNames;
