@@ -447,6 +447,13 @@ StringArray MathParser::GetGmatFunctionNames()
    
    for (int i=0; i<theGmatFuncCount; i++)
       gmatFuncList.push_back(GMAT_FUNC_LIST[i]);
+
+   #if DEBUG_GMAT_FUNCTION
+   MessageInterface::ShowMessage
+      ("MathParser::GetGmatFunctionNames() returning %d names\n", gmatFuncList.size());
+   for (UnsignedInt i=0; i<gmatFuncList.size(); i++)
+      MessageInterface::ShowMessage("   <%s>\n", gmatFuncList[i].c_str());
+   #endif
    
    return gmatFuncList;
 }
@@ -1930,6 +1937,11 @@ std::string MathParser::GetFunctionName(UnsignedInt functionType,
 //------------------------------------------------------------------------------
 void MathParser::BuildGmatFunctionList(const std::string &str)
 {
+   #if DEBUG_GMAT_FUNCTION
+   MessageInterface::ShowMessage
+      ("MathParser::BuildGmatFunctionList() entered, str='%s'\n", str.c_str());
+   #endif
+   
    StringArray names = GmatStringUtil::GetVarNames(str);
    FileManager *fm = FileManager::Instance();
    theGmatFuncCount = 0;
