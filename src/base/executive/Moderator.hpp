@@ -82,7 +82,7 @@ public:
    bool IsLibraryLoaded(const std::string &libName);
    void (*GetDynamicFunction(const std::string &funName, 
                              const std::string &libraryName))();
-
+   
    //----- ObjectType
    std::string GetObjectTypeString(Gmat::ObjectType type);  
    
@@ -311,16 +311,20 @@ public:
    bool StartServer();
    
 private:
-
+   
    // initialization
    void CreatePlanetaryCoeffFile();
    void CreateTimeFile();
    
+   // prepare next script reading
+   void PrepareNextScriptReading(bool clearObjs = true);
+   
+   // create default objects
    void CreateSolarSystemInUse();
    void CreateInternalCoordSystem();
    void CreateDefaultCoordSystems();
    void CreateDefaultMission();
-
+   
    // Parameter reference object setting
    void CheckParameterType(Parameter *param, const std::string &type,
                            const std::string &ownerName);
@@ -367,6 +371,7 @@ private:
    // for Debug
    void ShowCommand(const std::string &title1, GmatCommand *cmd1,
                     const std::string &title2 = "", GmatCommand *cmd2 = NULL);
+   void ShowObjectMap(const std::string &title);
    
    Moderator();
    virtual ~Moderator();

@@ -71,7 +71,7 @@
 //#define DEBUG_SEQUENCE_CLEARING 1
 //#define DEBUG_CONFIG 1
 //#define DEBUG_CREATE_VAR 1
-//#define DEBUG_GMAT_FUNCTION 1
+//#define DEBUG_GMAT_FUNCTION 2
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_FIND_OBJECT 1
 //#define DEBUG_ADD_OBJECT 1
@@ -250,6 +250,12 @@ bool Moderator::Initialize(bool fromGui)
       
       // set objectMapInUse (loj: 2008.05.23)
       objectMapInUse = theConfigManager->GetObjectMap();
+      
+      #ifdef DEBUG_OBJECT_MAP
+      MessageInterface::ShowMessage
+         ("Moderator::Initialize() objectMapInUse was set to the "
+          "configuration map <%p>\n", objectMapInUse);
+      #endif
       
       if (fromGui)
          CreateDefaultMission();
@@ -744,18 +750,13 @@ void Moderator::SetObjectMap(ObjectMap *objMap)
 {
    if (objMap != NULL)
    {
-      #ifdef DEBUG_OBJECT_MAP
-      MessageInterface::ShowMessage("Here is the current Moderator object map:\n");
-      for (std::map<std::string, GmatBase *>::iterator i = objMap->begin();
-           i != objMap->end(); ++i)
-      {
-         MessageInterface::ShowMessage
-            ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
-             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
-      }
-      #endif
-      
       objectMapInUse = objMap;
+      
+      #ifdef DEBUG_OBJECT_MAP
+      MessageInterface::ShowMessage
+         ("Moderator::SetObjectMap() objectMapInUse was set to input objMap\n");
+      ShowObjectMap("Moderator::SetObjectMap() Here is the object map in use");
+      #endif
    }
 }
 
@@ -3067,14 +3068,32 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    // If input objMap is NULL, use configured objects,
    // use input object map otherwise   
    if (objMap == NULL)
+   {
       objectMapInUse = theConfigManager->GetObjectMap();
+      #ifdef DEBUG_OBJECT_MAP
+      MessageInterface::ShowMessage
+         ("Moderator::InterpretGmatFunction() objectMapInUse was set to the "
+          "configuration map <%p>\n", objectMapInUse);
+      #endif
+   }
    else
+   {
       objectMapInUse = objMap;
+      #ifdef DEBUG_OBJECT_MAP
+      MessageInterface::ShowMessage
+         ("Moderator::InterpretGmatFunction() objectMapInUse was set to "
+          "input objMap <%p>\n", objectMapInUse);
+      #endif
+   }
    
    #if DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("   Setting objectMapInUse<%p> to theScriptInterpreter\n"
        "   Setting theSolarSystemInUse<%p> to theScriptInterpreter\n");
+   #endif
+   
+   #if DEBUG_GMAT_FUNCTION > 1
+   ShowObjectMap("Moderator::InterpretGmatFunction() Here is the object map in use");
    #endif
    
    theScriptInterpreter->SetObjectMap(objectMapInUse, true);
@@ -4211,33 +4230,9 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
    MessageInterface::ShowMessage
       ("\nInterpreting scripts from the file.\n***** file: " + filename + "\n");
    
-   //clear both resource and command sequence
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::InterpretScript() clearing both resource and command sequence...\n");
-   #endif
-   
    try
    {
-      // Clear command sequence before resource (loj: 2008.07.10)
-      ClearCommandSeq();
-      ClearResource();
-      
-      // Set object map in use (loj: 2008.07.16)
-      objectMapInUse = theConfigManager->GetObjectMap();      
-      CreateSolarSystemInUse();      
-      // Need default CS's in case they are used in the script
-      CreateDefaultCoordSystems();
-      
-      // Set solar system in use and object map (loj: 2008.03.31)
-      theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theScriptInterpreter->SetObjectMap(objectMapInUse);
-      if (theUiInterpreter != NULL)
-      {
-         theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-         theUiInterpreter->SetObjectMap(objectMapInUse);
-      }
-      
+      PrepareNextScriptReading();
       status = theScriptInterpreter->Interpret(filename);
       
       if (readBack)
@@ -4343,33 +4338,7 @@ bool Moderator::InterpretScript(std::istringstream *ss, bool clearObjs)
    
    try
    {
-      //clear both resource and command sequence
-      if (clearObjs)
-      {
-         // Clear command sequence before resource (loj: 2008.07.10)
-         ClearCommandSeq();
-         ClearResource();
-      }
-      
-      // Set object map in use (loj: 2008.07.16)
-      objectMapInUse = theConfigManager->GetObjectMap();      
-      CreateSolarSystemInUse();
-      CreateDefaultCoordSystems();
-      
-      // Set solar system in use and object map (loj: 2008.03.31)
-      #if DEBUG_INTERPRET
-      MessageInterface::ShowMessage
-         ("   Setting SolarSystem <%p> and ObjectMap <%p> to theScriptInterpreter\n",
-          theSolarSystemInUse, theConfigManager->GetObjectMap());
-      #endif
-      
-      theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theScriptInterpreter->SetObjectMap(objectMapInUse);
-      if (theUiInterpreter != NULL)
-      {
-         theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-         theUiInterpreter->SetObjectMap(objectMapInUse);
-      }
+      PrepareNextScriptReading(clearObjs);
       
       // Set istream and Interpret
       theScriptInterpreter->SetInStream(ss);
@@ -4570,6 +4539,69 @@ void Moderator::CreateTimeFile()
    
    TimeConverterUtil::SetLeapSecsFileReader(theLeapSecsFile);
    TimeConverterUtil::SetEopFile(theEopFile);
+}
+
+
+// prepare next script reading
+//------------------------------------------------------------------------------
+// void PrepareNextScriptReading(bool clearObjs = true)
+//------------------------------------------------------------------------------
+/*
+ * This method prepares for next script reading by clearing commands and resource,
+ * resetting object pointers
+ *
+ * @param <clearObjs> set to true if clearing commands and resource (true)
+ */
+//------------------------------------------------------------------------------
+void Moderator::PrepareNextScriptReading(bool clearObjs)
+{
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage
+      ("Moderator::PrepareNextScriptReading() entered, clearObjs=%d\n", clearObjs);
+   #endif
+   
+   // Clear command sequence before resource (loj: 2008.07.10)
+   if (clearObjs)
+   {
+      //clear both resource and command sequence
+      #if DEBUG_RUN
+      MessageInterface::ShowMessage("Clearing both resource and command sequence...\n");
+      #endif
+      
+      ClearCommandSeq();
+      ClearResource();
+   }
+   
+   // Set object map in use (loj: 2008.07.16)
+   objectMapInUse = theConfigManager->GetObjectMap();
+   
+   #ifdef DEBUG_OBJECT_MAP
+   MessageInterface::ShowMessage
+      ("ObjectMapInUse was set to the configuration map <%p>\n", objectMapInUse);
+   #endif
+   
+   CreateSolarSystemInUse();
+   // Need default CS's in case they are used in the script
+   CreateDefaultCoordSystems();
+   
+   #if DEBUG_OBJECT_MAP > 1
+   ShowObjectMap("   Moderator::PrepareNextScriptReading() Here is the configured object map");
+   #endif
+   
+   // Set solar system in use and object map (loj: 2008.03.31)
+   theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+   theScriptInterpreter->SetObjectMap(objectMapInUse);
+   theScriptInterpreter->SetFunction(NULL); // Added (loj: 2008.07.22)
+   if (theUiInterpreter != NULL)
+   {
+      theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+      theUiInterpreter->SetObjectMap(objectMapInUse);
+      theUiInterpreter->SetFunction(NULL); // Added (loj: 2008.07.22)
+   }
+   
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage("Moderator::PrepareNextScriptReading() exiting\n");
+   #endif
 }
 
 
@@ -5247,18 +5279,7 @@ GmatBase* Moderator::FindObject(const std::string &name, Integer manage)
    }
    
    #if DEBUG_FIND_OBJECT > 1
-   MessageInterface::ShowMessage
-      ("Here is the current Moderator object map<%p>:\n", objectMapInUse);
-   if (objectMapInUse == NULL)
-      MessageInterface::ShowMessage("The objectMapInUse is NULL\n");
-   
-   for (std::map<std::string, GmatBase *>::iterator i = objectMapInUse->begin();
-        i != objectMapInUse->end(); ++i)
-   {
-      MessageInterface::ShowMessage
-         ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
-          i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
-   }
+   ShowObjectMap("Moderator::FindObject() Here is the object map in use");
    #endif
    
    GmatBase *obj = NULL;
@@ -5287,8 +5308,9 @@ GmatBase* Moderator::FindObject(const std::string &name, Integer manage)
    
    #if DEBUG_FIND_OBJECT
    MessageInterface::ShowMessage
-      ("Moderator::FindObject() '%s' returning <%p><%s>\n", name.c_str(), obj,
-       (obj ? obj->GetTypeName().c_str() : "NULL"));
+      ("Moderator::FindObject() returning <%p><%s>'%s'\n", obj, 
+       obj ? obj->GetTypeName().c_str() : "NULL",
+       obj ? obj->GetName().c_str() : "NULL");
    #endif
    
    return obj;
@@ -5329,6 +5351,12 @@ bool Moderator::AddObject(GmatBase *obj)
       throw GmatBaseException
          ("Moderator::AddObject() cannot add object named \"" + obj->GetName() +
           "\" to unset object map in use");
+   
+   #ifdef DEBUG_OBJECT_MAP
+   MessageInterface::ShowMessage
+      ("Moderator::Moderator::AddObject() Adding <%p><%s>'%s' to objectMapInUse <%p>\n",
+       obj, obj->GetTypeName().c_str(), obj->GetName().c_str(), objectMapInUse);
+   #endif
    
    objectMapInUse->insert(std::make_pair(obj->GetName(), obj));
    
@@ -6050,6 +6078,30 @@ void Moderator::ShowCommand(const std::string &title1, GmatCommand *cmd1,
          MessageInterface::ShowMessage
             ("%s(%p)%s%s(%p)%s\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str(),
              title2.c_str(), cmd2, cmd2->GetTypeName().c_str());
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void ShowObjectMap(const std::string &title)
+//------------------------------------------------------------------------------
+void Moderator::ShowObjectMap(const std::string &title)
+{
+   MessageInterface::ShowMessage(title);
+   if (objectMapInUse == NULL)
+   {
+      MessageInterface::ShowMessage("\nThe objectMapInUse is NULL\n");
+      return;
+   }
+   
+   MessageInterface::ShowMessage
+      (" <%p>, it has %d objects\n", objectMapInUse, objectMapInUse->size());
+   for (std::map<std::string, GmatBase *>::iterator i = objectMapInUse->begin();
+        i != objectMapInUse->end(); ++i)
+   {
+      MessageInterface::ShowMessage
+         ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+          i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
    }
 }
 
