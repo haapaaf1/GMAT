@@ -28,6 +28,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_SET_SS
+//#define DEBUG_SET_REF
 
 //---------------------------------
 // static data
@@ -95,11 +96,11 @@ solar          (NULL)
 //---------------------------------------------------------------------------
 CoordinateBase::CoordinateBase(const CoordinateBase &coordBase) :
 GmatBase(coordBase),
-origin        (NULL),
+origin        (coordBase.origin),
 originName    (coordBase.originName),
-j2000Body     (NULL),
+j2000Body     (coordBase.j2000Body),
 j2000BodyName (coordBase.j2000BodyName),
-solar         (NULL)
+solar         (coordBase.solar)
 {
 }
 
