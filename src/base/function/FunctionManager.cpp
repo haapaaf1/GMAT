@@ -29,6 +29,7 @@
 
 //#define DEBUG_FUNCTION_MANAGER
 //#define DEBUG_FM_EXECUTE
+//#define DEBUG_FM_FINALIZE
 
 //---------------------------------
 // static data
@@ -203,7 +204,7 @@ std::string FunctionManager::GetFunctionName() const
       #endif
       //return f->GetStringParameter("FunctionName");
    }
-   return fName;
+   return fName; // why not return theFunctionName here?
 }
 
 void FunctionManager::SetFunction(Function *theFunction)
@@ -289,6 +290,7 @@ bool FunctionManager::Execute()
    if (validator == NULL)
       validator = Validator::Instance();
    
+   combinedObjectStore.clear();
    std::map<std::string, GmatBase *>::iterator omi;
    for (omi = localObjectStore->begin(); omi != localObjectStore->end(); ++omi)
       combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
@@ -329,8 +331,20 @@ bool FunctionManager::Execute()
       {
          isInput = false;
          for (unsigned int qq = 0; qq < inNames.size(); qq++)
-            if (omi->first == inNames.at(qq))  isInput = true;
-         if (!isInput) toDelete.push_back(omi->first);                                     
+            if (omi->first == inNames.at(qq))
+            {
+               isInput = true;
+               break;
+            }
+         if (!isInput) 
+         {  
+            if (omi->second != NULL)
+            {
+               delete omi->second;
+               omi->second = NULL;
+            }
+            toDelete.push_back(omi->first); 
+         }
       }
       for (unsigned int kk = 0; kk < toDelete.size(); kk++)
       {
@@ -383,7 +397,7 @@ bool FunctionManager::Execute()
          fosObj->Copy(obj);
          (inputWrappers[objName])->SetRefObject(fosObj);  // is this necessary? I think so
       }
-   }
+   } // end if not first time through
    
    // pass the FOS into the function
    f->SetObjectMap(&functionObjectStore);
@@ -404,10 +418,15 @@ bool FunctionManager::Execute()
    }
    // -- ****************************************************************************************
    // @todo - this probably needs to be moved to the right spot!!!! 
-   if (!objInit)  
-      objInit = new ObjectInitializer(solarSys, &functionObjectStore, globalObjectStore, intCS);
-   else
-      objInit->SetObjectMap(&functionObjectStore);
+//   if (!objInit)  
+//      objInit = new ObjectInitializer(solarSys, &functionObjectStore, globalObjectStore, intCS, true);
+//   else
+//   {
+//      objInit->SetObjectMap(&functionObjectStore);
+//      objInit->SetCoordinateSystem(intCS);
+//   }
+   if (objInit) delete objInit;
+   objInit = new ObjectInitializer(solarSys, &functionObjectStore, globalObjectStore, intCS, true);
    
    //objInit->InitializeObjects();  // @todo - put this in the right place!!!!!
    // -- ****************************************************************************************
@@ -447,6 +466,7 @@ bool FunctionManager::Execute()
    ElementWrapper *ew;
    Gmat::ParameterType rightType, leftType;
    outputType = "";
+   // @todo - use the static method in ElementWrapper to copy these values
    if (blankResult)  SaveLastResult();
    else
    {
@@ -632,12 +652,55 @@ Rmatrix FunctionManager::MatrixEvaluate()
 
 void FunctionManager::Finalize()
 {
+   std::map<std::string, GmatBase *>::iterator omi;
+   #ifdef DEBUG_FM_FINALIZE
+      MessageInterface::ShowMessage("Entering FM::Finalize ...\n");
+      for (omi = functionObjectStore.begin(); omi != functionObjectStore.end(); ++omi)
+         MessageInterface::ShowMessage("   entry for \"%s\" is %p\n",
+               (omi->first).c_str(), omi->second);
+   #endif
+   if (f != NULL)
+      if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
+         f->Finalize();
+   // now delete all of the items/entries in the FOS - we can do this since they are all either
+   // locally-created or clones of reference objects or automatic objects
+   StringArray toDelete;
+   for (omi = functionObjectStore.begin(); omi != functionObjectStore.end(); ++omi)
+   {
+      #ifdef DEBUG_FM_FINALIZE
+         MessageInterface::ShowMessage("... item \"%s\" %s a NULL pointer\n",
+               (omi->first).c_str(), (((omi->second) != NULL)? "is NOT" : "IS"));
+      #endif
+      if ((omi->second) != NULL)
+      {
+         #ifdef DEBUG_FM_FINALIZE
+            MessageInterface::ShowMessage("  About to delete pointer for %s\n",
+                  (omi->first).c_str());
+            if ((omi->second)->IsOfType("Subscriber"))
+               MessageInterface::ShowMessage("Deleting a subscriber!!!!!!!!!!!!\n");
+         #endif
+         // for now, don't delete subscribers as the Publisher still points to them and
+         // bad things happen at the end of the run if they disappear
+         if (!((omi->second)->IsOfType("Subscriber")))
+            delete omi->second;
+         #ifdef DEBUG_FM_FINALIZE
+            MessageInterface::ShowMessage("  and ... pointer for %s was deleted\n",
+                  (omi->first).c_str());
+         #endif
+         omi->second = NULL;
+      }
+      toDelete.push_back(omi->first); 
+   }
+   for (unsigned int kk = 0; kk < toDelete.size(); kk++)
+   {
+      functionObjectStore.erase(toDelete.at(kk));
+      #ifdef DEBUG_FM_FINALIZE
+         MessageInterface::ShowMessage("and just erased item %s from the FOS\n",
+               (toDelete.at(kk)).c_str());
+      #endif
+   }
+   functionObjectStore.clear();
    firstExecution = true;
-   
-   ; // @todo - call function to call RunComplete on FCS here?
-     // delete all contents of FOS here?
-   if (f != NULL && f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
-      f->Finalize();
 }
 
 //---------------------------------
@@ -655,14 +718,8 @@ bool FunctionManager::Initialize()
    std::string objName;
    StringArray inNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
 
-   // Initialize the Validator - I think I need to do this each time - or do I?
-//   validator->SetSolarSystem(solarSys);
-//   std::map<std::string, GmatBase *>::iterator omi;
-//   for (omi = localObjectStore->begin(); omi != localObjectStore->end(); ++omi)
-//      combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
-//   for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
-//      combinedObjectStore.insert(std::make_pair(omi->first, omi->second));
    validator->SetObjectMap(&combinedObjectStore);
+   validator->SetSolarSystem(solarSys);
 
    functionObjectStore.clear();
    //inputWrappers.clear();
@@ -699,6 +756,8 @@ bool FunctionManager::Initialize()
          MessageInterface::ShowMessage("Adding object %s to the FOS\n", objName.c_str());
       #endif // -------------------------------------------------------------- end debug ---
       // create an element wrapper for the input
+      validator->SetObjectMap(&combinedObjectStore);
+      validator->SetSolarSystem(solarSys);
       ElementWrapper *inWrapper = validator->CreateElementWrapper(ins.at(ii), false, false);
       inWrapper->SetRefObject(objFOS);
       inputWrappers.insert(std::make_pair(objName, inWrapper));
@@ -723,6 +782,8 @@ bool FunctionManager::Initialize()
             errMsg += " not found for function \"" + fName + "\"";
             throw FunctionException(errMsg);
          }
+         validator->SetObjectMap(&combinedObjectStore);
+         validator->SetSolarSystem(solarSys);
          ElementWrapper *outWrapper = validator->CreateElementWrapper(outs.at(jj));
          outWrapper->SetRefObject(obj); 
          outputWrappers.push_back(outWrapper);
@@ -780,7 +841,6 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
    // Check first to see if the string is a numeric literal (and assume we want a real)
    if (GmatStringUtil::ToReal(fromString, &rval))
    {
-      //v = new Variable(newName);
       v = new Variable(str);
       v->SetReal(rval);
       obj = (GmatBase*) v;
@@ -790,7 +850,6 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
    else if ((str[0] == '\'') && (str[sz-1] == '\''))
    {
       sval = str.substr(1, sz-2);
-      //StringVar *sv = new StringVar(newName);
       StringVar *sv = new StringVar(str);
       sv->SetStringParameter("Value", sval);
       obj = (GmatBase*) sv;
@@ -800,6 +859,8 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
    {
       // otherwise, we assume it is something else, like array element.
       // NOTE that we are only allowing Real and Array here 
+      validator->SetObjectMap(&combinedObjectStore);
+      validator->SetSolarSystem(solarSys);
       ElementWrapper *ew = validator->CreateElementWrapper(fromString);
       if (ew)
       {
@@ -808,7 +869,6 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
          {
             case Gmat::ARRAY :
             {
-               //Array *array   = new Array(newName);
                Array *array   = new Array(str);
                Rmatrix matVal = ew->EvaluateArray();
                array->SetRmatrix(matVal);
@@ -827,7 +887,6 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
                }
                ew->SetRefObject(refObj);
                rval = ew->EvaluateReal(); 
-               //v = new Variable(newName);
                v = new Variable(str);
                v->SetReal(rval);
                obj = (GmatBase*) v;
@@ -838,7 +897,6 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
             case Gmat::INTEGER :       // what is this anyway?
             {
                rval = ew->EvaluateReal(); 
-               //v = new Variable(newName);
                v = new Variable(str);
                v->SetReal(rval);
                obj = (GmatBase*) v;
