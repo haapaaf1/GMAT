@@ -843,6 +843,16 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
       {
          j2000body->SetJ2000Body(j2000body);
          origin->SetJ2000Body(j2000body);
+
+      }
+
+      if (mShowSecondaryBody)
+      {
+         SpacePoint *secondary =
+            (SpacePoint*)theGuiInterpreter->
+            GetConfiguredObject(secondaryComboBox->GetValue().Trim().c_str());
+         if (secondary->GetJ2000Body() == NULL)
+            secondary->SetJ2000Body(j2000body);
       }
       
       coordSys->SetJ2000Body(j2000body);
