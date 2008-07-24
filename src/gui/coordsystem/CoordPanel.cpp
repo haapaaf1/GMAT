@@ -846,15 +846,6 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
 
       }
 
-      if (mShowSecondaryBody)
-      {
-         SpacePoint *secondary =
-            (SpacePoint*)theGuiInterpreter->
-            GetConfiguredObject(secondaryComboBox->GetValue().Trim().c_str());
-         if (secondary->GetJ2000Body() == NULL)
-            secondary->SetJ2000Body(j2000body);
-      }
-      
       coordSys->SetJ2000Body(j2000body);
       
       //-------------------------------------------------------
@@ -884,6 +875,8 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
                GetConfiguredObject(secondaryName.c_str());
          
             axis->SetSecondaryObject(secondary);
+            if (secondary->GetJ2000Body() == NULL)
+               secondary->SetJ2000Body(j2000body);
          }
       }
       
