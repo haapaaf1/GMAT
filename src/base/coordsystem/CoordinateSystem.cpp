@@ -34,6 +34,7 @@
 //#define DEBUG_DESTRUCTION
 //#define DEBUG_CONSTRUCTION
 //#define DEBUG_CS_INIT 1
+//#define DEBUG_CS_SET_REF
 
 //---------------------------------
 // static data
@@ -1169,6 +1170,10 @@ const StringArray& CoordinateSystem::GetRefObjectNameArray(const Gmat::ObjectTyp
 bool CoordinateSystem::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                     const std::string &name)
 {
+   #ifdef DEBUG_CS_SET_REF
+      MessageInterface::ShowMessage("Entering CS::SetRefObject with obj of type %s and name '%s'\n",
+            (obj->GetTypeName()).c_str(), name.c_str());
+   #endif
    if (obj == NULL)
       return false;
    
@@ -1181,6 +1186,9 @@ bool CoordinateSystem::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //          MessageInterface::ShowMessage
 //             ("===> CoordinateSystem::SetRefObject() %s, before axes=%p, obj=%p\n",
 //              GetName().c_str(), axes, obj);
+         #ifdef DEBUG_CS_SET_REF
+            MessageInterface::ShowMessage("CS::SetRefObject - object is of type AXIS_SYSTEM\n");
+         #endif
 
          AxisSystem *oldAxis = axes;
          
@@ -1210,6 +1218,9 @@ bool CoordinateSystem::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    
    if (retval)
       return true;
+   #ifdef DEBUG_CS_SET_REF
+      MessageInterface::ShowMessage("CS::SetRefObject - object is NOT of type AXIS_SYSTEM\n");
+   #endif
    
    // Not handled here -- invoke the next higher SetRefObject call
    return CoordinateBase::SetRefObject(obj, type, name);
