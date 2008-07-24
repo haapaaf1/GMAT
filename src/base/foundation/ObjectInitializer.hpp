@@ -46,6 +46,7 @@ public:
    
    void SetSolarSystem(SolarSystem *solSys);
    void SetObjectMap(ObjectMap *objMap);
+   void SetCoordinateSystem(CoordinateSystem* internalCS);
    //   void SetGlobalObjectMap(ObjectMap *globalObjMap);
    //   void SetCoordinateSystem(CoordinateSystem *internalCS);
    

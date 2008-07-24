@@ -100,6 +100,11 @@ void ObjectInitializer::SetObjectMap(ObjectMap *objMap)
    LOS = objMap;
 }
 
+void ObjectInitializer::SetCoordinateSystem(CoordinateSystem* internalCS)
+{
+   cs = internalCS;
+}
+
 bool ObjectInitializer::InitializeObjects(bool registerSubs)
 {
    std::map<std::string, GmatBase *>::iterator omIter;
@@ -148,6 +153,28 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
                spObj->GetJ2000BodyName() + "\"");
       }
    }
+   if (includeGOS)
+   {
+      for (omi = GOS->begin(); omi != GOS->end(); ++omi)
+      {
+         obj = omi->second;
+         if (obj->IsOfType(Gmat::SPACE_POINT))
+         {
+            #ifdef DEBUG_OBJECT_INITIALIZER
+               MessageInterface::ShowMessage(
+                  "Setting J2000 Body for %s in the ObjectInitializer\n",
+                  obj->GetName().c_str());
+            #endif
+            SpacePoint *spObj = (SpacePoint *)obj;
+            SpacePoint* j2k = FindSpacePoint(spObj->GetJ2000BodyName());
+            if (j2k)
+               spObj->SetJ2000Body(j2k);
+            else
+               throw GmatBaseException("ObjectInitializer did not find the Spacepoint \"" +
+                  spObj->GetJ2000BodyName() + "\"");
+         }
+      }
+   }
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage("J2000 Body set ...\n");
    #endif
@@ -179,6 +206,25 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          obj->Initialize();
       }
    }
+   
+   if (includeGOS)
+   {
+      for (omi = GOS->begin(); omi != GOS->end(); ++omi)
+      {
+         obj = omi->second;
+         if (obj->GetType() == Gmat::COORDINATE_SYSTEM)
+         {
+            #ifdef DEBUG_OBJECT_INITIALIZER
+               MessageInterface::ShowMessage("Initializing CS %s\n",
+                  obj->GetName().c_str());
+            #endif
+            obj->SetSolarSystem(ss);
+            BuildReferences(obj);
+            InitializeCoordinateSystem((CoordinateSystem *)obj);
+            obj->Initialize();
+         }
+      }
+   }
 
    // Spacecraft
    for (omi = LOS->begin(); omi != LOS->end(); ++omi)
@@ -195,6 +241,26 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          BuildAssociations(obj);
 
          obj->Initialize();
+      }
+   }
+   
+   if (includeGOS)
+   {
+      for (omi = GOS->begin(); omi != GOS->end(); ++omi)
+      {
+         obj = omi->second;
+         if (obj->GetType() == Gmat::SPACECRAFT)
+         {
+            obj->SetSolarSystem(ss);
+            ((Spacecraft *)obj)->SetInternalCoordSystem(cs);
+
+            BuildReferences(obj);
+
+            // Setup spacecraft hardware
+            BuildAssociations(obj);
+
+            obj->Initialize();
+         }
       }
    }
 
@@ -240,6 +306,49 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             obj->Initialize();
       }
    }
+   
+   if (includeGOS)
+   {
+      for (omi = GOS->begin(); omi != GOS->end(); ++omi)
+      {
+         obj = omi->second;
+         if ((obj->GetType() != Gmat::COORDINATE_SYSTEM) &&
+             (obj->GetType() != Gmat::SPACECRAFT) &&
+             (obj->GetType() != Gmat::PARAMETER) &&
+             (obj->GetType() != Gmat::SUBSCRIBER))
+         {
+            #ifdef DEBUG_OBJECT_INITIALIZER
+               MessageInterface::ShowMessage(
+                  "ObjectInitializer::Initialize objTypeName = %s, objName = %s\n",
+                  obj->GetTypeName().c_str(), obj->GetName().c_str());
+            #endif
+
+
+            //*************************** TEMPORARY *******************************
+            if (obj->GetType() != Gmat::PROP_SETUP)
+            {
+               obj->SetSolarSystem(ss);
+               if (obj->IsOfType(Gmat::SPACE_POINT))
+                  BuildReferences(obj);
+               continue;
+            }
+            #ifdef DEBUG_OBJECT_INITIALIZER
+               else
+                  MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
+                     obj->GetName().c_str());
+            #endif
+            //********************** END OF TEMPORARY *****************************
+
+
+            BuildReferences(obj);
+            // PropSetup initialization is handled by the commands, since the
+            // state that is propagated may change as spacecraft are added or
+            // removed.
+            if (obj->GetType() != Gmat::PROP_SETUP)
+               obj->Initialize();
+         }
+      }
+   }
 
 
    //MessageInterface::ShowMessage("=====> Initialize System Parameters\n");
@@ -269,6 +378,35 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          }
       }
    }
+   
+   if (includeGOS)
+   {
+      for (omi = GOS->begin(); omi != GOS->end(); ++omi)
+      {
+         obj = omi->second;
+
+
+         // Treat parameters as a special case -- because system parameters have
+         // to be initialized before other parameters.
+         if (obj->GetType() == Gmat::PARAMETER)
+         {
+            Parameter *param = (Parameter *)obj;
+            // Make sure system parameters are configured before others
+            if (param->GetKey() == GmatParam::SYSTEM_PARAM)
+            {
+               #ifdef DEBUG_OBJECT_INITIALIZER
+                  MessageInterface::ShowMessage(
+                     "ObjectInitializer::Initialize objTypeName = %s, objName = %s\n",
+                     obj->GetTypeName().c_str(), obj->GetName().c_str());
+               #endif
+               param->SetSolarSystem(ss);
+               param->SetInternalCoordSystem(cs);
+               BuildReferences(obj);
+               obj->Initialize();
+            }
+         }
+      }
+   }
 
 
    //MessageInterface::ShowMessage("=====> Initialize remaining parameters\n");
@@ -288,6 +426,27 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          
          BuildReferences(obj);
          param->Initialize();
+      }
+   }
+   
+   if (includeGOS)
+   {
+      for (omi = GOS->begin(); omi != GOS->end(); ++omi)
+      {
+         obj = omi->second;
+         if (obj->GetType() == Gmat::PARAMETER)
+         {
+            Parameter *param = (Parameter *)obj;
+            // Make sure system parameters are configured before others
+            #ifdef DEBUG_OBJECT_INITIALIZER
+               MessageInterface::ShowMessage(
+                  "ObjectInitializer::Initialize objTypeName = %s, objName = %s\n",
+                  obj->GetTypeName().c_str(), obj->GetName().c_str());
+            #endif
+            
+            BuildReferences(obj);
+            param->Initialize();
+         }
       }
    }
    
@@ -316,6 +475,33 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             publisher->Subscribe((Subscriber*)obj);
       }
    }
+   
+   if (includeGOS)
+   {
+      for (omi = GOS->begin(); omi != GOS->end(); ++omi)
+      {
+         obj = omi->second;
+         // Parameters were initialized above
+         if (obj->GetType() == Gmat::SUBSCRIBER)
+         {
+            #ifdef DEBUG_OBJECT_INITIALIZER
+               MessageInterface::ShowMessage(
+                  "ObjectInitializer::Initialize objTypeName = %s, objName = %s\n",
+                  obj->GetTypeName().c_str(), obj->GetName().c_str());
+            #endif
+            
+            BuildReferences(obj);
+            ((Subscriber*)obj)->SetInternalCoordSystem(cs);
+            ((Subscriber*)obj)->SetSolarSystem(ss);
+            obj->Initialize();
+            
+            // Check if we need to register subscribers to the publisher (loj:2008.06.19)
+            if (registerSubs)
+               publisher->Subscribe((Subscriber*)obj);
+         }
+      }
+   }
+   
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage("ObjectInitializer: Objects Initialized ...\n");
    #endif
@@ -352,6 +538,9 @@ void ObjectInitializer::InitializeInternalObjects()
    const StringArray biu = ss->GetBodiesInUse();
    for (StringArray::const_iterator i = biu.begin(); i != biu.end(); ++i)
    {
+      #ifdef DEBUG_OBJECT_INITIALIZER
+         MessageInterface::ShowMessage(" ... initializing body %s ...\n", (*i).c_str());
+      #endif
       sp = ss->GetBody(*i);
       j2kName = sp->GetStringParameter("J2000BodyName");
       j2kBod = FindSpacePoint(j2kName);
@@ -359,6 +548,10 @@ void ObjectInitializer::InitializeInternalObjects()
    }
 
    // set ref object for internal coordinate system
+   #ifdef DEBUG_OBJECT_INITIALIZER
+      MessageInterface::ShowMessage(" ... solar system about to be set on coordinate system  ...\n");
+      if (!cs) MessageInterface::ShowMessage(" but solar system is NULL!!!!!!\n");
+   #endif
    cs->SetSolarSystem(ss);
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage(" ... and solar system is set on coordinate system  ...\n");
