@@ -256,9 +256,9 @@ $(WXTARGET) : $(OBJECTS) $(LIBNAME)
    cp -f $(WXTARGET) ../../bin/.
 else
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
-   $(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-   mv -f $(WXTARGET)* ../../bin/.
-   cp -f $(LIBNAME) ../../bin/.
+	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	mv -f $(WXTARGET)* ../../bin/.
+	cp -f $(LIBNAME) ../../bin/.
 endif
 
 endif
