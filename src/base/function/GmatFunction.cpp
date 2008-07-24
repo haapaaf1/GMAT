@@ -28,7 +28,7 @@
 //#define DEBUG_FUNCTION_SET
 //#define DEBUG_FUNCTION_INIT
 //#define DEBUG_FUNCTION_EXEC
-//#define DEBUG_FUNCTION_FINALIZE
+//define DEBUG_FUNCTION_FINALIZE
 
 //---------------------------------
 // static data
@@ -124,6 +124,21 @@ GmatFunction::GmatFunction(const std::string &name) :
 //------------------------------------------------------------------------------
 GmatFunction::~GmatFunction()
 {
+   StringArray toDelete;
+   std::map<std::string, GmatBase *>::iterator omi;
+   for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
+   {
+         if (omi->second != NULL)
+         {
+            delete omi->second;
+            omi->second = NULL;
+         }
+         toDelete.push_back(omi->first); 
+   }
+   for (unsigned int kk = 0; kk < toDelete.size(); kk++)
+   {
+      automaticObjects.erase(toDelete.at(kk));
+   }
 }
 
 
@@ -186,11 +201,13 @@ bool GmatFunction::Initialize()
    validator->SetSolarSystem(solarSys);
    std::map<std::string, GmatBase *>::iterator omi;
       
-   // add automatic objects to the FOS
+   // add automatic objects to the FOS (well, actually, clones of them)
    for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
    {
+      std::string objName = omi->first;
+      GmatBase    *objPtr = (omi->second)->Clone();
       if (objectStore->find(omi->first) == objectStore->end())
-         objectStore->insert(std::make_pair(omi->first, omi->second));
+         objectStore->insert(std::make_pair(objName, objPtr));
    }
    // first, send all the commands the input wrappers
    
@@ -249,7 +266,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
    
    #ifdef DEBUG_FUNCTION_EXEC
    MessageInterface::ShowMessage
-      ("GmatFunction::Execute() entered for '%s' objectsInitialized=%d\n",
+      ("GmatFunction::Execute() entered for '%s';  objectsInitialized=%d\n",
        functionName.c_str(), objectsInitialized);
    #endif
    
@@ -281,6 +298,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
             objectsInitialized = true;
             
             #ifdef DEBUG_FUNCTION_EXEC
+            MessageInterface::ShowMessage("Now at command \"%s\"\n\n", 
+                  (current->GetGeneratingString()).c_str());
             MessageInterface::ShowMessage
                ("\n============================ Begin initialization of local objects\n");
             #endif
