@@ -238,29 +238,37 @@ OBJECTS = \
 
 ifeq ($(SHARED_BASE), 0)
 
+ifdef MAC_SPECIFIC
+$(WXTARGET) : $(OBJECTS) $(LIBS)
+	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	cp -f $(WXTARGET) ../../bin/.
+else
 $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
 	mv -f $(WXTARGET)* ../../bin/.
-
-#	cp -f $(WXTARGET) ../../bin/.
+endif
 
 else
 
+ifdef MAC_SPECIFIC
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
-	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	mv -f $(WXTARGET)* ../../bin/.
-	cp -f $(LIBNAME) ../../bin/.
-
-#	cp -f $(WXTARGET) ../../bin/.
+   $(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+   cp -f $(WXTARGET) ../../bin/.
+else
+$(WXTARGET) : $(OBJECTS) $(LIBNAME)
+   $(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+   mv -f $(WXTARGET)* ../../bin/.
+   cp -f $(LIBNAME) ../../bin/.
+endif
 
 endif
 
 macrez:
 	echo "linking Carbon and wx resource files ......."
-#	$(REZ) -o $(WXTARGET)
 	$(REZ) -d WXUSINGDLL -o $(WXTARGET)
 	cp -f $(WXTARGET) ../../bin/.
 	@chmod -R 755 ../../bin
+#  $(REZ) -o $(WXTARGET)
 
 macosx: 
 	echo "building Mac application bundle ......."
@@ -269,10 +277,10 @@ macosx:
 	mkdir -p $(MACOS_DIR)
 	mkdir -p $(RES_DIR)
 	mkdir -p $(LIBS_DIR)
-#	echo -n "APPL????" > $(MAC_PKGINFO)
-#	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
-#	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-#	./install_libs_into_bundle
+#  echo -n "APPL????" > $(MAC_PKGINFO)
+#  ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
+#  cp -f $(GMAT_ICONS) $(MAC_ICONS) 
+#  ./install_libs_into_bundle
 
 macmatlab:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
