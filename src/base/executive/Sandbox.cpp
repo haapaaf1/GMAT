@@ -46,6 +46,8 @@
 //#define DEBUG_FM_INITIALIZATION
 //#define DEBUG_SANDBOX_GMATFUNCTION
 //#define DEBUG_SANDBOX_OBJINIT
+//#define DEBUG_SANDBOX_OBJ
+//#define DEBUG_SANDBOX_OBJECT_MAPS
 
 #ifdef DEBUG_SANDBOX_INIT
       std::map<std::string, GmatBase *>::iterator omIter;
@@ -160,7 +162,7 @@ Sandbox::~Sandbox()
 //------------------------------------------------------------------------------
 bool Sandbox::AddObject(GmatBase *obj)
 {
-   #if DEBUG_SANDBOX_OBJ
+   #ifdef DEBUG_SANDBOX_OBJ
       MessageInterface::ShowMessage
          ("Sandbox::AddObject() objTypeName=%s, objName=%s\n",
           obj->GetTypeName().c_str(), obj->GetName().c_str());
@@ -947,7 +949,7 @@ bool Sandbox::AddSubscriber(Subscriber *subsc)
    state     = IDLE;
 
    Subscriber *sub = (Subscriber *)(subsc->Clone());
-   #if DEBUG_SANDBOX_OBJ
+   #ifdef DEBUG_SANDBOX_OBJ
       MessageInterface::ShowMessage
          ("Sandbox::AddSubscriber() name = %s\n",
           sub->GetName().c_str());
@@ -1093,7 +1095,7 @@ GmatBase* Sandbox::FindObject(const std::string &name)
 bool Sandbox::SetObjectByNameInMap(const std::string &name,
                              GmatBase *obj)
 {
-#if DEBUG_SANDBOX_OBJ
+#ifdef DEBUG_SANDBOX_OBJ
    MessageInterface::ShowMessage
       ("Sandbox::SetObjectByNameInMap() name = %s\n",
        name.c_str());
@@ -1103,7 +1105,7 @@ bool Sandbox::SetObjectByNameInMap(const std::string &name,
    if (objectMap.find(name) != objectMap.end())
    {
       objectMap[name] = obj;
-#if DEBUG_SANDBOX_OBJ
+#ifdef DEBUG_SANDBOX_OBJ
    MessageInterface::ShowMessage
       ("Sandbox::SetObjectByNameInMap() set object name = %s in objectMap\n",
        name.c_str());
@@ -1113,7 +1115,7 @@ bool Sandbox::SetObjectByNameInMap(const std::string &name,
    if (globalObjectMap.find(name) != globalObjectMap.end())
    {
       globalObjectMap[name] = obj;
-#if DEBUG_SANDBOX_OBJ
+#ifdef DEBUG_SANDBOX_OBJ
    MessageInterface::ShowMessage
       ("Sandbox::SetObjectByNameInMap() set object name = %s in globalObjectMap\n",
        name.c_str());
@@ -1125,7 +1127,7 @@ bool Sandbox::SetObjectByNameInMap(const std::string &name,
    if (!found)
       objectMap.insert(std::make_pair(name,obj));
 
-#if DEBUG_SANDBOX_OBJ
+#ifdef DEBUG_SANDBOX_OBJ
    MessageInterface::ShowMessage
       ("Sandbox::SetObjectByNameInMap() returning found = %s\n",
        (found? "TRUE" : "FALSE"));
