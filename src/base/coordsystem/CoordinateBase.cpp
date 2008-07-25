@@ -96,11 +96,11 @@ solar          (NULL)
 //---------------------------------------------------------------------------
 CoordinateBase::CoordinateBase(const CoordinateBase &coordBase) :
 GmatBase(coordBase),
-origin        (coordBase.origin),
+origin        (NULL),
 originName    (coordBase.originName),
-j2000Body     (coordBase.j2000Body),
+j2000Body     (NULL),
 j2000BodyName (coordBase.j2000BodyName),
-solar         (coordBase.solar)
+solar         (NULL)
 {
 }
 
@@ -255,6 +255,15 @@ void CoordinateBase::SetJ2000Body(SpacePoint *j2000Ptr)
 {
    j2000Body = j2000Ptr;
 }
+
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+SolarSystem* CoordinateBase::GetSolarSystem() const
+{
+   return solar;
+}
+
 
 //------------------------------------------------------------------------------
 //  std::string  GetOriginName() const
