@@ -299,6 +299,8 @@ bool Create::Initialize()
    {
       GmatBase *newObj = refObj->Clone();
       newObj->SetName(useNames.at(jj));
+      if (refObj->GetType() == Gmat::COORDINATE_SYSTEM)
+         newObj->SetSolarSystem(((CoordinateBase*)refObj)->GetSolarSystem());
       #ifdef DEBUG_CREATE
       MessageInterface::ShowMessage("... Creating object of type %s with name %s \n", 
             (newObj->GetTypeName()).c_str(), (useNames.at(jj)).c_str());
