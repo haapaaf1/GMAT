@@ -1334,7 +1334,10 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
             ("   Found Global.LogFile, so calling MI::SetLogFile(%s)\n",
              chunks[1].c_str());
          #endif
-         MessageInterface::SetLogFile(chunks[1]);
+         
+         std::string fname = chunks[1];
+         fname = GmatStringUtil::RemoveEnclosingString(fname, "'");
+         MessageInterface::SetLogFile(fname);
          return true;
       }
    }
