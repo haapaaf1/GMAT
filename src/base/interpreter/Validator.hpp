@@ -47,6 +47,7 @@ public:
    void SetObjectMap(ObjectMap *objMap);
    void SetFunction(Function *func);
    
+   bool StartServer(GmatCommand *cmd);
    bool CheckUndefinedReference(GmatBase *obj, bool contOnError = true);
    bool ValidateCommand(GmatCommand *cmd, bool contOnError = true,
                         Integer manage = 1);
