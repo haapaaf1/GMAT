@@ -54,7 +54,7 @@
 //#define DEBUG_CREATE_PARAM
 //#define DEBUG_CREATE_ARRAY
 //#define DEBUG_CREATE_COMMAND
-//#define DEBUG_ASSIGNMENT
+//#define DEBUG_MAKE_ASSIGNMENT
 //#define DEBUG_ASSEMBLE_COMMAND
 //#define DEBUG_ASSEMBLE_CREATE
 //#define DEBUG_ASSEMBLE_FOR
@@ -1250,6 +1250,11 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
    // Now assemble command
    try
    {
+      #ifdef DEBUG_CREATE_COMMAND
+      MessageInterface::ShowMessage
+         ("   => Now calling %s->InterpretAction()\n", type.c_str());
+      #endif
+      
       // if command has its own InterpretAction(), just return cmd
       if (cmd->InterpretAction())
       {
@@ -1257,6 +1262,9 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
          if (type == "GMAT" && ((Assignment*)cmd)->GetMathTree() != NULL)
             HandleMathTree(cmd);
          
+         #ifdef DEBUG_CREATE_COMMAND
+         MessageInterface::ShowMessage("   => Now calling ValidateCommand()\n");
+         #endif
          retFlag  = ValidateCommand(cmd);
          
          #ifdef DEBUG_CREATE_COMMAND
@@ -2611,7 +2619,7 @@ Parameter* Interpreter::GetArrayIndex(const std::string &arrayStr,
 //------------------------------------------------------------------------------
 GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string &rhs)
 {
-   #ifdef DEBUG_ASSIGNMENT
+   #ifdef DEBUG_MAKE_ASSIGNMENT
    MessageInterface::ShowMessage
       ("Interpreter::MakeAssignment() lhs=<%s>, rhs=<%s>\n", lhs.c_str(), rhs.c_str());
    MessageInterface::ShowMessage
@@ -2637,7 +2645,7 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
    bool isRhsArray = false;
    currentBlock = lhs + " = " + rhs;
    
-   #ifdef DEBUG_ASSIGNMENT
+   #ifdef DEBUG_MAKE_ASSIGNMENT
    WriteStringArray("lhs parts", "", lhsParts);
    WriteStringArray("rhs parts", "", rhsParts);
    #endif
@@ -2697,7 +2705,7 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
       }
    }
    
-   #ifdef DEBUG_ASSIGNMENT
+   #ifdef DEBUG_MAKE_ASSIGNMENT
    MessageInterface::ShowMessage
       ("   isLhsObject=%d, isLhsArray=%d, lhsPropName=<%s>, lhsObj=<%p><%s>\n",
        isLhsObject, isLhsArray, lhsPropName.c_str(), lhsObj,
@@ -2714,7 +2722,7 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
       {
          //throw InterpreterException("Cannot find RHS object: " + rhsObjName + "\n");
          
-         #ifdef DEBUG_ASSIGNMENT
+         #ifdef DEBUG_MAKE_ASSIGNMENT
          MessageInterface::ShowMessage
             ("   Cannot find RHS object: '%s'. It may be a string value\n",
              rhsObjName.c_str());
@@ -2775,7 +2783,7 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
       }
    }
    
-   #ifdef DEBUG_ASSIGNMENT
+   #ifdef DEBUG_MAKE_ASSIGNMENT
    MessageInterface::ShowMessage
       ("   isRhsObject=%d, isRhsArray=%d, rhsPropName=<%s>, rhsObj=<%p><%s>\n",
        isRhsObject, isRhsArray, rhsPropName.c_str(), rhsObj,
@@ -2822,7 +2830,7 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
       HandleError(ex);
    }
    
-   #ifdef DEBUG_ASSIGNMENT
+   #ifdef DEBUG_MAKE_ASSIGNMENT
    MessageInterface::ShowMessage
       ("Interpreter::MakeAssignment() returning lhsObj=%p\n", lhsObj);
    #endif
@@ -3027,6 +3035,14 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
    
    if (objType == "String")
    {
+      // check for unpaired single quotes (loj: 2008.07.24)
+      if (GmatStringUtil::HasMissingQuote(value, "'"))
+      {
+         InterpreterException ex("\"" + value + "\" has missing single quote");
+         HandleError(ex);
+         return false;
+      }
+      
       std::string valueToUse = GmatStringUtil::RemoveEnclosingString(value, "'");
       
       #ifdef DEBUG_SET
