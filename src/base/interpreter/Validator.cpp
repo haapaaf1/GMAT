@@ -152,6 +152,30 @@ void Validator::SetFunction(Function *func)
 
 
 //------------------------------------------------------------------------------
+// bool StartServer(GmatCommand *cmd)
+//------------------------------------------------------------------------------
+/*
+ * This method starts GmatServer through the Moderator
+ *
+ * @param cmd  The command pointer requesting the server starup
+ *             (currently not used but it may be useful for debugging)
+ *
+ * @return the result of Moderator::StartServer()
+ */
+//------------------------------------------------------------------------------
+bool Validator::StartServer(GmatCommand *cmd)
+{
+   #ifdef DEBUG_SERVER
+   MessageInterface::ShowMessage
+      ("Validator::StartServer() the command <%p>'%s' requested Server startup\n",
+       cmd, cmd->GetTypeName().c_str());
+   #endif
+   
+   return theModerator->StartServer();
+}
+
+
+//------------------------------------------------------------------------------
 // bool CheckUndefinedReference(GmatBase *obj, bool contOnError)
 //------------------------------------------------------------------------------
 /*
@@ -374,6 +398,12 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
          {
             ElementWrapper *ew = CreateElementWrapper(*i, paramFirst, manage);
             
+            if (ew == NULL)
+            {
+               theErrorMsg = "Could not create an ElementWrapper for \"" + theDescription + "\"";
+               return HandleError();
+            }
+            
             #if DBGLVL_WRAPPERS > 1
             MessageInterface::ShowMessage
                ("   (3)Setting ElementWrapper type %d for '%s' to '%s'\n",
@@ -442,7 +472,7 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    // remove extra parens and blank spaces at either end of string
    theDescription = GmatStringUtil::Trim(desc);
    theDescription = GmatStringUtil::RemoveExtraParen(theDescription);
-   theDescription = GmatStringUtil::Trim(theDescription);  
+   theDescription = GmatStringUtil::Trim(theDescription);
    
    #if DBGLVL_WRAPPERS > 1
    MessageInterface::ShowMessage
@@ -556,8 +586,6 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
          ("Validator::CreateElementWrapper() Could not create an ElementWrapper for \"" +
           theDescription + "\"\n");
       #endif
-      //theErrorMsg = "Could not create an ElementWrapper for \"" + theDescription + "\"";
-      //HandleError();
    }
    
    #if DBGLVL_WRAPPERS > 1
@@ -1039,6 +1067,11 @@ ElementWrapper* Validator::CreateWrapperWithDot(bool parametersFirst, Integer ma
        owner.c_str(), depobj.c_str(), type.c_str());
    #endif
    
+   // if cannot find object and manage option is to use configuration,
+   // we cannot continue, so just return NULL (loj: 2008.07.24)
+   if (obj == NULL && manage == 1)
+      return NULL;
+   
    //-----------------------------------------------------------------
    // Special case for SolarSystem
    //-----------------------------------------------------------------
@@ -1071,10 +1104,10 @@ ElementWrapper* Validator::CreateWrapperWithDot(bool parametersFirst, Integer ma
    
    //-----------------------------------------------------------------
    // Now continue with the rest
-   //----------------------------------------------------------------
+   //-----------------------------------------------------------------
    ew = CreateValidWrapperWithDot(obj, type, owner, depobj,
                                   parametersFirst, manage);
-      
+   
    #if DBGLVL_WRAPPERS > 1
    MessageInterface::ShowMessage
       ("Validator::CreateWrapperWithDot() returning <%p>\n", ew);
@@ -2179,8 +2212,7 @@ bool Validator::CreateCoordSystemProperty(GmatBase *obj, const std::string &prop
    
    #ifdef DEBUG_COORD_SYS_PROP
    MessageInterface::ShowMessage
-      ("Validator::CreateCoordSystemProperty() AxisSystem '%s' created and "
-       "returning true\n", value.c_str());
+      ("Validator::CreateCoordSystemProperty() AxisSystem '%s' created\n", value.c_str());
    #endif
    
    #ifdef DEBUG_COORD_SYS_PROP
