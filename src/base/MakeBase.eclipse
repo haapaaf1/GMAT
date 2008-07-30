@@ -49,7 +49,9 @@ ifeq ($(USE_MATLAB),1)
 BRIDGEOBJECTS = solver/ExternalOptimizer.o \
                 solver/FminconOptimizer.o       
 else
-#BRIDGEOBJECTS = interpreter/GuiInterpreter.o
+BRIDGEOBJECTS = 
+# GuiInterpreter now part of the gui code.
+# interpreter/GuiInterpreter.o
 endif
 endif
 
