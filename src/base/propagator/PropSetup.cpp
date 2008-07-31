@@ -27,6 +27,7 @@
 #include "Moderator.hpp"
 #include "MessageInterface.hpp"
 
+//#define DEBUG_PROPSETUP
 //#define DEBUG_PROPSETUP_SET
 
 //---------------------------------
@@ -105,7 +106,7 @@ PropSetup::PropSetup(const std::string &name, Propagator *propagator,
        mPropagator = propagator;
    else 
        mPropagator = new RungeKutta89("");
-
+   
    if (forceModel != NULL)
    {
        mForceModel = forceModel;
@@ -134,14 +135,23 @@ PropSetup::PropSetup(const PropSetup &propSetup)
    mInitialized = false;
    
    if (propSetup.mPropagator != NULL)
-      mPropagator = (Propagator *)propSetup.mPropagator->Clone();
+      mPropagator = (Propagator *)(propSetup.mPropagator->Clone());
    else
       mPropagator = NULL;
    
    if (propSetup.mForceModel != NULL)
-      mForceModel = (ForceModel *)propSetup.mForceModel->Clone();
+      mForceModel = (ForceModel *)(propSetup.mForceModel->Clone());
    else
       mForceModel = NULL;
+   
+   #ifdef DEBUG_PROPSETUP
+   MessageInterface::ShowMessage
+      ("In PropSetup copy constructor, Cloned Propagator=<%p><%s>'%s'\n   "
+       "Cloned ForceModel=<%p><%s>'%s'\n", mPropagator,
+       mPropagator->GetTypeName().c_str(), mPropagator->GetName().c_str(),
+       mForceModel,  mForceModel->GetTypeName().c_str(),
+       mForceModel->GetName().c_str());
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -156,26 +166,41 @@ PropSetup& PropSetup::operator= (const PropSetup &right)
    if (this != &right)
    {
       GmatBase::operator=(right);
-
+      
       // PropSetup data
       mInitialized = false;
       
       if (mPropagator != NULL)
+      {
+         #ifdef DEBUG_PROPSETUP
+         MessageInterface::ShowMessage
+            ("PropSetup::operator= Deleting Propagator <%p><%s>'%s'\n", mPropagator,
+             mPropagator->GetTypeName().c_str(), mPropagator->GetName().c_str());
+         #endif
          delete mPropagator;
+      }
+      
       if (mForceModel != NULL)
+      {
+         #ifdef DEBUG_PROPSETUP
+         MessageInterface::ShowMessage
+            ("PropSetup::operator= Deleting ForceModel <%p><%s>'%s'\n", mForceModel,
+             mForceModel->GetTypeName().c_str(), mForceModel->GetName().c_str());
+         #endif
          delete mForceModel;
-         
+      }
+      
       if (right.mPropagator != NULL)
          mPropagator = (Propagator*)(right.mPropagator->Clone());
       else
          mPropagator = NULL;
-         
+      
       if (right.mForceModel != NULL)
          mForceModel = (ForceModel*)(right.mForceModel->Clone());
       else
          mForceModel = NULL;
    }
-
+   
    return *this;
 }
 
@@ -189,9 +214,24 @@ PropSetup& PropSetup::operator= (const PropSetup &right)
 PropSetup::~PropSetup()
 {
    if (mPropagator)
+   {
+      #ifdef DEBUG_PROPSETUP
+      MessageInterface::ShowMessage
+         ("PropSetup::~PropSetup() Deleting Propagator <%p><%s>'%s'\n", mPropagator,
+          mPropagator->GetTypeName().c_str(), mPropagator->GetName().c_str());
+      #endif
       delete mPropagator;
+   }
+   
    if (mForceModel)
+   {
+      #ifdef DEBUG_PROPSETUP
+      MessageInterface::ShowMessage
+         ("PropSetup::~PropSetup() Deleting ForceModel <%p><%s>'%s'\n", mForceModel,
+          mForceModel->GetTypeName().c_str(), mForceModel->GetName().c_str());
+      #endif
       delete mForceModel;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -218,7 +258,7 @@ Propagator* PropSetup::GetPropagator()
 {
    #if DEBUG_PROPSETUP_GET
    MessageInterface::ShowMessage
-      ("PropSetup::GetPropagator() mPropagator=%d name=%s\n",
+      ("PropSetup::GetPropagator() mPropagator=<%p>, name='%s'\n",
        mPropagator, mPropagator->GetName().c_str());
    #endif
    
@@ -257,8 +297,8 @@ void PropSetup::SetPropagator(Propagator *propagator)
    
    if (mPropagator != NULL)
       delete mPropagator;
-
-   mPropagator = (Propagator*)propagator->Clone();
+   
+   mPropagator = (Propagator*)(propagator->Clone());
 }
 
 //------------------------------------------------------------------------------
@@ -272,23 +312,30 @@ void PropSetup::SetPropagator(Propagator *propagator)
 //------------------------------------------------------------------------------
 void PropSetup::SetForceModel(ForceModel *forceModel)
 {
-   #ifdef DEBUG_PROPSETUP_SET
-   MessageInterface::ShowMessage
-      ("PropSetup::SetForceModel() mForceModel=%s forceModel=%s\n",
-       mForceModel->GetName().c_str(), forceModel->GetName().c_str());
-   #endif
-   
    if (forceModel == NULL)
       throw PropSetupException("SetForceModel() failed: ForceModel is NULL");
    
-   if (mForceModel != NULL)
-      delete mForceModel;
+   #ifdef DEBUG_PROPSETUP_SET
+   MessageInterface::ShowMessage
+      ("PropSetup::SetForceModel() current ForceModel=<%p>'%s'\n   new ForceModel=<%p>'%s'\n",
+       mForceModel, mForceModel->GetName().c_str(), forceModel, forceModel->GetName().c_str());
+   #endif
    
-   mForceModel = (ForceModel*)forceModel->Clone();
+   if (mForceModel != NULL)
+   {
+      #ifdef DEBUG_PROPSETUP_SET
+      MessageInterface::ShowMessage
+         ("   Deleting ForceModel <%p><%s>'%s'\n", mForceModel,
+          mForceModel->GetTypeName().c_str(), mForceModel->GetName().c_str());
+      #endif
+      mForceModel = NULL;
+   }
+   
+   mForceModel = (ForceModel*)(forceModel->Clone());
    
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
-      ("PropSetup::SetForceModel() after forceModel->Clone() mForceModel=%p\n",
+      ("PropSetup::SetForceModel() after forceModel->Clone() mForceModel=<%p>\n",
        mForceModel);
    #endif
 }
@@ -670,7 +717,7 @@ bool PropSetup::SetStringParameter(const Integer id, const std::string &value)
                #ifdef DEBUG_PROPSETUP_SET
                MessageInterface::ShowMessage
                   ("PropSetup::SetStringParameter() before SetForceModel() "
-                   "mForceModel=%p\n", mForceModel);
+                   "mForceModel=<%p>\n", mForceModel);
                #endif
                
                SetForceModel(fm);
@@ -956,7 +1003,7 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
       
       #if DEBUG_PROPSETUP_GEN_STRING
       MessageInterface::ShowMessage
-         ("PropSetup::GetGeneratingString() fMName=%s, mForceModel=%p, "
+         ("PropSetup::GetGeneratingString() fMName='%s', mForceModel=<%p>, "
           "showForceModel=%d\n", fMName.c_str(), mForceModel, showForceModel);
       #endif
       
