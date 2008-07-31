@@ -514,11 +514,13 @@ void ConfigManager::AddCalculatedPoint(CalculatedPoint *cs)
 void ConfigManager::AddObject(GmatBase *obj)
 {
    std::string name = obj->GetName();
-
-   #ifdef DEBUG_CONFIG_MEMORY
-      MessageInterface::ShowMessage("Adding '%s'\n", name.c_str());
-   #endif
    
+   #ifdef DEBUG_CONFIG_MEMORY
+      MessageInterface::ShowMessage
+         ("ConfigManager::AddObject() Adding <%p><%s>'%s'\n",
+          obj, obj->GetTypeName().c_str(), name.c_str());
+   #endif
+      
    if (mapping.find(name) != mapping.end())
    {
       name += " is already in the configuration table";
@@ -530,9 +532,9 @@ void ConfigManager::AddObject(GmatBase *obj)
       mapping[name] = obj;
    }
    
-   //loj: 4/6/09 until we can add TextEphemFile to resource tree, we don't want to
-   // write to script file on save script.
-
+   // Until we can add TextEphemFile to resource tree, we don't want to
+   // write to script file on save script. (loj: 2007.04.07)
+   
    if (obj->GetTypeName() != "TextEphemFile")
       objectChanged = true;
 }
@@ -942,7 +944,8 @@ bool ConfigManager::RemoveAllItems()
 {
    // delete objects
    #ifdef DEBUG_CONFIG_MEMORY
-   MessageInterface::ShowMessage("Deleting %d objects\n", objects.size());
+   MessageInterface::ShowMessage
+      ("ConfigManager::RemoveAllItems() Deleting %d objects\n", objects.size());
    #endif
    
    for (unsigned int i=0; i<objects.size(); i++)
@@ -978,6 +981,12 @@ bool ConfigManager::RemoveAllItems()
 //------------------------------------------------------------------------------
 bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
 {
+   #ifdef DEBUG_CONFIG_MEMORY
+   MessageInterface::ShowMessage
+      ("ConfigManager::RemoveItem() entered, type=%d, name='%s'\n", type,
+       name.c_str());
+   #endif
+   
    bool status = false;
    
    // remove from objects
@@ -1004,6 +1013,10 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
       if (obj->GetType() == type)
       {
          mapping.erase(name);
+         #ifdef DEBUG_CONFIG_MEMORY
+         MessageInterface::ShowMessage
+            ("  Deleting %s\n", obj->GetName().c_str());
+         #endif
          delete obj;
          status = true;
       }
