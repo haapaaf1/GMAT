@@ -271,7 +271,7 @@ protected:
                                     const std::string &title1, GmatCommand *cmd1,
                                     const std::string &title2 = "",
                                     GmatCommand *cmd2 = NULL);
-   virtual void         ShowObjectMaps();
+   virtual void         ShowObjectMaps(const std::string &title = "");
    
    // for the Parameters in Commands updates
    StringArray          InterpretPreface();

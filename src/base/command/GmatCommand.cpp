@@ -1974,10 +1974,13 @@ void GmatCommand::ShowCommand(const std::string &prefix,
 
 
 //------------------------------------------------------------------------------
-// virtual void ShowObjectMaps()
+// virtual void ShowObjectMaps(const std::string &str)
 //------------------------------------------------------------------------------
-void GmatCommand::ShowObjectMaps()
+void GmatCommand::ShowObjectMaps(const std::string &str)
 {
+   MessageInterface::ShowMessage
+      ("%s\n======================================================================\n",
+       str.c_str());
    MessageInterface::ShowMessage
       ("GmatCommand::ShowObjectMaps() objectMap=<%p>, globalObjectMap=<%p>\n",
        objectMap, globalObjectMap);
@@ -2002,6 +2005,8 @@ void GmatCommand::ShowObjectMaps()
             ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
              i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
    }
+   MessageInterface::ShowMessage
+      ("======================================================================\n");
 }
 
 
