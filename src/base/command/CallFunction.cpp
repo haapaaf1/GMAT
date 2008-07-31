@@ -35,6 +35,7 @@
 //#define DEBUG_USE_ARRAY
 //#define DEBUG_GMAT_FUNCTION_INIT
 //#define DEBUG_GET_OUTPUT
+//#define DEBUG_OBJECT_MAP
 
 
 //---------------------------------
@@ -846,26 +847,11 @@ bool CallFunction::Initialize()
    #ifdef DEBUG_CALL_FUNCTION
       MessageInterface::ShowMessage("In CallFunction::Initialize()\n");
    #endif
-
+   
    GmatCommand::Initialize();
-
-   #ifdef DEBUG_CALL_FUNCTION_INIT
-   std::map<std::string, GmatBase*>::iterator pos;
-   GmatBase *obj;
-   for (pos = objectMap->begin(); pos != objectMap->end(); ++pos)
-   {
-      obj = pos->second;
-      MessageInterface::ShowMessage
-         ("===> obj=%s type=%s, name=%s\n", (pos->first).c_str(),
-          obj->GetTypeName().c_str(), obj->GetName().c_str());
-   }
-   for (pos = globalObjectMap->begin(); pos != globalObjectMap->end(); ++pos)
-   {
-      obj = pos->second;
-      MessageInterface::ShowMessage
-         ("===> obj=%s type=%s, name=%s\n", (pos->first).c_str(),
-          obj->GetTypeName().c_str(), obj->GetName().c_str());
-   }
+   
+   #ifdef DEBUG_OBJECT_MAP
+   ShowObjectMaps("In CallFunction::Initialize()");
    #endif
    
    //GmatBase *mapObj;  // 2008.04.28 - wcs - already found when globalObjectMap set
@@ -874,7 +860,7 @@ bool CallFunction::Initialize()
    //            mFunctionName + "\n");
    //mFunction = (Function *)mapObj;
    //fm->SetFunction(mFunction);   
-
+   
    
    bool rv = true;  // Initialization return value
    
@@ -1073,6 +1059,10 @@ bool CallFunction::Execute()
 
 void CallFunction::RunComplete()
 {
+   #ifdef DEBUG_RUN_COMPLETE
+   MessageInterface::ShowMessage
+      ("CallFunction::RunComplete() calling FunctionManager::Finalize()\n");
+   #endif
    fm.Finalize();
    GmatCommand::RunComplete();
 }
