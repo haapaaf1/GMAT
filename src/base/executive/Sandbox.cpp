@@ -162,6 +162,9 @@ Sandbox::~Sandbox()
 //------------------------------------------------------------------------------
 bool Sandbox::AddObject(GmatBase *obj)
 {
+   if (obj == NULL)
+      return false;
+   
    #ifdef DEBUG_SANDBOX_OBJ
       MessageInterface::ShowMessage
          ("Sandbox::AddObject() objTypeName=%s, objName=%s\n",
