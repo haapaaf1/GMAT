@@ -55,9 +55,9 @@
 //#define DEBUG_INITIALIZE 1
 //#define DEBUG_FINALIZE 1
 //#define DEBUG_INTERPRET 1
-//#define DEBUG_RUN 2
+//#define DEBUG_RUN 1
 //#define DEBUG_CREATE_COORDSYS 1
-//#define DEBUG_CREATE_RESOURCE 1
+//#define DEBUG_CREATE_RESOURCE 2
 //#define DEBUG_CREATE_PARAMETER 1
 //#define DEBUG_PARAMETER_REF_OBJ 1
 //#define DEBUG_DEFAULT_COMMAND 1
@@ -72,7 +72,7 @@
 //#define DEBUG_CONFIG 1
 //#define DEBUG_CREATE_VAR 1
 //#define DEBUG_GMAT_FUNCTION 2
-//#define DEBUG_OBJECT_MAP
+//#define DEBUG_OBJECT_MAP 1
 //#define DEBUG_FIND_OBJECT 1
 //#define DEBUG_ADD_OBJECT 1
 //#define DEBUG_SOLAR_SYSTEM 1
@@ -2217,32 +2217,46 @@ Parameter* Moderator::GetParameter(const std::string &name)
 //------------------------------------------------------------------------------
 ForceModel* Moderator::CreateForceModel(const std::string &name, Integer manage)
 {
-   #if DEBUG_FORCE_MODEL
+   #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
       ("Moderator::CreateForceModel() name='%s', manage=%d\n", name.c_str(), manage);
    #endif
    
-   ForceModel *fm = theFactoryManager->CreateForceModel(name);
+   ForceModel *fm = GetForceModel(name);
    
    if (fm == NULL)
    {
-      throw GmatBaseException
-         ("The Moderator cannot create ForceModel named \"" + name + "\"\n");
+      fm = theFactoryManager->CreateForceModel(name);
+      
+      if (fm == NULL)
+      {
+         throw GmatBaseException
+            ("The Moderator cannot create ForceModel named \"" + name + "\"\n");
+      }
+      
+      // Manage it if it is a named ForceModel
+      try
+      {
+         if (fm->GetName() != "" && manage == 1)
+            theConfigManager->AddForceModel(fm);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage("Moderator::CreateForceModel()\n" +
+                                       e.GetFullMessage() + "\n");
+      }
+      
+      return fm;
    }
-   
-   // Manage it if it is a named ForceModel
-   try
+   else
    {
-      if (fm->GetName() != "" && manage == 1)
-         theConfigManager->AddForceModel(fm);
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateForceModel() Unable to create ForceModel "
+          "name: %s already exist <%p>\n", name.c_str(), fm);
+      #endif
+      return fm;
    }
-   catch (BaseException &e)
-   {
-      MessageInterface::ShowMessage("Moderator::CreateForceModel()\n" +
-                                    e.GetFullMessage() + "\n");
-   }
-   
-   return fm;
 }
 
 
@@ -2251,27 +2265,31 @@ ForceModel* Moderator::CreateForceModel(const std::string &name, Integer manage)
 //------------------------------------------------------------------------------
 ForceModel* Moderator::GetForceModel(const std::string &name)
 {
-   ForceModel *obj = NULL;
+   ForceModel *fm = NULL;
    
    if (name != "")
    {
       // Find ForceModel from the current object map in use (loj: 2008.06.20)
       GmatBase* obj = FindObject(name);
       if (obj != NULL && obj->IsOfType(Gmat::FORCE_MODEL))
-         return (ForceModel*)obj;
+      {
+         fm = (ForceModel*)obj;
+         
+         #if DEBUG_CREATE_RESOURCE
+         MessageInterface::ShowMessage
+            ("Moderator::GetForceModel() name='%s', returning <%p>\n", name.c_str(), fm);
+         #endif
+         
+         return fm;
+      }
    }
    
-   #if DEBUG_FORCE_MODEL
+   #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
-      ("Moderator::GetForceModel() name='%s', returning <%p>\n", obj);
+      ("Moderator::GetForceModel() name='%s', returning <%p>\n", name.c_str(), fm);
    #endif
    
-   return obj;
-   
-   //if (name == "")
-   //   return NULL;
-   //else
-   //   return theConfigManager->GetForceModel(name);
+   return fm;
 }
 
 
@@ -2439,7 +2457,7 @@ PropSetup* Moderator::CreatePropSetup(const std::string &name,
    MessageInterface::ShowMessage("Moderator::CreatePropSetup() name='%s'\n",
                                  name.c_str());
    #endif
-
+   
    if (GetPropSetup(name) == NULL)
    {
       Propagator *prop = theConfigManager->GetPropagator(propagatorName);
@@ -2448,14 +2466,35 @@ PropSetup* Moderator::CreatePropSetup(const std::string &name,
       PropSetup *propSetup = theFactoryManager->CreatePropSetup(name);
       
       if (prop)
+      {
+         #if DEBUG_CREATE_RESOURCE > 1
+         MessageInterface::ShowMessage
+            ("   Setting Propagator=<%p><%s>'%s' to PropSetup\n", prop,
+             prop ? prop->GetTypeName().c_str() : "NULL",
+             prop ? prop->GetName().c_str() : "NULL");
+         #endif
          propSetup->SetPropagator(prop);
-   
+      }
+      
       if (fm)
+      {
+         #if DEBUG_CREATE_RESOURCE > 1
+         MessageInterface::ShowMessage
+            ("   Setting ForceModel=<%p><%s>'%s' to PropSetup\n", fm,
+             fm ? fm->GetTypeName().c_str() : "NULL",
+             fm ? fm->GetName().c_str() : "NULL");
+         #endif
          propSetup->SetForceModel(fm);
-
+      }
+      
       if (name != "")
          theConfigManager->AddPropSetup(propSetup);
-   
+      
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreatePropSetup() returning new PropSetup <%p>\n", propSetup);
+      #endif
+      
       return propSetup;
    }
    else
@@ -4557,7 +4596,9 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
 {
    #if DEBUG_RUN
    MessageInterface::ShowMessage
-      ("Moderator::PrepareNextScriptReading() entered, clearObjs=%d\n", clearObjs);
+      ("Moderator::PrepareNextScriptReading() entered, %sclearing objects\n%s\n",
+       clearObjs ? "" : "Not",
+       "======================================================================");
    #endif
    
    // Clear command sequence before resource (loj: 2008.07.10)
@@ -4565,7 +4606,7 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
    {
       //clear both resource and command sequence
       #if DEBUG_RUN
-      MessageInterface::ShowMessage("Clearing both resource and command sequence...\n");
+      MessageInterface::ShowMessage(".....Clearing both resource and command sequence...\n");
       #endif
       
       ClearCommandSeq();
@@ -4580,8 +4621,15 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
       ("ObjectMapInUse was set to the configuration map <%p>\n", objectMapInUse);
    #endif
    
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage(".....Creating SolarSystem in use...\n");
+   #endif
    CreateSolarSystemInUse();
+   
    // Need default CS's in case they are used in the script
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage(".....Creating Default CoordinateSystem...\n");
+   #endif
    CreateDefaultCoordSystems();
    
    #if DEBUG_OBJECT_MAP > 1
@@ -4589,6 +4637,10 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
    #endif
    
    // Set solar system in use and object map (loj: 2008.03.31)
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage(".....Setting SolarSystem and ObjectMap to Interpreter...\n");
+   #endif
+   
    theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
    theScriptInterpreter->SetObjectMap(objectMapInUse);
    theScriptInterpreter->SetFunction(NULL); // Added (loj: 2008.07.22)
@@ -4600,7 +4652,9 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
    }
    
    #if DEBUG_RUN
-   MessageInterface::ShowMessage("Moderator::PrepareNextScriptReading() exiting\n");
+   MessageInterface::ShowMessage
+      ("Moderator::PrepareNextScriptReading() exiting\n"
+       "======================================================================\n");
    #endif
 }
 
@@ -5864,6 +5918,11 @@ void Moderator::AddForceModelToSandbox(Integer index)
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = theConfigManager->GetForceModel(names[i]);
+      if (obj == NULL)
+         throw GmatBaseException
+            ("Moderator::AddForceModelToSandbox() The ForceModel named \"" + names[i] +
+             "\" has NULL pointer\n");
+      
       sandboxes[index]->AddObject(obj);
       
       #if DEBUG_RUN > 1
