@@ -54,6 +54,7 @@
 #include <string.h> 
 
 
+//#define DEBUG_FORCEMODEL
 //#define DEBUG_FORCEMODEL_INIT
 //#define DEBUG_FORCEMODEL_EXE
 //#define DEBUG_FORCE_REF_OBJ
@@ -165,11 +166,16 @@ ForceModel::ForceModel(const std::string &nomme) :
 //------------------------------------------------------------------------------
 ForceModel::~ForceModel()
 {
+   #ifdef DEBUG_FORCEMODEL
+   MessageInterface::ShowMessage
+      ("ForceModel destructor entered, this=<%p>'%s'\n", this, GetName().c_str());
+   #endif
+   
    if (previousState)
       delete [] previousState;
 //   if (rawState)
 //      delete [] rawState;   
-        
+   
    // Delete the owned forces
    std::vector<PhysicalModel *>::iterator ppm = forceList.begin();
    PhysicalModel *pm;
@@ -187,6 +193,10 @@ ForceModel::~ForceModel()
    #ifdef DEBUG_FORCE_EPOCHS
       if (epochFile.is_open())
          epochFile.close();
+   #endif
+      
+   #ifdef DEBUG_FORCEMODEL
+   MessageInterface::ShowMessage("ForceModel destructor exiting\n");
    #endif
 }
 
@@ -220,6 +230,10 @@ ForceModel::ForceModel(const ForceModel& fdf) :
    earthEq                    (fdf.earthEq),
    earthFixed                 (fdf.earthFixed)
 {
+   #ifdef DEBUG_FORCEMODEL
+   MessageInterface::ShowMessage("ForceModel copy constructor entered\n");
+   #endif
+   
    satIds[0] = satIds[1] = satIds[2] = satIds[3] = satIds[4] = 
    satIds[5] = satIds[6] = -1;
 
@@ -242,6 +256,12 @@ ForceModel::ForceModel(const ForceModel& fdf) :
    for (std::vector<PhysicalModel *>::const_iterator pm = fdf.forceList.begin();
         pm != fdf.forceList.end(); ++pm)
    {
+      #ifdef DEBUG_FORCEMODEL
+      GmatBase *obj = (*pm);
+      MessageInterface::ShowMessage
+         ("   Cloning PhysicalModel <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
+          obj->GetName().c_str());
+      #endif
       forceList.push_back((PhysicalModel*)(*pm)->Clone());
    }
 }
@@ -2721,13 +2741,13 @@ std::string ForceModel::BuildForceNameString(PhysicalModel *force)
    if (force->IsUserForce())
       retval = force->GetName();
       
-	#ifdef DEBUG_USER_FORCES
-		MessageInterface::ShowMessage("Force type %s named '%s' %s a user force\n",
-      	force->GetTypeName().c_str(), force->GetName().c_str(), 
-      	(force->IsUserForce() ? "is" : "is not"));
-	#endif
-	
-	return retval;
+        #ifdef DEBUG_USER_FORCES
+                MessageInterface::ShowMessage("Force type %s named '%s' %s a user force\n",
+        force->GetTypeName().c_str(), force->GetName().c_str(), 
+        (force->IsUserForce() ? "is" : "is not"));
+        #endif
+        
+        return retval;
 }
 
 
