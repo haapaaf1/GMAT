@@ -70,7 +70,7 @@ public:
   const std::string* GetHeightDescriptions() const;
   std::string* ToValueStrings();
   
-  Rvector3 LatLonHgt::GetSitePosition(const Real &equatorialRadius, const Real &flattening);
+  Rvector3 GetSitePosition(const Real &equatorialRadius, const Real &flattening);
   void GeocentricToGeodeticLat( const Real &flattening );
   void GeodeticToGeocentricLat( const Real &flattening );
   void ReducedToGeodeticLat( const Real &flattening );
@@ -111,10 +111,10 @@ protected:
   void CartesianToLatLonHgt( const Rvector3 &cartVector, const Real &equatorialRadius, 
 			     const Real &flattening, const std::string &typ="Geodetic",
 			     const std::string &hgtReference="Ellipsoid");
-  Integer LatLonHgt::GetTypeID(const std::string &label);
-  std::string LatLonHgt::GetTypeText(const Integer &id) const;
-  Integer LatLonHgt::GetHeightID(const std::string &label);
-  std::string LatLonHgt::GetHeightText(const Integer &id) const;
+  Integer GetTypeID(const std::string &label);
+  std::string GetTypeText(const Integer &id) const;
+  Integer GetHeightID(const std::string &label);
+  std::string GetHeightText(const Integer &id) const;
   
 private:
   static const Integer NUM_DATA = 4;
