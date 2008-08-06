@@ -243,9 +243,17 @@ $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
 	cp -f $(WXTARGET) ../../bin/.
 else
+
+ifeq ($(LINUX_MAC), 1)
 $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
 	mv -f $(WXTARGET)* ../../bin/.
+else
+$(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBS)
+	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	mv -f $(WXTARGET)* ../../bin/.
+endif
+
 endif
 
 else
@@ -255,10 +263,19 @@ $(WXTARGET) : $(OBJECTS) $(LIBNAME)
    $(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
    cp -f $(WXTARGET) ../../bin/.
 else
+
+ifeq ($(LINUX_MAC), 1)
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
 	mv -f $(WXTARGET)* ../../bin/.
 	cp -f $(LIBNAME) ../../bin/.
+else
+$(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBNAME)
+	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	mv -f $(WXTARGET)* ../../bin/.
+	cp -f $(LIBNAME) ../../bin/.
+endif
+
 endif
 
 endif
@@ -289,7 +306,8 @@ macmatlab:
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMAT $(MAC_SCRIPT)
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./install_libs_into_bundle
+	./$(INSTALL_WX_LIBS)
+#	./install_libs_into_bundle
 
 macnomatlab:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
@@ -297,10 +315,14 @@ macnomatlab:
 	echo -n "APPL????" > $(MAC_PKGINFO)
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./install_libs_into_bundle
+	./$(INSTALL_WX_LIBS)
+#	./install_libs_into_bundle
 
 .cpp.o:
 	$(CPP) $(CPPFLAGS) $(HEADERS) -c -o $@ $<
 
 .c.o:
 	$(C) $(CPPFLAGS) $(HEADERS) -c -o $@ $<
+
+$(GMAT_ICON_O):
+	windres -o $(GMAT_ICON_O) $(GMAT_ICON_RC)
