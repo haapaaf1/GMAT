@@ -1017,14 +1017,23 @@ ElementWrapper* Assignment::RunMathTree(ElementWrapper *lhsWrapper)
          throw ce;
       }
       
-      // @note We need to set description before setting the value to wrapper
+      // @note We need to set description before setting the value to output wrapper
       
       switch (returnType)
       {
       case Gmat::REAL_TYPE:
          {
+            #if DEBUG_ASSIGNMENT_EXEC
+            MessageInterface::ShowMessage("   Calling topNode->Evaluate()\n");
+            #endif
+            
             Real rval = -99999.999;
             rval = topNode->Evaluate();
+            
+            #if DEBUG_ASSIGNMENT_EXEC
+            MessageInterface::ShowMessage("   Creating NumberWrapper for output\n");
+            #endif
+            
             outWrapper = new NumberWrapper();
             outWrapper->SetDescription(GmatStringUtil::ToString(rval));
             outWrapper->SetReal(rval);
@@ -1032,12 +1041,21 @@ ElementWrapper* Assignment::RunMathTree(ElementWrapper *lhsWrapper)
          }
       case Gmat::RMATRIX_TYPE:
          {
+            #if DEBUG_ASSIGNMENT_EXEC
+            MessageInterface::ShowMessage("   Calling topNode->MatrixEvaluate()\n");
+            #endif
+            
             Rmatrix rmat;
             rmat.SetSize(numRow, numCol);
             rmat = topNode->MatrixEvaluate();
             Array *arr = new Array("ArrayOutput");
             arr->SetSize(numRow, numCol);
             arr->SetRmatrix(rmat);
+            
+            #if DEBUG_ASSIGNMENT_EXEC
+            MessageInterface::ShowMessage("   Creating ArrayWrapper for output\n");
+            #endif
+            
             outWrapper = new ArrayWrapper();
             outWrapper->SetDescription("ArrayOutput");
             outWrapper->SetRefObject(arr);
