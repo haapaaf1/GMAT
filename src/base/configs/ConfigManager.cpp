@@ -1132,6 +1132,10 @@ ForceModel* ConfigManager::GetForceModel(const std::string &name)
    ForceModel *fm = NULL;
    if (mapping.find(name) != mapping.end())
    {
+      if (mapping[name] == NULL)
+         throw ConfigManagerException
+            ("ConfigManager::GetForceModel(name) is finding a NULL object in the mapping.\n");
+     
       if (mapping[name]->IsOfType(Gmat::FORCE_MODEL))
       {
          fm = (ForceModel *)mapping[name];
