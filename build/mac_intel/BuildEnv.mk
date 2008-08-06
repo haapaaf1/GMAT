@@ -20,8 +20,9 @@ USE_SHARED = 1
 # flag indicating whether or not to build as a shared library
 SHARED_BASE = 0
 
-# *** EDIT THIS *** - put the top of the GMAT project directory structure here ....
-TOP_DIR = /Users/wcshoan/Documents/workspace/DevGMAT
+# *** EDIT THIS *** - put the top of the GMAT project directory structure here.
+# e.g. 
+TOP_DIR = /Users/yourname/dev/gmat
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
 WX_HOME = /Applications/wxmac-2.8.8/osx-build
 #WX_HOME = /Applications/wxmac-2.8.7/osx-build
