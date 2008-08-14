@@ -1,3 +1,25 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             ProcessDataFile
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2008/07/30
+//
+/**
+ *
+ * Implements LatLonHgt Base class to contain the associated elements
+ * Latitude, Longitude, Height, and a flag to determine geocentric versus
+ * geodetic angles.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include <ProcessDataFile.hpp>
 #include "gmatdefs.hpp"
 #include "math.h"
@@ -5,6 +27,7 @@
 #include "fstream"
 #include "sstream"
 #include "UtilityException.hpp"
+#include "StringUtil.hpp"           // for ToString()
 
 //---------------------------------
 //  static data
@@ -162,22 +185,6 @@ template <class T> bool ProcessDataFile::from_string(T& t, const std::string& s,
 }
 
 //------------------------------------------------------------------------------
-// inline std::string stringify(int x)
-// Typesafe conversion from integer to string
-//------------------------------------------------------------------------------
-inline std::string stringify(int x)
-{
-    std::ostringstream o;
-    if (!(o << x)) {
-	// Ill formed data. All stop.
-	UtilityException ex;
-	ex.SetDetails("stringify(int)");
-	throw ex;
-    }
-    return o.str();
-}
-
-//------------------------------------------------------------------------------
 // std::string ilrs2cospar(std::string ilrsSatnum)
 // Convert ILRS Satellite Number to COSPAR International Designator
 //
@@ -243,7 +250,7 @@ std::string ProcessDataFile::ilrs2cospar(std::string ilrsSatnum)
 	
     }
     
-    return stringify(year) + ilrsSatnum.substr(2,3) + launchalpha;
+    return GmatStringUtil::ToString(year,2) + ilrsSatnum.substr(2,3) + launchalpha;
     
 }
 
@@ -887,7 +894,7 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		itemp *= sign;
 		
 		// Attach overpunch digit to end of number string
-		std:: string elev = stringify(itemp)+stringify(digit);
+		std:: string elev = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
@@ -925,7 +932,7 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		itemp *= sign;
 		
 		// Attach overpunch digit to end of number string
-		std:: string elev = stringify(itemp)+stringify(digit);
+		std:: string elev = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
@@ -972,7 +979,7 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		itemp *= sign;
 		
 		// Attach overpunch digit to end of number string
-		std:: string elev = stringify(itemp)+stringify(digit);
+		std:: string elev = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
@@ -1037,7 +1044,7 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		itemp *= sign;
 		
 		// Attach overpunch digit to end of number string
-		std:: string elev = stringify(itemp)+stringify(digit);
+		std:: string elev = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
@@ -1102,7 +1109,7 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		itemp *= sign;
 		
 		// Attach overpunch digit to end of number string
-		std:: string decl = stringify(itemp)+stringify(digit);
+		std:: string decl = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,decl,std::dec)) return false;
@@ -1161,7 +1168,7 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		itemp *= sign;
 		
 		// Attach overpunch digit to end of number string
-		std:: string elev = stringify(itemp)+stringify(digit);
+		std:: string elev = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
@@ -1225,7 +1232,7 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		itemp *= sign;
 		
 		// Attach overpunch digit to end of number string
-		std:: string decl = stringify(itemp)+stringify(digit);
+		std:: string decl = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,decl,std::dec)) return false;
