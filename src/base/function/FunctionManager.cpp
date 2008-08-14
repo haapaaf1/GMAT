@@ -92,11 +92,11 @@ FunctionManager::~FunctionManager()
 //------------------------------------------------------------------------------
 FunctionManager::FunctionManager(const FunctionManager &fm) :
    functionObjectStore (fm.functionObjectStore),
-   globalObjectStore   (NULL),
+   globalObjectStore   (fm.globalObjectStore),
    solarSys            (fm.solarSys),
    forces              (fm.forces),
    fName               (fm.fName),
-   f                   (NULL),  // is that right?
+   f                   (fm.f), // copy the pointer here
    ins                 (fm.ins),
    outs                (fm.outs),
    //inputWrappers       (fm.inputWrappers),
@@ -109,7 +109,7 @@ FunctionManager::FunctionManager(const FunctionManager &fm) :
    blankResult         (fm.blankResult),
    outputType          (fm.outputType),
    objInit             (NULL),
-   intCS               (NULL), 
+   intCS               (fm.intCS), 
    fcs                 (NULL),
    current             (NULL)
 {
@@ -136,7 +136,7 @@ FunctionManager& FunctionManager::operator=(const FunctionManager &fm)
       solarSys            = fm.solarSys;
       forces              = fm.forces;
       fName               = fm.fName;
-      f                   = NULL;  // is that right?
+      f                   = fm.f;  // copy the pointer here
       ins                 = fm.ins;
       outs                = fm.outs;
       firstExecution      = true;
