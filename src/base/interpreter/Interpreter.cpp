@@ -2556,6 +2556,7 @@ Parameter* Interpreter::GetArrayIndex(const std::string &arrayStr,
       {
          InterpreterException ex("\"" + name + "\" is not an Array");
          HandleError(ex);
+         return NULL;
       }
       
       if (rowStr == "0" || colStr == "0" ||rowStr == "-1" || colStr == "-1")
