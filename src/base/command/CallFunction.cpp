@@ -95,7 +95,8 @@ CallFunction::CallFunction(const CallFunction& cf) :
    GmatCommand     (cf),
    callcmds        (NULL),
    mFunction       (cf.mFunction),
-   mFunctionName   (cf.mFunctionName)
+   mFunctionName   (cf.mFunctionName),
+   fm              (cf.fm)
 {
    mNumInputParams = cf.mNumInputParams;
    mNumOutputParams = cf.mNumOutputParams;
@@ -105,8 +106,9 @@ CallFunction::CallFunction(const CallFunction& cf) :
    mOutputList = cf.mOutputList;
    callcmds = NULL;           // Commands must be reinitialized
    
-   mInputListNames = cf.mInputListNames;
+   mInputListNames  = cf.mInputListNames;
    mOutputListNames = cf.mOutputListNames;
+
 
    parameterCount = CallFunctionParamCount;
 }
@@ -132,8 +134,9 @@ CallFunction& CallFunction::operator=(const CallFunction& cf)
    mOutputList = cf.mOutputList;
    callcmds = NULL;           // Commands must be reinitialized
    
-   mInputListNames = cf.mInputListNames;
+   mInputListNames  = cf.mInputListNames;
    mOutputListNames = cf.mOutputListNames;
+   fm               = cf.fm;
 
    return *this;
 }
