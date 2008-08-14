@@ -37,8 +37,25 @@ public:
   MeasurementModel& operator=(const MeasurementModel &MeasurementModel);
   virtual ~MeasurementModel();  
 
-  virtual MeasurementModel::ComputeMeasurement();
-  virtual MeasurementModel::ComputePartialDerivative();
+  // Friend function
+  friend std::ostream& operator<<(std::ostream& output, MeasurementModel &mm);
+  friend std::istream& operator>>(std::istream& input, MeasurementModel &mm;
+
+  
+  const std::string* GetModelDescriptions() const;
+  std::string GetModelNameText(const Integer &id) const;
+  Integer GetModelID(const std::string &label);
+  
+  Integer GetName() const;
+  Integer GetNumMeasurements() const;
+  std::string GetMeasurementNameText(Integer id) const;
+  std::string GetMeasurementUnitText(Integer id) const;
+  const Rvector& GetMeasurements();
+  
+  Integer GetMeasurements() const;	  
+	
+  virtual Integer MeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements);
+  virtual Integer MeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
   
   
 private:
@@ -78,7 +95,7 @@ protected:
   // Total number of measurements returned by the model
   int numMeasurements;
   // Name of the measurements returned
-  std::string measurementName[numMeasurements];
+  std::string measurementNames[numMeasurements];
   // Units of each measurement returned
   std::string measurementUnits[numMeasurements];
   // Measurement returned by the model
