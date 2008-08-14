@@ -49,8 +49,6 @@ public:
                                            const std::string &value);
 protected:
    
-   void DeleteLocalObjects(GmatCommand *cmd);
-   
    enum
    {
       GmatFunctionParamCount = FunctionParamCount  /// Count of the parameters for this class
