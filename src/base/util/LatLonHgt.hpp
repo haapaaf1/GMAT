@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              LatLonHgt
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -122,7 +122,7 @@ private:
   static const std::string TYPE_DESCRIPTIONS[3];
   static const std::string HEIGHT_DESCRIPTIONS[3];
   std::string stringValues[NUM_DATA];
-  Real LatLonHgt::GetDegree(const Real angle, const Real minAngle, 
+  Real GetDegree(const Real angle, const Real minAngle, 
 			    const Real maxAngle);
   
 };
