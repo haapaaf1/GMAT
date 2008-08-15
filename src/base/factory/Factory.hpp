@@ -53,6 +53,7 @@ class Attitude;
 class MeasurementModel;
 class Observer;
 class Estimator;
+class SpacePoint;
 
 class GMAT_API Factory
 {
@@ -63,6 +64,8 @@ public:
 
    // methods to return objects of specified types
    virtual SpaceObject*     CreateSpacecraft(const std::string &ofType,
+                                             const std::string &withName = "");
+   virtual SpacePoint*      CreateSpacePoint(const std::string &ofType,
                                              const std::string &withName = "");        
    virtual Propagator*      CreatePropagator(const std::string &ofType,
                                              const std::string &withName = "");

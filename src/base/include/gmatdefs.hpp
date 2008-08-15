@@ -125,6 +125,7 @@ namespace Gmat
       ATTITUDE,
       MATH_NODE,
       MATH_TREE,
+      ESTIMATOR,
       UNKNOWN_OBJECT
    };
 

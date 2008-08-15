@@ -21,6 +21,9 @@
 #include "EstimatorFactory.hpp"
 #include "MessageInterface.hpp"  // temporary
 
+// Here are the supported leaf classes
+#include "Estimator.hpp"
+#include "BatchLeastSquares.hpp"
 
 //---------------------------------
 //  public methods
@@ -41,6 +44,8 @@
 Estimator* EstimatorFactory::CreateEstimator(const std::string &ofType,
                                     const std::string &withName)
 {
+MessageInterface::ShowMessage("EstimatorFactory is creating a %s named %s\n",
+      ofType.c_str(), withName.c_str());
    if (ofType == "BatchLeastSquares")
       return new BatchLeastSquares(withName);
    //else if (ofType == "SequentialLeastSquares")
@@ -85,7 +90,8 @@ Estimator* EstimatorFactory::CreateEstimator(const std::string &ofType,
  */
 //------------------------------------------------------------------------------
 EstimatorFactory::EstimatorFactory() :
-    Factory     (Gmat::ESTIMATOR)
+   Factory     (Gmat::SOLVER)
+//   Factory     (Gmat::ESTIMATOR)
 {
    if (creatables.empty())
    {

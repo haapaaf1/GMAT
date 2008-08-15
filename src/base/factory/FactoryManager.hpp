@@ -106,6 +106,8 @@ public:
                                          const std::string &withName = "");
    Attitude*              CreateAttitude(const std::string &ofType,
                                          const std::string &withName = "");
+   SpacePoint*            CreateSpacePoint(const std::string &ofType,
+                                           const std::string &withName = "");
 
    //----- Just container
    SolarSystem*           CreateSolarSystem(const std::string &withName = "");

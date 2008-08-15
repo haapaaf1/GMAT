@@ -286,8 +286,29 @@ Solver* FactoryManager::CreateSolver(const std::string &ofType,
                                      const std::string &withName)
 {
    Factory* f = FindFactory(Gmat::SOLVER, ofType);
+   Solver* retObj = NULL;
    if (f != NULL)
-      return f->CreateSolver(ofType, withName);
+   {
+      MessageInterface::ShowMessage("Found a factory that builds %s solvers\n",
+            ofType.c_str());
+      try 
+      {
+         retObj = f->CreateSolver(ofType, withName);
+      }
+      catch (BaseException &ex)
+      {
+         Factory* f = FindFactory(Gmat::ESTIMATOR, ofType);
+         if (f != NULL)
+         {
+            MessageInterface::ShowMessage(
+                  "Found a factory that builds %s estimators\n", 
+                  ofType.c_str());
+            retObj = (Solver*)(f->CreateEstimator(ofType, withName));
+         }
+      }
+      return retObj;
+   }
+   
    return NULL;
 }
 
@@ -506,6 +527,27 @@ FactoryManager::CreateAttitude(const std::string &ofType,
    return NULL;
 }
 
+//------------------------------------------------------------------------------
+// SpacePoint* CreateSpacePoint(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Create an object of type SpacePoint, with the name withName.
+ *
+ * @param <ofType> type of the new SpacePoint object.
+ * @param <withName> name of the new SpacePoint object.
+ *
+ * @return pointer to the newly-created SpacePoint object
+ */
+//------------------------------------------------------------------------------
+SpacePoint* FactoryManager::CreateSpacePoint(const std::string &ofType,
+                                             const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::SPACE_POINT, ofType);
+   if (f != NULL)
+      return f->CreateSpacePoint(ofType,withName);
+   return NULL;
+}
+
 //----- Just container
 //------------------------------------------------------------------------------
 //  SolarSystem* CreateSolarSystem(const std::string &withName)
@@ -631,6 +673,7 @@ const StringArray& FactoryManager::GetListOfAllItems()
    GetList(Gmat::PROPAGATOR);
    GetList(Gmat::PHYSICAL_MODEL);
    GetList(Gmat::SOLVER);
+   GetList(Gmat::SPACE_POINT);
    GetList(Gmat::STOP_CONDITION);
    GetList(Gmat::SUBSCRIBER);
    
