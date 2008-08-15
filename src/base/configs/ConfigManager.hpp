@@ -59,6 +59,7 @@ public:
    void                AddSolarSystem(SolarSystem *solarSys);
    void                AddPropSetup(PropSetup *propSetup);
    void                AddSpacecraft(SpaceObject *sc);
+   void                AddSpacePoint(SpacePoint *sp);
    void                AddHardware(Hardware *hw);
    void                AddStopCondition(StopCondition* stopCond);
    void                AddParameter(Parameter* parameter);
@@ -94,6 +95,7 @@ public:
    Propagator*         GetPropagator(const std::string &name);
    ForceModel*         GetForceModel(const std::string &name);
    SpaceObject*        GetSpacecraft(const std::string &name);
+   SpacePoint*         GetSpacePoint(const std::string &name);
    Hardware*           GetHardware(const std::string &name);
    PropSetup*          GetPropSetup(const std::string &name);
    Subscriber*         GetSubscriber(const std::string &name);

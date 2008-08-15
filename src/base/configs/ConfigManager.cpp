@@ -309,6 +309,30 @@ void ConfigManager::AddSpacecraft(SpaceObject *sc)
 
 
 //------------------------------------------------------------------------------
+// void AddSpacePoint(SpacePoint *sp)
+//------------------------------------------------------------------------------
+/**
+ * Adds a SpacePoint to the configuration.
+ * 
+ * NOTE: Spacecraft and Formations are handled in the AddSpacecraft method. 
+ *
+ * @param sp Pointer to the SpacePoint instance.
+ */
+//------------------------------------------------------------------------------
+void ConfigManager::AddSpacePoint(SpacePoint *sp)
+{
+   std::string name = sp->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!sp->IsOfType(Gmat::SPACE_POINT))
+      throw ConfigManagerException(name + " is not a SpacePoint");
+
+   AddObject(sp);
+}
+
+
+//------------------------------------------------------------------------------
 // void AddHardware(Hardware *hw)
 //------------------------------------------------------------------------------
 /**
@@ -1151,6 +1175,31 @@ SpaceObject* ConfigManager::GetSpacecraft(const std::string &name)
       }
    }
    return sc;
+}
+
+
+//------------------------------------------------------------------------------
+// SpacePoint* GetSpacePoint(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a SpacePoint object.
+ *
+ * @param name The name of the object.
+ *
+ * @return A pointer to the object.
+ */
+//------------------------------------------------------------------------------
+SpacePoint* ConfigManager::GetSpacePoint(const std::string &name)
+{
+   SpaceObject *sp = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::SPACE_POINT))
+      {
+         sp = (SpaceObject *)mapping[name];
+      }
+   }
+   return sp;
 }
 
 
