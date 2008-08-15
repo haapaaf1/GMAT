@@ -275,6 +275,10 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray subs = theModerator->GetListOfFactoryItems(Gmat::SUBSCRIBER);
    copy(subs.begin(), subs.end(), back_inserter(subscriberList));
    
+   spacePointList.clear();
+   StringArray spl = theModerator->GetListOfFactoryItems(Gmat::SPACE_POINT);
+   copy(spl.begin(), spl.end(), back_inserter(spacePointList));
+
    
    #ifdef DEBUG_OBJECT_LIST
       std::vector<std::string>::iterator pos;
@@ -330,6 +334,10 @@ void Interpreter::BuildCreatableObjectMaps()
 
       MessageInterface::ShowMessage("\nSubscribers:\n   ");
       for (pos = subs.begin(); pos != subs.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+
+      MessageInterface::ShowMessage("\nOther SpacePoints:\n   ");
+      for (pos = spl.begin(); pos != spl.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
 
       MessageInterface::ShowMessage("\n");
@@ -423,6 +431,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          clist = subscriberList;
          break;
          
+      case Gmat::SPACE_POINT:
+         clist = spacePointList;
+         break;
+         
       // These are all intentional fall-throughs:
       case Gmat::SPACECRAFT:
       case Gmat::FORMATION:
@@ -434,7 +446,6 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::TRANSIENT_FORCE:
       case Gmat::INTERPOLATOR:
       case Gmat::SOLAR_SYSTEM:
-      case Gmat::SPACE_POINT:
       case Gmat::CELESTIAL_BODY:
       case Gmat::LIBRATION_POINT:
       case Gmat::BARYCENTER:
@@ -735,12 +746,20 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       // Handle Solvers
       else if (find(solverList.begin(), solverList.end(), type) != 
                solverList.end())
+      {
+         MessageInterface::ShowMessage("Object is a Solver\n");
          obj = (GmatBase*)theModerator->CreateSolver(type, name);
+      }
       
       // Handle Subscribers
       else if (find(subscriberList.begin(), subscriberList.end(), type) != 
                subscriberList.end())
          obj = (GmatBase*)theModerator->CreateSubscriber(type, name);
+   
+      // Handle other SpacePoints
+      else if (find(spacePointList.begin(), spacePointList.end(), type) != 
+               subscriberList.end())
+         obj = (GmatBase*)theModerator->CreateSpacePoint(type, name);
    
    }
    

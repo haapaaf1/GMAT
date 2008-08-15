@@ -930,6 +930,16 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
       WriteObjects(objs, "Formation", mode);
    
    //-----------------------------------
+   // Other SpacePoints
+   //-----------------------------------
+   objs = theModerator->GetListOfObjects(Gmat::SPACE_POINT);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d SpacePoints\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteSpacePoints(objs, mode);
+   
+   //-----------------------------------
    // Force Model
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::FORCE_MODEL);
@@ -1592,7 +1602,7 @@ void ScriptInterpreter::WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mode
    StringArray::iterator current;
    GmatBase *object =  NULL;
    
-   WriteSectionDelimiter(objs[0], "Spacecrafts");
+   WriteSectionDelimiter(objs[0], "Spacecraft");
    
    // Setup the coordinate systems on Spacecraft so they can perform conversions
    CoordinateSystem *ics = theModerator->GetInternalCoordinateSystem(), *sccs;
@@ -1613,6 +1623,55 @@ void ScriptInterpreter::WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mode
       sc->Initialize();
       
       object = FindObject(*current);
+      if (object != NULL)
+      {
+         if (object->GetCommentLine() == "")
+            theReadWriter->WriteText("\n");
+         
+         theReadWriter->WriteText(object->GetGeneratingString(mode));               
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mod)
+//------------------------------------------------------------------------------
+/*
+ * This method writes Spacecraft objects.
+ */
+//------------------------------------------------------------------------------
+void ScriptInterpreter::WriteSpacePoints(StringArray &objs, Gmat::WriteMode mode)
+{
+   ObjectArray theObjects;
+   GmatBase *object =  NULL;
+   StringArray::iterator current;
+
+   for (current = objs.begin(); current != objs.end(); ++current)
+   {
+      object = FindObject(*current);
+      if ((object->IsOfType(Gmat::CELESTIAL_BODY)) ||
+          (object->IsOfType(Gmat::SPACECRAFT)) || 
+          (object->IsOfType(Gmat::FORMATION)) ||
+          (object->IsOfType(Gmat::CALCULATED_POINT)) ||
+          (object->IsOfType(Gmat::SPACEOBJECT)) )
+      {
+         MessageInterface::ShowMessage("Skipping SpacePoint %s\n", current->c_str());
+         continue; 
+      }
+      theObjects.push_back(object);
+   }
+   
+   if (theObjects.size() == 0)
+      return;
+   
+   WriteSectionDelimiter(theObjects[0]->GetName(), "Other SpacePoints");
+   
+   ObjectArray::iterator cObj;
+   for (cObj = theObjects.begin(); cObj != theObjects.end(); ++cObj)
+   {
+      object = *cObj;
+MessageInterface::ShowMessage("Writing SpacePoint %s\n", object->GetName().c_str());
       if (object != NULL)
       {
          if (object->GetCommentLine() == "")

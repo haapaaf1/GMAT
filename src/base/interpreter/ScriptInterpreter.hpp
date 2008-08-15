@@ -86,6 +86,7 @@ private:
    void WriteObjects(StringArray &objs, const std::string &objDesc,
                      Gmat::WriteMode mode);
    void WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mode);
+   void WriteSpacePoints(StringArray &objs, Gmat::WriteMode mode);
    void WriteHardwares(StringArray &objs, Gmat::WriteMode mode);
    void WriteVariablesAndArrays(StringArray &objs, Gmat::WriteMode mode);
    void WriteOtherParameters(StringArray &objs, Gmat::WriteMode mode);
