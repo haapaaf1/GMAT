@@ -127,12 +127,14 @@ Solver::Solver(const std::string &type, const std::string &name) :
    exitMode                (DISCARD),
    status                  (CREATED)
 {
+MessageInterface::ShowMessage("Constructing Solver...");
    objectTypes.push_back(Gmat::SOLVER);
    objectTypeNames.push_back("Solver");
    //solverTextFile = "solver_";
    solverTextFile  = type;
    solverTextFile += instanceName;
    solverTextFile += ".data";
+MessageInterface::ShowMessage("...Constructed\n");
 }
 
 

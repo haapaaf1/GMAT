@@ -47,6 +47,7 @@ public:
       NOMINAL,
       PERTURBING,
       ITERATING,
+      ESTIMATING,
       CALCULATING,
       CHECKINGRUN,
       RUNEXTERNAL,
