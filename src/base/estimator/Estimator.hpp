@@ -23,6 +23,7 @@
 #include <fstream>          // for std::ofstream
 
 #include "GmatBase.hpp"
+#include "Solver.hpp"
 #include "EstimatorException.hpp"
 
 
@@ -40,30 +41,30 @@
  * values used, and the core methods that use these states and that report on 
  * the results of the states.
  */
-class GMAT_API Estimator : public GmatBase
+class GMAT_API Estimator : public Solver // GmatBase
 {
 public:
-   /// Enumeration defining the states in the state machine
-   enum EstimatorState
-   {
-      INITIALIZING = 10001,
-      ITERATING,
-      ESTIMATING,
-      CHECKINGRUN,
-      RUNEXTERNAL,
-      FINISHED,
-      UNDEFINED_STATE         // This one should stay at the end of the list.
-   };
+//   /// Enumeration defining the states in the state machine
+//   enum EstimatorState
+//   {
+//      INITIALIZING = 10001,
+//      ITERATING,
+//      ESTIMATING,
+//      CHECKINGRUN,
+//      RUNEXTERNAL,
+//      FINISHED,
+//      UNDEFINED_STATE         // This one should stay at the end of the list.
+//   };
    
-   /// Enumeration for estimator progress report formats
-   enum Report_Style
-   {
-      NORMAL_STYLE = 11001,
-      CONCISE_STYLE,
-      VERBOSE_STYLE,
-      DEBUG_STYLE,
-      MaxStyle
-   };
+//   /// Enumeration for estimator progress report formats
+//   enum Report_Style
+//   {
+//      NORMAL_STYLE = 11001,
+//      CONCISE_STYLE,
+//      VERBOSE_STYLE,
+//      DEBUG_STYLE,
+//      MaxStyle
+//   };
     
 public:
    Estimator(const std::string &type, const std::string &name);
@@ -71,8 +72,10 @@ public:
    Estimator(const Estimator& sol);
    Estimator&             operator=(const Estimator& sol);
 
-   virtual EstimatorState GetState();
-   virtual EstimatorState AdvanceState();
+//   virtual EstimatorState GetState();
+//   virtual EstimatorState AdvanceState();
+   virtual SolverState GetState();
+   virtual SolverState AdvanceState();
   //virtual bool        UpdateEstimatorGoal(Integer id, Real newValue);
    
    // Access methods overriden from the base class
@@ -157,7 +160,8 @@ public:
 protected:
 
    /// Current state for the state machine
-   EstimatorState          currentState;
+   SolverState          currentState;
+//   EstimatorState          currentState;
    /// State vector of parameters to estimate
    /// These parameters are estimated and their error covariance is
    /// solved for. 
@@ -228,7 +232,7 @@ protected:
    /// The number of observation stations in the estimator problem
    Integer             observerCount;
    /// List of names of observation stations
-   StringArray         stationNames
+   StringArray         stationNames;
 
    /// Vector of state biases
    Rvector             stateBiases;
@@ -311,23 +315,26 @@ protected:
                                               GmatBaseParamCount];
    static const std::string    STYLE_TEXT[MaxStyle - NORMAL_STYLE];
 
+// DJC additions
+   virtual void        RunNominal();
 
+   
+   
    // Methods that correspond to the estimator states.  Derived classes should
    // implement the methods that correspond to the Estimator's state machine.  The
    // default implementation just advances the state to the "next" state in the
    // list.
-   virtual void        ForwardInitialization();
-   virtual void        ForwardPropagation();
-   virtual void        ForwardUpdate();
-   virtual void        ComputeGain();
-   virtual void        ForwardReinitialization();
-   virtual void        BackwardInitialization();
-   virtual void        BackwardPropagation();
-   virtual void        BackwardUpdate();
-   virtual void        BackwardReinitialization();
-   virtual void        CalculateCorrections();
+//   virtual void        ForwardInitialization();
+//   virtual void        ForwardPropagation();
+//   virtual void        ForwardUpdate();
+//   virtual void        ComputeGain();
+//   virtual void        ForwardReinitialization();
+//   virtual void        BackwardInitialization();
+//   virtual void        BackwardPropagation();
+//   virtual void        BackwardUpdate();
+//   virtual void        BackwardReinitialization();
+//   virtual void        CalculateCorrections();
    virtual void        CheckCompletion();
-   virtual void        RunExternal();
    virtual void        RunComplete();
    
    virtual std::string GetProgressString();
@@ -345,7 +352,8 @@ protected:
     *                     value of currentState is used. 
     */
    //---------------------------------------------------------------------------
-   virtual void        WriteToTextFile(EstimatorState stateToUse = UNDEFINED_STATE) = 0;
+   virtual void        WriteToTextFile(SolverState stateToUse = UNDEFINED_STATE) = 0;
+//   virtual void        WriteToTextFile(EstimatorState stateToUse = UNDEFINED_STATE) = 0;
 };
 
 

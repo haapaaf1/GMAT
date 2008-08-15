@@ -22,6 +22,7 @@
 
 
 #include "Solver.hpp"
+#include "Estimator.hpp"
 #include <fstream>          // for std::ofstream
 
 /**
@@ -41,7 +42,8 @@ public:
    BatchLeastSquares& operator=(const BatchLeastSquares& dc);
    
    virtual bool        Initialize();
-   virtual EstimatorState AdvanceState();
+//   virtual EstimatorState AdvanceState();
+   virtual SolverState AdvanceState();
    
    // inherited from GmatBase
    virtual GmatBase*   Clone() const;
@@ -73,6 +75,7 @@ public:
    //virtual Real        GetEstimatorVariable(Integer id);
    virtual Integer     SetEstimatorResults(Real *data, const std::string &name,
                                         const std::string &type = "");
+//   virtual bool        UpdateSolverGoal(Integer id, Real newValue);
    virtual bool        UpdateEstimatorGoal(Integer id, Real newValue);
    virtual void        SetResultValue(Integer id, Real value,
                                       const std::string &resultType = "");
@@ -124,7 +127,7 @@ protected:
 
    // Methods
    virtual void                RunNominal();
-   virtual void                RunPerturbation();
+//   virtual void                RunPerturbation();
    virtual void                CalculateParameters();
    virtual void                CheckCompletion();
    virtual void                RunComplete();
@@ -136,7 +139,20 @@ protected:
    void                        FreeArrays();
    virtual std::string         GetProgressString();
    virtual void                WriteToTextFile(
-                                  EstimatorState stateToUse = UNDEFINED_STATE);
+                                  SolverState stateToUse = UNDEFINED_STATE);
+//   virtual void                WriteToTextFile(
+//                                  EstimatorState stateToUse = UNDEFINED_STATE);
+   
+
+   // Need these implemented
+   void                        CalculateInformationMatrix();
+   void                        InvertInformationMatrix() {}
+
+   // Fixed a pue virtual method issue
+   virtual Integer     SetSolverResults(Real *data, const std::string &name,
+                                        const std::string &type = "") 
+   { return -1; }
+
 };
 
 #endif // BatchLeastSquares_hpp

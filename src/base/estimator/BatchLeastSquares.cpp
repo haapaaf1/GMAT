@@ -32,7 +32,7 @@
 //---------------------------------
 // static data
 //---------------------------------
-
+ 
 const std::string
 BatchLeastSquares::PARAMETER_TEXT[BatchLeastSquaresParamCount -
                                       EstimatorParamCount] =
@@ -40,7 +40,7 @@ BatchLeastSquares::PARAMETER_TEXT[BatchLeastSquaresParamCount -
    "EstimatorTextFile",
    "Variables",
    //"Goals",
-   "MaximumIterations",
+//   "MaximumIterations",
 };
 
 const Gmat::ParameterType
@@ -61,26 +61,26 @@ BatchLeastSquares::PARAMETER_TYPE[BatchLeastSquaresParamCount -
 
 BatchLeastSquares::BatchLeastSquares(std::string name) :
    Estimator                  ("BatchLeastSquares", name),
-   variableCount           (0),
+//   variableCount           (0),
    //goalCount               (0),
-   iterationsTaken         (0),
-   maxIterations           (25),
-   variable                (NULL),
+//   iterationsTaken         (0),
+//   maxIterations           (25),
+//   variable                (NULL),
    //perturbation            (NULL),
-   variableMinimum         (NULL),
-   variableMaximum         (NULL),
+//   variableMinimum         (NULL),
+//   variableMaximum         (NULL),
    //variableMaximumStep     (NULL),
    //goal                    (NULL),
    tolerance               (NULL),
    nominal                 (NULL),
-   achieved                (NULL),
+   achieved                (NULL) //,
    //jacobian                (NULL),
-   informationMatrix         (NULL),
+//   informationMatrix         (NULL),
    //indx                    (NULL),
    //b                       (NULL),
    //ludMatrix               (NULL),
    //useCentralDifferences   (false)  //,
-   initialized             (false),
+//   initialized             (false),
    //instanceNumber          (0)       // 0 indicates 1st instance w/ this name
 {
    #if DEBUG_DC_INIT
@@ -88,8 +88,8 @@ BatchLeastSquares::BatchLeastSquares(std::string name) :
       ("BatchLeastSquares::DC(constructor) entered\n");
    #endif
    objectTypeNames.push_back("BatchLeastSquares");
-   objectTypeNames.push_back("Targeter");  // should go in a Targeter class ...
    parameterCount = BatchLeastSquaresParamCount;
+
    // textFileMode = "Verbose";
    //estimatorTextFile = "targeter_";
    //estimatorTextFile += instanceName;
@@ -762,7 +762,8 @@ bool BatchLeastSquares::Initialize()
  * @return estimator state at the end of the process.
  */
 //------------------------------------------------------------------------------
-Estimator::EstimatorState BatchLeastSquares::AdvanceState()
+//Estimator::EstimatorState BatchLeastSquares::AdvanceState()
+Estimator::SolverState BatchLeastSquares::AdvanceState()
 {
    switch (currentState)
    {
@@ -958,8 +959,9 @@ void BatchLeastSquares::CheckCompletion()
    bool converged = false;          // Assume not converged convergence
     
    // check for convergence
-   if (GmatMathUtil::Abs(SSE) < tolerance)
-     converged = true;
+// SSE not defined yet, so this won't build:
+//   if (GmatMathUtil::Abs(SSE) < tolerance)
+//     converged = true;
    
    if (!converged)
    {
@@ -1010,15 +1012,21 @@ void BatchLeastSquares::CalculateInformationMatrix()
 //------------------------------------------------------------------------------
 void BatchLeastSquares::InvertJacobian()
 {
-   Rmatrix jac(variableCount, variableCount);
+   // These are NOT RIGHT, just added so the code compiles
+   Rmatrix info(variableCount, variableCount),
+   InformationMatrix(variableCount, variableCount),
+   inverseInformationMatrix(variableCount, variableCount);
+   
    for (Integer i = 0; i < variableCount; ++i)
       for (Integer j = 0; j < variableCount; ++j)
-         info(i,j) = InformatrionMatrix[i][j];
+         info(i,j) = InformationMatrix(i, j);
+//         info(i,j) = InformationMatrix[i][j];
          
    Rmatrix inv = info.Inverse();
    for (Integer i = 0; i < variableCount; ++i)
       for (Integer j = 0; j < variableCount; ++j)
-         inverseInformationMatrix[i][j] = inv(i,j);
+         inverseInformationMatrix(i, j) = inv(i,j);
+//         inverseInformationMatrix[i][j] = inv(i,j);
 }
 
 
@@ -1041,23 +1049,24 @@ void BatchLeastSquares::FreeArrays()
       textFile.close();
    }
         
-   if (variable)
-   {
-      delete [] variable;
-      variable = NULL;
-   }
-    
-   if (variableMinimum)
-   {
-      delete [] variableMinimum;
-      variableMinimum = NULL;
-   }
-
-   if (variableMaximum)
-   {
-      delete [] variableMaximum;
-      variableMaximum = NULL;
-   }
+// These are all handled in the ancestor classes.
+//   if (variable)
+//   {
+//      delete [] variable;
+//      variable = NULL;
+//   }
+//    
+//   if (variableMinimum)
+//   {
+//      delete [] variableMinimum;
+//      variableMinimum = NULL;
+//   }
+//
+//   if (variableMaximum)
+//   {
+//      delete [] variableMaximum;
+//      variableMaximum = NULL;
+//   }
    
    if (goal)
    {
@@ -1077,23 +1086,21 @@ void BatchLeastSquares::FreeArrays()
       nominal = NULL;
    }
     
-   if (InformationMatrix)
-   {
-      for (Integer i = 0; i < variableCount; ++i)
-         delete [] InformationMatrix[i];
-      delete [] InformationMatrix;
-      InformationMatrix = NULL;
-   }
-
-   if (inverseInformationMatrix)
-   {
-      for (Integer i = 0; i < variableCount; ++i)
-         delete [] inverseInformationMatrix[i];
-      delete [] inverseInformationMatrix;
-      inverseInformationMatrix = NULL;
-   }
-    
-
+//   if (InformationMatrix)
+//   {
+//      for (Integer i = 0; i < variableCount; ++i)
+//         delete [] InformationMatrix[i];
+//      delete [] InformationMatrix;
+//      InformationMatrix = NULL;
+//   }
+//
+//   if (inverseInformationMatrix)
+//   {
+//      for (Integer i = 0; i < variableCount; ++i)
+//         delete [] inverseInformationMatrix[i];
+//      delete [] inverseInformationMatrix;
+//      inverseInformationMatrix = NULL;
+//   }
 }
 
 
@@ -1240,7 +1247,8 @@ std::string BatchLeastSquares::GetProgressString()
  * Writes state data to the targeter text file.
  */
 //------------------------------------------------------------------------------
-void BatchLeastSquares::WriteToTextFile(EstimatorState stateToUse)
+//void BatchLeastSquares::WriteToTextFile(EstimatorState stateToUse)
+void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
 {
    StringArray::iterator current;
    Integer i, j;

@@ -77,18 +77,19 @@ Estimator::STYLE_TEXT[MaxStyle - NORMAL_STYLE] =
  */
 //------------------------------------------------------------------------------
 Estimator::Estimator(const std::string &type, const std::string &name) :
-   GmatBase                (Gmat::ESTIMATOR, type, name),
+   Solver                  (type, name),
+//   GmatBase                (Gmat::ESTIMATOR, type, name),
    currentState            (INITIALIZING),
    textFileMode            ("Normal"),
    showProgress            (true),
    progressStyle           (NORMAL_STYLE),
    debugString             (""),
-   variableCount           (0),
-   variable                (NULL),
+//   variableCount           (0),
+//   variable                (NULL),
    iterationsTaken         (0),
    maxIterations           (25),
-   variableMinimum         (NULL),
-   variableMaximum         (NULL),
+//   variableMinimum         (NULL),
+//   variableMaximum         (NULL),
    initialized             (false),
    instanceNumber          (0)       // 0 indicates 1st instance w/ this name
 {
@@ -126,29 +127,31 @@ Estimator::~Estimator()
  */
 //------------------------------------------------------------------------------
 Estimator::Estimator(const Estimator &est) :
-   GmatBase                (est),
+//   GmatBase                (est),
+   Solver                  (est),
    currentState            (est.currentState),
-   covarianceMatrix        (est.currentCovariance),
+//   covarianceMatrix        (est.currentCovariance),
    textFileMode            (est.textFileMode),
    showProgress            (est.showProgress),
    progressStyle           (est.progressStyle),
    debugString             (est.debugString),
-   variableCount           (est.variableCount),
-   variable                (NULL),
-   iterationsTaken         (0),
+//   variableCount           (est.variableCount),
+//   variable                (NULL),
+   iterationsTaken         (0), 
    maxIterations           (est.maxIterations),
-   variableMinimum         (NULL),
-   variableMaximum         (NULL),
+//   variableMinimum         (NULL),
+//   variableMaximum         (NULL),
    initialized             (false),
    estimatorTextFile          (est.estimatorTextFile),
    instanceNumber          (est.instanceNumber)
-
 {
+MessageInterface::ShowMessage("Constructing Estimator...");
    #ifdef DEBUG_ESTIMATOR_INIT
       MessageInterface::ShowMessage(
          "In Estimator::Estimator (copy constructor)\n");
    #endif
    variableNames.clear();
+MessageInterface::ShowMessage("...Constructed\n");
 }
 
 
@@ -180,7 +183,7 @@ Estimator& Estimator::operator=(const Estimator &est)
    //variableMaximumStep.clear();
    
    currentState          = est.currentState;
-   currentCovariance     = est.currentCovariance;
+//   currentCovariance     = est.currentCovariance;
    textFileMode          = est.textFileMode;
    showProgress          = est.showProgress;
    progressStyle         = est.progressStyle;
@@ -368,7 +371,8 @@ Real Estimator::GetEstimatorVariable(Integer id)
  * @return current state 
  */
 //------------------------------------------------------------------------------
-Estimator::EstimatorState Estimator::GetState()
+//Estimator::EstimatorState Estimator::GetState()
+Estimator::SolverState Estimator::GetState()
 {
    return currentState;
 }
@@ -383,23 +387,24 @@ Estimator::EstimatorState Estimator::GetState()
  * @return estimator state at the end of the process.
  */
 //------------------------------------------------------------------------------
-Estimator::EstimatorState Estimator::AdvanceState()
+//Estimator::EstimatorState Estimator::AdvanceState()
+Estimator::SolverState Estimator::AdvanceState()
 {
     switch (currentState) {
         case INITIALIZING:
-            Initialization();
+//            Initialization();
             break;
         
         case NOMINAL:
-            PropagateState();
-	    PropagateCovariance();
-	    CalculateCorrections();
-	    UpdateState();
-	    UpdateCovariance();
+//            PropagateState();
+//	    PropagateCovariance();
+//	    CalculateCorrections();
+//	    UpdateState();
+//	    UpdateCovariance();
             break;
         
         case ITERATING:
-            IterationReinitialization();
+//            IterationReinitialization();
             break;
         
         case CALCULATING:
@@ -838,19 +843,19 @@ void Estimator::SetDebugString(const std::string &str)
 
 
 
-//------------------------------------------------------------------------------
-//  void CompleteInitialization()
-//------------------------------------------------------------------------------
-/**
- * Finalized the initialization process by setting the current state for the
- * state machine to the entry state for the estimator.  The default method provided
- * here sets the state to the NOMINAL state.
- */
-//------------------------------------------------------------------------------
-void Estimator::CompleteInitialization()
-{
-    currentState = NOMINAL;
-}
+////------------------------------------------------------------------------------
+////  void CompleteInitialization()
+////------------------------------------------------------------------------------
+///**
+// * Finalized the initialization process by setting the current state for the
+// * state machine to the entry state for the estimator.  The default method provided
+// * here sets the state to the NOMINAL state.
+// */
+////------------------------------------------------------------------------------
+//void Estimator::CompleteInitialization()
+//{
+//    currentState = NOMINAL;
+//}
 
 
 //------------------------------------------------------------------------------
@@ -864,56 +869,56 @@ void Estimator::CompleteInitialization()
 //------------------------------------------------------------------------------
 void Estimator::RunNominal()
 {
-    currentState = (EstimatorState)(currentState+1);
+//    currentState = (EstimatorState)(currentState+1);
 }
 
 
-//------------------------------------------------------------------------------
-//  void RunPerturbation()
-//------------------------------------------------------------------------------
-/**
- * Executes a perturbation run and then advances the state machine to the next 
- * state.
- * 
- * This default method just advances the state.
- */
-//------------------------------------------------------------------------------
-void Estimator::RunPerturbation()
-{
-    currentState = (EstimatorState)(currentState+1);
-}
+////------------------------------------------------------------------------------
+////  void RunPerturbation()
+////------------------------------------------------------------------------------
+///**
+// * Executes a perturbation run and then advances the state machine to the next 
+// * state.
+// * 
+// * This default method just advances the state.
+// */
+////------------------------------------------------------------------------------
+//void Estimator::RunPerturbation()
+//{
+////    currentState = (EstimatorState)(currentState+1);
+//}
 
 
-//------------------------------------------------------------------------------
-//  void RunIteration()
-//------------------------------------------------------------------------------
-/**
- * Executes an iteration run and then advances the state machine to the next 
- * state.
- * 
- * This default method just advances the state.
- */
-//------------------------------------------------------------------------------
-void Estimator::RunIteration()
-{
-    currentState = (EstimatorState)(currentState+1);
-}
+////------------------------------------------------------------------------------
+////  void RunIteration()
+////------------------------------------------------------------------------------
+///**
+// * Executes an iteration run and then advances the state machine to the next 
+// * state.
+// * 
+// * This default method just advances the state.
+// */
+////------------------------------------------------------------------------------
+//void Estimator::RunIteration()
+//{
+////    currentState = (EstimatorState)(currentState+1);
+//}
 
 
-//------------------------------------------------------------------------------
-//  void CalculateParameters()
-//------------------------------------------------------------------------------
-/**
- * Executes a Calculates parameters needed by the state machine for the next
- * nominal run, and then advances the state machine to the next state.
- * 
- * This default method just advances the state.
- */
-//------------------------------------------------------------------------------
-void Estimator::CalculateParameters()
-{
-    currentState = (EstimatorState)(currentState+1);
-}
+////------------------------------------------------------------------------------
+////  void CalculateParameters()
+////------------------------------------------------------------------------------
+///**
+// * Executes a Calculates parameters needed by the state machine for the next
+// * nominal run, and then advances the state machine to the next state.
+// * 
+// * This default method just advances the state.
+// */
+////------------------------------------------------------------------------------
+//void Estimator::CalculateParameters()
+//{
+////    currentState = (EstimatorState)(currentState+1);
+//}
 
 
 //------------------------------------------------------------------------------
@@ -927,23 +932,23 @@ void Estimator::CalculateParameters()
 //------------------------------------------------------------------------------
 void Estimator::CheckCompletion()
 {
-    currentState = (EstimatorState)(currentState+1);
+//    currentState = (EstimatorState)(currentState+1);
 }
 
-//------------------------------------------------------------------------------
-//  void RunExternal()
-//------------------------------------------------------------------------------
-/**
- * Launhes an external process that drives the Estimator.
- * 
- * This default method just ???? (not a clue).
- */
-//------------------------------------------------------------------------------
-void Estimator::RunExternal()
-{
-   //currentState = FINISHED;  // what to do here?
-   currentState = (EstimatorState)(currentState+1);
-}
+////------------------------------------------------------------------------------
+////  void RunExternal()
+////------------------------------------------------------------------------------
+///**
+// * Launhes an external process that drives the Estimator.
+// * 
+// * This default method just ???? (not a clue).
+// */
+////------------------------------------------------------------------------------
+//void Estimator::RunExternal()
+//{
+//   //currentState = FINISHED;  // what to do here?
+//   currentState = (EstimatorState)(currentState+1);
+//}
 
 
 //------------------------------------------------------------------------------
@@ -1028,7 +1033,8 @@ void Estimator::FreeArrays()
    variableMaximum.clear();
    variableMaximumStep.clear();
    pertDirection.clear();
-
+   
+   Solver::FreeArrays();
 }
 
 /// For nonlinear systems, we need to define a function f that
@@ -1069,7 +1075,7 @@ Rvector Estimator::h(StringArray observationTypes, Rvector x, Rvector u, Real t1
 /// H is a function that computes the Jacobian of y w.r.t. x
 Rmatrix Estimator::H()
 {
-  return *this.Identity(observationTypeCount,stateCount);
+//  return Identity(observationTypeCount,stateCount);
 }
 Rmatrix Estimator::H(Rvector x, Real t0)
 {
