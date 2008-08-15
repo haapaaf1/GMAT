@@ -141,6 +141,11 @@ public:
    SpaceObject* GetSpacecraft(const std::string &name);
    std::string GetSpacecraftNotInFormation();
    
+   // Other SpacePoints
+   SpacePoint* CreateSpacePoint(const std::string &type,
+                                 const std::string &name);
+   SpacePoint* GetSpacePoint(const std::string &name);
+   
    // Hardware
    Hardware* CreateHardware(const std::string &type,
                             const std::string &name);
@@ -356,6 +361,7 @@ private:
    void AddCoordSystemToSandbox(Integer index);
    void AddSpacecraftToSandbox(Integer index);
    void AddFormationToSandbox(Integer index);
+   void AddSpacePointToSandbox(Integer index);
    void AddPropSetupToSandbox(Integer index);
    void AddPropagatorToSandbox(Integer index);
    void AddForceModelToSandbox(Integer index);
