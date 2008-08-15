@@ -59,6 +59,7 @@ console: $(CONSOLETARGET)
 
 HEADERS = -Iinclude \
           -Ifoundation \
+          -Iestimator \
           -Iexecutive \
           -Iattitude \
           -Ispacecraft \
@@ -80,6 +81,7 @@ HEADERS = -Iinclude \
           -Ifunction \
           -Icoordsystem \
           -Imath \
+          -Iasset \
           -Iplugin \
           -I../gui/include \
           -I../gui/include/bitmaps \
@@ -123,6 +125,7 @@ archclean :
 endif
 
 OBJECTS = \
+    asset/GroundStation.o \
     attitude/Attitude.o \
     attitude/AttitudeException.o \
     attitude/CSFixed.o \
@@ -206,6 +209,8 @@ OBJECTS = \
     coordsystem/TOEEcAxes.o \
     coordsystem/TOEEqAxes.o \
     coordsystem/TrueOfDateAxes.o \
+    estimator/Estimator.o \
+    estimator/BatchLeastSquares.o \
     executive/Moderator.o \
     executive/PlotInterface.o \
     executive/PlotReceiver.o \
@@ -213,6 +218,7 @@ OBJECTS = \
     executive/Publisher.o \
     executive/SandboxException.o \
     executive/Sandbox.o \
+    factory/AssetFactory.o \
     factory/AtmosphereFactory.o \
     factory/AttitudeFactory.o \
     factory/AxisSystemFactory.o \
@@ -221,6 +227,7 @@ OBJECTS = \
     factory/CelestialBodyFactory.o \
     factory/CommandFactory.o \
     factory/CoordinateSystemFactory.o \
+    factory/EstimatorFactory.o \
     factory/FactoryException.o \
     factory/FactoryManager.o \
     factory/Factory.o \
@@ -433,6 +440,7 @@ OBJECTS = \
     util/GravityFile.o \
     util/GregorianDate.o \
     util/Keplerian.o \
+    util/LatLonHgt.o \
     util/LeapSecsFileReader.o \
     util/Linear.o \
     util/MessageInterface.o \
