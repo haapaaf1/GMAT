@@ -287,7 +287,11 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          {
             obj->SetSolarSystem(ss);
             if (obj->IsOfType(Gmat::SPACE_POINT))
+            {
                BuildReferences(obj);
+               /// @todo  Can initilization happen here in all cases?
+               obj->Initialize();
+            }
             continue;
          }
          #ifdef DEBUG_OBJECT_INITIALIZER

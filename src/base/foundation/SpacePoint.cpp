@@ -118,6 +118,7 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
 
    return *this;
 }
+
 //---------------------------------------------------------------------------
 //  ~SpacePoint(void)
 //---------------------------------------------------------------------------
@@ -152,7 +153,6 @@ bool SpacePoint::RequiresJ2000Body()
  * This method returns the j2000 Body name.
  *
  * @return J2000 Body name.
- *
  */
 //------------------------------------------------------------------------------
 const std::string SpacePoint::GetJ2000BodyName() const
@@ -161,6 +161,15 @@ const std::string SpacePoint::GetJ2000BodyName() const
    else           return j2000BodyName;
 }
 
+//------------------------------------------------------------------------------
+//  SpacePoint*  GetJ2000Body() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the j2000 Body.
+ *
+ * @return A pointer to the J2000 Body.
+ */
+//------------------------------------------------------------------------------
 SpacePoint* SpacePoint::GetJ2000Body() const
 {
    return j2000Body;
@@ -355,7 +364,6 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
  *
  */
 //------------------------------------------------------------------------------
-
  bool SpacePoint::SetStringParameter(const Integer id, 
                                     const std::string &value)
 {
@@ -395,7 +403,6 @@ std::string SpacePoint::GetStringParameter(const std::string &label) const
  * @param    <value> The new value for the parameter
  */
 //------------------------------------------------------------------------------
-
  bool SpacePoint::SetStringParameter(const std::string &label,
                                        const std::string &value)
 {

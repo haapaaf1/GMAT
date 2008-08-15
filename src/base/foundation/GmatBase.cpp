@@ -90,7 +90,7 @@ GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    "Parameter",       "StopCondition",    "Solver",        "Subscriber",
    "PropSetup",       "Function",         "FuelTank",      "Thruster",
    "Hardware",        "CoordinateSystem", "AxisSystem",    "Attitude",
-   "UnknownObject"
+   "Estimator",       "UnknownObject"
 };
 const bool         
 GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] = 
