@@ -80,6 +80,8 @@
 
 #define SOLVER_BEGIN 150
 #define SOLVER_END 200
+#define ESTIMATOR_BEGIN 201
+#define ESTIMATOR_END 250
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -109,6 +111,8 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU_RANGE(POPUP_ADD_SOLVER + SOLVER_BEGIN, \
          POPUP_ADD_SOLVER + SOLVER_END, ResourceTree::OnAddSolver)
 //   EVT_MENU(POPUP_ADD_SOLVER, ResourceTree::OnAddSolver)
+   EVT_MENU_RANGE(POPUP_ADD_SOLVER + ESTIMATOR_BEGIN, \
+         POPUP_ADD_SOLVER + ESTIMATOR_END, ResourceTree::OnAddSolver)
    EVT_MENU(POPUP_ADD_REPORT_FILE, ResourceTree::OnAddReportFile)
    EVT_MENU(POPUP_ADD_XY_PLOT, ResourceTree::OnAddXyPlot)
    EVT_MENU(POPUP_ADD_OPENGL_PLOT, ResourceTree::OnAddOpenGlPlot)
@@ -244,6 +248,15 @@ void ResourceTree::ClearResource(bool leaveScripts)
                                       GmatTree::OPTIMIZER_FOLDER));
 
    SetItemImage(mOptimizerItem, GmatTree::ICON_OPENFOLDER,
+                wxTreeItemIcon_Expanded);
+
+   //--------------- Optimizers is a child of solvers
+   mEstimatorItem =
+      AppendItem(mSolverItem, wxT("Estimators"), GmatTree::ICON_FOLDER, -1,
+                 new GmatTreeItemData(wxT("Estimators"),
+                                      GmatTree::ESTIMATOR_FOLDER));
+
+   SetItemImage(mEstimatorItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
 
 }
@@ -2048,7 +2061,9 @@ void ResourceTree::OnAddSolver(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName(selected, 1);   
 
+MessageInterface::ShowMessage("Creating a %s named %s...", selected.c_str(), newName.c_str());
    GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
+MessageInterface::ShowMessage("...Created!\n", selected.c_str(), newName.c_str());
    
    if (obj != NULL)
    {
@@ -3037,6 +3052,9 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    case GmatTree::OPTIMIZER_FOLDER:
       menu.Append(POPUP_ADD_OPTIMIZER, wxT("Add"), CreatePopupMenu(itemType));
       break;
+   case GmatTree::ESTIMATOR_FOLDER:
+      menu.Append(POPUP_ADD_ESTIMATOR, wxT("Add"), CreatePopupMenu(itemType));
+      break;
    case GmatTree::UNIVERSE_FOLDER:
       menu.Append(POPUP_ADD_BODY, wxT("Add Body"));
       menu.Enable(POPUP_ADD_BODY, false);
@@ -3178,6 +3196,26 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
       {
          // Drop the ones that are already there for now
          std::string solverType = (*i);
+         if ((solverType != "DifferentialCorrector") &&
+             (solverType != "FminconOptimizer") &&
+             (solverType != "Quasi-Newton"))
+         {
+            // Save the ID and type name for event handling
+            pluginMap[POPUP_ADD_SOLVER + newId] = solverType;
+            menu->Append(POPUP_ADD_SOLVER + newId, wxT(solverType.c_str()));
+         }
+      }
+      break;
+   case GmatTree::ESTIMATOR_FOLDER:
+      // This needs completion
+      listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SOLVER);
+      newId = SOLVER_BEGIN;
+      for (StringArray::iterator i = listOfObjects.begin(); 
+           i != listOfObjects.end(); ++i, ++newId)
+      {
+         // Drop the ones that are already there for now
+         std::string solverType = (*i);
+MessageInterface::ShowMessage("+ %s\n", solverType.c_str());
          if ((solverType != "DifferentialCorrector") &&
              (solverType != "FminconOptimizer") &&
              (solverType != "Quasi-Newton"))

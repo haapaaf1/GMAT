@@ -65,6 +65,7 @@ private:
    wxTreeItemId mSolverItem;
    wxTreeItemId mBoundarySolverItem;
    wxTreeItemId mOptimizerItem;
+   wxTreeItemId mEstimatorItem;
    wxTreeItemId mVariableItem;
    wxTreeItemId mFunctionItem;
    wxTreeItemId mCoordSysItem;
@@ -194,6 +195,7 @@ private:
       POPUP_ADD_SOLVER,
       POPUP_ADD_BOUNDARY_SOLVER,
       POPUP_ADD_OPTIMIZER,
+      POPUP_ADD_ESTIMATOR,
       POPUP_ADD_DIFF_CORR,
       POPUP_ADD_BROYDEN,
       POPUP_ADD_QUASI_NEWTON,
