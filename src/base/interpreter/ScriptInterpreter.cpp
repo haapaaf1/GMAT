@@ -184,7 +184,7 @@ bool ScriptInterpreter::Interpret(GmatCommand *inCmd, bool skipHeader,
    {
       retval1 = ReadScript(inCmd, skipHeader);
       
-      // call FinalPass if not in function mode (loj: 2008.03.12)
+      // call FinalPass if not in function mode
       if (inFunctionMode)
          retval2 = true;
       else
@@ -310,7 +310,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    MessageInterface::ShowMessage(fcsStr); //Notes: Do not use %s for command string
    #endif
    
-   // Just return noOP for now (loj: 2008.03.12)
+   // Just return noOP for now
    if (retval)
       return noOp;
    else
@@ -698,7 +698,7 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
       MessageInterface::ShowMessage
          ("===> delayedBlocks[%d]=%s\n", i, delayedBlocks[i].c_str());
       #endif
-
+      
       currentLine = delayedBlocks[i];
       lineNumber = delayedBlockLineNumbers[i];
       currentBlock = delayedBlocks[i];
@@ -781,7 +781,7 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
       else
          throw InterpreterException("Failed to interpret function definition");
    }
-      
+   
    // Decompose by block type
    StringArray chunks;
    try
@@ -844,6 +844,13 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
             #endif
             
             obj = (GmatBase*)CreateCommand("CallFunction", actualScript, retval, inCmd);
+            
+            // Setting comments was missing (loj: 2008.08.08)
+            // Get comments and set to object
+            std::string preStr = theTextParser.GetPrefaceComment();
+            std::string inStr = theTextParser.GetInlineComment();
+            SetComments(obj, preStr, inStr); 
+            
             break;
          }
          
@@ -1262,7 +1269,7 @@ bool ScriptInterpreter::ParseCommandBlock(const StringArray &chunks,
    }
    
    // if in function mode just check for retval, since function definition
-   // line will not create a command (loj: 2008.03.12)
+   // line will not create a command
    if (inFunctionMode && retval)
    {
       return true;
@@ -1326,7 +1333,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    std::string lhs = chunks[0];
    std::string rhs = chunks[1];
    
-   // Check for GmatGlobal setting (loj: 2008.05.30)
+   // Check for GmatGlobal setting
    if (lhs.find("GmatGlobal.") != std::string::npos)
    {
       StringArray lhsParts = theTextParser.SeparateDots(lhs);
@@ -1434,6 +1441,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
       if (lhsObj != NULL && lhsObj->IsOfType("Variable"))
       {
          StringArray varNames = GmatStringUtil::GetVarNames(rhs);
+         createAssignment = false; // Forgot to set to false (loj: 2008.08.08)
          for (UnsignedInt i=0; i<varNames.size(); i++)
          {
             if (varNames[i] == lhs)
@@ -1731,13 +1739,25 @@ void ScriptInterpreter::WriteSubscribers(StringArray &objs, Gmat::WriteMode mode
 void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
                                                 Gmat::WriteMode mode)
 {
+   // Added varWithObjList and strWithObjList, so that Variables and Strings
+   // initially assigned to another Variables or Strings can be written
+   // as these are read in. These Variables and Strings will be written after
+   // Variables and Strings initialized with Real values or string literals (loj: 2008.08.13)
+   // For example:
+   // GMAT str31 = 'This is str31';
+   // GMAT str32 = 'This is str32';
+   // GMAT str1  = str31; %% str1 will be written after str31 and str32
+   // GMAT str2  = str32; %% str2 will be written after str31 and str32
+   
    StringArray::iterator current;
    std::vector<GmatBase*> arrList;
    std::vector<GmatBase*> arrWithValList;
    std::vector<GmatBase*> varList;
    std::vector<GmatBase*> varWithValList;
+   std::vector<GmatBase*> varWithObjList;
    std::vector<GmatBase*> strList;
    std::vector<GmatBase*> strWithValList;
+   std::vector<GmatBase*> strWithObjList;
    std::string genStr;
    GmatBase *object =  NULL;
    
@@ -1753,31 +1773,49 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
       {
          if (object->GetTypeName() == "Array")
          {
-            genStr = object->GetGeneratingString(mode);
+            genStr = object->GetGeneratingString(Gmat::NO_COMMENTS);
             arrList.push_back(object);
             
             // if initial value found
             if (genStr.find("=") != genStr.npos)
-               arrWithValList.push_back(object);
-            
+               arrWithValList.push_back(object);            
          }
          else if (object->GetTypeName() == "Variable")
          {
-            genStr = object->GetGeneratingString(mode);            
+            genStr = object->GetGeneratingString(Gmat::NO_COMMENTS);            
             varList.push_back(object);
             
             // if initial value found
             if (genStr.find("=") != genStr.npos)
-               varWithValList.push_back(object);
+            {
+               std::string::size_type equalPos = genStr.find("=");
+               std::string rhs = genStr.substr(equalPos + 1);
+               rhs = GmatStringUtil::Trim(rhs, GmatStringUtil::BOTH, true, true);
+               Real rval;
+               // check if initial value is Real number or other Variable object
+               if (GmatStringUtil::ToReal(rhs, rval))
+                  varWithValList.push_back(object);
+               else
+                  varWithObjList.push_back(object);
+            }
          }
          else if (object->GetTypeName() == "String")
          {
-            genStr = object->GetGeneratingString(mode);            
+            genStr = object->GetGeneratingString(Gmat::NO_COMMENTS);            
             strList.push_back(object);
             
             // if initial value found
             if (genStr.find("=") != genStr.npos)
-               strWithValList.push_back(object);
+            {
+               std::string::size_type equalPos = genStr.find("=");
+               std::string rhs = genStr.substr(equalPos + 1);
+               rhs = GmatStringUtil::Trim(rhs, GmatStringUtil::BOTH, true, true);
+               // check if initial value is string literal or other String object
+               if (GmatStringUtil::IsEnclosedWith(rhs, "'"))
+                  strWithValList.push_back(object);
+               else
+                  strWithObjList.push_back(object);
+            }
          }
       }
    }
@@ -1827,18 +1865,34 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    
    #if DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
-      ("WriteVariablesAndArrays() Writing %d Variables with initial values \n", size);
+      ("WriteVariablesAndArrays() Writing %d Variables with initial Real values \n", size);
    #endif
    
    for (UnsignedInt i = 0; i<size; i++)
    {
       if (i == 0)
-      {
-         ////theReadWriter->WriteText("\n");
          theReadWriter->WriteText(((Parameter*)varWithValList[i])->GetCommentLine(2));
-      }
       
       theReadWriter->WriteText(varWithValList[i]->GetGeneratingString(mode));
+   }
+   
+   
+   //-----------------------------------------------------------------
+   // Write Variables with initial Variable
+   //-----------------------------------------------------------------
+   size = varWithObjList.size();
+   
+   #if DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("WriteVariablesAndArrays() Writing %d Variables with initial Variable \n", size);
+   #endif
+   
+   for (UnsignedInt i = 0; i<size; i++)
+   {
+      if (i == 0)
+         theReadWriter->WriteText(((Parameter*)varWithObjList[i])->GetCommentLine(2));
+      
+      theReadWriter->WriteText(varWithObjList[i]->GetGeneratingString(mode));
    }
    
    
@@ -1926,7 +1980,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    
    
    //-----------------------------------------------------------------
-   // Write Strings with initial values
+   // Write Strings with initial values by string literal
    //-----------------------------------------------------------------
    size = strWithValList.size();
    
@@ -1947,6 +2001,31 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
          theReadWriter->WriteText(((Parameter*)strWithValList[i])->GetCommentLine(2));
       
       theReadWriter->WriteText(strWithValList[i]->GetGeneratingString(mode));
+   }
+
+   
+   //-----------------------------------------------------------------
+   // Write Strings with initial values with other String object
+   //-----------------------------------------------------------------
+   size = strWithObjList.size();
+   
+   #if DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("WriteVariablesAndArrays() Writing %d Strings with initial String object\n", size);
+   #endif
+   
+   for (UnsignedInt i = 0; i<size; i++)
+   {
+      // If no new value has been assigned, skip
+      if (strWithObjList[i]->GetName() ==
+          strWithObjList[i]->GetStringParameter("Expression"))
+         continue;
+      
+      // Write comment line
+      if (i == 0)
+         theReadWriter->WriteText(((Parameter*)strWithObjList[i])->GetCommentLine(2));
+      
+      theReadWriter->WriteText(strWithObjList[i]->GetGeneratingString(mode));
    }
 }
 
