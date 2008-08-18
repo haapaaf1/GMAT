@@ -595,7 +595,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       ("Interpreter::CreateObject() type=<%s>, name=<%s>, manage=%d\n",
        type.c_str(), name.c_str(), manage);
    #endif
-
+   
    debugMsg = "In CreateObject()";
    GmatBase *obj = NULL;
    
@@ -2741,7 +2741,11 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
    if (rhsPartCount > 1)
    {
       rhsObjName = rhsParts[0];
-      rhsObj = FindObject(rhsObjName);
+      std::string objTypeStr = "";
+      // Check if RHS has open paren, then it should be an Array (loj: 2008.08.15)
+      if (rhsObjName.find_first_of("(") != rhsObjName.npos)
+         objTypeStr = "Array";
+      rhsObj = FindObject(rhsObjName, objTypeStr);
       
       if (rhsObj == NULL)
       {
@@ -2749,8 +2753,8 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
          
          #ifdef DEBUG_MAKE_ASSIGNMENT
          MessageInterface::ShowMessage
-            ("   Cannot find RHS object: '%s'. It may be a string value\n",
-             rhsObjName.c_str());
+            ("   Cannot find RHS object '%s' of type <%s>. It may be a string value\n",
+             rhsObjName.c_str(), objTypeStr.c_str());
          #endif
       }
       else
@@ -2758,6 +2762,13 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
          // Note: Do not set rhsObj to true here since it needs to create
          // a Parameter if needed.
          
+         #ifdef DEBUG_MAKE_ASSIGNMENT
+         MessageInterface::ShowMessage
+            ("   Found rhs object <%s>'%s', now checking for dot\n",
+             rhsObj->GetTypeName().c_str(), rhsObj->GetName().c_str());
+         #endif
+         
+         // Check if it is CallFunction first
          dot = rhs.find('.');
          if (dot == rhs.npos)
          {
@@ -2891,6 +2902,11 @@ bool Interpreter::SetObjectToObject(GmatBase *toObj, GmatBase *fromObj)
       HandleError(ex);
       return false;
    }
+   
+   #ifdef DEBUG_SET
+   MessageInterface::ShowMessage
+      ("Interpreter::SetObjectToObject() returning true\n");
+   #endif
    
    return true;
 }
@@ -3068,29 +3084,29 @@ bool Interpreter::SetArrayToObject(GmatBase *toObj, const std::string &fromArray
 bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
 {
    debugMsg = "In SetValueToObject()";
-   std::string objType = toObj->GetTypeName();
+   std::string toObjType = toObj->GetTypeName();
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetValueToObject() objType=<%s>, toObj=%s, value=<%s>\n",
-       objType.c_str(), toObj->GetName().c_str(), value.c_str());
+      ("Interpreter::SetValueToObject() toObjType=<%s>, toObjName=%s, value=<%s>\n",
+       toObjType.c_str(), toObj->GetName().c_str(), value.c_str());
    #endif
    
-   if (objType != "Variable" && objType != "String")
+   if (toObjType != "Variable" && toObjType != "String")
    {
       InterpreterException ex
-         ("Setting \"" + value + "\" to an object \"" + toObj->GetName() +
-          "\" is not allowed");
+         ("Setting a String value \"" + value + "\" to an object \"" + toObj->GetName() +
+          "\" of type \"" + toObjType + "\" is not allowed");
       HandleError(ex);
       return false;
    }
    
-   if (objType == "String")
+   if (toObjType == "String")
    {
       // check for unpaired single quotes
       if (GmatStringUtil::HasMissingQuote(value, "'"))
       {
-         InterpreterException ex("\"" + value + "\" has missing single quote");
+         InterpreterException ex("The String \"" + value + "\" has missing single quote");
          HandleError(ex);
          return false;
       }
@@ -3099,13 +3115,17 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
       
       #ifdef DEBUG_SET
       MessageInterface::ShowMessage
+         ("   Calling %s->SetStringParameter(Expression, %s)\n", toObj->GetName().c_str(),
+          valueToUse.c_str());
+      MessageInterface::ShowMessage
          ("   Calling %s->SetStringParameter(Value, %s)\n", toObj->GetName().c_str(),
           valueToUse.c_str());
       #endif
       
+      toObj->SetStringParameter("Expression", valueToUse);
       toObj->SetStringParameter("Value", valueToUse);
    }
-   else if (objType == "Variable")
+   else if (toObjType == "Variable")
    {
       Real rval;
 
@@ -3116,7 +3136,7 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage("   SetValueToObject() rval=%f\n", rval);
             #endif
-         
+            
             toObj->SetRealParameter("Value", rval);
          }
          else
@@ -3124,7 +3144,7 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
             if (!ParseVariableExpression((Parameter*)toObj, value))
             {
                InterpreterException ex
-                  ("Setting \"" + value + "\" to an object \"" + toObj->GetName() +
+                  ("Setting \"" + value + "\" to a Variable \"" + toObj->GetName() +
                    "\" is not allowed");
                HandleError(ex);
                return false;
@@ -3238,7 +3258,8 @@ bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toPr
          
          #ifdef DEBUG_SET
          MessageInterface::ShowMessage
-            ("   toId=%d, fromType=%d, toType=%d\n", toId, fromType, toType);
+            ("   From object is a Parameter, toId=%d, fromType=%d, toType=%d\n",
+             toId, fromType, toType);
          #endif
          
          if (fromType == toType)
@@ -4257,7 +4278,7 @@ bool Interpreter::SetPropertyStringValue(GmatBase *obj, const Integer id,
             {
                #ifdef DEBUG_SET
                MessageInterface::ShowMessage
-                  ("   Calling '%s'->SetStringParameter(%d, %s, %d)\n",
+                  ("   Calling %s->SetStringParameter(%d, %s, %d)\n",
                    obj->GetName().c_str(), id, valueToUse.c_str(), index);
                #endif
                
@@ -4267,7 +4288,7 @@ bool Interpreter::SetPropertyStringValue(GmatBase *obj, const Integer id,
             {
                #ifdef DEBUG_SET
                MessageInterface::ShowMessage
-                  ("   Calling '%s'->SetStringParameter(%d, %s)\n",
+                  ("   Calling %s->SetStringParameter(%d, %s)\n",
                    obj->GetName().c_str(), id, valueToUse.c_str());
                #endif
                
@@ -4288,7 +4309,7 @@ bool Interpreter::SetPropertyStringValue(GmatBase *obj, const Integer id,
          {
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage
-               ("   Calling '%s'->SetStringParameter(%d, %s)\n",
+               ("   Calling %s->SetStringParameter(%d, %s)\n",
                 obj->GetName().c_str(), id, valueToUse.c_str());
             #endif
             
@@ -4298,7 +4319,7 @@ bool Interpreter::SetPropertyStringValue(GmatBase *obj, const Integer id,
          {
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage
-               ("   Calling '%s'->SetStringParameter(%d, %s, %d)\n", id,
+               ("   Calling %s->SetStringParameter(%d, %s, %d)\n", id,
                 valueToUse.c_str(), index);
             #endif
             
@@ -4985,6 +5006,20 @@ bool Interpreter::ParseVariableExpression(Parameter *var, const std::string &exp
        var, var->GetName().c_str(), exp.c_str());
    #endif
    
+   // Check for invalid starting name such as 1(x) should give an error (loj: 2008.08.15)
+   if (exp.find_first_of("(") != exp.npos)
+   {
+      if (!GmatStringUtil::IsValidName(exp, true))
+      {
+         #ifdef DEBUG_VAR_EXPRESSION
+         MessageInterface::ShowMessage
+            ("Interpreter::ParseVariableExpression() returning false, '%s' is not "
+             "a valid name\n", exp.c_str());
+         #endif
+         return false;
+      }
+   }
+   
    // Parse the Parameter
    StringTokenizer st(exp, "()*/+-^ ");
    StringArray tokens = st.GetAllTokens();
@@ -5017,10 +5052,16 @@ bool Interpreter::ParseVariableExpression(Parameter *var, const std::string &exp
          }
          else
          {
-            InterpreterException ex
-               ("The variable \"" + tokens[i] + "\" does not exist. "
-                "It must be created first.");
-            HandleError(ex);
+            #ifdef DEBUG_VAR_EXPRESSION
+            MessageInterface::ShowMessage
+               ("Interpreter::ParseVariableExpression() returning false "
+                "since '%s' is not allowed in the expression\n", tokens[i].c_str());
+            #endif
+            
+            //InterpreterException ex
+            //   ("The Variable \"" + tokens[i] + "\" does not exist. "
+            //    "It must be created first");
+            //HandleError(ex);
             return false;
          }
       }
