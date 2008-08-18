@@ -121,7 +121,13 @@ Variable& Variable::operator=(const Variable &right)
       mParamDb = new ParameterDatabase(*right.mParamDb);
       mExpParser = new ExpressionParser();
       mExpParser->SetParameterDatabase(mParamDb);
-      
+      // Set expression to name of right side since expression is used for
+      // writnig in GetGeneratingString() (loj: 2008.08.13)
+      // For example:
+      // var1 = 123.45;
+      // var2 = var1;
+      // We want to write "var2 = var1" instead of "var2 = 123.45"
+      mExpr = right.GetName();
       SetName(thisName);
    }
    
