@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              LatLonHgt
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -47,6 +47,7 @@ const std::string LatLonHgt::HEIGHT_DESCRIPTIONS[3] =
    "Geoid",
    "MeanSeaLevel"
 };
+
 
 //---------------------------------
 //  public methods
@@ -304,24 +305,24 @@ void LatLonHgt::CartesianToLatLonHgt(const Rvector3 &position,
       break;
       
     case GEOCENTRIC_ID:
-    
-      Real latGC = GeodeticToGeocentricLat(latGD, flattening);
-      SetLatitude(GmatMathUtil::Deg(latGC),typ);
-      SetLongitude(lon);
-      SetHeight(h_ellp);
-      SetHeightRef(hgtReference);
-
-      break;
+       { 
+         Real latGC = GeodeticToGeocentricLat(latGD, flattening);
+         SetLatitude(GmatMathUtil::Deg(latGC),typ);
+         SetLongitude(lon);
+         SetHeight(h_ellp);
+         SetHeightRef(hgtReference);
+       }
+       break;
 
     case REDUCED_ID:
-
-      Real latRD = GeodeticToReducedLat(latGD, flattening);
-      SetLatitude(GmatMathUtil::Deg(latRD),typ);
-      SetLongitude(lon);
-      SetHeight(h_ellp);
-      SetHeightRef(hgtReference);
-
-      break;
+       {
+         Real latRD = GeodeticToReducedLat(latGD, flattening);
+         SetLatitude(GmatMathUtil::Deg(latRD),typ);
+         SetLongitude(lon);
+         SetHeight(h_ellp);
+         SetHeightRef(hgtReference);
+       }
+       break;
 
     default:
 
