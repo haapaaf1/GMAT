@@ -1333,18 +1333,24 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
       return false;
    }
    
+   std::string lhs = chunks[0];
+   std::string rhs = chunks[1];
+   
    // Check for GmatGlobal setting (loj: 2008.05.30)
-   if (chunks[0].find("GmatGlobal.") != std::string::npos)
+   if (lhs.find("GmatGlobal.") != std::string::npos)
    {
-      StringArray lhsParts = theTextParser.SeparateDots(chunks[0]);
+      StringArray lhsParts = theTextParser.SeparateDots(lhs);
       if (lhsParts[1] == "LogFile")
       {
          #if DEBUG_PARSE
          MessageInterface::ShowMessage
             ("   Found Global.LogFile, so calling MI::SetLogFile(%s)\n",
-             chunks[1].c_str());
+             rhs.c_str());
          #endif
-         MessageInterface::SetLogFile(chunks[1]);
+         
+         std::string fname = rhs;
+         fname = GmatStringUtil::RemoveEnclosingString(fname, "'");
+         MessageInterface::SetLogFile(fname);
          return true;
       }
    }
@@ -1366,14 +1372,14 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
       
       try
       {
-         if (mp.IsEquation(chunks[1]))
+         if (mp.IsEquation(rhs))
          {
             #if DEBUG_PARSE
             MessageInterface::ShowMessage("   It is a math equation\n");
             #endif
             
             // check if LHS is object.property
-            if (FindPropertyID(obj, chunks[0], &owner, paramID, paramType))
+            if (FindPropertyID(obj, lhs, &owner, paramID, paramType))
             {
                // Since string can have minus sign, check it first
                if (obj->GetParameterType(paramID) != Gmat::STRING_TYPE)
@@ -1382,10 +1388,15 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
             else
             {
                // check if LHS is a parameter
-               GmatBase *tempObj = FindObject(chunks[0]);
+               GmatBase *tempObj = FindObject(lhs);
                if (tempObj && tempObj->GetType() == Gmat::PARAMETER)
                   if (((Parameter*)tempObj)->GetReturnType() == Gmat::REAL_TYPE)
-                     inCommandMode = true;
+                  {
+                     if (inRealCommandMode)
+                        inCommandMode = true;
+                     else
+                        inCommandMode = false;
+                  }
             }
          }
       }
@@ -1409,7 +1420,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    {
       // If LHS is CoordinateSystem property or Subscriber Call MakeAssignment.
       // Some scripts mixed with definitions and commands
-      StringArray parts = theTextParser.SeparateDots(chunks[0]);
+      StringArray parts = theTextParser.SeparateDots(lhs);
       
       // If in function mode, always create Assignment command
       if (!inFunctionMode)
@@ -1426,15 +1437,31 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    }
    else
    {
-      // See if it is no output function call
-      createAssignment = false;
+      // Check for the same Variable name on both LHS and RHS, (loj: 2008.08.06)
+      // such as Var = Var + 1, it must be Assignment command
+      
+      GmatBase *lhsObj = FindObject(lhs);
+      if (lhsObj != NULL && lhsObj->IsOfType("Variable"))
+      {
+         StringArray varNames = GmatStringUtil::GetVarNames(rhs);
+         for (UnsignedInt i=0; i<varNames.size(); i++)
+         {
+            if (varNames[i] == lhs)
+            {
+               createAssignment = true;
+               break;
+            }
+         }
+      }
+      else
+         createAssignment = false;
    }
    
    
    if (createAssignment)
-      obj = (GmatBase*)CreateAssignmentCommand(chunks[0], chunks[1], retval, inCmd);
+      obj = (GmatBase*)CreateAssignmentCommand(lhs, rhs, retval, inCmd);
    else
-      obj = MakeAssignment(chunks[0], chunks[1]);
+      obj = MakeAssignment(lhs, rhs);
    
    if (obj == NULL)
    {
@@ -1445,7 +1472,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    }
    
    // paramID will be assigned from call to Interpreter::FindPropertyID()
-   if ( FindPropertyID(obj, chunks[0], &owner, paramID, paramType) )
+   if ( FindPropertyID(obj, lhs, &owner, paramID, paramType) )
    {
       attrStr = preStr;
       attrInLineStr = inStr;
@@ -1609,12 +1636,9 @@ void ScriptInterpreter::WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mode
    
    for (current = objs.begin(); current != objs.end(); ++current)
    {
-      // Changed to call FindObject() (loj: 2008.04.01)
-      //Spacecraft *sc = (Spacecraft*)(GetConfiguredObject(*current));
       Spacecraft *sc = (Spacecraft*)(FindObject(*current));
       sc->SetInternalCoordSystem(ics);
       sccs = (CoordinateSystem*)
-         //GetConfiguredObject(sc->GetRefObjectName(Gmat::COORDINATE_SYSTEM));
          FindObject(sc->GetRefObjectName(Gmat::COORDINATE_SYSTEM));
       
       if (sccs)

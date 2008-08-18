@@ -742,55 +742,64 @@ bool Report::Execute()
    if (zeroFill)
       datastream.setf(std::ios::showpoint);
    
-   std::string desc;
-   for (std::vector<Parameter*>::iterator i = parms.begin(); i != parms.end(); ++i)
+   // Added try/catch block for better error message (loj: 2008.08.06)
+   try
    {
-      if (!(*i)->IsReportable())
-         continue;
-      
-      datastream.width(colWidth);
-      
-      #ifdef DEBUG_REPORT_EXEC
-      MessageInterface::ShowMessage
-         (">>>>> Report::Execute() parameter=%s, returnType=%d\n", (*i)->GetName().c_str(),
-          (*i)->GetReturnType());
-      #endif
-      
-      if ((*i)->GetReturnType() == Gmat::REAL_TYPE)
+      std::string desc;
+      for (std::vector<Parameter*>::iterator i = parms.begin(); i != parms.end(); ++i)
       {
-         datastream << (*i)->EvaluateReal() << "   ";
+         if (!(*i)->IsReportable())
+            continue;
+         
+         datastream.width(colWidth);
+         
+         #ifdef DEBUG_REPORT_EXEC
+         MessageInterface::ShowMessage
+            (">>>>> Report::Execute() parameter=%s, returnType=%d\n", (*i)->GetName().c_str(),
+             (*i)->GetReturnType());
+         #endif
+         
+         if ((*i)->GetReturnType() == Gmat::REAL_TYPE)
+         {
+            datastream << (*i)->EvaluateReal() << "   ";
+         }
+         else if ((*i)->GetReturnType() == Gmat::RMATRIX_TYPE)
+         {
+            Integer index = distance(parms.begin(), i);
+            if (parmRows[index] == -1 && parmCols[index] == -1)
+               datastream << (*i)->EvaluateRmatrix().ToString() << "   ";
+            else // do array indexing
+               datastream << (*i)->EvaluateRmatrix().GetElement
+                  (parmRows[index], parmCols[index]) << "   ";
+         }
+         else if ((*i)->GetReturnType() == Gmat::STRING_TYPE)
+         {
+            datastream << (*i)->EvaluateString() << "   ";
+         }
       }
-      else if ((*i)->GetReturnType() == Gmat::RMATRIX_TYPE)
-      {
-         Integer index = distance(parms.begin(), i);
-         if (parmRows[index] == -1 && parmCols[index] == -1)
-            datastream << (*i)->EvaluateRmatrix().ToString() << "   ";
-         else // do array indexing
-            datastream << (*i)->EvaluateRmatrix().GetElement
-               (parmRows[index], parmCols[index]) << "   ";
-      }
-      else if ((*i)->GetReturnType() == Gmat::STRING_TYPE)
-      {
-         datastream << (*i)->EvaluateString() << "   ";
-      }
+      
+      // Publish it
+      // This is how it should be done:
+      //reportID = reporter->GetProviderId();
+      //#ifdef DEBUG_REPORT_OBJ
+      //   MessageInterface::ShowMessage("Reporting to subscriber %d\n", reportID);
+      //#endif
+      //publisher->Publish(reportID, "Here is some data");
+      
+      // Publisher seems broken right now -- do it by hand
+      std::string data = datastream.str();
+      reporter->TakeAction("ActivateForReport", "On");
+      bool retval = reporter->ReceiveData(data.c_str(), data.length());
+      reporter->TakeAction("ActivateForReport", "Off");
+      
+      BuildCommandSummary(true);   
+      return retval;
    }
-   
-   // Publish it
-   // This is how it should be done:
-   //reportID = reporter->GetProviderId();
-   //#ifdef DEBUG_REPORT_OBJ
-   //   MessageInterface::ShowMessage("Reporting to subscriber %d\n", reportID);
-   //#endif
-   //publisher->Publish(reportID, "Here is some data");
-   
-   // Publisher seems broken right now -- do it by hand
-   std::string data = datastream.str();
-   reporter->TakeAction("ActivateForReport", "On");
-   bool retval = reporter->ReceiveData(data.c_str(), data.length());
-   reporter->TakeAction("ActivateForReport", "Off");
-   
-   BuildCommandSummary(true);   
-   return retval;
+   catch (BaseException &e)
+   {
+      throw CommandException(e.GetFullMessage() + " in line:\n   \"" +
+                             GetGeneratingString(Gmat::NO_COMMENTS) + "\"");
+   }
 }
 
 

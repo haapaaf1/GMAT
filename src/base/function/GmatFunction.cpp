@@ -28,7 +28,7 @@
 //#define DEBUG_FUNCTION_SET
 //#define DEBUG_FUNCTION_INIT
 //#define DEBUG_FUNCTION_EXEC
-//define DEBUG_FUNCTION_FINALIZE
+//#define DEBUG_FUNCTION_FINALIZE
 
 //---------------------------------
 // static data
@@ -124,21 +124,34 @@ GmatFunction::GmatFunction(const std::string &name) :
 //------------------------------------------------------------------------------
 GmatFunction::~GmatFunction()
 {
+   #ifdef DEBUG_GMATFUNCTION
+   MessageInterface::ShowMessage
+      ("GmatFunction() destructor entered, this=<%p>'%s'\n", this, GetName().c_str());
+   #endif
    StringArray toDelete;
    std::map<std::string, GmatBase *>::iterator omi;
    for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
    {
-         if (omi->second != NULL)
-         {
-            delete omi->second;
-            omi->second = NULL;
-         }
-         toDelete.push_back(omi->first); 
+      if (omi->second != NULL)
+      {
+         #ifdef DEBUG_GMATFUNCTION
+         GmatBase *obj = omi->second;
+         MessageInterface::ShowMessage
+            ("   Deleting <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
+             obj->GetName().c_str());
+         #endif
+         delete omi->second;
+         omi->second = NULL;
+      }
+      toDelete.push_back(omi->first); 
    }
    for (unsigned int kk = 0; kk < toDelete.size(); kk++)
    {
       automaticObjects.erase(toDelete.at(kk));
    }
+   #ifdef DEBUG_GMATFUNCTION
+   MessageInterface::ShowMessage("GmatFunction() destructor exiting\n");
+   #endif
 }
 
 
@@ -249,6 +262,12 @@ bool GmatFunction::Initialize()
       
       if (!(current->Initialize()))
          return false;
+      
+      // Check to see if the command needs a server startup (loj: 2008.07.25)
+      if (current->NeedsServerStartup())
+         if (validator->StartServer(current) == false)
+            throw FunctionException("Unable to start the server needed by the " +
+                                   (current->GetTypeName()) + " command");
       
       current = current->GetNext();
    }

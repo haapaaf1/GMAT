@@ -1456,9 +1456,14 @@ bool SolarSystem::SetStringParameter(const Integer id,
    if (id == EPHEMERIS)
    {
       StringArray parts = GmatStringUtil::SeparateBy(value, "{}, ");
+      
+      #ifdef DEBUG_SS_SET
+      MessageInterface::ShowMessage
+         ("SolarSystem::SetStringParameter() Has %d ephmeris types\n", parts.size());
       for (UnsignedInt i=0; i<parts.size(); i++)
          MessageInterface::ShowMessage
-            ("===> ephemType[%d] = '%s'\n", i, parts[i].c_str());
+            ("   ephemType[%d] = '%s'\n", i, parts[i].c_str());
+      #endif
       
       Integer status = SetPlanetarySourceTypesInUse(parts);
       if (status == 2)

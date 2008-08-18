@@ -175,6 +175,7 @@ protected:
    bool        continueOnError;
    std::string errorMsg1;
    std::string errorMsg2;
+   std::string debugMsg;
    StringArray errorList;
    
    void Initialize();
@@ -263,6 +264,9 @@ protected:
    // for setting/getting array value
    Real GetArrayValue(const std::string &arrayStr, Integer &row, Integer &col);
    bool IsArrayElement(const std::string &str);
+   
+   // for Variable expression
+   bool ParseVariableExpression(Parameter *var, const std::string &exp);
    
    // for error handling
    void HandleError(const BaseException &e, bool writeLine = true, bool warning = false);

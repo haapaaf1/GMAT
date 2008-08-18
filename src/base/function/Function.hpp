@@ -96,31 +96,29 @@ public:
 
 protected:
    /// Fully-qualified path for function script
-   std::string functionPath;
+   std::string          functionPath;
    /// Function name
-   std::string functionName;
+   std::string          functionName;
    /// Function input names
-   StringArray inputNames;
+   StringArray          inputNames;
    /// Function output names
-   StringArray outputNames;
+   StringArray          outputNames;
    // @todo - should these next five items remain here or move to GmatFunction??
    /// Function input name and element wrapper map  // @todo - is this needed?
    std::map<std::string, ElementWrapper*> inputArgMap;
    /// Function output name element wrapper map
    std::map<std::string, ElementWrapper*> outputArgMap;
    /// Output wrapper type array
-   WrapperTypeArray outputWrapperTypes;
+   WrapperTypeArray     outputWrapperTypes;
    /// Output row count used for returning one Array type
-   IntegerArray outputRowCounts;
+   IntegerArray         outputRowCounts;
    /// Output column count used for returning one Array type
-   IntegerArray outputColCounts;
+   IntegerArray         outputColCounts;
    
    /// Object store for the Function 
-   std::map<std::string, GmatBase *>
-                        *objectStore;
+   ObjectMap            *objectStore;
    /// Object store obtained from the Sandbox
-   std::map<std::string, GmatBase *>
-                        *globalObjectStore;
+   ObjectMap            *globalObjectStore;
    /// Solar System, set by the local Sandbox, to pass to the function
    SolarSystem          *solarSys;
    /// Internal CS, set by the local Sandbox, to pass to the function
@@ -140,7 +138,7 @@ protected:
    /// Object store needed by the validator
    std::map<std::string, GmatBase *>
                         validatorStore;
-   bool objectsInitialized;
+   bool                 objectsInitialized;
    
    enum
    {

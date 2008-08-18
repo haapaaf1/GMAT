@@ -31,6 +31,7 @@
 #include "Publisher.hpp"
 
 //#define DEBUG_OBJECT_INITIALIZER
+//#define DEBUG_SUBSCRIBER
 
 //------------------------------------------------------------------------------
 // static data
@@ -476,7 +477,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          
          // Check if we need to register subscribers to the publisher (loj:2008.06.19)
          if (registerSubs)
+         {
+            #ifdef DEBUG_SUBSCRIBER
+            MessageInterface::ShowMessage
+               ("ObjectInitializer registering local subscriber '%s' of type '%s' "
+                "to publisher\n", obj->GetName().c_str(), obj->GetTypeName().c_str());
+            #endif
             publisher->Subscribe((Subscriber*)obj);
+         }
       }
    }
    
@@ -501,7 +509,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             
             // Check if we need to register subscribers to the publisher (loj:2008.06.19)
             if (registerSubs)
+            {
+               #ifdef DEBUG_SUBSCRIBER
+               MessageInterface::ShowMessage
+                  ("ObjectInitializer registering global subscriber '%s' of type '%s' "
+                   "to publisher\n", obj->GetName().c_str(), obj->GetTypeName().c_str());
+               #endif
                publisher->Subscribe((Subscriber*)obj);
+            }
          }
       }
    }
