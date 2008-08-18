@@ -1172,11 +1172,9 @@ SolarSystem* Moderator::CreateSolarSystem(const std::string &name)
    #endif
    
    // There is no factory to create SolarSystem so just create by new
-   SolarSystem *ss = new SolarSystem(name);
-   
-   // Creates available planetary ephem sorce list.
+   // SolarSystem constructor Creates available planetary ephem sorce list.
    // Also set to DE405 as a default planetary ephem source
-   //ss->CreatePlanetarySource();
+   SolarSystem *ss = new SolarSystem(name);
    
    #if DEBUG_SOLAR_SYSTEM
    MessageInterface::ShowMessage("Moderator::CreateSolarSystem() returning %p\n", ss);
@@ -5191,9 +5189,12 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
        ownerName.c_str(), depName.c_str(), manage);
    #endif
    
+   // Why do we need to set expression for non-Variable? (loj: 2008.08.09)
+   // Expression is set in the ScriptInterpreter or ParameterCreateDialog for
+   // new Parameters
    // If type is Variable, don't set expression
-   if (type != "Variable")
-      param->SetStringParameter("Expression", name);
+   //if (type != "Variable")
+   //   param->SetStringParameter("Expression", name);
    
    // Set parameter owner and dependent object
    if (ownerName != "")
