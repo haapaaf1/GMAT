@@ -468,25 +468,30 @@ GmatMainFrame::~GmatMainFrame()
 
 
 //------------------------------------------------------------------------------
-// GmatMdiChildFrame* CreateChild(GmatTreeItemData *item)
+// GmatMdiChildFrame* CreateChild(GmatTreeItemData *item, bool restore)
 //------------------------------------------------------------------------------
 /**
  * Adds a page to notebook based on tree item type.
  *
  * @param <item> input GmatTreeItemData.
+ * @param <restore> if true the child will be restored if minimized
+ *
+ * @return created child or NULL If child is already open
  */
 //------------------------------------------------------------------------------
-GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item)
+GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
+                                              bool restore)
 {
    #ifdef DEBUG_CREATE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CreateChild() item=%s\n", item->GetDesc().c_str());
+      ("GmatMainFrame::CreateChild() item='%s', restore=%d\n",
+       item->GetDesc().c_str(), restore);
    #endif
    
    GmatMdiChildFrame *newChild = NULL;
-
+   
    // if child already open, just return
-   if (IsChildOpen(item))
+   if (IsChildOpen(item, restore))
       return NULL;
    
    GmatTree::ItemType itemType = item->GetItemType();
@@ -592,41 +597,45 @@ Integer GmatMainFrame::GetNumberOfChildOpen(bool incPlots, bool incScripts)
 
 
 //------------------------------------------------------------------------------
-// bool IsChildOpen(GmatTreeItemData *item)
+// bool IsChildOpen(GmatTreeItemData *item, bool restore)
 //------------------------------------------------------------------------------
 /**
  * Determines if page should be opened.  If the page is already opened, sets that
  * page as the selected page.
  *
  * @param <item> input GmatTreeItemData.
+ * @param <restore> if true the child will be restored if minimized
  *
  * @return True if page should be opened, false if it should not be opened.
  */
 //------------------------------------------------------------------------------
-bool GmatMainFrame::IsChildOpen(GmatTreeItemData *item)
+bool GmatMainFrame::IsChildOpen(GmatTreeItemData *item, bool restore)
 {
    wxNode *node = theMdiChildren->GetFirst();
    while (node)
    {
       GmatMdiChildFrame *theChild = (GmatMdiChildFrame *)node->GetData();
-
+      
       #ifdef DEBUG_MAINFRAME
       MessageInterface::ShowMessage
          ("GmatMainFrame::IsChildOpen() title=%s\n   desc=%s\n",
           theChild->GetTitle().c_str(), item->GetDesc().c_str());
       #endif
-    
+      
       if ((theChild->GetTitle().IsSameAs(item->GetDesc().c_str())) &&
           (theChild->GetItemType() == item->GetItemType()))
       {
          // move child to the front
-         theChild->Activate();
-         theChild->Restore();
+         if (restore)
+         {
+            theChild->Activate();
+            theChild->Restore();
+         }
          return TRUE;   
       }
       node = node->GetNext();
    }
- 
+   
    return FALSE;
 }
 
@@ -649,19 +658,19 @@ GmatMdiChildFrame* GmatMainFrame::GetChild(const wxString &name)
    while (node)
    {
       theChild = (GmatMdiChildFrame *)node->GetData();
-
+      
       #ifdef DEBUG_MAINFRAME
       MessageInterface::ShowMessage
          ("   theChild=%s\n", theChild->GetTitle().c_str());
       #endif
-
+      
       if (theChild->GetTitle().IsSameAs(name))
       {
          return theChild;
       }
       node = node->GetNext();
    }
-
+   
    return NULL;
 }
 
@@ -1160,7 +1169,7 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
    MessageInterface::ShowMessage
       ("GmatMainFrame::InterpretScript()\n   filename=%s\n   scriptOpenOpt=%d, "
        "closeScript=%d, readBack=%d, multiScripts=%d\n   savePath=%s\n", filename.c_str(),
-       closeScript, scriptOpenOpt, readBack, multiScripts, savePath.c_str(), multiScripts);
+       scriptOpenOpt, closeScript, readBack, multiScripts, savePath.c_str());
    #endif
    
    UpdateTitle(filename);
@@ -1182,6 +1191,9 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
       if (theGuiInterpreter->
           InterpretScript(filename.c_str(), readBack, savePath.c_str()))
       {
+         #ifdef DEBUG_INTERPRET
+         MessageInterface::ShowMessage("   Successfully interpreated the script\n");
+         #endif
          success = true;
       }  
       else
@@ -1207,16 +1219,15 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
          
          // open script editor
          if (scriptOpenOpt == GmatGui::ALWAYS_OPEN_SCRIPT)
-            OpenScript();
-         
+            OpenScript(false);
       }
       else
       {
          SetStatusText("Errors were Found in the Script!!", 1);
          
          // open script editor
-         if (scriptOpenOpt == GmatGui::OPEN_SCRIPT_ON_ERROR ||
-             scriptOpenOpt == GmatGui::ALWAYS_OPEN_SCRIPT)
+         if (scriptOpenOpt == GmatGui::ALWAYS_OPEN_SCRIPT ||
+             scriptOpenOpt == GmatGui::OPEN_SCRIPT_ON_ERROR)
             OpenScript();
       }
    }
@@ -1810,14 +1821,22 @@ bool GmatMainFrame::SaveScriptAs()
 
 
 //------------------------------------------------------------------------------
-// void OpenScript()
+// void OpenScript(bool restore)
 //------------------------------------------------------------------------------
-void GmatMainFrame::OpenScript()
+/**
+ * Creates script item and opens the script in the text editor.
+ *
+ * @param <restore> if true the child will be restored if minimized
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OpenScript(bool restore)
 {
+   //MessageInterface::ShowMessage("===> GmatMainFrame::OpenScript() entered\n");
+   
    GmatTreeItemData *scriptItem =
       new GmatTreeItemData(mScriptFilename.c_str(), GmatTree::SCRIPT_FILE);
    
-   CreateChild(scriptItem);
+   CreateChild(scriptItem, restore);
 }
 
 
@@ -2329,7 +2348,10 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
       sizer->Add(new AssignmentPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
    default:
-      MessageInterface::ShowMessage("===> returning NULL\n");
+      #ifdef DEBUG_CREATE_CHILD
+      MessageInterface::ShowMessage
+         ("GmatMainFrame::CreateNewCommand() returning NULL\n");
+      #endif
       return NULL;
    }
    
@@ -2356,12 +2378,16 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    
    // list of open children
    theMdiChildren->Append(newChild);
-
+   
    // djc: Under linux, force the new child to display
    #ifndef __WXMSW__
       newChild->Show();
    #endif
-
+   
+   #ifdef DEBUG_CREATE_CHILD
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::CreateNewCommand() returning <%p>\n", newChild);
+   #endif
    return newChild;
 }
 
@@ -3331,6 +3357,8 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnScriptBuildObject(wxCommandEvent& WXUNUSED(event))
 {
+   //MessageInterface::ShowMessage("===> GmatMainFrame::OnScriptBuildObject() entered\n");
+   
    wxString filename = ((GmatMdiChildFrame *)GetActiveChild())->GetTitle();
    
    InterpretScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT);
@@ -3342,11 +3370,11 @@ void GmatMainFrame::OnScriptBuildObject(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnScriptBuildAndRun(wxCommandEvent& event)
 {
-   //MessageInterface::ShowMessage("====> GmatMainFrame::OnScriptBuildAndRun()\n");
+   //MessageInterface::ShowMessage("===> GmatMainFrame::OnScriptBuildAndRun()\n");
    
    wxString filename = mScriptFilename.c_str();
    
-   if (InterpretScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT))      
+   if (InterpretScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT))
       mRunStatus = RunCurrentMission();
 }
 
@@ -3362,7 +3390,7 @@ void GmatMainFrame::OnScriptBuildAndRun(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnScriptRun(wxCommandEvent& WXUNUSED(event))
 {
-   //MessageInterface::ShowMessage("====> GmatMainFrame::OnScriptRun()\n");
+   //MessageInterface::ShowMessage("===> GmatMainFrame::OnScriptRun()\n");
    mRunStatus = RunCurrentMission();
 }
 

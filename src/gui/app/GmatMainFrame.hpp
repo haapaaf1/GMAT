@@ -61,10 +61,10 @@ public:
                  const wxPoint& pos, const wxSize& size, const long style);
    ~GmatMainFrame();
    
-   GmatMdiChildFrame* CreateChild(GmatTreeItemData *item);
+   GmatMdiChildFrame* CreateChild(GmatTreeItemData *item, bool restore = true);
    GmatMdiChildFrame* GetChild(const wxString &name);
    Integer GetNumberOfChildOpen(bool incPlots = false, bool incScripts = false);
-   bool IsChildOpen(GmatTreeItemData *item);
+   bool IsChildOpen(GmatTreeItemData *item, bool restore = true);
    bool RenameChild(GmatTreeItemData *item, wxString newName);
    bool RenameChild(const wxString &oldName, const wxString &newName);
    bool RenameActiveChild(const wxString &newName);
@@ -154,7 +154,7 @@ private:
    void AddAnimationTools(wxToolBar* toolBar);
    bool ShowSaveMessage();
    bool SaveScriptAs();
-   void OpenScript();
+   void OpenScript(bool restore = true);
    void UpdateTitle(const wxString &filename = "");
    
    // event handling
