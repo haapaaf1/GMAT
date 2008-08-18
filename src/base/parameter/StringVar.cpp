@@ -368,7 +368,8 @@ const std::string& StringVar::GetGeneratingString(Gmat::WriteMode mode,
    MessageInterface::ShowMessage
       ("StringVar::GetGeneratingString() this=<%p>'%s' entered, mode=%d, prefix='%s', "
        "useName='%s'\n", this, GetName().c_str(), mode, prefix.c_str(), useName.c_str());
-   MessageInterface::ShowMessage("   mExpr=<%s>\n", mExpr.c_str());
+   MessageInterface::ShowMessage
+      ("   mExpr='%s', mDepObjectName='%s'\n", mExpr.c_str(), mDepObjectName.c_str());
    #endif
    
    // @note
@@ -379,8 +380,8 @@ const std::string& StringVar::GetGeneratingString(Gmat::WriteMode mode,
    if (mExpr != "" ||
        mExpr == "" && mode == Gmat::SHOW_SCRIPT)
    {
-      // if valud is other StringVar object, do not put quotes
-      if (mExpr == mDepObjectName)
+      // if value is other StringVar object, do not put quotes
+      if (mExpr != "" && mExpr == mDepObjectName)
          generatingString = "GMAT " + GetName() + " = " + mExpr;
       else
          generatingString = "GMAT " + GetName() + " = '" + mExpr + "'";
