@@ -174,6 +174,15 @@ bool Subscriber::Initialize()
 
 
 //------------------------------------------------------------------------------
+// bool IsInitialized()
+//------------------------------------------------------------------------------
+bool Subscriber::IsInitialized()
+{
+   return isInitialized;
+}
+
+
+//------------------------------------------------------------------------------
 // bool ReceiveData(const char *datastream)
 //------------------------------------------------------------------------------
 bool Subscriber::ReceiveData(const char *datastream)
@@ -276,9 +285,9 @@ void Subscriber::SetRunState(Gmat::RunState rs)
 
 
 //------------------------------------------------------------------------------
-// Subscriber* Next(void)
+// Subscriber* Next()
 //------------------------------------------------------------------------------
-Subscriber* Subscriber::Next(void)
+Subscriber* Subscriber::Next()
 {
     return next;
 }
