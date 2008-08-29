@@ -290,19 +290,14 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
    #endif
    
    GmatCommand *current = fcs;
-   bool        isFunction = false;
    
    while (current)
    {
       // Call to IsNextAFunction is necessary for branch commands in particular
-      isFunction = current->HasAFunction();
       #ifdef DEBUG_FUNCTION_EXEC
       MessageInterface::ShowMessage
          ("......Function executing <%p><%s><%s>\n", current, current->GetTypeName().c_str(),
           current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
-      MessageInterface::ShowMessage
-         ("In GmatFunction execute loop and next command (%s) %s a function call.\n",
-          (current->GetTypeName()).c_str(), isFunction? "HAS" : "DOES NOT HAVE");
       #endif
       
       // Since we don't know where actual mission squence start, just check for command
@@ -336,16 +331,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
          }
       }
       
-      if (isFunction)
-      {
-         ; // @todo - call stack stuff
-      }
       if (!(current->Execute()))
          return false;
-      if (isFunction)
-      {
-         ; // @todo - call stack stuff
-      }
       current = current->GetNext();
    }
    // create output wrappers and put into map
