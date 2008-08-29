@@ -364,7 +364,6 @@ OBJECTS = \
     plugin/DynamicLibrary.o \
     propagator/AdamsBashforthMoulton.o \
     propagator/BulirschStoer.o \
-    propagator/Cowell.o \
     propagator/DormandElMikkawyPrince68.o \
     propagator/Integrator.o \
     propagator/PredictorCorrector.o \
@@ -467,6 +466,10 @@ OBJECTS = \
     $(TCPIP_OBJECTS)
     
 #    $(BRIDGEOBJECTS)
+
+# Future classes:
+#    propagator/Cowell.o \
+
 
 
 FORTRAN_OBJECTS = solarsys/msise90_sub.o
