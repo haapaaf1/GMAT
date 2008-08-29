@@ -36,6 +36,8 @@
 
 //#define DISABLE_SOLAR_SYSTEM_CLONING
 
+//#define DISALLOW_NESTED_GMAT_FUNCTIONS
+
 //#define DEBUG_SANDBOX_OBJ 1
 //#define DEBUG_SANDBOX_INIT 1  // there's something wrong with some debug here ... @todo
 //#define DEBUG_SANDBOX_INIT_CS 1
@@ -1238,6 +1240,14 @@ for (unsigned int ii = 0; ii < gfList.size(); ii++)
       GmatCommand* fcsCmd = fcs;
       while (fcsCmd)
       {
+         #ifdef DISALLOW_NESTED_GMAT_FUNCTIONS
+            if (fcsCmd->HasAFunction())
+            {
+               std::string errMsg = "Sandbox::HandleGmatFunction (";
+               errMsg += fName + ") - nested or recursive GmatFunctions not yet supported.\n";
+               throw SandboxException(errMsg);
+            }
+         #endif
          if ((fcsCmd->GetTypeName() == "CallFunction") ||
              (fcsCmd->IsOfType("Assignment")))
          {
