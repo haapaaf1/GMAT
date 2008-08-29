@@ -36,6 +36,7 @@ public:
    SpaceObject&         operator=(const SpaceObject& so);
    
    virtual PropState&   GetState();
+   virtual PropCovar&   GetCovariance();
    virtual Real         GetEpoch();
    virtual Real         SetEpoch(const Real ep);
    virtual bool         IsManeuvering();
@@ -70,6 +71,8 @@ public:
 protected:
    /// The spacecraft state
    PropState         state;
+   /// The spacecraft covariance
+   PropCovar	     covariance;
    /// true when a finite burn needs to be applied to this SpaceObject
    bool              isManeuvering;
    /// Reference SpacePoint for the data
