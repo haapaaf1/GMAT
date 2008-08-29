@@ -14,7 +14,7 @@
  * Class implementation for the FunctionManager command
  */
 //------------------------------------------------------------------------------
-
+#include <stack>
 
 #include "FunctionManager.hpp"
 #include "MessageInterface.hpp"
@@ -27,9 +27,12 @@
 #include "Variable.hpp"
 #include "StringVar.hpp"
 
+#define DO_NOT_EXECUTE_NESTED_GMAT_FUNCTIONS
+
 //#define DEBUG_FUNCTION_MANAGER
 //#define DEBUG_FM_EXECUTE
 //#define DEBUG_FM_FINALIZE
+//#define DEBUG_FM_STACK
 
 //---------------------------------
 // static data
@@ -215,7 +218,15 @@ void FunctionManager::SetFunction(Function *theFunction)
    #endif
    f = theFunction;
    f->SetStringParameter("FunctionName", fName);
-   // need to check to see if it's a GmatFunction here?  why?
+   if (f->IsOfType("GmatFunction"))
+      fcs = f->GetFunctionControlSequence();
+   else
+   {
+      std::string errMsg = "Function passed to FunctionManager \"";
+      errMsg += fName + "\" is of wrong type; must be a GmatFunction\n"; // other types in the future?
+      throw FunctionException(errMsg);
+   }
+
 }
 
 Function* FunctionManager::GetFunction() const
@@ -262,6 +273,11 @@ void FunctionManager::SetOutputs(const StringArray &outputs)
    outs = outputs;
 }
 
+StringArray  FunctionManager::GetOutputs()
+{
+   return outs;
+}
+
 void FunctionManager::SetInternalCoordinateSystem(CoordinateSystem *internalCS)
 {
    intCS = internalCS;
@@ -271,10 +287,15 @@ void FunctionManager::SetInternalCoordinateSystem(CoordinateSystem *internalCS)
 
 // Sequence methods
 
-bool FunctionManager::Execute()
+bool FunctionManager::Execute(FunctionManager *callingFM)
 {
    #ifdef DEBUG_FM_EXECUTE
       MessageInterface::ShowMessage("Entering FM::Execute for %s\n", fName.c_str());
+      MessageInterface::ShowMessage("   and the calling function is %s NULL\n",
+            callingFM? "NOT": "");
+      if (callingFM != NULL)
+         MessageInterface::ShowMessage("The calling function is %s\n",
+               (callingFM->GetFunctionName()).c_str());
    #endif
    if (f == NULL)
    {
@@ -315,6 +336,21 @@ bool FunctionManager::Execute()
          for (unsigned int qq = 0; qq < outs.size(); qq++)
             MessageInterface::ShowMessage("  outs[%d] = %s\n", qq, (outs.at(qq)).c_str());
    #endif
+
+   callers.push(callingFunction);
+   callingFunction  = callingFM;
+   if (callingFunction != NULL)
+   {
+      #ifdef DO_NOT_EXECUTE_NESTED_GMAT_FUNCTIONS
+         std::string noNested = "FunctionManager (";
+         noNested += fName + ") - nested functions not yet supported.\n";
+         throw FunctionException(noNested);
+      #else 
+      losStack.push(localObjectStore);
+      localObjectStore = callingFunction->PushToStack();
+      firstExecution   = true; // so that it will initialize
+      #endif
+   }
       
    if (firstExecution)
    {
@@ -427,9 +463,23 @@ bool FunctionManager::Execute()
 //   }
    if (objInit) delete objInit;
    objInit = new ObjectInitializer(solarSys, &functionObjectStore, globalObjectStore, intCS, true);
-   
-   //objInit->InitializeObjects();  // @todo - put this in the right place!!!!!
-   // -- ****************************************************************************************
+   // tell the fcs that this is the calling function
+   #ifdef DEBUG_FM_EXECUTE
+      MessageInterface::ShowMessage(
+            "in FM::Execute (%s), about to set calling function on commands\n",
+            fName.c_str());
+   #endif
+   GmatCommand *cmd = f->GetFunctionControlSequence();
+   while (cmd) 
+   {
+      #ifdef DEBUG_FM_EXECUTE
+         MessageInterface::ShowMessage(
+               "in FM::Execute, about to set calling function on command %s\n",
+               (cmd->GetTypeName()).c_str());
+      #endif
+      cmd->SetCallingFunction(this);
+      cmd = cmd->GetNext();
+   }
    // Now, execute the function
    f->Execute(objInit);
    // -- ****************************************************************************************
@@ -603,12 +653,25 @@ bool FunctionManager::Execute()
          }
       }
    }
+   // deal with the calling function here
+   if (callingFunction != NULL)
+   {
+      StringArray outNames = f->GetStringArrayParameter(f->GetParameterID("Output"));      // call the caller to pop its FOS back of the stack
+      callingFunction->PopFromStack(&functionObjectStore, outNames);
+      // restore the localObjectStore
+      localObjectStore = losStack.top();
+      losStack.pop();
+      // remove the caller from the stack of callers
+      //callers.pop(); 
+      firstExecution = true;   // to make sure it is reinitialized next time ???
+   }
+   callingFunction = callers.top();
+   callers.pop();
    
-   //// @todo -delete the clones here ??? (or not) ... where?
    return true;
 }
 
-Real FunctionManager::Evaluate()
+Real FunctionManager::Evaluate(FunctionManager *callingFM)
 {
    if (f == NULL)
    {
@@ -622,14 +685,14 @@ Real FunctionManager::Evaluate()
       ("==> FunctionManager::Evaluate() f=<%p><%s>\n", f, f->GetName().c_str());
    #endif
    
-   Execute();
+   Execute(callingFM);
    if (outputType != "Real")
       throw FunctionException("FunctionManager: invalid output type - should be real\n");
    return realResult;
    //return f->Evaluate();
 }
 
-Rmatrix FunctionManager::MatrixEvaluate()
+Rmatrix FunctionManager::MatrixEvaluate(FunctionManager *callingFM)
 {
    if (f == NULL)
    {
@@ -643,7 +706,7 @@ Rmatrix FunctionManager::MatrixEvaluate()
       ("==> FunctionManager::MatrixEvaluate() f=<%p><%s>\n", f, f->GetName().c_str());
    #endif
    
-   Execute();
+   Execute(callingFM);
    if (outputType != "Rmatrix")
       throw FunctionException("FunctionManager: invalid output type - should be Rmatrix\n");
    return matResult;
@@ -662,44 +725,9 @@ void FunctionManager::Finalize()
    if (f != NULL)
       if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
          f->Finalize();
-   // now delete all of the items/entries in the FOS - we can do this since they are all either
-   // locally-created or clones of reference objects or automatic objects
-   StringArray toDelete;
-   for (omi = functionObjectStore.begin(); omi != functionObjectStore.end(); ++omi)
-   {
-      #ifdef DEBUG_FM_FINALIZE
-         MessageInterface::ShowMessage("... item \"%s\" %s a NULL pointer\n",
-               (omi->first).c_str(), (((omi->second) != NULL)? "is NOT" : "IS"));
-      #endif
-      if ((omi->second) != NULL)
-      {
-         #ifdef DEBUG_FM_FINALIZE
-            MessageInterface::ShowMessage("  About to delete pointer for %s\n",
-                  (omi->first).c_str());
-            if ((omi->second)->IsOfType("Subscriber"))
-               MessageInterface::ShowMessage("Deleting a subscriber!!!!!!!!!!!!\n");
-         #endif
-         // for now, don't delete subscribers as the Publisher still points to them and
-         // bad things happen at the end of the run if they disappear
-         if (!((omi->second)->IsOfType("Subscriber")))
-            delete omi->second;
-         #ifdef DEBUG_FM_FINALIZE
-            MessageInterface::ShowMessage("  and ... pointer for %s was deleted\n",
-                  (omi->first).c_str());
-         #endif
-         omi->second = NULL;
-      }
-      toDelete.push_back(omi->first); 
-   }
-   for (unsigned int kk = 0; kk < toDelete.size(); kk++)
-   {
-      functionObjectStore.erase(toDelete.at(kk));
-      #ifdef DEBUG_FM_FINALIZE
-         MessageInterface::ShowMessage("and just erased item %s from the FOS\n",
-               (toDelete.at(kk)).c_str());
-      #endif
-   }
-   functionObjectStore.clear();
+   // now delete all of the items/entries in the FOS - we can do this since they 
+   // are all either locally-created or clones of reference objects or automatic objects
+   EmptyObjectMap(&functionObjectStore);
    firstExecution = true;
 }
 
@@ -721,6 +749,8 @@ bool FunctionManager::Initialize()
    validator->SetObjectMap(&combinedObjectStore);
    validator->SetSolarSystem(solarSys);
 
+   if (!(IsOnStack(&functionObjectStore))) // ********** ???? *************
+      EmptyObjectMap(&functionObjectStore);
    functionObjectStore.clear();
    //inputWrappers.clear();
    outputWrappers.clear();
@@ -744,7 +774,7 @@ bool FunctionManager::Initialize()
       }
       #ifdef DEBUG_FM_EXECUTE
          MessageInterface::ShowMessage(
-               "in FM::Execute: object \"%s\" of type \"%s\" found in LOS/GOS \n",
+               "in FM::Initialize: object \"%s\" of type \"%s\" found in LOS/GOS \n",
                (ins.at(ii)).c_str(), (obj->GetTypeName()).c_str());
       #endif
       // Clone the object, and insert it into the FOS
@@ -793,7 +823,6 @@ bool FunctionManager::Initialize()
       }
    }
    // get a pointer to the function's function control sequence
-   fcs = f->GetFunctionControlSequence();
    return true;
 }
 
@@ -945,3 +974,158 @@ void FunctionManager::SaveLastResult()
       throw FunctionException("FunctionManager: Unknown or invalid output data type");
    }
 }
+
+//void FunctionManager::SetCallingFunction(FunctionManager *fm)
+//{
+//   callers.push(fm);
+//}
+
+ObjectMap* FunctionManager::PushToStack()
+{
+   #ifdef DEBUG_FM_STACK
+      MessageInterface::ShowMessage(
+            "PushToStack::Entering PushToStack for function %s\n",
+            fName.c_str());
+   #endif
+   // Clone the FOS
+   ObjectMap *cloned = new ObjectMap();
+   std::map<std::string, GmatBase *>::iterator omi;
+   GmatBase *objInMap;
+   std::string strInMap;
+   for (omi = functionObjectStore.begin(); omi != functionObjectStore.end(); ++omi)
+   {
+      strInMap = omi->first;
+      objInMap = omi->second;
+      #ifdef DEBUG_FM_STACK
+         MessageInterface::ShowMessage(
+               "PushToStack::Inserting clone of object %s into cloned object map\n",
+               strInMap.c_str());
+      #endif
+      cloned->insert(std::make_pair(strInMap, objInMap->Clone()));
+   }
+   // Put the FOS onto the stack
+   callStack.push(&functionObjectStore);
+   // Return the clone, to be used as the LOS for the FM that called this method
+   return cloned;
+}
+
+void FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outNames)
+{
+   #ifdef DEBUG_FM_STACK
+      MessageInterface::ShowMessage(
+            "PopFromStack::Entering PopFromStack for function %s\n",
+            fName.c_str());
+   #endif
+   if (callStack.empty())
+      throw FunctionException(
+            "ERROR popping object store from call stack - stack is empty\n");
+   ObjectMap *topMap = callStack.top();
+   callStack.pop();
+   functionObjectStore = *topMap;
+   #ifdef DEBUG_FM_STACK
+      MessageInterface::ShowMessage("PopFromStack::outNames are: \n");
+      for (unsigned int ii=0; ii<outNames.size(); ii++)
+         MessageInterface::ShowMessage(" %d)   %s\n", ii, (outNames.at(ii)).c_str());
+      MessageInterface::ShowMessage("PopFromStack::popped stack entries are: \n");
+      //for (unsigned int ii=0; ii<outNames.size(); ii++)
+      //   MessageInterface::ShowMessage(" %d)   %s\n", ii, (outNames.at(ii)).c_str());
+   #endif
+   for (unsigned int jj = 0; jj < outNames.size(); jj++)
+   {
+      GmatBase *clonedObj = (*cloned)[outNames.at(jj)];
+      GmatBase *fosObj    = functionObjectStore[outNames.at(jj)];
+      if (clonedObj == NULL)
+      {
+         std::string errMsg = "PopFromStack::Error getting output named ";
+         errMsg += outNames.at(jj) + " from cloned map in function \"";
+         errMsg += fName + "\"\n";
+         throw FunctionException(errMsg);
+      }
+      if (fosObj == NULL)
+      {
+         std::string errMsg = "PopFromStack::Error setting output named ";
+         errMsg += outNames.at(jj) + " from nested function on function \"";
+         errMsg += fName + "\"\n";
+         throw FunctionException(errMsg);
+      }
+      #ifdef DEBUG_FM_STACK
+         MessageInterface::ShowMessage(
+               "PopFromStack::Copying value of %s into popped stack element\n",
+               (outNames.at(jj)).c_str());
+      #endif
+      fosObj->Copy(clonedObj);
+   }
+   DeleteObjectMap(cloned);
+   //firstExecution = true;
+   //Initialize();
+   #ifdef DEBUG_FM_STACK
+      MessageInterface::ShowMessage(
+            "PopFromStack::reset object map to the one popped from the stack\n");
+      MessageInterface::ShowMessage(
+            "PopFromStack::now about to re-initialize the function\n");
+   #endif
+   f->SetObjectMap(&functionObjectStore);
+   f->Initialize();
+   #ifdef DEBUG_FM_STACK
+      MessageInterface::ShowMessage(
+            "PopFromStack::Exiting PopFromStack for function %s\n",
+            fName.c_str());
+   #endif
+}
+
+bool FunctionManager::EmptyObjectMap(ObjectMap *om)
+{   
+   StringArray toDelete;
+   std::map<std::string, GmatBase *>::iterator omi;
+   for (omi = om->begin(); omi != om->end(); ++omi)
+   {
+      if (omi->second != NULL)
+      {
+         #ifdef DEBUG_FUNCTION_MANAGER
+         GmatBase *obj = omi->second;
+         MessageInterface::ShowMessage
+            ("   Deleting <%p> <%s> '%s'\n", obj, obj->GetTypeName().c_str(),
+             obj->GetName().c_str());
+         #endif
+         // for now, don't delete subscribers as the Publisher still points to them and
+         // bad things happen at the end of the run if they disappear
+         if (!((omi->second)->IsOfType("Subscriber")))
+            delete omi->second;
+         omi->second = NULL;
+      }
+      toDelete.push_back(omi->first); 
+   }
+   for (unsigned int kk = 0; kk < toDelete.size(); kk++)
+   {
+      #ifdef DEBUG_FUNCTION_MANAGER
+      MessageInterface::ShowMessage
+         ("   Erasing element with name '%s'\n", (toDelete.at(kk)).c_str());
+      #endif
+      om->erase(toDelete.at(kk));
+   }
+   om->clear();
+   return true;
+}
+
+bool FunctionManager::DeleteObjectMap(ObjectMap *om)
+{  
+   EmptyObjectMap(om);
+   #ifdef DEBUG_FUNCTION_MANAGER
+   MessageInterface::ShowMessage
+      ("   Deleting object map\n");
+   #endif
+
+   delete om;
+   return true;
+}
+
+bool FunctionManager::IsOnStack(ObjectMap *om)
+{
+   if (callStack.empty())  return false;
+
+   ObjectMap *tmp = callStack.top();
+   //if (&tmp == &om) return true;  // is the om the top element on the LIFO stack?
+   if (tmp == om) return true;  // is the om the top element on the LIFO stack?
+   else           return false;
+}
+

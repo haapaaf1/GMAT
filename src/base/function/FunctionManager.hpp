@@ -23,6 +23,7 @@
 
 
 #include <map>              // for mapping between object names and types
+#include <stack>            // for objectMap and caller stacks
 #include <algorithm>        // for find()
 #include "gmatdefs.hpp"
 
@@ -66,13 +67,18 @@ public:
    virtual void         AddOutput(const std::string &withName, Integer atIndex = -999);
    virtual void         SetInputs(const StringArray &inputs);
    virtual void         SetOutputs(const StringArray &outputs);
+   virtual StringArray  GetOutputs();
    virtual void         SetInternalCoordinateSystem(CoordinateSystem *internalCS);
    
    // Sequence methods
-   virtual bool         Execute();
-   virtual Real         Evaluate();
-   virtual Rmatrix      MatrixEvaluate();
+   virtual bool         Execute(FunctionManager *callingFM = NULL);
+   virtual Real         Evaluate(FunctionManager *callingFM = NULL);
+   virtual Rmatrix      MatrixEvaluate(FunctionManager *callingFM = NULL);
    virtual void         Finalize();
+
+   //void                 SetCallingFunction(FunctionManager *fm);
+   ObjectMap*           PushToStack();
+   void                 PopFromStack(ObjectMap* cloned, const StringArray &outNames);
 
 protected:
    
@@ -135,15 +141,27 @@ protected:
    /// the internal coordinate system
    CoordinateSystem     *intCS;
    /// pointer to the function's function control sequence
-   GmatBase             *fcs;
+   GmatCommand          *fcs;
    /// current command being executed
-   GmatBase             *current;
+   GmatCommand          *current;
+   /// Call stack of FOSs for nested/recursive function calls
+   ObjectMapStack       callStack;
+   /// Call stack of LOSs for nested/recursive function calls
+   ObjectMapStack       losStack;
+   /// pointers to the calling function of this function (needs to be a stack 
+   // because we need to be able to handle nested and recursive functions)
+   std::stack<FunctionManager*> callers;
+   // pointer to the current calling function
+   FunctionManager      *callingFunction;
    
    virtual bool         Initialize();
    GmatBase*            FindObject(const std::string &name, bool arrayElementsAllowed = false);
    GmatBase*            CreateObject(const std::string &fromString);
    void                 SaveLastResult();
    
+   bool                 EmptyObjectMap(ObjectMap *om);  
+   bool                 DeleteObjectMap(ObjectMap *om);
+   bool                 IsOnStack(ObjectMap *om);
 };
 
 #endif // FunctionManager_hpp
