@@ -13,7 +13,7 @@
 // Created: 2004/09/22
 //
 /**
- * Defines the Funtion base class used for Matlab and Gmat functions.
+ * Defines the Function base class used for Matlab and Gmat functions.
  */
 //------------------------------------------------------------------------------
 #ifndef Function_hpp
@@ -55,7 +55,7 @@ public:
    virtual void         SetTransientForces(std::vector<PhysicalModel*> *tf);
    virtual bool         IsFunctionControlSequenceSet();
    virtual bool         SetFunctionControlSequence(GmatCommand *cmd);
-   virtual GmatBase*    GetFunctionControlSequence();
+   virtual GmatCommand* GetFunctionControlSequence();
    virtual std::string  GetFunctionPathAndName();
    
    virtual bool         SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper);

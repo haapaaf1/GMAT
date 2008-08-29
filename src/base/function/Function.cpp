@@ -314,7 +314,7 @@ bool Function::SetFunctionControlSequence(GmatCommand *cmd)
 //------------------------------------------------------------------------------
 // GmatBase* GetFunctionControlSequence()
 //------------------------------------------------------------------------------
-GmatBase* Function::GetFunctionControlSequence()
+GmatCommand* Function::GetFunctionControlSequence()
 {
    return fcs;
 }
