@@ -40,6 +40,7 @@ FunctionRunner::FunctionRunner(const std::string &nomme)
    theObjectMap = NULL;
    theGlobalObjectMap = NULL;
    theFunction = NULL;
+   callingFunction = NULL;
 }
 
 
@@ -67,6 +68,7 @@ FunctionRunner::~FunctionRunner()
 FunctionRunner::FunctionRunner(const FunctionRunner &copy) :
    MathFunction(copy)
 {
+   callingFunction = copy.callingFunction;
 }
 
 
@@ -192,6 +194,13 @@ void FunctionRunner::SetFunctionOutputs()
 const StringArray& FunctionRunner::GetInputs()
 {
    return theInputNames;
+}
+//------------------------------------------------------------------------------
+// void SetCallingFunction();
+//------------------------------------------------------------------------------
+void FunctionRunner::SetCallingFunction(FunctionManager *fm)
+{
+   callingFunction = fm;
 }
 
 
@@ -451,7 +460,7 @@ Real FunctionRunner::Evaluate()
       throw MathException
          ("The function \"" + function->GetName() + "\" returns matrix value");
    
-   return theFunctionManager.Evaluate();   
+   return theFunctionManager.Evaluate(callingFunction);   
 }
 
 
@@ -479,7 +488,7 @@ Rmatrix FunctionRunner::MatrixEvaluate()
       throw MathException
          ("The function \"" + function->GetName() + "\" returns Real value");
    
-   return theFunctionManager.MatrixEvaluate();
+   return theFunctionManager.MatrixEvaluate(callingFunction);
 }
 
 

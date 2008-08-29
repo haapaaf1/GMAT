@@ -25,6 +25,7 @@
 #include "PhysicalModel.hpp"
 #include "RealUtilities.hpp"
 
+
 class GMAT_API FunctionRunner : public MathFunction
 {
 public:
@@ -39,6 +40,7 @@ public:
    void                 SetFunctionInputs();
    void                 SetFunctionOutputs();
    const StringArray&   GetInputs();
+   virtual void         SetCallingFunction(FunctionManager *fm);
    
    // for setting objects to FunctionManager
    virtual void         SetObjectMap(ObjectMap *map);
@@ -66,6 +68,8 @@ protected:
    Function        *theFunction;
    StringArray     theInputNames;
    StringArray     theOutputNames;
+   
+   FunctionManager *callingFunction;
    
    GmatBase* FindObject(const std::string &name);
 };

@@ -996,61 +996,8 @@ bool CallFunction::Execute()
       
    if (mFunction->GetTypeName() == "GmatFunction")
    {
-      status = fm.Execute();
-      
-      // There are still 2 things to do here, but let's get this working first:
-      //
-      // 1.  Add code to make the method reentrant, so a user can break while
-      //     in the GmatFunction.
-      // 2.  Add code so that GmatFunctions can nest -- right now, we'll break
-      //     when the first EndFunction is encountered.
-      /*
-      bool rv = true;
-      GmatCommand *current = callcmds;
-      while (current->GetTypeName() != "EndFunction")
-      {
-         // tried to reset objectmap - no need though
-         
-         MessageInterface::ShowMessage("CallFunction current cmd = %s\n   '%s'\n",
-            current->GetTypeName().c_str(),
-            current->GetGeneratingString().c_str());
-         rv = current->Execute();
-         
-         if (!rv)
-            throw CommandException("Could not execute command\n");
-         
-         current = current->GetNext();
-      }
-      
-      // Now set the outputs.  current points to the EndFunction command, which
-      // knows about these puppies!
-      callcmds->TakeAction("SetReturnObjects");
-      
-      Integer memberNum = 0;
-      for (StringArray::iterator i = mOutputListNames.begin();
-           i != mOutputListNames.end(); ++i)
-      {
-         // Get the object that maps to the output name
-         GmatBase *obj = callcmds->GetRefObject(Gmat::UNKNOWN_OBJECT, *i);
-
-         // Use the assignment operator, called through the Copy method to set
-         // the output value.  We may need to check the Copy methods for this
-         // to work...
-//      MessageInterface::ShowMessage("mOutputList[memberNum]->Copy(%s) with value %f\n",
-//          obj->GetName().c_str(), ((Variable *)obj)->EvaluateReal());
-         mOutputList[memberNum] = (Parameter *) obj;
-
-
-//         mOutputList[memberNum]->Copy(obj);
-//      MessageInterface::ShowMessage("mOutputList[memberNum]->Copy(obj)2 with value %f\n",
-//          ((Variable *)mOutputList[memberNum])->EvaluateReal());
-         ++memberNum;
-      }
-      status = true;
-   */   
+      status = fm.Execute(callingFunction);
    }
-
-
 
    #ifdef DEBUG_CALL_FUNCTION
       MessageInterface::ShowMessage("Executed command\n");
