@@ -1285,6 +1285,48 @@ bool BranchCommand::HasAFunction()
          MessageInterface::ShowMessage("In HasAFunction and current is of type %s\n",
                (current->GetTypeName()).c_str());
    #endif
-   if ((!current) || (current == this))       return false;
-   return current->HasAFunction();
+   std::vector<GmatCommand*>::iterator node;
+   GmatCommand *currentPtr;
+   
+   for (node = branch.begin(); node != branch.end(); ++node)
+   {
+      currentPtr = *node;
+      while (currentPtr != this)
+      {
+         // if some command in the branch has a function, return true
+         if (currentPtr->HasAFunction()) return true;
+         currentPtr = currentPtr->GetNext();
+         if (currentPtr == NULL)
+            throw CommandException("Branch command \"" + generatingString +
+                                   "\" was not terminated!");
+      }
+   }
+   // otherwise, there are no GmatFunctions in this Branch Command
+   return false;
 }
+
+//------------------------------------------------------------------------------
+// void SetCallingFunction();
+//------------------------------------------------------------------------------
+void BranchCommand::SetCallingFunction(FunctionManager *fm)
+{
+   
+   GmatCommand::SetCallingFunction(fm);
+   
+   std::vector<GmatCommand*>::iterator node;
+   GmatCommand *currentPtr;
+   
+   for (node = branch.begin(); node != branch.end(); ++node)
+   {
+      currentPtr = *node;
+      while (currentPtr != this)
+      {
+         currentPtr->SetCallingFunction(fm);
+         currentPtr = currentPtr->GetNext();
+         if (currentPtr == NULL)
+            throw CommandException("Branch command \"" + generatingString +
+                                   "\" was not terminated!");
+      }
+   }
+}
+

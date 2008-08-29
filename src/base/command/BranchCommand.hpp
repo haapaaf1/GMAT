@@ -72,6 +72,7 @@ public:
    const std::vector<GmatCommand*>
                            GetCommandsWithGmatFunctions();
    virtual bool            HasAFunction();
+   virtual void            SetCallingFunction(FunctionManager *fm);
 
 
 protected:

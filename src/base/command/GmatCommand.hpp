@@ -42,6 +42,9 @@
 // Forward reference for the transient force vector
 class PhysicalModel;
 
+// forward refernce for the calling FunctionManager
+class FunctionManager;
+
 
 /**
  * GMAT GmatCommand Base Class, used for timeline elements in the script
@@ -77,6 +80,8 @@ public:
    // such as "DefaultProp.FM = DefaultFM;" (LOJ: 2008.06.09)
    void                 SetFunctionMode(bool val);
    bool                 GetFunctionMode();
+   
+   virtual void         SetCallingFunction(FunctionManager *fm);
    
    // other methods for setting up the object w.r.t the elements needed
    virtual const StringArray& 
@@ -216,6 +221,9 @@ protected:
    bool                 initialized;
    /// Flag used to indicate if command used in the function control sequence
    bool                 inFunction;
+   // pointer to the function that is calling this command (ignored for all but
+   // CallFunction and Assignment)
+   FunctionManager      *callingFunction;
    /// Pointer to the next GmatCommand in the sequence; NULL at the end
    GmatCommand          *next;
    /// Pointer to the previous GmatCommand in the sequence; NULL if at the start

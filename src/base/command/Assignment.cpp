@@ -42,6 +42,7 @@
 //#define DEBUG_ASSIGNMENT_WRAPPER 1
 //#define DEBUG_FUNCTION 1
 //#define DEBUG_OBJECT_MAP
+//#define DEBUG_ASSIGN_CALLING_FUNCTION
 
 //------------------------------------------------------------------------------
 //  Assignment()
@@ -667,6 +668,22 @@ bool Assignment::Execute()
 bool Assignment::SkipInterrupt()
 {
    return true;
+}
+
+//------------------------------------------------------------------------------
+// void SetCallingFunction();
+//------------------------------------------------------------------------------
+void Assignment::SetCallingFunction(FunctionManager *fm)
+{
+   #ifdef DEBUG_ASSIGN_CALLING_FUNCTION
+      MessageInterface::ShowMessage("Assignment::SetCallingFunction - fm is %s NULL\n",
+            fm? "NOT" : "really");
+      MessageInterface::ShowMessage("   and mathTree DOES %s exist\n",
+            mathTree? "really" : "NOT");
+   #endif
+   GmatCommand::SetCallingFunction(fm);
+   if (mathTree)
+      mathTree->SetCallingFunction(fm);
 }
 
 

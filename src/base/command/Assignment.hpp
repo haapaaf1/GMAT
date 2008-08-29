@@ -61,6 +61,7 @@ public:
    virtual bool         Initialize();
    virtual bool         Execute();
    virtual bool         SkipInterrupt();
+   virtual void         SetCallingFunction(FunctionManager *fm);
    
    virtual const StringArray& 
                         GetWrapperObjectNameArray();

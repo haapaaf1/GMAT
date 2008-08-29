@@ -43,6 +43,7 @@
 //#define DEBUG_GEN_STRING 1
 //#define DEBUG_IS_FUNCTION
 //#define DEBUG_INTERPRET_PREFACE
+//#define DEBUG_CMD_CALLING_FUNCTION
 
 //---------------------------------
 //  static members
@@ -88,6 +89,8 @@ Integer GmatCommand::satTotalMassID;
 GmatCommand::GmatCommand(const std::string &typeStr) :
    GmatBase             (Gmat::COMMAND, typeStr),
    initialized          (false),
+   inFunction           (false),
+   callingFunction      (NULL),
    next                 (NULL),
    previous             (NULL),
    level                (-1),   // Not set
@@ -184,6 +187,8 @@ GmatCommand::GmatCommand(const GmatCommand &c) :
    association          (c.association),
    objects              (c.objects),
    initialized          (false),
+   inFunction           (c.inFunction),
+   callingFunction      (c.callingFunction),
    next                 (NULL),
    level                (-1),   // Not set
    objectMap            (c.objectMap),
@@ -231,6 +236,8 @@ GmatCommand& GmatCommand::operator=(const GmatCommand &c)
 
    GmatBase::operator=(c);
    initialized = false;
+   inFunction  = c.inFunction;
+   callingFunction = c.callingFunction;
    objects.clear();
    association.clear();
    ClearObjects();             // Drop any previously set object pointers
@@ -387,6 +394,19 @@ void GmatCommand::SetFunctionMode(bool val)
 bool GmatCommand::GetFunctionMode()
 {
    return inFunction;
+}
+
+//------------------------------------------------------------------------------
+// void SetCallingFunction();
+//------------------------------------------------------------------------------
+void GmatCommand::SetCallingFunction(FunctionManager *fm)
+{
+   #ifdef DEBUG_CMD_CALLING_FUNCTION
+      MessageInterface::ShowMessage(
+            "NOW setting calling function on command of type %s\n",
+            (GetTypeName()).c_str());
+   #endif
+   callingFunction = fm;
 }
 
 //------------------------------------------------------------------------------
