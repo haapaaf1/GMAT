@@ -27,6 +27,7 @@
 class MathNode;
 class ElementWrapper;
 class Function;
+class FunctionManager;
 class SolarSystem;
 class PhysicalModel;
 class CoordinateSystem;
@@ -45,7 +46,9 @@ public:
    
    std::vector<Function*> GetFunctions() const;
    void                 SetFunction(Function *function);
-   
+
+   virtual void         SetCallingFunction(FunctionManager *fm);
+
    MathNode*            GetTopNode();
    void                 SetTopNode(MathNode *node);
    void                 SetMathWrappers(WrapperMap *wrapperMap);
@@ -93,6 +96,7 @@ protected:
    bool InitializeParameter(MathNode *node);
    void SetMathElementWrappers(MathNode *node);
    void SetFunctionToRunner(MathNode *node, Function *function);
+   void SetCallingFunctionToRunner(MathNode *node, FunctionManager *fm);
    void SetObjectMapToRunner(MathNode *node, ObjectMap *map);
    void SetGlobalObjectMapToRunner(MathNode *node, ObjectMap *map);
    void SetSolarSystemToRunner(MathNode *node, SolarSystem *ss);

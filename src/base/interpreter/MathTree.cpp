@@ -172,6 +172,33 @@ void MathTree::SetFunction(Function *function)
    #endif
 }
 
+//------------------------------------------------------------------------------
+// void SetCallingFunction();
+//------------------------------------------------------------------------------
+void MathTree::SetCallingFunction(FunctionManager *fm)
+{
+#ifdef DEBUG_FUNCTION
+MessageInterface::ShowMessage
+   ("MathTree::SetCallingFunction() fm=<%p>, name='%s'\n", fm,
+         (fm->GetName()).c_str());
+#endif
+
+if (theTopNode == NULL)
+   return;
+
+#ifdef DEBUG_FUNCTION
+MessageInterface::ShowMessage
+   ("   Calling SetCallingFunction() theTopNode type=%s, desc='%s'\n",
+    theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
+#endif
+
+SetCallingFunctionToRunner(theTopNode, fm);
+
+#ifdef DEBUG_FUNCTION
+MessageInterface::ShowMessage("MathTree::SetCallingFunction() returning\n");
+#endif
+}
+
 
 //------------------------------------------------------------------------------
 // MathNode* GetTopNode()
@@ -637,6 +664,38 @@ void MathTree::SetFunctionToRunner(MathNode *node, Function *function)
    
    MathNode *right = node->GetRight();
    SetFunctionToRunner(right, function);
+}
+
+//------------------------------------------------------------------------------
+// void SetCallingFunctionToRunner(MathNode *node, Function *function)
+//------------------------------------------------------------------------------
+void MathTree::SetCallingFunctionToRunner(MathNode *node, FunctionManager *fm)
+{
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("MathTree::SetCallingFunctionToRunner() node=%p, function=%p\n", node, function);
+   #endif
+   
+   if (node == NULL)
+      return;
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("   node type='%s', name='%s'\n", node->GetTypeName().c_str(),
+       node->GetName().c_str());
+   #endif
+   
+   if (!node->IsFunction())
+      return;
+   
+   if (node->IsOfType("FunctionRunner"))
+      ((FunctionRunner*)(node))->SetCallingFunction(fm);
+   
+   MathNode *left = node->GetLeft();   
+   SetCallingFunctionToRunner(left, fm);
+   
+   MathNode *right = node->GetRight();
+   SetCallingFunctionToRunner(right, fm);
 }
 
 
