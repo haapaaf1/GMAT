@@ -187,6 +187,7 @@ protected:
    AxisSystem* CreateAxisSystem(std::string type, GmatBase *owner);
    
    // for commands
+   bool         IsCommandType(const std::string &type);
    GmatCommand* CreateCommand(const std::string &type, const std::string &desc,
                               bool &retFlag, GmatCommand *inCmd = NULL);
    GmatCommand* AppendCommand(const std::string &type, bool &retFlag,
