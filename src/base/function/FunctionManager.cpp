@@ -508,155 +508,28 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    // @todo - need to figure out how to get output data if calling the sequence from here ...
    // -- ****************************************************************************************
    // Now get the output data
-   Real rval = -99999.999;
-   Integer ival = -99999;
-   bool bval = false;
-   std::string sval;
-   GmatBase *outObj = NULL;
+   
    ElementWrapper *ew;
-   Gmat::ParameterType rightType, leftType;
-   outputType = "";
-   // @todo - use the static method in ElementWrapper to copy these values
+   
    if (blankResult)  SaveLastResult();
    else
    {
       for (unsigned int jj = 0; jj < outputWrappers.size(); jj++)
       {
-         rval = -99999.999;
-         ival = -99999;
-         bval = false;
-         sval = "";
-         Rmatrix rmat;
-         outObj = NULL;
+         bool retval = false;
          ew = f->GetOutputArgument(jj);
-         // extract the data from the ElementWrapper, depending on the type
-         rightType = ew->GetDataType();
-         switch (rightType) 
-         {
-         case Gmat::BOOLEAN_TYPE:
-            bval = ew->EvaluateBoolean();
-            break;
-         case Gmat::INTEGER_TYPE:
-            ival = ew->EvaluateInteger();
-            break;
-         case Gmat::REAL_TYPE:
-            rval = ew->EvaluateReal();
-            break;
-         case Gmat::RMATRIX_TYPE:
-            rmat = ew->EvaluateArray();
-            break;
-         case Gmat::STRING_TYPE:
-         case Gmat::ENUMERATION_TYPE:
-            sval = ew->EvaluateString();
-            sval = GmatStringUtil::RemoveEnclosingString(sval, "'");
-            break;
-         case Gmat::ON_OFF_TYPE:
-            sval = ew->EvaluateOnOff();
-            break;
-         case Gmat::OBJECT_TYPE:
-            outObj = ew->EvaluateObject();
-            break;
-         default:
-            throw FunctionException("FunctionManager: Unknown output data type");
-         }
-         
-         leftType = (outputWrappers.at(jj))->GetDataType();
-         Gmat::WrapperDataType rightWrapperType = ew->GetWrapperType();
-         Gmat::WrapperDataType leftWrapperType  = (outputWrappers.at(jj))->GetWrapperType();
-         switch (leftType)
-         {
-         case Gmat::BOOLEAN_TYPE:
-            (outputWrappers.at(jj))->SetBoolean(bval);
-            break;
-         case Gmat::INTEGER_TYPE:
-            if (rightType == Gmat::INTEGER_TYPE)
-            {
-               (outputWrappers.at(jj))->SetInteger(ival);
-            }
-            else if (rightType == Gmat::REAL_TYPE)
-            {
-               Real tmpReal = GmatMathUtil::NearestInt(rval);
-               if (GmatMathUtil::Abs(rval - tmpReal) > GmatRealConst::REAL_TOL)
-                  throw FunctionException("FunctionManager: Cannot get Integer from Real number.\n");
-               (outputWrappers.at(jj))->SetInteger((Integer) rval);
-            }
-            break;
-         case Gmat::REAL_TYPE:
-            if (rval != -99999.999)
-               (outputWrappers.at(jj))->SetReal(rval);
-            else
-               throw FunctionException("FunctionManager: Cannot set Non-Real value on Real");
-            break;
-         case Gmat::RMATRIX_TYPE:
-            (outputWrappers.at(jj))->SetArray(rmat);
-            break;
-         case Gmat::STRING_TYPE:
-         case Gmat::ENUMERATION_TYPE:
-            // Object to String is needed for Remove for Formation
-            if (outObj != NULL)
-            {
-               (outputWrappers.at(jj))->SetString(outObj->GetName());
-            }
-            else if ((rightType == Gmat::STRING_TYPE ||
-                      rightType == Gmat::ENUMERATION_TYPE ||
-                      rightType == Gmat::ON_OFF_TYPE))
-            {
-               (outputWrappers.at(jj))->SetString(sval);
-            }
-            // We don't want to allow VARIABLE to STRING assignment
-            else if (rightType == Gmat::REAL_TYPE &&
-                     rightWrapperType != Gmat::VARIABLE)
-            {
-               (outputWrappers.at(jj))->SetString(ew->GetDescription());
-            }
-            else
-            {
-               FunctionException fe;
-               if (outObj != NULL)
-                  fe.SetDetails("FunctionManager: Cannot set object of type \"%s\" to an undefined "
-                                "object \"%s\"", outObj->GetTypeName().c_str(), (outs.at(jj)).c_str());
-               else if (leftWrapperType == Gmat::STRING_OBJECT &&
-                        rightWrapperType == Gmat::VARIABLE)
-                  fe.SetDetails("FunctionManager: Cannot set objet of type \"Variable\" to object of "
-                                "type \"String\"");
-               else
-                  fe.SetDetails("FunctionManager: Cannot set value to an undefined object\n");
-               throw fe;
-            }
-            break;
-         case Gmat::ON_OFF_TYPE:
-            (outputWrappers.at(jj))->SetOnOff(sval);
-            break;
-         case Gmat::OBJECT_TYPE:
-            if (outObj == NULL)
-               throw FunctionException("FunctionManager: Expected output object is NULL\n");
-            (outputWrappers.at(jj))->SetObject(outObj);
-            break;
-         case Gmat::STRINGARRAY_TYPE:  //// @todo - revisit this
-            if (outObj != NULL)
-               (outputWrappers.at(jj))->SetString(outObj->GetName());
-            else
-               throw FunctionException("FunctionManager: Cannot set StringArray from output object.\n");
-            break;
-         case Gmat::OBJECTARRAY_TYPE:  
-            // Object to String is needed for Add for Subscribers/Formation
-            if (outObj != NULL)
-               (outputWrappers.at(jj))->SetObject(outObj);
-            else
-            {
-               //bool errorCond = true;
-               //// @todo - not sure what to do here ...
-             }
-            break;
-         default:
-            throw FunctionException("FunctionManager: Unknown output data type");
-         }
+         retval = ElementWrapper::SetValue(outputWrappers.at(jj), ew, solarSys,
+                                           &functionObjectStore, globalObjectStore);
+         if (!retval)
+            throw FunctionException
+               ("FunctionManager::Execute() failed to assign results to function output");
       }
    }
    // deal with the calling function here
    if (callingFunction != NULL)
    {
-      StringArray outNames = f->GetStringArrayParameter(f->GetParameterID("Output"));      // call the caller to pop its FOS back of the stack
+      StringArray outNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
+      // call the caller to pop its FOS back of the stack
       callingFunction->PopFromStack(&functionObjectStore, outNames);
       // restore the localObjectStore
       localObjectStore = losStack.top();
