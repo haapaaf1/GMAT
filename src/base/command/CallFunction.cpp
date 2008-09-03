@@ -28,7 +28,9 @@
 #include "MatlabInterface.hpp"     // for Matlab Engine functions
 #endif
 
-//#define DEBUG_CALL_FUNCTION
+//#define DEBUG_CALL_FUNCTION_PARAM
+//#define DEBUG_CALL_FUNCTION_INIT
+//#define DEBUG_CALL_FUNCTION_EXEC
 //#define DEBUG_SEND_PARAM
 //#define DEBUG_UPDATE_VAR
 //#define DEBUG_UPDATE_OBJECT
@@ -36,7 +38,7 @@
 //#define DEBUG_GMAT_FUNCTION_INIT
 //#define DEBUG_GET_OUTPUT
 //#define DEBUG_OBJECT_MAP
-
+//#define DEBUG_GLOBAL_OBJECT_MAP
 
 //---------------------------------
 // static data
@@ -284,7 +286,9 @@ void CallFunction::SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
    
    #ifdef DEBUG_GLOBAL_OBJECT_MAP
    MessageInterface::ShowMessage
-      ("   mapObj=<%p><%s>\n", mapObj, mapObj ? mapObj->GetName().c_str() : "NULL");
+      ("   mapObj=<%p><%s>'%s'\n", mapObj,
+       mapObj ? mapObj->GetTypeName().c_str() : "NULL",
+       mapObj ? mapObj->GetName().c_str() : "NULL");
    #endif
    
    if (mapObj == NULL)
@@ -302,7 +306,9 @@ void CallFunction::SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
          ("   mFunction=<%p><%s>\n", mFunction, mFunction->GetName().c_str());
       #endif
       
-      fm.SetFunction(mFunction);
+      // Set only GmatFunction to FunctionManager (loj: 2008.09.03)
+      if (mapObj->GetTypeName() == "GmatFunction")
+         fm.SetFunction(mFunction);
    }
    fm.SetGlobalObjectMap(map);
    
@@ -342,7 +348,7 @@ GmatBase* CallFunction::Clone() const
 //------------------------------------------------------------------------------
 std::string CallFunction::GetParameterText(const Integer id) const
 {
-   #ifdef DEBUG_CALL_FUNCTION
+   #ifdef DEBUG_CALL_FUNCTION_PARAM
       MessageInterface::ShowMessage("CallFunction::GetParameterText\n");
    #endif
 
@@ -427,7 +433,7 @@ const std::string& CallFunction::GetGeneratingString(Gmat::WriteMode mode,
 //------------------------------------------------------------------------------
 Integer CallFunction::GetParameterID(const std::string &str) const
 {
-   #ifdef DEBUG_CALL_FUNCTION
+   #ifdef DEBUG_CALL_FUNCTION_PARAM
       MessageInterface::ShowMessage("CallFunction::GetParameterID \n");
    #endif
 
@@ -446,7 +452,7 @@ Integer CallFunction::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType CallFunction::GetParameterType(const Integer id) const
 {
-   #ifdef DEBUG_CALL_FUNCTION
+   #ifdef DEBUG_CALL_FUNCTION_PARAM
       MessageInterface::ShowMessage("CallFunction::GetParameterType\n");
    #endif
 
@@ -462,7 +468,7 @@ Gmat::ParameterType CallFunction::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 std::string CallFunction::GetParameterTypeString(const Integer id) const
 {
-   #ifdef DEBUG_CALL_FUNCTION
+   #ifdef DEBUG_CALL_FUNCTION_PARAM
       MessageInterface::ShowMessage("CallFunction::GetParameterTypeString\n");
    #endif
 
@@ -478,7 +484,7 @@ std::string CallFunction::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 std::string CallFunction::GetStringParameter(const Integer id) const
 {
-   #ifdef DEBUG_CALL_FUNCTION
+   #ifdef DEBUG_CALL_FUNCTION_PARAM
       MessageInterface::ShowMessage("CallFunction::GetStringParameter\n");
    #endif
 
@@ -507,7 +513,7 @@ std::string CallFunction::GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 bool CallFunction::SetStringParameter(const Integer id, const std::string &value)
 {
-   #ifdef DEBUG_CALL_FUNCTION
+   #ifdef DEBUG_CALL_FUNCTION_PARAM
       MessageInterface::ShowMessage("CallFunction::SetStringParameter with id = %d and value = %s\n",
             id, value.c_str());
    #endif
@@ -768,8 +774,18 @@ GmatBase* CallFunction::GetRefObject(const Gmat::ObjectType type,
  */
 //------------------------------------------------------------------------------
 bool CallFunction::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                             const std::string &name)
+                                const std::string &name)
 {
+   #ifdef DEBUG_CALL_FUNCTION_REF_OBJ
+   MessageInterface::ShowMessage
+      ("CallFunction::SetRefObject() entered, obj=<%p><%s>'%s', type=%d, name='%s'\n",
+       obj, obj ? obj->GetTypeName().c_str() : "NULL", obj ? obj->GetName().c_str() : "NULL",
+       type, name.c_str());
+   #endif
+   
+   if (obj == NULL)
+      return false;
+   
    switch (type)
    {
    case Gmat::PARAMETER:
@@ -795,9 +811,9 @@ bool CallFunction::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       if (name == mFunctionName)
       {
          mFunction = (Function *)obj;
-         fm.SetFunction(mFunction);
+         if (mFunction && mFunction->GetTypeName() == "GmatFunction")
+            fm.SetFunction(mFunction);
       }
-      //mFunctionName = name;
       return true;
       
    case Gmat::COMMAND:
@@ -809,7 +825,7 @@ bool CallFunction::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    default:
       break;
    }
-
+   
    // Not handled here -- invoke the next higher SetRefObject call
    return GmatCommand::SetRefObject(obj, type, name);
 }
@@ -847,7 +863,7 @@ ObjectArray& CallFunction::GetRefObjectArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
 bool CallFunction::Initialize()
 {
-   #ifdef DEBUG_CALL_FUNCTION
+   #ifdef DEBUG_CALL_FUNCTION_INIT
       MessageInterface::ShowMessage("In CallFunction::Initialize()\n");
    #endif
    
@@ -866,66 +882,66 @@ bool CallFunction::Initialize()
    
    
    bool rv = true;  // Initialization return value
+   if (mFunction == NULL)
+      throw CommandException("CallFunction::Initialize() the function pointer is NULL");
    
    if (mFunction->GetTypeName() != "GmatFunction")
    {
-  // need to initialize input parameters
-   mInputList.clear();
-   GmatBase *mapObj;
-   for (StringArray::iterator i = mInputListNames.begin(); i != mInputListNames.end(); ++i)
-   {
-      if ((mapObj = FindObject(*i))  == NULL)
-        throw CommandException("CallFunction command cannot find Parameter " +
-           *i + " in script line\n   \"" +
-           GetGeneratingString(Gmat::SCRIPTING) + "\"");
+      // need to initialize input parameters
+      mInputList.clear();
+      GmatBase *mapObj;
+      for (StringArray::iterator i = mInputListNames.begin();
+           i != mInputListNames.end(); ++i)
+      {
+         if ((mapObj = FindObject(*i))  == NULL)
+            throw CommandException("CallFunction command cannot find Parameter " +
+                  *i + " in script line\n   \"" +
+                  GetGeneratingString(Gmat::SCRIPTING) + "\"");
+         
+         #ifdef DEBUG_CALL_FUNCTION_INIT
+            MessageInterface::ShowMessage("Adding input parameter %s\n", i->c_str());
+         #endif
+            
+         mInputList.push_back((Parameter *)mapObj);
+      }
       
-      #ifdef DEBUG_CALL_FUNCTION
-         MessageInterface::ShowMessage("Adding input parameter %s\n", i->c_str());
-      #endif
-         
-          mInputList.push_back((Parameter *)mapObj);
-   }
-
-   
-   // need to initialize output parameters
-   mOutputList.clear();
-   
-   for (StringArray::iterator i = mOutputListNames.begin();
-   i != mOutputListNames.end();++i)
-   {
-      if ((mapObj = FindObject(*i))  == NULL)
-        throw CommandException("CallFunction command cannot find Parameter " + (*i));
-
-      #ifdef DEBUG_CALL_FUNCTION
-         MessageInterface::ShowMessage("Adding output parameter %s\n", i->c_str());
-      #endif
-         
-          mOutputList.push_back((Parameter *)mapObj);
-   }
-   
-   
-   if (mInputList.size() > 0)
-      if (mInputList[0] == NULL)
+      // need to initialize output parameters
+      mOutputList.clear();
+      
+      for (StringArray::iterator i = mOutputListNames.begin();
+           i != mOutputListNames.end();++i)
       {
-          MessageInterface::PopupMessage
-            (Gmat::WARNING_,
-             "CallFunction::Initialize() CallFunction will not be created.\n"
-             "The first parameter selected as input for the CallFunction is NULL\n");
-          return false;
-      }
-   
-   
-   if (mOutputList.size() > 0)
-      if (mOutputList[0] == NULL)
-      {
-          MessageInterface::PopupMessage
-            (Gmat::WARNING_,
-             "CallFunction::Initialize() CallFunction will not be created.\n"
-             "The first parameter selected as output for the CallFunction is NULL\n");
-          return false;
-      }
-   
+         if ((mapObj = FindObject(*i))  == NULL)
+            throw CommandException("CallFunction command cannot find Parameter " + (*i));
+         
+         #ifdef DEBUG_CALL_FUNCTION_INIT
+            MessageInterface::ShowMessage("Adding output parameter %s\n", i->c_str());
+         #endif
+         
+         mOutputList.push_back((Parameter *)mapObj);
+      }      
+      
+      if (mInputList.size() > 0)
+         if (mInputList[0] == NULL)
+         {
+            MessageInterface::PopupMessage
+               (Gmat::WARNING_,
+                "CallFunction::Initialize() CallFunction will not be created.\n"
+                "The first parameter selected as input for the CallFunction is NULL\n");
+            return false;
+         }
+      
+      if (mOutputList.size() > 0)
+         if (mOutputList[0] == NULL)
+         {
+            MessageInterface::PopupMessage
+               (Gmat::WARNING_,
+                "CallFunction::Initialize() CallFunction will not be created.\n"
+                "The first parameter selected as output for the CallFunction is NULL\n");
+            return false;
+         }
    }
+   
    // Handle additional initialization for GmatFunctions
    if (mFunction->GetTypeName() == "GmatFunction")
    {
@@ -980,7 +996,7 @@ bool CallFunction::Execute()
    if (mFunction == NULL)
       throw CommandException("Function is not defined for CallFunction");
 
-   #ifdef DEBUG_CALL_FUNCTION
+   #ifdef DEBUG_CALL_FUNCTION_EXEC
       MessageInterface::ShowMessage("CallFunction::Execute()\n");
    #endif
 
@@ -998,8 +1014,8 @@ bool CallFunction::Execute()
    {
       status = fm.Execute(callingFunction);
    }
-
-   #ifdef DEBUG_CALL_FUNCTION
+   
+   #ifdef DEBUG_CALL_FUNCTION_EXEC
       MessageInterface::ShowMessage("Executed command\n");
    #endif
 
@@ -1007,6 +1023,10 @@ bool CallFunction::Execute()
    return status;
 }
 
+
+//------------------------------------------------------------------------------
+// void RunComplete()
+//------------------------------------------------------------------------------
 void CallFunction::RunComplete()
 {
    #ifdef DEBUG_RUN_COMPLETE
