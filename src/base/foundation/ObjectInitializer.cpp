@@ -539,11 +539,19 @@ void ObjectInitializer::InitializeInternalObjects()
    #endif
    SpacePoint *sp, *j2kBod;
    std::string j2kName, oName;
-
-   #ifdef DEBUG_OBJECT_INITIALIZER
-   if (!ss)
-      MessageInterface::ShowMessage("Solar System pointer is NULL!!!!!! ...\n");
-   #endif
+   
+   if (ss == NULL)
+      throw GmatBaseException("ObjectInitializer::InitializeInternalObjects() "
+                              "The Solar System pointer is NULL");
+   
+   if (cs == NULL)
+      throw GmatBaseException("ObjectInitializer::InitializeInternalObjects() "
+                              "The Internal Coordinate System pointer is NULL");
+   
+   //#ifdef DEBUG_OBJECT_INITIALIZER
+   //if (!ss)
+   //   MessageInterface::ShowMessage("Solar System pointer is NULL!!!!!! ...\n");
+   //#endif
    ss->Initialize();
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage(" ... and solar system is initialized  ...\n");
@@ -565,8 +573,9 @@ void ObjectInitializer::InitializeInternalObjects()
    // set ref object for internal coordinate system
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage(" ... solar system about to be set on coordinate system  ...\n");
-      if (!cs) MessageInterface::ShowMessage(" but solar system is NULL!!!!!!\n");
+      //if (!cs) MessageInterface::ShowMessage(" but solar system is NULL!!!!!!\n");
    #endif
+   
    cs->SetSolarSystem(ss);
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage(" ... and solar system is set on coordinate system  ...\n");
