@@ -947,7 +947,7 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
       }
       else if (solver->IsOfType("Optimizer"))
       {
-      	// Set generic optimizer stuff here!
+        // Set generic optimizer stuff here!
          AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::SOLVER));
       }
@@ -1311,6 +1311,13 @@ void ResourceTree::OnRename(wxCommandEvent &event)
    wxString newName = oldName;
    newName = wxGetTextFromUser(wxT("New name: "), wxT("Input Text"),
                                newName, this);
+   
+   // @note
+   // There is no way of kwowing whether user entered blank and clicked OK
+   // or just clicked Cancel, since wxGetTextFromUser() returns blank for
+   // both cases. So if blank is returned, no change is assumed. (loj: 2008.08.29)
+   if (newName == "")
+      return;
    
    if (!GmatStringUtil::IsValidName(newName.c_str()))
    {
