@@ -294,20 +294,19 @@ Gmat::BlockType TextParser::EvaluateBlock(const std::string &logicalBlock)
                }
             }
             
-            /// @TODO: This is a work around for a call function with
+            /// @todo: This is a work around for a call function with
             /// without any return parameters.  It should be updated in
             /// the design to handle this situation.
             std::string::size_type commentPos = str.find("%");
             std::string noInline = str;
             if (commentPos != str.npos)
                noInline = str.substr(0, commentPos);
-
+            
             // Since we are allowed to pass string literal, string literal can
             // be anything letters including equal sign, so we need additional checking.
             // String literals are enclosed with single quotes (loj: 2008.05.19)
-            // See if it has euqal sign not in quotes.
-            //if (noInline.find("=") == str.npos) // Is this checking enough?
-            if (!GmatStringUtil::IsThereEqualSign(str))
+            // See if it has equal sign and math symbols not in quotes.
+            if (!GmatStringUtil::IsThereMathSymbol(str))
             {
                theBlockType = Gmat::COMMAND_BLOCK;
                isFunctionCall = true;
