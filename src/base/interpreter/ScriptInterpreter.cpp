@@ -271,7 +271,14 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    // so set continueOnError to false
    continueOnError = false;
    if (!CheckFunctionDefinition(fileName, currentFunction))
+   {
+      #if DBGLVL_GMAT_FUNCTION
+      MessageInterface::ShowMessage
+         ("ScriptInterpreter::InterpretGmatFunction() returning NULL, failed to "
+          "CheckFunctionDefinition()\n");
+      #endif
       return NULL;
+   }
    
    // Now function file is ready to parse
    continueOnError = true;
@@ -840,16 +847,67 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
          if (theTextParser.IsFunctionCall())
          {
             #ifdef DEBUG_PARSE
-            MessageInterface::ShowMessage("   TextParser detected as CallFunction\n");
+            MessageInterface::ShowMessage
+               ("   TextParser detected as CallFunction\n");
             #endif
+            
+            std::string::size_type index = actualScript.find_first_of("( ");
+            std::string substr = actualScript.substr(0, index);
+            
+            #ifdef DEBUG_PARSE
+            MessageInterface::ShowMessage
+               ("   Checking if '%s' is predefined non-Function object, or not "
+                "yet supported ElseIf/Switch\n",
+                substr.c_str());
+            #endif
+            
+            if (substr.find("ElseIf") != substr.npos ||
+                substr.find("Switch") != substr.npos)
+            {
+               InterpreterException ex("\"" + substr + "\" is not yet supported");
+               HandleError(ex);
+               return false;
+            }
+            
+            obj = FindObject(substr);
+            if (obj != NULL && !(obj->IsOfType("Function")))
+            {
+               InterpreterException ex;
+               if (actualScript.find_first_of("(") != actualScript.npos)
+               {
+                  ex.SetDetails("The object named \"" + substr + "\" of type \"" +
+                                obj->GetTypeName() + "\" cannot be a Function name");
+               }
+               else
+               {
+                  ex.SetDetails("The object named \"" + substr + "\" of type \"" +
+                                obj->GetTypeName() + "\" is not a valid Command");
+               }
+               HandleError(ex);
+               return false;
+            }
             
             obj = (GmatBase*)CreateCommand("CallFunction", actualScript, retval, inCmd);
             
-            // Setting comments was missing (loj: 2008.08.08)
-            // Get comments and set to object
-            std::string preStr = theTextParser.GetPrefaceComment();
-            std::string inStr = theTextParser.GetInlineComment();
-            SetComments(obj, preStr, inStr); 
+            if (obj && retval)
+            {
+               // Setting comments was missing (loj: 2008.08.08)
+               // Get comments and set to object
+               std::string preStr = theTextParser.GetPrefaceComment();
+               std::string inStr = theTextParser.GetInlineComment();
+               SetComments(obj, preStr, inStr);
+            }
+            else
+            {
+               #ifdef DEBUG_PARSE
+               if (obj == NULL)
+                  MessageInterface::ShowMessage
+                     ("   *** CreateCommand() returned NULL command\n");
+               if (!retval)
+                  MessageInterface::ShowMessage
+                     ("   *** CreateCommand() returned false\n");
+               #endif
+            }
             
             break;
          }
@@ -1323,6 +1381,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
       return false;
    }
    
+   // check for missing RHS
    if (count < 2)
    {
       InterpreterException ex("Missing parameter assigning object for: ");
@@ -1332,6 +1391,55 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    
    std::string lhs = chunks[0];
    std::string rhs = chunks[1];
+   
+   // check for ElseIf, since it is not yet supported
+   if (lhs.find("ElseIf ") != lhs.npos ||
+       rhs.find("ElseIf ") != rhs.npos)
+   {
+      InterpreterException ex("\"ElseIf\" is not yet supported");
+      HandleError(ex);
+      return false;
+   }
+   
+   // if RHS is not enclosed with single quotes, check for unexpected symbols or space
+   if (!GmatStringUtil::IsEnclosedWith(rhs, "'"))
+   {
+      if (lhs.find_first_of("=~<>") != lhs.npos ||
+          rhs.find_first_of("=~<>") != rhs.npos)
+      {
+         std::string cmd;
+         InterpreterException ex;
+         
+         if (lhs == "")
+         {
+            cmd = rhs.substr(0, rhs.find_first_of(" "));
+            if (!IsCommandType(cmd))
+               ex.SetDetails("\"" + cmd + "\" is not a valid Command");
+         }
+         else
+         {
+            std::string::size_type index = lhs.find_first_of(" ");
+            if (index != lhs.npos)
+            {
+               cmd = lhs.substr(0, index);
+               if (!IsCommandType(cmd))
+                  ex.SetDetails("\"" + cmd + "\" is not a valid Command");
+            }
+            else
+            {
+               if (!IsCommandType(cmd) && lhs.find(".") == lhs.npos)
+                  ex.SetDetails("\"" + cmd + "\" is not a valid Command");
+               else
+                  ex.SetDetails("\"" + rhs + "\" is not a valid RHS of Assignment");
+            }
+         }
+         
+         HandleError(ex);
+         return false;
+         
+      }
+   }
+   
    
    // Check for GmatGlobal setting
    if (lhs.find("GmatGlobal.") != std::string::npos)
@@ -1504,15 +1612,26 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
 //------------------------------------------------------------------------------
 bool ScriptInterpreter::IsOneWordCommand(const std::string &str)
 {
+   bool retval = false;
+   
    if ((str.find("End")           != str.npos  &&
         str.find("EndFiniteBurn") == str.npos) ||
        (str.find("BeginScript")   != str.npos) ||
        (str.find("NoOp")          != str.npos) ||
-       (str.find("Else")          != str.npos) ||
+       (str.find("Else")          != str.npos  &&
+        str.find("ElseIf")        == str.npos) ||
        (str.find("Stop")          != str.npos))
-      return true;
+   {
+      retval = true;
+   }
    
-   return false;
+   #ifdef DEBUG_ONE_WORD_COMMAND
+   MessageInterface::ShowMessage
+      ("ScriptInterpreter::IsOneWordCommand() str='%s' returning %s\n",
+       str.c_str(), retval ? "true" : "false");
+   #endif
+   
+   return retval;
 }
 
 
