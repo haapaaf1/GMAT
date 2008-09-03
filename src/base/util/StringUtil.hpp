@@ -118,6 +118,7 @@ namespace GmatStringUtil
                              bool checkOnlyFirst);
    bool IsParenPartOfArray(const std::string &str);
    bool IsThereEqualSign(const std::string &str);
+   bool IsThereMathSymbol(const std::string &str);
    bool HasNoBrackets(const std::string &str, bool parensForArraysAllowed = true);
    bool IsSingleItem(const std::string &str);
    bool StartsWith(const std::string &str, const std::string &value);

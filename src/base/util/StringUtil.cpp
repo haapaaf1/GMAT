@@ -2385,6 +2385,42 @@ bool GmatStringUtil::IsThereEqualSign(const std::string &str)
 
 
 //------------------------------------------------------------------------------
+// bool IsThereMathSymbol(const std::string &str)
+//------------------------------------------------------------------------------
+/*
+ * Checks if there is any math symbos, "-,+,*,/,^,=,<,>", not enclosed with
+ * single quotes. It will return when it finds first math symbol not in quotes.
+ *
+ * @param  return true if it finds any math symbol not in qotes, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool GmatStringUtil::IsThereMathSymbol(const std::string &str)
+{
+   Integer size = str.size();
+   bool inQuotes = false;
+   
+   for (Integer i=0; i<size; i++)
+   {
+      if (str[i] == '\'')
+      {
+         if (inQuotes)
+            inQuotes = false;
+         else
+            inQuotes = true;
+      }
+      else if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/' || 
+               str[i] == '^' || str[i] == '=' || str[i] == '<' || str[i] == '>')
+      {
+         if (!inQuotes)
+            return true;
+      }
+   }
+   
+   return false;
+}
+
+
+//------------------------------------------------------------------------------
 // bool HasNoBrackets(const std::string &str, 
 //                    bool parensForArraysAllowed = true)
 //------------------------------------------------------------------------------
