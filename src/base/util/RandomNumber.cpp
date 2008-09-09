@@ -12,21 +12,26 @@
 // Created: 2008/09/08
 //
 /**
+ * GMAT's Random Number Class
  *
- * Implements a utility class to generate random numbers.
- *
+ * This class implements the random number generator routines found in:
+ * 1) Park and Miller, "Random Number Generator: Good Ones are Hard to Find."
+ * Communications of the ACM 31 (10), pp 1192-1201.
+ * 2) L'Ecuyer, P. 1988, Communications of the ACM, vol 31, pp 742-774.
+ * 3) Knuth, D.E. 1981, Seminumerical Algorithms, 2nd ed., vol 2 of "The
+ * Art of Computer Programming", Sections 3.2-3.3.
+ * 
  */
 //------------------------------------------------------------------------------
 
 #include "RandomNumber.hpp"
 #include "RealUtilities.hpp"
 
-using namespace GmatRandNumUtil;
 
 //------------------------------------------------------------------------------
 // RandomNumber()
 //------------------------------------------------------------------------------
-/*
+/**
  * Class constructor.
  *
  */
@@ -38,7 +43,7 @@ RandomNumber::RandomNumber() : idum (NULL)
 //------------------------------------------------------------------------------
 // ~RandomNumber()
 //------------------------------------------------------------------------------
-/*
+/**
  * Class destructor.
  *
  */
@@ -48,10 +53,12 @@ RandomNumber::~RandomNumber()
 }
 
 //------------------------------------------------------------------------------
-//  Long* GetIdum()
+//  Long int* GetIdum()
 //------------------------------------------------------------------------------
-/*
+/**
+ *  Retrieve the current seed value (theoretically you should never need this).
  *
+ *  @return Current seed value.
  */
 //------------------------------------------------------------------------------
 long int* RandomNumber::GetSeed(){
@@ -61,8 +68,10 @@ long int* RandomNumber::GetSeed(){
 //------------------------------------------------------------------------------
 //  void SetIdum()
 //------------------------------------------------------------------------------
-/*
+/**
+ *  Set the seed for the random number generators.
  *
+ *  @param <idum2> input seed
  */
 //------------------------------------------------------------------------------
 void RandomNumber::SetSeed(long int *idum2){
@@ -73,8 +82,8 @@ void RandomNumber::SetSeed(long int *idum2){
 //------------------------------------------------------------------------------
 //  void ClockSeed()
 //------------------------------------------------------------------------------
-/*
- *
+/**
+ * Set the seed value based upon the current clock time.
  */
 //------------------------------------------------------------------------------
 void RandomNumber::ClockSeed(){
@@ -92,16 +101,20 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real Ran0()
 //------------------------------------------------------------------------------
-/*
- *  "Minimal" random number generator of Park and Miller. Returns a uniform
- *  random deviate between 0.0 and 1.0. Set or reset idum to any integer value
- *  (except the unlikely value MASK) to initialize the sequence; idum must
- *  not be altered between calls for successive deviates in a sequence. The 
- *  period of ran0 is 2^31 - 2 ~ 2.1x10^9. The value 0 must never be used as
- *  the initial seed.
+/**
+ *  "Minimal" random number generator of Park and Miller. 
+ * 
+ *  Returns a uniform random deviate between 0.0 and 1.0. Set or reset idum 
+ *  to any integer value (except the unlikely value MASK) to initialize the 
+ *  sequence; idum must not be altered between calls for successive deviates 
+ *  in a sequence. The period of ran0 is 2^31 - 2 ~ 2.1x10^9. The value 0 
+ *  must never be used as the initial seed.
  *
- *  This routine is satisfactoryy for a majority of applications but contains
+ *  This routine is satisfactory for a majority of applications but contains
  *  low-order serial correlations.
+ *
+ *  @return The random deviate.
+ *
  */
 //------------------------------------------------------------------------------
  Real RandomNumber::Ran0(){
@@ -122,15 +135,18 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real Ran1()
 //------------------------------------------------------------------------------
-/*
- *  "Minimal" random number generator of Park and MIller with Bays-Durham
- *  shuffle and added safeguards. Returns a uniform random deviate between
- *  0.0 and 1.0 (exclusive of the endpoint values). Call with idum a negative
- *  integer to initialize; thereafter, do not alter idum between successive
- *  deviates in a sequence. RNMX should appoximate the largest floating value 
- *  that is less than 1.
+/**
+ *  "Minimal" random number generator of Park and Miller. 
+ *  Includes Bays-Durham shuffle and added safeguards. 
+ * 
+ *  Returns a uniform random deviate between 0.0 and 1.0 (exclusive of the 
+ *  endpoint values). Call with idum a negative integer to initialize; 
+ *  thereafter, do not alter idum between successive deviates in a sequence. 
+ *  RNMX should appoximate the largest floating value that is less than 1.
  *
  *  The routine Ran1 passes those statistical tests that Ran0 is known to fail.
+ *
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -177,13 +193,16 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real Ran2()
 //------------------------------------------------------------------------------
-/*
- *  Long period (> 2x10^18) random number generator of L'Ecuyer with
- *  Bays-Durham shuffle and added safeguards. Returns a uniform random deviate
- *  between 0.0 and 1.0 (exclusive of the endpoint values). Call with idum a 
- *  negative integer to initialize; thereafter, do not alter idum between
- *  successive deviates in a sequence. RNMX should approximate the largest
- *  floating value that is less than 1.
+/**
+ *  Long period (> 2x10^18) random number generator of L'Ecuyer 
+ *  Includes Bays-Durham shuffle and added safeguards. 
+ * 
+ *  Returns a uniform random deviate between 0.0 and 1.0 (exclusive of the 
+ *  endpoint values). Call with idum a negative integer to initialize; 
+ *  thereafter, do not alter idum between successive deviates in a sequence. 
+ *  RNMX should approximate the largest floating value that is less than 1.
+ *
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -236,9 +255,13 @@ void RandomNumber::ClockSeed(){
  //------------------------------------------------------------------------------
 //  Real Ran3()
 //------------------------------------------------------------------------------
-/*
- *  Returns a uniform random deviate between 0.0 and 1.0. Set idum to any
- *  negative value to initialize or reinitialize the sequence.
+/**
+ *  Knuth's method for a portable uniform random number generator.
+ * 
+ *  Returns a deviate between 0.0 and 1.0. Set idum to any negative value 
+ *  to initialize or reinitialize the sequence.
+ *
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -306,9 +329,11 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real ExponentialRand()
 //------------------------------------------------------------------------------
-/*
- *  Returns an exponentially distributed, positive, random deviate of unit
- *  mean, using Ran1 as the source of uniform deviates;
+/**
+ *  Returns a unit mean exponentially distributed, positive, random deviate.
+ *  Uses Ran1 as the source of uniform deviates.
+ *
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -328,9 +353,11 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real ExponentialRand2()
 //------------------------------------------------------------------------------
-/*
- *  Returns an exponentially distributed, positive, random deviate of unit
- *  mean, using Ran2 as the source of uniform deviates;
+/**
+ *  Returns a unit mean exponentially distributed, positive, random deviate.
+ *  Uses Ran2 as the source of uniform deviates.
+ *
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -350,9 +377,11 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real ExponentialRand3()
 //------------------------------------------------------------------------------
-/*
- *  Returns an exponentially distributed, positive, random deviate of unit
- *  mean, using Ran3 as the source of uniform deviates;
+/**
+ *  Returns a unit mean exponentially distributed, positive, random deviate.
+ *  Uses Ran2 as the source of uniform deviates.
+ *
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -372,9 +401,11 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real GaussianRand()
 //------------------------------------------------------------------------------
-/*
- *  Returns a normally distributed Gaussian random deviate of unit
- *  mean, using Ran1 as the source of uniform deviates;
+/**
+ *  Returns a normally distributed Gaussian random deviate (zero mean, unit var)
+ *  Uses Ran1 as the source of uniform deviates.
+ *
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -417,9 +448,11 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real GaussianRand2()
 //------------------------------------------------------------------------------
-/*
- *  Returns a normally distributed Gaussian random deviate of unit
- *  mean, using Ran2 as the source of uniform deviates;
+/**
+ *  Returns a normally distributed Gaussian random deviate (zero mean, unit var)
+ *  Uses Ran2 as the source of uniform deviates.
+ *
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -462,9 +495,9 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real GaussianRand3()
 //------------------------------------------------------------------------------
-/*
- *  Returns a normally distributed Gaussian random deviate of unit
- *  mean, using Ran3 as the source of uniform deviates;
+/**
+ *  Returns a normally distributed Gaussian random deviate (zero mean, unit var)
+ *  Uses Ran3 as the source of uniform deviates.
  *
  */
 //------------------------------------------------------------------------------
@@ -508,10 +541,14 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real GaussianRand(Real mean, Real stdev)
 //------------------------------------------------------------------------------
-/*
+/**
  *  Returns a normally distributed Gaussian random deviate with a
  *  prescribed mean and standard deviation using Ran1 as the source 
  *  of uniform deviates;
+ *
+ *  @param <mean> Mean of Gaussian distribution
+ *  @param <stdev> Standard deviation of Gaussian distribution
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -525,10 +562,14 @@ void RandomNumber::ClockSeed(){
  //------------------------------------------------------------------------------
 //  Real GaussianRand2(Real mean, Real stdev)
 //------------------------------------------------------------------------------
-/*
+/**
  *  Returns a normally distributed Gaussian random deviate with a
  *  prescribed mean and standard deviation using Ran2 as the source 
  *  of uniform deviates;
+ *
+ *  @param <mean> Mean of Gaussian distribution
+ *  @param <stdev> Standard deviation of Gaussian distribution
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -542,10 +583,14 @@ void RandomNumber::ClockSeed(){
  //------------------------------------------------------------------------------
 //  Real GaussianRand3(Real mean, Real stdev)
 //------------------------------------------------------------------------------
-/*
+/**
  *  Returns a normally distributed Gaussian random deviate with a
  *  prescribed mean and standard deviation using Ran3 as the source 
  *  of uniform deviates;
+ *
+ *  @param <mean> Mean of Gaussian distribution
+ *  @param <stdev> Standard deviation of Gaussian distribution
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -559,10 +604,14 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real UniformRand(Real a, Real b)
 //------------------------------------------------------------------------------
-/*
- *  Returns an uniformly distributed random deviate between a and b
- *  using Ran1 as the source of uniform deviates. The mean of this distribution
- *  is (a+b)/2. The variance of this distribution is (b-a)^2/12.
+/**
+ *  Returns an uniformly distributed random deviate between a and b using Ran1.
+ *  The mean of this distribution is (a+b)/2.
+ *  The variance of this distribution is (b-a)^2/12.
+ *
+ *  @param <a> Distribution start
+ *  @param <b> Distribution end
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -576,10 +625,14 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real UniformRand(Real a, Real b)
 //------------------------------------------------------------------------------
-/*
- *  Returns an uniformly distributed random deviate between a and b
- *  using Ran2 as the source of uniform deviates. The mean of this distribution
- *  is (a+b)/2. The variance of this distribution is (b-a)^2/12.
+/**
+ *  Returns an uniformly distributed random deviate between a and b using Ran2.
+ *  The mean of this distribution is (a+b)/2.
+ *  The variance of this distribution is (b-a)^2/12.
+ *
+ *  @param <a> Distribution start
+ *  @param <b> Distribution end
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
@@ -593,10 +646,14 @@ void RandomNumber::ClockSeed(){
 //------------------------------------------------------------------------------
 //  Real UniformRand3(Real a, Real b)
 //------------------------------------------------------------------------------
-/*
- *  Returns an uniformly distributed random deviate between a and b
- *  using Ran3 as the source of uniform deviates. The mean of this distribution
- *  is (a+b)/2. The variance of this distribution is (b-a)^2/12.
+/**
+ *  Returns an uniformly distributed random deviate between a and b using Ran3.
+ *  The mean of this distribution is (a+b)/2.
+ *  The variance of this distribution is (b-a)^2/12.
+ *
+ *  @param <a> Distribution start
+ *  @param <b> Distribution end
+ *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
