@@ -61,7 +61,8 @@ RandomNumber::~RandomNumber()
  *  @return Current seed value.
  */
 //------------------------------------------------------------------------------
-long int* RandomNumber::GetSeed(){
+long int* RandomNumber::GetSeed()
+{
     return idum;
 }
 
@@ -74,7 +75,8 @@ long int* RandomNumber::GetSeed(){
  *  @param <idum2> input seed
  */
 //------------------------------------------------------------------------------
-void RandomNumber::SetSeed(long int *idum2){
+void RandomNumber::SetSeed(long int *idum2)
+{
     idum = idum2;
 }
 
@@ -86,7 +88,8 @@ void RandomNumber::SetSeed(long int *idum2){
  * Set the seed value based upon the current clock time.
  */
 //------------------------------------------------------------------------------
-void RandomNumber::ClockSeed(){
+void RandomNumber::ClockSeed()
+{
     
     long int myseed = time(NULL);
 
@@ -117,7 +120,8 @@ void RandomNumber::ClockSeed(){
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::Ran0(){
+ Real RandomNumber::Ran0()
+ {
 
      long int k;
      Real ans;
@@ -150,7 +154,8 @@ void RandomNumber::ClockSeed(){
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::Ran1(){
+ Real RandomNumber::Ran1()
+ {
 
     Integer j;
     long int k;
@@ -206,7 +211,8 @@ void RandomNumber::ClockSeed(){
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::Ran2(){
+ Real RandomNumber::Ran2()
+ {
 
     Integer j;
     long int k;
@@ -265,7 +271,8 @@ void RandomNumber::ClockSeed(){
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::Ran3(){
+ Real RandomNumber::Ran3()
+ {
 
      static Integer inext, inextp;
      static long int ma[56];
@@ -409,7 +416,8 @@ void RandomNumber::ClockSeed(){
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::GaussianRand(){
+ Real RandomNumber::GaussianRand()
+ {
 
      static Integer iset = 0;
      static Real gset;
@@ -456,7 +464,8 @@ void RandomNumber::ClockSeed(){
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::GaussianRand2(){
+ Real RandomNumber::GaussianRand2()
+ {
 
      static Integer iset = 0;
      static Real gset;
@@ -501,7 +510,8 @@ void RandomNumber::ClockSeed(){
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::GaussianRand3(){
+ Real RandomNumber::GaussianRand3()
+ {
 
      static Integer iset = 0;
      static Real gset;
