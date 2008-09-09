@@ -1,9 +1,22 @@
-/* 
- * File:   RandomNumber.hpp
- * Author: mwilkins
+//$Id$
+//------------------------------------------------------------------------------
+//                              RandomNumber
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2008/09/08
+//
+/**
  *
- * Created on September 5, 2008, 4:37 PM
+ * Implements a utility class to generate random numbers.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _RandomNumber_hpp
 #define _RandomNumber_hpp
