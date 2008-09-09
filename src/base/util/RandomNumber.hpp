@@ -85,7 +85,7 @@ public:
     // Get/Set/Re Seed
     long int* GetSeed();
     void SetSeed(long int *idum2);
-    void ReSeed();
+    void ClockSeed();
 	
 private:
 

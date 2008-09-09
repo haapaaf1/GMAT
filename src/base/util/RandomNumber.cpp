@@ -71,15 +71,15 @@ void RandomNumber::SetSeed(long int *idum2){
 
 
 //------------------------------------------------------------------------------
-//  void ReSeed()
+//  void ClockSeed()
 //------------------------------------------------------------------------------
 /*
  *
  */
 //------------------------------------------------------------------------------
-void RandomNumber::ReSeed(){
+void RandomNumber::ClockSeed(){
     
-    long int myseed = -time(NULL);
+    long int myseed = -GmatMathUtil::Abs(time(NULL));
     idum = &myseed;
     
 }
