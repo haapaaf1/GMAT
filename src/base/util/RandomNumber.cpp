@@ -79,7 +79,12 @@ void RandomNumber::SetSeed(long int *idum2){
 //------------------------------------------------------------------------------
 void RandomNumber::ClockSeed(){
     
-    long int myseed = -GmatMathUtil::Abs(time(NULL));
+    long int myseed = time(NULL);
+
+    // Make sure seed is negative for Ran1,Ran2, and Ran3
+    // Ran0 doesn't care if it is positive or negative
+    if (myseed > 0) myseed *= -1;
+    
     idum = &myseed;
     
 }
