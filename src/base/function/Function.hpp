@@ -129,6 +129,8 @@ protected:
    // @todo - should these next four items remain here or move to GmatFunction??
    /// the function control sequence
    GmatCommand          *fcs;
+   /// have the commands in the FCS been finalized?
+   bool                 fcsFinalized;
    /// objects automatically created on parsing (but for whom a references object cannot be
    /// set at that time)
    std::map<std::string, GmatBase *>          

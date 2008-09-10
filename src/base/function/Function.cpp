@@ -67,6 +67,7 @@ Function::Function(const std::string &typeStr, const std::string &name) :
    internalCoordSys  (NULL),
    forces            (NULL),
    fcs               (NULL),
+   fcsFinalized      (false),
    validator         (NULL),
    objectsInitialized (false)
 {
@@ -112,6 +113,7 @@ Function::Function(const Function &f) :
    internalCoordSys  (NULL),
    forces            (NULL),
    fcs               (NULL),
+   fcsFinalized      (f.fcsFinalized),
    validator         (f.validator),
    objectsInitialized (false)
 {
@@ -145,6 +147,7 @@ Function& Function::operator=(const Function &f)
    internalCoordSys  = f.internalCoordSys;
    forces            = f.forces;
    fcs               = NULL;
+   fcsFinalized      = f.fcsFinalized;
    validator         = f.validator;
    objectsInitialized = f.objectsInitialized;
    inputNames        = f.inputNames;
