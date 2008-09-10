@@ -78,7 +78,8 @@ public:
 
    //void                 SetCallingFunction(FunctionManager *fm);
    ObjectMap*           PushToStack();
-   void                 PopFromStack(ObjectMap* cloned, const StringArray &outNames);
+   void                 PopFromStack(ObjectMap* cloned, const StringArray &outNames, 
+                                     const StringArray &callingNames);
 
 protected:
    
@@ -162,6 +163,10 @@ protected:
    bool                 EmptyObjectMap(ObjectMap *om);  
    bool                 DeleteObjectMap(ObjectMap *om);
    bool                 IsOnStack(ObjectMap *om);
+   
+   void                 ShowObjectMap(ObjectMap *om, const std::string &mapID = "");
+   void                 ShowStackContents(ObjectMapStack omStack, const std::string &stackID = "");
+   
 };
 
 #endif // FunctionManager_hpp

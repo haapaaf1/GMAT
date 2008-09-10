@@ -530,7 +530,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    {
       StringArray outNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
       // call the caller to pop its FOS back of the stack
-      callingFunction->PopFromStack(&functionObjectStore, outNames);
+      callingFunction->PopFromStack(&functionObjectStore, outNames, outs);
       // restore the localObjectStore
       localObjectStore = losStack.top();
       losStack.pop();
@@ -600,7 +600,7 @@ void FunctionManager::Finalize()
          f->Finalize();
    // now delete all of the items/entries in the FOS - we can do this since they 
    // are all either locally-created or clones of reference objects or automatic objects
-   EmptyObjectMap(&functionObjectStore);
+   //EmptyObjectMap(&functionObjectStore); // do I need to do this?????
    firstExecution = true;
 }
 
@@ -859,12 +859,14 @@ ObjectMap* FunctionManager::PushToStack()
       MessageInterface::ShowMessage(
             "PushToStack::Entering PushToStack for function %s\n",
             fName.c_str());
+      ShowStackContents(callStack, "Stack contents at beg. of PushToStack");
    #endif
    // Clone the FOS
    ObjectMap *cloned = new ObjectMap();
    std::map<std::string, GmatBase *>::iterator omi;
    GmatBase *objInMap;
    std::string strInMap;
+   ShowObjectMap(&functionObjectStore, "FOS at beg. of PushToStack");
    for (omi = functionObjectStore.begin(); omi != functionObjectStore.end(); ++omi)
    {
       strInMap = omi->first;
@@ -878,16 +880,25 @@ ObjectMap* FunctionManager::PushToStack()
    }
    // Put the FOS onto the stack
    callStack.push(&functionObjectStore);
+   #ifdef DEBUG_FM_STACK
+      MessageInterface::ShowMessage(
+            "PushToStack::Exiting PushToStack for function %s\n",
+            fName.c_str());
+      ShowObjectMap(cloned, "Cloned map at end of PushToStack");
+      ShowStackContents(callStack, "Stack contents at end of PushToStack");
+   #endif
    // Return the clone, to be used as the LOS for the FM that called this method
    return cloned;
 }
 
-void FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outNames)
+void FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outNames,
+                                   const StringArray &callingNames)
 {
    #ifdef DEBUG_FM_STACK
       MessageInterface::ShowMessage(
             "PopFromStack::Entering PopFromStack for function %s\n",
             fName.c_str());
+      ShowStackContents(callStack, "Stack contents at beg. of PopFromStack");
    #endif
    if (callStack.empty())
       throw FunctionException(
@@ -899,14 +910,19 @@ void FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
       MessageInterface::ShowMessage("PopFromStack::outNames are: \n");
       for (unsigned int ii=0; ii<outNames.size(); ii++)
          MessageInterface::ShowMessage(" %d)   %s\n", ii, (outNames.at(ii)).c_str());
+      MessageInterface::ShowMessage("PopFromStack::callingNames are: \n");
+      for (unsigned int ii=0; ii<callingNames.size(); ii++)
+         MessageInterface::ShowMessage(" %d)   %s\n", ii, (callingNames.at(ii)).c_str());
+      MessageInterface::ShowMessage("PopFromStack::cloned stack entries are: \n");
+      ShowObjectMap(cloned, "cloned");
       MessageInterface::ShowMessage("PopFromStack::popped stack entries are: \n");
-      //for (unsigned int ii=0; ii<outNames.size(); ii++)
-      //   MessageInterface::ShowMessage(" %d)   %s\n", ii, (outNames.at(ii)).c_str());
+      ShowObjectMap(&functionObjectStore, "FOS");
    #endif
    for (unsigned int jj = 0; jj < outNames.size(); jj++)
    {
       GmatBase *clonedObj = (*cloned)[outNames.at(jj)];
-      GmatBase *fosObj    = functionObjectStore[outNames.at(jj)];
+      GmatBase *fosObj    = functionObjectStore[callingNames.at(jj)];
+      //GmatBase *fosObj    = functionObjectStore[outNames.at(jj)];
       if (clonedObj == NULL)
       {
          std::string errMsg = "PopFromStack::Error getting output named ";
@@ -917,14 +933,14 @@ void FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
       if (fosObj == NULL)
       {
          std::string errMsg = "PopFromStack::Error setting output named ";
-         errMsg += outNames.at(jj) + " from nested function on function \"";
+         errMsg += callingNames.at(jj) + " from nested function on function \"";
          errMsg += fName + "\"\n";
          throw FunctionException(errMsg);
       }
       #ifdef DEBUG_FM_STACK
          MessageInterface::ShowMessage(
-               "PopFromStack::Copying value of %s into popped stack element\n",
-               (outNames.at(jj)).c_str());
+               "PopFromStack::Copying value of %s into popped stack element %s\n",
+               (outNames.at(jj)).c_str(), (callingNames.at(jj)).c_str());
       #endif
       fosObj->Copy(clonedObj);
    }
@@ -943,6 +959,7 @@ void FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
       MessageInterface::ShowMessage(
             "PopFromStack::Exiting PopFromStack for function %s\n",
             fName.c_str());
+      ShowStackContents(callStack, "Stack contents at end of PopFromStack");
    #endif
 }
 
@@ -997,8 +1014,51 @@ bool FunctionManager::IsOnStack(ObjectMap *om)
    if (callStack.empty())  return false;
 
    ObjectMap *tmp = callStack.top();
-   //if (&tmp == &om) return true;  // is the om the top element on the LIFO stack?
-   if (tmp == om) return true;  // is the om the top element on the LIFO stack?
+   //if (&tmp == &om) return true;  // is om the top element on the LIFO stack?
+   if (tmp == om) return true;  // is om the top element on the LIFO stack?
    else           return false;
+}
+
+void FunctionManager::ShowObjectMap(ObjectMap *om, const std::string &mapID)
+{
+   std::string itsID = mapID;
+   if (itsID == "") itsID = "unknown name";
+   if (om)
+   {
+//      MessageInterface::ShowMessage
+//         ("Object map (%s) contents:\n", itsID.c_str());
+      MessageInterface::ShowMessage("Object Map contains:\n");
+      for (std::map<std::string, GmatBase *>::iterator i = om->begin();
+           i != om->end(); ++i)
+         MessageInterface::ShowMessage
+            ("   name: %30s ...... pointer: %p...... object type: %s\n", i->first.c_str(), i->second,
+             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+   }
+}
+
+void FunctionManager::ShowStackContents(ObjectMapStack omStack, const std::string &stackID)
+{
+   MessageInterface::ShowMessage("Showing stack contents: %s\n", stackID.c_str());
+   ObjectMapStack temp;
+   ObjectMap      *om;
+   Integer        idx = 0;
+   std::string    mapID;
+   while (!(omStack.empty()))
+   {
+      mapID = "Object map " + idx;
+      om = omStack.top();
+      ShowObjectMap(om, mapID);
+      temp.push(om);
+      omStack.pop();
+      idx++;
+      mapID = "";
+   }
+   // put them back on the stack again
+   while (!(temp.empty()))
+   {
+      om = temp.top();
+      omStack.push(om);
+      temp.pop();
+   }
 }
 
