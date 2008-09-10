@@ -271,6 +271,7 @@ bool GmatFunction::Initialize()
       
       current = current->GetNext();
    }
+   fcsFinalized = false;
    return true;
 }
 
@@ -362,17 +363,21 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
 void GmatFunction::Finalize()
 {
    ; // @todo - finalize anything else that needs it as well
-   GmatCommand *current = fcs;
-   while (current)
+   if (!fcsFinalized)
    {
-      #ifdef DEBUG_FUNCTION_FINALIZE
-         if (!current)  MessageInterface::ShowMessage("Current is NULL!!!\n");
-         else MessageInterface::ShowMessage("   Now about to finalize (call RunComplete on) command %s\n",
-               (current->GetTypeName()).c_str());         
-      #endif
-      current->RunComplete();
-      current = current->GetNext();
+      GmatCommand *current = fcs;
+      while (current)
+      {
+         #ifdef DEBUG_FUNCTION_FINALIZE
+            if (!current)  MessageInterface::ShowMessage("Current is NULL!!!\n");
+            else MessageInterface::ShowMessage("   Now about to finalize (call RunComplete on) command %s\n",
+                  (current->GetTypeName()).c_str());         
+         #endif
+         current->RunComplete();
+         current = current->GetNext();
+      }
    }
+   fcsFinalized = true;
 }
 
 
