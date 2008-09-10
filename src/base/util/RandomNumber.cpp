@@ -199,7 +199,7 @@ void RandomNumber::ClockSeed()
 //  Real Ran2()
 //------------------------------------------------------------------------------
 /**
- *  Long period (> 2x10^18) random number generator of L'Ecuyer 
+ *  Long period (> 2x10^18) random number generator of L'Ecuyer. 
  *  Includes Bays-Durham shuffle and added safeguards. 
  * 
  *  Returns a uniform random deviate between 0.0 and 1.0 (exclusive of the 
@@ -386,7 +386,7 @@ void RandomNumber::ClockSeed()
 //------------------------------------------------------------------------------
 /**
  *  Returns a unit mean exponentially distributed, positive, random deviate.
- *  Uses Ran2 as the source of uniform deviates.
+ *  Uses Ran3 as the source of uniform deviates.
  *
  *  @return The random deviate.
  *
