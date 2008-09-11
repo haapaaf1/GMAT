@@ -5224,12 +5224,14 @@ void Interpreter::HandleErrorMessage(const BaseException &e,
    {
       fnMsg = currentFunction->GetFunctionPathAndName();
       fnMsg = "(In Function \"" + fnMsg + "\")\n";
+      if (!writeLine)
+         fnMsg = "\n" + fnMsg;
    }
    
    if (writeLine)
       currMsg = " in line:\n" + fnMsg + "   \"" + lineNumber + ": " + line + "\"\n";
    else
-      currMsg = "\n" + fnMsg;
+      currMsg = fnMsg;
    
    std::string msg = msgKind + e.GetFullMessage() + currMsg;
    
