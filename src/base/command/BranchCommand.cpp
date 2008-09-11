@@ -1233,6 +1233,9 @@ void BranchCommand::SetPreviousCommand(GmatCommand *cmd, GmatCommand *prev,
    }
 }
 
+//------------------------------------------------------------------------------
+// const std::vector<GmatCommand*> GetCommandsWithGmatFunctions()
+//------------------------------------------------------------------------------
 const std::vector<GmatCommand*> BranchCommand::GetCommandsWithGmatFunctions()
 {
    #ifdef DEBUG_BRANCHCOMMAND_GMATFUNCTIONS
@@ -1258,8 +1261,8 @@ const std::vector<GmatCommand*> BranchCommand::GetCommandsWithGmatFunctions()
          {
             tmpArray = ((BranchCommand*)subCmd)->GetCommandsWithGmatFunctions();
          }
-         else if ((subCmd->GetTypeName() == "CallFunction") ||
-                  (subCmd->GetTypeName() == "Assignment"))
+         else if ((subCmd->IsOfType("CallFunction")) ||
+                  (subCmd->IsOfType("Assignment")))
          {
             #ifdef DEBUG_BRANCHCOMMAND_GMATFUNCTIONS
                MessageInterface::ShowMessage(
@@ -1276,6 +1279,9 @@ const std::vector<GmatCommand*> BranchCommand::GetCommandsWithGmatFunctions()
    return cmdsWithFunctions;
 }
 
+//------------------------------------------------------------------------------
+// bool HasAFunction()
+//------------------------------------------------------------------------------
 bool BranchCommand::HasAFunction()
 {
    #ifdef DEBUG_IS_FUNCTION
