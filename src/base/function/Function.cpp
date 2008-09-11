@@ -21,8 +21,8 @@
 #include "FunctionException.hpp" // for exception
 #include "MessageInterface.hpp"
 
-//#define DEBUG_FUNCTION
 //#define DEBUG_FUNCTION_SET
+//#define DEBUG_FUNCTION_IN_OUT
 //#define DEBUG_FUNCTION_CALL_STACK
 
 //---------------------------------
@@ -58,17 +58,18 @@ Function::PARAMETER_TYPE[FunctionParamCount - GmatBaseParamCount] =
  */
 //------------------------------------------------------------------------------
 Function::Function(const std::string &typeStr, const std::string &name) :
-   GmatBase          (Gmat::FUNCTION, typeStr, name),
-   functionPath      (""),
-   functionName      (""),
-   objectStore       (NULL),
-   globalObjectStore (NULL),
-   solarSys          (NULL),
-   internalCoordSys  (NULL),
-   forces            (NULL),
-   fcs               (NULL),
-   fcsFinalized      (false),
-   validator         (NULL),
+   GmatBase           (Gmat::FUNCTION, typeStr, name),
+   functionPath       (""),
+   functionName       (""),
+   objectStore        (NULL),
+   globalObjectStore  (NULL),
+   solarSys           (NULL),
+   internalCoordSys   (NULL),
+   forces             (NULL),
+   fcs                (NULL),
+   fcsFinalized       (false),
+   validator          (NULL),
+   scriptErrorFound   (false),
    objectsInitialized (false)
 {
    objectTypes.push_back(Gmat::FUNCTION);
@@ -100,21 +101,22 @@ Function::~Function()
  */
 //------------------------------------------------------------------------------
 Function::Function(const Function &f) :
-   GmatBase          (f),
-   functionPath      (f.functionPath),
-   functionName      (f.functionName),
-   inputNames        (f.inputNames),
-   outputNames       (f.outputNames),
+   GmatBase           (f),
+   functionPath       (f.functionPath),
+   functionName       (f.functionName),
+   inputNames         (f.inputNames),
+   outputNames        (f.outputNames),
    //inputArgMap       (f.inputArgMap), // do I want to do this?
    //outputArgMap      (f.outputArgMap), // do I want to do this?
-   objectStore       (NULL),
-   globalObjectStore (NULL),
-   solarSys          (NULL),
-   internalCoordSys  (NULL),
-   forces            (NULL),
-   fcs               (NULL),
-   fcsFinalized      (f.fcsFinalized),
-   validator         (f.validator),
+   objectStore        (NULL),
+   globalObjectStore  (NULL),
+   solarSys           (NULL),
+   internalCoordSys   (NULL),
+   forces             (NULL),
+   fcs                (NULL),
+   fcsFinalized       (f.fcsFinalized),
+   validator          (f.validator),
+   scriptErrorFound   (false),
    objectsInitialized (false)
 {
    parameterCount = FunctionParamCount;
@@ -139,19 +141,20 @@ Function& Function::operator=(const Function &f)
    
    GmatBase::operator=(f);
    
-   functionPath      = f.functionPath;
-   functionName      = f.functionName;
-   objectStore       = NULL;
-   globalObjectStore = NULL;
-   solarSys          = f.solarSys;
-   internalCoordSys  = f.internalCoordSys;
-   forces            = f.forces;
-   fcs               = NULL;
-   fcsFinalized      = f.fcsFinalized;
-   validator         = f.validator;
+   functionPath       = f.functionPath;
+   functionName       = f.functionName;
+   objectStore        = NULL;
+   globalObjectStore  = NULL;
+   solarSys           = f.solarSys;
+   internalCoordSys   = f.internalCoordSys;
+   forces             = f.forces;
+   fcs                = NULL;
+   fcsFinalized       = f.fcsFinalized;
+   validator          = f.validator;
+   scriptErrorFound   = f.scriptErrorFound;
    objectsInitialized = f.objectsInitialized;
-   inputNames        = f.inputNames;
-   outputNames       = f.outputNames;
+   inputNames         = f.inputNames;
+   outputNames        = f.outputNames;
    //inputArgMap       = f.inputArgMap;   // do I want to do this?
    //outputArgMap      = f.outputArgMap;  // do I want to do this?
    
@@ -184,7 +187,7 @@ WrapperTypeArray Function::GetOutputTypes(IntegerArray &rowCounts,
 void Function::SetOutputTypes(WrapperTypeArray &outputTypes,
                               IntegerArray &rowCounts, IntegerArray &colCounts)
 {
-   #ifdef DEBUG_FUNCTION
+   #ifdef DEBUG_FUNCTION_SET
    MessageInterface::ShowMessage
       ("Function::SetOutputTypes() setting %d outputTypes\n", outputTypes.size());
    #endif
@@ -287,6 +290,22 @@ void Function::SetTransientForces(std::vector<PhysicalModel*> *tf)
 }
 
 //------------------------------------------------------------------------------
+// void SetScriptErrorFound(bool errFlag)
+//------------------------------------------------------------------------------
+void Function::SetScriptErrorFound(bool errFlag)
+{
+   scriptErrorFound = errFlag;
+}
+
+//------------------------------------------------------------------------------
+// bool ScriptErrorFound()
+//------------------------------------------------------------------------------
+bool Function::ScriptErrorFound()
+{
+   return scriptErrorFound;
+}
+
+//------------------------------------------------------------------------------
 // bool IsFunctionControlSequenceSet()
 //------------------------------------------------------------------------------
 bool Function::IsFunctionControlSequenceSet()
@@ -300,7 +319,7 @@ bool Function::IsFunctionControlSequenceSet()
 //------------------------------------------------------------------------------
 bool Function::SetFunctionControlSequence(GmatCommand *cmd)
 {
-   #ifdef DEBUG_FUNCTION
+   #ifdef DEBUG_FUNCTION_SET
       if (!cmd) MessageInterface::ShowMessage("Trying to set FCS on %s, but it is NULL!!!\n",
             functionName.c_str());
       else
@@ -335,9 +354,11 @@ std::string Function::GetFunctionPathAndName()
 //------------------------------------------------------------------------------
 bool Function::SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper)
 {
-   #ifdef DEBUG_FUNCTION
+   #ifdef DEBUG_FUNCTION_SET
       MessageInterface::ShowMessage("Function::SetInputElementWrapper - for wrapper name \"%s\"\n",
             forName.c_str());
+      MessageInterface::ShowMessage
+         ("   wrapper=<%p><%d>\n", wrapper, wrapper->GetWrapperType());
    #endif
    if (inputArgMap.find(forName) == inputArgMap.end())
    {
@@ -375,7 +396,7 @@ ElementWrapper* Function::GetOutputArgument(Integer argNumber)
 //------------------------------------------------------------------------------
 ElementWrapper* Function::GetOutputArgument(const std::string &byName)
 {
-   #ifdef DEBUG_FUNCTION
+   #ifdef DEBUG_FUNCTION_IN_OUT
       MessageInterface::ShowMessage("Function::GetOutputArgument - asking for  \"%s\"\n",
             byName.c_str());
    #endif
@@ -386,7 +407,16 @@ ElementWrapper* Function::GetOutputArgument(const std::string &byName)
       errMsg += "\" does not exist.\n";
       throw FunctionException(errMsg);
    }
-   return outputArgMap[byName];
+   
+   ElementWrapper *ew = outputArgMap[byName];
+   
+   #ifdef DEBUG_FUNCTION_IN_OUT
+   MessageInterface::ShowMessage
+      ("Function::GetOutputArgument(%s) returning <%p>, type=%d\n", byName.c_str(),
+       ew, ew->GetDataType());
+   #endif
+   
+   return ew;
 }
 
 //------------------------------------------------------------------------------
@@ -699,7 +729,6 @@ bool Function::SetStringParameter(const Integer id, const std::string &value)
       {
          if (inputArgMap.find(value) == inputArgMap.end())
          {
-            //inputArgMap[value] = NULL;
             inputNames.push_back(value);
             inputArgMap.insert(std::make_pair(value,(ElementWrapper*) NULL));
          }

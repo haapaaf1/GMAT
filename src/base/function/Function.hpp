@@ -53,6 +53,8 @@ public:
    virtual void         SetSolarSystem(SolarSystem *ss);
    virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
    virtual void         SetTransientForces(std::vector<PhysicalModel*> *tf);
+   virtual void         SetScriptErrorFound(bool errFlag);
+   virtual bool         ScriptErrorFound();
    virtual bool         IsFunctionControlSequenceSet();
    virtual bool         SetFunctionControlSequence(GmatCommand *cmd);
    virtual GmatCommand* GetFunctionControlSequence();
@@ -140,6 +142,9 @@ protected:
    /// Object store needed by the validator
    std::map<std::string, GmatBase *>
                         validatorStore;
+   /// the flag indicating script error found in function, this flag is set by Interpreter
+   bool                 scriptErrorFound;
+   /// the flag indicating local objects are initialized
    bool                 objectsInitialized;
    
    enum
