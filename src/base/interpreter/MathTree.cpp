@@ -26,6 +26,7 @@
 
 //#define DEBUG_MATH_TREE 1
 //#define DEBUG_MATH_TREE_INIT 1
+//#define DEBUG_MATH_TREE_EVAL 1
 //#define DEBUG_MATH_WRAPPERS
 //#define DEBUG_RENAME
 //#define DEBUG_FUNCTION
@@ -243,7 +244,7 @@ void MathTree::SetMathWrappers(std::map<std::string, ElementWrapper*> *wrapperMa
 //------------------------------------------------------------------------------
 Real MathTree::Evaluate()
 {
-   #ifdef DEBUG_MATH_TREE
+   #ifdef DEBUG_MATH_TREE_EVAL
    MessageInterface::ShowMessage
       ("MathTree::Evaluate() theTopNode=%s, %s\n", theTopNode->GetTypeName().c_str(),
        theTopNode->GetName().c_str());
@@ -290,6 +291,30 @@ bool MathTree::Initialize(ObjectMap *objectMap, ObjectMap *globalObjectMap)
    #endif
    
    return InitializeParameter(theTopNode);
+}
+
+
+//------------------------------------------------------------------------------
+// void Finalize()
+//------------------------------------------------------------------------------
+void MathTree::Finalize()
+{   
+   if (theTopNode == NULL)
+   {
+      #ifdef DEBUG_MATH_TREE_INIT
+      MessageInterface::ShowMessage
+         ("MathTree::Finalize() theTopNode is NULL, so just returning true\n");
+      #endif
+      return;
+   }
+   
+   #ifdef DEBUG_MATH_TREE_INIT
+   MessageInterface::ShowMessage
+      ("MathTree::Finalize() theTopNode=%s, %s\n", theTopNode->GetTypeName().c_str(),
+       theTopNode->GetName().c_str());
+   #endif
+   
+   FinalizeFunctionRunner(theTopNode);
 }
 
 
@@ -600,6 +625,39 @@ bool MathTree::InitializeParameter(MathNode *node)
       
       return (result1 && result2);
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void FinalizeFunctionRunner(MathNode *node)
+//------------------------------------------------------------------------------
+void MathTree::FinalizeFunctionRunner(MathNode *node)
+{
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("MathTree::FinalizeFunctionRunner() node=%p\n", node);
+   #endif
+   
+   if (node == NULL)
+      return;
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("   node type='%s', name='%s'\n", node->GetTypeName().c_str(),
+       node->GetName().c_str());
+   #endif
+   
+   if (!node->IsFunction())
+      return;
+   
+   if (node->IsOfType("FunctionRunner"))
+      ((FunctionRunner*)(node))->Finalize();
+   
+   MathNode *left = node->GetLeft();   
+   FinalizeFunctionRunner(left);
+   
+   MathNode *right = node->GetRight();
+   FinalizeFunctionRunner(right);
 }
 
 

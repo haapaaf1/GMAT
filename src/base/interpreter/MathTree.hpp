@@ -46,9 +46,9 @@ public:
    
    std::vector<Function*> GetFunctions() const;
    void                 SetFunction(Function *function);
-
+   
    virtual void         SetCallingFunction(FunctionManager *fm);
-
+   
    MathNode*            GetTopNode();
    void                 SetTopNode(MathNode *node);
    void                 SetMathWrappers(WrapperMap *wrapperMap);
@@ -57,6 +57,7 @@ public:
    Rmatrix              MatrixEvaluate();
    bool                 Initialize(ObjectMap *objectMap,
                                    ObjectMap *globalObjectMap);
+   void                 Finalize();
    void                 GetOutputInfo(Integer &type, Integer &rowCount,
                                       Integer &colCount);
    
@@ -94,6 +95,7 @@ protected:
    std::vector<Function*> theFunctions;
    
    bool InitializeParameter(MathNode *node);
+   void FinalizeFunctionRunner(MathNode *node);
    void SetMathElementWrappers(MathNode *node);
    void SetFunctionToRunner(MathNode *node, Function *function);
    void SetCallingFunctionToRunner(MathNode *node, FunctionManager *fm);
