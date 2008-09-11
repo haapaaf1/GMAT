@@ -31,6 +31,7 @@
 #include "TextParser.hpp"
 #include "NumberWrapper.hpp"
 #include "ArrayWrapper.hpp"
+#include "FunctionManager.hpp"
 #include "MessageInterface.hpp"
 
 //#define DEBUG_RENAME
@@ -148,24 +149,31 @@ bool Assignment::HasAFunction()
 //------------------------------------------------------------------------------
 const StringArray& Assignment::GetGmatFunctionNames()
 {
-   static StringArray emptyArray;
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("Assignment::GetGmatFunctionNames() entered\n");
+   #endif
+   static StringArray functionNames;
+   functionNames.clear();
    
    if (mathTree)
    {
+      functionNames = mathTree->GetGmatFunctionNames();
       #ifdef DEBUG_FUNCTION
       MessageInterface::ShowMessage
          ("Assignment::GetGmatFunctionNames() returning %d GmatFunctions "
-          " from the MathTree\n", mathTree->GetGmatFunctionNames().size());
+          " from the MathTree\n", functionNames.size());
       #endif
-      return mathTree->GetGmatFunctionNames();
+      return functionNames;
    }
    else
    {
       #ifdef DEBUG_FUNCTION
       MessageInterface::ShowMessage
-         ("Assignment::GetGmatFunctionNames() returning 0 GmatFunctions\n");
+         ("Assignment::GetGmatFunctionNames() returning 0 GmatFunctions, "
+          "It's not a MathTree\n");
       #endif
-      return emptyArray;
+      return functionNames;
    }
 }
 
@@ -341,7 +349,10 @@ void Assignment::SetGlobalObjectMap(ObjectMap *map)
 bool Assignment::InterpretAction()
 {
    #ifdef DEBUG_ASSIGNMENT_IA
-   MessageInterface::ShowMessage("\nAssignment::InterpretAction() entered\n");
+   MessageInterface::ShowMessage
+      ("\nAssignment::InterpretAction() entered, currentFunction=<%p>'%s'\n",
+       currentFunction,
+       currentFunction ? "currentFunction->GetFunctionPathAndName().c_str()" : "NULL");
    #endif
    
    StringArray chunks = InterpretPreface();
@@ -377,6 +388,15 @@ bool Assignment::InterpretAction()
    // it there is still ; then report error since ; should have been removed
    if (rhs.find(";") != rhs.npos)
       throw CommandException("Is there a missing \"\%\" for inline comment?");
+   
+   // check for common use of ./ (path) in GmatFunction to avoid creating MathTree(loj: 2008.09.08)
+   if (rhs.find("./") != rhs.npos)
+   {
+      if (currentFunction != NULL &&
+          (!GmatStringUtil::IsEnclosedWith(rhs, "'")))
+         throw CommandException("The string literal \"" + rhs + "\" must be "
+                                "enclosed with single quotes");
+   }
    
    // Check if rhs is an equation
    MathParser mp = MathParser();
@@ -453,7 +473,7 @@ bool Assignment::InterpretAction()
    }
    
    #ifdef DEBUG_ASSIGNMENT_IA
-   MessageInterface::ShowMessage("Assignment::InterpretAction() leaving\n");
+   MessageInterface::ShowMessage("Assignment::InterpretAction() returning true\n");
    #endif
    
    return true;
@@ -531,24 +551,32 @@ bool Assignment::Initialize()
           topNode->GetTypeName().c_str(), topNode->GetName().c_str());
       #endif
       
+      std::string fnMsg;
+      if (currentFunction != NULL)
+      {
+         fnMsg = currentFunction->GetFunctionPathAndName();
+         fnMsg = "\n(In Function \"" + fnMsg + "\")";
+      }
+      
       try
       {
          if (mathTree->Initialize(objectMap, globalObjectMap))
          {
             if (!topNode->ValidateInputs())
-               throw CommandException("Failed to validate equation inputs");
+               throw CommandException("Failed to validate equation inputs in\n   \"" +
+                                      generatingString + "\"" + fnMsg);
          }
          else
          {
             throw CommandException("Failed to initialize equation in\n   \"" +
-                                   generatingString + "\"\n");
+                                   generatingString + "\"" + fnMsg);
          }
       }
       catch (BaseException &e)
       {
          CommandException ce;
-         ce.SetDetails("%s in \n   \"%s\"\n", e.GetDetails().c_str(),
-                      generatingString.c_str());
+         ce.SetDetails("%s in \n   \"%s\"%s\n", e.GetDetails().c_str(),
+                      generatingString.c_str(), fnMsg.c_str());
          throw ce;
       }
    }
@@ -624,13 +652,12 @@ bool Assignment::Execute()
    }
    catch (BaseException &e)
    {
-      //MessageInterface::ShowMessage("==> inFunction=%d\n", inFunction);
       // To make error message format consistent, just add "Command Exception:"
       std::string msg = e.GetFullMessage();
       if (msg.find("Exception") == msg.npos && msg.find("exception") == msg.npos)
          msg = "Command Exception: " + msg;
       
-      if (inFunction)
+      if (currentFunction != NULL)
       {
          MessageInterface::ShowMessage(msg + "\n");
       }
@@ -654,6 +681,25 @@ bool Assignment::Execute()
       delete outWrapper;
    
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// void RunComplete()
+//------------------------------------------------------------------------------
+void Assignment::RunComplete()
+{
+   if (mathTree)
+   {
+      #ifdef DEBUG_RUN_COMPLETE
+      MessageInterface::ShowMessage
+         ("RunComplete::RunComplete() calling MathTree::Finalize()\n");
+      #endif
+      
+      mathTree->Finalize();
+   }
+   
+   GmatCommand::RunComplete();
 }
 
 
@@ -1048,6 +1094,7 @@ ElementWrapper* Assignment::RunMathTree(ElementWrapper *lhsWrapper)
             rval = topNode->Evaluate();
             
             #if DEBUG_ASSIGNMENT_EXEC
+            MessageInterface::ShowMessage("   Returned %f\n", rval);
             MessageInterface::ShowMessage("   Creating NumberWrapper for output\n");
             #endif
             

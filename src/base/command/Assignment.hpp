@@ -60,6 +60,7 @@ public:
    virtual bool         InterpretAction();
    virtual bool         Initialize();
    virtual bool         Execute();
+   virtual void         RunComplete();
    virtual bool         SkipInterrupt();
    virtual void         SetCallingFunction(FunctionManager *fm);
    
