@@ -55,6 +55,7 @@ public:
    virtual bool         ValidateInputs(); 
    virtual Real         Evaluate();
    virtual Rmatrix      MatrixEvaluate();
+   virtual void         Finalize();
    
    // inherited from GmatBase
    virtual GmatBase*    Clone() const;

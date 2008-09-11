@@ -21,6 +21,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_FUNCTION
+//#define DEBUG_FINALIZE
 
 //---------------------------------
 // public methods
@@ -460,7 +461,7 @@ Real FunctionRunner::Evaluate()
       throw MathException
          ("The function \"" + function->GetName() + "\" returns matrix value");
    
-   return theFunctionManager.Evaluate(callingFunction);   
+   return theFunctionManager.Evaluate(callingFunction);
 }
 
 
@@ -489,6 +490,19 @@ Rmatrix FunctionRunner::MatrixEvaluate()
          ("The function \"" + function->GetName() + "\" returns Real value");
    
    return theFunctionManager.MatrixEvaluate(callingFunction);
+}
+
+
+//------------------------------------------------------------------------------
+// void Finalize()
+//------------------------------------------------------------------------------
+void FunctionRunner::Finalize()
+{
+   #ifdef DEBUG_FINALIZE
+   MessageInterface::ShowMessage
+      ("FunctionRunner::RunComplete() calling FunctionManager::Finalize()\n");
+   #endif
+   theFunctionManager.Finalize();
 }
 
 
