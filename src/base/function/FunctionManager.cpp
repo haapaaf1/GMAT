@@ -30,6 +30,7 @@
 #define DO_NOT_EXECUTE_NESTED_GMAT_FUNCTIONS
 
 //#define DEBUG_FUNCTION_MANAGER
+//#define DEBUG_FM_INIT
 //#define DEBUG_FM_EXECUTE
 //#define DEBUG_FM_FINALIZE
 //#define DEBUG_FM_STACK
@@ -342,6 +343,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    if (callingFunction != NULL)
    {
       #ifdef DO_NOT_EXECUTE_NESTED_GMAT_FUNCTIONS
+         Finalize(); // memory usage keep growing so try Finalize here (loj: 2008.09.11)
          std::string noNested = "FunctionManager (";
          noNested += fName + ") - nested functions not yet supported.\n";
          throw FunctionException(noNested);
@@ -610,18 +612,55 @@ void FunctionManager::Finalize()
 
 bool FunctionManager::Initialize()
 {
-   #ifdef DEBUG_FM_EXECUTE
+   #ifdef DEBUG_FM_INIT
       MessageInterface::ShowMessage("Entering FM::Initialize for %s\n", fName.c_str());
    #endif
    if (!firstExecution) return true;
    
    GmatBase *obj, *objFOS;
    std::string objName;
+   
    StringArray inNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
-
+   StringArray outNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
+   
+   #ifdef DEBUG_FM_INIT
+   MessageInterface::ShowMessage
+      ("   inNames.size=%d, ins.size=%d\n", inNames.size(), ins.size());
+   MessageInterface::ShowMessage
+      ("   outNames.size=%d, outs.size=%d\n", outNames.size(), outs.size());
+   #endif
+   
+   // check input arguments
+   // Number of inputs cannot be more than number of formal input arguments,
+   // but can we have less than formal input arguments?
+   // Can we have default input value?
+   // Currently if number of input is less than formal, it is created as String,
+   // so number of inputs must match for now.
+   if (ins.size() != inNames.size())
+   {
+      FunctionException ex;
+      ex.SetDetails("The function '%s' expecting %d input argument(s), but called "
+                    "with %d argument(s)", f->GetFunctionPathAndName().c_str(),
+                    inNames.size(), ins.size());
+      throw ex;
+   }
+   
+   // check output arguments   
+   // Number of outputs cannot be more than number of formal output arguments,
+   // but can we have less than formal output arguments?
+   // Let's just check for more than formal output for now.
+   if (outs.size() > outNames.size())
+   {
+      FunctionException ex;
+      ex.SetDetails("The function '%s' expecting %d output argument(s), but called "
+                    "with %d argument(s)", f->GetFunctionPathAndName().c_str(),
+                    outNames.size(), outs.size());
+      throw ex;
+   }
+   
    validator->SetObjectMap(&combinedObjectStore);
    validator->SetSolarSystem(solarSys);
-
+   
    if (!(IsOnStack(&functionObjectStore))) // ********** ???? *************
       EmptyObjectMap(&functionObjectStore);
    functionObjectStore.clear();
@@ -645,7 +684,7 @@ bool FunctionManager::Initialize()
             throw FunctionException(errMsg);
          }
       }
-      #ifdef DEBUG_FM_EXECUTE
+      #ifdef DEBUG_FM_INIT
          MessageInterface::ShowMessage(
                "in FM::Initialize: object \"%s\" of type \"%s\" found in LOS/GOS \n",
                (ins.at(ii)).c_str(), (obj->GetTypeName()).c_str());
@@ -655,7 +694,7 @@ bool FunctionManager::Initialize()
       objName = inNames.at(ii);
       objFOS->SetName(objName);
       functionObjectStore.insert(std::make_pair(objName,objFOS));
-      #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
+      #ifdef DEBUG_FM_INIT // ------------------------------------------------- debug ---
          MessageInterface::ShowMessage("Adding object %s to the FOS\n", objName.c_str());
       #endif // -------------------------------------------------------------- end debug ---
       // create an element wrapper for the input
@@ -664,7 +703,7 @@ bool FunctionManager::Initialize()
       ElementWrapper *inWrapper = validator->CreateElementWrapper(ins.at(ii), false, false);
       inWrapper->SetRefObject(objFOS);
       inputWrappers.insert(std::make_pair(objName, inWrapper));
-      #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
+      #ifdef DEBUG_FM_INIT // ------------------------------------------------- debug ---
          MessageInterface::ShowMessage("Created element wrapper of type %d for \"%s\"",
                inWrapper->GetWrapperType(), (ins.at(ii)).c_str());
       #endif // -------------------------------------------------------------- end debug ---
@@ -690,7 +729,7 @@ bool FunctionManager::Initialize()
          ElementWrapper *outWrapper = validator->CreateElementWrapper(outs.at(jj));
          outWrapper->SetRefObject(obj); 
          outputWrappers.push_back(outWrapper);
-         #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
+         #ifdef DEBUG_FM_INIT // ------------------------------------------------- debug ---
             MessageInterface::ShowMessage("Output wrapper set for %s\n", (outs.at(jj)).c_str());
          #endif // -------------------------------------------------------------- end debug ---
       }
@@ -866,15 +905,22 @@ ObjectMap* FunctionManager::PushToStack()
    std::map<std::string, GmatBase *>::iterator omi;
    GmatBase *objInMap;
    std::string strInMap;
-   ShowObjectMap(&functionObjectStore, "FOS at beg. of PushToStack");
+   #ifdef DEBUG_FM_STACK
+      ShowObjectMap(&functionObjectStore, "FOS at beg. of PushToStack");
+   #endif
    for (omi = functionObjectStore.begin(); omi != functionObjectStore.end(); ++omi)
    {
       strInMap = omi->first;
       objInMap = omi->second;
+      
+      if (strInMap == "")
+         throw FunctionException
+            ("PushToStack:: Cannot insert blank object name to object map\n");
+      
       #ifdef DEBUG_FM_STACK
          MessageInterface::ShowMessage(
-               "PushToStack::Inserting clone of object %s into cloned object map\n",
-               strInMap.c_str());
+            "PushToStack::Inserting clone of object \"%s\" into cloned object map\n",
+            strInMap.c_str());
       #endif
       cloned->insert(std::make_pair(strInMap, objInMap->Clone()));
    }
@@ -932,8 +978,8 @@ void FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
       }
       if (fosObj == NULL)
       {
-         std::string errMsg = "PopFromStack::Error setting output named ";
-         errMsg += callingNames.at(jj) + " from nested function on function \"";
+         std::string errMsg = "PopFromStack::Error setting output named \"";
+         errMsg += callingNames.at(jj) + "\" from nested function on function \"";
          errMsg += fName + "\"\n";
          throw FunctionException(errMsg);
       }
