@@ -109,7 +109,7 @@ private:
                                 const std::string &value);
    bool CreateForceModelProperty(GmatBase *obj, const std::string &prop,
                                  const std::string &value);
-   bool HandleError();
+   bool HandleError(bool addFunction = true);
    
    Interpreter     *theInterpreter;
    Moderator       *theModerator;

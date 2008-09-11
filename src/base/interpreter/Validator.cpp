@@ -374,9 +374,9 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
          MessageInterface::ShowMessage("      %s\n", wrapperNames[ii].c_str());
    #endif
    
-   // Set function mode to command
+   // Set function pointer to command
    if (theFunction != NULL)
-      cmd->SetFunctionMode(true);
+      cmd->SetCurrentFunction(theFunction);
    
    // Handle Assignment command (LHS = RHS) separately
    if (cmd->GetTypeName() == "GMAT")
@@ -713,7 +713,7 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    catch (BaseException &ex)
    {
       theErrorMsg = ex.GetFullMessage();
-      return HandleError();
+      return HandleError(false);
    }
    
    //-------------------------------------------------------------------
@@ -783,7 +783,7 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
          catch (BaseException &ex)
          {
             theErrorMsg = ex.GetFullMessage();
-            return HandleError();
+            return HandleError(false);
          }
       }
    }
@@ -1228,6 +1228,24 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
                 theDescription.c_str(), "\"\n");
             #endif
          }
+         #ifdef __ALLOW_MATH_EXP_IN_FUNCTION__
+         // check if it is math equation or single undefined variable
+         // so that number wrapper can be created for "2+2" or "x" for 
+         // GmatFunction input value (loj: 2008.08.27)
+         else if ((GmatStringUtil::IsMathEquation(theDescription)) ||
+                  (GmatStringUtil::IsValidName(theDescription)))
+         {
+            ew = new NumberWrapper();
+            ew->SetDescription(theDescription);
+            itsType = Gmat::NUMBER;
+            
+            #if DBGLVL_WRAPPERS
+            MessageInterface::ShowMessage
+               (">>> In Validator, created a VariableWrapper for \"%s\"\n",
+                theDescription.c_str(), "\"\n");
+            #endif
+         }
+         #endif
          else
          {
             ew = new StringWrapper();
@@ -2313,7 +2331,7 @@ bool Validator::CreateForceModelProperty(GmatBase *obj, const std::string &prop,
 
 
 //------------------------------------------------------------------------------
-// bool HandleError()
+// bool HandleError(bool addFunction)
 //------------------------------------------------------------------------------
 /*
  * Handles error condition dependends on the continue on error flag.
@@ -2321,7 +2339,7 @@ bool Validator::CreateForceModelProperty(GmatBase *obj, const std::string &prop,
  *
  */
 //------------------------------------------------------------------------------
-bool Validator::HandleError()
+bool Validator::HandleError(bool addFunction)
 {
    #ifdef DEBUG_HANDLE_ERROR
    MessageInterface::ShowMessage
@@ -2336,6 +2354,17 @@ bool Validator::HandleError()
    }
    else
    {
+      std::string fnMsg;
+      if (addFunction)
+      {
+         if (theFunction != NULL)
+         {
+            fnMsg = theFunction->GetFunctionPathAndName();
+            fnMsg = "\n(In Function \"" + fnMsg + "\")\n";
+         }
+      }
+      theErrorMsg = theErrorMsg + fnMsg;
+      
       InterpreterException ex(theErrorMsg);
       throw ex;
    }
