@@ -157,10 +157,10 @@ PropState& SpaceObject::GetState()
  * @return The embedded PropCovar.
  */
 //------------------------------------------------------------------------------
-PropCovar& SpaceObject::GetCovariance()
-{
-   return covariance;
-}
+//PropCovar& SpaceObject::GetCovariance()
+//{
+//   return covariance;
+//}
 
 //------------------------------------------------------------------------------
 // Real GetEpoch()
