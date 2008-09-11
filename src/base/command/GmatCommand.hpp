@@ -45,6 +45,9 @@ class PhysicalModel;
 // forward refernce for the calling FunctionManager
 class FunctionManager;
 
+// forward refernce for the function containg this command
+class Function;
+
 
 /**
  * GMAT GmatCommand Base Class, used for timeline elements in the script
@@ -75,11 +78,9 @@ public:
                            const std::string &prefix = "",
                            const std::string &useName = "");
    
-   // Methods for function mode flag
-   // Added because we need to ignore some exceptions if in function mode
-   // such as "DefaultProp.FM = DefaultFM;" (LOJ: 2008.06.09)
-   void                 SetFunctionMode(bool val);
-   bool                 GetFunctionMode();
+   // Methods for function
+   virtual void         SetCurrentFunction(Function *function);
+   virtual Function*    GetCurrentFunction();
    
    virtual void         SetCallingFunction(FunctionManager *fm);
    
@@ -219,8 +220,8 @@ protected:
    StringArray          objects;
    /// Flag used to determine if associations have been made
    bool                 initialized;
-   /// Flag used to indicate if command used in the function control sequence
-   bool                 inFunction;
+   // pointer to the function that contains this command
+   Function            *currentFunction;
    // pointer to the function that is calling this command (ignored for all but
    // CallFunction and Assignment)
    FunctionManager      *callingFunction;

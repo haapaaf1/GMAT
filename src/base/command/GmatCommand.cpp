@@ -89,7 +89,7 @@ Integer GmatCommand::satTotalMassID;
 GmatCommand::GmatCommand(const std::string &typeStr) :
    GmatBase             (Gmat::COMMAND, typeStr),
    initialized          (false),
-   inFunction           (false),
+   currentFunction      (NULL),
    callingFunction      (NULL),
    next                 (NULL),
    previous             (NULL),
@@ -187,7 +187,7 @@ GmatCommand::GmatCommand(const GmatCommand &c) :
    association          (c.association),
    objects              (c.objects),
    initialized          (false),
-   inFunction           (c.inFunction),
+   currentFunction      (c.currentFunction),
    callingFunction      (c.callingFunction),
    next                 (NULL),
    level                (-1),   // Not set
@@ -236,7 +236,7 @@ GmatCommand& GmatCommand::operator=(const GmatCommand &c)
 
    GmatBase::operator=(c);
    initialized = false;
-   inFunction  = c.inFunction;
+   currentFunction = c.currentFunction;
    callingFunction = c.callingFunction;
    objects.clear();
    association.clear();
@@ -380,20 +380,23 @@ const std::string& GmatCommand::GetGeneratingString(Gmat::WriteMode mode,
    return generatingString;
 }
 
+// Added Set/GetCurrentFunction() because we need to add function name
+// in the error message ((LOJ: 2008.09.09)
+
 //------------------------------------------------------------------------------
-// void SetFunctionMode(bool val)
+// virtual void SetCurrentFunction(Function *function)
 //------------------------------------------------------------------------------
-void GmatCommand::SetFunctionMode(bool val)
+void GmatCommand::SetCurrentFunction(Function *function)
 {
-   inFunction = val;
+   currentFunction = function;
 }
 
 //------------------------------------------------------------------------------
-// bool GetFunctionMode();
+// virtual Function* GetCurrentFunction()
 //------------------------------------------------------------------------------
-bool GmatCommand::GetFunctionMode()
+Function* GmatCommand::GetCurrentFunction()
 {
-   return inFunction;
+   return currentFunction;
 }
 
 //------------------------------------------------------------------------------
