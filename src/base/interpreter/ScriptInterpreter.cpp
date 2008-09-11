@@ -294,13 +294,21 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    
    // Set build function definition flag
    hasFunctionDefinition = true;
-
+   currentFunction->SetScriptErrorFound(false);
+   
    // Clear temporay object names which currently holding MatlabFunction names
    ClearTempObjectNames();
    
    // We don't want parse first comment as header, so set skipHeader to true.
    // Set function mode to true
    retval = Interpret(noOp, true, true);
+   
+   // Set error found to function (loj: 2008.09.09)
+   // Sandbox should check error flag before interpreting Function.
+   if (retval)
+      currentFunction->SetScriptErrorFound(false);
+   else
+      currentFunction->SetScriptErrorFound(true);
    
    funcFile.close();
    
@@ -309,19 +317,36 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    hasFunctionDefinition = false;
    currentFunction = NULL;
    
-   #if DBGLVL_GMAT_FUNCTION > 1
+   #if DBGLVL_GMAT_FUNCTION > 0
    MessageInterface::ShowMessage
-      ("ScriptInterpreter::InterpretGmatFunction() returning retval=%d\n", retval);
-   std::string fcsStr = GmatCommandUtil::GetCommandSeqString(noOp, true, true);
-   MessageInterface::ShowMessage("---------- FCS of '%s'\n", fileName.c_str());
-   MessageInterface::ShowMessage(fcsStr); //Notes: Do not use %s for command string
+      ("ScriptInterpreter::InterpretGmatFunction() retval=%d\n", retval);
    #endif
    
    // Just return noOP for now
    if (retval)
+   {
+      #if DBGLVL_GMAT_FUNCTION > 0
+      MessageInterface::ShowMessage
+         ("ScriptInterpreter::InterpretGmatFunction() returning <%p><NoOp>\n", noOp);
+      #endif
+      
+      #if DBGLVL_GMAT_FUNCTION > 1
+      std::string fcsStr = GmatCommandUtil::GetCommandSeqString(noOp, true, true);
+      MessageInterface::ShowMessage("---------- FCS of '%s'\n", fileName.c_str());
+      MessageInterface::ShowMessage(fcsStr); //Notes: Do not use %s for command string
+      #endif
+      
       return noOp;
+   }
    else
+   {
+      #if DBGLVL_GMAT_FUNCTION > 0
+      MessageInterface::ShowMessage
+         ("ScriptInterpreter::InterpretGmatFunction() returning NULL\n");
+      #endif
+      delete noOp;
       return NULL;
+   }
 }
 
 
@@ -646,7 +671,6 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
          #endif
          
          // Keep previous retval1 value
-         //retval1 = Parse(currentBlock, inCmd) && retval1;
          retval1 = Parse(inCmd) && retval1;
          
          #if DEBUG_SCRIPT_READING > 1
@@ -752,7 +776,8 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
 {
    #ifdef DEBUG_PARSE
    MessageInterface::ShowMessage
-      ("ScriptInterpreter::Parse() logicalBlock = \n<<<%s>>>\n", currentBlock.c_str());
+      ("ScriptInterpreter::Parse() inCmd=<%p>, logicalBlock = \n<<<%s>>>\n",
+       inCmd, currentBlock.c_str());
    #endif
    
    bool retval = true;
@@ -887,6 +912,10 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
                return false;
             }
             
+            #ifdef DEBUG_PARSE
+            MessageInterface::ShowMessage
+               ("   About to create CallFunction of '%s'\n", actualScript.c_str());
+            #endif
             obj = (GmatBase*)CreateCommand("CallFunction", actualScript, retval, inCmd);
             
             if (obj && retval)
