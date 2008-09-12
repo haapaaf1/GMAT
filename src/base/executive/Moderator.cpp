@@ -21,6 +21,7 @@
 #include "Moderator.hpp"
 
 // factories
+#include "AssetFactory.hpp"
 #include "AtmosphereFactory.hpp"
 #include "AttitudeFactory.hpp"
 #include "AxisSystemFactory.hpp"
@@ -161,7 +162,9 @@ bool Moderator::Initialize(bool fromGui)
       theFactoryManager->RegisterFactory(new SpacecraftFactory());
       theFactoryManager->RegisterFactory(new StopConditionFactory());
       theFactoryManager->RegisterFactory(new SubscriberFactory());
-      
+
+      theFactoryManager->RegisterFactory(new AssetFactory());
+            
       // Create publisher
       
       thePublisher = Publisher::Instance();
@@ -837,7 +840,11 @@ const StringArray& Moderator::GetListOfObjects(Gmat::ObjectType type)
             theConfigManager->GetListOfItems(Gmat::CALCULATED_POINT);
          for (UnsignedInt i=0; i<calptList.size(); i++)
             theSpacePointList.push_back(calptList[i]);
-         
+
+         StringArray osptList =
+            theConfigManager->GetListOfItems(Gmat::SPACE_POINT);
+         for (UnsignedInt i=0; i<osptList.size(); i++)
+            theSpacePointList.push_back(osptList[i]);
       }
       
       return theSpacePointList;
@@ -1625,6 +1632,90 @@ std::string Moderator::GetSpacecraftNotInFormation()
       return scsNotInForms[0];
    else
       return "";
+}
+
+
+// SpacePoints
+//------------------------------------------------------------------------------
+// SpacePoint* CreateSpacePoint(const std::string &type, const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a spacepoint object by given name.
+ *
+ * @param <type> object type
+ * @param <name> object name
+ *
+ * @return SpacePoint object pointer
+ */
+//------------------------------------------------------------------------------
+SpacePoint* Moderator::CreateSpacePoint(const std::string &type,
+                              const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage
+      ("Moderator::CreateSpacePoint() type = '%s', name = '%s'\n",
+       type.c_str(), name.c_str());
+   #endif
+   
+   if (GetSpacePoint(name) == NULL)
+   {
+      SpacePoint *sp = (SpacePoint*)(theFactoryManager->CreateSpacePoint(type, name));
+      
+      if (sp == NULL)
+      {
+         throw GmatBaseException
+            ("The Moderator cannot create a SpacePoint type \"" + type + "\"\n");
+      }
+      
+//      if (type == "Spacecraft")
+//      {
+//         // Set internal and default CoordinateSystem
+//         sc->SetInternalCoordSystem(theInternalCoordSystem);
+//         sc->SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthMJ2000Eq");
+//      }
+      
+      // Manage it if it is a named Spacecraft
+      try
+      {
+         if (sp->GetName() != "")
+            theConfigManager->AddSpacePoint(sp);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage("Moderator::CreateSpacePoint()\n" +
+                                       e.GetFullMessage());
+      }
+   
+      return sp;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateSpacePoint() Unable to create SpacePoint "
+          "name: %s already exist\n", name.c_str());
+      #endif
+      return GetSpacecraft(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// SpacePoint* GetSpacePoint(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a SpacePoint object pointer by given name.
+ *
+ * @param <name> object name
+ *
+ * @return a SpacePoint object pointer, return null if name not found
+ */
+//------------------------------------------------------------------------------
+SpacePoint* Moderator::GetSpacePoint(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return theConfigManager->GetSpacePoint(name);
 }
 
 
@@ -4027,6 +4118,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
          AddCoordSystemToSandbox(sandboxNum-1);
          AddSpacecraftToSandbox(sandboxNum-1);
          AddFormationToSandbox(sandboxNum-1);
+         AddSpacePointToSandbox(sandboxNum-1);
          AddForceModelToSandbox(sandboxNum-1);
          AddPropagatorToSandbox(sandboxNum-1);
          AddPropSetupToSandbox(sandboxNum-1);
@@ -5838,6 +5930,34 @@ void Moderator::AddFormationToSandbox(Integer index)
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = (Formation*)theConfigManager->GetSpacecraft(names[i]);
+      sandboxes[index]->AddObject(obj);
+      
+      #if DEBUG_RUN > 1
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
+      #endif
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void AddSpacePointToSandbox(Integer index)
+//------------------------------------------------------------------------------
+void Moderator::AddSpacePointToSandbox(Integer index)
+{
+   SpacePoint *obj;
+   StringArray names = theConfigManager->GetListOfItems(Gmat::SPACE_POINT);
+
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage
+      ("Moderator::AddSpacePointToSandbox() count = %d\n", names.size());
+   #endif
+   
+   for (Integer i=0; i<(Integer)names.size(); i++)
+   {
+      obj = (Formation*)theConfigManager->GetSpacePoint(names[i]);
+      // Spacecraft and Formations are added separately
       sandboxes[index]->AddObject(obj);
       
       #if DEBUG_RUN > 1

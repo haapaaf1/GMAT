@@ -64,6 +64,7 @@ HEADERS = -Iinclude \
           -Iexecutive \
           -Iattitude \
           -Ispacecraft \
+          -Iasset \
           -Iforcemodel \
           -Ipropagator \
           -Isubscriber \
@@ -125,6 +126,7 @@ archclean :
 endif
 
 OBJECTS = \
+    asset/GroundStation.o \
     attitude/Attitude.o \
     attitude/AttitudeException.o \
     attitude/CSFixed.o \
@@ -216,6 +218,7 @@ OBJECTS = \
     executive/SandboxException.o \
     executive/Sandbox.o \
     factory/AtmosphereFactory.o \
+    factory/AssetFactory.o \
     factory/AttitudeFactory.o \
     factory/AxisSystemFactory.o \
     factory/BurnFactory.o \
@@ -434,6 +437,7 @@ OBJECTS = \
     util/GravityFile.o \
     util/GregorianDate.o \
     util/Keplerian.o \
+    util/LatLonHgt.o \
     util/LeapSecsFileReader.o \
     util/Linear.o \
     util/MessageInterface.o \

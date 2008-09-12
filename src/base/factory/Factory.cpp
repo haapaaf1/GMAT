@@ -70,6 +70,37 @@ SpaceObject* Factory::CreateSpacecraft(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
+//  SpacePoint* CreateSpacePoint(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Must be implemented by derived classes that create SpacePoint objects -
+ * in that case, it returns a new SpacePoint object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Spacecraft.
+ * 
+ * This method is used to create objects that have a physical location modeled 
+ * in a GMAT mission: GroundStation objects, other objects used for modeling 
+ * contact events, and other fixed or mobile objects that are needed to model
+ * mission details.  Note that the Spacecraft and CelestialBody objects are
+ * created using different Factory methods; this method should be used for 
+ * SpacePoints that fall outside of those categories.
+ *
+ * @param <ofType>   specific type of SpacePoint object to create.
+ * @param <withName> name to give to the newly created SpacePoint object.
+ *
+ * @return pointer to a new SpacePoint object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ * objects of type SpacePoint.
+ */
+//------------------------------------------------------------------------------
+SpacePoint* Factory::CreateSpacePoint(const std::string &ofType,
+                                      const std::string &withName)        
+{
+   throw FactoryException("requested object must be of type SpacePoint");
+}
+
+//------------------------------------------------------------------------------
 //  GroundStation* CreateGroundStation(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------
 /**

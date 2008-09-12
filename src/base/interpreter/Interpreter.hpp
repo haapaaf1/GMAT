@@ -309,6 +309,7 @@ private:
    StringArray   solverList;
    StringArray   stopcondList;
    StringArray   subscriberList;
+   StringArray   spacePointList;
    
    bool IsObjectType(const std::string &type);
    bool IsParameterType(const std::string &desc);
