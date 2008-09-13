@@ -69,6 +69,9 @@ ProcessDataFile::ProcessDataFile()
 //------------------------------------------------------------------------------
 //  ProcessDataFile::~ProcessDataFile() 
 //------------------------------------------------------------------------------
+/**
+ * Class destructor
+ */
 ProcessDataFile::~ProcessDataFile() 
 {
     myFile.close();
@@ -77,6 +80,11 @@ ProcessDataFile::~ProcessDataFile()
 //------------------------------------------------------------------------------
 //  bool ProcessDataFile::OpenFile() 
 //------------------------------------------------------------------------------
+/**
+ * Opens a physical file and creates a file handle pointing to it.
+ *
+ * @return Boolean success or failure
+ */
 bool ProcessDataFile::OpenFile() 
 {
     myFile.open(dataFileName.c_str());
@@ -88,6 +96,11 @@ bool ProcessDataFile::OpenFile()
 //------------------------------------------------------------------------------
 //  bool ProcessDataFile::CloseFile() 
 //------------------------------------------------------------------------------
+/**
+ * Closes an open file handle.
+ *
+ * @return Boolean success or failure
+ */
 bool ProcessDataFile::CloseFile() 
 {
     myFile.close();
@@ -100,6 +113,11 @@ bool ProcessDataFile::CloseFile()
 //------------------------------------------------------------------------------
 //  bool ProcessDataFile::IsEOF() 
 //------------------------------------------------------------------------------
+/**
+ * Check to see if the end of the file has been reached.
+ *
+ * @return True if end of file, False otherwise
+ */
 bool ProcessDataFile::IsEOF() 
 {
     return myFile.eof();
@@ -108,6 +126,11 @@ bool ProcessDataFile::IsEOF()
 //------------------------------------------------------------------------------
 // std::string ProcessDataFile::ReadLineFromFile()
 //------------------------------------------------------------------------------
+/**
+ * Read a single line from a file.
+ *
+ * @return Line from file 
+ */
 std::string ProcessDataFile::ReadLineFromFile() 
 {
     std::string lff;
@@ -118,15 +141,26 @@ std::string ProcessDataFile::ReadLineFromFile()
 //----------------------------------------------------------------
 //std::string ProcessDataFile::GetLine(Integer &lineNum)
 //----------------------------------------------------------------
+/**
+ * Retrieve the lineFromFile parameter.
+ *
+ * @param <lineNum> Integer line number
+ * @return Line from file
+ */
 std::string ProcessDataFile::GetLine(Integer &lineNum)
 {
     return lineFromFile[lineNum];
 }
 
 //------------------------------------------------------------------------------
-// std::string ProcessDataFile::SetLine(std::string &lff, 
-//						Integer &lineNum)
+// void ProcessDataFile::SetLine(std::string &lff, Integer &lineNum)
 //------------------------------------------------------------------------------
+/**
+ * Set the lineFromFile parameter.
+ *
+ * @param <lineNum> Integer line number
+ * @param <lff> String of text
+ */
 void ProcessDataFile::SetLine(std::string &lff, Integer &lineNum)
 {
     lineFromFile[lineNum] = lff;
@@ -136,6 +170,11 @@ void ProcessDataFile::SetLine(std::string &lff, Integer &lineNum)
 //------------------------------------------------------------------------------
 // std::string ProcessDataFile::GetFileName()
 //------------------------------------------------------------------------------
+/**
+ * Retrieve the dataFileName parameter.
+ *
+  * @return dataFileName
+ */
 std::string ProcessDataFile::GetFileName() 
 {
     return dataFileName;
@@ -145,13 +184,23 @@ std::string ProcessDataFile::GetFileName()
 // void ProcessDataFile::SetFileName(std::string &myFileName)
 //------------------------------------------------------------------------------
 void ProcessDataFile::SetFileName(std::string &myFileName)
+/**
+ * Set the dataFileName parameter using strings.
+ *
+ * @param <myFileName> Desired file name
+ */
 {
     dataFileName = myFileName;
 }
 
 //------------------------------------------------------------------------------
-// std::string ProcessDataFile::SetFileName(const char* myFileName)
+// void ProcessDataFile::SetFileName(const char* myFileName)
 //------------------------------------------------------------------------------
+/**
+ * Set the dataFileName parameter using const char.
+ *
+ * @param <myFileName> Desired file name
+ */
 void ProcessDataFile::SetFileName(const char* myFileName)
 {
     dataFileName = myFileName;
@@ -160,7 +209,10 @@ void ProcessDataFile::SetFileName(const char* myFileName)
 
 //------------------------------------------------------------------------------
 // std::string ProcessDataFile::Trim() const
-// Removes leading and trailing blanks from a string
+//------------------------------------------------------------------------------
+/** 
+ * Removes leading and trailing blanks from a string
+ */
 //------------------------------------------------------------------------------
 std::string ProcessDataFile::Trim(std::string str)
 {
@@ -174,7 +226,10 @@ std::string ProcessDataFile::Trim(std::string str)
 // template <class T> bool ProcessDataFile::from_string(T& t, 
 //		   const std::string& s, 
 //                 std::ios_base& (*f)(std::ios_base&))
-// Typesafe conversion from string to integer, float, etc
+//------------------------------------------------------------------------------
+/** 
+ * Typesafe conversion from string to integer, float, etc
+ */
 //------------------------------------------------------------------------------
 
 template <class T> bool ProcessDataFile::from_string(T& t, const std::string& s, 
@@ -185,39 +240,40 @@ template <class T> bool ProcessDataFile::from_string(T& t, const std::string& s,
 }
 
 //------------------------------------------------------------------------------
-// std::string ilrs2cospar(std::string ilrsSatnum)
-// Convert ILRS Satellite Number to COSPAR International Designator
-//
-// ILRS Satellite Identifier - 7 digit number based on COSPAR
-// Note: COSPAR ID to ILRS Satellite Identification Algorithm
-//
-// COSPAR ID Format: (YYYY-XXXA)
-//
-// YYYY is the four digit year when the launch vehicle was put in orbit
-// XXX is the sequential launch vehicle number for that year 
-// A is the alpha numeric sequence number within a launch
-// Example: LAGEOS-1 COSPAR ID is 1976-039A
-// Explanation: LAGEOS-1 launch vehicle wasplaced in orbit in 1976; 
-// was the 39th launch in that year; and LAGEOS-1 was the first object
-// injected into orbit from this launch.
-//  
-// ILRS Satellite Identification Format: (YYXXXAA), 
-// based on the COSPAR ID
-//  
-// Where YY is the two digit year when the launch vehicle was put in orbit
-// Where XXX is the sequential launch vehicle number for that year 
-// AA is the numeric sequence number within a launch
-// Example: LAGEOS-1 ILRS Satellite ID is 7603901
-//
+// std::string Ilrs2Cospar(std::string ilrsSatnum)
 //------------------------------------------------------------------------------
-std::string ProcessDataFile::ilrs2cospar(std::string ilrsSatnum)
+/**
+ * Convert ILRS Satellite Number to COSPAR International Designator
+ *
+ * ILRS Satellite Identifier - 7 digit number based on COSPAR
+ * Note: COSPAR ID to ILRS Satellite Identification Algorithm
+ *
+ * COSPAR ID Format: (YYYY-XXXA)
+ *
+ * YYYY is the four digit year when the launch vehicle was put in orbit
+ * XXX is the sequential launch vehicle number for that year 
+ * A is the alpha numeric sequence number within a launch
+ * Example: LAGEOS-1 COSPAR ID is 1976-039A
+ * Explanation: LAGEOS-1 launch vehicle wasplaced in orbit in 1976; 
+ * was the 39th launch in that year; and LAGEOS-1 was the first object
+ * injected into orbit from this launch.
+ *
+ * ILRS Satellite Identification Format: (YYXXXAA), based on the COSPAR ID  
+ * Where YY is the two digit year when the launch vehicle was put in orbit
+ * Where XXX is the sequential launch vehicle number for that year 
+ * AA is the numeric sequence number within a launch
+ * Example: LAGEOS-1 ILRS Satellite ID is 7603901
+ */
+//------------------------------------------------------------------------------
+std::string ProcessDataFile::Ilrs2Cospar(std::string ilrsSatnum)
 {
     
     int year;
     
-    from_string<int>(year,ilrsSatnum.substr(0,2),std::dec);                                                                                                                                                                                                                                       
+    from_string<int>(year,ilrsSatnum.substr(0,2),std::dec);                                                                                                                                                                                                                              
 
-    if ( year < 50 ) {    
+    if ( year < 50 ) 
+    {    
 	year += 2000;
     } else {
 	year += 1900;
@@ -230,16 +286,20 @@ std::string ProcessDataFile::ilrs2cospar(std::string ilrsSatnum)
 
     static const char alpha[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
     
-    if (index <= 26) {
+    if (index <= 26) 
+    {
 
 	// Account for zero indexed array so subtract 1        
 	launchalpha = alpha[index-1];
         
-    } else {
+    } 
+    else 
+    {
         
 	int index2 = -1;
         
-	while (index > 26) {
+	while (index > 26) 
+	{
 
 	    index -= 26;            
 	    index2++;
@@ -256,51 +316,95 @@ std::string ProcessDataFile::ilrs2cospar(std::string ilrsSatnum)
 
 //------------------------------------------------------------------------------
 // bool ProcessDataFile::Overpunch(const char &code, Integer &digit, Integer &sign )
-// Converts overpunch code to numeric value and determines appropriate sign
+//------------------------------------------------------------------------------
+/** 
+ * Converts overpunch code to numeric value and determines appropriate sign
+ */
 //------------------------------------------------------------------------------
 bool ProcessDataFile::Overpunch(std::string code, Integer &digit, Integer &sign )
 {
-    if (!strcmp(code.c_str(), "}")) {
+    if (!strcmp(code.c_str(), "}")) 
+    {
 	digit = 0; sign = -1;
-    } else if (!strcmp(code.c_str(), "J")) {
+    } 
+    else if (!strcmp(code.c_str(), "J")) 
+    {
 	digit = 1; sign = -1;
-    } else if (!strcmp(code.c_str(), "K")) {
+    }
+    else if (!strcmp(code.c_str(), "K")) 
+    {
 	digit = 2; sign = -1;
-    } else if (!strcmp(code.c_str(), "L")) {
+    }
+    else if (!strcmp(code.c_str(), "L")) 
+    {
 	digit = 3; sign = -1;
-    } else if (!strcmp(code.c_str(), "M")) {
+    }
+    else if (!strcmp(code.c_str(), "M")) 
+    {
 	digit = 4; sign = -1;
-    } else if (!strcmp(code.c_str(), "N")) {
+    }
+    else if (!strcmp(code.c_str(), "N")) 
+    {
 	digit = 5; sign = -1;
-    } else if (!strcmp(code.c_str(), "O")) {
+    }
+    else if (!strcmp(code.c_str(), "O")) 
+    {
 	digit = 6; sign = -1;
-    } else if (!strcmp(code.c_str(), "P")) {
+    }
+    else if (!strcmp(code.c_str(), "P")) 
+    {
 	digit = 7; sign = -1;
-    } else if (!strcmp(code.c_str(), "Q")) {
+    }
+    else if (!strcmp(code.c_str(), "Q")) 
+    {
 	digit = 8; sign = -1;
-    } else if (!strcmp(code.c_str(), "R")) {
+    }
+    else if (!strcmp(code.c_str(), "R")) 
+    {
 	digit = 9; sign = -1;
-    } else if (!strcmp(code.c_str(), "{")) {
+    }
+    else if (!strcmp(code.c_str(), "{")) 
+    {
 	digit = 0; sign = +1;
-    } else if (!strcmp(code.c_str(), "A")) {
+    }
+    else if (!strcmp(code.c_str(), "A")) 
+    {
 	digit = 1; sign = +1;
-    } else if (!strcmp(code.c_str(), "B")) {
+    }
+    else if (!strcmp(code.c_str(), "B")) 
+    {
 	digit = 2; sign = +1;
-    } else if (!strcmp(code.c_str(), "C")) {
+    }
+    else if (!strcmp(code.c_str(), "C")) 
+    {
 	digit = 3; sign = +1;
-    } else if (!strcmp(code.c_str(), "D")) {
+    }
+    else if (!strcmp(code.c_str(), "D")) 
+    {
 	digit = 4; sign = +1;
-    } else if (!strcmp(code.c_str(), "E")) {
+    }
+    else if (!strcmp(code.c_str(), "E")) 
+    {
 	digit = 5; sign = +1;
-    } else if (!strcmp(code.c_str(), "F")) {
+    }
+    else if (!strcmp(code.c_str(), "F")) 
+    {
 	digit = 6; sign = +1;
-    } else if (!strcmp(code.c_str(), "G")) {
+    }
+    else if (!strcmp(code.c_str(), "G")) 
+    {
 	digit = 7; sign = +1;
-    } else if (!strcmp(code.c_str(), "H")) {
+    }
+    else if (!strcmp(code.c_str(), "H")) 
+    {
 	digit = 8; sign = +1;
-    } else if (!strcmp(code.c_str(), "I")) {
+    }
+    else if (!strcmp(code.c_str(), "I")) 
+    {
 	digit = 9; sign = +1;
-    } else {
+    }
+    else 
+    {
 	return false;
     }
     
@@ -310,18 +414,23 @@ bool ProcessDataFile::Overpunch(std::string code, Integer &digit, Integer &sign 
 
 //------------------------------------------------------------------------------
 // std::string ProcessTLEData(std::string lff, std::string lff2)
-// Converts the compact Two Line Element Set data into usable numbers
+//------------------------------------------------------------------------------
+/** 
+ * Converts the compact Two Line Element Set data into usable numbers
+ */
 //------------------------------------------------------------------------------
 bool ProcessDataFile::ProcessTLEData(std::string &lff, 
    				     std::string &lff2,
-				     tle_obtype &myTLEdata) {
+				     tle_obtype &myTLEdata) 
+{
         
     // initialize variables for later use
     std::string intldesig = "";
     std::string intldesigDefault = "NotAvailable";
 
     // check if the input strings are empty
-    if (lff.c_str() == "" || lff2.c_str() == "") { 
+    if (lff.c_str() == "" || lff2.c_str() == "") 
+    { 
 	return false; 
     }
            
@@ -332,87 +441,79 @@ bool ProcessDataFile::ProcessTLEData(std::string &lff,
     from_string<int>(linenum2,lff2.substr(0,1),std::dec);
 
     // this length is rather arbitrary
-    if (linenum == 1 && lff.size() < 43) { 
-
+    if (linenum == 1 && lff.size() < 43) 
+    { 
         // Ill formed data. All stop.
         return false;
-    
     }
     
     // this length is more important for line 2
-    if (linenum2 == 2 && lff2.size() < 43) { 
-
+    if (linenum2 == 2 && lff2.size() < 43) 
+    {
         // Ill formed data. All stop.
-        return false;
-        
+        return false;   
     }
 
-    if (lff.size() >= 7) {
-
+    if (lff.size() >= 7) 
+    {
 	std::string satnum_1 = Trim(lff.substr(2,5).c_str());
 
 	// make sure satnum only has numbers in it
-        if (pcrecpp::RE("^\\d+$").FullMatch(satnum_1)) { 
-	    
-            from_string<int>(myTLEdata.satnum,satnum_1,std::dec);
-	    
-        } else {
-	    
+        if (pcrecpp::RE("^\\d+$").FullMatch(satnum_1)) 
+	{ 
+            from_string<int>(myTLEdata.satnum,satnum_1,std::dec);   
+        } 
+	else 
+	{
 	    // Ill formed data. All stop.
-	    return false;
-	    
+	    return false;   
         }
-	
-    } else {
-
+    } 
+    else 
+    {
 	// Ill formed data. All stop.
 	return false;
-
     }
 
-    if (lff.size() >= 8) {
-
+    if (lff.size() >= 8) 
+    {
 	std::string classification_1 = Trim(lff.substr(7,1));
 	
-        if (classification_1 != "") {
-	    
-            myTLEdata.securityClassification = classification_1;
-	    
-	} else { 
-	    
-	    myTLEdata.securityClassification = ""; 
-	    
+        if (classification_1 != "") 
+	{
+            myTLEdata.securityClassification = classification_1;  
 	}
-    
-    } else {
-
+	else
+	{    
+	    myTLEdata.securityClassification = ""; 	    
+	}
+    } 
+    else 
+    {
 	// Ill formed data. All stop.
 	return false;
-
     }
     
-    if (lff.size() >= 17) {
-	
+    if (lff.size() >= 17) 
+    {
 	std::string temp = Trim(lff.substr(9,8));
         // remove blanks
         pcrecpp::RE("\\s+").GlobalReplace("",&temp);
 	
-	if (intldesig == "" || intldesig == intldesigDefault || intldesig != temp) {
-
+	if (intldesig == "" || intldesig == intldesigDefault || intldesig != temp) 
+	{
 	    myTLEdata.intlDesignator = temp;
 	    intldesig = temp;
-
 	}
-
-    } else {
-
+    } 
+    else
+    {
 	// Ill formed data. All stop.
 	return false;
-
     }
     
-    if (lff.size() >= 33) {
-	
+    if (lff.size() >= 33) 
+    {
 	std::string temp = Trim(lff.substr(18,15));
 
 	// sometimes zeros are blanks
@@ -423,374 +524,335 @@ bool ProcessDataFile::ProcessTLEData(std::string &lff,
 
 	if(pcrecpp::RE("(\\d{2})(\\d{3}\\.\\d{0,8})").FullMatch(temp,&epYear,&epdayOfYear))
 	{
-	    
 	    myTLEdata.epochYear = epYear;
 	    myTLEdata.epochDayOfYear = epdayOfYear;
-	    
-	} else {
+	} 
+	else 
+	{
 	    // Ill formed data. All stop.
 	    return false;
 	}
-	
-    } else {
-
+    } 
+    else
+    {
 	// Ill formed data. All stop.
 	return false;
-
     }
 
-    if (lff.size() >= 43) {
-
+    if (lff.size() >= 43)
+    {
 	std::string ndotby2_1 = Trim(lff.substr(33,10));
 	
-	if(ndotby2_1 == "" || pcrecpp::RE("^0.0+$").FullMatch(ndotby2_1)) {
-	    
-	    myTLEdata.ndotby2 = 0;
-	    
-	} else {
-	    
+	if(ndotby2_1 == "" || pcrecpp::RE("^0.0+$").FullMatch(ndotby2_1)) 
+	{
+	    myTLEdata.ndotby2 = 0;   
+	}
+	else
+	{
 	    std::string p1, p2;
 	    
-	    if ( pcrecpp::RE("^([\\d+-]?)(.\\d{0,8})$").FullMatch(ndotby2_1,&p1,&p2) ) {
-		
+	    if ( pcrecpp::RE("^([\\d+-]?)(.\\d{0,8})$").FullMatch(ndotby2_1,&p1,&p2) )
+	    {
 		double ndotby2;
 		std::string str1 = p1 + p2;
 		from_string<double>(ndotby2,str1,std::dec);
 		myTLEdata.ndotby2 = ndotby2;
-		
-	    } else {
-		
-		// Ill formed data. All stop.
-		
-		
-		return false;
-		
+	    }
+	    else
+	    {
+		// Ill formed data. All stop.	
+		return false;	
 	    }
 	}
 	
-	if (lff.size() >= 52) {
-    
+	if (lff.size() >= 52) 
+	{
 	    std::string nddotby6_1 = Trim(lff.substr(44,8));
         
-	    if (nddotby6_1 == "" || pcrecpp::RE("^[+-]?0{5}[ +-]?0?$").FullMatch(nddotby6_1)) {
-        
-		myTLEdata.nddotby6 = 0;
-            	
-	    } else {
-	    
+	    if (nddotby6_1 == "" || pcrecpp::RE("^[+-]?0{5}[ +-]?0?$").FullMatch(nddotby6_1)) 
+	    {
+		myTLEdata.nddotby6 = 0;	
+	    }
+	    else
+	    {
 		std::string s1, s2;
 		int i3;
 	    
-		if ( pcrecpp::RE("^([+-]?)(\\d{0,5})([ +-0]\\d?)$").FullMatch(nddotby6_1,&s1,&s2,&i3) ) {
-            
+		if ( pcrecpp::RE("^([+-]?)(\\d{0,5})([ +-0]\\d?)$").FullMatch(nddotby6_1,&s1,&s2,&i3) ) 
+		{
 		    // add assumed decimal point
 		    double nddotby6;
 		    std::string str1 = s1+"."+s2;
 		    from_string<double>(nddotby6,str1,std::dec);
 		
 		    myTLEdata.nddotby6 = nddotby6*pow(10,i3); 
-                
-		} else {
-
-		    // Ill formed data. All stop.
-		    
-		    
-		    return false;
-
 		}
-            
+		else
+		{
+		    // Ill formed data. All stop.    
+		    return false;
+		}
 	    }
 	    
-	    if (lff.size() >= 62) {
-		
+	    if (lff.size() >= 62) 
+	    {
 		// some data shifted by a space so read up to and including buffer space
 		std::string bstar_1 = Trim(lff.substr(53,9));
         
-		if(bstar_1 == "" || pcrecpp::RE("^[+-]?0{5}[ +-]?0?$").FullMatch(bstar_1)) {
-
+		if(bstar_1 == "" || pcrecpp::RE("^[+-]?0{5}[ +-]?0?$").FullMatch(bstar_1)) 
+		{
 		    myTLEdata.bstar = 0;
-	
-		} else {
-
+		}
+		else
+		{
 		    std::string s1, s2;
 		    int i3;
 	    
-		    if ( pcrecpp::RE("^([+-]?)(\\d{0,5})([ +-0]\\d?)$").FullMatch(bstar_1,&s1,&s2,&i3) ) {
-            
+		    if ( pcrecpp::RE("^([+-]?)(\\d{0,5})([ +-0]\\d?)$").FullMatch(bstar_1,&s1,&s2,&i3) ) 
+		    {
 			// add assumed decimal point
 			double bstar;
 			
 			std::string str1 = s1+"."+s2;
 			from_string<double>(bstar,str1,std::dec);
 			myTLEdata.bstar = bstar*pow(10,i3); 
-		
-		    } else {
-
-			// Ill formed data. All stop.
-			
-			
+		    } 
+		    else
+		    {
+			// Ill formed data. All stop.	
 			return false;
-
 		    }
-            
 		}
 
-		if (lff.size() >= 63) {
-    
+		if (lff.size() >= 63) 
+		{
 		    std::string ephemtype_1 = lff.substr(62,1);
         
-		    if (ephemtype_1 != "") {
-
+		    if (ephemtype_1 != "") 
+		    {
 			int ephemType;
 			from_string<int>(ephemType,ephemtype_1,std::dec);
 			myTLEdata.ephemerisType = ephemType;
-	    
-		    } else { 
-			
+		    } 
+		    else
+		    { 
 			myTLEdata.ephemerisType = 0; 
-			
 		    }
 		    
-		    if (lff.size() >= 68) {
-   
+		    if (lff.size() >= 68) 
+		    {
 			std::string elnum_1 = Trim(lff.substr(64,4));
         
-			if (elnum_1 != "") {
-	    
+			if (elnum_1 != "") 
+			{
 			    int elnum;
 			    from_string<int>(elnum,elnum_1 ,std::dec);
 			    myTLEdata.elementNum = elnum;
-	    
 			}  
-	
-		    } else {
-	
+		    } 
+		    else
+		    {
 			// Line 1 contains no critical data after this point
-
 			myTLEdata.elementNum = 0;
-        
-        
-		    }	    
-		    
-                
-		} else {
-            
+		    }
+		} 
+		else
+		{
 		    // Line 1 contains no critical data after this point
-
 		    myTLEdata.ephemerisType = 0;
 		    myTLEdata.elementNum = 0;        
-        
 		}
-		
-	    } else {
-            
+	    } 
+	    else
+	    {
 		// Line 1 contains no critical data after this point
-
 		myTLEdata.bstar = 0;
 		myTLEdata.ephemerisType = 0;
 		myTLEdata.elementNum = 0;
-        
 	    }
-	    
-	} else {
-  
+	} 
+	else
+	{
 	    // Line 1 contains no critical data after this point
-
 	    myTLEdata.nddotby6 = 0;
 	    myTLEdata.bstar = 0;
 	    myTLEdata.ephemerisType = 0;
 	    myTLEdata.elementNum = 0;
 	}
-
-    } else {
-	    
+    } 
+    else
+    {
 	// Line 1 contains no critical data after this point
-	
 	myTLEdata.ndotby2 = 0;
 	myTLEdata.nddotby6 = 0;
 	myTLEdata.bstar = 0;
 	myTLEdata.ephemerisType = 0;
 	myTLEdata.elementNum = 0;
-	
     }    
-
-    
+    //
     // Start processing line 2 here
-    
-    if (lff2.size() >= 7) {
+    //
+    if (lff2.size() >= 7) 
+    {
             
 	int satnum2;
 	std::string satnum2_1 = Trim(lff2.substr(2,5));
 	from_string<int>(satnum2,satnum2_1,std::dec);	
-	if (myTLEdata.satnum != satnum2) {
-	
+	if (myTLEdata.satnum != satnum2) 
+	{
 	    // Ill formed data. All stop.
 	    return false;	
 	}
-
-    } else {
-	
+    } 
+    else
+    {
 	// Ill formed data. All stop.
 	return false;
-
     }
 
-    if (lff2.size() >= 17) {
-
+    if (lff2.size() >= 17) 
+    {
 	std::string incl = Trim(lff2.substr(8,9));
 
 	// For some reason, some of the inclination data has a space in it.	
 	pcrecpp::RE("\\s+").GlobalReplace("",&incl);
 
 	// make sure that the inclination is a decimal number	
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(incl,&myTLEdata.inclination)) { 
-
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(incl,&myTLEdata.inclination)) 
+	{ 
 	    // Ill formed data. All stop.
 	    return false;
-
 	}
-
-    } else {
-
+    } 
+    else
+    {
 	// Ill formed data. All stop.
 	return false;
-
     }
 
-    if (lff2.size() >= 25) {
-    
+    if (lff2.size() >= 25) 
+    {
 	std::string raan = Trim(lff2.substr(17,8));
         
 	// sometimes zeros are blanks
 	pcrecpp::RE("\\s+").GlobalReplace("0",&raan);
 	
 	// make sure that the raan is a decimal number
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(raan,&myTLEdata.raan)) { 
-
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(raan,&myTLEdata.raan)) 
+	{ 
 	    // Ill formed data. All stop.
-	    return false;
-	    
-	}
-                
-    } else {
-                
+	    return false;   
+	}           
+    } 
+    else
+    {
 	// Ill formed data. All stop.
-	return false;
-	    	
+	return false;    	
     }
     
-    if (lff2.size() >= 33) {
-    
+    if (lff2.size() >= 33) 
+    {
 	// assumed decimal point added
 	std::string etemp = Trim(lff2.substr(26,7));
 	std::string ecc = "."+etemp;
 
 	// make sure that the eccentricity is a decimal number        
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(ecc,&myTLEdata.eccentricity)) { 
-		                
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(ecc,&myTLEdata.eccentricity)) 
+	{       
 	    // Ill formed data. All stop.
-	    return false;
-	    
-	}
-                
-    } else {
-                
+	    return false;   
+	}           
+    } 
+    else
+    {
 	// Ill formed data. All stop.
-	return false;
-	    	
+	return false;    	
     }
         
-    if (lff2.size() >= 42) {
-    
+    if (lff2.size() >= 42) 
+    {
 	std::string argper = Trim(lff2.substr(34,8));
         
 	// sometimes zeros are blanks
 	pcrecpp::RE("\\s+").GlobalReplace("0",&argper);
 
 	// make sure that the argument of perigee is a decimal number
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(argper,&myTLEdata.argPerigee)) {
-                
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(argper,&myTLEdata.argPerigee)) 
+	{
 	    // Ill formed data. All stop.
-	    return false;
-	    
-	}
-                
-    } else {
-                
+	    return false;   
+	}           
+    } 
+    else
+    {
 	// Ill formed data. All stop.
-	return false;
-	    	
+	return false;    	
     }
 
-    if (lff2.size() >= 51) {
-    
+    if (lff2.size() >= 51) 
+    {
 	std::string ma = Trim(lff2.substr(43,8));
         
 	// sometimes zeros are blanks
 	pcrecpp::RE("\\s+").GlobalReplace("0",&ma);
 
 	// make sure that the mean anomaly is a decimal number
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(ma,&myTLEdata.meanAnomaly)) { 
-
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(ma,&myTLEdata.meanAnomaly)) 
+	{ 
 	    // Ill formed data. All stop.
-	    return false;
-	    
-	}
-                
-    } else {
-                
+	    return false;   
+	}           
+    } 
+    else
+    {
 	// Ill formed data. All stop.
-	return false;
-	    	
+	return false;    	
     }    
     
-    if (lff2.size() >= 63) {
-	
+    if (lff2.size() >= 63) 
+    {
 	std::string n = Trim(lff2.substr(52,11));
         
 	// sometimes zeros are blanks
 	pcrecpp::RE("\\s+").GlobalReplace("0",&n);
 	
 	// make sure that the mean motion is a decimal number
-	if (!pcrecpp::RE("^([+-]?\\d{0,3}\\.\\d{0,10})$").FullMatch(n,&myTLEdata.meanMotion)) { 
-
+	if (!pcrecpp::RE("^([+-]?\\d{0,3}\\.\\d{0,10})$").FullMatch(n,&myTLEdata.meanMotion)) 
+	{
 	    // Ill formed data. All stop.
-	    return false;
-	    
-	}
-                
-    } else {
-                
+	    return false;   
+	}           
+    } 
+    else
+    {
 	// Ill formed data. All stop.
-	return false;
-	    	
+	return false;    	
     }    
     
-    if (lff2.size() >= 63) {
-    
+    if (lff2.size() >= 63) 
+    {
 	std::string revnum = Trim(lff2.substr(63,5));
         
 	// sometimes zeros are blanks
 	pcrecpp::RE("\\s+").GlobalReplace("0",&revnum);
 	
-	if (revnum == "") {
-
+	if (revnum == "") 
+	{
 	    // if revnum is blank then assign -1 to indicate unavailable data
 	    myTLEdata.revolutionNum = -1;
 	
 	// make sure that the rev number is a natural number
-	} else if (!pcrecpp::RE("^(\\d+)$").FullMatch(revnum,&myTLEdata.revolutionNum)) { 
-       
+	} 
+	else if (!pcrecpp::RE("^(\\d+)$").FullMatch(revnum,&myTLEdata.revolutionNum)) 
+	{ 
             // Ill formed data. All stop.
-	    return false;
-	    
-	}
-                
-    } else {
-                
+	    return false;   
+	}           
+    } 
+    else
+    {
 	// Ill formed data. All stop.
-	return false;
-	    	
+	return false;	    	
     }        
     
     return true;
@@ -799,7 +861,10 @@ bool ProcessDataFile::ProcessTLEData(std::string &lff,
 	
 //------------------------------------------------------------------------------
 // std::string ProcessB3Data(std::string lff)
-// Converts the compact b3 data format into usable numbers
+//------------------------------------------------------------------------------
+/** 
+ * Converts the compact b3 data format into usable numbers.
+ */
 //------------------------------------------------------------------------------
 
 bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
@@ -822,7 +887,8 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
     // Check to make sure that the line length is at
     // least 75 characters long
     
-    if (lff2.size() < 75) {
+    if (lff2.size() < 75) 
+    {
         return false;
     }
         
@@ -852,23 +918,23 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
     if (!from_string<int>(itemp,lff2.substr(18,5),std::dec)) return false;
     myb3Data.seconds = itemp * 1e-3;
     
-    switch (myb3Data.b3Type) {
-        
+    switch (myb3Data.b3Type) 
+    {
 	case RANGERATEONLY_ID:
 
 	    // Test to see if the "." character is present
 	    // This represents a negative range rate value and there is
 	    // one less decimal place of precision 
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) {
-	   
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) 
+	    {
 		myb3Data.rangeRate = itemp * 1e-5;
-		
-	    } else if (pcrecpp::RE("^\\.(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) {
-		
+	    } 
+	    else if (pcrecpp::RE("^\\.(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) 
+	    {
 		myb3Data.rangeRate = -itemp * 1e-5;
-		
-	    } else {
-		
+	    } 
+	    else
+	    {
 		// Ill formed data
 		return false;
 	    }
@@ -879,12 +945,12 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 	    
 	    // Negative elevation values are formatted as overpunched values
 	    // Test to see if overpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) {
-
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) 
+	    {
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) {
-		
+	    } 
+	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) 
+	    {
 		Integer digit, sign;
 		
 		// Figure out the overpunch code
@@ -899,12 +965,11 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else {
-		
+	    } 
+	    else
+	    {
 		// Ill formed data
 		return false;
-		
 	    }
 
 	    // Find azimuth
@@ -917,12 +982,12 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
             
 	    // Negative elevation values are formatted as overpunched values
 	    // Test to see if overpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) {
-
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) 
+	    {
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) {
-		
+	    } 
+	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) 
+	    {
 		Integer digit, sign;
 		
 		// Figure out the overpunch code
@@ -937,12 +1002,11 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else {
-		
+	    } 
+	    else
+	    {
 		// Ill formed data
 		return false;
-		
 	    }
 
 	    // Find azimuth
@@ -964,12 +1028,12 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 
 	    // Negative elevation values are formatted as overpunched values
 	    // Test to see if overpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) {
-
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) 
+	    {
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) {
-		
+	    }
+	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) 
+	    {
 		Integer digit, sign;
 		
 		// Figure out the overpunch code
@@ -984,12 +1048,11 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else {
-		
+	    } 
+	    else
+	    {
 		// Ill formed data
 		return false;
-		
 	    }
 
 	    // Find azimuth
@@ -1009,16 +1072,16 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
     	    // Test to see if the "." character is present
 	    // This represents a negative range rate value and there is
 	    // one less decimal place of precision 
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) {
-	   
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) 
+	    {
 		myb3Data.rangeRate = itemp * 1e-5;
-		
-	    } else if (pcrecpp::RE("^\\.(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) {
-		
+	    } 
+	    else if (pcrecpp::RE("^\\.(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) 
+	    {
 		myb3Data.rangeRate = -itemp * 1e-5;
-		
-	    } else {
-		
+	    }
+	    else
+	    {
 		// Ill formed data
 		return false;
 	    }
@@ -1029,12 +1092,12 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 
 	    // Negative elevation values are formatted as overpunched values
 	    // Test to see if overpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) {
-
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) 
+	    {
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) {
-		
+	    }
+	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) 
+	    {
 		Integer digit, sign;
 		
 		// Figure out the overpunch code
@@ -1049,12 +1112,11 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else {
-		
+	    }
+	    else
+	    {
 		// Ill formed data
 		return false;
-		
 	    }
 
 	    // Find azimuth
@@ -1074,16 +1136,16 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
     	    // Test to see if the "." character is present
 	    // This represents a negative range rate value and there is
 	    // one less decimal place of precision 
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) {
-	   
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) 
+	    {
 		myb3Data.rangeRate = itemp * 1e-5;
-		
-	    } else if (pcrecpp::RE("^\\.(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) {
-		
+	    }
+	    else if (pcrecpp::RE("^\\.(\\d+)$").FullMatch(lff2.substr(47,7),&itemp)) 
+	    {
 		myb3Data.rangeRate = -itemp * 1e-5;
-		
-	    } else {
-		
+	    }
+	    else
+	    {
 		// Ill formed data
 		return false;
 	    }
@@ -1094,12 +1156,12 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 	    
 	    // Negative declination values are formatted as overpunched values
 	    // Test to see if overpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) {
-
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) 
+	    {
 		myb3Data.declination = itemp * 1e-4;
-		
-	    } else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) {
-		
+	    }
+	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) 
+	    {
 		Integer digit, sign;
 		
 		// Figure out the overpunch code
@@ -1114,24 +1176,22 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,decl,std::dec)) return false;
 		myb3Data.declination = itemp * 1e-4;
-		
-	    } else {
-		
+	    }
+	    else
+	    {
 		// Ill formed data
 		return false;
-		
 	    }
 
 	    // Find right ascension in hours
-	    if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff2.substr(23,6),&itemp, &itemp2, &itemp3)) {
-		
+	    if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff2.substr(23,6),&itemp, &itemp2, &itemp3)) 
+	    {
 		myb3Data.rightAscension = (itemp+itemp2/60+itemp3/3600);
-		
-	    } else {
-		
+	    }
+	    else
+	    {
 		// Ill formed data
 		return false;
-				
 	    }
 	    
 	    break;
@@ -1153,12 +1213,13 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
             
 	    // Negative elevation values are formatted as overpunched values
 	    // Test to see if overpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) {
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) 
+	    {
 
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) {
-		
+	    }
+	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) 
+	    {
 		Integer digit, sign;
 		
 		// Figure out the overpunch code
@@ -1173,12 +1234,11 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,elev,std::dec)) return false;
 		myb3Data.elevation = itemp * 1e-4;
-		
-	    } else {
-		
+	    }
+	    else
+	    {
 		// Ill formed data
 		return false;
-		
 	    }
 
 	    // Find azimuth
@@ -1186,8 +1246,8 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 	    myb3Data.azimuth = itemp * 1e-4;
 
 	    // Check to see if range value defined. If 0 or blank, skip over
-	    if(!pcrecpp::RE("^[ 0]{6)$").FullMatch(lff2.substr(23,6))) {
-	    
+	    if(!pcrecpp::RE("^[ 0]{6)$").FullMatch(lff2.substr(23,6))) 
+	    {
 		// Find range
 		if (!from_string<int>(itemp,lff2.substr(38,7),std::dec)) return false;
 		range = itemp * 1e-5;
@@ -1196,11 +1256,10 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		if (!from_string<int>(itemp,lff2.substr(45,1),std::dec)) return false;
 
 		myb3Data.range = (range * 1e-5) * pow(10,itemp);	    
-
-	    } else {
-
+	    }
+	    else
+	    {
 		myb3Data.range = 0;
-	    
 	    }
 	    
 	    // Find sensor position in kilometers
@@ -1217,11 +1276,14 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
             
 	    // Negative declination values are formatted as overpunched values
 	    // Test to see if overpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) {
+	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff2.substr(23,6),&itemp)) 
+	    {
 
 		myb3Data.declination = itemp * 1e-4;
 		
-	    } else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) {
+	    }
+	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff2.substr(23,6),&itemp, &code)) 
+	    {
 		
 		Integer digit, sign;
 		
@@ -1236,30 +1298,28 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		
 		// Convert completed number string to final form
 		if (!from_string<int>(itemp,decl,std::dec)) return false;
-		myb3Data.declination = itemp * 1e-4;
-		
-	    } else {
-		
+		myb3Data.declination = itemp * 1e-4;	
+	    }
+	    else
+	    {
 		// Ill formed data
 		return false;
-		
 	    }
 
 	    // Find right ascension in hours
-	    if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff2.substr(23,6),&itemp, &itemp2, &itemp3)) {
-		
+	    if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff2.substr(23,6),&itemp, &itemp2, &itemp3)) 
+	    {
 		myb3Data.rightAscension = (itemp+itemp2/60+itemp3/3600);
-		
-	    } else {
-		
+	    }
+	    else
+	    {
 		// Ill formed data
-		return false;
-				
+		return false;		
 	    }
 
 	    // Check to see if range value defined. If 0 or blank, skip over
-	    if(!pcrecpp::RE("^[ 0]{6)$").FullMatch(lff2.substr(23,6))) {
-	    
+	    if(!pcrecpp::RE("^[ 0]{6)$").FullMatch(lff2.substr(23,6))) 
+	    {
 		// Find range
 		if (!from_string<int>(itemp,lff2.substr(38,7),std::dec)) return false;
 		range = itemp * 1e-5;
@@ -1267,12 +1327,11 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 		// Find range exponent
 		if (!from_string<int>(itemp,lff2.substr(45,1),std::dec)) return false;
 
-		myb3Data.range = (range * 1e-5) * pow(10,itemp);	    
-
-	    } else {
-
+		myb3Data.range = (range * 1e-5) * pow(10,itemp);
+	    }
+	    else
+	    {
 		myb3Data.range = 0;
-	    
 	    }
 	    
 	    // Find sensor position in kilometers
@@ -1289,8 +1348,6 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 
 	    // Ill formed data. All stop.           
 	    return false;
-     
-            
     }
         
     return true;    
@@ -1299,10 +1356,18 @@ bool ProcessDataFile::ProcessB3Data(std::string &lff, b3_obtype &myb3Data) {
 
 //------------------------------------------------------------------------------
 // bool ProcessSLRHeader(std::string lff, slr_header &mySLRheader)
-// Converts the compact SLR Normal Point Data format into usable numbers
+//------------------------------------------------------------------------------
+/** 
+ * Extracts header information from the compact SLR Normal Point Data format.
+ *
+ * Each set of observations from a given station has one header record
+ * associated with it. This header contains the ground station identifiers,
+ * calibration information, and the date.
+ */
 //------------------------------------------------------------------------------
 
-bool ProcessDataFile::ProcessSLRHeader(std::string &lff, slr_header &mySLRheader) {
+bool ProcessDataFile::ProcessSLRHeader(std::string &lff, slr_header &mySLRheader) 
+{
 
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -1318,7 +1383,8 @@ bool ProcessDataFile::ProcessSLRHeader(std::string &lff, slr_header &mySLRheader
     
     // Check to make sure that the line length is at
     // least 54 characters long
-    if (lff2.size() < 54) {
+    if (lff2.size() < 54) 
+    {
 	return false;
     }
 
@@ -1326,7 +1392,8 @@ bool ProcessDataFile::ProcessSLRHeader(std::string &lff, slr_header &mySLRheader
     pcrecpp::RE("-").GlobalReplace("0",&lff2);
 
     // If line contains anything but numbers skip
-    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) {
+    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) 
+    {
 	return false;
     }
 
@@ -1339,9 +1406,12 @@ bool ProcessDataFile::ProcessSLRHeader(std::string &lff, slr_header &mySLRheader
     if (!from_string<int>(mySLRheader.year,lff2.substr(7,2),std::dec)) return false;
     
     // Put year in four digit format
-    if ( mySLRheader.year < 50 ) {
+    if ( mySLRheader.year < 50 ) 
+    {
 	mySLRheader.year += 2000;
-    } else {
+    }
+    else
+    {
 	mySLRheader.year += + 1900;	
     }
     
@@ -1354,7 +1424,8 @@ bool ProcessDataFile::ProcessSLRHeader(std::string &lff, slr_header &mySLRheader
     // Convert wavelength to nanometers.
     // 3000 - 9999 is units of 0.1 nanometers
     // 1000 - 2999 is units of 1.0 nanometers so no conversion needed.
-    if (mySLRheader.wavelength >= 3000 && mySLRheader.wavelength <= 9999) {
+    if (mySLRheader.wavelength >= 3000 && mySLRheader.wavelength <= 9999) 
+    {
 	mySLRheader.wavelength *= 0.1;
     }
     
@@ -1368,15 +1439,21 @@ bool ProcessDataFile::ProcessSLRHeader(std::string &lff, slr_header &mySLRheader
     if (!from_string<int>(mySLRheader.sciIndicator,lff2.substr(46,1),std::dec)) return false;
     if (!from_string<int>(mySLRheader.passRMS,lff2.substr(47,4),std::dec)) return false;
 
-    if (pcrecpp::RE("^\\s+$").FullMatch(lff2.substr(51,1))) {    
+    if (pcrecpp::RE("^\\s+$").FullMatch(lff2.substr(51,1))) 
+    {    
 	mySLRheader.dataQualAssessmentIndicator = 0;   
-    } else {
+    }
+    else
+    {
 	if (!from_string<int>(mySLRheader.dataQualAssessmentIndicator,lff2.substr(51,1),std::dec)) return false;
     }
     
-    if (pcrecpp::RE("^\\s+$").FullMatch(lff2.substr(54,1))) {
+    if (pcrecpp::RE("^\\s+$").FullMatch(lff2.substr(54,1))) 
+    {
 	mySLRheader.formatRevisionNum = 0;        
-    } else {
+    }
+    else
+    {
         if (!from_string<int>(mySLRheader.formatRevisionNum,lff2.substr(54,1),std::dec)) return false;
     }
     
@@ -1385,10 +1462,14 @@ bool ProcessDataFile::ProcessSLRHeader(std::string &lff, slr_header &mySLRheader
 }
 
 //------------------------------------------------------------------------------
-// bool ProcessSLRData(std::string lff, slr_header &mySLRheader, slr_obtype &mySLRData)
-// Converts the compact SLR Normal Point Data format into usable numbers
-//
-// Note that the SLRType variable must be set prior to calling this routine!
+// bool ProcessSLRData(std::string lff, slr_header &mySLRheader, 
+//                     slr_obtype &mySLRData)
+//------------------------------------------------------------------------------
+/** 
+ * Converts the compact SLR Normal Point Data format into usable numbers.
+ *
+ * Note that the SLRType variable must be set prior to calling this routine!
+ */
 //
 //------------------------------------------------------------------------------
 
@@ -1415,7 +1496,8 @@ bool ProcessDataFile::ProcessSLRData(std::string &lff, slr_header &mySLRheader,
     
 	    // Check to make sure that the line length is at
 	    // least 54 characters long
-	    if (lff2.size() < 54) {
+	    if (lff2.size() < 54) 
+	    {
 		return false;	
 	    }
 	    
@@ -1423,7 +1505,8 @@ bool ProcessDataFile::ProcessSLRData(std::string &lff, slr_header &mySLRheader,
 	    pcrecpp::RE("-").GlobalReplace("0",&lff2);
 
 	    // If line contains anything but numbers skip
-	    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) {
+	    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) 
+	    {
 		return false;
 	    }
 
@@ -1466,14 +1549,16 @@ bool ProcessDataFile::ProcessSLRData(std::string &lff, slr_header &mySLRheader,
 
 	    // Check to make sure that the line length is at
 	    // least 69 characters long
-	    if (lff2.size() < 69) {
+	    if (lff2.size() < 69) 
+	    {
 	        return false;
 	    }	
 	    // Replace extraneous "-" with the number 0
 	    pcrecpp::RE("-").GlobalReplace("0",&lff2);
 
 	    // If line contains anything but numbers skip
-	    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) {
+	    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) 
+	    {
 		return false;
 	    }
 

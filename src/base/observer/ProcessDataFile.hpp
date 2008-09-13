@@ -471,7 +471,7 @@ public:
 
     // String processing utility functions
     std::string Trim(std::string s);
-    std::string ilrs2cospar(std::string ilrsSatnum);
+    std::string Ilrs2Cospar(std::string ilrsSatnum);
     template <class T> bool from_string(T& t, const std::string& s, 
                  std::ios_base& (*f)(std::ios_base&));
     bool Overpunch(std::string code, Integer &digit, Integer &sign );
