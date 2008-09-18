@@ -42,11 +42,12 @@ else
 SHARED_EXTENSION = .so
 endif
 
-LIBS = -L../base/lib -lGmatGui
-LIBNAME = ../base/lib/libGmatGui$(SHARED_EXTENSION)
+LIBS = -L../base/lib -lGmatBase
+LIBNAME = ../base/lib/libGmatBase$(SHARED_EXTENSION)
+
 else
 
-LIBNAME = ../base/lib/libGmatGui.dll
+LIBNAME = ../base/lib/libGmatBase.dll
 LIBS = $(LIBNAME)
 
 endif
@@ -54,7 +55,7 @@ endif
 
 else
 
-LIBS = ../base/lib/libGmatGui.a
+LIBS = ../base/lib/libGmatBase.a
 
 endif
 
@@ -236,27 +237,7 @@ OBJECTS = \
     view/ViewTextDialog.o \
     view/ViewTextFrame.o 
 
-ifeq ($(SHARED_BASE), 0)
-
-ifdef MAC_SPECIFIC
-$(WXTARGET) : $(OBJECTS) $(LIBS)
-	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	cp -f $(WXTARGET) ../../bin/.
-else
-
-ifeq ($(LINUX_MAC), 1)
-$(WXTARGET) : $(OBJECTS) $(LIBS)
-	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	mv -f $(WXTARGET)* ../../bin/.
-else
-$(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBS)
-	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	mv -f $(WXTARGET)* ../../bin/.
-endif
-
-endif
-
-else
+ifeq ($(SHARED_BASE), 1)
 
 ifdef MAC_SPECIFIC
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
@@ -274,6 +255,26 @@ $(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBNAME)
 	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
 	mv -f $(WXTARGET)* ../../bin/.
 	cp -f $(LIBNAME) ../../bin/.
+endif
+
+endif
+
+else
+
+ifdef MAC_SPECIFIC
+$(WXTARGET) : $(OBJECTS) $(LIBS)
+	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	cp -f $(WXTARGET) ../../bin/.
+else
+
+ifeq ($(LINUX_MAC), 1)
+$(WXTARGET) : $(OBJECTS) $(LIBS)
+	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	mv -f $(WXTARGET)* ../../bin/.
+else
+$(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBS)
+	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	mv -f $(WXTARGET)* ../../bin/.
 endif
 
 endif
