@@ -1,4 +1,4 @@
-# $Header$
+# $Id$
 # Build environment file for Linux
 # Modifed for Mac OS 10.3  W. Shoan - 2005.11.10
 # Modifed for Mac OS 10.4  W. Shoan - 2006.01.19
@@ -20,9 +20,8 @@ USE_SHARED = 1
 # flag indicating whether or not to build as a shared library
 SHARED_BASE = 0
 
-# *** EDIT THIS *** - put the top of the GMAT project directory structure here.
-# e.g. 
-TOP_DIR = /Users/yourname/dev/gmat
+# *** EDIT THIS *** - put the top of the GMAT project directory structure here ....
+TOP_DIR = <your top directory here>
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
 WX_HOME = /Applications/wxmac-2.8.8/osx-build
 #WX_HOME = /Applications/wxmac-2.8.7/osx-build
@@ -42,9 +41,10 @@ else
 USE_PROFILING = 0
 endif
 
-# currently cannot use MATLAB with console version 
+# currently cannot use MATLAB or shared base library with console version 
 ifeq ($(CONSOLE_APP), 1)
 USE_MATLAB = 0
+SHARED_BASE = 0
 endif
 
 # MATLAB specific data
@@ -99,7 +99,11 @@ MAC_SPECIFIC = 1
 
 # For MacOS application
 ifeq ($(MAC_SPECIFIC),1)
+ifeq ($(USE_MATLAB),1)
 EXECUTABLE 	= $(TOP_DIR)/bin/GMAT
+else
+EXECUTABLE  = $(TOP_DIR)/bin/GMATNoMatlab
+endif
 # *** EDIT THIS *** - put the version number of the wxMac that you're using here ...
 #WX_VERSION   = 2.8.7
 WX_VERSION   = 2.8.8
@@ -109,7 +113,7 @@ MACOS_DIR    = $(CONTENTS_DIR)/MacOS
 RES_DIR      = $(CONTENTS_DIR)/Resources
 LIBS_DIR     = $(CONTENTS_DIR)/Frameworks
 MAC_APP      = $(MACOS_DIR)/GMAT
-MAC_SCRIPT   = $(MACOS_DIR)/RunGMAT
+MAC_SCRIPT_DIR   = $(MACOS_DIR)/
 MAC_PKG      = $(CONTENTS_DIR)/Info.plist
 MAC_PKGINFO  = $(CONTENTS_DIR)/PkgInfo
 GMAT_ICONS   = $(TOP_DIR)/bin/files/icons/GMATIcon.icns
@@ -181,7 +185,8 @@ endif
 # ifeq ($(USE_MATLAB),1)
 # CONSOLE_LINK_FLAGS = $(MATLAB_LIB) $(MATLAB_LIBRARIES) -L../../base/lib \
 #            			$(FORTRAN_LIB) \
-#                     -lg2c $(DEBUG_FLAGS) 
+#                     -lg2c -ldl $(DEBUG_FLAGS) 
 # else
-CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) -lg2c $(DEBUG_FLAGS) 
+#CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) -lg2c -ldl $(DEBUG_FLAGS) 
+CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) -ldl $(DEBUG_FLAGS) 
 # endif

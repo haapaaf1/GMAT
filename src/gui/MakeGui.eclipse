@@ -42,20 +42,34 @@ else
 SHARED_EXTENSION = .so
 endif
 
+ifeq ($(USE_MATLAB),1)
 LIBS = -L../base/lib -lGmatBase
 LIBNAME = ../base/lib/libGmatBase$(SHARED_EXTENSION)
+else
+LIBS = -L../base/lib -lGmatBaseNoMatlab
+LIBNAME = ../base/lib/libGmatBaseNoMatlab$(SHARED_EXTENSION)
+endif
 
 else
 
+ifeq ($(USE_MATLAB),1)
 LIBNAME = ../base/lib/libGmatBase.dll
 LIBS = $(LIBNAME)
+else
+LIBNAME = ../base/lib/libGmatBaseNoMatlab.dll
+LIBS = $(LIBNAME)
+endif
 
 endif
 
 
 else
 
+ifeq ($(USE_MATLAB),1)
 LIBS = ../base/lib/libGmatBase.a
+else
+LIBS = ../base/lib/libGmatBaseNoMatlab.a
+endif
 
 endif
 
@@ -126,6 +140,7 @@ archclean :
 cleanmacosx :
 	echo 'cleaning macosx apps .......'
 	rm -rf $(TOP_DIR)/bin/GMAT.app
+	rm -rf $(TOP_DIR)/bin/GMATNoMatlab.app
 
 OBJECTS = \
     app/AboutDialog.o \
@@ -302,21 +317,29 @@ macosx:
 
 macmatlab:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
-	sed -e 's,/,.,g'`/" -e "s/EXECUTABLE/RunGMAT/" $(GMAT_INFO) >$(MAC_PKG)
+	sed -e 's,/,.,g'`/" -e "s/EXECUTABLE/RunGMATML/" $(GMAT_INFO) >$(MAC_PKG)
 	echo -n "APPL????" > $(MAC_PKGINFO)
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
-	ln -f $(TOP_DIR)/src/gui/RunGMAT $(MAC_SCRIPT)
+	ln -f $(TOP_DIR)/src/gui/RunGMATML $(MAC_SCRIPT_DIR)/RunGMATML
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS)
-#	./install_libs_into_bundle
+	./$(INSTALL_WX_LIBS) GMAT
 
 macnomatlab:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
-	sed -e 's,/,.,g'`/" -e "s/EXECUTABLE/GMAT/" $(GMAT_INFO) >$(MAC_PKG)
+	sed -e 's,/,.,g'`/" -e "s/EXECUTABLE/RunGMATNoML/" $(GMAT_INFO) >$(MAC_PKG)
 	echo -n "APPL????" > $(MAC_PKGINFO)
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
+	ln -f $(TOP_DIR)/src/gui/RunGMATNoML $(MAC_SCRIPT_DIR)/RunGMATNoML
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS)
+	./$(INSTALL_WX_LIBS) GMATNoMatlab
+
+#macnomatlab:
+#	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
+#	sed -e 's,/,.,g'`/" -e "s/EXECUTABLE/GMAT/" $(GMAT_INFO) >$(MAC_PKG)
+#	echo -n "APPL????" > $(MAC_PKGINFO)
+#	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
+#	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
+#	./$(INSTALL_WX_LIBS) GMATNoMatlab
 #	./install_libs_into_bundle
 
 .cpp.o:

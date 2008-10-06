@@ -1,4 +1,5 @@
-# Windows makefile for GMAT, using Eclipse
+# $Id$
+# Mac makefile for GMAT, using Eclipse
 # Mac OS X 10.4 version 2006.01.24 W. Shoan/GSFC/MAB
 
 include BuildEnv.mk
@@ -12,32 +13,35 @@ else
 ifeq ($(USE_MATLAB),1)
 TARGET = ../bin/gmat
 TARGETNAME = gmat
+LIBRARY = base/lib/libGmatBase.a
+APPNAME = GMAT
 else
 TARGET = ../bin/gmatNoMatlab
 TARGETNAME = gmatNoMatlab
+LIBRARY = base/lib/libGmatBaseNoMatlab.a
+APPNAME = GMATNoMatlab
 endif
-LIBRARY = base/lib/libGmatBase.a
 endif
 
-all: clean2 $(TARGET)
+all: prep $(TARGET)
 
 clean:
 	cd base; make -f MakeBase.eclipse clean
 	cd gui; make -f MakeGui.eclipse clean
 	rm -rf $(TARGET) $(LIBRARY) gui/gmat gui/gmatNoMatlab
-#	cd test/TestScriptInterpreter; make -f MakeConsole.eclipse clean
+
+prep:
+	rm -rf $(TARGET) $(LIBRARY) gui/gmat
 	
 clean2:
-#	rm $(TARGET)
-#	rm gui/$(TARGETNAME)
 	rm -rf $(TARGET) gui/gmat gui/gmatNoMatlab
-	rm -Rf ../bin/GMAT.app
+	rm -Rf ../bin/$(APPNAME).app
 	
 base: $(LIBRARY)
 
-../bin/gmat: base/lib/libGmatBase.a gui/gmat
+../bin/gmat: $(LIBRARY) gui/gmat
 
-../bin/gmatNoMatlab: base/lib/libGmatBase.a gui/gmatNoMatlab
+../bin/gmatNoMatlab: $(LIBRARY) gui/gmatNoMatlab
 
 gui/gmat:
 	cd base; make -f MakeBase.eclipse all
@@ -47,7 +51,7 @@ gui/gmatNoMatlab:
 	cd base; make -f MakeBase.eclipse all
 	cd gui; make -f MakeGui.eclipse all
 
-base/lib/libGmatBase.a:
+$(LIBRARY):
 	cd base; make -f MakeBase.eclipse all
 	
 base/lib/libGmatConsole.a:
@@ -55,5 +59,4 @@ base/lib/libGmatConsole.a:
 	cd base; make -f Makebase.eclipse console CONSOLE_APP=1
 
 ../bin/gmatConsole: base/lib/libGmatConsole.a
-	rm -f $(TARGET)
-	cd test/TestScriptInterpreter; make -f MakeConsole.eclipse clean all
+	cd console; make -f MakeConsole.eclipse all CONSOLE_APP=1
