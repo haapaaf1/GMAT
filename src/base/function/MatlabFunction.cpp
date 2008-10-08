@@ -46,7 +46,7 @@ MatlabFunction::MatlabFunction(const std::string &name) :
    try
    {
       // matlab uses directory path
-      pathname = fm->GetFullPathname("MATLAB_FUNCTION_PATH");
+      pathname = fm->GetMatlabFunctionPath(name);
       functionPath = pathname;
    }
    catch (GmatBaseException &e)
