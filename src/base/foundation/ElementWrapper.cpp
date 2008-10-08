@@ -464,6 +464,9 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          break;
       case Gmat::REAL_TYPE:
          rval = rhsWrapper->EvaluateReal();
+         #ifdef DEBUG_EW_SET_VALUE
+         MessageInterface::ShowMessage("   rhs rval=%f\n", rval);
+         #endif
          break;
       case Gmat::RMATRIX_TYPE:
          rmat = rhsWrapper->EvaluateArray();
@@ -524,6 +527,9 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             break;
          }
       case Gmat::REAL_TYPE:
+         #ifdef DEBUG_EW_SET_VALUE
+         MessageInterface::ShowMessage("   setting rhs rval=%f to lhs\n", rval);
+         #endif
          if (rval != -99999.999)
             lhsWrapper->SetReal(rval);
          else
