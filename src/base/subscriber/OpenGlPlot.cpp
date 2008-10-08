@@ -610,8 +610,9 @@ bool OpenGlPlot::Initialize()
    
    #if DBGLVL_OPENGL_INIT
    MessageInterface::ShowMessage
-      ("OpenGlPlot::Initialize() this=<%p>'%s', isEndOfReceive = %d, mAllSpCount = %d\n",
-       this, GetName().c_str(), isEndOfReceive, mAllSpCount);
+      ("OpenGlPlot::Initialize() this=<%p>'%s', active=%d, isInitialized=%d, "
+       "isEndOfReceive=%d, mAllSpCount=%d\n", this, GetName().c_str(), active,
+       isInitialized, isEndOfReceive, mAllSpCount);
    #endif
    
    bool foundSc = false;
@@ -864,10 +865,14 @@ bool OpenGlPlot::Initialize()
    else
    {
       #if DBGLVL_OPENGL_INIT
-      MessageInterface::ShowMessage("OpenGlPlot::Initialize() DeleteGlPlot()\n");
+      MessageInterface::ShowMessage
+         ("OpenGlPlot::Initialize() Plot is active and initialized, "
+          "so calling DeleteGlPlot()\n");
       #endif
       
-      retval =  PlotInterface::DeleteGlPlot(instanceName);
+      // Why do we want to delete plot if active and initialized?
+      // This causes Global OpenGL plot not to show, so commented out (loj: 2008.10.08)
+      //retval =  PlotInterface::DeleteGlPlot(instanceName);
    }
    
    #if DBGLVL_OPENGL_INIT
@@ -2997,7 +3002,10 @@ bool OpenGlPlot::Distribute(const Real *dat, Integer len)
       }
       
       
-      //MessageInterface::ShowMessage("==========> now update run plot\n");
+      #if DBGLVL_OPENGL_UPDATE > 0
+      MessageInterface::ShowMessage("==========> now update update GL plot\n");
+      #endif
+      
       bool solving = false;
       UnsignedIntArray colorArray = mScOrbitColorArray;
       if (runstate == Gmat::SOLVING)
