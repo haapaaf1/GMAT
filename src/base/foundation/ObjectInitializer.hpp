@@ -39,17 +39,15 @@ class GMAT_API ObjectInitializer
 {
 public:
    ObjectInitializer(SolarSystem *solSys, ObjectMap *objMap,
-                     ObjectMap *globalObjMap, CoordinateSystem* internalCS, bool useGOS = false);
+                     ObjectMap *globalObjMap, CoordinateSystem* intCS,
+                     bool useGOS = false);
    ObjectInitializer(const ObjectInitializer &objInit);
    ObjectInitializer& operator= (const ObjectInitializer &objInit);
    virtual ~ObjectInitializer();
    
    void SetSolarSystem(SolarSystem *solSys);
    void SetObjectMap(ObjectMap *objMap);
-   void SetCoordinateSystem(CoordinateSystem* internalCS);
-   //   void SetGlobalObjectMap(ObjectMap *globalObjMap);
-   //   void SetCoordinateSystem(CoordinateSystem *internalCS);
-   
+   void SetInternalCoordinateSystem(CoordinateSystem* cs);
    bool InitializeObjects(bool registerSubs = false);
    
 protected:
@@ -58,7 +56,7 @@ protected:
    ObjectMap        *LOS;
    ObjectMap        *GOS;
    Moderator        *mod;
-   CoordinateSystem *cs;
+   CoordinateSystem *internalCS;
    Publisher        *publisher;
    
    bool            includeGOS;

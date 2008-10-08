@@ -41,14 +41,14 @@
 // constructor
 //------------------------------------------------------------------------------
 ObjectInitializer::ObjectInitializer(SolarSystem *solSys, ObjectMap *objMap,
-                                     ObjectMap *globalObjMap, CoordinateSystem *internalCS, 
+                                     ObjectMap *globalObjMap, CoordinateSystem *intCS, 
                                      bool useGOS) :
 
    ss         (solSys),
    LOS        (objMap),
    GOS        (globalObjMap),
    mod        (NULL),
-   cs         (internalCS),
+   internalCS (intCS),
    includeGOS (useGOS)
 {
    mod = Moderator::Instance();
@@ -60,7 +60,7 @@ ObjectInitializer::ObjectInitializer(const ObjectInitializer &objInit) :
    LOS        (objInit.LOS),
    GOS        (objInit.GOS),
    mod        (NULL),
-   cs         (objInit.cs),
+   internalCS (objInit.internalCS),
    includeGOS (objInit.includeGOS)
 {
    mod = Moderator::Instance();
@@ -75,7 +75,7 @@ ObjectInitializer& ObjectInitializer::operator= (const ObjectInitializer &objIni
       LOS        = objInit.LOS;
       GOS        = objInit.GOS;
       mod        = objInit.mod;
-      cs         = objInit.cs;
+      internalCS = objInit.internalCS;
       includeGOS = objInit.includeGOS;
       publisher  = objInit.publisher;
    }
@@ -101,9 +101,14 @@ void ObjectInitializer::SetObjectMap(ObjectMap *objMap)
    LOS = objMap;
 }
 
-void ObjectInitializer::SetCoordinateSystem(CoordinateSystem* internalCS)
+void ObjectInitializer::SetInternalCoordinateSystem(CoordinateSystem* intCS)
 {
-   cs = internalCS;
+   #ifdef DEBUG_OI_SET
+   MessageInterface::ShowMessage
+      ("in OI:SetInternalCoordinateSystem(), intCS=<%p>\n", intCS);
+   #endif
+   if (intCS != NULL)
+      internalCS = intCS;
 }
 
 bool ObjectInitializer::InitializeObjects(bool registerSubs)
@@ -234,7 +239,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
       if (obj->GetType() == Gmat::SPACECRAFT)
       {
          obj->SetSolarSystem(ss);
-         ((Spacecraft *)obj)->SetInternalCoordSystem(cs);
+         ((Spacecraft *)obj)->SetInternalCoordSystem(internalCS);
 
          BuildReferences(obj);
 
@@ -253,7 +258,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          if (obj->GetType() == Gmat::SPACECRAFT)
          {
             obj->SetSolarSystem(ss);
-            ((Spacecraft *)obj)->SetInternalCoordSystem(cs);
+            ((Spacecraft *)obj)->SetInternalCoordSystem(internalCS);
 
             BuildReferences(obj);
 
@@ -266,8 +271,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    }
 
 
-   // All others except Parameters and Subscribers
-   // Spacecraft
+   // All others except CoordinateSystem, Spacecraft, Parameters and Subscribers
    for (omi = LOS->begin(); omi != LOS->end(); ++omi)
    {
       obj = omi->second;
@@ -287,6 +291,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          if (obj->GetType() != Gmat::PROP_SETUP)
          {
             obj->SetSolarSystem(ss);
+            obj->SetInternalCoordSystem(internalCS); // added (loj: 2008.10.06)
             if (obj->IsOfType(Gmat::SPACE_POINT))
                BuildReferences(obj);
             continue;
@@ -329,6 +334,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             if (obj->GetType() != Gmat::PROP_SETUP)
             {
                obj->SetSolarSystem(ss);
+               obj->SetInternalCoordSystem(internalCS); // added (loj: 2008.10.06)
                if (obj->IsOfType(Gmat::SPACE_POINT))
                   BuildReferences(obj);
                continue;
@@ -373,7 +379,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
                   obj->GetTypeName().c_str(), obj->GetName().c_str());
             #endif
             param->SetSolarSystem(ss);
-            param->SetInternalCoordSystem(cs);
+            param->SetInternalCoordSystem(internalCS);
             BuildReferences(obj);
             obj->Initialize();
          }
@@ -401,7 +407,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
                      obj->GetTypeName().c_str(), obj->GetName().c_str());
                #endif
                param->SetSolarSystem(ss);
-               param->SetInternalCoordSystem(cs);
+               param->SetInternalCoordSystem(internalCS);
                BuildReferences(obj);
                obj->Initialize();
             }
@@ -467,7 +473,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          #endif
          
          BuildReferences(obj);
-         ((Subscriber*)obj)->SetInternalCoordSystem(cs);
+         ((Subscriber*)obj)->SetInternalCoordSystem(internalCS);
          ((Subscriber*)obj)->SetSolarSystem(ss);
          obj->Initialize();
          
@@ -499,7 +505,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             #endif
             
             BuildReferences(obj);
-            ((Subscriber*)obj)->SetInternalCoordSystem(cs);
+            ((Subscriber*)obj)->SetInternalCoordSystem(internalCS);
             ((Subscriber*)obj)->SetSolarSystem(ss);
             obj->Initialize();
             
@@ -544,7 +550,7 @@ void ObjectInitializer::InitializeInternalObjects()
       throw GmatBaseException("ObjectInitializer::InitializeInternalObjects() "
                               "The Solar System pointer is NULL");
    
-   if (cs == NULL)
+   if (internalCS == NULL)
       throw GmatBaseException("ObjectInitializer::InitializeInternalObjects() "
                               "The Internal Coordinate System pointer is NULL");
    
@@ -573,39 +579,39 @@ void ObjectInitializer::InitializeInternalObjects()
    // set ref object for internal coordinate system
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage(" ... solar system about to be set on coordinate system  ...\n");
-      //if (!cs) MessageInterface::ShowMessage(" but solar system is NULL!!!!!!\n");
+      //if (!internalCS) MessageInterface::ShowMessage(" but solar system is NULL!!!!!!\n");
    #endif
    
-   cs->SetSolarSystem(ss);
+   internalCS->SetSolarSystem(ss);
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage(" ... and solar system is set on coordinate system  ...\n");
       MessageInterface::ShowMessage(" ... about to call BuildReferences  ...\n");
    #endif
 
-   BuildReferences(cs);
+   BuildReferences(internalCS);
 
    // Set reference origin for internal coordinate system.
-   oName = cs->GetStringParameter("Origin");
+   oName = internalCS->GetStringParameter("Origin");
    sp = FindSpacePoint(oName);
    if (sp == NULL)
       throw GmatBaseException("Cannot find SpacePoint named \"" +
          oName + "\" used for the internal coordinate system origin");
-   cs->SetRefObject(sp, Gmat::SPACE_POINT, oName);
+   internalCS->SetRefObject(sp, Gmat::SPACE_POINT, oName);
 
 
    // Set J2000 body for internal coordinate system
-   oName = cs->GetStringParameter("J2000Body");
+   oName = internalCS->GetStringParameter("J2000Body");
    sp = FindSpacePoint(oName);
    if (sp == NULL)
       throw GmatBaseException("Cannot find SpacePoint named \"" +
          oName + "\" used for the internal coordinate system J2000 body");
-   cs->SetRefObject(sp, Gmat::SPACE_POINT, oName);
+   internalCS->SetRefObject(sp, Gmat::SPACE_POINT, oName);
 
    #ifdef DEBUG_OBJECT_INITIALIZER
-      MessageInterface::ShowMessage(" ... about to call Initialize on cs  ...\n");
+      MessageInterface::ShowMessage(" ... about to call Initialize on internalCS  ...\n");
    #endif
 
-   cs->Initialize();
+   internalCS->Initialize();
 }
 
 
@@ -1082,12 +1088,15 @@ GmatBase* ObjectInitializer::FindObject(const std::string &name)
       return (*LOS)[name];
 }
 
+//------------------------------------------------------------------------------
+// ObjectInitializer::ObjectInitializer()
+//------------------------------------------------------------------------------
 ObjectInitializer::ObjectInitializer() :
    ss         (NULL),
    LOS        (NULL),
    GOS        (NULL),
    mod        (NULL),
-   cs         (NULL),
+   internalCS (NULL),
    includeGOS (false)
 {
 }
