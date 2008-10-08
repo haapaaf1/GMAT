@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 ManageObject
 //------------------------------------------------------------------------------
@@ -360,18 +360,24 @@ bool ManageObject::InsertIntoGOS(GmatBase *obj, const std::string &withName)
             throw CommandException(ex);
          }
       }
+
+      // This Warning is very annoying when GmatFunction is running in a loop,
+      // so defined macro here (loj: 2008.10.08)
+      #ifdef __SHOW_GOS_WARNING__
       ex = "ManageObject::InsertIntoGOS() Cannot add more than "
          "one object with name \"";
       ex += withName + "\" to the Global Object Store";
+      MessageInterface::ShowMessage("*** WARNING *** " + ex + ", So ignored.\n");
       // Let's just ignore for now to run TargetHohmannTransfer.gmf (loj: 2008.06.05) 
       //throw CommandException(ex);
-      MessageInterface::ShowMessage("*** WARNING *** " + ex + ", So ignored.\n");
+      #endif
+      
       // it is already in there, so we do not need to put this one in; clean it up
       #ifdef DEBUG_MANAGE_OBJECT
-            MessageInterface::ShowMessage(" Create::object %s was already in object store ...\n",
-                  withName.c_str());
-            MessageInterface::ShowMessage("  pointer for obj = <%p> and pointer for mapObj = <%p>\n",
-                  obj, mapObj);
+         MessageInterface::ShowMessage(" Create::object %s was already in object store ...\n",
+            withName.c_str());
+         MessageInterface::ShowMessage("  pointer for obj = <%p> and pointer for mapObj = <%p>\n",
+            obj, mapObj);
       #endif
       if (mapObj != obj) 
       {
