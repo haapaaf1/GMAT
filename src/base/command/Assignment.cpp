@@ -37,6 +37,7 @@
 //#define DEBUG_RENAME
 //#define DEBUG_EVAL_RHS
 //#define DEBUG_ASSIGNMENT_IA 1
+//#define DEBUG_ASSIGNMENT_SET 1
 //#define DEBUG_ASSIGNMENT_INIT 1
 //#define DEBUG_ASSIGNMENT_EXEC 1
 //#define DEBUG_EQUATION 1
@@ -248,14 +249,21 @@ void Assignment::SetSolarSystem(SolarSystem *ss)
 //------------------------------------------------------------------------------
 void Assignment::SetInternalCoordSystem(CoordinateSystem *cs)
 {
-   #ifdef DEBUG_ASSIGNMENT_SET
-   MessageInterface::ShowMessage("Assignment::SetInternalCoordSystem() cs=<%p>\n", cs);
-   #endif
+   if (cs == NULL)
+      return;
    
    GmatCommand::SetInternalCoordSystem(cs);
    
    if (mathTree)
-      mathTree->SetInternalCoordSystem(cs);
+   {
+      #ifdef DEBUG_ASSIGNMENT_SET
+      MessageInterface::ShowMessage
+         ("Assignment::SetInternalCoordSystem() this=<%p>'%s'\n   internalCS=<%p>, "
+          "mathTree=<%p>\n", this, GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+          internalCoordSys, mathTree);
+      #endif
+      mathTree->SetInternalCoordSystem(internalCoordSys);
+   }
 }
 
 
@@ -493,7 +501,7 @@ bool Assignment::Initialize()
 {
    #ifdef DEBUG_ASSIGNMENT_INIT
    MessageInterface::ShowMessage
-      ("Assignment::Initialize() entered for %s, It's%s a math equation\n",
+      ("Assignment::Initialize() entered for <%s>, It's%s a math equation\n",
        generatingString.c_str(), (mathTree == NULL ? " not" : ""));
    MessageInterface::ShowMessage
       ("   lhsWrapper=<%p><%s>\n   rhsWrapper=<%p><%s>\n",
@@ -607,7 +615,11 @@ bool Assignment::Execute()
 {
    #ifdef DEBUG_ASSIGNMENT_EXEC
    MessageInterface::ShowMessage
-      ("\nAssignment::Execute() entered for \"%s\"\n", generatingString.c_str());
+      ("\nAssignment::Execute() this=<%p> entered, for \"%s\"\n   "
+       "callingFunction='%s', internalCS=<%p>\n", this,
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+       callingFunction? (callingFunction->GetFunctionName()).c_str() : "NULL",
+       internalCoordSys);
    #endif
    
    if (lhsWrapper == NULL || (rhsWrapper == NULL && mathTree == NULL))
@@ -633,6 +645,10 @@ bool Assignment::Execute()
       }
       else
       {
+         #ifdef DEBUG_ASSIGNMENT_EXEC
+         ShowObjectMaps("object maps at the start");
+         #endif
+         
          outWrapper = RunMathTree(lhsWrapper);
          retval = ElementWrapper::SetValue(lhsWrapper, outWrapper, solarSys, objectMap,
                                            globalObjectMap);
@@ -656,6 +672,14 @@ bool Assignment::Execute()
       std::string msg = e.GetFullMessage();
       if (msg.find("Exception") == msg.npos && msg.find("exception") == msg.npos)
          msg = "Command Exception: " + msg;
+      
+      if (callingFunction != NULL)
+      {
+         std::string funcPath = callingFunction->GetFunction()->GetFunctionPathAndName();
+         msg = msg + "\n(In Function \"" + funcPath + "\")";
+         MessageInterface::ShowMessage(msg + "\n");
+         throw;
+      }
       
       if (currentFunction != NULL)
       {
@@ -1090,7 +1114,7 @@ ElementWrapper* Assignment::RunMathTree(ElementWrapper *lhsWrapper)
             MessageInterface::ShowMessage("   Calling topNode->Evaluate()\n");
             #endif
             
-            Real rval = -99999.999;
+            Real rval = -9999.9999;
             rval = topNode->Evaluate();
             
             #if DEBUG_ASSIGNMENT_EXEC
