@@ -52,7 +52,7 @@ public:
    // Copy constructor
    FunctionManager(const FunctionManager &fm);
    // Assignment operator
-   FunctionManager&         operator=(const FunctionManager &fm);
+   FunctionManager&     operator=(const FunctionManager &fm);
    
    
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
@@ -68,33 +68,37 @@ public:
    virtual void         SetInputs(const StringArray &inputs);
    virtual void         SetOutputs(const StringArray &outputs);
    virtual StringArray  GetOutputs();
-   virtual void         SetInternalCoordinateSystem(CoordinateSystem *internalCS);
+   virtual void         SetInternalCoordinateSystem(CoordinateSystem *intCS);
+   
+   virtual bool         SetInputWrapper(Integer index, ElementWrapper *ew);
+   virtual ElementWrapper*
+                        GetInputWrapper(Integer index);
+   virtual bool         SetPassedInput(Integer index, GmatBase *obj, bool &inputAdded);
    
    // Sequence methods
+   bool                 PrepareObjectMap();
+   virtual bool         Initialize();
    virtual bool         Execute(FunctionManager *callingFM = NULL);
    virtual Real         Evaluate(FunctionManager *callingFM = NULL);
    virtual Rmatrix      MatrixEvaluate(FunctionManager *callingFM = NULL);
    virtual void         Finalize();
-
+   bool                 IsFinalized();
+   
    //void                 SetCallingFunction(FunctionManager *fm);
    ObjectMap*           PushToStack();
-   void                 PopFromStack(ObjectMap* cloned, const StringArray &outNames, 
+   bool                 PopFromStack(ObjectMap* cloned, const StringArray &outNames, 
                                      const StringArray &callingNames);
 
 protected:
    
    /// Object store for the Function 
-   std::map<std::string, GmatBase *>
-                        functionObjectStore;
+   ObjectMap            *functionObjectStore;
    /// Object store obtained from the caller
-   std::map<std::string, GmatBase *>
-                        *localObjectStore;
+   ObjectMap            *localObjectStore;
    /// Object store obtained from the Sandbox
-   std::map<std::string, GmatBase *>
-                        *globalObjectStore;
+   ObjectMap            *globalObjectStore;
    // Combined object store, used by Validator
-   std::map<std::string, GmatBase *>
-                        combinedObjectStore;
+   ObjectMap            combinedObjectStore;
    /// Solar System, set by the local Sandbox, to pass to the function
    SolarSystem          *solarSys;
    /// transient forces to pass to the function
@@ -114,8 +118,10 @@ protected:
    // wrappers for the output objects
    std::map<std::string, ElementWrapper *> 
                         inputWrappers;
-   /// flag indicating whether or not its the first execution
+   /// flag indicating whether or not it's the first execution
    bool                 firstExecution;
+   /// flag indicating whether or not FunctionManager is finalized
+   bool                 isFinalized;
    // number of Variables created for the FOS
    Integer              numVarsCreated;
    /// Output Objects
@@ -123,12 +129,10 @@ protected:
    // Validator used to create the ElementWrappers
    Validator            *validator;
    // Created objects for string or numeric literal inputs
-   std::map<std::string, GmatBase *>
-                        createdLiterals;
+   ObjectMap            createdLiterals;
    // Created objects that need to be reevaluated each time (i.e. they are based on
    // current values of some object (e.g. an array element))
-   std::map<std::string, GmatBase *>
-                        createdOthers;
+   ObjectMap            createdOthers;
    /// Real value output
    Real                 realResult;
    /// Rmatrix value output
@@ -140,7 +144,7 @@ protected:
    /// Object needed to initialize the FOS objects
    ObjectInitializer    *objInit;
    /// the internal coordinate system
-   CoordinateSystem     *intCS;
+   CoordinateSystem     *internalCS;
    /// pointer to the function's function control sequence
    GmatCommand          *fcs;
    /// current command being executed
@@ -154,19 +158,24 @@ protected:
    std::stack<FunctionManager*> callers;
    // pointer to the current calling function
    FunctionManager      *callingFunction;
-   
-   virtual bool         Initialize();
+   void                 PrepareExecution(FunctionManager *callingFM = NULL);
+   bool                 ValidateFunctionArguments();
+   bool                 CreateFunctionArgWrappers();
+   void                 RefreshFunctionObjectStore();
+   void                 FindInputFromFunctionObjectStore();
    GmatBase*            FindObject(const std::string &name, bool arrayElementsAllowed = false);
    GmatBase*            CreateObject(const std::string &fromString);
    void                 SaveLastResult();
    
-   bool                 EmptyObjectMap(ObjectMap *om);  
-   bool                 DeleteObjectMap(ObjectMap *om);
+   bool                 EmptyObjectMap(ObjectMap *om, const std::string &mapID = "");  
+   bool                 DeleteObjectMap(ObjectMap *om, const std::string &mapID = "");
+   bool                 CloneObjectMap(ObjectMap *orig, ObjectMap *cloned);
+   bool                 CopyObjectMap(ObjectMap *from, ObjectMap *to);
    bool                 IsOnStack(ObjectMap *om);
    
    void                 ShowObjectMap(ObjectMap *om, const std::string &mapID = "");
    void                 ShowStackContents(ObjectMapStack omStack, const std::string &stackID = "");
-   
+   void                 ShowCallers(const std::string &label = "");
 };
 
 #endif // FunctionManager_hpp
