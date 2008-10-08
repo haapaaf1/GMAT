@@ -1080,7 +1080,6 @@ bool BranchCommand::ExecuteBranch(Integer which)
       current = NULL;
    }
    
-   //while ((current != NULL) && (current != this))
    if (current != NULL)
    {
       #ifdef DEBUG_BRANCHCOMMAND_EXECUTION
@@ -1091,17 +1090,27 @@ bool BranchCommand::ExecuteBranch(Integer which)
       try
       {
          if (current->Execute() == false)
-         {
             retval = false;
-            //break;
-         }
          
          // check for user interruption here (loj: 2007.05.11 Added)
          if (GmatGlobal::Instance()->GetRunInterrupted())
             throw CommandException
                ("Branch command \"" + generatingString + "\" interrupted!");
          
-         current = current->GetNext();
+         // Check for NULL pointer here (loj: 2008.09.25 Added)
+         // Why current pointer is reset to NULL running recursive function?
+         // Is this error condition or can be ignored?
+         // Without this, Factorial_FR testing will not work.
+         if (current == NULL)
+         {
+            #ifdef __THROW_EXCEPTION__            
+            throw CommandException
+               ("Branch command \"" + generatingString + "\" has NULL current pointer!");
+            #endif
+         }
+         
+         if (current != NULL)
+            current = current->GetNext();         
       }
       catch (BaseException &e)
       {
