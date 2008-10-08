@@ -159,7 +159,8 @@ namespace Gmat
    
    enum WrapperDataType
    {
-      NUMBER,
+      NUMBER,          // Real, Integer
+      MATRIX,          // Rmatix
       STRING,          // a raw text string
       STRING_OBJECT,   // name of a String Object
       OBJECT_PROPERTY,
