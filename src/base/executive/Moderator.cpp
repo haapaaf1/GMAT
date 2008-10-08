@@ -1649,7 +1649,7 @@ std::string Moderator::GetSpacecraftNotInFormation()
  */
 //------------------------------------------------------------------------------
 SpacePoint* Moderator::CreateSpacePoint(const std::string &type,
-                              const std::string &name)
+                                        const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
@@ -1695,7 +1695,7 @@ SpacePoint* Moderator::CreateSpacePoint(const std::string &type,
          ("Moderator::CreateSpacePoint() Unable to create SpacePoint "
           "name: %s already exist\n", name.c_str());
       #endif
-      return GetSpacecraft(name);
+      return GetSpacePoint(name);
    }
 }
 
@@ -4116,13 +4116,14 @@ Integer Moderator::RunMission(Integer sandboxNum)
          AddInternalCoordSystemToSandbox(sandboxNum-1);
          AddPublisherToSandbox(sandboxNum-1);        
          AddCoordSystemToSandbox(sandboxNum-1);
+         // @note: AddSpacecraftToSandbox() also adds associated hardware          
          AddSpacecraftToSandbox(sandboxNum-1);
          AddFormationToSandbox(sandboxNum-1);
          AddSpacePointToSandbox(sandboxNum-1);
          AddForceModelToSandbox(sandboxNum-1);
          AddPropagatorToSandbox(sandboxNum-1);
          AddPropSetupToSandbox(sandboxNum-1);
-         AddBurnToSandbox(sandboxNum-1);        
+         AddBurnToSandbox(sandboxNum-1);
          AddSolverToSandbox(sandboxNum-1);
          
          // Note:
@@ -5791,26 +5792,33 @@ void Moderator::AddSolarSystemToSandbox(Integer index)
    #endif
    
    //If we are ready to configure SolarSystem by name
-   //SolarSystem *solarSys = theConfigManager->GetSolarSystemInUse(name);
-   //sandboxes[index]->AddSolarSystem(solarSys);
-   sandboxes[index]->AddSolarSystem(theSolarSystemInUse);
+   // Script will have something like, "Create SolarSystem anotherSS;"
+   #ifdef __USE_CONFIGURED_SOLAR_SYSTEM__
+      SolarSystem *solarSys = theConfigManager->GetSolarSystemInUse(name);
+      sandboxes[index]->AddSolarSystem(solarSys);
+   #else
+      sandboxes[index]->AddSolarSystem(theSolarSystemInUse);
+   #endif
    
+   // All calculated points are added by AddSpacePointsToSandbox(),
+   // so commented out (loj: 2008.10.01)
    // Add LibrationPoint and Barycenter objects
-   StringArray cpNames = theConfigManager->GetListOfItems(Gmat::CALCULATED_POINT);
-   
-   CalculatedPoint *cp;
-   for (Integer i=0; i<(Integer)cpNames.size(); i++)
-   {
-      cp = theConfigManager->GetCalculatedPoint(cpNames[i]);
-      
-      #if DEBUG_RUN
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s' to Sandbox\n", cp,
-          cp->GetTypeName().c_str(), cp->GetName().c_str());
-      #endif
-      
-      sandboxes[index]->AddObject(cp);
-   }
+   //
+   //StringArray cpNames = theConfigManager->GetListOfItems(Gmat::CALCULATED_POINT);
+   //
+   //CalculatedPoint *cp;
+   //for (Integer i=0; i<(Integer)cpNames.size(); i++)
+   //{
+   //   cp = theConfigManager->GetCalculatedPoint(cpNames[i]);
+   //   
+   //   #if DEBUG_RUN
+   //   MessageInterface::ShowMessage
+   //      ("   Adding <%p><%s>'%s' to Sandbox\n", cp,
+   //       cp->GetTypeName().c_str(), cp->GetName().c_str());
+   //   #endif
+   //   
+   //   sandboxes[index]->AddObject(cp);
+   //}
 }
 
 
@@ -5876,6 +5884,10 @@ void Moderator::AddCoordSystemToSandbox(Integer index)
 
 //------------------------------------------------------------------------------
 // void AddSpacecraftToSandbox(Integer index)
+//------------------------------------------------------------------------------
+/*
+ * Adds Spacecrafts and associated hardwares to sandbox.
+ */
 //------------------------------------------------------------------------------
 void Moderator::AddSpacecraftToSandbox(Integer index)
 {
@@ -5958,13 +5970,17 @@ void Moderator::AddSpacePointToSandbox(Integer index)
    {
       obj = (Formation*)theConfigManager->GetSpacePoint(names[i]);
       // Spacecraft and Formations are added separately
-      sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-          obj->GetName().c_str());
-      #endif
+      // So check that first before adding (loj: 2008.10.01)
+      if (!obj->IsOfType(Gmat::SPACECRAFT) && !obj->IsOfType(Gmat::FORMATION))
+      {
+         sandboxes[index]->AddObject(obj);
+         
+         #if DEBUG_RUN > 1
+         MessageInterface::ShowMessage
+            ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+             obj->GetName().c_str());
+         #endif
+      }
    }
 }
 
