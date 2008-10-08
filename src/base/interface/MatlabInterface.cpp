@@ -35,6 +35,7 @@
 //#define DEBUG_MATLAB_IF 1
 //#define DEBUG_MATLAB_OPEN_CLOSE
 //#define DEBUG_MATLAB_GET
+//#define DEBUG_MATLAB_EVAL
 
 //--------------------------------------
 //  initialize static variables
@@ -398,12 +399,16 @@ int MatlabInterface::EvalString(const std::string &evalString)
 {
 #if defined __USE_MATLAB__
    
-   #if DEBUG_MATLAB_IF
+   #ifdef DEBUG_MATLAB_EVAL
    MessageInterface::ShowMessage
       ("MatlabInterface::EvalString() evalString = \n%s\n\n", evalString.c_str());
    #endif
    
    engEvalString(enginePtrD, evalString.c_str());
+   
+   #ifdef DEBUG_MATLAB_EVAL
+   MessageInterface::ShowMessage("MatlabInterface::EvalString() returning\n");
+   #endif
    return 1;
    
 #endif
@@ -455,6 +460,11 @@ bool MatlabInterface::IsOpen()
 void MatlabInterface::RunMatlabString(std::string evalString)
 {
 #if defined __USE_MATLAB__
+   #ifdef DEBUG_MATLAB_EVAL
+   MessageInterface::ShowMessage
+      ("MatlabInterface::RunMatlabString() entered with\n%s\n", evalString.c_str());
+   #endif
+   
    if (!MatlabInterface::IsOpen())
    {
       // Let's try to open it first (loj: 2008.03.06)
@@ -466,11 +476,6 @@ void MatlabInterface::RunMatlabString(std::string evalString)
    // try to call the function   
    evalString = "try,\n  " + evalString + "\ncatch\n  errormsg = lasterr;\nend";
    
-   #if DEBUG_MATLAB_EVAL
-   MessageInterface::ShowMessage("===> evalString=\n%s\n", evalString.c_str());
-   MessageInterface::ShowMessage("===> calling EvalString()\n");
-   #endif
-   
    MatlabInterface::EvalString(evalString);
    
    // if there was an error throw an exception
@@ -480,6 +485,11 @@ void MatlabInterface::RunMatlabString(std::string evalString)
       //MessageInterface::ShowMessage("===> %s\n", errorStr.c_str());
       throw InterfaceException(errorStr.c_str());
    }
+   
+   #ifdef DEBUG_MATLAB_EVAL
+   MessageInterface::ShowMessage("MatlabInterface::RunMatlabString() exiting\n");
+   #endif
+   
 #endif
 }
 
