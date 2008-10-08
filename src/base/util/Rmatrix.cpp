@@ -1061,24 +1061,25 @@ const StringArray& Rmatrix::GetStringVals(Integer p, Integer w)
 
 
 //------------------------------------------------------------------------------
-// std::string ToString(Integer precision, bool horizontal,
+// std::string ToString(Integer precision, Integer width, bool horizontal,
 //                      const std::string &prefix = "") const
 //------------------------------------------------------------------------------
 /*
  * Formats Rmatrix value to String.
  *
  * @param  precision  Precision to be used in formatting
+ * @param  precision  Width to be used in formatting (1)
  * @param  horizontal  Format horizontally if true (false)
  * @param  prefix  Prefix to be used in vertical formatting ("")
  *
  * @return Formatted Rmatrix value string
  */
 //------------------------------------------------------------------------------
-std::string Rmatrix::ToString(Integer precision, bool horizontal,
+std::string Rmatrix::ToString(Integer precision, Integer width, bool horizontal,
                               const std::string &prefix) const
 {
    GmatGlobal *global = GmatGlobal::Instance();
-   global->SetActualFormat(false, false, precision, 0, horizontal, 1, prefix);
+   global->SetActualFormat(false, false, precision, width, horizontal, 1, prefix);
    
    std::stringstream ss("");
    ss << *this;

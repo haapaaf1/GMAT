@@ -115,7 +115,8 @@ public:
    const StringArray& GetStringVals(Integer p = GmatGlobal::DATA_PRECISION,
                                     Integer w = GmatGlobal::DATA_WIDTH);
    
-   virtual std::string ToString(Integer precision, bool horizontal = true,
+   virtual std::string ToString(Integer precision, Integer width = 1,
+                                bool horizontal = false,
                                 const std::string &prefix = "") const;
    
    virtual std::string ToString(bool useCurrentFormat = true,
