@@ -48,6 +48,7 @@ public:
    virtual bool         Initialize();
    virtual bool         Execute(ObjectInitializer *objInit);
    virtual void         Finalize();
+   virtual bool         IsFcsFinalized();
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetSolarSystem(SolarSystem *ss);

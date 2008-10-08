@@ -225,6 +225,14 @@ void Function::Finalize()
 }
 
 //------------------------------------------------------------------------------
+// bool IsFinalized()
+//------------------------------------------------------------------------------
+bool Function::IsFcsFinalized()
+{
+   return fcsFinalized;
+}
+
+//------------------------------------------------------------------------------
 // void SetObjectMap(std::map<std::string, GmatBase *> *map)
 //------------------------------------------------------------------------------
 void Function::SetObjectMap(std::map<std::string, GmatBase *> *map)
@@ -278,7 +286,9 @@ void Function::SetInternalCoordSystem(CoordinateSystem *cs)
        GetName().c_str(), cs);
    #endif
    
-   internalCoordSys = cs;
+   // if cs is not NULL, set (loj: 2008.10.07)
+   if (cs != NULL)
+      internalCoordSys = cs;
 }
 
 //------------------------------------------------------------------------------
