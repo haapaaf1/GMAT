@@ -26,7 +26,7 @@
 
 //#define DEBUG_MATH_TREE 1
 //#define DEBUG_MATH_TREE_INIT 1
-//#define DEBUG_MATH_TREE_EVAL 1
+#define DEBUG_MATH_TREE_EVAL 1
 //#define DEBUG_MATH_WRAPPERS
 //#define DEBUG_RENAME
 //#define DEBUG_FUNCTION
@@ -116,7 +116,7 @@ const StringArray& MathTree::GetGmatFunctionNames()
 {
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("MathTree::GetGmatFunctionNames() theTopNode type=%s, desc='%s' returning "
+      ("MathTree::GetGmatFunctionNames() theTopNode type=%s, desc='%s'returning "
        "%d GmatFunctions\n", theTopNode->GetTypeName().c_str(),
        theTopNode->GetName().c_str(), theGmatFunctionNames.size());
    for (UnsignedInt i=0; i<theGmatFunctionNames.size(); i++)
@@ -178,26 +178,26 @@ void MathTree::SetFunction(Function *function)
 //------------------------------------------------------------------------------
 void MathTree::SetCallingFunction(FunctionManager *fm)
 {
-#ifdef DEBUG_FUNCTION
-MessageInterface::ShowMessage
-   ("MathTree::SetCallingFunction() fm=<%p>, name='%s'\n", fm,
-         (fm->GetName()).c_str());
-#endif
-
-if (theTopNode == NULL)
-   return;
-
-#ifdef DEBUG_FUNCTION
-MessageInterface::ShowMessage
-   ("   Calling SetCallingFunction() theTopNode type=%s, desc='%s'\n",
-    theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
-#endif
-
-SetCallingFunctionToRunner(theTopNode, fm);
-
-#ifdef DEBUG_FUNCTION
-MessageInterface::ShowMessage("MathTree::SetCallingFunction() returning\n");
-#endif
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("MathTree::SetCallingFunction() fm=<%p>, name='%s'\n", fm,
+            (fm->GetFunctionName()).c_str());
+   #endif
+   
+   if (theTopNode == NULL)
+      return;
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("   Calling SetCallingFunction() theTopNode type=%s, desc='%s'\n",
+       theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
+   #endif
+   
+   SetCallingFunctionToRunner(theTopNode, fm);
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage("MathTree::SetCallingFunction() returning\n");
+   #endif
 }
 
 
@@ -397,7 +397,7 @@ void MathTree::SetGlobalObjectMap(ObjectMap *map)
 void MathTree::SetSolarSystem(SolarSystem *ss)
 {
    #ifdef DEBUG_FUNCTION
-   MessageInterface::ShowMessage("MathTree::SetGlobalObjectMap() ss=%p\n", ss);
+   MessageInterface::ShowMessage("MathTree::SetSolarSystem() ss=%p\n", ss);
    #endif
    
    if (theTopNode == NULL)
@@ -412,7 +412,7 @@ void MathTree::SetSolarSystem(SolarSystem *ss)
    SetSolarSystemToRunner(theTopNode, ss);
    
    #ifdef DEBUG_FUNCTION
-   MessageInterface::ShowMessage("MathTree::SetGlobalObjectMap() returning\n");
+   MessageInterface::ShowMessage("MathTree::SetSolarSystem() returning\n");
    #endif
 }
 
@@ -423,7 +423,7 @@ void MathTree::SetSolarSystem(SolarSystem *ss)
 void MathTree::SetInternalCoordSystem(CoordinateSystem *cs)
 {
    #ifdef DEBUG_FUNCTION
-   MessageInterface::ShowMessage("MathTree::SetGlobalObjectMap() cs=%p\n", cs);
+   MessageInterface::ShowMessage("MathTree::SetInternalCoordSystem() cs=%p\n", cs);
    #endif
    
    if (theTopNode == NULL)
@@ -438,7 +438,7 @@ void MathTree::SetInternalCoordSystem(CoordinateSystem *cs)
    SetInternalCoordSystemToRunner(theTopNode, cs);
    
    #ifdef DEBUG_FUNCTION
-   MessageInterface::ShowMessage("MathTree::SetGlobalObjectMap() returning\n");
+   MessageInterface::ShowMessage("MathTree::SetInternalCoordSystem() returning\n");
    #endif
 }
 
@@ -725,13 +725,13 @@ void MathTree::SetFunctionToRunner(MathNode *node, Function *function)
 }
 
 //------------------------------------------------------------------------------
-// void SetCallingFunctionToRunner(MathNode *node, Function *function)
+// void SetCallingFunctionToRunner(MathNode *node, Function *fm)
 //------------------------------------------------------------------------------
 void MathTree::SetCallingFunctionToRunner(MathNode *node, FunctionManager *fm)
 {
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("MathTree::SetCallingFunctionToRunner() node=%p, function=%p\n", node, function);
+      ("MathTree::SetCallingFunctionToRunner() node=%p, function=%p\n", node, fm);
    #endif
    
    if (node == NULL)
