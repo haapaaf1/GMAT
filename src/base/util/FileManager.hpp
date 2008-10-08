@@ -123,7 +123,7 @@ public:
 private:
    
    static const std::string VERSION_DATE;
-
+   
    enum FunctionType
    {
       GMAT_FUNCTION = 101,
