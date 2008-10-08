@@ -25,6 +25,7 @@
 #include "PhysicalModel.hpp"
 #include "RealUtilities.hpp"
 
+typedef std::vector<MathNode*> MathNodeArray;
 
 class GMAT_API FunctionRunner : public MathFunction
 {
@@ -32,14 +33,23 @@ public:
    FunctionRunner(const std::string &nomme);
    virtual ~FunctionRunner();
    FunctionRunner(const FunctionRunner &copy);
-   
+
+   // for Function
    void                 SetFunctionName(const std::string &fname);
    void                 SetFunction(Function *function);
+   
+   // for Function input
    void                 AddFunctionInput(const std::string &name);
-   void                 AddFunctionOutput(const std::string &name);
    void                 SetFunctionInputs();
-   void                 SetFunctionOutputs();
    const StringArray&   GetInputs();
+   void                 AddInputNode(MathNode *node);
+   const MathNodeArray& GetInputNodes();
+   
+   // for Function output
+   void                 AddFunctionOutput(const std::string &name);
+   void                 SetFunctionOutputs();
+   
+   // for calling function
    virtual void         SetCallingFunction(FunctionManager *fm);
    
    // for setting objects to FunctionManager
@@ -69,10 +79,13 @@ protected:
    Function        *theFunction;
    StringArray     theInputNames;
    StringArray     theOutputNames;
-   
+   MathNodeArray   theInputNodes;
    FunctionManager *callingFunction;
    
+   CoordinateSystem *internalCS;
+   
    GmatBase* FindObject(const std::string &name);
+   void      HandlePassingMathExp(Function *function);
 };
 
 #endif // FunctionRunner_hpp
