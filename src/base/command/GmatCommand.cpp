@@ -325,10 +325,10 @@ const std::string& GmatCommand::GetGeneratingString(Gmat::WriteMode mode,
       empty = "% Generating string not set for " + typeName + " command.";
       return empty;
    }
-
+   
    if (mode == Gmat::NO_COMMENTS)
       return generatingString;
-
+   
    
    std::string commentLine = GetCommentLine();
    std::string inlineComment = GetInlineComment();
@@ -2011,21 +2011,21 @@ void GmatCommand::ShowObjectMaps(const std::string &str)
    if (objectMap)
    {
       MessageInterface::ShowMessage
-         ("Here is the Command local object map for %s:\n", this->GetTypeName().c_str());
+         ("Here is the local object map for %s:\n", this->GetTypeName().c_str());
       for (std::map<std::string, GmatBase *>::iterator i = objectMap->begin();
            i != objectMap->end(); ++i)
          MessageInterface::ShowMessage
-            ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+            ("   %30s  <%p> [%s]\n", i->first.c_str(), i->second,
              i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
    }
    if (globalObjectMap)
    {
       MessageInterface::ShowMessage
-         ("Here is the Command global object map for %s:\n", this->GetTypeName().c_str());
+         ("Here is the global object map for %s:\n", this->GetTypeName().c_str());
       for (std::map<std::string, GmatBase *>::iterator i = globalObjectMap->begin();
            i != globalObjectMap->end(); ++i)
          MessageInterface::ShowMessage
-            ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+            ("   %30s  <%p> [%s]\n", i->first.c_str(), i->second,
              i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
    }
    MessageInterface::ShowMessage
@@ -2241,10 +2241,10 @@ GmatBase* GmatCommand::FindObject(const std::string &name)
        newName.c_str());
    #endif
    
-   #ifdef DEBUG_FIND_OBJECT
+   #ifdef DEBUG_OBJECT_MAP
    ShowObjectMaps();
    #endif
-
+   
    // Check for SolarSystem (loj: 2008.06.25)
    if (name == "SolarSystem")
       if (solarSys)
@@ -2254,17 +2254,44 @@ GmatBase* GmatCommand::FindObject(const std::string &name)
    
    // Check for the object in the Local Object Store (LOS) first
    if (objectMap && objectMap->find(newName) != objectMap->end())
+   {
+      #ifdef DEBUG_FIND_OBJECT
+      MessageInterface::ShowMessage
+         ("GmatCommand::FindObject() '%s' found in LOS, so returning <%p>\n",
+          newName.c_str(), (*objectMap)[newName]);
+      #endif
       return (*objectMap)[newName];
+   }
    
    // If not found in the LOS, check the Global Object Store (GOS)
    if (globalObjectMap && globalObjectMap->find(newName) != globalObjectMap->end())
+   {
+      #ifdef DEBUG_FIND_OBJECT
+      MessageInterface::ShowMessage
+         ("GmatCommand::FindObject() '%s' found in GOS, so returning <%p>\n",
+          newName.c_str(), (*globalObjectMap)[newName]);
+      #endif
       return (*globalObjectMap)[newName];
+   }
    
    // Let's try SolarSystem (loj: 2008.06.04)
    if (solarSys && solarSys->GetBody(newName))
+   {
+      #ifdef DEBUG_FIND_OBJECT
+      MessageInterface::ShowMessage
+         ("GmatCommand::FindObject() '%s' found in SolarSystem, so returning <%p>\n",
+          newName.c_str(), (GmatBase*)(solarSys->GetBody(newName)));
+      #endif
       return (GmatBase*)(solarSys->GetBody(newName));
+   }
    
-   return NULL;   
+   #ifdef DEBUG_FIND_OBJECT
+   MessageInterface::ShowMessage
+      ("GmatCommand::FindObject() '%s' not found, so returning NULL\n",
+       newName.c_str());
+   #endif
+   
+   return NULL;
 }
 
 

@@ -39,6 +39,8 @@
 //#define DEBUG_GET_OUTPUT
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_GLOBAL_OBJECT_MAP
+//#define DEBUG_RUN_COMPLETE
+//#define DEBUG_MATLAB_EVAL
 
 //---------------------------------
 // static data
@@ -995,31 +997,62 @@ bool CallFunction::Execute()
 
    if (mFunction == NULL)
       throw CommandException("Function is not defined for CallFunction");
-
+   
    #ifdef DEBUG_CALL_FUNCTION_EXEC
-      MessageInterface::ShowMessage("CallFunction::Execute()\n");
+      MessageInterface::ShowMessage
+         ("CallFunction::Execute() this=<%p> entered, command = '%s'\n   "
+          "function type is '%s'\n   callingFunction='%s'\n", this,
+          GetGeneratingString(Gmat::NO_COMMENTS).c_str(), mFunction->GetTypeName().c_str(),
+          callingFunction? (callingFunction->GetFunctionName()).c_str() : "NULL");
+      #ifdef DEBUG_OBJECT_MAP
+      ShowObjectMaps("object maps at the start");
+      #endif
    #endif
-
+      
    #ifdef __USE_MATLAB__
       if (mFunction->GetTypeName() == "MatlabFunction")
       {
+         #ifdef DEBUG_CALL_FUNCTION_EXEC
+         MessageInterface::ShowMessage("   calling ExecuteMatlabFunction()\n");
+         #endif
+         
          status = ExecuteMatlabFunction();
-
          BuildCommandSummary(true);
+         
+         #ifdef DEBUG_CALL_FUNCTION_EXEC
+         MessageInterface::ShowMessage("CallFunction::Execute() exiting with %d\n", status);
+            #ifdef DEBUG_OBJECT_MAP
+            ShowObjectMaps("object maps at the end");
+            #endif
+         #endif
          return status;
       }
    #endif
       
    if (mFunction->GetTypeName() == "GmatFunction")
    {
+      #ifdef DEBUG_CALL_FUNCTION_EXEC
+      MessageInterface::ShowMessage
+         ("   calling FunctionManager::Execute() with callingFunction='%s'\n",
+          callingFunction ? (callingFunction->GetFunctionName()).c_str() : "NULL");
+      #endif
       status = fm.Execute(callingFunction);
    }
    
    #ifdef DEBUG_CALL_FUNCTION_EXEC
-      MessageInterface::ShowMessage("Executed command\n");
+      MessageInterface::ShowMessage
+         ("   Executed command, about to build command summery\n");
    #endif
-
+      
    BuildCommandSummary(true);
+   
+   #ifdef DEBUG_CALL_FUNCTION_EXEC
+      MessageInterface::ShowMessage("CallFunction::Execute() exiting with %d\n", status);
+      #ifdef DEBUG_OBJECT_MAP
+      ShowObjectMaps("object maps at the end");
+      #endif
+   #endif
+      
    return status;
 }
 
@@ -1031,9 +1064,19 @@ void CallFunction::RunComplete()
 {
    #ifdef DEBUG_RUN_COMPLETE
    MessageInterface::ShowMessage
-      ("CallFunction::RunComplete() calling FunctionManager::Finalize()\n");
+      ("CallFunction::RunComplete() entered for this=<%p> '%s',\n   "
+       "FCS %sfinalized\n", this, GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+       fm.IsFinalized() ? "already " : "NOT ");
    #endif
-   fm.Finalize();
+   
+   if (!fm.IsFinalized())
+   {
+      #ifdef DEBUG_RUN_COMPLETE
+      MessageInterface::ShowMessage("   calling FunctionManager::Finalize()\n");
+      #endif
+      fm.Finalize();
+   }
+   
    GmatCommand::RunComplete();
 }
 
@@ -1294,7 +1337,11 @@ void CallFunction::GetOutParams()
 void CallFunction::EvalMatlabString(std::string evalString)
 {
 #ifdef __USE_MATLAB__
-
+   #ifdef DEBUG_MATLAB_EVAL
+   MessageInterface::ShowMessage
+      ("CallFunction::EvalMatlabString() calling MatlabInterface::RunMatlabString() with\n"
+       "%s\n", evalString.c_str());
+   #endif
    MatlabInterface::RunMatlabString(evalString);
    
 #endif
