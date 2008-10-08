@@ -743,16 +743,16 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       else if (find(subscriberList.begin(), subscriberList.end(), type) != 
                subscriberList.end())
          obj = (GmatBase*)theModerator->CreateSubscriber(type, name);
-   
+      
       // Handle other SpacePoints
       else if (find(spacePointList.begin(), spacePointList.end(), type) != 
-               subscriberList.end())
+               spacePointList.end())
          obj = (GmatBase*)theModerator->CreateSpacePoint(type, name);
    
    }
    
    //@note
-   // Do throw exception if obj == NULL, since caller uses return pointer
+   // Do not throw exception if obj == NULL, since caller uses return pointer
    // to test further.
    
    
