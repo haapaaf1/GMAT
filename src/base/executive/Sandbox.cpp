@@ -222,9 +222,10 @@ bool Sandbox::AddObject(GmatBase *obj)
    }
    else
    {
-      MessageInterface::ShowMessage("%s is already in the map\n", name.c_str());
+      MessageInterface::ShowMessage
+         ("in Sandbox::AddObject() %s is already in the map\n", name.c_str());
    }
-
+   
    return true;
 }
 
@@ -520,9 +521,13 @@ bool Sandbox::Initialize()
    }
    catch (BaseException &be)
    {
-      throw SandboxException("Error initializing objects in Sandbox.\n");
+      SandboxException se("");
+      se.SetDetails("Error initializing objects in Sandbox.\n%s\n",
+                    be.GetFullMessage().c_str());
+      throw se;
+      //throw SandboxException("Error initializing objects in Sandbox");
    }
-
+   
    // Move global objects to the Global Object Store
    combinedObjectMap = objectMap;
    StringArray movedObjects;
@@ -747,11 +752,17 @@ bool Sandbox::Execute()
          if (!rv)
          {
             std::string str = "\"" + current->GetTypeName() +
-               "\" Command failed to run to completion\nCommand Text is \"" +
-               current->GetGeneratingString() + "\"\n";
+               "\" Command failed to run to completion\n";
+            
+            #if DEBUG_SANDBOX_RUN > 1
+            MessageInterface::ShowMessage
+               ("%sCommand Text is\n\"%s\n", str.c_str(),
+                current->GetGeneratingString().c_str());
+            #endif
+            
             throw SandboxException(str);
          }
-
+         
          prev = current;
          current = current->GetNext();
       }
