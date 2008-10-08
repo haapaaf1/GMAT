@@ -423,12 +423,16 @@ bool CelestialBody::Initialize()
 {
    #ifdef DEBUG_CB_INIT
    MessageInterface::ShowMessage
-      ("CelestialBody::Initialize() <%p> %s, posVelSrc=%d, ephemUpdateInterval=%f\n",
+      ("CelestialBody::Initialize() this=<%p> %10s, posVelSrc=%d, ephemUpdateInterval=%f\n",
        this, GetName().c_str(), posVelSrc, ephemUpdateInterval);
    #endif
    
-   isFirstTimeMu = true;
-   isFirstTimeRadius = true;
+   // Do we need to reset this?
+   // When running GmatFunction, this causes to write message about using default mu
+   // in every function call
+   // Commented out for now(loj: 2008.10.03)
+   //isFirstTimeMu = true;
+   //isFirstTimeRadius = true;
    
    lastEphemTime = 0.0;
    stateTime = 0.0;   
@@ -665,8 +669,8 @@ Real CelestialBody::GetGravitationalConstant()
 {
    #ifdef DEBUG_GRAV_CONST
    MessageInterface::ShowMessage
-      ("CelestialBody::GetGravitationalConstant() usePotentialFile=%d for %s\n",
-       usePotentialFile, instanceName.c_str());
+      ("CelestialBody::GetGravitationalConstant() this=<%p>, usePotentialFile=%d for %s, "
+       "isFirstTimeMu=%d\n", this, usePotentialFile, instanceName.c_str(), isFirstTimeMu);
    #endif
    
    if (usePotentialFile == true)
@@ -1370,6 +1374,9 @@ bool CelestialBody::SetAnalyticMethod(Gmat::AnalyticMethod aM)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetUsePotentialFile(bool useIt)
 {
+   MessageInterface::ShowMessage("===> CelestialBody::SetUsePotentialFile() useIt=%d\n",
+                                 useIt);
+   
    if ((usePotentialFile == false) && (useIt == true))
    {
       potentialFileRead = false;
