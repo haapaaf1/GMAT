@@ -27,6 +27,7 @@
 
 #include "gmatdefs.hpp"
 #include <map>
+#include <list>
 #include <fstream>
 
 class GMAT_API FileManager
@@ -107,12 +108,13 @@ public:
    void SetAbsPathname(const std::string &type, const std::string &newpath);
    
    void ClearGmatFunctionPath();
-   void AddGmatFunctionPath(const std::string &path);
+   void AddGmatFunctionPath(const std::string &path, bool addFront = true);
    std::string GetGmatFunctionPath(const std::string &name);
    const StringArray& GetAllGmatFunctionPaths();
    
    void ClearMatlabFunctionPath();
-   void AddMatlabFunctionPath(const std::string &path);
+   void AddMatlabFunctionPath(const std::string &path, bool addFront = true);
+   std::string GetMatlabFunctionPath(const std::string &name);
    const StringArray& GetAllMatlabFunctionPaths();
    
    // Plug-in code
@@ -121,6 +123,12 @@ public:
 private:
    
    static const std::string VERSION_DATE;
+
+   enum FunctionType
+   {
+      GMAT_FUNCTION = 101,
+      MATLAB_FUNCTION,
+   };
    
    struct FileInfo
    {
@@ -135,15 +143,20 @@ private:
    std::ifstream mInStream;
    std::map<std::string, std::string> mPathMap;
    std::map<std::string, FileInfo*> mFileMap;
-   StringArray mGmatFunctionPaths;
-   StringArray mMatlabFunctionPaths;
+   std::list<std::string> mGmatFunctionPaths;
+   std::list<std::string> mMatlabFunctionPaths;
    StringArray mGmatFunctionFullPaths;
    StringArray mMatlabFunctionFullPaths;
+   StringArray mSavedComments;
    
    StringArray mPluginList;
    
+   std::string GetFunctionPath(FunctionType type, std::list<std::string> &pathList,
+                               const std::string &funcName);
    void AddFileType(const std::string &type, const std::string &name);
    void AddAvailablePotentialFiles();
+   void WriteHeader(std::ofstream &outStream);
+   void WriteFiles(std::ofstream &outStream, const std::string &type);
    
    static FileManager *theInstance;
    static const std::string FILE_TYPE_STRING[FileTypeCount];

@@ -35,10 +35,11 @@
 //#define FM_CREATE_DEFAULT_INPUT
 
 //#define DEBUG_FILE_MANAGER
-//#define DEBUG_GMAT_FUNCTION
+//#define DEBUG_FUNCTION_PATH
 //#define DEBUG_FILE_PATH
 //#define DEBUG_SET_PATH
-#define DEBUG_PLUGIN_DETECTION
+//#define DEBUG_WRITE_STARTUP_FILE
+//#define DEBUG_PLUGIN_DETECTION
 
 
 //---------------------------------
@@ -244,6 +245,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
 {
    std::string line;
    bool correctVersionFound = false;
+   mSavedComments.clear();
    
    if (fileName != "")
       mStartupFileName = fileName;
@@ -270,7 +272,11 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       
       // Skip empty line or comment line
       if (line[0] == '\0' || line[0] == '#')
+      {
+         if (line.size() > 1 && line[1] == '#')
+            mSavedComments.push_back(line);
          continue;
+      }
       
       std::string type, equal, name;
       std::stringstream ss("");
@@ -318,7 +324,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
             ("FileManager::ReadStartupFile() the VERSION not found.\n"
              "It no longer can read old startup file.\n");
    } // end While()
-
+   
    // add potential files by type names
    AddAvailablePotentialFiles();
    
@@ -345,9 +351,10 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    if (fileName != "")
       outFileName = fileName;
    
-   #ifdef DEBUG_FILE_MANAGER
+   #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage
-      ("FileManager::WriteStartupFile() outFileName = %s\n", outFileName.c_str());
+      ("FileManager::WriteStartupFile() entered, outFileName = %s\n",
+       outFileName.c_str());
    #endif
    
    std::ofstream outStream(outFileName.c_str());
@@ -355,93 +362,129 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    if (!outStream)
       throw UtilityException
          ("FileManager::WriteStartupFile() cannot open:" + fileName);
-
+   
    //---------------------------------------------
    // write header
    //---------------------------------------------
-   outStream << "VERSION = " << VERSION_DATE << "\n";
-   outStream << "#-------------------------------------------------------------"
-      "------------------\n";
-   outStream << "# ! Do not remove or change VERSION date, "
-      "it won't work otherwise!!\n";
-   outStream << "# Only the new FileManager, version after " << VERSION_DATE <<
-      " reconizes this new format.\n";
-   outStream << "#-------------------------------------------------------------"
-      "------------------\n";
-   
+   WriteHeader(outStream);
+
+   // set left justified
    outStream.setf(std::ios::left);
    
    //---------------------------------------------
-   // write paths
-   //---------------------------------------------
    // write ROOT_PATH first
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing ROOT_PATH path\n");
+   #endif
    outStream << setw(20) << "ROOT_PATH" << " = " << mPathMap["ROOT_PATH"] << "\n";
-   outStream << setw(20) << "OUTPUT_PATH" << " = " << mPathMap["OUTPUT_PATH"] << "\n";
-   
-   //---------------------------------------------
-   // write the DE, SLP path first
-   //---------------------------------------------
-   for (std::map<std::string, std::string>::iterator pos = mPathMap.begin();
-        pos != mPathMap.end(); ++pos)
-   {
-      if (pos->first != "ROOT_PATH" && pos->first != "OUTPUT_PATH" &&
-          pos->first.find("_FUNCTION_") == std::string::npos &&
-          pos->first.find("_POT_") == std::string::npos)
-         
-         outStream << setw(20) << pos->first << " = " << pos->second << "\n";
-   }
-   
    outStream << "#-----------------------------------------------------------\n";
    
    //---------------------------------------------
-   // write FUNCTION_PATH next
+   // write OUTPUT_PATH and LOG file next
    //---------------------------------------------
-   for (std::map<std::string, std::string>::iterator pos = mPathMap.begin();
-        pos != mPathMap.end(); ++pos)
-   {
-      if (pos->first == "FUNCTION_PATH")
-      {
-         outStream << setw(20) << pos->first << " = " << pos->second << "\n";
-         break;
-      }
-   }
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing OUTPUT_PATH paths\n");
+   #endif
+   outStream << setw(20) << "OUTPUT_PATH" << " = " << mPathMap["OUTPUT_PATH"] << "\n";
+   WriteFiles(outStream, "LOG");   
+   outStream << "#-----------------------------------------------------------\n";
    
    //---------------------------------------------
    // write GMAT_FUNCTION_PATH next
    //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing GMAT_FUNCTION_PATH paths\n");
+   #endif
    for (std::map<std::string, std::string>::iterator pos = mPathMap.begin();
         pos != mPathMap.end(); ++pos)
    {
       if (pos->first == "GMAT_FUNCTION_PATH")
       {
-         //outStream << setw(20) << pos->first << " = " << pos->second << "\n";
-         
          // Write all GmatFunction paths
-         for (UnsignedInt i=0; i<mGmatFunctionPaths.size(); i++)
-            outStream << setw(20) << pos->first << " = " << mGmatFunctionPaths[i] << "\n";
-         
+         std::list<std::string>::iterator listpos = mGmatFunctionPaths.begin();
+         while (listpos != mGmatFunctionPaths.end())
+         {
+            outStream << setw(20) << pos->first << " = " << *listpos << "\n";
+            ++listpos;
+         }
          break;
       }
    }
+   outStream << "#-----------------------------------------------------------\n";
    
    //---------------------------------------------
    // write MATLAB_FUNCTION_PATH next
    //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing MATLAB_FUNCTION_PATH paths\n");
+   #endif
    for (std::map<std::string, std::string>::iterator pos = mPathMap.begin();
         pos != mPathMap.end(); ++pos)
    {
       if (pos->first == "MATLAB_FUNCTION_PATH")
       {
-         outStream << setw(20) << pos->first << " = " << pos->second << "\n";
+         // Write all GmatFunction paths
+         std::list<std::string>::iterator listpos = mMatlabFunctionPaths.begin();
+         while (listpos != mMatlabFunctionPaths.end())
+         {
+            outStream << setw(20) << pos->first << " = " << *listpos << "\n";
+            ++listpos;
+         }
          break;
       }
-   }
-   
+   }   
    outStream << "#-----------------------------------------------------------\n";
    
    //---------------------------------------------
-   // write *_POT_PATH next
+   // write the DE_PATH and DE file next
    //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing DE path\n");
+   #endif
+   outStream << setw(20) << "DE_PATH" << " = " << mPathMap["DE_PATH"] << "\n";
+   WriteFiles(outStream, "DE");   
+   outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write the SLP_PATH and SLP file next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing SLP path\n");
+   #endif
+   outStream << setw(20) << "SLP_PATH" << " = " << mPathMap["SLP_PATH"] << "\n";
+   WriteFiles(outStream, "SLP");   
+   outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write the PLANETARY_COEFF_PATH and files next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing PLANETARY_COEFF_PATH path\n");
+   #endif
+   outStream << setw(20) << "PLANETARY_COEFF_PATH" << " = "
+             << mPathMap["PLANETARY_COEFF_PATH"] << "\n";
+   WriteFiles(outStream, "EOP_FILE_");   
+   WriteFiles(outStream, "PLANETARY_COEFF_FILE");   
+   WriteFiles(outStream, "NUTATION_COEFF_FILE");   
+   outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write the TIME_PATH and TIME file next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing TIME path\n");
+   #endif
+   outStream << setw(20) << "TIME_PATH" << " = " << mPathMap["TIME_PATH"] << "\n";
+   WriteFiles(outStream, "LEAP_");   
+   outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write *_POT_PATH and files next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing *_POT_PATH paths\n");
+   #endif
    for (std::map<std::string, std::string>::iterator pos = mPathMap.begin();
         pos != mPathMap.end(); ++pos)
    {
@@ -450,65 +493,61 @@ void FileManager::WriteStartupFile(const std::string &fileName)
          outStream << setw(20) << pos->first << " = " << pos->second << "\n";
       }
    }
-   
+   outStream << "#-----------------------------------------------------------\n";
+   WriteFiles(outStream, "POT_FILE");   
    outStream << "#-----------------------------------------------------------\n";
    
    //---------------------------------------------
-   // write non POT or TEXTURE files first
+   // write the TEXTURE_PATH and files next
    //---------------------------------------------
-   for (std::map<std::string, FileInfo*>::iterator pos = mFileMap.begin();
-        pos != mFileMap.end(); ++pos)
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing TEXTURE_PATH path\n");
+   #endif
+   outStream << setw(20) << "TEXTURE_PATH" << " = " << mPathMap["TEXTURE_PATH"] << "\n";
+   WriteFiles(outStream, "TEXTURE_FILE");   
+   outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write the SPLASH_PATH and files next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing SPLASH_PATH path\n");
+   #endif
+   outStream << setw(20) << "SPLASH_PATH" << " = " << mPathMap["SPLASH_PATH"] << "\n";
+   WriteFiles(outStream, "SPLASH_FILE");   
+   outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write the ICON_PATH and files next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing ICON_PATH path\n");
+   #endif
+   outStream << setw(20) << "ICON_PATH" << " = " << mPathMap["ICON_PATH"] << "\n";
+   WriteFiles(outStream, "ICON_FILE");   
+   outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write saved comments
+   //---------------------------------------------
+   if (!mSavedComments.empty())
    {
-      if (pos->first.find("_POT_") == std::string::npos &&
-          pos->first.find("_TEXTURE_") == std::string::npos)
-      {
-         if (pos->second)
-         {
-            outStream << setw(20) << pos->first << " = " << pos->second->mPath << "/"
-                      << pos->second->mFile << "\n";
-         }
-      }
+      #ifdef DEBUG_WRITE_STARTUP_FILE
+      MessageInterface::ShowMessage("   .....Writing saved comments\n");
+      #endif
+      outStream << "# Saved Comments\n";
+      outStream << "#-----------------------------------------------------------\n";
+      for (UnsignedInt i=0; i<mSavedComments.size(); i++)
+         outStream << mSavedComments[i] << "\n";
+      outStream << "#-----------------------------------------------------------\n";
    }
    
-   outStream << "#-----------------------------------------------------------\n";
-   
-   //---------------------------------------------
-   // write POT files next
-   //---------------------------------------------
-   for (std::map<std::string, FileInfo*>::iterator pos = mFileMap.begin();
-        pos != mFileMap.end(); ++pos)
-   {
-      if (pos->first.find("_POT_") != std::string::npos)
-      {
-         if (pos->second)
-         {
-            outStream << setw(20) << pos->first << " = " << pos->second->mPath << "/"
-                      << pos->second->mFile << "\n";
-         }
-      }
-   }
-   
-   outStream << "#-----------------------------------------------------------\n";
-   
-   //---------------------------------------------
-   // write texture files next
-   //---------------------------------------------
-   for (std::map<std::string, FileInfo*>::iterator pos = mFileMap.begin();
-        pos != mFileMap.end(); ++pos)
-   {
-      if (pos->first.find("_TEXTURE_") != std::string::npos)
-      {
-         if (pos->second)
-         {
-            outStream << setw(20) << pos->first << " = " << pos->second->mPath << "/"
-                      << pos->second->mFile << "\n";
-         }
-      }
-   }
-   
-   outStream << "#-----------------------------------------------------------\n";
    outStream << "\n";
    outStream.close();
+   
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("FileManager::WriteStartupFile() exiting\n");
+   #endif
 }
 
 
@@ -711,6 +750,7 @@ std::string FileManager::GetAbsPathname(const FileType type)
 std::string FileManager::GetAbsPathname(const std::string &typeName)
 {
    std::string fileType = GmatStringUtil::ToUpper(typeName);
+   std::string absPath;
    
    #ifdef DEBUG_FILE_MANAGER
    MessageInterface::ShowMessage
@@ -729,12 +769,18 @@ std::string FileManager::GetAbsPathname(const std::string &typeName)
             std::string pathname2 = mPathMap["ROOT_PATH"] + pathname;
             std::string::size_type pos1 = pathname2.find("ROOT_PATH");
             pathname2.replace(pos1, 10, "");
-            return pathname2;
+            absPath = pathname2;
          }
          else
          {
-            return pathname;
+            absPath = pathname;
          }
+         
+         #ifdef DEBUG_FILE_MANAGER
+         MessageInterface::ShowMessage
+            ("FileManager::GetAbsPathname() with _PATH returning '%s'\n", absPath.c_str());
+         #endif
+         return absPath;
       }
    }
    else
@@ -742,12 +788,18 @@ std::string FileManager::GetAbsPathname(const std::string &typeName)
       if (mFileMap.find(fileType) != mFileMap.end())
       {
          std::string path = GetPathname(fileType);
-         return path + mFileMap[fileType]->mFile;
+         absPath = path + mFileMap[fileType]->mFile;
       }
       else if (mFileMap.find(fileType + "_ABS") != mFileMap.end())
       {
-         return mFileMap[typeName]->mFile;
+         absPath = mFileMap[typeName]->mFile;
       }
+      
+      #ifdef DEBUG_FILE_MANAGER
+      MessageInterface::ShowMessage
+         ("FileManager::GetAbsPathname() without _PATH returning '%s'\n", absPath.c_str());
+      #endif
+      return absPath;
    }
    
    throw UtilityException
@@ -886,36 +938,67 @@ void FileManager::ClearGmatFunctionPath()
 
 
 //------------------------------------------------------------------------------
-// void  AddGmatFunctionPath(const std::string &path)
+// void  AddGmatFunctionPath(const std::string &path, bool addFront, bool addFront)
 //------------------------------------------------------------------------------
-void FileManager::AddGmatFunctionPath(const std::string &path)
+/*
+ * If new path it adds to the GmatFunction path list.
+ * If path already exist, it moves to the front or back of the list, depends on
+ * addFront flag.
+ *
+ * @param  path  path name to be added
+ * @param  addFront  if set to true, it adds to the front, else adds to the back (true)
+ */
+//------------------------------------------------------------------------------
+void FileManager::AddGmatFunctionPath(const std::string &path, bool addFront)
 {
-   #ifdef DEBUG_GMAT_FUNCTION
+   #ifdef DEBUG_FUNCTION_PATH
    MessageInterface::ShowMessage
-      ("FileManager::AddGmatFunctionPath() Adding %s to GmatFunctionPath\n",
-       path.c_str());
+      ("FileManager::AddGmatFunctionPath() Adding %s to GmatFunctionPath\n   "
+       "addFront=%d\n", path.c_str(), addFront);
    #endif
    
-   StringArray::iterator pos =
+   std::list<std::string>::iterator pos =
       find(mGmatFunctionPaths.begin(), mGmatFunctionPaths.end(), path);
    
    if (pos == mGmatFunctionPaths.end())
    {
-      // if new path push back to path names
-      mGmatFunctionPaths.push_back(path);
+      #ifdef DEBUG_FUNCTION_PATH
+      MessageInterface::ShowMessage
+         ("   the path <%s> is new, so adding to %s\n", path.c_str(),
+          addFront ? "front" : "back");
+      #endif
+      
+      // if new path, add to front or back of the list
+      if (addFront)
+         mGmatFunctionPaths.push_front(path);
+      else
+         mGmatFunctionPaths.push_back(path);
    }
    else
    {
-      // if existing path remove and push back
+      // if existing path remove and add front or back of the list
+      #ifdef DEBUG_FUNCTION_PATH
+      MessageInterface::ShowMessage
+         ("   the path <%s> already exist, so moving to %s\n", path.c_str(),
+          addFront ? "front" : "back");
+      #endif
+      
       std::string oldPath = *pos;
       mGmatFunctionPaths.erase(pos);
-      mGmatFunctionPaths.push_back(oldPath);
+      if (addFront)
+         mGmatFunctionPaths.push_front(oldPath);
+      else
+         mGmatFunctionPaths.push_back(oldPath);
    }
    
-   #ifdef DEBUG_GMAT_FUNCTION
-   for (UnsignedInt i=0; i<mGmatFunctionPaths.size(); i++)
+   #ifdef DEBUG_FUNCTION_PATH
+   pos = mGmatFunctionPaths.begin();
+   while (pos != mGmatFunctionPaths.end())
+   {
       MessageInterface::ShowMessage
-         ("   mGmatFunctionPaths[%d]=%s\n", i, mGmatFunctionPaths[i].c_str());
+         ("   mGmatFunctionPaths = %s\n", (*pos).c_str());
+      ++pos;
+   }
    #endif
 }
 
@@ -925,7 +1008,8 @@ void FileManager::AddGmatFunctionPath(const std::string &path)
 //------------------------------------------------------------------------------
 /*
  * Returns the absolute path that has GmatFunction name.
- * It searches in the most recently added path first.
+ * It searches in the most recently added path first which is at the top of
+ * the list.
  *
  * @param   funcName  Name of the GmatFunction to be located
  * @return  Path that has GmatFunction name
@@ -933,55 +1017,56 @@ void FileManager::AddGmatFunctionPath(const std::string &path)
 //------------------------------------------------------------------------------
 std::string FileManager::GetGmatFunctionPath(const std::string &funcName)
 {
-   #ifdef DEBUG_GMAT_FUNCTION
-   MessageInterface::ShowMessage
-      ("FileManager::GetGmatFunctionPath() funcName='%s'\n", funcName.c_str());
-   #endif
+   return GetFunctionPath(GMAT_FUNCTION, mGmatFunctionPaths, funcName);
    
-   // Search through mGmatFunctionPaths
-   // The most recent path added to the last, so search backwards
-   std::string pathName, fullPath;
-   bool fileFound = false;
+//    #ifdef DEBUG_FUNCTION_PATH
+//    MessageInterface::ShowMessage
+//       ("FileManager::GetGmatFunctionPath() funcName='%s'\n", funcName.c_str());
+//    #endif
    
-   // add .gmf if not found
-   std::string funcName1 = funcName;
-   if (funcName.find(".gmf") == funcName.npos)
-      funcName1 = funcName1 + ".gmf";
+//    // Search through mGmatFunctionPaths
+//    // The most recent path added to the last, so search backwards
+//    std::string pathName, fullPath;
+//    bool fileFound = false;
    
-   // MSVC gives a runtime error here, so use reverse_iterator (loj: 2008.07.08)
-   //StringArray::iterator pos = mGmatFunctionPaths.end() - 1;
-   StringArray::reverse_iterator rpos = mGmatFunctionPaths.rbegin();
-   //while (pos != mGmatFunctionPaths.begin() - 1)
-   while (rpos != mGmatFunctionPaths.rend())
-   {
-      pathName = *rpos;
-      fullPath = ConvertToAbsPath(pathName) + funcName1;
+//    // add .gmf if not found
+//    std::string funcName1 = funcName;
+//    if (funcName.find(".gmf") == funcName.npos)
+//       funcName1 = funcName1 + ".gmf";
+   
+//    // Search from the top of the list, which is the most recently added path
+//    // The search order goes from top to bottom. (loj: 2008.10.02)
+//    std::list<std::string>::iterator pos = mGmatFunctionPaths.begin();
+//    while (pos != mGmatFunctionPaths.end())
+//    {
+//       pathName = *pos;
+//       fullPath = ConvertToAbsPath(pathName) + funcName1;
       
-      #ifdef DEBUG_GMAT_FUNCTION
-      MessageInterface::ShowMessage("   fullPath='%s'\n", fullPath.c_str());
-      #endif
+//       #ifdef DEBUG_FUNCTION_PATH
+//       MessageInterface::ShowMessage("   fullPath='%s'\n", fullPath.c_str());
+//       #endif
       
-      if (GmatFileUtil::DoesFileExist(fullPath))
-      {
-         fileFound = true;
-         break;
-      }
+//       if (GmatFileUtil::DoesFileExist(fullPath))
+//       {
+//          fileFound = true;
+//          break;
+//       }
       
-      //rpos--;
-      rpos++;
-   }
+//       pos++;
+//    }
    
-   if (fileFound)
-      fullPath = GmatFileUtil::ParsePathName(fullPath);
-   else
-      fullPath = "";
+//    if (fileFound)
+//       fullPath = GmatFileUtil::ParsePathName(fullPath);
+//    else
+//       fullPath = "";
    
-   #ifdef DEBUG_GMAT_FUNCTION
-   MessageInterface::ShowMessage
-      ("FileManager::GetGmatFunctionPath() returning '%s'\n", fullPath.c_str());
-   #endif
+//    #ifdef DEBUG_FUNCTION_PATH
+//    MessageInterface::ShowMessage
+//       ("FileManager::GetGmatFunctionPath(%s) returning '%s'\n", funcName.c_str(),
+//        fullPath.c_str());
+//    #endif
    
-   return fullPath;
+//    return fullPath;
 }
 
 
@@ -992,8 +1077,12 @@ const StringArray& FileManager::GetAllGmatFunctionPaths()
 {
    mGmatFunctionFullPaths.clear();
    
-   for (UnsignedInt i=0; i<mGmatFunctionPaths.size(); i++)
-      mGmatFunctionFullPaths.push_back(ConvertToAbsPath(mGmatFunctionPaths[i]));
+   std::list<std::string>::iterator listpos = mGmatFunctionPaths.begin();
+   while (listpos != mGmatFunctionPaths.end())
+   {
+      mGmatFunctionFullPaths.push_back(ConvertToAbsPath(*listpos));
+      ++listpos;
+   }
    
    return mGmatFunctionFullPaths;
 }
@@ -1009,37 +1098,74 @@ void FileManager::ClearMatlabFunctionPath()
 
 
 //------------------------------------------------------------------------------
-// void  AddMatlabFunctionPath(const std::string &path)
+// void  AddMatlabFunctionPath(const std::string &pat, bool addFront)
 //------------------------------------------------------------------------------
-void FileManager::AddMatlabFunctionPath(const std::string &path)
+/*
+ * If new path it adds to the MatlabFunction path list.
+ * If path already exist, it moves to the front or back of the list, depends on
+ * addFront flag.
+ *
+ * @param  path  path name to be added
+ * @param  addFront  if set to true, it adds to the front, else adds to the back (true)
+ */
+//------------------------------------------------------------------------------
+void FileManager::AddMatlabFunctionPath(const std::string &path, bool addFront)
 {
-   #ifdef DEBUG_MATLAB_FUNCTION
+   #ifdef DEBUG_FUNCTION_PATH
    MessageInterface::ShowMessage
       ("FileManager::AddMatlabFunctionPath() Adding %s to MatlabFunctionPath\n",
        path.c_str());
    #endif
    
-   StringArray::iterator pos =
+   std::list<std::string>::iterator pos =
       find(mMatlabFunctionPaths.begin(), mMatlabFunctionPaths.end(), path);
    
    if (pos == mMatlabFunctionPaths.end())
    {
-      // if new path push back to path names
-      mMatlabFunctionPaths.push_back(path);
+      // if new path, add to front or back of the list
+      if (addFront)
+         mMatlabFunctionPaths.push_front(path);
+      else
+         mMatlabFunctionPaths.push_back(path);
    }
    else
    {
-      // if existing path remove and push back
+      // if existing path remove and add front or back of the list
       std::string oldPath = *pos;
       mMatlabFunctionPaths.erase(pos);
-      mMatlabFunctionPaths.push_back(oldPath);
+      if (addFront)
+         mMatlabFunctionPaths.push_front(oldPath);
+      else
+         mMatlabFunctionPaths.push_back(oldPath);
    }
    
-   #ifdef DEBUG_MATLAB_FUNCTION
-   for (UnsignedInt i=0; i<mMatlabFunctionPaths.size(); i++)
+   #ifdef DEBUG_FUNCTION_PATH
+   pos = mMatlabFunctionPaths.begin();
+   while (pos != mMatlabFunctionPaths.end())
+   {
       MessageInterface::ShowMessage
-         ("   mMatlabFunctionPaths[%d]=%s\n", i, mMatlabFunctionPaths[i].c_str());
+         ("   mMatlabFunctionPaths=%s\n",(*pos).c_str());
+      ++pos;
+   }
    #endif
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetMatlabFunctionPath(const std::string &name)
+//------------------------------------------------------------------------------
+/*
+ * Returns the absolute path that has MatlabFunction name.
+ * It searches in the most recently added path first which is at the top of
+ * the list.
+ *
+ * @param   funcName  Name of the MatlabFunction to be located
+ * @return  Path that has MatlabFunction name
+ */
+//------------------------------------------------------------------------------
+std::string FileManager::GetMatlabFunctionPath(const std::string &name)
+{
+   return GetFunctionPath(MATLAB_FUNCTION, mMatlabFunctionPaths, name);
 }
 
 
@@ -1050,8 +1176,12 @@ const StringArray& FileManager::GetAllMatlabFunctionPaths()
 {
    mMatlabFunctionFullPaths.clear();
    
-   for (UnsignedInt i=0; i<mMatlabFunctionPaths.size(); i++)
-      mMatlabFunctionFullPaths.push_back(ConvertToAbsPath(mMatlabFunctionPaths[i]));
+   std::list<std::string>::iterator listpos = mMatlabFunctionPaths.begin();
+   while (listpos != mMatlabFunctionPaths.end())
+   {
+      mMatlabFunctionFullPaths.push_back(ConvertToAbsPath(*listpos));
+      ++listpos;
+   }
    
    return mMatlabFunctionFullPaths;
 }
@@ -1074,6 +1204,82 @@ const StringArray& FileManager::GetPluginList()
 //---------------------------------
 // private methods
 //---------------------------------
+
+//------------------------------------------------------------------------------
+// std::string GetFunctionPath(FunctionType type, const std::list<std::string> &pathList
+//                             const std::string &funcName)
+//------------------------------------------------------------------------------
+/*
+ * Searches proper function path list from the top and return first path found.
+ *
+ * @param  type  type of function (MATLAB_FUNCTION, GMAT_FUNCTION)
+ * @param  pathList  function path list to use in search
+ * @param  funcName  name of the function to search
+ */
+//------------------------------------------------------------------------------
+std::string FileManager::GetFunctionPath(FunctionType type,
+                                         std::list<std::string> &pathList,
+                                         const std::string &funcName)
+{
+   #ifdef DEBUG_FUNCTION_PATH
+   MessageInterface::ShowMessage
+      ("FileManager::GetFunctionPath(%s) with type %d entered\n",
+       funcName.c_str(), type);
+   #endif
+   
+   std::string funcName1 = funcName;
+   if (type == GMAT_FUNCTION)
+   {
+      if (funcName.find(".gmf") == funcName.npos)
+         funcName1 = funcName1 + ".gmf";
+   }
+   else
+   {
+      if (funcName.find(".m") == funcName.npos)
+         funcName1 = funcName1 + ".m";
+   }
+   
+   // Search through pathList
+   // The most recent path added to the last, so search backwards
+   std::string pathName, fullPath;
+   bool fileFound = false;
+   
+   // Search from the top of the list, which is the most recently added path
+   // The search order goes from top to bottom. (loj: 2008.10.02)
+   std::list<std::string>::iterator pos = pathList.begin();
+   while (pos != pathList.end())
+   {
+      pathName = *pos;
+      fullPath = ConvertToAbsPath(pathName) + funcName1;
+      
+      #ifdef DEBUG_FUNCTION_PATH
+      MessageInterface::ShowMessage("   fullPath='%s'\n", fullPath.c_str());
+      #endif
+      
+      if (GmatFileUtil::DoesFileExist(fullPath))
+      {
+         fileFound = true;
+         break;
+      }
+      
+      pos++;
+   }
+   
+   if (fileFound)
+      fullPath = GmatFileUtil::ParsePathName(fullPath);
+   else
+      fullPath = "";
+   
+   #ifdef DEBUG_FUNCTION_PATH
+   MessageInterface::ShowMessage
+      ("FileManager::GetFunctionPath(%s) returning '%s'\n", funcName.c_str(),
+       fullPath.c_str());
+   #endif
+   
+   return fullPath;
+   
+}
+
 
 //------------------------------------------------------------------------------
 // void AddFileType(const std::string &type, const std::string &name)
@@ -1108,9 +1314,9 @@ void FileManager::AddFileType(const std::string &type, const std::string &name)
       
       // Handle Gmat and Matlab Function path
       if (type == "GMAT_FUNCTION_PATH")
-         AddGmatFunctionPath(str2);
+         AddGmatFunctionPath(str2, false);
       else if (type == "MATLAB_FUNCTION_PATH")
-         AddMatlabFunctionPath(str2);
+         AddMatlabFunctionPath(str2, false);
       
    }
    else if (type.find("_FILE_ABS") != type.npos)
@@ -1195,6 +1401,62 @@ void FileManager::AddAvailablePotentialFiles()
    if (mFileMap.find("MARS50C_FILE") == mFileMap.end())
       AddFileType("MARS50C_FILE", "MARS_POT_PATH/Mars50c.cof");
    
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteHeader(std::ofstream &outStream)
+//------------------------------------------------------------------------------
+void FileManager::WriteHeader(std::ofstream &outStream)
+{
+   outStream << "VERSION = " << VERSION_DATE << "\n";
+   outStream << "#============================================================="
+      "==================\n";
+   outStream << "# ! Do not remove or change VERSION date, "
+      "it won't work otherwise!!\n";
+   outStream << "# Only the new FileManager, version after " << VERSION_DATE <<
+      " reconizes this new format.\n";
+   outStream << "#-------------------------------------------------------------"
+      "------------------\n";
+   outStream << "# Path/File naming convention:\n";
+   outStream << "#   - Path name should end with _PATH\n";
+   outStream << "#   - File name should end with _FILE\n";
+   outStream << "#   - Path/File names are case sensative\n";
+   outStream << "#\n";
+   outStream << "# You can add potential file and texture file by following the naming\n";
+   outStream << "# convention.\n";
+   outStream << "#   - Potential file should begin with planet name and end with _POT_FILE\n";
+   outStream << "#   - Texture file should begin with planet name and end with _TEXTURE_FILE\n";
+   outStream << "#\n";
+   outStream << "# If same _FILE is specified multiple times, it will use the last one.\n";
+   outStream << "#\n";
+   outStream << "# All comment lines starting ## will be written last when saving this file.\n";
+   outStream << "#\n";
+   outStream << "#============================================================="
+      "==================\n";
+}
+
+//------------------------------------------------------------------------------
+// void WriteFiles(std::ofstream &outStream, const std::string &type)
+//------------------------------------------------------------------------------
+void FileManager::WriteFiles(std::ofstream &outStream, const std::string &type)
+{
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing %s file\n", type.c_str());
+   #endif
+   
+   for (std::map<std::string, FileInfo*>::iterator pos = mFileMap.begin();
+        pos != mFileMap.end(); ++pos)
+   {
+      if (pos->first.find(type) != std::string::npos)
+      {
+         if (pos->second)
+         {
+            outStream << setw(20) << pos->first << " = " << pos->second->mPath << "/"
+                      << pos->second->mFile << "\n";
+         }
+      }
+   }
 }
 
 
