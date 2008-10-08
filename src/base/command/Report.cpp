@@ -624,6 +624,12 @@ const std::string& Report::GetGeneratingString(Gmat::WriteMode mode,
    
    generatingString = gen + ";";
    
+   #ifdef DEBUG_GEN_STRING
+   MessageInterface::ShowMessage
+      ("   generatingString=<%s>, \n   now returning GmatCommand::GetGeneratingString()\n",
+       generatingString.c_str());
+   #endif
+   
    return GmatCommand::GetGeneratingString(mode, prefix, useName);
 }
 
@@ -651,7 +657,7 @@ bool Report::Initialize()
    #endif
    
    parms.clear();
-   GmatBase *object, *mapObj;
+   GmatBase *mapObj = NULL;
    
    if ((mapObj = FindObject(rfName)) == NULL)
       throw CommandException(
@@ -674,15 +680,27 @@ bool Report::Initialize()
    
    for (StringArray::iterator i = parmNames.begin(); i != parmNames.end(); ++i)
    {
-      object = FindObject(*i);
-      if (object == NULL)
-         throw CommandException("Object named " + (*i) + 
+      #ifdef DEBUG_REPORT_INIT
+      MessageInterface::ShowMessage("   Now find object for '%s'\n", (*i).c_str());
+      #endif
+      
+      mapObj = FindObject(*i);
+      if (mapObj == NULL)
+      {
+         std::string msg = "Object named " + (*i) +
             " cannot be found for the Report command '" +
-            GetGeneratingString() + "'"); 
-      if (!object->IsOfType("Parameter"))
+            GetGeneratingString(Gmat::NO_COMMENTS) + "'";
+         #ifdef DEBUG_REPORT_INIT
+         MessageInterface::ShowMessage("**** ERROR **** %s\n", msg.c_str());
+         #endif
+         //return false;
+         throw CommandException(msg);
+      }
+      
+      if (!mapObj->IsOfType("Parameter"))
          throw CommandException("Parameter type mismatch for " + 
-            object->GetName());
-      parms.push_back((Parameter *)object);
+            mapObj->GetName());
+      parms.push_back((Parameter *)mapObj);
    }
    
    #ifdef DEBUG_REPORT_INIT
@@ -709,7 +727,8 @@ bool Report::Execute()
       throw CommandException("Report command has no parameters to write\n");
    
    #ifdef DEBUG_REPORT_EXEC
-   MessageInterface::ShowMessage("Report::Execute() entered, has %d Parameters\n", parms.size());
+   MessageInterface::ShowMessage
+      ("Report::Execute() entered, has %d Parameters\n", parms.size());
    #endif
    
    // Build the data as a string
@@ -718,7 +737,8 @@ bool Report::Execute()
    // Set the stream to use the settings in the ReportFile
    // Note that this is done here, rather than during initialization, in case
    // the user has changed the values during the run.
-   datastream.precision(reporter->GetIntegerParameter(reporter->GetParameterID("Precision")));
+   Integer prec = reporter->GetIntegerParameter(reporter->GetParameterID("Precision"));
+   datastream.precision(prec);
    
    bool leftJustify = false;
    if (reporter->GetOnOffParameter(reporter->GetParameterID("LeftJustify")) == "On")
@@ -767,7 +787,7 @@ bool Report::Execute()
          {
             Integer index = distance(parms.begin(), i);
             if (parmRows[index] == -1 && parmCols[index] == -1)
-               datastream << (*i)->EvaluateRmatrix().ToString() << "   ";
+               datastream << (*i)->EvaluateRmatrix().ToString(prec, colWidth, false);
             else // do array indexing
                datastream << (*i)->EvaluateRmatrix().GetElement
                   (parmRows[index], parmCols[index]) << "   ";
