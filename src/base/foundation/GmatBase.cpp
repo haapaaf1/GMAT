@@ -880,6 +880,20 @@ void GmatBase::SetSolarSystem(SolarSystem *ss)
 }
 
 //------------------------------------------------------------------------------
+//  void GmatBase::SetInternalCoordSystem(CoordinateSystem *ss)
+//------------------------------------------------------------------------------
+/**
+ * Sets the internal CoordinateSystem pointer for objects that have one.
+ *
+ * @note Derived classes that need the solar system must override this method.
+ */
+//------------------------------------------------------------------------------
+void GmatBase::SetInternalCoordSystem(CoordinateSystem *ss)
+{
+   ;     // Do nothing by default
+}
+
+//------------------------------------------------------------------------------
 //  bool RequiresJ2000Body()
 //------------------------------------------------------------------------------
 /**

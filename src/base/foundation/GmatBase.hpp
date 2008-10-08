@@ -33,9 +33,9 @@
 #include "Rmatrix.hpp"
 
 
-// Forward reference for the SolarSystem pointer
+// Forward reference
 class SolarSystem;
-
+class CoordinateSystem;
 
 //------------------------------------------------------------------------------
 /**
@@ -145,6 +145,7 @@ public:
    
    virtual bool         Initialize();
    virtual void         SetSolarSystem(SolarSystem *ss);
+   virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
    
    virtual bool         RequiresJ2000Body();
 
