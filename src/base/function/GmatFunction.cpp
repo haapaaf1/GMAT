@@ -18,6 +18,7 @@
 //------------------------------------------------------------------------------
 
 #include "GmatFunction.hpp"
+#include "Assignment.hpp"        // for Assignment::GetMathTree()
 #include "FileManager.hpp"       // for GetGmatFunctionPath()
 #include "FileUtil.hpp"          // for ParseFileName()
 #include "StringUtil.hpp"        // for Trim()
@@ -198,12 +199,13 @@ GmatFunction& GmatFunction::operator=(const GmatFunction& right)
 bool GmatFunction::Initialize()
 {
    #ifdef DEBUG_FUNCTION_INIT
-      MessageInterface::ShowMessage("Entering GmatFunction::Initialize for function %s\n",
+      MessageInterface::ShowMessage("Entering GmatFunction::Initialize for function '%s'\n",
             functionName.c_str());
       MessageInterface::ShowMessage("   and FCS is %s set.\n", (fcs? "correctly" : "NOT"));
       MessageInterface::ShowMessage("   Pointer for FCS is %p\n", fcs);
       MessageInterface::ShowMessage("   First command in fcs is %s\n",
             (fcs->GetTypeName()).c_str());
+      MessageInterface::ShowMessage("   internalCS is %p\n", internalCoordSys);
    #endif
    if (!fcs) return false;
    
@@ -213,7 +215,7 @@ bool GmatFunction::Initialize()
    validator->SetFunction(this);
    validator->SetSolarSystem(solarSys);
    std::map<std::string, GmatBase *>::iterator omi;
-      
+   
    // add automatic objects to the FOS (well, actually, clones of them)
    for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
    {
@@ -230,8 +232,9 @@ bool GmatFunction::Initialize()
    {
       #ifdef DEBUG_FUNCTION_INIT
          if (!current)  MessageInterface::ShowMessage("Current is NULL!!!\n");
-         else MessageInterface::ShowMessage("   Now about to initialize command of type %s\n   %s\n",
-                 (current->GetTypeName()).c_str(), current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+         else MessageInterface::ShowMessage("   =====> Current command is %s <%s>\n",
+                 (current->GetTypeName()).c_str(),
+                 current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       current->SetObjectMap(objectStore);
       current->SetGlobalObjectMap(globalObjectStore);
@@ -239,8 +242,9 @@ bool GmatFunction::Initialize()
       current->SetInternalCoordSystem(internalCoordSys);
       current->SetTransientForces(forces);
       #ifdef DEBUG_FUNCTION_INIT
-         MessageInterface::ShowMessage("   Now about to send required wrappers to command of type %s\n",
-               (current->GetTypeName()).c_str());         
+         MessageInterface::ShowMessage
+            ("   Now about to set object map of type %s to Validator\n",
+             (current->GetTypeName()).c_str());      
       #endif
       // (Re)set object map on Validator (necessary because objects may have been added to the 
       // Local Object Store or Global Object Store during initialization of previous commands)
@@ -251,6 +255,12 @@ bool GmatFunction::Initialize()
          validatorStore.insert(std::make_pair(omi->first, omi->second));
       validator->SetObjectMap(&validatorStore);
       
+      #ifdef DEBUG_FUNCTION_INIT
+      MessageInterface::ShowMessage
+         ("   Now about to call Validator->ValidateCommand() of type %s\n",
+          current->GetTypeName().c_str());
+      #endif
+      
       // Let's try to ValidateCommand here, this will validate the comand
       // and create wrappers also
       if (!validator->ValidateCommand(current, false, 2))
@@ -260,8 +270,29 @@ bool GmatFunction::Initialize()
          throw FunctionException(errList[0] + " in the function \"" + functionPath + "\"");
       }
       
-      if (!(current->Initialize()))
-         return false;
+      #ifdef DEBUG_FUNCTION_INIT
+      MessageInterface::ShowMessage
+         ("   Now about to initialize command of type %s\n", current->GetTypeName().c_str());
+      #endif
+      
+      // catch exception and add function name to message (loj: 2008.09.23)
+      try
+      {
+         if (!(current->Initialize()))
+         {
+            #ifdef DEBUG_FUNCTION_INIT
+            MessageInterface::ShowMessage
+               ("Exiting  GmatFunction::Initialize for function '%s' with false\n",
+                functionName.c_str());
+            #endif
+            return false;
+         }
+      }
+      catch (BaseException &e)
+      {
+         throw FunctionException("Cannot continue due to " + e.GetFullMessage() +
+                                 " in the function \"" + functionPath + "\"");
+      }
       
       // Check to see if the command needs a server startup (loj: 2008.07.25)
       if (current->NeedsServerStartup())
@@ -272,6 +303,11 @@ bool GmatFunction::Initialize()
       current = current->GetNext();
    }
    fcsFinalized = false;
+   #ifdef DEBUG_FUNCTION_INIT
+   MessageInterface::ShowMessage
+      ("Exiting  GmatFunction::Initialize for function '%s' with true\n",
+       functionName.c_str());
+   #endif
    return true;
 }
 
@@ -288,47 +324,70 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
    MessageInterface::ShowMessage
       ("GmatFunction::Execute() entered for '%s';  objectsInitialized=%d\n",
        functionName.c_str(), objectsInitialized);
+   MessageInterface::ShowMessage("   internalCS is %p\n", internalCoordSys);
    #endif
    
    GmatCommand *current = fcs;
+   
+   // We want to initialize local objects with new object map,
+   // so do it everytime (loj: 2008.09.26)
+   objectsInitialized = false;
    
    while (current)
    {
       // Call to IsNextAFunction is necessary for branch commands in particular
       #ifdef DEBUG_FUNCTION_EXEC
       MessageInterface::ShowMessage
-         ("......Function executing <%p><%s><%s>\n", current, current->GetTypeName().c_str(),
+         ("......Function executing <%p><%s> [%s]\n", current, current->GetTypeName().c_str(),
           current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       
       // Since we don't know where actual mission squence start, just check for command
-      // that is not NoOp, Create, and GMAT.
+      // that is not NoOp, Create, Global, and GMAT with equation.
       // Can we have simple command indicating beginning of the sequence,
       // such as BeginMission? (loj: 2008.06.19)
+      Function *func = current->GetCurrentFunction();
+      bool isEquation = false;
+      std::string cmdType = current->GetTypeName();
+      if (func && cmdType == "GMAT")
+         if (((Assignment*)current)->GetMathTree() != NULL)
+            isEquation = true;
+      
       if (!objectsInitialized)
       {
-         if (current->GetTypeName() != "NoOp" && current->GetTypeName() != "Create" &&
-             current->GetTypeName() != "GMAT")
-         {
-            objectsInitialized = true;
+         if (cmdType != "NoOp" && cmdType != "Create" && cmdType != "Global")
+         {            
+            bool beginInit = true;            
+            if (cmdType == "GMAT" && !isEquation)
+               beginInit = false;
             
-            #ifdef DEBUG_FUNCTION_EXEC
-            MessageInterface::ShowMessage("Now at command \"%s\"\n\n", 
-                  (current->GetGeneratingString()).c_str());
-            MessageInterface::ShowMessage
-               ("\n============================ Begin initialization of local objects\n");
-            #endif
-            // Let's try initialzing local objects using ObjectInitializer (2008.06.19)
-            // We need to add subscribers to publisher, so pass true
-            if (!objInit->InitializeObjects(true))
+            if (beginInit)
             {
-               // Should we throw an exception instead?
-               return false;
+               objectsInitialized = true;
+               
+               #ifdef DEBUG_FUNCTION_EXEC
+               MessageInterface::ShowMessage
+                  ("Now at command \"%s\"\n\n", current->GetGeneratingString().c_str());
+               MessageInterface::ShowMessage
+                  ("\n============================ Begin initialization of local objects\n");
+               #endif
+               
+               // Why internal coordinate syste is empty in ObjectInitializer?
+               // Set internal coordinate system (added (loj: 2008.10.07)
+               objInit->SetInternalCoordinateSystem(internalCoordSys);
+               
+               // Let's try initialzing local objects using ObjectInitializer (2008.06.19)
+               // We need to add subscribers to publisher, so pass true
+               if (!objInit->InitializeObjects(true))
+               {
+                  // Should we throw an exception instead?
+                  return false;
+               }
+               #ifdef DEBUG_FUNCTION_EXEC
+               MessageInterface::ShowMessage
+                  ("============================ End   initialization of local objects\n");
+               #endif
             }
-            #ifdef DEBUG_FUNCTION_EXEC
-            MessageInterface::ShowMessage
-               ("============================ End  initialization of local objects\n");
-            #endif
          }
       }
       
@@ -336,6 +395,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
          return false;
       current = current->GetNext();
    }
+   
    // create output wrappers and put into map
    GmatBase *obj;
    for (unsigned int jj = 0; jj < outputNames.size(); jj++)
@@ -350,9 +410,15 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
       outWrapper->SetRefObject(obj); 
       outputArgMap[outputNames.at(jj)] = outWrapper;
       #ifdef DEBUG_FUNCTION_EXEC // --------------------------------------------------- debug ---
-         MessageInterface::ShowMessage("GmatFunction: Output wrapper created for %s\n", (outputNames.at(jj)).c_str());
+         MessageInterface::ShowMessage("GmatFunction: Output wrapper created for %s\n",
+                                       (outputNames.at(jj)).c_str());
       #endif // -------------------------------------------------------------- end debug ---
    }
+   
+   #ifdef DEBUG_FUNCTION_EXEC
+   MessageInterface::ShowMessage
+      ("GmatFunction::Execute() exiting true for '%s'\n", functionName.c_str());
+   #endif
    return true; 
 }
 
@@ -362,22 +428,31 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
 //------------------------------------------------------------------------------
 void GmatFunction::Finalize()
 {
+   #ifdef DEBUG_FUNCTION_FINALIZE
+   MessageInterface::ShowMessage
+      ("GmatFunction::Finalize() entered for '%s', FCS %sfinalized\n",
+       functionName.c_str(), fcsFinalized ? "already " : "NOT ");
+   #endif
    ; // @todo - finalize anything else that needs it as well
    if (!fcsFinalized)
    {
+      fcsFinalized = true;
       GmatCommand *current = fcs;
       while (current)
       {
          #ifdef DEBUG_FUNCTION_FINALIZE
-            if (!current)  MessageInterface::ShowMessage("Current is NULL!!!\n");
-            else MessageInterface::ShowMessage("   Now about to finalize (call RunComplete on) command %s\n",
-                  (current->GetTypeName()).c_str());         
+            if (!current)
+               MessageInterface::ShowMessage
+                  ("   GmatFunction:Finalize() Current is NULL!!!\n");
+            else
+               MessageInterface::ShowMessage("   GmatFunction:Finalize() Now "
+                  "about to finalize (call RunComplete on) command %s\n",
+                  (current->GetTypeName()).c_str());
          #endif
          current->RunComplete();
          current = current->GetNext();
       }
    }
-   fcsFinalized = true;
 }
 
 
@@ -455,7 +530,7 @@ bool GmatFunction::SetStringParameter(const Integer id, const std::string &value
             functionPath = value;
          }
          
-         // add to GmatFunction path (loj: 2008.04.18)
+         // Add to GmatFunction path
          fm->AddGmatFunctionPath(functionPath);
          
          // Remove path
