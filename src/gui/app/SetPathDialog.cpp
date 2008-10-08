@@ -21,6 +21,7 @@
 #include <wx/dir.h>           // for wxDir::Exists()
 
 //#define DEBUG_SETPATH_DIALOG
+//#define DEBUG_SETPATH_DIALOG_SAVE
 
 //------------------------------------------------------------------------------
 // SetPathDialog(wxWindow *parent)
@@ -92,10 +93,10 @@ void SetPathDialog::LoadData()
 //------------------------------------------------------------------------------
 void SetPathDialog::SaveData()
 {
-   #ifdef DEBUG_SETPATH_DIALOG
+   #ifdef DEBUG_SETPATH_DIALOG_SAVE
    MessageInterface::ShowMessage("SetPathDialog::SaveData() entered.\n");
    #endif
-
+   
    canClose = true;
    
    FileManager *fm = FileManager::Instance();
@@ -104,38 +105,38 @@ void SetPathDialog::SaveData()
    // Gmat Function paths
    if (mGmatFunPathPanel->HasDataChanged())
    {
-      #ifdef DEBUG_SETPATH_DIALOG
+      #ifdef DEBUG_SETPATH_DIALOG_SAVE
       MessageInterface::ShowMessage("   Saving GmatFunction paths...\n");
       #endif
       
       pathNames = mGmatFunPathPanel->GetPathNames();
       
-      #ifdef DEBUG_SETPATH_DIALOG
+      #ifdef DEBUG_SETPATH_DIALOG_SAVE
       MessageInterface::ShowMessage("   ...Adding %d paths\n", pathNames.GetCount());
       #endif
       
       fm->ClearGmatFunctionPath();
       for (UnsignedInt i=0; i<pathNames.GetCount(); i++)
       {
-         #ifdef DEBUG_SETPATH_DIALOG
+         #ifdef DEBUG_SETPATH_DIALOG_SAVE
          MessageInterface::ShowMessage("   ...Adding '%s'\n", pathNames[i].c_str());
          #endif
          
-         fm->AddGmatFunctionPath(pathNames[i].c_str());
+         fm->AddGmatFunctionPath(pathNames[i].c_str(), false);
       }
    }
    
    // Matlab Function paths
    if (mMatlabPathPanel->HasDataChanged())
    {
-      #ifdef DEBUG_SETPATH_DIALOG
+      #ifdef DEBUG_SETPATH_DIALOG_SAVE
       MessageInterface::ShowMessage("   Saving MatlabFunction paths...\n");
       #endif
       
       pathNames = mMatlabPathPanel->GetPathNames();
       fm->ClearMatlabFunctionPath();
       for (UnsignedInt i=0; i<pathNames.GetCount(); i++)
-         fm->AddMatlabFunctionPath(pathNames[i].c_str());
+         fm->AddMatlabFunctionPath(pathNames[i].c_str(), false);
    }
    
    // Log file path
@@ -144,7 +145,7 @@ void SetPathDialog::SaveData()
       std::string pathName = mOutputPathPanel->GetFullPathName().c_str();
       if (wxDir::Exists(pathName.c_str()))
       {
-         #ifdef DEBUG_SETPATH_DIALOG
+         #ifdef DEBUG_SETPATH_DIALOG_SAVE
          MessageInterface::ShowMessage("   Saving Log path to '%s'\n", pathName.c_str());
          #endif
          
@@ -171,6 +172,10 @@ void SetPathDialog::SaveData()
          canClose = false;
       }
    }
+   
+   #ifdef DEBUG_SETPATH_DIALOG_SAVE
+   MessageInterface::ShowMessage("SetPathDialog::SaveData() exiting.\n");
+   #endif
 }
 
 
