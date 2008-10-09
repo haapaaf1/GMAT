@@ -25,6 +25,7 @@
 #include "MessageInterface.hpp"
 #include "SolverException.hpp"
 #include "StringUtil.hpp"
+#include "FileManager.hpp"         // for GetAllMatlabFunctionPaths()
 
 #if defined __USE_MATLAB__
    #include "MatlabInterface.hpp"  // currently all static
@@ -1009,21 +1010,34 @@ bool FminconOptimizer::OpenConnection()
    // open the MatlabInterface (which is currently a static class)
    if (!MatlabInterface::Open())
       throw SolverException("Error attempting to access interface to MATLAB");
-      
+   
    // clear the last error message
    MatlabInterface::EvalString("clear errormsg");
-
-   // set the path 
+   
+   // We need to add all Matlab paths to the bottom of the path using path(path, 'newpath')
+   // since FileManager::GetAllMatlabFunctionPaths() returns in top to bottom order
+   FileManager *fm = FileManager::Instance();
+   StringArray paths = fm->GetAllMatlabFunctionPaths();
+   for (UnsignedInt i=0; i<paths.size(); i++)
+   {
+      if (paths[i] != "")
+      {
+         std::string addPath = "path(path,'" + paths[i] + "')";
+         MatlabInterface::EvalString(addPath);
+      }
+   }
+   
+   // add the path to the top using path('newpath', path)
    if (functionPath != "")
    {
-      std::string setPath = "path(path ,'" + functionPath + "')";
+      std::string setPath = "path('" + functionPath + "', path)";
       MatlabInterface::RunMatlabString(setPath);
-   #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
-      MessageInterface::ShowMessage("MATLAB path set to %s\n", 
-      functionPath.c_str());
-   #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+      #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+         MessageInterface::ShowMessage("MATLAB path set to %s\n", 
+         functionPath.c_str());
+      #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    }
-
+   
    // check for availability of Optimization Toolbox (well, really
    // just fmincon, but of course, its existence implies the existence of
    // the entire toolbox) here 
