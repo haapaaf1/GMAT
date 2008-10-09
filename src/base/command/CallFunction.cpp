@@ -20,6 +20,7 @@
 #include "BeginFunction.hpp"
 #include "StringTokenizer.hpp"
 #include "StringUtil.hpp"          // for Replace()
+#include "FileManager.hpp"         // for GetAllMatlabFunctionPaths()
 #include "MessageInterface.hpp"
 
 #include <sstream>
@@ -886,7 +887,24 @@ bool CallFunction::Initialize()
    bool rv = true;  // Initialization return value
    if (mFunction == NULL)
       throw CommandException("CallFunction::Initialize() the function pointer is NULL");
+
+   // We need to add all Matlab paths to the bottom of the path using path(path, 'newpath')
+   // since FileManager::GetAllMatlabFunctionPaths() returns in top to bottom order
+   if (mFunction->GetTypeName() != "MatlabFunction")
+   {
+      FileManager *fm = FileManager::Instance();
+      StringArray paths = fm->GetAllMatlabFunctionPaths();
+      for (UnsignedInt i=0; i<paths.size(); i++)
+      {
+         if (paths[i] != "")
+         {
+            std::string addPath = "path(path,'" + paths[i] + "')";
+            MatlabInterface::EvalString(addPath);
+         }
+      }
+   }
    
+   // add input/output parameters
    if (mFunction->GetTypeName() != "GmatFunction")
    {
       // need to initialize input parameters
@@ -1094,17 +1112,16 @@ bool CallFunction::ExecuteMatlabFunction()
       // set format long so that we don't loose precision between string transmission
       MatlabInterface::EvalString("format long");
       
-      // add path to matlab workspace
-      // send string to matlab - path(path ,'a:\')
-      Integer pathId = mFunction->GetParameterID("FunctionPath");
-      std::string thePath = mFunction->GetStringParameter(pathId);      
-      
       // Clear last errormsg
       MatlabInterface::EvalString("clear errormsg");
       
+      // add the path to the top of the path list using path('newpath', path)
+      Integer pathId = mFunction->GetParameterID("FunctionPath");
+      std::string thePath = mFunction->GetStringParameter(pathId);      
+      
       if (thePath != "")
       {
-         std::string setPath = "path(path ,'" + thePath + "')";
+         std::string setPath = "path('" + thePath + "', path)";
          MatlabInterface::EvalString(setPath);
       }
       
