@@ -13,14 +13,16 @@
 // Created: 2002/11/04
 //
 /**
- * Implements MatlabInterface functions.
+ * Implements MatlabInterface functions. It is a singleton class -
+ * only one instance of this class can be created.
  */
 //------------------------------------------------------------------------------
 #include <stdlib.h>         // for NULL
 #include <string.h>         // for memcpy()
 #include <sstream>          // for std::stringstream
 #if defined __USE_MATLAB__
-#include "engine.h"         // for Engine
+#include "engine.h"         // for Matlab Engine
+#include "matrix.h"         // for Matlab mxArray
 #endif
 
 #ifdef __WXMAC__
@@ -32,24 +34,42 @@
 #include "MessageInterface.hpp"
 #include "InterfaceException.hpp"
 
-//#define DEBUG_MATLAB_IF 1
 //#define DEBUG_MATLAB_OPEN_CLOSE
-//#define DEBUG_MATLAB_GET
+//#define DEBUG_MATLAB_PUT_REAL
+//#define DEBUG_MATLAB_GET_REAL
+//#define DEBUG_MATLAB_GET_STRING
 //#define DEBUG_MATLAB_EVAL
 
 //--------------------------------------
 //  initialize static variables
 //--------------------------------------
-#if defined __USE_MATLAB__
-Engine* MatlabInterface::enginePtrD = 0;
-mxArray* MatlabInterface::mxArrayInputPtrD = 0;
-mxArray* MatlabInterface::mxArrayOutputPtrD = 0;
-int MatlabInterface::accessCount = 0;
+#ifdef __USE_MATLAB__
+MatlabInterface* MatlabInterface::instance = NULL;
 #endif
 
 //--------------------------------------
 //  public functions
 //--------------------------------------
+
+//------------------------------------------------------------------------------
+// MatlabInterface* Instance()
+//------------------------------------------------------------------------------
+/*
+ * Returns this instance
+ */
+//------------------------------------------------------------------------------
+MatlabInterface* MatlabInterface::Instance()
+{
+#if defined __USE_MATLAB__
+   if (instance == NULL)
+      instance = new MatlabInterface;
+   
+   return instance;
+#endif
+
+   return NULL;
+}
+
 
 //------------------------------------------------------------------------------
 //  int Open()
@@ -66,16 +86,16 @@ int MatlabInterface::Open()
    
    #ifdef DEBUG_MATLAB_OPEN_CLOSE
    MessageInterface::ShowMessage
-      ("MatlabInterface::Open() enginePtrD=%p\n", enginePtrD);
+      ("MatlabInterface::Open() enginePtr=%p\n", enginePtr);
    #endif
    
-   if (enginePtrD == NULL)
+   if (enginePtr == NULL)
       MessageInterface::ShowMessage("Please wait while MATLAB opens...\n");
    
 #ifdef __WXMAC__
 
    /// Check if MATLAB is still running then doesn't need to re-launch
-   if (enginePtrD != NULL)
+   if (enginePtr != NULL)
    {
       accessCount++;
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
@@ -97,7 +117,7 @@ int MatlabInterface::Open()
    //std::string runString = "matlab -display " + hNameStr + ":0.0 -desktop";
    //std::string runString = "matlab -display " + hNameStr + ":0.0";
    std::string runString = "matlab ";
-   if ((enginePtrD = engOpen(runString.c_str())))
+   if ((enginePtr = engOpen(runString.c_str())))
    {
       MessageInterface::ShowMessage(
                "Successfully opened MATLAB engine using startcmd \"%s\"\n",
@@ -107,7 +127,7 @@ int MatlabInterface::Open()
          MessageInterface::ShowMessage(
          "Attempting to open MATLAB connection ... accessCount = %d\n", accessCount);
       #endif
-      //engSetVisible(enginePtrD,1);  // rats!
+      //engSetVisible(enginePtr,1);  // rats!
       return 1;
    }
    else
@@ -120,7 +140,7 @@ int MatlabInterface::Open()
    
 #else
 
-   if (enginePtrD != NULL)
+   if (enginePtr != NULL)
    {
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
       MessageInterface::ShowMessage("Connecting to current MATLAB session\n");
@@ -130,14 +150,14 @@ int MatlabInterface::Open()
    }
    
    // open new MATLAB engine
-   if ((enginePtrD = engOpen(NULL)))
+   if ((enginePtr = engOpen(NULL)))
    {
       accessCount++;
       
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
       MessageInterface::ShowMessage
          ("Attempting to open MATLAB connection ... accessCount = %d, "
-          "enginePtrD=%p\n", accessCount, enginePtrD);
+          "enginePtr=%p\n", accessCount, enginePtr);
       #endif
       
       // set precision to long
@@ -172,11 +192,11 @@ int MatlabInterface::Close()
 {
 #if defined __USE_MATLAB__
    // Check if MATLAB is still running then close it.
-   if (enginePtrD != NULL)
+   if (enginePtr != NULL)
    {
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
       MessageInterface::ShowMessage
-         ("MatlabInterface::Close() enginePtrD=%p\n", enginePtrD);
+         ("MatlabInterface::Close() enginePtr=%p\n", enginePtr);
       #endif
       
       accessCount--;
@@ -193,10 +213,10 @@ int MatlabInterface::Close()
             "Closing connection to MATLAB ... please close X11 ...\n");
          #endif
             
-         if (engClose(enginePtrD) != 0)
+         if (engClose(enginePtr) != 0)
                MessageInterface::ShowMessage("\nError closing MATLAB\n");
          
-         enginePtrD = NULL;      // set to NULL, so it can be reopened
+         enginePtr = NULL;      // set to NULL, so it can be reopened
          MessageInterface::ShowMessage("MATLAB has been closed ...\n");
       //}
       //else
@@ -223,34 +243,42 @@ int MatlabInterface::Close()
 
 
 //------------------------------------------------------------------------------
-// int PutRealArray(const std::string &matlabVarName, int numElements,
-//                  double inArray[])
+// int PutRealArray(const std::string &matlabVarName, int numRow, int numCol,
+//                  const double *inArray)
 //------------------------------------------------------------------------------
 /**
  * Put arrays to Matlab workspace.
  *
  * @param <matlabVarName> variable name in the MATLAB workspace
- * @param <numElements> number of elements to put to MATLAB workspace
+ * @param <numRows> number of rows in input array
+ * @param <numCols> number of columns in input array
  * @return 1 = no error, 0 = error
  */
 //------------------------------------------------------------------------------
 int MatlabInterface::PutRealArray(const std::string &matlabVarName,
-                                 int numElements, double inArray[])
+                                  int numRows, int numCols, const double *inArray)
 {
-#if defined __USE_MATLAB__
-
+#ifdef __USE_MATLAB__
+   
+   #ifdef DEBUG_MATLAB_PUT_REAL
+   MessageInterface::ShowMessage
+      ("MatlabInterface::PutRealArray() matlabVarName='%s', numRows=%d, "
+       "numCols=%d, inArray=%p\n", matlabVarName.c_str(), numRows, numCols, inArray);
+   #endif
+   
    // create a matlab variable
-   mxArrayInputPtrD = mxCreateDoubleMatrix(1, numElements, mxREAL);
+   mxArray *mxArrayPtr = NULL;
+   mxArrayPtr = mxCreateDoubleMatrix(numRows, numCols, mxREAL);
    
-   memcpy((char*)mxGetPr(mxArrayInputPtrD), (char*)inArray, numElements*sizeof(double));
+   memcpy((char*)mxGetPr(mxArrayPtr), (char*)inArray, numRows*numCols*sizeof(double));
    
-   // place the variable mxArrayInputPtrD into the MATLAB workspace
-   engPutVariable(enginePtrD, matlabVarName.c_str(), mxArrayInputPtrD);
+   // place the variable mxArrayPtr into the MATLAB workspace
+   engPutVariable(enginePtr, matlabVarName.c_str(), mxArrayPtr);
    
-#endif
-
    return 1;
+#endif
    
+   return 0;
 } // end PutRealArray()
 
 
@@ -272,51 +300,57 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
                                   int numElements, double outArray[])
 {
 #if defined __USE_MATLAB__
-   // create a matlab variable into which to put the data
-   mxArrayInputPtrD = mxCreateDoubleMatrix(1, numElements, mxREAL);
    
-   #ifdef DEBUG_MATLAB_GET
+   #ifdef DEBUG_MATLAB_GET_REAL
    MessageInterface::ShowMessage
-      ("Entering MatlabInterface::GetRealArray() matlabVarName=%s, numElements=%d, "
-       "mxArrayInputPtrD=%p\n", matlabVarName.c_str(), numElements, mxArrayInputPtrD);
+      ("Entering MatlabInterface::GetRealArray() matlabVarName=%s, numElements=%d\n",
+       matlabVarName.c_str(), numElements);
    #endif
    
    // set precision to long
-   EvalString("format long");
+   //EvalString("format long");
    
    // get the variable from the MATLAB workspace
-   mxArrayOutputPtrD = engGetVariable(enginePtrD, matlabVarName.c_str());
+   mxArray *mxArrayPtr = NULL;
+   mxArrayPtr = engGetVariable(enginePtr, matlabVarName.c_str());
    
-   if (mxArrayOutputPtrD == NULL)
+   if (mxArrayPtr == NULL)
    {
-      #ifdef DEBUG_MATLAB_GET
+      #ifdef DEBUG_MATLAB_GET_REAL
       MessageInterface::ShowMessage
-         ("MatlabInterface::GetRealArray(): mxArrayOutputPtrD is NULL\n");
+         ("MatlabInterface::GetRealArray(): mxArrayPtr is NULL\n");
       #endif
       return 0;
    }
-   else if (mxIsDouble(mxArrayOutputPtrD))
+   
+   if (mxIsDouble(mxArrayPtr))
    {
+      #ifdef DEBUG_MATLAB_GET_REAL
+      MessageInterface::ShowMessage
+         ("MatlabInterface::GetRealArray() matlab double array pointer found <%p>, "
+          "so calling mxGetPr()\n", mxArrayPtr);
+      #endif
+      
       // If real numeric pointer is NULL, throw an exception
-      double *realPtr = mxGetPr(mxArrayOutputPtrD);
+      double *realPtr = mxGetPr(mxArrayPtr);
       if (realPtr == NULL)
          throw InterfaceException("Received empty output from MATLAB");
       
-      memcpy((char*)outArray, (char*)mxGetPr(mxArrayOutputPtrD),
+      memcpy((char*)outArray, (char*)mxGetPr(mxArrayPtr),
              numElements*sizeof(double));
       
-      #ifdef DEBUG_MATLAB_GET
+      #ifdef DEBUG_MATLAB_GET_REAL
       MessageInterface::ShowMessage("      outArray  = \n");
       for (Integer ii=0; ii < numElements; ii++)
          MessageInterface::ShowMessage("         %.12f\n", outArray[ii]);
       #endif
       
-      mxDestroyArray(mxArrayOutputPtrD);
+      mxDestroyArray(mxArrayPtr);
       return 1;
    }
    else
    {
-      #ifdef DEBUG_MATLAB_GET
+      #ifdef DEBUG_MATLAB_GET_REAL
       MessageInterface::ShowMessage
          ("MatlabInterface::GetRealArray() Matlab variable is not a double array\n");
       #endif
@@ -337,43 +371,64 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
  *
  * @param <matlabVarName> variable name in the MATLAB workspace
  * @param <outStr> string to receive char array from MATLAB
- * @Return 1 = no error, 0 = error
+ * @Return 1 if matlab string variable found, 0 otherwise
  * @exception <InterfaceException> thrown if empty output was received
  */
 //------------------------------------------------------------------------------
 int MatlabInterface::GetString(const std::string &matlabVarName,
                                std::string &outStr)
 {
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
+   
+   #ifdef DEBUG_MATLAB_GET_STRING
+   MessageInterface::ShowMessage
+      ("MatlabInterface::GetString() entered, matlabVarName='%s', outStr='%s'\n",
+       matlabVarName.c_str(), outStr.c_str());
+   #endif
    
    // get the variable from the MATLAB workspace
-   mxArrayOutputPtrD = engGetVariable(enginePtrD, matlabVarName.c_str());
+   mxArray *mxArrayPtr = NULL;
+   mxArrayPtr = engGetVariable(enginePtr, matlabVarName.c_str());
    
-   if (mxArrayOutputPtrD == NULL)
+   // if pointer is NULL, variable not found
+   if (mxArrayPtr == NULL)
    {
-      #ifdef DEBUG_MATLAB_GET
+      #ifdef DEBUG_MATLAB_GET_STRING
       MessageInterface::ShowMessage
-         ("MatlabInterface::GetString(): mxArrayOutputPtrD is NULL\n");
+         ("MatlabInterface::GetString() mxArrayPtr is NULL\n");
       #endif
       return 0;
    }
-   else if (mxIsChar(mxArrayOutputPtrD))
+   
+   // check if it is string
+   if (mxIsChar(mxArrayPtr))
    {
-      char outArray[512];
-      mxGetString(mxArrayOutputPtrD, outArray, 512);
-      outStr.assign(outArray);
-      
-      #ifdef DEBUG_MATLAB_GET
+      #ifdef DEBUG_MATLAB_GET_STRING
       MessageInterface::ShowMessage
-         ("MatlabInterface::GetString() outStr =\n%s\n", outStr.c_str());
+         ("MatlabInterface::GetString() matlab string pointer found <%p>, "
+          "so calling mxGetString()\n", mxArrayPtr);
       #endif
       
-      mxDestroyArray(mxArrayOutputPtrD);
+      char outArray[512];
+      mxGetString(mxArrayPtr, outArray, 512);
+      outStr.assign(outArray);
+      
+      //--------------------------------------------------------------
+      // It's so weird, it crashes if I don't write this debout out,
+      // eventhough it doesn't reach here when wxArrayPtr is NULL
+      // (loj: 2008.10.10)
+      //--------------------------------------------------------------
+      //#ifdef DEBUG_MATLAB_GET_STRING
+      MessageInterface::ShowMessage
+         ("MatlabInterface::GetString() outStr =\n%s\n", outStr.c_str());
+      //#endif
+      
+      mxDestroyArray(mxArrayPtr);
       return 1;
    }
    else
    {
-      #ifdef DEBUG_MATLAB_GET
+      #ifdef DEBUG_MATLAB_GET_STRING
       MessageInterface::ShowMessage
          ("MatlabInterface::GetString() Matlab variable is not a char array\n");
       #endif
@@ -381,7 +436,6 @@ int MatlabInterface::GetString(const std::string &matlabVarName,
       return 0;
    }
 #endif
-
    return 0;
 } // end GetString()
 
@@ -397,20 +451,21 @@ int MatlabInterface::GetString(const std::string &matlabVarName,
 //------------------------------------------------------------------------------
 int MatlabInterface::EvalString(const std::string &evalString)
 {
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
    
    #ifdef DEBUG_MATLAB_EVAL
    MessageInterface::ShowMessage
-      ("MatlabInterface::EvalString() evalString = \n%s\n\n", evalString.c_str());
+      ("MatlabInterface::EvalString() calling engEvalString with\n"
+       "======================================================================\n"
+       "%s\n\n", evalString.c_str());
    #endif
    
-   engEvalString(enginePtrD, evalString.c_str());
+   engEvalString(enginePtr, evalString.c_str());
    
    #ifdef DEBUG_MATLAB_EVAL
-   MessageInterface::ShowMessage("MatlabInterface::EvalString() returning\n");
+   MessageInterface::ShowMessage("MatlabInterface::EvalString() exiting\n");
    #endif
    return 1;
-   
 #endif
    return 0;
 }
@@ -428,14 +483,19 @@ int MatlabInterface::EvalString(const std::string &evalString)
 int MatlabInterface::OutputBuffer(char *buffer, int size)
 {
 #if defined __USE_MATLAB__
+   #ifdef DEBUG_OUTPUT_BUFFER
+   MessageInterface::ShowMessage
+      ("MatlabInterface::OutputBuffer() entered, buffer=%p, size=%d\n", buffer, size);
+   #endif
    if (buffer == NULL)
    {
-      // printf("MatlabInterface::OutputBuffer(): buffer is NULL\n");
       return 0;
    }
    else
    {
-      engOutputBuffer(enginePtrD, buffer, size);
+      //Ensure first that the buffer is always NULL terminated.
+      buffer[size] = '\0';
+      engOutputBuffer(enginePtr, buffer, size);
       return 1;
    }
 #endif
@@ -448,7 +508,7 @@ int MatlabInterface::OutputBuffer(char *buffer, int size)
 bool MatlabInterface::IsOpen() 
 {  
    #ifdef __USE_MATLAB__
-      return (MatlabInterface::enginePtrD != NULL);
+      return (MatlabInterface::enginePtr != NULL);
    #endif
    return false;
 }
@@ -459,10 +519,16 @@ bool MatlabInterface::IsOpen()
 //------------------------------------------------------------------------------
 void MatlabInterface::RunMatlabString(std::string evalString)
 {
-#if defined __USE_MATLAB__
+   #ifndef __USE_MATLAB__
+   return;
+   #endif
+   
+   
    #ifdef DEBUG_MATLAB_EVAL
    MessageInterface::ShowMessage
-      ("MatlabInterface::RunMatlabString() entered with\n%s\n", evalString.c_str());
+      ("MatlabInterface::RunMatlabString() entered\n"
+       "======================================================================\n"
+       "%s\n\n", evalString.c_str());
    #endif
    
    if (!MatlabInterface::IsOpen())
@@ -470,27 +536,27 @@ void MatlabInterface::RunMatlabString(std::string evalString)
       // Let's try to open it first (loj: 2008.03.06)
       if (MatlabInterface::Open() == 0)
          throw InterfaceException("**** ERROR **** Failed to open MATLAB engine\n");
-      //throw InterfaceException("ERROR - Matlab Interface not yet open");
    }
    
-   // try to call the function   
+   // add try/catch to string to evaluate
    evalString = "try,\n  " + evalString + "\ncatch\n  errormsg = lasterr;\nend";
    
-   MatlabInterface::EvalString(evalString);
+   // call to evaluate string
+   EvalString(evalString);
    
    // if there was an error throw an exception
    std::string errorStr;
-   if (MatlabInterface::GetString("errormsg", errorStr))
+   if (GetString("errormsg", errorStr) == 1)
    {
-      //MessageInterface::ShowMessage("===> %s\n", errorStr.c_str());
-      throw InterfaceException(errorStr.c_str());
+      #ifdef DEBUG_MATLAB_EVAL
+      MessageInterface::ShowMessage("Error occurred in Matlab\n'%s'\n", errorStr.c_str());
+      #endif
+      throw InterfaceException(errorStr);
    }
    
    #ifdef DEBUG_MATLAB_EVAL
-   MessageInterface::ShowMessage("MatlabInterface::RunMatlabString() exiting\n");
+   MessageInterface::ShowMessage("MatlabInterface::RunMatlabString() exiting\n\n");
    #endif
-   
-#endif
 }
 
 
@@ -505,6 +571,10 @@ void MatlabInterface::RunMatlabString(std::string evalString)
 //------------------------------------------------------------------------------
 MatlabInterface::MatlabInterface()
 {
+#if defined __USE_MATLAB__
+   enginePtr = 0;
+   accessCount = 0;
+#endif
 }
 
 
@@ -514,6 +584,10 @@ MatlabInterface::MatlabInterface()
 //------------------------------------------------------------------------------
 MatlabInterface::~MatlabInterface()
 {
+#if defined __USE_MATLAB__
+   if (enginePtr != NULL)
+      Close();
+#endif
 }
 
 

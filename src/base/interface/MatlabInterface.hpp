@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             MatlabInterface
 //------------------------------------------------------------------------------
@@ -6,7 +6,12 @@
 //    declares MatlabInterface class.
 //
 // Modifications:
-//    11/04/02  L. Jun - Created.
+//    2002.11.04  L. Jun - Created.
+//    2008.10.15  L. Jun - Made a singleton class
+/*
+ * Declares MatlabInterface functions. It is a singleton class -
+ * only one instance of this class can be created.
+ */
 //------------------------------------------------------------------------------
 #ifndef h_MatlabInterface_h
 #define h_MatlabInterface_h
@@ -22,30 +27,31 @@ class MatlabInterface
 
 public:
 
-static int  Open();
-static int  Close();
-static int  PutRealArray(const std::string &matlabVarName, int numElements, double inArray[]);
-static int  GetRealArray(const std::string &matlabVarName, int numElements, double outArray[]);
-static int  GetString(const std::string &matlabVarName, std::string &outStr);
-static int  EvalString(const std::string &evalString);
-static int  OutputBuffer(char *buffer, int size);
-static bool IsOpen();
-static void RunMatlabString(std::string evalString); 
-
-
+   static MatlabInterface* Instance();
+   
+   int  Open();
+   int  Close();
+   int  PutRealArray(const std::string &matlabVarName, int numRows, int numCols,
+                     const double *inArray);
+   int  GetRealArray(const std::string &matlabVarName, int numElements,
+                     double outArray[]);
+   int  GetString(const std::string &matlabVarName, std::string &outStr);
+   int  EvalString(const std::string &evalString);
+   int  OutputBuffer(char *buffer, int size);
+   bool IsOpen();
+   void RunMatlabString(std::string evalString); 
+   
 private:
-
-MatlabInterface();
-~MatlabInterface();
-
+   
+   MatlabInterface();
+   ~MatlabInterface();
+   
 #if defined __USE_MATLAB__
-static Engine *enginePtrD;
-static mxArray *mxArrayInputPtrD;
-static mxArray *mxArrayOutputPtrD;
-
-static int accessCount;
+   static MatlabInterface *instance;
+   Engine *enginePtr;   
+   int accessCount;
 #endif
-
+   
 };
 
 #endif // h_MatlabInterface_h
