@@ -765,7 +765,7 @@ bool Optimize::ExecuteCallback()
       throw CommandException("Optimize: ERROR - MATLAB required for Callback");
    #endif
    #ifdef __USE_MATLAB__
-   if (!MatlabInterface::IsOpen())
+   if (!MatlabInterface::Instance()->IsOpen())
       throw CommandException(
          "Optimize:: ERROR - Matlab Interface not yet open");
    
