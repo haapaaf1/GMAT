@@ -23,6 +23,10 @@
 #include "Subscriber.hpp"
 #include "Parameter.hpp"
 
+#ifdef __USE_MATLAB__
+#include "MatlabInterface.hpp"
+#endif
+
 class MatlabWs : public Subscriber
 {
 public:
@@ -88,6 +92,10 @@ protected:
    std::vector<Parameter*> mParams;
    StringArray mParamNames;
    StringArray mAllRefObjectNames;
+   
+   #ifdef __USE_MATLAB__
+   MatlabInterface *matlabIf;
+   #endif
    
    virtual bool         Distribute(Integer len);
    virtual bool         Distribute(const Real * dat, Integer len);

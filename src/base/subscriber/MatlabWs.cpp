@@ -65,6 +65,10 @@ MatlabWs::MatlabWs(const std::string &name, Parameter *firstParam) :
    
    mUpdateFrequency = 1;
    parameterCount = MatlabWsParamCount;
+   
+   #ifdef __USE_MATLAB__
+   matlabIf = NULL;
+   #endif
 }
 
 
@@ -89,6 +93,10 @@ MatlabWs::MatlabWs(const MatlabWs &copy) :
    mAllRefObjectNames = copy.mAllRefObjectNames;
    mDataCount = 0;
    mSendCount = 0;
+   
+   #ifdef __USE_MATLAB__
+   matlabIf = copy.matlabIf;
+   #endif
 }
 
 
@@ -113,6 +121,10 @@ MatlabWs& MatlabWs::operator=(const MatlabWs& right)
    mAllRefObjectNames = right.mAllRefObjectNames;
    mDataCount = 0;
    mSendCount = 0;
+   
+   #ifdef __USE_MATLAB__
+   matlabIf = right.matlabIf;
+   #endif
    
    return *this;
 }
@@ -152,7 +164,8 @@ bool MatlabWs::Initialize()
    //-----------------------------------------------------------------
    #ifdef __USE_MATLAB__
    
-   MatlabInterface::Open();
+   MatlabInterface *matlabIf = MatlabInterface::Instance();
+   matlabIf->Open();
    
    for (int i=0; i < mNumParams; i++)
    {
@@ -163,7 +176,7 @@ bool MatlabWs::Initialize()
          ("   Sending \"%s\" to MATLAB workspace\n", matlabStr.c_str());
       #endif
       
-      MatlabInterface::RunMatlabString(matlabStr);
+      matlabIf->RunMatlabString(matlabStr);
       
       // if it has dot, clear matlab struct
       std::string type, owner, dep;
@@ -177,7 +190,7 @@ bool MatlabWs::Initialize()
             ("   Sending \"%s\" to MATLAB workspace\n", matlabStr.c_str());
          #endif
          
-         MatlabInterface::RunMatlabString(matlabStr);
+         matlabIf->RunMatlabString(matlabStr);
       }
    }
    #endif
@@ -589,6 +602,7 @@ bool MatlabWs::Distribute(const Real * dat, Integer len)
             // if using MATLAB, send it to workspace
             //--------------------------------------------------------
             #ifdef __USE_MATLAB__
+            MatlabInterface *matlabIf = MatlabInterface::Instance();
             std::string countStr = GmatStringUtil::ToString(mSendCount, 1);
             
             if (mParams[i]->GetTypeName() == "Array")
@@ -608,7 +622,7 @@ bool MatlabWs::Distribute(const Real * dat, Integer len)
                ("   Sending \"%s\" to MATLAB workspace\n", matlabStr.c_str());
             #endif
             
-            MatlabInterface::RunMatlabString(matlabStr);
+            matlabIf->RunMatlabString(matlabStr);
             #endif
             //--------------------------------------------------------
          }
