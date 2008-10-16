@@ -134,6 +134,10 @@ FminconOptimizer::FminconOptimizer(std::string name) :
    
    AllowStepsizeLimit = false;
    AllowIndependentPerts = false;
+   
+   #ifdef __USE_MATLAB__
+   matlabIf = NULL;
+   #endif
 }
 
 
@@ -360,9 +364,9 @@ bool FminconOptimizer::Optimize()
    #endif
    #if defined __USE_MATLAB__
       // set format long so that we don't lose precision between string transmission
-      MatlabInterface::EvalString("format long");
+      matlabIf->EvalString("format long");
       // clear last errormsg
-      MatlabInterface::EvalString("clear errormsg");
+      matlabIf->EvalString("clear errormsg");
       
       // set up options/values list for OPTIMSET call
       bool allEmpty = true;
@@ -398,9 +402,9 @@ bool FminconOptimizer::Optimize()
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
       // call OPTIMSET (using EvalStr) to set up options for fmincon
       if (allEmpty) // if none were set, set options to be default for fmincon
-         MatlabInterface::RunMatlabString(defaultOptions);
+         matlabIf->RunMatlabString(defaultOptions);
       else
-         MatlabInterface::RunMatlabString(optionsStr);
+         matlabIf->RunMatlabString(optionsStr);
          
       std::string inParm;
       std::ostringstream mlS;
@@ -415,7 +419,7 @@ bool FminconOptimizer::Optimize()
          MessageInterface::ShowMessage(
          "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-      MatlabInterface::RunMatlabString(inParm);
+      matlabIf->RunMatlabString(inParm);
       
       // pass to MATLAB the Lower column vector
       mlS.str("");
@@ -426,7 +430,7 @@ bool FminconOptimizer::Optimize()
          MessageInterface::ShowMessage(
          "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-      MatlabInterface::RunMatlabString(inParm);
+      matlabIf->RunMatlabString(inParm);
       
       // pass to MATLAB the Upper column vector
       mlS.str("");
@@ -437,21 +441,21 @@ bool FminconOptimizer::Optimize()
          MessageInterface::ShowMessage(
          "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-      MatlabInterface::RunMatlabString(inParm);
+      matlabIf->RunMatlabString(inParm);
       
       // clear last errormsg
-      MatlabInterface::EvalString("clear errormsg");
+      matlabIf->EvalString("clear errormsg");
       //std::string runString = 
       //   "[X] = GmatFminconOptimizationDriver(X0,Lower,Upper);";
       // wcs - made it into an m-file instead of a function
       std::string runString = 
          "GmatFminconOptimizationDriver;";
-      MatlabInterface::RunMatlabString(runString);
+      matlabIf->RunMatlabString(runString);
       // ask MATLAB for the value of exitFlag here and evaluate
       double      outArr[1];
       int         OKint = 0;
       std::string resStr    = "exitFlag";
-      OKint                 = MatlabInterface::GetRealArray(resStr, 1, outArr);
+      OKint                 = matlabIf->GetRealArray(resStr, 1, outArr);
 
       if (!OKint)
          throw SolverException(
@@ -1007,31 +1011,41 @@ bool FminconOptimizer::OpenConnection()
    #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
 
 #if defined __USE_MATLAB__
+   matlabIf = MatlabInterface::Instance();
+      
    // open the MatlabInterface (which is currently a static class)
-   if (!MatlabInterface::Open())
+   if (!matlabIf->Open())
       throw SolverException("Error attempting to access interface to MATLAB");
    
    // clear the last error message
-   MatlabInterface::EvalString("clear errormsg");
+   matlabIf->EvalString("clear errormsg");
    
-   // We need to add all Matlab paths to the bottom of the path using path(path, 'newpath')
+   // Add path to the top of the Matlab path in reverse order(loj: 2008.10.16)
    // since FileManager::GetAllMatlabFunctionPaths() returns in top to bottom order
    FileManager *fm = FileManager::Instance();
    StringArray paths = fm->GetAllMatlabFunctionPaths();
-   for (UnsignedInt i=0; i<paths.size(); i++)
+   std::string pathName;
+   StringArray::reverse_iterator rpos = paths.rbegin();
+   while (rpos != paths.rend())
    {
-      if (paths[i] != "")
+      pathName = *rpos;
+      if (pathName != "")
       {
-         std::string addPath = "path(path,'" + paths[i] + "')";
-         MatlabInterface::EvalString(addPath);
+         #ifdef DEBUG_ML_CONNECTIONS
+         MessageInterface::ShowMessage
+            ("Adding matlab path '%s' to the top\n", pathName.c_str());
+         #endif
+         std::string addPath = "path('" + pathName + "', path)";
+         matlabIf->EvalString(addPath);
       }
+      rpos++;
    }
    
-   // add the path to the top using path('newpath', path)
+   // Now add the function path to the top using path('newpath', path)
    if (functionPath != "")
    {
       std::string setPath = "path('" + functionPath + "', path)";
-      MatlabInterface::RunMatlabString(setPath);
+      matlabIf->RunMatlabString(setPath);
       #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
          MessageInterface::ShowMessage("MATLAB path set to %s\n", 
          functionPath.c_str());
@@ -1046,8 +1060,8 @@ bool FminconOptimizer::OpenConnection()
    int         OKint = 0;
    std::string evalStr   = "fminconexist = exist(\'fmincon\');";
    std::string resStr    = "fminconexist";
-   MatlabInterface::RunMatlabString(evalStr);
-   OKint                 = MatlabInterface::GetRealArray(resStr, 1, outArr);
+   matlabIf->RunMatlabString(evalStr);
+   OKint                 = matlabIf->GetRealArray(resStr, 1, outArr);
 
    if (!OKint)
       throw SolverException(
@@ -1060,8 +1074,8 @@ bool FminconOptimizer::OpenConnection()
       #endif
       evalStr   = "startupexist = exist(\'gmat_startup\');";
       resStr    = "startupexist";
-      MatlabInterface::RunMatlabString(evalStr);
-      OKint                 = MatlabInterface::GetRealArray(resStr, 1, outArr2); 
+      matlabIf->RunMatlabString(evalStr);
+      OKint                 = matlabIf->GetRealArray(resStr, 1, outArr2); 
       if (!OKint)
          throw SolverException(
                "Error determining existence of MATLAB gmat_startup");
@@ -1074,24 +1088,24 @@ bool FminconOptimizer::OpenConnection()
          #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
          // run the startup file to add to the MATLAB path correctly
          evalStr = "gmat_startup;";
-         MatlabInterface::RunMatlabString(evalStr);
+         matlabIf->RunMatlabString(evalStr);
          // check for existence on the path of the support MATLAB files 
          evalStr = "driverexist = exist(\'GmatFminconOptimizationDriver\');"; 
          resStr  = "driverexist";  
-         MatlabInterface::RunMatlabString(evalStr);
-         OKint                 = MatlabInterface::GetRealArray(resStr, 1, out1); 
+         matlabIf->RunMatlabString(evalStr);
+         OKint                 = matlabIf->GetRealArray(resStr, 1, out1); 
          evalStr = "objectiveexist = exist(\'EvaluateGMATObjective\');"; 
          resStr  = "objectiveexist";  
-         MatlabInterface::RunMatlabString(evalStr);
-         OKint                 = MatlabInterface::GetRealArray(resStr, 1, out2); 
+         matlabIf->RunMatlabString(evalStr);
+         OKint                 = matlabIf->GetRealArray(resStr, 1, out2); 
          evalStr = "constraintexist = exist(\'EvaluateGMATConstraints\');"; 
          resStr  = "constraintexist";  
-         MatlabInterface::RunMatlabString(evalStr);
-         OKint                 = MatlabInterface::GetRealArray(resStr, 1, out3); 
+         matlabIf->RunMatlabString(evalStr);
+         OKint                 = matlabIf->GetRealArray(resStr, 1, out3); 
          evalStr = "callbackexist = exist(\'CallGMATfminconSolver\');"; 
          resStr  = "callbackexist";  
-         MatlabInterface::RunMatlabString(evalStr);
-         OKint                 = MatlabInterface::GetRealArray(resStr, 1, out4); 
+         matlabIf->RunMatlabString(evalStr);
+         OKint                 = matlabIf->GetRealArray(resStr, 1, out4); 
          #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
             MessageInterface::ShowMessage(
             "existence codes for support files  = %.4f  %.4f  %.4f  %.4f\n", 
@@ -1116,7 +1130,7 @@ bool FminconOptimizer::OpenConnection()
          //inSource->RegisterCallbackServer(this);
          //evalStr = "bogusFunction;";
          //MessageInterface::ShowMessage("Now trying to execute bogusFunction ...\n");
-         //int OK = MatlabInterface::EvalString(evalStr);
+         //int OK = matlabIf->EvalString(evalStr);
          //if (OK == 0) 
          //   MessageInterface::ShowMessage("ERROR calling EvalString\n");
          //MessageInterface::ShowMessage("Done executing bogusFunction\n");
@@ -1144,7 +1158,7 @@ return false;
 void FminconOptimizer::CloseConnection()
 {
 #if defined __USE_MATLAB__
-   MatlabInterface::Close();   // but wait!  what if someone else is still using it??
+   matlabIf->Close();   // but wait!  what if someone else is still using it??
 #endif
    // no need to close anything when running the server??
 

@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                         FminconOptimizer
 //------------------------------------------------------------------------------
@@ -24,7 +24,10 @@
 
 #include "gmatdefs.hpp"
 #include "ExternalOptimizer.hpp"
-//#include "MatlabInterface.hpp"
+
+#ifdef __USE_MATLAB__
+#include "MatlabInterface.hpp"
+#endif
 
 class GMAT_API FminconOptimizer : public ExternalOptimizer
 {
@@ -99,7 +102,11 @@ protected:
    StringArray  optionValues;
    
    Integer      fminconExitFlag;
- 
+   
+   #ifdef __USE_MATLAB__
+   MatlabInterface *matlabIf;
+   #endif
+   
    static const std::string    PARAMETER_TEXT[FminconOptimizerParamCount -
                                               ExternalOptimizerParamCount];
    static const Gmat::ParameterType
