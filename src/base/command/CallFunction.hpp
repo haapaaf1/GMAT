@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 CallFunction
 //------------------------------------------------------------------------------
@@ -26,17 +26,17 @@
 #include "GmatCommand.hpp"
 #include "Function.hpp"
 #include "FunctionManager.hpp"
-
-
 #include "Parameter.hpp"
 #include "Array.hpp"
 #include "StringVar.hpp"
-
 
 //#include <map>
 #include <iostream>
 #include <iomanip>
 
+#ifdef __USE_MATLAB__
+#include "MatlabInterface.hpp"
+#endif
 
 class CallFunction : public GmatCommand
 {
@@ -115,8 +115,8 @@ private:
    //   ObjectArray callcmds;
    GmatCommand *callcmds;
    
-   StringArray mInputListNames;
-   StringArray mOutputListNames;
+   StringArray mInputNames;
+   StringArray mOutputNames;
    
    Integer mNumInputParams;
    Integer mNumOutputParams;
@@ -130,6 +130,13 @@ private:
    
    /// the manager for the Function
    FunctionManager fm;
+   
+   bool isGmatFunction;
+   bool isMatlabFunction;
+   
+   #if defined __USE_MATLAB__
+   MatlabInterface *matlabIf;
+   #endif
    
    bool ExecuteMatlabFunction();
    void SendInParam(Parameter *param);
