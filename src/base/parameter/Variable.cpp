@@ -98,6 +98,9 @@ Variable::Variable(const Variable &copy)
    MessageInterface::ShowMessage
       ("   numDBParams = %d\n", mParamDb->GetNumParameters());
    #endif
+   
+//    MessageInterface::ShowMessage
+//       ("***** Variable(copy) this='%s', mRealValue=%f\n", GetName().c_str(), mRealValue);
 }
 
 
@@ -130,6 +133,9 @@ Variable& Variable::operator=(const Variable &right)
       mExpr = right.GetName();
       SetName(thisName);
    }
+   
+//    MessageInterface::ShowMessage
+//       ("***** Variable(=) this='%s', mRealValue=%f\n", GetName().c_str(), mRealValue);
    
    return *this;
 }

@@ -1063,6 +1063,12 @@ std::string PhysicalModel::GetStringParameter(const Integer id) const
 bool PhysicalModel::SetStringParameter(const Integer id,
                                        const std::string &value)
 {
+   #ifdef DEBUG_PM_SET
+   MessageInterface::ShowMessage
+      ("PhysicalModel::SetStringParameter() entered, id=%d, value='%s'\n",
+       id, value.c_str());
+   #endif
+   
    if (id == BODY_NAME)
    {
       if (!solarSystem)

@@ -39,6 +39,9 @@ PlotReceiver *PlotInterface::thePlotReceiver = NULL;
 //---------------------------------
 
 
+//------------------------------------------------------------------------------
+// void SetPlotReceiver(PlotReceiver *pr)
+//------------------------------------------------------------------------------
 void PlotInterface::SetPlotReceiver(PlotReceiver *pr)
 {
    thePlotReceiver = pr;
@@ -89,6 +92,12 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
                                        bool overlapPlot, bool usevpInfo, bool usepm,
                                        Integer numPtsToRedraw)
 {
+   #if DEBUG_PLOTIF_GL_CREATE
+   MessageInterface::ShowMessage
+      ("PI::CreateGlPlotWindow() %s entered, thePlotReceiver=<%p>\n", plotName.c_str(),
+       thePlotReceiver);
+   #endif
+   
    if (thePlotReceiver != NULL)
       return thePlotReceiver->CreateGlPlotWindow(plotName, oldName, drawEcPlane, 
                    drawXyPlane, drawWireFrame, drawAxes, drawGrid, drawSunLine,
@@ -266,6 +275,12 @@ bool PlotInterface::UpdateGlPlot(const std::string &plotName,
                                  const UnsignedIntArray &scColors, bool solving,
                                  Integer solverOption, bool updateCanvas)
 {
+   #if DEBUG_PLOTIF_GL_UPDATE
+   MessageInterface::ShowMessage
+      ("PI::UpdateGlPlot() '%s' entered, thePlotReceiver=<%p>\n", plotName.c_str(),
+       thePlotReceiver);
+   #endif
+   
    if (thePlotReceiver != NULL)
       return thePlotReceiver->UpdateGlPlot(plotName, oldName, scNames, time,
             posX, posY, posZ, velX, velY, velZ, scColors, solving, solverOption, 

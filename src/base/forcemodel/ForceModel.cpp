@@ -2052,6 +2052,12 @@ std::string ForceModel::GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 bool ForceModel::SetStringParameter(const Integer id, const std::string &value)
 {
+   #ifdef DEBUG_FM_SET
+   MessageInterface::ShowMessage
+      ("ForceModel::SetStringParameter() entered, id=%d, value='%s'\n",
+       id, value.c_str());
+   #endif
+   
    switch (id)
    {
       case CENTRAL_BODY:

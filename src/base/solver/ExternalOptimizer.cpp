@@ -109,11 +109,12 @@ bool ExternalOptimizer::Initialize()
    try
    {
       if (functionPath == "")
-      {         
+      {
+         // matlab uses directory path
          if (sourceType == "MATLAB")
-            // matlab uses directory path
             pathname = fm->GetFullPathname("MATLAB_FUNCTION_PATH");
-            functionPath = pathname;
+         
+         functionPath = pathname;
       }
    }
    catch (GmatBaseException &e)
@@ -130,6 +131,10 @@ bool ExternalOptimizer::Initialize()
       }
    }
    
+   #ifdef DEBUG_MATLAB_PATH
+   MessageInterface::ShowMessage
+      ("ExternalOptimizer::Initialize() functionPath='%s'\n", functionPath.c_str());
+   #endif
    return true;
 }
 

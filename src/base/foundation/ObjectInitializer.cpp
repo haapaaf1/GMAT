@@ -31,6 +31,7 @@
 #include "Publisher.hpp"
 
 //#define DEBUG_OBJECT_INITIALIZER
+//#define DEBUG_OBJECT_INITIALIZER_DETAILED
 //#define DEBUG_SUBSCRIBER
 
 //------------------------------------------------------------------------------
@@ -779,7 +780,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
             catch (GmatBaseException &ex)  // *******
             {
                // Handle SandboxExceptions first.
-               #ifdef DEBUG_OBJECT_INITIALIZER
+               #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
                   MessageInterface::ShowMessage(
                      "RefObjectName " + oName + " not found; ignoring " +
                      ex.GetFullMessage() + "\n");
@@ -790,7 +791,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
             {
                // Post a message and -- otherwise -- ignore the exceptions
                // Handle SandboxExceptions first.
-               #ifdef DEBUG_OBJECT_INITIALIZER
+               #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
                   MessageInterface::ShowMessage(
                      "RefObjectName not found; ignoring " +
                      ex.GetFullMessage() + "\n");
@@ -801,7 +802,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
       catch (GmatBaseException &ex) // **********
       {
          // Handle SandboxExceptions first.
-         #ifdef DEBUG_OBJECT_INITIALIZER
+         #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
             MessageInterface::ShowMessage(
                "RefObjectNameArray not found; ignoring " +
                ex.GetFullMessage() + "\n");
@@ -811,7 +812,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
       catch (BaseException &ex) // Handles no refObject array
       {
          // Post a message and -- otherwise -- ignore the exceptions
-         #ifdef DEBUG_OBJECT_INITIALIZER
+         #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
             MessageInterface::ShowMessage(
                "RefObjectNameArray not found; ignoring " +
                ex.GetFullMessage() + "\n");
@@ -846,7 +847,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
    {
       // Handle SandboxExceptions first.
       // For now, post a message and -- otherwise -- ignore exceptions
-      #ifdef DEBUG_OBJECT_INITIALIZER
+      #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
          MessageInterface::ShowMessage("RefObjectName not found; ignoring " +
             ex.GetFullMessage() + "\n");
       #endif
@@ -855,7 +856,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
    catch (BaseException &ex)
    {
       // Post a message and -- otherwise -- ignore the exceptions
-      #ifdef DEBUG_OBJECT_INITIALIZER
+      #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
          MessageInterface::ShowMessage("RefObjectName not found; ignoring " +
             ex.GetFullMessage() + "\n");
       #endif
@@ -883,7 +884,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
          catch (GmatBaseException &ex) // ***********
          {
             // Handle SandboxExceptions first.
-            #ifdef DEBUG_OBJECT_INITIALIZER
+            #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
                MessageInterface::ShowMessage(
                   "RefObjectName " + oName + " not found; ignoring " +
                   ex.GetFullMessage() + "\n");
@@ -898,7 +899,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
          {
             // Post a message and -- otherwise -- ignore the exceptions
             // Handle SandboxExceptions first.
-            #ifdef DEBUG_OBJECT_INITIALIZER
+            #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
                MessageInterface::ShowMessage(
                   "RefObjectName not found; ignoring " +
                   ex.GetFullMessage() + "\n");
@@ -909,7 +910,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
    catch (GmatBaseException &ex)  // ***********
    {
       // Handle SandboxExceptions first.
-      #ifdef DEBUG_OBJECT_INITIALIZER
+      #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
          MessageInterface::ShowMessage(
             "RefObjectNameArray not found; ignoring " +
             ex.GetFullMessage() + "\n");
@@ -923,7 +924,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
    catch (BaseException &ex) // Handles no refObject array
    {
       // Post a message and -- otherwise -- ignore the exceptions
-      #ifdef DEBUG_OBJECT_INITIALIZER
+      #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
          MessageInterface::ShowMessage(
             "RefObjectNameArray not found; ignoring " +
             ex.GetFullMessage() + "\n");

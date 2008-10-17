@@ -2794,8 +2794,9 @@ void Propagate::PrepareToPropagate()
 bool Propagate::Execute()
 {
    #if DEBUG_PROPAGATE_EXE
-      MessageInterface::ShowMessage("Propagate::Execute() <%s> entered.\n",
-                                    GetGeneratingString().c_str());
+      MessageInterface::ShowMessage
+         ("Propagate::Execute() <%s> entered.\n   initialized = %d, inProgress = %d\n",
+          GetGeneratingString().c_str(), initialized, inProgress);
    #endif
 
    if (initialized == false)
