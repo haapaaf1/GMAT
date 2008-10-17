@@ -210,7 +210,8 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
    
    #if DEBUG_PLOTIF_GL_CREATE
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::CreateGlPlotWindow() returning true\n");
+      ("GuiPlotReceiver::CreateGlPlotWindow() returning true, there are %d plots.\n",
+       MdiGlPlot::numChildren);
    #endif
    
    return true;
@@ -563,7 +564,8 @@ bool GuiPlotReceiver::UpdateGlPlot(const std::string &plotName,
 {
    #if DEBUG_PLOTIF_GL_UPDATE
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::UpdateGlPlot() entered. time = %f\n", time);
+      ("GuiPlotReceiver::UpdateGlPlot() entered. time = %f, number of plots = %d\n",
+       time, MdiGlPlot::numChildren);
    #endif
    
    bool updated = false;
