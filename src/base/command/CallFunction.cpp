@@ -188,7 +188,7 @@ std::string CallFunction::FormEvalString()
    else if (mOutputList.size() == 1)
    {
       Parameter *param = (Parameter *)mOutputList[0];
-      evalString = evalString + param->GetName();
+      evalString = "[" + evalString + param->GetName() + "]";
       evalString = evalString +" = ";
    }
    else if (mOutputList.size() == 0)
@@ -914,13 +914,14 @@ bool CallFunction::Initialize()
    
    if (!isGmatFunction && !isMatlabFunction)
       throw CommandException
-         ("CallFunction::Initialize() the function is neither GmatFuncton nor MatlabFunction");
+         ("CallFunction::Initialize() the function is neither GmatFunction nor MatlabFunction");
    
    // We need to add all Matlab paths to the bottom of the path using path(path, 'newpath')
    // since FileManager::GetAllMatlabFunctionPaths() returns in top to bottom order
    if (isMatlabFunction)
    {
-      #ifdef __USE_MATLAB__
+#ifdef __USE_MATLAB__
+      
       FileManager *fm = FileManager::Instance();
       StringArray paths = fm->GetAllMatlabFunctionPaths();
       
@@ -936,6 +937,7 @@ bool CallFunction::Initialize()
       // Add path to the top of the Matlab path in reverse order(loj: 2008.10.16)
       std::string pathName;
       StringArray::reverse_iterator rpos = paths.rbegin();
+      std::string addPath;
       while (rpos != paths.rend())
       {
          pathName = *rpos;
@@ -945,16 +947,18 @@ bool CallFunction::Initialize()
             MessageInterface::ShowMessage
                ("   Adding matlab path '%s' to the top\n", pathName.c_str());
             #endif
-            std::string addPath = "path('" + pathName + "', path)";
+            addPath = "path('" + pathName + "', path)";
             matlabIf->EvalString(addPath);
          }
          rpos++;
       }
-      #else
+#else
+      
       throw CommandException
          ("MATLAB Interface is disabled.  GMAT will not run if any CallFunction"
           " uses MATLAB function");
-      #endif
+      
+#endif
    }
    
    // Why initializing only for MatlabFunction?
@@ -1200,12 +1204,12 @@ bool CallFunction::ExecuteMatlabFunction()
    // send the in parameters
    for (unsigned int i=0; i<mInputList.size(); i++)
    {
+      Parameter *param = (Parameter *)mInputList[i];
       #ifdef DEBUG_MATLAB_EXEC
       MessageInterface::ShowMessage
-         (".....Sending input parameter '%s', %d out of %d\n",
+         (".....Sending input parameter <%p> '%s', %d out of %d\n", param,
           mInputNames[i].c_str(), i+1, mNumInputParams);
       #endif
-      Parameter *param = (Parameter *)mInputList[i];
       SendInParam(param);
    }
    
@@ -1245,7 +1249,7 @@ void CallFunction::SendInParam(Parameter *param)
       MessageInterface::ShowMessage("Parameter was null");
       return;
    }
-      
+   
    #ifdef DEBUG_SEND_PARAM
    MessageInterface::ShowMessage
       ("Parameter name=%s, type=%s\n", param->GetName().c_str(),
@@ -1264,7 +1268,7 @@ void CallFunction::SendInParam(Parameter *param)
       
       #ifdef DEBUG_SEND_PARAM
       MessageInterface::ShowMessage
-         (".....Putting RealArray data %p to Matlab workspace\n", realArray);
+         (".....Putting RealArray data <%p> to Matlab workspace\n", realArray);
       #endif
       matlabIf->PutRealArray(param->GetName(), numRows, numCols, realArray);
       
