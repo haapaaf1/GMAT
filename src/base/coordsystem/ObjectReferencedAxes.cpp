@@ -520,10 +520,14 @@ std::string ObjectReferencedAxes::GetStringParameter(const Integer id) const
  *
  */
 //------------------------------------------------------------------------------
-
 bool ObjectReferencedAxes::SetStringParameter(const Integer id,
                                               const std::string &value)
 {
+   #ifdef DEBUG_ORA_SET
+   MessageInterface::ShowMessage
+      ("ObjectReferencedAxes::SetStringParameter() entered, id=%d, value='%s'\n",
+       id, value.c_str());
+   #endif
    bool OK = false;
    if (id == X_AXIS)
    {
@@ -758,9 +762,9 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                                                    bool forceComputation)
 {
    if (!primary)
-      throw CoordinateSystemException("Primary " + primaryName +
-         " is not set in object referenced!\n");
-
+      throw CoordinateSystemException("Primary \"" + primaryName +
+         "\" is not yet set in object referenced!");
+   
    if ((xAxis == yAxis) || (xAxis == zAxis) ||
        (yAxis == zAxis))
       throw CoordinateSystemException(
@@ -951,12 +955,10 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    rotDotMatrix(2,0) = xDot(2);
    rotDotMatrix(2,1) = yDot(2);
    rotDotMatrix(2,2) = zDot(2);
-
-   //loj: 12/29/05 just debug
-//    MessageInterface::ShowMessage
-//       ("===> rotMatrix=%s\n", rotMatrix.ToString().c_str());
    
 #ifdef DEBUG_ROT_MATRIX
+   MessageInterface::ShowMessage
+      ("rotMatrix=%s\n", rotMatrix.ToString().c_str());
    cout.setf(ios::fixed);
    cout.precision(30);
    cout << " ----------------- rotMatrix    = " << rotMatrix << endl;
