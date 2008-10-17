@@ -65,7 +65,7 @@
 //#define DEBUG_COMMAND_APPEND 1
 //#define DEBUG_COMMAND_DELETE 1
 //#define DEBUG_RENAME 1
-//#define DEBUG_DEFAULT_MISSION 1
+//#define DEBUG_DEFAULT_MISSION 2
 //#define DEBUG_MULTI_STOP 2
 //#define DEBUG_USER_INTERRUPT 1
 //#define DEBUG_LOOKUP_RESOURCE 1
@@ -3923,6 +3923,7 @@ bool Moderator::LoadDefaultMission()
    theScriptInterpreter->SetHeaderComment("");
    theScriptInterpreter->SetFooterComment("");
    
+   PrepareNextScriptReading();
    CreateDefaultMission();
    
    return true;
@@ -4943,11 +4944,15 @@ void Moderator::CreateDefaultMission()
       //--------------------------------------------------------------
       // test Burn Parameter
       //--------------------------------------------------------------
-
+      
       #ifdef __CREATE_HARDWARE__
       // Hardware 
       CreateHardware("FuelTank", "DefaultFuelTank");
       CreateHardware("Thruster", "DefaultThruster");
+      
+      #if DEBUG_DEFAULT_MISSION > 0
+      MessageInterface::ShowMessage("-->default hardware created\n");
+      #endif
       #endif
       
       #ifdef __CREATE_VNB_COORD__
@@ -4964,10 +4969,16 @@ void Moderator::CreateDefaultMission()
       orAxis->SetStringParameter("Secondary", "DefaultSC");
       vnb->SetStringParameter("Origin", "Earth");
       vnb->SetRefObject(orAxis, Gmat::AXIS_SYSTEM, orAxis->GetName());
+      #if DEBUG_DEFAULT_MISSION > 0
+      MessageInterface::ShowMessage("-->default vnb coordinate system created\n");
+      #endif
       #endif
       
       // ImpulsiveBurn
       GetDefaultBurn("ImpulsiveBurn");
+      #if DEBUG_DEFAULT_MISSION > 0
+      MessageInterface::ShowMessage("-->default impulsive burn created\n");
+      #endif
       
       // ImpulsiveBurn parameters
       CreateParameter("Element1", "DefaultIB.Element1");
@@ -4976,12 +4987,14 @@ void Moderator::CreateDefaultMission()
       CreateParameter("V", "DefaultIB.V");
       CreateParameter("N", "DefaultIB.N");
       CreateParameter("B", "DefaultIB.B");
+      #if DEBUG_DEFAULT_MISSION
+      MessageInterface::ShowMessage("-->default impulsive burn parameters created\n");
+      #endif
       //--------------------------------------------------------------
       
       // Time parameters
       CreateParameter("ElapsedSecs", "DefaultSC.ElapsedSecs");
-      CreateParameter("ElapsedDays", "DefaultSC.ElapsedDays");
-      
+      CreateParameter("ElapsedDays", "DefaultSC.ElapsedDays");      
       CreateParameter("CurrA1MJD", "DefaultSC.CurrA1MJD");
       CreateParameter("A1ModJulian", "DefaultSC.A1ModJulian");
       CreateParameter("A1Gregorian", "DefaultSC.A1Gregorian");
@@ -4994,7 +5007,10 @@ void Moderator::CreateDefaultMission()
       CreateParameter("TCBModJulian", "DefaultSC.TCBModJulian");
       CreateParameter("TCBGregorian", "DefaultSC.TCBGregorian");
       CreateParameter("UTCModJulian", "DefaultSC.UTCModJulian");
-      CreateParameter("UTCGregorian", "DefaultSC.UTCGregorian");
+      CreateParameter("UTCGregorian", "DefaultSC.UTCGregorian");      
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default time parameters  created\n");
+      #endif
       
       // Cartesian parameters
       CreateParameter("X", "DefaultSC.EarthMJ2000Eq.X");
@@ -5003,6 +5019,9 @@ void Moderator::CreateDefaultMission()
       CreateParameter("VX", "DefaultSC.EarthMJ2000Eq.VX");
       CreateParameter("VY", "DefaultSC.EarthMJ2000Eq.VY");
       CreateParameter("VZ", "DefaultSC.EarthMJ2000Eq.VZ");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default cartesian parameters created\n");
+      #endif
       
       // Keplerian parameters
       CreateParameter("SMA", "DefaultSC.Earth.SMA");
@@ -5015,6 +5034,9 @@ void Moderator::CreateDefaultMission()
       CreateParameter("EA", "DefaultSC.Earth.EA");
       CreateParameter("HA", "DefaultSC.Earth.HA");
       CreateParameter("MM", "DefaultSC.Earth.MM");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default keplerian parameters created\n");
+      #endif
       
       // Orbital parameters
       CreateParameter("VelApoapsis", "DefaultSC.Earth.VelApoapsis");
@@ -5026,6 +5048,9 @@ void Moderator::CreateDefaultMission()
       CreateParameter("RadPer", "DefaultSC.Earth.RadPer");
       CreateParameter("C3Energy", "DefaultSC.Earth.C3Energy");
       CreateParameter("Energy", "DefaultSC.Earth.Energy");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default orbital parameters created\n");
+      #endif
       
       // Spherical parameters
       CreateParameter("RMAG", "DefaultSC.Earth.RMAG");
@@ -5036,6 +5061,9 @@ void Moderator::CreateDefaultMission()
       CreateParameter("DECV", "DefaultSC.EarthMJ2000Eq.DECV");
       CreateParameter("AZI", "DefaultSC.EarthMJ2000Eq.AZI");
       CreateParameter("FPA", "DefaultSC.EarthMJ2000Eq.FPA");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default spherical parameters created\n");
+      #endif
       
       // Angular parameters
       CreateParameter("SemilatusRectum", "DefaultSC.Earth.SemilatusRectum");
@@ -5043,9 +5071,15 @@ void Moderator::CreateDefaultMission()
       CreateParameter("HX", "DefaultSC.EarthMJ2000Eq.HX");
       CreateParameter("HY", "DefaultSC.EarthMJ2000Eq.HY");
       CreateParameter("HZ", "DefaultSC.EarthMJ2000Eq.HZ");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default angular parameters created\n");
+      #endif
       
       // Environmental parameters
       CreateParameter("AtmosDensity", "DefaultSC.Earth.AtmosDensity");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default env parameters created\n");
+      #endif
       
       // Planet parameters
       CreateParameter("Altitude", "DefaultSC.Earth.Altitude");
@@ -5054,12 +5088,18 @@ void Moderator::CreateDefaultMission()
       CreateParameter("Latitude", "DefaultSC.Earth.Latitude");
       CreateParameter("LST", "DefaultSC.Earth.LST");
       CreateParameter("BetaAngle", "DefaultSC.Earth.BetaAngle");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default planet parameters created\n");
+      #endif
       
       // B-Plane parameters
       CreateParameter("BdotT", "DefaultSC.Earth.BdotT");
       CreateParameter("BdotR", "DefaultSC.Earth.BdotR");
       CreateParameter("BVectorMag", "DefaultSC.Earth.BVectorMag");
       CreateParameter("BVectorAngle", "DefaultSC.Earth.BVectorAngle");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default b-plane parameters created\n");
+      #endif
       
       // Attitude parameters
       CreateParameter("DCM11", "DefaultSC.DCM11");
@@ -5084,6 +5124,9 @@ void Moderator::CreateDefaultMission()
       CreateParameter("EulerAngleRate1", "DefaultSC.EulerAngleRate1");
       CreateParameter("EulerAngleRate2", "DefaultSC.EulerAngleRate2");
       CreateParameter("EulerAngleRate3", "DefaultSC.EulerAngleRate3");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default attitude parameters created\n");
+      #endif
       
       #ifdef DEBUG_CREATE_VAR
       // User variable
