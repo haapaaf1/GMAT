@@ -371,11 +371,13 @@ GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
       outputDefs.push_back("");;
    }
    
-   // Go through each line in the function file
+   // Go through each line in the function file, ignoring after % inline comment
    while (!inStream->eof())
    {
       if (GetLine(inStream, line))
       {
+         // remove inline comments and trim
+         line = GmatStringUtil::RemoveInlineComment(line, "%");         
          line = GmatStringUtil::Trim(line, GmatStringUtil::BOTH, true, true);
          
          // Skip empty line or comment line
