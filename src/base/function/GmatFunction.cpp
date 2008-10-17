@@ -322,9 +322,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
    
    #ifdef DEBUG_FUNCTION_EXEC
    MessageInterface::ShowMessage
-      ("GmatFunction::Execute() entered for '%s';  objectsInitialized=%d\n",
-       functionName.c_str(), objectsInitialized);
-   MessageInterface::ShowMessage("   internalCS is %p\n", internalCoordSys);
+      ("GmatFunction::Execute() entered for '%s'\n   internalCS is %p\n",
+       functionName.c_str(), internalCoordSys);
    #endif
    
    GmatCommand *current = fcs;
@@ -356,7 +355,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
       if (!objectsInitialized)
       {
          if (cmdType != "NoOp" && cmdType != "Create" && cmdType != "Global")
-         {            
+         {
             bool beginInit = true;            
             if (cmdType == "GMAT" && !isEquation)
                beginInit = false;
@@ -378,11 +377,25 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
                
                // Let's try initialzing local objects using ObjectInitializer (2008.06.19)
                // We need to add subscribers to publisher, so pass true
-               if (!objInit->InitializeObjects(true))
+               try
                {
-                  // Should we throw an exception instead?
-                  return false;
+                  if (!objInit->InitializeObjects(true))
+                     // Should we throw an exception instead?
+                     return false;
                }
+               catch (BaseException &e)
+               {
+                  // We need to ignore exception thrown for the case Object is
+                  // created after it is used, such as
+                  // GMAT DefaultOpenGL.ViewPointReference = EarthSunL1;
+                  // Create LibrationPoint EarthSunL1;
+                  #ifdef DEBUG_FUNCTION_EXEC
+                  MessageInterface::ShowMessage
+                     ("objInit->InitializeObjects() threw an exception:\n'%s'\n"
+                      "   So ignoring...\n", e.GetFullMessage().c_str());
+                  #endif
+               }
+               
                #ifdef DEBUG_FUNCTION_EXEC
                MessageInterface::ShowMessage
                   ("============================ End   initialization of local objects\n");
@@ -391,8 +404,40 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
          }
       }
       
-      if (!(current->Execute()))
-         return false;
+      try
+      {
+         if (!(current->Execute()))
+            return false;
+      }
+      catch (BaseException &e)
+      {
+         // If it is user interrupt, rethrow (loj: 2008.10.16)
+         // How can we tell if it is thrown by Stop command?
+         // For now just find the phrase "interrupted by Stop command"
+         std::string msg = e.GetFullMessage();
+         if (msg.find("interrupted by Stop command") != msg.npos)
+            throw;
+         
+         // Let's try initialzing local objects here again (2008.10.14)
+         // We need to add subscribers to publisher, so pass true               
+         #ifdef DEBUG_FUNCTION_EXEC
+         MessageInterface::ShowMessage
+            ("current->Execute() threw an exception:\n'%s'\n   So re-initializing "
+             "local objects\n", e.GetFullMessage().c_str());
+         MessageInterface::ShowMessage
+            ("\n============================ Begin initialization of local objects\n");
+         #endif
+         if (!objInit->InitializeObjects(true))
+            return false;
+         
+         #ifdef DEBUG_FUNCTION_EXEC
+         MessageInterface::ShowMessage
+            ("============================ End   initialization of local objects\n");
+         #endif
+         
+         current->Execute();
+      }
+      
       current = current->GetNext();
    }
    
