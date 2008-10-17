@@ -774,7 +774,12 @@ bool HarmonicField::SetStringParameter(const Integer id,
 {
    if (id == FILENAME)
    {
-      return SetFilename(value);  
+      std::string newValue = value;
+      // if value has no file extenstion, add .cof as default (loj: 2008.10.14)
+      if (value.find(".") == value.npos)
+         newValue = value + ".cof";
+      
+      return SetFilename(newValue);  
    }
    if (id == INPUT_COORD_SYSTEM)
    {
