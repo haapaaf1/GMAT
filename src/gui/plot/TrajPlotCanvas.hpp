@@ -465,7 +465,7 @@ private:
    // for copy
    void CopyVector3(Real to[3], Real from[3]);
    // for loading image
-   bool LoadImage(char *fileName);
+   bool LoadImage(const std::string &fileName);
    
    // Linux specific fix
    #ifdef __WXGTK__

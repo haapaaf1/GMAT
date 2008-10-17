@@ -2400,9 +2400,12 @@ GLuint TrajPlotCanvas::BindTexture(const wxString &objName)
          
          glGenTextures(1, &ret);
          glBindTexture(GL_TEXTURE_2D, ret);
-
-         // load image file
-         if (!LoadImage((char*)textureFile.c_str()))
+         
+//          if (textureFile == "")
+//             ret = GmatPlot::UNINIT_TEXTURE;
+//          else
+            // load image file
+         if (!LoadImage(textureFile))
             ret = GmatPlot::UNINIT_TEXTURE;
          
       #endif
@@ -4750,9 +4753,9 @@ void TrajPlotCanvas::CopyVector3(Real to[3], Real from[3])
 
 
 //---------------------------------------------------------------------------
-// bool LoadImage(char *fileName)
+// bool LoadImage(const std::string &fileName)
 //---------------------------------------------------------------------------
-bool TrajPlotCanvas::LoadImage(char *fileName)
+bool TrajPlotCanvas::LoadImage(const std::string &fileName)
 {
 #ifndef SKIP_DEVIL
    return false;
@@ -4760,11 +4763,14 @@ bool TrajPlotCanvas::LoadImage(char *fileName)
 #else
    #if DEBUG_TRAJCANVAS_INIT
    MessageInterface::ShowMessage
-      ("TrajPlotCanvas::LoadImage() Not using DevIL. file=%s\n", fileName);
+      ("TrajPlotCanvas::LoadImage() Not using DevIL. file='%s'\n", fileName.c_str());
    #endif
    
+   if (fileName == "")
+      return false;
+   
    ::wxInitAllImageHandlers();
-   wxImage image = wxImage(fileName);
+   wxImage image = wxImage(fileName.c_str());
    int width = image.GetWidth();
    int height = image.GetHeight();
    
