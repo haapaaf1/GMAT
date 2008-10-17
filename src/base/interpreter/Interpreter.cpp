@@ -5252,7 +5252,7 @@ void Interpreter::HandleErrorMessage(const BaseException &e,
    std::string msg = msgKind + e.GetFullMessage() + currMsg;
    
    #ifdef DEBUG_HANDLE_ERROR
-   MessageInterface::ShowMessage(debugMsg + "\n");
+   MessageInterface::ShowMessage("%s, continueOnError=%d\n", debugMsg.c_str(), continueOnError);
    #endif
    
    if (continueOnError)
@@ -5268,7 +5268,11 @@ void Interpreter::HandleErrorMessage(const BaseException &e,
       if (warning)
          MessageInterface::ShowMessage(msg);
       else
+      {
+         // remove duplicate message
+         msg = GmatStringUtil::Replace(msg, "**** ERROR **** Interpreter Exception: ", "");
          throw InterpreterException(msg);
+      }
    }
 }
 
@@ -6096,7 +6100,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       MessageInterface::ShowMessage("   hasOutput=%d, numLeft=%d, numParts=%d\n",
                                     hasOutput, numLeft, numParts);
       #endif
-         
+      
       if (numParts <= 1)
       {
          InterpreterException ex
@@ -6145,7 +6149,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       
       #if DBGLVL_FUNCTION_DEF > 0
       MessageInterface::ShowMessage
-         ("   fileFuncName=<%s>, funcName=<%s>\n", fileFuncName.c_str(), funcName.c_str());
+         ("   fileFuncName=<%s>, funcName=<%s>\n\n", fileFuncName.c_str(), funcName.c_str());
       #endif
       
       if (fileFuncName != funcName)
@@ -6197,6 +6201,9 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
          }
          
          // check for duplicate input list
+         #if DBGLVL_FUNCTION_DEF > 0
+         MessageInterface::ShowMessage("   Check for duplicate input arguments\n");
+         #endif
          if (inputArgs.size() > 1)
          {
             StringArray multiples;
@@ -6244,6 +6251,9 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
    }
    
    // if function definition has been validated, check if all outputs are declared
+   #if DBGLVL_FUNCTION_DEF > 0
+   MessageInterface::ShowMessage("   Check for output declaration\n");
+   #endif
    if (retval && outputArgs.size() > 0)
    {
       std::string errMsg;
