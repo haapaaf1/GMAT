@@ -440,7 +440,7 @@ GmatMainFrame::~GmatMainFrame()
    #endif
    
    // Close MATLAB connection
-   MatlabInterface::Close();
+   MatlabInterface::Instance()->Close();
    
    if (mServer)
       delete mServer;
@@ -2658,7 +2658,7 @@ void GmatMainFrame::OnStopServer(wxCommandEvent& event)
 void GmatMainFrame::OnOpenMatlab(wxCommandEvent& event)
 {
    wxBeginBusyCursor();
-   MatlabInterface::Open();
+   MatlabInterface::Instance()->Open();
    wxEndBusyCursor();
 }
 
@@ -2674,7 +2674,7 @@ void GmatMainFrame::OnOpenMatlab(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnCloseMatlab(wxCommandEvent& event)
 {
-   MatlabInterface::Close();
+   MatlabInterface::Instance()->Close();
 }
 
 
