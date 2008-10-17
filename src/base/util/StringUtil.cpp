@@ -2728,6 +2728,30 @@ std::string GmatStringUtil::RemoveEnclosingString(const std::string &str,
 
 
 //------------------------------------------------------------------------------
+// std::string RemoveInlineComment(const std::string &str, const std::string &comStr)
+//------------------------------------------------------------------------------
+/*
+ * Removes inline comments from the input string.
+ * ex) "Create String srt1; % str2" will return "Create String str1;"
+ *
+ * @param  str  Input string to remove given enclosnig string
+ * @param  cmStr The inline comment string to use for removing
+ *
+ * @return string with inline comments removed
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::RemoveInlineComment(const std::string &str,
+                                                const std::string &cmStr)
+{
+   std::string str1 = str;
+   std::string::size_type index = str.find(cmStr);
+   if (index == str1.npos)
+      return str1;
+   else
+      return str1.substr(0, index);
+}
+
+//------------------------------------------------------------------------------
 // bool StartsWith(const std::string &str, const std::string &value)
 //------------------------------------------------------------------------------
 /*

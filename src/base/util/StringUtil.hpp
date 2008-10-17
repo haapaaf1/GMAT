@@ -63,6 +63,7 @@ namespace GmatStringUtil
    std::string RemoveOuterString(const std::string &str, const std::string &start,
                                  const std::string &end);
    std::string RemoveEnclosingString(const std::string &str, const std::string &enStr);
+   std::string RemoveInlineComment(const std::string &str, const std::string &cmStr);
    
    char GetClosingBracket(const char &openBracket);
    
