@@ -893,13 +893,6 @@ bool CallFunction::Initialize()
    ShowObjectMaps("In CallFunction::Initialize()");
    #endif
    
-   //GmatBase *mapObj;  // 2008.04.28 - wcs - already found when globalObjectMap set
-   //if ((mapObj = FindObject(mFunctionName))  == NULL)
-   //   throw CommandException("CallFunction command cannot find Function " +
-   //            mFunctionName + "\n");
-   //mFunction = (Function *)mapObj;
-   //fm->SetFunction(mFunction);   
-   
    isGmatFunction = false;
    isMatlabFunction = false;
    
@@ -961,105 +954,81 @@ bool CallFunction::Initialize()
 #endif
    }
    
-   // Why initializing only for MatlabFunction?
-   //if (isMatlabFunction)
-   //{
-   // add input/output parameters
-   mInputList.clear();
-   GmatBase *mapObj;
-   // need to initialize input parameters
-   for (StringArray::iterator i = mInputNames.begin();
-        i != mInputNames.end(); ++i)
+   
+   // Initialize input parameters only for MatlabFunction
+   // Initialization of GmatFunctions are handled by FunctionManager during
+   // execution
+   if (isMatlabFunction)
    {
-      if ((mapObj = FindObject(*i))  == NULL)
-         throw CommandException("CallFunction command cannot find Parameter " +
-                                *i + " in script line\n   \"" +
-                                GetGeneratingString(Gmat::SCRIPTING) + "\"");
-      
-      #ifdef DEBUG_CALL_FUNCTION_INIT
-      MessageInterface::ShowMessage("Adding input parameter %s\n", i->c_str());
-      #endif
-      
-      mInputList.push_back((Parameter *)mapObj);
-   }
-   
-   // need to initialize output parameters
-   mOutputList.clear();
-   
-   for (StringArray::iterator i = mOutputNames.begin();
-        i != mOutputNames.end();++i)
-   {
-      if ((mapObj = FindObject(*i))  == NULL)
-         throw CommandException("CallFunction command cannot find Parameter " + (*i));
-      
-      #ifdef DEBUG_CALL_FUNCTION_INIT
-      MessageInterface::ShowMessage("Adding output parameter %s\n", i->c_str());
-      #endif
-      
-      mOutputList.push_back((Parameter *)mapObj);
-   }
-   
-   if (mInputList.size() > 0)
-      if (mInputList[0] == NULL)
+      // add input/output parameters
+      mInputList.clear();
+      GmatBase *mapObj;
+      // need to initialize input parameters
+      for (StringArray::iterator i = mInputNames.begin();
+           i != mInputNames.end(); ++i)
       {
-         MessageInterface::PopupMessage
-            (Gmat::WARNING_,
-             "CallFunction::Initialize() CallFunction will not be created.\n"
-             "The first parameter selected as input for the CallFunction is NULL\n");
-         return false;
+         if ((mapObj = FindObject(*i))  == NULL)
+            throw CommandException("CallFunction command cannot find Parameter " +
+                                   *i + " in script line\n   \"" +
+                                   GetGeneratingString(Gmat::SCRIPTING) + "\"");
+         
+         #ifdef DEBUG_CALL_FUNCTION_INIT
+         MessageInterface::ShowMessage("Adding input parameter %s\n", i->c_str());
+         #endif
+         
+         mInputList.push_back((Parameter *)mapObj);
       }
-   
-   if (mOutputList.size() > 0)
-      if (mOutputList[0] == NULL)
+      
+      // need to initialize output parameters
+      mOutputList.clear();
+      
+      for (StringArray::iterator i = mOutputNames.begin();
+           i != mOutputNames.end();++i)
       {
-         MessageInterface::PopupMessage
-            (Gmat::WARNING_,
-             "CallFunction::Initialize() CallFunction will not be created.\n"
-             "The first parameter selected as output for the CallFunction is NULL\n");
-         return false;
+         if ((mapObj = FindObject(*i))  == NULL)
+            throw CommandException("CallFunction command cannot find Parameter " + (*i));
+         
+         #ifdef DEBUG_CALL_FUNCTION_INIT
+         MessageInterface::ShowMessage("Adding output parameter %s\n", i->c_str());
+         #endif
+         
+         mOutputList.push_back((Parameter *)mapObj);
       }
-   //}
+      
+      if (mInputList.size() > 0)
+         if (mInputList[0] == NULL)
+         {
+            MessageInterface::PopupMessage
+               (Gmat::WARNING_,
+                "CallFunction::Initialize() CallFunction will not be created.\n"
+                "The first parameter selected as input for the CallFunction is NULL\n");
+            return false;
+         }
+      
+      if (mOutputList.size() > 0)
+         if (mOutputList[0] == NULL)
+         {
+            MessageInterface::PopupMessage
+               (Gmat::WARNING_,
+                "CallFunction::Initialize() CallFunction will not be created.\n"
+                "The first parameter selected as output for the CallFunction is NULL\n");
+            return false;
+         }
+   }
    
    // Handle additional initialization for GmatFunctions
    if (isGmatFunction)
    {
       #ifdef DEBUG_GMAT_FUNCTION_INIT
-         MessageInterface::ShowMessage("CallFunction::Initialize: Initializing GmatFunction '%s'\n",
-            mFunction->GetName().c_str());
+         MessageInterface::ShowMessage
+            ("CallFunction::Initialize: Initializing GmatFunction '%s'\n",
+             mFunction->GetName().c_str());
       #endif
       fm.SetSolarSystem(solarSys);
       fm.SetTransientForces(forces);
       fm.SetGlobalObjectMap(globalObjectMap);
-      ;  // NoOp, for now at least 
-      /*   
-      if (callcmds == NULL)
-         throw CommandException(
-            "Error initializing the function call for this command:\n" +
-            GetGeneratingString(Gmat::SCRIPTING));
-      
-      callcmds->TakeAction("ClearLocalData");
-      callcmds->SetPublisher(publisher);
-      callcmds->SetObjectMap(objectMap);
-      callcmds->SetGlobalObjectMap(globalObjectMap);
-      callcmds->SetSolarSystem(solarSys);
-      
-      if (callcmds->GetTypeName() == "BeginFunction")
-         ((BeginFunction *)callcmds)->SetInternalCoordSystem(internalCoordSys);
-      
-      // Pass in the input and output object names
-      for (StringArray::iterator i = mInputNames.begin();
-           i != mInputNames.end(); ++i)
-         callcmds->SetStringParameter("CallFunctionInput", *i);
-      
-      for (StringArray::iterator i = mOutputNames.begin();
-           i != mOutputNames.end(); ++i)
-         callcmds->SetStringParameter("CallFunctionOutput", *i);
-      
-      rv = callcmds->Initialize();
-      */
-      
    }
-
+   
    return rv;
 }
 
