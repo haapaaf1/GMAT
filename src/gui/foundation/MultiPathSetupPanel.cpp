@@ -221,7 +221,9 @@ void MultiPathSetupPanel::OnButtonClick(wxCommandEvent& event)
    {
       if (pathname != "" && mPathListBox->FindString(pathname) == wxNOT_FOUND)
       {
-         mPathListBox->Append(pathname);
+         // Add to top of the list (loj: 2008.10.20)
+         //mPathListBox->Append(pathname);
+         mPathListBox->Insert(pathname, 0);
          mPathListBox->SetStringSelection(pathname);
       }
    }
