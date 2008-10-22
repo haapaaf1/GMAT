@@ -39,12 +39,14 @@
 //#define DEBUG_MATLAB_GET_REAL
 //#define DEBUG_MATLAB_GET_STRING
 //#define DEBUG_MATLAB_EVAL
+#define DEBUG_OUTPUT_BUFFER
 
 //--------------------------------------
 //  initialize static variables
 //--------------------------------------
 #ifdef __USE_MATLAB__
 MatlabInterface* MatlabInterface::instance = NULL;
+const int MatlabInterface::MAX_OUT_SIZE = 8192;
 #endif
 
 //--------------------------------------
@@ -90,7 +92,7 @@ int MatlabInterface::Open()
    #endif
    
    if (enginePtr == NULL)
-      MessageInterface::ShowMessage("Please wait while MATLAB opens...\n");
+      MessageInterface::ShowMessage("Please wait while MATLAB engine opens...\n");
    
 #ifdef __WXMAC__
 
@@ -162,6 +164,7 @@ int MatlabInterface::Open()
       
       // set precision to long
       EvalString("format long");
+      MessageInterface::ShowMessage("MATLAB engine successfully opened\n");
       return 1;
    }
    else
@@ -406,7 +409,6 @@ int MatlabInterface::GetString(const std::string &matlabVarName,
    mxArray *mxArrayPtr = NULL;
    mxArrayPtr = engGetVariable(enginePtr, matlabVarName.c_str());
    
-   // if pointer is NULL, variable not found
    if (mxArrayPtr == NULL)
    {
       #ifdef DEBUG_MATLAB_GET_STRING
@@ -425,9 +427,14 @@ int MatlabInterface::GetString(const std::string &matlabVarName,
           "so calling mxGetString()\n", mxArrayPtr);
       #endif
       
-      char outArray[512];
-      mxGetString(mxArrayPtr, outArray, 512);
-      outStr.assign(outArray);
+      if (outBuffer == NULL)
+         throw InterfaceException
+            ("**** ERROR **** Failed to get string from MATLAB, output buffer is NULL\n");
+      
+      outBuffer[0] = '\0';
+      mxGetString(mxArrayPtr, outBuffer, MAX_OUT_SIZE);
+      outBuffer[MAX_OUT_SIZE] = '\0';
+      outStr.assign(outBuffer);
       
       #ifdef DEBUG_MATLAB_GET_STRING
       MessageInterface::ShowMessage
@@ -488,35 +495,47 @@ int MatlabInterface::EvalString(const std::string &evalString)
 
 
 //------------------------------------------------------------------------------
-//  int OutputBuffer(const char *buffer, int size)
+//  int SetOutputBuffer(int size)
 //------------------------------------------------------------------------------
-//  Purpose:
-//     outputs matlab results to buffer
-//
-//  Returns:
-//     1 = no error, 0 = error
+/**
+ * Sets outBuffer to input size. All result using EvalString() will use this
+ * buffer.
+ *
+ * @param size   size of the buffer, it will use size-1.
+ *
+ * @return size of the buffer used, 0 = error
+ */
 //------------------------------------------------------------------------------
-int MatlabInterface::OutputBuffer(char *buffer, int size)
+int MatlabInterface::SetOutputBuffer(int size)
 {
 #if defined __USE_MATLAB__
-   #ifdef DEBUG_OUTPUT_BUFFER
-   MessageInterface::ShowMessage
-      ("MatlabInterface::OutputBuffer() entered, buffer=%p, size=%d\n", buffer, size);
-   #endif
-   if (buffer == NULL)
-   {
-      return 0;
-   }
-   else
-   {
-      //Ensure first that the buffer is always NULL terminated.
-      buffer[0] = '\0';
-      engOutputBuffer(enginePtr, buffer, size-1);
-      return 1;
-   }
+   outBuffer[0] = '\0';
+   int sizeToUse = size-1;
+   
+   if (sizeToUse > MAX_OUT_SIZE)
+      sizeToUse = MAX_OUT_SIZE;
+   
+   engOutputBuffer(enginePtr, outBuffer, sizeToUse);
+   return sizeToUse;
 #endif
+   
    return 0;
 }
+
+
+//------------------------------------------------------------------------------
+// char* GetOutputBuffer()
+//------------------------------------------------------------------------------
+/*
+ * Returns Matlab output buffer pointer which has a pointer to Matlab result
+ * using EvalStaring()
+ */
+//------------------------------------------------------------------------------
+char* MatlabInterface::GetOutputBuffer()
+{
+   return outBuffer;
+}
+
 
 //------------------------------------------------------------------------------
 // bool IsOpen()
@@ -606,6 +625,9 @@ MatlabInterface::MatlabInterface()
 #if defined __USE_MATLAB__
    enginePtr = 0;
    accessCount = 0;
+   outBuffer = new char[MAX_OUT_SIZE+1];
+   for (int i=0; i<=MAX_OUT_SIZE; i++)
+      outBuffer[i] = '\0';
 #endif
 }
 
@@ -619,6 +641,7 @@ MatlabInterface::~MatlabInterface()
 #if defined __USE_MATLAB__
    if (enginePtr != NULL)
       Close();
+   delete [] outBuffer;
 #endif
 }
 

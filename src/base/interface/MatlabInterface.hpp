@@ -29,27 +29,30 @@ public:
 
    static MatlabInterface* Instance();
    
-   int  Open();
-   int  Close();
-   int  PutRealArray(const std::string &matlabVarName, int numRows, int numCols,
-                     const double *inArray);
-   int  GetRealArray(const std::string &matlabVarName, int numElements,
-                     double outArray[]);
-   int  GetString(const std::string &matlabVarName, std::string &outStr);
-   int  EvalString(const std::string &evalString);
-   int  OutputBuffer(char *buffer, int size);
-   bool IsOpen();
-   void RunMatlabString(std::string evalString); 
+   int   Open();
+   int   Close();
+   int   PutRealArray(const std::string &matlabVarName, int numRows, int numCols,
+                      const double *inArray);
+   int   GetRealArray(const std::string &matlabVarName, int numElements,
+                      double outArray[]);
+   int   GetString(const std::string &matlabVarName, std::string &outStr);
+   int   EvalString(const std::string &evalString);
+   int   SetOutputBuffer(int size);
+   char* GetOutputBuffer();
+   bool  IsOpen();
+   void  RunMatlabString(std::string evalString); 
    
 private:
-   
+
    MatlabInterface();
    ~MatlabInterface();
    
 #if defined __USE_MATLAB__
    static MatlabInterface *instance;
+   static const int MAX_OUT_SIZE;
    Engine *enginePtr;   
    int accessCount;
+   char *outBuffer;
 #endif
    
 };
