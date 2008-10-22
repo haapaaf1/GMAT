@@ -400,7 +400,9 @@ bool ScriptInterpreter::Build(Gmat::WriteMode mode)
 {
    if (!initialized)
       Initialize();
-    
+
+   // set configured object map first
+   SetConfiguredObjectMap();
    return WriteScript(mode);
 }
 
@@ -1076,7 +1078,14 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    {
       for (current = objs.begin(); current != objs.end(); ++current)
       {
+         #ifdef DEBUG_SCRIPT_WRITING
+         MessageInterface::ShowMessage("      name = '%s'\n", (*current).c_str());
+         #endif
+         
          object = FindObject(*current);
+         if (object == NULL)
+            throw InterpreterException("Cannot write NULL object \"" + (*current) + "\"");
+         
          if ((object->GetTypeName() == "Array") ||
              (object->GetTypeName() == "Variable") ||
              (object->GetTypeName() == "String"))
