@@ -858,6 +858,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    else
    {
       // We need to finalize all commands in FCS here (loj: 2008.10.08)
+      // Do not call Finalize() it will delete LOS and nested function will not work
       f->Finalize();
    }
    
