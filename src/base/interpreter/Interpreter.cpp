@@ -770,6 +770,20 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
 
 
 //------------------------------------------------------------------------------
+// void SetConfiguredObjectMap()
+//------------------------------------------------------------------------------
+/*
+ * Sets object map in use to object map from the configuration.
+ */
+//------------------------------------------------------------------------------
+void Interpreter::SetConfiguredObjectMap()
+{
+   theObjectMap = theModerator->GetConfiguredObjectMap();
+   theValidator->SetObjectMap(theObjectMap);
+}
+
+
+//------------------------------------------------------------------------------
 // void SetSolarSystemInUse(SolarSystem *ss)
 //------------------------------------------------------------------------------
 /**

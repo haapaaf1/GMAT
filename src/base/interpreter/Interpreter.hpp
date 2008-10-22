@@ -99,6 +99,7 @@ public:
    GmatBase* CreateObject(const std::string &type, const std::string &name,
                           Integer manage = 1);
    
+   void SetConfiguredObjectMap();
    void SetSolarSystemInUse(SolarSystem *ss);
    SolarSystem* GetSolarSystemInUse();
    void SetObjectMap(ObjectMap *objMap, bool forFunction = false);
