@@ -795,7 +795,21 @@ const StringArray& Moderator::GetListOfAllFactoryItems()
    return theFactoryManager->GetListOfAllItems();
 }
 
+
 //----- configuration
+//------------------------------------------------------------------------------
+// ObjectMap* GetConfiguredObjectMap()
+//------------------------------------------------------------------------------
+/*
+ * Returns configured object map
+ */
+//------------------------------------------------------------------------------
+ObjectMap* Moderator::GetConfiguredObjectMap()
+{
+   return theConfigManager->GetObjectMap();
+}
+
+
 //------------------------------------------------------------------------------
 // const StringArray& GetListOfObjects(Gmat::ObjectType type)
 //------------------------------------------------------------------------------
