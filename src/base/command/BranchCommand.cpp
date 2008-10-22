@@ -1041,7 +1041,8 @@ bool BranchCommand::ExecuteBranch(Integer which)
 {
    #ifdef DEBUG_BRANCHCOMMAND_EXECUTION
    MessageInterface::ShowMessage
-      ("In BranchCommand (%s), executing branch %d\n", typeName.c_str(), which);
+      ("In BranchCommand (%s) '%s', executing branch %d\n", typeName.c_str(),
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), which);
    #endif
    bool retval = true;
    
