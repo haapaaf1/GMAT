@@ -30,7 +30,8 @@
 #endif
 
 // if using MatlabInterface::EvalMatlabString() to send array to Matlab workspace
-//#define __USE_EVAL_STRING_FOR_ARRAY__
+// if using MatlabInterface::EvalMatlabString() for getting string from Matlab workspace
+//#define __USE_EVAL_STRING__
 
 //#define DEBUG_CALL_FUNCTION_PARAM
 //#define DEBUG_CALL_FUNCTION_INIT
@@ -1231,18 +1232,10 @@ void CallFunction::SendInParam(Parameter *param)
       int numRows = array->GetIntegerParameter("NumRows");
       int numCols = array->GetIntegerParameter("NumCols");
       Rmatrix rmatrix = array->GetRmatrix();
-      
-      #ifndef __USE_EVAL_STRING_FOR_ARRAY__
-      const Real *realArray = rmatrix.GetDataVector();
-      
-      #ifdef DEBUG_SEND_PARAM
-      MessageInterface::ShowMessage
-         (".....Putting RealArray data <%p> to Matlab workspace\n", realArray);
-      #endif
-      matlabIf->PutRealArray(param->GetName(), numRows, numCols, realArray);
-      
-      #else
-      
+
+      //----------------------------------------------------
+      #ifdef __USE_EVAL_STRING__
+      //----------------------------------------------------
       std::ostringstream os;
       os.precision(18);
       
@@ -1256,22 +1249,27 @@ void CallFunction::SendInParam(Parameter *param)
       
       std::string inParamString = array->GetName() + " = [" +os.str() + "];";
       EvalMatlabString(inParamString);
-      #endif
-   }
-   else if (param->GetTypeName() == "Variable")
-   {
-      #ifndef __USE_EVAL_STRING__
-      static Real *realVal = new Real[1];
-      realVal[0] = param->EvaluateReal();
+      
+      //----------------------------------------------------
+      #else
+      //----------------------------------------------------
+      const Real *realArray = rmatrix.GetDataVector();
       
       #ifdef DEBUG_SEND_PARAM
       MessageInterface::ShowMessage
-         (".....Putting Real data %p to Matlab workspace\n", realVal);
+         (".....Putting RealArray data <%p> to Matlab workspace\n", realArray);
       #endif
+      matlabIf->PutRealArray(param->GetName(), numRows, numCols, realArray);
       
-      matlabIf->PutRealArray(param->GetName(), 1, 1, (const Real*)realVal);
-      
-      #else
+      //----------------------------------------------------
+      #endif
+      //----------------------------------------------------
+   }
+   else if (param->GetTypeName() == "Variable")
+   {
+      //----------------------------------------------------
+      #ifndef __USE_EVAL_STRING__
+      //----------------------------------------------------
       std::ostringstream os;
       os.precision(18);
       os << param->EvaluateReal();
@@ -1284,7 +1282,23 @@ void CallFunction::SendInParam(Parameter *param)
       #endif
       
       EvalMatlabString(inParamString);
+      
+      //----------------------------------------------------
+      #else
+      //----------------------------------------------------
+      static Real *realVal = new Real[1];
+      realVal[0] = param->EvaluateReal();
+      
+      #ifdef DEBUG_SEND_PARAM
+      MessageInterface::ShowMessage
+         (".....Putting Real data %p to Matlab workspace\n", realVal);
       #endif
+      
+      matlabIf->PutRealArray(param->GetName(), 1, 1, (const Real*)realVal);
+      
+      //----------------------------------------------------
+      #endif
+      //----------------------------------------------------
    }
    else if (param->GetTypeName() == "String")
    {
@@ -1404,28 +1418,57 @@ void CallFunction::GetOutParams()
          }
          else if (param->GetTypeName() == "String")
          {
-            // need to output string value to buffer         
-            char buffer[512];
-            matlabIf->OutputBuffer(buffer, 512);
+            //----------------------------------------------
+            #ifdef __USE_EVAL_STRING__
+            //----------------------------------------------            
+            #ifdef DEBUG_UPDATE_VAR
+            MessageInterface::ShowMessage
+               (".....Calling matlabIf->SetOutputBuffer()\n");
+            #endif
+            
+            // need to output string value to buffer
+            int bufSize = matlabIf->SetOutputBuffer(512);
             EvalMatlabString(varName);
             
+            char *outBuffer = matlabIf->GetOutputBuffer();
+            
             // get rid of "var ="
-            char *ptr = strtok((char *)buffer, "=");
+            char *ptr = strtok((char *)outBuffer, "=");
             ptr = strtok(NULL, "\n");
             
-            param->SetStringParameter("Expression", ptr);
+            //----------------------------------------------
+            #else
+            //----------------------------------------------
+            #ifdef DEBUG_UPDATE_VAR
+            MessageInterface::ShowMessage
+               (".....Calling matlabIf->GetString()\n");
+            #endif
+            std::string outStr;
+            matlabIf->GetString(varName, outStr);
+            param->SetStringParameter("Expression", outStr);
+            
+            //----------------------------------------------
+            #endif
+            //----------------------------------------------
          }
          else // objects
          {
-            //MessageInterface::ShowMessage("==>Handle Object\n");
+            #ifdef DEBUG_UPDATE_OBJECT
+            MessageInterface::ShowMessage
+               (".....Calling matlabIf->SetOutputBuffer() for object\n");
+            #endif
             
             char buffer[8192];
-            matlabIf->OutputBuffer(buffer, 8192);
-            
-            // need to output string value to buffer
+            int bufSize = matlabIf->SetOutputBuffer(8192);
             EvalMatlabString(varName);
+            char *outBuffer = matlabIf->GetOutputBuffer();
             
-            //MessageInterface::ShowMessage("==>buffer=\n%s\n", buffer);
+            // copy output to local buffer
+            strncpy(buffer, outBuffer, bufSize);
+            
+            #ifdef DEBUG_UPDATE_OBJECT
+            MessageInterface::ShowMessage("   buffer=\n%s\n", buffer);
+            #endif
             
             // assign new value to object
             UpdateObject(param, buffer);
