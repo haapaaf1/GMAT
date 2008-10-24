@@ -66,5 +66,5 @@ GmatBase* Load::Clone() const
 //---------------------------------------------------------------------------
 bool Load::Execute()
 {
-
+    return true;
 }
