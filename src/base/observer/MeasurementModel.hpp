@@ -100,6 +100,9 @@ protected:
   std::string measurementUnits[numMeasurements];
   // Measurement returned by the model
   Rvector measurements[numMeasurements];
+
+  CoordinateConverter ccvtr;  
+
   
 }
 
