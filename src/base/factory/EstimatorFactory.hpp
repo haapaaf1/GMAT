@@ -12,7 +12,7 @@
 // Created: 2008/05/20
 //
 /**
- *  Implementation code for the EstimatorFactory class, responsible 
+ *  Implementation code for the EstimatorFactory class, responsible
  *  for creating estimator objects.
  */
 //------------------------------------------------------------------------------
@@ -42,7 +42,10 @@ class EstimatorFactory : public Factory
 public:
    virtual Estimator* CreateEstimator(const std::string &ofType,
                                 const std::string &withName /* = "" */);
-   
+
+   virtual Solver* CreateSolver(const std::string &ofType,
+                                const std::string &withName /* = "" */);
+
    // default constructor
    EstimatorFactory();
    // constructor
@@ -53,7 +56,7 @@ public:
    EstimatorFactory& operator=(const EstimatorFactory& fact);
 
    virtual ~EstimatorFactory();
-   
+
 };
 
 #endif // EstimatorFactory_hpp

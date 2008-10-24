@@ -12,7 +12,7 @@
 // Created: 2008/05/20
 //
 /**
- *  Implementation code for the EstimatorFactory class, responsible 
+ *  Implementation code for the EstimatorFactory class, responsible
  *  for creating estimator objects.
  */
 //------------------------------------------------------------------------------
@@ -33,11 +33,29 @@
 //  Estimator* CreateEstimator(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------
 /**
- * This method creates and returns an object of the requested Estimator class. 
+ * This method creates and returns an object of the requested Estimator class.
  *
  * @param <ofType> type of Estimator object to create and return.
  * @param <withName> the name for the newly-created Estimator object.
- * 
+ *
+ * @return A pointer to the created object.
+ */
+//------------------------------------------------------------------------------
+Solver* EstimatorFactory::CreateSolver(const std::string &ofType,
+                                    const std::string &withName)
+{
+   return CreateEstimator(ofType, withName);
+}
+
+//------------------------------------------------------------------------------
+//  Estimator* CreateEstimator(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * This method creates and returns an object of the requested Estimator class.
+ *
+ * @param <ofType> type of Estimator object to create and return.
+ * @param <withName> the name for the newly-created Estimator object.
+ *
  * @return A pointer to the created object.
  */
 //------------------------------------------------------------------------------
@@ -85,7 +103,7 @@ MessageInterface::ShowMessage("EstimatorFactory is creating a %s named %s\n",
 //  EstimatorFactory()
 //------------------------------------------------------------------------------
 /**
- * This method creates an object of the class EstimatorFactory. 
+ * This method creates an object of the class EstimatorFactory.
  * (default constructor)
  */
 //------------------------------------------------------------------------------
@@ -108,11 +126,11 @@ EstimatorFactory::EstimatorFactory() :
       //creatables.push_back("UnscentedNeglectFilter");
       //creatables.push_back("CentralDifferenceKalmanFilter");
       //creatables.push_back("SquareRootInformationFilter");
-      
+
       //#if defined __USE_MATLAB__
       //creatables.push_back("FminconOptimizer");
       //#endif
-      
+
    }
 }
 
@@ -158,11 +176,11 @@ EstimatorFactory::EstimatorFactory(const EstimatorFactory& fact) :
       //creatables.push_back("UnscentedNeglectFilter");
       //creatables.push_back("CentralDifferenceKalmanFilter");
       //creatables.push_back("SquareRootInformationFilter");
-      
+
       //#if defined __USE_MATLAB__
       //creatables.push_back("FminconOptimizer");
       //#endif
-      
+
 
    }
 }
@@ -184,7 +202,7 @@ EstimatorFactory& EstimatorFactory::operator=(const EstimatorFactory& fact)
    Factory::operator=(fact);
    return *this;
 }
-    
+
 
 //------------------------------------------------------------------------------
 // ~EstimatorFactory()

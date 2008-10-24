@@ -265,15 +265,33 @@ $(WXTARGET) : $(OBJECTS) $(LIBNAME)
 else
 
 ifeq ($(LINUX_MAC), 1)
+
+#ifeq ((SHARED_BASE), 1)
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
 	mv -f $(WXTARGET)* ../../bin/.
 	cp -f $(LIBNAME) ../../bin/.
+#else
+#$(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBNAME)
+#	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+#	mv -f $(WXTARGET)* ../../bin/.
+#endif
+   
+else
+
+ifeq ((SHARED_BASE), 1)
+
+$(WXTARGET) : $(OBJECTS) $(LIBNAME)
+   $(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+   mv -f $(WXTARGET)* ../../bin/.
+   cp -f $(LIBNAME) ../../bin/.
 else
 $(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBNAME)
-	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	mv -f $(WXTARGET)* ../../bin/.
-	cp -f $(LIBNAME) ../../bin/.
+   $(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+   mv -f $(WXTARGET)* ../../bin/.
+
+endif
+
 endif
 
 endif
