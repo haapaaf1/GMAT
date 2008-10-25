@@ -317,16 +317,11 @@ OBJECTS = \
     math/Tan.o \
     math/Tanh.o \
     math/Transpose.o \
-#    measurement/AzElMeasurementModel.o \
-#    measurement/RangeMeasurementModel.o \
     measurement/MeasurementModel.o \
     measurement/ProcessDataFile.o \
     measurement/ProcessTLEData.o \
     measurement/ProcessB3Data.o \
     measurement/ProcessSLRData.o \
-#    measurement/RangeRaDecMeasurementModel.o \
-#    measurement/RaDecMeasurementModel.o \
-#    measurement/RangeAzElMeasurementModel.o \
     parameter/AngularParameters.o \
     parameter/Array.o \
     parameter/ArrayWrapper.o \
@@ -399,6 +394,7 @@ OBJECTS = \
     solarsys/LibrationPoint.o \
     solarsys/Moon.o \
     solarsys/Msise90Atmosphere.o \
+    solarsys/Msise00Atmosphere.o \
     solarsys/PlanetaryEphemException.o \
     solarsys/PlanetaryEphem.o \
     solarsys/Planet.o \
@@ -422,7 +418,6 @@ OBJECTS = \
     spacecraft/HardwareException.o \
     spacecraft/Hardware.o \
     spacecraft/PropState.o \
-#    spacecraft/PropCovar.o \
     spacecraft/Spacecraft.o \
     spacecraft/SpaceObject.o \
     spacecraft/StateConverter.o \
@@ -484,10 +479,16 @@ OBJECTS = \
 
 # Future classes:
 #    propagator/Cowell.o \
+#    measurement/AzElMeasurementModel.o \
+#    measurement/RangeMeasurementModel.o \
+#    measurement/RangeRaDecMeasurementModel.o \
+#    measurement/RaDecMeasurementModel.o \
+#    measurement/RangeAzElMeasurementModel.o \
+#    spacecraft/PropCovar.o \
 
 
 
-FORTRAN_OBJECTS = solarsys/msise90_sub.o
+FORTRAN_OBJECTS = solarsys/msise90_sub.o solarsys/msise00_sub.o
 
     # parameter/EquinoctialParameters.o \
     # stopcond/BaseStopCondition.o \
@@ -515,6 +516,9 @@ endif
 # Specific instructions for the fortran code
 solarsys/msise90_sub.o: solarsys/msise90_sub.for
 	$(FORTRAN) -c solarsys/msise90_sub.for -o solarsys/msise90_sub.o $(F77_FLAGS) 
+
+solarsys/msise00_sub.o: solarsys/msise00_sub.for
+	$(FORTRAN) -c solarsys/msise00_sub.for -o solarsys/msise00_sub.o $(F77_FLAGS) 
 
 # Instructions for the console app interfaces
 interpreter/GuiInterpreterConsole.o : interpreter/GuiInterpreter.cpp \
