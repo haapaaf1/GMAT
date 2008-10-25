@@ -16,20 +16,19 @@
  */
 //------------------------------------------------------------------------------
  
-#include <valarray>
-#include "Observer.hpp"
+#include "MeasurementModel.hpp"
 #include "Rvector6.hpp"
 #include "CoordinateSystem.hpp"
 #include "CoordinateConverter.hpp"
 #include "TimeSystemConverter.hpp"
 #include "StateConverter.hpp"
-#include <map>
 
 //---------------------------------
 //  static data
 //---------------------------------
 const std::string MeasurementModel::MODEL_DESCRIPTIONS[NUM_MODELS] =
 {
+    "NotDefined",
     "Range",
     "RangeRate",
     "LightTime",
@@ -63,7 +62,7 @@ const std::string MeasurementModel::MODEL_DESCRIPTIONS[NUM_MODELS] =
  * Constructs base MeasurementModel structures 
  */
 MeasurementModel::MeasurementModel() :
-    modelName  (std::string(""))
+    modelID  (0)
 {
 }
 
@@ -71,7 +70,7 @@ MeasurementModel::MeasurementModel() :
 //   MeasurementModel::MeasurementModel(const MeasurementModel &mm)
 //------------------------------------------------------------------------------
 MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
-  modelName  (mm.modelName)
+  modelID  (mm.modelID)
 {
 }
 
@@ -82,7 +81,7 @@ MeasurementModel& MeasurementModel::operator=(const MeasurementModel &mm)
 {
    if (this != &mm)
    {
-      SetName( mm.GetName() );
+      SetModelID( mm.GetModelID() );
    }
    return *this;
 }
@@ -100,7 +99,7 @@ MeasurementModel::~MeasurementModel()
 std::ostream& operator<<(std::ostream& output, MeasurementModel &mm)
 {
 
-    output << mm.modelName << std::endl;
+    output << mm.modelID << std::endl;
 
     return output;
 }
@@ -111,7 +110,7 @@ std::ostream& operator<<(std::ostream& output, MeasurementModel &mm)
 //------------------------------------------------------------------------------
 std::istream& operator>>(std::istream& input, MeasurementModel &mm)
 {
-    input >> mm.modelName;
+    input >> mm.modelID;
 
     return input;
 }
@@ -119,17 +118,29 @@ std::istream& operator>>(std::istream& input, MeasurementModel &mm)
 // Accessors
 
 //------------------------------------------------------------------------------
-// Integer GetName() const
+// Integer SetModelID() const
 //------------------------------------------------------------------------------
 /**
- * Finds the name of the measurement model vector.
- *
- * @return The model name.
+ * Sets the name of the measurement model.
  */
 //------------------------------------------------------------------------------
-Integer MeasurementModel::GetName() const
+void MeasurementModel::SetModelID(Integer mId)
 {
-   return modelName;
+   modelID = mId;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetModelID() const
+//------------------------------------------------------------------------------
+/**
+ * Finds the model ID# of the measurement model.
+ *
+ * @return The model ID#.
+ */
+//------------------------------------------------------------------------------
+Integer MeasurementModel::GetModelID() const
+{
+   return modelID;
 }
 
 //------------------------------------------------------------------------------
@@ -158,7 +169,7 @@ Integer MeasurementModel::GetNumMeasurements() const
 std::string MeasurementModel::GetMeasurementNameText(const Integer id) const
 {
     if (id >= 0 && id < numMeasurements)
-      return MeasurementModel::measurementNames[id];
+      return measurementNames[id];
 
     return "Unknown Measurement ID";
 }
@@ -175,7 +186,7 @@ std::string MeasurementModel::GetMeasurementNameText(const Integer id) const
 std::string MeasurementModel::GetMeasurementUnitText(const Integer id) const
 {
     if (id >= 0 && id < numMeasurements)
-      return MeasurementModel::measurementUnits[id];
+      return measurementUnits[id];
    
     return "Unknown Measurement Unit ID";
 }
@@ -188,10 +199,11 @@ std::string MeasurementModel::GetMeasurementUnitText(const Integer id) const
  * @return The measurements.
  */
 //------------------------------------------------------------------------------
-const Rvector& MeasurementModel::GetMeasurements()
+const Real* MeasurementModel::GetMeasurements() const
 {
    return measurements;
 }
+
 //------------------------------------------------------------------------------
 // Integer MeasurementModel::GetModelID(const std::string &label)
 //------------------------------------------------------------------------------
@@ -201,7 +213,6 @@ const Rvector& MeasurementModel::GetMeasurements()
 //------------------------------------------------------------------------------
 Integer MeasurementModel::GetModelID(const std::string &label)
 {
-   Integer retval = -1;
    if (!strcmp(label.c_str(),"Range")) {
        return RANGE_ID;
    } else if (!strcmp(label.c_str(),"RangeRate")) {
@@ -219,7 +230,7 @@ Integer MeasurementModel::GetModelID(const std::string &label)
    } else if (!strcmp(label.c_str(),"GyroPackage")) {
        return GYROPACKAGE_ID;
    } else if (!strcmp(label.c_str(),"HorizonSensor")) {
-       return HORIZONSENSORS_ID;
+       return HORIZONSENSOR_ID;
    } else if (!strcmp(label.c_str(),"Videometers")) {
        return VIDEOMETERS_ID;
    } else if (!strcmp(label.c_str(),"CoherentDoppler")) {
@@ -243,7 +254,7 @@ Integer MeasurementModel::GetModelID(const std::string &label)
    } else if (!strcmp(label.c_str(),"RangeRaDec")) {
        return RANGERADEC_ID;
    } else
-     return retval;
+     return DEFAULT_ID;
 
 }
 //------------------------------------------------------------------------------
@@ -280,12 +291,12 @@ std::string MeasurementModel::GetModelNameText(const Integer &id) const
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-  virtual Integer MeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
-  {
+Integer MeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
+{
       return false;
-  }
-  
-  //------------------------------------------------------------------------------
+}
+
+//------------------------------------------------------------------------------
 // Integer ComputeCartesianPartialDerivative(const GroundStation &theStation, 
 //		const Spacecraft &theSat, const Rvector &myMeasurements); 
 //------------------------------------------------------------------------------
@@ -295,9 +306,8 @@ std::string MeasurementModel::GetModelNameText(const Integer &id) const
  * computed.
  */
 //------------------------------------------------------------------------------
-
-  virtual Integer MeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
-  {
-      return false;
-  }
+Integer MeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives)
+{
+    return false;
+}
   

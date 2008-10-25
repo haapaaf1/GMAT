@@ -18,14 +18,13 @@
 #ifndef _MEASUREMENTMODEL_HPP
 #define	_MEASUREMENTMODEL_HPP
 
-#include <valarray>
-#include "Observer.hpp"
 #include "Rvector6.hpp"
 #include "CoordinateSystem.hpp"
 #include "CoordinateConverter.hpp"
 #include "TimeSystemConverter.hpp"
 #include "StateConverter.hpp"
-#include <map>
+#include "GroundStation.hpp"
+#include "Spacecraft.hpp"
 
 class GMAT_API MeasurementModel
 {
@@ -39,67 +38,66 @@ public:
 
   // Friend function
   friend std::ostream& operator<<(std::ostream& output, MeasurementModel &mm);
-  friend std::istream& operator>>(std::istream& input, MeasurementModel &mm;
+  friend std::istream& operator>>(std::istream& input, MeasurementModel &mm);
 
   
   const std::string* GetModelDescriptions() const;
   std::string GetModelNameText(const Integer &id) const;
   Integer GetModelID(const std::string &label);
   
-  Integer GetName() const;
+  void SetModelID(Integer mName);
+  Integer GetModelID() const;
   Integer GetNumMeasurements() const;
   std::string GetMeasurementNameText(Integer id) const;
   std::string GetMeasurementUnitText(Integer id) const;
-  const Rvector& GetMeasurements();
-  
-  Integer GetMeasurements() const;	  
-	
+  const Real* GetMeasurements() const;
+  	
   virtual Integer MeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements);
   virtual Integer MeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
   
   
 private:
 
-  static const Integer NUM_MODELS = 20;
+  static const Integer NUM_MODELS = 21;
   static const std::string MODEL_DESCRIPTIONS[NUM_MODELS];
     
 protected:
   
     enum MODEL_REPS {
-    RANGE_ID = 0,
-    RANGERATE_ID,
-    LIGHTTIME_ID,
-    VARIABLETRANSMITTERRANGE_ID,
-    ANTENNATRACKING_ID,
-    SUNSENSOR_ID,
-    STARSENSOR_ID,
-    GYROPACKAGE_ID,
-    HORIZONSENSOR_ID,
-    VIDEOMETERS_ID,
-    COHERENTDOPPLER_ID,
-    NONCOHERENTDOPPLER_ID,
-    VARIABLETRANSMITTERDOPPLER_ID,
-    INTEGRATEDDOPPLERCOUNT_ID,
-    IMU_ID,
-    MAGNETOMETER_ID,
-    AO_AZEL_ID,
-    RANGEAZEL_ID,
-    AO_RADEC_ID,
-    RANGERADEC_ID,
-    EndModelReps
-            
+	DEFAULT_ID = 0,
+	RANGE_ID,
+	RANGERATE_ID,
+	LIGHTTIME_ID,
+	VARIABLETRANSMITTERRANGE_ID,
+	ANTENNATRACKING_ID,
+	SUNSENSOR_ID,
+	STARSENSOR_ID,
+	GYROPACKAGE_ID,
+	HORIZONSENSOR_ID,
+	VIDEOMETERS_ID,
+	COHERENTDOPPLER_ID,
+	NONCOHERENTDOPPLER_ID,
+	VARIABLETRANSMITTERDOPPLER_ID,
+	INTEGRATEDDOPPLERCOUNT_ID,
+	IMU_ID,
+	MAGNETOMETER_ID,
+	AO_AZEL_ID,
+	RANGEAZEL_ID,
+	AO_RADEC_ID,
+	RANGERADEC_ID,
+	EndModelReps     
   };
   
   // Name of the measurement model being used
-  std::string modelName;
+  Integer modelID;
   // Total number of measurements returned by the model
-  int numMeasurements;
+  Integer numMeasurements;
   // Name of the measurements returned
-  std::string measurementNames[numMeasurements];
+  std::string* measurementNames;
   // Units of each measurement returned
-  std::string measurementUnits[numMeasurements];
+  std::string* measurementUnits;
   // Measurement returned by the model
-  Rvector measurements[numMeasurements];
+  Real* measurements;
 
   CoordinateConverter ccvtr;  
 
