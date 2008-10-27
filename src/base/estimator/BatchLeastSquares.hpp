@@ -12,7 +12,7 @@
 // Created: 2008/05/20
 //
 /**
- * Definition for the differential corrector targeter. 
+ * Definition for the differential corrector targeter.
  */
 //------------------------------------------------------------------------------
 
@@ -27,10 +27,10 @@
 
 /**
  * This class implements the first targeter in GMAT.
- * 
+ *
  * @todo refactor this class with the Solver class so that elements common to
- *       targeting, scanning, and optimizing are all in the base class.  This 
- *       task should be done when the first instance of one of the other 
+ *       targeting, scanning, and optimizing are all in the base class.  This
+ *       task should be done when the first instance of one of the other
  *       approaches is implemented.
  */
 class GMAT_API BatchLeastSquares : public Estimator
@@ -40,15 +40,15 @@ public:
    virtual ~BatchLeastSquares();
    BatchLeastSquares(const BatchLeastSquares &dc);
    BatchLeastSquares& operator=(const BatchLeastSquares& dc);
-   
+
    virtual bool        Initialize();
 //   virtual EstimatorState AdvanceState();
    virtual SolverState AdvanceState();
-   
+
    // inherited from GmatBase
    virtual GmatBase*   Clone() const;
    virtual void        Copy(const GmatBase* orig);
-   
+
    // Access methods overriden from the base class
    virtual std::string GetParameterText(const Integer id) const;
    virtual Integer     GetParameterID(const std::string &str) const;
@@ -103,14 +103,14 @@ protected:
    Real                        *b;
    /// LU Decomposition of the Jacobian
    Real                        **ludMatrix;
-    
+
    // Control parameters
    /// Used to turn on central differencing.  Currently not implemented.
    bool                        useCentralDifferences;
 
    /// List of goals
    StringArray                 goalNames;
-    
+
    // Parameter IDs
    enum
    {
@@ -126,8 +126,11 @@ protected:
                                               EstimatorParamCount];
 
    // Methods
+
+   virtual void                CompleteInitialization();
    virtual void                RunNominal();
 //   virtual void                RunPerturbation();
+   virtual void                Estimate();
    virtual void                CalculateParameters();
    virtual void                CheckCompletion();
    virtual void                RunComplete();
@@ -142,7 +145,7 @@ protected:
                                   SolverState stateToUse = UNDEFINED_STATE);
 //   virtual void                WriteToTextFile(
 //                                  EstimatorState stateToUse = UNDEFINED_STATE);
-   
+
 
    // Need these implemented
    void                        CalculateInformationMatrix();
@@ -150,7 +153,7 @@ protected:
 
    // Fixed a pue virtual method issue
    virtual Integer     SetSolverResults(Real *data, const std::string &name,
-                                        const std::string &type = "") 
+                                        const std::string &type = "")
    { return -1; }
 
 };

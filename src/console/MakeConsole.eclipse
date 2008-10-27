@@ -32,7 +32,7 @@ HEADERS = -I../base/include -I../base/foundation \
           -I../base/configs -I../base/burn \
           -I../base/solver -I../base/function \
           -I../base/coordsystem -I../base/attitude \
-          -I../base/math
+          -I../base/math -I../base/plugin
 
 clean : archclean
 
@@ -51,6 +51,6 @@ archclean :
 
 $(TARGET): $(OBJECTS)
 	$(CPP) $(OBJECTS) $(CONSOLE_LINK_FLAGS) $(LIBRARIES) $(OPTIMIZATIONS) \
-	$(FORTRAN_LIB) -o $(TARGET)
+	$(FORTRAN_LIB) -ldl -o $(TARGET)
 	mkdir -p ../../bin
 	cp $(TARGET) ../../bin/$(TARGET)

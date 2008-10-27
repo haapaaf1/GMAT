@@ -12,7 +12,7 @@
 // Created: 2008/07/23
 //
 /**
- * Defines the measurement models used for observer objects. 
+ * Defines the measurement models used for observer objects.
  */
 //------------------------------------------------------------------------------
 #ifndef _MEASUREMENTMODEL_HPP
@@ -28,41 +28,41 @@
 
 class GMAT_API MeasurementModel
 {
-    
+
 public:
-    
+
   MeasurementModel();
   MeasurementModel(const MeasurementModel &MeasurementModel);
   MeasurementModel& operator=(const MeasurementModel &MeasurementModel);
-  virtual ~MeasurementModel();  
+  virtual ~MeasurementModel();
 
   // Friend function
   friend std::ostream& operator<<(std::ostream& output, MeasurementModel &mm);
   friend std::istream& operator>>(std::istream& input, MeasurementModel &mm);
 
-  
+
   const std::string* GetModelDescriptions() const;
   std::string GetModelNameText(const Integer &id) const;
   Integer GetModelID(const std::string &label);
-  
+
   void SetModelID(Integer mName);
   Integer GetModelID() const;
   Integer GetNumMeasurements() const;
   std::string GetMeasurementNameText(Integer id) const;
   std::string GetMeasurementUnitText(Integer id) const;
   const Real* GetMeasurements() const;
-  	
-  virtual Integer MeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements);
-  virtual Integer MeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
-  
-  
+
+  virtual Integer ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements);
+  virtual Integer ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
+
+
 private:
 
   static const Integer NUM_MODELS = 21;
   static const std::string MODEL_DESCRIPTIONS[NUM_MODELS];
-    
+
 protected:
-  
+
     enum MODEL_REPS {
 	DEFAULT_ID = 0,
 	RANGE_ID,
@@ -85,9 +85,9 @@ protected:
 	RANGEAZEL_ID,
 	AO_RADEC_ID,
 	RANGERADEC_ID,
-	EndModelReps     
+	EndModelReps
   };
-  
+
   // Name of the measurement model being used
   Integer modelID;
   // Total number of measurements returned by the model
@@ -99,10 +99,10 @@ protected:
   // Measurement returned by the model
   Real* measurements;
 
-  CoordinateConverter ccvtr;  
+  CoordinateConverter ccvtr;
 
-  
-}
+
+};
 
 
 #endif	/* _MEASUREMENTMODEL_HPP */

@@ -12,7 +12,7 @@
 // Created: 2008/05/20
 //
 /**
- * Base class for estimator tools. 
+ * Base class for estimator tools.
  */
 //------------------------------------------------------------------------------
 
@@ -26,19 +26,25 @@
 #include "Solver.hpp"
 #include "EstimatorException.hpp"
 
+// DJC Additions
+// #include "MeasurementModel.hpp"
+
+// Forward references
+class PropSetup;
+class MeasurementModel;
 
 /**
  * @brief Base class for estimator tools.
- * 
+ *
  * The Estimator subsystem provides the numerical engines that find a
  * state at a desired epoch time that minimizes the error with respect
  * to observations of the dynamical system. This minimization of the error
  * is accomplished in many different ways depending upon the estimator chosen.
  * Choose wisely.
  *
- * The system works as a state machine.  The specific path through the state 
- * machine depends on the estimator implementation.  This class defines the state 
- * values used, and the core methods that use these states and that report on 
+ * The system works as a state machine.  The specific path through the state
+ * machine depends on the estimator implementation.  This class defines the state
+ * values used, and the core methods that use these states and that report on
  * the results of the states.
  */
 class GMAT_API Estimator : public Solver // GmatBase
@@ -55,7 +61,7 @@ public:
 //      FINISHED,
 //      UNDEFINED_STATE         // This one should stay at the end of the list.
 //   };
-   
+
 //   /// Enumeration for estimator progress report formats
 //   enum Report_Style
 //   {
@@ -65,7 +71,7 @@ public:
 //      DEBUG_STYLE,
 //      MaxStyle
 //   };
-    
+
 public:
    Estimator(const std::string &type, const std::string &name);
    virtual ~Estimator();
@@ -77,7 +83,7 @@ public:
    virtual SolverState GetState();
    virtual SolverState AdvanceState();
   //virtual bool        UpdateEstimatorGoal(Integer id, Real newValue);
-   
+
    // Access methods overriden from the base class
    virtual std::string GetParameterText(const Integer id) const;
    virtual Integer     GetParameterID(const std::string &str) const;
@@ -92,40 +98,45 @@ public:
                                            const Integer value);
    virtual std::string GetStringParameter(const Integer id) const;
    virtual std::string GetStringParameter(const std::string &label) const;
-   virtual bool        SetStringParameter(const Integer id, 
+   virtual bool        SetStringParameter(const Integer id,
                                           const std::string &value);
-   virtual bool        SetStringParameter(const std::string &label, 
+   virtual bool        SetStringParameter(const std::string &label,
                                           const std::string &value);
    // compiler complained again - so here they are ....
    virtual std::string GetStringParameter(const Integer id,
                                           const Integer index) const;
-   virtual bool        SetStringParameter(const Integer id, 
+   virtual bool        SetStringParameter(const Integer id,
                                           const std::string &value,
                                           const Integer index);
    virtual std::string GetStringParameter(const std::string &label,
                                           const Integer index) const;
-   virtual bool        SetStringParameter(const std::string &label, 
+   virtual bool        SetStringParameter(const std::string &label,
                                           const std::string &value,
                                           const Integer index);
+
+   virtual GmatBase*   GetRefObject(const Gmat::ObjectType type,
+                                        const std::string &name);
+   virtual bool        SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                        const std::string &name = "");
 
    virtual const StringArray&
                        GetStringArrayParameter(const Integer id) const;
    virtual bool        GetBooleanParameter(const Integer id) const;
    virtual bool        SetBooleanParameter(const Integer id,
                                            const bool value);
-                                           
+
    virtual void        ReportProgress();
    virtual void        SetDebugString(const std::string &str);
-    
+
    virtual bool        Initialize();
    virtual bool        Finalize();
-   
-    
+
+
    virtual Integer     SetEstimatorVariables(Real *data,
                                           const std::string &name);
 
    virtual Real        GetEstimatorVariable(Integer id);
-    
+
    //---------------------------------------------------------------------------
    //  Integer SetEstimatorResults(Real *data, std::string name)
    //---------------------------------------------------------------------------
@@ -143,7 +154,7 @@ public:
    virtual Integer     SetEstimatorResults(Real *data,
                                         const std::string &name,
                                         const std::string &type = "") = 0;
-    
+
    //---------------------------------------------------------------------------
    //  void SetResultValue(Integer id, Real value)
    //---------------------------------------------------------------------------
@@ -156,7 +167,7 @@ public:
    //---------------------------------------------------------------------------
    virtual void        SetResultValue(Integer id, Real value,
 				     const std::string &resultType = "") = 0;
-  
+
 protected:
 
    /// Current state for the state machine
@@ -164,7 +175,7 @@ protected:
 //   EstimatorState          currentState;
    /// State vector of parameters to estimate
    /// These parameters are estimated and their error covariance is
-   /// solved for. 
+   /// solved for.
    Rvector             x;
    /// The number of state variables in the estimator problem.
    Integer             stateCount;
@@ -175,7 +186,7 @@ protected:
    /// Consider parameters
    /// Consider parameters are parameters that are known to affect
    /// the state variables but are thought to be not well observable
-   /// from the avaialble data. Consider parameters are treated as 
+   /// from the avaialble data. Consider parameters are treated as
    /// constants but their error covariance is added in to the final analysis.
    Rvector             considerParameters;
    /// The number of consider parameters in the estimator problem
@@ -207,7 +218,7 @@ protected:
    Rmatrix             D;
 
    /// Weights associated with the estimator states
-   /// Typically this matrix is diagonal with values equal to 
+   /// Typically this matrix is diagonal with values equal to
    /// 1 over the error variance associated with each state.
    Rmatrix             W;
    /// Current covariance matrix
@@ -218,7 +229,7 @@ protected:
    Rmatrix             R;
 
    /// Filename containing observations. An empty string says use observations stored in internal arrays
-   std::string      observationTextFile;                 
+   std::string      observationTextFile;
    /// Type of observation
    StringArray         observationTypes;
    /// Vector of observations
@@ -265,7 +276,7 @@ protected:
    /// Phi is a function that computes the Jacobian of f w.r.t. x
    virtual Rmatrix Phi();
    virtual Rmatrix Phi(Rvector x, Real t0);
- 
+
 
 
    /// The number of iterations taken ( used for batch processing )
@@ -284,7 +295,7 @@ protected:
    std::string         textFileMode;
    /// Toggle for showing estimator status
    bool                showProgress;
-   /// Flag used to adjust estimator progress reports 
+   /// Flag used to adjust estimator progress reports
    Integer             progressStyle;
    /// String for debug information in debug mode
    std::string         debugString;
@@ -295,19 +306,40 @@ protected:
    Integer              instanceNumber;
    /// The estimator text file
    std::ofstream        textFile;
-      
+
+   // DJC Additions
+   /// Name of the numerical integrator setup used
+   std::string          propName;
+   /// The setup
+   PropSetup            *propagator;
+   /// Participant names
+   StringArray          participantNames;
+   /// The participants
+   ObjectArray          participants;
+   /// Measurement Model names
+   StringArray          measModelNames;
+   /// Measurement models used in the estimation
+   std::vector<MeasurementModel*>
+                        measModels;
+
    /// Generic estimator parameters.
    enum
    {
       ShowProgressID   = GmatBaseParamCount,
       ReportStyle,
       estimatorTextFileID,
+      // DJC additions
+      PropagatorName,
+      ParticipantNames,
+      MeasurementModels,
+
+
       variableNamesID,
       maxIterationsID,
       NUMBER_OF_VARIABLES,
       EstimatorParamCount
    };
-   
+
    static const std::string    PARAMETER_TEXT[EstimatorParamCount -
                                               GmatBaseParamCount];
    static const Gmat::ParameterType
@@ -318,8 +350,8 @@ protected:
 // DJC additions
    virtual void        RunNominal();
 
-   
-   
+
+
    // Methods that correspond to the estimator states.  Derived classes should
    // implement the methods that correspond to the Estimator's state machine.  The
    // default implementation just advances the state to the "next" state in the
@@ -336,20 +368,20 @@ protected:
 //   virtual void        CalculateCorrections();
    virtual void        CheckCompletion();
    virtual void        RunComplete();
-   
+
    virtual std::string GetProgressString();
    virtual void        FreeArrays();
-    
+
    //---------------------------------------------------------------------------
    //  void WriteToTextFile()
    //---------------------------------------------------------------------------
    /**
     * Utility function used by the estimators to generate a progress file.
-    * 
-    * @param <stateToUse> EstimatorState used for the report; if this parameter is 
-    *                     different from the default value (UNDEFINED_STATE), 
-    *                     it is used.  If the value is UNDEFINED_STATE, then the 
-    *                     value of currentState is used. 
+    *
+    * @param <stateToUse> EstimatorState used for the report; if this parameter is
+    *                     different from the default value (UNDEFINED_STATE),
+    *                     it is used.  If the value is UNDEFINED_STATE, then the
+    *                     value of currentState is used.
     */
    //---------------------------------------------------------------------------
    virtual void        WriteToTextFile(SolverState stateToUse = UNDEFINED_STATE) = 0;

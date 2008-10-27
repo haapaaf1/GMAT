@@ -32,7 +32,8 @@ RunEstimator::PARAMETER_TYPE[RunEstimatorParamCount - GmatCommandParamCount] =
 RunEstimator::RunEstimator() :
    GmatCommand   		("RunEstimator"),
    estimatorName     (""),
-   est               (NULL)
+   est               (NULL),
+   baseEpoch         (0.0)
 {
 }
 
@@ -43,7 +44,8 @@ RunEstimator::~RunEstimator()
 RunEstimator::RunEstimator(const RunEstimator &ld) :
 	GmatCommand			(ld),
    estimatorName     (ld.estimatorName),
-   est               (NULL)
+   est               (NULL),
+   baseEpoch         (ld.baseEpoch)
 {
 }
 
@@ -53,6 +55,7 @@ RunEstimator& RunEstimator::operator=(const RunEstimator &ld)
 	{
 	   estimatorName = ld.estimatorName;
 	   est = NULL;
+	   baseEpoch = ld.baseEpoch;
 	}
 
 	return *this;
@@ -213,7 +216,6 @@ bool RunEstimator::Initialize()
    MessageInterface::ShowMessage("The \"%s\" command is initializing...\n",
          GetGeneratingString().c_str());
    bool retval = GmatCommand::Initialize();
-
    est = (Estimator*)(*objectMap)[estimatorName];
    if (est == NULL)
       est = (Estimator*)((*globalObjectMap)[estimatorName]);
@@ -222,11 +224,103 @@ bool RunEstimator::Initialize()
       throw CommandException("Unable to find the estimator named \"" +
             estimatorName + "\"");
 
+   // Set reference objects used by the estimator
+   // 1. Set the propagator
+   std::string objname = est->GetStringParameter("Propagator");
+
+   MessageInterface::ShowMessage("Looking for propagator %s\n", objname.c_str());
+
+   GmatBase *obj = (*objectMap)[objname];
+   if (obj == NULL)
+      obj = (*globalObjectMap)[objname];
+   if (obj != NULL)
+   {
+      if (obj->IsOfType(Gmat::PROP_SETUP))
+      {
+         propagator = (PropSetup*)obj;
+         est->SetRefObject(obj, obj->GetType(), obj->GetName());
+      }
+      else
+         throw CommandException("The object named \"" +
+               objname + "\" is not a propagator setup.");
+   }
+   else
+      throw CommandException("There is no PropSetup named \"" +
+            objname + "\"");
+
+   // 2. Set the participants
+   StringArray objlist = est->GetStringArrayParameter(est->GetParameterID("Participants"));
+
+   MessageInterface::ShowMessage("Participant list has %d members:\n",
+         objlist.size());
+
+
+   for (StringArray::iterator i = objlist.begin(); i != objlist.end(); ++i)
+   {
+      obj = (*objectMap)[*i];
+      if (obj == NULL)
+         obj = (*globalObjectMap)[objname];
+
+      MessageInterface::ShowMessage("   Adding participant %s of type %s\n",
+            i->c_str(), obj->GetTypeName().c_str());
+
+      if (obj != NULL)
+      {
+         if (obj->IsOfType(Gmat::SPACE_POINT))
+         {
+            participants.push_back(obj);
+            est->SetRefObject(obj, obj->GetType(), obj->GetName());
+         }
+         else
+            throw CommandException("The object named \"" +
+                  objname + "\" is not a valid participant.");
+      }
+      else
+         throw CommandException("There is no participant named \"" +
+               objname + "\"");
+
+   }
+
+   // 3. Set the measurement models
+
+
+
+   // Request initial epoch for the measurements
+   baseEpoch = GetStartEpoch();
+
+
+   // Assemble the propagator
+   if (retval)
+      retval = AssemblePropagator();
+
+
    MessageInterface::ShowMessage("The \"%s\" command %s initialization.\n",
          GetGeneratingString().c_str(), (retval ? "passed" : "failed"));
 
    return retval;
 }
+
+
+
+Real RunEstimator::GetStartEpoch()
+{
+   Real epoch = 0.0;
+   for (ObjectArray::iterator i = participants.begin(); i != participants.end();
+        ++i)
+      if ((*i)->IsOfType(Gmat::SPACEOBJECT))
+      {
+         if (epoch == 0.0)
+            epoch = ((SpaceObject*)(*i))->GetEpoch();
+         else
+            if (epoch != ((SpaceObject*)(*i))->GetEpoch())
+               throw CommandException(
+                     "Epochs are not synchronized at the start of estimation "
+                     "for the command \n" + GetGeneratingString());
+      }
+
+   return epoch;
+}
+
 
 //---------------------------------------------------------------------------
 //  bool Execute()
@@ -244,8 +338,73 @@ bool RunEstimator::Initialize()
 bool RunEstimator::Execute()
 {
    MessageInterface::ShowMessage("The \"%s\" command is running...\n",
-         GetGeneratingString().c_str());
+         GetTypeName().c_str());
+
+   // Drive through the state machine
+   Solver::SolverState state = est->GetState();
+   while (state != Solver::FINISHED)
+   {
+      switch (state)
+      {
+         case Solver::INITIALIZING:
+            break;
+
+         case Solver::PROPAGATING:
+            Propagate();
+            break;
+
+         case Solver::CALCULATING:
+            Calculate();
+            break;
+
+         case Solver::ESTIMATING:
+            Estimate();
+            break;
+
+         case Solver::CHECKINGRUN:
+            CheckConvergence();
+            break;
+
+         case Solver::FINISHED:
+            Finalize();
+            break;
+
+         default:
+            break;
+      }
+
+      state = est->AdvanceState();
+   }
+
    return true;
+}
+
+bool RunEstimator::Propagate()
+{
+   MessageInterface::ShowMessage(
+         "Stepping the participants to the requested epoch.\n");
+   Real dt = GetTimestep();
+   Step(dt);
+}
+
+bool RunEstimator::Calculate()
+{
+   MessageInterface::ShowMessage("Command side accumulation stuff\n");
+}
+
+bool RunEstimator::Estimate()
+{
+   MessageInterface::ShowMessage("Command side estimation stuff\n");
+}
+
+bool RunEstimator::CheckConvergence()
+{
+   MessageInterface::ShowMessage("Command side convergence checking stuff\n");
+}
+
+bool RunEstimator::Finalize()
+{
+   MessageInterface::ShowMessage("Command side finalization stuff\n");
 }
 
 
@@ -266,4 +425,54 @@ const std::string& RunEstimator::GetGeneratingString(Gmat::WriteMode mode,
 {
    generatingString = prefix + "RunEstimator " + estimatorName + ";";
    return GmatCommand::GetGeneratingString(mode, prefix, useName);
+}
+
+
+
+//------------------------------------------------------------------------------
+// protected methods
+//------------------------------------------------------------------------------
+bool RunEstimator::AssemblePropagator()
+{
+   if (propagator == NULL)
+      return false;
+
+   for (ObjectArray::iterator i = participants.begin(); i != participants.end(); ++i)
+   {
+      // For now we only prop spacecraft
+      if ((*i)->IsOfType(Gmat::SPACECRAFT))
+         propagator->GetForceModel()->AddSpaceObject((SpaceObject*)(*i));
+   }
+
+   return propagator->Initialize();
+}
+
+Real RunEstimator::GetTimestep()
+{
+   // TODO: Call the estimator for this data
+   // one minute steps to test flow
+   return 60.0;
+}
+
+bool RunEstimator::Step(Real dt)
+{
+   bool retval = true;
+   ForceModel* fm = propagator->GetForceModel();
+   Real baseEpoch = 21545.0;
+   if (dt != 0.0)
+   {
+      retval = propagator->GetPropagator()->Step(dt);
+      fm->UpdateSpaceObject(dt/86400.0);
+
+      // orbit related parameters use spacecraft for data
+      Real elapsedTime = fm->GetTime();
+      Real currEpoch = baseEpoch + elapsedTime /
+            GmatTimeUtil::SECS_PER_DAY;
+
+      // Update spacecraft epoch, without argument the spacecraft epoch
+      // won't get updated for consecutive Propagate command
+      fm->UpdateSpaceObject(currEpoch);
+      baseEpoch = currEpoch;
+   }
+   return retval;
 }

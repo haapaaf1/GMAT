@@ -9,6 +9,7 @@
 #define RunEstimator_HPP_
 
 #include "GmatCommand.hpp"
+#include "PropSetup.hpp"
 
 class Estimator;     // Forward reference
 
@@ -57,6 +58,10 @@ public:
 protected:
    std::string          estimatorName;
    Estimator            *est;
+   PropSetup            *propagator;
+   ObjectArray          participants;
+
+   Real                 baseEpoch;
 
    // Parameter IDs
    enum
@@ -70,6 +75,18 @@ protected:
    static const Gmat::ParameterType
       PARAMETER_TYPE[RunEstimatorParamCount - GmatCommandParamCount];
 
+   // Top level state machine calls
+   bool Propagate();
+   bool Calculate();
+   bool Estimate();
+   bool CheckConvergence();
+   bool Finalize();
+
+   // Internal methods
+   bool AssemblePropagator();
+   Real GetStartEpoch();
+   Real GetTimestep();
+   bool Step(Real dt = 0.0);
 };
 
 #endif /* RunEstimator_HPP_ */

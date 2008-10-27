@@ -14,7 +14,7 @@
 //                             Original delivery
 //
 // **Legal**
-//                             
+//
 //                           : 2003/09/16 - W. Shoan/GSFC/583
 //                             added ObjectTypes enum type in namespace Gmat
 //                           : 11/9/2003 - D. Conway, Thinking Systems, Inc.
@@ -39,7 +39,7 @@
       #include <windows.h>
 
       #define  _USE_MATH_DEFINES  // makes Msoft define pi
-    
+
    #endif  // End Microsoft C++ specific block
 
    #ifdef _DYNAMICLINK  // Only used for Windows DLLs
@@ -76,17 +76,17 @@ typedef std::map<std::string, ElementWrapper*> WrapperMap;
 typedef struct geoparms
 {
    Real xtemp;  /// minimum global exospheric temperature (degrees K)
-   Real tkp;    /// geomagnetic index 
+   Real tkp;    /// geomagnetic index
 
-} GEOPARMS; 
+} GEOPARMS;
 
 
 namespace Gmat
 {
    /**
     * The list of object types
-    * 
-    * This list needs to be synchronized with the GmatBase::OBJECT_TYPE_STRING 
+    *
+    * This list needs to be synchronized with the GmatBase::OBJECT_TYPE_STRING
     * list found in base/Foundation/GmatBase.cpp
     */
    enum ObjectType
@@ -126,14 +126,15 @@ namespace Gmat
       MATH_NODE,
       MATH_TREE,
       ESTIMATOR,
+      MEASUREMENT_MODEL,
       UNKNOWN_OBJECT
    };
 
 
    /**
     * The list of data types
-    * 
-    * This list needs to be synchronized with the GmatBase::PARAM_TYPE_STRING 
+    *
+    * This list needs to be synchronized with the GmatBase::PARAM_TYPE_STRING
     * list found in base/Foundation/GmatBase.cpp
     */
    enum ParameterType
@@ -156,7 +157,7 @@ namespace Gmat
       TypeCount,
       UNKNOWN_PARAMETER_TYPE = -1
    };
-   
+
    enum WrapperDataType
    {
       NUMBER,
@@ -173,9 +174,9 @@ namespace Gmat
       ON_OFF,
       UNKNOWN_WRAPPER_TYPE = -2
    };
-   
-   
-   enum RunState 
+
+
+   enum RunState
    {
       IDLE = 10000,
       RUNNING,
@@ -187,7 +188,7 @@ namespace Gmat
       WAITING
    };
 
-   enum WriteMode 
+   enum WriteMode
    {
       SCRIPTING,
       SHOW_SCRIPT,

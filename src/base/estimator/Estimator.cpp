@@ -12,7 +12,7 @@
 // Created: 2008/05/20
 //
 /**
- * Base class for estimator tools. 
+ * Base class for estimator tools.
  */
 //------------------------------------------------------------------------------
 
@@ -35,10 +35,15 @@ Estimator::PARAMETER_TEXT[EstimatorParamCount - GmatBaseParamCount] =
    "ShowProgress",
    "ReportStyle",
    "EstimatorTextFile",
+   "Propagator",
+   "Participants",
+   "Measurements",
+   // What is needed here?
    "Variables",
    "MaximumIterations",
    "NumberOfVariables",
 };
+
 
 const Gmat::ParameterType
 Estimator::PARAMETER_TYPE[EstimatorParamCount - GmatBaseParamCount] =
@@ -46,12 +51,15 @@ Estimator::PARAMETER_TYPE[EstimatorParamCount - GmatBaseParamCount] =
    Gmat::BOOLEAN_TYPE,
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
+   Gmat::STRINGARRAY_TYPE,
+   Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::INTEGER_TYPE,
    Gmat::INTEGER_TYPE,
 };
 
-const std::string    
+const std::string
 Estimator::STYLE_TEXT[MaxStyle - NORMAL_STYLE] =
 {
    "Normal",
@@ -70,8 +78,8 @@ Estimator::STYLE_TEXT[MaxStyle - NORMAL_STYLE] =
 //------------------------------------------------------------------------------
 /**
  * Core constructor for Estimator objects.
- * 
- * @param type Text description of the type of estimator constructed 
+ *
+ * @param type Text description of the type of estimator constructed
  *             (e.g. "NonLinearBatchLeastSquares")
  * @param name The estimator's name
  */
@@ -80,18 +88,20 @@ Estimator::Estimator(const std::string &type, const std::string &name) :
    Solver                  (type, name),
 //   GmatBase                (Gmat::ESTIMATOR, type, name),
    currentState            (INITIALIZING),
+   iterationsTaken         (0),
+   maxIterations           (25),
+//   variableMinimum         (NULL),
+//   variableMaximum         (NULL),
+   initialized             (false),
    textFileMode            ("Normal"),
    showProgress            (true),
    progressStyle           (NORMAL_STYLE),
    debugString             (""),
 //   variableCount           (0),
 //   variable                (NULL),
-   iterationsTaken         (0),
-   maxIterations           (25),
-//   variableMinimum         (NULL),
-//   variableMaximum         (NULL),
-   initialized             (false),
-   instanceNumber          (0)       // 0 indicates 1st instance w/ this name
+   instanceNumber          (0),       // 0 indicates 1st instance w/ this name
+   propName                (""),
+   propagator              (NULL)
 {
    objectTypes.push_back(Gmat::ESTIMATOR);
    objectTypeNames.push_back("Estimator");
@@ -122,7 +132,7 @@ Estimator::~Estimator()
 //------------------------------------------------------------------------------
 /**
  * Copy constructor for Estimator objects.
- * 
+ *
  * @param est The estimator that is copied
  */
 //------------------------------------------------------------------------------
@@ -131,27 +141,31 @@ Estimator::Estimator(const Estimator &est) :
    Solver                  (est),
    currentState            (est.currentState),
 //   covarianceMatrix        (est.currentCovariance),
+   iterationsTaken         (0),
+   maxIterations           (est.maxIterations),
+//   variableMinimum         (NULL),
+//   variableMaximum         (NULL),
+   initialized             (false),
    textFileMode            (est.textFileMode),
    showProgress            (est.showProgress),
    progressStyle           (est.progressStyle),
    debugString             (est.debugString),
 //   variableCount           (est.variableCount),
 //   variable                (NULL),
-   iterationsTaken         (0), 
-   maxIterations           (est.maxIterations),
-//   variableMinimum         (NULL),
-//   variableMaximum         (NULL),
-   initialized             (false),
    estimatorTextFile          (est.estimatorTextFile),
-   instanceNumber          (est.instanceNumber)
+   instanceNumber          (est.instanceNumber),
+   propName                (est.propName),
+   propagator              (NULL),
+   participantNames        (est.participantNames),
+   participants            (est.participants),
+   measModelNames          (est.measModelNames),
+   measModels              (est.measModels)
 {
-MessageInterface::ShowMessage("Constructing Estimator...");
    #ifdef DEBUG_ESTIMATOR_INIT
       MessageInterface::ShowMessage(
          "In Estimator::Estimator (copy constructor)\n");
    #endif
    variableNames.clear();
-MessageInterface::ShowMessage("...Constructed\n");
 }
 
 
@@ -160,7 +174,7 @@ MessageInterface::ShowMessage("...Constructed\n");
 //------------------------------------------------------------------------------
 /**
  * Assignment operator for estimators
- * 
+ *
  * @return this Estimator, set to the same parameters as the input estimator.
  */
 //------------------------------------------------------------------------------
@@ -174,14 +188,14 @@ Estimator& Estimator::operator=(const Estimator &est)
    maxIterations         = est.maxIterations;
    initialized           = false;
    estimatorTextFile        = est.estimatorTextFile;
-   
+
    variableNames.clear();
    variable.clear();
    //perturbation.clear();
    variableMinimum.clear();
    variableMaximum.clear();
    //variableMaximumStep.clear();
-   
+
    currentState          = est.currentState;
 //   currentCovariance     = est.currentCovariance;
    textFileMode          = est.textFileMode;
@@ -198,7 +212,7 @@ Estimator& Estimator::operator=(const Estimator &est)
 /**
  * Derived classes implement this method to set object pointers and validate
  * internal data structures.
- * 
+ *
  *  @return true on success, false (or throws a EstimatorException) on failure
  */
 //------------------------------------------------------------------------------
@@ -206,10 +220,10 @@ bool Estimator::Initialize()
 {
    // Setup the variable data structures
    Integer localVariableCount = variableNames.size();
-   
+
    #ifdef DEBUG_ESTIMATOR_INIT
       MessageInterface::ShowMessage(
-         "In Estimator::Initialize with localVariableCount = %d\n", 
+         "In Estimator::Initialize with localVariableCount = %d\n",
          localVariableCount);
    #endif
 
@@ -247,10 +261,10 @@ bool Estimator::Initialize()
       fm = FileManager::Instance();
       std::string outPath = fm->GetFullPathname(FileManager::OUTPUT_PATH);
       estimatorTextFile = outPath + estimatorTextFile;
-   
+
       if (textFile.is_open())
          textFile.close();
-      
+
       if (instanceNumber == 1)
          textFile.open(estimatorTextFile.c_str());
       else
@@ -261,7 +275,7 @@ bool Estimator::Initialize()
       textFile.precision(16);
       WriteToTextFile();
    }
-   initialized = true; 
+   initialized = true;
    iterationsTaken = 0;
    #ifdef DEBUG_ESTIMATOR_INIT
       MessageInterface::ShowMessage(
@@ -289,12 +303,12 @@ bool Estimator::Finalize()
 /**
  * Derived classes use this method to pass in parameter data specific to
  * the algorithm implemented.
- * 
+ *
  * @param <data> An array of data appropriate to the variables used in the
  *               algorithm.
  * @param <name> A label for the data parameter.  Defaults to the empty
  *               string.
- * 
+ *
  * @return The ID used for the variable.
  */
 //------------------------------------------------------------------------------
@@ -333,7 +347,7 @@ Integer Estimator::SetEstimatorVariables(Real *data,
       throw EstimatorException(
             "Range error setting variable min/max in SetEstimatorVariables\n");
    }
-   
+
    ++variableCount;
 
    return variableCount-1;
@@ -345,9 +359,9 @@ Integer Estimator::SetEstimatorVariables(Real *data,
 //------------------------------------------------------------------------------
 /**
  * Interface used to access Variable values.
- * 
+ *
  * @param <id> The ID used for the variable.
- * 
+ *
  * @return The value used for this variable
  */
 //------------------------------------------------------------------------------
@@ -359,7 +373,7 @@ Real Estimator::GetEstimatorVariable(Integer id)
          "of the configured variables.");
 
    //return variable[id];
-   return variable.at(id); 
+   return variable.at(id);
 }
 
 //------------------------------------------------------------------------------
@@ -368,7 +382,7 @@ Real Estimator::GetEstimatorVariable(Integer id)
 /**
  * Determine the state-machine state of this instance of the Estimator.
  *
- * @return current state 
+ * @return current state
  */
 //------------------------------------------------------------------------------
 //Estimator::EstimatorState Estimator::GetState()
@@ -381,56 +395,55 @@ Estimator::SolverState Estimator::GetState()
 //  Estimator::EstimatorState AdvanceState()
 //------------------------------------------------------------------------------
 /**
- * The method used to iterate until a solution is found.  Derived classes 
+ * The method used to iterate until a solution is found.  Derived classes
  * use this method to implement their solution technique.
- * 
+ *
  * @return estimator state at the end of the process.
  */
 //------------------------------------------------------------------------------
 //Estimator::EstimatorState Estimator::AdvanceState()
 Estimator::SolverState Estimator::AdvanceState()
 {
-    switch (currentState) {
-        case INITIALIZING:
-//            Initialization();
-            break;
-        
-        case NOMINAL:
-//            PropagateState();
-//	    PropagateCovariance();
-//	    CalculateCorrections();
-//	    UpdateState();
-//	    UpdateCovariance();
-            break;
-        
-        case ITERATING:
-//            IterationReinitialization();
-            break;
-        
-        case CALCULATING:
-            CalculateParameters();
-            break;
-        
-        case CHECKINGRUN:
-            CheckCompletion();
-            break;
-        
-        case RUNEXTERNAL:
-            RunExternal();
-            break;
-        
-        case FINISHED:
-            RunComplete();
-            break;
-        
-        default:
-            throw EstimatorException("Undefined Estimator state");
-    };
-    
-    ReportProgress();
-    return currentState; 
+   // Default behavior -- just walk the state machine
+   switch (currentState)
+   {
+      case INITIALIZING:
+         currentState = PROPAGATING;
+         break;
+
+      case PROPAGATING:
+           // Figure out the next needed epoch here
+         currentState = CALCULATING;
+         break;
+
+      case CALCULATING:
+         CalculateParameters();
+         currentState = ESTIMATING;
+         break;
+
+      case ESTIMATING:
+         currentState = CHECKINGRUN;
+         break;
+
+      case CHECKINGRUN:
+         CheckCompletion();
+         currentState = FINISHED;
+         break;
+
+      case FINISHED:
+         RunComplete();
+         currentState = INITIALIZING;
+         break;
+
+      default:
+         throw EstimatorException("Undefined Estimator state");
+   };
+
+   ReportProgress();
+   return currentState;
 }
-    
+
+
 // Access methods overriden from the base class
 
 //------------------------------------------------------------------------------
@@ -448,7 +461,7 @@ std::string Estimator::GetParameterText(const Integer id) const
 {
    if ((id >= GmatBaseParamCount) && (id < EstimatorParamCount))
    {
-      //MessageInterface::ShowMessage("'%s':\n", 
+      //MessageInterface::ShowMessage("'%s':\n",
       //   PARAMETER_TEXT[id - GmatBaseParamCount].c_str());
       return PARAMETER_TEXT[id - GmatBaseParamCount];
    }
@@ -569,7 +582,7 @@ Integer Estimator::GetIntegerParameter(const Integer id) const
       return maxIterations;
    if (id == NUMBER_OF_VARIABLES)
       return variableCount;
-        
+
    return GmatBase::GetIntegerParameter(id);
 }
 
@@ -603,7 +616,7 @@ Integer Estimator::SetIntegerParameter(const Integer id,
             " is not an allowed value. The allowed value is: [Integer > 0].");
       return maxIterations;
    }
-    
+
    return GmatBase::SetIntegerParameter(id, value);
 }
 
@@ -661,7 +674,7 @@ bool Estimator::SetBooleanParameter(const Integer id, const bool value)
  *
  * @param <id> The integer ID for the parameter.
  *
- * @return The string stored for this parameter, or throw ab=n exception if 
+ * @return The string stored for this parameter, or throw ab=n exception if
  *         there is no string association.
  */
 std::string Estimator::GetStringParameter(const Integer id) const
@@ -670,7 +683,8 @@ std::string Estimator::GetStringParameter(const Integer id) const
       return textFileMode;
     if (id == estimatorTextFileID)
       return estimatorTextFile;
-
+    if (id == PropagatorName)
+       return propName;
    return GmatBase::GetStringParameter(id);
 }
 
@@ -683,7 +697,7 @@ std::string Estimator::GetStringParameter(const Integer id) const
  *
  * @param <id> The integer ID for the parameter.
  *
- * @return The string stored for this parameter, or throw ab=n exception if 
+ * @return The string stored for this parameter, or throw ab=n exception if
  *         there is no string association.
  */
 std::string Estimator::GetStringParameter(const std::string &label) const
@@ -705,14 +719,15 @@ std::string Estimator::GetStringParameter(const std::string &label) const
  */
 bool Estimator::SetStringParameter(const Integer id, const std::string &value)
 {
+//   MessageInterface::ShowMessage("Setting string %s on id %d\n")
    if (id == ReportStyle)
    {
 //      std::string stylelist ;
-      
+
       for (Integer i = NORMAL_STYLE; i < MaxStyle; ++i)
       {
 //         stylelist += ", " + STYLE_TEXT[i-NORMAL_STYLE];
-         
+
          if (value == STYLE_TEXT[i-NORMAL_STYLE])
          {
             textFileMode = value;
@@ -725,17 +740,35 @@ bool Estimator::SetStringParameter(const Integer id, const std::string &value)
          " on object \"" + instanceName + "\" is not an allowed value.\n"
          "The allowed values are: [Normal, Concise, Verbose, Debug].");
 //         "The allowed values are: [ " + stylelist + " ]. ");
-//      throw EstimatorException("Requested estimator report style, " + value + 
+//      throw EstimatorException("Requested estimator report style, " + value +
 //         ", is nor supported for " + typeName + " estimators.");
    }
-   
-   if (id == estimatorTextFileID) 
+
+   if (id == estimatorTextFileID)
    {
       estimatorTextFile = value;
       return true;
    }
 
-   if (id == variableNamesID) 
+   if (id == PropagatorName)
+   {
+      propName = value;
+      return true;
+   }
+
+   if (id == ParticipantNames)
+   {
+      participantNames.push_back(value);
+      return true;
+   }
+
+   if (id == MeasurementModels)
+   {
+      measModelNames.push_back(value);
+      return true;
+   }
+
+   if (id == variableNamesID)
    {
       variableNames.push_back(value);
       return true;
@@ -754,7 +787,7 @@ bool Estimator::SetStringParameter(const Integer id, const std::string &value)
  *
  * @return true if the string is stored, throw if the parameter is not stored.
  */
-bool Estimator::SetStringParameter(const std::string &label, 
+bool Estimator::SetStringParameter(const std::string &label,
                                 const std::string &value)
 {
    return SetStringParameter(GetParameterID(label), value);
@@ -768,7 +801,7 @@ std::string Estimator::GetStringParameter(const Integer id,
    return GmatBase::GetStringParameter(id, index);
 }
 
-bool Estimator::SetStringParameter(const Integer id, 
+bool Estimator::SetStringParameter(const Integer id,
                                            const std::string &value,
                                            const Integer index)
 {
@@ -781,7 +814,7 @@ std::string Estimator::GetStringParameter(const std::string &label,
    return GmatBase::GetStringParameter(label, index);
 }
 
-bool Estimator::SetStringParameter(const std::string &label, 
+bool Estimator::SetStringParameter(const std::string &label,
                                            const std::string &value,
                                            const Integer index)
 {
@@ -802,11 +835,86 @@ bool Estimator::SetStringParameter(const std::string &label,
 //------------------------------------------------------------------------------
 const StringArray& Estimator::GetStringArrayParameter(const Integer id) const
 {
-    if (id == variableNamesID)
-        return variableNames;
-        
-        
-    return GmatBase::GetStringArrayParameter(id);
+   if (id == variableNamesID)
+      return variableNames;
+
+   if (id == ParticipantNames)
+   {
+      MessageInterface::ShowMessage("   Retrieving %d names\n", participantNames.size());
+      return participantNames;
+   }
+
+   if (id == MeasurementModels)
+      return measModelNames;
+
+   return GmatBase::GetStringArrayParameter(id);
+}
+
+GmatBase* Estimator::GetRefObject(const Gmat::ObjectType type,
+                                  const std::string &name)
+{
+   GmatBase* retval = NULL;
+
+   if (type == Gmat::SPACE_POINT)
+   {
+      for (ObjectArray::iterator i = participants.begin();
+           i != participants.end(); ++i)
+      {
+         if ((*i)->GetName() == name)
+         {
+            retval = *i;
+            break;
+         }
+      }
+   }
+
+   if (type == Gmat::PROP_SETUP)
+   {
+      retval = (GmatBase*)propagator;
+   }
+
+   if (type == Gmat::MEASUREMENT_MODEL)
+   {
+      // Needs code
+   }
+
+   if (retval != NULL)
+      return retval;
+   return Solver::GetRefObject(type, name);
+}
+
+
+bool Estimator::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name)
+{
+   bool retval = false;
+
+   if (obj->IsOfType(Gmat::SPACE_POINT))
+   {
+      if (find(participants.begin(), participants.end(), obj) == participants.end())
+      {
+         participants.push_back(obj);
+         retval = true;
+      }
+   }
+
+   if (obj->IsOfType(Gmat::PROP_SETUP))
+   {
+      // Do we need to save this here?
+      propagator = (PropSetup*)obj;
+      retval = true;
+   }
+
+   if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+   {
+//      if (find(measModels.begin(), measModels.end(), obj) == measModels.end())
+//      {
+//         measModels.push_back((MeasurementModel*)obj);
+         retval = true;
+//      }
+   }
+
+   return retval;
 }
 
 
@@ -863,7 +971,7 @@ void Estimator::SetDebugString(const std::string &str)
 //------------------------------------------------------------------------------
 /**
  * Executes a nominal run and then advances the state machine to the next state.
- * 
+ *
  * This default method just advances the state.
  */
 //------------------------------------------------------------------------------
@@ -877,9 +985,9 @@ void Estimator::RunNominal()
 ////  void RunPerturbation()
 ////------------------------------------------------------------------------------
 ///**
-// * Executes a perturbation run and then advances the state machine to the next 
+// * Executes a perturbation run and then advances the state machine to the next
 // * state.
-// * 
+// *
 // * This default method just advances the state.
 // */
 ////------------------------------------------------------------------------------
@@ -893,9 +1001,9 @@ void Estimator::RunNominal()
 ////  void RunIteration()
 ////------------------------------------------------------------------------------
 ///**
-// * Executes an iteration run and then advances the state machine to the next 
+// * Executes an iteration run and then advances the state machine to the next
 // * state.
-// * 
+// *
 // * This default method just advances the state.
 // */
 ////------------------------------------------------------------------------------
@@ -911,7 +1019,7 @@ void Estimator::RunNominal()
 ///**
 // * Executes a Calculates parameters needed by the state machine for the next
 // * nominal run, and then advances the state machine to the next state.
-// * 
+// *
 // * This default method just advances the state.
 // */
 ////------------------------------------------------------------------------------
@@ -926,7 +1034,7 @@ void Estimator::RunNominal()
 //------------------------------------------------------------------------------
 /**
  * Checks to see if the Estimator has converged.
- * 
+ *
  * This default method just advances the state.
  */
 //------------------------------------------------------------------------------
@@ -940,7 +1048,7 @@ void Estimator::CheckCompletion()
 ////------------------------------------------------------------------------------
 ///**
 // * Launhes an external process that drives the Estimator.
-// * 
+// *
 // * This default method just ???? (not a clue).
 // */
 ////------------------------------------------------------------------------------
@@ -956,7 +1064,7 @@ void Estimator::CheckCompletion()
 //------------------------------------------------------------------------------
 /**
  * Finalized the data at the end of a run.
- * 
+ *
  * This default method just sets the state to FINISHED.
  */
 //------------------------------------------------------------------------------
@@ -982,8 +1090,8 @@ std::string Estimator::GetProgressString()
 //  void FreeArrays()
 //------------------------------------------------------------------------------
 /**
- * Frees the memory used by the targeter, so it can be reused later in the 
- * sequence.  This method is also called by the destructor when the script is 
+ * Frees the memory used by the targeter, so it can be reused later in the
+ * sequence.  This method is also called by the destructor when the script is
  * cleared.
  */
 //------------------------------------------------------------------------------
@@ -995,7 +1103,7 @@ void Estimator::FreeArrays()
       textFile.flush();
       textFile.close();
    }
-   
+
    if (variable)
    {
       delete [] variable;
@@ -1007,7 +1115,7 @@ void Estimator::FreeArrays()
       delete [] perturbation;
       perturbation = NULL;
    }
-            
+
    if (variableMinimum)
    {
       delete [] variableMinimum;
@@ -1033,7 +1141,7 @@ void Estimator::FreeArrays()
    variableMaximum.clear();
    variableMaximumStep.clear();
    pertDirection.clear();
-   
+
    Solver::FreeArrays();
 }
 
