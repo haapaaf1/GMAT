@@ -288,29 +288,35 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          #endif
 
 
-         //*************************** TEMPORARY *******************************
+         //*************************** TEMPORARY ******* why?  2008.10.21 wcs
          if (obj->GetType() != Gmat::PROP_SETUP)
          {
             obj->SetSolarSystem(ss);
             obj->SetInternalCoordSystem(internalCS); // added (loj: 2008.10.06)
             if (obj->IsOfType(Gmat::SPACE_POINT))
+            {
                BuildReferences(obj);
-            continue;
+               obj->Initialize();
+            }
+            //continue;
          }
-         #ifdef DEBUG_OBJECT_INITIALIZER
-            else
-               MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
+         else
+         {
+            // PropSetup initialization is handled by the commands, since the
+            // state that is propagated may change as spacecraft are added or
+            // removed.
+            #ifdef DEBUG_OBJECT_INITIALIZER
+               //else
+                  MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
                   obj->GetName().c_str());
-         #endif
-         //********************** END OF TEMPORARY *****************************
+            #endif
+            //********************** END OF TEMPORARY *****************************
 
 
-         BuildReferences(obj);
-         // PropSetup initialization is handled by the commands, since the
-         // state that is propagated may change as spacecraft are added or
-         // removed.
-         if (obj->GetType() != Gmat::PROP_SETUP)
-            obj->Initialize();
+            BuildReferences(obj);
+         }
+//         if (obj->GetType() != Gmat::PROP_SETUP)
+//            obj->Initialize();
       }
    }
    
@@ -331,29 +337,33 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             #endif
 
 
-            //*************************** TEMPORARY *******************************
+            //*************************** TEMPORARY ****** why?  2008.10.21 wcs
             if (obj->GetType() != Gmat::PROP_SETUP)
             {
                obj->SetSolarSystem(ss);
                obj->SetInternalCoordSystem(internalCS); // added (loj: 2008.10.06)
                if (obj->IsOfType(Gmat::SPACE_POINT))
+               {
                   BuildReferences(obj);
-               continue;
+                  obj->Initialize();
+               }
+               //continue;
             }
-            #ifdef DEBUG_OBJECT_INITIALIZER
-               else
-                  MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
-                     obj->GetName().c_str());
-            #endif
+            else
+            {
+               // PropSetup initialization is handled by the commands, since the
+               // state that is propagated may change as spacecraft are added or
+               // removed.
+              #ifdef DEBUG_OBJECT_INITIALIZER
+                  //else
+                     MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
+                        obj->GetName().c_str());
+               #endif
             //********************** END OF TEMPORARY *****************************
-
-
-            BuildReferences(obj);
-            // PropSetup initialization is handled by the commands, since the
-            // state that is propagated may change as spacecraft are added or
-            // removed.
-            if (obj->GetType() != Gmat::PROP_SETUP)
-               obj->Initialize();
+               BuildReferences(obj);
+            }
+//            if (obj->GetType() != Gmat::PROP_SETUP)
+//               obj->Initialize();
          }
       }
    }
