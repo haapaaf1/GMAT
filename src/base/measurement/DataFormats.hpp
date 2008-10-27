@@ -386,7 +386,7 @@ namespace DataFormats
 	Real meanMotion;
 	
 	// The revolution number at epoch
-	Real revolutionNum;
+	Integer revolutionNum;
 	
     };
 

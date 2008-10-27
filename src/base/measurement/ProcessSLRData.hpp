@@ -18,15 +18,14 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef ProcessDataFile_hpp
-#define	ProcessDataFile_hpp
+#ifndef ProcessSLRData_hpp
+#define	ProcessSLRData_hpp
 
 #include "gmatdefs.hpp"
-#include <pcrecpp.h>
 #include "RealUtilities.hpp"
 #include "ProcessDataFile.hpp"
 
-class ProcessSLRData :: ProcessDataFile
+class ProcessSLRData : ProcessDataFile
 {
 
 public:
@@ -34,7 +33,7 @@ public:
     ProcessSLRData();
     ~ProcessSLRData();
 
-    bool FindSLRHeaderLine( slr_header &mySLRheader )
+    bool FindSLRHeaderLine( slr_header &mySLRheader );
     bool GetData(slr_header &mySLRheader, slr_obtype &mySLRdata);
    
 private:    

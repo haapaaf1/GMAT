@@ -18,6 +18,28 @@
  */
 //------------------------------------------------------------------------------
 
+RangeAzElMeasurementModel::RangeAzElMeasurementModel() :
+MeasurementModel()
+{
+    
+  numMeasurements = 3;
+  
+  // Name of each measurement returned
+  new std::string measurementNames[numMeasurements];
+  // Units of each measurement returned
+  new std::string measurementUnits[numMeasurements];
+  // Measurement returned by the model
+  new Real measurements[numMeasurements];
+
+}
+
+RangeAzElMeasurementModel::~RangeAzElMeasurement()
+{
+    delete[] measurementNames;
+    delete[] measurementUnits;
+    delete[] measurements;
+}
+
 //------------------------------------------------------------------------------
 // Integer ComputeMeasurement(const GroundStation &theStation, 
 //		const Spacecraft &theSat, const Rvector &myMeasurements); 
@@ -28,7 +50,7 @@
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-  Bool RaDecMeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
+  Bool RangeAzElMeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
   {
       
     // GMAT's A.1 modified Julian epoch
@@ -79,7 +101,7 @@
  */
 //------------------------------------------------------------------------------
 
-  Bool RaDecMeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
+  Bool RangeAzElMeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
   {
       return false;
   }

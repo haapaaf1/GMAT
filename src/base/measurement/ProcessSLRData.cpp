@@ -21,6 +21,7 @@
 #include <ProcessSLRData.hpp>
 #include "gmatdefs.hpp"
 #include "StringUtil.hpp"           // for ToString()
+#include "pcrecpp.h"
 
 //---------------------------------
 //  static data
@@ -62,8 +63,8 @@ bool ProcessSLRData::GetData(slr_header &mySLRheader, slr_obtype &mySLRdata)
 {
 
     // Read a line from file
-    std::string line = mySLRData.ReadLineFromFile();
-    line = mySLRData.Trim(line);
+    std::string line = ReadLineFromFile();
+    line = Trim(line);
     
     // Parse the data record
     // We pass the header record so that we know wether the data records
@@ -112,11 +113,8 @@ bool ProcessSLRData::FindSLRHeaderLine( slr_header &mySLRheader )
 	
     } while ( headerType != 99999 && headerType != 88888 && !IsEOF() );
     
-    if (line == "99999" || line == "88888") 
+    if (headerType == 99999 || headerType == 88888) 
     {
-
-	// Initialize structs
-	ProcessDataFile::slr_header mySLRheader = {0};
 	    
 	// set SLR type variable so that we know how
 	// to process the rest of the data.
@@ -243,7 +241,7 @@ bool ProcessSLRData::GetSLRHeader(std::string &lff, slr_header &mySLRheader)
 
 //------------------------------------------------------------------------------
 // bool GetSLRData(std::string lff, slr_header &mySLRheader, 
-//                     slr_obtype &mySLRData)
+//                     slr_obtype &mySLRdata)
 //------------------------------------------------------------------------------
 /** 
  * Converts the compact SLR Normal Point Data format into usable numbers.
@@ -254,7 +252,7 @@ bool ProcessSLRData::GetSLRHeader(std::string &lff, slr_header &mySLRheader)
 //------------------------------------------------------------------------------
 
 bool ProcessSLRData::GetSLRData(std::string &lff, slr_header &mySLRheader,
-				     slr_obtype &mySLRData)
+				     slr_obtype &mySLRdata)
 {
 
     // Remove any leading or trailing whitespace
@@ -294,34 +292,34 @@ bool ProcessSLRData::GetSLRData(std::string &lff, slr_header &mySLRheader,
 	    // The data spec provides an integer in 0.1 microseconds that
 	    // is too large to store efficiently. Here we convert to
 	    // a real valued time in units of seconds
-	    mySLRData.timeOfLaserFiring = dtemp * 1.0e-7;
+	    mySLRdata.timeOfLaserFiring = dtemp * 1.0e-7;
 	    
 	    if (!from_string<double>(dtemp,lff2.substr(12,12),std::dec)) return false;
 	    // The data spec provides an integer in picoseconds that
 	    // is too large to store efficiently. Here we convert to
 	    // a real valued time in units of seconds
-	    mySLRData.twoWayTimeOfFlight = dtemp * 1.0e-12;
+	    mySLRdata.twoWayTimeOfFlight = dtemp * 1.0e-12;
 
-	    if (!from_string<int>(mySLRData.binRMSRange,lff2.substr(24,7),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata.binRMSRange,lff2.substr(24,7),std::dec)) return false;
 	    
 	    // Convert surface pressure to units of millibar
 	    if (!from_string<int>(itemp,lff2.substr(31,5),std::dec)) return false;
-	    mySLRData.surfacePressure = itemp * 0.1;
+	    mySLRdata.surfacePressure = itemp * 0.1;
 	    
 	    // Convert surface temp to units of degrees Kelvin
 	    if (!from_string<int>(itemp,lff2.substr(36,4),std::dec)) return false;
-	    mySLRData.surfaceTemp = itemp * 0.1;
+	    mySLRdata.surfaceTemp = itemp * 0.1;
 	    
-	    if (!from_string<int>(mySLRData.relativeHumidity,lff2.substr(40,3),std::dec)) return false;
-	    if (!from_string<int>(mySLRData.numRawRanges,lff2.substr(43,4),std::dec)) return false;
-	    if (!from_string<int>(mySLRData.dataReleaseFlag,lff2.substr(47,1),std::dec)) return false;
-	    if (!from_string<int>(mySLRData.rawRangeFactor,lff2.substr(48,1),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata.relativeHumidity,lff2.substr(40,3),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata.numRawRanges,lff2.substr(43,4),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata.dataReleaseFlag,lff2.substr(47,1),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata.rawRangeFactor,lff2.substr(48,1),std::dec)) return false;
 	    // The Normal Point Window Indicator and the Signal to Noise Ratio
 	    // are only used for LLR data
 	    if (!from_string<int>(itemp,lff2.substr(49,1),std::dec)) return false;
-	    mySLRData.normalPointWindowIndicator2 = itemp;
+	    mySLRdata.normalPointWindowIndicator2 = itemp;
 	    if (!from_string<int>(itemp,lff2.substr(50,2),std::dec)) return false;
-	    mySLRData.signalToNoiseRatio =  itemp * 0.1;
+	    mySLRdata.signalToNoiseRatio =  itemp * 0.1;
 
 	    break;
 	    
@@ -346,32 +344,32 @@ bool ProcessSLRData::GetSLRData(std::string &lff, slr_header &mySLRheader,
 	    // The data spec provides an integer in 0.1 microseconds that
 	    // is too large to store efficiently. Here we convert to
 	    // a real valued time in seconds.
-	    mySLRData.timeOfLaserFiring = dtemp * 1.0e-7;
+	    mySLRdata.timeOfLaserFiring = dtemp * 1.0e-7;
 
 	    if (!from_string<double>(dtemp,lff2.substr(12,12),std::dec)) return false;
 	    // The data spec provides an integer in picoseconds that
 	    // is too large to store efficiently. Here we convert to
 	    // a real valued time
-	    mySLRData.twoWayTimeOfFlight = dtemp * 1.0e-12;
+	    mySLRdata.twoWayTimeOfFlight = dtemp * 1.0e-12;
 	    
 	    // Convert surface pressure to units of millibar
             if (!from_string<int>(itemp,lff2.substr(24,5),std::dec)) return false;
-	    mySLRData.surfacePressure = itemp * 0.1; 
+	    mySLRdata.surfacePressure = itemp * 0.1; 
 	    
 	    // Convert surface temp to units of degrees Kelvin
             if (!from_string<int>(itemp,lff2.substr(29,4),std::dec)) return false;
-	    mySLRData.surfaceTemp = itemp * 0.1;
+	    mySLRdata.surfaceTemp = itemp * 0.1;
 
-            if (!from_string<int>(mySLRData.relativeHumidity,lff2.substr(33,3),std::dec)) return false;
-            if (!from_string<int>(mySLRData.burstCalSysDelay,lff2.substr(36,8),std::dec)) return false;
-            if (!from_string<int>(mySLRData.signalStrength,lff2.substr(44,4),std::dec)) return false;
-            if (!from_string<int>(mySLRData.angleOriginIndicator,lff2.substr(48,1),std::dec)) return false;
+            if (!from_string<int>(mySLRdata.relativeHumidity,lff2.substr(33,3),std::dec)) return false;
+            if (!from_string<int>(mySLRdata.burstCalSysDelay,lff2.substr(36,8),std::dec)) return false;
+            if (!from_string<int>(mySLRdata.signalStrength,lff2.substr(44,4),std::dec)) return false;
+            if (!from_string<int>(mySLRdata.angleOriginIndicator,lff2.substr(48,1),std::dec)) return false;
             if (!from_string<int>(itemp,lff2.substr(49,7),std::dec)) return false;
 	    // Convert az to degrees
-	    mySLRData.az = itemp * 1e-4;
+	    mySLRdata.az = itemp * 1e-4;
             if (!from_string<int>(itemp,lff2.substr(56,6),std::dec)) return false;
 	    // Convert el to degrees
-	    mySLRData.el = itemp * 1e-4;
+	    mySLRdata.el = itemp * 1e-4;
                                                                                                                                                                                                                                                                                     
 	    break;
 	    

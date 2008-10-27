@@ -18,15 +18,15 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef ProcessDataFile_hpp
-#define	ProcessDataFile_hpp
+#ifndef ProcessTLEData_hpp
+#define	ProcessTLEData_hpp
 
 #include "gmatdefs.hpp"
 #include <pcrecpp.h>
 #include "RealUtilities.hpp"
 #include "ProcessDataFile.hpp"
 
-class ProcessTLEData :: ProcessDataFile
+class ProcessTLEData : public ProcessDataFile
 {
 
 public:
@@ -34,11 +34,8 @@ public:
     ProcessTLEData();
     ~ProcessTLEData();
     
-    bool GetData(tle_obtype &myTLEdata);
-
-private:
-    
     // Specific data type processing functions
+    bool GetData(tle_obtype &myTLEdata);
     bool GetTLEData(std::string &lff, std::string &lff2, 
 			       tle_obtype &myTLEdata);
 

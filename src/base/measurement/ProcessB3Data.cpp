@@ -21,6 +21,7 @@
 #include <ProcessB3Data.hpp>
 #include "gmatdefs.hpp"
 #include "StringUtil.hpp"           // for ToString()
+#include "math.h"
 
 //---------------------------------
 //  static data

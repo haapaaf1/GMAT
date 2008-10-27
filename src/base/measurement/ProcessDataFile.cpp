@@ -25,6 +25,8 @@
 #include "iostream"
 #include "fstream"
 #include "sstream"
+#include <pcrecpp.h>
+#include "StringUtil.hpp"           // for ToString()
 
 //---------------------------------
 //  static data

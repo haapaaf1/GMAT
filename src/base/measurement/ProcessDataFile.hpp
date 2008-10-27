@@ -26,8 +26,9 @@
 #include "gmatdefs.hpp"
 #include <iostream>
 #include <fstream>
+#include "DataFormats.hpp"
 
-using namespace DataFormats;
+using namespace DataFormats; // for data type variable definitions
 
 class ProcessDataFile
 {
@@ -35,7 +36,7 @@ class ProcessDataFile
 public:
     
     ProcessDataFile();
-    ~ProcessDataFile();
+    virtual ~ProcessDataFile();
 
     // Specific data type processing functions
     virtual bool GetData(slr_header &mySLRheader);
@@ -59,7 +60,7 @@ public:
 
     // Get/Set isOpen variable
     bool GetIsOpen() const;
-    void SetIsOpen(const bool flag);
+    void SetIsOpen(const bool &flag);
     
     // File name functions
     std::string GetFileName();

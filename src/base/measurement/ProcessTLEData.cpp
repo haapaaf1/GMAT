@@ -18,9 +18,11 @@
  */
 //------------------------------------------------------------------------------
 
-#include <ProcessTLEData.hpp>
+#include "ProcessTLEData.hpp"
 #include "gmatdefs.hpp"
 #include "StringUtil.hpp"           // for ToString()
+#include "ProcessDataFile.hpp"
+#include "math.h"
 
 //---------------------------------
 //  static data
@@ -58,14 +60,14 @@ ProcessTLEData::~ProcessTLEData()
  * Obtains the next line of Two Line Element Set data from file.
  */
 //------------------------------------------------------------------------------
-bool GetTLEData::GetData(tle_obtype &myTLEdata)
+bool ProcessTLEData::GetData(tle_obtype &myTLEdata)
 {
     
     // Read in two lines
     std::string line1 = ReadLineFromFile();
     std::string line2 = ReadLineFromFile();
     
-    return GetTLEData(line1,line2,myTLEData);
+    return GetTLEData(line1,line2,myTLEdata);
     
 }
 
@@ -76,7 +78,7 @@ bool GetTLEData::GetData(tle_obtype &myTLEdata)
  * Converts the compact Two Line Element Set data into usable numbers
  */
 //------------------------------------------------------------------------------
-bool GetTLEData::GetTLEData(std::string &lff, 
+bool ProcessTLEData::GetTLEData(std::string &lff, 
    				     std::string &lff2,
 				     tle_obtype &myTLEdata) 
 {

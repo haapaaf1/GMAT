@@ -18,15 +18,15 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef ProcessDataFile_hpp
-#define	ProcessDataFile_hpp
+#ifndef ProcessB3Data_hpp
+#define	ProcessB3Data_hpp
 
 #include "gmatdefs.hpp"
 #include <pcrecpp.h>
 #include "RealUtilities.hpp"
 #include "ProcessDataFile.hpp"
 
-class ProcessB3Data :: ProcessDataFile
+class ProcessB3Data : ProcessDataFile
 {
 
 public:
@@ -35,7 +35,9 @@ public:
     ~ProcessB3Data();
 
     // Override generic data call from base class
-    bool GetData(tle_obtype &myTLEdata);
+    bool GetData(b3_obtype &myB3data);
+    // Specific data type processing functions
+    bool GetB3Data(std::string &lff, b3_obtype &myB3data);
     
 
     enum B3_TYPE_REPS {
@@ -53,8 +55,6 @@ public:
   
 private:
 
-    // Specific data type processing functions
-    bool GetB3Data(std::string &lff, b3_obtype &myB3data);
    
     static const Integer NUM_B3_TYPES = 9;
     static const std::string B3_TYPE_DESCRIPTIONS[NUM_B3_TYPES];    
