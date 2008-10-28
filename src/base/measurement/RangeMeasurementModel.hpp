@@ -21,18 +21,30 @@
 #ifndef _RANGEMEASUREMENTMODEL_HPP
 #define	_RANGEMEASUREMENTMODEL_HPP
 
-class GMAT_API RangeMeasurementModel : public MeasurmentModel
+#include "MeasurementModel.hpp"
+
+class GMAT_API RangeMeasurementModel : public MeasurementModel
 {
 public:
-    RangeMeasurementModel();
-    RangeMeasurementModel(const MeasurementModel &RMM);
+    RangeMeasurementModel(const std::string name = "");
+    RangeMeasurementModel(const RangeMeasurementModel &RMM);
     RangeMeasurementModel& operator=(const RangeMeasurementModel &RMM);
-    virtual ~RangeMeasurementModel();  
+    virtual ~RangeMeasurementModel();
+
+    virtual bool ComputeMeasurement(GroundStation &theStation,
+          Spacecraft &theSat, Rvector &myMeasurements);
+    virtual bool ComputeCartesianPartialDerivative(
+          GroundStation &theStation, Spacecraft &theSat,
+          Rvector &myCartDerivatives);
+
+
+    virtual GmatBase *Clone() const;
+
 private:
-    
+
 protected:
-    
-}
+
+};
 
 #endif	/* _RANGEMEASUREMENTMODEL_HPP */
 

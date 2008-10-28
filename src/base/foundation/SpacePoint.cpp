@@ -94,10 +94,12 @@ j2000BodyName  ("Earth")
  */
 //---------------------------------------------------------------------------
 SpacePoint::SpacePoint(const SpacePoint &sp) :
-GmatBase(sp),
-j2000Body     (NULL),
-j2000BodyName (sp.j2000BodyName)
+   GmatBase       (sp),
+   j2000Body      (NULL),
+   j2000BodyName  (sp.j2000BodyName)
 {
+   objectTypes.push_back(Gmat::SPACE_POINT);
+   objectTypeNames.push_back("SpacePoint");
 }
 
 //---------------------------------------------------------------------------

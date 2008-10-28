@@ -18,6 +18,7 @@
 #ifndef _MEASUREMENTMODEL_HPP
 #define	_MEASUREMENTMODEL_HPP
 
+#include "GmatBase.hpp"
 #include "Rvector6.hpp"
 #include "CoordinateSystem.hpp"
 #include "CoordinateConverter.hpp"
@@ -26,12 +27,12 @@
 #include "GroundStation.hpp"
 #include "Spacecraft.hpp"
 
-class GMAT_API MeasurementModel
+class GMAT_API MeasurementModel : public GmatBase
 {
 
 public:
 
-  MeasurementModel();
+  MeasurementModel(const std::string typeName, const std::string name = "");
   MeasurementModel(const MeasurementModel &MeasurementModel);
   MeasurementModel& operator=(const MeasurementModel &MeasurementModel);
   virtual ~MeasurementModel();
@@ -52,8 +53,11 @@ public:
   std::string GetMeasurementUnitText(Integer id) const;
   const Real* GetMeasurements() const;
 
-  virtual Integer ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements);
-  virtual Integer ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
+  virtual bool ComputeMeasurement(GroundStation &theStation,
+        Spacecraft &theSat, Rvector &myMeasurements);
+  virtual bool ComputeCartesianPartialDerivative(
+        GroundStation &theStation, Spacecraft &theSat,
+        Rvector &myCartDerivatives);
 
 
 private:

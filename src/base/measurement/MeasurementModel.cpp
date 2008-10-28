@@ -12,10 +12,10 @@
 // Created: 2008/07/23
 //
 /**
- * Defines the measurement models used for observer objects. 
+ * Defines the measurement models used for observer objects.
  */
 //------------------------------------------------------------------------------
- 
+
 #include "MeasurementModel.hpp"
 #include "Rvector6.hpp"
 #include "CoordinateSystem.hpp"
@@ -44,7 +44,7 @@ const std::string MeasurementModel::MODEL_DESCRIPTIONS[NUM_MODELS] =
     "VariableTransmitterDoppler",
     "IntegratedDopplerCount",
     "IMU",
-    "Magnetometer",              
+    "Magnetometer",
     "AO_AzEl",
     "RangeAzEl",
     "AO_RaDec",
@@ -56,22 +56,29 @@ const std::string MeasurementModel::MODEL_DESCRIPTIONS[NUM_MODELS] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-//  MeasurementModel::MeasurementModel() 
+//  MeasurementModel::MeasurementModel()
 //------------------------------------------------------------------------------
 /**
- * Constructs base MeasurementModel structures 
+ * Constructs base MeasurementModel structures
  */
-MeasurementModel::MeasurementModel() :
-    modelID  (0)
+MeasurementModel::MeasurementModel(const std::string typeName,
+      const std::string name) :
+   GmatBase    (Gmat::MEASUREMENT_MODEL, typeName, name),
+   modelID     (0)
 {
+   objectTypes.push_back(Gmat::MEASUREMENT_MODEL);
+   objectTypeNames.push_back("MeasurementModel");
 }
 
 //------------------------------------------------------------------------------
 //   MeasurementModel::MeasurementModel(const MeasurementModel &mm)
 //------------------------------------------------------------------------------
 MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
-  modelID  (mm.modelID)
+   GmatBase    (mm),
+   modelID  (mm.modelID)
 {
+   objectTypes.push_back(Gmat::MEASUREMENT_MODEL);
+   objectTypeNames.push_back("MeasurementModel");
 }
 
 //------------------------------------------------------------------------------
@@ -87,9 +94,9 @@ MeasurementModel& MeasurementModel::operator=(const MeasurementModel &mm)
 }
 
 //------------------------------------------------------------------------------
-//  MeasurementModel::~MeasurementModel() 
+//  MeasurementModel::~MeasurementModel()
 //------------------------------------------------------------------------------
-MeasurementModel::~MeasurementModel() 
+MeasurementModel::~MeasurementModel()
 {
 }
 
@@ -187,7 +194,7 @@ std::string MeasurementModel::GetMeasurementUnitText(const Integer id) const
 {
     if (id >= 0 && id < numMeasurements)
       return measurementUnits[id];
-   
+
     return "Unknown Measurement Unit ID";
 }
 //------------------------------------------------------------------------------
@@ -243,7 +250,7 @@ Integer MeasurementModel::GetModelID(const std::string &label)
        return INTEGRATEDDOPPLERCOUNT_ID;
    } else if (!strcmp(label.c_str(),"IMU")) {
        return IMU_ID;
-   } else if (!strcmp(label.c_str(),"Magnetometer")) {              
+   } else if (!strcmp(label.c_str(),"Magnetometer")) {
        return MAGNETOMETER_ID;
    } else if (!strcmp(label.c_str(),"AO_AzEl")) {
        return AO_AZEL_ID;
@@ -282,8 +289,8 @@ std::string MeasurementModel::GetModelNameText(const Integer &id) const
    return "INVALID";
 }
 //------------------------------------------------------------------------------
-// Integer ComputeMeasurement(const GroundStation &theStation, 
-//		const Spacecraft &theSat, const Rvector &myMeasurements); 
+// Integer ComputeMeasurement(const GroundStation &theStation,
+//		const Spacecraft &theSat, const Rvector &myMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurements between a ground station and a
@@ -291,14 +298,15 @@ std::string MeasurementModel::GetModelNameText(const Integer &id) const
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-Integer MeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
+bool MeasurementModel::ComputeMeasurement(GroundStation &theStation,
+      Spacecraft &theSat, Rvector &myMeasurements)
 {
       return false;
 }
 
 //------------------------------------------------------------------------------
-// Integer ComputeCartesianPartialDerivative(const GroundStation &theStation, 
-//		const Spacecraft &theSat, const Rvector &myMeasurements); 
+// Integer ComputeCartesianPartialDerivative(const GroundStation &theStation,
+//		const Spacecraft &theSat, const Rvector &myMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurement derivatives with respect to the estimator
@@ -306,8 +314,9 @@ Integer MeasurementModel::ComputeMeasurement(const GroundStation &theStation, co
  * computed.
  */
 //------------------------------------------------------------------------------
-Integer MeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives)
+bool MeasurementModel::ComputeCartesianPartialDerivative(
+      GroundStation &theStation, Spacecraft &theSat, Rvector &myCartDerivatives)
 {
     return false;
 }
-  
+

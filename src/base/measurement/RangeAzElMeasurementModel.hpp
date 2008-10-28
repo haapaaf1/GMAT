@@ -18,21 +18,32 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef _RADECMEASUREMENTMODEL_HPP
-#define	_RADECMEASUREMENTMODEL_HPP
+#ifndef RangeAzElMeasurementModel_hpp
+#define RangeAzElMeasurementModel_hpp
 
-class GMAT_API RaDecMeasurementModel : public MeasurmentModel
+#include "MeasurementModel.hpp"
+
+class GMAT_API RangeAzElMeasurementModel : public MeasurementModel
 {
 public:
-    RaDecMeasurementModel();
-    RaDecMeasurementModel(const RaDecMeasurementModel &RaDecMeasurementModel);
-    RaDecMeasurementModel& operator=(const RaDecMeasurementModel &RaDecMeasurementModel);
-    virtual ~RaDecMeasurementModel();  
-private:
-    
-protected:
-    
-}
+   RangeAzElMeasurementModel(const std::string name);
+   RangeAzElMeasurementModel(const RangeAzElMeasurementModel &raeModel);
+   RangeAzElMeasurementModel& operator=(const RangeAzElMeasurementModel &raeModel);
+   virtual ~RangeAzElMeasurementModel();
 
-#endif	/* _RADECMEASUREMENTMODEL_HPP */
+   GmatBase *Clone() const;
+
+   bool ComputeCartesianPartialDerivative(GroundStation &theStation,
+          Spacecraft &theSat, Rvector &myCartDerivatives);
+   bool ComputeMeasurement(GroundStation &theStation, Spacecraft &theSat,
+          Rvector &myMeasurements);
+
+private:
+
+protected:
+
+
+};
+
+#endif	/* RangeAzElMeasurementModel_hpp */
 

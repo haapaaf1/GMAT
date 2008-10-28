@@ -50,7 +50,7 @@ ConfigManager* ConfigManager::Instance()
 {
    if (!theConfigManager)
       theConfigManager = new ConfigManager;
-        
+
    return theConfigManager;
 }
 
@@ -98,30 +98,30 @@ std::string ConfigManager::GetNewName(const std::string &name, Integer startCoun
    MessageInterface::ShowMessage
       ("ConfigManager::GetNewName() name = %s\n", name.c_str());
    #endif
-   
+
    if (name == "")
       return "";
-   
+
    // get initial new name
    Integer counter = 0;
    std::string baseName = GmatStringUtil::RemoveLastNumber(name, counter);
    if (counter == 0)
       counter = startCount;
-   
+
    std::string newName = baseName + GmatStringUtil::ToString(counter, 1);
-   
+
    // construct new name while it exists
    while (GetItem(newName))
    {
       ++counter;
       newName = baseName + GmatStringUtil::ToString(counter,1);
    }
-   
+
    #if DEBUG_CONFIG_NEW_NAME
    MessageInterface::ShowMessage
       ("ConfigManager::GetNewName() newName = %s\n", newName.c_str());
    #endif
-   
+
    return newName;
 }
 
@@ -141,20 +141,20 @@ std::string ConfigManager::AddClone(const std::string &name)
 {
    if (name == "")
       return "";
-   
+
    GmatBase *obj1 = GetItem(name);
    std::string newName = GetNewName(name, 2);
-   
+
    GmatBase* obj2 = obj1->Clone();
    obj2->SetName(newName, newName);
    AddObject(obj2);
-   
+
    #if DEBUG_CONFIG_ADD_CLONE
    MessageInterface::ShowMessage
       ("ConfigManager::AddClone() newName = %s, type = %s\n", obj2->GetName().c_str(),
        obj2->GetTypeName().c_str());
    #endif
-   
+
    return newName;
 }
 
@@ -313,8 +313,8 @@ void ConfigManager::AddSpacecraft(SpaceObject *sc)
 //------------------------------------------------------------------------------
 /**
  * Adds a SpacePoint to the configuration.
- * 
- * NOTE: Spacecraft and Formations are handled in the AddSpacecraft method. 
+ *
+ * NOTE: Spacecraft and Formations are handled in the AddSpacecraft method.
  *
  * @param sp Pointer to the SpacePoint instance.
  */
@@ -440,6 +440,19 @@ void ConfigManager::AddSolver(Solver* solver)
    AddObject(solver);
 }
 
+void ConfigManager::AddMeasurementModel(MeasurementModel *mm)
+{
+   std::string name = mm->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!mm->IsOfType(Gmat::MEASUREMENT_MODEL))
+      throw ConfigManagerException(name + " is not a MeasurementModel");
+
+   AddObject(mm);
+}
+
+
 //------------------------------------------------------------------------------
 // void AddAtmosphereModel(AtmosphereModel* atmosModel)
 //------------------------------------------------------------------------------
@@ -475,7 +488,7 @@ void ConfigManager::AddFunction(Function* function)
    std::string name = function->GetName();
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
-   
+
    if (!function->IsOfType(Gmat::FUNCTION))
       throw ConfigManagerException(name + " is not a Function");
 
@@ -538,13 +551,13 @@ void ConfigManager::AddCalculatedPoint(CalculatedPoint *cs)
 void ConfigManager::AddObject(GmatBase *obj)
 {
    std::string name = obj->GetName();
-   
+
    #ifdef DEBUG_CONFIG_MEMORY
       MessageInterface::ShowMessage
          ("ConfigManager::AddObject() Adding <%p><%s>'%s'\n",
           obj, obj->GetTypeName().c_str(), name.c_str());
    #endif
-      
+
    if (mapping.find(name) != mapping.end())
    {
       name += " is already in the configuration table";
@@ -555,10 +568,10 @@ void ConfigManager::AddObject(GmatBase *obj)
       objects.push_back(obj);
       mapping[name] = obj;
    }
-   
+
    // Until we can add TextEphemFile to resource tree, we don't want to
    // write to script file on save script. (loj: 2007.04.07)
-   
+
    if (obj->GetTypeName() != "TextEphemFile")
       objectChanged = true;
 }
@@ -596,7 +609,7 @@ void ConfigManager::SetSolarSystemInUse(SolarSystem *ss)
    MessageInterface::ShowMessage
       ("ConfigManager::SetSolarSystemInUse() name=%s\n", ss->GetName().c_str());
    #endif
-   
+
    solarSystemInUse = ss;
 }
 
@@ -631,10 +644,10 @@ bool ConfigManager::SetSolarSystemInUse(const std::string &name)
 const StringArray& ConfigManager::GetListOfAllItems()
 {
    listOfItems.erase(listOfItems.begin(), listOfItems.end());
-    
+
    std::vector<GmatBase*>::iterator current =
       (std::vector<GmatBase*>::iterator)(objects.begin());
-   
+
    while (current != (std::vector<GmatBase*>::iterator)(objects.end()))
    {
       listOfItems.push_back((*current)->GetName());
@@ -675,23 +688,23 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
       ("ConfigManager::GetListOfItemsHas() name=%s, includeSysParam=%d\n",
        name.c_str(), includeSysParam);
    #endif
-   
+
    try
    {
       for (UnsignedInt i=0; i<items.size(); i++)
       {
          obj = GetItem(items[i]);
-         
+
          #if DEBUG_RENAME
          MessageInterface::ShowMessage
             ("===> obj[%d]=%s, %s\n", i, obj->GetTypeName().c_str(),
              obj->GetName().c_str());
          #endif
-         
+
          // if same type, skip
          if (obj->IsOfType(type))
             continue;
-         
+
          // if system parameter not to be included, skip
          if (!includeSysParam)
          {
@@ -699,16 +712,16 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
                if (((Parameter*)obj)->GetKey() == GmatParam::SYSTEM_PARAM)
                   continue;
          }
-         
+
          objName = obj->GetName();
          objString = obj->GetGeneratingString();
          pos = objString.find(name);
-         
+
          #if DEBUG_RENAME
          MessageInterface::ShowMessage
             ("===> objString=\n%s\n", objString.c_str());
          #endif
-         
+
          if (pos != objString.npos)
          {
             itemList.push_back(objName);
@@ -719,7 +732,7 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
    {
       MessageInterface::ShowMessage("*** Error: %s\n", e.GetFullMessage().c_str());
    }
-   
+
    return itemList;
 }
 
@@ -738,7 +751,7 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
 const StringArray& ConfigManager::GetListOfItems(Gmat::ObjectType itemType)
 {
    listOfItems.erase(listOfItems.begin(), listOfItems.end());
-    
+
    std::vector<GmatBase*>::iterator current =
       (std::vector<GmatBase*>::iterator)(objects.begin());
    while (current != (std::vector<GmatBase*>::iterator)(objects.end()))
@@ -765,9 +778,9 @@ const StringArray& ConfigManager::GetListOfItems(Gmat::ObjectType itemType)
 GmatBase* ConfigManager::GetItem(const std::string &name)
 {
    //MessageInterface::ShowMessage("===> ConfigManager::GetItem() name='%s'\n", name.c_str());
-   
+
    GmatBase *obj = NULL;
-   
+
    if (mapping.find(name) != mapping.end())
    {
       if (mapping[name]->GetName() == name)
@@ -775,7 +788,7 @@ GmatBase* ConfigManager::GetItem(const std::string &name)
          obj = mapping[name];
       }
    }
-   
+
    //MessageInterface::ShowMessage("===> ConfigManager::GetItem() returning <%p>\n", obj);
    return obj;
 }
@@ -804,13 +817,13 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
          ("ConfigManager::RenameItem() type=%d, oldName=%s, newName=%s\n",
           type, oldName.c_str(), newName.c_str());
    #endif
-   
+
    bool renamed = false;
-   
+
    //--------------------------------------------------
    // change mapping name
    //--------------------------------------------------
-   
+
    if (mapping.find(oldName) != mapping.end())
    {
       GmatBase *obj = mapping[oldName];
@@ -841,7 +854,7 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
              obj->GetType());
       }
    }
-   
+
    if (!renamed)
    {
       #if DEBUG_RENAME
@@ -850,7 +863,7 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
       #endif
       return false;
    }
-   
+
    //----------------------------------------------------
    // Rename ref. objects
    //----------------------------------------------------
@@ -864,21 +877,21 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
          #if DEBUG_RENAME
          MessageInterface::ShowMessage("===> Rename obj=%s\n", obj->GetName().c_str());
          #endif
-         
+
          renamed = obj->RenameRefObject(type, oldName, newName);
       }
    }
-   
+
    //----------------------------------------------------
    // Rename tanks in the thrusters.
    // Tank is ReadOnly parameter so it does show in
    // GeneratingString()
    //----------------------------------------------------
-   
+
    if (type == Gmat::HARDWARE)
    {
       itemList = GetListOfItems(Gmat::HARDWARE);
-      
+
       for (unsigned int i=0; i<itemList.size(); i++)
       {
          obj = GetItem(itemList[i]);
@@ -886,11 +899,11 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
              obj->RenameRefObject(type, oldName, newName);
       }
    }
-   
+
    //----------------------------------------------------
    // Rename system parameters and expression of variables
    //----------------------------------------------------
-   
+
    else if (type == Gmat::SPACECRAFT || type == Gmat::COORDINATE_SYSTEM ||
             type == Gmat::CALCULATED_POINT || type == Gmat::IMPULSIVE_BURN)
    {
@@ -898,33 +911,33 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
       std::string oldParamName, newParamName;
       Parameter *param;
       std::string::size_type pos;
-      
+
       for (unsigned int i=0; i<params.size(); i++)
       {
          #if DEBUG_RENAME
          MessageInterface::ShowMessage("params[%d]=%s\n", i, params[i].c_str());
          #endif
-         
+
          param = GetParameter(params[i]);
-         
+
          // if system parameter, change it's own name
          if (param->GetKey() == GmatParam::SYSTEM_PARAM)
          {
             oldParamName = param->GetName();
             pos = oldParamName.find(oldName);
-            
+
             // rename actual parameter name
             if (pos != oldParamName.npos)
             {
                newParamName = oldParamName;
                newParamName.replace(pos, oldName.size(), newName);
-               
+
                #if DEBUG_RENAME
                MessageInterface::ShowMessage
                   ("===> oldParamName=%s, newParamName=%s\n",
                    oldParamName.c_str(), newParamName.c_str());
                #endif
-               
+
                // change parameter mapping name
                if (mapping.find(oldParamName) != mapping.end())
                {
@@ -942,15 +955,15 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
          }
       }
    }
-   
+
    #if DEBUG_RENAME
    StringArray& allItems = GetListOfAllItems();
    for (UnsignedInt i=0; i<allItems.size(); i++)
       MessageInterface::ShowMessage("===> item[%d] = %s\n", i, allItems[i].c_str());
    #endif
-   
+
    objectChanged = true;
-   
+
    return renamed;
 } // RenameItem()
 
@@ -971,11 +984,11 @@ bool ConfigManager::RemoveAllItems()
    MessageInterface::ShowMessage
       ("ConfigManager::RemoveAllItems() Deleting %d objects\n", objects.size());
    #endif
-   
+
    for (unsigned int i=0; i<objects.size(); i++)
    {
       std::string objName = objects[i]->GetName();
-      
+
       #ifdef DEBUG_CONFIG_MEMORY
          MessageInterface::ShowMessage("  Deleting %s\n", objects[i]->GetName().c_str());
       #endif
@@ -983,10 +996,10 @@ bool ConfigManager::RemoveAllItems()
       delete objects[i];
       objects[i] = NULL;
    }
-   
+
    objects.clear();
    mapping.clear();
-   
+
    return true;
 }
 
@@ -1010,13 +1023,13 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
       ("ConfigManager::RemoveItem() entered, type=%d, name='%s'\n", type,
        name.c_str());
    #endif
-   
+
    bool status = false;
-   
+
    // remove from objects
    std::vector<GmatBase*>::iterator currentIter =
       (std::vector<GmatBase*>::iterator)(objects.begin());
-   
+
    while (currentIter != (std::vector<GmatBase*>::iterator)(objects.end()))
    {
       if ((*currentIter)->GetType() == type)
@@ -1029,7 +1042,7 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
       }
       ++currentIter;
    }
-   
+
    // remove from mapping
    if (mapping.find(name) != mapping.end())
    {
@@ -1045,7 +1058,7 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
          status = true;
       }
    }
-    
+
    objectChanged = true;
    return status;
 }
@@ -1066,19 +1079,19 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
 bool ConfigManager::ReconfigureItem(GmatBase *newobj, const std::string &name)
 {
    GmatBase *obj = NULL;
-   
+
    if (mapping.find(name) != mapping.end())
    {
       if (mapping[name]->GetName() == name)
       {
          obj = mapping[name];
-         
+
          #if DEBUG_CONFIG_RECONFIGURE
          MessageInterface::ShowMessage
             ("ConfigManager::ReconfigureItem() obj=%p newobj=%p\n", obj,
              newobj);
          #endif
-         
+
          if (obj->GetTypeName() == newobj->GetTypeName())
          {
             mapping[name] = newobj;
@@ -1086,7 +1099,7 @@ bool ConfigManager::ReconfigureItem(GmatBase *newobj, const std::string &name)
          }
       }
    }
-   
+
    return false;
 }
 
@@ -1159,7 +1172,7 @@ ForceModel* ConfigManager::GetForceModel(const std::string &name)
       if (mapping[name] == NULL)
          throw ConfigManagerException
             ("ConfigManager::GetForceModel(name) is finding a NULL object in the mapping.\n");
-     
+
       if (mapping[name]->IsOfType(Gmat::FORCE_MODEL))
       {
          fm = (ForceModel *)mapping[name];
@@ -1344,7 +1357,7 @@ SolarSystem* ConfigManager::GetSolarSystemInUse(const std::string &name)
    MessageInterface::ShowMessage
       ("ConfigManager::GetSolarSystemInUse() name=%s\n", name.c_str());
    #endif
-   
+
    throw ConfigManagerException
       ("ConfigManager::GetSolarSystemInUse(name) has not been implemented.\n");
 }
@@ -1445,6 +1458,19 @@ Solver* ConfigManager::GetSolver(const std::string &name)
       }
    }
    return solver;
+}
+
+MeasurementModel* ConfigManager::GetMeasurementModel(const std::string &name)
+{
+   MeasurementModel *mm = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::MEASUREMENT_MODEL))
+      {
+         mm = (MeasurementModel *)mapping[name];
+      }
+   }
+   return mm;
 }
 
 //------------------------------------------------------------------------------

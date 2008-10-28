@@ -257,27 +257,41 @@ bool RunEstimator::Initialize()
 
    for (StringArray::iterator i = objlist.begin(); i != objlist.end(); ++i)
    {
-      obj = (*objectMap)[*i];
-      if (obj == NULL)
-         obj = (*globalObjectMap)[objname];
+      obj = NULL;
+      std::string objName = (*i);
+      obj = (*objectMap)[objName];
 
-      MessageInterface::ShowMessage("   Adding participant %s of type %s\n",
-            i->c_str(), obj->GetTypeName().c_str());
+      if (obj == NULL)
+         obj = (*globalObjectMap)[objName];
+
+      if (obj == NULL)
+         throw CommandException("Cannot locate object named " + (objName) +
+               " referenced by Estimator " + est->GetName());
+
+      if (obj->GetName() != objName)
+         obj = (*globalObjectMap)[objName];
+
+      if (obj->GetName() != objName)
+         throw CommandException("Still cannot locate object named " + objName +
+               " referenced by Estimator " + est->GetName());
+
+      MessageInterface::ShowMessage("   Adding participant %s of type %s, typeID %d\n",
+            obj->GetName().c_str(), obj->GetTypeName().c_str(), obj->GetType());
 
       if (obj != NULL)
       {
-         if (obj->IsOfType(Gmat::SPACE_POINT))
+//         if (obj->IsOfType(Gmat::SPACE_POINT))
          {
             participants.push_back(obj);
             est->SetRefObject(obj, obj->GetType(), obj->GetName());
          }
-         else
-            throw CommandException("The object named \"" +
-                  objname + "\" is not a valid participant.");
+//         else
+//            throw CommandException("The object named \"" +
+//                  (*i) + "\" is not a valid participant.");
       }
       else
          throw CommandException("There is no participant named \"" +
-               objname + "\"");
+               (*i) + "\"");
 
    }
 

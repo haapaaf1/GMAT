@@ -42,12 +42,12 @@ else
 SHARED_EXTENSION = .so
 endif
 
-LIBS = -L../base/lib -lGmatGui
+LIBS = -L../base/lib -lGmatGui -lpcrecpp
 LIBNAME = ../base/lib/libGmatGui$(SHARED_EXTENSION)
 else
 
 LIBNAME = ../base/lib/libGmatGui.dll
-LIBS = $(LIBNAME)
+LIBS = $(LIBNAME) -lpcrecpp
 
 endif
 
@@ -90,6 +90,9 @@ HEADERS = -I../base/include \
           -I../base/math \
           -I../base/coordsystem \
           -I../base/plugin \
+          -I../base/asset \
+          -I../base/estimator \
+          -I../base/measurement \
           -Iinclude \
           -Iinclude/bitmaps \
           -Iinclude/il \

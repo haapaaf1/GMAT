@@ -76,7 +76,7 @@ HEADERS = -Iinclude \
           -Iutil \
           -Iinterpolator \
           -Iinterface \
-	  -Imeasurement \
+          -Imeasurement \
           -Iparameter \
           -Iconfigs \
           -Iburn \
@@ -241,6 +241,7 @@ OBJECTS = \
     factory/FunctionFactory.o \
     factory/HardwareFactory.o \
     factory/MathFactory.o \
+    factory/MeasurementModelFactory.o \
     factory/ParameterFactory.o \
     factory/PhysicalModelFactory.o \
     factory/PropagatorFactory.o \
@@ -318,6 +319,8 @@ OBJECTS = \
     math/Tanh.o \
     math/Transpose.o \
     measurement/MeasurementModel.o \
+    measurement/RangeMeasurementModel.o \
+    measurement/RangeAzElMeasurementModel.o \
     measurement/ProcessDataFile.o \
     measurement/ProcessTLEData.o \
     measurement/ProcessB3Data.o \
@@ -394,7 +397,6 @@ OBJECTS = \
     solarsys/LibrationPoint.o \
     solarsys/Moon.o \
     solarsys/Msise90Atmosphere.o \
-    solarsys/Msise00Atmosphere.o \
     solarsys/PlanetaryEphemException.o \
     solarsys/PlanetaryEphem.o \
     solarsys/Planet.o \
@@ -478,6 +480,7 @@ OBJECTS = \
 #    $(BRIDGEOBJECTS)
 
 # Future classes:
+#    solarsys/Msise00Atmosphere.o \
 #    propagator/Cowell.o \
 #    measurement/AzElMeasurementModel.o \
 #    measurement/RangeMeasurementModel.o \
@@ -488,7 +491,9 @@ OBJECTS = \
 
 
 
-FORTRAN_OBJECTS = solarsys/msise90_sub.o solarsys/msise00_sub.o
+FORTRAN_OBJECTS = solarsys/msise90_sub.o 
+
+# solarsys/msise00_sub.o
 
     # parameter/EquinoctialParameters.o \
     # stopcond/BaseStopCondition.o \
@@ -518,7 +523,7 @@ solarsys/msise90_sub.o: solarsys/msise90_sub.for
 	$(FORTRAN) -c solarsys/msise90_sub.for -o solarsys/msise90_sub.o $(F77_FLAGS) 
 
 solarsys/msise00_sub.o: solarsys/msise00_sub.for
-	$(FORTRAN) -c solarsys/msise00_sub.for -o solarsys/msise00_sub.o $(F77_FLAGS) 
+	$(FORTRAN) -c solarsys/msise00_sub.for -o solarsys/msise00_sub.o $(F77_FLAGS) -ff2c
 
 # Instructions for the console app interfaces
 interpreter/GuiInterpreterConsole.o : interpreter/GuiInterpreter.cpp \

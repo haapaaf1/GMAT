@@ -30,7 +30,7 @@ namespace GmatTree
       ICON_SPACECRAFT,
       ICON_TANK,
       ICON_THRUSTER,
-      
+
       ICON_SUN,
       ICON_MERCURY,
       ICON_VENUS,
@@ -41,12 +41,12 @@ namespace GmatTree
       ICON_URANUS,
       ICON_NEPTUNE,
       ICON_PLUTO,
-      
+
       ICON_REPORT,
       ICON_NETWORK,
       ICON_BURN,
       ICON_MOON,
-      
+
       ICON_MATLAB_FUNCTION,
       ICON_FUNCTION,
       ICON_COORDINATE_SYSTEM,
@@ -56,7 +56,7 @@ namespace GmatTree
       ICON_ARRAY,
       ICON_STRING,
       ICON_XY_PLOT,
-      
+
       ICON_DEFAULT,
    };
 
@@ -97,7 +97,7 @@ namespace GmatTree
    enum ItemType
    {
       UNKNOWN_ITEM = -1,
-      
+
       //---------- Resource Tree
       RESOURCES_FOLDER = 10000,
       SPACECRAFT_FOLDER,
@@ -109,6 +109,7 @@ namespace GmatTree
       BOUNDARY_SOLVER_FOLDER,
       OPTIMIZER_FOLDER,
       ESTIMATOR_FOLDER,
+      MEASUREMENT_FOLDER,
       SUBSCRIBER_FOLDER,
       INTERFACE_FOLDER,
       VARIABLE_FOLDER,
@@ -119,45 +120,45 @@ namespace GmatTree
       SCRIPT_FOLDER,
       CONSTELLATION_FOLDER,
       END_OF_RESOURCE_FOLDER,
-      
+
       // not openable
       INTERFACE,
       MATLAB_INTERFACE,
       MATLAB_SERVER,
-      
+
       VIEW_SOLVER_VARIABLES,
       VIEW_SOLVER_GOALS,
-      
+
       // openable resource
       BEGIN_OF_RESOURCE = 11000,
       SPACECRAFT,
       FUELTANK,
       THRUSTER,
-      
+
       FORMATION,
       FORMATION_SPACECRAFT,
       CONSTELLATION_SATELLITE,
-      
+
       PROPAGATOR,
-      
+
       IMPULSIVE_BURN,
       FINITE_BURN,
-      
+
       UNIVERSE_FOLDER,
       CELESTIAL_BODY,
       BARYCENTER,
       LIBRATION_POINT,
-      
+
       SOLVER,
       DIFF_CORR,
       BROYDEN,
       QUASI_NEWTON,
       SQP,
-      
+
       REPORT_FILE,
       XY_PLOT,
       OPENGL_PLOT,
-      
+
       VARIABLE,
       ARRAY,
       STRING,
@@ -166,11 +167,11 @@ namespace GmatTree
       COORD_SYSTEM,
       USER_COORD_SYSTEM,
       GROUNDSTATION,
-      
+
       // scripts
       SCRIPT_FILE,
       END_OF_RESOURCE,
-      
+
       //------------------------------------------
       // Note: MissionTree uses EVT_MENU_RANGE
       //------------------------------------------
@@ -179,7 +180,7 @@ namespace GmatTree
       MISSION_SEQ_TOP_FOLDER,
       MISSION_SEQ_SUB_FOLDER,
       MISSION_SEQ_COMMAND,
-      
+
       // command
       BEGIN_OF_COMMAND = 21000,
       PROPAGATE,
@@ -201,7 +202,7 @@ namespace GmatTree
       FREE_FORM_SCRIPT,
       SCRIPT_EVENT,
       END_OF_COMMAND,
-      
+
       // control logic
       BEGIN_OF_CONTROL,
       IF_CONTROL,
@@ -211,13 +212,13 @@ namespace GmatTree
       DO_CONTROL,
       SWITCH_CONTROL,
       END_OF_CONTROL,
-      
+
       //---------- Output Tree
       OUTPUT_FOLDER = 30000,
       REPORTS_FOLDER,
       OPENGL_PLOTS_FOLDER,
       XY_PLOTS_FOLDER,
-      
+
       // for output
       BEGIN_OF_OUTPUT = 31000,
       OUTPUT_REPORT,
@@ -225,7 +226,7 @@ namespace GmatTree
       OUTPUT_XY_PLOT,
       COMPARE_REPORT,
       END_OF_OUTPUT,
-      
+
       //---------- NO panels will be created
       BEGIN_NO_PANEL = 40000,
       STOP,
@@ -247,16 +248,16 @@ class GmatTreeItemData : public wxTreeItemData
 {
 public:
    GmatTreeItemData(const wxString desc, GmatTree::ItemType type);
-   
+
    GmatTree::ItemType GetItemType() { return mItemType; }
    wxString GetDesc() { return mDesc; }
-   
+
    void SetDesc(wxString desc) { mDesc = desc; }
    void SetItemType(GmatTree::ItemType type) { mItemType = type; }
-   
+
    virtual GmatCommand* GetCommand();
    virtual wxString GetCommandName();
-    
+
 protected:
 private:
    wxString mDesc;

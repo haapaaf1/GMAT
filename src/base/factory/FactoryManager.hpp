@@ -46,6 +46,8 @@
 #include "MathNode.hpp"
 #include "Attitude.hpp"
 
+#include "MeasurementModel.hpp"
+
 /**
  * GMAT Factory Manager Class, the interface between the Moderator and the
  * factories.
@@ -68,7 +70,7 @@ public:
    GmatBase*              CreateObject(const Gmat::ObjectType generalType,
                                        const std::string &ofType,
                                        const std::string &withName = "");
-   
+
    // methods to create and return objects of the various types
    SpaceObject*           CreateSpacecraft(const std::string &ofType,
                                            const std::string &withName = "");
@@ -85,6 +87,8 @@ public:
    CelestialBody*         CreateCelestialBody(const std::string &ofType,
                                               const std::string &withName = "");
    Solver*                CreateSolver(const std::string &ofType,
+                                       const std::string &withName = "");
+   MeasurementModel*      CreateMeasurementModel(const std::string &ofType,
                                        const std::string &withName = "");
    Subscriber*            CreateSubscriber(const std::string &ofType,
                                            const std::string &withName = "",
@@ -114,18 +118,18 @@ public:
    PropSetup*             CreatePropSetup(const std::string &withName = "");
    ForceModel*            CreateForceModel(const std::string &withName = "");
    CoordinateSystem*      CreateCoordinateSystem(const std::string &withName = "");
-   
+
    // method to return a list of strings representing the objects of the input
    // type that may be created in the system
    const StringArray&     GetListOfItems(Gmat::ObjectType byType);
    const StringArray&     GetListOfAllItems();
-   
+
    // method to return the base type for the input string
    Gmat::ObjectType       GetBaseTypeOf(const std::string &typeName);
-   
+
 protected:
    StringArray            entireList;
-   
+
 private:
 
    // private class data
@@ -134,11 +138,11 @@ private:
    std::list<Factory*> factoryList;
    /// pointer to the only instance allowed for this singleton class
    static FactoryManager* onlyInstance;
-   
-   // private methods 
+
+   // private methods
    Factory*               FindFactory(Gmat::ObjectType ofType, const std::string &forType);
    const StringArray&     GetList(Gmat::ObjectType ofType);
-   
+
    // Hide the default constructor and destructor to preserve singleton status
    // default constructor
    FactoryManager();

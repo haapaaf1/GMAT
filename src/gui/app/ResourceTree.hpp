@@ -41,7 +41,7 @@ public:
    void UpdateVariable();
    void OnAddScript(wxCommandEvent &event);
    bool WasScriptAdded() { return mScriptAdded; }
-   
+
 private:
    GmatMainFrame  *theMainFrame;
    GuiInterpreter *theGuiInterpreter;
@@ -49,11 +49,11 @@ private:
    bool mScriptFolderRunning;
    bool mHasUserInterrupted;
    bool mScriptAdded;
-   
+
    // for script error log
    int mBuildErrorCount;
    wxArrayString mFailedScriptsList;
-   
+
    wxTreeItemId mDraggedItem;
    wxTreeItemId mSpacecraftItem;
    wxTreeItemId mHardwareItem;
@@ -63,6 +63,7 @@ private:
    wxTreeItemId mBurnItem;
    wxTreeItemId mSubscriberItem;
    wxTreeItemId mSolverItem;
+   wxTreeItemId mMeasurementItem;
    wxTreeItemId mBoundarySolverItem;
    wxTreeItemId mOptimizerItem;
    wxTreeItemId mEstimatorItem;
@@ -74,17 +75,17 @@ private:
    wxTreeItemId mScriptItem;
    wxTreeItemId mScriptFolderItem;
    wxTreeItemId mUniverseItem;
-   
+
    // Mapping for plug-in objects
    std::map<Integer, std::string> pluginMap;
-   
+
    // objects
    GmatBase* GetObject(const std::string &name);
    void UpdateGuiItem(GmatTree::ItemType itemType);
-   
+
    // resource tree
    void AddNode(GmatTree::ItemType, const wxString &name);
-   
+
    void AddDefaultResources();
    void AddDefaultBodies(wxTreeItemId itemId);
    void AddDefaultSpacecraft(wxTreeItemId itemId, bool resetCounter = true);
@@ -116,9 +117,9 @@ private:
 
    void OnBeginDrag(wxTreeEvent &event);
    //void OnBeginRDrag(wxTreeEvent &event);
-   void OnEndDrag(wxTreeEvent &event);    
-   
-   void AddIcons();   
+   void OnEndDrag(wxTreeEvent &event);
+
+   void AddIcons();
    void OnAddBody(wxCommandEvent &event);
    void OnAddImpulsiveBurn(wxCommandEvent &event);
    void OnAddFiniteBurn(wxCommandEvent &event);
@@ -134,6 +135,7 @@ private:
    void OnAddDiffCorr(wxCommandEvent &event);
    void OnAddSqp(wxCommandEvent &event);
    void OnAddSolver(wxCommandEvent &event);
+   void OnAddMeasurementModel(wxCommandEvent &event);
    void OnAddVariable(wxCommandEvent &event);
    void OnAddArray(wxCommandEvent &event);
    void OnAddString(wxCommandEvent &event);
@@ -149,29 +151,29 @@ private:
    void OnRemoveScript(wxCommandEvent &event);
    void OnScriptBuildObject(wxCommandEvent& event);
    void OnScriptBuildAndRun(wxCommandEvent& event);
-   
+
    // script folder
    void OnAddScriptFolder(wxCommandEvent &event);
    void OnRunScriptsFromFolder(wxCommandEvent& event);
    void OnQuitRunScriptsFromFolder(wxCommandEvent& event);
    void OnRemoveScriptFolder(wxCommandEvent& event);
-   
+
    bool BuildScript(const wxString &filename, Integer openScriptOpt = 0,
                     bool closeScript = false, bool readBack = false,
                     const wxString &savePath = "", bool multiScripts = false);
-   
+
    // menu
    void ShowMenu(wxTreeItemId id, const wxPoint& pt);
    wxMenu* CreatePopupMenu(GmatTree::ItemType type);
    Gmat::ObjectType GetObjectType(GmatTree::ItemType itemType);
    wxTreeItemId GetTreeItemId(GmatTree::ItemType type);
    GmatTree::IconType GetTreeItemIcon(GmatTree::ItemType type);
-   
+
    // compare
    void CompareScriptRunResult(Real absTol, const wxString &replaceStr,
                                const wxString &dir1, const wxString &dir2,
                                wxTextCtrl *textCtrl);
-   
+
    DECLARE_EVENT_TABLE();
 
    // for popup menu
@@ -180,18 +182,18 @@ private:
       POPUP_ADD_SC = 23000,
       POPUP_ADD_FORMATION,
       POPUP_ADD_CONSTELLATION,
-      
+
       POPUP_ADD_HARDWARE,
       POPUP_ADD_THRUSTER,
       POPUP_ADD_FUELTANK,
-      
+
       POPUP_ADD_PROPAGATOR,
       POPUP_ADD_BODY,
-      
+
       POPUP_ADD_BURN,
       POPUP_ADD_IMPULSIVE_BURN,
       POPUP_ADD_FINITE_BURN,
-      
+
       POPUP_ADD_SOLVER,
       POPUP_ADD_BOUNDARY_SOLVER,
       POPUP_ADD_OPTIMIZER,
@@ -200,7 +202,7 @@ private:
       POPUP_ADD_BROYDEN,
       POPUP_ADD_QUASI_NEWTON,
       POPUP_ADD_SQP,
-      
+
       POPUP_ADD_SUBSCRIBER,
       POPUP_ADD_REPORT_FILE,
       POPUP_ADD_XY_PLOT,
@@ -208,19 +210,19 @@ private:
       POPUP_ADD_VARIABLE,
       POPUP_ADD_ARRAY,
       POPUP_ADD_STRING,
-      
+
       POPUP_ADD_COORD_SYS,
-      
+
       POPUP_OPEN_MATLAB,
       POPUP_CLOSE_MATLAB,
-      
+
       POPUP_START_SERVER,
       POPUP_STOP_SERVER,
-      
+
       POPUP_ADD_FUNCTION,
       POPUP_ADD_MATLAB_FUNCT,
       POPUP_ADD_GMAT_FUNCT,
-      
+
       POPUP_ADD_SCRIPT,
       POPUP_ADD_SCRIPT_FOLDER,
       POPUP_RUN_SCRIPTS_FROM_FOLDER,

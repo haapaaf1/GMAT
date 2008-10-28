@@ -28,8 +28,6 @@
 #include "BurnFactory.hpp"
 #include "CommandFactory.hpp"
 #include "CoordinateSystemFactory.hpp"
-#include "EstimatorFactory.hpp"
-#include "EstimatorCommandFactory.hpp"
 #include "ForceModelFactory.hpp"
 #include "FunctionFactory.hpp"
 #include "HardwareFactory.hpp"
@@ -43,6 +41,11 @@
 #include "SubscriberFactory.hpp"
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
+
+// OD Factories
+#include "EstimatorFactory.hpp"
+#include "EstimatorCommandFactory.hpp"
+#include "MeasurementModelFactory.hpp"
 
 #include "NoOp.hpp"
 #include "GravityField.hpp"
@@ -168,6 +171,7 @@ bool Moderator::Initialize(bool fromGui)
       theFactoryManager->RegisterFactory(new AssetFactory());
       theFactoryManager->RegisterFactory(new EstimatorFactory());
       theFactoryManager->RegisterFactory(new EstimatorCommandFactory());
+      theFactoryManager->RegisterFactory(new MeasurementModelFactory());
 
       // Create publisher
 
@@ -2500,6 +2504,82 @@ Solver* Moderator::GetSolver(const std::string &name)
       return NULL;
    else
       return theConfigManager->GetSolver(name);
+}
+
+// Solver
+//------------------------------------------------------------------------------
+// Solver* CreateSolver(const std::string &type, const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a solver object by given type and name and add to configuration.
+ *
+ * @param <type> object type
+ * @param <name> object name
+ *
+ * @return a solver object pointer
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* Moderator::CreateMeasurementModel(const std::string &type, const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage
+      ("Moderator::CreateMeasurementModel() type = '%s', name = '%s'\n", type.c_str(),
+       name.c_str());
+   #endif
+
+   if (GetMeasurementModel(name) == NULL)
+   {
+      MeasurementModel *mm = theFactoryManager->CreateMeasurementModel(type, name);
+
+      if (mm == NULL)
+      {
+         throw GmatBaseException
+            ("The Moderator cannot create MeasurementModel type \"" + type + "\"\n");
+      }
+
+      // Manage it if it is a named MeasurementModel
+      try
+      {
+         if (mm->GetName() != "")
+            theConfigManager->AddMeasurementModel(mm);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage("Moderator::CreateMeasurementModel()\n" +
+                                       e.GetFullMessage());
+      }
+
+      return mm;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateMeasurementModel() Unable to create MeasurementModel "
+          "name: %s already exists\n", name.c_str());
+      #endif
+      return GetMeasurementModel(name);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// MeasurementModel* GetMeasurementModel(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a MeasurementModel object pointer by given name.
+ *
+ * @param <name> object name
+ *
+ * @return a MeasurementModel object pointer, return null if name not found
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* Moderator::GetMeasurementModel(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return theConfigManager->GetMeasurementModel(name);
 }
 
 // PropSetup

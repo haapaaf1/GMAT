@@ -48,9 +48,9 @@
 //#define DEBUG_HANDLE_ERROR
 //#define DEBUG_INIT
 //#define DEBUG_COMMAND_LIST
-//#define DEBUG_OBJECT_LIST
+#define DEBUG_OBJECT_LIST
 //#define DEBUG_ARRAY_GET
-//#define DEBUG_CREATE_OBJECT
+#define DEBUG_CREATE_OBJECT
 //#define DEBUG_CREATE_PARAM
 //#define DEBUG_CREATE_ARRAY
 //#define DEBUG_CREATE_COMMAND
@@ -71,8 +71,8 @@
 //#define DEBUG_VALIDATE_COMMAND
 //#define DEBUG_WRAPPERS
 //#define DEBUG_PARSE_REPORT
-//#define DEBUG_OBJECT_MAP
-//#define DEBUG_FIND_OBJECT
+#define DEBUG_OBJECT_MAP
+#define DEBUG_FIND_OBJECT
 //#define DEBUG_FIND_PROP_ID
 //#define DEBUG_FUNCTION
 //#define DBGLVL_FUNCTION_DEF 2
@@ -281,6 +281,9 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray spl = theModerator->GetListOfFactoryItems(Gmat::SPACE_POINT);
    copy(spl.begin(), spl.end(), back_inserter(spacePointList));
 
+   measurementModelList.clear();
+   StringArray mml = theModerator->GetListOfFactoryItems(Gmat::MEASUREMENT_MODEL);
+   copy(mml.begin(), mml.end(), back_inserter(measurementModelList));
 
    #ifdef DEBUG_OBJECT_LIST
       std::vector<std::string>::iterator pos;
@@ -340,6 +343,10 @@ void Interpreter::BuildCreatableObjectMaps()
 
       MessageInterface::ShowMessage("\nOther SpacePoints:\n   ");
       for (pos = spl.begin(); pos != spl.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+
+      MessageInterface::ShowMessage("\nMeasurementModels:\n   ");
+      for (pos = mml.begin(); pos != mml.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
 
       MessageInterface::ShowMessage("\n");
@@ -407,6 +414,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
 
       case Gmat::HARDWARE:
          clist = hardwareList;
+         break;
+
+      case Gmat::MEASUREMENT_MODEL:
+         clist = measurementModelList;
          break;
 
       case Gmat::PARAMETER:
@@ -752,6 +763,14 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       {
          MessageInterface::ShowMessage("Object is a Solver\n");
          obj = (GmatBase*)theModerator->CreateSolver(type, name);
+      }
+
+      // Handle MeasurementModels
+      else if (find(measurementModelList.begin(), measurementModelList.end(), type) !=
+         measurementModelList.end())
+      {
+         MessageInterface::ShowMessage("Object is a MeasurementModel\n");
+         obj = (GmatBase*)theModerator->CreateMeasurementModel(type, name);
       }
 
       // Handle Subscribers

@@ -22,7 +22,7 @@
 #include "bitmaps/spacecraft.xpm"
 #include "bitmaps/sun.xpm"
 #include "bitmaps/mercury.xpm"
-#include "bitmaps/venus.xpm"    
+#include "bitmaps/venus.xpm"
 #include "bitmaps/earth.xpm"
 #include "bitmaps/mars.xpm"
 #include "bitmaps/jupiter.xpm"
@@ -82,6 +82,8 @@
 #define SOLVER_END 200
 #define ESTIMATOR_BEGIN 201
 #define ESTIMATOR_END 250
+#define MEASUREMENT_BEGIN 301
+#define MEASUREMENT_END 400
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -96,7 +98,7 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    //EVT_TREE_BEGIN_DRAG(-1, ResourceTree::OnBeginDrag)
    //EVT_TREE_BEGIN_RDRAG(-1, ResourceTree::OnBeginRDrag)
    //EVT_TREE_END_DRAG(-1, ResourceTree::OnEndDrag)
-   
+
    EVT_MENU(POPUP_ADD_SC, ResourceTree::OnAddSpacecraft)
    EVT_MENU(POPUP_ADD_FUELTANK, ResourceTree::OnAddFuelTank)
    EVT_MENU(POPUP_ADD_THRUSTER, ResourceTree::OnAddThruster)
@@ -112,7 +114,9 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
          POPUP_ADD_SOLVER + SOLVER_END, ResourceTree::OnAddSolver)
 //   EVT_MENU(POPUP_ADD_SOLVER, ResourceTree::OnAddSolver)
    EVT_MENU_RANGE(POPUP_ADD_SOLVER + ESTIMATOR_BEGIN, \
-         POPUP_ADD_SOLVER + ESTIMATOR_END, ResourceTree::OnAddSolver)
+      POPUP_ADD_SOLVER + ESTIMATOR_END, ResourceTree::OnAddSolver)
+   EVT_MENU_RANGE(POPUP_ADD_SOLVER + MEASUREMENT_BEGIN, \
+      POPUP_ADD_SOLVER + MEASUREMENT_END, ResourceTree::OnAddMeasurementModel)
    EVT_MENU(POPUP_ADD_REPORT_FILE, ResourceTree::OnAddReportFile)
    EVT_MENU(POPUP_ADD_XY_PLOT, ResourceTree::OnAddXyPlot)
    EVT_MENU(POPUP_ADD_OPENGL_PLOT, ResourceTree::OnAddOpenGlPlot)
@@ -150,7 +154,7 @@ END_EVENT_TABLE()
  * @param <parent> parent window
  * @param <id> window id for referencing events
  * @param <pos> position
- * @param <size> size 
+ * @param <size> size
  * @param <style> style flags
  */
 //------------------------------------------------------------------------------
@@ -164,10 +168,10 @@ ResourceTree::ResourceTree(wxWindow *parent, const wxWindowID id,
    mScriptFolderRunning = false;
    mHasUserInterrupted = false;
    mScriptAdded = false;
-   
+
    AddIcons();
    AddDefaultResources();
-   
+
    theGuiManager->UpdateAll();
 }
 
@@ -200,7 +204,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
       Collapse(mCoordSysItem);
       Collapse(mSpecialPointsItem);
    #endif
-      
+
    DeleteChildren(mSpacecraftItem);
    DeleteChildren(mUniverseItem);
    DeleteChildren(mFormationItem);
@@ -211,8 +215,8 @@ void ResourceTree::ClearResource(bool leaveScripts)
    DeleteChildren(mVariableItem);
    DeleteChildren(mFunctionItem);
    DeleteChildren(mCoordSysItem);
-   
-   
+
+
    //----- Hardware is child of spacecraft
    mHardwareItem =
       AppendItem(mSpacecraftItem, wxT("Hardware"), GmatTree::ICON_FOLDER, -1,
@@ -276,12 +280,12 @@ void ResourceTree::UpdateResource(bool restartCounter)
    #if DEBUG_RESOURCE_TREE_UPDATE
    MessageInterface::ShowMessage("ResourceTree::UpdateResource() entered\n");
    #endif
-   
+
    if (restartCounter)
       theGuiInterpreter->ResetConfigurationChanged();
-   
+
    ClearResource(true);
-   
+
    AddDefaultBodies(mUniverseItem);
    AddDefaultSpecialPoints(mSpecialPointsItem);
    AddDefaultSpacecraft(mSpacecraftItem, restartCounter);
@@ -294,10 +298,10 @@ void ResourceTree::UpdateResource(bool restartCounter)
    AddDefaultVariables(mVariableItem);
    AddDefaultFunctions(mFunctionItem);
    AddDefaultCoordSys(mCoordSysItem);
-   
+
    theGuiManager->UpdateAll();
    ScrollTo(mSpacecraftItem);
-   
+
    #if DEBUG_RESOURCE_TREE_UPDATE
    MessageInterface::ShowMessage("ResourceTree::UpdateResource() exiting\n");
    #endif
@@ -329,7 +333,7 @@ bool ResourceTree::AddScriptItem(wxString path)
    bool scriptAdded = false;
    bool hasSameName = false;
    bool hasSamePath = false;
-   
+
    // extract file name
    wxFileName fn(path);
    wxString filename = fn.GetName();
@@ -337,19 +341,19 @@ bool ResourceTree::AddScriptItem(wxString path)
    #if DEBUG_RESOURCE_TREE_ADD_SCRIPT
    MessageInterface::ShowMessage("   filename=%s\n", filename.c_str());
    #endif
-   
+
    // find child with same path
    while (childId.IsOk())
    {
       childText = GetItemText(childId);
-      
+
       #if DEBUG_RESOURCE_TREE_ADD_SCRIPT
       MessageInterface::ShowMessage
          ("ResourceTree::OnAddScript() childText=<%s>\n", childText.c_str());
       #endif
-      
+
       scriptPath = ((GmatTreeItemData *)GetItemData(childId))->GetDesc();
-      
+
       if (childText == filename)
       {
          hasSameName = true;
@@ -359,10 +363,10 @@ bool ResourceTree::AddScriptItem(wxString path)
             break;
          }
       }
-      
+
       childId = GetNextChild(mScriptItem, cookie);
    }
-   
+
    // if same path not found, add to tree
    if (!hasSamePath)
    {
@@ -380,7 +384,7 @@ bool ResourceTree::AddScriptItem(wxString path)
             AppendItem(mScriptItem, filename, GmatTree::ICON_DEFAULT, -1,
                        new GmatTreeItemData(path, GmatTree::SCRIPT_FILE));
       }
-      
+
       Expand(mScriptItem);
       scriptAdded = true;
    }
@@ -388,10 +392,10 @@ bool ResourceTree::AddScriptItem(wxString path)
    {
       //MessageInterface::PopupMessage
       //   (Gmat::INFO_, "The script file \"%s\" is already in the tree", path.c_str());
-      
+
       scriptAdded = true;
    }
-   
+
    return scriptAdded;
 }
 
@@ -493,12 +497,12 @@ void ResourceTree::AddNode(GmatTree::ItemType itemType, const wxString &name)
    #if DEBUG_RESOURCE_TREE
    MessageInterface::ShowMessage("ResourceTree::AddNode() entered\n");
    #endif
-   
+
    wxTreeItemId itemId = GetTreeItemId(itemType);
    GmatTree::IconType iconType = GetTreeItemIcon(itemType);
-   
+
    AppendItem(itemId, name, iconType, -1, new GmatTreeItemData(name, itemType));
-   
+
 }
 
 
@@ -520,17 +524,17 @@ void ResourceTree::AddDefaultResources()
       AppendItem(resource, wxT("Spacecraft"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Spacecraft"),
                                       GmatTree::SPACECRAFT_FOLDER));
-   
+
    SetItemImage(mSpacecraftItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    //----- Formations
    mFormationItem =
       AppendItem(resource, wxT("Formations"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Formations"),
                                       GmatTree::FORMATION_FOLDER));
-   
-   SetItemImage(mFormationItem, GmatTree::ICON_OPENFOLDER, 
+
+   SetItemImage(mFormationItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
 
    #ifdef __ENABLE_CONSTELLATIONS__
@@ -540,85 +544,91 @@ void ResourceTree::AddDefaultResources()
                  wxT("Constellations"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Constellations"),
                                       GmatTree::CONSTELLATION_FOLDER));
-   
-   SetItemImage(constellationItem, GmatTree::ICON_OPENFOLDER, 
+
+   SetItemImage(constellationItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
    #endif
-   
+
    //----- Burns
    mBurnItem =
       AppendItem(resource, wxT("Burns"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Burns"),
                                       GmatTree::BURN_FOLDER));
-   
+
    SetItemImage(mBurnItem, GmatTree::ICON_OPENFOLDER, wxTreeItemIcon_Expanded);
 
-   
+
    //----- Propagators
    mPropagatorItem =
       AppendItem(resource,
                  wxT("Propagators"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Propagators"),
                                       GmatTree::PROPAGATOR_FOLDER));
-   
-   SetItemImage(mPropagatorItem, GmatTree::ICON_OPENFOLDER, 
+
+   SetItemImage(mPropagatorItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    //----- Universe
    mUniverseItem =
       AppendItem(resource, wxT("Solar System"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Solar System"),
                                       GmatTree::UNIVERSE_FOLDER));
-   
-   SetItemImage(mUniverseItem, GmatTree::ICON_OPENFOLDER, 
+
+   SetItemImage(mUniverseItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    //----- Solver
    mSolverItem =
       AppendItem(resource, wxT("Solvers"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Solvers"),
                                       GmatTree::SOLVER_FOLDER));
-   
-   SetItemImage(mSolverItem, GmatTree::ICON_OPENFOLDER, 
+
+   SetItemImage(mSolverItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
+
+   mMeasurementItem = AppendItem(resource,
+         wxT("Measurement Models"), GmatTree::ICON_FOLDER, -1,
+         new GmatTreeItemData(wxT("Measurement Models"),
+                              GmatTree::MEASUREMENT_FOLDER));
+
 
    //----- Subscribers
    mSubscriberItem =
       AppendItem(resource, wxT("Plots/Reports"), GmatTree::ICON_FOLDER,
                  -1, new GmatTreeItemData(wxT("Plots/Reports"),
                                           GmatTree::SUBSCRIBER_FOLDER));
-   
-   SetItemImage(mSubscriberItem, GmatTree::ICON_OPENFOLDER, 
+
+   SetItemImage(mSubscriberItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    //----- Interfaces
    wxTreeItemId interfaceItem =
       AppendItem(resource, wxT("Interfaces"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Interfaces"),
                                       GmatTree::INTERFACE_FOLDER));
-   
-   SetItemImage(interfaceItem, GmatTree::ICON_OPENFOLDER, 
+
+   SetItemImage(interfaceItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    //----- Scripts
    mScriptItem =
       AppendItem(resource, wxT("Scripts"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Scripts"),
                                       GmatTree::SCRIPT_FOLDER));
-   
+
    SetItemImage(mScriptItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    //----- Vairables
-   mVariableItem = 
+   mVariableItem =
       AppendItem(resource, wxT("Variables/Arrays/Strings"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Variables/Arrays/Strings"),
                                       GmatTree::VARIABLE_FOLDER));
    // ag:  Should the GmatTree type of variableItem change?
-   
+
    SetItemImage(mVariableItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    //----- Coordinate System
    mCoordSysItem =
    AppendItem(resource, wxT("Coordinate Systems"), GmatTree::ICON_FOLDER,
@@ -626,14 +636,14 @@ void ResourceTree::AddDefaultResources()
                                        GmatTree::COORD_SYSTEM_FOLDER));
    SetItemImage(mCoordSysItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    //----- Functions
    mFunctionItem =
       AppendItem(resource, wxT("Functions"), GmatTree::ICON_FOLDER,
               -1, new GmatTreeItemData(wxT("Functions"), GmatTree::FUNCTION_FOLDER));
    SetItemImage(mFunctionItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-   
+
    AddDefaultBodies(mUniverseItem);
    AddDefaultSpecialPoints(mSpecialPointsItem);
    AddDefaultSpacecraft(mSpacecraftItem);
@@ -643,7 +653,7 @@ void ResourceTree::AddDefaultResources()
    #ifdef __ENABLE__CONSTELLATIONS__
    AddDefaultConstellations(constellationItem);
    #endif
-   
+
    AddDefaultPropagators(mPropagatorItem);
    AddDefaultSolvers(mSolverItem);
    AddDefaultSubscribers(mSubscriberItem);
@@ -651,7 +661,7 @@ void ResourceTree::AddDefaultResources()
    AddDefaultVariables(mVariableItem);
    AddDefaultFunctions(mFunctionItem);
    AddDefaultCoordSys(mCoordSysItem);
-   
+
    theGuiInterpreter->ResetConfigurationChanged(true, false);
 }
 
@@ -673,13 +683,13 @@ void ResourceTree::AddDefaultBodies(wxTreeItemId itemId)
               new GmatTreeItemData(wxT("Mercury"), GmatTree::CELESTIAL_BODY));
    AppendItem(itemId, wxT("Venus"), GmatTree::ICON_VENUS, -1,
               new GmatTreeItemData(wxT("Venus"), GmatTree::CELESTIAL_BODY));
-   
+
    wxTreeItemId earth =
       AppendItem(itemId, wxT("Earth"), GmatTree::ICON_EARTH, -1,
                  new GmatTreeItemData(wxT("Earth"), GmatTree::CELESTIAL_BODY));
    AppendItem(earth, wxT("Luna"), GmatTree::ICON_MOON, -1,
               new GmatTreeItemData(wxT("Luna"), GmatTree::CELESTIAL_BODY));
-   
+
    AppendItem(itemId, wxT("Mars"), GmatTree::ICON_MARS, -1,
               new GmatTreeItemData(wxT("Mars"), GmatTree::CELESTIAL_BODY));
    AppendItem(itemId, wxT("Jupiter"), GmatTree::ICON_JUPITER, -1,
@@ -710,23 +720,23 @@ void ResourceTree::AddDefaultSpacecraft(wxTreeItemId itemId, bool restartCounter
    StringArray itemNames = theGuiInterpreter->GetListOfObjects(Gmat::SPACECRAFT);
    int size = itemNames.size();
    wxString objName;
-   
+
    //MessageInterface::ShowMessage
    //   ("ResourceTree::AddDefaultSpacecraft() size=%d\n", size);
-   
+
    for (int i = 0; i<size; i++)
    {
       objName = wxString(itemNames[i].c_str());
-      
+
       //MessageInterface::ShowMessage
       //   ("ResourceTree::AddDefaultSpacecraft() objName=%s\n", objName.c_str());
-      
+
       AppendItem(itemId, wxT(objName), GmatTree::ICON_SPACECRAFT, -1,
                  new GmatTreeItemData(wxT(objName), GmatTree::SPACECRAFT));
    };
-   
+
    if (size > 0)
-      Expand(itemId);   
+      Expand(itemId);
 }
 
 
@@ -745,14 +755,14 @@ void ResourceTree::AddDefaultHardware(wxTreeItemId itemId, bool restartCounter)
    int size = itemNames.size();
    wxString objName;
    wxString objTypeName;
-   
+
    for (int i = 0; i<size; i++)
    {
       GmatBase *hw = GetObject(itemNames[i]);
       objName = wxString(itemNames[i].c_str());
       objTypeName = wxString(hw->GetTypeName().c_str());
-      
-      if (objTypeName == "FuelTank") 
+
+      if (objTypeName == "FuelTank")
       {
          AppendItem(itemId, wxT(objName), GmatTree::ICON_TANK, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::FUELTANK));
@@ -784,30 +794,30 @@ void ResourceTree::AddDefaultFormations(wxTreeItemId itemId, bool restartCounter
    StringArray itemNames = theGuiInterpreter->GetListOfObjects(Gmat::FORMATION);
    int size = itemNames.size();
    wxString objName;
-   
+
    for (int i = 0; i<size; i++)
    {
       objName = wxString(itemNames[i].c_str());
-      
+
       wxTreeItemId formationItem =
       AppendItem(itemId, wxT(objName), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT(objName), GmatTree::FORMATION));
       SetItemImage(formationItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-      
+
       GmatBase *form = GetObject(itemNames[i].c_str());
-      
+
       // get added spacecrafts
       int scListId = form->GetParameterID("Add");
       StringArray formSc = form->GetStringArrayParameter(scListId);
       int formSize = formSc.size();
-      
+
       for (int j = 0; j<formSize; j++)
       {
          objName = wxString(formSc[j].c_str());
          AppendItem(formationItem, wxT(objName), GmatTree::ICON_SPACECRAFT, -1,
                  new GmatTreeItemData(wxT(objName), GmatTree::SPACECRAFT));
-      }   
+      }
 
       Expand(formationItem);
    };
@@ -856,7 +866,7 @@ void ResourceTree::AddDefaultPropagators(wxTreeItemId itemId, bool restartCounte
    StringArray itemNames = theGuiInterpreter->GetListOfObjects(Gmat::PROP_SETUP);
    int size = itemNames.size();
    wxString objName;
-   
+
    for (int i = 0; i<size; i++)
    {
       objName = wxString(itemNames[i].c_str());
@@ -884,18 +894,18 @@ void ResourceTree::AddDefaultBurns(wxTreeItemId itemId, bool restartCounter)
    int size = itemNames.size();
    wxString objName;
    wxString objTypeName;
-   
+
    for (int i = 0; i<size; i++)
    {
       GmatBase *burn = GetObject(itemNames[i]);
       objName = wxString(itemNames[i].c_str());
       objTypeName = wxString(burn->GetTypeName().c_str());
-      
+
       if (objTypeName == "ImpulsiveBurn")
       {
          //MessageInterface::ShowMessage
          //   ("ResourceTree::AddDefaultBurns() objTypeName = ImpulsiveBurn\n");
-         
+
          AppendItem(itemId, wxT(objName), GmatTree::ICON_BURN, -1,
                     new GmatTreeItemData(wxT(objName),
                                          GmatTree::IMPULSIVE_BURN));
@@ -904,13 +914,13 @@ void ResourceTree::AddDefaultBurns(wxTreeItemId itemId, bool restartCounter)
       {
          //MessageInterface::ShowMessage
          //   ("ResourceTree::AddDefaultBurns() objTypeName = ImpulsiveBurn\n");
-         
+
          AppendItem(itemId, wxT(objName), GmatTree::ICON_BURN, -1,
                     new GmatTreeItemData(wxT(objName),
                                          GmatTree::FINITE_BURN));
       }
    };
-   
+
    if (size > 0)
       Expand(itemId);
 }
@@ -930,13 +940,13 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
    int size = itemNames.size();
    wxString objName;
    wxString objTypeName;
-   
+
    for (int i = 0; i<size; i++)
    {
       GmatBase *solver = GetObject(itemNames[i]);
       objName = wxString(itemNames[i].c_str());
       objTypeName = wxString(solver->GetTypeName().c_str());
-      
+
       /// @todo:  need to create different types for the solvers and check strings
       if (objTypeName == "DifferentialCorrector")
       {
@@ -965,7 +975,7 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
                     new GmatTreeItemData(wxT(objName), GmatTree::SOLVER));
       }
    };
-      
+
    if (size > 0)
    {
       Expand(mBoundarySolverItem);
@@ -990,7 +1000,7 @@ void ResourceTree::AddDefaultSubscribers(wxTreeItemId itemId, bool restartCounte
    int size = itemNames.size();
    wxString objName;
    wxString objTypeName;
-   
+
    for (int i = 0; i<size; i++)
    {
       GmatBase *sub = GetObject(itemNames[i]);
@@ -1039,7 +1049,7 @@ void ResourceTree::AddDefaultInterfaces(wxTreeItemId itemId)
    AppendItem(itemId, wxT("Matlab Server"), GmatTree::ICON_DEFAULT, -1,
               new GmatTreeItemData(wxT("Matlab Server"), GmatTree::MATLAB_SERVER));
    #endif
-   
+
    Expand(itemId);
 }
 
@@ -1059,12 +1069,12 @@ void ResourceTree::AddDefaultVariables(wxTreeItemId itemId)
    int size = itemNames.size();
    wxString objName;
    Parameter *param;
-   
+
    for (int i = 0; i<size; i++)
    {
       objName = wxString(itemNames[i].c_str());
       param = (Parameter*)GetObject(itemNames[i]);
-      
+
       // append only user parameters
       // all system parameters works as Object.Property
       //if (param->GetKey() == GmatParam::USER_PARAM)
@@ -1082,9 +1092,9 @@ void ResourceTree::AddDefaultVariables(wxTreeItemId itemId)
       {
          AppendItem(itemId, wxT(objName), GmatTree::ICON_STRING, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::STRING));
-      }      
+      }
    };
-   
+
    if (size > 0)
       Expand(itemId);
 }
@@ -1111,12 +1121,12 @@ void ResourceTree::AddDefaultFunctions(wxTreeItemId itemId)
       GmatBase *funct = GetObject(itemNames[i]);
       objName = wxString(itemNames[i].c_str());
       objTypeName = wxString(funct->GetTypeName().c_str());
-      
+
       if (objTypeName == "MatlabFunction")
       {
          AppendItem(itemId, wxT(objName), GmatTree::ICON_MATLAB_FUNCTION, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::MATLAB_FUNCTION));
-         
+
          #ifndef __USE_MATLAB__
          MessageInterface::PopupMessage
             (Gmat::WARNING_, "MATLAB Interface is disabled.  GMAT will not run\n"
@@ -1129,16 +1139,16 @@ void ResourceTree::AddDefaultFunctions(wxTreeItemId itemId)
                     new GmatTreeItemData(wxT(objName), GmatTree::GMAT_FUNCTION));
       }
    }
-   
+
    //----- Predefined functions
    mPredefinedFunctItem =
       AppendItem(itemId, wxT("Predefined Functions"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Functions"),
                                       GmatTree::PREDEFINED_FUNCTION_FOLDER));
-    
-   SetItemImage(mPredefinedFunctItem, GmatTree::ICON_OPENFOLDER, 
+
+   SetItemImage(mPredefinedFunctItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-                
+
    if (size > 0)
       Expand(itemId);
 
@@ -1175,10 +1185,10 @@ void ResourceTree::AddDefaultCoordSys(wxTreeItemId itemId)
                     new GmatTreeItemData(wxT(objName), GmatTree::USER_COORD_SYSTEM));
       }
    };
-   
+
    if (size > 0)
       Expand(itemId);
-   
+
 }
 
 //------------------------------------------------------------------------------
@@ -1199,13 +1209,13 @@ void ResourceTree::AddDefaultSpecialPoints(wxTreeItemId itemId, bool incLibCount
    int size = itemNames.size();
    wxString objName;
    wxString objTypeName;
-   
+
    for (int i = 0; i<size; i++)
    {
       GmatBase *cp = GetObject(itemNames[i]);
       objName = wxString(itemNames[i].c_str());
       objTypeName = wxString(cp->GetTypeName().c_str());
-      
+
       if (objTypeName == "Barycenter")
       {
          AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
@@ -1217,7 +1227,7 @@ void ResourceTree::AddDefaultSpecialPoints(wxTreeItemId itemId, bool incLibCount
                     new GmatTreeItemData(wxT(objName), GmatTree::LIBRATION_POINT));
       }
    };
-   
+
    if (size > 0)
       Expand(itemId);
 
@@ -1257,7 +1267,7 @@ void ResourceTree::OnItemActivated(wxTreeEvent &event)
 {
    // get some info about this item
    wxTreeItemId itemId = event.GetItem();
-   GmatTreeItemData *item = (GmatTreeItemData *)GetItemData(itemId);   
+   GmatTreeItemData *item = (GmatTreeItemData *)GetItemData(itemId);
    theMainFrame->CreateChild(item);
 }
 
@@ -1274,7 +1284,7 @@ void ResourceTree::OnItemActivated(wxTreeEvent &event)
 void ResourceTree::OnOpen(wxCommandEvent &event)
 {
    // Get info from selected item
-   GmatTreeItemData *item = (GmatTreeItemData *) GetItemData(GetSelection());   
+   GmatTreeItemData *item = (GmatTreeItemData *) GetItemData(GetSelection());
    theMainFrame->CreateChild(item);
 }
 
@@ -1315,40 +1325,40 @@ void ResourceTree::OnRename(wxCommandEvent &event)
    #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage("ResourceTree::OnRename() entered\n");
    #endif
-   
+
    wxTreeItemId item = GetSelection();
    GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
    wxString oldName = selItem->GetDesc();
    GmatTree::ItemType itemType = selItem->GetItemType();
-   
+
    wxString newName = oldName;
    newName = wxGetTextFromUser(wxT("New name: "), wxT("Input Text"),
                                newName, this);
-   
+
    if (!GmatStringUtil::IsValidName(newName.c_str()))
    {
       wxMessageBox(wxT("\"" + newName + "\" is invalid name. Please enter different name."),
                    wxT("GMAT Warning"));
       return;
    }
-   
+
    if ( !newName.IsEmpty() && !(newName.IsSameAs(oldName)))
    {
       Gmat::ObjectType objType = GetObjectType(itemType);
-      
+
       #ifdef DEBUG_RENAME
       MessageInterface::ShowMessage
          ("ResourceTree::OnRename() objType = %d\n", objType);
       #endif
-      
+
       if (objType == Gmat::UNKNOWN_OBJECT)
          return;
-      
+
       // If user wants to save data from the currently opened panels
       if (theMainFrame->GetNumberOfChildOpen() > 0)
       {
          if (wxMessageBox(_T("GMAT will save data from the currently opened "
-                             "panels first.\nDo you want to continue?"), 
+                             "panels first.\nDo you want to continue?"),
                           _T("Please confirm"), wxICON_QUESTION | wxYES_NO) == wxYES)
          {
             // save any GUI data before renaming object from base code
@@ -1358,14 +1368,14 @@ void ResourceTree::OnRename(wxCommandEvent &event)
                                 "with the current panel before renaming."),
                             wxT("GMAT Warning"));
                return;
-            }         
+            }
          }
          else
          {
             return;
          }
       }
-      
+
       // update item only if successful
       if (theGuiInterpreter->
           RenameObject(objType, oldName.c_str(), newName.c_str()))
@@ -1374,28 +1384,28 @@ void ResourceTree::OnRename(wxCommandEvent &event)
          theMainFrame->RenameChild(selItem, newName);
          GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
          selItem->SetDesc(newName);
-         
+
          // notify object name changed to panels which listens to resource update
          UpdateGuiItem(itemType);
          theGuiManager->NotifyObjectNameChange(objType, oldName, newName);
-         
+
          // update formation which may use new spacecraft name
          if (objType == Gmat::SPACECRAFT)
          {
             Collapse(mSpacecraftItem);
             DeleteChildren(mSpacecraftItem);
             AddDefaultSpacecraft(mSpacecraftItem);
-            
+
             Collapse(mFormationItem);
             DeleteChildren(mFormationItem);
             AddDefaultFormations(mFormationItem);
          }
-         
+
          // update variables which may use new object name
          Collapse(mVariableItem);
          DeleteChildren(mVariableItem);
          AddDefaultVariables(mVariableItem);
-         
+
          // update MissionTree for resource rename
          GmatAppData::Instance()->GetMissionTree()->UpdateMissionForRename();
       }
@@ -1406,7 +1416,7 @@ void ResourceTree::OnRename(wxCommandEvent &event)
              oldName.c_str(), newName.c_str());
       }
    }
-   
+
    #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage("ResourceTree::OnRename() rename completed\n");
    #endif
@@ -1426,11 +1436,11 @@ void ResourceTree::OnRename(wxCommandEvent &event)
 void ResourceTree::OnDelete(wxCommandEvent &event)
 {
    event.Skip();
-   
+
    wxTreeItemId itemId = GetSelection();
    GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(itemId);
    GmatTree::ItemType itemType = selItem->GetItemType();
-   
+
    Gmat::ObjectType objType = GetObjectType(itemType);
    if (objType == Gmat::UNKNOWN_OBJECT)
       return;
@@ -1439,7 +1449,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    MessageInterface::ShowMessage
       ("ResourceTree::OnDelete() name=%s\n", selItem->GetDesc().c_str());
    #endif
-   
+
    wxString itemName = selItem->GetDesc();
    // delete item if object successfully deleted
    if (theGuiInterpreter->RemoveObjectIfNotUsed(objType, itemName.c_str()))
@@ -1447,7 +1457,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
       // delete item and close all opened windows
       this->Delete(itemId);
       theMainFrame->CloseAllChildren(false, true);
-      
+
       theGuiManager->UpdateAll();
    }
    else
@@ -1475,7 +1485,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
    GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
    wxString name = selItem->GetDesc();
    GmatTree::ItemType itemType = selItem->GetItemType();
-   
+
    if ( (itemType == GmatTree::SPACECRAFT) ||
         (itemType == GmatTree::FUELTANK) ||
         (itemType == GmatTree::THRUSTER) ||
@@ -1494,7 +1504,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
    {
       const std::string stdName = name.c_str();
       std::string newName = theGuiInterpreter->AddClone(stdName);
-      
+
       if (newName != "")
       {
          AddNode(itemType, newName.c_str());
@@ -1502,7 +1512,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
       }
       else
          MessageInterface::PopupMessage
-            (Gmat::WARNING_, "Cannot clone %s.\n", stdName.c_str());      
+            (Gmat::WARNING_, "Cannot clone %s.\n", stdName.c_str());
    }
    else
    {
@@ -1524,10 +1534,10 @@ void ResourceTree::OnClone(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
 {
-  
+
    GmatTreeItemData *selItem = (GmatTreeItemData *)
       GetItemData(event.GetItem());
-                               
+
    int itemType = selItem->GetItemType();
    bool isDefaultFolder = ((itemType == GmatTree::RESOURCES_FOLDER)     ||
                            (itemType == GmatTree::SPACECRAFT_FOLDER)    ||
@@ -1541,7 +1551,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
                            (itemType == GmatTree::SUBSCRIBER_FOLDER)    ||
                            (itemType == GmatTree::INTERFACE_FOLDER)     ||
                            (itemType == GmatTree::VARIABLE_FOLDER));
-                         
+
    bool isDefaultItem = ((itemType == GmatTree::PROPAGATOR)      ||
                          (itemType == GmatTree::CELESTIAL_BODY)  ||
                          (itemType == GmatTree::DIFF_CORR)       ||
@@ -1549,7 +1559,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
                          (itemType == GmatTree::XY_PLOT)         ||
                          (itemType == GmatTree::OPENGL_PLOT)     ||
                          (itemType == GmatTree::INTERFACE));
-   
+
    //kind of redundant because OpenPage returns false for some
    //of the default folders
    if ((theMainFrame->IsChildOpen(selItem))  ||
@@ -1572,7 +1582,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
 void ResourceTree::OnEndLabelEdit(wxTreeEvent &event)
 {
    wxString newLabel = event.GetLabel();
-  
+
    // check to see if label is a single word
    if (newLabel.IsWord())
    {
@@ -1583,28 +1593,28 @@ void ResourceTree::OnEndLabelEdit(wxTreeEvent &event)
       int itemType = selItem->GetItemType();
 
       selItem->SetDesc(newLabel);
-       
+
       // if label refers to an object reset the object name
       if (itemType == GmatTree::SPACECRAFT)
       {
          const std::string stdOldLabel = oldLabel.c_str();
          const std::string stdNewLabel = newLabel.c_str();
-     
+
          //Spacecraft *theSpacecraft =
          //   theGuiInterpreter->GetSpacecraft(stdOldLabel);
-         
+
          GmatBase *theSpacecraft = GetObject(stdOldLabel);
-         
+
          theSpacecraft->SetName(stdNewLabel);
 
          // if (resetName)
          //     selItem->SetDesc(label);
          //  else
          //     selItem->SetDesc(oldLabel);
-      
+
       }
-     
- 
+
+
    }
    else
    {
@@ -1621,11 +1631,11 @@ void ResourceTree::OnBeginDrag(wxTreeEvent& event)
    if ( event.GetItem() != GetRootItem() )
    {
       mDraggedItem = event.GetItem();
-        
+
       // Get info from selected item
       GmatTreeItemData *theItem = (GmatTreeItemData *) GetItemData(mDraggedItem);
       int draggedId = theItem->GetItemType();
-        
+
       if ((draggedId == GmatTree::SPACECRAFT )            ||
           (draggedId == GmatTree::FORMATION_SPACECRAFT ))
       {
@@ -1634,7 +1644,7 @@ void ResourceTree::OnBeginDrag(wxTreeEvent& event)
       else
       {
          event.Skip();
-      }      
+      }
    }
 }
 
@@ -1665,14 +1675,14 @@ void ResourceTree::OnEndDrag(wxTreeEvent& event)
 
       AppendItem(itemDst, text, GmatTree::ICON_SPACECRAFT, -1,
                  new GmatTreeItemData(text, GmatTree::SPACECRAFT));
-               
+
       if (GetChildrenCount(mSpacecraftItem) <= 1)
-      {           
+      {
          Collapse(mSpacecraftItem);
       }
-    
+
       Delete(itemSrc);
-   }   
+   }
 }
 
 
@@ -1686,13 +1696,13 @@ void ResourceTree::OnEndDrag(wxTreeEvent& event)
 void ResourceTree::AddIcons()
 {
    int size = 16;
-   
+
    wxImageList *images = new wxImageList ( size, size, true );
-   
+
    wxBusyCursor wait;
    wxIcon icons[30];
    int index = 0;
-   
+
    icons[index]   = wxIcon ( folder_xpm );
    icons[++index] = wxIcon ( file_xpm );
    icons[++index] = wxIcon ( openfolder_xpm );
@@ -1723,7 +1733,7 @@ void ResourceTree::AddIcons()
    icons[++index] = wxIcon ( string_xpm );
    icons[++index] = wxIcon ( xyplot_xpm );
    icons[++index] = wxIcon ( default_xpm );
-   
+
    int sizeOrig = icons[0].GetWidth();
    for ( size_t i = 0; i < WXSIZEOF(icons); i++ )
    {
@@ -1732,7 +1742,7 @@ void ResourceTree::AddIcons()
       else
          images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(size, size)));
    }
-   
+
    AssignImageList(images);
 
 }
@@ -1769,17 +1779,17 @@ void ResourceTree::OnAddBody(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddSpacecraft(wxCommandEvent &event)
 {
-   wxTreeItemId item = GetSelection();   
-   std::string newName = theGuiInterpreter->GetNewName("Spacecraft", 1);   
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName("Spacecraft", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("Spacecraft", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_SPACECRAFT, -1,
                  new GmatTreeItemData(name, GmatTree::SPACECRAFT));
       Expand(item);
-      
+
       theGuiManager->UpdateSpacecraft();
    }
 }
@@ -1796,17 +1806,17 @@ void ResourceTree::OnAddSpacecraft(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddFuelTank(wxCommandEvent &event)
 {
-   wxTreeItemId item = GetSelection();   
-   std::string newName = theGuiInterpreter->GetNewName("FuelTank", 1);   
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName("FuelTank", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("FuelTank", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_TANK, -1,
                  new GmatTreeItemData(name, GmatTree::FUELTANK));
       Expand(item);
-      
+
       theGuiManager->UpdateHardware();
    }
 }
@@ -1824,17 +1834,17 @@ void ResourceTree::OnAddFuelTank(wxCommandEvent &event)
 void ResourceTree::OnAddThruster(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("Thruster", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("Thruster", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("Thruster", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_THRUSTER, -1,
                  new GmatTreeItemData(name, GmatTree::THRUSTER));
       Expand(item);
-      
-      theGuiManager->UpdateHardware();      
+
+      theGuiManager->UpdateHardware();
    }
 }
 
@@ -1851,20 +1861,20 @@ void ResourceTree::OnAddThruster(wxCommandEvent &event)
 void ResourceTree::OnAddFormation(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("Formation", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("Formation", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("Formation", newName);
-      
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       wxTreeItemId formationItem =
       AppendItem(item, name, GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(name, GmatTree::FORMATION));
-      SetItemImage(formationItem, GmatTree::ICON_OPENFOLDER, 
+      SetItemImage(formationItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
       Expand(item);
-      
-      theGuiManager->UpdateFormation();      
+
+      theGuiManager->UpdateFormation();
    }
 }
 
@@ -1885,14 +1895,14 @@ void ResourceTree::OnAddConstellation(wxCommandEvent &event)
       AppendItem(item, wxT("New Constellation"), -1, -1,
                  new GmatTreeItemData(wxT("New Constellation"),
                                       GmatTree::CONSTELLATION_FOLDER));
-   
+
    SetItemImage(constellation, GmatTree::ICON_OPENFOLDER, wxTreeItemIcon_Expanded);
-   
+
    AppendItem(constellation, wxT("GPS1"), GmatTree::ICON_SPACECRAFT, -1,
               new GmatTreeItemData(wxT("GPS1"), GmatTree::CONSTELLATION_SATELLITE));
    AppendItem(constellation, wxT("GPS2"), GmatTree::ICON_SPACECRAFT, -1,
               new GmatTreeItemData(wxT("GPS2"), GmatTree::CONSTELLATION_SATELLITE));
-   
+
    Expand(item);
 }
 
@@ -1909,16 +1919,16 @@ void ResourceTree::OnAddConstellation(wxCommandEvent &event)
 void ResourceTree::OnAddPropagator(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("Propagator", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("Propagator", 1);
    GmatBase *obj = theGuiInterpreter->CreateDefaultPropSetup(newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_PROPAGATOR, -1,
                  new GmatTreeItemData(name, GmatTree::PROPAGATOR));
       Expand(item);
-      
+
       theGuiManager->UpdatePropagator();
    }
    else
@@ -1941,16 +1951,16 @@ void ResourceTree::OnAddPropagator(wxCommandEvent &event)
 void ResourceTree::OnAddImpulsiveBurn(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("ImpulsiveBurn", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("ImpulsiveBurn", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("ImpulsiveBurn", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_BURN, -1,
                  new GmatTreeItemData(name, GmatTree::IMPULSIVE_BURN));
       Expand(item);
-      
+
       theGuiManager->UpdateBurn();
    }
 }
@@ -1968,16 +1978,16 @@ void ResourceTree::OnAddImpulsiveBurn(wxCommandEvent &event)
 void ResourceTree::OnAddFiniteBurn(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("FiniteBurn", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("FiniteBurn", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("FiniteBurn", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_BURN, -1,
                  new GmatTreeItemData(name, GmatTree::FINITE_BURN));
       Expand(item);
-      
+
       theGuiManager->UpdateBurn();
    }
 }
@@ -1997,16 +2007,16 @@ void ResourceTree::OnAddDiffCorr(wxCommandEvent &event)
 MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
 
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("DC", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("DC", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("DifferentialCorrector", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::DIFF_CORR));
       Expand(item);
-      
+
       theGuiManager->UpdateSolver();
    }
 }
@@ -2026,16 +2036,16 @@ void ResourceTree::OnAddSqp(wxCommandEvent &event)
 MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
 
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("SQP", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("SQP", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("FminconOptimizer", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::SQP));
       Expand(item);
-      
+
       theGuiManager->UpdateSolver();
    }
 }
@@ -2046,7 +2056,7 @@ MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
 //------------------------------------------------------------------------------
 /**
  * Add a generic solver to solvers folder
- * 
+ *
  * The code used here should be generalizable for other plugin elements as well.
  *
  * @param <event> command event
@@ -2056,22 +2066,44 @@ void ResourceTree::OnAddSolver(wxCommandEvent &event)
 {
    // Look up the plugin type based on the ID built with menu that selected it
    std::string selected = pluginMap[event.GetId()];
-   
+
    // The rest is like the other tree additions
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName(selected, 1);   
+   std::string newName = theGuiInterpreter->GetNewName(selected, 1);
 
-MessageInterface::ShowMessage("Creating a %s named %s...", selected.c_str(), newName.c_str());
    GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
-MessageInterface::ShowMessage("...Created!\n", selected.c_str(), newName.c_str());
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::SOLVER));
       Expand(item);
-      
+
+      theGuiManager->UpdateSolver();
+   }
+}
+
+void ResourceTree::OnAddMeasurementModel(wxCommandEvent &event)
+{
+   // Look up the plugin type based on the ID built with menu that selected it
+   std::string selected = pluginMap[event.GetId()];
+
+   // The rest is like the other tree additions
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName(selected, 1);
+
+MessageInterface::ShowMessage("Creating a %s measurement model named %s...", selected.c_str(), newName.c_str());
+   GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
+MessageInterface::ShowMessage("...Created!\n");
+
+   if (obj != NULL)
+   {
+      wxString name = newName.c_str();
+      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+                 new GmatTreeItemData(name, GmatTree::SOLVER));
+      Expand(item);
+
       theGuiManager->UpdateSolver();
    }
 }
@@ -2089,16 +2121,16 @@ MessageInterface::ShowMessage("...Created!\n", selected.c_str(), newName.c_str()
 void ResourceTree::OnAddReportFile(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("ReportFile", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("ReportFile", 1);
    GmatBase *obj = theGuiInterpreter->CreateSubscriber("ReportFile", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_REPORT, -1,
                  new GmatTreeItemData(name, GmatTree::REPORT_FILE));
       Expand(item);
-      
+
       theGuiManager->UpdateSubscriber();
    }
 }
@@ -2115,16 +2147,16 @@ void ResourceTree::OnAddReportFile(wxCommandEvent &event)
 void ResourceTree::OnAddXyPlot(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("XYPlot", 1);   
+   std::string newName = theGuiInterpreter->GetNewName("XYPlot", 1);
    GmatBase *obj = theGuiInterpreter->CreateSubscriber("XYPlot", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_XY_PLOT, -1,
                  new GmatTreeItemData(name, GmatTree::XY_PLOT));
       Expand(item);
-      
+
       theGuiManager->UpdateSubscriber();
    }
 }
@@ -2141,17 +2173,17 @@ void ResourceTree::OnAddXyPlot(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddOpenGlPlot(wxCommandEvent &event)
 {
-   wxTreeItemId item = GetSelection();   
+   wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("OpenGLPlot", 1);
    GmatBase *obj = theGuiInterpreter->CreateSubscriber("OpenGLPlot", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_OPEN_GL_PLOT, -1,
                  new GmatTreeItemData(name, GmatTree::OPENGL_PLOT));
       Expand(item);
-      
+
       theGuiManager->UpdateSubscriber();
    }
 }
@@ -2169,7 +2201,7 @@ void ResourceTree::OnAddOpenGlPlot(wxCommandEvent &event)
 void ResourceTree::OnAddVariable(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   
+
    // show dialog to create user parameter
    ParameterCreateDialog paramDlg(this, 1);
    paramDlg.ShowModal();
@@ -2188,7 +2220,7 @@ void ResourceTree::OnAddVariable(wxCommandEvent &event)
 void ResourceTree::OnAddArray(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   
+
    // show dialog to create user parameter
    ParameterCreateDialog paramDlg(this, 2);
    paramDlg.ShowModal();
@@ -2207,7 +2239,7 @@ void ResourceTree::OnAddArray(wxCommandEvent &event)
 void ResourceTree::OnAddString(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   
+
    // show dialog to create user parameter
    ParameterCreateDialog paramDlg(this, 3);
    paramDlg.ShowModal();
@@ -2227,24 +2259,24 @@ void ResourceTree::OnAddMatlabFunction(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
    wxString name;
-   
+
    //Get name from the user first
    name = wxGetTextFromUser(wxT("Name: "), wxT("MATLAB function"), name, this);
-   
+
    if (!name.IsEmpty())
    {
       const std::string newName = name.c_str();
       GmatBase *obj = theGuiInterpreter->CreateObject("MatlabFunction", newName);
-      
+
       if (obj != NULL)
       {
          AppendItem(item, name, GmatTree::ICON_MATLAB_FUNCTION, -1,
                     new GmatTreeItemData(name, GmatTree::MATLAB_FUNCTION));
          Expand(item);
-         
+
          theGuiManager->UpdateFunction();
       }
-      
+
       SelectItem(GetLastChild(item));
    }
 }
@@ -2263,21 +2295,21 @@ void ResourceTree::OnAddGmatFunction(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
    wxString name;
-   
+
    //Get name from the user first
    name = wxGetTextFromUser(wxT("Name: "), wxT("GMAT function"), name, this);
-   
+
    if (!name.IsEmpty())
    {
       const std::string newName = name.c_str();
       GmatBase *obj = theGuiInterpreter->CreateObject("GmatFunction", newName);
-      
+
       if (obj != NULL)
       {
          AppendItem(item, name, GmatTree::ICON_FUNCTION, -1,
                     new GmatTreeItemData(name, GmatTree::GMAT_FUNCTION));
          Expand(item);
-         
+
          theGuiManager->UpdateFunction();
       }
 
@@ -2307,12 +2339,12 @@ void ResourceTree::OnAddCoordSys(wxCommandEvent &event)
    {
       //wxString name = coordDlg.GetParamName();
       wxString name = coordDlg.GetCoordName();
-      
+
       AppendItem(item, name, GmatTree::ICON_COORDINATE_SYSTEM, -1,
                  new GmatTreeItemData(name, GmatTree::USER_COORD_SYSTEM));
-      
+
       Expand(item);
-      
+
       theGuiManager->UpdateCoordSystem();
    }
 }
@@ -2332,14 +2364,14 @@ void ResourceTree::OnAddBarycenter(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("Barycenter", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("Barycenter", newName);
-   
+
    if (obj != NULL)
    {
       wxString name = newName.c_str();
       AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::BARYCENTER));
       Expand(item);
-      
+
       theGuiManager->UpdateCelestialPoint();
    }
 }
@@ -2359,13 +2391,13 @@ void ResourceTree::OnAddLibration(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("Libration", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("LibrationPoint", newName);
-   
+
    if (obj != NULL)
    {
       DeleteChildren(mSpecialPointsItem);
       AddDefaultSpecialPoints(mSpecialPointsItem, true, false);
       Expand(item);
-      
+
       theGuiManager->UpdateCelestialPoint();
    }
 }
@@ -2392,15 +2424,15 @@ void ResourceTree::OnAddScript(wxCommandEvent &event)
    //{
    //}
    //---------------- debug
-   
+
    mScriptAdded = false;
-   
+
    wxFileDialog dialog(this, _T("Choose a file"), _T(""), _T(""),
          _T("Script files (*.script, *.m)|*.script;*.m|"\
             "Text files (*.txt, *.text)|*.txt;*.text|"\
             "All files (*.*)|*.*"));
-   
-   
+
+
    if (dialog.ShowModal() == wxID_OK)
    {
       wxString path = dialog.GetPath().c_str();
@@ -2428,21 +2460,21 @@ void ResourceTree::OnRemoveAllScripts(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
 
    Collapse(item);
-   
+
    while (GetChildrenCount(item) > 0)
    {
       wxTreeItemId lastChild = GetLastChild(item);
       wxString name = ((GmatTreeItemData *)GetItemData(lastChild))->GetDesc();
       GmatTree::ItemType itemType =
          ((GmatTreeItemData *)GetItemData(lastChild))->GetItemType();
-      
+
       // close window and delte item
       theMainFrame->RemoveChild(name, itemType);
       Delete(lastChild);
    }
-   
+
    // arg: should script counter go back to 1?
-   
+
 }
 
 //------------------------------------------------------------------------------
@@ -2460,7 +2492,7 @@ void ResourceTree::OnRemoveScript(wxCommandEvent &event)
    wxString name = ((GmatTreeItemData *)GetItemData(item))->GetDesc();
    GmatTree::ItemType itemType = ((GmatTreeItemData *)GetItemData(item))->GetItemType();
    wxTreeItemId parentItem = GetItemParent(item);
-   
+
    // close window and delete item
    theMainFrame->RemoveChild(name, itemType);
    Delete(item);
@@ -2473,11 +2505,11 @@ void ResourceTree::OnRemoveScript(wxCommandEvent &event)
 void ResourceTree::OnScriptBuildObject(wxCommandEvent& event)
 {
    //MessageInterface::ShowMessage("===> OnScriptBuildObject()\n");
-   
+
    // Get info from selected item
    GmatTreeItemData *item = (GmatTreeItemData *) GetItemData(GetSelection());
    wxString filename = item->GetDesc();
-   
+
    BuildScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT);
 }
 
@@ -2490,14 +2522,14 @@ void ResourceTree::OnScriptBuildAndRun(wxCommandEvent& event)
    #ifdef DEBUG_RESOURCE_TREE
    MessageInterface::ShowMessage("ResourceTree::OnScriptBuildAndRun()\n");
    #endif
-   
+
    // Get info from selected item
    GmatTreeItemData *item = (GmatTreeItemData *) GetItemData(GetSelection());
    wxString filename = item->GetDesc();
-   
+
    if (BuildScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT))
       theMainFrame->RunCurrentMission();
-   
+
 }
 
 
@@ -2512,7 +2544,7 @@ void ResourceTree::OnScriptBuildAndRun(wxCommandEvent& event)
 void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
 {
    wxDirDialog dialog(this, "Select a script directory", wxGetCwd());
-   
+
    if (dialog.ShowModal() == wxID_OK)
    {
       wxString dirname = dialog.GetPath();
@@ -2521,19 +2553,19 @@ void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
       MessageInterface::ShowMessage("OnAddScriptFolder() dirname=%s\n",
                                     dirname.c_str());
       #endif
-      
+
       // add item to tree
       wxTreeItemId newItem =
          AppendItem(mScriptItem, dirname, GmatTree::ICON_FOLDER, -1,
                     new GmatTreeItemData(dirname, GmatTree::ADDED_SCRIPT_FOLDER));
-      
+
       Expand(mScriptItem);
-      
+
       // add files under script diretory
       wxDir dir(dirname);
       wxString filename;
       wxString filepath;
-      
+
       //How do I specify multiple file ext?
       //bool cont = dir.GetFirst(&filename, "*.script, *.m");
       bool cont = dir.GetFirst(&filename);
@@ -2542,7 +2574,7 @@ void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
          if (filename.Contains(".script") || filename.Contains(".m"))
          {
             filepath = dirname + "/" + filename;
-            
+
             // remove any backup files
             if (filename.Last() == 't' || filename.Last() == 'm')
             {
@@ -2556,11 +2588,11 @@ void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
                   AppendItem(newItem, filename, GmatTree::ICON_DEFAULT, -1,
                              new GmatTreeItemData(filepath, GmatTree::SCRIPT_FILE));
                }
-               
+
                ifs.close();
             }
          }
-         
+
          cont = dir.GetNext(&filename);
       }
    }
@@ -2583,13 +2615,13 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
          ("===> OnRunScriptsFromFolder() theMainFrame is not set\n");
       return;
    }
-   
+
    wxTreeItemId item = GetSelection();
    wxString filename;
    wxTreeItemIdValue cookie;
    wxTreeItemId scriptId = GetFirstChild(item, cookie);
    int numScripts = 0;
-   
+
    // find only script file, exclude script folder
    while (scriptId.IsOk())
    {
@@ -2598,32 +2630,32 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
          ("ResourceTree::OnRunScriptsFromFolder() scriptText=<%s>\n",
           GetItemText(scriptId).c_str());
       #endif
-      
+
       if (GetItemImage(scriptId) != GmatTree::ICON_FOLDER)
          numScripts++;
-      
+
       scriptId = GetNextChild(item, cookie);
    }
-   
+
    int runCount = numScripts;
    int repeatCount = 1;
-   
+
    Real absTol = GmatFileUtil::CompareAbsTol;
    wxString compareDir1  = ((GmatTreeItemData*)GetItemData(item))->GetDesc();
-   
+
    RunScriptFolderDialog dlg(this, numScripts, absTol, compareDir1);
    dlg.ShowModal();
-   
+
    if (!dlg.RunScripts())
       return;
-   
+
    runCount = dlg.GetNumScriptsToRun();
    repeatCount = dlg.GetNumTimesToRun();
    bool runFromSavedScripts = dlg.RunFromSavedScripts();
    bool compare = dlg.CompareResults();
    bool saveCompareResults = dlg.SaveCompareResults();
    bool builtOk = false;
-   
+
    // for current output path
    FileManager *fm = FileManager::Instance();
    std::string oldOutPath = fm->GetFullPathname(FileManager::OUTPUT_PATH);
@@ -2631,49 +2663,49 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    bool hasOutDirChanged = dlg.HasOutDirChanged();
    bool createRunFolder = dlg.CreateRunFolder();
    wxString sep = fm->GetPathSeparator().c_str();
-   
+
    wxString currOutPath = dlg.GetCurrentOutDir() + sep;
    wxString savePath = dlg.GetSaveScriptsDir() + sep;
-   
+
    // Create path if not exist
    if (!::wxDirExists(currOutPath))
       ::wxMkdir(currOutPath);
-   
+
    int count = 0;
    mHasUserInterrupted = false;
    scriptId = GetFirstChild(item, cookie);
-   
+
    wxTextCtrl *textCtrl = NULL;
    wxString tempStr;
-   
+
    // create CompareReport Panel
    if (compare)
    {
       GmatMdiChildFrame *textFrame =
          theMainFrame->GetChild("CompareReport");
-      
+
       if (textFrame == NULL)
       {
          GmatTreeItemData *compareItem =
             new GmatTreeItemData("CompareReport", GmatTree::COMPARE_REPORT);
-      
+
          textFrame = theMainFrame->CreateChild(compareItem);
       }
-      
+
       textCtrl = textFrame->GetScriptTextCtrl();
       textCtrl->SetMaxLength(320000); // make long enough
       textFrame->Show();
       wxString msg;
-      msg.Printf(_T("GMAT Build Date: %s %s\n\n"),  __DATE__, __TIME__);      
+      msg.Printf(_T("GMAT Build Date: %s %s\n\n"),  __DATE__, __TIME__);
       textCtrl->AppendText(msg);
-      
+
       //loj: Why Do I need to do this to show whole TextCtrl?
       // textFrame->Layout() didn't work.
       int w, h;
       textFrame->GetSize(&w, &h);
       textFrame->SetSize(w+1, h+1);
    }
-   
+
    // Set batch mode to true, so that PopupMessage will be rerouted to ShowMessage
    GmatGlobal::Instance()->SetBatchMode(true);
    bool appendLog = false;
@@ -2682,113 +2714,113 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    mScriptFolderRunning = true;
    wxArrayString failedToRunScripts;
    wxArrayString runInterruptedScripts;
-   
+
    // Set output path
    fm->SetAbsPathname(FileManager::OUTPUT_PATH, currOutPath.c_str());
-   
+
    // Change log path and append log messages
    MessageInterface::SetLogPath(currOutPath.c_str(), appendLog);
-   
+
    // Write run start time
    wxDateTime now = wxDateTime::Now();
    wxString wxNowStr = now.FormatISODate() + " " + now.FormatISOTime() + " ";
    std::string nowStr = wxNowStr.c_str();
-   
+
    MessageInterface::LogMessage(nowStr + "GMAT starting batch run.\n");
-   
+
    clock_t t1 = clock();
    bool isFirstScript = true;
-   
+
    while (scriptId.IsOk())
-   {     
+   {
       if (GetItemImage(scriptId) == GmatTree::ICON_FOLDER)
       {
          scriptId = GetNextChild(item, cookie);
          continue;
       }
-      
+
       if (mHasUserInterrupted)
          break;
-      
+
       count++;
-      
+
       if (count > runCount)
          break;
-      
+
       // Set main frame title to script file name
       filename = ((GmatTreeItemData*)GetItemData(scriptId))->GetDesc();
       wxString titleText;
-      titleText.Printf("%s - General Mission Analysis Tool (GMAT)", filename.c_str());      
+      titleText.Printf("%s - General Mission Analysis Tool (GMAT)", filename.c_str());
       theMainFrame->SetTitle(titleText);
-      
+
       // Set main frame status bar text
       wxString text;
       text.Printf("Running script %d out of %d: %s\n", count, runCount,
                   filename.c_str());
       theMainFrame->SetStatusText(text, 1);
-      
+
       if (compare)
          textCtrl->AppendText(text);
-      
+
       for (int i=0; i<repeatCount; i++)
       {
          wxString outPath = currOutPath;
-         
+
          if (createRunFolder)
          {
             outPath << "Run_" << i+1;
             if (!::wxDirExists(outPath))
                ::wxMkdir(outPath);
-            
+
             outPath = outPath + "/";
-            
+
             // Set output path
             fm->SetAbsPathname(FileManager::OUTPUT_PATH, outPath.c_str());
-            
+
             // Change log path and append log messages
             MessageInterface::SetLogPath(outPath.c_str(), appendLog);
-            
+
             if (isFirstScript)
             {
                MessageInterface::LogMessage(nowStr + "GMAT starting batch run.\n");
                isFirstScript = false;
             }
          }
-         
+
          MessageInterface::ShowMessage
             ("\nStarting script %d out of %d: %s\n", count, runCount, filename.c_str());
-         
+
          MessageInterface::ShowMessage
             ("==> Run Count: %d\n", i+1);
-         
+
          // Set main frame status bar repeat count
          wxString text;
          text.Printf("Repeat Count %d", i+1);
          theMainFrame->SetStatusText(text, 0);
-         
+
          if (compare)
          {
             tempStr.Printf("%d", i+1);
             textCtrl->AppendText("==> Run Count: " + tempStr + "\n");
          }
-         
+
          try
          {
             // Create objects from script only first time, to test re-run
             if (i == 0)
                builtOk = BuildScript(filename, GmatGui::DO_NOT_OPEN_SCRIPT, true,
                                      runFromSavedScripts, savePath, true);
-            
+
             if (builtOk)
             {
                Integer retval = theMainFrame->RunCurrentMission();
-               
+
                // if run failed, save to report
                if (retval == -2)
                   runInterruptedScripts.Add(filename);
                else if (retval <= -3)
                   failedToRunScripts.Add(filename);
-               
+
                if (compare)
                {
                   absTol = dlg.GetAbsTolerance();
@@ -2802,7 +2834,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
             MessageInterface::ShowMessage
                ("*** Error running: %s\n   %s\n", filename.c_str(),
                 e.GetFullMessage().c_str());
-            
+
             if (compare)
                textCtrl->AppendText(e.GetFullMessage().c_str());
          }
@@ -2812,87 +2844,87 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
                ("*** Unknown Error running: %s\n", filename.c_str());
          }
       }
-      
+
       scriptId = GetNextChild(item, cookie);
       appendLog = true;
    }
-   
+
    mScriptFolderRunning = false;
-   
+
    // Write run end time
    now = wxDateTime::Now();
    wxNowStr = now.FormatISODate() + " " + now.FormatISOTime() + " ";
    nowStr = wxNowStr.c_str();
-   
+
    MessageInterface::LogMessage(nowStr + "GMAT ended batch run.\n\n");
-   
+
    clock_t t2 = clock();
    MessageInterface::ShowMessage
       ("===> Grand Total Run Time: %f seconds\n", (Real)(t2-t1)/CLOCKS_PER_SEC);
-   
+
    // save compare results to a file
    if (compare && saveCompareResults)
       textCtrl->SaveFile(dlg.GetSaveFilename());
-   
+
    // reset output path
    if (hasOutDirChanged)
    {
       fm->SetAbsPathname(FileManager::OUTPUT_PATH, oldOutPath);
       //MessageInterface::SetLogFile(oldLogFile);
    }
-   
+
    // Report completion
    wxString text;
    text.Printf("Finished running %d scripts\n", runCount);
    theMainFrame->SetStatusText(text, 1);
    theMainFrame->SetStatusText("", 0);
-   
+
    // Set batch mode to false
    GmatGlobal::Instance()->SetBatchMode(false);
-   
+
    // Popup errors found message
    wxString msg1;
    wxString msg2;
    wxString msg3;
-   
+
    if (mBuildErrorCount > 0)
    {
       wxString scriptNames1;
       msg1 = "Script errors were found in the following script(s):\n";
-      
+
       for (int i=0; i<mBuildErrorCount; i++)
          scriptNames1 = scriptNames1 + mFailedScriptsList[i] + "\n";
 
       msg1 = msg1 + scriptNames1;
    }
-   
+
    if (failedToRunScripts.GetCount() > 0)
    {
       wxString scriptNames2;
       msg2 = "\nThe following script(s) failed to run to completion:\n";
-      
+
       for (unsigned int i=0; i<failedToRunScripts.GetCount(); i++)
          scriptNames2 = scriptNames2 + failedToRunScripts[i] + "\n";
-      
+
       msg2 = msg2 + scriptNames2;
    }
-   
+
    if (runInterruptedScripts.GetCount() > 0)
    {
       wxString scriptNames3;
       msg3 = "\nThe following script(s) were interrupted by user:\n";
-      
+
       for (unsigned int i=0; i<runInterruptedScripts.GetCount(); i++)
          scriptNames3 = scriptNames3 + runInterruptedScripts[i] + "\n";
-      
+
       msg3 = msg3 + scriptNames3;
    }
-   
+
    if (msg1 != "" || msg2 != "" || msg3 != "")
    {
       // Show errors to message window
       MessageInterface::ShowMessage(msg1 + msg2 + msg3);
-      
+
       // Show errors to view text dialog
       ViewTextDialog *dlg =
          new ViewTextDialog(this, _T("Information"), 550, 300);
@@ -2916,7 +2948,7 @@ void ResourceTree::OnQuitRunScriptsFromFolder(wxCommandEvent &event)
 {
    int answer = wxMessageBox("Do you really want to quit after the current run?",
                              "Confirm", wxYES_NO, this);
-   
+
    if (answer == wxYES)
       mHasUserInterrupted = true;
 }
@@ -2933,9 +2965,9 @@ void ResourceTree::OnQuitRunScriptsFromFolder(wxCommandEvent &event)
 void ResourceTree::OnRemoveScriptFolder(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   
+
    OnRemoveAllScripts(event);
-   
+
    Delete(item);
    Collapse(mScriptItem);
 }
@@ -2972,36 +3004,36 @@ bool ResourceTree::BuildScript(const wxString &filename, Integer scriptOpenOpt,
        "readBack=%d, multiScripts=%d\n   savePath=%s\n", filename.c_str(),
        scriptOpenOpt, closeScript, readBack, multiScripts, savePath.c_str());
    #endif
-   
+
    // Set the filename to mainframe, so save will not bring up the file dialog
    bool fileSet =
       theMainFrame->SetScriptFileName(filename.c_str());
-   
+
    if (fileSet)
    {
       // Interpret script
       bool status =
          theMainFrame->InterpretScript(filename, scriptOpenOpt, closeScript,
                                        readBack, savePath, multiScripts);
-      
+
       if (!status)
       {
          mBuildErrorCount++;
          mFailedScriptsList.Add(filename);
       }
-      
+
       #if DEBUG_RESOURCE_TREE
       MessageInterface::ShowMessage
          ("ResourceTree::BuildScript() returning %s\n", (status ? "true" : "false"));
       #endif
-      
+
       return status;
    }
-   
+
    #if DEBUG_RESOURCE_TREE
    MessageInterface::ShowMessage("ResourceTree::BuildScript() returning false\n");
    #endif
-   
+
    return false;
 }
 
@@ -3021,11 +3053,11 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    GmatTreeItemData *treeItem = (GmatTreeItemData *)GetItemData(itemId);
    wxString title = treeItem->GetDesc();
    GmatTree::ItemType itemType = treeItem->GetItemType();
-   
+
    //MessageInterface::ShowMessage
    //   ("===> ResourceTree::ShowMenu() title=%s, itemType=%d\n", title.c_str(),
    //    itemType);
-   
+
 #if wxUSE_MENUS
    wxMenu menu;
 
@@ -3062,7 +3094,7 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    case GmatTree::SPECIAL_POINT_FOLDER:
       menu.Append(POPUP_ADD_SPECIAL_POINT, _T("Add"), CreatePopupMenu(itemType));
       break;
-      
+
    #ifdef __USE_MATLAB__
    case GmatTree::MATLAB_INTERFACE:
       menu.Append(GmatMenu::MENU_MATLAB_OPEN, wxT("Open"));
@@ -3073,7 +3105,7 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
       menu.Append(GmatMenu::MENU_STOP_SERVER, wxT("Stop"));
       break;
    #endif
-      
+
    case GmatTree::SUBSCRIBER_FOLDER:
       menu.Append(POPUP_ADD_SUBSCRIBER, wxT("Add"), CreatePopupMenu(itemType));
       break;
@@ -3092,7 +3124,7 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    case GmatTree::ADDED_SCRIPT_FOLDER:
       menu.Append(POPUP_RUN_SCRIPTS_FROM_FOLDER, wxT("Run Scripts"));
       menu.Append(POPUP_QUIT_RUN_SCRIPTS_FROM_FOLDER, wxT("Quit Running Scripts"));
-      
+
       if (mScriptFolderRunning)
       {
          menu.Enable(POPUP_RUN_SCRIPTS_FROM_FOLDER, false);
@@ -3121,7 +3153,7 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    default:
       break;
    }
-   
+
    // menu items applies to most non-folder items
    if (itemType >= GmatTree::BEGIN_OF_RESOURCE &&
        itemType <= GmatTree::END_OF_RESOURCE)
@@ -3146,7 +3178,7 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
          break;
       }
    }
-   
+
    PopupMenu(&menu, pt);
 #endif // wxUSE_MENUS
 }
@@ -3165,10 +3197,10 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
 wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
 {
    wxMenu *menu = new wxMenu;
-   
+
    StringArray listOfObjects;
    Integer newId;
-   
+
    switch (itemType)
    {
    case GmatTree::HARDWARE_FOLDER:
@@ -3191,7 +3223,7 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
 
       listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SOLVER);
       newId = SOLVER_BEGIN;
-      for (StringArray::iterator i = listOfObjects.begin(); 
+      for (StringArray::iterator i = listOfObjects.begin();
            i != listOfObjects.end(); ++i, ++newId)
       {
          // Drop the ones that are already there for now
@@ -3209,13 +3241,13 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
    case GmatTree::ESTIMATOR_FOLDER:
       // This needs completion
       listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SOLVER);
-      newId = SOLVER_BEGIN;
-      for (StringArray::iterator i = listOfObjects.begin(); 
+      newId = ESTIMATOR_BEGIN;
+      for (StringArray::iterator i = listOfObjects.begin();
            i != listOfObjects.end(); ++i, ++newId)
       {
          // Drop the ones that are already there for now
          std::string solverType = (*i);
-MessageInterface::ShowMessage("+ %s\n", solverType.c_str());
+// MessageInterface::ShowMessage("+ %s\n", solverType.c_str());
          if ((solverType != "DifferentialCorrector") &&
              (solverType != "FminconOptimizer") &&
              (solverType != "Quasi-Newton"))
@@ -3240,7 +3272,7 @@ MessageInterface::ShowMessage("+ %s\n", solverType.c_str());
       #ifdef __USE_MATLAB__
       menu->Append(POPUP_ADD_MATLAB_FUNCT, wxT("MATLAB Function"));
       #endif
-      
+
       menu->Append(POPUP_ADD_GMAT_FUNCT, wxT("GMAT Function"));
       break;
    case GmatTree::SPECIAL_POINT_FOLDER:
@@ -3261,7 +3293,7 @@ MessageInterface::ShowMessage("+ %s\n", solverType.c_str());
 Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
 {
    Gmat::ObjectType objType;
-   
+
    switch (itemType)
    {
    case GmatTree::SPACECRAFT:
@@ -3308,16 +3340,16 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
    case GmatTree::USER_COORD_SYSTEM:
       objType = Gmat::COORDINATE_SYSTEM;
       break;
-      
+
    default:
       objType = Gmat::UNKNOWN_OBJECT;
       MessageInterface::ShowMessage
          ("ResourceTree::GetObjectType() unknown object type.\n");
       break;
    }
-   
+
    return objType;
-   
+
 }
 
 
@@ -3365,10 +3397,10 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
          ("ResourceTree::GetObjectType() unknown object type.\n");
       break;
    }
-   
+
    wxTreeItemId nullId;
    return nullId;
-   
+
 }
 
 
@@ -3440,14 +3472,14 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
        "   dir1=%s\n   dir2=%s\n   textCtrl=%d\n", absTol, replaceStr.c_str(),
        dir1.c_str(), dir2.c_str(), textCtrl);
    #endif
-   
+
    if (textCtrl == NULL)
    {
       MessageInterface::ShowMessage
          ("ResourceTree::CompareScriptRunResult() textCtrl is NULL\n");
       return;
    }
-   
+
    StringArray itemNames =
       theGuiInterpreter->GetListOfObjects(Gmat::SUBSCRIBER);
    int size = itemNames.size();
@@ -3455,16 +3487,16 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
    //ReportFile *reportFile;
    GmatBase *reportFile;
    int reportCount = 0;
-   
+
    for (int i = 0; i<size; i++)
    {
       GmatBase *sub = GetObject(itemNames[i]);
       objName = itemNames[i];
-      
+
       if (sub->GetTypeName() == "ReportFile")
       {
          reportFile = GetObject(objName);
-         
+
          if (!reportFile)
          {
             MessageInterface::ShowMessage
@@ -3472,20 +3504,20 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
                 objName.c_str());
             return;
          }
-         
+
          std::string filename1 = reportFile->GetStringParameter("Filename");
          StringArray colTitles = reportFile->GetRefObjectNameArray(Gmat::PARAMETER);
          //MessageInterface::ShowMessage("===> colTitles.size=%d\n", colTitles.size());
-         
+
          #if DEBUG_COMPARE_REPORT
          MessageInterface::ShowMessage("   filename1=%s\n", filename1.c_str());
          #endif
-         
+
          wxString filename2 = filename1.c_str();
          wxFileName fname(filename2);
          wxString name2 = fname.GetFullName();
          size_t numReplaced = name2.Replace("GMAT", replaceStr.c_str());
-         
+
          if (numReplaced == 0)
          {
             textCtrl->AppendText
@@ -3495,7 +3527,7 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
                 "The report file doesn't contain GMAT.\n\n");
             return;
          }
-         
+
          if (numReplaced > 1)
          {
             textCtrl->AppendText
@@ -3506,27 +3538,27 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
                 "The report file name contains more than 1 GMAT string.\n\n");
             return;
          }
-         
+
          // set filename2
          filename2 = dir2 + "/" + name2;
 
          #if DEBUG_COMPARE_REPORT
          MessageInterface::ShowMessage("   filename2=%s\n", filename2.c_str());
          #endif
-         
+
          StringArray output =
             GmatFileUtil::Compare(filename1.c_str(), filename2.c_str(), colTitles, absTol);
-         
+
          // append text
          for (unsigned int i=0; i<output.size(); i++)
             textCtrl->AppendText(wxString(output[i].c_str()));
-         
+
          textCtrl->Show();
-         
+
          reportCount++;
       }
    }
-   
+
    if (reportCount == 0)
    {
       textCtrl->AppendText("** There is no report file to compare.\n\n");

@@ -26,6 +26,7 @@
 #include "gmatdefs.hpp"
 #include <iostream>
 #include <fstream>
+#include "sstream"
 #include "DataFormats.hpp"
 
 using namespace DataFormats; // for data type variable definitions
@@ -34,7 +35,7 @@ class ProcessDataFile
 {
 
 public:
-    
+
     ProcessDataFile();
     virtual ~ProcessDataFile();
 
@@ -47,7 +48,7 @@ public:
     // String processing utility functions
     std::string Trim(std::string s);
     std::string Ilrs2Cospar(std::string ilrsSatnum);
-    template <class T> bool from_string(T& t, const std::string& s, 
+    template <class T> bool from_string(T& t, const std::string& s,
                  std::ios_base& (*f)(std::ios_base&));
     bool Overpunch(std::string code, Integer &digit, Integer &sign );
 
@@ -61,17 +62,17 @@ public:
     // Get/Set isOpen variable
     bool GetIsOpen() const;
     void SetIsOpen(const bool &flag);
-    
+
     // File name functions
     std::string GetFileName();
     void SetFileName(std::string &myFileName);
     void SetFileName(const char* myFileName);
-    
+
     bool OpenFile();
     bool CloseFile();
-    
+
     bool IsEOF();
-    
+
     enum B3_TYPE_REPS {
 	RANGERATEONLY_ID = 1,
         AZEL_ID,
@@ -82,11 +83,11 @@ public:
 	RANGEONLY_ID,
 	AZELSENSORPOS_ID = 8,
 	RADECSENSORPOS_ID,
-	EndB3TypeReps    
+	EndB3TypeReps
     };
-  
+
 protected:
-    
+
     static const Integer MAX_LINES = 3;
     std::string lineFromFile[MAX_LINES];
     std::string dataFileName;
@@ -94,6 +95,25 @@ protected:
     bool isOpen;
 
 };
+
+
+//------------------------------------------------------------------------------
+// template <class T> bool ProcessDataFile::from_string(T& t,
+//       const std::string& s,
+//                 std::ios_base& (*f)(std::ios_base&))
+//------------------------------------------------------------------------------
+/**
+ * Typesafe conversion from string to integer, float, etc
+ */
+//------------------------------------------------------------------------------
+
+template <class T> bool ProcessDataFile::from_string(T& t, const std::string& s,
+                 std::ios_base& (*f)(std::ios_base&))
+{
+  std::istringstream iss(s);
+  return !(iss >> f >> t).fail();
+}
+
 
 #endif	/* _ProcessDataFile_hpp */
 

@@ -12,7 +12,7 @@
 // Created: 2008/07/23
 //
 /**
- *  Implementation code for the MeasurementModelFactory class, responsible 
+ *  Implementation code for the MeasurementModelFactory class, responsible
  *  for creating MeasurementModel objects.
  */
 //------------------------------------------------------------------------------
@@ -21,22 +21,27 @@
 #include "MeasurementModelFactory.hpp"
 #include "MessageInterface.hpp"  // temporary
 
+// Here we include the header files that define our supported models
+//#include "AzElMeasurementModel.hpp"
+#include "RangeMeasurementModel.hpp"
+#include "RangeAzElMeasurementModel.hpp"
+//#include "RangeRaDecMeasurementModel.hpp"
 
 //---------------------------------
 //  public methods
 //---------------------------------
 
 //------------------------------------------------------------------------------
-//  MeasurementModel* CreateMeasurementModel(const std::string &ofType, 
+//  MeasurementModel* CreateMeasurementModel(const std::string &ofType,
 //                                           const std::string &withName)
 //------------------------------------------------------------------------------
 /**
- * This method creates and returns an object of the requested 
- * MeasurementModel class. 
+ * This method creates and returns an object of the requested
+ * MeasurementModel class.
  *
  * @param <ofType> type of MeasurementModel object to create and return.
  * @param <withName> the name for the newly-created MeasurementModel object.
- * 
+ *
  * @return A pointer to the created object.
  */
 //------------------------------------------------------------------------------
@@ -45,9 +50,11 @@ MeasurementModel* MeasurementModelFactory::CreateMeasurementModel
 {
 
     if (ofType == "Range")
-      return new Range(withName);
-    else if (ofType == "RangeRate")
-      return new RangeRate(withName);
+      return new RangeMeasurementModel(withName);
+    else if (ofType == "RangeAzEl")
+      return new RangeAzElMeasurementModel(withName);
+//    else if (ofType == "RangeRate")
+//      return new RangeRate(withName);
     //else if (ofType == "LightTime")
     //  return new LightTime(withName);
     //else if (ofType == "VariableTransmitterRange")
@@ -74,16 +81,14 @@ MeasurementModel* MeasurementModelFactory::CreateMeasurementModel
     //  return new IntegratedDopplerCount(withName);
     //else if (ofType == "IMU")
     //  return new IMU(withName);
-    //else if (ofType == "Magnetometer") 
-    //  return new Magnetometer(withName);             
+    //else if (ofType == "Magnetometer")
+    //  return new Magnetometer(withName);
     //else if (ofType == "AO_AzEl")
     //  return new AO_AzEl(withName);
-    //else if (ofType == "RangeAzEl")
-    //  return new RangeAzEl(withName);
-    else if (ofType == "AO_RaDec")
-      return new AO_RaDec(withName);
-    else if (ofType == "RangeRaDec")
-      return new RangeRaDec(withName);
+//    else if (ofType == "AO_RaDec")
+//      return new AO_RaDec(withName);
+//    else if (ofType == "RangeRaDec")
+//      return new RangeRaDec(withName);
 
    return NULL;
 }
@@ -93,18 +98,19 @@ MeasurementModel* MeasurementModelFactory::CreateMeasurementModel
 //  MeasurementModelFactory()
 //------------------------------------------------------------------------------
 /**
- * This method creates an object of the class MeasurementModelFactory. 
+ * This method creates an object of the class MeasurementModelFactory.
  * (default constructor)
  */
 //------------------------------------------------------------------------------
 MeasurementModelFactory::MeasurementModelFactory() :
-    Factory     (Gmat::MeasurementModel)
+    Factory     (Gmat::MEASUREMENT_MODEL)
 {
    if (creatables.empty())
    {
 
         creatables.push_back("Range");
-        creatables.push_back("RangeRate");
+        creatables.push_back("RangeAzEl");
+        //creatables.push_back("RangeRate");
         //creatables.push_back("LightTime");
         //creatables.push_back("VariableTransmitterRange");
         //creatables.push_back("AntennaTracking");
@@ -118,12 +124,11 @@ MeasurementModelFactory::MeasurementModelFactory() :
         //creatables.push_back("VariableTransmitterDoppler");
         //creatables.push_back("IntegratedDopplerCount");
         //creatables.push_back("IMU");
-        //creatables.push_back("Magnetometer");              
+        //creatables.push_back("Magnetometer");
         //creatables.push_back("AO_AzEl");
-        //creatables.push_back("RangeAzEl");
-        creatables.push_back("AO_RaDec");
-        creatables.push_back("RangeRaDec");
-      
+        //creatables.push_back("AO_RaDec");
+        //creatables.push_back("RangeRaDec");
+
    }
 }
 
@@ -138,7 +143,7 @@ MeasurementModelFactory::MeasurementModelFactory() :
  */
 //------------------------------------------------------------------------------
 MeasurementModelFactory::MeasurementModelFactory(StringArray createList) :
-Factory(createList, Gmat::MeasurementModel)
+Factory(createList, Gmat::MEASUREMENT_MODEL)
 {
 }
 
@@ -147,7 +152,7 @@ Factory(createList, Gmat::MeasurementModel)
 //  MeasurementModelFactory(const MeasurementModelFactory& fact)
 //------------------------------------------------------------------------------
 /**
- * This method creates an object of the class MeasurementModelFactory.  
+ * This method creates an object of the class MeasurementModelFactory.
  * (copy constructor)
  *
  * @param <fact> the factory object to copy to "this" factory.
@@ -161,7 +166,8 @@ MeasurementModelFactory::MeasurementModelFactory
    {
 
        creatables.push_back("Range");
-        creatables.push_back("RangeRate");
+       creatables.push_back("RangeAzEl");
+       // creatables.push_back("RangeRate");
         //creatables.push_back("LightTime");
         //creatables.push_back("VariableTransmitterRange");
         //creatables.push_back("AntennaTracking");
@@ -175,11 +181,10 @@ MeasurementModelFactory::MeasurementModelFactory
         //creatables.push_back("VariableTransmitterDoppler");
         //creatables.push_back("IntegratedDopplerCount");
         //creatables.push_back("IMU");
-        //creatables.push_back("Magnetometer");              
+        //creatables.push_back("Magnetometer");
         //creatables.push_back("AO_AzEl");
-        //creatables.push_back("RangeAzEl");
-        creatables.push_back("AO_RaDec");
-        creatables.push_back("RangeRaDec");
+        //creatables.push_back("AO_RaDec");
+        //creatables.push_back("RangeRaDec");
 
    }
 }
@@ -193,7 +198,7 @@ MeasurementModelFactory::MeasurementModelFactory
  *
  * @param <fact> the MeasurementModelFactory object that is copied.
  *
- * @return "this" MeasurementModelFactory with data set to match the 
+ * @return "this" MeasurementModelFactory with data set to match the
  * input factory (fact).
  */
 //------------------------------------------------------------------------------
@@ -203,7 +208,7 @@ MeasurementModelFactory& MeasurementModelFactory::operator=
    Factory::operator=(fact);
    return *this;
 }
-    
+
 
 //------------------------------------------------------------------------------
 // ~MeasurementModelFactory()
