@@ -1,4 +1,4 @@
-//$Header$ 
+//$Id$ 
 //------------------------------------------------------------------------------
 //                                 StateConverter
 //------------------------------------------------------------------------------
@@ -56,9 +56,8 @@ public:
    // public method 
    Real GetMu() const { return mMu; }
    void SetMu(Real mu) { mMu = mu; }
-   bool     SetMu(const CoordinateSystem *cs);
-//    bool     SetMu(SolarSystem *solarSystem, const std::string &body);
-      
+   bool SetMu(const CoordinateSystem *cs);
+   
    Rvector6 FromCartesian(const Rvector6 &state, const std::string &toType,
                           const std::string &anomalyType = "TA");
    
@@ -77,10 +76,6 @@ public:
    Rvector6 FromEquinoctial(const Rvector6 &state, const std::string &toType,
                             const std::string &anomalyType = "TA");
    
-//    Rvector6 Convert(const Rvector6 &state, const std::string &fromType,
-//                     const std::string &toType,
-//                     Anomaly::AnomalyType anomalyType = Anomaly::TA);
-   
    Rvector6 Convert(const Rvector6 &state, const std::string &fromType,
                     const std::string &toType,
                     const std::string &anomalyType = "TA");
@@ -90,8 +85,6 @@ public:
    
    Rvector6 Convert(const Real *state, const std::string &fromType,
                     const std::string &toType, Anomaly &anomaly);
-   
-//    Rvector6 Convert(const Real *state, const std::string &toType);
    
    // Constant variable
    static const Real DEFAULT_MU;// = 0.3986004415e+06;  // km^3/s^2
@@ -103,7 +96,6 @@ public:
 protected:
 
 private:
-//    std::string  mStateType;
    Real         mMu;
    
    static const std::string STATE_TYPE_TEXT[StateTypeCount];

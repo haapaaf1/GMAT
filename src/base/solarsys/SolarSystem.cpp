@@ -761,6 +761,11 @@ std::string SolarSystem::GetCurrentPlanetarySource()
 //------------------------------------------------------------------------------
 void SolarSystem::ResetToDefaults()
 {
+   #ifdef DEBUG_SS_DEFAULTS
+   MessageInterface::ShowMessage
+      ("SolarSystem::ResetToDefaults() <%p> '%s' entered\n", this, GetName().c_str());
+   #endif
+   
    pvSrcForAll         = Gmat::DE_405;
    anMethodForAll      = Gmat::LOW_FIDELITY;
    thePlanetaryEphem   = NULL;
@@ -796,6 +801,11 @@ void SolarSystem::ResetToDefaults()
 //------------------------------------------------------------------------------
 bool SolarSystem::AddBody(CelestialBody* cb)
 {
+   #ifdef DEBUG_SS_ADD_BODY
+   MessageInterface::ShowMessage
+      ("SolarSystem::AddBody() this=<%p> '%s' entered\n", this, GetName().c_str());
+   #endif
+   
    if (cb == NULL)
    {
       return false;    // write some kind of error or throw an exception?
@@ -1125,6 +1135,12 @@ bool SolarSystem::SetAnalyticMethod(const std::string &aM)
 //------------------------------------------------------------------------------
 bool SolarSystem::SetOverrideTimeSystem(bool overrideIt)
 {
+   #ifdef DEBUG_SS_SET
+   MessageInterface::ShowMessage
+      ("SolarSystem::SetOverrideTimeSystem() <%p> '%s' entered, overrideIt=%d\n",
+       this, GetName().c_str(), overrideIt);
+   #endif
+   
    // Set it for each of the bodies
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
@@ -1132,7 +1148,7 @@ bool SolarSystem::SetOverrideTimeSystem(bool overrideIt)
       if ((*cbi)->SetOverrideTimeSystem(overrideIt) == false)  return false;
       ++cbi;
    }
-   overrideTimeForAll = overrideIt;
+   overrideTimeForAll = overrideIt;   
    return true;
 }
 
@@ -1470,6 +1486,11 @@ bool SolarSystem::GetBooleanParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 bool SolarSystem::SetBooleanParameter(const Integer id, const bool value)
 {
+   #ifdef DEBUG_SS_SET
+   MessageInterface::ShowMessage
+      ("SolarSystem::SetBooleanParameter() this=<%p> entered\n", this);
+   #endif
+   
    if (id == OVERRIDE_TIME_SYSTEM)
    {
       SetOverrideTimeSystem(value);

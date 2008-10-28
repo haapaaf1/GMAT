@@ -35,6 +35,7 @@
 
 //#define DEBUG_SPACECRAFT 1 
 //#define DEBUG_SPACECRAFT_SET 1 
+//#define DEBUG_SPACECRAFT_SET_ELEMENT
 //#define DEBUG_SPACECRAFT_CS 1 
 //#define DEBUG_RENAME 1
 //#define DEBUG_DATE_FORMAT
@@ -428,9 +429,9 @@ CoordinateSystem* Spacecraft::GetInternalCoordSystem()
 void Spacecraft::SetInternalCoordSystem(CoordinateSystem *cs)
 {
    #if DEBUG_SPACECRAFT_CS
-      MessageInterface::ShowMessage
-         ("Spacecraft::SetInternalCoordSystem() cs=%s<%p> on %s\n",
-          cs->GetName().c_str(),cs, instanceName.c_str());
+   MessageInterface::ShowMessage
+      ("Spacecraft::SetInternalCoordSystem() this=<%p> '%s', setting %s <%p>\n",
+       this, GetName().c_str(), cs->GetName().c_str(), cs);
    #endif
    
    if (internalCoordSystem != cs)
@@ -542,6 +543,13 @@ void Spacecraft::SetState(const Real s1, const Real s2, const Real s3,
 //------------------------------------------------------------------------------
 PropState& Spacecraft::GetState()
 {
+   #ifdef DEBUG_GET_STATE
+   Rvector6 state;
+   state.Set(SpaceObject::GetState().GetState());
+   MessageInterface::ShowMessage
+      ("Spacecraft::GetState() '%s' returning\n   %s\n", GetName().c_str(),
+       state.ToString().c_str());
+   #endif
    return SpaceObject::GetState();
 }
 
@@ -950,7 +958,8 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                               const std::string &name)
 {
    #ifdef DEBUG_SC_REF_OBJECT
-   MessageInterface::ShowMessage("Entering SC::SetRefObject\n");
+   MessageInterface::ShowMessage
+      ("Entering SC::SetRefObject '%s'\n", GetName().c_str());
    #endif
    
    if (obj == NULL)
@@ -999,20 +1008,45 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       
       #if DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage
-         ("Spacecraft::SetRefObject() coordinateSystem=%s<%p>, cs=%s<%p> on %s\n",
-          coordinateSystem->GetName().c_str(), coordinateSystem,
-          cs->GetName().c_str(), cs, instanceName.c_str());
+         ("Spacecraft::SetRefObject() '%s', coordinateSystem=%s<%p>, cs=%s<%p>\n",
+          instanceName.c_str(), coordinateSystem->GetName().c_str(), coordinateSystem,
+          cs->GetName().c_str(), cs);
       #endif
       
-      if (coordinateSystem != cs)
+      if (coordinateSystem == cs)
       {
-         coordinateSystem = cs;         
-         TakeAction("ApplyCoordinateSystem");
-         
          #if DEBUG_SPACECRAFT_CS
          MessageInterface::ShowMessage
-            ("Spacecraft::SetRefObject() coordinateSystem applied ----------\n");
+            ("   input coordinateSystem is the same as current one, so ignoring\n");
          #endif
+      }
+      else
+      {
+         // saved the old CS and added try/catch block to set to old CS
+         // in case of exception thrown (loj: 2008.10.23)
+         CoordinateSystem *oldCS = coordinateSystem;
+         coordinateSystem = cs;
+         
+         try
+         {
+            TakeAction("ApplyCoordinateSystem");
+            
+            #if DEBUG_SPACECRAFT_CS
+            MessageInterface::ShowMessage
+               ("Spacecraft::SetRefObject() coordinateSystem applied ----------\n");
+            Rvector6 vec6(state.GetState());
+            MessageInterface::ShowMessage("   %s\n", vec6.ToString().c_str());
+            #endif
+         }
+         catch (BaseException &e)
+         {
+            #if DEBUG_SPACECRAFT_CS
+            MessageInterface::ShowMessage
+               ("Exception thrown: '%s', so setting back to old CS\n", e.GetFullMessage().c_str());
+            #endif
+            coordinateSystem = oldCS;
+            throw;
+         }
       }
       
       return true;
@@ -1515,19 +1549,19 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value)
 Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
 {
    #ifdef DEBUG_SPACECRAFT_SET
-   MessageInterface::ShowMessage(
-   "In SC::SetRealParameter(label), label = %s and value = %.12f\n",
-   label.c_str(), value);
+   MessageInterface::ShowMessage
+      ("In SC::SetRealParameter(label), label = %s and value = %.12f\n",
+       label.c_str(), value);
    #endif
    // first (really) see if it's a parameter for an owned object (i.e. attitude)
    if (GetParameterID(label) >= ATTITUDE_ID_OFFSET)
       if (attitude)
          return attitude->SetRealParameter(label, value);
-         
+   
    // First try to set as a state element
    if (SetElement(label, value))
       return value;
-      
+   
    if (label == "A1Epoch")
    {
       state.SetEpoch(value);
@@ -2086,7 +2120,7 @@ bool Spacecraft::TakeAction(const std::string &action,
    {
       #if DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage
-         ("In TakeAction(): Calling StateConverter::SetMu(%p)\n", coordinateSystem);
+         ("Spacecraft::TakeAction() Calling StateConverter::SetMu(%p)\n", coordinateSystem);
       #endif
       
       if (!stateConverter.SetMu(coordinateSystem))
@@ -2099,7 +2133,8 @@ bool Spacecraft::TakeAction(const std::string &action,
       {
          #if DEBUG_SPACECRAFT_CS
          MessageInterface::ShowMessage
-            ("In TakeAction(): Calling SetStateFromRepresentation()\n");
+            ("Spacecraft::TakeAction() Calling SetStateFromRepresentation, "
+             "since CS was not set()\n");
          #endif
          Rvector6 st(state.GetState());
          SetStateFromRepresentation(stateType, st); // this doesn't look right to me *****
@@ -2108,7 +2143,7 @@ bool Spacecraft::TakeAction(const std::string &action,
       }
       
       #if DEBUG_SPACECRAFT_CS
-      MessageInterface::ShowMessage("In TakeAction(): returning true\n");
+      MessageInterface::ShowMessage("Spacecraft::TakeAction() returning true\n");
       #endif
       return true;
    }
@@ -2192,21 +2227,16 @@ GmatBase* Spacecraft::GetOwnedObject(Integer whichOne)
 bool Spacecraft::Initialize()
 {
    #if DEBUG_SPACECRAFT_CS
-      MessageInterface::ShowMessage("Spacecraft::Initialize() "
-         "internalCoordSystem=%p, coordinateSystem=%p\n", internalCoordSystem, 
-         coordinateSystem);
-   
-      if (internalCoordSystem)
-         MessageInterface::ShowMessage("   internalCoordSystem is '%s'\n", 
-            internalCoordSystem->GetName().c_str());
-      if (coordinateSystem)
-         MessageInterface::ShowMessage("   coordinateSystem is '%s'\n", 
-            coordinateSystem->GetName().c_str());
-          
-      MessageInterface::ShowMessage
-         ("   stateType=%s, state=\n   %.9f, %.9f, %.9f, %.14f, %.14f, %f.14\n",
-          stateType.c_str(), state[0], state[1], state[2], state[3],
-          state[4], state[5]);
+   MessageInterface::ShowMessage
+      ("Spacecraft::Initialize() entered ---------- this=<%p> '%s'\n   "
+       "internalCoordSystem=<%p> '%s', coordinateSystem=<%p> '%s'\n", this,
+       GetName().c_str(), internalCoordSystem,
+       internalCoordSystem ? internalCoordSystem->GetName().c_str() : "NULL",
+       coordinateSystem, coordinateSystem ? coordinateSystem->GetName().c_str() : "NULL");
+   MessageInterface::ShowMessage
+      ("   stateType=%s, state=\n   %.9f, %.9f, %.9f, %.14f, %.14f, %f.14\n",
+       stateType.c_str(), state[0], state[1], state[2], state[3],
+       state[4], state[5]);
    #endif
    
    // Set the mu if CelestialBody is there through coordinate system's origin;   
@@ -3004,8 +3034,14 @@ void Spacecraft::SetStateFromRepresentation(std::string rep, Rvector6 &st)
    if (rep == "Cartesian")
       csState = st;
    else
-      //loj:csState = stateConverter.Convert(st, rep, "Cartesian", trueAnomaly);
+   {
+      #ifdef DEBUG_STATE_INTERFACE
+      MessageInterface::ShowMessage
+         ("   rep is not Cartesian, so calling stateConverter.Convert()\n");
+      #endif
       csState = stateConverter.Convert(st, rep, "Cartesian", anomalyType);
+   }
+   
    #ifdef DEBUG_STATE_INTERFACE
       MessageInterface::ShowMessage(
          "Spacecraft::SetStateFromRepresentation: state has been converted\n");
@@ -3024,8 +3060,15 @@ void Spacecraft::SetStateFromRepresentation(std::string rep, Rvector6 &st)
    
    // Then convert to the internal CS
    if (internalCoordSystem != coordinateSystem)
+   {
+      #ifdef DEBUG_STATE_INTERFACE
+      MessageInterface::ShowMessage
+         ("   cs is not InteralCS, so calling coordConverter.Convert() at epoch %f\n",
+          GetEpoch());
+      #endif
       coordConverter.Convert(GetEpoch(), csState, coordinateSystem, finalState, 
          internalCoordSystem);
+   }
    else
       finalState = csState;
    
@@ -3034,8 +3077,7 @@ void Spacecraft::SetStateFromRepresentation(std::string rep, Rvector6 &st)
    
    #ifdef DEBUG_STATE_INTERFACE
       MessageInterface::ShowMessage(
-         //"Spacecraft::SetStateFromRepresentation: State is now\n   %s"
-         "Spacecraft::SetStateFromRepresentation: State is now\n"
+         "Spacecraft::SetStateFromRepresentation: State is now\n   "
          "%.9lf %.9lf %.9lf %.14lf %.14lf %.14lf\n", state[0], state[1], 
          state[2], state[3], state[4], state[5]);
    #endif
@@ -3094,19 +3136,6 @@ Real Spacecraft::GetElement(const std::string &label)
       if (baseID == ELEMENT6_ID) return stateInRep[5];
    }
 
-   /* OLD CODE
-   std::string rep = "";
-   Integer id = LookUpLabel(label, rep);
-   Real retval = -9999999999.999999;
-
-   if (id != -1) 
-   {  
-      Rvector6 tempState = GetStateInRepresentation(rep);
-      retval = tempState[id];
-   }
-
-   return retval;
-   */
    return -9999999999.999999;  // some kind of error
 }
 
@@ -3125,20 +3154,16 @@ Real Spacecraft::GetElement(const std::string &label)
 //------------------------------------------------------------------------------
 bool Spacecraft::SetElement(const std::string &label, const Real &value)
 {
-   #ifdef DEBUG_SPACECRAFT_SET
-   MessageInterface::ShowMessage("In SC::SetElement, label = %s, value = %.12f\n",
-   label.c_str(), value);
+   #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+   MessageInterface::ShowMessage
+      ("In SC::SetElement, <%p> '%s', label=%s, value=%.12f\n", this,
+       GetName().c_str(), label.c_str(), value);
    #endif
    std::string rep = "";
    Integer id = LookUpLabel(label, rep) - ELEMENT1_ID;
-   ///////
-   //MessageInterface::ShowMessage
-   //   ("==> rep=<%s>, stateType=<%s>, csSet=%d\n", rep.c_str(), stateType.c_str(), csSet);
    
    if ((rep != "") && (stateType != rep))
    {
-      //SetStringParameter(STATE_TYPE_ID, rep);
-      
       if ((rep == "Keplerian") || (rep == "ModifiedKeplerian"))
       {
          // Load trueAnomaly with the state data
@@ -3156,13 +3181,15 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
       }
       else  stateType = rep;
    }
-   ///////
-   #ifdef DEBUG_SPACECRAFT_SET
+   
+   #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
    if (id >= 0)
-   MessageInterface::ShowMessage(
-   "In SC::SetElement, after LookUpLabel, id+ELEMENT1_ID = %d, its string = \"%s\",  and rep = \"%s\"\n",
-   id+ELEMENT1_ID, (GetParameterText(id+ELEMENT1_ID)).c_str(), rep.c_str());
+      MessageInterface::ShowMessage
+         ("In SC::SetElement, after LookUpLabel, id+ELEMENT1_ID = %d, its "
+          "string = \"%s\",  and rep = \"%s\"\n", id+ELEMENT1_ID,
+          (GetParameterText(id+ELEMENT1_ID)).c_str(), rep.c_str());
    #endif
+   
    // parabolic and hyperbolic orbits not yet supported
    if ((label == "ECC") && value == 1.0)
    {
@@ -3172,7 +3199,7 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
                     "Eccentricity", "Real Number != 1.0");
       throw se;
    }
-
+   
    if ((id == 5) && (!trueAnomaly.IsInvalid(label)))
       trueAnomaly.SetType(label);
    
@@ -3190,13 +3217,18 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
          tempState[id] = value;
       }
       
-      #ifdef DEBUG_SPACECRAFT_SET
-      MessageInterface::ShowMessage("In SC::SetElement, returning TRUE\n");
+      #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+      Rvector6 vec6(state.GetState());
+      MessageInterface::ShowMessage
+         ("   CS was %sset, state is\n   %s \n", csSet ? "" : "NOT ",
+          vec6.ToString().c_str());
+      MessageInterface::ShowMessage
+         ("In SC::SetElement, '%s', returning TRUE\n", GetName().c_str());
       #endif
       return true;
    }
    
-   #ifdef DEBUG_SPACECRAFT_SET
+   #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
    MessageInterface::ShowMessage("In SC::SetElement, returning FALSE\n");
    #endif
    return false;
@@ -3204,7 +3236,7 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
 
 
 //------------------------------------------------------------------------------
-// void SetStateFromRepresentation(std::string rep, Rvector6 &st)
+// void LookUpLabel(std::string rep, Rvector6 &st)
 //------------------------------------------------------------------------------
 /**
  * Code used to obtain a state in a non-Cartesian representation.
@@ -3266,7 +3298,7 @@ Integer Spacecraft::LookUpLabel(const std::string &label, std::string &rep)
    
    rep = elementLabelMap[label];
    
-   #ifdef DEBUG_STATE_INTERFACE
+   #ifdef DEBUG_LOOK_UP_LABEL
       MessageInterface::ShowMessage("Spacecraft::LookUpLabel(%s..) gives rep %s\n",
          label.c_str(), rep.c_str());
    #endif

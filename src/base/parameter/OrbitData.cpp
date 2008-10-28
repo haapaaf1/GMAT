@@ -190,7 +190,8 @@ Rvector6 OrbitData::GetCartState()
    
    #ifdef DEBUG_ORBITDATA_RUN
    MessageInterface::ShowMessage
-      ("OrbitData::GetCartState() mCartState=\n   %s\n", mCartState.ToString().c_str());
+      ("OrbitData::GetCartState() '%s' mCartState=\n   %s\n",
+       mSpacecraft->GetName().c_str(), mCartState.ToString().c_str());
    #endif
    
    // if origin dependent parameter, the relative position/velocity is computed in
@@ -990,7 +991,7 @@ void OrbitData::InitializeRefObjects()
    {
       mOutCoordSystem =
          (CoordinateSystem*)FindFirstObject(VALID_OBJECT_TYPE_LIST[COORD_SYSTEM]);
-   
+      
       if (mOutCoordSystem == NULL)
       {
          #ifdef DEBUG_ORBITDATA_INIT
@@ -1030,6 +1031,9 @@ void OrbitData::InitializeRefObjects()
    MessageInterface::ShowMessage
       ("OrbitData::InitializeRefObjects() exiting, mOrigin.Name=%s, mGravConst=%f, "
        "mOriginDep=%d\n",  mOrigin->GetName().c_str(), mGravConst, mOriginDep);
+   MessageInterface::ShowMessage
+      ("   mSpacecraft=<%p> '%s', mSolarSystem=<%p>, mOutCoordSystem=<%p>, mOrigin=<%p>\n",
+       mSpacecraft, mSpacecraft->GetName().c_str(),mSolarSystem, mOutCoordSystem, mOrigin);
    #endif
 }
 

@@ -47,6 +47,7 @@
 
 //#define DEBUG_CELESTIAL_BODY 1
 //#define DEBUG_GET_STATE
+//#define DEBUG_CB_SET
 //#define DEBUG_CB_ANALYTIC
 //#define DEBUG_EPHEM_SOURCE
 
@@ -194,6 +195,11 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    
    parameterCount = CelestialBodyParamCount;
    InitializeBody(itsBodyType);
+   
+   #ifdef DEBUG_CB_CONSTRUCTOR
+   MessageInterface::ShowMessage
+      ("CelestialBody(string) <%p> '%s' constructor entered\n", this, GetName().c_str());
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -253,6 +259,12 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    parameterCount = CelestialBodyParamCount;
    
    InitializeBody(Gmat::BODY_TYPE_STRINGS[itsBodyType]);
+   
+   #ifdef DEBUG_CB_CONSTRUCTOR
+   MessageInterface::ShowMessage
+      ("CelestialBody(bodyType) <%p> '%s' constructor entered\n",
+       this, GetName().c_str());
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -326,6 +338,11 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
       models[i] = cBody.models[i];
    
    for (Integer i=0;i<6;i++)  prevState[i] = cBody.prevState[i];
+   
+   #ifdef DEBUG_CB_CONSTRUCTOR
+   MessageInterface::ShowMessage
+      ("CelestialBody() <%p> '%s' copy constructor entered\n", this, GetName().c_str());
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -462,13 +479,14 @@ bool CelestialBody::Initialize()
 const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
 {
    #ifdef DEBUG_GET_STATE
-      MessageInterface::ShowMessage("Entering Rvector6& GetState with time %.17f\n",
-      MessageInterface::ShowMessage
-         ("   posVelSrc=%d for <%p> %s\n", posVelSrc, this, GetName().c_str());
-      atTime.Get());
-      MessageInterface::ShowMessage("   lastEphemTime = %.17f\n",lastEphemTime.Get());
+   MessageInterface::ShowMessage
+      ("CelestialBody::GetState() <%p> '%s' entered with time %.17f\n", this,
+       GetName().c_str(), atTime.Get());
+   MessageInterface::ShowMessage
+      ("   posVelSrc=%d for <%p> %s\n", posVelSrc, this, GetName().c_str());
+   MessageInterface::ShowMessage("   lastEphemTime = %.17f\n",lastEphemTime.Get());
    #endif
-      
+   
    Real dt = Abs(atTime.Subtract(lastEphemTime)) * GmatTimeUtil::SECS_PER_DAY;
    if ( dt < ephemUpdateInterval)
    {
@@ -506,7 +524,13 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
             throw PlanetaryEphemException(
                   "SLP or DE file requested, but no file specified");
          }
-         posVel     = theSourceFile->GetPosVel(bodyNumber,atTime, overrideTime);
+         #ifdef DEBUG_GET_STATE
+         MessageInterface::ShowMessage
+            ("   In <%p> '%s', Calling theSourceFile->GetPosVel(%d, %f, %s)\n",
+             this, GetName().c_str(), bodyNumber, atTime.GetReal(),
+             overrideTime ? "true" : "false");
+         #endif
+         posVel     = theSourceFile->GetPosVel(bodyNumber, atTime, overrideTime);
          state.Set(posVel[0], posVel[1], posVel[2],
                    posVel[3], posVel[4], posVel[5]);
          break;
@@ -1374,8 +1398,11 @@ bool CelestialBody::SetAnalyticMethod(Gmat::AnalyticMethod aM)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetUsePotentialFile(bool useIt)
 {
-   MessageInterface::ShowMessage("===> CelestialBody::SetUsePotentialFile() useIt=%d\n",
-                                 useIt);
+   #ifdef DEBUG_CB_SET
+   MessageInterface::ShowMessage
+      ("CelestialBody::SetUsePotentialFile() this=<%p> '%s' entered, useIt=%d\n",
+       this, GetName().c_str(), useIt);
+   #endif
    
    if ((usePotentialFile == false) && (useIt == true))
    {
@@ -1414,6 +1441,11 @@ bool CelestialBody::SetUsePotentialFile(bool useIt)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetOverrideTimeSystem(bool overrideIt)
 {
+   #ifdef DEBUG_CB_SET
+   MessageInterface::ShowMessage
+      ("CelestialBody::SetOverrideTimeSystem() <%p> '%s' entered, overrideIt=%d\n",
+       this, GetName().c_str(), overrideIt);
+   #endif
    overrideTime = overrideIt;
    return true;
 }
@@ -1700,8 +1732,17 @@ const Rvector6 CelestialBody::GetMJ2000State(const A1Mjd &atTime)
    {
       throw SolarSystemException("j2000Body is of incorrect type.");
    }
-   return (stateEphem - j2kEphemState);
    
+   #ifdef DEBUG_GET_STATE
+   MessageInterface::ShowMessage
+      ("CelestialBody::GetMJ2000State() stateEphem =\n   %s\n",
+       stateEphem.ToString().c_str());
+   MessageInterface::ShowMessage
+      ("CelestialBody::GetMJ2000State() j2kEphemState =\n   %s\n",
+       j2kEphemState.ToString().c_str());
+   #endif
+   
+   return (stateEphem - j2kEphemState);
 }
 
 

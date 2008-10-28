@@ -205,6 +205,9 @@ void FunctionManager::SetGlobalObjectMap(std::map<std::string, GmatBase *> *map)
 //------------------------------------------------------------------------------
 void FunctionManager::SetSolarSystem(SolarSystem *ss)
 {
+   #ifdef DEBUG_FM_SET
+   MessageInterface::ShowMessage("FunctionManager::SetSolarSystem() ss=<%p>\n", ss);
+   #endif
    solarSys = ss;
    if ((f) && (f->GetTypeName() == "GmatFunction"))   f->SetSolarSystem(ss);
 }

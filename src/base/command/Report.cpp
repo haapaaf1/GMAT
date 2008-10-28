@@ -725,10 +725,13 @@ bool Report::Execute()
 {
    if (parms.empty())
       throw CommandException("Report command has no parameters to write\n");
+   if (reporter == NULL)
+      throw CommandException("Reporter is not yet set\n");
    
    #ifdef DEBUG_REPORT_EXEC
    MessageInterface::ShowMessage
-      ("Report::Execute() entered, has %d Parameters\n", parms.size());
+      ("Report::Execute() entered, reporter <%s> '%s' has %d Parameters\n",
+       reporter->GetName().c_str(), reporter->GetFileName().c_str(), parms.size());
    #endif
    
    // Build the data as a string

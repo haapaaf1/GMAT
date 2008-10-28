@@ -1,4 +1,4 @@
-//$Header$ 
+//$Id$ 
 //------------------------------------------------------------------------------
 //                              StateConverter
 //------------------------------------------------------------------------------
@@ -56,11 +56,10 @@ const std::string StateConverter::STATE_TYPE_TEXT[StateTypeCount] =
 //---------------------------------------------------------------------------
 /**
  * Creates default constructor.
- *
  */
+//---------------------------------------------------------------------------
 StateConverter::StateConverter()
 {
-//    mStateType = "Cartesian";
    mMu = DEFAULT_MU;
 }
 
@@ -77,7 +76,6 @@ StateConverter::StateConverter()
 //---------------------------------------------------------------------------
 StateConverter::StateConverter(const std::string &newType) 
 {
-//    mStateType = newType;
    mMu = DEFAULT_MU;
 }
 
@@ -94,7 +92,6 @@ StateConverter::StateConverter(const std::string &newType)
 //---------------------------------------------------------------------------
 StateConverter::StateConverter(const std::string &newType, const Real newMu) 
 {
-//    mStateType = newType;
    mMu = newMu;
 }
 
@@ -110,8 +107,7 @@ StateConverter::StateConverter(const std::string &newType, const Real newMu)
 //---------------------------------------------------------------------------
 StateConverter::StateConverter(const StateConverter &stateConverter) 
 {
-//    mStateType = stateConverter.mStateType;
-   mMu   = stateConverter.mMu; 
+   mMu = stateConverter.mMu; 
 }
 
 
@@ -141,9 +137,8 @@ StateConverter& StateConverter::operator=(const StateConverter &converter)
    // Don't do anything if copying self
    if (&converter == this)
       return *this;
-        
-//    mStateType = converter.mStateType;
-   mMu   = converter.mMu; 
+   
+   mMu = converter.mMu; 
    
    return *this;
 }
@@ -198,32 +193,6 @@ bool StateConverter::SetMu(const CoordinateSystem *coordSys)
       
    return true;
 }
-
-
-// //---------------------------------------------------------------------------
-// //  bool StateConverter::SetMu(const SolarSystem *solarSystem, 
-// //                             const std::string &body)
-// //---------------------------------------------------------------------------
-// /**
-//  * Set the mu from the Celestial body's gravitational constant
-//  *
-//  * @return true if successful; otherwise, return false
-//  *
-//  */
-// //---------------------------------------------------------------------------
-// bool StateConverter::SetMu(SolarSystem *solarSystem, 
-//                            const std::string &body)
-// {
-//    if (solarSystem == NULL) return false;
-
-//    CelestialBody *centralBody = solarSystem->GetBody(body);
-//    if (centralBody == NULL) return false;
-
-//    // Get the gravitational constant and set new value for mu
-//    mMu = centralBody->GetGravitationalConstant();
-
-//    return true;
-// }
 
 
 //---------------------------------------------------------------------------
@@ -574,43 +543,6 @@ Rvector6 StateConverter::FromEquinoctial(const Rvector6 &state,
 }
 
 
-// //---------------------------------------------------------------------------
-// //  Rvector6 Convert(const Rvector6 &state, const std::string &fromType,
-// //                   const std::string &toType,
-// //                   Anomaly::AnomalyType anomalyType = Anomaly::TA)
-// //---------------------------------------------------------------------------
-// /**
-//  * Converts state from fromType to toType.
-//  *
-//  * @param <state> state to convert
-//  * @param <fromType>  state type to convert from
-//  * @param <toType> state type to convert to
-//  * @param <anomalyType> anomaly type string if toType is Mod/Keplerian
-//  *
-//  * @return Converted states from the specific element type 
-//  */
-// //---------------------------------------------------------------------------
-// Rvector6 StateConverter::Convert(const Rvector6 &state,   
-//                                  const std::string &fromType,
-//                                  const std::string &toType,
-//                                  Anomaly::AnomalyType anomalyType)
-// {
-//    if (fromType == "Cartesian" && toType == "Keplerian")
-//    {
-//       return Keplerian::CartesianToKeplerian(mMu, state, anomalyType);
-//    }
-//    else
-//    {
-//       Anomaly tempAnomaly;
-//       tempAnomaly.SetType(anomalyType);
-//       Real tempState[6];
-//       for (int i=0; i<6; i++)
-//          tempState[i] = state.Get(i);
-//       return Convert(tempState, fromType, toType, tempAnomaly);
-//    }
-// }
-
-
 //---------------------------------------------------------------------------
 //  Rvector6 Convert(const Rvector6 &state, const std::string &fromType,
 //                   const std::string &toType,
@@ -694,15 +626,16 @@ Rvector6 StateConverter::Convert(const Rvector6 &state,
 
 
 //---------------------------------------------------------------------------
-//  Rvector6 Convert(const Rvector6 &state, const std::string &fromType,
-//                   const std::string &toType, Anomaly &anomaly)
+// Rvector6 Convert(const Rvector6 &state, const std::string &fromType,
+//                  const std::string &toType, Anomaly &anomaly)
 //---------------------------------------------------------------------------
 /**
  * Assignment operator for StateConverter structures.
  *
- * @param <state> Element states 
+ * @param <state>     Element states 
  * @param <fromType>  Element Type 
- * @param <toType> Element Type
+ * @param <toType>    Element Type
+ * @param <anomaly>   Anomaly
  *
  * @return Converted states from the specific element type 
  */
@@ -716,7 +649,6 @@ Rvector6 StateConverter::Convert(const Rvector6 &state,
    MessageInterface::ShowMessage
        ("StateConverter::Convert() fromType=%s, toType=%s, state=\n%s\n",
         fromType.c_str(), toType.c_str(), state.ToString(13).c_str());
-
    MessageInterface::ShowMessage
        ("Anomaly info-> a: %f, e: %f, type:%s, value: %f\n",
         anomaly.GetSMA(),anomaly.GetECC(), anomaly.GetTypeString().c_str(),
@@ -731,27 +663,6 @@ Rvector6 StateConverter::Convert(const Rvector6 &state,
    return Convert(state, fromType, toType, anomalyType);
    
 }
-
-
-// //---------------------------------------------------------------------------
-// //  Rvector6 StateConverter::Convert(const Real *state,   
-// //                                   const std::string &toType)
-// //---------------------------------------------------------------------------
-// /**
-//  * Converts state from internal state type to requested state type
-//  *
-//  * @param <state>  input state
-//  * @param <toType> state type to convert state to
-//  *
-//  * @return Converted states from the specific element type 
-//  */
-// //---------------------------------------------------------------------------
-// Rvector6 StateConverter::Convert(const Real *state,
-//                                  const std::string &toType)
-// {
-//    Anomaly tempAnomaly;
-//    return Convert(state, mStateType, toType, tempAnomaly);
-// }
 
 
 //---------------------------------------------------------------------------

@@ -366,7 +366,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
                
                #ifdef DEBUG_FUNCTION_EXEC
                MessageInterface::ShowMessage
-                  ("Now at command \"%s\"\n\n", current->GetGeneratingString().c_str());
+                  ("Now at command \"%s\"\n\n",
+                   current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
                MessageInterface::ShowMessage
                   ("\n============================ Begin initialization of local objects\n");
                #endif
@@ -435,7 +436,14 @@ bool GmatFunction::Execute(ObjectInitializer *objInit)
             ("============================ End   initialization of local objects\n");
          #endif
          
-         current->Execute();
+         #ifdef DEBUG_FUNCTION_EXEC
+         MessageInterface::ShowMessage
+            ("......Function re-executing <%p><%s> [%s]\n", current,
+             current->GetTypeName().c_str(),
+             current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+         #endif
+         if (!(current->Execute()))
+            return false;
       }
       
       current = current->GetNext();
