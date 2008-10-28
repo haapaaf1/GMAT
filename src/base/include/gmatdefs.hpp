@@ -126,6 +126,7 @@ namespace Gmat
       ATTITUDE,
       MATH_NODE,
       MATH_TREE,
+      BODY_FIXED_POINT,
       UNKNOWN_OBJECT
    };
 
