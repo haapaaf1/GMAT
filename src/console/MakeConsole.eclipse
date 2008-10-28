@@ -19,7 +19,7 @@ all: clean $(TARGET)
 
 OBJECTS = driver.o ConsoleAppException.o PrintUtility.o ConsoleMessageReceiver.o
 
-LIBRARIES = -L../base/lib -lGmatConsole
+LIBRARIES = -L../base/lib -lGmatConsole -lpcrecpp -llapackpp
 
 HEADERS = -I../base/include -I../base/foundation \
           -I../base/executive -I../base/factory \
@@ -32,7 +32,8 @@ HEADERS = -I../base/include -I../base/foundation \
           -I../base/configs -I../base/burn \
           -I../base/solver -I../base/function \
           -I../base/coordsystem -I../base/attitude \
-          -I../base/math -I../base/plugin
+          -I../base/math -I../base/plugin \
+          -I/usr/local/include/lapackpp
 
 clean : archclean
 

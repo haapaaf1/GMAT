@@ -42,7 +42,7 @@ else
 SHARED_EXTENSION = .so
 endif
 
-LIBS = -L../base/lib -lGmatGui -lpcrecpp
+LIBS = -L../base/lib -lGmatGui -lpcrecpp -llapackpp
 LIBNAME = ../base/lib/libGmatGui$(SHARED_EXTENSION)
 else
 
@@ -112,7 +112,8 @@ HEADERS = -I../base/include \
           -Isolarsys \
           -Isolver \
           -Ispacecraft \
-          -Iview
+          -Iview \
+          -I/usr/local/include/lapackpp
 
 clean : $(CLEANTARGET)
 
@@ -263,8 +264,8 @@ else
 
 ifdef MAC_SPECIFIC
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
-   $(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-   cp -f $(WXTARGET) ../../bin/.
+	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	cp -f $(WXTARGET) ../../bin/.
 else
 
 ifeq ($(LINUX_MAC), 1)
