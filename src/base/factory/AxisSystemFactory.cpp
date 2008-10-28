@@ -38,6 +38,7 @@
 #include "MODEcAxes.hpp"
 #include "GeocentricSolarEclipticAxes.hpp"
 #include "GeocentricSolarMagneticAxes.hpp"
+#include "TopocentricAxes.hpp"
 
 //---------------------------------
 //  public methods
@@ -124,6 +125,10 @@ AxisSystemFactory::CreateAxisSystem(const std::string &ofType,
    {
       withAxes = new GeocentricSolarMagneticAxes(withName);
    }
+   else if (ofType == "Topocentric")
+   {
+      withAxes = new TopocentricAxes(withName);
+   }
    return withAxes;
 }
 
@@ -159,6 +164,7 @@ Factory(Gmat::AXIS_SYSTEM) //loj: 1/19/05 Changed from ATMOSPHERE
       creatables.push_back("BodyInertial");
       creatables.push_back("GSE");
       creatables.push_back("GSM");
+      creatables.push_back("Topocentric");
    }
 }
 
