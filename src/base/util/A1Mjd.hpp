@@ -58,12 +58,14 @@ public:
    bool operator!= (const A1Mjd &right) const;
    bool operator>= (const A1Mjd &right) const { return mMjd >= right.mMjd; }
    bool operator<= (const A1Mjd &right) const { return mMjd <= right.mMjd; }
-
+   
    Real Subtract(const A1Mjd &right) const { return (mMjd - right.mMjd); }
    Real Subtract(const Real &right) const { return (mMjd - right); }
-
+   
    Real Get() const { return mMjd; }
    void Set(Real val) { mMjd = val; }
+   Real GetReal() const { return mMjd; }
+   void SetReal(Real val) { mMjd = val; }
 
    UtcDate ToUtcDate();
    A1Date ToA1Date();
