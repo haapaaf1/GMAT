@@ -93,7 +93,8 @@ HEADERS = -Iinclude \
           -I../gui/output \
           -I../gui/foundation \
           -I../gui/plot \
-          -I../gui/mission
+          -I../gui/mission \
+          -I/usr/local/include/lapackpp
 
 
 
@@ -419,6 +420,7 @@ OBJECTS = \
     spacecraft/FuelTank.o \
     spacecraft/HardwareException.o \
     spacecraft/Hardware.o \
+    spacecraft/PropCovar.o \
     spacecraft/PropState.o \
     spacecraft/Spacecraft.o \
     spacecraft/SpaceObject.o \
@@ -487,7 +489,6 @@ OBJECTS = \
 #    measurement/RangeRaDecMeasurementModel.o \
 #    measurement/RaDecMeasurementModel.o \
 #    measurement/RangeAzElMeasurementModel.o \
-#    spacecraft/PropCovar.o \
 
 
 
