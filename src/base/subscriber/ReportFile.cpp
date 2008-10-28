@@ -633,8 +633,21 @@ bool ReportFile::SetStringParameter(const Integer id, const std::string &value)
           "ReportFile '%s'\n", value.c_str(), instanceName.c_str());
       #endif
       
+      // If this code block is replaced with OpenReportFile(),
+      // batch batch with multiple run will not work properly (loj: 2008.10.28)
+      
+      // Close the stream if it is open
+      if (dstream.is_open())
+      {
+         dstream.close();
+         dstream.open(value.c_str());
+      }
+      
       filename = value;
-      OpenReportFile();
+      
+      if (filename.find("/") == filename.npos &&
+          filename.find("\\") == filename.npos)
+         filename = outputPath + filename;
       
       return true;
    }
