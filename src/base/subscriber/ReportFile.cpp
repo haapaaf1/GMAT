@@ -188,7 +188,6 @@ std::string ReportFile::GetFileName()
       
       if (filename == "")
       {
-         //fname = fm->GetFullPathname(FileManager::REPORT_FILE);
          fname = outputPath + instanceName + ".txt";
       }
       else
@@ -204,7 +203,6 @@ std::string ReportFile::GetFileName()
    catch (GmatBaseException &e)
    {
       if (filename == "")
-         //fname = "ReportFile.txt";
          fname = instanceName + ".txt";
       
       MessageInterface::ShowMessage(e.GetFullMessage());
@@ -299,8 +297,9 @@ bool ReportFile::Initialize()
 {
    #ifdef DEBUG_REPORTFILE_INIT
    MessageInterface::ShowMessage
-      ("ReportFile::Initialize() active=%d, mNumParams=%d, usedByReport=%d\n",
-       active, mNumParams, usedByReport);
+      ("ReportFile::Initialize() this=<%p> '%s', active=%d, isInitialized=%d, "
+       "mNumParams=%d, usedByReport=%d\n   filename='%s'\n", this, GetName().c_str(),
+       active, isInitialized, mNumParams, usedByReport, filename.c_str());
    #endif
    
    // Check if there are parameters selected for report
@@ -333,7 +332,7 @@ bool ReportFile::Initialize()
    
    // if active and not initialized already, open report file (loj: 2008.08.20)
    if (active && !isInitialized)
-   { 
+   {
       if (!OpenReportFile())
          return false;
       
@@ -628,18 +627,14 @@ bool ReportFile::SetStringParameter(const Integer id, const std::string &value)
 {
    if (id == FILENAME)
    {
-      // Close the stream if it is open
-      if (dstream.is_open())
-      {
-         dstream.close();
-         dstream.open(value.c_str());
-      }
+      #ifdef DEBUG_REPORTFILE_SET
+      MessageInterface::ShowMessage
+         ("ReportFile::SetStringParameter() Setting filename '%s' to "
+          "ReportFile '%s'\n", value.c_str(), instanceName.c_str());
+      #endif
       
       filename = value;
-      
-      if (filename.find("/") == filename.npos &&
-          filename.find("\\") == filename.npos)
-         filename = outputPath + filename;
+      OpenReportFile();
       
       return true;
    }
@@ -911,8 +906,8 @@ bool ReportFile::OpenReportFile(void)
    filename = GetFileName();
    
    #ifdef DEBUG_REPORTFILE_OPEN
-      MessageInterface::ShowMessage
-         ("ReportFile::OpenReportFile filename = %s\n", filename.c_str());
+   MessageInterface::ShowMessage
+      ("ReportFile::OpenReportFile() entered, filename = %s\n", filename.c_str());
    #endif
    
    if (dstream.is_open())
@@ -930,12 +925,9 @@ bool ReportFile::OpenReportFile(void)
       throw SubscriberException("Cannot open report file: " + filename + "\n");
    }
    
-   //dstream.precision(precision);
-   //dstream.width(columnWidth);
-   //dstream.setf(std::ios::showpoint);
-   //dstream.fill(' ');   
-   //if (leftJustify)
-   //   dstream.setf(std::ios::left);
+   #ifdef DEBUG_REPORTFILE_OPEN
+   MessageInterface::ShowMessage("ReportFile::OpenReportFile() returning true\n");
+   #endif
    
    return true;
 }
@@ -1020,7 +1012,7 @@ bool ReportFile::Distribute(int len)
          (usedByReport ? "true" : "false"), 
          (calledByReport ? "true" : "false"));
    #endif
-   
+      
    if (usedByReport && calledByReport)
    {
       if (len == 0)
@@ -1028,11 +1020,22 @@ bool ReportFile::Distribute(int len)
       else {
          if (!dstream.is_open())
             if (!OpenReportFile())
+            {
+               #if DBGLVL_REPORTFILE_DATA
+               MessageInterface::ShowMessage
+                  ("*** WARNING *** ReportFile::Distribute() failed to open "
+                   "report file '%s', so returning false\n");
+               #endif
                return false;
+            }
          
          if (!dstream.good())
             dstream.clear();
-   
+         
+         #if DBGLVL_REPORTFILE_DATA
+         MessageInterface::ShowMessage("   Writing data to '%s'\n", filename.c_str());
+         #endif
+         
          dstream << data;
          dstream << std::endl;
       }
@@ -1044,7 +1047,7 @@ bool ReportFile::Distribute(int len)
       if (dstream.is_open())
          dstream.close();
    }
-         
+   
    return false;
 }
 
