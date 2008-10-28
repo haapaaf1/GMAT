@@ -63,7 +63,7 @@ public:
    // static functions
    static bool SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWrapper,
                         SolarSystem *solarSys, ObjectMap *objMap,
-                        ObjectMap *globalObjMap);
+                        ObjectMap *globalObjMap, bool setRefObj = true);
    
    static GmatBase* FindObject(const std::string &name, SolarSystem *solarSys,
                                ObjectMap *objMap, ObjectMap *globalObjMap);

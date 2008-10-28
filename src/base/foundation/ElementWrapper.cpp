@@ -387,7 +387,7 @@ bool ElementWrapper::SetObject(GmatBase *obj)
 //---------------------------------------------------------------------------
 // static bool SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWrapper,
 //                      SolarSystem *solarSys, ObjectMap *objMap,
-//                      ObjectMap *globalObjMap)
+//                      ObjectMap *globalObjMap, bool setRefObj = true)
 //---------------------------------------------------------------------------
 /*
  * static function to set value from rhs wrapper to lhs wrapper.
@@ -395,13 +395,13 @@ bool ElementWrapper::SetObject(GmatBase *obj)
 //---------------------------------------------------------------------------
 bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWrapper,
                               SolarSystem *solarSys, ObjectMap *objMap,
-                              ObjectMap *globalObjMap)
+                              ObjectMap *globalObjMap, bool setRefObj)
 {
    #ifdef DEBUG_EW_SET_VALUE
    MessageInterface::ShowMessage
       ("ElemementWrapper::SetValue() entered, lhsWrapper=<%p>, rhsWrapper=<%p>\n   "
-       "solarSys=<%p> objMap=<%p>, globalObjMap=<%p>\n", lhsWrapper, rhsWrapper,
-       solarSys, objMap, globalObjMap);
+       "solarSys=<%p> objMap=<%p>, globalObjMap=<%p>, setRefObj=%d\n", lhsWrapper,
+       rhsWrapper, solarSys, objMap, globalObjMap, setRefObj);
    #endif
    
    if (lhsWrapper == NULL || rhsWrapper == NULL)
@@ -603,12 +603,22 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                   ("ElementWrapper::SetValue() Cannot set Non-Object type to object");
          }
          else
-         {
-            #ifdef DEBUG_EW_SET_VALUE
-            MessageInterface::ShowMessage("   calling lhsWrapper->SetObject(rhsObj)\n");
-            #endif
-            
-            lhsWrapper->SetObject(rhsObj);
+         {            
+            // check if ref object can be set to lhs (loj: 2008.10.24)
+            if (setRefObj)
+            {
+               #ifdef DEBUG_EW_SET_VALUE
+               MessageInterface::ShowMessage("   calling lhsWrapper->SetObject(rhsObj)\n");
+               #endif
+               lhsWrapper->SetObject(rhsObj);
+            }
+            else
+            {
+               #ifdef DEBUG_EW_SET_VALUE
+               MessageInterface::ShowMessage("   calling lhsWrapper->SetString(rhsObjName)\n");
+               #endif
+               lhsWrapper->SetString(rhsObj->GetName());
+            }
          }
          break;
       case Gmat::STRINGARRAY_TYPE:
