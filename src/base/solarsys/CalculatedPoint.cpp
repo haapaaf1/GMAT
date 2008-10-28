@@ -15,11 +15,14 @@
 //------------------------------------------------------------------------------
 
 #include <vector>
+#include <algorithm>              // for find()
 #include "gmatdefs.hpp"
 #include "SpacePoint.hpp"
 #include "CalculatedPoint.hpp"
 #include "SolarSystemException.hpp"
-#include <algorithm>              // for find()
+#include "MessageInterface.hpp"
+
+//#define DEBUG_CP_OBJECT
 
 //---------------------------------
 // static data
@@ -36,7 +39,6 @@ CalculatedPoint::PARAMETER_TYPE[CalculatedPointParamCount - SpacePointParamCount
 {
    Gmat::INTEGER_TYPE,
    Gmat::OBJECTARRAY_TYPE,
-//   Gmat::STRINGARRAY_TYPE,
 };
 
 //------------------------------------------------------------------------------
@@ -77,6 +79,8 @@ numberOfBodies (0)
 CalculatedPoint::CalculatedPoint(const CalculatedPoint &cp) :
 SpacePoint          (cp)
 {
+   bodyNames.clear();
+   bodyList.clear();
    // copy the list of body pointers
    for (unsigned int i = 0; i < (cp.bodyList).size(); i++)
    {
@@ -451,7 +455,8 @@ bool  CalculatedPoint::SetStringParameter(const Integer id,
          return false;  // throw an exception here?
       if (index == (Integer) bodyNames.size())
       {
-         bodyNames.push_back(value);
+         if (find(bodyNames.begin(), bodyNames.end(), value) == bodyNames.end())
+            bodyNames.push_back(value);
          return true;
       }
       else  // replace current name
@@ -587,11 +592,50 @@ bool CalculatedPoint::SetRefObject(GmatBase *obj,
       // first check to see if it's already in the list
       std::vector<SpacePoint*>::iterator pos =
          find(bodyList.begin(), bodyList.end(), obj);
+      if (pos != bodyList.end())
+      {
+         #ifdef DEBUG_CP_OBJECT
+         MessageInterface::ShowMessage
+            ("CalculatedPoint::SetRefObject() the body <%p> '%s' already exist, so "
+             "returning true\n", (*pos), name.c_str());
+         #endif
+         return true;
+      }
       
-      if (pos == bodyList.end())
-            bodyList.push_back((SpacePoint*) obj);
+      // If ref object has the same name, reset it (loj: 2008.10.24)      
+      pos = bodyList.begin();
+      std::string bodyName;
+      bool bodyFound = false;
+      while (pos != bodyList.end())
+      {
+         bodyName = (*pos)->GetName();         
+         if (bodyName == name)
+         {
+            #ifdef DEBUG_CP_OBJECT
+            MessageInterface::ShowMessage
+               ("CalculatedPoint::SetRefObject() resetting the pointer of body '%s' <%p> to "
+                "<%p>\n", bodyName.c_str(), (*pos), (SpacePoint*)obj);
+            #endif
+            
+            (*pos) = (SpacePoint*)obj;
+            bodyFound = true;
+         }
+         ++pos;
+      }
       
-      numberOfBodies++;
+      // If ref object not found, add it (loj: 2008.10.24)
+      if (!bodyFound)
+      {
+         #ifdef DEBUG_CP_OBJECT
+         MessageInterface::ShowMessage
+            ("CalculatedPoint::SetRefObject() this=<%p> '%s', adding <%p> '%s' "
+             "to bodyList\n", this, GetName().c_str(), obj, name.c_str());
+         #endif
+         
+         bodyList.push_back((SpacePoint*) obj);         
+         numberOfBodies++;
+      }
+      
       return true;
    }
    
