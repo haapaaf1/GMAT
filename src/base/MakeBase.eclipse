@@ -134,6 +134,8 @@ archclean :
 endif
 
 OBJECTS = \
+    asset/AssetException.o \
+    asset/BodyFixedPoint.o \
     asset/GroundStation.o \
     attitude/Attitude.o \
     attitude/AttitudeException.o \
@@ -217,6 +219,7 @@ OBJECTS = \
     coordsystem/TODEqAxes.o \
     coordsystem/TOEEcAxes.o \
     coordsystem/TOEEqAxes.o \
+    coordsystem/TopocentricAxes.o \
     coordsystem/TrueOfDateAxes.o \
     executive/Moderator.o \
     executive/PlotInterface.o \
