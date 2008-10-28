@@ -124,6 +124,7 @@ SpaceObject& SpaceObject::operator=(const SpaceObject& so)
       
    SpacePoint::operator=(so);
    state         = so.state;
+   covariance    = so.covariance;
    isManeuvering = so.isManeuvering;
    originName    = so.originName;
    origin        = so.origin;
@@ -157,10 +158,10 @@ PropState& SpaceObject::GetState()
  * @return The embedded PropCovar.
  */
 //------------------------------------------------------------------------------
-//PropCovar& SpaceObject::GetCovariance()
-//{
-//   return covariance;
-//}
+PropCovar& SpaceObject::GetCovariance()
+{
+   return covariance;
+}
 
 //------------------------------------------------------------------------------
 // Real GetEpoch()
