@@ -637,21 +637,38 @@ bool Assignment::Execute()
    {
       bool retval = false;
       
+      // Determine if ref object shoud be set to lhs (loj: 2008.10.24)
+      // To handle setting spacecraft's CoordinateSystem which is not NULL and
+      // CoordinateSystem is defined later in the GmatFunction script.
+      // GMAT Sat1.CoordinateSystem = EarthSunL1_MJ2000Eq;
+      // Since Spacecraft converts initial state to given CoordinateSyatem
+      // when CoordinateSyatem is not NULL for nested GmatFunction,
+      // we don't want to convert until initial state is set.
+      // So pass setRefObj to true when this command is not in GmatFunction and
+      // if both lhs and rhs are whole objects
+      bool setRefObj = false;
+      if (currentFunction == NULL)
+         setRefObj = true;
+      else
+         if (lhsWrapper->GetWrapperType() == Gmat::OBJECT &&
+             lhsWrapper->GetWrapperType() == lhsWrapper->GetWrapperType())
+            setRefObj = true;
+      
       // Use ElementWrapper static method SetValue() (loj: 2008.06.20)
       if (mathTree == NULL)
       {
          retval = ElementWrapper::SetValue(lhsWrapper, rhsWrapper, solarSys, objectMap,
-                                           globalObjectMap);
+                                           globalObjectMap, setRefObj);
       }
       else
       {
-         #ifdef DEBUG_ASSIGNMENT_EXEC
+         #ifdef DEBUG_ASSIGNMENT_EXEC_OBJECT_MAP
          ShowObjectMaps("object maps at the start");
          #endif
          
          outWrapper = RunMathTree(lhsWrapper);
          retval = ElementWrapper::SetValue(lhsWrapper, outWrapper, solarSys, objectMap,
-                                           globalObjectMap);
+                                           globalObjectMap, setRefObj);
       }
       
       #ifdef DEBUG_ASSIGNMENT_EXEC
@@ -1084,7 +1101,7 @@ ElementWrapper* Assignment::RunMathTree(ElementWrapper *lhsWrapper)
    {
       #if DEBUG_EQUATION
       MessageInterface::ShowMessage
-         ("Assignment::Execute() topNode=%s, %s\n", topNode->GetTypeName().c_str(),
+         ("Assignment::RunMathTree() topNode=%s, %s\n", topNode->GetTypeName().c_str(),
           topNode->GetName().c_str());
       #endif
       
