@@ -35,6 +35,7 @@
 //#define DEBUG_CONSTRUCTION
 //#define DEBUG_CS_INIT 1
 //#define DEBUG_CS_SET_REF
+//#define DEBUG_TRANSLATION
 
 //---------------------------------
 // static data
@@ -505,6 +506,10 @@ void CoordinateSystem::ToMJ2000Eq(const A1Mjd &epoch, const Real *inState,
    else // assume this is MJ2000Eq, so no rotation is necessary
       for (Integer i=0; i<6;i++) internalState[i] = inState[i];
    
+   #ifdef DEBUG_TRANSLATION
+      MessageInterface::ShowMessage("In ToMJ2000Eq for %s, coincident = %s\n",
+            instanceName.c_str(), (coincident? "TRUE" : "FALSE"));
+   #endif
    if (!coincident)
    {
       if (!TranslateToMJ2000Eq(epoch, internalState, outState))
@@ -1264,6 +1269,11 @@ bool CoordinateSystem::TranslateToMJ2000Eq(const A1Mjd &epoch,
                                            const Rvector &inState,
                                            Rvector &outState)
 {
+   #ifdef DEBUG_TRANSLATION
+      MessageInterface::ShowMessage(
+            "In translation, origin is %s and j2000Body is %s\n",
+            (origin->GetName()).c_str(), (j2000Body->GetName()).c_str());
+   #endif
    if (origin == j2000Body)  
       outState = inState;
    else
@@ -1273,6 +1283,28 @@ bool CoordinateSystem::TranslateToMJ2000Eq(const A1Mjd &epoch,
       Rvector6 rif =  origin->GetMJ2000State(epoch) - 
                       (j2000Body->GetMJ2000State(epoch));
       outState = inState + rif;
+      #ifdef DEBUG_TRANSLATION
+         Rvector6 tmpOrigin = origin->GetMJ2000State(epoch);
+         MessageInterface::ShowMessage(
+            "In translation, origin state is %12.17f  %12.17f  %12.17f \n",
+            tmpOrigin[0], tmpOrigin[1], tmpOrigin[2]);
+         MessageInterface::ShowMessage(
+            "                                %12.17f  %12.17f  %12.17f \n",
+            tmpOrigin[3], tmpOrigin[4], tmpOrigin[5]);
+         Rvector6 tmpJ2000 = j2000Body->GetMJ2000State(epoch);
+         MessageInterface::ShowMessage(
+            "In translation, J2000Body state is %12.17f  %12.17f  %12.17f \n",
+            tmpJ2000[0], tmpJ2000[1], tmpJ2000[2]);
+         MessageInterface::ShowMessage(
+            "                                %12.17f  %12.17f  %12.17f \n",
+            tmpJ2000[3], tmpJ2000[4], tmpJ2000[5]);
+         MessageInterface::ShowMessage(
+            "In translation, outState is %12.17f  %12.17f  %12.17f \n",
+            outState[0], outState[1], outState[2]);
+         MessageInterface::ShowMessage(
+            "                            %12.17f  %12.17f  %12.17f \n",
+            outState[3], outState[4], outState[5]);
+      #endif
    }
    return true;
 }

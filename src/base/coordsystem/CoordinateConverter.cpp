@@ -310,8 +310,28 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
    #endif
    
    inCoord->ToMJ2000Eq(epoch, inState, intState, coincident, forceComputation);
+   #ifdef DEBUG_TO_FROM
+      MessageInterface::ShowMessage
+         ("In Convert, sameOrigin is %s,and coincident is %s\n",
+         (sameOrigin? "TRUE" : "FALSE"),
+         (coincident? "TRUE" : "FALSE"));
+      MessageInterface::ShowMessage("inState = %12.4f   %12.4f   %12.4f\n",
+            inState[0], inState[1], inState[2]);
+      MessageInterface::ShowMessage("          %12.4f   %12.4f   %12.4f\n",
+            inState[3], inState[4], inState[5]);
+      MessageInterface::ShowMessage("intState = %12.4f   %12.4f   %12.4f\n",
+            intState[0], intState[1], intState[2]);
+      MessageInterface::ShowMessage("          %12.4f   %12.4f   %12.4f\n",
+            intState[3], intState[4], intState[5]);
+   #endif
    outCoord->FromMJ2000Eq(epoch, intState, outState, coincident,
                           forceComputation);
+   #ifdef DEBUG_TO_FROM
+      MessageInterface::ShowMessage("outState = %12.4f   %12.4f   %12.4f\n",
+            outState[0], outState[1], outState[2]);
+      MessageInterface::ShowMessage("          %12.4f   %12.4f   %12.4f\n",
+            outState[3], outState[4], outState[5]);
+   #endif
    
    Real lastToMat[9];
    Real lastFromMat[9];
