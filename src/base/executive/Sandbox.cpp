@@ -1259,7 +1259,7 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
             "About to call InterpretGmatFunction for function %s\n",
             (f->GetStringParameter("FunctionName")).c_str());
          #endif
-         GmatCommand* fcs = moderator->InterpretGmatFunction(f, usingMap);
+         GmatCommand* fcs = moderator->InterpretGmatFunction(f, usingMap, solarSys);
          if (fcs == NULL)
             throw SandboxException("Sandbox::HandleGmatFunction - error creating FCS\n");
          
