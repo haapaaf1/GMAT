@@ -665,6 +665,8 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       }
    }
    
+   // Set manage flag to Moderator
+   theModerator->SetObjectManageOption(manage);
    
    if (type == "Spacecraft") 
       obj = (GmatBase*)theModerator->CreateSpacecraft(type, name);
@@ -2393,12 +2395,13 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
       name = objNames[0];
    
    #ifdef DEBUG_ASSEMBLE_CREATE
-      MessageInterface::ShowMessage
-         ("   About to create reference object of '%s' for Create command\n",
-          objTypeStrToUse.c_str());
+   MessageInterface::ShowMessage
+      ("   About to create reference object of '%s' for Create command\n",
+       objTypeStrToUse.c_str());
    #endif
-      
-   GmatBase *obj = CreateObject(objTypeStrToUse, name, false);
+   
+   // We don't want to manage object to configuration, so pass 0
+   GmatBase *obj = CreateObject(objTypeStrToUse, name, 0);
    
    #ifdef DEBUG_ASSEMBLE_CREATE
    MessageInterface::ShowMessage("   %s created\n", obj->GetTypeName().c_str());
