@@ -531,24 +531,25 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          break;
          
       case Gmat::COORDINATE_SYSTEM:
-         if (!(obj->IsOfType("CoordinateSystem")))
-            throw AssetException("BodyFixedPoint expecting a CoordinateSystem\n");
-         CoordinateSystem *tmpCS = (CoordinateSystem*)obj;
-         if ((name == bfcsName) &&
-             (tmpCS->GetOriginName() == cBodyName))
          {
-            bfcs = tmpCS;
-            return true;
+            if (!(obj->IsOfType("CoordinateSystem")))
+               throw AssetException("BodyFixedPoint expecting a CoordinateSystem\n");
+            CoordinateSystem *tmpCS = (CoordinateSystem*)obj;
+            if ((name == bfcsName) &&
+                (tmpCS->GetOriginName() == cBodyName))
+            {
+               bfcs = tmpCS;
+               return true;
+            }
+            if ((name == mj2kcsName) &&
+                (tmpCS->GetOriginName() == cBodyName))
+            {
+               mj2kcs = tmpCS;
+               return true;
+            }
+            
+            break;
          }
-         if ((name == mj2kcsName) &&
-             (tmpCS->GetOriginName() == cBodyName))
-         {
-            mj2kcs = tmpCS;
-            return true;
-         }
-
-         break;
-
       default:
          break;
    }
