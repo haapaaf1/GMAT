@@ -96,6 +96,8 @@ public:
    
    //----- object map
    void SetObjectMap(ObjectMap *objMap);
+   void SetObjectManageOption(Integer option);
+   Integer GetObjectManageOption();
    
    //----- factory
    const StringArray& GetListOfFactoryItems(Gmat::ObjectType type);
@@ -248,7 +250,8 @@ public:
    // GmatCommand
    GmatCommand* InterpretGmatFunction(const std::string &fileName);
    GmatCommand* InterpretGmatFunction(Function *funct,
-                                      ObjectMap *objMap = NULL);
+                                      ObjectMap *objMap = NULL,
+                                      SolarSystem *ss = NULL);
    GmatCommand* CreateCommand(const std::string &type,
                               const std::string &name, bool &retFlag);
    GmatCommand* CreateDefaultCommand(const std::string &type,
@@ -389,6 +392,7 @@ private:
    bool isFromGui;
    bool endOfInterpreter;
    bool showFinalState;
+   Integer objectManageOption;
    std::vector<Sandbox*> sandboxes;
    std::vector<GmatCommand*> commands;
    

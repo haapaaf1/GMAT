@@ -77,6 +77,7 @@
 //#define DEBUG_FIND_OBJECT 1
 //#define DEBUG_ADD_OBJECT 1
 //#define DEBUG_SOLAR_SYSTEM 1
+//#define DEBUG_SOLAR_SYSTEM_IN_USE 1
 // #define DEBUG_PLUGIN_REGISTRATION
 
 //#define __CREATE_DEFAULT_BC__
@@ -764,6 +765,38 @@ void Moderator::SetObjectMap(ObjectMap *objMap)
 }
 
 
+//------------------------------------------------------------------------------
+// void SetObjectManageOption(Integer option)
+//------------------------------------------------------------------------------
+/*
+ * Sets object manage option. Usually objects created inside GmatFunction uses
+ * object maps passed to Moderator. All objects created in the main sequence and
+ * through the GUI are managed through Configuration Manager.
+ *
+ * @param <option>  0, if object is not managed
+ *                  1, if object is added to configuration (default)
+ *                  2, if automatic object is added to function object map
+ */
+//------------------------------------------------------------------------------
+void Moderator::SetObjectManageOption(Integer option)
+{
+   objectManageOption = option;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer GetObjectManageOption()
+//------------------------------------------------------------------------------
+/*
+ * returns object manage option.
+ */
+//------------------------------------------------------------------------------
+Integer Moderator::GetObjectManageOption()
+{
+   return objectManageOption;
+}
+
+
 //----- factory
 //------------------------------------------------------------------------------
 // const StringArray& GetListOfFactoryItems(Gmat::ObjectType type)
@@ -1217,20 +1250,27 @@ SolarSystem* Moderator::CreateSolarSystem(const std::string &name)
 //------------------------------------------------------------------------------
 SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
 {
-   #if DEBUG_SOLAR_SYSTEM
+   #if DEBUG_SOLAR_SYSTEM_IN_USE
    MessageInterface::ShowMessage
       ("Moderator::GetSolarSystemInUse() entered, manage=%d, objectMapInUse=<%p>, "
        "theInternalSolarSystem=<%p>\n", manage, objectMapInUse, theInternalSolarSystem);
    #endif
    
    SolarSystem *ss = NULL;
-   if (manage == 2)
+   if (manage == 1)
+   {
+      ss = theConfigManager->GetSolarSystemInUse();
+      #if DEBUG_SOLAR_SYSTEM_IN_USE
+      MessageInterface::ShowMessage("   Using SolarSystem from configuration\n");
+      #endif
+   }
+   else
    {
       ObjectMap::iterator pos = objectMapInUse->find("SolarSystem");
       if (pos != objectMapInUse->end())
       {
          ss = (SolarSystem*)pos->second;
-         #if DEBUG_SOLAR_SYSTEM
+         #if DEBUG_SOLAR_SYSTEM_IN_USE
          MessageInterface::ShowMessage("   Using SolarSystem from objectMapInUse\n");
          #endif
       }
@@ -1238,14 +1278,10 @@ SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
       if (ss == NULL)
       {
          ss = theInternalSolarSystem;
-         #if DEBUG_SOLAR_SYSTEM
+         #if DEBUG_SOLAR_SYSTEM_IN_USE
          MessageInterface::ShowMessage("   Using Internal SolarSystem\n");
          #endif
       }      
-   }
-   else
-   {
-      ss = theConfigManager->GetSolarSystemInUse();
    }
    
    // if SolarSystem is NULL, there is some problem
@@ -1253,7 +1289,7 @@ SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
       throw GmatBaseException
          ("Moderator::GetSolarSystemInUse() The SolarSystem in use is UNSET.\n");
    
-   #if DEBUG_SOLAR_SYSTEM
+   #if DEBUG_SOLAR_SYSTEM_IN_USE
    MessageInterface::ShowMessage
       ("Moderator::GetSolarSystemInUse() returning <%p>\n", ss);
    #endif
@@ -1282,7 +1318,7 @@ void Moderator::SetInternalSolarSystem(SolarSystem *ss)
 {
    if (ss != NULL)
    {
-      #if DEBUG_SOLAR_SYSTEM
+      #if DEBUG_SOLAR_SYSTEM_IN_USE
       MessageInterface::ShowMessage
          ("Moderator::SetInternalSolarSystem() entered, ss=<%p>'%s'\n",
           ss, ss->GetName().c_str());
@@ -1313,7 +1349,7 @@ bool Moderator::SetSolarSystemInUse(const std::string &name)
  *
  * @param <type> object type
  * @param <name> object name
- * @param <addDefaultBodies> true if add default bodies requested
+ * @param <addDefaultBodies> true if add default bodies requested (true)
  *
  * @return a CalculatedPoint object pointer
  */
@@ -1324,9 +1360,16 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
-      ("Moderator::CreateCalculatedPoint() type = '%s', name = '%s'\n",
-       type.c_str(), name.c_str());
+      ("Moderator::CreateCalculatedPoint() type='%s', name='%s', "
+       "addDefaultBodies=%d, objectManageOption=%d\n", type.c_str(), name.c_str(),
+       addDefaultBodies, objectManageOption);
    #endif
+   
+   // if objects are not managed, set flag to find SolarSystem object from
+   // the object map in use
+   Integer manage = objectManageOption;
+   if (manage == 0)
+      manage = 2;
    
    if (GetCalculatedPoint(name) == NULL)
    {
@@ -1355,18 +1398,26 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
                defBc = CreateCalculatedPoint("Barycenter", "DefaultBC");
             
             cp->SetStringParameter("Secondary", "DefaultBC");
-            cp->SetRefObject(defBc, Gmat::SPACE_POINT, "DefaultBC");         
+            cp->SetRefObject(defBc, Gmat::SPACE_POINT, "DefaultBC");
             #endif
             
             // Set body and J2000Body pointer, so that GUI can create LibrationPoint
             // and use it in Coord.System conversion
-            SpacePoint *sun = (SpacePoint*)GetConfiguredObject("Sun");
-            SpacePoint *earth = (SpacePoint*)GetConfiguredObject("Earth");
+            //SpacePoint *sun = (SpacePoint*)GetConfiguredObject("Sun");
+            //SpacePoint *earth = (SpacePoint*)GetConfiguredObject("Earth");
+            SpacePoint *sun = (SpacePoint*)FindObject("Sun", manage);
+            SpacePoint *earth = (SpacePoint*)FindObject("Earth", manage);
             
             if (sun->GetJ2000Body() == NULL)
                sun->SetJ2000Body(earth);
             
+            #if DEBUG_CREATE_RESOURCE
+            MessageInterface::ShowMessage
+               ("   Setting sun <%p> and earth <%p> to LibrationPoint\n", sun, earth);
+            #endif
+            
             cp->SetRefObject(sun, Gmat::SPACE_POINT, "Sun");
+            cp->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
          }
       }
       else if (type == "Barycenter")
@@ -1378,8 +1429,10 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
             
             // Set body and J2000Body pointer, so that GUI can create LibrationPoint
             // and use it in Coord.System conversion
-            SpacePoint *earth = (SpacePoint*)GetConfiguredObject("Earth");
-            SpacePoint *luna = (SpacePoint*)GetConfiguredObject("Luna");
+            //SpacePoint *earth = (SpacePoint*)GetConfiguredObject("Earth");
+            //SpacePoint *luna = (SpacePoint*)GetConfiguredObject("Luna");
+            SpacePoint *earth = (SpacePoint*)FindObject("Earth", manage);
+            SpacePoint *luna = (SpacePoint*)FindObject("Luna", manage);
             cp->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
             if (luna->GetJ2000Body() == NULL)
                luna->SetJ2000Body(earth);
@@ -1398,7 +1451,7 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
          MessageInterface::ShowMessage("Moderator::CreateCalculatedPoint()\n" +
                                        e.GetFullMessage());
       }
-    
+      
       return cp;
    }
    else
@@ -3188,18 +3241,21 @@ GmatCommand* Moderator::InterpretGmatFunction(const std::string &fileName)
 
 
 //------------------------------------------------------------------------------
-// GmatCommand* InterpretGmatFunction(Function *funct, ObjectMap *objMap)
+// GmatCommand* InterpretGmatFunction(Function *funct, ObjectMap *objMap,
+//                                    SolarSystem *ss)
 //------------------------------------------------------------------------------
 /**
  * Retrieves a function object pointer by given name.
  *
  * @param <funct>  The GmatFunction pointer
  * @param <objMap> The object map pointer to be used for finding objects
+ * @param <ss>     The solar system to be used
  *
  * @return A command list that is executed to run the function.
  */
 //------------------------------------------------------------------------------
-GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap)
+GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap,
+                                              SolarSystem *ss)
 {
    #if DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
@@ -3207,7 +3263,7 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
        funct, objMap);
    #endif
    
-   // If input objMap is NULL, use configured objects,
+   // If input objMap is NULL, use configured objects
    // use input object map otherwise   
    if (objMap == NULL)
    {
@@ -3228,10 +3284,20 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
       #endif
    }
    
+   // If input SolarSystem is NULL, use default SolarSystemInUse
+   // use input SolarSystem otherwise      
+   SolarSystem *solarSystemInUse = GetSolarSystemInUse();
+   if (ss != NULL)
+   {
+      solarSystemInUse = ss;
+      theInternalSolarSystem = ss;
+   }
+   
    #if DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("   Setting objectMapInUse<%p> to theScriptInterpreter\n"
-       "   Setting theSolarSystemInUse<%p> to theScriptInterpreter\n");
+       "   Setting theSolarSystemInUse<%p> to theScriptInterpreter\n",
+       objectMapInUse, solarSystemInUse);
    #endif
    
    #if DEBUG_GMAT_FUNCTION > 1
@@ -3239,11 +3305,11 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    #endif
    
    theScriptInterpreter->SetObjectMap(objectMapInUse, true);
-   theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+   theScriptInterpreter->SetSolarSystemInUse(solarSystemInUse);
    if (theUiInterpreter != NULL)
    {
       theUiInterpreter->SetObjectMap(objectMapInUse, true);   
-      theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
+      theUiInterpreter->SetSolarSystemInUse(solarSystemInUse);
    }
    
    GmatCommand *cmd = NULL;
@@ -4830,7 +4896,7 @@ void Moderator::CreateInternalCoordSystem()
    theInternalCoordSystem =
       CreateCoordinateSystem("InternalEarthMJ2000Eq", true, true);
    
-   #if DEBUG_INITIALIZE
+   #if DEBUG_INTERNAL_CS
    MessageInterface::ShowMessage
       (".....created  (%p)theInternalCoordSystem\n",theInternalCoordSystem);
    #endif
@@ -5443,6 +5509,9 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
 //------------------------------------------------------------------------------
 /*
  * Finds object from the objectMapInUse by name
+ *
+ * @param  manage  set to 1 if using SolarSystem from the configuration
+ * @param  manage  set to 2 if using SolarSystem from the object map in use
  */
 //------------------------------------------------------------------------------
 GmatBase* Moderator::FindObject(const std::string &name, Integer manage)
