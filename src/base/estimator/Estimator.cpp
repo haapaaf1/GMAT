@@ -1154,48 +1154,49 @@ void Estimator::FreeArrays()
 /// x(t1) = f(x(t0),u(t0),t0)
 /// y(t1) = h(x(t1),u(t1),t1)
 ///
-Rvector Estimator::f()
+LaVectorDouble Estimator::f()
 {
   return x;
 }
-Rvector Estimator::f(Rvector x, Real t0, Real t1)
+LaVectorDouble Estimator::f(LaVectorDouble x, Real t0, Real t1)
 {
   return x;
 }
-Rvector Estimator::f(Rvector x, Rvector u, Real t0, Real t1)
+LaVectorDouble Estimator::f(LaVectorDouble x, LaVectorDouble u, Real t0, Real t1)
 {
   return x;
 }
 
-Rvector Estimator::h(StringArray observationTypes)
+LaVectorDouble Estimator::h(StringArray observationTypes)
 {
   return y;
 }
-Rvector Estimator::h(StringArray observationTypes, Rvector x, Real t1)
+LaVectorDouble Estimator::h(StringArray observationTypes, LaVectorDouble x, Real t1)
 {
   return y;
 }
-Rvector Estimator::h(StringArray observationTypes, Rvector x, Rvector u, Real t1)
+LaVectorDouble Estimator::h(StringArray observationTypes, LaVectorDouble x, LaVectorDouble u, Real t1)
 {
   return y;
 }
 
 /// H is a function that computes the Jacobian of y w.r.t. x
-Rmatrix Estimator::H()
+LaGenMatDouble Estimator::H()
 {
-//  return Identity(observationTypeCount,stateCount);
+  return LaGenMatDouble::eye(observationTypeCount,stateCount);
 }
-Rmatrix Estimator::H(Rvector x, Real t0)
+LaGenMatDouble Estimator::H(LaVectorDouble x, Real t0)
 {
-
+  return LaGenMatDouble::eye(observationTypeCount,stateCount);
 }
 
 /// Phi is a function that computes the Jacobian of f w.r.t. x
-Rmatrix Estimator::Phi()
+LaGenMatDouble Estimator::Phi()
 {
-
+    return LaGenMatDouble::eye(stateCount); 
 }
-Rmatrix Estimator::Phi(Rvector x, Real t0)
-{
 
+LaGenMatDouble Estimator::Phi(LaVectorDouble x, Real t0)
+{
+    return LaGenMatDouble::eye(stateCount); 
 }

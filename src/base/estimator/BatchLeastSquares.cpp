@@ -22,7 +22,6 @@
 #include "Rmatrix.hpp"
 #include "RealUtilities.hpp"     // for GmatMathUtil::Abs()
 #include "MessageInterface.hpp"
-
 #include <cmath>
 #include <sstream>
 

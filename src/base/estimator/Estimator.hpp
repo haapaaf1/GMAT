@@ -25,9 +25,21 @@
 #include "GmatBase.hpp"
 #include "Solver.hpp"
 #include "EstimatorException.hpp"
+#include "lapackpp.h"
+
+using namespace la;
 
 // DJC Additions
 // #include "MeasurementModel.hpp"
+
+/**
+ *  How to set a stopwatch timer using TNT
+ *	Stopwatch Q;
+ *	Q.start;
+ *	{code to benchmark}
+ *	Q.stop;
+ * double time_elapsed = Q.read();
+ */
 
 // Forward references
 class PropSetup;
@@ -176,19 +188,19 @@ protected:
    /// State vector of parameters to estimate
    /// These parameters are estimated and their error covariance is
    /// solved for.
-   Rvector             x;
+   LaVectorDouble             x;
    /// The number of state variables in the estimator problem.
    Integer             stateCount;
    /// List of state variables
    StringArray         stateNames;
    /// Vector of controls (thrusters, momentum gyros, etc)
-   Rvector             u;
+   LaVectorDouble             u;
    /// Consider parameters
    /// Consider parameters are parameters that are known to affect
    /// the state variables but are thought to be not well observable
    /// from the avaialble data. Consider parameters are treated as
    /// constants but their error covariance is added in to the final analysis.
-   Rvector             considerParameters;
+   LaVectorDouble             considerParameters;
    /// The number of consider parameters in the estimator problem
    Integer             considerCount;
    /// List of consider parameter variables
@@ -198,7 +210,7 @@ protected:
    /// but we set their error covariance is set to zero. The ability
    /// to neglect certain parameters that we would normally estimate
    /// or consider can give us insight into the solution of a problem at hand.
-   Rvector             neglectParameters;
+   LaVectorDouble             neglectParameters;
    /// The number of neglect parameter in the estimator problem
    Integer             neglectCount;
    /// List of neglect parameter variables
@@ -212,30 +224,30 @@ protected:
    ///
    /// So we must define the appropriate matrices
 
-   Rmatrix             A;
-   Rmatrix             B;
-   Rmatrix             C;
-   Rmatrix             D;
+   LaGenMatDouble             A;
+   LaGenMatDouble             B;
+   LaGenMatDouble             C;
+   LaGenMatDouble             D;
 
    /// Weights associated with the estimator states
    /// Typically this matrix is diagonal with values equal to
    /// 1 over the error variance associated with each state.
-   Rmatrix             W;
+   LaGenMatDouble             W;
    /// Current covariance matrix
-   Rmatrix             P;
+   LaGenMatDouble             P;
    /// Variance of the model error known as process noise used for filtering
-   Rmatrix             Q;
+   LaGenMatDouble             Q;
    /// Variance of the observation noise typically used for weighting purposes
-   Rmatrix             R;
+   LaGenMatDouble             R;
 
    /// Filename containing observations. An empty string says use observations stored in internal arrays
    std::string      observationTextFile;
    /// Type of observation
    StringArray         observationTypes;
    /// Vector of observations
-   Rvector             y;
+   LaVectorDouble             y;
    /// Vector of observation times
-   Rvector             observationTimes;
+   LaVectorDouble             observationTimes;
    /// The number of observation in the estimator problem
    Integer             observationCount;
    /// The number of observation types in the estimator problem
@@ -246,11 +258,11 @@ protected:
    StringArray         stationNames;
 
    /// Vector of state biases
-   Rvector             stateBiases;
+   LaVectorDouble             stateBiases;
    /// Vector of measurement biases
-   Rvector             measurementBiases;
+   LaVectorDouble             measurementBiases;
    /// Array used to track the differential corrections on each state variable
-   Rvector             estimatorStateCorrection;
+   LaVectorDouble             estimatorStateCorrection;
 
    /// For nonlinear systems, we need to define a function f that
    /// predicts the estimator state at time t2 given a prior
@@ -261,21 +273,21 @@ protected:
    /// x(t1) = f(x(t0),u(t0),t0)
    /// y(t1) = h(x(t1),u(t1),t1)
    ///
-   virtual Rvector f();
-   virtual Rvector f(Rvector x, Real t0, Real t1);
-   virtual Rvector f(Rvector x, Rvector u, Real t0, Real t1);
+   virtual LaVectorDouble f();
+   virtual LaVectorDouble f(LaVectorDouble x, Real t0, Real t1);
+   virtual LaVectorDouble f(LaVectorDouble x, LaVectorDouble u, Real t0, Real t1);
 
-   virtual Rvector h(StringArray observationTypes);
-   virtual Rvector h(StringArray observationTypes, Rvector x, Real t1);
-   virtual Rvector h(StringArray observationTypes, Rvector x, Rvector u, Real t1);
+   virtual LaVectorDouble h(StringArray observationTypes);
+   virtual LaVectorDouble h(StringArray observationTypes, LaVectorDouble x, Real t1);
+   virtual LaVectorDouble h(StringArray observationTypes, LaVectorDouble x, LaVectorDouble u, Real t1);
 
    /// H is a function that computes the Jacobian of y w.r.t. x
-   virtual Rmatrix H();
-   virtual Rmatrix H(Rvector x, Real t0);
+   virtual LaGenMatDouble H();
+   virtual LaGenMatDouble H(LaVectorDouble x, Real t0);
 
    /// Phi is a function that computes the Jacobian of f w.r.t. x
-   virtual Rmatrix Phi();
-   virtual Rmatrix Phi(Rvector x, Real t0);
+   virtual LaGenMatDouble Phi();
+   virtual LaGenMatDouble Phi(LaVectorDouble x, Real t0);
 
 
 
@@ -284,9 +296,9 @@ protected:
    /// Maximum number of iterations allowed ( used for batch processing )
    Integer             maxIterations;
    /// Limits on the lowest value of the state variables
-   Rvector stateMinimum;
+   LaVectorDouble stateMinimum;
    /// Limits on the highest value of the state variables
-   Rvector stateMaximum;
+   LaVectorDouble stateMaximum;
 
 
    /// Flag used to ensure the estimator is ready to go
