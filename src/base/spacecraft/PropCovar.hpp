@@ -22,6 +22,9 @@
 #define PropCovar_hpp
 
 #include "gmatdefs.hpp"
+#include <lapackpp.h>
+
+using namespace la;
 
 class GMAT_API PropCovar
 {
@@ -31,29 +34,20 @@ public:
    virtual ~PropCovar();
    PropCovar(const PropCovar& ps);
    PropCovar&        operator=(const PropCovar& ps);
- 
-   // Matrix manipulations
-   Real&             operator[](const Integer row, const Integer col);
-   Real              operator[](const Integer row, const Integer col) const;
-   
-   // Sizing manipulation
-   void              SetSize(const Integer size);
-   
+       
    // Access methods
-   Integer           GetSize() const;
-   Real*             GetCovariance();
-   bool              SetCovariance(const Real *data, const Integer size);
+   LaSpdMatDouble    GetCovariance();
    Real              GetEpoch() const;
    Real              SetEpoch(const Real ep);
    
  
 protected:
-   /// Matrix used for the covariance data
-   Real              *covariance;
-   /// Diagonal dimension of the covariance matrix
-   Integer           dimension;
-   /// Raw epoch data for the covariance
+
+    /// Raw epoch data for the covariance
    Real              epoch;
+   /// Matrix used for the covariance data
+   LaSpdMatDouble   covariance;
+   
 };
 
 #endif // PropCovar_hpp

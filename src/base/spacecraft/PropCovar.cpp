@@ -19,8 +19,6 @@
 //------------------------------------------------------------------------------
 
 #include "PropCovar.hpp"
-#include "SpaceObjectException.hpp"
-
 
 //---------------------------------
 // public methods
@@ -36,10 +34,9 @@
  */
 //------------------------------------------------------------------------------
 PropCovar::PropCovar(const Integer dim) :
-   dimension      (dim),
-   epoch          (21545.0)
+   epoch          (21545.0),
+   covariance     (dim,dim) 
 {
-   covariance = new Real[dimension][dimension];
 }
 
 
@@ -52,7 +49,6 @@ PropCovar::PropCovar(const Integer dim) :
 //------------------------------------------------------------------------------
 PropCovar::~PropCovar()
 {
-   delete [] covariance;
 }
 
 
@@ -67,14 +63,8 @@ PropCovar::~PropCovar()
  */
 //------------------------------------------------------------------------------
 PropCovar::PropCovar(const PropCovar& ps) :
-   dimension      (ps.dimension),
-   epoch          (ps.epoch)
+   epoch (ps.epoch), covariance(ps.covariance)
 {
-   covariance = new Real[dimension][dimension];
-   for (Integer i = 0; i < dimension; ++i) {
-	for (Integer j = i; j < dimension; ++j)
-	    covariance[i][j] = ps.covariance[i][j];
-   }
 }
 
 
@@ -95,117 +85,13 @@ PropCovar& PropCovar::operator=(const PropCovar& ps)
    if (this == &ps)
       return *this;
       
-   if (covariance)
-      delete [] covariance;
-   dimension = ps.dimension;
-   covariance = new Real[dimension][dimension];
-   for (Integer i = 0; i < dimension; ++i) {
-	for (Integer j = i; j < dimension; ++j)
-	    covariance[i][j] = ps.covariance[i][j];
-   }
+   covariance.copy(ps.covariance);
    epoch = ps.epoch;
    
    return *this;
 }
 
- 
-//------------------------------------------------------------------------------
-// Real operator[](const Integer row, const Integer col)
-//------------------------------------------------------------------------------
-/**
- * Element access operator.
- *
- * This operator lets other code read and assign values to the elements of a
- * PropCovar as if it were a standard C/C++ matrix.
- *
- * @param <row>  Row of the PropCovar matrix that is being manipulated.
- * @param <col> Column of the PropCovar matrix that is being manipulated.
- *
- * @return The element's value at the end of the call.
- */
-//------------------------------------------------------------------------------
-Real& PropCovar::operator[](const Integer row, const Integer col)
-{
-   if (((row < 0 ) || (row >= dimension)) || ((col < row ) || (col >= dimension)))
-      throw SpaceObjectException("PropCovar matrix index out of bounds");
-   return covariance[row][col];
-}
-
-
- 
-//------------------------------------------------------------------------------
-// Real operator[](const Integer row, const Integer col)
-//------------------------------------------------------------------------------
-/**
- * Element access operator.
- *
- * This operator lets other code read and assign values to the elements of a
- * PropCovar as if it were a standard C/C++ matrix within const methods.
- *
- * @param <row>  Row of the PropCovar matrix that is being manipulated.
- * @param <col> Column of the PropCovar matrix that is being manipulated.
- *
- * @return The element's value at the end of the call.
- */
-//------------------------------------------------------------------------------
-Real& PropCovar::operator[](const Integer row, const Integer col) const
-{
-   if (((row < 0 ) || (row >= dimension)) || ((col < row ) || (col >= dimension)))
-      throw SpaceObjectException("PropCovar matrix index out of bounds");
-   return covariance[row][el2];
-}
-
-
-//------------------------------------------------------------------------------
-// void SetSize(const Integer size)
-//------------------------------------------------------------------------------
-/**
- * matrix size manipulator.
- *
- * This method changes the size of the PropCovar matrix.  The elements of the 
- * old matrix are copied into the new matrix; if the new size is larger than the
- * old matrix, only the elements up to the old size are filled.  If the new
- * matrix is smaller, only the elements at the start of the old matrix are
- * copied into the new one.
- *
- * @param <size> Size of the new PropCovar (must be greater than 0).
- *
- * @return The element's value at the end of the call.
- */
-//------------------------------------------------------------------------------
-void PropCovar::SetSize(const Integer size)
-{
-   if (size != dimension)
-   {
-      if (size <= 0)
-         throw SpaceObjectException(
-            "PropCovar resize requested for an unphysical covariance size.");
-      Real *newcovariance = new Real[size][size];
-      Integer copySize = ((size > dimension) ? dimension : size);
-      memcpy(newcovariance, covariance, copySize * copySize * sizeof(Real));
-      delete [] covariance;
-      covariance = newcovariance;
-      dimension = size;
-   }
-}
-
-
 // Accessors
-
-//------------------------------------------------------------------------------
-// Integer GetDimension() const
-//------------------------------------------------------------------------------
-/**
- * Finds the size of the PropCovar vector.
- *
- * @return The size of the vector.
- */
-//------------------------------------------------------------------------------
-Integer PropCovar::GetSize() const
-{
-   return dimension;
-}
-
 
 //------------------------------------------------------------------------------
 // Real* GetCovariance()
@@ -216,39 +102,10 @@ Integer PropCovar::GetSize() const
  * @return The covariance vector.
  */
 //------------------------------------------------------------------------------
-Real* PropCovar::GetCovariance()
+LaSpdMatDouble PropCovar::GetCovariance()
 {
    return covariance;
 }
-
-
-//------------------------------------------------------------------------------
-// bool PropCovar::SetCovariance(const Real *data, const Integer size)
-//------------------------------------------------------------------------------
-/**
- * Sets the covariance elements to match an input matrix.
- *
- * This method copies the elements of the input matrix into the  first size 
- * elements of the PropCovar vector.
- *
- * @param <data> The data that gets copied into the covariance vector.
- * @param <size> Number of elements that get copied (must be greater than 0).
- *
- * @return true if the elements were filled successfully.
- */
-//------------------------------------------------------------------------------
-bool PropCovar::SetCovariance(const Real *data, const Integer size)
-{
-   if (size <= dimension) {
-      if (size <= 0)
-         throw SpaceObjectException(
-            "PropCovar attempting to fill an unphysical number of elements.");
-      memcpy(covariance, data, size*size*sizeof(Real));
-      return true;
-   }
-   return false;
-}
-
 
 //------------------------------------------------------------------------------
 // Real GetEpoch()
@@ -265,7 +122,6 @@ Real PropCovar::GetEpoch() const
 {
    return epoch;
 }
-
 
 //------------------------------------------------------------------------------
 // Real SetEpoch(const Real ep)
