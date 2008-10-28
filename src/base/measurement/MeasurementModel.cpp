@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 
 #include "MeasurementModel.hpp"
-#include "Rvector6.hpp"
+#include "lapackpp.h"
 #include "CoordinateSystem.hpp"
 #include "CoordinateConverter.hpp"
 #include "TimeSystemConverter.hpp"
@@ -290,7 +290,7 @@ std::string MeasurementModel::GetModelNameText(const Integer &id) const
 }
 //------------------------------------------------------------------------------
 // Integer ComputeMeasurement(const GroundStation &theStation,
-//		const Spacecraft &theSat, const Rvector &myMeasurements);
+//		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurements between a ground station and a
@@ -299,14 +299,14 @@ std::string MeasurementModel::GetModelNameText(const Integer &id) const
  */
 //------------------------------------------------------------------------------
 bool MeasurementModel::ComputeMeasurement(GroundStation &theStation,
-      Spacecraft &theSat, Rvector &myMeasurements)
+      Spacecraft &theSat, LaVectorDouble &myMeasurements)
 {
       return false;
 }
 
 //------------------------------------------------------------------------------
 // Integer ComputeCartesianPartialDerivative(const GroundStation &theStation,
-//		const Spacecraft &theSat, const Rvector &myMeasurements);
+//		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurement derivatives with respect to the estimator
@@ -315,7 +315,7 @@ bool MeasurementModel::ComputeMeasurement(GroundStation &theStation,
  */
 //------------------------------------------------------------------------------
 bool MeasurementModel::ComputeCartesianPartialDerivative(
-      GroundStation &theStation, Spacecraft &theSat, Rvector &myCartDerivatives)
+      GroundStation &theStation, Spacecraft &theSat, LaVectorDouble &myCartDerivatives)
 {
     return false;
 }

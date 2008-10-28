@@ -19,13 +19,13 @@
 #define	_MEASUREMENTMODEL_HPP
 
 #include "GmatBase.hpp"
-#include "Rvector6.hpp"
 #include "CoordinateSystem.hpp"
 #include "CoordinateConverter.hpp"
 #include "TimeSystemConverter.hpp"
 #include "StateConverter.hpp"
 #include "GroundStation.hpp"
 #include "Spacecraft.hpp"
+#include "lapackpp.h"
 
 class GMAT_API MeasurementModel : public GmatBase
 {
@@ -54,10 +54,10 @@ public:
   const Real* GetMeasurements() const;
 
   virtual bool ComputeMeasurement(GroundStation &theStation,
-        Spacecraft &theSat, Rvector &myMeasurements);
+        Spacecraft &theSat, LaVectorDouble &myMeasurements);
   virtual bool ComputeCartesianPartialDerivative(
         GroundStation &theStation, Spacecraft &theSat,
-        Rvector &myCartDerivatives);
+        LaVectorDouble &myCartDerivatives);
 
 
 private:
@@ -90,7 +90,7 @@ protected:
 	AO_RADEC_ID,
 	RANGERADEC_ID,
 	EndModelReps
-  };
+   };
 
   // Name of the measurement model being used
   Integer modelID;
