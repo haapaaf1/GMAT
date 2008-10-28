@@ -10,6 +10,9 @@
 #include "CommandException.hpp"
 #include "Estimator.hpp"
 
+//#define DEBUG_STATE_MACHINE
+//#define DEBUG_COMMAND_CALLS
+
 
 //---------------------------------
 //  static data
@@ -213,8 +216,11 @@ std::string RunEstimator::GetStringParameter(const std::string &label) const
 
 bool RunEstimator::Initialize()
 {
-   MessageInterface::ShowMessage("The \"%s\" command is initializing...\n",
-         GetGeneratingString().c_str());
+   #ifdef DEBUG_COMMAND_CALLS
+      MessageInterface::ShowMessage(
+            "The RunEstimator command is initializing...");
+   #endif
+
    bool retval = GmatCommand::Initialize();
    est = (Estimator*)(*objectMap)[estimatorName];
    if (est == NULL)
@@ -307,9 +313,9 @@ bool RunEstimator::Initialize()
    if (retval)
       retval = AssemblePropagator();
 
-
-   MessageInterface::ShowMessage("The \"%s\" command %s initialization.\n",
-         GetGeneratingString().c_str(), (retval ? "passed" : "failed"));
+   #ifdef DEBUG_COMMAND_CALLS
+      MessageInterface::ShowMessage("Initialization complete.\n");
+   #endif
 
    return retval;
 }
@@ -395,37 +401,59 @@ bool RunEstimator::Execute()
 
 bool RunEstimator::Propagate()
 {
+#ifdef DEBUG_STATE_MACHINE
    MessageInterface::ShowMessage(
          "Stepping the participants to the requested epoch.\n");
+#endif
    Real dt = GetTimestep();
    Step(dt);
+
+   return true;
 }
 
 bool RunEstimator::Calculate()
 {
+#ifdef DEBUG_STATE_MACHINE
    MessageInterface::ShowMessage("Command side accumulation stuff\n");
+#endif
+
+   return true;
 }
 
 bool RunEstimator::Estimate()
 {
+#ifdef DEBUG_STATE_MACHINE
    MessageInterface::ShowMessage("Command side estimation stuff\n");
+#endif
+
+   return true;
 }
 
 bool RunEstimator::CheckConvergence()
 {
+#ifdef DEBUG_STATE_MACHINE
    MessageInterface::ShowMessage("Command side convergence checking stuff\n");
+#endif
+
+   return true;
 }
 
 bool RunEstimator::Finalize()
 {
+#ifdef DEBUG_STATE_MACHINE
    MessageInterface::ShowMessage("Command side finalization stuff\n");
+#endif
+
+   return true;
 }
 
 
 void RunEstimator::RunComplete()
 {
-   MessageInterface::ShowMessage("The \"%s\" command has finished running!\n",
-         GetGeneratingString().c_str());
+#ifdef DEBUG_STATE_MACHINE
+   MessageInterface::ShowMessage(
+         "The RunEstimator command has finished running!\n");
+#endif
 }
 
 //------------------------------------------------------------------------------

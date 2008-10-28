@@ -22,36 +22,30 @@
 #include "Rmatrix.hpp"
 #include "RealUtilities.hpp"     // for GmatMathUtil::Abs()
 #include "MessageInterface.hpp"
+
 #include <cmath>
 #include <sstream>
 
 //#define DEBUG_STATE_MACHINE
 //#define DEBUG_DC_INIT 1
+//#define DEBUG_STATE_MACHINE
+//#define DEBUG_STATE_TRANSITIONS
 
 //---------------------------------
 // static data
 //---------------------------------
 
-const std::string
-BatchLeastSquares::PARAMETER_TEXT[BatchLeastSquaresParamCount -
-                                      EstimatorParamCount] =
-{
-   "EstimatorTextFile",
-   "Variables",
-   //"Goals",
-//   "MaximumIterations",
-};
-
-const Gmat::ParameterType
-BatchLeastSquares::PARAMETER_TYPE[BatchLeastSquaresParamCount -
-                                      EstimatorParamCount] =
-{
-   //Gmat::STRING_TYPE,
-   //Gmat::STRINGARRAY_TYPE,
-   Gmat::STRINGARRAY_TYPE,
-   // Gmat::INTEGER_TYPE,
-   Gmat::BOOLEAN_TYPE
-};
+//const std::string
+//BatchLeastSquares::PARAMETER_TEXT[BatchLeastSquaresParamCount -
+//                                      EstimatorParamCount] =
+//{
+//};
+//
+//const Gmat::ParameterType
+//BatchLeastSquares::PARAMETER_TYPE[BatchLeastSquaresParamCount -
+//                                      EstimatorParamCount] =
+//{
+//};
 
 
 //---------------------------------
@@ -345,8 +339,8 @@ Integer BatchLeastSquares::SetIntegerParameter(const Integer id,
 //------------------------------------------------------------------------------
 bool BatchLeastSquares::GetBooleanParameter(const Integer id) const
 {
-    if (id == useCentralDifferencingID)
-        return useCentralDifferences;
+//    if (id == useCentralDifferencingID)
+//        return useCentralDifferences;
 
     return Estimator::GetBooleanParameter(id);
 }
@@ -368,11 +362,11 @@ bool BatchLeastSquares::GetBooleanParameter(const Integer id) const
 bool BatchLeastSquares::SetBooleanParameter(const Integer id,
                                                 const bool value)
 {
-   if (id == useCentralDifferencingID)
-   {
-      useCentralDifferences = value;
-      return useCentralDifferences;
-   }
+//   if (id == useCentralDifferencingID)
+//   {
+//      useCentralDifferences = value;
+//      return useCentralDifferences;
+//   }
 
    return Estimator::SetBooleanParameter(id, value);
 }
@@ -425,10 +419,10 @@ bool BatchLeastSquares::SetStringParameter(const Integer id,
     //    return true;
     //}
 
-    if (id == goalNamesID) {
-        goalNames.push_back(value);
-        return true;
-    }
+//    if (id == goalNamesID) {
+//        goalNames.push_back(value);
+//        return true;
+//    }
 
     return Estimator::SetStringParameter(id, value);
 }
@@ -452,8 +446,8 @@ const StringArray& BatchLeastSquares::GetStringArrayParameter(
     //if (id == variableNamesID)
     //    return variableNames;
 
-    if (id == goalNamesID)
-        return goalNames;
+//    if (id == goalNamesID)
+//        return goalNames;
 
     return Estimator::GetStringArrayParameter(id);
 }
@@ -846,10 +840,12 @@ Estimator::SolverState BatchLeastSquares::AdvanceState()
 
 void BatchLeastSquares::CompleteInitialization()
 {
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage("BLS initializing\n");
+   #endif
+
    WriteToTextFile();
    // TODO: Any additional initialization needed
-   MessageInterface::ShowMessage("BLS initializing\n");
-
    currentState = PROPAGATING;
 }
 //------------------------------------------------------------------------------
@@ -861,11 +857,13 @@ void BatchLeastSquares::CompleteInitialization()
 //------------------------------------------------------------------------------
 void BatchLeastSquares::RunNominal()
 {
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage("BLS propagating\n");
+   #endif
+
    // On success, set the state to the next machine state
    WriteToTextFile();
    // TODO: Find the next time step here
-   MessageInterface::ShowMessage("BLS propagating\n");
-
    currentState = CALCULATING;
 }
 
@@ -880,22 +878,29 @@ void BatchLeastSquares::RunNominal()
 //------------------------------------------------------------------------------
 void BatchLeastSquares::CalculateParameters()
 {
-   bool moreData;
-   MessageInterface::ShowMessage("BLS accumulating\n");
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage("BLS accumulating\n");
+   #endif
+
+   bool moreData = false;
+
+   #ifdef DEBUG_STATE_TRANSITIONS
+      // Dummy code to test state transitions:
+      static Integer dummyValue = 0;
+      if (dummyValue < 5)
+      {
+         ++dummyValue;
+         moreData = true;
+      }
+      else
+      {
+         dummyValue = 0;
+         moreData = false;
+      }
+   #endif
 
    // TODO: Add accumulation here
    // TODO: Add code to check if at end of measurements here
-   static Integer dummyValue = 0;
-   if (dummyValue < 5)
-   {
-      ++dummyValue;
-      moreData = true;
-   }
-   else
-   {
-      dummyValue = 0;
-      moreData = false;
-   }
 
    if (moreData == true)
       currentState = PROPAGATING;
@@ -906,9 +911,11 @@ void BatchLeastSquares::CalculateParameters()
 
 void BatchLeastSquares::Estimate()
 {
-   // TODO: Add code to calculate the state updates
-   MessageInterface::ShowMessage("BLS estimating\n");
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage("BLS estimating\n");
+   #endif
 
+   // TODO: Add code to calculate the state updates
    currentState = CHECKINGRUN;
 }
 
@@ -922,22 +929,28 @@ void BatchLeastSquares::Estimate()
 //------------------------------------------------------------------------------
 void BatchLeastSquares::CheckCompletion()
 {
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage("BLS checking for Convergence\n");
+   #endif
+
    WriteToTextFile();
    bool converged = false;          // Assume not converged convergence
-MessageInterface::ShowMessage("BLS checking for Convergence\n");
    // TODO: Add code to check for convergence
-   static Integer dummyValue = 0;
-   if (dummyValue < 3)
-   {
-      ++dummyValue;
-      converged = false;
-   }
-   else
-   {
-      dummyValue = 0;
-      converged = true;
-   }
 
+   #ifdef DEBUG_STATE_TRANSITIONS
+      // Dummy code to test state transitions:
+      static Integer dummyValue = 0;
+      if (dummyValue < 3)
+      {
+         ++dummyValue;
+         converged = false;
+      }
+      else
+      {
+         dummyValue = 0;
+         converged = true;
+      }
+   #endif
 
    if (!converged)
    {
@@ -961,8 +974,11 @@ MessageInterface::ShowMessage("BLS checking for Convergence\n");
 //------------------------------------------------------------------------------
 void BatchLeastSquares::RunComplete()
 {
-   MessageInterface::ShowMessage("BLS finished\n");
-    WriteToTextFile();
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage("BLS finished\n");
+   #endif
+
+   WriteToTextFile();
 }
 
 
@@ -1411,3 +1427,22 @@ void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
       }
    }
 }
+
+
+//------------------------------------------------------------------------------
+//  void ReportProgress()
+//------------------------------------------------------------------------------
+/**
+ * Shows the progress string to the user.
+ *
+ * This default version just passes the progress string to the MessageInterface.
+ */
+//------------------------------------------------------------------------------
+void BatchLeastSquares::ReportProgress()
+{
+   if (showProgress)
+   {
+      // MessageInterface::ShowMessage("\n");
+   }
+}
+

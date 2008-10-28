@@ -114,16 +114,14 @@ protected:
    // Parameter IDs
    enum
    {
-      goalNamesID = EstimatorParamCount,
-      useCentralDifferencingID,
-      BatchLeastSquaresParamCount
+      BatchLeastSquaresParamCount = EstimatorParamCount,
    };
 
-   static const std::string    PARAMETER_TEXT[BatchLeastSquaresParamCount -
-                                              EstimatorParamCount];
-   static const Gmat::ParameterType
-                               PARAMETER_TYPE[BatchLeastSquaresParamCount -
-                                              EstimatorParamCount];
+//   static const std::string    PARAMETER_TEXT[BatchLeastSquaresParamCount -
+//                                              EstimatorParamCount];
+//   static const Gmat::ParameterType
+//                               PARAMETER_TYPE[BatchLeastSquaresParamCount -
+//                                              EstimatorParamCount];
 
    // Methods
 
@@ -145,13 +143,13 @@ protected:
                                   SolverState stateToUse = UNDEFINED_STATE);
 //   virtual void                WriteToTextFile(
 //                                  EstimatorState stateToUse = UNDEFINED_STATE);
-
+   void                        ReportProgress();
 
    // Need these implemented
    void                        CalculateInformationMatrix();
    void                        InvertInformationMatrix() {}
 
-   // Fixed a pue virtual method issue
+   // Fixed a pure virtual method issue
    virtual Integer     SetSolverResults(Real *data, const std::string &name,
                                         const std::string &type = "")
    { return -1; }
