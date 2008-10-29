@@ -38,7 +38,7 @@
 using namespace GmatMathUtil;      // for trig functions, etc.
 using namespace GmatTimeUtil;      // for JD offsets, etc.
 
-#define DEBUG_TOPOCENTRIC_AXES
+//#define DEBUG_TOPOCENTRIC_AXES
 
 //---------------------------------
 // static data
