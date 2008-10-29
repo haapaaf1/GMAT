@@ -22,7 +22,7 @@
 #include "MessageInterface.hpp"
 #include "FileManager.hpp"
 
-//#define DEBUG_ESTIMATOR_INIT
+#define DEBUG_ESTIMATOR_INIT
 //#define DEBUG_ESTIMATOR_CALC
 
 //---------------------------------
@@ -161,7 +161,8 @@ Estimator::Estimator(const Estimator &est) :
    participantNames        (est.participantNames),
    participants            (est.participants),
    measModelNames          (est.measModelNames),
-   measModels              (est.measModels)
+   measModels              (est.measModels),
+   solveForParms           (est.solveForParms)
 {
    #ifdef DEBUG_ESTIMATOR_INIT
       MessageInterface::ShowMessage(
@@ -204,6 +205,7 @@ Estimator& Estimator::operator=(const Estimator &est)
    showProgress          = est.showProgress;
    progressStyle         = est.progressStyle;
    debugString           = est.debugString;
+   solveForParms         = est.solveForParms;
 
     return *this;
 }
@@ -220,6 +222,50 @@ Estimator& Estimator::operator=(const Estimator &est)
 //------------------------------------------------------------------------------
 bool Estimator::Initialize()
 {
+   MessageInterface::ShowMessage("Estimator::Initialize()\n");
+   // Construct the SolveFor lists
+   for (StringArray::iterator i = solveForParms.begin();
+        i != solveForParms.end(); ++i)
+   {
+      std::string ownerName, val;
+      Integer dotPos = i->find('.', 0);
+      ownerName = i->substr(0, dotPos);
+      val = i->substr(dotPos+1);
+
+      for (ObjectArray::iterator j = participants.begin();
+           j != participants.end(); ++j)
+      {
+         if ((*j)->GetName() == ownerName)
+         {
+            GmatBase* owner = *j;
+            Integer id, parmSize = 1;
+            // Sigh.  Another hack.  CartesianState needs to alias X and
+            // have size 6
+            if (val == "CartesianState")
+            {
+               id = owner->GetParameterID("X");
+               parmSize = 6;
+            }
+            else
+            {
+               id = owner->GetParameterID(val);
+            }
+
+            if (id > 0)
+            {
+               MessageInterface::ShowMessage("Init: Setting SolveFor %s on "
+                     "object %s with id %d and size %d\n", val.c_str(),
+                     ownerName.c_str(), id, parmSize);
+               solveForOwners.push_back(owner);
+               solveForIds.push_back(id);
+               solveForLengths.push_back(parmSize);
+            }
+
+            break;
+         }
+      }
+   }
+
    // Prepare the text file for output
    if (estimatorTextFile != "")
    {

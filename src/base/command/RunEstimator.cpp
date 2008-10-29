@@ -10,7 +10,7 @@
 #include "CommandException.hpp"
 #include "Estimator.hpp"
 
-//#define DEBUG_STATE_MACHINE
+#define DEBUG_STATE_MACHINE
 //#define DEBUG_COMMAND_CALLS
 
 
@@ -316,6 +316,8 @@ bool RunEstimator::Initialize()
    #ifdef DEBUG_COMMAND_CALLS
       MessageInterface::ShowMessage("Initialization complete.\n");
    #endif
+
+   est->Initialize();
 
    return retval;
 }

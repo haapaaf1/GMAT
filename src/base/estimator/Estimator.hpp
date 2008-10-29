@@ -330,8 +330,15 @@ protected:
    ObjectArray          participants;
    /// Measurement Model names
    StringArray          measModelNames;
-   /// Solvefor paramter IDs
+   /// SolveFor parameter IDs
    StringArray          solveForParms;
+   /// SolveFor Objects
+   ObjectArray          solveForOwners;
+   /// SolveFor Attribute Ids
+   std::vector<Integer> solveForIds;
+   /// SolveFor Attribute Sizes
+   std::vector<Integer> solveForLengths;
+
    /// Measurement models used in the estimation
    std::vector<MeasurementModel*>
                         measModels;

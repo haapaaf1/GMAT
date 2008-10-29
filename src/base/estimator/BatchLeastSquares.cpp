@@ -652,96 +652,13 @@ void BatchLeastSquares::SetResultValue(Integer id, Real value,
 //------------------------------------------------------------------------------
 bool BatchLeastSquares::Initialize()
 {
-   // Setup the variable data structures
-   Integer localVariableCount = variableNames.size();
-   Integer localGoalCount = goalNames.size();
-
-   #if DEBUG_DC_INIT
-   MessageInterface::ShowMessage
-      ("BatchLeastSquares::Initialize() localVariableCount=%d, "
-       "localGoalCount=%d\n", localVariableCount, localGoalCount);
-   #endif
-
-   if (localVariableCount == 0 || localGoalCount == 0)
-   {
-      std::string errorMessage = "Targeter cannot initialize: ";
-      errorMessage += "No goals or variables are set.\n";
-      throw EstimatorException(errorMessage);
-   }
-
-   if (localGoalCount > localVariableCount)
-   {
-      std::string errorMessage = "Targeter cannot initialize: ";
-      errorMessage += "More goals than variables\n";
-      throw EstimatorException(errorMessage);
-   }
-
-
-   FreeArrays();
-
-   //variable            = new Real[localVariableCount];
-   //perturbation        = new Real[localVariableCount];
-   //variableMinimum     = new Real[localVariableCount];
-   //variableMaximum     = new Real[localVariableCount];
-   //variableMaximumStep = new Real[localVariableCount];
-
-   // Setup the goal data structures
-   goal      = new Real[localGoalCount];
-   tolerance = new Real[localGoalCount];
-   nominal   = new Real[localGoalCount];
-
-   // And the sensitivity matrix
-   Integer i;
-   achieved        = new Real*[localVariableCount];
-   jacobian        = new Real*[localVariableCount];
-   inverseJacobian = new Real*[localVariableCount];
-   ludMatrix       = new Real*[localVariableCount];
-   for (i = 0; i < localVariableCount; ++i)
-   {
-      jacobian[i]        = new Real[localVariableCount];
-      inverseJacobian[i] = new Real[localVariableCount];
-      achieved[i]        = new Real[localGoalCount];
-      ludMatrix[i]       = new Real[localVariableCount];
-
-      // Initialize to the identity matrix
-      jacobian[i][i] = 1.0;
-      inverseJacobian[i][i] = 1.0;
-
-      // Set default values for min and max parameters
-      //variable[i]            =  0.0;
-      //variableMinimum[i]     = -9.999e300;
-      //variableMaximum[i]     =  9.999e300;
-      //variableMaximumStep[i] =  9.999e300;
-      //perturbation[i]        =  1.0e-04;
-   }
-
    Estimator::Initialize(); // for commented stuff, moved to Estimator
 
-   // Prepare the text file for output
-   //if (estimatorTextFile != "")
-   //{
-   //   if (instanceNumber == 1)
-   //      textFile.open(estimatorTextFile.c_str());
-   //   else
-   //      textFile.open(estimatorTextFile.c_str(), std::ios::app);
-   //   if (!textFile.is_open())
-   //      throw EstimatorException("Error opening targeter text file " +
-   //                            estimatorTextFile);
-   //   textFile.precision(16);
-   //   WriteToTextFile();
-   //}
-
-
-   // Allocate the LU arrays
-   indx = new Integer[variableCount];
-   b = new Real[variableCount];
-
-   //initialized = true;  // moved to Estimator
-   //iterationsTaken = 0;
    #if DEBUG_DC_INIT
-   MessageInterface::ShowMessage
-      ("BatchLeastSquares::Initialize() completed\n");
+      MessageInterface::ShowMessage
+         ("BatchLeastSquares::Initialize() completed\n");
    #endif
+
    return true;
 }
 

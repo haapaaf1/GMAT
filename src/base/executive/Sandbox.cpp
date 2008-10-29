@@ -830,14 +830,15 @@ bool Sandbox::Interrupt()
 //------------------------------------------------------------------------------
 void Sandbox::Clear()
 {
+   MessageInterface::ShowMessage("Sandbox Clear called\n");
    sequence  = NULL;
    current   = NULL;
 
    // Delete the all cloned objects
    std::map<std::string, GmatBase *>::iterator omi;
 
-   #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-   MessageInterface::ShowMessage("Sandbox OMI List\n");
+//   #ifdef DEBUG_SANDBOX_OBJECT_MAPS
+   MessageInterface::ShowMessage("Sandbox OMI List [%d members]\n", objectMap.size());
    for (omi = objectMap.begin(); omi != objectMap.end(); omi++)
    {
       MessageInterface::ShowMessage("   %s", (omi->first).c_str());
@@ -851,7 +852,7 @@ void Sandbox::Clear()
       MessageInterface::ShowMessage(" of type %s\n",
          (omi->second)->GetTypeName().c_str());
    }
-   #endif
+//   #endif
 
 
    for (omi = objectMap.begin(); omi != objectMap.end(); omi++)
@@ -859,20 +860,20 @@ void Sandbox::Clear()
       if ((omi->second)->GetType() == Gmat::SUBSCRIBER)
          publisher->Unsubscribe((Subscriber*)(omi->second));
 
-      #ifdef DEBUG_SANDBOX_OBJECT_MAPS
+//      #ifdef DEBUG_SANDBOX_OBJECT_MAPS
          MessageInterface::ShowMessage("Sandbox clearing %s\n",
             (omi->first).c_str());
-      #endif
+//      #endif
 
       #ifdef DEBUG_SANDBOX_CLONING
          if (find(clonable.begin(), clonable.end(),
              (omi->second)->GetType()) != clonable.end())
       #endif
       {
-         #ifdef DEBUG_SANDBOX_OBJECT_MAPS
+  //       #ifdef DEBUG_SANDBOX_OBJECT_MAPS
             MessageInterface::ShowMessage("Deleting '%s'\n",
                (omi->second)->GetName().c_str());
-         #endif
+  //       #endif
          delete omi->second;
          //objectMap.erase(omi);
       }
@@ -883,20 +884,20 @@ void Sandbox::Clear()
       if ((omi->second)->GetType() == Gmat::SUBSCRIBER)
          publisher->Unsubscribe((Subscriber*)(omi->second));
 
-      #ifdef DEBUG_SANDBOX_OBJECT_MAPS
+  //    #ifdef DEBUG_SANDBOX_OBJECT_MAPS
          MessageInterface::ShowMessage("Sandbox clearing %s\n",
             (omi->first).c_str());
-      #endif
+  //    #endif
 
       #ifdef DEBUG_SANDBOX_CLONING
          if (find(clonable.begin(), clonable.end(),
              (omi->second)->GetType()) != clonable.end())
       #endif
       {
-         #ifdef DEBUG_SANDBOX_OBJECT_MAPS
+  //       #ifdef DEBUG_SANDBOX_OBJECT_MAPS
             MessageInterface::ShowMessage("Deleting '%s'\n",
                (omi->second)->GetName().c_str());
-         #endif
+  //       #endif
          delete omi->second;
          //objectMap.erase(omi);
       }
@@ -1098,11 +1099,11 @@ GmatBase* Sandbox::FindObject(const std::string &name)
 bool Sandbox::SetObjectByNameInMap(const std::string &name,
                              GmatBase *obj)
 {
-#ifdef DEBUG_SANDBOX_OBJ
+//#ifdef DEBUG_SANDBOX_OBJ
    MessageInterface::ShowMessage
       ("Sandbox::SetObjectByNameInMap() name = %s\n",
        name.c_str());
-#endif
+//#endif
    bool found = false;
    // if it's already in a map, set the object pointer for the name
    if (objectMap.find(name) != objectMap.end())
