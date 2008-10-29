@@ -495,7 +495,7 @@ Real RunEstimator::GetTimestep()
 {
    // TODO: Call the estimator for this data
    // one minute steps to test flow
-   return 60.0;
+   return est->FindTimeStep();
 }
 
 bool RunEstimator::Step(Real dt)
