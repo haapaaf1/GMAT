@@ -38,6 +38,7 @@ Estimator::PARAMETER_TEXT[EstimatorParamCount - GmatBaseParamCount] =
    "Propagator",
    "Participants",
    "Measurements",
+   "SolveFor",
    // What is needed here?
    "Variables",
    "MaximumIterations",
@@ -52,6 +53,7 @@ Estimator::PARAMETER_TYPE[EstimatorParamCount - GmatBaseParamCount] =
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
+   Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
@@ -733,6 +735,28 @@ bool Estimator::SetStringParameter(const Integer id, const std::string &value)
       return true;
    }
 
+   if (id == SolveForParameters)
+   {
+      std::string owner, val;
+      Integer dotPos = value.find('.', 0);
+      owner = value.substr(0, dotPos);
+      val = value.substr(dotPos+1);
+
+      #ifdef DEBUG_ESTIMATOR_INIT
+         MessageInterface::ShowMessage("SolveFor %s -> [%s, %s]\n", value.c_str(),
+               owner.c_str(), val.c_str());
+      #endif
+
+      // This is a hack to get something working; we'll want SolveFors to be
+      // two parts: the owner name and the parameter to estimate.  For now
+      // we'll just keep the string.  We'll also want to do better validation;
+      // not run off of a hard coded list like this
+      if (val == "CartesianState")
+         solveForParms.push_back(value);
+
+      return true;
+   }
+
    if (id == variableNamesID)
    {
       variableNames.push_back(value);
@@ -1158,10 +1182,10 @@ LaGenMatDouble Estimator::H(LaVectorDouble x, Real t0)
 /// Phi is a function that computes the Jacobian of f w.r.t. x
 LaGenMatDouble Estimator::Phi()
 {
-    return LaGenMatDouble::eye(stateCount); 
+    return LaGenMatDouble::eye(stateCount);
 }
 
 LaGenMatDouble Estimator::Phi(LaVectorDouble x, Real t0)
 {
-    return LaGenMatDouble::eye(stateCount); 
+    return LaGenMatDouble::eye(stateCount);
 }

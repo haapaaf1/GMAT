@@ -188,19 +188,19 @@ protected:
    /// State vector of parameters to estimate
    /// These parameters are estimated and their error covariance is
    /// solved for.
-   LaVectorDouble      x;
+   LaVectorDouble             x;
    /// The number of state variables in the estimator problem.
    Integer             stateCount;
    /// List of state variables
    StringArray         stateNames;
    /// Vector of controls (thrusters, momentum gyros, etc)
-   LaVectorDouble      u;
+   LaVectorDouble             u;
    /// Consider parameters
    /// Consider parameters are parameters that are known to affect
    /// the state variables but are thought to be not well observable
    /// from the avaialble data. Consider parameters are treated as
    /// constants but their error covariance is added in to the final analysis.
-   LaVectorDouble      considerParameters;
+   LaVectorDouble             considerParameters;
    /// The number of consider parameters in the estimator problem
    Integer             considerCount;
    /// List of consider parameter variables
@@ -210,7 +210,7 @@ protected:
    /// but we set their error covariance is to zero. The ability
    /// to neglect certain parameters that we would normally estimate
    /// or consider can give us insight into the solution of a problem at hand.
-   LaVectorDouble      neglectParameters;
+   LaVectorDouble             neglectParameters;
    /// The number of neglect parameter in the estimator problem
    Integer             neglectCount;
    /// List of neglect parameter variables
@@ -241,13 +241,13 @@ protected:
    LaGenMatDouble             R;
 
    /// Filename containing observations. An empty string says use observations stored in internal arrays
-   std::string         observationTextFile;
+   std::string      observationTextFile;
    /// Type of observation
    StringArray         observationTypes;
    /// Vector of observations
-   LaVectorDouble      y;
+   LaVectorDouble             y;
    /// Vector of observation times
-   LaVectorDouble      observationTimes;
+   LaVectorDouble             observationTimes;
    /// The number of observations in the estimator problem
    Integer             observationCount;
    /// The number of observation types in the estimator problem
@@ -258,11 +258,11 @@ protected:
    StringArray         stationNames;
 
    /// Vector of state biases
-   LaVectorDouble      stateBiases;
+   LaVectorDouble             stateBiases;
    /// Vector of measurement biases
-   LaVectorDouble      measurementBiases;
+   LaVectorDouble             measurementBiases;
    /// Array used to track the differential corrections on each state variable
-   LaVectorDouble      estimatorStateCorrection;
+   LaVectorDouble             estimatorStateCorrection;
 
    /// For nonlinear systems, we need to define a function f that
    /// predicts the estimator state at time t2 given a prior
@@ -292,32 +292,32 @@ protected:
 
 
    /// The number of iterations taken ( used for batch processing )
-   Integer	    iterationsTaken;
+   Integer             iterationsTaken;
    /// Maximum number of iterations allowed ( used for batch processing )
-   Integer	    maxIterations;
+   Integer             maxIterations;
    /// Limits on the lowest value of the state variables
-   LaVectorDouble   stateMinimum;
+   LaVectorDouble stateMinimum;
    /// Limits on the highest value of the state variables
-   LaVectorDouble   stateMaximum;
+   LaVectorDouble stateMaximum;
 
 
    /// Flag used to ensure the estimator is ready to go
-   bool		    initialized;
+   bool                 initialized;
    /// Output mode: Compact, Normal, and Verbose
-   std::string	    textFileMode;
+   std::string         textFileMode;
    /// Toggle for showing estimator status
-   bool		    showProgress;
+   bool                showProgress;
    /// Flag used to adjust estimator progress reports
-   Integer	    progressStyle;
+   Integer             progressStyle;
    /// String for debug information in debug mode
-   std::string	    debugString;
+   std::string         debugString;
    // Reporting parameters
    /// Name of the estimator text file.  An empty string turns the file off.
-   std::string	    estimatorTextFile;
+   std::string          estimatorTextFile;
    /// Used to indicate if data should append to the text file
-   Integer	    instanceNumber;
+   Integer              instanceNumber;
    /// The estimator text file
-   std::ofstream    textFile;
+   std::ofstream        textFile;
 
    // DJC Additions
    /// Name of the numerical integrator setup used
@@ -330,6 +330,8 @@ protected:
    ObjectArray          participants;
    /// Measurement Model names
    StringArray          measModelNames;
+   /// Solvefor paramter IDs
+   StringArray          solveForParms;
    /// Measurement models used in the estimation
    std::vector<MeasurementModel*>
                         measModels;
@@ -344,6 +346,7 @@ protected:
       PropagatorName,
       ParticipantNames,
       MeasurementModels,
+      SolveForParameters,
 
 
       variableNamesID,
