@@ -218,41 +218,6 @@ Estimator& Estimator::operator=(const Estimator &est)
 //------------------------------------------------------------------------------
 bool Estimator::Initialize()
 {
-   // Setup the variable data structures
-   Integer localVariableCount = variableNames.size();
-
-   #ifdef DEBUG_ESTIMATOR_INIT
-      MessageInterface::ShowMessage(
-         "In Estimator::Initialize with localVariableCount = %d\n",
-         localVariableCount);
-   #endif
-
-   try
-   {
-   #ifdef DEBUG_ESTIMATOR_INIT
-      MessageInterface::ShowMessage(
-         "In Estimator::Initialize - about to set default values\n");
-   #endif
-      for (Integer i = 0; i < localVariableCount; ++i)
-      {
-         variable.push_back(0.0);
-         variableMinimum.push_back(-9.999e300);
-         variableMaximum.push_back(9.999e300);
-         variableMaximumStep.push_back(9.999e300);
-         perturbation.push_back(1.0e-04);
-         pertDirection.push_back(1.0);
-      }
-   }
-   catch(const std::exception &re)
-   {
-      throw EstimatorException("Range error initializing Estimator object %s\n",
-            instanceName.c_str());
-   }
-
-   #ifdef DEBUG_ESTIMATOR_INIT
-      MessageInterface::ShowMessage(
-         "In Estimator::Initialzie - about to prepare text file for output\n");
-   #endif
    // Prepare the text file for output
    if (estimatorTextFile != "")
    {
