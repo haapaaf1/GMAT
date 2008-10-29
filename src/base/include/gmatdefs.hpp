@@ -127,6 +127,7 @@ namespace Gmat
       MATH_TREE,
       ESTIMATOR,
       MEASUREMENT_MODEL,
+      BODY_FIXED_POINT,
       UNKNOWN_OBJECT
    };
 

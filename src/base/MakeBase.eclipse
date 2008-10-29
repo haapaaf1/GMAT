@@ -129,6 +129,8 @@ archclean :
 endif
 
 OBJECTS = \
+    asset/AssetException.o \
+    asset/BodyFixedPoint.o \
     asset/GroundStation.o \
     attitude/Attitude.o \
     attitude/AttitudeException.o \
@@ -214,6 +216,7 @@ OBJECTS = \
     coordsystem/TODEqAxes.o \
     coordsystem/TOEEcAxes.o \
     coordsystem/TOEEqAxes.o \
+    coordsystem/TopocentricAxes.o \
     coordsystem/TrueOfDateAxes.o \
     estimator/Estimator.o \
     estimator/BatchLeastSquares.o \
@@ -501,7 +504,7 @@ FORTRAN_OBJECTS = solarsys/msise90_sub.o
 
 ifeq ($(SHARED_BASE), 1)
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
-	$(CPP) -o $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(SHARED_LIB_FLAGS)
+	$(CPP) -o $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(SHARED_LIB_FLAGS)  -lpcrecpp -L/usr/local/lib -llapackpp
 else
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
 	mkdir -p lib

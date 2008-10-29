@@ -237,108 +237,6 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Rvector &inState,
    delete [] out;
    return false;
 
-//    #ifdef DEBUG_TO_FROM
-//       MessageInterface::ShowMessage("In Convert, inCoord is %s and outCoord is %s\n",
-//          (inCoord->GetName()).c_str(), (outCoord->GetName()).c_str());
-//    #endif
-//    if (inCoord->GetName() == outCoord->GetName())
-//    {
-//       outState = inState;
-//       lastRotMatrix.Set(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0);
-//       return true;
-//    }
-//    #ifdef DEBUG_FIRST_CALL
-//       if ((firstCallFired == false) || (epoch.Get() == 21545.0))
-//       {
-//          MessageInterface::ShowMessage(
-//             "Coordinate conversion check:\n      %s --> %s\n", 
-//             inCoord->GetName().c_str(), outCoord->GetName().c_str());
-//          MessageInterface::ShowMessage(
-//             "      Epoch: %.12lf\n", epoch.Get());
-//          MessageInterface::ShowMessage(
-//             "      input State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-//             inState[0], inState[1], inState[2], inState[3], inState[4], 
-//             inState[5]);
-//       }
-//    #endif
-//    static Rvector internalState;
-//    if (inState.GetSize() != outState.GetSize())
-//       throw CoordinateSystemException(
-//              "input and output states have different sizes - no conversion done");
-//    if ((!inCoord) || (!outCoord))
-//       throw CoordinateSystemException(
-//             "Undefined coordinate system - conversion not performed.");
-   
-//    // call coordinate system methods to convert - allow exceptions to
-//    // percolate up (to be caught at a higher level)
-//    internalState.SetSize(inState.GetSize());
-//    internalState.MakeZeroVector();
-//    bool coincident = (inCoord->GetOrigin() == outCoord->GetOrigin() ? 
-//                       true : false);
-//    bool translateFlag = coincident || omitTranslation;
-//    Real intState[6];  //
-//    Rvector tmpState(inState);
-//    const Real *inputState = tmpState.GetDataVector();
-
-//    Real finalState[6];
-//    inCoord->ToMJ2000Eq(epoch, inputState, intState, translateFlag,
-//                        forceComputation);
-//    outCoord->FromMJ2000Eq(epoch, intState, finalState, translateFlag, 
-//                           forceComputation);
-//    outState.Set(6,finalState[0],finalState[1],finalState[2],
-//                   finalState[3],finalState[4],finalState[5]);
-   
-//    Real lastToMat[9];
-//    Real lastFromMat[9];
-//    inCoord->GetLastRotationMatrix(lastToMat);
-//    outCoord->GetLastRotationMatrix(lastFromMat);
-//    Real  fromDataT[9] = {lastFromMat[0], lastFromMat[3], lastFromMat[6],
-//                          lastFromMat[1], lastFromMat[4], lastFromMat[7],
-//                          lastFromMat[2], lastFromMat[5], lastFromMat[8]};
-//    Real lrm[3][3];
-//    Integer p3;
-      
-//    for (Integer p = 0; p < 3; ++p)
-//    {
-//       p3 = 3*p;
-//       for (Integer q = 0; q < 3; ++q)
-//       {
-//          lrm[p][q] = fromDataT[p3]   * lastToMat[q]   + 
-//                      fromDataT[p3+1] * lastToMat[q+3] + 
-//                      fromDataT[p3+2] * lastToMat[q+6];
-//       }
-//    }
-   
-//    lastRotMatrix.Set(lrm[0][0],lrm[0][1],lrm[0][2],
-//                      lrm[1][0],lrm[1][1],lrm[1][2],
-//                      lrm[2][0],lrm[2][1],lrm[2][2]);
-   
-//    #ifdef DEBUG_FIRST_CALL
-//       if ((firstCallFired == false) || (epoch.Get() == 21545.0))
-//       {
-//          MessageInterface::ShowMessage(
-//             "Coordinate conversion check:\n      %s --> %s\n", 
-//             inCoord->GetName().c_str(), outCoord->GetName().c_str());
-//          MessageInterface::ShowMessage(
-//             "      Epoch: %.12lf\n", epoch.Get());
-//          MessageInterface::ShowMessage(
-//             "      input State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-//             inState[0], inState[1], inState[2], inState[3], inState[4], 
-//             inState[5]);
-//          MessageInterface::ShowMessage(
-//             "      internal State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-//             internalState[0], internalState[1], internalState[2], internalState[3], 
-//             internalState[4], internalState[5]);
-//          MessageInterface::ShowMessage(
-//             "      output State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-//             outState[0], outState[1], outState[2], outState[3], outState[4], 
-//             outState[5]);
-//          firstCallFired = true;
-//       }
-//    #endif
-   
-//    return true;
-   
 }
 
 
@@ -359,6 +257,9 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
          ("In Convert, inCoord is %s(%p) and outCoord is %s(%p)\n",
          (inCoord->GetName()).c_str(), inCoord, (outCoord->GetName()).c_str(),
           outCoord);
+      MessageInterface::ShowMessage
+         ("   forceComputation=%d, omitTranslation=%d\n", forceComputation,
+          omitTranslation);
    #endif
    if (inCoord->GetName() == outCoord->GetName())
    {
@@ -387,10 +288,12 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
       throw CoordinateSystemException(
          "Undefined coordinate system - conversion not performed.");
    
-   //MessageInterface::ShowMessage
-   //   ("===> inCoord->GetOrigin=%s(%p), outCoord->GetOrigin=%s(%p)\n",
-   //    inCoord->GetOrigin()->GetName().c_str(), inCoord->GetOrigin(),
-   //    outCoord->GetOrigin()->GetName().c_str(), outCoord->GetOrigin());
+   #ifdef DEBUG_TO_FROM
+   MessageInterface::ShowMessage
+      ("   inCoord->GetOrigin=%s(%p), outCoord->GetOrigin=%s(%p)\n",
+       inCoord->GetOrigin()->GetName().c_str(), inCoord->GetOrigin(),
+       outCoord->GetOrigin()->GetName().c_str(), outCoord->GetOrigin());
+   #endif
    
    // call coordinate system methods to convert - allow exceptions to
    // percolate up (to be caught at a higher level)
@@ -400,13 +303,35 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
    bool coincident = sameOrigin || omitTranslation;
    Real intState[6];
    
-   //MessageInterface::ShowMessage
-   //   ("===> sameOrigin=%d, omitTranslation=%d, coincident=%d\n",
-   //    sameOrigin, omitTranslation, coincident);
+   #ifdef DEBUG_TO_FROM
+   MessageInterface::ShowMessage
+      ("   sameOrigin=%d, omitTranslation=%d, coincident=%d\n",
+       sameOrigin, omitTranslation, coincident);
+   #endif
    
    inCoord->ToMJ2000Eq(epoch, inState, intState, coincident, forceComputation);
+   #ifdef DEBUG_TO_FROM
+      MessageInterface::ShowMessage
+         ("In Convert, sameOrigin is %s,and coincident is %s\n",
+         (sameOrigin? "TRUE" : "FALSE"),
+         (coincident? "TRUE" : "FALSE"));
+      MessageInterface::ShowMessage("inState = %12.4f   %12.4f   %12.4f\n",
+            inState[0], inState[1], inState[2]);
+      MessageInterface::ShowMessage("          %12.4f   %12.4f   %12.4f\n",
+            inState[3], inState[4], inState[5]);
+      MessageInterface::ShowMessage("intState = %12.4f   %12.4f   %12.4f\n",
+            intState[0], intState[1], intState[2]);
+      MessageInterface::ShowMessage("          %12.4f   %12.4f   %12.4f\n",
+            intState[3], intState[4], intState[5]);
+   #endif
    outCoord->FromMJ2000Eq(epoch, intState, outState, coincident,
                           forceComputation);
+   #ifdef DEBUG_TO_FROM
+      MessageInterface::ShowMessage("outState = %12.4f   %12.4f   %12.4f\n",
+            outState[0], outState[1], outState[2]);
+      MessageInterface::ShowMessage("          %12.4f   %12.4f   %12.4f\n",
+            outState[3], outState[4], outState[5]);
+   #endif
    
    Real lastToMat[9];
    Real lastFromMat[9];

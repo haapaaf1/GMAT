@@ -47,7 +47,7 @@ LIBNAME = ../base/lib/libGmatGui$(SHARED_EXTENSION)
 else
 
 LIBNAME = ../base/lib/libGmatGui.dll
-LIBS = $(LIBNAME) -lpcrecpp
+LIBS = $(LIBNAME) -lpcrecpp -llapackpp
 
 endif
 
@@ -264,8 +264,8 @@ else
 
 ifdef MAC_SPECIFIC
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
-	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	cp -f $(WXTARGET) ../../bin/.
+   $(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+   cp -f $(WXTARGET) ../../bin/.
 else
 
 ifeq ($(LINUX_MAC), 1)
