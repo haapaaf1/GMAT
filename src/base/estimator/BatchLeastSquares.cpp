@@ -26,7 +26,6 @@
 #include <cmath>
 #include <sstream>
 
-//#define DEBUG_STATE_MACHINE
 //#define DEBUG_DC_INIT 1
 //#define DEBUG_STATE_MACHINE
 //#define DEBUG_STATE_TRANSITIONS
@@ -493,79 +492,6 @@ bool BatchLeastSquares::TakeAction(const std::string &action,
    return Estimator::TakeAction(action, actionData);
 }
 
-
-//------------------------------------------------------------------------------
-//  Integer SetEstimatorVariables(Real *data, const std::string &name)
-//------------------------------------------------------------------------------
-/**
- * Derived classes use this method to pass in parameter data specific to
- * the algorithm implemented.
- *
- * @param <data> An array of data appropriate to the variables used in the
- *               algorithm.
- * @param <name> A label for the data parameter.  Defaults to the empty
- *               string.
- *
- * @return The ID used for the variable.
- */
-//------------------------------------------------------------------------------
-/*
-Integer BatchLeastSquares::SetEstimatorVariables(Real *data,
-                                                  const std::string &name)
-{
-   if (variableNames[variableCount] != name)
-      throw EstimatorException("Mismatch between parsed and configured variable");
-
-   variable[variableCount] = data[0];
-   perturbation[variableCount] = data[1];
-   // Sanity check min and max
-   if (data[2] >= data[3])
-   {
-      std::stringstream errMsg;
-      errMsg << "Minimum allowed variable value (received " << data[2]
-             << ") must be less than maximum (received " << data[3] << ")";
-      throw EstimatorException(errMsg.str());
-   }
-   if (data[4] <= 0.0)
-   {
-      std::stringstream errMsg;
-      errMsg << "Largest allowed step must be positive! (received "
-             << data[4] << ")";
-      throw EstimatorException(errMsg.str());
-   }
-
-   variableMinimum[variableCount] = data[2];
-   variableMaximum[variableCount] = data[3];
-   variableMaximumStep[variableCount] = data[4];
-   ++variableCount;
-
-   return variableCount-1;
-}
-*/
-
-//------------------------------------------------------------------------------
-//  Real GetEstimatorVariable(Integer id)
-//------------------------------------------------------------------------------
-/**
- * Interface used to access Variable values.
- *
- * @param <id> The ID used for the variable.
- *
- * @return The value used for this variable
- */
-//------------------------------------------------------------------------------
-/*
-Real BatchLeastSquares::GetEstimatorVariable(Integer id)
-{
-   if (id >= variableCount)
-      throw EstimatorException(
-         "BatchLeastSquares member requested a parameter outside the range "
-         "of the configured variables.");
-
-   return variable[id];
-}
-*/
-
 //------------------------------------------------------------------------------
 // Integer SetEstimatorResults(Real *data, const std::string &name)
 //------------------------------------------------------------------------------
@@ -591,34 +517,6 @@ Integer BatchLeastSquares::SetEstimatorResults(Real *data,
     ++goalCount;
     return goalCount-1;
 }
-
-
-//------------------------------------------------------------------------------
-// bool UpdateEstimatorGoal(Integer id, Real newValue)
-//------------------------------------------------------------------------------
-/**
- * Updates the targeter goals, for floating end point targeting.
- *
- * @param <id>       Id for the goal that is being reset.
- * @param <newValue> The new goal value.
- *
- * @return true on success, throws on failure.
- */
-//------------------------------------------------------------------------------
-bool BatchLeastSquares::UpdateEstimatorGoal(Integer id, Real newValue)
-{
-   // Only update during nominal runs
-   if (currentState == NOMINAL) {
-      if (id >= goalCount)
-         throw EstimatorException(
-            "BatchLeastSquares member requested a parameter outside the "
-            "range of the configured goals.");
-
-      goal[id] = newValue;
-   }
-   return true;
-}
-
 
 //------------------------------------------------------------------------------
 // void SetResultValue(Integer id, Real value)
@@ -652,8 +550,31 @@ void BatchLeastSquares::SetResultValue(Integer id, Real value,
 //------------------------------------------------------------------------------
 bool BatchLeastSquares::Initialize()
 {
-   Estimator::Initialize(); // for commented stuff, moved to Estimator
 
+   Estimator::Initialize(); // for commented stuff, moved to Estimator
+   
+   // Initilize epoch
+   epoch = 0.0;
+   
+   // Initialize stateCount to zero
+   stateCount = 0;
+   
+   // Set index of observation to be processed to zero
+   obCount = 0;
+   
+   // Initialize weighting matrix to identity matrix
+   W = LaGenMatDouble::eye(observationCount);
+   
+   // Initialize state update to zero
+   deltaX = LaGenMatDouble::zeros(stateCount);
+   
+   // Initialize time step
+   timeStep = 0;
+   
+   // Initialize converged flag
+   converged = false;
+
+   
    #if DEBUG_DC_INIT
       MessageInterface::ShowMessage
          ("BatchLeastSquares::Initialize() completed\n");
@@ -672,7 +593,6 @@ bool BatchLeastSquares::Initialize()
  * @return estimator state at the end of the process.
  */
 //------------------------------------------------------------------------------
-//Estimator::EstimatorState BatchLeastSquares::AdvanceState()
 Estimator::SolverState BatchLeastSquares::AdvanceState()
 {
 //   return Estimator::AdvanceState();
@@ -694,24 +614,16 @@ Estimator::SolverState BatchLeastSquares::AdvanceState()
             MessageInterface::ShowMessage("Entered state machine; NOMINAL\n");
          #endif
          ReportProgress();
-         RunNominal();
+         FindTimeStep();
          ReportProgress();
          break;
-
-	 //case PERTURBING:
-         //#ifdef DEBUG_STATE_MACHINE
-         //   MessageInterface::ShowMessage("Entered state machine; PERTURBING\n");
-         //#endif
-         //ReportProgress();
-         //RunPerturbation();
-         //break;
 
       case CALCULATING:
          #ifdef DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage("Entered state machine; CALCULATING\n");
          #endif
          ReportProgress();
-         CalculateParameters();
+         Accumulate();
          break;
 
       case ESTIMATING:
@@ -724,14 +636,23 @@ Estimator::SolverState BatchLeastSquares::AdvanceState()
             MessageInterface::ShowMessage("Entered state machine; CHECKINGRUN\n");
          #endif
          CheckCompletion();
-         ++iterationsTaken;
-         if (iterationsTaken > maxIterations)
-         {
-            MessageInterface::ShowMessage("Differential corrector %s %s\n",
-               instanceName.c_str(),
-               "has exceeded to maximum number of allowed iterations.");
-            currentState = FINISHED;
-         }
+	 if (!converged)
+	 {
+	    Update();
+	    Reinitialize();
+            ++iterationsTaken;
+	    if (iterationsTaken > maxIterations)
+	    {
+		MessageInterface::ShowMessage("Differential corrector %s %s\n",
+		instanceName.c_str(),
+		"has exceeded to maximum number of allowed iterations.");
+		currentState = FINISHED;
+	    }
+	 }
+	 else
+	    // If converged, we're done
+	    currentState = FINISHED;
+
          break;
 
       case FINISHED:
@@ -754,7 +675,13 @@ Estimator::SolverState BatchLeastSquares::AdvanceState()
 
    return currentState;
 }
-
+//------------------------------------------------------------------------------
+//  void CompleteInitialization()
+//------------------------------------------------------------------------------
+/**
+ * Run out the nominal sequence, generating the "current" estimator data.
+ */
+//------------------------------------------------------------------------------
 void BatchLeastSquares::CompleteInitialization()
 {
    #ifdef DEBUG_STATE_MACHINE
@@ -763,16 +690,51 @@ void BatchLeastSquares::CompleteInitialization()
 
    WriteToTextFile();
    // TODO: Any additional initialization needed
+   
+   // Set index of observation to be processed to zero
+   obIndex = 0;
+   
+   // Find satellite state
+   // TODO: Make this a loop for all owners
+   GmatBase* objID = SolveForOwners.begin();
+   theSat = (Spacecraft*)objID;
+   ps = theSat->GetState();
+   Integer n = ps->GetSize();
+
+   // epoch is GMAT's A.1 modified Julian epoch
+   // Set time step to be difference between epoch and time of first ob
+   epoch = theSat.GetEpoch();
+   timeStep = y(obIndex) - epoch;
+   
+   // Assign weighting matrix to desired initial values
+   // W = LaGenMatDouble::eye(observationCount);
+   
+   // Initialize estimated state to current state
+   // X is LaVectorDouble
+   Real* x1 = ps->GetState();
+   
+   // Initialize a new LaVectorDouble vector using the Real* array x1
+   LaVectorDouble xtemp(x1,n);
+   
+   // Copy xtemp into x.
+   x.copy(xtemp);
+   
+   // Initialize stateCount
+   stateCount = n;
+   
+   // Initialize state update to zero
+   estimatorStateCorrection = LaGenMatDouble::zeros(stateCount);
+   
    currentState = PROPAGATING;
 }
 //------------------------------------------------------------------------------
-//  void RunNominal()
+//  void FindTimeStep()
 //------------------------------------------------------------------------------
 /**
  * Run out the nominal sequence, generating the "current" estimator data.
  */
 //------------------------------------------------------------------------------
-void BatchLeastSquares::RunNominal()
+void BatchLeastSquares::FindTimeStep()
 {
    #ifdef DEBUG_STATE_MACHINE
       MessageInterface::ShowMessage("BLS propagating\n");
@@ -780,52 +742,91 @@ void BatchLeastSquares::RunNominal()
 
    // On success, set the state to the next machine state
    WriteToTextFile();
-   // TODO: Find the next time step here
+
+   // Find the next time step here in seconds
+   // convert from GMAT's A.1 Modified Julian Date
+   // TODO: Fix time vector so that there is a integer and real part
+   //       for higher precision work
+   timeStep = (observationTimes(obIndex+1) - observationTimes(obIndex))*86400.0;
+   
    currentState = CALCULATING;
 }
 
 
 //------------------------------------------------------------------------------
-//  void CalculateParameters()
+//  void Accumulate()
 //------------------------------------------------------------------------------
 /**
- * Updates the values for the state variables based upon the observation error
- * and the information matrix.
+ * Computes the difference between observed and computed quantities and partials.
  */
 //------------------------------------------------------------------------------
-void BatchLeastSquares::CalculateParameters()
+void BatchLeastSquares::Accumulate()
 {
    #ifdef DEBUG_STATE_MACHINE
       MessageInterface::ShowMessage("BLS accumulating\n");
    #endif
 
    bool moreData = false;
-
-   #ifdef DEBUG_STATE_TRANSITIONS
-      // Dummy code to test state transitions:
-      static Integer dummyValue = 0;
-      if (dummyValue < 5)
-      {
-         ++dummyValue;
-         moreData = true;
-      }
-      else
-      {
-         dummyValue = 0;
-         moreData = false;
-      }
-   #endif
-
+    
    // TODO: Add accumulation here
-   // TODO: Add code to check if at end of measurements here
 
+   
+   
+   // Code to check if at end of measurements
+
+      if (obIndex < observationCount)
+   {
+	++obIndex;
+	moreData = true;
+   }
+   else
+   {
+	obIndex = 0;
+	moreData = false;
+   }
+   
    if (moreData == true)
       currentState = PROPAGATING;
    else
       currentState = ESTIMATING;
 }
 
+//------------------------------------------------------------------------------
+//  void Update()
+//------------------------------------------------------------------------------
+/**
+ * Update the states of objects based upon current estimates.
+ */
+//------------------------------------------------------------------------------
+void BatchLeastSquares::Update()
+{
+    x += estimatorStateCorrection;   
+}
 
+//------------------------------------------------------------------------------
+//  void Reinitialize()
+//------------------------------------------------------------------------------
+/**
+ * Reinitialize the states of objects based upon current estimates.
+ */
+//------------------------------------------------------------------------------
+void BatchLeastSquares::Reinitialize()
+{
+    // Set satellite epoch back to what it originally was
+    theSat->SetEpoch(epoch);
+    // Set the initial satellite state to updated state estimate
+    // TODO:: make this general by extracting subvectors
+    ps->SetState(x.addr(),6);
+    currentState = PROPAGATING;
+}
+
+//------------------------------------------------------------------------------
+//  void Estimate()
+//------------------------------------------------------------------------------
+/**
+ * Calculate the estimated state.
+ */
+//------------------------------------------------------------------------------
 void BatchLeastSquares::Estimate()
 {
    #ifdef DEBUG_STATE_MACHINE
@@ -833,6 +834,15 @@ void BatchLeastSquares::Estimate()
    #endif
 
    // TODO: Add code to calculate the state updates
+
+   estimatorStateCorrection = I.inverse()*H.transpose()*W*z;
+   
+   // Compute cost
+   
+   LaVectorDouble Jtemp = z-H*estimatorStateCorrection;
+   
+   J(obIndex) = 0.5*Jtemp.transpose()*W*Jtemp;
+      
    currentState = CHECKINGRUN;
 }
 
@@ -851,34 +861,22 @@ void BatchLeastSquares::CheckCompletion()
    #endif
 
    WriteToTextFile();
-   bool converged = false;          // Assume not converged convergence
+   converged = false;          // Assume not converged convergence
    // TODO: Add code to check for convergence
-
-   #ifdef DEBUG_STATE_TRANSITIONS
-      // Dummy code to test state transitions:
-      static Integer dummyValue = 0;
-      if (dummyValue < 3)
-      {
-         ++dummyValue;
-         converged = false;
-      }
-      else
-      {
-         dummyValue = 0;
-         converged = true;
-      }
-   #endif
-
-   if (!converged)
+   
+   // Find the determinant of the weighting matrix
+   // Since the weighting matrix is diagonal, we just multiply all elements
+   Real detW = 1;
+   Integer i;
+   for (i = 0; i < observationCount; i++)
    {
-      // TODO: Add code to reset the state data prior to restarting prop
-      // TODO: Add code to reset the measurement models to the first data point
-      // TODO: Reset the prop-to epoch to the initial one
-      currentState = PROPAGATING;
+       detW *= W(i,i);
    }
-   else
-      // If converged, we're done
-      currentState = FINISHED;
+   
+   if ((J(obIndex)-J(obIndex-1))/J(obIndex) < globalConvergenceTolerance/detW)
+   {
+       converged = true;
+   }
 }
 
 
@@ -959,25 +957,6 @@ void BatchLeastSquares::FreeArrays()
       textFile.flush();
       textFile.close();
    }
-
-// These are all handled in the ancestor classes.
-//   if (variable)
-//   {
-//      delete [] variable;
-//      variable = NULL;
-//   }
-//
-//   if (variableMinimum)
-//   {
-//      delete [] variableMinimum;
-//      variableMinimum = NULL;
-//   }
-//
-//   if (variableMaximum)
-//   {
-//      delete [] variableMaximum;
-//      variableMaximum = NULL;
-//   }
 
    if (goal)
    {

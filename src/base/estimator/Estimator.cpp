@@ -366,6 +366,33 @@ Integer Estimator::SetEstimatorVariables(Real *data,
    return variableCount-1;
 }
 
+//------------------------------------------------------------------------------
+//  Real GetTimeStep()
+//------------------------------------------------------------------------------
+/**
+ * Interface used to access the time step variable.
+ *
+ * @return The time step.
+ */
+//------------------------------------------------------------------------------
+Real Estimator::GetTimeStep()
+{
+    return timeStep;
+}
+
+//------------------------------------------------------------------------------
+//  void SetTimeStep(Real &dt)
+//------------------------------------------------------------------------------
+/**
+ * Interface used to access the time step variable.
+ *
+ * @param <dt> The desired time step.
+ */
+//------------------------------------------------------------------------------
+void Estimator::SetTimeStep(Real &dt)
+{
+    timeStep = dt;
+}
 
 //------------------------------------------------------------------------------
 //  Real GetEstimatorVariable(Integer id)
@@ -430,7 +457,7 @@ Estimator::SolverState Estimator::AdvanceState()
          break;
 
       case CALCULATING:
-         CalculateParameters();
+         Accumulate();
          currentState = ESTIMATING;
          break;
 
@@ -986,83 +1013,39 @@ void Estimator::SetDebugString(const std::string &str)
 
 
 
-////------------------------------------------------------------------------------
-////  void CompleteInitialization()
-////------------------------------------------------------------------------------
-///**
-// * Finalized the initialization process by setting the current state for the
-// * state machine to the entry state for the estimator.  The default method provided
-// * here sets the state to the NOMINAL state.
-// */
-////------------------------------------------------------------------------------
-//void Estimator::CompleteInitialization()
-//{
-//    currentState = NOMINAL;
-//}
-
-
 //------------------------------------------------------------------------------
-//  void RunNominal()
+//  void CompleteInitialization()
 //------------------------------------------------------------------------------
 /**
- * Executes a nominal run and then advances the state machine to the next state.
- *
- * This default method just advances the state.
+ * Finalized the initialization process by setting the current state for the
+ * state machine to the entry state for the estimator.
  */
 //------------------------------------------------------------------------------
-void Estimator::RunNominal()
+void Estimator::CompleteInitialization()
 {
-//    currentState = (EstimatorState)(currentState+1);
 }
 
+//------------------------------------------------------------------------------
+//  LaGenMatDouble ComputeGain()
+//------------------------------------------------------------------------------
+/**
+ * Computes the estimator gain.
+ */
+//------------------------------------------------------------------------------
+LaGenMatDouble& Estimator::ComputeGain()
+{
+}
 
-////------------------------------------------------------------------------------
-////  void RunPerturbation()
-////------------------------------------------------------------------------------
-///**
-// * Executes a perturbation run and then advances the state machine to the next
-// * state.
-// *
-// * This default method just advances the state.
-// */
-////------------------------------------------------------------------------------
-//void Estimator::RunPerturbation()
-//{
-////    currentState = (EstimatorState)(currentState+1);
-//}
-
-
-////------------------------------------------------------------------------------
-////  void RunIteration()
-////------------------------------------------------------------------------------
-///**
-// * Executes an iteration run and then advances the state machine to the next
-// * state.
-// *
-// * This default method just advances the state.
-// */
-////------------------------------------------------------------------------------
-//void Estimator::RunIteration()
-//{
-////    currentState = (EstimatorState)(currentState+1);
-//}
-
-
-////------------------------------------------------------------------------------
-////  void CalculateParameters()
-////------------------------------------------------------------------------------
-///**
-// * Executes a Calculates parameters needed by the state machine for the next
-// * nominal run, and then advances the state machine to the next state.
-// *
-// * This default method just advances the state.
-// */
-////------------------------------------------------------------------------------
-//void Estimator::CalculateParameters()
-//{
-////    currentState = (EstimatorState)(currentState+1);
-//}
-
+//------------------------------------------------------------------------------
+//  void FindTimeStep()
+//------------------------------------------------------------------------------
+/**
+ * Computes the desired time step
+ */
+//------------------------------------------------------------------------------
+Real Estimator::FindTimeStep()
+{
+}
 
 //------------------------------------------------------------------------------
 //  void CheckCompletion()
@@ -1070,29 +1053,33 @@ void Estimator::RunNominal()
 /**
  * Checks to see if the Estimator has converged.
  *
- * This default method just advances the state.
  */
 //------------------------------------------------------------------------------
 void Estimator::CheckCompletion()
 {
-//    currentState = (EstimatorState)(currentState+1);
 }
 
-////------------------------------------------------------------------------------
-////  void RunExternal()
-////------------------------------------------------------------------------------
-///**
-// * Launhes an external process that drives the Estimator.
-// *
-// * This default method just ???? (not a clue).
-// */
-////------------------------------------------------------------------------------
-//void Estimator::RunExternal()
-//{
-//   //currentState = FINISHED;  // what to do here?
-//   currentState = (EstimatorState)(currentState+1);
-//}
+//------------------------------------------------------------------------------
+//  void Update()
+//------------------------------------------------------------------------------
+/**
+ * Update the states of objects based upon current estimates.
+ */
+//------------------------------------------------------------------------------
+void Estimator::Update()
+{
+}
 
+//------------------------------------------------------------------------------
+//  void Reinitialize()
+//------------------------------------------------------------------------------
+/**
+ * Reinitialize the states of objects based upon current estimates.
+ */
+//------------------------------------------------------------------------------
+void Estimator::Reinitialize()
+{
+}
 
 //------------------------------------------------------------------------------
 //  void RunComplete()

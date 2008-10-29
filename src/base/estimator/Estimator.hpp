@@ -136,6 +136,8 @@ public:
    virtual bool        GetBooleanParameter(const Integer id) const;
    virtual bool        SetBooleanParameter(const Integer id,
                                            const bool value);
+   Real GetTimeStep();
+   void SetTimeStep(Real &dt);
 
    virtual void        ReportProgress();
    virtual void        SetDebugString(const std::string &str);
@@ -184,37 +186,38 @@ protected:
 
    /// Current state for the state machine
    SolverState          currentState;
-//   EstimatorState          currentState;
-   /// State vector of parameters to estimate
+   /// The estimator epoch
+   Real			epoch;  
+/// State vector of parameters to estimate
    /// These parameters are estimated and their error covariance is
    /// solved for.
-   LaVectorDouble             x;
+   LaVectorDouble	x;
    /// The number of state variables in the estimator problem.
-   Integer             stateCount;
+   Integer		stateCount;
    /// List of state variables
-   StringArray         stateNames;
+   StringArray		stateNames;
    /// Vector of controls (thrusters, momentum gyros, etc)
-   LaVectorDouble             u;
+   LaVectorDouble	u;
    /// Consider parameters
    /// Consider parameters are parameters that are known to affect
    /// the state variables but are thought to be not well observable
    /// from the avaialble data. Consider parameters are treated as
    /// constants but their error covariance is added in to the final analysis.
-   LaVectorDouble             considerParameters;
+   LaVectorDouble	considerParameters;
    /// The number of consider parameters in the estimator problem
-   Integer             considerCount;
+   Integer		considerCount;
    /// List of consider parameter variables
-   StringArray         considerNames;
+   StringArray		considerNames;
    /// Neglect parameters
    /// Similar to consider parameters, these parameters are constant
    /// but we set their error covariance is to zero. The ability
    /// to neglect certain parameters that we would normally estimate
    /// or consider can give us insight into the solution of a problem at hand.
-   LaVectorDouble             neglectParameters;
+   LaVectorDouble	neglectParameters;
    /// The number of neglect parameter in the estimator problem
-   Integer             neglectCount;
+   Integer		neglectCount;
    /// List of neglect parameter variables
-   StringArray         neglectNames;
+   StringArray		neglectNames;
 
 
    /// Linearized systems take the following form:
@@ -239,30 +242,40 @@ protected:
    LaGenMatDouble             Q;
    /// Variance of the observation noise typically used for weighting purposes
    LaGenMatDouble             R;
+   // Estimator gain
+   LaGenMatDouble	      K;
+   
+   
+   // Cost function evaluation
+   LaVectorDouble	J;
+   // Global Convergence Tolerance
+   Real			globalConvergenceTolerance;
 
    /// Filename containing observations. An empty string says use observations stored in internal arrays
-   std::string      observationTextFile;
+   std::string		observationTextFile;
    /// Type of observation
-   StringArray         observationTypes;
+   StringArray		observationTypes;
    /// Vector of observations
-   LaVectorDouble             y;
-   /// Vector of observation times
-   LaVectorDouble             observationTimes;
+   LaVectorDouble	y;
+   /// Vector of observation times in GMAT's A.1 modified Julian date
+   LaVectorDouble	observationTimes;
    /// The number of observations in the estimator problem
-   Integer             observationCount;
+   Integer		observationCount;
+       // Current observation index that is being processed
+   Integer		obIndex;
    /// The number of observation types in the estimator problem
-   Integer             observationTypeCount;
+   Integer		observationTypeCount;
    /// The number of observation stations in the estimator problem
-   Integer             observerCount;
+   Integer		observerCount;
    /// List of names of observation stations
-   StringArray         stationNames;
+   StringArray		stationNames;
 
    /// Vector of state biases
-   LaVectorDouble             stateBiases;
+   LaVectorDouble	stateBiases;
    /// Vector of measurement biases
-   LaVectorDouble             measurementBiases;
+   LaVectorDouble	measurementBiases;
    /// Array used to track the differential corrections on each state variable
-   LaVectorDouble             estimatorStateCorrection;
+   LaVectorDouble	estimatorStateCorrection;
 
    /// For nonlinear systems, we need to define a function f that
    /// predicts the estimator state at time t2 given a prior
@@ -293,6 +306,8 @@ protected:
 
    /// The number of iterations taken ( used for batch processing )
    Integer             iterationsTaken;
+   // The integration time step to be taken in seconds
+   Real			timeStep;
    /// Maximum number of iterations allowed ( used for batch processing )
    Integer             maxIterations;
    /// Limits on the lowest value of the state variables
@@ -303,6 +318,8 @@ protected:
 
    /// Flag used to ensure the estimator is ready to go
    bool                 initialized;
+   /// Flag used to test if the estimator has converged
+   bool			converged;
    /// Output mode: Compact, Normal, and Verbose
    std::string         textFileMode;
    /// Toggle for showing estimator status
@@ -370,24 +387,15 @@ protected:
    static const std::string    STYLE_TEXT[MaxStyle - NORMAL_STYLE];
 
 // DJC additions
-   virtual void        RunNominal();
-
-
+   virtual Real        FindTimeStep();
 
    // Methods that correspond to the estimator states.  Derived classes should
    // implement the methods that correspond to the Estimator's state machine.  The
    // default implementation just advances the state to the "next" state in the
    // list.
-//   virtual void        ForwardInitialization();
-//   virtual void        ForwardPropagation();
-//   virtual void        ForwardUpdate();
-//   virtual void        ComputeGain();
-//   virtual void        ForwardReinitialization();
-//   virtual void        BackwardInitialization();
-//   virtual void        BackwardPropagation();
-//   virtual void        BackwardUpdate();
-//   virtual void        BackwardReinitialization();
-//   virtual void        CalculateCorrections();
+   virtual void        Update();
+   virtual LaGenMatDouble&        ComputeGain();
+   virtual void        Reinitialize();
    virtual void        CheckCompletion();
    virtual void        RunComplete();
 
