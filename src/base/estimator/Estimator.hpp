@@ -181,7 +181,9 @@ public:
    //---------------------------------------------------------------------------
    virtual void        SetResultValue(Integer id, Real value,
 				     const std::string &resultType = "") = 0;
-
+// DJC additions
+   virtual Real        FindTimeStep();
+   
 protected:
 
    /// Current state for the state machine
@@ -386,13 +388,12 @@ protected:
                                               GmatBaseParamCount];
    static const std::string    STYLE_TEXT[MaxStyle - NORMAL_STYLE];
 
-// DJC additions
-   virtual Real        FindTimeStep();
-
    // Methods that correspond to the estimator states.  Derived classes should
    // implement the methods that correspond to the Estimator's state machine.  The
    // default implementation just advances the state to the "next" state in the
    // list.
+   virtual void        CompleteInitialization();
+   virtual void        Accumulate();
    virtual void        Update();
    virtual LaGenMatDouble&        ComputeGain();
    virtual void        Reinitialize();
@@ -400,7 +401,6 @@ protected:
    virtual void        RunComplete();
 
    virtual std::string GetProgressString();
-   virtual void        FreeArrays();
 
    //---------------------------------------------------------------------------
    //  void WriteToTextFile()

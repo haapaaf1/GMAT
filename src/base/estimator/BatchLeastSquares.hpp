@@ -23,6 +23,7 @@
 
 #include "Solver.hpp"
 #include "Estimator.hpp"
+#include "Spacecraft.hpp"
 #include <fstream>          // for std::ofstream
 
 /**
@@ -70,10 +71,10 @@ public:
    virtual bool        TakeAction(const std::string &action,
                                   const std::string &actionData = "");
 
-   virtual Integer     SetEstimatorResults(Real *data, const std::string &name,
-                                        const std::string &type = "");
-   virtual void        SetResultValue(Integer id, Real value,
-                                      const std::string &resultType = "");
+   Integer     SetEstimatorResults(Real *data, const std::string &name,
+				   const std::string &type = "") {return 0;}
+   void        SetResultValue(Integer id, Real value,
+			      const std::string &resultType = "") {}
 
 protected:
     
@@ -96,7 +97,7 @@ protected:
    // Methods
 
    virtual void                CompleteInitialization();
-   virtual void                FindTimeStep();
+   virtual Real                FindTimeStep();
    virtual void                Estimate();
    virtual void		       Update();
    virtual void		       Reinitialize();
@@ -111,7 +112,7 @@ protected:
 
    // Need these implemented
    void                        CalculateInformationMatrix();
-   void                        InvertInformationMatrix() {}
+   void                        InvertInformationMatrix();
 
    // Fixed a pure virtual method issue
    virtual Integer     SetSolverResults(Real *data, const std::string &name,

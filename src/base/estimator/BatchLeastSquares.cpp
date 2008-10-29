@@ -52,28 +52,7 @@
 //---------------------------------
 
 BatchLeastSquares::BatchLeastSquares(std::string name) :
-   Estimator                  ("BatchLeastSquares", name),
-//   variableCount           (0),
-   //goalCount               (0),
-//   iterationsTaken         (0),
-//   maxIterations           (25),
-//   variable                (NULL),
-   //perturbation            (NULL),
-//   variableMinimum         (NULL),
-//   variableMaximum         (NULL),
-   //variableMaximumStep     (NULL),
-   //goal                    (NULL),
-   tolerance               (NULL),
-   nominal                 (NULL),
-   achieved                (NULL) //,
-   //jacobian                (NULL),
-//   informationMatrix         (NULL),
-   //indx                    (NULL),
-   //b                       (NULL),
-   //ludMatrix               (NULL),
-   //useCentralDifferences   (false)  //,
-//   initialized             (false),
-   //instanceNumber          (0)       // 0 indicates 1st instance w/ this name
+   Estimator                  ("BatchLeastSquares", name)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -91,43 +70,16 @@ BatchLeastSquares::BatchLeastSquares(std::string name) :
 
 BatchLeastSquares::~BatchLeastSquares()
 {
-   FreeArrays();
 }
 
 
 BatchLeastSquares::BatchLeastSquares(const BatchLeastSquares &dc) :
-   Estimator                  (dc),
-   //variableCount           (dc.variableCount),
-   goalCount               (dc.goalCount),
-   //iterationsTaken         (0),
-   //maxIterations           (dc.maxIterations),
-   //variable                (NULL),
-   //perturbation            (NULL),
-   //variableMinimum         (NULL),
-   //variableMaximum         (NULL),
-   //variableMaximumStep     (NULL),
-   goal                    (NULL),
-   tolerance               (NULL),
-   nominal                 (NULL),
-   achieved                (NULL),
-   jacobian                (NULL),
-   inverseJacobian         (NULL),
-   //pertNumber              (dc.pertNumber),
-   indx                    (NULL),
-   b                       (NULL),
-   ludMatrix               (NULL),
-   useCentralDifferences   (dc.useCentralDifferences)  //,
-   //initialized             (false),
-   //estimatorTextFile          (dc.estimatorTextFile),
-   //instanceNumber          (dc.instanceNumber)
+   Estimator                  (dc)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
       ("BatchLeastSquares::DC(COPY constructor) entered\n");
    #endif
-  //variableNames.clear(); -> Estimator
-  goalNames.clear();
-
    parameterCount = dc.parameterCount;
 }
 
@@ -139,22 +91,7 @@ BatchLeastSquares&
         return *this;
 
    Estimator::operator=(dc);
-
-   FreeArrays();
-
-   //variableNames.clear();
-   goalNames.clear();
-
-   //variableCount         = dc.variableCount;
-   goalCount             = dc.goalCount;
-   //iterationsTaken       = 0;
-   //maxIterations         = dc.maxIterations;
-   useCentralDifferences = dc.useCentralDifferences;
-   //initialized           = false;
-   //estimatorTextFile        = dc.estimatorTextFile;
-   //instanceNumber        = dc.instanceNumber;
-   //pertNumber            = dc.pertNumber;
-
+   
    return *this;
 }
 
@@ -481,65 +418,10 @@ bool BatchLeastSquares::TakeAction(const std::string &action,
    if (action == "Reset")
    {
       currentState = INITIALIZING;
-      // initialized = false;
-      // Set nominal out of range to force retarget when in a loop
-      for (Integer i = 0; i < goalCount; ++i)
-      {
-         nominal[i] = goal[i] + 10.0 * tolerance[i];
-      }
    }
 
    return Estimator::TakeAction(action, actionData);
 }
-
-//------------------------------------------------------------------------------
-// Integer SetEstimatorResults(Real *data, const std::string &name)
-//------------------------------------------------------------------------------
-/**
- * Sets up the data fields used for the results of an iteration.
- *
- * @param <data> An array of data appropriate to the results used in the
- *               algorithm (for instance, tolerances for targeter goals).
- * @param <name> A label for the data parameter.  Defaults to the empty
- *               string.
- *
- * @return The ID used for this variable.
- */
-//------------------------------------------------------------------------------
-Integer BatchLeastSquares::SetEstimatorResults(Real *data,
-                                                const std::string &name,
-                                                const std::string &type)
-{
-    if (goalNames[goalCount] != name)
-        throw EstimatorException("Mismatch between parsed and configured goal");
-    goal[goalCount] = data[0];
-    tolerance[goalCount] = data[1];
-    ++goalCount;
-    return goalCount-1;
-}
-
-//------------------------------------------------------------------------------
-// void SetResultValue(Integer id, Real value)
-//------------------------------------------------------------------------------
-/**
- * Passes in the results obtained from a run in the BatchLeastSquares loop.
- *
- * @param <id>    The ID used for this result.
- * @param <value> The corresponding result.
- */
-//------------------------------------------------------------------------------
-void BatchLeastSquares::SetResultValue(Integer id, Real value,
-                                           const std::string &resultType)
-{
-    if (currentState == NOMINAL) {
-        nominal[id] = value;
-    }
-
-    if (currentState == PERTURBING) {
-        achieved[pertNumber][id] = value;
-    }
-}
-
 
 //------------------------------------------------------------------------------
 // bool Initialize()
@@ -560,13 +442,13 @@ bool BatchLeastSquares::Initialize()
    stateCount = 0;
    
    // Set index of observation to be processed to zero
-   obCount = 0;
+   obIndex = 0;
    
    // Initialize weighting matrix to identity matrix
    W = LaGenMatDouble::eye(observationCount);
    
    // Initialize state update to zero
-   deltaX = LaGenMatDouble::zeros(stateCount);
+   estimatorStateCorrection = LaGenMatDouble::zeros(stateCount);
    
    // Initialize time step
    timeStep = 0;
@@ -638,8 +520,7 @@ Estimator::SolverState BatchLeastSquares::AdvanceState()
          CheckCompletion();
 	 if (!converged)
 	 {
-	    Update();
-	    Reinitialize();
+            Update();
             ++iterationsTaken;
 	    if (iterationsTaken > maxIterations)
 	    {
@@ -648,6 +529,9 @@ Estimator::SolverState BatchLeastSquares::AdvanceState()
 		"has exceeded to maximum number of allowed iterations.");
 		currentState = FINISHED;
 	    }
+	    else
+		Reinitialize();
+
 	 }
 	 else
 	    // If converged, we're done
@@ -696,14 +580,14 @@ void BatchLeastSquares::CompleteInitialization()
    
    // Find satellite state
    // TODO: Make this a loop for all owners
-   GmatBase* objID = SolveForOwners.begin();
+   GmatBase* objID = *solveForOwners.begin();
    theSat = (Spacecraft*)objID;
-   ps = theSat->GetState();
+   ps = &theSat->GetState();
    Integer n = ps->GetSize();
 
    // epoch is GMAT's A.1 modified Julian epoch
    // Set time step to be difference between epoch and time of first ob
-   epoch = theSat.GetEpoch();
+   epoch = theSat->GetEpoch();
    timeStep = y(obIndex) - epoch;
    
    // Assign weighting matrix to desired initial values
@@ -734,7 +618,7 @@ void BatchLeastSquares::CompleteInitialization()
  * Run out the nominal sequence, generating the "current" estimator data.
  */
 //------------------------------------------------------------------------------
-void BatchLeastSquares::FindTimeStep()
+Real BatchLeastSquares::FindTimeStep()
 {
    #ifdef DEBUG_STATE_MACHINE
       MessageInterface::ShowMessage("BLS propagating\n");
@@ -800,7 +684,7 @@ void BatchLeastSquares::Accumulate()
 //------------------------------------------------------------------------------
 void BatchLeastSquares::Update()
 {
-    x += estimatorStateCorrection;   
+    x = x + estimatorStateCorrection;   
 }
 
 //------------------------------------------------------------------------------
@@ -813,7 +697,7 @@ void BatchLeastSquares::Update()
 void BatchLeastSquares::Reinitialize()
 {
     // Set satellite epoch back to what it originally was
-    theSat->SetEpoch(epoch);
+    ps->SetEpoch(epoch);
     // Set the initial satellite state to updated state estimate
     // TODO:: make this general by extracting subvectors
     ps->SetState(x.addr(),6);
@@ -919,7 +803,7 @@ void BatchLeastSquares::CalculateInformationMatrix()
  * Inverts the information matrix.
  */
 //------------------------------------------------------------------------------
-void BatchLeastSquares::InvertJacobian()
+void BatchLeastSquares::InvertInformationMatrix()
 {
    // These are NOT RIGHT, just added so the code compiles
    Rmatrix info(variableCount, variableCount),
@@ -937,62 +821,6 @@ void BatchLeastSquares::InvertJacobian()
          inverseInformationMatrix(i, j) = inv(i,j);
 //         inverseInformationMatrix[i][j] = inv(i,j);
 }
-
-
-//------------------------------------------------------------------------------
-//  void FreeArrays()
-//------------------------------------------------------------------------------
-/**
- * Frees the memory used by the estimator, so it can be reused later in the
- * sequence.  This method is also called by the destructor when the script is
- * cleared.
- */
-//------------------------------------------------------------------------------
-void BatchLeastSquares::FreeArrays()
-{
-   Estimator::FreeArrays();
-
-   if (textFile.is_open())
-   {
-      textFile.flush();
-      textFile.close();
-   }
-
-   if (goal)
-   {
-      delete [] goal;
-      goal = NULL;
-   }
-
-   if (tolerance)
-   {
-      delete [] tolerance;
-      tolerance = NULL;
-   }
-
-   if (nominal)
-   {
-      delete [] nominal;
-      nominal = NULL;
-   }
-
-//   if (InformationMatrix)
-//   {
-//      for (Integer i = 0; i < variableCount; ++i)
-//         delete [] InformationMatrix[i];
-//      delete [] InformationMatrix;
-//      InformationMatrix = NULL;
-//   }
-//
-//   if (inverseInformationMatrix)
-//   {
-//      for (Integer i = 0; i < variableCount; ++i)
-//         delete [] inverseInformationMatrix[i];
-//      delete [] inverseInformationMatrix;
-//      inverseInformationMatrix = NULL;
-//   }
-}
-
 
 //------------------------------------------------------------------------------
 //  std::string GetProgressString()
@@ -1014,7 +842,8 @@ std::string BatchLeastSquares::GetProgressString()
       switch (currentState)
       {
          case INITIALIZING:
-            // This state is basically a "paused state" used for the Target
+/*
+	     // This state is basically a "paused state" used for the Target
             // command to finalize the initial data for the variables and
             // goals.  All that is written here is the header information.
             {
@@ -1052,9 +881,11 @@ std::string BatchLeastSquares::GetProgressString()
                progress << "\n****************************"
                         << "****************************";
             }
+ */
             break;
 
          case NOMINAL:
+/*
             progress << instanceName << " Iteration " << iterationsTaken+1
                      << "; Nominal Pass\n   Variables:  ";
             // Iterate through the variables, writing them to the string
@@ -1066,6 +897,7 @@ std::string BatchLeastSquares::GetProgressString()
                //progress << *current << " = " << variable[i++];
                progress << *current << " = " << variable.at(i++);
             }
+ */
             break;
 
 	    //case PERTURBING:
@@ -1075,7 +907,8 @@ std::string BatchLeastSquares::GetProgressString()
             break;
 
          case CHECKINGRUN:
-            // Iterate through the goals, writing them to the file
+/*
+	    // Iterate through the goals, writing them to the file
             progress << "   Goals and achieved values:\n      ";
 
             for (current = goalNames.begin(), i = 0;
@@ -1087,6 +920,7 @@ std::string BatchLeastSquares::GetProgressString()
                         << "  Achieved: " << nominal[i];
                ++i;
             }
+ */
 
             break;
 
@@ -1100,22 +934,25 @@ std::string BatchLeastSquares::GetProgressString()
                      << "!!! WARNING: BLS Estimator did NOT converge!"
                      << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
                      << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-
+/*
             progress << "\nFinal Variable values:\n";
             // Iterate through the variables, writing them to the string
             for (current = variableNames.begin(), i = 0;
                  current != variableNames.end(); ++current)
                //progress << "   " << *current << " = " << variable[i++] << "\n";
                progress << "   " << *current << " = " << variable.at(i++) << "\n";
-            break;
+ */
+
+	    break;
 
          case ITERATING:     // Intentional fall through
-
+/*
             progress << "   Completed iteration " << iterationsTaken
                      << ", pert " << pertNumber+1 << " ("
                      << variableNames[pertNumber] << " = "
                      << variable.at(pertNumber) << ")\n";
                      //<< variable[pertNumber] << ")\n";
+ */
             break;
 
          default:
@@ -1147,6 +984,7 @@ void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
       switch (currentState)
       {
          case INITIALIZING:
+/*	     
             // This state is basically a "paused state" used for the Target
             // command to finalize the initial data for the variables and
             // goals.  All that is written here is the header information.
@@ -1184,10 +1022,12 @@ void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
                         << "****************************\n"
                         << std::endl;
             }
+ */
             break;
 
          case NOMINAL:
-            textFile << "Iteration " << iterationsTaken+1
+/*
+	     textFile << "Iteration " << iterationsTaken+1
                      << "\nRunning Nominal Pass\nVariables:\n   ";
             // Iterate through the variables, writing them to the file
             for (current = variableNames.begin(), i = 0;
@@ -1197,10 +1037,12 @@ void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
                textFile << *current << " = " << variable.at(i++) << "\n   ";
             }
             textFile << std::endl;
-            break;
+ */
+	    break;
 
          case PERTURBING:
-            if ((textFileMode == "Verbose") || (textFileMode == "Debug"))
+/*
+	     if ((textFileMode == "Verbose") || (textFileMode == "Debug"))
             {
                if (pertNumber != 0)
                {
@@ -1234,11 +1076,13 @@ void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
                         << debugString << "\n"
                         << "------------------------------------------------\n";
             }
+ */
 
             break;
 
          case CALCULATING:
-            if (textFileMode == "Verbose")
+/*
+	     if (textFileMode == "Verbose")
             {
                textFile << "Calculating" << std::endl;
 
@@ -1284,10 +1128,12 @@ void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
                textFile << *current << " = " << variable.at(i++) << "\n   ";
             }
             textFile << std::endl;
+ */
             break;
 
          case CHECKINGRUN:
-            // Iterate through the goals, writing them to the file
+/*
+	     // Iterate through the goals, writing them to the file
             textFile << "Goals and achieved values:\n   ";
 
             for (current = goalNames.begin(), i = 0;
@@ -1303,12 +1149,13 @@ void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
             textFile << "\n*****************************"
                      << "***************************\n"
                      << std::endl;
+ */
             break;
 
          case FINISHED:
             textFile << "\n****************************"
                      << "****************************\n"
-                     << "*** Targeting Completed in " << iterationsTaken
+                     << "*** BatchLeastSquares Completed in " << iterationsTaken
                      << " iterations"
                      << "\n****************************"
                      << "****************************\n"

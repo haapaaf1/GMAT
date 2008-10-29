@@ -1060,6 +1060,17 @@ void Estimator::CheckCompletion()
 }
 
 //------------------------------------------------------------------------------
+//  void Accumulate()
+//------------------------------------------------------------------------------
+/**
+ * Computes the difference between observed and computed quantities and partials.
+ */
+//------------------------------------------------------------------------------
+void Estimator::Accumulate()
+{
+}
+
+//------------------------------------------------------------------------------
 //  void Update()
 //------------------------------------------------------------------------------
 /**
@@ -1106,65 +1117,6 @@ void Estimator::RunComplete()
 std::string Estimator::GetProgressString()
 {
    return "Estimator progress string not yet implemented for " + typeName;
-}
-
-//------------------------------------------------------------------------------
-//  void FreeArrays()
-//------------------------------------------------------------------------------
-/**
- * Frees the memory used by the targeter, so it can be reused later in the
- * sequence.  This method is also called by the destructor when the script is
- * cleared.
- */
-//------------------------------------------------------------------------------
-void Estimator::FreeArrays()
-{
-   /*
-   if (textFile.is_open())
-   {
-      textFile.flush();
-      textFile.close();
-   }
-
-   if (variable)
-   {
-      delete [] variable;
-      variable = NULL;
-   }
-
-    if (perturbation)
-   {
-      delete [] perturbation;
-      perturbation = NULL;
-   }
-
-   if (variableMinimum)
-   {
-      delete [] variableMinimum;
-      variableMinimum = NULL;
-   }
-
-   if (variableMaximum)
-   {
-      delete [] variableMaximum;
-      variableMaximum = NULL;
-   }
-
-   if (variableMaximumStep)
-   {
-      delete [] variableMaximumStep;
-      variableMaximumStep = NULL;
-   }
-   */
-   //variableNames.clear(); // ????
-   variable.clear();
-   perturbation.clear();
-   variableMinimum.clear();
-   variableMaximum.clear();
-   variableMaximumStep.clear();
-   pertDirection.clear();
-
-   Solver::FreeArrays();
 }
 
 /// For nonlinear systems, we need to define a function f that
