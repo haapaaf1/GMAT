@@ -27,6 +27,7 @@
 #include "Spacecraft.hpp"
 #include "RealUtilities.hpp" // For sin, cos, etc etc
 #include "lapackpp.h"
+#include "MeasurementModelException.hpp"
 
 class GMAT_API MeasurementModel : public GmatBase
 {
