@@ -26,7 +26,7 @@
 //  MeasurementModelException(std::string details)
 //------------------------------------------------------------------------------
 /**
- * Constructs CommandException instance (default constructor).
+ * Constructs MeasurementModelException instance (default constructor).
  * 
  * @param details A message providing the details of the exception. 
  */
@@ -53,7 +53,7 @@ MeasurementModelException::~MeasurementModelException()
 //  CommandException(const CommandException &ce)
 //------------------------------------------------------------------------------
 /**
- * Constructs CommandException instance (copy constructor). 
+ * Constructs MeasurementModelException instance (copy constructor). 
  */
 //------------------------------------------------------------------------------
 MeasurementModelException::MeasurementModelException(const MeasurementModelException &mme) :
