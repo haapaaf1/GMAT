@@ -690,13 +690,8 @@ void BatchLeastSquares::Accumulate()
        LaGenMatDouble thisH(m,6);
        current->ComputeCartesianPartialDerivative(theGroundStation,theSat,thisH);
        
-       // Construct H matrix       
-       Integer i = obIndex+m*observerIndex;
-       Integer j = i+m;
-       H(LaIndex(i,j),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
+       H(LaIndex(obIndex,obIndex+m),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
        
-       // Increment observer Index
-       observerIndex++;
    }
    
    
@@ -704,7 +699,7 @@ void BatchLeastSquares::Accumulate()
 
       if (obIndex < observationCount)
    {
-	++obIndex;
+	obIndex += m;
 	moreData = true;
    }
    else
