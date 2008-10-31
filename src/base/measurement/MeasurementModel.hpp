@@ -58,15 +58,15 @@ public:
   // Compute measurements
   virtual bool ComputeMeasurement(ObjectArray participants, 
 				  LaVectorDouble &myMeasurements);
-  virtual bool ComputeMeasurement(GroundStation *theStation,
-        Spacecraft *theSat, LaVectorDouble &myMeasurements);
+  virtual bool ComputeMeasurement(GroundStation* theStation,
+        Spacecraft* theSat, LaVectorDouble &myMeasurements);
  
   // Compute partial derivatives
   virtual bool ComputeCartesianPartialDerivative(ObjectArray participants, 
 				  LaGenMatDouble &myMeasurements);
 
    virtual bool ComputeCartesianPartialDerivative(
-        GroundStation *theStation, Spacecraft *theSat,
+        GroundStation* theStation, Spacecraft* theSat,
         LaGenMatDouble &myCartDerivatives);
 
 

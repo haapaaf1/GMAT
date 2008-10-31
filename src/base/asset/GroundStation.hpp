@@ -27,6 +27,10 @@
 #include "CoordinateConverter.hpp"
 
 
+// Forward reference
+class MeasurementModel;
+
+
 class GroundStation : public BodyFixedPoint
 {
 public:
@@ -40,6 +44,9 @@ public:
 
 
    virtual bool            Initialize();
+   
+   void SetMeasurementModel(MeasurementModel* mm);
+   MeasurementModel* GetMeasurementModel();
    
 protected:
    
@@ -63,6 +70,9 @@ protected:
                            const std::string &useName = "");
    virtual void         WriteParameters(Gmat::WriteMode mode, 
                            std::string &prefix, std::stringstream &stream);
+   
+   MeasurementModel  *measModel;
+   
 };
 
 #endif /*GroundStation_hpp*/

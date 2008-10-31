@@ -338,3 +338,35 @@ void GroundStation::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       }
    }
 }
+
+//------------------------------------------------------------------------------
+// void SetMeasurementModel(Measurement* mm)
+//------------------------------------------------------------------------------
+/**
+ * Set the measurement model for this ground station.
+ *
+ * @param mm The measurement model that is assigned.
+ */
+//------------------------------------------------------------------------------
+void GroundStation::SetMeasurementModel(MeasurementModel* mm)
+{
+    measModel = mm;
+}
+
+//------------------------------------------------------------------------------
+// MeasurementModel* GetMeasurementModel()
+//------------------------------------------------------------------------------
+/**
+ * Return the measurement model for this ground station.
+ *
+ * @return A pointer to the measurement model.
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* GroundStation::GetMeasurementModel()
+{
+    return measModel;
+}
+
+
+
+

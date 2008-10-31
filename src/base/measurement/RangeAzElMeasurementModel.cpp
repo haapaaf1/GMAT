@@ -106,6 +106,8 @@ bool RangeAzElMeasurementModel::Initialize()
 //            "Retrieved spin rate is %.12lf; should be about 7.29211585530e-5\n", 
 //            spinRate);
 //   }
+    
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -184,16 +186,6 @@ bool RangeAzElMeasurementModel::Initialize()
 
     Real mag_rangeSEZ = rangeSEZ.GetMagnitude();
     
-    // Compute range rate for the case where elevation is 90 degrees
-    // exactly and computing azimuth goes singular
-    Rvector3 rangeRateSEZ;   
-    rangeRateSEZ(1) = vrel(0)*rotMat(0,0) + vrel(1)*rotMat(0,1) + 
-		      vrel(2)*rotMat(0,2);
-    rangeRateSEZ(2) = vrel(0)*rotMat(1,0) + vrel(1)*rotMat(1,1) + 
-		      vrel(2)*rotMat(1,2);
-    rangeRateSEZ(3) = vrel(0)*rotMat(2,0) + vrel(1)*rotMat(2,1) + 
-		      vrel(2)*rotMat(2,2);
-
     // Compute elevation angle
     Real el = GmatMathUtil::ASin( rangeSEZ(2), mag_rangeSEZ );
     el = GetDegree(el,0.0,GmatMathUtil::TWO_PI); 
@@ -205,6 +197,16 @@ bool RangeAzElMeasurementModel::Initialize()
     Real az = 0.0;
     if (el == GmatMathUtil::PI_OVER_TWO)
     {
+        // Compute range rate for the case where elevation is 90 degrees
+	// exactly and computing azimuth goes singular
+	Rvector3 rangeRateSEZ;   
+	rangeRateSEZ(1) = vrel(0)*rotMat(0,0) + vrel(1)*rotMat(0,1) + 
+		      vrel(2)*rotMat(0,2);
+	rangeRateSEZ(2) = vrel(0)*rotMat(1,0) + vrel(1)*rotMat(1,1) + 
+		      vrel(2)*rotMat(1,2);
+	rangeRateSEZ(3) = vrel(0)*rotMat(2,0) + vrel(1)*rotMat(2,1) + 
+		      vrel(2)*rotMat(2,2);
+
 	az = GmatMathUtil::ASin(rangeRateSEZ(2),GmatMathUtil::Sqrt(rangeRateSEZ(1)*
      		   rangeRateSEZ(1)+rangeRateSEZ(2)*rangeRateSEZ(2)));
     }
