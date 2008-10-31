@@ -22,6 +22,8 @@
 #define RangeAzElMeasurementModel_hpp
 
 #include "MeasurementModel.hpp"
+#include "CoordinateConverter.hpp"
+#include "BodyFixedAxes.hpp"
 
 class GMAT_API RangeAzElMeasurementModel : public MeasurementModel
 {
@@ -31,12 +33,14 @@ public:
    RangeAzElMeasurementModel& operator=(const RangeAzElMeasurementModel &raeModel);
    virtual ~RangeAzElMeasurementModel();
 
+   void Initialize() const;
+   
    GmatBase *Clone() const;
 
-   bool ComputeCartesianPartialDerivative(GroundStation &theStation,
-          Spacecraft &theSat, Rvector &myCartDerivatives);
-   bool ComputeMeasurement(GroundStation &theStation, Spacecraft &theSat,
-          Rvector &myMeasurements);
+   bool ComputeMeasurement(GroundStation *theStation, Spacecraft *theSat,
+          LaVectorDouble &myMeasurements);
+   bool ComputeCartesianPartialDerivative(GroundStation *theStation,
+          Spacecraft *theSat, LaGenMatDouble &myCartDerivatives);
 
 private:
 

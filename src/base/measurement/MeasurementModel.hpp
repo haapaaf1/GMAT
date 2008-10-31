@@ -25,6 +25,7 @@
 #include "StateConverter.hpp"
 #include "GroundStation.hpp"
 #include "Spacecraft.hpp"
+#include "RealUtilities.hpp" // For sin, cos, etc etc
 #include "lapackpp.h"
 
 class GMAT_API MeasurementModel : public GmatBase
@@ -41,7 +42,8 @@ public:
   friend std::ostream& operator<<(std::ostream& output, MeasurementModel &mm);
   friend std::istream& operator>>(std::istream& input, MeasurementModel &mm);
 
-
+  virtual void Initialize() const;
+  
   const std::string* GetModelDescriptions() const;
   std::string GetModelNameText(const Integer &id) const;
   Integer GetModelID(const std::string &label);
@@ -53,11 +55,19 @@ public:
   std::string GetMeasurementUnitText(Integer id) const;
   const Real* GetMeasurements() const;
 
-  virtual bool ComputeMeasurement(GroundStation &theStation,
-        Spacecraft &theSat, LaVectorDouble &myMeasurements);
-  virtual bool ComputeCartesianPartialDerivative(
-        GroundStation &theStation, Spacecraft &theSat,
-        LaVectorDouble &myCartDerivatives);
+  // Compute measurements
+  virtual bool ComputeMeasurement(ObjectArray participants, 
+				  LaVectorDouble &myMeasurements);
+  virtual bool ComputeMeasurement(GroundStation *theStation,
+        Spacecraft *theSat, LaVectorDouble &myMeasurements);
+ 
+  // Compute partial derivatives
+  virtual bool ComputeCartesianPartialDerivative(ObjectArray participants, 
+				  LaGenMatDouble &myMeasurements);
+
+   virtual bool ComputeCartesianPartialDerivative(
+        GroundStation *theStation, Spacecraft *theSat,
+        LaGenMatDouble &myCartDerivatives);
 
 
 private:
@@ -105,6 +115,8 @@ protected:
 
   CoordinateConverter ccvtr;
 
+  Real GetDegree(const Real angle, const Real minAngle, 
+			    const Real maxAngle);
 
 };
 

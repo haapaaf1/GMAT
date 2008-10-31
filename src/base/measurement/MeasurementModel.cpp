@@ -122,6 +122,20 @@ std::istream& operator>>(std::istream& input, MeasurementModel &mm)
     return input;
 }
 
+// Initialize
+
+//------------------------------------------------------------------------------
+// Integer Initialize() const
+//------------------------------------------------------------------------------
+/**
+ * Initializes the measurement model.
+ */
+//------------------------------------------------------------------------------
+void MeasurementModel::Initialize() const
+{
+    CoordinateConverter ccvtr;  
+}
+
 // Accessors
 
 //------------------------------------------------------------------------------
@@ -288,6 +302,23 @@ std::string MeasurementModel::GetModelNameText(const Integer &id) const
 
    return "INVALID";
 }
+
+//------------------------------------------------------------------------------
+// Integer ComputeMeasurement(ObjectArray participants,
+//			      const LaVectorDouble &myMeasurements);
+//------------------------------------------------------------------------------
+/**
+ * Code used to simulate measurements between a ground station and a
+ * spacecraft. The model returns true if a vector of measurments at
+ * the time of the spacecraft state was successfully computed.
+ */
+//------------------------------------------------------------------------------
+bool MeasurementModel::ComputeMeasurement(ObjectArray participants,
+					  LaVectorDouble &myMeasurements)
+{
+      return false;
+}
+
 //------------------------------------------------------------------------------
 // Integer ComputeMeasurement(const GroundStation &theStation,
 //		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
@@ -298,15 +329,15 @@ std::string MeasurementModel::GetModelNameText(const Integer &id) const
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-bool MeasurementModel::ComputeMeasurement(GroundStation &theStation,
-      Spacecraft &theSat, LaVectorDouble &myMeasurements)
+bool MeasurementModel::ComputeMeasurement(GroundStation *theStation,
+      Spacecraft *theSat, LaVectorDouble &myMeasurements)
 {
       return false;
 }
 
 //------------------------------------------------------------------------------
-// Integer ComputeCartesianPartialDerivative(const GroundStation &theStation,
-//		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
+// Integer ComputeCartesianPartialDerivative(ObjectArray participants, 
+		const LaGenMatDouble &myMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurement derivatives with respect to the estimator
@@ -315,8 +346,41 @@ bool MeasurementModel::ComputeMeasurement(GroundStation &theStation,
  */
 //------------------------------------------------------------------------------
 bool MeasurementModel::ComputeCartesianPartialDerivative(
-      GroundStation &theStation, Spacecraft &theSat, LaVectorDouble &myCartDerivatives)
+	    ObjectArray participants, LaGenMatDouble &myCartDerivatives)
 {
     return false;
 }
 
+//------------------------------------------------------------------------------
+// Integer ComputeCartesianPartialDerivative(const GroundStation &theStation,
+//		const Spacecraft &theSat, const LaGenMatDouble &myMeasurements);
+//------------------------------------------------------------------------------
+/**
+ * Code used to simulate measurement derivatives with respect to the estimator
+ * state. The code returns true if the partial derivatives were successfully
+ * computed.
+ */
+//------------------------------------------------------------------------------
+bool MeasurementModel::ComputeCartesianPartialDerivative(
+      GroundStation *theStation, Spacecraft *theSat, LaGenMatDouble &myCartDerivatives)
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// Real MeasurementModel::GetDegree(const Real angle, const Real minAngle, 
+//                           const Real maxAngle) 
+//------------------------------------------------------------------------------
+Real MeasurementModel::GetDegree(const Real angle, const Real minAngle, 
+                          const Real maxAngle) 
+{
+   Real angleInRange = GmatMathUtil::Mod(angle,GmatMathUtil::TWO_PI);
+   
+   if (angleInRange < minAngle)
+      angleInRange += GmatMathUtil::TWO_PI;
+
+   else if (angleInRange > maxAngle)
+      angleInRange -= GmatMathUtil::TWO_PI;
+
+   return GmatMathUtil::Deg(angleInRange);
+}

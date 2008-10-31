@@ -19,6 +19,7 @@
 //------------------------------------------------------------------------------
 
 #include "RangeMeasurementModel.hpp"
+#include "Rvector6.hpp"
 
 RangeMeasurementModel::RangeMeasurementModel(const std::string name) :
    MeasurementModel        ("Range", name)
@@ -50,9 +51,23 @@ GmatBase *RangeMeasurementModel::Clone() const
    return new RangeMeasurementModel(*this);
 }
 
+// Initialize
+
+//------------------------------------------------------------------------------
+// Integer Initialize() const
+//------------------------------------------------------------------------------
+/**
+ * Initializes the measurement model.
+ */
+//------------------------------------------------------------------------------
+void RangeMeasurementModel::Initialize() const
+{
+
+}
+
 //------------------------------------------------------------------------------
 // Integer ComputeMeasurement(const GroundStation &theStation,
-//		const Spacecraft &theSat, const Rvector &myMeasurements);
+//		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurements between a ground station and a
@@ -61,29 +76,29 @@ GmatBase *RangeMeasurementModel::Clone() const
  */
 //------------------------------------------------------------------------------
 bool RangeMeasurementModel::ComputeMeasurement(
-      GroundStation &theStation, Spacecraft &theSat, Rvector &myMeasurements)
+      GroundStation *theStation, Spacecraft *theSat, LaVectorDouble &myMeasurements)
 {
 
     // GMAT's A.1 modified Julian epoch
-    Real epoch = theSat.GetEpoch();
+    Real epoch = theSat->GetEpoch();
 
     // The satellite state in MJ2000 Cartesian coordinates
-    Rvector6 satState = theSat.GetMJ2000State(epoch);
+    Rvector6 satState = theSat->GetMJ2000State(epoch);
 
     // The groundstation position and velocity in MJ2000 Cartesian coordinates
-    Rvector6  gsState = theStation.GetMJ2000State(epoch);
+    Rvector6 gsState = theStation->GetMJ2000State(epoch);
 
     Rvector6 range = satState-gsState;
 
-    myMeasurements.Set(1,range.GetMagnitude());
+    myMeasurements(0) = range.GetMagnitude();
 
     return true;
 
 }
 
 //------------------------------------------------------------------------------
-// Integer ComputeCartesianPartialDerivative(const GroundStation &theStation,
-//		const Spacecraft &theSat, const Rvector &myMeasurements);
+// bool ComputeCartesianPartialDerivative(const GroundStation &theStation,
+//		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurement derivatives with respect to the estimator
@@ -92,21 +107,37 @@ bool RangeMeasurementModel::ComputeMeasurement(
  */
 //------------------------------------------------------------------------------
 bool RangeMeasurementModel::ComputeCartesianPartialDerivative(
-      GroundStation &theStation, Spacecraft &theSat, Rvector &myCartDerivatives)
+      GroundStation *theStation, Spacecraft *theSat, LaGenMatDouble &myCartDerivatives)
 {
+    
+    if (myCartDerivatives.size(0) < 6)
+	return false;
+    
     // GMAT's A.1 modified Julian epoch
-    Real epoch = theSat.GetEpoch();
+    Real epoch = theSat->GetEpoch();
 
     // The satellite state in MJ2000 Cartesian coordinates
-    Rvector6 satState = theSat.GetMJ2000State(epoch);
+    Rvector6 satState = theSat->GetMJ2000State(epoch);
 
-    // Get position (X, Y, Z)
-    Real posX = satState.Get(0);
-    Real posY = satState.Get(1);
-    Real posZ = satState.Get(2);
+    // The groundstation position and velocity in MJ2000 Cartesian coordinates
+    Rvector6 gsState = theStation->GetMJ2000State(epoch);
 
+    Rvector6 range = satState-gsState;
+    
+    Real rangeMag = range.GetMagnitude();
 
-
-    return false;
+    if (rangeMag > 0) {
+        myCartDerivatives(0,0) = range(0)/rangeMag;
+	myCartDerivatives(0,1) = range(1)/rangeMag;
+	myCartDerivatives(0,2) = range(2)/rangeMag;
+	myCartDerivatives(0,3) = 0;
+	myCartDerivatives(0,4) = 0;
+	myCartDerivatives(0,5) = 0;
+	return true;
+    }
+    else
+    {
+	return false;
+    }
 }
 

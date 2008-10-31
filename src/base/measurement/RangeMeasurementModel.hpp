@@ -22,6 +22,7 @@
 #define	_RANGEMEASUREMENTMODEL_HPP
 
 #include "MeasurementModel.hpp"
+#include "CoordinateConverter.hpp"
 
 class GMAT_API RangeMeasurementModel : public MeasurementModel
 {
@@ -31,11 +32,13 @@ public:
     RangeMeasurementModel& operator=(const RangeMeasurementModel &RMM);
     virtual ~RangeMeasurementModel();
 
-    virtual bool ComputeMeasurement(GroundStation &theStation,
-          Spacecraft &theSat, Rvector &myMeasurements);
+    void Initialize() const;
+    
+    virtual bool ComputeMeasurement(GroundStation *theStation,
+          Spacecraft *theSat, LaVectorDouble &myMeasurements);
     virtual bool ComputeCartesianPartialDerivative(
-          GroundStation &theStation, Spacecraft &theSat,
-          Rvector &myCartDerivatives);
+          GroundStation *theStation, Spacecraft *theSat,
+          LaGenMatDouble &myCartDerivatives);
 
 
     virtual GmatBase *Clone() const;
