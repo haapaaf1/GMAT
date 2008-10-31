@@ -241,6 +241,8 @@ void TopocentricAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    radius           = centralBody->GetEquatorialRadius();
    bfcs             = bfPoint->GetBodyFixedCoordinateSystem();
    horizonReference = bfPoint->GetStringParameter("HorizonReference");
+   latitudeGeometry = bfPoint->GetStringParameter("LatitudeGeometry");
+   
    if ((horizonReference != "Sphere") && (horizonReference != "Ellipsoid"))
    {
       std::string errMsg = "Unexpected horizon reference \"";
@@ -249,6 +251,15 @@ void TopocentricAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       throw CoordinateSystemException(errMsg);
    }
 
+   if ((latitudeGeometry != "Geodetic") && (latitudeGeometry != "Geocentric")
+	   && (latitudeGeometry != "Reduced"))
+   {
+      std::string errMsg = "Unexpected latitude geometry \"";
+      errMsg += horizonReference + "\" received from BodyFixedPoint \"";
+      errMsg += bfPoint->GetName() + "\"";
+      throw CoordinateSystemException(errMsg);
+   }
+   
    // compute rotMatrix and rotDotMatrix
    // First, calculate the Rft matrix, if the position has changed
    Rvector3 newLoc  = bfPoint->GetBodyFixedLocation(atEpoch);
@@ -368,50 +379,21 @@ void TopocentricAxes::CalculateRFT(const A1Mjd &atEpoch, const Rvector3 newLocat
       zUnit = bfLocation.GetUnitVector();
    else // "Ellipsoid"
    {
-      Real rxy      = GmatMathUtil::Sqrt(x*x + y*y);
-      // Calculate the geocentric latitude to use as an initial guess 
-      // to find the geodetic latitude
-      Real phigd    = atan2(z, rxy);
-      Real eSquared = 2 * flattening - (flattening * flattening);
-      Real phiPrime, C, divided, bfLong;
 
-      #ifdef DEBUG_TOPOCENTRIC_AXES
-         MessageInterface::ShowMessage(
-               "rxy = %12.17f      phigd = %12.17f    eSquared = %12.17f  \n",
-               rxy, phigd, eSquared);
-      #endif
-      // Initialize the loop and iterate to find the geodetic latitude
-      Real delta  = 1.0;
-      while (delta > 1.0e-11)
-      {
-         phiPrime = phigd;
-         C        = radius / GmatMathUtil::Sqrt(1 - eSquared *
-                    (GmatMathUtil::Sin(phiPrime) * GmatMathUtil::Sin(phiPrime)));
-         divided  = (z + (C * eSquared * GmatMathUtil::Sin(phiPrime))) /rxy;
-         phigd    = atan(divided);
-         #ifdef DEBUG_TOPOCENTRIC_AXES
-            MessageInterface::ShowMessage(
-                  "In the loop, delta = %12.17f   phiPrime = %12.17f    C = %12.17f\n",
-                  delta, phiPrime, C);
-            MessageInterface::ShowMessage(
-                  "In the loop, divided = %12.17f   phigd = %12.17f\n",
-                  divided, phigd);
-         #endif
-         delta    = GmatMathUtil::Abs(phigd - phiPrime);
-      }
-      // Compute the longitude of the BodyFixedPoint location
-      bfLong = atan2(y,x);
-      #ifdef DEBUG_TOPOCENTRIC_AXES
-         MessageInterface::ShowMessage(
-               "At the end of the loop, delta = %12.17f\n",
-               delta);
-         MessageInterface::ShowMessage(
-               "After the loop, bfLong = %12.17f\n",
-               bfLong);
-      #endif
-      zUnit[0]    = GmatMathUtil::Cos(phigd) * GmatMathUtil::Cos(bfLong);
-      zUnit[1]    = GmatMathUtil::Cos(phigd) * GmatMathUtil::Sin(bfLong);
-      zUnit[2]    = GmatMathUtil::Sin(phigd);
+	Rvector3 myPos(x,y,z);
+
+	// This computes the geodectic latitude, longitude, and height above the ellipsoid
+	LatLonHgt myCoords(myPos,radius,flattening);
+	// This converts to geocentric latitude
+	myCoords.GeodeticToGeocentricLat(flattening);
+  
+	Real phigc = myCoords.GetLatitude();
+	Real bfLong = myCoords.GetLongitude();
+	
+	zUnit[0]    = GmatMathUtil::Cos(phigc) * GmatMathUtil::Cos(bfLong);
+	zUnit[1]    = GmatMathUtil::Cos(phigc) * GmatMathUtil::Sin(bfLong);
+	zUnit[2]    = GmatMathUtil::Sin(phigc);
+	
    }
    // Complete the computation of x, y, and RFT
    yUnit          = Cross(kUnit, zUnit);

@@ -29,6 +29,7 @@
 #include "AxisSystem.hpp"
 #include "DynamicAxes.hpp"
 #include "BodyFixedPoint.hpp"
+#include "LatLonHgt.hpp"
 
 class GMAT_API TopocentricAxes : public DynamicAxes
 {
@@ -66,6 +67,7 @@ protected:
    CelestialBody    *centralBody;
    std::string      itsBodyName;
    std::string      horizonReference;
+   std::string	    latitudeGeometry;
    Real             flattening;
    Real             radius;
    Rmatrix33        RFT;
