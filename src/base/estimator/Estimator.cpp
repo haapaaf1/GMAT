@@ -161,8 +161,8 @@ Estimator::Estimator(const Estimator &est) :
    participantNames        (est.participantNames),
    participants            (est.participants),
    measModelNames          (est.measModelNames),
-   measModels              (est.measModels),
-   solveForParms           (est.solveForParms)
+   solveForParms           (est.solveForParms),
+   measModels              (est.measModels)
 {
    #ifdef DEBUG_ESTIMATOR_INIT
       MessageInterface::ShowMessage(
@@ -1032,8 +1032,9 @@ void Estimator::CompleteInitialization()
  * Computes the estimator gain.
  */
 //------------------------------------------------------------------------------
-LaGenMatDouble& Estimator::ComputeGain()
+LaGenMatDouble Estimator::ComputeGain()
 {
+    return LaGenMatDouble::zeros(stateCount,observationTypeCount);
 }
 
 //------------------------------------------------------------------------------
@@ -1045,6 +1046,7 @@ LaGenMatDouble& Estimator::ComputeGain()
 //------------------------------------------------------------------------------
 Real Estimator::FindTimeStep()
 {
+    return 0.0;
 }
 
 //------------------------------------------------------------------------------
@@ -1155,22 +1157,22 @@ LaVectorDouble Estimator::h(StringArray observationTypes, LaVectorDouble x, LaVe
 }
 
 /// H is a function that computes the Jacobian of y w.r.t. x
-LaGenMatDouble Estimator::H()
+LaGenMatDouble Estimator::ComputeH()
 {
   return LaGenMatDouble::eye(observationTypeCount,stateCount);
 }
-LaGenMatDouble Estimator::H(LaVectorDouble x, Real t0)
+LaGenMatDouble Estimator::ComputeH(LaVectorDouble x, Real t0)
 {
   return LaGenMatDouble::eye(observationTypeCount,stateCount);
 }
 
 /// Phi is a function that computes the Jacobian of f w.r.t. x
-LaGenMatDouble Estimator::Phi()
+LaGenMatDouble Estimator::ComputePhi()
 {
     return LaGenMatDouble::eye(stateCount);
 }
 
-LaGenMatDouble Estimator::Phi(LaVectorDouble x, Real t0)
+LaGenMatDouble Estimator::ComputePhi(LaVectorDouble x, Real t0)
 {
     return LaGenMatDouble::eye(stateCount);
 }

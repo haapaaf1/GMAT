@@ -25,7 +25,18 @@
 #include "GmatBase.hpp"
 #include "Solver.hpp"
 #include "EstimatorException.hpp"
-#include "lapackpp.h"
+// For matrix and vector definitions
+#include "lapackpp.h" 
+// Blas Level-1 Routines: Vector-Scalar and Vector-Vector operations
+#include "blas1pp.h"
+// Blas Level-2 Routines: Vector-Matrix operations
+#include "blas2pp.h"
+// Blas Level-3 Routines: Matrix-Matrix operations and Matrix norms
+#include "blas3pp.h"
+// Functions for solving systems of equations
+#include "laslv.h"
+// Singular value decomposition
+#include "lasvd.h"
 
 using namespace la;
 
@@ -238,14 +249,21 @@ protected:
    /// Typically this matrix is diagonal with values equal to
    /// 1 over the error variance associated with each state.
    LaGenMatDouble             W;
-   /// Current covariance matrix
+   /// Current covariance matrix - symmetric, positive definite
    LaGenMatDouble             P;
    /// Variance of the model error known as process noise used for filtering
    LaGenMatDouble             Q;
-   /// Variance of the observation noise typically used for weighting purposes
+   /// Variance of the measurement noise typically used for weighting purposes
    LaGenMatDouble             R;
    // Estimator gain
    LaGenMatDouble	      K;
+
+   // Information matrix - symmetric, positive definite
+   LaGenMatDouble            informationMatrix;
+   /// H is the Jacobian of y w.r.t. x
+   LaGenMatDouble	H;
+   /// Phi is the Jacobian of f w.r.t. x
+   LaGenMatDouble	Phi;
    
    
    // Cost function evaluation
@@ -259,16 +277,20 @@ protected:
    StringArray		observationTypes;
    /// Vector of observations
    LaVectorDouble	y;
+   /// Vector containing differences between observed and computed measurements
+   LaVectorDouble	z;
    /// Vector of observation times in GMAT's A.1 modified Julian date
    LaVectorDouble	observationTimes;
    /// The number of observations in the estimator problem
    Integer		observationCount;
-       // Current observation index that is being processed
+   // Current observation index that is being processed
    Integer		obIndex;
    /// The number of observation types in the estimator problem
    Integer		observationTypeCount;
    /// The number of observation stations in the estimator problem
    Integer		observerCount;
+   // Index of which observer we are working with
+   Integer		observerIndex;
    /// List of names of observation stations
    StringArray		stationNames;
 
@@ -297,12 +319,12 @@ protected:
    virtual LaVectorDouble h(StringArray observationTypes, LaVectorDouble x, LaVectorDouble u, Real t1);
 
    /// H is a function that computes the Jacobian of y w.r.t. x
-   virtual LaGenMatDouble H();
-   virtual LaGenMatDouble H(LaVectorDouble x, Real t0);
+   virtual LaGenMatDouble ComputeH();
+   virtual LaGenMatDouble ComputeH(LaVectorDouble x, Real t0);
 
    /// Phi is a function that computes the Jacobian of f w.r.t. x
-   virtual LaGenMatDouble Phi();
-   virtual LaGenMatDouble Phi(LaVectorDouble x, Real t0);
+   virtual LaGenMatDouble ComputePhi();
+   virtual LaGenMatDouble ComputePhi(LaVectorDouble x, Real t0);
 
 
 
@@ -395,7 +417,7 @@ protected:
    virtual void        CompleteInitialization();
    virtual void        Accumulate();
    virtual void        Update();
-   virtual LaGenMatDouble&        ComputeGain();
+   virtual LaGenMatDouble        ComputeGain();
    virtual void        Reinitialize();
    virtual void        CheckCompletion();
    virtual void        RunComplete();

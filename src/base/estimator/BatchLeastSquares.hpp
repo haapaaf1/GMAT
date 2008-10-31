@@ -24,6 +24,8 @@
 #include "Solver.hpp"
 #include "Estimator.hpp"
 #include "Spacecraft.hpp"
+#include "GroundStation.hpp"
+#include "MeasurementModel.hpp"
 #include <fstream>          // for std::ofstream
 
 /**
@@ -81,6 +83,7 @@ protected:
     // TODO: Make this general for any number of satellites
     Spacecraft* theSat;
     PropState* ps;
+    GroundStation* theGroundStation;
     
    // Parameter IDs
    enum

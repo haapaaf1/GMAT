@@ -441,6 +441,12 @@ bool BatchLeastSquares::Initialize()
    // Initialize stateCount to zero
    stateCount = 0;
    
+   // Initialize observer count to zero
+   observerCount = 0;
+   
+   // Initialize observer index to zero
+   observerIndex = 0;   
+   
    // Set index of observation to be processed to zero
    obIndex = 0;
    
@@ -584,6 +590,20 @@ void BatchLeastSquares::CompleteInitialization()
    theSat = (Spacecraft*)objID;
    ps = &theSat->GetState();
    Integer n = ps->GetSize();
+   
+   // Get stations involved in this
+   for (ObjectArray::iterator j = participants.begin();
+           j != participants.end(); ++j)
+   {
+	if ((*j)->IsOfType(Gmat::GROUND_STATION))
+        {
+   
+	    // TODO: Make this work for any number of ground stations
+	    // We found an observer so increment observerCount
+	    observerCount++;
+	    theGroundStation = (GroundStation*)*j;
+	}
+   }
 
    // epoch is GMAT's A.1 modified Julian epoch
    // Set time step to be difference between epoch and time of first ob
@@ -612,7 +632,7 @@ void BatchLeastSquares::CompleteInitialization()
    currentState = PROPAGATING;
 }
 //------------------------------------------------------------------------------
-//  void FindTimeStep()
+//  Real FindTimeStep()
 //------------------------------------------------------------------------------
 /**
  * Run out the nominal sequence, generating the "current" estimator data.
@@ -634,6 +654,8 @@ Real BatchLeastSquares::FindTimeStep()
    timeStep = (observationTimes(obIndex+1) - observationTimes(obIndex))*86400.0;
    
    currentState = CALCULATING;
+   
+   return timeStep;
 }
 
 
@@ -652,8 +674,30 @@ void BatchLeastSquares::Accumulate()
 
    bool moreData = false;
     
-   // TODO: Add accumulation here
-
+   // Compute observed minus computed measurement
+   for (std::vector<MeasurementModel*>::iterator i = measModels.begin(); i != measModels.end(); ++i)
+   {
+       MeasurementModel *current = *i;
+       Integer m = current->GetNumMeasurements();
+       LaVectorDouble ycomputed(m);
+       
+       if(current->ComputeMeasurement(theGroundStation,theSat,ycomputed))
+       {
+	    z(LaIndex(obIndex,obIndex+m)) = y(LaIndex(obIndex,obIndex+m))-ycomputed;
+       }
+       
+       // Get partial derivatives
+       LaGenMatDouble thisH(m,6);
+       current->ComputeCartesianPartialDerivative(theGroundStation,theSat,thisH);
+       
+       // Construct H matrix       
+       Integer i = obIndex+m*observerIndex;
+       Integer j = i+m;
+       H(LaIndex(i,j),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
+       
+       // Increment observer Index
+       observerIndex++;
+   }
    
    
    // Code to check if at end of measurements
@@ -717,15 +761,30 @@ void BatchLeastSquares::Estimate()
       MessageInterface::ShowMessage("BLS estimating\n");
    #endif
 
-   // TODO: Add code to calculate the state updates
-
-   estimatorStateCorrection = I.inverse()*H.transpose()*W*z;
+   // Compute Information Matrix using Blas matrix multipication routines
+   //informationMatrix = H^T*W*H;
+    LaGenMatDouble temp1(observationCount,stateCount);
+    Blas_Mat_Mat_Mult(W,H,temp1);
+    Blas_Mat_Trans_Mat_Mult(H,temp1,informationMatrix);
+      
+      
+   // Copy information matrix into covariance matrix. 
+   // Then compute inverse in place.
+      LaVectorLongInt piv(P.size(0)); // pivot vector
+      LaLUInverseIP(P,piv);
+      
+   // Compute state correction
+   // deltaX = P^-1*H^t*W*z
+      LaVectorDouble temp(observationCount);     
+      Blas_Mat_Vec_Mult(W,z,temp);
+      Blas_Mat_Trans_Vec_Mult(H,temp,temp);
+      Blas_Mat_Vec_Mult(P,temp,estimatorStateCorrection);
    
    // Compute cost
    
    LaVectorDouble Jtemp = z-H*estimatorStateCorrection;
-   
-   J(obIndex) = 0.5*Jtemp.transpose()*W*Jtemp;
+   Blas_Mat_Vec_Mult(W,Jtemp,temp);
+   J(obIndex) = 0.5*Blas_Dot_Prod(Jtemp,temp);
       
    currentState = CHECKINGRUN;
 }
@@ -747,17 +806,8 @@ void BatchLeastSquares::CheckCompletion()
    WriteToTextFile();
    converged = false;          // Assume not converged convergence
    // TODO: Add code to check for convergence
-   
-   // Find the determinant of the weighting matrix
-   // Since the weighting matrix is diagonal, we just multiply all elements
-   Real detW = 1;
-   Integer i;
-   for (i = 0; i < observationCount; i++)
-   {
-       detW *= W(i,i);
-   }
-   
-   if ((J(obIndex)-J(obIndex-1))/J(obIndex) < globalConvergenceTolerance/detW)
+     
+   if ((J(obIndex)-J(obIndex-1))/J(obIndex) < globalConvergenceTolerance/Blas_NormF(W))
    {
        converged = true;
    }
@@ -831,8 +881,6 @@ void BatchLeastSquares::InvertInformationMatrix()
 //------------------------------------------------------------------------------
 std::string BatchLeastSquares::GetProgressString()
 {
-   StringArray::iterator current;
-   Integer i;
    std::stringstream progress;
    progress.str("");
    progress.precision(12);
@@ -978,7 +1026,6 @@ std::string BatchLeastSquares::GetProgressString()
 void BatchLeastSquares::WriteToTextFile(SolverState stateToUse)
 {
    StringArray::iterator current;
-   Integer i, j;
    if (initialized)
    {
       switch (currentState)
