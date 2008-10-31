@@ -113,9 +113,11 @@ void RangeAzElMeasurementModel::Initialize() const
 
     // Find the body spin rate to compute relative velocity
     // TODO - Darrel, can you fix this????
-    std::string cBodyName = theStation->GetStringParameter(GroundStation::CENTRAL_BODY);
-    SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName);
-    Real spinRate = theBody->GetAngularVelocity().GetMagnitude();
+    //std::string cBodyName = theStation->GetStringParameter(GroundStation::CENTRAL_BODY);
+    //SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName);
+    //Real spinRate = theBody->GetAngularVelocity().GetMagnitude();
+    
+    Real spinRate = 7.29211585530e-5;
 
     // Compute relative velocity
     Rvector3 vsens;
@@ -133,18 +135,19 @@ void RangeAzElMeasurementModel::Initialize() const
     //	    vrel(1)*myCartDerivatives(0,1) + 
     //	    vrel(2)*myCartDerivatives(0,2);
 
-    // Get the rotation matrix from ECEF to SEZ
+    // We need the rotation matrix from MJ2000 to SEZ
+    // So we need the transpose of rotMat provided by the BFCS
     // TODO: Darrel, Is this correct?
-    Rmatrix33 rotMat = theStation.bfcs->GetLastRotationMatrix();
+    Rmatrix33 rotMat = theStation->GetBodyFixedCoordinateSystem()->GetLastRotationMatrix().Transpose();
     
-    // Compute the range in SEZ coordinates
+    // Compute the range vector in SEZ coordinates
     Rvector3 rangeSEZ;
-    rangeSEZ(1) = rangeMJ2000(1)*rotMat(1,1) + rangeMJ2000(2)*rotMat(1,2) + 
-		rangeMJ2000(3)*rotMat(1,3);
-    rangeSEZ(2) = rangeMJ2000(1)*rotMat(2,1) + rangeMJ2000(2)*rotMat(2,2) + 
-		rangeMJ2000(3)*rotMat(2,3);
-    rangeSEZ(3) = rangeMJ2000(1)*rotMat(3,1) + rangeMJ2000(2)*rotMat(3,2) + 
-		rangeMJ2000(3)*rotMat(3,3);
+    rangeSEZ(1) = rangeMJ2000(0)*rotMat(0,0) + rangeMJ2000(1)*rotMat(0,1) + 
+		rangeMJ2000(2)*rotMat(0,2);
+    rangeSEZ(2) = rangeMJ2000(0)*rotMat(1,0) + rangeMJ2000(1)*rotMat(1,1) + 
+		rangeMJ2000(2)*rotMat(1,2);
+    rangeSEZ(3) = rangeMJ2000(0)*rotMat(2,0) + rangeMJ2000(1)*rotMat(2,1) + 
+		rangeMJ2000(2)*rotMat(2,2);
 
     Real mag_rangeSEZ = rangeSEZ.GetMagnitude();
     
@@ -238,10 +241,12 @@ void RangeAzElMeasurementModel::Initialize() const
 
     // Get body spin rate
     // TODO - Darrel, can you fix this????
-    std::string cBodyName = theStation->GetStringParameter(GroundStation::CENTRAL_BODY);
-    SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName);
-    Real spinRate = theBody->GetAngularVelocity().GetMagnitude();
+    //std::string cBodyName = theStation->GetStringParameter(GroundStation::CENTRAL_BODY);
+    //SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName);
+    //Real spinRate = theBody->GetAngularVelocity().GetMagnitude();
 
+    Real spinRate = 7.29211585530e-5;
+    
     // Compute relative velocity
     Rvector3 vsens;
     vsens(0) = -spinRate*gsPos(1); 
@@ -258,18 +263,19 @@ void RangeAzElMeasurementModel::Initialize() const
     //	    vrel(1)*myCartDerivatives(0,1) + 
     //	    vrel(2)*myCartDerivatives(0,2);
 
-    // Get the rotation matrix from ECEF to SEZ
-    // Darrel, Is this correct?
-    Rmatrix33 rotMat = theStation.bfcs->GetLastRotationMatrix();
-    
-    // Compute the range in SEZ coordinates
+    // We need the rotation matrix from MJ2000 to SEZ
+    // So we need the transpose of rotMat provided by the BFCS
+    // TODO: Darrel, Is this correct?
+    Rmatrix33 rotMat = theStation->GetBodyFixedCoordinateSystem()->GetLastRotationMatrix().Transpose();
+     
+    // Compute the range vector in SEZ coordinates
     Rvector3 rangeSEZ;
-    rangeSEZ(1) = rangeMJ2000(1)*rotMat(1,1) + rangeMJ2000(2)*rotMat(1,2) + 
-		rangeMJ2000(3)*rotMat(1,3);
-    rangeSEZ(2) = rangeMJ2000(1)*rotMat(2,1) + rangeMJ2000(2)*rotMat(2,2) + 
-		rangeMJ2000(3)*rotMat(2,3);
-    rangeSEZ(3) = rangeMJ2000(1)*rotMat(3,1) + rangeMJ2000(2)*rotMat(3,2) + 
-		rangeMJ2000(3)*rotMat(3,3);
+    rangeSEZ(1) = rangeMJ2000(0)*rotMat(0,0) + rangeMJ2000(1)*rotMat(0,1) + 
+		rangeMJ2000(2)*rotMat(0,2);
+    rangeSEZ(2) = rangeMJ2000(0)*rotMat(1,0) + rangeMJ2000(1)*rotMat(1,1) + 
+		rangeMJ2000(2)*rotMat(1,2);
+    rangeSEZ(3) = rangeMJ2000(0)*rotMat(2,0) + rangeMJ2000(1)*rotMat(2,1) + 
+		rangeMJ2000(2)*rotMat(2,2);
 
     Real mag_rangeSEZ = rangeSEZ.GetMagnitude();
     
