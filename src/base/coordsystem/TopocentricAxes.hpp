@@ -47,6 +47,9 @@ public:
 // method to initialize the data
    virtual bool Initialize();
    
+   virtual Rmatrix33             GetLastRotationMatrix() const;
+
+   
    // all classes derived from GmatBase must supply this Clone method;
    // this must be implemented in the 'leaf' classes
    virtual GmatBase*       Clone(void) const;

@@ -181,6 +181,22 @@ GmatBase* TopocentricAxes::Clone() const
 }
 
 //------------------------------------------------------------------------------
+//  Rmatrix33 GetLastRotationMatrix() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a the rotation matrix from this AxisSystem 
+ * to/from the MJ2000Eq system.
+ *
+ * @return The rotation matrix from this AxisSystem to/from the MJ2000Eq system.
+ *
+ */
+//------------------------------------------------------------------------------
+Rmatrix33 TopocentricAxes::GetLastRotationMatrix() const
+{
+   return RFT;
+}
+
+//------------------------------------------------------------------------------
 // protected methods
 //------------------------------------------------------------------------------
 
