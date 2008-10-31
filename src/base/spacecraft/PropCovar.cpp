@@ -102,7 +102,7 @@ PropCovar& PropCovar::operator=(const PropCovar& ps)
  * @return The covariance vector.
  */
 //------------------------------------------------------------------------------
-LaSpdMatDouble PropCovar::GetCovariance()
+LaGenMatDouble PropCovar::GetCovariance()
 {
    return covariance;
 }

@@ -36,7 +36,7 @@ public:
    PropCovar&        operator=(const PropCovar& ps);
        
    // Access methods
-   LaSpdMatDouble    GetCovariance();
+   LaGenMatDouble    GetCovariance();
    Real              GetEpoch() const;
    Real              SetEpoch(const Real ep);
    
@@ -46,7 +46,7 @@ protected:
     /// Raw epoch data for the covariance
    Real              epoch;
    /// Matrix used for the covariance data
-   LaSpdMatDouble   covariance;
+   LaGenMatDouble   covariance;
    
 };
 
