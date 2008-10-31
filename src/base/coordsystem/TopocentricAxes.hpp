@@ -47,7 +47,7 @@ public:
 // method to initialize the data
    virtual bool Initialize();
    
-   virtual Rmatrix33             GetLastRotationMatrix() const;
+   Rmatrix33  GetRFTMatrix() const;
 
    
    // all classes derived from GmatBase must supply this Clone method;
