@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeMeasurementModel
+//                              RangeAzElMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -13,7 +13,7 @@
 //
 /**
  *
- * Implements the geometric right ascension and declination measurement model.
+ * Implements the geometric range, azimuth and elevation measurement model.
  *
  */
 //------------------------------------------------------------------------------
@@ -36,6 +36,9 @@ public:
    virtual bool Initialize();
    
    GmatBase *Clone() const;
+   
+   void SetGroundStation(GroundStation* gs);
+   GroundStation* GetGroundStation();
 
    bool ComputeMeasurement(GroundStation *theStation, Spacecraft *theSat,
           LaVectorDouble &myMeasurements);
@@ -45,8 +48,10 @@ public:
 private:
 
 protected:
+    
    CelestialBody* theBody;
-   Real           spinRate;
+   Real           bodySpinRate;
+   GroundStation* theStation;
 
 };
 

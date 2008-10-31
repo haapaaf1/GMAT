@@ -41,6 +41,7 @@ BodyFixedPoint::PARAMETER_TEXT[BodyFixedPointParamCount - SpacePointParamCount] 
          "CentralBody",
          "StateType",         // Cartesian or Geographical
          "HorizonReference",  // Sphere or Ellipsoid
+	 "LatitudeGeometry",  // Geodetic, Geocentric, or Reduced
          "Location1",         // X or Latitude value
          "Location2",         // Y or Longitude value
          "Location3",         // Z or Height value
@@ -55,6 +56,7 @@ BodyFixedPoint::PARAMETER_TYPE[BodyFixedPointParamCount - SpacePointParamCount] 
          Gmat::OBJECT_TYPE,
          Gmat::STRING_TYPE,
          Gmat::STRING_TYPE,
+	 Gmat::STRING_TYPE,
          Gmat::REAL_TYPE,
          Gmat::REAL_TYPE,
          Gmat::REAL_TYPE,
@@ -84,7 +86,8 @@ BodyFixedPoint::BodyFixedPoint(const std::string &itsType, const std::string &it
    cBodyName         ("Earth"),
    theBody           (NULL),
    stateType         ("Cartesian"),
-   horizon           ("Sphere"),
+   horizon           ("Ellipsoid"),
+   latitudeGeometry  ("Geodetic"),
    solarSystem       (NULL),
    bfcsName          (""),
    bfcs              (NULL),
@@ -135,6 +138,7 @@ BodyFixedPoint::BodyFixedPoint(const BodyFixedPoint& bfp) :
    locationLabels    (bfp.locationLabels),
    stateType         (bfp.stateType),
    horizon           (bfp.horizon),
+   latitudeGeometry  (bfp.latitudeGeometry),
    solarSystem       (NULL),
    bfcsName          (bfp.bfcsName),
    bfcs              (NULL),
@@ -172,6 +176,7 @@ BodyFixedPoint& BodyFixedPoint::operator=(const BodyFixedPoint& bfp)
       locationLabels = bfp.locationLabels;
       stateType      = bfp.stateType;
       horizon        = bfp.horizon;
+      latitudeGeometry = bfp.latitudeGeometry;
       solarSystem    = bfp.solarSystem;
       //bfcsName       = bfp.bfcsName;   // yes or no?
       //bfcs           = bfp.bfcs;       // yes or no?
@@ -344,6 +349,9 @@ std::string BodyFixedPoint::GetStringParameter(const Integer id) const
    if (id == HORIZON_REFERENCE)
       return horizon;
 
+   if (id == LATITUDE_GEOMETRY)
+      return latitudeGeometry;
+
    if (id == LOCATION_LABEL_1)
       return locationLabels[0];
 
@@ -406,6 +414,14 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
       if ((value == "Sphere") || (value == "Ellipsoid"))
       {
          horizon = value;
+         retval = true;
+      }
+   }
+   else if (id == LATITUDE_GEOMETRY)
+   {
+      if ((value == "Geodetic") || (value == "Geocentric") || (value == "Reduced"))
+      {
+         latitudeGeometry = value;
          retval = true;
       }
    }

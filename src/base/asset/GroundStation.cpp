@@ -141,13 +141,11 @@ bool GroundStation::Initialize()
    #ifdef DEBUG_INIT
       MessageInterface::ShowMessage("GroundStation::Initializing %s\n", instanceName.c_str());
    #endif
-   
-   std::string sphType;
-   
+     
    if (theBody == NULL)
       throw GmatBaseException("Unable to initialize ground station" + 
             instanceName + "; its origin is not set\n");
-   
+      
    // Calculate the body-fixed Cartesian position
    if (stateType == "Cartesian")
    {
@@ -157,18 +155,24 @@ bool GroundStation::Initialize()
    }
    else if (stateType == "Geographical")
    {
-      sphType = "Geodetic";
-      if (horizon == "Sphere")
-         sphType = "Geocentric";
-      // What key goes with "Reduced"?
-      
-      llh.SetLatitude(location[0], sphType);
+      llh.SetLatitude(location[0], latitudeGeometry);
       llh.SetLongitude(location[1]);
       llh.SetHeight(location[2]);
-      
+
       Real equatorialRadius, flattening;
+
       equatorialRadius = theBody->GetRealParameter("EquatorialRadius");
-      flattening = theBody->GetRealParameter("Flattening");
+      
+      // If the horizon reference is a sphere, then the flattening is zero
+      // and the geocentric and geodectic latitude angles are coincident
+      if (horizon == "Ellipsoid")
+      {
+	  flattening = theBody->GetRealParameter("Flattening");
+      }
+      else
+      {
+	  flattening = 0.0;
+      }
       
       Rvector3 loc = llh.GetSitePosition(equatorialRadius, flattening);
       bfLocation[0] = loc[0];

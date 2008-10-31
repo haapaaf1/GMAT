@@ -323,6 +323,7 @@ OBJECTS = \
     math/Tanh.o \
     math/Transpose.o \
     measurement/MeasurementModel.o \
+    measurement/MeasurementModelException.o \
     measurement/RangeMeasurementModel.o \
     measurement/RangeAzElMeasurementModel.o \
     measurement/ProcessDataFile.o \

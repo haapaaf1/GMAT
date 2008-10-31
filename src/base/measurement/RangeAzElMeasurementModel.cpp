@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RaDecMeasurementModel
+//                              RangeAzElMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -13,7 +13,7 @@
 //
 /**
  *
- * Implements the geometric right ascension and declination measurement model.
+ * Implements the geometric range, azimuth and elevation measurement model.
  *
  */
 //------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
    MeasurementModel  ("RangeAzEl", name),
    theBody           (NULL),
-   spinRate          (7.29211585530e-5)
+   bodySpinRate          (7.29211585530e-5)
 {
   numMeasurements = 3;
 
@@ -43,7 +43,7 @@ RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
 RangeAzElMeasurementModel::RangeAzElMeasurementModel(const RangeAzElMeasurementModel &raeModel) :
    MeasurementModel        (raeModel),
    theBody                 (NULL),
-   spinRate                (raeModel.spinRate)
+   bodySpinRate                (raeModel.bodySpinRate)
 {
    numMeasurements = 3;
 
@@ -88,24 +88,26 @@ GmatBase *RangeAzElMeasurementModel::Clone() const
 bool RangeAzElMeasurementModel::Initialize()
 {
    // If we have the MM associated with a specific GS, do this:
-//   std::string cBodyName = theStation->GetStringParameter(theStation->GetParameterID("CentralBody"));
-//   theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
+   std::string cBodyName = theStation->GetStringParameter(theStation->GetParameterID("CentralBody"));
+   theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
    
-//   if (theBody == NULL)
-//// TODO: Setup an exception class for measurement models
-////      throw MeasurementModelError("Unable to find the body " + cBodyName +
-////              " associated with " + theStation->GetName());
-//      MessageInterface::ShowMessage(
-//            "Unable to find the body %s associated with %s\n", 
-//            cBodyName.c_str(), theStation->GetName().c_str());
-//   else
-//   {
-//      spinRate = theBody->GetAngularVelocity().GetMagnitude();
-//      
-//      MessageInterface::ShowMessage(
-//            "Retrieved spin rate is %.12lf; should be about 7.29211585530e-5\n", 
-//            spinRate);
-//   }
+   if (theBody == NULL)
+   {
+    // TODO: Setup an exception class for measurement models
+      throw MeasurementModelException("Unable to find the body " + cBodyName +
+              " associated with " + theStation->GetName());
+      MessageInterface::ShowMessage(
+            "Unable to find the body %s associated with %s\n", 
+            cBodyName.c_str(), theStation->GetName().c_str());
+   }
+   else
+   {
+      bodySpinRate = theBody->GetAngularVelocity().GetMagnitude();
+      
+      MessageInterface::ShowMessage(
+            "Retrieved spin rate is %.12lf; should be about 7.29211585530e-5\n", 
+            bodySpinRate);
+   }
     
     return true;
 }
@@ -141,23 +143,23 @@ bool RangeAzElMeasurementModel::Initialize()
 
     // TODO: Move this to initialization if possible
     // Find the body spin rate to compute relative velocity
-    std::string cBodyName = theStation->GetStringParameter("CentralBody");
-    theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
-    spinRate = theBody->GetAngularVelocity().GetMagnitude();
+    //std::string cBodyName = theStation->GetStringParameter("CentralBody");
+    //theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
+    //bodySpinRate = theBody->GetAngularVelocity().GetMagnitude();
 
    #ifdef DEBUG_PARAMETER_CALCULATIONS
        MessageInterface::ShowMessage(
              "Retrieved spin rate is %.12lf; should be about 7.29211585530e-5\n", 
-             spinRate);
+             bodySpinRate);
    #endif
     
     // TODO - If moved to init, update the spin rate here if it varies dynamically
-    //spinRate = theBody->GetAngularVelocity().GetMagnitude();
+    //bodySpinRate = theBody->GetAngularVelocity().GetMagnitude();
     
     // Compute relative velocity
     Rvector3 vsens;
-    vsens(0) = -spinRate*gsPos(1);
-    vsens(1) = spinRate*gsPos(0);
+    vsens(0) = -bodySpinRate*gsPos(1);
+    vsens(1) = bodySpinRate*gsPos(0);
     vsens(2) = 0.0;
     
     Rvector3 vrel;
@@ -234,7 +236,6 @@ bool RangeAzElMeasurementModel::Initialize()
  * computed.
  */
 //------------------------------------------------------------------------------
-
   bool RangeAzElMeasurementModel::ComputeCartesianPartialDerivative(
         GroundStation *theStation, Spacecraft *theSat, LaGenMatDouble &myCartDerivatives)
   {
@@ -276,15 +277,15 @@ bool RangeAzElMeasurementModel::Initialize()
 
     // TODO: Move this to initialization if possible
     // Find the body spin rate to compute relative velocity
-    std::string cBodyName = theStation->GetStringParameter("CentralBody");
-    theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
-    spinRate = theBody->GetAngularVelocity().GetMagnitude();
+    // std::string cBodyName = theStation->GetStringParameter("CentralBody");
+    // theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
+    // bodySpinRate = theBody->GetAngularVelocity().GetMagnitude();
     // TODO: If above moved to init, update body spin rate here if it is dynamic
     
     // Compute relative velocity
     Rvector3 vsens;
-    vsens(0) = -spinRate*gsPos(1); 
-    vsens(1) = spinRate*gsPos(0);
+    vsens(0) = -bodySpinRate*gsPos(1); 
+    vsens(1) = bodySpinRate*gsPos(0);
     vsens(2) = 0.0;
     
     Rvector3 vrel;
@@ -313,39 +314,33 @@ bool RangeAzElMeasurementModel::Initialize()
 
     Real mag_rangeSEZ = rangeSEZ.GetMagnitude();
     
-    // Compute range rate for the case where elevation is 90 degrees
-    // exactly and computing azimuth goes singular
-    Rvector3 rangeRateSEZ;   
-    rangeRateSEZ(1) = vrel(0)*rotMat(0,0) + vrel(1)*rotMat(0,1) + 
-		   vrel(2)*rotMat(0,2);
-    rangeRateSEZ(2) = vrel(0)*rotMat(1,0) + vrel(1)*rotMat(1,1) + 
-		   vrel(2)*rotMat(1,2);
-    rangeRateSEZ(3) = vrel(0)*rotMat(2,0) + vrel(1)*rotMat(2,1) + 
-		   vrel(2)*rotMat(2,2);
-
     // Compute elevation angle
     Real el = GmatMathUtil::ASin( rangeSEZ(2), mag_rangeSEZ );
     el = GetDegree(el,0.0,GmatMathUtil::TWO_PI); 
     
-    // Compute azimuth
+    // Initialize azimuth
     Real az = 0.0;
-    if (el == GmatMathUtil::PI_OVER_TWO)
-    {
-	az = GmatMathUtil::ASin(rangeRateSEZ(2),GmatMathUtil::Sqrt(rangeRateSEZ(1)*
-     		   rangeRateSEZ(1)+rangeRateSEZ(2)*rangeRateSEZ(2)));
-    }
-    else
-    {
-	az = GmatMathUtil::ASin(rangeSEZ(2),GmatMathUtil::Sqrt(rangeSEZ(1)*
-		   rangeSEZ(1)+rangeSEZ(2)*rangeSEZ(2)));
-    }
-  
-    Real squared = rangeSEZ(0)*rangeSEZ(0) + rangeSEZ(1)*rangeSEZ(1);
-    Real squared2 = rangeRateSEZ(0)*rangeRateSEZ(0) + rangeRateSEZ(1)*rangeRateSEZ(1);
 
-    // Partials of azimuth w.r.t. cartesian state
+    // Compute azimuth and the partials of azimuth w.r.t. cartesian state
     if(el == GmatMathUtil::PI_OVER_TWO)
     {
+
+	// Compute range rate for the case where elevation is 90 degrees
+	// exactly and computing azimuth goes singular
+	Rvector3 rangeRateSEZ;   
+	rangeRateSEZ(1) = vrel(0)*rotMat(0,0) + vrel(1)*rotMat(0,1) + 
+		   vrel(2)*rotMat(0,2);
+        rangeRateSEZ(2) = vrel(0)*rotMat(1,0) + vrel(1)*rotMat(1,1) + 
+		   vrel(2)*rotMat(1,2);
+	rangeRateSEZ(3) = vrel(0)*rotMat(2,0) + vrel(1)*rotMat(2,1) + 
+		   vrel(2)*rotMat(2,2);
+
+	Real squared2 = rangeRateSEZ(0)*rangeRateSEZ(0) + rangeRateSEZ(1)*rangeRateSEZ(1);
+
+	az = GmatMathUtil::ASin(rangeRateSEZ(2),GmatMathUtil::Sqrt(rangeRateSEZ(1)*
+     		   rangeRateSEZ(1)+rangeRateSEZ(2)*rangeRateSEZ(2)));
+
+	
 	myCartDerivatives(1,0) = 0.0;
 	myCartDerivatives(1,1) = 0.0;
 	myCartDerivatives(1,2) = 0.0;
@@ -363,7 +358,13 @@ bool RangeAzElMeasurementModel::Initialize()
     }
     else
     {
-  	myCartDerivatives(1,0) = rotMat(1,0)/GmatMathUtil::Sqrt(squared) - 
+
+	az = GmatMathUtil::ASin(rangeSEZ(2),GmatMathUtil::Sqrt(rangeSEZ(1)*
+		   rangeSEZ(1)+rangeSEZ(2)*rangeSEZ(2)));
+
+	Real squared = rangeSEZ(0)*rangeSEZ(0) + rangeSEZ(1)*rangeSEZ(1);
+
+	myCartDerivatives(1,0) = rotMat(1,0)/GmatMathUtil::Sqrt(squared) - 
 		(rangeSEZ(0)*rotMat(0,0)+rangeSEZ(1)*rotMat(1,0))*rangeSEZ(1)/
 		GmatMathUtil::Pow(GmatMathUtil::Sqrt(squared),3)/
 		GmatMathUtil::Cos(az);
@@ -394,4 +395,37 @@ bool RangeAzElMeasurementModel::Initialize()
     myCartDerivatives(2,5) = 0.0;
 
  }
+
+  
+//------------------------------------------------------------------------------
+// void SetGroundStation(GroundStation* gs)
+//------------------------------------------------------------------------------
+/**
+ * Set the ground station for this instance of the measurement model.
+ *
+ * @param mm The ground station that is assigned.
+ */
+//------------------------------------------------------------------------------
+void RangeAzElMeasurementModel::SetGroundStation(GroundStation* gs)
+{
+    theStation = gs;
+}
+
+//------------------------------------------------------------------------------
+// GroundStation* GetGroundStation()
+//------------------------------------------------------------------------------
+/**
+ * Return the ground station for this instance of the measurement model.
+ *
+ * @return A pointer to the ground station.
+ */
+//------------------------------------------------------------------------------
+GroundStation* RangeAzElMeasurementModel::GetGroundStation()
+{
+    return theStation;
+}
+
+
+
+
 

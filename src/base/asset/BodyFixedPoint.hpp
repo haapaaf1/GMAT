@@ -126,6 +126,9 @@ protected:
    std::string       stateType;
    /// For geographic states, the horizon type
    std::string       horizon;
+   /// For geographic states, how the latitude angle is defined
+   /// Geodetic, geocentric, reduced
+   std::string	     latitudeGeometry;
    /// The location, in the stateType-horizon system
    Real              location[3];
    /// The Cartesian body-fixed location
@@ -158,6 +161,7 @@ protected:
       CENTRAL_BODY = SpacePointParamCount,
       STATE_TYPE,          // Cartesian or Geographical
       HORIZON_REFERENCE,   // Sphere or Ellipsoid
+      LATITUDE_GEOMETRY,   // Geodectic, Geocentric, or Reduced
       LOCATION_1,          // X or Latitude
       LOCATION_2,          // Y or Longitude
       LOCATION_3,          // Z or Height
