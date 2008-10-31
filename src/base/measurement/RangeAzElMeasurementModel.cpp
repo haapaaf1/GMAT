@@ -21,8 +21,14 @@
 #include "RangeAzElMeasurementModel.hpp"
 #include "BodyFixedPoint.hpp"
 
+
+//#define DEBUG_PARAMETER_CALCULATIONS
+
+
 RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
-   MeasurementModel("RangeAzEl", name)
+   MeasurementModel  ("RangeAzEl", name),
+   theBody           (NULL),
+   spinRate          (7.29211585530e-5)
 {
   numMeasurements = 3;
 
@@ -35,7 +41,9 @@ RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
 }
 
 RangeAzElMeasurementModel::RangeAzElMeasurementModel(const RangeAzElMeasurementModel &raeModel) :
-   MeasurementModel        (raeModel)
+   MeasurementModel        (raeModel),
+   theBody                 (NULL),
+   spinRate                (raeModel.spinRate)
 {
    numMeasurements = 3;
 
@@ -51,7 +59,7 @@ RangeAzElMeasurementModel& RangeAzElMeasurementModel::operator=(const RangeAzElM
 {
    if (&raeModel != this)
    {
-
+      theBody = NULL;
    }
    return *this;
 }
@@ -77,9 +85,27 @@ GmatBase *RangeAzElMeasurementModel::Clone() const
  * Initializes the measurement model.
  */
 //------------------------------------------------------------------------------
-void RangeAzElMeasurementModel::Initialize() const
+bool RangeAzElMeasurementModel::Initialize()
 {
-
+   // If we have the MM associated with a specific GS, do this:
+//   std::string cBodyName = theStation->GetStringParameter(theStation->GetParameterID("CentralBody"));
+//   theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
+   
+//   if (theBody == NULL)
+//// TODO: Setup an exception class for measurement models
+////      throw MeasurementModelError("Unable to find the body " + cBodyName +
+////              " associated with " + theStation->GetName());
+//      MessageInterface::ShowMessage(
+//            "Unable to find the body %s associated with %s\n", 
+//            cBodyName.c_str(), theStation->GetName().c_str());
+//   else
+//   {
+//      spinRate = theBody->GetAngularVelocity().GetMagnitude();
+//      
+//      MessageInterface::ShowMessage(
+//            "Retrieved spin rate is %.12lf; should be about 7.29211585530e-5\n", 
+//            spinRate);
+//   }
 }
 
 //------------------------------------------------------------------------------
@@ -111,14 +137,21 @@ void RangeAzElMeasurementModel::Initialize() const
     
     Real rangeMag = rangeMJ2000.GetMagnitude();
 
+    // TODO: Move this to initialization if possible
     // Find the body spin rate to compute relative velocity
-    // TODO - Darrel, can you fix this????
-    //std::string cBodyName = theStation->GetStringParameter(GroundStation::CENTRAL_BODY);
-    //SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName);
-    //Real spinRate = theBody->GetAngularVelocity().GetMagnitude();
-    
-    Real spinRate = 7.29211585530e-5;
+    std::string cBodyName = theStation->GetStringParameter("CentralBody");
+    theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
+    spinRate = theBody->GetAngularVelocity().GetMagnitude();
 
+   #ifdef DEBUG_PARAMETER_CALCULATIONS
+       MessageInterface::ShowMessage(
+             "Retrieved spin rate is %.12lf; should be about 7.29211585530e-5\n", 
+             spinRate);
+   #endif
+    
+    // TODO - If moved to init, update the spin rate here if it varies dynamically
+    //spinRate = theBody->GetAngularVelocity().GetMagnitude();
+    
     // Compute relative velocity
     Rvector3 vsens;
     vsens(0) = -spinRate*gsPos(1);
@@ -239,13 +272,12 @@ void RangeAzElMeasurementModel::Initialize() const
 	return false;
     }
 
-    // Get body spin rate
-    // TODO - Darrel, can you fix this????
-    //std::string cBodyName = theStation->GetStringParameter(GroundStation::CENTRAL_BODY);
-    //SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName);
-    //Real spinRate = theBody->GetAngularVelocity().GetMagnitude();
-
-    Real spinRate = 7.29211585530e-5;
+    // TODO: Move this to initialization if possible
+    // Find the body spin rate to compute relative velocity
+    std::string cBodyName = theStation->GetStringParameter("CentralBody");
+    theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
+    spinRate = theBody->GetAngularVelocity().GetMagnitude();
+    // TODO: If above moved to init, update body spin rate here if it is dynamic
     
     // Compute relative velocity
     Rvector3 vsens;

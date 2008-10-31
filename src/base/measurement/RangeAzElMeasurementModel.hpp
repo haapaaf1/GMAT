@@ -33,7 +33,7 @@ public:
    RangeAzElMeasurementModel& operator=(const RangeAzElMeasurementModel &raeModel);
    virtual ~RangeAzElMeasurementModel();
 
-   void Initialize() const;
+   virtual bool Initialize();
    
    GmatBase *Clone() const;
 
@@ -45,7 +45,8 @@ public:
 private:
 
 protected:
-
+   CelestialBody* theBody;
+   Real           spinRate;
 
 };
 
