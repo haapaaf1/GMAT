@@ -673,12 +673,13 @@ void BatchLeastSquares::Accumulate()
    #endif
 
    bool moreData = false;
+   Integer m = 0;
     
    // Compute observed minus computed measurement
    for (std::vector<MeasurementModel*>::iterator i = measModels.begin(); i != measModels.end(); ++i)
    {
        MeasurementModel *current = *i;
-       Integer m = current->GetNumMeasurements();
+       m = current->GetNumMeasurements();
        LaVectorDouble ycomputed(m);
        
        if(current->ComputeMeasurement(theGroundStation,theSat,ycomputed))
@@ -692,26 +693,29 @@ void BatchLeastSquares::Accumulate()
        
        H(LaIndex(obIndex,obIndex+m),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
        
-   }
-   
-   
-   // Code to check if at end of measurements
+	// Code to check if at end of measurements
 
-      if (obIndex < observationCount)
-   {
-	obIndex += m;
-	moreData = true;
-   }
-   else
-   {
-	obIndex = 0;
-	moreData = false;
-   }
+	if (obIndex < observationCount)
+	{
+	    obIndex += m;
+	    moreData = true;
+	}
+	else
+	{
+	    obIndex = 0;
+	    moreData = false;
+	    break;
+	}	
    
+   
+    }
+
    if (moreData == true)
-      currentState = PROPAGATING;
+       currentState = PROPAGATING;
    else
-      currentState = ESTIMATING;
+       currentState = ESTIMATING;
+
+   
 }
 
 //------------------------------------------------------------------------------
