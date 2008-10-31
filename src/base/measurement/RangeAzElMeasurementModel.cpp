@@ -112,7 +112,9 @@ void RangeAzElMeasurementModel::Initialize() const
     Real rangeMag = rangeMJ2000.GetMagnitude();
 
     // Find the body spin rate to compute relative velocity
-    SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,GetStringParameter(CENTRAL_BODY));
+    // TODO - Darrel, can you fix this????
+    std::string cBodyName = theStation->GetStringParameter(GroundStation::CENTRAL_BODY);
+    SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName);
     Real spinRate = theBody->GetAngularVelocity().GetMagnitude();
 
     // Compute relative velocity
@@ -132,7 +134,7 @@ void RangeAzElMeasurementModel::Initialize() const
     //	    vrel(2)*myCartDerivatives(0,2);
 
     // Get the rotation matrix from ECEF to SEZ
-    // Is this correct?
+    // TODO: Darrel, Is this correct?
     Rmatrix33 rotMat = theStation.bfcs->GetLastRotationMatrix();
     
     // Compute the range in SEZ coordinates
@@ -235,6 +237,7 @@ void RangeAzElMeasurementModel::Initialize() const
     }
 
     // Get body spin rate
+    // TODO - Darrel, can you fix this????
     std::string cBodyName = theStation->GetStringParameter(GroundStation::CENTRAL_BODY);
     SpacePoint* theBody = theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName);
     Real spinRate = theBody->GetAngularVelocity().GetMagnitude();
@@ -256,7 +259,7 @@ void RangeAzElMeasurementModel::Initialize() const
     //	    vrel(2)*myCartDerivatives(0,2);
 
     // Get the rotation matrix from ECEF to SEZ
-    // Is this correct?
+    // Darrel, Is this correct?
     Rmatrix33 rotMat = theStation.bfcs->GetLastRotationMatrix();
     
     // Compute the range in SEZ coordinates

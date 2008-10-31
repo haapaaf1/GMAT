@@ -337,7 +337,7 @@ bool MeasurementModel::ComputeMeasurement(GroundStation *theStation,
 
 //------------------------------------------------------------------------------
 // Integer ComputeCartesianPartialDerivative(ObjectArray participants, 
-		const LaGenMatDouble &myMeasurements);
+//		const LaGenMatDouble &myMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurement derivatives with respect to the estimator
