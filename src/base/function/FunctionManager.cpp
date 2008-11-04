@@ -40,6 +40,16 @@
 //#define DEBUG_FM_STACK
 //#define DEBUG_OBJECT_MAP
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+//#ifndef DEBUG_PERFORMANCE
+//#define DEBUG_PERFORMANCE
+//#endif
+#ifdef DEBUG_PERFORMANCE
+#include <ctime>                 // for clock()
+#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -94,11 +104,19 @@ FunctionManager::~FunctionManager()
    MessageInterface::ShowMessage("FM destructor entered, this=<%p>\n", this);
    #endif
    
-   DeleteObjectMap(functionObjectStore, "FOS in Destructor");
+   if (objInit)
+   {
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- FunctionManager::~FunctionManager() deleting objInit <%p>\n", objInit);
+      #endif
+      delete objInit;
+      objInit = NULL;
+   }
    
-   //inputWrappers.clear();
-   outputWrappers.clear();
-   if (objInit) delete objInit;
+   DeleteObjectMap(functionObjectStore, "FOS in Destructor");
+   ClearInOutWrappers();
+   
 }
 
 
@@ -405,7 +423,14 @@ bool FunctionManager::SetInputWrapper(Integer index, ElementWrapper *ew)
    ElementWrapper *oldEw = inputWrappers[formalInput];
    inputWrappers[formalInput] = ew;
    if (oldEw)
+   {
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- FunctionManager::SetInputWrapper() deleting oldEw <%p>\n", oldEw);
+      #endif
       delete oldEw;
+      oldEw = NULL;
+   }
    
    #ifdef DEBUG_INPUT
    MessageInterface::ShowMessage
@@ -584,6 +609,12 @@ bool FunctionManager::SetPassedInput(Integer index, GmatBase *obj, bool &inputAd
    
    // Add formalInput to function object store
    GmatBase *objFOS = obj->Clone();
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ FunctionManager::SetPassedInput() objFOS = obj->Clone(%s), <%p>\n",
+       formalInput.c_str(), objFOS);
+   #endif
+   
    objFOS->SetName(formalInput);
    functionObjectStore->insert(std::make_pair(formalInput, objFOS));
    
@@ -647,6 +678,11 @@ bool FunctionManager::Initialize()
    #endif
    
    functionObjectStore = new ObjectMap;
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ FunctionManager::Initialize() functionObjectStore = new ObjectMap = <%p>\n",
+       functionObjectStore);
+   #endif
    
    #ifdef DEBUG_FM_INIT
    MessageInterface::ShowMessage
@@ -675,6 +711,16 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
 {
    if (f == NULL)
       throw FunctionException("FunctionManager: Function pointer is NULL");
+   
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== FunctionManager::Execute() entered, '%s' Count = %d\n",
+       fName.c_str(), callCount);
+   MessageInterface::ShowMessage("=== firstExecution=%d\n", firstExecution);
+   #endif
    
    #ifdef DEBUG_FM_EXECUTE
    MessageInterface::ShowMessage
@@ -746,9 +792,22 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
        "solarSys=<%p>, FOS=<%p>, GOS=<%p>, internalCS=<%p>, and true for useGOS\n",
        fName.c_str(), objInit, solarSys, functionObjectStore, globalObjectStore, internalCS);
    #endif
-   if (objInit) delete objInit;   
+   
+   if (objInit)
+   {
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- FunctionManager::Execute() deleting objInit <%p>\n", objInit);
+      #endif
+      delete objInit;
+   }
+   
    objInit = new ObjectInitializer(solarSys, functionObjectStore,
-                                   globalObjectStore, internalCS, true);
+                                   globalObjectStore, internalCS, true);   
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ FunctionManager::Execute() objInit = new ObjectInitializer, <%p>\n", objInit);
+   #endif
    
    // tell the fcs that this is the calling function
    #ifdef DEBUG_FM_EXECUTE
@@ -783,7 +842,10 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    #endif
    
    // Now, execute the function
-   if (!f->Execute(objInit))
+   bool reinitialize = false;
+   if (callingFunction != NULL)
+      reinitialize = true;
+   if (!f->Execute(objInit, reinitialize))
    {
       f->Finalize();
       return false;
@@ -865,9 +927,11 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
       f->Finalize();
    }
    
+   // why callers never gets empty? (loj)
    if (callers.empty())
    {
       // Reset FOS and callingFunction (loj: 2008.09.29)
+      Finalize();
       functionObjectStore = NULL;
       callingFunction = NULL;
    }
@@ -881,6 +945,13 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    #ifdef DEBUG_FM_EXECUTE
    ShowCallers("After pop");
    MessageInterface::ShowMessage("Exiting  FM::Execute()\n");
+   #endif
+   
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== FunctionManager::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",
+       fName.c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
    #endif
    
    return true;
@@ -950,6 +1021,15 @@ Rmatrix FunctionManager::MatrixEvaluate(FunctionManager *callingFM)
 //------------------------------------------------------------------------------
 void FunctionManager::Finalize()
 {
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== FunctionManager::Finalize() entered, '%s' Count = %d\n",
+       fName.c_str(), callCount);
+   #endif
+   
    #ifdef DEBUG_FM_FINALIZE
    MessageInterface::ShowMessage
       ("Entering FM::Finalize, this FM is <%p>, current function is '%s'\n",
@@ -957,23 +1037,33 @@ void FunctionManager::Finalize()
    MessageInterface::ShowMessage
        ("   calling FM is <%p> '%s'\n", callingFunction,
         callingFunction ? callingFunction->GetFunctionName().c_str() : "NULL");
-   //ShowObjectMap(functionObjectStore, "FOS in Finalize");
+   #ifdef DEBUG_OBJECT_MAP
+   ShowObjectMap(functionObjectStore, "FOS in Finalize");
+   #endif
    #endif
    
    if (f != NULL)
       if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
          f->Finalize();
+   
    // now delete all of the items/entries in the FOS - we can do this since they 
    // are all either locally-created or clones of reference objects or automatic objects
    if (functionObjectStore)
    {
-      //EmptyObjectMap(functionObjectStore); // do I need to do this?????
       DeleteObjectMap(functionObjectStore, "FOS in Finalize");
       functionObjectStore = NULL;
    }
    
    firstExecution = true;
    isFinalized = true;
+   
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== FunctionManager::Finalize() exiting, '%s' Count = %d, Run Time: %f seconds\n",
+       fName.c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #endif
+   
 }
 
 //------------------------------------------------------------------------------
@@ -997,10 +1087,13 @@ bool FunctionManager::IsFinalized()
 void FunctionManager::PrepareExecution(FunctionManager *callingFM)
 {
    #ifdef DEBUG_FM_EXECUTE
-      MessageInterface::ShowMessage("Entering FM::PrepareExecution for '%s'\n", fName.c_str());
-      MessageInterface::ShowMessage("   and the calling FM is '%s'\n",
-                        callingFM? (callingFM->GetFunctionName()).c_str() : "NULL");
+   MessageInterface::ShowMessage
+      ("Entering FM::PrepareExecution for '%s'\n", fName.c_str());
+   MessageInterface::ShowMessage
+      ("   and the calling FM is '%s'\n",
+       callingFM? (callingFM->GetFunctionName()).c_str() : "NULL");
    #endif
+   
    callers.push(callingFunction);
    callingFunction  = callingFM;
    
@@ -1125,12 +1218,14 @@ bool FunctionManager::CreateFunctionArgWrappers()
    validator->SetObjectMap(&combinedObjectStore);
    validator->SetSolarSystem(solarSys);
    
+   // empty object map first (loj: 2008.10.31)
    if (!(IsOnStack(functionObjectStore))) // ********** ???? *************
       EmptyObjectMap(functionObjectStore);
    
-   //inputWrappers.clear();
-   outputWrappers.clear();
+   // clear input and out wrappers first
+   ClearInOutWrappers();
    numVarsCreated = 0;
+   
    // set up the FOS with the input objects
    for (unsigned int ii=0; ii<ins.size(); ii++)
    {
@@ -1154,8 +1249,14 @@ bool FunctionManager::CreateFunctionArgWrappers()
                (ins.at(ii)).c_str(), (obj->GetTypeName()).c_str());
       #endif
       // Clone the object, and insert it into the FOS
-      objFOS = obj->Clone();
       objName = inNames.at(ii);
+      objFOS = obj->Clone();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ FunctionManager::CreateFunctionArgWrappers() objFOS = obj->Clone(%s), <%p>\n",
+          objName.c_str(), objFOS);
+      #endif
+      
       objFOS->SetName(objName);
       functionObjectStore->insert(std::make_pair(objName,objFOS));
       #ifdef DEBUG_FM_INIT // ------------------------------------------------- debug ---
@@ -1172,10 +1273,10 @@ bool FunctionManager::CreateFunctionArgWrappers()
                inWrapper->GetWrapperType(), (ins.at(ii)).c_str());
       #endif // -------------------------------------------------------------- end debug ---
    }
+   
    // Outputs cannot be numeric or string literals or array elements, etc.
    // They must be found in the object store; and we do not need to clone them
-   // Handle the case with one blank input (called from FunctionRunner) first
-   outputWrappers.clear();
+   // Handle the case with one blank input (called from FunctionRunner) first   
    if ((outs.size() == 1) && (outs.at(0) == ""))
    {
       #ifdef DEBUG_FM_INIT
@@ -1217,6 +1318,10 @@ bool FunctionManager::CreateFunctionArgWrappers()
 //------------------------------------------------------------------------------
 // void RefreshFunctionObjectStore()
 //------------------------------------------------------------------------------
+/*
+ * Deletes all objects in the function object store except input
+ */
+//------------------------------------------------------------------------------
 void FunctionManager::RefreshFunctionObjectStore()
 {
    #ifdef DEBUG_FM_REFRESH
@@ -1255,6 +1360,11 @@ void FunctionManager::RefreshFunctionObjectStore()
       {  
          if (omi->second != NULL)
          {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- FunctionManager::RefreshFunctionObjectStore() deleting omi->second <%p> '%s'\n",
+                omi->second, (omi->second)->GetName().c_str());
+            #endif
             delete omi->second;
             omi->second = NULL;
          }
@@ -1293,7 +1403,6 @@ void FunctionManager::FindInputFromFunctionObjectStore()
    for (unsigned int ii=0; ii<ins.size(); ii++)
    {
       // Get the object from the object store first 
-      //objName = f->GetStringParameter("Input", ii);
       objName = inNames.at(ii);
       
       #ifdef DEBUG_FM_EXECUTE
@@ -1355,8 +1464,19 @@ void FunctionManager::FindInputFromFunctionObjectStore()
             }
             createdOthers[ins.at(ii)] = obj;
             fosObj = obj->Clone();
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ FunctionManager::FindInputFromFunctionObjectStore() fosObj = obj->Clone(%s), <%p>\n",
+                objName.c_str(), fosObj);
+            #endif
+            
             fosObj->SetName(objName);
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- FunctionManager::FindInputFromFunctionObjectStore() deleting tmpObj <%p>\n", tmpObj);
+            #endif
             delete tmpObj;
+            tmpObj = NULL;
             ////LOJ:delete tmpObj2;
          }
          else
@@ -1435,7 +1555,13 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
    // Check first to see if the string is a numeric literal (and assume we want a real)
    if (GmatStringUtil::ToReal(fromString, &rval))
    {
-      v = new Variable(str);
+      v = new Variable(str);      
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ FunctionManager::CreateObject() v = new Variable(%s), <%p>\n",
+          str.c_str(), v);
+      #endif
+      
       v->SetReal(rval);
       obj = (GmatBase*) v;
       createdLiterals.insert(std::make_pair(str,obj));
@@ -1444,7 +1570,13 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
    else if ((str[0] == '\'') && (str[sz-1] == '\''))
    {
       sval = str.substr(1, sz-2);
-      StringVar *sv = new StringVar(str);
+      StringVar *sv = new StringVar(str);      
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ FunctionManager::CreateObject() sv = new StringVar(%s), <%p>\n",
+          str.c_str(), sv);
+      #endif
+      
       sv->SetStringParameter("Value", sval);
       obj = (GmatBase*) sv;
       createdLiterals.insert(std::make_pair(str,obj));
@@ -1463,7 +1595,13 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
          {
             case Gmat::ARRAY :
             {
-               Array *array   = new Array(str);
+               Array *array   = new Array(str);               
+               #ifdef DEBUG_MEMORY
+               MessageInterface::ShowMessage
+                  ("+++ FunctionManager::CreateObject() array = new Array(%s), <%p>\n",
+                   str.c_str(), array);
+               #endif
+               
                Rmatrix matVal = ew->EvaluateArray();
                array->SetRmatrix(matVal);
                obj = (GmatBase*) array;
@@ -1482,7 +1620,13 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
                }
                ew->SetRefObject(refObj);
                rval = ew->EvaluateReal(); 
-               v = new Variable(str);
+               v = new Variable(str);               
+               #ifdef DEBUG_MEMORY
+               MessageInterface::ShowMessage
+                  ("+++ FunctionManager::CreateObject() v = new Variable(%s), <%p>\n",
+                   str.c_str(), v);
+               #endif
+               
                v->SetReal(rval);
                obj = (GmatBase*) v;
                break;
@@ -1493,6 +1637,12 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
             {
                rval = ew->EvaluateReal(); 
                v = new Variable(str);
+               #ifdef DEBUG_MEMORY
+               MessageInterface::ShowMessage
+                  ("+++ FunctionManager::CreateObject() v = new Variable(%s), <%p>\n",
+                   str.c_str(), v);
+               #endif
+               
                v->SetReal(rval);
                obj = (GmatBase*) v;
                break;
@@ -1501,7 +1651,12 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
             {
                // If unknown create variable (loj: 2008.09.12)
                v = new Variable(str);
-               obj = (GmatBase*) v;
+               obj = (GmatBase*) v;               
+               #ifdef DEBUG_MEMORY
+               MessageInterface::ShowMessage
+                  ("+++ FunctionManager::CreateObject() v = new Variable(%s), <%p>\n",
+                   str.c_str(), v);
+               #endif               
                
                std::string errMsg = "FunctionManager: error using string \"";
                errMsg += fromString + "\" to determine an object\n";
@@ -1595,6 +1750,10 @@ ObjectMap* FunctionManager::PushToStack()
       
    // Clone the FOS
    ObjectMap *cloned = new ObjectMap();
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ FunctionManager::PushToStack() *cloned = new ObjectMap, <%p>\n", cloned);
+   #endif
    CloneObjectMap(functionObjectStore, cloned);
    
    // Put the FOS onto the stack
@@ -1676,8 +1835,6 @@ bool FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
    DeleteObjectMap(cloned, "cloned in PropFromStack");
    cloned = NULL;
    
-   //firstExecution = true;
-   //Initialize();
    #ifdef DEBUG_FM_STACK
       MessageInterface::ShowMessage(
             "PopFromStack::reset object map to the one popped from the stack\n");
@@ -1733,9 +1890,16 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
          #endif
          // for now, don't delete subscribers as the Publisher still points to them and
          // bad things happen at the end of the run if they disappear
-         if (!((omi->second)->IsOfType("Subscriber")))
+         if (!((omi->second)->IsOfType(Gmat::SUBSCRIBER)))
+         {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- FunctionManager::EmptyObjectMap() deleting omi->second <%p> '%s'\n",
+                omi->second, (omi->second)->GetName().c_str());
+            #endif
             delete omi->second;
-         omi->second = NULL;
+            omi->second = NULL;
+         }
       }
       toDelete.push_back(omi->first); 
    }
@@ -1772,9 +1936,52 @@ bool FunctionManager::DeleteObjectMap(ObjectMap *om, const std::string &mapID)
    #endif
    
    EmptyObjectMap(om, mapID);
+   
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("--- FunctionManager::DeleteObjectMap() deleting om <%p>\n", om);
+   #endif
    delete om;
+   om = NULL;
    return true;
 }
+
+//------------------------------------------------------------------------------
+// bool ClearInOutWrappers()
+//------------------------------------------------------------------------------
+bool FunctionManager::ClearInOutWrappers()
+{
+   // input wrappers map
+   std::map<std::string, ElementWrapper *>::iterator ewi;
+   for (ewi = inputWrappers.begin(); ewi != inputWrappers.end(); ++ewi)
+   {
+      if (ewi->second)
+      {
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("--- FunctionManager::ClearInOutWrappers() deleting inputWrapper <%p> '%s'\n",
+          ewi->second, (ewi->second)->GetDescription().c_str());
+         #endif
+         delete ewi->second;
+      }
+   }
+   inputWrappers.clear();
+   
+   // output wrappers
+   for (UnsignedInt i=0; i<outputWrappers.size(); i++)
+   {
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- FunctionManager::ClearInOutWrappers() deleting outputWrappers <%p> '%s'\n",
+          outputWrappers[i], outputWrappers[i]->GetDescription().c_str());
+      #endif
+      delete outputWrappers[i];
+   }
+   outputWrappers.clear();
+
+   return true;
+}
+
 
 //------------------------------------------------------------------------------
 // bool IsOnStack(ObjectMap *om)
@@ -1823,8 +2030,16 @@ bool FunctionManager::CloneObjectMap(ObjectMap *orig, ObjectMap *cloned)
             "PushToStack::Inserting clone of object \"%s\" into cloned object map\n",
             strInMap.c_str());
       #endif
-      cloned->insert(std::make_pair(strInMap, objInMap->Clone()));
+      
+      GmatBase *clonedObj = objInMap->Clone();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ FunctionManager::CloneObjectMap() clonedObj = objInMap->Clone(%s), <%p>\n",
+          strInMap.c_str(), clonedObj);
+      #endif
+      cloned->insert(std::make_pair(strInMap, clonedObj));
    }
+   
    return true;
 }
 
@@ -1877,7 +2092,6 @@ void FunctionManager::ShowStackContents(ObjectMapStack omStack, const std::strin
    std::string    mapID;
    while (!(omStack.empty()))
    {
-      ////mapID = "Object map " + dx;
       mapID = GmatStringUtil::ToString(idx, 3);
       om = omStack.top();
       ShowObjectMap(om, mapID);

@@ -169,6 +169,7 @@ protected:
    
    bool                 EmptyObjectMap(ObjectMap *om, const std::string &mapID = "");  
    bool                 DeleteObjectMap(ObjectMap *om, const std::string &mapID = "");
+   bool                 ClearInOutWrappers();
    bool                 CloneObjectMap(ObjectMap *orig, ObjectMap *cloned);
    bool                 CopyObjectMap(ObjectMap *from, ObjectMap *to);
    bool                 IsOnStack(ObjectMap *om);
