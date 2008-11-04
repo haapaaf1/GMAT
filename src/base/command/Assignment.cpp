@@ -873,6 +873,15 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
        (Integer) (toWrapper->GetWrapperType()), GetGeneratingString(Gmat::NO_COMMENTS).c_str());
    #endif
    
+   ElementWrapper *lhsOldWrapper = NULL;
+   ElementWrapper *rhsOldWrapper = NULL;
+   ElementWrapper *rhsNewWrapper = NULL;
+   
+   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   MessageInterface::ShowMessage
+      ("   lhsWrapper=<%p>, rhsWrapper=<%p>\n", lhsWrapper, rhsWrapper);
+   #endif
+   
    if (withName == lhs)
    {
       // lhs should always be object property wrapper, so check first
@@ -880,7 +889,12 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
           (withName.find(".") != withName.npos &&
            toWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY))
       {
-         lhsWrapper = toWrapper;
+         // to handle Count = Count + 1, old lhsWrapper cannot be deleted here
+         if (lhsWrapper != toWrapper)
+         {
+            lhsOldWrapper = lhsWrapper;
+            lhsWrapper = toWrapper;
+         }
          retval = true;
       }
    }
@@ -889,7 +903,12 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    {
       if (withName == rhs)
       {
-         rhsWrapper = toWrapper;
+         if (rhsWrapper != toWrapper)
+         {
+            rhsOldWrapper = rhsWrapper;
+            rhsNewWrapper = toWrapper;
+            rhsWrapper = toWrapper;
+         }
          retval = true;
       }
    }
@@ -903,11 +922,102 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
              (withName.find(".") != withName.npos &&
               toWrapper->GetWrapperType() == Gmat::PARAMETER_OBJECT))
          {
-            mathWrapperMap[withName] = toWrapper;
+            if (mathWrapperMap[withName] != toWrapper)
+            {
+               rhsOldWrapper = mathWrapperMap[withName];
+               rhsNewWrapper = toWrapper;
+               mathWrapperMap[withName] = toWrapper;
+            }
             retval = true;
          }
       }
    }
+   
+   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   MessageInterface::ShowMessage
+      ("   lhsOldWrapper=<%p>, rhsOldWrapper=<%p>\n", lhsOldWrapper, rhsOldWrapper);
+   MessageInterface::ShowMessage
+      ("   lhsWrapper=<%p>, rhsWrapper=<%p>, rhsNewWrapper=<%p>\n",
+       lhsWrapper, rhsWrapper, rhsNewWrapper);
+   #endif
+   
+   // now delete old wrappers
+   if (lhsOldWrapper == rhsOldWrapper && lhsOldWrapper != NULL)
+   {
+      // delete only lhs old wrapper
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- Assignment::SetElementWrapper() '%s' deleting lhsOldWrapper <%p> '%s'\n",
+          GetGeneratingString(Gmat::NO_COMMENTS).c_str(), lhsOldWrapper,
+          lhsOldWrapper->GetDescription().c_str());
+      #endif
+      delete lhsOldWrapper;     
+      lhsOldWrapper = NULL;
+   }
+   else
+   {
+      // check lhs wrapper
+      if (lhsOldWrapper != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("--- Assignment::SetElementWrapper() '%s' deleting lhsOldWrapper <%p> '%s'\n",
+             GetGeneratingString(Gmat::NO_COMMENTS).c_str(), lhsOldWrapper,
+             lhsOldWrapper->GetDescription().c_str());
+         #endif
+         delete lhsOldWrapper;     
+         lhsOldWrapper = NULL;
+      }
+      
+      // check rhs wrapper
+      if (rhsOldWrapper != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("--- Assignment::SetElementWrapper() '%s' deleting rhsOldWrapper <%p> '%s'\n",
+             GetGeneratingString(Gmat::NO_COMMENTS).c_str(), rhsOldWrapper,
+             rhsOldWrapper->GetDescription().c_str());
+         #endif
+         delete rhsOldWrapper;
+         rhsOldWrapper = NULL;
+      }
+   }
+   
+//    if (withName == lhs)
+//    {
+//       // lhs should always be object property wrapper, so check first
+//       if (withName.find(".") == withName.npos ||
+//           (withName.find(".") != withName.npos &&
+//            toWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY))
+//       {
+//          lhsWrapper = toWrapper;
+//          retval = true;
+//       }
+//    }
+   
+//    if (mathTree == NULL)
+//    {
+//       if (withName == rhs)
+//       {
+//          rhsWrapper = toWrapper;
+//          retval = true;
+//       }
+//    }
+//    else
+//    {
+//       // if name found in the math wrapper map
+//       if (mathWrapperMap.find(withName) != mathWrapperMap.end())
+//       {
+//          // rhs should always be parameter wrapper, so check first
+//          if (withName.find(".") == withName.npos ||
+//              (withName.find(".") != withName.npos &&
+//               toWrapper->GetWrapperType() == Gmat::PARAMETER_OBJECT))
+//          {
+//             mathWrapperMap[withName] = toWrapper;
+//             retval = true;
+//          }
+//       }
+//    }
    
    #ifdef DEBUG_ASSIGNMENT_WRAPPER
    MessageInterface::ShowMessage
