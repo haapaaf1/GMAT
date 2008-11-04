@@ -140,3 +140,18 @@ Real PropCovar::SetEpoch(const Real ep)
 {
    return epoch = ep;
 }
+
+//------------------------------------------------------------------------------
+// LaGenMatDouble copy(LaGenMatDouble mat)
+//------------------------------------------------------------------------------
+/**
+ * Unhides the LaGenMatDouble copy method.
+ *
+ * @return The covariance matrix to copy.
+ */
+//------------------------------------------------------------------------------
+LaGenMatDouble PropCovar::copy(LaGenMatDouble mat)
+{
+   covariance.copy(mat);
+}
+

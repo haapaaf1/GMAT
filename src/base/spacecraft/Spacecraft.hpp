@@ -58,7 +58,7 @@ public:
    void	SetCovariance(const Real &c11, const Real &c22, const Real &c33,
 		      const Real &c44, const Real &c55, const Real &c66);
    void	SetCovariance(const LaGenMatDouble &cov);
-   void	SetCovariance(const Rvector &cov, Integer &m, Integer &n);
+   void	SetCovariance(Real* &cov, const Integer &m, const Integer &n);
  
    
    virtual PropCovar&   GetCovariance();
@@ -186,6 +186,11 @@ protected:
       COVARIANCE44_ID, 
       COVARIANCE55_ID, 
       COVARIANCE66_ID, 
+      COVARIANCE12_ID, 
+      COVARIANCE13_ID, 
+      COVARIANCE14_ID, 
+      COVARIANCE15_ID, 
+      COVARIANCE16_ID, 
       COVARIANCE23_ID, 
       COVARIANCE24_ID, 
       COVARIANCE25_ID, 

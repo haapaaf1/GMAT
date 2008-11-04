@@ -39,6 +39,8 @@ public:
    LaGenMatDouble    GetCovariance();
    Real              GetEpoch() const;
    Real              SetEpoch(const Real ep);
+  
+   LaGenMatDouble    copy(LaGenMatDouble mat);
    
 protected:
 

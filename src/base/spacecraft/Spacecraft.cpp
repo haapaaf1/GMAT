@@ -601,13 +601,13 @@ void Spacecraft::SetCovariance(const LaGenMatDouble &cov)
 //---------------------------------------------------------------------------
 void Spacecraft::SetCovariance(const Rvector6 &diagCovar)
 {     
-   Rvector cov(36) = 0;
-   cov(0) = diagCovar.Get(0);
-   cov(7) = diagCovar.Get(1);
-   cov(14) = diagCovar.Get(2);
-   cov(21) = diagCovar.Get(3);
-   cov(28) = diagCovar.Get(4);
-   cov(35) = diagCovar.Get(5);
+   Real cov[36] = {0.0};
+   cov[0] = diagCovar.Get(0);
+   cov[7] = diagCovar.Get(1);
+   cov[14] = diagCovar.Get(2);
+   cov[21] = diagCovar.Get(3);
+   cov[28] = diagCovar.Get(4);
+   cov[35] = diagCovar.Get(5);
    
    LaGenMatDouble ctemp(cov,6,6);
          
@@ -632,13 +632,13 @@ void Spacecraft::SetCovariance(const Rvector6 &diagCovar)
 void Spacecraft::SetCovariance(const Real &c11, const Real &c22, const Real &c33,
 		   const Real &c44, const Real &c55, const Real &c66)
 {
-   Rvector cov(36) = 0;
-   cov(0) = c11;
-   cov(7) = c22;
-   cov(14) = c33;
-   cov(21) = c44;
-   cov(28) = c55;
-   cov(35) = c66;
+   Real cov[36] = {0.0};
+   cov[0] = c11;
+   cov[7] = c22;
+   cov[14] = c33;
+   cov[21] = c44;
+   cov[28] = c55;
+   cov[35] = c66;
    
    LaGenMatDouble ctemp(cov,6,6);
          
@@ -647,7 +647,7 @@ void Spacecraft::SetCovariance(const Real &c11, const Real &c22, const Real &c33
 }
 
 //------------------------------------------------------------------------------
-//  void SetCovariance(Rvector &cov)
+//  void SetCovariance(Real* &cov, const Integer &m, const Integer &n)
 //------------------------------------------------------------------------------
 /**
  * Set the elements of a covariance matrix.
@@ -657,7 +657,7 @@ void Spacecraft::SetCovariance(const Real &c11, const Real &c22, const Real &c33
  * @param <n> Number of columns in desired covariance matrix
  */
 //------------------------------------------------------------------------------
-void Spacecraft::SetCovariance(Rvector &cov, Integer &m, Integer &n)
+void Spacecraft::SetCovariance(Real* &cov, const Integer &m, const Integer &n)
 {
    LaGenMatDouble ctemp(cov,m,n);
    SetCovariance(ctemp);
