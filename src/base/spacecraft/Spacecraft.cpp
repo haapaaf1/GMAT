@@ -264,7 +264,7 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    state[5] = 1.0;
    
    // Initialize covariance to zero matrix of rank 6
-   covariance.GetCovariance()->zeros(6,6);
+   covariance.GetTheMatrix()->zeros(6,6);
 
    stateElementLabel.push_back("X");
    stateElementLabel.push_back("Y");
@@ -593,7 +593,7 @@ void Spacecraft::SetState(const Real s1, const Real s2, const Real s3,
 //---------------------------------------------------------------------------
 void Spacecraft::SetCovariance(const LaGenMatDouble &cov)
 {
-    covariance.GetCovariance()->copy(cov);
+    covariance.GetTheMatrix()->copy(cov);
 }
 
 //---------------------------------------------------------------------------

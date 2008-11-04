@@ -36,7 +36,7 @@ public:
    PropCovar&        operator=(const PropCovar& ps);
        
    // Access methods
-   LaGenMatDouble*   GetCovariance();
+   LaGenMatDouble*   GetTheMatrix();
    Real              GetEpoch() const;
    Real              SetEpoch(const Real ep);
     
