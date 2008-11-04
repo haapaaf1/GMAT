@@ -35,7 +35,7 @@
 //------------------------------------------------------------------------------
 PropCovar::PropCovar(const Integer dim) :
    epoch          (21545.0),
-   covariance     (dim,dim) 
+   theMatrix     (dim,dim) 
 {
 }
 
@@ -63,7 +63,7 @@ PropCovar::~PropCovar()
  */
 //------------------------------------------------------------------------------
 PropCovar::PropCovar(const PropCovar& ps) :
-   epoch (ps.epoch), covariance(ps.covariance)
+   epoch (ps.epoch), theMatrix(ps.theMatrix)
 {
 }
 
@@ -85,7 +85,7 @@ PropCovar& PropCovar::operator=(const PropCovar& ps)
    if (this == &ps)
       return *this;
       
-   covariance.copy(ps.covariance);
+   theMatrix.copy(ps.theMatrix);
    epoch = ps.epoch;
    
    return *this;
@@ -102,9 +102,9 @@ PropCovar& PropCovar::operator=(const PropCovar& ps)
  * @return The covariance vector.
  */
 //------------------------------------------------------------------------------
-LaGenMatDouble PropCovar::GetCovariance()
+LaGenMatDouble* PropCovar::GetCovariance()
 {
-   return covariance;
+   return &theMatrix;
 }
 
 //------------------------------------------------------------------------------
@@ -140,18 +140,3 @@ Real PropCovar::SetEpoch(const Real ep)
 {
    return epoch = ep;
 }
-
-//------------------------------------------------------------------------------
-// void copy(const LaGenMatDouble &mat)
-//------------------------------------------------------------------------------
-/**
- * Unhides the LaGenMatDouble copy method.
- *
- * @return The covariance matrix to copy.
- */
-//------------------------------------------------------------------------------
-void PropCovar::copy(const LaGenMatDouble &mat)
-{
-   covariance.copy(mat);
-}
-

@@ -586,7 +586,7 @@ void Spacecraft::SetState(const Real s1, const Real s2, const Real s3,
 //---------------------------------------------------------------------------
 void Spacecraft::SetCovariance(const LaGenMatDouble &cov)
 {
-    covariance.copy(cov);
+    covariance.GetCovariance()->copy(cov);
 }
 
 //---------------------------------------------------------------------------
