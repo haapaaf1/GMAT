@@ -53,7 +53,9 @@ public:
    void                 SetState(const std::string &elementType, Real *instate);
    void                 SetState(const Real s1, const Real s2, const Real s3, 
                                  const Real s4, const Real s5, const Real s6);
-   
+
+   virtual PropCovar&   GetCovariance();
+      
    virtual PropState&   GetState();
    virtual Rvector6     GetState(std::string rep);
    virtual Rvector6     GetState(Integer rep);
@@ -169,9 +171,24 @@ protected:
       THRUSTER_ID, 
       TOTAL_MASS_ID, 
       ATTITUDE,
-      
       // special parameter to handle in GmatFunction
       UTC_GREGORIAN,
+      COVARIANCE11_ID, 
+      COVARIANCE22_ID, 
+      COVARIANCE33_ID, 
+      COVARIANCE44_ID, 
+      COVARIANCE55_ID, 
+      COVARIANCE66_ID, 
+      COVARIANCE23_ID, 
+      COVARIANCE24_ID, 
+      COVARIANCE25_ID, 
+      COVARIANCE26_ID, 
+      COVARIANCE34_ID, 
+      COVARIANCE35_ID, 
+      COVARIANCE36_ID, 
+      COVARIANCE45_ID, 
+      COVARIANCE46_ID, 
+      COVARIANCE56_ID, 
       SpacecraftParamCount
    };
    

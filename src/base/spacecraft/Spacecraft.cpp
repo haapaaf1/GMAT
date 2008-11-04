@@ -85,6 +85,27 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // TotalMass
       Gmat::OBJECT_TYPE,      // Attitude
       Gmat::STRING_TYPE,      // UTCGregorian
+      Gmat::REAL_TYPE,        // Covariance11
+      Gmat::REAL_TYPE,        // Covariance22
+      Gmat::REAL_TYPE,        // Covariance33
+      Gmat::REAL_TYPE,        // Covariance44
+      Gmat::REAL_TYPE,        // Covariance55
+      Gmat::REAL_TYPE,        // Covariance66
+      Gmat::REAL_TYPE,        // Covariance12
+      Gmat::REAL_TYPE,        // Covariance13
+      Gmat::REAL_TYPE,        // Covariance14
+      Gmat::REAL_TYPE,        // Covariance15
+      Gmat::REAL_TYPE,        // Covariance16
+      Gmat::REAL_TYPE,        // Covariance23
+      Gmat::REAL_TYPE,        // Covariance24
+      Gmat::REAL_TYPE,        // Covariance25
+      Gmat::REAL_TYPE,        // Covariance26
+      Gmat::REAL_TYPE,        // Covariance34
+      Gmat::REAL_TYPE,        // Covariance35
+      Gmat::REAL_TYPE,        // Covariance36
+      Gmat::REAL_TYPE,        // Covariance45
+      Gmat::REAL_TYPE,        // Covariance46
+      Gmat::REAL_TYPE,        // Covariance56
    };
    
 const std::string 
@@ -118,6 +139,27 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "TotalMass", 
       "Attitude",
       "UTCGregorian",
+      "Covariance11", 
+      "Covariance22", 
+      "Covariance33", 
+      "Covariance44", 
+      "Covariance55", 
+      "Covariance66", 
+      "Covariance12", 
+      "Covariance13", 
+      "Covariance14", 
+      "Covariance15", 
+      "Covariance16", 
+      "Covariance23", 
+      "Covariance24", 
+      "Covariance25", 
+      "Covariance26", 
+      "Covariance34", 
+      "Covariance35", 
+      "Covariance36", 
+      "Covariance45", 
+      "Covariance46", 
+      "Covariance56",       
    };
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] = 
@@ -530,6 +572,19 @@ void Spacecraft::SetState(const Real s1, const Real s2, const Real s3,
     state[5] = s6;
 }
 
+//------------------------------------------------------------------------------
+//  PropState& GetCovariance() 
+//------------------------------------------------------------------------------
+/**
+ * "Unhide" the SpaceObject method.
+ * 
+ * @return the core PropCovar.   
+ */
+//------------------------------------------------------------------------------
+PropCovar& Spacecraft::GetCovariance()
+{
+   return SpaceObject::GetCovariance();
+}
 
 //------------------------------------------------------------------------------
 //  PropState& GetState() 
@@ -566,7 +621,7 @@ Rvector6 Spacecraft::GetState(std::string rep)
 
 
 //------------------------------------------------------------------------------
-//  Rvector6 GetState(std::string &rep) 
+//  Rvector6 GetState(Integer rep) 
 //------------------------------------------------------------------------------
 /**
  * Get the converted Cartesian states from states in different coordinate type.
