@@ -26,10 +26,14 @@
 
 //#define DEBUG_MATH_TREE 1
 //#define DEBUG_MATH_TREE_INIT 1
-#define DEBUG_MATH_TREE_EVAL 1
+//#define DEBUG_MATH_TREE_EVAL 1
 //#define DEBUG_MATH_WRAPPERS
 //#define DEBUG_RENAME
 //#define DEBUG_FUNCTION
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
 
 //------------------------------------------------------------------------------
 //  MathTree()
@@ -54,13 +58,28 @@ MathTree::MathTree(const std::string &typeStr, const std::string &nomme) :
 //------------------------------------------------------------------------------
 MathTree::~MathTree()
 {
-   // Need to delete from the bottom nodes
+   // Need to delete all math nodes
    if (theTopNode)
    {
-      //MessageInterface::ShowMessage
-      //   ("==> MathTree::~MathTree() deleting theTopNode:%s, %s\n", GetTypeName().c_str(),
-      //    GetName().c_str());
-      delete theTopNode;
+      nodesToDelete.clear();
+      DeleteNode(theTopNode);
+      
+      for (std::vector<MathNode*>::iterator i = nodesToDelete.begin();
+           i != nodesToDelete.end(); ++i)
+      {
+         if ((*i) != NULL)
+         {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- MathTree::~MathTree() deleting node <%p><%s> '%s'\n", (*i),
+                (*i)->GetTypeName().c_str(), (*i)->GetName().c_str());
+            #endif
+            
+            delete (*i);
+            (*i) = NULL;
+         }
+      }
+      nodesToDelete.clear();
    }
 }
 
@@ -1042,5 +1061,26 @@ void MathTree::CreateParameterNameArray(MathNode *node)
       MathNode *right = node->GetRight();
       CreateParameterNameArray(right);
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void DeleteNode(MathNode *node)
+//------------------------------------------------------------------------------
+void MathTree::DeleteNode(MathNode *node)
+{
+   if (node == NULL)
+      return;
+   
+   // add node to delete   
+   nodesToDelete.push_back(node);
+   
+   MathNode *left = node->GetLeft();
+   if (left != NULL)
+      DeleteNode(left);
+   
+   MathNode *right = node->GetRight();
+   if (right != NULL)
+      DeleteNode(right);
 }
 

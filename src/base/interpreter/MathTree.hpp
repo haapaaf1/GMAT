@@ -93,6 +93,7 @@ protected:
    StringArray theAllParamArray;
    StringArray theGmatFunctionNames;
    std::vector<Function*> theFunctions;
+   std::vector<MathNode*> nodesToDelete;
    
    bool InitializeParameter(MathNode *node);
    void FinalizeFunctionRunner(MathNode *node);
@@ -107,6 +108,7 @@ protected:
    bool RenameParameter(MathNode *node, const Gmat::ObjectType type,
                         const std::string &oldName, const std::string &newName);
    void CreateParameterNameArray(MathNode *node);
+   void DeleteNode(MathNode *node);
    
 };
 

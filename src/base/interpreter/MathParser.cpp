@@ -49,6 +49,10 @@
 //#define DEBUG_CREATE_NODE 2
 //#define DEBUG_GMAT_FUNCTION 1
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -573,6 +577,12 @@ MathNode* MathParser::CreateNode(const std::string &type, const std::string &exp
    
    if (node == NULL)
       throw MathException("Cannot create MathNode of \"" + actualType + "\"");
+   
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ MathParser::CreateNode() node = theModerator->CreateMathNode(%s, %s), <%p>\n",
+       actualType.c_str(), nodeName.c_str(), node);
+   #endif
    
    if (actualType == "FunctionRunner")
    {
