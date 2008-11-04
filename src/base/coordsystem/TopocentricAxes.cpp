@@ -383,27 +383,8 @@ void TopocentricAxes::CalculateRFT(const A1Mjd &atEpoch, const Rvector3 newLocat
 	Rvector3 myPos(x,y,z);
         // This computes the geodectic latitude, longitude, and height above the ellipsoid
 	LatLonHgt myCoords(myPos,radius,flattening,latitudeGeometry);
-	
-	// We want the geocentric latitude so if latitudeGeometry was
-	// specified as something else, we convert to geocentric
-	if (myCoords.GetType() == "Geodetic") 
-	{
-	    // This converts to geocentric latitude
-	    myCoords.GeodeticToGeocentricLat(flattening);
-	} 
-	else if (myCoords.GetType() == "Reduced")
-	{
-	    // This converts to geocentric latitude
-	    myCoords.ReducedToGeocentricLat(flattening);
-	}
-	
-	Real phigc = myCoords.GetLatitude();
-	Real bfLong = myCoords.GetLongitude();
-	
-	zUnit[0]    = GmatMathUtil::Cos(phigc) * GmatMathUtil::Cos(bfLong);
-	zUnit[1]    = GmatMathUtil::Cos(phigc) * GmatMathUtil::Sin(bfLong);
-	zUnit[2]    = GmatMathUtil::Sin(phigc);
-	
+	zUnit = myCoords.GetUnitVector(radius,flattening);
+		
    }
    // Complete the computation of x, y, and RFT
    yUnit          = Cross(kUnit, zUnit);
