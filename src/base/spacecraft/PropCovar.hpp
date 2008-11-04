@@ -40,7 +40,7 @@ public:
    Real              GetEpoch() const;
    Real              SetEpoch(const Real ep);
   
-   void    copy(LaGenMatDouble &mat);
+   void    copy(const LaGenMatDouble &mat);
    
 protected:
 
