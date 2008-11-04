@@ -262,6 +262,9 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    state[3] = 0.0;
    state[4] = 7.35;
    state[5] = 1.0;
+   
+   // Initialize covariance to zero matrix of rank 6
+   covariance.GetCovariance()->zeros(6,6);
 
    stateElementLabel.push_back("X");
    stateElementLabel.push_back("Y");
@@ -361,6 +364,8 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    state[5] = a.state[5];
    trueAnomaly = a.trueAnomaly;
    
+   covariance = a.covariance;
+   
    stateElementLabel = a.stateElementLabel;
    stateElementUnits = a.stateElementUnits;
    representations   = a.representations;
@@ -434,6 +439,8 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    state[4] = a.state[4];
    state[5] = a.state[5];
    
+   covariance = a.covariance;
+  
    if (a.csSet)
    {
       coordinateSystem = a.coordinateSystem;
