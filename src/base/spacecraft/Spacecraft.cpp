@@ -263,8 +263,8 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    state[4] = 7.35;
    state[5] = 1.0;
    
-   // Initialize covariance to zero matrix of rank 6
-   covariance.GetTheMatrix()->zeros(6,6);
+   // Initialize covariance to identity matrix of rank 6
+   covariance.GetTheMatrix().eye(6,6);
 
    stateElementLabel.push_back("X");
    stateElementLabel.push_back("Y");
@@ -593,7 +593,7 @@ void Spacecraft::SetState(const Real s1, const Real s2, const Real s3,
 //---------------------------------------------------------------------------
 void Spacecraft::SetCovariance(const LaGenMatDouble &cov)
 {
-    covariance.GetTheMatrix()->copy(cov);
+    covariance.GetTheMatrix().copy(cov);
 }
 
 //---------------------------------------------------------------------------
@@ -1307,6 +1307,48 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
        str == "EA" || str == "HA" || str == "FPA" || str == "DECV" || str == "MLONG") 
       retval =  ELEMENT6_ID;
       //return ELEMENT6_ID;
+   else if (str == "Covariance11" || str == "CovarianceXX")
+       retval = COVARIANCE11_ID;
+   else if (str == "Covariance12" || str == "CovarianceXY")
+       retval = COVARIANCE12_ID;
+   else if (str == "Covariance13" || str == "CovarianceXZ")
+       retval = COVARIANCE13_ID;
+   else if (str == "Covariance14" || str == "CovarianceXVX" || str == "CovarianceXDX")
+       retval = COVARIANCE14_ID;
+   else if (str == "Covariance15" || str == "CovarianceXVY" || str == "CovarianceXDY")
+       retval = COVARIANCE15_ID;
+   else if (str == "Covariance16" || str == "CovarianceXVZ" || str == "CovarianceXDZ")
+       retval = COVARIANCE16_ID;
+   else if (str == "Covariance22" || str == "CovarianceYY")
+       retval = COVARIANCE22_ID;
+   else if (str == "Covariance23" || str == "CovarianceYZ")
+       retval = COVARIANCE23_ID;
+   else if (str == "Covariance24" || str == "CovarianceYVX" || str == "CovarianceYDX")
+       retval = COVARIANCE24_ID;
+   else if (str == "Covariance25" || str == "CovarianceYVY" || str == "CovarianceYDY")
+       retval = COVARIANCE25_ID;
+   else if (str == "Covariance26" || str == "CovarianceYVZ" || str == "CovarianceYDZ")
+       retval = COVARIANCE26_ID;
+   else if (str == "Covariance33" || str == "CovarianceZZ")
+       retval = COVARIANCE33_ID;
+   else if (str == "Covariance34" || str == "CovarianceZVX" || str == "CovarianceZDX")
+       retval = COVARIANCE34_ID;
+   else if (str == "Covariance35" || str == "CovarianceZVY" || str == "CovarianceZDY")
+       retval = COVARIANCE35_ID;
+   else if (str == "Covariance36" || str == "CovarianceZVZ" || str == "CovarianceZDZ")
+       retval = COVARIANCE36_ID;
+   else if (str == "Covariance44" || str == "CovarianceVXVX" || str == "CovarianceDXDX")
+       retval = COVARIANCE44_ID;
+   else if (str == "Covariance45" || str == "CovarianceVXVY" || str == "CovarianceDXDY")
+       retval = COVARIANCE45_ID;
+   else if (str == "Covariance46" || str == "CovarianceVXVZ" || str == "CovarianceDXDZ")
+       retval = COVARIANCE46_ID;
+   else if (str == "Covariance55" || str == "CovarianceVYVY" || str == "CovarianceDYDY")
+       retval = COVARIANCE55_ID;
+   else if (str == "Covariance56" || str == "CovarianceVYVZ" || str == "CovarianceDYDZ")
+       retval = COVARIANCE56_ID;
+   else if (str == "Covariance66" || str == "CovarianceVZVZ" || str == "CovarianceDZDZ")
+       retval = COVARIANCE66_ID;
 
    #ifdef DEBUG_GET_REAL
    MessageInterface::ShowMessage(
@@ -1534,6 +1576,112 @@ Real Spacecraft::GetRealParameter(const Integer id) const
       #endif
       return (const_cast<Spacecraft*>(this))->GetElement(GetParameterText(id));
    }
+      
+   if (id == COVARIANCE11_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,1);
+   }
+   if (id == COVARIANCE12_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,2);
+   }
+   if (id == COVARIANCE13_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,3);
+   }
+   if (id == COVARIANCE14_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,4);
+   }
+   if (id == COVARIANCE15_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,5);
+   }
+   if (id == COVARIANCE16_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,6);
+   }
+   if (id == COVARIANCE22_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,2);
+   }
+   if (id == COVARIANCE23_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,3);
+   }
+   if (id == COVARIANCE24_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,4);
+   }
+   if (id == COVARIANCE25_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,5);
+   }
+   if (id == COVARIANCE26_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,6);
+   }
+   if (id == COVARIANCE33_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(3,3);
+   }
+   if (id == COVARIANCE34_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(3,4);
+   }
+   if (id == COVARIANCE35_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(3,5);
+   }
+   if (id == COVARIANCE36_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(3,6);
+   }
+   if (id == COVARIANCE44_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(4,4);
+   }
+   if (id == COVARIANCE45_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(4,5);
+   }
+   if (id == COVARIANCE46_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(4,6);
+   }
+   if (id == COVARIANCE55_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(5,5);
+   }
+   if (id == COVARIANCE56_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(5,6);
+   }
+   if (id == COVARIANCE66_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(6,6);
+   }
    
    if (id == DRY_MASS_ID) return dryMass;
    if (id == CD_ID) return coeffDrag;
@@ -1614,6 +1762,91 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value)
    if (id == ELEMENT4_ID) return SetRealParameter(stateElementLabel[3],value); 
    if (id == ELEMENT5_ID) return SetRealParameter(stateElementLabel[4],value); 
    if (id == ELEMENT6_ID) return SetRealParameter(stateElementLabel[5],value); 
+   
+   if (id == COVARIANCE11_ID)
+   {
+      return SetRealParameter("Covariance11", value); 
+   }
+   if (id == COVARIANCE12_ID)
+   {
+      return SetRealParameter("Covariance12", value); 
+   }
+   if (id == COVARIANCE13_ID)
+   {
+      return SetRealParameter("Covariance13", value); 
+   }
+   if (id == COVARIANCE14_ID)
+   {
+      return SetRealParameter("Covariance14", value); 
+   }
+   if (id == COVARIANCE15_ID)
+   {
+      return SetRealParameter("Covariance15", value); 
+   }
+   if (id == COVARIANCE16_ID)
+   {
+      return SetRealParameter("Covariance16", value); 
+   }
+   if (id == COVARIANCE22_ID)
+   {
+      return SetRealParameter("Covariance22", value); 
+   }
+   if (id == COVARIANCE23_ID)
+   {
+      return SetRealParameter("Covariance23", value); 
+   }
+   if (id == COVARIANCE24_ID)
+   {
+      return SetRealParameter("Covariance24", value); 
+   }
+   if (id == COVARIANCE25_ID)
+   {
+      return SetRealParameter("Covariance25", value); 
+   }
+   if (id == COVARIANCE26_ID)
+   {
+      return SetRealParameter("Covariance26", value); 
+   }
+   if (id == COVARIANCE33_ID)
+   {
+      return SetRealParameter("Covariance33", value); 
+   }
+   if (id == COVARIANCE34_ID)
+   {
+      return SetRealParameter("Covariance34", value); 
+   }
+   if (id == COVARIANCE35_ID)
+   {
+      return SetRealParameter("Covariance35", value); 
+   }
+   if (id == COVARIANCE36_ID)
+   {
+      return SetRealParameter("Covariance36", value); 
+   }
+   if (id == COVARIANCE44_ID)
+   {
+      return SetRealParameter("Covariance44", value); 
+   }
+   if (id == COVARIANCE45_ID)
+   {
+      return SetRealParameter("Covariance45", value); 
+   }
+   if (id == COVARIANCE46_ID)
+   {
+      return SetRealParameter("Covariance46", value); 
+   }
+   if (id == COVARIANCE55_ID)
+   {
+      return SetRealParameter("Covariance55", value); 
+   }
+   if (id == COVARIANCE56_ID)
+   {
+      return SetRealParameter("Covariance56", value); 
+   }
+   if (id == COVARIANCE66_ID)
+   {
+      return SetRealParameter("Covariance66", value); 
+   }
 
    if (id == DRY_MASS_ID)
    {
@@ -1680,7 +1913,135 @@ Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
    // First try to set as a state element
    if (SetElement(label, value))
       return value;
-      
+
+   if (label == "Covariance11" || label == "CovarianceXX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,1) = value;
+      return value;
+   }
+   if (label == "Covariance12" || label == "CovarianceXY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,2) = value;
+      return value;
+   }
+   if (label == "Covariance13" || label == "CovarianceXZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,3) = value;
+      return value;
+   }
+   if (label == "Covariance14" || label == "CovarianceXVX" || label == "CovarianceXDX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,4) = value;
+      return value;
+   }
+   if (label == "Covariance15" || label == "CovarianceXVY" || label == "CovarianceXDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,5) = value;
+      return value;
+   }
+   if (label == "Covariance16" || label == "CovarianceXVZ" || label == "CovarianceXDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,6) = value;
+      return value;
+   }
+   if (label == "Covariance22" || label == "CovarianceYY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,2) = value;
+      return value;
+   }
+   if (label == "Covariance23" || label == "CovarianceYZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,3) = value;
+      return value;
+   }
+   if (label == "Covariance24" || label == "CovarianceYVX" || label == "CovarianceYDX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,4) = value;
+      return value;
+   }
+   if (label == "Covariance25" || label == "CovarianceYVY" || label == "CovarianceYDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,5) = value;
+      return value;
+   }
+   if (label == "Covariance26" || label == "CovarianceYVZ" || label == "CovarianceYDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,6) = value;
+      return value;
+   }
+   if (label == "Covariance33" || label == "CovarianceZZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(3,3) = value;
+      return value;
+   }
+   if (label == "Covariance34" || label == "CovarianceZVX" || label == "CovarianceZDX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(3,4) = value;
+      return value;
+   }
+   if (label == "Covariance35" || label == "CovarianceZVY" || label == "CovarianceZDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(3,5) = value;
+      return value;
+   }
+   if (label == "Covariance36" || label == "CovarianceZVZ" || label == "CovarianceZDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(3,6) = value;
+      return value;
+   }
+   if (label == "Covariance44" || label == "CovarianceVXVX" || label == "CovarianceDXDX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(4,4) = value;
+      return value;
+   }
+   if (label == "Covariance45" || label == "CovarianceVXVY" || label == "CovarianceDXDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(4,5) = value;
+      return value;
+   }
+   if (label == "Covariance46" || label == "CovarianceVXVZ" || label == "CovarianceDXDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(4,6) = value;
+      return value;
+   }
+   if (label == "Covariance55" || label == "CovarianceVYVY" || label == "CovarianceDYDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(5,5) = value;
+      return value;
+   }
+   if (label == "Covariance56" || label == "CovarianceVYVZ" || label == "CovarianceDYDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(5,6) = value;
+      return value;
+   }
+   if (label == "Covariance66" || label == "CovarianceVZVZ" || label == "CovarianceDZDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(6,6) = value;
+      return value;
+   }
+
+   
    if (label == "A1Epoch")
    {
       state.SetEpoch(value);

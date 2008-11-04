@@ -94,7 +94,7 @@ PropCovar& PropCovar::operator=(const PropCovar& ps)
 // Accessors
 
 //------------------------------------------------------------------------------
-// Real* GetTheMatrix()
+// LaGenMatDouble GetTheMatrix()
 //------------------------------------------------------------------------------
 /**
  * Accesses the covariance matrix.
@@ -102,9 +102,9 @@ PropCovar& PropCovar::operator=(const PropCovar& ps)
  * @return The covariance matrix.
  */
 //------------------------------------------------------------------------------
-LaGenMatDouble* PropCovar::GetTheMatrix()
+LaGenMatDouble PropCovar::GetTheMatrix() const
 {
-   return &theMatrix;
+   return theMatrix;
 }
 
 //------------------------------------------------------------------------------
