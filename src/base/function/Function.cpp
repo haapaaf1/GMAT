@@ -211,7 +211,7 @@ bool Function::Initialize()
 //------------------------------------------------------------------------------
 // bool Function::Execute(ObjectInitializer *objInit)  [default implementation]
 //------------------------------------------------------------------------------
-bool Function::Execute(ObjectInitializer *objInit)
+bool Function::Execute(ObjectInitializer *objInit, bool reinitialize)
 {
    return true; 
 }

@@ -36,7 +36,7 @@ public:
    
    // inherited from Function
    virtual bool         Initialize();
-   virtual bool         Execute(ObjectInitializer *objInit);
+   virtual bool         Execute(ObjectInitializer *objInit, bool reinitialize);
    virtual void         Finalize();
    
    // inherited from GmatBase

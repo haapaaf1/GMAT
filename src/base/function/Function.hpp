@@ -46,7 +46,7 @@ public:
                                        IntegerArray &rowCounts,
                                        IntegerArray &colCounts);
    virtual bool         Initialize();
-   virtual bool         Execute(ObjectInitializer *objInit);
+   virtual bool         Execute(ObjectInitializer *objInit, bool reinitialize);
    virtual void         Finalize();
    virtual bool         IsFcsFinalized();
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
