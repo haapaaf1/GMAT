@@ -328,7 +328,7 @@ void PropSetup::SetForceModel(ForceModel *forceModel)
          ("   Deleting ForceModel <%p><%s>'%s'\n", mForceModel,
           mForceModel->GetTypeName().c_str(), mForceModel->GetName().c_str());
       #endif
-      mForceModel = NULL;
+      delete mForceModel;
    }
    
    mForceModel = (ForceModel*)(forceModel->Clone());
