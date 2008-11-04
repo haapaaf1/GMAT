@@ -96,6 +96,7 @@ SpaceObject::~SpaceObject()
 SpaceObject::SpaceObject(const SpaceObject& so) :
    SpacePoint        (so),
    state             (so.state),
+   covariance        (so.covariance),
    isManeuvering     (so.isManeuvering),
    originName        (so.originName),
    origin            (so.origin),
