@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                   MathFunction
 //------------------------------------------------------------------------------
@@ -31,9 +31,9 @@
  */
 //------------------------------------------------------------------------------
 MathFunction::MathFunction(const std::string &typeStr, const std::string &nomme) :
-              MathNode    (typeStr, nomme),
-              leftNode    (NULL),
-              rightNode   (NULL)
+   MathNode    (typeStr, nomme),
+   leftNode    (NULL),
+   rightNode   (NULL)
 {
    isFunction = true;
    objectTypeNames.push_back("MathFunction");   
@@ -48,18 +48,19 @@ MathFunction::MathFunction(const std::string &typeStr, const std::string &nomme)
 //------------------------------------------------------------------------------
 MathFunction::~MathFunction()
 {
+   // all math nodes are deleted in MathTree destructor (loj: 2008.11.03)
    //MessageInterface::ShowMessage
    //   ("==> MathFunction::~MathFunction() deleting %s, %s\n", GetTypeName().c_str(),
    //    GetName().c_str());
-
-   MathNode *left = GetLeft();
-   MathNode *right = GetRight();
    
-   if (left != NULL)
-      delete left;
-
-   if (right != NULL)
-      delete right;
+//    MathNode *left = GetLeft();
+//    MathNode *right = GetRight();
+   
+//    if (left != NULL)
+//       delete left;
+   
+//    if (right != NULL)
+//       delete right;
 }
 
 //------------------------------------------------------------------------------
@@ -72,9 +73,9 @@ MathFunction::~MathFunction()
  */
 //------------------------------------------------------------------------------
 MathFunction::MathFunction(const MathFunction &mf) :
-              MathNode   (mf),
-              leftNode   (mf.leftNode),
-              rightNode  (mf.rightNode)
+   MathNode   (mf),
+   leftNode   (mf.leftNode),
+   rightNode  (mf.rightNode)
 {
 }
 
@@ -91,14 +92,14 @@ MathFunction::MathFunction(const MathFunction &mf) :
 //------------------------------------------------------------------------------
 MathFunction& MathFunction::operator=(const MathFunction &mf)
 {
-    if (this == &mf)
-        return *this;
-        
-    GmatBase::operator=(mf);
-    leftNode   = mf.leftNode;
-    rightNode  = mf.rightNode;
-
-    return *this;
+   if (this == &mf)
+      return *this;
+   
+   GmatBase::operator=(mf);
+   leftNode   = mf.leftNode;
+   rightNode  = mf.rightNode;
+   
+   return *this;
 }
 
 
@@ -111,12 +112,12 @@ bool MathFunction::SetChildren(MathNode *leftChild, MathNode *rightChild)
       leftNode = leftChild;
    else
       leftNode = NULL;
-           
+   
    if (rightChild)
       rightNode = rightChild;
    else
       rightNode = NULL;
-           
+   
    return true;
 }
 
