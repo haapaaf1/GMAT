@@ -54,6 +54,13 @@ public:
    void                 SetState(const Real s1, const Real s2, const Real s3, 
                                  const Real s4, const Real s5, const Real s6);
 
+   void	SetCovariance(const Rvector6 &diagCovar);
+   void	SetCovariance(const Real &c11, const Real &c22, const Real &c33,
+		      const Real &c44, const Real &c55, const Real &c66);
+   void	SetCovariance(const LaGenMatDouble &cov);
+   void	SetCovariance(const Rvector &cov, Integer &m, Integer &n);
+ 
+   
    virtual PropCovar&   GetCovariance();
       
    virtual PropState&   GetState();
