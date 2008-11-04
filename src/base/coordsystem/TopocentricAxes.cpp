@@ -375,17 +375,19 @@ void TopocentricAxes::CalculateRFT(const A1Mjd &atEpoch, const Rvector3 newLocat
    x = newLocation[0];
    y = newLocation[1];
    z = newLocation[2];
-   if (horizonReference == "Sphere")
-      zUnit = bfLocation.GetUnitVector();
-   else // "Ellipsoid"
-   {
 
-	Rvector3 myPos(x,y,z);
-        // This computes the geodectic latitude, longitude, and height above the ellipsoid
-	LatLonHgt myCoords(myPos,radius,flattening,latitudeGeometry);
-	zUnit = myCoords.GetUnitVector(radius,flattening);
-		
-   }
+   // If the horizonReference is a sphere, then flattening is zero
+   // This implies that geocentric and geodetic latitude is equivalent
+   if (horizonReference == "Sphere")
+       flattening = 0.0;
+   
+   Rvector3 myPos(x,y,z);
+   // This computes the latitude and longitude
+   LatLonHgt myCoords(myPos,radius,flattening,latitudeGeometry);
+   
+   // This compute the unit vector constructed by the lat and lon just computed
+   zUnit = myCoords.GetUnitVector(radius,flattening);
+   
    // Complete the computation of x, y, and RFT
    yUnit          = Cross(kUnit, zUnit);
    yUnit          = yUnit.GetUnitVector();
