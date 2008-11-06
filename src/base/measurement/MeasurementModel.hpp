@@ -28,6 +28,10 @@
 #include "RealUtilities.hpp" // For sin, cos, etc etc
 #include "lapackpp.h"
 #include "MeasurementModelException.hpp"
+#include "ProcessDataFile.hpp"
+#include "ProcessB3Data.hpp"
+#include "ProcessSLRData.hpp"
+#include "ProcessTLEData.hpp"
 
 class GMAT_API MeasurementModel : public GmatBase
 {
@@ -70,7 +74,13 @@ public:
         GroundStation* theStation, Spacecraft* theSat,
         LaGenMatDouble &myCartDerivatives);
 
+   void SetDataFormat(std::string &df);
+   std::string& GetDataFormat();
+   
+   void SetDataTypes(StringArray &dt);
+   StringArray& GetDataTypes();
 
+   
 private:
 
   static const Integer NUM_MODELS = 21;
@@ -118,6 +128,16 @@ protected:
 
   Real GetDegree(const Real angle, const Real minAngle, 
 			    const Real maxAngle);
+  
+  // This tells us which data file format to use
+  // Examples: B3, SLR, TLE
+  std::string dataFormat;
+  
+  // This array of datatypes can be used to select a specific
+  // subset of available data from a given dataFormat
+  StringArray dataTypes;
+  
+  ProcessDataFile* myData;
 
 };
 

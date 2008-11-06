@@ -223,7 +223,61 @@ Estimator& Estimator::operator=(const Estimator &est)
 bool Estimator::Initialize()
 {
    MessageInterface::ShowMessage("Estimator::Initialize()\n");
-   // Construct the SolveFor lists
+
+   // Initilize epoch
+   epoch = 0.0;
+   
+   // Initialize stateCount to zero
+   stateCount = 0;
+   
+   // Initialize observer count to zero
+   observerCount = 0;
+   
+   // Initialize observer index to zero
+   observerIndex = 0;   
+   
+   // Set index of observation to be processed to zero
+   obIndex = 0;
+   
+   // Initialize time step
+   timeStep = 0;
+   
+   // The number of consider parameters in the estimator problem
+   considerCount = 0;
+
+   // The number of neglect parameter in the estimator problem
+   neglectCount = 0;
+
+   // Initialize the Global Convergence Tolerance
+   globalConvergenceTolerance = 1e-3;
+
+   // Filename containing observations. An empty string says use observations stored in internal arrays
+   observationTextFile = "";
+
+   // The number of observations in the estimator problem
+   observationCount = 0;
+
+   // The number of observation stations in the estimator problem
+   observerCount = 0;
+   
+   // Index of which observer we are working with
+   observerIndex = 0;
+
+   // The number of iterations taken ( used for batch processing )
+   iterationsTaken = 0;
+   
+   // Maximum number of iterations allowed ( used for batch processing )
+   maxIterations = 25;
+
+   // Toggle for showing estimator status
+   showProgress = true;
+   
+   // Flag used to ensure the estimator is ready to go
+   // Only set to true when all variables have been properly
+   // initialized by the specific estimator implementation
+   initialized = false;
+
+   // Construct the SolveFor lists and count the number of states
    for (StringArray::iterator i = solveForParms.begin();
         i != solveForParms.end(); ++i)
    {
@@ -259,6 +313,7 @@ bool Estimator::Initialize()
                solveForOwners.push_back(owner);
                solveForIds.push_back(id);
                solveForLengths.push_back(parmSize);
+	       stateCount += parmSize;
             }
 
             break;
@@ -288,12 +343,17 @@ bool Estimator::Initialize()
       textFile.precision(16);
       WriteToTextFile();
    }
-   initialized = true;
-   iterationsTaken = 0;
+
    #ifdef DEBUG_ESTIMATOR_INIT
       MessageInterface::ShowMessage(
          "In Estimator::Initialize completed\n");
    #endif
+
+   // Initialize converged flag
+   converged = false;   
+
+   initialized = true;
+   
    return true;
 }
 

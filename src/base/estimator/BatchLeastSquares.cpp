@@ -435,32 +435,10 @@ bool BatchLeastSquares::Initialize()
 
    Estimator::Initialize(); // for commented stuff, moved to Estimator
    
-   // Initilize epoch
-   epoch = 0.0;
    
-   // Initialize stateCount to zero
-   stateCount = 0;
-   
-   // Initialize observer count to zero
-   observerCount = 0;
-   
-   // Initialize observer index to zero
-   observerIndex = 0;   
-   
-   // Set index of observation to be processed to zero
-   obIndex = 0;
    
    // Initialize weighting matrix to identity matrix
    W = LaGenMatDouble::eye(observationCount);
-   
-   // Initialize state update to zero
-   estimatorStateCorrection = LaGenMatDouble::zeros(stateCount);
-   
-   // Initialize time step
-   timeStep = 0;
-   
-   // Initialize converged flag
-   converged = false;
 
    
    #if DEBUG_DC_INIT
@@ -574,23 +552,34 @@ Estimator::SolverState BatchLeastSquares::AdvanceState()
 //------------------------------------------------------------------------------
 void BatchLeastSquares::CompleteInitialization()
 {
+   
    #ifdef DEBUG_STATE_MACHINE
       MessageInterface::ShowMessage("BLS initializing\n");
    #endif
 
    WriteToTextFile();
    // TODO: Any additional initialization needed
-   
-   // Set index of observation to be processed to zero
-   obIndex = 0;
-   
+         
+   // Initialize state update to zero
+   estimatorStateCorrection = LaGenMatDouble::zeros(stateCount);
+  
    // Find satellite state
    // TODO: Make this a loop for all owners
    GmatBase* objID = *solveForOwners.begin();
    theSat = (Spacecraft*)objID;
    ps = &theSat->GetState();
    Integer n = ps->GetSize();
+
+   // Initialize estimated state to current state
+   // X is LaVectorDouble
+   Real* x1 = ps->GetState();
    
+   // Initialize a new LaVectorDouble vector using the Real* array x1
+   LaVectorDouble xtemp(x1,n);
+   
+   // Copy xtemp into x.
+   x.copy(xtemp);
+
    // Get stations involved in this
    for (ObjectArray::iterator j = participants.begin();
            j != participants.end(); ++j)
@@ -602,29 +591,43 @@ void BatchLeastSquares::CompleteInitialization()
 	    // We found an observer so increment observerCount
 	    observerCount++;
 	    theGroundStation = (GroundStation*)*j;
+	    
+	    // TODO: Somewhere in the script when ground stations are set up
+	    // a pointer to a measurement model needs to be instantiated and
+	    // assigned. Here, I assume this pointer exists and I assign the
+	    // ground station pointer to that measurement model so it can be
+	    // initialized.
+	    // theGroundStation->GetMeasurementModel()->SetGroundStation(theGroundStation);
+	    // theGroundStation->GetMeasurementModel()->Initialize();
 	}
    }
 
    // epoch is GMAT's A.1 modified Julian epoch
-   // Set time step to be difference between epoch and time of first ob
    epoch = theSat->GetEpoch();
+   
+   
+   // Initialize observations
+   
+   
+   
+   // Set time step to first observation, last observation, etc
+   // if (firstOb) {
+   //   obIndex was initialized to zero in Estimator::Initialize
    timeStep = y(obIndex) - epoch;
+   // } else if (lastOb) {
+   //   timeStep = 
+   // } else {
+   //   timeStep =
+   // }
    
    // Assign weighting matrix to desired initial values
    // W = LaGenMatDouble::eye(observationCount);
    
-   // Initialize estimated state to current state
-   // X is LaVectorDouble
-   Real* x1 = ps->GetState();
-   
-   // Initialize a new LaVectorDouble vector using the Real* array x1
-   LaVectorDouble xtemp(x1,n);
-   
-   // Copy xtemp into x.
-   x.copy(xtemp);
-   
-   // Initialize stateCount
-   stateCount = n;
+   // stateCount was set in Estimator::Initialize by counting
+   // how many solveFor parameters were read from the script.
+   // TODO: Test to see if n < stateCount or something to 
+   // see if we have more states to initialize
+   // if (n < stateCount) ?
    
    // Initialize state update to zero
    estimatorStateCorrection = LaGenMatDouble::zeros(stateCount);

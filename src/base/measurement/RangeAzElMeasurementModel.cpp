@@ -27,7 +27,6 @@
 
 RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
    MeasurementModel  ("RangeAzEl", name),
-   theBody           (NULL),
    bodySpinRate          (7.29211585530e-5)
 {
   numMeasurements = 3;
@@ -42,8 +41,8 @@ RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
 
 RangeAzElMeasurementModel::RangeAzElMeasurementModel(const RangeAzElMeasurementModel &raeModel) :
    MeasurementModel        (raeModel),
-   theBody                 (NULL),
-   bodySpinRate                (raeModel.bodySpinRate)
+   bodySpinRate            (raeModel.bodySpinRate),
+   theStation		   (raeModel.theStation)
 {
    numMeasurements = 3;
 
@@ -57,9 +56,10 @@ RangeAzElMeasurementModel::RangeAzElMeasurementModel(const RangeAzElMeasurementM
 
 RangeAzElMeasurementModel& RangeAzElMeasurementModel::operator=(const RangeAzElMeasurementModel &raeModel)
 {
+    // TODO: Is this correct?
    if (&raeModel != this)
    {
-      theBody = NULL;
+      //theBody = NULL;
    }
    return *this;
 }
@@ -87,27 +87,8 @@ GmatBase *RangeAzElMeasurementModel::Clone() const
 //------------------------------------------------------------------------------
 bool RangeAzElMeasurementModel::Initialize()
 {
-   // If we have the MM associated with a specific GS, do this:
-   std::string cBodyName = theStation->GetStringParameter(theStation->GetParameterID("CentralBody"));
-   theBody = (CelestialBody*)(theStation->GetRefObject(Gmat::SPACE_POINT,cBodyName));
-   
-   if (theBody == NULL)
-   {
-    // TODO: Setup an exception class for measurement models
-      throw MeasurementModelException("Unable to find the body " + cBodyName +
-              " associated with " + theStation->GetName());
-      MessageInterface::ShowMessage(
-            "Unable to find the body %s associated with %s\n", 
-            cBodyName.c_str(), theStation->GetName().c_str());
-   }
-   else
-   {
-      bodySpinRate = theBody->GetAngularVelocity().GetMagnitude();
-      
-      MessageInterface::ShowMessage(
-            "Retrieved spin rate is %.12lf; should be about 7.29211585530e-5\n", 
-            bodySpinRate);
-   }
+
+    bodySpinRate = theStation->GetSpinRate();     
     
     return true;
 }

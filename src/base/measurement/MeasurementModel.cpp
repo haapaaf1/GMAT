@@ -133,7 +133,28 @@ std::istream& operator>>(std::istream& input, MeasurementModel &mm)
 //------------------------------------------------------------------------------
 void MeasurementModel::Initialize() const
 {
-    CoordinateConverter ccvtr;  
+    CoordinateConverter ccvtr;
+/*    
+    if(dataFormat == "B3")
+    {
+	myData = new ProcessB3Data();
+    }
+    else if (dataFormat == "SLR")
+    {
+	myData = new ProcessSLRData();
+    }
+    else if (dataFormat == "TLE")
+    {
+	myData = new ProcessTLEData();
+    }
+    else
+    {
+      throw MeasurementModelException("Unable to process data with the specified data format: " + dataFormat);
+      MessageInterface::ShowMessage(
+            "Unable to process data with the\n specified data format: " + dataFormat);
+    }
+ 
+ */
 }
 
 // Accessors
@@ -384,3 +405,68 @@ Real MeasurementModel::GetDegree(const Real angle, const Real minAngle,
 
    return GmatMathUtil::Deg(angleInRange);
 }
+
+//------------------------------------------------------------------------------
+// void SetDataFormat(std::string df)
+//------------------------------------------------------------------------------
+/**
+ * Set the data format associated with this instance of the measurement model.
+ *
+ * @param mm The data format that is assigned.
+ */
+//------------------------------------------------------------------------------
+void MeasurementModel::SetDataFormat(std::string &df)
+{
+    dataFormat = df;
+}
+
+//------------------------------------------------------------------------------
+// std::string GetDataFormat()
+//------------------------------------------------------------------------------
+/**
+ * Return the data format associated with this instance of the measurement model.
+ *
+ * @return The data format.
+ */
+//------------------------------------------------------------------------------
+std::string& MeasurementModel::GetDataFormat()
+{
+    return dataFormat;
+}
+
+//------------------------------------------------------------------------------
+// void SetDataTypes(StringArray dt)
+//------------------------------------------------------------------------------
+/**
+ * Set the data types associated with this instance of the measurement model.
+ *
+ * @param mm The data types that are assigned.
+ */
+//------------------------------------------------------------------------------
+void MeasurementModel::SetDataTypes(StringArray &dt)
+{
+    dataTypes = dt;
+}
+
+//------------------------------------------------------------------------------
+// StringArray GetDataTypes()
+//------------------------------------------------------------------------------
+/**
+ * Return the data types associated with this instance of the measurement model.
+ *
+ * @return The data types.
+ */
+//------------------------------------------------------------------------------
+StringArray& MeasurementModel::GetDataTypes()
+{
+    return dataTypes;
+}
+
+
+
+
+
+
+
+
+

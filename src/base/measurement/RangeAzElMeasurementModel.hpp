@@ -49,8 +49,10 @@ private:
 
 protected:
     
-   CelestialBody* theBody;
    Real           bodySpinRate;
+   
+   // TODO: Is this the best way for the measurement model
+   // to know what ground station it is associated with?
    GroundStation* theStation;
 
 };

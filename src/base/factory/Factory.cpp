@@ -724,12 +724,12 @@ MeasurementModel* Factory::CreateMeasurementModel(const std::string &ofType,
  *                               objects of type Observer.
  */
 //------------------------------------------------------------------------------
-Observer* Factory::CreateObserver(const std::string &ofType,
-                                  const std::string &withName)
-{
-   throw FactoryException
-   ("Factory::CreateObserver() must be implemented by the ObserverFactory\n");
-}
+//Observer* Factory::CreateObserver(const std::string &ofType,
+//                                  const std::string &withName)
+//{
+//   throw FactoryException
+//   ("Factory::CreateObserver() must be implemented by the ObserverFactory\n");
+//}
 
 //------------------------------------------------------------------------------
 //  Estimator* CreateEstimator(const std::string &ofType,

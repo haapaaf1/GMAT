@@ -51,7 +51,7 @@ class CoordinateSystem;
 class MathNode;
 class Attitude;
 class MeasurementModel;
-class Observer;
+//class Observer;
 class Estimator;
 class SpacePoint;
 
@@ -111,8 +111,8 @@ public:
                                            const std::string &withName = "");
    virtual MeasurementModel*  CreateMeasurementModel(const std::string &ofType,
                                            const std::string &withName = "");
-   virtual Observer*        CreateObserver(const std::string &ofType,
-                                           const std::string &withName = "");
+   //virtual Observer*        CreateObserver(const std::string &ofType,
+   //                                        const std::string &withName = "");
    virtual Estimator*        CreateEstimator(const std::string &ofType,
                                            const std::string &withName = "");
 
