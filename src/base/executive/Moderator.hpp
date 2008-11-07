@@ -185,7 +185,7 @@ public:
    Parameter* GetParameter(const std::string &name);
    
    // ForceModel
-   ForceModel* CreateForceModel(const std::string &name, Integer manage = 0);
+   ForceModel* CreateForceModel(const std::string &name);
    ForceModel* GetForceModel(const std::string &name);
    bool AddToForceModel(const std::string &forceModelName,
                         const std::string &forceName);
@@ -198,9 +198,10 @@ public:
    
    // PropSetup
    PropSetup* CreateDefaultPropSetup(const std::string &name);
-   PropSetup* CreatePropSetup(const std::string &name,
-                              const std::string &propagatorName = "",
-                              const std::string &forceModelName = "");
+//    PropSetup* CreatePropSetup(const std::string &name,
+//                               const std::string &propagatorName = "",
+//                               const std::string &forceModelName = "");
+   PropSetup* CreatePropSetup(const std::string &name);
    PropSetup* GetPropSetup(const std::string &name);
    
    // Interpolator

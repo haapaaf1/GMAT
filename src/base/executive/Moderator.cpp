@@ -1868,7 +1868,8 @@ Hardware* Moderator::GetHardware(const std::string &name)
 // Propagator* CreatePropagator(const std::string &type, const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Creates a propagator object by given type and name.
+ * Creates a propagator object by given type and name. Actually this creates
+ * Integrator.
  *
  * @param <type> object type
  * @param <name> object name
@@ -1885,6 +1886,13 @@ Propagator* Moderator::CreatePropagator(const std::string &type,
        type.c_str(), name.c_str());
    #endif
    
+//    Propagator *prop = theFactoryManager->CreatePropagator(type, name);
+//    #if DEBUG_CREATE_RESOURCE
+//    MessageInterface::ShowMessage
+//       ("Moderator::CreatePropagator() returning new Propagator <%p>\n", prop);
+//    #endif
+//    return prop;
+   
    if (GetPropagator(name) == NULL)
    {
       Propagator *prop = theFactoryManager->CreatePropagator(type, name);
@@ -1898,7 +1906,7 @@ Propagator* Moderator::CreatePropagator(const std::string &type,
       // Manage it if it is a named Propagator
       try
       {
-         if (prop->GetName() != "")
+         if (prop->GetName() != "" && objectManageOption == 1)
             theConfigManager->AddPropagator(prop);
       }
       catch (BaseException &e)
@@ -1906,6 +1914,11 @@ Propagator* Moderator::CreatePropagator(const std::string &type,
          MessageInterface::ShowMessage("Moderator::CreatePropagator()\n" +
                                        e.GetFullMessage());
       }
+      
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreatePropagator() returning new Propagator <%p>\n", prop);
+      #endif
       
       return prop;
    }
@@ -1960,7 +1973,7 @@ PhysicalModel* Moderator::CreatePhysicalModel(const std::string &type,
    {
       PhysicalModel *physicalModel =
          theFactoryManager->CreatePhysicalModel(type, name);
-    
+      
       if (physicalModel ==  NULL)
       {
          throw GmatBaseException
@@ -1970,7 +1983,7 @@ PhysicalModel* Moderator::CreatePhysicalModel(const std::string &type,
       // Manage it if it is a named PhysicalModel
       try
       {
-         if (physicalModel->GetName() != "")
+         if (physicalModel->GetName() != "" && objectManageOption == 1)
             theConfigManager->AddPhysicalModel(physicalModel);
       }
       catch (BaseException &e)
@@ -1978,7 +1991,7 @@ PhysicalModel* Moderator::CreatePhysicalModel(const std::string &type,
          MessageInterface::ShowMessage("Moderator::CreatePhysicalModel()\n" +
                                        e.GetFullMessage());
       }
-        
+      
       return physicalModel;
    }
    else
@@ -2053,7 +2066,7 @@ AtmosphereModel* Moderator::CreateAtmosphereModel(const std::string &type,
       // Manage it if it is a named AtmosphereModel
       try
       {
-         if (atmosphereModel->GetName() != "")
+         if (atmosphereModel->GetName() != "" && objectManageOption == 1)
             theConfigManager->AddAtmosphereModel(atmosphereModel);
       }
       catch (BaseException &e)
@@ -2124,10 +2137,10 @@ Burn* Moderator::CreateBurn(const std::string &type,
       if (burn ==  NULL)
          throw GmatBaseException
             ("The Moderator cannot create Burn type \"" + type + "\"\n");
-      
+
       // Set default Axes to VNB
       burn->SetStringParameter(burn->GetParameterID("Axes"), "VNB");
-
+      
       // Manage it if it is a named burn
       try
       {
@@ -2369,14 +2382,19 @@ Parameter* Moderator::GetParameter(const std::string &name)
 
 // ForceModel
 //------------------------------------------------------------------------------
-// ForceModel* CreateForceModel(const std::string &name, Integer manage = 0)
+// ForceModel* CreateForceModel(const std::string &name)
 //------------------------------------------------------------------------------
-ForceModel* Moderator::CreateForceModel(const std::string &name, Integer manage)
+/*
+ * Creates ForceModel with given name
+ */
+//------------------------------------------------------------------------------
+ForceModel* Moderator::CreateForceModel(const std::string &name)
 {
-   #if DEBUG_CREATE_RESOURCE
+   //#if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
-      ("Moderator::CreateForceModel() name='%s', manage=%d\n", name.c_str(), manage);
-   #endif
+      ("Moderator::CreateForceModel() name='%s', objectManageOption=%d\n",
+       name.c_str(), objectManageOption);
+   //#endif
    
    ForceModel *fm = GetForceModel(name);
    
@@ -2390,10 +2408,25 @@ ForceModel* Moderator::CreateForceModel(const std::string &name, Integer manage)
             ("The Moderator cannot create ForceModel named \"" + name + "\"\n");
       }
       
+      // Create default force model of PointMassForce if name is blank or
+      // InternalForceModel. (loj: 2008.11.06)
+      // PropSetup no longer creates InternalForceModel
+      if (name == "InternalForceModel")
+      {
+         PhysicalModel *pmf = CreatePhysicalModel("PointMassForce", "");
+         fm->AddForce(pmf);
+         //#if DEBUG_CREATE_RESOURCE
+         MessageInterface::ShowMessage
+            ("Moderator::CreateForceModel() returning new ForceModel, <%p> '%s'\n",
+             fm, fm->GetName().c_str());
+         //#endif
+         return fm;
+      }
+      
       // Manage it if it is a named ForceModel
       try
       {
-         if (fm->GetName() != "" && manage == 1)
+         if (fm->GetName() != "" && objectManageOption == 1)
             theConfigManager->AddForceModel(fm);
       }
       catch (BaseException &e)
@@ -2402,6 +2435,11 @@ ForceModel* Moderator::CreateForceModel(const std::string &name, Integer manage)
                                        e.GetFullMessage() + "\n");
       }
       
+      //#if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateForceModel() returning new ForceModel, <%p> '%s'\n",
+          fm, fm->GetName().c_str());
+      //#endif
       return fm;
    }
    else
@@ -2574,39 +2612,37 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    MessageInterface::ShowMessage("Moderator::CreateDefaultPropSetup() name='%s'\n",
                                  name.c_str());
    #endif
-   
-   // PropSetup creates default Integrator(RungeKutta89)
-   // and default force (PointMassForce body=Earth)
+
+   // create PropSetup, it creates default RungeKutta89 Integrator
    PropSetup *propSetup = CreatePropSetup(name);
    
-   ForceModel *oldfm= propSetup->GetForceModel();
-   if (oldfm->GetName() == "")
-      delete oldfm;
-   
-   // create default force model with Earth primary body
-   ForceModel *newfm= CreateForceModel("");
-   
+   // create default force model with Earth primary body with JGM2
+   ForceModel *fm= CreateForceModel(name + "_ForceModel");
    GravityField *gravForce = new GravityField("", "Earth");
    gravForce->SetName("Earth");
    gravForce->SetSolarSystem(theSolarSystemInUse);
    gravForce->SetBody("Earth");
    gravForce->SetBodyName("Earth");
-   gravForce->SetStringParameter("PotentialFile", GetFileName("JGM2_FILE"));
+   gravForce->SetStringParameter("PotentialFile", GetFileName("JGM2_FILE"));  
+   fm->AddForce(gravForce);   
+   propSetup->SetForceModel(fm);
    
-   newfm->AddForce(gravForce);
-   propSetup->SetForceModel(newfm);
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage
+      ("Moderator::CreatePropSetup() returning new DefaultPropSetup <%p>\n", propSetup);
+   #endif
    
    return propSetup;
 }
 
 //------------------------------------------------------------------------------
-// PropSetup* CreatePropSetup(const std::string &name,
-//                            const std::string &propagatorName = "",
-//                            const std::string &forceModelName = "")
+// PropSetup* CreatePropSetup(const std::string &name)
 //------------------------------------------------------------------------------
-PropSetup* Moderator::CreatePropSetup(const std::string &name,
-                                      const std::string &propagatorName,
-                                      const std::string &forceModelName)
+/*
+ * Creates PropSetup which contains Integrator and ForceModel.
+ */
+//------------------------------------------------------------------------------
+PropSetup* Moderator::CreatePropSetup(const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage("====================\n");
@@ -2616,34 +2652,21 @@ PropSetup* Moderator::CreatePropSetup(const std::string &name,
    
    if (GetPropSetup(name) == NULL)
    {
-      Propagator *prop = theConfigManager->GetPropagator(propagatorName);
-      ForceModel *fm = theConfigManager->GetForceModel(forceModelName);
-      
       PropSetup *propSetup = theFactoryManager->CreatePropSetup(name);
       
-      if (prop)
+      if (propSetup == NULL)
       {
-         #if DEBUG_CREATE_RESOURCE > 1
-         MessageInterface::ShowMessage
-            ("   Setting Propagator=<%p><%s>'%s' to PropSetup\n", prop,
-             prop ? prop->GetTypeName().c_str() : "NULL",
-             prop ? prop->GetName().c_str() : "NULL");
-         #endif
-         propSetup->SetPropagator(prop);
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a PropSetup.\n"
+             "Make sure PropSetup is correct type and registered to "
+             "PropSetupFactory.\n");
+         return NULL;
       }
       
-      if (fm)
-      {
-         #if DEBUG_CREATE_RESOURCE > 1
-         MessageInterface::ShowMessage
-            ("   Setting ForceModel=<%p><%s>'%s' to PropSetup\n", fm,
-             fm ? fm->GetTypeName().c_str() : "NULL",
-             fm ? fm->GetName().c_str() : "NULL");
-         #endif
-         propSetup->SetForceModel(fm);
-      }
+      // PropSetup creates default Integrator(RungeKutta89)
+      // and default ForceModel (PointMassForce body=Earth)
       
-      if (name != "")
+      if (name != "" && objectManageOption == 1)
          theConfigManager->AddPropSetup(propSetup);
       
       #if DEBUG_CREATE_RESOURCE
@@ -6444,6 +6467,7 @@ Moderator::Moderator()
    theInternalCoordSystem = NULL;
    theInternalSolarSystem = NULL;
    runState = Gmat::IDLE;
+   objectManageOption = 1;
    
    // The motivation of adding this data member was due to Parameter creation
    // in function mode. When Parameter is created, the Moderator automatically

@@ -50,15 +50,15 @@ class GMAT_API Sandbox
 public:
    Sandbox();
    ~Sandbox();
-
+   
    // Setup methods
-   bool AddObject(GmatBase *obj);   
+   GmatBase* AddObject(GmatBase *obj);   
    bool AddCommand(GmatCommand *cmd);
    bool AddSolarSystem(SolarSystem *ss);
    bool AddSubscriber(Subscriber *sub);
    bool SetInternalCoordSystem(CoordinateSystem *ss);
    bool SetPublisher(Publisher *pub = NULL);
-    
+   
    GmatBase* GetInternalObject(std::string name,
                                Gmat::ObjectType type = Gmat::UNKNOWN_OBJECT);
    
