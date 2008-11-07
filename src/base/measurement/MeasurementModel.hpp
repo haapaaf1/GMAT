@@ -28,7 +28,7 @@
 #include "RealUtilities.hpp" // For sin, cos, etc etc
 #include "lapackpp.h"
 #include "MeasurementModelException.hpp"
-#include "ProcessDataFile.hpp"
+#include "DataFile.hpp"
 #include "ProcessB3Data.hpp"
 #include "ProcessSLRData.hpp"
 #include "ProcessTLEData.hpp"
@@ -137,7 +137,7 @@ protected:
   // subset of available data from a given dataFormat
   StringArray dataTypes;
   
-  ProcessDataFile* myData;
+  DataFile* myData;
 
 };
 

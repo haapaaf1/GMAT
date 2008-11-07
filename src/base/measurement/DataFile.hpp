@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                             ProcessDataFile
+//                             DataFile
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -20,8 +20,8 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef ProcessDataFile_hpp
-#define	ProcessDataFile_hpp
+#ifndef DataFile_hpp
+#define	DataFile_hpp
 
 #include "GmatBase.hpp"
 #include "gmatdefs.hpp"
@@ -32,14 +32,14 @@
 
 using namespace DataFormats; // for data type variable definitions
 
-class ProcessDataFile : public GmatBase
+class DataFile : public GmatBase
 {
 
 public:
 
-    ProcessDataFile(const std::string &itsType, const std::string &itsName);
-    ProcessDataFile(const ProcessDataFile &pdf);
-    virtual ~ProcessDataFile();
+    DataFile(const std::string &itsType, const std::string &itsName);
+    DataFile(const DataFile &pdf);
+    virtual ~DataFile();
 
     virtual GmatBase *Clone() const;
 
@@ -124,7 +124,7 @@ protected:
 
 
 //------------------------------------------------------------------------------
-// template <class T> bool ProcessDataFile::from_string(T& t,
+// template <class T> bool DataFile::from_string(T& t,
 //       const std::string& s,
 //                 std::ios_base& (*f)(std::ios_base&))
 //------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ protected:
  */
 //------------------------------------------------------------------------------
 
-template <class T> bool ProcessDataFile::from_string(T& t, const std::string& s,
+template <class T> bool DataFile::from_string(T& t, const std::string& s,
                  std::ios_base& (*f)(std::ios_base&))
 {
   std::istringstream iss(s);
@@ -141,5 +141,5 @@ template <class T> bool ProcessDataFile::from_string(T& t, const std::string& s,
 }
 
 
-#endif	/* _ProcessDataFile_hpp */
+#endif	/* _DataFile_hpp */
 

@@ -128,7 +128,7 @@ namespace Gmat
       ESTIMATOR,
       MEASUREMENT_MODEL,
       BODY_FIXED_POINT,
-      PROCESSDATAFILE,
+      DATA_FILE,
       UNKNOWN_OBJECT
    };
 

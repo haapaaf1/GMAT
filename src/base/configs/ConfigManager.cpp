@@ -452,13 +452,13 @@ void ConfigManager::AddMeasurementModel(MeasurementModel *mm)
    AddObject(mm);
 }
 
-void ConfigManager::AddDataFile(ProcessDataFile *pdf)
+void ConfigManager::AddDataFile(DataFile *pdf)
 {
    std::string name = pdf->GetName();
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
-   if (!pdf->IsOfType(Gmat::PROCESSDATAFILE))
+   if (!pdf->IsOfType(Gmat::DATA_FILE))
       throw ConfigManagerException(name + " is not a DataFile");
 
    AddObject(pdf);
@@ -1483,14 +1483,14 @@ MeasurementModel* ConfigManager::GetMeasurementModel(const std::string &name)
    return mm;
 }
 
-ProcessDataFile* ConfigManager::GetDataFile(const std::string &name)
+DataFile* ConfigManager::GetDataFile(const std::string &name)
 {
-   ProcessDataFile *pdf = NULL;
+   DataFile *pdf = NULL;
    if (mapping.find(name) != mapping.end())
    {
-      if (mapping[name]->IsOfType(Gmat::PROCESSDATAFILE))
+      if (mapping[name]->IsOfType(Gmat::DATA_FILE))
       {
-         pdf = (ProcessDataFile *)mapping[name];
+         pdf = (DataFile *)mapping[name];
       }
    }
    return pdf;

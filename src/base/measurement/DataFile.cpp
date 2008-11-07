@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                             ProcessDataFile
+//                             DataFile
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -20,7 +20,7 @@
  */
 //------------------------------------------------------------------------------
 
-#include <ProcessDataFile.hpp>
+#include <DataFile.hpp>
 #include "gmatdefs.hpp"
 #include "iostream"
 #include "fstream"
@@ -30,7 +30,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string ProcessDataFile::DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS] =
+const std::string DataFile::DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS] =
 {
     "B3 Data",
     "SLR Data",
@@ -42,37 +42,37 @@ const std::string ProcessDataFile::DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-//  ProcessDataFile(Gmat::ObjectType ofType, const std::string &itsType,
+//  DataFile(Gmat::ObjectType ofType, const std::string &itsType,
 //             const std::string &itsName)
 //------------------------------------------------------------------------------
 /**
- * Constructs base ProcessDataFile structures used in derived classes
+ * Constructs base DataFile structures used in derived classes
  * (default constructor).
  *
  * @param <ofType>  Gmat::ObjectTypes enumeration for the object.
  * @param <itsType> GMAT script string associated with this type of object.
  * @param <itsName> Optional name for the object.  Defaults to "".
  *
- * @note There is no parameter free constructor for ProcessDataFile.  Derived
+ * @note There is no parameter free constructor for DataFile.  Derived
  *       classes must pass in the typeId and typeStr parameters.
  */
 //------------------------------------------------------------------------------
-ProcessDataFile::ProcessDataFile(const std::string &itsType, 
+DataFile::DataFile(const std::string &itsType, 
 				 const std::string &itsName) :
-GmatBase(Gmat::PROCESSDATAFILE,itsType,itsName)
+GmatBase(Gmat::DATA_FILE,itsType,itsName)
 {
-   objectTypes.push_back(Gmat::PROCESSDATAFILE);
-   objectTypeNames.push_back("ProcessDataFile");
+   objectTypes.push_back(Gmat::DATA_FILE);
+   objectTypeNames.push_back("DataFile");
 }
 
 
 //------------------------------------------------------------------------------
-//  ProcessDataFile::ProcessDataFile()
+//  DataFile::DataFile()
 //------------------------------------------------------------------------------
 /**
  * Class constructor
  */
-ProcessDataFile::ProcessDataFile(const ProcessDataFile &pdf) :
+DataFile::DataFile(const DataFile &pdf) :
     GmatBase       (pdf),
     lineFromFile (pdf.lineFromFile),
     dataFileName (pdf.dataFileName),
@@ -85,26 +85,42 @@ ProcessDataFile::ProcessDataFile(const ProcessDataFile &pdf) :
 }
 
 //------------------------------------------------------------------------------
-//  ProcessDataFile::~ProcessDataFile()
+//  DataFile::~DataFile()
 //------------------------------------------------------------------------------
 /**
  * Class destructor
  */
-ProcessDataFile::~ProcessDataFile()
+DataFile::~DataFile()
 {
     CloseFile();
 
 }
 
 //------------------------------------------------------------------------------
-//  bool ProcessDataFile::OpenFile()
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the DataFile.
+ *
+ * @return clone of the DataFile.
+ */
+//------------------------------------------------------------------------------
+GmatBase* DataFile::Clone() const
+{
+   GmatBase *clone = new DataFile(*this);
+   return (clone);
+}
+
+
+//------------------------------------------------------------------------------
+//  bool DataFile::OpenFile()
 //------------------------------------------------------------------------------
 /**
  * Opens a physical file and creates a file handle pointing to it.
  *
  * @return Boolean success or failure
  */
-bool ProcessDataFile::OpenFile()
+bool DataFile::OpenFile()
 {
     myFile.open(dataFileName.c_str());
 
@@ -121,14 +137,14 @@ bool ProcessDataFile::OpenFile()
 }
 
 //------------------------------------------------------------------------------
-//  bool ProcessDataFile::CloseFile()
+//  bool DataFile::CloseFile()
 //------------------------------------------------------------------------------
 /**
  * Closes an open file handle.
  *
  * @return Boolean success or failure
  */
-bool ProcessDataFile::CloseFile()
+bool DataFile::CloseFile()
 {
     myFile.close();
 
@@ -152,7 +168,7 @@ bool ProcessDataFile::CloseFile()
  * Code used to obtain the data format ID
  */
 //------------------------------------------------------------------------------
-Integer ProcessDataFile::GetDataFormatID(const std::string &label)
+Integer DataFile::GetDataFormatID(const std::string &label)
 {
     Integer retval = -1;
     
@@ -176,7 +192,7 @@ Integer ProcessDataFile::GetDataFormatID(const std::string &label)
 //------------------------------------------------------------------------------
 // const std::string* GetDataFormatDescriptions() const
 //------------------------------------------------------------------------------
-const std::string* ProcessDataFile::GetDataFormatDescriptions() const
+const std::string* DataFile::GetDataFormatDescriptions() const
 {
    return DATAFORMAT_DESCRIPTIONS;
 }
@@ -188,7 +204,7 @@ const std::string* ProcessDataFile::GetDataFormatDescriptions() const
  * Code used to obtain the data format name text corresponding to a ID
  */
 //------------------------------------------------------------------------------
-std::string ProcessDataFile::GetDataFormatNameText(const Integer &id) const
+std::string DataFile::GetDataFormatNameText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndDataFormatReps))
    {
@@ -207,7 +223,7 @@ std::string ProcessDataFile::GetDataFormatNameText(const Integer &id) const
  * Sets the name of the process data file object.
  */
 //------------------------------------------------------------------------------
-void ProcessDataFile::SetDataFormatID(Integer pdfId)
+void DataFile::SetDataFormatID(Integer pdfId)
 {
    dataFormatID = pdfId;
 }
@@ -221,7 +237,7 @@ void ProcessDataFile::SetDataFormatID(Integer pdfId)
  * @return The data format ID#.
  */
 //------------------------------------------------------------------------------
-Integer ProcessDataFile::GetDataFormatID() const
+Integer DataFile::GetDataFormatID() const
 {
    return dataFormatID;
 }
@@ -234,7 +250,7 @@ Integer ProcessDataFile::GetDataFormatID() const
  *
  * @return Boolean success or failure
  */
-bool ProcessDataFile::GetData(slr_header &mySLRheader)
+bool DataFile::GetData(slr_header &mySLRheader)
 {
    return false;
 }
@@ -247,7 +263,7 @@ bool ProcessDataFile::GetData(slr_header &mySLRheader)
  *
  * @return Boolean success or failure
  */
-bool ProcessDataFile::GetData(slr_header &mySLRheader, slr_obtype &mySLRdata)
+bool DataFile::GetData(slr_header &mySLRheader, slr_obtype &mySLRdata)
 {
    return false;
 }
@@ -260,7 +276,7 @@ bool ProcessDataFile::GetData(slr_header &mySLRheader, slr_obtype &mySLRdata)
  *
  * @return Boolean success or failure
  */
-bool ProcessDataFile::GetData(tle_obtype &myTLEdata)
+bool DataFile::GetData(tle_obtype &myTLEdata)
 {
    return false;
 }
@@ -273,34 +289,34 @@ bool ProcessDataFile::GetData(tle_obtype &myTLEdata)
  *
  * @return Boolean success or failure
  */
-bool ProcessDataFile::GetData(b3_obtype &myB3data)
+bool DataFile::GetData(b3_obtype &myB3data)
 {
    return false;
 }
 
 
 //------------------------------------------------------------------------------
-//  bool ProcessDataFile::IsEOF()
+//  bool DataFile::IsEOF()
 //------------------------------------------------------------------------------
 /**
  * Check to see if the end of the file has been reached.
  *
  * @return True if end of file, False otherwise
  */
-bool ProcessDataFile::IsEOF()
+bool DataFile::IsEOF()
 {
     return myFile.eof();
 }
 
 //------------------------------------------------------------------------------
-// std::string ProcessDataFile::ReadLineFromFile()
+// std::string DataFile::ReadLineFromFile()
 //------------------------------------------------------------------------------
 /**
  * Read a single line from a file.
  *
  * @return Line from file
  */
-std::string ProcessDataFile::ReadLineFromFile()
+std::string DataFile::ReadLineFromFile()
 {
     std::string lff;
     getline(myFile,lff);
@@ -308,7 +324,7 @@ std::string ProcessDataFile::ReadLineFromFile()
 }
 
 //----------------------------------------------------------------
-//std::string ProcessDataFile::GetLine(Integer &lineNum)
+//std::string DataFile::GetLine(Integer &lineNum)
 //----------------------------------------------------------------
 /**
  * Retrieve the lineFromFile parameter.
@@ -316,13 +332,13 @@ std::string ProcessDataFile::ReadLineFromFile()
  * @param <lineNum> Integer line number
  * @return Line from file
  */
-std::string ProcessDataFile::GetLine(Integer &lineNum)
+std::string DataFile::GetLine(Integer &lineNum)
 {
     return lineFromFile[lineNum];
 }
 
 //------------------------------------------------------------------------------
-// void ProcessDataFile::SetLine(std::string &lff, Integer &lineNum)
+// void DataFile::SetLine(std::string &lff, Integer &lineNum)
 //------------------------------------------------------------------------------
 /**
  * Set the lineFromFile parameter.
@@ -330,29 +346,29 @@ std::string ProcessDataFile::GetLine(Integer &lineNum)
  * @param <lineNum> Integer line number
  * @param <lff> String of text
  */
-void ProcessDataFile::SetLine(std::string &lff, Integer &lineNum)
+void DataFile::SetLine(std::string &lff, Integer &lineNum)
 {
     lineFromFile[lineNum] = lff;
 }
 
 
 //------------------------------------------------------------------------------
-// std::string ProcessDataFile::GetFileName()
+// std::string DataFile::GetFileName()
 //------------------------------------------------------------------------------
 /**
  * Retrieve the dataFileName parameter.
  *
   * @return dataFileName
  */
-std::string ProcessDataFile::GetFileName()
+std::string DataFile::GetFileName()
 {
     return dataFileName;
 }
 
 //------------------------------------------------------------------------------
-// void ProcessDataFile::SetFileName(std::string &myFileName)
+// void DataFile::SetFileName(std::string &myFileName)
 //------------------------------------------------------------------------------
-void ProcessDataFile::SetFileName(std::string &myFileName)
+void DataFile::SetFileName(std::string &myFileName)
 /**
  * Set the dataFileName parameter using strings.
  *
@@ -363,14 +379,14 @@ void ProcessDataFile::SetFileName(std::string &myFileName)
 }
 
 //------------------------------------------------------------------------------
-// void ProcessDataFile::SetFileName(const char* myFileName)
+// void DataFile::SetFileName(const char* myFileName)
 //------------------------------------------------------------------------------
 /**
  * Set the dataFileName parameter using const char.
  *
  * @param <myFileName> Desired file name
  */
-void ProcessDataFile::SetFileName(const char* myFileName)
+void DataFile::SetFileName(const char* myFileName)
 {
     dataFileName = myFileName;
 }
@@ -379,7 +395,7 @@ void ProcessDataFile::SetFileName(const char* myFileName)
 //------------------------------------------------------------------------------
 // bool GetIsOpen() const
 //------------------------------------------------------------------------------
-bool ProcessDataFile::GetIsOpen() const
+bool DataFile::GetIsOpen() const
 {
         return isOpen;
 }
@@ -387,19 +403,19 @@ bool ProcessDataFile::GetIsOpen() const
 //------------------------------------------------------------------------------
 // void SetIsOpen(const bool flag)
 //------------------------------------------------------------------------------
-void ProcessDataFile::SetIsOpen(const bool &flag)
+void DataFile::SetIsOpen(const bool &flag)
 {
         isOpen = flag;
 }
 
 //------------------------------------------------------------------------------
-// std::string ProcessDataFile::Trim() const
+// std::string DataFile::Trim() const
 //------------------------------------------------------------------------------
 /**
  * Removes leading and trailing blanks from a string
  */
 //------------------------------------------------------------------------------
-std::string ProcessDataFile::Trim(std::string str)
+std::string DataFile::Trim(std::string str)
 {
     pcrecpp::RE("^\\s+").GlobalReplace("", &str);
     pcrecpp::RE("\\s+$").GlobalReplace("", &str);
@@ -408,7 +424,7 @@ std::string ProcessDataFile::Trim(std::string str)
 }
 
 ////------------------------------------------------------------------------------
-//// template <class T> bool ProcessDataFile::from_string(T& t,
+//// template <class T> bool DataFile::from_string(T& t,
 ////		   const std::string& s,
 ////                 std::ios_base& (*f)(std::ios_base&))
 ////------------------------------------------------------------------------------
@@ -417,7 +433,7 @@ std::string ProcessDataFile::Trim(std::string str)
 // */
 ////------------------------------------------------------------------------------
 //
-//template <class T> bool ProcessDataFile::from_string(T& t, const std::string& s,
+//template <class T> bool DataFile::from_string(T& t, const std::string& s,
 //                 std::ios_base& (*f)(std::ios_base&))
 //{
 //  std::istringstream iss(s);
@@ -450,7 +466,7 @@ std::string ProcessDataFile::Trim(std::string str)
  * Example: LAGEOS-1 ILRS Satellite ID is 7603901
  */
 //------------------------------------------------------------------------------
-std::string ProcessDataFile::Ilrs2Cospar(std::string ilrsSatnum)
+std::string DataFile::Ilrs2Cospar(std::string ilrsSatnum)
 {
 
     int year;
@@ -500,13 +516,13 @@ std::string ProcessDataFile::Ilrs2Cospar(std::string ilrsSatnum)
 }
 
 //------------------------------------------------------------------------------
-// bool ProcessDataFile::Overpunch(const char &code, Integer &digit, Integer &sign )
+// bool DataFile::Overpunch(const char &code, Integer &digit, Integer &sign )
 //------------------------------------------------------------------------------
 /**
  * Converts overpunch code to numeric value and determines appropriate sign
  */
 //------------------------------------------------------------------------------
-bool ProcessDataFile::Overpunch(std::string code, Integer &digit, Integer &sign )
+bool DataFile::Overpunch(std::string code, Integer &digit, Integer &sign )
 {
     if (!strcmp(code.c_str(), "}"))
     {

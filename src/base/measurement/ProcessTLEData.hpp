@@ -13,7 +13,7 @@
 //
 /**
  *
- * Implements ProcessDataFile base class to read files written in the B3 format.
+ * Implements DataFile base class to read files written in the B3 format.
  *
  */
 //------------------------------------------------------------------------------
@@ -24,9 +24,9 @@
 #include "gmatdefs.hpp"
 #include <pcrecpp.h>
 #include "RealUtilities.hpp"
-#include "ProcessDataFile.hpp"
+#include "DataFile.hpp"
 
-class ProcessTLEData : public ProcessDataFile
+class ProcessTLEData : public DataFile
 {
 
 public:

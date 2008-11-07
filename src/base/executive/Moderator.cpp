@@ -2586,7 +2586,7 @@ MeasurementModel* Moderator::GetMeasurementModel(const std::string &name)
 
 // Process Data File
 //------------------------------------------------------------------------------
-// ProcessDataFile* CreateDataFile(const std::string &type, const std::string &name)
+// DataFile* CreateDataFile(const std::string &type, const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * Creates a process data file object by given type and name and add to configuration.
@@ -2597,7 +2597,7 @@ MeasurementModel* Moderator::GetMeasurementModel(const std::string &name)
  * @return a process data file object pointer
  */
 //------------------------------------------------------------------------------
-ProcessDataFile* Moderator::CreateDataFile(const std::string &type, const std::string &name)
+DataFile* Moderator::CreateDataFile(const std::string &type, const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
@@ -2607,15 +2607,15 @@ ProcessDataFile* Moderator::CreateDataFile(const std::string &type, const std::s
 
    if (GetDataFile(name) == NULL)
    {
-      ProcessDataFile *pdf = theFactoryManager->CreateDataFile(type, name);
+      DataFile *pdf = theFactoryManager->CreateDataFile(type, name);
 
       if (pdf == NULL)
       {
          throw GmatBaseException
-            ("The Moderator cannot create ProcessDataFile type \"" + type + "\"\n");
+            ("The Moderator cannot create DataFile type \"" + type + "\"\n");
       }
 
-      // Manage it if it is a named ProcessDataFile
+      // Manage it if it is a named DataFile
       try
       {
          if (pdf->GetName() != "")
@@ -2633,7 +2633,7 @@ ProcessDataFile* Moderator::CreateDataFile(const std::string &type, const std::s
    {
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateDataFile() Unable to create ProcessDataFile "
+         ("Moderator::CreateDataFile() Unable to create DataFile "
           "name: %s already exists\n", name.c_str());
       #endif
       return GetDataFile(name);
@@ -2641,17 +2641,17 @@ ProcessDataFile* Moderator::CreateDataFile(const std::string &type, const std::s
 }
 
 //------------------------------------------------------------------------------
-// ProcessDataFile* GetDataFile(const std::string &name)
+// DataFile* GetDataFile(const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Retrieves a ProcessDataFile object pointer by given name.
+ * Retrieves a DataFile object pointer by given name.
  *
  * @param <name> object name
  *
- * @return a ProcessDataFile object pointer, return null if name not found
+ * @return a DataFile object pointer, return null if name not found
  */
 //------------------------------------------------------------------------------
-ProcessDataFile* Moderator::GetDataFile(const std::string &name)
+DataFile* Moderator::GetDataFile(const std::string &name)
 {
    if (name == "")
       return NULL;

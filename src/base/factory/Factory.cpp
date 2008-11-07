@@ -760,7 +760,7 @@ Estimator* Factory::CreateEstimator(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
-//  ProcessDataFile* CreateDataFile(const std::string &ofType,
+//  DataFile* CreateDataFile(const std::string &ofType,
 //                           const std::string &withName)
 //------------------------------------------------------------------------------
 /**
@@ -780,7 +780,7 @@ Estimator* Factory::CreateEstimator(const std::string &ofType,
  *                               objects of type Estimator.
  */
 //------------------------------------------------------------------------------
-ProcessDataFile* Factory::CreateDataFile(const std::string &ofType,
+DataFile* Factory::CreateDataFile(const std::string &ofType,
                                          const std::string &withName)
 {
    throw FactoryException

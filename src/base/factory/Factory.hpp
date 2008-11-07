@@ -54,7 +54,7 @@ class MeasurementModel;
 //class Observer;
 class Estimator;
 class SpacePoint;
-class ProcessDataFile;
+class DataFile;
 
 class GMAT_API Factory
 {
@@ -116,7 +116,7 @@ public:
    //                                        const std::string &withName = "");
    virtual Estimator*        CreateEstimator(const std::string &ofType,
                                            const std::string &withName = "");
-   virtual ProcessDataFile*  CreateDataFile(const std::string &ofType,
+   virtual DataFile*  CreateDataFile(const std::string &ofType,
                                            const std::string &withName = "");
 
    

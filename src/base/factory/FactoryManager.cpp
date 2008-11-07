@@ -313,23 +313,23 @@ Solver* FactoryManager::CreateSolver(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
-//  ProcessDataFile* CreateDataFile(const std::string &withName,
+//  DataFile* CreateDataFile(const std::string &withName,
 //                                  const std::string &fileName)
 //------------------------------------------------------------------------------
 /**
- * Create an object of type ProcessDataFile, with the name withName.
+ * Create an object of type DataFile, with the name withName.
  *
- * @param <ofType>   type name of the new ProcessDataFile object.
- * @param <withName> name of the new ProcessDataFile object.
+ * @param <ofType>   type name of the new DataFile object.
+ * @param <withName> name of the new DataFile object.
  *
- * @return pointer to the newly-created ProcessDataFile object
+ * @return pointer to the newly-created DataFile object
  */
 //------------------------------------------------------------------------------
-ProcessDataFile* FactoryManager::CreateDataFile(const std::string &ofType,
+DataFile* FactoryManager::CreateDataFile(const std::string &ofType,
                                        const std::string &withName)
 {
-   Factory* f = FindFactory(Gmat::PROCESSDATAFILE, ofType);
-   ProcessDataFile* retObj = NULL;
+   Factory* f = FindFactory(Gmat::DATA_FILE, ofType);
+   DataFile* retObj = NULL;
    if (f != NULL)
    {
       MessageInterface::ShowMessage("Found a factory that builds %s DataFiles\n",
@@ -340,13 +340,13 @@ ProcessDataFile* FactoryManager::CreateDataFile(const std::string &ofType,
       }
       catch (BaseException &ex)
       {
-         Factory* f = FindFactory(Gmat::PROCESSDATAFILE, ofType);
+         Factory* f = FindFactory(Gmat::DATA_FILE, ofType);
          if (f != NULL)
          {
             MessageInterface::ShowMessage(
                   "Found a factory that builds %s DataFiles\n",
                   ofType.c_str());
-            retObj = (ProcessDataFile*)(f->CreateDataFile(ofType, withName));
+            retObj = (DataFile*)(f->CreateDataFile(ofType, withName));
          }
       }
       return retObj;

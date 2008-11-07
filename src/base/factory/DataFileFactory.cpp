@@ -13,7 +13,7 @@
 //
 /**
  *  Implementation code for the DataFileFactory class, responsible
- *  for creating ProcessDataFile objects.
+ *  for creating DataFile objects.
  */
 //------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@
 #include "MessageInterface.hpp"  // temporary
 
 // Here are the supported leaf classes
-#include "ProcessDataFile.hpp"
+#include "DataFile.hpp"
 #include "ProcessB3Data.hpp"
 #include "ProcessSLRData.hpp"
 #include "ProcessTLEData.hpp"
@@ -43,17 +43,17 @@
  * @return A pointer to the created object.
  */
 //------------------------------------------------------------------------------
-ProcessDataFile* DataFileFactory::CreateDataFile(const std::string &ofType,
+DataFile* DataFileFactory::CreateDataFile(const std::string &ofType,
                                     const std::string &withName)
 {
 MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
       ofType.c_str(), withName.c_str());
-   if (ofType == "B3")
-      return new ProcessB3Data(ofType,withName);
-   if (ofType == "SLR")
-      return new ProcessSLRData(ofType,withName);
-   if (ofType == "TLE")
-      return new ProcessTLEData(ofType,withName);
+   if (ofType == "B3Data")
+      return new ProcessB3Data(withName);
+   if (ofType == "SLRData")
+      return new ProcessSLRData(withName);
+   if (ofType == "TLEData")
+      return new ProcessTLEData(withName);
 
 
    return NULL;
@@ -70,7 +70,7 @@ MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
 //------------------------------------------------------------------------------
 DataFileFactory::DataFileFactory() :
    Factory     (Gmat::SOLVER)
-//   Factory     (Gmat::DataFile)
+//   Factory     (Gmat::DATA_FILE)
 {
    if (creatables.empty())
    {
@@ -91,7 +91,7 @@ DataFileFactory::DataFileFactory() :
  */
 //------------------------------------------------------------------------------
 DataFileFactory::DataFileFactory(StringArray createList) :
-Factory(createList, Gmat::PROCESSDATAFILE)
+Factory(createList, Gmat::DATA_FILE)
 {
 }
 

@@ -98,7 +98,7 @@ public:
    Rmatrix Inverse() const;                    
    virtual Rmatrix Pseudoinverse() const;            
    Rmatrix Symmetric() const;            
-   Rmatrix AntiSymmetric() const;    
+   Rmatrix AntiSymmetric() const;
    
    // friends
    friend Rmatrix SkewSymmetric4by4(const Rvector3 &v);

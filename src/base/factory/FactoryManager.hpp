@@ -45,7 +45,7 @@
 #include "CoordinateSystem.hpp"
 #include "MathNode.hpp"
 #include "Attitude.hpp"
-#include "ProcessDataFile.hpp"
+#include "DataFile.hpp"
 #include "MeasurementModel.hpp"
 
 /**
@@ -88,7 +88,7 @@ public:
                                               const std::string &withName = "");
    Solver*                CreateSolver(const std::string &ofType,
                                        const std::string &withName = "");
-   ProcessDataFile*       CreateDataFile(const std::string &ofType,
+   DataFile*       CreateDataFile(const std::string &ofType,
                                        const std::string &withName = "");
    MeasurementModel*      CreateMeasurementModel(const std::string &ofType,
                                        const std::string &withName = "");

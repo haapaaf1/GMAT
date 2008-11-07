@@ -13,7 +13,7 @@
 //
 /**
  *  Implementation code for the DataFileFactory class, responsible
- *  for creating ProcessDataFile objects.
+ *  for creating DataFile objects.
  */
 //------------------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ class ProcessSLRData;
 class DataFileFactory : public Factory
 {
 public:
-   virtual ProcessDataFile* CreateDataFile(const std::string &ofType,
+   virtual DataFile* CreateDataFile(const std::string &ofType,
                                 const std::string &withName /* = "" */);
 
    // default constructor

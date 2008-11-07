@@ -327,7 +327,7 @@ OBJECTS = \
     measurement/MeasurementModelException.o \
     measurement/RangeMeasurementModel.o \
     measurement/RangeAzElMeasurementModel.o \
-    measurement/ProcessDataFile.o \
+    measurement/DataFile.o \
     measurement/ProcessTLEData.o \
     measurement/ProcessB3Data.o \
     measurement/ProcessSLRData.o \

@@ -399,8 +399,7 @@ Rmatrix Rmatrix::operator/( const Rmatrix &m) const
 //------------------------------------------------------------------------------
 //  const Rmatrix & operator/=(const Rmatrix &m)
 //------------------------------------------------------------------------------
-const Rmatrix& 
-Rmatrix::operator/=(const Rmatrix &m) 
+const Rmatrix& Rmatrix::operator/=(const Rmatrix &m) 
 {
    if ((isSizedD == false) || (m.IsSized() == false))
    {

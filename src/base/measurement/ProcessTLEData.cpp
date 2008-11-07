@@ -13,7 +13,7 @@
 //
 /**
  *
- * Implements ProcessDataFile base class to read files written in the TLE format.
+ * Implements DataFile base class to read files written in the TLE format.
  *
  */
 //------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #include "ProcessTLEData.hpp"
 #include "gmatdefs.hpp"
 #include "StringUtil.hpp"           // for ToString()
-#include "ProcessDataFile.hpp"
+#include "DataFile.hpp"
 #include "math.h"
 
 //---------------------------------
@@ -39,7 +39,7 @@
  * Constructs base ProcessTLEData structures 
  */
 ProcessTLEData::ProcessTLEData(const std::string &itsName) :
-	ProcessDataFile ("TLEData", itsName)
+	DataFile ("TLEData", itsName)
 {
    objectTypeNames.push_back("ProcessTLEData");
 }
