@@ -919,7 +919,7 @@ bool Achieve::SetElementWrapper(ElementWrapper *toWrapper,
 
    if (toWrapper == NULL) return false;
    
-   if (toWrapper->GetWrapperType() == Gmat::ARRAY)
+   if (toWrapper->GetWrapperType() == Gmat::ARRAY_WT)
    {
       throw CommandException("A value of type \"Array\" on command \"" + 
                   typeName + 
@@ -961,7 +961,7 @@ bool Achieve::SetElementWrapper(ElementWrapper *toWrapper,
 
    if (goalName == withName)
    {
-      if (toWrapper->GetWrapperType() == Gmat::NUMBER)
+      if (toWrapper->GetWrapperType() == Gmat::NUMBER_WT)
       {
          std::string errmsg = "The value of \"" + goalName;
          errmsg            += "\" for field \"Goal\" on object \"";

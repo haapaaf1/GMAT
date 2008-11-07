@@ -337,7 +337,8 @@ bool ManageObject::InsertIntoGOS(GmatBase *obj, const std::string &withName)
    }
    GmatBase *mapObj;
    std::string ex;
-   std::string objType = obj->GetTypeName();
+   ////std::string objType = obj->GetTypeName();
+   Gmat::ObjectType objType = obj->GetType();
    // if it is already in the GOS, make sure the types match
    if (globalObjectMap->find(withName) != globalObjectMap->end())
    {
@@ -348,7 +349,8 @@ bool ManageObject::InsertIntoGOS(GmatBase *obj, const std::string &withName)
          ex += """, but of a different type, already exists in Global Object Store\n";
          throw CommandException(ex);
       }
-      if (objType == "Array")
+      ////if (objType == "Array")
+      if (objType == Gmat::PARAMETER && obj->GetTypeName() == "Array")
       {
          Integer r1, r2, c1, c2;
          ((Array*) mapObj)->GetSize(r1, c1);
@@ -360,7 +362,7 @@ bool ManageObject::InsertIntoGOS(GmatBase *obj, const std::string &withName)
             throw CommandException(ex);
          }
       }
-
+      
       // This Warning is very annoying when GmatFunction is running in a loop,
       // so defined macro here (loj: 2008.10.08)
       #ifdef __SHOW_GOS_WARNING__

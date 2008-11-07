@@ -22,7 +22,6 @@
 #include "StringUtil.hpp"          // for Replace()
 #include "FileManager.hpp"         // for GetAllMatlabFunctionPaths()
 #include "MessageInterface.hpp"
-
 #include <sstream>
 
 #if defined __USE_MATLAB__
@@ -47,6 +46,16 @@
 //#define DEBUG_RUN_COMPLETE
 //#define DEBUG_MATLAB_EXEC
 //#define DEBUG_MATLAB_EVAL
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+//#ifndef DEBUG_PERFORMANCE
+//#define DEBUG_PERFORMANCE
+//#endif
+#ifdef DEBUG_PERFORMANCE
+#include <ctime>                 // for clock()
+#endif
 
 //---------------------------------
 // static data
@@ -531,10 +540,11 @@ std::string CallFunction::GetStringParameter(const std::string &label) const
 bool CallFunction::SetStringParameter(const Integer id, const std::string &value)
 {
    #ifdef DEBUG_CALL_FUNCTION_PARAM
-      MessageInterface::ShowMessage("CallFunction::SetStringParameter with id = %d and value = %s\n",
-            id, value.c_str());
+      MessageInterface::ShowMessage
+         ("CallFunction::SetStringParameter with id = %d and value = %s\n",
+          id, value.c_str());
    #endif
-
+      
    switch (id)
    {
    case FUNCTION_NAME:
@@ -1044,6 +1054,15 @@ bool CallFunction::Execute()
    if (mFunction == NULL)
       throw CommandException("Function is not defined for CallFunction");
    
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== CallFunction::Execute() entered, '%s' Count = %d\n",
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), callCount);
+   #endif
+   
    #ifdef DEBUG_CALL_FUNCTION_EXEC
       MessageInterface::ShowMessage
          ("CallFunction::Execute() this=<%p> entered, command = '%s'\n   "
@@ -1099,6 +1118,13 @@ bool CallFunction::Execute()
       #endif
    #endif
       
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== CallFunction::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #endif
+   
    return status;
 }
 
@@ -1354,6 +1380,11 @@ void CallFunction::GetOutParams()
             int numCols = array->GetIntegerParameter("NumCols");
             int totalCells = numRows * numCols;            
             double *outArray = new double[totalCells];
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ CallFunction::GetOutParams() double *outArray = new double[%d], <%p>\n",
+                totalCells, outArray);
+            #endif
             
             #ifdef DEBUG_GET_OUTPUT
             MessageInterface::ShowMessage
@@ -1388,12 +1419,22 @@ void CallFunction::GetOutParams()
             // assign rmatrix to array
             array->SetRmatrixParameter("RmatValue", rmatrix);
             
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- CallFunction::GetOutParams() deleting outArray <%p>\n",
+                outArray);
+            #endif
             delete [] outArray;
             
          }
          else if (param->GetTypeName() == "Variable")
          {
             double *outArray = new double[1];
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ CallFunction::GetOutParams() double *outArray = new double[1], <%p>\n",
+                outArray);
+            #endif
             
             #ifdef DEBUG_UPDATE_VAR
             MessageInterface::ShowMessage
@@ -1414,6 +1455,11 @@ void CallFunction::GetOutParams()
                ("The GetReal is %f\n", param->GetReal());
             #endif
             
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- CallFunction::GetOutParams() deleting outArray <%p>\n",
+                outArray);
+            #endif
             delete [] outArray;
          }
          else if (param->GetTypeName() == "String")

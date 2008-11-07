@@ -2313,7 +2313,7 @@ bool GmatCommand::SetWrapperReferences(ElementWrapper &wrapper)
       {
          std::string name = *j;
          #ifdef DEBUG_WRAPPER_CODE
-         MessageInterface::ShowMessage("      name='%s'\n", name.c_str());
+         MessageInterface::ShowMessage("      name='%s', now finding object...\n", name.c_str());
          #endif
          GmatBase *obj = FindObject(name);
          if (obj == NULL)
@@ -2338,6 +2338,10 @@ bool GmatCommand::SetWrapperReferences(ElementWrapper &wrapper)
    else
       throw CommandException("GmatCommand::SetWrapperReferences was passed a "
          "NULL object instead of a wrapper in:\n   \"" + generatingString + "\"\n");
+   
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage("GmatCommand::SetWrapperReferences() returning true\n");
+   #endif
    
    return true;
 }

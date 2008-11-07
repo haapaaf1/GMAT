@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 Minimize
 //------------------------------------------------------------------------------
@@ -590,19 +590,19 @@ bool Minimize::SetElementWrapper(ElementWrapper *toWrapper, const std::string &w
 
    if (toWrapper == NULL) return false;
    
-   if (toWrapper->GetWrapperType() == Gmat::ARRAY)
+   if (toWrapper->GetWrapperType() == Gmat::ARRAY_WT)
    {
       throw CommandException("A value of type \"Array\" on command \"" + typeName + 
                   "\" is not an allowed value.\nThe allowed values are:"
                   " [ Variable, Array Element, or Parameter ]. "); 
    }
-   if (toWrapper->GetWrapperType() == Gmat::NUMBER)
+   if (toWrapper->GetWrapperType() == Gmat::NUMBER_WT)
    {
       throw CommandException("A value of type \"Number\" on command \"" + typeName + 
                   "\" is not an allowed value.\nThe allowed values are:"
                   " [ Variable, Array Element, or Parameter ]. "); 
    }
-   //if (toWrapper->GetWrapperType() == Gmat::STRING_OBJECT)
+   //if (toWrapper->GetWrapperType() == Gmat::STRING_OBJECT_WT)
    //{
    //   throw CommandException("A value of type \"String Object\" on command \"" + typeName + 
    //               "\" is not an allowed value.\nThe allowed values are:"

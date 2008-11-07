@@ -25,6 +25,10 @@
 //#define DEBUG_CREATE
 //#define DEBUG_CREATE_INIT
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -65,7 +69,15 @@ Create::Create() :
 Create::~Create()
 {
    //creations.clear();
-   if (refObj) delete refObj;
+   if (refObj)
+   {
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- Create::~Create() deleting refObj <%p> '%s'\n",
+          refObj, refObj->GetName().c_str());
+      #endif
+      delete refObj;
+   }
    // assuming objects inseted into a valid Object Store (Sandbox, Function, or Global)
    // will be deleted as members of those stores at the appropriate time; objects created 
    // in the Create command that were not successfully inserted into an object store will
@@ -248,6 +260,15 @@ GmatBase* Create::Clone() const
 //------------------------------------------------------------------------------
 bool Create::Initialize()
 {
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== Create::Initialize() entered, '%s' Count = %d\n",
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), callCount);
+   #endif
+   
    #ifdef DEBUG_CREATE_INIT
       MessageInterface::ShowMessage("Create::Initialize() entered, for object type %s\n",
             objType.c_str());
@@ -291,6 +312,12 @@ bool Create::Initialize()
    for (Integer jj = 0; jj < numNames; jj++)
    {
       GmatBase *newObj = refObj->Clone();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Create::Initialize() newObj = refObj->Clone(%s), <%p>\n",
+          useNames.at(jj).c_str(), newObj);
+      #endif
+      
       newObj->SetName(useNames.at(jj));
       if (refObj->GetType() == Gmat::COORDINATE_SYSTEM)
          newObj->SetSolarSystem(((CoordinateBase*)refObj)->GetSolarSystem());
@@ -305,10 +332,19 @@ bool Create::Initialize()
          //((Array*) (creations.at(jj)))->SetSize(rows.at(jj), columns.at(jj));
       InsertIntoObjectStore(newObj, useNames.at(jj));
    }
+   
    #ifdef DEBUG_CREATE_INIT
       MessageInterface::ShowMessage("Exiting Create::Initialize()\n");
       ShowObjectMaps("object maps at the end");
    #endif
+   
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== Create::Initialize() exiting, '%s' Count = %d, Run Time: %f seconds\n",
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #endif
+   
    return true;
 }
 

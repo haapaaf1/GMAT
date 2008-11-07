@@ -1492,7 +1492,7 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
       return false;
    
    // this would be caught by next part, but this message is more meaningful
-   if (toWrapper->GetWrapperType() == Gmat::ARRAY)
+   if (toWrapper->GetWrapperType() == Gmat::ARRAY_WT)
    {
       throw CommandException("A value of type \"Array\" on command \"" + typeName + 
                   "\" is not an allowed value.\nThe allowed values are:"
@@ -2801,7 +2801,7 @@ bool Propagate::Execute()
 
    if (initialized == false)
       throw CommandException("Propagate Command was not Initialized\n");
-
+   
    // Parm used to check for interrupt in the propagation   
    Integer checkCount = 0, trigger = 0;
 
@@ -3000,11 +3000,12 @@ bool Propagate::Execute()
    #ifdef DEBUG_EPOCH_UPDATES
       fm[0]->ReportEpochData();
    #endif
-   
+      
    ClearTransientForces();
    // Only build command summary if not in single step mode
    if (!singleStepMode)
       BuildCommandSummary(true);
+   
    return true;
 }
 

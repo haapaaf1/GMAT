@@ -99,7 +99,7 @@ protected:
    WrapperMap           mathWrapperMap;
    
    // methods
-   ElementWrapper* RunMathTree(ElementWrapper *lhsWrapper);
+   ElementWrapper* RunMathTree();
 };
 
 #endif // Assignment_hpp

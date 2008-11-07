@@ -256,7 +256,7 @@ const std::string& Vary::GetGeneratingString(Gmat::WriteMode mode,
       details << "Unknown-Variable" << " = ";
    
    if (initialValue)
-      if (initialValue->GetWrapperType() != Gmat::NUMBER)
+      if (initialValue->GetWrapperType() != Gmat::NUMBER_WT)
          details << initialValue->GetDescription() <<  ", ";
       else
          details << initialValue->EvaluateReal() <<  ", ";
@@ -902,7 +902,7 @@ bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withN
 
    if (toWrapper == NULL) return false;
    
-   if (toWrapper->GetWrapperType() == Gmat::ARRAY)
+   if (toWrapper->GetWrapperType() == Gmat::ARRAY_WT)
    {
       throw CommandException("A value of type \"Array\" on command \"" + typeName + 
                   "\" is not an allowed value.\nThe allowed values are:"
@@ -1275,7 +1275,7 @@ void Vary::SetInitialValue(Solver *theSolver)
             "   Solvers matched; solution value %.12lf reset IV for %s to %.12lf\n",
             var, initialValueName.c_str(), initialValue->EvaluateReal());
       
-      if (initialValue->GetWrapperType() == Gmat::NUMBER)
+      if (initialValue->GetWrapperType() == Gmat::NUMBER_WT)
       {
          std::stringstream numString;
          numString.precision(16);

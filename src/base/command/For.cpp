@@ -1077,7 +1077,7 @@ bool For::SetElementWrapper(ElementWrapper *toWrapper,
    if (toWrapper == NULL) return false;
    
    // this would be caught by next part, but this message is more meaningful
-   if (toWrapper->GetWrapperType() == Gmat::ARRAY)
+   if (toWrapper->GetWrapperType() == Gmat::ARRAY_WT)
    {
       throw CommandException("A value of type \"Array\" on command \"" + typeName + 
                   "\" is not an allowed value.\nThe allowed values are:"
@@ -1114,7 +1114,7 @@ bool For::SetElementWrapper(ElementWrapper *toWrapper,
    #endif
    if (indexName == withName)
    {
-      if (toWrapper->GetWrapperType() != Gmat::VARIABLE)
+      if (toWrapper->GetWrapperType() != Gmat::VARIABLE_WT)
       {
          std::string errmsg = "The value of \"" + indexName;
          errmsg            += "\" for field \"Index Name\" on command \"";

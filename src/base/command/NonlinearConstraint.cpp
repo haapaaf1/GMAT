@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 NonlinearConstraint
 //------------------------------------------------------------------------------
@@ -743,13 +743,13 @@ bool NonlinearConstraint::SetElementWrapper(ElementWrapper *toWrapper,
 
    if (toWrapper == NULL) return false;
    
-   if (toWrapper->GetWrapperType() == Gmat::ARRAY)
+   if (toWrapper->GetWrapperType() == Gmat::ARRAY_WT)
    {
       throw CommandException("A value of type \"Array\" on command \"" + typeName + 
                   "\" is not currently an allowed value.\nThe allowed values are:"
                   " [ Real Number, Variable, Array Element, or Parameter ]. "); 
    }
-   //if (toWrapper->GetWrapperType() == Gmat::STRING_OBJECT)
+   //if (toWrapper->GetWrapperType() == Gmat::STRING_OBJECT_WT)
    //{
    //   throw CommandException("A value of type \"String Object\" on command \"" + typeName + 
    //               "\" is not an allowed value.\nThe allowed values are:"

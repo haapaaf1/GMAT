@@ -675,7 +675,7 @@ bool Assignment::Execute()
          ShowObjectMaps("object maps at the start");
          #endif
          
-         outWrapper = RunMathTree(lhsWrapper);
+         outWrapper = RunMathTree();
          retval = ElementWrapper::SetValue(lhsWrapper, outWrapper, solarSys, objectMap,
                                            globalObjectMap, setRefObj);
       }
@@ -687,7 +687,12 @@ bool Assignment::Execute()
       if (!retval)
       {
          if (outWrapper)
+         {
+            GmatBase *refObj = outWrapper->GetRefObject();
+            if (refObj)
+               delete refObj;
             delete outWrapper;
+         }
          
          throw CommandException("Assignment::Execute() failed");
       }
@@ -714,7 +719,12 @@ bool Assignment::Execute()
       else
       {
          if (outWrapper)
+         {
+            GmatBase *refObj = outWrapper->GetRefObject();
+            if (refObj)
+               delete refObj;
             delete outWrapper;
+         }
          
          CommandException ce;
          ce.SetMessage("");
@@ -728,7 +738,12 @@ bool Assignment::Execute()
    #endif
    
    if (outWrapper)
+   {
+      GmatBase *refObj = outWrapper->GetRefObject();
+      if (refObj)
+         delete refObj;
       delete outWrapper;
+   }
    
    return true;
 }
@@ -887,7 +902,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
       // lhs should always be object property wrapper, so check first
       if (withName.find(".") == withName.npos ||
           (withName.find(".") != withName.npos &&
-           toWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY))
+           toWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY_WT))
       {
          // to handle Count = Count + 1, old lhsWrapper cannot be deleted here
          if (lhsWrapper != toWrapper)
@@ -920,7 +935,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
          // rhs should always be parameter wrapper, so check first
          if (withName.find(".") == withName.npos ||
              (withName.find(".") != withName.npos &&
-              toWrapper->GetWrapperType() == Gmat::PARAMETER_OBJECT))
+              toWrapper->GetWrapperType() == Gmat::PARAMETER_WT))
          {
             if (mathWrapperMap[withName] != toWrapper)
             {
@@ -1193,15 +1208,13 @@ const std::string& Assignment::GetGeneratingString(Gmat::WriteMode mode,
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// ElementWrapper* RunMathTree(ElementWrapper *lhsWrapper)
+// ElementWrapper* RunMathTree()
 //------------------------------------------------------------------------------
 /*
  * Executes MathTree and creates output ElemenetWrapper.
- *
- * @param  lhsWrapper  LHS wrapper pointer
  */
 //------------------------------------------------------------------------------
-ElementWrapper* Assignment::RunMathTree(ElementWrapper *lhsWrapper)
+ElementWrapper* Assignment::RunMathTree()
 {
    if (mathTree == NULL)
       return NULL;

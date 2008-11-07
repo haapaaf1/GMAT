@@ -34,6 +34,10 @@
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_OBJECT_MAP
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -363,12 +367,24 @@ bool ConditionalBranch::RemoveCondition(Integer atIndex)
    lhsList.erase(lhsList.begin() + atIndex);
    ew = lhsWrappers.at(atIndex);
    lhsWrappers.erase(lhsWrappers.begin() + atIndex);
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("--- ConditionalBranch::RemoveCondition() '%s' deleting lhsWrappers <%p> '%s'\n",
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
+       ew->GetDescription().c_str());
+   #endif
    delete ew;
    opStrings.erase(opStrings.begin() + atIndex);
    opList.erase(opList.begin() + atIndex);
    rhsList.erase(rhsList.begin() + atIndex);
    ew = rhsWrappers.at(atIndex);
    rhsWrappers.erase(rhsWrappers.begin() + atIndex);
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("--- ConditionalBranch::RemoveCondition() '%s' deleting rhsWrappers <%p> '%s'\n",
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
+       ew->GetDescription().c_str());
+   #endif
    delete ew;
    numberOfConditions--;
    return true;
@@ -833,6 +849,12 @@ bool ConditionalBranch::SetStringParameter(const Integer id,
       lhsList.at(index) = value;
       ew = lhsWrappers.at(index);
       lhsWrappers.at(index) = NULL;
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- ConditionalBranch::SetStringParameter() '%s' deleting lhsWrappers "
+          "<%p> '%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
+          ew->GetDescription().c_str());
+      #endif
       delete ew;
       return true;
    }
@@ -856,6 +878,12 @@ bool ConditionalBranch::SetStringParameter(const Integer id,
       rhsList.at(index) = value;
       ew = rhsWrappers.at(index);
       rhsWrappers.at(index) = NULL;
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- ConditionalBranch::SetStringParameter() '%s' deleting rhsWrappers <%p> "
+          "'%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
+          ew->GetDescription().c_str());
+      #endif
       delete ew;
       return true;
    }
@@ -1007,7 +1035,7 @@ bool ConditionalBranch::SetElementWrapper(ElementWrapper *toWrapper,
 
    if (toWrapper == NULL) return false;
    // this would be caught by next part, but this message is more meaningful
-   if (toWrapper->GetWrapperType() == Gmat::ARRAY)
+   if (toWrapper->GetWrapperType() == Gmat::ARRAY_WT)
    {
       throw CommandException("A value of type \"Array\" on command \"" + typeName + 
                   "\" is not an allowed value.\nThe allowed values are:"
@@ -1034,10 +1062,18 @@ bool ConditionalBranch::SetElementWrapper(ElementWrapper *toWrapper,
          {
             ew = lhsWrappers.at(i);
             lhsWrappers.at(i) = toWrapper;
-
+            
             // Delete if wrapper name not found in the rhsList
             if (find(rhsList.begin(), rhsList.end(), withName) == rhsList.end())
+            {
+               #ifdef DEBUG_MEMORY
+               MessageInterface::ShowMessage
+                  ("--- ConditionalBranch::SetElementWrapper() '%s' deleting lhsWrappers "
+                   "<%p> '%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
+                   ew->GetDescription().c_str());
+               #endif
                delete ew;
+            }
          }
          else lhsWrappers.at(i) = toWrapper;
          retval = true;
@@ -1059,7 +1095,15 @@ bool ConditionalBranch::SetElementWrapper(ElementWrapper *toWrapper,
             
             // Delete if wrapper name not found in the lhsList
             if (find(lhsList.begin(), lhsList.end(), withName) == lhsList.end())
+            {
+               #ifdef DEBUG_MEMORY
+               MessageInterface::ShowMessage
+                  ("--- ConditionalBranch::SetElementWrapper() '%s' deleting rhsWrappers "
+                   "<%p> '%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
+                   ew->GetDescription().c_str());
+               #endif
                delete ew;
+            }
          }
          else rhsWrappers.at(i) = toWrapper;
          retval = true;
@@ -1113,9 +1157,10 @@ void ConditionalBranch::ClearWrappers()
       
       if (wrapper != NULL)
       {
-         #ifdef DEBUG_WRAPPER_CODE
+         #ifdef DEBUG_MEMORY
          MessageInterface::ShowMessage
-            ("   deleting wrapper=(%p)'%s'\n", wrapper,
+            ("--- ConditionalBranch::ClearWrappers()() '%s' deleting lhsWrappers "
+             "<%p> '%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), wrapper,
              wrapper->GetDescription().c_str());
          #endif
          delete wrapper;
