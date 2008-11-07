@@ -45,7 +45,7 @@
 #include "CoordinateSystem.hpp"
 #include "MathNode.hpp"
 #include "Attitude.hpp"
-
+#include "ProcessDataFile.hpp"
 #include "MeasurementModel.hpp"
 
 /**
@@ -87,6 +87,8 @@ public:
    CelestialBody*         CreateCelestialBody(const std::string &ofType,
                                               const std::string &withName = "");
    Solver*                CreateSolver(const std::string &ofType,
+                                       const std::string &withName = "");
+   ProcessDataFile*       CreateDataFile(const std::string &ofType,
                                        const std::string &withName = "");
    MeasurementModel*      CreateMeasurementModel(const std::string &ofType,
                                        const std::string &withName = "");

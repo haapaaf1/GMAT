@@ -46,6 +46,7 @@
 #include "EstimatorFactory.hpp"
 #include "EstimatorCommandFactory.hpp"
 #include "MeasurementModelFactory.hpp"
+#include "DataFileFactory.hpp"
 
 #include "NoOp.hpp"
 #include "GravityField.hpp"
@@ -172,6 +173,7 @@ bool Moderator::Initialize(bool fromGui)
       theFactoryManager->RegisterFactory(new EstimatorFactory());
       theFactoryManager->RegisterFactory(new EstimatorCommandFactory());
       theFactoryManager->RegisterFactory(new MeasurementModelFactory());
+      theFactoryManager->RegisterFactory(new DataFileFactory());
 
       // Create publisher
 
@@ -2506,17 +2508,17 @@ Solver* Moderator::GetSolver(const std::string &name)
       return theConfigManager->GetSolver(name);
 }
 
-// Solver
+// Measurement Model
 //------------------------------------------------------------------------------
-// Solver* CreateSolver(const std::string &type, const std::string &name)
+// Solver* CreateMeasurementModel(const std::string &type, const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Creates a solver object by given type and name and add to configuration.
+ * Creates a measurement model object by given type and name and add to configuration.
  *
  * @param <type> object type
  * @param <name> object name
  *
- * @return a solver object pointer
+ * @return a measurement model object pointer
  */
 //------------------------------------------------------------------------------
 MeasurementModel* Moderator::CreateMeasurementModel(const std::string &type, const std::string &name)
@@ -2562,7 +2564,6 @@ MeasurementModel* Moderator::CreateMeasurementModel(const std::string &type, con
    }
 }
 
-
 //------------------------------------------------------------------------------
 // MeasurementModel* GetMeasurementModel(const std::string &name)
 //------------------------------------------------------------------------------
@@ -2580,6 +2581,82 @@ MeasurementModel* Moderator::GetMeasurementModel(const std::string &name)
       return NULL;
    else
       return theConfigManager->GetMeasurementModel(name);
+}
+
+
+// Process Data File
+//------------------------------------------------------------------------------
+// ProcessDataFile* CreateDataFile(const std::string &type, const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a process data file object by given type and name and add to configuration.
+ *
+ * @param <type> object type
+ * @param <name> object name
+ *
+ * @return a process data file object pointer
+ */
+//------------------------------------------------------------------------------
+ProcessDataFile* Moderator::CreateDataFile(const std::string &type, const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage
+      ("Moderator::CreateMeasurementModel() type = '%s', name = '%s'\n", type.c_str(),
+       name.c_str());
+   #endif
+
+   if (GetDataFile(name) == NULL)
+   {
+      ProcessDataFile *pdf = theFactoryManager->CreateDataFile(type, name);
+
+      if (pdf == NULL)
+      {
+         throw GmatBaseException
+            ("The Moderator cannot create ProcessDataFile type \"" + type + "\"\n");
+      }
+
+      // Manage it if it is a named ProcessDataFile
+      try
+      {
+         if (pdf->GetName() != "")
+            theConfigManager->AddDataFile(pdf);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage("Moderator::CreateDataFile()\n" +
+                                       e.GetFullMessage());
+      }
+
+      return pdf;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateDataFile() Unable to create ProcessDataFile "
+          "name: %s already exists\n", name.c_str());
+      #endif
+      return GetDataFile(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// ProcessDataFile* GetDataFile(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a ProcessDataFile object pointer by given name.
+ *
+ * @param <name> object name
+ *
+ * @return a ProcessDataFile object pointer, return null if name not found
+ */
+//------------------------------------------------------------------------------
+ProcessDataFile* Moderator::GetDataFile(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return theConfigManager->GetDataFile(name);
 }
 
 // PropSetup

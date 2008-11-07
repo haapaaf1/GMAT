@@ -285,6 +285,11 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray mml = theModerator->GetListOfFactoryItems(Gmat::MEASUREMENT_MODEL);
    copy(mml.begin(), mml.end(), back_inserter(measurementModelList));
 
+   processDataFileList.clear();
+   StringArray pdf = theModerator->GetListOfFactoryItems(Gmat::PROCESSDATAFILE);
+   copy(pdf.begin(), pdf.end(), back_inserter(processDataFileList));
+
+   
    #ifdef DEBUG_OBJECT_LIST
       std::vector<std::string>::iterator pos;
 
@@ -347,6 +352,10 @@ void Interpreter::BuildCreatableObjectMaps()
 
       MessageInterface::ShowMessage("\nMeasurementModels:\n   ");
       for (pos = mml.begin(); pos != mml.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+
+      MessageInterface::ShowMessage("\nProcessDataFiles:\n   ");
+      for (pos = pdf.begin(); pos != pdf.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
 
       MessageInterface::ShowMessage("\n");
@@ -422,6 +431,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
 
       case Gmat::PARAMETER:
          clist = parameterList;
+         break;
+
+      case Gmat::PROCESSDATAFILE:
+         clist = processDataFileList;
          break;
 
       case Gmat::PROPAGATOR:
@@ -771,6 +784,14 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       {
          MessageInterface::ShowMessage("Object is a MeasurementModel\n");
          obj = (GmatBase*)theModerator->CreateMeasurementModel(type, name);
+      }
+
+      // Handle Data Files
+      else if (find(processDataFileList.begin(), processDataFileList.end(), type) !=
+         processDataFileList.end())
+      {
+         MessageInterface::ShowMessage("Object is a Data File\n");
+         obj = (GmatBase*)theModerator->CreateDataFile(type, name);
       }
 
       // Handle Subscribers

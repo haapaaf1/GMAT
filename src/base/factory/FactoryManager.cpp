@@ -312,7 +312,62 @@ Solver* FactoryManager::CreateSolver(const std::string &ofType,
    return NULL;
 }
 
+//------------------------------------------------------------------------------
+//  ProcessDataFile* CreateDataFile(const std::string &withName,
+//                                  const std::string &fileName)
+//------------------------------------------------------------------------------
+/**
+ * Create an object of type ProcessDataFile, with the name withName.
+ *
+ * @param <ofType>   type name of the new ProcessDataFile object.
+ * @param <withName> name of the new ProcessDataFile object.
+ *
+ * @return pointer to the newly-created ProcessDataFile object
+ */
+//------------------------------------------------------------------------------
+ProcessDataFile* FactoryManager::CreateDataFile(const std::string &ofType,
+                                       const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::PROCESSDATAFILE, ofType);
+   ProcessDataFile* retObj = NULL;
+   if (f != NULL)
+   {
+      MessageInterface::ShowMessage("Found a factory that builds %s DataFiles\n",
+            ofType.c_str());
+      try
+      {
+         retObj = f->CreateDataFile(ofType, withName);
+      }
+      catch (BaseException &ex)
+      {
+         Factory* f = FindFactory(Gmat::PROCESSDATAFILE, ofType);
+         if (f != NULL)
+         {
+            MessageInterface::ShowMessage(
+                  "Found a factory that builds %s DataFiles\n",
+                  ofType.c_str());
+            retObj = (ProcessDataFile*)(f->CreateDataFile(ofType, withName));
+         }
+      }
+      return retObj;
+   }
 
+   return NULL;
+}
+
+//------------------------------------------------------------------------------
+//  MeasurementModel* CreateMeasurementModel(const std::string &withName,
+//                                           const std::string &fileName)
+//------------------------------------------------------------------------------
+/**
+ * Create an object of type MeasurementModel, with the name withName.
+ *
+ * @param <ofType>   type name of the new MeasurementModel object.
+ * @param <withName> name of the new MeasurementModel object.
+ *
+ * @return pointer to the newly-created MeasurementModel object
+ */
+//------------------------------------------------------------------------------
 MeasurementModel* FactoryManager::CreateMeasurementModel(const std::string &ofType,
                                        const std::string &withName)
 {

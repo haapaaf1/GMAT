@@ -452,7 +452,17 @@ void ConfigManager::AddMeasurementModel(MeasurementModel *mm)
    AddObject(mm);
 }
 
+void ConfigManager::AddDataFile(ProcessDataFile *pdf)
+{
+   std::string name = pdf->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
 
+   if (!pdf->IsOfType(Gmat::PROCESSDATAFILE))
+      throw ConfigManagerException(name + " is not a DataFile");
+
+   AddObject(pdf);
+}
 //------------------------------------------------------------------------------
 // void AddAtmosphereModel(AtmosphereModel* atmosModel)
 //------------------------------------------------------------------------------
@@ -1471,6 +1481,19 @@ MeasurementModel* ConfigManager::GetMeasurementModel(const std::string &name)
       }
    }
    return mm;
+}
+
+ProcessDataFile* ConfigManager::GetDataFile(const std::string &name)
+{
+   ProcessDataFile *pdf = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::PROCESSDATAFILE))
+      {
+         pdf = (ProcessDataFile *)mapping[name];
+      }
+   }
+   return pdf;
 }
 
 //------------------------------------------------------------------------------

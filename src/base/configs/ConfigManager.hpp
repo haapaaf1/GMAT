@@ -41,6 +41,7 @@
 #include "CalculatedPoint.hpp"
 
 #include "MeasurementModel.hpp"
+#include "ProcessDataFile.hpp"
 
 /**
  * Class used to manage configured objects prior to cloning into the Sandbox.
@@ -67,6 +68,7 @@ public:
    void                AddBurn(Burn* burn);
    void                AddSolver(Solver *solver);
    void                AddMeasurementModel(MeasurementModel *mm);
+   void                AddDataFile(ProcessDataFile *pdf);
    void                AddAtmosphereModel(AtmosphereModel *atmosModel);
    void                AddFunction(Function *function);
    void                AddCoordinateSystem(CoordinateSystem *cs);
@@ -109,6 +111,7 @@ public:
    Burn*               GetBurn(const std::string &name);
    Solver*             GetSolver(const std::string &name);
    MeasurementModel*   GetMeasurementModel(const std::string &name);
+   ProcessDataFile*    GetDataFile(const std::string &name);
    AtmosphereModel*    GetAtmosphereModel(const std::string &name);
    Function*           GetFunction(const std::string &name);
    CoordinateSystem*   GetCoordinateSystem(const std::string &name);

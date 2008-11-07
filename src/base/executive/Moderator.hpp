@@ -53,7 +53,7 @@
 #include "Interpolator.hpp"
 #include "CalculatedPoint.hpp"
 #include "MathNode.hpp"
-
+#include "ProcessDataFile.hpp"
 #include "MeasurementModel.hpp"
 // files
 #include "EopFile.hpp"
@@ -199,6 +199,11 @@ public:
    MeasurementModel* CreateMeasurementModel(const std::string &type,
                         const std::string &name);
    MeasurementModel* GetMeasurementModel(const std::string &name);
+
+   // ProcessDataFile
+   ProcessDataFile* CreateDataFile(const std::string &type,
+                        const std::string &name);
+   ProcessDataFile* GetDataFile(const std::string &name);
 
    // PropSetup
    PropSetup* CreateDefaultPropSetup(const std::string &name);
