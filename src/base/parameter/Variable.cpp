@@ -34,6 +34,10 @@
 //#define DEBUG_RENAME 1
 //#define DEBUG_GEN_STRING 1
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
 //---------------------------------
 // public methods
 //---------------------------------
@@ -55,10 +59,24 @@ Variable::Variable(const std::string &name, const std::string &valStr,
    : RealVar(name, valStr, "Variable", GmatParam::USER_PARAM, NULL, desc, unit,
              GmatParam::NO_DEP, Gmat::UNKNOWN_OBJECT, false)
 {
+   
+   objectTypes.push_back(Gmat::VARIABLE);
    objectTypeNames.push_back("Variable");
    
    mParamDb = new ParameterDatabase();
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ Variable::Variable(default) '%s', mParamDb = new ParameterDatabase(), <%p>\n",
+       name.c_str(), mParamDb);
+   #endif
+   
    mExpParser = new ExpressionParser();
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ Variable::Variable(default) '%s', mExpParser = new ExpressionParser(), <%p>\n",
+       name.c_str(), mExpParser);
+   #endif
+   
    // Set parameter database to be used
    mExpParser->SetParameterDatabase(mParamDb);
    
@@ -88,7 +106,18 @@ Variable::Variable(const Variable &copy)
    : RealVar(copy)
 {
    mParamDb = new ParameterDatabase(*copy.mParamDb);
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ Variable::Variable(copy) '%s', mParamDb = new ParameterDatabase(), <%p>\n",
+       GetName().c_str(), mParamDb);
+   #endif
+   
    mExpParser = new ExpressionParser();
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ Variable::Variable(copy) '%s', mExpParser = new ExpressionParser(), <%p>\n",
+       GetName().c_str(), mExpParser);
+   #endif
    mExpParser->SetParameterDatabase(mParamDb);
    
    #if DEBUG_VARIABLE
@@ -122,7 +151,19 @@ Variable& Variable::operator=(const Variable &right)
       
       RealVar::operator=(right);
       mParamDb = new ParameterDatabase(*right.mParamDb);
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Variable::Variable(=) '%s', mParamDb = new ParameterDatabase(), <%p>\n",
+          GetName().c_str(), mParamDb);
+      #endif
+      
       mExpParser = new ExpressionParser();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Variable::Variable(=) '%s', mExpParser = new ExpressionParser(), <%p>\n",
+          GetName().c_str(), mExpParser);
+      #endif
+      
       mExpParser->SetParameterDatabase(mParamDb);
       // Set expression to name of right side since expression is used for
       // writnig in GetGeneratingString() (loj: 2008.08.13)
@@ -150,7 +191,18 @@ Variable& Variable::operator=(const Variable &right)
 //------------------------------------------------------------------------------
 Variable::~Variable()
 {
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("--- Variable::~Variable() '%s', deleting mParamDb <%p>\n", GetName().c_str(),
+       mParamDb);
+   #endif
    delete mParamDb;
+   
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("--- Variable::~Variable() '%s', deleting mExpParser <%p>\n", GetName().c_str(),
+       mExpParser);
+   #endif
    delete mExpParser;
 }
 

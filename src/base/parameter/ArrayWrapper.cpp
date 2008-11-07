@@ -28,6 +28,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_ARRAY_WRAPPER
+//#define DEBUG_MEMORY
 
 //---------------------------------
 // static data
@@ -52,7 +53,7 @@ ArrayWrapper::ArrayWrapper() :
    array         (NULL),
    arrayName     ("")
 {
-   wrapperType = Gmat::ARRAY;
+   wrapperType = Gmat::ARRAY_WT;
 }
 
 //---------------------------------------------------------------------------
@@ -71,6 +72,8 @@ ArrayWrapper::ArrayWrapper(const ArrayWrapper &aw) :
    array         (NULL),
    arrayName     (aw.arrayName)
 {
+   if (aw.array)
+      array = (Array*)(aw.array->Clone());
 }
 
 //---------------------------------------------------------------------------
@@ -84,18 +87,21 @@ ArrayWrapper::ArrayWrapper(const ArrayWrapper &aw) :
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const ArrayWrapper& ArrayWrapper::operator=(
-                             const ArrayWrapper &aw)
+const ArrayWrapper& ArrayWrapper::operator=(const ArrayWrapper &aw)
 {
    if (&aw == this)
       return *this;
-
+   
    ElementWrapper::operator=(aw);
    array        = NULL;  
    arrayName    = aw.arrayName;
-
+   
+   if (aw.array != NULL)
+      array = (Array*)(aw.array->Clone());
+   
    return *this;
 }
+
 //---------------------------------------------------------------------------
 //  ~ArrayWrapper()
 //---------------------------------------------------------------------------
@@ -105,6 +111,9 @@ const ArrayWrapper& ArrayWrapper::operator=(
 //---------------------------------------------------------------------------
 ArrayWrapper::~ArrayWrapper()
 {
+   ///@todo
+//    if (array)
+//       delete array;
 }
 
 //------------------------------------------------------------------------------
@@ -139,7 +148,6 @@ const StringArray& ArrayWrapper::GetRefObjectNames()
    // start with the array name ...
    refObjectNames.push_back(arrayName);
    
-          
    #ifdef DEBUG_ARRAY_WRAPPER
       MessageInterface::ShowMessage("ArrayWrapper:: Returning ref object names:\n");
       for (Integer ii = 0; ii < (Integer) refObjectNames.size(); ii++)
@@ -148,6 +156,24 @@ const StringArray& ArrayWrapper::GetRefObjectNames()
    
    return refObjectNames;
 }
+
+//------------------------------------------------------------------------------
+//  GmatBase* GetRefObject(const std::string &name = "")
+//------------------------------------------------------------------------------
+/**
+ * This method retrives a reference object for the wrapper name
+ * 
+ * @param <name> name of the wrapper
+ *
+ * @return reference for success; NULL if name not found
+ *
+ */
+//------------------------------------------------------------------------------
+GmatBase* ArrayWrapper::GetRefObject(const std::string &name)
+{
+   return array;
+}
+
 
 //---------------------------------------------------------------------------
 //  bool SetRefObject(GmatBase *obj)
@@ -174,6 +200,10 @@ bool ArrayWrapper::SetRefObject(GmatBase *obj)
    bool isOk   = false;
    if ( (obj->IsOfType("Array")) && (obj->GetName() == arrayName) )
    {
+      ///@todo
+//       if (array)
+//          delete array;
+//       array = (Array*)obj->Clone();
       array = (Array*) obj;
       #ifdef DEBUG_ARRAY_WRAPPER
          MessageInterface::ShowMessage("ArrayWrapper:: Setting array object %s\n",

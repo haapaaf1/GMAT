@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  OnOffWrapper
 //------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ OnOffWrapper::OnOffWrapper() :
    ElementWrapper()
 {
    value       = "";
-   wrapperType = Gmat::ON_OFF;
+   wrapperType = Gmat::ON_OFF_WT;
 }
 
 

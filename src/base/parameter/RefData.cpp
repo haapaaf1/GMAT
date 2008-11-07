@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  RefData
 //------------------------------------------------------------------------------
@@ -41,13 +41,13 @@
 //------------------------------------------------------------------------------
 RefData::RefData()
 {
-   for (int i=0; i<MAX_OBJ_COUNT; i++)
-   {
-      mRefObjList[i].objType = Gmat::UNKNOWN_OBJECT;
-      mRefObjList[i].objName = "";
-      mRefObjList[i].obj = NULL;
-   }
-
+//    for (int i=0; i<MAX_OBJ_COUNT; i++)
+//    {
+//       mRefObjList[i].objType = Gmat::UNKNOWN_OBJECT;
+//       mRefObjList[i].objName = "";
+//       mRefObjList[i].obj = NULL;
+//    }
+   mRefObjList.clear();
    mNumRefObjects = 0;
 }
 
@@ -66,25 +66,26 @@ RefData::RefData(const RefData &copy)
    mObjectTypeNames = copy.mObjectTypeNames;
    mAllRefObjectNames = copy.mAllRefObjectNames;
    mNumRefObjects = copy.mNumRefObjects;
-
-   #if DEBUG_CLONE
-   MessageInterface::ShowMessage
-      ("RefData::RefData(const RefData &copy) mNumRefObjects=%d\n",
-       mNumRefObjects);
-   #endif
+   mRefObjList = copy.mRefObjList;
    
-   for (int i=0; i<MAX_OBJ_COUNT; i++)
-   {
-      mRefObjList[i].objType = copy.mRefObjList[i].objType;
-      mRefObjList[i].objName = copy.mRefObjList[i].objName;
-      mRefObjList[i].obj = copy.mRefObjList[i].obj;
+//    #if DEBUG_CLONE
+//    MessageInterface::ShowMessage
+//       ("RefData::RefData(const RefData &copy) mNumRefObjects=%d\n",
+//        mNumRefObjects);
+//    #endif
+   
+//    for (int i=0; i<MAX_OBJ_COUNT; i++)
+//    {
+//       mRefObjList[i].objType = copy.mRefObjList[i].objType;
+//       mRefObjList[i].objName = copy.mRefObjList[i].objName;
+//       mRefObjList[i].obj = copy.mRefObjList[i].obj;
       
-      #if DEBUG_CLONE > 1
-      MessageInterface::ShowMessage
-         ("i=%d, type=%d, name=%s, obj=%p\n", i, mRefObjList[i].objType,
-          mRefObjList[i].objName.c_str(), mRefObjList[i].obj);
-      #endif
-   }
+//       #if DEBUG_CLONE > 1
+//       MessageInterface::ShowMessage
+//          ("i=%d, type=%d, name=%s, obj=%p\n", i, mRefObjList[i].objType,
+//           mRefObjList[i].objName.c_str(), mRefObjList[i].obj);
+//       #endif
+//    }
 
 }
 
@@ -102,16 +103,16 @@ RefData::RefData(const RefData &copy)
 //------------------------------------------------------------------------------
 RefData& RefData::operator= (const RefData& right)
 {
-   for (int i=0; i<MAX_OBJ_COUNT; i++)
-   {
-      mRefObjList[i].objType = right.mRefObjList[i].objType;
-      mRefObjList[i].objName = right.mRefObjList[i].objName;
-      mRefObjList[i].obj = right.mRefObjList[i].obj;
-   }
-   
+//    for (int i=0; i<MAX_OBJ_COUNT; i++)
+//    {
+//       mRefObjList[i].objType = right.mRefObjList[i].objType;
+//       mRefObjList[i].objName = right.mRefObjList[i].objName;
+//       mRefObjList[i].obj = right.mRefObjList[i].obj;
+//    }
    mObjectTypeNames = right.mObjectTypeNames;
    mAllRefObjectNames = right.mAllRefObjectNames;
    mNumRefObjects = right.mNumRefObjects;
+   mRefObjList = right.mRefObjList;
    return *this;
 }
 
@@ -126,6 +127,7 @@ RefData& RefData::operator= (const RefData& right)
 RefData::~RefData()
 {
    //MessageInterface::ShowMessage("==> RefData::~RefData()\n");
+   mRefObjList.clear();
 }
 
 
@@ -429,21 +431,26 @@ bool RefData::AddRefObject(const Gmat::ObjectType type, const std::string &name,
    {
       if (FindFirstObjectName(type) == "")
       {
-         if (mNumRefObjects < MAX_OBJ_COUNT)
-         {
-            mRefObjList[mNumRefObjects].objType = type;
-            mRefObjList[mNumRefObjects].objName = name;
-            mRefObjList[mNumRefObjects].obj = obj;
-            mNumRefObjects++;
+         RefObjType newObj(type, name, obj);
+         mRefObjList.push_back(newObj);
+         mNumRefObjects = mRefObjList.size();
+         return true;
+         
+//          if (mNumRefObjects < MAX_OBJ_COUNT)
+//          {
+//             mRefObjList[mNumRefObjects].objType = type;
+//             mRefObjList[mNumRefObjects].objName = name;
+//             mRefObjList[mNumRefObjects].obj = obj;
+//             mNumRefObjects++;
             
-            #if DEBUG_REFDATA_ADD
-            MessageInterface::ShowMessage
-               ("==> RefData::AddRefObject() object type:%d name:%s added. mNumRefObjects=%d\n",
-                type, name.c_str(), mNumRefObjects);
-            #endif
+//             #if DEBUG_REFDATA_ADD
+//             MessageInterface::ShowMessage
+//                ("==> RefData::AddRefObject() object type:%d name:%s added. mNumRefObjects=%d\n",
+//                 type, name.c_str(), mNumRefObjects);
+//             #endif
             
-            return true;
-         }
+//             return true;
+//          }
       }
       else
       {

@@ -23,6 +23,7 @@
 #include "NumberWrapper.hpp"
 #include "ParameterException.hpp"
 #include "StringUtil.hpp"
+#include "Parameter.hpp"
 
 #include "MessageInterface.hpp"
 
@@ -48,7 +49,7 @@ NumberWrapper::NumberWrapper() :
    ElementWrapper()
 {
    value       = ElementWrapper::UNDEFINED_REAL;
-   wrapperType = Gmat::NUMBER;
+   wrapperType = Gmat::NUMBER_WT;
 }
 
 //---------------------------------------------------------------------------
@@ -100,6 +101,18 @@ NumberWrapper::~NumberWrapper()
 }
 
 //------------------------------------------------------------------------------
+// virtual ElementWrapper* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * Method used to create a copy of the object
+ */
+//------------------------------------------------------------------------------
+ElementWrapper* NumberWrapper::Clone() const
+{
+   return new NumberWrapper(*this);
+}
+
+//------------------------------------------------------------------------------
 //  Gmat::ParameterType GetDataType() const
 //------------------------------------------------------------------------------
 /**
@@ -143,6 +156,30 @@ bool NumberWrapper::SetReal(const Real toValue)
    value = toValue;
    return true;
 }
+
+//------------------------------------------------------------------------------
+//  bool SetRefObject(GmatBase *obj)
+//------------------------------------------------------------------------------
+/**
+ * This method sets a reference object for the ElementWrapper 
+ * object.
+ * 
+ * @param <obj> pointer to the object.
+ *
+ * @return true for success; false for failure.
+ *
+ */
+//------------------------------------------------------------------------------
+bool NumberWrapper::SetRefObject(GmatBase *obj)
+{
+   if (obj->IsOfType(Gmat::VARIABLE))
+   {
+      value = ((Parameter*)(obj))->GetReal();
+      return true;
+   }
+   return ElementWrapper::SetRefObject(obj);
+}
+
 
 //---------------------------------------------------------------------------
 //  void SetupWrapper()

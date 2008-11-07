@@ -40,7 +40,7 @@ ObjectWrapper::ObjectWrapper() :
    ElementWrapper()
 {
    theObject   = NULL;
-   wrapperType = Gmat::OBJECT;
+   wrapperType = Gmat::OBJECT_WT;
 }
 
 
@@ -58,6 +58,8 @@ ObjectWrapper::ObjectWrapper(const ObjectWrapper &copy) :
    ElementWrapper(copy),
    theObject     (copy.theObject)
 {
+   if ((copy.theObject))
+      theObject = (copy.theObject)->Clone();
 }
 
 
@@ -79,7 +81,10 @@ const ObjectWrapper& ObjectWrapper::operator=(const ObjectWrapper &right)
    
    ElementWrapper::operator=(right);
    theObject = right.theObject;
-
+   
+   if ((right.theObject))
+      theObject = (right.theObject)->Clone();
+   
    return *this;
 }
 
@@ -93,6 +98,9 @@ const ObjectWrapper& ObjectWrapper::operator=(const ObjectWrapper &right)
 //------------------------------------------------------------------------------
 ObjectWrapper::~ObjectWrapper()
 {
+   ///@todo
+//    if (theObject)
+//       delete theObject;
 }
 
 
@@ -126,6 +134,10 @@ bool ObjectWrapper::SetRefObject(GmatBase *obj)
 {
    if (obj->GetName() == refObjectNames[0])
    {
+      ///@todo
+//       if (theObject)
+//          delete theObject;
+//       theObject = obj->Clone();
       theObject = obj;
       return true;
    }

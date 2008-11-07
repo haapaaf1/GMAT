@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  BooleanWrapper
 //------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ BooleanWrapper::BooleanWrapper() :
    ElementWrapper()
 {
    value       = false;
-   wrapperType = Gmat::BOOLEAN;
+   wrapperType = Gmat::BOOLEAN_WT;
 }
 
 

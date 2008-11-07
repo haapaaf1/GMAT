@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  RefData
 //------------------------------------------------------------------------------
@@ -21,7 +21,6 @@
 
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
-#include <map>
 
 class GMAT_API RefData
 {
@@ -53,21 +52,36 @@ public:
 
 protected:
 
-   static const int MAX_OBJ_COUNT = 5;
+   ///static const int MAX_OBJ_COUNT = 5;
    
    struct RefObjType
    {
       Gmat::ObjectType objType;
       std::string objName;
       GmatBase *obj;
+      RefObjType(Gmat::ObjectType refType, const std::string &refName, GmatBase *ref)
+         {
+            objType = refType;
+            objName = refName;
+            obj     = ref;
+         }
+      RefObjType& operator= (const RefObjType& right)
+         {
+            if (this == &right)
+               return *this;
+            objType = right.objType;
+            objName = right.objName;
+            obj     = right.obj;
+         }
    };
-
-   RefObjType mRefObjList[MAX_OBJ_COUNT];
+   
+   ///RefObjType mRefObjList[MAX_OBJ_COUNT];
+   std::vector<RefObjType> mRefObjList;
    
    StringArray mObjectTypeNames;
    StringArray mAllRefObjectNames;
    Integer mNumRefObjects;
-
+   
    bool AddRefObject(const Gmat::ObjectType type,
                      const std::string &name, GmatBase *obj = NULL,
                      bool replaceName = false);

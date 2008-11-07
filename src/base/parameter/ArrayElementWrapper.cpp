@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  ArrayElementWrapper
 //------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ ArrayElementWrapper::ArrayElementWrapper() :
    rowName       (""),
    columnName    ("")
 {
-   wrapperType = Gmat::ARRAY_ELEMENT;
+   wrapperType = Gmat::ARRAY_ELEMENT_WT;
 }
 
 //---------------------------------------------------------------------------
@@ -80,6 +80,8 @@ ArrayElementWrapper::ArrayElementWrapper(const ArrayElementWrapper &aew) :
    rowName       (aew.rowName),
    columnName    (aew.columnName)
 {
+   if (aew.array != NULL)
+      array = (Array*)(aew.array->Clone());
 }
 
 //---------------------------------------------------------------------------
@@ -106,9 +108,17 @@ const ArrayElementWrapper& ArrayElementWrapper::operator=(
    arrayName    = aew.arrayName;
    rowName      = aew.rowName;
    columnName   = aew.columnName;
-
+   
+   if (aew.array != NULL)
+      array = (Array*)(aew.array->Clone());
+   if (aew.row != NULL)
+      row = (ElementWrapper*)(aew.row->Clone());
+   if (aew.column != NULL)
+      column = (ElementWrapper*)(aew.column->Clone());
+   
    return *this;
 }
+
 //---------------------------------------------------------------------------
 //  ~ArrayElementWrapper()
 //---------------------------------------------------------------------------
@@ -118,6 +128,8 @@ const ArrayElementWrapper& ArrayElementWrapper::operator=(
 //---------------------------------------------------------------------------
 ArrayElementWrapper::~ArrayElementWrapper()
 {
+   ///@todo
+//    if (array)  delete array;
    if (row)    delete row;
    if (column) delete column;
 }
@@ -194,6 +206,10 @@ bool ArrayElementWrapper::SetRefObject(GmatBase *obj)
    bool setCol = false;
    if ( (obj->IsOfType("Array")) && (obj->GetName() == arrayName) )
    {
+      ///@todo
+//       if (array)
+//          delete array;
+//       array = (Array*)obj->Clone();
       array = (Array*) obj;
       #ifdef DEBUG_AE_WRAPPER
          MessageInterface::ShowMessage("AEWrapper:: Setting array object %s\n",
@@ -405,12 +421,16 @@ std::string ArrayElementWrapper::GetColumnName()
    
 bool ArrayElementWrapper::SetRow(ElementWrapper* toWrapper)
 {
+//    if (row)
+//       delete row;
    row = toWrapper;
    return true;
 }
 
 bool ArrayElementWrapper::SetColumn(ElementWrapper* toWrapper)
 {
+//    if (column)
+//       delete column;
    column = toWrapper;
    return true;
 }

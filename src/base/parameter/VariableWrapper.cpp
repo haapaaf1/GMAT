@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  VariableWrapper
 //------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ VariableWrapper::VariableWrapper() :
    ElementWrapper(),
    var           (NULL)
 {
-   wrapperType = Gmat::VARIABLE;
+   wrapperType = Gmat::VARIABLE_WT;
 }
 
 //---------------------------------------------------------------------------
@@ -64,8 +64,10 @@ VariableWrapper::VariableWrapper() :
 //---------------------------------------------------------------------------
 VariableWrapper::VariableWrapper(const VariableWrapper &vw) :
    ElementWrapper(vw),
-   var           (vw.var)
+   var           (NULL)
 {
+   if (vw.var)
+      var = (Variable*)((vw.var)->Clone());
 }
 
 //---------------------------------------------------------------------------
@@ -83,10 +85,13 @@ const VariableWrapper& VariableWrapper::operator=(const VariableWrapper &vw)
 {
    if (&vw == this)
       return *this;
-
+   
    ElementWrapper::operator=(vw);
-   var = vw.var;
-
+   var = NULL;
+   
+   if (vw.var)
+      var = (Variable*)((vw.var)->Clone());
+   
    return *this;
 }
 //---------------------------------------------------------------------------
@@ -98,6 +103,9 @@ const VariableWrapper& VariableWrapper::operator=(const VariableWrapper &vw)
 //---------------------------------------------------------------------------
 VariableWrapper::~VariableWrapper()
 {
+   ///@todo
+//    if (var)
+//       delete var;
 }
 
 //------------------------------------------------------------------------------
@@ -141,9 +149,12 @@ bool VariableWrapper::SetRefObject(GmatBase *obj)
 //      throw ParameterException(errmsg);
 //   }
 
-   if ((obj->GetName() == refObjectNames[0]) &&
-       (obj->IsOfType("Variable")) )
+   if ((obj->GetName() == refObjectNames[0]) && (obj->IsOfType("Variable")) )
    {
+      ///@todo
+//       if (var)
+//          delete var;
+//       var = (Variable*)(obj->Clone());
       var = (Variable*) obj;
       return true;
    }

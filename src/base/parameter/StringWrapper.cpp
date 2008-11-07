@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  StringWrapper
 //------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ StringWrapper::StringWrapper() :
    ElementWrapper()
 {
    value       = "";
-   wrapperType = Gmat::STRING;
+   wrapperType = Gmat::STRING_WT;
 }
 
 

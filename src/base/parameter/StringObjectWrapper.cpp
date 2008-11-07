@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  StringObjectWrapper
 //------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ StringObjectWrapper::StringObjectWrapper() :
    stringVar     (NULL),
    stringName    ("")
 {
-   wrapperType = Gmat::STRING_OBJECT;
+   wrapperType = Gmat::STRING_OBJECT_WT;
 }
 
 //---------------------------------------------------------------------------
@@ -72,6 +72,8 @@ StringObjectWrapper::StringObjectWrapper(const StringObjectWrapper &sow) :
    stringVar     (NULL),
    stringName    (sow.stringName)
 {
+   if (sow.stringVar)
+      stringVar = (StringVar*)((sow.stringVar)->Clone());
 }
 
 //---------------------------------------------------------------------------
@@ -95,8 +97,12 @@ const StringObjectWrapper& StringObjectWrapper::operator=(
    stringVar     = NULL;  
    stringName    = sow.stringName;
 
+   if (sow.stringVar)
+      stringVar = (StringVar*)((sow.stringVar)->Clone());
+   
    return *this;
 }
+
 //---------------------------------------------------------------------------
 //  ~StringObjectWrapper()
 //---------------------------------------------------------------------------
@@ -106,6 +112,8 @@ const StringObjectWrapper& StringObjectWrapper::operator=(
 //---------------------------------------------------------------------------
 StringObjectWrapper::~StringObjectWrapper()
 {
+//    if (stringVar)
+//       delete stringVar;
 }
 
 //------------------------------------------------------------------------------
@@ -165,6 +173,10 @@ bool StringObjectWrapper::SetRefObject(GmatBase *obj)
    bool isOk   = false;
    if ( (obj->IsOfType("String")) && (obj->GetName() == stringName) )
    {
+      ///@todo
+//       if (stringVar)
+//          delete stringVar;
+//       stringVar = (StringVar*)((obj)->Clone());
       stringVar = (StringVar*) obj;
       #ifdef DEBUG_STRING_WRAPPER
          MessageInterface::ShowMessage("StringObjectWrapper:: Setting stringVar object %s\n",
