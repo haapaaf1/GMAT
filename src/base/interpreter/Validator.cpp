@@ -53,6 +53,16 @@
 //#define DEBUG_FORCE_MODEL_PROP
 //#define DBGLVL_WRAPPERS 2
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+//#ifndef DEBUG_PERFORMANCE
+//#define DEBUG_PERFORMANCE
+//#endif
+#ifdef DEBUG_PERFORMANCE
+#include <ctime>                 // for clock()
+#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -242,7 +252,7 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
          refNames = obj->GetRefObjectNameArray(refTypes[i]);
          
          #ifdef DEBUG_CHECK_OBJECT
-         MessageInterface::ShowMessage("      Objects names are:\n");
+         MessageInterface::ShowMessage("      Object names are:\n");
          for (UnsignedInt j=0; j<refNames.size(); j++)
             MessageInterface::ShowMessage
                ("      %s\n", refNames[j].c_str());
@@ -322,6 +332,15 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
 //------------------------------------------------------------------------------
 bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer manage)
 {
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== Validator::ValidateCommand() entered, '%s' Count = %d\n",
+       cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str(), callCount);
+   #endif
+   
    if (cmd == NULL)
    {
       theErrorMsg = "The input command is NULL";
@@ -440,6 +459,13 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
        retval, cmd->GetTypeName().c_str());
    #endif
    
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== Validator::ValidateCommand() Count = %d, Run Time: %f seconds\n",
+       callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #endif
+   
    return retval;
 }
 
@@ -466,7 +492,7 @@ ElementWrapper*
 Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
                                 Integer manage)
 {
-   Gmat::WrapperDataType itsType = Gmat::NUMBER;
+   Gmat::WrapperDataType itsType = Gmat::NUMBER_WT;
    ElementWrapper *ew = NULL;
    Real           rval;
    // remove extra parens and blank spaces at either end of string
@@ -489,8 +515,13 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    if (GmatStringUtil::IsEnclosedWith(theDescription, "'"))
    {
       ew = new StringWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateElementWrapper() ew = new StringWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
-      itsType = Gmat::STRING;
+      itsType = Gmat::STRING_WT;
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
@@ -502,6 +533,11 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    else if (GmatStringUtil::ToReal(theDescription,rval))
    {
       ew = new NumberWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateElementWrapper() ew = new NumberWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
       #if DBGLVL_WRAPPERS
          MessageInterface::ShowMessage(
@@ -534,7 +570,7 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
                theErrorMsg = "The Array \"" + arrayName + "\"" + " does not exist";
                HandleError();
             }
-            else if (!(p->IsOfType("Array")) )
+            else if (!(p->IsOfType(Gmat::ARRAY)) )
             {
                theErrorMsg = "\"" + arrayName + "\"" + " is not an Array";
                HandleError();
@@ -542,9 +578,14 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
             else
             {
                ew = new ArrayElementWrapper();
+               #ifdef DEBUG_MEMORY
+               MessageInterface::ShowMessage
+                  ("+++ Validator::CreateElementWrapper() ew = new ArrayElementWrapper(%s), <%p>\n",
+                   theDescription.c_str(), ew);
+               #endif
                ew->SetDescription(theDescription);
                ew->SetRefObject(p);
-               itsType = Gmat::ARRAY_ELEMENT;
+               itsType = Gmat::ARRAY_ELEMENT_WT;
                #if DBGLVL_WRAPPERS
                MessageInterface::ShowMessage(
                   ">>> In Validator, created a ArrayElementWrapper for \"%s\"\n",
@@ -569,7 +610,7 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    if (ew)
    {
       // if it's an ArrayElement, set up the row and column wrappers
-      if (itsType == Gmat::ARRAY_ELEMENT)
+      if (itsType == Gmat::ARRAY_ELEMENT_WT)
       {
          std::string    rowName = ((ArrayElementWrapper*)ew)->GetRowName();
          ElementWrapper *row    = CreateElementWrapper(rowName, false, manage);
@@ -813,7 +854,7 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    // so call Interpreter::ValidateSubscriber() to create wrappers.
    // ReportFile.Add = {Sat1.A1ModJulian, Sat1.EarthMJ2000Eq.X}
    if (theFunction != NULL && theObj != NULL &&
-       (theObj->IsOfType("ReportFile") && lhs.find(".Add") != lhs.npos))
+       (theObj->IsOfType(Gmat::REPORT_FILE) && lhs.find(".Add") != lhs.npos))
    {
       #if DBGLVL_WRAPPERS > 1
       MessageInterface::ShowMessage("   Handling ReportFile Add\n");
@@ -867,6 +908,11 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
    if (depobj == "")
    {
       ew = new ObjectPropertyWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateSolarSystemWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(obj);
       
@@ -915,6 +961,11 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
          {
             body->GetParameterID(type);
             ew = new ObjectPropertyWrapper();
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ Validator::CreateSolarSystemWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
+                theDescription.c_str(), ew);
+            #endif
             ew->SetDescription(theDescription);
             ew->SetRefObjectName(bodyName, 0);
             ew->SetRefObject(body);
@@ -1002,6 +1053,11 @@ ElementWrapper* Validator::CreateForceModelWrapper(GmatBase *obj,
       #endif
       
       ew = new ObjectPropertyWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateForceModelWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
       
       #if DBGLVL_WRAPPERS
@@ -1129,16 +1185,21 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
        theDescription.c_str(), manage);
    #endif
    
-   Gmat::WrapperDataType itsType = Gmat::NUMBER;
+   Gmat::WrapperDataType itsType = Gmat::NUMBER_WT;
    ElementWrapper *ew = NULL;
    Parameter *p = GetParameter(theDescription);
    
-   if ( (p) && (p->IsOfType("Variable")) )
+   if ( (p) && (p->IsOfType(Gmat::VARIABLE)) )
    {
       ew = new VariableWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateOtherWrapper() ew = new VariableWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(p);
-      itsType = Gmat::VARIABLE;
+      itsType = Gmat::VARIABLE_WT;
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
@@ -1146,12 +1207,17 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
           theDescription.c_str(), "\"\n");
       #endif
    }
-   else if ( (p) && p->IsOfType("Array") )
+   else if ( (p) && p->IsOfType(Gmat::ARRAY) )
    {
       ew = new ArrayWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateOtherWrapper() ew = new ArrayWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(p);
-      itsType = Gmat::ARRAY;
+      itsType = Gmat::ARRAY_WT;
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
@@ -1159,12 +1225,17 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
           theDescription.c_str(), "\"\n");
       #endif
    }
-   else if ( (p) && p->IsOfType("String") )
+   else if ( (p) && p->IsOfType(Gmat::STRING) )
    {
       ew = new StringObjectWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateOtherWrapper() ew = new StringObjectWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(p);
-      itsType = Gmat::STRING_OBJECT;
+      itsType = Gmat::STRING_OBJECT_WT;
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
@@ -1172,7 +1243,7 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
           theDescription.c_str(), "\"\n");
       #endif
    }
-   else if ( (p) && p->IsOfType("Parameter") )
+   else if ( (p) && p->IsOfType(Gmat::PARAMETER) )
    {
       #if DBGLVL_WRAPPERS > 1
       MessageInterface::ShowMessage
@@ -1190,9 +1261,14 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
       if (obj != NULL)
       {
          ew = new ObjectWrapper();
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("+++ Validator::CreateOtherWrapper() ew = new ObjectWrapper(%s), <%p>\n",
+             theDescription.c_str(), ew);
+         #endif
          ew->SetDescription(theDescription);
          ew->SetRefObject(obj);
-         itsType = Gmat::OBJECT;
+         itsType = Gmat::OBJECT_WT;
          
          #if DBGLVL_WRAPPERS
          MessageInterface::ShowMessage
@@ -1206,8 +1282,13 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
          if (GmatStringUtil::ToBoolean(theDescription, bVal))
          {
             ew = new BooleanWrapper();
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ Validator::CreateOtherWrapper() ew = new BooleanWrapper(%s), <%p>\n",
+                theDescription.c_str(), ew);
+            #endif
             ew->SetDescription(theDescription);
-            itsType = Gmat::BOOLEAN;
+            itsType = Gmat::BOOLEAN_WT;
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
@@ -1219,8 +1300,13 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
                   theDescription == "on" || theDescription == "off")
          {
             ew = new OnOffWrapper();
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ Validator::CreateOtherWrapper() ew = new OnOffWrapper(%s), <%p>\n",
+                theDescription.c_str(), ew);
+            #endif
             ew->SetDescription(theDescription);
-            itsType = Gmat::ON_OFF;
+            itsType = Gmat::ON_OFF_WT;
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
@@ -1236,8 +1322,13 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
                   (GmatStringUtil::IsValidName(theDescription)))
          {
             ew = new NumberWrapper();
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ Validator::CreateOtherWrapper() ew = new NumberWrapper(%s), <%p>\n",
+                theDescription.c_str(), ew);
+            #endif
             ew->SetDescription(theDescription);
-            itsType = Gmat::NUMBER;
+            itsType = Gmat::NUMBER_WT;
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
@@ -1249,8 +1340,13 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
          else
          {
             ew = new StringWrapper();
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ Validator::CreateOtherWrapper() ew = new StringWrapper(%s), <%p>\n",
+                theDescription.c_str(), ew);
+            #endif
             ew->SetDescription(theDescription);
-            itsType = Gmat::STRING;
+            itsType = Gmat::STRING_WT;
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
@@ -1646,7 +1742,7 @@ ElementWrapper* Validator::CreateValidWrapperWithDot(GmatBase *obj,
        parametersFirst, manage);
    #endif
    
-   Gmat::WrapperDataType itsType = Gmat::NUMBER;
+   Gmat::WrapperDataType itsType = Gmat::NUMBER_WT;
    ElementWrapper *ew = NULL;
    
    // if there are two dots, then treat it as a Parameter
@@ -1750,8 +1846,13 @@ ElementWrapper* Validator::CreateValidWrapperWithDot(GmatBase *obj,
              theDescription.c_str(), "\"\n");
          #endif
          ew = new StringWrapper();
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("+++ Validator::CreateValidWrapperWithDot() ew = new StringWrapper(%s), <%p>\n",
+             theDescription.c_str(), ew);
+         #endif
          ew->SetDescription(theDescription);
-         itsType = Gmat::STRING;
+         itsType = Gmat::STRING_WT;
       }
    }
    
@@ -1790,12 +1891,17 @@ ElementWrapper* Validator::CreateParameterWrapper(Parameter *param,
    // Since GmatFunction can have such as "GMAT XYPlot.Add = {sat.X};",
    // we want to set Parameter name to description. (loj: 2008.06.19)
    
-   if (param->IsOfType("String"))
+   if (param->IsOfType(Gmat::STRING))
    {
       ew = new StringObjectWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateParameterWrapper() ew = new StringObjectWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(param);
-      itsType = Gmat::STRING_OBJECT;
+      itsType = Gmat::STRING_OBJECT_WT;
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
@@ -1806,6 +1912,11 @@ ElementWrapper* Validator::CreateParameterWrapper(Parameter *param,
    else
    {
       ew = new ParameterWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateParameterWrapper() ew = new ParameterWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       // We want to set Parameter exact name to wrapper so that it can be found
       // from the object map (loj: 2008.06.30)
       // For example, "xyplot.IndVar = { Sat.TAIModJulian };"
@@ -1813,7 +1924,7 @@ ElementWrapper* Validator::CreateParameterWrapper(Parameter *param,
       //ew->SetDescription(theDescription);
       ew->SetDescription(param->GetName());
       ew->SetRefObject(param);
-      itsType = Gmat::PARAMETER_OBJECT;
+      itsType = Gmat::PARAMETER_WT;
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
@@ -1872,6 +1983,11 @@ ElementWrapper* Validator::CreatePropertyWrapper(GmatBase *obj,
       
       obj->GetParameterID(type);
       ew = new ObjectPropertyWrapper();
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ Validator::CreateParameterWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
+          theDescription.c_str(), ew);
+      #endif
       ew->SetDescription(theDescription);
       
       #if DBGLVL_WRAPPERS
@@ -1977,6 +2093,11 @@ ElementWrapper* Validator::CreateSubPropertyWrapper(GmatBase *obj,
       if (ownedId != -1)
       {
          ew = new ObjectPropertyWrapper();
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("+++ Validator::CreateSubPropertyWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
+             theDescription.c_str(), ew);
+         #endif
          ew->SetDescription(theDescription);
          
          #if DBGLVL_WRAPPERS
@@ -2126,9 +2247,9 @@ bool Validator::ValidateSaveCommand(GmatBase *obj)
          // per Steve Hughes 2007.10.16 - arrays are OK - WCS
          // (but not array elements)
          // Correctely check array elements (loj: 2008.04.21)
-         //if ( (!(refObj->IsOfType("Array"))) ||
+         //if ( (!(refObj->IsOfType(Gmat::ARRAY))) ||
          //     (GmatStringUtil::IsParenPartOfArray(refNames[j])) )
-         if ( refObj->IsOfType("Array") &&
+         if ( refObj->IsOfType(Gmat::ARRAY) &&
               GmatStringUtil::IsParenPartOfArray(refNames[j]))
          {
             theErrorMsg = "\"" + refNames[j] + "\" referenced in the " +

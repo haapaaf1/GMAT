@@ -67,6 +67,10 @@
 //#define DBGLVL_FUNCTION_DEF 2
 //#define DBGLVL_FINAL_PASS 1
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
 //------------------------------------------------------------------------------
 // Interpreter(SolarSystem *ss = NULL, ObjectMap *objMap = NULL)
 //------------------------------------------------------------------------------
@@ -678,7 +682,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       obj = (GmatBase*)theModerator->CreatePropSetup(name);
    
    else if (type == "ForceModel") 
-      obj = (GmatBase*)theModerator->CreateForceModel(name, manage);
+      obj = (GmatBase*)theModerator->CreateForceModel(name);
    
    else if (type == "CoordinateSystem") 
       obj = (GmatBase*)theModerator->CreateCoordinateSystem(name, true);
@@ -764,6 +768,15 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       MessageInterface::ShowMessage
          ("Interpreter::CreateObject() type=<%s>, name=<%s> successfully created\n",
           obj->GetTypeName().c_str(), obj->GetName().c_str());
+   }
+   #endif
+   
+   #ifdef DEBUG_MEMORY
+   if (obj != NULL)
+   {
+      MessageInterface::ShowMessage
+         ("---Interpreter::CreateObject() <%p> '%s' created\n", obj,
+          obj->GetName().c_str());
    }
    #endif
    
@@ -3415,7 +3428,7 @@ bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toPr
                if (toType == Gmat::REAL_TYPE)
                   toObj->SetRealParameter(toId, fromObj->GetRealParameter("Value"));
                // Added to fix GMAT XYPlot1.IndVar = Var; (loj: 2008.08.01)
-               else if (toType == Gmat::OBJECT_TYPE && toObj->IsOfType("XYPlot"))
+               else if (toType == Gmat::OBJECT_TYPE && toObj->IsOfType(Gmat::XY_PLOT))
                   toObj->SetStringParameter(toId, fromObj->GetName());
                else
                   errorCond = true;
@@ -4191,8 +4204,9 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetPropertyObjectValue() obj=%s, id=%d, type=%d, value=%s, "
-       "index=%d\n", obj->GetName().c_str(), id, type, value.c_str(), index);
+      ("Interpreter::SetPropertyObjectValue() obj=<%s> '%s', id=%d, type=%d, value=%s, "
+       "index=%d\n", obj->GetTypeName().c_str(), obj->GetName().c_str(), id, type,
+       value.c_str(), index);
    #endif
    
    debugMsg = "In SetPropertyObjectValue()";
@@ -4275,6 +4289,19 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
          
          // check if value is an object name
          GmatBase *configObj = FindObject(value);
+
+         // check if object name is the same as property type name (loj: 2008.11.06)
+         // if so, we need to set configObj to NULL so that owned object can be
+         // created if needed.
+         // ex) Create Propagator RungeKutta89;
+         //     GMAT  RungeKutta89.Type = RungeKutta89;
+         if (configObj && obj->IsOwnedObject(id))
+         {
+            ObjectTypeArray refTypes = obj->GetRefObjectTypeArray();
+            if (configObj->GetType() != refTypes[id])
+               configObj = NULL;
+         }
+         
          if (configObj)
          {
             #ifdef DEBUG_SET
@@ -4317,7 +4344,14 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
             // Create Owned Object, if it is valid owned object type
             GmatBase *ownedObj = NULL;
             if (obj->IsOwnedObject(id))
-               ownedObj = CreateObject(value, "");
+            {
+               // Handle named owned Propagator object for PropSetup (loj: 2008.11.05)
+               // since Propagator is not created by Create command
+               std::string ownedName = "";
+               if (obj->IsOfType(Gmat::PROP_SETUP))
+                  ownedName = value;
+               ownedObj = CreateObject(value, ownedName, 0);
+            }
             
             #ifdef DEBUG_SET
             if (ownedObj)
@@ -4338,7 +4372,14 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
             else
             {
                // Special case of InternalForceModel in script
-               if (value != "InternalForceModel")
+               // Since PropSetup no longer creates InternalForceModel
+               // create it here (loj: 2008.11.06)
+               if (value == "InternalForceModel")
+               {
+                  ownedObj = CreateObject("ForceModel", value);
+                  obj->SetRefObject(ownedObj, ownedObj->GetType(), value);
+               }
+               else
                {
                   // Set as String parameter, so it can be caught in FinalPass()
                   #ifdef DEBUG_SET
@@ -4696,10 +4737,13 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
          #endif
          
          // We don't want to configure PhysicalModel, so set name after create
-         PhysicalModel *pm = (PhysicalModel*)CreateObject(forceType, "");
+         ////PhysicalModel *pm = (PhysicalModel*)CreateObject(forceType, "");
+         std::string forceName = forceType + "." + bodies[i];
+         PhysicalModel *pm = (PhysicalModel*)CreateObject(forceType, "0."+forceName, 0);
          if (pm)
          {
-            pm->SetName(forceType + "." + bodies[i]);
+            ////pm->SetName(forceType + "." + bodies[i]);
+            pm->SetName(forceName);
             
             if (!pm->SetStringParameter("BodyName", bodies[i]))
             {
@@ -4752,9 +4796,12 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
          return true;
       
       // Create PhysicalModel
-      PhysicalModel *pm = (PhysicalModel*)CreateObject(forceType, "");
-      pm->SetName(pmType + "." + centralBodyName);
-      
+      std::string forceName = pmType + "." + centralBodyName;
+      ////PhysicalModel *pm = (PhysicalModel*)CreateObject(forceType, "");
+      PhysicalModel *pm = (PhysicalModel*)CreateObject(forceType, "0."+forceName, 0);
+      ////pm->SetName(pmType + "." + centralBodyName);
+      pm->SetName(forceName);
+     
       // Special handling for Drag
       if (pmType == "Drag")
       {
@@ -4771,7 +4818,8 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
          if (value != "BodyDefault")
          {
             pm->SetStringParameter("BodyName", centralBodyName);
-            GmatBase *am = CreateObject(value, "");
+            ////GmatBase *am = CreateObject(value, "");
+            GmatBase *am = CreateObject(value, value, 0);
             if (am)
                pm->SetRefObject(am, Gmat::ATMOSPHERE, am->GetName());
             else
@@ -4818,18 +4866,17 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
          #endif
          
          // We don't want to configure PhysicalModel, so set name after create
-         PhysicalModel *pm = (PhysicalModel*)CreateObject(udForces[i], "");
+         ////PhysicalModel *pm = (PhysicalModel*)CreateObject(udForces[i], "");
+         PhysicalModel *pm = (PhysicalModel*)CreateObject(udForces[i], udForces[i], 0);
          if (pm)
          {
             pm->SetName(udForces[i]);
             forceModel->AddForce(pm);
          }
          else
-            throw InterpreterException(
-                        "User defined force \"" + udForces[i] + 
-                        "\" cannot be created\n");
+            throw InterpreterException
+               ("User defined force \"" + udForces[i] +  "\" cannot be created\n");
       }
-
    }
    
    
@@ -5479,8 +5526,8 @@ bool Interpreter::FinalPass()
                if (refObj == NULL)
                {
                   InterpreterException ex
-                     ("Nonexistent object \"" + owner + "\" referenced in \"" +
-                      obj->GetName() + "\"");
+                     ("Nonexistent object \"" + owner + "\" referenced in " +
+                      obj->GetTypeName() + "\"" + obj->GetName() + "\"");
                   HandleError(ex, false);
                   retval = false;
                }

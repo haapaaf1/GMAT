@@ -321,7 +321,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    MessageInterface::ShowMessage
       ("ScriptInterpreter::InterpretGmatFunction() retval=%d\n", retval);
    #endif
-   
+
    // Just return noOP for now
    if (retval)
    {
