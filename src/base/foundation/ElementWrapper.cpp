@@ -52,7 +52,7 @@ const Real ElementWrapper::UNDEFINED_REAL = -999.99;
 //---------------------------------------------------------------------------
 ElementWrapper::ElementWrapper() :
    description  (""),
-   wrapperType  (Gmat::NUMBER)
+   wrapperType  (Gmat::NUMBER_WT)
 {
 }
 
@@ -95,6 +95,7 @@ const ElementWrapper& ElementWrapper::operator=(const ElementWrapper &er)
 
    return *this;
 }
+
 //---------------------------------------------------------------------------
 //  ~ElementWrapper()
 //---------------------------------------------------------------------------
@@ -105,6 +106,22 @@ const ElementWrapper& ElementWrapper::operator=(const ElementWrapper &er)
 ElementWrapper::~ElementWrapper()
 {
    refObjectNames.clear();
+}
+
+//------------------------------------------------------------------------------
+// virtual ElementWrapper* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * Method used to create a copy of the object
+ */
+//------------------------------------------------------------------------------
+ElementWrapper* ElementWrapper::Clone() const
+{
+   GmatBaseException be;
+   be.SetDetails
+      ("ElementWrapper::Clone() has not been implemented for wrapper "
+       "type %d, description of \"%s\"", wrapperType, description.c_str());
+   throw be;
 }
 
 //------------------------------------------------------------------------------
@@ -446,7 +463,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       
       // If lhs is String, it must be String Object, so check it first
       // ex) UnknownObj1 = str1
-      if (lhsDataType == Gmat::STRING_TYPE && lhsWrapperType == Gmat::STRING)
+      if (lhsDataType == Gmat::STRING_TYPE && lhsWrapperType == Gmat::STRING_WT)
       {
          GmatBaseException ex;
          ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to unknown "
@@ -557,7 +574,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          }
          // We don't want to allow VARIALE to STRING assignment
          else if (rhsDataType == Gmat::REAL_TYPE &&
-                  rhsWrapperType != Gmat::VARIABLE)
+                  rhsWrapperType != Gmat::VARIABLE_WT)
          {
             lhsWrapper->SetString(rhs);
          }
@@ -568,8 +585,8 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                ex.SetDetails("ElementWrapper::SetValue() Cannot set object of "
                              "type \"%s\" to an undefined object \"%s\"",
                              rhsObj->GetTypeName().c_str(), lhs.c_str());
-            else if (lhsWrapperType == Gmat::STRING_OBJECT &&
-                     rhsWrapperType == Gmat::VARIABLE)
+            else if (lhsWrapperType == Gmat::STRING_OBJECT_WT &&
+                     rhsWrapperType == Gmat::VARIABLE_WT)
                ex.SetDetails("ElementWrapper::SetValue() Cannot set objet of "
                              "type \"Variable\" to object of type \"String\"");
             else
@@ -594,7 +611,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                lhsWrapper->SetString(rhs);
             }
             // Handle case like "XYPlot1.IndVar = sat.A1ModJulian;"
-            else if (rhsWrapperType == Gmat::PARAMETER_OBJECT)
+            else if (rhsWrapperType == Gmat::PARAMETER_WT)
             {
                lhsWrapper->SetObject(rhsWrapper->GetRefObject());
             }

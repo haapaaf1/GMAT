@@ -82,27 +82,39 @@ GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 const std::string
 GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
 {
-   "Spacecraft",      "Formation",        "SpaceObject",   "GroundStation",
-   "Burn",            "ImpulsiveBurn",    "FiniteBurn",    "Command",
-   "Propagator",      "ForceModel",       "PhysicalModel", "TransientForce",
-   "Interpolator",    "SolarSystem",      "SpacePoint",    "CelestialBody",
-   "CalculatedPoint", "LibrationPoint",   "Barycenter",    "Atmosphere",
-   "Parameter",       "StopCondition",    "Solver",        "Subscriber",
-   "PropSetup",       "Function",         "FuelTank",      "Thruster",
-   "Hardware",        "CoordinateSystem", "AxisSystem",    "Attitude",
-   "BodyFixedPoint",  "UnknownObject"
+   "Spacecraft",       "Formation",       "SpaceObject",    "GroundStation",
+   "Burn",             "ImpulsiveBurn",   "FiniteBurn",     "Command",
+   "Propagator",       "ForceModel",      "PhysicalModel",  "TransientForce",
+   "Interpolator",     "SolarSystem",     "SpacePoint",     "CelestialBody",
+   "CalculatedPoint",  "LibrationPoint",  "Barycenter",     "Atmosphere",
+   "Parameter",        "Variable",        "Array",          "String",
+   "StopCondition",    "Solver",          "Subscriber",     "ReportFile",
+   "XYPlot",           "OpenGLPlot",      "PropSetup",      "Function",
+   "FuelTank",         "Thruster",        "Hardware",       "CoordinateSystem",
+   "AxisSystem",       "Attitude",        "MathNode",       "MathTree",
+   "BodyFixedPoint",   "UnknownObject"
 };
+/**
+ * Build the list of automatic global settings
+ * 
+ * This list needs to be synchronized with the Gmat::ObjectType list found in 
+ * base/include/gmatdefs.hpp
+ *
+ * Current automatic global objects: CoordinateSystem, Function, PropSetup
+ */
 const bool         
 GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] = 
 {
    false,             false,              false,           false,
    false,             false,              false,           false,
-   true,              true,               false,           false,
+   true ,             true,               false,           false,
    false,             false,              false,           false,
    false,             false,              false,           false,
    false,             false,              false,           false,
-   true,              true,               false,           false,
-   false,             true,               false,           false,
+   false,             false,              false,           false,
+   false,             false,              true,            true,
+   false,             false,              false,           true,
+   false,             false,              false,           false,
    false,             false
 };
 
@@ -754,7 +766,9 @@ Integer GmatBase::GetOwnedObjectCount()
 //---------------------------------------------------------------------------
 GmatBase* GmatBase::GetOwnedObject(Integer whichOne)
 {
-   throw GmatBaseException("No owned objects for this instance\n");
+   throw GmatBaseException
+      ("No owned objects for this instance \"" + instanceName + "\" of type \"" +
+       typeName + "\"");
 }
 
 //------------------------------------------------------------------------------
@@ -770,8 +784,8 @@ GmatBase* GmatBase::GetOwnedObject(Integer whichOne)
 //------------------------------------------------------------------------------
 bool GmatBase::SetIsGlobal(bool globalFlag)
 {
-        isGlobal = globalFlag;
-        return isGlobal;
+   isGlobal = globalFlag;
+   return isGlobal;
 }
 
 //------------------------------------------------------------------------------
@@ -785,7 +799,7 @@ bool GmatBase::SetIsGlobal(bool globalFlag)
 //------------------------------------------------------------------------------
 bool GmatBase::GetIsGlobal() const
 {
-        return isGlobal;
+   return isGlobal;
 }
 
 //------------------------------------------------------------------------------
@@ -880,15 +894,16 @@ void GmatBase::SetSolarSystem(SolarSystem *ss)
 }
 
 //------------------------------------------------------------------------------
-//  void GmatBase::SetInternalCoordSystem(CoordinateSystem *ss)
+//  void GmatBase::SetInternalCoordSystem(CoordinateSystem *cs)
 //------------------------------------------------------------------------------
 /**
  * Sets the internal CoordinateSystem pointer for objects that have one.
  *
- * @note Derived classes that need the solar system must override this method.
+ * @note Derived classes that need the internal coordinate system must override
+ *       this method.
  */
 //------------------------------------------------------------------------------
-void GmatBase::SetInternalCoordSystem(CoordinateSystem *ss)
+void GmatBase::SetInternalCoordSystem(CoordinateSystem *cs)
 {
    ;     // Do nothing by default
 }
@@ -2971,21 +2986,14 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       nomme = ownedObject->GetName();
       
       #ifdef DEBUG_OWNED_OBJECT_STRINGS
-          MessageInterface::ShowMessage(
-             "   id %d has type %s and name \"%s\"\n",
-             i, ownedObject->GetTypeName().c_str(),
-             ownedObject->GetName().c_str());
+      MessageInterface::ShowMessage
+         ("   id %d has type %s and name \"%s\"\n", i,
+          ownedObject->GetTypeName().c_str(), ownedObject->GetName().c_str());
       #endif
-          
+      
       // if owned object is a propagator, don't append the propagator name
       if (ownedObject->GetType() != Gmat::PROPAGATOR)
       {
-         // old code commented out (loj: 2008.01.25)
-         //if (nomme != "")
-         //   newprefix += nomme + ".";
-         //else if (GetType() == Gmat::FORCE_MODEL)
-         //   newprefix += ownedObject->GetTypeName();
-         
          // Call new method BuildPropertyName() first to handle additional property
          // name for owned object in general way. For example, additional "Earth" in
          // "FM.GravityField.Earth.Degree", (loj: 2008.01.25)

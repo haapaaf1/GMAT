@@ -26,13 +26,23 @@
 #include "ObjectInitializer.hpp"
 #include "SolarSystem.hpp"
 #include "CoordinateSystem.hpp"
-#include "GmatBaseException.hpp"  // need a specific one here?  ObjectExecption?
+#include "GmatBaseException.hpp"   // need a specific one here?  ObjectExecption?
 #include "SubscriberException.hpp"
 #include "Publisher.hpp"
 
 //#define DEBUG_OBJECT_INITIALIZER
 //#define DEBUG_OBJECT_INITIALIZER_DETAILED
 //#define DEBUG_SUBSCRIBER
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+//#ifndef DEBUG_PERFORMANCE
+//#define DEBUG_PERFORMANCE
+//#endif
+#ifdef DEBUG_PERFORMANCE
+#include <ctime>                 // for clock()
+#endif
 
 //------------------------------------------------------------------------------
 // static data
@@ -112,8 +122,26 @@ void ObjectInitializer::SetInternalCoordinateSystem(CoordinateSystem* intCS)
       internalCS = intCS;
 }
 
+//------------------------------------------------------------------------------
+// bool ObjectInitializer::InitializeObjects(bool registerSubs)
+//------------------------------------------------------------------------------
+/*
+ * Initializes objects
+ *
+ * @param  registerSubs  registers subscribers if set to true (false)
+ */
+//------------------------------------------------------------------------------
 bool ObjectInitializer::InitializeObjects(bool registerSubs)
 {
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== ObjectInitializer::InitializeObjects() entered, Count = %d\n",
+       callCount);
+   #endif
+   
    std::map<std::string, GmatBase *>::iterator omIter;
    std::map<std::string, GmatBase *>::iterator omi;
    GmatBase *obj = NULL;
@@ -538,6 +566,13 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
       MessageInterface::ShowMessage("ObjectInitializer: Objects Initialized ...\n");
    #endif
       
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== ObjectInitializer::InitializeObjects() Count = %d, Run Time: %f seconds\n",
+       callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #endif
+   
    return true;
    
 }
@@ -1022,6 +1057,12 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
                                     "hardware element \"" + (*i) + "\"\n");
          //GmatBase *el = objectMap[*i];
          GmatBase *newEl = el->Clone();
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("+++ ObjectInitializer::BuildAssociations() newEl = el->Clone(%s), <%p>\n",
+             el->GetName().c_str(), newEl);
+         #endif
+         
          #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage
                ("ObjectInitializer::BuildAssociations() created clone \"%s\" of type \"%s\"\n",
