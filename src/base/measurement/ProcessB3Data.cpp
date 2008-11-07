@@ -50,9 +50,8 @@ const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[NUM_B3_TYPES] =
 /**
  * Constructs base ProcessB3Data structures 
  */
-ProcessB3Data::ProcessB3Data(const std::string &itsType, 
-			     const std::string &itsName) :
-	ProcessDataFile (itsType, itsName)
+ProcessB3Data::ProcessB3Data(const std::string &itsName) :
+	ProcessDataFile ("B3Data", itsName)
 {
    objectTypeNames.push_back("ProcessB3Data");
 }

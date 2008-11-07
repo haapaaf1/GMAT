@@ -79,6 +79,7 @@ ProcessDataFile::ProcessDataFile(const ProcessDataFile &pdf) :
     // TODO: Figure out why the compiler complained 
     // about this. I commented it out so that everything would compile.
     //myFile (pdf.myFile),
+    myFile (NULL),
     isOpen (pdf.isOpen)
 {
 }

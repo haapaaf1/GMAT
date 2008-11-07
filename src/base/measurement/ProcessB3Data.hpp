@@ -32,7 +32,7 @@ class ProcessB3Data : public ProcessDataFile
 
 public:
     
-    ProcessB3Data(const std::string &itsType, const std::string &itsName);
+    ProcessB3Data(const std::string &itsName);
     ~ProcessB3Data();
 
     GmatBase *Clone() const;

@@ -31,7 +31,7 @@ class ProcessTLEData : public ProcessDataFile
 
 public:
     
-    ProcessTLEData(const std::string &itsType, const std::string &itsName);
+    ProcessTLEData(const std::string &itsName);
     ~ProcessTLEData();
    
     GmatBase *Clone() const;

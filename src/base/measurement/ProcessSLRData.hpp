@@ -30,7 +30,7 @@ class ProcessSLRData : public ProcessDataFile
 
 public:
     
-    ProcessSLRData(const std::string &itsType, const std::string &itsName);
+    ProcessSLRData(const std::string &itsName);
     ~ProcessSLRData();
 
     GmatBase *Clone() const;

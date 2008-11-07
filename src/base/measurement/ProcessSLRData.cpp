@@ -37,9 +37,8 @@
 /**
  * Constructs base ProcessSLRData structures 
  */
-ProcessSLRData::ProcessSLRData(const std::string &itsType, 
-			       const std::string &itsName) :
-	ProcessDataFile (itsType, itsName)
+ProcessSLRData::ProcessSLRData(const std::string &itsName) :
+	ProcessDataFile ("SLRData", itsName)
 {
    objectTypeNames.push_back("ProcessSLRData");
 }
