@@ -91,7 +91,7 @@ GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    "PropSetup",       "Function",         "FuelTank",      "Thruster",
    "Hardware",        "CoordinateSystem", "AxisSystem",    "Attitude",
    "MathNode",        "MathTree",         "Estimator",     "MeasurementModel",
-   "BodyFixedPoint",  "DataFile", "UnknownObject"
+   "BodyFixedPoint",  "DataFile",         "UnknownObject"
 };
 const bool
 GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
@@ -105,7 +105,7 @@ GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    true,              true,               false,           false,
    false,             true,               false,           false,
    false,             false,              false,           false,
-   false,             false
+   false,             false,              false
 };
 
 
