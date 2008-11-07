@@ -236,6 +236,7 @@ OBJECTS = \
     factory/CelestialBodyFactory.o \
     factory/CommandFactory.o \
     factory/CoordinateSystemFactory.o \
+    factory/DataFileFactory.o \
     factory/EstimatorFactory.o \
     factory/EstimatorCommandFactory.o \
     factory/FactoryException.o \

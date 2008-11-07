@@ -759,6 +759,34 @@ Estimator* Factory::CreateEstimator(const std::string &ofType,
    ("Factory::CreateEstimator() must be implemented by the EstimatorFactory\n");
 }
 
+//------------------------------------------------------------------------------
+//  ProcessDataFile* CreateDataFile(const std::string &ofType,
+//                           const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates an Estimator object.
+ * 
+ * Must be implemented by derived classes that create Estimator objects -
+ * in that case, it returns a new Estimator object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Estimator.
+ *
+ * @param <ofType>   specific type of Estimator object to create.
+ * @param <withName> name to give to the newly created Estimator object.
+ *
+ * @return pointer to a new Estimator object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type Estimator.
+ */
+//------------------------------------------------------------------------------
+ProcessDataFile* Factory::CreateDataFile(const std::string &ofType,
+                                         const std::string &withName)
+{
+   throw FactoryException
+   ("Factory::CreateDataFile() must be implemented by the DataFileFactory\n");
+}
+
 
 //------------------------------------------------------------------------------
 //  StringArray GetListOfCreatableObjects(void) const

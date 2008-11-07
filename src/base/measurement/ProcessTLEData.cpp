@@ -38,9 +38,13 @@
 /**
  * Constructs base ProcessTLEData structures 
  */
-ProcessTLEData::ProcessTLEData()
+ProcessTLEData::ProcessTLEData(const std::string &itsType, 
+			       const std::string &itsName) :
+	ProcessDataFile (itsType, itsName)
 {
+   objectTypeNames.push_back("ProcessTLEData");
 }
+
 
 //------------------------------------------------------------------------------
 //  ProcessTLEData::~ProcessTLEData() 
@@ -51,6 +55,21 @@ ProcessTLEData::ProcessTLEData()
 ProcessTLEData::~ProcessTLEData() 
 {
     myFile.close();
+}
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the ProcessTLEData.
+ *
+ * @return clone of the ProcessTLEData.
+ */
+//------------------------------------------------------------------------------
+GmatBase* ProcessTLEData::Clone() const
+{
+   GmatBase *clone = new ProcessTLEData(*this);
+   return (clone);
 }
 
 //------------------------------------------------------------------------------

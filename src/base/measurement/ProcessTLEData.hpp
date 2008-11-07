@@ -31,9 +31,11 @@ class ProcessTLEData : public ProcessDataFile
 
 public:
     
-    ProcessTLEData();
+    ProcessTLEData(const std::string &itsType, const std::string &itsName);
     ~ProcessTLEData();
-    
+   
+    GmatBase *Clone() const;
+
     // Specific data type processing functions
     bool GetData(tle_obtype &myTLEdata);
     bool GetTLEData(std::string &lff, std::string &lff2, 

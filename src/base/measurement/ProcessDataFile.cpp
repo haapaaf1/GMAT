@@ -36,12 +36,44 @@
 //---------------------------------
 
 //------------------------------------------------------------------------------
+//  ProcessDataFile(Gmat::ObjectType ofType, const std::string &itsType,
+//             const std::string &itsName)
+//------------------------------------------------------------------------------
+/**
+ * Constructs base ProcessDataFile structures used in derived classes
+ * (default constructor).
+ *
+ * @param <ofType>  Gmat::ObjectTypes enumeration for the object.
+ * @param <itsType> GMAT script string associated with this type of object.
+ * @param <itsName> Optional name for the object.  Defaults to "".
+ *
+ * @note There is no parameter free constructor for ProcessDataFile.  Derived
+ *       classes must pass in the typeId and typeStr parameters.
+ */
+//------------------------------------------------------------------------------
+ProcessDataFile::ProcessDataFile(const std::string &itsType, 
+				 const std::string &itsName) :
+GmatBase(Gmat::PROCESSDATAFILE,itsType,itsName)
+{
+   objectTypes.push_back(Gmat::PROCESSDATAFILE);
+   objectTypeNames.push_back("ProcessDataFile");
+}
+
+
+//------------------------------------------------------------------------------
 //  ProcessDataFile::ProcessDataFile()
 //------------------------------------------------------------------------------
 /**
- * Constructs base ProcessDataFile structures
+ * Class constructor
  */
-ProcessDataFile::ProcessDataFile()
+ProcessDataFile::ProcessDataFile(const ProcessDataFile &pdf) :
+    GmatBase       (pdf),
+    lineFromFile (pdf.lineFromFile),
+    dataFileName (pdf.dataFileName),
+    // TODO: Figure out why the compiler complained 
+    // about this. I commented it out so that everything would compile.
+    //myFile (pdf.myFile),
+    isOpen (pdf.isOpen)
 {
 }
 

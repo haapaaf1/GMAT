@@ -13,7 +13,7 @@
 //
 /**
  *
- * Implements ProcessDataFile base class to read files written in the B3 format.
+ * Implements ProcessDataFile base class to read files written in the SLR format.
  *
  */
 //------------------------------------------------------------------------------
@@ -37,8 +37,11 @@
 /**
  * Constructs base ProcessSLRData structures 
  */
-ProcessSLRData::ProcessSLRData()
+ProcessSLRData::ProcessSLRData(const std::string &itsType, 
+			       const std::string &itsName) :
+	ProcessDataFile (itsType, itsName)
 {
+   objectTypeNames.push_back("ProcessSLRData");
 }
 
 //------------------------------------------------------------------------------
@@ -50,6 +53,21 @@ ProcessSLRData::ProcessSLRData()
 ProcessSLRData::~ProcessSLRData() 
 {
     myFile.close();
+}
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the ProcessSLRData.
+ *
+ * @return clone of the ProcessSLRData.
+ */
+//------------------------------------------------------------------------------
+GmatBase* ProcessSLRData::Clone() const
+{
+   GmatBase *clone = new ProcessSLRData(*this);
+   return (clone);
 }
 
 //------------------------------------------------------------------------------

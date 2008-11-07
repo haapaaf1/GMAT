@@ -21,18 +21,21 @@
 #ifndef ProcessB3Data_hpp
 #define	ProcessB3Data_hpp
 
+#include "GmatBase.hpp"
 #include "gmatdefs.hpp"
 #include <pcrecpp.h>
 #include "RealUtilities.hpp"
 #include "ProcessDataFile.hpp"
 
-class ProcessB3Data : ProcessDataFile
+class ProcessB3Data : public ProcessDataFile
 {
 
 public:
     
-    ProcessB3Data();
+    ProcessB3Data(const std::string &itsType, const std::string &itsName);
     ~ProcessB3Data();
+
+    GmatBase *Clone() const;
 
     // Override generic data call from base class
     bool GetData(b3_obtype &myB3data);

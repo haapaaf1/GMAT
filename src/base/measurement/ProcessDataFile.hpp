@@ -23,6 +23,7 @@
 #ifndef ProcessDataFile_hpp
 #define	ProcessDataFile_hpp
 
+#include "GmatBase.hpp"
 #include "gmatdefs.hpp"
 #include <iostream>
 #include <fstream>
@@ -31,14 +32,18 @@
 
 using namespace DataFormats; // for data type variable definitions
 
-class ProcessDataFile
+class ProcessDataFile : public GmatBase
 {
 
 public:
 
-    ProcessDataFile();
+    ProcessDataFile(const std::string &itsType, const std::string &itsName);
+    ProcessDataFile(const ProcessDataFile &pdf);
     virtual ~ProcessDataFile();
 
+    virtual GmatBase *Clone() const;
+
+    
     // Specific data type processing functions
     virtual bool GetData(slr_header &mySLRheader);
     virtual bool GetData(slr_header &mySLRheader, slr_obtype &mySLRdata);

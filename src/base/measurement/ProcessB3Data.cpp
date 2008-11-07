@@ -50,8 +50,11 @@ const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[NUM_B3_TYPES] =
 /**
  * Constructs base ProcessB3Data structures 
  */
-ProcessB3Data::ProcessB3Data()
+ProcessB3Data::ProcessB3Data(const std::string &itsType, 
+			     const std::string &itsName) :
+	ProcessDataFile (itsType, itsName)
 {
+   objectTypeNames.push_back("ProcessB3Data");
 }
 
 //------------------------------------------------------------------------------
@@ -63,6 +66,21 @@ ProcessB3Data::ProcessB3Data()
 ProcessB3Data::~ProcessB3Data() 
 {
     myFile.close();
+}
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the ProcessB3Data.
+ *
+ * @return clone of the ProcessB3Data.
+ */
+//------------------------------------------------------------------------------
+GmatBase* ProcessB3Data::Clone() const
+{
+   GmatBase *clone = new ProcessB3Data(*this);
+   return (clone);
 }
 
 //------------------------------------------------------------------------------

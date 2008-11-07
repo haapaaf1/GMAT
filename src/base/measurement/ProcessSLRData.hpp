@@ -25,13 +25,15 @@
 #include "RealUtilities.hpp"
 #include "ProcessDataFile.hpp"
 
-class ProcessSLRData : ProcessDataFile
+class ProcessSLRData : public ProcessDataFile
 {
 
 public:
     
-    ProcessSLRData();
+    ProcessSLRData(const std::string &itsType, const std::string &itsName);
     ~ProcessSLRData();
+
+    GmatBase *Clone() const;
 
     bool FindSLRHeaderLine( slr_header &mySLRheader );
     bool GetData(slr_header &mySLRheader, slr_obtype &mySLRdata);

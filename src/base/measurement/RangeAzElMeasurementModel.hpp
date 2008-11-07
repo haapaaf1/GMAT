@@ -28,6 +28,7 @@
 class GMAT_API RangeAzElMeasurementModel : public MeasurementModel
 {
 public:
+    
    RangeAzElMeasurementModel(const std::string name);
    RangeAzElMeasurementModel(const RangeAzElMeasurementModel &raeModel);
    RangeAzElMeasurementModel& operator=(const RangeAzElMeasurementModel &raeModel);
@@ -58,4 +59,5 @@ protected:
 };
 
 #endif	/* RangeAzElMeasurementModel_hpp */
+
 
