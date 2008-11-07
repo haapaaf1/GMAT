@@ -20,15 +20,19 @@
 #include "PropSetup.hpp"
 #include "PropSetupException.hpp"
 #include "PhysicalModel.hpp"
-#include "PointMassForce.hpp"
-#include "DragForce.hpp"
-#include "SolarRadiationPressure.hpp"
 #include "RungeKutta89.hpp"
-#include "Moderator.hpp"
+#include "PointMassForce.hpp"
 #include "MessageInterface.hpp"
 
 //#define DEBUG_PROPSETUP
 //#define DEBUG_PROPSETUP_SET
+//#define DEBUG_PROPSETUP_CLONE
+//#define DEBUG_PROPSETUP_DELETE
+//#define DEBUG_PROPSETUP_GEN_STRING
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
 
 //---------------------------------
 // static data
@@ -83,123 +87,146 @@ PropSetup::PARAMETER_TYPE[PropSetupParamCount - GmatBaseParamCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// PropSetup(const std::string &name,  Propagator *propagator,
-//           ForceModel *forceModel)
+// PropSetup(const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * Constructor.
  */
 //------------------------------------------------------------------------------
-PropSetup::PropSetup(const std::string &name, Propagator *propagator,
-                     ForceModel *forceModel)
-   : GmatBase     (Gmat::PROP_SETUP, "PropSetup", name)
+PropSetup::PropSetup(const std::string &name)
+   : GmatBase(Gmat::PROP_SETUP, "PropSetup", name)
 {
    // GmatBase data
    objectTypes.push_back(Gmat::PROP_SETUP);
    objectTypeNames.push_back("PropSetup");
    
    parameterCount = PropSetupParamCount;
+   // Propagator is named or unnamed owned object which means that Propagator is not
+   // created by Create command but by handling owned object in the Interpreter.
    ownedObjectCount += 1;
    
-   // PropSetup data
-   if (propagator != NULL)
-       mPropagator = propagator;
-   else 
-       mPropagator = new RungeKutta89("");
+   mInitialized = false;
    
-   if (forceModel != NULL)
-   {
-       mForceModel = forceModel;
-   }
-   else
-   {
-       mForceModel = new ForceModel("InternalForceModel");
-       PhysicalModel *pmf = new PointMassForce;
-       mForceModel->AddForce(pmf);
-   }
+   // Name it Internal* so that they can be deleted when new Propagator or ForceModel
+   // is set. These names are not actual names but tells whether they can be deleted or not.
+   // When Propagator or ForceModes is cloned these names are set to "" so that they
+   // can be deleted.
+   mPropagatorName = "InternalPropagator";
+   mForceModelName = "InternalForceModel";
+   
+   // Create default Integrator and ForceModel
+   mPropagator = new RungeKutta89("RungeKutta89");
+   mForceModel = new ForceModel(mForceModelName);
+   PhysicalModel *pmf = new PointMassForce;
+   mForceModel->AddForce(pmf);
+   
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("+++ PropSetup::PropSetup() '%s', mPropagator = new RungeKutta89(""), "
+       "<%p>\n",  GetName().c_str(), mPropagator);
+   MessageInterface::ShowMessage
+      ("+++ PropSetup::PropSetup() '%s', mForceModel = new ForceModel(InternalForceModel), "
+       "<%p>\n",  GetName().c_str(), mForceModel);
+   MessageInterface::ShowMessage
+      ("+++ PropSetup::PropSetup() '%s', PhysicalModel *pmf = new PointMassForce, "
+       "<%p>\n",  GetName().c_str(), pmf);
+   #endif
 }
 
+
 //------------------------------------------------------------------------------
-// PropSetup(const PropSetup &propSetup)
+// PropSetup(const PropSetup &ps)
 //------------------------------------------------------------------------------
 /**
  * Copy constructor.
  */
 //------------------------------------------------------------------------------
-PropSetup::PropSetup(const PropSetup &propSetup)
-   : GmatBase(propSetup)
+PropSetup::PropSetup(const PropSetup &ps)
+   : GmatBase(ps)
 {
-   ownedObjectCount = propSetup.ownedObjectCount;
+   #ifdef DEBUG_PROPSETUP
+   MessageInterface::ShowMessage
+      ("PropSetup::PropSetup() entered, Propagator=<%p>, ForceModel=<%p>\n",
+       ps.mPropagator, ps.mForceModel);
+   #endif
+   
+   ownedObjectCount = ps.ownedObjectCount;
    
    // PropSetup data
    mInitialized = false;
+   mPropagatorName = "";
+   mForceModelName = "";
+   mPropagator = NULL;
+   mForceModel = NULL;
    
-   if (propSetup.mPropagator != NULL)
-      mPropagator = (Propagator *)(propSetup.mPropagator->Clone());
-   else
-      mPropagator = NULL;
+   if (ps.mPropagator != NULL)
+      mPropagatorName = ps.mPropagator->GetName();
+   if (ps.mForceModel != NULL)
+      mForceModelName = ps.mForceModel->GetName();
    
-   if (propSetup.mForceModel != NULL)
-      mForceModel = (ForceModel *)(propSetup.mForceModel->Clone());
-   else
-      mForceModel = NULL;
+   // first delete old propagator and forcemodel (loj: 2008.11.04)
+   DeleteOwnedObject(PROPAGATOR);
+   DeleteOwnedObject(FORCE_MODEL);
+   ClonePropagator(ps.mPropagator);
+   CloneForceModel(ps.mForceModel);
    
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
-      ("In PropSetup copy constructor, Cloned Propagator=<%p><%s>'%s'\n   "
-       "Cloned ForceModel=<%p><%s>'%s'\n", mPropagator,
-       mPropagator->GetTypeName().c_str(), mPropagator->GetName().c_str(),
-       mForceModel,  mForceModel->GetTypeName().c_str(),
-       mForceModel->GetName().c_str());
+      ("PropSetup::PropSetup() exiting, Propagator=<%p><%s> '%s'\n   "
+       "ForceModel=<%p><%s> '%s'\n", mPropagator,
+       mPropagator ? mPropagator->GetTypeName().c_str() : "NULL",
+       mPropagator ? mPropagator->GetName().c_str() : "NULL", mForceModel,
+       mForceModel ? mForceModel->GetTypeName().c_str() : "NULL",
+       mForceModel ? mForceModel->GetName().c_str() : "NULL");
    #endif
 }
 
 //------------------------------------------------------------------------------
-// PropSetup& operator= (const PropSetup &right)
+// PropSetup& operator= (const PropSetup &ps)
 //------------------------------------------------------------------------------
 /**
  * Assignment operator.
  */
 //------------------------------------------------------------------------------
-PropSetup& PropSetup::operator= (const PropSetup &right)
+PropSetup& PropSetup::operator= (const PropSetup &ps)
 {
-   if (this != &right)
-   {
-      GmatBase::operator=(right);
-      
-      // PropSetup data
-      mInitialized = false;
-      
-      if (mPropagator != NULL)
-      {
-         #ifdef DEBUG_PROPSETUP
-         MessageInterface::ShowMessage
-            ("PropSetup::operator= Deleting Propagator <%p><%s>'%s'\n", mPropagator,
-             mPropagator->GetTypeName().c_str(), mPropagator->GetName().c_str());
-         #endif
-         delete mPropagator;
-      }
-      
-      if (mForceModel != NULL)
-      {
-         #ifdef DEBUG_PROPSETUP
-         MessageInterface::ShowMessage
-            ("PropSetup::operator= Deleting ForceModel <%p><%s>'%s'\n", mForceModel,
-             mForceModel->GetTypeName().c_str(), mForceModel->GetName().c_str());
-         #endif
-         delete mForceModel;
-      }
-      
-      if (right.mPropagator != NULL)
-         mPropagator = (Propagator*)(right.mPropagator->Clone());
-      else
-         mPropagator = NULL;
-      
-      if (right.mForceModel != NULL)
-         mForceModel = (ForceModel*)(right.mForceModel->Clone());
-      else
-         mForceModel = NULL;
-   }
+   #ifdef DEBUG_PROPSETUP
+   MessageInterface::ShowMessage
+      ("PropSetup::operator=() entered, Propagator=<%p>, ForceModel=<%p>\n",
+       ps.mPropagator, ps.mForceModel);
+   #endif
+   
+   if (this == &ps)
+      return *this;
+   
+   GmatBase::operator=(ps);
+   
+   // PropSetup data
+   mInitialized = false;
+   mPropagatorName = "";
+   mForceModelName = "";
+   mPropagator = NULL;
+   mForceModel = NULL;
+   
+   if (ps.mPropagator != NULL)
+      mPropagatorName = ps.mPropagator->GetName();
+   if (ps.mForceModel != NULL)
+      mForceModelName = ps.mForceModel->GetName();
+   
+   DeleteOwnedObject(PROPAGATOR);
+   DeleteOwnedObject(FORCE_MODEL);
+   ClonePropagator(ps.mPropagator);
+   CloneForceModel(ps.mForceModel);
+   
+   #ifdef DEBUG_PROPSETUP
+   MessageInterface::ShowMessage
+      ("PropSetup::operator=() exiting, Propagator=<%p><%s> '%s'\n   "
+       "ForceModel=<%p><%s> '%s'\n", mPropagator,
+       mPropagator ? mPropagator->GetTypeName().c_str() : "NULL",
+       mPropagator ? mPropagator->GetName().c_str() : "NULL", mForceModel,
+       mForceModel ? mForceModel->GetTypeName().c_str() : "NULL",
+       mForceModel ? mForceModel->GetName().c_str() : "NULL");
+   #endif
    
    return *this;
 }
@@ -213,25 +240,18 @@ PropSetup& PropSetup::operator= (const PropSetup &right)
 //------------------------------------------------------------------------------
 PropSetup::~PropSetup()
 {
-   if (mPropagator)
-   {
-      #ifdef DEBUG_PROPSETUP
-      MessageInterface::ShowMessage
-         ("PropSetup::~PropSetup() Deleting Propagator <%p><%s>'%s'\n", mPropagator,
-          mPropagator->GetTypeName().c_str(), mPropagator->GetName().c_str());
-      #endif
-      delete mPropagator;
-   }
+   #ifdef DEBUG_PROPSETUP
+   MessageInterface::ShowMessage
+      ("PropSetup::~PropSetup() entered, Propagator=<%p>, ForceModel=<%p>\n",
+       mPropagator, mForceModel);
+   #endif
    
-   if (mForceModel)
-   {
-      #ifdef DEBUG_PROPSETUP
-      MessageInterface::ShowMessage
-         ("PropSetup::~PropSetup() Deleting ForceModel <%p><%s>'%s'\n", mForceModel,
-          mForceModel->GetTypeName().c_str(), mForceModel->GetName().c_str());
-      #endif
-      delete mForceModel;
-   }
+   DeleteOwnedObject(PROPAGATOR);
+   DeleteOwnedObject(FORCE_MODEL);
+   
+   #ifdef DEBUG_PROPSETUP
+   MessageInterface::ShowMessage("PropSetup::~PropSetup() exiting\n");
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -289,16 +309,16 @@ ForceModel* PropSetup::GetForceModel()
 void PropSetup::SetPropagator(Propagator *propagator)
 {
    #ifdef DEBUG_PROPSETUP_SET
-   MessageInterface::ShowMessage("PropSetup::SetPropagator() entered \n");
+   MessageInterface::ShowMessage
+      ("PropSetup::SetPropagator() this=<%p> '%s' entered, mPropagator=<%p>, "
+       "propagator=<%p>\n", this, GetName().c_str(), mPropagator, propagator);
    #endif
    
    if (propagator == NULL)
       throw PropSetupException("SetPropagator() failed: propagator is NULL");
    
-   if (mPropagator != NULL)
-      delete mPropagator;
-   
-   mPropagator = (Propagator*)(propagator->Clone());
+   DeleteOwnedObject(PROPAGATOR);
+   ClonePropagator(propagator);
 }
 
 //------------------------------------------------------------------------------
@@ -312,31 +332,21 @@ void PropSetup::SetPropagator(Propagator *propagator)
 //------------------------------------------------------------------------------
 void PropSetup::SetForceModel(ForceModel *forceModel)
 {
+   #ifdef DEBUG_PROPSETUP_SET
+   MessageInterface::ShowMessage
+      ("PropSetup::SetForceModel() this=<%p> '%s' entered, mForceModel=<%p>, "
+       "forceModel=<%p>\n", this, GetName().c_str(), mForceModel, forceModel);
+   #endif
+   
    if (forceModel == NULL)
       throw PropSetupException("SetForceModel() failed: ForceModel is NULL");
    
-   #ifdef DEBUG_PROPSETUP_SET
-   MessageInterface::ShowMessage
-      ("PropSetup::SetForceModel() current ForceModel=<%p>'%s'\n   new ForceModel=<%p>'%s'\n",
-       mForceModel, mForceModel->GetName().c_str(), forceModel, forceModel->GetName().c_str());
-   #endif
-   
-   if (mForceModel != NULL)
-   {
-      #ifdef DEBUG_PROPSETUP_SET
-      MessageInterface::ShowMessage
-         ("   Deleting ForceModel <%p><%s>'%s'\n", mForceModel,
-          mForceModel->GetTypeName().c_str(), mForceModel->GetName().c_str());
-      #endif
-      delete mForceModel;
-   }
-   
-   mForceModel = (ForceModel*)(forceModel->Clone());
+   DeleteOwnedObject(FORCE_MODEL);
+   CloneForceModel(forceModel);
    
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
-      ("PropSetup::SetForceModel() after forceModel->Clone() mForceModel=<%p>\n",
-       mForceModel);
+      ("PropSetup::SetForceModel() returning, mForceModel=<%p>\n", mForceModel);
    #endif
 }
 
@@ -352,19 +362,6 @@ void PropSetup::AddForce(PhysicalModel *force)
 {
    mForceModel->AddForce(force);
 }
-
-
-// future implementation
-//------------------------------------------------------------------------------
-// void RemoveForce(const std::string &name)
-//------------------------------------------------------------------------------
-/**
- * Removes a force from force model.
- */
-//------------------------------------------------------------------------------
-//  void PropSetup::RemoveForce(const std::string &name)
-//  {  
-//  }
 
 
 //------------------------------------------------------------------------------
@@ -455,7 +452,7 @@ bool PropSetup::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 {
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
-      ("PropSetup::SetRefObject() entered, obj=<%p><%s><%s>, type=%d, name='%s'\n",
+      ("PropSetup::SetRefObject() entered, obj=<%p><%s> '%s', type=%d, name='%s'\n",
        obj, obj ? obj->GetTypeName().c_str() : "NULL",
        obj ? obj->GetName().c_str() : "NULL", type, name.c_str());
    #endif
@@ -474,6 +471,39 @@ bool PropSetup::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    default:
       return false;
    }
+}
+
+
+//------------------------------------------------------------------------------
+//  GmatBase* GetOwnedObject(Integer whichOne)
+//------------------------------------------------------------------------------
+/**
+ * This method returns the unnamed objects owned by the PropSetup.
+ *
+ * The current implementation only contains one PropSetup owned object: the 
+ * Propagator.
+ * 
+ * @return Pointer to the owned object.
+ */
+//------------------------------------------------------------------------------
+GmatBase* PropSetup::GetOwnedObject(Integer whichOne)
+{
+   // Propagator is named or unnamed owned object(loj: 2008.11.05)
+   if (whichOne == ownedObjectCount - 1)   // If this works, make it more usable
+      return mPropagator;
+   return GmatBase::GetOwnedObject(whichOne);
+}
+
+
+//---------------------------------------------------------------------------
+// bool IsOwnedObject(Integer id) const
+//---------------------------------------------------------------------------
+bool PropSetup::IsOwnedObject(Integer id) const
+{
+   if (id == PROPAGATOR || id == FORCE_MODEL)
+      return true;
+   else
+      return false;
 }
 
 
@@ -512,22 +542,49 @@ void PropSetup::Copy(const GmatBase* orig)
 
 
 //------------------------------------------------------------------------------
-//  GmatBase* GetOwnedObject(Integer whichOne)
+// const ObjectTypeArray& GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 /**
- * This method returns the unnamed objects owned by the PropSetup.
+ * Retrieves the list of ref object types used by this class.
  *
- * The current implementation only contains one PropSetup owned object: the 
- * Propagator.
+ * @return the list of object types.
  * 
- * @return Pointer to the owned object.
  */
 //------------------------------------------------------------------------------
-GmatBase* PropSetup::GetOwnedObject(Integer whichOne)
+const ObjectTypeArray& PropSetup::GetRefObjectTypeArray()
 {
-   if (whichOne == ownedObjectCount - 1)   // If this works, make it more usable
-      return mPropagator;
-   return GmatBase::GetOwnedObject(whichOne);
+   // We need to add in the property order since Interpreter querrys for
+   // object type using property id
+   refObjectTypes.clear();
+   refObjectTypes.push_back(Gmat::PROPAGATOR);
+   refObjectTypes.push_back(Gmat::FORCE_MODEL);
+   return refObjectTypes;
+}
+
+
+//------------------------------------------------------------------------------
+//  const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the list of ref objects used by the member forces.
+ *
+ * @param <type> The type of object desired, or Gmat::UNKNOWN_OBJECT for the
+ *               full list.
+ * 
+ * @return the list of object names.
+ * 
+ */
+//------------------------------------------------------------------------------
+const StringArray& PropSetup::GetRefObjectNameArray(const Gmat::ObjectType type)
+{
+   refObjectNames.clear();
+   if (mPropagatorName != "")
+      if (type == Gmat::PROPAGATOR || type == Gmat::UNKNOWN_OBJECT)
+         refObjectNames.push_back(mPropagatorName);
+   if (mForceModelName != "")
+      if (type == Gmat::FORCE_MODEL || type == Gmat::UNKNOWN_OBJECT)
+         refObjectNames.push_back(mForceModelName);
+   return refObjectNames;
 }
 
 
@@ -605,7 +662,7 @@ Integer PropSetup::GetParameterID(const std::string &str) const
 //---------------------------------------------------------------------------
 bool PropSetup::IsParameterReadOnly(const Integer id) const
 {
-   if (id == FORCE_MODEL_NAME || id == PROPAGATOR_NAME)
+   if (id == FORCE_MODEL || id == PROPAGATOR)
       return false;
    else if (id >= INITIAL_STEP_SIZE && id <= TARGET_ERROR)
       return true;
@@ -640,23 +697,33 @@ bool PropSetup::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 std::string PropSetup::GetStringParameter(const Integer id) const
 {
+   #ifdef DEBUG_PROPSETUP_GET
+   MessageInterface::ShowMessage
+      ("PropSetup::GetStringParameter() '%s' entered, id=%d\n", id);
+   #endif
+   std::string name;
    switch (id)
    {
-   case PROPAGATOR_NAME:
+   case PROPAGATOR:
       if (mPropagator)
-         return mPropagator->GetTypeName();
-      return "UndefinedPropagator";
-   case FORCE_MODEL_NAME:
-      if (mForceModel) {
-         std::string nomme = mForceModel->GetName();
-         if (nomme == "")
-            nomme = instanceName + "_ForceModel";
-         return nomme;
-      }
-      return "InternalForceModel";
+         name = mPropagator->GetName();
+      else
+         name = "UndefinedPropagator";
+      break;
+   case FORCE_MODEL:
+      if (mForceModel)
+         name = mForceModel->GetName();
+      else
+         name = "UndefinedForceModel";
+      break;
    default:
       return GmatBase::GetStringParameter(id);
    }
+   #ifdef DEBUG_PROPSETUP_GET
+   MessageInterface::ShowMessage
+      ("PropSetup::GetStringParameter() '%s' returning '%s'\n", name.c_str());
+   #endif
+   return name;
 }
 
 //------------------------------------------------------------------------------
@@ -681,75 +748,25 @@ std::string PropSetup::GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 bool PropSetup::SetStringParameter(const Integer id, const std::string &value)
 {
-   Moderator *theModerator = Moderator::Instance();
-   
+   #ifdef DEBUG_PROPSETUP_SET
+   MessageInterface::ShowMessage
+      ("PropSetup::SetStringParameter() '%s', id=%d, value='%s'\n",
+       GetName().c_str(), id, value.c_str());
+   #endif
+      
    switch (id)
    {
-      /** @todo Check behavior of PropSetup::SetStringParm -- should be used to 
-          change members, not just their names */
-   case PROPAGATOR_NAME:
-      {
-         Propagator *prop = theModerator->CreatePropagator(value, "");
-         if (prop)
-         {
-            SetPropagator(prop);
-            return true;
-         }
-         else
-         {
-            return false;
-         }
-      }
-   case FORCE_MODEL_NAME:
-      {
-         if (value == "InternalForceModel")
-         {
-            mForceModel = new ForceModel("InternalForceModel");
-            PhysicalModel *pmf = new PointMassForce;
-            mForceModel->AddForce(pmf);
-            return true;
-         }
-         else
-         {
-            ForceModel *fm = theModerator->GetForceModel(value);
-            if (fm)
-            {
-               #ifdef DEBUG_PROPSETUP_SET
-               MessageInterface::ShowMessage
-                  ("PropSetup::SetStringParameter() before SetForceModel() "
-                   "mForceModel=<%p>\n", mForceModel);
-               #endif
-               
-               SetForceModel(fm);
-               
-               #ifdef DEBUG_PROPSETUP_SET
-               MessageInterface::ShowMessage
-                  ("PropSetup::SetStringParameter() after  SetForceModel() "
-                   "mForceModel=%p\n", mForceModel);
-               #endif
-               
-               // Since the ForceModel is cloned in SetForce(), we need to reset
-               // the configured ForceModel pointer to cloned pointer in order to
-               // get correct generating string when saving mission. (loj: 1/30/07)
-               if (theModerator->ReconfigureItem(mForceModel, value))
-                  return true;
-               else
-                  throw PropSetupException
-                     ("SetStringParameter() unable to reconfigure ForceModel \"" + value + "\".");
-               
-            }
-            else 
-               throw PropSetupException
-                  ("SetStringParameter() unable to set ForceModel \"" + value +
-                   "\". It does not exist.");
-         }
-         return false;
-      }
-      
+   case PROPAGATOR:
+      mPropagatorName = value;
+      return true;
+   case FORCE_MODEL:
+      mForceModelName = value;
+      return true;
    default:
       return GmatBase::SetStringParameter(id, value);
    }
 }
+
 
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const std::string &label, const std::string &value)
@@ -985,35 +1002,40 @@ bool PropSetup::Initialize()
 const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
             const std::string &prefix, const std::string &useName)
 {
-   std::string gen, fMName = "", temp;
+   #ifdef DEBUG_PROPSETUP_GEN_STRING
+   MessageInterface::ShowMessage
+      ("PropSetup::GetGeneratingString() '%s' entered, mForceModel=<%p> '%s'\n",
+       GetName().c_str(), mForceModel,
+       mForceModel ? mForceModel->GetName().c_str() : "NULL");
+   #endif
+   std::string gen, fmName = "", temp;
    bool showForceModel = false;
    if (mForceModel != NULL)
    {
       temp = mForceModel->GetName();
       if (temp == "")
       {
-         fMName = instanceName + "_ForceModel";
+         fmName = instanceName + "_ForceModel";
          showForceModel = true;
       }
       else
-         fMName = temp;
+         fmName = temp;
       
       if (mode == Gmat::SHOW_SCRIPT)
          showForceModel = true;
       
-      #if DEBUG_PROPSETUP_GEN_STRING
+      #ifdef DEBUG_PROPSETUP_GEN_STRING
       MessageInterface::ShowMessage
-         ("PropSetup::GetGeneratingString() fMName='%s', mForceModel=<%p>, "
-          "showForceModel=%d\n", fMName.c_str(), mForceModel, showForceModel);
+         ("   fmName='%s', showForceModel=%d\n", fmName.c_str(), showForceModel);
       #endif
       
       if (showForceModel)
-         gen = mForceModel->GetGeneratingString(mode, prefix, fMName) + "\n";
+         gen = mForceModel->GetGeneratingString(mode, prefix, fmName) + "\n";
    }
    
    gen += GmatBase::GetGeneratingString(mode, prefix, useName);
    generatingString = gen;
-      
+   
    return generatingString;
 }
 
@@ -1023,22 +1045,158 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
 //---------------------------------
 
 //------------------------------------------------------------------------------
+// void ClonePropagator(Propagator *prop)
+//------------------------------------------------------------------------------
+void PropSetup::ClonePropagator(Propagator *prop)
+{
+   #ifdef DEBUG_PROPSETUP_CLONE
+   MessageInterface::ShowMessage
+      ("PropSetup::ClonePropagator() entered, prop=<%p>\n", prop);
+   #endif
+   if (prop != NULL)
+   {
+      mPropagatorName = "";
+      mPropagator = (Propagator *)(prop->Clone());
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ PropSetup::ClonePropagator() '%s', mPropagator = prop->Clone(), "
+          "<%p>\n",  GetName().c_str(), mPropagator);
+      #endif
+   }
+   else
+   {
+      mPropagatorName = "";
+      mPropagator = NULL;
+   }
+   #ifdef DEBUG_PROPSETUP_CLONE
+   MessageInterface::ShowMessage
+      ("PropSetup::ClonePropagator() exiting, mPropagatorName='%s', mPropagator=<%p>\n",
+       mPropagatorName.c_str(), mPropagator);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void CloneForceModel(ForceModel *fm)
+//------------------------------------------------------------------------------
+void PropSetup::CloneForceModel(ForceModel *fm)
+{
+   #ifdef DEBUG_PROPSETUP_CLONE
+   MessageInterface::ShowMessage
+      ("PropSetup::CloneForceModel() entered, fm=<%p>\n", fm);
+   #endif
+   if (fm != NULL)
+   {
+      mForceModelName = "";
+      mForceModel = (ForceModel *)(fm->Clone());
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ PropSetup::CloneForceModel() '%s', mForceModel = fm->Clone(), "
+          "<%p>\n",  GetName().c_str(), mForceModel);
+      #endif
+   }
+   else
+   {
+      mForceModelName = "";
+      mForceModel = NULL;
+   }
+   #ifdef DEBUG_PROPSETUP_CLONE
+   MessageInterface::ShowMessage
+      ("PropSetup::CloneForceModel() exiting, mForceModelName='%s', mForceModel=<%p>\n",
+       mForceModelName.c_str(), mForceModel);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void DeleteOwnedObject(Integer id)
+//------------------------------------------------------------------------------
+/**
+ * Deletes internal or cloned owned object. Owned objects are named Internal*
+ * in the consturctor. When Propagator or ForceModes is cloned their names are
+ * set to "" so that those can be deleted.
+ */
+//------------------------------------------------------------------------------
+void PropSetup::DeleteOwnedObject(Integer id)
+{
+   // Since Propagator and ForceModel are cloned delete them here. (loj: 2008.11.05)
+   if (id == PROPAGATOR)
+   {
+      #ifdef DEBUG_PROPSETUP_DELETE
+      MessageInterface::ShowMessage
+         ("PropSetup::DeleteOwnedObject() mPropagator=<%p>, mPropagatorName='%s'\n",
+          mPropagator, mPropagatorName.c_str());
+      #endif
+      if (mPropagator != NULL)
+      {
+         if (mPropagatorName == "" || mPropagatorName == "InternalPropagator")
+         {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- PropSetup::DeleteOwnedObject() '%s', deleting mPropagator <%p>\n",
+                GetName().c_str(), mPropagator);
+            #endif
+            delete mPropagator;
+            mPropagatorName = "";
+            mPropagator = NULL;
+         }
+      }
+   }
+   else if (id == FORCE_MODEL)
+   {
+      #ifdef DEBUG_PROPSETUP_DELETE
+      MessageInterface::ShowMessage
+         ("PropSetup::DeleteOwnedObject() mForceModel=<%p>, mForceModelName='%s'\n",
+          mForceModel, mForceModelName.c_str());
+      #endif
+      if (mForceModel != NULL)
+      {
+         // delete cloned ForceModel 
+         if (mForceModelName == "" || mForceModelName == "InternalForceModel")
+         {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- PropSetup::DeleteOwnedObject() '%s', deleting mForceModel <%p>\n",
+                GetName().c_str(), mForceModel);
+            #endif
+            delete mForceModel;
+            mForceModelName = "";
+            mForceModel = NULL;
+         }
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // Integer GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const
+//------------------------------------------------------------------------------
+/**
+ * Returns property id of owned object.
+ */
 //------------------------------------------------------------------------------
 Integer PropSetup::GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const
 {
    Integer actualId = -1;
    
-   if (mPropagator == NULL || mForceModel == NULL)
-      throw PropSetupException
-         ("PropSetup::GetOwnedObjectId() failed: Propagator or ForceModel is NULL");
-   
    try
    {
       if (objType == Gmat::PROPAGATOR)
+      {
+         if (mPropagator == NULL)
+            throw PropSetupException
+               ("PropSetup::GetOwnedObjectId() failed: Propagator is NULL");
+         
          actualId = mPropagator->GetParameterID(GetParameterText(id));
+      }
       else if (objType == Gmat::FORCE_MODEL)
+      {
+         if (mForceModel == NULL)
+            throw PropSetupException
+               ("PropSetup::GetOwnedObjectId() failed: ForceModel is NULL");
+         
          actualId = mForceModel->GetParameterID(GetParameterText(id));
+      }
    }
    catch (BaseException &e)
    {

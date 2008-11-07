@@ -29,10 +29,9 @@ class GMAT_API PropSetup : public GmatBase
 {
 public:
 
-   PropSetup(const std::string &name, Propagator *propagator = NULL,
-             ForceModel *forceModel = NULL);
-   PropSetup(const PropSetup &propagatorSetup);
-   PropSetup& operator= (const PropSetup &right); 
+   PropSetup(const std::string &name);
+   PropSetup(const PropSetup &ps);
+   PropSetup& operator= (const PropSetup &ps); 
    virtual ~PropSetup();
    
    bool                 IsInitialized();
@@ -56,7 +55,11 @@ public:
    virtual GmatBase*    Clone(void) const;
    virtual void         Copy(const GmatBase* orig);
    
+   virtual const        ObjectTypeArray& GetRefObjectTypeArray();
+   virtual const StringArray&
+                        GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
+   virtual bool         IsOwnedObject(Integer id) const;
    
    virtual const std::string*
                         GetParameterList() const;   
@@ -101,16 +104,21 @@ public:
    
 private:
    
+   void    ClonePropagator(Propagator *prop);
+   void    CloneForceModel(ForceModel *fm);
+   void    DeleteOwnedObject(Integer id);
    Integer GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const;
    
    bool mInitialized;
+   std::string mPropagatorName;
+   std::string mForceModelName;
    Propagator *mPropagator;
    ForceModel *mForceModel;
    
    enum
    {
-      FORCE_MODEL_NAME = GmatBaseParamCount,
-      PROPAGATOR_NAME,
+      FORCE_MODEL = GmatBaseParamCount,
+      PROPAGATOR,
       
       // owned object parameters
       INITIAL_STEP_SIZE,
