@@ -113,9 +113,15 @@ namespace Gmat
       BARYCENTER,
       ATMOSPHERE,
       PARAMETER,
+      VARIABLE,
+      ARRAY,
+      STRING,
       STOP_CONDITION,
       SOLVER,
       SUBSCRIBER,
+      REPORT_FILE,
+      XY_PLOT,
+      OPENGL_PLOT,
       PROP_SETUP,
       FUNCTION,
       FUEL_TANK,
@@ -160,19 +166,19 @@ namespace Gmat
    
    enum WrapperDataType
    {
-      NUMBER,          // Real, Integer
-      MATRIX,          // Rmatix
-      STRING,          // a raw text string
-      STRING_OBJECT,   // name of a String Object
-      OBJECT_PROPERTY,
-      VARIABLE,
-      ARRAY,
-      ARRAY_ELEMENT,
-      PARAMETER_OBJECT,
-      OBJECT,
-      BOOLEAN,
-      INTEGER,
-      ON_OFF,
+      NUMBER_WT,          // Real, Integer
+      MATRIX_WT,          // Rmatix
+      STRING_WT,          // a raw text string
+      STRING_OBJECT_WT,   // name of a String Object
+      OBJECT_PROPERTY_WT,
+      VARIABLE_WT,
+      ARRAY_WT,
+      ARRAY_ELEMENT_WT,
+      PARAMETER_WT,
+      OBJECT_WT,
+      BOOLEAN_WT,
+      INTEGER_WT,
+      ON_OFF_WT,
       UNKNOWN_WRAPPER_TYPE = -2
    };
    

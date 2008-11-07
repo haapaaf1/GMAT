@@ -99,7 +99,7 @@ bool FactoryManager::RegisterFactory(Factory* fact)
  */
 //------------------------------------------------------------------------------
 GmatBase* FactoryManager::CreateObject(const Gmat::ObjectType generalType,
-                                               const std::string &ofType,
+                                       const std::string &ofType,
                                        const std::string &withName)
 {
    Factory* f = FindFactory(generalType, ofType);

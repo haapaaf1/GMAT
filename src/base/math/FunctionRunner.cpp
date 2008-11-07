@@ -26,6 +26,11 @@
 //#define DEBUG_INPUT_OUTPUT
 //#define DEBUG_EVALUATE
 //#define DEBUG_FINALIZE
+//#define DEBUG_PERFORMANCE
+
+#ifdef DEBUG_PERFORMANCE
+#include <ctime>                 // for clock()
+#endif
 
 //---------------------------------
 // public methods
@@ -411,13 +416,13 @@ void FunctionRunner::GetOutputInfo(Integer &type,
    }
    else
    {
-      if (outputTypes[0] == Gmat::VARIABLE)
+      if (outputTypes[0] == Gmat::VARIABLE_WT)
       {
          type = Gmat::REAL_TYPE;
          rowCount = 1;
          colCount = 1;
       }
-      else if (outputTypes[0] == Gmat::ARRAY)
+      else if (outputTypes[0] == Gmat::ARRAY_WT)
       {
          type = Gmat::RMATRIX_TYPE;
          rowCount = rowCounts[0];
@@ -445,7 +450,7 @@ void FunctionRunner::GetOutputInfo(Integer &type,
    
    // Check output type and assign
    
-   if (outputTypes[0] == Gmat::VARIABLE)
+   if (outputTypes[0] == Gmat::VARIABLE_WT)
    {
       if (type1 != Gmat::REAL_TYPE)
          throw MathException
@@ -456,7 +461,7 @@ void FunctionRunner::GetOutputInfo(Integer &type,
       rowCount = 1;
       colCount = 1;
    }
-   else if (outputTypes[0] == Gmat::ARRAY)
+   else if (outputTypes[0] == Gmat::ARRAY_WT)
    {
       if (type1 != Gmat::RMATRIX_TYPE)
          throw MathException
@@ -521,6 +526,15 @@ Real FunctionRunner::Evaluate()
    if (function == NULL)
       throw MathException("FunctionRunner::Evaluate() function is NULL");
    
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== FunctionRunner::Evaluate() entered, '%s' Count = %d\n",
+       GetName().c_str(), callCount);
+   #endif
+   
    #ifdef DEBUG_EVALUATE
    MessageInterface::ShowMessage
       ("FunctionRunner::Evaluate() entered, this=<%p><%s>, function=<%s><%p>, "
@@ -554,6 +568,13 @@ Real FunctionRunner::Evaluate()
    MessageInterface::ShowMessage
       ("FunctionRunner::Evaluate() returning %f\n", result);
    #endif
+   
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== FunctionRunner::Evaluate() exiting, '%s' Count = %d, Run Time: %f seconds\n",
+       GetName().c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #endif
    return result;
 }
 
@@ -572,6 +593,15 @@ Rmatrix FunctionRunner::MatrixEvaluate()
    if (function == NULL)
       throw MathException("FunctionRunner::Evaluate() function is NULL");
    
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== FunctionRunner::MatrixEvaluate() entered, '%s' Count = %d\n",
+       GetName().c_str(), callCount);
+   #endif
+   
    #ifdef DEBUG_EVALUATE
    MessageInterface::ShowMessage
       ("FunctionRunner::MatrixEvaluate() entered, this=<%p><%s>, function=<%s><%p>\n",
@@ -581,8 +611,17 @@ Rmatrix FunctionRunner::MatrixEvaluate()
    if (elementType == Gmat::REAL_TYPE)
       throw MathException
          ("The function \"" + function->GetName() + "\" returns Real value");
+
+   Rmatrix rmatResult = theFunctionManager.MatrixEvaluate(callingFunction);
    
-   return theFunctionManager.MatrixEvaluate(callingFunction);
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== FunctionRunner::MatrixEvaluate() exiting, '%s' Count = %d, Run Time: %f seconds\n",
+       GetName().c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #endif
+   
+   return rmatResult;
 }
 
 

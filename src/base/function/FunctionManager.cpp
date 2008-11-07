@@ -488,7 +488,7 @@ ElementWrapper* FunctionManager::GetInputWrapper(Integer index)
        ew, ew ? ew->GetDescription().c_str() : "NULL", ew->GetWrapperType());
    #endif
    
-   if (ew->GetWrapperType() == Gmat::NUMBER)
+   if (ew->GetWrapperType() == Gmat::NUMBER_WT)
    {      
       #ifdef DEBUG_INPUT
       NumberWrapper *nw = (NumberWrapper*)ew;
@@ -1593,7 +1593,7 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
          Gmat::WrapperDataType wType = ew->GetWrapperType();
          switch (wType)
          {
-            case Gmat::ARRAY :
+            case Gmat::ARRAY_WT :
             {
                Array *array   = new Array(str);               
                #ifdef DEBUG_MEMORY
@@ -1607,7 +1607,7 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
                obj = (GmatBase*) array;
                break;
             }
-            case Gmat::ARRAY_ELEMENT :
+            case Gmat::ARRAY_ELEMENT_WT :
             {
                // get the reference object first ...
                refObj = FindObject(fromString, true);
@@ -1631,9 +1631,9 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
                obj = (GmatBase*) v;
                break;
             }
-            case Gmat::NUMBER :
-            case Gmat::VARIABLE :
-            case Gmat::INTEGER :       // what is this anyway?
+            case Gmat::NUMBER_WT :
+            case Gmat::VARIABLE_WT :
+            case Gmat::INTEGER_WT :       // what is this anyway?
             {
                rval = ew->EvaluateReal(); 
                v = new Variable(str);

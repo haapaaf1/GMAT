@@ -25,6 +25,10 @@
 //#define DEBUG_CONFIG_ADD_CLONE 1
 //#define DEBUG_CONFIG_MEMORY
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
 //---------------------------------
 // static members
 //---------------------------------
@@ -539,12 +543,12 @@ void ConfigManager::AddObject(GmatBase *obj)
 {
    std::string name = obj->GetName();
    
-   #ifdef DEBUG_CONFIG_MEMORY
-      MessageInterface::ShowMessage
-         ("ConfigManager::AddObject() Adding <%p><%s>'%s'\n",
-          obj, obj->GetTypeName().c_str(), name.c_str());
+   #ifdef DEBUG_MEMORY
+   MessageInterface::ShowMessage
+      ("ConfigManager::AddObject() Adding <%p><%s> '%s' \n",
+       obj, obj->GetTypeName().c_str(), name.c_str());
    #endif
-      
+   
    if (mapping.find(name) != mapping.end())
    {
       name += " is already in the configuration table";
@@ -976,10 +980,12 @@ bool ConfigManager::RemoveAllItems()
    {
       std::string objName = objects[i]->GetName();
       
-      #ifdef DEBUG_CONFIG_MEMORY
-         MessageInterface::ShowMessage("  Deleting %s\n", objects[i]->GetName().c_str());
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- ConfigManager::RemoveAllItems() deleting <%p> '%s'\n", objects[i],
+          objects[i]->GetName().c_str());
       #endif
-
+      
       delete objects[i];
       objects[i] = NULL;
    }

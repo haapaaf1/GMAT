@@ -442,7 +442,7 @@ GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
       {
          if (outputTypes[i] == "Variable")
          {
-            outputWrapperTypes.push_back(Gmat::VARIABLE);
+            outputWrapperTypes.push_back(Gmat::VARIABLE_WT);
             outputRows.push_back(-1);
             outputCols.push_back(-1);
          }
@@ -455,7 +455,7 @@ GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
                ("   name='%s', row=%d, col=%d\n", name.c_str(), row, col);
             #endif
             
-            outputWrapperTypes.push_back(Gmat::ARRAY);
+            outputWrapperTypes.push_back(Gmat::ARRAY_WT);
             outputRows.push_back(row);
             outputCols.push_back(col);
          }

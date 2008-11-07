@@ -65,6 +65,10 @@
 //#define DEBUG_OWNED_OBJECT_STRINGS
 //#define DEBUG_INITIALIZATION
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -168,7 +172,8 @@ ForceModel::~ForceModel()
 {
    #ifdef DEBUG_FORCEMODEL
    MessageInterface::ShowMessage
-      ("ForceModel destructor entered, this=<%p>'%s'\n", this, GetName().c_str());
+      ("ForceModel destructor entered, this=<%p>'%s', has %d forces\n",
+       this, GetName().c_str(), forceList.size());
    #endif
    
    if (previousState)
@@ -184,7 +189,14 @@ ForceModel::~ForceModel()
       forceList.erase(ppm);
       // Transient forces are managed in the Sandbox.
       if (!pm->IsTransient())
+      {
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("--- ForceModel::~ForceModel() deleting pm <%p><%s> '%s'\n", pm,
+             pm->GetTypeName().c_str(), pm->GetName().c_str());
+         #endif
          delete pm;
+      }
       ppm = forceList.begin();
    }
    
@@ -262,7 +274,13 @@ ForceModel::ForceModel(const ForceModel& fdf) :
          ("   Cloning PhysicalModel <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
           obj->GetName().c_str());
       #endif
-      forceList.push_back((PhysicalModel*)(*pm)->Clone());
+      PhysicalModel *newPm = (PhysicalModel*)(*pm)->Clone();
+      forceList.push_back(newPm);
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ ForceModel::ForceModel() *newPm = (PhysicalModel*)(*pm)->Clone(), "
+          "<%p>\n", newPm);
+      #endif
    }
 }
 
@@ -319,8 +337,16 @@ ForceModel& ForceModel::operator=(const ForceModel& fdf)
    // Copy the forces.  May not work -- the copy constructors need to be checked
    for (std::vector<PhysicalModel *>::const_iterator pm = fdf.forceList.begin();
         pm != fdf.forceList.end(); ++pm)
-      forceList.push_back((PhysicalModel*)(*pm)->Clone());
-
+   {
+      PhysicalModel *newPm = (PhysicalModel*)(*pm)->Clone();
+      forceList.push_back(newPm);
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ ForceModel::operator= *newPm = (PhysicalModel*)(*pm)->Clone(), "
+          "<%p>\n", newPm);
+      #endif
+   }
+   
    return *this;
 }
 
@@ -358,7 +384,7 @@ void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
 
    #ifdef DEBUG_FORCEMODEL_INIT
       MessageInterface::ShowMessage(
-         "ForceModel::AddForce() entered for a %s force\n", 
+         "ForceModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
          pPhysicalModel->GetTypeName().c_str());
    #endif       
     
@@ -381,9 +407,9 @@ void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
            i != forceList.end(); ++i)
       {
          compType = (*i)->GetTypeName();
-         if ((compType == "GravityField") || (compType == "PointMassForce"))
+         if ((compType == "GravityField"))
          {
-            if ((*i)->GetBodyName() == forceBody)
+            if ((*i)->GetBodyName() == forceBody && (*i) != pPhysicalModel)
                throw ForceModelException(
                   "Attempted to add a " + pmType + 
                   " force to the force model for the body " + forceBody +
@@ -392,7 +418,7 @@ void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
          }
       }      
    }
-
+   
    // Check to be sure there is an associated PrimaryBody for drag forces
    if (pmType == "DragForce")
    {
@@ -428,17 +454,30 @@ void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
 //------------------------------------------------------------------------------
 void ForceModel::DeleteForce(const std::string &name)
 {
-    for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
-         force != forceList.end(); ++force) 
-    {
-        std::string pmName = (*force)->GetName();
-        if (name == pmName)
-        {
-            forceList.erase(force);
-            numForces = forceList.size();
-            return;
-        }
-    }
+   for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
+        force != forceList.end(); ++force) 
+   {
+      std::string pmName = (*force)->GetName();
+      if (name == pmName)
+      {
+         PhysicalModel* pm = *force;
+         forceList.erase(force);
+         numForces = forceList.size();
+         
+         // Shouldn't we also delete force? (loj: 2008.11.05)
+         if (!pm->IsTransient())
+         {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- ForceModel::~DeleteForce() deleting pm <%p><%s> '%s'\n", pm,
+                pm->GetTypeName().c_str(), pm->GetName().c_str());
+            #endif
+            delete pm;
+         }
+         
+         return;
+      }
+   }
 }
 
 
@@ -453,16 +492,29 @@ void ForceModel::DeleteForce(const std::string &name)
 //------------------------------------------------------------------------------
 void ForceModel::DeleteForce(PhysicalModel *pPhysicalModel)
 {
-    for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
-         force != forceList.end(); ++force) 
-    {
-        if (*force == pPhysicalModel)
-        {
-            forceList.erase(force);
-            numForces = forceList.size();
-            return;
-        }
-    }
+   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
+        force != forceList.end(); ++force) 
+   {
+      if (*force == pPhysicalModel)
+      {
+         PhysicalModel* pm = *force;
+         forceList.erase(force);
+         numForces = forceList.size();
+         
+         // Shouldn't we also delete force? (loj: 2008.11.05)
+         if (!pm->IsTransient())
+         {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- ForceModel::~DeleteForce() deleting pm <%p><%s> '%s'\n", pm,
+                pm->GetTypeName().c_str(), pm->GetName().c_str());
+            #endif
+            delete pm;
+         }
+         
+         return;
+      }
+   }
 }
 
 
@@ -827,7 +879,7 @@ bool ForceModel::Initialize()
       delete [] previousState;
    previousState = new Real[dimension];
    memcpy(previousState, rawState, dimension*sizeof(Real));
-
+   
    UpdateTransientForces();
 
    Integer cf = currentForce;
@@ -928,6 +980,10 @@ void ForceModel::ClearInternalCoordinateSystems()
            InternalCoordinateSystems.begin();
         i != InternalCoordinateSystems.end(); ++i)
    {
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- ForceModel::ClearInternalCoordinateSystems() deleting ICS <%p>\n", (*i));
+      #endif
       delete (*i);
    }
    InternalCoordinateSystems.clear();
@@ -944,7 +1000,8 @@ void ForceModel::ClearInternalCoordinateSystems()
  * @param <currentPm>   Force that needs the CoordinateSystem.
  */
 //------------------------------------------------------------------------------
-void ForceModel::SetInternalCoordinateSystem(const std::string csId, PhysicalModel *currentPm)
+void ForceModel::SetInternalCoordinateSystem(const std::string csId,
+                                             PhysicalModel *currentPm)
 {
    std::string csName;
    CoordinateSystem *cs = NULL;
@@ -968,7 +1025,7 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId, PhysicalMod
             csName.c_str());
       #endif
       
-      for (std::vector<CoordinateSystem*>::iterator i = 
+      for (std::vector<CoordinateSystem*>::iterator i =
               InternalCoordinateSystems.begin();
            i != InternalCoordinateSystems.end(); ++i)
          if ((*i)->GetName() == csName)
@@ -985,12 +1042,26 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId, PhysicalMod
             throw ForceModelException(
                "Error setting force model coordinate system: EarthFixed "
                "pointer has not been initialized!");
-               
+         
          if (csName.find("Fixed", 0) == std::string::npos)
+         {
             cs = (CoordinateSystem *)earthEq->Clone();
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ ForceModel::SetInternalCoordinateSystem() cs = earthEq->Clone(), "
+                "<%p>\n", cs);
+            #endif
+         }
          else
+         {
             cs = (CoordinateSystem *)earthFixed->Clone();
-
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("+++ ForceModel::SetInternalCoordinateSystem() cs = earthFixed->Clone(), "
+                "<%p>\n", cs);
+            #endif
+         }
+                  
          cs->SetName(csName);
          cs->SetStringParameter("Origin", centralBodyName);
          cs->SetRefObject(forceOrigin, Gmat::CELESTIAL_BODY, 
@@ -1654,8 +1725,7 @@ const ObjectTypeArray& ForceModel::GetRefObjectTypeArray()
  * 
  */
 //------------------------------------------------------------------------------
-const StringArray& 
-   ForceModel::GetRefObjectNameArray(const Gmat::ObjectType type)
+const StringArray& ForceModel::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    std::string pmName;
    StringArray pmRefs;
@@ -1667,14 +1737,12 @@ const StringArray&
    {
       forceReferenceNames = BuildBodyList("PointMassForce");
       
-      // Add central body (loj: 2/23/07 added)
+      // Add central body
       if (find(forceReferenceNames.begin(), forceReferenceNames.end(),
                centralBodyName) == forceReferenceNames.end())
          forceReferenceNames.push_back(centralBodyName);
       
-      return forceReferenceNames;
-      //return BuildBodyList("PointMassForce");
-      
+      return forceReferenceNames;      
    }
    
    // Provide space object names for validation checking
@@ -1755,7 +1823,7 @@ const StringArray&
       }
    }
    
-   // Add central body (loj: 2/23/07 added)
+   // Add central body
    if (find(forceReferenceNames.begin(), forceReferenceNames.end(),
             centralBodyName) == forceReferenceNames.end())
       forceReferenceNames.push_back(centralBodyName);
@@ -1767,7 +1835,7 @@ const StringArray&
            i != forceReferenceNames.end(); ++i)
          MessageInterface::ShowMessage("   %s\n", i->c_str());
    #endif
-         
+      
    // and return it
    return forceReferenceNames;
 }
