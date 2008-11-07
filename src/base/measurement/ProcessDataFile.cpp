@@ -30,6 +30,12 @@
 //---------------------------------
 //  static data
 //---------------------------------
+const std::string ProcessDataFile::DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS] =
+{
+    "B3 Data",
+    "SLR Data",
+    "TLE Data"
+};
 
 //---------------------------------
 //  public methods
@@ -138,6 +144,86 @@ bool ProcessDataFile::CloseFile()
 
 }
 
+//------------------------------------------------------------------------------
+// Integer GetDataFormatID(const std::string &label)
+//------------------------------------------------------------------------------
+/**
+ * Code used to obtain the data format ID
+ */
+//------------------------------------------------------------------------------
+Integer ProcessDataFile::GetDataFormatID(const std::string &label)
+{
+    Integer retval = -1;
+    
+    if (label == "B3")
+    {
+       return B3_ID;
+    } 
+    else if (label == "SLR")
+    {
+       return SLR_ID;
+    }
+    else if (label == "TLE")
+    {
+       return TLE_ID;
+    }
+    else
+     return retval;
+
+}
+
+//------------------------------------------------------------------------------
+// const std::string* GetDataFormatDescriptions() const
+//------------------------------------------------------------------------------
+const std::string* ProcessDataFile::GetDataFormatDescriptions() const
+{
+   return DATAFORMAT_DESCRIPTIONS;
+}
+
+//------------------------------------------------------------------------------
+// std::string GetDataFormatNameText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Code used to obtain the data format name text corresponding to a ID
+ */
+//------------------------------------------------------------------------------
+std::string ProcessDataFile::GetDataFormatNameText(const Integer &id) const
+{
+   if ((id >= 0) && (id < EndDataFormatReps))
+   {
+      return DATAFORMAT_DESCRIPTIONS[id];
+   }
+
+   return "INVALID";
+}
+
+
+
+//------------------------------------------------------------------------------
+// Integer SetDataFormatID() const
+//------------------------------------------------------------------------------
+/**
+ * Sets the name of the process data file object.
+ */
+//------------------------------------------------------------------------------
+void ProcessDataFile::SetDataFormatID(Integer pdfId)
+{
+   dataFormatID = pdfId;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetDataFormatID() const
+//------------------------------------------------------------------------------
+/**
+ * Finds the data format ID# of the process data file object.
+ *
+ * @return The data format ID#.
+ */
+//------------------------------------------------------------------------------
+Integer ProcessDataFile::GetDataFormatID() const
+{
+   return dataFormatID;
+}
 
 //------------------------------------------------------------------------------
 //  bool GetData(slr_header &mySLRheader)

@@ -64,6 +64,13 @@ public:
     std::string GetLine(Integer &lineNum);
     void SetLine(std::string &line, Integer &lineNum);
 
+    const std::string* GetDataFormatDescriptions() const;
+    std::string GetDataFormatNameText(const Integer &id) const;
+    Integer GetDataFormatID(const std::string &label);
+
+    void SetDataFormatID(Integer mName);
+    Integer GetDataFormatID() const;
+  
     // Get/Set isOpen variable
     bool GetIsOpen() const;
     void SetIsOpen(const bool &flag);
@@ -91,8 +98,22 @@ public:
 	EndB3TypeReps
     };
 
+private:
+    
+    static const Integer NUM_DATAFORMATS = 3;
+    static const std::string DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS];
+    
 protected:
 
+    enum DATAFILE_REPS {
+	B3_ID = 0,
+	SLR_ID,
+	TLE_ID,
+	EndDataFormatReps
+    };
+
+    // Name of the measurement model being used
+    Integer dataFormatID;
     static const Integer MAX_LINES = 3;
     std::string lineFromFile[MAX_LINES];
     std::string dataFileName;

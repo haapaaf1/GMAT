@@ -299,6 +299,7 @@ Integer MeasurementModel::GetModelID(const std::string &label)
      return DEFAULT_ID;
 
 }
+
 //------------------------------------------------------------------------------
 // const std::string* MeasurementModel::GetModelDescriptions() const
 //------------------------------------------------------------------------------
