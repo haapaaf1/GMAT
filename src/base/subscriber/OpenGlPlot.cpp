@@ -150,6 +150,7 @@ OpenGlPlot::OpenGlPlot(const std::string &name)
 {
    // GmatBase data
    parameterCount = OpenGlPlotParamCount;
+   objectTypes.push_back(Gmat::OPENGL_PLOT);
    objectTypeNames.push_back("OpenGLPlot");
    
    mEclipticPlane = "Off";

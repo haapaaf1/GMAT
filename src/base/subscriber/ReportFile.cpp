@@ -81,11 +81,13 @@ ReportFile::ReportFile(const std::string &type, const std::string &name,
    lastUsedProvider(-1),
    usedByReport    (false)
 {
+   objectTypes.push_back(Gmat::REPORT_FILE);
+   objectTypeNames.push_back("ReportFile");
+   
    mNumParams = 0;
    
    if (firstParam != NULL)
       AddParameter(firstParam->GetName(), mNumParams);
-   objectTypeNames.push_back("ReportFile");
    
    parameterCount = ReportFileParamCount;
    initial = true;
@@ -1167,23 +1169,23 @@ bool ReportFile::Distribute(const Real * dat, Integer len)
          
          switch (wrapperType)
          {
-         case Gmat::VARIABLE:
-         case Gmat::ARRAY_ELEMENT:
-         case Gmat::OBJECT_PROPERTY:
-         case Gmat::PARAMETER_OBJECT:
+         case Gmat::VARIABLE_WT:
+         case Gmat::ARRAY_ELEMENT_WT:
+         case Gmat::OBJECT_PROPERTY_WT:
+         case Gmat::PARAMETER_WT:
             {
                rval = paramWrappers[i]->EvaluateReal();
                dstream.precision(precision);
                dstream << rval << "   "; // give space between columns
                break;
             }
-         case Gmat::ARRAY:
+         case Gmat::ARRAY_WT:
             {
                Rmatrix rmat = paramWrappers[i]->EvaluateArray();
                dstream << rmat.ToString(false, false, 16, 1, false);
                break;
             }
-         case Gmat::STRING_OBJECT:
+         case Gmat::STRING_OBJECT_WT:
             {
                sval = paramWrappers[i]->EvaluateString();
                width = (Integer)sval.length() > width ? sval.length() : width;

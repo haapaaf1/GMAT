@@ -533,7 +533,7 @@ bool Subscriber::SetWrapperReference(GmatBase *obj, const std::string &name)
              ".\" The wrapper is NULL.\n");
       
       refname = paramWrappers[i]->GetDescription();
-      if (paramWrappers[i]->GetWrapperType() == Gmat::ARRAY_ELEMENT)
+      if (paramWrappers[i]->GetWrapperType() == Gmat::ARRAY_ELEMENT_WT)
          refname = refname.substr(0, refname.find('('));
       if (refname == name)
       {
@@ -567,7 +567,7 @@ bool Subscriber::SetWrapperReference(GmatBase *obj, const std::string &name)
       
       switch (wrapperType)
       {
-      case Gmat::OBJECT_PROPERTY:
+      case Gmat::OBJECT_PROPERTY_WT:
          if (refname == name)
          {
             Parameter *param = (Parameter*)obj;
@@ -579,7 +579,7 @@ bool Subscriber::SetWrapperReference(GmatBase *obj, const std::string &name)
             }
             return true;
          }
-      case Gmat::ARRAY_ELEMENT:
+      case Gmat::ARRAY_ELEMENT_WT:
          // for array element, we need to go through all array elements set
          // ref object, so break insted of return
          refname = refname.substr(0, refname.find('('));
