@@ -86,12 +86,14 @@ public:
    virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
    
    virtual const        ObjectTypeArray& GetRefObjectTypeArray();
+   // this one
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool         SetRefObjectName(const Gmat::ObjectType type,
                                          const std::string &name);
    virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
                                      const std::string &name);
+   // this one
    virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name = "");
    

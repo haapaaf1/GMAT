@@ -48,11 +48,11 @@ DataFile* DataFileFactory::CreateDataFile(const std::string &ofType,
 {
 MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
       ofType.c_str(), withName.c_str());
-   if (ofType == "B3Data")
+   if (ofType == "B3DataFile")
       return new ProcessB3Data(withName);
-   if (ofType == "SLRData")
+   if (ofType == "SLRDataFile")
       return new ProcessSLRData(withName);
-   if (ofType == "TLEData")
+   if (ofType == "TLEDataFile")
       return new ProcessTLEData(withName);
 
 

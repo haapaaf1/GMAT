@@ -47,6 +47,16 @@ public:
   friend std::ostream& operator<<(std::ostream& output, MeasurementModel &mm);
   friend std::istream& operator>>(std::istream& input, MeasurementModel &mm);
 
+  // Methods overridden from the GmatBase clase
+  virtual GmatBase *Clone() const;
+  virtual void      Copy(const GmatBase* orig);      
+  virtual const StringArray&
+                    GetRefObjectNameArray(const Gmat::ObjectType type);
+   virtual bool     SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name = "");
+   
+
+  
   virtual void Initialize() const;
   
   const std::string* GetModelDescriptions() const;

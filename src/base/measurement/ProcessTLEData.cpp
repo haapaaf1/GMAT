@@ -39,9 +39,9 @@
  * Constructs base ProcessTLEData structures 
  */
 ProcessTLEData::ProcessTLEData(const std::string &itsName) :
-	DataFile ("TLEData", itsName)
+	DataFile ("TLEDataFile", itsName)
 {
-   objectTypeNames.push_back("ProcessTLEData");
+   objectTypeNames.push_back("TLEDataFile");
 }
 
 

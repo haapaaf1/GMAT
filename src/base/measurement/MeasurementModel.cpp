@@ -52,6 +52,211 @@ const std::string MeasurementModel::MODEL_DESCRIPTIONS[NUM_MODELS] =
 };
 
 //---------------------------------
+// methods overridden from GMAT base
+//---------------------------------
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the MeasurementModel.
+ *
+ * @return clone of the MeasurementModel.
+ */
+//------------------------------------------------------------------------------
+GmatBase* MeasurementModel::Clone() const
+{
+   GmatBase *clone = new MeasurementModel(*this);
+   return (clone);
+}
+
+//---------------------------------------------------------------------------
+//  void Copy(const GmatBase* orig)
+//---------------------------------------------------------------------------
+/**
+ * Sets this object to match another one.
+ * 
+ * @param orig The original that is being copied.
+ */
+//---------------------------------------------------------------------------
+void MeasurementModel::Copy(const GmatBase* orig)
+{
+   operator=(*((MeasurementModel *)(orig)));
+}
+
+//------------------------------------------------------------------------------
+//  const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+/**
+ * This method returns an array with the names of the referenced objects.
+ *
+ * @return a vector with the names of objects of the requested type.
+ */
+//------------------------------------------------------------------------------
+const StringArray& 
+      MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
+{
+/*   static StringArray fullList;  // Maintain scope if the full list is requested
+   fullList.clear();
+   
+   if (attitude)
+   {
+      try
+      {
+         fullList.push_back(attitude->GetRefObjectName(type));
+      }
+      catch (GmatBaseException& be)
+      {
+         // ignore exceptions here
+      }
+   }
+   
+   if (type == Gmat::UNKNOWN_OBJECT)
+   {
+      fullList.push_back(coordSysName);
+      return fullList;      
+   }
+   else
+   {
+      if (type == Gmat::ATTITUDE)
+         return fullList;
+      
+      if (type == Gmat::FUEL_TANK)
+         return tankNames;
+      if (type == Gmat::THRUSTER)
+         return thrusterNames;
+      
+      if (type == Gmat::HARDWARE) 
+      {
+         fullList.clear();
+         fullList = tankNames;
+         for (StringArray::iterator i = thrusterNames.begin();
+              i < thrusterNames.end(); ++i)
+            fullList.push_back(*i);
+         return fullList;
+      }
+      
+      if (type == Gmat::COORDINATE_SYSTEM)
+      {
+         fullList.push_back(coordSysName);
+         return fullList;
+      }
+   }
+  */  
+   return GmatBase::GetRefObjectNameArray(type);
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type, 
+//                   const std::string &name)
+//------------------------------------------------------------------------------
+bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type, 
+                              const std::string &name)
+{
+    /*
+   #ifdef DEBUG_SC_REF_OBJECT
+   MessageInterface::ShowMessage("Entering SC::SetRefObject\n");
+   #endif
+   
+   if (obj == NULL)
+      return false;
+   
+   // first, try setting it on the attitude (owned object)
+   if (attitude)
+   {
+      try
+      {
+         attitude->SetRefObject(obj, type, name);
+      }
+      catch (BaseException &be)
+      {
+         #ifdef DEBUG_SC_ATTITUDE
+         MessageInterface::ShowMessage(
+         "------ error setting ref object %s on attitude\n",
+         name.c_str());
+         #endif
+      }
+   }
+   if (type == Gmat::HARDWARE) {
+      std::string typeStr = obj->GetTypeName();
+    
+      if (typeStr == "FuelTank") {
+         if (find(tanks.begin(), tanks.end(), obj) == tanks.end()) {
+            tanks.push_back(obj);
+            return true;
+         }
+         return false;
+      }
+      
+      if (typeStr == "Thruster") {
+         if (find(thrusters.begin(), thrusters.end(), obj) == thrusters.end()) {
+            thrusters.push_back(obj);
+            return true;
+         }
+         return false;
+      }
+      
+      return false;
+   }
+   else if (type == Gmat::COORDINATE_SYSTEM)
+   {
+      CoordinateSystem *cs = (CoordinateSystem*)obj;
+      
+      #if DEBUG_MeasurementModel_CS
+      MessageInterface::ShowMessage
+         ("MeasurementModel::SetRefObject() coordinateSystem=%s<%p>, cs=%s<%p> on %s\n",
+          coordinateSystem->GetName().c_str(), coordinateSystem,
+          cs->GetName().c_str(), cs, instanceName.c_str());
+      #endif
+      
+      if (coordinateSystem != cs)
+      {
+         coordinateSystem = cs;         
+         TakeAction("ApplyCoordinateSystem");
+         
+         #if DEBUG_MeasurementModel_CS
+         MessageInterface::ShowMessage
+            ("MeasurementModel::SetRefObject() coordinateSystem applied ----------\n");
+         #endif
+      }
+      
+      return true;
+   }
+   else if (type == Gmat::ATTITUDE)
+   {
+      #ifdef DEBUG_SC_ATTITUDE
+         MessageInterface::ShowMessage("Setting attitude object on MeasurementModel %s\n",
+         instanceName.c_str());
+      #endif
+      if ((attitude != NULL) && (attitude != (Attitude*) obj)) delete attitude;
+      attitude = (Attitude*) obj;
+      // set epoch ...
+      #ifdef DEBUG_SC_ATTITUDE
+         MessageInterface::ShowMessage("Setting attitude object on MeasurementModel %s\n",
+         instanceName.c_str());
+         MessageInterface::ShowMessage(
+         "Setting epoch on attitude object for MeasurementModel %s\n",
+         instanceName.c_str());
+      #endif
+      attitude->SetEpoch(state.GetEpoch());
+      ownedObjectCount++;
+      return true;
+   }
+   
+   #ifdef DEBUG_SC_REF_OBJECT
+   MessageInterface::ShowMessage
+      ("Exiting SC::SetRefObject, Calling SpaceObject::SetRefObject()\n");
+   #endif
+   
+     */
+    return GmatBase::SetRefObject(obj, type, name);
+
+}
+
+
+
+//---------------------------------
 // public methods
 //---------------------------------
 

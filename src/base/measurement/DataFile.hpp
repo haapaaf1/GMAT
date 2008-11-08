@@ -41,9 +41,14 @@ public:
     DataFile(const DataFile &pdf);
     virtual ~DataFile();
 
+    // Methods overridden from the GmatBase clase
     virtual GmatBase *Clone() const;
-
-    
+    virtual void        Copy(const GmatBase* orig);      
+    virtual std::string GetParameterText(const Integer id) const;
+    virtual Integer     GetParameterID(const std::string &str) const;
+    virtual Gmat::ParameterType
+                        GetParameterType(const Integer id) const;
+   
     // Specific data type processing functions
     virtual bool GetData(slr_header &mySLRheader);
     virtual bool GetData(slr_header &mySLRheader, slr_obtype &mySLRdata);
@@ -105,6 +110,19 @@ private:
     
 protected:
 
+   enum
+   {
+      FILENAME_ID   = GmatBaseParamCount,
+      DataFileParamCount
+   };
+
+   static const std::string    PARAMETER_TEXT[DataFileParamCount -
+                                              GmatBaseParamCount];
+   static const Gmat::ParameterType
+                               PARAMETER_TYPE[DataFileParamCount -
+                                              GmatBaseParamCount];
+
+    
     enum DATAFILE_REPS {
 	B3_ID = 0,
 	SLR_ID,

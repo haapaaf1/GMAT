@@ -37,6 +37,119 @@ const std::string DataFile::DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS] =
     "TLE Data"
 };
 
+const std::string
+DataFile::PARAMETER_TEXT[DataFileParamCount - GmatBaseParamCount] =
+{
+   "Filename",
+
+};
+
+
+const Gmat::ParameterType
+DataFile::PARAMETER_TYPE[DataFileParamCount - GmatBaseParamCount] =
+{
+   Gmat::STRING_TYPE,
+};
+
+//---------------------------------
+// methods overridden from GMAT base
+//---------------------------------
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the DataFile.
+ *
+ * @return clone of the DataFile.
+ */
+//------------------------------------------------------------------------------
+GmatBase* DataFile::Clone() const
+{
+   GmatBase *clone = new DataFile(*this);
+   return (clone);
+}
+
+//---------------------------------------------------------------------------
+//  void Copy(const GmatBase* orig)
+//---------------------------------------------------------------------------
+/**
+ * Sets this object to match another one.
+ * 
+ * @param orig The original that is being copied.
+ */
+//---------------------------------------------------------------------------
+void DataFile::Copy(const GmatBase* orig)
+{
+   operator=(*((DataFile *)(orig)));
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested parameter text.
+ *
+ * @return parameter text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::GetParameterText(const Integer id) const
+{
+   if ((id >= GmatBaseParamCount) && (id < DataFileParamCount))
+   {
+      //MessageInterface::ShowMessage("'%s':\n",
+      //   PARAMETER_TEXT[id - GmatBaseParamCount].c_str());
+      return PARAMETER_TEXT[id - GmatBaseParamCount];
+   }
+   return GmatBase::GetParameterText(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested parameter.
+ *
+ * @return ID for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::GetParameterID(const std::string &str) const
+{
+   for (Integer i = GmatBaseParamCount; i < DataFileParamCount; ++i)
+   {
+      if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
+         return i;
+   }
+
+   return GmatBase::GetParameterID(str);
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter type, given the input parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return parameter type of the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType DataFile::GetParameterType(const Integer id) const
+{
+   if ((id >= GmatBaseParamCount) && (id < DataFileParamCount))
+      return PARAMETER_TYPE[id - GmatBaseParamCount];
+
+   return GmatBase::GetParameterType(id);
+}
+
+
 //---------------------------------
 //  public methods
 //---------------------------------
@@ -95,22 +208,6 @@ DataFile::~DataFile()
     CloseFile();
 
 }
-
-//------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the DataFile.
- *
- * @return clone of the DataFile.
- */
-//------------------------------------------------------------------------------
-GmatBase* DataFile::Clone() const
-{
-   GmatBase *clone = new DataFile(*this);
-   return (clone);
-}
-
 
 //------------------------------------------------------------------------------
 //  bool DataFile::OpenFile()
