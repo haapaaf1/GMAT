@@ -51,7 +51,7 @@
 //#define DEBUG_COORD_SYS_PROP
 //#define DEBUG_PROP_SETUP_PROP
 //#define DEBUG_FORCE_MODEL_PROP
-//#define DBGLVL_WRAPPERS 2
+//#define DBGLVL_WRAPPERS 1
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -525,8 +525,8 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, it's enclosed with quotes so created a StringWrapper for \"%s\"\n",
-          theDescription.c_str(), "\"\n");
+         (">>> In Validator, it's enclosed with quotes so created a StringWrapper "
+          "<%p> for \"%s\"\n", ew, theDescription.c_str(), "\"\n");
       #endif
    }
    // and then, check to see if it is a number
@@ -540,9 +540,9 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
       #endif
       ew->SetDescription(theDescription);
       #if DBGLVL_WRAPPERS
-         MessageInterface::ShowMessage(
-            ">>> In Validator, created a NumberWrapper for \"%s\"\n",
-            theDescription.c_str(), "\"\n");
+      MessageInterface::ShowMessage
+         (">>> In Validator, created a NumberWrapper <%p> for \"%s\"\n", ew,
+          theDescription.c_str(), "\"\n");
       #endif
    }
    else 
@@ -580,16 +580,16 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
                ew = new ArrayElementWrapper();
                #ifdef DEBUG_MEMORY
                MessageInterface::ShowMessage
-                  ("+++ Validator::CreateElementWrapper() ew = new ArrayElementWrapper(%s), <%p>\n",
-                   theDescription.c_str(), ew);
+                  ("+++ Validator::CreateElementWrapper() ew = new ArrayElementWrapper(%s), "
+                   "<%p>\n", theDescription.c_str(), ew);
                #endif
                ew->SetDescription(theDescription);
                ew->SetRefObject(p);
                itsType = Gmat::ARRAY_ELEMENT_WT;
                #if DBGLVL_WRAPPERS
-               MessageInterface::ShowMessage(
-                  ">>> In Validator, created a ArrayElementWrapper for \"%s\"\n",
-                  theDescription.c_str(), "\"\n");
+               MessageInterface::ShowMessage
+                  (">>> In Validator, created a ArrayElementWrapper <%p> for \"%s\"\n",
+                   ew, theDescription.c_str(), "\"\n");
                #endif
             }
          }
@@ -918,8 +918,8 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, created a ObjectPropertyWrapper for property \"%s\"\n    "
-          "of <%s>'%s', theDescription='%s'\n", type.c_str(), obj->GetTypeName().c_str(),
+         (">>> In Validator, created a ObjectPropertyWrapper <%p> for property \"%s\"\n    "
+          "of <%s>'%s', theDescription='%s'\n", ew, type.c_str(), obj->GetTypeName().c_str(),
           obj->GetName().c_str(), theDescription.c_str());
       #endif
       #if DBGLVL_WRAPPERS > 1
@@ -972,8 +972,8 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
-               (">>> In Validator, created a ObjectPropertyWrapper for property \"%s\"\n    "
-                "of <%s>'%s', theDescription='%s'\n", type.c_str(), body->GetTypeName().c_str(),
+               (">>> In Validator, created a ObjectPropertyWrapper <%p> for property \"%s\"\n    "
+                "of <%s>'%s', theDescription='%s'\n", ew, type.c_str(), body->GetTypeName().c_str(),
                 body->GetName().c_str(), theDescription.c_str());
             #endif
          }
@@ -1062,8 +1062,8 @@ ElementWrapper* Validator::CreateForceModelWrapper(GmatBase *obj,
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, created a ObjectPropertyWrapper for owned property \"%s\"\n    "
-          "of <%s>'%s', theDescription='%s'\n", propName.c_str(),
+         (">>> In Validator, created a ObjectPropertyWrapper <%p> for owned property \"%s\"\n    "
+          "of <%s>'%s', theDescription='%s'\n", ew, propName.c_str(),
           ownedObj->GetTypeName().c_str(), ownedObj->GetName().c_str(),
           theDescription.c_str());
       #endif
@@ -1221,7 +1221,7 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, created an ArrayWrapper for \"%s\"\n",
+         (">>> In Validator, created an ArrayWrapper <%p> for \"%s\"\n", ew,
           theDescription.c_str(), "\"\n");
       #endif
    }
@@ -1239,8 +1239,8 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, it's a String so created a StringObjectWrapper for \"%s\"\n",
-          theDescription.c_str(), "\"\n");
+         (">>> In Validator, it's a String so created a StringObjectWrapper <%p> for \"%s\"\n",
+          ew, theDescription.c_str(), "\"\n");
       #endif
    }
    else if ( (p) && p->IsOfType(Gmat::PARAMETER) )
@@ -1272,8 +1272,8 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
          
          #if DBGLVL_WRAPPERS
          MessageInterface::ShowMessage
-            (">>> In Validator, created an ObjectWrapper for \"%s\", Set refObj to <%p>'%s'\n",
-             theDescription.c_str(), obj, obj->GetName().c_str());
+            (">>> In Validator, created an ObjectWrapper <%p> for \"%s\", Set refObj to <%p>'%s'\n",
+             ew, theDescription.c_str(), obj, obj->GetName().c_str());
          #endif
       }
       else
@@ -1292,7 +1292,7 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
-               (">>> In Validator, created a BooleanWrapper for \"%s\"\n",
+               (">>> In Validator, created a BooleanWrapper <%p> for \"%s\"\n", ew,
                 theDescription.c_str(), "\"\n");
             #endif
          }
@@ -1310,7 +1310,7 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
-               (">>> In Validator, created a OnOffWrapper for \"%s\"\n",
+               (">>> In Validator, created a OnOffWrapper <%p> for \"%s\"\n", ew,
                 theDescription.c_str(), "\"\n");
             #endif
          }
@@ -1332,7 +1332,7 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
-               (">>> In Validator, created a VariableWrapper for \"%s\"\n",
+               (">>> In Validator, created a VariableWrapper <%p> for \"%s\"\n", ew,
                 theDescription.c_str(), "\"\n");
             #endif
          }
@@ -1350,8 +1350,8 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
             
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
-               (">>> In Validator, it's not an On/Off type so created a StringWrapper for \"%s\"\n",
-                theDescription.c_str(), "\"\n");
+               (">>> In Validator, it's not an On/Off type so created a StringWrapper "
+                "<%p> for \"%s\"\n", ew, theDescription.c_str(), "\"\n");
             #endif
          }
       }
@@ -1905,8 +1905,8 @@ ElementWrapper* Validator::CreateParameterWrapper(Parameter *param,
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, it's a String so created a StringObjectWrapper for \"%s\"\n",
-          param->GetName().c_str(), "\"\n");
+         (">>> In Validator, it's a String so created a StringObjectWrapper <%p> "
+          "for \"%s\"\n", ew, param->GetName().c_str(), "\"\n");
       #endif
    }
    else
@@ -1928,8 +1928,8 @@ ElementWrapper* Validator::CreateParameterWrapper(Parameter *param,
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, created a ParameterWrapper for Parameter \"%s\"\n",
-          param->GetName().c_str());
+         (">>> In Validator, created a ParameterWrapper <%p> for Parameter \"%s\"\n",
+          ew, param->GetName().c_str());
       #endif
    }
    
@@ -1992,8 +1992,8 @@ ElementWrapper* Validator::CreatePropertyWrapper(GmatBase *obj,
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, created a ObjectPropertyWrapper for property \"%s\"\n    "
-          "of <%s>'%s', theDescription='%s'\n", type.c_str(), obj->GetTypeName().c_str(),
+         (">>> In Validator, created a ObjectPropertyWrapper <%p> for property \"%s\"\n    "
+          "of <%s>'%s', theDescription='%s'\n", ew, type.c_str(), obj->GetTypeName().c_str(),
           obj->GetName().c_str(), theDescription.c_str());
       #endif
       
@@ -2102,8 +2102,8 @@ ElementWrapper* Validator::CreateSubPropertyWrapper(GmatBase *obj,
          
          #if DBGLVL_WRAPPERS
          MessageInterface::ShowMessage
-            (">>> In Validator, created a ObjectPropertyWrapper for owned property \"%s\"\n    "
-             "of <%s>'%s', theDescription='%s'\n", type.c_str(), ownedObj->GetTypeName().c_str(),
+            (">>> In Validator, created a ObjectPropertyWrapper <%p> for owned property \"%s\"\n    "
+             "of <%s>'%s', theDescription='%s'\n", ew, type.c_str(), ownedObj->GetTypeName().c_str(),
              ownedObj->GetName().c_str(), theDescription.c_str());
          #endif
          
@@ -2418,7 +2418,8 @@ bool Validator::CreatePropSetupProperty(GmatBase *obj, const std::string &prop,
    propagator->SetName(value);
    
    #ifdef DEBUG_PROP_SETUP_PROP
-   MessageInterface::ShowMessage("   Created a Propagator of type '%s'\n", value.c_str());
+   MessageInterface::ShowMessage
+      ("   Created a Propagator <%p> of type '%s'\n", obj, value.c_str());
    #endif
    
    obj->SetRefObject(propagator, propagator->GetType(), propagator->GetName());
