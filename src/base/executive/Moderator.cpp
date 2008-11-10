@@ -2390,11 +2390,11 @@ Parameter* Moderator::GetParameter(const std::string &name)
 //------------------------------------------------------------------------------
 ForceModel* Moderator::CreateForceModel(const std::string &name)
 {
-   //#if DEBUG_CREATE_RESOURCE
+   #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
       ("Moderator::CreateForceModel() name='%s', objectManageOption=%d\n",
        name.c_str(), objectManageOption);
-   //#endif
+   #endif
    
    ForceModel *fm = GetForceModel(name);
    
@@ -2415,11 +2415,11 @@ ForceModel* Moderator::CreateForceModel(const std::string &name)
       {
          PhysicalModel *pmf = CreatePhysicalModel("PointMassForce", "");
          fm->AddForce(pmf);
-         //#if DEBUG_CREATE_RESOURCE
+         #if DEBUG_CREATE_RESOURCE
          MessageInterface::ShowMessage
             ("Moderator::CreateForceModel() returning new ForceModel, <%p> '%s'\n",
              fm, fm->GetName().c_str());
-         //#endif
+         #endif
          return fm;
       }
       
@@ -2435,11 +2435,11 @@ ForceModel* Moderator::CreateForceModel(const std::string &name)
                                        e.GetFullMessage() + "\n");
       }
       
-      //#if DEBUG_CREATE_RESOURCE
+      #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
          ("Moderator::CreateForceModel() returning new ForceModel, <%p> '%s'\n",
           fm, fm->GetName().c_str());
-      //#endif
+      #endif
       return fm;
    }
    else
