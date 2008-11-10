@@ -30,6 +30,10 @@
 
 //#define DEBUG_AE_WRAPPER
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -80,8 +84,6 @@ ArrayElementWrapper::ArrayElementWrapper(const ArrayElementWrapper &aew) :
    rowName       (aew.rowName),
    columnName    (aew.columnName)
 {
-   if (aew.array != NULL)
-      array = (Array*)(aew.array->Clone());
 }
 
 //---------------------------------------------------------------------------
@@ -108,14 +110,7 @@ const ArrayElementWrapper& ArrayElementWrapper::operator=(
    arrayName    = aew.arrayName;
    rowName      = aew.rowName;
    columnName   = aew.columnName;
-   
-   if (aew.array != NULL)
-      array = (Array*)(aew.array->Clone());
-   if (aew.row != NULL)
-      row = (ElementWrapper*)(aew.row->Clone());
-   if (aew.column != NULL)
-      column = (ElementWrapper*)(aew.column->Clone());
-   
+
    return *this;
 }
 
@@ -128,10 +123,25 @@ const ArrayElementWrapper& ArrayElementWrapper::operator=(
 //---------------------------------------------------------------------------
 ArrayElementWrapper::~ArrayElementWrapper()
 {
-   ///@todo
-//    if (array)  delete array;
-   if (row)    delete row;
-   if (column) delete column;
+   if (row)
+   {
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- ArrayElementWrapper::~ArrayElementWrapper() deleting row <%p> '%s'\n",
+          row, row->GetDescription().c_str());
+      #endif
+      delete row;
+   }
+   
+   if (column)
+   {
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("--- ArrayElementWrapper::~ArrayElementWrapper() deleting column <%p> '%s'\n",
+          column, column->GetDescription().c_str());
+      #endif
+      delete column;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -189,6 +199,23 @@ const StringArray& ArrayElementWrapper::GetRefObjectNames()
    return refObjectNames;
 }
 
+//------------------------------------------------------------------------------
+//  GmatBase* GetRefObject(const std::string &name = "")
+//------------------------------------------------------------------------------
+/**
+ * This method retrives a reference object for the wrapper name
+ * 
+ * @param <name> name of the wrapper
+ *
+ * @return reference for success; NULL if name not found
+ *
+ */
+//------------------------------------------------------------------------------
+GmatBase* ArrayElementWrapper::GetRefObject(const std::string &name)
+{
+   return array;
+}
+
 //---------------------------------------------------------------------------
 //  bool SetRefObject(GmatBase *obj)
 //---------------------------------------------------------------------------
@@ -206,10 +233,6 @@ bool ArrayElementWrapper::SetRefObject(GmatBase *obj)
    bool setCol = false;
    if ( (obj->IsOfType("Array")) && (obj->GetName() == arrayName) )
    {
-      ///@todo
-//       if (array)
-//          delete array;
-//       array = (Array*)obj->Clone();
       array = (Array*) obj;
       #ifdef DEBUG_AE_WRAPPER
          MessageInterface::ShowMessage("AEWrapper:: Setting array object %s\n",
@@ -421,16 +444,12 @@ std::string ArrayElementWrapper::GetColumnName()
    
 bool ArrayElementWrapper::SetRow(ElementWrapper* toWrapper)
 {
-//    if (row)
-//       delete row;
    row = toWrapper;
    return true;
 }
 
 bool ArrayElementWrapper::SetColumn(ElementWrapper* toWrapper)
 {
-//    if (column)
-//       delete column;
    column = toWrapper;
    return true;
 }
