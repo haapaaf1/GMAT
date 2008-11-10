@@ -102,12 +102,13 @@ GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
  *
  * Current automatic global objects: CoordinateSystem, Function, PropSetup
  */
+// There is some propblem if we make ForceModel global, so turned it off (loj: 2008.11.10)
 const bool         
 GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] = 
 {
    false,             false,              false,           false,
    false,             false,              false,           false,
-   true ,             true,               false,           false,
+   true ,             false,              false,           false,
    false,             false,              false,           false,
    false,             false,              false,           false,
    false,             false,              false,           false,
