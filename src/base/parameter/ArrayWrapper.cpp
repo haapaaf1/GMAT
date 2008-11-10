@@ -28,7 +28,6 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_ARRAY_WRAPPER
-//#define DEBUG_MEMORY
 
 //---------------------------------
 // static data
@@ -69,11 +68,9 @@ ArrayWrapper::ArrayWrapper() :
 //---------------------------------------------------------------------------
 ArrayWrapper::ArrayWrapper(const ArrayWrapper &aw) :
    ElementWrapper(aw),
-   array         (NULL),
+   array         (aw.array),
    arrayName     (aw.arrayName)
 {
-   if (aw.array)
-      array = (Array*)(aw.array->Clone());
 }
 
 //---------------------------------------------------------------------------
@@ -93,12 +90,9 @@ const ArrayWrapper& ArrayWrapper::operator=(const ArrayWrapper &aw)
       return *this;
    
    ElementWrapper::operator=(aw);
-   array        = NULL;  
+   array        = aw.array;  
    arrayName    = aw.arrayName;
-   
-   if (aw.array != NULL)
-      array = (Array*)(aw.array->Clone());
-   
+
    return *this;
 }
 
@@ -111,9 +105,6 @@ const ArrayWrapper& ArrayWrapper::operator=(const ArrayWrapper &aw)
 //---------------------------------------------------------------------------
 ArrayWrapper::~ArrayWrapper()
 {
-   ///@todo
-//    if (array)
-//       delete array;
 }
 
 //------------------------------------------------------------------------------
@@ -200,10 +191,6 @@ bool ArrayWrapper::SetRefObject(GmatBase *obj)
    bool isOk   = false;
    if ( (obj->IsOfType("Array")) && (obj->GetName() == arrayName) )
    {
-      ///@todo
-//       if (array)
-//          delete array;
-//       array = (Array*)obj->Clone();
       array = (Array*) obj;
       #ifdef DEBUG_ARRAY_WRAPPER
          MessageInterface::ShowMessage("ArrayWrapper:: Setting array object %s\n",

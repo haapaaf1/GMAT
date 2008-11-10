@@ -64,10 +64,8 @@ ParameterWrapper::ParameterWrapper() :
 //---------------------------------------------------------------------------
 ParameterWrapper::ParameterWrapper(const ParameterWrapper &pw) :
    ElementWrapper(pw),
-   param         (NULL)
+   param         (pw.param)
 {
-   if (pw.param)
-      param = (Parameter*)((pw.param)->Clone());
 }
 
 //---------------------------------------------------------------------------
@@ -87,10 +85,7 @@ const ParameterWrapper& ParameterWrapper::operator=(const ParameterWrapper &pw)
       return *this;
    
    ElementWrapper::operator=(pw);
-   param = NULL;
-   
-   if (pw.param)
-      param = (Parameter*)((pw.param)->Clone());
+   param = pw.param;
    
    return *this;
 }
@@ -104,9 +99,6 @@ const ParameterWrapper& ParameterWrapper::operator=(const ParameterWrapper &pw)
 //---------------------------------------------------------------------------
 ParameterWrapper::~ParameterWrapper()
 {
-   ///@todo
-//    if (param)
-//       delete param;
 }
 
 //------------------------------------------------------------------------------
@@ -177,13 +169,8 @@ bool ParameterWrapper::SetRefObject(GmatBase *obj)
 //      errmsg += "\" was expected.\n";
 //      throw ParameterException(errmsg);
 //   }
-   if ( (obj->GetName() == refObjectNames[0]) ||
-        (obj->IsOfType("Parameter")) )
+   if ( (obj->GetName() == refObjectNames[0]) || (obj->IsOfType("Parameter")) )
    {
-      ///@todo
-//       if (param)
-//          delete param;
-//       param = (Parameter*)(obj->Clone());
       param = (Parameter*) obj;
       return true;
    }

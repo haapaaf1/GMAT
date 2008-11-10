@@ -69,13 +69,10 @@ ObjectPropertyWrapper::ObjectPropertyWrapper() :
 //---------------------------------------------------------------------------
 ObjectPropertyWrapper::ObjectPropertyWrapper(const ObjectPropertyWrapper &opw) :
    ElementWrapper(opw),
-   //object        (opw.object),
-   object        (NULL),
+   object        (opw.object),
    propIDNames   (opw.propIDNames),
    propID        (opw.propID)
 {
-   if (opw.object)
-      object = (opw.object)->Clone();
 }
 
 //---------------------------------------------------------------------------
@@ -94,16 +91,12 @@ const ObjectPropertyWrapper& ObjectPropertyWrapper::operator=(
 {
    if (&opw == this)
       return *this;
-   
+
    ElementWrapper::operator=(opw);
-   //object      = opw.object;
-   object      = NULL;
+   object      = opw.object;
    propIDNames = opw.propIDNames;
    propID      = opw.propID;
-   
-   if (opw.object)
-      object = (opw.object)->Clone();
-   
+
    return *this;
 }
 
@@ -116,9 +109,6 @@ const ObjectPropertyWrapper& ObjectPropertyWrapper::operator=(
 //---------------------------------------------------------------------------
 ObjectPropertyWrapper::~ObjectPropertyWrapper()
 {
-   ///@todo
-//    if (object)
-//       delete object;
 }
 
 //------------------------------------------------------------------------------
@@ -241,10 +231,6 @@ bool ObjectPropertyWrapper::SetRefObject(GmatBase *obj)
    
    if (obj->GetName() == refObjectNames[0])
    {
-      ///@todo
-//       if (object)
-//          delete object;
-//       object = obj->Clone();
       object = obj;
       propID = object->GetParameterID(propIDNames[0]);
       #ifdef DEBUG_OPW
