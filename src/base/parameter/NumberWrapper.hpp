@@ -44,7 +44,6 @@ public:
    
    virtual Real            EvaluateReal() const;  
    virtual bool            SetReal(const Real toValue);
-   virtual bool            SetRefObject(GmatBase *obj);
    
    
 protected:  

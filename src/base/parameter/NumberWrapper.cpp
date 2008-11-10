@@ -23,7 +23,6 @@
 #include "NumberWrapper.hpp"
 #include "ParameterException.hpp"
 #include "StringUtil.hpp"
-#include "Parameter.hpp"
 
 #include "MessageInterface.hpp"
 
@@ -89,6 +88,7 @@ const NumberWrapper& NumberWrapper::operator=(const NumberWrapper &nr)
 
    return *this;
 }
+
 //---------------------------------------------------------------------------
 //  ~NumberWrapper()
 //---------------------------------------------------------------------------
@@ -155,29 +155,6 @@ bool NumberWrapper::SetReal(const Real toValue)
 {
    value = toValue;
    return true;
-}
-
-//------------------------------------------------------------------------------
-//  bool SetRefObject(GmatBase *obj)
-//------------------------------------------------------------------------------
-/**
- * This method sets a reference object for the ElementWrapper 
- * object.
- * 
- * @param <obj> pointer to the object.
- *
- * @return true for success; false for failure.
- *
- */
-//------------------------------------------------------------------------------
-bool NumberWrapper::SetRefObject(GmatBase *obj)
-{
-   if (obj->IsOfType(Gmat::VARIABLE))
-   {
-      value = ((Parameter*)(obj))->GetReal();
-      return true;
-   }
-   return ElementWrapper::SetRefObject(obj);
 }
 
 
