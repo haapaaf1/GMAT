@@ -38,7 +38,7 @@ public:
     GmatBase *Clone() const;
 
     // Override generic data call from base class
-    bool GetData(b3_obtype &myB3data);
+    bool GetData(std::ifstream &theFile, b3_obtype &myB3data);
     // Specific data type processing functions
     bool GetB3Data(std::string &lff, b3_obtype &myB3data);
     

@@ -53,7 +53,6 @@ ProcessTLEData::ProcessTLEData(const std::string &itsName) :
  */
 ProcessTLEData::~ProcessTLEData() 
 {
-    myFile.close();
 }
 
 //------------------------------------------------------------------------------
@@ -78,12 +77,12 @@ GmatBase* ProcessTLEData::Clone() const
  * Obtains the next line of Two Line Element Set data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEData::GetData(tle_obtype &myTLEdata)
+bool ProcessTLEData::GetData(std::ifstream &theFile, tle_obtype &myTLEdata)
 {
     
     // Read in two lines
-    std::string line1 = ReadLineFromFile();
-    std::string line2 = ReadLineFromFile();
+    std::string line1 = ReadLineFromFile(theFile);
+    std::string line2 = ReadLineFromFile(theFile);
     
     return GetTLEData(line1,line2,myTLEdata);
     

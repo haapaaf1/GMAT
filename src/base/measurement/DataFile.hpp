@@ -50,10 +50,10 @@ public:
                         GetParameterType(const Integer id) const;
    
     // Specific data type processing functions
-    virtual bool GetData(slr_header &mySLRheader);
-    virtual bool GetData(slr_header &mySLRheader, slr_obtype &mySLRdata);
-    virtual bool GetData(tle_obtype &myTLEdata);
-    virtual bool GetData(b3_obtype &myB3data);
+    virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader);
+    virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata);
+    virtual bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata);
+    virtual bool GetData(std::ifstream &theFile, b3_obtype &myB3data);
 
     // String processing utility functions
     std::string Trim(std::string s);
@@ -63,8 +63,8 @@ public:
     bool Overpunch(std::string code, Integer &digit, Integer &sign );
 
     // functions to extract a line from file
-    bool ReadLineFromFile( std::string &line );
-    std::string ReadLineFromFile();
+    bool ReadLineFromFile(std::ifstream &theFile, std::string &line );
+    std::string ReadLineFromFile(std::ifstream &theFile);
 
     std::string GetLine(Integer &lineNum);
     void SetLine(std::string &line, Integer &lineNum);
@@ -85,10 +85,10 @@ public:
     void SetFileName(std::string &myFileName);
     void SetFileName(const char* myFileName);
 
-    bool OpenFile();
-    bool CloseFile();
+    bool OpenFile(std::ifstream &theFile);
+    bool CloseFile(std::ifstream &theFile);
 
-    bool IsEOF();
+    bool IsEOF(std::ifstream &theFile);
 
     enum B3_TYPE_REPS {
 	RANGERATEONLY_ID = 1,
@@ -135,7 +135,6 @@ protected:
     static const Integer MAX_LINES = 3;
     std::string lineFromFile[MAX_LINES];
     std::string dataFileName;
-    std::ifstream myFile;
     bool isOpen;
 
 };

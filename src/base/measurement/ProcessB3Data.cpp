@@ -64,7 +64,6 @@ ProcessB3Data::ProcessB3Data(const std::string &itsName) :
  */
 ProcessB3Data::~ProcessB3Data() 
 {
-    myFile.close();
 }
 
 //------------------------------------------------------------------------------
@@ -89,9 +88,9 @@ GmatBase* ProcessB3Data::Clone() const
  * Obtains the next line of b3 data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessB3Data::GetData(b3_obtype &myB3Data) {
+bool ProcessB3Data::GetData(std::ifstream &theFile, b3_obtype &myB3Data) {
     
-    std::string line = ReadLineFromFile();
+    std::string line = ReadLineFromFile(theFile);
     return GetB3Data(line,myB3Data);
     
 }

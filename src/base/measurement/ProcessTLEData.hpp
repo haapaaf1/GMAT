@@ -37,7 +37,7 @@ public:
     GmatBase *Clone() const;
 
     // Specific data type processing functions
-    bool GetData(tle_obtype &myTLEdata);
+    bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata);
     bool GetTLEData(std::string &lff, std::string &lff2, 
 			       tle_obtype &myTLEdata);
 

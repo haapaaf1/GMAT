@@ -189,10 +189,6 @@ DataFile::DataFile(const DataFile &pdf) :
     GmatBase       (pdf),
     lineFromFile (pdf.lineFromFile),
     dataFileName (pdf.dataFileName),
-    // TODO: Figure out why the compiler complained 
-    // about this. I commented it out so that everything would compile.
-    //myFile (pdf.myFile),
-    myFile (NULL),
     isOpen (pdf.isOpen)
 {
 }
@@ -205,30 +201,28 @@ DataFile::DataFile(const DataFile &pdf) :
  */
 DataFile::~DataFile()
 {
-    CloseFile();
-
 }
 
 //------------------------------------------------------------------------------
-//  bool DataFile::OpenFile()
+//  bool DataFile::OpenFile(std::ifstream &theFile)
 //------------------------------------------------------------------------------
 /**
  * Opens a physical file and creates a file handle pointing to it.
  *
  * @return Boolean success or failure
  */
-bool DataFile::OpenFile()
+bool DataFile::OpenFile(std::ifstream &theFile)
 {
-    myFile.open(dataFileName.c_str());
+    theFile.open(dataFileName.c_str());
 
-    if(myFile.is_open())
+    if(theFile.is_open())
     {
-	SetIsOpen(true);
+	isOpen = true;
 	return true;
     }
     else
     {
-	SetIsOpen(false);
+	isOpen = false;
 	return false;
     }
 }
@@ -241,18 +235,18 @@ bool DataFile::OpenFile()
  *
  * @return Boolean success or failure
  */
-bool DataFile::CloseFile()
+bool DataFile::CloseFile(std::ifstream &theFile)
 {
-    myFile.close();
+    theFile.close();
 
-    if(myFile.is_open())
+    if(theFile.is_open())
     {
-	SetIsOpen(false);
+	isOpen = false;
 	return false;
     }
     else
     {
-	SetIsOpen(true);
+	isOpen = true;
 	return true;
     }
 
@@ -340,83 +334,83 @@ Integer DataFile::GetDataFormatID() const
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(slr_header &mySLRheader)
+//  bool GetData(std::ifstream &theFile, slr_header &mySLRheader)
 //------------------------------------------------------------------------------
 /**
  * Retrieves slr data.
  *
  * @return Boolean success or failure
  */
-bool DataFile::GetData(slr_header &mySLRheader)
+bool DataFile::GetData(std::ifstream &theFile, slr_header &mySLRheader)
 {
    return false;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(slr_header &mySLRheader, slr_obtype &mySLRdata)
+//  bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata)
 //------------------------------------------------------------------------------
 /**
  * Retrieves slr data.
  *
  * @return Boolean success or failure
  */
-bool DataFile::GetData(slr_header &mySLRheader, slr_obtype &mySLRdata)
+bool DataFile::GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata)
 {
    return false;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(tle_obtype &myTLEdata)
+//  bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata)
 //------------------------------------------------------------------------------
 /**
  * Retrieves tle data.
  *
  * @return Boolean success or failure
  */
-bool DataFile::GetData(tle_obtype &myTLEdata)
+bool DataFile::GetData(std::ifstream &theFile, tle_obtype &myTLEdata)
 {
    return false;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(tle_obtype &myB3data)
+//  bool GetData(std::ifstream &theFile, tle_obtype &myB3data)
 //------------------------------------------------------------------------------
 /**
  * Retrieves B3 data.
  *
  * @return Boolean success or failure
  */
-bool DataFile::GetData(b3_obtype &myB3data)
+bool DataFile::GetData( std::ifstream &theFile, b3_obtype &myB3data)
 {
    return false;
 }
 
 
 //------------------------------------------------------------------------------
-//  bool DataFile::IsEOF()
+//  bool DataFile::IsEOF(std::ifstream &theFile)
 //------------------------------------------------------------------------------
 /**
  * Check to see if the end of the file has been reached.
  *
  * @return True if end of file, False otherwise
  */
-bool DataFile::IsEOF()
+bool DataFile::IsEOF(std::ifstream &theFile)
 {
-    return myFile.eof();
+    return theFile.eof();
 }
 
 //------------------------------------------------------------------------------
-// std::string DataFile::ReadLineFromFile()
+// std::string DataFile::ReadLineFromFile(std::ifstream &theFile)
 //------------------------------------------------------------------------------
 /**
  * Read a single line from a file.
  *
  * @return Line from file
  */
-std::string DataFile::ReadLineFromFile()
+std::string DataFile::ReadLineFromFile(std::ifstream &theFile)
 {
     std::string lff;
-    getline(myFile,lff);
+    getline(theFile,lff);
     return lff;
 }
 
@@ -582,7 +576,8 @@ std::string DataFile::Ilrs2Cospar(std::string ilrsSatnum)
     int index;
     from_string<int>(index,ilrsSatnum.substr(5,2),std::dec);
 
-    static const char alpha[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+    static const char alpha[26] = {'A','B','C','D','E','F','G','H','I','J','K',
+                  'L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
     if (index <= 26)
     {

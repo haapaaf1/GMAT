@@ -35,8 +35,8 @@ public:
 
     GmatBase *Clone() const;
 
-    bool FindSLRHeaderLine( slr_header &mySLRheader );
-    bool GetData(slr_header &mySLRheader, slr_obtype &mySLRdata);
+    bool FindSLRHeaderLine( std::ifstream &theFile, slr_header &mySLRheader );
+    bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata);
    
 private:    
     

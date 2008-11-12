@@ -51,7 +51,6 @@ ProcessSLRData::ProcessSLRData(const std::string &itsName) :
  */
 ProcessSLRData::~ProcessSLRData() 
 {
-    myFile.close();
 }
 
 //------------------------------------------------------------------------------
@@ -70,17 +69,17 @@ GmatBase* ProcessSLRData::Clone() const
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(slr_header &mySLRheader, slr_obtype &mySLRdata)
+// bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the header line of SLR data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetData(slr_header &mySLRheader, slr_obtype &mySLRdata) 
+bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata) 
 {
 
     // Read a line from file
-    std::string line = ReadLineFromFile();
+    std::string line = ReadLineFromFile(theFile);
     line = Trim(line);
     
     // Parse the data record
@@ -92,14 +91,14 @@ bool ProcessSLRData::GetData(slr_header &mySLRheader, slr_obtype &mySLRdata)
 }
 
 //------------------------------------------------------------------------------
-// bool FindSLRHeaderLine(slr_header &mySLRheader)
+// bool FindSLRHeaderLine(std::ifstream &theFile, slr_header &mySLRheader)
 //------------------------------------------------------------------------------
 /** 
  * The routine locates the start of an SLR data block and then obtains the 
  * header line of SLR data.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::FindSLRHeaderLine( slr_header &mySLRheader ) 
+bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile, slr_header &mySLRheader ) 
 {
 
     // Initialize headerType variable to 0
@@ -115,7 +114,7 @@ bool ProcessSLRData::FindSLRHeaderLine( slr_header &mySLRheader )
     do
     {
 	// Read in a line
-	std::string line = ReadLineFromFile();
+	std::string line = ReadLineFromFile(theFile);
 	line = Trim(line);
     
 	// This is supposed to be five digits but sometimes it is less
@@ -128,7 +127,7 @@ bool ProcessSLRData::FindSLRHeaderLine( slr_header &mySLRheader )
 	    headerType = 88888; 
 	}
 	
-    } while ( headerType != 99999 && headerType != 88888 && !IsEOF() );
+    } while ( headerType != 99999 && headerType != 88888 && !IsEOF(theFile) );
     
     if (headerType == 99999 || headerType == 88888) 
     {
@@ -138,7 +137,7 @@ bool ProcessSLRData::FindSLRHeaderLine( slr_header &mySLRheader )
 	mySLRheader.slrType = headerType;
 	
 	// read header line
-	std::string headerline = ReadLineFromFile();
+	std::string headerline = ReadLineFromFile(theFile);
 
 	return GetSLRHeader(headerline,mySLRheader);
 
