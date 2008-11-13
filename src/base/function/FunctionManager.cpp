@@ -893,6 +893,14 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
          if (!retval)
             throw FunctionException
                ("FunctionManager::Execute() failed to assign results to function output");
+         
+         // Delete output wrappers here (loj: 2008.11.12)
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("--- FunctionManager::Execute() deleting output wrapper <%p> '%s'\n",
+             ew, ew->GetDescription().c_str());
+         #endif
+         delete ew;
       }
    }
    
@@ -1265,12 +1273,19 @@ bool FunctionManager::CreateFunctionArgWrappers()
       // create an element wrapper for the input
       validator->SetObjectMap(&combinedObjectStore);
       validator->SetSolarSystem(solarSys);
-      ElementWrapper *inWrapper = validator->CreateElementWrapper(ins.at(ii), false, false);
+      std::string inName = ins.at(ii);
+      ElementWrapper *inWrapper = validator->CreateElementWrapper(inName, false, false);
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ FunctionManager::CreateFunctionArgWrappers()  *inWrapper = validator->"
+          "CreateElementWrapper(%s), <%p> '%s'\n", inName.c_str(), inWrapper,
+          inWrapper->GetDescription().c_str());
+      #endif
       inWrapper->SetRefObject(objFOS);
       inputWrappers.insert(std::make_pair(objName, inWrapper));
       #ifdef DEBUG_FM_INIT // ------------------------------------------------- debug ---
          MessageInterface::ShowMessage("   Created element wrapper of type %d for \"%s\"\n",
-               inWrapper->GetWrapperType(), (ins.at(ii)).c_str());
+               inWrapper->GetWrapperType(), inName.c_str());
       #endif // -------------------------------------------------------------- end debug ---
    }
    
@@ -1296,11 +1311,18 @@ bool FunctionManager::CreateFunctionArgWrappers()
          }
          validator->SetObjectMap(&combinedObjectStore);
          validator->SetSolarSystem(solarSys);
-         ElementWrapper *outWrapper = validator->CreateElementWrapper(outs.at(jj));
+         std::string outName = outs.at(jj);
+         ElementWrapper *outWrapper = validator->CreateElementWrapper(outName);;
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("+++ FunctionManager::CreateFunctionArgWrappers() *outWrapper = validator->"
+             "CreateElementWrapper(%s), <%p> '%s'\n", outName.c_str(), outWrapper,
+             outWrapper->GetDescription().c_str());
+         #endif
          outWrapper->SetRefObject(obj); 
          outputWrappers.push_back(outWrapper);
          #ifdef DEBUG_FM_INIT // ------------------------------------------------- debug ---
-            MessageInterface::ShowMessage("   Output wrapper created for %s\n", (outs.at(jj)).c_str());
+            MessageInterface::ShowMessage("   Output wrapper created for %s\n", outName.c_str());
          #endif // -------------------------------------------------------------- end debug ---
       }
    }
@@ -1590,6 +1612,13 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
       ElementWrapper *ew = validator->CreateElementWrapper(fromString);
       if (ew)
       {
+         #ifdef DEBUG_MEMORY
+         MessageInterface::ShowMessage
+            ("+++ FunctionManager::CreateObject() *outWrapper = validator->"
+             "CreateElementWrapper(%s), <%p> '%s'\n", fromString.c_str(), ew,
+             ew->GetDescription().c_str());
+         #endif
+         
          Gmat::WrapperDataType wType = ew->GetWrapperType();
          switch (wType)
          {
@@ -1959,7 +1988,7 @@ bool FunctionManager::ClearInOutWrappers()
       {
          #ifdef DEBUG_MEMORY
          MessageInterface::ShowMessage
-            ("--- FunctionManager::ClearInOutWrappers() deleting inputWrapper <%p> '%s'\n",
+            ("--- FunctionManager::ClearInOutWrappers() deleting  inputWrapper <%p> '%s'\n",
           ewi->second, (ewi->second)->GetDescription().c_str());
          #endif
          delete ewi->second;
@@ -1972,13 +2001,13 @@ bool FunctionManager::ClearInOutWrappers()
    {
       #ifdef DEBUG_MEMORY
       MessageInterface::ShowMessage
-         ("--- FunctionManager::ClearInOutWrappers() deleting outputWrappers <%p> '%s'\n",
+         ("--- FunctionManager::ClearInOutWrappers() deleting outputWrapper <%p> '%s'\n",
           outputWrappers[i], outputWrappers[i]->GetDescription().c_str());
       #endif
       delete outputWrappers[i];
    }
    outputWrappers.clear();
-
+   
    return true;
 }
 
