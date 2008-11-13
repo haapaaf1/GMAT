@@ -129,6 +129,9 @@ protected:
   std::string* measurementUnits;
   // Measurement returned by the model
   Real* measurements;
+  
+  /// Array of strings passed to the GMAT engine
+  StringArray tempNameArray;
 
   CoordinateConverter ccvtr;
 

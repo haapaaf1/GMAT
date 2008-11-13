@@ -276,11 +276,11 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
           (obj->GetType() != Gmat::PARAMETER) &&
           (obj->GetType() != Gmat::SUBSCRIBER))
       {
-         #ifdef DEBUG_OBJECT_INITIALIZER
+//         #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage(
                "ObjectInitializer::Initialize objTypeName = %s, objName = %s\n",
                obj->GetTypeName().c_str(), obj->GetName().c_str());
-         #endif
+//         #endif
 
 
          //*************************** TEMPORARY *******************************
@@ -288,6 +288,12 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          {
             obj->SetSolarSystem(ss);
             if (obj->IsOfType(Gmat::SPACE_POINT))
+            {
+               BuildReferences(obj);
+               /// @todo  Can initilization happen here in all cases?
+               obj->Initialize();
+            }
+            if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
             {
                BuildReferences(obj);
                /// @todo  Can initilization happen here in all cases?

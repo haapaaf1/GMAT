@@ -96,8 +96,16 @@ void MeasurementModel::Copy(const GmatBase* orig)
 const StringArray& 
       MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
+//   MessageInterface::ShowMessage("Getting the list of data file objects\n");
 
-   return GmatBase::GetRefObjectNameArray(type);
+//   // If we have more than one type, we'll want to do something like this:
+//   if (type == Gmat::UNKNOWN_OBJECT)
+//      Fill them all in here; otherwise fill in by type
+      
+   // I'm using a temporary StringArray in case we need additional ref objects
+   tempNameArray = myDataFileNames;
+
+   return tempNameArray;
 }
 
 

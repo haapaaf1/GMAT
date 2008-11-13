@@ -6266,6 +6266,52 @@ void Moderator::AddSolverToSandbox(Integer index)
           obj->GetName().c_str());
       #endif
    }
+
+   names.clear();
+   names = theConfigManager->GetListOfItems(Gmat::MEASUREMENT_MODEL);
+
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage
+      ("Moderator::AddSolverToSandbox() MeasurementModel count = %d\n", 
+       names.size());
+   #endif
+
+   MeasurementModel* mm;  
+   
+   for (Integer i=0; i<(Integer)names.size(); i++)
+   {
+      mm = theConfigManager->GetMeasurementModel(names[i]);
+      sandboxes[index]->AddObject(mm);
+
+      #if DEBUG_RUN > 1
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>'%s'\n", mm, mm->GetTypeName().c_str(),
+          mm->GetName().c_str());
+      #endif
+   }
+   
+   names.clear();
+   names = theConfigManager->GetListOfItems(Gmat::DATA_FILE);
+
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage
+      ("Moderator::AddSolverToSandbox() DataFile count = %d\n", 
+       names.size());
+   #endif
+   
+   DataFile* df;  
+   
+   for (Integer i=0; i<(Integer)names.size(); i++)
+   {
+      df = theConfigManager->GetDataFile(names[i]);
+      sandboxes[index]->AddObject(df);
+   
+      #if DEBUG_RUN > 1
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>'%s'\n", df, df->GetTypeName().c_str(),
+          df->GetName().c_str());
+      #endif
+   }
 }
 
 
