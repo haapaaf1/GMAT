@@ -214,8 +214,7 @@ public:
                                             bool createDefault = false,
                                             bool internal = false,
                                             Integer manage = 1);
-   CoordinateSystem* GetCoordinateSystem(const std::string &name,
-                                         Integer manage = 1);
+   CoordinateSystem* GetCoordinateSystem(const std::string &name);
    
    // Subscriber
    Subscriber* CreateSubscriber(const std::string &type,
@@ -344,7 +343,7 @@ private:
                               const std::string &depName, Integer manage);
    
    // object map
-   GmatBase* FindObject(const std::string &name, Integer manage = 1);
+   GmatBase* FindObject(const std::string &name);
    bool AddObject(GmatBase *obj);
    
    // default objects

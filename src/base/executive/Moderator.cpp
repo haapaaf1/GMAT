@@ -774,8 +774,10 @@ void Moderator::SetObjectMap(ObjectMap *objMap)
  * through the GUI are managed through Configuration Manager.
  *
  * @param <option>  0, if object is not managed
- *                  1, if object is added to configuration (default)
- *                  2, if automatic object is added to function object map
+ *                  1, if configuration object map is used for finding objects
+ *                     and adding new objects (default)
+ *                  2, if function object map is used for finding objects and
+ *                     adding new objects including automatic objects
  */
 //------------------------------------------------------------------------------
 void Moderator::SetObjectManageOption(Integer option)
@@ -1365,12 +1367,6 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
        addDefaultBodies, objectManageOption);
    #endif
    
-   // if objects are not managed, set flag to find SolarSystem object from
-   // the object map in use
-   Integer manage = objectManageOption;
-   if (manage == 0)
-      manage = 2;
-   
    if (GetCalculatedPoint(name) == NULL)
    {
       CalculatedPoint *cp = theFactoryManager->CreateCalculatedPoint(type, name);
@@ -1403,10 +1399,8 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
             
             // Set body and J2000Body pointer, so that GUI can create LibrationPoint
             // and use it in Coord.System conversion
-            //SpacePoint *sun = (SpacePoint*)GetConfiguredObject("Sun");
-            //SpacePoint *earth = (SpacePoint*)GetConfiguredObject("Earth");
-            SpacePoint *sun = (SpacePoint*)FindObject("Sun", manage);
-            SpacePoint *earth = (SpacePoint*)FindObject("Earth", manage);
+            SpacePoint *sun = (SpacePoint*)FindObject("Sun");
+            SpacePoint *earth = (SpacePoint*)FindObject("Earth");
             
             if (sun->GetJ2000Body() == NULL)
                sun->SetJ2000Body(earth);
@@ -1429,10 +1423,8 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
             
             // Set body and J2000Body pointer, so that GUI can create LibrationPoint
             // and use it in Coord.System conversion
-            //SpacePoint *earth = (SpacePoint*)GetConfiguredObject("Earth");
-            //SpacePoint *luna = (SpacePoint*)GetConfiguredObject("Luna");
-            SpacePoint *earth = (SpacePoint*)FindObject("Earth", manage);
-            SpacePoint *luna = (SpacePoint*)FindObject("Luna", manage);
+            SpacePoint *earth = (SpacePoint*)FindObject("Earth");
+            SpacePoint *luna = (SpacePoint*)FindObject("Luna");
             cp->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
             if (luna->GetJ2000Body() == NULL)
                luna->SetJ2000Body(earth);
@@ -1482,7 +1474,7 @@ CalculatedPoint* Moderator::GetCalculatedPoint(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetCalculatedPoint(name);
+      return (CalculatedPoint*)FindObject(name);
 }
 
 
@@ -1553,10 +1545,10 @@ CelestialBody* Moderator::CreateCelestialBody(const std::string &type,
 //------------------------------------------------------------------------------
 CelestialBody* Moderator::GetCelestialBody(const std::string &name)
 {
-//   if (name == "")
+   if (name == "")
       return NULL;
-//   else
-//      return theConfigManager->GetCelestialBody(name);
+   else
+      return (CelestialBody*)FindObject(name);
 }
 
 
@@ -1640,8 +1632,8 @@ SpaceObject* Moderator::GetSpacecraft(const std::string &name)
 {
    if (name == "")
       return NULL;
-   else
-      return theConfigManager->GetSpacecraft(name);
+   else      
+      return (SpaceObject*)FindObject(name);
 }
 
 
@@ -1782,7 +1774,7 @@ SpacePoint* Moderator::GetSpacePoint(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetSpacePoint(name);
+      return (SpacePoint*)FindObject(name);
 }
 
 
@@ -1859,7 +1851,7 @@ Hardware* Moderator::GetHardware(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetHardware(name);
+      return (Hardware*)FindObject(name);
 }
 
 
@@ -1949,7 +1941,7 @@ Propagator* Moderator::GetPropagator(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetPropagator(name);
+      return (Propagator*)FindObject(name);
 }
 
 // PhysicalModel
@@ -2021,7 +2013,7 @@ PhysicalModel* Moderator::GetPhysicalModel(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetPhysicalModel(name);
+      return (PhysicalModel*)FindObject(name);
 }
 
 // AtmosphereModel
@@ -2104,7 +2096,7 @@ AtmosphereModel* Moderator::GetAtmosphereModel(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetAtmosphereModel(name);
+      return (AtmosphereModel*)FindObject(name);
 }
 
 // Burn
@@ -2137,14 +2129,14 @@ Burn* Moderator::CreateBurn(const std::string &type,
       if (burn ==  NULL)
          throw GmatBaseException
             ("The Moderator cannot create Burn type \"" + type + "\"\n");
-
+      
       // Set default Axes to VNB
       burn->SetStringParameter(burn->GetParameterID("Axes"), "VNB");
       
       // Manage it if it is a named burn
       try
       {
-         if (burn->GetName() != "")
+         if (burn->GetName() != "" && objectManageOption == 1)
             theConfigManager->AddBurn(burn);
       }
       catch (BaseException &e)
@@ -2182,7 +2174,7 @@ Burn* Moderator::GetBurn(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetBurn(name);
+      return (Burn*)FindObject(name);
 }
 
 // Parameter
@@ -2254,7 +2246,7 @@ Parameter* Moderator::CreateParameter(const std::string &type,
                                       const std::string &ownerName,
                                       const std::string &depName,
                                       Integer manage)
-{
+{   
    #if DEBUG_CREATE_PARAMETER
    MessageInterface::ShowMessage
       ("Moderator::CreateParameter() type='%s', name='%s', ownerName='%s', "
@@ -2371,7 +2363,6 @@ Parameter* Moderator::GetParameter(const std::string &name)
    if (name != "")
    {
       // find Parameter from the current object map in use (loj: 2008.05.23)
-      //return theConfigManager->GetParameter(name);
       GmatBase* obj = FindObject(name);
       if (obj != NULL && obj->IsOfType(Gmat::PARAMETER))
          return (Parameter*)obj;
@@ -2598,7 +2589,7 @@ Solver* Moderator::GetSolver(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetSolver(name);
+      return (Solver*)FindObject(name);
 }
 
 // PropSetup
@@ -2695,7 +2686,7 @@ PropSetup* Moderator::GetPropSetup(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetPropSetup(name);
+      return (PropSetup*)FindObject(name);
 }
 
 
@@ -2752,7 +2743,7 @@ CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
        internal, manage, theSolarSystemInUse);
    #endif
    
-   CoordinateSystem *cs = GetCoordinateSystem(name, manage);
+   CoordinateSystem *cs = GetCoordinateSystem(name);
    
    if (cs == NULL)
    {
@@ -2845,15 +2836,12 @@ CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
 //------------------------------------------------------------------------------
 // CoordinateSystem* GetCoordinateSystem(const std::string &name, Integer manage = 1)
 //------------------------------------------------------------------------------
-CoordinateSystem* Moderator::GetCoordinateSystem(const std::string &name,
-                                                 Integer manage)
+CoordinateSystem* Moderator::GetCoordinateSystem(const std::string &name)
 {
    if (name == "")
       return NULL;
-   else if (manage == 2)
-      return (CoordinateSystem*)FindObject(name, manage);
    else
-      return theConfigManager->GetCoordinateSystem(name);
+      return (CoordinateSystem*)FindObject(name);
 }
 
 // Subscriber
@@ -2977,7 +2965,7 @@ Subscriber* Moderator::GetSubscriber(const std::string &name)
    if (name == "")
       return NULL;
    else
-      return theConfigManager->GetSubscriber(name);
+      return (Subscriber*)FindObject(name);
 }
 
 // Function
@@ -2990,7 +2978,8 @@ Subscriber* Moderator::GetSubscriber(const std::string &name)
  *
  * @param <type> object type
  * @param <name> object name
- *
+ * @param <manage> if 0, new function is not managed
+ *                    1, new function is added to configuration
  * @return a Function object pointer
  */
 //------------------------------------------------------------------------------
@@ -3000,8 +2989,8 @@ Function* Moderator::CreateFunction(const std::string &type,
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
-      ("Moderator::CreateFunction() type = '%s', name = '%s'\n", type.c_str(),
-       name.c_str());
+      ("Moderator::CreateFunction() type = '%s', name = '%s', manage=%d\n",
+       type.c_str(), name.c_str(), manage);
    #endif
    
    if (GetFunction(name) == NULL)
@@ -3136,11 +3125,8 @@ AxisSystem* Moderator::CreateAxisSystem(const std::string &type,
    }
    
    // set origin and j2000body
-   // Used FindObject() instead of GetConfiguredObject() for GmatFunction implemenation
-   ////axisSystem->SetOrigin((SpacePoint*)GetConfiguredObject(axisSystem->GetOriginName()));
-   ////axisSystem->SetJ2000Body((SpacePoint*)GetConfiguredObject(axisSystem->GetJ2000BodyName()));
-   axisSystem->SetOrigin((SpacePoint*)FindObject(axisSystem->GetOriginName(), manage));
-   axisSystem->SetJ2000Body((SpacePoint*)FindObject(axisSystem->GetJ2000BodyName(), manage));
+   axisSystem->SetOrigin((SpacePoint*)FindObject(axisSystem->GetOriginName()));
+   axisSystem->SetJ2000Body((SpacePoint*)FindObject(axisSystem->GetJ2000BodyName()));
    
    // Notes: AxisSystem is not configured. It is local to CoordinateSystem
    // and gets deleted when CoordinateSystem is deleted.
@@ -5439,7 +5425,7 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
    if (ownerName != "")
    {
       param->SetRefObjectName(param->GetOwnerType(), ownerName);
-      param->AddRefObject((Parameter*)FindObject(ownerName, manage));
+      param->AddRefObject((Parameter*)FindObject(ownerName));
    }
    
    std::string newDep = depName;
@@ -5461,11 +5447,11 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
    #endif
    
    if (newDep != "")
-      param->AddRefObject(FindObject(newDep, manage));
+      param->AddRefObject(FindObject(newDep));
    
    // I'm not sure if we always use EarthMJ2000Eq (loj: 2008.06.03)
    if (param->NeedCoordSystem())
-      param->AddRefObject(FindObject("EarthMJ2000Eq", manage));
+      param->AddRefObject(FindObject("EarthMJ2000Eq"));
    
    // create parameter dependent coordinate system
    if (type == "Longitude" || type == "Latitude" || type == "Altitude" ||
@@ -5504,10 +5490,10 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
          // create BodyFixedAxis with origin
          AxisSystem *axis = CreateAxisSystem("BodyFixed", "BodyFixed_Earth", manage);
          cs->SetStringParameter("Origin", origin);
-         cs->SetRefObject(FindObject(origin, manage), Gmat::SPACE_POINT, origin);
+         cs->SetRefObject(FindObject(origin), Gmat::SPACE_POINT, origin);
          cs->SetRefObject(axis, Gmat::AXIS_SYSTEM, axis->GetName());
          cs->SetStringParameter("J2000Body", "Earth");
-         cs->SetRefObject(FindObject("Earth", manage), Gmat::SPACE_POINT, "Earth");
+         cs->SetRefObject(FindObject("Earth"), Gmat::SPACE_POINT, "Earth");
          cs->SetSolarSystem(theSolarSystemInUse);
          cs->Initialize();
          
@@ -5528,21 +5514,24 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
 
 // object map
 //------------------------------------------------------------------------------
-// GmatBase* FindObject(const std::string &name, Integer manage)
+// GmatBase* FindObject(const std::string &name)
 //------------------------------------------------------------------------------
 /*
- * Finds object from the objectMapInUse by name
- *
- * @param  manage  set to 1 if using SolarSystem from the configuration
- * @param  manage  set to 2 if using SolarSystem from the object map in use
+ * Finds object from the object map in use by name base on objectManageOption.
+ * if objectManageOption is 
+ *    0, if object is not managed
+ *    1, if configuration object map is used for finding objects and adding new
+ *          objects
+ *    2, if function object map is used for finding objects and adding new
+ *          objects including automatic objects
  */
 //------------------------------------------------------------------------------
-GmatBase* Moderator::FindObject(const std::string &name, Integer manage)
+GmatBase* Moderator::FindObject(const std::string &name)
 {
    #if DEBUG_FIND_OBJECT
    MessageInterface::ShowMessage
-      ("Moderator::FindObject() entered, name='%s', manage=%d, objectMapInUse=<%p>\n",
-       name.c_str(), manage, objectMapInUse);
+      ("Moderator::FindObject() entered, name='%s', objectMapInUse=<%p>\n",
+       name.c_str(), objectMapInUse);
    #endif
    
    if (name == "")
@@ -5583,6 +5572,11 @@ GmatBase* Moderator::FindObject(const std::string &name, Integer manage)
    
    if (objectMapInUse->find(newName) != objectMapInUse->end())
       obj = (*objectMapInUse)[newName];
+   
+   // check objectManageOption
+   Integer manage = 1;
+   if (objectManageOption != 1)
+      manage = 2;
    
    // If object not found, try SolarSystem
    if (obj == NULL)
@@ -5861,7 +5855,7 @@ StopCondition* Moderator::CreateDefaultStopCondition()
    
    std::string epochVar = scName + ".A1ModJulian";
    std::string stopVar = scName + ".ElapsedSecs";
-
+   
    #ifdef DEBUG_DEFAULT_MISSION
    MessageInterface::ShowMessage
       ("Moderator::CreateDefaultStopCondition() scName=%s, epochVar=%s, "
@@ -5948,26 +5942,6 @@ void Moderator::AddSolarSystemToSandbox(Integer index)
    #else
       sandboxes[index]->AddSolarSystem(theSolarSystemInUse);
    #endif
-   
-   // All calculated points are added by AddSpacePointsToSandbox(),
-   // so commented out (loj: 2008.10.01)
-   // Add LibrationPoint and Barycenter objects
-   //
-   //StringArray cpNames = theConfigManager->GetListOfItems(Gmat::CALCULATED_POINT);
-   //
-   //CalculatedPoint *cp;
-   //for (Integer i=0; i<(Integer)cpNames.size(); i++)
-   //{
-   //   cp = theConfigManager->GetCalculatedPoint(cpNames[i]);
-   //   
-   //   #if DEBUG_RUN
-   //   MessageInterface::ShowMessage
-   //      ("   Adding <%p><%s>'%s' to Sandbox\n", cp,
-   //       cp->GetTypeName().c_str(), cp->GetName().c_str());
-   //   #endif
-   //   
-   //   sandboxes[index]->AddObject(cp);
-   //}
 }
 
 
