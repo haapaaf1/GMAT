@@ -96,56 +96,44 @@ void MeasurementModel::Copy(const GmatBase* orig)
 const StringArray& 
       MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-/*   static StringArray fullList;  // Maintain scope if the full list is requested
-   fullList.clear();
-   
-   if (attitude)
-   {
-      try
-      {
-         fullList.push_back(attitude->GetRefObjectName(type));
-      }
-      catch (GmatBaseException& be)
-      {
-         // ignore exceptions here
-      }
-   }
-   
-   if (type == Gmat::UNKNOWN_OBJECT)
-   {
-      fullList.push_back(coordSysName);
-      return fullList;      
-   }
-   else
-   {
-      if (type == Gmat::ATTITUDE)
-         return fullList;
-      
-      if (type == Gmat::FUEL_TANK)
-         return tankNames;
-      if (type == Gmat::THRUSTER)
-         return thrusterNames;
-      
-      if (type == Gmat::HARDWARE) 
-      {
-         fullList.clear();
-         fullList = tankNames;
-         for (StringArray::iterator i = thrusterNames.begin();
-              i < thrusterNames.end(); ++i)
-            fullList.push_back(*i);
-         return fullList;
-      }
-      
-      if (type == Gmat::COORDINATE_SYSTEM)
-      {
-         fullList.push_back(coordSysName);
-         return fullList;
-      }
-   }
-  */  
-   return GmatBase::GetRefObjectNameArray(type);
 
+   return GmatBase::GetRefObjectNameArray(type);
 }
+
+
+//------------------------------------------------------------------------------
+// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name)                             
+//------------------------------------------------------------------------------
+/**
+ * This method returns a GmatBase pointer to the desired object.
+ *
+ * @return a GmatBase pointer.
+ */
+//------------------------------------------------------------------------------
+GmatBase* MeasurementModel::GetRefObject(const Gmat::ObjectType type,
+                                  const std::string &name)
+{
+   GmatBase* retval = NULL;
+
+   if (type == Gmat::DATA_FILE)
+   {
+      for (ObjectArray::iterator i = myDataFiles.begin();
+           i != myDataFiles.end(); ++i)
+      {
+         if ((*i)->GetName() == name)
+         {
+	    retval = *i;
+            break;
+         }
+      }
+   }
+
+   if (retval != NULL)
+      return retval;
+   
+   return GmatBase::GetRefObject(type, name);
+}
+
 
 //------------------------------------------------------------------------------
 // bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type, 
@@ -154,103 +142,18 @@ const StringArray&
 bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type, 
                               const std::string &name)
 {
-    /*
-   #ifdef DEBUG_SC_REF_OBJECT
-   MessageInterface::ShowMessage("Entering SC::SetRefObject\n");
-   #endif
-   
-   if (obj == NULL)
-      return false;
-   
-   // first, try setting it on the attitude (owned object)
-   if (attitude)
+   bool retval = false;
+
+   if (obj->IsOfType(Gmat::DATA_FILE))
    {
-      try
+      if (find(myDataFiles.begin(), myDataFiles.end(), obj) == myDataFiles.end())
       {
-         attitude->SetRefObject(obj, type, name);
-      }
-      catch (BaseException &be)
-      {
-         #ifdef DEBUG_SC_ATTITUDE
-         MessageInterface::ShowMessage(
-         "------ error setting ref object %s on attitude\n",
-         name.c_str());
-         #endif
+         myDataFiles.push_back(obj);
+         retval = true;
       }
    }
-   if (type == Gmat::HARDWARE) {
-      std::string typeStr = obj->GetTypeName();
-    
-      if (typeStr == "FuelTank") {
-         if (find(tanks.begin(), tanks.end(), obj) == tanks.end()) {
-            tanks.push_back(obj);
-            return true;
-         }
-         return false;
-      }
-      
-      if (typeStr == "Thruster") {
-         if (find(thrusters.begin(), thrusters.end(), obj) == thrusters.end()) {
-            thrusters.push_back(obj);
-            return true;
-         }
-         return false;
-      }
-      
-      return false;
-   }
-   else if (type == Gmat::COORDINATE_SYSTEM)
-   {
-      CoordinateSystem *cs = (CoordinateSystem*)obj;
-      
-      #if DEBUG_MeasurementModel_CS
-      MessageInterface::ShowMessage
-         ("MeasurementModel::SetRefObject() coordinateSystem=%s<%p>, cs=%s<%p> on %s\n",
-          coordinateSystem->GetName().c_str(), coordinateSystem,
-          cs->GetName().c_str(), cs, instanceName.c_str());
-      #endif
-      
-      if (coordinateSystem != cs)
-      {
-         coordinateSystem = cs;         
-         TakeAction("ApplyCoordinateSystem");
-         
-         #if DEBUG_MeasurementModel_CS
-         MessageInterface::ShowMessage
-            ("MeasurementModel::SetRefObject() coordinateSystem applied ----------\n");
-         #endif
-      }
-      
-      return true;
-   }
-   else if (type == Gmat::ATTITUDE)
-   {
-      #ifdef DEBUG_SC_ATTITUDE
-         MessageInterface::ShowMessage("Setting attitude object on MeasurementModel %s\n",
-         instanceName.c_str());
-      #endif
-      if ((attitude != NULL) && (attitude != (Attitude*) obj)) delete attitude;
-      attitude = (Attitude*) obj;
-      // set epoch ...
-      #ifdef DEBUG_SC_ATTITUDE
-         MessageInterface::ShowMessage("Setting attitude object on MeasurementModel %s\n",
-         instanceName.c_str());
-         MessageInterface::ShowMessage(
-         "Setting epoch on attitude object for MeasurementModel %s\n",
-         instanceName.c_str());
-      #endif
-      attitude->SetEpoch(state.GetEpoch());
-      ownedObjectCount++;
-      return true;
-   }
-   
-   #ifdef DEBUG_SC_REF_OBJECT
-   MessageInterface::ShowMessage
-      ("Exiting SC::SetRefObject, Calling SpaceObject::SetRefObject()\n");
-   #endif
-   
-     */
-    return GmatBase::SetRefObject(obj, type, name);
+          
+    return retval;
 
 }
 
@@ -611,66 +514,6 @@ Real MeasurementModel::GetDegree(const Real angle, const Real minAngle,
 
    return GmatMathUtil::Deg(angleInRange);
 }
-
-//------------------------------------------------------------------------------
-// void SetDataFormat(std::string df)
-//------------------------------------------------------------------------------
-/**
- * Set the data format associated with this instance of the measurement model.
- *
- * @param mm The data format that is assigned.
- */
-//------------------------------------------------------------------------------
-void MeasurementModel::SetDataFormat(std::string &df)
-{
-    dataFormat = df;
-}
-
-//------------------------------------------------------------------------------
-// std::string GetDataFormat()
-//------------------------------------------------------------------------------
-/**
- * Return the data format associated with this instance of the measurement model.
- *
- * @return The data format.
- */
-//------------------------------------------------------------------------------
-std::string& MeasurementModel::GetDataFormat()
-{
-    return dataFormat;
-}
-
-//------------------------------------------------------------------------------
-// void SetDataTypes(StringArray dt)
-//------------------------------------------------------------------------------
-/**
- * Set the data types associated with this instance of the measurement model.
- *
- * @param mm The data types that are assigned.
- */
-//------------------------------------------------------------------------------
-void MeasurementModel::SetDataTypes(StringArray &dt)
-{
-    dataTypes = dt;
-}
-
-//------------------------------------------------------------------------------
-// StringArray GetDataTypes()
-//------------------------------------------------------------------------------
-/**
- * Return the data types associated with this instance of the measurement model.
- *
- * @return The data types.
- */
-//------------------------------------------------------------------------------
-StringArray& MeasurementModel::GetDataTypes()
-{
-    return dataTypes;
-}
-
-
-
-
 
 
 

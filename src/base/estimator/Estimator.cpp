@@ -817,6 +817,7 @@ std::string Estimator::GetStringParameter(const std::string &label) const
  *
  * @return true if the string is stored, throw if the parameter is not stored.
  */
+//---------------------------------------------------------------------------
 bool Estimator::SetStringParameter(const Integer id, const std::string &value)
 {
 //   MessageInterface::ShowMessage("Setting string %s on id %d\n")

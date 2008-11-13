@@ -285,9 +285,9 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray mml = theModerator->GetListOfFactoryItems(Gmat::MEASUREMENT_MODEL);
    copy(mml.begin(), mml.end(), back_inserter(measurementModelList));
 
-   DataFileList.clear();
+   dataFileList.clear();
    StringArray pdf = theModerator->GetListOfFactoryItems(Gmat::DATA_FILE);
-   copy(pdf.begin(), pdf.end(), back_inserter(DataFileList));
+   copy(pdf.begin(), pdf.end(), back_inserter(dataFileList));
 
    
    #ifdef DEBUG_OBJECT_LIST
@@ -434,7 +434,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          break;
 
       case Gmat::DATA_FILE:
-         clist = DataFileList;
+         clist = dataFileList;
          break;
 
       case Gmat::PROPAGATOR:
@@ -787,8 +787,8 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       }
 
       // Handle Data Files
-      else if (find(DataFileList.begin(), DataFileList.end(), type) !=
-         DataFileList.end())
+      else if (find(dataFileList.begin(), dataFileList.end(), type) !=
+         dataFileList.end())
       {
          MessageInterface::ShowMessage("Object is a Data File\n");
          obj = (GmatBase*)theModerator->CreateDataFile(type, name);

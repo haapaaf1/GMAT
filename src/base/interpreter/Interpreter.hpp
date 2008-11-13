@@ -305,7 +305,7 @@ private:
    StringArray   measurementModelList;
    StringArray   parameterList;
    StringArray   physicalModelList;
-   StringArray   DataFileList;
+   StringArray   dataFileList;
    StringArray   propagatorList;
    StringArray   solverList;
    StringArray   stopcondList;

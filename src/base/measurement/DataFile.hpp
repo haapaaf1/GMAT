@@ -73,6 +73,7 @@ public:
     std::string GetDataFormatNameText(const Integer &id) const;
     Integer GetDataFormatID(const std::string &label);
 
+    void SetDataFormatID(const std::string &label);
     void SetDataFormatID(Integer mName);
     Integer GetDataFormatID() const;
   
@@ -130,8 +131,13 @@ protected:
 	EndDataFormatReps
     };
 
-    // Name of the measurement model being used
+    // ID of the measurement model being used
     Integer dataFormatID;
+    
+    // This array of datatypes can be used to select a specific
+    // subset of available data from a given dataFormat
+    StringArray dataTypesAllowed;
+    
     static const Integer MAX_LINES = 3;
     std::string lineFromFile[MAX_LINES];
     std::string dataFileName;

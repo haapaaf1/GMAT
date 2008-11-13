@@ -308,7 +308,7 @@ std::string DataFile::GetDataFormatNameText(const Integer &id) const
 
 
 //------------------------------------------------------------------------------
-// Integer SetDataFormatID() const
+// Integer SetDataFormatID(Integer pdfId)
 //------------------------------------------------------------------------------
 /**
  * Sets the name of the process data file object.
@@ -318,6 +318,33 @@ void DataFile::SetDataFormatID(Integer pdfId)
 {
    dataFormatID = pdfId;
 }
+
+
+//------------------------------------------------------------------------------
+// Integer SetDataFormatID(const std::string &label)
+//------------------------------------------------------------------------------
+/**
+ * Sets the name of the process data file object.
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetDataFormatID(const std::string &label)
+{
+   
+    if (label == "B3")
+    {
+       dataFormatID = B3_ID;
+    } 
+    else if (label == "SLR")
+    {
+       dataFormatID = SLR_ID;
+    }
+    else if (label == "TLE")
+    {
+       dataFormatID = TLE_ID;
+    }
+
+}
+
 
 //------------------------------------------------------------------------------
 // Integer GetDataFormatID() const

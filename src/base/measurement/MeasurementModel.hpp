@@ -50,6 +50,9 @@ public:
   // Methods overridden from the GmatBase clase
   virtual GmatBase *Clone() const;
   virtual void      Copy(const GmatBase* orig);      
+  virtual GmatBase* 
+                    GetRefObject(const Gmat::ObjectType type,
+				 const std::string &name);
   virtual const StringArray&
                     GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool     SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
@@ -83,13 +86,6 @@ public:
    virtual bool ComputeCartesianPartialDerivative(
         GroundStation* theStation, Spacecraft* theSat,
         LaGenMatDouble &myCartDerivatives);
-
-   void SetDataFormat(std::string &df);
-   std::string& GetDataFormat();
-   
-   void SetDataTypes(StringArray &dt);
-   StringArray& GetDataTypes();
-
    
 private:
 
@@ -138,16 +134,10 @@ protected:
 
   Real GetDegree(const Real angle, const Real minAngle, 
 			    const Real maxAngle);
-  
-  // This tells us which data file format to use
-  // Examples: B3, SLR, TLE
-  std::string dataFormat;
-  
-  // This array of datatypes can be used to select a specific
-  // subset of available data from a given dataFormat
-  StringArray dataTypes;
-  
-  DataFile* myData;
+    
+  // Data file objects
+  StringArray myDataFileNames;
+  ObjectArray myDataFiles;
 
 };
 
