@@ -1195,9 +1195,9 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
       if (globalObjectMap.find(fName) == globalObjectMap.end())
       {
          if (isMatlabFunction)
-            f = moderator->CreateFunction("MatlabFunction",fName, false);
+            f = moderator->CreateFunction("MatlabFunction",fName, 0);
          else
-            f = moderator->CreateFunction("GmatFunction",fName, false);
+            f = moderator->CreateFunction("GmatFunction",fName, 0);
          if (!f) 
             throw SandboxException("Sandbox::HandleGmatFunction - error creating new function\n");
          globalObjectMap.insert(std::make_pair(fName,f));
