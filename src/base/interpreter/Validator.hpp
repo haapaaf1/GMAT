@@ -110,6 +110,7 @@ private:
    bool CreateForceModelProperty(GmatBase *obj, const std::string &prop,
                                  const std::string &value);
    bool HandleError(bool addFunction = true);
+   void ShowObjectMap(const std::string &label = "");
    
    Interpreter     *theInterpreter;
    Moderator       *theModerator;

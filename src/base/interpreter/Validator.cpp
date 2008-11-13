@@ -116,24 +116,13 @@ void Validator::SetObjectMap(ObjectMap *objMap)
 {
    if (objMap != NULL)
    {
+      theObjectMap = objMap;
+      
       #ifdef DEBUG_OBJECT_MAP
       if (theFunction)
-      {
-         MessageInterface::ShowMessage
-            ("Validator::SetObjectMap(), Here is the object map in use <%p>, "
-             "it has %d objects\n", objMap, objMap->size());
-         for (std::map<std::string, GmatBase *>::iterator i = objMap->begin();
-              i != objMap->end(); ++i)
-         {
-            MessageInterface::ShowMessage
-               ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
-                i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
-         }
-      }
+         ShowObjectMap("Validator::SetObjectMap()");
       #endif
       
-      theObjectMap = objMap;
-
       #ifdef DEBUG_OBJECT_MAP
       MessageInterface::ShowMessage
          ("Validator::SetObjectMap() Setting object map <%p> to Moderator\n",
@@ -1413,6 +1402,11 @@ GmatBase* Validator::FindObject(const std::string &name, const std::string &ofTy
          ("Validator::FindObject() entered: newName=%s\n", newName.c_str());
       #endif
    }
+
+   #ifdef DEBUG_OBJECT_MAP
+   if (theFunction != NULL)
+      ShowObjectMap("Validator::FindObject()");
+   #endif
    
    // Find object from the object map
    if (theObjectMap->find(newName) != theObjectMap->end())
@@ -1633,7 +1627,7 @@ Parameter* Validator::CreateParameter(const std::string &type,
        "depName='%s', manage=%d\n", type.c_str(), name.c_str(),
        ownerName.c_str(), depName.c_str(), manage);
    #endif
-
+   
    Parameter *param = NULL;
    
    // Check if create an array
@@ -2489,6 +2483,31 @@ bool Validator::HandleError(bool addFunction)
       
       InterpreterException ex(theErrorMsg);
       throw ex;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void ShowObjectMap(const std::string &label = "")
+//------------------------------------------------------------------------------
+void Validator::ShowObjectMap(const std::string &label)
+{
+   if (theObjectMap != NULL)
+   {
+      MessageInterface::ShowMessage
+         ("=====%s, Here is the object map in use <%p>, it has %d objects\n",
+          label.c_str(), theObjectMap, theObjectMap->size());
+      for (std::map<std::string, GmatBase *>::iterator i = theObjectMap->begin();
+           i != theObjectMap->end(); ++i)
+      {
+         MessageInterface::ShowMessage
+            ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+      }
+   }
+   else
+   {
+      MessageInterface::ShowMessage("=====%s, theObjectMap is NULL\n");
    }
 }
 
