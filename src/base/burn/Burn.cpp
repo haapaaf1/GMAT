@@ -21,7 +21,8 @@
 #include "Burn.hpp"
 #include "MessageInterface.hpp"
 
-//#define DEBUG_BURN_PARAM 1
+//#define DEBUG_BURN_PARAM
+//#define DEBUG_BURN_SET
 
 //---------------------------------
 // static data
@@ -245,7 +246,7 @@ std::string Burn::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer Burn::GetParameterID(const std::string &str) const
 {
-   #if DEBUG_BURN_PARAM
+   #ifdef DEBUG_BURN_PARAM
    MessageInterface::ShowMessage
       ("Burn::GetParameterID() str=%s, dvLabels=%s, %s, %s, ", str.c_str(),
        dvLabels[0].c_str(), dvLabels[1].c_str(), dvLabels[2].c_str());
@@ -275,8 +276,8 @@ Integer Burn::GetParameterID(const std::string &str) const
    
    if (id != -1)
    {
-      #if DEBUG_BURN_PARAM
-      MessageInterface::ShowMessage("returning %d\n", id);
+      #ifdef DEBUG_BURN_PARAM
+      MessageInterface::ShowMessage("Burn::GetParameterID() returning %d\n", id);
       #endif
       
       return id;
@@ -463,12 +464,22 @@ std::string Burn::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 bool Burn::SetStringParameter(const Integer id, const std::string &value)
 {
+   #ifdef DEBUG_BURN_SET
+   MessageInterface::ShowMessage
+      ("Burn::SetStringParameter() this=<%p> '%s', id=%d, value='%s'\n", this,
+       GetName().c_str(), id, value.c_str());
+   #endif
    if (id == BURNORIGIN)
    {
       burnOriginName = value;
+      #ifdef DEBUG_BURN_SET
+      MessageInterface::ShowMessage
+         ("Burn::SetStringParameter() exiting, burnOriginName set to '%s'\n",
+          value.c_str());
+      #endif
       return true;
    }
-           
+   
    if (id == BURNAXES)
    {
       /// @todo validate the input value when the CS code is incorporated.
@@ -647,11 +658,11 @@ const StringArray& Burn::GetRefObjectNameArray(const Gmat::ObjectType type)
 bool Burn::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                         const std::string &name)
 {
-   #if DEBUG_BURN_SET
+   #ifdef DEBUG_BURN_SET
    MessageInterface::ShowMessage
-      ("===> Burn::SetRefObject() objType=%d, objTypeName=%s, objName=%s, type=%d, "
-       "name=%s\n", obj->GetType(), obj->GetTypeName().c_str(), obj->GetName().c_str(),
-       type, name.c_str());
+      ("Burn::SetRefObject() this=<%p> '%s', objType=%d, objTypeName=%s, "
+       "objName=%s, type=%d, name=%s\n", this, GetName().c_str(), obj->GetType(),
+       obj->GetTypeName().c_str(), obj->GetName().c_str(), type, name.c_str());
    #endif
    
    switch (type)
@@ -659,8 +670,15 @@ bool Burn::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    case Gmat::SPACE_POINT:
    case Gmat::CELESTIAL_BODY:
       {
-         burnOriginName = obj->GetName();
-         burnOrigin = (SpacePoint*)obj;
+         // Set j2000Body here for now(loj: 2008.11.13)
+         //@todo We need to make sure SetSolarSystem() is called during object
+         // initialization in ObjectInitializer
+         // burnOriginName is set through SetStringParameter()
+         //burnOriginName = obj->GetName();
+         if (burnOriginName == obj->GetName())
+            burnOrigin = (SpacePoint*)obj;
+         if (j2000BodyName == obj->GetName())
+            j2000Body = (CelestialBody*)obj;
          return true;
       }
    case Gmat::SPACECRAFT:
@@ -729,6 +747,10 @@ void Burn::SetSpacecraftToManeuver(Spacecraft *sat)
 //------------------------------------------------------------------------------
 void Burn::SetSolarSystem(SolarSystem *ss)
 {
+   #ifdef DEBUG_BURN_SET
+   MessageInterface::ShowMessage
+      ("Burn::SetSolarSystem() ss=<%p> '%s'\n", ss, ss->GetName().c_str());
+   #endif
    solarSystem = ss;
 }
 
