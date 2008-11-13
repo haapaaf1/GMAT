@@ -365,10 +365,10 @@ std::string Function::GetFunctionPathAndName()
 bool Function::SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper)
 {
    #ifdef DEBUG_FUNCTION_SET
-      MessageInterface::ShowMessage("Function::SetInputElementWrapper - for wrapper name \"%s\"\n",
-            forName.c_str());
-      MessageInterface::ShowMessage
-         ("   wrapper=<%p><%d>\n", wrapper, wrapper->GetWrapperType());
+   MessageInterface::ShowMessage
+      ("Function::SetInputElementWrapper - for wrapper name \"%s\"\n", forName.c_str());
+   MessageInterface::ShowMessage
+      ("   wrapper=<%p>, wrapper type = %d\n", wrapper, wrapper->GetWrapperType());
    #endif
    if (inputArgMap.find(forName) == inputArgMap.end())
    {
@@ -472,6 +472,40 @@ bool Function::TakeAction(const std::string &action,
       #ifdef DEBUG_FUNCTION_ACTION
       MessageInterface::ShowMessage("   Clearing input and output argument list\n");
       #endif
+      
+      // Do we need to also delete input/output ElementWrappers here? 
+      // They are deleted in the FunctionManager::ClearInputOutputWrappers()
+      // Let's delete them here for now in TakeAction(). I don't know in what
+      // situation TakeAction() will be called(loj: 2008.11.12)
+      // input wrappers map
+      std::map<std::string, ElementWrapper *>::iterator ewi;
+      for (ewi = inputArgMap.begin(); ewi != inputArgMap.end(); ++ewi)
+      {
+         if (ewi->second)
+         {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- Function::TakeAction() deleting inputWrapper <%p> '%s'\n",
+                ewi->second, (ewi->second)->GetDescription().c_str());
+            #endif
+            delete ewi->second;
+         }
+      }
+      
+      // output wrappers
+      //std::map<std::string, ElementWrapper *>::iterator ewi;
+      for (ewi = outputArgMap.begin(); ewi != outputArgMap.end(); ++ewi)
+      {
+         if (ewi->second)
+         {
+            #ifdef DEBUG_MEMORY
+            MessageInterface::ShowMessage
+               ("--- Function::TakeAction() deleting outputWrapper <%p> '%s'\n",
+                ewi->second, (ewi->second)->GetDescription().c_str());
+            #endif
+            delete ewi->second;
+         }
+      }
       
       inputArgMap.clear();
       outputArgMap.clear();
@@ -779,12 +813,6 @@ bool Function::SetStringParameter(const std::string &label,
    return SetStringParameter(GetParameterID(label), value);
 }
 
-//bool Function::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-//                            const std::string &name);
-//{
-//   if (type == Gmat::FUNCTION)
-//      
-//}
 
 //------------------------------------------------------------------------------
 // GmatBase* FindObject(const std::string &name)
@@ -811,19 +839,8 @@ GmatBase* Function::FindObject(const std::string &name)
       return (GmatBase*)(solarSys->GetBody(newName));
    
    return NULL;
-   
-//    // Check for the object in the Local Object Store (LOS) first
-//    if (objectStore->find(newName) == objectStore->end())
-//    {
-//      // If not found in the LOS, check the Global Object Store (GOS)
-//       if (globalObjectStore->find(newName) == globalObjectStore->end())
-//          return NULL;
-//       else return (*globalObjectStore)[newName];
-//    }
-//    else
-//       return (*objectStore)[newName];
-//    return NULL; // should never get to this point
 }
+
 
 //------------------------------------------------------------------------------
 // void ShowObjects(const std::string &title)

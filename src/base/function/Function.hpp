@@ -94,9 +94,6 @@ public:
    virtual const StringArray&
                         GetStringArrayParameter(const Integer id) const;
    
-//   virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-//                                     const std::string &name = "");
-
 protected:
    /// Fully-qualified path for function script
    std::string          functionPath;
