@@ -356,6 +356,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
    #endif
    
    GmatCommand *current = fcs;
+   GmatCommand *last = NULL;
    
    // We want to initialize local objects with new object map,
    // so do it everytime (loj: 2008.09.26)
@@ -371,6 +372,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
          ("......Function executing <%p><%s> [%s]\n", current, current->GetTypeName().c_str(),
           current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
+
+      last = current;
       
       // Since we don't know where actual mission squence start, just check for command
       // that is not NoOp, Create, Global, and GMAT with equation.
@@ -480,6 +483,16 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
       current = current->GetNext();
    }
    
+   // Set ObjectMap from the last command to Validator in order to create
+   // valid output wrappers (loj: 2008.11.12)
+   validator->SetObjectMap(last->GetObjectMap());
+   
+   #ifdef DEBUG_FUNCTION_EXEC
+   MessageInterface::ShowMessage
+      ("   Now about to create %d output wrapper(s) to set results, objectsInitialized=%d\n",
+       outputNames.size(), objectsInitialized);
+   #endif
+   
    // create output wrappers and put into map
    GmatBase *obj;
    for (unsigned int jj = 0; jj < outputNames.size(); jj++)
@@ -490,9 +503,18 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
          errMsg += " not found for function \"" + functionName + "\"";
          throw FunctionException(errMsg);
       }
-      ElementWrapper *outWrapper = validator->CreateElementWrapper(outputNames.at(jj), false, false);
+      std::string outName = outputNames.at(jj);
+      ElementWrapper *outWrapper =
+         validator->CreateElementWrapper(outName, false, false);
+      #ifdef DEBUG_MEMORY
+      MessageInterface::ShowMessage
+         ("+++ GmatFunction::Execute() *outWrapper = validator->"
+          "CreateElementWrapper(%s), <%p> '%s'\n", outName.c_str(), outWrapper,
+          outWrapper->GetDescription().c_str());
+      #endif
+      
       outWrapper->SetRefObject(obj); 
-      outputArgMap[outputNames.at(jj)] = outWrapper;
+      outputArgMap[outName] = outWrapper;
       #ifdef DEBUG_FUNCTION_EXEC // --------------------------------------------------- debug ---
          MessageInterface::ShowMessage("GmatFunction: Output wrapper created for %s\n",
                                        (outputNames.at(jj)).c_str());
