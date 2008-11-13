@@ -669,7 +669,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       }
    }
    
-   // Set manage flag to Moderator
+   // Set manage option to Moderator
    theModerator->SetObjectManageOption(manage);
    
    if (type == "Spacecraft") 
@@ -5526,8 +5526,8 @@ bool Interpreter::FinalPass()
                if (refObj == NULL)
                {
                   InterpreterException ex
-                     ("Nonexistent object \"" + owner + "\" referenced in " +
-                      obj->GetTypeName() + "\"" + obj->GetName() + "\"");
+                     ("Nonexistent object \"" + owner + "\" referenced in \"" +
+                      obj->GetName() + "\"");
                   HandleError(ex, false);
                   retval = false;
                }
