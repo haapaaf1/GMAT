@@ -39,6 +39,7 @@
 //#define DEBUG_FUNCTION_PATH
 //#define DEBUG_FILE_PATH
 //#define DEBUG_SET_PATH
+//#define DEBUG_READ_STARTUP_FILE
 //#define DEBUG_WRITE_STARTUP_FILE
 //#define DEBUG_PLUGIN_DETECTION
 
@@ -251,7 +252,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
    if (fileName != "")
       mStartupFileName = fileName;
    
-   #ifdef DEBUG_FILE_MANAGER
+   #ifdef DEBUG_READ_STARTUP_FILE
    MessageInterface::ShowMessage("FileManager::ReadStartupFile() reading:%s\n",
                                  mStartupFileName.c_str());
    #endif
@@ -267,7 +268,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       // Use cross-platform GetLine
       GmatFileUtil::GetLine(&mInStream, line);      
       
-      #ifdef DEBUG_FILE_MANAGER
+      #ifdef DEBUG_READ_STARTUP_FILE
       MessageInterface::ShowMessage("line=%s\n", line.c_str());
       #endif
       
@@ -295,7 +296,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       
       ss >> name;
       
-      #ifdef DEBUG_FILE_MANAGER
+      #ifdef DEBUG_READ_STARTUP_FILE
       MessageInterface::ShowMessage("type=%s, name=%s\n", type.c_str(), name.c_str());
       #endif
       
@@ -319,7 +320,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       }
       
       if (correctVersionFound)
-      {
+      {         
          if (type == "RUN_MODE" && name == "TESTING")
             GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
          else
