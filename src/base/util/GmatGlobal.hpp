@@ -63,7 +63,7 @@ public:
    void SetBatchMode(bool flag) { isBatchMdoe = flag; }
    bool GetRunInterrupted() { return runInterrupted; }
    void SetRunInterrupted(bool flag) { runInterrupted = flag; }
-   bool GetRunMode() { return runMode; }
+   Integer GetRunMode() { return runMode; }
    void SetRunMode(Integer mode) { runMode = mode; }
    
    // IO formatting
