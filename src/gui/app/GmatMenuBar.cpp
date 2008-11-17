@@ -63,8 +63,8 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    
    #ifdef DEBUG_MENUBAR
    MessageInterface::ShowMessage
-      ("GmatMenuBar::CreateMenu() itemType=%d, windowMenu=%p\n",
-       itemType, windowMenu);
+      ("GmatMenuBar::CreateMenu() itemType=%d, windowMenu=%p, runMode=%d\n",
+       itemType, windowMenu, runMode);
    #endif
    
    //-----------------------------------------------------------------
