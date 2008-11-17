@@ -324,7 +324,8 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    
    // Why I need to set wxTB_FLAT to show separators? (loj: 2008.11.14)
 #ifdef __WXMAC__
-   theToolBar = new GmatToolBar(NULL, wxTB_FLAT);
+//   theToolBar = new GmatToolBar(NULL, wxTB_FLAT);
+   theToolBar = new GmatToolBar(this);
 #else
    theToolBar = new GmatToolBar(this, wxTB_FLAT);
 #endif
