@@ -32,6 +32,7 @@
 #include "MdiTsPlotData.hpp"
 #include "GmatNotebook.hpp"
 #include "GmatMenuBar.hpp"
+#include "GmatToolBar.hpp"
 #include "GmatTreeItemData.hpp"
 #include "SolarSystemWindow.hpp"
 #include "GmatMdiChildFrame.hpp"
@@ -99,28 +100,29 @@
 #include <wx/gdicmn.h>
 #include <wx/toolbar.h>
 #include <wx/progdlg.h>
+#include <wx/utils.h>     // for ::wxLaunchDefaultBrowser()
 #include "ddesetup.hpp"   // for IPC_SERVICE, IPC_TOPIC
 
-#include "bitmaps/new.xpm"
-#include "bitmaps/open.xpm"
-#include "bitmaps/tool_save.xpm"
-#include "bitmaps/copy.xpm"
-#include "bitmaps/cut.xpm"
-#include "bitmaps/paste.xpm"
-#include "bitmaps/print.xpm"
-#include "bitmaps/help.xpm"
-#include "bitmaps/play.xpm"
-#include "bitmaps/pause.xpm"
-#include "bitmaps/tool_stop.xpm"
-#include "bitmaps/close.xpm"
-#include "bitmaps/tabclose.xpm"
-#include "bitmaps/script.xpm"
-#include "bitmaps/build.xpm"
+// #include "bitmaps/new.xpm"
+// #include "bitmaps/open.xpm"
+// #include "bitmaps/tool_save.xpm"
+// #include "bitmaps/copy.xpm"
+// #include "bitmaps/cut.xpm"
+// #include "bitmaps/paste.xpm"
+// #include "bitmaps/print.xpm"
+// #include "bitmaps/help.xpm"
+// #include "bitmaps/play.xpm"
+// #include "bitmaps/pause.xpm"
+// #include "bitmaps/tool_stop.xpm"
+// #include "bitmaps/close.xpm"
+// #include "bitmaps/tabclose.xpm"
+// #include "bitmaps/script.xpm"
+// #include "bitmaps/build.xpm"
 
-#include "bitmaps/animation_play.xpm"
-#include "bitmaps/animation_stop.xpm"
-#include "bitmaps/animation_fast.xpm"
-#include "bitmaps/animation_slow.xpm"
+// #include "bitmaps/animation_play.xpm"
+// #include "bitmaps/animation_stop.xpm"
+// #include "bitmaps/animation_fast.xpm"
+// #include "bitmaps/animation_slow.xpm"
 
 // If we want to show GL option dialog from tool bar
 //#define __SHOW_GL_OPTION_DIALOG__
@@ -173,7 +175,7 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU(MENU_FILE_SAVE_SCRIPT, GmatMainFrame::OnSaveScript)
    EVT_MENU(MENU_FILE_SAVE_SCRIPT_AS, GmatMainFrame::OnSaveScriptAs)
    EVT_MENU(MENU_PROJECT_EXIT, GmatMainFrame::OnProjectExit)
-   EVT_MENU(MENU_PROJECT_PREFERENCES_FONT, GmatMainFrame::OnFont)
+   EVT_MENU(MENU_PREFERENCES_FONT, GmatMainFrame::OnFont)
    EVT_MENU(TOOL_RUN, GmatMainFrame::OnRun)
    EVT_MENU(TOOL_PAUSE, GmatMainFrame::OnPause)
    EVT_MENU(TOOL_STOP, GmatMainFrame::OnStop)
@@ -181,6 +183,7 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU(TOOL_CLOSE_CURRENT, GmatMainFrame::OnCloseActive)
    
    EVT_MENU(MENU_HELP_ABOUT, GmatMainFrame::OnHelpAbout)
+   EVT_MENU(MENU_HELP_ONLINE, GmatMainFrame::OnHelpOnline)
    
    EVT_MENU(MENU_FILE_NEW_SCRIPT, GmatMainFrame::OnNewScript)
    EVT_MENU(MENU_FILE_OPEN_SCRIPT, GmatMainFrame::OnOpenScript)
@@ -231,6 +234,7 @@ END_EVENT_TABLE()
 //------------------------------------------------------------------------------
 /**
  * Constructs GmatMainFrame object.
+   
  *
  * @param <title> input title.
  * @param <pos> input position.
@@ -273,6 +277,9 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
       ("GmatMainFrame::GmatMainFrame() theGuiInterpreter=%p\n", theGuiInterpreter);
    #endif
    
+   //-----------------------------------------------------------------
+   // Create menu bar
+   //-----------------------------------------------------------------
 #if wxUSE_MENUS
    // create a menu bar
    // pass Window menu if Windows
@@ -288,8 +295,17 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    #endif
    
    SetMenuBar(theMenuBar);
+   
+   // Disble Edit menu, Edit menu will be enable in GmatMdiChildFrame if
+   // ItemType is GmatTree::SCRIPT_FILE
+   int editIndex = theMenuBar->FindMenu("Edit");
+   theMenuBar->EnableTop(editIndex, false);
+   
 #endif // wxUSE_MENUS
    
+   //-----------------------------------------------------------------
+   // Create status bar
+   //-----------------------------------------------------------------
 #if wxUSE_STATUSBAR
    // create a status bar
    int widths[] = {150, 600, 300};
@@ -298,16 +314,21 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    SetStatusText(_T("Welcome to GMAT!"));
 #endif // wxUSE_STATUSBAR
    
+   //-----------------------------------------------------------------
+   // Create tool bar
+   //-----------------------------------------------------------------
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage
       ("GmatMainFrame::GmatMainFrame() creating ToolBar...\n");
    #endif
    
-   // Why not showing separator with wxNO_BORDER | wxTB_HORIZONTAL ?
-   //CreateToolBar(wxNO_BORDER | wxTB_HORIZONTAL);
-   CreateToolBar();
-   InitToolBar(GetToolBar());
-   AddAnimationTools(GetToolBar());
+   // Why I need to set wxTB_FLAT to show separators? (loj: 2008.11.14)
+#ifdef __WXMAC__
+   theToolBar = new GmatToolBar(NULL, wxTB_FLAT);
+#else
+   theToolBar = new GmatToolBar(this, wxTB_FLAT);
+#endif
+   SetToolBar(theToolBar);
    
    // used to store the list of open children
    theMdiChildren = new wxList();
@@ -1508,180 +1529,6 @@ wxStatusBar* GmatMainFrame::GetMainFrameStatusBar()
 //-------------------------------
 
 //------------------------------------------------------------------------------
-// void InitToolBar(wxToolBar* toolBar)
-//------------------------------------------------------------------------------
-/**
- * Adds bitmaps to tool bar.
- *
- * @param <toolBar> input tool bar.
- */
-//------------------------------------------------------------------------------
-void GmatMainFrame::InitToolBar(wxToolBar* toolBar)
-{
-   #ifdef DEBUG_MAINFRAME
-   MessageInterface::ShowMessage("GmatMainFrame::InitToolBar() entered\n");
-   #endif
-
-   const int NUM_ICONS = 15;
-   wxBitmap* bitmaps[NUM_ICONS];
-   
-   bitmaps[0] = new wxBitmap(new_xpm);
-   bitmaps[1] = new wxBitmap(open_xpm);
-   bitmaps[2] = new wxBitmap(tool_save_xpm);
-   bitmaps[3] = new wxBitmap(copy_xpm);
-   bitmaps[4] = new wxBitmap(cut_xpm);
-   bitmaps[5] = new wxBitmap(paste_xpm);
-   bitmaps[6] = new wxBitmap(print_xpm);
-   bitmaps[7] = new wxBitmap(help_xpm);
-   bitmaps[8] = new wxBitmap(play_xpm);
-   bitmaps[9] = new wxBitmap(pause_xpm);
-   bitmaps[10] = new wxBitmap(tool_stop_xpm);
-   bitmaps[11] = new wxBitmap(close_xpm);
-   bitmaps[12] = new wxBitmap(tabclose_xpm);
-   bitmaps[13] = new wxBitmap(script_xpm);
-   bitmaps[14] = new wxBitmap(build_xpm);
-   
-   toolBar->SetToolBitmapSize(wxSize(16,15));
-   
-   // recale to default size of 16x15
-   for (int i=0; i<NUM_ICONS; i++)
-   {
-      wxImage image = bitmaps[i]->ConvertToImage();
-      image = image.Rescale(16, 15);
-      *bitmaps[i] = wxBitmap(image);
-   }
-   
-   // add project tools
-   toolBar->AddTool(MENU_FILE_NEW_SCRIPT, _T("New"), *bitmaps[0], _T("New Script"));
-   toolBar->AddTool(MENU_FILE_OPEN_SCRIPT, _T("Open"), *bitmaps[1], _T("Open Script"));
-   toolBar->AddTool(MENU_FILE_SAVE_SCRIPT, _T("Save"), *bitmaps[2], _T("Save to Script"));
-   toolBar->AddSeparator();
-   
-   toolBar->AddTool(MENU_LOAD_DEFAULT_MISSION, _T("Default"), *bitmaps[13], 
-                    _T("Default Project"));
-   toolBar->AddSeparator();
-   
-   // add edit tools
-   toolBar->AddTool(3, _T("Copy"), *bitmaps[3], _T("Copy"));
-   toolBar->AddTool(4, _T("Cut"), *bitmaps[4], _T("Cut"));
-   toolBar->AddTool(5, _T("Paste"), *bitmaps[5], _T("Paste"));
-   toolBar->AddSeparator();
-   
-   // add print tool
-   toolBar->AddTool(6, _T("Print"), *bitmaps[6], _T("Print"));
-   toolBar->AddSeparator();
-   
-   // add run tools
-   toolBar->AddTool(TOOL_RUN, _T("Run"), *bitmaps[8], _T("Run"));
-   toolBar->AddTool(TOOL_PAUSE, _T("Pause"), *bitmaps[9], _T("Pause"));
-   toolBar->AddTool(TOOL_STOP, _T("Stop"), *bitmaps[10], _T("Stop"));
-   toolBar->AddSeparator();
-   
-   // add close window tool
-   toolBar->AddTool(TOOL_CLOSE_CHILDREN, _T("Close"), *bitmaps[11], _T("Close All"));
-   toolBar->AddTool(TOOL_CLOSE_CURRENT, _T("Close this Child"), *bitmaps[12],
-                    _T("Close this Child"));
-   toolBar->AddSeparator();
-   
-   // add help tool
-   toolBar->AddTool(MENU_HELP_ABOUT, _T("Help"), *bitmaps[7], _T("Help"));
-   toolBar->AddSeparator();
-   
-   // now realize to make tools appear
-   toolBar->Realize();
-   
-   // disable tools
-   toolBar->EnableTool(3, FALSE); // copy
-   toolBar->EnableTool(4, FALSE); // cut
-   toolBar->EnableTool(5, FALSE); // paste
-   toolBar->EnableTool(6, FALSE); // print
-   
-   toolBar->EnableTool(TOOL_PAUSE, FALSE);
-   toolBar->EnableTool(TOOL_STOP, FALSE);
-   
-   for (int i = 0; i < NUM_ICONS; i++)
-      delete bitmaps[i];
-   
-   #ifdef DEBUG_MAINFRAME
-   MessageInterface::ShowMessage("GmatMainFrame::InitToolBar() exiting\n");
-   #endif
-}
-
-
-//------------------------------------------------------------------------------
-// void AddAnimationTools(wxToolBar* toolBar)
-//------------------------------------------------------------------------------
-/**
- * Adds animation tool icons to tool bar.
- *
- * @param <toolBar> input tool bar.
- */
-//------------------------------------------------------------------------------
-void GmatMainFrame::AddAnimationTools(wxToolBar* toolBar)
-{
-   #ifdef DEBUG_MAINFRAME
-   MessageInterface::ShowMessage("GmatMainFrame::AddAnimationTools() entered\n");
-   #endif
-   
-   #ifdef __SHOW_GL_OPTION_DIALOG__
-   const int NUM_ICONS = 5;
-   #else
-   const int NUM_ICONS = 4;
-   #endif
-   
-   wxBitmap* bitmaps[NUM_ICONS];
-   
-   bitmaps[0] = new wxBitmap(animation_play_xpm);
-   bitmaps[1] = new wxBitmap(animation_stop_xpm);
-   bitmaps[2] = new wxBitmap(animation_fast_xpm);
-   bitmaps[3] = new wxBitmap(animation_slow_xpm);
-   
-   #ifdef __SHOW_GL_OPTION_DIALOG__
-   bitmaps[4] = new wxBitmap(animation_options_xpm);
-   #endif
-   
-   // recale to default size of 16x15
-   for (int i=0; i<NUM_ICONS; i++)
-   {
-      wxImage image = bitmaps[i]->ConvertToImage();
-      image = image.Rescale(16, 15);
-      *bitmaps[i] = wxBitmap(image);
-   }
-   
-   toolBar->AddSeparator();
-   toolBar->AddSeparator();
-   
-   // How do I put spacing between tools
-   //toolBar->SetToolSeparation(50); // Why this doesn't set spacing?
-   //toolBar->SetToolPacking(10);    // What will this do?
-   //toolBar->SetMargins(50, 2);
-   //int currentX = 400;
-   //toolBar->AddTool(TOOL_ANIMATION_PLAY, *bitmaps[0], wxNullBitmap, false, currentX, -1,
-   //                 (wxObject*) NULL, "Start Animation");
-   
-   toolBar->AddTool(TOOL_ANIMATION_PLAY, _T("AnimationPlay"), *bitmaps[0],
-                    _T("Start Animation"), wxITEM_CHECK);
-   toolBar->AddTool(TOOL_ANIMATION_STOP, _T("AnimationStop"), *bitmaps[1],
-                    _T("Stop Animation"));
-   toolBar->AddTool(TOOL_ANIMATION_FAST, _T("AnimationFast"), *bitmaps[2],
-                    _T("Faster Animation"));
-   toolBar->AddTool(TOOL_ANIMATION_SLOW, _T("AnimationSlow"), *bitmaps[3],
-                    _T("Slower Animation"));
-   
-   #ifdef __SHOW_GL_OPTION_DIALOG__
-   toolBar->AddTool(TOOL_ANIMATION_OPTIONS, _T("AnimationOptions"), *bitmaps[4],
-                    _T("Show Animation Options"));
-   #endif
-   
-   // now realize to make tools appear
-   toolBar->Realize();
-   
-   for (int i = 0; i < NUM_ICONS; i++)
-      delete bitmaps[i];
-}
-
-
-//------------------------------------------------------------------------------
 // bool ShowSaveMessage()
 //------------------------------------------------------------------------------
 /*
@@ -2125,6 +1972,22 @@ void GmatMainFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event))
 {
    AboutDialog dlg(this, -1, "About GMAT");
    dlg.ShowModal();
+}
+
+
+//------------------------------------------------------------------------------
+// void OnHelpOnline(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles online help command from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnHelpOnline(wxCommandEvent& WXUNUSED(event))
+{
+   wxString wikiUrl = "http://gmat.ed-pages.com/wiki/tiki-index.php";
+   ::wxLaunchDefaultBrowser(wikiUrl);
 }
 
 
@@ -3321,7 +3184,7 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
    if (child != NULL)
    {
       wxMenuBar *childMenuBar = child->GetMenuBar();
-
+      
       #if DBGLVL_MENUBAR > 1
       MessageInterface::ShowMessage("   ==childMenuBar=%p\n", childMenuBar);
       #endif
@@ -3336,7 +3199,7 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
             childMenuBar->EnableTop(i, enable);
       }
    }
-      
+   
    //-----------------------------------
    // Enable parent mdi menu bar second
    //-----------------------------------
@@ -3349,6 +3212,12 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
       if (i != helpIndex)
          theMenuBar->EnableTop(i, enable);
    }
+   
+   //-----------------------------------
+   // Always Disable parent Edit menu
+   //-----------------------------------
+   int editIndex = theMenuBar->FindMenu("Edit");
+   theMenuBar->EnableTop(editIndex, false);
 }
 
 

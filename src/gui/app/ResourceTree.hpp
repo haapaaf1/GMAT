@@ -164,7 +164,7 @@ private:
    wxMenu* CreatePopupMenu(GmatTree::ItemType type);
    Gmat::ObjectType GetObjectType(GmatTree::ItemType itemType);
    wxTreeItemId GetTreeItemId(GmatTree::ItemType type);
-   GmatTree::IconType GetTreeItemIcon(GmatTree::ItemType type);
+   GmatTree::ResourceIconType GetTreeItemIcon(GmatTree::ItemType type);
    
    // compare
    void CompareScriptRunResult(Real absTol, const wxString &replaceStr,

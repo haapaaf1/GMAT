@@ -22,7 +22,9 @@
 
 namespace GmatTree
 {
-   enum IconType
+   // ICON_FOLDER should start from 0 since ResourceTree::AddIcons()
+   // creates icons by the order in ResourceIconType
+   enum ResourceIconType
    {
       ICON_FOLDER,
       ICON_FILE,
@@ -59,16 +61,18 @@ namespace GmatTree
       
       ICON_DEFAULT,
    };
-
+   
+   // MISSION_ICON_PROPAGATE should start from 0 since MissionTree::AddIcons()
+   // creates icons by the order in MissionIconType
    enum MissionIconType
    {
       MISSION_ICON_PROPAGATE,
       MISSION_ICON_TARGET,
-
+      
       MISSION_ICON_FOLDER,
       MISSION_ICON_FILE,
       MISSION_ICON_OPENFOLDER,
-
+      
       MISSION_ICON_SPACECRAFT,
       MISSION_ICON_WHILE,
       MISSION_ICON_FOR,
@@ -86,7 +90,7 @@ namespace GmatTree
       MISSION_ICON_END_FB,
       MISSION_ICON_REPORT,
       MISSION_ICON_STOP,
-
+      
       MISSION_NO_ICON,
    };
 
@@ -99,7 +103,7 @@ namespace GmatTree
       UNKNOWN_ITEM = -1,
       
       //---------- Resource Tree
-      RESOURCES_FOLDER = 10000,
+      RESOURCES_FOLDER = 40000,
       SPACECRAFT_FOLDER,
       HARDWARE_FOLDER,
       FORMATION_FOLDER,
@@ -128,7 +132,8 @@ namespace GmatTree
       VIEW_SOLVER_GOALS,
       
       // openable resource
-      BEGIN_OF_RESOURCE = 11000,
+      BEGIN_OF_RESOURCE = 41000,
+      GROUNDSTATION,
       SPACECRAFT,
       FUELTANK,
       THRUSTER,
@@ -137,50 +142,50 @@ namespace GmatTree
       FORMATION_SPACECRAFT,
       CONSTELLATION_SATELLITE,
       
-      PROPAGATOR,
+      PROPAGATOR = 41100,
       
-      IMPULSIVE_BURN,
+      IMPULSIVE_BURN = 41200,
       FINITE_BURN,
       
-      UNIVERSE_FOLDER,
+      UNIVERSE_FOLDER = 41300,
       CELESTIAL_BODY,
       BARYCENTER,
       LIBRATION_POINT,
       
-      SOLVER,
+      SOLVER = 41400,
       DIFF_CORR,
       BROYDEN,
       QUASI_NEWTON,
       SQP,
       
-      REPORT_FILE,
+      REPORT_FILE = 41500,
       XY_PLOT,
       OPENGL_PLOT,
       
-      VARIABLE,
+      VARIABLE = 41600,
       ARRAY,
       STRING,
-      MATLAB_FUNCTION,
+      
+      MATLAB_FUNCTION = 41700,
       GMAT_FUNCTION,
       COORD_SYSTEM,
       USER_COORD_SYSTEM,
-      GROUNDSTATION,
       
       // scripts
-      SCRIPT_FILE,
+      SCRIPT_FILE = 41800,
       END_OF_RESOURCE,
       
       //------------------------------------------
       // Note: MissionTree uses EVT_MENU_RANGE
       //------------------------------------------
       //---------- Mission Tree
-      MISSIONS_FOLDER = 20000,
+      MISSIONS_FOLDER = 42000,
       MISSION_SEQ_TOP_FOLDER,
       MISSION_SEQ_SUB_FOLDER,
       MISSION_SEQ_COMMAND,
       
       // command
-      BEGIN_OF_COMMAND = 21000,
+      BEGIN_OF_COMMAND = 43000,
       PROPAGATE,
       MANEUVER,
       BEGIN_FINITE_BURN,
@@ -202,7 +207,7 @@ namespace GmatTree
       END_OF_COMMAND,
       
       // control logic
-      BEGIN_OF_CONTROL,
+      BEGIN_OF_CONTROL = 44000,
       IF_CONTROL,
       ELSE_IF_CONTROL,
       FOR_CONTROL,
@@ -212,13 +217,13 @@ namespace GmatTree
       END_OF_CONTROL,
       
       //---------- Output Tree
-      OUTPUT_FOLDER = 30000,
+      OUTPUT_FOLDER = 45000,
       REPORTS_FOLDER,
       OPENGL_PLOTS_FOLDER,
       XY_PLOTS_FOLDER,
       
       // for output
-      BEGIN_OF_OUTPUT = 31000,
+      BEGIN_OF_OUTPUT = 46000,
       OUTPUT_REPORT,
       OUTPUT_OPENGL_PLOT,
       OUTPUT_XY_PLOT,
@@ -226,7 +231,7 @@ namespace GmatTree
       END_OF_OUTPUT,
       
       //---------- NO panels will be created
-      BEGIN_NO_PANEL = 40000,
+      BEGIN_NO_PANEL = 47000,
       STOP,
       ADDED_SCRIPT_FOLDER,
       END_TARGET,

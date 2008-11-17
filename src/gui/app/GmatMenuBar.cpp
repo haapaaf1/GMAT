@@ -14,11 +14,8 @@
 //------------------------------------------------------------------------------
 #include "GmatMenuBar.hpp"
 #include "GmatTreeItemData.hpp"
-#include "GmatMainFrame.hpp"     // for namespace GmatMenu
-#include "MdiGlPlotData.hpp"     // for MDI_GL_*
-#include "MdiTsPlotData.hpp"     // for MDI_TS_*
+#include "GmatGlobal.hpp"        // for GetRunMode()
 #include "MessageInterface.hpp"
-
 
 #define __ADD_CLOSE_TO_WINDOW_MENU__
 
@@ -62,6 +59,8 @@ GmatMenuBar::GmatMenuBar(GmatTree::ItemType itemType, wxMenu *windowMenu,
 //------------------------------------------------------------------------------
 void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
 {
+   Integer runMode = GmatGlobal::Instance()->GetRunMode();
+   
    #ifdef DEBUG_MENUBAR
    MessageInterface::ShowMessage
       ("GmatMenuBar::CreateMenu() itemType=%d, windowMenu=%p\n",
@@ -70,113 +69,71 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    
    //-----------------------------------------------------------------
    // File menu
-   //-----------------------------------------------------------------
+   //-----------------------------------------------------------------   
    wxMenu *fileMenu = new wxMenu;
-   fileMenu->Append(MENU_FILE_NEW_SCRIPT, wxT("&New Script"), wxT(""));
-   fileMenu->Append(MENU_FILE_OPEN_SCRIPT, wxT("&Open Script"), wxT(""));
+   wxMenu *newMenu = new wxMenu;
+   newMenu->Append(MENU_FILE_NEW_SCRIPT, wxT("Script"));
+   newMenu->Append(MENU_LOAD_DEFAULT_MISSION, wxT("Mission"));
+   fileMenu->Append(MENU_FILE_NEW, wxT("New"), newMenu, wxT(""));
+   fileMenu->Append(MENU_FILE_OPEN_SCRIPT, wxT("&Open"), wxT(""));   
+   fileMenu->Append(MENU_FILE_SAVE_SCRIPT, wxT("&Save"), wxT(""));
+   fileMenu->Append(MENU_FILE_SAVE_SCRIPT_AS, wxT("Save As"), wxT(""));
    
-   if (itemType == GmatTree::OUTPUT_OPENGL_PLOT)
+   if (runMode == GmatGlobal::TESTING)
    {
-      fileMenu->Append(GmatPlot::MDI_GL_OPEN_TRAJECTORY_FILE, _T("&Open Trajectory File"));
-      fileMenu->Enable(GmatPlot::MDI_GL_OPEN_TRAJECTORY_FILE, false);
+      fileMenu->AppendSeparator();
+      fileMenu->Append(MENU_EMPTY_PROJECT, wxT("Empty Project"), wxT(""));   
+      fileMenu->AppendSeparator();
    }
    
-   if (itemType == GmatTree::OUTPUT_XY_PLOT)
-   {
-       fileMenu->Append(GmatPlot::MDI_TS_OPEN_PLOT_FILE, _T("&Open XY Plot File"));
-   }
-   
-   fileMenu->Append(MENU_FILE_SAVE_SCRIPT, wxT("&Save to Script"), wxT(""));
-   fileMenu->Append(MENU_FILE_SAVE_SCRIPT_AS, wxT("Save to Script As"), wxT(""));
-   
-   fileMenu->AppendSeparator();
-   fileMenu->Append(MENU_LOAD_DEFAULT_MISSION, wxT("Default Project"), wxT(""));   
-   fileMenu->Append(MENU_EMPTY_PROJECT, wxT("Empty Project"), wxT(""));   
-   fileMenu->AppendSeparator();
-   
-   wxMenu *prefMenu = new wxMenu;
-   prefMenu->Append(MENU_PROJECT_PREFERENCES_FONT, wxT("Font"));
-   
-   fileMenu->Append(MENU_PROJECT_PREFERENCES, wxT("Preferences"), prefMenu, wxT(""));
-   
-   fileMenu->Append(MENU_SET_PATH_AND_LOG, wxT("Set File Paths"), wxT(""));
-   fileMenu->Append(MENU_INFORMATION, wxT("Information"), wxT(""));
-   
-   fileMenu->AppendSeparator();
-   fileMenu->Append(MENU_FILE_PRINT, wxT("Print"), wxT(""));
+   fileMenu->Append(MENU_SET_PATH_AND_LOG, wxT("Set File Paths"), wxT(""));      
    fileMenu->AppendSeparator();
    fileMenu->Append(MENU_PROJECT_EXIT, wxT("Exit"), wxT(""));
    #ifdef __WXMAC__
        wxApp::s_macExitMenuItemId = MENU_PROJECT_EXIT;
    #endif
    
-   //fileMenu->Enable(MENU_SET_PATH_AND_LOG, FALSE);
-   fileMenu->Enable(MENU_INFORMATION, FALSE);
-   fileMenu->Enable(MENU_FILE_PRINT, FALSE);
    this->Append(fileMenu, wxT("&File"));
    
    //-----------------------------------------------------------------
    // Edit menu
    //-----------------------------------------------------------------
    wxMenu *editMenu = new wxMenu;
-
-   if (itemType == GmatTree::SCRIPT_FILE)
-   {
-      editMenu->Append(MENU_EDIT_UNDO, wxT("Undo\tCtrl-Z"), wxT(""));
-      editMenu->Append(MENU_EDIT_REDO, wxT("Redo\tShift-Ctrl-Z"), wxT(""));
-      editMenu->AppendSeparator();
-      editMenu->Append(MENU_EDIT_CUT, wxT("Cut\tCtrl-X"), wxT(""));
-      editMenu->Append(MENU_EDIT_COPY, wxT("Copy\tCtrl-C"), wxT(""));
-      editMenu->Append(MENU_EDIT_PASTE, wxT("Paste\tCtrl-V"), wxT(""));
-      editMenu->AppendSeparator();
-      editMenu->Append(MENU_EDIT_SELECT_ALL, wxT("Select All\tCtrl-A"), wxT(""));
-      editMenu->AppendSeparator();
-      editMenu->Append(MENU_EDIT_COMMENT, wxT("Comment\tCtrl-T"), wxT(""));
-      editMenu->Append(MENU_EDIT_UNCOMMENT, wxT("Uncomment\tCtrl-M"), wxT(""));
-      editMenu->AppendSeparator();
-   }
+   editMenu->Append(MENU_EDIT_UNDO, wxT("Undo\tCtrl-Z"), wxT(""));
+   editMenu->Append(MENU_EDIT_REDO, wxT("Redo\tShift-Ctrl-Z"), wxT(""));
+   editMenu->AppendSeparator();
+   editMenu->Append(MENU_EDIT_CUT, wxT("Cut\tCtrl-X"), wxT(""));
+   editMenu->Append(MENU_EDIT_COPY, wxT("Copy\tCtrl-C"), wxT(""));
+   editMenu->Append(MENU_EDIT_PASTE, wxT("Paste\tCtrl-V"), wxT(""));
+   editMenu->AppendSeparator();
+   editMenu->Append(MENU_EDIT_SELECT_ALL, wxT("Select All\tCtrl-A"), wxT(""));
+   editMenu->AppendSeparator();
+   editMenu->Append(MENU_EDIT_COMMENT, wxT("Comment\tCtrl-T"), wxT(""));
+   editMenu->Append(MENU_EDIT_UNCOMMENT, wxT("Uncomment\tCtrl-M"), wxT(""));
    
-   editMenu->Append(MENU_EDIT_RESOURCES, wxT("Resources"), wxT(""));
-   editMenu->Append(MENU_EDIT_MISSION, wxT("Mission"), wxT(""));
-
-   editMenu->Enable(MENU_EDIT_RESOURCES, FALSE);
-   editMenu->Enable(MENU_EDIT_MISSION, FALSE);
-   this->Append(editMenu, wxT("Edit"));
-   
-   //-----------------------------------------------------------------
-   // Script menu
-   //-----------------------------------------------------------------
-   if (itemType == GmatTree::SCRIPT_FILE)
-   {
-      wxMenu *scriptMenu = new wxMenu;
-      scriptMenu->Append(MENU_SCRIPT_BUILD_OBJECT,
-                         _T("&Build Object"));
-      scriptMenu->Append(MENU_SCRIPT_BUILD_AND_RUN,
-                         _T("&Build and Run"));
-      scriptMenu->Append(MENU_SCRIPT_RUN, _T("&Run"));
-      this->Append(scriptMenu, wxT("Script"));
-   }
+   this->Append(editMenu, wxT("&Edit"));
    
    //-----------------------------------------------------------------
    // Tools menu
    //-----------------------------------------------------------------
-   wxMenu *toolsMenu = new wxMenu;
-   toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_NUMERIC, wxT("Compare Numeric Values"), wxT(""));
-   toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_TEXT, wxT("Compare Text Lines"), wxT(""));
-   toolsMenu->Append(MENU_TOOLS_GEN_TEXT_EPHEM_FILE, wxT("Generate Text Ephemeris File"), wxT(""));
-   
-   this->Append(toolsMenu, wxT("Tools"));
-   
+   if (runMode == GmatGlobal::TESTING)
+   {
+      wxMenu *toolsMenu = new wxMenu;
+      toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_NUMERIC, wxT("Compare Numeric Values"), wxT(""));
+      toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_TEXT, wxT("Compare Text Lines"), wxT(""));
+      //Commented out. This will become a Resource in the future (loj: 2008.11.17)
+      //toolsMenu->Append(MENU_TOOLS_GEN_TEXT_EPHEM_FILE, wxT("Generate Text Ephemeris File"), wxT(""));
+      
+      this->Append(toolsMenu, wxT("Tools"));
+   }
    
    //-----------------------------------------------------------------
    // Help menu
    //-----------------------------------------------------------------
    
    wxMenu *helpMenu = new wxMenu;
-   helpMenu->Append(MENU_HELP_TOPICS, wxT("Topics"), wxT(""));
-   helpMenu->AppendSeparator();
    helpMenu->Append(MENU_HELP_ABOUT, wxT("About"), wxT(""));
-   
+   helpMenu->Append(MENU_HELP_ONLINE, wxT("Online Help"), wxT(""));
    helpMenu->Enable(MENU_HELP_TOPICS, FALSE);
    this->Append(helpMenu, wxT("Help"));
    
@@ -207,13 +164,16 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    
    #ifdef DEBUG_MENUBAR
    MessageInterface::ShowMessage
-      ("==> GmatMenuBar::CreateMenu() this=%p, winMenu=%p, createWindowMenu=%d, "
-       "prependClose=%d\n", this, winMenu, createWindowMenu, prependClose);
+      ("GmatMenuBar::CreateMenu() All menus created. Now creating WindowMenu...\n"
+       "   this=%p, winMenu=%p, createWindowMenu=%d, prependClose=%d\n", this,
+       winMenu, createWindowMenu, prependClose);
    #endif
    
    if (createWindowMenu)
    {
-      //MessageInterface::ShowMessage("===> creating Window menu\n");
+      #ifdef DEBUG_MENUBAR
+      MessageInterface::ShowMessage("===> creating Window menu\n");
+      #endif
       winMenu = new wxMenu;
       winMenu->Append(TOOL_CLOSE_CHILDREN, wxT("Close All"), wxT(""));
       winMenu->Append(TOOL_CLOSE_CURRENT, wxT("Close"), wxT(""));
@@ -224,12 +184,17 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    }
    else if (prependClose)
    {
-      //MessageInterface::ShowMessage("===> prepending Close menu item\n");
+      #ifdef DEBUG_MENUBAR
+      MessageInterface::ShowMessage("===> prepending Close menu item\n");
+      #endif
       winMenu->PrependSeparator();
       winMenu->Prepend(TOOL_CLOSE_CURRENT, wxT("Close"), wxT(""));      
       winMenu->Prepend(TOOL_CLOSE_CHILDREN, wxT("Close All"), wxT(""));
    }
    #endif
    
+   #ifdef DEBUG_MENUBAR
+   MessageInterface::ShowMessage("GmatMenuBar::CreateMenu() exiting\n");
+   #endif
 }
 

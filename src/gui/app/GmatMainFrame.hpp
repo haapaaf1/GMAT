@@ -37,11 +37,12 @@
 #include "MdiChildTrajFrame.hpp"
 #include "MdiChildTsFrame.hpp"
 
-#include "wx/notebook.h"
-#include "wx/toolbar.h"
-#include "wx/docview.h"
-#include "wx/laywin.h"
-#include "wx/textctrl.h"
+#include <wx/notebook.h>
+#include <wx/toolbar.h>
+#include <wx/docview.h>
+#include <wx/laywin.h>
+#include <wx/textctrl.h>
+#include <wx/hyperlink.h>
 
 namespace GmatGui
 {
@@ -135,7 +136,8 @@ private:
    ViewTextFrame *mTextFrame;
    wxMenu *mServerMenu;
    wxStatusBar *theStatusBar;
-   GmatMenuBar *theMenuBar;
+   wxMenuBar *theMenuBar;
+   wxToolBar *theToolBar;
    
    GmatMdiChildFrame* CreateNewResource(const wxString &title,
                                         const wxString &name,
@@ -150,12 +152,17 @@ private:
                                       const wxString &name,
                                       GmatTree::ItemType itemType);
    
-   void InitToolBar(wxToolBar* toolBar);
-   void AddAnimationTools(wxToolBar* toolBar);
    bool ShowSaveMessage();
    bool SaveScriptAs();
    void OpenScript(bool restore = true);
    void UpdateTitle(const wxString &filename = "");
+   
+   // IDs for the controls
+   enum
+   {
+      ID_SASH_WINDOW = 100,
+      ID_MSG_SASH_WINDOW,
+   };
    
    // event handling
    DECLARE_EVENT_TABLE();
@@ -169,6 +176,8 @@ private:
    void OnPause(wxCommandEvent &event);
    void OnStop(wxCommandEvent &event);
    void OnHelpAbout(wxCommandEvent &event);
+   void OnHelpOnline(wxCommandEvent &event);
+   void OnHyperLinkClick(wxHyperlinkEvent &event);
    
    void OnNewScript(wxCommandEvent &event);
    void OnOpenScript(wxCommandEvent &event);
@@ -204,76 +213,4 @@ private:
    
 };
 
-namespace GmatMenu
-{
-   // IDs for the controls and the menu commands
-   enum
-   {
-      MENU_FILE_NEW_SCRIPT = 10000,
-      MENU_FILE_OPEN_SCRIPT,
-      MENU_FILE_SAVE_SCRIPT,
-      MENU_FILE_SAVE_SCRIPT_AS,
-      MENU_FILE_PRINT,
-      MENU_LOAD_DEFAULT_MISSION,
-      MENU_EMPTY_PROJECT,
-      
-      MENU_PROJECT_PREFERENCES,
-      MENU_PROJECT_PREFERENCES_FONT,
-      MENU_PROJECT_EXIT,
-      MENU_SET_PATH_AND_LOG,
-      MENU_INFORMATION,
-      
-      MENU_EDIT_UNDO,
-      MENU_EDIT_REDO,
-      MENU_EDIT_CUT,
-      MENU_EDIT_COPY,
-      MENU_EDIT_PASTE,
-      MENU_EDIT_COMMENT,
-      MENU_EDIT_UNCOMMENT,
-      MENU_EDIT_SELECT_ALL,
-      
-      MENU_EDIT_RESOURCES,
-      MENU_EDIT_MISSION,
-      
-      MENU_SCRIPT_OPEN_EDITOR,
-      MENU_SCRIPT_BUILD_OBJECT,
-      MENU_SCRIPT_RUN,
-      MENU_SCRIPT_BUILD_AND_RUN,
-      
-      MENU_TOOLS_FILE_COMPARE_NUMERIC,
-      MENU_TOOLS_FILE_COMPARE_TEXT,
-      MENU_TOOLS_GEN_TEXT_EPHEM_FILE,
-      
-      MENU_HELP_TOPICS,
-      
-      TOOL_RUN,
-      TOOL_PAUSE,
-      TOOL_RESUME,
-      TOOL_STOP,
-      TOOL_BUILD,
-      
-      TOOL_CLOSE_CHILDREN,
-      TOOL_CLOSE_CURRENT,
-      TOOL_SCRIPT,
-
-      TOOL_ANIMATION_PLAY,
-      TOOL_ANIMATION_STOP,
-      TOOL_ANIMATION_FAST,
-      TOOL_ANIMATION_SLOW,
-      TOOL_ANIMATION_OPTIONS,
-      
-      MENU_MATLAB_OPEN,
-      MENU_MATLAB_CLOSE,
-      MENU_START_SERVER,
-      MENU_STOP_SERVER,
-      
-      ID_SASH_WINDOW,
-      ID_MSG_SASH_WINDOW,
-      
-      // it is important for the id corresponding to the "About" command to have
-      // this standard value as otherwise it won't be handled properly under Mac
-      // (where it is special and put into the "Apple" menu)
-      MENU_HELP_ABOUT = wxID_ABOUT,
-   };
-};
 #endif // GmatMainFrame_hpp

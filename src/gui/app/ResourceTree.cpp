@@ -482,7 +482,7 @@ void ResourceTree::AddNode(GmatTree::ItemType itemType, const wxString &name)
    #endif
    
    wxTreeItemId itemId = GetTreeItemId(itemType);
-   GmatTree::IconType iconType = GetTreeItemIcon(itemType);
+   GmatTree::ResourceIconType iconType = GetTreeItemIcon(itemType);
    
    AppendItem(itemId, name, iconType, -1, new GmatTreeItemData(name, itemType));
    
@@ -1988,8 +1988,10 @@ void ResourceTree::OnAddFiniteBurn(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddDiffCorr(wxCommandEvent &event)
 {
-MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
-
+   #ifdef DEBUG_ADD_SOLVER
+   MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
+   #endif
+   
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("DC", 1);   
    GmatBase *obj = theGuiInterpreter->CreateObject("DifferentialCorrector", newName);
@@ -2017,8 +2019,10 @@ MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddSqp(wxCommandEvent &event)
 {
-MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
-
+   #ifdef DEBUG_ADD_SOLVER
+   MessageInterface::ShowMessage("Solver event ID = %d\n", event.GetId());
+   #endif
+   
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("SQP", 1);   
    GmatBase *obj = theGuiInterpreter->CreateObject("FminconOptimizer", newName);
@@ -3342,9 +3346,9 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
 
 
 //------------------------------------------------------------------------------
-// GmatTree::IconType GetTreeItemIcon(GmatTree::ItemType itemType)
+// GmatTree::ResourceIconType GetTreeItemIcon(GmatTree::ItemType itemType)
 //------------------------------------------------------------------------------
-GmatTree::IconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType itemType)
+GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType itemType)
 {
    switch (itemType)
    {
