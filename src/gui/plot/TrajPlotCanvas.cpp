@@ -381,6 +381,20 @@ TrajPlotCanvas::~TrajPlotCanvas()
 //------------------------------------------------------------------------------
 bool TrajPlotCanvas::InitGL()
 {
+   // get GL version
+   #ifdef __GET_GL_INFO__
+   const GLubyte *str = glGetString(GL_VENDOR);
+   MessageInterface::ShowMessage("GL vendor = '%s'\n", (char*)str);
+   str = glGetString(GL_VERSION);
+   MessageInterface::ShowMessage("GL version = '%s'\n", (char*)str);
+   str = glGetString(GL_EXTENSIONS);
+   MessageInterface::ShowMessage("GL extensions = '%s'\n", (char*)str);
+   str = gluGetString(GLU_VERSION);
+   MessageInterface::ShowMessage("GLU version = '%s'\n", (char*)str);
+   str = gluGetString(GLU_EXTENSIONS);
+   MessageInterface::ShowMessage("GLU extensions = '%s'\n", (char*)str);
+   #endif
+   
    // remove back faces
    glDisable(GL_CULL_FACE);
    
