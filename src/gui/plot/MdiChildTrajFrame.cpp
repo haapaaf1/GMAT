@@ -625,6 +625,9 @@ void MdiChildTrajFrame::OnActivate(wxActivateEvent& event)
    {
       mCanvas->SetFocus();
    }
+   
+   GmatMdiChildFrame::OnActivate(event);
+   event.Skip();
 }
 
 
