@@ -47,6 +47,7 @@ public:
    bool IsDirty() { return mDirty; }
    bool CanClose() { return mCanClose; }
    
+   virtual void OnActivate(wxActivateEvent &event);
    virtual void OnClose(wxCloseEvent &event);
    
 protected:
@@ -60,6 +61,7 @@ protected:
    GmatTree::ItemType mItemType;
    wxTextCtrl *theScriptTextCtrl;
    GmatMenuBar *theMenuBar;
+   wxMDIParentFrame *theParent;
    
    // any class wishing to process wxWindows events must use this macro
    DECLARE_EVENT_TABLE();

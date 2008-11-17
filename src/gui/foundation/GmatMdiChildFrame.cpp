@@ -19,10 +19,14 @@
 #include "FileManager.hpp"
 #include "MessageInterface.hpp"
 #include "GuiItemManager.hpp"
+#include "GmatMenuBar.hpp"       // for namespace GmatMenu
+
+// @todo We cannot create own MenuBar yet.
+// Double Window menu appears when more than one child is open and cannot
+// delete theMenuBar in the destructor.
+//#define __CREATE_CHILD_MENU_BAR__
 
 //#define DEBUG_MDI_CHILD_FRAME
-
-//using namespace GmatMenu;
 
 //------------------------------
 // event tables for wxWindows
@@ -55,6 +59,13 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
                                      long style)
    : wxMDIChildFrame(parent, id, title, pos, size, style, name)
 {
+   #ifdef DEBUG_MDI_CHILD_FRAME
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame::GmatMdiChildFrame() entered, title='%s', name='%s', "
+       "type=%d\n", title.c_str(), name.c_str(), type);
+   #endif
+   
+   theParent = parent;
    mDirty = false;
    mItemType = type;
    mCanClose = true;
@@ -63,35 +74,33 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
    childTitle = title;
    #endif
    
-   // create a menu bar
-   // pass Window menu if Windows
-   #ifdef __WXMSW__
-   theMenuBar = new GmatMenuBar(mItemType, parent->GetWindowMenu());
+   #ifdef __CREATE_CHILD_MENU_BAR__
+      // create a menu bar, pass Window menu if Windows
+      #ifdef __WXMSW__
+         theMenuBar = new GmatMenuBar(mItemType, parent->GetWindowMenu());
+      #else
+         theMenuBar = new GmatMenuBar(mItemType, NULL);
+      #endif
+   
+      #ifdef DEBUG_MENUBAR
+      MessageInterface::ShowMessage
+         ("GmatMdiChildFrame::GmatMdiChildFrame() theMenuBarCreated %p\n", theMenuBar);
+      #endif
+      
+      // Commented out so that Window menu works for MdiChildFrame (loj: 2008.02.08)
+      // Double Window menu appears when more than one child is open and cannot
+      // delete theMenuBar in the destructor.
+      //SetMenuBar(theMenuBar);
    #else
-   theMenuBar = new GmatMenuBar(mItemType, NULL);
+      theMenuBar = (GmatMenuBar*)(parent->GetMenuBar());      
    #endif
    
-   #ifdef DEBUG_MENUBAR
-   MessageInterface::ShowMessage
-      ("GmatMdiChildFrame::GmatMdiChildFrame() theMenuBarCreated %p\n", theMenuBar);
-   #endif
-   
-   // Commented out so that Window menu works for MdiChildFrame (loj: 2008.02.08)
-   //SetMenuBar(theMenuBar);
-   
-   // Disble all top menu items except Help, if output plot was created
-   // This will be enabled when completed mission running
-   if (mItemType == GmatTree::OUTPUT_OPENGL_PLOT ||
-       mItemType == GmatTree::OUTPUT_XY_PLOT)
-   {
-      int helpIndex = theMenuBar->FindMenu("Help");
-      int numMenu = theMenuBar->GetMenuCount();
-      for (int i=0; i<numMenu; i++)
-      {
-         if (i != helpIndex)
-            theMenuBar->EnableTop(i, false);
-      }
-   }
+   // Enalbe Edit menu if ScriptFile
+   int editIndex = theMenuBar->FindMenu("Edit");
+   if (mItemType == GmatTree::SCRIPT_FILE)
+      theMenuBar->EnableTop(editIndex, true);
+   else
+      theMenuBar->EnableTop(editIndex, false);
    
    // Set icon if icon file is in the start up file
    FileManager *fm = FileManager::Instance();
@@ -118,7 +127,51 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
 //------------------------------------------------------------------------------
 GmatMdiChildFrame::~GmatMdiChildFrame()
 {
-   delete theMenuBar;
+   #ifdef __CREATE_CHILD_MENU_BAR__
+      delete theMenuBar;
+   #else
+      // There should be only one MenuBar associated with GmatMainFrame,
+      // so we cannot delete it here.
+      int editIndex = theMenuBar->FindMenu("Edit");
+      theMenuBar->EnableTop(editIndex, false);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+//void OnActivate(wxActivateEvent &event)
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::OnActivate(wxActivateEvent &event)
+{
+   #ifdef DEBUG_ACTIVATE
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame::OnActivate() entered, title='%s', mItemType=%d\n",
+       GetTitle().c_str(), mItemType);
+   #endif
+   
+   // Update MenuBar for this child
+   int editIndex = theMenuBar->FindMenu("Edit");
+   if (mItemType == GmatTree::SCRIPT_FILE)
+      theMenuBar->EnableTop(editIndex, true);
+   else
+      theMenuBar->EnableTop(editIndex, false);
+   
+   // Update ToolBar for this child
+   wxToolBar *toolBar = theParent->GetToolBar();
+   if (mItemType == GmatTree::SCRIPT_FILE)
+   {
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_CUT, TRUE);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_COPY, TRUE);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_PASTE, TRUE);
+   }
+   else
+   {
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_CUT, FALSE);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_COPY, FALSE);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_PASTE, FALSE);
+   }
+   
+   event.Skip();
 }
 
 
