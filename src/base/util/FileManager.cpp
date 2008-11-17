@@ -23,6 +23,7 @@
 #include "StringUtil.hpp"
 #include "FileTypes.hpp"          // for GmatFile::MAX_PATH_LEN
 #include "FileUtil.hpp"           // for GmatFileUtil::
+#include "GmatGlobal.hpp"         // for SetTestingMode()
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -318,7 +319,12 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       }
       
       if (correctVersionFound)
-         AddFileType(type, name);
+      {
+         if (type == "RUN_MODE" && name == "TESTING")
+            GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
+         else
+            AddFileType(type, name);
+      }
       else
          throw UtilityException
             ("FileManager::ReadStartupFile() the VERSION not found.\n"

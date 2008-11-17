@@ -24,6 +24,12 @@
 class GMAT_API GmatGlobal
 {
 public:
+
+   enum RunMode
+   {
+      NORMAL = 10,
+      TESTING
+   };
    
    static GmatGlobal* Instance();
    
@@ -57,6 +63,8 @@ public:
    void SetBatchMode(bool flag) { isBatchMdoe = flag; }
    bool GetRunInterrupted() { return runInterrupted; }
    void SetRunInterrupted(bool flag) { runInterrupted = flag; }
+   bool GetRunMode() { return runMode; }
+   void SetRunMode(Integer mode) { runMode = mode; }
    
    // IO formatting
    bool IsScientific() { return actualFormat.mScientific; }
@@ -93,8 +101,7 @@ public:
    
    void SetToDefaultFormat() { actualFormat = defaultFormat; }
    void SetToCurrentFormat() { actualFormat = currentFormat; }
-   
-   
+      
 private:
 
    // Global setting
@@ -159,6 +166,7 @@ private:
    
    bool isBatchMdoe;
    bool runInterrupted;
+   Integer runMode;
    
    IoFormat defaultFormat;
    IoFormat currentFormat;
