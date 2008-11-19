@@ -195,6 +195,7 @@ OBJECTS = \
     foundation/GmatDialog.o \
     foundation/GmatMdiChildFrame.o \
     foundation/GmatPanel.o \
+    foundation/GmatBaseSetupPanel.o \
     foundation/GmatSavePanel.o \
     foundation/GmatStaticBoxSizer.o \
     foundation/GuiItemManager.o \
