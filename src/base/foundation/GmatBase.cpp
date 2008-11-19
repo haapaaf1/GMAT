@@ -1048,6 +1048,41 @@ bool GmatBase::IsParameterReadOnly(const std::string &label) const
 
 
 //---------------------------------------------------------------------------
+// Gmat::ObjectType GetPropertyObjectType(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieves object type of parameter of given id.
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return parameter ObjectType
+ */
+//---------------------------------------------------------------------------
+Gmat::ObjectType GmatBase::GetPropertyObjectType(const Integer id) const
+{
+   return Gmat::UNKNOWN_OBJECT;
+}
+
+
+//---------------------------------------------------------------------------
+// StringArray& GetPropertyEnumSymbols(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieves eumeration symbols of parameter of given id.
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return list of enumeration symbols
+ */
+//---------------------------------------------------------------------------
+StringArray& GmatBase::GetPropertyEnumSymbols(const Integer id) const
+{
+   static StringArray enumSymbols;
+   return enumSymbols;
+}
+
+
+//---------------------------------------------------------------------------
 //  Real GetRealParameter(const Integer id) const
 //---------------------------------------------------------------------------
 /**

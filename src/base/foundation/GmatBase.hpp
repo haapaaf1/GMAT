@@ -158,7 +158,11 @@ public:
    
    virtual bool         IsParameterReadOnly(const Integer id) const;
    virtual bool         IsParameterReadOnly(const std::string &label) const;
-
+   
+   virtual Gmat::ObjectType
+                        GetPropertyObjectType(const Integer id) const;
+   virtual StringArray& GetPropertyEnumSymbols(const Integer id) const;
+   
    virtual Real         GetRealParameter(const Integer id) const;
    virtual Real         SetRealParameter(const Integer id,
                                          const Real value);
