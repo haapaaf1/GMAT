@@ -46,7 +46,7 @@ protected:
    /// Published parameters for ground stations
    enum
    {
-      GroundStationParamCount = SpacePointParamCount,
+      GroundStationParamCount = BodyFixedPointParamCount,
    };
    
 //   static const std::string 
