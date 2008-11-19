@@ -53,8 +53,8 @@ const Gmat::ParameterType
 BodyFixedPoint::PARAMETER_TYPE[BodyFixedPointParamCount - SpacePointParamCount] =
    {
          Gmat::OBJECT_TYPE,
-         Gmat::STRING_TYPE,
-         Gmat::STRING_TYPE,
+         Gmat::ENUMERATION_TYPE,
+         Gmat::ENUMERATION_TYPE,
          Gmat::REAL_TYPE,
          Gmat::REAL_TYPE,
          Gmat::REAL_TYPE,
@@ -91,6 +91,7 @@ BodyFixedPoint::BodyFixedPoint(const std::string &itsType, const std::string &it
    mj2kcsName        (""),
    mj2kcs            (NULL)
 {
+   objectTypes.push_back(Gmat::BODY_FIXED_POINT);
    objectTypeNames.push_back("BodyFixedPoint");
    parameterCount = BodyFixedPointParamCount;
    
@@ -315,6 +316,61 @@ bool BodyFixedPoint::IsParameterReadOnly(const std::string &label) const
 {
    return IsParameterReadOnly(GetParameterID(label));
 }
+
+//---------------------------------------------------------------------------
+// Gmat::ObjectType GetPropertyObjectType(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieves object type of parameter of given id.
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return parameter ObjectType
+ */
+//---------------------------------------------------------------------------
+Gmat::ObjectType BodyFixedPoint::GetPropertyObjectType(const Integer id) const
+{
+   switch (id)
+   {
+   case CENTRAL_BODY:
+      return Gmat::SPACE_POINT;
+   default:
+      return SpacePoint::GetPropertyObjectType(id);
+   }
+}
+
+
+//---------------------------------------------------------------------------
+// StringArray& GetPropertyEnumSymbols(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieves eumeration symbols of parameter of given id.
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return list of enumeration symbols
+ */
+//---------------------------------------------------------------------------
+StringArray& BodyFixedPoint::GetPropertyEnumSymbols(const Integer id) const
+{
+   static StringArray enumSymbols;
+   switch (id)
+   {
+   case STATE_TYPE:
+      enumSymbols.clear();
+      enumSymbols.push_back("Cartesian");
+      enumSymbols.push_back("Geographical");      
+      return enumSymbols;
+   case HORIZON_REFERENCE:
+      enumSymbols.clear();
+      enumSymbols.push_back("Sphere");
+      enumSymbols.push_back("Ellipsoid");      
+      return enumSymbols;
+   default:
+      return SpacePoint::GetPropertyEnumSymbols(id);
+   }
+}
+
 
 //------------------------------------------------------------------------------
 //  std::string  GetStringParameter(const Integer id) const

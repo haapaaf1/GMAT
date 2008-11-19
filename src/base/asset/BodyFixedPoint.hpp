@@ -1,4 +1,4 @@
-//$Id: $
+//$Id$
 //------------------------------------------------------------------------------
 //                            BodyFixedPoint
 //------------------------------------------------------------------------------
@@ -44,6 +44,10 @@ public:
 
    virtual bool            IsParameterReadOnly(const Integer id) const;
    virtual bool            IsParameterReadOnly(const std::string &label) const;
+   
+   virtual Gmat::ObjectType
+                           GetPropertyObjectType(const Integer id) const;
+   virtual StringArray&    GetPropertyEnumSymbols(const Integer id) const;
    
    virtual std::string     GetStringParameter(const Integer id) const;
    virtual bool            SetStringParameter(const Integer id, 
