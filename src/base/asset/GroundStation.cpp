@@ -61,6 +61,7 @@
 GroundStation::GroundStation(const std::string &itsName) :
    BodyFixedPoint    ("GroundStation", itsName)
 {
+   objectTypes.push_back(Gmat::GROUND_STATION);
    objectTypeNames.push_back("GroundStation");
    parameterCount = GroundStationParamCount;
    
