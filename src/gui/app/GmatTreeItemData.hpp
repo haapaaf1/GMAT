@@ -29,6 +29,7 @@ namespace GmatTree
       ICON_FOLDER,
       ICON_FILE,
       ICON_OPENFOLDER,
+      ICON_GROUND_STATION,
       ICON_SPACECRAFT,
       ICON_TANK,
       ICON_THRUSTER,
@@ -60,6 +61,9 @@ namespace GmatTree
       ICON_XY_PLOT,
       
       ICON_DEFAULT,
+      
+      // ICON_COUNT should be the last one, it is used in ResourceTree::AddIcons()
+      ICON_COUNT, 
    };
    
    // MISSION_ICON_PROPAGATE should start from 0 since MissionTree::AddIcons()
@@ -104,6 +108,7 @@ namespace GmatTree
       
       //---------- Resource Tree
       RESOURCES_FOLDER = 40000,
+      GROUND_STATION_FOLDER,
       SPACECRAFT_FOLDER,
       HARDWARE_FOLDER,
       FORMATION_FOLDER,
@@ -133,7 +138,7 @@ namespace GmatTree
       
       // openable resource
       BEGIN_OF_RESOURCE = 41000,
-      GROUNDSTATION,
+      GROUND_STATION,
       SPACECRAFT,
       FUELTANK,
       THRUSTER,

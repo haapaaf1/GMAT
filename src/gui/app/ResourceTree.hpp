@@ -55,6 +55,7 @@ private:
    wxArrayString mFailedScriptsList;
    
    wxTreeItemId mDraggedItem;
+   wxTreeItemId mGroundStationItem;
    wxTreeItemId mSpacecraftItem;
    wxTreeItemId mHardwareItem;
    wxTreeItemId mFormationItem;
@@ -86,6 +87,7 @@ private:
    
    void AddDefaultResources();
    void AddDefaultBodies(wxTreeItemId itemId);
+   void AddDefaultGroundStation(wxTreeItemId itemId, bool resetCounter = true);
    void AddDefaultSpacecraft(wxTreeItemId itemId, bool resetCounter = true);
    void AddDefaultHardware(wxTreeItemId itemId, bool resetCounter = true);
    void AddDefaultFormations(wxTreeItemId itemId, bool resetCounter = true);
@@ -124,6 +126,7 @@ private:
    void OnAddPropagator(wxCommandEvent &event);
    void OnAddConstellation(wxCommandEvent &event);
    void OnAddFormation(wxCommandEvent &event);
+   void OnAddGroundStation(wxCommandEvent &event);
    void OnAddSpacecraft(wxCommandEvent &event);
    void OnAddFuelTank(wxCommandEvent &event);
    void OnAddThruster(wxCommandEvent &event);
@@ -176,7 +179,8 @@ private:
    // for popup menu
    enum
    {
-      POPUP_ADD_SC = 23000,
+      POPUP_ADD_SPACECRAFT = 23000,
+      POPUP_ADD_GROUND_STATION,
       POPUP_ADD_FORMATION,
       POPUP_ADD_CONSTELLATION,
       

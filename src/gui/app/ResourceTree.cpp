@@ -19,6 +19,7 @@
 #include "bitmaps/folder.xpm"
 #include "bitmaps/openfolder.xpm"
 #include "bitmaps/file.xpm"
+#include "bitmaps/groundstation.xpm"
 #include "bitmaps/spacecraft.xpm"
 #include "bitmaps/sun.xpm"
 #include "bitmaps/mercury.xpm"
@@ -72,6 +73,7 @@
 //define __ENABLE_CONSTELLATIONS__
 
 //#define DEBUG_RESOURCE_TREE 1
+//#define DEBUG_ADD_DEFAULT_OBJECTS 1
 //#define DEBUG_RENAME 1
 //#define DEBUG_DELETE 1
 //#define DEBUG_COMPARE_REPORT 1
@@ -95,7 +97,8 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    //EVT_TREE_BEGIN_RDRAG(-1, ResourceTree::OnBeginRDrag)
    //EVT_TREE_END_DRAG(-1, ResourceTree::OnEndDrag)
    
-   EVT_MENU(POPUP_ADD_SC, ResourceTree::OnAddSpacecraft)
+   EVT_MENU(POPUP_ADD_GROUND_STATION, ResourceTree::OnAddGroundStation)
+   EVT_MENU(POPUP_ADD_SPACECRAFT, ResourceTree::OnAddSpacecraft)
    EVT_MENU(POPUP_ADD_FUELTANK, ResourceTree::OnAddFuelTank)
    EVT_MENU(POPUP_ADD_THRUSTER, ResourceTree::OnAddThruster)
    EVT_MENU(POPUP_ADD_FORMATION, ResourceTree::OnAddFormation)
@@ -271,6 +274,7 @@ void ResourceTree::UpdateResource(bool restartCounter)
    
    AddDefaultBodies(mUniverseItem);
    AddDefaultSpecialPoints(mSpecialPointsItem);
+   AddDefaultGroundStation(mSpacecraftItem, restartCounter);
    AddDefaultSpacecraft(mSpacecraftItem, restartCounter);
    AddDefaultHardware(mHardwareItem, restartCounter);
    AddDefaultFormations(mFormationItem, restartCounter);
@@ -501,7 +505,16 @@ void ResourceTree::AddDefaultResources()
    wxTreeItemId resource =
       AddRoot(wxT("Resources"), -1, -1,
               new GmatTreeItemData(wxT("Resources"), GmatTree::RESOURCES_FOLDER));
-
+   
+   //----- GroundStation
+   mSpacecraftItem =
+      AppendItem(resource, wxT("Ground Station"), GmatTree::ICON_FOLDER, -1,
+                 new GmatTreeItemData(wxT("Ground Station"),
+                                      GmatTree::GROUND_STATION_FOLDER));
+   
+   SetItemImage(mSpacecraftItem, GmatTree::ICON_OPENFOLDER,
+                wxTreeItemIcon_Expanded);
+   
    //----- Spacecraft
    mSpacecraftItem =
       AppendItem(resource, wxT("Spacecraft"), GmatTree::ICON_FOLDER, -1,
@@ -623,6 +636,7 @@ void ResourceTree::AddDefaultResources()
    
    AddDefaultBodies(mUniverseItem);
    AddDefaultSpecialPoints(mSpecialPointsItem);
+   AddDefaultGroundStation(mSpacecraftItem);
    AddDefaultSpacecraft(mSpacecraftItem);
    AddDefaultHardware(mHardwareItem);
    AddDefaultFormations(mFormationItem);
@@ -684,6 +698,44 @@ void ResourceTree::AddDefaultBodies(wxTreeItemId itemId)
 
 
 //------------------------------------------------------------------------------
+// void AddDefaultGroundStation(wxTreeItemId itemId, bool restartCounter = true)
+//------------------------------------------------------------------------------
+/**
+ * Add the default ground station
+ *
+ * @param <itemId> tree item for the ground station folder
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::AddDefaultGroundStation(wxTreeItemId itemId, bool restartCounter)
+{
+   StringArray itemNames = theGuiInterpreter->GetListOfObjects(Gmat::GROUND_STATION);
+   int size = itemNames.size();
+   wxString objName;
+   
+   #ifdef DEBUG_ADD_DEFAULT_OBJECTS
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddDefaultGroundStation() size=%d\n", size);
+   #endif
+   
+   for (int i = 0; i<size; i++)
+   {
+      objName = wxString(itemNames[i].c_str());
+      
+      #ifdef DEBUG_ADD_DEFAULT_OBJECTS
+      MessageInterface::ShowMessage
+         ("ResourceTree::AddDefaultGroundStation() objName=%s\n", objName.c_str());
+      #endif
+      
+      AppendItem(itemId, wxT(objName), GmatTree::ICON_GROUND_STATION, -1,
+                 new GmatTreeItemData(wxT(objName), GmatTree::GROUND_STATION));
+   };
+   
+   if (size > 0)
+      Expand(itemId);   
+}
+
+
+//------------------------------------------------------------------------------
 // void AddDefaultSpacecraft(wxTreeItemId itemId, bool restartCounter = true)
 //------------------------------------------------------------------------------
 /**
@@ -697,16 +749,20 @@ void ResourceTree::AddDefaultSpacecraft(wxTreeItemId itemId, bool restartCounter
    StringArray itemNames = theGuiInterpreter->GetListOfObjects(Gmat::SPACECRAFT);
    int size = itemNames.size();
    wxString objName;
-   
-   //MessageInterface::ShowMessage
-   //   ("ResourceTree::AddDefaultSpacecraft() size=%d\n", size);
+
+   #ifdef DEBUG_ADD_DEFAULT_OBJECTS
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddDefaultSpacecraft() size=%d\n", size);
+   #endif
    
    for (int i = 0; i<size; i++)
    {
       objName = wxString(itemNames[i].c_str());
       
-      //MessageInterface::ShowMessage
-      //   ("ResourceTree::AddDefaultSpacecraft() objName=%s\n", objName.c_str());
+      #ifdef DEBUG_ADD_DEFAULT_OBJECTS
+      MessageInterface::ShowMessage
+         ("ResourceTree::AddDefaultSpacecraft() objName=%s\n", objName.c_str());
+      #endif
       
       AppendItem(itemId, wxT(objName), GmatTree::ICON_SPACECRAFT, -1,
                  new GmatTreeItemData(wxT(objName), GmatTree::SPACECRAFT));
@@ -794,7 +850,7 @@ void ResourceTree::AddDefaultFormations(wxTreeItemId itemId, bool restartCounter
          objName = wxString(formSc[j].c_str());
          AppendItem(formationItem, wxT(objName), GmatTree::ICON_SPACECRAFT, -1,
                  new GmatTreeItemData(wxT(objName), GmatTree::SPACECRAFT));
-      }   
+      }
 
       Expand(formationItem);
    };
@@ -1524,6 +1580,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
                                
    int itemType = selItem->GetItemType();
    bool isDefaultFolder = ((itemType == GmatTree::RESOURCES_FOLDER)     ||
+                           (itemType == GmatTree::GROUND_STATION_FOLDER)||
                            (itemType == GmatTree::SPACECRAFT_FOLDER)    ||
                            (itemType == GmatTree::HARDWARE_FOLDER)      ||
                            (itemType == GmatTree::FORMATION_FOLDER)     ||
@@ -1647,24 +1704,24 @@ void ResourceTree::OnEndDrag(wxTreeEvent& event)
       // error
       return;
    }
-
+   
    // Get info from selected item
    GmatTreeItemData *theItem = (GmatTreeItemData *) GetItemData(itemDst);
    int destId = theItem->GetItemType();
-
+   
    if ((destId == GmatTree::FORMATION )  ||
        (destId == GmatTree::SPACECRAFT_FOLDER ))
    {
       wxString text = GetItemText(itemSrc);
-
+      
       AppendItem(itemDst, text, GmatTree::ICON_SPACECRAFT, -1,
                  new GmatTreeItemData(text, GmatTree::SPACECRAFT));
-               
+      
       if (GetChildrenCount(mSpacecraftItem) <= 1)
       {           
          Collapse(mSpacecraftItem);
       }
-    
+      
       Delete(itemSrc);
    }   
 }
@@ -1680,16 +1737,22 @@ void ResourceTree::OnEndDrag(wxTreeEvent& event)
 void ResourceTree::AddIcons()
 {
    int size = 16;
-   
    wxImageList *images = new wxImageList ( size, size, true );
-   
    wxBusyCursor wait;
-   wxIcon icons[30];
+   
+   #ifdef DEBUG_ADD_ICONS
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddIcons() GmatTree::ICON_DEFAULT=%d\n", GmatTree::ICON_DEFAULT);
+   #endif
+   
+   wxIcon icons[GmatTree::ICON_COUNT];
    int index = 0;
    
+   // add icons by the order of enum ResourceIconType
    icons[index]   = wxIcon ( folder_xpm );
    icons[++index] = wxIcon ( file_xpm );
    icons[++index] = wxIcon ( openfolder_xpm );
+   icons[++index] = wxIcon ( groundstation_xpm );
    icons[++index] = wxIcon ( spacecraft_xpm );
    icons[++index] = wxIcon ( tank_xpm );
    icons[++index] = wxIcon ( thruster_xpm );
@@ -1749,6 +1812,33 @@ void ResourceTree::OnAddBody(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
    AppendItem(item, wxT("New Body"), GmatTree::ICON_EARTH, -1,
               new GmatTreeItemData(wxT("New Body"), GmatTree::CELESTIAL_BODY));
+}
+
+
+//------------------------------------------------------------------------------
+// void OnAddGroundStation(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+/**
+ * Add a ground station to ground station folder
+ *
+ * @param <event> command event
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::OnAddGroundStation(wxCommandEvent &event)
+{
+   wxTreeItemId item = GetSelection();   
+   std::string newName = theGuiInterpreter->GetNewName("GroundStation", 1);   
+   GmatBase *obj = theGuiInterpreter->CreateObject("GroundStation", newName);
+   
+   if (obj != NULL)
+   {
+      wxString name = newName.c_str();
+      AppendItem(item, name, GmatTree::ICON_GROUND_STATION, -1,
+                 new GmatTreeItemData(name, GmatTree::GROUND_STATION));
+      Expand(item);
+      
+      theGuiManager->UpdateSpacePoint();
+   }
 }
 
 
@@ -2058,7 +2148,7 @@ void ResourceTree::OnAddSolver(wxCommandEvent &event)
    // The rest is like the other tree additions
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName(selected, 1);   
-
+   
    GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
    
    if (obj != NULL)
@@ -3027,8 +3117,11 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
 
    switch (itemType)
    {
+   case GmatTree::GROUND_STATION_FOLDER:
+      menu.Append(POPUP_ADD_GROUND_STATION, wxT("Add Ground Station"));
+      break;
    case GmatTree::SPACECRAFT_FOLDER:
-      menu.Append(POPUP_ADD_SC, wxT("Add Spacecraft"));
+      menu.Append(POPUP_ADD_SPACECRAFT, wxT("Add Spacecraft"));
       break;
    case GmatTree::HARDWARE_FOLDER:
       menu.Append(POPUP_ADD_HARDWARE, wxT("Add"), CreatePopupMenu(itemType));
@@ -3352,6 +3445,8 @@ GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType item
 {
    switch (itemType)
    {
+   case GmatTree::GROUND_STATION:
+      return GmatTree::ICON_GROUND_STATION;
    case GmatTree::SPACECRAFT:
       return GmatTree::ICON_SPACECRAFT;
    case GmatTree::IMPULSIVE_BURN:

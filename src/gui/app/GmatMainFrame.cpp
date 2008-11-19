@@ -37,6 +37,7 @@
 #include "SolarSystemWindow.hpp"
 #include "GmatMdiChildFrame.hpp"
 // panels
+#include "GmatBaseSetupPanel.hpp"
 #include "SpacecraftPanel.hpp"
 #include "TankConfigPanel.hpp"
 #include "ThrusterConfigPanel.hpp"
@@ -2012,6 +2013,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    
    switch (itemType)
    {
+   case GmatTree::GROUND_STATION:
+      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      break;
    case GmatTree::SPACECRAFT:
       sizer->Add(new SpacecraftPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
