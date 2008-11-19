@@ -370,6 +370,25 @@ void GuiItemManager::UpdateSpacecraft(bool updateObjectArray)
 
 
 //------------------------------------------------------------------------------
+//  void UpdateSpacePoint(bool updateObjectArray = true)
+//------------------------------------------------------------------------------
+/**
+ * Updates spacecraft related gui components.
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::UpdateSpacePoint(bool updateObjectArray)
+{
+   #if DBGLVL_GUI_ITEM_UPDATE
+   MessageInterface::ShowMessage("===> UpdateSpacePoint\n");
+   #endif
+   
+   UpdateSpacePointList();
+   if (updateObjectArray)
+      AddToAllObjectArray();
+}
+
+
+//------------------------------------------------------------------------------
 //  void UpdateBurn(bool updateObjectArray = true)
 //------------------------------------------------------------------------------
 /**

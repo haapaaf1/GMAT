@@ -61,6 +61,7 @@ public:
    void UpdatePropagator(bool updateObjectArray = true);
    void UpdateSolarSystem(bool updateObjectArray = true);
    void UpdateSpacecraft(bool updateObjectArray = true);
+   void UpdateSpacePoint(bool updateObjectArray = true);
    void UpdateSolver(bool updateObjectArray = true);
    void UpdateSubscriber(bool updateObjectArray = true);
    
