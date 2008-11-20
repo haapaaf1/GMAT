@@ -1,0 +1,17 @@
+Jacchia 1977 Atmospheric Model
+
+This software was provided by David L. Huestis (SRI International, 
+david.huestis@sri.com, http://www-mpl.sri.com/software/jacchia77/jacchia77.html).
+
+The Jacchia 1977 thermospheric model is combined with the U.S. Standard 
+Atmosphere 1976 model. Temperature and component number densities are c
+alculated from the ground to the maximum altitude requested. The only 
+variable input parameter is the exospheric temperature. See the comments 
+in the source code below for more details.
+
+Download Source Code
+	j77sri.for Subroutine that calculates altitude profiles
+	testj77.for Example test main program to print altitude profiles
+
+Example Output
+	T1000.out Altitude profiles for an exospheric temperature of 1000ÊK

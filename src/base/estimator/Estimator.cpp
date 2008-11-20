@@ -973,6 +973,19 @@ const StringArray& Estimator::GetStringArrayParameter(const Integer id) const
    return GmatBase::GetStringArrayParameter(id);
 }
 
+//------------------------------------------------------------------------------
+//  GmatBase* GetRefObject(const Gmat::ObjectType type,
+//                                  const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * This method returns a pointer to a desired GmatBase object.
+ *
+ * @param <type> Object type of the requested object.
+ * @param <name> String name of the requested object.
+ *
+ * @return  A pointer to a GmatBase object.
+ */
+//------------------------------------------------------------------------------
 GmatBase* Estimator::GetRefObject(const Gmat::ObjectType type,
                                   const std::string &name)
 {
@@ -1007,6 +1020,19 @@ GmatBase* Estimator::GetRefObject(const Gmat::ObjectType type,
 }
 
 
+//------------------------------------------------------------------------------
+//  GmatBase* GetRefObject(const Gmat::ObjectType type,
+//                                  const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * This method returns a pointer to a desired GmatBase object.
+ *
+ * @param <type> Object type of the requested object.
+ * @param <name> String name of the requested object.
+ *
+ * @return  A pointer to a GmatBase object.
+ */
+//------------------------------------------------------------------------------
 bool Estimator::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name)
 {

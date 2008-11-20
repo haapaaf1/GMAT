@@ -40,8 +40,9 @@ const std::string DataFile::DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS] =
 const std::string
 DataFile::PARAMETER_TEXT[DataFileParamCount - GmatBaseParamCount] =
 {
-   "Filename",
-
+   "FileName",
+   "FileFormat",
+   "NumLines"
 };
 
 
@@ -49,6 +50,8 @@ const Gmat::ParameterType
 DataFile::PARAMETER_TYPE[DataFileParamCount - GmatBaseParamCount] =
 {
    Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
+   Gmat::INTEGER_TYPE
 };
 
 //---------------------------------
@@ -149,6 +152,117 @@ Gmat::ParameterType DataFile::GetParameterType(const Integer id) const
    return GmatBase::GetParameterType(id);
 }
 
+//------------------------------------------------------------------------------
+//  std::string GetStringParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Gets the value for a std::string parameter.
+ * 
+ * @param <id> Integer ID of the parameter.
+ * 
+ * @return The value of the parameter.
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::GetStringParameter(const Integer id) const
+{
+   if (id == FILENAME_ID)
+      return dataFileName;
+
+   if (id == FILEFORMAT_ID)
+      return dataFormatID;
+          
+   return GmatBase::GetStringParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  bool SetStringParameter(const Integer id, const Real value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a std::string parameter.
+ * 
+ * @param <id>    Integer ID of the parameter.
+ * @param <value> New value for the parameter.
+ * 
+ * @return The value of the parameter.
+ */
+//------------------------------------------------------------------------------
+bool DataFile::SetStringParameter(const Integer id, const std::string &value)
+{
+   if (id == FILENAME_ID)
+   {
+      dataFileName = value;
+      return true;
+   }
+
+   if (id == FILEFORMAT_ID)
+   {
+      dataFormatID = GetDataFormatID(value);
+      return true;
+   }
+ 
+   return GmatBase::SetStringParameter(id, value);
+   
+}
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Integer DataFile::GetIntegerParameter(const Integer id) const
+{
+    if (id == NUMLINES_ID)
+      return numLines;
+
+    return GmatBase::GetIntegerParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::GetIntegerParameter(const std::string &label) const
+{
+   return GetIntegerParameter(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer SetIntegerParameter(const Integer id, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ *
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::SetIntegerParameter(const Integer id, const Integer value)
+{
+
+   if (id == NUMLINES_ID)
+   {
+         numLines = value;
+         return value;
+   }
+   
+   return GmatBase::SetIntegerParameter(id, value);
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer SetIntegerParameter(std::string &label, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::SetIntegerParameter(const std::string &label, const Integer value)
+{
+   return SetIntegerParameter(GetParameterID(label), value);
+}
 
 //---------------------------------
 //  public methods
@@ -172,21 +286,25 @@ Gmat::ParameterType DataFile::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 DataFile::DataFile(const std::string &itsType, 
 				 const std::string &itsName) :
-GmatBase(Gmat::DATA_FILE,itsType,itsName)
+    GmatBase(Gmat::DATA_FILE,itsType,itsName),
+    dataFormatID (0),
+    isOpen (false)
 {
    objectTypes.push_back(Gmat::DATA_FILE);
    objectTypeNames.push_back("DataFile");
 }
 
-
 //------------------------------------------------------------------------------
 //  DataFile::DataFile()
 //------------------------------------------------------------------------------
 /**
- * Class constructor
+ * Copy constructor for DataFile objects
  */
+//------------------------------------------------------------------------------
 DataFile::DataFile(const DataFile &pdf) :
     GmatBase       (pdf),
+    dataFormatID (pdf.dataFormatID),
+    numLines (pdf.numLines),
     lineFromFile (pdf.lineFromFile),
     dataFileName (pdf.dataFileName),
     isOpen (pdf.isOpen)
@@ -539,99 +657,6 @@ std::string DataFile::Trim(std::string str)
     pcrecpp::RE("\\s+$").GlobalReplace("", &str);
 
     return str;
-}
-
-////------------------------------------------------------------------------------
-//// template <class T> bool DataFile::from_string(T& t,
-////		   const std::string& s,
-////                 std::ios_base& (*f)(std::ios_base&))
-////------------------------------------------------------------------------------
-///**
-// * Typesafe conversion from string to integer, float, etc
-// */
-////------------------------------------------------------------------------------
-//
-//template <class T> bool DataFile::from_string(T& t, const std::string& s,
-//                 std::ios_base& (*f)(std::ios_base&))
-//{
-//  std::istringstream iss(s);
-//  return !(iss >> f >> t).fail();
-//}
-
-//------------------------------------------------------------------------------
-// std::string Ilrs2Cospar(std::string ilrsSatnum)
-//------------------------------------------------------------------------------
-/**
- * Convert ILRS Satellite Number to COSPAR International Designator
- *
- * ILRS Satellite Identifier - 7 digit number based on COSPAR
- * Note: COSPAR ID to ILRS Satellite Identification Algorithm
- *
- * COSPAR ID Format: (YYYY-XXXA)
- *
- * YYYY is the four digit year when the launch vehicle was put in orbit
- * XXX is the sequential launch vehicle number for that year
- * A is the alpha numeric sequence number within a launch
- * Example: LAGEOS-1 COSPAR ID is 1976-039A
- * Explanation: LAGEOS-1 launch vehicle wasplaced in orbit in 1976;
- * was the 39th launch in that year; and LAGEOS-1 was the first object
- * injected into orbit from this launch.
- *
- * ILRS Satellite Identification Format: (YYXXXAA), based on the COSPAR ID
- * Where YY is the two digit year when the launch vehicle was put in orbit
- * Where XXX is the sequential launch vehicle number for that year
- * AA is the numeric sequence number within a launch
- * Example: LAGEOS-1 ILRS Satellite ID is 7603901
- */
-//------------------------------------------------------------------------------
-std::string DataFile::Ilrs2Cospar(std::string ilrsSatnum)
-{
-
-    int year;
-
-    from_string<int>(year,ilrsSatnum.substr(0,2),std::dec);
-
-    if ( year < 50 )
-    {
-	year += 2000;
-    } else {
-	year += 1900;
-    }
-
-    std::string launchalpha;
-
-    int index;
-    from_string<int>(index,ilrsSatnum.substr(5,2),std::dec);
-
-    static const char alpha[26] = {'A','B','C','D','E','F','G','H','I','J','K',
-                  'L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
-
-    if (index <= 26)
-    {
-
-	// Account for zero indexed array so subtract 1
-	launchalpha = alpha[index-1];
-
-    }
-    else
-    {
-
-	int index2 = -1;
-
-	while (index > 26)
-	{
-
-	    index -= 26;
-	    index2++;
-
-	}
-
-	launchalpha = alpha[index2] + alpha[index];
-
-    }
-
-    return GmatStringUtil::ToString(year,2) + ilrsSatnum.substr(2,3) + launchalpha;
-
 }
 
 //------------------------------------------------------------------------------

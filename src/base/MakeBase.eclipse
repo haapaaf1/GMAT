@@ -489,6 +489,7 @@ OBJECTS = \
 # Future classes:
 #    solarsys/Msise00Atmosphere.o \
 #    propagator/Cowell.o \
+#    measurement/SimMeasurementModel.o \
 #    measurement/AzElMeasurementModel.o \
 #    measurement/RangeMeasurementModel.o \
 #    measurement/RangeRaDecMeasurementModel.o \

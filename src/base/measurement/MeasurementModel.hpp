@@ -43,6 +43,12 @@ public:
   MeasurementModel& operator=(const MeasurementModel &MeasurementModel);
   virtual ~MeasurementModel();
 
+  virtual std::string     GetParameterText(const Integer id) const;
+  virtual Integer         GetParameterID(const std::string &str) const;
+  virtual Gmat::ParameterType
+                          GetParameterType(const Integer id) const;
+
+  
   // Friend function
   friend std::ostream& operator<<(std::ostream& output, MeasurementModel &mm);
   friend std::istream& operator>>(std::istream& input, MeasurementModel &mm);
@@ -50,12 +56,21 @@ public:
   // Methods overridden from the GmatBase clase
   virtual GmatBase *Clone() const;
   virtual void      Copy(const GmatBase* orig);      
+
+  std::string GetStringParameter(const Integer id) const;
+  bool SetStringParameter(const Integer id, const std::string &value);
+  const StringArray& GetStringArrayParameter(const Integer id) const;
+  Integer GetIntegerParameter(const Integer id) const;
+  Integer GetIntegerParameter(const std::string &label) const;
+  Integer SetIntegerParameter(const Integer id, const Integer value);
+  Integer SetIntegerParameter(const std::string &label, const Integer value);
+
   virtual GmatBase* 
                     GetRefObject(const Gmat::ObjectType type,
 				 const std::string &name);
   virtual const StringArray&
                     GetRefObjectNameArray(const Gmat::ObjectType type);
-   virtual bool     SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+  virtual bool     SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name = "");
    
 
@@ -93,6 +108,43 @@ private:
   static const std::string MODEL_DESCRIPTIONS[NUM_MODELS];
 
 protected:
+    
+    enum LIGHTTIME_REPS {
+	DEFAULT_ID = 0,
+	LIGHTTIME,
+	EndLightTimeModelReps
+    };
+    
+    enum IONO_MODEL_REPS {
+	DEFAULT_ID = 0,
+	IRI90_ID,
+	IRI95_ID,
+	IRI01_ID,
+	IRI07_ID,
+	PRISM_ID,
+	IFM_ID,
+	CITFM_ID,
+	SAMI2_ID,
+	SAMI3_ID,
+	GTIM_ID,
+	FLIP_ID,
+	USU_ID,
+	CTIP_ID,
+	TIMEGCM_ID,
+	EndIonoModelReps
+    };
+    
+    enum TROPO_MODEL_REPS {
+	DEFAULT_ID = 0,
+	IFADIS_ID,
+	NIELL_ID,
+	HOPFIELD_MODIFIED_ID,
+	HOPFILED_SIMPLIFIED_ID,
+	SAASTOMOINEN_ID,
+	DIFFERENTIAL_REFRACTION_ID,
+	MARINI_ID,
+	EndTropoModelReps
+    };
 
     enum MODEL_REPS {
 	DEFAULT_ID = 0,
@@ -118,17 +170,54 @@ protected:
 	RANGERADEC_ID,
 	EndModelReps
    };
+   
+   enum
+   {
+      DATASOURCE_ID   = GmatBaseParamCount,
+      MEASUREMENTTYPES_ID,
+      LIGHTTIME_ID,
+      IONOSPHERE_ID,
+      TROPOSPHERE_ID,
+      MeasurementModelParamCount
+   };
+
+   static const std::string    PARAMETER_TEXT[MeasurementModelParamCount -
+                                              GmatBaseParamCount];
+   static const Gmat::ParameterType
+                               PARAMETER_TYPE[MeasurementModelParamCount -
+                                              GmatBaseParamCount];
+   
+   static const std::string MODEL_DESCRIPTIONS[EndModelReps];
+   static const std::string IONOSPHERE_MODEL_DESCRIPTIONS[EndIonoModelReps];
+   static const std::string TROPOSPHERE_MODEL_DESCRIPTIONS[EndTropoModelReps];
+   static const std::string LIGHTTIME_MODEL_DESCRIPTIONS[EndLightTimeModelReps];
 
   // Name of the measurement model being used
   Integer modelID;
+  // Name of the measurement model being used
+  Integer ionoModelID;
+  // Name of the measurement model being used
+  Integer tropoModelID;
+  // Name of the measurement model being used
+  Integer lightTimeModelID;
+  
+  // Flag for corrections
+  bool isIonoON;
+  bool isTropoON;
+  bool isLightTimeON;
+  
   // Total number of measurements returned by the model
   Integer numMeasurements;
   // Name of the measurements returned
-  std::string* measurementNames;
+  StringArray measurementNames;
   // Units of each measurement returned
-  std::string* measurementUnits;
+  StringArray measurementUnits;
   // Measurement returned by the model
   Real* measurements;
+
+  // This array of datatypes can be used to select a specific
+  // subset of available data from a given dataFormat
+  StringArray dataTypesAllowed;
   
   /// Array of strings passed to the GMAT engine
   StringArray tempNameArray;

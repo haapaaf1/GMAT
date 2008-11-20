@@ -1,0 +1,78 @@
+extern int initialize_();
+extern E_f xe1_(real *h__);
+extern E_f zero_(real *delta);
+extern E_f dxe1n_(real *h__);
+extern E_f xe2_(real *h__);
+extern E_f xe3_(real *h__);
+extern E_f xe4_(real *h__);
+extern E_f xe5_(real *h__);
+extern E_f xe6_(real *h__);
+extern E_f xe_(real *h__);
+extern int teba_(real *dipl, real *slt, integer *ns, real *te);
+extern int spharm_(real *c__, integer *l, integer *m, real *colat, real *az);
+extern E_f elte_(real *h__);
+extern E_f tede_(real *h__, real *den, real *cov);
+extern E_f ti_(real *h__);
+extern E_f teder_(real *h__);
+extern E_f tn_(real *h__, real *tinf, real *tlbd, real *s);
+extern E_f dtndh_(real *h__, real *tinf, real *tlbd, real *s);
+extern E_f rpid_(real *h__, real *h0, real *n0, integer *m, real *st, integer *id, real *xs);
+extern int rdhhe_(real *h__, real *hb, real *rdoh, real *rdo2h, real *rno, real *pehe, real *rdh, real *rdhe);
+extern E_f rdno_(real *h__, real *hb, real *rdo2h, real *rdoh, real *rno);
+extern int koefp1_(real *pg1o);
+extern int koefp2_(real *pg2o);
+extern int koefp3_(real *pg3o);
+extern int sufe_(real *field, real *rfe, integer *m, real *fe);
+extern E_f fout_(real *xmodip, real *xlati, real *xlongi, real *ut, real *ff0);
+extern E_f xmout_(real *xmodip, real *xlati, real *xlongi, real *ut, real *xm0);
+extern E_f hmf2ed_(real *xmagbr, real *r__, real *x, real *xm3);
+extern E_f fof1ed_(real *ylati, real *r__, real *chi);
+extern E_f foeedi_(real *cov, real *xhi, real *xhim, real *xlati);
+extern E_f xmded_(real *xhi, real *r__, real *yw);
+extern E_f gamma1_(real *smodip, real *slat, real *slong, real *hour, integer *iharm, integer *nq, integer *k1, integer *m, integer *mm, integer *m3, real *sfe);
+extern int ggm_(integer *art, real *long__, real *lati, real *mlong, real *mlat);
+extern int fieldg_(real *dlat, real *dlong, real *alt, real *x, real *y, real *z__, real *f, real *dip, real *dec, real *smodip);
+extern int regfa1_(real *x11, real *x22, real *fx11, real *fx22, real *eps, real *fw, E_fp f, logical *schalt, real *x);
+extern int tal_(real *shabr, real *sdelta, real *shbr, real *sdtdh0, logical *aus6, real *spt);
+extern int soco_(integer *ld, real *t, real *flat, real *elon, real *declin, real *zenith, real *sunrse, real *sunset);
+extern E_f hpol_(real *hour, real *tw, real *xnw, real *sa, real *su, real *dsa, real *dsu);
+extern int moda_(integer *in, integer *iyear, integer *month, integer *iday, integer *idoy, integer *nrdaymo);
+extern int ut_lt__(integer *mode, real *ut, real *slt, real *glong, integer *iyyy, integer *ddd);
+extern E_f b0_tab__(real *hour, real *sax, real *sux, integer *nseasn, real *r__, real *zmodip);
+extern E_f b0_new__(real *hour, real *sax, real *sux, integer *nseasn, real *r__, real *zmodip);
+extern E_f b0pol_(real *hour, real *sax, real *sux, integer *iseason, real *r__, real *dela);
+extern E_f rlay_(real *x, real *xm, real *sc, real *hx);
+extern E_f d1lay_(real *x, real *xm, real *sc, real *hx);
+extern E_f d2lay_(real *x, real *xm, real *sc, real *hx);
+extern E_f eptr_(real *x, real *sc, real *hx);
+extern E_f epst_(real *x, real *sc, real *hx);
+extern E_f epstep_(real *y2, real *y1, real *sc, real *hx, real *x);
+extern E_f epla_(real *x, real *sc, real *hx);
+extern E_f xe2to5_(real *h__, real *hmf2, integer *nl, real *hx, real *sc, real *amp);
+extern E_f xen_(real *h__, real *hmf2, real *xnmf2, real *hme, integer *nl, real *hx, real *sc, real *amp);
+extern int valgul_(real *xhi, real *hvb, real *vwu, real *vwa, real *vdp);
+extern int rogul_(integer *iday, real *xhi, real *sx, real *gro);
+extern int lnglsn_(integer *n, real *a, real *b, logical *aus);
+extern int lsknm_(integer *n, integer *m, integer *m0, integer *m1, real *hm, real *sc, real *hx, real *w, real *x, real *y, real *var, logical *sing);
+extern int inilay_(logical *night, real *xnmf2, real *xnmf1, real *xnme, real *vne, real *hmf2, real *hmf1, real *hme, real *hv1, real *hv2, real *hhalf, real *hxl, real *scl, real *amp, integer *iqual);
+extern int ioncom_(real *h__, real *zd, real *fd, real *fs, real *t, real *cn);
+extern int ionco2_(real *hei, real *xhi, integer *it, real *f, real *r1, real *r2, real *r3, real *r4);
+extern int aprok_(integer *j1m, integer *j2m, real *h1, real *h2, real *r1m, real *r2m, real *rk1m, real *rk2m, real *hei, real *xhi, real *r1, real *r2);
+extern int ioncom_new__(real *hei, real *xhia, real *slati, real *covi, real *zmos, real *dion);
+extern int ionco1_(real *h__, real *zd, real *fd, real *fs, real *t, real *cn);
+extern int tcon_(integer *yr, integer *mm, integer *day, integer *idn, real *rz, real *ig, real *rsn, integer *nmonth);
+extern int lstid_(real *fi, integer *icez, real *r__, real *ae, real *tm, real *sax, real *sux, real *ts70, real *df0f2, real *dhf2);
+/* comlen const_ 4 */
+/* comlen argexp_ 4 */
+/* comlen const1_ 8 */
+/* comlen block1_ 12 */
+/* comlen blo10_ 16 */
+/* comlen block2_ 12 */
+/* comlen block3_ 16 */
+/* comlen block4_ 12 */
+/* comlen block5_ 20 */
+/* comlen block6_ 12 */
+/* comlen block7_ 24 */
+/* comlen blote_ 76 */
+/* comlen block8_ 64 */
+/* comlen blotn_ 16 */

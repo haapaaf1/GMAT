@@ -26,7 +26,40 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string MeasurementModel::MODEL_DESCRIPTIONS[NUM_MODELS] =
+const std::string MeasurementModel::IONOSPHERE_MODEL_DESCRIPTIONS[EndIonoModelReps] =
+{
+    "International Reference Ionosphere 1990 (IRI90)",
+    "International Reference Ionosphere 1995 (IRI95)",
+    "International Reference Ionosphere 2001 (IRI01)",
+    "International Reference Ionosphere 2007 (IRI07)",
+    "Parameterized Real-time Ionospheric Specification Model (PRISM)",
+    "Ionospheric Forecast Model (IFM)",
+    "Coupled Ionosphere-Thermosphere Forecast Model (CITFM)",
+    "Sami2 is Another Model of the Ionosphere (SAMI2)",
+    "Sami3 is Another Model of the Ionosphere (SAMI3)",
+    "Global Theoretical Ionospheric Model (GTIM)",
+    "Field Line Interhemispheric Plasma Model (FLIP)",
+    "USU model of the global ionosphere (USU)",
+    "A Coupled Thermosphere-Ionosphere-Plasmasphere Model (CTIP)",
+    "Thermosphere-Ionosphere-Mesosphere-Electrodynamic-General Circulation Model (TIME-GCM)"
+};
+
+const std::string MeasurementModel::TROPOSPHERE_MODEL_DESCRIPTIONS[EndTropoModelReps] =
+{
+    "Ifadis Model",
+    "Niell Model",
+    "Hopfield Modified Model",
+    "Hopfiled Simplified Model",
+    "Saastomoinen Model",
+    "Differential Refraction Model",
+    "Marini Model"
+};
+const std::string MeasurementModel::LIGHTTIME_MODEL_DESCRIPTIONS[EndLightTimeModelReps] =
+{
+    "Light Time Model"
+};
+
+const std::string MeasurementModel::MODEL_DESCRIPTIONS[EndModelReps] =
 {
     "NotDefined",
     "Range",
@@ -49,6 +82,33 @@ const std::string MeasurementModel::MODEL_DESCRIPTIONS[NUM_MODELS] =
     "RangeAzEl",
     "AO_RaDec",
     "RangeRaDec"
+};
+
+const std::string
+MeasurementModel::PARAMETER_TEXT[MeasurementModelParamCount - GmatBaseParamCount] =
+{
+   "DataSource",
+   "MeasurementTypes",
+   "LightTimeCorrection",
+   "IonosphericCorrection",
+   "TroposphericCorrection",
+   "LightTimeModel",
+   "IonosphericModel",
+   "TroposphericModel"
+};
+
+
+const Gmat::ParameterType
+MeasurementModel::PARAMETER_TYPE[MeasurementModelParamCount - GmatBaseParamCount] =
+{
+   Gmat::OBJECTARRAY_TYPE,
+   Gmat::STRINGARRAY_TYPE,
+   Gmat::BOOLEAN_TYPE,
+   Gmat::BOOLEAN_TYPE,
+   Gmat::BOOLEAN_TYPE,
+   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE   
 };
 
 //---------------------------------
@@ -82,6 +142,208 @@ GmatBase* MeasurementModel::Clone() const
 void MeasurementModel::Copy(const GmatBase* orig)
 {
    operator=(*((MeasurementModel *)(orig)));
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested parameter text.
+ *
+ * @return parameter text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string MeasurementModel::GetParameterText(const Integer id) const
+{
+   if ((id >= GmatBaseParamCount) && (id < DataFileParamCount))
+   {
+      //MessageInterface::ShowMessage("'%s':\n",
+      //   PARAMETER_TEXT[id - GmatBaseParamCount].c_str());
+      return PARAMETER_TEXT[id - GmatBaseParamCount];
+   }
+   return GmatBase::GetParameterText(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested parameter.
+ *
+ * @return ID for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Integer MeasurementModel::GetParameterID(const std::string &str) const
+{
+   for (Integer i = GmatBaseParamCount; i < DataFileParamCount; ++i)
+   {
+      if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
+         return i;
+   }
+
+   return GmatBase::GetParameterID(str);
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter type, given the input parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return parameter type of the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType MeasurementModel::GetParameterType(const Integer id) const
+{
+   if ((id >= GmatBaseParamCount) && (id < DataFileParamCount))
+      return PARAMETER_TYPE[id - GmatBaseParamCount];
+
+   return GmatBase::GetParameterType(id);
+}
+
+//------------------------------------------------------------------------------
+//  std::string GetStringParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Gets the value for a std::string parameter.
+ * 
+ * @param <id> Integer ID of the parameter.
+ * 
+ * @return The value of the parameter.
+ */
+//------------------------------------------------------------------------------
+std::string MeasurementModel::GetStringParameter(const Integer id) const
+{
+   if (id == FILENAME_ID)
+      return dataFileName;
+
+   if (id == FILEFORMAT_ID)
+      return dataFormatID;
+          
+   return GmatBase::GetStringParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  bool SetStringParameter(const Integer id, const Real value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a std::string parameter.
+ * 
+ * @param <id>    Integer ID of the parameter.
+ * @param <value> New value for the parameter.
+ * 
+ * @return The value of the parameter.
+ */
+//------------------------------------------------------------------------------
+bool MeasurementModel::SetStringParameter(const Integer id, const std::string &value)
+{
+   if (id == FILENAME_ID)
+   {
+      dataFileName = value;
+      return true;
+   }
+
+   if (id == FILEFORMAT_ID)
+   {
+      dataFormatID = GetDataFormatID(value);
+      return true;
+   }
+
+   if (id == DATATYPESALLOWED_ID) {
+	dataTypesAllowed.push_back(value);
+        return true;
+   }
+ 
+   return GmatBase::SetStringParameter(id, value);
+   
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetStringArrayParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the string parameter value, given the input
+ * parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return  StringArray value of the requested parameter.
+ */
+//------------------------------------------------------------------------------
+const StringArray& MeasurementModel::GetStringArrayParameter(const Integer id) const
+{
+   if (id == DATATYPESALLOWED_ID)
+      return dataTypesAllowed;
+  
+   return GmatBase::GetStringArrayParameter(id);
+}
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Integer MeasurementModel::GetIntegerParameter(const Integer id) const
+{
+    if (id == NUMLINES_ID)
+      return numLines;
+
+    return GmatBase::GetIntegerParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Integer MeasurementModel::GetIntegerParameter(const std::string &label) const
+{
+   return GetIntegerParameter(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer SetIntegerParameter(const Integer id, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ *
+ */
+//------------------------------------------------------------------------------
+Integer MeasurementModel::SetIntegerParameter(const Integer id, const Integer value)
+{
+
+   if (id == NUMLINES_ID)
+   {
+         numLines = value;
+         return value;
+   }
+   
+   return GmatBase::SetIntegerParameter(id, value);
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer SetIntegerParameter(std::string &label, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Integer MeasurementModel::SetIntegerParameter(const std::string &label, const Integer value)
+{
+   return SetIntegerParameter(GetParameterID(label), value);
 }
 
 //------------------------------------------------------------------------------
@@ -371,45 +633,45 @@ const Real* MeasurementModel::GetMeasurements() const
 //------------------------------------------------------------------------------
 Integer MeasurementModel::GetModelID(const std::string &label)
 {
-   if (!strcmp(label.c_str(),"Range")) {
+   if (label == "Range") {
        return RANGE_ID;
-   } else if (!strcmp(label.c_str(),"RangeRate")) {
+   } else if (label == "RangeRate") {
        return RANGERATE_ID;
-   } else if (!strcmp(label.c_str(),"LightTime")) {
+   } else if (label == "LightTime") {
        return LIGHTTIME_ID;
-   } else if (!strcmp(label.c_str(),"VariableTransmitterRange")) {
+   } else if (label == "VariableTransmitterRange") {
        return VARIABLETRANSMITTERRANGE_ID;
-   } else if (!strcmp(label.c_str(),"AntennaTracking")) {
+   } else if (label == "AntennaTracking") {
        return ANTENNATRACKING_ID;
-   } else if (!strcmp(label.c_str(),"SunSensor")) {
+   } else if (label == "SunSensor") {
        return SUNSENSOR_ID;
-   } else if (!strcmp(label.c_str(),"StarSensor")) {
+   } else if (label == "StarSensor") {
        return STARSENSOR_ID;
-   } else if (!strcmp(label.c_str(),"GyroPackage")) {
+   } else if (label == "GyroPackage") {
        return GYROPACKAGE_ID;
-   } else if (!strcmp(label.c_str(),"HorizonSensor")) {
+   } else if (label == "HorizonSensor") {
        return HORIZONSENSOR_ID;
-   } else if (!strcmp(label.c_str(),"Videometers")) {
+   } else if (label == "Videometers") {
        return VIDEOMETERS_ID;
-   } else if (!strcmp(label.c_str(),"CoherentDoppler")) {
+   } else if (label == "CoherentDoppler") {
        return COHERENTDOPPLER_ID;
-   } else if (!strcmp(label.c_str(),"NonCoherentDoppler")) {
+   } else if (label == "NonCoherentDoppler") {
        return NONCOHERENTDOPPLER_ID;
-   } else if (!strcmp(label.c_str(),"VariableTransmitterDoppler")) {
+   } else if (label == "VariableTransmitterDoppler") {
        return VARIABLETRANSMITTERDOPPLER_ID;
-   } else if (!strcmp(label.c_str(),"IntegratedDopplerCount")) {
+   } else if (label == "IntegratedDopplerCount") {
        return INTEGRATEDDOPPLERCOUNT_ID;
-   } else if (!strcmp(label.c_str(),"IMU")) {
+   } else if (label == "IMU") {
        return IMU_ID;
-   } else if (!strcmp(label.c_str(),"Magnetometer")) {
+   } else if (label == "Magnetometer") {
        return MAGNETOMETER_ID;
-   } else if (!strcmp(label.c_str(),"AO_AzEl")) {
+   } else if (label == "AO_AzEl") {
        return AO_AZEL_ID;
-   } else if (!strcmp(label.c_str(),"RangeAzEl")) {
+   } else if (label == "RangeAzEl") {
        return RANGEAZEL_ID;
-   } else if (!strcmp(label.c_str(),"AO_RaDec")) {
+   } else if (label == "AO_RaDec") {
        return AO_RADEC_ID;
-   } else if (!strcmp(label.c_str(),"RangeRaDec")) {
+   } else if (label == "RangeRaDec") {
        return RANGERADEC_ID;
    } else
      return DEFAULT_ID;

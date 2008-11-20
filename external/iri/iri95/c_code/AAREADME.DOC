@@ -1,0 +1,54 @@
+IRI Program files in C code as provided by Ari Edinburg 
+(ari@softwarenow.co.za) on December 4th 1999.
+--------------------------------------------------------
+
+The IRI95 source in fortran has been translated to c using the f2cx.exe
+program. The following changes were made to the original fortran
+files so that the conversion could be performed:
+
+1) The file IriF13.for has been modified according to the e-mail from
+   Dr. Dieter Bilitza. The original file is named irif13.Ori
+2) All files are renamed to .f for the conversion by f2cx.exe
+3) The test program files are renamed to shorten the file names for 
+   conversion by f2cx.exe as follows:
+   iris13_test.f to iris13ts.f
+   irit13_test.f to irit13ts.f
+4) The test programs have also been modified so that they are 
+   also converted by f2cx.exe. The modifications were as follows:
+   a) Replace type* with write(*,*)
+   b) Replace the variable AGNR with the value 6 in irit13_test.
+5) Here is the for loop required to convert the output of the iris13_subroutine
+   into the correct format. Fortran stores the arrays in column-major order
+   while C stores them in row-major order. The conversion stores arrays into
+   one-dimensional C arrays and issues appropriate sub-scripting expressions.
+   We convert the format of the array here to a two dimensional array
+   of outf[11][100] using local_outf[1100] as output from iris13_.
+
+	   for (i = 0; i < 11; i++)
+
+	     for (j = 0; j < 100; j++)
+	     {
+	       outf[i * 100 + j] = local_outf[i + j * 11];
+	     } // for
+	   } // for
+
+When the conversion program f2cx.exe is run it must be run in
+a directory off the root for best results.
+The results of the conversion are the .c programs in this directory.
+
+The conversion produces C++ code and prototypes using the batch 
+file "Tranlsate.bat" to invoke f2cx.exe
+
+To include the programs in an application you need the fortran conversion
+library associated with the f2cx.exe program. These are provided
+by:
+
+/****************************************************************
+Copyright 1990 - 1997 by AT&T, Lucent Technologies and Bellcore.
+/****************************************************************
+
+Please note that the ccir%%.asc, ursi%%.asc and ig_rz.dat files are
+required to run the program. These files can be found in the 
+directory fortran_code, which can be found at the same level as the
+c_code directory (D. Bilitza, March 14, 2000)
+

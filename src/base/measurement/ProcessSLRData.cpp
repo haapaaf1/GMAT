@@ -68,6 +68,99 @@ GmatBase* ProcessSLRData::Clone() const
    return (clone);
 }
 
+////------------------------------------------------------------------------------
+//// template <class T> bool DataFile::from_string(T& t,
+////		   const std::string& s,
+////                 std::ios_base& (*f)(std::ios_base&))
+////------------------------------------------------------------------------------
+///**
+// * Typesafe conversion from string to integer, float, etc
+// */
+////------------------------------------------------------------------------------
+//
+//template <class T> bool DataFile::from_string(T& t, const std::string& s,
+//                 std::ios_base& (*f)(std::ios_base&))
+//{
+//  std::istringstream iss(s);
+//  return !(iss >> f >> t).fail();
+//}
+
+//------------------------------------------------------------------------------
+// std::string Ilrs2Cospar(std::string ilrsSatnum)
+//------------------------------------------------------------------------------
+/**
+ * Convert ILRS Satellite Number to COSPAR International Designator
+ *
+ * ILRS Satellite Identifier - 7 digit number based on COSPAR
+ * Note: COSPAR ID to ILRS Satellite Identification Algorithm
+ *
+ * COSPAR ID Format: (YYYY-XXXA)
+ *
+ * YYYY is the four digit year when the launch vehicle was put in orbit
+ * XXX is the sequential launch vehicle number for that year
+ * A is the alpha numeric sequence number within a launch
+ * Example: LAGEOS-1 COSPAR ID is 1976-039A
+ * Explanation: LAGEOS-1 launch vehicle wasplaced in orbit in 1976;
+ * was the 39th launch in that year; and LAGEOS-1 was the first object
+ * injected into orbit from this launch.
+ *
+ * ILRS Satellite Identification Format: (YYXXXAA), based on the COSPAR ID
+ * Where YY is the two digit year when the launch vehicle was put in orbit
+ * Where XXX is the sequential launch vehicle number for that year
+ * AA is the numeric sequence number within a launch
+ * Example: LAGEOS-1 ILRS Satellite ID is 7603901
+ */
+//------------------------------------------------------------------------------
+std::string ProcessSLRData::Ilrs2Cospar(std::string ilrsSatnum)
+{
+
+    int year;
+
+    from_string<int>(year,ilrsSatnum.substr(0,2),std::dec);
+
+    if ( year < 50 )
+    {
+	year += 2000;
+    } else {
+	year += 1900;
+    }
+
+    std::string launchalpha;
+
+    int index;
+    from_string<int>(index,ilrsSatnum.substr(5,2),std::dec);
+
+    static const char alpha[26] = {'A','B','C','D','E','F','G','H','I','J','K',
+                  'L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+
+    if (index <= 26)
+    {
+
+	// Account for zero indexed array so subtract 1
+	launchalpha = alpha[index-1];
+
+    }
+    else
+    {
+
+	int index2 = -1;
+
+	while (index > 26)
+	{
+
+	    index -= 26;
+	    index2++;
+
+	}
+
+	launchalpha = alpha[index2] + alpha[index];
+
+    }
+
+    return GmatStringUtil::ToString(year,2) + ilrsSatnum.substr(2,3) + launchalpha;
+
+}
+
 //------------------------------------------------------------------------------
 // bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata)
 //------------------------------------------------------------------------------

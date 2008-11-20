@@ -37,6 +37,10 @@ public:
 
     GmatBase *Clone() const;
 
+    const std::string* GetB3TypeDescriptions() const;
+    std::string GetB3TypeNameText(const Integer &id) const;
+
+    
     // Override generic data call from base class
     bool GetData(std::ifstream &theFile, b3_obtype &myB3data);
     // Specific data type processing functions
@@ -57,10 +61,8 @@ public:
     };
   
 private:
-
    
-    static const Integer NUM_B3_TYPES = 9;
-    static const std::string B3_TYPE_DESCRIPTIONS[NUM_B3_TYPES];    
+    static const std::string B3_TYPE_DESCRIPTIONS[EndB3TypeReps];    
 
 };
 

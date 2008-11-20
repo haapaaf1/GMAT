@@ -29,7 +29,7 @@
 
 const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[NUM_B3_TYPES] =
 {
-    "Range rate only ",
+    "Range rate only",
     "Azimuth & elevation",
     "Range, azimuth, & elevation",
     "Range, azimuth, elevation, & range rate",
@@ -79,6 +79,33 @@ GmatBase* ProcessB3Data::Clone() const
 {
    GmatBase *clone = new ProcessB3Data(*this);
    return (clone);
+}
+
+//------------------------------------------------------------------------------
+// const std::string* GetB3TypeReps() const
+//------------------------------------------------------------------------------
+const std::string* ProcessB3Data::GetB3TypeDescriptions() const
+{
+   return B3_TYPE_DESCRIPTIONS;
+}
+
+//------------------------------------------------------------------------------
+// std::string GetB3TypeNameText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Code used to obtain the model name text corresponding to a model ID
+ */
+//------------------------------------------------------------------------------
+std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
+{
+   if ((id >= 0) && (id < EndB3TypeReps))
+   {
+      // Note that the B3_TYPE_REPS enumeration starts at 1 instead of 0
+      // to conform to the data format definition
+      return B3_TYPE_DESCRIPTIONS[id-1];
+   }
+
+   return "INVALID";
 }
 
 //------------------------------------------------------------------------------

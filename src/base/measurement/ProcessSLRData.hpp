@@ -35,6 +35,8 @@ public:
 
     GmatBase *Clone() const;
 
+    std::string Ilrs2Cospar(std::string ilrsSatnum);
+
     bool FindSLRHeaderLine( std::ifstream &theFile, slr_header &mySLRheader );
     bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata);
    

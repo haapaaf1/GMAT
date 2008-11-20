@@ -1,0 +1,172 @@
+ jmag(=0/1,geog/geom),lati/deg,long/deg
+0,30,0
+ year(yyyy),mmdd(or -ddd),iut(=0/1,LT/UT),hour
+1990,715,0,12
+ height/km
+ (enter 0 for list of peak heights and densities)
+ (enter -1 for plasma frequencies and profile parameters)
+300
+ upper height [km] for TEC integration (0 for no TEC)
+1000
+ variable? (1/2/../8 for height/lat/long/year/month/day/day of year/hour)
+8
+ begin, end, and stepsize for the selected variable
+0,24,2
+ Options: t(rue) or f(alse)
+ Standard: t,t,t,t,f,f,t,t,t,t,t,t,t,t,t,t,t
+ Enter 0 to use standard or 1 to enter your own
+0
+ *** IRI parameters are being calculated ***
+ Ne, foF2: URSI model is used.
+ Ion Com.: Using Danilov et al. 1985/95.
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 3.0 B1(NEW)= 3.5
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=206.9 AND HEF=158.7
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 3.0 B1(NEW)= 3.5
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 3.0 B1(NEW)= 3.5
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 3.0 B1(NEW)= 3.5
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 3.5 B1(NEW)= 4.0
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 4.0 B1(NEW)= 4.5
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=208.1 AND HEF=157.0
+ Enter 0 to exit or 1 to generate another profile?
+1
+ jmag(=0/1,geog/geom),lati/deg,long/deg
+1,0,180
+ year(yyyy),mmdd(or -ddd),iut(=0/1,LT/UT),hour
+1995,-185,1,12
+ height/km
+ (enter 0 for list of peak heights and densities)
+ (enter -1 for plasma frequencies and profile parameters)
+0
+ upper height [km] for TEC integration (0 for no TEC)
+800
+ variable? (1/2/../8 for height/lat/long/year/month/day/day of year/hour)
+2
+ begin, end, and stepsize for the selected variable
+-90,90,10
+ Options: t(rue) or f(alse)
+ Standard: t,t,t,t,f,f,t,t,t,t,t,t,t,t,t,t,t
+ Enter 0 to use standard or 1 to enter your own
+0
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=198.0 AND HEF=171.6
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=194.1 AND HEF=168.9
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=190.2 AND HEF=165.1
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=186.5 AND HEF=158.6
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=180.9 AND HEF=149.3
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=182.4 AND HEF=146.7
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=182.5 AND HEF=147.1
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=181.6 AND HEF=149.9
+ Enter 0 to exit or 1 to generate another profile?
+1
+ jmag(=0/1,geog/geom),lati/deg,long/deg
+0,50,0
+ year(yyyy),mmdd(or -ddd),iut(=0/1,LT/UT),hour
+1995,115,0,0
+ height/km
+ (enter 0 for list of peak heights and densities)
+ (enter -1 for plasma frequencies and profile parameters)
+300
+ upper height [km] for TEC integration (0 for no TEC)
+0
+ variable? (1/2/../8 for height/lat/long/year/month/day/day of year/hour)
+1
+ begin, end, and stepsize for the selected variable
+50,1000,50
+ Options: t(rue) or f(alse)
+ Standard: t,t,t,t,f,f,t,t,t,t,t,t,t,t,t,t,t
+ Enter 0 to use standard or 1 to enter your own
+1
+ Compute Ne, T, Ni? (enter: t,t,t  if you want all)
+t,t,t
+ Bottomside thickness B0: t=Table-option, f=Gulyaeva {t}.
+t
+ foF2 model: t=CCIR, f=URSI-88 {standard:f}
+f
+ Ion comp. model: t=standard, f=Danilov-95 {f}
+f
+ Ne Topside mod.: t=standard, f=IRI-79 topside {t}
+t
+ F2 peak density or foF2: t=model, f=user input.
+f
+ F2 peak height or M3000F2: t=model, f=user input.
+f
+ Te(Ne) model: t=not used, f=correlation is used. {t}
+t
+ LAY version: t=standard ver., f=LAY version. {t}
+t
+ Message output unit: t=(UNIT=6), f=(UNIT=12).
+t
+ F1 peak density or foF1: t=model, f=user input.
+t
+ F1 peak height: t=model, f=user input.
+t
+ E peak density or foE: t=model, f=user input.
+t
+ E peak height: t=model, f=user input.
+t
+ Sunspot index: t=from file, f=user input.
+t
+ UT/LT computation: t=no date change, f=ut_lt subroutine.
+t
+ foF2/Mhz or NmF2/m-3
+6.e10
+ hmF2/km or M3000F2
+310
+ Enter 0 to exit or 1 to generate another profile?
+1
+ jmag(=0/1,geog/geom),lati/deg,long/deg
+0,50,0
+ year(yyyy),mmdd(or -ddd),iut(=0/1,LT/UT),hour
+1970,-90,0,12
+ height/km
+ (enter 0 for list of peak heights and densities)
+ (enter -1 for plasma frequencies and profile parameters)
+-1
+ upper height [km] for TEC integration (0 for no TEC)
+1200
+ variable? (1/2/../8 for height/lat/long/year/month/day/day of year/hour)
+4
+ begin, end, and stepsize for the selected variable
+1980,1990,1
+ Options: t(rue) or f(alse)
+ Standard: t,t,t,t,f,f,t,t,t,t,t,t,t,t,t,t,t
+ Enter 0 to use standard or 1 to enter your own
+0
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=175.7 AND HEF=126.6
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=177.6 AND HEF=126.6
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 3.0 B1(NEW)= 3.5
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 3.5 B1(NEW)= 4.0
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 4.0 B1(NEW)= 4.5
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 4.5 B1(NEW)= 5.0
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=179.4 AND HEF=126.6
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: B1(OLD)= 3.0 B1(NEW)= 3.5
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=175.4 AND HEF=126.6
+ *NE* HST IS NOT EVALUATED BY THE FUNCTION XE3
+      CORR.: LIN. APP. BETWEEN HZ=175.2 AND HEF=126.6
+ Enter 0 to exit or 1 to generate another profile?
+0
+

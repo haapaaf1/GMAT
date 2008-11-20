@@ -1,0 +1,186 @@
+                 COSPAR International Reference Atmosphere (CIRA) 1986
+                 -----------------------------------------------------
+
+This directory includes two versions of the CIRA 1986 model of the Committee
+on Space Research (COSPAR):
+
+/cira86/
+The original version as provided by E. Fleming (Nov 1989) in binary form 
+including also a simple Fortran program written at NSSDC to read the binary 
+data files.
+
+/cira86ascii/
+A slightly modified version provided by J. Barnett (July 1990) in ASCII format.
+
+
+-----------------------------------------
+ERRORS and INCONSISTENCIES noted by users
+-----------------------------------------
+
+==================================================================================
+
+Date: Mon, 22 Nov 1999 12:32:06 -0700
+From: "Justin C Dyster" <jcdyster@notes.west.raytheon.com>
+To: Bilitza@ndadsb-f.gsfc.nasa.gov
+cc: "Victor J Wagner at 5-840136-TU" 
+    <Victor_J_Wagner_at_5-840136-TU.CCMAIL@notes.west.raytheon.com>,
+    "Donald H Coleman at 5-805161-TU" 
+    <Donald_H_Coleman_at_5-805161-TU.CCMAIL@notes.west.raytheon.com>
+Subject: COSPAR 1986
+
+Sir,
+
+As per our telephone conversation on  22 November 1999 I am sending you this
+e-mail in reference to the COSPAR International Reference Atmosphere 1986, 0 -
+120 km.  I was examining the pressures at the 60 km (200,000 ft., any month, at
+30N latitude) when I noticed that they varied by approximately a factor of 10
+from the US Standard Atmosphere, 1976 table at the same altitude.  In addition
+at any month as your altitude increases the pressure varies irregular  It rises
+and drops suddenly at specific altitudes.  If someone could please give me some
+explanation to these issues I would greatly appreciate it.
+
+Sincerely,
+
+Justin Dyster
+Raytheon Electronic Systems
+System Engineering LEAP
+Tucson, AZ 85734
+Phone: (520) 794-8226
+E-Mail: jcdyster@west.raytheon.com
+
+==================================================================================
+
+Date: Wed, 24 Oct 2001 09:55:05 +0200
+From: Francis.Dalaudier@aerov.jussieu.fr (Dalaudier francis)
+Subject: Found errors in CIRA ascii files ?
+Cc: chandra@chapman.gsfc.nasa.gov, Anabelle.Menochet@tornado.badc.rl.ac.uk
+
+Dear colleague,
+
+while using the CIRA ascii files found at
+http://www.badc.rl.ac.uk/cgi-bin/data_browser/data_browser/badc/cira/data
+[same as ftp://nssdcftp.gsfc.nasa.gov/models/atmospheric/cira/cira86ascii/]
+
+I found what look very much like an error...
+
+I was initially rather surprised, since I believed that the CIRA model was
+now completely "debugged" after nearly 15 years of worldwide usage.
+
+However, after cross checking my sources, I found that the error is
+even present in the original publication :
+        CIRA 1986, Part II Middle Atmosphere Models,
+        D. Rees, J.J. Barnett, K. Labitzke (ed.),
+        Advances in Space Research (COSPAR), Volume 10, Number 12, 1990.
+on pages (12)400 - (12)401 and (12)454
+
+the error on page (12)454 is benign : The last 5 lines from file shant.lsn
+
+Height  (mb)  Height   80S   75S   70S   65S   60S   55S ...
+
+ 1.00  372.66   8.0    3.4   3.8   3.9   4.0   3.8   2.5 ...
+ 0.75  478.51   6.1    3.4   4.0   4.2   4.2   4.3   2.6 ...
+ 0.50  614.42   4.2    3.1   4.1   4.3   4.3   4.1   3.1 ...
+ 0.25  788.93   2.2    3.6   3.6   3.6   3.9   3.8   3.3 ...
+ 0.00  1013.0   0.1    3.6   3.6   3.6   1.3   1.7   2.0 ...
+
+should read : (undefined values set to blank)
+
+ 1.00  372.66   8.0    3.4   3.8   3.9   4.0   3.8   2.5 ...
+ 0.75  478.51   6.1    3.4   4.0   4.2   4.2   4.3   2.6 ...
+ 0.50  614.42   4.2    3.1   4.1   4.3   4.3   4.1   3.1 ...
+ 0.25  788.93   2.2                      3.9   3.8   3.3 ...
+ 0.00  1013.0   0.1                      1.3   1.7   2.0 ...
+
+However, the error on pages (12)400 - (12)401 is more serious !
+
+If you consider the files nhz.lsn ans shz.lsn, and write down all
+the lines corresponding to 0.00 Scale Height (last line each month),
+it is obvious that the "ground" geopotential for OCTOBER is WRONG.
+The "OCTOBER" line is obviously flawed with respect to other monthes.
+        You can look a sample at the end of this message.
+        A graphical representation is even more dramatic !
+
+This error propagate also upward (in October only) and can still be
+visually detected up to 1.25 scale height (6 lines of data).
+
+It seems that one (or a few) wrong data were used in calculation
+of geopotential height. I was not able to detect similar problems
+on other files (temperature, wind, pressure). Nevertheless, it may
+be judicious to check also the other data files.
+
+        Thank you.              Best regards
+                                Francis Dalaudier
+___________________________________________________________________
+ >From nhz.lsn
+ Scale Pressure
+ Height  (mb)     0     ...   60N    65N    70N    75N    80N
+  0.00  1013.0    -30   ...    -21     -6     14     20     11
+  0.00  1013.0    -32   ...    -19     -5     18     35     46
+  0.00  1013.0    -31   ...    -11     -8     21     36     31
+  0.00  1013.0    -29   ...      1     11     24     37     49
+  0.00  1013.0    -26   ...      8     15     25     30     30
+  0.00  1013.0    -19   ...    -13    -15    -11     -9    -11
+  0.00  1013.0    -18   ...    -11    -18    -14     -9     -5
+  0.00  1013.0    -17   ...    -17    -15    -11     -7     -2
+  0.00  1013.0    -17   ...    -22    -22    -10     -4     -5
+# 0.00  1013.0    271   ...   -162   -225   -277   -321   -355 #OCTOBER
+  0.00  1013.0    -25   ...    -26    -22     -9     -1      1
+  0.00  1013.0    -30   ...    -23    -19     -6      2      5
+
+
+ >From shz.lsn
+ Scale Pressure
+ Height  (mb)    80S    ...   20S    15S    10S     5S     0
+  0.00  1013.0    999   ...     -6    -20    -28    -30    -30
+  0.00  1013.0    999   ...    -10    -23    -30    -32    -32
+  0.00  1013.0    999   ...     -1    -17    -26    -30    -31
+  0.00  1013.0    999   ...      6     -9    -21    -28    -29
+  0.00  1013.0    999   ...     17     -1    -15    -23    -26
+  0.00  1013.0    999   ...     33     12     -5    -15    -19
+  0.00  1013.0    999   ...     40     15     -3    -13    -18
+  0.00  1013.0    999   ...     42     18      0    -11    -17
+  0.00  1013.0    999   ...     34     14     -2    -11    -17
+# 0.00  1013.0    999   ...    256    266    269    269    271 #OCTOBER
+  0.00  1013.0    999   ...     13     -3    -14    -22    -25
+  0.00  1013.0    999   ...      2    -13    -24    -29    -30
+___________________________________________________________________
+
+
+ ________________________________________________________________________
+| Francis Dalaudier                |tel: 33 1 64 47 42 11                |
+| Service d'Aéronomie du CNRS      |fax: 33 1 69 20 29 99                |
+| BP 3                             |e-mail :                             |
+| 91371 VERRIERES-LE-BUISSON CEDEX |  francis.dalaudier@aerov.jussieu.fr |
+| FRANCE                           |                                     |
+|__________________________________|_____________________________________|
+
+==================================================================================
+
+Date: Thu, 22 Nov 2001 18:05:38 +0100 (CET) 
+From: "STEINER Rene'" <steiner@ieee.org> 
+Sender: <steiner@pluto.tu-graz.ac.at> 
+To: <bilitza@ndadsb-f.gsfc.nasa.gov> 
+Subject: CIRA-86 
+
+  Dear Dieter,
+
+I've found a non-consistency between your electronic version of CIRA-86
+and the one contained in Rees, D., J.J. Barnett and K. Labitzke: CIRA:  
+1986, Part II: Middle Atmosphere Models. As far as I could trace the
+differences, they appear only in the height region 75 to 90 km. For
+example, let's take a look at:
+ftp://nssdcftp.gsfc.nasa.gov/models/atmospheric/cira/cira86ascii/twp.lsn
+and page 430 of the book: At 80°S, twp.lsn says 200.7, 172.4, 145.7 and
+139.1 for 75, 80, 85 and 90 km, respectively. The file, however, says
+200.1, 171.7, 147.9 and 142.9. As I couldn't find any remark that the 
+model has been updated since, I'd like to know whether the discrepancies 
+are due to a mistake or due to some new data.
+
+  Best regards,
+
+    Rene'
+
+-- 
+Rene' STEINER   steiner@ieee.org   www.sbox.TUGraz.at/home/s/steiner
+Space Research Institute                Austrian Academy of Sciences
+==================================================================================
