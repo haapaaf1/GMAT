@@ -340,7 +340,7 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
          
       case Gmat::OBJECT_TYPE:
       case Gmat::ENUMERATION_TYPE:
-         valueString = mObject->GetStringParameter(mObject->GetParameterID(label));
+         valueString = (mObject->GetStringParameter(mObject->GetParameterID(label))).c_str();
          ((wxComboBox*)(theControl))->SetValue(valueString);
          break;
          
