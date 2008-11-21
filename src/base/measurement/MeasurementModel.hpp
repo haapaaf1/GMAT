@@ -64,6 +64,8 @@ public:
   Integer GetIntegerParameter(const std::string &label) const;
   Integer SetIntegerParameter(const Integer id, const Integer value);
   Integer SetIntegerParameter(const std::string &label, const Integer value);
+  bool MeasurementModel::GetBooleanParameter(const Integer id) const;
+  bool MeasurementModel::SetBooleanParameter(const Integer id, const bool &value);
 
   virtual GmatBase* 
                     GetRefObject(const Gmat::ObjectType type,
@@ -102,55 +104,12 @@ public:
         GroundStation* theStation, Spacecraft* theSat,
         LaGenMatDouble &myCartDerivatives);
    
-private:
-
-  static const Integer NUM_MODELS = 21;
-  static const std::string MODEL_DESCRIPTIONS[NUM_MODELS];
-
 protected:
     
-    enum LIGHTTIME_REPS {
-	DEFAULT_ID = 0,
-	LIGHTTIME,
-	EndLightTimeModelReps
-    };
-    
-    enum IONO_MODEL_REPS {
-	DEFAULT_ID = 0,
-	IRI90_ID,
-	IRI95_ID,
-	IRI01_ID,
-	IRI07_ID,
-	PRISM_ID,
-	IFM_ID,
-	CITFM_ID,
-	SAMI2_ID,
-	SAMI3_ID,
-	GTIM_ID,
-	FLIP_ID,
-	USU_ID,
-	CTIP_ID,
-	TIMEGCM_ID,
-	EndIonoModelReps
-    };
-    
-    enum TROPO_MODEL_REPS {
-	DEFAULT_ID = 0,
-	IFADIS_ID,
-	NIELL_ID,
-	HOPFIELD_MODIFIED_ID,
-	HOPFILED_SIMPLIFIED_ID,
-	SAASTOMOINEN_ID,
-	DIFFERENTIAL_REFRACTION_ID,
-	MARINI_ID,
-	EndTropoModelReps
-    };
-
     enum MODEL_REPS {
 	DEFAULT_ID = 0,
 	RANGE_ID,
 	RANGERATE_ID,
-	LIGHTTIME_ID,
 	VARIABLETRANSMITTERRANGE_ID,
 	ANTENNATRACKING_ID,
 	SUNSENSOR_ID,
@@ -175,6 +134,9 @@ protected:
    {
       DATASOURCE_ID   = GmatBaseParamCount,
       MEASUREMENTTYPES_ID,
+      LIGHTTIMEFLAG_ID,
+      IONOSPHEREFLAG_ID,
+      TROPOSPHEREFLAG_ID,
       LIGHTTIME_ID,
       IONOSPHERE_ID,
       TROPOSPHERE_ID,
@@ -188,18 +150,15 @@ protected:
                                               GmatBaseParamCount];
    
    static const std::string MODEL_DESCRIPTIONS[EndModelReps];
-   static const std::string IONOSPHERE_MODEL_DESCRIPTIONS[EndIonoModelReps];
-   static const std::string TROPOSPHERE_MODEL_DESCRIPTIONS[EndTropoModelReps];
-   static const std::string LIGHTTIME_MODEL_DESCRIPTIONS[EndLightTimeModelReps];
 
   // Name of the measurement model being used
   Integer modelID;
   // Name of the measurement model being used
-  Integer ionoModelID;
+  std::string ionoModelName;
   // Name of the measurement model being used
-  Integer tropoModelID;
+  std::string tropoModelName;
   // Name of the measurement model being used
-  Integer lightTimeModelID;
+  std::string lightTimeModelName;
   
   // Flag for corrections
   bool isIonoON;
@@ -217,7 +176,7 @@ protected:
 
   // This array of datatypes can be used to select a specific
   // subset of available data from a given dataFormat
-  StringArray dataTypesAllowed;
+  StringArray measurementTypesAllowed;
   
   /// Array of strings passed to the GMAT engine
   StringArray tempNameArray;

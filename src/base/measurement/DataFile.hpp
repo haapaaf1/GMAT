@@ -44,9 +44,9 @@ public:
     // Methods overridden from the GmatBase clase
     virtual GmatBase *Clone() const;
     virtual void        Copy(const GmatBase* orig);      
-   virtual std::string     GetParameterText(const Integer id) const;
-   virtual Integer         GetParameterID(const std::string &str) const;
-   virtual Gmat::ParameterType
+    virtual std::string     GetParameterText(const Integer id) const;
+    virtual Integer         GetParameterID(const std::string &str) const;
+    virtual Gmat::ParameterType
                            GetParameterType(const Integer id) const;
    
     // Specific data type processing functions
@@ -76,13 +76,16 @@ public:
     Integer SetIntegerParameter(const Integer id, const Integer value);
     Integer SetIntegerParameter(const std::string &label, const Integer value);
 
-    const std::string* GetDataFormatDescriptions() const;
-    std::string GetDataFormatNameText(const Integer &id) const;
-    Integer GetDataFormatID(const std::string &label);
+    const std::string* GetFileFormatDescriptions() const;
+    std::string GetFileFormatDescriptionText(const Integer &id) const;
+    Integer GetFileFormatID(const std::string &label);
+    void SetFileFormatID(const std::string &label);
+    
+    void SetFileFormatID(const Integer &mName);
+    Integer GetFileFormatID() const;
 
-    void SetDataFormatID(const std::string &label);
-    void SetDataFormatID(Integer mName);
-    Integer GetDataFormatID() const;
+    void SetFileFormatName(const std::string &fName);
+    std::string GetFileFormatName() const;
   
     // Get/Set isOpen variable
     bool GetIsOpen() const;
@@ -129,8 +132,8 @@ public:
 
 private:
     
-    static const Integer NUM_DATAFORMATS = 3;
-    static const std::string DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS];
+    static const Integer NUM_FILEFORMATS = 3;
+    static const std::string FILEFORMAT_DESCRIPTIONS[NUM_FILEFORMATS];
     
 protected:
 
@@ -154,11 +157,13 @@ protected:
 	B3_ID = 0,
 	SLR_ID,
 	TLE_ID,
-	EndDataFormatReps
+	EndFileFormatReps
     };
 
     // ID of the measurement model being used
-    Integer dataFormatID;
+    std::string fileFormatName;
+    Integer fileFormatID;
+    
         
     // numLines tells the file reader how many lines to read in at a time
     // This is important for TLE's that can have 2 or 3 lines of data

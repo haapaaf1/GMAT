@@ -31,10 +31,11 @@ RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
 {
   numMeasurements = 3;
 
+  // TODO: FIX the "new" statements
   // Name of each measurement returned
-  measurementNames = new std::string[numMeasurements];
+  //measurementNames = new StringArray(numMeasurements);
   // Units of each measurement returned
-  measurementUnits = new std::string[numMeasurements];
+  //measurementUnits = new StringArray(numMeasurements);
   // Measurement returned by the model
   measurements = new Real[numMeasurements];
 }
@@ -44,14 +45,6 @@ RangeAzElMeasurementModel::RangeAzElMeasurementModel(const RangeAzElMeasurementM
    bodySpinRate            (raeModel.bodySpinRate),
    theStation		   (raeModel.theStation)
 {
-   numMeasurements = 3;
-
-   // Name of each measurement returned
-   measurementNames = new std::string[numMeasurements];
-   // Units of each measurement returned
-   measurementUnits = new std::string[numMeasurements];
-   // Measurement returned by the model
-   measurements = new Real[numMeasurements];
 }
 
 RangeAzElMeasurementModel& RangeAzElMeasurementModel::operator=(const RangeAzElMeasurementModel &raeModel)
@@ -66,8 +59,8 @@ RangeAzElMeasurementModel& RangeAzElMeasurementModel::operator=(const RangeAzElM
 
 RangeAzElMeasurementModel::~RangeAzElMeasurementModel()
 {
-    delete[] measurementNames;
-    delete[] measurementUnits;
+    delete[] &measurementNames;
+    delete[] &measurementUnits;
     delete[] measurements;
 }
 

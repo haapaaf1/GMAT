@@ -27,7 +27,7 @@
 //  static data
 //---------------------------------
 
-const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[NUM_B3_TYPES] =
+const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[EndB3TypeReps] =
 {
     "Range rate only",
     "Azimuth & elevation",

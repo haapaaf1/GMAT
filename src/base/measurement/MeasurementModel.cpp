@@ -26,45 +26,11 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string MeasurementModel::IONOSPHERE_MODEL_DESCRIPTIONS[EndIonoModelReps] =
-{
-    "International Reference Ionosphere 1990 (IRI90)",
-    "International Reference Ionosphere 1995 (IRI95)",
-    "International Reference Ionosphere 2001 (IRI01)",
-    "International Reference Ionosphere 2007 (IRI07)",
-    "Parameterized Real-time Ionospheric Specification Model (PRISM)",
-    "Ionospheric Forecast Model (IFM)",
-    "Coupled Ionosphere-Thermosphere Forecast Model (CITFM)",
-    "Sami2 is Another Model of the Ionosphere (SAMI2)",
-    "Sami3 is Another Model of the Ionosphere (SAMI3)",
-    "Global Theoretical Ionospheric Model (GTIM)",
-    "Field Line Interhemispheric Plasma Model (FLIP)",
-    "USU model of the global ionosphere (USU)",
-    "A Coupled Thermosphere-Ionosphere-Plasmasphere Model (CTIP)",
-    "Thermosphere-Ionosphere-Mesosphere-Electrodynamic-General Circulation Model (TIME-GCM)"
-};
-
-const std::string MeasurementModel::TROPOSPHERE_MODEL_DESCRIPTIONS[EndTropoModelReps] =
-{
-    "Ifadis Model",
-    "Niell Model",
-    "Hopfield Modified Model",
-    "Hopfiled Simplified Model",
-    "Saastomoinen Model",
-    "Differential Refraction Model",
-    "Marini Model"
-};
-const std::string MeasurementModel::LIGHTTIME_MODEL_DESCRIPTIONS[EndLightTimeModelReps] =
-{
-    "Light Time Model"
-};
-
 const std::string MeasurementModel::MODEL_DESCRIPTIONS[EndModelReps] =
 {
     "NotDefined",
     "Range",
     "RangeRate",
-    "LightTime",
     "VariableTransmitterRange",
     "AntennaTracking",
     "SunSensor",
@@ -157,7 +123,7 @@ void MeasurementModel::Copy(const GmatBase* orig)
 //------------------------------------------------------------------------------
 std::string MeasurementModel::GetParameterText(const Integer id) const
 {
-   if ((id >= GmatBaseParamCount) && (id < DataFileParamCount))
+   if ((id >= GmatBaseParamCount) && (id < MeasurementModelParamCount))
    {
       //MessageInterface::ShowMessage("'%s':\n",
       //   PARAMETER_TEXT[id - GmatBaseParamCount].c_str());
@@ -180,7 +146,7 @@ std::string MeasurementModel::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer MeasurementModel::GetParameterID(const std::string &str) const
 {
-   for (Integer i = GmatBaseParamCount; i < DataFileParamCount; ++i)
+   for (Integer i = GmatBaseParamCount; i < MeasurementModelParamCount; ++i)
    {
       if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
          return i;
@@ -203,7 +169,7 @@ Integer MeasurementModel::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType MeasurementModel::GetParameterType(const Integer id) const
 {
-   if ((id >= GmatBaseParamCount) && (id < DataFileParamCount))
+   if ((id >= GmatBaseParamCount) && (id < MeasurementModelParamCount))
       return PARAMETER_TYPE[id - GmatBaseParamCount];
 
    return GmatBase::GetParameterType(id);
@@ -222,18 +188,21 @@ Gmat::ParameterType MeasurementModel::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 std::string MeasurementModel::GetStringParameter(const Integer id) const
 {
-   if (id == FILENAME_ID)
-      return dataFileName;
+   if (id == LIGHTTIME_ID)
+      return lightTimeModelName;
 
-   if (id == FILEFORMAT_ID)
-      return dataFormatID;
+   if (id == IONOSPHERE_ID)
+      return ionoModelName;
+
+   if (id == TROPOSPHERE_ID)
+      return tropoModelName;
           
    return GmatBase::GetStringParameter(id);
 }
 
 
 //------------------------------------------------------------------------------
-//  bool SetStringParameter(const Integer id, const Real value)
+//  bool SetStringParameter(const Integer id, const std::string value)
 //------------------------------------------------------------------------------
 /**
  * Sets the value for a std::string parameter.
@@ -246,24 +215,87 @@ std::string MeasurementModel::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 bool MeasurementModel::SetStringParameter(const Integer id, const std::string &value)
 {
-   if (id == FILENAME_ID)
+   if (id == LIGHTTIME_ID)
    {
-      dataFileName = value;
+      lightTimeModelName = value;
       return true;
    }
 
-   if (id == FILEFORMAT_ID)
+   if (id == IONOSPHERE_ID)
    {
-      dataFormatID = GetDataFormatID(value);
+      ionoModelName = value;
       return true;
    }
 
-   if (id == DATATYPESALLOWED_ID) {
-	dataTypesAllowed.push_back(value);
-        return true;
+   if (id == TROPOSPHERE_ID) 
+   {
+	tropoModelName = value;
+	return true;
    }
  
    return GmatBase::SetStringParameter(id, value);
+   
+}
+
+//------------------------------------------------------------------------------
+//  bool GetBooleanParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Gets the value for a boolean parameter.
+ * 
+ * @param <id> Integer ID of the parameter.
+ * 
+ * @return The value of the parameter.
+ */
+//------------------------------------------------------------------------------
+bool MeasurementModel::GetBooleanParameter(const Integer id) const
+{
+   if (id == LIGHTTIMEFLAG_ID)
+      return isLightTimeON;
+
+   if (id == IONOSPHEREFLAG_ID)
+      return isIonoON;
+
+   if (id == TROPOSPHEREFLAG_ID)
+      return isTropoON;
+          
+   return GmatBase::GetBooleanParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  bool SetBooleanParameter(const Integer id, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a boolean parameter.
+ * 
+ * @param <id>    Integer ID of the parameter.
+ * @param <value> New value for the parameter.
+ * 
+ * @return The value of the parameter.
+ */
+//------------------------------------------------------------------------------
+bool MeasurementModel::SetBooleanParameter(const Integer id, const bool &value)
+{
+   if (id == LIGHTTIMEFLAG_ID)
+   {
+      isLightTimeON = value;
+      return true;
+   }
+
+   if (id == IONOSPHEREFLAG_ID)
+   {
+      isIonoON = value;
+      return true;
+   }
+
+   if (id == TROPOSPHEREFLAG_ID) 
+   {
+	isTropoON = value;
+	return true;
+   }
+ 
+   return GmatBase::SetBooleanParameter(id, value);
    
 }
 
@@ -281,8 +313,8 @@ bool MeasurementModel::SetStringParameter(const Integer id, const std::string &v
 //------------------------------------------------------------------------------
 const StringArray& MeasurementModel::GetStringArrayParameter(const Integer id) const
 {
-   if (id == DATATYPESALLOWED_ID)
-      return dataTypesAllowed;
+   if (id == MEASUREMENTTYPES_ID)
+      return measurementTypesAllowed;
   
    return GmatBase::GetStringArrayParameter(id);
 }
@@ -292,8 +324,8 @@ const StringArray& MeasurementModel::GetStringArrayParameter(const Integer id) c
 //------------------------------------------------------------------------------
 Integer MeasurementModel::GetIntegerParameter(const Integer id) const
 {
-    if (id == NUMLINES_ID)
-      return numLines;
+//    if (id == NUMLINES_ID)
+//      return numLines;
 
     return GmatBase::GetIntegerParameter(id);
 }
@@ -316,18 +348,23 @@ Integer MeasurementModel::GetIntegerParameter(const std::string &label) const
 // virtual Integer SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * Sets the value for a integer parameter.
+ * 
+ * @param <id>    Integer ID of the parameter.
+ * @param <value> New value for the parameter.
+ * 
+ * @return The value of the parameter.
  *
  */
 //------------------------------------------------------------------------------
 Integer MeasurementModel::SetIntegerParameter(const Integer id, const Integer value)
 {
 
-   if (id == NUMLINES_ID)
-   {
-         numLines = value;
-         return value;
-   }
+//   if (id == NUMLINES_ID)
+//   {
+//         numLines = value;
+//         return value;
+//   }
    
    return GmatBase::SetIntegerParameter(id, value);
 
@@ -338,7 +375,12 @@ Integer MeasurementModel::SetIntegerParameter(const Integer id, const Integer va
 // virtual Integer SetIntegerParameter(std::string &label, const Integer value)
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * Sets the value for a integer parameter.
+ * 
+ * @param <id>    Integer ID of the parameter.
+ * @param <value> New value for the parameter.
+ * 
+ * @return The value of the parameter.
  */
 //------------------------------------------------------------------------------
 Integer MeasurementModel::SetIntegerParameter(const std::string &label, const Integer value)
@@ -427,8 +469,6 @@ bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
 }
 
-
-
 //---------------------------------
 // public methods
 //---------------------------------
@@ -442,10 +482,20 @@ bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 MeasurementModel::MeasurementModel(const std::string typeName,
       const std::string name) :
    GmatBase    (Gmat::MEASUREMENT_MODEL, typeName, name),
-   modelID     (0)
+   modelID     (0),
+   ionoModelName (""),
+   tropoModelName (""),
+   lightTimeModelName (""),
+   isIonoON (false),
+   isTropoON (false),
+   isLightTimeON (false)
 {
    objectTypes.push_back(Gmat::MEASUREMENT_MODEL);
    objectTypeNames.push_back("MeasurementModel");
+   measurementTypesAllowed.push_back("");
+   tempNameArray.push_back("");
+   myDataFileNames.push_back("");
+   myDataFiles.push_back(NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -453,7 +503,22 @@ MeasurementModel::MeasurementModel(const std::string typeName,
 //------------------------------------------------------------------------------
 MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
    GmatBase    (mm),
-   modelID  (mm.modelID)
+   modelID  (mm.modelID),
+   ionoModelName (mm.ionoModelName),
+   tropoModelName (mm.tropoModelName),
+   lightTimeModelName (mm.lightTimeModelName),
+   isIonoON (mm.isIonoON),
+   isTropoON (mm.isTropoON),
+   isLightTimeON (mm.isLightTimeON),
+   numMeasurements (mm.numMeasurements),
+   measurementNames (mm.measurementNames),
+   measurementUnits (mm.measurementUnits),
+   measurements (mm.measurements),
+   measurementTypesAllowed (mm.measurementTypesAllowed),
+   tempNameArray (mm.tempNameArray),
+   ccvtr (mm.ccvtr),
+   myDataFileNames (mm.myDataFileNames),
+   myDataFiles (mm.myDataFiles)
 {
    objectTypes.push_back(Gmat::MEASUREMENT_MODEL);
    objectTypeNames.push_back("MeasurementModel");

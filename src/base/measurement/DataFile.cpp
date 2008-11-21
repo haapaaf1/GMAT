@@ -30,7 +30,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string DataFile::DATAFORMAT_DESCRIPTIONS[NUM_DATAFORMATS] =
+const std::string DataFile::FILEFORMAT_DESCRIPTIONS[NUM_FILEFORMATS] =
 {
     "B3 Data",
     "SLR Data",
@@ -169,7 +169,7 @@ std::string DataFile::GetStringParameter(const Integer id) const
       return dataFileName;
 
    if (id == FILEFORMAT_ID)
-      return dataFormatID;
+      return fileFormatName;
           
    return GmatBase::GetStringParameter(id);
 }
@@ -197,7 +197,8 @@ bool DataFile::SetStringParameter(const Integer id, const std::string &value)
 
    if (id == FILEFORMAT_ID)
    {
-      dataFormatID = GetDataFormatID(value);
+      fileFormatName = value;
+      fileFormatID = GetFileFormatID(value);
       return true;
    }
  
@@ -213,6 +214,10 @@ Integer DataFile::GetIntegerParameter(const Integer id) const
     if (id == NUMLINES_ID)
       return numLines;
 
+    if (id == FILEFORMAT_ID)
+      return fileFormatID;
+
+    
     return GmatBase::GetIntegerParameter(id);
 }
 
@@ -287,7 +292,10 @@ Integer DataFile::SetIntegerParameter(const std::string &label, const Integer va
 DataFile::DataFile(const std::string &itsType, 
 				 const std::string &itsName) :
     GmatBase(Gmat::DATA_FILE,itsType,itsName),
-    dataFormatID (0),
+    fileFormatName (""),
+//    numLines (0),
+//    lineFromFile (""),
+//    dataFileName (""),
     isOpen (false)
 {
    objectTypes.push_back(Gmat::DATA_FILE);
@@ -303,7 +311,7 @@ DataFile::DataFile(const std::string &itsType,
 //------------------------------------------------------------------------------
 DataFile::DataFile(const DataFile &pdf) :
     GmatBase       (pdf),
-    dataFormatID (pdf.dataFormatID),
+    fileFormatName (pdf.fileFormatName),
     numLines (pdf.numLines),
     lineFromFile (pdf.lineFromFile),
     dataFileName (pdf.dataFileName),
@@ -371,13 +379,38 @@ bool DataFile::CloseFile(std::ifstream &theFile)
 }
 
 //------------------------------------------------------------------------------
-// Integer GetDataFormatID(const std::string &label)
+// const std::string* GetFileFormatDescriptions() const
+//------------------------------------------------------------------------------
+const std::string* DataFile::GetFileFormatDescriptions() const
+{
+   return FILEFORMAT_DESCRIPTIONS;
+}
+
+//------------------------------------------------------------------------------
+// std::string GetFileFormatDescriptionText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Code used to obtain the data format name text corresponding to a ID
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::GetFileFormatDescriptionText(const Integer &id) const
+{
+   if ((id >= 0) && (id < EndFileFormatReps))
+   {
+      return FILEFORMAT_DESCRIPTIONS[id];
+   }
+
+   return "INVALID";
+}
+
+//------------------------------------------------------------------------------
+// Integer GetFileFormatID(const std::string &label)
 //------------------------------------------------------------------------------
 /**
  * Code used to obtain the data format ID
  */
 //------------------------------------------------------------------------------
-Integer DataFile::GetDataFormatID(const std::string &label)
+Integer DataFile::GetFileFormatID(const std::string &label)
 {
     Integer retval = -1;
     
@@ -399,83 +432,84 @@ Integer DataFile::GetDataFormatID(const std::string &label)
 }
 
 //------------------------------------------------------------------------------
-// const std::string* GetDataFormatDescriptions() const
-//------------------------------------------------------------------------------
-const std::string* DataFile::GetDataFormatDescriptions() const
-{
-   return DATAFORMAT_DESCRIPTIONS;
-}
-
-//------------------------------------------------------------------------------
-// std::string GetDataFormatNameText(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * Code used to obtain the data format name text corresponding to a ID
- */
-//------------------------------------------------------------------------------
-std::string DataFile::GetDataFormatNameText(const Integer &id) const
-{
-   if ((id >= 0) && (id < EndDataFormatReps))
-   {
-      return DATAFORMAT_DESCRIPTIONS[id];
-   }
-
-   return "INVALID";
-}
-
-
-
-//------------------------------------------------------------------------------
-// Integer SetDataFormatID(Integer pdfId)
+// Integer SetFileFormatID(const std::string &label)
 //------------------------------------------------------------------------------
 /**
  * Sets the name of the process data file object.
  */
 //------------------------------------------------------------------------------
-void DataFile::SetDataFormatID(Integer pdfId)
-{
-   dataFormatID = pdfId;
-}
-
-
-//------------------------------------------------------------------------------
-// Integer SetDataFormatID(const std::string &label)
-//------------------------------------------------------------------------------
-/**
- * Sets the name of the process data file object.
- */
-//------------------------------------------------------------------------------
-void DataFile::SetDataFormatID(const std::string &label)
+void DataFile::SetFileFormatID(const std::string &label)
 {
    
     if (label == "B3")
     {
-       dataFormatID = B3_ID;
+       fileFormatID = B3_ID;
     } 
     else if (label == "SLR")
     {
-       dataFormatID = SLR_ID;
+       fileFormatID = SLR_ID;
     }
     else if (label == "TLE")
     {
-       dataFormatID = TLE_ID;
+       fileFormatID = TLE_ID;
     }
 
 }
 
-
 //------------------------------------------------------------------------------
-// Integer GetDataFormatID() const
+// Integer SetFileFormatID(Integer &pdfId)
 //------------------------------------------------------------------------------
 /**
- * Finds the data format ID# of the process data file object.
+ * Sets the format ID# of the data file object.
+ *
+ * @param <pdfId> The desired data file format ID to be set.
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetFileFormatID(const Integer &pdfId)
+{
+   fileFormatID = pdfId;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetFileFormatID() const
+//------------------------------------------------------------------------------
+/**
+ * Finds the data format ID# of the data file object.
  *
  * @return The data format ID#.
  */
 //------------------------------------------------------------------------------
-Integer DataFile::GetDataFormatID() const
+Integer DataFile::GetFileFormatID() const
 {
-   return dataFormatID;
+   return fileFormatID;
+}
+
+//------------------------------------------------------------------------------
+// void SetFileFormatName(std::string &fName)
+//------------------------------------------------------------------------------
+/**
+ * Sets the name of the data file format.
+ *
+ * @param <fName> The desired data file format name to be set.
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetFileFormatName(const std::string &fName)
+{
+   fileFormatName = fName;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetFileFormatName() const
+//------------------------------------------------------------------------------
+/**
+ * Finds the data format name of the data file object.
+ *
+ * @return The data format name.
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::GetFileFormatName() const
+{
+   return fileFormatName;
 }
 
 //------------------------------------------------------------------------------

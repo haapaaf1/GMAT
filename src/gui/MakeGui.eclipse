@@ -93,6 +93,7 @@ HEADERS = -I../base/include \
           -I../base/asset \
           -I../base/estimator \
           -I../base/measurement \
+          -I../base/environment \
           -Iinclude \
           -Iinclude/bitmaps \
           -Iinclude/il \

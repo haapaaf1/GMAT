@@ -86,6 +86,7 @@ HEADERS = -Iinclude \
           -Imath \
           -Iasset \
           -Iplugin \
+          -Ienvironment \
           -I../gui/include \
           -I../gui/include/bitmaps \
           -I../gui/app \
@@ -393,21 +394,21 @@ OBJECTS = \
     propagator/RungeKuttaFehlberg56.o \
     propagator/RungeKuttaNystrom.o \
     propagator/RungeKutta.o \
-    solarsys/AtmosphereModel.o \
+    environment/AtmosphereModel.o \
     solarsys/Barycenter.o \
     solarsys/CalculatedPoint.o \
     solarsys/CelestialBody.o \
     solarsys/DeFile.o \
-    solarsys/ExponentialAtmosphere.o \
-    solarsys/JacchiaRobertsAtmosphere.o \
+    environment/ExponentialAtmosphere.o \
+    environment/JacchiaRobertsAtmosphere.o \
     solarsys/LibrationPoint.o \
     solarsys/Moon.o \
-    solarsys/Msise90Atmosphere.o \
+    environment/Msise90Atmosphere.o \
     solarsys/PlanetaryEphemException.o \
     solarsys/PlanetaryEphem.o \
     solarsys/Planet.o \
     solarsys/SlpFile.o \
-    solarsys/SolarFluxFileReader.o \
+    environment/SolarFluxFileReader.o \
     solarsys/SolarSystemException.o \
     solarsys/SolarSystem.o \
     solarsys/Star.o \
@@ -487,7 +488,9 @@ OBJECTS = \
 #    $(BRIDGEOBJECTS)
 
 # Future classes:
-#    solarsys/Msise00Atmosphere.o \
+#    environment/IonosphereModel.o \
+#    environment/TroposphereModel.o \
+#    environment/Msise00Atmosphere.o \
 #    propagator/Cowell.o \
 #    measurement/SimMeasurementModel.o \
 #    measurement/AzElMeasurementModel.o \
@@ -498,9 +501,9 @@ OBJECTS = \
 
 
 
-FORTRAN_OBJECTS = solarsys/msise90_sub.o 
+FORTRAN_OBJECTS = environment/msise90_sub.o 
 
-# solarsys/msise00_sub.o
+# environment/msise00_sub.o
 
     # parameter/EquinoctialParameters.o \
     # stopcond/BaseStopCondition.o \
@@ -526,11 +529,11 @@ endif
 
 
 # Specific instructions for the fortran code
-solarsys/msise90_sub.o: solarsys/msise90_sub.for
-	$(FORTRAN) -c solarsys/msise90_sub.for -o solarsys/msise90_sub.o $(F77_FLAGS) 
+environment/msise90_sub.o: environment/msise90_sub.for
+	$(FORTRAN) -c environment/msise90_sub.for -o environment/msise90_sub.o $(F77_FLAGS) 
 
-solarsys/msise00_sub.o: solarsys/msise00_sub.for
-	$(FORTRAN) -c solarsys/msise00_sub.for -o solarsys/msise00_sub.o $(F77_FLAGS) -ff2c
+environment/msise00_sub.o: environment/msise00_sub.for
+	$(FORTRAN) -c enviroment/msise00_sub.for -o enviroment/msise00_sub.o $(F77_FLAGS) -ff2c
 
 # Instructions for the console app interfaces
 interpreter/GuiInterpreterConsole.o : interpreter/GuiInterpreter.cpp \

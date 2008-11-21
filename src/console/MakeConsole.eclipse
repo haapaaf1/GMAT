@@ -35,6 +35,7 @@ HEADERS = -I../base/include -I../base/foundation \
           -I../base/math -I../base/plugin \
           -I/usr/local/include/lapackpp \
           -I../base/measurement \
+          -I../base/environment \
           -I../base/asset
 
 clean : archclean
