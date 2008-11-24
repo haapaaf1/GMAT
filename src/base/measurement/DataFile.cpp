@@ -269,9 +269,63 @@ Integer DataFile::SetIntegerParameter(const std::string &label, const Integer va
    return SetIntegerParameter(GetParameterID(label), value);
 }
 
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not,
+ *         throws if the parameter is out of the valid range of values.
+ */
+//---------------------------------------------------------------------------
+bool DataFile::IsParameterReadOnly(const Integer id) const
+{
+   return GmatBase::IsParameterReadOnly(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not.
+ */
+//---------------------------------------------------------------------------
+bool DataFile::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
+
 //---------------------------------
 //  public methods
 //---------------------------------
+
+// Initialize
+
+//------------------------------------------------------------------------------
+// Integer Initialize() const
+//------------------------------------------------------------------------------
+/**
+ * Initializes the datafile object.
+ */
+//------------------------------------------------------------------------------
+bool DataFile::Initialize()
+{
+    std::ifstream myFile;
+    if(!OpenFile(myFile))
+    {
+	throw DataFileException("Unable to open data file: " + dataFileName);
+	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
+    }
+}
 
 //------------------------------------------------------------------------------
 //  DataFile(Gmat::ObjectType ofType, const std::string &itsType,
@@ -337,7 +391,7 @@ DataFile::~DataFile()
  *
  * @return Boolean success or failure
  */
-bool DataFile::OpenFile(std::ifstream &theFile)
+bool DataFile::OpenFile(const std::ifstream &theFile)
 {
     theFile.open(dataFileName.c_str());
 
@@ -361,7 +415,7 @@ bool DataFile::OpenFile(std::ifstream &theFile)
  *
  * @return Boolean success or failure
  */
-bool DataFile::CloseFile(std::ifstream &theFile)
+bool DataFile::CloseFile(const std::ifstream &theFile)
 {
     theFile.close();
 
@@ -482,6 +536,35 @@ void DataFile::SetFileFormatID(const Integer &pdfId)
 Integer DataFile::GetFileFormatID() const
 {
    return fileFormatID;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer SetNumLines(const Integer &nl)
+//------------------------------------------------------------------------------
+/**
+ * Sets the number of lines of the data file object.
+ *
+ * @param <pdfId> The desired number of lines to be set.
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetNumLines(const Integer &nl)
+{
+   numLines = nl;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetNumLines() const
+//------------------------------------------------------------------------------
+/**
+ * Finds the number of lines of the data file object.
+ *
+ * @return The number of lines to read in at a time.
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::GetNumLines() const
+{
+   return numLines;
 }
 
 //------------------------------------------------------------------------------

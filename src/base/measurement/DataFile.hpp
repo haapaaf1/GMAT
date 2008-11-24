@@ -29,6 +29,8 @@
 #include <fstream>
 #include "sstream"
 #include "DataFormats.hpp"
+#include "DataFileException.hpp"
+#include "MessageInterface.hpp"
 
 using namespace DataFormats; // for data type variable definitions
 
@@ -41,6 +43,9 @@ public:
     DataFile(const DataFile &pdf);
     virtual ~DataFile();
 
+    // Initialization happens here
+    virtual bool Initialize();
+
     // Methods overridden from the GmatBase clase
     virtual GmatBase *Clone() const;
     virtual void        Copy(const GmatBase* orig);      
@@ -48,7 +53,16 @@ public:
     virtual Integer         GetParameterID(const std::string &str) const;
     virtual Gmat::ParameterType
                            GetParameterType(const Integer id) const;
-   
+    virtual bool        IsParameterReadOnly(const Integer id) const;
+    virtual bool        IsParameterReadOnly(const std::string &label) const;
+    virtual std::string GetStringParameter(const Integer id) const;
+    virtual bool SetStringParameter(const Integer id, const std::string &value);
+
+    virtual Integer GetIntegerParameter(const Integer id) const;
+    virtual Integer GetIntegerParameter(const std::string &label) const;
+    virtual Integer SetIntegerParameter(const Integer id, const Integer value);
+    virtual Integer SetIntegerParameter(const std::string &label, const Integer value);
+  
     // Specific data type processing functions
     virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader);
     virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata);
@@ -68,18 +82,13 @@ public:
     std::string GetLine(Integer &lineNum);
     void SetLine(std::string &line, Integer &lineNum);
     
-    std::string GetStringParameter(const Integer id) const;
-    bool SetStringParameter(const Integer id, const std::string &value);
-
-    Integer GetIntegerParameter(const Integer id) const;
-    Integer GetIntegerParameter(const std::string &label) const;
-    Integer SetIntegerParameter(const Integer id, const Integer value);
-    Integer SetIntegerParameter(const std::string &label, const Integer value);
-
     const std::string* GetFileFormatDescriptions() const;
     std::string GetFileFormatDescriptionText(const Integer &id) const;
     Integer GetFileFormatID(const std::string &label);
     void SetFileFormatID(const std::string &label);
+
+    void SetNumLines(const Integer &nl);
+    Integer GetNumLines() const;
     
     void SetFileFormatID(const Integer &mName);
     Integer GetFileFormatID() const;
@@ -96,8 +105,8 @@ public:
     void SetFileName(std::string &myFileName);
     void SetFileName(const char* myFileName);
 
-    bool OpenFile(std::ifstream &theFile);
-    bool CloseFile(std::ifstream &theFile);
+    bool OpenFile(const std::ifstream &theFile);
+    bool CloseFile(const std::ifstream &theFile);
 
     bool IsEOF(std::ifstream &theFile);
     
