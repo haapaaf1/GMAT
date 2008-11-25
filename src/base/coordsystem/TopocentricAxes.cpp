@@ -349,7 +349,7 @@ void TopocentricAxes::CalculateRFT(const A1Mjd &atEpoch, const Rvector3 newLocat
    y = newLocation[1];
    z = newLocation[2];
    if (horizonReference == "Sphere")
-      zUnit = bfLocation.GetUnitVector();
+      zUnit = newLocation.GetUnitVector();
    else // "Ellipsoid"
    {
       Real rxy      = GmatMathUtil::Sqrt(x*x + y*y);
