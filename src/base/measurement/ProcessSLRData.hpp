@@ -33,7 +33,12 @@ public:
     ProcessSLRData(const std::string &itsName);
     ~ProcessSLRData();
 
+    // Initialization happens here
+    void Initialize() const;
+
     GmatBase *Clone() const;
+    bool        IsParameterReadOnly(const Integer id) const;
+    bool        IsParameterReadOnly(const std::string &label) const;
 
     std::string Ilrs2Cospar(std::string ilrsSatnum);
 

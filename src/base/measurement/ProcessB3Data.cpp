@@ -45,6 +45,18 @@ const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[EndB3TypeReps] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
+// Integer Initialize() const
+//------------------------------------------------------------------------------
+/**
+ * Initializes the datafile object.
+ */
+//------------------------------------------------------------------------------
+void ProcessB3Data::Initialize() const
+{
+    DataFile::Initialize();
+}
+
+//------------------------------------------------------------------------------
 //  ProcessB3Data() 
 //------------------------------------------------------------------------------
 /**
@@ -54,6 +66,9 @@ ProcessB3Data::ProcessB3Data(const std::string &itsName) :
 	DataFile ("B3DataFile", itsName)
 {
    objectTypeNames.push_back("B3DataFile");
+   fileFormatName = "B3";
+   fileFormatID = 0;
+   numLines = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -79,6 +94,42 @@ GmatBase* ProcessB3Data::Clone() const
 {
    GmatBase *clone = new ProcessB3Data(*this);
    return (clone);
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not,
+ *         throws if the parameter is out of the valid range of values.
+ */
+//---------------------------------------------------------------------------
+bool ProcessB3Data::IsParameterReadOnly(const Integer id) const
+{
+   if (id == NUMLINES_ID)  return true;
+   if (id == FILEFORMAT_ID)  return true;
+   return GmatBase::IsParameterReadOnly(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not.
+ */
+//---------------------------------------------------------------------------
+bool ProcessB3Data::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
 }
 
 //------------------------------------------------------------------------------

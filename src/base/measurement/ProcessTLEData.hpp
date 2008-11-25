@@ -33,8 +33,13 @@ public:
     
     ProcessTLEData(const std::string &itsName);
     ~ProcessTLEData();
+
+    // Initialization happens here
+    void Initialize() const;
    
     GmatBase *Clone() const;
+    bool        IsParameterReadOnly(const Integer id) const;
+    bool        IsParameterReadOnly(const std::string &label) const;
 
     // Specific data type processing functions
     bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata);

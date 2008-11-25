@@ -1,0 +1,85 @@
+Directory of PIM files as of February 26, 1998:
+
+archives               GZIP-compressed TAR files of PIM 1.7 and its components:
+
+   cgmdb.tar.gz        The corrected geomagnetic coordinate conversion database
+
+   llfdb.tar.gz        The parameterized LLF model database
+
+   lmedb.tar.gz        The parameterized LME model database
+
+   mlfdb.tar.gz        The parameterized MLF model database
+
+   ursidb.tar.gz       The URSI-88 coefficients database
+
+   pim17src.tar.gz     PIM 1.7 source code, PIM 1.7 User Guide, IDL procedures,
+                       and test cases
+
+   usudb.tar.gz        The parameterized USU model database
+
+help                   PIM 1.7 User Guide in various formats:
+
+   pim17ug.doc         Microsoft Word 97
+
+   pim17ug.pdf         Adobe Acrobat 3.0
+
+   pim17ug.ps          PostScript
+
+   pim17ug.rtf         Rich Text Format
+
+utils                  Utilities for various platforms:
+
+   dos                 DOS:
+
+      dos_gzip.doc     GZIP documentation (text file)
+
+      dos_gzip.exe     GZIP executable
+
+      dos_tar.doc      TAR documentation (text file)
+
+      dos_tar.exe      TAR executable
+
+   mac                 Macintosh:
+
+      ardr301e.bin     Adobe Acrobat Reader 3.01 MacBinary installer (freeware)
+
+      ardr301e.sit.hqx Adobe Acrobat Reader 3.01 BinHex installer (freeware)
+
+      sitex401.sea     StuffIt Expander 4.01 (freeware)
+
+   vms                 VMS:
+
+      vms_gzip.exe     GZIP executable
+
+      vms_gzip.hlp     GZIP documentation (VMS Help format)
+
+      vms_tar.exe      TAR executable
+
+      vms_tar.hlp      TAR documentation (VMS Help format)
+
+   win16               16-bit Windows:
+
+      ar16e301.exe     Adobe Acrobat Reader 3.01 installer (freeware)
+
+      winzip31.exe     WinZip 6.3 SR-1 installer (shareware)
+
+   win32               32-bit Windows (Intel):
+
+      ar32e301.exe     Adobe Acrobat Reader 3.01 installer (freeware)
+
+      ntx86_gzip.doc   GZIP documentation (text file)
+
+      ntx86_gzip.exe   GZIP executable
+
+      ntx86_tar.doc    TAR documentation (text file)
+
+      ntx86_tar.exe    TAR executable
+
+      winzip95.exe     WinZip 6.3 SR-1 installer (shareware)
+
+   GZIP and TAR are generally available as part of the Unix operating system.
+   See your system administrator if these utilities are not currently available
+   on your Unix system.
+
+   The Adobe Acrobat Reader is available for several variants of Unix at the
+   Adobe anonymous ftp site ftp://ftp.adobe.com.

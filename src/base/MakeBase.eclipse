@@ -329,6 +329,7 @@ OBJECTS = \
     measurement/RangeMeasurementModel.o \
     measurement/RangeAzElMeasurementModel.o \
     measurement/DataFile.o \
+    measurement/DataFileException.o \
     measurement/ProcessTLEData.o \
     measurement/ProcessB3Data.o \
     measurement/ProcessSLRData.o \
@@ -394,7 +395,7 @@ OBJECTS = \
     propagator/RungeKuttaFehlberg56.o \
     propagator/RungeKuttaNystrom.o \
     propagator/RungeKutta.o \
-    environment/AtmosphereModel.o \
+    solarsys/AtmosphereModel.o \
     solarsys/Barycenter.o \
     solarsys/CalculatedPoint.o \
     solarsys/CelestialBody.o \
@@ -488,8 +489,8 @@ OBJECTS = \
 #    $(BRIDGEOBJECTS)
 
 # Future classes:
-#    environment/IonosphereModel.o \
-#    environment/TroposphereModel.o \
+#    solarsys/IonosphereModel.o \
+#    solarsys/TroposphereModel.o \
 #    environment/Msise00Atmosphere.o \
 #    propagator/Cowell.o \
 #    measurement/SimMeasurementModel.o \

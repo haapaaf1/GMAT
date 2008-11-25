@@ -105,8 +105,8 @@ public:
     void SetFileName(std::string &myFileName);
     void SetFileName(const char* myFileName);
 
-    bool OpenFile(const std::ifstream &theFile);
-    bool CloseFile(const std::ifstream &theFile);
+    bool OpenFile(std::ifstream &theFile);
+    bool CloseFile(std::ifstream &theFile);
 
     bool IsEOF(std::ifstream &theFile);
     

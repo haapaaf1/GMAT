@@ -33,6 +33,18 @@
 //---------------------------------
 
 //------------------------------------------------------------------------------
+// Integer Initialize() const
+//------------------------------------------------------------------------------
+/**
+ * Initializes the datafile object.
+ */
+//------------------------------------------------------------------------------
+void ProcessTLEData::Initialize() const
+{
+    DataFile::Initialize();
+}
+
+//------------------------------------------------------------------------------
 //  ProcessTLEData() 
 //------------------------------------------------------------------------------
 /**
@@ -42,6 +54,8 @@ ProcessTLEData::ProcessTLEData(const std::string &itsName) :
 	DataFile ("TLEDataFile", itsName)
 {
    objectTypeNames.push_back("TLEDataFile");
+   fileFormatName = "TLE";
+   fileFormatID = 2; 
 }
 
 
@@ -68,6 +82,41 @@ GmatBase* ProcessTLEData::Clone() const
 {
    GmatBase *clone = new ProcessTLEData(*this);
    return (clone);
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not,
+ *         throws if the parameter is out of the valid range of values.
+ */
+//---------------------------------------------------------------------------
+bool ProcessTLEData::IsParameterReadOnly(const Integer id) const
+{
+   if (id == FILEFORMAT_ID)  return true;
+   return GmatBase::IsParameterReadOnly(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not.
+ */
+//---------------------------------------------------------------------------
+bool ProcessTLEData::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
 }
 
 //------------------------------------------------------------------------------

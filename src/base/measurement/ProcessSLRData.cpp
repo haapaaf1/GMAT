@@ -32,15 +32,30 @@
 //---------------------------------
 
 //------------------------------------------------------------------------------
+// Integer Initialize() const
+//------------------------------------------------------------------------------
+/**
+ * Initializes the datafile object.
+ */
+//------------------------------------------------------------------------------
+void ProcessSLRData::Initialize() const
+{
+    DataFile::Initialize();
+}
+
+//------------------------------------------------------------------------------
 //  ProcessSLRData() 
 //------------------------------------------------------------------------------
 /**
  * Constructs base ProcessSLRData structures 
  */
 ProcessSLRData::ProcessSLRData(const std::string &itsName) :
-	DataFile ("SLRDataFile", itsName)
+	DataFile ("SLRDataFile", itsName) 
 {
    objectTypeNames.push_back("SLRDataFile");
+   fileFormatName = "SLR";
+   fileFormatID = 1;
+   numLines = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -68,8 +83,44 @@ GmatBase* ProcessSLRData::Clone() const
    return (clone);
 }
 
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not,
+ *         throws if the parameter is out of the valid range of values.
+ */
+//---------------------------------------------------------------------------
+bool ProcessSLRData::IsParameterReadOnly(const Integer id) const
+{
+   if (id == NUMLINES_ID)  return true;
+   if (id == FILEFORMAT_ID)  return true;
+   return GmatBase::IsParameterReadOnly(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not.
+ */
+//---------------------------------------------------------------------------
+bool ProcessSLRData::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
 ////------------------------------------------------------------------------------
-//// template <class T> bool DataFile::from_string(T& t,
+//// template <class T> bool ProcessSLRData::from_string(T& t,
 ////		   const std::string& s,
 ////                 std::ios_base& (*f)(std::ios_base&))
 ////------------------------------------------------------------------------------
@@ -78,7 +129,7 @@ GmatBase* ProcessSLRData::Clone() const
 // */
 ////------------------------------------------------------------------------------
 //
-//template <class T> bool DataFile::from_string(T& t, const std::string& s,
+//template <class T> bool ProcessSLRData::from_string(T& t, const std::string& s,
 //                 std::ios_base& (*f)(std::ios_base&))
 //{
 //  std::istringstream iss(s);

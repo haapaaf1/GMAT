@@ -325,6 +325,8 @@ bool DataFile::Initialize()
 	throw DataFileException("Unable to open data file: " + dataFileName);
 	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
     }
+
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -391,7 +393,7 @@ DataFile::~DataFile()
  *
  * @return Boolean success or failure
  */
-bool DataFile::OpenFile(const std::ifstream &theFile)
+bool DataFile::OpenFile(std::ifstream &theFile)
 {
     theFile.open(dataFileName.c_str());
 
@@ -415,7 +417,7 @@ bool DataFile::OpenFile(const std::ifstream &theFile)
  *
  * @return Boolean success or failure
  */
-bool DataFile::CloseFile(const std::ifstream &theFile)
+bool DataFile::CloseFile(std::ifstream &theFile)
 {
     theFile.close();
 

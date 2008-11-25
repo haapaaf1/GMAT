@@ -35,7 +35,12 @@ public:
     ProcessB3Data(const std::string &itsName);
     ~ProcessB3Data();
 
+    // Initialization happens here
+    void Initialize() const;
+
     GmatBase *Clone() const;
+    bool        IsParameterReadOnly(const Integer id) const;
+    bool        IsParameterReadOnly(const std::string &label) const;
 
     const std::string* GetB3TypeDescriptions() const;
     std::string GetB3TypeNameText(const Integer &id) const;

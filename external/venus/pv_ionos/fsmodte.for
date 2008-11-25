@@ -1,0 +1,25 @@
+       SUBROUTINE FSMODT(TE,ALT,SZA)
+C ALT IN KILOMETERS
+C SZA IN RADIANS  MAY HAVE - SIGN TO INDICATE DUSK SIDE
+C TE IN LOG10 DEG K
+      DIMENSION PB(4),P(28)
+      DATA P(1)/0./
+      IF(P(1).NE.0.)GO TO 4
+      OPEN(UNIT=7,NAME='FSMODT.DAT',TYPE='OLD',READONLY,SHARED)
+      READ(7,*)P
+      CLOSE(UNIT=7)
+    4 CONTINUE
+      S=SIN(SZA)
+      C=COS(SZA)
+      S2=SIN(2*SZA)
+      C2=COS(2*SZA)
+      S3=SIN(3*SZA)
+      C3=COS(3*SZA)
+      DO 10 J=1,4
+      K=J*7
+      PB(J)=P(K-6)+P(K-5)*S+P(K-4)*C+P(K-3)*S2+P(K-2)*C2+P(K-1)*S3
+     1 +P(K)*C3
+   10 CONTINUE
+      TE=PB(1)+PB(2)/((ALT+PB(3))**2)+PB(4)*ALT
+      RETURN
+      END
