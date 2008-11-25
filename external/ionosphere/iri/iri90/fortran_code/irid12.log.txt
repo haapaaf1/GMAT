@@ -1,0 +1,1277 @@
+=======================================================
+IRID12.LOG /// IRI-90 RUN WITH EXAMPLES /// NOV 19 1991
+=======================================================
+Below is the protocol of a IRID12 session showing the 
+text displayed on the user's screen.
+
+Please note: <CR> stands for carriage return. It indicates
+the user input lines.
+
+
+
+       **** INTERNATIONAL REFERENCE IONOSPHERE 1990 ****
+***************************************************************
+THIS PROGRAM ALLOWS YOU TO PRODUCE TABLES OF IRI PARAMETERS VARYING
+WITH LATITUDE, LONGITUDE,SOLAR ACTIVITY,MONTH,TIME OR ALTITUDE.
+***************************************************************
+ In each of the following windows you will be asked to enter
+ one or more values, defining the conditions for your IRI 
+ tables.
+ In each window the current value(s) is (are) shown in the right
+ upper corner (# .. #). You can choose the current value(s) by
+ entering / at the prompt
+ If you enter a wrong character or a value outside the allowed
+ parameter range, the program will ask you for a new entry.
+ After your tables are displayed, you can change any parameter
+ you wish to change and create a new profile.
+ You can leave the program at any point by entering Ctrl Z.
+************************** GOOD LUCK **************************
+
+DO YOU WANT YOUR IRI-PROFILES                           #0#
+    DISPLAYED ON YOUR MONITOR:  ENTER  0  AT PROMPT
+    STORED IN FILE OUTPUT.IRI:  ENTER  1  AT PROMPT
+    DISPLAYED AND STORED     :  ENTER  2  AT PROMPT
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+n
+Your input value is outside the value range: 0 to  2, try again
+3
+Your input value is outside the value range: 0 to  2, try again
+0
+
+DO YOU WANT MESSAGES                                     #1#
+    DISPLAYED ON YOUR MONITOR:  ENTER  0  AT PROMPT
+    STORED IN FILE KONSOL.IRI:  ENTER  1  AT PROMPT
+    STORED IN FILE OUTPUT.IRI:  ENTER  2  AT PROMPT
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+SELECT YOUR VARIABLE:                                   #6#
+
+                                 Geodetic or geomagnetic coordinates
+                                 are assumed depending on your later
+1  LATITUDE    4  MONTH          selection of JMAG.
+2  LONGITUDE   5  HOUR           Variation in UNIVERSAL TIME is selected
+3  RZ12        6  ALTITUDE       by adding "25" to your BEGIN hour
+7  DAYNR                         in the next window.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+CHOOSE YOUR VARIABLE RANGE:    BEGIN,  END , STEPWIDTH ?
+                             # 100.0,1000.0, 100.0#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+JMAG ?                                                   #0#
+
+!! "0" geodetic longitude and latitude
+!! "1"    geomagnetic   ... 
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+GEOD. LATITUDE ?   !NORTH!   [DEGREE,DECIMAL]        # 45.1#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+GEOD. LONGITUDE ?   !EAST!   [DEGREE,DECIMAL]        #293.1#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+SOLAR SUNSPOT NUMBER ?   !12-MONTH-RUNNING MEAN!    #100.0#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+DATE ?   * MONTH&DAY (MMDD) or DAY OF YEAR (-DDD) *   #1015#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+HOUR ?              [HOURS, DECIMAL]                  #12.5#
+
+!! UNIVERSAL TIME (UT) can be chosen by entering HOUR=UT+25.
+!! If HOUR is less 25, than LOCAL TIME is assumed
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+WHICH PARAMETERS SHOULD BE CALCULATED ?                  #1#
+------------------------------------------------------------
+    1 - ALL PARAMETERS
+    2 - ONLY ELECTRON DENSITY
+    3 - ONLY TEMPERATURES
+    4 - ONLY ION COMPOSITION
+    5 - DENSITY AND TEMPERATURES
+    6 - DENSITY AND ION COMPOSITION
+    7 - TEMPERATURES AND ION COMPOSITION
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+SELECTION OF DENSITY OPTIONS:                          #  2#
+------------------------------------------------------------
+    1 - OLD-B0:   B0-table
+    2 - NEW-B0:   Gulyaeva-h0.5 (!recommended choice!) 
+    3 - OLD-TS:   Topside as in IRI 1979
+------------------------------------------------------------
+    4 - LAY:      analytical LAY-representation for the E-F
+                  region using HMF1(SZA) formula and Gul.-B0.
+------------------------------------------------------------
+ION COMPOSITION: - Enter the chosen option as a negative
+number, if you would like to use the Danilov-Yaichnikov
+ion composition model.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+NMF2/FOF2 input ?    * F PEAK DENSITY / FREQUENCY *      #2#
+------------------------------------------------------------
+!! OPTIONS:  enter  0    if you want to enter your own
+!!                       NMF2/m-3 (or foF2/MHz) values.
+!!           enter  1    if you want to use the CCIR-67 model
+!!           enter  2    if you want to use the URSI-89 model
+!!                       URSI-89 was adopted as IRI standard.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+HMF2-input ?            * F PEAK ALTITUDE *              #1#
+------------------------------------------------------------
+!! OPTIONS: enter  0   if you want to enter HMF2/km values.
+!!          enter  1   if you want to use the CCIR-M3000 based model
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+ NE(300), NE(400), NE(600) ?    [m-3]
+                                #0.00E+00,0.00E+00,0.00E+00#
+------------------------------------------------------------
+!! ELECTRON TEMPERATURE:
+!!    Option to use the electron density (NE) dependent
+!!    models at 300, 400, 600 km altitude
+!!    (NE(H)=0  model is not used at altitude h).
+------------------------------------------------------------
+!!    This option is only allowed, when you generate
+!!    altitude profiles (i.e. variable=height).
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+*** IRI parameters are being calculated ***
+Ne, B0: Bottomside thickness is obtained with Gulyaeva-1987 model.
+Ne, foF2: URSI model is used.
+
+
+
+
+
+
+
+
+
+
+   H/KM  ELECTRON DENSITY      TEMPERATURES       ION PERCENTAGE DENSITIES
+         NE/CM-3 NE/NMF2  TN/K  TI/K  TE/K  TE/TI   O+   H+  He+  O2+  NO+
+  100.0   122870  0.1054    -1    -1    -1  -1.00    0    0    0   46   54
+  200.0   262945  0.2255   967   967  1422   1.47   88    0    0    5    8
+  300.0  1159942  0.9948  1091  1111  2292   2.06  100    0    0    0    0
+  400.0   823790  0.7065  1108  1256  2755   2.19  100    0    0    0    0
+  500.0   442846  0.3798  1110  1506  2794   1.86   96    4    0    0    0
+  600.0   248429  0.2131  1111  1803  2810   1.56   88   10    1    0    0
+  700.0   164867  0.1414  1111  2100  2883   1.37   80   18    2    0    0
+  800.0   128017  0.1098  1111  2397  2966   1.24   69   28    3    0    0
+  900.0   110757  0.0950  1111  2693  3050   1.13   59   37    4    0    0
+ 1000.0   102289  0.0877  1111  2990  3133   1.05   50   45    5    0    0
+I-URSI --B0Gul-----------I-----------------------I-----------------------I
+LAT/LON= 45.1/293.1    H=1000.0  RZ12=100.0 MMDD:1015  LT:12.5  SZA= 54.8
+MLA/MLO= 56.5/  3.7  DIP= 72.4  F10.7=145.4  DDD: 288  UT:17.0  SDE= -8.8
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+"2"  DIFFERENT ALTITUDE RANGE
+------------------------------------------------------------
+2
+BEGIN, END, STEPWIDTH   [KM]          # 100.0,1000.0, 100.0#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+100,300,20
+
+
+
+
+
+
+
+
+
+
+   H/KM  ELECTRON DENSITY      TEMPERATURES       ION PERCENTAGE DENSITIES
+         NE/CM-3 NE/NMF2  TN/K  TI/K  TE/K  TE/TI   O+   H+  He+  O2+  NO+
+  100.0   122870  0.1054    -1    -1    -1  -1.00    0    0    0   46   54
+  120.0   131611  0.1129   371   371   371   1.00    2    0    0   45   53
+  140.0   141662  0.1215   621   621   635   1.02    9    0    0   37   54
+  160.0   148699  0.1275   786   786   898   1.14   36    0    0   27   37
+  180.0   155736  0.1336   895   895  1161   1.30   74    0    0   13   12
+  200.0   262945  0.2255   967   967  1422   1.47   88    0    0    5    8
+  220.0   633397  0.5432  1015  1015  1635   1.61   91    0    0    2    7
+  240.0   950944  0.8156  1046  1046  1804   1.72   94    0    0    1    6
+  260.0  1104153  0.9470  1067  1067  1971   1.85   96    0    0    0    4
+  280.0  1161815  0.9964  1082  1082  2138   1.98   99    0    0    0    1
+  300.0  1159942  0.9948  1091  1111  2292   2.06  100    0    0    0    0
+I-URSI --B0Gul-----------I-----------------------I-----------------------I
+LAT/LON= 45.1/293.1    H= 300.0  RZ12=100.0 MMDD:1015  LT:12.5  SZA= 54.8
+MLA/MLO= 56.5/  3.7  DIP= 72.4  F10.7=145.4  DDD: 288  UT:17.0  SDE= -8.8
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+"2"  DIFFERENT ALTITUDE RANGE
+------------------------------------------------------------
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # H/KM#
+3  ALTITUDE  # 100.0#       9  VARIABLE RANGE  #   100.0   300.0    20.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+10
+
+WHICH PARAMETERS SHOULD BE CALCULATED ?                  #1#
+------------------------------------------------------------
+    1 - ALL PARAMETERS
+    2 - ONLY ELECTRON DENSITY
+    3 - ONLY TEMPERATURES
+    4 - ONLY ION COMPOSITION
+    5 - DENSITY AND TEMPERATURES
+    6 - DENSITY AND ION COMPOSITION
+    7 - TEMPERATURES AND ION COMPOSITION
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+6
+
+
+SELECTION OF DENSITY OPTIONS:                          #  2#
+------------------------------------------------------------
+    1 - OLD-B0:   B0-table
+    2 - NEW-B0:   Gulyaeva-h0.5 (!recommended choice!) 
+    3 - OLD-TS:   Topside as in IRI 1979
+------------------------------------------------------------
+    4 - LAY:      analytical LAY-representation for the E-F
+                  region using HMF1(SZA) formula and Gul.-B0.
+------------------------------------------------------------
+ION COMPOSITION: - Enter the chosen option as a negative
+number, if you would like to use the Danilov-Yaichnikov
+ion composition model.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # H/KM#
+3  ALTITUDE  # 100.0#       9  VARIABLE RANGE  #   100.0   300.0    20.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+11
+
+
+NMF2/FOF2 input ?    * F PEAK DENSITY / FREQUENCY *      #2#
+------------------------------------------------------------
+!! OPTIONS:  enter  0    if you want to enter your own
+!!                       NMF2/m-3 (or foF2/MHz) values.
+!!           enter  1    if you want to use the CCIR-67 model
+!!           enter  2    if you want to use the URSI-89 model
+!!                       URSI-89 was adopted as IRI standard.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1
+
+
+HMF2-input ?            * F PEAK ALTITUDE *              #1#
+------------------------------------------------------------
+!! OPTIONS: enter  0   if you want to enter HMF2/km values.
+!!          enter  1   if you want to use the CCIR-M3000 based model
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # H/KM#
+3  ALTITUDE  # 100.0#       9  VARIABLE RANGE  #   100.0   300.0    20.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+0
+*** IRI parameters are being calculated ***
+Ne, foF2: CCIR model is used.
+
+
+
+
+
+
+
+
+
+
+   H/KM  ELECTRON DENSITY      TEMPERATURES       ION PERCENTAGE DENSITIES
+         NE/CM-3 NE/NMF2  TN/K  TI/K  TE/K  TE/TI   O+   H+  He+  O2+  NO+
+  100.0   122870  0.0977    -1    -1    -1  -1.00    0    0    0   46   54
+  120.0   131611  0.1047    -1    -1    -1  -1.00    2    0    0   45   53
+  140.0   178062  0.1416    -1    -1    -1  -1.00    9    0    0   37   54
+  160.0   229502  0.1826    -1    -1    -1  -1.00   36    0    0   27   37
+  180.0   300015  0.2387    -1    -1    -1  -1.00   74    0    0   13   12
+  200.0   539736  0.4293    -1    -1    -1  -1.00   88    0    0    5    8
+  220.0   808388  0.6430    -1    -1    -1  -1.00   91    0    0    2    7
+  240.0  1041189  0.8282    -1    -1    -1  -1.00   94    0    0    1    6
+  260.0  1191351  0.9477    -1    -1    -1  -1.00   96    0    0    0    4
+  280.0  1252164  0.9961    -1    -1    -1  -1.00   99    0    0    0    1
+  300.0  1252266  0.9961    -1    -1    -1  -1.00  100    0    0    0    0
+I-CCIR ------------------I-----------------------I-----------------------I
+LAT/LON= 45.1/293.1    H= 300.0  RZ12=100.0 MMDD:1015  LT:12.5  SZA= 54.8
+MLA/MLO= 56.5/  3.7  DIP= 72.4  F10.7=145.4  DDD: 288  UT:17.0  SDE= -8.8
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+"2"  DIFFERENT ALTITUDE RANGE
+------------------------------------------------------------
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # H/KM#
+3  ALTITUDE  # 100.0#       9  VARIABLE RANGE  #   100.0   300.0    20.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+10
+
+WHICH PARAMETERS SHOULD BE CALCULATED ?                  #6#
+------------------------------------------------------------
+    1 - ALL PARAMETERS
+    2 - ONLY ELECTRON DENSITY
+    3 - ONLY TEMPERATURES
+    4 - ONLY ION COMPOSITION
+    5 - DENSITY AND TEMPERATURES
+    6 - DENSITY AND ION COMPOSITION
+    7 - TEMPERATURES AND ION COMPOSITION
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1
+
+
+SELECTION OF DENSITY OPTIONS:                          #  1#
+------------------------------------------------------------
+    1 - OLD-B0:   B0-table
+    2 - NEW-B0:   Gulyaeva-h0.5 (!recommended choice!) 
+    3 - OLD-TS:   Topside as in IRI 1979
+------------------------------------------------------------
+    4 - LAY:      analytical LAY-representation for the E-F
+                  region using HMF1(SZA) formula and Gul.-B0.
+------------------------------------------------------------
+ION COMPOSITION: - Enter the chosen option as a negative
+number, if you would like to use the Danilov-Yaichnikov
+ion composition model.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+-4
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # H/KM#
+3  ALTITUDE  # 100.0#       9  VARIABLE RANGE  #   100.0   300.0    20.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+12
+
+
+ NE(300), NE(400), NE(600) ?    [m-3]
+                                #0.00E+00,0.00E+00,0.00E+00#
+------------------------------------------------------------
+!! ELECTRON TEMPERATURE:
+!!    Option to use the electron density (NE) dependent
+!!    models at 300, 400, 600 km altitude
+!!    (NE(H)=0  model is not used at altitude h).
+------------------------------------------------------------
+!!    This option is only allowed, when you generate
+!!    altitude profiles (i.e. variable=height).
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1.1e12,0,0
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # H/KM#
+3  ALTITUDE  # 100.0#       9  VARIABLE RANGE  #   100.0   300.0    20.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+0
+*** IRI parameters are being calculated ***
+Ne, E-F: The LAY-Version is prelimenary. Erroneous profile features can occur.
+Ne, B0: Bottomside thickness is obtained with Gulyaeva-1987 model.
+Ne, foF2: CCIR model is used.
+Ion Com.: Using Danilov-Yaichnikov-1985.
+Te: Temperature-density correlation is used.
+
+
+
+
+
+
+
+
+
+
+   H/KM  ELECTRON DENSITY      TEMPERATURES       ION PERCENTAGE DENSITIES
+         NE/CM-3 NE/NMF2  TN/K  TI/K  TE/K  TE/TI   O+   H+  He+  O2+  NO+
+  100.0   122870  0.0977    -1    -1    -1  -1.00    0    0    0   28   72
+  120.0   130540  0.1038   371   371   371   1.00    0    0    0   34   66
+  140.0   147674  0.1175   621   621   642   1.03    1    0    0   34   65
+  160.0   180621  0.1437   786   786   912   1.16    9    0    0   30   61
+  180.0   219722  0.1748   895   895  1183   1.32   37    0    0   19   43
+  200.0   289296  0.2301   967   967  1443   1.49   74    0    0    8   18
+  220.0   460517  0.3663  1015  1015  1553   1.53   91    0    0    2    6
+  240.0   744965  0.5926  1046  1046  1523   1.46   97    0    0    1    2
+  260.0  1048811  0.8343  1067  1067  1485   1.39   98    0    0    0    1
+  280.0  1236211  0.9834  1082  1082  1448   1.34   98    0    0    0    1
+  300.0  1252266  0.9961  1091  1111  1464   1.32   98    0    0    0    0
+I-CCIR --B0Gul-LAY-------I-----------T(N)/3------I-----------DY----------I
+LAT/LON= 45.1/293.1    H= 300.0  RZ12=100.0 MMDD:1015  LT:12.5  SZA= 54.8
+MLA/MLO= 56.5/  3.7  DIP= 72.4  F10.7=145.4  DDD: 288  UT:17.0  SDE= -8.8
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+"2"  DIFFERENT ALTITUDE RANGE
+------------------------------------------------------------
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # H/KM#
+3  ALTITUDE  # 100.0#       9  VARIABLE RANGE  #   100.0   300.0    20.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+8
+
+
+SELECT YOUR VARIABLE:                                   #6#
+
+                                 Geodetic or geomagnetic coordinates
+                                 are assumed depending on your later
+1  LATITUDE    4  MONTH          selection of JMAG.
+2  LONGITUDE   5  HOUR           Variation in UNIVERSAL TIME is selected
+3  RZ12        6  ALTITUDE       by adding "25" to your BEGIN hour
+7  DAYNR                         in the next window.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+5
+
+
+CHOOSE YOUR VARIABLE RANGE:    BEGIN,  END , STEPWIDTH ?
+                             # 100.0, 300.0,  20.0#
+
+!! if you add 25 to your BEGIN hour, UNIVERSAL TIME is assumed,
+!! otherwise LOCAL TIME
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+25,22,2
+
+
+CHOOSE THE VARIABLE TO BE SHOWN IN TABLE:                #0#
+------------------------------------------------------------
+enter    0     for LOCAL or UNIVERSAL TIME
+         1     for SOLAR ZENITH ANGLE
+!! This allows you to display the solar zenith angle rather 
+!! than local or universal time in the final table.
+!! It does not change the selected LT/UT range.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # HOUR#
+3  ALTITUDE  # 100.0#       9  VARIABLE RANGE  #     0.0    22.0     2.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  UT+25     # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+3
+
+
+ALTITUDE ?    [KM]                                  # 100.0#
+
+!! ALTITUDE=0   tables of F2,F1,E, and D peak altitudes
+!!              and densities are obtained
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+300
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # HOUR#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     0.0    22.0     2.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #10 15#       11  F PEAK VALUES
+6  UT+25     # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+5
+
+
+DATE ?   * MONTH&DAY (MMDD) or DAY OF YEAR (-DDD) *   #1015#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+-183
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # HOUR#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     0.0    22.0     2.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY # 7  2#       11  F PEAK VALUES
+6  UT+25     # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+0
+*** IRI parameters are being calculated ***
+Ne, E-F: The LAY-Version is prelimenary. Erroneous profile features can occur.
+Ne, B0: Bottomside thickness is obtained with Gulyaeva-1987 model.
+Ne, foF2: CCIR model is used.
+Ion Com.: Using Danilov-Yaichnikov-1985.
+
+
+
+
+
+
+
+
+
+
+   HOUR  ELECTRON DENSITY      TEMPERATURES       ION PERCENTAGE DENSITIES
+   U.T.  NE/CM-3 NE/NMF2  TN/K  TI/K  TE/K  TE/TI   O+   H+  He+  O2+  NO+
+    0.0   554802  0.9996  1142  1146  1767   1.54   97    0    0    0    0
+    2.0   434202  0.9141  1057  1131  1333   1.18   96    1    0    0    1
+    4.0   313200  0.9145   983  1107  1224   1.11   95    2    0    0    1
+    6.0   224217  0.8666   972  1099  1099   1.00   96    2    0    0    1
+    8.0   187748  0.9231  1004  1102  1309   1.19   97    1    0    0    1
+   10.0   259711  0.9624  1046  1109  2300   2.07   98    0    0    0    0
+   12.0   406232  0.9475  1097  1133  2534   2.24   98    0    0    0    0
+   14.0   455755  0.9579  1147  1163  2400   2.06   98    0    0    0    0
+   16.0   502961  0.9729  1171  1178  2628   2.23   97    0    0    0    0
+   18.0   504224  0.9784  1177  1177  2719   2.31   98    0    0    0    0
+   20.0   502027  0.9830  1183  1183  2639   2.23   98    0    0    0    0
+   22.0   562841  0.9907  1179  1179  2489   2.11   98    0    0    0    0
+I-CCIR --B0Gul-LAY-------I-----------------------I-----------DY----------I
+LAT/LON= 45.1/293.1    H= 300.0  RZ12=100.0 MMDD: 7 2  LT:17.5  SZA= 68.6
+MLA/MLO= 56.5/  3.7  DIP= 72.4  F10.7=145.4  DDD: 183  UT:22.0  SDE= 22.9
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+------------------------------------------------------------
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # HOUR#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     0.0    22.0     2.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY # 7  2#       11  F PEAK VALUES
+6  UT+25     # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+10
+
+WHICH PARAMETERS SHOULD BE CALCULATED ?                  #1#
+------------------------------------------------------------
+    1 - ALL PARAMETERS
+    2 - ONLY ELECTRON DENSITY
+    3 - ONLY TEMPERATURES
+    4 - ONLY ION COMPOSITION
+    5 - DENSITY AND TEMPERATURES
+    6 - DENSITY AND ION COMPOSITION
+    7 - TEMPERATURES AND ION COMPOSITION
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+SELECTION OF DENSITY OPTIONS:                          # -4#
+------------------------------------------------------------
+    1 - OLD-B0:   B0-table
+    2 - NEW-B0:   Gulyaeva-h0.5 (!recommended choice!) 
+    3 - OLD-TS:   Topside as in IRI 1979
+------------------------------------------------------------
+    4 - LAY:      analytical LAY-representation for the E-F
+                  region using HMF1(SZA) formula and Gul.-B0.
+------------------------------------------------------------
+ION COMPOSITION: - Enter the chosen option as a negative
+number, if you would like to use the Danilov-Yaichnikov
+ion composition model.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+2
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # HOUR#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     0.0    22.0     2.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY # 7  2#       11  F PEAK VALUES
+6  UT+25     # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+9
+
+
+CHOOSE YOUR VARIABLE RANGE:    BEGIN,  END , STEPWIDTH ?
+                             #   0.0,  22.0,   2.0#
+
+!! if you add 25 to your BEGIN hour, UNIVERSAL TIME is assumed,
+!! otherwise LOCAL TIME
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+CHOOSE THE VARIABLE TO BE SHOWN IN TABLE:                #0#
+------------------------------------------------------------
+enter    0     for LOCAL or UNIVERSAL TIME
+         1     for SOLAR ZENITH ANGLE
+!! This allows you to display the solar zenith angle rather 
+!! than local or universal time in the final table.
+!! It does not change the selected LT/UT range.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # HOUR#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     0.0    22.0     2.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY # 7  2#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+0
+*** IRI parameters are being calculated ***
+Ne, B0: Bottomside thickness is obtained with Gulyaeva-1987 model.
+Ne, foF2: CCIR model is used.
+
+
+
+
+
+
+
+
+
+
+   SZA   ELECTRON DENSITY      TEMPERATURES       ION PERCENTAGE DENSITIES
+         NE/CM-3 NE/NMF2  TN/K  TI/K  TE/K  TE/TI   O+   H+  He+  O2+  NO+
+  111.9   293265  0.9233   974  1104  1180   1.07   96    3    0    0    0
+  107.0   210126  0.8628   978  1100  1100   1.00   96    3    0    0    0
+   93.3   200370  0.9886  1013  1103  1498   1.36   96    3    0    0    0
+   74.6   293001  0.9508  1056  1113  2469   2.22  100    0    0    0    0
+   53.7   426510  0.9503  1110  1140  2481   2.18  100    0    0    0    0
+   33.5   463809  0.9606  1155  1169  2423   2.07  100    0    0    0    0
+   22.2   511229  0.9756  1173  1179  2690   2.28  100    0    0    0    0
+   32.4   497072  0.9784  1179  1179  2689   2.28  100    0    0    0    0
+   52.4   514979  0.9851  1184  1184  2639   2.23  100    0    0    0    0
+   73.3   569406  0.9928  1174  1174  2361   2.01  100    0    0    0    0
+   92.3   536464  0.9894  1126  1144  1612   1.41   96    3    0    0    0
+  106.4   414899  0.9303  1036  1125  1305   1.16   96    3    0    0    0
+I-CCIR --B0Gul-----------I-----------------------I-----------------------I
+LAT/LON= 45.1/293.1    H= 300.0  RZ12=100.0 MMDD: 7 2  LT:22.0  SZA=106.4
+MLA/MLO= 56.5/  3.7  DIP= 72.4  F10.7=145.4  DDD: 183  UT: 2.5  SDE= 22.9
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+------------------------------------------------------------
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # HOUR#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     0.0    22.0     2.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY # 7  2#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+8
+
+
+SELECT YOUR VARIABLE:                                   #5#
+
+                                 Geodetic or geomagnetic coordinates
+                                 are assumed depending on your later
+1  LATITUDE    4  MONTH          selection of JMAG.
+2  LONGITUDE   5  HOUR           Variation in UNIVERSAL TIME is selected
+3  RZ12        6  ALTITUDE       by adding "25" to your BEGIN hour
+7  DAYNR                         in the next window.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+7
+
+
+CHOOSE YOUR VARIABLE RANGE:    BEGIN,  END , STEPWIDTH ?
+                             #   0.0,  22.0,   2.0#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1,365,90
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   #DAYOF#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     1.0   365.0    90.0#
+4  RZ12      #100.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY # 7  2#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+4
+
+
+SOLAR SUNSPOT NUMBER ?   !12-MONTH-RUNNING MEAN!    #100.0#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+50
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   #DAYOF#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     1.0   365.0    90.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY # 7  2#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+11
+
+
+NMF2/FOF2 input ?    * F PEAK DENSITY / FREQUENCY *      #1#
+------------------------------------------------------------
+!! OPTIONS:  enter  0    if you want to enter your own
+!!                       NMF2/m-3 (or foF2/MHz) values.
+!!           enter  1    if you want to use the CCIR-67 model
+!!           enter  2    if you want to use the URSI-89 model
+!!                       URSI-89 was adopted as IRI standard.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+0
+
+
+NMF2/M-3 (OR FOF2/MHZ) FOR DAYOF YEAR=    1.0    #0.300E+11#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1.e12
+
+
+NMF2/M-3 (OR FOF2/MHZ) FOR DAYOF YEAR=   91.0    #0.300E+11#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+9.E11
+
+
+NMF2/M-3 (OR FOF2/MHZ) FOR DAYOF YEAR=  181.0    #0.300E+11#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+5.0e11
+
+
+NMF2/M-3 (OR FOF2/MHZ) FOR DAYOF YEAR=  271.0    #0.300E+11#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+7.0E11
+
+
+NMF2/M-3 (OR FOF2/MHZ) FOR DAYOF YEAR=  361.0    #0.300E+11#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1.e12
+
+
+HMF2-input ?            * F PEAK ALTITUDE *              #1#
+------------------------------------------------------------
+!! OPTIONS: enter  0   if you want to enter HMF2/km values.
+!!          enter  1   if you want to use the CCIR-M3000 based model
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   #DAYOF#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     1.0   365.0    90.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY # 7  2#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+0
+*** IRI parameters are being calculated ***
+Ne, B0: Bottomside thickness is obtained with Gulyaeva-1987 model.
+Ne, foF2: Input values are used.
+
+
+
+
+
+
+
+
+
+
+  DAYOF  ELECTRON DENSITY      TEMPERATURES       ION PERCENTAGE DENSITIES
+   YEAR  NE/CM-3 NE/NMF2  TN/K  TI/K  TE/K  TE/TI   O+   H+  He+  O2+  NO+
+    1.0   970084  0.9701   762   971  1593   1.64  100    0    0    0    0
+   91.0   767529  0.8528   874  1027  1309   1.27   99    0    0    0    1
+  181.0   499472  0.9989   884  1058  1305   1.23   96    3    0    0    0
+  271.0   631976  0.9028   848  1015  1309   1.29   99    0    0    0    1
+  361.0   957670  0.9577   764   971  1593   1.64  100    0    0    0    0
+I-INPUT--B0Gul-----------I-----------------------I-----------------------I
+LAT/LON= 45.1/293.1    H= 300.0  RZ12= 50.0 MMDD:1227  LT:22.0  SZA=147.1
+MLA/MLO= 56.5/  3.7  DIP= 72.4  F10.7=102.4  DDD: 361  UT: 2.5  SDE=-23.3
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+------------------------------------------------------------
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   #DAYOF#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #     1.0   365.0    90.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #12 27#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+3
+
+
+ALTITUDE ?    [KM]                                  # 300.0#
+
+!! ALTITUDE=0   tables of F2,F1,E, and D peak altitudes
+!!              and densities are obtained
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+0
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   #DAYOF#
+3  ALTITUDE  #   0.0#       9  VARIABLE RANGE  #     1.0   365.0    90.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #12 27#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+0
+*** IRI parameters are being calculated ***
+Ne, B0: Bottomside thickness is obtained with Gulyaeva-1987 model.
+Ne, foF2: Input values are used.
+
+
+
+
+
+
+
+
+
+
+  DAYOF     PEAK ALTITUDES IN KM            PEAK DENSITIES IN CM-3
+   YEAR   HMF2 HMF1   B0  HME  HMD     NMF2   NMF1   NVBot   NME     NMD
+    1.0    315    0   70  105   88   1000000      0    441   2289    400
+   91.0    332    0   76  105   88    900000      0    485   2289    400
+  181.0    303    0   66  105   87    500000      0    615   2289    400
+  271.0    326    0   74  105   88    700000      0    459   2289    400
+  361.0    317    0   71  105   88   1000000      0    441   2289    400
+----------CCIR -----B0Gul--------------INPUT------------------------------
+LAT/LON= 45.1/293.1    H= 300.0  RZ12= 50.0 MMDD:1227  LT:22.0  SZA=147.1
+MLA/MLO= 56.5/  3.7  DIP= 72.4  F10.7=102.4  DDD: 361  UT: 2.5  SDE=-23.3
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+------------------------------------------------------------
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   #DAYOF#
+3  ALTITUDE  #   0.0#       9  VARIABLE RANGE  #     1.0   365.0    90.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #12 27#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+8
+
+
+SELECT YOUR VARIABLE:                                   #7#
+
+                                 Geodetic or geomagnetic coordinates
+                                 are assumed depending on your later
+1  LATITUDE    4  MONTH          selection of JMAG.
+2  LONGITUDE   5  HOUR           Variation in UNIVERSAL TIME is selected
+3  RZ12        6  ALTITUDE       by adding "25" to your BEGIN hour
+7  DAYNR                         in the next window.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+1
+
+
+CHOOSE YOUR VARIABLE RANGE:    BEGIN,  END , STEPWIDTH ?
+                             #   1.0, 365.0,  90.0#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+-60,60,20
+
+
+CHOOSE THE VARIABLE TO BE SHOWN IN TABLE:                #0#
+------------------------------------------------------------
+enter    0     for GEODETIC or GEOMAGNETIC LATITUDE
+         1     for MAGNETIC DIP LATITUDE
+         2     for MODIFIED DIP LATITUDE (MODIP)
+!! This allows you to display other latitude parameters
+!! in the final table.
+!! It does not change the selected parameter or parameter range.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # LATI#
+3  ALTITUDE  #   0.0#       9  VARIABLE RANGE  #   -60.0    60.0    20.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #12 27#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+11
+
+
+NMF2/FOF2 input ?    * F PEAK DENSITY / FREQUENCY *      #0#
+------------------------------------------------------------
+!! OPTIONS:  enter  0    if you want to enter your own
+!!                       NMF2/m-3 (or foF2/MHz) values.
+!!           enter  1    if you want to use the CCIR-67 model
+!!           enter  2    if you want to use the URSI-89 model
+!!                       URSI-89 was adopted as IRI standard.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+2
+
+
+HMF2-input ?            * F PEAK ALTITUDE *              #1#
+------------------------------------------------------------
+!! OPTIONS: enter  0   if you want to enter HMF2/km values.
+!!          enter  1   if you want to use the CCIR-M3000 based model
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+/
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 45.1#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # LATI#
+3  ALTITUDE  #   0.0#       9  VARIABLE RANGE  #   -60.0    60.0    20.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #12 27#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+0
+*** IRI parameters are being calculated ***
+Ne, B0: Bottomside thickness is obtained with Gulyaeva-1987 model.
+Ne, foF2: URSI model is used.
+
+
+
+
+
+
+
+
+
+
+   LATI     PEAK ALTITUDES IN KM            PEAK DENSITIES IN CM-3
+   GEOD   HMF2 HMF1   B0  HME  HMD     NMF2   NMF1   NVBot   NME     NMD
+  -60.0    340    0   79  105   85    741264      0   6023  12930    400
+  -40.0    362    0   86  105   87    717016      0    572   2289    400
+  -20.0    352    0   83  105   88    625638      0    499   2289    400
+    0.0    297    0   65  105   88    710495      0    470   2289    400
+   20.0    315    0   70  105   88    220736      0    453   2289    400
+   40.0    313    0   70  105   88    110091      0    443   2289    400
+   60.0    307    0   68  105   88     94922      0    436   2289    400
+----------CCIR -----B0Gul--------------URSI ------------------------------
+LAT/LON= 60.0/293.1    H= 300.0  RZ12= 50.0 MMDD:1227  LT:22.0  SZA=137.6
+MLA/MLO= 71.4/  4.5  DIP= 80.7  F10.7=102.4  DDD: 361  UT: 2.5  SDE=-23.3
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+------------------------------------------------------------
+1
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 60.0#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # LATI#
+3  ALTITUDE  #   0.0#       9  VARIABLE RANGE  #   -60.0    60.0    20.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #12 27#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+3
+
+
+ALTITUDE ?    [KM]                                  #   0.0#
+
+!! ALTITUDE=0   tables of F2,F1,E, and D peak altitudes
+!!              and densities are obtained
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+300
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 60.0#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # LATI#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #   -60.0    60.0    20.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #12 27#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+9
+
+
+CHOOSE YOUR VARIABLE RANGE:    BEGIN,  END , STEPWIDTH ?
+                             # -60.0,  60.0,  20.0#
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+-70,70,10
+
+
+CHOOSE THE VARIABLE TO BE SHOWN IN TABLE:                #0#
+------------------------------------------------------------
+enter    0     for GEODETIC or GEOMAGNETIC LATITUDE
+         1     for MAGNETIC DIP LATITUDE
+         2     for MODIFIED DIP LATITUDE (MODIP)
+!! This allows you to display other latitude parameters
+!! in the final table.
+!! It does not change the selected parameter or parameter range.
+------------------------------------------------------------
+Enter /, to continue with current value(s); Ctrl Z, to exit
+2
+
+
+**** WHICH PARAMETER DO YOU WANT TO CHANGE?
+------------------------------------------------------------
+0  NO FURTHER CHANGES, CALCULATE PROFILE
+1  LATITUDE  # 60.0#        7  GEOD.(0) OR GEOM.(1)    #0#
+2  LONGITUDE #293.1#        8  SELECTION OF VARIABLE   # LATI#
+3  ALTITUDE  # 300.0#       9  VARIABLE RANGE  #   -70.0    70.0    10.0#
+4  RZ12      # 50.0#       10  PARAMETER CHOICES AND OPTIONS
+5  MONTH,DAY #12 27#       11  F PEAK VALUES
+6  LT        # 12.5#       12  TE(NE) MODEL
+                           13  DISPLAY OF PROFILE AND MESSAGES
+----------------------------------------------------------------------
+ENTER NUMBER
+0
+*** IRI parameters are being calculated ***
+Ne, B0: Bottomside thickness is obtained with Gulyaeva-1987 model.
+Ne, foF2: URSI model is used.
+
+
+
+
+
+
+
+
+
+
+  MODIP  ELECTRON DENSITY      TEMPERATURES       ION PERCENTAGE DENSITIES
+         NE/CM-3 NE/NMF2  TN/K  TI/K  TE/K  TE/TI   O+   H+  He+  O2+  NO+
+  -61.8   587287  0.9896   959  1045  1045   1.00  100    0    0    0    0
+  -53.5   577702  0.7793   920   930   930   1.00   96    3    0    0    0
+  -45.5   456963  0.5949   889   889   889   1.00   96    3    0    0    0
+  -36.9   390947  0.5452   861   861   862   1.00   96    3    0    0    0
+  -25.7   414846  0.5589   836   836   837   1.00   96    3    0    0    0
+  -10.1   405775  0.6486   815   815   815   1.00   77   20    2    0    0
+    8.2   849792  0.9687   799   799   799   1.00   77   20    2    0    0
+   23.8   711518  1.0014   789   789   790   1.00   77   20    2    0    0
+   35.0   360303  0.9950   783   783   783   1.00  100    0    0    0    0
+   42.8   213785  0.9685   777   777   837   1.08  100    0    0    0    0
+   48.8   143444  0.9629   771   771  1183   1.53  100    0    0    0    0
+   54.0   107684  0.9781   765   851  1561   1.83  100    0    0    0    0
+   58.7    93182  0.9907   763  1020  1506   1.48  100    0    0    0    0
+   63.3    94352  0.9940   765  1055  1268   1.20  100    0    0    0    0
+   68.3   107375  0.9884   767  1061  1223   1.15  100    0    0    0    0
+I-URSI --B0Gul-----------I-----------------------I-----------------------I
+LAT/LON= 70.0/293.1    H= 300.0  RZ12= 50.0 MMDD:1227  LT:22.0  SZA=130.0
+MLA/MLO= 81.4/  6.6  DIP= 84.3  F10.7=102.4  DDD: 361  UT: 2.5  SDE=-23.3
+--------------------------------------------------------------------------
+
+**** DO YOU WANT TO CONTINUE?
+------------------------------------------------------------
+"0"  QUIT AND EXIT        "1"  NEW PARAMETERS
+------------------------------------------------------------
+0
+FORTRAN STOP
