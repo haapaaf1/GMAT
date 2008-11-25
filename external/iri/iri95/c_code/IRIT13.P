@@ -1,6 +1,0 @@
-extern int irit13_(real *alati, real *along, integer *jmag, logical *jf, integer *iy, integer *md, real *hour, real *hbeg, real *hend, real *tec, real *tecb, real *tect);
-extern E_f ioncorr_(real *tec, real *f);
-extern int iri_tec__(real *hstart, real *hend, integer *istep, real *tectot, real *tectop, real *tecbot);
-/* comlen block1_ 12 */
-/*:ref: iris13_ 14 12 12 4 6 6 4 4 6 6 6 6 6 6 */
-/*:ref: xe_ 6 1 6 */

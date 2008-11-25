@@ -1,3 +1,0 @@
-extern int cira86_(integer *iday, real *sec, real *glat, real *glong, real *stl, real *f107a, real *tinf, real *tlb, real *sigma);
-/* comlen const_ 4 */
-/* comlen const1_ 8 */
