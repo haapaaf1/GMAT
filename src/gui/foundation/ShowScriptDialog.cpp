@@ -81,7 +81,10 @@ void ShowScriptDialog::Create()
          text = genstring.c_str();   
          StringArray sar = theObject->GetGeneratingStringArray(Gmat::SHOW_SCRIPT);
          Integer size = sar.size();
-         scriptPanelSize.Set(500, 32 + (size+1) * h);
+         // set max height to 550(loj: 2008.11.25)
+         Integer height = 32 + (size+1) * h;
+         height = height > 550 ? 550 : height;
+         scriptPanelSize.Set(500, height);
       }
       
       theScript = new wxTextCtrl(this, -1, text, wxPoint(0,0), scriptPanelSize, 
