@@ -2450,10 +2450,18 @@ void MissionTree::OnDelete(wxCommandEvent &event)
 {
    // get selected item
    wxTreeItemId itemId = GetSelection();
+   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(itemId);
    wxString cmdName = GetItemText(itemId);
    
-   // if panel is open close it
-   OnClose(event);
+   // if panel is currently opened give warning and return
+   // Bug 547 fix (loj: 2008.11.25)
+   if (theMainFrame->IsChildOpen(selItem))
+   {
+      wxLogWarning(selItem->GetDesc() + " cannot be deleted "
+                   "while panel is opened");
+      wxLog::FlushActive();
+      return;
+   }
    
    DeleteCommand(cmdName);
    
