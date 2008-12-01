@@ -1481,10 +1481,20 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(itemId);
    GmatTree::ItemType itemType = selItem->GetItemType();
    
+   // if panel is currently opened give warning and return
+   // Bug 547 fix (loj: 2008.11.25)
+   if (theMainFrame->IsChildOpen(selItem))
+   {
+      wxLogWarning(selItem->GetDesc() + " cannot be deleted "
+                   "while panel is opened");
+      wxLog::FlushActive();
+      return;
+   }
+   
    Gmat::ObjectType objType = GetObjectType(itemType);
    if (objType == Gmat::UNKNOWN_OBJECT)
       return;
-
+   
    #if DEBUG_DELETE
    MessageInterface::ShowMessage
       ("ResourceTree::OnDelete() name=%s\n", selItem->GetDesc().c_str());
@@ -1496,7 +1506,9 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    {
       // delete item and close all opened windows
       this->Delete(itemId);
-      theMainFrame->CloseAllChildren(false, true);
+      
+      // We don't want to delete all children (bug 547 fix, loj: 2008.11.25)
+      //theMainFrame->CloseAllChildren(false, true);
       
       theGuiManager->UpdateAll();
    }
@@ -1604,7 +1616,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
    //kind of redundant because OpenPage returns false for some
    //of the default folders
    if ((theMainFrame->IsChildOpen(selItem))  ||
-       (isDefaultFolder)                                    ||
+       (isDefaultFolder)                     ||
        (isDefaultItem))
    {
       event.Veto();
