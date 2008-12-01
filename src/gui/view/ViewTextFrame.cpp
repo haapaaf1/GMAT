@@ -46,7 +46,7 @@ ViewTextFrame::ViewTextFrame(wxFrame *frame, const wxString& title,
    mWindowMode = mode;
    mTextType = type;
    mTextCtrl = new wxTextCtrl(this, -1, _T(""), wxPoint(0, 0), wxSize(0, 0),
-                              wxTE_MULTILINE | wxTE_READONLY);
+                              wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP);
    mTextCtrl->SetMaxLength(320000);
    mTextCtrl->SetFont(GmatAppData::Instance()->GetFont());
    
