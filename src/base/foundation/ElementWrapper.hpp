@@ -46,6 +46,7 @@ public:
    // destructor
    virtual ~ElementWrapper();
    
+   virtual std::string        ToString();
    virtual ElementWrapper*    Clone() const;
    virtual void               SetDescription(const std::string &str);
    virtual std::string        GetDescription() const;

@@ -109,6 +109,24 @@ ElementWrapper::~ElementWrapper()
 }
 
 //------------------------------------------------------------------------------
+// std::string ToString()
+//------------------------------------------------------------------------------
+/**
+ * @return ElementWrapper value converted to std::string.
+ *
+ * @exception <GmatBaseException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+std::string ElementWrapper::ToString()
+{
+   GmatBaseException be;
+   be.SetDetails
+      ("ElementWrapper::ToString() has not been implemented for wrapper "
+       "type %d, description of \"%s\"", wrapperType, description.c_str());
+   throw be;
+}
+
+//------------------------------------------------------------------------------
 // virtual ElementWrapper* Clone() const
 //------------------------------------------------------------------------------
 /**
