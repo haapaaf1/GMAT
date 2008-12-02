@@ -341,7 +341,7 @@ Gmat::ObjectType BodyFixedPoint::GetPropertyObjectType(const Integer id) const
 
 
 //---------------------------------------------------------------------------
-// StringArray& GetPropertyEnumSymbols(const Integer id) const
+// StringArray& GetPropertyEnumStrings(const Integer id) const
 //---------------------------------------------------------------------------
 /**
  * Retrieves eumeration symbols of parameter of given id.
@@ -351,23 +351,23 @@ Gmat::ObjectType BodyFixedPoint::GetPropertyObjectType(const Integer id) const
  * @return list of enumeration symbols
  */
 //---------------------------------------------------------------------------
-StringArray& BodyFixedPoint::GetPropertyEnumSymbols(const Integer id) const
+StringArray& BodyFixedPoint::GetPropertyEnumStrings(const Integer id) const
 {
-   static StringArray enumSymbols;
+   static StringArray enumStrings;
    switch (id)
    {
    case STATE_TYPE:
-      enumSymbols.clear();
-      enumSymbols.push_back("Cartesian");
-      enumSymbols.push_back("Geographical");      
-      return enumSymbols;
+      enumStrings.clear();
+      enumStrings.push_back("Cartesian");
+      enumStrings.push_back("Geographical");      
+      return enumStrings;
    case HORIZON_REFERENCE:
-      enumSymbols.clear();
-      enumSymbols.push_back("Sphere");
-      enumSymbols.push_back("Ellipsoid");      
-      return enumSymbols;
+      enumStrings.clear();
+      enumStrings.push_back("Sphere");
+      enumStrings.push_back("Ellipsoid");      
+      return enumStrings;
    default:
-      return SpacePoint::GetPropertyEnumSymbols(id);
+      return SpacePoint::GetPropertyEnumStrings(id);
    }
 }
 
