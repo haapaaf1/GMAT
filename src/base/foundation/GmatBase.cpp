@@ -1065,7 +1065,7 @@ Gmat::ObjectType GmatBase::GetPropertyObjectType(const Integer id) const
 
 
 //---------------------------------------------------------------------------
-// StringArray& GetPropertyEnumSymbols(const Integer id) const
+// StringArray& GetPropertyEnumStrings(const Integer id) const
 //---------------------------------------------------------------------------
 /**
  * Retrieves eumeration symbols of parameter of given id.
@@ -1075,10 +1075,10 @@ Gmat::ObjectType GmatBase::GetPropertyObjectType(const Integer id) const
  * @return list of enumeration symbols
  */
 //---------------------------------------------------------------------------
-StringArray& GmatBase::GetPropertyEnumSymbols(const Integer id) const
+StringArray& GmatBase::GetPropertyEnumStrings(const Integer id) const
 {
-   static StringArray enumSymbols;
-   return enumSymbols;
+   static StringArray enumStrings;
+   return enumStrings;
 }
 
 
@@ -2616,7 +2616,9 @@ const std::string& GmatBase::GetGeneratingString(Gmat::WriteMode mode,
       }
       else if (mode == Gmat::NO_COMMENTS)
       {
+         #ifdef DEBUG_GENERATING_STRING
          MessageInterface::ShowMessage("==> Do not show comments\n");
+         #endif
          data << "Create " << tname << " " << nomme << ";\n";
          preface = "GMAT ";
       }

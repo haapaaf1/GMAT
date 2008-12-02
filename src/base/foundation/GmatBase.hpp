@@ -161,7 +161,7 @@ public:
    
    virtual Gmat::ObjectType
                         GetPropertyObjectType(const Integer id) const;
-   virtual StringArray& GetPropertyEnumSymbols(const Integer id) const;
+   virtual StringArray& GetPropertyEnumStrings(const Integer id) const;
    
    virtual Real         GetRealParameter(const Integer id) const;
    virtual Real         SetRealParameter(const Integer id,
