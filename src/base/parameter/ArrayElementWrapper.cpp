@@ -34,6 +34,10 @@
 //#define DEBUG_MEMORY
 //#endif
 
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -126,9 +130,9 @@ ArrayElementWrapper::~ArrayElementWrapper()
    if (row)
    {
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- ArrayElementWrapper::~ArrayElementWrapper() deleting row <%p> '%s'\n",
-          row, row->GetDescription().c_str());
+      MemoryTracker::Instance()->Remove
+         (row, row->GetDescription(), "ArrayElementWrapper::~ArrayElementWrapper()",
+          "deleting row");
       #endif
       delete row;
    }
@@ -136,9 +140,9 @@ ArrayElementWrapper::~ArrayElementWrapper()
    if (column)
    {
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- ArrayElementWrapper::~ArrayElementWrapper() deleting column <%p> '%s'\n",
-          column, column->GetDescription().c_str());
+      MemoryTracker::Instance()->Remove
+         (column, column->GetDescription(), "ArrayElementWrapper::~ArrayElementWrapper()",
+          "deleting column");
       #endif
       delete column;
    }
