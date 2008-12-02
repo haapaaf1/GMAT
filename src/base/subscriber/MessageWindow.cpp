@@ -74,17 +74,18 @@ MessageWindow::~MessageWindow(void)
 //------------------------------------------------------------------------------
 bool MessageWindow::Distribute(int len)
 {
-    dstream.str("");
-    
-    if (len == 0)
-        dstream << data;
-    else
-        for (int i = 0; i < len; ++i)
-            dstream << data[i];
-
-    dstream.flush();
-    MessageInterface::ShowMessage(dstream.str());
-    return true;
+   dstream.str("");
+   
+   if (len == 0)
+      //dstream << data;
+      return false;
+   else
+      for (int i = 0; i < len; ++i)
+         dstream << data[i];
+   
+   dstream.flush();
+   MessageInterface::ShowMessage(dstream.str());
+   return true;
 }
 
 //------------------------------------------------------------------------------
