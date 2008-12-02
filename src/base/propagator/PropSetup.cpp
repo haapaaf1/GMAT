@@ -34,6 +34,10 @@
 //#define DEBUG_MEMORY
 //#endif
 
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -121,15 +125,14 @@ PropSetup::PropSetup(const std::string &name)
    mForceModel->AddForce(pmf);
    
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("+++ PropSetup::PropSetup() '%s', mPropagator = new RungeKutta89(""), "
-       "<%p>\n",  GetName().c_str(), mPropagator);
-   MessageInterface::ShowMessage
-      ("+++ PropSetup::PropSetup() '%s', mForceModel = new ForceModel(InternalForceModel), "
-       "<%p>\n",  GetName().c_str(), mForceModel);
-   MessageInterface::ShowMessage
-      ("+++ PropSetup::PropSetup() '%s', PhysicalModel *pmf = new PointMassForce, "
-       "<%p>\n",  GetName().c_str(), pmf);
+   MemoryTracker::Instance()->Add
+      (mPropagator, "RungeKutta89", "PropSetup::PropSetup()",
+       "mPropagator = new RungeKutta89()");
+   MemoryTracker::Instance()->Add
+      (mForceModel, mForceModelName, "PropSetup::PropSetup()",
+       "mForceModel = new ForceModel()");
+   MemoryTracker::Instance()->Add
+      (pmf, "Earth", "PropSetup::PropSetup()", "*pmf = new PointMassForce");
    #endif
 }
 
@@ -246,8 +249,8 @@ PropSetup::~PropSetup()
        mPropagator, mForceModel);
    #endif
    
-   DeleteOwnedObject(PROPAGATOR);
-   DeleteOwnedObject(FORCE_MODEL);
+   DeleteOwnedObject(PROPAGATOR, true);
+   DeleteOwnedObject(FORCE_MODEL, true);
    
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage("PropSetup::~PropSetup() exiting\n");
@@ -1058,9 +1061,9 @@ void PropSetup::ClonePropagator(Propagator *prop)
       mPropagatorName = "";
       mPropagator = (Propagator *)(prop->Clone());
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ PropSetup::ClonePropagator() '%s', mPropagator = prop->Clone(), "
-          "<%p>\n",  GetName().c_str(), mPropagator);
+      MemoryTracker::Instance()->Add
+         (mPropagator, mPropagatorName, "PropSetup::ClonePropagator()",
+          "mPropagator = prop->Clone()");
       #endif
    }
    else
@@ -1090,9 +1093,9 @@ void PropSetup::CloneForceModel(ForceModel *fm)
       mForceModelName = "";
       mForceModel = (ForceModel *)(fm->Clone());
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ PropSetup::CloneForceModel() '%s', mForceModel = fm->Clone(), "
-          "<%p>\n",  GetName().c_str(), mForceModel);
+      MemoryTracker::Instance()->Add
+         (mForceModel, mForceModelName, "PropSetup::CloneForceModel()",
+          "mForceModel = fm->Clone()");
       #endif
    }
    else
@@ -1109,15 +1112,18 @@ void PropSetup::CloneForceModel(ForceModel *fm)
 
 
 //------------------------------------------------------------------------------
-// void DeleteOwnedObject(Integer id)
+// void DeleteOwnedObject(Integer id, bool forceDelete)
 //------------------------------------------------------------------------------
 /**
  * Deletes internal or cloned owned object. Owned objects are named Internal*
  * in the consturctor. When Propagator or ForceModes is cloned their names are
  * set to "" so that those can be deleted.
+ *
+ * @param  id  Id indicating PROPAGATOR or FORCE_MODEL
+ * @param  forceDelete  If this is true, it will be deleted without checking (false)
  */
 //------------------------------------------------------------------------------
-void PropSetup::DeleteOwnedObject(Integer id)
+void PropSetup::DeleteOwnedObject(Integer id, bool forceDelete)
 {
    // Since Propagator and ForceModel are cloned delete them here. (loj: 2008.11.05)
    if (id == PROPAGATOR)
@@ -1129,12 +1135,14 @@ void PropSetup::DeleteOwnedObject(Integer id)
       #endif
       if (mPropagator != NULL)
       {
-         if (mPropagatorName == "" || mPropagatorName == "InternalPropagator")
+         if (forceDelete ||
+             (!forceDelete &&
+              (mPropagatorName == "" || mPropagatorName == "InternalPropagator")))
          {
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- PropSetup::DeleteOwnedObject() '%s', deleting mPropagator <%p>\n",
-                GetName().c_str(), mPropagator);
+            MemoryTracker::Instance()->Remove
+               (mPropagator, mPropagatorName, "PropSetup::DeleteOwnedObject()",
+                "deleting mPropagator");
             #endif
             delete mPropagator;
             mPropagatorName = "";
@@ -1152,12 +1160,14 @@ void PropSetup::DeleteOwnedObject(Integer id)
       if (mForceModel != NULL)
       {
          // delete cloned ForceModel 
-         if (mForceModelName == "" || mForceModelName == "InternalForceModel")
+         if (forceDelete ||
+             (!forceDelete &&
+              (mForceModelName == "" || mForceModelName == "InternalForceModel")))
          {
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- PropSetup::DeleteOwnedObject() '%s', deleting mForceModel <%p>\n",
-                GetName().c_str(), mForceModel);
+            MemoryTracker::Instance()->Remove
+               (mForceModel, mForceModelName, "PropSetup::DeleteOwnedObject()",
+                "deleting mForceModel");
             #endif
             delete mForceModel;
             mForceModelName = "";

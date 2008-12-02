@@ -18,13 +18,11 @@
 //------------------------------------------------------------------------------
 
 #include <sstream>
-#include <ctype.h>      // for isalpha
+#include <ctype.h>                // for isalpha
 #include "gmatdefs.hpp"
 #include "ConditionalBranch.hpp"
 #include "Parameter.hpp"
-#include "StringUtil.hpp"       // for GetArrayIndex()
-#include "Moderator.hpp"
-
+#include "StringUtil.hpp"         // for GetArrayIndex()
 #include "MessageInterface.hpp"
 
 //#define DEBUG_CONDITIONS 1
@@ -37,6 +35,10 @@
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //---------------------------------
 // static data
@@ -1011,7 +1013,6 @@ const StringArray& ConditionalBranch::GetWrapperObjectNameArray()
          wrapperObjectNames.push_back((*j));
    }
    
-   
    #ifdef DEBUG_WRAPPERS
       MessageInterface::ShowMessage
          ("ConditionalBranch::GetWrapperObjectNameArray() %s wrapper names are:\n",
@@ -1030,6 +1031,12 @@ const StringArray& ConditionalBranch::GetWrapperObjectNameArray()
 bool ConditionalBranch::SetElementWrapper(ElementWrapper *toWrapper, 
                                           const std::string &withName)
 {
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("ConditionalBranch::SetElementWrapper() this=<%p> '%s' entered\n",
+       this, GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+   #endif
+   
    bool retval = false;
    ElementWrapper *ew;
 
@@ -1043,11 +1050,11 @@ bool ConditionalBranch::SetElementWrapper(ElementWrapper *toWrapper,
    }
    CheckDataType(toWrapper, Gmat::REAL_TYPE, "ConditionalBranch", true);
    
-
+   
    #ifdef DEBUG_WRAPPER_CODE   
-   MessageInterface::ShowMessage(
-      "   Setting wrapper \"%s\" on Conditional Branch command\n", 
-      withName.c_str());
+   MessageInterface::ShowMessage
+      ("ConditionalBranch::SetElementWrapper() Setting wrapper <%p> '%s'",
+       toWrapper, withName.c_str());
    #endif
    Integer sz = lhsList.size();
    for (Integer i = 0; i < sz; i++)
@@ -1067,12 +1074,12 @@ bool ConditionalBranch::SetElementWrapper(ElementWrapper *toWrapper,
             if (find(rhsList.begin(), rhsList.end(), withName) == rhsList.end())
             {
                #ifdef DEBUG_MEMORY
-               MessageInterface::ShowMessage
-                  ("--- ConditionalBranch::SetElementWrapper() '%s' deleting lhsWrappers "
-                   "<%p> '%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
-                   ew->GetDescription().c_str());
+               MemoryTracker::Instance()->Remove
+                  (ew, ew->GetDescription(), "ConditionalBranch::SetElementWrapper()",
+                   GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsWrapper");
                #endif
                delete ew;
+               ew = NULL;
             }
          }
          else lhsWrappers.at(i) = toWrapper;
@@ -1097,19 +1104,19 @@ bool ConditionalBranch::SetElementWrapper(ElementWrapper *toWrapper,
             if (find(lhsList.begin(), lhsList.end(), withName) == lhsList.end())
             {
                #ifdef DEBUG_MEMORY
-               MessageInterface::ShowMessage
-                  ("--- ConditionalBranch::SetElementWrapper() '%s' deleting rhsWrappers "
-                   "<%p> '%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
-                   ew->GetDescription().c_str());
+               MemoryTracker::Instance()->Remove
+                  (ew, ew->GetDescription(), "ConditionalBranch::SetElementWrapper()",
+                   GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhsWrapper");
                #endif
                delete ew;
+               ew = NULL;
             }
          }
          else rhsWrappers.at(i) = toWrapper;
          retval = true;
       }
    }
-      
+   
    return retval;
 }
 
@@ -1120,7 +1127,9 @@ bool ConditionalBranch::SetElementWrapper(ElementWrapper *toWrapper,
 void ConditionalBranch::ClearWrappers()
 {
    #ifdef DEBUG_WRAPPER_CODE
-   MessageInterface::ShowMessage("ConditionalBranch::ClearWrappers() entered\n");
+   MessageInterface::ShowMessage
+      ("ConditionalBranch::ClearWrappers() this=<%p> '%s' entered\n",
+       this, GetGeneratingString(Gmat::NO_COMMENTS).c_str());
    #endif
    
    std::vector<ElementWrapper*> temp;
@@ -1158,10 +1167,9 @@ void ConditionalBranch::ClearWrappers()
       if (wrapper != NULL)
       {
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("--- ConditionalBranch::ClearWrappers()() '%s' deleting lhsWrappers "
-             "<%p> '%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), wrapper,
-             wrapper->GetDescription().c_str());
+         MemoryTracker::Instance()->Remove
+            (wrapper, wrapper->GetDescription(), "ConditionalBranch::ClearWrappers()",
+             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsWrapper");
          #endif
          delete wrapper;
       }
@@ -1196,15 +1204,14 @@ void ConditionalBranch::ClearWrappers()
 //------------------------------------------------------------------------------
 bool ConditionalBranch::EvaluateCondition(Integer which)
 {
-      #ifdef DEBUG_CONDITIONS
-         MessageInterface::ShowMessage(
-         "ConditionalBranch::EvaluateCondition() entered; which = %d\n   "
-         "Number of Conditions: %d\n", which, numberOfConditions);      
-         MessageInterface::ShowMessage(
-         "      lhs wrapper = %s        rhsWrapper = %s\n", 
-         (lhsList.at(which)).c_str(), (rhsList.at(which)).c_str());      
-      
-      #endif
+   #ifdef DEBUG_CONDITIONS
+   MessageInterface::ShowMessage
+      ("ConditionalBranch::EvaluateCondition() entered; which = %d\n   "
+       "Number of Conditions: %d\n", which, numberOfConditions);      
+   MessageInterface::ShowMessage
+      ("      lhs wrapper = %s        rhsWrapper = %s\n", 
+       (lhsList.at(which)).c_str(), (rhsList.at(which)).c_str());
+   #endif
    if ((which < 0) || (which >= numberOfConditions))
    {
       #ifdef DEBUG_CONDITIONS

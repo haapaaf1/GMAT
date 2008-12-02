@@ -26,8 +26,17 @@
 //#define DEBUG_INPUT_OUTPUT
 //#define DEBUG_EVALUATE
 //#define DEBUG_FINALIZE
-//#define DEBUG_PERFORMANCE
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+//#ifndef DEBUG_PERFORMANCE
+//#define DEBUG_PERFORMANCE
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 #ifdef DEBUG_PERFORMANCE
 #include <ctime>                 // for clock()
 #endif
@@ -52,6 +61,10 @@ FunctionRunner::FunctionRunner(const std::string &nomme)
    theFunction = NULL;
    callingFunction = NULL;
    internalCS = NULL;
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->SetShowTrace(true);
+   #endif
 }
 
 
@@ -564,6 +577,29 @@ Real FunctionRunner::Evaluate()
    theFunctionManager.SetInternalCoordinateSystem(internalCS);
    result = theFunctionManager.Evaluate(callingFunction);
    
+   WrapperArray wrappersToDelete = theFunctionManager.GetWrappersToDelete();
+   #ifdef DEBUG_EVALUATE
+   MessageInterface::ShowMessage
+      ("FunctionRunner::Evaluate(), there are %d wrappers to delete\n",
+       wrappersToDelete.size());
+   #endif
+   
+   // Delete old output wrappers (loj: 2008.11.24)
+   for (WrapperArray::iterator ewi = wrappersToDelete.begin();
+        ewi < wrappersToDelete.end(); ewi++)
+   {
+      if ((*ewi) != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            ((*ewi), (*ewi)->GetDescription(), "FunctionRunner::Evaluate()",
+             " deleting output wrapper");
+         #endif
+         delete (*ewi);
+         (*ewi) = NULL;
+      }
+   }
+   
    #ifdef DEBUG_EVALUATE
    MessageInterface::ShowMessage
       ("FunctionRunner::Evaluate() returning %f\n", result);
@@ -611,8 +647,25 @@ Rmatrix FunctionRunner::MatrixEvaluate()
    if (elementType == Gmat::REAL_TYPE)
       throw MathException
          ("The function \"" + function->GetName() + "\" returns Real value");
-
+   
    Rmatrix rmatResult = theFunctionManager.MatrixEvaluate(callingFunction);
+   
+   WrapperArray wrappersToDelete = theFunctionManager.GetWrappersToDelete();
+   // Delete old output wrappers (loj: 2008.11.24)
+   for (WrapperArray::iterator ewi = wrappersToDelete.begin();
+        ewi < wrappersToDelete.end(); ewi++)
+   {
+      if ((*ewi) != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            ((*ewi), (*ewi)->GetDescription(), "FunctionRunner::MatrixEvaluate()",
+             " deleting output wrapper");
+         #endif
+         delete (*ewi);
+         (*ewi) = NULL;
+      }
+   }
    
    #ifdef DEBUG_PERFORMANCE
    clock_t t2 = clock();

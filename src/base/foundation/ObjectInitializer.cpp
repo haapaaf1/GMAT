@@ -40,6 +40,10 @@
 //#ifndef DEBUG_PERFORMANCE
 //#define DEBUG_PERFORMANCE
 //#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 #ifdef DEBUG_PERFORMANCE
 #include <ctime>                 // for clock()
 #endif
@@ -1058,9 +1062,9 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
          //GmatBase *el = objectMap[*i];
          GmatBase *newEl = el->Clone();
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("+++ ObjectInitializer::BuildAssociations() newEl = el->Clone(%s), <%p>\n",
-             el->GetName().c_str(), newEl);
+         MemoryTracker::Instance()->Add
+            (newEl, newEl->GetName(), "ObjectInitializer::BuildAssociations()",
+             "newEl = el->Clone()");
          #endif
          
          #ifdef DEBUG_OBJECT_INITIALIZER

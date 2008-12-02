@@ -71,9 +71,9 @@ public:
    virtual void         SetInternalCoordinateSystem(CoordinateSystem *intCS);
    
    virtual bool         SetInputWrapper(Integer index, ElementWrapper *ew);
-   virtual ElementWrapper*
-                        GetInputWrapper(Integer index);
+   virtual ElementWrapper* GetInputWrapper(Integer index);
    virtual bool         SetPassedInput(Integer index, GmatBase *obj, bool &inputAdded);
+   virtual WrapperArray& GetWrappersToDelete();
    
    // Sequence methods
    bool                 PrepareObjectMap();
@@ -97,8 +97,10 @@ protected:
    ObjectMap            *localObjectStore;
    /// Object store obtained from the Sandbox
    ObjectMap            *globalObjectStore;
-   // Combined object store, used by Validator
+   /// Combined object store, used by Validator
    ObjectMap            combinedObjectStore;
+   /// Object stores cloned when push to stack
+   std::vector<ObjectMap *> clonedObjectStores;
    /// Solar System, set by the local Sandbox, to pass to the function
    SolarSystem          *solarSys;
    /// transient forces to pass to the function
@@ -112,12 +114,10 @@ protected:
    StringArray          ins;
    /// the list of output strings for this call of the function
    StringArray          outs;
-   /// wrappers for the input objects
-   std::vector<ElementWrapper *> 
-                        outputWrappers;
-   // wrappers for the output objects
-   std::map<std::string, ElementWrapper *> 
-                        inputWrappers;
+   /// wrappers for the outut objects
+   WrapperArray         outputWrappers;
+   // wrapper map for the input objects
+   WrapperMap           inputWrapperMap;
    /// flag indicating whether or not it's the first execution
    bool                 firstExecution;
    /// flag indicating whether or not FunctionManager is finalized
@@ -157,14 +157,16 @@ protected:
    // because we need to be able to handle nested and recursive functions)
    std::stack<FunctionManager*> callers;
    // pointer to the current calling function
-   FunctionManager      *callingFunction;
+   FunctionManager      *callingFunction;   
    void                 PrepareExecution(FunctionManager *callingFM = NULL);
    bool                 ValidateFunctionArguments();
    bool                 CreateFunctionArgWrappers();
-   void                 RefreshFunctionObjectStore();
-   void                 FindInputFromFunctionObjectStore();
+   void                 RefreshFOS();
+   void                 FindInputFromFOS();
    GmatBase*            FindObject(const std::string &name, bool arrayElementsAllowed = false);
    GmatBase*            CreateObject(const std::string &fromString);
+   void                 AssignResult();
+   bool                 HandleCallStack();
    void                 SaveLastResult();
    
    bool                 EmptyObjectMap(ObjectMap *om, const std::string &mapID = "");  

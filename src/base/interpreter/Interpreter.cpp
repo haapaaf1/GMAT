@@ -43,6 +43,8 @@
 //#define DEBUG_CREATE_PARAM
 //#define DEBUG_CREATE_ARRAY
 //#define DEBUG_CREATE_COMMAND
+//#define DEBUG_VALIDATE_COMMAND
+//#define DEBUG_WRAPPERS
 //#define DEBUG_MAKE_ASSIGNMENT
 //#define DEBUG_ASSEMBLE_COMMAND
 //#define DEBUG_ASSEMBLE_CREATE
@@ -55,8 +57,6 @@
 //#define DEBUG_CHECK_OBJECT
 //#define DEBUG_CHECK_BRANCH
 //#define DEBUG_SPECIAL_CASE
-//#define DEBUG_VALIDATE_COMMAND
-//#define DEBUG_WRAPPERS
 //#define DEBUG_PARSE_REPORT
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_FIND_OBJECT
@@ -70,6 +70,10 @@
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //------------------------------------------------------------------------------
 // Interpreter(SolarSystem *ss = NULL, ObjectMap *objMap = NULL)
@@ -121,6 +125,9 @@ Interpreter::Interpreter(SolarSystem *ss, ObjectMap *objMap)
        "theValidator=%p\n", initialized, theModerator, theReadWriter, theValidator);
    #endif
    
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->SetShowTrace(true);
+   #endif
 }
 
 
@@ -772,12 +779,9 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    #endif
    
    #ifdef DEBUG_MEMORY
-   if (obj != NULL)
-   {
-      MessageInterface::ShowMessage
-         ("---Interpreter::CreateObject() <%p> '%s' created\n", obj,
-          obj->GetName().c_str());
-   }
+   // configured objects are tracked inside the ConfigurationManager
+   if (obj != NULL && !obj->IsOfType(Gmat::PARAMETER) && manage != 1)
+      MemoryTracker::Instance()->Add(obj, obj->GetName(), "Interpreter::CreateObject()");
    #endif
    
    return obj;

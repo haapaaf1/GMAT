@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 Create
 //------------------------------------------------------------------------------
@@ -53,6 +53,7 @@ public:
    
    bool                 Initialize();
    bool                 Execute();
+   virtual void         RunComplete();
 
 protected:
    enum
@@ -61,12 +62,11 @@ protected:
       CreateParamCount
    };
    static const std::string PARAMETER_TEXT[CreateParamCount - ManageObjectParamCount];
-
+   
    static const Gmat::ParameterType PARAMETER_TYPE[CreateParamCount - ManageObjectParamCount];
-
+   
    std::string  objType;
    GmatBase     *refObj;
-   //ObjectArray  creations; 
    /// object names and sizes  when the object type is an Array
    StringArray  arrayNames;
    IntegerArray rows;

@@ -35,6 +35,10 @@
 //#define DEBUG_MEMORY
 //#endif
 
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //------------------------------------------------------------------------------
 //  MathTree()
 //------------------------------------------------------------------------------
@@ -70,9 +74,9 @@ MathTree::~MathTree()
          if ((*i) != NULL)
          {
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- MathTree::~MathTree() deleting node <%p><%s> '%s'\n", (*i),
-                (*i)->GetTypeName().c_str(), (*i)->GetName().c_str());
+            MemoryTracker::Instance()->Remove
+               ((*i), (*i)->GetName(), "MathTree::~MathTree()", (*i)->GetTypeName() +
+                " deleting math node");
             #endif
             
             delete (*i);

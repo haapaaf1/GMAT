@@ -59,6 +59,10 @@
 //#ifndef DEBUG_PERFORMANCE
 //#define DEBUG_PERFORMANCE
 //#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 #ifdef DEBUG_PERFORMANCE
 #include <ctime>                 // for clock()
 #endif
@@ -505,9 +509,8 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    {
       ew = new StringWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateElementWrapper() ew = new StringWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateElementWrapper()", "ew = new StringWrapper()");
       #endif
       ew->SetDescription(theDescription);
       itsType = Gmat::STRING_WT;
@@ -523,9 +526,8 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    {
       ew = new NumberWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateElementWrapper() ew = new NumberWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateElementWrapper()", "ew = new NumberWrapper()");
       #endif
       ew->SetDescription(theDescription);
       #if DBGLVL_WRAPPERS
@@ -568,9 +570,9 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
             {
                ew = new ArrayElementWrapper();
                #ifdef DEBUG_MEMORY
-               MessageInterface::ShowMessage
-                  ("+++ Validator::CreateElementWrapper() ew = new ArrayElementWrapper(%s), "
-                   "<%p>\n", theDescription.c_str(), ew);
+               MemoryTracker::Instance()->Add
+                  (ew, theDescription, "Validator::CreateElementWrapper()",
+                   "ew = new ArrayElementWrapper()");
                #endif
                ew->SetDescription(theDescription);
                ew->SetRefObject(p);
@@ -898,9 +900,9 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
    {
       ew = new ObjectPropertyWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateSolarSystemWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateSolarSystemWrapper()",
+          "ew = new ObjectPropertyWrapper()");
       #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(obj);
@@ -951,9 +953,9 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
             body->GetParameterID(type);
             ew = new ObjectPropertyWrapper();
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ Validator::CreateSolarSystemWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
-                theDescription.c_str(), ew);
+            MemoryTracker::Instance()->Add
+               (ew, theDescription, "Validator::CreateSolarSystemWrapper()",
+                "ew = new ObjectPropertyWrapper()");
             #endif
             ew->SetDescription(theDescription);
             ew->SetRefObjectName(bodyName, 0);
@@ -1043,9 +1045,9 @@ ElementWrapper* Validator::CreateForceModelWrapper(GmatBase *obj,
       
       ew = new ObjectPropertyWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateForceModelWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateForceModelWrapper()",
+          "ew = new ObjectPropertyWrapper()");
       #endif
       ew->SetDescription(theDescription);
       
@@ -1182,9 +1184,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
    {
       ew = new VariableWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateOtherWrapper() ew = new VariableWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateOtherWrapper()",
+          "ew = new VariableWrapper()");
       #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(p);
@@ -1200,9 +1202,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
    {
       ew = new ArrayWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateOtherWrapper() ew = new ArrayWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateOtherWrapper()",
+          "ew = new ArrayWrapper()");
       #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(p);
@@ -1218,9 +1220,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
    {
       ew = new StringObjectWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateOtherWrapper() ew = new StringObjectWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateOtherWrapper()",
+          "ew = new StringObjectWrapper()");
       #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(p);
@@ -1251,9 +1253,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
       {
          ew = new ObjectWrapper();
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("+++ Validator::CreateOtherWrapper() ew = new ObjectWrapper(%s), <%p>\n",
-             theDescription.c_str(), ew);
+         MemoryTracker::Instance()->Add
+            (ew, theDescription, "Validator::CreateOtherWrapper()",
+             "ew = new ObjectWrapper()");
          #endif
          ew->SetDescription(theDescription);
          ew->SetRefObject(obj);
@@ -1272,9 +1274,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
          {
             ew = new BooleanWrapper();
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ Validator::CreateOtherWrapper() ew = new BooleanWrapper(%s), <%p>\n",
-                theDescription.c_str(), ew);
+            MemoryTracker::Instance()->Add
+               (ew, theDescription, "Validator::CreateOtherWrapper()",
+                "ew = new BooleanWrapper()");
             #endif
             ew->SetDescription(theDescription);
             itsType = Gmat::BOOLEAN_WT;
@@ -1290,9 +1292,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
          {
             ew = new OnOffWrapper();
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ Validator::CreateOtherWrapper() ew = new OnOffWrapper(%s), <%p>\n",
-                theDescription.c_str(), ew);
+            MemoryTracker::Instance()->Add
+               (ew, theDescription, "Validator::CreateOtherWrapper()",
+                "ew = new OnOffWrapper()");
             #endif
             ew->SetDescription(theDescription);
             itsType = Gmat::ON_OFF_WT;
@@ -1312,9 +1314,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
          {
             ew = new NumberWrapper();
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ Validator::CreateOtherWrapper() ew = new NumberWrapper(%s), <%p>\n",
-                theDescription.c_str(), ew);
+            MemoryTracker::Instance()->Add
+               (ew, theDescription, "Validator::CreateOtherWrapper()",
+                "ew = new NumberWrapper()");
             #endif
             ew->SetDescription(theDescription);
             itsType = Gmat::NUMBER_WT;
@@ -1330,9 +1332,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
          {
             ew = new StringWrapper();
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ Validator::CreateOtherWrapper() ew = new StringWrapper(%s), <%p>\n",
-                theDescription.c_str(), ew);
+            MemoryTracker::Instance()->Add
+               (ew, theDescription, "Validator::CreateOtherWrapper()",
+                "ew = new StringWrapper()");
             #endif
             ew->SetDescription(theDescription);
             itsType = Gmat::STRING_WT;
@@ -1636,6 +1638,18 @@ Parameter* Validator::CreateParameter(const std::string &type,
    else
       param = theModerator->CreateParameter(type, name, ownerName, depName, manage);
    
+   #ifdef DEBUG_MEMORY
+   // configured objects are tracked inside the ConfigurationManager
+   //if (param && manage != 1)
+   if (param && manage == 0)
+   {
+      std::string funcName;
+      funcName = theFunction ? "function: " + theFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (param, name, "Validator::CreateParameter()", funcName);
+   }
+   #endif
+   
    #ifdef DEBUG_CREATE_PARAM
    MessageInterface::ShowMessage
       ("Validator::CreateParameter() returning <%p><%s>'%s'\n", param,
@@ -1841,9 +1855,9 @@ ElementWrapper* Validator::CreateValidWrapperWithDot(GmatBase *obj,
          #endif
          ew = new StringWrapper();
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("+++ Validator::CreateValidWrapperWithDot() ew = new StringWrapper(%s), <%p>\n",
-             theDescription.c_str(), ew);
+         MemoryTracker::Instance()->Add
+            (ew, theDescription, "Validator::CreateValidWrapperWithDot()",
+             "ew = new StringWrapper()");
          #endif
          ew->SetDescription(theDescription);
          itsType = Gmat::STRING_WT;
@@ -1889,9 +1903,9 @@ ElementWrapper* Validator::CreateParameterWrapper(Parameter *param,
    {
       ew = new StringObjectWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateParameterWrapper() ew = new StringObjectWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateParameterWrapper()",
+          "ew = new StringObjectWrapper()");
       #endif
       ew->SetDescription(theDescription);
       ew->SetRefObject(param);
@@ -1907,9 +1921,9 @@ ElementWrapper* Validator::CreateParameterWrapper(Parameter *param,
    {
       ew = new ParameterWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateParameterWrapper() ew = new ParameterWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateParameterWrapper()",
+          "ew = new ParameterWrapper()");
       #endif
       // We want to set Parameter exact name to wrapper so that it can be found
       // from the object map (loj: 2008.06.30)
@@ -1978,9 +1992,9 @@ ElementWrapper* Validator::CreatePropertyWrapper(GmatBase *obj,
       obj->GetParameterID(type);
       ew = new ObjectPropertyWrapper();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Validator::CreateParameterWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
-          theDescription.c_str(), ew);
+      MemoryTracker::Instance()->Add
+         (ew, theDescription, "Validator::CreateParameterWrapper()",
+          "ew = new ObjectPropertyWrapper()");
       #endif
       ew->SetDescription(theDescription);
       
@@ -2088,16 +2102,17 @@ ElementWrapper* Validator::CreateSubPropertyWrapper(GmatBase *obj,
       {
          ew = new ObjectPropertyWrapper();
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("+++ Validator::CreateSubPropertyWrapper() ew = new ObjectPropertyWrapper(%s), <%p>\n",
-             theDescription.c_str(), ew);
+         MemoryTracker::Instance()->Add
+            (ew, theDescription, "Validator::CreateSubPropertyWrapper()",
+             "ew = new ObjectPropertyWrapper()");
          #endif
          ew->SetDescription(theDescription);
          
          #if DBGLVL_WRAPPERS
          MessageInterface::ShowMessage
-            (">>> In Validator, created a ObjectPropertyWrapper <%p> for owned property \"%s\"\n    "
-             "of <%s>'%s', theDescription='%s'\n", ew, type.c_str(), ownedObj->GetTypeName().c_str(),
+            (">>> In Validator, created a ObjectPropertyWrapper <%p> for owned "
+             "property \"%s\"\n    of <%s>'%s', theDescription='%s'\n", ew,
+             type.c_str(), ownedObj->GetTypeName().c_str(),
              ownedObj->GetName().c_str(), theDescription.c_str());
          #endif
          

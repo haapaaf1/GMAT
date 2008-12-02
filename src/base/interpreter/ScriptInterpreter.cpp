@@ -35,6 +35,14 @@
 //#define DEBUG_SET_COMMENTS 1
 //#define DBGLVL_GMAT_FUNCTION 1
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 ScriptInterpreter *ScriptInterpreter::instance = NULL;
 
 //------------------------------------------------------------------------------
@@ -286,7 +294,10 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    std::ifstream funcFile(fileName.c_str());
    SetInStream(&funcFile);
    GmatCommand *noOp = new NoOp;
-   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (noOp, "NoOp", "ScriptInterpreter::InterpretGmatFunction()", "*noOp = new NoOp");
+   #endif
    #if DBGLVL_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("ScriptInterpreter::InterpretGmatFunction() Create <%p>NoOp\n", noOp);

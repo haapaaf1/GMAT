@@ -106,7 +106,7 @@ private:
    
    void    ClonePropagator(Propagator *prop);
    void    CloneForceModel(ForceModel *fm);
-   void    DeleteOwnedObject(Integer id);
+   void    DeleteOwnedObject(Integer id, bool forceDelete = false);
    Integer GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const;
    
    bool mInitialized;

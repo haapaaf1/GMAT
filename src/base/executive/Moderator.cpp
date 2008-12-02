@@ -80,6 +80,14 @@
 //#define DEBUG_SOLAR_SYSTEM_IN_USE 1
 // #define DEBUG_PLUGIN_REGISTRATION
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //#define __CREATE_DEFAULT_BC__
 //#define __SHOW_FINAL_STATE__
 //#define __DISABLE_SOLAR_SYSTEM_CLONING__
@@ -431,6 +439,14 @@ void Moderator::Finalize()
    {
       MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
    }
+   
+   #ifdef DEBUG_MEMORY
+   StringArray tracks = MemoryTracker::Instance()->GetTracks();
+   MessageInterface::ShowMessage
+      ("===> There are %d memory tracks\n", tracks.size());
+   for (UnsignedInt i=0; i<tracks.size(); i++)
+      MessageInterface::ShowMessage("%s\n", tracks[i].c_str());
+   #endif
    
    #if DEBUG_FINALIZE
    MessageInterface::ShowMessage("Moderator::Finalize() exiting\n");

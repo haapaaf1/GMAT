@@ -53,6 +53,10 @@
 //#ifndef DEBUG_PERFORMANCE
 //#define DEBUG_PERFORMANCE
 //#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 #ifdef DEBUG_PERFORMANCE
 #include <ctime>                 // for clock()
 #endif
@@ -1381,9 +1385,12 @@ void CallFunction::GetOutParams()
             int totalCells = numRows * numCols;            
             double *outArray = new double[totalCells];
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ CallFunction::GetOutParams() double *outArray = new double[%d], <%p>\n",
-                totalCells, outArray);
+            MemoryTracker::Instance()->Add
+               (outArray, "outArray", "CallFunction::GetOutParams()",
+                "*outArray = new double[totalCells]");
+            //MessageInterface::ShowMessage
+            //   ("+++ CallFunction::GetOutParams() double *outArray = new double[%d], <%p>\n",
+            //    totalCells, outArray);
             #endif
             
             #ifdef DEBUG_GET_OUTPUT
@@ -1420,9 +1427,12 @@ void CallFunction::GetOutParams()
             array->SetRmatrixParameter("RmatValue", rmatrix);
             
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- CallFunction::GetOutParams() deleting outArray <%p>\n",
-                outArray);
+            MemoryTracker::Instance()->Remove
+               (outArray, "outArray", "CallFunction::GetOutParams()",
+                "deletinig outArray");
+            //MessageInterface::ShowMessage
+            //   ("--- CallFunction::GetOutParams() deleting outArray <%p>\n",
+            //    outArray);
             #endif
             delete [] outArray;
             
@@ -1431,9 +1441,12 @@ void CallFunction::GetOutParams()
          {
             double *outArray = new double[1];
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ CallFunction::GetOutParams() double *outArray = new double[1], <%p>\n",
-                outArray);
+            MemoryTracker::Instance()->Add
+               (outArray, "outArray", "CallFunction::GetOutParams()",
+                "*outArray = new double[1]");
+            //MessageInterface::ShowMessage
+            //   ("+++ CallFunction::GetOutParams() double *outArray = new double[1], <%p>\n",
+            //    outArray);
             #endif
             
             #ifdef DEBUG_UPDATE_VAR
@@ -1456,9 +1469,12 @@ void CallFunction::GetOutParams()
             #endif
             
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- CallFunction::GetOutParams() deleting outArray <%p>\n",
-                outArray);
+            MemoryTracker::Instance()->Remove
+               (outArray, "outArray", "CallFunction::GetOutParams()",
+                "deletinig outArray");
+            //MessageInterface::ShowMessage
+            //   ("--- CallFunction::GetOutParams() deleting outArray <%p>\n",
+            //    outArray);
             #endif
             delete [] outArray;
          }

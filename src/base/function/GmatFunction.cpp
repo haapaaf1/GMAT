@@ -36,6 +36,10 @@
 //#ifndef DEBUG_PERFORMANCE
 //#define DEBUG_PERFORMANCE
 //#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 #ifdef DEBUG_PERFORMANCE
 #include <ctime>                 // for clock()
 #endif
@@ -138,31 +142,16 @@ GmatFunction::~GmatFunction()
    MessageInterface::ShowMessage
       ("GmatFunction() destructor entered, this=<%p>'%s'\n", this, GetName().c_str());
    #endif
-   StringArray toDelete;
-   std::map<std::string, GmatBase *>::iterator omi;
-   for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
-   {
-      if (omi->second != NULL)
-      {
-         #ifdef DEBUG_MEMORY
-         GmatBase *obj = omi->second;
-         MessageInterface::ShowMessage
-            ("--- GmatFunction::~GmatFunction() Deleting autoObj <%p><%s> '%s'\n", obj,
-             obj->GetTypeName().c_str(), obj->GetName().c_str());
-         #endif
-         delete omi->second;
-         omi->second = NULL;
-      }
-      toDelete.push_back(omi->first); 
-   }
-   for (unsigned int kk = 0; kk < toDelete.size(); kk++)
-   {
-      automaticObjects.erase(toDelete.at(kk));
-   }
    
    // delete function sequence (loj: 2008.10.31)
    if (fcs)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (fcs, "fcs", "GmatFunction::~GmatFunction()", "deleting fcs");
+      #endif
       delete fcs;
+   }
    
    #ifdef DEBUG_GMATFUNCTION
    MessageInterface::ShowMessage("GmatFunction() destructor exiting\n");
@@ -236,16 +225,16 @@ bool GmatFunction::Initialize()
       std::string objName = omi->first;
       GmatBase    *autoObj = (omi->second)->Clone();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ GmatFunction::Initialize() autoObj = (omi->second)->Clone(%s), <%p>\n",
-          objName.c_str(), autoObj);
+      MemoryTracker::Instance()->Add
+         (autoObj, objName, "GmatFunction::Initialize()",
+          "autoObj = (omi->second)->Clone()");
       #endif
       
       if (objectStore->find(omi->first) == objectStore->end())
          objectStore->insert(std::make_pair(objName, autoObj));
    }
-   // first, send all the commands the input wrappers
    
+   // first, send all the commands the object store, solar system, etc
    GmatCommand *current = fcs;
    
    while (current)
@@ -372,7 +361,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
          ("......Function executing <%p><%s> [%s]\n", current, current->GetTypeName().c_str(),
           current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
-
+      
       last = current;
       
       // Since we don't know where actual mission squence start, just check for command
@@ -495,6 +484,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
    
    // create output wrappers and put into map
    GmatBase *obj;
+   wrappersToDelete.clear();
    for (unsigned int jj = 0; jj < outputNames.size(); jj++)
    {
       if (!(obj = FindObject(outputNames.at(jj))))
@@ -513,7 +503,13 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
           outWrapper->GetDescription().c_str());
       #endif
       
-      outWrapper->SetRefObject(obj); 
+      outWrapper->SetRefObject(obj);
+      
+      // nested CallFunction crashes if old outWrappers are deleted here. (loj: 2008.11.24)
+      // so collect here and delete when FunctionRunner completes.
+      wrappersToDelete.push_back(outWrapper);         
+      
+      // Set new outWrapper
       outputArgMap[outName] = outWrapper;
       #ifdef DEBUG_FUNCTION_EXEC // --------------------------------------------------- debug ---
          MessageInterface::ShowMessage("GmatFunction: Output wrapper created for %s\n",
@@ -556,7 +552,8 @@ void GmatFunction::Finalize()
       ("GmatFunction::Finalize() entered for '%s', FCS %sfinalized\n",
        functionName.c_str(), fcsFinalized ? "already " : "NOT ");
    #endif
-   ; // @todo - finalize anything else that needs it as well
+   
+   // Call RunComplete on each command in fcs
    if (!fcsFinalized)
    {
       fcsFinalized = true;
@@ -576,6 +573,8 @@ void GmatFunction::Finalize()
          current = current->GetNext();
       }
    }
+   
+   Function::Finalize();
    
    #ifdef DEBUG_PERFORMANCE
    clock_t t2 = clock();

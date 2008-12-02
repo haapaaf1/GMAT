@@ -29,6 +29,10 @@
 //#define DEBUG_MEMORY
 //#endif
 
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 // static members
 //---------------------------------
@@ -544,9 +548,8 @@ void ConfigManager::AddObject(GmatBase *obj)
    std::string name = obj->GetName();
    
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("ConfigManager::AddObject() Adding <%p><%s> '%s' \n",
-       obj, obj->GetTypeName().c_str(), name.c_str());
+   MemoryTracker::Instance()->Add
+      (obj, name, "ConfigManager::AddObject()", obj->GetTypeName());
    #endif
    
    if (mapping.find(name) != mapping.end())
@@ -981,9 +984,9 @@ bool ConfigManager::RemoveAllItems()
       std::string objName = objects[i]->GetName();
       
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- ConfigManager::RemoveAllItems() deleting <%p> '%s'\n", objects[i],
-          objects[i]->GetName().c_str());
+      MemoryTracker::Instance()->Remove
+         (objects[i], objects[i]->GetName(), "ConfigManager::RemoveAllItems()",
+          " deleting configured obj");
       #endif
       
       delete objects[i];

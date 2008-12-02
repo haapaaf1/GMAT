@@ -41,10 +41,24 @@
 //#define DEBUG_ASSIGNMENT_INIT 1
 //#define DEBUG_ASSIGNMENT_EXEC 1
 //#define DEBUG_EQUATION 1
-//#define DEBUG_ASSIGNMENT_WRAPPER 1
+//#define DEBUG_WRAPPER_CODE 1
 //#define DEBUG_FUNCTION 1
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_ASSIGN_CALLING_FUNCTION
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+//#ifndef DEBUG_PERFORMANCE
+//#define DEBUG_PERFORMANCE
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+#ifdef DEBUG_PERFORMANCE
+#include <ctime>                 // for clock()
+#endif
 
 //------------------------------------------------------------------------------
 //  Assignment()
@@ -57,12 +71,16 @@ Assignment::Assignment  () :
    GmatCommand          ("GMAT"),
    lhs                  (""),
    rhs                  ("Not_Set"),
+   lhsWrapper           (NULL),
+   rhsWrapper           (NULL),
    mathTree             (NULL)
 {
-   lhsWrapper = NULL;
-   rhsWrapper = NULL;
    objectTypeNames.push_back("GMAT");
    objectTypeNames.push_back("Assignment");
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->SetShowTrace(true);
+   #endif
 }
 
 
@@ -76,10 +94,15 @@ Assignment::Assignment  () :
 Assignment::~Assignment()
 {
    if (mathTree)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (mathTree, mathTree->GetName(), "Assignment::Assignment()", "deleting mathTree");
+      #endif
       delete mathTree;
+   }
    
    mathTree = NULL;
-   
    ClearWrappers();
 }
 
@@ -95,10 +118,12 @@ Assignment::~Assignment()
 //------------------------------------------------------------------------------
 Assignment::Assignment  (const Assignment& a) :
    GmatCommand          (a),
+   lhs                  (a.lhs),
+   rhs                  (a.rhs),
+   lhsWrapper           (NULL),
+   rhsWrapper           (NULL),
    mathTree             (a.mathTree)
 {
-   lhsWrapper = NULL;
-   rhsWrapper = NULL;
 }
 
 
@@ -118,10 +143,11 @@ Assignment& Assignment::operator=(const Assignment& a)
    if (this == &a)
       return *this;
    
-   mathTree   = a.mathTree;
-   
+   lhs        = a.lhs;
+   rhs        = a.rhs;
    lhsWrapper = NULL;
    rhsWrapper = NULL;
+   mathTree   = a.mathTree;
    
    return *this;
 }
@@ -358,9 +384,9 @@ bool Assignment::InterpretAction()
 {
    #ifdef DEBUG_ASSIGNMENT_IA
    MessageInterface::ShowMessage
-      ("\nAssignment::InterpretAction() entered, currentFunction=<%p>'%s'\n",
+      ("\nAssignment::InterpretAction() entered, currentFunction=<%p> '%s'\n",
        currentFunction,
-       currentFunction ? "currentFunction->GetFunctionPathAndName().c_str()" : "NULL");
+       currentFunction ? currentFunction->GetFunctionPathAndName().c_str() : "NULL");
    #endif
    
    StringArray chunks = InterpretPreface();
@@ -395,7 +421,7 @@ bool Assignment::InterpretAction()
    
    // it there is still ; then report error since ; should have been removed
    if (rhs.find(";") != rhs.npos)
-      throw CommandException("Is there a missing \"\%\" for inline comment?");
+      throw CommandException("Is there a missing \"%\" for inline comment?");
    
    // check for common use of ./ (path) in GmatFunction to avoid creating MathTree(loj: 2008.09.08)
    if (rhs.find("./") != rhs.npos)
@@ -452,6 +478,11 @@ bool Assignment::InterpretAction()
       }
       
       mathTree = new MathTree("MathTree", rhs);
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (mathTree, rhs, "Assignment::InterpretAction()", "mathTree = new MathTree()");
+      #endif
+      
       mathTree->SetTopNode(topNode);
       mathTree->SetGmatFunctionNames(mp.GetGmatFunctionNames());
    }
@@ -613,6 +644,15 @@ bool Assignment::Initialize()
 //------------------------------------------------------------------------------
 bool Assignment::Execute()
 {
+   #ifdef DEBUG_PERFORMANCE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   MessageInterface::ShowMessage
+      ("=== Assignment::Execute() entered, '%s' Count = %d\n",
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), callCount);
+   #endif
+   
    #ifdef DEBUG_ASSIGNMENT_EXEC
    MessageInterface::ShowMessage
       ("\nAssignment::Execute() this=<%p> entered, for \"%s\"\n   "
@@ -636,7 +676,7 @@ bool Assignment::Execute()
    try
    {
       bool retval = false;
-
+      
       // In attempt to fix Func_LibrationSE.script for nested (loj: 2008.10.24)
       // function which doesn't give correct results.
       // We need to determine if ref object shoud be set to lhs to handle setting
@@ -690,7 +730,19 @@ bool Assignment::Execute()
          {
             GmatBase *refObj = outWrapper->GetRefObject();
             if (refObj)
+            {
+               #ifdef DEBUG_MEMORY
+               MemoryTracker::Instance()->Remove
+                  (refObj, refObj->GetName(), "Assignment::Execute()",
+                   GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper's refObj");
+               #endif
                delete refObj;
+            }
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (outWrapper, outWrapper->GetDescription(), "Assignment::Execute()",
+                GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper");
+            #endif
             delete outWrapper;
          }
          
@@ -741,10 +793,31 @@ bool Assignment::Execute()
    {
       GmatBase *refObj = outWrapper->GetRefObject();
       if (refObj)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (refObj, refObj->GetName(), "Assignment::Execute()",
+             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper's refObj");
+         #endif
          delete refObj;
+         refObj = NULL;
+      }
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (outWrapper, outWrapper->GetDescription(), "Assignment::Execute()",
+          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper");
+      #endif
       delete outWrapper;
+      outWrapper = NULL;
    }
    
+   #ifdef DEBUG_PERFORMANCE
+   clock_t t2 = clock();
+   MessageInterface::ShowMessage
+      ("=== Assignment::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), callCount,
+       (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #endif
    return true;
 }
 
@@ -807,7 +880,7 @@ void Assignment::SetCallingFunction(FunctionManager *fm)
 //------------------------------------------------------------------------------
 const StringArray& Assignment::GetWrapperObjectNameArray()
 {
-   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("Assignment::GetWrapperObjectNameArray() lhs=<%s>, rhs=<%s>\n",
        lhs.c_str(), rhs.c_str());
@@ -831,21 +904,21 @@ const StringArray& Assignment::GetWrapperObjectNameArray()
          wrapperObjectNames.insert(wrapperObjectNames.end(),
                                    tmpArray.begin(), tmpArray.end());
       
-      #ifdef DEBUG_ASSIGNMENT_WRAPPER
+      #ifdef DEBUG_WRAPPER_CODE
       MessageInterface::ShowMessage("   Got the following from the MathTree:\n");
       #endif
       for (UnsignedInt i=0; i<wrapperObjectNames.size(); i++)
       {
          mathWrapperMap[wrapperObjectNames[i]] = NULL;
          
-         #ifdef DEBUG_ASSIGNMENT_WRAPPER
+         #ifdef DEBUG_WRAPPER_CODE
          MessageInterface::ShowMessage
-            ("   Math element %d, %s\n", i, wrapperObjectNames[i].c_str());
+            ("   Math element %d: '%s'\n", i, wrapperObjectNames[i].c_str());
          #endif
       }
    }
    
-   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("Assignment::GetWrapperObjectNameArray() returning %d wrapper elements\n",
        wrapperObjectNames.size());
@@ -864,7 +937,7 @@ const StringArray& Assignment::GetWrapperObjectNameArray()
 bool Assignment::SetElementWrapper(ElementWrapper *toWrapper, 
                                    const std::string &withName)
 {
-   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("Assignment::SetElementWrapper() toWrapper=%p, name='%s'\n   lhs='%s'\n   rhs='%s', "
        "mathTree=<%p>\n", toWrapper,withName.c_str(), lhs.c_str(), rhs.c_str(), mathTree);
@@ -872,7 +945,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    
    if (toWrapper == NULL)
    {
-      #ifdef DEBUG_ASSIGNMENT_WRAPPER
+      #ifdef DEBUG_WRAPPER_CODE
       MessageInterface::ShowMessage
          ("Assignment::SetElementWrapper() returning false, toWrapper is NULL\n");
       #endif
@@ -881,7 +954,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    
    bool retval = false;
    
-   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("   Setting wrapper \"%s\" of data type \"%d\" and of wrapper type \"%d\" "
        "on Assignment\n      \"%s\"\n", withName.c_str(), (Integer) (toWrapper->GetDataType()), 
@@ -892,7 +965,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    ElementWrapper *rhsOldWrapper = NULL;
    ElementWrapper *rhsNewWrapper = NULL;
    
-   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("   lhsWrapper=<%p>, rhsWrapper=<%p>\n", lhsWrapper, rhsWrapper);
    #endif
@@ -948,7 +1021,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
       }
    }
    
-   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("   lhsOldWrapper=<%p>, rhsOldWrapper=<%p>\n", lhsOldWrapper, rhsOldWrapper);
    MessageInterface::ShowMessage
@@ -961,12 +1034,11 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    {
       // delete only lhs old wrapper
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- Assignment::SetElementWrapper() '%s' deleting lhsOldWrapper <%p> '%s'\n",
-          GetGeneratingString(Gmat::NO_COMMENTS).c_str(), lhsOldWrapper,
-          lhsOldWrapper->GetDescription().c_str());
+      MemoryTracker::Instance()->Remove
+         (lhsOldWrapper, lhsOldWrapper->GetDescription(), "Assignment::SetElementWrapper()",
+          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsOldWrapper");
       #endif
-      delete lhsOldWrapper;     
+      delete lhsOldWrapper;
       lhsOldWrapper = NULL;
    }
    else
@@ -975,10 +1047,9 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
       if (lhsOldWrapper != NULL)
       {
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("--- Assignment::SetElementWrapper() '%s' deleting lhsOldWrapper <%p> '%s'\n",
-             GetGeneratingString(Gmat::NO_COMMENTS).c_str(), lhsOldWrapper,
-             lhsOldWrapper->GetDescription().c_str());
+         MemoryTracker::Instance()->Remove
+            (lhsOldWrapper, lhsOldWrapper->GetDescription(), "Assignment::SetElementWrapper()",
+             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsOldWrapper");
          #endif
          delete lhsOldWrapper;     
          lhsOldWrapper = NULL;
@@ -988,53 +1059,16 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
       if (rhsOldWrapper != NULL)
       {
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("--- Assignment::SetElementWrapper() '%s' deleting rhsOldWrapper <%p> '%s'\n",
-             GetGeneratingString(Gmat::NO_COMMENTS).c_str(), rhsOldWrapper,
-             rhsOldWrapper->GetDescription().c_str());
+         MemoryTracker::Instance()->Remove
+            (rhsOldWrapper, rhsOldWrapper->GetDescription(), "Assignment::SetElementWrapper()",
+             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhsOldWrapper");
          #endif
          delete rhsOldWrapper;
          rhsOldWrapper = NULL;
       }
    }
    
-//    if (withName == lhs)
-//    {
-//       // lhs should always be object property wrapper, so check first
-//       if (withName.find(".") == withName.npos ||
-//           (withName.find(".") != withName.npos &&
-//            toWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY))
-//       {
-//          lhsWrapper = toWrapper;
-//          retval = true;
-//       }
-//    }
-   
-//    if (mathTree == NULL)
-//    {
-//       if (withName == rhs)
-//       {
-//          rhsWrapper = toWrapper;
-//          retval = true;
-//       }
-//    }
-//    else
-//    {
-//       // if name found in the math wrapper map
-//       if (mathWrapperMap.find(withName) != mathWrapperMap.end())
-//       {
-//          // rhs should always be parameter wrapper, so check first
-//          if (withName.find(".") == withName.npos ||
-//              (withName.find(".") != withName.npos &&
-//               toWrapper->GetWrapperType() == Gmat::PARAMETER_OBJECT))
-//          {
-//             mathWrapperMap[withName] = toWrapper;
-//             retval = true;
-//          }
-//       }
-//    }
-   
-   #ifdef DEBUG_ASSIGNMENT_WRAPPER
+   #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("Assignment::SetElementWrapper() returning %d\n", retval);
    #endif
@@ -1064,7 +1098,15 @@ void Assignment::ClearWrappers()
    }
    
    if (rhsEw)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (rhsEw, rhsEw->GetDescription(), "Assignment::ClearWrappers()",
+          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhs wrapper");
+      #endif
       delete rhsEw;
+      rhsEw = NULL;
+   }
    
    // clear rhs math wrapper map
    std::map<std::string, ElementWrapper *>::iterator ewi;
@@ -1074,13 +1116,29 @@ void Assignment::ClearWrappers()
       {
          // if it is not the same as lhs wrapper, delete
          if (ewi->second != lhsEw)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (ewi->second, (ewi->second)->GetDescription(),
+                "Assignment::ClearWrappers()",
+                GetGeneratingString(Gmat::NO_COMMENTS) + " deleting math node wrapper");
+            #endif
             delete ewi->second;
-         ewi->second = NULL;
+            ewi->second = NULL;
+         }
       }
    }
    
    if (lhsEw)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (lhsEw, lhsEw->GetDescription(), "Assignment::ClearWrappers()",
+          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhs wrapper");
+      #endif
       delete lhsEw;
+      lhsEw = NULL;
+   }
    
    mathWrapperMap.clear();
 }
@@ -1223,7 +1281,7 @@ ElementWrapper* Assignment::RunMathTree()
    ElementWrapper *outWrapper = NULL;
    
    // Evalute math tree
-   Integer returnType;   
+   Integer returnType;
    Integer numRow;
    Integer numCol;
    
@@ -1272,6 +1330,12 @@ ElementWrapper* Assignment::RunMathTree()
             #endif
             
             outWrapper = new NumberWrapper();
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (outWrapper, GmatStringUtil::ToString(rval), "Assignment::RunMathTree()",
+                "outWrapper = new NumberWrapper()");
+            #endif
+            
             outWrapper->SetDescription(GmatStringUtil::ToString(rval));
             outWrapper->SetReal(rval);
             break;
@@ -1285,9 +1349,15 @@ ElementWrapper* Assignment::RunMathTree()
             Rmatrix rmat;
             rmat.SetSize(numRow, numCol);
             rmat = topNode->MatrixEvaluate();
-            Array *arr = new Array("ArrayOutput");
-            arr->SetSize(numRow, numCol);
-            arr->SetRmatrix(rmat);
+            // create Array, this array will be deleted when ArrayWrapper is deleted
+            Array *outArray = new Array("ArrayOutput");
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (outArray, "outArray", "Assignment::RunMathTree()",
+                "outArray = new Array()");
+            #endif
+            outArray->SetSize(numRow, numCol);
+            outArray->SetRmatrix(rmat);
             
             #if DEBUG_ASSIGNMENT_EXEC
             MessageInterface::ShowMessage("   Creating ArrayWrapper for output\n");
@@ -1295,7 +1365,7 @@ ElementWrapper* Assignment::RunMathTree()
             
             outWrapper = new ArrayWrapper();
             outWrapper->SetDescription("ArrayOutput");
-            outWrapper->SetRefObject(arr);
+            outWrapper->SetRefObject(outArray);
             break;
          }
       default:

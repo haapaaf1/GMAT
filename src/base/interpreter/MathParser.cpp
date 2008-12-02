@@ -53,6 +53,10 @@
 //#define DEBUG_MEMORY
 //#endif
 
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -579,9 +583,9 @@ MathNode* MathParser::CreateNode(const std::string &type, const std::string &exp
       throw MathException("Cannot create MathNode of \"" + actualType + "\"");
    
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("+++ MathParser::CreateNode() node = theModerator->CreateMathNode(%s, %s), <%p>\n",
-       actualType.c_str(), nodeName.c_str(), node);
+   MemoryTracker::Instance()->Add
+      (node, nodeName, "MathParser::CreateNode()", "node = mod->CreateMathNode(" +
+       actualType + ")");
    #endif
    
    if (actualType == "FunctionRunner")

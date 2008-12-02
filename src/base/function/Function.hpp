@@ -61,19 +61,21 @@ public:
    virtual GmatCommand* GetFunctionControlSequence();
    virtual std::string  GetFunctionPathAndName();
    
-   virtual bool         SetInputElementWrapper(const std::string &forName, ElementWrapper *wrapper);
-   virtual ElementWrapper*
-                        GetOutputArgument(Integer argNumber);
-   virtual ElementWrapper*
-                        GetOutputArgument(const std::string &byName);
+   virtual bool         SetInputElementWrapper(const std::string &forName,
+                                               ElementWrapper *wrapper);
+   virtual ElementWrapper* GetOutputArgument(Integer argNumber);
+   virtual ElementWrapper* GetOutputArgument(const std::string &byName);
+   virtual WrapperArray&   GetWrappersToDelete();
+   virtual void         ClearInOutArgMaps(bool deleteInputs, bool deleteOutputs);
    
    // methods to set/get the automatic objects
+   virtual void         ClearAutomaticObjects();
    virtual void         AddAutomaticObject(const std::string &withName, GmatBase *obj);
    virtual ObjectMap    GetAutomaticObjects() const;
    
    // Inherited (GmatBase) methods
    virtual bool         TakeAction(const std::string &action,
-                                   const std::string &actionData = "");
+                                      const std::string &actionData = "");
    
    virtual bool         IsParameterReadOnly(const Integer id) const;
    virtual std::string  GetParameterText(const Integer id) const;
@@ -114,7 +116,8 @@ protected:
    IntegerArray         outputRowCounts;
    /// Output column count used for returning one Array type
    IntegerArray         outputColCounts;
-   
+   /// Old wrappers to delete
+   std::vector<ElementWrapper*> wrappersToDelete;
    /// Object store for the Function 
    ObjectMap            *objectStore;
    /// Object store obtained from the Sandbox

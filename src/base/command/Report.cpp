@@ -27,8 +27,16 @@
 //#define DEBUG_REPORT_SET
 //#define DEBUG_REPORT_INIT
 //#define DEBUG_REPORT_EXEC
-//#define DEBUG_WRAPPERS
+//#define DEBUG_WRAPPER_CODE
 //#define DEBUG_OBJECT_MAP
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //---------------------------------
 // static data
@@ -81,6 +89,7 @@ Report::Report() :
 //------------------------------------------------------------------------------
 Report::~Report()
 {
+   DeleteParameters();
 }
 
 
@@ -288,9 +297,10 @@ const StringArray& Report::GetWrapperObjectNameArray()
 bool Report::SetElementWrapper(ElementWrapper *toWrapper,
                                const std::string &withName)
 {
-   #ifdef DEBUG_WRAPPERS   
+   #ifdef DEBUG_WRAPPER_CODE   
    MessageInterface::ShowMessage
-      ("Report::SetElementWrapper() entered with toWrapper=<%p>, withName='%s'\n",
+      ("Report::SetElementWrapper() this=<%p> '%s' entered, toWrapper=<%p>, "
+       "withName='%s'\n", this, GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
        toWrapper, withName.c_str());
    #endif
    
@@ -302,11 +312,12 @@ bool Report::SetElementWrapper(ElementWrapper *toWrapper,
    
    bool retval = false;
    ElementWrapper *ew;
+   std::vector<ElementWrapper*> wrappersToDelete;
    
    //-------------------------------------------------------
    // check parameter names
    //-------------------------------------------------------
-   #ifdef DEBUG_WRAPPERS   
+   #ifdef DEBUG_WRAPPER_CODE   
    MessageInterface::ShowMessage
       ("   Checking %d Parameters\n", actualParmNames.size());
    for (UnsignedInt i=0; i<actualParmNames.size(); i++)
@@ -318,7 +329,7 @@ bool Report::SetElementWrapper(ElementWrapper *toWrapper,
    {
       if (actualParmNames.at(i) == withName)
       {
-         #ifdef DEBUG_WRAPPERS   
+         #ifdef DEBUG_WRAPPER_CODE   
          MessageInterface::ShowMessage
             ("   Found wrapper name \"%s\" in actualParmNames\n", withName.c_str());
          #endif
@@ -326,6 +337,10 @@ bool Report::SetElementWrapper(ElementWrapper *toWrapper,
          {
             ew = parmWrappers.at(i);
             parmWrappers.at(i) = toWrapper;
+            // if wrapper not found, add to the list to delete
+            if (find(wrappersToDelete.begin(), wrappersToDelete.end(), ew) ==
+                wrappersToDelete.end())
+               wrappersToDelete.push_back(ew);
          }
          else
          {
@@ -336,7 +351,64 @@ bool Report::SetElementWrapper(ElementWrapper *toWrapper,
       }
    }
    
+   #ifdef DEBUG_WRAPPER_CODE   
+   MessageInterface::ShowMessage
+      ("   There are %d wrappers to delete\n", wrappersToDelete.size());
+   #endif
+   
+   // Delete old ElementWrappers (loj: 2008.11.20)
+   for (std::vector<ElementWrapper*>::iterator ewi = wrappersToDelete.begin();
+        ewi < wrappersToDelete.end(); ewi++)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*ewi), (*ewi)->GetDescription(), "Report::SetElementWrapper()",
+          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting wrapper");
+      #endif
+      delete (*ewi);
+      (*ewi) = NULL;
+   }
+   
+   #ifdef DEBUG_WRAPPER_CODE   
+   MessageInterface::ShowMessage
+      ("Report::SetElementWrapper() exiting with %d\n", retval);
+   #endif
+   
    return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// void ClearWrappers()
+//------------------------------------------------------------------------------
+void Report::ClearWrappers()
+{
+   #ifdef DEBUG_WRAPPER_CODE   
+   MessageInterface::ShowMessage
+      ("Report::ClearWrappers() this=<%p> '%s' entered\n   There are %d wrappers "
+       "allocated, these will be deleted if not NULL\n", this,
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), parmWrappers.size());
+   #endif
+   
+   std::vector<ElementWrapper*> wrappersToDelete;
+   
+   // delete wrappers (loj: 2008.11.20)
+   for (std::vector<ElementWrapper*>::iterator ewi = parmWrappers.begin();
+        ewi < parmWrappers.end(); ewi++)
+   {
+      if ((*ewi) == NULL)
+         continue;
+      
+      // if wrapper not found, add to the list to delete
+      if (find(wrappersToDelete.begin(), wrappersToDelete.end(), (*ewi)) ==
+          wrappersToDelete.end())
+         wrappersToDelete.push_back((*ewi));
+   }
+   
+   #ifdef DEBUG_WRAPPER_CODE   
+   MessageInterface::ShowMessage
+      ("   There are %d wrappers to delete\n", wrappersToDelete.size());
+   #endif
 }
 
 
@@ -367,14 +439,10 @@ bool Report::TakeAction(const std::string &action, const std::string &actionData
       actualParmNames.clear();
       parmRows.clear();
       parmCols.clear();
-      
-      // Why we need to clear? (loj: 2007.12.19 commented out)
-      // We want to preserve parameters to report for ReportFile
-      //if (reporter)
-      //{
-      //   reporter->TakeAction("Clear");
-      //   return true;
-      //}
+
+      // I think we also need to clear wrappers here (loj: 2008.11.24)
+      ClearWrappers();
+      parmWrappers.clear();      
    }
    
    return false;
@@ -730,7 +798,8 @@ bool Report::Execute()
    
    #ifdef DEBUG_REPORT_EXEC
    MessageInterface::ShowMessage
-      ("Report::Execute() entered, reporter <%s> '%s' has %d Parameters\n",
+      ("Report::Execute() this=<%p> '%s' entered, reporter <%s> '%s' has %d Parameters\n",
+       this, GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
        reporter->GetName().c_str(), reporter->GetFileName().c_str(), parms.size());
    #endif
    
@@ -823,6 +892,21 @@ bool Report::Execute()
       throw CommandException(e.GetFullMessage() + " in line:\n   \"" +
                              GetGeneratingString(Gmat::NO_COMMENTS) + "\"");
    }
+}
+
+
+//------------------------------------------------------------------------------
+//  void RunComplete()
+//------------------------------------------------------------------------------
+void Report::RunComplete()
+{
+   #ifdef DEBUG_RUN_COMPLETE
+   MessageInterface::ShowMessage
+      ("Report::RunComplete() this=<%p> '%s' entered\n", this,
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+   #endif
+   
+   GmatCommand::RunComplete();
 }
 
 
@@ -933,4 +1017,58 @@ bool Report::AddParameter(const std::string &paramName, Integer index,
    
    return false;
 }
+
+
+//------------------------------------------------------------------------------
+// void DeleteParameters()
+//------------------------------------------------------------------------------
+void Report::DeleteParameters()
+{
+   #ifdef DEBUG_WRAPPER_CODE   
+   MessageInterface::ShowMessage
+      ("Report::DeleteParameters() this=<%p> '%s' entered\n   There are %d wrappers "
+       "allocated, these will be deleted if not NULL\n", this,
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), parmWrappers.size());
+   #endif
+   
+   std::vector<ElementWrapper*> wrappersToDelete;
+   
+   // delete wrappers (loj: 2008.11.20)
+   for (std::vector<ElementWrapper*>::iterator ewi = parmWrappers.begin();
+        ewi < parmWrappers.end(); ewi++)
+   {
+      if ((*ewi) == NULL)
+         continue;
+      
+      // if wrapper not found, add to the list to delete
+      if (find(wrappersToDelete.begin(), wrappersToDelete.end(), (*ewi)) ==
+          wrappersToDelete.end())
+         wrappersToDelete.push_back((*ewi));
+   }
+   
+   #ifdef DEBUG_WRAPPER_CODE   
+   MessageInterface::ShowMessage
+      ("   There are %d wrappers to delete\n", wrappersToDelete.size());
+   #endif
+   
+   // delete wrappers (loj: 2008.11.20)
+   for (std::vector<ElementWrapper*>::iterator ewi = wrappersToDelete.begin();
+        ewi < wrappersToDelete.end(); ewi++)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*ewi), (*ewi)->GetDescription(), "Report::DeleteParameters()",
+          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting wrapper");
+      #endif
+      delete (*ewi);
+      (*ewi) = NULL;
+   }
+   
+   parmWrappers.clear();   
+   actualParmNames.clear();
+   parms.clear();
+   parmRows.clear();
+   parmCols.clear();
+}
+
 

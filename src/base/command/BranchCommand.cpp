@@ -28,13 +28,21 @@
 //#define DEBUG_BRANCHCOMMAND_DEALLOCATION
 //#define DEBUG_BRANCHCOMMAND_APPEND
 //#define DEBUG_BRANCHCOMMAND_INSERT
-//#define DEBUG_BRANCHCOMMAND_REMOVE 1
+//#define DEBUG_BRANCHCOMMAND_REMOVE
 //#define DEBUG_BRANCHCOMMAND_ADD
 //#define DEBUG_BRANCHCOMMAND_PREV_CMD
 //#define DEBUG_BRANCHCOMMAND_EXECUTION
 //#define DEBUG_BRANCHCOMMAND_GEN_STRING
-//#define DEBUG_RUN_COMPLETE 1
+//#define DEBUG_RUN_COMPLETE
 //#define DEBUG_BRANCHCOMMAND_GMATFUNCTIONS
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //------------------------------------------------------------------------------
 // public methods
@@ -79,12 +87,12 @@ BranchCommand::~BranchCommand()
 {
    #ifdef DEBUG_BRANCHCOMMAND_DEALLOCATION
       MessageInterface::ShowMessage
-         ("In BranchCommand::~BranchCommand() this=%s\n",
+         ("In BranchCommand::~BranchCommand() this=<%p> '%s'\n", this,
           this->GetTypeName().c_str());
    #endif
    std::vector<GmatCommand*>::iterator node;
    GmatCommand* current;
-
+   
    for (node = branch.begin(); node != branch.end(); ++node)
    {
       // Find the end for each branch and disconnect it from the start
@@ -96,13 +104,14 @@ BranchCommand::~BranchCommand()
                ("   current=%s\n", current->GetTypeName().c_str());
          #endif
             
-         while (current->GetNext() != this)
+         // Why I need to add current != current->GetNext() to avoid
+         // infinite loop? It used to work!! (loj: 2008.12.02)
+         //while (current->GetNext() != this)
+         while (current->GetNext() != this && current != current->GetNext())
          {
             current = current->GetNext();
             if (current == NULL)
-            {
                break;
-            }
          }
          
          // Calling Remove this way just sets the next pointer to NULL
@@ -116,7 +125,15 @@ BranchCommand::~BranchCommand()
          }
          
          if (*node)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               ((*node), (*node)->GetTypeName(), (*node)->GetTypeName() +
+                " deleting child command");
+            #endif
             delete *node;
+            *node = NULL;
+         }
       }
       else
          break;
@@ -1141,7 +1158,7 @@ bool BranchCommand::ExecuteBranch(Integer which)
 //------------------------------------------------------------------------------
 void BranchCommand::RunComplete()
 {
-   #if DEBUG_RUN_COMPLETE
+   #ifdef DEBUG_RUN_COMPLETE
    ShowCommand("BranchCommand::", "BranchCommand::RunComplete() this = ", this);
    #endif
    

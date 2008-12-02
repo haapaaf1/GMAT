@@ -23,7 +23,15 @@
 
 //#define DEBUG_FUNCTION_SET
 //#define DEBUG_FUNCTION_IN_OUT
-//#define DEBUG_FUNCTION_CALL_STACK
+//#define DEBUG_WRAPPER_CODE
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //---------------------------------
 // static data
@@ -88,6 +96,10 @@ Function::Function(const std::string &typeStr, const std::string &name) :
 //------------------------------------------------------------------------------
 Function::~Function()
 {
+   // delete only output wrappers, input wrappers are set by FunctionManager,
+   // so they are deleted there.
+   // crashes on nested function if delete output wrappers here
+   //ClearInOutArgMaps(false, true);
 }
 
 
@@ -213,7 +225,7 @@ bool Function::Initialize()
 //------------------------------------------------------------------------------
 bool Function::Execute(ObjectInitializer *objInit, bool reinitialize)
 {
-   return true; 
+   return true;
 }
 
 
@@ -223,6 +235,7 @@ bool Function::Execute(ObjectInitializer *objInit, bool reinitialize)
 void Function::Finalize()
 {
 }
+
 
 //------------------------------------------------------------------------------
 // bool IsFinalized()
@@ -376,7 +389,12 @@ bool Function::SetInputElementWrapper(const std::string &forName, ElementWrapper
       errMsg += "\" for function \"" + functionName + "\"";
       throw FunctionException(errMsg);
    }
+   
    inputArgMap[forName] = wrapper;
+   
+   //@note old inputWrappers are deleted in the FunctionManager::CreateFunctionArgWrappers()
+   // before creates new wrappers for input arguments
+   
    return true;
 }
 
@@ -429,6 +447,16 @@ ElementWrapper* Function::GetOutputArgument(const std::string &byName)
    return ew;
 }
 
+
+//------------------------------------------------------------------------------
+// WrapperArray& GetWrappersToDelete()
+//------------------------------------------------------------------------------
+WrapperArray& Function::GetWrappersToDelete()
+{
+   return wrappersToDelete;
+}
+
+
 //------------------------------------------------------------------------------
 // void AddAutomaticObject(const std::string &withName, GmatBase *obj)
 //------------------------------------------------------------------------------
@@ -474,41 +502,12 @@ bool Function::TakeAction(const std::string &action,
       #endif
       
       // Do we need to also delete input/output ElementWrappers here? 
-      // They are deleted in the FunctionManager::ClearInputOutputWrappers()
+      // They are deleted in the FunctionManager::ClearInOutWrappers()
       // Let's delete them here for now in TakeAction(). I don't know in what
       // situation TakeAction() will be called(loj: 2008.11.12)
       // input wrappers map
-      std::map<std::string, ElementWrapper *>::iterator ewi;
-      for (ewi = inputArgMap.begin(); ewi != inputArgMap.end(); ++ewi)
-      {
-         if (ewi->second)
-         {
-            #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- Function::TakeAction() deleting inputWrapper <%p> '%s'\n",
-                ewi->second, (ewi->second)->GetDescription().c_str());
-            #endif
-            delete ewi->second;
-         }
-      }
       
-      // output wrappers
-      //std::map<std::string, ElementWrapper *>::iterator ewi;
-      for (ewi = outputArgMap.begin(); ewi != outputArgMap.end(); ++ewi)
-      {
-         if (ewi->second)
-         {
-            #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- Function::TakeAction() deleting outputWrapper <%p> '%s'\n",
-                ewi->second, (ewi->second)->GetDescription().c_str());
-            #endif
-            delete ewi->second;
-         }
-      }
-      
-      inputArgMap.clear();
-      outputArgMap.clear();
+      ClearInOutArgMaps(true, true);
       return true;
    }
    
@@ -787,7 +786,6 @@ bool Function::SetStringParameter(const Integer id, const std::string &value)
       {
          if (outputArgMap.find(value) == outputArgMap.end())
          {
-            //outputArgMap[value] = NULL;
             outputNames.push_back(value);
             outputArgMap.insert(std::make_pair(value,(ElementWrapper*) NULL));
          }
@@ -839,6 +837,108 @@ GmatBase* Function::FindObject(const std::string &name)
       return (GmatBase*)(solarSys->GetBody(newName));
    
    return NULL;
+}
+
+
+//------------------------------------------------------------------------------
+// void ClearInOutArgMaps(bool deleteInputs, bool deleteOutputs)
+//------------------------------------------------------------------------------
+void Function::ClearInOutArgMaps(bool deleteInputs, bool deleteOutputs)
+{
+   #ifdef DEBUG_ARG_MAP
+   MessageInterface::ShowMessage
+      ("Function::ClearInOutArgMaps() this=<%p> '%s' entered\n", this,
+       GetName().c_str());
+   MessageInterface::ShowMessage
+      ("inputArgMap.size()=%d, outputArgMap.size()=%d\n", inputArgMap.size(),
+       outputArgMap.size());
+   #endif
+   
+   std::vector<ElementWrapper *> wrappersToDelete;
+   std::map<std::string, ElementWrapper *>::iterator ewi;
+   
+   if (deleteInputs)
+   {
+      // input wrappers map
+      for (ewi = inputArgMap.begin(); ewi != inputArgMap.end(); ++ewi)
+      {
+         if (ewi->second)
+         {         
+            if (find(wrappersToDelete.begin(), wrappersToDelete.end(), ewi->second) ==
+                wrappersToDelete.end())
+               wrappersToDelete.push_back(ewi->second);
+         }
+      }
+   }
+   
+   if (deleteOutputs)
+   {
+      // output wrappers
+      for (ewi = outputArgMap.begin(); ewi != outputArgMap.end(); ++ewi)
+      {
+         if (ewi->second)
+         {
+            if (find(wrappersToDelete.begin(), wrappersToDelete.end(), ewi->second) ==
+                wrappersToDelete.end())
+               wrappersToDelete.push_back(ewi->second);
+         }
+      }
+   }
+   
+   #ifdef DEBUG_WRAPPER_CODE   
+   MessageInterface::ShowMessage
+      ("   There are %d wrappers to delete\n", wrappersToDelete.size());
+   #endif
+   
+   // Delete old ElementWrappers (loj: 2008.11.20)
+   for (std::vector<ElementWrapper*>::iterator ewi = wrappersToDelete.begin();
+        ewi < wrappersToDelete.end(); ewi++)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*ewi), (*ewi)->GetDescription(), "Function::ClearInOutArgMaps()",
+          "deleting wrapper");
+      #endif
+      delete (*ewi);
+      (*ewi) = NULL;
+   }
+   
+   inputArgMap.clear();
+   outputArgMap.clear();
+}
+
+
+//------------------------------------------------------------------------------
+// void ClearAutomaticObjects()
+//------------------------------------------------------------------------------
+void Function::ClearAutomaticObjects()
+{
+   #ifdef DEBUG_AUTO_OBJ
+   MessageInterface::ShowMessage
+      ("Function::ClearAutomaticObjects() this=<%p> '%s' entered\n   "
+       "automaticObjects.size()=%d", this, GetName().c_str(),
+       automaticObjects.size());
+   #endif
+   
+   StringArray toDelete;
+   ObjectMap::iterator omi;
+   for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
+   {
+      if (omi->second != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         GmatBase *obj = omi->second;
+         MemoryTracker::Instance()->Remove
+            (obj, obj->GetName(), "Function::ClearAutomaticObjects()", "deleting autoObj");
+         #endif
+         delete omi->second;
+         omi->second = NULL;
+      }
+      toDelete.push_back(omi->first); 
+   }
+   
+   for (unsigned int kk = 0; kk < toDelete.size(); kk++)
+      automaticObjects.erase(toDelete.at(kk));
 }
 
 

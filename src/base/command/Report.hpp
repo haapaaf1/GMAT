@@ -71,6 +71,7 @@ public:
                         GetWrapperObjectNameArray();
    virtual bool         SetElementWrapper(ElementWrapper* toWrapper,
                                           const std::string &withName);
+   virtual void         ClearWrappers();
    
    // Object accessor methods
    virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
@@ -89,6 +90,7 @@ public:
    
    bool                 Initialize();
    virtual bool         Execute();
+   virtual void         RunComplete();
    
    // Generating string method
    virtual const std::string&
@@ -123,6 +125,7 @@ protected:
    void WriteHeaders(std::stringstream &datastream, Integer colWidth);
    bool AddParameter(const std::string &paramName, Integer index,
                      Parameter *param = NULL);
+   void DeleteParameters();
    
    enum
    {

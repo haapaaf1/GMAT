@@ -36,22 +36,21 @@
 
 //#define DISALLOW_NESTED_GMAT_FUNCTIONS
 
-//#define DEBUG_SANDBOX_OBJ 1
-//#define DEBUG_SANDBOX_INIT 1  // there's something wrong with some debug here ... @todo
-//#define DEBUG_SANDBOX_INIT_CS 1
-//#define DEBUG_SANDBOX_INIT_PARAM 1
-//#define DEBUG_SANDBOX_RUN 1
-//#define DEBUG_SANDBOX_OBJECT_MAPS
+//#define DEBUG_SANDBOX_INIT
 //#define DEBUG_MODERATOR_CALLBACK
-//#define DEBUG_FM_INITIALIZATION
 //#define DEBUG_SANDBOX_GMATFUNCTION
-//#define DEBUG_SANDBOX_OBJINIT
-//#define DEBUG_SANDBOX_OBJ
+//#define DEBUG_SANDBOX_OBJ_INIT
+//#define DEBUG_SANDBOX_OBJ_ADD
 //#define DEBUG_SANDBOX_OBJECT_MAPS
+//#define DBGLVL_SANDBOX_RUN 1
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 #ifdef DEBUG_SANDBOX_INIT
    std::map<std::string, GmatBase *>::iterator omIter;
@@ -130,9 +129,9 @@ Sandbox::~Sandbox()
       if (solarSys)
       {
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("--- Sandbox::~Sandbox() deleting solarSys <%p> '%s'\n", solarSys,
-          solarSys->GetName().c_str());
+         MemoryTracker::Instance()->Remove
+            (solarSys, solarSys->GetName(), "Sandbox::~Sandbox()",
+             " deleting cloned solarSys");
          #endif
          delete solarSys;
       }
@@ -141,8 +140,9 @@ Sandbox::~Sandbox()
    if (sequence)
    {
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- Sandbox::~Sandbox() deleting sequence <%p>\n", sequence);
+      MemoryTracker::Instance()->Remove
+         (sequence, "sequence", "Sandbox::~Sandbox()",
+          " deleting mission sequence");
       #endif
       delete sequence;
    }
@@ -150,8 +150,8 @@ Sandbox::~Sandbox()
    if (objInit)
    {
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- Sandbox::~Sandbox() deleting objInit <%p>\n", objInit);
+      MemoryTracker::Instance()->Remove
+         (objInit, "objInit", "Sandbox::~Sandbox()", " deleting objInit");
       #endif
       delete objInit;
    }
@@ -188,7 +188,7 @@ GmatBase* Sandbox::AddObject(GmatBase *obj)
    if (obj == NULL)
       return NULL;
    
-   #ifdef DEBUG_SANDBOX_OBJ
+   #ifdef DEBUG_SANDBOX_OBJ_ADD
       MessageInterface::ShowMessage
          ("Sandbox::AddObject() objTypeName=%s, objName=%s\n",
           obj->GetTypeName().c_str(), obj->GetName().c_str());
@@ -221,12 +221,12 @@ GmatBase* Sandbox::AddObject(GmatBase *obj)
             "Cloning object %s of type %s\n", obj->GetName().c_str(),
             obj->GetTypeName().c_str());
          #endif
-            
+         
          cloned = obj->Clone();
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("+++ Sandbox::AddObject() *cloned = obj->Clone(), <%p> '%s'\n",
-             cloned, obj->GetName().c_str());
+         MemoryTracker::Instance()->Add
+            (cloned, obj->GetName(), "Sandbox::AddObject()",
+             "*cloned = obj->Clone()");
          #endif
          SetObjectByNameInMap(name, cloned);
       #ifdef DEBUG_SANDBOX_CLONING
@@ -311,9 +311,9 @@ bool Sandbox::AddSolarSystem(SolarSystem *ss)
    MessageInterface::ShowMessage("Cloning the solar system in the Sandbox\n");
    solarSys = (SolarSystem*)(ss->Clone());
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("+++ Sandbox::AddSolarSystem() solarSys = (SolarSystem*)(ss->Clone()), <%p>\n",
-       solarSys);
+   MemoryTracker::Instance()->Add
+      (solarSys, solarSys->GetName(), "Sandbox::AddSolarSystem()",
+       "solarSys = (SolarSystem*)(ss->Clone())");
    #endif
    
    #ifdef DEBUG_SS_CLONING
@@ -518,7 +518,7 @@ bool Sandbox::Initialize()
    // Set J2000 Body for all SpacePoint derivatives before anything else
    // NOTE - at this point, everything should be in the SandboxObjectMap,
    // and the GlobalObjectMap should be empty
-   #ifdef DEBUG_SANDBOX_OBJINIT
+   #ifdef DEBUG_SANDBOX_OBJ_INIT
       MessageInterface::ShowMessage("About to create the ObjectInitializer ... \n");
       MessageInterface::ShowMessage(" and the objInit pointer is %s\n",
             (objInit? "NOT NULL" : "NULL!!!"));
@@ -527,16 +527,21 @@ bool Sandbox::Initialize()
    if (objInit)
    {
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- Sandbox::Initialize() deleting objInit <%p>\n", objInit);
+      MemoryTracker::Instance()->Remove
+         (objInit, "objInit", "Sandbox::Initialize()", " deleting objInit");
       #endif
       delete objInit;  // if Initialize is called more than once, delete 'old' objInit
    }
    
    objInit = new ObjectInitializer(solarSys, &objectMap, &globalObjectMap, internalCoordSys);
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (objInit, "objInit", "Sandbox::Initialize()", "objInit = new ObjectInitializer");
+   #endif
    try
    {
-      #ifdef DEBUG_SANDBOX_OBJINIT
+      #ifdef DEBUG_SANDBOX_OBJ_INIT
          MessageInterface::ShowMessage(
                "About to call the ObjectInitializer::InitializeObjects ... \n");
       #endif
@@ -590,7 +595,7 @@ bool Sandbox::Initialize()
                (omIter->first).c_str(), ((omIter->second)->GetTypeName()).c_str());
    #endif
    
-   #if DEBUG_SANDBOX_INIT
+   #ifdef DEBUG_SANDBOX_INIT
       MessageInterface::ShowMessage(
          "Sandbox::Initialize() Initializing Commands...\n");
    #endif
@@ -600,7 +605,7 @@ bool Sandbox::Initialize()
    // Initialize commands
    while (current)
    {
-      #if DEBUG_SANDBOX_INIT
+      #ifdef DEBUG_SANDBOX_INIT
       MessageInterface::ShowMessage
          ("Initializing %s command\n   \"%s\"\n",
           current->GetTypeName().c_str(),
@@ -657,7 +662,7 @@ bool Sandbox::Initialize()
    }
 
 
-   #if DEBUG_SANDBOX_INIT
+   #ifdef DEBUG_SANDBOX_INIT
       MessageInterface::ShowMessage(
          "Sandbox::Initialize() Successfully initialized\n");
    #endif
@@ -686,7 +691,7 @@ bool Sandbox::Initialize()
 bool Sandbox::Execute()
 {
 
-   #if DEBUG_SANDBOX_RUN > 1
+   #if DBGLVL_SANDBOX_RUN > 1
    MessageInterface::ShowMessage("Sandbox::Execute() Here is the current object map:\n");
    for (std::map<std::string, GmatBase *>::iterator i = objectMap.begin();
         i != objectMap.end(); ++i)
@@ -743,13 +748,13 @@ bool Sandbox::Execute()
             }
          }
          
-         #if DEBUG_SANDBOX_RUN
+         #if DBGLVL_SANDBOX_RUN
          if (current != prev)
          {
             MessageInterface::ShowMessage
                ("Sandbox::Execution running %s\n", current->GetTypeName().c_str());
             
-            #if DEBUG_SANDBOX_RUN > 1
+            #if DBGLVL_SANDBOX_RUN > 1
             MessageInterface::ShowMessage
                ("command = \n<%s>\n", current->GetGeneratingString().c_str());
             #endif
@@ -769,7 +774,7 @@ bool Sandbox::Execute()
             std::string str = "\"" + current->GetTypeName() +
                "\" Command failed to run to completion\n";
             
-            #if DEBUG_SANDBOX_RUN > 1
+            #if DBGLVL_SANDBOX_RUN > 1
             MessageInterface::ShowMessage
                ("%sCommand Text is\n\"%s\n", str.c_str(),
                 current->GetGeneratingString().c_str());
@@ -786,7 +791,7 @@ bool Sandbox::Execute()
    {
       sequence->RunComplete();
       
-      #if DEBUG_SANDBOX_RUN
+      #if DBGLVL_SANDBOX_RUN
       MessageInterface::ShowMessage
          ("   Sandbox rethrowing %s\n", e.GetFullMessage().c_str());
       #endif
@@ -908,9 +913,9 @@ void Sandbox::Clear()
                (omi->second)->GetName().c_str());
          #endif
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("--- Sandbox::Clear() deleting omi->second <%p> '%s'\n", omi->second,
-             (omi->first).c_str());//, (omi->second)->GetName().c_str());
+            MemoryTracker::Instance()->Remove
+               (omi->second, omi->first, "Sandbox::Clear()",
+                " deleting cloned obj from objectMap");
          #endif
          delete omi->second;
          //objectMap.erase(omi);
@@ -936,9 +941,9 @@ void Sandbox::Clear()
                (omi->second)->GetName().c_str());
          #endif
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("--- Sandbox::Clear() deleting omi->second <%p> '%s'\n", omi->second,
-             (omi->second)->GetName().c_str());
+            MemoryTracker::Instance()->Remove
+               (omi->second, omi->first, "Sandbox::Clear()",
+                " deleting cloned obj from globalObjectMap");
          #endif
          delete omi->second;
          //objectMap.erase(omi);
@@ -962,9 +967,8 @@ void Sandbox::Clear()
       #endif
       
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- Sandbox::Clear() deleting solarSys <%p> '%s'\n", solarSys,
-          solarSys->GetName().c_str());
+      MemoryTracker::Instance()->Remove
+         (solarSys, solarSys->GetName(), "Sandbox::Clear()", " deleting solarSys");
       #endif
       delete solarSys;
    }
@@ -982,8 +986,8 @@ void Sandbox::Clear()
         tf != transientForces.end(); ++tf)
    {
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- Sandbox::Clear() deleting transientForce <%p>\n", (*tf));
+      MemoryTracker::Instance()->Remove
+         ((*tf), "transient force", "Sandbox::Clear()");
       #endif
       delete (*tf);
    }
@@ -1011,24 +1015,6 @@ void Sandbox::Clear()
 //------------------------------------------------------------------------------
 bool Sandbox::AddSubscriber(Subscriber *sub)
 {
-//    if ((state != STOPPED) && (state != INITIALIZED) && (state != IDLE))
-//           MessageInterface::ShowMessage(
-//              "Unexpected state transition in the Sandbox\n");
-//    state     = IDLE;
-   
-//    Subscriber *sub = (Subscriber *)(subsc->Clone());
-//    #ifdef DEBUG_MEMORY
-//    MessageInterface::ShowMessage
-//       ("+++ Sandbox::AddSubscriber() *sub = (Subscriber *)(subsc->Clone()), "
-//        "<%p>\n", sub);
-//    #endif
-   
-//    #ifdef DEBUG_SANDBOX_OBJ
-//       MessageInterface::ShowMessage
-//          ("Sandbox::AddSubscriber() name = %s\n",
-//           sub->GetName().c_str());
-//    #endif
-   
    // add subscriber to sandbox by AddObject() so that cloned subscribers
    // can be deleted when clear (loj: 2008.11.06)
    Subscriber *newSub = (Subscriber*)AddObject(sub);
@@ -1039,7 +1025,6 @@ bool Sandbox::AddSubscriber(Subscriber *sub)
    }
    
    return false;
-   //return  AddObject(sub);
 }
 
 
@@ -1085,9 +1070,9 @@ GmatBase* Sandbox::FindObject(const std::string &name)
  */
 //------------------------------------------------------------------------------
 bool Sandbox::SetObjectByNameInMap(const std::string &name,
-                             GmatBase *obj)
+                                   GmatBase *obj)
 {
-   #ifdef DEBUG_SANDBOX_OBJ
+   #ifdef DEBUG_SANDBOX_OBJECT_MAPS
    MessageInterface::ShowMessage
       ("Sandbox::SetObjectByNameInMap() name = %s\n",
        name.c_str());
@@ -1097,7 +1082,7 @@ bool Sandbox::SetObjectByNameInMap(const std::string &name,
    if (objectMap.find(name) != objectMap.end())
    {
       objectMap[name] = obj;
-      #ifdef DEBUG_SANDBOX_OBJ
+      #ifdef DEBUG_SANDBOX_OBJECT_MAPS
       MessageInterface::ShowMessage
          ("Sandbox::SetObjectByNameInMap() set object name = %s in objectMap\n",
           name.c_str());
@@ -1107,7 +1092,7 @@ bool Sandbox::SetObjectByNameInMap(const std::string &name,
    if (globalObjectMap.find(name) != globalObjectMap.end())
    {
       globalObjectMap[name] = obj;
-      #ifdef DEBUG_SANDBOX_OBJ
+      #ifdef DEBUG_SANDBOX_OBJECT_MAPS
       MessageInterface::ShowMessage
          ("Sandbox::SetObjectByNameInMap() set object name = %s in globalObjectMap\n",
           name.c_str());
@@ -1119,7 +1104,7 @@ bool Sandbox::SetObjectByNameInMap(const std::string &name,
    if (!found)
       objectMap.insert(std::make_pair(name,obj));
    
-   #ifdef DEBUG_SANDBOX_OBJ
+   #ifdef DEBUG_SANDBOX_OBJECT_MAPS
    MessageInterface::ShowMessage
       ("Sandbox::SetObjectByNameInMap() returning found = %s\n",
        (found? "TRUE" : "FALSE"));

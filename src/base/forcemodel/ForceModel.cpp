@@ -69,6 +69,10 @@
 //#define DEBUG_MEMORY
 //#endif
 
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -191,9 +195,9 @@ ForceModel::~ForceModel()
       if (!pm->IsTransient())
       {
          #ifdef DEBUG_MEMORY
-         MessageInterface::ShowMessage
-            ("--- ForceModel::~ForceModel() deleting pm <%p><%s> '%s'\n", pm,
-             pm->GetTypeName().c_str(), pm->GetName().c_str());
+         MemoryTracker::Instance()->Remove
+            (pm, pm->GetName(), "ForceModel::~ForceModel()",
+             "deleting non-transient force of " + pm->GetTypeName());
          #endif
          delete pm;
       }
@@ -277,9 +281,9 @@ ForceModel::ForceModel(const ForceModel& fdf) :
       PhysicalModel *newPm = (PhysicalModel*)(*pm)->Clone();
       forceList.push_back(newPm);
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ ForceModel::ForceModel() *newPm = (PhysicalModel*)(*pm)->Clone(), "
-          "<%p>\n", newPm);
+      MemoryTracker::Instance()->Add
+         (newPm, newPm->GetName(), "ForceModel::ForceModel()",
+          "*newPm = (*pm)->Clone()");
       #endif
    }
 }
@@ -341,9 +345,9 @@ ForceModel& ForceModel::operator=(const ForceModel& fdf)
       PhysicalModel *newPm = (PhysicalModel*)(*pm)->Clone();
       forceList.push_back(newPm);
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ ForceModel::operator= *newPm = (PhysicalModel*)(*pm)->Clone(), "
-          "<%p>\n", newPm);
+      MemoryTracker::Instance()->Add
+         (newPm, newPm->GetName(), "ForceModel::operator=",
+          "*newPm = (*pm)->Clone()");
       #endif
    }
    
@@ -468,9 +472,9 @@ void ForceModel::DeleteForce(const std::string &name)
          if (!pm->IsTransient())
          {
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- ForceModel::~DeleteForce() deleting pm <%p><%s> '%s'\n", pm,
-                pm->GetTypeName().c_str(), pm->GetName().c_str());
+            MemoryTracker::Instance()->Remove
+               (pm, pm->GetName(), "ForceModel::DeleteForce()",
+                "deleting non-transient force of " + pm->GetTypeName());
             #endif
             delete pm;
          }
@@ -505,9 +509,9 @@ void ForceModel::DeleteForce(PhysicalModel *pPhysicalModel)
          if (!pm->IsTransient())
          {
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("--- ForceModel::~DeleteForce() deleting pm <%p><%s> '%s'\n", pm,
-                pm->GetTypeName().c_str(), pm->GetName().c_str());
+            MemoryTracker::Instance()->Remove
+               (pm, pm->GetName(), "ForceModel::DeleteForce()",
+                "deleting non-transient force of " + pm->GetTypeName());
             #endif
             delete pm;
          }
@@ -981,8 +985,9 @@ void ForceModel::ClearInternalCoordinateSystems()
         i != InternalCoordinateSystems.end(); ++i)
    {
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("--- ForceModel::ClearInternalCoordinateSystems() deleting ICS <%p>\n", (*i));
+      MemoryTracker::Instance()->Remove
+         ((*i), (*i)->GetName(), "ForceModel::ClearInternalCoordinateSystems()",
+          "deleting ICS");
       #endif
       delete (*i);
    }
@@ -1047,21 +1052,21 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId,
          {
             cs = (CoordinateSystem *)earthEq->Clone();
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ ForceModel::SetInternalCoordinateSystem() cs = earthEq->Clone(), "
-                "<%p>\n", cs);
+            MemoryTracker::Instance()->Remove
+               (cs, csName, "ForceModel::SetInternalCoordinateSystem()",
+                "cs = earthEq->Clone()");
             #endif
          }
          else
          {
             cs = (CoordinateSystem *)earthFixed->Clone();
             #ifdef DEBUG_MEMORY
-            MessageInterface::ShowMessage
-               ("+++ ForceModel::SetInternalCoordinateSystem() cs = earthFixed->Clone(), "
-                "<%p>\n", cs);
+            MemoryTracker::Instance()->Remove
+               (cs, csName, "ForceModel::SetInternalCoordinateSystem()",
+                "cs = earthFixed->Clone()");
             #endif
          }
-                  
+         
          cs->SetName(csName);
          cs->SetStringParameter("Origin", centralBodyName);
          cs->SetRefObject(forceOrigin, Gmat::CELESTIAL_BODY, 
