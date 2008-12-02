@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  VariableWrapper
 //------------------------------------------------------------------------------
@@ -40,21 +40,21 @@ public:
    // destructor
    virtual ~VariableWrapper();
    
+   virtual std::string         ToString();  
    virtual Gmat::ParameterType GetDataType() const;
    
-   virtual bool            SetRefObject(GmatBase *obj);
-   virtual bool            RenameObject(const std::string &oldName, 
-                                        const std::string &newName);
+   virtual bool                SetRefObject(GmatBase *obj);
+   virtual bool                RenameObject(const std::string &oldName, 
+                                            const std::string &newName);
    
-   virtual Real            EvaluateReal() const;
-   virtual bool            SetReal(const Real toValue);
-   
+   virtual Real                EvaluateReal() const;
+   virtual bool                SetReal(const Real toValue);
    
 protected:  
 
    // pointer to the Variable object
-   Variable *var;
+   Variable      *var;
    
-   virtual void            SetupWrapper();
+   virtual void  SetupWrapper();
 };
 #endif // VariableWrapper_hpp

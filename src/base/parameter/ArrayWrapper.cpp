@@ -107,6 +107,22 @@ ArrayWrapper::~ArrayWrapper()
 {
 }
 
+
+//------------------------------------------------------------------------------
+// std::string ToString()
+//------------------------------------------------------------------------------
+/**
+ * @return ArrayWrapper value converted to std::string.
+ *
+ * @exception <GmatBaseException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+std::string ArrayWrapper::ToString()
+{
+   return array->ToString();
+}
+
+
 //------------------------------------------------------------------------------
 //  Gmat::ParameterType GetDataType() const
 //------------------------------------------------------------------------------

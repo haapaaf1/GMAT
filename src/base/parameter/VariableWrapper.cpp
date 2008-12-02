@@ -108,6 +108,22 @@ VariableWrapper::~VariableWrapper()
 //       delete var;
 }
 
+
+//------------------------------------------------------------------------------
+// std::string ToString()
+//------------------------------------------------------------------------------
+/**
+ * @return VariableWrapper value converted to std::string.
+ *
+ * @exception <GmatBaseException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+std::string VariableWrapper::ToString()
+{
+   return var->ToString();
+}
+
+
 //------------------------------------------------------------------------------
 //  Gmat::ParameterType GetDataType() const
 //------------------------------------------------------------------------------

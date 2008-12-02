@@ -97,6 +97,21 @@ ObjectWrapper::~ObjectWrapper()
 
 
 //------------------------------------------------------------------------------
+// std::string ToString()
+//------------------------------------------------------------------------------
+/**
+ * @return ObjectWrapper value converted to std::string.
+ *
+ * @exception <GmatBaseException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+std::string ObjectWrapper::ToString()
+{
+   return theObject->GetGeneratingString(Gmat::NO_COMMENTS);
+}
+
+
+//------------------------------------------------------------------------------
 // Gmat::ParameterType GetDataType() const
 //------------------------------------------------------------------------------
 /**

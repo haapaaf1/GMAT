@@ -30,17 +30,18 @@ public:
    const ObjectWrapper& operator=(const ObjectWrapper &right);
    virtual ~ObjectWrapper();
    
+   virtual std::string         ToString();
    virtual Gmat::ParameterType GetDataType() const;
    
-   virtual bool         SetRefObject(GmatBase *obj);
-   virtual bool         RenameObject(const std::string &oldName, 
-                                     const std::string &newName);
+   virtual bool                SetRefObject(GmatBase *obj);
+   virtual bool                RenameObject(const std::string &oldName, 
+                                            const std::string &newName);
    
-   virtual Real         EvaluateReal() const;
-   virtual bool         SetReal(const Real val);
+   virtual Real                EvaluateReal() const;
+   virtual bool                SetReal(const Real val);
    
-   virtual GmatBase*    EvaluateObject() const;
-   virtual bool         SetObject(GmatBase* obj);
+   virtual GmatBase*           EvaluateObject() const;
+   virtual bool                SetObject(GmatBase* obj);
    
 protected:  
 
