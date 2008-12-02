@@ -70,6 +70,7 @@ typedef std::vector<std::string> StringArray;
 class GmatBase;                            // Forward reference for ObjectArray
 class ElementWrapper;
 typedef std::vector<GmatBase*> ObjectArray;
+typedef std::vector<ElementWrapper*> WrapperArray;
 typedef std::map<std::string, GmatBase*> ObjectMap;
 typedef std::map<std::string, ElementWrapper*> WrapperMap;
 typedef std::stack<ObjectMap*> ObjectMapStack;
