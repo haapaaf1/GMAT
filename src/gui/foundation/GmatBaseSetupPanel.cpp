@@ -260,10 +260,10 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index)
       break;
    case Gmat::ENUMERATION_TYPE:
       {
-         StringArray enumSymbols = mObject->GetPropertyEnumSymbols(index);
+         StringArray enumStrings = mObject->GetPropertyEnumStrings(index);
          wxArrayString enumList;
-         for (UnsignedInt i=0; i<enumSymbols.size(); i++)
-            enumList.Add(enumSymbols[i].c_str());
+         for (UnsignedInt i=0; i<enumStrings.size(); i++)
+            enumList.Add(enumStrings[i].c_str());
          
          wxComboBox *cbControl =
             new wxComboBox(parent, ID_COMBOBOX, "", wxDefaultPosition,
