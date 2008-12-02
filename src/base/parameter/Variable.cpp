@@ -38,6 +38,10 @@
 //#define DEBUG_MEMORY
 //#endif
 
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 // public methods
 //---------------------------------
@@ -65,16 +69,14 @@ Variable::Variable(const std::string &name, const std::string &valStr,
    
    mParamDb = new ParameterDatabase();
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("+++ Variable::Variable(default) '%s', mParamDb = new ParameterDatabase(), <%p>\n",
-       name.c_str(), mParamDb);
+   MemoryTracker::Instance()->Add
+      (mParamDb, name, "Variable::Variable(default)", "mParamDb = new ParameterDatabase()");
    #endif
    
    mExpParser = new ExpressionParser();
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("+++ Variable::Variable(default) '%s', mExpParser = new ExpressionParser(), <%p>\n",
-       name.c_str(), mExpParser);
+   MemoryTracker::Instance()->Add
+      (mExpParser, name, "Variable::Variable(default)", "mExpParser = new ExpressionParser()");
    #endif
    
    // Set parameter database to be used
@@ -107,16 +109,14 @@ Variable::Variable(const Variable &copy)
 {
    mParamDb = new ParameterDatabase(*copy.mParamDb);
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("+++ Variable::Variable(copy) '%s', mParamDb = new ParameterDatabase(), <%p>\n",
-       GetName().c_str(), mParamDb);
+   MemoryTracker::Instance()->Add
+      (mParamDb, GetName(), "Variable::Variable(copy)", "mParamDb = new ParameterDatabase()");
    #endif
    
    mExpParser = new ExpressionParser();
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("+++ Variable::Variable(copy) '%s', mExpParser = new ExpressionParser(), <%p>\n",
-       GetName().c_str(), mExpParser);
+   MemoryTracker::Instance()->Add
+      (mExpParser, GetName(), "Variable::Variable(copy)", "mExpParser = new ExpressionParser()");
    #endif
    mExpParser->SetParameterDatabase(mParamDb);
    
@@ -128,8 +128,11 @@ Variable::Variable(const Variable &copy)
       ("   numDBParams = %d\n", mParamDb->GetNumParameters());
    #endif
    
-//    MessageInterface::ShowMessage
-//       ("***** Variable(copy) this='%s', mRealValue=%f\n", GetName().c_str(), mRealValue);
+   #if DEBUG_VARIABLE > 1
+   MessageInterface::ShowMessage
+      ("***** Variable(copy) this=<%p> '%s', mRealValue=%f\n",
+       this, GetName().c_str(), mRealValue);
+   #endif
 }
 
 
@@ -150,18 +153,35 @@ Variable& Variable::operator=(const Variable &right)
       std::string thisName = GetName();
       
       RealVar::operator=(right);
+      
+      if (mParamDb)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (mParamDb, GetName(), "Variable::operator=", "deleting mParamDb");
+         #endif
+         delete mParamDb;
+      }
+      
       mParamDb = new ParameterDatabase(*right.mParamDb);
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Variable::Variable(=) '%s', mParamDb = new ParameterDatabase(), <%p>\n",
-          GetName().c_str(), mParamDb);
+      MemoryTracker::Instance()->Add
+         (mParamDb, GetName(), "Variable::Variable(=)", "mParamDb = new ParameterDatabase()");
       #endif
+      
+      if (mExpParser)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (mExpParser, GetName(), "Variable::Variable(=)", "deleting mExpParser");
+         #endif
+         delete mExpParser;
+      }
       
       mExpParser = new ExpressionParser();
       #ifdef DEBUG_MEMORY
-      MessageInterface::ShowMessage
-         ("+++ Variable::Variable(=) '%s', mExpParser = new ExpressionParser(), <%p>\n",
-          GetName().c_str(), mExpParser);
+      MemoryTracker::Instance()->Add
+         (mExpParser, GetName(), "Variable::Variable(=)", "mExpParser = new ExpressionParser()");
       #endif
       
       mExpParser->SetParameterDatabase(mParamDb);
@@ -175,8 +195,11 @@ Variable& Variable::operator=(const Variable &right)
       SetName(thisName);
    }
    
-//    MessageInterface::ShowMessage
-//       ("***** Variable(=) this='%s', mRealValue=%f\n", GetName().c_str(), mRealValue);
+   #if DEBUG_VARIABLE > 1
+   MessageInterface::ShowMessage
+      ("***** Variable(=) this=<%p> '%s', mRealValue=%f\n",
+       this, GetName().c_str(), mRealValue);
+   #endif
    
    return *this;
 }
@@ -192,16 +215,14 @@ Variable& Variable::operator=(const Variable &right)
 Variable::~Variable()
 {
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("--- Variable::~Variable() '%s', deleting mParamDb <%p>\n", GetName().c_str(),
-       mParamDb);
+   MemoryTracker::Instance()->Remove
+      (mParamDb, GetName(), "Variable::~Variable()", "deleting mParamDb");
    #endif
    delete mParamDb;
    
    #ifdef DEBUG_MEMORY
-   MessageInterface::ShowMessage
-      ("--- Variable::~Variable() '%s', deleting mExpParser <%p>\n", GetName().c_str(),
-       mExpParser);
+   MemoryTracker::Instance()->Remove
+      (mExpParser, GetName(), "Variable::~Variable()", "deleting mExpParser");
    #endif
    delete mExpParser;
 }
