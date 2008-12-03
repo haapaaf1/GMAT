@@ -319,13 +319,6 @@ bool DataFile::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 bool DataFile::Initialize()
 {
-    std::ifstream myFile;
-    if(!OpenFile(myFile))
-    {
-	throw DataFileException("Unable to open data file: " + dataFileName);
-	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
-    }
-
     return true;
 }
 
@@ -350,6 +343,7 @@ DataFile::DataFile(const std::string &itsType,
     GmatBase(Gmat::DATA_FILE,itsType,itsName),
     fileFormatName (""),
 //    numLines (0),
+        numMeasurements (0),
 //    lineFromFile (""),
 //    dataFileName (""),
     isOpen (false)
@@ -368,9 +362,10 @@ DataFile::DataFile(const std::string &itsType,
 DataFile::DataFile(const DataFile &pdf) :
     GmatBase       (pdf),
     fileFormatName (pdf.fileFormatName),
-    numLines (pdf.numLines),
-    lineFromFile (pdf.lineFromFile),
     dataFileName (pdf.dataFileName),
+    numLines (pdf.numLines),
+    numMeasurements (pdf.numMeasurements),
+//    lineFromFile (pdf.lineFromFile),
     isOpen (pdf.isOpen)
 {
 }
@@ -540,7 +535,6 @@ Integer DataFile::GetFileFormatID() const
    return fileFormatID;
 }
 
-
 //------------------------------------------------------------------------------
 // Integer SetNumLines(const Integer &nl)
 //------------------------------------------------------------------------------
@@ -567,6 +561,34 @@ void DataFile::SetNumLines(const Integer &nl)
 Integer DataFile::GetNumLines() const
 {
    return numLines;
+}
+
+//------------------------------------------------------------------------------
+// Integer SetNumMeasurements(const Integer &nm)
+//------------------------------------------------------------------------------
+/**
+ * Sets the number of measurements of the data file object.
+ *
+ * @param <pdfId> The desired number of measurements to be set.
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetNumMeasurements(const Integer &nm)
+{
+   numMeasurements = nm;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetNumMeasurements() const
+//------------------------------------------------------------------------------
+/**
+ * Finds the number of measurements of the data file object.
+ *
+ * @return The number of measurements
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::GetNumMeasurements() const
+{
+   return numMeasurements;
 }
 
 //------------------------------------------------------------------------------
@@ -644,7 +666,7 @@ bool DataFile::GetData(std::ifstream &theFile, tle_obtype &myTLEdata)
  *
  * @return Boolean success or failure
  */
-bool DataFile::GetData( std::ifstream &theFile, b3_obtype &myB3data)
+bool DataFile::GetData( std::ifstream &theFile, b3_obtype *myB3data)
 {
    return false;
 }
@@ -687,10 +709,10 @@ std::string DataFile::ReadLineFromFile(std::ifstream &theFile)
  * @param <lineNum> Integer line number
  * @return Line from file
  */
-std::string DataFile::GetLine(Integer &lineNum)
-{
-    return lineFromFile[lineNum];
-}
+//std::string DataFile::GetLine(Integer &lineNum)
+//{
+//    return lineFromFile[lineNum];
+//}
 
 //------------------------------------------------------------------------------
 // void DataFile::SetLine(std::string &lff, Integer &lineNum)
@@ -701,10 +723,10 @@ std::string DataFile::GetLine(Integer &lineNum)
  * @param <lineNum> Integer line number
  * @param <lff> String of text
  */
-void DataFile::SetLine(std::string &lff, Integer &lineNum)
-{
-    lineFromFile[lineNum] = lff;
-}
+//void DataFile::SetLine(std::string &lff, Integer &lineNum)
+//{
+//    lineFromFile[lineNum] = lff;
+//}
 
 
 //------------------------------------------------------------------------------

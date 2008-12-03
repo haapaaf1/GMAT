@@ -35,7 +35,7 @@ public:
     ~ProcessTLEData();
 
     // Initialization happens here
-    void Initialize() const;
+    bool Initialize();
    
     GmatBase *Clone() const;
     bool        IsParameterReadOnly(const Integer id) const;

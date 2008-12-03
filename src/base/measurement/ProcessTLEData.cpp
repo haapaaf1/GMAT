@@ -39,9 +39,9 @@
  * Initializes the datafile object.
  */
 //------------------------------------------------------------------------------
-void ProcessTLEData::Initialize() const
+bool ProcessTLEData::Initialize()
 {
-    DataFile::Initialize();
+    return DataFile::Initialize();
 }
 
 //------------------------------------------------------------------------------

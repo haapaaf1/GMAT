@@ -31,6 +31,7 @@
 #include "DataFormats.hpp"
 #include "DataFileException.hpp"
 #include "MessageInterface.hpp"
+#include "DynamicDataArray.hpp"
 
 using namespace DataFormats; // for data type variable definitions
 
@@ -63,11 +64,6 @@ public:
     virtual Integer SetIntegerParameter(const Integer id, const Integer value);
     virtual Integer SetIntegerParameter(const std::string &label, const Integer value);
   
-    // Specific data type processing functions
-    virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader);
-    virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata);
-    virtual bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata);
-    virtual bool GetData(std::ifstream &theFile, b3_obtype &myB3data);
 
     // String processing utility functions
     std::string Trim(std::string s);
@@ -79,8 +75,8 @@ public:
     bool ReadLineFromFile(std::ifstream &theFile, std::string &line );
     std::string ReadLineFromFile(std::ifstream &theFile);
 
-    std::string GetLine(Integer &lineNum);
-    void SetLine(std::string &line, Integer &lineNum);
+    //std::string GetLine(Integer &lineNum);
+    //void SetLine(std::string &line, Integer &lineNum);
     
     const std::string* GetFileFormatDescriptions() const;
     std::string GetFileFormatDescriptionText(const Integer &id) const;
@@ -89,6 +85,8 @@ public:
 
     void SetNumLines(const Integer &nl);
     Integer GetNumLines() const;
+    void SetNumMeasurements(const Integer &nm);
+    Integer GetNumMeasurements() const;
     
     void SetFileFormatID(const Integer &mName);
     Integer GetFileFormatID() const;
@@ -146,6 +144,12 @@ private:
     
 protected:
 
+    // Specific data type processing functions
+    virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader);
+    virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata);
+    virtual bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata);
+    virtual bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
+
        /// Published parameters for data files
 
    enum
@@ -169,17 +173,19 @@ protected:
 	EndFileFormatReps
     };
 
-    // ID of the measurement model being used
+    // File format and filename of the data being used
     std::string fileFormatName;
     Integer fileFormatID;
-    
-        
+    std::string dataFileName;
+           
     // numLines tells the file reader how many lines to read in at a time
     // This is important for TLE's that can have 2 or 3 lines of data
     // depending if a comment line is included for each TLE
     Integer numLines;
-    StringArray lineFromFile;
-    std::string dataFileName;
+//    StringArray lineFromFile;
+
+    Integer numMeasurements;
+    
     bool isOpen;
 
 };
@@ -194,7 +200,6 @@ protected:
  * Typesafe conversion from string to integer, float, etc
  */
 //------------------------------------------------------------------------------
-
 template <class T> bool DataFile::from_string(T& t, const std::string& s,
                  std::ios_base& (*f)(std::ios_base&))
 {

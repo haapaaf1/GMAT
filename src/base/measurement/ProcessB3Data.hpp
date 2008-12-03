@@ -36,7 +36,7 @@ public:
     ~ProcessB3Data();
 
     // Initialization happens here
-    void Initialize() const;
+    bool Initialize();
 
     GmatBase *Clone() const;
     bool        IsParameterReadOnly(const Integer id) const;
@@ -47,9 +47,9 @@ public:
 
     
     // Override generic data call from base class
-    bool GetData(std::ifstream &theFile, b3_obtype &myB3data);
+    bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
     // Specific data type processing functions
-    bool GetB3Data(std::string &lff, b3_obtype &myB3data);
+    bool GetB3Data(std::string &lff, b3_obtype *myB3data);
     
 
     enum B3_TYPE_REPS {
@@ -67,7 +67,8 @@ public:
   
 private:
    
-    static const std::string B3_TYPE_DESCRIPTIONS[EndB3TypeReps];    
+    static const std::string B3_TYPE_DESCRIPTIONS[EndB3TypeReps];
+    b3_obtype *b3Data[];
 
 };
 
