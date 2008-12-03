@@ -451,6 +451,7 @@ OBJECTS = \
     util/LatLonHgt.o \
     util/LeapSecsFileReader.o \
     util/Linear.o \
+    util/MemoryTracker.o \
     util/MessageInterface.o \
     util/MessageReceiver.o \
     util/ModKeplerian.o \
