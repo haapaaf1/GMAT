@@ -73,7 +73,7 @@ bool ProcessB3Data::Initialize()
     while (!IsEOF(myFile) && GetData(myFile,myB3))
     {
 
-        b3Data[numMeasurements++] = myB3;
+        b3Data.push_back(*myB3);
 
 	// Output original data to screen for comparison
 	//cout << endl << line << endl;

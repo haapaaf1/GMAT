@@ -41,7 +41,63 @@
 //------------------------------------------------------------------------------
 bool ProcessTLEData::Initialize()
 {
-    return DataFile::Initialize();
+    DataFile::Initialize();
+
+    std::ifstream myFile;
+    if(!OpenFile(myFile))
+    {
+	throw DataFileException("Unable to open data file: " + dataFileName);
+	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
+    }
+
+    // Allocate a data struct in memory
+    //tleData = new tle_obtype [500];
+
+    // Initialize individual data struct
+    // This needs new memory allocation because
+    // we are storing pointers to this data
+    tle_obtype *myTLE = new tle_obtype;
+
+    while (!IsEOF(myFile) && GetData(myFile,myTLE))
+    {
+
+        tleData.push_back(*myTLE);
+
+	// Output original data to screen for comparison
+	//cout << endl << line << endl;
+	//cout << endl;
+
+	    // Output resulting struct data to screen
+	    // cout << "Class = " << myTLE->securityClassification << endl;
+	    // cout << "Satnum = " << myTLE->satelliteID << endl;
+	    // cout << "Sensor ID = " << myTLE->sensorID << endl;
+	    // cout << "Year = " << myTLE->year << endl;
+	    // cout << "Day of Year = " << myTLE->dayOfYear << endl;
+	    // cout << "Hour = " << myTLE->hour << endl;
+	    // cout << "Minutes = " << myTLE->minute << endl;
+	    // printf("Seconds = %16.8f\n",myTLE->seconds);
+	    // printf("Elevation = %16.8g\n",myTLE->elevation);
+	    // printf("Azimuth = %16.8g\n",myTLE->azimuth);
+	    // printf("Declination = %16.8f\n",myTLE->declination);
+	    // printf("Right Ascension = %16.8f\n",myTLE->rightAscension);
+	    // printf("Range = %16.8f\n",myTLE->range);
+	    // printf("Range Rate = %16.8f\n",myTLE->rangeRate);
+	    // printf("ECF X = %16.8f\n",myTLE->ecf_X);
+	    // printf("ECF Y = %16.8f\n",myTLE->ecf_Y);
+	    // printf("ECF Z = %16.8f\n",myTLE->ecf_Z);
+	    // cout << "\n******************************************************\n";
+
+
+        // Allocate another struct in memory
+        myTLE = new tle_obtype;
+
+    }
+
+    if (!CloseFile(myFile))
+        return false;
+
+    return true;
+
 }
 
 //------------------------------------------------------------------------------
@@ -126,14 +182,34 @@ bool ProcessTLEData::IsParameterReadOnly(const std::string &label) const
  * Obtains the next line of Two Line Element Set data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEData::GetData(std::ifstream &theFile, tle_obtype &myTLEdata)
+bool ProcessTLEData::GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
 {
+
+    if (numLines == 2)
+    {
+        // Read in two lines
+        std::string line1 = ReadLineFromFile(theFile);
+        std::string line2 = ReadLineFromFile(theFile);
+        return GetTLEData(line1,line2,myTLEdata);
+
+    }
+    else if (numLines == 3)
+    {
+
+        // Read in three lines
+        // TODO check to see whether 1st or 3rd line of 3 line element
+        // set is the comment line
+        // most likely need to use checksum feature to do this for certain
+        // also adding the checksum would add a measure or data reliability
+        std::string line1 = ReadLineFromFile(theFile);
+        std::string line2 = ReadLineFromFile(theFile);
+        std::string line3 = ReadLineFromFile(theFile);
+        return GetTLEData(line1,line2,myTLEdata);
+
+    }
+    else
+        return false;
     
-    // Read in two lines
-    std::string line1 = ReadLineFromFile(theFile);
-    std::string line2 = ReadLineFromFile(theFile);
-    
-    return GetTLEData(line1,line2,myTLEdata);
     
 }
 
@@ -146,7 +222,7 @@ bool ProcessTLEData::GetData(std::ifstream &theFile, tle_obtype &myTLEdata)
 //------------------------------------------------------------------------------
 bool ProcessTLEData::GetTLEData(std::string &lff, 
    				     std::string &lff2,
-				     tle_obtype &myTLEdata) 
+				     tle_obtype *myTLEdata)
 {
         
     // initialize variables for later use
@@ -186,7 +262,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	// make sure satnum only has numbers in it
         if (pcrecpp::RE("^\\d+$").FullMatch(satnum_1)) 
 	{ 
-            from_string<int>(myTLEdata.satnum,satnum_1,std::dec);   
+            from_string<int>(myTLEdata->satnum,satnum_1,std::dec);
         } 
 	else 
 	{
@@ -206,11 +282,11 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	
         if (classification_1 != "") 
 	{
-            myTLEdata.securityClassification = classification_1;  
+            myTLEdata->securityClassification = classification_1;
 	}
 	else
 	{    
-	    myTLEdata.securityClassification = ""; 	    
+	    myTLEdata->securityClassification = "";
 	}
     } 
     else 
@@ -227,7 +303,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	
 	if (intldesig == "" || intldesig == intldesigDefault || intldesig != temp) 
 	{
-	    myTLEdata.intlDesignator = temp;
+	    myTLEdata->intlDesignator = temp;
 	    intldesig = temp;
 	}
     } 
@@ -249,8 +325,8 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 
 	if(pcrecpp::RE("(\\d{2})(\\d{3}\\.\\d{0,8})").FullMatch(temp,&epYear,&epdayOfYear))
 	{
-	    myTLEdata.epochYear = epYear;
-	    myTLEdata.epochDayOfYear = epdayOfYear;
+	    myTLEdata->epochYear = epYear;
+	    myTLEdata->epochDayOfYear = epdayOfYear;
 	} 
 	else 
 	{
@@ -270,7 +346,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	
 	if(ndotby2_1 == "" || pcrecpp::RE("^0.0+$").FullMatch(ndotby2_1)) 
 	{
-	    myTLEdata.ndotby2 = 0;   
+	    myTLEdata->ndotby2 = 0;
 	}
 	else
 	{
@@ -281,7 +357,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 		double ndotby2;
 		std::string str1 = p1 + p2;
 		from_string<double>(ndotby2,str1,std::dec);
-		myTLEdata.ndotby2 = ndotby2;
+		myTLEdata->ndotby2 = ndotby2;
 	    }
 	    else
 	    {
@@ -296,7 +372,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
         
 	    if (nddotby6_1 == "" || pcrecpp::RE("^[+-]?0{5}[ +-]?0?$").FullMatch(nddotby6_1)) 
 	    {
-		myTLEdata.nddotby6 = 0;	
+		myTLEdata->nddotby6 = 0;
 	    }
 	    else
 	    {
@@ -310,7 +386,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 		    std::string str1 = s1+"."+s2;
 		    from_string<double>(nddotby6,str1,std::dec);
 		
-		    myTLEdata.nddotby6 = nddotby6*pow(10,i3); 
+		    myTLEdata->nddotby6 = nddotby6*pow(10,i3);
 		}
 		else
 		{
@@ -326,7 +402,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
         
 		if(bstar_1 == "" || pcrecpp::RE("^[+-]?0{5}[ +-]?0?$").FullMatch(bstar_1)) 
 		{
-		    myTLEdata.bstar = 0;
+		    myTLEdata->bstar = 0;
 		}
 		else
 		{
@@ -340,7 +416,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 			
 			std::string str1 = s1+"."+s2;
 			from_string<double>(bstar,str1,std::dec);
-			myTLEdata.bstar = bstar*pow(10,i3); 
+			myTLEdata->bstar = bstar*pow(10,i3);
 		    } 
 		    else
 		    {
@@ -357,11 +433,11 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 		    {
 			int ephemType;
 			from_string<int>(ephemType,ephemtype_1,std::dec);
-			myTLEdata.ephemerisType = ephemType;
+			myTLEdata->ephemerisType = ephemType;
 		    } 
 		    else
 		    { 
-			myTLEdata.ephemerisType = 0; 
+			myTLEdata->ephemerisType = 0;
 		    }
 		    
 		    if (lff.size() >= 68) 
@@ -372,47 +448,47 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 			{
 			    int elnum;
 			    from_string<int>(elnum,elnum_1 ,std::dec);
-			    myTLEdata.elementNum = elnum;
+			    myTLEdata->elementNum = elnum;
 			}  
 		    } 
 		    else
 		    {
 			// Line 1 contains no critical data after this point
-			myTLEdata.elementNum = 0;
+			myTLEdata->elementNum = 0;
 		    }
 		} 
 		else
 		{
 		    // Line 1 contains no critical data after this point
-		    myTLEdata.ephemerisType = 0;
-		    myTLEdata.elementNum = 0;        
+		    myTLEdata->ephemerisType = 0;
+		    myTLEdata->elementNum = 0;
 		}
 	    } 
 	    else
 	    {
 		// Line 1 contains no critical data after this point
-		myTLEdata.bstar = 0;
-		myTLEdata.ephemerisType = 0;
-		myTLEdata.elementNum = 0;
+		myTLEdata->bstar = 0;
+		myTLEdata->ephemerisType = 0;
+		myTLEdata->elementNum = 0;
 	    }
 	} 
 	else
 	{
 	    // Line 1 contains no critical data after this point
-	    myTLEdata.nddotby6 = 0;
-	    myTLEdata.bstar = 0;
-	    myTLEdata.ephemerisType = 0;
-	    myTLEdata.elementNum = 0;
+	    myTLEdata->nddotby6 = 0;
+	    myTLEdata->bstar = 0;
+	    myTLEdata->ephemerisType = 0;
+	    myTLEdata->elementNum = 0;
 	}
     } 
     else
     {
 	// Line 1 contains no critical data after this point
-	myTLEdata.ndotby2 = 0;
-	myTLEdata.nddotby6 = 0;
-	myTLEdata.bstar = 0;
-	myTLEdata.ephemerisType = 0;
-	myTLEdata.elementNum = 0;
+	myTLEdata->ndotby2 = 0;
+	myTLEdata->nddotby6 = 0;
+	myTLEdata->bstar = 0;
+	myTLEdata->ephemerisType = 0;
+	myTLEdata->elementNum = 0;
     }    
     //
     // Start processing line 2 here
@@ -423,7 +499,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	int satnum2;
 	std::string satnum2_1 = Trim(lff2.substr(2,5));
 	from_string<int>(satnum2,satnum2_1,std::dec);	
-	if (myTLEdata.satnum != satnum2) 
+	if (myTLEdata->satnum != satnum2)
 	{
 	    // Ill formed data. All stop.
 	    return false;	
@@ -443,7 +519,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	pcrecpp::RE("\\s+").GlobalReplace("",&incl);
 
 	// make sure that the inclination is a decimal number	
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(incl,&myTLEdata.inclination)) 
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(incl,&myTLEdata->inclination))
 	{ 
 	    // Ill formed data. All stop.
 	    return false;
@@ -463,7 +539,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	pcrecpp::RE("\\s+").GlobalReplace("0",&raan);
 	
 	// make sure that the raan is a decimal number
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(raan,&myTLEdata.raan)) 
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(raan,&myTLEdata->raan))
 	{ 
 	    // Ill formed data. All stop.
 	    return false;   
@@ -482,7 +558,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	std::string ecc = "."+etemp;
 
 	// make sure that the eccentricity is a decimal number        
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(ecc,&myTLEdata.eccentricity)) 
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(ecc,&myTLEdata->eccentricity))
 	{       
 	    // Ill formed data. All stop.
 	    return false;   
@@ -502,7 +578,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	pcrecpp::RE("\\s+").GlobalReplace("0",&argper);
 
 	// make sure that the argument of perigee is a decimal number
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(argper,&myTLEdata.argPerigee)) 
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(argper,&myTLEdata->argPerigee))
 	{
 	    // Ill formed data. All stop.
 	    return false;   
@@ -522,7 +598,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	pcrecpp::RE("\\s+").GlobalReplace("0",&ma);
 
 	// make sure that the mean anomaly is a decimal number
-	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(ma,&myTLEdata.meanAnomaly)) 
+	if (!pcrecpp::RE("^(-?(?:\\d+(?:\\.\\d*)?|\\.\\d+))$").FullMatch(ma,&myTLEdata->meanAnomaly))
 	{ 
 	    // Ill formed data. All stop.
 	    return false;   
@@ -542,7 +618,7 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	pcrecpp::RE("\\s+").GlobalReplace("0",&n);
 	
 	// make sure that the mean motion is a decimal number
-	if (!pcrecpp::RE("^([+-]?\\d{0,3}\\.\\d{0,10})$").FullMatch(n,&myTLEdata.meanMotion)) 
+	if (!pcrecpp::RE("^([+-]?\\d{0,3}\\.\\d{0,10})$").FullMatch(n,&myTLEdata->meanMotion))
 	{
 	    // Ill formed data. All stop.
 	    return false;   
@@ -564,11 +640,11 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
 	if (revnum == "") 
 	{
 	    // if revnum is blank then assign -1 to indicate unavailable data
-	    myTLEdata.revolutionNum = -1;
+	    myTLEdata->revolutionNum = -1;
 	
 	// make sure that the rev number is a natural number
 	} 
-	else if (!pcrecpp::RE("^(\\d+)$").FullMatch(revnum,&myTLEdata.revolutionNum)) 
+	else if (!pcrecpp::RE("^(\\d+)$").FullMatch(revnum,&myTLEdata->revolutionNum))
 	{ 
             // Ill formed data. All stop.
 	    return false;   

@@ -42,9 +42,14 @@ public:
     bool        IsParameterReadOnly(const std::string &label) const;
 
     // Specific data type processing functions
-    bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata);
+    bool GetData(std::ifstream &theFile, tle_obtype *myTLEdata);
+
+private:
+
     bool GetTLEData(std::string &lff, std::string &lff2, 
-			       tle_obtype &myTLEdata);
+			       tle_obtype *myTLEdata);
+
+    std::vector<tle_obtype> tleData;
 
 };
 

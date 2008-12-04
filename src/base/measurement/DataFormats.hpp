@@ -177,7 +177,10 @@ namespace DataFormats
 	
     };
 
-    struct slr_obtype {	
+    struct slr_obtype {
+
+        // Pointer to the header record
+        slr_header *slrHeader;
 	
 	// Time of day of laser firing, from 0 hours UTC in units of seconds
 	// Value is given module 86400 if pass crosses 24 hours UTC

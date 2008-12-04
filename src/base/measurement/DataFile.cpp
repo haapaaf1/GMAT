@@ -620,40 +620,40 @@ std::string DataFile::GetFileFormatName() const
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(std::ifstream &theFile, slr_header &mySLRheader)
+//  bool GetData(std::ifstream &theFile, slr_header *mySLRheader)
 //------------------------------------------------------------------------------
 /**
  * Retrieves slr data.
  *
  * @return Boolean success or failure
  */
-bool DataFile::GetData(std::ifstream &theFile, slr_header &mySLRheader)
+bool DataFile::GetData(std::ifstream &theFile, slr_header *mySLRheader)
 {
    return false;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata)
+//  bool GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
 //------------------------------------------------------------------------------
 /**
  * Retrieves slr data.
  *
  * @return Boolean success or failure
  */
-bool DataFile::GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata)
+bool DataFile::GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
 {
    return false;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata)
+//  bool GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
 //------------------------------------------------------------------------------
 /**
  * Retrieves tle data.
  *
  * @return Boolean success or failure
  */
-bool DataFile::GetData(std::ifstream &theFile, tle_obtype &myTLEdata)
+bool DataFile::GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
 {
    return false;
 }

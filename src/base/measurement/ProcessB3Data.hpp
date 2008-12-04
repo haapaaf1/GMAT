@@ -68,7 +68,7 @@ public:
 private:
    
     static const std::string B3_TYPE_DESCRIPTIONS[EndB3TypeReps];
-    b3_obtype *b3Data[];
+    std::vector<b3_obtype> b3Data;
 
 };
 

@@ -31,7 +31,6 @@
 #include "DataFormats.hpp"
 #include "DataFileException.hpp"
 #include "MessageInterface.hpp"
-#include "DynamicDataArray.hpp"
 
 using namespace DataFormats; // for data type variable definitions
 
@@ -145,9 +144,9 @@ private:
 protected:
 
     // Specific data type processing functions
-    virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader);
-    virtual bool GetData(std::ifstream &theFile, slr_header &mySLRheader, slr_obtype &mySLRdata);
-    virtual bool GetData(std::ifstream &theFile, tle_obtype &myTLEdata);
+    virtual bool GetData(std::ifstream &theFile, slr_header *mySLRheader);
+    virtual bool GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata);
+    virtual bool GetData(std::ifstream &theFile, tle_obtype *myTLEdata);
     virtual bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
 
        /// Published parameters for data files
