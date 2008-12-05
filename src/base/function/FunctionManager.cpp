@@ -1008,7 +1008,9 @@ void FunctionManager::Finalize()
    if (f != NULL)
       if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
       {
-         f->ClearAutomaticObjects();
+         ////Edwin's MMS script failed, so commented out (loj: 2008.12.03)
+         ////We need to delete this somewhere though.
+         ////f->ClearAutomaticObjects();
          f->Finalize();
       }
    // now delete all of the items/entries in the FOS - we can do this since they 
