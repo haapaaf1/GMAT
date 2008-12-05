@@ -26,6 +26,7 @@ public:
    ~MultiPathSetupPanel();
    
    const wxArrayString& GetPathNames();
+   void UpdatePathNames(const StringArray &pathNames);
    bool HasDataChanged();
    
 protected:

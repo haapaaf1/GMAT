@@ -83,6 +83,25 @@ const wxArrayString& MultiPathSetupPanel::GetPathNames()
 
 
 //------------------------------------------------------------------------------
+// void UpdatePathNames(const StringArray &pathNames)
+//------------------------------------------------------------------------------
+void MultiPathSetupPanel::UpdatePathNames(const StringArray &pathNames)
+{
+   #if DEBUG_SETPATH
+   MessageInterface::ShowMessage
+      ("MultiPathSetupPanel::UpdatePathNames() entered. There are %d input paths\n",
+       pathNames.size());
+   #endif
+   
+   mPathNames.Clear();
+   for (UnsignedInt i=0; i<pathNames.size(); i++)
+      mPathNames.Add(pathNames[i].c_str());
+   
+   LoadData();
+}
+
+
+//------------------------------------------------------------------------------
 // virtual void Create()
 //------------------------------------------------------------------------------
 void MultiPathSetupPanel::Create()
@@ -168,6 +187,13 @@ void MultiPathSetupPanel::Create()
 //------------------------------------------------------------------------------
 void MultiPathSetupPanel::LoadData()
 {
+   #if DEBUG_SETPATH
+   MessageInterface::ShowMessage
+      ("MultiPathSetupPanel::LoadData() entered. There are %d paths\n",
+       mPathNames.size());
+   #endif
+   
+   mPathListBox->Clear();
    mPathListBox->Set(mPathNames);
    
    // populate FileTextCtrl with first item by creating event
