@@ -84,6 +84,9 @@ public:
    bool DoesDirectoryExist(const std::string &dirPath);
    bool DoesFileExist(const std::string &filename);
    
+   std::string GetStartupFileDir();
+   std::string GetStartupFileName();
+   std::string GetFullStartupFilePath();
    void ReadStartupFile(const std::string &fileName = "");
    void WriteStartupFile(const std::string &fileName = "");
    
@@ -139,6 +142,8 @@ private:
          { mPath = path; mFile = file; }
    };
    
+   std::string mPathSeparator;
+   std::string mStartupFileDir;
    std::string mStartupFileName;
    std::ifstream mInStream;
    std::map<std::string, std::string> mPathMap;
@@ -157,6 +162,7 @@ private:
    void AddAvailablePotentialFiles();
    void WriteHeader(std::ofstream &outStream);
    void WriteFiles(std::ofstream &outStream, const std::string &type);
+   void RefreshFiles();
    
    static FileManager *theInstance;
    static const std::string FILE_TYPE_STRING[FileTypeCount];

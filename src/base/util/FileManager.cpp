@@ -174,7 +174,6 @@ std::string FileManager::GetCurrentPath()
 #endif
    
    return currPath;
-   
 }
 
 
@@ -232,6 +231,54 @@ bool FileManager::DoesFileExist(const std::string &filename)
 
 
 //------------------------------------------------------------------------------
+// std::string GetStartupFileDir()
+//------------------------------------------------------------------------------
+/*
+ * Returns startup file name without directory.
+ */
+//------------------------------------------------------------------------------
+std::string FileManager::GetStartupFileDir()
+{
+   return mStartupFileDir;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetStartupFileName()
+//------------------------------------------------------------------------------
+/*
+ * Returns startup file name without directory.
+ */
+//------------------------------------------------------------------------------
+std::string FileManager::GetStartupFileName()
+{
+   return mStartupFileName;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetFullStartupFilePath()
+//------------------------------------------------------------------------------
+/*
+ * Returns startup file directory and name
+ */
+//------------------------------------------------------------------------------
+std::string FileManager::GetFullStartupFilePath()
+{
+   #ifdef DEBUG_STARTUP_FILE
+   MessageInterface::ShowMessage
+      ("FileManager::GetFullStartupFilePath() mStartupFileDir='%s', "
+       "mStartupFileName='%s'\n", mStartupFileDir.c_str(), mStartupFileName.c_str());
+   #endif
+   
+   if (mStartupFileDir == "")
+      return mStartupFileName;
+   else
+      return mStartupFileDir + mStartupFileName;
+}
+
+
+//------------------------------------------------------------------------------
 // void ReadStartupFile(const std::string &fileName = "")
 //------------------------------------------------------------------------------
 /**
@@ -245,23 +292,48 @@ bool FileManager::DoesFileExist(const std::string &filename)
 //------------------------------------------------------------------------------
 void FileManager::ReadStartupFile(const std::string &fileName)
 {
+   #ifdef DEBUG_READ_STARTUP_FILE
+   MessageInterface::ShowMessage
+      ("FileManager::ReadStartupFile() entered, fileName='%s'\n", fileName.c_str());
+   #endif
+
+   RefreshFiles();
+   
    std::string line;
    bool correctVersionFound = false;
    mSavedComments.clear();
    
-   if (fileName != "")
-      mStartupFileName = fileName;
+   std::string tmpStartupDir;
+   std::string tmpStartupFile;
+   std::string tmpStartupFilePath;
+   
+   if (fileName == "")
+   {
+      tmpStartupDir = "";
+      tmpStartupFile = mStartupFileName;
+      tmpStartupFilePath = mStartupFileName;
+   }
+   else
+   {
+      tmpStartupDir = GmatFileUtil::ParsePathName(fileName);
+      tmpStartupFile = GmatFileUtil::ParseFileName(fileName);
+      
+      if (tmpStartupDir == "")
+         tmpStartupFilePath = tmpStartupFile;
+      else
+         tmpStartupFilePath = tmpStartupDir + mPathSeparator + tmpStartupFile;
+   }
    
    #ifdef DEBUG_READ_STARTUP_FILE
-   MessageInterface::ShowMessage("FileManager::ReadStartupFile() reading:%s\n",
-                                 mStartupFileName.c_str());
+   MessageInterface::ShowMessage
+      ("FileManager::ReadStartupFile() reading '%s'\n", tmpStartupFilePath.c_str());
    #endif
    
-   std::ifstream mInStream(mStartupFileName.c_str());
+   std::ifstream mInStream(tmpStartupFilePath.c_str());
    
    if (!mInStream)
       throw UtilityException
-         ("FileManager::ReadStartupFile() cannot open:" + fileName);
+         ("FileManager::ReadStartupFile() cannot open:" + tmpStartupFilePath);
    
    while (!mInStream.eof())
    {
@@ -335,6 +407,10 @@ void FileManager::ReadStartupFile(const std::string &fileName)
    // add potential files by type names
    AddAvailablePotentialFiles();
    
+   // save good startup file
+   mStartupFileDir = tmpStartupDir;
+   mStartupFileName = tmpStartupFile;
+   
    // now use log file from the startup file
    MessageInterface::SetLogFile(GetAbsPathname("LOG_FILE"));
    MessageInterface::SetLogEnable(true);
@@ -349,6 +425,8 @@ void FileManager::ReadStartupFile(const std::string &fileName)
  * Reads GMAT startup file.
  *
  * @param <fileName> startup file name.
+ *
+ * @exception UtilityException thrown if file cannot be opened
  */
 //------------------------------------------------------------------------------
 void FileManager::WriteStartupFile(const std::string &fileName)
@@ -374,7 +452,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    // write header
    //---------------------------------------------
    WriteHeader(outStream);
-
+   
    // set left justified
    outStream.setf(std::ios::left);
    
@@ -1025,55 +1103,6 @@ void FileManager::AddGmatFunctionPath(const std::string &path, bool addFront)
 std::string FileManager::GetGmatFunctionPath(const std::string &funcName)
 {
    return GetFunctionPath(GMAT_FUNCTION, mGmatFunctionPaths, funcName);
-   
-//    #ifdef DEBUG_FUNCTION_PATH
-//    MessageInterface::ShowMessage
-//       ("FileManager::GetGmatFunctionPath() funcName='%s'\n", funcName.c_str());
-//    #endif
-   
-//    // Search through mGmatFunctionPaths
-//    // The most recent path added to the last, so search backwards
-//    std::string pathName, fullPath;
-//    bool fileFound = false;
-   
-//    // add .gmf if not found
-//    std::string funcName1 = funcName;
-//    if (funcName.find(".gmf") == funcName.npos)
-//       funcName1 = funcName1 + ".gmf";
-   
-//    // Search from the top of the list, which is the most recently added path
-//    // The search order goes from top to bottom. (loj: 2008.10.02)
-//    std::list<std::string>::iterator pos = mGmatFunctionPaths.begin();
-//    while (pos != mGmatFunctionPaths.end())
-//    {
-//       pathName = *pos;
-//       fullPath = ConvertToAbsPath(pathName) + funcName1;
-      
-//       #ifdef DEBUG_FUNCTION_PATH
-//       MessageInterface::ShowMessage("   fullPath='%s'\n", fullPath.c_str());
-//       #endif
-      
-//       if (GmatFileUtil::DoesFileExist(fullPath))
-//       {
-//          fileFound = true;
-//          break;
-//       }
-      
-//       pos++;
-//    }
-   
-//    if (fileFound)
-//       fullPath = GmatFileUtil::ParsePathName(fullPath);
-//    else
-//       fullPath = "";
-   
-//    #ifdef DEBUG_FUNCTION_PATH
-//    MessageInterface::ShowMessage
-//       ("FileManager::GetGmatFunctionPath(%s) returning '%s'\n", funcName.c_str(),
-//        fullPath.c_str());
-//    #endif
-   
-//    return fullPath;
 }
 
 
@@ -1468,22 +1497,27 @@ void FileManager::WriteFiles(std::ofstream &outStream, const std::string &type)
 
 
 //------------------------------------------------------------------------------
-// FileManager()
+// void RefreshFiles()
 //------------------------------------------------------------------------------
-/*
- * Constructor
- */
-//------------------------------------------------------------------------------
-FileManager::FileManager()
-{  
-   MessageInterface::SetLogEnable(false); // so that debug can be written from here
+void FileManager::RefreshFiles()
+{
+   mPathMap.clear();
+   mGmatFunctionPaths.clear();
+   mMatlabFunctionPaths.clear();
+   mGmatFunctionFullPaths.clear();
+   mSavedComments.clear();
+   mPluginList.clear();
    
-   #ifdef DEBUG_FILE_MANAGER
-   MessageInterface::ShowMessage("FileManager::FileManager() entered\n");
-   #endif
+   for (std::map<std::string, FileInfo*>::iterator iter = mFileMap.begin();
+        iter != mFileMap.begin(); ++iter)
+      delete iter->second;
    
+   mFileMap.clear();
+   
+   //-------------------------------------------------------
+   // add root path
+   //-------------------------------------------------------
    AddFileType("ROOT_PATH", "./");
-   mStartupFileName = "gmat_startup_file.txt";
    
    //-------------------------------------------------------
    // create default output paths and files
@@ -1492,7 +1526,7 @@ FileManager::FileManager()
    AddFileType("OUTPUT_PATH", "./files/output/");
    AddFileType("LOG_FILE", "OUTPUT_PATH/GmatLog.txt");
    AddFileType("REPORT_FILE", "OUTPUT_PATH/ReportFile.txt");
-
+   
    //loj: Should we create default input files?
 #ifdef FM_CREATE_DEFAULT_INPUT
    
@@ -1547,6 +1581,38 @@ FileManager::FileManager()
    AddFileType("LEAP_SECS_FILE", "TIME_PATH/tai-utc.dat");
    
 #endif  
+   
+}
+
+
+//------------------------------------------------------------------------------
+// FileManager()
+//------------------------------------------------------------------------------
+/*
+ * Constructor
+ */
+//------------------------------------------------------------------------------
+FileManager::FileManager()
+{  
+   MessageInterface::SetLogEnable(false); // so that debug can be written from here
+   
+   #ifdef DEBUG_FILE_MANAGER
+   MessageInterface::ShowMessage("FileManager::FileManager() entered\n");
+   #endif
+   
+   mPathSeparator = GetPathSeparator();
+   mStartupFileDir = GetCurrentPath() + mPathSeparator;
+   mStartupFileName = "gmat_startup_file.txt";
+   
+   #ifdef DEBUG_STARTUP_FILE
+   MessageInterface::ShowMessage
+      ("FileManager::FileManager() entered, mPathSeparator='%s', "
+       "mStartupFileDir='%s', mStartupFileName='%s'\n", mPathSeparator.c_str(),
+       mStartupFileDir.c_str(), mStartupFileName.c_str());
+   #endif
+   
+   RefreshFiles();
+   
 }
 
 
