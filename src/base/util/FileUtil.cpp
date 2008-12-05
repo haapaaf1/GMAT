@@ -55,7 +55,7 @@ std::string GmatFileUtil::GetPathSeparator()
    buffer = getenv("OS");
    if (buffer != NULL)
    {
-      #ifdef DBGLVL_FILE_UTIL
+      #ifdef DEBUG_FILE_UTIL
       MessageInterface::ShowMessage
          ("GmatFileUtil::GetPathSeparator() Current OS is %s\n", buffer);
       #endif
@@ -102,19 +102,21 @@ std::string GmatFileUtil::GetCurrentPath()
 
 
 //------------------------------------------------------------------------------
-// std::string ParsePathName(const std::string &fullPath)
+// std::string ParsePathName(const std::string &fullPath, bool appendSep = true)
 //------------------------------------------------------------------------------
 /*
  * This function parses file name from given full path name.
  *
  * @param  fullPath  input full path name
+ * @param  appendSep appends path separator if true
  * @return  The file name from the full path
  *
  */
 //------------------------------------------------------------------------------
-std::string GmatFileUtil::ParsePathName(const std::string &fullPath)
+std::string GmatFileUtil::ParsePathName(const std::string &fullPath,
+                                        bool appendSep)
 {
-   #ifdef DBGLVL_PARSE_FILENAME
+   #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParsePathName() fullPath=<%s>\n", fullPath.c_str());
    #endif
@@ -123,9 +125,14 @@ std::string GmatFileUtil::ParsePathName(const std::string &fullPath)
    std::string::size_type lastSlash = fullPath.find_last_of("/\\");
    
    if (lastSlash != filePath.npos)
-      filePath = fullPath.substr(0, lastSlash+1);
+   {
+      if (appendSep)
+         filePath = fullPath.substr(0, lastSlash + 1);
+      else
+         filePath = fullPath.substr(0, lastSlash);
+   }
    
-   #ifdef DBGLVL_PARSE_FILENAME
+   #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParsePathName() returning <%s>\n", filePath.c_str());
    #endif
@@ -147,7 +154,7 @@ std::string GmatFileUtil::ParsePathName(const std::string &fullPath)
 //------------------------------------------------------------------------------
 std::string GmatFileUtil::ParseFileName(const std::string &fullPath)
 {
-   #ifdef DBGLVL_PARSE_FILENAME
+   #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParseFileName() fullPath=<%s>\n", fullPath.c_str());
    #endif
@@ -158,7 +165,7 @@ std::string GmatFileUtil::ParseFileName(const std::string &fullPath)
    if (lastSlash != fileName.npos)
       fileName = fileName.substr(lastSlash+1);
    
-   #ifdef DBGLVL_PARSE_FILENAME
+   #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParseFileName() returning <%s>\n", fileName.c_str());
    #endif
@@ -180,7 +187,7 @@ std::string GmatFileUtil::ParseFileName(const std::string &fullPath)
 //------------------------------------------------------------------------------
 std::string GmatFileUtil::ParseFileExtension(const std::string &fullPath)
 {
-   #ifdef DBGLVL_PARSE_FILENAME
+   #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParseFileExtension() fullPath=<%s>\n", fullPath.c_str());
    #endif
@@ -191,7 +198,7 @@ std::string GmatFileUtil::ParseFileExtension(const std::string &fullPath)
    if (lastDot != fullPath.npos)
       fileExt = fullPath.substr(lastDot+1);
    
-   #ifdef DBGLVL_PARSE_FILENAME
+   #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParseFileExtension() returning <%s>\n", fileExt.c_str());
    #endif
@@ -242,7 +249,7 @@ bool GmatFileUtil::DoesDirectoryExist(const std::string &dirPath)
 //------------------------------------------------------------------------------
 bool GmatFileUtil::DoesFileExist(const std::string &filename)
 {
-   #ifdef DBGLVL_FILE_CHECK
+   #ifdef DEBUG_FILE_CHECK
    MessageInterface::ShowMessage
       ("GmatFileUtil::DoesFileExist() filename=<%s>\n",
        filename.c_str());
@@ -257,7 +264,7 @@ bool GmatFileUtil::DoesFileExist(const std::string &filename)
       fileExist = true;
    }
    
-   #ifdef DBGLVL_FILE_CHECK
+   #ifdef DEBUG_FILE_CHECK
    MessageInterface::ShowMessage
       ("GmatFileUtil::DoesFileExist() returning %d\n", fileExist);
    #endif
@@ -519,7 +526,7 @@ GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
 StringArray GmatFileUtil::GetFileListFromDirectory(const std::string &dirName,
                                                    bool addPath)
 {
-   #ifdef DBGLVL_FILELIST
+   #ifdef DEBUG_FILELIST
    MessageInterface::ShowMessage
       ("GmatFileUtil::GetFileListFromDirectory() dirName=<%s>\n",
        dirName.c_str());
@@ -573,7 +580,7 @@ StringArray GmatFileUtil::GetFileListFromDirectory(const std::string &dirName,
             outFile = pathName + findData.cFileName;
          fileList.push_back(outFile);
          
-         #ifdef DBGLVL_FILELIST
+         #ifdef DEBUG_FILELIST
          MessageInterface::ShowMessage
             ("   > added %s to file list\n", findData.cFileName);
          #endif
@@ -591,7 +598,7 @@ StringArray GmatFileUtil::GetFileListFromDirectory(const std::string &dirName,
                outFile = pathName + findData.cFileName;
             fileList.push_back(outFile);
             
-            #ifdef DBGLVL_FILELIST
+            #ifdef DEBUG_FILELIST
             MessageInterface::ShowMessage
                ("   > added %s to file list\n", findData.cFileName);
             #endif
@@ -619,7 +626,7 @@ StringArray GmatFileUtil::GetFileListFromDirectory(const std::string &dirName,
    // add other operating system here
    #endif
    
-   #ifdef DBGLVL_FILELIST
+   #ifdef DEBUG_FILELIST
    MessageInterface::ShowMessage
       ("GmatFileUtil::GetFileListFromDirectory() returning %d files\n",
        fileList.size());
