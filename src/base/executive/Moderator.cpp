@@ -117,9 +117,9 @@ Moderator* Moderator::Instance()
 
 
 //------------------------------------------------------------------------------
-// bool Initialize(bool fromGui = false)
+// bool Initialize(const std::string &startupFile, bool fromGui = false)
 //------------------------------------------------------------------------------
-bool Moderator::Initialize(bool fromGui)
+bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 {
    isFromGui = fromGui;
    
@@ -127,7 +127,7 @@ bool Moderator::Initialize(bool fromGui)
    {
       // Read startup file, Set Log file
       theFileManager = FileManager::Instance();
-      theFileManager->ReadStartupFile();
+      theFileManager->ReadStartupFile(startupFile);
       
       MessageInterface::ShowMessage("Moderator is creating core engine...\n");
       
