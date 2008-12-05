@@ -81,12 +81,45 @@ bool GmatApp::OnInit()
    try
    {
       GmatAppData *gmatAppData = GmatAppData::Instance();
+      FileManager *fm = FileManager::Instance();
+      wxString startupFile = fm->GetFullStartupFilePath().c_str();
       
+      // continue work on this (loj: 2008.12.04)
+      //@todo: add all files contains gmat_startup_file in
+      // startup up directory
+      //---------------------------------------------------------
+      #ifdef __GET_STARTUP_FILE_FROM_USER__
+      //---------------------------------------------------------
+      bool readOtherStartupFile = false;
+      
+      wxArrayString choices;
+      choices.Add(startupFile);
+      choices.Add("Read other startup file");
+      wxString msg = "Please select GMAT startup file to read";
+      int result =
+         wxGetSingleChoiceIndex(msg, "GMAT Startup File", 
+                                choices, NULL, -1, -1, true, 150, 200);
+      if (result == 1)
+         readOtherStartupFile = true;
+      
+      // reading other startup file, save current directory and set it back
+      if (readOtherStartupFile)
+      {
+         wxString filename = 
+            ::wxFileSelector("Choose GMAT startup file", "",
+                             "gmat_startup_file.txt", "txt", "*.*");
+         if (filename != "")
+            startupFile = filename;
+      }
+      //---------------------------------------------------------      
+      #endif
+      //---------------------------------------------------------
+            
       // create the Moderator - GMAT executive
       theModerator = Moderator::Instance();
       
       // initialize the moderator
-      if (theModerator->Initialize(true))
+      if (theModerator->Initialize(startupFile.c_str(), true))
       {
          GuiInterpreter *guiInterp = GuiInterpreter::Instance();
          theModerator->SetUiInterpreter(guiInterp);
