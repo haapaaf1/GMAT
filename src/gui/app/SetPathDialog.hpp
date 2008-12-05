@@ -29,23 +29,34 @@ public:
    
 protected:
    
+   wxTextCtrl *mReadFileTextCtrl;
+   wxTextCtrl *mSaveFileTextCtrl;
    wxNotebook *mPathNotebook;
    MultiPathSetupPanel  *mGmatFunPathPanel;
    MultiPathSetupPanel  *mMatlabPathPanel;
    SinglePathSetupPanel *mOutputPathPanel;
+   wxString mStartupFilePath;
    
    // override methods from GmatDialog
    virtual void Create();
    virtual void LoadData();
    virtual void SaveData();
    virtual void ResetData();
-   
+
+   // event handling
+   void OnReadButtonClick(wxCommandEvent& event);   
+   void OnSaveButtonClick(wxCommandEvent& event);   
    void OnPageChange(wxCommandEvent &event);
+   
+   // any class wishing to process wxWindows events must use this macro
+   DECLARE_EVENT_TABLE();
    
    // IDs for the controls and the menu commands
    enum
    {     
       ID_TEXT = 9300,
+      ID_BUTTON_READ,
+      ID_BUTTON_SAVE,
       ID_NOTEBOOK,
    };
    

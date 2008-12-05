@@ -13,6 +13,7 @@
 //------------------------------------------------------------------------------
 
 #include "SetPathDialog.hpp"
+#include "GmatStaticBoxSizer.hpp"
 #include "MultiPathSetupPanel.hpp"
 #include "SinglePathSetupPanel.hpp"
 #include "FileManager.hpp"
@@ -23,6 +24,11 @@
 //#define DEBUG_SETPATH_DIALOG
 //#define DEBUG_SETPATH_DIALOG_SAVE
 
+BEGIN_EVENT_TABLE(SetPathDialog, GmatDialog)
+   EVT_BUTTON(ID_BUTTON_READ, SetPathDialog::OnReadButtonClick)
+   EVT_BUTTON(ID_BUTTON_SAVE, SetPathDialog::OnSaveButtonClick)
+END_EVENT_TABLE()
+   
 //------------------------------------------------------------------------------
 // SetPathDialog(wxWindow *parent)
 //------------------------------------------------------------------------------
@@ -47,19 +53,50 @@ SetPathDialog::~SetPathDialog()
 //------------------------------------------------------------------------------
 void SetPathDialog::Create()
 {
-   #ifdef DEBUG_SETPATH_DIALOG
+   #ifdef DEBUG_SETPATH_DIALOG_CREATE
    MessageInterface::ShowMessage("SetPathDialog::Create() entered.\n");
    #endif
    
    FileManager *fm = FileManager::Instance();
+   mStartupFilePath = fm->GetFullStartupFilePath();
    
-   // create Notebook
+   //----- read startup file
+   wxButton *readButton =
+      new wxButton(this, ID_BUTTON_READ, wxT("Read Other Statrup File"),
+                   wxDefaultPosition, wxDefaultSize, 0);
+   wxStaticText *currFileText =
+      new wxStaticText(this, -1, wxT("Current Startup File:"), 
+                       wxDefaultPosition, wxDefaultSize, 0 );
+   mReadFileTextCtrl =
+      new wxTextCtrl(this, -1, wxT(""),
+                     wxDefaultPosition, wxSize(350, 20), 0);
+   mReadFileTextCtrl->Disable();
+   
+   //----- write startup file
+   wxButton *saveButton =
+      new wxButton(this, ID_BUTTON_SAVE, wxT("Save Current Statrup File"),
+                   wxDefaultPosition, wxDefaultSize, 0);
+   mSaveFileTextCtrl =
+      new wxTextCtrl(this, -1, wxT(""),
+                     wxDefaultPosition, wxSize(350, 20), 0);
+   mSaveFileTextCtrl->Disable();
+   
+   //----- add to sizer
+   GmatStaticBoxSizer *startupSizer =
+      new GmatStaticBoxSizer(wxVERTICAL, this, "Startup File");
+   startupSizer->Add(readButton, 0, wxALIGN_LEFT|wxALL, 2);
+   startupSizer->Add(currFileText, 0, wxALIGN_LEFT|wxALL, 2);
+   startupSizer->Add(mReadFileTextCtrl, 0, wxALIGN_CENTER|wxGROW|wxALL, 2);
+   startupSizer->Add(saveButton, 0, wxALIGN_LEFT|wxALL, 2);
+   startupSizer->Add(mSaveFileTextCtrl, 0, wxALIGN_CENTER|wxGROW|wxALL, 2);
+   
+   //----- create Notebook
    mPathNotebook =
       new wxNotebook(this, ID_NOTEBOOK, wxDefaultPosition, wxDefaultSize, wxGROW);
    
    StringArray gmatPaths = fm->GetAllGmatFunctionPaths();
    
-   // add panels to notebook   
+   //----- add panels to notebook   
    mGmatFunPathPanel = new MultiPathSetupPanel(mPathNotebook, gmatPaths);
    mPathNotebook->AddPage(mGmatFunPathPanel, "GMAT Function");
    
@@ -69,13 +106,14 @@ void SetPathDialog::Create()
    
    std::string outputPath = fm->GetFullPathname("OUTPUT_PATH");
    
-   #ifdef DEBUG_SETPATH_DIALOG
+   #ifdef DEBUG_SETPATH_DIALOG_CREATE
    MessageInterface::ShowMessage("   outputPath='%s'\n", outputPath.c_str());
    #endif
    
    mOutputPathPanel = new SinglePathSetupPanel(mPathNotebook, outputPath.c_str());
    mPathNotebook->AddPage(mOutputPathPanel, "Output");
    
+   theMiddleSizer->Add(startupSizer, 0, wxALIGN_CENTER|wxGROW|wxALL, 5);
    theMiddleSizer->Add(mPathNotebook, 1, wxALIGN_CENTER|wxGROW|wxALL, 5);
 }
 
@@ -85,6 +123,9 @@ void SetPathDialog::Create()
 //------------------------------------------------------------------------------
 void SetPathDialog::LoadData()
 {
+   FileManager *fm = FileManager::Instance();
+   wxString startupPath = fm->GetFullStartupFilePath();
+   mReadFileTextCtrl->SetValue(startupPath.c_str());
 }
 
 
@@ -188,3 +229,74 @@ void SetPathDialog::ResetData()
 }
 
 
+//------------------------------------------------------------------------------
+// void OnReadButtonClick(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void SetPathDialog::OnReadButtonClick(wxCommandEvent& event)
+{
+   #ifdef DEBUG_SETPATH
+   MessageInterface::ShowMessage("SetPathDialog::OnReadButtonClick() entered\n");
+   #endif
+   
+   FileManager *fm = FileManager::Instance();
+   // Do we want default directory to be where executable is?
+   // Set it blank, so that system can show current working directory for now.
+   //wxString defDir = fm->GetStartupFileDir();
+   wxString defDir;
+   
+   #ifdef DEBUG_SETPATH
+   MessageInterface::ShowMessage(" defDir='%s'\n", defDir.c_str());
+   #endif
+   
+   wxFileDialog dialog(this, _T("Choose a file"), defDir, _T(""), _T("*.*"));
+   
+   if (dialog.ShowModal() == wxID_OK)
+   {
+      wxString filename;      
+      filename = dialog.GetPath().c_str();
+      
+      if (!filename.IsSameAs(mStartupFilePath))
+      {
+         mReadFileTextCtrl->SetValue(filename);
+         try
+         {
+            fm->ReadStartupFile(filename.c_str());            
+            StringArray paths = fm->GetAllGmatFunctionPaths();
+            mGmatFunPathPanel->UpdatePathNames(paths);
+            paths = fm->GetAllMatlabFunctionPaths();
+            mMatlabPathPanel->UpdatePathNames(paths);
+            mStartupFilePath = filename;
+         }
+         catch(BaseException &e)
+         {
+            MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
+         }
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnSaveButtonClick(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void SetPathDialog::OnSaveButtonClick(wxCommandEvent& event)
+{
+   wxFileDialog dialog(this, _T("Choose a file"), "", _T(""), _T("*.*"));
+   
+   if (dialog.ShowModal() == wxID_OK)
+   {
+      wxString filename;      
+      filename = dialog.GetPath().c_str();
+      
+      mSaveFileTextCtrl->SetValue(filename);
+      try
+      {
+         FileManager *fm = FileManager::Instance();
+         fm->WriteStartupFile(filename.c_str());            
+      }
+      catch(BaseException &e)
+      {
+         MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
+      }
+   }
+}
