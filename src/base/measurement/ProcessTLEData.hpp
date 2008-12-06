@@ -41,15 +41,22 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    // Specific data type processing functions
-    bool GetData(std::ifstream &theFile, tle_obtype *myTLEdata);
+    tle_obtype* GetData();
 
 private:
 
     bool GetTLEData(std::string &lff, std::string &lff2, 
 			       tle_obtype *myTLEdata);
 
+    // Specific data type processing functions
+    bool GetNextOb(std::ifstream &theFile, tle_obtype *myTLEdata);
+
+    // Vector container of observations
     std::vector<tle_obtype> tleData;
+
+    //Current iterator pointing at data
+    std::vector<tle_obtype>::const_iterator *i;
+
 
 };
 

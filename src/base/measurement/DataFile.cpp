@@ -346,7 +346,8 @@ DataFile::DataFile(const std::string &itsType,
         numMeasurements (0),
 //    lineFromFile (""),
 //    dataFileName (""),
-    isOpen (false)
+    isOpen (false),
+    isSorted (false)
 {
    objectTypes.push_back(Gmat::DATA_FILE);
    objectTypeNames.push_back("DataFile");
@@ -366,7 +367,8 @@ DataFile::DataFile(const DataFile &pdf) :
     numLines (pdf.numLines),
     numMeasurements (pdf.numMeasurements),
 //    lineFromFile (pdf.lineFromFile),
-    isOpen (pdf.isOpen)
+    isOpen (pdf.isOpen),
+    isSorted (pdf.isSorted)
 {
 }
 
@@ -620,55 +622,45 @@ std::string DataFile::GetFileFormatName() const
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(std::ifstream &theFile, slr_header *mySLRheader)
+//  slr_obtype GetData()
 //------------------------------------------------------------------------------
 /**
  * Retrieves slr data.
  *
- * @return Boolean success or failure
+ * @return SLR struct
  */
-bool DataFile::GetData(std::ifstream &theFile, slr_header *mySLRheader)
+//------------------------------------------------------------------------------
+slr_obtype* DataFile::GetData()
 {
-   return false;
+   return NULL;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
-//------------------------------------------------------------------------------
-/**
- * Retrieves slr data.
- *
- * @return Boolean success or failure
- */
-bool DataFile::GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
-{
-   return false;
-}
-
-//------------------------------------------------------------------------------
-//  bool GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
+//  bool GetData()
 //------------------------------------------------------------------------------
 /**
  * Retrieves tle data.
  *
- * @return Boolean success or failure
+ * @return TLE struct
  */
-bool DataFile::GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
+//------------------------------------------------------------------------------
+tle_obtype* DataFile::GetData()
 {
-   return false;
+   return NULL;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(std::ifstream &theFile, tle_obtype &myB3data)
+//  bool GetData()
 //------------------------------------------------------------------------------
 /**
  * Retrieves B3 data.
  *
- * @return Boolean success or failure
+ * @return B3 struct
  */
-bool DataFile::GetData( std::ifstream &theFile, b3_obtype *myB3data)
+//------------------------------------------------------------------------------
+b3_obtype* DataFile::GetData()
 {
-   return false;
+   return NULL;
 }
 
 
@@ -783,6 +775,22 @@ bool DataFile::GetIsOpen() const
 void DataFile::SetIsOpen(const bool &flag)
 {
         isOpen = flag;
+}
+
+//------------------------------------------------------------------------------
+// bool GetIsSorted() const
+//------------------------------------------------------------------------------
+bool DataFile::GetIsSorted() const
+{
+        return isSorted;
+}
+
+//------------------------------------------------------------------------------
+// void SetIsSorted(const bool flag)
+//------------------------------------------------------------------------------
+void DataFile::SetIsSorted(const bool &flag)
+{
+        isSorted = flag;
 }
 
 //------------------------------------------------------------------------------

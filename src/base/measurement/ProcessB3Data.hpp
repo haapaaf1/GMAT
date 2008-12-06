@@ -45,13 +45,8 @@ public:
     const std::string* GetB3TypeDescriptions() const;
     std::string GetB3TypeNameText(const Integer &id) const;
 
+    b3_obtype* GetData();
     
-    // Override generic data call from base class
-    bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
-    // Specific data type processing functions
-    bool GetB3Data(std::string &lff, b3_obtype *myB3data);
-    
-
     enum B3_TYPE_REPS {
 	RANGERATEONLY_ID = 1,
         AZEL_ID,
@@ -66,9 +61,17 @@ public:
     };
   
 private:
-   
+
+    bool GetNextOb(std::ifstream &theFile, b3_obtype *myB3data);
+
+    // Specific data type processing functions
+    bool GetB3Data(std::string &lff, b3_obtype *myB3data);
+    
     static const std::string B3_TYPE_DESCRIPTIONS[EndB3TypeReps];
     std::vector<b3_obtype> b3Data;
+
+    //Current iterator pointing at data
+    std::vector<b3_obtype>::const_iterator *i;
 
 };
 

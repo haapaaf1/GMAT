@@ -62,6 +62,15 @@ bool ProcessB3Data::Initialize()
 	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
     }
 
+    // Make sure that the b3Data vector has space reserved for
+    // a minimum number of observations. This ensures that the
+    // compiler does not unnecessarily reallocate the vector storage too-often.
+    // The function reserve() will ensure that we have room for at least 100
+    // elemnts. If the vector already has room for the required number of elements,
+    // reserve() does nothing. In other words, reserve() will grow the allocated
+    // storage of the vector, if necessary, but will never shrink it.
+    b3Data.reserve(100);
+
     // Allocate a data struct in memory
     //b3Data = new b3_obtype [500];
 
@@ -70,7 +79,7 @@ bool ProcessB3Data::Initialize()
     // we are storing pointers to this data
     b3_obtype *myB3 = new b3_obtype;
 
-    while (!IsEOF(myFile) && GetData(myFile,myB3))
+    while (!IsEOF(myFile) && GetNextOb(myFile,myB3))
     {
 
         b3Data.push_back(*myB3);
@@ -104,6 +113,9 @@ bool ProcessB3Data::Initialize()
         myB3 = new b3_obtype;
 
     }
+
+    // Set iterator to beginning of vector container
+    *i = b3Data.begin();
 
     if (!CloseFile(myFile))
         return false;
@@ -216,13 +228,26 @@ std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(b3_obtype *myb3Data)
+// b3_obtype* GetData()
+//------------------------------------------------------------------------------
+/**
+ * Returns the next observation from the vector container.
+ */
+//------------------------------------------------------------------------------
+b3_obtype* ProcessB3Data::GetData() {
+
+    return (i++);
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetNextOb(std::ifstream &theFile, b3_obtype *myB3Data)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the next line of b3 data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessB3Data::GetData(std::ifstream &theFile, b3_obtype *myB3Data) {
+bool ProcessB3Data::GetNextOb(std::ifstream &theFile, b3_obtype *myB3Data) {
     
     std::string line = ReadLineFromFile(theFile);
     return GetB3Data(line,myB3Data);

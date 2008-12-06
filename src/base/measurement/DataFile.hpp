@@ -97,6 +97,10 @@ public:
     bool GetIsOpen() const;
     void SetIsOpen(const bool &flag);
 
+    // Get/Set isSorted variable
+    bool GetIsSorted() const;
+    void SetIsSorted(const bool &flag);
+
     // File name functions
     std::string GetFileName();
     void SetFileName(std::string &myFileName);
@@ -143,14 +147,11 @@ private:
     
 protected:
 
-    // Specific data type processing functions
-    virtual bool GetData(std::ifstream &theFile, slr_header *mySLRheader);
-    virtual bool GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata);
-    virtual bool GetData(std::ifstream &theFile, tle_obtype *myTLEdata);
-    virtual bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
+    virtual b3_obtype* GetData();
+    virtual slr_obtype* GetData();
+    virtual tle_obtype* GetData();
 
-       /// Published parameters for data files
-
+  /// Published parameters for data files
    enum
    {
       FILENAME_ID   = GmatBaseParamCount,
@@ -184,8 +185,12 @@ protected:
 //    StringArray lineFromFile;
 
     Integer numMeasurements;
-    
+
+    // Flag to indicate if the file is opened
     bool isOpen;
+    
+    // Flag to indicate if the data has been chronologically sorted
+    bool isSorted;
 
 };
 

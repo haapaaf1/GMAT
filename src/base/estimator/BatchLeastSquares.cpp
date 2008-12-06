@@ -694,8 +694,14 @@ void BatchLeastSquares::Accumulate()
        LaGenMatDouble thisH(m,6);
        current->ComputeCartesianPartialDerivative(theGroundStation,theSat,thisH);
        
-       H(LaIndex(obIndex,obIndex+m),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
-       
+       //H(LaIndex(obIndex,obIndex+m),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
+       // TODO: STM = GetStateTransitionMatrix();
+       LaGenMatDouble STM = LaGenMatDouble::eye(stateCount);
+
+       H = thisH(LaIndex(0,m-1),LaIndex(0,5))*STM;
+
+       P = P + H*W*H;
+
 	// Code to check if at end of measurements
 
 	if (obIndex < observationCount)

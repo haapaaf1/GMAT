@@ -49,8 +49,16 @@ bool ProcessSLRData::Initialize()
 	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
     }
 
-    // Allocate a data struct in memory
-    //slrData = new slr_obtype [500];
+    // Make sure that the b3Data vector has space reserved for
+    // a minimum number of observations. This ensures that the
+    // compiler does not unnecessarily reallocate the vector storage too-often.
+    // The function reserve() will ensure that we have room for at least 1000
+    // elemnts. If the vector already has room for the required number of elements,
+    // reserve() does nothing. In other words, reserve() will grow the allocated
+    // storage of the vector, if necessary, but will never shrink it.
+    slrData.reserve(1000);
+    slrHeader.reserve(1000);
+
 
     // Initialize individual data struct
     // This needs new memory allocation because
@@ -59,13 +67,23 @@ bool ProcessSLRData::Initialize()
     slr_obtype *mySLR = new slr_obtype;
 
     // Locate the start of the first header record
+    // The flag indicates whether the marker line containing
+    // 88888 for engineering data or 99999 for real data
+    // has been encountered. For the first read, the flag is set to 0
+    // afterwards, flag is set to either 88888 or 99999 depending
+    // upon which marker line was found while reading in data.
     Integer flag = 0;
     FindSLRHeaderLine(myFile,mySLRheader,flag);
 
-    while (!IsEOF(myFile) && GetData(myFile,mySLRheader,mySLR))
+    while (!IsEOF(myFile) && GetNextOb(myFile,mySLRheader,mySLR))
     {
 
+        // Associate this data point with the current header index
+        mySLR.headerVectorIndex = i_h;
+
+        // Push this data point onto the stack.
         slrData.push_back(*mySLR);
+
 
 	// Output original data to screen for comparison
 	//cout << endl << line << endl;
@@ -96,6 +114,10 @@ bool ProcessSLRData::Initialize()
         mySLR = new slr_obtype;
 
     }
+
+    // Set iterator to beginning of vector container
+    *i = slrData.begin();
+    *i_h = slrHeader.begin();
 
     if (!CloseFile(myFile))
         return false;
@@ -275,13 +297,26 @@ std::string ProcessSLRData::Ilrs2Cospar(std::string ilrsSatnum)
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
+// slr_obtype* GetData()
+//------------------------------------------------------------------------------
+/**
+ * Returns the next observation from the vector container.
+ */
+//------------------------------------------------------------------------------
+slr_obtype* ProcessSLRData::GetData() {
+
+    return (i++);
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetNextOb(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the header line of SLR data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
+bool ProcessSLRData::GetNextOb(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
 {
 
     // Read a line from file
@@ -290,15 +325,15 @@ bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header *mySLRheader, sl
 
     // Check to see if we encountered a new header record.
     // This is supposed to be five digits but sometimes it is less
-    if (line.size() < 5 && pcrecpp::RE("^9+$").FullMatch(line))
+    if (line.size() <= 5 && pcrecpp::RE("^9+$").FullMatch(line))
     {
-        Integer type = 99999;
-        FindSLRHeaderLine(theFile,mySLRheader,type);
+        Integer flag = 99999;
+        FindSLRHeaderLine(theFile,mySLRheader,flag);
     }
-    else if (line.size() < 5 && pcrecpp::RE("^8+$").FullMatch(line))
+    else if (line.size() <= 5 && pcrecpp::RE("^8+$").FullMatch(line))
     {
-        Integer type = 88888;
-        FindSLRHeaderLine(theFile,mySLRheader,type);
+        Integer flag = 88888;
+        FindSLRHeaderLine(theFile,mySLRheader,flag);
     }
     
     // Parse the data record
@@ -331,31 +366,32 @@ bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile,
     // encounter the data markers 99999 for real SLR data or 88888
     // for sampled engineering data. The data header line will be the
     // line immediately following.
-    
-    do
+
+    if (flag == 0)
     {
-        if (!flag)
+        do
         {
             // Read in a line
             std::string line = ReadLineFromFile(theFile);
             line = Trim(line);
     
             // This is supposed to be five digits but sometimes it is less
-            if (line.size() < 5 && pcrecpp::RE("^9+$").FullMatch(line))
+            if (line.size() <= 5 && pcrecpp::RE("^9+$").FullMatch(line))
             {
                 headerType = 99999;
             }
-            else if (line.size() < 5 && pcrecpp::RE("^8+$").FullMatch(line))
+            else if (line.size() <= 5 && pcrecpp::RE("^8+$").FullMatch(line))
             {
                 headerType = 88888;
             }
-        }
-        else
-        {
-            headerType = flag;
-        }
         
-    } while ( headerType != 99999 && headerType != 88888 && !IsEOF(theFile) );
+        } while ( headerType != 99999 && headerType != 88888 && !IsEOF(theFile) );
+        
+    }
+    else
+    {
+        headerType = flag;
+    }
     
     if (headerType == 99999 || headerType == 88888) 
     {

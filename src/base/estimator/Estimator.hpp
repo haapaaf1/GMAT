@@ -395,8 +395,6 @@ protected:
       ParticipantNames,
       MeasurementModels,
       SolveForParameters,
-
-
       variableNamesID,
       maxIterationsID,
       NUMBER_OF_VARIABLES,

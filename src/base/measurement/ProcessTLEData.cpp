@@ -50,15 +50,21 @@ bool ProcessTLEData::Initialize()
 	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
     }
 
-    // Allocate a data struct in memory
-    //tleData = new tle_obtype [500];
+    // Make sure that the b3Data vector has space reserved for
+    // a minimum number of observations. This ensures that the
+    // compiler does not unnecessarily reallocate the vector storage too-often.
+    // The function reserve() will ensure that we have room for at least 50
+    // elemnts. If the vector already has room for the required number of elements,
+    // reserve() does nothing. In other words, reserve() will grow the allocated
+    // storage of the vector, if necessary, but will never shrink it.
+    tleData.reserve(50);
 
     // Initialize individual data struct
     // This needs new memory allocation because
     // we are storing pointers to this data
     tle_obtype *myTLE = new tle_obtype;
 
-    while (!IsEOF(myFile) && GetData(myFile,myTLE))
+    while (!IsEOF(myFile) && GetNextOb(myFile,myTLE))
     {
 
         tleData.push_back(*myTLE);
@@ -93,6 +99,9 @@ bool ProcessTLEData::Initialize()
 
     }
 
+    // Set iterator to beginning of vector container
+    *i = tleData.begin();
+    
     if (!CloseFile(myFile))
         return false;
 
@@ -176,13 +185,27 @@ bool ProcessTLEData::IsParameterReadOnly(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(tle_obtype &myTLEdata)
+// tle_obtype* GetData()
+//------------------------------------------------------------------------------
+/**
+ * Returns the next observation from the vector container.
+ */
+//------------------------------------------------------------------------------
+tle_obtype* ProcessTLEData::GetData() {
+
+    return (i++);
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetNextOb(tle_obtype &myTLEdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the next line of Two Line Element Set data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEData::GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
+bool ProcessTLEData::GetNextOb(std::ifstream &theFile, tle_obtype *myTLEdata)
 {
 
     if (numLines == 2)
