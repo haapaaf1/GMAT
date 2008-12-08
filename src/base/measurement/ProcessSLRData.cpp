@@ -79,10 +79,10 @@ bool ProcessSLRData::Initialize()
     {
 
         // Associate this data point with the current header index
-//        mySLR.headerVectorIndex = i_h;
+        mySLR->headerVectorIndex = i_h;
 
         // Push this data point onto the stack.
-        slrData.push_back(*mySLR);
+        slrData.push_back(mySLR);
 
 
 	// Output original data to screen for comparison
@@ -116,8 +116,8 @@ bool ProcessSLRData::Initialize()
     }
 
     // Set iterator to beginning of vector container
-    *i = slrData.begin();
-    *i_h = slrHeader.begin();
+    i = slrData.begin();
+    i_h = slrHeader.begin();
 
     if (!CloseFile(myFile))
         return false;
@@ -305,7 +305,7 @@ std::string ProcessSLRData::Ilrs2Cospar(std::string ilrsSatnum)
 //------------------------------------------------------------------------------
 bool ProcessSLRData::GetNextOb(slr_obtype *mySLR) {
 
-    //mySLR = i++;
+    mySLR = *i++;
     return true;
 
 }
@@ -402,7 +402,7 @@ bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile,
 	mySLRheader->slrType = headerType;
 
         // Push a pointer to the header record onto the stack
-        slrHeader.push_back(*mySLRheader);
+        slrHeader.push_back(mySLRheader);
 	
 	// read header line
 	std::string headerline = ReadLineFromFile(theFile);

@@ -82,7 +82,7 @@ bool ProcessB3Data::Initialize()
     while (!IsEOF(myFile) && GetData(myFile,myB3))
     {
 
-        b3Data.push_back(*myB3);
+        b3Data.push_back(myB3);
 
 	// Output original data to screen for comparison
 	//cout << endl << line << endl;
@@ -115,7 +115,7 @@ bool ProcessB3Data::Initialize()
     }
 
     // Set iterator to beginning of vector container
-    *i = b3Data.begin();
+    i = b3Data.begin();
 
     if (!CloseFile(myFile))
         return false;
@@ -236,7 +236,7 @@ std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
 //------------------------------------------------------------------------------
 bool ProcessB3Data::GetNextOb(b3_obtype *myB3) {
 
-    //myB3 = i++;
+    myB3 = *i++;
     return true;
 
 }

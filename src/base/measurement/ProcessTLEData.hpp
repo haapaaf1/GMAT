@@ -52,10 +52,10 @@ private:
     bool GetData(std::ifstream &theFile, tle_obtype *myTLEdata);
 
     // Vector container of observations
-    std::vector<tle_obtype> tleData;
+    std::vector<tle_obtype*> tleData;
 
     //Current iterator pointing at data
-    std::vector<tle_obtype>::const_iterator *i;
+    std::vector<tle_obtype*>::iterator i;
 
 
 };

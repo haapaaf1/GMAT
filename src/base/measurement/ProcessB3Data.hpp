@@ -68,10 +68,10 @@ private:
     bool GetB3Data(std::string &lff, b3_obtype *myB3data);
     
     static const std::string B3_TYPE_DESCRIPTIONS[EndB3TypeReps];
-    std::vector<b3_obtype> b3Data;
+    std::vector<b3_obtype*> b3Data;
 
     //Current iterator pointing at data
-    std::vector<b3_obtype>::const_iterator *i;
+    std::vector<b3_obtype*>::iterator i;
 
 };
 

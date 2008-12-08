@@ -67,7 +67,7 @@ bool ProcessTLEData::Initialize()
     while (!IsEOF(myFile) && GetData(myFile,myTLE))
     {
 
-        tleData.push_back(*myTLE);
+        tleData.push_back(myTLE);
 
 	// Output original data to screen for comparison
 	//cout << endl << line << endl;
@@ -100,7 +100,7 @@ bool ProcessTLEData::Initialize()
     }
 
     // Set iterator to beginning of vector container
-    *i = tleData.begin();
+    i = tleData.begin();
     
     if (!CloseFile(myFile))
         return false;
@@ -193,7 +193,7 @@ bool ProcessTLEData::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 bool ProcessTLEData::GetNextOb(tle_obtype *myTLE) {
 
-    //myTLE = i++;
+    myTLE = *i++;
     return true;
 
 }

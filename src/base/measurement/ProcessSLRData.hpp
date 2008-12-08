@@ -57,14 +57,14 @@ private:
     bool GetSLRData(std::string &lff, slr_header *mySLRheader,
                     slr_obtype *mySLRdata);
 
-    std::vector<slr_header> slrHeader;
-    std::vector<slr_obtype> slrData;
+    std::vector<slr_header*> slrHeader;
+    std::vector<slr_obtype*> slrData;
 
     //Current iterator pointing at data
-    std::vector<slr_obtype>::const_iterator *i;
+    std::vector<slr_obtype*>::iterator i;
 
     //Current iteratory pointing at header
-    std::vector<slr_header>::const_iterator *i_h;
+    std::vector<slr_header*>::iterator i_h;
 
 
 };
