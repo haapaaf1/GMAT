@@ -45,7 +45,7 @@ public:
     const std::string* GetB3TypeDescriptions() const;
     std::string GetB3TypeNameText(const Integer &id) const;
 
-    bool GetNextOb(b3_obtype* myB3);
+    bool GetNextOb(b3_obtype *myB3);
     
     enum B3_TYPE_REPS {
 	RANGERATEONLY_ID = 1,
@@ -62,7 +62,7 @@ public:
   
 private:
 
-    bool GetNextOb(std::ifstream &theFile, b3_obtype *myB3data);
+    bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
 
     // Specific data type processing functions
     bool GetB3Data(std::string &lff, b3_obtype *myB3data);

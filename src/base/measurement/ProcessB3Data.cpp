@@ -79,7 +79,7 @@ bool ProcessB3Data::Initialize()
     // we are storing pointers to this data
     b3_obtype *myB3 = new b3_obtype;
 
-    while (!IsEOF(myFile) && GetNextOb(myFile,myB3))
+    while (!IsEOF(myFile) && GetData(myFile,myB3))
     {
 
         b3Data.push_back(*myB3);
@@ -228,13 +228,13 @@ std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetNextOb(b3_obtype* myB3)
+// bool GetNextOb(b3_obtype *myB3)
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-bool ProcessB3Data::GetNextOb(b3_obtype* myB3) {
+bool ProcessB3Data::GetNextOb(b3_obtype *myB3) {
 
     //myB3 = i++;
     return true;
@@ -242,13 +242,13 @@ bool ProcessB3Data::GetNextOb(b3_obtype* myB3) {
 }
 
 //------------------------------------------------------------------------------
-// bool GetNextOb(std::ifstream &theFile, b3_obtype *myB3Data)
+// bool GetData(std::ifstream &theFile, b3_obtype *myB3Data)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the next line of b3 data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessB3Data::GetNextOb(std::ifstream &theFile, b3_obtype *myB3Data) {
+bool ProcessB3Data::GetData(std::ifstream &theFile, b3_obtype *myB3Data) {
     
     std::string line = ReadLineFromFile(theFile);
     return GetB3Data(line,myB3Data);

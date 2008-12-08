@@ -64,7 +64,7 @@ bool ProcessTLEData::Initialize()
     // we are storing pointers to this data
     tle_obtype *myTLE = new tle_obtype;
 
-    while (!IsEOF(myFile) && GetNextOb(myFile,myTLE))
+    while (!IsEOF(myFile) && GetData(myFile,myTLE))
     {
 
         tleData.push_back(*myTLE);
@@ -185,13 +185,13 @@ bool ProcessTLEData::IsParameterReadOnly(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetNextOb(tle_obtype* myTLE)
+// bool GetNextOb(tle_obtype *myTLE)
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEData::GetNextOb(tle_obtype* myTLE) {
+bool ProcessTLEData::GetNextOb(tle_obtype *myTLE) {
 
     //myTLE = i++;
     return true;
@@ -200,13 +200,13 @@ bool ProcessTLEData::GetNextOb(tle_obtype* myTLE) {
 
 
 //------------------------------------------------------------------------------
-// bool GetNextOb(tle_obtype &myTLEdata)
+// bool GetData(tle_obtype &myTLEdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the next line of Two Line Element Set data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEData::GetNextOb(std::ifstream &theFile, tle_obtype *myTLEdata)
+bool ProcessTLEData::GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
 {
 
     if (numLines == 2)
