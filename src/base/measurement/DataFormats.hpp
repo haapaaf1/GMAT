@@ -180,7 +180,7 @@ namespace DataFormats
     struct slr_obtype {
 
         // Iterator Pointer to the header record
-        std::vector<slr_header*>::const_iterator headerVectorIndex;
+        std::vector<slr_header*>::iterator headerVectorIndex;
 
 	
 	// Time of day of laser firing, from 0 hours UTC in units of seconds
