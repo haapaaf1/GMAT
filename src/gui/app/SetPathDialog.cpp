@@ -58,7 +58,7 @@ void SetPathDialog::Create()
    #endif
    
    FileManager *fm = FileManager::Instance();
-   mStartupFilePath = fm->GetFullStartupFilePath();
+   mStartupFilePath = (fm->GetFullStartupFilePath()).c_str();
    
    //----- read startup file
    wxButton *readButton =
@@ -124,7 +124,7 @@ void SetPathDialog::Create()
 void SetPathDialog::LoadData()
 {
    FileManager *fm = FileManager::Instance();
-   wxString startupPath = fm->GetFullStartupFilePath();
+   wxString startupPath = (fm->GetFullStartupFilePath()).c_str();
    mReadFileTextCtrl->SetValue(startupPath.c_str());
 }
 
