@@ -79,7 +79,7 @@ bool ProcessSLRData::Initialize()
     {
 
         // Associate this data point with the current header index
-        mySLR.headerVectorIndex = i_h;
+//        mySLR.headerVectorIndex = i_h;
 
         // Push this data point onto the stack.
         slrData.push_back(*mySLR);
@@ -297,15 +297,16 @@ std::string ProcessSLRData::Ilrs2Cospar(std::string ilrsSatnum)
 }
 
 //------------------------------------------------------------------------------
-// slr_obtype* GetData()
+// bool GetData(slr_obtype *mySLR)
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-slr_obtype* ProcessSLRData::GetData() {
+bool ProcessSLRData::GetData(slr_obtype *mySLR) {
 
-    return (i++);
+    //mySLR = i++;
+    return true;
 
 }
 
@@ -553,7 +554,7 @@ bool ProcessSLRData::GetSLRData(std::string &lff, slr_header *mySLRheader,
     // First keep track of which header record this data point
     // is associated with. This way we only have to store the header
     // record once and not have to keep two lists synced up.
-    mySLRdata->slrHeader = mySLRheader;
+    //mySLRdata->slrHeader = mySLRheader;
     
     switch(mySLRheader->slrType)
     {

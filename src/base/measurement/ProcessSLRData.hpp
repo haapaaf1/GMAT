@@ -42,7 +42,7 @@ public:
 
     std::string Ilrs2Cospar(std::string ilrsSatnum);
 
-    slr_obtype* GetData();
+    bool GetData(slr_obtype* mySLR);
    
 private:    
 

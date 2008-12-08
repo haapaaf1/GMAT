@@ -228,15 +228,16 @@ std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
 }
 
 //------------------------------------------------------------------------------
-// b3_obtype* GetData()
+// bool GetData(b3_obtype* myB3)
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-b3_obtype* ProcessB3Data::GetData() {
+bool ProcessB3Data::GetData(b3_obtype* myB3) {
 
-    return (i++);
+    //myB3 = i++;
+    return true;
 
 }
 

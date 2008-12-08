@@ -69,14 +69,14 @@ MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
  */
 //------------------------------------------------------------------------------
 DataFileFactory::DataFileFactory() :
-   Factory     (Gmat::SOLVER)
+   Factory     (Gmat::DATA_FILE)
 //   Factory     (Gmat::DATA_FILE)
 {
    if (creatables.empty())
    {
-      creatables.push_back("B3");
-      creatables.push_back("SLR");
-      creatables.push_back("TLE");      
+      creatables.push_back("B3DataFile");
+      creatables.push_back("SLRDataFile");
+      creatables.push_back("TLEDataFile");
    }
 }
 
@@ -110,9 +110,9 @@ DataFileFactory::DataFileFactory(const DataFileFactory& fact) :
 {
    if (creatables.empty())
    {
-      creatables.push_back("B3");
-      creatables.push_back("SLR");
-      creatables.push_back("TLE");      
+      creatables.push_back("B3DataFile");
+      creatables.push_back("SLRDataFile");
+      creatables.push_back("TLEDataFile");
    }
 }
 
