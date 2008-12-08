@@ -185,13 +185,13 @@ bool ProcessTLEData::IsParameterReadOnly(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(tle_obtype* myTLE)
+// bool GetNextOb(tle_obtype* myTLE)
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEData::GetData(tle_obtype* myTLE) {
+bool ProcessTLEData::GetNextOb(tle_obtype* myTLE) {
 
     //myTLE = i++;
     return true;

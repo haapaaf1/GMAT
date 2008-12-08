@@ -21,7 +21,7 @@
 #include "DataFileFactory.hpp"
 #include "MessageInterface.hpp"  // temporary
 
-// Here are the supported leaf classes
+// Here are the supported classes
 #include "DataFile.hpp"
 #include "ProcessB3Data.hpp"
 #include "ProcessSLRData.hpp"

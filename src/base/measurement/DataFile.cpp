@@ -622,7 +622,7 @@ std::string DataFile::GetFileFormatName() const
 }
 
 //------------------------------------------------------------------------------
-//  slr_obtype GetData(slr_obtype* mySLR)
+//  slr_obtype GetNextOb(slr_obtype* mySLR)
 //------------------------------------------------------------------------------
 /**
  * Retrieves slr data.
@@ -630,13 +630,13 @@ std::string DataFile::GetFileFormatName() const
  * @return SLR struct
  */
 //------------------------------------------------------------------------------
- bool DataFile::GetData(slr_obtype* mySLR)
+ bool DataFile::GetNextOb(slr_obtype* mySLR)
 {
    return false;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(tle_obtype* myTLE)
+//  bool GetNextOb(tle_obtype* myTLE)
 //------------------------------------------------------------------------------
 /**
  * Retrieves tle data.
@@ -644,13 +644,13 @@ std::string DataFile::GetFileFormatName() const
  * @return TLE struct
  */
 //------------------------------------------------------------------------------
-bool DataFile::GetData(tle_obtype* myTLE)
+bool DataFile::GetNextOb(tle_obtype* myTLE)
 {
    return false;
 }
 
 //------------------------------------------------------------------------------
-//  bool GetData(b3_obtype* myB3)
+//  bool GetNextOb(b3_obtype* myB3)
 //------------------------------------------------------------------------------
 /**
  * Retrieves B3 data.
@@ -658,7 +658,7 @@ bool DataFile::GetData(tle_obtype* myTLE)
  * @return B3 struct
  */
 //------------------------------------------------------------------------------
-bool DataFile::GetData(b3_obtype* myB3)
+bool DataFile::GetNextOb(b3_obtype* myB3)
 {
    return false;
 }

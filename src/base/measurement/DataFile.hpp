@@ -147,9 +147,9 @@ private:
     
 protected:
 
-    virtual bool GetData(b3_obtype* myB3);
-    virtual bool GetData(slr_obtype* mySLR);
-    virtual bool GetData(tle_obtype* myTLE);
+    virtual bool GetNextOb(b3_obtype* myB3);
+    virtual bool GetNextOb(slr_obtype* mySLR);
+    virtual bool GetNextOb(tle_obtype* myTLE);
 
   /// Published parameters for data files
    enum

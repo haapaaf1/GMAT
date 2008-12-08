@@ -41,7 +41,7 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool GetData(tle_obtype* myTLE);
+    bool GetNextOb(tle_obtype* myTLE);
 
 private:
 

@@ -42,14 +42,14 @@ public:
 
     std::string Ilrs2Cospar(std::string ilrsSatnum);
 
-    bool GetData(slr_obtype* mySLR);
+    bool GetNextOb(slr_obtype* mySLR);
    
 private:    
 
     // Specific data type processing functions
     bool FindSLRHeaderLine( std::ifstream &theFile,
                             slr_header *mySLRheader, Integer &flag );
-    bool GetNextOb(std::ifstream &theFile, slr_header *mySLRheader,
+    bool GetData(std::ifstream &theFile, slr_header *mySLRheader,
                  slr_obtype *mySLRdata);
 
 

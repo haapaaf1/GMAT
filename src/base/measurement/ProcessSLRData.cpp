@@ -75,7 +75,7 @@ bool ProcessSLRData::Initialize()
     Integer flag = 0;
     FindSLRHeaderLine(myFile,mySLRheader,flag);
 
-    while (!IsEOF(myFile) && GetNextOb(myFile,mySLRheader,mySLR))
+    while (!IsEOF(myFile) && GetData(myFile,mySLRheader,mySLR))
     {
 
         // Associate this data point with the current header index
@@ -297,13 +297,13 @@ std::string ProcessSLRData::Ilrs2Cospar(std::string ilrsSatnum)
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(slr_obtype *mySLR)
+// bool GetNextOb(slr_obtype *mySLR)
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetData(slr_obtype *mySLR) {
+bool ProcessSLRData::GetNextOb(slr_obtype *mySLR) {
 
     //mySLR = i++;
     return true;
@@ -311,13 +311,13 @@ bool ProcessSLRData::GetData(slr_obtype *mySLR) {
 }
 
 //------------------------------------------------------------------------------
-// bool GetNextOb(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
+// bool GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the header line of SLR data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetNextOb(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
+bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
 {
 
     // Read a line from file

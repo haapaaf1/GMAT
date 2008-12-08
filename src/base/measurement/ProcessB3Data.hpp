@@ -45,7 +45,7 @@ public:
     const std::string* GetB3TypeDescriptions() const;
     std::string GetB3TypeNameText(const Integer &id) const;
 
-    bool GetData(b3_obtype* myB3);
+    bool GetNextOb(b3_obtype* myB3);
     
     enum B3_TYPE_REPS {
 	RANGERATEONLY_ID = 1,
