@@ -102,8 +102,6 @@ std::string DataFile::GetParameterText(const Integer id) const
 {
    if ((id >= GmatBaseParamCount) && (id < DataFileParamCount))
    {
-      //MessageInterface::ShowMessage("'%s':\n",
-      //   PARAMETER_TEXT[id - GmatBaseParamCount].c_str());
       return PARAMETER_TEXT[id - GmatBaseParamCount];
    }
    return GmatBase::GetParameterText(id);
@@ -151,6 +149,26 @@ Gmat::ParameterType DataFile::GetParameterType(const Integer id) const
 
    return GmatBase::GetParameterType(id);
 }
+
+
+
+//---------------------------------------------------------------------------
+//  std::string GetParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the string associated with a parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return Text description for the type of the parameter, or the empty
+ *         string ("").
+ */
+//---------------------------------------------------------------------------
+std::string DataFile::GetParameterTypeString(const Integer id) const
+{
+   return GmatBase::PARAM_TYPE_STRING[GetParameterType(id)];
+}
+
 
 //------------------------------------------------------------------------------
 //  std::string GetStringParameter(const Integer id) const
@@ -691,35 +709,6 @@ std::string DataFile::ReadLineFromFile(std::ifstream &theFile)
     getline(theFile,lff);
     return lff;
 }
-
-//----------------------------------------------------------------
-//std::string DataFile::GetLine(Integer &lineNum)
-//----------------------------------------------------------------
-/**
- * Retrieve the lineFromFile parameter.
- *
- * @param <lineNum> Integer line number
- * @return Line from file
- */
-//std::string DataFile::GetLine(Integer &lineNum)
-//{
-//    return lineFromFile[lineNum];
-//}
-
-//------------------------------------------------------------------------------
-// void DataFile::SetLine(std::string &lff, Integer &lineNum)
-//------------------------------------------------------------------------------
-/**
- * Set the lineFromFile parameter.
- *
- * @param <lineNum> Integer line number
- * @param <lff> String of text
- */
-//void DataFile::SetLine(std::string &lff, Integer &lineNum)
-//{
-//    lineFromFile[lineNum] = lff;
-//}
-
 
 //------------------------------------------------------------------------------
 // std::string DataFile::GetFileName()

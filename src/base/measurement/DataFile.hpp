@@ -53,6 +53,9 @@ public:
     virtual Integer         GetParameterID(const std::string &str) const;
     virtual Gmat::ParameterType
                            GetParameterType(const Integer id) const;
+    virtual std::string
+                           GetParameterTypeString(const Integer id) const;
+
     virtual bool        IsParameterReadOnly(const Integer id) const;
     virtual bool        IsParameterReadOnly(const std::string &label) const;
     virtual std::string GetStringParameter(const Integer id) const;
@@ -70,12 +73,12 @@ public:
                  std::ios_base& (*f)(std::ios_base&));
     bool Overpunch(std::string code, Integer &digit, Integer &sign );
 
+    // functions to sort the data
+    //bool SortData();
+
     // functions to extract a line from file
     bool ReadLineFromFile(std::ifstream &theFile, std::string &line );
     std::string ReadLineFromFile(std::ifstream &theFile);
-
-    //std::string GetLine(Integer &lineNum);
-    //void SetLine(std::string &line, Integer &lineNum);
     
     const std::string* GetFileFormatDescriptions() const;
     std::string GetFileFormatDescriptionText(const Integer &id) const;
@@ -84,6 +87,7 @@ public:
 
     void SetNumLines(const Integer &nl);
     Integer GetNumLines() const;
+
     void SetNumMeasurements(const Integer &nm);
     Integer GetNumMeasurements() const;
     
@@ -182,7 +186,6 @@ protected:
     // This is important for TLE's that can have 2 or 3 lines of data
     // depending if a comment line is included for each TLE
     Integer numLines;
-//    StringArray lineFromFile;
 
     Integer numMeasurements;
 
