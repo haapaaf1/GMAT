@@ -337,7 +337,7 @@ bool DataFile::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 bool DataFile::Initialize()
 {
-    return true;
+     return true;
 }
 
 //------------------------------------------------------------------------------

@@ -55,6 +55,12 @@ bool ProcessB3Data::Initialize()
 {
     DataFile::Initialize();
 
+    MessageInterface::ShowMessage("Initializing ProcessB3Data\n");
+
+    FILE * outFile;
+
+    outFile = fopen("test.output","w");
+
     std::ifstream myFile;
     if(!OpenFile(myFile))
     {
@@ -79,35 +85,13 @@ bool ProcessB3Data::Initialize()
     // we are storing pointers to this data
     b3_obtype *myB3 = new b3_obtype;
 
-    while (!IsEOF(myFile) && GetData(myFile,myB3))
+    while (!IsEOF(myFile))
     {
 
-        b3Data.push_back(myB3);
-
-	// Output original data to screen for comparison
-	//cout << endl << line << endl;
-	//cout << endl;
-
-	    // Output resulting struct data to screen
-	    // cout << "Class = " << myB3->securityClassification << endl;
-	    // cout << "Satnum = " << myB3->satelliteID << endl;
-	    // cout << "Sensor ID = " << myB3->sensorID << endl;
-	    // cout << "Year = " << myB3->year << endl;
-	    // cout << "Day of Year = " << myB3->dayOfYear << endl;
-	    // cout << "Hour = " << myB3->hour << endl;
-	    // cout << "Minutes = " << myB3->minute << endl;
-	    // printf("Seconds = %16.8f\n",myB3->seconds);
-	    // printf("Elevation = %16.8g\n",myB3->elevation);
-	    // printf("Azimuth = %16.8g\n",myB3->azimuth);
-	    // printf("Declination = %16.8f\n",myB3->declination);
-	    // printf("Right Ascension = %16.8f\n",myB3->rightAscension);
-	    // printf("Range = %16.8f\n",myB3->range);
-	    // printf("Range Rate = %16.8f\n",myB3->rangeRate);
-	    // printf("ECF X = %16.8f\n",myB3->ecf_X);
-	    // printf("ECF Y = %16.8f\n",myB3->ecf_Y);
-	    // printf("ECF Z = %16.8f\n",myB3->ecf_Z);
-	    // cout << "\n******************************************************\n";
-
+        if (GetData(myFile,myB3))
+        {
+            b3Data.push_back(myB3);
+        }
 
         // Allocate another struct in memory
         myB3 = new b3_obtype;
@@ -116,6 +100,38 @@ bool ProcessB3Data::Initialize()
 
     // Set iterator to beginning of vector container
     i = b3Data.begin();
+
+    // Output to file to make sure all the data is properly stored
+    for (std::vector<b3_obtype*>::const_iterator j=b3Data.begin(); j!=b3Data.end(); ++j)
+    {
+
+	    // Output resulting struct data to screen
+	    fprintf(outFile,"Class = %s\n",(*j)->securityClassification.c_str());
+	    fprintf(outFile,"Satnum = %d\n",(*j)->satelliteID);
+	    fprintf(outFile,"Sensor ID = %d\n",(*j)->sensorID);
+            if ((*j)->year < 57)
+            {
+                fprintf(outFile,"Year = %d ",(*j)->year+2000);
+            }
+            else
+            {
+                fprintf(outFile,"Year = %d ",(*j)->year+1900);
+            }
+	    fprintf(outFile,"Day of Year = %d ",(*j)->dayOfYear);
+	    fprintf(outFile,"Hour = %d ",(*j)->hour);
+	    fprintf(outFile,"Minutes = %d ",(*j)->minute);
+	    fprintf(outFile,"Seconds = %16.8f\n",(*j)->seconds);
+	    fprintf(outFile,"Elevation = %16.8g\n",(*j)->elevation);
+	    fprintf(outFile,"Azimuth = %16.8g\n",(*j)->azimuth);
+	    fprintf(outFile,"Declination = %16.8f\n",(*j)->declination);
+	    fprintf(outFile,"Right Ascension = %16.8f\n",(*j)->rightAscension);
+	    fprintf(outFile,"Range = %16.8f\n",(*j)->range);
+	    fprintf(outFile,"Range Rate = %16.8f\n",(*j)->rangeRate);
+	    fprintf(outFile,"ECF X = %16.8f\n",(*j)->ecf_X);
+	    fprintf(outFile,"ECF Y = %16.8f\n",(*j)->ecf_Y);
+	    fprintf(outFile,"ECF Z = %16.8f\n",(*j)->ecf_Z);
+	    fprintf(outFile,"\n******************************************************\n");
+    }
 
     if (!CloseFile(myFile))
         return false;
@@ -234,7 +250,8 @@ std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-bool ProcessB3Data::GetNextOb(b3_obtype *myB3) {
+bool ProcessB3Data::GetNextOb(b3_obtype *myB3)
+{
 
     myB3 = *i++;
     return true;
@@ -248,21 +265,22 @@ bool ProcessB3Data::GetNextOb(b3_obtype *myB3) {
  * Obtains the next line of b3 data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessB3Data::GetData(std::ifstream &theFile, b3_obtype *myB3Data) {
+bool ProcessB3Data::GetData(std::ifstream &theFile, b3_obtype *myB3Data)
+{
     
     std::string line = ReadLineFromFile(theFile);
-    return GetB3Data(line,myB3Data);
-    
+    return ExtractB3Data(line,myB3Data);    
 }
 
 //------------------------------------------------------------------------------
-// bool GetB3Data(std::string &lff, b3_obtype *myb3Data)
+// bool ExtractB3Data(std::string &lff, b3_obtype *myb3Data)
 //------------------------------------------------------------------------------
 /** 
  * Converts the compact b3 data format into usable numbers.
  */
 //------------------------------------------------------------------------------
-bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
+bool ProcessB3Data::ExtractB3Data(std::string &lff, b3_obtype *myb3Data)
+{
 
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -281,11 +299,31 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
     
     // Check to make sure that the line length is at
     // least 75 characters long
-    
-    if (lff2.size() < 75) 
+
+    if (lff2.length() < 75)
     {
         return false;
     }
+
+    // Initialize all the struct variables
+    myb3Data->b3Type = -1;
+    myb3Data->securityClassification = "";
+    myb3Data->satelliteID = -1;
+    myb3Data->sensorID = -1;
+    myb3Data->year = -1;
+    myb3Data->dayOfYear = -1;
+    myb3Data->hour = -1;
+    myb3Data->minute = -1;
+    myb3Data->seconds = -1.0;
+    myb3Data->range = 0.0;
+    myb3Data->rangeRate = 0.0;
+    myb3Data->elevation = 0.0;
+    myb3Data->azimuth = 0.0;
+    myb3Data->declination = 0.0;
+    myb3Data->rightAscension = 0.0;
+    myb3Data->ecf_X = 0.0;
+    myb3Data->ecf_Y = 0.0;
+    myb3Data->ecf_Z = 0.0;
         
     // Read the type of the b3 observation
     // Possible obtype values and their meaning
@@ -300,7 +338,7 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
     // 8 - Azimuth, elevation, sometimes range and ECF position of the sensor
     // 9 - Right ascension, declination, sometimes range and 
     //     ECF position of the sensor
-
+    
     if (!from_string<int>(myb3Data->b3Type,lff2.substr(74,1),std::dec)) return false;
     
     myb3Data->securityClassification = lff2.substr(0,1);
@@ -312,7 +350,7 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
     if (!from_string<int>(myb3Data->minute,lff2.substr(16,2),std::dec)) return false;
     if (!from_string<int>(itemp,lff2.substr(18,5),std::dec)) return false;
     myb3Data->seconds = itemp * 1e-3;
-    
+
     switch (myb3Data->b3Type)
     {
 	case RANGERATEONLY_ID:
@@ -505,7 +543,11 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
 		std:: string elev = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
-		if (!from_string<int>(itemp,elev,std::dec)) return false;
+		if (!from_string<int>(itemp,elev,std::dec))
+                {
+                    return false;
+                }
+
 		myb3Data->elevation = itemp * 1e-4;
 	    }
 	    else
@@ -515,15 +557,26 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
 	    }
 
 	    // Find azimuth
-	    if (!from_string<int>(itemp,lff2.substr(30,7),std::dec)) return false;
+	    if (!from_string<int>(itemp,lff2.substr(30,7),std::dec))
+            {
+               return false;
+            }
+
 	    myb3Data->azimuth = itemp * 1e-4;
 
 	    // Find range
-	    if (!from_string<int>(itemp,lff2.substr(38,7),std::dec)) return false;
+	    if (!from_string<int>(itemp,lff2.substr(38,7),std::dec))
+            {
+               return false;
+            }
+
 	    range = itemp * 1e-5;
 
 	    // Find range exponent
-	    if (!from_string<int>(itemp,lff2.substr(45,1),std::dec)) return false;
+	    if (!from_string<int>(itemp,lff2.substr(45,1),std::dec))
+            {
+               return false;
+            }
 
 	    myb3Data->range = (range * 1e-5) * pow(10,itemp);
 
@@ -542,7 +595,8 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
 	    else
 	    {
 		// Ill formed data
-		return false;
+
+                return false;
 	    }
             
 	    break;
@@ -569,7 +623,10 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
 		std:: string decl = GmatStringUtil::ToString(itemp,6)+GmatStringUtil::ToString(digit,1);
 		
 		// Convert completed number string to final form
-		if (!from_string<int>(itemp,decl,std::dec)) return false;
+		if (!from_string<int>(itemp,decl,std::dec))
+                {
+                    return false;
+                }
 		myb3Data->declination = itemp * 1e-4;
 	    }
 	    else
@@ -579,9 +636,9 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
 	    }
 
 	    // Find right ascension in hours
-	    if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff2.substr(23,6),&itemp, &itemp2, &itemp3)) 
+            if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff2.substr(30,7),&itemp, &itemp2, &itemp3))
 	    {
-		myb3Data->rightAscension = (itemp+itemp2/60+itemp3/3600);
+		myb3Data->rightAscension = itemp + itemp2/60.0 + itemp3/3600.0;
 	    }
 	    else
 	    {
@@ -702,9 +759,9 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
 	    }
 
 	    // Find right ascension in hours
-	    if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff2.substr(23,6),&itemp, &itemp2, &itemp3)) 
+	    if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff2.substr(30,7),&itemp, &itemp2, &itemp3))
 	    {
-		myb3Data->rightAscension = (itemp+itemp2/60+itemp3/3600);
+		myb3Data->rightAscension = itemp + itemp2/60.0 + itemp3/3600.0;
 	    }
 	    else
 	    {
@@ -744,7 +801,7 @@ bool ProcessB3Data::GetB3Data(std::string &lff, b3_obtype *myb3Data) {
 	    // Ill formed data. All stop.           
 	    return false;
     }
-        
+    
     return true;    
     
 }

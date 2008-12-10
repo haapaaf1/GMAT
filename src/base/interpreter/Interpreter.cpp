@@ -1130,7 +1130,7 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
 //------------------------------------------------------------------------------
 /*
  * Finds property ID for given property. If property not found in the obj,
- * it tries to find proerty from the owned objects.
+ * it tries to find property from the owned objects.
  *
  * @param  obj    Object to find proerty
  * @param  chunk  String contains property
@@ -3253,7 +3253,7 @@ bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toPr
          {
             InterpreterException ex
                ("The field name \"" + toProp + "\" on object " + toOwner->GetName() +
-                " is not permitted");
+                " is either not permitted or not found.\n Please note that parameter names are case sensitive!");
             HandleErrorMessage(ex, lineNumber, currentLine, true);
             return false;
          }
@@ -3651,7 +3651,7 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
             {
                InterpreterException ex
                   ("The field name \"" + toProp + "\" on object \"" + toOwner->GetName() +
-                   "\" is not permitted");
+                   "\" is either not permitted or not found.\n Please note that parameter names are case sensitive!");
                HandleErrorMessage(ex, lineNumber, currentLine, true);
                return false;
             }

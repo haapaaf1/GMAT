@@ -299,6 +299,12 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
                /// @todo  Can initilization happen here in all cases?
                obj->Initialize();
             }
+            if (obj->IsOfType(Gmat::DATA_FILE))
+            {
+               BuildReferences(obj);
+               /// @todo  Can initilization happen here in all cases?
+               obj->Initialize();
+            }
             continue;
          }
          #ifdef DEBUG_OBJECT_INITIALIZER

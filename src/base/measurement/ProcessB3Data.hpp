@@ -48,7 +48,7 @@ public:
     bool GetNextOb(b3_obtype *myB3);
     
     enum B3_TYPE_REPS {
-	RANGERATEONLY_ID = 1,
+	RANGERATEONLY_ID,
         AZEL_ID,
 	RAZEL_ID,
 	RAZELRR_ID,
@@ -65,7 +65,7 @@ private:
     bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
 
     // Specific data type processing functions
-    bool GetB3Data(std::string &lff, b3_obtype *myB3data);
+    bool ExtractB3Data(std::string &lff, b3_obtype *myB3data);
     
     static const std::string B3_TYPE_DESCRIPTIONS[EndB3TypeReps];
     std::vector<b3_obtype*> b3Data;
