@@ -64,36 +64,13 @@ bool ProcessTLEData::Initialize()
     // we are storing pointers to this data
     tle_obtype *myTLE = new tle_obtype;
 
-    while (!IsEOF(myFile) && GetData(myFile,myTLE))
+    while (!IsEOF(myFile))
     {
-
-        tleData.push_back(myTLE);
-
-	// Output original data to screen for comparison
-	//cout << endl << line << endl;
-	//cout << endl;
-
-	    // Output resulting struct data to screen
-	    // cout << "Class = " << myTLE->securityClassification << endl;
-	    // cout << "Satnum = " << myTLE->satelliteID << endl;
-	    // cout << "Sensor ID = " << myTLE->sensorID << endl;
-	    // cout << "Year = " << myTLE->year << endl;
-	    // cout << "Day of Year = " << myTLE->dayOfYear << endl;
-	    // cout << "Hour = " << myTLE->hour << endl;
-	    // cout << "Minutes = " << myTLE->minute << endl;
-	    // printf("Seconds = %16.8f\n",myTLE->seconds);
-	    // printf("Elevation = %16.8g\n",myTLE->elevation);
-	    // printf("Azimuth = %16.8g\n",myTLE->azimuth);
-	    // printf("Declination = %16.8f\n",myTLE->declination);
-	    // printf("Right Ascension = %16.8f\n",myTLE->rightAscension);
-	    // printf("Range = %16.8f\n",myTLE->range);
-	    // printf("Range Rate = %16.8f\n",myTLE->rangeRate);
-	    // printf("ECF X = %16.8f\n",myTLE->ecf_X);
-	    // printf("ECF Y = %16.8f\n",myTLE->ecf_Y);
-	    // printf("ECF Z = %16.8f\n",myTLE->ecf_Z);
-	    // cout << "\n******************************************************\n";
-
-
+        if (GetData(myFile,myTLE))
+        {
+            tleData.push_back(myTLE);
+        }
+        
         // Allocate another struct in memory
         myTLE = new tle_obtype;
 
@@ -193,7 +170,12 @@ bool ProcessTLEData::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 bool ProcessTLEData::GetNextOb(tle_obtype *myTLE) {
 
-    myTLE = *i++;
+    ++i;
+
+    if ( i == tleData.end() ) return false;
+
+    myTLE = (*i);
+    
     return true;
 
 }

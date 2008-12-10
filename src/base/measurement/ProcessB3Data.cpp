@@ -55,11 +55,8 @@ bool ProcessB3Data::Initialize()
 {
     DataFile::Initialize();
 
-    MessageInterface::ShowMessage("Initializing ProcessB3Data\n");
-
-    FILE * outFile;
-
-    outFile = fopen("test.output","w");
+    //FILE * outFile;
+    //outFile = fopen("test.output","w");
 
     std::ifstream myFile;
     if(!OpenFile(myFile))
@@ -101,6 +98,7 @@ bool ProcessB3Data::Initialize()
     // Set iterator to beginning of vector container
     i = b3Data.begin();
 
+    /*
     // Output to file to make sure all the data is properly stored
     for (std::vector<b3_obtype*>::const_iterator j=b3Data.begin(); j!=b3Data.end(); ++j)
     {
@@ -132,6 +130,7 @@ bool ProcessB3Data::Initialize()
 	    fprintf(outFile,"ECF Z = %16.8f\n",(*j)->ecf_Z);
 	    fprintf(outFile,"\n******************************************************\n");
     }
+    */
 
     if (!CloseFile(myFile))
         return false;
@@ -252,8 +251,9 @@ std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
 //------------------------------------------------------------------------------
 bool ProcessB3Data::GetNextOb(b3_obtype *myB3)
 {
-
-    myB3 = *i++;
+    ++i;
+    if (i==b3Data.end()) return false;
+    myB3 = (*i);
     return true;
 
 }

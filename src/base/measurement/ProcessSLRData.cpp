@@ -75,41 +75,18 @@ bool ProcessSLRData::Initialize()
     Integer flag = 0;
     FindSLRHeaderLine(myFile,mySLRheader,flag);
 
-    while (!IsEOF(myFile) && GetData(myFile,mySLRheader,mySLR))
+    while (!IsEOF(myFile))
     {
 
-        // Associate this data point with the current header index
-        mySLR->headerVectorIndex = i_h;
+        if (GetData(myFile,mySLRheader,mySLR))
+        {
+            // Associate this data point with the current header index
+            mySLR->headerVectorIndex = i_h;
 
-        // Push this data point onto the stack.
-        slrData.push_back(mySLR);
-
-
-	// Output original data to screen for comparison
-	//cout << endl << line << endl;
-	//cout << endl;
-
-	    // Output resulting struct data to screen
-	    // cout << "Class = " << mySLR->securityClassification << endl;
-	    // cout << "Satnum = " << mySLR->satelliteID << endl;
-	    // cout << "Sensor ID = " << mySLR->sensorID << endl;
-	    // cout << "Year = " << mySLR->year << endl;
-	    // cout << "Day of Year = " << mySLR->dayOfYear << endl;
-	    // cout << "Hour = " << mySLR->hour << endl;
-	    // cout << "Minutes = " << mySLR->minute << endl;
-	    // printf("Seconds = %16.8f\n",mySLR->seconds);
-	    // printf("Elevation = %16.8g\n",mySLR->elevation);
-	    // printf("Azimuth = %16.8g\n",mySLR->azimuth);
-	    // printf("Declination = %16.8f\n",mySLR->declination);
-	    // printf("Right Ascension = %16.8f\n",mySLR->rightAscension);
-	    // printf("Range = %16.8f\n",mySLR->range);
-	    // printf("Range Rate = %16.8f\n",mySLR->rangeRate);
-	    // printf("ECF X = %16.8f\n",mySLR->ecf_X);
-	    // printf("ECF Y = %16.8f\n",mySLR->ecf_Y);
-	    // printf("ECF Z = %16.8f\n",mySLR->ecf_Z);
-	    // cout << "\n******************************************************\n";
-
-
+            // Push this data point onto the stack.
+            slrData.push_back(mySLR);
+        }
+        
         // Allocate another struct in memory
         mySLR = new slr_obtype;
 
@@ -305,7 +282,9 @@ std::string ProcessSLRData::Ilrs2Cospar(std::string ilrsSatnum)
 //------------------------------------------------------------------------------
 bool ProcessSLRData::GetNextOb(slr_obtype *mySLR) {
 
-    mySLR = *i++;
+    ++i;
+    if (i==slrData.end()) return false;
+    mySLR = (*i);
     return true;
 
 }
