@@ -304,6 +304,7 @@ private:
    StringArray   calculatedPointList;
    StringArray   functionList;
    StringArray   hardwareList;
+   StringArray   odeModelList;
    StringArray   parameterList;
    StringArray   physicalModelList;
    StringArray   propagatorList;

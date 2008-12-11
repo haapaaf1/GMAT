@@ -252,6 +252,10 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray hws = theModerator->GetListOfFactoryItems(Gmat::HARDWARE);
    copy(hws.begin(), hws.end(), back_inserter(hardwareList));
    
+   odeModelList.clear();
+   StringArray odes = theModerator->GetListOfFactoryItems(Gmat::ODE_MODEL);
+   copy(odes.begin(), odes.end(), back_inserter(odeModelList));
+   
    parameterList.clear();
    StringArray parms = theModerator->GetListOfFactoryItems(Gmat::PARAMETER);
    copy(parms.begin(), parms.end(), back_inserter(parameterList));
@@ -310,6 +314,10 @@ void Interpreter::BuildCreatableObjectMaps()
       
       MessageInterface::ShowMessage("\nHardwares:\n   ");
       for (pos = hws.begin(); pos != hws.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+      
+      MessageInterface::ShowMessage("\nODEModels:\n   ");
+      for (pos = odes.begin(); pos != odes.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
       
       MessageInterface::ShowMessage("\nPhysicalModels:\n   ");
@@ -408,6 +416,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          clist = hardwareList;
          break;
          
+      case Gmat::ODE_MODEL:
+         clist = odeModelList;
+         break;
+         
       case Gmat::PARAMETER:
          clist = parameterList;
          break;
@@ -443,7 +455,6 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::GROUND_STATION:
       case Gmat::IMPULSIVE_BURN:
       case Gmat::FINITE_BURN:
-      case Gmat::ODE_MODEL:
       case Gmat::TRANSIENT_FORCE:
       case Gmat::INTERPOLATOR:
       case Gmat::SOLAR_SYSTEM:
@@ -688,8 +699,8 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    else if (type == "PropSetup") 
       obj = (GmatBase*)theModerator->CreatePropSetup(name);
    
-   else if (type == "ForceModel") 
-      obj = (GmatBase*)theModerator->CreateODEModel(type, name);
+//   else if (type == "ForceModel") 
+//      obj = (GmatBase*)theModerator->CreateODEModel(type, name);
    
    else if (type == "CoordinateSystem") 
       obj = (GmatBase*)theModerator->CreateCoordinateSystem(name, true);
@@ -700,6 +711,11 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       if (find(propagatorList.begin(), propagatorList.end(), type) != 
           propagatorList.end())
          obj = (GmatBase*)theModerator->CreatePropagator(type, name);
+      
+      // Handle ODEModel
+      if (find(odeModelList.begin(), odeModelList.end(), type) != 
+          odeModelList.end())
+         obj = (GmatBase*)theModerator->CreateODEModel(type, name);
       
       // Handle AxisSystem
       else if (find(axisSystemList.begin(), axisSystemList.end(), type) != 
