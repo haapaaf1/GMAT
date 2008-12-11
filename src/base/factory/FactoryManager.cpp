@@ -569,21 +569,22 @@ PropSetup* FactoryManager::CreatePropSetup(const std::string &withName)
 
 
 //------------------------------------------------------------------------------
-//  ForceModel* CreateForceModel(const std::string &withName)
+//  ODEModel* CreateODEModel(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------
 /**
- * Create an object of type ForceModel, with the name withName.
+ * Create an object of type ODEModel, with the name withName.
  *
- * @param <withName> name of the new ForceModel object.
+ * @param <withName> name of the new ODEModel object.
  *
- * @return pointer to the newly-created ForceModel object
+ * @return pointer to the newly-created ODEModel object
  */
 //------------------------------------------------------------------------------
-ForceModel* FactoryManager::CreateForceModel(const std::string &withName)
+ODEModel* FactoryManager::CreateODEModel(const std::string &ofType,
+                                         const std::string &withName)
 {
-   Factory* f = FindFactory(Gmat::FORCE_MODEL, "ForceModel");
+   Factory* f = FindFactory(Gmat::ODE_MODEL, ofType);
    if (f != NULL)
-      return f->CreateForceModel("ForceModel", withName);
+      return f->CreateODEModel(ofType, withName);
    return NULL;
 }
 
@@ -784,8 +785,11 @@ Factory* FactoryManager::FindFactory(Gmat::ObjectType ofType,
                
                if ((*s).compare(objType) == 0)
                {
-                  //MessageInterface::ShowMessage
-                  //   ("FactoryManager::FindFactory() Found factory:%s\n", forType.c_str());
+                  #ifdef DEBUG_FACTORY_CREATE
+                     MessageInterface::ShowMessage
+                        ("FactoryManager::FindFactory() Found factory:%s\n", 
+                         forType.c_str());
+                  #endif
                   return (*f);
                }
                ++s;

@@ -32,7 +32,7 @@ class Spacecraft;
 class Formation;
 class Hardware;
 class Propagator;
-class ForceModel;
+class ODEModel;
 class PropSetup;
 class PhysicalModel;
 class SolarSystem;

@@ -317,21 +317,21 @@ Real SolarRadiationPressure::GetRealParameter(const Integer id) const
 //      if (cr.size() > 0)
 //         return cr[0];
 //      else
-//         throw ForceModelException(
+//         throw ODEModelException(
 //            "Attempting to access C_r for SRP force before any spacecraft "
 //            "parameters were set.");
 //   if (id == AREA)
 //      if (area.size() > 0)
 //         return area[0];
 //      else
-//         throw ForceModelException(
+//         throw ODEModelException(
 //            "Attempting to access area for SRP force before any spacecraft "
 //            "parameters were set.");
 //   if (id == MASS)
 //      if (mass.size() > 0)
 //         return mass[0];
 //      else
-//         throw ForceModelException(
+//         throw ODEModelException(
 //            "Attempting to access mass for SRP force before any spacecraft "
 //            "parameters were set.");
    if (id == FLUX)
@@ -511,7 +511,7 @@ bool SolarRadiationPressure::Initialize()
       theSun = solarSystem->GetBody(SolarSystem::SUN_NAME);
       
       if (!theSun)
-         throw ForceModelException("Solar system does not contain the Sun for SRP force.");
+         throw ODEModelException("Solar system does not contain the Sun for SRP force.");
 
       // Set the body to the force model origin, or Earth if origin isn't set
       if (forceOrigin)
@@ -525,7 +525,7 @@ bool SolarRadiationPressure::Initialize()
       #endif
 
       if (!body)
-         throw ForceModelException("Central body not set for SRP force.");
+         throw ODEModelException("Central body not set for SRP force.");
 
       if (body->GetName() == "Sun")         
          bodyIsTheSun = true;
@@ -561,12 +561,12 @@ bool SolarRadiationPressure::Initialize()
 bool SolarRadiationPressure::SetCentralBody()
 {
    if (!solarSystem)
-      throw ForceModelException("Solar system not set in call to SRP::SetCentralBody.");
+      throw ODEModelException("Solar system not set in call to SRP::SetCentralBody.");
    
    theSun = solarSystem->GetBody(SolarSystem::SUN_NAME);
    
    if (!theSun)
-      throw ForceModelException("Solar system does not contain the Sun for SRP force.");
+      throw ODEModelException("Solar system does not contain the Sun for SRP force.");
    
    // Set the body to the force model origin, or Earth if origin isn't set
    if (forceOrigin)
@@ -580,7 +580,7 @@ bool SolarRadiationPressure::SetCentralBody()
    #endif
 
    if (!body)
-      throw ForceModelException("Central body not set for SRP force.");
+      throw ODEModelException("Central body not set for SRP force.");
 
    bodyRadius = body->GetEquatorialRadius();
 
@@ -615,14 +615,14 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order)
     Real satCount = dimension / 6;
 
     if (!theSun)
-       throw ForceModelException("The Sun is not set in SRP::GetDerivatives");
+       throw ODEModelException("The Sun is not set in SRP::GetDerivatives");
 
     if (!body)
-       throw ForceModelException(
+       throw ODEModelException(
           "The central body is not set in SRP::GetDerivatives");
     
     if (!cbSunVector)
-       throw ForceModelException(
+       throw ODEModelException(
           "The sun vector is not initialized in SRP::GetDerivatives");
 
     if (cr.size() != satCount)
@@ -630,7 +630,7 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order)
        std::stringstream msg;
        msg << "Mismatch between satellite count (" << satCount 
            << ") and radiation coefficient count (" << cr.size() << ")"; 
-       throw ForceModelException(msg.str());
+       throw ODEModelException(msg.str());
     }
 
     if (area.size() != satCount)
@@ -638,7 +638,7 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order)
        std::stringstream msg;
        msg << "Mismatch between satellite count (" << satCount   
            << ") and area count (" << area.size() << ")"; 
-       throw ForceModelException(msg.str());
+       throw ODEModelException(msg.str());
     }
 
     if (mass.size() != satCount)
@@ -646,7 +646,7 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order)
        std::stringstream msg;
        msg << "Mismatch between satellite count (" << satCount   
            << ") and mass count (" << mass.size() << ")"; 
-       throw ForceModelException(msg.str());
+       throw ODEModelException(msg.str());
     }
 
     Real distancefactor = 1.0, mag = 0.0;

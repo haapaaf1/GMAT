@@ -20,7 +20,7 @@
 
 #include "DragForce.hpp"
 #include "StringUtil.hpp"     // for ToString()
-#include "ForceModelException.hpp"
+#include "ODEModelException.hpp"
 #include "MessageInterface.hpp"
 
 // Uncomment to generate drag model data for debugging:
@@ -311,7 +311,7 @@ bool DragForce::GetComponentMap(Integer * map, Integer order) const
    Integer i6;
 
    if (order != 1)
-      throw ForceModelException(
+      throw ODEModelException(
          "Drag supports 1st order equations of motion only");
 
    // Calculate how many spacecraft are in the model
@@ -448,7 +448,7 @@ bool DragForce::Initialize()
       dragState = new Real[dimension];
       
       if (satCount <= 0)
-         throw ForceModelException("Drag called with dimension zero");
+         throw ODEModelException("Drag called with dimension zero");
            
       density   = new Real[satCount];
       prefactor = new Real[satCount];
@@ -458,7 +458,7 @@ bool DragForce::Initialize()
       {
          sun = solarSystem->GetBody(SolarSystem::SUN_NAME);
          if (!sun)
-            throw ForceModelException("The Sun is not in solar system");
+            throw ODEModelException("The Sun is not in solar system");
            
          std::string bodyName;
          // Drag currently requires that the drag body be the Earth.  When other
@@ -466,7 +466,7 @@ bool DragForce::Initialize()
          for (StringArray::iterator i = dragBody.begin(); i != dragBody.end(); 
               ++i)
             if ((*i) != "Earth")
-               throw ForceModelException(
+               throw ODEModelException(
                   "Drag modeling only works at the Earth in current GMAT "
                   "builds.");
          
@@ -477,7 +477,7 @@ bool DragForce::Initialize()
          centralBody = solarSystem->GetBody(bodyName);
    
          if (!centralBody)
-            throw ForceModelException(
+            throw ODEModelException(
                "Central body (for Drag) not in solar system");
          if (useExternalAtmosphere)
          {
@@ -511,7 +511,7 @@ bool DragForce::Initialize()
             else
                atmos = internalAtmos;
             if (!atmos)
-               throw ForceModelException("Atmosphere model not defined");
+               throw ODEModelException("Atmosphere model not defined");
             
          }
                
@@ -529,7 +529,7 @@ bool DragForce::Initialize()
                std::string msg = "Could not create ";
                msg += atmosphereType;
                msg += " atmosphere model";
-               throw ForceModelException(msg);
+               throw ODEModelException(msg);
             }
          }
       }
@@ -568,19 +568,19 @@ void DragForce::BuildPrefactors()
    #endif
    
    if (!forceOrigin)
-      throw ForceModelException(
+      throw ODEModelException(
          "Cannot use drag force: force model origin not set.");
     
    for (Integer i = 0; i < satCount; ++i)
    {
       if (mass.size() < (unsigned)(i+1))
-         throw ForceModelException("Spacecraft not set correctly");
+         throw ODEModelException("Spacecraft not set correctly");
       if (mass[i] <= 0.0)
       {
          std::string errorMsg = "Spacecraft ";
          errorMsg += i;
          errorMsg += " has non-physical mass; Drag modeling cannot be used.";
-         throw ForceModelException(errorMsg);
+         throw ODEModelException(errorMsg);
       }
         
       // Note: Prefactor is scaled to account for density in kg / m^3
@@ -622,7 +622,7 @@ void DragForce::TranslateOrigin(const Real *state, const Real now)
    memcpy(dragState, state, dimension * sizeof(Real));
    if (forceOrigin != centralBody)
    {
-      throw ForceModelException(
+      throw ODEModelException(
          "DragForce::TranslateOrigin: Drag forces only work when the force "
          "model origin is the same as the body with the atmosphere producing "
          "drag in the current GMAT build.");
@@ -686,7 +686,7 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order)
             for (Integer i = 0; i < satCount; ++i)
             {
                if (!forceOrigin)
-                  throw ForceModelException(
+                  throw ODEModelException(
                      "Cannot use drag force: force model origin not set.");
     
                #ifdef DEBUG_DRAGFORCE_DENSITY
@@ -967,7 +967,7 @@ Real DragForce::GetRealParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 Real DragForce::SetRealParameter(const Integer id, const Real value)
 {
-//   ForceModelException fme;
+//   ODEModelException fme;
    if (id == FLUX)
    {
       if (value >= 0.0)
@@ -976,14 +976,14 @@ Real DragForce::SetRealParameter(const Integer id, const Real value)
       {
          std::stringstream buffer;
          buffer << value;
-         throw ForceModelException(
+         throw ODEModelException(
             "The value of \"" + buffer.str() + "\" for field \"F107(Solar Flux)\""
             " on object \"" + instanceName + "\" is not an allowed value.\n"
             "The allowed values are: [Real Number >= 0.0]. ");
       }
       return fluxF107;
 //      if ((value < 0.0) || (value > 500.0))
-//         throw ForceModelException(
+//         throw ODEModelException(
 //            "The solar flux (F10.7) must be between 0 and 500, and is usually "
 //            "between 50 and 400");
 //      if ((value < 50.0) || (value > 400.0))
@@ -1003,14 +1003,14 @@ Real DragForce::SetRealParameter(const Integer id, const Real value)
       {
          std::stringstream buffer;
          buffer << value;
-         throw ForceModelException(
+         throw ODEModelException(
             "The value of \"" + buffer.str() + "\" for field \"F107A(Average Solar Flux)\""
             " on object \"" + instanceName + "\" is not an allowed value.\n"
             "The allowed values are: [Real Number >= 0.0]. ");
       }
       return fluxF107A;
 //      if ((value < 0.0) || (value > 500.0))
-//         throw ForceModelException(
+//         throw ODEModelException(
 //            "The average solar flux (F10.7A) must be between 0 and 500, and is "
 //            "usually between 50 and 400");
 //      if ((value < 50.0) || (value > 400.0))
@@ -1033,14 +1033,14 @@ Real DragForce::SetRealParameter(const Integer id, const Real value)
       {
          std::stringstream buffer;
          buffer << value;
-         throw ForceModelException(
+         throw ODEModelException(
             "The value of \"" + buffer.str() + "\" for field \"Magnetic Index\""
             " on object \"" + instanceName + "\" is not an allowed value.\n"
             "The allowed values are: [Real Number >= 0.0]. ");
       }
       return kp;
 //      if ((value < 0.0) || (value > 9.0))
-//         throw ForceModelException(
+//         throw ODEModelException(
 //            "The magnetic index (Kp) must be between 0 and 9");
 //
 //      kp = value;
@@ -1142,7 +1142,7 @@ bool DragForce::SetStringParameter(const Integer id, const std::string &value)
       // Drag currently requires that the drag body be the Earth.  When other
       // drag models are implemented, remove this block and test.
       if (value != "Earth")
-         throw ForceModelException(
+         throw ODEModelException(
             "Drag models only function at the Earth in this build of GMAT.");
       bodyName = value;
       return true;
@@ -1161,7 +1161,7 @@ bool DragForce::SetStringParameter(const Integer id, const std::string &value)
    {
       fluxFile = value;
       if (!internalAtmos)
-         throw ForceModelException(
+         throw ODEModelException(
             "Cannot set flux file: Atmosphere Model undefined");
          
       internalAtmos->SetSolarFluxFile(fluxFile);
@@ -1205,7 +1205,7 @@ bool DragForce::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    if (type == Gmat::ATMOSPHERE)
    {
       if (obj->GetType() != Gmat::ATMOSPHERE)
-         throw ForceModelException("DragForce::SetRefObject: AtmosphereModel "
+         throw ODEModelException("DragForce::SetRefObject: AtmosphereModel "
                                    "type set incorrectly.");
       SetInternalAtmosphereModel((AtmosphereModel*)obj);
       return true;

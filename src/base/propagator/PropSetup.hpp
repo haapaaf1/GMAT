@@ -22,7 +22,7 @@
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
 #include "Propagator.hpp"
-#include "ForceModel.hpp"
+#include "ODEModel.hpp"
 #include "PhysicalModel.hpp"
 
 class GMAT_API PropSetup : public GmatBase
@@ -36,9 +36,9 @@ public:
    
    bool                 IsInitialized();
    Propagator*          GetPropagator();
-   ForceModel*          GetForceModel();
+   ODEModel*            GetODEModel();
    void                 SetPropagator(Propagator *propagator);
-   void                 SetForceModel(ForceModel *forceModel);
+   void                 SetODEModel(ODEModel *odeModel);
    void                 SetUseDrag(bool flag);
    
    void                 AddForce(PhysicalModel *force);
@@ -105,19 +105,19 @@ public:
 private:
    
    void    ClonePropagator(Propagator *prop);
-   void    CloneForceModel(ForceModel *fm);
+   void    CloneODEModel(ODEModel *fm);
    void    DeleteOwnedObject(Integer id, bool forceDelete = false);
    Integer GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const;
    
    bool mInitialized;
    std::string mPropagatorName;
-   std::string mForceModelName;
+   std::string mODEModelName;
    Propagator *mPropagator;
-   ForceModel *mForceModel;
+   ODEModel *mODEModel;
    
    enum
    {
-      FORCE_MODEL = GmatBaseParamCount,
+      ODE_MODEL = GmatBaseParamCount,
       PROPAGATOR,
       
       // owned object parameters

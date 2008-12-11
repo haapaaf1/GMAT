@@ -22,7 +22,7 @@
 #include "gmatdefs.hpp"
 #include "Propagator.hpp"
 #include "PropSetup.hpp"
-#include "ForceModel.hpp"
+#include "ODEModel.hpp"
 #include "DragForce.hpp"
 #include "GravityField.hpp"
 #include "HarmonicField.hpp"
@@ -268,7 +268,7 @@ private:
    
    Propagator                     *thePropagator;
    PropSetup                      *thePropSetup;
-   ForceModel                     *theForceModel;
+   ODEModel                       *theForceModel;
    PointMassForce                 *thePMF;
    DragForce                      *theDragForce;
    GravityField                   *theGravForce;

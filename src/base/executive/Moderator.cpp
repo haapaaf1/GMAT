@@ -28,7 +28,7 @@
 #include "BurnFactory.hpp"
 #include "CommandFactory.hpp"
 #include "CoordinateSystemFactory.hpp"
-#include "ForceModelFactory.hpp"
+#include "ODEModelFactory.hpp"
 #include "FunctionFactory.hpp"
 #include "HardwareFactory.hpp"
 #include "ParameterFactory.hpp"
@@ -159,7 +159,7 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       theFactoryManager->RegisterFactory(new CalculatedPointFactory());
       theFactoryManager->RegisterFactory(new CommandFactory());
       theFactoryManager->RegisterFactory(new CoordinateSystemFactory());
-      theFactoryManager->RegisterFactory(new ForceModelFactory());
+      theFactoryManager->RegisterFactory(new ODEModelFactory());
       theFactoryManager->RegisterFactory(new FunctionFactory());
       theFactoryManager->RegisterFactory(new HardwareFactory());
       theFactoryManager->RegisterFactory(new MathFactory());
@@ -2387,32 +2387,34 @@ Parameter* Moderator::GetParameter(const std::string &name)
    return obj;
 }
 
-// ForceModel
+// ODEModel
 //------------------------------------------------------------------------------
-// ForceModel* CreateForceModel(const std::string &name)
+// ODEModel* CreateODEModel(const std::string &name)
 //------------------------------------------------------------------------------
 /*
- * Creates ForceModel with given name
+ * Creates ODEModel with given name
  */
 //------------------------------------------------------------------------------
-ForceModel* Moderator::CreateForceModel(const std::string &name)
+ODEModel* Moderator::CreateODEModel(const std::string &type,
+                                    const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
-      ("Moderator::CreateForceModel() name='%s', objectManageOption=%d\n",
+      ("Moderator::CreateODEModel() name='%s', objectManageOption=%d\n",
        name.c_str(), objectManageOption);
    #endif
    
-   ForceModel *fm = GetForceModel(name);
+   ODEModel *fm = GetODEModel(name);
    
    if (fm == NULL)
    {
-      fm = theFactoryManager->CreateForceModel(name);
+      fm = theFactoryManager->CreateODEModel(type, name);
       
       if (fm == NULL)
       {
+         MessageInterface::ShowMessage("No fm\n");
          throw GmatBaseException
-            ("The Moderator cannot create ForceModel named \"" + name + "\"\n");
+            ("The Moderator cannot create ODEModel named \"" + name + "\"\n");
       }
       
       // Create default force model of PointMassForce if name is blank or
@@ -2424,27 +2426,27 @@ ForceModel* Moderator::CreateForceModel(const std::string &name)
          fm->AddForce(pmf);
          #if DEBUG_CREATE_RESOURCE
          MessageInterface::ShowMessage
-            ("Moderator::CreateForceModel() returning new ForceModel, <%p> '%s'\n",
+            ("Moderator::CreateODEModel() returning new ODEModel, <%p> '%s'\n",
              fm, fm->GetName().c_str());
          #endif
          return fm;
       }
       
-      // Manage it if it is a named ForceModel
+      // Manage it if it is a named ODEModel
       try
       {
          if (fm->GetName() != "" && objectManageOption == 1)
-            theConfigManager->AddForceModel(fm);
+            theConfigManager->AddODEModel(fm);
       }
       catch (BaseException &e)
       {
-         MessageInterface::ShowMessage("Moderator::CreateForceModel()\n" +
+         MessageInterface::ShowMessage("Moderator::CreateODEModel()\n" +
                                        e.GetFullMessage() + "\n");
       }
       
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateForceModel() returning new ForceModel, <%p> '%s'\n",
+         ("Moderator::CreateODEModel() returning new ODEModel, <%p> '%s'\n",
           fm, fm->GetName().c_str());
       #endif
       return fm;
@@ -2453,7 +2455,7 @@ ForceModel* Moderator::CreateForceModel(const std::string &name)
    {
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateForceModel() Unable to create ForceModel "
+         ("Moderator::CreateODEModel() Unable to create ODEModel "
           "name: %s already exist <%p>\n", name.c_str(), fm);
       #endif
       return fm;
@@ -2462,23 +2464,23 @@ ForceModel* Moderator::CreateForceModel(const std::string &name)
 
 
 //------------------------------------------------------------------------------
-// ForceModel* GetForceModel(const std::string &name)
+// ODEModel* GetODEModel(const std::string &name)
 //------------------------------------------------------------------------------
-ForceModel* Moderator::GetForceModel(const std::string &name)
+ODEModel* Moderator::GetODEModel(const std::string &name)
 {
-   ForceModel *fm = NULL;
+   ODEModel *fm = NULL;
    
    if (name != "")
    {
-      // Find ForceModel from the current object map in use (loj: 2008.06.20)
+      // Find ODEModel from the current object map in use (loj: 2008.06.20)
       GmatBase* obj = FindObject(name);
-      if (obj != NULL && obj->IsOfType(Gmat::FORCE_MODEL))
+      if (obj != NULL && obj->IsOfType(Gmat::ODE_MODEL))
       {
-         fm = (ForceModel*)obj;
+         fm = (ODEModel*)obj;
          
          #if DEBUG_CREATE_RESOURCE
          MessageInterface::ShowMessage
-            ("Moderator::GetForceModel() name='%s', returning <%p>\n", name.c_str(), fm);
+            ("Moderator::GetODEModel() name='%s', returning <%p>\n", name.c_str(), fm);
          #endif
          
          return fm;
@@ -2487,7 +2489,7 @@ ForceModel* Moderator::GetForceModel(const std::string &name)
    
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
-      ("Moderator::GetForceModel() name='%s', returning <%p>\n", name.c_str(), fm);
+      ("Moderator::GetODEModel() name='%s', returning <%p>\n", name.c_str(), fm);
    #endif
    
    return fm;
@@ -2495,14 +2497,14 @@ ForceModel* Moderator::GetForceModel(const std::string &name)
 
 
 //------------------------------------------------------------------------------
-// bool AddToForceModel(const std::string &forceModelName,
+// bool AddToODEModel(const std::string &ODEModelName,
 //                      const std::string &forceName)
 //------------------------------------------------------------------------------
-bool Moderator::AddToForceModel(const std::string &forceModelName,
+bool Moderator::AddToODEModel(const std::string &odeModelName,
                                 const std::string &forceName)
 {
    bool status = true;
-   ForceModel *fm = theConfigManager->GetForceModel(forceModelName);
+   ODEModel *fm = theConfigManager->GetODEModel(odeModelName);
    PhysicalModel *physicalModel = theConfigManager->GetPhysicalModel(forceName);
    fm->AddForce(physicalModel);
    return status;
@@ -2624,7 +2626,7 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    PropSetup *propSetup = CreatePropSetup(name);
    
    // create default force model with Earth primary body with JGM2
-   ForceModel *fm= CreateForceModel(name + "_ForceModel");
+   ODEModel *fm= CreateODEModel("ForceModel", name + "_ForceModel");
    GravityField *gravForce = new GravityField("", "Earth");
    gravForce->SetName("Earth");
    gravForce->SetSolarSystem(theSolarSystemInUse);
@@ -2632,7 +2634,7 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    gravForce->SetBodyName("Earth");
    gravForce->SetStringParameter("PotentialFile", GetFileName("JGM2_FILE"));  
    fm->AddForce(gravForce);   
-   propSetup->SetForceModel(fm);
+   propSetup->SetODEModel(fm);
    
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
@@ -2646,7 +2648,7 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
 // PropSetup* CreatePropSetup(const std::string &name)
 //------------------------------------------------------------------------------
 /*
- * Creates PropSetup which contains Integrator and ForceModel.
+ * Creates PropSetup which contains Integrator and ODEModel.
  */
 //------------------------------------------------------------------------------
 PropSetup* Moderator::CreatePropSetup(const std::string &name)
@@ -2671,7 +2673,7 @@ PropSetup* Moderator::CreatePropSetup(const std::string &name)
       }
       
       // PropSetup creates default Integrator(RungeKutta89)
-      // and default ForceModel (PointMassForce body=Earth)
+      // and default ODEModel (PointMassForce body=Earth)
       
       if (name != "" && objectManageOption == 1)
          theConfigManager->AddPropSetup(propSetup);
@@ -4226,7 +4228,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
          AddSpacecraftToSandbox(sandboxNum-1);
          AddFormationToSandbox(sandboxNum-1);
          AddSpacePointToSandbox(sandboxNum-1);
-         AddForceModelToSandbox(sandboxNum-1);
+         AddODEModelToSandbox(sandboxNum-1);
          AddPropagatorToSandbox(sandboxNum-1);
          AddPropSetupToSandbox(sandboxNum-1);
          AddBurnToSandbox(sandboxNum-1);
@@ -6179,24 +6181,24 @@ void Moderator::AddPropagatorToSandbox(Integer index)
 
 
 //------------------------------------------------------------------------------
-// void AddForceModelToSandbox(Integer index)
+// void AddODEModelToSandbox(Integer index)
 //------------------------------------------------------------------------------
-void Moderator::AddForceModelToSandbox(Integer index)
+void Moderator::AddODEModelToSandbox(Integer index)
 {
-   ForceModel *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::FORCE_MODEL);
+   ODEModel *obj;
+   StringArray names = theConfigManager->GetListOfItems(Gmat::ODE_MODEL);
     
    #if DEBUG_RUN
    MessageInterface::ShowMessage
-      ("Moderator::AddForceModelToSandbox() count = %d\n", names.size());
+      ("Moderator::AddODEModelToSandbox() count = %d\n", names.size());
    #endif
    
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
-      obj = theConfigManager->GetForceModel(names[i]);
+      obj = theConfigManager->GetODEModel(names[i]);
       if (obj == NULL)
          throw GmatBaseException
-            ("Moderator::AddForceModelToSandbox() The ForceModel named \"" + names[i] +
+            ("Moderator::AddODEModelToSandbox() The ODEModel named \"" + names[i] +
              "\" has NULL pointer\n");
       
       sandboxes[index]->AddObject(obj);

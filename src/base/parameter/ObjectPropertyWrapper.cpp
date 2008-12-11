@@ -20,7 +20,7 @@
 
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
-#include "ForceModel.hpp"             // for GetScriptAlias()
+//#include "ODEModel.hpp"             // for GetScriptAlias()
 #include "ObjectPropertyWrapper.hpp"
 #include "ParameterException.hpp"
 #include "StringUtil.hpp"

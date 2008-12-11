@@ -22,7 +22,7 @@
 #include "BeginFunction.hpp"
 #include "MessageInterface.hpp"
 #include "StopCondition.hpp"
-#include "ForceModel.hpp"
+#include "ODEModel.hpp"
 #include "PropSetup.hpp"
 
 #define DEBUG_OBJECT_MAPPING
@@ -1121,9 +1121,9 @@ void BeginFunction::BuildReferences(GmatBase *obj)
    obj->SetSolarSystem(solarSys);
    // PropSetup probably should do this...
    if ((obj->GetType() == Gmat::PROP_SETUP) ||
-       (obj->GetType() == Gmat::FORCE_MODEL))
+       (obj->GetType() == Gmat::ODE_MODEL))
    {
-      ForceModel *fm = ((PropSetup *)obj)->GetForceModel();
+      ODEModel *fm = ((PropSetup *)obj)->GetODEModel();
       fm->SetSolarSystem(solarSys);
 
 
@@ -1189,7 +1189,7 @@ void BeginFunction::BuildReferences(GmatBase *obj)
       }
 
 
-      if (obj->GetType() == Gmat::FORCE_MODEL)
+      if (obj->GetType() == Gmat::ODE_MODEL)
          return;
    }
 

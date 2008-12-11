@@ -197,27 +197,27 @@ Parameter* Factory::CreateParameter(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
-//  ForceModel* CreateForceModel(const std::string &ofType, const std::string &withName)
+//  ODEModel* CreateODEModel(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------
 /**
- * Must be implemented by derived classes that create  ForceModel objects -
- * in that case, it returns a new  ForceModel object.  Otherwise, it
+ * Must be implemented by derived classes that create  ODEModel objects -
+ * in that case, it returns a new  ODEModel object.  Otherwise, it
  * throws an exception indicating that the class does not create objects of
- * type  ForceModel.
+ * type  ODEModel.
  *
- * @param <ofType>   specific type of  ForceModel object to create.
- * @param <withName> name to give to the newly created  ForceModel object.
+ * @param <ofType>   specific type of  ODEModel object to create.
+ * @param <withName> name to give to the newly created  ODEModel object.
  *
- * @return pointer to a new  ForceModel object.
+ * @return pointer to a new  ODEModel object.
  *
  * @exception <FactoryException> thrown if the factory does not create
- * objects of type  ForceModel.
+ * objects of type  ODEModel.
  */
 //------------------------------------------------------------------------------
-ForceModel* Factory::CreateForceModel(const std::string &ofType,
+ODEModel* Factory::CreateODEModel(const std::string &ofType,
                                       const std::string &withName)
 {
-   throw FactoryException("requested object must be of type ForceModel");
+   throw FactoryException("requested object must be of type ODEModel");
 }
 
 //------------------------------------------------------------------------------

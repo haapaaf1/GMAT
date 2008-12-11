@@ -219,14 +219,14 @@ void ConfigManager::AddPropagator(Propagator *prop)
  * @param fm Pointer to the ForceModel instance.
  */
 //------------------------------------------------------------------------------
-void ConfigManager::AddForceModel(ForceModel *fm)
+void ConfigManager::AddODEModel(ODEModel *fm)
 {
    std::string name = fm->GetName();
 
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
-   if (!fm->IsOfType(Gmat::FORCE_MODEL))
+   if (!fm->IsOfType(Gmat::ODE_MODEL))
       throw ConfigManagerException(name + " is not a ForceModel");
 
    AddObject(fm);
@@ -1160,18 +1160,18 @@ Propagator* ConfigManager::GetPropagator(const std::string &name)
  * @return A pointer to the object.
  */
 //------------------------------------------------------------------------------
-ForceModel* ConfigManager::GetForceModel(const std::string &name)
+ODEModel* ConfigManager::GetODEModel(const std::string &name)
 {
-   ForceModel *fm = NULL;
+   ODEModel *fm = NULL;
    if (mapping.find(name) != mapping.end())
    {
       if (mapping[name] == NULL)
          throw ConfigManagerException
             ("ConfigManager::GetForceModel(name) is finding a NULL object in the mapping.\n");
      
-      if (mapping[name]->IsOfType(Gmat::FORCE_MODEL))
+      if (mapping[name]->IsOfType(Gmat::ODE_MODEL))
       {
-         fm = (ForceModel *)mapping[name];
+         fm = (ODEModel *)mapping[name];
       }
    }
    return fm;

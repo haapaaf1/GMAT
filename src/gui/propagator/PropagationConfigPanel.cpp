@@ -191,7 +191,7 @@ void PropagationConfigPanel::LoadData()
    #endif
    
    thePropagator = thePropSetup->GetPropagator();
-   theForceModel = thePropSetup->GetForceModel();
+   theForceModel = thePropSetup->GetODEModel();
    numOfForces   = thePropSetup->GetNumForces();
    
    try
@@ -623,7 +623,7 @@ void PropagationConfigPanel::SaveData()
       std::string fmName = theForceModel->GetName();
       
       isForceModelChanged = false;
-      ForceModel *newFm = new ForceModel();
+      ODEModel *newFm = new ODEModel(fmName, "ForceModel");
       newFm->SetCommentLine(mFmPrefaceComment);
       std::string bodyName;
       
@@ -846,7 +846,7 @@ void PropagationConfigPanel::SaveData()
       //----------------------------------------------------
       // Saving forces to the prop setup
       //----------------------------------------------------
-      thePropSetup->SetForceModel(newFm);
+      thePropSetup->SetODEModel(newFm);
       numOfForces = thePropSetup->GetNumForces();
       
       // ForceModel is deleted in PropSetup::SetForceModel()
@@ -854,7 +854,7 @@ void PropagationConfigPanel::SaveData()
       
       // Since the force model and it's physical models are cloned in the
       // base code, get new pointers
-      theForceModel = thePropSetup->GetForceModel();
+      theForceModel = thePropSetup->GetODEModel();
       theForceModel->SetName(fmName);
       
       PhysicalModel *pm;

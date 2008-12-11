@@ -50,7 +50,7 @@
 #include "HarmonicField.hpp"
 
 #include "PhysicalModel.hpp"
-#include "ForceModelException.hpp"
+#include "ODEModelException.hpp"
 #include "StringUtil.hpp"     // for ToString()
 #include "RealUtilities.hpp"
 #include "Rvector.hpp"
@@ -288,16 +288,16 @@ bool HarmonicField::Initialize()
    // if we want to use mu and radius from this file later
    //body->SetPotentialFilename(filename);
    
-   if (solarSystem == NULL) throw ForceModelException(
+   if (solarSystem == NULL) throw ODEModelException(
                             "Solar System undefined for Harmonic Field " 
                              + instanceName);
-   if (!inputCS) throw ForceModelException(
+   if (!inputCS) throw ODEModelException(
                  "Input coordinate system undefined for Harmonic Field "
                   + instanceName);
-   if (!fixedCS) throw ForceModelException(
+   if (!fixedCS) throw ODEModelException(
                  "Body fixed coordinate system undefined for Harmonic Field "
                   + instanceName);
-   //if (!targetCS) throw ForceModelException(
+   //if (!targetCS) throw ODEModelException(
    //               "Target coordinate system undefined for Harmonic Field "
    //               + instanceName);
    if (!targetCS) targetCS = inputCS;
@@ -391,7 +391,7 @@ bool HarmonicField::SetFilename(const std::string &fn)
       std::ifstream potfile(filename.c_str());
       if (!potfile) 
       {
-         throw ForceModelException
+         throw ODEModelException
             ("The file name \"" + filename + "\" does not exist.");
       }
       
@@ -475,7 +475,7 @@ bool HarmonicField::legendreP_init()
    
    Abar = new Real*[maxDegree+3];
    if ( !Abar ) {
-      throw ForceModelException("legendreP_init: memory allocation failed for Abar!");
+      throw ODEModelException("legendreP_init: memory allocation failed for Abar!");
    }
 
    Integer allocsize = 0;
@@ -491,7 +491,7 @@ bool HarmonicField::legendreP_init()
       
       if ( !Abar[cc] )
       {
-         throw ForceModelException("legendreP_init:  calloc failed!\a\n!");
+         throw ODEModelException("legendreP_init:  calloc failed!\a\n!");
       }
       else
       {
@@ -511,7 +511,7 @@ bool HarmonicField::legendreP_init()
    re = new Real[maxOrder+3];
    im = new Real[maxOrder+3];
    if ( !re || !im ) {
-      throw ForceModelException("legendreP_init:  calloc failed!\a\n!");
+      throw ODEModelException("legendreP_init:  calloc failed!\a\n!");
    }
 
    /* initalize recursion, Ref.[1] */
@@ -657,7 +657,7 @@ Integer HarmonicField::SetIntegerParameter(const Integer id, const Integer value
       {
          std::stringstream buffer;
          buffer << value;
-         throw ForceModelException(
+         throw ODEModelException(
             "The value of \"" + buffer.str() + "\" for field \"" 
             + GetParameterText(id).c_str() + "\" on object \"" 
             + instanceName + "\" is not an allowed value.\n"
@@ -674,7 +674,7 @@ Integer HarmonicField::SetIntegerParameter(const Integer id, const Integer value
       {
          std::stringstream buffer;
          buffer << value;
-         throw ForceModelException(
+         throw ODEModelException(
             "The value of \"" + buffer.str() + "\" for field \"" 
             + GetParameterText(id).c_str() + "\" on object \"" 
             + instanceName + "\" is not an allowed value.\n"
@@ -1094,7 +1094,7 @@ bool HarmonicField::legendreP_rtq(Real *R )
    /* coordinate transformation, Ref.[3], Eqs.(7),(40) */
    r = sqrt( R[0]*R[0] + R[1]*R[1] + R[2]*R[2] );
    if (r == 0.0) {
-      throw ForceModelException (
+      throw ODEModelException (
                    "In HarmonicField::legendreP_rtq,  Radial distance is zero");
      // return false;
    }
@@ -1156,7 +1156,7 @@ bool HarmonicField::IsParameterReadOnly(const Integer id) const
       return PhysicalModel::IsParameterReadOnly(id);
    
    if (id >= HarmonicFieldParamCount)
-      throw ForceModelException(
+      throw ODEModelException(
          "Attempting to determine accessibility of a parameter outside of the "
          "scope of a HarmonicField object.");
    

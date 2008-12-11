@@ -56,7 +56,7 @@
 #include <sstream>
 #include <iomanip>
 #include "GravityField.hpp"
-#include "ForceModelException.hpp"
+#include "ODEModelException.hpp"
 #include "CelestialBody.hpp"
 #include "RealUtilities.hpp"
 #include "MessageInterface.hpp"
@@ -359,7 +359,7 @@ bool GravityField::Initialize(void)
    //if (gfInitialized && hMinitialized) return true;
    if (!HarmonicField::Initialize())
    {
-      throw ForceModelException(
+      throw ODEModelException(
             "GravityField: Legendre Polynomial initialization failed!");
    }
     
@@ -442,7 +442,7 @@ bool GravityField::gravity_rtq(Real jday, Real F[] )
 
    if (r == 0.0)  // (should I) check for hFinitialized here?
    {
-      throw ForceModelException("gravity_rtq: Spherical representation not initialized!");
+      throw ODEModelException("gravity_rtq: Spherical representation not initialized!");
    }
 
    Real aOverR = a/r;
@@ -577,12 +577,12 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder)
    satcount = dimension / stateSize; 
    
    if (stateSize * satcount != dimension)
-      throw ForceModelException(
+      throw ODEModelException(
          "GravityField state dimension and state size do not match!");
 
    // Currently hardcoded for one spacecraft.  - remove this!!!!!!!!!!!!!!
    if (satcount < 1)
-      throw ForceModelException(
+      throw ODEModelException(
          "GravityField requires at least one spacecraft.");
       
    //Real* satState;
@@ -595,7 +595,7 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder)
    now = epoch + dt/GmatTimeUtil::SECS_PER_DAY;
    //const Rvector6 *rv = &(body->GetState(now));
    //if (body->GetName() != fixedCS->GetOriginName())
-   //   throw ForceModelException(
+   //   throw ODEModelException(
    //         "Incorrect central body for Body Fixed coordinate system in "
    //         + instanceName);
    if (targetCS == inputCS)   sameCS = true;
@@ -742,7 +742,7 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder)
 
       //if (!legendreP_rtq(satState))
       if (!legendreP_rtq(tmpState))
-         throw ForceModelException("GravityField::legendreP_rtq failed");
+         throw ODEModelException("GravityField::legendreP_rtq failed");
 
       #ifdef DEBUG_GRAVITY_FIELD
          MessageInterface::ShowMessage("%s%le  s = %le  t = %le  u = %le\n", 
@@ -755,7 +755,7 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder)
 
       if (!gravity_rtq(epoch + GmatTimeUtil::JD_JAN_5_1941 + 
                        dt/GmatTimeUtil::SECS_PER_DAY, f))
-         throw ForceModelException("GravityField::gravity_rtq failed");
+         throw ODEModelException("GravityField::gravity_rtq failed");
 
       #ifdef DEBUG_GRAVITY_FIELD
          MessageInterface::ShowMessage("%s %le  %le  %le\n", 
@@ -827,7 +827,7 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder)
             break;
    
          default:
-            throw ForceModelException("GravityField::GetDerivatives requires order = 1 or 2");
+            throw ODEModelException("GravityField::GetDerivatives requires order = 1 or 2");
       } // end switch
    }  // end for
 
@@ -1024,18 +1024,18 @@ bool GravityField::gravity_init(void)
    Integer      defDegree, defOrder;
    //Integer      n=0, m=0, iscomment, rtn;
 
-   //if (body == NULL) throw ForceModelException("Body undefined for GravityField.");
+   //if (body == NULL) throw ODEModelException("Body undefined for GravityField.");
    if (body == NULL)
    {
       if (solarSystem == NULL)
-         throw ForceModelException("Solar System undefined in GravityField.");
+         throw ODEModelException("Solar System undefined in GravityField.");
       body = solarSystem->GetBody(bodyName);
-      if (body == NULL) throw ForceModelException("Body \"" + bodyName + 
+      if (body == NULL) throw ODEModelException("Body \"" + bodyName + 
                                            "\" undefined for GravityField.");
    }
 
    if (body->GetName() != targetCS->GetOriginName())
-      throw ForceModelException("Full field gravity is only supported for "
+      throw ODEModelException("Full field gravity is only supported for "
          "the force model origin in current GMAT builds.");
 
 
@@ -1086,7 +1086,7 @@ bool GravityField::gravity_init(void)
 //
 //   if ( !Cbar || !Sbar || !dCbar || !dSbar )
 //   {
-//      throw ForceModelException("In GravityField, gravity_init: "
+//      throw ODEModelException("In GravityField, gravity_init: "
 //                                "memory allocation failed!");
 //      return false;
 //   }
@@ -1104,7 +1104,7 @@ bool GravityField::gravity_init(void)
 //      }
 //      if ( !Cbar[cc] || !Sbar[cc] )
 //      {
-//         throw ForceModelException("GravityField::gravity_init: Cannot allocate Cbar or Sbar");
+//         throw ODEModelException("GravityField::gravity_init: Cannot allocate Cbar or Sbar");
 //         return false;
 //      }
 //
@@ -1114,7 +1114,7 @@ bool GravityField::gravity_init(void)
 //         dSbar[cc] = new Real[GRAV_MAX_DRIFT_DEGREE+1];
 //         if ( !dCbar[cc] || !dSbar[cc] )
 //         {
-//            throw ForceModelException("GravityField::gravity_init: Cannot allocate dCbar or dSbar");
+//            throw ODEModelException("GravityField::gravity_init: Cannot allocate dCbar or dSbar");
 //            return false;
 //         }
 //      }
@@ -1357,9 +1357,9 @@ bool GravityField::ReadFile()
    }
 
    if (degree < 0)
-      throw ForceModelException("Invalid degree in GravityField: Degree < 0");
+      throw ODEModelException("Invalid degree in GravityField: Degree < 0");
    if (order < 0)
-      throw ForceModelException("Invalid degree in GravityField: Degree < 0");
+      throw ODEModelException("Invalid degree in GravityField: Degree < 0");
 
    fileRead = true;
    return true;

@@ -50,7 +50,7 @@
 #ifndef HarmonicField_hpp
 #define HarmonicField_hpp
 
-#include "ForceModelException.hpp"
+#include "ODEModelException.hpp"
 #include "PhysicalModel.hpp"
 #include "CelestialBody.hpp"
 #include "Rvector.hpp"

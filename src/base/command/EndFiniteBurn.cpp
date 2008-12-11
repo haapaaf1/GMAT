@@ -18,7 +18,6 @@
 //------------------------------------------------------------------------------
 
 #include "EndFiniteBurn.hpp"
-#include "ForceModel.hpp"
 
 
 //#define DEBUG_END_MANEUVER

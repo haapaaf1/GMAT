@@ -684,7 +684,7 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    
    // Check if lhs is ForceModel and need to create a PhysicalModel
    if (theObj != NULL &&
-       theObj->GetType() == Gmat::FORCE_MODEL && parts.size() >= 2)
+       theObj->GetType() == Gmat::ODE_MODEL && parts.size() >= 2)
    {
       if (parts[1] == "PrimaryBodies" || parts[1] == "PointMasses" ||
           parts[1] == "SRP" || parts[1] == "Drag")
@@ -1022,7 +1022,7 @@ ElementWrapper* Validator::CreateForceModelWrapper(GmatBase *obj,
    //------------------------------------------------------------
    StringArray parts = GmatStringUtil::SeparateDots(depobj);
    std::string pmType = parts[0];
-   std::string forceType = ForceModel::GetScriptAlias(pmType);
+   std::string forceType = ODEModel::GetScriptAlias(pmType);
    std::string propName = type;
    
    #if DBGLVL_WRAPPERS > 1
@@ -1137,7 +1137,7 @@ ElementWrapper* Validator::CreateWrapperWithDot(bool parametersFirst, Integer ma
    //-----------------------------------------------------------------
    // Special case for ForceModel
    //-----------------------------------------------------------------
-   if (obj != NULL && obj->GetType() == Gmat::FORCE_MODEL)
+   if (obj != NULL && obj->GetType() == Gmat::ODE_MODEL)
    {
       ew = CreateForceModelWrapper(obj, owner, depobj, type, manage);
       

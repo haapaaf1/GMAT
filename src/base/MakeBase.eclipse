@@ -240,7 +240,7 @@ OBJECTS = \
     factory/FactoryException.o \
     factory/FactoryManager.o \
     factory/Factory.o \
-    factory/ForceModelFactory.o \
+    factory/ODEModelFactory.o \
     factory/FunctionFactory.o \
     factory/HardwareFactory.o \
     factory/MathFactory.o \
@@ -255,8 +255,8 @@ OBJECTS = \
     factory/SubscriberFactory.o \
     forcemodel/DragForce.o \
     forcemodel/FiniteThrust.o \
-    forcemodel/ForceModelException.o \
-    forcemodel/ForceModel.o \
+    forcemodel/ODEModelException.o \
+    forcemodel/ODEModel.o \
     forcemodel/GravityField.o \
     forcemodel/HarmonicField.o \
     forcemodel/PhysicalModel.o \

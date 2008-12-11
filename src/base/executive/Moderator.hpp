@@ -39,7 +39,7 @@
 #include "Function.hpp"
 #include "Hardware.hpp"
 #include "PhysicalModel.hpp"
-#include "ForceModel.hpp"
+#include "ODEModel.hpp"
 #include "Propagator.hpp"
 #include "Spacecraft.hpp"
 #include "Formation.hpp"
@@ -184,10 +184,10 @@ public:
                               Integer manage = 1);
    Parameter* GetParameter(const std::string &name);
    
-   // ForceModel
-   ForceModel* CreateForceModel(const std::string &name);
-   ForceModel* GetForceModel(const std::string &name);
-   bool AddToForceModel(const std::string &forceModelName,
+   // ODEModel
+   ODEModel* CreateODEModel(const std::string &type, const std::string &name);
+   ODEModel* GetODEModel(const std::string &name);
+   bool AddToODEModel(const std::string &odeModelName,
                         const std::string &forceName);
    bool ReconfigureItem(GmatBase *newobj, const std::string &name);
    
@@ -200,7 +200,7 @@ public:
    PropSetup* CreateDefaultPropSetup(const std::string &name);
 //    PropSetup* CreatePropSetup(const std::string &name,
 //                               const std::string &propagatorName = "",
-//                               const std::string &forceModelName = "");
+//                               const std::string &ODEModelName = "");
    PropSetup* CreatePropSetup(const std::string &name);
    PropSetup* GetPropSetup(const std::string &name);
    
@@ -368,7 +368,7 @@ private:
    void AddSpacePointToSandbox(Integer index);
    void AddPropSetupToSandbox(Integer index);
    void AddPropagatorToSandbox(Integer index);
-   void AddForceModelToSandbox(Integer index);
+   void AddODEModelToSandbox(Integer index);
    void AddBurnToSandbox(Integer index);
    void AddSolverToSandbox(Integer index);
    void AddSubscriberToSandbox(Integer index);

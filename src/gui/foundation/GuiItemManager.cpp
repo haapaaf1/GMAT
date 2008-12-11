@@ -4143,7 +4143,7 @@ void GuiItemManager::UpdatePropagatorList()
 //------------------------------------------------------------------------------
 void GuiItemManager::UpdateForceModelList()
 {
-   StringArray listFm = theGuiInterpreter->GetListOfObjects(Gmat::FORCE_MODEL);
+   StringArray listFm = theGuiInterpreter->GetListOfObjects(Gmat::ODE_MODEL);
    int numForceModel = listFm.size();
    
    #if DBGLVL_GUI_ITEM_FM

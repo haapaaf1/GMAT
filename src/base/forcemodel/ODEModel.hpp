@@ -1,8 +1,8 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                              ForceModel
+//                              ODEModel
 //------------------------------------------------------------------------------
-// *** File Name : ForceModel.hpp
+// *** File Name : ODEModel.hpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
@@ -48,12 +48,12 @@
 /**
  * Container for forces acting on spacecraft.
  * 
- * ForceModel is a class that accumulates the forces acting on one or
+ * ODEModel is a class that accumulates the forces acting on one or
  * more spacecraft
 */
 
-#ifndef ForceModel_hpp
-#define ForceModel_hpp
+#ifndef ODEModel_hpp
+#define ODEModel_hpp
 
 #include "PhysicalModel.hpp"
 #include "MessageInterface.hpp"
@@ -66,14 +66,23 @@
 
 #include <fstream>            // Used for streams in debugging methods
 
-
-class GMAT_API ForceModel : public PhysicalModel
+/**
+ * ODEModel is a container class for ordinary differential equations
+ * 
+ * The ODEModel class receives PhysicalModels that are used either singly or 
+ * together to model the differential equations integrated by the numerical 
+ * integrators in GMAT.  The ODEModel class implements the superposition of 
+ * these contributors, and manages mapping into the correct elements of the 
+ * output vector of derivative information. 
+ */
+class GMAT_API ODEModel : public PhysicalModel
 {
 public:
-   ForceModel(const std::string &nomme = "");
-   virtual ~ForceModel(void);
-   ForceModel(const ForceModel& fdf);
-   ForceModel&   operator=(const ForceModel& fdf);
+   ODEModel(const std::string &nomme = "", 
+            const std::string typeNomme = "ODEModel");
+   virtual ~ODEModel(void);
+   ODEModel(const ODEModel& fdf);
+   ODEModel&   operator=(const ODEModel& fdf);
    
    void AddForce(PhysicalModel *pPhyscialModel);
    void DeleteForce(const std::string &name);
@@ -272,7 +281,7 @@ protected:
       ORDER,
       POTENTIAL_FILE,
       USER_DEFINED,
-      ForceModelParamCount
+      ODEModelParamCount
    };
    
    enum
@@ -291,9 +300,9 @@ protected:
    };
    
    static const std::string 
-      PARAMETER_TEXT[ForceModelParamCount - PhysicalModelParamCount];
+      PARAMETER_TEXT[ODEModelParamCount - PhysicalModelParamCount];
    static const Gmat::ParameterType 
-      PARAMETER_TYPE[ForceModelParamCount - PhysicalModelParamCount];
+      PARAMETER_TYPE[ODEModelParamCount - PhysicalModelParamCount];
    
 private:
    
@@ -301,5 +310,5 @@ private:
    
 };
 
-#endif  // ForceModel_hpp
+#endif  // ODEModel_hpp
 

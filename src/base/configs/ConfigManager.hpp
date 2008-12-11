@@ -21,7 +21,7 @@
 #include <vector>
 #include <map>
 
-#include "ForceModel.hpp"
+#include "ODEModel.hpp"
 #include "Subscriber.hpp"
 #include "SolarSystem.hpp"
 #include "CelestialBody.hpp"
@@ -54,7 +54,7 @@ public:
    
    void                AddPhysicalModel(PhysicalModel *pm);
    void                AddPropagator(Propagator *prop);
-   void                AddForceModel(ForceModel *fm);
+   void                AddODEModel(ODEModel *fm);
    void                AddSubscriber(Subscriber *subs);
    void                AddSolarSystem(SolarSystem *solarSys);
    void                AddPropSetup(PropSetup *propSetup);
@@ -93,7 +93,7 @@ public:
    
    PhysicalModel*      GetPhysicalModel(const std::string &name);
    Propagator*         GetPropagator(const std::string &name);
-   ForceModel*         GetForceModel(const std::string &name);
+   ODEModel*           GetODEModel(const std::string &name);
    SpaceObject*        GetSpacecraft(const std::string &name);
    SpacePoint*         GetSpacePoint(const std::string &name);
    Hardware*           GetHardware(const std::string &name);

@@ -111,26 +111,26 @@ PropSetup::PropSetup(const std::string &name)
    
    mInitialized = false;
    
-   // Name it Internal* so that they can be deleted when new Propagator or ForceModel
+   // Name it Internal* so that they can be deleted when new Propagator or ODEModel
    // is set. These names are not actual names but tells whether they can be deleted or not.
    // When Propagator or ForceModes is cloned these names are set to "" so that they
    // can be deleted.
    mPropagatorName = "InternalPropagator";
-   mForceModelName = "InternalForceModel";
+   mODEModelName = "InternalForceModel";
    
-   // Create default Integrator and ForceModel
+   // Create default Integrator and ODEModel
    mPropagator = new RungeKutta89("RungeKutta89");
-   mForceModel = new ForceModel(mForceModelName);
+   mODEModel = new ODEModel(mODEModelName);
    PhysicalModel *pmf = new PointMassForce;
-   mForceModel->AddForce(pmf);
+   mODEModel->AddForce(pmf);
    
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
       (mPropagator, "RungeKutta89", "PropSetup::PropSetup()",
        "mPropagator = new RungeKutta89()");
    MemoryTracker::Instance()->Add
-      (mForceModel, mForceModelName, "PropSetup::PropSetup()",
-       "mForceModel = new ForceModel()");
+      (mODEModel, mODEModelName, "PropSetup::PropSetup()",
+       "mODEModel = new ODEModel()");
    MemoryTracker::Instance()->Add
       (pmf, "Earth", "PropSetup::PropSetup()", "*pmf = new PointMassForce");
    #endif
@@ -149,8 +149,8 @@ PropSetup::PropSetup(const PropSetup &ps)
 {
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
-      ("PropSetup::PropSetup() entered, Propagator=<%p>, ForceModel=<%p>\n",
-       ps.mPropagator, ps.mForceModel);
+      ("PropSetup::PropSetup() entered, Propagator=<%p>, ODEModel=<%p>\n",
+       ps.mPropagator, ps.mODEModel);
    #endif
    
    ownedObjectCount = ps.ownedObjectCount;
@@ -158,29 +158,29 @@ PropSetup::PropSetup(const PropSetup &ps)
    // PropSetup data
    mInitialized = false;
    mPropagatorName = "";
-   mForceModelName = "";
+   mODEModelName = "";
    mPropagator = NULL;
-   mForceModel = NULL;
+   mODEModel = NULL;
    
    if (ps.mPropagator != NULL)
       mPropagatorName = ps.mPropagator->GetName();
-   if (ps.mForceModel != NULL)
-      mForceModelName = ps.mForceModel->GetName();
+   if (ps.mODEModel != NULL)
+      mODEModelName = ps.mODEModel->GetName();
    
-   // first delete old propagator and forcemodel (loj: 2008.11.04)
+   // first delete old propagator and ODEModel (loj: 2008.11.04)
    DeleteOwnedObject(PROPAGATOR);
-   DeleteOwnedObject(FORCE_MODEL);
+   DeleteOwnedObject(ODE_MODEL);
    ClonePropagator(ps.mPropagator);
-   CloneForceModel(ps.mForceModel);
+   CloneODEModel(ps.mODEModel);
    
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
       ("PropSetup::PropSetup() exiting, Propagator=<%p><%s> '%s'\n   "
-       "ForceModel=<%p><%s> '%s'\n", mPropagator,
+       "ODEModel=<%p><%s> '%s'\n", mPropagator,
        mPropagator ? mPropagator->GetTypeName().c_str() : "NULL",
-       mPropagator ? mPropagator->GetName().c_str() : "NULL", mForceModel,
-       mForceModel ? mForceModel->GetTypeName().c_str() : "NULL",
-       mForceModel ? mForceModel->GetName().c_str() : "NULL");
+       mPropagator ? mPropagator->GetName().c_str() : "NULL", mODEModel,
+       mODEModel ? mODEModel->GetTypeName().c_str() : "NULL",
+       mODEModel ? mODEModel->GetName().c_str() : "NULL");
    #endif
 }
 
@@ -195,8 +195,8 @@ PropSetup& PropSetup::operator= (const PropSetup &ps)
 {
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
-      ("PropSetup::operator=() entered, Propagator=<%p>, ForceModel=<%p>\n",
-       ps.mPropagator, ps.mForceModel);
+      ("PropSetup::operator=() entered, Propagator=<%p>, ODEModel=<%p>\n",
+       ps.mPropagator, ps.mODEModel);
    #endif
    
    if (this == &ps)
@@ -207,28 +207,28 @@ PropSetup& PropSetup::operator= (const PropSetup &ps)
    // PropSetup data
    mInitialized = false;
    mPropagatorName = "";
-   mForceModelName = "";
+   mODEModelName = "";
    mPropagator = NULL;
-   mForceModel = NULL;
+   mODEModel = NULL;
    
    if (ps.mPropagator != NULL)
       mPropagatorName = ps.mPropagator->GetName();
-   if (ps.mForceModel != NULL)
-      mForceModelName = ps.mForceModel->GetName();
+   if (ps.mODEModel != NULL)
+      mODEModelName = ps.mODEModel->GetName();
    
    DeleteOwnedObject(PROPAGATOR);
-   DeleteOwnedObject(FORCE_MODEL);
+   DeleteOwnedObject(ODE_MODEL);
    ClonePropagator(ps.mPropagator);
-   CloneForceModel(ps.mForceModel);
+   CloneODEModel(ps.mODEModel);
    
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
       ("PropSetup::operator=() exiting, Propagator=<%p><%s> '%s'\n   "
-       "ForceModel=<%p><%s> '%s'\n", mPropagator,
+       "ODEModel=<%p><%s> '%s'\n", mPropagator,
        mPropagator ? mPropagator->GetTypeName().c_str() : "NULL",
-       mPropagator ? mPropagator->GetName().c_str() : "NULL", mForceModel,
-       mForceModel ? mForceModel->GetTypeName().c_str() : "NULL",
-       mForceModel ? mForceModel->GetName().c_str() : "NULL");
+       mPropagator ? mPropagator->GetName().c_str() : "NULL", mODEModel,
+       mODEModel ? mODEModel->GetTypeName().c_str() : "NULL",
+       mODEModel ? mODEModel->GetName().c_str() : "NULL");
    #endif
    
    return *this;
@@ -245,12 +245,12 @@ PropSetup::~PropSetup()
 {
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
-      ("PropSetup::~PropSetup() entered, Propagator=<%p>, ForceModel=<%p>\n",
-       mPropagator, mForceModel);
+      ("PropSetup::~PropSetup() entered, Propagator=<%p>, ODEModel=<%p>\n",
+       mPropagator, mODEModel);
    #endif
    
    DeleteOwnedObject(PROPAGATOR, true);
-   DeleteOwnedObject(FORCE_MODEL, true);
+   DeleteOwnedObject(ODE_MODEL, true);
    
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage("PropSetup::~PropSetup() exiting\n");
@@ -261,8 +261,8 @@ PropSetup::~PropSetup()
 // bool IsInitialized()
 //------------------------------------------------------------------------------
 /**
- * @return true if pointers of Propagator and ForceModel are not NULL and
- *    there is at least one Force in the ForceModel; false otherwise.
+ * @return true if pointers of Propagator and ODEModel are not NULL and
+ *    there is at least one Force in the ODEModel; false otherwise.
  */
 //------------------------------------------------------------------------------
 bool PropSetup::IsInitialized()
@@ -289,15 +289,15 @@ Propagator* PropSetup::GetPropagator()
 }
 
 //------------------------------------------------------------------------------
-// ForceModel* GetForceModel()
+// ODEModel* GetODEModel()
 //------------------------------------------------------------------------------
 /**
- *@return internal ForceModel pointer
+ *@return internal ODEModel pointer
  */
 //------------------------------------------------------------------------------
-ForceModel* PropSetup::GetForceModel()
+ODEModel* PropSetup::GetODEModel()
 {
-   return mForceModel;
+   return mODEModel;
 }
 
 //------------------------------------------------------------------------------
@@ -325,31 +325,31 @@ void PropSetup::SetPropagator(Propagator *propagator)
 }
 
 //------------------------------------------------------------------------------
-// void SetForceModel(ForceModel *forceModel)
+// void SetODEModel(ODEModel *ODEModel)
 //------------------------------------------------------------------------------
 /**
  * Sets internal force model pointer to given force model.
  *
- *@param <*forceModel> ForceModel pointer to set internal force model to
+ *@param <*ODEModel> ODEModel pointer to set internal force model to
  */
 //------------------------------------------------------------------------------
-void PropSetup::SetForceModel(ForceModel *forceModel)
+void PropSetup::SetODEModel(ODEModel *odeModel)
 {
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
-      ("PropSetup::SetForceModel() this=<%p> '%s' entered, mForceModel=<%p>, "
-       "forceModel=<%p>\n", this, GetName().c_str(), mForceModel, forceModel);
+      ("PropSetup::SetODEModel() this=<%p> '%s' entered, mODEModel=<%p>, "
+       "ODEModel=<%p>\n", this, GetName().c_str(), mODEModel, ODEModel);
    #endif
    
-   if (forceModel == NULL)
-      throw PropSetupException("SetForceModel() failed: ForceModel is NULL");
+   if (odeModel == NULL)
+      throw PropSetupException("SetODEModel() failed: ODEModel is NULL");
    
-   DeleteOwnedObject(FORCE_MODEL);
-   CloneForceModel(forceModel);
+   DeleteOwnedObject(ODE_MODEL);
+   CloneODEModel(odeModel);
    
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
-      ("PropSetup::SetForceModel() returning, mForceModel=<%p>\n", mForceModel);
+      ("PropSetup::SetODEModel() returning, mODEModel=<%p>\n", mODEModel);
    #endif
 }
 
@@ -363,7 +363,7 @@ void PropSetup::SetForceModel(ForceModel *forceModel)
 //------------------------------------------------------------------------------
 void PropSetup::AddForce(PhysicalModel *force)
 {
-   mForceModel->AddForce(force);
+   mODEModel->AddForce(force);
 }
 
 
@@ -376,7 +376,7 @@ void PropSetup::AddForce(PhysicalModel *force)
 //------------------------------------------------------------------------------
 PhysicalModel* PropSetup::GetForce(Integer index)
 {
-   return mForceModel->GetForce(index);      
+   return mODEModel->GetForce(index);      
 }
 
 
@@ -389,7 +389,7 @@ PhysicalModel* PropSetup::GetForce(Integer index)
 //------------------------------------------------------------------------------
 Integer PropSetup::GetNumForces()
 {
-   return mForceModel->GetNumForces();
+   return mODEModel->GetNumForces();
 }
 
 //------------------------------------------------------------------------------
@@ -468,8 +468,8 @@ bool PropSetup::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    case Gmat::PROPAGATOR:
       SetPropagator((Propagator*)obj);
       return true;
-   case Gmat::FORCE_MODEL:
-      SetForceModel((ForceModel*)obj);
+   case Gmat::ODE_MODEL:
+      SetODEModel((ODEModel*)obj);
       return true;;
    default:
       return false;
@@ -503,7 +503,7 @@ GmatBase* PropSetup::GetOwnedObject(Integer whichOne)
 //---------------------------------------------------------------------------
 bool PropSetup::IsOwnedObject(Integer id) const
 {
-   if (id == PROPAGATOR || id == FORCE_MODEL)
+   if (id == PROPAGATOR || id == ODE_MODEL)
       return true;
    else
       return false;
@@ -560,7 +560,7 @@ const ObjectTypeArray& PropSetup::GetRefObjectTypeArray()
    // object type using property id
    refObjectTypes.clear();
    refObjectTypes.push_back(Gmat::PROPAGATOR);
-   refObjectTypes.push_back(Gmat::FORCE_MODEL);
+   refObjectTypes.push_back(Gmat::ODE_MODEL);
    return refObjectTypes;
 }
 
@@ -584,9 +584,9 @@ const StringArray& PropSetup::GetRefObjectNameArray(const Gmat::ObjectType type)
    if (mPropagatorName != "")
       if (type == Gmat::PROPAGATOR || type == Gmat::UNKNOWN_OBJECT)
          refObjectNames.push_back(mPropagatorName);
-   if (mForceModelName != "")
-      if (type == Gmat::FORCE_MODEL || type == Gmat::UNKNOWN_OBJECT)
-         refObjectNames.push_back(mForceModelName);
+   if (mODEModelName != "")
+      if (type == Gmat::ODE_MODEL || type == Gmat::UNKNOWN_OBJECT)
+         refObjectNames.push_back(mODEModelName);
    return refObjectNames;
 }
 
@@ -665,7 +665,7 @@ Integer PropSetup::GetParameterID(const std::string &str) const
 //---------------------------------------------------------------------------
 bool PropSetup::IsParameterReadOnly(const Integer id) const
 {
-   if (id == FORCE_MODEL || id == PROPAGATOR)
+   if (id == ODE_MODEL || id == PROPAGATOR)
       return false;
    else if (id >= INITIAL_STEP_SIZE && id <= TARGET_ERROR)
       return true;
@@ -713,11 +713,11 @@ std::string PropSetup::GetStringParameter(const Integer id) const
       else
          name = "UndefinedPropagator";
       break;
-   case FORCE_MODEL:
-      if (mForceModel)
-         name = mForceModel->GetName();
+   case ODE_MODEL:
+      if (mODEModel)
+         name = mODEModel->GetName();
       else
-         name = "UndefinedForceModel";
+         name = "UndefinedODEModel";
       break;
    default:
       return GmatBase::GetStringParameter(id);
@@ -762,8 +762,8 @@ bool PropSetup::SetStringParameter(const Integer id, const std::string &value)
    case PROPAGATOR:
       mPropagatorName = value;
       return true;
-   case FORCE_MODEL:
-      mForceModelName = value;
+   case ODE_MODEL:
+      mODEModelName = value;
       return true;
    default:
       return GmatBase::SetStringParameter(id, value);
@@ -925,8 +925,8 @@ Integer PropSetup::SetIntegerParameter(const std::string &label, const Integer v
 // bool Initialize()
 //------------------------------------------------------------------------------
 /**
- * Sets mInitialized to true if pointers of Propagator and ForceModel are not
- * NULL and there is at least one Force in the ForceModel; false otherwise
+ * Sets mInitialized to true if pointers of Propagator and ODEModel are not
+ * NULL and there is at least one Force in the ODEModel; false otherwise
  */
 //------------------------------------------------------------------------------
 bool PropSetup::Initialize()
@@ -945,15 +945,15 @@ bool PropSetup::Initialize()
       mInitialized = false;
    }
    
-   if (mForceModel == NULL)
+   if (mODEModel == NULL)
    {
       #ifdef DEBUG_INITIALIZATION
          MessageInterface::ShowMessage(
-            "PropSetup::Initialize() mForceModel is NULL\n");
+            "PropSetup::Initialize() mODEModel is NULL\n");
       #endif
       mInitialized = false;
    }
-   else if (mForceModel->GetNumForces() == 0)
+   else if (mODEModel->GetNumForces() == 0)
    {
       #ifdef DEBUG_INITIALIZATION
          MessageInterface::ShowMessage(
@@ -969,11 +969,11 @@ bool PropSetup::Initialize()
    
    if (mInitialized == true)
    {
-      mPropagator->SetPhysicalModel(mForceModel);
+      mPropagator->SetPhysicalModel(mODEModel);
       #ifdef DEBUG_INITIALIZATION
          MessageInterface::ShowMessage(
             "PropSetup::Initialize() after SetPhysicalModel(%s) \n",
-            mForceModel->GetName().c_str());
+            mODEModel->GetName().c_str());
       #endif
 
       mPropagator->Initialize();
@@ -1007,33 +1007,33 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
 {
    #ifdef DEBUG_PROPSETUP_GEN_STRING
    MessageInterface::ShowMessage
-      ("PropSetup::GetGeneratingString() '%s' entered, mForceModel=<%p> '%s'\n",
-       GetName().c_str(), mForceModel,
-       mForceModel ? mForceModel->GetName().c_str() : "NULL");
+      ("PropSetup::GetGeneratingString() '%s' entered, mODEModel=<%p> '%s'\n",
+       GetName().c_str(), mODEModel,
+       mODEModel ? mODEModel->GetName().c_str() : "NULL");
    #endif
    std::string gen, fmName = "", temp;
-   bool showForceModel = false;
-   if (mForceModel != NULL)
+   bool showODEModel = false;
+   if (mODEModel != NULL)
    {
-      temp = mForceModel->GetName();
+      temp = mODEModel->GetName();
       if (temp == "")
       {
-         fmName = instanceName + "_ForceModel";
-         showForceModel = true;
+         fmName = instanceName + "_ODEModel";
+         showODEModel = true;
       }
       else
          fmName = temp;
       
       if (mode == Gmat::SHOW_SCRIPT)
-         showForceModel = true;
+         showODEModel = true;
       
       #ifdef DEBUG_PROPSETUP_GEN_STRING
       MessageInterface::ShowMessage
-         ("   fmName='%s', showForceModel=%d\n", fmName.c_str(), showForceModel);
+         ("   fmName='%s', showODEModel=%d\n", fmName.c_str(), showODEModel);
       #endif
       
-      if (showForceModel)
-         gen = mForceModel->GetGeneratingString(mode, prefix, fmName) + "\n";
+      if (showODEModel)
+         gen = mODEModel->GetGeneratingString(mode, prefix, fmName) + "\n";
    }
    
    gen += GmatBase::GetGeneratingString(mode, prefix, useName);
@@ -1080,33 +1080,33 @@ void PropSetup::ClonePropagator(Propagator *prop)
 
 
 //------------------------------------------------------------------------------
-// void CloneForceModel(ForceModel *fm)
+// void CloneODEModel(ODEModel *fm)
 //------------------------------------------------------------------------------
-void PropSetup::CloneForceModel(ForceModel *fm)
+void PropSetup::CloneODEModel(ODEModel *fm)
 {
    #ifdef DEBUG_PROPSETUP_CLONE
    MessageInterface::ShowMessage
-      ("PropSetup::CloneForceModel() entered, fm=<%p>\n", fm);
+      ("PropSetup::CloneODEModel() entered, fm=<%p>\n", fm);
    #endif
    if (fm != NULL)
    {
-      mForceModelName = "";
-      mForceModel = (ForceModel *)(fm->Clone());
+      mODEModelName = "";
+      mODEModel = (ODEModel *)(fm->Clone());
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (mForceModel, mForceModelName, "PropSetup::CloneForceModel()",
-          "mForceModel = fm->Clone()");
+         (mODEModel, mODEModelName, "PropSetup::CloneODEModel()",
+          "mODEModel = fm->Clone()");
       #endif
    }
    else
    {
-      mForceModelName = "";
-      mForceModel = NULL;
+      mODEModelName = "";
+      mODEModel = NULL;
    }
    #ifdef DEBUG_PROPSETUP_CLONE
    MessageInterface::ShowMessage
-      ("PropSetup::CloneForceModel() exiting, mForceModelName='%s', mForceModel=<%p>\n",
-       mForceModelName.c_str(), mForceModel);
+      ("PropSetup::CloneODEModel() exiting, mODEModelName='%s', mODEModel=<%p>\n",
+       mODEModelName.c_str(), mODEModel);
    #endif
 }
 
@@ -1125,7 +1125,7 @@ void PropSetup::CloneForceModel(ForceModel *fm)
 //------------------------------------------------------------------------------
 void PropSetup::DeleteOwnedObject(Integer id, bool forceDelete)
 {
-   // Since Propagator and ForceModel are cloned delete them here. (loj: 2008.11.05)
+   // Since Propagator and ODEModel are cloned delete them here. (loj: 2008.11.05)
    if (id == PROPAGATOR)
    {
       #ifdef DEBUG_PROPSETUP_DELETE
@@ -1150,28 +1150,28 @@ void PropSetup::DeleteOwnedObject(Integer id, bool forceDelete)
          }
       }
    }
-   else if (id == FORCE_MODEL)
+   else if (id == ODE_MODEL)
    {
       #ifdef DEBUG_PROPSETUP_DELETE
       MessageInterface::ShowMessage
-         ("PropSetup::DeleteOwnedObject() mForceModel=<%p>, mForceModelName='%s'\n",
-          mForceModel, mForceModelName.c_str());
+         ("PropSetup::DeleteOwnedObject() mODEModel=<%p>, mODEModelName='%s'\n",
+          mODEModel, mODEModelName.c_str());
       #endif
-      if (mForceModel != NULL)
+      if (mODEModel != NULL)
       {
-         // delete cloned ForceModel 
+         // delete cloned ODEModel 
          if (forceDelete ||
              (!forceDelete &&
-              (mForceModelName == "" || mForceModelName == "InternalForceModel")))
+              (mODEModelName == "" || mODEModelName == "InternalODEModel")))
          {
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
-               (mForceModel, mForceModelName, "PropSetup::DeleteOwnedObject()",
-                "deleting mForceModel");
+               (mODEModel, mODEModelName, "PropSetup::DeleteOwnedObject()",
+                "deleting mODEModel");
             #endif
-            delete mForceModel;
-            mForceModelName = "";
-            mForceModel = NULL;
+            delete mODEModel;
+            mODEModelName = "";
+            mODEModel = NULL;
          }
       }
    }
@@ -1199,13 +1199,13 @@ Integer PropSetup::GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const
          
          actualId = mPropagator->GetParameterID(GetParameterText(id));
       }
-      else if (objType == Gmat::FORCE_MODEL)
+      else if (objType == Gmat::ODE_MODEL)
       {
-         if (mForceModel == NULL)
+         if (mODEModel == NULL)
             throw PropSetupException
-               ("PropSetup::GetOwnedObjectId() failed: ForceModel is NULL");
+               ("PropSetup::GetOwnedObjectId() failed: ODEModel is NULL");
          
-         actualId = mForceModel->GetParameterID(GetParameterText(id));
+         actualId = mODEModel->GetParameterID(GetParameterText(id));
       }
    }
    catch (BaseException &e)

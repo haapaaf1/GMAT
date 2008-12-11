@@ -28,7 +28,7 @@
 #include "Spacecraft.hpp"
 #include "Parameter.hpp"
 #include "Propagator.hpp"
-#include "ForceModel.hpp"
+#include "ODEModel.hpp"
 #include "PhysicalModel.hpp"
 #include "PropSetup.hpp"
 #include "StopCondition.hpp"
@@ -112,7 +112,8 @@ public:
    //----- Just container
    SolarSystem*           CreateSolarSystem(const std::string &withName = "");
    PropSetup*             CreatePropSetup(const std::string &withName = "");
-   ForceModel*            CreateForceModel(const std::string &withName = "");
+   ODEModel*              CreateODEModel(const std::string &ofType,
+                                         const std::string &withName = "");
    CoordinateSystem*      CreateCoordinateSystem(const std::string &withName = "");
    
    // method to return a list of strings representing the objects of the input

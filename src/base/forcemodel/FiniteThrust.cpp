@@ -216,7 +216,7 @@ bool FiniteThrust::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 {
    if (type == Gmat::FINITE_BURN) {
       if (obj->GetTypeName() != "FiniteBurn")
-         throw ForceModelException(
+         throw ODEModelException(
             "FiniteThrust::SetRefObject cannot use objects of type " + 
             obj->GetTypeName());
       if (find(burns.begin(), burns.end(), obj) == burns.end())
@@ -274,7 +274,7 @@ void FiniteThrust::SetPropList(std::vector<SpaceObject*> *soList)
 bool FiniteThrust::Initialize()
 {
    if (!PhysicalModel::Initialize())
-      throw ForceModelException("Unable to initialize FiniteThrust base");
+      throw ODEModelException("Unable to initialize FiniteThrust base");
       
    // set up the indices into the state vector that match spacecraft with active 
    // thrusters
@@ -360,7 +360,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order)
          #endif
 
          if (sat->GetType() != Gmat::SPACECRAFT)
-            throw ForceModelException("FiniteThrust::GetDerivatives Finite "
+            throw ODEModelException("FiniteThrust::GetDerivatives Finite "
             "burns cannot maneuver " + sat->GetTypeName() + " objects");
          // Start with zero thrust
          mDot = accel[0] = accel[1] = accel[2] = 0.0;
@@ -397,7 +397,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order)
          {
             std::stringstream massval;
             massval << mTotal;
-            throw ForceModelException("Finite thrust applied to spacecraft " +
+            throw ODEModelException("Finite thrust applied to spacecraft " +
                      sat->GetName() + " which has nonphysical mass " +
                      massval.str());
          }

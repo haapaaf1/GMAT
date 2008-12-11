@@ -29,7 +29,7 @@ class SpaceObject;
 class Parameter;
 class Burn;
 class Propagator;
-class ForceModel;
+class ODEModel;
 class PhysicalModel;
 class PropSetup;
 class StopCondition;
@@ -62,7 +62,7 @@ public:
                                              const std::string &withName = "");        
    virtual Propagator*      CreatePropagator(const std::string &ofType,
                                              const std::string &withName = "");
-   virtual ForceModel*      CreateForceModel(const std::string &ofType,
+   virtual ODEModel*        CreateODEModel(const std::string &ofType,
                                              const std::string &withName = "");
    virtual PhysicalModel*   CreatePhysicalModel(const std::string &ofType,
                                                 const std::string &withName = "");

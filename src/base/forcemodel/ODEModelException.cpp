@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                             ForceModelException
+//                             ODEModelException
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool.
 //
@@ -18,11 +18,11 @@
 //------------------------------------------------------------------------------
 
 
-#include "ForceModelException.hpp"
+#include "ODEModelException.hpp"
 
 
 //------------------------------------------------------------------------------
-//  ForceModelException(std::string details)
+//  ODEModelException(std::string details)
 //------------------------------------------------------------------------------
 /**
  * Constructs CommandException instance (default constructor).
@@ -30,8 +30,8 @@
  * @param details A message providing the details of the exception. 
  */
 //------------------------------------------------------------------------------
-ForceModelException::ForceModelException(const std::string &details) :
-    BaseException           ("ForceModel Exception Thrown: ", details)
+ODEModelException::ODEModelException(const std::string &details) :
+    BaseException           ("ODEModel Exception Thrown: ", details)
 {
 }
 
@@ -43,7 +43,7 @@ ForceModelException::ForceModelException(const std::string &details) :
  * Class destructor.
  */
 //------------------------------------------------------------------------------
-ForceModelException::~ForceModelException()
+ODEModelException::~ODEModelException()
 {
 }
 
@@ -55,7 +55,7 @@ ForceModelException::~ForceModelException()
  * Constructs CommandException instance (copy constructor). 
  */
 //------------------------------------------------------------------------------
-ForceModelException::ForceModelException(const ForceModelException &fme) :
+ODEModelException::ODEModelException(const ODEModelException &fme) :
     BaseException       (fme)
 {
 }

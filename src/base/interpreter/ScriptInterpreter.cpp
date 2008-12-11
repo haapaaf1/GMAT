@@ -1039,7 +1039,7 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    //-----------------------------------
    // Force Model
    //-----------------------------------
-   objs = theModerator->GetListOfObjects(Gmat::FORCE_MODEL);
+   objs = theModerator->GetListOfObjects(Gmat::ODE_MODEL);
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Force Models\n", objs.size());
    #endif

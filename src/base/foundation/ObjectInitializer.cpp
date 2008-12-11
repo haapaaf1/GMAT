@@ -730,12 +730,12 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
    obj->SetSolarSystem(ss);
    // PropSetup probably should do this...
    if ((obj->GetType() == Gmat::PROP_SETUP) ||
-       (obj->GetType() == Gmat::FORCE_MODEL))
+       (obj->GetType() == Gmat::ODE_MODEL))
    {
       #ifdef DEBUG_OBJECT_INITIALIZER
-         MessageInterface::ShowMessage("--- it is a PropSetup or ForceModel ...\n");
+         MessageInterface::ShowMessage("--- it is a PropSetup or ODEModel ...\n");
       #endif
-      ForceModel *fm = ((PropSetup *)obj)->GetForceModel();
+      ODEModel *fm = ((PropSetup *)obj)->GetODEModel();
       fm->SetSolarSystem(ss);
       
       // Handle the coordinate systems
@@ -868,7 +868,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
          #endif
       }
 
-      if (obj->GetType() == Gmat::FORCE_MODEL)
+      if (obj->GetType() == Gmat::ODE_MODEL)
          return;
    }
 

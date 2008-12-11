@@ -2169,7 +2169,7 @@ bool Propagate::Initialize()
          throw CommandException("Propagator not set in PropSetup\n");
    
       // Toss the spacecraft into the force model
-      ForceModel *fm = prop[index]->GetForceModel();
+      ODEModel *fm = prop[index]->GetODEModel();
       if (!fm)
          throw CommandException("ForceModel not set in PropSetup\n");
       fm->ClearSpacecraft();
@@ -2456,10 +2456,10 @@ void Propagate::PrepareToPropagate()
                for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
                     i != transientForces->end(); ++i) 
                {
-                  ForceModel *fm = prop[index]->GetForceModel();
+                  ODEModel *fm = prop[index]->GetODEModel();
                   const StringArray sar = fm->GetRefObjectNameArray(Gmat::SPACEOBJECT);
                   if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end()) 
-                     prop[index]->GetForceModel()->AddForce(*i);
+                     prop[index]->GetODEModel()->AddForce(*i);
                }
             }
          }
@@ -2642,7 +2642,7 @@ void Propagate::PrepareToPropagate()
       elapsedTime.push_back(0.0);
       currEpoch.push_back(0.0);
       p.push_back(prop[n]->GetPropagator());
-      fm.push_back(prop[n]->GetForceModel());
+      fm.push_back(prop[n]->GetODEModel());
       fm[n]->SetTime(0.0);
       fm[n]->UpdateInitialData();
    
@@ -4143,7 +4143,7 @@ void Propagate::RunComplete()
  * @param <p>    The current ForceModel that is receiving the forces.
  */
 //------------------------------------------------------------------------------
-void Propagate::AddTransientForce(StringArray *sats, ForceModel *p)
+void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
 {
    // Find any transient force that is active and add it to the force model
    for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
@@ -4194,13 +4194,13 @@ void Propagate::AddTransientForce(StringArray *sats, ForceModel *p)
 //------------------------------------------------------------------------------
 void Propagate::ClearTransientForces()
 {
-   ForceModel *fm;
+   ODEModel *fm;
    PhysicalModel *pm;
    
    // Loop through the forces in each force model, and remove transient ones
    for (std::vector<PropSetup*>::iterator p = prop.begin(); 
         p != prop.end(); ++p) {
-      fm = (*p)->GetForceModel();
+      fm = (*p)->GetODEModel();
       if (!fm)
          throw CommandException("ForceModel not set in PropSetup \"" + 
                                 (*p)->GetName() + "\"");

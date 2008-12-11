@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                         ForceModelFactory
+//                         ODEModelFactory
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,33 +13,33 @@
 // Created: 2003/10/14
 //
 /**
- *  This class is the factory class for ForceModels.  
+ *  This class is the factory class for ODEModels.  
  */
 //------------------------------------------------------------------------------
-#ifndef ForceModelFactory_hpp
-#define ForceModelFactory_hpp
+#ifndef ODEModelFactory_hpp
+#define ODEModelFactory_hpp
 
 #include "gmatdefs.hpp"
 #include "Factory.hpp"
-#include "ForceModel.hpp"
+#include "ODEModel.hpp"
 
-class GMAT_API ForceModelFactory : public Factory
+class GMAT_API ODEModelFactory : public Factory
 {
 public:
-   ForceModel*  CreateForceModel(const std::string &ofType,
+   ODEModel*  CreateODEModel(const std::string &ofType,
                                  const std::string &withName = "");
 
    // default constructor
-   ForceModelFactory();
+   ODEModelFactory();
    // constructor
-   ForceModelFactory(StringArray createList);
+   ODEModelFactory(StringArray createList);
    // copy constructor
-   ForceModelFactory(const ForceModelFactory& fact);
+   ODEModelFactory(const ODEModelFactory& fact);
    // assignment operator
-   ForceModelFactory& operator= (const ForceModelFactory& fact);
+   ODEModelFactory& operator= (const ODEModelFactory& fact);
 
    // destructor
-   ~ForceModelFactory();
+   ~ODEModelFactory();
 
 protected:
    // protected data
@@ -50,7 +50,7 @@ private:
 
 };
 
-#endif // ForceModelFactory_hpp
+#endif // ODEModelFactory_hpp
 
 
 

@@ -1,8 +1,8 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                              ForceModel
+//                              ODEModel
 //------------------------------------------------------------------------------
-// *** File Name : ForceModel.cpp
+// *** File Name : ODEModel.cpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
@@ -34,7 +34,7 @@
 //                           : 10/01/2003 - W. Waktola, Missions Applications Branch
 //                              Changes:
 //                                - Updated style using GMAT cpp style guide
-//                                - Changed FlightDynamicsForces class to ForceModel class
+//                                - Changed FlightDynamicsForces class to ODEModel class
 //
 //                           : 10/20/2003 - W. Waktola, Missions Applications Branch
 //                              Changes:
@@ -46,7 +46,7 @@
 //                             increases based on the member forces
 // **************************************************************************
 
-#include "ForceModel.hpp"
+#include "ODEModel.hpp"
 #include "PointMassForce.hpp"
 #include "MessageInterface.hpp"
 #include "Formation.hpp"      // for BuildState()
@@ -54,11 +54,11 @@
 #include <string.h> 
 
 
-//#define DEBUG_FORCEMODEL
-//#define DEBUG_FORCEMODEL_INIT
-//#define DEBUG_FORCEMODEL_EXE
+//#define DEBUG_ODEMODEL
+//#define DEBUG_ODEMODEL_INIT
+//#define DEBUG_ODEMODEL_EXE
 //#define DEBUG_FORCE_REF_OBJ
-//#define DEBUG_FORCEMODEL_EPOCHS
+//#define DEBUG_ODEMODEL_EPOCHS
 //#define DEBUG_SATELLITE_PARAMETERS
 //#define DEBUG_FIRST_CALL
 //#define DEBUG_GEN_STRING
@@ -82,7 +82,7 @@ static bool firstCallFired = false;
 #endif
 
 const std::string
-ForceModel::PARAMETER_TEXT[ForceModelParamCount - PhysicalModelParamCount] =
+ODEModel::PARAMETER_TEXT[ODEModelParamCount - PhysicalModelParamCount] =
 {
    "CentralBody",
    "PrimaryBodies",
@@ -101,7 +101,7 @@ ForceModel::PARAMETER_TEXT[ForceModelParamCount - PhysicalModelParamCount] =
 
 
 const Gmat::ParameterType
-ForceModel::PARAMETER_TYPE[ForceModelParamCount - PhysicalModelParamCount] =
+ODEModel::PARAMETER_TYPE[ODEModelParamCount - PhysicalModelParamCount] =
 {
    Gmat::OBJECT_TYPE,       // "CentralBody",
    Gmat::OBJECTARRAY_TYPE,  // "PrimaryBodies",
@@ -120,7 +120,7 @@ ForceModel::PARAMETER_TYPE[ForceModelParamCount - PhysicalModelParamCount] =
 
 
 // Table of alternative words used in force model scripting
-std::map<std::string, std::string> ForceModel::scriptAliases;
+std::map<std::string, std::string> ODEModel::scriptAliases;
 
 
 //---------------------------------
@@ -129,15 +129,15 @@ std::map<std::string, std::string> ForceModel::scriptAliases;
 
 
 //------------------------------------------------------------------------------
-// ForceModel::ForceModel(Gmat::ObjectType id, const std::string &typeStr,
+// ODEModel::ODEModel(Gmat::ObjectType id, const std::string &typeStr,
 //                        const std::string &nomme))
 //------------------------------------------------------------------------------
 /**
  * The constructor
  */
 //------------------------------------------------------------------------------
-ForceModel::ForceModel(const std::string &nomme) :
-   PhysicalModel     (Gmat::FORCE_MODEL, "ForceModel", nomme),
+ODEModel::ODEModel(const std::string &nomme, const std::string typeNomme) :
+   PhysicalModel     (Gmat::ODE_MODEL, typeNomme, nomme),
    previousState     (NULL),
    estimationMethod  (ESTIMATE_LOCALLY),
    normType          (L2_DIFFERENCES),
@@ -153,30 +153,31 @@ ForceModel::ForceModel(const std::string &nomme) :
    satIds[0] = satIds[1] = satIds[2] = satIds[3] = satIds[4] = 
    satIds[5] = satIds[6] = -1;
    
-   objectTypes.push_back(Gmat::FORCE_MODEL);
-   objectTypeNames.push_back("ForceModel");
+   objectTypes.push_back(Gmat::ODE_MODEL);
+   objectTypeNames.push_back("ODEModel");
+   objectTypeNames.push_back("ForceModel"); // For backwards compatibility
 
    numForces = 0;
    stateSize = 6;
    dimension = 6;
    currentForce = 0;
-   parameterCount = ForceModelParamCount;
+   parameterCount = ODEModelParamCount;
 }
 
 
 //------------------------------------------------------------------------------
-// ForceModel::~ForceModel()
+// ODEModel::~ODEModel()
 //------------------------------------------------------------------------------
 /**
  * The destructor
  * The destructor deletes the list of PhysicalModel instances.
  */
 //------------------------------------------------------------------------------
-ForceModel::~ForceModel()
+ODEModel::~ODEModel()
 {
-   #ifdef DEBUG_FORCEMODEL
+   #ifdef DEBUG_ODEMODEL
    MessageInterface::ShowMessage
-      ("ForceModel destructor entered, this=<%p>'%s', has %d forces\n",
+      ("ODEModel destructor entered, this=<%p>'%s', has %d forces\n",
        this, GetName().c_str(), forceList.size());
    #endif
    
@@ -196,7 +197,7 @@ ForceModel::~ForceModel()
       {
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
-            (pm, pm->GetName(), "ForceModel::~ForceModel()",
+            (pm, pm->GetName(), "ODEModel::~ODEModel()",
              "deleting non-transient force of " + pm->GetTypeName());
          #endif
          delete pm;
@@ -211,26 +212,26 @@ ForceModel::~ForceModel()
          epochFile.close();
    #endif
       
-   #ifdef DEBUG_FORCEMODEL
-   MessageInterface::ShowMessage("ForceModel destructor exiting\n");
+   #ifdef DEBUG_ODEMODEL
+   MessageInterface::ShowMessage("ODEModel destructor exiting\n");
    #endif
 }
 
 //------------------------------------------------------------------------------
-// ForceModel::ForceModel(const ForceModel& fdf)
+// ODEModel::ODEModel(const ODEModel& fdf)
 //------------------------------------------------------------------------------
 /**
  * Copy constructor
  *
- * NOTE: The ForceModel copy constructor is not yet implemented.  This
+ * NOTE: The ODEModel copy constructor is not yet implemented.  This
  * method should be completed before the class is used in external code.
  *
- * @param fdf   The original of the ForceModel that is copied
+ * @param fdf   The original of the ODEModel that is copied
  * 
  * @todo Check the PhysicalModel copy constructors and assignment operators.
  */
 //------------------------------------------------------------------------------
-ForceModel::ForceModel(const ForceModel& fdf) :
+ODEModel::ODEModel(const ODEModel& fdf) :
    PhysicalModel              (fdf),
    previousState              (fdf.previousState),
    estimationMethod           (fdf.estimationMethod),
@@ -246,8 +247,8 @@ ForceModel::ForceModel(const ForceModel& fdf) :
    earthEq                    (fdf.earthEq),
    earthFixed                 (fdf.earthFixed)
 {
-   #ifdef DEBUG_FORCEMODEL
-   MessageInterface::ShowMessage("ForceModel copy constructor entered\n");
+   #ifdef DEBUG_ODEMODEL
+   MessageInterface::ShowMessage("ODEModel copy constructor entered\n");
    #endif
    
    satIds[0] = satIds[1] = satIds[2] = satIds[3] = satIds[4] = 
@@ -262,7 +263,7 @@ ForceModel::ForceModel(const ForceModel& fdf) :
    transientForceNames = fdf.transientForceNames;
    forceReferenceNames = fdf.forceReferenceNames;
    
-   parameterCount = ForceModelParamCount;
+   parameterCount = ODEModelParamCount;
    
    spacecraft.clear();
    forceList.clear();
@@ -272,7 +273,7 @@ ForceModel::ForceModel(const ForceModel& fdf) :
    for (std::vector<PhysicalModel *>::const_iterator pm = fdf.forceList.begin();
         pm != fdf.forceList.end(); ++pm)
    {
-      #ifdef DEBUG_FORCEMODEL
+      #ifdef DEBUG_ODEMODEL
       GmatBase *obj = (*pm);
       MessageInterface::ShowMessage
          ("   Cloning PhysicalModel <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
@@ -282,7 +283,7 @@ ForceModel::ForceModel(const ForceModel& fdf) :
       forceList.push_back(newPm);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (newPm, newPm->GetName(), "ForceModel::ForceModel()",
+         (newPm, newPm->GetName(), "ODEModel::ODEModel()",
           "*newPm = (*pm)->Clone()");
       #endif
    }
@@ -290,18 +291,18 @@ ForceModel::ForceModel(const ForceModel& fdf) :
 
 
 //------------------------------------------------------------------------------
-// ForceModel& ForceModel::operator=(const ForceModel& fdf)
+// ODEModel& ODEModel::operator=(const ODEModel& fdf)
 //------------------------------------------------------------------------------
 /**
  * The assignment operator.
  * 
- * NOTE: The ForceModel assignment operator is not yet tested.  This method 
+ * NOTE: The ODEModel assignment operator is not yet tested.  This method 
  *       should be validated before the class is used in external code.
  * 
- * @param fdf   The original of the ForceModel that are copied
+ * @param fdf   The original of the ODEModel that are copied
  */
 //------------------------------------------------------------------------------
-ForceModel& ForceModel::operator=(const ForceModel& fdf)
+ODEModel& ODEModel::operator=(const ODEModel& fdf)
 {
    if (&fdf == this)
         return *this;
@@ -323,7 +324,7 @@ ForceModel& ForceModel::operator=(const ForceModel& fdf)
    parametersSetOnce   = false;
    modelEpochId        = -1;
    
-   parameterCount      = ForceModelParamCount;
+   parameterCount      = ODEModelParamCount;
    centralBodyName     = fdf.centralBodyName;
    j2kBodyName         = fdf.j2kBodyName;
    
@@ -346,7 +347,7 @@ ForceModel& ForceModel::operator=(const ForceModel& fdf)
       forceList.push_back(newPm);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (newPm, newPm->GetName(), "ForceModel::operator=",
+         (newPm, newPm->GetName(), "ODEModel::operator=",
           "*newPm = (*pm)->Clone()");
       #endif
    }
@@ -355,7 +356,7 @@ ForceModel& ForceModel::operator=(const ForceModel& fdf)
 }
 
 //------------------------------------------------------------------------------
-// void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
+// void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 //------------------------------------------------------------------------------
 /**
  * Method used to add a new force to the force model
@@ -380,15 +381,15 @@ ForceModel& ForceModel::operator=(const ForceModel& fdf)
  * @todo Document the mass depletion approach.
  */
 //------------------------------------------------------------------------------
-void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
+void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 {
    if (pPhysicalModel == NULL)
-      throw ForceModelException("Attempting to add a NULL force to " +
+      throw ODEModelException("Attempting to add a NULL force to " +
          instanceName);
 
-   #ifdef DEBUG_FORCEMODEL_INIT
+   #ifdef DEBUG_ODEMODEL_INIT
       MessageInterface::ShowMessage(
-         "ForceModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
+         "ODEModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
          pPhysicalModel->GetTypeName().c_str());
    #endif       
     
@@ -414,7 +415,7 @@ void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
          if ((compType == "GravityField"))
          {
             if ((*i)->GetBodyName() == forceBody && (*i) != pPhysicalModel)
-               throw ForceModelException(
+               throw ODEModelException(
                   "Attempted to add a " + pmType + 
                   " force to the force model for the body " + forceBody +
                   ", but there is already a " + compType + 
@@ -437,7 +438,7 @@ void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
          }
       }
       if (hasGravityField == false)
-         throw ForceModelException(
+         throw ODEModelException(
             "Attempted to add a drag force for the body " + forceBody +
             ", but that body is not set as a primary body, so it does not " +
             "support additional forces.");
@@ -456,7 +457,7 @@ void ForceModel::AddForce(PhysicalModel *pPhysicalModel)
  * @param name The name of the force to delete
  */
 //------------------------------------------------------------------------------
-void ForceModel::DeleteForce(const std::string &name)
+void ODEModel::DeleteForce(const std::string &name)
 {
    for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
         force != forceList.end(); ++force) 
@@ -473,7 +474,7 @@ void ForceModel::DeleteForce(const std::string &name)
          {
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
-               (pm, pm->GetName(), "ForceModel::DeleteForce()",
+               (pm, pm->GetName(), "ODEModel::DeleteForce()",
                 "deleting non-transient force of " + pm->GetTypeName());
             #endif
             delete pm;
@@ -494,7 +495,7 @@ void ForceModel::DeleteForce(const std::string &name)
  * @param pPhyscialModel The force name to delete
  */
 //------------------------------------------------------------------------------
-void ForceModel::DeleteForce(PhysicalModel *pPhysicalModel)
+void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
 {
    for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
         force != forceList.end(); ++force) 
@@ -510,7 +511,7 @@ void ForceModel::DeleteForce(PhysicalModel *pPhysicalModel)
          {
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
-               (pm, pm->GetName(), "ForceModel::DeleteForce()",
+               (pm, pm->GetName(), "ODEModel::DeleteForce()",
                 "deleting non-transient force of " + pm->GetTypeName());
             #endif
             delete pm;
@@ -532,7 +533,7 @@ void ForceModel::DeleteForce(PhysicalModel *pPhysicalModel)
  * @return true if force exists, else false
  */
 //------------------------------------------------------------------------------
-bool ForceModel::HasForce(const std::string &name)
+bool ODEModel::HasForce(const std::string &name)
 {
    for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
        force != forceList.end(); force++) 
@@ -547,7 +548,7 @@ bool ForceModel::HasForce(const std::string &name)
 //------------------------------------------------------------------------------
 // Integer GetNumForces()
 //------------------------------------------------------------------------------
-Integer ForceModel::GetNumForces()
+Integer ODEModel::GetNumForces()
 {
     return numForces;
 }
@@ -556,7 +557,7 @@ Integer ForceModel::GetNumForces()
 //------------------------------------------------------------------------------
 // StringArray& GetForceTypeNames()
 //------------------------------------------------------------------------------
-StringArray& ForceModel::GetForceTypeNames()
+StringArray& ODEModel::GetForceTypeNames()
 {
     forceTypeNames.clear();
 
@@ -569,7 +570,7 @@ StringArray& ForceModel::GetForceTypeNames()
 //------------------------------------------------------------------------------
 // std::string GetForceTypeName(Integer index)
 //------------------------------------------------------------------------------
-std::string ForceModel::GetForceTypeName(Integer index)
+std::string ODEModel::GetForceTypeName(Integer index)
 {
     StringArray typeList = GetForceTypeNames();
     
@@ -583,7 +584,7 @@ std::string ForceModel::GetForceTypeName(Integer index)
 //------------------------------------------------------------------------------
 // void ClearSpacecraft()
 //------------------------------------------------------------------------------
-void ForceModel::ClearSpacecraft()
+void ODEModel::ClearSpacecraft()
 {
     spacecraft.clear();
 }
@@ -592,7 +593,7 @@ void ForceModel::ClearSpacecraft()
 //------------------------------------------------------------------------------
 // PhysicalModel* GetForce(Integer index) const
 //------------------------------------------------------------------------------
-PhysicalModel* ForceModel::GetForce(Integer index) const
+PhysicalModel* ODEModel::GetForce(Integer index) const
 {
     if (index >= 0 && index < numForces)
        return forceList[index];
@@ -613,7 +614,7 @@ PhysicalModel* ForceModel::GetForce(Integer index) const
  * @return The pointer to that force instance.
  */
 //------------------------------------------------------------------------------
-const PhysicalModel* ForceModel::GetForce(std::string forcetype, 
+const PhysicalModel* ODEModel::GetForce(std::string forcetype, 
                                           Integer whichOne) const
 {
    Integer i = 0;
@@ -635,7 +636,7 @@ const PhysicalModel* ForceModel::GetForce(std::string forcetype,
 
 
 //------------------------------------------------------------------------------
-// bool ForceModel::AddSpaceObject(SpaceObject *so)
+// bool ODEModel::AddSpaceObject(SpaceObject *so)
 //------------------------------------------------------------------------------
 /**
  * Sets spacecraft and formations that use this force model.
@@ -646,7 +647,7 @@ const PhysicalModel* ForceModel::GetForce(std::string forcetype,
  *         in the list, or if it is NULL.
  */
 //------------------------------------------------------------------------------
-bool ForceModel::AddSpaceObject(SpaceObject *so)
+bool ODEModel::AddSpaceObject(SpaceObject *so)
 {
     if (so == NULL)
         return false;
@@ -663,7 +664,7 @@ bool ForceModel::AddSpaceObject(SpaceObject *so)
     else
     {
        if (j2kBodyName != soJ2KBodyName)
-          throw ForceModelException(
+          throw ODEModelException(
              "Force model error -- the internal reference body for all "
              "spacecraft in a force model must be the same.\n"
              "The J2000Body for " + so->GetName() + " is " + soJ2KBodyName +
@@ -682,13 +683,13 @@ bool ForceModel::AddSpaceObject(SpaceObject *so)
 
 
 //------------------------------------------------------------------------------
-// void ForceModel::UpdateSpaceObject(Real newEpoch)
+// void ODEModel::UpdateSpaceObject(Real newEpoch)
 //------------------------------------------------------------------------------
 /**
  * Updates state data for the spacecraft or formation that use this force model.
  */
 //------------------------------------------------------------------------------
-void ForceModel::UpdateSpaceObject(Real newEpoch)
+void ODEModel::UpdateSpaceObject(Real newEpoch)
 {
    if (spacecraft.size() > 0) {
       Integer j = 0;
@@ -719,9 +720,9 @@ void ForceModel::UpdateSpaceObject(Real newEpoch)
             newepoch = newEpoch;
          
          (*sat)->SetRealParameter(satIds[0], newepoch);
-         #ifdef DEBUG_FORCEMODEL_EXE
+         #ifdef DEBUG_ODEMODEL_EXE
              MessageInterface::ShowMessage
-                ("ForceModel::UpdateSpacecraft() on \"%s\" prevElapsedTime=%f "
+                ("ODEModel::UpdateSpacecraft() on \"%s\" prevElapsedTime=%f "
                  "elapsedTime=%f newepoch=%f\n", (*sat)->GetName().c_str(), 
                  prevElapsedTime, elapsedTime, newepoch);
          #endif
@@ -743,7 +744,7 @@ void ForceModel::UpdateSpaceObject(Real newEpoch)
  *       folded into the code
  */
 //------------------------------------------------------------------------------
-void ForceModel::UpdateFromSpaceObject()
+void ODEModel::UpdateFromSpaceObject()
 {
     if (spacecraft.size() > 0) 
     {
@@ -776,11 +777,11 @@ void ForceModel::UpdateFromSpaceObject()
  *       folded into the code
  */
 //------------------------------------------------------------------------------
-void ForceModel::RevertSpaceObject()
+void ODEModel::RevertSpaceObject()
 {
-   #ifdef DEBUG_FORCEMODEL_EXE
+   #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage
-         ("ForceModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
+         ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
           prevElapsedTime, elapsedTime);
    #endif
    //loj: 7/1/04 elapsedTime = previousTime;
@@ -792,29 +793,29 @@ void ForceModel::RevertSpaceObject()
 
 
 //------------------------------------------------------------------------------
-// bool ForceModel::Initialize()
+// bool ODEModel::Initialize()
 //------------------------------------------------------------------------------
 /**
  * Initializes model and all contained models
  */
 //------------------------------------------------------------------------------
-bool ForceModel::Initialize()
+bool ODEModel::Initialize()
 {
    #ifdef DEBUG_INITIALIZATION
-      MessageInterface::ShowMessage("ForceModel::Initialize() entered\n");
+      MessageInterface::ShowMessage("ODEModel::Initialize() entered\n");
    #endif
    Integer stateSize = 6;      // Will change if we integrate more variables
    Integer satCount = 1;
    std::vector<SpaceObject *>::iterator sat;
    
    if (!solarSystem)
-      throw ForceModelException(
+      throw ODEModelException(
          "Cannot initialize force model; no solar system on '" + 
          instanceName + "'");
 
    j2kBody = solarSystem->GetBody(j2kBodyName);
    if (j2kBody == NULL) 
-      throw ForceModelException("Satellite J2000 body (" + j2kBodyName + 
+      throw ODEModelException("Satellite J2000 body (" + j2kBodyName + 
          ") was not found in the solar system");
    
    if (spacecraft.size() > 0)
@@ -838,7 +839,7 @@ bool ForceModel::Initialize()
    }
 
    if (dimension == 0)
-      throw ForceModelException("Attempting to initialize force model '" +
+      throw ODEModelException("Attempting to initialize force model '" +
          instanceName + "' with dimension 0 -- No referenced spacecraft?");
 
    #ifdef DEBUG_INITIALIZATION
@@ -896,14 +897,14 @@ bool ForceModel::Initialize()
 
    while (current) 
    {
-      #ifdef DEBUG_FORCEMODEL_INIT
+      #ifdef DEBUG_ODEMODEL_INIT
          std::string name, type;
          name = current->GetName();
          if (name == "")
             name = "unnamed";
          type = current->GetTypeName();
          MessageInterface::ShowMessage
-            ("ForceModel::Initialize() initializing object %s of type %s\n",
+            ("ODEModel::Initialize() initializing object %s of type %s\n",
              name.c_str(), type.c_str());
       #endif
       
@@ -933,7 +934,7 @@ bool ForceModel::Initialize()
          std::string msg = "Component force ";
          msg += currentPm->GetTypeName();
          msg += " failed to initialize";
-         throw ForceModelException(msg);
+         throw ODEModelException(msg);
       }
       currentPm->SetState(modelState);
 
@@ -978,7 +979,7 @@ bool ForceModel::Initialize()
  * Manages the deallocation of coordinate systems used internally.
  */
 //------------------------------------------------------------------------------
-void ForceModel::ClearInternalCoordinateSystems()
+void ODEModel::ClearInternalCoordinateSystems()
 {
    for (std::vector<CoordinateSystem*>::iterator i = 
            InternalCoordinateSystems.begin();
@@ -986,7 +987,7 @@ void ForceModel::ClearInternalCoordinateSystems()
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
-         ((*i), (*i)->GetName(), "ForceModel::ClearInternalCoordinateSystems()",
+         ((*i), (*i)->GetName(), "ODEModel::ClearInternalCoordinateSystems()",
           "deleting ICS");
       #endif
       delete (*i);
@@ -1005,13 +1006,13 @@ void ForceModel::ClearInternalCoordinateSystems()
  * @param <currentPm>   Force that needs the CoordinateSystem.
  */
 //------------------------------------------------------------------------------
-void ForceModel::SetInternalCoordinateSystem(const std::string csId,
+void ODEModel::SetInternalCoordinateSystem(const std::string csId,
                                              PhysicalModel *currentPm)
 {
    std::string csName;
    CoordinateSystem *cs = NULL;
 
-   #ifdef DEBUG_FORCEMODEL_INIT     
+   #ifdef DEBUG_ODEMODEL_INIT     
       MessageInterface::ShowMessage(
          "Setting internal CS with ID '%s' for force type '%s'\n",
          csId.c_str(), currentPm->GetTypeName().c_str());
@@ -1024,7 +1025,7 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId,
    }
    catch (BaseException &ex)
    {
-      #ifdef DEBUG_FORCEMODEL_INIT
+      #ifdef DEBUG_ODEMODEL_INIT
          MessageInterface::ShowMessage(
             "Adding a coordinate system named '%s' for the full field model\n",
             csName.c_str());
@@ -1040,11 +1041,11 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId,
       {
          // We need to handle both intertial and fixed CS's here
          if (earthEq == NULL)
-            throw ForceModelException(
+            throw ODEModelException(
                "Error setting force model coordinate system: EarthEq pointer "
                "has not been initialized!");
          if (earthFixed == NULL)
-            throw ForceModelException(
+            throw ODEModelException(
                "Error setting force model coordinate system: EarthFixed "
                "pointer has not been initialized!");
          
@@ -1053,7 +1054,7 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId,
             cs = (CoordinateSystem *)earthEq->Clone();
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
-               (cs, csName, "ForceModel::SetInternalCoordinateSystem()",
+               (cs, csName, "ODEModel::SetInternalCoordinateSystem()",
                 "cs = earthEq->Clone()");
             #endif
          }
@@ -1062,7 +1063,7 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId,
             cs = (CoordinateSystem *)earthFixed->Clone();
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
-               (cs, csName, "ForceModel::SetInternalCoordinateSystem()",
+               (cs, csName, "ODEModel::SetInternalCoordinateSystem()",
                 "cs = earthFixed->Clone()");
             #endif
          }
@@ -1073,7 +1074,7 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId,
             centralBodyName);
          InternalCoordinateSystems.push_back(cs);
 
-         #ifdef DEBUG_FORCEMODEL_INIT
+         #ifdef DEBUG_ODEMODEL_INIT
             MessageInterface::ShowMessage("Created %s with description\n\n%s\n", 
                csName.c_str(), 
                cs->GetGeneratingString(Gmat::SCRIPTING).c_str());
@@ -1085,7 +1086,7 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId,
       cs->SetJ2000Body(j2kBody);
       cs->Initialize();
 
-      #ifdef DEBUG_FORCEMODEL_INIT     
+      #ifdef DEBUG_ODEMODEL_INIT     
          MessageInterface::ShowMessage(
             "New coordinate system named '%s' has definition\n%s\n",
             csName.c_str(), 
@@ -1098,18 +1099,18 @@ void ForceModel::SetInternalCoordinateSystem(const std::string csId,
 
 
 //------------------------------------------------------------------------------
-// Integer ForceModel::GetOwnedObjectCount()
+// Integer ODEModel::GetOwnedObjectCount()
 //------------------------------------------------------------------------------
-Integer ForceModel::GetOwnedObjectCount()
+Integer ODEModel::GetOwnedObjectCount()
 {
    return numForces;
 }
 
 
 //------------------------------------------------------------------------------
-// GmatBase* ForceModel::GetOwnedObject(Integer whichOne)
+// GmatBase* ODEModel::GetOwnedObject(Integer whichOne)
 //------------------------------------------------------------------------------
-GmatBase* ForceModel::GetOwnedObject(Integer whichOne)
+GmatBase* ODEModel::GetOwnedObject(Integer whichOne)
 {
    if (whichOne < numForces) 
       return GetForce(whichOne);
@@ -1124,18 +1125,18 @@ GmatBase* ForceModel::GetOwnedObject(Integer whichOne)
 /*
  * Builds property name of owned object.
  * This method is called when special handling of object property name is
- * required when writing object. For example, ForceModel requires additional
+ * required when writing object. For example, ODEModel requires additional
  * name Earth for GravityField as in FM.GravityField.Earth.Degree.
  *
  * @param ownedObj The object of property handling
  * @return The property name
  */
 //------------------------------------------------------------------------------
-std::string ForceModel::BuildPropertyName(GmatBase *ownedObj)
+std::string ODEModel::BuildPropertyName(GmatBase *ownedObj)
 {
    #ifdef DEBUG_OWNED_OBJECT_STRINGS
    MessageInterface::ShowMessage
-      ("ForceModel::BuildPropertyName() called with ownedObj type=%s\n",
+      ("ODEModel::BuildPropertyName() called with ownedObj type=%s\n",
        ownedObj->GetTypeName().c_str());
    #endif
    
@@ -1150,7 +1151,7 @@ std::string ForceModel::BuildPropertyName(GmatBase *ownedObj)
  * Updates model and all contained models to catch changes in Spacecraft, etc.
  */
 //------------------------------------------------------------------------------
-void ForceModel::UpdateInitialData()
+void ODEModel::UpdateInitialData()
 {
    Integer cf = currentForce;
    PhysicalModel *current = GetForce(cf);  // waw: added 06/04/04
@@ -1211,7 +1212,7 @@ void ForceModel::UpdateInitialData()
  *                      forces. 
  */
 //------------------------------------------------------------------------------
-void ForceModel::UpdateTransientForces()
+void ODEModel::UpdateTransientForces()
 {
    for (std::vector<PhysicalModel *>::iterator tf = forceList.begin(); 
         tf != forceList.end(); ++tf) {
@@ -1236,7 +1237,7 @@ void ForceModel::UpdateTransientForces()
  *         the number of spacecraft in the formation.
  */
 //------------------------------------------------------------------------------
-Integer ForceModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm, 
+Integer ODEModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm, 
                                         Integer i)
 {
    Integer retval = i; //, id;
@@ -1248,42 +1249,42 @@ Integer ForceModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm,
    {
       satIds[0] = sat->GetParameterID("A1Epoch");
       if (satIds[0] < 0)
-         throw ForceModelException("Epoch parameter undefined on object " +
+         throw ODEModelException("Epoch parameter undefined on object " +
                                    sat->GetName());
 
       modelEpochId = pm->GetParameterID("Epoch");
       if (modelEpochId < 0)
-         throw ForceModelException("Epoch parameter undefined on PhysicalModel");
+         throw ODEModelException("Epoch parameter undefined on PhysicalModel");
 
       satIds[1] = sat->GetParameterID("CoordinateSystem");
       if (satIds[1] < 0)
-         throw ForceModelException(
+         throw ODEModelException(
             "CoordinateSystem parameter undefined on object " + sat->GetName());
       
       // Should this be total mass?
       satIds[2] = sat->GetParameterID("DryMass");
       if (satIds[2] < 0)
-         throw ForceModelException("DryMass parameter undefined on object " +
+         throw ODEModelException("DryMass parameter undefined on object " +
                                    sat->GetName());
 
       satIds[3] = sat->GetParameterID("Cd");
       if (satIds[3] < 0)
-         throw ForceModelException("Cd parameter undefined on object " +
+         throw ODEModelException("Cd parameter undefined on object " +
                                    sat->GetName());
 
       satIds[4] = sat->GetParameterID("DragArea");
       if (satIds[4] < 0)
-         throw ForceModelException("Drag Area parameter undefined on object " +
+         throw ODEModelException("Drag Area parameter undefined on object " +
                                    sat->GetName());
 
       satIds[5] = sat->GetParameterID("SRPArea");
       if (satIds[5] < 0)
-         throw ForceModelException("SRP Area parameter undefined on object " +
+         throw ODEModelException("SRP Area parameter undefined on object " +
                                    sat->GetName());
 
       satIds[6] = sat->GetParameterID("Cr");
       if (satIds[6] < 0)
-         throw ForceModelException("Cr parameter undefined on object " +
+         throw ODEModelException("Cr parameter undefined on object " +
                                    sat->GetName());
                                    
       #ifdef DEBUG_SATELLITE_PARAMETERS
@@ -1298,7 +1299,7 @@ Integer ForceModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm,
    { 
       #ifdef DEBUG_SATELLITE_PARAMETERS
          MessageInterface::ShowMessage(
-            "ForceModel '%s', Member %s: %s->ParmsChanged = %s, "
+            "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
             "parametersSetOnce = %s\n",
             GetName().c_str(), pm->GetTypeName().c_str(), 
             sat->GetName().c_str(), 
@@ -1329,7 +1330,7 @@ Integer ForceModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm,
          {
             char sataddr[20];
             std::sprintf(sataddr, "%lx", (unsigned long)sat);
-            throw ForceModelException(
+            throw ODEModelException(
                "CoordinateSystem is NULL on Spacecraft " + sat->GetName() +
                " at address " + sataddr);
          }
@@ -1338,35 +1339,35 @@ Integer ForceModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm,
          // ... Mass ...
          parm = sat->GetRealParameter(satIds[2]);
          if (parm <= 0)
-            throw ForceModelException("Mass parameter unphysical on object " + 
+            throw ODEModelException("Mass parameter unphysical on object " + 
                                             sat->GetName());
          pm->SetSatelliteParameter(i, "DryMass", parm);
            
          // ... Coefficient of drag ...
          parm = sat->GetRealParameter(satIds[3]);
          if (parm < 0)
-            throw ForceModelException("Cd parameter unphysical on object " + 
+            throw ODEModelException("Cd parameter unphysical on object " + 
                                       sat->GetName());
          pm->SetSatelliteParameter(i, "Cd", parm);
          
          // ... Drag area ...
          parm = sat->GetRealParameter(satIds[4]);
          if (parm < 0)
-            throw ForceModelException("Drag Area parameter unphysical on object " + 
+            throw ODEModelException("Drag Area parameter unphysical on object " + 
                                       sat->GetName());
          pm->SetSatelliteParameter(i, "DragArea", parm);
          
          // ... SRP area ...
          parm = sat->GetRealParameter(satIds[5]);
          if (parm < 0)
-            throw ForceModelException("SRP Area parameter unphysical on object " + 
+            throw ODEModelException("SRP Area parameter unphysical on object " + 
                                       sat->GetName());
          pm->SetSatelliteParameter(i, "SRPArea", parm);
          
          // ... and Coefficient of reflectivity
          parm = sat->GetRealParameter(satIds[6]);
          if (parm < 0)
-            throw ForceModelException("Cr parameter unphysical on object " + 
+            throw ODEModelException("Cr parameter unphysical on object " + 
                                       sat->GetName());
          pm->SetSatelliteParameter(i, "Cr", parm);
          
@@ -1386,7 +1387,7 @@ Integer ForceModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm,
       retval = j;
    }
    else
-      throw ForceModelException(
+      throw ODEModelException(
          "Setting SpaceObject parameters on unknown type for " + 
          sat->GetName());
 
@@ -1395,23 +1396,23 @@ Integer ForceModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm,
 
 
 //------------------------------------------------------------------------------
-// void ForceModel::IncrementTime(Real dt)
+// void ODEModel::IncrementTime(Real dt)
 //------------------------------------------------------------------------------
-void ForceModel::IncrementTime(Real dt)
+void ODEModel::IncrementTime(Real dt)
 {
     PhysicalModel::IncrementTime(dt);
 }
 
 //------------------------------------------------------------------------------
-// void ForceModel::SetTime(Real t)
+// void ODEModel::SetTime(Real t)
 //------------------------------------------------------------------------------
-void ForceModel::SetTime(Real t)
+void ODEModel::SetTime(Real t)
 {
     PhysicalModel::SetTime(t);
 }
 
 //------------------------------------------------------------------------------
-// bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
+// bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order)
 //------------------------------------------------------------------------------
 /**
  * Returns the accumulated superposition of forces 
@@ -1424,7 +1425,7 @@ void ForceModel::SetTime(Real t)
  * @param    order   Order of the derivative to be taken
  */
 //------------------------------------------------------------------------------
-bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
+bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order)
 {
    if (order > 2)
       return false;
@@ -1433,7 +1434,7 @@ bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
 
    Integer satCount = dimension / stateSize, i, iOffset;
 
-   #ifdef DEBUG_FORCEMODEL_EXE
+   #ifdef DEBUG_ODEMODEL_EXE
       for (i = 0; i < satCount; ++i)
          MessageInterface::ShowMessage(
             "  Input state = %le %le %le %le %le %le\n", state[i*stateSize + 0], 
@@ -1442,7 +1443,7 @@ bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
             state[i*stateSize + 5]);
    #endif
 
-   #ifdef DEBUG_FORCEMODEL_EPOCHS
+   #ifdef DEBUG_ODEMODEL_EPOCHS
       MessageInterface::ShowMessage(
          "Input time offset = %16.14le; epoch = %16.10lf\n", dt, epoch);
    #endif
@@ -1474,7 +1475,7 @@ bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
       if (!current->GetDerivatives(state, dt, order))
          return false;
 
-      #ifdef DEBUG_FORCEMODEL_EXE
+      #ifdef DEBUG_ODEMODEL_EXE
       for (i = 0; i < satCount; ++i)
          MessageInterface::ShowMessage("  ddt(%s[%s])[%d] = %le %le %le\n",
             (current->GetTypeName().c_str()), 
@@ -1497,7 +1498,7 @@ bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
             deriv[iOffset+1] += ddt[iOffset+1];
             deriv[iOffset+2] += ddt[iOffset+2];
          }
-         #ifdef DEBUG_FORCEMODEL_EXE
+         #ifdef DEBUG_ODEMODEL_EXE
             MessageInterface::ShowMessage("  deriv[%d] = %le %le %le\n", i, 
                deriv[iOffset + 3], deriv[iOffset + 4], 
                deriv[iOffset + 5]);
@@ -1518,7 +1519,7 @@ bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
       ++cf;
       current = GetForce(cf);
    }
-   #ifdef DEBUG_FORCEMODEL_EXE
+   #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage("  ===============================\n");
    #endif
 
@@ -1537,7 +1538,7 @@ bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
 }
 
 //------------------------------------------------------------------------------
-// Real ForceModel::EstimateError(Real *diffs, Real *answer) const
+// Real ODEModel::EstimateError(Real *diffs, Real *answer) const
 //------------------------------------------------------------------------------
 /**
  * Interface used to estimate the error in the current step
@@ -1565,7 +1566,7 @@ bool ForceModel::GetDerivatives(Real * state, Real dt, Integer order)
  * @param answer        Candidate new state from the integrator.
  */
 //------------------------------------------------------------------------------
-Real ForceModel::EstimateError(Real *diffs, Real *answer) const
+Real ODEModel::EstimateError(Real *diffs, Real *answer) const
 {
     if (estimationMethod == ESTIMATE_IN_BASE)
         return PhysicalModel::EstimateError(diffs, answer);
@@ -1659,7 +1660,7 @@ Real ForceModel::EstimateError(Real *diffs, Real *answer) const
  * @return always true to indicate RenameRefObject() was implemented.
  */
 //---------------------------------------------------------------------------
-bool ForceModel::RenameRefObject(const Gmat::ObjectType type,
+bool ODEModel::RenameRefObject(const Gmat::ObjectType type,
                                  const std::string &oldName,
                                  const std::string &newName)
 {
@@ -1672,15 +1673,15 @@ bool ForceModel::RenameRefObject(const Gmat::ObjectType type,
 //  GmatBase* Clone() const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the ForceModel.
+ * This method returns a clone of the ODEModel.
  *
- * @return clone of the ForceModel.
+ * @return clone of the ODEModel.
  *
  */
 //------------------------------------------------------------------------------
-GmatBase* ForceModel::Clone() const
+GmatBase* ODEModel::Clone() const
 {
-   return (new ForceModel(*this));
+   return (new ODEModel(*this));
 }
 
 
@@ -1693,9 +1694,9 @@ GmatBase* ForceModel::Clone() const
  * @param orig The original that is being copied.
  */
 //---------------------------------------------------------------------------
-void ForceModel::Copy(const GmatBase* orig)
+void ODEModel::Copy(const GmatBase* orig)
 {
-   operator=(*((ForceModel *)(orig)));
+   operator=(*((ODEModel *)(orig)));
 }
 
 
@@ -1709,7 +1710,7 @@ void ForceModel::Copy(const GmatBase* orig)
  * 
  */
 //------------------------------------------------------------------------------
-const ObjectTypeArray& ForceModel::GetRefObjectTypeArray()
+const ObjectTypeArray& ODEModel::GetRefObjectTypeArray()
 {
    refObjectTypes.clear();
    refObjectTypes.push_back(Gmat::SPACE_POINT);
@@ -1730,7 +1731,7 @@ const ObjectTypeArray& ForceModel::GetRefObjectTypeArray()
  * 
  */
 //------------------------------------------------------------------------------
-const StringArray& ForceModel::GetRefObjectNameArray(const Gmat::ObjectType type)
+const StringArray& ODEModel::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    std::string pmName;
    StringArray pmRefs;
@@ -1854,7 +1855,7 @@ const StringArray& ForceModel::GetRefObjectNameArray(const Gmat::ObjectType type
  * @param ss Pointer to the solar system used in the modeling.
  */
 //------------------------------------------------------------------------------
-void ForceModel::SetSolarSystem(SolarSystem *ss)
+void ODEModel::SetSolarSystem(SolarSystem *ss)
 {
    PhysicalModel::SetSolarSystem(ss);
 
@@ -1867,7 +1868,7 @@ void ForceModel::SetSolarSystem(SolarSystem *ss)
       forceOrigin = solarSystem->GetBody(centralBodyName);
       
       if (forceOrigin == NULL) 
-         throw ForceModelException(
+         throw ODEModelException(
             "Force model origin (" + centralBodyName + 
             ") was not found in the solar system");
 
@@ -1894,12 +1895,12 @@ void ForceModel::SetSolarSystem(SolarSystem *ss)
  *       indicate success or failure.
  */
 //------------------------------------------------------------------------------
-bool ForceModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+bool ODEModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                               const std::string &name)
 {
    #ifdef DEBUG_FORCE_REF_OBJ
    MessageInterface::ShowMessage
-      ("ForceModel::SetRefObject() <%s> entered, obj=<%p><%s><%s>, type=%d, name='%s'\n",
+      ("ODEModel::SetRefObject() <%s> entered, obj=<%p><%s><%s>, type=%d, name='%s'\n",
        GetName().c_str(), obj, obj ? obj->GetTypeName().c_str() : "NULL",
        obj ? obj->GetName().c_str() : "NULL", type, name.c_str());
    #endif
@@ -1911,13 +1912,13 @@ bool ForceModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       if (type == Gmat::COORDINATE_SYSTEM)
          earthEq = (CoordinateSystem*)obj;
       else
-         throw ForceModelException(
+         throw ODEModelException(
             "Object named EarthMJ2000Eq is not a coordinate system.");
    if (name == "EarthFixed")
       if (type == Gmat::COORDINATE_SYSTEM)
          earthFixed = (CoordinateSystem*)obj;
       else
-         throw ForceModelException(
+         throw ODEModelException(
             "Object named EarthFixed is not a coordinate system.");
 
    // Attempt to set the object for the base class    
@@ -1964,7 +1965,7 @@ bool ForceModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 // Integer GetParameterCount() const
 //------------------------------------------------------------------------------
-Integer ForceModel::GetParameterCount() const
+Integer ODEModel::GetParameterCount() const
 {
    return parameterCount;
 }
@@ -1974,9 +1975,9 @@ Integer ForceModel::GetParameterCount() const
 //------------------------------------------------------------------------------
 // std::string GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
-std::string ForceModel::GetParameterText(const Integer id) const
+std::string ODEModel::GetParameterText(const Integer id) const
 {
-   if (id >= PhysicalModelParamCount && id < ForceModelParamCount)
+   if (id >= PhysicalModelParamCount && id < ODEModelParamCount)
       return PARAMETER_TEXT[id - PhysicalModelParamCount];
    else
       return PhysicalModel::GetParameterText(id);
@@ -1985,7 +1986,7 @@ std::string ForceModel::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 // Integer GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
-Integer ForceModel::GetParameterID(const std::string &str) const
+Integer ODEModel::GetParameterID(const std::string &str) const
 {
    std::string alias = str;
     
@@ -1994,7 +1995,7 @@ Integer ForceModel::GetParameterID(const std::string &str) const
    if (alias == "Gravity")
       alias = "PrimaryBodies";
    
-   for (int i = PhysicalModelParamCount; i < ForceModelParamCount; i++)
+   for (int i = PhysicalModelParamCount; i < ODEModelParamCount; i++)
    {
       if (alias == PARAMETER_TEXT[i - PhysicalModelParamCount])
       {
@@ -2008,9 +2009,9 @@ Integer ForceModel::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 // Gmat::ParameterType GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
-Gmat::ParameterType ForceModel::GetParameterType(const Integer id) const
+Gmat::ParameterType ODEModel::GetParameterType(const Integer id) const
 {
-   if (id >= PhysicalModelParamCount && id < ForceModelParamCount)
+   if (id >= PhysicalModelParamCount && id < ODEModelParamCount)
       return PARAMETER_TYPE[id - PhysicalModelParamCount];
    else
       return PhysicalModel::GetParameterType(id);
@@ -2019,9 +2020,9 @@ Gmat::ParameterType ForceModel::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
-std::string ForceModel::GetParameterTypeString(const Integer id) const
+std::string ODEModel::GetParameterTypeString(const Integer id) const
 {
-   if (id >= PhysicalModelParamCount && id < ForceModelParamCount)
+   if (id >= PhysicalModelParamCount && id < ODEModelParamCount)
       return GmatBase::PARAM_TYPE_STRING[GetParameterType(id)];
    else
       return PhysicalModel::GetParameterTypeString(id);
@@ -2030,7 +2031,7 @@ std::string ForceModel::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 // bool IsParameterReadOnly(const Integer id) const
 //------------------------------------------------------------------------------
-bool ForceModel::IsParameterReadOnly(const Integer id) const
+bool ODEModel::IsParameterReadOnly(const Integer id) const
 {
    if (id == COORDINATE_SYSTEM_LIST || id == DEGREE || id == ORDER ||
        id == POTENTIAL_FILE)
@@ -2042,7 +2043,7 @@ bool ForceModel::IsParameterReadOnly(const Integer id) const
 //------------------------------------------------------------------------------
 // bool IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
-bool ForceModel::IsParameterReadOnly(const std::string &label) const
+bool ODEModel::IsParameterReadOnly(const std::string &label) const
 {
    if (label == PARAMETER_TEXT[COORDINATE_SYSTEM_LIST-PhysicalModelParamCount])
       return true;
@@ -2053,7 +2054,7 @@ bool ForceModel::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
-std::string ForceModel::GetStringParameter(const Integer id) const
+std::string ODEModel::GetStringParameter(const Integer id) const
 {
    switch (id)
    {
@@ -2095,7 +2096,7 @@ std::string ForceModel::GetStringParameter(const Integer id) const
             case 2:
                return "RSSStep";
             default:
-               throw ForceModelException("Unrecognized error control method.");
+               throw ODEModelException("Unrecognized error control method.");
          }
          break;
 
@@ -2115,7 +2116,7 @@ std::string ForceModel::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-std::string ForceModel::GetStringParameter(const std::string &label) const
+std::string ODEModel::GetStringParameter(const std::string &label) const
 {
     return GetStringParameter(GetParameterID(label));
 }
@@ -2123,11 +2124,11 @@ std::string ForceModel::GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
-bool ForceModel::SetStringParameter(const Integer id, const std::string &value)
+bool ODEModel::SetStringParameter(const Integer id, const std::string &value)
 {
    #ifdef DEBUG_FM_SET
    MessageInterface::ShowMessage
-      ("ForceModel::SetStringParameter() entered, id=%d, value='%s'\n",
+      ("ODEModel::SetStringParameter() entered, id=%d, value='%s'\n",
        id, value.c_str());
    #endif
    
@@ -2179,7 +2180,7 @@ bool ForceModel::SetStringParameter(const Integer id, const std::string &value)
             normType = 2;
             return true;
          }
-         throw ForceModelException("Unrecognized error control method.");
+         throw ODEModelException("Unrecognized error control method.");
          
       case POTENTIAL_FILE:
          {
@@ -2196,7 +2197,7 @@ bool ForceModel::SetStringParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const std::string &label,const std::string &value)
 //------------------------------------------------------------------------------
-bool ForceModel::SetStringParameter(const std::string &label,
+bool ODEModel::SetStringParameter(const std::string &label,
                                     const std::string &value)
 {
     return SetStringParameter(GetParameterID(label), value);
@@ -2205,7 +2206,7 @@ bool ForceModel::SetStringParameter(const std::string &label,
 //---------------------------------------------------------------------------
 //  std::string GetOnOffParameter(const Integer id) const
 //---------------------------------------------------------------------------
-std::string ForceModel::GetOnOffParameter(const Integer id) const
+std::string ODEModel::GetOnOffParameter(const Integer id) const
 {
    switch (id)
    {
@@ -2225,7 +2226,7 @@ std::string ForceModel::GetOnOffParameter(const Integer id) const
 //---------------------------------------------------------------------------
 //  bool SetOnOffParameter(const Integer id, const std::string &value)
 //---------------------------------------------------------------------------
-bool ForceModel::SetOnOffParameter(const Integer id, const std::string &value)
+bool ODEModel::SetOnOffParameter(const Integer id, const std::string &value)
 {
    switch (id)
    {
@@ -2238,9 +2239,9 @@ bool ForceModel::SetOnOffParameter(const Integer id, const std::string &value)
 
 
 //------------------------------------------------------------------------------
-// std::string ForceModel::GetOnOffParameter(const std::string &label) const
+// std::string ODEModel::GetOnOffParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-std::string ForceModel::GetOnOffParameter(const std::string &label) const
+std::string ODEModel::GetOnOffParameter(const std::string &label) const
 {
    return GetOnOffParameter(GetParameterID(label));
 }
@@ -2249,7 +2250,7 @@ std::string ForceModel::GetOnOffParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // bool SetOnOffParameter(const std::string &label, const std::string &value)
 //------------------------------------------------------------------------------
-bool ForceModel::SetOnOffParameter(const std::string &label, 
+bool ODEModel::SetOnOffParameter(const std::string &label, 
                                    const std::string &value)
 {
    return SetOnOffParameter(GetParameterID(label), value);
@@ -2259,7 +2260,7 @@ bool ForceModel::SetOnOffParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // const StringArray& GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
-const StringArray& ForceModel::GetStringArrayParameter(const Integer id) const
+const StringArray& ODEModel::GetStringArrayParameter(const Integer id) const
 {
    switch (id)
    {
@@ -2281,7 +2282,7 @@ const StringArray& ForceModel::GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // StringArray& GetStringArrayParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-const StringArray& ForceModel::GetStringArrayParameter(const std::string &label) const
+const StringArray& ODEModel::GetStringArrayParameter(const std::string &label) const
 {
     return GetStringArrayParameter(GetParameterID(label));
 }
@@ -2290,7 +2291,7 @@ const StringArray& ForceModel::GetStringArrayParameter(const std::string &label)
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Integer ForceModel::GetIntegerParameter(const Integer id) const
+Integer ODEModel::GetIntegerParameter(const Integer id) const
 {
    switch (id)
    {
@@ -2311,7 +2312,7 @@ Integer ForceModel::GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-Integer ForceModel::GetIntegerParameter(const std::string &label) const
+Integer ODEModel::GetIntegerParameter(const std::string &label) const
 {
    return GetIntegerParameter(GetParameterID(label));
 }
@@ -2320,11 +2321,11 @@ Integer ForceModel::GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Integer SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------
-Integer ForceModel::SetIntegerParameter(const Integer id, const Integer value)
+Integer ODEModel::SetIntegerParameter(const Integer id, const Integer value)
 {
    #ifdef DEBUG_FM_SET
    MessageInterface::ShowMessage
-      ("ForceModel::SetIntegerParameter() id=%d, value=%d\n", id, value);
+      ("ODEModel::SetIntegerParameter() id=%d, value=%d\n", id, value);
    #endif
    
    switch (id)
@@ -2352,7 +2353,7 @@ Integer ForceModel::SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------
 // virtual Integer SetIntegerParameter(const std::string &label, const Integer value)
 //------------------------------------------------------------------------------
-Integer ForceModel::SetIntegerParameter(const std::string &label, const Integer value)
+Integer ODEModel::SetIntegerParameter(const std::string &label, const Integer value)
 {
    return SetIntegerParameter(GetParameterID(label), value);
 }
@@ -2361,7 +2362,7 @@ Integer ForceModel::SetIntegerParameter(const std::string &label, const Integer 
 //------------------------------------------------------------------------------
 // const StringArray& BuildBodyList(std::string type) const
 //------------------------------------------------------------------------------
-const StringArray& ForceModel::BuildBodyList(std::string type) const
+const StringArray& ODEModel::BuildBodyList(std::string type) const
 {
    static StringArray bodylist;
    bodylist.clear();
@@ -2383,7 +2384,7 @@ const StringArray& ForceModel::BuildBodyList(std::string type) const
 //------------------------------------------------------------------------------
 // const StringArray& BuildCoordinateList() const
 //------------------------------------------------------------------------------
-const StringArray& ForceModel::BuildCoordinateList() const
+const StringArray& ODEModel::BuildCoordinateList() const
 {
    static StringArray cslist;
    cslist.clear();
@@ -2396,7 +2397,7 @@ const StringArray& ForceModel::BuildCoordinateList() const
       if ((*i)->GetTypeName() == "GravityField") 
       {
          // For now, only build the body fixed CS's in list because others already exist.
-         // If ForceModel is created inside of GmatFunction, not all CS exist, so added
+         // If ODEModel is created inside of GmatFunction, not all CS exist, so added
          // InputCoordinateSystem and TargetCoordinateSystem to list(loj: 2008.06.25)
          cslist.push_back((*i)->GetStringParameter("InputCoordinateSystem"));
          cslist.push_back((*i)->GetStringParameter("FixedCoordinateSystem"));
@@ -2416,7 +2417,7 @@ const StringArray& ForceModel::BuildCoordinateList() const
  * @return The list of user forces.
  */
 //------------------------------------------------------------------------------
-const StringArray& ForceModel::BuildUserForceList() const
+const StringArray& ODEModel::BuildUserForceList() const
 {
    static StringArray uflist;
    uflist.clear();
@@ -2449,7 +2450,7 @@ const StringArray& ForceModel::BuildUserForceList() const
  * @todo Put the initialization for force aliases in a convenient location.
  */
 //------------------------------------------------------------------------------
-void ForceModel::SetScriptAlias(const std::string& alias, 
+void ODEModel::SetScriptAlias(const std::string& alias, 
                                 const std::string& typeName)
 {
    if (scriptAliases.find(alias) == scriptAliases.end()) {
@@ -2471,7 +2472,7 @@ void ForceModel::SetScriptAlias(const std::string& alias,
  * @return The class name.
  */
 //------------------------------------------------------------------------------
-std::string& ForceModel::GetScriptAlias(const std::string& alias)
+std::string& ODEModel::GetScriptAlias(const std::string& alias)
 {
    static std::string type;
    type = alias;
@@ -2486,9 +2487,9 @@ std::string& ForceModel::GetScriptAlias(const std::string& alias)
 // GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Accesses an internal object used in the ForceModel.
+ * Accesses an internal object used in the ODEModel.
  * 
- * This method provides access to the forces used in the ForceModel.  It is used
+ * This method provides access to the forces used in the ODEModel.  It is used
  * to set and read the specific force attributes -- for example, the file name 
  * used for the full field (GravityField) model.
  * 
@@ -2499,12 +2500,12 @@ std::string& ForceModel::GetScriptAlias(const std::string& alias)
  * @return A pointer to the object.
  */
 //------------------------------------------------------------------------------
-GmatBase* ForceModel::GetRefObject(const Gmat::ObjectType type,
+GmatBase* ODEModel::GetRefObject(const Gmat::ObjectType type,
                                    const std::string &name)
 {
    if (type != Gmat::PHYSICAL_MODEL)
-       throw ForceModelException(
-          "Only forces are accessed in ForceModel::GetRefObject");
+       throw ODEModelException(
+          "Only forces are accessed in ODEModel::GetRefObject");
    
    // Run through list of forces, adding body names for GravityField instances
    std::vector<PhysicalModel*>::const_iterator i;
@@ -2525,9 +2526,9 @@ GmatBase* ForceModel::GetRefObject(const Gmat::ObjectType type,
 //                        const Integer index)
 //------------------------------------------------------------------------------
 /**
- * Accesses an internal object used in the ForceModel.
+ * Accesses an internal object used in the ODEModel.
  * 
- * This method provides access to the forces used in the ForceModel.  It is used
+ * This method provides access to the forces used in the ODEModel.  It is used
  * to set and read the specific force attributes -- for example, the file name 
  * used for the full field (GravityField) model.  This version of the method 
  * provides a mechanism to access more than one object with the same type and
@@ -2541,12 +2542,12 @@ GmatBase* ForceModel::GetRefObject(const Gmat::ObjectType type,
  * @return A pointer to the object.
  */
 //------------------------------------------------------------------------------
-GmatBase* ForceModel::GetRefObject(const Gmat::ObjectType type, 
+GmatBase* ODEModel::GetRefObject(const Gmat::ObjectType type, 
                                    const std::string &name, const Integer index)
 {
    if (type != Gmat::PHYSICAL_MODEL)
-       throw ForceModelException(
-          "Only forces are accessed in ForceModel::GetRefObject");
+       throw ODEModelException(
+          "Only forces are accessed in ODEModel::GetRefObject");
    
    // Run through list of forces, adding body names for GravityField instances
    std::vector<PhysicalModel*>::const_iterator i;
@@ -2568,14 +2569,14 @@ GmatBase* ForceModel::GetRefObject(const Gmat::ObjectType type,
 // ObjectArray& GetRefObjectArray(const std::string& typeString)
 //------------------------------------------------------------------------------
 /**
- * Accesses arrays of internal objects used in the ForceModel.
+ * Accesses arrays of internal objects used in the ODEModel.
  * 
  * @param typeString String used for the objects.
  * 
  * @return A reference to the ObjectArray.
  */
 //------------------------------------------------------------------------------
-ObjectArray& ForceModel::GetRefObjectArray(const std::string& typeString)
+ObjectArray& ODEModel::GetRefObjectArray(const std::string& typeString)
 {
    static ObjectArray objects;
    objects.clear();
@@ -2620,13 +2621,13 @@ ObjectArray& ForceModel::GetRefObjectArray(const std::string& typeString)
  *       parms prior to 5/25/05 demo
  */
 //------------------------------------------------------------------------------
-const std::string& ForceModel::GetGeneratingString(Gmat::WriteMode mode,
+const std::string& ODEModel::GetGeneratingString(Gmat::WriteMode mode,
                                                    const std::string &prefix,
                                                    const std::string &useName)
 {
    #ifdef DEBUG_GEN_STRING
    MessageInterface::ShowMessage
-      ("ForceModel::GetGeneratingString() this=%p, mode=%d, prefix=%s, "
+      ("ODEModel::GetGeneratingString() this=%p, mode=%d, prefix=%s, "
        "useName=%s\n", this, mode, prefix.c_str(), useName.c_str());
    #endif
    
@@ -2698,7 +2699,7 @@ const std::string& ForceModel::GetGeneratingString(Gmat::WriteMode mode,
  *       parms prior to 5/25/05 demo
  */
 //------------------------------------------------------------------------------
-void ForceModel::WriteFMParameters(Gmat::WriteMode mode, std::string &prefix,
+void ODEModel::WriteFMParameters(Gmat::WriteMode mode, std::string &prefix,
                                    std::stringstream &stream)
 {
    Integer i;
@@ -2758,7 +2759,7 @@ void ForceModel::WriteFMParameters(Gmat::WriteMode mode, std::string &prefix,
    
    #ifdef DEBUG_OWNED_OBJECT_STRINGS
       MessageInterface::ShowMessage
-         ("ForceModel::WriteFMParameters() \"%s\" has %d owned objects\n",
+         ("ODEModel::WriteFMParameters() \"%s\" has %d owned objects\n",
           instanceName.c_str(), GetOwnedObjectCount());
    #endif
       
@@ -2800,7 +2801,7 @@ void ForceModel::WriteFMParameters(Gmat::WriteMode mode, std::string &prefix,
 //------------------------------------------------------------------------------
 // std::string BuildForceNameString(PhysicalModel *force)
 //------------------------------------------------------------------------------
-std::string ForceModel::BuildForceNameString(PhysicalModel *force)
+std::string ODEModel::BuildForceNameString(PhysicalModel *force)
 {
    std::string retval = "UnknownForce", forceType = force->GetTypeName();
    
@@ -2838,7 +2839,7 @@ std::string ForceModel::BuildForceNameString(PhysicalModel *force)
  * model origin.
  */
 //------------------------------------------------------------------------------
-void ForceModel::MoveToOrigin(Real newEpoch)
+void ODEModel::MoveToOrigin(Real newEpoch)
 {
    Integer satCount = dimension / stateSize;
    Integer currentScState = 0;
@@ -2868,7 +2869,7 @@ void ForceModel::MoveToOrigin(Real newEpoch)
       }
       #ifdef DEBUG_REORIGIN
          MessageInterface::ShowMessage(
-             "ForceModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
+             "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
              "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
              "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
              "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
@@ -2895,7 +2896,7 @@ void ForceModel::MoveToOrigin(Real newEpoch)
  * coordinate system.
  */
 //------------------------------------------------------------------------------
-void ForceModel::ReturnFromOrigin(Real newEpoch)
+void ODEModel::ReturnFromOrigin(Real newEpoch)
 {
 //static Integer counter = 0;
 
@@ -2936,7 +2937,7 @@ void ForceModel::ReturnFromOrigin(Real newEpoch)
  * Utility to help debug epoch issues.
  */
 //------------------------------------------------------------------------------
-void ForceModel::ReportEpochData()
+void ODEModel::ReportEpochData()
 {
    if (epochFile.is_open())
    {
@@ -2963,8 +2964,8 @@ void ForceModel::ReportEpochData()
       epochFile << "\n";
    }
    else
-      throw ForceModelException(
-         "ForceModel::ReportEpochData: Attempting to write epoch data without "
+      throw ODEModelException(
+         "ODEModel::ReportEpochData: Attempting to write epoch data without "
          "opening the data file.");
 }
 
@@ -2979,19 +2980,19 @@ void ForceModel::ReportEpochData()
 /*
  * Retrieves owned object property id.
  *
- * @param  id  ForceModel parameter id for for getting owned object parameter id
+ * @param  id  ODEModel parameter id for for getting owned object parameter id
  * @param  owner  The pointer to owner to set if id provided found from the owned object
  *
  * @return  parameter ID from the owned object
  */
 //------------------------------------------------------------------------------
-Integer ForceModel::GetOwnedObjectId(Integer id, GmatBase **owner) const
+Integer ODEModel::GetOwnedObjectId(Integer id, GmatBase **owner) const
 {
    Integer actualId = -1;
    GmatBase *ownedObj = NULL;
    
    if (numForces == 0)
-      throw ForceModelException("ForceModel::GetOwnedObjectId() failed, Has empty force list");
+      throw ODEModelException("ODEModel::GetOwnedObjectId() failed, Has empty force list");
    
    for (Integer i=0; i<numForces; i++)
    {
@@ -3010,11 +3011,11 @@ Integer ForceModel::GetOwnedObjectId(Integer id, GmatBase **owner) const
    *owner = ownedObj;
    
    if (owner == NULL)
-      throw ForceModelException("ForceModel::GetOwnedObjectId() failed, Owned force is NULL");
+      throw ODEModelException("ODEModel::GetOwnedObjectId() failed, Owned force is NULL");
    
    #ifdef DEBUG_FM_OWNED_OBJECT
    MessageInterface::ShowMessage
-      ("ForceModel::GetOwnedObjectId() returning %d, owner=<%p><%s><%s>\n",
+      ("ODEModel::GetOwnedObjectId() returning %d, owner=<%p><%s><%s>\n",
        actualId, *owner, (*owner)->GetTypeName().c_str(), (*owner)->GetName().c_str());
    #endif
    

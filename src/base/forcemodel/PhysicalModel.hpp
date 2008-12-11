@@ -95,7 +95,7 @@
 #include "Spacecraft.hpp"
 
 
-#include "ForceModelException.hpp"
+#include "ODEModelException.hpp"
 
 #include <math.h>
 

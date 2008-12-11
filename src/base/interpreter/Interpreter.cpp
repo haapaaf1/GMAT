@@ -443,7 +443,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::GROUND_STATION:
       case Gmat::IMPULSIVE_BURN:
       case Gmat::FINITE_BURN:
-      case Gmat::FORCE_MODEL:
+      case Gmat::ODE_MODEL:
       case Gmat::TRANSIENT_FORCE:
       case Gmat::INTERPOLATOR:
       case Gmat::SOLAR_SYSTEM:
@@ -546,11 +546,11 @@ void Interpreter::StartServer()
 //------------------------------------------------------------------------------
 void Interpreter::RegisterAliases()
 {
-   ForceModel::SetScriptAlias("PrimaryBodies", "GravityField");
-   ForceModel::SetScriptAlias("Gravity", "GravityField");
-   ForceModel::SetScriptAlias("PointMasses", "PointMassForce");
-   ForceModel::SetScriptAlias("Drag", "DragForce");
-   ForceModel::SetScriptAlias("SRP", "SolarRadiationPressure");
+   ODEModel::SetScriptAlias("PrimaryBodies", "GravityField");
+   ODEModel::SetScriptAlias("Gravity", "GravityField");
+   ODEModel::SetScriptAlias("PointMasses", "PointMassForce");
+   ODEModel::SetScriptAlias("Drag", "DragForce");
+   ODEModel::SetScriptAlias("SRP", "SolarRadiationPressure");
 }
 
 
@@ -689,7 +689,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       obj = (GmatBase*)theModerator->CreatePropSetup(name);
    
    else if (type == "ForceModel") 
-      obj = (GmatBase*)theModerator->CreateForceModel(name);
+      obj = (GmatBase*)theModerator->CreateODEModel(type, name);
    
    else if (type == "CoordinateSystem") 
       obj = (GmatBase*)theModerator->CreateCoordinateSystem(name, true);
@@ -3324,7 +3324,7 @@ bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toPr
    
    debugMsg = "In SetObjectToProperty()";
    
-   if (toOwner->GetType() == Gmat::FORCE_MODEL)
+   if (toOwner->GetType() == Gmat::ODE_MODEL)
    {
       std::string objName = fromObj->GetName();
       bool retval = SetForceModelProperty(toOwner, toProp, objName, fromObj);
@@ -3723,7 +3723,7 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
        toProp.c_str(), value.c_str());
    #endif
    
-   if (toOwner->GetType() == Gmat::FORCE_MODEL)
+   if (toOwner->GetType() == Gmat::ODE_MODEL)
    {
       retval = SetForceModelProperty(toOwner, toProp, value, NULL);
    }
@@ -4703,8 +4703,8 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
    //      FM.Drag.Mars = MarsAtmos;
    //      FM.SRP.ShadowBodies = {Earth,Moon}
    
-   ForceModel *forceModel = (ForceModel*)obj;
-   std::string forceType = ForceModel::GetScriptAlias(pmType);
+   ODEModel *forceModel = (ODEModel*)obj;
+   std::string forceType = ODEModel::GetScriptAlias(pmType);
    std::string centralBodyName = forceModel->GetStringParameter("CentralBody");
    
    #ifdef DEBUG_SET_FORCE_MODEL
@@ -4889,7 +4889,7 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
    //------------------------------------------------------------
    
    pmType = parts[0];
-   forceType = ForceModel::GetScriptAlias(pmType);
+   forceType = ODEModel::GetScriptAlias(pmType);
    std::string propName = parts[count-1];
    
    #ifdef DEBUG_SET_FORCE_MODEL
@@ -5575,7 +5575,7 @@ bool Interpreter::FinalPass()
       
       else if (obj->GetType() == Gmat::BURN ||
                obj->GetType() == Gmat::SPACECRAFT ||
-               obj->GetType() == Gmat::FORCE_MODEL ||
+               obj->GetType() == Gmat::ODE_MODEL ||
                obj->GetType() == Gmat::COORDINATE_SYSTEM ||
                obj->GetType() == Gmat::CALCULATED_POINT ||
                obj->GetType() == Gmat::SUBSCRIBER)

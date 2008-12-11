@@ -63,7 +63,7 @@ protected:
    StringArray                   burnNames;
    /// Names of the spacecraft accessed by this force
    StringArray                   mySpacecraft;
-   /// Spacecraft, in order, used in the ForceModel
+   /// Spacecraft, in order, used in the ODEModel
    std::vector<SpaceObject *>    *spacecraft;
    /// Indexes (in the spacecraft vector) for the Spacecraft used by this force
    std::vector<Integer>          scIndices;

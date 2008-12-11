@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                            ForceModelFactory
+//                            ODEModelFactory
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,14 +13,14 @@
 // Created: 2003/10/14
 //
 /**
- *  Implementation code for the ForceModelFactory class, responsible for
- *  creating ForceModel objects.
+ *  Implementation code for the ODEModelFactory class, responsible for
+ *  creating ODEModel objects.
  */
 //------------------------------------------------------------------------------
 #include "gmatdefs.hpp"
 #include "Factory.hpp"
-#include "ForceModelFactory.hpp"
-#include "ForceModel.hpp"   // for ForceModel class
+#include "ODEModelFactory.hpp"
+#include "ODEModel.hpp"   // for ODEModel class
 
 
 //---------------------------------
@@ -28,13 +28,13 @@
 //---------------------------------
 
 //------------------------------------------------------------------------------
-//  CreateForceModel(const std::string &ofType, const std::string &withName)
+//  CreateODEModel(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------
 /**
- * This method creates and returns an object of the requested ForceModel class 
+ * This method creates and returns an object of the requested ODEModel class 
  *
- * @param <ofType> the ForceModel object to create and return.
- * @param <withName> the name to give the newly-created ForceModel object.
+ * @param <ofType> the ODEModel object to create and return.
+ * @param <withName> the name to give the newly-created ODEModel object.
  *
  * @note As of 2003/10/14, we are ignoring the withName parameter.  Use of this
  *       parameter may be added later.
@@ -42,102 +42,106 @@
  *       parameter may be added later.
  */
 //------------------------------------------------------------------------------
-ForceModel* ForceModelFactory::CreateForceModel(const std::string &ofType,
-                                                const std::string &withName)
+ODEModel* ODEModelFactory::CreateODEModel(const std::string &ofType,
+                                          const std::string &withName)
 {
-   return new ForceModel(withName);
+   return new ODEModel(withName, ofType);
 }
 
 
 //------------------------------------------------------------------------------
-//  ForceModelFactory()
+//  ODEModelFactory()
 //------------------------------------------------------------------------------
 /**
- * This method creates an object of the class ForceModelFactory
+ * This method creates an object of the class ODEModelFactory
  * (default constructor).
  *
  *
  */
 //------------------------------------------------------------------------------
-ForceModelFactory::ForceModelFactory() :
-Factory(Gmat::FORCE_MODEL)
+ODEModelFactory::ODEModelFactory() :
+Factory(Gmat::ODE_MODEL)
 {
    if (creatables.empty())
    {
       creatables.push_back("ForceModel");  // default type for this factory
+      creatables.push_back("ODEModel");  // default type for this factory
    }
 }
 
 //------------------------------------------------------------------------------
-//  ForceModelFactory(StringArray createList)
+//  ODEModelFactory(StringArray createList)
 //------------------------------------------------------------------------------
 /**
- * This method creates an object of the class ForceModelFactory
+ * This method creates an object of the class ODEModelFactory
  * (constructor).
  *
  * @param <createList> initial list of creatable objects for this factory.
  *
  */
 //------------------------------------------------------------------------------
-ForceModelFactory::ForceModelFactory(StringArray createList) :
-Factory(createList,Gmat::FORCE_MODEL)
+ODEModelFactory::ODEModelFactory(StringArray createList) :
+Factory(createList,Gmat::ODE_MODEL)
 {
    if (creatables.empty())
    {
       creatables.push_back("ForceModel");  // default type for this factory
+      creatables.push_back("ODEModel");  // default type for this factory
    }
 }
 
 //------------------------------------------------------------------------------
-//  ForceModelFactory(const ForceModelFactory& fact)
+//  ODEModelFactory(const ODEModelFactory& fact)
 //------------------------------------------------------------------------------
 /**
-   * This method creates an object of the class ForceModelFactory 
+   * This method creates an object of the class ODEModelFactory 
    * (copy constructor).
    *
    * @param <fact> the factory object to copy to "this" factory.
    */
 //------------------------------------------------------------------------------
-ForceModelFactory::ForceModelFactory(const ForceModelFactory& fact) :
+ODEModelFactory::ODEModelFactory(const ODEModelFactory& fact) :
 Factory(fact)
 {
    if (creatables.empty())
    {
       creatables.push_back("ForceModel");  // default type for this factory
+      creatables.push_back("ODEModel");  // default type for this factory
    }
 }
 
 //------------------------------------------------------------------------------
-//  ForceModelFactory& operator= (const ForceModelFactory& fact)
+//  ODEModelFactory& operator= (const ODEModelFactory& fact)
 //------------------------------------------------------------------------------
 /**
- * Assignment operator for the ForceModelFactory class.
+ * Assignment operator for the ODEModelFactory class.
  *
- * @param <fact> the ForceModelFactory object whose data to assign to "this"
+ * @param <fact> the ODEModelFactory object whose data to assign to "this"
  *               factory.
  *
- * @return "this" ForceModelFactory with data of input factory fact.
+ * @return "this" ODEModelFactory with data of input factory fact.
  */
 //------------------------------------------------------------------------------
-ForceModelFactory& ForceModelFactory::operator= (const ForceModelFactory& fact)
+ODEModelFactory& ODEModelFactory::operator= (const ODEModelFactory& fact)
 {
    Factory::operator=(fact);
    if (creatables.empty())
    {
       creatables.push_back("ForceModel");  // default type for this factory
+      creatables.push_back("ODEModel");  // default type for this factory
    }
    return *this;
 }
 
 //------------------------------------------------------------------------------
-// ~ForceModelFactory()
+// ~ODEModelFactory()
 //------------------------------------------------------------------------------
 /**
-   * Destructor for the ForceModelFactory base class.
+   * Destructor for the ODEModelFactory base class.
    *
    */
 //------------------------------------------------------------------------------
-ForceModelFactory::~ForceModelFactory()
+ODEModelFactory::~ODEModelFactory()
 {
    // deletes handled by Factory destructor
 }

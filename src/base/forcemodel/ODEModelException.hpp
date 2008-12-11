@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                             ForceModelException
+//                             ODEModelException
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool.
 //
@@ -18,18 +18,18 @@
 //------------------------------------------------------------------------------
 
 
-#ifndef ForceModelException_hpp
-#define ForceModelException_hpp
+#ifndef ODEModelException_hpp
+#define ODEModelException_hpp
 
 #include "BaseException.hpp"
 #include "gmatdefs.hpp"
 
-class GMAT_API ForceModelException : public BaseException
+class GMAT_API ODEModelException : public BaseException
 {
 public:
-   ForceModelException(const std::string &details);
-   virtual ~ForceModelException();
-   ForceModelException(const ForceModelException &fme);
+   ODEModelException(const std::string &details);
+   virtual ~ODEModelException();
+   ODEModelException(const ODEModelException &fme);
 };
 
-#endif // ForceModelException_hpp
+#endif // ODEModelException_hpp

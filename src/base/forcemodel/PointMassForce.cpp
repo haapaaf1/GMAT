@@ -63,7 +63,7 @@
 #include "MessageInterface.hpp"
 #include "SolarSystem.hpp"
 #include "Rvector6.hpp"
-#include "ForceModelException.hpp"
+#include "ODEModelException.hpp"
 
 //#define DEBUG_PMF_BODY 0
 //#define DEBUG_PMF_DERV 0
@@ -233,7 +233,7 @@ bool PointMassForce::Initialize()
             "PointMassForce::Initialize() body \"%s\" is not in the solar "
             "system\n", bodyName.c_str());
          initialized = false;
-         throw ForceModelException("PointMassForce::Initialize() body \"" +
+         throw ODEModelException("PointMassForce::Initialize() body \"" +
             bodyName + "\" is not in the solar system\n");
       }
    }
@@ -242,7 +242,7 @@ bool PointMassForce::Initialize()
       MessageInterface::ShowMessage(
          "PointMassForce::Initialize() solarSystem is NULL\n");
       initialized = false;
-      throw ForceModelException(
+      throw ODEModelException(
          "PointMassForce::Initialize() solarSystem is NULL\n");
    }
     

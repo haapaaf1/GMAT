@@ -218,7 +218,7 @@ protected:
    /// The Propagator
    std::vector<Propagator*>     p;
    /// The ForceModel
-   std::vector<ForceModel*>     fm;
+   std::vector<ODEModel*>       fm;
    
    // Members used to flag most recent detected stop, so we don't stop multiple 
    // times at the same point
@@ -316,7 +316,7 @@ protected:
    virtual bool            TakeAStep(Real propStep = 0.0);
    
    
-   void                    AddTransientForce(StringArray *sats, ForceModel *p);
+   void                    AddTransientForce(StringArray *sats, ODEModel *p);
    void                    ClearTransientForces();
    
    void                    AddToBuffer(SpaceObject *so);

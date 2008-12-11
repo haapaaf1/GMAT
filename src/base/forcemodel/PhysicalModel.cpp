@@ -401,7 +401,7 @@ bool PhysicalModel::SetBody(const std::string &theBody)
 {
    bodyName = theBody;
    // initialize the body
-   if (solarSystem == NULL) throw ForceModelException( // or just return false?
+   if (solarSystem == NULL) throw ODEModelException( // or just return false?
                                                        "Solar System undefined for Harmonic Field.");
    body = solarSystem->GetBody(bodyName);  // catch errors here?
    return true;
@@ -861,7 +861,7 @@ bool PhysicalModel::IsTransient()
  * Specifies if a force is set by a user module.
  * 
  * Specifies whether the PhysicalModel is an "extra" force added by a plug-in or 
- * other user method.  Forces added to the ForceModel this way appear in the 
+ * other user method.  Forces added to the ODEModel this way appear in the 
  * "UserDefined" field of the force model when it is written out or parsed.
  * 
  * @return true if the force should be in the "UserDefined" field.
@@ -1080,7 +1080,7 @@ bool PhysicalModel::SetStringParameter(const Integer id,
       {
          return SetBody(value);
       }
-//      if (!solarSystem) throw ForceModelException(
+//      if (!solarSystem) throw ODEModelException(
 //          "In PhysicalModel, cannot set body, as no solar system has been set");
 //      if (value != bodyName)
 //      {
