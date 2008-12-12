@@ -27,6 +27,84 @@
 //  static data
 //---------------------------------
 
+const std::string ProcessSLRData::SLRFILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
+{
+	"SlrType",
+	"IlrsSatnum",
+	"Year",
+	"DayOfYear",
+	"CdpPadID",
+	"CdpSysNum",
+	"CdpOccupancySequenceNum",
+	"Wavelength",
+	"CalSysDelay",
+	"CalDelayShift",
+	"RmsSysDelay",
+	"NormalPointWindowIndicator",
+	"EpochTimeScaleIndicator",
+	"SysCalMethodIndicator",
+	"SchIndicator",
+	"SciIndicator",
+	"PassRMS",
+	"DataQualAssessmentIndicator",
+	"FormatRevisionNum",
+	"TimeOfLaserFiring",
+	"TwoWayTimeOfFlight",
+	"BinRMSRange",
+	"SurfacePressure",
+	"SurfaceTemp",
+	"RelativeHumidity",
+	"NumRawRanges",
+	"DataReleaseFlag",
+	"RawRangeFactor",
+	"NormalPointWindowIndicator2",
+	"SignalToNoiseRatio",
+        "BurstCalSysDelay",
+	"SignalStrength",
+        "AngleOriginIndicator",
+        "Azimuth",
+        "Elevation"
+};
+
+const Gmat::ParameterType ProcessSLRData::SLRPARAMETER_TYPE[EndSLRDataReps] =
+{
+	Gmat::INTEGER_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+        Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE
+};
+
 //---------------------------------
 //  public methods
 //---------------------------------
@@ -650,3 +728,315 @@ bool ProcessSLRData::GetSLRData(std::string &lff, slr_header *mySLRheader,
     return true;    
     
 }
+
+//------------------------------------------------------------------------------
+// Measurement Data Access functions
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested parameter text.
+ *
+ * @return parameter text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string ProcessSLRData::GetDataParameterText(const Integer id) const
+{
+   if ((id >= 0) && (id < EndSLRDataReps))
+   {
+      return SLRFILEFORMAT_DESCRIPTIONS[id];
+   }
+   return "";
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetDataParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested parameter.
+ *
+ * @return ID for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Integer ProcessSLRData::GetDataParameterID(const std::string &str) const
+{
+   for (Integer i = 0; i < EndSLRDataReps; ++i)
+   {
+      if (str == SLRFILEFORMAT_DESCRIPTIONS[i])
+         return i;
+   }
+
+   return -1;
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter type, given the input parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return parameter type of the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType ProcessSLRData::GetDataParameterType(const Integer id) const
+{
+   if ((id >= 0) && (id < EndSLRDataReps))
+      return SLRPARAMETER_TYPE[id];
+
+   return GmatBase::GetParameterType(id);
+}
+
+
+
+//---------------------------------------------------------------------------
+//  std::string GetDataParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the string associated with a parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return Text description for the type of the parameter, or the empty
+ *         string ("").
+ */
+//---------------------------------------------------------------------------
+std::string ProcessSLRData::GetDataParameterTypeString(const Integer id) const
+{
+   return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
+}
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Integer ProcessSLRData::GetIntegerDataParameter(const Integer id) const
+{
+
+    switch (id)
+    {
+        case SLRTYPE_ID:
+
+            return (*(*i)->headerVectorIndex)->slrType;
+
+        case YEAR_ID:
+
+            return (*(*i)->headerVectorIndex)->year;
+
+        case DAYOFYEAR_ID:
+
+            return (*(*i)->headerVectorIndex)->dayOfYear;
+
+        case CDPPADID_ID:
+
+            return (*(*i)->headerVectorIndex)->cdpPadID;
+
+        case CDPSYSNUM_ID:
+
+            return (*(*i)->headerVectorIndex)->cdpSysNum;
+
+        case CDPOCCUPANCYSEQUENCENUM_ID:
+
+            return (*(*i)->headerVectorIndex)->cdpOccupancySequenceNum;
+
+        case CALSYSDELAY_ID:
+
+            return (*(*i)->headerVectorIndex)->calSysDelay;
+
+        case CALDELAYSHIFT_ID:
+
+            return (*(*i)->headerVectorIndex)->calDelayShift;
+
+        case RMSSYSDELAY_ID:
+
+            return (*(*i)->headerVectorIndex)->rmsSysDelay;
+
+        case NORMALPOINTWINDOWINDICATOR_ID:
+
+            return (*(*i)->headerVectorIndex)->normalPointWindowIndicator;
+
+        case EPOCHTIMESCALEINDICATOR_ID:
+
+            return (*(*i)->headerVectorIndex)->epochTimeScaleIndicator;
+
+        case SYSCALMETHODINDICATOR_ID:
+
+            return (*(*i)->headerVectorIndex)->sysCalMethodIndicator;
+
+        case SCHINDICATOR_ID:
+
+            return (*(*i)->headerVectorIndex)->schIndicator;
+
+        case SCIINDICATOR_ID:
+
+            return (*(*i)->headerVectorIndex)->sciIndicator;
+
+        case PASSRMS_ID:
+
+            return (*(*i)->headerVectorIndex)->passRMS;
+
+        case DATAQUALASSESSMENTINDICATOR_ID:
+
+            return (*(*i)->headerVectorIndex)->dataQualAssessmentIndicator;
+
+        case FORMATREVISIONNUM_ID:
+
+            return (*(*i)->headerVectorIndex)->formatRevisionNum;
+
+        case BINRMSRANGE_ID:
+
+            return (*i)->binRMSRange;
+
+        case RELATIVEHUMIDITY_ID:
+
+            return (*i)->relativeHumidity;
+
+        case NUMRAWRANGES_ID:
+
+            return (*i)->numRawRanges;
+
+        case DATARELEASEFLAG_ID:
+
+            return (*i)->dataReleaseFlag;
+
+        case RAWRANGEFACTOR_ID:
+
+            return (*i)->rawRangeFactor;
+
+        case NORMALPOINTWINDOWINDICATOR2_ID:
+
+            return (*i)->normalPointWindowIndicator2;
+
+        case BURSTCALSYSDELAY_ID:
+
+            return (*i)->burstCalSysDelay;
+
+         case SIGNALSTRENGTH_ID:
+
+            return (*i)->signalStrength;
+
+        case ANGLEORIGININDICATOR_ID:
+
+            return (*i)->angleOriginIndicator;
+
+       default:
+
+            return -123456789;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Integer ProcessSLRData::GetIntegerDataParameter(const std::string &label) const
+{
+   return GetIntegerDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+std::string ProcessSLRData::GetStringDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+        case ILRSSATNUM_ID:
+
+            return (*(*i)->headerVectorIndex)->ilrsSatnum;
+
+        default:
+
+            return "";
+
+    }
+}
+
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+std::string ProcessSLRData::GetStringDataParameter(const std::string &label) const
+{
+   return GetStringDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Real ProcessSLRData::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+       case WAVELENGTH_ID:
+
+            return (*(*i)->headerVectorIndex)->wavelength;
+
+        case TIMEOFLASERFIRING_ID:
+
+            return (*i)->timeOfLaserFiring;
+
+        case TWOWAYTIMEOFFLIGHT_ID:
+
+            return (*i)->twoWayTimeOfFlight;
+
+        case SURFACEPRESSURE_ID:
+
+            return (*i)->surfacePressure;
+
+        case SURFACETEMP_ID:
+
+            return (*i)->surfaceTemp;
+
+        case SIGNALTONOISERATIO_ID:
+
+            return (*i)->signalToNoiseRatio;
+
+        case AZIMUTH_ID:
+
+            return (*i)->az;
+
+        case ELEVATION_ID:
+
+            return (*i)->el;
+            
+        default:
+
+            return -1234567.89;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Real ProcessSLRData::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
+

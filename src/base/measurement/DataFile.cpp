@@ -894,4 +894,155 @@ bool DataFile::Overpunch(std::string code, Integer &digit, Integer &sign )
 
     return true;
 }
+//------------------------------------------------------------------------------
+// Measurement Data Access functions
+//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+//  std::string  GetDataParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested parameter text.
+ *
+ * @return parameter text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::GetDataParameterText(const Integer id) const
+{
+   return "";
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetDataParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested parameter.
+ *
+ * @return ID for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::GetDataParameterID(const std::string &str) const
+{
+   return -1;
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter type, given the input parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return parameter type of the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType DataFile::GetDataParameterType(const Integer id) const
+{
+   return GmatBase::GetParameterType(id);
+}
+
+
+
+//---------------------------------------------------------------------------
+//  std::string GetDataParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the string associated with a parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return Text description for the type of the parameter, or the empty
+ *         string ("").
+ */
+//---------------------------------------------------------------------------
+std::string DataFile::GetDataParameterTypeString(const Integer id) const
+{
+   return "";
+}
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Integer DataFile::GetIntegerDataParameter(const Integer id) const
+{
+    return -123456789;
+}
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::GetIntegerDataParameter(const std::string &label) const
+{
+   return GetIntegerDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Real DataFile::GetRealDataParameter(const Integer id) const
+{
+    return -1234567.89;
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Real DataFile::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual bool GetBoolDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+bool DataFile::GetBoolDataParameter(const Integer id) const
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool GetBoolDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool DataFile::GetBoolDataParameter(const std::string &label) const
+{
+   return GetBoolDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+std::string DataFile::GetStringDataParameter(const Integer id) const
+{
+    return "";
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::GetStringDataParameter(const std::string &label) const
+{
+   return GetStringDataParameter(GetDataParameterID(label));
+}

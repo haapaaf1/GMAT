@@ -44,10 +44,9 @@ public:
 
     const std::string* GetB3TypeDescriptions() const;
     std::string GetB3TypeNameText(const Integer &id) const;
-
-    bool GetNextOb(b3_obtype *myB3);
     
-    enum B3_TYPE_REPS {
+    enum B3_TYPE_REPS
+    {
 	RANGERATEONLY_ID,
         AZEL_ID,
 	RAZEL_ID,
@@ -59,8 +58,49 @@ public:
 	RADECSENSORPOS_ID,
 	EndB3TypeReps    
     };
+
+    enum B3_DATA_REPS
+    {
+        B3TYPE_ID,
+        SECURITYCLASSIFICATION_ID,
+        SATELLITE_ID,
+        SENSORID_ID,
+        YEAR_ID,
+        DAYOFYEAR_ID,
+        HOUR_ID,
+        MINUTE_ID,
+        SECONDS_ID,
+        ELEVATION_ID,
+        DECLINATION_ID,
+        RIGHTASCENSION_ID,
+        AZIMUTH_ID,
+        RANGE_ID,
+        RANGERATE_ID,
+        ECFX_ID,
+        ECFY_ID,
+        ECFZ_ID,
+        EndB3DataReps
+    };
   
+    // Measurement Data Access functions
+    std::string GetDataParameterText(const Integer id) const;
+    Integer     GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+
+    Real     GetRealDataParameter(const Integer id) const;
+    Real     GetRealDataParameter(const std::string &label) const;
+    Integer     GetIntegerDataParameter(const Integer id) const;
+    Integer     GetIntegerDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+
 private:
+
+    static const std::string B3FILEFORMAT_DESCRIPTIONS[EndB3DataReps];
+    static const Gmat::ParameterType B3PARAMETER_TYPE[EndB3DataReps];
+
+    bool GetNextOb(b3_obtype *myB3);
 
     bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
 

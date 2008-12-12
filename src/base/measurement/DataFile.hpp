@@ -65,7 +65,24 @@ public:
     virtual Integer GetIntegerParameter(const std::string &label) const;
     virtual Integer SetIntegerParameter(const Integer id, const Integer value);
     virtual Integer SetIntegerParameter(const std::string &label, const Integer value);
-  
+
+
+    // Measurement Data Access functions
+    virtual std::string GetDataParameterText(const Integer id) const;
+    virtual Integer     GetDataParameterID(const std::string &str) const;
+    virtual Gmat::ParameterType
+                        GetDataParameterType(const Integer id) const;
+    virtual std::string GetDataParameterTypeString(const Integer id) const;
+
+    virtual Integer     GetIntegerDataParameter(const Integer id) const;
+    virtual Integer     GetIntegerDataParameter(const std::string &label) const;
+    virtual Real        GetRealDataParameter(const Integer id) const;
+    virtual Real        GetRealDataParameter(const std::string &label) const;
+    virtual bool        GetBoolDataParameter(const Integer id) const;
+    virtual bool        GetBoolDataParameter(const std::string &label) const;
+    virtual std::string GetStringDataParameter(const Integer id) const;
+    virtual std::string GetStringDataParameter(const std::string &label) const;
+
 
     // String processing utility functions
     std::string Trim(std::string s);

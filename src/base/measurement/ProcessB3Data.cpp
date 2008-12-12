@@ -40,6 +40,51 @@ const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[EndB3TypeReps] =
     "Right ascension, declination, sometimes range and ECF position of the sensor",
 };
 
+const std::string ProcessB3Data::B3FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
+{
+        "B3Type",
+        "SecurityClassification",
+        "SatelliteID",
+        "SensorID",
+        "Year",
+        "DayOfYear",
+        "Hour",
+        "Minute",
+        "Seconds",
+        "Elevation",
+        "Declination",
+        "RightAscension",
+        "Azimuth",
+        "Range",
+        "RangeRate",
+        "Ecf_X",
+        "Ecf_Y",
+        "Ecf_Z"
+};
+
+const Gmat::ParameterType ProcessB3Data::B3PARAMETER_TYPE[EndB3DataReps] =
+{
+    Gmat::INTEGER_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+};
+
+
 //---------------------------------
 //  public methods
 //---------------------------------
@@ -804,4 +849,247 @@ bool ProcessB3Data::ExtractB3Data(std::string &lff, b3_obtype *myb3Data)
     
     return true;    
     
+}
+
+//------------------------------------------------------------------------------
+// Measurement Data Access functions
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested parameter text.
+ *
+ * @return parameter text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string ProcessB3Data::GetDataParameterText(const Integer id) const
+{
+   if ((id >= 0) && (id < EndB3DataReps))
+   {
+      return B3FILEFORMAT_DESCRIPTIONS[id];
+   }
+   return "";
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetDataParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested parameter.
+ *
+ * @return ID for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Integer ProcessB3Data::GetDataParameterID(const std::string &str) const
+{
+   for (Integer i = 0; i < EndB3DataReps; ++i)
+   {
+      if (str == B3FILEFORMAT_DESCRIPTIONS[i])
+         return i;
+   }
+
+   return -1;
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter type, given the input parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return parameter type of the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType ProcessB3Data::GetDataParameterType(const Integer id) const
+{
+   if ((id >= 0) && (id < EndB3DataReps))
+      return B3PARAMETER_TYPE[id];
+
+   return GmatBase::GetParameterType(id);
+}
+
+
+
+//---------------------------------------------------------------------------
+//  std::string GetDataParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the string associated with a parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return Text description for the type of the parameter, or the empty
+ *         string ("").
+ */
+//---------------------------------------------------------------------------
+std::string ProcessB3Data::GetDataParameterTypeString(const Integer id) const
+{
+   return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
+}
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Integer ProcessB3Data::GetIntegerDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+        case B3TYPE_ID:
+
+            return (*i)->b3Type;
+
+        case SATELLITE_ID:
+
+            return (*i)->satelliteID;
+
+        case SENSORID_ID:
+
+            return (*i)->sensorID;
+
+        case YEAR_ID:
+
+            return (*i)->year;
+
+        case DAYOFYEAR_ID:
+
+            return (*i)->dayOfYear;
+
+        case HOUR_ID:
+
+            return (*i)->hour;
+
+        case MINUTE_ID:
+
+            return (*i)->minute;
+
+        default:
+
+            return -123456789;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Integer ProcessB3Data::GetIntegerDataParameter(const std::string &label) const
+{
+   return GetIntegerDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+std::string ProcessB3Data::GetStringDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+        case SECURITYCLASSIFICATION_ID:
+
+            return (*i)->securityClassification;
+
+        default:
+
+            return "";
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+std::string ProcessB3Data::GetStringDataParameter(const std::string &label) const
+{
+   return GetStringDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Real ProcessB3Data::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+       case SECONDS_ID:
+
+            return (*i)->seconds;
+
+        case ELEVATION_ID:
+
+            return (*i)->elevation;
+
+        case DECLINATION_ID:
+
+            return (*i)->declination;
+
+        case RIGHTASCENSION_ID:
+
+            return (*i)->rightAscension;
+
+        case AZIMUTH_ID:
+
+            return (*i)->azimuth;
+
+        case RANGE_ID:
+
+            return (*i)->range;
+
+        case RANGERATE_ID:
+
+            return (*i)->rangeRate;
+
+        case ECFX_ID:
+
+            return (*i)->ecf_X;
+
+        case ECFY_ID:
+
+            return (*i)->ecf_Y;
+
+        case ECFZ_ID:
+
+            return (*i)->ecf_Z;
+
+        default:
+
+            return -1234567.89;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Real ProcessB3Data::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
 }

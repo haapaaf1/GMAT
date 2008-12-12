@@ -41,11 +41,51 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool GetNextOb(tle_obtype *myTLE);
+
+    enum TLE_DATA_REPS
+    {
+	SATNUM_ID,
+	SECURITYCLASSIFICATION_ID,
+	INTLDESIGNATOR_ID,
+	EPOCHYEAR_ID,
+	EPOCHDAYOFYEAR_ID,
+	NDOTBY2_ID,
+	NDDOTBY6_ID,
+	BSTAR_ID,
+	EPHEMERISTYPE_ID,
+	ELEMENTNUM_ID,
+	INCLINATION_ID,
+	RAAN_ID,
+	ECCENTRICITY_ID,
+	ARGPERIGEE_ID,
+	MEANANOMALY_ID,
+	MEANMOTION_ID,
+	REVOLUTIONNUM_ID,
+        EndTLEDataReps
+    };
+
+    // Measurement Data Access functions
+    std::string GetDataParameterText(const Integer id) const;
+    Integer     GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+
+    Real     GetRealDataParameter(const Integer id) const;
+    Real     GetRealDataParameter(const std::string &label) const;
+    Integer     GetIntegerDataParameter(const Integer id) const;
+    Integer     GetIntegerDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+
 
 private:
 
-    bool GetTLEData(std::string &lff, std::string &lff2, 
+    static const std::string TLEFILEFORMAT_DESCRIPTIONS[EndTLEDataReps];
+    static const Gmat::ParameterType TLEPARAMETER_TYPE[EndTLEDataReps];
+
+    bool GetNextOb(tle_obtype *myTLE);
+
+    bool GetTLEData(std::string &lff, std::string &lff2,
 			       tle_obtype *myTLEdata);
 
     // Specific data type processing functions

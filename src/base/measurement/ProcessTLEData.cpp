@@ -27,6 +27,47 @@
 //---------------------------------
 //  static data
 //---------------------------------
+const std::string ProcessTLEData::TLEFILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
+{
+	"Satnum",
+	"SecurityClassification",
+	"IntlDesignator",
+	"EpochYear",
+	"EpochDayOfYear",
+	"Ndotby2",
+	"Nddotby6",
+	"Bstar",
+	"EphemerisType",
+	"ElementNum",
+	"Inclination",
+	"Raan",
+	"Eccentricity",
+	"ArgPerigee",
+	"MeanAnomaly",
+	"MeanMotion",
+	"RevolutionNum"
+};
+
+const Gmat::ParameterType ProcessTLEData::TLEPARAMETER_TYPE[EndTLEDataReps] =
+{
+	Gmat::INTEGER_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE
+};
 
 //---------------------------------
 //  public methods
@@ -665,4 +706,241 @@ bool ProcessTLEData::GetTLEData(std::string &lff,
     return true;
     
 }
-	
+
+//------------------------------------------------------------------------------
+// Measurement Data Access functions
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested parameter text.
+ *
+ * @return parameter text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string ProcessTLEData::GetDataParameterText(const Integer id) const
+{
+   if ((id >= 0) && (id < EndTLEDataReps))
+   {
+      return TLEFILEFORMAT_DESCRIPTIONS[id];
+   }
+   return "";
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetDataParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested parameter.
+ *
+ * @return ID for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Integer ProcessTLEData::GetDataParameterID(const std::string &str) const
+{
+   for (Integer i = 0; i < EndTLEDataReps; ++i)
+   {
+      if (str == TLEFILEFORMAT_DESCRIPTIONS[i])
+         return i;
+   }
+
+   return -1;
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter type, given the input parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return parameter type of the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType ProcessTLEData::GetDataParameterType(const Integer id) const
+{
+   if ((id >= 0) && (id < EndTLEDataReps))
+      return TLEPARAMETER_TYPE[id];
+
+   return GmatBase::GetParameterType(id);
+}
+
+
+
+//---------------------------------------------------------------------------
+//  std::string GetDataParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the string associated with a parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return Text description for the type of the parameter, or the empty
+ *         string ("").
+ */
+//---------------------------------------------------------------------------
+std::string ProcessTLEData::GetDataParameterTypeString(const Integer id) const
+{
+   return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
+}
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Integer ProcessTLEData::GetIntegerDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+        case SATNUM_ID:
+
+            return (*i)->satnum;
+
+        case EPOCHYEAR_ID:
+
+            return (*i)->epochYear;
+
+        case EPHEMERISTYPE_ID:
+
+            return (*i)->ephemerisType;
+
+        case ELEMENTNUM_ID:
+
+            return (*i)->elementNum;
+
+        case REVOLUTIONNUM_ID:
+
+            return (*i)->revolutionNum;
+
+        default:
+
+            return -123456789;
+    }
+   
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Integer GetIntegerDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Integer ProcessTLEData::GetIntegerDataParameter(const std::string &label) const
+{
+   return GetIntegerDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+std::string ProcessTLEData::GetStringDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+        case SECURITYCLASSIFICATION_ID:
+
+            return (*i)->securityClassification;
+
+        case INTLDESIGNATOR_ID:
+
+            return (*i)->intlDesignator;
+
+        default:
+
+            return "";
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+std::string ProcessTLEData::GetStringDataParameter(const std::string &label) const
+{
+   return GetStringDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+Real ProcessTLEData::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+       case EPOCHDAYOFYEAR_ID:
+
+            return (*i)->epochDayOfYear;
+
+        case NDOTBY2_ID:
+
+            return (*i)->ndotby2;
+
+        case NDDOTBY6_ID:
+
+            return (*i)->nddotby6;
+
+        case BSTAR_ID:
+
+            return (*i)->bstar;
+
+        case INCLINATION_ID:
+
+            return (*i)->inclination;
+
+        case RAAN_ID:
+
+            return (*i)->raan;
+
+        case ECCENTRICITY_ID:
+
+            return (*i)->eccentricity;
+
+        case ARGPERIGEE_ID:
+
+            return (*i)->argPerigee;
+
+        case MEANANOMALY_ID:
+
+            return (*i)->meanAnomaly;
+
+        case MEANMOTION_ID:
+
+            return (*i)->meanMotion;
+
+        default:
+
+            return -1234567.89;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+Real ProcessTLEData::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
