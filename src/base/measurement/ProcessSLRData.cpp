@@ -27,84 +27,6 @@
 //  static data
 //---------------------------------
 
-const std::string ProcessSLRData::SLRFILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
-{
-	"SlrType",
-	"IlrsSatnum",
-	"Year",
-	"DayOfYear",
-	"CdpPadID",
-	"CdpSysNum",
-	"CdpOccupancySequenceNum",
-	"Wavelength",
-	"CalSysDelay",
-	"CalDelayShift",
-	"RmsSysDelay",
-	"NormalPointWindowIndicator",
-	"EpochTimeScaleIndicator",
-	"SysCalMethodIndicator",
-	"SchIndicator",
-	"SciIndicator",
-	"PassRMS",
-	"DataQualAssessmentIndicator",
-	"FormatRevisionNum",
-	"TimeOfLaserFiring",
-	"TwoWayTimeOfFlight",
-	"BinRMSRange",
-	"SurfacePressure",
-	"SurfaceTemp",
-	"RelativeHumidity",
-	"NumRawRanges",
-	"DataReleaseFlag",
-	"RawRangeFactor",
-	"NormalPointWindowIndicator2",
-	"SignalToNoiseRatio",
-        "BurstCalSysDelay",
-	"SignalStrength",
-        "AngleOriginIndicator",
-        "Azimuth",
-        "Elevation"
-};
-
-const Gmat::ParameterType ProcessSLRData::SLRPARAMETER_TYPE[EndSLRDataReps] =
-{
-	Gmat::INTEGER_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
-        Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE
-};
-
 //---------------------------------
 //  public methods
 //---------------------------------
@@ -352,17 +274,17 @@ std::string ProcessSLRData::Ilrs2Cospar(std::string ilrsSatnum)
 }
 
 //------------------------------------------------------------------------------
-// bool GetNextOb(slr_obtype *mySLR)
+// bool AdvanceToNextOb()
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetNextOb(slr_obtype *mySLR) {
+bool ProcessSLRData::AdvanceToNextOb() {
 
     ++i;
     if (i==slrData.end()) return false;
-    mySLR = (*i);
+
     return true;
 
 }
@@ -823,107 +745,107 @@ Integer ProcessSLRData::GetIntegerDataParameter(const Integer id) const
 
     switch (id)
     {
-        case SLRTYPE_ID:
+        case SLR_TYPE_ID:
 
             return (*(*i)->headerVectorIndex)->slrType;
 
-        case YEAR_ID:
+        case SLR_YEAR_ID:
 
             return (*(*i)->headerVectorIndex)->year;
 
-        case DAYOFYEAR_ID:
+        case SLR_DAYOFYEAR_ID:
 
             return (*(*i)->headerVectorIndex)->dayOfYear;
 
-        case CDPPADID_ID:
+        case SLR_CDPPADID_ID:
 
             return (*(*i)->headerVectorIndex)->cdpPadID;
 
-        case CDPSYSNUM_ID:
+        case SLR_CDPSYSNUM_ID:
 
             return (*(*i)->headerVectorIndex)->cdpSysNum;
 
-        case CDPOCCUPANCYSEQUENCENUM_ID:
+        case SLR_CDPOCCUPANCYSEQUENCENUM_ID:
 
             return (*(*i)->headerVectorIndex)->cdpOccupancySequenceNum;
 
-        case CALSYSDELAY_ID:
+        case SLR_CALSYSDELAY_ID:
 
             return (*(*i)->headerVectorIndex)->calSysDelay;
 
-        case CALDELAYSHIFT_ID:
+        case SLR_CALDELAYSHIFT_ID:
 
             return (*(*i)->headerVectorIndex)->calDelayShift;
 
-        case RMSSYSDELAY_ID:
+        case SLR_RMSSYSDELAY_ID:
 
             return (*(*i)->headerVectorIndex)->rmsSysDelay;
 
-        case NORMALPOINTWINDOWINDICATOR_ID:
+        case SLR_NORMALPOINTWINDOWINDICATOR_ID:
 
             return (*(*i)->headerVectorIndex)->normalPointWindowIndicator;
 
-        case EPOCHTIMESCALEINDICATOR_ID:
+        case SLR_EPOCHTIMESCALEINDICATOR_ID:
 
             return (*(*i)->headerVectorIndex)->epochTimeScaleIndicator;
 
-        case SYSCALMETHODINDICATOR_ID:
+        case SLR_SYSCALMETHODINDICATOR_ID:
 
             return (*(*i)->headerVectorIndex)->sysCalMethodIndicator;
 
-        case SCHINDICATOR_ID:
+        case SLR_SCHINDICATOR_ID:
 
             return (*(*i)->headerVectorIndex)->schIndicator;
 
-        case SCIINDICATOR_ID:
+        case SLR_SCIINDICATOR_ID:
 
             return (*(*i)->headerVectorIndex)->sciIndicator;
 
-        case PASSRMS_ID:
+        case SLR_PASSRMS_ID:
 
             return (*(*i)->headerVectorIndex)->passRMS;
 
-        case DATAQUALASSESSMENTINDICATOR_ID:
+        case SLR_DATAQUALASSESSMENTINDICATOR_ID:
 
             return (*(*i)->headerVectorIndex)->dataQualAssessmentIndicator;
 
-        case FORMATREVISIONNUM_ID:
+        case SLR_FORMATREVISIONNUM_ID:
 
             return (*(*i)->headerVectorIndex)->formatRevisionNum;
 
-        case BINRMSRANGE_ID:
+        case SLR_BINRMSRANGE_ID:
 
             return (*i)->binRMSRange;
 
-        case RELATIVEHUMIDITY_ID:
+        case SLR_RELATIVEHUMIDITY_ID:
 
             return (*i)->relativeHumidity;
 
-        case NUMRAWRANGES_ID:
+        case SLR_NUMRAWRANGES_ID:
 
             return (*i)->numRawRanges;
 
-        case DATARELEASEFLAG_ID:
+        case SLR_DATARELEASEFLAG_ID:
 
             return (*i)->dataReleaseFlag;
 
-        case RAWRANGEFACTOR_ID:
+        case SLR_RAWRANGEFACTOR_ID:
 
             return (*i)->rawRangeFactor;
 
-        case NORMALPOINTWINDOWINDICATOR2_ID:
+        case SLR_NORMALPOINTWINDOWINDICATOR2_ID:
 
             return (*i)->normalPointWindowIndicator2;
 
-        case BURSTCALSYSDELAY_ID:
+        case SLR_BURSTCALSYSDELAY_ID:
 
             return (*i)->burstCalSysDelay;
 
-         case SIGNALSTRENGTH_ID:
+        case SLR_SIGNALSTRENGTH_ID:
 
             return (*i)->signalStrength;
 
-        case ANGLEORIGININDICATOR_ID:
+        case SLR_ANGLEORIGININDICATOR_ID:
 
             return (*i)->angleOriginIndicator;
 
@@ -955,7 +877,7 @@ std::string ProcessSLRData::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case ILRSSATNUM_ID:
+        case SLR_ILRSSATNUM_ID:
 
             return (*(*i)->headerVectorIndex)->ilrsSatnum;
 
@@ -987,35 +909,35 @@ Real ProcessSLRData::GetRealDataParameter(const Integer id) const
     switch (id)
     {
 
-       case WAVELENGTH_ID:
+        case SLR_WAVELENGTH_ID:
 
             return (*(*i)->headerVectorIndex)->wavelength;
 
-        case TIMEOFLASERFIRING_ID:
+        case SLR_TIMEOFLASERFIRING_ID:
 
             return (*i)->timeOfLaserFiring;
 
-        case TWOWAYTIMEOFFLIGHT_ID:
+        case SLR_TWOWAYTIMEOFFLIGHT_ID:
 
             return (*i)->twoWayTimeOfFlight;
 
-        case SURFACEPRESSURE_ID:
+        case SLR_SURFACEPRESSURE_ID:
 
             return (*i)->surfacePressure;
 
-        case SURFACETEMP_ID:
+        case SLR_SURFACETEMP_ID:
 
             return (*i)->surfaceTemp;
 
-        case SIGNALTONOISERATIO_ID:
+        case SLR_SIGNALTONOISERATIO_ID:
 
             return (*i)->signalToNoiseRatio;
 
-        case AZIMUTH_ID:
+        case SLR_AZIMUTH_ID:
 
             return (*i)->az;
 
-        case ELEVATION_ID:
+        case SLR_ELEVATION_ID:
 
             return (*i)->el;
             

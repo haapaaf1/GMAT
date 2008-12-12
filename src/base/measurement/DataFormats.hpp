@@ -281,7 +281,125 @@ namespace DataFormats
 
 	
     };
-    
+
+    enum SLR_DATA_REPS
+    {
+	SLR_TYPE_ID,
+	SLR_ILRSSATNUM_ID,
+	SLR_YEAR_ID,
+	SLR_DAYOFYEAR_ID,
+	SLR_CDPPADID_ID,
+	SLR_CDPSYSNUM_ID,
+	SLR_CDPOCCUPANCYSEQUENCENUM_ID,
+	SLR_WAVELENGTH_ID,
+	SLR_CALSYSDELAY_ID,
+	SLR_CALDELAYSHIFT_ID,
+	SLR_RMSSYSDELAY_ID,
+	SLR_NORMALPOINTWINDOWINDICATOR_ID,
+	SLR_EPOCHTIMESCALEINDICATOR_ID,
+	SLR_SYSCALMETHODINDICATOR_ID,
+	SLR_SCHINDICATOR_ID,
+	SLR_SCIINDICATOR_ID,
+	SLR_PASSRMS_ID,
+	SLR_DATAQUALASSESSMENTINDICATOR_ID,
+	SLR_FORMATREVISIONNUM_ID,
+	SLR_TIMEOFLASERFIRING_ID,
+	SLR_TWOWAYTIMEOFFLIGHT_ID,
+	SLR_BINRMSRANGE_ID,
+	SLR_SURFACEPRESSURE_ID,
+	SLR_SURFACETEMP_ID,
+	SLR_RELATIVEHUMIDITY_ID,
+	SLR_NUMRAWRANGES_ID,
+	SLR_DATARELEASEFLAG_ID,
+	SLR_RAWRANGEFACTOR_ID,
+	SLR_NORMALPOINTWINDOWINDICATOR2_ID,
+	SLR_SIGNALTONOISERATIO_ID,
+        SLR_BURSTCALSYSDELAY_ID,
+	SLR_SIGNALSTRENGTH_ID,
+        SLR_ANGLEORIGININDICATOR_ID,
+        SLR_AZIMUTH_ID,
+        SLR_ELEVATION_ID,
+        EndSLRDataReps
+    };
+
+    static const std::string SLRFILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
+    {
+	"SlrType",
+	"IlrsSatnum",
+	"Year",
+	"DayOfYear",
+	"CdpPadID",
+	"CdpSysNum",
+	"CdpOccupancySequenceNum",
+	"Wavelength",
+	"CalSysDelay",
+	"CalDelayShift",
+	"RmsSysDelay",
+	"NormalPointWindowIndicator",
+	"EpochTimeScaleIndicator",
+	"SysCalMethodIndicator",
+	"SchIndicator",
+	"SciIndicator",
+	"PassRMS",
+	"DataQualAssessmentIndicator",
+	"FormatRevisionNum",
+	"TimeOfLaserFiring",
+	"TwoWayTimeOfFlight",
+	"BinRMSRange",
+	"SurfacePressure",
+	"SurfaceTemp",
+	"RelativeHumidity",
+	"NumRawRanges",
+	"DataReleaseFlag",
+	"RawRangeFactor",
+	"NormalPointWindowIndicator2",
+	"SignalToNoiseRatio",
+        "BurstCalSysDelay",
+	"SignalStrength",
+        "AngleOriginIndicator",
+        "Azimuth",
+        "Elevation"
+    };
+
+    static const Gmat::ParameterType SLRPARAMETER_TYPE[EndSLRDataReps] =
+    {
+	Gmat::INTEGER_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+        Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE
+    };
+
     // The description and background info for the TLE variables come 
     // from Tom Kelecy's website http://www.celestrak.com
     struct tle_obtype {
@@ -394,6 +512,70 @@ namespace DataFormats
 	
     };
 
+        enum TLE_DATA_REPS
+    {
+	TLE_SATNUM_ID,
+	TLE_SECURITYCLASSIFICATION_ID,
+	TLE_INTLDESIGNATOR_ID,
+	TLE_EPOCHYEAR_ID,
+	TLE_EPOCHDAYOFYEAR_ID,
+	TLE_NDOTBY2_ID,
+	TLE_NDDOTBY6_ID,
+	TLE_BSTAR_ID,
+	TLE_EPHEMERISTYPE_ID,
+	TLE_ELEMENTNUM_ID,
+	TLE_INCLINATION_ID,
+	TLE_RAAN_ID,
+	TLE_ECCENTRICITY_ID,
+	TLE_ARGPERIGEE_ID,
+	TLE_MEANANOMALY_ID,
+	TLE_MEANMOTION_ID,
+	TLE_REVOLUTIONNUM_ID,
+        EndTLEDataReps
+    };
+
+    static const std::string TLEFILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
+    {
+	"Satnum",
+	"SecurityClassification",
+	"IntlDesignator",
+	"EpochYear",
+	"EpochDayOfYear",
+	"Ndotby2",
+	"Nddotby6",
+	"Bstar",
+	"EphemerisType",
+	"ElementNum",
+	"Inclination",
+	"Raan",
+	"Eccentricity",
+	"ArgPerigee",
+	"MeanAnomaly",
+	"MeanMotion",
+	"RevolutionNum"
+    };
+
+    static const Gmat::ParameterType TLEPARAMETER_TYPE[EndTLEDataReps] =
+    {
+	Gmat::INTEGER_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE
+    };
+
     // The B3 observation type specification
     struct b3_obtype {      
     
@@ -458,10 +640,75 @@ namespace DataFormats
     
     };
 
+    enum B3_DATA_REPS
+    {
+        B3_TYPE_ID,
+        B3_SECURITYCLASSIFICATION_ID,
+        B3_SATELLITE_ID,
+        B3_SENSORID_ID,
+        B3_YEAR_ID,
+        B3_DAYOFYEAR_ID,
+        B3_HOUR_ID,
+        B3_MINUTE_ID,
+        B3_SECONDS_ID,
+        B3_ELEVATION_ID,
+        B3_DECLINATION_ID,
+        B3_RIGHTASCENSION_ID,
+        B3_AZIMUTH_ID,
+        B3_RANGE_ID,
+        B3_RANGERATE_ID,
+        B3_ECFX_ID,
+        B3_ECFY_ID,
+        B3_ECFZ_ID,
+        EndB3DataReps
+    };
+
+    static const std::string B3FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
+    {
+        "B3Type",
+        "SecurityClassification",
+        "SatelliteID",
+        "SensorID",
+        "Year",
+        "DayOfYear",
+        "Hour",
+        "Minute",
+        "Seconds",
+        "Elevation",
+        "Declination",
+        "RightAscension",
+        "Azimuth",
+        "Range",
+        "RangeRate",
+        "Ecf_X",
+        "Ecf_Y",
+        "Ecf_Z"
+    };
+
+    static const Gmat::ParameterType B3PARAMETER_TYPE[EndB3DataReps] =
+    {
+        Gmat::INTEGER_TYPE,
+        Gmat::STRING_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+    };
 
 }
 
-
-
 #endif	/* _Dataformats_hpp */
+
 

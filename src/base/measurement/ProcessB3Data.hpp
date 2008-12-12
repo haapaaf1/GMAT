@@ -58,31 +58,11 @@ public:
 	RADECSENSORPOS_ID,
 	EndB3TypeReps    
     };
-
-    enum B3_DATA_REPS
-    {
-        B3TYPE_ID,
-        SECURITYCLASSIFICATION_ID,
-        SATELLITE_ID,
-        SENSORID_ID,
-        YEAR_ID,
-        DAYOFYEAR_ID,
-        HOUR_ID,
-        MINUTE_ID,
-        SECONDS_ID,
-        ELEVATION_ID,
-        DECLINATION_ID,
-        RIGHTASCENSION_ID,
-        AZIMUTH_ID,
-        RANGE_ID,
-        RANGERATE_ID,
-        ECFX_ID,
-        ECFY_ID,
-        ECFZ_ID,
-        EndB3DataReps
-    };
-  
+ 
     // Measurement Data Access functions
+
+    bool AdvanceToNextOb();
+
     std::string GetDataParameterText(const Integer id) const;
     Integer     GetDataParameterID(const std::string &str) const;
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
@@ -96,11 +76,6 @@ public:
     std::string GetStringDataParameter(const std::string &label) const;
 
 private:
-
-    static const std::string B3FILEFORMAT_DESCRIPTIONS[EndB3DataReps];
-    static const Gmat::ParameterType B3PARAMETER_TYPE[EndB3DataReps];
-
-    bool GetNextOb(b3_obtype *myB3);
 
     bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
 

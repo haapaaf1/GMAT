@@ -27,47 +27,6 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string ProcessTLEData::TLEFILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
-{
-	"Satnum",
-	"SecurityClassification",
-	"IntlDesignator",
-	"EpochYear",
-	"EpochDayOfYear",
-	"Ndotby2",
-	"Nddotby6",
-	"Bstar",
-	"EphemerisType",
-	"ElementNum",
-	"Inclination",
-	"Raan",
-	"Eccentricity",
-	"ArgPerigee",
-	"MeanAnomaly",
-	"MeanMotion",
-	"RevolutionNum"
-};
-
-const Gmat::ParameterType ProcessTLEData::TLEPARAMETER_TYPE[EndTLEDataReps] =
-{
-	Gmat::INTEGER_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::INTEGER_TYPE
-};
 
 //---------------------------------
 //  public methods
@@ -203,19 +162,17 @@ bool ProcessTLEData::IsParameterReadOnly(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetNextOb(tle_obtype *myTLE)
+// bool AdvanceToNextOb(tle_obtype *myTLE)
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEData::GetNextOb(tle_obtype *myTLE) {
+bool ProcessTLEData::AdvanceToNextOb() {
 
     ++i;
 
     if ( i == tleData.end() ) return false;
-
-    myTLE = (*i);
     
     return true;
 
@@ -800,23 +757,23 @@ Integer ProcessTLEData::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case SATNUM_ID:
+        case TLE_SATNUM_ID:
 
             return (*i)->satnum;
 
-        case EPOCHYEAR_ID:
+        case TLE_EPOCHYEAR_ID:
 
             return (*i)->epochYear;
 
-        case EPHEMERISTYPE_ID:
+        case TLE_EPHEMERISTYPE_ID:
 
             return (*i)->ephemerisType;
 
-        case ELEMENTNUM_ID:
+        case TLE_ELEMENTNUM_ID:
 
             return (*i)->elementNum;
 
-        case REVOLUTIONNUM_ID:
+        case TLE_REVOLUTIONNUM_ID:
 
             return (*i)->revolutionNum;
 
@@ -847,11 +804,11 @@ std::string ProcessTLEData::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case SECURITYCLASSIFICATION_ID:
+        case TLE_SECURITYCLASSIFICATION_ID:
 
             return (*i)->securityClassification;
 
-        case INTLDESIGNATOR_ID:
+        case TLE_INTLDESIGNATOR_ID:
 
             return (*i)->intlDesignator;
 
@@ -884,43 +841,43 @@ Real ProcessTLEData::GetRealDataParameter(const Integer id) const
     switch (id)
     {
 
-       case EPOCHDAYOFYEAR_ID:
+       case TLE_EPOCHDAYOFYEAR_ID:
 
             return (*i)->epochDayOfYear;
 
-        case NDOTBY2_ID:
+        case TLE_NDOTBY2_ID:
 
             return (*i)->ndotby2;
 
-        case NDDOTBY6_ID:
+        case TLE_NDDOTBY6_ID:
 
             return (*i)->nddotby6;
 
-        case BSTAR_ID:
+        case TLE_BSTAR_ID:
 
             return (*i)->bstar;
 
-        case INCLINATION_ID:
+        case TLE_INCLINATION_ID:
 
             return (*i)->inclination;
 
-        case RAAN_ID:
+        case TLE_RAAN_ID:
 
             return (*i)->raan;
 
-        case ECCENTRICITY_ID:
+        case TLE_ECCENTRICITY_ID:
 
             return (*i)->eccentricity;
 
-        case ARGPERIGEE_ID:
+        case TLE_ARGPERIGEE_ID:
 
             return (*i)->argPerigee;
 
-        case MEANANOMALY_ID:
+        case TLE_MEANANOMALY_ID:
 
             return (*i)->meanAnomaly;
 
-        case MEANMOTION_ID:
+        case TLE_MEANMOTION_ID:
 
             return (*i)->meanMotion;
 

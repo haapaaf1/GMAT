@@ -640,46 +640,19 @@ std::string DataFile::GetFileFormatName() const
 }
 
 //------------------------------------------------------------------------------
-//  slr_obtype GetNextOb(slr_obtype *mySLR)
+//  bool slr_obtype AdvanceToNextOb()
 //------------------------------------------------------------------------------
 /**
- * Retrieves slr data.
+ * Increments the vector container index
  *
- * @return SLR struct
+ * @return true if successfull
  */
 //------------------------------------------------------------------------------
- bool DataFile::GetNextOb(slr_obtype *mySLR)
+ bool DataFile::AdvanceToNextOb()
 {
    return false;
 }
 
-//------------------------------------------------------------------------------
-//  bool GetNextOb(tle_obtype *myTLE)
-//------------------------------------------------------------------------------
-/**
- * Retrieves tle data.
- *
- * @return TLE struct
- */
-//------------------------------------------------------------------------------
-bool DataFile::GetNextOb(tle_obtype *myTLE)
-{
-   return false;
-}
-
-//------------------------------------------------------------------------------
-//  bool GetNextOb(b3_obtype* myB3)
-//------------------------------------------------------------------------------
-/**
- * Retrieves B3 data.
- *
- * @return B3 struct
- */
-//------------------------------------------------------------------------------
-bool DataFile::GetNextOb(b3_obtype *myB3)
-{
-   return false;
-}
 
 
 //------------------------------------------------------------------------------

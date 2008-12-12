@@ -68,6 +68,9 @@ public:
 
 
     // Measurement Data Access functions
+
+    virtual bool AdvanceToNextOb();
+
     virtual std::string GetDataParameterText(const Integer id) const;
     virtual Integer     GetDataParameterID(const std::string &str) const;
     virtual Gmat::ParameterType
@@ -167,10 +170,6 @@ private:
     static const std::string FILEFORMAT_DESCRIPTIONS[NUM_FILEFORMATS];
     
 protected:
-
-    virtual bool GetNextOb(b3_obtype *myB3);
-    virtual bool GetNextOb(slr_obtype *mySLR);
-    virtual bool GetNextOb(tle_obtype *myTLE);
 
   /// Published parameters for data files
    enum

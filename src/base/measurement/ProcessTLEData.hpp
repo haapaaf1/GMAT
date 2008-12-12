@@ -42,29 +42,10 @@ public:
     bool        IsParameterReadOnly(const std::string &label) const;
 
 
-    enum TLE_DATA_REPS
-    {
-	SATNUM_ID,
-	SECURITYCLASSIFICATION_ID,
-	INTLDESIGNATOR_ID,
-	EPOCHYEAR_ID,
-	EPOCHDAYOFYEAR_ID,
-	NDOTBY2_ID,
-	NDDOTBY6_ID,
-	BSTAR_ID,
-	EPHEMERISTYPE_ID,
-	ELEMENTNUM_ID,
-	INCLINATION_ID,
-	RAAN_ID,
-	ECCENTRICITY_ID,
-	ARGPERIGEE_ID,
-	MEANANOMALY_ID,
-	MEANMOTION_ID,
-	REVOLUTIONNUM_ID,
-        EndTLEDataReps
-    };
-
     // Measurement Data Access functions
+
+    bool AdvanceToNextOb();
+
     std::string GetDataParameterText(const Integer id) const;
     Integer     GetDataParameterID(const std::string &str) const;
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
@@ -80,10 +61,6 @@ public:
 
 private:
 
-    static const std::string TLEFILEFORMAT_DESCRIPTIONS[EndTLEDataReps];
-    static const Gmat::ParameterType TLEPARAMETER_TYPE[EndTLEDataReps];
-
-    bool GetNextOb(tle_obtype *myTLE);
 
     bool GetTLEData(std::string &lff, std::string &lff2,
 			       tle_obtype *myTLEdata);

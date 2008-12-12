@@ -40,51 +40,6 @@ const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[EndB3TypeReps] =
     "Right ascension, declination, sometimes range and ECF position of the sensor",
 };
 
-const std::string ProcessB3Data::B3FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
-{
-        "B3Type",
-        "SecurityClassification",
-        "SatelliteID",
-        "SensorID",
-        "Year",
-        "DayOfYear",
-        "Hour",
-        "Minute",
-        "Seconds",
-        "Elevation",
-        "Declination",
-        "RightAscension",
-        "Azimuth",
-        "Range",
-        "RangeRate",
-        "Ecf_X",
-        "Ecf_Y",
-        "Ecf_Z"
-};
-
-const Gmat::ParameterType ProcessB3Data::B3PARAMETER_TYPE[EndB3DataReps] =
-{
-    Gmat::INTEGER_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-};
-
-
 //---------------------------------
 //  public methods
 //---------------------------------
@@ -288,17 +243,16 @@ std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetNextOb(b3_obtype *myB3)
+// bool AdvanceToNextOb()
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
  */
 //------------------------------------------------------------------------------
-bool ProcessB3Data::GetNextOb(b3_obtype *myB3)
+bool ProcessB3Data::AdvanceToNextOb()
 {
     ++i;
     if (i==b3Data.end()) return false;
-    myB3 = (*i);
     return true;
 
 }
@@ -944,31 +898,31 @@ Integer ProcessB3Data::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case B3TYPE_ID:
+        case B3_TYPE_ID:
 
             return (*i)->b3Type;
 
-        case SATELLITE_ID:
+        case B3_SATELLITE_ID:
 
             return (*i)->satelliteID;
 
-        case SENSORID_ID:
+        case B3_SENSORID_ID:
 
             return (*i)->sensorID;
 
-        case YEAR_ID:
+        case B3_YEAR_ID:
 
             return (*i)->year;
 
-        case DAYOFYEAR_ID:
+        case B3_DAYOFYEAR_ID:
 
             return (*i)->dayOfYear;
 
-        case HOUR_ID:
+        case B3_HOUR_ID:
 
             return (*i)->hour;
 
-        case MINUTE_ID:
+        case B3_MINUTE_ID:
 
             return (*i)->minute;
 
@@ -1000,7 +954,7 @@ std::string ProcessB3Data::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case SECURITYCLASSIFICATION_ID:
+        case B3_SECURITYCLASSIFICATION_ID:
 
             return (*i)->securityClassification;
 
@@ -1033,43 +987,43 @@ Real ProcessB3Data::GetRealDataParameter(const Integer id) const
     switch (id)
     {
 
-       case SECONDS_ID:
+       case B3_SECONDS_ID:
 
             return (*i)->seconds;
 
-        case ELEVATION_ID:
+        case B3_ELEVATION_ID:
 
             return (*i)->elevation;
 
-        case DECLINATION_ID:
+        case B3_DECLINATION_ID:
 
             return (*i)->declination;
 
-        case RIGHTASCENSION_ID:
+        case B3_RIGHTASCENSION_ID:
 
             return (*i)->rightAscension;
 
-        case AZIMUTH_ID:
+        case B3_AZIMUTH_ID:
 
             return (*i)->azimuth;
 
-        case RANGE_ID:
+        case B3_RANGE_ID:
 
             return (*i)->range;
 
-        case RANGERATE_ID:
+        case B3_RANGERATE_ID:
 
             return (*i)->rangeRate;
 
-        case ECFX_ID:
+        case B3_ECFX_ID:
 
             return (*i)->ecf_X;
 
-        case ECFY_ID:
+        case B3_ECFY_ID:
 
             return (*i)->ecf_Y;
 
-        case ECFZ_ID:
+        case B3_ECFZ_ID:
 
             return (*i)->ecf_Z;
 
