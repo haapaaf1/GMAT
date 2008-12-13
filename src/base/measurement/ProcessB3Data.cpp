@@ -55,9 +55,6 @@ bool ProcessB3Data::Initialize()
 {
     DataFile::Initialize();
 
-    //FILE * outFile;
-    //outFile = fopen("test.output","w");
-
     std::ifstream myFile;
     if(!OpenFile(myFile))
     {
@@ -73,9 +70,6 @@ bool ProcessB3Data::Initialize()
     // reserve() does nothing. In other words, reserve() will grow the allocated
     // storage of the vector, if necessary, but will never shrink it.
     b3Data.reserve(100);
-
-    // Allocate a data struct in memory
-    //b3Data = new b3_obtype [500];
 
     // Initialize individual data struct
     // This needs new memory allocation because
@@ -99,6 +93,9 @@ bool ProcessB3Data::Initialize()
     i = b3Data.begin();
 
     /*
+    FILE * outFile;
+    outFile = fopen("test.output","w");
+
     // Output to file to make sure all the data is properly stored
     for (std::vector<b3_obtype*>::const_iterator j=b3Data.begin(); j!=b3Data.end(); ++j)
     {

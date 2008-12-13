@@ -58,8 +58,7 @@ bool ProcessSLRData::Initialize()
     // storage of the vector, if necessary, but will never shrink it.
     slrData.reserve(1000);
     slrHeader.reserve(1000);
-
-
+    
     // Initialize individual data struct
     // This needs new memory allocation because
     // we are storing pointers to this data
@@ -74,7 +73,7 @@ bool ProcessSLRData::Initialize()
     // upon which marker line was found while reading in data.
     Integer flag = 0;
     FindSLRHeaderLine(myFile,mySLRheader,flag);
-
+    
     while (!IsEOF(myFile))
     {
 
@@ -92,10 +91,66 @@ bool ProcessSLRData::Initialize()
 
     }
 
-    // Set iterator to beginning of vector container
+    // Set data iterator to beginning of vector container
     i = slrData.begin();
+
+    // Reset the header iterator to the beginning of the vector container
     i_h = slrHeader.begin();
 
+    /*
+    FILE * outFile;
+    outFile = fopen("slr.output","w");
+
+    // Output to file to make sure all the data is properly stored
+    for (std::vector<slr_obtype*>::const_iterator j=slrData.begin(); j!=slrData.end(); ++j)
+    {
+
+	    // Output resulting struct data to file
+        
+	    fprintf(outFile,"Time of Firing = %16.12g\n",(*j)->timeOfLaserFiring);
+	    fprintf(outFile,"Two Way Time of Flight = %16.12g\n",(*j)->twoWayTimeOfFlight);
+	    fprintf(outFile,"RMS Range = %d\n",(*j)->binRMSRange);
+	    fprintf(outFile,"Surface Pressure = %16.8g\n",(*j)->surfacePressure);
+	    fprintf(outFile,"Surface Temp = %16.8g\n",(*j)->surfaceTemp);
+	    fprintf(outFile,"Relative Humidity = %d\n",(*j)->relativeHumidity);
+	    fprintf(outFile,"Num Raw Ranges = %d\n",(*j)->numRawRanges);
+	    fprintf(outFile,"Data Release Flag = %d\n",(*j)->dataReleaseFlag);
+	    fprintf(outFile,"Raw Range Factor = %d\n",(*j)->rawRangeFactor);
+	    fprintf(outFile,"NPD Window Indicator 2 = %d\n",(*j)->normalPointWindowIndicator2);
+	    fprintf(outFile,"Signal to Noise Ratio = %16.8g\n",(*j)->signalToNoiseRatio);
+	    fprintf(outFile,"Burst Cal Sys Delay = %d\n",(*j)->burstCalSysDelay);
+	    fprintf(outFile,"Signal Strength Indicator = %d\n",(*j)->signalStrength);
+	    fprintf(outFile,"Angle Origin Indicator = %d\n",(*j)->angleOriginIndicator);
+	    fprintf(outFile,"Azimuth = %16.8g\n",(*j)->az);
+	    fprintf(outFile,"Elevation = %16.8g\n",(*j)->el);
+	    fprintf(outFile,"\n-----------------------------\n");
+            fprintf(outFile,"SLR Type = %d\n",(*(*j)->headerVectorIndex)->slrType);
+	    fprintf(outFile,"ILRS Satnum = %s\n",(*(*j)->headerVectorIndex)->ilrsSatnum.c_str());
+	    std::string intlDesignator = Ilrs2Cospar((*(*j)->headerVectorIndex)->ilrsSatnum);
+	    fprintf(outFile,"COSPAR Satnum = %s\n",intlDesignator.c_str());
+	    fprintf(outFile,"Year = %d\n",(*(*j)->headerVectorIndex)->year);
+	    fprintf(outFile,"DOY = %d\n",(*(*j)->headerVectorIndex)->dayOfYear);
+	    fprintf(outFile,"CDP Pad ID = %d\n",(*(*j)->headerVectorIndex)->cdpPadID);
+	    fprintf(outFile,"CDP Sys Num = %d\n",(*(*j)->headerVectorIndex)->cdpSysNum);
+	    fprintf(outFile,"CDP Occupancy Num = %d\n",(*(*j)->headerVectorIndex)->cdpOccupancySequenceNum);
+	    fprintf(outFile,"Wavelength = %16.8g\n",(*(*j)->headerVectorIndex)->wavelength);
+	    fprintf(outFile,"Cal Sys Delay = %d\n",(*(*j)->headerVectorIndex)->calSysDelay);
+	    fprintf(outFile,"Cal Delay Shift = %d\n",(*(*j)->headerVectorIndex)->calDelayShift);
+	    fprintf(outFile,"NPD Window Indicator = %d\n",(*(*j)->headerVectorIndex)->normalPointWindowIndicator);
+	    fprintf(outFile,"Sys Delay = %d\n",(*(*j)->headerVectorIndex)->rmsSysDelay);
+	    fprintf(outFile,"Epoch Scale Indicator = %d\n",(*(*j)->headerVectorIndex)->epochTimeScaleIndicator);
+	    fprintf(outFile,"SysCal Indicator = %d\n",(*(*j)->headerVectorIndex)->sysCalMethodIndicator);
+	    fprintf(outFile,"SCH Indicator = %d\n",(*(*j)->headerVectorIndex)->schIndicator);
+	    fprintf(outFile,"SCI Indicator = %d\n",(*(*j)->headerVectorIndex)->sciIndicator);
+	    fprintf(outFile,"Pass RMS = %d\n",(*(*j)->headerVectorIndex)->passRMS);
+	    fprintf(outFile,"Data Quality Indicator = %d\n",(*(*j)->headerVectorIndex)->dataQualAssessmentIndicator);
+	    fprintf(outFile,"Format Revision Num = %d\n",(*(*j)->headerVectorIndex)->formatRevisionNum);
+	    fprintf(outFile,"\n******************************************************\n");
+
+
+    }
+    */
+    
     if (!CloseFile(myFile))
         return false;
 
@@ -308,12 +363,22 @@ bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header *mySLRheader, sl
     if (line.size() <= 5 && pcrecpp::RE("^9+$").FullMatch(line))
     {
         Integer flag = 99999;
+
+        // create a new header struct in memory
+        slr_header *mySLRheader = new slr_header;
+
         FindSLRHeaderLine(theFile,mySLRheader,flag);
+
     }
     else if (line.size() <= 5 && pcrecpp::RE("^8+$").FullMatch(line))
     {
         Integer flag = 88888;
+
+        // create a new header struct in memory
+        slr_header *mySLRheader = new slr_header;
+
         FindSLRHeaderLine(theFile,mySLRheader,flag);
+
     }
     
     // Parse the data record
@@ -366,7 +431,7 @@ bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile,
             }
         
         } while ( headerType != 99999 && headerType != 88888 && !IsEOF(theFile) );
-        
+
     }
     else
     {
@@ -382,6 +447,16 @@ bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile,
 
         // Push a pointer to the header record onto the stack
         slrHeader.push_back(mySLRheader);
+
+        // Set the header vector container index
+        if (flag == 0)
+        {
+            i_h = slrHeader.begin();
+        }
+        else
+        {
+            i_h++;
+        }
 	
 	// read header line
 	std::string headerline = ReadLineFromFile(theFile);
@@ -534,6 +609,23 @@ bool ProcessSLRData::GetSLRData(std::string &lff, slr_header *mySLRheader,
     // is associated with. This way we only have to store the header
     // record once and not have to keep two lists synced up.
     //mySLRdata->slrHeader = mySLRheader;
+
+    // Initialize variables
+    mySLRdata->timeOfLaserFiring = 0.0;
+    mySLRdata->twoWayTimeOfFlight = 0.0;
+    mySLRdata->surfacePressure = 0.0;
+    mySLRdata->surfaceTemp = 0.0;
+    mySLRdata->relativeHumidity = 0;
+    mySLRdata->numRawRanges = 0;
+    mySLRdata->dataReleaseFlag = 0;
+    mySLRdata->rawRangeFactor = 0;
+    mySLRdata->normalPointWindowIndicator2 = 0;
+    mySLRdata->signalToNoiseRatio = 0;
+    mySLRdata->burstCalSysDelay = 0;
+    mySLRdata->signalStrength = 0;
+    mySLRdata->angleOriginIndicator = 0;
+    mySLRdata->az = 0.0;
+    mySLRdata->el = 0.0;
     
     switch(mySLRheader->slrType)
     {
