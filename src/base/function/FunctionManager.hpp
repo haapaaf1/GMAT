@@ -110,10 +110,10 @@ protected:
    std::string          fName;
    /// the function that this FunctionManager manages
    Function             *f;
-   /// the list of input strings for this call of the function
-   StringArray          ins;
-   /// the list of output strings for this call of the function
-   StringArray          outs;
+   /// the list of passing input strings for this call of the function
+   StringArray          passedIns;
+   /// the list of passing output strings for this call of the function
+   StringArray          passedOuts;
    /// wrappers for the outut objects
    WrapperArray         outputWrappers;
    // wrapper map for the input objects
@@ -157,12 +157,12 @@ protected:
    // because we need to be able to handle nested and recursive functions)
    std::stack<FunctionManager*> callers;
    // pointer to the current calling function
-   FunctionManager      *callingFunction;   
+   FunctionManager      *callingFunction;
    void                 PrepareExecution(FunctionManager *callingFM = NULL);
    bool                 ValidateFunctionArguments();
-   bool                 CreateFunctionArgWrappers();
+   bool                 CreatePassingArgWrappers();
    void                 RefreshFOS();
-   void                 FindInputFromFOS();
+   void                 RefreshFormalInputObjects();
    GmatBase*            FindObject(const std::string &name, bool arrayElementsAllowed = false);
    GmatBase*            CreateObject(const std::string &fromString);
    void                 AssignResult();

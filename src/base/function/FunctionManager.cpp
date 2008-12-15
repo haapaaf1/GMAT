@@ -146,8 +146,8 @@ FunctionManager::FunctionManager(const FunctionManager &fm) :
    forces              (fm.forces),
    fName               (fm.fName),
    f                   (fm.f), // copy the pointer here
-   ins                 (fm.ins),
-   outs                (fm.outs),
+   passedIns           (fm.passedIns),
+   passedOuts          (fm.passedOuts),
    //inputWrapperMap       (fm.inputWrapperMap),
    outputWrappers      (fm.outputWrappers), // is that right?
    firstExecution      (true),
@@ -191,8 +191,8 @@ FunctionManager& FunctionManager::operator=(const FunctionManager &fm)
       forces              = fm.forces;
       fName               = fm.fName;
       f                   = fm.f;  // copy the pointer here
-      ins                 = fm.ins;
-      outs                = fm.outs;
+      passedIns           = fm.passedIns;
+      passedOuts          = fm.passedOuts;
       firstExecution      = true;
       isFinalized         = false;
       numVarsCreated      = fm.numVarsCreated;
@@ -329,16 +329,16 @@ Function* FunctionManager::GetFunction() const
 void FunctionManager::AddInput(const std::string &withName, Integer atIndex)
 {
    // -999 means to put it at the end of the list (default value/behavior)
-   if ((atIndex == -999) || (atIndex == (Integer) ins.size()))
+   if ((atIndex == -999) || (atIndex == (Integer) passedIns.size()))
    {
-      ins.push_back(withName);
+      passedIns.push_back(withName);
       return;
    }
    
-   if ((atIndex < 0) || (atIndex > (Integer) ins.size()))
+   if ((atIndex < 0) || (atIndex > (Integer) passedIns.size()))
       throw FunctionException("FunctionManager:: input index out of range - unable to set.\n");
    // replace an entry
-   ins.at(atIndex) = withName;   
+   passedIns.at(atIndex) = withName;   
 }
 
 //------------------------------------------------------------------------------
@@ -347,16 +347,16 @@ void FunctionManager::AddInput(const std::string &withName, Integer atIndex)
 void FunctionManager::AddOutput(const std::string &withName, Integer atIndex)
 {
    // -999 means to put it at the end of the list (default value/behavior)
-   if ((atIndex == -999) || (atIndex == (Integer) outs.size()))
+   if ((atIndex == -999) || (atIndex == (Integer) passedOuts.size()))
    {
-      outs.push_back(withName);
+      passedOuts.push_back(withName);
       return;
    }
    
-   if ((atIndex < 0) || (atIndex > (Integer) outs.size()))
+   if ((atIndex < 0) || (atIndex > (Integer) passedOuts.size()))
       throw FunctionException("FunctionManager:: input index out of range - unable to set.\n");
    // replace an entry
-   outs.at(atIndex) = withName;   
+   passedOuts.at(atIndex) = withName;   
 }
 
 //------------------------------------------------------------------------------
@@ -364,7 +364,7 @@ void FunctionManager::AddOutput(const std::string &withName, Integer atIndex)
 //------------------------------------------------------------------------------
 void FunctionManager::SetInputs(const StringArray &inputs)
 {
-   ins = inputs;
+   passedIns = inputs;
 }
 
 //------------------------------------------------------------------------------
@@ -372,7 +372,7 @@ void FunctionManager::SetInputs(const StringArray &inputs)
 //------------------------------------------------------------------------------
 void FunctionManager::SetOutputs(const StringArray &outputs)
 {
-   outs = outputs;
+   passedOuts = outputs;
 }
 
 //------------------------------------------------------------------------------
@@ -380,7 +380,7 @@ void FunctionManager::SetOutputs(const StringArray &outputs)
 //------------------------------------------------------------------------------
 StringArray  FunctionManager::GetOutputs()
 {
-   return outs;
+   return passedOuts;
 }
 
 //------------------------------------------------------------------------------
@@ -433,7 +433,7 @@ bool FunctionManager::SetInputWrapper(Integer index, ElementWrapper *ew)
    #ifdef DEBUG_INPUT
    MessageInterface::ShowMessage
       ("FunctionManager::SetInputWrapper() passed input string=<%s>\n",
-       ins[index].c_str());
+       passedIns[index].c_str());
    #endif
    
    ElementWrapper *oldEw = inputWrapperMap[formalInput];
@@ -483,7 +483,7 @@ ElementWrapper* FunctionManager::GetInputWrapper(Integer index)
    #ifdef DEBUG_INPUT
    MessageInterface::ShowMessage
       ("FunctionManager::GetInputWrapper() passed input string=<%s>\n",
-       ins[index].c_str());
+       passedIns[index].c_str());
    #endif
    
    if (inputWrapperMap.find(formalInput) == inputWrapperMap.end())
@@ -548,7 +548,7 @@ bool FunctionManager::SetPassedInput(Integer index, GmatBase *obj, bool &inputAd
       ("   numOthers=%d, formalInput='%s'\n", numOthers, formalInput.c_str());
    #endif
    
-   Integer numInput = ins.size();
+   Integer numInput = passedIns.size();
    
    if (index < 0 && index >= numInput)
    {
@@ -560,7 +560,7 @@ bool FunctionManager::SetPassedInput(Integer index, GmatBase *obj, bool &inputAd
       return false;
    }
    
-   std::string passedInput = ins[index];
+   std::string passedInput = passedIns[index];
    obj->SetName(passedInput);
    
    #ifdef DEBUG_INPUT
@@ -736,7 +736,7 @@ bool FunctionManager::Initialize()
    if (!ValidateFunctionArguments())
       return false;
    
-   if (!CreateFunctionArgWrappers())
+   if (!CreatePassingArgWrappers())
       return false;
    
    #ifdef DEBUG_FM_INIT
@@ -792,7 +792,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
          ("   NOT First execution, so calling RefreshFOS()\n");
       #endif
       RefreshFOS();
-      FindInputFromFOS();            
+      RefreshFormalInputObjects();
    } // end if not first time through
    
    #ifdef DEBUG_FM_EXECUTE
@@ -855,7 +855,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    
    // tell the fcs that this is the calling function
    #ifdef DEBUG_FM_EXECUTE
-      MessageInterface::ShowMessage("   new objInit=<%p> created\n");
+      MessageInterface::ShowMessage("   new objInit=<%p> created\n", objInit);
       MessageInterface::ShowMessage(
          "in FM::Execute (%s), about to set calling function <%p> '%s' on commands\n",
          fName.c_str(), callingFunction, callingFunction ?
@@ -1117,28 +1117,30 @@ bool FunctionManager::ValidateFunctionArguments()
    #endif
    if (!firstExecution) return true;
    
-   StringArray inNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
-   StringArray outNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
+   StringArray inFormalNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
+   StringArray outFormalNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
    
    #ifdef DEBUG_FM_INIT
    MessageInterface::ShowMessage
-      ("    inNames.size=%d,  ins.size=%d\n", inNames.size(), ins.size());
+      ("    inFormalNames.size=%d,  passedIns.size=%d\n", inFormalNames.size(), passedIns.size());
    MessageInterface::ShowMessage
-      ("   outNames.size=%d, outs.size=%d\n", outNames.size(), outs.size());
-   for (unsigned int rr = 0; rr < inNames.size(); rr++)
-      MessageInterface::ShowMessage("    inNames[%d] = %s\n", rr, (inNames.at(rr)).c_str());
-   if (ins.size() == 0)
-      MessageInterface::ShowMessage("NOTE - ins is empty - is it supposed to be?\n");
+      ("   outFormalNames.size=%d, passedOuts.size=%d\n", outFormalNames.size(), passedOuts.size());
+   for (unsigned int rr = 0; rr < inFormalNames.size(); rr++)
+      MessageInterface::ShowMessage
+         ("    inFormalNames[%d] = %s\n", rr, (inFormalNames.at(rr)).c_str());
+   if (passedIns.size() == 0)
+      MessageInterface::ShowMessage("NOTE - passedIns is empty - is it supposed to be?\n");
    else
-      for (unsigned int qq = 0; qq < ins.size(); qq++)
-         MessageInterface::ShowMessage("        ins[%d] = %s\n", qq, (ins.at(qq)).c_str());
-   for (unsigned int rr = 0; rr < outNames.size(); rr++)
-      MessageInterface::ShowMessage("   outNames[%d] = %s\n", rr, (outNames.at(rr)).c_str());
-   if (outs.size() == 0)
-      MessageInterface::ShowMessage("NOTE - outs is empty - is it supposed to be?\n");
+      for (unsigned int qq = 0; qq < passedIns.size(); qq++)
+         MessageInterface::ShowMessage("        passedIns[%d] = %s\n", qq, (passedIns.at(qq)).c_str());
+   for (unsigned int rr = 0; rr < outFormalNames.size(); rr++)
+      MessageInterface::ShowMessage
+         ("   outFormalNames[%d] = %s\n", rr, (outFormalNames.at(rr)).c_str());
+   if (passedOuts.size() == 0)
+      MessageInterface::ShowMessage("NOTE - passedOuts is empty - is it supposed to be?\n");
    else
-      for (unsigned int qq = 0; qq < outs.size(); qq++)
-         MessageInterface::ShowMessage("       outs[%d] = %s\n", qq, (outs.at(qq)).c_str());
+      for (unsigned int qq = 0; qq < passedOuts.size(); qq++)
+         MessageInterface::ShowMessage("       passedOuts[%d] = %s\n", qq, (passedOuts.at(qq)).c_str());
    #endif
    
    
@@ -1148,12 +1150,12 @@ bool FunctionManager::ValidateFunctionArguments()
    // Can we have default input value?
    // Currently if number of input is less than formal, it is created as String,
    // so number of inputs must match for now.
-   if (ins.size() != inNames.size())
+   if (passedIns.size() != inFormalNames.size())
    {
       FunctionException ex;
       ex.SetDetails("The function '%s' expecting %d input argument(s), but called "
                     "with %d argument(s)", f->GetFunctionPathAndName().c_str(),
-                    inNames.size(), ins.size());
+                    inFormalNames.size(), passedIns.size());
       throw ex;
    }
    
@@ -1161,12 +1163,12 @@ bool FunctionManager::ValidateFunctionArguments()
    // Number of outputs cannot be more than number of formal output arguments,
    // but can we have less than formal output arguments?
    // Let's just check for more than formal output for now.
-   if (outs.size() > outNames.size())
+   if (passedOuts.size() > outFormalNames.size())
    {
       FunctionException ex;
       ex.SetDetails("The function '%s' expecting %d output argument(s), but called "
                     "with %d argument(s)", f->GetFunctionPathAndName().c_str(),
-                    outNames.size(), outs.size());
+                    outFormalNames.size(), passedOuts.size());
       throw ex;
    }
    
@@ -1179,10 +1181,10 @@ bool FunctionManager::ValidateFunctionArguments()
 }
 
 //------------------------------------------------------------------------------
-// bool CreateFunctionArgWrappers()
+// bool CreatePassingArgWrappers()
 //------------------------------------------------------------------------------
 /**
- * Creates calling input and output argument wrappers.
+ * Creates passing input and output argument wrappers.
  *
  * It finds input from LOS or GOS and clones it and adds it to input wrapper array.
  * If the input string does not refer to an object that can be located in the LOS
@@ -1191,91 +1193,99 @@ bool FunctionManager::ValidateFunctionArguments()
  * they must be found in the object store; and we do not need to clone them.
  */
 //------------------------------------------------------------------------------
-bool FunctionManager::CreateFunctionArgWrappers()
+bool FunctionManager::CreatePassingArgWrappers()
 {
    #ifdef DEBUG_FM_INIT
    MessageInterface::ShowMessage
-      ("Entering FM::CreateFunctionArgWrappers() for '%s'\n", fName.c_str());
+      ("Entering FM::CreatePassingArgWrappers() for '%s'\n", fName.c_str());
    #endif
    
    GmatBase *obj, *objFOS;
-   std::string objName;
+   std::string formalName, passedName;
    
-   StringArray inNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
-   StringArray outNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
+   StringArray inFormalNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
+   StringArray outFormalNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
    
    validator->SetObjectMap(&combinedObjectStore);
    validator->SetSolarSystem(solarSys);
    
    // empty object map first (loj: 2008.10.31)
    if (!(IsOnStack(functionObjectStore))) // ********** ???? *************
-      EmptyObjectMap(functionObjectStore, "FOS in CreateFunctionArgWrappers");
+      EmptyObjectMap(functionObjectStore, "FOS in CreatePassingArgWrappers");
    
    // clear input and out wrappers first
    ClearInOutWrappers();
    numVarsCreated = 0;
    
    // set up the FOS with the input objects
-   for (unsigned int ii=0; ii<ins.size(); ii++)
+   for (unsigned int ii=0; ii<passedIns.size(); ii++)
    {
-      // if the input string does not refer to an object that can be located in the LOS or
-      // GOS, we must try to create an object for it, if it makes sense (e.g. numeric literal, 
-      // string literal, array element)
-      if (!(obj = FindObject(ins.at(ii))))
+      // if the passing input string does not refer to an object that can be
+      // located in the LOS or GOS, we must try to create an object for it,
+      // if it makes sense (e.g. numeric literal, string literal, array element)
+      formalName = inFormalNames.at(ii);
+      passedName = passedIns.at(ii);
+      if (!(obj = FindObject(passedName)))
       {
-         obj = CreateObject(ins.at(ii));
+         obj = CreateObject(passedName);
          if (!obj)
          {
             std::string errMsg = "FunctionManager: Object not found or created for input string \"";
-            errMsg += ins.at(ii) + "\" for function \"";
+            errMsg += passedIns.at(ii) + "\" for function \"";
             errMsg += fName + "\"\n";
             throw FunctionException(errMsg);
          }
+         objFOS = obj; // do not clone obj, just set to objFos (loj: 2008.12.10)
+         ////objFOS = obj->Clone();      
+         objFOS->SetName(formalName);
       }
-      #ifdef DEBUG_FM_INIT
+      // if object found clone it (loj: 2008.12.10)
+      else
+      {
+         #ifdef DEBUG_FM_INIT
          MessageInterface::ShowMessage(
-               "   passed input object \"%s\" of type \"%s\" found in LOS/GOS \n",
-               (ins.at(ii)).c_str(), (obj->GetTypeName()).c_str());
-      #endif
-      // Clone the object, and insert it into the FOS
-      objName = inNames.at(ii);
-      objFOS = obj->Clone();      
-      objFOS->SetName(objName);
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (objFOS, objName, "FunctionManager::CreateFunctionArgWrappers()",
-          "objFOS = obj->Clone()");
-      #endif
+            "   passed input object \"%s\" of type \"%s\" found in LOS/GOS \n",
+            (passedIns.at(ii)).c_str(), (obj->GetTypeName()).c_str());
+         #endif
+         objFOS = obj->Clone();
+         objFOS->SetName(formalName);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (objFOS, formalName, "FunctionManager::CreatePassingArgWrappers()",
+             "objFOS = obj->Clone()");
+         #endif
+      }
       
-      functionObjectStore->insert(std::make_pair(objName,objFOS));
+      functionObjectStore->insert(std::make_pair(formalName,objFOS));
       
       #ifdef DEBUG_FM_INIT // ------------------------------------------------- debug ---
-         MessageInterface::ShowMessage("   Adding object '%s' to the FOS\n", objName.c_str());
+         MessageInterface::ShowMessage("   Adding object '%s' to the FOS\n", formalName.c_str());
       #endif // -------------------------------------------------------------- end debug ---
       // create an element wrapper for the input
       // Do we neet to set this inside the loop? commented out (loj: 2008.11.21)
       //validator->SetObjectMap(&combinedObjectStore);
       //validator->SetSolarSystem(solarSys);
-      std::string inName = ins.at(ii);
+      std::string inName = passedIns.at(ii);
       ElementWrapper *inWrapper = validator->CreateElementWrapper(inName, false, false);
       #ifdef DEBUG_MEMORY
       MessageInterface::ShowMessage
-         ("+++ FunctionManager::CreateFunctionArgWrappers() *inWrapper = validator->"
+         ("+++ FunctionManager::CreatePassingArgWrappers() *inWrapper = validator->"
           "CreateElementWrapper(%s), <%p> '%s'\n", inName.c_str(), inWrapper,
           inWrapper->GetDescription().c_str());
       #endif
       inWrapper->SetRefObject(objFOS);
-      inputWrapperMap.insert(std::make_pair(objName, inWrapper));
+      inputWrapperMap.insert(std::make_pair(formalName, inWrapper));
       #ifdef DEBUG_FM_INIT // ------------------------------------------------- debug ---
          MessageInterface::ShowMessage("   Created element wrapper of type %d for \"%s\"\n",
                inWrapper->GetWrapperType(), inName.c_str());
       #endif // -------------------------------------------------------------- end debug ---
    }
    
+   
    // Outputs cannot be numeric or string literals or array elements, etc.
    // They must be found in the object store; and we do not need to clone them
    // Handle the case with one blank output (called from FunctionRunner) first   
-   if ((outs.size() == 1) && (outs.at(0) == ""))
+   if ((passedOuts.size() == 1) && (passedOuts.at(0) == ""))
    {
       #ifdef DEBUG_FM_INIT
       MessageInterface::ShowMessage("   Has 1 output and it's name is blank\n");
@@ -1284,22 +1294,22 @@ bool FunctionManager::CreateFunctionArgWrappers()
    }
    else
    {
-      for (unsigned int jj = 0; jj < outs.size(); jj++)
+      for (unsigned int jj = 0; jj < passedOuts.size(); jj++)
       {
-         if (!(obj = FindObject(outs.at(jj))))
+         if (!(obj = FindObject(passedOuts.at(jj))))
          {
-            std::string errMsg = "Output \"" + outs.at(jj);
+            std::string errMsg = "Output \"" + passedOuts.at(jj);
             errMsg += " not found for function \"" + fName + "\"";
             throw FunctionException(errMsg);
          }
          // Do we neet to set this inside the loop? commented out (loj: 2008.11.21)
          //validator->SetObjectMap(&combinedObjectStore);
          //validator->SetSolarSystem(solarSys);
-         std::string outName = outs.at(jj);
+         std::string outName = passedOuts.at(jj);
          ElementWrapper *outWrapper = validator->CreateElementWrapper(outName);;
          #ifdef DEBUG_MEMORY
          MessageInterface::ShowMessage
-            ("+++ FunctionManager::CreateFunctionArgWrappers() *outWrapper = validator->"
+            ("+++ FunctionManager::CreatePassingArgWrappers() *outWrapper = validator->"
              "CreateElementWrapper(%s), <%p> '%s'\n", outName.c_str(), outWrapper,
              outWrapper->GetDescription().c_str());
          #endif
@@ -1313,19 +1323,18 @@ bool FunctionManager::CreateFunctionArgWrappers()
    
    #ifdef DEBUG_FM_INIT
    MessageInterface::ShowMessage
-      ("Exiting  FM::CreateFunctionArgWrappers() for '%s'\n", fName.c_str());
-   ShowObjectMap(functionObjectStore, "in CreateFunctionArgWrappers()\n");
+      ("Exiting  FM::CreatePassingArgWrappers() for '%s'\n", fName.c_str());
+   ShowObjectMap(functionObjectStore, "in CreatePassingArgWrappers()\n");
    #endif
    
    return true;
 }
 
-
 //------------------------------------------------------------------------------
 // void RefreshFOS()
 //------------------------------------------------------------------------------
 /*
- * Deletes all objects in the function object store except input
+ * Deletes all objects in the function object store except formal inputs
  */
 //------------------------------------------------------------------------------
 void FunctionManager::RefreshFOS()
@@ -1345,19 +1354,19 @@ void FunctionManager::RefreshFOS()
    StringArray toDelete;
    bool        isInput = false;
    std::map<std::string, GmatBase *>::iterator omi;
-   StringArray inNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
+   StringArray inFormalNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
    
    #ifdef DEBUG_FM_REFRESH
    MessageInterface::ShowMessage
       ("   Function '%s' has %d inputs and FOS <%p> has %d objects\n",
-       fName.c_str(), inNames.size(), functionObjectStore, functionObjectStore->size());
+       fName.c_str(), inFormalNames.size(), functionObjectStore, functionObjectStore->size());
    #endif
    
    for (omi = functionObjectStore->begin(); omi != functionObjectStore->end(); ++omi)
    {
       isInput = false;
-      for (unsigned int qq = 0; qq < inNames.size(); qq++)
-         if (omi->first == inNames.at(qq))
+      for (unsigned int qq = 0; qq < inFormalNames.size(); qq++)
+         if (omi->first == inFormalNames.at(qq))
          {
             isInput = true;
             break;
@@ -1392,86 +1401,98 @@ void FunctionManager::RefreshFOS()
    #endif
 }
 
+
 //------------------------------------------------------------------------------
-// void FindInputFromFOS()
+// void RefreshFormalInputObjects()
 //------------------------------------------------------------------------------
-void FunctionManager::FindInputFromFOS()
+/*
+ * Finds object with passing input argument name from LOS or GOS or createdLiterals
+ * or createdOthers and set to object in the FOS.
+ */
+//------------------------------------------------------------------------------
+void FunctionManager::RefreshFormalInputObjects()
 {
    #ifdef DEBUG_FM_EXECUTE
-   MessageInterface::ShowMessage("FM:FindInputFromFOS() entered\n");
+   MessageInterface::ShowMessage("FM:RefreshFormalInputObjects() entered\n");
    #endif
    
-   std::string objName;
-   StringArray inNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
+   std::string formalName, passedName;
+   // Get function formal input argument names (parameters)
+   StringArray inFormalNames = f->GetStringArrayParameter(f->GetParameterID("Input"));
    
    // Find and/or evaluate the input objects
-   for (unsigned int ii=0; ii<ins.size(); ii++)
+   for (unsigned int ii=0; ii<passedIns.size(); ii++)
    {
       // Get the object from the object store first 
-      objName = inNames.at(ii);
+      formalName = inFormalNames.at(ii);
+      passedName = passedIns.at(ii);
       
       #ifdef DEBUG_FM_EXECUTE
       MessageInterface::ShowMessage
-         ("   inputs[%d]='%s', objName='%s'\n", ii, ins[ii].c_str(), objName.c_str());
+         ("   passedIns[%d]='%s', formalName='%s'\n", ii, passedName.c_str(),
+          formalName.c_str());
       #endif
       
-      if (functionObjectStore->find(objName) == functionObjectStore->end())
+      if (functionObjectStore->find(formalName) == functionObjectStore->end())
       {
-         std::string errMsg = "FunctionManager error: input object \"" + objName;
+         std::string errMsg = "FunctionManager error: input object \"" + formalName;
          errMsg += "\"not found in Function Object Store.\n";
          throw FunctionException(errMsg);
       }
       
       #ifdef DEBUG_FM_EXECUTE
       MessageInterface::ShowMessage
-         ("   objName='%s' found from the function object store\n", objName.c_str());
+         ("   formalName='%s' found from the function object store\n", formalName.c_str());
       #endif
       
       GmatBase *obj = NULL;
-      GmatBase *fosObj = (*functionObjectStore)[objName];
+      GmatBase *fosObj = (*functionObjectStore)[formalName];
       
       // Now find the corresponding input object
-      if (!(obj = FindObject(ins.at(ii))))
+      // if passed name not found in LOS or GOS, it may be a number, string literal,
+      // array element, or automatic object suc
+      if (!(obj = FindObject(passedName)))
       {
          #ifdef DEBUG_FM_EXECUTE
-         ShowObjectMap(&createdLiterals, "createdLiterals map in FindInputFromFOS");
+         ShowObjectMap(&createdLiterals, "createdLiterals map in RefreshFormalInputObjects");
          #endif
          
-         if (createdLiterals.find(ins.at(ii)) == createdLiterals.end())
+         // if passed name not found in created literals
+         if (createdLiterals.find(passedName) == createdLiterals.end())
          {
             #ifdef DEBUG_FM_EXECUTE
-            ShowObjectMap(&createdLiterals, "createdOthers map in FindInputFromFOS");
+            ShowObjectMap(&createdLiterals, "createdOthers map in RefreshFormalInputObjects");
             #endif            
             
-            if (createdOthers.find(ins.at(ii)) == createdOthers.end())
+            if (createdOthers.find(passedName) == createdOthers.end())
             {
-               std::string errMsg = "Input \"" + ins.at(ii);
+               std::string errMsg = "Input \"" + passedName;
                errMsg += " not found for function \"" + fName + "\"";
                throw FunctionException(errMsg);
             }
             
             #ifdef DEBUG_FM_EXECUTE
             MessageInterface::ShowMessage
-               ("   '%s' found from the createdOthers\n", ins.at(ii).c_str());
+               ("   '%s' found from the createdOthers\n", passedName.c_str());
             #endif
             
             GmatBase *oldFosObj = fosObj;
-            GmatBase *oldObj = createdOthers[ins.at(ii)];
-            obj = CreateObject(ins.at(ii));
+            GmatBase *oldObj = createdOthers[passedName];
+            obj = CreateObject(passedName);
             if (!obj)
             {
                std::string errMsg2 =
                   "FunctionManager: Object not found or created for input string \"";
-               errMsg2 += ins.at(ii) + "\" for function \"";
+               errMsg2 += passedName + "\" for function \"";
                errMsg2 += fName + "\"\n";
                throw FunctionException(errMsg2);
             }
-            createdOthers[ins.at(ii)] = obj;
+            createdOthers[passedName] = obj;
             fosObj = obj->Clone();
-            fosObj->SetName(objName);
+            fosObj->SetName(formalName);
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Add
-               (fosObj, objName, "FunctionManager::FindInputFromFOS()",
+               (fosObj, formalName, "FunctionManager::RefreshFormalInputObjects()",
                 "obj->Clone()");
             #endif
             
@@ -1480,7 +1501,7 @@ void FunctionManager::FindInputFromFOS()
                #ifdef DEBUG_MEMORY
                MemoryTracker::Instance()->Remove
                   (oldFosObj, oldFosObj->GetName(),
-                   "FunctionManager::FindInputFromFOS()", "deleting oldFosObj");
+                   "FunctionManager::RefreshFormalInputObjects()", "deleting oldFosObj");
                #endif
                delete oldFosObj;
                oldFosObj = NULL;
@@ -1490,7 +1511,7 @@ void FunctionManager::FindInputFromFOS()
             {
                #ifdef DEBUG_MEMORY
                MemoryTracker::Instance()->Remove
-                  (oldObj, oldObj->GetName(), "FunctionManager::FindInputFromFOS()",
+                  (oldObj, oldObj->GetName(), "FunctionManager::RefreshFormalInputObjects()",
                    "deleting oldObj");
                #endif
                delete oldObj;
@@ -1501,9 +1522,9 @@ void FunctionManager::FindInputFromFOS()
          {
             #ifdef DEBUG_FM_EXECUTE
             MessageInterface::ShowMessage
-               ("   '%s' found from the createdLiterals\n", ins.at(ii).c_str());
+               ("   '%s' found from the createdLiterals\n", passedName.c_str());
             #endif
-            obj = createdLiterals[ins.at(ii)];
+            obj = createdLiterals[passedName];
          }
       }
       
@@ -1514,11 +1535,12 @@ void FunctionManager::FindInputFromFOS()
       
       // Update the object in the object store with the current/reset data
       fosObj->Copy(obj);
-      (inputWrapperMap[objName])->SetRefObject(fosObj);  // is this necessary? I think so
+      (inputWrapperMap[formalName])->SetRefObject(fosObj);  // is this necessary? I think so
+      
    }
    
    #ifdef DEBUG_FM_EXECUTE
-   MessageInterface::ShowMessage("FM:FindInputFromFOS() leaving\n");
+   MessageInterface::ShowMessage("FM:RefreshFormalInputObjects() leaving\n");
    #endif
 }
 
@@ -1796,10 +1818,10 @@ bool FunctionManager::HandleCallStack()
           functionObjectStore);
       #endif
       
-      StringArray outNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
+      StringArray outFormalNames = f->GetStringArrayParameter(f->GetParameterID("Output"));
       
       // call the caller to pop its FOS back of the stack
-      if (!callingFunction->PopFromStack(functionObjectStore, outNames, outs))
+      if (!callingFunction->PopFromStack(functionObjectStore, outFormalNames, passedOuts))
          return false;
       
       // restore the localObjectStore
@@ -1821,6 +1843,8 @@ bool FunctionManager::HandleCallStack()
       else
          functionObjectStore = localObjectStore;
       
+      // Should this be deleted here? (loj: 2008.12.12)
+      //f->ClearClonedObjects();
       firstExecution = true;   // to make sure it is reinitialized next time ???
    }
    else
