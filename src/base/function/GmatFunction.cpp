@@ -220,18 +220,21 @@ bool GmatFunction::Initialize()
    std::map<std::string, GmatBase *>::iterator omi;
    
    // add automatic objects to the FOS (well, actually, clones of them)
-   for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
+   for (omi = automaticObjectMap.begin(); omi != automaticObjectMap.end(); ++omi)
    {
       std::string objName = omi->first;
-      GmatBase    *autoObj = (omi->second)->Clone();
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (autoObj, objName, "GmatFunction::Initialize()",
-          "autoObj = (omi->second)->Clone()");
-      #endif
       
+      // if name not found, clone it and add to map (loj: 2008.12.15)
       if (objectStore->find(omi->first) == objectStore->end())
+      {
+         GmatBase *autoObj = (omi->second)->Clone();
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (autoObj, objName, "GmatFunction::Initialize()",
+             "autoObj = (omi->second)->Clone()");
+         #endif
          objectStore->insert(std::make_pair(objName, autoObj));
+      }
    }
    
    // first, send all the commands the object store, solar system, etc
