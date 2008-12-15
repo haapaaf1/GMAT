@@ -146,6 +146,7 @@ public:
                         GetWrapperObjectNameArray();
    virtual bool         SetElementWrapper(ElementWrapper* toWrapper,
                                           const std::string &withName);
+   virtual void         ClearWrappers();
    
    // Methods used for running the command
    virtual void         SetTransientForces(std::vector<PhysicalModel*> *tf);

@@ -44,6 +44,14 @@
 //#define DEBUG_WRAPPERS
 //#define DEBUG_PUBLISH_DATA
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 #define TIME_ROUNDOFF 1.0e-6
 #define DEFAULT_STOP_TOLERANCE 1.0e-7
 
@@ -158,23 +166,51 @@ Propagate::~Propagate()
    EmptyBuffer();
  
    for (UnsignedInt i=0; i<stopWhen.size(); i++)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (stopWhen[i], stopWhen[i]->GetName(), "Propagate::~Propagate()",
+          "deleting stop condition");
+      #endif
       delete stopWhen[i];
-
+   }
+   
    if (pubdata)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (pubdata, "pubdata", "Propagate::~Propagate()",
+          "deleting pub data");
+      #endif
       delete [] pubdata;
+   }
    
    for (std::vector<PropSetup*>::iterator ps = prop.begin(); ps != prop.end(); 
         ++ps)
    {
       PropSetup *oldPs = *ps;
       *ps = NULL;
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (oldPs, oldPs->GetName(), "Propagate::~Propagate()",
+          "deleting old PropSetup");
+      #endif
       delete oldPs;
    }
    
    for (std::vector<StringArray*>::iterator i = satName.begin(); 
         i != satName.end(); ++i)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*i), "satName", "Propagate::~Propagate()",
+          "deleting sat names associated with PropSetup");
+      #endif
       delete (*i);
-
+   }
+   
+   ClearWrappers();
+   
    #ifdef DUMP_PLANET_DATA
       if (planetData.is_open())
          planetData.close();
@@ -287,6 +323,11 @@ Propagate& Propagate::operator=(const Propagate &prp)
    {
       PropSetup *oldPs = *ps;
       *ps = NULL;
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (oldPs, oldPs->GetName(), "Propagate::operator=()",
+          "deleting old PropSetup");
+      #endif
       delete oldPs;
    }
    prop.clear();
@@ -333,17 +374,26 @@ bool Propagate::SetObject(const std::string &name, const Gmat::ObjectType type,
          return true;
    
       case Gmat::PROP_SETUP:
-         propName.push_back(name);
-         if (name[0] == '-')
          {
-            direction = -1.0;
-            MessageInterface::ShowMessage("Please use the keyword \"BackProp\" "
-               "to set backwards propagation; the use of a minus sign in the "
-               "string \"%s\" is deprecated.\n", name.c_str());
+            propName.push_back(name);
+            if (name[0] == '-')
+            {
+               direction = -1.0;
+               MessageInterface::ShowMessage("Please use the keyword \"BackProp\" "
+                  "to set backwards propagation; the use of a minus sign in the "
+                  "string \"%s\" is deprecated.\n", name.c_str());
+            }
+            StringArray *satNameArray = new StringArray;
+            //satName.push_back(new StringArray);
+            satName.push_back(satNameArray);
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (satNameArray, "satNameArray", "Propagate::SetObject()",
+                "*satNameArray = new StringArray");
+            #endif
+            return true;
          }
-         satName.push_back(new StringArray);
-         return true;
-   
+         
       default:
          break;
    }
@@ -599,10 +649,20 @@ bool Propagate::SetRefObjectName(const Gmat::ObjectType type,
    switch (type) {
       // Propagator setups
       case Gmat::PROP_SETUP:
-         propName.push_back(name);
-         satName.push_back(new StringArray);
-         return true;
-      
+         {
+            propName.push_back(name);
+            StringArray *satNameArray = new StringArray;
+            //satName.push_back(new StringArray);
+            satName.push_back(satNameArray);
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (satNameArray, "satNameArray", "Propagate::SetRefObjectName()",
+                "*satNameArray = new StringArray");
+            #endif
+            
+            return true;
+         }
+         
       // Objects that get propagated
       case Gmat::SPACECRAFT:
       case Gmat::FORMATION: 
@@ -974,10 +1034,17 @@ bool Propagate::SetStringParameter(const Integer id, const std::string &value)
          propNameString = propNameString.substr(1);
       }
       propName.push_back(propNameString);
-      satName.push_back(new StringArray);
+      StringArray *satNameArray = new StringArray;
+      //satName.push_back(new StringArray);
+      satName.push_back(satNameArray);
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (satNameArray, "satNameArray", "Propagate::SetStringParameter()",
+          "*satNameArray = new StringArray");
+      #endif
       return true;
    }
- 
+   
    return GmatCommand::SetStringParameter(id, value);
 }
 
@@ -1245,6 +1312,11 @@ bool Propagate::TakeAction(const std::string &action,
          {
             PropSetup *oldPs = *ps;
             *ps = NULL;
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (oldPs, oldPs->GetName(), "Propagate::TakeAction()",
+                "deleting old PropSetup");
+            #endif
             delete oldPs;
          }
          prop.clear();
@@ -1514,6 +1586,7 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
       MessageInterface::ShowMessage("      %s\n", stopNames[i].c_str());
    #endif
    
+   WrapperArray wrappersToDelete;
    Integer sz = stopNames.size();
    for (Integer i = 0; i < sz; i++)
    {
@@ -1541,7 +1614,7 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
             
             // Delete old wrapper if wrapper name not found in the goalNames
             if (find(goalNames.begin(), goalNames.end(), withName) == goalNames.end())
-               delete ew;
+               wrappersToDelete.push_back(ew);
          }
          else
             stopWrappers.at(i) = toWrapper;
@@ -1576,7 +1649,7 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
             
             // Delete old wrapper if wrapper name not found in the stopNames
             if (find(stopNames.begin(), stopNames.end(), withName) == stopNames.end())
-               delete ew;
+               wrappersToDelete.push_back(ew);
          }
          else
             goalWrappers.at(i) = toWrapper;
@@ -1584,7 +1657,77 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
       }
    }
    
+   // delete old wrappers (loj: 2008.12.15)
+   for (WrapperArray::iterator ewi = wrappersToDelete.begin();
+        ewi < wrappersToDelete.end(); ewi++)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*ewi), (*ewi)->GetDescription(), "Propagate::SetElementWrapper()",
+          "deleting wrapper");
+      #endif
+      delete (*ewi);
+      (*ewi) = NULL;
+   }
+   
    return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// void ClearWrappers()
+//------------------------------------------------------------------------------
+/*
+ * Deletes element wrappers and sets them to NULL without emptying the array.
+ */
+//------------------------------------------------------------------------------
+void Propagate::ClearWrappers()
+{
+   WrapperArray wrappersToDelete;
+   ElementWrapper *ew;
+   
+   Integer sz = stopNames.size();
+   for (Integer i = 0; i < sz; i++)
+   {
+      if (stopWrappers.at(i) != NULL)
+      {
+         ew = stopWrappers.at(i);
+         stopWrappers.at(i) = NULL;
+         if (find(wrappersToDelete.begin(), wrappersToDelete.end(), ew) ==
+             wrappersToDelete.end())
+         {
+            wrappersToDelete.push_back(ew);
+         }
+      }
+   }
+   
+   sz = goalNames.size();
+   for (Integer i = 0; i < sz; i++)
+   {
+      if (goalWrappers.at(i) != NULL)
+      {
+         ew = goalWrappers.at(i);
+         goalWrappers.at(i) = NULL;
+         if (find(wrappersToDelete.begin(), wrappersToDelete.end(), ew) ==
+             wrappersToDelete.end())
+         {
+            wrappersToDelete.push_back(ew);
+         }
+      }
+   }
+   
+   // delete old wrappers
+   for (WrapperArray::iterator ewi = wrappersToDelete.begin();
+        ewi < wrappersToDelete.end(); ewi++)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*ewi), (*ewi)->GetDescription(), "Propagate::ClearWrappers()",
+          "deleting wrapper");
+      #endif
+      delete (*ewi);
+      (*ewi) = NULL;
+   }
 }
 
 
@@ -1960,7 +2103,15 @@ void Propagate::ConfigureStoppingCondition(std::string &stopDesc)
    #ifdef DEBUG_PROPAGATE_ASSEMBLE
    MessageInterface::ShowMessage("   Creating local StopCondition\n");
    #endif
+   
    StopCondition *stopCond = new StopCondition("StopOn" + paramName);
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (stopCond, stopCond->GetName(), "Propagate::ConfigureStoppingCondition()",
+       "*stopCond = new StopCondition(StopOn + paramName)");
+   #endif
+   
    if (find(stopNames.begin(), stopNames.end(), paramName) == stopNames.end())
    {
       #ifdef DEBUG_PROPAGATE_ASSEMBLE
@@ -2653,7 +2804,23 @@ void Propagate::PrepareToPropagate()
       dim += fm[n]->GetDimension();
    }   
 
+   // Delete old pubdata (loj: 2008.12.15)
+   if (pubdata)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+          "deleting pub data");
+      #endif
+      delete [] pubdata;
+   }
+   
    pubdata = new Real[dim+1];
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+       "pubdata = new Real[dim+1]");
+   #endif
    baseEpoch.clear();
    
    for (Integer n = 0; n < (Integer)prop.size(); ++n) {
