@@ -100,6 +100,8 @@ Function::~Function()
    // so they are deleted there.
    // crashes on nested function if delete output wrappers here
    //ClearInOutArgMaps(false, true);
+   
+   ClearAutomaticObjects();
 }
 
 
@@ -462,7 +464,7 @@ WrapperArray& Function::GetWrappersToDelete()
 //------------------------------------------------------------------------------
 void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj)
 {
-   automaticObjects.insert(std::make_pair(withName,obj));
+   automaticObjectMap.insert(std::make_pair(withName,obj));
 }
 
 //------------------------------------------------------------------------------
@@ -470,7 +472,7 @@ void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj)
 //------------------------------------------------------------------------------
 ObjectMap Function::GetAutomaticObjects() const
 {
-   return automaticObjects;
+   return automaticObjectMap;
 }
 
 //------------------------------------------------------------------------------
@@ -916,13 +918,13 @@ void Function::ClearAutomaticObjects()
    #ifdef DEBUG_AUTO_OBJ
    MessageInterface::ShowMessage
       ("Function::ClearAutomaticObjects() this=<%p> '%s' entered\n   "
-       "automaticObjects.size()=%d", this, GetName().c_str(),
-       automaticObjects.size());
+       "automaticObjectMap.size()=%d", this, GetName().c_str(),
+       automaticObjectMap.size());
    #endif
    
    StringArray toDelete;
    ObjectMap::iterator omi;
-   for (omi = automaticObjects.begin(); omi != automaticObjects.end(); ++omi)
+   for (omi = automaticObjectMap.begin(); omi != automaticObjectMap.end(); ++omi)
    {
       if (omi->second != NULL)
       {
@@ -938,7 +940,7 @@ void Function::ClearAutomaticObjects()
    }
    
    for (unsigned int kk = 0; kk < toDelete.size(); kk++)
-      automaticObjects.erase(toDelete.at(kk));
+      automaticObjectMap.erase(toDelete.at(kk));
 }
 
 

@@ -107,9 +107,9 @@ protected:
    StringArray          outputNames;
    // @todo - should these next five items remain here or move to GmatFunction??
    /// Function input name and element wrapper map  // @todo - is this needed?
-   std::map<std::string, ElementWrapper*> inputArgMap;
+   WrapperMap           inputArgMap;
    /// Function output name element wrapper map
-   std::map<std::string, ElementWrapper*> outputArgMap;
+   WrapperMap           outputArgMap;
    /// Output wrapper type array
    WrapperTypeArray     outputWrapperTypes;
    /// Output row count used for returning one Array type
@@ -117,7 +117,7 @@ protected:
    /// Output column count used for returning one Array type
    IntegerArray         outputColCounts;
    /// Old wrappers to delete
-   std::vector<ElementWrapper*> wrappersToDelete;
+   WrapperArray         wrappersToDelete;
    /// Object store for the Function 
    ObjectMap            *objectStore;
    /// Object store obtained from the Sandbox
@@ -136,13 +136,11 @@ protected:
    bool                 fcsFinalized;
    /// objects automatically created on parsing (but for whom a references object cannot be
    /// set at that time)
-   std::map<std::string, GmatBase *>          
-                        automaticObjects;
+   ObjectMap            automaticObjectMap;
    // Validator used to create the ElementWrappers
    Validator            *validator;
    /// Object store needed by the validator
-   std::map<std::string, GmatBase *>
-                        validatorStore;
+   ObjectMap            validatorStore;
    /// the flag indicating script error found in function, this flag is set by Interpreter
    bool                 scriptErrorFound;
    /// the flag indicating local objects are initialized
