@@ -265,8 +265,10 @@ OBJECTS = \
     foundation/ElementWrapper.o \
     foundation/GmatBaseException.o \
     foundation/GmatBase.o \
+    foundation/GmatState.o \
     foundation/ObjectInitializer.o \
     foundation/SpacePoint.o \
+    foundation/StateManager.o \
     function/Function.o \
     function/FunctionException.o \
     function/FunctionManager.o \
@@ -377,6 +379,7 @@ OBJECTS = \
     propagator/PrinceDormand45.o \
     propagator/PrinceDormand78.o \
     propagator/Propagator.o \
+    propagator/PropagationStateManager.o \
     propagator/PropSetup.o \
     propagator/RungeKutta89.o \
     propagator/RungeKuttaFehlberg56.o \
