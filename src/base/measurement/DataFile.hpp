@@ -31,6 +31,7 @@
 #include "DataFormats.hpp"
 #include "DataFileException.hpp"
 #include "MessageInterface.hpp"
+#include <pcrecpp.h>
 
 using namespace DataFormats; // for data type variable definitions
 
@@ -45,7 +46,7 @@ public:
 
     // Initialization happens here
     virtual bool Initialize();
-
+    
     // Methods overridden from the GmatBase clase
     virtual GmatBase *Clone() const;
     virtual void        Copy(const GmatBase* orig);      
@@ -67,11 +68,10 @@ public:
     virtual Integer SetIntegerParameter(const std::string &label, const Integer value);
 
 
-    // Measurement Data Access functions
-
+    // Measurement Data Access function
     virtual bool AdvanceToNextOb();
-
     virtual std::string GetDataParameterText(const Integer id) const;
+    virtual std::string GetDataUnits(const Integer id) const;
     virtual Integer     GetDataParameterID(const std::string &str) const;
     virtual Gmat::ParameterType
                         GetDataParameterType(const Integer id) const;
@@ -85,6 +85,9 @@ public:
     virtual bool        GetBoolDataParameter(const std::string &label) const;
     virtual std::string GetStringDataParameter(const Integer id) const;
     virtual std::string GetStringDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    virtual bool CheckDataAvailability(const std::string str) const;
 
 
     // String processing utility functions
@@ -164,6 +167,13 @@ public:
 	EndObservationTypeReps
     };
 
+    enum DATAFILE_REPS {
+	B3_ID = 0,
+	SLR_ID,
+	TLE_ID,
+	EndFileFormatReps
+    };
+
 private:
     
     static const Integer NUM_FILEFORMATS = 3;
@@ -186,13 +196,6 @@ protected:
                                PARAMETER_TYPE[DataFileParamCount -
                                               GmatBaseParamCount];
    
-    enum DATAFILE_REPS {
-	B3_ID = 0,
-	SLR_ID,
-	TLE_ID,
-	EndFileFormatReps
-    };
-
     // File format and filename of the data being used
     std::string fileFormatName;
     Integer fileFormatID;

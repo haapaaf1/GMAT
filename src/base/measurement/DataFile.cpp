@@ -640,7 +640,7 @@ std::string DataFile::GetFileFormatName() const
 }
 
 //------------------------------------------------------------------------------
-//  bool slr_obtype AdvanceToNextOb()
+//  bool AdvanceToNextOb()
 //------------------------------------------------------------------------------
 /**
  * Increments the vector container index
@@ -653,7 +653,19 @@ std::string DataFile::GetFileFormatName() const
    return false;
 }
 
-
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+ bool DataFile::CheckDataAvailability(const std::string str) const
+{
+   return false;
+}
 
 //------------------------------------------------------------------------------
 //  bool DataFile::IsEOF(std::ifstream &theFile)
@@ -887,6 +899,21 @@ std::string DataFile::GetDataParameterText(const Integer id) const
    return "";
 }
 
+//------------------------------------------------------------------------------
+//  std::string  GetDataUnits(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the unit text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested unit text.
+ *
+ * @return unit text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::GetDataUnits(const Integer id) const
+{
+   return "";
+}
 
 //------------------------------------------------------------------------------
 //  Integer  GetDataParameterID(const std::string &str) const

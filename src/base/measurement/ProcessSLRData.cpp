@@ -345,6 +345,34 @@ bool ProcessSLRData::AdvanceToNextOb() {
 }
 
 //------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+ bool ProcessSLRData::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndSLRDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(SLR_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return false;
+
+}
+ 
+//------------------------------------------------------------------------------
 // bool GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
 //------------------------------------------------------------------------------
 /** 
@@ -762,7 +790,27 @@ std::string ProcessSLRData::GetDataParameterText(const Integer id) const
 {
    if ((id >= 0) && (id < EndSLRDataReps))
    {
-      return SLRFILEFORMAT_DESCRIPTIONS[id];
+      return SLR_FILEFORMAT_DESCRIPTIONS[id];
+   }
+   return "";
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataUnits(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the unit text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested unit text.
+ *
+ * @return unit text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string ProcessSLRData::GetDataUnits(const Integer id) const
+{
+   if ((id >= 0) && (id < EndSLRDataReps))
+   {
+      return SLR_UNIT_DESCRIPTIONS[id];
    }
    return "";
 }
@@ -781,9 +829,9 @@ std::string ProcessSLRData::GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer ProcessSLRData::GetDataParameterID(const std::string &str) const
 {
-   for (Integer i = 0; i < EndSLRDataReps; ++i)
+   for (Integer i = 0; i < EndSLRDataReps; i++)
    {
-      if (str == SLRFILEFORMAT_DESCRIPTIONS[i])
+      if (str == SLR_FILEFORMAT_DESCRIPTIONS[i])
          return i;
    }
 
@@ -805,7 +853,7 @@ Integer ProcessSLRData::GetDataParameterID(const std::string &str) const
 Gmat::ParameterType ProcessSLRData::GetDataParameterType(const Integer id) const
 {
    if ((id >= 0) && (id < EndSLRDataReps))
-      return SLRPARAMETER_TYPE[id];
+      return SLR_PARAMETER_TYPE[id];
 
    return GmatBase::GetParameterType(id);
 }

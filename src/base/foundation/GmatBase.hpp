@@ -31,7 +31,9 @@
 #include "GmatBaseException.hpp"
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
-
+#include <utypes.h>
+#include <unistr.h>
+#include <ustream.h>
 
 // Forward reference for the SolarSystem pointer
 class SolarSystem;
@@ -150,6 +152,7 @@ public:
 
    // Access methods derived classes can override
    virtual std::string  GetParameterText(const Integer id) const;
+   virtual std::string  GetParameterUnits(const Integer id) const;
    virtual Integer      GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType
                         GetParameterType(const Integer id) const;
@@ -340,7 +343,50 @@ public:
    /// String mappings for the GMAT object types
    static const std::string  OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1];
    static const bool         AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1];
-   
+
+   /// String Mappings for units
+   static const Real SI_PREFIXES_FACTOR[Gmat::UNKNOWN_SI_PREFIX+1];
+   static const std::string SI_PREFIXES_STRING[Gmat::UNKNOWN_SI_PREFIX+1];
+   static const std::string SI_PREFIXES_SYMBOL[Gmat::UNKNOWN_SI_PREFIX+1];
+   static const std::string ANGLE_UNITS_STRING[Gmat::UNKNOWN_ANGLE_UNIT+1];
+   static const std::string ANGLE_UNITS_SYMBOL[Gmat::UNKNOWN_ANGLE_UNIT+1];
+   static const std::string AREA_UNITS_STRING[Gmat::UNKNOWN_AREA_UNIT+1];
+   static const std::string AREA_UNITS_SYMBOL[Gmat::UNKNOWN_AREA_UNIT+1];
+   static const std::string DISTANCE_UNITS_STRING[Gmat::UNKNOWN_DISTANCE_UNIT+1];
+   static const std::string DISTANCE_UNITS_SYMBOL[Gmat::UNKNOWN_DISTANCE_UNIT+1];
+   static const std::string ELECTRIC_UNITS_STRING[Gmat::UNKNOWN_ELECTRIC_UNIT+1];
+   static const std::string ELECTRIC_UNITS_SYMBOL[Gmat::UNKNOWN_ELECTRIC_UNIT+1];
+   static const std::string ENERGY_UNITS_STRING[Gmat::UNKNOWN_ENERGY_UNIT+1];
+   static const std::string ENERGY_UNITS_SYMBOL[Gmat::UNKNOWN_ENERGY_UNIT+1];
+   static const std::string FORCE_UNITS_STRING[Gmat::UNKNOWN_FORCE_UNIT+1];
+   static const std::string FORCE_UNITS_SYMBOL[Gmat::UNKNOWN_FORCE_UNIT+1];
+   static const std::string LUMINANCE_UNITS_SYMBOL[Gmat::UNKNOWN_LUMINANCE_UNIT+1];
+   static const std::string LUMINANCE_UNITS_STRING[Gmat::UNKNOWN_LUMINANCE_UNIT+1];
+   static const std::string ILLUMINANCE_UNITS_SYMBOL[Gmat::UNKNOWN_ILLUMINANCE_UNIT+1];
+   static const std::string ILLUMINANCE_UNITS_STRING[Gmat::UNKNOWN_ILLUMINANCE_UNIT+1];
+   static const std::string LUMINOUS_FLUX_UNITS_SYMBOL[Gmat::UNKNOWN_LUMINOUSFLUX_UNIT+1];
+   static const std::string LUMINOUS_FLUX_UNITS_STRING[Gmat::UNKNOWN_LUMINOUSFLUX_UNIT+1];
+   static const std::string LUMINOUS_ENERGY_UNITS_SYMBOL[Gmat::UNKNOWN_LUMINOUSENERGY_UNIT+1];
+   static const std::string LUMINOUS_ENERGY_UNITS_STRING[Gmat::UNKNOWN_LUMINOUSENERGY_UNIT+1];
+   static const std::string LUMINOUS_INTENSITY_UNITS_SYMBOL[Gmat::UNKNOWN_LUMINOUSINTENSITY_UNIT+1];
+   static const std::string LUMINOUS_INTENSITY_UNITS_STRING[Gmat::UNKNOWN_LUMINOUSINTENSITY_UNIT+1];
+   static const std::string MASS_UNITS_STRING[Gmat::UNKNOWN_MASS_UNIT+1];
+   static const std::string MASS_UNITS_SYMBOL[Gmat::UNKNOWN_MASS_UNIT+1];
+   static const std::string PRESSURE_UNITS_STRING[Gmat::UNKNOWN_PRESSURE_UNIT+1];
+   static const std::string PRESSURE_UNITS_SYMBOL[Gmat::UNKNOWN_PRESSURE_UNIT+1];
+   static const std::string TEMPERATURE_UNITS_STRING[Gmat::UNKNOWN_TEMPERATURE_UNIT+1];
+   static const std::string TEMPERATURE_UNITS_SYMBOL[Gmat::UNKNOWN_TEMPERATURE_UNIT+1];
+   static const std::string VOLUME_UNITS_STRING[Gmat::UNKNOWN_VOLUME_UNIT+1];
+   static const std::string VOLUME_UNITS_SYMBOL[Gmat::UNKNOWN_VOLUME_UNIT+1];
+   static const std::string TIME_UNITS_STRING[Gmat::UNKNOWN_TIME_UNIT+1];
+   static const std::string TIME_UNITS_SYMBOL[Gmat::UNKNOWN_TIME_UNIT+1];
+   static const Real MILITARY_TIME_UTC_OFFSETS[Gmat::EndMilitaryTimeZones+1];
+   static const std::string MILITARY_TIME_ZONE_CODES[Gmat::EndMilitaryTimeZones+1];
+   static const Real US_TIME_UTC_OFFSETS[Gmat::EndUSTimeZones+1];
+   static const std::string US_TIME_ZONE_CODES[Gmat::EndUSTimeZones+1];
+   static const Real CANADA_TIME_UTC_OFFSETS[Gmat::EndCanadaTimeZones+1];
+   static const std::string CANADA_TIME_ZONE_CODES[Gmat::EndCanadaTimeZones+1];
+
    /// Method to return the current number of instantiated objects
    static Integer          GetInstanceCount();
    /// Method for getting GMAT object type

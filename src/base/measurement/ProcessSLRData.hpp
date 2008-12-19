@@ -43,13 +43,12 @@ public:
     std::string Ilrs2Cospar(std::string ilrsSatnum);
 
     // Measurement Data Access functions
-
     bool AdvanceToNextOb();
-
     std::string GetDataParameterText(const Integer id) const;
     Integer     GetDataParameterID(const std::string &str) const;
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
+    std::string GetDataUnits(const Integer id) const;
 
     Real     GetRealDataParameter(const Integer id) const;
     Real     GetRealDataParameter(const std::string &label) const;
@@ -58,8 +57,9 @@ public:
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
 
-
-
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+    
 private:
 
     // Specific data type processing functions

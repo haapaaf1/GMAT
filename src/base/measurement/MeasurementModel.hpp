@@ -172,7 +172,7 @@ protected:
   // Units of each measurement returned
   StringArray measurementUnits;
   // Measurement returned by the model
-  Real* measurements;
+  Real *measurements;
 
   // This array of datatypes can be used to select a specific
   // subset of available data from a given dataFormat
@@ -187,8 +187,9 @@ protected:
 			    const Real maxAngle);
     
   // Data file objects
+  StringArray myDataFileTypes;
   StringArray myDataFileNames;
-  ObjectArray myDataFiles;
+  ObjectArray myDataSources;
 
 };
 

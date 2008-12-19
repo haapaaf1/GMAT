@@ -215,6 +215,33 @@ bool ProcessTLEData::AdvanceToNextOb() {
 
 }
 
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+ bool ProcessTLEData::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+    
+    for (Integer i = 0; i < EndTLEDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(TLE_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return false;
+
+}
 
 //------------------------------------------------------------------------------
 // bool GetData(tle_obtype &myTLEdata)
@@ -720,11 +747,30 @@ std::string ProcessTLEData::GetDataParameterText(const Integer id) const
 {
    if ((id >= 0) && (id < EndTLEDataReps))
    {
-      return TLEFILEFORMAT_DESCRIPTIONS[id];
+      return TLE_FILEFORMAT_DESCRIPTIONS[id];
    }
    return "";
 }
 
+//------------------------------------------------------------------------------
+//  std::string  GetDataUnits(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the unit text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested unit text.
+ *
+ * @return unit text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string ProcessTLEData::GetDataUnits(const Integer id) const
+{
+   if ((id >= 0) && (id < EndTLEDataReps))
+   {
+      return TLE_UNIT_DESCRIPTIONS[id];
+   }
+   return "";
+}
 
 //------------------------------------------------------------------------------
 //  Integer  GetDataParameterID(const std::string &str) const
@@ -739,9 +785,9 @@ std::string ProcessTLEData::GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer ProcessTLEData::GetDataParameterID(const std::string &str) const
 {
-   for (Integer i = 0; i < EndTLEDataReps; ++i)
+   for (Integer i = 0; i < EndTLEDataReps; i++)
    {
-      if (str == TLEFILEFORMAT_DESCRIPTIONS[i])
+      if (str == TLE_FILEFORMAT_DESCRIPTIONS[i])
          return i;
    }
 
@@ -763,7 +809,7 @@ Integer ProcessTLEData::GetDataParameterID(const std::string &str) const
 Gmat::ParameterType ProcessTLEData::GetDataParameterType(const Integer id) const
 {
    if ((id >= 0) && (id < EndTLEDataReps))
-      return TLEPARAMETER_TYPE[id];
+      return TLE_PARAMETER_TYPE[id];
 
    return GmatBase::GetParameterType(id);
 }
@@ -856,7 +902,6 @@ std::string ProcessTLEData::GetStringDataParameter(const Integer id) const
     }
 
 }
-
 
 //------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const std::string &label) const

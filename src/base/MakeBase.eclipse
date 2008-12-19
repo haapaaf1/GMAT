@@ -95,7 +95,8 @@ HEADERS = -Iinclude \
           -I../gui/foundation \
           -I../gui/plot \
           -I../gui/mission \
-          -I/usr/local/include/lapackpp
+          -I/usr/local/include/lapackpp \
+          -I/usr/local/include/unicode \
 
 
 

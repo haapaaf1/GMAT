@@ -34,6 +34,7 @@ HEADERS = -I../base/include -I../base/foundation \
           -I../base/coordsystem -I../base/attitude \
           -I../base/math -I../base/plugin \
           -I/usr/local/include/lapackpp \
+          -I/usr/local/include/unicode \
           -I../base/measurement \
           -I../base/environment \
           -I../base/asset

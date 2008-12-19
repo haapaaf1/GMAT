@@ -322,7 +322,7 @@ namespace DataFormats
         EndSLRDataReps
     };
 
-    static const std::string SLRFILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
+    static const std::string SLR_FILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
     {
 	"SlrType",
 	"IlrsSatnum",
@@ -361,7 +361,46 @@ namespace DataFormats
         "Elevation"
     };
 
-    static const Gmat::ParameterType SLRPARAMETER_TYPE[EndSLRDataReps] =
+    static const std::string SLR_UNIT_DESCRIPTIONS[EndSLRDataReps] =
+    {
+	"",
+	"",
+	"Year",
+	"DayOfYear",
+	"",
+	"",
+	"",
+	"NanoMeter",
+	"PicoSec",
+	"PicoSec",
+	"PicoSec",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"PicoSec",
+	"",
+	"",
+	"Sec",
+	"Sec",
+	"PicoSec",
+	"MilliBar",
+	"Kelvin",
+	"Percent",
+	"",
+	"",
+	"",
+	"",
+	"",
+        "",
+	"",
+        "",
+        "Deg",
+        "Deg"
+    };
+
+    static const Gmat::ParameterType SLR_PARAMETER_TYPE[EndSLRDataReps] =
     {
 	Gmat::INTEGER_TYPE,
 	Gmat::STRING_TYPE,
@@ -534,7 +573,7 @@ namespace DataFormats
         EndTLEDataReps
     };
 
-    static const std::string TLEFILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
+    static const std::string TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
     {
 	"Satnum",
 	"SecurityClassification",
@@ -555,7 +594,28 @@ namespace DataFormats
 	"RevolutionNum"
     };
 
-    static const Gmat::ParameterType TLEPARAMETER_TYPE[EndTLEDataReps] =
+    static const std::string TLE_UNIT_DESCRIPTIONS[EndTLEDataReps] =
+    {
+	"",
+	"",
+	"",
+	"Year",
+	"DayOfYear",
+	"Rev/Sec^2",
+	"Rad/Sec^3",
+	"1/EarthRadii",
+	"",
+	"",
+	"Deg",
+	"Deg",
+	"",
+	"Deg",
+	"Deg",
+	"Rev/Day",
+	""
+    };
+
+    static const Gmat::ParameterType TLE_PARAMETER_TYPE[EndTLEDataReps] =
     {
 	Gmat::INTEGER_TYPE,
 	Gmat::STRING_TYPE,
@@ -663,7 +723,7 @@ namespace DataFormats
         EndB3DataReps
     };
 
-    static const std::string B3FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
+    static const std::string B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
     {
         "B3Type",
         "SecurityClassification",
@@ -685,7 +745,30 @@ namespace DataFormats
         "Ecf_Z"
     };
 
-    static const Gmat::ParameterType B3PARAMETER_TYPE[EndB3DataReps] =
+    static const std::string B3_UNIT_DESCRIPTIONS[EndB3DataReps] =
+    {
+        "",
+        "",
+        "",
+        "",
+        "Year",
+        "DayOfYear",
+        "Hour",
+        "Min",
+        "Sec",
+        "Deg",
+        "Deg",
+        "Deg",
+        "Deg",
+        "Km",
+        "Km/s",
+        "Km",
+        "Km",
+        "Km"
+    };
+
+
+    static const Gmat::ParameterType B3_PARAMETER_TYPE[EndB3DataReps] =
     {
         Gmat::INTEGER_TYPE,
         Gmat::STRING_TYPE,

@@ -429,8 +429,8 @@ GmatBase* MeasurementModel::GetRefObject(const Gmat::ObjectType type,
 
    if (type == Gmat::DATA_FILE)
    {
-      for (ObjectArray::iterator i = myDataFiles.begin();
-           i != myDataFiles.end(); ++i)
+      for (ObjectArray::iterator i = myDataSources.begin();
+           i != myDataSources.end(); ++i)
       {
          if ((*i)->GetName() == name)
          {
@@ -458,9 +458,9 @@ bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
    if (obj->IsOfType(Gmat::DATA_FILE))
    {
-      if (find(myDataFiles.begin(), myDataFiles.end(), obj) == myDataFiles.end())
+      if (find(myDataSources.begin(), myDataSources.end(), obj) == myDataSources.end())
       {
-         myDataFiles.push_back(obj);
+         myDataSources.push_back(obj);
          retval = true;
       }
    }
@@ -494,8 +494,9 @@ MeasurementModel::MeasurementModel(const std::string typeName,
    objectTypeNames.push_back("MeasurementModel");
    measurementTypesAllowed.push_back("");
    tempNameArray.push_back("");
+   myDataFileTypes.push_back("");
    myDataFileNames.push_back("");
-   myDataFiles.push_back(NULL);
+   myDataSources.push_back(NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -517,8 +518,9 @@ MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
    measurementTypesAllowed (mm.measurementTypesAllowed),
    tempNameArray (mm.tempNameArray),
    ccvtr (mm.ccvtr),
+   myDataFileTypes (mm.myDataFileTypes),
    myDataFileNames (mm.myDataFileNames),
-   myDataFiles (mm.myDataFiles)
+   myDataSources (mm.myDataSources)
 {
    objectTypes.push_back(Gmat::MEASUREMENT_MODEL);
    objectTypeNames.push_back("MeasurementModel");
@@ -577,27 +579,60 @@ std::istream& operator>>(std::istream& input, MeasurementModel &mm)
 void MeasurementModel::Initialize() const
 {
     CoordinateConverter ccvtr;
-/*    
-    if(dataFormat == "B3")
-    {
-	myData = new ProcessB3Data();
+
+    // Check to see if a DataSource has already been created elsewhere
+    // If not, then create the appropriate kind.
+    if (myDataSources.size() == 0 && myDataFileNames.size() > 0) {
+
+ /*
+    for (Integer i = 0; i != myDataFileNames.size(); i++)
+        {
+
+            Integer id = DataFile::GetFileFormatID(myDataFileTypes[i]);
+            
+            switch (id)
+            {
+              
+                case DataFile::B3_ID:
+
+                    ProcessB3Data myB3Data = new ProcessB3Data("myData");
+                    myB3Data.SetFileName(myDataFileNames[i];
+                    myB3Data.Initialize();
+                    myDataSources.push_back(myB3Data);
+                    break;
+
+                case DataFile::SLR_ID:
+
+                    ProcessSLRData mySLRData = new ProcessSLRData("myData");
+                    mySLRData.SetFileName(myDataFileNames[i];
+                    mySLRData.Initialize();
+                    myDataSources.push_back(mySLRData);
+                    break;
+
+                case DataFile::TLE_ID:
+
+                    ProcessTLEData myTLEData = new ProcessTLEData("myData");
+                    myTLEData.SetFileName(myDataFileNames[i];
+                    myTLEData.Initialize();
+                    myDataSources.push_back(myTLEData);
+                    break;
+
+                default:
+
+                    MessageInterface::ShowMessage("MeasurementModel could not create datafile of type %s\n",myDataFileTypes[i]);
+                    throw MeasurementModelException("MeasurementModel could not create datafile of type %s\n",myDataFileTypes[i]);
+            }
+        }
+*/
+                
     }
-    else if (dataFormat == "SLR")
-    {
-	myData = new ProcessSLRData();
-    }
-    else if (dataFormat == "TLE")
-    {
-	myData = new ProcessTLEData();
-    }
-    else
-    {
-      throw MeasurementModelException("Unable to process data with the specified data format: " + dataFormat);
-      MessageInterface::ShowMessage(
-            "Unable to process data with the\n specified data format: " + dataFormat);
-    }
- 
- */
+
+    //for (ObjectArray::iterator i = myDataSources.begin(); i != myDataSources.end(); ++i)
+    //{
+    //    std::string str = "test";
+        //(*i)->CheckDataAvailability(str);
+    //}
+
 }
 
 // Accessors
@@ -698,48 +733,15 @@ const Real* MeasurementModel::GetMeasurements() const
 //------------------------------------------------------------------------------
 Integer MeasurementModel::GetModelID(const std::string &label)
 {
-   if (label == "Range") {
-       return RANGE_ID;
-   } else if (label == "RangeRate") {
-       return RANGERATE_ID;
-   } else if (label == "LightTime") {
-       return LIGHTTIME_ID;
-   } else if (label == "VariableTransmitterRange") {
-       return VARIABLETRANSMITTERRANGE_ID;
-   } else if (label == "AntennaTracking") {
-       return ANTENNATRACKING_ID;
-   } else if (label == "SunSensor") {
-       return SUNSENSOR_ID;
-   } else if (label == "StarSensor") {
-       return STARSENSOR_ID;
-   } else if (label == "GyroPackage") {
-       return GYROPACKAGE_ID;
-   } else if (label == "HorizonSensor") {
-       return HORIZONSENSOR_ID;
-   } else if (label == "Videometers") {
-       return VIDEOMETERS_ID;
-   } else if (label == "CoherentDoppler") {
-       return COHERENTDOPPLER_ID;
-   } else if (label == "NonCoherentDoppler") {
-       return NONCOHERENTDOPPLER_ID;
-   } else if (label == "VariableTransmitterDoppler") {
-       return VARIABLETRANSMITTERDOPPLER_ID;
-   } else if (label == "IntegratedDopplerCount") {
-       return INTEGRATEDDOPPLERCOUNT_ID;
-   } else if (label == "IMU") {
-       return IMU_ID;
-   } else if (label == "Magnetometer") {
-       return MAGNETOMETER_ID;
-   } else if (label == "AO_AzEl") {
-       return AO_AZEL_ID;
-   } else if (label == "RangeAzEl") {
-       return RANGEAZEL_ID;
-   } else if (label == "AO_RaDec") {
-       return AO_RADEC_ID;
-   } else if (label == "RangeRaDec") {
-       return RANGERADEC_ID;
-   } else
-     return DEFAULT_ID;
+
+   for (Integer i = 0; i < EndModelReps; i++)
+   {
+      if (label == MODEL_DESCRIPTIONS[i])
+         return i;
+   }
+
+   return DEFAULT_ID;
+
 
 }
 

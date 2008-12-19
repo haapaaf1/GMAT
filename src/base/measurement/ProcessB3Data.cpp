@@ -53,7 +53,7 @@ const std::string ProcessB3Data::B3_TYPE_DESCRIPTIONS[EndB3TypeReps] =
 //------------------------------------------------------------------------------
 bool ProcessB3Data::Initialize()
 {
-    DataFile::Initialize();
+    DataFile::Initialize();    
 
     std::ifstream myFile;
     if(!OpenFile(myFile))
@@ -213,33 +213,6 @@ bool ProcessB3Data::IsParameterReadOnly(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// const std::string* GetB3TypeReps() const
-//------------------------------------------------------------------------------
-const std::string* ProcessB3Data::GetB3TypeDescriptions() const
-{
-   return B3_TYPE_DESCRIPTIONS;
-}
-
-//------------------------------------------------------------------------------
-// std::string GetB3TypeNameText(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * Code used to obtain the model name text corresponding to a model ID
- */
-//------------------------------------------------------------------------------
-std::string ProcessB3Data::GetB3TypeNameText(const Integer &id) const
-{
-   if ((id >= 0) && (id < EndB3TypeReps))
-   {
-      // Note that the B3_TYPE_REPS enumeration starts at 1 instead of 0
-      // to conform to the data format definition
-      return B3_TYPE_DESCRIPTIONS[id-1];
-   }
-
-   return "INVALID";
-}
-
-//------------------------------------------------------------------------------
 // bool AdvanceToNextOb()
 //------------------------------------------------------------------------------
 /**
@@ -251,6 +224,34 @@ bool ProcessB3Data::AdvanceToNextOb()
     ++i;
     if (i==b3Data.end()) return false;
     return true;
+
+}
+
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+ bool ProcessB3Data::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndB3DataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(B3_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return false;
 
 }
 
@@ -805,7 +806,6 @@ bool ProcessB3Data::ExtractB3Data(std::string &lff, b3_obtype *myb3Data)
 //------------------------------------------------------------------------------
 // Measurement Data Access functions
 //------------------------------------------------------------------------------
-
 //------------------------------------------------------------------------------
 //  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
@@ -821,7 +821,27 @@ std::string ProcessB3Data::GetDataParameterText(const Integer id) const
 {
    if ((id >= 0) && (id < EndB3DataReps))
    {
-      return B3FILEFORMAT_DESCRIPTIONS[id];
+      return B3_FILEFORMAT_DESCRIPTIONS[id];
+   }
+   return "";
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataUnits(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the unit text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested unit text.
+ *
+ * @return unit text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string ProcessB3Data::GetDataUnits(const Integer id) const
+{
+   if ((id >= 0) && (id < EndB3DataReps))
+   {
+      return B3_UNIT_DESCRIPTIONS[id];
    }
    return "";
 }
@@ -840,9 +860,9 @@ std::string ProcessB3Data::GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer ProcessB3Data::GetDataParameterID(const std::string &str) const
 {
-   for (Integer i = 0; i < EndB3DataReps; ++i)
+   for (Integer i = 0; i < EndB3DataReps; i++)
    {
-      if (str == B3FILEFORMAT_DESCRIPTIONS[i])
+      if (str == B3_FILEFORMAT_DESCRIPTIONS[i])
          return i;
    }
 
@@ -864,7 +884,7 @@ Integer ProcessB3Data::GetDataParameterID(const std::string &str) const
 Gmat::ParameterType ProcessB3Data::GetDataParameterType(const Integer id) const
 {
    if ((id >= 0) && (id < EndB3DataReps))
-      return B3PARAMETER_TYPE[id];
+      return B3_PARAMETER_TYPE[id];
 
    return GmatBase::GetParameterType(id);
 }
