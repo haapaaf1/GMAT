@@ -35,9 +35,15 @@ public:
    StateManager(const StateManager& sm);
    StateManager& operator=(const StateManager& sm);
    
+   
+   
 protected:
-   Integer        stateSize;
-   GmatState      state;
+   /// Size of the managed state vector
+   Integer                    stateSize;
+   GmatState                  state;
+   
+   std::vector<GmatBase*>     objects;
+   std::vector<StringArray>   elements;
 };
 
 #endif /*StateManager_hpp*/

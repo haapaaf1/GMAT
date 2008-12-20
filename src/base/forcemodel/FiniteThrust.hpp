@@ -54,7 +54,8 @@ public:
    virtual bool            IsTransient();
    virtual void            SetPropList(std::vector<SpaceObject*> *soList);
    virtual bool            Initialize();
-   virtual bool            GetDerivatives(Real * state, Real dt, Integer order);
+   virtual bool            GetDerivatives(Real * state, Real dt, Integer order, 
+                                          const Integer id = -1);
 protected:
    // Pieces needed for bookkeeping
    /// Not sure if this is needed yet

@@ -125,6 +125,7 @@ SolarRadiationPressure::SolarRadiationPressure(const std::string &name) :
    bodyIsTheSun        (false)
 {
    parameterCount = SRPParamCount;
+   derivativeIds.push_back(Gmat::CARTESIAN_STATE);
 }
 
 //------------------------------------------------------------------------------
@@ -607,7 +608,8 @@ bool SolarRadiationPressure::SetCentralBody()
  * @return true on success, false if an error was encountered
  */
 //------------------------------------------------------------------------------
-bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order)
+bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order, 
+      const Integer id)
 {
     if (!initialized)
         return false;

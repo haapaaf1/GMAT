@@ -49,7 +49,8 @@ public:
    
    bool                 Initialize();
    virtual bool         GetDerivatives(Real * state, Real dt = 0.0, 
-                                       Integer order = 1);
+                                       Integer order = 1, 
+                                       const Integer id = -1);
    
    // inherited from GmatBase
    virtual GmatBase*    Clone(void) const;

@@ -252,8 +252,10 @@ GravityField::GravityField(const GravityField &gf) :
          dSbar[i][j] = gf.dSbar[i][j];
       }
    }
-  
+   
    parameterCount = GravityFieldParamCount;
+   
+   derivativeIds.push_back(Gmat::CARTESIAN_STATE);
 }
 
 
@@ -547,7 +549,8 @@ bool GravityField::gravity_rtq(Real jday, Real F[] )
  * @return success flag.
  */
 //------------------------------------------------------------------------------
-bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder)
+bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder, 
+      const Integer id)
 {   
    #ifdef DEBUG_FIRST_CALL
       if (firstCallFired == false)

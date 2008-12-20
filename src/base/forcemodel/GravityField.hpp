@@ -89,7 +89,8 @@ public:
    bool            gravity_rtq(Real jday, Real F[]);
    
    virtual bool    GetDerivatives(Real * state, Real dt = 0.0, 
-                                                Integer order = 1);
+                                                Integer order = 1, 
+                                                const Integer id = -1);
 
    // inherited from GmatBase
    virtual GmatBase* Clone(void) const;

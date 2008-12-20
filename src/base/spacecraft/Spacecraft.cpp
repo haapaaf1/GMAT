@@ -85,6 +85,7 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::OBJECTARRAY_TYPE, // Thrusters
       Gmat::REAL_TYPE,        // TotalMass
       Gmat::OBJECT_TYPE,      // Attitude
+      Gmat::RMATRIX_TYPE,     // OrbitSTM
       Gmat::STRING_TYPE,      // UTCGregorian
    };
    
@@ -118,6 +119,7 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "Thrusters", 
       "TotalMass", 
       "Attitude",
+      "OrbitSTM",
       "UTCGregorian",
    };
 
@@ -196,7 +198,8 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    attitude             (NULL),
    totalMass            (850.0),
    initialDisplay       (false),
-   csSet                (false)
+   csSet                (false),
+   orbitSTM             (6,6)
 {
    //MessageInterface::ShowMessage("=====> Spacecraft::Spacecraft(%s) entered\n",
    //                              name.c_str());
@@ -247,6 +250,10 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    
    BuildElementLabelMap();
    
+   // Initialize the STM to the identity matrix
+   orbitSTM(0,0) = orbitSTM(1,1) = orbitSTM(2,2) = 
+   orbitSTM(3,3) = orbitSTM(4,4) = orbitSTM(5,5) = 1.0; 
+
    //MessageInterface::ShowMessage("=====> Spacecraft::Spacecraft(%s) exiting\n",
    //                              name.c_str());
 }
@@ -301,7 +308,8 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    coordConverter       (a.coordConverter),
    totalMass            (a.totalMass),
    initialDisplay       (false),
-   csSet                (a.csSet)
+   csSet                (a.csSet),
+   orbitSTM             (a.orbitSTM)
 {
    objectTypes.push_back(Gmat::SPACECRAFT);
    objectTypeNames.push_back("Spacecraft");
@@ -325,7 +333,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    representations   = a.representations;
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
-
+   
    BuildElementLabelMap();
 }
 
@@ -409,6 +417,8 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    else             attitude = NULL;
    
    BuildElementLabelMap();
+   
+   orbitSTM = a.orbitSTM;
    
    return *this;
 }
@@ -533,15 +543,15 @@ void Spacecraft::SetState(const Real s1, const Real s2, const Real s3,
 
 
 //------------------------------------------------------------------------------
-//  PropState& GetState() 
+//  GmatState& GetState() 
 //------------------------------------------------------------------------------
 /**
  * "Unhide" the SpaceObject method.
  * 
- * @return the core PropState.   
+ * @return the core GmatState.   
  */
 //------------------------------------------------------------------------------
-PropState& Spacecraft::GetState()
+GmatState& Spacecraft::GetState()
 {
    #ifdef DEBUG_GET_STATE
    Rvector6 state;
@@ -3369,3 +3379,5 @@ void Spacecraft::BuildElementLabelMap()
 }
 
    
+// Additions for the propagation rework
+

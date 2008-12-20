@@ -199,6 +199,8 @@ PhysicalModel::PhysicalModel(const PhysicalModel& pm) :
    elapsedTime                 (pm.elapsedTime),
    prevElapsedTime             (pm.prevElapsedTime),
    deriv                       (NULL),
+   derivativeIds               (pm.derivativeIds),
+   derivativeNames             (pm.derivativeNames),
    relativeErrorThreshold      (pm.relativeErrorThreshold),
    solarSystem                 (pm.solarSystem)
 {
@@ -595,7 +597,8 @@ void PhysicalModel::SetTime(Real t)
 
 
 //------------------------------------------------------------------------------
-// bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order)
+// bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order, 
+//                                    const Integer id)
 //------------------------------------------------------------------------------
 /**
  * Method invoked to calculate derivatives
@@ -608,17 +611,22 @@ void PhysicalModel::SetTime(Real t)
  *                      calculation; defaults to 0.
  * @param state         Pointer to the current state data.  This can differ
  *                      from the PhysicalModel state if the subscribing
- *                              integrator samples other state values during 
- *                              propagation.  (For example, the Runge-Kutta integrators 
+ *                      integrator samples other state values during 
+ *                      propagation.  (For example, the Runge-Kutta integrators 
  *                      do this during the stage calculations.)
  * @param order         The order of the derivative to be taken (first 
- *                              derivative, second derivative, etc)
+ *                      derivative, second derivative, etc)
+ * @param id            ID for the type of derivative requested for models that
+ *                      support more than one type.  Default value of -1 
+ *                      indicates that the default derivative model is 
+ *                      requested.  This number should be a StateElementId.
  *
- * @return                      true if the call succeeds, false on failure.  This default 
- *                      implementation always returns false.
+ * @return              true if the call succeeds, false on failure.  This  
+ *                      default implementation always returns false.
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order)
+bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order, 
+      const Integer id)
 {
    return false;
 }
@@ -691,7 +699,7 @@ Real PhysicalModel::EstimateError(Real * diffs, Real * answer) const
 }
 
 //------------------------------------------------------------------------------
-// bool PhysicalModel::GetComponentMap(Integer * map, Integer order) const
+// bool GetComponentMap(Integer * map, Integer order, Integer id) const
 //------------------------------------------------------------------------------
 /**
  * Used to get the mapping in the state variable between components 
@@ -715,19 +723,23 @@ Real PhysicalModel::EstimateError(Real * diffs, Real * answer) const
  * GetComponentMap(map, 1).  The array, map, that is returned will contain these
  * data: (3, 4, 5, -1, -1, -1).
  *
- *  @param map          Array that will contain the mapping of the elements
- *  @param order        The order for the mapping (1 maps 1st derivatives to their base 
- *                      components, 2 maps 2nd derivatives, and so on)
+ * @param map          Array that will contain the mapping of the elements
+ * @param order        The order for the mapping (1 maps 1st derivatives to  
+ *                     their base components, 2 maps 2nd derivatives, and so on)
+ * @param id           Identifier for the particular set of derivatives 
+ *                     requested.  The default, -1, returns the complete map.
  *
- *  @return             Returns true if a mapping was made, false otherwise.  A false return 
- *                      value can be used to indicate that the requested map is not 
- *                      available, and verefore that the model may not be appropriate for the
- *                      requested operations.
+ * @return             Returns true if a mapping was made, false otherwise.  A 
+ *                     false return value can be used to indicate that the 
+ *                     requested map is not available, and verefore that the
+ *                     model may not be appropriate for the requested 
+ *                     operations.
  * 
  * @todo This method needs serious rework for the formation pieces in build 3.
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::GetComponentMap(Integer * map, Integer order) const
+bool PhysicalModel::GetComponentMap(Integer * map, Integer order, 
+      Integer id) const
 {
    //    return false;
    int i6;
@@ -1231,4 +1243,17 @@ bool PhysicalModel::SetRefObject(GmatBase *obj,
    
    // Not handled here -- invoke the next higher SetRefObject call
    return GmatBase::SetRefObject(obj, type, name);
+}
+
+// Support for extra derivative calcs
+
+const IntegerArray& PhysicalModel::GetSupportedDerivativeIds()
+{
+   return derivativeIds;
+}
+
+
+const StringArray&  PhysicalModel::GetSupportedDerivativeNames()
+{
+   return derivativeNames;
 }

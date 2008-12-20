@@ -22,6 +22,7 @@
 #define GmatState_hpp
 
 #include "gmatdefs.hpp"
+#include "StateVectorIds.hpp"
 
 /**
  * A GmatState is a vector on numbers and an associated epoch.  
@@ -38,16 +39,31 @@ public:
    GmatState& operator=(const GmatState& gs);
    
    // Operator overloads
-   Real&       operator[](const Integer index);
-   Real        operator[](const Integer index) const;
+   Real&             operator[](const Integer index);
+   Real              operator[](const Integer index) const;
+
+   // Sizing manipulation
+   void              SetSize(const Integer size);
    
+   // Access methods
+   Integer           GetSize() const;
+   Real*             GetState();
+   bool              SetState(const Real *data, const Integer size, 
+                              const Integer start = 0);
+   GmatEpoch         GetEpoch() const;
+   GmatEpoch         SetEpoch(const GmatEpoch ep);
+
 protected:
    /// The epoch of the state data
-   Real        theEpoch;
+   GmatEpoch   theEpoch;
    /// The state data
-   Real        *theData;
+   Real              *theData;
+   
    /// Length of the state vector
-   Integer     stateSize;
+   Integer           stateSize;
+   
+   void              Resize(Integer newSize, bool withCopy = true);
+   void              Zero(Integer begin = 0, UnsignedInt length = 0);
 };
 
 #endif /*GmatState_hpp*/

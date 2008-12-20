@@ -113,9 +113,11 @@ PointMassForce::PointMassForce(const std::string &name, Integer satcount) :
    parameterCount = PointMassParamCount;
    dimension = 6 * satcount;
    body = NULL;
-    
+   
    // create default body
    bodyName = SolarSystem::EARTH_NAME; //loj: 5/20/04 added
+   
+   derivativeIds.push_back(Gmat::CARTESIAN_STATE);
 }
 
 //------------------------------------------------------------------------------
@@ -289,7 +291,8 @@ bool PointMassForce::Initialize()
  * @param order  Order of the derivative being calculated
  */
 //------------------------------------------------------------------------------
-bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order)
+bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order, 
+      const Integer id)
 {
    if (order > 2)
       return false;

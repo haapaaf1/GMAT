@@ -69,16 +69,17 @@ class GMAT_API SolarRadiationPressure : public PhysicalModel
 {
 public:
    SolarRadiationPressure(const std::string &name = ""); //loj: 5/28/04 added default
-   virtual ~SolarRadiationPressure(void);
+   virtual ~SolarRadiationPressure();
    SolarRadiationPressure(const SolarRadiationPressure &srp);
    SolarRadiationPressure& operator=(const SolarRadiationPressure &srp);
 
-   virtual bool Initialize(void);
+   virtual bool Initialize();
    virtual bool SetCentralBody();
-   virtual bool GetDerivatives(Real *state, Real dt = 0.0,Integer order = 1);
+   virtual bool GetDerivatives(Real *state, Real dt = 0.0, Integer order = 1, 
+         const Integer id = -1);
 
    // inherited from GmatBase
-   virtual GmatBase* Clone(void) const;
+   virtual GmatBase* Clone() const;
 
    // Parameter access methods - overridden from GmatBase
    virtual std::string         GetParameterText(const Integer id) const;

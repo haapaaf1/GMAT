@@ -109,6 +109,8 @@ DragForce::DragForce(const std::string &name) :
    
    ap = CalculateAp(kp);
    
+   derivativeIds.push_back(Gmat::CARTESIAN_STATE);
+   
    #ifdef DEBUG_DRAGFORCE_DENSITY
        dragdata.open("DragData.csv");
        dragdata << "Atmospheric drag parameters\n";
@@ -668,7 +670,8 @@ void DragForce::TranslateOrigin(const Real *state, const Real now)
  * @return              true if the call succeeds, false on failure.
  */
 //------------------------------------------------------------------------------
-bool DragForce::GetDerivatives(Real *state, Real dt, Integer order)
+bool DragForce::GetDerivatives(Real *state, Real dt, Integer order, 
+      const Integer id)
 {
    #ifdef DEBUG_DRAGFORCE_DENSITY
       dragdata << "Entered DragForce::GetDerivatives()\n";

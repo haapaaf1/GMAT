@@ -69,13 +69,14 @@ class GMAT_API PointMassForce : public PhysicalModel
 public:
     
    PointMassForce(const std::string &name = "", Integer satcount = 1);
-   virtual ~PointMassForce(void);
+   virtual ~PointMassForce();
    PointMassForce(const PointMassForce& pmf);
    PointMassForce& operator= (const PointMassForce& pmf);
 
-   bool GetDerivatives(Real *state, Real dt = 0.0, Integer order = 1);
+   bool GetDerivatives(Real *state, Real dt = 0.0, Integer order = 1, 
+         const Integer id = -1);
    bool GetComponentMap(Integer * map, Integer order) const;
-   bool Initialize(void);
+   bool Initialize();
    virtual Real EstimateError(Real *diffs, Real *answer) const;
 
    //CelestialBody* GetBody();  // wcs: 2004/06/21 moved to PhysicalModel
@@ -85,7 +86,7 @@ public:
    //void SetBodyName(const std::string &name); //loj: 5/7/04 added
 
    // inherited from GmatBase
-   virtual GmatBase* Clone(void) const;
+   virtual GmatBase* Clone() const;
 
    // inherited methods from GmatBase
    virtual std::string GetParameterText(const Integer id) const;

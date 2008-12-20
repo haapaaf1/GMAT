@@ -103,7 +103,8 @@ public:
    virtual void IncrementTime(Real dt);
    virtual void SetTime(Real t);
    
-   bool GetDerivatives(Real * state, Real dt = 0.0, Integer order = 1);
+   bool GetDerivatives(Real * state, Real dt = 0.0, Integer order = 1, 
+         const Integer id = -1);
    Real EstimateError(Real *diffs, Real *answer) const;
       
    // inherited from GmatBase

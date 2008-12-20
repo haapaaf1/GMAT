@@ -176,7 +176,7 @@ const Rvector6 Formation::GetMJ2000State(const A1Mjd &atTime)
    // First calculate the geometric center of the formation
    Rvector6 centerState;
 
-   PropState ps = GetState();
+   GmatState ps = GetState();
    Real *st = ps.GetState();
    
    if (satCount == 0)
@@ -186,7 +186,7 @@ const Rvector6 Formation::GetMJ2000State(const A1Mjd &atTime)
       return centerState;
    }
 
-   // The Formation PropState contains state data for the spacecraft, tanks, and
+   // The Formation GmatState contains state data for the spacecraft, tanks, and
    // (eventually) attitude.  The first 6*satcount elements are the spacecraft
    // position and velocity data.
    for (UnsignedInt i = 0; i < satCount; ++i)
@@ -758,7 +758,7 @@ bool Formation::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       so = ((SpaceObject*)(obj));
       if (find(components.begin(), components.end(), so) == components.end())
       {
-         PropState *ps = &(so->GetState());
+         GmatState *ps = &(so->GetState());
          Integer size = ps->GetSize();
          dimension += size;
          Real newepoch = so->GetEpoch();
@@ -878,7 +878,7 @@ ObjectArray& Formation::GetRefObjectArray(const std::string& typeString)
 // void BuildState()
 //------------------------------------------------------------------------------
 /**
- * Constructs a PropState for a Formation.
+ * Constructs a GmatState for a Formation.
  */
 //------------------------------------------------------------------------------
 void Formation::BuildState()
@@ -893,10 +893,10 @@ void Formation::BuildState()
       throw SpaceObjectException(
          "Error building Formation state; no spacecraft are set");
 
-   // Setup the PropState
+   // Setup the GmatState
    Real *data = new Real[dimension], *st;
    Integer j = 0, k;
-   PropState *ps;
+   GmatState *ps;
 
    if (state.GetSize() < dimension)
       state.SetSize(dimension);
@@ -943,13 +943,13 @@ void Formation::BuildState()
 // void UpdateElements()
 //------------------------------------------------------------------------------
 /**
- * Updates the member SpaceObjects using the data in the Formation PropState.
+ * Updates the member SpaceObjects using the data in the Formation GmatState.
  */
 //------------------------------------------------------------------------------
 void Formation::UpdateElements()
 {
    Integer size, index = 0;
-   PropState *ps;
+   GmatState *ps;
    for (std::vector<SpaceObject*>::iterator i = components.begin();
         i != components.end(); ++i)
    {
@@ -967,13 +967,13 @@ void Formation::UpdateElements()
 // void UpdateState()
 //------------------------------------------------------------------------------
 /**
- * Updates the internal PropState data from the member SpaceObjects.
+ * Updates the internal GmatState data from the member SpaceObjects.
  */
 //------------------------------------------------------------------------------
 void Formation::UpdateState()
 {
    Integer size, index = 0;
-   PropState *ps;
+   GmatState *ps;
    
    Real ep0 = 0.0, ep;
    for (std::vector<SpaceObject*>::iterator i = components.begin();

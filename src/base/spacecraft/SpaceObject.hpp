@@ -23,7 +23,7 @@
 
 #include "GmatBase.hpp"
 #include "SpacePoint.hpp"
-#include "PropState.hpp"
+#include "GmatState.hpp"
 #include "SpaceObjectException.hpp"
 
 class GMAT_API SpaceObject : public SpacePoint
@@ -35,7 +35,7 @@ public:
    SpaceObject(const SpaceObject& so);
    SpaceObject&         operator=(const SpaceObject& so);
    
-   virtual PropState&   GetState();
+   virtual GmatState&   GetState();
    virtual Real         GetEpoch();
    virtual Real         SetEpoch(const Real ep);
    virtual bool         IsManeuvering();
@@ -69,7 +69,7 @@ public:
    
 protected:
    /// The spacecraft state
-   PropState         state;
+   GmatState         state;
    /// true when a finite burn needs to be applied to this SpaceObject
    bool              isManeuvering;
    /// Reference SpacePoint for the data

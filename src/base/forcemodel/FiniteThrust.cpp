@@ -41,6 +41,7 @@
 FiniteThrust::FiniteThrust(const std::string &name) :
    PhysicalModel        (Gmat::PHYSICAL_MODEL, "FiniteThrust", name)
 {
+   derivativeIds.push_back(Gmat::CARTESIAN_STATE);
 }
 
 
@@ -326,7 +327,8 @@ bool FiniteThrust::Initialize()
  * @return              true if the call succeeds, false on failure.
  */
 //------------------------------------------------------------------------------
-bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order)
+bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order, 
+      const Integer id)
 {
    #ifdef DEBUG_FINITETHRUST_EXE
       MessageInterface::ShowMessage("FiniteThrust::GetDerivatives entered\n");

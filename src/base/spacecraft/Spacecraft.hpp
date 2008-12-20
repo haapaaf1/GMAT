@@ -23,7 +23,7 @@
 #include <valarray>
 #include "SpaceObject.hpp"
 #include "Rvector6.hpp"
-#include "PropState.hpp"
+#include "GmatState.hpp"
 #include "FuelTank.hpp"
 #include "Thruster.hpp"
 #include "Anomaly.hpp"
@@ -54,7 +54,7 @@ public:
    void                 SetState(const Real s1, const Real s2, const Real s3, 
                                  const Real s4, const Real s5, const Real s6);
    
-   virtual PropState&   GetState();
+   virtual GmatState&   GetState();
    virtual Rvector6     GetState(std::string rep);
    virtual Rvector6     GetState(Integer rep);
    Rvector6             GetCartesianState();
@@ -167,8 +167,9 @@ protected:
       SRP_AREA_ID,
       FUEL_TANK_ID, 
       THRUSTER_ID, 
-      TOTAL_MASS_ID, 
+      TOTAL_MASS_ID,
       ATTITUDE,
+      ORBIT_STM,
       
       // special parameter to handle in GmatFunction
       UTC_GREGORIAN,
@@ -207,7 +208,7 @@ protected:
       EQ_PNY,
       EQ_PNX,
       EQ_MLONG, 
-      EndMultipleReps    
+      EndMultipleReps
    };
    // these are the corresponding strings
    static const std::string MULT_REP_STRINGS[EndMultipleReps - CART_X];
@@ -285,14 +286,17 @@ protected:
    
    // New constructs needed to preserve interfaces
    Rvector6          rvState;
+   
+   bool              initialDisplay;
+   bool              csSet;
+
+   /// The orbit State Transition Matrix
+   Rmatrix           orbitSTM;
 
    // protected methods
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
    
-   bool              initialDisplay;
-   bool              csSet;
-
    virtual void      WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
                         std::stringstream &stream);
                                 
