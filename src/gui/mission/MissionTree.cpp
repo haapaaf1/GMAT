@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 #include "gmatwxdefs.hpp"
 #include "bitmaps/folder.xpm"
-#include "bitmaps/openfolder.xpm"
+#include "bitmaps/OpenFolder.xpm"
 #include "bitmaps/file.xpm"
 #include "bitmaps/propagateevent.xpm"
 #include "bitmaps/target.xpm"
@@ -1011,7 +1011,6 @@ void MissionTree::Append(const wxString &cmdName)
    MissionTreeItemData *currItem = (MissionTreeItemData *)GetItemData(itemId);
    MissionTreeItemData *prevItem = (MissionTreeItemData *)GetItemData(prevId);
    GmatCommand *currCmd = currItem->GetCommand();
-   ////GmatCommand *prevCmd = currCmd;
    GmatCommand *prevCmd = prevItem->GetCommand();
    GmatCommand *cmd = NULL;
    
@@ -1657,40 +1656,31 @@ void MissionTree::AddIcons()
    icons[1] = wxIcon ( target_xpm );
    icons[2] = wxIcon ( folder_xpm );
    icons[3] = wxIcon ( file_xpm );
-   icons[4] = wxIcon ( openfolder_xpm );
-   icons[5] = wxIcon ( openfolder_xpm );
-   icons[6] = wxIcon ( whileloop_xpm );
-   icons[7] = wxIcon ( forloop_xpm );
-   icons[8] = wxIcon ( if_xpm );
-   icons[9] = wxIcon ( scriptevent_xpm );
-   icons[10] = wxIcon ( varyevent_xpm );
-   icons[11] = wxIcon ( achieveevent_xpm );
-   icons[12] = wxIcon ( deltav_xpm );
-   icons[13]= wxIcon ( callfunction_xpm );
-   icons[14]= wxIcon ( nestreturn_xpm );
-   icons[15]= wxIcon ( saveobject_xpm );
-   icons[16]= wxIcon ( equalsign_xpm );
-   icons[17]= wxIcon ( toggle_xpm );
-   icons[18]= wxIcon ( beginfb_xpm );
-   icons[19]= wxIcon ( endfb_xpm );
-   icons[20]= wxIcon ( report_xpm );
-   icons[21]= wxIcon ( stop_xpm );
-
-//   int sizeOrig = icons[0].GetWidth();
+   icons[4] = wxIcon ( OpenFolder_xpm );
+   icons[5] = wxIcon ( whileloop_xpm );
+   icons[6] = wxIcon ( forloop_xpm );
+   icons[7] = wxIcon ( if_xpm );
+   icons[8] = wxIcon ( scriptevent_xpm );
+   icons[9] = wxIcon ( varyevent_xpm );
+   icons[10] = wxIcon ( achieveevent_xpm );
+   icons[11] = wxIcon ( deltav_xpm );
+   icons[12]= wxIcon ( callfunction_xpm );
+   icons[13]= wxIcon ( nestreturn_xpm );
+   icons[14]= wxIcon ( saveobject_xpm );
+   icons[15]= wxIcon ( equalsign_xpm );
+   icons[16]= wxIcon ( toggle_xpm );
+   icons[17]= wxIcon ( beginfb_xpm );
+   icons[18]= wxIcon ( endfb_xpm );
+   icons[19]= wxIcon ( report_xpm );
+   icons[20]= wxIcon ( stop_xpm );
+   
    for ( size_t i = 0; i < WXSIZEOF(icons); i++ )
    {
-          // 30/01/06 - arg - always resize because linux is not showing unscaled
-          // icons correctly
-//      if ( size == sizeOrig )
-//      {
-//         images->Add(icons[i]);
-//      }
-//      else
-//      {
-         images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(size, size)));
-//      }
+      // 30/01/06 - arg - always resize because linux is not showing unscaled
+      // icons correctly
+      images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(size, size)));
    }
-
+   
    AssignImageList(images);
 
 }
@@ -1827,7 +1817,6 @@ void MissionTree::ShowMenu(wxTreeItemId id, const wxPoint& pt)
       menu.Append(POPUP_DELETE, wxT("Delete"));
       #endif
       
-      menu.Append(POPUP_RENAME, wxT("Rename"));
       menu.Enable(POPUP_RENAME, FALSE);
       menu.AppendSeparator();
       menu.Append(POPUP_RUN, wxT("Run"));
@@ -1846,9 +1835,13 @@ void MissionTree::ShowMenu(wxTreeItemId id, const wxPoint& pt)
    }
    else
    {
-      menu.Append(POPUP_OPEN, wxT("Open"));
-      menu.Append(POPUP_CLOSE, wxT("Close"));
-      menu.AppendSeparator();
+      // add to non-EndBranch item
+      if (itemType < GmatTree::BEGIN_NO_PANEL)
+      {
+         menu.Append(POPUP_OPEN, wxT("Open"));
+         menu.Append(POPUP_CLOSE, wxT("Close"));
+         menu.AppendSeparator();
+      }
       
       if (itemType == GmatTree::TARGET)
       {
@@ -1939,10 +1932,9 @@ void MissionTree::ShowMenu(wxTreeItemId id, const wxPoint& pt)
       }
       
       // Delete and Rename applies to all, except End branch
-      if (itemType < GmatTree::END_TARGET)
+      if (itemType < GmatTree::BEGIN_NO_PANEL)
       {
          menu.AppendSeparator();
-         menu.Append(POPUP_RENAME, wxT("Rename"));
          menu.Append(POPUP_DELETE, wxT("Delete"));
       }
       
