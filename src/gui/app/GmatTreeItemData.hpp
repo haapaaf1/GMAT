@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             GmatTreeItemData
 //------------------------------------------------------------------------------
@@ -60,6 +60,7 @@ namespace GmatTree
       ICON_STRING,
       ICON_XY_PLOT,
       
+      ICON_SCRIPT,
       ICON_DEFAULT,
       
       // ICON_COUNT should be the last one, it is used in ResourceTree::AddIcons()
@@ -152,7 +153,7 @@ namespace GmatTree
       IMPULSIVE_BURN = 41200,
       FINITE_BURN,
       
-      UNIVERSE_FOLDER = 41300,
+      SOLAR_SYSTEM = 41300,
       CELESTIAL_BODY,
       BARYCENTER,
       LIBRATION_POINT,

@@ -16,25 +16,27 @@
 #include "GmatToolBar.hpp"
 #include "GmatMenuBar.hpp"        // for namespace GmatMenu
 
-#include "bitmaps/new.xpm"
-#include "bitmaps/open.xpm"
-#include "bitmaps/tool_save.xpm"
+#include "bitmaps/NewScript.xpm"
+#include "bitmaps/OpenScript.xpm"
+#include "bitmaps/NewMission.xpm"
+#include "bitmaps/SaveMission.xpm"
 #include "bitmaps/copy.xpm"
 #include "bitmaps/cut.xpm"
 #include "bitmaps/paste.xpm"
 #include "bitmaps/print.xpm"
-#include "bitmaps/help.xpm"
-#include "bitmaps/play.xpm"
-#include "bitmaps/pause.xpm"
-#include "bitmaps/tool_stop.xpm"
-#include "bitmaps/close.xpm"
-#include "bitmaps/tabclose.xpm"
-#include "bitmaps/script.xpm"
+#include "bitmaps/Help.xpm"
+#include "bitmaps/WebHelp.xpm"
+#include "bitmaps/RunMission.xpm"
+#include "bitmaps/PauseMission.xpm"
+#include "bitmaps/StopMission.xpm"
+#include "bitmaps/CloseAll.xpm"
+#include "bitmaps/CloseOne.xpm"
 #include "bitmaps/build.xpm"
-#include "bitmaps/animation_play.xpm"
-#include "bitmaps/animation_stop.xpm"
-#include "bitmaps/animation_fast.xpm"
-#include "bitmaps/animation_slow.xpm"
+#include "bitmaps/RunAnimation.xpm"
+#include "bitmaps/StopAnimation.xpm"
+#include "bitmaps/FasterAnimation.xpm"
+#include "bitmaps/SlowerAnimation.xpm"
+#include "bitmaps/BlankIcon.xpm"
 
 using namespace GmatMenu;
 
@@ -63,24 +65,25 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    MessageInterface::ShowMessage("GmatToolBar::CreateToolBar() entered\n");
    #endif
    
-   const int NUM_ICONS = 15;
+   const int NUM_ICONS = 16;
    wxBitmap* bitmaps[NUM_ICONS];
    
-   bitmaps[0] = new wxBitmap(new_xpm);
-   bitmaps[1] = new wxBitmap(open_xpm);
-   bitmaps[2] = new wxBitmap(tool_save_xpm);
+   bitmaps[0] = new wxBitmap(NewScript_xpm);
+   bitmaps[1] = new wxBitmap(OpenScript_xpm);
+   bitmaps[2] = new wxBitmap(SaveMission_xpm);
    bitmaps[3] = new wxBitmap(copy_xpm);
    bitmaps[4] = new wxBitmap(cut_xpm);
    bitmaps[5] = new wxBitmap(paste_xpm);
    bitmaps[6] = new wxBitmap(print_xpm);
-   bitmaps[7] = new wxBitmap(help_xpm);
-   bitmaps[8] = new wxBitmap(play_xpm);
-   bitmaps[9] = new wxBitmap(pause_xpm);
-   bitmaps[10] = new wxBitmap(tool_stop_xpm);
-   bitmaps[11] = new wxBitmap(close_xpm);
-   bitmaps[12] = new wxBitmap(tabclose_xpm);
-   bitmaps[13] = new wxBitmap(script_xpm);
+   bitmaps[7] = new wxBitmap(Help_xpm);
+   bitmaps[8] = new wxBitmap(RunMission_xpm);
+   bitmaps[9] = new wxBitmap(PauseMission_xpm);
+   bitmaps[10] = new wxBitmap(StopMission_xpm);
+   bitmaps[11] = new wxBitmap(CloseAll_xpm);
+   bitmaps[12] = new wxBitmap(CloseOne_xpm);
+   bitmaps[13] = new wxBitmap(NewMission_xpm);
    bitmaps[14] = new wxBitmap(build_xpm);
+   bitmaps[15] = new wxBitmap(WebHelp_xpm);
    
    toolBar->SetToolBitmapSize(wxSize(16,15));
    
@@ -121,13 +124,14 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    toolBar->AddSeparator();
    
    // add close window tool
-   toolBar->AddTool(TOOL_CLOSE_CHILDREN, _T("Close"), *bitmaps[11], _T("Close All"));
-   toolBar->AddTool(TOOL_CLOSE_CURRENT, _T("Close this Child"), *bitmaps[12],
-                    _T("Close this Child"));
+   toolBar->AddTool(TOOL_CLOSE_CHILDREN, _T("Close All"), *bitmaps[11], _T("Close All"));
+   toolBar->AddTool(TOOL_CLOSE_CURRENT, _T("Close"), *bitmaps[12],
+                    _T("Close"));
    toolBar->AddSeparator();
    
    // add help tool
    toolBar->AddTool(MENU_HELP_ABOUT, _T("Help"), *bitmaps[7], _T("Help"));
+   toolBar->AddTool(MENU_HELP_ONLINE, _T("Online Help"), *bitmaps[15], _T("Online Help"));
    toolBar->AddSeparator();
    
    // now realize to make tools appear
@@ -170,20 +174,21 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
    #endif
    
    #ifdef __SHOW_GL_OPTION_DIALOG__
-   const int NUM_ICONS = 5;
+   const int NUM_ICONS = 6;
    #else
-   const int NUM_ICONS = 4;
+   const int NUM_ICONS = 5;
    #endif
    
    wxBitmap* bitmaps[NUM_ICONS];
    
-   bitmaps[0] = new wxBitmap(animation_play_xpm);
-   bitmaps[1] = new wxBitmap(animation_stop_xpm);
-   bitmaps[2] = new wxBitmap(animation_fast_xpm);
-   bitmaps[3] = new wxBitmap(animation_slow_xpm);
+   bitmaps[0] = new wxBitmap(RunAnimation_xpm);
+   bitmaps[1] = new wxBitmap(StopAnimation_xpm);
+   bitmaps[2] = new wxBitmap(FasterAnimation_xpm);
+   bitmaps[3] = new wxBitmap(SlowerAnimation_xpm);
+   bitmaps[4] = new wxBitmap(BlankIcon_xpm);
    
    #ifdef __SHOW_GL_OPTION_DIALOG__
-   bitmaps[4] = new wxBitmap(animation_options_xpm);
+   bitmaps[5] = new wxBitmap(animation_options_xpm);
    #endif
    
    // recale to default size of 16x15
@@ -202,8 +207,16 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
    //toolBar->AddTool(TOOL_ANIMATION_PLAY, *bitmaps[0], wxNullBitmap, false, currentX, -1,
    //                 (wxObject*) NULL, "Start Animation");
    
-   toolBar->AddSeparator();
-   toolBar->AddSeparator();
+   //toolBar->AddSeparator();
+   //toolBar->AddSeparator();
+   
+   // use blank icons to put space between icons
+   toolBar->AddTool(TOOL_DO_NOTHING_1, _T(""), *bitmaps[4], _T(""), wxITEM_CHECK);
+   toolBar->AddTool(TOOL_DO_NOTHING_2, _T(""), *bitmaps[4], _T(""), wxITEM_CHECK);
+   toolBar->AddTool(TOOL_DO_NOTHING_3, _T(""), *bitmaps[4], _T(""), wxITEM_CHECK);
+   toolBar->EnableTool(TOOL_DO_NOTHING_1, false);
+   toolBar->EnableTool(TOOL_DO_NOTHING_2, false);
+   toolBar->EnableTool(TOOL_DO_NOTHING_3, false);
    
    toolBar->AddTool(TOOL_ANIMATION_PLAY, _T("AnimationPlay"), *bitmaps[0],
                     _T("Start Animation"), wxITEM_CHECK);

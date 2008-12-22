@@ -16,10 +16,10 @@
  * This class provides the resource tree and event handlers.
  */
 //------------------------------------------------------------------------------
-#include "bitmaps/folder.xpm"
-#include "bitmaps/openfolder.xpm"
+#include "bitmaps/ClosedFolder.xpm"
+#include "bitmaps/OpenFolder.xpm"
 #include "bitmaps/file.xpm"
-#include "bitmaps/groundstation.xpm"
+#include "bitmaps/Groundstation.xpm"
 #include "bitmaps/spacecraft.xpm"
 #include "bitmaps/sun.xpm"
 #include "bitmaps/mercury.xpm"
@@ -47,6 +47,7 @@
 #include "bitmaps/default.xpm"
 #include "bitmaps/tank.xpm"
 #include "bitmaps/thruster.xpm"
+#include "bitmaps/Script.xpm"
 #include "GuiInterpreter.hpp"
 #include "ResourceTree.hpp"
 #include "GmatAppData.hpp"
@@ -568,7 +569,7 @@ void ResourceTree::AddDefaultResources()
    mUniverseItem =
       AppendItem(resource, wxT("Solar System"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Solar System"),
-                                      GmatTree::UNIVERSE_FOLDER));
+                                      GmatTree::SOLAR_SYSTEM));
    
    SetItemImage(mUniverseItem, GmatTree::ICON_OPENFOLDER, 
                 wxTreeItemIcon_Expanded);
@@ -1599,7 +1600,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
                            (itemType == GmatTree::CONSTELLATION_FOLDER) ||
                            (itemType == GmatTree::BURN_FOLDER)          ||
                            (itemType == GmatTree::PROPAGATOR_FOLDER)    ||
-                           (itemType == GmatTree::UNIVERSE_FOLDER)      ||
+                           (itemType == GmatTree::SOLAR_SYSTEM)      ||
                            (itemType == GmatTree::SOLVER_FOLDER)        ||
                            (itemType == GmatTree::SUBSCRIBER_FOLDER)    ||
                            (itemType == GmatTree::INTERFACE_FOLDER)     ||
@@ -1761,10 +1762,10 @@ void ResourceTree::AddIcons()
    int index = 0;
    
    // add icons by the order of enum ResourceIconType
-   icons[index]   = wxIcon ( folder_xpm );
+   icons[index]   = wxIcon ( ClosedFolder_xpm );
    icons[++index] = wxIcon ( file_xpm );
-   icons[++index] = wxIcon ( openfolder_xpm );
-   icons[++index] = wxIcon ( groundstation_xpm );
+   icons[++index] = wxIcon ( OpenFolder_xpm );
+   icons[++index] = wxIcon ( Groundstation_xpm );
    icons[++index] = wxIcon ( spacecraft_xpm );
    icons[++index] = wxIcon ( tank_xpm );
    icons[++index] = wxIcon ( thruster_xpm );
@@ -1791,6 +1792,7 @@ void ResourceTree::AddIcons()
    icons[++index] = wxIcon ( array_xpm );
    icons[++index] = wxIcon ( string_xpm );
    icons[++index] = wxIcon ( xyplot_xpm );
+   icons[++index] = wxIcon ( Script_xpm );
    icons[++index] = wxIcon ( default_xpm );
    
    int sizeOrig = icons[0].GetWidth();
@@ -2651,7 +2653,7 @@ void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
 
                if (item != "function")
                {
-                  AppendItem(newItem, filename, GmatTree::ICON_DEFAULT, -1,
+                  AppendItem(newItem, filename, GmatTree::ICON_SCRIPT, -1,
                              new GmatTreeItemData(filepath, GmatTree::SCRIPT_FILE));
                }
                
@@ -3153,7 +3155,7 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    case GmatTree::OPTIMIZER_FOLDER:
       menu.Append(POPUP_ADD_OPTIMIZER, wxT("Add"), CreatePopupMenu(itemType));
       break;
-   case GmatTree::UNIVERSE_FOLDER:
+   case GmatTree::SOLAR_SYSTEM:
       menu.Append(POPUP_ADD_BODY, wxT("Add Body"));
       menu.Enable(POPUP_ADD_BODY, false);
       break;
@@ -3226,6 +3228,7 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    {
       switch (itemType)
       {
+      case GmatTree::SOLAR_SYSTEM:
       case GmatTree::CELESTIAL_BODY:
       case GmatTree::COORD_SYSTEM:
          menu.Append(POPUP_OPEN, wxT("Open"));

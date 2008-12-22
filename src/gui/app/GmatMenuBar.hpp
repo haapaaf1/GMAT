@@ -85,12 +85,16 @@ namespace GmatMenu
       TOOL_ANIMATION_SLOW,
       TOOL_ANIMATION_OPTIONS,
       
+      TOOL_DO_NOTHING_1 = 15500,
+      TOOL_DO_NOTHING_2,
+      TOOL_DO_NOTHING_3,
+      
       MENU_MATLAB_OPEN = 16000,
       MENU_MATLAB_CLOSE,
       MENU_START_SERVER,
       MENU_STOP_SERVER,
       
-      MENU_HELP_TOPICS,
+      MENU_HELP_TOPICS = 17000,
       MENU_HELP_ONLINE,
       
       // it is important for the id corresponding to the "About" command to have

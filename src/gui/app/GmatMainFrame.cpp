@@ -104,26 +104,6 @@
 #include <wx/utils.h>     // for ::wxLaunchDefaultBrowser()
 #include "ddesetup.hpp"   // for IPC_SERVICE, IPC_TOPIC
 
-// #include "bitmaps/new.xpm"
-// #include "bitmaps/open.xpm"
-// #include "bitmaps/tool_save.xpm"
-// #include "bitmaps/copy.xpm"
-// #include "bitmaps/cut.xpm"
-// #include "bitmaps/paste.xpm"
-// #include "bitmaps/print.xpm"
-// #include "bitmaps/help.xpm"
-// #include "bitmaps/play.xpm"
-// #include "bitmaps/pause.xpm"
-// #include "bitmaps/tool_stop.xpm"
-// #include "bitmaps/close.xpm"
-// #include "bitmaps/tabclose.xpm"
-// #include "bitmaps/script.xpm"
-// #include "bitmaps/build.xpm"
-
-// #include "bitmaps/animation_play.xpm"
-// #include "bitmaps/animation_stop.xpm"
-// #include "bitmaps/animation_fast.xpm"
-// #include "bitmaps/animation_slow.xpm"
 
 // If we want to show GL option dialog from tool bar
 //#define __SHOW_GL_OPTION_DIALOG__
@@ -2031,7 +2011,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::FORMATION:
       sizer->Add(new FormationSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
-   case GmatTree::UNIVERSE_FOLDER:
+   case GmatTree::SOLAR_SYSTEM:
       sizer->Add(new UniversePanel(scrolledWin), 0, wxGROW|wxALL, 0);
       break;
       //case itemType == GmatTree::BODY:

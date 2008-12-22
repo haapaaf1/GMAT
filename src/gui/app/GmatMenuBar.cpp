@@ -132,9 +132,10 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    //-----------------------------------------------------------------
    
    wxMenu *helpMenu = new wxMenu;
-   helpMenu->Append(MENU_HELP_ABOUT, wxT("About"), wxT(""));
    helpMenu->Append(MENU_HELP_ONLINE, wxT("Online Help"), wxT(""));
-   helpMenu->Enable(MENU_HELP_TOPICS, FALSE);
+   helpMenu->Append(MENU_HELP_ABOUT, wxT("About GMAT"), wxT(""));
+   // what is this? commented out (loj: 2008.12.15)
+   ////helpMenu->Enable(MENU_HELP_TOPICS, FALSE);
    this->Append(helpMenu, wxT("Help"));
    
    //-----------------------------------------------------------------
