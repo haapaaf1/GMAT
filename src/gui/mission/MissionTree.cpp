@@ -71,6 +71,7 @@
 //#define DEBUG_FIND_ITEM_PARENT 2
 //#define DEBUG_MISSION_TREE_MENU 1
 //#define DEBUG_MISSION_TREE 1
+//#define DEBUG_ADD_ICONS
 
 //------------------------------
 // event tables for wxWindows
@@ -1644,45 +1645,56 @@ void MissionTree::AddDefaultMissionSeq(wxTreeItemId item)
 //------------------------------------------------------------------------------
 void MissionTree::AddIcons()
 {
-   int size = 16;
-
-   wxImageList *images = new wxImageList ( size, size, true );
-
+   #ifdef DEBUG_ADD_ICONS
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddIcons() entered, GmatTree::MISSION_ICON_COUNT=%d\n",
+       GmatTree::MISSION_ICON_COUNT);
+   #endif
+   
+   int sizeW = 16;
+   int sizeH = 15;
+   
+   wxImageList *images = new wxImageList ( sizeW, sizeH, true );
    wxBusyCursor wait;
-   wxIcon icons[22];
-
+   wxIcon icons[GmatTree::MISSION_ICON_COUNT];
+   int index = 0;
+   
    // Icons should follow the order in GmatTreeItemData::MissionIconType.
-   icons[0] = wxIcon ( propagateevent_xpm );
-   icons[1] = wxIcon ( target_xpm );
-   icons[2] = wxIcon ( folder_xpm );
-   icons[3] = wxIcon ( file_xpm );
-   icons[4] = wxIcon ( OpenFolder_xpm );
-   icons[5] = wxIcon ( whileloop_xpm );
-   icons[6] = wxIcon ( forloop_xpm );
-   icons[7] = wxIcon ( if_xpm );
-   icons[8] = wxIcon ( scriptevent_xpm );
-   icons[9] = wxIcon ( varyevent_xpm );
-   icons[10] = wxIcon ( achieveevent_xpm );
-   icons[11] = wxIcon ( deltav_xpm );
-   icons[12]= wxIcon ( callfunction_xpm );
-   icons[13]= wxIcon ( nestreturn_xpm );
-   icons[14]= wxIcon ( saveobject_xpm );
-   icons[15]= wxIcon ( equalsign_xpm );
-   icons[16]= wxIcon ( toggle_xpm );
-   icons[17]= wxIcon ( beginfb_xpm );
-   icons[18]= wxIcon ( endfb_xpm );
-   icons[19]= wxIcon ( report_xpm );
-   icons[20]= wxIcon ( stop_xpm );
+   icons[index]   = wxIcon ( propagateevent_xpm );
+   icons[++index] = wxIcon ( target_xpm );
+   icons[++index] = wxIcon ( folder_xpm );
+   icons[++index] = wxIcon ( file_xpm );
+   icons[++index] = wxIcon ( OpenFolder_xpm );
+   
+   icons[++index] = wxIcon ( whileloop_xpm );
+   icons[++index] = wxIcon ( forloop_xpm );
+   icons[++index] = wxIcon ( if_xpm );
+   icons[++index] = wxIcon ( scriptevent_xpm );
+   icons[++index] = wxIcon ( varyevent_xpm );
+   
+   icons[++index] = wxIcon ( achieveevent_xpm );
+   icons[++index] = wxIcon ( deltav_xpm );
+   icons[++index] = wxIcon ( callfunction_xpm );
+   icons[++index] = wxIcon ( nestreturn_xpm );
+   icons[++index] = wxIcon ( saveobject_xpm );
+   
+   icons[++index] = wxIcon ( equalsign_xpm );
+   icons[++index] = wxIcon ( toggle_xpm );
+   icons[++index] = wxIcon ( beginfb_xpm );
+   icons[++index] = wxIcon ( endfb_xpm );
+   icons[++index] = wxIcon ( report_xpm );
+   
+   icons[++index] = wxIcon ( stop_xpm );
    
    for ( size_t i = 0; i < WXSIZEOF(icons); i++ )
-   {
-      // 30/01/06 - arg - always resize because linux is not showing unscaled
-      // icons correctly
-      images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(size, size)));
-   }
+      images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(sizeW, sizeH)));
    
    AssignImageList(images);
-
+   
+   #ifdef DEBUG_ADD_ICONS
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddIcons() exiting, %d icons added\n", index + 1);
+   #endif
 }
 
 
