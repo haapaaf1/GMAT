@@ -80,6 +80,7 @@
 //#define DEBUG_COMPARE_REPORT 1
 //#define DEBUG_RUN_SCRIPT_FOLDER 1
 //#define DEBUG_RESOURCE_TREE_UPDATE 1
+//#define DEBUG_ADD_ICONS
 
 #define SOLVER_BEGIN 150
 #define SOLVER_END 200
@@ -1749,15 +1750,16 @@ void ResourceTree::OnEndDrag(wxTreeEvent& event)
 //------------------------------------------------------------------------------
 void ResourceTree::AddIcons()
 {
-   int size = 16;
-   wxImageList *images = new wxImageList ( size, size, true );
-   wxBusyCursor wait;
-   
    #ifdef DEBUG_ADD_ICONS
    MessageInterface::ShowMessage
-      ("ResourceTree::AddIcons() GmatTree::ICON_DEFAULT=%d\n", GmatTree::ICON_DEFAULT);
+      ("ResourceTree::AddIcons() entered, GmatTree::ICON_COUNT=%d\n", GmatTree::ICON_COUNT);
    #endif
    
+   int sizeW = 16;
+   int sizeH = 15;
+   
+   wxImageList *images = new wxImageList ( sizeW, sizeH, true );
+   wxBusyCursor wait;   
    wxIcon icons[GmatTree::ICON_COUNT];
    int index = 0;
    
@@ -1767,45 +1769,50 @@ void ResourceTree::AddIcons()
    icons[++index] = wxIcon ( OpenFolder_xpm );
    icons[++index] = wxIcon ( Groundstation_xpm );
    icons[++index] = wxIcon ( spacecraft_xpm );
+   
    icons[++index] = wxIcon ( tank_xpm );
-   icons[++index] = wxIcon ( thruster_xpm );
+   icons[++index] = wxIcon ( thruster_xpm );   
    icons[++index] = wxIcon ( sun_xpm );
    icons[++index] = wxIcon ( mercury_xpm );
    icons[++index] = wxIcon ( venus_xpm );
+   
    icons[++index] = wxIcon ( earth_xpm );
    icons[++index] = wxIcon ( mars_xpm );
    icons[++index] = wxIcon ( jupiter_xpm );
    icons[++index] = wxIcon ( saturn_xpm );
    icons[++index] = wxIcon ( uranus_xpm );
+   
    icons[++index] = wxIcon ( neptune_xpm );
-   icons[++index] = wxIcon ( pluto_xpm );
+   icons[++index] = wxIcon ( pluto_xpm );   
    icons[++index] = wxIcon ( report_xpm );
    icons[++index] = wxIcon ( network_xpm );
    icons[++index] = wxIcon ( burn_xpm );
-   icons[++index] = wxIcon ( moon_xpm );
+   
+   icons[++index] = wxIcon ( moon_xpm );   
    icons[++index] = wxIcon ( matlabfunction_xpm );
    icons[++index] = wxIcon ( function_xpm );
    icons[++index] = wxIcon ( coordinatesystem_xpm );
    icons[++index] = wxIcon ( openglplot_xpm );
+   
    icons[++index] = wxIcon ( propagator_xpm );
    icons[++index] = wxIcon ( variable_xpm );
    icons[++index] = wxIcon ( array_xpm );
    icons[++index] = wxIcon ( string_xpm );
    icons[++index] = wxIcon ( xyplot_xpm );
+   
    icons[++index] = wxIcon ( Script_xpm );
    icons[++index] = wxIcon ( default_xpm );
-   
-   int sizeOrig = icons[0].GetWidth();
+      
+   // Let's always recale all icons since size of icon look different on different platforms
    for ( size_t i = 0; i < WXSIZEOF(icons); i++ )
-   {
-      if ( size == sizeOrig )
-         images->Add(icons[i]);
-      else
-         images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(size, size)));
-   }
+      images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(sizeW, sizeH)));
    
    AssignImageList(images);
-
+   
+   #ifdef DEBUG_ADD_ICONS
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddIcons() exiting, %d icons added\n", index + 1);
+   #endif
 }
 
 //---------------------------------
