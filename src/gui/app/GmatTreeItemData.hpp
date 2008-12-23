@@ -26,34 +26,36 @@ namespace GmatTree
    // creates icons by the order in ResourceIconType
    enum ResourceIconType
    {
-      ICON_FOLDER,
+      ICON_FOLDER,      
       ICON_FILE,
       ICON_OPENFOLDER,
       ICON_GROUND_STATION,
       ICON_SPACECRAFT,
-      ICON_TANK,
-      ICON_THRUSTER,
       
+      ICON_TANK,      
+      ICON_THRUSTER,      
       ICON_SUN,
       ICON_MERCURY,
       ICON_VENUS,
-      ICON_EARTH,
+      
+      ICON_EARTH,      
       ICON_MARS,
       ICON_JUPITER,
       ICON_SATURN,
       ICON_URANUS,
+      
       ICON_NEPTUNE,
       ICON_PLUTO,
-      
       ICON_REPORT,
       ICON_NETWORK,
       ICON_BURN,
-      ICON_MOON,
       
+      ICON_MOON,      
       ICON_MATLAB_FUNCTION,
       ICON_FUNCTION,
       ICON_COORDINATE_SYSTEM,
       ICON_OPEN_GL_PLOT,
+      
       ICON_PROPAGATOR,
       ICON_VARIABLE,
       ICON_ARRAY,
@@ -73,7 +75,6 @@ namespace GmatTree
    {
       MISSION_ICON_PROPAGATE,
       MISSION_ICON_TARGET,
-      
       MISSION_ICON_FOLDER,
       MISSION_ICON_FILE,
       MISSION_ICON_OPENFOLDER,
@@ -83,21 +84,25 @@ namespace GmatTree
       MISSION_ICON_IF,
       MISSION_ICON_SCRIPTEVENT,
       MISSION_ICON_VARY,
+      
       MISSION_ICON_ACHIEVE,
       MISSION_ICON_DELTA_V,
       MISSION_ICON_FUNCTION,
       MISSION_ICON_NEST_RETURN,
       MISSION_ICON_SAVE,
+      
       MISSION_ICON_ASSIGNMENT,
       MISSION_ICON_TOGGLE,
       MISSION_ICON_BEGIN_FB,
       MISSION_ICON_END_FB,
       MISSION_ICON_REPORT,
+      
       MISSION_ICON_STOP,
       
+      MISSION_ICON_COUNT,
       MISSION_NO_ICON,
    };
-
+   
    //----------------------------------------------------------------------
    // Note: Do not change the order of ItemType. The wrong order of dataType
    // will not work propery in GmatMainFrame::CreateChild()
