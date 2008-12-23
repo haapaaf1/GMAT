@@ -15,6 +15,7 @@
 
 #include "GmatToolBar.hpp"
 #include "GmatMenuBar.hpp"        // for namespace GmatMenu
+#include "MessageInterface.hpp"
 
 #include "bitmaps/NewScript.xpm"
 #include "bitmaps/OpenScript.xpm"
@@ -36,6 +37,8 @@
 #include "bitmaps/StopAnimation.xpm"
 #include "bitmaps/FasterAnimation.xpm"
 #include "bitmaps/SlowerAnimation.xpm"
+
+//#define DEBUG_TOOLBAR
 
 using namespace GmatMenu;
 
@@ -86,6 +89,10 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    
    toolBar->SetToolBitmapSize(wxSize(16,15));
    
+   #ifdef DEBUG_TOOLBAR
+   MessageInterface::ShowMessage("   Rescaling to default size of 16x15\n");
+   #endif
+   
    // recale to default size of 16x15
    for (int i=0; i<NUM_ICONS; i++)
    {
@@ -94,15 +101,24 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
       *bitmaps[i] = wxBitmap(image);
    }
    
-   // add project tools
+   #ifdef DEBUG_TOOLBAR
+   MessageInterface::ShowMessage("   Adding mission tools\n");
+   #endif
+   
+   // add file tools
+   toolBar->AddSeparator();
    toolBar->AddTool(MENU_FILE_NEW_SCRIPT, _T("New Script"), *bitmaps[0], _T("New Script"));
    toolBar->AddTool(MENU_FILE_OPEN_SCRIPT, _T("Open"), *bitmaps[1], _T("Open"));
    toolBar->AddTool(MENU_FILE_SAVE_SCRIPT, _T("Save"), *bitmaps[2], _T("Save"));
    toolBar->AddSeparator();
    
-   toolBar->AddTool(MENU_LOAD_DEFAULT_MISSION, _T("Default"), *bitmaps[13], 
+   toolBar->AddTool(MENU_LOAD_DEFAULT_MISSION, _T("New Mission"), *bitmaps[13], 
                     _T("New Mission"));
    toolBar->AddSeparator();
+   
+   #ifdef DEBUG_TOOLBAR
+   MessageInterface::ShowMessage("   Adding edit tools\n");
+   #endif
    
    // add edit tools
    toolBar->AddTool(MENU_EDIT_COPY, _T("Copy"), *bitmaps[3], _T("Copy"));
@@ -116,17 +132,29 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    toolBar->AddSeparator();
    #endif
    
+   #ifdef DEBUG_TOOLBAR
+   MessageInterface::ShowMessage("   Adding run tools\n");
+   #endif
+   
    // add run tools
    toolBar->AddTool(TOOL_RUN, _T("Run"), *bitmaps[8], _T("Run"));
    toolBar->AddTool(TOOL_PAUSE, _T("Pause"), *bitmaps[9], _T("Pause"));
    toolBar->AddTool(TOOL_STOP, _T("Stop"), *bitmaps[10], _T("Stop"));
    toolBar->AddSeparator();
    
+   #ifdef DEBUG_TOOLBAR
+   MessageInterface::ShowMessage("   Adding window tools\n");
+   #endif
+   
    // add close window tool
    toolBar->AddTool(TOOL_CLOSE_CHILDREN, _T("Close All"), *bitmaps[11], _T("Close All"));
    toolBar->AddTool(TOOL_CLOSE_CURRENT, _T("Close"), *bitmaps[12],
                     _T("Close"));
    toolBar->AddSeparator();
+   
+   #ifdef DEBUG_TOOLBAR
+   MessageInterface::ShowMessage("   Adding help tools\n");
+   #endif
    
    // add help tool
    toolBar->AddTool(MENU_HELP_ABOUT, _T("Help"), *bitmaps[7], _T("Help"));
@@ -218,6 +246,12 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
    
    // now realize to make tools appear
    toolBar->Realize();
+   
+   // disable tools
+   toolBar->EnableTool(TOOL_ANIMATION_PLAY, FALSE);
+   toolBar->EnableTool(TOOL_ANIMATION_STOP, FALSE);
+   toolBar->EnableTool(TOOL_ANIMATION_FAST, FALSE);
+   toolBar->EnableTool(TOOL_ANIMATION_SLOW, FALSE);
    
    for (int i = 0; i < NUM_ICONS; i++)
       delete bitmaps[i];
