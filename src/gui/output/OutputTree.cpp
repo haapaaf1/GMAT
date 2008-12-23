@@ -18,7 +18,7 @@
 //------------------------------------------------------------------------------
 #include "gmatwxdefs.hpp"
 #include "bitmaps/folder.xpm"
-#include "bitmaps/openfolder.xpm"
+#include "bitmaps/OpenFolder.xpm"
 #include "bitmaps/file.xpm"
 #include "bitmaps/report.xpm"
 #include "bitmaps/openglplot.xpm"
@@ -510,7 +510,7 @@ void OutputTree::AddIcons()
 
    icons[0] = wxIcon ( folder_xpm );
    icons[1] = wxIcon ( file_xpm );
-   icons[2] = wxIcon ( openfolder_xpm );
+   icons[2] = wxIcon ( OpenFolder_xpm );
    icons[3] = wxIcon ( report_xpm );
    icons[4] = wxIcon ( openglplot_xpm );
    icons[5] = wxIcon ( xyplot_xpm );

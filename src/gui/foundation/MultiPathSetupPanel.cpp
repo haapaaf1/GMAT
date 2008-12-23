@@ -20,7 +20,7 @@
 
 #include "bitmaps/up.xpm"
 #include "bitmaps/down.xpm"
-#include "bitmaps/open.xpm"
+#include "bitmaps/OpenFolder.xpm"
 
 //#define DEBUG_SETPATH 1
 
@@ -121,7 +121,7 @@ void MultiPathSetupPanel::Create()
    
    wxBitmap upBitmap = wxBitmap(up_xpm);
    wxBitmap downBitmap = wxBitmap(down_xpm);
-   wxBitmap openBitmap = wxBitmap(open_xpm);
+   wxBitmap openBitmap = wxBitmap(OpenFolder_xpm);
    
    //------------------------------------------------------
    // create components

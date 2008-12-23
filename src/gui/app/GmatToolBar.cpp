@@ -36,7 +36,6 @@
 #include "bitmaps/StopAnimation.xpm"
 #include "bitmaps/FasterAnimation.xpm"
 #include "bitmaps/SlowerAnimation.xpm"
-#include "bitmaps/BlankIcon.xpm"
 
 using namespace GmatMenu;
 
@@ -174,9 +173,9 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
    #endif
    
    #ifdef __SHOW_GL_OPTION_DIALOG__
-   const int NUM_ICONS = 6;
-   #else
    const int NUM_ICONS = 5;
+   #else
+   const int NUM_ICONS = 4;
    #endif
    
    wxBitmap* bitmaps[NUM_ICONS];
@@ -185,10 +184,9 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
    bitmaps[1] = new wxBitmap(StopAnimation_xpm);
    bitmaps[2] = new wxBitmap(FasterAnimation_xpm);
    bitmaps[3] = new wxBitmap(SlowerAnimation_xpm);
-   bitmaps[4] = new wxBitmap(BlankIcon_xpm);
    
    #ifdef __SHOW_GL_OPTION_DIALOG__
-   bitmaps[5] = new wxBitmap(animation_options_xpm);
+   bitmaps[4] = new wxBitmap(animation_options_xpm);
    #endif
    
    // recale to default size of 16x15
@@ -199,25 +197,11 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
       *bitmaps[i] = wxBitmap(image);
    }
    
-   // How do I put spacing between tools
-   //toolBar->SetToolSeparation(50); // Why this doesn't set spacing?
-   //toolBar->SetToolPacking(10);    // What will this do?
-   //toolBar->SetMargins(500, 2);
-   //int currentX = 400;
-   //toolBar->AddTool(TOOL_ANIMATION_PLAY, *bitmaps[0], wxNullBitmap, false, currentX, -1,
-   //                 (wxObject*) NULL, "Start Animation");
+   // Add Animation text
+   wxStaticText *aniLabel =
+      new wxStaticText(this, -1, wxT("                Animation"));
    
-   //toolBar->AddSeparator();
-   //toolBar->AddSeparator();
-   
-   // use blank icons to put space between icons
-   toolBar->AddTool(TOOL_DO_NOTHING_1, _T(""), *bitmaps[4], _T(""), wxITEM_CHECK);
-   toolBar->AddTool(TOOL_DO_NOTHING_2, _T(""), *bitmaps[4], _T(""), wxITEM_CHECK);
-   toolBar->AddTool(TOOL_DO_NOTHING_3, _T(""), *bitmaps[4], _T(""), wxITEM_CHECK);
-   toolBar->EnableTool(TOOL_DO_NOTHING_1, false);
-   toolBar->EnableTool(TOOL_DO_NOTHING_2, false);
-   toolBar->EnableTool(TOOL_DO_NOTHING_3, false);
-   
+   toolBar->AddControl(aniLabel);
    toolBar->AddTool(TOOL_ANIMATION_PLAY, _T("AnimationPlay"), *bitmaps[0],
                     _T("Start Animation"), wxITEM_CHECK);
    toolBar->AddTool(TOOL_ANIMATION_STOP, _T("AnimationStop"), *bitmaps[1],
