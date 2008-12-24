@@ -22,6 +22,7 @@
 #include "FileManager.hpp"       // for GetGmatFunctionPath()
 #include "FileUtil.hpp"          // for ParseFileName()
 #include "StringUtil.hpp"        // for Trim()
+#include "CommandUtil.hpp"       // for ClearCommandSeq()
 #include "MessageInterface.hpp"
 
 //#define DEBUG_FUNCTION
@@ -140,18 +141,13 @@ GmatFunction::~GmatFunction()
 {
    #ifdef DEBUG_GMATFUNCTION
    MessageInterface::ShowMessage
-      ("GmatFunction() destructor entered, this=<%p>'%s'\n", this, GetName().c_str());
+      ("GmatFunction() destructor entered, this=<%p> '%s', fcs=<%p>\n", this,
+       GetName().c_str(), fcs);
    #endif
    
-   // delete function sequence (loj: 2008.10.31)
+   // delete function sequence including NoOp (loj: 2008.12.22)
    if (fcs)
-   {
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         (fcs, "fcs", "GmatFunction::~GmatFunction()", "deleting fcs");
-      #endif
-      delete fcs;
-   }
+      GmatCommandUtil::ClearCommandSeq(fcs, false);
    
    #ifdef DEBUG_GMATFUNCTION
    MessageInterface::ShowMessage("GmatFunction() destructor exiting\n");
@@ -499,7 +495,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
       std::string outName = outputNames.at(jj);
       ElementWrapper *outWrapper =
          validator->CreateElementWrapper(outName, false, false);
-      #ifdef DEBUG_MEMORY
+      #ifdef DEBUG_MORE_MEMORY
       MessageInterface::ShowMessage
          ("+++ GmatFunction::Execute() *outWrapper = validator->"
           "CreateElementWrapper(%s), <%p> '%s'\n", outName.c_str(), outWrapper,
