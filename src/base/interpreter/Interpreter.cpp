@@ -124,10 +124,6 @@ Interpreter::Interpreter(SolarSystem *ss, ObjectMap *objMap)
       ("Interpreter::Interpreter() initialized=%d, theModerator=%p, theReadWriter=%p, "
        "theValidator=%p\n", initialized, theModerator, theReadWriter, theValidator);
    #endif
-   
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->SetShowTrace(true);
-   #endif
 }
 
 
@@ -792,12 +788,6 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
          ("Interpreter::CreateObject() type=<%s>, name=<%s> successfully created\n",
           obj->GetTypeName().c_str(), obj->GetName().c_str());
    }
-   #endif
-   
-   #ifdef DEBUG_MEMORY
-   // configured objects are tracked inside the ConfigurationManager
-   if (obj != NULL && !obj->IsOfType(Gmat::PARAMETER) && manage != 1)
-      MemoryTracker::Instance()->Add(obj, obj->GetName(), "Interpreter::CreateObject()");
    #endif
    
    return obj;
@@ -2622,13 +2612,16 @@ Parameter* Interpreter::CreateSystemParameter(const std::string &str)
    #endif
    
    Integer manage = 1;
+   // if in function mode set manage = 2 (loj: 2008.12.16)
    if (inFunctionMode)
-      manage = 0;
+      manage = 2;
    
    bool paramCreated = false;
    Parameter *param = theValidator->CreateSystemParameter(paramCreated, str, manage);
    
    #ifdef DEBUG_CREATE_PARAM
+   MessageInterface::ShowMessage
+      ("   Parameter '%s'%screated\n", str.c_str(), paramCreated ? " " : " NOT ");
    MessageInterface::ShowMessage
       ("Interpreter::CreateSystemParameter() returning <%p><%s>'%s'\n", param,
        (param == NULL) ? "NULL" : param->GetTypeName().c_str(),
