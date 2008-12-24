@@ -123,6 +123,12 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 {
    isFromGui = fromGui;
    
+   // Should we turn this on globally?
+   #ifdef DEBUG_MEMORY
+   //MemoryTracker::Instance()->SetShowTrace(true);
+   MemoryTracker::Instance()->SetShowTrace(false);
+   #endif
+   
    try
    {
       // Read startup file, Set Log file
@@ -171,9 +177,9 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       theFactoryManager->RegisterFactory(new SpacecraftFactory());
       theFactoryManager->RegisterFactory(new StopConditionFactory());
       theFactoryManager->RegisterFactory(new SubscriberFactory());
-
+      
       theFactoryManager->RegisterFactory(new AssetFactory());
-            
+      
       // Create publisher
       
       thePublisher = Publisher::Instance();
@@ -183,24 +189,15 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
          (".....created  (%p)thePublisher...\n", thePublisher);
       #endif
       
-      // Create interpreters
-      
-      // GuiInterpreter has been moved into the GUI code
-//      theGuiInterpreter = GuiInterpreter::Instance();
-      
-//      #if DEBUG_INITIALIZE
-//      MessageInterface::ShowMessage
-//         (".....created  (%p)theGuiInterpreter\n", theGuiInterpreter);
-//      #endif
-      
+      // Create script interpreter
       theScriptInterpreter = ScriptInterpreter::Instance();      
-      
-      LoadPlugins();
       
       #if DEBUG_INITIALIZE
       MessageInterface::ShowMessage
          (".....created  (%p)theScriptInterpreter\n", theScriptInterpreter);
       #endif
+      
+      LoadPlugins();
       
       // Create default SolarSystem
       theDefaultSolarSystem = CreateSolarSystem("DefaultSolarSystem");
@@ -217,34 +214,7 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       ///        ConfigManager by calling CreateSolarSystem().
       ///        Until then, just use solar system name as "SolarSystem"
       
-      // Create SolarSystem in use 
-      #ifndef __DISABLE_SOLAR_SYSTEM_CLONING__
-         #if DEBUG_SOLAR_SYSTEM
-         MessageInterface::ShowMessage
-            ("Moderator creating SolarSystem in use by cloning the default...\n");
-         #endif
-         
-         theSolarSystemInUse = theDefaultSolarSystem->Clone();
-         theSolarSystemInUse->SetName("SolarSystem");
-         
-      #else
-         #if DEBUG_SOLAR_SYSTEM
-         MessageInterface::ShowMessage
-            ("Moderator creating new SolarSystem in use...\n");
-         #endif
-         
-         theSolarSystemInUse = CreateSolarSystem("SolarSystem");
-      #endif
-         
-      #if DEBUG_INITIALIZE
-      MessageInterface::ShowMessage
-         (".....created  (%p)theSolarSystemInUse\n", theSolarSystemInUse);
-      #endif
-      
-      SetSolarSystemInUse(theSolarSystemInUse);
-      
-      // Create internal coordinate system
-      CreateInternalCoordSystem();
+      CreateSolarSystemInUse();
       
       // Create other files in use
       CreatePlanetaryCoeffFile();
@@ -269,7 +239,7 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
           "configuration map <%p>\n", objectMapInUse);
       #endif
       
-      if (fromGui)
+      if (isFromGui)
          CreateDefaultMission();
    }
    catch (BaseException &e)
@@ -362,6 +332,12 @@ void Moderator::Finalize()
          MessageInterface::ShowMessage
             (".....deleting (%p)%s\n", cmd, cmd->GetTypeName().c_str());
          #endif
+         
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (cmd, cmd->GetTypeName(), "Moderator::Finalize()");
+         #endif
+         
          delete cmd;
          cmd = NULL;
          commands[0] = NULL;
@@ -399,6 +375,11 @@ void Moderator::Finalize()
       MessageInterface::ShowMessage
          (".....deleting (%p)theDefaultSolarSystem\n", theDefaultSolarSystem);
       #endif      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (theDefaultSolarSystem, theDefaultSolarSystem->GetName(),
+          "Moderator::Finalize()");
+      #endif
       delete theDefaultSolarSystem;
       theDefaultSolarSystem = NULL;
       
@@ -407,6 +388,11 @@ void Moderator::Finalize()
          #if DEBUG_FINALIZE
          MessageInterface::ShowMessage
             (".....deleting (%p)theSolarSystemInUse\n", theSolarSystemInUse);
+         #endif
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (theSolarSystemInUse, theSolarSystemInUse->GetName(),
+             "Moderator::Finalize()");
          #endif
          delete theSolarSystemInUse;
          theSolarSystemInUse = NULL;
@@ -418,6 +404,11 @@ void Moderator::Finalize()
          #if DEBUG_FINALIZE
          MessageInterface::ShowMessage
             (".....deleting (%p)theInternalCoordSystem\n", theInternalCoordSystem);
+         #endif
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (theInternalCoordSystem, theInternalCoordSystem->GetName(),
+             "Moderator::Finalize()");
          #endif
          delete theInternalCoordSystem;
          theInternalCoordSystem = NULL;
@@ -1248,6 +1239,13 @@ SolarSystem* Moderator::CreateSolarSystem(const std::string &name)
    // Also set to DE405 as a default planetary ephem source
    SolarSystem *ss = new SolarSystem(name);
    
+   #ifdef DEBUG_MEMORY
+   std::string funcName;
+   funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+   MemoryTracker::Instance()->Add
+      (ss, name, "Moderator::CreateSolarSystem()", funcName);
+   #endif
+   
    #if DEBUG_SOLAR_SYSTEM
    MessageInterface::ShowMessage("Moderator::CreateSolarSystem() returning %p\n", ss);
    #endif
@@ -1393,6 +1391,16 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
             ("The Moderator cannot create a CalculatedPoint type \"" + type + "\"\n");
       }
       
+      #ifdef DEBUG_MEMORY
+      if (cp)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (cp, name, "Moderator::CreateCalculatedPoint()", funcName);
+      }
+      #endif
+      
       // add default bodies
       if (type == "LibrationPoint")
       {
@@ -1514,12 +1522,20 @@ CelestialBody* Moderator::CreateCelestialBody(const std::string &type,
    if (GetCelestialBody(name) == NULL)
    {
       CelestialBody *body = theFactoryManager->CreateCelestialBody(type, name);
-    
+      
       if (body == NULL)
-      {
          throw GmatBaseException
             ("The Moderator cannot create a CelestialBody type \"" + type + "\"\n");
+      
+      #ifdef DEBUG_MEMORY
+      if (body)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (body, name, "Moderator::CreateCelestialBody()", funcName);
       }
+      #endif
       
 //      // Manage it if it is a named body
 //      //loj: Do we want to add bodies that are not in the default solar system?
@@ -1595,10 +1611,18 @@ SpaceObject* Moderator::CreateSpacecraft(const std::string &type,
       Spacecraft *sc = (Spacecraft*)(theFactoryManager->CreateSpacecraft(type, name));
       
       if (sc == NULL)
-      {
          throw GmatBaseException
             ("The Moderator cannot create a Spacecraft type \"" + type + "\"\n");
+      
+      #ifdef DEBUG_MEMORY
+      if (sc)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (sc, name, "Moderator::CreateSpacecraft()", funcName);
       }
+      #endif
       
       if (type == "Spacecraft")
       {
@@ -1742,6 +1766,16 @@ SpacePoint* Moderator::CreateSpacePoint(const std::string &type,
             ("The Moderator cannot create a SpacePoint type \"" + type + "\"\n");
       }
       
+      #ifdef DEBUG_MEMORY
+      if (sp)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (sp, name, "Moderator::CreateSpacePoint()", funcName);
+      }
+      #endif
+      
 //      if (type == "Spacecraft")
 //      {
 //         // Set internal and default CoordinateSystem
@@ -1825,6 +1859,16 @@ Hardware* Moderator::CreateHardware(const std::string &type, const std::string &
             ("The Moderator cannot create a Hardware type \"" + type + "\"\n");
       }
       
+      #ifdef DEBUG_MEMORY
+      if (hw)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (hw, name, "Moderator::CreateHardware()", funcName);
+      }
+      #endif
+      
       // Manage it if it is a named Hardware
       try
       {
@@ -1894,22 +1938,23 @@ Propagator* Moderator::CreatePropagator(const std::string &type,
        type.c_str(), name.c_str());
    #endif
    
-//    Propagator *prop = theFactoryManager->CreatePropagator(type, name);
-//    #if DEBUG_CREATE_RESOURCE
-//    MessageInterface::ShowMessage
-//       ("Moderator::CreatePropagator() returning new Propagator <%p>\n", prop);
-//    #endif
-//    return prop;
-   
    if (GetPropagator(name) == NULL)
    {
       Propagator *prop = theFactoryManager->CreatePropagator(type, name);
       
       if (prop ==  NULL)
-      {
          throw GmatBaseException
             ("The Moderator cannot create a Propagator type \"" + type + "\"\n");
+      
+      #ifdef DEBUG_MEMORY
+      if (prop)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (prop, name, "Moderator::CreatePropagator()", funcName);
       }
+      #endif
       
       // Manage it if it is a named Propagator
       try
@@ -1983,10 +2028,18 @@ PhysicalModel* Moderator::CreatePhysicalModel(const std::string &type,
          theFactoryManager->CreatePhysicalModel(type, name);
       
       if (physicalModel ==  NULL)
-      {
          throw GmatBaseException
             ("The Moderator cannot create a PhysicalModel type \"" + type + "\"\n");
+      
+      #ifdef DEBUG_MEMORY
+      if (physicalModel)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (physicalModel, name, "Moderator::CreatePhysicalModel()", funcName);
       }
+      #endif
       
       // Manage it if it is a named PhysicalModel
       try
@@ -2066,10 +2119,18 @@ AtmosphereModel* Moderator::CreateAtmosphereModel(const std::string &type,
          theFactoryManager->CreateAtmosphereModel(type, name, body);
       
       if (atmosphereModel ==  NULL)
-      {
          throw GmatBaseException
             ("The Moderator cannot create an AtmosphereModel type \"" + type + "\"\n");
+      
+      #ifdef DEBUG_MEMORY
+      if (atmosphereModel)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (atmosphereModel, name, "Moderator::CreateAtmosphereModel()", funcName);
       }
+      #endif
       
       // Manage it if it is a named AtmosphereModel
       try
@@ -2145,6 +2206,16 @@ Burn* Moderator::CreateBurn(const std::string &type,
       if (burn ==  NULL)
          throw GmatBaseException
             ("The Moderator cannot create Burn type \"" + type + "\"\n");
+      
+      #ifdef DEBUG_MEMORY
+      if (burn)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (burn, name, "Moderator::CreateBurn()", funcName);
+      }
+      #endif
       
       // Set default Axes to VNB
       burn->SetStringParameter(burn->GetParameterID("Axes"), "VNB");
@@ -2275,7 +2346,7 @@ Parameter* Moderator::CreateParameter(const std::string &type,
    Parameter *param = GetParameter(name);
    #if DEBUG_CREATE_PARAMETER
    MessageInterface::ShowMessage
-      ("   cfg param = <%p><%s>\n", param, param ? param->GetName().c_str() : "NULL");
+      ("   configured param = <%p> '%s'\n", param, param ? param->GetName().c_str() : "NULL");
    #endif
    
    // if Parameter was created during GmatFunction parsing, just set reference object
@@ -2292,12 +2363,30 @@ Parameter* Moderator::CreateParameter(const std::string &type,
       
       // set Parameter reference object
       SetParameterRefObject(param, type, name, ownerName, depName, manage);
+      
+      // if Parameter is managed in the function object map, add it (loj: 2008.12.16)
+      // so that we won't create multiple Parameters. FindObject() finds object from
+      // objectMapInUse which can be object map from configuration or passed function
+      // object map
+      if (manage == 2)
+         AddObject(param);
+      
       return param;
    }
    
    
-   // Ceate Parameter
+   // Ceate new Parameter
    param = theFactoryManager->CreateParameter(type, name);
+   
+   #ifdef DEBUG_MEMORY
+   if (param)
+   {
+      std::string funcName;
+      funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (param, name, "Moderator::CreateParameter()", funcName);
+   }
+   #endif
    
    #if DEBUG_CREATE_PARAMETER
    MessageInterface::ShowMessage
@@ -2416,6 +2505,16 @@ ODEModel* Moderator::CreateODEModel(const std::string &type,
          throw GmatBaseException
             ("The Moderator cannot create ODEModel named \"" + name + "\"\n");
       }
+      
+      #ifdef DEBUG_MEMORY
+      if (fm)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (fm, name, "Moderator::CreateParameter()", funcName);
+      }
+      #endif
       
       // Create default force model of PointMassForce if name is blank or
       // InternalForceModel. (loj: 2008.11.06)
@@ -2565,6 +2664,16 @@ Solver* Moderator::CreateSolver(const std::string &type, const std::string &name
             ("The Moderator cannot create Solver type \"" + type + "\"\n");
       }
       
+      #ifdef DEBUG_MEMORY
+      if (solver)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (solver, name, "Moderator::CreateParameter()", funcName);
+      }
+      #endif
+      
       // Manage it if it is a named solver
       try
       {
@@ -2628,6 +2737,13 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    // create default force model with Earth primary body with JGM2
    ODEModel *fm= CreateODEModel("ForceModel", name + "_ForceModel");
    GravityField *gravForce = new GravityField("", "Earth");
+   #ifdef DEBUG_MEMORY
+   std::string funcName;
+   funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+   MemoryTracker::Instance()->Add
+      (gravForce, gravForce->GetName(),
+       "Moderator::CreateDefaultPropSetup(), *gravForce = new GravityField", funcName);
+   #endif
    gravForce->SetName("Earth");
    gravForce->SetSolarSystem(theSolarSystemInUse);
    gravForce->SetBody("Earth");
@@ -2671,6 +2787,16 @@ PropSetup* Moderator::CreatePropSetup(const std::string &name)
              "PropSetupFactory.\n");
          return NULL;
       }
+      
+      #ifdef DEBUG_MEMORY
+      if (propSetup)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (propSetup, name, "Moderator::CreatePropSetup()", funcName);
+      }
+      #endif
       
       // PropSetup creates default Integrator(RungeKutta89)
       // and default ODEModel (PointMassForce body=Earth)
@@ -2784,6 +2910,16 @@ CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
          //throw GmatBaseException
          //   ("The Moderator cannot create a CoordinateSystem type \"" + type + "\"\n");
       }
+      
+      #ifdef DEBUG_MEMORY
+      if (cs)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (cs, name, "Moderator::CreateCoordinateSystem()", funcName);
+      }
+      #endif
       
       // Manage it if it is a named CoordinateSystem
       try
@@ -2908,6 +3044,16 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
          //   ("The Moderator cannot create a Subscriber type\"" + type + "\"\n");
       }
       
+      #ifdef DEBUG_MEMORY
+      if (sub)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (sub, name, "Moderator::CreateSubscriber()", funcName);
+      }
+      #endif
+      
       try
       {
          if (sub->GetName() != "")
@@ -3028,6 +3174,16 @@ Function* Moderator::CreateFunction(const std::string &type,
          //   ("The Moderator cannot create a Function type \"" + type + "\"\n");
       }
       
+      #ifdef DEBUG_MEMORY
+      if (function)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (function, name, "Moderator::CreateFunction()", funcName);
+      }
+      #endif
+      
       // Manage it if it is a named function
       try
       {
@@ -3098,6 +3254,16 @@ StopCondition* Moderator::CreateStopCondition(const std::string &type,
          ("The Moderator cannot create StopCondition type \"" + type + "\"\n");
    }
    
+   #ifdef DEBUG_MEMORY
+   if (stopCond)
+   {
+      std::string funcName;
+      funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (stopCond, name, "Moderator::CreateStopCondition()", funcName);
+   }
+   #endif
+   
    return stopCond;
 }
 
@@ -3141,6 +3307,16 @@ AxisSystem* Moderator::CreateAxisSystem(const std::string &type,
       //throw GmatBaseException
       //   ("The Moderator cannot create AxisSystem type \"" + type + "\"\n");
    }
+   
+   #ifdef DEBUG_MEMORY
+   if (axisSystem)
+   {
+      std::string funcName;
+      funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (axisSystem, name, "Moderator::CreateAxisSystem()", funcName);
+   }
+   #endif
    
    // set origin and j2000body
    axisSystem->SetOrigin((SpacePoint*)FindObject(axisSystem->GetOriginName()));
@@ -3193,6 +3369,16 @@ MathNode* Moderator::CreateMathNode(const std::string &type,
          ("The Moderator cannot create MathNode type \"" + type + "\"\n");
    }
    
+   #ifdef DEBUG_MEMORY
+   if (mathNode)
+   {
+      std::string funcName;
+      funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (mathNode, name, "Moderator::CreateMathNode()", funcName);
+   }
+   #endif
+   
    return mathNode;
 }
 
@@ -3227,7 +3413,17 @@ Attitude* Moderator::CreateAttitude(const std::string &type,
       
       return NULL;
    }
-
+   
+   #ifdef DEBUG_MEMORY
+   if (att)
+   {
+      std::string funcName;
+      funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (att, name, "Moderator::CreateAttitude()", funcName);
+   }
+   #endif
+   
    return att;
 }
 
@@ -3289,6 +3485,8 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
       ("Moderator::InterpretGmatFunction() function=<%p>, objMap=<%p>\n",
        funct, objMap);
    #endif
+
+   currentFunction = funct;
    
    // If input objMap is NULL, use configured objects
    // use input object map otherwise   
@@ -3342,6 +3540,9 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    GmatCommand *cmd = NULL;
    cmd = theScriptInterpreter->InterpretGmatFunction(funct);
    
+   // reset current function to NULL
+   currentFunction = NULL;
+   
    #if DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("Moderator::InterpretGmatFunction() returning <%p><%s>\n", cmd,
@@ -3375,6 +3576,16 @@ GmatCommand* Moderator::CreateCommand(const std::string &type,
       throw GmatBaseException
          ("The Moderator cannot create a Command type \"" + type + "\"\n");
    }
+   
+   #ifdef DEBUG_MEMORY
+   if (cmd)
+   {
+      std::string funcName;
+      funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (cmd, type, "Moderator::CreateCommand()", funcName);
+   }
+   #endif
    
    retFlag = true;
    return cmd;
@@ -3410,15 +3621,18 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
    GmatCommand *cmd = theFactoryManager->CreateCommand(type, name);
    
    if (cmd == NULL)
-   {
-      //MessageInterface::PopupMessage
-      //   (Gmat::ERROR_, "Cannot create a Command type: %s.\n"
-      //   "Make sure %s is correct type and registered to Commandactory.\n",
-      //   type.c_str(), type.c_str());
-      
       throw GmatBaseException
          ("The Moderator cannot create a Command type \"" + type + "\"\n");
+   
+   #ifdef DEBUG_MEMORY
+   if (cmd)
+   {
+      std::string funcName;
+      funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (cmd, type, "Moderator::CreateDefaultCommand()", funcName);
    }
+   #endif
    
    Integer id;
    
@@ -3646,6 +3860,16 @@ GmatCommand* Moderator::AppendCommand(const std::string &type,
    
    if (cmd != NULL)
    {
+      #ifdef DEBUG_MEMORY
+      if (cmd)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (cmd, type, "Moderator::AppendCommand()", funcName);
+      }
+      #endif
+      
       retFlag = AppendCommand(cmd, sandboxNum);
    }
    else
@@ -3776,7 +4000,13 @@ GmatCommand* Moderator::DeleteCommand(GmatCommand *cmd, Integer sandboxNum)
       remvCmd = cmd->Remove(current);
       remvCmd->ForceSetNext(NULL);
       if (remvCmd != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (remvCmd, remvCmd->GetTypeName(), "Moderator::DeleteCommand()");
+         #endif
          delete remvCmd;
+      }
       
       current = next;
    }
@@ -3793,6 +4023,10 @@ GmatCommand* Moderator::DeleteCommand(GmatCommand *cmd, Integer sandboxNum)
    
    if (remvCmd != NULL)
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (remvCmd, remvCmd->GetTypeName(), "Moderator::DeleteCommand()");
+      #endif
       delete remvCmd;
       remvCmd = NULL;
    }
@@ -3817,6 +4051,10 @@ GmatCommand* Moderator::DeleteCommand(GmatCommand *cmd, Integer sandboxNum)
    cmd->ForceSetNext(NULL);
    if (cmd != NULL)
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (cmd, cmd->GetTypeName(), "Moderator::DeleteCommand()");
+      #endif
       delete cmd;
       cmd = NULL;
    }
@@ -3830,7 +4068,6 @@ GmatCommand* Moderator::DeleteCommand(GmatCommand *cmd, Integer sandboxNum)
    
    // Just return cmd, it should be deleted by the caller.
    return cmd;
-   
 }
 
 
@@ -4059,6 +4296,12 @@ bool Moderator::ClearResource()
             (".....deleting (%p)theSolarSystemInUse\n", theSolarSystemInUse);
          #endif
          
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (theSolarSystemInUse, theSolarSystemInUse->GetName(),
+             "Moderator::ClearResource()");
+         #endif
+         
          delete theSolarSystemInUse;
          theSolarSystemInUse = NULL;
       }
@@ -4080,7 +4323,7 @@ bool Moderator::ClearCommandSeq(Integer sandboxNum)
    #if DEBUG_SEQUENCE_CLEARING
    MessageInterface::ShowMessage("Moderator::ClearCommandSeq() entered\n");
    #endif
-
+   
    if (commands.empty())
    {
       #if DEBUG_SEQUENCE_CLEARING
@@ -4090,57 +4333,10 @@ bool Moderator::ClearCommandSeq(Integer sandboxNum)
       return true;
    }
    
-   //djc: Maybe set to NULL if you plan to do something completely different from
-   // the way GMAT acts from a script?  I think you want to do this, though:
-   // commands[sandboxNum-1] = NULL;
-   GmatCommand *cmd = commands[sandboxNum-1], *oldcmd;
-   
-   if (cmd == NULL)
-   {
-      #if DEBUG_SEQUENCE_CLEARING
-      MessageInterface::ShowMessage
-         ("Moderator::ClearCommandSeq() exiting, first command is NULL\n");
-      #endif
-      return true;
-   }
-   
-   // Be sure we're in an idle state first
-   #if DEBUG_SEQUENCE_CLEARING
-   MessageInterface::ShowMessage
-      ("   Calling %s->RunComplete\n", cmd->GetTypeName().c_str());
-   #endif
-   
-   cmd->RunComplete();
-   
-   oldcmd = cmd->GetNext();
-   // Set next of cmd to NULL
-   DeleteCommand(cmd);
-   if (oldcmd)
-   {
-      #ifdef DEBUG_SEQUENCE_CLEARING
-         GmatCommand *current = oldcmd;
-         MessageInterface::ShowMessage("\nClearing this command list:\n");
-         while (current)
-         {
-            ShowCommand("   current = ", current);
-            current = current->GetNext();
-         }
-         MessageInterface::ShowMessage("\n");
-      #endif
-      
-      delete oldcmd;
-   }
-   
-   // Leave current NoOp in the sequence
-   // The NoOp will be deleted in the Finalize()
-   //cmd = new NoOp; 
-   
-   //#ifdef DEBUG_SEQUENCE_CLEARING
-   //ShowCommand("   New NoOp created ", cmd);
-   //#endif
-   
-   return true;
+   GmatCommand *cmd = commands[sandboxNum-1];
+   return GmatCommandUtil::ClearCommandSeq(cmd);
 }
+
 
 // sandbox
 //------------------------------------------------------------------------------
@@ -4850,6 +5046,8 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
       theUiInterpreter->SetFunction(NULL); // Added (loj: 2008.07.22)
    }
    
+   currentFunction = NULL;
+   
    #if DEBUG_RUN
    MessageInterface::ShowMessage
       ("Moderator::PrepareNextScriptReading() exiting\n"
@@ -4861,44 +5059,101 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
 //------------------------------------------------------------------------------
 // void CreateSolarSystemInUse()
 //------------------------------------------------------------------------------
+/**
+ * Creates SolarSystem in use by cloning the default SolarSystem if cloning
+ * SolarSystem is enabled, else it just copies value of the default SolarSystem
+ * to SolarSystem in use.  It also creates internal CoordinateSystem in use.
+ */
+//------------------------------------------------------------------------------
 void Moderator::CreateSolarSystemInUse()
 {
+   //-----------------------------------------------------------------
    #ifndef __DISABLE_SOLAR_SYSTEM_CLONING__
-
+   //-----------------------------------------------------------------   
       // delete old SolarSystem in use and create new from default
       if (theSolarSystemInUse != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (theSolarSystemInUse, theSolarSystemInUse->GetName(),
+             "Moderator::CreateSolarSystemInUse()");
+         #endif
          delete theSolarSystemInUse;
-      
+      }
       theSolarSystemInUse = NULL;
+      
+      #if DEBUG_SOLAR_SYSTEM_IN_USE
+      MessageInterface::ShowMessage
+         (".....Setting theSolarSystemInUse to clone of theDefaultSolarSystem...\n");
+      #endif
+      
       theSolarSystemInUse = theDefaultSolarSystem->Clone();
       theSolarSystemInUse->SetName("SolarSystem");
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (theSolarSystemInUse, theSolarSystemInUse->GetName(),
+          "Moderator::CreateSolarSystemInUse()",
+          "theSolarSystemInUse = theDefaultSolarSystem->Clone()");
+      #endif
+      
+      #if DEBUG_SOLAR_SYSTEM_IN_USE
+      MessageInterface::ShowMessage(".....Setting SolarSystemInUse to theInternalSolarSystem...\n");
+      #endif
+      theInternalSolarSystem = theSolarSystemInUse;
       
       // set solar system in use
       SetSolarSystemInUse(theSolarSystemInUse);
       
-      #if DEBUG_INITIALIZE
+      #if DEBUG_SOLAR_SYSTEM_IN_USE
       MessageInterface::ShowMessage
          ("Moderator created solar system in use: %p\n", theSolarSystemInUse);
       #endif
       
-      // delete old theInternalCoordSystem and create new one      
-      #if DEBUG_FINALIZE
-      MessageInterface::ShowMessage
-         (".....deleting (%p)theInternalCoordSystem\n", theInternalCoordSystem);
-      #endif
+//       // delete old theInternalCoordSystem and create new one      
+//       #if DEBUG_SOLAR_SYSTEM_IN_USE
+//       MessageInterface::ShowMessage
+//          (".....deleting (%p)theInternalCoordSystem\n", theInternalCoordSystem);
+//       #endif      
+//       #ifdef DEBUG_MEMORY
+//       MemoryTracker::Instance()->Remove
+//          (theInternalCoordSystem, theInternalCoordSystem->GetName(),
+//           "Moderator::CreateSolarSystemInUse()");
+//       #endif
+//       delete theInternalCoordSystem;
+//       theInternalCoordSystem = NULL;
+//       CreateInternalCoordSystem();
       
-      delete theInternalCoordSystem;
-      theInternalCoordSystem = NULL;
-      CreateInternalCoordSystem();
-      
+   //-----------------------------------------------------------------
    #else
+   //-----------------------------------------------------------------
       theSolarSystemInUse->Copy(theDefaultSolarSystem);
-      #if DEBUG_INITIALIZE
+      #if DEBUG_SOLAR_SYSTEM_IN_USE
       MessageInterface::ShowMessage
          ("Moderator::CreateSolarSystemInUse() theSolarSystemInUse=%p, "
           "theDefaultSolarSystem=%p\n", theSolarSystemInUse,  theDefaultSolarSystem);
       #endif
+   //-----------------------------------------------------------------
    #endif
+   //-----------------------------------------------------------------
+   
+   // delete old theInternalCoordSystem and create new one
+   if (theInternalCoordSystem)
+   {
+      #if DEBUG_SOLAR_SYSTEM_IN_USE
+      MessageInterface::ShowMessage
+         (".....deleting (%p)theInternalCoordSystem\n", theInternalCoordSystem);
+      #endif
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (theInternalCoordSystem, theInternalCoordSystem->GetName(),
+          "Moderator::CreateSolarSystemInUse()");
+      #endif
+      delete theInternalCoordSystem;
+      theInternalCoordSystem = NULL;
+   }
+   
+   CreateInternalCoordSystem();   
 }
 
 
@@ -4936,7 +5191,7 @@ void Moderator::CreateInternalCoordSystem()
 void Moderator::CreateDefaultCoordSystems()
 {
    #if DEBUG_INITIALIZE
-   //MessageInterface::ShowMessage("========================================\n");
+   MessageInterface::ShowMessage("========================================\n");
    MessageInterface::ShowMessage("Moderator creating default coordinate systems...\n");
    #endif
    
@@ -5391,6 +5646,11 @@ void Moderator::CheckParameterType(Parameter *param, const std::string &type,
       {
          std::string paramOwnerType =
             GmatBase::GetObjectTypeString(param->GetOwnerType());
+         
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (param, param->GetName(), "Moderator::CheckParameterType()");
+         #endif
          delete param;
          param = NULL;
          
@@ -5667,7 +5927,17 @@ bool Moderator::AddObject(GmatBase *obj)
        obj, obj->GetTypeName().c_str(), obj->GetName().c_str(), objectMapInUse);
    #endif
    
-   objectMapInUse->insert(std::make_pair(obj->GetName(), obj));
+   // if name not found in the object map, then insert (loj: 2008.12.16)
+   if (objectMapInUse->find(obj->GetName()) == objectMapInUse->end())
+      objectMapInUse->insert(std::make_pair(obj->GetName(), obj));
+   else
+   {
+      #if DEBUG_ADD_OBJECT
+      MessageInterface::ShowMessage
+         ("*** WARNING *** Moderator::AddObject() '%s' is already in the object map, so ignored\n",
+          obj->GetName().c_str());
+      #endif
+   }
    
    #if DEBUG_ADD_OBJECT
    MessageInterface::ShowMessage("Moderator::AddObject() returning true\n");
@@ -6467,14 +6737,10 @@ Moderator::Moderator()
    // found from the current object map. Since we don't always want to use
    // configuration to find object, this objectMapInUse was added. (loj: 2008.05.23)
    objectMapInUse = NULL;
+   currentFunction = NULL;
    
    sandboxes.reserve(Gmat::MAX_SANDBOX);
    commands.reserve(Gmat::MAX_SANDBOX);
-   
-   //loj: moved to Initialize()
-//    // create at least 1 Sandbox and Command
-//    sandboxes.push_back(new Sandbox());
-//    commands.push_back(new NoOp());
 }
 
 

@@ -183,6 +183,10 @@ public:
                               const std::string &depName = "",
                               Integer manage = 1);
    Parameter* GetParameter(const std::string &name);
+   void SetParameterRefObject(Parameter *param, const std::string &type,
+                              const std::string &name,
+                              const std::string &ownerName,
+                              const std::string &depName, Integer manage);
    
    // ODEModel
    ODEModel* CreateODEModel(const std::string &type, const std::string &name);
@@ -337,10 +341,6 @@ private:
    // Parameter reference object setting
    void CheckParameterType(Parameter *param, const std::string &type,
                            const std::string &ownerName);
-   void SetParameterRefObject(Parameter *param, const std::string &type,
-                              const std::string &name,
-                              const std::string &ownerName,
-                              const std::string &depName, Integer manage);
    
    // object map
    GmatBase* FindObject(const std::string &name);
@@ -397,6 +397,7 @@ private:
    std::vector<GmatCommand*> commands;
    
    ObjectMap *objectMapInUse;
+   Function *currentFunction;
    
    static Moderator *instance;
    static ScriptInterpreter *theUiInterpreter;
