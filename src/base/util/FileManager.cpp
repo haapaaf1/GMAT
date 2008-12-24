@@ -167,7 +167,9 @@ std::string FileManager::GetCurrentPath()
 {
    std::string currPath;
    
-#ifndef _MSC_VER  // if not Microsoft Visual C++
+#ifdef _MSC_VER  // if Microsoft Visual C++
+   currPath = ".";
+#else
    char buffer[GmatFile::MAX_PATH_LEN];
    getcwd(buffer, GmatFile::MAX_PATH_LEN);
    currPath = buffer;
