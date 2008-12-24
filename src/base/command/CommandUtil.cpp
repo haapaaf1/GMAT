@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 CommandUtil
 //------------------------------------------------------------------------------
@@ -20,22 +20,37 @@
 #include "CommandUtil.hpp"
 #include "MessageInterface.hpp"
 
-//#define DEBUG_MATCHING_END 1
-//#define DEBUG_GET_PARENT 1
-//#define DEBUG_COMMAND_SEQ_STRING 1
-//#define DEBUG_COMMAND_FIND_OBJECT 1
+//#define DEBUG_MATCHING_END
+//#define DEBUG_GET_PARENT
+//#define DEBUG_COMMAND_SEQ_STRING
+//#define DEBUG_COMMAND_FIND_OBJECT
+//#define DEBUG_COMMAND_DELETE
+//#define DEBUG_SEQUENCE_CLEARING
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //------------------------------------------------------------------------------
 // GmatCommand* GetLastCommand(GmatCommand *cmd)
 //------------------------------------------------------------------------------
+/*
+ * Returns last command in the command sequence
+ *
+ * @param  cmd  Command which search begins from
+ */
+//------------------------------------------------------------------------------
 GmatCommand* GmatCommandUtil::GetLastCommand(GmatCommand *cmd)
 {
-   //GmatCommand *prevCmd = NULL;
    GmatCommand *prevCmd = cmd;
    
    while (cmd != NULL)
    {
-      #if DEBUG_GET_LAST
+      #ifdef DEBUG_GET_LAST
       ShowCommand("===> GmatCommandUtil::GetLastCommand() cmd = ", cmd);
       #endif
       
@@ -50,113 +65,11 @@ GmatCommand* GmatCommandUtil::GetLastCommand(GmatCommand *cmd)
 
 
 //------------------------------------------------------------------------------
-// GmatCommand* GetParentCommand(GmatCommand *top, GmatCommand *cmd)
-//------------------------------------------------------------------------------
-GmatCommand* GmatCommandUtil::GetParentCommand(GmatCommand *top, GmatCommand *cmd)
-{
-   #if DEBUG_GET_PARENT
-   ShowCommand
-      ("===> GmatCommandUtil::GetParentCommand() top = ", top, ", cmd = ", cmd);
-   #endif
-   
-   GmatCommand *current = top;
-   GmatCommand *parent = NULL;
-   
-   while (current != NULL)
-   {
-      #if DEBUG_GET_PARENT
-      ShowCommand("     current = ", current);
-      #endif
-      
-      if (current == cmd)
-      {
-         parent = top;
-         break;
-      }
-      
-      if ((current->GetChildCommand(0)) != NULL)
-      {
-         parent = GetSubParent(current, cmd);
-         
-         #if DEBUG_GET_PARENT
-         ShowCommand("     parent = ", current);
-         #endif
-         
-         if (parent != NULL)
-            break;
-      }
-      
-      current = current->GetNext();
-   }
-   
-   #if DEBUG_GET_PARENT
-   ShowCommand("===> GmatCommandUtil::GetParentCommand() returning ", parent);
-   #endif
-   
-   return parent;
-}
-
-
-//------------------------------------------------------------------------------
-// GmatCommand* GetSubParent(GmatCommand *brCmd, GmatCommand *cmd)
-//------------------------------------------------------------------------------
-GmatCommand* GmatCommandUtil::GetSubParent(GmatCommand *brCmd, GmatCommand *cmd)
-{
-   #if DEBUG_GET_PARENT
-   ShowCommand
-      ("     GmatCommandUtil::GetSubParent() brCmd = ", brCmd, ", cmd = ", cmd);
-   #endif
-   
-   GmatCommand *current = brCmd;
-   GmatCommand *child;
-   GmatCommand *subParent = NULL;
-   Integer childNo = 0;
-   
-   while((child = current->GetChildCommand(childNo)) != NULL)
-   {
-      while ((child != NULL) && (child != current))
-      {
-         if (child == cmd)
-         {
-            #if DEBUG_GET_PARENT
-            ShowCommand
-               ("     GmatCommandUtil::GetSubParent() returning ", current);
-            #endif
-            return current;
-         }
-         
-         if (child->GetChildCommand() != NULL)
-            subParent = GetSubParent(child, cmd);
-         
-         if (subParent != NULL)
-            return subParent;
-         
-         child = child->GetNext();
-         
-         #if DEBUG_GET_PARENT
-         ShowCommand
-            ("     GmatCommandUtil::GetSubParent() child = ", child);
-         #endif
-      }
-      
-      ++childNo;
-   }
-   
-   #if DEBUG_GET_PARENT
-   MessageInterface::ShowMessage
-      ("     GmatCommandUtil::GetSubParent() returning NULL\n");
-   #endif
-   
-   return NULL;
-}
-
-
-//------------------------------------------------------------------------------
 // GmatCommand* GetNextCommand(GmatCommand *cmd)
 //------------------------------------------------------------------------------
 /*
- * Returns next non-ScriptEvent command. If command is BeginScript, it will
- * return next command of matching EndScrpt.
+ * Returns next non-ScriptEvent command in the sequence. If command is BeginScript,
+ * it will return next command of matching EndScrpt.
  *
  * @param  cmd  Command which search begins from
  * @return next non-ScriptEvent command
@@ -210,7 +123,7 @@ GmatCommand* GmatCommandUtil::GetPreviousCommand(GmatCommand *from,
          
          while (child != NULL)
          {
-            #if DEBUG_PREV_COMMAND
+            #ifdef DEBUG_PREV_COMMAND
             ShowCommand("   child = ", child);
             #endif
             
@@ -248,7 +161,7 @@ GmatCommand* GmatCommandUtil::GetMatchingEnd(GmatCommand *cmd)
    if (cmd == NULL)
       return NULL;
    
-   #if DEBUG_MATCHING_END
+   #ifdef DEBUG_MATCHING_END
    ShowCommand
       ("===> GmatCommandUtil::GetMatchingEnd() cmd = ", cmd);
    #endif
@@ -270,7 +183,7 @@ GmatCommand* GmatCommandUtil::GetMatchingEnd(GmatCommand *cmd)
          if (current->GetTypeName() == "EndScript")
             scriptEventCount--;
 
-         #if DEBUG_MATCHING_END
+         #ifdef DEBUG_MATCHING_END
          MessageInterface::ShowMessage
             ("     scriptEventCount=%d, current=(%p)%s\n", scriptEventCount, current,
              current->GetTypeName().c_str());
@@ -282,7 +195,7 @@ GmatCommand* GmatCommandUtil::GetMatchingEnd(GmatCommand *cmd)
          current = current->GetNext();
       }
       
-      #if DEBUG_MATCHING_END
+      #ifdef DEBUG_MATCHING_END
       ShowCommand("===> GmatCommandUtil::GetMatchingEnd() returning ", current);
       #endif
    
@@ -300,7 +213,7 @@ GmatCommand* GmatCommandUtil::GetMatchingEnd(GmatCommand *cmd)
          
          while (child != NULL)
          {
-            #if DEBUG_MATCHING_END
+            #ifdef DEBUG_MATCHING_END
             ShowCommand("   child = ", child);
             #endif
             
@@ -327,12 +240,367 @@ GmatCommand* GmatCommandUtil::GetMatchingEnd(GmatCommand *cmd)
             break;
       }
       
-      #if DEBUG_MATCHING_END
+      #ifdef DEBUG_MATCHING_END
       ShowCommand("===> GmatCommandUtil::GetMatchingEnd() returning ", child);
       #endif
       
       return child;
    }
+}
+
+
+//------------------------------------------------------------------------------
+// GmatCommand* GetParentCommand(GmatCommand *top, GmatCommand *cmd)
+//------------------------------------------------------------------------------
+GmatCommand* GmatCommandUtil::GetParentCommand(GmatCommand *top, GmatCommand *cmd)
+{
+   #ifdef DEBUG_GET_PARENT
+   ShowCommand
+      ("===> GmatCommandUtil::GetParentCommand() top = ", top, ", cmd = ", cmd);
+   #endif
+   
+   GmatCommand *current = top;
+   GmatCommand *parent = NULL;
+   
+   while (current != NULL)
+   {
+      #ifdef DEBUG_GET_PARENT
+      ShowCommand("     current = ", current);
+      #endif
+      
+      if (current == cmd)
+      {
+         parent = top;
+         break;
+      }
+      
+      if ((current->GetChildCommand(0)) != NULL)
+      {
+         parent = GetSubParent(current, cmd);
+         
+         #ifdef DEBUG_GET_PARENT
+         ShowCommand("     parent = ", current);
+         #endif
+         
+         if (parent != NULL)
+            break;
+      }
+      
+      current = current->GetNext();
+   }
+   
+   #ifdef DEBUG_GET_PARENT
+   ShowCommand("===> GmatCommandUtil::GetParentCommand() returning ", parent);
+   #endif
+   
+   return parent;
+}
+
+
+//------------------------------------------------------------------------------
+// GmatCommand* GetSubParent(GmatCommand *brCmd, GmatCommand *cmd)
+//------------------------------------------------------------------------------
+GmatCommand* GmatCommandUtil::GetSubParent(GmatCommand *brCmd, GmatCommand *cmd)
+{
+   #ifdef DEBUG_GET_PARENT
+   ShowCommand
+      ("     GmatCommandUtil::GetSubParent() brCmd = ", brCmd, ", cmd = ", cmd);
+   #endif
+   
+   GmatCommand *current = brCmd;
+   GmatCommand *child;
+   GmatCommand *subParent = NULL;
+   Integer childNo = 0;
+   
+   while((child = current->GetChildCommand(childNo)) != NULL)
+   {
+      while ((child != NULL) && (child != current))
+      {
+         if (child == cmd)
+         {
+            #ifdef DEBUG_GET_PARENT
+            ShowCommand
+               ("     GmatCommandUtil::GetSubParent() returning ", current);
+            #endif
+            return current;
+         }
+         
+         if (child->GetChildCommand() != NULL)
+            subParent = GetSubParent(child, cmd);
+         
+         if (subParent != NULL)
+            return subParent;
+         
+         child = child->GetNext();
+         
+         #ifdef DEBUG_GET_PARENT
+         ShowCommand
+            ("     GmatCommandUtil::GetSubParent() child = ", child);
+         #endif
+      }
+      
+      ++childNo;
+   }
+   
+   #ifdef DEBUG_GET_PARENT
+   MessageInterface::ShowMessage
+      ("     GmatCommandUtil::GetSubParent() returning NULL\n");
+   #endif
+   
+   return NULL;
+}
+
+
+//------------------------------------------------------------------------------
+// GmatCommand* RemoveCommand(GmatCommand *cmd)
+//------------------------------------------------------------------------------
+/*
+ * Removes a command from the command sequence. The caller has to delete the command.
+ *
+ * If deleting branch command,
+ * it will remove and delete all children from the branch. If deleting ScriptEvent,
+ * it will remove and delete all commands including EndScrpt between BeginScrint
+ * and EndScript.
+ *
+ * @param  cmd  Command which search begins from
+ * @return removed command
+ */
+//------------------------------------------------------------------------------
+GmatCommand* GmatCommandUtil::RemoveCommand(GmatCommand *seq, GmatCommand *cmd)
+{
+   #ifdef DEBUG_COMMAND_DELETE
+   ShowCommand("==========> CommandUtil::RemoveCommand() removing ", cmd,
+               " from ", seq);
+   #endif
+   
+   if (cmd == NULL)
+      return NULL;
+   
+   GmatCommand *remvCmd;
+   if (cmd->GetTypeName() != "BeginScript")
+   {
+      GmatCommand *remvCmd = seq->Remove(cmd);
+      
+      #ifdef DEBUG_COMMAND_DELETE
+      ShowCommand("   Removed = ", remvCmd);
+      #endif
+      
+      #ifdef DEBUG_COMMAND_DELETE
+      ShowCommand("==========> CommandUtil::RemoveCommand() Returning ", remvCmd);
+      #endif
+      
+      return remvCmd;
+   }
+   
+   //-------------------------------------------------------
+   // Remove commands inside Begin/EndScript block
+   //-------------------------------------------------------
+
+   // Check for previous command, it should not be NULL,
+   // since "NoOp" is the first command
+   
+   GmatCommand *prevCmd = cmd->GetPrevious();
+   if (prevCmd == NULL)
+   {
+      MessageInterface::PopupMessage
+         (Gmat::ERROR_, "CommandUtil::RemoveCommand() *** INTERNAL ERROR *** \n"
+          "The previous command cannot be NULL.\n");
+      return NULL;
+   }
+   
+   ////GmatCommand *first = GetFirstCommand();
+   GmatCommand *first = seq;
+   
+   #ifdef DEBUG_COMMAND_DELETE
+   std::string cmdString1 = GmatCommandUtil::GetCommandSeqString(first);
+   MessageInterface::ShowMessage("     ==> Current sequence:");
+   MessageInterface::ShowMessage(cmdString1);
+   #endif
+   
+   GmatCommand *current = cmd->GetNext();
+   
+   #ifdef DEBUG_COMMAND_DELETE
+   GmatCommand *nextCmd = GmatCommandUtil::GetNextCommand(cmd);
+   ShowCommand("     prevCmd = ", prevCmd, " nextCmd = ", nextCmd);
+   #endif
+   
+   // Get matching EndScript for BeginScript
+   GmatCommand *endScript = GmatCommandUtil::GetMatchingEnd(cmd);
+   
+   #ifdef DEBUG_COMMAND_DELETE
+   ShowCommand("     endScript = ", endScript);
+   #endif
+   
+   GmatCommand* next;
+   while (current != NULL)
+   {
+      #ifdef DEBUG_COMMAND_DELETE
+      ShowCommand("     current = ", current);
+      #endif
+      
+      if (current == endScript)
+         break;
+      
+      next = current->GetNext();
+      
+      #ifdef DEBUG_COMMAND_DELETE
+      ShowCommand("     removing and deleting ", current);
+      #endif
+      
+      remvCmd = cmd->Remove(current);
+      remvCmd->ForceSetNext(NULL);
+      if (remvCmd != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (remvCmd, remvCmd->GetTypeName(), "CommandUtil::RemoveCommand()");
+         #endif
+         delete remvCmd;
+      }
+      
+      current = next;
+   }
+   
+   //-------------------------------------------------------
+   // Remove and delete EndScript
+   //-------------------------------------------------------
+   #ifdef DEBUG_COMMAND_DELETE
+   ShowCommand("     removing and deleting ", current);
+   #endif
+   
+   remvCmd = cmd->Remove(current);
+   remvCmd->ForceSetNext(NULL);
+   
+   if (remvCmd != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (remvCmd, remvCmd->GetTypeName(), "CommandUtil::RemoveCommand()");
+      #endif
+      delete remvCmd;
+      remvCmd = NULL;
+   }
+   
+   next = cmd->GetNext();
+   
+   #ifdef DEBUG_COMMAND_DELETE
+   ShowCommand("     next    = ", next, " nextCmd = ", nextCmd);
+   #endif
+   
+   //-------------------------------------------------------
+   // Remove and delete BeginScript
+   //-------------------------------------------------------
+   #ifdef DEBUG_COMMAND_DELETE
+   ShowCommand("     removing and deleting ", cmd);
+   #endif
+   
+   // Remove BeginScript
+   remvCmd = first->Remove(cmd);
+   
+   // Set next command NULL
+   cmd->ForceSetNext(NULL);
+   if (cmd != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (cmd, cmd->GetTypeName(), "CommandUtil::RemoveCommand()");
+      #endif
+      delete cmd;
+      cmd = NULL;
+   }
+   
+   #ifdef DEBUG_COMMAND_DELETE
+   std::string cmdString2 = GmatCommandUtil::GetCommandSeqString(first);
+   MessageInterface::ShowMessage("     ==> sequence after delete:");
+   MessageInterface::ShowMessage(cmdString2);
+   ShowCommand("==========> CommandUtil::RemoveCommand() Returning cmd = ", cmd);
+   #endif
+   
+   // Just return cmd, it should be deleted by the caller.
+   return cmd;
+}
+
+
+//------------------------------------------------------------------------------
+// bool ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd)
+//------------------------------------------------------------------------------
+/*
+ * Deletes whole command sequence.
+ *
+ * @param  seq  First command of the command sequence
+ * @param  leaveFirstCmd  Set this flag to true if the first command should be
+ *                        left undeleted (true)
+ */
+//------------------------------------------------------------------------------
+bool GmatCommandUtil::ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd)
+{
+   #ifdef DEBUG_SEQUENCE_CLEARING
+   MessageInterface::ShowMessage("CommandUtil::ClearCommandSeq() entered\n");
+   #endif
+   
+   GmatCommand *cmd = seq, *removedCmd = NULL;
+   
+   if (cmd == NULL)
+   {
+      #ifdef DEBUG_SEQUENCE_CLEARING
+      MessageInterface::ShowMessage
+         ("CommandUtil::ClearCommandSeq() exiting, first command is NULL\n");
+      #endif
+      return true;
+   }
+   
+   #ifdef DEBUG_SEQUENCE_CLEARING
+   GmatCommand *current = cmd;
+   MessageInterface::ShowMessage("\nClearing this command list:\n");
+   while (current)
+   {
+      ShowCommand("   ", current);
+      current = current->GetNext();
+   }
+   MessageInterface::ShowMessage("\n");
+   #endif
+   
+   cmd = cmd->GetNext();
+   while (cmd)
+   {
+      // Be sure we're in an idle state first
+      #ifdef DEBUG_SEQUENCE_CLEARING
+      MessageInterface::ShowMessage
+         ("   Calling %s->RunComplete\n", cmd->GetTypeName().c_str());
+      #endif
+      
+      cmd->RunComplete();      
+      removedCmd = RemoveCommand(seq, cmd);
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (removedCmd, removedCmd->GetTypeName(), "CommandUtil::ClearCommandSeq()");
+      #endif
+      delete removedCmd;
+      removedCmd = NULL;
+      cmd = seq->GetNext();
+   }
+   
+   // if first command is to be delete
+   if (!leaveFirstCmd)
+   {
+      #ifdef DEBUG_SEQUENCE_CLEARING
+      MessageInterface::ShowMessage("   seq=<%p>\n", seq);
+      #endif
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (seq, seq->GetTypeName(), "CommandUtil::ClearCommandSeq()");
+      #endif
+      delete seq;
+      seq = NULL;
+   }
+   
+   #ifdef DEBUG_SEQUENCE_CLEARING
+   MessageInterface::ShowMessage("CommandUtil::ClearCommandSeq() returning true\n");
+   #endif
+   
+   return true;
 }
 
 
@@ -390,7 +658,7 @@ bool GmatCommandUtil::FindObject(GmatCommand *cmd, Gmat::ObjectType objType,
    GmatCommand *current = cmd;
    std::string cmdstr = cmd->GetTypeName();
    
-   #if DEBUG_COMMAND_FIND_OBJECT
+   #ifdef DEBUG_COMMAND_FIND_OBJECT
    MessageInterface::ShowMessage
       ("===> GmatCommandUtil::FindObject() cmd=(%p)%s\n", cmd, cmdstr.c_str(),
        objName.c_str());
@@ -401,7 +669,7 @@ bool GmatCommandUtil::FindObject(GmatCommand *cmd, Gmat::ObjectType objType,
    {
       cmdstr = "--- " + current->GetTypeName() + "\n";
       
-      #if DEBUG_COMMAND_FIND_OBJECT
+      #ifdef DEBUG_COMMAND_FIND_OBJECT
       MessageInterface::ShowMessage(cmdstr);
       #endif
       
@@ -411,7 +679,7 @@ bool GmatCommandUtil::FindObject(GmatCommand *cmd, Gmat::ObjectType objType,
          
          for (UnsignedInt i=0; i<names.size(); i++)
          {
-            #if DEBUG_COMMAND_FIND_OBJECT
+            #ifdef DEBUG_COMMAND_FIND_OBJECT
             MessageInterface::ShowMessage("names[%d]=%s\n", i, names[i].c_str());
             #endif
             
@@ -476,7 +744,7 @@ bool GmatCommandUtil::FindObjectFromSubCommands(GmatCommand *brCmd, Integer leve
       
       while ((nextInBranch != NULL) && (nextInBranch != current))
       {         
-         #if DEBUG_COMMAND_FIND_OBJECT
+         #ifdef DEBUG_COMMAND_FIND_OBJECT
          for (int i=0; i<=level; i++)
             cmdstr = "---" + cmdstr;         
          cmdstr = "--- " + nextInBranch->GetTypeName() + "\n";        
@@ -489,7 +757,7 @@ bool GmatCommandUtil::FindObjectFromSubCommands(GmatCommand *brCmd, Integer leve
             
             for (UnsignedInt i=0; i<names.size(); i++)
             {
-               #if DEBUG_COMMAND_FIND_OBJECT
+               #ifdef DEBUG_COMMAND_FIND_OBJECT
                MessageInterface::ShowMessage("names[%d]=%s\n", i, names[i].c_str());
                #endif
                
@@ -542,7 +810,7 @@ std::string GmatCommandUtil::GetCommandSeqString(GmatCommand *cmd, bool showAddr
    cmdseq.append(cmdstr);
    buf[0] = '\0';
    
-   #if DEBUG_COMMAND_SEQ_STRING
+   #ifdef DEBUG_COMMAND_SEQ_STRING
    MessageInterface::ShowMessage
       ("===> GmatCommandUtil::GetCommandSeqString(%p)\n", cmd);
    MessageInterface::ShowMessage("%s", cmdstr.c_str());
@@ -568,7 +836,7 @@ std::string GmatCommandUtil::GetCommandSeqString(GmatCommand *cmd, bool showAddr
       cmdstr = "--- " + std::string(buf) + current->GetTypeName() + genStr + "\n";
       cmdseq.append(cmdstr);
       
-      #if DEBUG_COMMAND_SEQ_STRING
+      #ifdef DEBUG_COMMAND_SEQ_STRING
       MessageInterface::ShowMessage("%s", cmdstr.c_str());
       #endif
       
@@ -610,7 +878,7 @@ void GmatCommandUtil::GetSubCommandString(GmatCommand* brCmd, Integer level,
          {
             cmdseq.append("---");
             
-            #if DEBUG_COMMAND_SEQ_STRING
+            #ifdef DEBUG_COMMAND_SEQ_STRING
             MessageInterface::ShowMessage("---");
             #endif
          }
@@ -629,7 +897,7 @@ void GmatCommandUtil::GetSubCommandString(GmatCommand* brCmd, Integer level,
          cmdstr = "--- " + std::string(buf) + nextInBranch->GetTypeName() + genStr + "\n";
          cmdseq.append(cmdstr);
          
-         #if DEBUG_COMMAND_SEQ_STRING
+         #ifdef DEBUG_COMMAND_SEQ_STRING
          MessageInterface::ShowMessage("%s", cmdstr.c_str());
          #endif
          

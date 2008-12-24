@@ -30,6 +30,8 @@ namespace GmatCommandUtil
    GmatCommand* GetMatchingEnd(GmatCommand *cmd);
    GmatCommand* GetParentCommand(GmatCommand *top, GmatCommand *cmd);
    GmatCommand* GetSubParent(GmatCommand *brCmd, GmatCommand *cmd);
+   GmatCommand* RemoveCommand(GmatCommand *seq, GmatCommand *cmd);
+   bool ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd = true);
    bool IsAfter(GmatCommand *cmd1, GmatCommand *cmd2);
    bool FindObject(GmatCommand *cmd, Gmat::ObjectType objType,
                    const std::string &objName, std::string &cmdName);
