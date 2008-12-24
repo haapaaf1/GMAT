@@ -43,10 +43,10 @@
 //#define DEBUG_VALIDATE_COMMAND
 //#define DEBUG_CHECK_OBJECT
 //#define DEBUG_CREATE_PARAM
+//#define DEBUG_AUTO_PARAM
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_FUNCTION
 //#define DEBUG_SOLAR_SYSTEM
-//#define DEBUG_AUTO_PARAM
 //#define DEBUG_FIND_OBJECT
 //#define DEBUG_COORD_SYS_PROP
 //#define DEBUG_PROP_SETUP_PROP
@@ -330,7 +330,8 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    callCount++;      
    clock_t t1 = clock();
    MessageInterface::ShowMessage
-      ("=== Validator::ValidateCommand() entered, '%s' Count = %d\n",
+      ("=== Validator::ValidateCommand() entered, <%s> '%s' Count = %d\n",
+       cmd->GetTypeName().c_str(),
        cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str(), callCount);
    #endif
    
@@ -1561,7 +1562,8 @@ Parameter* Validator::CreateSystemParameter(bool &paramCreated,
          {
             #ifdef DEBUG_AUTO_PARAM
             MessageInterface::ShowMessage
-               ("   Adding '%s' to function automatic object array\n", param->GetName().c_str());
+               ("   Adding <%p><%s> '%s' to function's automatic object map\n",
+                param, param->GetTypeName().c_str(), param->GetName().c_str());
             #endif
             
             theFunction->AddAutomaticObject(param->GetName(),(GmatBase*)param);
@@ -1604,7 +1606,10 @@ Parameter* Validator::CreateSystemParameter(bool &paramCreated,
 //                            Integer manage = 1)
 //------------------------------------------------------------------------------
 /**
- * Calls the Moderator to create a Parameter.
+ * Calls the Moderator to create a Parameter. If object is not managed this
+ * method does not check for existing Parameter before creating one since
+ * Moderator::CreateParameter() sets Parameter reference objects if Parameter
+ * was created without reference during GmatFunction parsing.
  * 
  * @param  type       Type of parameter requested
  * @param  name       Name for the parameter.
@@ -1638,21 +1643,9 @@ Parameter* Validator::CreateParameter(const std::string &type,
    else
       param = theModerator->CreateParameter(type, name, ownerName, depName, manage);
    
-   #ifdef DEBUG_MEMORY
-   // configured objects are tracked inside the ConfigurationManager
-   //if (param && manage != 1)
-   if (param && manage == 0)
-   {
-      std::string funcName;
-      funcName = theFunction ? "function: " + theFunction->GetName() : "";
-      MemoryTracker::Instance()->Add
-         (param, name, "Validator::CreateParameter()", funcName);
-   }
-   #endif
-   
    #ifdef DEBUG_CREATE_PARAM
    MessageInterface::ShowMessage
-      ("Validator::CreateParameter() returning <%p><%s>'%s'\n", param,
+      ("Validator::CreateParameter() returning new <%p><%s> '%s'\n", param,
        (param == NULL) ? "NULL" : param->GetTypeName().c_str(),
        (param == NULL) ? "NULL" : param->GetName().c_str());
    #endif

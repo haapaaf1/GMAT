@@ -888,7 +888,7 @@ void Sandbox::Clear()
    }
    #endif
    
-   #ifdef DEBUG_MEMORY
+   #ifdef DEBUG_MORE_MEMORY
    MessageInterface::ShowMessage
       ("--- Sandbox::Clear() deleting %d objects\n", objectMap.size());
    #endif
@@ -950,7 +950,7 @@ void Sandbox::Clear()
       }
    }
    
-   #ifdef DEBUG_MEMORY
+   #ifdef DEBUG_MORE_MEMORY
    MessageInterface::ShowMessage
       ("--- Sandbox::Clear() deleting done\n");
    #endif

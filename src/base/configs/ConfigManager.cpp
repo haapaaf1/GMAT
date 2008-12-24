@@ -547,9 +547,10 @@ void ConfigManager::AddObject(GmatBase *obj)
 {
    std::string name = obj->GetName();
    
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Add
-      (obj, name, "ConfigManager::AddObject()", obj->GetTypeName());
+   #ifdef DEBUG_CONFIG_ADD
+   MessageInterface::ShowMessage
+      ("ConfigManager::AddObject() adding <%p><%s> '%s'\n", obj,
+       obj->GetTypeName().c_str(), name.c_str());
    #endif
    
    if (mapping.find(name) != mapping.end())

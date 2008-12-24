@@ -77,10 +77,6 @@ Assignment::Assignment  () :
 {
    objectTypeNames.push_back("GMAT");
    objectTypeNames.push_back("Assignment");
-   
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->SetShowTrace(true);
-   #endif
 }
 
 

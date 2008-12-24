@@ -23,6 +23,7 @@
 #include "MessageInterface.hpp"
 #include "CallFunction.hpp"
 #include "Assignment.hpp"
+#include "CommandUtil.hpp"      // for GetCommandSeqString()
 #include <sstream>              // for stringstream
 
 //#define DEBUG_BRANCHCOMMAND_DEALLOCATION
@@ -89,9 +90,12 @@ BranchCommand::~BranchCommand()
       MessageInterface::ShowMessage
          ("In BranchCommand::~BranchCommand() this=<%p> '%s'\n", this,
           this->GetTypeName().c_str());
+      MessageInterface::ShowMessage("branch.size()=%d\n", branch.size());
+      std::string cmdstr = GmatCommandUtil::GetCommandSeqString(this);
+      MessageInterface::ShowMessage("%s\n", cmdstr.c_str());
    #endif
    std::vector<GmatCommand*>::iterator node;
-   GmatCommand* current;
+   GmatCommand *current = NULL;
    
    for (node = branch.begin(); node != branch.end(); ++node)
    {
@@ -100,10 +104,9 @@ BranchCommand::~BranchCommand()
       if (current != NULL)
       {
          #ifdef DEBUG_BRANCHCOMMAND_DEALLOCATION
-            MessageInterface::ShowMessage
-               ("   current=%s\n", current->GetTypeName().c_str());
+         ShowCommand("   ", "current=", current);
          #endif
-            
+         
          // Why I need to add current != current->GetNext() to avoid
          // infinite loop? It used to work!! (loj: 2008.12.02)
          //while (current->GetNext() != this)

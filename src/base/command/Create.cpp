@@ -69,9 +69,6 @@ Create::Create() :
    ManageObject("Create"),
    refObj       (NULL)
 {
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->SetShowTrace(true);
-   #endif
 }
 
 

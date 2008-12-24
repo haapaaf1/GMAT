@@ -45,6 +45,14 @@
 //#define DEBUG_INTERPRET_PREFACE
 //#define DEBUG_CMD_CALLING_FUNCTION
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 //  static members
 //---------------------------------
@@ -147,25 +155,56 @@ GmatCommand::~GmatCommand()
       //    this->GetTypeName().c_str(), nextStr.c_str());
    #endif
       
-   if (this->IsOfType("BranchEnd"))
-      return;
-   
-   // Delete the subsequent GmatCommands
-   if (next) {
-      #ifdef DEBUG_COMMAND_DEALLOCATION
+   // We need to clean up summary data, so removed return if BranchEnd (loj: 2008.12.19)
+   if (!this->IsOfType("BranchEnd"))
+   {      
+      // Delete the subsequent GmatCommands
+      if (next) {
+         #ifdef DEBUG_COMMAND_DEALLOCATION
          MessageInterface::ShowMessage("   Deleting (%p)%s\n", next, 
                                        next->GetTypeName().c_str());
-      #endif
-      delete next;   
+         #endif
+         
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (next, next->GetTypeName(), this->GetTypeName() +
+             "::~GmatCommand() deleting child command");
+         #endif
+         delete next;   
+      }
    }
-
+   
    // Clean up the summary buffers
    if (epochData)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (epochData, "epochData", this->GetTypeName() +
+          "::~GmatCommand() deleting epochData");
+      #endif
       delete [] epochData;
+      epochData = NULL;
+   }
    if (stateData)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (stateData, "stateData", this->GetTypeName() +
+          "::~GmatCommand() deleting stateData");
+      #endif
       delete [] stateData;
+      stateData = NULL;
+   }
    if (parmData)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (parmData, "parmData", this->GetTypeName() +
+          "::~GmatCommand() deleting parmData");
+      #endif
       delete [] parmData;
+      parmData = NULL;
+   }
 }
 
 
@@ -1174,21 +1213,33 @@ bool GmatCommand::Initialize()
    initialized = AssignObjects();
    if (publisher == NULL)
       publisher = Publisher::Instance();
-      
+   
    if (epochData != NULL)
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (epochData, "epochData", this->GetTypeName() + " deleting epochData");
+      #endif
       delete [] epochData;
       epochData = NULL;
    }
    
    if (stateData != NULL)
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (stateData, "stateData", this->GetTypeName() + " deleting stateData");
+      #endif
       delete [] stateData;
       stateData = NULL;
    }
    
    if (parmData != NULL)
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (parmData, "parmData", this->GetTypeName() + " deleting parmData");
+      #endif
       delete [] parmData;
       parmData = NULL;
    }
@@ -1687,9 +1738,6 @@ void GmatCommand::BuildCommandSummary(bool commandCompleted)
                ++satsInMaps;
             }
          }
-         //epochData = new Real[satsInMaps];
-         //stateData = new Real[6*satsInMaps];
-         //parmData = new Real[6*satsInMaps];
       }
       if (globalObjectMap != NULL)
       {
@@ -1725,18 +1773,26 @@ void GmatCommand::BuildCommandSummary(bool commandCompleted)
                ++satsInMaps;
             }
          }
-         //epochData = new Real[satsInMaps];
-         //stateData = new Real[6*satsInMaps];
-         //parmData = new Real[6*satsInMaps];
       }
       if (satsInMaps > 0)
       {
          epochData = new Real[satsInMaps];
          stateData = new Real[6*satsInMaps];
          parmData = new Real[6*satsInMaps];
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (epochData, "epochData", this->GetTypeName() + "::BuildCommandSummary()",
+             "epochData = new Real[satsInMaps]");
+         MemoryTracker::Instance()->Add
+            (stateData, "stateData", this->GetTypeName() + "::BuildCommandSummary()",
+             "stateData = new Real[satsInMaps]");
+         MemoryTracker::Instance()->Add
+            (parmData, "parmData", this->GetTypeName() + "::BuildCommandSummary()",
+             "parmData = new Real[satsInMaps]");
+         #endif
       }
    }
-
+   
    #if DEBUG_BUILD_CMD_SUMMARY
    MessageInterface::ShowMessage
       ("GmatCommand::BuildCommandSummary() Now fill in data...\n   "

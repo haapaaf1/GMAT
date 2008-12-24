@@ -61,10 +61,6 @@ FunctionRunner::FunctionRunner(const std::string &nomme)
    theFunction = NULL;
    callingFunction = NULL;
    internalCS = NULL;
-   
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->SetShowTrace(true);
-   #endif
 }
 
 

@@ -93,10 +93,6 @@ FunctionManager::FunctionManager() :
    #ifdef DEBUG_FUNCTION_MANAGER
    MessageInterface::ShowMessage("FM default constructor entered, this=<%p>\n", this);
    #endif
-
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->SetShowTrace(true);
-   #endif
 }
 
 
@@ -644,7 +640,8 @@ bool FunctionManager::SetPassedInput(Integer index, GmatBase *obj, bool &inputAd
    objFOS->SetName(formalInput);
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
-      (objFOS, formalInput, "FunctionManager::SetPassedInput()", "objFOS = obj->Clone()");
+      (objFOS, formalInput, "FunctionManager::SetPassedInput()",
+       "objFOS = obj->Clone()");
    #endif
    
    functionObjectStore->insert(std::make_pair(formalInput, objFOS));
@@ -1267,7 +1264,7 @@ bool FunctionManager::CreatePassingArgWrappers()
       //validator->SetSolarSystem(solarSys);
       std::string inName = passedIns.at(ii);
       ElementWrapper *inWrapper = validator->CreateElementWrapper(inName, false, false);
-      #ifdef DEBUG_MEMORY
+      #ifdef DEBUG_MORE_MEMORY
       MessageInterface::ShowMessage
          ("+++ FunctionManager::CreatePassingArgWrappers() *inWrapper = validator->"
           "CreateElementWrapper(%s), <%p> '%s'\n", inName.c_str(), inWrapper,
@@ -1307,7 +1304,7 @@ bool FunctionManager::CreatePassingArgWrappers()
          //validator->SetSolarSystem(solarSys);
          std::string outName = passedOuts.at(jj);
          ElementWrapper *outWrapper = validator->CreateElementWrapper(outName);;
-         #ifdef DEBUG_MEMORY
+         #ifdef DEBUG_MORE_MEMORY
          MessageInterface::ShowMessage
             ("+++ FunctionManager::CreatePassingArgWrappers() *outWrapper = validator->"
              "CreateElementWrapper(%s), <%p> '%s'\n", outName.c_str(), outWrapper,
@@ -1639,7 +1636,7 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
       ElementWrapper *ew = validator->CreateElementWrapper(fromString);
       if (ew)
       {
-         #ifdef DEBUG_MEMORY
+         #ifdef DEBUG_MORE_MEMORY
          MessageInterface::ShowMessage
             ("+++ FunctionManager::CreateObject() *ew = validator->"
              "CreateElementWrapper(%s), <%p> '%s'\n", fromString.c_str(), ew,

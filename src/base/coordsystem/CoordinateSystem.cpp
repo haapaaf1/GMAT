@@ -37,6 +37,14 @@
 //#define DEBUG_CS_SET_REF
 //#define DEBUG_TRANSLATION
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+ 
 //---------------------------------
 // static data
 //---------------------------------
@@ -182,7 +190,15 @@ CoordinateSystem::~CoordinateSystem()
    instanceName.c_str());
    #endif
    
-   if (axes) delete axes;
+   if (axes)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (axes, axes->GetTypeName(), "CoordinateSystem::~CoordinateSystem()",
+          "deleting axes");
+      #endif
+      delete axes;
+   }
    axes = NULL;
    #ifdef DEBUG_DESTRUCTION
    MessageInterface::ShowMessage("---> LEAVING CoordinateSystem destructor for %s\n",

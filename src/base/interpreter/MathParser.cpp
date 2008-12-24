@@ -582,10 +582,9 @@ MathNode* MathParser::CreateNode(const std::string &type, const std::string &exp
    if (node == NULL)
       throw MathException("Cannot create MathNode of \"" + actualType + "\"");
    
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Add
-      (node, nodeName, "MathParser::CreateNode()", "node = mod->CreateMathNode(" +
-       actualType + ")");
+   #ifdef DEBUG_MORE_MEMORY
+   MessageInterface::ShowMessage
+      ("MathParser::CreateNode() node <%p><%s> '%s' created\n", node, actualType.c_str());
    #endif
    
    if (actualType == "FunctionRunner")
