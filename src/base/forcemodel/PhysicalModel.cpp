@@ -105,6 +105,7 @@ PhysicalModel::PARAMETER_TEXT[PhysicalModelParamCount - GmatBaseParamCount] =
    "Epoch",
    "ElapsedSeconds",
    "BodyName",
+   "DerivativeID",
 };
 
 const Gmat::ParameterType
@@ -112,8 +113,8 @@ PhysicalModel::PARAMETER_TYPE[PhysicalModelParamCount - GmatBaseParamCount] =
 {
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
-   //Gmat::STRING_TYPE,
    Gmat::OBJECT_TYPE,
+   Gmat::INTEGER_TYPE,
 };
 
 //---------------------------------
@@ -977,7 +978,8 @@ std::string PhysicalModel::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool PhysicalModel::IsParameterReadOnly(const Integer id) const
 {
-   if ((id == EPOCH) || (id == ELAPSED_SECS) || (id == BODY_NAME))
+   if ((id == EPOCH)     || (id == ELAPSED_SECS) || 
+       (id == BODY_NAME) || (id == DERIVATIVE_ID))
       return true;
 
    return GmatBase::IsParameterReadOnly(id);
@@ -989,7 +991,7 @@ bool PhysicalModel::IsParameterReadOnly(const Integer id) const
 /**
  * Checks to see if the requested parameter is read only.
  *
- * @param <label> Text label for the parameter.
+ * @param label Text label for the parameter.
  *
  * @return true if the parameter is read only, false (the default) if not,
  *         throws if the parameter is out of the valid range of values.
@@ -999,7 +1001,8 @@ bool PhysicalModel::IsParameterReadOnly(const std::string &label) const
 {
    if ((label == PARAMETER_TEXT[EPOCH - GmatBaseParamCount]) || 
        (label == PARAMETER_TEXT[ELAPSED_SECS - GmatBaseParamCount]) || 
-       (label == PARAMETER_TEXT[BODY_NAME - GmatBaseParamCount]))
+       (label == PARAMETER_TEXT[BODY_NAME - GmatBaseParamCount]) ||
+       (label == PARAMETER_TEXT[DERIVATIVE_ID - GmatBaseParamCount]))
       return true;
 
    return GmatBase::IsParameterReadOnly(label);

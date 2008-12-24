@@ -47,9 +47,10 @@
 // **************************************************************************
 
 #include "ODEModel.hpp"
-#include "PointMassForce.hpp"
 #include "MessageInterface.hpp"
-#include "Formation.hpp"      // for BuildState()
+
+//#include "PointMassForce.hpp"
+//#include "Formation.hpp"      // for BuildState()
 
 #include <string.h> 
 
@@ -134,17 +135,19 @@ std::map<std::string, std::string> ODEModel::scriptAliases;
 //------------------------------------------------------------------------------
 /**
  * The constructor
+ * 
+ * @param modelName  Scripted name for the model
+ * @param typeName   Type of model being built
  */
 //------------------------------------------------------------------------------
-ODEModel::ODEModel(const std::string &nomme, const std::string typeNomme) :
-   PhysicalModel     (Gmat::ODE_MODEL, typeNomme, nomme),
-   previousState     (NULL),
-   estimationMethod  (ESTIMATE_LOCALLY),
+ODEModel::ODEModel(const std::string &modelName, const std::string typeName) :
+   PhysicalModel     (Gmat::ODE_MODEL, typeName, modelName),
+//   previousState     (NULL),
+   estimationMethod  (ESTIMATE_STEP),     // Should this be removed?
    normType          (L2_DIFFERENCES),
    parametersSetOnce (false),
    centralBodyName   ("Earth"),
    forceMembersNotInitialized (true),
-   modelEpochId      (-1),
    j2kBodyName       ("Earth"),
    j2kBody           (NULL),
    earthEq           (NULL),
@@ -170,26 +173,26 @@ ODEModel::ODEModel(const std::string &nomme, const std::string typeNomme) :
 //------------------------------------------------------------------------------
 /**
  * The destructor
- * The destructor deletes the list of PhysicalModel instances.
+ * 
+ * The destructor frees the memory used by the owned PhysicalModel instances.
  */
 //------------------------------------------------------------------------------
 ODEModel::~ODEModel()
 {
    #ifdef DEBUG_ODEMODEL
-   MessageInterface::ShowMessage
-      ("ODEModel destructor entered, this=<%p>'%s', has %d forces\n",
-       this, GetName().c_str(), forceList.size());
+      MessageInterface::ShowMessage
+         ("ODEModel destructor entered, this=<%p>'%s', has %d forces\n",
+          this, GetName().c_str(), forceList.size());
    #endif
    
-   if (previousState)
-      delete [] previousState;
-//   if (rawState)
-//      delete [] rawState;   
+//   if (previousState)
+//      delete [] previousState;
    
    // Delete the owned forces
    std::vector<PhysicalModel *>::iterator ppm = forceList.begin();
    PhysicalModel *pm;
-   while (ppm != forceList.end()) {
+   while (ppm != forceList.end()) 
+   {
       pm = *ppm;
       forceList.erase(ppm);
       // Transient forces are managed in the Sandbox.
@@ -197,8 +200,9 @@ ODEModel::~ODEModel()
       {
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
-            (pm, pm->GetName(), "ODEModel::~ODEModel()",
-             "deleting non-transient force of " + pm->GetTypeName());
+            (pm, pm->GetName(), "ODEModel::~ODEModel() ",
+             "deleting non-transient \"" + pm->GetTypeName() + 
+             "\" PhysicalModel");
          #endif
          delete pm;
       }
@@ -213,7 +217,7 @@ ODEModel::~ODEModel()
    #endif
       
    #ifdef DEBUG_ODEMODEL
-   MessageInterface::ShowMessage("ODEModel destructor exiting\n");
+      MessageInterface::ShowMessage("ODEModel destructor exiting\n");
    #endif
 }
 
@@ -222,24 +226,22 @@ ODEModel::~ODEModel()
 //------------------------------------------------------------------------------
 /**
  * Copy constructor
- *
- * NOTE: The ODEModel copy constructor is not yet implemented.  This
- * method should be completed before the class is used in external code.
+ * 
+ * Copies the ODEModel along with all of the owned PhysicalModels in the model.
+ * This code depends on the copy constructors in the owned models; errors in
+ * those pieces will impact the owned models in this code.
  *
  * @param fdf   The original of the ODEModel that is copied
- * 
- * @todo Check the PhysicalModel copy constructors and assignment operators.
  */
 //------------------------------------------------------------------------------
 ODEModel::ODEModel(const ODEModel& fdf) :
    PhysicalModel              (fdf),
-   previousState              (fdf.previousState),
+//   previousState              (fdf.previousState),
    estimationMethod           (fdf.estimationMethod),
    normType                   (fdf.normType),
    parametersSetOnce          (false),
    centralBodyName            (fdf.centralBodyName),
    forceMembersNotInitialized (true),
-   modelEpochId               (-1),
    j2kBodyName                (fdf.j2kBodyName),
    /// @note: Since the next three are global objects or reset by the Sandbox, 
    ///assignment works
@@ -259,13 +261,13 @@ ODEModel::ODEModel(const ODEModel& fdf) :
    dimension           = fdf.dimension;
    currentForce        = fdf.currentForce;
    forceTypeNames      = fdf.forceTypeNames;
-   previousTime        = fdf.previousTime;
+//   previousTime        = fdf.previousTime;
    transientForceNames = fdf.transientForceNames;
    forceReferenceNames = fdf.forceReferenceNames;
    
    parameterCount = ODEModelParamCount;
    
-   spacecraft.clear();
+//   spacecraft.clear();
    forceList.clear();
    InternalCoordinateSystems.clear();
    
@@ -315,14 +317,14 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    dimension           = fdf.dimension;
    currentForce        = fdf.currentForce;
    forceTypeNames      = fdf.forceTypeNames;
-   previousTime        = fdf.previousTime;
-   previousState       = fdf.previousState;
+//   previousTime        = fdf.previousTime;
+//   previousState       = fdf.previousState;
    estimationMethod    = fdf.estimationMethod;
    normType            = fdf.normType;
    transientForceNames = fdf.transientForceNames;
    forceReferenceNames = fdf.forceReferenceNames;
    parametersSetOnce   = false;
-   modelEpochId        = -1;
+//   modelEpochId        = -1;
    
    parameterCount      = ODEModelParamCount;
    centralBodyName     = fdf.centralBodyName;
@@ -335,7 +337,7 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    earthFixed          = fdf.earthFixed; 
    forceMembersNotInitialized = fdf.forceMembersNotInitialized;
    
-   spacecraft.clear();
+//   spacecraft.clear();
    forceList.clear();
    InternalCoordinateSystems.clear();
    
@@ -355,441 +357,443 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    return *this;
 }
 
-//------------------------------------------------------------------------------
-// void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
-//------------------------------------------------------------------------------
-/**
- * Method used to add a new force to the force model
- *
- * This method takes the pointer to the new force and adds it to the force model
- * list for later use.  Each force should supply either first derivative 
- * information for elements 4 through 6 of a state vector and zeros for the 
- * first three elements, or second derivative information in elements 1 through 
- * 3 and zeroes in 4 through 6 for second order integrators.  The forces should 
- * have the ability to act on state vectors for formations as well, by filling 
- * in elements (6*n+4) through (6*n+6) for larger state vectors.  Some forces 
- * also affect the mass properties of the spacecraft; these elements are updated 
- * using a TBD data structure.
- * 
- * The force that is passed in is owned by this class, and should not be 
- * destructed externally.  In addition, every force that is passed to this class 
- * needs to have a copy constructor and an assignment operator so that it can be 
- * cloned for distribution to multiple sandboxes.
- * 
- * @param pPhysicalModel        The force that is being added to the force model
- * 
- * @todo Document the mass depletion approach.
- */
-//------------------------------------------------------------------------------
-void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
-{
-   if (pPhysicalModel == NULL)
-      throw ODEModelException("Attempting to add a NULL force to " +
-         instanceName);
+////------------------------------------------------------------------------------
+//// void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
+////------------------------------------------------------------------------------
+///**
+// * Method used to add a new force to the force model
+// *
+// * This method takes the pointer to the new force and adds it to the force model
+// * list for later use.  Each force should supply either first derivative 
+// * information for elements 4 through 6 of a state vector and zeros for the 
+// * first three elements, or second derivative information in elements 1 through 
+// * 3 and zeroes in 4 through 6 for second order integrators.  The forces should 
+// * have the ability to act on state vectors for formations as well, by filling 
+// * in elements (6*n+4) through (6*n+6) for larger state vectors.  Some forces 
+// * also affect the mass properties of the spacecraft; these elements are updated 
+// * using a TBD data structure.
+// * 
+// * The force that is passed in is owned by this class, and should not be 
+// * destructed externally.  In addition, every force that is passed to this class 
+// * needs to have a copy constructor and an assignment operator so that it can be 
+// * cloned for distribution to multiple sandboxes.
+// * 
+// * @param pPhysicalModel        The force that is being added to the force model
+// * 
+// * @todo Document the mass depletion approach.
+// */
+////------------------------------------------------------------------------------
+//void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
+//{
+//   if (pPhysicalModel == NULL)
+//      throw ODEModelException("Attempting to add a NULL force to " +
+//         instanceName);
+//
+//   #ifdef DEBUG_ODEMODEL_INIT
+//      MessageInterface::ShowMessage(
+//         "ODEModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
+//         pPhysicalModel->GetTypeName().c_str());
+//   #endif       
+//    
+//   pPhysicalModel->SetDimension(dimension);
+//   initialized = false;
+//    
+//   // Handle the name issues
+//   std::string pmType = pPhysicalModel->GetTypeName();
+//   if (pmType == "DragForce")
+//      pPhysicalModel->SetName("Drag");
+//
+//   std::string forceBody = pPhysicalModel->GetBodyName();
+//
+//   // Trap multiple instances
+//   if ((pmType == "GravityField") || (pmType == "PointMassForce"))
+//   {
+//      std::string compType;
+//      
+//      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
+//           i != forceList.end(); ++i)
+//      {
+//         compType = (*i)->GetTypeName();
+//         if ((compType == "GravityField"))
+//         {
+//            if ((*i)->GetBodyName() == forceBody && (*i) != pPhysicalModel)
+//               throw ODEModelException(
+//                  "Attempted to add a " + pmType + 
+//                  " force to the force model for the body " + forceBody +
+//                  ", but there is already a " + compType + 
+//                  " force in place for that body.");
+//         }
+//      }      
+//   }
+//   
+//   // Check to be sure there is an associated PrimaryBody for drag forces
+//   if (pmType == "DragForce")
+//   {
+//      bool hasGravityField = false;
+//      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
+//           i != forceList.end(); ++i)
+//      {
+//         if ((*i)->GetTypeName() == "GravityField")
+//         {
+//            if ((*i)->GetBodyName() == forceBody)
+//               hasGravityField = true;
+//         }
+//      }
+//      if (hasGravityField == false)
+//         throw ODEModelException(
+//            "Attempted to add a drag force for the body " + forceBody +
+//            ", but that body is not set as a primary body, so it does not " +
+//            "support additional forces.");
+//   }
+//   
+//   forceList.push_back(pPhysicalModel);
+//   numForces = forceList.size();
+//}
 
-   #ifdef DEBUG_ODEMODEL_INIT
-      MessageInterface::ShowMessage(
-         "ODEModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
-         pPhysicalModel->GetTypeName().c_str());
-   #endif       
-    
-   pPhysicalModel->SetDimension(dimension);
-   initialized = false;
-    
-   // Handle the name issues
-   std::string pmType = pPhysicalModel->GetTypeName();
-   if (pmType == "DragForce")
-      pPhysicalModel->SetName("Drag");
-
-   std::string forceBody = pPhysicalModel->GetBodyName();
-
-   // Trap multiple instances
-   if ((pmType == "GravityField") || (pmType == "PointMassForce"))
-   {
-      std::string compType;
-      
-      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
-           i != forceList.end(); ++i)
-      {
-         compType = (*i)->GetTypeName();
-         if ((compType == "GravityField"))
-         {
-            if ((*i)->GetBodyName() == forceBody && (*i) != pPhysicalModel)
-               throw ODEModelException(
-                  "Attempted to add a " + pmType + 
-                  " force to the force model for the body " + forceBody +
-                  ", but there is already a " + compType + 
-                  " force in place for that body.");
-         }
-      }      
-   }
-   
-   // Check to be sure there is an associated PrimaryBody for drag forces
-   if (pmType == "DragForce")
-   {
-      bool hasGravityField = false;
-      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
-           i != forceList.end(); ++i)
-      {
-         if ((*i)->GetTypeName() == "GravityField")
-         {
-            if ((*i)->GetBodyName() == forceBody)
-               hasGravityField = true;
-         }
-      }
-      if (hasGravityField == false)
-         throw ODEModelException(
-            "Attempted to add a drag force for the body " + forceBody +
-            ", but that body is not set as a primary body, so it does not " +
-            "support additional forces.");
-   }
-   
-   forceList.push_back(pPhysicalModel);
-   numForces = forceList.size();
-}
-
-//------------------------------------------------------------------------------
-// void DeleteForce(const std::string &name)
-//------------------------------------------------------------------------------
-/**
- * Deletes named force from the force model.
- * 
- * @param name The name of the force to delete
- */
-//------------------------------------------------------------------------------
-void ODEModel::DeleteForce(const std::string &name)
-{
-   for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
-        force != forceList.end(); ++force) 
-   {
-      std::string pmName = (*force)->GetName();
-      if (name == pmName)
-      {
-         PhysicalModel* pm = *force;
-         forceList.erase(force);
-         numForces = forceList.size();
-         
-         // Shouldn't we also delete force? (loj: 2008.11.05)
-         if (!pm->IsTransient())
-         {
-            #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Remove
-               (pm, pm->GetName(), "ODEModel::DeleteForce()",
-                "deleting non-transient force of " + pm->GetTypeName());
-            #endif
-            delete pm;
-         }
-         
-         return;
-      }
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void DeleteForce(PhysicalModel *pPhyscialModel)
-//------------------------------------------------------------------------------
-/**
- * Deletes force from the force model.
- * 
- * @param pPhyscialModel The force name to delete
- */
-//------------------------------------------------------------------------------
-void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
-{
-   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
-        force != forceList.end(); ++force) 
-   {
-      if (*force == pPhysicalModel)
-      {
-         PhysicalModel* pm = *force;
-         forceList.erase(force);
-         numForces = forceList.size();
-         
-         // Shouldn't we also delete force? (loj: 2008.11.05)
-         if (!pm->IsTransient())
-         {
-            #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Remove
-               (pm, pm->GetName(), "ODEModel::DeleteForce()",
-                "deleting non-transient force of " + pm->GetTypeName());
-            #endif
-            delete pm;
-         }
-         
-         return;
-      }
-   }
-}
+////------------------------------------------------------------------------------
+//// void DeleteForce(const std::string &name)
+////------------------------------------------------------------------------------
+///**
+// * Deletes named force from the force model.
+// * 
+// * @param name The name of the force to delete
+// */
+////------------------------------------------------------------------------------
+//void ODEModel::DeleteForce(const std::string &name)
+//{
+//   for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
+//        force != forceList.end(); ++force) 
+//   {
+//      std::string pmName = (*force)->GetName();
+//      if (name == pmName)
+//      {
+//         PhysicalModel* pm = *force;
+//         forceList.erase(force);
+//         numForces = forceList.size();
+//         
+//         // Shouldn't we also delete force? (loj: 2008.11.05)
+//         if (!pm->IsTransient())
+//         {
+//            #ifdef DEBUG_MEMORY
+//            MemoryTracker::Instance()->Remove
+//               (pm, pm->GetName(), "ODEModel::DeleteForce()",
+//                "deleting non-transient force of " + pm->GetTypeName());
+//            #endif
+//            delete pm;
+//         }
+//         
+//         return;
+//      }
+//   }
+//}
 
 
-//------------------------------------------------------------------------------
-// bool HasForce(const std::string &name)
-//------------------------------------------------------------------------------
-/**
- * Search force in the force model.
- * 
- * @param  name The force name to look up
- * @return true if force exists, else false
- */
-//------------------------------------------------------------------------------
-bool ODEModel::HasForce(const std::string &name)
-{
-   for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
-       force != forceList.end(); force++) 
-   {
-      if (name == (*force)->GetName())
-         return true;
-   }
-   return false; 
-}
+////------------------------------------------------------------------------------
+//// void DeleteForce(PhysicalModel *pPhyscialModel)
+////------------------------------------------------------------------------------
+///**
+// * Deletes force from the force model.
+// * 
+// * @param pPhyscialModel The force name to delete
+// */
+////------------------------------------------------------------------------------
+//void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
+//{
+//   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
+//        force != forceList.end(); ++force) 
+//   {
+//      if (*force == pPhysicalModel)
+//      {
+//         PhysicalModel* pm = *force;
+//         forceList.erase(force);
+//         numForces = forceList.size();
+//         
+//         // Shouldn't we also delete force? (loj: 2008.11.05)
+//         if (!pm->IsTransient())
+//         {
+//            #ifdef DEBUG_MEMORY
+//            MemoryTracker::Instance()->Remove
+//               (pm, pm->GetName(), "ODEModel::DeleteForce()",
+//                "deleting non-transient force of " + pm->GetTypeName());
+//            #endif
+//            delete pm;
+//         }
+//         
+//         return;
+//      }
+//   }
+//}
 
 
-//------------------------------------------------------------------------------
-// Integer GetNumForces()
-//------------------------------------------------------------------------------
-Integer ODEModel::GetNumForces()
-{
-    return numForces;
-}
+////------------------------------------------------------------------------------
+//// bool HasForce(const std::string &name)
+////------------------------------------------------------------------------------
+///**
+// * Search force in the force model.
+// * 
+// * @param  name The force name to look up
+// * @return true if force exists, else false
+// */
+////------------------------------------------------------------------------------
+//bool ODEModel::HasForce(const std::string &name)
+//{
+//   for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
+//       force != forceList.end(); force++) 
+//   {
+//      if (name == (*force)->GetName())
+//         return true;
+//   }
+//   return false; 
+//}
 
 
-//------------------------------------------------------------------------------
-// StringArray& GetForceTypeNames()
-//------------------------------------------------------------------------------
-StringArray& ODEModel::GetForceTypeNames()
-{
-    forceTypeNames.clear();
+////------------------------------------------------------------------------------
+//// Integer GetNumForces()
+////------------------------------------------------------------------------------
+//Integer ODEModel::GetNumForces()
+//{
+//    return numForces;
+//}
 
-    for (int i=0; i<numForces; i++)
-        forceTypeNames.push_back(forceList[i]->GetTypeName());
-        
-    return forceTypeNames;
-}
+
+////------------------------------------------------------------------------------
+//// StringArray& GetForceTypeNames()
+////------------------------------------------------------------------------------
+//StringArray& ODEModel::GetForceTypeNames()
+//{
+//    forceTypeNames.clear();
+//
+//    for (int i=0; i<numForces; i++)
+//        forceTypeNames.push_back(forceList[i]->GetTypeName());
+//        
+//    return forceTypeNames;
+//}
+
 
 //------------------------------------------------------------------------------
 // std::string GetForceTypeName(Integer index)
 //------------------------------------------------------------------------------
-std::string ODEModel::GetForceTypeName(Integer index)
-{
-    StringArray typeList = GetForceTypeNames();
-    
-    if (index >= 0 && index < numForces)
-        return typeList[index];
-
-    return "UNDEFINED_FORCE_TYPE";
-}
-
-
-//------------------------------------------------------------------------------
-// void ClearSpacecraft()
-//------------------------------------------------------------------------------
-void ODEModel::ClearSpacecraft()
-{
-    spacecraft.clear();
-}
+//std::string ODEModel::GetForceTypeName(Integer index)
+//{
+//    StringArray typeList = GetForceTypeNames();
+//    
+//    if (index >= 0 && index < numForces)
+//        return typeList[index];
+//
+//    return "UNDEFINED_FORCE_TYPE";
+//}
 
 
-//------------------------------------------------------------------------------
-// PhysicalModel* GetForce(Integer index) const
-//------------------------------------------------------------------------------
-PhysicalModel* ODEModel::GetForce(Integer index) const
-{
-    if (index >= 0 && index < numForces)
-       return forceList[index];
-    
-    return NULL;
-}
+////------------------------------------------------------------------------------
+//// void ClearSpacecraft()
+////------------------------------------------------------------------------------
+//void ODEModel::ClearSpacecraft()
+//{
+//    spacecraft.clear();
+//}
 
 
-//------------------------------------------------------------------------------
-// PhysicalModel* GetForce(std::string forcetype, Integer whichOne)
-//------------------------------------------------------------------------------
-/**
- * Search for a force in the force model.
- * 
- * @param  forcetype The kind of force desired.
- * @param  whichOne  Which force (zero-based index) of that type is desired.
- * 
- * @return The pointer to that force instance.
- */
-//------------------------------------------------------------------------------
-const PhysicalModel* ODEModel::GetForce(std::string forcetype, 
-                                          Integer whichOne) const
-{
-   Integer i = 0;
-
-   for (std::vector<PhysicalModel *>::const_iterator force = forceList.begin(); 
-        force != forceList.end(); ++force) 
-   {
-      std::string pmName = (*force)->GetTypeName();
-      if (pmName == forcetype) {
-         if (whichOne <= i)
-            return *force;
-         else
-            ++i;
-      }
-   }
-
-   return NULL;
-}
+////------------------------------------------------------------------------------
+//// PhysicalModel* GetForce(Integer index) const
+////------------------------------------------------------------------------------
+//PhysicalModel* ODEModel::GetForce(Integer index) const
+//{
+//    if (index >= 0 && index < numForces)
+//       return forceList[index];
+//    
+//    return NULL;
+//}
 
 
-//------------------------------------------------------------------------------
-// bool ODEModel::AddSpaceObject(SpaceObject *so)
-//------------------------------------------------------------------------------
-/**
- * Sets spacecraft and formations that use this force model.
- *
- * @param so The spacecraft or formation
- *
- * @return true is the object is added to the list, false if it was already
- *         in the list, or if it is NULL.
- */
-//------------------------------------------------------------------------------
-bool ODEModel::AddSpaceObject(SpaceObject *so)
-{
-    if (so == NULL)
-        return false;
-        
-    if (find(spacecraft.begin(), spacecraft.end(), so) != spacecraft.end())
-        return false;
-
-    std::string soJ2KBodyName = so->GetStringParameter("J2000BodyName");
-
-    // Set the refence body for the spacecraft states to match the J2000 body
-    // on the first spacecraft added to the force model.
-    if (spacecraft.size() == 0)
-       j2kBodyName = soJ2KBodyName;
-    else
-    {
-       if (j2kBodyName != soJ2KBodyName)
-          throw ODEModelException(
-             "Force model error -- the internal reference body for all "
-             "spacecraft in a force model must be the same.\n"
-             "The J2000Body for " + so->GetName() + " is " + soJ2KBodyName +
-             ", but the force model is already using " + j2kBodyName + 
-             " as the reference body.");
-    }
-    
-    spacecraft.push_back(so);
-
-    // Quick fix for the epoch update
-    satIds[0] = so->GetParameterID("A1Epoch");
-    epoch = so->GetRealParameter(satIds[0]);
-    parametersSetOnce = false;
-    return true;
-}
+////------------------------------------------------------------------------------
+//// PhysicalModel* GetForce(std::string forcetype, Integer whichOne)
+////------------------------------------------------------------------------------
+///**
+// * Search for a force in the force model.
+// * 
+// * @param  forcetype The kind of force desired.
+// * @param  whichOne  Which force (zero-based index) of that type is desired.
+// * 
+// * @return The pointer to that force instance.
+// */
+////------------------------------------------------------------------------------
+//const PhysicalModel* ODEModel::GetForce(std::string forcetype, 
+//                                          Integer whichOne) const
+//{
+//   Integer i = 0;
+//
+//   for (std::vector<PhysicalModel *>::const_iterator force = forceList.begin(); 
+//        force != forceList.end(); ++force) 
+//   {
+//      std::string pmName = (*force)->GetTypeName();
+//      if (pmName == forcetype) {
+//         if (whichOne <= i)
+//            return *force;
+//         else
+//            ++i;
+//      }
+//   }
+//
+//   return NULL;
+//}
 
 
-//------------------------------------------------------------------------------
-// void ODEModel::UpdateSpaceObject(Real newEpoch)
-//------------------------------------------------------------------------------
-/**
- * Updates state data for the spacecraft or formation that use this force model.
- */
-//------------------------------------------------------------------------------
-void ODEModel::UpdateSpaceObject(Real newEpoch)
-{
-   if (spacecraft.size() > 0) {
-      Integer j = 0;
-      Integer stateSize;
-      Integer vectorSize;
-      std::vector<SpaceObject *>::iterator sat;
-      GmatState *state;
-
-      ReturnFromOrigin(newEpoch);
-      
-      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) {
-         state = &((*sat)->GetState());
-         stateSize = state->GetSize();
-         vectorSize = stateSize * sizeof(Real);
-         memcpy(&previousState[j*stateSize], state->GetState(), vectorSize);
-         previousTime = 
-            ((*sat)->GetRealParameter(satIds[0]) - epoch)
-            * 86400.0;
-            
-         memcpy(state->GetState(), &rawState[j*stateSize], vectorSize);
-         ++j;
-            
-         // Quick fix to get the epoch updated
-         Real newepoch = epoch + elapsedTime / 86400.0;      
-
-         // Update the epoch if it was passed in
-         if (newEpoch != -1.0)
-            newepoch = newEpoch;
-         
-         (*sat)->SetRealParameter(satIds[0], newepoch);
-         #ifdef DEBUG_ODEMODEL_EXE
-             MessageInterface::ShowMessage
-                ("ODEModel::UpdateSpacecraft() on \"%s\" prevElapsedTime=%f "
-                 "elapsedTime=%f newepoch=%f\n", (*sat)->GetName().c_str(), 
-                 prevElapsedTime, elapsedTime, newepoch);
-         #endif
-         if ((*sat)->GetType() == Gmat::FORMATION)
-            ((Formation*)(*sat))->UpdateElements();
-      }
-   }
-}
+////------------------------------------------------------------------------------
+//// bool ODEModel::AddSpaceObject(SpaceObject *so)
+////------------------------------------------------------------------------------
+///**
+// * Sets spacecraft and formations that use this force model.
+// *
+// * @param so The spacecraft or formation
+// *
+// * @return true is the object is added to the list, false if it was already
+// *         in the list, or if it is NULL.
+// */
+////------------------------------------------------------------------------------
+//bool ODEModel::AddSpaceObject(SpaceObject *so)
+//{
+//    if (so == NULL)
+//        return false;
+//        
+//    if (find(spacecraft.begin(), spacecraft.end(), so) != spacecraft.end())
+//        return false;
+//
+//    std::string soJ2KBodyName = so->GetStringParameter("J2000BodyName");
+//
+//    // Set the refence body for the spacecraft states to match the J2000 body
+//    // on the first spacecraft added to the force model.
+//    if (spacecraft.size() == 0)
+//       j2kBodyName = soJ2KBodyName;
+//    else
+//    {
+//       if (j2kBodyName != soJ2KBodyName)
+//          throw ODEModelException(
+//             "Force model error -- the internal reference body for all "
+//             "spacecraft in a force model must be the same.\n"
+//             "The J2000Body for " + so->GetName() + " is " + soJ2KBodyName +
+//             ", but the force model is already using " + j2kBodyName + 
+//             " as the reference body.");
+//    }
+//    
+//    spacecraft.push_back(so);
+//
+//    // Quick fix for the epoch update
+//    satIds[0] = so->GetParameterID("A1Epoch");
+//    epoch = so->GetRealParameter(satIds[0]);
+//    parametersSetOnce = false;
+//    return true;
+//}
 
 
-//------------------------------------------------------------------------------
-// void UpdateFromSpacecraft()
-//------------------------------------------------------------------------------
-/**
- * Updates the model state data from the spacecraft state -- useful to revert
- * to a previous step.
- *
- * @note This method will need to be updated when the multi-step integrators are
- *       folded into the code
- */
-//------------------------------------------------------------------------------
-void ODEModel::UpdateFromSpaceObject()
-{
-    if (spacecraft.size() > 0) 
-    {
-        Integer j = 0;
-        Integer stateSize;
-        std::vector<SpaceObject *>::iterator sat;
-        GmatState *state;
-        for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
-        {
-            state = &((*sat)->GetState());
-            stateSize = state->GetSize();
-            memcpy(&rawState[j*stateSize], state->GetState(), 
-                   stateSize * sizeof(Real));
-            ++j;
-        }
-    }
-    
-    // Transform to the force model origin
-    MoveToOrigin();
-}
+////------------------------------------------------------------------------------
+//// void ODEModel::UpdateSpaceObject(Real newEpoch)
+////------------------------------------------------------------------------------
+///**
+// * Updates state data for the spacecraft or formation that use this force model.
+// */
+////------------------------------------------------------------------------------
+//void ODEModel::UpdateSpaceObject(Real newEpoch)
+//{
+//   if (spacecraft.size() > 0) 
+//   {
+//      Integer j = 0;
+//      Integer stateSize;
+//      Integer vectorSize;
+//      std::vector<SpaceObject *>::iterator sat;
+//      GmatState *state;
+//
+//      ReturnFromOrigin(newEpoch);
+//      
+//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) {
+//         state = &((*sat)->GetState());
+//         stateSize = state->GetSize();
+//         vectorSize = stateSize * sizeof(Real);
+//         memcpy(&previousState[j*stateSize], state->GetState(), vectorSize);
+//         previousTime = 
+//            ((*sat)->GetRealParameter(satIds[0]) - epoch)
+//            * 86400.0;
+//            
+//         memcpy(state->GetState(), &rawState[j*stateSize], vectorSize);
+//         ++j;
+//            
+//         // Quick fix to get the epoch updated
+//         Real newepoch = epoch + elapsedTime / 86400.0;      
+//
+//         // Update the epoch if it was passed in
+//         if (newEpoch != -1.0)
+//            newepoch = newEpoch;
+//         
+//         (*sat)->SetRealParameter(satIds[0], newepoch);
+//         #ifdef DEBUG_ODEMODEL_EXE
+//             MessageInterface::ShowMessage
+//                ("ODEModel::UpdateSpacecraft() on \"%s\" prevElapsedTime=%f "
+//                 "elapsedTime=%f newepoch=%f\n", (*sat)->GetName().c_str(), 
+//                 prevElapsedTime, elapsedTime, newepoch);
+//         #endif
+//         if ((*sat)->GetType() == Gmat::FORMATION)
+//            ((Formation*)(*sat))->UpdateElements();
+//      }
+//   }
+//}
 
 
-//------------------------------------------------------------------------------
-// void RevertSpacecraft()
-//------------------------------------------------------------------------------
-/**
- * Resets the model state data from the previous spacecraft state.
- *
- * @note This method will need to be updated when the multi-step integrators are
- *       folded into the code
- */
-//------------------------------------------------------------------------------
-void ODEModel::RevertSpaceObject()
-{
-   #ifdef DEBUG_ODEMODEL_EXE
-      MessageInterface::ShowMessage
-         ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
-          prevElapsedTime, elapsedTime);
-   #endif
-   //loj: 7/1/04 elapsedTime = previousTime;
-   elapsedTime = prevElapsedTime;
-   
-   memcpy(rawState, previousState, dimension*sizeof(Real)); 
-   MoveToOrigin();
-}
+////------------------------------------------------------------------------------
+//// void UpdateFromSpacecraft()
+////------------------------------------------------------------------------------
+///**
+// * Updates the model state data from the spacecraft state -- useful to revert
+// * to a previous step.
+// *
+// * @note This method will need to be updated when the multi-step integrators are
+// *       folded into the code
+// */
+////------------------------------------------------------------------------------
+//void ODEModel::UpdateFromSpaceObject()
+//{
+//    if (spacecraft.size() > 0) 
+//    {
+//        Integer j = 0;
+//        Integer stateSize;
+//        std::vector<SpaceObject *>::iterator sat;
+//        GmatState *state;
+//        for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
+//        {
+//            state = &((*sat)->GetState());
+//            stateSize = state->GetSize();
+//            memcpy(&rawState[j*stateSize], state->GetState(), 
+//                   stateSize * sizeof(Real));
+//            ++j;
+//        }
+//    }
+//    
+//    // Transform to the force model origin
+//    MoveToOrigin();
+//}
+
+
+////------------------------------------------------------------------------------
+//// void RevertSpacecraft()
+////------------------------------------------------------------------------------
+///**
+// * Resets the model state data from the previous spacecraft state.
+// *
+// * @note This method will need to be updated when the multi-step integrators are
+// *       folded into the code
+// */
+////------------------------------------------------------------------------------
+//void ODEModel::RevertSpaceObject()
+//{
+//   #ifdef DEBUG_ODEMODEL_EXE
+//      MessageInterface::ShowMessage
+//         ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
+//          prevElapsedTime, elapsedTime);
+//   #endif
+//   //loj: 7/1/04 elapsedTime = previousTime;
+//   elapsedTime = prevElapsedTime;
+//   
+//   memcpy(rawState, previousState, dimension*sizeof(Real)); 
+//   MoveToOrigin();
+//}
 
 
 //------------------------------------------------------------------------------
@@ -804,151 +808,136 @@ bool ODEModel::Initialize()
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("ODEModel::Initialize() entered\n");
    #endif
-   Integer stateSize = 6;      // Will change if we integrate more variables
-   Integer satCount = 1;
-   std::vector<SpaceObject *>::iterator sat;
+//   Integer stateSize = 6;      // Will change if we integrate more variables
+//   Integer satCount = 1;
+//   std::vector<SpaceObject *>::iterator sat;
    
    if (!solarSystem)
       throw ODEModelException(
          "Cannot initialize force model; no solar system on '" + 
          instanceName + "'");
 
-   j2kBody = solarSystem->GetBody(j2kBodyName);
-   if (j2kBody == NULL) 
-      throw ODEModelException("Satellite J2000 body (" + j2kBodyName + 
-         ") was not found in the solar system");
-   
-   if (spacecraft.size() > 0)
-      satCount = spacecraft.size();
-   
-   GmatState *state;
-   StringArray finiteSats;
-   
-   // Calculate the dimension of the state
-   dimension = 0;
-   for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
+   if (j2kBodyName != "")
    {
-      state = &((*sat)->GetState());
-      // Determine if there are any spacecraft that have thrusters turned on
-      if ((*sat)->IsManeuvering())
-         finiteSats.push_back((*sat)->GetName());
-      if ((*sat)->GetType() == Gmat::FORMATION)
-         ((Formation*)(*sat))->BuildState();
-      stateSize = state->GetSize();
-      dimension += stateSize;  
+      j2kBody = solarSystem->GetBody(j2kBodyName);
+      if (j2kBody == NULL) 
+         throw ODEModelException("ODEModel J2000 body (" + j2kBodyName + 
+            ") was not found in the solar system");
    }
-
-   if (dimension == 0)
-      throw ODEModelException("Attempting to initialize force model '" +
-         instanceName + "' with dimension 0 -- No referenced spacecraft?");
-
-   #ifdef DEBUG_INITIALIZATION
-      MessageInterface::ShowMessage(
-         "Calling PhysicalModel::Initialize(); dimension = %d\n", dimension);
-   #endif
+   
+//   GmatState *state;
+//   StringArray finiteSats;
+//   
+//   // Calculate the dimension of the state
+//   dimension = 0;
+//
+//   if (dimension == 0)
+//      throw ODEModelException("Attempting to initialize force model '" +
+//         instanceName + "' with dimension 0 -- No referenced spacecraft?");
+//
+//   #ifdef DEBUG_INITIALIZATION
+//      MessageInterface::ShowMessage(
+//         "Calling PhysicalModel::Initialize(); dimension = %d\n", dimension);
+//   #endif
 
    if (!PhysicalModel::Initialize())
       return false;
 
+   dimension = state->GetSize();
    rawState = new Real[dimension];
+   memcpy(rawState, state, dimension * sizeof(Real));
 
-   if (spacecraft.size() == 0) 
-   {
-      #ifdef DEBUG_INITIALIZATION
-         MessageInterface::ShowMessage("Setting state data; dimension = %d\n", 
-            dimension);
-      #endif
-      
-      modelState[0] = 7000.0;
-      modelState[1] =    0.0;
-      modelState[2] = 1000.0;
-      modelState[3] =    0.0;
-      modelState[4] =    7.4;
-      modelState[5] =    0.0;
-   }
-   else 
-   {
-      Integer j = 0;
-      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
-      {
-         state = &((*sat)->GetState());
-         stateSize = state->GetSize();
-         memcpy(&rawState[j], state->GetState(), stateSize * sizeof(Real));
-         j += stateSize;
-      }
-      MoveToOrigin();
-   }
+//   if (spacecraft.size() == 0) 
+//   {
+//      #ifdef DEBUG_INITIALIZATION
+//         MessageInterface::ShowMessage("Setting state data; dimension = %d\n", 
+//            dimension);
+//      #endif
+//      
+//      modelState[0] = 7000.0;
+//      modelState[1] =    0.0;
+//      modelState[2] = 1000.0;
+//      modelState[3] =    0.0;
+//      modelState[4] =    7.4;
+//      modelState[5] =    0.0;
+//   }
+//   else 
+//   {
+//      Integer j = 0;
+//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
+//      {
+//         state = &((*sat)->GetState());
+//         stateSize = state->GetSize();
+//         memcpy(&rawState[j], state->GetState(), stateSize * sizeof(Real));
+//         j += stateSize;
+//      }
+//      MoveToOrigin();
+//   }
     
-   previousTime = 0.0;
-   if (previousState)
-      delete [] previousState;
-   previousState = new Real[dimension];
-   memcpy(previousState, rawState, dimension*sizeof(Real));
-   
    UpdateTransientForces();
-
-   Integer cf = currentForce;
-   PhysicalModel *current = GetForce(cf);  // waw: added 06/04/04
-   PhysicalModel *currentPm;
 
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
    Integer i;
 
-   while (current) 
-   {
-      #ifdef DEBUG_ODEMODEL_INIT
-         std::string name, type;
-         name = current->GetName();
-         if (name == "")
-            name = "unnamed";
-         type = current->GetTypeName();
-         MessageInterface::ShowMessage
-            ("ODEModel::Initialize() initializing object %s of type %s\n",
-             name.c_str(), type.c_str());
-      #endif
-      
-      currentPm = current;  // waw: added 06/04/04 
-      currentPm->SetDimension(dimension);
-      
-      // Only initialize the spacecraft independent pieces once
-      if (forceMembersNotInitialized)
-      {
-         currentPm->SetSolarSystem(solarSystem);
-         
-         // Handle missing coordinate system issues for GravityFields
-         if (currentPm->IsOfType("HarmonicField"))
-         {
-            SetInternalCoordinateSystem("InputCoordinateSystem", currentPm);
-            SetInternalCoordinateSystem("FixedCoordinateSystem", currentPm);
-            SetInternalCoordinateSystem("TargetCoordinateSystem", currentPm);
+//   Integer cf = currentForce;
+//   PhysicalModel *current = GetForce(cf);  // waw: added 06/04/04
+//   PhysicalModel *currentPm;
 
-            if (body == NULL)
-               body = solarSystem->GetBody(centralBodyName); // or should we get bodyName?
-         }
-      }
-
-      // Initialize the forces
-      if (!currentPm->Initialize()) 
-      {
-         std::string msg = "Component force ";
-         msg += currentPm->GetTypeName();
-         msg += " failed to initialize";
-         throw ODEModelException(msg);
-      }
-      currentPm->SetState(modelState);
-
-      // Set spacecraft parameters for forces that need them
-      i = 0;
-      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
-      {
-         i = SetupSpacecraftData(*sat, currentPm, i);
-         ++i;
-      }
-        
-      cf++;
-      current = GetForce(cf);
-   }
+//   while (current) 
+//   {
+//      #ifdef DEBUG_ODEMODEL_INIT
+//         std::string name, type;
+//         name = current->GetName();
+//         if (name == "")
+//            name = "unnamed";
+//         type = current->GetTypeName();
+//         MessageInterface::ShowMessage
+//            ("ODEModel::Initialize() initializing object %s of type %s\n",
+//             name.c_str(), type.c_str());
+//      #endif
+//      
+//      currentPm = current;  // waw: added 06/04/04 
+//      currentPm->SetDimension(dimension);
+//      
+//      // Only initialize the spacecraft independent pieces once
+//      if (forceMembersNotInitialized)
+//      {
+//         currentPm->SetSolarSystem(solarSystem);
+//         
+//         // Handle missing coordinate system issues for GravityFields
+//         if (currentPm->IsOfType("HarmonicField"))
+//         {
+//            SetInternalCoordinateSystem("InputCoordinateSystem", currentPm);
+//            SetInternalCoordinateSystem("FixedCoordinateSystem", currentPm);
+//            SetInternalCoordinateSystem("TargetCoordinateSystem", currentPm);
+//
+//            if (body == NULL)
+//               body = solarSystem->GetBody(centralBodyName); // or should we get bodyName?
+//         }
+//      }
+//
+//      // Initialize the forces
+//      if (!currentPm->Initialize()) 
+//      {
+//         std::string msg = "Component force ";
+//         msg += currentPm->GetTypeName();
+//         msg += " failed to initialize";
+//         throw ODEModelException(msg);
+//      }
+//      currentPm->SetState(modelState);
+//
+//      // Set spacecraft parameters for forces that need them
+//      i = 0;
+//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
+//      {
+//         i = SetupSpacecraftData(*sat, currentPm, i);
+//         ++i;
+//      }
+//        
+//      cf++;
+//      current = GetForce(cf);
+//   }
    
    #ifdef DEBUG_FORCE_EPOCHS
       std::string epfile = "ForceEpochs.txt";
@@ -1113,7 +1102,7 @@ Integer ODEModel::GetOwnedObjectCount()
 GmatBase* ODEModel::GetOwnedObject(Integer whichOne)
 {
    if (whichOne < numForces) 
-      return GetForce(whichOne);
+      return forceList[whichOne];
    
    return NULL;
 }
@@ -1154,25 +1143,25 @@ std::string ODEModel::BuildPropertyName(GmatBase *ownedObj)
 void ODEModel::UpdateInitialData()
 {
    Integer cf = currentForce;
-   PhysicalModel *current = GetForce(cf);  // waw: added 06/04/04
+   PhysicalModel *current = forceList[cf];  // waw: added 06/04/04
 
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
    std::vector<SpaceObject *>::iterator sat;
    Integer i;
    
-   // Detect if spacecraft parameters need complete refresh
-   // Set spacecraft parameters for forces that need them
-   for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
-      if ((*sat)->ParametersHaveChanged())
-      {
-         #ifdef DEBUG_SATELLITE_PARAMETERS
-            MessageInterface::ShowMessage("Parms changed for %s\n", 
-               (*sat)->GetName().c_str());
-         #endif
-         parametersSetOnce = false;
-         (*sat)->ParametersHaveChanged(false);
-      }
+//   // Detect if spacecraft parameters need complete refresh
+//   // Set spacecraft parameters for forces that need them
+//   for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
+//      if ((*sat)->ParametersHaveChanged())
+//      {
+//         #ifdef DEBUG_SATELLITE_PARAMETERS
+//            MessageInterface::ShowMessage("Parms changed for %s\n", 
+//               (*sat)->GetName().c_str());
+//         #endif
+//         parametersSetOnce = false;
+//         (*sat)->ParametersHaveChanged(false);
+//      }
          
    while (current) 
    {
@@ -1181,14 +1170,14 @@ void ODEModel::UpdateInitialData()
          current->ClearSatelliteParameters();
       }
       i = 0;
-      // Set spacecraft parameters for forces that need them
-      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
-      {
-         SetupSpacecraftData(*sat, current, i);
-         ++i;
-      }
+//      // Set spacecraft parameters for forces that need them
+//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
+//      {
+//         SetupSpacecraftData(*sat, current, i);
+//         ++i;
+//      }
       cf++;
-      current = GetForce(cf);
+      current = forceList[cf];
    }
    
    parametersSetOnce = true;
@@ -1214,202 +1203,202 @@ void ODEModel::UpdateInitialData()
 //------------------------------------------------------------------------------
 void ODEModel::UpdateTransientForces()
 {
-   for (std::vector<PhysicalModel *>::iterator tf = forceList.begin(); 
-        tf != forceList.end(); ++tf) {
-      if ((*tf)->IsTransient())
-         (*tf)->SetPropList(&spacecraft);
-         
-   }
+//   for (std::vector<PhysicalModel *>::iterator tf = forceList.begin(); 
+//        tf != forceList.end(); ++tf) {
+//      if ((*tf)->IsTransient())
+//         (*tf)->SetPropList(&spacecraft);
+//         
+//   }
 }
 
 
-//------------------------------------------------------------------------------
-// Integer SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm, Integer i)
-//------------------------------------------------------------------------------
-/**
- * Passes spacecraft parameters into the force model.
- * 
- * @param <sat>   The SpaceObject that supplies the parameters.
- * @param <pm>    The PhysicalModel receiving the data.
- * @param <i>     The index of the SpaceObject in the physical model.
- * 
- * @return For Spacecraft, the corresponding index; for formations, a count of
- *         the number of spacecraft in the formation.
- */
-//------------------------------------------------------------------------------
-Integer ODEModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm, 
-                                        Integer i)
-{
-   Integer retval = i; //, id;
-   Real parm;
-   std::string stringParm;
-   
-   // Only retrieve the parameter IDs once
-   if ((satIds[1] < 0) && sat->IsOfType("Spacecraft"))
-   {
-      satIds[0] = sat->GetParameterID("A1Epoch");
-      if (satIds[0] < 0)
-         throw ODEModelException("Epoch parameter undefined on object " +
-                                   sat->GetName());
+////------------------------------------------------------------------------------
+//// Integer SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm, Integer i)
+////------------------------------------------------------------------------------
+///**
+// * Passes spacecraft parameters into the force model.
+// * 
+// * @param <sat>   The SpaceObject that supplies the parameters.
+// * @param <pm>    The PhysicalModel receiving the data.
+// * @param <i>     The index of the SpaceObject in the physical model.
+// * 
+// * @return For Spacecraft, the corresponding index; for formations, a count of
+// *         the number of spacecraft in the formation.
+// */
+////------------------------------------------------------------------------------
+//Integer ODEModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm, 
+//                                        Integer i)
+//{
+//   Integer retval = i; //, id;
+//   Real parm;
+//   std::string stringParm;
+//   
+//   // Only retrieve the parameter IDs once
+//   if ((satIds[1] < 0) && sat->IsOfType("Spacecraft"))
+//   {
+//      satIds[0] = sat->GetParameterID("A1Epoch");
+//      if (satIds[0] < 0)
+//         throw ODEModelException("Epoch parameter undefined on object " +
+//                                   sat->GetName());
+//
+////      modelEpochId = pm->GetParameterID("Epoch");
+////      if (modelEpochId < 0)
+////         throw ODEModelException("Epoch parameter undefined on PhysicalModel");
+//
+//      satIds[1] = sat->GetParameterID("CoordinateSystem");
+//      if (satIds[1] < 0)
+//         throw ODEModelException(
+//            "CoordinateSystem parameter undefined on object " + sat->GetName());
+//      
+//      // Should this be total mass?
+//      satIds[2] = sat->GetParameterID("DryMass");
+//      if (satIds[2] < 0)
+//         throw ODEModelException("DryMass parameter undefined on object " +
+//                                   sat->GetName());
+//
+//      satIds[3] = sat->GetParameterID("Cd");
+//      if (satIds[3] < 0)
+//         throw ODEModelException("Cd parameter undefined on object " +
+//                                   sat->GetName());
+//
+//      satIds[4] = sat->GetParameterID("DragArea");
+//      if (satIds[4] < 0)
+//         throw ODEModelException("Drag Area parameter undefined on object " +
+//                                   sat->GetName());
+//
+//      satIds[5] = sat->GetParameterID("SRPArea");
+//      if (satIds[5] < 0)
+//         throw ODEModelException("SRP Area parameter undefined on object " +
+//                                   sat->GetName());
+//
+//      satIds[6] = sat->GetParameterID("Cr");
+//      if (satIds[6] < 0)
+//         throw ODEModelException("Cr parameter undefined on object " +
+//                                   sat->GetName());
+//                                   
+//      #ifdef DEBUG_SATELLITE_PARAMETERS
+//         MessageInterface::ShowMessage(
+//            "Parameter ID Array: [%d %d %d %d %d %d %d]; PMepoch id  = %d\n",
+//            satIds[0], satIds[1], satIds[2], satIds[3], satIds[4], satIds[5], 
+//            satIds[6], PhysicalModel::EPOCH);
+//      #endif
+//   }
+//
+//   if (sat->GetType() == Gmat::SPACECRAFT)
+//   { 
+//      #ifdef DEBUG_SATELLITE_PARAMETERS
+//         MessageInterface::ShowMessage(
+//            "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
+//            "parametersSetOnce = %s\n",
+//            GetName().c_str(), pm->GetTypeName().c_str(), 
+//            sat->GetName().c_str(), 
+//            (((SpaceObject*)sat)->ParametersHaveChanged() ? "true" : "false"), 
+//            (parametersSetOnce ? "true" : "false"));
+//      #endif
+//
+//      // Manage the epoch ...
+//      parm = sat->GetRealParameter(satIds[0]);
+//      // Update local value for epoch
+//      epoch = parm;
+//      pm->SetRealParameter(PhysicalModel::EPOCH, parm);
+//
+//      if (((SpaceObject*)sat)->ParametersHaveChanged() || !parametersSetOnce)
+//      {
+//         #ifdef DEBUG_SATELLITE_PARAMETERS
+//            MessageInterface::ShowMessage("Setting parameters for %s\n", 
+//               pm->GetTypeName().c_str());
+//         #endif
+//         
+//         // ... Coordinate System ...
+//         stringParm = sat->GetStringParameter(satIds[1]);
+//         
+//         CoordinateSystem *cs =
+//            (CoordinateSystem*)(sat->GetRefObject(Gmat::COORDINATE_SYSTEM, 
+//                                stringParm));
+//         if (!cs)
+//         {
+//            char sataddr[20];
+//            std::sprintf(sataddr, "%lx", (unsigned long)sat);
+//            throw ODEModelException(
+//               "CoordinateSystem is NULL on Spacecraft " + sat->GetName() +
+//               " at address " + sataddr);
+//         }
+//         pm->SetSatelliteParameter(i, "ReferenceBody", cs->GetOriginName());
+//         
+//         // ... Mass ...
+//         parm = sat->GetRealParameter(satIds[2]);
+//         if (parm <= 0)
+//            throw ODEModelException("Mass parameter unphysical on object " + 
+//                                            sat->GetName());
+//         pm->SetSatelliteParameter(i, "DryMass", parm);
+//           
+//         // ... Coefficient of drag ...
+//         parm = sat->GetRealParameter(satIds[3]);
+//         if (parm < 0)
+//            throw ODEModelException("Cd parameter unphysical on object " + 
+//                                      sat->GetName());
+//         pm->SetSatelliteParameter(i, "Cd", parm);
+//         
+//         // ... Drag area ...
+//         parm = sat->GetRealParameter(satIds[4]);
+//         if (parm < 0)
+//            throw ODEModelException("Drag Area parameter unphysical on object " + 
+//                                      sat->GetName());
+//         pm->SetSatelliteParameter(i, "DragArea", parm);
+//         
+//         // ... SRP area ...
+//         parm = sat->GetRealParameter(satIds[5]);
+//         if (parm < 0)
+//            throw ODEModelException("SRP Area parameter unphysical on object " + 
+//                                      sat->GetName());
+//         pm->SetSatelliteParameter(i, "SRPArea", parm);
+//         
+//         // ... and Coefficient of reflectivity
+//         parm = sat->GetRealParameter(satIds[6]);
+//         if (parm < 0)
+//            throw ODEModelException("Cr parameter unphysical on object " + 
+//                                      sat->GetName());
+//         pm->SetSatelliteParameter(i, "Cr", parm);
+//         
+//         ((SpaceObject*)sat)->ParametersHaveChanged(false);
+//      }
+//   }
+//   else if (sat->GetType() == Gmat::FORMATION) 
+//   {
+//      Integer j = -1;
+//      ObjectArray elements = sat->GetRefObjectArray("SpaceObject");
+//      for (ObjectArray::iterator n = elements.begin(); n != elements.end();
+//           ++n) 
+//      {
+//         ++j;
+//         j = SetupSpacecraftData(*n, pm, j);
+//      }
+//      retval = j;
+//   }
+//   else
+//      throw ODEModelException(
+//         "Setting SpaceObject parameters on unknown type for " + 
+//         sat->GetName());
+//
+//   return retval;
+//}
 
-      modelEpochId = pm->GetParameterID("Epoch");
-      if (modelEpochId < 0)
-         throw ODEModelException("Epoch parameter undefined on PhysicalModel");
 
-      satIds[1] = sat->GetParameterID("CoordinateSystem");
-      if (satIds[1] < 0)
-         throw ODEModelException(
-            "CoordinateSystem parameter undefined on object " + sat->GetName());
-      
-      // Should this be total mass?
-      satIds[2] = sat->GetParameterID("DryMass");
-      if (satIds[2] < 0)
-         throw ODEModelException("DryMass parameter undefined on object " +
-                                   sat->GetName());
+////------------------------------------------------------------------------------
+//// void ODEModel::IncrementTime(Real dt)
+////------------------------------------------------------------------------------
+//void ODEModel::IncrementTime(Real dt)
+//{
+//    PhysicalModel::IncrementTime(dt);
+//}
 
-      satIds[3] = sat->GetParameterID("Cd");
-      if (satIds[3] < 0)
-         throw ODEModelException("Cd parameter undefined on object " +
-                                   sat->GetName());
-
-      satIds[4] = sat->GetParameterID("DragArea");
-      if (satIds[4] < 0)
-         throw ODEModelException("Drag Area parameter undefined on object " +
-                                   sat->GetName());
-
-      satIds[5] = sat->GetParameterID("SRPArea");
-      if (satIds[5] < 0)
-         throw ODEModelException("SRP Area parameter undefined on object " +
-                                   sat->GetName());
-
-      satIds[6] = sat->GetParameterID("Cr");
-      if (satIds[6] < 0)
-         throw ODEModelException("Cr parameter undefined on object " +
-                                   sat->GetName());
-                                   
-      #ifdef DEBUG_SATELLITE_PARAMETERS
-         MessageInterface::ShowMessage(
-            "Parameter ID Array: [%d %d %d %d %d %d %d]; PMepoch id  = %d\n",
-            satIds[0], satIds[1], satIds[2], satIds[3], satIds[4], satIds[5], 
-            satIds[6], modelEpochId);
-      #endif
-   }
-
-   if (sat->GetType() == Gmat::SPACECRAFT)
-   { 
-      #ifdef DEBUG_SATELLITE_PARAMETERS
-         MessageInterface::ShowMessage(
-            "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
-            "parametersSetOnce = %s\n",
-            GetName().c_str(), pm->GetTypeName().c_str(), 
-            sat->GetName().c_str(), 
-            (((SpaceObject*)sat)->ParametersHaveChanged() ? "true" : "false"), 
-            (parametersSetOnce ? "true" : "false"));
-      #endif
-
-      // Manage the epoch ...
-      parm = sat->GetRealParameter(satIds[0]);
-      // Update local value for epoch
-      epoch = parm;
-      pm->SetRealParameter(modelEpochId, parm);
-
-      if (((SpaceObject*)sat)->ParametersHaveChanged() || !parametersSetOnce)
-      {
-         #ifdef DEBUG_SATELLITE_PARAMETERS
-            MessageInterface::ShowMessage("Setting parameters for %s\n", 
-               pm->GetTypeName().c_str());
-         #endif
-         
-         // ... Coordinate System ...
-         stringParm = sat->GetStringParameter(satIds[1]);
-         
-         CoordinateSystem *cs =
-            (CoordinateSystem*)(sat->GetRefObject(Gmat::COORDINATE_SYSTEM, 
-                                stringParm));
-         if (!cs)
-         {
-            char sataddr[20];
-            std::sprintf(sataddr, "%lx", (unsigned long)sat);
-            throw ODEModelException(
-               "CoordinateSystem is NULL on Spacecraft " + sat->GetName() +
-               " at address " + sataddr);
-         }
-         pm->SetSatelliteParameter(i, "ReferenceBody", cs->GetOriginName());
-         
-         // ... Mass ...
-         parm = sat->GetRealParameter(satIds[2]);
-         if (parm <= 0)
-            throw ODEModelException("Mass parameter unphysical on object " + 
-                                            sat->GetName());
-         pm->SetSatelliteParameter(i, "DryMass", parm);
-           
-         // ... Coefficient of drag ...
-         parm = sat->GetRealParameter(satIds[3]);
-         if (parm < 0)
-            throw ODEModelException("Cd parameter unphysical on object " + 
-                                      sat->GetName());
-         pm->SetSatelliteParameter(i, "Cd", parm);
-         
-         // ... Drag area ...
-         parm = sat->GetRealParameter(satIds[4]);
-         if (parm < 0)
-            throw ODEModelException("Drag Area parameter unphysical on object " + 
-                                      sat->GetName());
-         pm->SetSatelliteParameter(i, "DragArea", parm);
-         
-         // ... SRP area ...
-         parm = sat->GetRealParameter(satIds[5]);
-         if (parm < 0)
-            throw ODEModelException("SRP Area parameter unphysical on object " + 
-                                      sat->GetName());
-         pm->SetSatelliteParameter(i, "SRPArea", parm);
-         
-         // ... and Coefficient of reflectivity
-         parm = sat->GetRealParameter(satIds[6]);
-         if (parm < 0)
-            throw ODEModelException("Cr parameter unphysical on object " + 
-                                      sat->GetName());
-         pm->SetSatelliteParameter(i, "Cr", parm);
-         
-         ((SpaceObject*)sat)->ParametersHaveChanged(false);
-      }
-   }
-   else if (sat->GetType() == Gmat::FORMATION) 
-   {
-      Integer j = -1;
-      ObjectArray elements = sat->GetRefObjectArray("SpaceObject");
-      for (ObjectArray::iterator n = elements.begin(); n != elements.end();
-           ++n) 
-      {
-         ++j;
-         j = SetupSpacecraftData(*n, pm, j);
-      }
-      retval = j;
-   }
-   else
-      throw ODEModelException(
-         "Setting SpaceObject parameters on unknown type for " + 
-         sat->GetName());
-
-   return retval;
-}
-
-
-//------------------------------------------------------------------------------
-// void ODEModel::IncrementTime(Real dt)
-//------------------------------------------------------------------------------
-void ODEModel::IncrementTime(Real dt)
-{
-    PhysicalModel::IncrementTime(dt);
-}
-
-//------------------------------------------------------------------------------
-// void ODEModel::SetTime(Real t)
-//------------------------------------------------------------------------------
-void ODEModel::SetTime(Real t)
-{
-    PhysicalModel::SetTime(t);
-}
+////------------------------------------------------------------------------------
+//// void ODEModel::SetTime(Real t)
+////------------------------------------------------------------------------------
+//void ODEModel::SetTime(Real t)
+//{
+//    PhysicalModel::SetTime(t);
+//}
 
 //------------------------------------------------------------------------------
 // bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order)
@@ -1468,7 +1457,7 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
    }
    
    Integer cf = currentForce;
-   PhysicalModel *current = GetForce(cf);  
+   PhysicalModel *current = forceList[cf];  
 
    const Real * ddt;
    while (current) 
@@ -1519,7 +1508,7 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
       #endif
 
       ++cf;
-      current = GetForce(cf);
+      current = forceList[cf];
    }
    #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage("  ===============================\n");
@@ -1754,15 +1743,15 @@ const StringArray& ODEModel::GetRefObjectNameArray(const Gmat::ObjectType type)
    }
    
    // Provide space object names for validation checking
-   if (type == Gmat::SPACEOBJECT)
-   {
-      for (std::vector<SpaceObject *>::iterator sc = spacecraft.begin(); 
-           sc != spacecraft.end(); ++sc)
-      {
-         forceReferenceNames.push_back((*sc)->GetName());
-      }
-      return forceReferenceNames;
-   }
+//   if (type == Gmat::SPACEOBJECT)
+//   {
+//      for (std::vector<SpaceObject *>::iterator sc = spacecraft.begin(); 
+//           sc != spacecraft.end(); ++sc)
+//      {
+//         forceReferenceNames.push_back((*sc)->GetName());
+//      }
+//      return forceReferenceNames;
+//   }
    
    // Always grab these two:
    forceReferenceNames.push_back("EarthMJ2000Eq");
@@ -2066,7 +2055,8 @@ std::string ODEModel::GetStringParameter(const Integer id) const
       case  DRAG:
       {
          // Find the drag force
-         const PhysicalModel *pm = GetForce("DragForce");
+         /// todo: FIX THIS!!!!!!!!!!
+         const PhysicalModel *pm;// = GetForce("DragForce");
          // No drag force, return "None"
          if (pm == NULL)
             return "None";
@@ -2214,7 +2204,8 @@ std::string ODEModel::GetOnOffParameter(const Integer id) const
    {
    case SRP:
       {
-         const PhysicalModel *pm = GetForce("SolarRadiationPressure");
+         /// todo:  FIX THIS!!!!!!
+         const PhysicalModel *pm;// = GetForce("SolarRadiationPressure");
          if (pm == NULL)
             return "Off";
          return "On";
@@ -2941,31 +2932,31 @@ void ODEModel::ReturnFromOrigin(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::ReportEpochData()
 {
-   if (epochFile.is_open())
-   {
-      epochFile.precision(16);
-         epochFile << epoch << " " << elapsedTime;
-
-      epochFile << " Members ";
-      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
-           i != forceList.end(); ++i)
-      {
-         epochFile.precision(16);
-         epochFile << " " 
-                   << (*i)->GetRealParameter(satIds[0]) 
-                   << " " << (*i)->GetTime();
-      }
-
-      epochFile << " Sats " ;
-      for (std::vector<SpaceObject*>::iterator i = spacecraft.begin(); 
-           i != spacecraft.end(); ++i)
-      {
-         epochFile.precision(16);
-         epochFile << " " << (*i)->GetEpoch();
-      }
-      epochFile << "\n";
-   }
-   else
+//   if (epochFile.is_open())
+//   {
+//      epochFile.precision(16);
+//         epochFile << epoch << " " << elapsedTime;
+//
+//      epochFile << " Members ";
+//      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
+//           i != forceList.end(); ++i)
+//      {
+//         epochFile.precision(16);
+//         epochFile << " " 
+//                   << (*i)->GetRealParameter(satIds[0]) 
+//                   << " " << (*i)->GetTime();
+//      }
+//
+//      epochFile << " Sats " ;
+//      for (std::vector<SpaceObject*>::iterator i = spacecraft.begin(); 
+//           i != spacecraft.end(); ++i)
+//      {
+//         epochFile.precision(16);
+//         epochFile << " " << (*i)->GetEpoch();
+//      }
+//      epochFile << "\n";
+//   }
+//   else
       throw ODEModelException(
          "ODEModel::ReportEpochData: Attempting to write epoch data without "
          "opening the data file.");
@@ -2998,7 +2989,7 @@ Integer ODEModel::GetOwnedObjectId(Integer id, GmatBase **owner) const
    
    for (Integer i=0; i<numForces; i++)
    {
-      ownedObj = GetForce(i);
+      ownedObj = forceList[i];
       try
       {
          actualId = ownedObj->GetParameterID(GetParameterText(id));

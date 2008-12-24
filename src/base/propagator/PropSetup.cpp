@@ -122,7 +122,8 @@ PropSetup::PropSetup(const std::string &name)
    mPropagator = new RungeKutta89("RungeKutta89");
    mODEModel = new ODEModel(mODEModelName);
    PhysicalModel *pmf = new PointMassForce;
-   mODEModel->AddForce(pmf);
+// todo: Add forces to ODEModel
+//   mODEModel->AddForce(pmf);
    
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
@@ -363,7 +364,8 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
 //------------------------------------------------------------------------------
 void PropSetup::AddForce(PhysicalModel *force)
 {
-   mODEModel->AddForce(force);
+// todo: Add forces to ODEModel
+//   mODEModel->AddForce(force);
 }
 
 
@@ -376,7 +378,8 @@ void PropSetup::AddForce(PhysicalModel *force)
 //------------------------------------------------------------------------------
 PhysicalModel* PropSetup::GetForce(Integer index)
 {
-   return mODEModel->GetForce(index);      
+// todo: Add forces to ODEModel
+//   return mODEModel->GetForce(index);      
 }
 
 
@@ -389,7 +392,8 @@ PhysicalModel* PropSetup::GetForce(Integer index)
 //------------------------------------------------------------------------------
 Integer PropSetup::GetNumForces()
 {
-   return mODEModel->GetNumForces();
+// todo: Add forces to ODEModel
+//   return mODEModel->GetNumForces();
 }
 
 //------------------------------------------------------------------------------
@@ -953,14 +957,15 @@ bool PropSetup::Initialize()
       #endif
       mInitialized = false;
    }
-   else if (mODEModel->GetNumForces() == 0)
-   {
-      #ifdef DEBUG_INITIALIZATION
-         MessageInterface::ShowMessage(
-            "PropSetup::Initialize() NumForces is 0\n");
-      #endif
-      mInitialized = false;
-   }
+// todo: Manage no force state here
+//   else if (mODEModel->GetNumForces() == 0)
+//   {
+//      #ifdef DEBUG_INITIALIZATION
+//         MessageInterface::ShowMessage(
+//            "PropSetup::Initialize() NumForces is 0\n");
+//      #endif
+//      mInitialized = false;
+//   }
    
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage(

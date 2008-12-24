@@ -21,10 +21,41 @@
 
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
-#include "Propagator.hpp"
-#include "ODEModel.hpp"
-#include "PhysicalModel.hpp"
 
+// Forward references
+class PhysicalModel;
+class ODEModel;
+class Propagator;
+
+/**
+ * The propagator subsystem interface
+ * 
+ * PropSetup is a container class that acts as the interface between the 
+ * propagation subsystem and the rest of GMAT.  The core elements of the class 
+ * are the Propagator, a PropagationStateManager, and, if needed, an ODEModel.  
+ * 
+ * The PropagationStateManager (PSM) is the interface between GMAT objects that 
+ * move in time in the simulation and the propagation subsystem.  The PSM holds 
+ * the data that is needed to build the state data that is propagated, and to
+ * configure the corresponding ODEModel for propagators that perform numerical
+ * integration.  The PSM retrieves current values for the elements that need 
+ * propagation -- examples are the orbital state of a Spacecraft, the State 
+ * Transition Matrix, and tank mass during a finite burn -- and constructs a 
+ * vector that will change as the epoch changes in the simulation.  After a 
+ * propagation step has been taken, the PSM is the interface used to update 
+ * GMAT's objects with the new state data.
+ * 
+ * The Propagator performs the actual evolution of the state, changing the 
+ * values in the state vector to match changes in the simulation epoch.  GMAT
+ * supports three classes of propagators: Numerical Integrators, Analytic 
+ * Propagators (not yet implemented), and ephemeris based propagators (not yet
+ * implemented).  Of these three classes, the numerical integrators require 
+ * additional configuration in the PropSetup so that the differential equations 
+ * that are integrated are constructed consistently with the propagation state 
+ * vector.  The differential equations are managed in the ODEModel.
+ * 
+ * 
+ */
 class GMAT_API PropSetup : public GmatBase
 {
 public:

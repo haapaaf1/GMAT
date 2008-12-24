@@ -2172,7 +2172,8 @@ bool Propagate::Initialize()
       ODEModel *fm = prop[index]->GetODEModel();
       if (!fm)
          throw CommandException("ForceModel not set in PropSetup\n");
-      fm->ClearSpacecraft();
+// todo: manage prop object initialization
+//      fm->ClearSpacecraft();
       StringArray::iterator scName;
       StringArray owners, elements;
 
@@ -2203,7 +2204,8 @@ bool Propagate::Initialize()
             finiteBurnActive = true;
          sats.push_back(so);
          AddToBuffer(so);
-         fm->AddSpaceObject(so);
+// todo: manage prop object initialization
+//         fm->AddSpaceObject(so);
          if (so->GetType() == Gmat::FORMATION)
             FillFormation(so, owners, elements);
          else 
@@ -2458,8 +2460,9 @@ void Propagate::PrepareToPropagate()
                {
                   ODEModel *fm = prop[index]->GetODEModel();
                   const StringArray sar = fm->GetRefObjectNameArray(Gmat::SPACEOBJECT);
-                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end()) 
-                     prop[index]->GetODEModel()->AddForce(*i);
+// todo: Register transient forces here
+//                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end()) 
+//                     prop[index]->GetODEModel()->AddForce(*i);
                }
             }
          }
@@ -2881,7 +2884,8 @@ bool Propagate::Execute()
             
             // Update spacecraft epoch, without argument the spacecraft epoch
             // won't get updated for consecutive Propagate command
-            fm[i]->UpdateSpaceObject(currEpoch[i]);
+// todo: update the prop objects
+//            fm[i]->UpdateSpaceObject(currEpoch[i]);
          }
 
          // In single step mode, we're done!
@@ -2913,8 +2917,9 @@ bool Propagate::Execute()
                Real timestep = p[i]->GetStepTaken();
                if (fabs(timestep) > fabs(stopInterval))
                   stopInterval = timestep;
-               
-               fm[i]->RevertSpaceObject();
+
+// todo: reset the prop objects to their previous states
+//               fm[i]->RevertSpaceObject();
                switch (currentMode)
                {
                   case SYNCHRONIZED:
@@ -3369,7 +3374,8 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          MessageInterface::ShowMessage("   CurrentEpoch[%d] = %.12lf\n", i,
             currEpoch[i]);
       #endif
-      fm[i]->UpdateSpaceObject(currEpoch[i]);
+// todo: Update the prop objects
+//      fm[i]->UpdateSpaceObject(currEpoch[i]);
    }
    BufferSatelliteStates(true);
    
@@ -3481,8 +3487,9 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       // Check the stopping accuracy
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
       {
-         fm[i]->UpdateSpaceObject(
-            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+// todo: update the prop objects so stopping conditions can be checked
+//         fm[i]->UpdateSpaceObject(
+//            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
       }
 
       stopper->Evaluate();
@@ -3502,7 +3509,8 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          BufferSatelliteStates(false);
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateFromSpaceObject();
+// todo: Back out the updates
+//            fm[i]->UpdateFromSpaceObject();
             // Back out the steps taken to build the ring buffer
             fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
          }
@@ -3527,8 +3535,9 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateSpaceObject(
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+// todo: update the prop objects
+//            fm[i]->UpdateSpaceObject(
+//               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
          }
 
          #ifdef DEBUG_STOPPING_CONDITIONS   
@@ -3647,8 +3656,9 @@ Real Propagate::InterpolateToStop(StopCondition *sc)
       // Update spacecraft for that step
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
       {
-         fm[i]->UpdateSpaceObject(
-            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+// todo: update the prop objects
+//         fm[i]->UpdateSpaceObject(
+//            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
       }
 
       // Update the data in the stop condition
@@ -3671,7 +3681,8 @@ Real Propagate::InterpolateToStop(StopCondition *sc)
    BufferSatelliteStates(false);
    for (UnsignedInt i = 0; i < fm.size(); ++i) 
    {
-      fm[i]->UpdateFromSpaceObject();
+// todo: Back out updates to  the prop objects
+//      fm[i]->UpdateFromSpaceObject();
       // Back out the steps taken to build the ring buffer
       fm[i]->SetTime(fm[i]->GetTime() - ringStepsTaken * ringStep);
 
@@ -3734,7 +3745,8 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
             BufferSatelliteStates(false);
             for (UnsignedInt i = 0; i < fm.size(); ++i) 
             {
-               fm[i]->UpdateFromSpaceObject();
+// todo: Back out updates to  the prop objects
+//               fm[i]->UpdateFromSpaceObject();
                fm[i]->SetTime(fm[i]->GetTime() - prevStep);
             }
          }
@@ -3747,8 +3759,9 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
          // Update spacecraft for that step
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateSpaceObject(
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+// todo: update the prop objects
+//            fm[i]->UpdateSpaceObject(
+//               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
          }
    
          if (targParam != NULL)
@@ -3801,7 +3814,8 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
             BufferSatelliteStates(false);
             for (UnsignedInt i = 0; i < fm.size(); ++i) 
             {
-               fm[i]->UpdateFromSpaceObject();
+// todo: back out updates to the prop objects
+//               fm[i]->UpdateFromSpaceObject();
                fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
             }
          
@@ -3909,8 +3923,9 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
             // Update spacecraft for that step
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateSpaceObject(
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+// todo: update the prop objects
+//            fm[i]->UpdateSpaceObject(
+//               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
          }
 
          #ifdef DEBUG_SECANT_DETAILS
@@ -3959,7 +3974,8 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
       BufferSatelliteStates(false);
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
       {
-         fm[i]->UpdateFromSpaceObject();
+// todo: Back out updates to the prop objects
+//         fm[i]->UpdateFromSpaceObject();
          fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
       }
 
@@ -3977,7 +3993,8 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
    BufferSatelliteStates(false);
    for (UnsignedInt i = 0; i < fm.size(); ++i) 
    {
-      fm[i]->UpdateFromSpaceObject();
+// todo: update the prop objects
+//      fm[i]->UpdateFromSpaceObject();
       fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
    }
       
@@ -4017,7 +4034,8 @@ Real Propagate::BisectToStop(StopCondition *stopper)
          BufferSatelliteStates(false);
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateFromSpaceObject();
+// todo: Back out updates to the prop objects
+//            fm[i]->UpdateFromSpaceObject();
             fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
          }
         
@@ -4062,8 +4080,9 @@ Real Propagate::BisectToStop(StopCondition *stopper)
       // Update spacecraft for that step
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
       {
-         fm[i]->UpdateSpaceObject(
-            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+// todo: update the prop objects
+//         fm[i]->UpdateSpaceObject(
+//            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
       }
 
       if (targParam != NULL)
@@ -4152,9 +4171,12 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
       // Loop through the spacecraft that go with the force model, ans see if 
       // they are in the spacecraft list for the current transient force
       for (StringArray::iterator current = sats->begin(); 
-           current != sats->end(); ++current) {
-         if (find(tfSats.begin(), tfSats.end(), *current) != tfSats.end()) {
-            p->AddForce(*i);
+           current != sats->end(); ++current) 
+      {
+         if (find(tfSats.begin(), tfSats.end(), *current) != tfSats.end()) 
+         {
+// todo: Add in the transient force
+//            p->AddForce(*i);
             break;      // Avoid multiple adds
          }
       }
@@ -4204,13 +4226,16 @@ void Propagate::ClearTransientForces()
       if (!fm)
          throw CommandException("ForceModel not set in PropSetup \"" + 
                                 (*p)->GetName() + "\"");
-      for (Integer i = 0; i < fm->GetNumForces(); ++i) {
-         pm = fm->GetForce(i);
-         if (pm->IsTransient()) {
-            fm->DeleteForce(pm->GetName());
-            i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
-         }
-      }
+// todo: Remove the transient forces
+//      for (Integer i = 0; i < fm->GetNumForces(); ++i) 
+//      {
+//         pm = fm->GetForce(i);
+//         if (pm->IsTransient()) 
+//         {
+//            fm->DeleteForce(pm->GetName());
+//            i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
+//         }
+//      }
    }
    
    #ifdef DEBUG_PROPAGATE_INIT

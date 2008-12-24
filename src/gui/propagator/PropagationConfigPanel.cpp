@@ -213,7 +213,8 @@ void PropagationConfigPanel::LoadData()
       
       for (Integer i = 0; i < numOfForces; i++)
       {
-         force = theForceModel->GetForce(i);
+// todo: Add force accessors to ODEModel
+//         force = theForceModel->GetForce(i);
          if (force == NULL)
          {
             MessageInterface::ShowMessage
@@ -636,7 +637,8 @@ void PropagationConfigPanel::SaveData()
          bodyName = pointMassBodyList[i]->bodyName.c_str();
          thePMF->SetBodyName(bodyName);
          pointMassBodyList[i]->pmf = thePMF;
-         newFm->AddForce(thePMF);
+// todo: Add forces to ODEModel
+//         newFm->AddForce(thePMF);
       }
       
       //----------------------------------------------------
@@ -680,7 +682,8 @@ void PropagationConfigPanel::SaveData()
             }
             
             primaryBodyList[i]->gravf = theGravForce;            
-            newFm->AddForce(theGravForce);
+// todo: Add forces to ODEModel
+//            newFm->AddForce(theGravForce);
          }
       }
       catch (BaseException &e)
@@ -766,7 +769,8 @@ void PropagationConfigPanel::SaveData()
                }
                
                primaryBodyList[i]->dragf = theDragForce;
-               newFm->AddForce(theDragForce);
+// todo: Add forces to ODEModel
+//               newFm->AddForce(theDragForce);
                
                #ifdef DEBUG_PROP_PANEL_SAVE
                ShowForceList("SaveData() AFTER  saving DragForce");
@@ -791,7 +795,8 @@ void PropagationConfigPanel::SaveData()
             theSRP = new SolarRadiationPressure();
             bodyName = propOriginName;
             theSRP->SetStringParameter("BodyName", bodyName);
-            newFm->AddForce(theSRP);
+// todo: Add forces to ODEModel
+//            newFm->AddForce(theSRP);
             newFm->SetOnOffParameter(paramId, "On");
          }
          else
@@ -861,7 +866,8 @@ void PropagationConfigPanel::SaveData()
       int size = primaryBodyList.size();
       for (int i=0; i<numOfForces; i++)
       {
-         pm = theForceModel->GetForce(i);
+// todo: Add force accessors to ODEModel
+//         pm = theForceModel->GetForce(i);
          
          #ifdef DEBUG_PROP_PANEL_SAVE
          MessageInterface::ShowMessage
@@ -2739,7 +2745,8 @@ void PropagationConfigPanel::ShowPropData(const std::string& header)
    
    for (int i=0; i<numOfForces; i++)
    {
-      force = theForceModel->GetForce(i);
+// todo: Add force accessors to ODEModel
+//      force = theForceModel->GetForce(i);
       forceType = force->GetTypeName();
       
       forceBody = force->GetStringParameter("BodyName");
@@ -2796,15 +2803,18 @@ void PropagationConfigPanel::ShowForceModel(const std::string &header)
 {
    MessageInterface::ShowMessage(">>>>>=======================================\n");
    MessageInterface::ShowMessage("%s%s\n", header.c_str(), " --- ForceModel");
-   Integer numForces  = theForceModel->GetNumForces();
-   MessageInterface::ShowMessage
-      ("CentralBody=%s, numForces=%d\n",
-       theForceModel->GetStringParameter("CentralBody").c_str(), numForces);
+// todo: Add force accessors to ODEModel
+   Integer numForces; //  = theForceModel->GetNumForces();
+//   MessageInterface::ShowMessage
+//      ("CentralBody=%s, numForces=%d\n",
+//       theForceModel->GetStringParameter("CentralBody").c_str(), numForces);
    PhysicalModel *pm;
    
-   for (int i=0; i<numForces; i++)
+// todo: Use STL Iterators like they are intended?
+   for (int i = 0; i < numForces; i++)
    {
-      pm = theForceModel->GetForce(i);
+// todo: Add force accessors to ODEModel
+//      pm = theForceModel->GetForce(i);
       MessageInterface::ShowMessage
          ("id=%d, body=%s, type=%s, addr=%p\n", i, pm->GetBodyName().c_str(),
           pm->GetTypeName().c_str(), pm);

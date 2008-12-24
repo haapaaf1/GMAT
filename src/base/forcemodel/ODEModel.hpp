@@ -80,42 +80,45 @@ class GMAT_API ODEModel : public PhysicalModel
 public:
    ODEModel(const std::string &nomme = "", 
             const std::string typeNomme = "ODEModel");
-   virtual ~ODEModel(void);
+   virtual ~ODEModel();
    ODEModel(const ODEModel& fdf);
    ODEModel&   operator=(const ODEModel& fdf);
    
-   void AddForce(PhysicalModel *pPhyscialModel);
-   void DeleteForce(const std::string &name);
-   void DeleteForce(PhysicalModel *pPhyscialModel);
-   bool HasForce(const std::string &name);
-   Integer GetNumForces();
-   StringArray& GetForceTypeNames();
-   std::string GetForceTypeName(Integer index);
-   void ClearSpacecraft();
-   PhysicalModel* GetForce(Integer index) const;
-   const PhysicalModel* GetForce(std::string forcetype, Integer whichOne = 0) const; 
-   bool AddSpaceObject(SpaceObject *so);
-   void UpdateSpaceObject(Real newEpoch = -1.0);
-   void UpdateFromSpaceObject();
-   void RevertSpaceObject();
-   
-   virtual bool Initialize();
-   virtual void IncrementTime(Real dt);
-   virtual void SetTime(Real t);
-   
-   bool GetDerivatives(Real * state, Real dt = 0.0, Integer order = 1, 
-         const Integer id = -1);
-   Real EstimateError(Real *diffs, Real *answer) const;
-      
-   // inherited from GmatBase
-   virtual Integer      GetParameterCount(void) const;
-   virtual bool         RenameRefObject(const Gmat::ObjectType type,
-                                        const std::string &oldName,
-                                        const std::string &newName);
    virtual GmatBase*    Clone() const;
    virtual void         Copy(const GmatBase* orig);
    
-   virtual void         SetSolarSystem(SolarSystem *ss);
+   // Methods needed to run an ODEModel 
+   virtual void SetSolarSystem(SolarSystem *ss);
+   virtual bool Initialize();
+   virtual bool GetDerivatives(Real * state, Real dt = 0.0, Integer order = 1, 
+         const Integer id = -1);
+   virtual Real EstimateError(Real *diffs, Real *answer) const;
+      
+   
+// Methods that were removed
+//   void AddForce(PhysicalModel *pPhyscialModel);
+//   void DeleteForce(const std::string &name);
+//   void DeleteForce(PhysicalModel *pPhyscialModel);
+//   bool HasForce(const std::string &name);
+//   Integer GetNumForces();
+//   StringArray& GetForceTypeNames();
+//   std::string GetForceTypeName(Integer index);
+//   void ClearSpacecraft();
+//   PhysicalModel* GetForce(Integer index) const;
+//   const PhysicalModel* GetForce(std::string forcetype, Integer whichOne = 0) const; 
+//   bool AddSpaceObject(SpaceObject *so);
+//   void UpdateSpaceObject(Real newEpoch = -1.0);
+//   void UpdateFromSpaceObject();
+//   void RevertSpaceObject();
+   
+//   virtual void IncrementTime(Real dt);
+//   virtual void SetTime(Real t);
+   
+   // Parameter definitio0n and accessor methods inherited from GmatBase
+   virtual Integer      GetParameterCount() const;
+   virtual bool         RenameRefObject(const Gmat::ObjectType type,
+                                        const std::string &oldName,
+                                        const std::string &newName);
    virtual const        ObjectTypeArray& GetRefObjectTypeArray();
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);
@@ -189,22 +192,24 @@ protected:
    Integer currentForce;
    /// The size of the state for a single spacecraft
    Integer stateSize;
+   /// The state that the model uses; set by a StateManager
+   GmatState *state;
    
-   /// List of spacecraft and formations that get propagated
-   std::vector<SpaceObject *> spacecraft;
+//   /// List of spacecraft and formations that get propagated
+//   std::vector<SpaceObject *> spacecraft;
    
    /// Names of the forces in the force model
    StringArray forceTypeNames;
    /// Array of the forces
    std::vector<PhysicalModel *> forceList;
-   /// User defined forces
-   std::vector<PhysicalModel *> userForces;
+//   /// User defined forces
+//   std::vector<PhysicalModel *> userForces;
    
-   /// Epoch for the previous state
-   Real previousTime;
-   /// Buffer that allows quick reversion to the previous state
-   Real *previousState;
-   /// Determines if the method of error estimation is local or remote.
+//   /// Epoch for the previous state
+//   Real previousTime;
+//   /// Buffer that allows quick reversion to the previous state
+//   Real *previousState;
+   /// Estimation error relative to the change in state or the size of state.
    Integer estimationMethod;
    /// Defines the type of norm used in the error estimation.
    Integer normType;
@@ -220,8 +225,10 @@ protected:
    /// Flag used to prevent unnecessary initialization calls
    bool forceMembersNotInitialized;
    
+   /// Parameter IDs on spacecraft needed to access the parms during integration
    Integer satIds[7];
-   Integer modelEpochId;
+//   /// ID for the "Epoch" parameter  -- NOT NEEDED, THIS IS A PHYSICAL MODEL ALREADY!!!
+//   Integer modelEpochId;
    
    
    /// Mapping between script descriptions and force names.
@@ -231,15 +238,9 @@ protected:
    const StringArray&  BuildCoordinateList() const;
    const StringArray&  BuildUserForceList() const;
    
-   virtual Integer     SetupSpacecraftData(GmatBase *sat, 
-                                           PhysicalModel *pm, Integer i);
+//   virtual Integer     SetupSpacecraftData(GmatBase *sat, 
+//                                           PhysicalModel *pm, Integer i);
    void                UpdateTransientForces();
-   
-   #ifdef __WITH_FM_GEN_STRING__
-   void                WriteFMParameters(Gmat::WriteMode mode,
-                                         std::string &prefix,
-                                         std::stringstream &stream);
-   #endif
    
    std::string         BuildForceNameString(PhysicalModel *force);
    void                ClearInternalCoordinateSystems();
@@ -247,14 +248,14 @@ protected:
                                                    PhysicalModel *currentPm);
    
    // Pieces for prop with origin code
-   /// Name of the common J2000 body that the spacecraft atates all use
+   /// Name of the common J2000 body that the state providers all use
    std::string               j2kBodyName;
-   /// Pointer to the spacecraft J2000 body
+   /// Pointer to the J2000 body
    CelestialBody             *j2kBody;
    
    /// Locally defined coordinate systems, if needed
    std::vector <CoordinateSystem*>
-   InternalCoordinateSystems;
+                             InternalCoordinateSystems;
    
    /// EarthMJ2000Eq pointer, so that it can be cloned to make other Eq systems 
    CoordinateSystem          *earthEq;
@@ -264,8 +265,8 @@ protected:
    void                      MoveToOrigin(Real newEpoch = -1.0);
    void                      ReturnFromOrigin(Real newEpoch = -1.0);
    
-   /// Data file used when debugging epoch data
-   std::ofstream             epochFile;
+//   /// Data file used when debugging epoch data
+//   std::ofstream             epochFile;
    
    enum
    {
@@ -285,12 +286,26 @@ protected:
       ODEModelParamCount
    };
    
+   /** 
+    * Enumeration for the style of the error estimation calculations
+    * 
+    * This enumeration determines if error estimation is relative the the size 
+    * of the step taken, or to the total size of the vector.  Its usage is 
+    * usually in the denominator of the estimate in the state error -- 
+    * typically, the estimated error is the difference between a step taken 
+    * using one algorithm and that generated from another.  This difference is 
+    * divided by a value representing the total change for the ESTIMATE_STEP
+    * setting, or by the total magnitude of the vector for the ESTIMATE_VECTOR
+    * setting. 
+    */ 
    enum
    {
       ESTIMATE_IN_BASE = 1,
-      ESTIMATE_LOCALLY
+      ESTIMATE_STEP,          // Size of the step 
+      ESTIMATE_VECTOR         // Size of the vector
    };
-   
+
+   /// Norm used when estimating error
    enum
    {
       L2_MAGNITUDE = -2,
