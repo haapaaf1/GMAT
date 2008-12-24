@@ -24,6 +24,7 @@
 //#define DEBUG_FUNCTION_SET
 //#define DEBUG_FUNCTION_IN_OUT
 //#define DEBUG_WRAPPER_CODE
+//#define DEBUG_AUTO_OBJ
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -32,6 +33,10 @@
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
+
+// Since more testing is needed I just added #define here (loj: 2008.12.24)
+#define __COLLECT_AUTO_OBJECTS__
+
 
 //---------------------------------
 // static data
@@ -462,15 +467,52 @@ WrapperArray& Function::GetWrappersToDelete()
 //------------------------------------------------------------------------------
 // void AddAutomaticObject(const std::string &withName, GmatBase *obj)
 //------------------------------------------------------------------------------
+/*
+ * Adds automatic objects such as Parameter, e.g. sat.X, to automatic object map.
+ * The GmatFunction::Initialize() calls Validator to validate and to create
+ * ElementWrappers for commands in the FCS. The Validator creates automatic
+ * Parameters if necessary and calls this method for adding. Since function can be
+ * initialized more than one time multiple automatic Parameters can be created
+ * which is the case for nested and recursive call.
+ *
+ * @note Make sure that old automatic objects are deleted properly
+ */
+//------------------------------------------------------------------------------
 void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj)
 {
+   #ifdef DEBUG_AUTO_OBJ
+   MessageInterface::ShowMessage
+      ("Function::AddAutomaticObject() '%s' entered, name='%s', obj=<%p> '%s'\n",
+       GetName().c_str(), withName.c_str(), obj, obj->GetName().c_str());
+   #endif
+   
+   #ifdef __COLLECT_AUTO_OBJECTS__
+   if (automaticObjectMap.find(withName) != automaticObjectMap.end())
+   {
+      GmatBase *oldObj = automaticObjectMap[withName];
+      #ifdef DEBUG_AUTO_OBJ
+      MessageInterface::ShowMessage
+         ("   Found oldObj=<%p><%s> '%s'\n", oldObj, oldObj->GetTypeName().c_str(),
+          oldObj->GetName().c_str());
+      #endif
+      
+      if (oldObj != NULL)
+      {
+         if (find(objectsToDelete.begin(), objectsToDelete.end(), oldObj) ==
+             objectsToDelete.end())
+            objectsToDelete.push_back(oldObj);
+      }
+   }
+   #endif
+   
    automaticObjectMap.insert(std::make_pair(withName,obj));
 }
 
+
 //------------------------------------------------------------------------------
-// ObjectMap GetAutomaticObjects() const
+// ObjectMap& GetAutomaticObjects()
 //------------------------------------------------------------------------------
-ObjectMap Function::GetAutomaticObjects() const
+ObjectMap& Function::GetAutomaticObjects()
 {
    return automaticObjectMap;
 }
@@ -918,7 +960,7 @@ void Function::ClearAutomaticObjects()
    #ifdef DEBUG_AUTO_OBJ
    MessageInterface::ShowMessage
       ("Function::ClearAutomaticObjects() this=<%p> '%s' entered\n   "
-       "automaticObjectMap.size()=%d", this, GetName().c_str(),
+       "automaticObjectMap.size()=%d\n", this, GetName().c_str(),
        automaticObjectMap.size());
    #endif
    
@@ -928,6 +970,20 @@ void Function::ClearAutomaticObjects()
    {
       if (omi->second != NULL)
       {
+         //------------------------------------------------------
+         #ifdef __COLLECT_AUTO_OBJECTS__
+         //------------------------------------------------------
+         
+         // if object is not in objectsToDelete then add
+         if (find(objectsToDelete.begin(), objectsToDelete.end(), omi->second) ==
+             objectsToDelete.end())
+            objectsToDelete.push_back(omi->second);
+         omi->second = NULL;
+         
+         //------------------------------------------------------
+         #else
+         //------------------------------------------------------
+         
          #ifdef DEBUG_MEMORY
          GmatBase *obj = omi->second;
          MemoryTracker::Instance()->Remove
@@ -935,12 +991,40 @@ void Function::ClearAutomaticObjects()
          #endif
          delete omi->second;
          omi->second = NULL;
+         
+         //------------------------------------------------------
+         #endif
+         //------------------------------------------------------
       }
       toDelete.push_back(omi->first); 
    }
    
    for (unsigned int kk = 0; kk < toDelete.size(); kk++)
       automaticObjectMap.erase(toDelete.at(kk));
+   
+   #ifdef __COLLECT_AUTO_OBJECTS__
+   // delete old automatic objects collected if not already deleted
+   #ifdef DEBUG_AUTO_OBJ
+   MessageInterface::ShowMessage
+      ("   There are %d old automatic objects\n", objectsToDelete.size());
+   #endif
+   
+   ObjectArray::iterator oai;
+   for (oai = objectsToDelete.begin(); oai != objectsToDelete.end(); ++oai)
+   {
+      #ifdef DEBUG_AUTO_OBJ
+      MessageInterface::ShowMessage("   oldObj=<%p>\n", (*oai));
+      #endif
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*oai), (*oai)->GetName(), "Function::ClearAutomaticObjects()", "deleting old object");
+      #endif
+      delete (*oai);
+      (*oai) = NULL;
+   }
+   objectsToDelete.clear();
+   #endif
 }
 
 
