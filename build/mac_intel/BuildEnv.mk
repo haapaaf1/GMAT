@@ -21,9 +21,10 @@ USE_SHARED = 1
 SHARED_BASE = 0
 
 # *** EDIT THIS *** - put the top of the GMAT project directory structure here ....
-TOP_DIR = <your top directory here>
+TOP_DIR = /Users/wcshoan/Documents/workspace/Delivery
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
-WX_HOME = /Applications/wxmac-2.8.8/osx-build
+WX_HOME = /Applications/wxmac-2.8.9/osx-build
+#WX_HOME = /Applications/wxmac-2.8.8/osx-build
 #WX_HOME = /Applications/wxmac-2.8.7/osx-build
 # *** EDIT THIS *** - 'sudo make install' of wxMac will put things here ......
 WX_INSTALLED = /usr/local/bin
@@ -31,7 +32,8 @@ WX_INSTALLED = /usr/local/bin
 MATLAB = /Applications/MATLAB_R2007b
 # *** EDIT THIS *** - this should match the version of wxMac you are using
 #INSTALL_WX_LIBS = install_libs_into_bundle_2_8_7
-INSTALL_WX_LIBS = install_libs_into_bundle_2_8_8
+#INSTALL_WX_LIBS = install_libs_into_bundle_2_8_8
+INSTALL_WX_LIBS = install_libs_into_bundle_2_8_9
 
 BUILD = release
 
@@ -106,7 +108,8 @@ EXECUTABLE  = $(TOP_DIR)/bin/GMATNoMatlab
 endif
 # *** EDIT THIS *** - put the version number of the wxMac that you're using here ...
 #WX_VERSION   = 2.8.7
-WX_VERSION   = 2.8.8
+#WX_VERSION   = 2.8.8
+WX_VERSION   = 2.8.9
 GMAT_INFO    = $(TOP_DIR)/src/gui/Info_GMAT.plist
 CONTENTS_DIR = $(EXECUTABLE).app/Contents
 MACOS_DIR    = $(CONTENTS_DIR)/MacOS
