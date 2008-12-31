@@ -18,6 +18,10 @@
 //------------------------------------------------------------------------------
 
 #include "PropSetup.hpp"
+
+#include "ODEModel.hpp"
+#include "Propagator.hpp"
+
 #include "PropSetupException.hpp"
 #include "PhysicalModel.hpp"
 #include "RungeKutta89.hpp"
@@ -30,7 +34,7 @@
 //#define DEBUG_PROPSETUP_DELETE
 //#define DEBUG_PROPSETUP_GEN_STRING
 
-//#ifndef DEBUG_MEMORY
+//#ifndef DEBUG_MEMORY 
 //#define DEBUG_MEMORY
 //#endif
 
@@ -299,6 +303,18 @@ Propagator* PropSetup::GetPropagator()
 ODEModel* PropSetup::GetODEModel()
 {
    return mODEModel;
+}
+
+//------------------------------------------------------------------------------
+// PropagationStateManager* GetPropStateManager()
+//------------------------------------------------------------------------------
+/**
+ *@return The PropagationStateManager for this PropSetup
+ */
+//------------------------------------------------------------------------------
+PropagationStateManager* PropSetup::GetPropStateManager()
+{
+   return &psm;
 }
 
 //------------------------------------------------------------------------------

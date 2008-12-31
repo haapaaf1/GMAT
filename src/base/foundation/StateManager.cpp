@@ -22,7 +22,8 @@
 
 StateManager::StateManager(Integer size) :
    stateSize      (size),
-   state          (size)
+   state          (size),
+   current        (NULL)
 {
 }
 
@@ -31,7 +32,9 @@ StateManager::~StateManager()
 }
 
 StateManager::StateManager(const StateManager& sm) :
-   state       (sm.state)
+   stateSize   (sm.stateSize),
+   state       (sm.state),
+   current     (NULL)
 {
 }
 
@@ -39,7 +42,13 @@ StateManager& StateManager::operator=(const StateManager& sm)
 {
    if (this != &sm)
    {
+      stateSize = sm.stateSize;
       state = sm.state;
+      
+      // For now, copies start empty.  This may change later.
+      objects.clear();
+      elements.clear();
+      current = NULL;
    }
    
    return *this;

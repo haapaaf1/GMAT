@@ -21,6 +21,7 @@
 
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
+#include "PropagationStateManager.hpp"
 
 // Forward references
 class PhysicalModel;
@@ -54,7 +55,15 @@ class Propagator;
  * that are integrated are constructed consistently with the propagation state 
  * vector.  The differential equations are managed in the ODEModel.
  * 
- * 
+ * GMAT's ODEModel class is a PhysicalModel that collects other PhysicalModel
+ * objects and adds up their contributions, generating the total contribution to 
+ * an integrator.  In other words, the ODEModel instance is a container class 
+ * that collects individual objects that supply contributions to the total
+ * differential equation, and adds these contributions together, generating the
+ * superposition needed by the integrator.  The ODEModel places these totals 
+ * into a state vector supplied by the PropagationStateManager.  The ODEModel is
+ * responsible for ensuring that each contribution is assembled in the correct
+ * element of the state vector. 
  */
 class GMAT_API PropSetup : public GmatBase
 {
@@ -68,6 +77,8 @@ public:
    bool                 IsInitialized();
    Propagator*          GetPropagator();
    ODEModel*            GetODEModel();
+   PropagationStateManager*            
+                        GetPropStateManager();
    void                 SetPropagator(Propagator *propagator);
    void                 SetODEModel(ODEModel *odeModel);
    void                 SetUseDrag(bool flag);
@@ -133,18 +144,20 @@ public:
                                             const std::string &useName = "");
    
    
-private:
    
-   void    ClonePropagator(Propagator *prop);
-   void    CloneODEModel(ODEModel *fm);
-   void    DeleteOwnedObject(Integer id, bool forceDelete = false);
-   Integer GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const;
+private:
    
    bool mInitialized;
    std::string mPropagatorName;
    std::string mODEModelName;
    Propagator *mPropagator;
    ODEModel *mODEModel;
+   PropagationStateManager psm;
+   
+   void    ClonePropagator(Propagator *prop);
+   void    CloneODEModel(ODEModel *fm);
+   void    DeleteOwnedObject(Integer id, bool forceDelete = false);
+   Integer GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const;
    
    enum
    {

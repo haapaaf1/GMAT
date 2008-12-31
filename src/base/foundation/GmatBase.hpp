@@ -357,6 +357,10 @@ public:
    /// Method for getting time precision
    static Integer          GetTimePrecision();
    
+   virtual Integer         SetPropItem(std::string propItem);
+   virtual StringArray     GetDefaultPropItems();
+   virtual Real*           GetPropItem(Integer item);
+   
 protected:
    /// Parameter IDs
    enum

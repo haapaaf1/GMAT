@@ -23,6 +23,7 @@
 
 #include "GmatState.hpp"
 #include "StateVectorIds.hpp"
+#include <map>
 
 /**
  * The state manager base class.
@@ -35,7 +36,8 @@ public:
    StateManager(const StateManager& sm);
    StateManager& operator=(const StateManager& sm);
    
-   
+   virtual bool SetObject(GmatBase* theObject) = 0;
+   virtual bool SetProperty(std::string propName) = 0;   
    
 protected:
    /// Size of the managed state vector
@@ -43,7 +45,8 @@ protected:
    GmatState                  state;
    
    std::vector<GmatBase*>     objects;
-   std::vector<StringArray>   elements;
+   std::map<GmatBase*, StringArray*>  elements;
+   GmatBase*                  current;
 };
 
 #endif /*StateManager_hpp*/

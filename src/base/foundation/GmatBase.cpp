@@ -2841,6 +2841,23 @@ Integer GmatBase::GetTimePrecision()
    return GmatGlobal::Instance()->GetTimePrecision();
 }
 
+
+Integer GmatBase::SetPropItem(std::string propItem)
+{
+   return -1;
+}
+
+StringArray GmatBase::GetDefaultPropItems()
+{
+   StringArray empty;
+   return empty;
+}
+
+Real* GmatBase::GetPropItem(Integer item)
+{
+   return NULL;
+}
+
 //-------------------------------------
 // protected methods
 //-------------------------------------

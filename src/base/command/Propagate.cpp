@@ -18,6 +18,10 @@
 //------------------------------------------------------------------------------
 
 #include "Propagate.hpp"
+
+#include "Propagator.hpp"
+#include "ODEModel.hpp"
+
 #include "Publisher.hpp"
 #include "Parameter.hpp"
 #include "StringUtil.hpp" // for Trim()
@@ -27,9 +31,9 @@
 #include <sstream>
 #include <cmath>
 
-//#define DEBUG_PROPAGATE_ASSEMBLE 1
+#define DEBUG_PROPAGATE_ASSEMBLE 1
 //#define DEBUG_PROPAGATE_OBJ 1
-//#define DEBUG_PROPAGATE_INIT 1
+#define DEBUG_PROPAGATE_INIT 1
 //#define DEBUG_PROPAGATE_DIRECTION 1
 //#define DEBUG_PROPAGATE_STEPSIZE 1
 //#define DEBUG_PROPAGATE_EXE 1
@@ -1881,7 +1885,7 @@ void Propagate::ConfigurePropSetup(std::string &setupDesc)
       CleanString(sat, &extras);
       
       #ifdef DEBUG_PROPAGATE_ASSEMBLE
-         MessageInterface::ShowMessage("   Found satellite '%s'\n", sat.c_str());
+         MessageInterface::ShowMessage("   Found prop object \"%s\"\n", sat.c_str());
       #endif
       SetObject(sat, Gmat::SPACECRAFT);
    }
@@ -2038,7 +2042,7 @@ void Propagate::CleanString(std::string &theString, const StringArray *extras)
    // Clean up the start of the string
    for (loc = 0; loc < len; ++loc)
    {
-      if (theString[loc] != ' ')
+      if ((theString[loc] != ' ') && (theString[loc] != '\''))
       {
          if (extras != NULL)
             for (StringArray::const_iterator i = extras->begin(); i != extras->end(); ++i)
@@ -2056,7 +2060,7 @@ void Propagate::CleanString(std::string &theString, const StringArray *extras)
    keepGoing = false;
    for (loc = theString.length() - 1; loc >= 0; --loc)
    {
-      if (theString[loc] != ' ')
+      if ((theString[loc] != ' ') && (theString[loc] != '\''))
       {
          if (extras != NULL)
             for (StringArray::const_iterator i = extras->begin(); i != extras->end(); ++i)
@@ -2168,12 +2172,14 @@ bool Propagate::Initialize()
       if (!p)
          throw CommandException("Propagator not set in PropSetup\n");
    
-      // Toss the spacecraft into the force model
-      ODEModel *fm = prop[index]->GetODEModel();
-      if (!fm)
+      // Toss the spacecraft into the prop state manager
+      
+      ODEModel *odem = prop[index]->GetODEModel();
+      if (!odem)
          throw CommandException("ForceModel not set in PropSetup\n");
 // todo: manage prop object initialization
-//      fm->ClearSpacecraft();
+//      odem->ClearSpacecraft();
+      PropagationStateManager *psm = prop[index]->GetPropStateManager();
       StringArray::iterator scName;
       StringArray owners, elements;
 
@@ -2192,34 +2198,47 @@ bool Propagate::Initialize()
          #endif
          if ((mapObj = FindObject(*scName)) == NULL) 
          {
-            std::string errmsg = "Unknown SpaceObject \"";
-            errmsg += *scName;
-            errmsg += "\"";
-            throw CommandException(errmsg);
+            #if DEBUG_PROPAGATE_INIT
+               MessageInterface::ShowMessage("   '%s' is not an object; "
+                     "attempting to set as a prop property\n",
+                     scName->c_str());
+            #endif
+            if (psm->SetProperty(*scName) == false)
+            {
+               std::string errmsg = "Unknown SpaceObject property \"";
+               errmsg += *scName;
+               errmsg += "\"";
+               throw CommandException(errmsg);
+            }
          }
-         so = (SpaceObject*)mapObj;
-         if (epochID == -1)
-            epochID = so->GetParameterID("A1Epoch");
-         if (so->IsManeuvering())
-            finiteBurnActive = true;
-         sats.push_back(so);
-         AddToBuffer(so);
+         else
+         {
+            psm->SetObject(mapObj);
+
+            so = (SpaceObject*)mapObj;
+            if (epochID == -1)
+               epochID = so->GetParameterID("A1Epoch");
+            if (so->IsManeuvering())
+               finiteBurnActive = true;
+            sats.push_back(so);
+            AddToBuffer(so);
 // todo: manage prop object initialization
 //         fm->AddSpaceObject(so);
-         if (so->GetType() == Gmat::FORMATION)
-            FillFormation(so, owners, elements);
-         else 
-         {
-            SetNames(so->GetName(), owners, elements);
+            if (so->GetType() == Gmat::FORMATION)
+               FillFormation(so, owners, elements);
+            else 
+            {
+               SetNames(so->GetName(), owners, elements);
+            }
          }
       }
       
       // Set solar system to ForceModel for Propagate inside a GmatFunction(loj: 2008.06.06)
-      fm->SetSolarSystem(solarSys);
+      odem->SetSolarSystem(solarSys);
       
       // Check for finite thrusts and update the force model if there are any
       if (finiteBurnActive == true)
-         AddTransientForce(satName[index], fm);
+         AddTransientForce(satName[index], odem);
       
       #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
@@ -2228,7 +2247,7 @@ bool Propagate::Initialize()
       
       streamID = publisher->RegisterPublishedData(owners, elements);
       
-      p->SetPhysicalModel(fm);
+      p->SetPhysicalModel(odem);
       p->SetRealParameter("InitialStepSize", 
          fabs(p->GetRealParameter("InitialStepSize")) * direction);
       p->Initialize();
@@ -4183,25 +4202,28 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
    }
 
    #ifdef DEBUG_PROPAGATE_INIT
-      ForceModel *fm;
+      ODEModel *fm;
       PhysicalModel *pm;
    
       MessageInterface::ShowMessage(
          "Propagate::AddTransientForces completed; force details:\n");
       for (std::vector<PropSetup*>::iterator p = prop.begin(); 
-           p != prop.end(); ++p) {
-         fm = (*p)->GetForceModel();
-         if (!fm)
-            throw CommandException("ForceModel not set in PropSetup \"" + 
-                                   (*p)->GetName() + "\"");
-         MessageInterface::ShowMessage(
-            "   Forces in %s:\n", fm->GetName().c_str());
-         for (Integer i = 0; i < fm->GetNumForces(); ++i) {
-            pm = fm->GetForce(i);
-            MessageInterface::ShowMessage(
-               "      %s   %s\n", pm->GetTypeName().c_str(),
-               pm->GetName().c_str());
-         }
+           p != prop.end(); ++p) 
+      {
+         // todo: fix calls in the debug messages
+//         fm = (*p)->GetForceModel();
+//         if (!fm)
+//            throw CommandException("ForceModel not set in PropSetup \"" + 
+//                                   (*p)->GetName() + "\"");
+//         MessageInterface::ShowMessage(
+//            "   Forces in %s:\n", fm->GetName().c_str());
+//         for (Integer i = 0; i < fm->GetNumForces(); ++i) 
+//         {
+//            pm = fm->GetForce(i);
+//            MessageInterface::ShowMessage(
+//               "      %s   %s\n", pm->GetTypeName().c_str(),
+//               pm->GetName().c_str());
+//         }
       }
    #endif
 }
@@ -4243,18 +4265,20 @@ void Propagate::ClearTransientForces()
          "Propagate::ClearTransientForces completed; force details:\n");
       for (std::vector<PropSetup*>::iterator p = prop.begin(); 
            p != prop.end(); ++p) {
-         fm = (*p)->GetForceModel();
+         fm = (*p)->GetODEModel();
          if (!fm)
             throw CommandException("ForceModel not set in PropSetup \"" + 
                                    (*p)->GetName() + "\"");
          MessageInterface::ShowMessage(
             "   Forces in %s:\n", fm->GetName().c_str());
-         for (Integer i = 0; i < fm->GetNumForces(); ++i) {
-            pm = fm->GetForce(i);
-            MessageInterface::ShowMessage(
-               "      %s   %s\n", pm->GetTypeName().c_str(),
-               pm->GetName().c_str());
-         }
+         // todo: fix calls in the debug messages
+//         for (Integer i = 0; i < fm->GetNumForces(); ++i) 
+//         {
+//            pm = fm->GetForce(i);
+//            MessageInterface::ShowMessage(
+//               "      %s   %s\n", pm->GetTypeName().c_str(),
+//               pm->GetName().c_str());
+//         }
       }
    #endif
 }

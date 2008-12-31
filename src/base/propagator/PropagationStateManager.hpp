@@ -33,6 +33,11 @@ public:
 	virtual ~PropagationStateManager();
 	PropagationStateManager(const PropagationStateManager& psm);
 	PropagationStateManager& operator=(const PropagationStateManager& psm);
+	
+	virtual bool SetObject(GmatBase* theObject);
+	virtual bool SetProperty(std::string propName);
+	
+	
 };
 
 #endif /*PropagationStateManager_hpp*/
