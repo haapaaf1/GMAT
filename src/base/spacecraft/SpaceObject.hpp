@@ -48,6 +48,17 @@ public:
    virtual Real GetRealParameter(const std::string &label) const;
    virtual Real SetRealParameter(const Integer id, const Real value);
    virtual Real SetRealParameter(const std::string &label, const Real value);
+   
+   virtual Real         GetRealParameter(const Integer id, const Integer row,
+                                         const Integer col) const;
+   virtual Real         GetRealParameter(const std::string &label, 
+                                         const Integer row, 
+                                         const Integer col) const;
+   virtual Real         SetRealParameter(const Integer id, const Real value,
+                                         const Integer row, const Integer col);
+   virtual Real         SetRealParameter(const std::string &label,
+                                         const Real value, const Integer row,
+                                         const Integer col);
 
    /// @todo Waiting for CoordinateSystems in Spacecraft, then see if needed
    virtual void SetOriginName(std::string cbName);

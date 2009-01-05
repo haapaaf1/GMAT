@@ -37,7 +37,10 @@ public:
    StateManager& operator=(const StateManager& sm);
    
    virtual bool SetObject(GmatBase* theObject) = 0;
-   virtual bool SetProperty(std::string propName) = 0;   
+   virtual bool SetProperty(std::string propName) = 0;
+   virtual bool BuildState() = 0;
+   virtual bool MapObjectsToVector() = 0;
+   virtual bool MapVectorToObjects() = 0;
    
 protected:
    /// Size of the managed state vector

@@ -1170,7 +1170,7 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
 
    Integer retval = -1;
    if (str == "Element1" || str == "X" || str == "SMA" || str == "RadPer" ||
-       str == "RMAG")  
+       str == "RMAG" || str == "CartesianState")
       retval =  ELEMENT1_ID;
       //return ELEMENT1_ID;
 
@@ -1218,6 +1218,9 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
          return i;
       }
    }
+   if (str == "STM")
+      return ORBIT_STM;
+
    if (attitude)
    {
       try
@@ -2026,6 +2029,73 @@ bool Spacecraft::SetStringParameter(const std::string &label,
 }
 
 
+const Rmatrix& Spacecraft::GetRmatrixParameter(const Integer id) const
+{
+   if (id == ORBIT_STM)
+      return orbitSTM;
+   
+   return SpaceObject::GetRmatrixParameter(id);
+}
+
+const Rmatrix& Spacecraft::SetRmatrixParameter(const Integer id,
+                                         const Rmatrix &value)
+{
+   if (id == ORBIT_STM)
+   {
+      orbitSTM = value;
+      return orbitSTM;
+   }
+   
+   return SpaceObject::SetRmatrixParameter(id, value);
+}
+
+const Rmatrix& Spacecraft::GetRmatrixParameter(const std::string &label) const
+{   
+   return GetRmatrixParameter(GetParameterID(label));
+}
+
+const Rmatrix& Spacecraft::SetRmatrixParameter(const std::string &label,
+                                         const Rmatrix &value)
+{   
+   return SetRmatrixParameter(GetParameterID(label), value);
+}
+
+Real Spacecraft::GetRealParameter(const Integer id, const Integer row,
+                                       const Integer col) const
+{
+   if (id == ORBIT_STM)
+      return orbitSTM(row, col);
+   
+   return SpaceObject::GetRealParameter(id, row, col);
+}
+
+Real Spacecraft::GetRealParameter(const std::string &label, 
+                                      const Integer row, 
+                                      const Integer col) const
+{
+   return GetRealParameter(GetParameterID(label), row, col);
+}
+
+Real Spacecraft::SetRealParameter(const Integer id, const Real value,
+                                      const Integer row, const Integer col)
+{
+   if (id == ORBIT_STM)
+   {
+      orbitSTM(row, col) = value;
+      return orbitSTM(row, col);
+   }
+   
+   return SpaceObject::SetRealParameter(id, value, row, col);
+}
+
+Real Spacecraft::SetRealParameter(const std::string &label,
+                                      const Real value, const Integer row,
+                                      const Integer col)
+{
+   return SetRealParameter(GetParameterID(label), value, row, col);
+}
+
+
 //---------------------------------------------------------------------------
 //  bool TakeAction(const std::string &action, const std::string &actionData)
 //---------------------------------------------------------------------------
@@ -2447,6 +2517,75 @@ void Spacecraft::SetAnomaly(const std::string &type, const Anomaly &ta)
    #endif
 }
 
+
+Integer Spacecraft::SetPropItem(std::string propItem)
+{
+   if (propItem == "CartesianState")
+      return Gmat::CARTESIAN_STATE;
+   if (propItem == "STM")
+      return Gmat::ORBIT_STATE_TRANSITION_MATRIX;
+   
+   return SpaceObject::SetPropItem(propItem);
+}
+
+
+StringArray Spacecraft::GetDefaultPropItems()
+{
+   StringArray defaults = SpaceObject::GetDefaultPropItems();
+   defaults.push_back("CartesianState");
+   return defaults;
+}
+
+
+Real* Spacecraft::GetPropItem(Integer item)
+{
+   Real* retval = NULL;
+   switch (item)
+   {
+      case Gmat::CARTESIAN_STATE:
+         retval = state.GetState();
+         break;
+         
+      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+//         retval = stm;
+         break;
+         
+      case Gmat::MASS_FLOW:
+         // todo: Access tanks for mass information to handle mass flow
+         break;
+         
+      // All other values call up the class heirarchy
+      default:
+         retval = SpaceObject::GetPropItem(item);
+   }
+   
+   return retval;
+}
+
+Integer Spacecraft::GetPropItemSize(Integer item)
+{
+   Integer retval = -1;
+   switch (item)
+   {
+      case Gmat::CARTESIAN_STATE:
+         retval = state.GetSize();
+         break;
+         
+      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+         retval = 36;
+         break;
+         
+      case Gmat::MASS_FLOW:
+         // todo: Access tanks for mass information to handle mass flow
+         break;
+         
+      // All other values call up the heirarchy
+      default:
+         retval = SpaceObject::GetPropItemSize(item);
+   }
+   
+   return retval;
+}
 
 //-------------------------------------
 // protected methods

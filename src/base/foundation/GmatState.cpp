@@ -21,7 +21,10 @@
 #include "GmatState.hpp"
 #include "GmatBaseException.hpp"
 
-#include <strstream>
+#include <sstream>
+#include "MessageInterface.hpp"
+
+//#define DEBUG_STATE_LOADING
 
 
 //------------------------------------------------------------------------------
@@ -43,11 +46,16 @@ GmatState::GmatState(Integer size) :
    stateSize         (size)
 {
    if (stateSize == 0)
+   {
       theData = NULL;
+      dataIDs = NULL;
+   }
    else
    {
       theData = new Real[stateSize];
       Zero();
+      dataIDs = new Integer[stateSize];
+      dataTypes.assign(stateSize, "");
    }
 }
 
@@ -62,6 +70,8 @@ GmatState::~GmatState()
 {
    if (theData != NULL)
       delete [] theData;
+   if (dataIDs != NULL)
+      delete [] dataIDs;
 }
 
 //------------------------------------------------------------------------------
@@ -77,13 +87,23 @@ GmatState::GmatState(const GmatState& gs) :
    theEpoch       (gs.theEpoch),
    stateSize      (gs.stateSize)
 {
+   dataTypes = gs.dataTypes;
+
    if (stateSize == 0)
+   {
       theData = NULL;
+      dataIDs = NULL;
+   }
    else
    {
       theData = new Real[stateSize];
+      dataIDs = new Integer[stateSize];
+            
       for (Integer i = 0; i < stateSize; ++i)
+      {
          theData[i] = gs.theData[i];
+         dataIDs[i] = gs.dataIDs[i];
+      }
    }
 }
 
@@ -105,14 +125,25 @@ GmatState& GmatState::operator=(const GmatState& gs)
       
       if (theData != NULL)
          delete [] theData;
+      if (dataIDs != NULL)
+         delete [] dataIDs;
 
       if (stateSize == 0)
+      {
          theData = NULL;
+         dataIDs = NULL;
+      }
       else
       {
          theData = new Real[stateSize];
+         dataIDs = new Integer[stateSize];
+         dataTypes.assign(stateSize, "");
          for (Integer i = 0; i < stateSize; ++i)
+         {
             theData[i] = gs.theData[i];
+            dataIDs[i] = gs.dataIDs[i];
+            dataTypes[i] = gs.dataTypes[i];
+         }
       }
    }
 
@@ -254,6 +285,29 @@ GmatEpoch GmatState::SetEpoch(const GmatEpoch ep)
 }
 
 
+bool GmatState::SetElementProperties(const Integer index, const Integer id, 
+                                     const std::string &textId)
+{
+   #ifdef DEBUG_STATE_LOADING
+      MessageInterface::ShowMessage("Setting element %d, id = %d, desc = %s\n",
+            index, id, textId.c_str());
+   #endif
+      
+   if ((index < 0) || (index >= stateSize))
+      throw GmatBaseException("Cannot set state element properties: "
+                  "index out of range.");
+   
+   dataIDs[index] = id;
+   dataTypes[index] = textId;
+   
+   return true;
+}
+
+const StringArray& GmatState::GetElementDescriptions()
+{
+   return dataTypes;
+}
+
 //------------------------------------------------------------------------------
 // void Resize(Integer newSize, bool withCopy)
 //------------------------------------------------------------------------------
@@ -273,20 +327,37 @@ void GmatState::Resize(Integer newSize, bool withCopy)
       throw GmatBaseException("GmatState Resize requested an invalid size");
    
    Real *newData = new Real[newSize];
+   Integer *newIDs = new Integer[newSize];
+   StringArray newTypes;
+   newTypes.assign(newSize, "");
+
    Integer start = 0;
-   
+
    if (withCopy)
    {
       // copy as much of the current state as possible into the new state 
       Integer size = (newSize > stateSize ? stateSize : newSize);
       memcpy(newData, theData, size*sizeof(Real));
+      memcpy(newIDs, dataIDs, size*sizeof(Integer));
+  
+      for (Integer i = 0; i < size; ++i)
+         newTypes[i] = dataTypes[i];
+         
       start = size;
    }
    
    stateSize = newSize;
    delete [] theData;
+   delete [] dataIDs;
    theData = newData;
+   dataIDs = newIDs;
+   dataTypes.assign(newSize, "");
+   dataTypes = newTypes;
 
+   #ifdef DEBUG_STATE_LOADING
+      MessageInterface::ShowMessage("dataType size is %d\n", dataTypes.size());
+   #endif
+      
    // Zero the unset entries in the state data
    Zero(start, newSize - start);
 }
@@ -307,7 +378,7 @@ void GmatState::Zero(Integer begin, UnsignedInt length)
 {
    if ((begin < 0) || ((Integer)(begin + length) > stateSize))
    {
-      std::strstream errmsg;
+      std::stringstream errmsg;
       errmsg << "GmatState request to zero " << length
              << " elements starting at element " << begin 
              << " exceeds the state size, which is " << stateSize;

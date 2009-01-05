@@ -542,6 +542,32 @@ Real SpaceObject::SetRealParameter(const std::string &label, const Real value)
    return SetRealParameter(GetParameterID(label), value);
 }
 
+Real SpaceObject::GetRealParameter(const Integer id, const Integer row,
+                                   const Integer col) const
+{
+   return SpacePoint::GetRealParameter(id, row, col);
+}
+
+Real SpaceObject::GetRealParameter(const std::string &label, 
+                                      const Integer row, 
+                                      const Integer col) const
+{
+   return GetRealParameter(GetParameterID(label), row, col);
+}
+
+Real SpaceObject::SetRealParameter(const Integer id, const Real value,
+                                      const Integer row, const Integer col)
+{
+   return SpacePoint::SetRealParameter(id, value, row, col);
+}
+
+Real SpaceObject::SetRealParameter(const std::string &label,
+                                      const Real value, const Integer row,
+                                      const Integer col)
+{
+   return SetRealParameter(GetParameterID(label), value, row, col);
+}
+
 
 //------------------------------------------------------------------------------
 // void ClearLastStopTriggered()

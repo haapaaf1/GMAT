@@ -2233,6 +2233,10 @@ bool Propagate::Initialize()
          }
       }
       
+      if (psm->BuildState() == false)
+         throw CommandException("Could not build the state for the command \n" +
+               generatingString);
+      
       // Set solar system to ForceModel for Propagate inside a GmatFunction(loj: 2008.06.06)
       odem->SetSolarSystem(solarSys);
       

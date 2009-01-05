@@ -212,4 +212,6 @@ namespace Gmat
 typedef std::vector<Gmat::ObjectType> ObjectTypeArray;
 typedef std::vector<Gmat::WrapperDataType> WrapperTypeArray;
 
+#include "StateVectorIds.hpp"
+
 #endif //GMATDEFS_HPP

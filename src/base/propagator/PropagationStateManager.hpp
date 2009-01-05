@@ -36,8 +36,30 @@ public:
 	
 	virtual bool SetObject(GmatBase* theObject);
 	virtual bool SetProperty(std::string propName);
-	
-	
+   virtual bool BuildState();
+   virtual bool MapObjectsToVector();
+   virtual bool MapVectorToObjects();
+   
+protected:
+   struct ListItem
+   {
+      std::string objectName;
+      std::string elementName;
+      GmatBase*   object;
+      Integer     elementID;
+      Integer     subelement;
+      Integer     parameterID;
+      Gmat::ParameterType
+                  parameterType;
+      Integer     rowIndex;      // Used for vectors and arrays
+      Integer     rowLength;     // Used for vectors and arrays
+      Integer     colIndex;      // Used for arrays
+      Integer     length;
+   };
+   
+   std::vector<ListItem*> stateMap;
+   
+   Integer        SortVector();
 };
 
 #endif /*PropagationStateManager_hpp*/

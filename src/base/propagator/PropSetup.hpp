@@ -143,8 +143,6 @@ public:
                                             const std::string &prefix = "",
                                             const std::string &useName = "");
    
-   
-   
 private:
    
    bool mInitialized;

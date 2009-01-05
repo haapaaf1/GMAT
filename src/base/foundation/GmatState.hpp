@@ -52,12 +52,19 @@ public:
                               const Integer start = 0);
    GmatEpoch         GetEpoch() const;
    GmatEpoch         SetEpoch(const GmatEpoch ep);
+   
+   bool              SetElementProperties(const Integer index, const Integer id, 
+                           const std::string &textId);
+   const StringArray&
+                     GetElementDescriptions();
 
 protected:
    /// The epoch of the state data
    GmatEpoch   theEpoch;
    /// The state data
    Real              *theData;
+   Integer           *dataIDs;
+   StringArray       dataTypes;
    
    /// Length of the state vector
    Integer           stateSize;

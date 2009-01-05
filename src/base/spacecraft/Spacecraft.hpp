@@ -111,7 +111,28 @@ public:
    virtual bool         SetStringParameter(const std::string &label, 
                                            const std::string &value,
                                            const Integer index);
-   
+
+   virtual const Rmatrix&
+                        GetRmatrixParameter(const Integer id) const;
+   virtual const Rmatrix&
+                        SetRmatrixParameter(const Integer id,
+                                            const Rmatrix &value);
+   virtual const Rmatrix&
+                        GetRmatrixParameter(const std::string &label) const;
+   virtual const Rmatrix&
+                        SetRmatrixParameter(const std::string &label,
+                                            const Rmatrix &value);
+   virtual Real         GetRealParameter(const Integer id, const Integer row,
+                                         const Integer col) const;
+   virtual Real         GetRealParameter(const std::string &label, 
+                                         const Integer row, 
+                                         const Integer col) const;
+   virtual Real         SetRealParameter(const Integer id, const Real value,
+                                         const Integer row, const Integer col);
+   virtual Real         SetRealParameter(const std::string &label,
+                                         const Real value, const Integer row,
+                                         const Integer col);
+
    const StringArray&   GetStringArrayParameter(const Integer id) const;
    
    virtual std::string  GetParameterText(const Integer id) const;
@@ -138,6 +159,12 @@ public:
    void SetEpoch(const std::string &type, const std::string &ep, Real a1mjd);
    void SetState(const std::string &type, const Rvector6 &cartState);
    void SetAnomaly(const std::string &type, const Anomaly &ta);
+   
+   virtual Integer         SetPropItem(std::string propItem);
+   virtual StringArray     GetDefaultPropItems();
+   virtual Real*           GetPropItem(Integer item);
+   virtual Integer         GetPropItemSize(Integer item);
+
    
 protected:
    enum SC_Param_ID 

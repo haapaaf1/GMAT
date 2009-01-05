@@ -360,6 +360,7 @@ public:
    virtual Integer         SetPropItem(std::string propItem);
    virtual StringArray     GetDefaultPropItems();
    virtual Real*           GetPropItem(Integer item);
+   virtual Integer         GetPropItemSize(Integer item);
    
 protected:
    /// Parameter IDs
