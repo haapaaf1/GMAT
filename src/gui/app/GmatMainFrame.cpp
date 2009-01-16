@@ -81,6 +81,10 @@
 #include "AssignmentPanel.hpp"
 #include "ScriptEventPanel.hpp"
 #include "ScriptPanel.hpp"
+#ifdef __USE_STC_EDITOR__
+#include "EditorPanel.hpp"
+#include "EditorPrintout.hpp"
+#endif
 #include "ReportFilePanel.hpp"
 #include "BarycenterPanel.hpp"
 #include "LibrationPointPanel.hpp"
@@ -151,57 +155,68 @@ using namespace GmatMenu;
  */
 //------------------------------------------------------------------------------
 BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
-   EVT_MENU(MENU_EMPTY_PROJECT, GmatMainFrame::OnProjectNew)
-   EVT_MENU(MENU_LOAD_DEFAULT_MISSION, GmatMainFrame::OnLoadDefaultMission)
-   EVT_MENU(MENU_FILE_SAVE_SCRIPT, GmatMainFrame::OnSaveScript)
-   EVT_MENU(MENU_FILE_SAVE_SCRIPT_AS, GmatMainFrame::OnSaveScriptAs)
-   EVT_MENU(MENU_PROJECT_EXIT, GmatMainFrame::OnProjectExit)
-   EVT_MENU(MENU_PREFERENCES_FONT, GmatMainFrame::OnFont)
-   EVT_MENU(TOOL_RUN, GmatMainFrame::OnRun)
-   EVT_MENU(TOOL_PAUSE, GmatMainFrame::OnPause)
-   EVT_MENU(TOOL_STOP, GmatMainFrame::OnStop)
-   EVT_MENU(TOOL_CLOSE_CHILDREN, GmatMainFrame::OnCloseAll)
-   EVT_MENU(TOOL_CLOSE_CURRENT, GmatMainFrame::OnCloseActive)
+   EVT_MENU (MENU_EMPTY_PROJECT, GmatMainFrame::OnProjectNew)
+   EVT_MENU (MENU_LOAD_DEFAULT_MISSION, GmatMainFrame::OnLoadDefaultMission)
+   EVT_MENU (MENU_FILE_SAVE_SCRIPT, GmatMainFrame::OnSaveScript)
+   EVT_MENU (MENU_FILE_SAVE_SCRIPT_AS, GmatMainFrame::OnSaveScriptAs)
+   EVT_MENU (MENU_FILE_PRINT_SETUP, GmatMainFrame::OnPrintSetup)
+   EVT_MENU (MENU_FILE_PRINT, GmatMainFrame::OnPrint)
+   EVT_MENU (MENU_PROJECT_EXIT, GmatMainFrame::OnProjectExit)
+   EVT_MENU (MENU_PREFERENCES_FONT, GmatMainFrame::OnFont)
+   EVT_MENU (TOOL_RUN, GmatMainFrame::OnRun)
+   EVT_MENU (TOOL_PAUSE, GmatMainFrame::OnPause)
+   EVT_MENU (TOOL_STOP, GmatMainFrame::OnStop)
+   EVT_MENU (TOOL_CLOSE_CHILDREN, GmatMainFrame::OnCloseAll)
+   EVT_MENU (TOOL_CLOSE_CURRENT, GmatMainFrame::OnCloseActive)
    
-   EVT_MENU(MENU_HELP_ABOUT, GmatMainFrame::OnHelpAbout)
-   EVT_MENU(MENU_HELP_ONLINE, GmatMainFrame::OnHelpOnline)
+   EVT_MENU (MENU_HELP_ABOUT, GmatMainFrame::OnHelpAbout)
+   EVT_MENU (MENU_HELP_ONLINE, GmatMainFrame::OnHelpOnline)
    
-   EVT_MENU(MENU_FILE_NEW_SCRIPT, GmatMainFrame::OnNewScript)
-   EVT_MENU(MENU_FILE_OPEN_SCRIPT, GmatMainFrame::OnOpenScript)
+   EVT_MENU (MENU_FILE_NEW_SCRIPT, GmatMainFrame::OnNewScript)
+   EVT_MENU (MENU_FILE_OPEN_SCRIPT, GmatMainFrame::OnOpenScript)
    
-   EVT_MENU(MENU_SET_PATH_AND_LOG, GmatMainFrame::OnSetPath)
+   EVT_MENU (MENU_SET_PATH_AND_LOG, GmatMainFrame::OnSetPath)
    
-   EVT_MENU(MENU_EDIT_UNDO, GmatMainFrame::OnUndo)
-   EVT_MENU(MENU_EDIT_REDO, GmatMainFrame::OnRedo)
-   EVT_MENU(MENU_EDIT_COPY, GmatMainFrame::OnCopy)
-   EVT_MENU(MENU_EDIT_CUT, GmatMainFrame::OnCut)
-   EVT_MENU(MENU_EDIT_PASTE, GmatMainFrame::OnPaste)
-   EVT_MENU(MENU_EDIT_COMMENT, GmatMainFrame::OnComment)
-   EVT_MENU(MENU_EDIT_UNCOMMENT, GmatMainFrame::OnUncomment)
-   EVT_MENU(MENU_EDIT_SELECT_ALL, GmatMainFrame::OnSelectAll)
+   EVT_MENU (MENU_EDIT_UNDO, GmatMainFrame::OnUndo)
+   EVT_MENU (MENU_EDIT_REDO, GmatMainFrame::OnRedo)
+   EVT_MENU (MENU_EDIT_COPY, GmatMainFrame::OnCopy)
+   EVT_MENU (MENU_EDIT_CUT, GmatMainFrame::OnCut)
+   EVT_MENU (MENU_EDIT_PASTE, GmatMainFrame::OnPaste)
+   EVT_MENU (MENU_EDIT_COMMENT, GmatMainFrame::OnComment)
+   EVT_MENU (MENU_EDIT_UNCOMMENT, GmatMainFrame::OnUncomment)
+   EVT_MENU (MENU_EDIT_SELECT_ALL, GmatMainFrame::OnSelectAll)
    
-   EVT_MENU(MENU_START_SERVER, GmatMainFrame::OnStartServer)
-   EVT_MENU(MENU_STOP_SERVER, GmatMainFrame::OnStopServer)
+   EVT_MENU (MENU_EDIT_FIND, GmatMainFrame::OnFind)
+   EVT_MENU (MENU_EDIT_FIND_NEXT, GmatMainFrame::OnFindNext)
+   EVT_MENU (MENU_EDIT_REPLACE, GmatMainFrame::OnReplace)
+   EVT_MENU (MENU_EDIT_REPLACE_NEXT, GmatMainFrame::OnReplaceNext)
+   EVT_MENU (MENU_EDIT_GOTO_LINE, GmatMainFrame::OnGoToLine)
+   EVT_MENU (MENU_EDIT_LINE_NUMBER, GmatMainFrame::OnLineNumber)
+   EVT_MENU (MENU_EDIT_INDENT_MORE, GmatMainFrame::OnIndentMore)
+   EVT_MENU (MENU_EDIT_INDENT_LESS, GmatMainFrame::OnIndentLess)
    
-   EVT_MENU(MENU_MATLAB_OPEN, GmatMainFrame::OnOpenMatlab)
-   EVT_MENU(MENU_MATLAB_CLOSE, GmatMainFrame::OnCloseMatlab)
-   EVT_MENU(MENU_TOOLS_FILE_COMPARE_NUMERIC, GmatMainFrame::OnFileCompareNumeric)
-   EVT_MENU(MENU_TOOLS_FILE_COMPARE_TEXT, GmatMainFrame::OnFileCompareText)
-   EVT_MENU(MENU_TOOLS_GEN_TEXT_EPHEM_FILE, GmatMainFrame::OnGenerateTextEphemFile)
+   EVT_MENU (MENU_START_SERVER, GmatMainFrame::OnStartServer)
+   EVT_MENU (MENU_STOP_SERVER, GmatMainFrame::OnStopServer)
    
-   EVT_SASH_DRAGGED(ID_SASH_WINDOW, GmatMainFrame::OnSashDrag) 
-   EVT_SASH_DRAGGED(ID_MSG_SASH_WINDOW, GmatMainFrame::OnMsgSashDrag) 
+   EVT_MENU (MENU_MATLAB_OPEN, GmatMainFrame::OnOpenMatlab)
+   EVT_MENU (MENU_MATLAB_CLOSE, GmatMainFrame::OnCloseMatlab)
+   EVT_MENU (MENU_TOOLS_FILE_COMPARE_NUMERIC, GmatMainFrame::OnFileCompareNumeric)
+   EVT_MENU (MENU_TOOLS_FILE_COMPARE_TEXT, GmatMainFrame::OnFileCompareText)
+   EVT_MENU (MENU_TOOLS_GEN_TEXT_EPHEM_FILE, GmatMainFrame::OnGenerateTextEphemFile)
    
-   EVT_SIZE(GmatMainFrame::OnMainFrameSize)
-   EVT_CLOSE(GmatMainFrame::OnClose)
-   EVT_SET_FOCUS(GmatMainFrame::OnSetFocus)
-   EVT_KEY_DOWN(GmatMainFrame::OnKeyDown)
+   EVT_SASH_DRAGGED (ID_SASH_WINDOW, GmatMainFrame::OnSashDrag) 
+   EVT_SASH_DRAGGED (ID_MSG_SASH_WINDOW, GmatMainFrame::OnMsgSashDrag) 
    
-   EVT_MENU(MENU_SCRIPT_BUILD_OBJECT, GmatMainFrame::OnScriptBuildObject)
-   EVT_MENU(MENU_SCRIPT_BUILD_AND_RUN, GmatMainFrame::OnScriptBuildAndRun)
-   EVT_MENU(MENU_SCRIPT_RUN, GmatMainFrame::OnScriptRun)
+   EVT_SIZE (GmatMainFrame::OnMainFrameSize)
+   EVT_CLOSE (GmatMainFrame::OnClose)
+   EVT_SET_FOCUS (GmatMainFrame::OnSetFocus)
+   EVT_KEY_DOWN (GmatMainFrame::OnKeyDown)
    
-   EVT_MENU_RANGE(TOOL_ANIMATION_PLAY, TOOL_ANIMATION_OPTIONS, GmatMainFrame::OnAnimation)
+   EVT_MENU (MENU_SCRIPT_BUILD_OBJECT, GmatMainFrame::OnScriptBuildObject)
+   EVT_MENU (MENU_SCRIPT_BUILD_AND_RUN, GmatMainFrame::OnScriptBuildAndRun)
+   EVT_MENU (MENU_SCRIPT_RUN, GmatMainFrame::OnScriptRun)
+   
+   EVT_MENU_RANGE (TOOL_ANIMATION_PLAY, TOOL_ANIMATION_OPTIONS, GmatMainFrame::OnAnimation)
 
 END_EVENT_TABLE()
 
@@ -1838,6 +1853,54 @@ void GmatMainFrame::OnSaveScriptAs(wxCommandEvent& WXUNUSED(event))
 
 
 //------------------------------------------------------------------------------
+// void OnPrintSetup(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnPrintSetup(wxCommandEvent &event)
+{
+#if wxUSE_PRINTING_ARCHITECTURE
+   (*globalPageSetupData) = * globalPrintData;
+   wxPageSetupDialog pageSetupDialog(this, globalPageSetupData);
+   pageSetupDialog.ShowModal();
+   (*globalPrintData) = pageSetupDialog.GetPageSetupData().GetPrintData();
+   (*globalPageSetupData) = pageSetupDialog.GetPageSetupData();
+#endif // wxUSE_PRINTING_ARCHITECTURE
+}
+
+
+//------------------------------------------------------------------------------
+// void OnPrint(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnPrint(wxCommandEvent &event)
+{
+#if wxUSE_PRINTING_ARCHITECTURE
+   #ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   
+   if (editor)
+   {
+      wxPrintDialogData printDialogData( *globalPrintData);
+      wxPrinter printer (&printDialogData);
+      EditorPrintout printout (editor);
+      if (!printer.Print (this, &printout, true))
+      {
+         if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
+         {
+            wxMessageBox (_("There was a problem with printing.\n\
+                         Perhaps your current printer is not correctly?"),
+                          _("Previewing"), wxOK);
+            return;
+         }
+      }
+      (*globalPrintData) = printer.GetPrintDialogData().GetPrintData();
+   }
+   
+   #endif // __USE_STC_EDITOR__
+#endif // wxUSE_PRINTING_ARCHITECTURE
+}
+
+
+//------------------------------------------------------------------------------
 // void OnProjectExit(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 /**
@@ -2063,9 +2126,15 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       break;
    case GmatTree::SCRIPT_FILE:
       {
+         #ifdef __USE_STC_EDITOR__
+         EditorPanel *editorPanel = new EditorPanel(scrolledWin, name);
+         sizer->Add(editorPanel, 0, wxGROW|wxALL, 0);
+         newChild->SetEditor(editorPanel->GetEditor());
+         #else
          ScriptPanel *scriptPanel = new ScriptPanel(scrolledWin, name);
          sizer->Add(scriptPanel, 0, wxGROW|wxALL, 0);
          newChild->SetScriptTextCtrl(scriptPanel->mFileContentsTextCtrl);
+         #endif
          break;
       }
    case GmatTree::COORD_SYSTEM:
@@ -3279,9 +3348,14 @@ bool GmatMainFrame::SetScriptFileName(const std::string &filename)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnUndo(wxCommandEvent& event)
 {
-   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();   
+#ifdef __USE_STC_EDITOR__
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnUndo(event);
+#else
    child->GetScriptTextCtrl()->Undo();
-//   theSaveButton->Enable(true);
+#endif
 }
 
 
@@ -3290,9 +3364,14 @@ void GmatMainFrame::OnUndo(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnRedo(wxCommandEvent& event)
 {
-   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();   
+#ifdef __USE_STC_EDITOR__
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnRedo(event);
+#else
    child->GetScriptTextCtrl()->Redo();
-//   theSaveButton->Enable(true);
+#endif
 }
 
 
@@ -3301,37 +3380,60 @@ void GmatMainFrame::OnRedo(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnCut(wxCommandEvent& event)
 {
-   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();   
+#ifdef __USE_STC_EDITOR__
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnCut(event);
+#else
    child->GetScriptTextCtrl()->Cut();
-//   theSaveButton->Enable(true);
+#endif
 }
+
 
 //------------------------------------------------------------------------------
 // void OnCopy(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnCopy(wxCommandEvent& event)
 {
-   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();   
+#ifdef __USE_STC_EDITOR__
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnCopy(event);
+#else
    child->GetScriptTextCtrl()->Copy();
-//   theSaveButton->Enable(true);
+#endif
 }
+
 
 //------------------------------------------------------------------------------
 // void OnPaste(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnPaste(wxCommandEvent& event)
 {
-   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();   
+#ifdef __USE_STC_EDITOR__
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnPaste(event);
+#else
    child->GetScriptTextCtrl()->Paste();
-//   theSaveButton->Enable(true);
+#endif
 }
+
 
 //------------------------------------------------------------------------------
 // void OnComment(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnComment(wxCommandEvent& event)
 {
-   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();   
+#ifdef __USE_STC_EDITOR__
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnComment(event);
+#else
    wxTextCtrl *scriptTC = child->GetScriptTextCtrl();
    wxString selString = scriptTC->GetStringSelection();
    selString.Replace("\n", "\n%");
@@ -3341,6 +3443,7 @@ void GmatMainFrame::OnComment(wxCommandEvent& event)
       selString = selString.Mid(0, selString.Length()-1);
 
    scriptTC->WriteText(selString);
+#endif
 
 }
 
@@ -3349,16 +3452,23 @@ void GmatMainFrame::OnComment(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnUncomment(wxCommandEvent& event)
 {
-   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();   
+#ifdef __USE_STC_EDITOR__
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnUncomment(event);
+#else
    wxTextCtrl *scriptTC = child->GetScriptTextCtrl();
    wxString selString = scriptTC->GetStringSelection();
-
+   
    if (selString.StartsWith("%"))  // gets rid of first %
       selString = selString.Mid(1, selString.Length()-1);
-
+   
    selString.Replace("\n%", "\n");
    scriptTC->WriteText(selString);
+#endif
 }
+
 
 //------------------------------------------------------------------------------
 // void OnSelectAll(wxCommandEvent& event)
@@ -3366,8 +3476,126 @@ void GmatMainFrame::OnUncomment(wxCommandEvent& event)
 void GmatMainFrame::OnSelectAll(wxCommandEvent& event)
 {
    GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+#ifdef __USE_STC_EDITOR__
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnSelectAll(event);
+#else
    wxTextCtrl *scriptTC = child->GetScriptTextCtrl();
    scriptTC->SetSelection(-1, -1);
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnFind(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnFind(wxCommandEvent& event)
+{
+#ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnFind(event);
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnFindNext(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnFindNext(wxCommandEvent& event)
+{
+#ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnFindNext(event);
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnReplace(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnReplace(wxCommandEvent& event)
+{
+#ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnFind(event);
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnReplaceNext(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnReplaceNext(wxCommandEvent& event)
+{
+#ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnReplaceNext(event);
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnGoToLine(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnGoToLine(wxCommandEvent& event)
+{
+#ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnGoToLine(event);
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnLineNumber(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnLineNumber(wxCommandEvent& event)
+{
+#ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnLineNumber(event);
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnIndentMore(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnIndentMore(wxCommandEvent& event)
+{
+#ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnIndentMore(event);
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnIndentLess(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnIndentLess(wxCommandEvent& event)
+{
+#ifdef __USE_STC_EDITOR__
+   GmatMdiChildFrame* child = (GmatMdiChildFrame *)GetActiveChild();
+   Editor *editor = child->GetEditor();
+   if (editor)
+      editor->OnIndentLess(event);
+#endif
 }
 
 

@@ -171,6 +171,8 @@ private:
    void OnLoadDefaultMission(wxCommandEvent &event);
    void OnSaveScriptAs(wxCommandEvent &event);
    void OnSaveScript(wxCommandEvent &event);
+   void OnPrintSetup(wxCommandEvent &event);
+   void OnPrint(wxCommandEvent &event);
    void OnProjectExit(wxCommandEvent &event);
    void OnRun(wxCommandEvent &event);
    void OnPause(wxCommandEvent &event);
@@ -190,8 +192,18 @@ private:
    void OnPaste(wxCommandEvent& event);
    void OnComment(wxCommandEvent& event);
    void OnUncomment(wxCommandEvent& event);
-   void OnFont(wxCommandEvent& event);
    void OnSelectAll(wxCommandEvent& event);
+   
+   void OnFind(wxCommandEvent& event);
+   void OnFindNext(wxCommandEvent& event);
+   void OnReplace(wxCommandEvent& event);
+   void OnReplaceNext(wxCommandEvent& event);
+   void OnGoToLine(wxCommandEvent& event);
+   void OnLineNumber(wxCommandEvent& event);
+   void OnIndentMore(wxCommandEvent& event);
+   void OnIndentLess(wxCommandEvent& event);
+   
+   void OnFont(wxCommandEvent& event);
    
    void OnStartServer(wxCommandEvent& event);
    void OnStopServer(wxCommandEvent& event);

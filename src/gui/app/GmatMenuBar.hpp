@@ -43,9 +43,10 @@ namespace GmatMenu
       MENU_FILE_OPEN_SCRIPT,
       MENU_FILE_SAVE_SCRIPT,
       MENU_FILE_SAVE_SCRIPT_AS,
-      MENU_FILE_PRINT,
       MENU_LOAD_DEFAULT_MISSION,
       MENU_EMPTY_PROJECT,
+      MENU_FILE_PRINT_SETUP,
+      MENU_FILE_PRINT,
       MENU_PROJECT_EXIT,
       
       MENU_PREFERENCES_FONT,
@@ -59,6 +60,15 @@ namespace GmatMenu
       MENU_EDIT_COMMENT,
       MENU_EDIT_UNCOMMENT,
       MENU_EDIT_SELECT_ALL,
+      
+      MENU_EDIT_FIND,
+      MENU_EDIT_FIND_NEXT,
+      MENU_EDIT_REPLACE,
+      MENU_EDIT_REPLACE_NEXT,
+      MENU_EDIT_LINE_NUMBER,
+      MENU_EDIT_GOTO_LINE,
+      MENU_EDIT_INDENT_MORE,
+      MENU_EDIT_INDENT_LESS,
       
       MENU_SCRIPT_OPEN_EDITOR = 12000,
       MENU_SCRIPT_BUILD_OBJECT,
@@ -102,5 +112,6 @@ namespace GmatMenu
       // (where it is special and put into the "Apple" menu)
       MENU_HELP_ABOUT = wxID_ABOUT,
    };
+   
 };
 #endif // GmatMenuBar_hpp

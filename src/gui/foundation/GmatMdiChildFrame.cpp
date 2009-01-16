@@ -67,8 +67,15 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
    
    theParent = parent;
    mDirty = false;
-   mItemType = type;
+   mOverrideDirty = true;
    mCanClose = true;
+   mItemType = type;
+   theScriptTextCtrl = NULL;
+   theMenuBar = NULL;
+   
+   #ifdef __USE_STC_EDITOR__
+   theEditor = NULL;
+   #endif
    
    #ifdef __WXMAC__
    childTitle = title;
@@ -139,6 +146,107 @@ GmatMdiChildFrame::~GmatMdiChildFrame()
 
 
 //------------------------------------------------------------------------------
+// wxMenuBar* GetMenuBar()
+//------------------------------------------------------------------------------
+wxMenuBar* GmatMdiChildFrame::GetMenuBar()
+{
+   return theMenuBar;
+}
+
+
+//------------------------------------------------------------------------------
+// GmatTree::ItemType GetItemType()
+//------------------------------------------------------------------------------
+GmatTree::ItemType GmatMdiChildFrame::GetItemType()
+{
+   return mItemType;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetDataType(GmatTree::ItemType type)
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::SetDataType(GmatTree::ItemType type)
+{
+   mItemType = type;
+}
+
+
+//------------------------------------------------------------------------------
+// wxTextCtrl *GetScriptTextCtrl()
+//------------------------------------------------------------------------------
+wxTextCtrl* GmatMdiChildFrame::GetScriptTextCtrl()
+{
+   return theScriptTextCtrl;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetScriptTextCtrl(wxTextCtrl *textCtrl)
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::SetScriptTextCtrl(wxTextCtrl *textCtrl)
+{
+   theScriptTextCtrl = textCtrl;
+}
+
+
+#ifdef __USE_STC_EDITOR__
+//------------------------------------------------------------------------------
+// Editor* GetEditor()
+//------------------------------------------------------------------------------
+Editor* GmatMdiChildFrame::GetEditor()
+{
+   return theEditor;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetEditor(Editor *editor)
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::SetEditor(Editor *editor)
+{
+   theEditor = editor;
+}
+#endif
+
+
+//------------------------------------------------------------------------------
+// void SetDirty(bool dirty)
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::SetDirty(bool dirty)
+{
+   mDirty = dirty;
+}
+
+
+//------------------------------------------------------------------------------
+// void OverrideDirty(bool flag)
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::OverrideDirty(bool flag)
+{
+   mOverrideDirty = flag;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsDirty()
+//------------------------------------------------------------------------------
+bool GmatMdiChildFrame::IsDirty()
+{
+   return mDirty;
+}
+
+
+//------------------------------------------------------------------------------
+// bool CanClose()
+//------------------------------------------------------------------------------
+bool GmatMdiChildFrame::CanClose()
+{
+   return mCanClose;
+}
+
+
+//------------------------------------------------------------------------------
 //void OnActivate(wxActivateEvent &event)
 //------------------------------------------------------------------------------
 void GmatMdiChildFrame::OnActivate(wxActivateEvent &event)
@@ -202,10 +310,34 @@ void GmatMdiChildFrame::OnActivate(wxActivateEvent &event)
 void GmatMdiChildFrame::OnClose(wxCloseEvent &event)
 {
    #ifdef DEBUG_MDI_CHILD_FRAME
-   MessageInterface::ShowMessage("GmatMdiChildFrame::OnClose() entered\n");
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame::OnClose() entered, mDirty=%d, mOverrideDirty=%d\n",
+       mDirty, mOverrideDirty);
    #endif
    
    mCanClose = true;
+   
+   // We don't want to show duplicate save message, so check for override dirty flag
+   if (mOverrideDirty)
+   {
+      #ifdef __USE_STC_EDITOR__
+      if (theEditor)
+      {
+         if (theEditor->IsModified())
+            mDirty = true;
+         else
+            mDirty = false;
+      }
+      #else
+      if (theScriptTextCtrl)
+      {
+         if (theScriptTextCtrl->IsModified())
+            mDirty = true;
+         else
+            mDirty = false;
+      }
+      #endif
+   }
    
    // check if window is dirty?
    if (mDirty)

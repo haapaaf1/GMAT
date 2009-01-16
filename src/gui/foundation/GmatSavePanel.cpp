@@ -14,9 +14,8 @@
 
 #include "GmatSavePanel.hpp"
 #include "GmatAppData.hpp"
-#include "MessageInterface.hpp"
-
 #include "ShowScriptDialog.hpp"
+#include "MessageInterface.hpp"
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -25,7 +24,7 @@
 BEGIN_EVENT_TABLE(GmatSavePanel, wxPanel)
    EVT_BUTTON(ID_BUTTON_SAVE, GmatSavePanel::OnSave)
    EVT_BUTTON(ID_BUTTON_SAVE_AS, GmatSavePanel::OnSaveAs)
-   EVT_BUTTON(ID_BUTTON_CLOSE, GmatSavePanel::OnClose)
+   EVT_BUTTON(ID_BUTTON_CLOSE, GmatSavePanel::OnClosePanel)
    EVT_BUTTON(ID_BUTTON_SCRIPT, GmatSavePanel::OnScript)
 END_EVENT_TABLE()
 
@@ -51,27 +50,28 @@ GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
    canClose = true;
+   isModified = false;
    mShowScriptButton = showScriptButton;
    mFilename = filename;
-
+   
    theParent = parent;
-
+   
    int borderSize = 3;
    wxStaticBox *topStaticBox = new wxStaticBox( this, -1, wxT("") );
    wxStaticBox *middleStaticBox = new wxStaticBox( this, -1, wxT("") );
    wxStaticBox *bottomStaticBox = new wxStaticBox( this, -1, wxT("") );
-
+   
    // create sizers
    thePanelSizer = new wxBoxSizer(wxVERTICAL);
    theTopSizer = new wxStaticBoxSizer( topStaticBox, wxVERTICAL );
    theMiddleSizer = new wxStaticBoxSizer( middleStaticBox, wxVERTICAL );
    theBottomSizer = new wxStaticBoxSizer( bottomStaticBox, wxVERTICAL );
-   wxBoxSizer *theButtonSizer = new wxBoxSizer(wxHORIZONTAL);
-
+   theButtonSizer = new wxBoxSizer(wxHORIZONTAL);
+   
    // create script button
    theScriptButton = new wxButton(this, ID_BUTTON_SCRIPT, "Show Script",
                                   wxDefaultPosition, wxDefaultSize, 0);
-
+   
    // create bottom buttons
    theSaveButton =
       new wxButton(this, ID_BUTTON_SAVE, "Save", wxDefaultPosition, wxDefaultSize, 0);
@@ -79,22 +79,19 @@ GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
       new wxButton(this, ID_BUTTON_SAVE_AS, "Save As", wxDefaultPosition, wxDefaultSize, 0);
    theCloseButton =
       new wxButton(this, ID_BUTTON_CLOSE, "Close", wxDefaultPosition, wxDefaultSize, 0);
-   theHelpButton =
-      new wxButton(this, ID_BUTTON_HELP, "Help", wxDefaultPosition, wxDefaultSize, 0);
-
+   
    // add items to top sizer
    theTopSizer->Add(theScriptButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
-
+   
    // adds the buttons to button sizer
    theButtonSizer->Add(theSaveButton, 0, wxALIGN_CENTER | wxALL, borderSize);
    theButtonSizer->Add(theSaveAsButton, 0, wxALIGN_CENTER | wxALL, borderSize);
    theButtonSizer->Add(theCloseButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-   theButtonSizer->Add(theHelpButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-
+   
    theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, borderSize);
-
+   
    topStaticBox->Show(mShowScriptButton);
-
+   
    mObject = NULL;
 }
 
@@ -111,29 +108,26 @@ GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
 //------------------------------------------------------------------------------
 void GmatSavePanel::Show()
 {
-    // add items to middle sizer
+   // add items to middle sizer
+   thePanelSizer->Add(theTopSizer, 0, wxGROW | wxALL, 1);
+   thePanelSizer->Add(theMiddleSizer, 1, wxGROW | wxALL, 1);
+   thePanelSizer->Add(theBottomSizer, 0, wxGROW | wxALL, 1);
+   
+   // displays the script button
+   thePanelSizer->Show(theTopSizer, mShowScriptButton);
+   theScriptButton->Show(mShowScriptButton);
+   thePanelSizer->Layout();
+   
+   // tells the enclosing window to adjust to the size of the sizer
+   SetAutoLayout( TRUE );
+   SetSizer(thePanelSizer); //use the sizer for layout
+   thePanelSizer->Fit(this); //loj: if theParent is used it doesn't show the scroll bar
+   thePanelSizer->SetSizeHints(this); //set size hints to honour minimum size
+   
+   LoadData();
 
-    thePanelSizer->Add(theTopSizer, 0, wxGROW | wxALL, 1);
-    thePanelSizer->Add(theMiddleSizer, 1, wxGROW | wxALL, 1);
-    thePanelSizer->Add(theBottomSizer, 0, wxGROW | wxALL, 1);
-
-    // displays the script button
-    thePanelSizer->Show(theTopSizer, mShowScriptButton);
-    theScriptButton->Show(mShowScriptButton);
-    thePanelSizer->Layout();
-
-    // tells the enclosing window to adjust to the size of the sizer
-    SetAutoLayout( TRUE );
-    SetSizer(thePanelSizer); //use the sizer for layout
-    thePanelSizer->Fit(this); //loj: if theParent is used it doesn't show the scroll bar
-    thePanelSizer->SetSizeHints(this); //set size hints to honour minimum size
-
-    theSaveButton->Disable();
-    LoadData();
-
-//    theScriptButton->Disable(); //loj: for build2
-    theHelpButton->Disable();   //loj: for build2
 }
+
 
 //------------------------------------------------------------------------------
 // void OnOk()
@@ -153,30 +147,36 @@ void GmatSavePanel::OnSave(wxCommandEvent &event)
    SaveData();
 }
 
+
 //------------------------------------------------------------------------------
-// void OnClose()
+// void OnClosePanel()
 //------------------------------------------------------------------------------
 /**
- * Close page.
+ * Closes panel.
  */
 //------------------------------------------------------------------------------
-void GmatSavePanel::OnClose(wxCommandEvent &event)
+void GmatSavePanel::OnClosePanel(wxCommandEvent &event)
 {
-   if (theSaveButton->IsEnabled())
-   {
-      wxMessageDialog *msgDlg = new wxMessageDialog(this,
-         "Would you like to save changes?", "Save...", wxYES_NO | wxICON_QUESTION ,
-         wxDefaultPosition);
-      int result = msgDlg->ShowModal();
-
-      if (result == wxID_YES)
-      {
-         OnSave(event);
-      }
-   }
-
+   #ifdef DEBUG_SAVE_PANEL
+   MessageInterface::ShowMessage
+      ("GmatSavePanel::OnClosePanel() entered, isModified=%d\n", isModified);
+   #endif
+   
+   // We don't want to show duplicate save message when GmatMdiChildFrame is closing,
+   // so set override dirty flag to false
+   ((GmatMdiChildFrame*)
+    (GmatAppData::Instance()->GetMainFrame()->GetActiveChild()))->OverrideDirty(false);
+   
+   if (isModified)
+      ((GmatMdiChildFrame*)
+       (GmatAppData::Instance()->GetMainFrame()->GetActiveChild()))->SetDirty(true);
+   else
+      ((GmatMdiChildFrame*)
+       (GmatAppData::Instance()->GetMainFrame()->GetActiveChild()))->SetDirty(false);
+   
    GmatAppData::Instance()->GetMainFrame()->CloseActiveChild();
 }
+
 
 //------------------------------------------------------------------------------
 // void OnApply()
@@ -191,50 +191,34 @@ void GmatSavePanel::OnSaveAs(wxCommandEvent &event)
          _T("Script files (*.script, *.m)|*.script;*.m|"\
             "Text files (*.txt, *.text)|*.txt;*.text|"\
             "All files (*.*)|*.*"), wxSAVE);
-
+   
    if (dialog.ShowModal() == wxID_OK)
    {
-//      wxString filename = dialog.GetFilename().c_str();
       wxString path = dialog.GetPath().c_str();
-
+      
       if(FileExists(path.c_str()))
       {
-           if (wxMessageBox(_T("File already exists.\nDo you want to overwrite?"), 
-               _T("Please confirm"), wxICON_QUESTION | wxYES_NO) == wxYES)
-           {
-              // just for now
-              mFilename = path;
-              SaveData();
-           }
-           else
-           {
-                return;
-           }
+         if (wxMessageBox(_T("File already exists.\nDo you want to overwrite?"), 
+                          _T("Please confirm"), wxICON_QUESTION | wxYES_NO) == wxYES)
+         {
+            // just for now
+            mFilename = path;
+            SaveData();
+         }
+         else
+         {
+            return;
+         }
       }
       else
       {
-          // just for now
-          mFilename = path;
-          SaveData();
+         // just for now
+         mFilename = path;
+         SaveData();
       }
-
-
    }
-
-
 }
 
-//------------------------------------------------------------------------------
-// void OnHelp()
-//------------------------------------------------------------------------------
-/**
- * Shows Helps
- */
-//------------------------------------------------------------------------------
-void GmatSavePanel::OnHelp(wxCommandEvent &event)
-{
-   // open separate window to show help?
-}
 
 //------------------------------------------------------------------------------
 // void OnScript()
@@ -255,17 +239,39 @@ void GmatSavePanel::OnScript(wxCommandEvent &event)
    ssd.ShowModal();
 }
 
+
+//------------------------------------------------------------------------------
+// void SetModified(bool flag)
+//------------------------------------------------------------------------------
+void GmatSavePanel::SetModified(bool flag)
+{
+   isModified = flag;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsModified()
+//------------------------------------------------------------------------------
+bool GmatSavePanel::IsModified()
+{
+   return isModified;
+}
+
+
+//------------------------------------------------------------------------------
+// bool FileExists(std::string scriptFilename)
+//------------------------------------------------------------------------------
 bool GmatSavePanel::FileExists(std::string scriptFilename)
 {
-  FILE * pFile;
-  pFile = fopen (scriptFilename.c_str(),"rt+");
-  if (pFile!=NULL)
-  {
-    fclose (pFile);
-    return true;
-  }
-  else
-    return false;
-
+   FILE * pFile;
+   pFile = fopen (scriptFilename.c_str(),"rt+");
+   if (pFile!=NULL)
+   {
+      fclose (pFile);
+      return true;
+   }
+   else
+      return false;
+   
 }
 

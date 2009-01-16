@@ -29,8 +29,8 @@
 #include "GmatAppData.hpp"
 #include "Moderator.hpp"
 #include <wx/datetime.h>
-#include "wx/splash.h"
-#include "wx/image.h"
+#include <wx/splash.h>
+#include <wx/image.h>
 
 #include "MessageInterface.hpp"
 #include "PlotInterface.hpp"
@@ -78,6 +78,18 @@ bool GmatApp::OnInit()
 {
    bool status = false;
    
+   // Moved from TrajPlotCanvas.cpp (loj: 2009.01.08)
+   wxInitAllImageHandlers();
+   
+   // set application name
+   SetAppName("GMAT");
+   
+#if wxUSE_PRINTING_ARCHITECTURE
+   // initialize print data and setup
+   globalPrintData = new wxPrintData;
+   globalPageSetupData = new wxPageSetupDialogData;
+#endif // wxUSE_PRINTING_ARCHITECTURE
+   
    try
    {
       GmatAppData *gmatAppData = GmatAppData::Instance();
@@ -114,7 +126,7 @@ bool GmatApp::OnInit()
       //---------------------------------------------------------      
       #endif
       //---------------------------------------------------------
-            
+      
       // create the Moderator - GMAT executive
       theModerator = Moderator::Instance();
       
@@ -250,5 +262,14 @@ int GmatApp::OnExit()
 {
    // Moderator destructor is private, so just call Finalize()
    theModerator->Finalize();
+   
+#if wxUSE_PRINTING_ARCHITECTURE
+   // delete global print data and setup
+   if (globalPrintData)
+      delete globalPrintData;
+   if (globalPageSetupData)
+      delete globalPageSetupData;
+#endif // wxUSE_PRINTING_ARCHITECTURE
+   
    return 0;
 }

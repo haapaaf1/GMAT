@@ -157,7 +157,7 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    #endif
    
    // add help tool
-   toolBar->AddTool(MENU_HELP_ABOUT, _T("Help"), *bitmaps[7], _T("Help"));
+   toolBar->AddTool(MENU_HELP_ABOUT, _T("About GMAT"), *bitmaps[7], _T("About GMAT"));
    toolBar->AddTool(MENU_HELP_ONLINE, _T("Online Help"), *bitmaps[15], _T("Online Help"));
    toolBar->AddSeparator();
    

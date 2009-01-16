@@ -86,7 +86,14 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
       fileMenu->AppendSeparator();
    }
    
-   fileMenu->Append(MENU_SET_PATH_AND_LOG, wxT("Set File Paths"), wxT(""));      
+   fileMenu->Append(MENU_SET_PATH_AND_LOG, wxT("Set File Paths"), wxT(""));
+   
+   #ifdef __ENABLE_PRINT__
+   fileMenu->AppendSeparator();
+   fileMenu->Append(MENU_FILE_PRINT_SETUP, wxT("Print Setup..."), wxT(""));
+   fileMenu->Append(MENU_FILE_PRINT, wxT("Print...\tCtrl+P"), wxT(""));
+   #endif //__ENABLE_PRINT__
+   
    fileMenu->AppendSeparator();
    fileMenu->Append(MENU_PROJECT_EXIT, wxT("Exit"), wxT(""));
    #ifdef __WXMAC__
@@ -99,17 +106,34 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    // Edit menu
    //-----------------------------------------------------------------
    wxMenu *editMenu = new wxMenu;
-   editMenu->Append(MENU_EDIT_UNDO, wxT("Undo\tCtrl-Z"), wxT(""));
-   editMenu->Append(MENU_EDIT_REDO, wxT("Redo\tShift-Ctrl-Z"), wxT(""));
+   editMenu->Append(MENU_EDIT_UNDO, wxT("Undo\tCtrl+Z"), wxT(""));
+   editMenu->Append(MENU_EDIT_REDO, wxT("Redo\tCtrl+Y"), wxT(""));
    editMenu->AppendSeparator();
-   editMenu->Append(MENU_EDIT_CUT, wxT("Cut\tCtrl-X"), wxT(""));
-   editMenu->Append(MENU_EDIT_COPY, wxT("Copy\tCtrl-C"), wxT(""));
-   editMenu->Append(MENU_EDIT_PASTE, wxT("Paste\tCtrl-V"), wxT(""));
+   editMenu->Append(MENU_EDIT_CUT, wxT("Cut\tCtrl+X"), wxT(""));
+   editMenu->Append(MENU_EDIT_COPY, wxT("Copy\tCtrl+C"), wxT(""));
+   editMenu->Append(MENU_EDIT_PASTE, wxT("Paste\tCtrl+V"), wxT(""));
    editMenu->AppendSeparator();
-   editMenu->Append(MENU_EDIT_SELECT_ALL, wxT("Select All\tCtrl-A"), wxT(""));
+   editMenu->Append(MENU_EDIT_COMMENT, wxT("Comment\tCtrl+R"), wxT(""));
+   editMenu->Append(MENU_EDIT_UNCOMMENT, wxT("Uncomment\tCtrl+T"), wxT(""));
+   editMenu->Append(MENU_EDIT_SELECT_ALL, wxT("Select All\tCtrl+A"), wxT(""));
+   
+   #ifdef __USE_STC_EDITOR__
    editMenu->AppendSeparator();
-   editMenu->Append(MENU_EDIT_COMMENT, wxT("Comment\tCtrl-T"), wxT(""));
-   editMenu->Append(MENU_EDIT_UNCOMMENT, wxT("Uncomment\tCtrl-M"), wxT(""));
+   editMenu->Append(MENU_EDIT_FIND, _("&Find...\tCtrl+F"));
+   editMenu->Append(MENU_EDIT_FIND_NEXT, _("Find &next\tF3"));
+   editMenu->Append(MENU_EDIT_REPLACE, _("&Replace...\tCtrl+F"));
+   editMenu->Append(MENU_EDIT_REPLACE_NEXT, _("Find and &Replace\tCtrl+H"));
+   editMenu->AppendSeparator();
+   editMenu->AppendCheckItem(MENU_EDIT_LINE_NUMBER, _("Show line &numbers"));
+   editMenu->Append(MENU_EDIT_GOTO_LINE, _("&Goto\tCtrl+G"));
+   editMenu->AppendSeparator();
+   editMenu->Append(MENU_EDIT_INDENT_MORE, _("&Indent more\tCtrl+I"));
+   editMenu->Append(MENU_EDIT_INDENT_LESS, _("I&ndent less\tCtrl+Shift+I"));
+   
+   // default is to show line numbers, so put check mark
+   editMenu->Check(MENU_EDIT_LINE_NUMBER, true);
+   
+   #endif // __USE_STC_EDITOR__
    
    this->Append(editMenu, wxT("&Edit"));
    
@@ -121,8 +145,6 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
       wxMenu *toolsMenu = new wxMenu;
       toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_NUMERIC, wxT("Compare Numeric Values"), wxT(""));
       toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_TEXT, wxT("Compare Text Lines"), wxT(""));
-      //Commented out. This will become a Resource in the future (loj: 2008.11.17)
-      //toolsMenu->Append(MENU_TOOLS_GEN_TEXT_EPHEM_FILE, wxT("Generate Text Ephemeris File"), wxT(""));
       
       this->Append(toolsMenu, wxT("Tools"));
    }
@@ -134,8 +156,6 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    wxMenu *helpMenu = new wxMenu;
    helpMenu->Append(MENU_HELP_ONLINE, wxT("Online Help"), wxT(""));
    helpMenu->Append(MENU_HELP_ABOUT, wxT("About GMAT"), wxT(""));
-   // what is this? commented out (loj: 2008.12.15)
-   ////helpMenu->Enable(MENU_HELP_TOPICS, FALSE);
    this->Append(helpMenu, wxT("Help"));
    
    //-----------------------------------------------------------------
@@ -149,7 +169,7 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    // otherwise, create Window menu
    //-------------------------------------------------------
    
-   wxMenu *winMenu = (wxMenu*)NULL;
+   wxMenu *winMenu =(wxMenu*)NULL;
    bool createWindowMenu = true;
    bool prependClose = false;
    
@@ -165,7 +185,7 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    
    #ifdef DEBUG_MENUBAR
    MessageInterface::ShowMessage
-      ("GmatMenuBar::CreateMenu() All menus created. Now creating WindowMenu...\n"
+     ("GmatMenuBar::CreateMenu() All menus created. Now creating WindowMenu...\n"
        "   this=%p, winMenu=%p, createWindowMenu=%d, prependClose=%d\n", this,
        winMenu, createWindowMenu, prependClose);
    #endif

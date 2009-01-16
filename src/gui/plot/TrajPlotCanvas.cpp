@@ -4782,8 +4782,10 @@ bool TrajPlotCanvas::LoadImage(const std::string &fileName)
    
    if (fileName == "")
       return false;
+
+   // Moved to GmatApp (loj: 2009.01.08)
+   //::wxInitAllImageHandlers();
    
-   ::wxInitAllImageHandlers();
    wxImage image = wxImage(fileName.c_str());
    int width = image.GetWidth();
    int height = image.GetHeight();

@@ -24,6 +24,7 @@ public:
    // constructors
    ScriptPanel(wxWindow *parent, const wxString &name);
    wxTextCtrl *mFileContentsTextCtrl;
+   virtual void OnClosePanel(wxCommandEvent &event);
 
 private:
    int mOldLineNumber;
@@ -37,8 +38,7 @@ private:
    
    wxButton *mBuildButton;
    wxButton *mBuildRunButton;
-   //wxButton *mFontButton;
-
+   
    // methods inherited from GmatSavePanel
    virtual void Create();
    virtual void LoadData();
@@ -49,7 +49,6 @@ private:
    void OnTextUpdate(wxCommandEvent& event);
    void OnTextOverMaxLen(wxCommandEvent& event);
    void OnButton(wxCommandEvent& event);
-   //void OnFontSelect(wxCommandEvent& event);
 
    DECLARE_EVENT_TABLE();
 

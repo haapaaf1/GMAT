@@ -220,6 +220,11 @@ GmatAppData::GmatAppData()
    theMessageWindow = NULL;
    theCompareWindow = NULL;
    theMessageTextCtrl = NULL;
+   
+   #ifdef __USE_EDITOR__
+   thePageSetupDialogData = NULL;
+   #endif
+   
    theFont = wxFont(10, wxMODERN, wxNORMAL, wxNORMAL);
 #endif
 }

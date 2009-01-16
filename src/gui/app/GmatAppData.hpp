@@ -25,6 +25,13 @@
 #include "MissionTree.hpp"
 #include "OutputTree.hpp"
 #include "GmatMainFrame.hpp"
+#include <wx/print.h>         // for wxPrintData
+#include <wx/printdlg.h>      // for wxPageSetupDialogData
+
+#ifdef __USE_STC_EDITOR__
+#include <wx/cmndata.h>
+#endif
+
 #endif
 
 #include "GuiInterpreter.hpp"
@@ -63,7 +70,7 @@ public:
    
    void SetFont(wxFont font);
    wxFont GetFont();
-   
+      
 #endif
     
 private:
@@ -85,9 +92,20 @@ private:
    ViewTextFrame *theCompareWindow;
    wxTextCtrl    *theMessageTextCtrl;
    wxFont        theFont;
+   
+   #ifdef __USE_STC_EDITOR__
+   wxPageSetupDialogData *thePageSetupDialogData;
+   #endif
 #endif
    
 };
 
+#if !defined __CONSOLE_APP__
+   #if wxUSE_PRINTING_ARCHITECTURE
+   // global print data, to remember settings during the session
+   extern wxPrintData *globalPrintData;
+   extern wxPageSetupData *globalPageSetupData;
+   #endif // wxUSE_PRINTING_ARCHITECTURE
+#endif
 
 #endif // GmatAppData_hpp

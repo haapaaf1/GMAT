@@ -28,7 +28,7 @@
 BEGIN_EVENT_TABLE(ScriptPanel, GmatSavePanel)
    EVT_BUTTON(ID_BUTTON_SAVE, GmatSavePanel::OnSave)
    EVT_BUTTON(ID_BUTTON_SAVE_AS, GmatSavePanel::OnSaveAs)
-   EVT_BUTTON(ID_BUTTON_CLOSE, GmatSavePanel::OnClose)
+   EVT_BUTTON(ID_BUTTON_CLOSE, ScriptPanel::OnClosePanel)
    EVT_TEXT(ID_TEXTCTRL, ScriptPanel::OnTextUpdate)
    EVT_TEXT_ENTER(ID_TEXTCTRL, ScriptPanel::OnTextEnterPressed)
    EVT_TEXT_MAXLEN(ID_TEXTCTRL, ScriptPanel::OnTextOverMaxLen)
@@ -49,14 +49,36 @@ ScriptPanel::ScriptPanel(wxWindow *parent, const wxString &name)
    mOldLineNumber = 0;
    
    wxColourDatabase db;
-   //mBgColor = db.Find("WHEAT");
-   //mBgColor = db.Find("LIGHT BLUE");
-   //mBgColor = db.Find("LIGHT GREY");
-   //mBgColor = db.Find("MEDIUM GOLDENROD");
    mBgColor = db.Find("CYAN");
    
    Create();
    Show();
+}
+
+
+//------------------------------------------------------------------------------
+// void OnClosePanel()
+//------------------------------------------------------------------------------
+/**
+ * Close page.
+ */
+//------------------------------------------------------------------------------
+void ScriptPanel::OnClosePanel(wxCommandEvent &event)
+{
+   if (mFileContentsTextCtrl->IsModified())
+   {
+      wxMessageDialog *msgDlg =
+         new wxMessageDialog(this, "Would you like to save changes?", "Save...",
+                             wxYES_NO | wxICON_QUESTION, wxDefaultPosition);
+      int result = msgDlg->ShowModal();
+      
+      if (result == wxID_YES)
+         OnSave(event);
+      else
+         SetModified(false);
+   }
+   
+   GmatSavePanel::OnClosePanel(event);
 }
 
 
@@ -106,10 +128,7 @@ void ScriptPanel::Create()
    mBuildButton =
       new wxButton(this, ID_BUTTON, "Build", wxDefaultPosition, wxDefaultSize, 0);
    mBuildRunButton =
-      new wxButton(this, ID_BUTTON, "Build and Run", wxDefaultPosition, wxDefaultSize, 0);
-   //mFontButton =
-   //   new wxButton(this, ID_BUTTON, "Font", wxDefaultPosition, wxDefaultSize, 0);
-   
+      new wxButton(this, ID_BUTTON, "Build and Run", wxDefaultPosition, wxDefaultSize, 0);   
    
    //------------------------------------------------------
    // add to sizer
@@ -119,10 +138,9 @@ void ScriptPanel::Create()
    topSizer->Add(80, 20, 0, wxALIGN_LEFT | wxALL, bsize);
    topSizer->Add(mBuildButton, 0, wxALIGN_CENTER | wxALL, bsize);
    topSizer->Add(mBuildRunButton, 0, wxALIGN_CENTER | wxALL, bsize);
-   //topSizer->Add(mFontButton, 0, wxALIGN_CENTER | wxALL, bsize);
    
    bottomSizer->Add(mFileContentsTextCtrl, 0, wxGROW | wxALIGN_CENTER | wxALL,
-                     bsize);
+                    bsize);
    
    //------------------------------------------------------
    // add to parent sizer
@@ -151,7 +169,7 @@ void ScriptPanel::LoadData()
       mFileContentsTextCtrl->SetValue("");
    
    theSaveAsButton->Enable(true);
-   theSaveButton->Enable(false);
+   theSaveButton->Enable(true);
    GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(false);
       
    mFileContentsTextCtrl->SetDefaultStyle(wxTextAttr(wxNullColour, *wxWHITE));
@@ -184,7 +202,6 @@ void ScriptPanel::SaveData()
    }
    
    mFileContentsTextCtrl->SaveFile(mScriptFilename);
-   theSaveButton->Enable(false);
    gmatAppData->GetMainFrame()->SetActiveChildDirty(false);
 }
 
@@ -293,91 +310,41 @@ void ScriptPanel::OnTextOverMaxLen(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void ScriptPanel::OnButton(wxCommandEvent& event)
 {
+   if (mFileContentsTextCtrl->GetValue() == "")
+   {
+      wxMessageDialog *msgDlg = new wxMessageDialog
+         (this, "Can not build an empty file ", "Can not build...",
+          wxOK | wxICON_INFORMATION, wxDefaultPosition);
+      msgDlg->ShowModal();
+      return;
+   }
+   
    GmatAppData *gmatAppData = GmatAppData::Instance();
+   
+   if (event.GetEventObject() == mBuildButton ||
+       event.GetEventObject() == mBuildRunButton)
+   {
+      if (mFileContentsTextCtrl->IsModified())
+      {
+         // prompt user to save
+         wxMessageDialog *msgDlg = new wxMessageDialog(this,
+            "Would you like to save changes?", "Save...", wxYES_NO | wxICON_QUESTION ,
+            wxDefaultPosition);
+         int result = msgDlg->ShowModal();
+         
+         if (result == wxID_YES)
+            OnSave(event);
+      }
+   }
    
    if (event.GetEventObject() == mBuildButton)
    {
-      if (theSaveButton->IsEnabled())
-      {
-         // prompt user to save
-         wxMessageDialog *msgDlg = new wxMessageDialog(this,
-            "Would you like to save changes?", "Save...", wxYES_NO | wxICON_QUESTION ,
-            wxDefaultPosition);
-         int result = msgDlg->ShowModal();
-
-         if (result == wxID_YES)
-         {
-            OnSave(event);
-         }
-      }
-      
-      if ( mFileContentsTextCtrl->GetValue() != "")
-      {
-         if (gmatAppData->GetMainFrame()->SetScriptFileName(mScriptFilename.c_str()))
-            gmatAppData->GetMainFrame()->OnScriptBuildObject(event);
-      }
-      else
-      {
-         wxMessageDialog *msgDlg = new wxMessageDialog(this,
-            "Can not build an empty file ", "Can not build...", wxOK | wxICON_INFORMATION ,
-            wxDefaultPosition);
-         msgDlg->ShowModal();
-      }
-      
+      if (gmatAppData->GetMainFrame()->SetScriptFileName(mScriptFilename.c_str()))
+         gmatAppData->GetMainFrame()->OnScriptBuildObject(event);
    }
    else if (event.GetEventObject() == mBuildRunButton)
    {
-      if (theSaveButton->IsEnabled())
-      {
-         // prompt user to save
-         wxMessageDialog *msgDlg = new wxMessageDialog(this,
-            "Would you like to save changes?", "Save...", wxYES_NO | wxICON_QUESTION ,
-            wxDefaultPosition);
-         int result = msgDlg->ShowModal();
-
-         if (result == wxID_YES)
-         {
-            OnSave(event);
-         }
-      }
-      
-      if ( mFileContentsTextCtrl->GetValue() != "")
-      {
-         if (gmatAppData->GetMainFrame()->SetScriptFileName(mScriptFilename.c_str()))
-            gmatAppData->GetMainFrame()->OnScriptBuildAndRun(event);
-      }
-      else
-      {
-         wxMessageDialog *msgDlg = new wxMessageDialog(this,
-            "Can not build an empty file ", "Can not build...", wxOK | wxICON_INFORMATION ,
-            wxDefaultPosition);
-         msgDlg->ShowModal();
-      }
-      
+      if (gmatAppData->GetMainFrame()->SetScriptFileName(mScriptFilename.c_str()))
+         gmatAppData->GetMainFrame()->OnScriptBuildAndRun(event);
    }
-//   else if (event.GetEventObject() == mFontButton)
-//   {
-//      OnFontSelect(event);
-//   }
-
 }
-
-
-//------------------------------------------------------------------------------
-// void OnFontSelect(wxCommandEvent& event)
-//------------------------------------------------------------------------------
-//void ScriptPanel::OnFontSelect(wxCommandEvent& event)
-//{
-//  wxFontData data;
-//  data.SetInitialFont(mFileContentsTextCtrl->GetFont());
-////  data.SetColour(canvasTextColour);
-//
-//  wxFontDialog dialog(this, &data);
-//  if (dialog.ShowModal() == wxID_OK)
-//  {
-//    wxFontData retData = dialog.GetFontData();
-//    wxFont newFont = retData.GetChosenFont();
-//
-//    mFileContentsTextCtrl->SetFont(newFont);
-//  }
-//}
