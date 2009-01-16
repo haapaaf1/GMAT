@@ -73,6 +73,17 @@ endif
 
 endif
 
+ifeq ($(USE_STC_EDITOR),1)
+STC_EDITOR_OBJECTS = \
+    view/Editor.o \
+    view/EditorPanel.o \
+    view/EditorPreferences.o \
+    view/EditorPrintout.o \
+    view/FindReplaceDialog.o
+else
+STC_EDITOR_OBJECTS =
+endif
+
 all: prep $(TARGETS) 
 
 gui: $(WXTARGET)
@@ -252,7 +263,8 @@ OBJECTS = \
     spacecraft/TankPanel.o \
     spacecraft/ThrusterPanel.o \
     view/ViewTextDialog.o \
-    view/ViewTextFrame.o 
+    view/ViewTextFrame.o \
+    $(STC_EDITOR_OBJECTS)
 
 ifeq ($(SHARED_BASE), 1)
 
