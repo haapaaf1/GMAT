@@ -175,6 +175,12 @@ public:
    virtual bool IsTransient();
    virtual bool IsUserForce();
    virtual void SetPropList(std::vector<SpaceObject *> *soList);
+   
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
+   
 
    // Parameter accessor methods -- inherited from GmatBase
    virtual std::string GetParameterText(const Integer id) const;

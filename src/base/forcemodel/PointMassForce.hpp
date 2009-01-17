@@ -107,7 +107,12 @@ public:
                                           const std::string &value);
    virtual bool           GetBooleanParameter(const Integer id) const;
    virtual bool           SetBooleanParameter(const Integer id,
-                                              const bool value);  
+                                              const bool value);
+
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
 
 protected:
    // Parameter IDs
@@ -143,6 +148,11 @@ protected:
    Rvector3 rv;
    A1Mjd now;
    Integer satCount;
+   Integer cartIndex;
+   bool fillCartesian;
+   Integer stmCount;
+   Integer stmIndex;
+   bool fillSTM;
    
    // for Debug
    void ShowBodyState(const std::string &header, Real time, Rvector6 &rv);

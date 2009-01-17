@@ -48,6 +48,7 @@
 
 #include "ODEModel.hpp"
 #include "MessageInterface.hpp"
+#include "PropagationStateManager.hpp"
 
 //#include "PointMassForce.hpp"
 //#include "Formation.hpp"      // for BuildState()
@@ -56,15 +57,15 @@
 
 
 //#define DEBUG_ODEMODEL
-//#define DEBUG_ODEMODEL_INIT
-//#define DEBUG_ODEMODEL_EXE
+#define DEBUG_ODEMODEL_INIT
+#define DEBUG_ODEMODEL_EXE
 //#define DEBUG_FORCE_REF_OBJ
 //#define DEBUG_ODEMODEL_EPOCHS
 //#define DEBUG_SATELLITE_PARAMETERS
-//#define DEBUG_FIRST_CALL
+#define DEBUG_FIRST_CALL
 //#define DEBUG_GEN_STRING
 //#define DEBUG_OWNED_OBJECT_STRINGS
-//#define DEBUG_INITIALIZATION
+#define DEBUG_INITIALIZATION
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -357,98 +358,98 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    return *this;
 }
 
-////------------------------------------------------------------------------------
-//// void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
-////------------------------------------------------------------------------------
-///**
-// * Method used to add a new force to the force model
-// *
-// * This method takes the pointer to the new force and adds it to the force model
-// * list for later use.  Each force should supply either first derivative 
-// * information for elements 4 through 6 of a state vector and zeros for the 
-// * first three elements, or second derivative information in elements 1 through 
-// * 3 and zeroes in 4 through 6 for second order integrators.  The forces should 
-// * have the ability to act on state vectors for formations as well, by filling 
-// * in elements (6*n+4) through (6*n+6) for larger state vectors.  Some forces 
-// * also affect the mass properties of the spacecraft; these elements are updated 
-// * using a TBD data structure.
-// * 
-// * The force that is passed in is owned by this class, and should not be 
-// * destructed externally.  In addition, every force that is passed to this class 
-// * needs to have a copy constructor and an assignment operator so that it can be 
-// * cloned for distribution to multiple sandboxes.
-// * 
-// * @param pPhysicalModel        The force that is being added to the force model
-// * 
-// * @todo Document the mass depletion approach.
-// */
-////------------------------------------------------------------------------------
-//void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
-//{
-//   if (pPhysicalModel == NULL)
-//      throw ODEModelException("Attempting to add a NULL force to " +
-//         instanceName);
-//
-//   #ifdef DEBUG_ODEMODEL_INIT
-//      MessageInterface::ShowMessage(
-//         "ODEModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
-//         pPhysicalModel->GetTypeName().c_str());
-//   #endif       
-//    
-//   pPhysicalModel->SetDimension(dimension);
-//   initialized = false;
-//    
-//   // Handle the name issues
-//   std::string pmType = pPhysicalModel->GetTypeName();
-//   if (pmType == "DragForce")
-//      pPhysicalModel->SetName("Drag");
-//
-//   std::string forceBody = pPhysicalModel->GetBodyName();
-//
-//   // Trap multiple instances
-//   if ((pmType == "GravityField") || (pmType == "PointMassForce"))
-//   {
-//      std::string compType;
-//      
-//      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
-//           i != forceList.end(); ++i)
-//      {
-//         compType = (*i)->GetTypeName();
-//         if ((compType == "GravityField"))
-//         {
-//            if ((*i)->GetBodyName() == forceBody && (*i) != pPhysicalModel)
-//               throw ODEModelException(
-//                  "Attempted to add a " + pmType + 
-//                  " force to the force model for the body " + forceBody +
-//                  ", but there is already a " + compType + 
-//                  " force in place for that body.");
-//         }
-//      }      
-//   }
-//   
-//   // Check to be sure there is an associated PrimaryBody for drag forces
-//   if (pmType == "DragForce")
-//   {
-//      bool hasGravityField = false;
-//      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
-//           i != forceList.end(); ++i)
-//      {
-//         if ((*i)->GetTypeName() == "GravityField")
-//         {
-//            if ((*i)->GetBodyName() == forceBody)
-//               hasGravityField = true;
-//         }
-//      }
-//      if (hasGravityField == false)
-//         throw ODEModelException(
-//            "Attempted to add a drag force for the body " + forceBody +
-//            ", but that body is not set as a primary body, so it does not " +
-//            "support additional forces.");
-//   }
-//   
-//   forceList.push_back(pPhysicalModel);
-//   numForces = forceList.size();
-//}
+//------------------------------------------------------------------------------
+// void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
+//------------------------------------------------------------------------------
+/**
+ * Method used to add a new force to the force model
+ *
+ * This method takes the pointer to the new force and adds it to the force model
+ * list for later use.  Each force should supply either first derivative 
+ * information for elements 4 through 6 of a state vector and zeros for the 
+ * first three elements, or second derivative information in elements 1 through 
+ * 3 and zeroes in 4 through 6 for second order integrators.  The forces should 
+ * have the ability to act on state vectors for formations as well, by filling 
+ * in elements (6*n+4) through (6*n+6) for larger state vectors.  Some forces 
+ * also affect the mass properties of the spacecraft; these elements are updated 
+ * using a TBD data structure.
+ * 
+ * The force that is passed in is owned by this class, and should not be 
+ * destructed externally.  In addition, every force that is passed to this class 
+ * needs to have a copy constructor and an assignment operator so that it can be 
+ * cloned for distribution to multiple sandboxes.
+ * 
+ * @param pPhysicalModel        The force that is being added to the force model
+ * 
+ * @todo Document the mass depletion approach.
+ */
+//------------------------------------------------------------------------------
+void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
+{
+   if (pPhysicalModel == NULL)
+      throw ODEModelException("Attempting to add a NULL force to " +
+         instanceName);
+
+   #ifdef DEBUG_ODEMODEL_INIT
+      MessageInterface::ShowMessage(
+         "ODEModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
+         pPhysicalModel->GetTypeName().c_str());
+   #endif       
+    
+   pPhysicalModel->SetDimension(dimension);
+   initialized = false;
+    
+   // Handle the name issues
+   std::string pmType = pPhysicalModel->GetTypeName();
+   if (pmType == "DragForce")
+      pPhysicalModel->SetName("Drag");
+
+   std::string forceBody = pPhysicalModel->GetBodyName();
+
+   // Trap multiple instances
+   if ((pmType == "GravityField") || (pmType == "PointMassForce"))
+   {
+      std::string compType;
+      
+      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
+           i != forceList.end(); ++i)
+      {
+         compType = (*i)->GetTypeName();
+         if ((compType == "GravityField"))
+         {
+            if ((*i)->GetBodyName() == forceBody && (*i) != pPhysicalModel)
+               throw ODEModelException(
+                  "Attempted to add a " + pmType + 
+                  " force to the force model for the body " + forceBody +
+                  ", but there is already a " + compType + 
+                  " force in place for that body.");
+         }
+      }      
+   }
+   
+   // Check to be sure there is an associated PrimaryBody for drag forces
+   if (pmType == "DragForce")
+   {
+      bool hasGravityField = false;
+      for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
+           i != forceList.end(); ++i)
+      {
+         if ((*i)->GetTypeName() == "GravityField")
+         {
+            if ((*i)->GetBodyName() == forceBody)
+               hasGravityField = true;
+         }
+      }
+      if (hasGravityField == false)
+         throw ODEModelException(
+            "Attempted to add a drag force for the body " + forceBody +
+            ", but that body is not set as a primary body, so it does not " +
+            "support additional forces.");
+   }
+   
+   forceList.push_back(pPhysicalModel);
+   numForces = forceList.size();
+}
 
 ////------------------------------------------------------------------------------
 //// void DeleteForce(const std::string &name)
@@ -796,8 +797,180 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
 //}
 
 
+
 //------------------------------------------------------------------------------
-// bool ODEModel::Initialize()
+// bool BuildModelFromMap(PropagationStateManager *psm)
+//------------------------------------------------------------------------------
+/**
+ * Sets up the PhysicalModels in the ODEModel.
+ * 
+ * The model information is all contained in an associated 
+ * PropagationStateManager.  The PSM is passed in as a parameter on this
+ * call.
+ * 
+ * The derivative model is built based on the order of the items in the state 
+ * vector.  State vectors are built so that like elements of different objects 
+ * are grouped together -- so, for example, if a state vector consains multiple 
+ * spacecraft, the state vector has all of the CartesianState data that is 
+ * integrated grouped into one block, and other pieces grouped together in 
+ * separate blocks.  All of the like data for a given object is grouped 
+ * sequentially before moving to a secong object.  Thus for a state vector set
+ * for the Cartesian state propagation for two spacecraft and the STM for the 
+ * first but not the second, the state vector has 48 elements, and it looks like 
+ * this (the ellipses are used for brevity here):
+ * 
+ *    vec = [sat1.X, sat1.y,...,sat1.VZ, sat2.X,...,sat2.VZ, 
+ *           sat1.STM_XX, sat1.STM_XY,...,sat1.STM_VZVZ]  
+ * 
+ * The mapping between the state elements and the differential equations modeled
+ * in this ODEModel are constructed using integer identifiers for the data built 
+ * in each PhysicalModel.
+ *  
+ * @param psm The PropagationStateManager.
+ * 
+ * @return true if the physical models were mapped successfully, false if not. 
+ */
+//------------------------------------------------------------------------------
+bool ODEModel::BuildModelFromMap(PropagationStateManager *psm)
+{
+   bool retval = false;
+   
+   const std::vector<ListItem*> *map = psm->GetStateMap();
+   Integer start = 0, objectCount = 0;
+   Gmat::StateElementId id = Gmat::UNKNOWN_STATE;
+   GmatBase *currentObject = NULL;
+   
+   // Loop through the state map, counting objects for each type needed
+   for (Integer index = 0; index < (Integer)map->size(); ++index)
+   {
+      // When the elementID changes, act on the previous data processed 
+      if (id != (*map)[index]->elementID)
+      {
+         // Only build elements if an object needs them
+         if (objectCount > 0)
+         {
+            // Build the derivative model piece for this element
+            retval = BuildModelElement(id, start, objectCount);
+            if (retval == false)
+               throw ODEModelException(
+                     "Failed to build an element of the ODEModel.");
+         }
+         // A new element type was encountered, so reset the pointers & counters
+         id = (*map)[index]->elementID;
+         objectCount = 0;
+         start = index;
+         currentObject = NULL;
+      }
+      // Increment the count for each new object
+      if (currentObject != (*map)[index]->object)
+      {
+         currentObject = (*map)[index]->object;
+         ++objectCount;
+      }
+   }
+   // Catch the last element
+   if (objectCount > 0)
+   {
+      retval = BuildModelElement(id, start, objectCount);
+      if (retval == false)
+         throw ODEModelException("Failed to build an element of the ODEModel.");
+   }
+   
+   // Show the state structure
+   MessageInterface::ShowMessage("State vector has the following structure:\n");
+   MessageInterface::ShowMessage("   ID     Start   Count\n");
+   for (std::vector<StateStructure>::iterator i = sstruct.begin(); 
+         i != sstruct.end(); ++i)
+      MessageInterface::ShowMessage("   %4d      %2d    %d\n", i->id, i->index,
+            i->count);
+   
+   return retval;
+}
+
+//------------------------------------------------------------------------------
+// bool BuildModelElement(Gmat::StateElementId id, Integer start, 
+//                        Integer objectCount)
+//------------------------------------------------------------------------------
+/**
+ * Constructs the derivative mapping an element of the ODEModel.
+ * 
+ * This method tells each PhysicalModel about the information in the state 
+ * vector that expects derivative information used in the superposition. 
+ * 
+ * The PhysicalModel class has two methods that facilitate this mapping: 
+ * 
+ *    SupportsDerivative(Gmat::StateElementId id) -- Checks the model to see if  
+ *                                      it supports derivative information for a
+ *                                      specific state parameter   
+ * 
+ *    SetStart(Gmat::StateElementId id, Integer index, Integer quantity) -- 
+ *                                      Sets the start index for the 
+ *                                      derivative information in the state 
+ *                                      vector and the number of objects in the
+ *                                      vector that receive this information.
+ * 
+ * When this method is called, it loops through the PhysicalModels in the 
+ * ODEModel and, for each model supporting the element, registers the start 
+ * index and size of the portion of the sytate vector that receives the 
+ * derivative data.
+ * 
+ * @param id      The integer ID for the element that is being registered
+ * @param start   The index for the first element in the state vector
+ * @param objectCount   The number of objects that need the derivative data
+ * 
+ * @return true if the derivative was set successfully for at least one 
+ *         PhysicalModel, false if it failed.
+ */
+//------------------------------------------------------------------------------
+bool ODEModel::BuildModelElement(Gmat::StateElementId id, Integer start, 
+      Integer objectCount)
+{
+   bool retval = false, tf;
+   Integer modelsUsed = 0;
+   
+      MessageInterface::ShowMessage("Building ODEModel element; id = %d, "
+            "index = %d, count = %d; force list has %d elements\n", id, start, 
+            objectCount, forceList.size());
+   
+   // Loop through the PhysicalModels, checking to see if any support the 
+   // indicated element.  If there is no derivative model anywhere in the PM
+   // list, then the element will not change during integration, and the return 
+   // value for building that derivative model is false.  If support is 
+   // registered, then the PhysicalModel is handed information about where to
+   // place the derivative data in the derivative state vector.
+   for (std::vector<PhysicalModel *>::iterator i = forceList.begin();
+         i != forceList.end(); ++i)
+   {
+      if ((*i)->SupportsDerivative(id))
+      {
+         tf = (*i)->SetStart(id, start, objectCount);
+         if (tf == false)
+            MessageInterface::ShowMessage("PhysicalModel %s was not set, even "
+                  "though it registered support for derivatives of type %d\n", 
+                  (*i)->GetTypeName().c_str(), id);
+         else
+            ++modelsUsed;
+         
+         if (retval == false)
+            retval = tf;
+      }
+   }
+   
+   StateStructure newStruct;
+   newStruct.id = id;
+   newStruct.index = start;
+   newStruct.count = objectCount;
+   // newStruct.size = ??;
+   sstruct.push_back(newStruct);
+
+      MessageInterface::ShowMessage(
+            "ODEModel is using %d components for element %d\n", modelsUsed, id);
+   
+   return retval;
+}
+
+//------------------------------------------------------------------------------
+// bool Initialize()
 //------------------------------------------------------------------------------
 /**
  * Initializes model and all contained models
@@ -844,8 +1017,18 @@ bool ODEModel::Initialize()
       return false;
 
    dimension = state->GetSize();
-   rawState = new Real[dimension];
-   memcpy(rawState, state, dimension * sizeof(Real));
+   
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("Configuring for state of dimension %d\n",
+            dimension);
+   #endif
+   
+   rawState = state->GetState();// new Real[dimension];
+   modelState = state->GetState();// new Real[dimension];
+//   memcpy(rawState, state->GetState(), dimension * sizeof(Real));
+
+//   modelState = new Real[dimension];
+//   memcpy(modelState, state->GetState(), dimension * sizeof(Real));
 
 //   if (spacecraft.size() == 0) 
 //   {
@@ -879,65 +1062,64 @@ bool ODEModel::Initialize()
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
    Integer i;
+   
+
 
 //   Integer cf = currentForce;
 //   PhysicalModel *current = GetForce(cf);  // waw: added 06/04/04
 //   PhysicalModel *currentPm;
 
-//   while (current) 
-//   {
-//      #ifdef DEBUG_ODEMODEL_INIT
-//         std::string name, type;
-//         name = current->GetName();
-//         if (name == "")
-//            name = "unnamed";
-//         type = current->GetTypeName();
-//         MessageInterface::ShowMessage
-//            ("ODEModel::Initialize() initializing object %s of type %s\n",
-//             name.c_str(), type.c_str());
-//      #endif
-//      
-//      currentPm = current;  // waw: added 06/04/04 
-//      currentPm->SetDimension(dimension);
-//      
-//      // Only initialize the spacecraft independent pieces once
-//      if (forceMembersNotInitialized)
-//      {
-//         currentPm->SetSolarSystem(solarSystem);
-//         
-//         // Handle missing coordinate system issues for GravityFields
-//         if (currentPm->IsOfType("HarmonicField"))
-//         {
-//            SetInternalCoordinateSystem("InputCoordinateSystem", currentPm);
-//            SetInternalCoordinateSystem("FixedCoordinateSystem", currentPm);
-//            SetInternalCoordinateSystem("TargetCoordinateSystem", currentPm);
-//
-//            if (body == NULL)
-//               body = solarSystem->GetBody(centralBodyName); // or should we get bodyName?
-//         }
-//      }
-//
-//      // Initialize the forces
-//      if (!currentPm->Initialize()) 
-//      {
-//         std::string msg = "Component force ";
-//         msg += currentPm->GetTypeName();
-//         msg += " failed to initialize";
-//         throw ODEModelException(msg);
-//      }
-//      currentPm->SetState(modelState);
-//
-//      // Set spacecraft parameters for forces that need them
+   for (std::vector<PhysicalModel *>::iterator current = forceList.begin();
+        current != forceList.end(); ++current)
+   {
+      #ifdef DEBUG_ODEMODEL_INIT
+         std::string name, type;
+         name = (*current)->GetName();
+         if (name == "")
+            name = "unnamed";
+         type = (*current)->GetTypeName();
+         MessageInterface::ShowMessage
+            ("ODEModel::Initialize() initializing object %s of type %s\n",
+             name.c_str(), type.c_str());
+      #endif
+      
+      (*current)->SetDimension(dimension);
+      
+      // Only initialize the spacecraft independent pieces once
+      if (forceMembersNotInitialized)
+      {
+         (*current)->SetSolarSystem(solarSystem);
+         
+         // Handle missing coordinate system issues for GravityFields
+         if ((*current)->IsOfType("HarmonicField"))
+         {
+            SetInternalCoordinateSystem("InputCoordinateSystem", (*current));
+            SetInternalCoordinateSystem("FixedCoordinateSystem", (*current));
+            SetInternalCoordinateSystem("TargetCoordinateSystem", (*current));
+
+            if (body == NULL)
+               body = solarSystem->GetBody(centralBodyName); // or should we get bodyName?
+         }
+      }
+
+      // Initialize the forces
+      if (!(*current)->Initialize()) 
+      {
+         std::string msg = "Component force ";
+         msg += (*current)->GetTypeName();
+         msg += " failed to initialize";
+         throw ODEModelException(msg);
+      }
+      (*current)->SetState(modelState);
+
+      // todo: Set spacecraft parameters for forces that need them
 //      i = 0;
 //      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
 //      {
-//         i = SetupSpacecraftData(*sat, currentPm, i);
+//         i = SetupSpacecraftData(*sat, (*current), i);
 //         ++i;
 //      }
-//        
-//      cf++;
-//      current = GetForce(cf);
-//   }
+   }
    
    #ifdef DEBUG_FORCE_EPOCHS
       std::string epfile = "ForceEpochs.txt";
@@ -957,6 +1139,15 @@ bool ODEModel::Initialize()
 
    // Set flag stating that Initialize was successful once
    forceMembersNotInitialized = false;
+   
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("ODEModel::Initialize() complete\n");
+   #endif
+   
+//   modelState = state->GetState();
+      
+   initialized = true;
+   
    return true;
 }
 
@@ -1142,6 +1333,9 @@ std::string ODEModel::BuildPropertyName(GmatBase *ownedObj)
 //------------------------------------------------------------------------------
 void ODEModel::UpdateInitialData()
 {
+// todo: Fix UpdateInitialData
+   return;
+   
    Integer cf = currentForce;
    PhysicalModel *current = forceList[cf];  // waw: added 06/04/04
 
@@ -1418,81 +1612,67 @@ void ODEModel::UpdateTransientForces()
 bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order, 
       const Integer id)
 {
+   #ifdef DEBUG_ODEMODEL_EXE
+      MessageInterface::ShowMessage("  ODEModel Input state = ["); 
+      for (Integer i = 0; i < dimension-1; ++i)
+         MessageInterface::ShowMessage("%le, ", state[i]);
+      MessageInterface::ShowMessage("%le]\n", state[dimension - 1]);
+   #endif
+
    if (order > 2)
       return false;
    if (!initialized)
       return false;
-
-   Integer satCount = dimension / stateSize, i, iOffset;
-
-   #ifdef DEBUG_ODEMODEL_EXE
-      for (i = 0; i < satCount; ++i)
-         MessageInterface::ShowMessage(
-            "  Input state = %le %le %le %le %le %le\n", state[i*stateSize + 0], 
-            state[i*stateSize + 1], state[i*stateSize + 2], 
-            state[i*stateSize + 3], state[i*stateSize + 4], 
-            state[i*stateSize + 5]);
-   #endif
-
-   #ifdef DEBUG_ODEMODEL_EPOCHS
-      MessageInterface::ShowMessage(
-         "Input time offset = %16.14le; epoch = %16.10lf\n", dt, epoch);
-   #endif
-  
+   
+#ifdef DEBUG_ODEMODEL_EXE
+   MessageInterface::ShowMessage("Initializing derivative array\n");
+#endif
+   
+   // New code:
+   
    // Initialize the derivative array
-   for (i = 0; i < satCount; ++i) {
-      iOffset = i*stateSize;
-      if (order == 1) //loj: changed from =
-      {
-          deriv[ iOffset ] = state[iOffset+3];
-          deriv[iOffset+1] = state[iOffset+4];
-          deriv[iOffset+2] = state[iOffset+5];
-          deriv[iOffset+3] = deriv[iOffset+4] = deriv[iOffset+5] = 0.0;
-      }
-      else 
-      {
-          deriv[iOffset] = deriv[iOffset+1] = deriv[iOffset+2] = 
-          deriv[iOffset+3] = deriv[iOffset+4] = deriv[iOffset+5] = 0.0;
-      }
+   for (Integer i = 0; i < dimension; ++i)
+   {
+          deriv[i] = 0.0;
    }
    
-   Integer cf = currentForce;
-   PhysicalModel *current = forceList[cf];  
-
-   const Real * ddt;
-   while (current) 
+   const Real* ddt;
+   
+#ifdef DEBUG_ODEMODEL_EXE
+   MessageInterface::ShowMessage("Looping through %d PhysicalModels\n", 
+         forceList.size());
+#endif
+   for (std::vector<PhysicalModel *>::iterator i = forceList.begin();
+         i != forceList.end(); ++i)
    {
-      ddt = current->GetDerivativeArray();
-      if (!current->GetDerivatives(state, dt, order))
+#ifdef DEBUG_ODEMODEL_EXE
+   MessageInterface::ShowMessage("   %s\n", ((*i)->GetTypeName()).c_str());
+#endif
+      ddt = (*i)->GetDerivativeArray();
+      if (!(*i)->GetDerivatives(state, dt, order))
+      {
+         #ifdef DEBUG_ODEMODEL_EXE
+            MessageInterface::ShowMessage("Derivative %s failed\n",
+                  ((*i)->GetTypeName()).c_str());
+         #endif
          return false;
 
+      }
+
       #ifdef DEBUG_ODEMODEL_EXE
-      for (i = 0; i < satCount; ++i)
-         MessageInterface::ShowMessage("  ddt(%s[%s])[%d] = %le %le %le\n",
-            (current->GetTypeName().c_str()), 
-            (current->GetStringParameter(
-               current->GetParameterID("BodyName"))).c_str(), i, 
-            ddt[i*stateSize + 3], ddt[i*stateSize + 4], ddt[i*stateSize + 5]);
+      for (Integer j = 0; j < dimension; ++j)
+         MessageInterface::ShowMessage("  ddt(%s[%s])[%d] = %le\n",
+            ((*i)->GetTypeName().c_str()), 
+            ((*i)->GetStringParameter((*i)->GetParameterID("BodyName"))).c_str(), 
+            j, ddt[j]);
       #endif
 
-      for (i = 0; i < satCount; ++i) {
-         iOffset = i*stateSize;
-         if (order == 1) //loj: changed from =
-         {
-            deriv[iOffset+3] += ddt[iOffset+3];
-            deriv[iOffset+4] += ddt[iOffset+4];
-            deriv[iOffset+5] += ddt[iOffset+5];
-         }
-         else 
-         {
-            deriv[ iOffset ] += ddt[ iOffset ];
-            deriv[iOffset+1] += ddt[iOffset+1];
-            deriv[iOffset+2] += ddt[iOffset+2];
-         }
+      for (Integer j = 0; j < dimension; ++j) 
+      {
+         deriv[j] += ddt[j];
          #ifdef DEBUG_ODEMODEL_EXE
-            MessageInterface::ShowMessage("  deriv[%d] = %le %le %le\n", i, 
-               deriv[iOffset + 3], deriv[iOffset + 4], 
-               deriv[iOffset + 5]);
+            MessageInterface::ShowMessage("  deriv[%d] = %16.14le\n", j, 
+               deriv[j]);
          #endif
       }
 
@@ -1502,18 +1682,17 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
             MessageInterface::ShowMessage(
                "   %s(%s)::GetDerivatives --> "
                "[%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-               current->GetTypeName().c_str(), current->GetName().c_str(), 
+               forceList[0]->GetTypeName().c_str(), 
+               forceList[0]->GetName().c_str(), 
                ddt[0], ddt[1], ddt[2], ddt[3], ddt[4], ddt[5]);
          }
       #endif
-
-      ++cf;
-      current = forceList[cf];
    }
+   
    #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage("  ===============================\n");
    #endif
-
+   
    #ifdef DEBUG_FIRST_CALL
       if (firstCallFired == false)
       {
@@ -1521,11 +1700,109 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
             "GetDerivatives: [%.16lf %.16lf %.16lf %.16lf %.16lf %.16lf]\n",
             deriv[0], deriv[1], deriv[2], deriv[3], deriv[4], deriv[5]);
       }
-
+   
       firstCallFired = true;
    #endif
-
    return true;
+
+   
+   // Old code:
+//
+//   Integer satCount = dimension / stateSize, i, iOffset;
+//
+//
+//   #ifdef DEBUG_ODEMODEL_EPOCHS
+//      MessageInterface::ShowMessage(
+//         "Input time offset = %16.14le; epoch = %16.10lf\n", dt, epoch);
+//   #endif
+//  
+//   // Initialize the derivative array
+//   for (i = 0; i < satCount; ++i) {
+//      iOffset = i*stateSize;
+//      if (order == 1) //loj: changed from =
+//      {
+//          deriv[ iOffset ] = state[iOffset+3];
+//          deriv[iOffset+1] = state[iOffset+4];
+//          deriv[iOffset+2] = state[iOffset+5];
+//          deriv[iOffset+3] = deriv[iOffset+4] = deriv[iOffset+5] = 0.0;
+//      }
+//      else 
+//      {
+//          deriv[iOffset] = deriv[iOffset+1] = deriv[iOffset+2] = 
+//          deriv[iOffset+3] = deriv[iOffset+4] = deriv[iOffset+5] = 0.0;
+//      }
+//   }
+//   
+//   Integer cf = currentForce;
+//   PhysicalModel *current = forceList[cf];  
+//
+//   const Real * ddt;
+//   while (current) 
+//   {
+//      ddt = current->GetDerivativeArray();
+//      if (!current->GetDerivatives(state, dt, order))
+//         return false;
+//
+//      #ifdef DEBUG_ODEMODEL_EXE
+//      for (i = 0; i < satCount; ++i)
+//         MessageInterface::ShowMessage("  ddt(%s[%s])[%d] = %le %le %le\n",
+//            (current->GetTypeName().c_str()), 
+//            (current->GetStringParameter(
+//               current->GetParameterID("BodyName"))).c_str(), i, 
+//            ddt[i*stateSize + 3], ddt[i*stateSize + 4], ddt[i*stateSize + 5]);
+//      #endif
+//
+//      for (i = 0; i < satCount; ++i) {
+//         iOffset = i*stateSize;
+//         if (order == 1) //loj: changed from =
+//         {
+//            deriv[iOffset+3] += ddt[iOffset+3];
+//            deriv[iOffset+4] += ddt[iOffset+4];
+//            deriv[iOffset+5] += ddt[iOffset+5];
+//         }
+//         else 
+//         {
+//            deriv[ iOffset ] += ddt[ iOffset ];
+//            deriv[iOffset+1] += ddt[iOffset+1];
+//            deriv[iOffset+2] += ddt[iOffset+2];
+//         }
+//         #ifdef DEBUG_ODEMODEL_EXE
+//            MessageInterface::ShowMessage("  deriv[%d] = %le %le %le\n", i, 
+//               deriv[iOffset + 3], deriv[iOffset + 4], 
+//               deriv[iOffset + 5]);
+//         #endif
+//      }
+//
+//      #ifdef DEBUG_FIRST_CALL
+//         if (firstCallFired == false)
+//         {
+//            MessageInterface::ShowMessage(
+//               "   %s(%s)::GetDerivatives --> "
+//               "[%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
+//               current->GetTypeName().c_str(), current->GetName().c_str(), 
+//               ddt[0], ddt[1], ddt[2], ddt[3], ddt[4], ddt[5]);
+//         }
+//      #endif
+//
+//      ++cf;
+//      current = forceList[cf];
+//   }
+//   #ifdef DEBUG_ODEMODEL_EXE
+//      MessageInterface::ShowMessage("  ===============================\n");
+//   #endif
+//
+//   #ifdef DEBUG_FIRST_CALL
+//      if (firstCallFired == false)
+//      {
+//         MessageInterface::ShowMessage(
+//            "GetDerivatives: [%.16lf %.16lf %.16lf %.16lf %.16lf %.16lf]\n",
+//            deriv[0], deriv[1], deriv[2], deriv[3], deriv[4], deriv[5]);
+//      }
+//
+//      firstCallFired = true;
+//   #endif
+//
+//   return true;
 }
 
 //------------------------------------------------------------------------------
@@ -2960,6 +3237,11 @@ void ODEModel::ReportEpochData()
       throw ODEModelException(
          "ODEModel::ReportEpochData: Attempting to write epoch data without "
          "opening the data file.");
+}
+
+void ODEModel::SetState(GmatState *gms)
+{
+   state = gms;
 }
 
 

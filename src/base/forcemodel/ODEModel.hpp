@@ -66,6 +66,11 @@
 
 #include <fstream>            // Used for streams in debugging methods
 
+
+class PropagationStateManager;
+
+
+
 /**
  * ODEModel is a container class for ordinary differential equations
  * 
@@ -89,14 +94,15 @@ public:
    
    // Methods needed to run an ODEModel 
    virtual void SetSolarSystem(SolarSystem *ss);
+   virtual bool BuildModelFromMap(PropagationStateManager *psm);
    virtual bool Initialize();
    virtual bool GetDerivatives(Real * state, Real dt = 0.0, Integer order = 1, 
          const Integer id = -1);
    virtual Real EstimateError(Real *diffs, Real *answer) const;
       
+   void AddForce(PhysicalModel *pPhysicalModel);
    
 // Methods that were removed
-//   void AddForce(PhysicalModel *pPhyscialModel);
 //   void DeleteForce(const std::string &name);
 //   void DeleteForce(PhysicalModel *pPhyscialModel);
 //   bool HasForce(const std::string &name);
@@ -184,6 +190,8 @@ public:
    
    void                 UpdateInitialData();
    void                 ReportEpochData();
+   
+   void                 SetState(GmatState *gms);
 
 protected:
    /// Count of the number of forces in the model
@@ -230,7 +238,6 @@ protected:
 //   /// ID for the "Epoch" parameter  -- NOT NEEDED, THIS IS A PHYSICAL MODEL ALREADY!!!
 //   Integer modelEpochId;
    
-   
    /// Mapping between script descriptions and force names.
    static std::map<std::string, std::string> scriptAliases;
    
@@ -264,6 +271,22 @@ protected:
    
    void                      MoveToOrigin(Real newEpoch = -1.0);
    void                      ReturnFromOrigin(Real newEpoch = -1.0);
+   
+   
+   // Elements from the redesign
+   struct StateStructure
+   {
+      Gmat::StateElementId id;
+      Integer index;
+      Integer count;
+   //   Integer size;
+   };
+   
+   std::vector<StateStructure> sstruct;
+   
+   bool                      BuildModelElement(Gmat::StateElementId id, 
+                                               Integer start, 
+                                               Integer objectCount);
    
 //   /// Data file used when debugging epoch data
 //   std::ofstream             epochFile;

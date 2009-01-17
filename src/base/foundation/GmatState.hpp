@@ -60,7 +60,7 @@ public:
 
 protected:
    /// The epoch of the state data
-   GmatEpoch   theEpoch;
+   GmatEpoch         theEpoch;
    /// The state data
    Real              *theData;
    Integer           *dataIDs;

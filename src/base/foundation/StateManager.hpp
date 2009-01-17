@@ -36,11 +36,15 @@ public:
    StateManager(const StateManager& sm);
    StateManager& operator=(const StateManager& sm);
    
+   // Abstract methods
    virtual bool SetObject(GmatBase* theObject) = 0;
    virtual bool SetProperty(std::string propName) = 0;
    virtual bool BuildState() = 0;
    virtual bool MapObjectsToVector() = 0;
    virtual bool MapVectorToObjects() = 0;
+
+   virtual bool UpdateState();
+   virtual GmatState* GetState();
    
 protected:
    /// Size of the managed state vector
@@ -48,6 +52,7 @@ protected:
    GmatState                  state;
    
    std::vector<GmatBase*>     objects;
+   std::vector<Integer>       epochIDs;
    std::map<GmatBase*, StringArray*>  elements;
    GmatBase*                  current;
 };

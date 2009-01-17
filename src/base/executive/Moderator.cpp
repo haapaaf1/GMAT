@@ -2423,8 +2423,7 @@ ODEModel* Moderator::CreateODEModel(const std::string &type,
       if (name == "InternalForceModel")
       {
          PhysicalModel *pmf = CreatePhysicalModel("PointMassForce", "");
-// todo: Add forces to ODEModel
-//         fm->AddForce(pmf);
+         fm->AddForce(pmf);
          #if DEBUG_CREATE_RESOURCE
          MessageInterface::ShowMessage
             ("Moderator::CreateODEModel() returning new ODEModel, <%p> '%s'\n",
@@ -2507,8 +2506,7 @@ bool Moderator::AddToODEModel(const std::string &odeModelName,
    bool status = true;
    ODEModel *fm = theConfigManager->GetODEModel(odeModelName);
    PhysicalModel *physicalModel = theConfigManager->GetPhysicalModel(forceName);
-// todo: Add forces to ODEModel
-//   fm->AddForce(physicalModel);
+   fm->AddForce(physicalModel);
    return status;
 }
 
@@ -2635,8 +2633,7 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    gravForce->SetBody("Earth");
    gravForce->SetBodyName("Earth");
    gravForce->SetStringParameter("PotentialFile", GetFileName("JGM2_FILE"));  
-// todo: Add forces to ODEModel
-//   fm->AddForce(gravForce);   
+   fm->AddForce(gravForce);   
    propSetup->SetODEModel(fm);
    
    #if DEBUG_CREATE_RESOURCE

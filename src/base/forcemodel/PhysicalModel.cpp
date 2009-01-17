@@ -94,7 +94,7 @@
 
 
 //#define PHYSICAL_MODEL_DEBUG_INIT
-
+//#define DEBUG_INITIALIZATION
 
 //---------------------------------
 // static data
@@ -167,12 +167,12 @@ PhysicalModel::PhysicalModel(Gmat::ObjectType id, const std::string &typeStr,
 //------------------------------------------------------------------------------
 PhysicalModel::~PhysicalModel()
 {
-   if (rawState != modelState)
-      if (rawState)
-         delete [] rawState;
+//   if (rawState != modelState)
+//      if (rawState)
+//         delete [] rawState;
          
-   if (modelState)
-      delete [] modelState;
+//   if (modelState)
+//      delete [] modelState;
 
    if (deriv)
       delete [] deriv;
@@ -358,10 +358,12 @@ void PhysicalModel::SetForceOrigin(CelestialBody* toBody)
  * PhysicalModelremoved in a later release.
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::Initialize(void)
+bool PhysicalModel::Initialize()
 { 
    #ifdef DEBUG_INITIALIZATION
-      MessageInterface::ShowMessage("PhysicalModel::Initialize() entered\n");
+      MessageInterface::ShowMessage(
+            "PhysicalModel::Initialize() entered for %s; dimension = %d\n", 
+            typeName.c_str(), dimension);
    #endif
    
    if (modelState) {
@@ -377,7 +379,8 @@ bool PhysicalModel::Initialize(void)
    }
    
    modelState = new Real[dimension];
-   if (modelState != NULL) {
+   if (modelState != NULL) 
+   {
       deriv = new Real[dimension];
       if (deriv)
          initialized = true;
@@ -897,6 +900,16 @@ void PhysicalModel::SetPropList(std::vector<SpaceObject*> *soList)
 {
 }
 
+bool PhysicalModel::SupportsDerivative(Gmat::StateElementId id)
+{
+   return false;
+}
+
+bool PhysicalModel::SetStart(Gmat::StateElementId id, Integer index, 
+      Integer quantity)
+{
+   return false;
+}
 
 //---------------------------------
 // inherited methods from GmatBase

@@ -53,6 +53,8 @@
 #include "gmatdefs.hpp"
 #include "RungeKutta.hpp"
 
+//#define DEBUG_PROPAGATOR_FLOW
+
 //---------------------------------
 // public
 //---------------------------------
@@ -277,7 +279,11 @@ bool RungeKutta::Step()
     // ((ForceModel*)physicalModel)->UpdateInitialData();
 
     if (!initialized)
-        return false;
+    {
+       MessageInterface::ShowMessage("RK not initialized\n");
+       return false;
+    }
+
     if ((fabs(stepSize) < minimumStep) && !finalStep)
         stepSize = ((stepSize > 0.0) ? minimumStep : -minimumStep);
     if (fabs(stepSize) > maximumStep)

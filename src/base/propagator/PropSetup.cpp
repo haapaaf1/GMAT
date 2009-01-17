@@ -126,8 +126,7 @@ PropSetup::PropSetup(const std::string &name)
    mPropagator = new RungeKutta89("RungeKutta89");
    mODEModel = new ODEModel(mODEModelName);
    PhysicalModel *pmf = new PointMassForce;
-// todo: Add forces to ODEModel
-//   mODEModel->AddForce(pmf);
+   mODEModel->AddForce(pmf);
    
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
@@ -380,8 +379,7 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
 //------------------------------------------------------------------------------
 void PropSetup::AddForce(PhysicalModel *force)
 {
-// todo: Add forces to ODEModel
-//   mODEModel->AddForce(force);
+   mODEModel->AddForce(force);
 }
 
 

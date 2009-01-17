@@ -4779,8 +4779,7 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
             #endif
             
             // Add force to ForceModel
-// todo: Add forces to ODEModel
-//            forceModel->AddForce(pm);
+            forceModel->AddForce(pm);
             
             // Use JGM2 for default Earth gravity file, in case it is not
             // specified in the script
@@ -4867,8 +4866,7 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
       #endif
       
       // Add force to ForceModel
-// todo: Add forces to ODEModel
-//      forceModel->AddForce(pm);
+      forceModel->AddForce(pm);
       
       #ifdef DEBUG_SET_FORCE_MODEL
       MessageInterface::ShowMessage("Interpreter::SetForceModelProperty() returning true\n");
@@ -4893,8 +4891,7 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
          if (pm)
          {
             pm->SetName(udForces[i]);
-// todo: Add forces to ODEModel
-//            forceModel->AddForce(pm);
+            forceModel->AddForce(pm);
          }
          else
             throw InterpreterException

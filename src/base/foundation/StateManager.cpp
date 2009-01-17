@@ -47,9 +47,22 @@ StateManager& StateManager::operator=(const StateManager& sm)
       
       // For now, copies start empty.  This may change later.
       objects.clear();
+      epochIDs.clear();
       elements.clear();
       current = NULL;
    }
    
    return *this;
+}
+
+
+bool StateManager::UpdateState() 
+{
+   return true;
+}
+
+
+GmatState* StateManager::GetState()
+{
+   return &state;
 }

@@ -28,7 +28,8 @@
 #include "Rmatrix.hpp"
 
 //#define DEBUG_STATE_CONSTRUCTION
-#define DUMP_STATE
+//#define DUMP_STATE
+#define DEBUG_OBJECT_UPDATES
 
 
 PropagationStateManager::PropagationStateManager(Integer size) :
@@ -77,6 +78,11 @@ bool PropagationStateManager::SetObject(GmatBase* theObject)
    // todo: validate that theObject can be propagated 
 
    objects.push_back(theObject);
+   Integer id = theObject->GetParameterID("Epoch");
+   if (theObject->GetParameterType(id) != Gmat::REAL_TYPE)
+      id = theObject->GetParameterID("A1Epoch");
+   epochIDs.push_back(id);
+   
    current = theObject;
    StringArray *objectProps = new StringArray;
    elements[current] = objectProps;
@@ -153,7 +159,7 @@ bool PropagationStateManager::BuildState()
          MessageInterface::ShowMessage("State[%02d] = %.12lf\n", i, state[i]);
    #endif   
       
-   return false;
+   return true;
 }
 
 
@@ -185,14 +191,56 @@ bool PropagationStateManager::MapObjectsToVector()
                   "%s not set; Element type not handled\n",label.c_str());
       }
    }
+   
+   // Manage epoch
+   GmatEpoch theEpoch = 0.0;
+   for (UnsignedInt i = 0; i < objects.size(); ++i)
+   {
+      if (i == 0)
+         theEpoch = objects[i]->GetRealParameter(epochIDs[i]);
+      else
+         if (theEpoch != objects[i]->GetRealParameter(epochIDs[i]))
+            // should throw here
+            MessageInterface::ShowMessage("Epoch mismatch\n");
+   }
+   state.SetEpoch(theEpoch);
+   
+   #ifdef DEBUG_OBJECT_UPDATES
+      MessageInterface::ShowMessage(
+            "After mapping objects to vector, contents are\n"
+            "   Epoch = %.12lf\n", state.GetEpoch());
+      for (Integer index = 0; index < stateSize; ++index)
+      {
+         std::stringstream msg("");
+         msg << stateMap[index]->subelement;
+         std::string lbl = stateMap[index]->objectName + "." + 
+            stateMap[index]->elementName + "." + msg.str() + " = ";
+         MessageInterface::ShowMessage("   %d: %s%.12lf\n", index, lbl.c_str(), 
+               state[index]);
+      }
+   #endif
 
    return true;
 }
 
 bool PropagationStateManager::MapVectorToObjects()
 {
+   #ifdef DEBUG_OBJECT_UPDATES
+      MessageInterface::ShowMessage("Mapping vector to objects\n"
+            "   Epoch = %.12lf\n", state.GetEpoch());
+   #endif
+
    for (Integer index = 0; index < stateSize; ++index)
    {
+      #ifdef DEBUG_OBJECT_UPDATES
+         std::stringstream msg("");
+         msg << stateMap[index]->subelement;
+         std::string lbl = stateMap[index]->objectName + "." + 
+            stateMap[index]->elementName + "." + msg.str() + " = ";
+         MessageInterface::ShowMessage("   %d: %s%.12lf\n", index, lbl.c_str(), 
+               state[index]);
+      #endif
+
       switch (stateMap[index]->parameterType)
       {
          case Gmat::REAL_TYPE:
@@ -201,7 +249,7 @@ bool PropagationStateManager::MapVectorToObjects()
             break;
             
          case Gmat::RMATRIX_TYPE:
-            stateMap[index]->object->GetRealParameter(
+            stateMap[index]->object->SetRealParameter(
                      stateMap[index]->parameterID, state[index], 
                      stateMap[index]->rowIndex, stateMap[index]->colIndex);
             break;
@@ -216,19 +264,31 @@ bool PropagationStateManager::MapVectorToObjects()
       }
    }
 
+   GmatEpoch theEpoch = state.GetEpoch();
+   for (UnsignedInt i = 0; i < objects.size(); ++i)
+      objects[i]->SetRealParameter(epochIDs[i], theEpoch);
+
    return true;
+}
+
+
+const std::vector<ListItem*>* PropagationStateManager::GetStateMap()
+{
+   return &stateMap;
 }
 
 
 Integer PropagationStateManager::SortVector()
 {
    StringArray *propList;
-   std::vector<Integer> idList, order;
+   std::vector<Integer> order;
+   std::vector<Gmat::StateElementId> idList;
    ObjectArray owners;
    StringArray property;
    std::vector<Integer>::iterator oLoc;
 
-   Integer size, id, loc = 0, val;
+   Gmat::StateElementId id;
+   Integer size, loc = 0, val;
    stateSize = 0;
    
    // First build a list of the property IDs and objects, measuring state size 
@@ -242,7 +302,7 @@ Integer PropagationStateManager::SortVector()
       for (StringArray::iterator j = propList->begin(); 
             j != propList->end(); ++j)
       {
-         id = current->SetPropItem(*j);
+         id = (Gmat::StateElementId)current->SetPropItem(*j);
          if (id == Gmat::UNKNOWN_STATE)
             throw PropagatorException("Unknown state element: " + (*j));
          size = current->GetPropItemSize(id);

@@ -76,6 +76,7 @@
 
 
 //#define DEBUG_PROP_RERUN
+#define DEBUG_INITIALIZATION
 
 //---------------------------------
 // static data
