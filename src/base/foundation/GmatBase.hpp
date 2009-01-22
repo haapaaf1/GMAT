@@ -31,12 +31,9 @@
 #include "GmatBaseException.hpp"
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
-#include "GmatUnits.hpp"
 
 // Forward reference for the SolarSystem pointer
 class SolarSystem;
-
-using namespace GmatUnits;
 
 //------------------------------------------------------------------------------
 /**
