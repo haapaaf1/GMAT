@@ -43,18 +43,21 @@
 //------------------------------------------------------------------------------
 GmatState::GmatState(Integer size) :
    theEpoch          (21545.0),
-   stateSize         (size)
+   stateSize         (size)   
 {
    if (stateSize == 0)
    {
       theData = NULL;
       dataIDs = NULL;
+      associatedElements = NULL;
+
    }
    else
    {
       theData = new Real[stateSize];
       Zero();
       dataIDs = new Integer[stateSize];
+      associatedElements = new Integer[stateSize];
       dataTypes.assign(stateSize, "");
    }
 }
@@ -72,6 +75,8 @@ GmatState::~GmatState()
       delete [] theData;
    if (dataIDs != NULL)
       delete [] dataIDs;
+   if (associatedElements != NULL)
+      delete [] associatedElements;
 }
 
 //------------------------------------------------------------------------------
@@ -93,16 +98,19 @@ GmatState::GmatState(const GmatState& gs) :
    {
       theData = NULL;
       dataIDs = NULL;
+      associatedElements = NULL;
    }
    else
    {
       theData = new Real[stateSize];
       dataIDs = new Integer[stateSize];
+      associatedElements = new Integer[stateSize];
             
       for (Integer i = 0; i < stateSize; ++i)
       {
          theData[i] = gs.theData[i];
          dataIDs[i] = gs.dataIDs[i];
+         associatedElements[i] = gs.associatedElements[i];
       }
    }
 }
@@ -127,22 +135,27 @@ GmatState& GmatState::operator=(const GmatState& gs)
          delete [] theData;
       if (dataIDs != NULL)
          delete [] dataIDs;
+      if (associatedElements != NULL)
+         delete [] associatedElements;
 
       if (stateSize == 0)
       {
          theData = NULL;
          dataIDs = NULL;
+         associatedElements = NULL;
       }
       else
       {
          theData = new Real[stateSize];
          dataIDs = new Integer[stateSize];
+         associatedElements = new Integer[stateSize];
          dataTypes.assign(stateSize, "");
          for (Integer i = 0; i < stateSize; ++i)
          {
             theData[i] = gs.theData[i];
             dataIDs[i] = gs.dataIDs[i];
             dataTypes[i] = gs.dataTypes[i];
+            associatedElements[i] = gs.associatedElements[i];
          }
       }
    }
@@ -286,7 +299,8 @@ GmatEpoch GmatState::SetEpoch(const GmatEpoch ep)
 
 
 bool GmatState::SetElementProperties(const Integer index, const Integer id, 
-                                     const std::string &textId)
+                                     const std::string &textId, 
+                                     const Integer associate)
 {
    #ifdef DEBUG_STATE_LOADING
       MessageInterface::ShowMessage("Setting element %d, id = %d, desc = %s\n",
@@ -299,6 +313,7 @@ bool GmatState::SetElementProperties(const Integer index, const Integer id,
    
    dataIDs[index] = id;
    dataTypes[index] = textId;
+   associatedElements[index] = associate;
    
    return true;
 }
@@ -328,6 +343,7 @@ void GmatState::Resize(Integer newSize, bool withCopy)
    
    Real *newData = new Real[newSize];
    Integer *newIDs = new Integer[newSize];
+   Integer *newAssociates = new Integer[newSize];
    StringArray newTypes;
    newTypes.assign(newSize, "");
 
@@ -339,6 +355,7 @@ void GmatState::Resize(Integer newSize, bool withCopy)
       Integer size = (newSize > stateSize ? stateSize : newSize);
       memcpy(newData, theData, size*sizeof(Real));
       memcpy(newIDs, dataIDs, size*sizeof(Integer));
+      memcpy(newAssociates, associatedElements, size*sizeof(Integer));
   
       for (Integer i = 0; i < size; ++i)
          newTypes[i] = dataTypes[i];
@@ -349,8 +366,10 @@ void GmatState::Resize(Integer newSize, bool withCopy)
    stateSize = newSize;
    delete [] theData;
    delete [] dataIDs;
+   delete [] associatedElements;
    theData = newData;
    dataIDs = newIDs;
+   associatedElements = newAssociates;
    dataTypes.assign(newSize, "");
    dataTypes = newTypes;
 
@@ -360,6 +379,11 @@ void GmatState::Resize(Integer newSize, bool withCopy)
       
    // Zero the unset entries in the state data
    Zero(start, newSize - start);
+}
+
+Integer GmatState::GetAssociateIndex(const Integer id)
+{
+   return associatedElements[id];
 }
 
 

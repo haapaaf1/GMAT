@@ -310,11 +310,15 @@ bool PointMassForce::Initialize()
 bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order, 
       const Integer id)
 {
-MessageInterface::ShowMessage("Evaluating PointMassForce; "
+#ifdef DEBUG_PMF_DERV
+   MessageInterface::ShowMessage("Evaluating PointMassForce; "
       "state pointer = %d, time offset = %le, order = %d, id = %d\n", state, dt, 
       order, id);
+#endif
+   
+   Integer i6;
 
-   if (fillCartesian)
+   if (fillCartesian || fillSTM)
    {
       if (order > 2)
          return false;
@@ -324,7 +328,6 @@ MessageInterface::ShowMessage("Evaluating PointMassForce; "
          return false;
    
       Real radius, r3, mu_r, rbb3, mu_rbb, a_indirect[3];
-      Integer i6;
    
       now = epoch + dt/86400.0;
       Real relativePosition[3];
@@ -351,7 +354,8 @@ MessageInterface::ShowMessage("Evaluating PointMassForce; "
       // The vector from the force origin to the gravitating body
       // Precalculations for the indirect effect term
       rbb3 = rv[0]*rv[0]+rv[1]*rv[1]+rv[2]*rv[2];
-      if (rbb3 != 0.0) {
+      if (rbb3 != 0.0) 
+      {
          //rbb3 *= sqrt(rbb3);
       	rbb3 = sqrt(rbb3 * rbb3 * rbb3);
          mu_rbb = mu / rbb3;
@@ -381,45 +385,47 @@ MessageInterface::ShowMessage("Evaluating PointMassForce; "
    	      satCount);
    	#endif
       
-      for (Integer i = 0; i < satCount; i++) 
-      {
-         i6 = cartIndex + i * 6;
-         
-         relativePosition[0] = rv[0] - state[ i6 ];
-         relativePosition[1] = rv[1] - state[i6+1];
-         relativePosition[2] = rv[2] - state[i6+2];
-   
-         r3 = relativePosition[0]*relativePosition[0] + 
-              relativePosition[1]*relativePosition[1] + 
-              relativePosition[2]*relativePosition[2];
-         
-         radius = sqrt(r3);
-         r3 *= radius;
-         mu_r = mu / r3;
-   
-         if (order == 1) 
+ 	   if (fillCartesian)
+  	   {
+         for (Integer i = 0; i < satCount; i++) 
          {
-            // Do dv/dt first, in case deriv = state
-            deriv[3 + i6] = relativePosition[0] * mu_r - a_indirect[0];
-            deriv[4 + i6] = relativePosition[1] * mu_r - a_indirect[1];
-            deriv[5 + i6] = relativePosition[2] * mu_r - a_indirect[2];
-            // dr/dt = v
-            deriv[i6]     = state[3 + i6];
-            deriv[1 + i6] = state[4 + i6];
-            deriv[2 + i6] = state[5 + i6];
-         } 
-         else 
-         {
-            // Feed accelerations to corresponding components directly for RKN
-            deriv[ i6 ] = relativePosition[0] * mu_r - a_indirect[0]; 
-            deriv[i6+1] = relativePosition[1] * mu_r - a_indirect[1]; 
-            deriv[i6+2] = relativePosition[2] * mu_r - a_indirect[2]; 
-            deriv[i6+3] = 0.0; 
-            deriv[i6+4] = 0.0; 
-            deriv[i6+5] = 0.0; 
+            i6 = cartIndex + i * 6;
+            
+            relativePosition[0] = rv[0] - state[ i6 ];
+            relativePosition[1] = rv[1] - state[i6+1];
+            relativePosition[2] = rv[2] - state[i6+2];
+      
+            r3 = relativePosition[0]*relativePosition[0] + 
+                 relativePosition[1]*relativePosition[1] + 
+                 relativePosition[2]*relativePosition[2];
+            
+            radius = sqrt(r3);
+            r3 *= radius;
+            mu_r = mu / r3;
+      
+            if (order == 1) 
+            {
+               // Do dv/dt first, in case deriv = state
+               deriv[3 + i6] = relativePosition[0] * mu_r - a_indirect[0];
+               deriv[4 + i6] = relativePosition[1] * mu_r - a_indirect[1];
+               deriv[5 + i6] = relativePosition[2] * mu_r - a_indirect[2];
+               // dr/dt = v
+               deriv[i6]     = state[3 + i6];
+               deriv[1 + i6] = state[4 + i6];
+               deriv[2 + i6] = state[5 + i6];
+            } 
+            else 
+            {
+               // Feed accelerations to corresponding components directly for RKN
+               deriv[ i6 ] = relativePosition[0] * mu_r - a_indirect[0]; 
+               deriv[i6+1] = relativePosition[1] * mu_r - a_indirect[1]; 
+               deriv[i6+2] = relativePosition[2] * mu_r - a_indirect[2]; 
+               deriv[i6+3] = 0.0; 
+               deriv[i6+4] = 0.0; 
+               deriv[i6+5] = 0.0; 
+            }
          }
-      }
-   
+  	   }   
       #if DEBUG_PMF_DERV
          ShowDerivative("PointMassForce::GetDerivatives() AFTER compute", state, 
             satCount);
@@ -435,30 +441,87 @@ MessageInterface::ShowMessage("Evaluating PointMassForce; "
             rv[cartIndex + 2], "]\n   Acceleration:  [", deriv[cartIndex + 3], 
             deriv[cartIndex + 4], deriv[cartIndex + 5]);
       #endif
-   }
-   
-   if (fillSTM)
-   {
-      for (Integer i = 0; i < stmCount; ++i)
+      if (fillSTM)
       {
-         i6 = stmIndex + i * 36;
-         
-         // A = D = 0
-         deriv[ i6  ] = deriv[i6+ 1] = deriv[i6+ 2] = 
-         deriv[i6+ 6] = deriv[i6+ 7] = deriv[i6+ 8] =
-         deriv[i6+12] = deriv[i6+13] = deriv[i6+14] =
-         deriv[i6+21] = deriv[i6+22] = deriv[i6+23] = 
-         deriv[i6+27] = deriv[i6+28] = deriv[i6+29] =
-         deriv[i6+33] = deriv[i6+34] = deriv[i6+35] = 0.0;
-         
-         // B = I
-         deriv[i6+ 3] = deriv[i6+10] = deriv[i6+17] = 1.0;
-         deriv[i6+ 4] = deriv[i6+ 5] = deriv[i6+ 9] =
-         deriv[i6+11] = deriv[i6+15] = deriv[i6+16] = 0.0;
-         
-         // Assumption: I_3 == I_{3 \cross 3}
+         Real aTilde[36];
+         Integer associate, element;
+         for (Integer i = 0; i < stmCount; ++i)
+         {
+            associate = 0;  // todo: Fix this!!!
+            i6 = stmIndex + i * 36;
+            
+            relativePosition[0] = rv[0] - state[ associate ];
+            relativePosition[1] = rv[1] - state[associate+1];
+            relativePosition[2] = rv[2] - state[associate+2];
+      
+            r3 = relativePosition[0]*relativePosition[0] + 
+                 relativePosition[1]*relativePosition[1] + 
+                 relativePosition[2]*relativePosition[2];
+            
+            radius = sqrt(r3);
+            r3 *= radius;
+            mu_r = mu / r3;
+            
+            // Calculate A-tilde
+            
+            // A = D = 0
+            aTilde[ 0] = aTilde[ 1] = aTilde[ 2] = 
+            aTilde[ 6] = aTilde[ 7] = aTilde[ 8] =
+            aTilde[12] = aTilde[13] = aTilde[14] =
+            aTilde[21] = aTilde[22] = aTilde[23] = 
+            aTilde[27] = aTilde[28] = aTilde[29] =
+            aTilde[33] = aTilde[34] = aTilde[35] = 0.0;
+            
+            // B = I
+            aTilde[ 3] = aTilde[10] = aTilde[17] = 1.0;
+            aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
+            aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
+            
+            // Math spec, equ 6.69, broken into separate pieces
+            aTilde[18] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[0] * relativePosition[0];
+            
+            aTilde[19] = 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[0] * relativePosition[1];
+            
+            aTilde[20] = 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[0] * relativePosition[2];
+            
+            aTilde[24] = 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[1] * relativePosition[0];
+            
+            aTilde[25] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[1] * relativePosition[1];
+            
+            aTilde[26] = 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[1] * relativePosition[2];
+            
+            aTilde[30] = 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[2] * relativePosition[0];
+            
+            aTilde[31] = 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[2] * relativePosition[1];
+            
+            aTilde[32] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+                             relativePosition[2] * relativePosition[2];
+            
+            // Now Phi_dot = A_tilde Phi
+            for (Integer j = 0; j < 6; ++j)
+            {
+               for (Integer k = 0; k < 6; ++k)
+               {
+                  element = j * 6 + k;
+                  deriv[i6+element] = 0.0;
+                  for (Integer l = 0; l < 6; ++l)
+                  {
+                     deriv[i6+element] += aTilde[j*6+l] * state[i6+l*6+k];
+                  }
+               }
+            }
+         }
       }
    }
+   
    
    return true;
 }
@@ -809,14 +872,16 @@ bool PointMassForce::SetBooleanParameter(const Integer id, const bool value)
 
 bool PointMassForce::SupportsDerivative(Gmat::StateElementId id)
 {
-   MessageInterface::ShowMessage(
-         "PointMassForce checking for support for id %d\n", id);
-
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage(
+            "PointMassForce checking for support for id %d\n", id);
+   #endif
+      
    if (id == Gmat::CARTESIAN_STATE)
       return true;
    
    if (id == Gmat::ORBIT_STATE_TRANSITION_MATRIX)
-      return false;     // Change to true when implemented
+      return true;
    
    return PhysicalModel::SupportsDerivative(id);
 }
@@ -824,8 +889,11 @@ bool PointMassForce::SupportsDerivative(Gmat::StateElementId id)
 bool PointMassForce::SetStart(Gmat::StateElementId id, Integer index, 
                       Integer quantity)
 {
-   MessageInterface::ShowMessage("PointMassForce setting start data for id = %d"
-         " to index %d; %d objects identified\n", id, index, quantity);
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage("PointMassForce setting start data for id = %d"
+            " to index %d; %d objects identified\n", id, index, quantity);
+   #endif
+   
    bool retval = false;
    
    switch (id)
@@ -841,7 +909,7 @@ bool PointMassForce::SetStart(Gmat::StateElementId id, Integer index,
          stmCount = quantity;
          stmIndex = index;
          fillSTM = true;
-         retval = false;  // todo: Make true when ready
+         retval = true;
          break;
          
       default:

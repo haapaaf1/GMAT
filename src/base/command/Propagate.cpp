@@ -36,7 +36,7 @@
 //#define DEBUG_PROPAGATE_INIT 1
 //#define DEBUG_PROPAGATE_DIRECTION 1
 //#define DEBUG_PROPAGATE_STEPSIZE 1
-#define DEBUG_PROPAGATE_EXE 1
+//#define DEBUG_PROPAGATE_EXE 1
 //#define DEBUG_STOPPING_CONDITIONS 1
 //#define DEBUG_RENAME
 //#define DEBUG_PROP_PERFORMANCE
@@ -2459,7 +2459,7 @@ GmatCommand* Propagate::GetNext()
 //------------------------------------------------------------------------------
 void Propagate::PrepareToPropagate()
 {
-   //#ifdef DEBUG_PROPAGATE_INIT
+   #ifdef DEBUG_PROPAGATE_INIT
       GmatState *dstate = prop[0]->GetPropStateManager()->GetState();
       Integer dimension = dstate->GetSize();
       MessageInterface::ShowMessage(
@@ -2470,12 +2470,12 @@ void Propagate::PrepareToPropagate()
          MessageInterface::ShowMessage("   %d:   %.12lf\n", index, 
                (*dstate)[index]);
       }
-   //#endif
+   #endif
 
    // Initialize the subsystem
    Initialize();
    
-   //#ifdef DEBUG_PROPAGATE_INIT
+   #ifdef DEBUG_PROPAGATE_INIT
       dstate = prop[0]->GetPropStateManager()->GetState();
       dimension = dstate->GetSize();
       MessageInterface::ShowMessage(
@@ -2486,7 +2486,7 @@ void Propagate::PrepareToPropagate()
          MessageInterface::ShowMessage("   %d:   %.12lf\n", index, 
                (*dstate)[index]);
       }
-   //#endif
+   #endif
 
    // Loop through the PropSetups
    for (std::vector<PropSetup*>::iterator i=prop.begin(); i != prop.end(); ++i)
@@ -2501,7 +2501,7 @@ void Propagate::PrepareToPropagate()
       }
    }
    
-   //#ifdef DEBUG_PROPAGATE_INIT
+   #ifdef DEBUG_PROPAGATE_INIT
       dstate = prop[0]->GetPropStateManager()->GetState();
       dimension = dstate->GetSize();
       MessageInterface::ShowMessage(
@@ -2512,12 +2512,12 @@ void Propagate::PrepareToPropagate()
          MessageInterface::ShowMessage("   %d:   %.12lf\n", index, 
                (*dstate)[index]);
       }
-   //#endif
+   #endif
 
    p.clear();
    fm.clear();
    
-   //#ifdef DEBUG_PROPAGATE_INIT
+   #ifdef DEBUG_PROPAGATE_INIT
       dstate = prop[0]->GetPropStateManager()->GetState();
       dimension = dstate->GetSize();
       MessageInterface::ShowMessage(
@@ -2528,46 +2528,49 @@ void Propagate::PrepareToPropagate()
          MessageInterface::ShowMessage("   %d:   %.12lf\n", index, 
                (*dstate)[index]);
       }
-   //#endif
+   #endif
 
    for (Integer n = 0; n < (Integer)prop.size(); ++n) 
    {
       elapsedTime.push_back(0.0);
       currEpoch.push_back(0.0);
-      prop[n]->GetPropStateManager()->MapObjectsToVector();
+      
+      // Can't do this until the propagator is initialized
+      // prop[n]->GetPropStateManager()->MapObjectsToVector();
       p.push_back(prop[n]->GetPropagator());
       fm.push_back(prop[n]->GetODEModel());
-      //      #ifdef DEBUG_PROPAGATE_INIT
-               GmatState *dstate = prop[n]->GetPropStateManager()->GetState();
-               Integer dimension = dstate->GetSize();
-               MessageInterface::ShowMessage(
-                     "p2p pre init; State vector contents and fm state are\n"
-                     "   Epoch = %.12lf\n", (dstate->GetEpoch()));
-               for (Integer index = 0; index < dimension; ++index)
-               {
-                  MessageInterface::ShowMessage("   %d:   %.12lf\n", index, 
-                        (*dstate)[index]);
-               }
-      //      #endif
+      #ifdef DEBUG_PROPAGATE_INIT
+         GmatState *dstate = prop[n]->GetPropStateManager()->GetState();
+         Integer dimension = dstate->GetSize();
+         MessageInterface::ShowMessage(
+               "p2p pre init; State vector contents and fm state are\n"
+               "   Epoch = %.12lf\n", (dstate->GetEpoch()));
+         for (Integer index = 0; index < dimension; ++index)
+         {
+            MessageInterface::ShowMessage("   %d:   %.12lf\n", index, 
+                  (*dstate)[index]);
+         }
+      #endif
 
 
 //      fm[n]->SetTime(0.0);
 //      fm[n]->UpdateInitialData();
    
       p[n]->Initialize();
-prop[n]->GetPropStateManager()->MapObjectsToVector();
-      //      #ifdef DEBUG_PROPAGATE_INIT
-               dstate = prop[n]->GetPropStateManager()->GetState();
-               dimension = dstate->GetSize();
-               MessageInterface::ShowMessage(
-                     "p2p p initialized; State vector contents and fm state are\n"
-                     "   Epoch = %.12lf\n", (dstate->GetEpoch()));
-               for (Integer index = 0; index < dimension; ++index)
-               {
-                  MessageInterface::ShowMessage("   %d:   %.12lf\n", index, 
-                        (*dstate)[index]);
-               }
-      //      #endif
+      prop[n]->GetPropStateManager()->MapObjectsToVector();
+      
+      #ifdef DEBUG_PROPAGATE_INIT
+         dstate = prop[n]->GetPropStateManager()->GetState();
+         dimension = dstate->GetSize();
+         MessageInterface::ShowMessage(
+               "p2p p initialized; State vector contents and fm state are\n"
+               "   Epoch = %.12lf\n", (dstate->GetEpoch()));
+         for (Integer index = 0; index < dimension; ++index)
+         {
+            MessageInterface::ShowMessage("   %d:   %.12lf\n", index, 
+                  (*dstate)[index]);
+         }
+      #endif
       p[n]->Update(direction > 0.0);
       state = fm[n]->GetState();
       j2kState = fm[n]->GetJ2KState();
@@ -3232,7 +3235,6 @@ bool Propagate::TakeAStep(Real propStep)
             #endif
             while (current != p.end()) 
             { 
-               MessageInterface::ShowMessage("Stepping %s\n", (*current)->GetTypeName().c_str());
                if (!(*current)->Step())
                   throw CommandException(
                      "Propagator failed to take a good step\n");

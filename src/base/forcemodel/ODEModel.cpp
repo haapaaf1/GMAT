@@ -57,15 +57,17 @@
 
 
 //#define DEBUG_ODEMODEL
-#define DEBUG_ODEMODEL_INIT
-#define DEBUG_ODEMODEL_EXE
+//#define DEBUG_ODEMODEL_INIT
+//#define DEBUG_ODEMODEL_EXE
 //#define DEBUG_FORCE_REF_OBJ
 //#define DEBUG_ODEMODEL_EPOCHS
 //#define DEBUG_SATELLITE_PARAMETERS
-#define DEBUG_FIRST_CALL
+//#define DEBUG_FIRST_CALL
 //#define DEBUG_GEN_STRING
 //#define DEBUG_OWNED_OBJECT_STRINGS
-#define DEBUG_INITIALIZATION
+//#define DEBUG_INITIALIZATION
+//#define DEBUG_BUILDING_MODELS
+
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -810,17 +812,17 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
  * 
  * The derivative model is built based on the order of the items in the state 
  * vector.  State vectors are built so that like elements of different objects 
- * are grouped together -- so, for example, if a state vector consains multiple 
+ * are grouped together -- so, for example, if a state vector contains multiple 
  * spacecraft, the state vector has all of the CartesianState data that is 
  * integrated grouped into one block, and other pieces grouped together in 
  * separate blocks.  All of the like data for a given object is grouped 
- * sequentially before moving to a secong object.  Thus for a state vector set
+ * sequentially before moving to a second object.  Thus for a state vector set
  * for the Cartesian state propagation for two spacecraft and the STM for the 
  * first but not the second, the state vector has 48 elements, and it looks like 
  * this (the ellipses are used for brevity here):
  * 
  *    vec = [sat1.X, sat1.y,...,sat1.VZ, sat2.X,...,sat2.VZ, 
- *           sat1.STM_XX, sat1.STM_XY,...,sat1.STM_VZVZ]  
+ *           sat1.STM_XX, sat1.STM_XY,...,sat1.STM_VZVZ]
  * 
  * The mapping between the state elements and the differential equations modeled
  * in this ODEModel are constructed using integer identifiers for the data built 
@@ -876,20 +878,22 @@ bool ODEModel::BuildModelFromMap(PropagationStateManager *psm)
          throw ODEModelException("Failed to build an element of the ODEModel.");
    }
    
-   // Show the state structure
-   MessageInterface::ShowMessage("State vector has the following structure:\n");
-   MessageInterface::ShowMessage("   ID     Start   Count\n");
-   for (std::vector<StateStructure>::iterator i = sstruct.begin(); 
-         i != sstruct.end(); ++i)
-      MessageInterface::ShowMessage("   %4d      %2d    %d\n", i->id, i->index,
-            i->count);
-   
+   #ifdef DEBUG_BUILDING_MODELS
+      // Show the state structure
+      MessageInterface::ShowMessage("State vector has the following structure:\n");
+      MessageInterface::ShowMessage("   ID     Start   Count\n");
+      for (std::vector<StateStructure>::iterator i = sstruct.begin(); 
+            i != sstruct.end(); ++i)
+         MessageInterface::ShowMessage("   %4d      %2d    %d\n", i->id, i->index,
+               i->count);
+   #endif
+      
    return retval;
 }
 
 //------------------------------------------------------------------------------
 // bool BuildModelElement(Gmat::StateElementId id, Integer start, 
-//                        Integer objectCount)
+//               Integer objectCount, std::map<GmatBase*,Integer> associateMap)
 //------------------------------------------------------------------------------
 /**
  * Constructs the derivative mapping an element of the ODEModel.
@@ -916,7 +920,7 @@ bool ODEModel::BuildModelFromMap(PropagationStateManager *psm)
  * 
  * @param id      The integer ID for the element that is being registered
  * @param start   The index for the first element in the state vector
- * @param objectCount   The number of objects that need the derivative data
+ * @param objectCount The number of objects that need the derivative data
  * 
  * @return true if the derivative was set successfully for at least one 
  *         PhysicalModel, false if it failed.
@@ -928,10 +932,12 @@ bool ODEModel::BuildModelElement(Gmat::StateElementId id, Integer start,
    bool retval = false, tf;
    Integer modelsUsed = 0;
    
+   #ifdef DEBUG_BUILDING_MODELS
       MessageInterface::ShowMessage("Building ODEModel element; id = %d, "
             "index = %d, count = %d; force list has %d elements\n", id, start, 
             objectCount, forceList.size());
-   
+   #endif
+      
    // Loop through the PhysicalModels, checking to see if any support the 
    // indicated element.  If there is no derivative model anywhere in the PM
    // list, then the element will not change during integration, and the return 
@@ -963,9 +969,11 @@ bool ODEModel::BuildModelElement(Gmat::StateElementId id, Integer start,
    // newStruct.size = ??;
    sstruct.push_back(newStruct);
 
+   #ifdef DEBUG_BUILDING_MODELS
       MessageInterface::ShowMessage(
             "ODEModel is using %d components for element %d\n", modelsUsed, id);
-   
+   #endif
+      
    return retval;
 }
 
@@ -979,12 +987,12 @@ bool ODEModel::BuildModelElement(Gmat::StateElementId id, Integer start,
 bool ODEModel::Initialize()
 {
    #ifdef DEBUG_INITIALIZATION
-      MessageInterface::ShowMessage("ODEModel::Initialize() entered\n");
+      MessageInterface::ShowMessage("ODEModel::Initialize() entered\n");   
    #endif
 //   Integer stateSize = 6;      // Will change if we integrate more variables
 //   Integer satCount = 1;
 //   std::vector<SpaceObject *>::iterator sat;
-   
+
    if (!solarSystem)
       throw ODEModelException(
          "Cannot initialize force model; no solar system on '" + 
@@ -997,7 +1005,7 @@ bool ODEModel::Initialize()
          throw ODEModelException("ODEModel J2000 body (" + j2kBodyName + 
             ") was not found in the solar system");
    }
-   
+
 //   GmatState *state;
 //   StringArray finiteSats;
 //   
@@ -1061,7 +1069,7 @@ bool ODEModel::Initialize()
 
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
-   Integer i;
+//   Integer i;
    
 
 

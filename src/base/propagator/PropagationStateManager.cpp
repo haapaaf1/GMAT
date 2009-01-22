@@ -29,7 +29,7 @@
 
 //#define DEBUG_STATE_CONSTRUCTION
 //#define DUMP_STATE
-#define DEBUG_OBJECT_UPDATES
+//#define DEBUG_OBJECT_UPDATES
 
 
 PropagationStateManager::PropagationStateManager(Integer size) :
@@ -134,14 +134,25 @@ bool PropagationStateManager::BuildState()
    // Determine the size of the propagation state vector
    stateSize = SortVector();
    
+   std::map<std::string,Integer> associateMap;
+   // Build the associate map
+   std::string name;
+   for (Integer index = 0; index < stateSize; ++index)
+   {
+      name = stateMap[index]->objectName;
+      if (associateMap.find(name) == associateMap.end())
+         associateMap[name] = index;
+   }   
+   
    state.SetSize(stateSize);
    for (Integer index = 0; index < stateSize; ++index)
    {
+      name = stateMap[index]->objectName;
       std::stringstream sel("");
       sel << stateMap[index]->subelement;
       state.SetElementProperties(index, stateMap[index]->elementID, 
-            stateMap[index]->objectName + "." + stateMap[index]->elementName +
-            "." + sel.str());
+            name + "." + stateMap[index]->elementName + "." + sel.str(), 
+            associateMap[name]);
    }
    
    #ifdef DEBUG_STATE_CONSTRUCTION
@@ -156,7 +167,8 @@ bool PropagationStateManager::BuildState()
    #ifdef DUMP_STATE
       MapObjectsToVector();
       for (Integer i = 0; i < stateSize; ++i)
-         MessageInterface::ShowMessage("State[%02d] = %.12lf\n", i, state[i]);
+         MessageInterface::ShowMessage("State[%02d] = %.12lf, %s %d\n", i, state[i], 
+               "RefState start =", state.GetAssociateIndex(i));
    #endif   
       
    return true;

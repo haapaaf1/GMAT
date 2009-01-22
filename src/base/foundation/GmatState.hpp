@@ -54,9 +54,10 @@ public:
    GmatEpoch         SetEpoch(const GmatEpoch ep);
    
    bool              SetElementProperties(const Integer index, const Integer id, 
-                           const std::string &textId);
+                           const std::string &textId, const Integer associate);
    const StringArray&
                      GetElementDescriptions();
+   Integer           GetAssociateIndex(const Integer id);
 
 protected:
    /// The epoch of the state data
@@ -64,6 +65,7 @@ protected:
    /// The state data
    Real              *theData;
    Integer           *dataIDs;
+   Integer           *associatedElements;
    StringArray       dataTypes;
    
    /// Length of the state vector

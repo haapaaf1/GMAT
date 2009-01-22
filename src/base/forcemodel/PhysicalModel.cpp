@@ -366,17 +366,20 @@ bool PhysicalModel::Initialize()
             typeName.c_str(), dimension);
    #endif
    
-   if (modelState) {
+   if (modelState) 
+   {
       delete [] modelState;
       modelState = NULL;
 
       initialized = false;
    }
 
-   if (deriv) {
+   if (deriv) 
+   {
       delete [] deriv;
       deriv = NULL;
    }
+   
    
    modelState = new Real[dimension];
    if (modelState != NULL) 
@@ -503,7 +506,7 @@ Real * PhysicalModel::GetState()
 }
 
 //------------------------------------------------------------------------------
-// Real * PhysicalModel::GetState()
+// Real * PhysicalModel::GetJ2KState()
 //------------------------------------------------------------------------------
 /**
  * Accessor method used to access the J2000 body based state array
