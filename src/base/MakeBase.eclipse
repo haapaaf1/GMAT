@@ -270,6 +270,7 @@ OBJECTS = \
     foundation/ElementWrapper.o \
     foundation/GmatBaseException.o \
     foundation/GmatBase.o \
+    foundation/GmatUnits.o \
     foundation/ObjectInitializer.o \
     foundation/SpacePoint.o \
     function/Function.o \

@@ -53,8 +53,8 @@ namespace GmatPhysicalConst
     const Real PLANCK_CONSTANT_IN_EV_UNCERTAINTY = 0.00000010e-15; //eV
     const Real DIRAC_CONSTANT = 1.054571628e-34; // Js
     const Real DIRAC_CONSTANT_UNCERTAINTY = 0.00000053e-34; //Js
-    const Real PLANCK_LENGTH = 1.616252e-35 // m
-    const Real PLANCK_LENGTH_UNCERTAINTY = 0.000081e-35; //m
+    const Real PLANCK_LENGTH = 1.616252e-35; // m
+    const Real PLANCK_LENGTH_UNCERTAINTY = 0.000081e-35;//m
     const Real PLANCK_MASS = 2.17644e-8; // kg
     const Real PLANCK_MASS_UNCERTAINTY = 0.00011E-8; // kg
     const Real PLANCK_MASS_ENERGY_EQUIVALENT_IN_GEV = 1.220892e-19; //GeV
@@ -63,7 +63,7 @@ namespace GmatPhysicalConst
     const Real PLANCK_TEMPERATURE_UNCERTAINTY = 0.000071e32; // K
     const Real PLANCK_TIME = 5.39124e-44; //s
     const Real PLANCK_TIME_UNCERTAINTY = 0.00027e-44; //s
-    const Real PLANCK_CHARGE = 1.875545870e−18; // C
+    const Real PLANCK_CHARGE = 1.875545870e-18; // C
     const Real PLANCK_CHARGE_UNCERTAINTY = 0.00000047e-18; //C
     
     //Astronomical Constants
