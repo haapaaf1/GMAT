@@ -3063,6 +3063,7 @@ bool Propagate::Execute()
                   ("Propagate::Execute() Updating SpaceObjects\n");
             #endif
 //            fm[i]->UpdateSpaceObject(currEpoch[i]);
+            prop[i]->GetPropStateManager()->GetState()->SetEpoch(currEpoch[i]);
             
             prop[i]->GetPropStateManager()->MapVectorToObjects();            
          }
