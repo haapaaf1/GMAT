@@ -1044,29 +1044,35 @@ void FileManager::AddGmatFunctionPath(const std::string &path, bool addFront)
        "addFront=%d\n", path.c_str(), addFront);
    #endif
    
+   std::string pathname = path;
+   
+   // if path has full pathname (directory and filename), remove filename first
+   if (path.find(".") != path.npos)
+      pathname = GmatFileUtil::ParsePathName(path);
+   
    std::list<std::string>::iterator pos =
-      find(mGmatFunctionPaths.begin(), mGmatFunctionPaths.end(), path);
+      find(mGmatFunctionPaths.begin(), mGmatFunctionPaths.end(), pathname);
    
    if (pos == mGmatFunctionPaths.end())
    {
       #ifdef DEBUG_FUNCTION_PATH
       MessageInterface::ShowMessage
-         ("   the path <%s> is new, so adding to %s\n", path.c_str(),
+         ("   the pathname <%s> is new, so adding to %s\n", pathname.c_str(),
           addFront ? "front" : "back");
       #endif
       
-      // if new path, add to front or back of the list
+      // if new pathname, add to front or back of the list
       if (addFront)
-         mGmatFunctionPaths.push_front(path);
+         mGmatFunctionPaths.push_front(pathname);
       else
-         mGmatFunctionPaths.push_back(path);
+         mGmatFunctionPaths.push_back(pathname);
    }
    else
    {
-      // if existing path remove and add front or back of the list
+      // if existing pathname remove and add front or back of the list
       #ifdef DEBUG_FUNCTION_PATH
       MessageInterface::ShowMessage
-         ("   the path <%s> already exist, so moving to %s\n", path.c_str(),
+         ("   the pathname <%s> already exist, so moving to %s\n", pathname.c_str(),
           addFront ? "front" : "back");
       #endif
       
