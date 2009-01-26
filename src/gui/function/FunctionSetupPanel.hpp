@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              FunctionSetupPanel
 //------------------------------------------------------------------------------
@@ -18,36 +18,39 @@
 #include "GmatPanel.hpp"
 #include "GmatFunction.hpp"
 
+#ifdef __USE_STC_EDITOR__
+#include "Editor.hpp"
+#endif
+
 class FunctionSetupPanel: public GmatPanel
 {
 public:
    // constructors
    FunctionSetupPanel(wxWindow *parent, const wxString &name); 
+   ~FunctionSetupPanel();
+   
    wxTextCtrl *mFileContentsTextCtrl;
-    
+   
+#ifdef __USE_STC_EDITOR__
+   Editor* GetEditor() { return mEditor; };
+#endif
+   
 private:
    GmatFunction *theGmatFunction;
-
+   wxString mFullFunctionPath;
+   
+#ifdef __USE_STC_EDITOR__
+   Editor *mEditor;
+#endif
+   
    bool mEnableLoad;
    bool mEnableSave;
-
-   wxStaticBoxSizer *mTopSizer;
-   wxBoxSizer *mMiddleSizer;
-   wxGridSizer *mBottomSizer;
-//   wxFlexGridSizer *mPageSizer;
-   wxBoxSizer *mPageSizer;
-
-   wxTextCtrl *mFileNameTextCtrl;
-   
-   wxButton *mBrowseButton;
-   wxButton *mLoadButton;
-   wxButton *mSaveButton;
-
+      
    // methods inherited from GmatPanel
    virtual void Create();
    virtual void LoadData();
    virtual void SaveData();
-    
+   
    // event handling
    void OnTextUpdate(wxCommandEvent& event);
    void OnButton(wxCommandEvent& event);

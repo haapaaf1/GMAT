@@ -16,8 +16,7 @@
 #include "MessageInterface.hpp"
 #include <wx/filename.h>          // for wxFileName::
 
-
-//#define DEBUG_PARAM_PANEL 1
+//#define DEBUG_FUNCTIONPANEL_LOAD 1
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -45,13 +44,38 @@ FunctionSetupPanel::FunctionSetupPanel(wxWindow *parent, const wxString &name)
 {
    mEnableLoad = false;
    mEnableSave = false;
-
+   mFileContentsTextCtrl = NULL;
+   
+   #ifdef __USE_STC_EDITOR__
+   mEditor = NULL;
+   #endif
+   
    theGmatFunction = (GmatFunction *)
             theGuiInterpreter->GetConfiguredObject(std::string(name.c_str()));
-
+   
    Create();
    Show();
 }
+
+
+//------------------------------------------------------------------------------
+// ~FunctionSetupPanel()
+//------------------------------------------------------------------------------
+/**
+ * A destructor.
+ */
+//------------------------------------------------------------------------------
+FunctionSetupPanel::~FunctionSetupPanel()
+{
+   #ifdef __USE_STC_EDITOR__
+   if (mEditor)
+   {
+      delete mEditor;
+      mEditor = NULL;
+   }
+   #endif
+}
+
 
 //------------------------------------------------------------------------------
 // void Create()
@@ -60,64 +84,40 @@ void FunctionSetupPanel::Create()
 {
    int bsize = 3; // border size
    
-   wxStaticBox *topStaticBox = new wxStaticBox(this, -1, wxT(""));
+   //------------------------------------------------------
+   // Create file contents
+   //------------------------------------------------------
    
-   // create sizers
-   mMiddleSizer = new wxBoxSizer(wxHORIZONTAL);
-   mBottomSizer = new wxGridSizer( 1, 0, 0 );
-   mPageSizer = new wxBoxSizer(wxVERTICAL);
-   mTopSizer = new wxStaticBoxSizer(topStaticBox, wxHORIZONTAL);
-   wxBoxSizer *fileSizer = new wxBoxSizer(wxHORIZONTAL);
-
-   //wxStaticText
-   wxStaticText *fileStaticText =
-      new wxStaticText(this, ID_TEXT, wxT("File: "), wxDefaultPosition, 
-         wxDefaultSize, 0);
-
-   // wxTextCtrl
-   mFileNameTextCtrl = new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
-      wxDefaultPosition, wxSize(250,20), 0);
-
-   // create buttons
-   mBrowseButton =
-      new wxButton(this, ID_BUTTON, "Browse", wxDefaultPosition, wxDefaultSize, 0);
-
-   mLoadButton =
-      new wxButton(this, ID_BUTTON, "Load", wxDefaultPosition, wxDefaultSize, 0);
-   mLoadButton->Enable(mEnableLoad);
-
-   mSaveButton =
-      new wxButton(this, ID_BUTTON, "Save", wxDefaultPosition, wxDefaultSize, 0);
-   mSaveButton->Enable(mEnableSave);
-
-   // wxTextCtrl
+#ifdef __USE_STC_EDITOR__
+   mEditor = new Editor(this, -1, wxDefaultPosition, wxSize(700,400));
+#else
    mFileContentsTextCtrl = 
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, 
-         wxSize(250,100), wxTE_MULTILINE | wxGROW | wxTE_DONTWRAP);
+         wxSize(700,400), wxTE_MULTILINE | wxGROW | wxTE_DONTWRAP);
    mFileContentsTextCtrl->SetFont( GmatAppData::Instance()->GetFont() );
-
+#endif
+   
    //------------------------------------------------------
-   // add to sizer
+   // Add to sizer
    //------------------------------------------------------
-   fileSizer->Add(fileStaticText, 0, wxALIGN_CENTER  | wxALL, bsize);
-   fileSizer->Add(mFileNameTextCtrl, 0, wxALIGN_CENTER  | wxALL, bsize);
-   fileSizer->Add(mBrowseButton, 0, wxALIGN_CENTER  | wxALL, bsize);
-   mTopSizer->Add(fileSizer, 0, wxALIGN_CENTER | wxALL, bsize);
-
-   mMiddleSizer->Add(mLoadButton, 0, wxALIGN_CENTER | wxALL, bsize);
-   mMiddleSizer->Add(mSaveButton, 0, wxALIGN_CENTER | wxALL, bsize);
-
-   mBottomSizer->Add(mFileContentsTextCtrl, 0, wxGROW | wxALIGN_CENTER | wxALL, 
-                     bsize);
-
-   //------------------------------------------------------
-   // add to parent sizer
-   //------------------------------------------------------
-   mPageSizer->Add(mTopSizer, 0, wxALIGN_CENTER | wxALL, bsize);
-   mPageSizer->Add(mMiddleSizer, 0, wxALIGN_CENTER | wxALL, bsize);
-   mPageSizer->Add(mBottomSizer, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
-   theMiddleSizer->Add(mPageSizer, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
+   wxGridSizer *textSizer = new wxGridSizer( 1, 0, 0 );
+#ifdef __USE_STC_EDITOR__
+   textSizer->Add(mEditor, 0, wxGROW | wxALIGN_CENTER | wxALL, bsize);
+#else
+   textSizer->Add(mFileContentsTextCtrl, 0, wxGROW | wxALIGN_CENTER | wxALL, 
+                  bsize);
+#endif
+   
+   wxBoxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
+   pageSizer->Add(textSizer, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
+   theMiddleSizer->Add(pageSizer, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
+   
+   // Change the label of OK, Apply and Cancel button
+   theOkButton->SetLabel("Save");
+   theApplyButton->SetLabel("Save As");
+   theCancelButton->SetLabel("Close");
 }
+
 
 //------------------------------------------------------------------------------
 // void LoadData()
@@ -126,38 +126,38 @@ void FunctionSetupPanel::LoadData()
 {
    // Set the pointer for the "Show Script" button
    mObject = theGmatFunction;
-
-   int pathId = theGmatFunction->GetParameterID("FunctionPath");
-   std::string path = theGmatFunction->GetStringParameter(pathId);
-
-   if (path == "")
-      path = theGmatFunction->GetName() + ".script";
-
-   mFileNameTextCtrl->SetValue(path.c_str());
+   mFullFunctionPath = theGmatFunction->GetStringParameter("FunctionPath");
    
-   wxString filename = mFileNameTextCtrl->GetValue();
-
-   if (filename != "")
+   #ifdef DEBUG_FUNCTIONPANEL_LOAD
+   MessageInterface::ShowMessage
+      ("===> FunctionSetupPanel::LoadData() mFullFunctionPath='%s'\n",
+       mFullFunctionPath.c_str());
+   #endif
+   
+   if (wxFileName::FileExists(mFullFunctionPath))
    {
-        // need to add default path...
+      #ifdef __USE_STC_EDITOR__
+      mEditor->LoadFile(mFullFunctionPath);
+      #else
+      mFileContentsTextCtrl->LoadFile(mFullFunctionPath);
+      #endif
+      mEnableSave = false;
    }
-
-   if (wxFileName::FileExists(filename))
-   {
-       mFileContentsTextCtrl->LoadFile(filename);
-       mEnableSave = false;
-   }
-
+   
 }
+
 
 //------------------------------------------------------------------------------
 // void SaveData()
 //------------------------------------------------------------------------------
 void FunctionSetupPanel::SaveData()
 {
-   wxString filename = mFileNameTextCtrl->GetValue();
-
-   if (filename == "")
+   std::string pathname = theGmatFunction->GetStringParameter("FunctionPath");
+   
+   MessageInterface::ShowMessage
+      ("===> FunctionSetupPanel::SaveData() path='%s'\n", pathname.c_str());
+   
+   if (pathname == "")
    {
       MessageInterface::PopupMessage
          (Gmat::WARNING_, "FunctionSetupPanel::SaveData()\n"
@@ -165,10 +165,10 @@ void FunctionSetupPanel::SaveData()
       return;
    }
 
-   // save file path to base
-   int pathId = theGmatFunction->GetParameterID("FunctionPath");
-   theGmatFunction->SetStringParameter(pathId,
-         mFileNameTextCtrl->GetValue().c_str());
+//    // save file path to base
+//    int pathId = theGmatFunction->GetParameterID("FunctionPath");
+//    theGmatFunction->SetStringParameter(pathId,
+//          mFileNameTextCtrl->GetValue().c_str());
 
    // was file edited and not saved?
    if (mEnableSave)
@@ -179,7 +179,7 @@ void FunctionSetupPanel::SaveData()
       int result = msgDlg->ShowModal();
 
       if (result == wxID_YES)
-         mFileContentsTextCtrl->SaveFile(filename);
+         mFileContentsTextCtrl->SaveFile(pathname);
    }
 }
 
@@ -188,25 +188,22 @@ void FunctionSetupPanel::SaveData()
 //------------------------------------------------------------------------------
 void FunctionSetupPanel::OnTextUpdate(wxCommandEvent& event)
 {
-   if (event.GetEventObject() == mFileNameTextCtrl)
-   {
-      mEnableLoad = true;
-      EnableUpdate(true);
+//    if (event.GetEventObject() == mFileNameTextCtrl)
+//    {
+//       mEnableLoad = true;
+//       EnableUpdate(true);
 
-      if (mFileNameTextCtrl->GetValue() == "")
-      {
-         mEnableSave = false;
-         mEnableLoad = false;
-      }
-   }
-   else if (event.GetEventObject() == mFileContentsTextCtrl)
+//       if (mFileNameTextCtrl->GetValue() == "")
+//       {
+//          mEnableSave = false;
+//          mEnableLoad = false;
+//       }
+//    }
+   if (event.GetEventObject() == mFileContentsTextCtrl)
    {
       mEnableSave = true;
       EnableUpdate(true);
    }
-
-   mLoadButton->Enable(mEnableLoad);
-   mSaveButton->Enable(mEnableSave);
 }
 
 //---------------------------------
@@ -214,49 +211,22 @@ void FunctionSetupPanel::OnTextUpdate(wxCommandEvent& event)
 //---------------------------------
 void FunctionSetupPanel::OnButton(wxCommandEvent& event)
 {
-   if (event.GetEventObject() == mBrowseButton)
-   {
-      // ag: should all files be included in thid dialog?
-      wxFileDialog dialog(this, _T("Choose a file"), _T(""), _T(""),
-            _T("Text files (*.txt, *.text)|*.txt;*.text|"\
-               "Script files (*.script, *.m)|*.script;*.m|"\
-               "GMAT Function files (*.gmf)|*.gmf"));
+//    if (event.GetEventObject() == mSaveButton)
+//    {
+//       wxString filename = mFileNameTextCtrl->GetValue();
 
-      if (dialog.ShowModal() == wxID_OK)
-      {
-         wxString filename;
+//       if (filename != "")
+//       {
+//          mFileContentsTextCtrl->SaveFile(filename);
+//          mEnableSave = false;
+//       }
+//    }
+//    else
+//    {
+//       //Error - unknown object
+//    }
 
-         filename = dialog.GetPath().c_str();
-         mFileNameTextCtrl->SetValue(filename);
-      }
-   }
-   else if (event.GetEventObject() == mLoadButton)
-   {
-      wxString filename = mFileNameTextCtrl->GetValue();
-
-      if (filename != "")
-      {
-         mFileContentsTextCtrl->LoadFile(filename);
-         mEnableSave = false;
-      }
-   }
-   else if (event.GetEventObject() == mSaveButton)
-   {
-      wxString filename = mFileNameTextCtrl->GetValue();
-
-      if (filename != "")
-      {
-         mFileContentsTextCtrl->SaveFile(filename);
-         mEnableSave = false;
-      }
-   }
-   else
-   {
-      //Error - unknown object
-   }
-
-   mLoadButton->Enable(mEnableLoad);
-   mSaveButton->Enable(mEnableSave);
+//    mSaveButton->Enable(mEnableSave);
 }
 
 
