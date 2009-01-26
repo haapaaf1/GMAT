@@ -40,11 +40,18 @@ const GmatEditor::CommonInfoType GmatEditor::globalCommonPrefs =
 //----------------------------------------------------------------------------
 // keywordlists
 // GMAT
-wxChar* GmatKeywords =
+wxChar* GmatCommands =
    _T("GMAT Create Global Maneuver Propagate Report Save Stop Toggle ")
    _T("Achieve Vary Target Optimize Minimize PenDown PenUp ")
    _T("For EndFor If Else EndIf While EndWhile Target EndTarget ")
-   _T("BeginFiniteBurn EndFiniteBurn BeginScript EndScript");
+   _T("BeginFiniteBurn EndFiniteBurn BeginScript EndScript " )
+   _T("Spacecraft ForceModel Propagator FuelTank Thruster SolarSystem ")
+   _T("CoordinateSystem Variable Array String ReportFile XYPlot OpenGLPlot " )
+   _T("ImpulsiveBurn FiniteBurn DifferentialCorrector Optimizer MatlabFunction" );
+wxChar* GmatObjectTypes =
+   _T("Spacecraft ForceModel Propagator FuelTank Thruster SolarSystem ")
+   _T("CoordinateSystem Variable Array String ReportFile XYPlot OpenGLPlot " )
+   _T("ImpulsiveBurn FiniteBurn DifferentialCorrector Optimizer MatlabFunction" );
 wxChar* GmatComments =
    _T("%");
 // C++
@@ -88,32 +95,49 @@ wxChar* PythonWordlist2 =
 
 //----------------------------------------------------------------------------
 //! languages
+//------------------------------------------------
+// Lexical states for SCLEX_MATLAB (from stc.h)
+//------------------------------------------------
+//#define wxSTC_MATLAB_DEFAULT 0
+//#define wxSTC_MATLAB_COMMENT 1
+//#define wxSTC_MATLAB_COMMAND 2
+//#define wxSTC_MATLAB_NUMBER  3
+//#define wxSTC_MATLAB_KEYWORD 4
+// single quoted string
+//#define wxSTC_MATLAB_STRING 5
+//#define wxSTC_MATLAB_OPERATOR 6
+//#define wxSTC_MATLAB_IDENTIFIER 7
+//#define wxSTC_MATLAB_DOUBLEQUOTESTRING 8
+//------------------------------------------------
+
 const GmatEditor::LanguageInfoType GmatEditor::globalLanguagePrefs [] = {
    //-------------------------------------------------------
    // GMAT script, function, Matlab scripts
    //-------------------------------------------------------
    {_T("GMAT"),
     _T("*.script;*.m;*.gmf"),
-    wxSTC_LEX_MATLAB,
+    #if 0
+    // matlab style
+    wxSTC_LEX_MATLAB, // Shows GMAT comments, but no commands
     {{GMAT_STC_TYPE_DEFAULT, NULL},
-     {GMAT_STC_TYPE_COMMENT, NULL},
-     {GMAT_STC_TYPE_COMMENT_LINE, NULL},        // COMMENT LINE
+     {GMAT_STC_TYPE_COMMENT_LINE, NULL},
      {GMAT_STC_TYPE_COMMENT_DOC, NULL},
      {GMAT_STC_TYPE_NUMBER, NULL},
-     {GMAT_STC_TYPE_WORD1, GmatKeywords},       // KEYWORDS (LOJ: Why this doesn't work?)
-     {GMAT_STC_TYPE_STRING, NULL},
+     {GMAT_STC_TYPE_WORD1, GmatCommands},   // KEYWORDS
      {GMAT_STC_TYPE_CHARACTER, NULL},
-     {GMAT_STC_TYPE_UUID, NULL},
-     {GMAT_STC_TYPE_PREPROCESSOR, NULL},
      {GMAT_STC_TYPE_OPERATOR, NULL},
      {GMAT_STC_TYPE_IDENTIFIER, NULL},
+     {GMAT_STC_TYPE_STRING, NULL},
      {GMAT_STC_TYPE_STRING_EOL, NULL},
-     {GMAT_STC_TYPE_DEFAULT, NULL},              // VERBATIM
+     {GMAT_STC_TYPE_UUID, NULL},
+     {GMAT_STC_TYPE_DEFAULT, NULL},         // VERBATIM
      {GMAT_STC_TYPE_REGEX, NULL},
-     {GMAT_STC_TYPE_COMMENT_SPECIAL, NULL},      // DOXY
-     {GMAT_STC_TYPE_WORD2, NULL},                // EXTRA WORDS
-     {GMAT_STC_TYPE_WORD3, NULL},                // DOXY KEYWORDS
-     {GMAT_STC_TYPE_ERROR, NULL},                // KEYWORDS ERROR
+     {GMAT_STC_TYPE_COMMENT_SPECIAL, NULL}, // DOXY
+     {GMAT_STC_TYPE_WORD2, GmatObjectTypes},// EXTRA WORDS
+     {GMAT_STC_TYPE_WORD3, GmatCommands},   // DOXY KEYWORDS
+     {GMAT_STC_TYPE_ERROR, NULL},           // KEYWORDS ERROR
+     {-1, NULL},
+     {-1, NULL},
      {-1, NULL},
      {-1, NULL},
      {-1, NULL},
@@ -129,6 +153,83 @@ const GmatEditor::LanguageInfoType GmatEditor::globalLanguagePrefs [] = {
      {-1, NULL}},
     GMAT_STC_FOLD_COMMENT | GMAT_STC_FOLD_COMPACT |
     GMAT_STC_FOLD_PREPROC},
+   #endif
+    // python style
+    #if 1
+    wxSTC_LEX_PYTHON, // Shows GMAT commands and folds, but no comments, no object types
+    {{GMAT_STC_TYPE_DEFAULT, NULL},
+     {GMAT_STC_TYPE_COMMENT_LINE, NULL},
+     {GMAT_STC_TYPE_NUMBER, NULL},
+     {GMAT_STC_TYPE_STRING, NULL},
+     {GMAT_STC_TYPE_CHARACTER, NULL},
+     {GMAT_STC_TYPE_WORD1, GmatCommands},      // KEYWORDS
+     {GMAT_STC_TYPE_DEFAULT, NULL},            // TRIPLE
+     {GMAT_STC_TYPE_DEFAULT, NULL},            // TRIPLEDOUBLE
+     {GMAT_STC_TYPE_DEFAULT, NULL},            // CLASSNAME
+     {GMAT_STC_TYPE_DEFAULT, GmatObjectTypes}, // DEFNAME
+     {GMAT_STC_TYPE_OPERATOR, NULL},
+     {GMAT_STC_TYPE_IDENTIFIER, NULL},
+     {GMAT_STC_TYPE_DEFAULT, GmatComments},    // COMMENT_BLOCK
+     {GMAT_STC_TYPE_STRING_EOL, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL}},
+    GMAT_STC_FOLD_COMMENT | GMAT_STC_FOLD_COMPACT |
+    GMAT_STC_FOLD_PREPROC},
+   #endif
+    // cpp style
+    #if 0
+    wxSTC_LEX_CPP, // Shows GMAT commands, object types, but no comments, no folds
+    {{GMAT_STC_TYPE_DEFAULT, NULL},
+     {GMAT_STC_TYPE_COMMENT, NULL},
+     {GMAT_STC_TYPE_COMMENT_LINE, NULL},
+     {GMAT_STC_TYPE_COMMENT_DOC, NULL},
+     {GMAT_STC_TYPE_NUMBER, NULL},
+     {GMAT_STC_TYPE_WORD1, GmatCommands},   // KEYWORDS
+     {GMAT_STC_TYPE_STRING, NULL},
+     {GMAT_STC_TYPE_CHARACTER, NULL},
+     {GMAT_STC_TYPE_UUID, NULL},
+     {GMAT_STC_TYPE_PREPROCESSOR, NULL},
+     {GMAT_STC_TYPE_OPERATOR, NULL},
+     {GMAT_STC_TYPE_IDENTIFIER, NULL},
+     {GMAT_STC_TYPE_STRING_EOL, NULL},
+     {GMAT_STC_TYPE_DEFAULT, NULL},         // VERBATIM
+     {GMAT_STC_TYPE_REGEX, NULL},
+     {GMAT_STC_TYPE_COMMENT_SPECIAL, NULL}, // DOXY
+     {GMAT_STC_TYPE_WORD2, GmatObjectTypes},// EXTRA WORDS
+     {GMAT_STC_TYPE_WORD3, GmatCommands},   // DOXY KEYWORDS
+     {GMAT_STC_TYPE_ERROR, NULL},           // KEYWORDS ERROR
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL},
+     {-1, NULL}},
+    GMAT_STC_FOLD_COMMENT | GMAT_STC_FOLD_COMPACT |
+    GMAT_STC_FOLD_PREPROC},
+    #endif
    // C++
    {_T("C++"),
     _T("*.c;*.cc;*.cpp;*.cxx;*.cs;*.h;*.hh;*.hpp;*.hxx;*.sma"),
@@ -252,117 +353,121 @@ const GmatEditor::StyleInfoType GmatEditor::globalStylePrefs [] = {
    {_T("Default"),
     _T("BLACK"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
-   // GMAT_STC_TYPE_WORD1
+   
+   // GMAT_STC_TYPE_WORD1 (with wxSTC_LEX_PYTHON, GMAT KeyWords shows in this color)
    {_T("Keyword1"),
     _T("BLUE"), _T("WHITE"),
-    _T(""), 10, GMAT_STC_STYLE_BOLD, 0},
-
+    //_T(""), 10, GMAT_STC_STYLE_BOLD, 0},
+    _T(""), 10, 0, 0},
+   
    // GMAT_STC_TYPE_WORD2
    {_T("Keyword2"),
-    _T("DARK BLUE"), _T("WHITE"),
+    _T("RED"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_WORD3
    {_T("Keyword3"),
     _T("CORNFLOWER BLUE"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_WORD4
    {_T("Keyword4"),
     _T("CYAN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_WORD5
    {_T("Keyword5"),
     _T("DARK GREY"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_WORD6
    {_T("Keyword6"),
     _T("GREY"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_COMMENT
    {_T("Comment"),
     _T("FOREST GREEN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_COMMENT_DOC
    {_T("Comment (Doc)"),
     _T("FOREST GREEN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_COMMENT_LINE
    {_T("Comment line"),
     _T("FOREST GREEN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_COMMENT_SPECIAL
    {_T("Special comment"),
     _T("FOREST GREEN"), _T("WHITE"),
     _T(""), 10, GMAT_STC_STYLE_ITALIC, 0},
-
-   // GMAT_STC_TYPE_CHARACTER
+   
+   // GMAT_STC_TYPE_CHARACTER (with wxSTC_LEX_PYTHON, string inside single quote)
    {_T("Character"),
-    _T("KHAKI"), _T("WHITE"),
+    _T("PURPLE"), _T("WHITE"),
+    //_T("KHAKI"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_CHARACTER_EOL
    {_T("Character (EOL)"),
-    _T("KHAKI"), _T("WHITE"),
+    _T("PURPLE"), _T("WHITE"),
+    //_T("KHAKI"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
-   // GMAT_STC_TYPE_STRING
+   
+   // GMAT_STC_TYPE_STRING (with wxSTC_LEX_PYTHON, string inside double quote)
    {_T("String"),
     _T("BROWN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_STRING_EOL
    {_T("String (EOL)"),
     _T("BROWN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_DELIMITER
    {_T("Delimiter"),
     _T("ORANGE"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_PUNCTUATION
    {_T("Punctuation"),
     _T("ORANGE"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
-   // GMAT_STC_TYPE_OPERATOR
+   
+   // GMAT_STC_TYPE_OPERATOR (with wxSTC_LEX_PYTHON, () [] math operators shown in this color)
    {_T("Operator"),
     _T("BLACK"), _T("WHITE"),
-    _T(""), 10, GMAT_STC_STYLE_BOLD, 0},
-
+    //_T(""), 10, GMAT_STC_STYLE_BOLD, 0},
+    _T(""), 10, 0, 0},
+   
    // GMAT_STC_TYPE_BRACE
    {_T("Label"),
     _T("VIOLET"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_COMMAND
    {_T("Command"),
     _T("BLUE"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
-   // GMAT_STC_TYPE_IDENTIFIER
+   
+   // GMAT_STC_TYPE_IDENTIFIER (with wxSTC_LEX_PYTHON, statesments showns in this color)
    {_T("Identifier"),
     _T("BLACK"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_LABEL
    {_T("Label"),
     _T("VIOLET"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_NUMBER
    {_T("Number"),
     _T("SIENNA"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_PARAMETER
    {_T("Parameter"),
     _T("VIOLET"), _T("WHITE"),
@@ -377,7 +482,7 @@ const GmatEditor::StyleInfoType GmatEditor::globalStylePrefs [] = {
    {_T("UUID"),
     _T("ORCHID"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_VALUE
    {_T("Value"),
     _T("ORCHID"), _T("WHITE"),
@@ -387,7 +492,7 @@ const GmatEditor::StyleInfoType GmatEditor::globalStylePrefs [] = {
    {_T("Preprocessor"),
     _T("GREY"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_SCRIPT
    {_T("Script"),
     _T("DARK GREY"), _T("WHITE"),
@@ -397,7 +502,7 @@ const GmatEditor::StyleInfoType GmatEditor::globalStylePrefs [] = {
    {_T("Error"),
     _T("RED"), _T("WHITE"),
     _T(""), 10, 0, 0},
-
+   
    // GMAT_STC_TYPE_UNDEFINED
    {_T("Undefined"),
     _T("ORANGE"), _T("WHITE"),
