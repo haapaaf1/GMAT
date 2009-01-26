@@ -138,12 +138,13 @@ void GmatSavePanel::Show()
 //------------------------------------------------------------------------------
 void GmatSavePanel::OnSave(wxCommandEvent &event)
 {
-   if (mFilename == "")
+   // if it is temp script file, call OnSaveAs() to bring up file dialog to save
+   if (mFilename == GmatAppData::Instance()->GetTempScriptName())
    {
       OnSaveAs(event);
       return;
    }
-
+   
    SaveData();
 }
 
