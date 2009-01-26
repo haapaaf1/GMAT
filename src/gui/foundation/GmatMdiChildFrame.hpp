@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              GmatMdiChildFrame
 //------------------------------------------------------------------------------
@@ -78,6 +78,8 @@ protected:
 #ifdef __USE_STC_EDITOR__
    Editor *theEditor;
 #endif
+
+   void UpdateGuiItem(int updateEdit, int updateAnimation);
    
    // any class wishing to process wxWindows events must use this macro
    DECLARE_EVENT_TABLE();

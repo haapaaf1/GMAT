@@ -102,12 +102,8 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
       theMenuBar = (GmatMenuBar*)(parent->GetMenuBar());      
    #endif
    
-   // Enalbe Edit menu if ScriptFile
-   int editIndex = theMenuBar->FindMenu("Edit");
-   if (mItemType == GmatTree::SCRIPT_FILE)
-      theMenuBar->EnableTop(editIndex, true);
-   else
-      theMenuBar->EnableTop(editIndex, false);
+   // Enable Edit menu and tools if ScriptFile
+   UpdateGuiItem(1, 0);
    
    // Set icon if icon file is in the start up file
    FileManager *fm = FileManager::Instance();
@@ -124,7 +120,7 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
    }
    catch (GmatBaseException &e)
    {
-      //MessageInterface::ShowMessage(e.GetMessage());
+      MessageInterface::ShowMessage(e.GetFullMessage());
    }
 }
 
@@ -139,8 +135,8 @@ GmatMdiChildFrame::~GmatMdiChildFrame()
    #else
       // There should be only one MenuBar associated with GmatMainFrame,
       // so we cannot delete it here.
-      int editIndex = theMenuBar->FindMenu("Edit");
-      theMenuBar->EnableTop(editIndex, false);
+      // Disable Edit menu and tools
+      UpdateGuiItem(2, 0);
    #endif
 }
 
@@ -257,48 +253,8 @@ void GmatMdiChildFrame::OnActivate(wxActivateEvent &event)
        GetTitle().c_str(), mItemType);
    #endif
    
-   //------------------------------------------------------------
-   // update edit from menubar and toolbar
-   //------------------------------------------------------------
-   // Update MenuBar for this child
-   int editIndex = theMenuBar->FindMenu("Edit");
-   if (mItemType == GmatTree::SCRIPT_FILE)
-      theMenuBar->EnableTop(editIndex, true);
-   else
-      theMenuBar->EnableTop(editIndex, false);
-   
-   // Update ToolBar for this child
-   wxToolBar *toolBar = theParent->GetToolBar();
-   if (mItemType == GmatTree::SCRIPT_FILE)
-   {
-      toolBar->EnableTool(GmatMenu::MENU_EDIT_CUT, TRUE);
-      toolBar->EnableTool(GmatMenu::MENU_EDIT_COPY, TRUE);
-      toolBar->EnableTool(GmatMenu::MENU_EDIT_PASTE, TRUE);
-   }
-   else
-   {
-      toolBar->EnableTool(GmatMenu::MENU_EDIT_CUT, FALSE);
-      toolBar->EnableTool(GmatMenu::MENU_EDIT_COPY, FALSE);
-      toolBar->EnableTool(GmatMenu::MENU_EDIT_PASTE, FALSE);
-   }
-   
-   //------------------------------------------------------------
-   // update animation icons from toolbar
-   //------------------------------------------------------------
-   if (mItemType == GmatTree::OUTPUT_OPENGL_PLOT)
-   {
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, true);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, true);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, true);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, true);
-   }
-   else
-   {
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, false);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, false);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, false);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, false);
-   }
+   // update both edit and animation tools
+   UpdateGuiItem(1, 1);
    
    event.Skip();
 }
@@ -391,3 +347,68 @@ wxString GmatMdiChildFrame::GetTitle()
 #endif
 
 
+//------------------------------------------------------------------------------
+// void UpdateEditGuiItem(int updateEdit, int updateAnimation)
+//------------------------------------------------------------------------------
+/**
+ * Updates Edit menu items and tools.
+ *
+ * @param  updateEdit
+ *            0, Ignore edit menu and tools
+ *            1, Update edit menu and tools
+ *            2, Disable edit menu and tools
+ * @param  updateAnimation
+ *            0, Ignore animation tools
+ *            1, Update animation tools
+ *            2, Disable animation tools
+ */
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::UpdateGuiItem(int updateEdit, int updateAnimation)
+{
+   #ifdef DEBUG_UPDATE_GUI_ITEM
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame::UpdateGuiItem() updateEdit=%d, updateAnimation=%d\n",
+       updateEdit, updateAnimation);
+   #endif
+   
+   wxToolBar *toolBar = theParent->GetToolBar();
+   int editIndex = theMenuBar->FindMenu("Edit");
+   
+   //------------------------------------------------------------
+   // update edit from menubar and toolbar
+   //------------------------------------------------------------
+   // Update MenuBar for this child
+   if (updateEdit == 1 && (mItemType == GmatTree::SCRIPT_FILE ||
+                           mItemType == GmatTree::GMAT_FUNCTION))
+   {
+      theMenuBar->EnableTop(editIndex, true);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_CUT, TRUE);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_COPY, TRUE);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_PASTE, TRUE);
+   }
+   else
+   {
+      theMenuBar->EnableTop(editIndex, false);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_CUT, FALSE);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_COPY, FALSE);
+      toolBar->EnableTool(GmatMenu::MENU_EDIT_PASTE, FALSE);
+   }
+   
+   //------------------------------------------------------------
+   // update animation icons from toolbar
+   //------------------------------------------------------------
+   if (updateAnimation == 1 && mItemType == GmatTree::OUTPUT_OPENGL_PLOT)
+   {
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, true);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, true);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, true);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, true);
+   }
+   else
+   {
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, false);
+   }
+}
