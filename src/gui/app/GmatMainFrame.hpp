@@ -118,7 +118,6 @@ public:
 protected:
 
 private:
-   int  mScriptCounter;
    int  mAnimationFrameInc;
    bool mRunPaused;
    bool mRunCompleted;
@@ -128,6 +127,7 @@ private:
    
    GmatServer *mServer;
    std::string mScriptFilename;
+   std::string mTempScriptName;
    GuiInterpreter *theGuiInterpreter;
    
    wxSashLayoutWindow* theMainWin;

@@ -70,7 +70,9 @@ public:
    
    void SetFont(wxFont font);
    wxFont GetFont();
-      
+
+   void SetTempScriptName(const wxString &tempName);
+   wxString GetTempScriptName();
 #endif
     
 private:
@@ -92,6 +94,7 @@ private:
    ViewTextFrame *theCompareWindow;
    wxTextCtrl    *theMessageTextCtrl;
    wxFont        theFont;
+   wxString      theTempScriptName;
    
    #ifdef __USE_STC_EDITOR__
    wxPageSetupDialogData *thePageSetupDialogData;

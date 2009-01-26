@@ -254,8 +254,8 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    theMainWin = NULL;
    
    // set the script name
-   mScriptFilename = "$gmattempscript$.script";
-   mScriptCounter = 0;
+   mTempScriptName = "$gmattempscript$.script";
+   mScriptFilename = mTempScriptName;
    mAnimationFrameInc = 1;
    mInterpretFailed = false;
    mExitWithoutConfirm = false;
@@ -267,6 +267,7 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    
    GmatAppData *gmatAppData = GmatAppData::Instance();
    theGuiInterpreter = gmatAppData->GetGuiInterpreter();
+   gmatAppData->SetTempScriptName(mTempScriptName.c_str());
    
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage
@@ -1565,7 +1566,8 @@ bool GmatMainFrame::ShowSaveMessage()
          wxString wxCurrFilename = mScriptFilename.c_str();
          wxString wxBackupFilename = wxCurrFilename + ".bak";
          
-         if (strcmp(mScriptFilename.c_str(), "$gmattempscript$.script") == 0)
+         //if (strcmp(mScriptFilename.c_str(), "$gmattempscript$.script") == 0)
+         if (mScriptFilename == mTempScriptName)
          {
             scriptSaved = SaveScriptAs();
          }
@@ -1749,7 +1751,8 @@ void GmatMainFrame::OnLoadDefaultMission(wxCommandEvent& WXUNUSED(event))
    }
    
    CloseCurrentProject();
-   mScriptFilename = "$gmattempscript$.script";
+   //mScriptFilename = "$gmattempscript$.script";
+   mScriptFilename = mTempScriptName;
    theGuiInterpreter->LoadDefaultMission();
    mInterpretFailed = false;
    
@@ -1776,11 +1779,12 @@ void GmatMainFrame::OnSaveScript(wxCommandEvent& event)
    MessageInterface::ShowMessage
       ("GmatMainFrame::OnSaveScript() mInterpretFailed=%d\n", mInterpretFailed);
    #endif
-
+   
    bool scriptSaved = false;
    GmatAppData *gmatAppData = GmatAppData::Instance();
    
-   if (strcmp(mScriptFilename.c_str(), "$gmattempscript$.script") == 0)
+   //if (strcmp(mScriptFilename.c_str(), "$gmattempscript$.script") == 0)
+   if (mScriptFilename == mTempScriptName)
    {
       scriptSaved = SaveScriptAs();
       if (scriptSaved)
@@ -2118,7 +2122,11 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       {
          FunctionSetupPanel *functPanel = new FunctionSetupPanel(scrolledWin, name);
          sizer->Add(functPanel, 0, wxGROW|wxALL, 0);
+         #ifdef __USE_STC_EDITOR__
+         newChild->SetEditor(functPanel->GetEditor());
+         #else
          newChild->SetScriptTextCtrl(functPanel->mFileContentsTextCtrl);
+         #endif
          break;
       }
    case GmatTree::MATLAB_FUNCTION:
@@ -2443,17 +2451,24 @@ GmatMainFrame::CreateNewOutput(const wxString &title, const wxString &name,
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnNewScript(wxCommandEvent& WXUNUSED(event))
 {
-   wxString name;
-   name.Printf("Script%d.script", ++mScriptCounter);
+   // Changed to temp file so that it can be saved using file dialog (LOJ: 2009.01.23)
+   wxString name = GmatAppData::Instance()->GetTempScriptName();
    
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
    GmatMdiChildFrame *newChild =
       new GmatMdiChildFrame(this, name, name, GmatTree::SCRIPT_FILE);
    
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
-   ScriptPanel *scriptPanel = new ScriptPanel(scrolledWin, "");
-   sizer->Add(scriptPanel, 0, wxGROW|wxALL, 0);
-   newChild->SetScriptTextCtrl(scriptPanel->mFileContentsTextCtrl);
+   
+   #ifdef __USE_STC_EDITOR__
+      EditorPanel *editorPanel = new EditorPanel(scrolledWin, name);
+      sizer->Add(editorPanel, 0, wxGROW|wxALL, 0);
+      newChild->SetEditor(editorPanel->GetEditor());
+   #else
+      ScriptPanel *scriptPanel = new ScriptPanel(scrolledWin, "");
+      sizer->Add(scriptPanel, 0, wxGROW|wxALL, 0);
+      newChild->SetScriptTextCtrl(scriptPanel->mFileContentsTextCtrl);
+   #endif
    
    if (newChild && scrolledWin)
    {

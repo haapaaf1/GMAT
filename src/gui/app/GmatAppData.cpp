@@ -204,6 +204,24 @@ wxFont GmatAppData::GetFont()
 
 
 //------------------------------------------------------------------------------
+// void SetTempScriptName(const wxString &tempName)
+//------------------------------------------------------------------------------
+void GmatAppData::SetTempScriptName(const wxString &tempName)
+{
+   theTempScriptName = tempName;
+}
+
+
+//------------------------------------------------------------------------------
+// wxString GetTempScriptName()
+//------------------------------------------------------------------------------
+wxString GmatAppData::GetTempScriptName()
+{
+   return theTempScriptName;
+}
+
+
+//------------------------------------------------------------------------------
 // GmatAppData()
 //------------------------------------------------------------------------------
 /**
@@ -220,6 +238,7 @@ GmatAppData::GmatAppData()
    theMessageWindow = NULL;
    theCompareWindow = NULL;
    theMessageTextCtrl = NULL;
+   theTempScriptName = "$gmattempscript$.script";
    
    #ifdef __USE_EDITOR__
    thePageSetupDialogData = NULL;
