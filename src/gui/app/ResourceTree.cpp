@@ -120,8 +120,10 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_VARIABLE, ResourceTree::OnAddVariable)
    EVT_MENU(POPUP_ADD_ARRAY, ResourceTree::OnAddArray)
    EVT_MENU(POPUP_ADD_STRING, ResourceTree::OnAddString)
-   EVT_MENU(POPUP_ADD_MATLAB_FUNCT, ResourceTree::OnAddMatlabFunction)
-   EVT_MENU(POPUP_ADD_GMAT_FUNCT, ResourceTree::OnAddGmatFunction)
+   EVT_MENU(POPUP_ADD_MATLAB_FUNCTION, ResourceTree::OnAddMatlabFunction)
+   EVT_MENU(POPUP_ADD_GMAT_FUNCTION, ResourceTree::OnAddGmatFunction)
+   EVT_MENU(POPUP_NEW_GMAT_FUNCTION, ResourceTree::OnAddGmatFunction)
+   EVT_MENU(POPUP_OPEN_GMAT_FUNCTION, ResourceTree::OnAddGmatFunction)
    EVT_MENU(POPUP_ADD_COORD_SYS, ResourceTree::OnAddCoordSys)
    EVT_MENU(POPUP_ADD_BARYCENTER, ResourceTree::OnAddBarycenter)
    EVT_MENU(POPUP_ADD_LIBRATION, ResourceTree::OnAddLibration)
@@ -2368,28 +2370,70 @@ void ResourceTree::OnAddMatlabFunction(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddGmatFunction(wxCommandEvent &event)
 {
+   #ifdef DEBUG_GMAT_FUNCTION
+   MessageInterface::ShowMessage("ResourceTree::OnAddGmatFunction() entered\n");
+   #endif
+   
    wxTreeItemId item = GetSelection();
    wxString name;
+   GmatBase *obj = NULL;
    
-   //Get name from the user first
-   name = wxGetTextFromUser(wxT("Name: "), wxT("GMAT function"), name, this);
-   
-   if (!name.IsEmpty())
+   //-----------------------------------------------------------------
+   // if creating a new GmatFunction
+   //-----------------------------------------------------------------
+   if (event.GetId() == POPUP_NEW_GMAT_FUNCTION)
    {
-      const std::string newName = name.c_str();
-      GmatBase *obj = theGuiInterpreter->CreateObject("GmatFunction", newName);
+      //Get name from the user first
+      name = wxGetTextFromUser(wxT("Name: "), wxT("GMAT function"), name, this);
+      if (!name.IsEmpty())
+         obj = theGuiInterpreter->CreateObject("GmatFunction", name.c_str());
+   }
+   //-----------------------------------------------------------------
+   // if opening an existing GmatFunction
+   //-----------------------------------------------------------------
+   else if (event.GetId() == POPUP_OPEN_GMAT_FUNCTION)
+   {
+      wxFileDialog dialog
+         (this, _T("Choose a file"), _T(""), _T(""),
+          _T("GMAT Function file (*.gmf|*.gmf|"\
+             "Text files (*.txt, *.text)|*.txt;*.text|"\
+             "All files (*.*)|*.*"));
       
-      if (obj != NULL)
+      if (dialog.ShowModal() == wxID_OK)
       {
-         AppendItem(item, name, GmatTree::ICON_FUNCTION, -1,
-                    new GmatTreeItemData(name, GmatTree::GMAT_FUNCTION));
-         Expand(item);
-         
-         theGuiManager->UpdateFunction();
-      }
+         wxString path = dialog.GetPath().c_str();
+         wxString filename = dialog.GetFilename().c_str();
+         name = filename.Mid(0, (filename.find('.')));
 
+         #ifdef DEBUG_GMAT_FUNCTION
+         MessageInterface::ShowMessage("   path='%s'\n", path.c_str());
+         wxString directory = dialog.GetDirectory().c_str();
+         MessageInterface::ShowMessage("   directory='%s'\n", directory.c_str());
+         MessageInterface::ShowMessage("   filename='%s'\n", filename.c_str());
+         MessageInterface::ShowMessage("   name='%s'\n", name.c_str());
+         #endif
+         
+         // Create GmatFunction object
+         obj = theGuiInterpreter->CreateObject("GmatFunction", name.c_str());
+         // Set function path
+         obj->SetStringParameter("FunctionPath", path.c_str());
+      }
+   }
+   
+   if (obj != NULL)
+   {
+      AppendItem(item, name, GmatTree::ICON_FUNCTION, -1,
+                 new GmatTreeItemData(name, GmatTree::GMAT_FUNCTION));
+      Expand(item);
+      
+      theGuiManager->UpdateFunction();
       SelectItem(GetLastChild(item));
    }
+   
+   #ifdef DEBUG_GMAT_FUNCTION
+   MessageInterface::ShowMessage("ResourceTree::OnAddGmatFunction() exiting\n");
+   #endif
+   
 }
 
 
@@ -3325,12 +3369,17 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
       menu->Append(POPUP_ADD_STRING, wxT("String"));
       break;
    case GmatTree::FUNCTION_FOLDER:
-      #ifdef __USE_MATLAB__
-      menu->Append(POPUP_ADD_MATLAB_FUNCT, wxT("MATLAB Function"));
-      #endif
-      
-      menu->Append(POPUP_ADD_GMAT_FUNCT, wxT("GMAT Function"));
-      break;
+      {
+         #ifdef __USE_MATLAB__
+         menu->Append(POPUP_ADD_MATLAB_FUNCTION, wxT("MATLAB Function"));
+         #endif
+         
+         wxMenu *gfMenu = new wxMenu;
+         gfMenu->Append(POPUP_NEW_GMAT_FUNCTION, wxT("New"));
+         gfMenu->Append(POPUP_OPEN_GMAT_FUNCTION, wxT("Open"));
+         menu->Append(POPUP_ADD_GMAT_FUNCTION, wxT("GMAT Function"), gfMenu);      
+         break;
+      }
    case GmatTree::SPECIAL_POINT_FOLDER:
       menu->Append(POPUP_ADD_BARYCENTER, wxT("Barycenter"));
       menu->Append(POPUP_ADD_LIBRATION, wxT("Libration Point"));
