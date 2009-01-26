@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              MdiChildTsFrame
 //------------------------------------------------------------------------------
@@ -46,7 +46,6 @@ BEGIN_EVENT_TABLE(MdiChildTsFrame, GmatMdiChildFrame)
    EVT_MENU(GmatPlot::MDI_TS_HELP_VIEW, MdiChildTsFrame::OnHelpView)
 
 //   EVT_PLOT_CLICKED(-1, MdiChildTsFrame::OnPlotClick)
-   //EVT_ACTIVATE(MdiChildXyFrame::OnActivate)
    EVT_ACTIVATE(MdiChildTsFrame::OnActivate)
    EVT_SIZE(MdiChildTsFrame::OnSize)
    EVT_MOVE(MdiChildTsFrame::OnMove)
@@ -584,6 +583,8 @@ void MdiChildTsFrame::OnActivate(wxActivateEvent& event)
    {
       mXyPlot->SetFocus();
    }
+   
+   GmatMdiChildFrame::OnActivate(event);
 }
 
 //------------------------------------------------------------------------------
