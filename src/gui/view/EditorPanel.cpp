@@ -18,7 +18,8 @@
 #include <wx/file.h>              // for wxFile
 #include <wx/gdicmn.h>            // for wxColourDatabase
 
-//#define DEBUG_EDITOR_PANEL
+//#define DEBUG_EDITORPANEL
+//#define DEBUG_EDITORPANEL_CREATE
 
 // to add build and build&run at top of the panel
 #define __ADD_BUILD_TO_TOP__
@@ -50,6 +51,7 @@ EditorPanel::EditorPanel(wxWindow *parent, const wxString &name)
    #endif
    
    mScriptFilename = name;
+   mEditor = NULL;
    
    Create();
    Show();
@@ -65,8 +67,16 @@ EditorPanel::EditorPanel(wxWindow *parent, const wxString &name)
 //------------------------------------------------------------------------------
 EditorPanel::~EditorPanel()
 {
+   #ifdef DEBUG_EDITORPANEL
+   MessageInterface::ShowMessage
+      ("EditorPanel::~EditorPanel() mEditor=<%p>\n", mEditor);
+   #endif
+   
    if (mEditor)
+   {
       delete mEditor;
+      mEditor = NULL;
+   }
 }
 
 
@@ -79,6 +89,12 @@ EditorPanel::~EditorPanel()
 //------------------------------------------------------------------------------
 void EditorPanel::OnClosePanel(wxCommandEvent &event)
 {
+   #ifdef DEBUG_EDITORPANEL_CLOSE
+   MessageInterface::ShowMessage
+      ("EditorPanel::OnClosePanel() entered, IsModified()=%d\n",
+       mEditor->IsModified());
+   #endif
+   
    if (mEditor->IsModified())
    {
       wxMessageDialog *msgDlg =
@@ -106,7 +122,7 @@ void EditorPanel::Create()
    //------------------------------------------------------
    mEditor = new Editor(this);
    mEditor->SetFocus();
-
+   
    #ifdef DEBUG_EDITORPANEL_CREATE
    MessageInterface::ShowMessage
       ("EditorPanel::Create() new Editor <%p> created\n", mEditor);
@@ -159,7 +175,7 @@ void EditorPanel::Create()
 //------------------------------------------------------------------------------
 void EditorPanel::LoadData()
 {
-   #ifdef DEBUG_EDITOR_PANEL
+   #ifdef DEBUG_EDITORPANEL
    MessageInterface::ShowMessage("EditorPanel::LoadData() entered\n");
    #endif
    
@@ -169,11 +185,16 @@ void EditorPanel::LoadData()
    if (mFileExists)
       mEditor->LoadFile(mScriptFilename);
    
+   #ifdef DEBUG_EDITORPANEL
+   MessageInterface::ShowMessage
+      ("   '%s' %sexist\n", mScriptFilename.c_str(), mFileExists ? "" : "does not ");
+   #endif
+   
    theSaveAsButton->Enable(true);
    theSaveButton->Enable(true);
    GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(false);
    
-   #ifdef DEBUG_EDITOR_PANEL
+   #ifdef DEBUG_EDITORPANEL
    MessageInterface::ShowMessage("EditorPanel::LoadData() exiting\n");
    #endif
 }
