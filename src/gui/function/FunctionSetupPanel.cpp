@@ -126,7 +126,7 @@ void FunctionSetupPanel::LoadData()
 {
    // Set the pointer for the "Show Script" button
    mObject = theGmatFunction;
-   mFullFunctionPath = theGmatFunction->GetStringParameter("FunctionPath");
+   mFullFunctionPath = (theGmatFunction->GetStringParameter("FunctionPath")).c_str();
    
    #ifdef DEBUG_FUNCTIONPANEL_LOAD
    MessageInterface::ShowMessage
@@ -179,7 +179,7 @@ void FunctionSetupPanel::SaveData()
       int result = msgDlg->ShowModal();
 
       if (result == wxID_YES)
-         mFileContentsTextCtrl->SaveFile(pathname);
+         mFileContentsTextCtrl->SaveFile(pathname.c_str());
    }
 }
 
