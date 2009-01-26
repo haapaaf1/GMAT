@@ -20,6 +20,8 @@
 #include <wx/numdlg.h>             // for wxGetNumberFromUser
 
 //#define DEBUG_EDITOR_FIND
+//#define DEBUG_EDITOR_PREF
+
 
 BEGIN_EVENT_TABLE (Editor, wxStyledTextCtrl)
    // common
@@ -75,8 +77,11 @@ Editor::Editor(wxWindow *parent, wxWindowID id,
                const wxPoint &pos, const wxSize &size, long style)
    : wxStyledTextCtrl(parent, id, pos, size, style)
 {
+   #ifdef DEBUG_EDITOR
+   MessageInterface::ShowMessage("Editor::Editor() entered\n");
+   #endif
+   
    mFileName = wxEmptyString;
-   //mFindReplaceDialog = (FindReplaceDialog*)NULL;
    mFindReplaceDialog = NULL;
    
    mLineNumberID = 0;
@@ -107,8 +112,7 @@ Editor::Editor(wxWindow *parent, wxWindowID id,
    StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColour(_T("DARK GREY")));
    StyleSetBackground(wxSTC_STYLE_LINENUMBER, *wxWHITE);
    StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColour(_T("DARK GREY")));
-   InitializePrefs(DEFAULT_LANGUAGE);
-   
+      
    // set visibility
    SetVisiblePolicy(wxSTC_VISIBLE_STRICT|wxSTC_VISIBLE_SLOP, 1);
    SetXCaretPolicy(wxSTC_CARET_EVEN|wxSTC_VISIBLE_STRICT|wxSTC_CARET_SLOP, 1);
@@ -128,6 +132,13 @@ Editor::Editor(wxWindow *parent, wxWindowID id,
    mFoldingMargin = 16;
    CmdKeyClear(wxSTC_KEY_TAB, 0); // this is done by the menu accelerator key
    SetLayoutCache(wxSTC_CACHE_PAGE);
+   
+   // Let's set it to GMAT preference
+   InitializePrefs("GMAT");
+   
+   #ifdef DEBUG_EDITOR
+   MessageInterface::ShowMessage("Editor::Editor() exiting\n");
+   #endif
 }
 
 
@@ -139,7 +150,6 @@ Editor::~Editor()
    if (mFindReplaceDialog)
       delete mFindReplaceDialog;
    
-   //mFindReplaceDialog = (FindReplaceDialog*)NULL;
    mFindReplaceDialog = NULL;
 }
 
@@ -458,7 +468,7 @@ void Editor::OnIndentMore(wxCommandEvent &WXUNUSED(event))
 //------------------------------------------------------------------------------
 void Editor::OnIndentLess(wxCommandEvent &WXUNUSED(event))
 {
-   CmdKeyExecute(wxSTC_CMD_DELETEBACK);
+   CmdKeyExecute(wxSTC_CMD_BACKTAB);
 }
 
 
@@ -836,22 +846,23 @@ bool Editor::InitializePrefs(const wxString &name)
    // initialize settings
    if (GmatEditor::globalCommonPrefs.syntaxEnable)
    {
-      int keywordnr = 0;
-      for(index = 0; index < STYLE_TYPES_COUNT; index++)
+      int keywordIndex = 0;
+      for (index = 0; index < STYLE_TYPES_COUNT; index++)
       {
-         if(curInfo->styles[index].type == -1)
+         int styleType = curInfo->styles[index].type;
+         if (styleType == -1)
             continue;
          
          const GmatEditor::StyleInfoType &curType =
-            GmatEditor::globalStylePrefs[curInfo->styles[index].type];
+            GmatEditor::globalStylePrefs[styleType];
          wxFont font(curType.fontsize, wxMODERN, wxNORMAL, wxNORMAL, false,
                      curType.fontname);
          StyleSetFont(index, font);
          
-         if(curType.foreground)
+         if (curType.foreground)
             StyleSetForeground(index, wxColour(curType.foreground));
          
-         if(curType.background)
+         if (curType.background)
             StyleSetBackground(index, wxColour(curType.background));
          
          StyleSetBold(index,(curType.fontstyle & GMAT_STC_STYLE_BOLD) > 0);
@@ -859,12 +870,12 @@ bool Editor::InitializePrefs(const wxString &name)
          StyleSetUnderline(index,(curType.fontstyle & GMAT_STC_STYLE_UNDERL) > 0);
          StyleSetVisible(index,(curType.fontstyle & GMAT_STC_STYLE_HIDDEN) == 0);
          StyleSetCase(index, curType.lettercase);
-         const wxChar *pwords = curInfo->styles[index].words;
          
-         if(pwords)
+         const wxChar *svalue = curInfo->styles[index].words;
+         if (svalue)
          {
-            SetKeyWords(keywordnr, pwords);
-            keywordnr += 1;
+            SetKeyWords(keywordIndex, svalue);
+            keywordIndex += 1;
          }
       }
    }
@@ -962,19 +973,27 @@ bool Editor::LoadFile(const wxString &filename)
    #endif
    
    // load file in edit and clear undo
-   if(!filename.empty()) mFileName = filename;
-   //     wxFile file(mFileName);
-   //     if(!file.IsOpened()) return false;
+   if (!filename.empty())
+      mFileName = filename;
+   
+   // It's ok to have non-existing file
+   //wxFile file(mFileName);
+   //if (!file.IsOpened())
+   //   return false;
+   
    ClearAll();
-   //     long lng = file.Length();
-   //     if(lng > 0) {
-   //         wxString buf;
-   //         wxChar *buff = buf.GetWriteBuf(lng);
-   //         file.Read(buff, lng);
-   //         buf.UngetWriteBuf();
-   //         InsertText(0, buf);
-   //     }
-   //     file.Close();
+
+   // No file reading
+   //long lng = file.Length();
+   //if(lng > 0)
+   //{
+   //   wxString buf;
+   //   wxChar *buff = buf.GetWriteBuf(lng);
+   //   file.Read(buff, lng);
+   //   buf.UngetWriteBuf();
+   //   InsertText(0, buf);
+   //}
+   //file.Close();
    
    wxStyledTextCtrl::LoadFile(mFileName);
    EmptyUndoBuffer();
