@@ -2682,7 +2682,8 @@ const std::string& Spacecraft::GetGeneratingString(Gmat::WriteMode mode,
    
    nomme += ".";
    
-   if (mode == Gmat::OWNED_OBJECT) {
+   if (mode == Gmat::OWNED_OBJECT) 
+   {
       preface = prefix;
       nomme = "";
    }
@@ -2747,6 +2748,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
    parmOrder[parmIndex++] = SRP_AREA_ID;
    parmOrder[parmIndex++] = FUEL_TANK_ID;
    parmOrder[parmIndex++] = THRUSTER_ID;
+   parmOrder[parmIndex++] = ORBIT_STM;
    parmOrder[parmIndex++] = ELEMENT1UNIT_ID;
    parmOrder[parmIndex++] = ELEMENT2UNIT_ID;
    parmOrder[parmIndex++] = ELEMENT3UNIT_ID;
@@ -2801,7 +2803,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
             if (
                 (parmType != Gmat::UNSIGNED_INTARRAY_TYPE) &&
                 (parmType != Gmat::RVECTOR_TYPE) &&
-                (parmType != Gmat::RMATRIX_TYPE) &&
+//                (parmType != Gmat::RMATRIX_TYPE) &&
                 (parmType != Gmat::UNKNOWN_PARAMETER_TYPE)
                )
             {

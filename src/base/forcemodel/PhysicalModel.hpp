@@ -93,7 +93,7 @@
 #include "SolarSystem.hpp"
 #include "CelestialBody.hpp"
 #include "Spacecraft.hpp"
-
+#include "GmatState.hpp"
 
 #include "ODEModelException.hpp"
 
@@ -143,6 +143,7 @@ public:
    virtual void SetForceOrigin(CelestialBody* toBody);
    virtual void SetDimension(Integer);
    virtual void SetState(const Real * st);
+   virtual void SetState(GmatState * st);
 
    Real GetErrorThreshold() const;
    bool SetErrorThreshold(const Real thold = 0.10);
@@ -218,6 +219,8 @@ protected:
    /// Flag that is set when SetState() or SetTime() is called
    bool stateChanged;
    
+   /// GMAT state that the physical model uses
+   GmatState *theState;
    /// Array of data parameters containing the model data
    Real *modelState;
    /// The state vector in J2000BodyMJ2000Eq coordinates.

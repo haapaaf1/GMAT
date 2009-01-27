@@ -915,7 +915,7 @@ bool ODEModel::BuildModelFromMap(PropagationStateManager *psm)
  * 
  * When this method is called, it loops through the PhysicalModels in the 
  * ODEModel and, for each model supporting the element, registers the start 
- * index and size of the portion of the sytate vector that receives the 
+ * index and size of the portion of the state vector that receives the 
  * derivative data.
  * 
  * @param id      The integer ID for the element that is being registered
@@ -1092,6 +1092,7 @@ bool ODEModel::Initialize()
       #endif
       
       (*current)->SetDimension(dimension);
+      (*current)->SetState(state);
       
       // Only initialize the spacecraft independent pieces once
       if (forceMembersNotInitialized)

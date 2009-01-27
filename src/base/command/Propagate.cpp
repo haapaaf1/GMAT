@@ -2516,6 +2516,7 @@ void Propagate::PrepareToPropagate()
 
    p.clear();
    fm.clear();
+   baseEpoch.clear();
    
    #ifdef DEBUG_PROPAGATE_INIT
       dstate = prop[0]->GetPropStateManager()->GetState();

@@ -447,8 +447,8 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
          Integer associate, element;
          for (Integer i = 0; i < stmCount; ++i)
          {
-            associate = 0;  // todo: Fix this!!!
             i6 = stmIndex + i * 36;
+            associate = theState->GetAssociateIndex(i6);  // todo: Fix this!!!
             
             relativePosition[0] = rv[0] - state[ associate ];
             relativePosition[1] = rv[1] - state[associate+1];
