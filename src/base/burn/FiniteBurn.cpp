@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              FiniteBurn
 //------------------------------------------------------------------------------
@@ -22,7 +22,8 @@
 #include "StringUtil.hpp"     // for ToString()
 
 //#define DEBUG_BURN_ORIGIN
-//#define DEBUG_RENAME 1
+//#define DEBUG_RENAME
+//#define DEBUG_FINITE_BURN
 
 //---------------------------------
 // static data
@@ -536,11 +537,11 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
          "   Maneuvering spacecraft %s\n",
          sc->GetName().c_str());
       MessageInterface::ShowMessage(
-         "   Position for burn:    %18le  %18le  %18le\n",
-         (*state)[0], (*state)[1], (*state)[2]);
+         "   Position for burn: %18le  %18le  %18le\n",
+         state[0], state[1], state[2]);
       MessageInterface::ShowMessage(
          "   Velocity for burn: %18le  %18le  %18le\n   Mass = %18le kg\n",
-         (*state)[3], (*state)[4], (*state)[5], tMass);
+         state[3], state[4], state[5], tMass);
    #endif
    
    for (StringArray::iterator i = thrusters.begin(); 
@@ -555,20 +556,27 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
       if (!current)
          throw BurnException("FiniteBurn::Fire requires thruster named " +
             (*i) + " on spacecraft " + sc->GetName());
-            
+      
       dir = current->direction;
       norm = sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
+      
+      #ifdef DEBUG_FINITE_BURN
+         MessageInterface::ShowMessage
+         ("   Thruster Direction: %18le  %18le  %18le\n"
+          "                 norm: %18le\n", dir[0], dir[1], dir[2], norm);
+      #endif
+         
       if (norm == 0.0)
          throw BurnException("FiniteBurn::Fire thruster " + (*i) +
                              " on spacecraft " + sc->GetName() +
                              " has no direction.");
-            
+      
       dm = current->CalculateMassFlow();
-      tOverM = current->thrust * current->thrustScaleFactor / (tMass * norm);
+      tOverM = current->thrust * current->thrustScaleFactor / (tMass * norm * 1000.0);
       deltaV[0] += dir[0] * tOverM;
       deltaV[1] += dir[1] * tOverM;
       deltaV[2] += dir[2] * tOverM;
-
+      
       #ifdef DEBUG_FINITE_BURN
          MessageInterface::ShowMessage("   Thruster %s = %s details:\n", 
             (*i).c_str(), current->GetName().c_str());
@@ -650,7 +658,7 @@ bool FiniteBurn::RenameRefObject(const Gmat::ObjectType type,
                                  const std::string &oldName,
                                  const std::string &newName)
 {
-   #if DEBUG_RENAME
+   #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage
       ("FiniteBurn::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
