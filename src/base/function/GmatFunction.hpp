@@ -34,6 +34,9 @@ public:
    GmatFunction(const GmatFunction &copy);
    GmatFunction& operator=(const GmatFunction &right);
    
+   bool IsNewFunction();
+   void SetNewFunction(bool flag);
+   
    // inherited from Function
    virtual bool         Initialize();
    virtual bool         Execute(ObjectInitializer *objInit, bool reinitialize);
@@ -48,6 +51,8 @@ public:
    virtual bool         SetStringParameter(const std::string &label,
                                            const std::string &value);
 protected:
+   
+   bool mIsNewFunction;
    
    enum
    {

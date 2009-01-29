@@ -73,6 +73,8 @@
 GmatFunction::GmatFunction(const std::string &name) :
    Function("GmatFunction", name)
 {
+   mIsNewFunction = false;
+   
    // for initial function path, use FileManager
    FileManager *fm = FileManager::Instance();
    std::string pathname;
@@ -189,6 +191,29 @@ GmatFunction& GmatFunction::operator=(const GmatFunction& right)
    Function::operator=(right);
    
    return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsNewFunction()
+//------------------------------------------------------------------------------
+/**
+ * Return true if function was created but not saved to file.
+ * FunctionSetupPanel uses this flag to open new editor or load existing function.
+ */
+//------------------------------------------------------------------------------
+bool GmatFunction::IsNewFunction()
+{
+   return mIsNewFunction;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetNewFunction(bool flag)
+//------------------------------------------------------------------------------
+void GmatFunction::SetNewFunction(bool flag)
+{
+   mIsNewFunction = flag;
 }
 
 
