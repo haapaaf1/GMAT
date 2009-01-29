@@ -38,6 +38,7 @@ public:
 private:
    GmatFunction *theGmatFunction;
    wxString mFullFunctionPath;
+   wxString mFunctionName;
    
 #ifdef __USE_STC_EDITOR__
    Editor *mEditor;
@@ -45,7 +46,9 @@ private:
    
    bool mEnableLoad;
    bool mEnableSave;
-      
+   bool mIsNewFunction;
+   wxString mFilename;
+   
    // methods inherited from GmatPanel
    virtual void Create();
    virtual void LoadData();
@@ -54,6 +57,7 @@ private:
    // event handling
    void OnTextUpdate(wxCommandEvent& event);
    void OnButton(wxCommandEvent& event);
+   void OnSaveAs(wxCommandEvent& event);
    
    DECLARE_EVENT_TABLE();
 
