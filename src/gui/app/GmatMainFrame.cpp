@@ -359,9 +359,10 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    theMessageWin->SetSashVisible(wxSASH_TOP, TRUE);
    
    // create MessageWindow TextCtrl
+   // Made readonly (loj: 2009.01.27)
    wxTextCtrl *msgTextCtrl =
       new wxTextCtrl(theMessageWin, -1, _T(""), wxDefaultPosition, wxDefaultSize,
-                     wxTE_MULTILINE);
+                     wxTE_MULTILINE|wxTE_READONLY);
    
    msgTextCtrl->SetMaxLength(320000);
    gmatAppData->SetMessageTextCtrl(msgTextCtrl);
@@ -503,8 +504,8 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
 {
    #ifdef DEBUG_CREATE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CreateChild() item='%s', restore=%d\n",
-       item->GetDesc().c_str(), restore);
+      ("GmatMainFrame::CreateChild() title='%s', name='%s', restore=%d\n",
+       item->GetTitle().c_str(), item->GetName().c_str(), restore);
    #endif
    
    GmatMdiChildFrame *newChild = NULL;
@@ -518,7 +519,7 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
    #ifdef DEBUG_CREATE_CHILD
    MessageInterface::ShowMessage
       ("GmatMainFrame::CreateChild() name=%s, itemType=%d\n",
-       item->GetDesc().c_str(), itemType);
+       item->GetName().c_str(), itemType);
    #endif
    
    //----------------------------------------------------------------------
@@ -529,7 +530,25 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
    if (itemType >= GmatTree::BEGIN_OF_RESOURCE &&
        itemType <= GmatTree::END_OF_RESOURCE)
    {
-      newChild = CreateNewResource(item->GetDesc(), item->GetDesc(), itemType);
+      if (item->GetTitle() == "")
+      {
+         wxString name = item->GetName();
+         GmatBase *obj = theGuiInterpreter->GetConfiguredObject(name.c_str());
+         if (obj == NULL)
+         {
+            MessageInterface::ShowMessage
+               ("**** ERROR **** Cannot find object named '%s' in "
+                "GmatMainFrame::CreateChild\n", item->GetName().c_str());
+            return NULL;
+         }
+         
+         // Append object type name to title (loj: 2009.01.28)
+         wxString objType = obj->GetTypeName();
+         wxString newTitle = objType + " - " + name;
+         item->SetTitle(newTitle);
+      }
+      
+      newChild = CreateNewResource(item->GetTitle(), item->GetName(), itemType);      
    }
    else if (itemType >= GmatTree::BEGIN_OF_COMMAND &&
             itemType <= GmatTree::END_OF_COMMAND)
@@ -539,7 +558,7 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
    else if (itemType >= GmatTree::BEGIN_OF_CONTROL &&
             itemType <= GmatTree::END_OF_CONTROL)
    {
-      newChild = CreateNewControl(item->GetDesc(), item->GetDesc(), itemType,
+      newChild = CreateNewControl(item->GetTitle(), item->GetName(), itemType,
                                   item->GetCommand());
    }
    else if (itemType >= GmatTree::BEGIN_OF_OUTPUT &&
@@ -548,7 +567,7 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
       // Create panel if Report or Compare Report
       if (itemType == GmatTree::OUTPUT_REPORT ||
           itemType == GmatTree::COMPARE_REPORT)
-         newChild = CreateNewOutput(item->GetDesc(), item->GetDesc(), itemType);
+         newChild = CreateNewOutput(item->GetTitle(), item->GetName(), itemType);
    }
    else
    {
@@ -556,7 +575,7 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
       #ifdef DEBUG_CREATE_CHILD
       MessageInterface::ShowMessage
          ("GmatMainFrame::CreateChild() Invalid item=%s itemType=%d entered\n",
-          item->GetDesc().c_str(), itemType);
+          item->GetTitle().c_str(), itemType);
       #endif
    }
    
@@ -584,7 +603,7 @@ Integer GmatMainFrame::GetNumberOfChildOpen(bool incPlots, bool incScripts)
       
       #ifdef DEBUG_MAINFRAME_CHILD
       MessageInterface::ShowMessage
-         ("   itemType=%d, title=%s\n", itemType, theChild->GetTitle().c_str());
+         ("   itemType=%d, title=%s\n", itemType, theChild->GetName().c_str());
       #endif
       
       if (itemType == GmatTree::SCRIPT_FILE)
@@ -638,10 +657,10 @@ bool GmatMainFrame::IsChildOpen(GmatTreeItemData *item, bool restore)
       #ifdef DEBUG_MAINFRAME
       MessageInterface::ShowMessage
          ("GmatMainFrame::IsChildOpen() title=%s\n   desc=%s\n",
-          theChild->GetTitle().c_str(), item->GetDesc().c_str());
+          theChild->GetTitle().c_str(), item->GetName().c_str());
       #endif
       
-      if ((theChild->GetTitle().IsSameAs(item->GetDesc().c_str())) &&
+      if ((theChild->GetName().IsSameAs(item->GetName().c_str())) &&
           (theChild->GetItemType() == item->GetItemType()))
       {
          // move child to the front
@@ -680,10 +699,10 @@ GmatMdiChildFrame* GmatMainFrame::GetChild(const wxString &name)
       
       #ifdef DEBUG_MAINFRAME
       MessageInterface::ShowMessage
-         ("   theChild=%s\n", theChild->GetTitle().c_str());
+         ("   theChild=%s\n", theChild->GetName().c_str());
       #endif
       
-      if (theChild->GetTitle().IsSameAs(name))
+      if (theChild->GetName().IsSameAs(name))
       {
          return theChild;
       }
@@ -702,7 +721,7 @@ GmatMdiChildFrame* GmatMainFrame::GetChild(const wxString &name)
 //------------------------------------------------------------------------------
 bool GmatMainFrame::RenameChild(GmatTreeItemData *item, wxString newName)
 {
-   wxString oldName = item->GetDesc();
+   wxString oldName = item->GetName();
    return RenameChild(oldName, newName);
 }
 
@@ -719,7 +738,7 @@ bool GmatMainFrame::RenameChild(const wxString &oldName, const wxString &newName
    
    if (theChild != NULL)
    {
-      if (theChild->GetTitle().IsSameAs(oldName))
+      if (theChild->GetName().IsSameAs(oldName))
       {
          theChild->SetTitle(newName);
          return TRUE;
@@ -752,26 +771,26 @@ bool GmatMainFrame::RenameActiveChild(const wxString &newName)
 
 
 //------------------------------------------------------------------------------
-// void RemoveChild(const wxString &item, GmatTree::ItemType itemType,
+// void RemoveChild(const wxString &name, GmatTree::ItemType itemType,
 //                  bool deleteChild = true)
 //------------------------------------------------------------------------------
 /*
  * Removes and deletes child frame from the list.
  *
- * @param <item> Name of the child frame
+ * @param <name> Name of the child frame
  * @param <itemType> Item type of the child frame
  * @param <deleteChild> Set to true if child frame is to be deleted
  *                      This flag is set to false if plot frame is deleted by
  *                      clicking X in the upper right corner.
  */
 //------------------------------------------------------------------------------
-void GmatMainFrame::RemoveChild(const wxString &item, GmatTree::ItemType itemType,
+void GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemType,
                                 bool deleteChild)
 {
    #ifdef DEBUG_REMOVE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::RemoveChild() item=%s, itemType=%d, deleteChild=%d\n",
-       item.c_str(), itemType, deleteChild);
+      ("GmatMainFrame::RemoveChild() name=%s, itemType=%d, deleteChild=%d\n",
+       name.c_str(), itemType, deleteChild);
    #endif
    
    wxNode *node = theMdiChildren->GetFirst();
@@ -783,7 +802,7 @@ void GmatMainFrame::RemoveChild(const wxString &item, GmatTree::ItemType itemTyp
    {
       GmatMdiChildFrame *child = (GmatMdiChildFrame *)node->GetData();
       
-      if ((child->GetTitle().IsSameAs(item.c_str())) &&
+      if ((child->GetName().IsSameAs(name.c_str())) &&
           (child->GetItemType() == itemType))
       {
          //------------------------------------------------------
@@ -796,12 +815,12 @@ void GmatMainFrame::RemoveChild(const wxString &item, GmatTree::ItemType itemTyp
          // destructors
          //------------------------------------------------------
 
-         childTitle = child->GetTitle();
+         childTitle = child->GetName();
          
          #ifdef DEBUG_REMOVE_CHILD
          MessageInterface::ShowMessage
-            ("   removing title:%s\n   item: %s\n", childTitle.c_str(),
-             item.c_str());
+            ("   removing title:%s\n   name: %s\n", childTitle.c_str(),
+             name.c_str());
          #endif
          
          // MdiChildTrajFrame::OnPlotClose() and MdiChildTsrame::OnPlotClose()
@@ -821,7 +840,7 @@ void GmatMainFrame::RemoveChild(const wxString &item, GmatTree::ItemType itemTyp
    if (childRemoved)
    {
       #ifdef DEBUG_REMOVE_CHILD
-      MessageInterface::ShowMessage("   %s removed\n", item.c_str());
+      MessageInterface::ShowMessage("   %s removed\n", name.c_str());
       #endif
       
       if (gmatAppData->GetOutputTree() != NULL)
@@ -830,7 +849,7 @@ void GmatMainFrame::RemoveChild(const wxString &item, GmatTree::ItemType itemTyp
          MessageInterface::ShowMessage("   calling GetOutputTree()->RemoveItem()\n");
          #endif
          
-         gmatAppData->GetOutputTree()->RemoveItem(itemType, item);
+         gmatAppData->GetOutputTree()->RemoveItem(itemType, name);
       }
       
       // Change MissionTree node label (loj: 2007.11.15)
@@ -844,20 +863,20 @@ void GmatMainFrame::RemoveChild(const wxString &item, GmatTree::ItemType itemTyp
 
 
 //------------------------------------------------------------------------------
-// void CloseChild(const wxString &item, GmatTree::ItemType itemType)
+// void CloseChild(const wxString &name, GmatTree::ItemType itemType)
 //------------------------------------------------------------------------------
 /*
  * Closes child frame of given item name and type.
  *
- * @param <item> Name of the child frame
+ * @param <name> Name of the child frame
  * @param <itemType> Item type of the child frame
  */
 //------------------------------------------------------------------------------
-void GmatMainFrame::CloseChild(const wxString &item, GmatTree::ItemType itemType)
+void GmatMainFrame::CloseChild(const wxString &name, GmatTree::ItemType itemType)
 {
    #ifdef DEBUG_REMOVE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CloseChild() item=%s, itemType=%d\n", item.c_str(),
+      ("GmatMainFrame::CloseChild() name=%s, itemType=%d\n", name.c_str(),
        itemType);
    #endif
    
@@ -867,7 +886,7 @@ void GmatMainFrame::CloseChild(const wxString &item, GmatTree::ItemType itemType
    {
       GmatMdiChildFrame *child = (GmatMdiChildFrame *)node->GetData();
       
-      if ((child->GetTitle().IsSameAs(item.c_str())) &&
+      if ((child->GetName().IsSameAs(name.c_str())) &&
           (child->GetItemType() == itemType))
       {
          wxCloseEvent event;
@@ -948,6 +967,7 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       ("   Number of children = %d\n", theMdiChildren->GetCount());
    #endif
    
+   wxString name;
    wxString title;
    GmatTree::ItemType type;
    bool canDelete;
@@ -968,10 +988,11 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       GmatMdiChildFrame *child = (GmatMdiChildFrame *)node->GetData();
       
       title = child->GetTitle();
+      name = child->GetName();
       type = child->GetItemType();
       
       #ifdef DEBUG_MAINFRAME_CLOSE
-      MessageInterface::ShowMessage("   title = %s, type = %d\n", title.c_str(), type);
+      MessageInterface::ShowMessage("   name = %s, type = %d\n", name.c_str(), type);
       #endif
       
       if ((type >= GmatTree::BEGIN_OF_RESOURCE && type <= GmatTree::END_OF_RESOURCE) ||
@@ -1005,7 +1026,7 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       if (canDelete)
       {
          #ifdef DEBUG_MAINFRAME_CLOSE
-         MessageInterface::ShowMessage("   ==> closing child = %s\n", title.c_str());
+         MessageInterface::ShowMessage("   ==> closing child = %s\n", name.c_str());
          #endif
          
          //-------------------------------------------------
@@ -1050,7 +1071,9 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       {
          child = (GmatMdiChildFrame *)nextNode->GetData();
          title = child->GetTitle();
-         MessageInterface::ShowMessage("   title=%s\n", title.c_str());
+         name = child->GetName();
+         MessageInterface::ShowMessage
+            ("   title='%s', name='%s'\n", title.c_str(), name.c_str());
       }
       #endif
       
@@ -2118,6 +2141,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::ARRAY:
       sizer->Add(new ArraySetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
+   case GmatTree::MATLAB_FUNCTION:
+      sizer->Add(new MatlabFunctionSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      break;
    case GmatTree::GMAT_FUNCTION:
       {
          FunctionSetupPanel *functPanel = new FunctionSetupPanel(scrolledWin, name);
@@ -2129,9 +2155,6 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
          #endif
          break;
       }
-   case GmatTree::MATLAB_FUNCTION:
-      sizer->Add(new MatlabFunctionSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-      break;
    case GmatTree::SCRIPT_FILE:
       {
          #ifdef __USE_STC_EDITOR__
@@ -2197,8 +2220,8 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
 GmatMdiChildFrame*
 GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *item)
 {
-   wxString title = item->GetDesc();
-   wxString name = item->GetDesc();
+   wxString title = item->GetTitle();
+   wxString name = item->GetName();
    GmatCommand *cmd = item->GetCommand();
    
    #ifdef DEBUG_CREATE_CHILD
