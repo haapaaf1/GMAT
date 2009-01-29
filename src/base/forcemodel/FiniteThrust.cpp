@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              FiniteThrust
 //------------------------------------------------------------------------------
@@ -336,7 +336,6 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order)
    Integer i6;
    Integer i = 0;
    SpaceObject *sat;
-   Real mTotal;
    
    // Loop through the spacecraft list, building accels for active sats
    for (std::vector<SpaceObject *>::iterator sc = spacecraft->begin();
@@ -387,23 +386,6 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order)
                   accel[1], accel[2]);
             #endif
          }
-   
-         #ifdef DEBUG_FINITETHRUST_EXE
-            MessageInterface::ShowMessage("\n");
-         #endif
-         // Divide through by masses to get accelerations
-         mTotal = sat->GetRealParameter("TotalMass");
-         if (mTotal <= 0.0) 
-         {
-            std::stringstream massval;
-            massval << mTotal;
-            throw ODEModelException("Finite thrust applied to spacecraft " +
-                     sat->GetName() + " which has nonphysical mass " +
-                     massval.str());
-         }
-         accel[0] /= mTotal;
-         accel[1] /= mTotal; 
-         accel[2] /= mTotal;
          
          // Apply the burns to the state vector
          if (order == 1) 
@@ -451,11 +433,14 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order)
       }
       ++i;
    }
-
+   
    #ifdef DEBUG_FINITETHRUST_EXE
-       //  ShowDerivative("FiniteThrust::GetDerivatives() AFTER compute", state, 
-       //                 satCount);
-       MessageInterface::ShowMessage("FiniteThrust::GetDerivatives finished\n");
+      //ShowDerivative("FiniteThrust::GetDerivatives() AFTER compute", state,
+      //               satCount);
+      MessageInterface::ShowMessage
+         ("   deriv[1:3] = [%18le %18le %18le]\n   deriv[4:6] = [%18le %18le %18le]\n",
+          deriv[0], deriv[1], deriv[2], deriv[3], deriv[4], deriv[5]);
+      MessageInterface::ShowMessage("FiniteThrust::GetDerivatives finished\n");
    #endif
    
    return true;
