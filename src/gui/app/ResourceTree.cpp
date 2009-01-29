@@ -58,6 +58,7 @@
 #include "GmatMainFrame.hpp"
 #include "RunScriptFolderDialog.hpp"
 #include "ViewTextDialog.hpp"
+#include "GmatFunction.hpp"           // for SetNewFunction()
 #include "FileManager.hpp"            // for GetPathname()
 #include "FileUtil.hpp"               // for Compare()
 #include "GmatGlobal.hpp"             // for SetBatchMode()
@@ -221,7 +222,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
       AppendItem(mSpacecraftItem, wxT("Hardware"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Hardware"),
                                       GmatTree::HARDWARE_FOLDER));
-
+   
    SetItemImage(mHardwareItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
 
@@ -239,7 +240,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
       AppendItem(mSolverItem, wxT("Boundary Value Solvers"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Boundary Value Solvers"),
                                       GmatTree::BOUNDARY_SOLVER_FOLDER));
-
+   
    SetItemImage(mBoundarySolverItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
 
@@ -343,7 +344,7 @@ bool ResourceTree::AddScriptItem(wxString path)
          ("ResourceTree::OnAddScript() childText=<%s>\n", childText.c_str());
       #endif
       
-      scriptPath = ((GmatTreeItemData *)GetItemData(childId))->GetDesc();
+      scriptPath = ((GmatTreeItemData *)GetItemData(childId))->GetName();
       
       if (childText == filename)
       {
@@ -366,14 +367,14 @@ bool ResourceTree::AddScriptItem(wxString path)
          // add path to tree
          scriptId =
             AppendItem(mScriptItem, path, GmatTree::ICON_DEFAULT, -1,
-                       new GmatTreeItemData(path, GmatTree::SCRIPT_FILE));
+                       new GmatTreeItemData(path, GmatTree::SCRIPT_FILE, path));
       }
       else
       {
          // add filename to tree
          scriptId =
             AppendItem(mScriptItem, filename, GmatTree::ICON_DEFAULT, -1,
-                       new GmatTreeItemData(path, GmatTree::SCRIPT_FILE));
+                       new GmatTreeItemData(path, GmatTree::SCRIPT_FILE, path));
       }
       
       Expand(mScriptItem);
@@ -1365,7 +1366,7 @@ void ResourceTree::OnRename(wxCommandEvent &event)
    
    wxTreeItemId item = GetSelection();
    GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString oldName = selItem->GetDesc();
+   wxString oldName = selItem->GetName();
    GmatTree::ItemType itemType = selItem->GetItemType();
    
    wxString newName = oldName;
@@ -1412,7 +1413,7 @@ void ResourceTree::OnRename(wxCommandEvent &event)
                                 "with the current panel before renaming."),
                             wxT("GMAT Warning"));
                return;
-            }         
+            }
          }
          else
          {
@@ -1427,7 +1428,7 @@ void ResourceTree::OnRename(wxCommandEvent &event)
          SetItemText(item, newName);
          theMainFrame->RenameChild(selItem, newName);
          GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-         selItem->SetDesc(newName);
+         selItem->SetTitle(newName);
          
          // notify object name changed to panels which listens to resource update
          UpdateGuiItem(itemType);
@@ -1489,7 +1490,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    // Bug 547 fix (loj: 2008.11.25)
    if (theMainFrame->IsChildOpen(selItem))
    {
-      wxLogWarning(selItem->GetDesc() + " cannot be deleted "
+      wxLogWarning(selItem->GetName() + " cannot be deleted "
                    "while panel is opened");
       wxLog::FlushActive();
       return;
@@ -1501,10 +1502,10 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    
    #if DEBUG_DELETE
    MessageInterface::ShowMessage
-      ("ResourceTree::OnDelete() name=%s\n", selItem->GetDesc().c_str());
+      ("ResourceTree::OnDelete() name=%s\n", selItem->GetName().c_str());
    #endif
    
-   wxString itemName = selItem->GetDesc();
+   wxString itemName = selItem->GetName();
    // delete item if object successfully deleted
    if (theGuiInterpreter->RemoveObjectIfNotUsed(objType, itemName.c_str()))
    {
@@ -1518,7 +1519,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    }
    else
    {
-      wxLogWarning(selItem->GetDesc() + " cannot be deleted.\n"
+      wxLogWarning(selItem->GetName() + " cannot be deleted.\n"
                    "It is currently used in other resource or command sequence");
       wxLog::FlushActive();
    }
@@ -1539,7 +1540,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
    GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString name = selItem->GetDesc();
+   wxString name = selItem->GetName();
    GmatTree::ItemType itemType = selItem->GetItemType();
    
    if ( (itemType == GmatTree::SPACECRAFT) ||
@@ -1646,10 +1647,10 @@ void ResourceTree::OnEndLabelEdit(wxTreeEvent &event)
       GmatTreeItemData *selItem = (GmatTreeItemData *)
          GetItemData(GetSelection());
 
-      wxString oldLabel = selItem->GetDesc();
+      wxString oldLabel = selItem->GetName();
       int itemType = selItem->GetItemType();
 
-      selItem->SetDesc(newLabel);
+      selItem->SetTitle(newLabel);
        
       // if label refers to an object reset the object name
       if (itemType == GmatTree::SPACECRAFT)
@@ -1665,9 +1666,9 @@ void ResourceTree::OnEndLabelEdit(wxTreeEvent &event)
          theSpacecraft->SetName(stdNewLabel);
 
          // if (resetName)
-         //     selItem->SetDesc(label);
+         //     selItem->SetTitle(label);
          //  else
-         //     selItem->SetDesc(oldLabel);
+         //     selItem->SetTitle(oldLabel);
       
       }
      
@@ -2386,7 +2387,10 @@ void ResourceTree::OnAddGmatFunction(wxCommandEvent &event)
       //Get name from the user first
       name = wxGetTextFromUser(wxT("Name: "), wxT("GMAT function"), name, this);
       if (!name.IsEmpty())
+      {
          obj = theGuiInterpreter->CreateObject("GmatFunction", name.c_str());
+         ((GmatFunction *)(obj))->SetNewFunction(true);
+      }
    }
    //-----------------------------------------------------------------
    // if opening an existing GmatFunction
@@ -2416,7 +2420,8 @@ void ResourceTree::OnAddGmatFunction(wxCommandEvent &event)
          // Create GmatFunction object
          obj = theGuiInterpreter->CreateObject("GmatFunction", name.c_str());
          // Set function path
-         obj->SetStringParameter("FunctionPath", path.c_str());
+         if (obj != NULL)
+            obj->SetStringParameter("FunctionPath", path.c_str());
       }
    }
    
@@ -2425,7 +2430,6 @@ void ResourceTree::OnAddGmatFunction(wxCommandEvent &event)
       AppendItem(item, name, GmatTree::ICON_FUNCTION, -1,
                  new GmatTreeItemData(name, GmatTree::GMAT_FUNCTION));
       Expand(item);
-      
       theGuiManager->UpdateFunction();
       SelectItem(GetLastChild(item));
    }
@@ -2583,7 +2587,7 @@ void ResourceTree::OnRemoveAllScripts(wxCommandEvent &event)
    while (GetChildrenCount(item) > 0)
    {
       wxTreeItemId lastChild = GetLastChild(item);
-      wxString name = ((GmatTreeItemData *)GetItemData(lastChild))->GetDesc();
+      wxString name = ((GmatTreeItemData *)GetItemData(lastChild))->GetName();
       GmatTree::ItemType itemType =
          ((GmatTreeItemData *)GetItemData(lastChild))->GetItemType();
       
@@ -2608,7 +2612,7 @@ void ResourceTree::OnRemoveAllScripts(wxCommandEvent &event)
 void ResourceTree::OnRemoveScript(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   wxString name = ((GmatTreeItemData *)GetItemData(item))->GetDesc();
+   wxString name = ((GmatTreeItemData *)GetItemData(item))->GetName();
    GmatTree::ItemType itemType = ((GmatTreeItemData *)GetItemData(item))->GetItemType();
    wxTreeItemId parentItem = GetItemParent(item);
    
@@ -2627,7 +2631,7 @@ void ResourceTree::OnScriptBuildObject(wxCommandEvent& event)
    
    // Get info from selected item
    GmatTreeItemData *item = (GmatTreeItemData *) GetItemData(GetSelection());
-   wxString filename = item->GetDesc();
+   wxString filename = item->GetName();
    
    BuildScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT);
 }
@@ -2644,7 +2648,7 @@ void ResourceTree::OnScriptBuildAndRun(wxCommandEvent& event)
    
    // Get info from selected item
    GmatTreeItemData *item = (GmatTreeItemData *) GetItemData(GetSelection());
-   wxString filename = item->GetDesc();
+   wxString filename = item->GetName();
    
    if (BuildScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT))
       theMainFrame->RunCurrentMission();
@@ -2760,7 +2764,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    int repeatCount = 1;
    
    Real absTol = GmatFileUtil::CompareAbsTol;
-   wxString compareDir1  = ((GmatTreeItemData*)GetItemData(item))->GetDesc();
+   wxString compareDir1  = ((GmatTreeItemData*)GetItemData(item))->GetName();
    
    RunScriptFolderDialog dlg(this, numScripts, absTol, compareDir1);
    dlg.ShowModal();
@@ -2867,7 +2871,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
          break;
       
       // Set main frame title to script file name
-      filename = ((GmatTreeItemData*)GetItemData(scriptId))->GetDesc();
+      filename = ((GmatTreeItemData*)GetItemData(scriptId))->GetName();
       wxString titleText;
       titleText.Printf("%s - General Mission Analysis Tool (GMAT)", filename.c_str());      
       theMainFrame->SetTitle(titleText);
@@ -3169,13 +3173,20 @@ bool ResourceTree::BuildScript(const wxString &filename, Integer scriptOpenOpt,
 //------------------------------------------------------------------------------
 void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
 {
-   GmatTreeItemData *treeItem = (GmatTreeItemData *)GetItemData(itemId);
-   wxString title = treeItem->GetDesc();
-   GmatTree::ItemType itemType = treeItem->GetItemType();
+   GmatTreeItemData *selItem = (GmatTreeItemData *)GetItemData(itemId);
+   wxString title = selItem->GetName();
+   GmatTree::ItemType itemType = selItem->GetItemType();
+   bool showRemoveDelete = true;
    
-   //MessageInterface::ShowMessage
-   //   ("===> ResourceTree::ShowMenu() title=%s, itemType=%d\n", title.c_str(),
-   //    itemType);
+   // We don't want to show Remove and Delete menu if any non-plot panel is open
+   if (theMainFrame->GetNumberOfChildOpen() > 0)
+      showRemoveDelete = false;
+   
+   #ifdef DEBUG_SHOW_MENU
+   MessageInterface::ShowMessage
+      ("ResourceTree::ShowMenu() title=%s, itemType=%d\n", title.c_str(),
+       itemType);
+   #endif
    
 #if wxUSE_MENUS
    wxMenu menu;
@@ -3290,9 +3301,12 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
       default:
          menu.Append(POPUP_OPEN, wxT("Open"));
          menu.Append(POPUP_CLOSE, wxT("Close"));
-         menu.AppendSeparator();
-         menu.Append(POPUP_RENAME, wxT("Rename"));
-         menu.Append(POPUP_DELETE, wxT("Delete"));
+         if (showRemoveDelete)
+         {
+            menu.AppendSeparator();
+            menu.Append(POPUP_RENAME, wxT("Rename"));
+            menu.Append(POPUP_DELETE, wxT("Delete"));
+         }
          menu.AppendSeparator();
          menu.Append(POPUP_CLONE, wxT("Clone"));
          break;

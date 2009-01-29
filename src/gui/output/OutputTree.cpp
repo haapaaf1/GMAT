@@ -315,7 +315,7 @@ void OutputTree::OnItemRightClick(wxTreeEvent& event)
 void OutputTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
 {
    GmatTreeItemData *treeItem = (GmatTreeItemData *)GetItemData(itemId);
-   theSubscriberName = treeItem->GetDesc();
+   theSubscriberName = treeItem->GetName();
    GmatTree::ItemType itemType = treeItem->GetItemType();
    
    #if DEBUG_OUTPUT_TREE
@@ -410,7 +410,7 @@ void OutputTree::OnRename(wxCommandEvent &event)
    
    wxTreeItemId item = GetSelection();
    GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString oldName = selItem->GetDesc();
+   wxString oldName = selItem->GetName();
    wxString newName = oldName;
    newName = wxGetTextFromUser(wxT("New name: "), wxT("Input Text"),
                                newName, this);
@@ -482,8 +482,8 @@ void OutputTree::OnEndLabelEdit(wxTreeEvent &event)
       GmatTreeItemData *selItem = (GmatTreeItemData *)
          GetItemData(GetSelection());
       
-      wxString oldLabel = selItem->GetDesc();
-      selItem->SetDesc(newLabel);
+      wxString oldLabel = selItem->GetName();
+      selItem->SetName(newLabel);
    }
    else
    {

@@ -310,7 +310,8 @@ void MissionTree::ChangeNodeLabel(const wxString &oldLabel)
       
       if (newLabel != oldLabel)
       {
-         item->SetDesc(newLabel);
+         item->SetName(newLabel);
+         item->SetTitle(newLabel);
          SetItemText(itemId, newLabel);
       }
    }
@@ -1563,17 +1564,17 @@ void MissionTree::AddDefaultMission()
 {
    //----- Mission Sequence
    
-   wxTreeItemId mission = AddRoot(wxT("Mission"), -1, -1,
-                                  new MissionTreeItemData(wxT("Mission"),
-                                                          GmatTree::MISSIONS_FOLDER));
+   wxTreeItemId mission =
+      AddRoot(wxT("Mission"), -1, -1,
+              new MissionTreeItemData(wxT("Mission"), GmatTree::MISSIONS_FOLDER));
    
    //-----------------------------------------------------------------
    #ifdef __ENABLE_MULTIPLE_SEQUENCE__
    //-----------------------------------------------------------------
    mMissionSeqTopId =
-      AppendItem(mission, wxT("Mission Sequence"), GmatTree::MISSION_ICON_FOLDER,
-                 -1, new MissionTreeItemData(wxT("Mission Sequence"),
-                                             GmatTree::MISSION_SEQ_TOP_FOLDER));
+      AppendItem(mission, wxT("Mission Sequence"), GmatTree::MISSION_ICON_FOLDER, -1,
+                 new MissionTreeItemData(wxT("Mission Sequence"),
+                                         GmatTree::MISSION_SEQ_TOP_FOLDER));
    
    SetItemImage(mMissionSeqTopId, GmatTree::MISSION_ICON_OPENFOLDER,
                wxTreeItemIcon_Expanded);
@@ -1585,9 +1586,9 @@ void MissionTree::AddDefaultMission()
    //-----------------------------------------------------------------
    
    mMissionSeqSubId =
-      AppendItem(mission, wxT("Mission Sequence"), GmatTree::MISSION_ICON_FOLDER,
-                 -1, new MissionTreeItemData(wxT("Mission Sequence"),
-                                             GmatTree::MISSION_SEQ_SUB_FOLDER));
+      AppendItem(mission, wxT("Mission Sequence"), GmatTree::MISSION_ICON_FOLDER, -1,
+                 new MissionTreeItemData(wxT("Mission Sequence"),
+                                         GmatTree::MISSION_SEQ_SUB_FOLDER));
    
    SetItemImage(mMissionSeqSubId, GmatTree::MISSION_ICON_OPENFOLDER,
                wxTreeItemIcon_Expanded);
@@ -1619,7 +1620,8 @@ void MissionTree::AddDefaultMissionSeq(wxTreeItemId item)
    {
       wxString objName = wxString(itemNames[i].c_str());
       AppendItem(item, wxT(objName), GmatTree::MISSION_ICON_FOLDER, -1,
-                 new MissionTreeItemData(wxT(objName), GmatTree::MISSION_SEQ_COMMAND));
+                 new MissionTreeItemData(wxT(objName),
+                                         GmatTree::MISSION_SEQ_COMMAND));
    };
    #endif
    
@@ -1735,7 +1737,7 @@ void MissionTree::OnItemActivated(wxTreeEvent &event)
    #if DEBUG_MISSION_TREE
    MessageInterface::ShowMessage
       ("MissionTree::OnItemActivated() item=%s parent=%s\n",
-       item->GetDesc().c_str(), parent->GetDesc().c_str());
+       item->GetTitle().c_str(), parent->GetTitle().c_str());
    #endif
    
    // Since VaryPanel is used for both Target and Optimize,
@@ -1769,7 +1771,7 @@ void MissionTree::OnDoubleClick(wxMouseEvent &event)
 
    #if DEBUG_MISSION_TREE
    MessageInterface::ShowMessage("MissionTree::OnDoubleClick() item=%s parent=%s\n",
-                                 item->GetDesc().c_str(), parent->GetDesc().c_str());
+                                 item->GetTitle().c_str(), parent->GetTitle().c_str());
    #endif
    
    // Since VaryPanel is used for both Target and Optimize,
@@ -1798,7 +1800,7 @@ void MissionTree::OnDoubleClick(wxMouseEvent &event)
 void MissionTree::ShowMenu(wxTreeItemId id, const wxPoint& pt)
 {
    MissionTreeItemData *treeItem = (MissionTreeItemData *)GetItemData(id);
-   wxString title = treeItem->GetDesc();
+   wxString title = treeItem->GetTitle();
    GmatTree::ItemType itemType = treeItem->GetItemType();
    wxTreeItemId parent = GetItemParent(id);
    //MissionTreeItemData *parentItem = (MissionTreeItemData *)GetItemData(parent);
@@ -2461,7 +2463,7 @@ void MissionTree::OnDelete(wxCommandEvent &event)
    // Bug 547 fix (loj: 2008.11.25)
    if (theMainFrame->IsChildOpen(selItem))
    {
-      wxLogWarning(selItem->GetDesc() + " cannot be deleted "
+      wxLogWarning(selItem->GetTitle() + " cannot be deleted "
                    "while panel is opened");
       wxLog::FlushActive();
       return;
@@ -2568,8 +2570,7 @@ bool MissionTree::CheckClickIn(wxPoint position)
             {
                //MessageInterface::ShowMessage("\nInside variables");
                MissionTreeItemData *item =
-                  new MissionTreeItemData(
-                                          wxT("Variables"),
+                  new MissionTreeItemData(wxT("Variables"),
                                           GmatTree::VIEW_SOLVER_VARIABLES);
                theMainFrame->CreateChild(item);
             }
@@ -2693,8 +2694,8 @@ void MissionTree::OnClose(wxCommandEvent &event)
          
          #if DEBUG_MISSION_TREE_DELETE
          MessageInterface::ShowMessage
-            ("MissionTree::OnClose() while-loop, item->GetDesc(): \"%s\"\n",
-             item->GetDesc().c_str());
+            ("MissionTree::OnClose() while-loop, item->GetTitle(): \"%s\"\n",
+             item->GetTitle().c_str());
          #endif
          
          if (theMainFrame->IsChildOpen(item))

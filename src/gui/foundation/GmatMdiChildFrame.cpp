@@ -315,7 +315,7 @@ void GmatMdiChildFrame::OnClose(wxCloseEvent &event)
    }
    
    // remove from list of frames
-   GmatAppData::Instance()->GetMainFrame()->RemoveChild(GetTitle(), mItemType);   
+   GmatAppData::Instance()->GetMainFrame()->RemoveChild(GetName(), mItemType);   
    wxSafeYield();
    
    #ifdef DEBUG_MDI_CHILD_FRAME

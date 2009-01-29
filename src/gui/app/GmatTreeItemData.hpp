@@ -260,20 +260,22 @@ namespace GmatTree
 class GmatTreeItemData : public wxTreeItemData
 {
 public:
-   GmatTreeItemData(const wxString desc, GmatTree::ItemType type);
+   GmatTreeItemData(const wxString &name, GmatTree::ItemType type,
+                    const wxString &title = "");
    
-   GmatTree::ItemType GetItemType() { return mItemType; }
-   wxString GetDesc() { return mDesc; }
+   wxString GetName();
+   wxString GetTitle();
+   GmatTree::ItemType GetItemType();
    
-   void SetDesc(wxString desc) { mDesc = desc; }
-   void SetItemType(GmatTree::ItemType type) { mItemType = type; }
+   void SetName(const wxString &objName);
+   void SetTitle(const wxString &title);
+   void SetItemType(GmatTree::ItemType type);
    
    virtual GmatCommand* GetCommand();
-   virtual wxString GetCommandName();
-    
+   
 protected:
-private:
-   wxString mDesc;
+   wxString mItemTitle;
+   wxString mItemName;
    GmatTree::ItemType mItemType;
 };
 

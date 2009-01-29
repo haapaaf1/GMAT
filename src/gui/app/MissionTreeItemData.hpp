@@ -23,15 +23,13 @@
 class MissionTreeItemData : public GmatTreeItemData
 {
 public:
-   MissionTreeItemData(const wxString desc, GmatTree::ItemType type,
-                       const wxString &name = "", GmatCommand *cmd = NULL);
+   MissionTreeItemData(const wxString &name, GmatTree::ItemType type,
+                       const wxString &title = "", GmatCommand *cmd = NULL);
+   
    virtual GmatCommand* GetCommand();
    virtual void SetCommand(GmatCommand *cmd);
-   virtual wxString GetCommandName();
-    
+   
 protected:
-private:
    GmatCommand *theCommand;
-   wxString theCommandName;
 };
 #endif // MissionTreeItemData_hpp
