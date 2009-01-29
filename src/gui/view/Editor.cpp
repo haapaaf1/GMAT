@@ -1041,9 +1041,10 @@ bool Editor::SaveFile()
 //------------------------------------------------------------------------------
 bool Editor::SaveFile(const wxString &filename)
 {
+   // Always save to file (loj: 2009.01.29)
    // return if no change
-   if(!IsModified()) return true;
-
+   //if (!IsModified()) return true;
+   
    //     // save edit in file and clear undo
    //     if(!filename.empty()) mFileName = filename;
    //     wxFile file(mFileName, wxFile::write);
@@ -1054,9 +1055,9 @@ bool Editor::SaveFile(const wxString &filename)
    //     if(!okay) return false;
    //     EmptyUndoBuffer();
    //     SetSavePoint();
-
+   
    //     return true;
-
+   
    return wxStyledTextCtrl::SaveFile(filename);
 
 }
