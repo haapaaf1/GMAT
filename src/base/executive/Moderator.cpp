@@ -4474,14 +4474,14 @@ Integer Moderator::RunMission(Integer sandboxNum)
          if (msg.find("interrupted") != msg.npos)
          {
             status = -2;
+            MessageInterface::ShowMessage("GMAT execution stopped by user.\n");      
          }
          else
          {
             status = -3;
             msg = "**** ERROR **** " + msg;
+            MessageInterface::PopupMessage(Gmat::ERROR_, msg + "\n");
          }
-         
-         MessageInterface::PopupMessage(Gmat::ERROR_, msg + "\n");
       }
       catch (...)
       {
