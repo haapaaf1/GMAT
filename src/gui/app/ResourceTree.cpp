@@ -317,7 +317,7 @@ bool ResourceTree::AddScriptItem(wxString path)
    MessageInterface::ShowMessage
       ("ResourceTree::AddScriptItem() path=<%s>\n", path.c_str());
    #endif
-
+   
    wxTreeItemIdValue cookie;
    wxString scriptPath, childText;
    wxTreeItemId childId = GetFirstChild(mScriptItem, cookie);
@@ -378,6 +378,7 @@ bool ResourceTree::AddScriptItem(wxString path)
       }
       
       Expand(mScriptItem);
+      SelectItem(scriptId);
       scriptAdded = true;
    }
    else
@@ -1305,7 +1306,12 @@ void ResourceTree::OnItemActivated(wxTreeEvent &event)
 {
    // get some info about this item
    wxTreeItemId itemId = event.GetItem();
-   GmatTreeItemData *item = (GmatTreeItemData *)GetItemData(itemId);   
+   GmatTreeItemData *item = (GmatTreeItemData *)GetItemData(itemId);
+   #ifdef DEBUG_ITEM_ACTIVATED
+   MessageInterface::ShowMessage
+      ("ResourceTree::OnItemActivated() title='%s'\n   name='%s'\n",
+       item->GetTitle().c_str(), item->GetName().c_str());
+   #endif
    theMainFrame->CreateChild(item);
 }
 
