@@ -763,10 +763,11 @@ bool GmatMainFrame::RenameActiveChild(const wxString &newName)
     if (theChild != NULL)
     {
        theChild->SetTitle(newName);
+       theChild->SetName(newName);
        return TRUE;
     }
     
-    return FALSE;    
+    return FALSE;
 }
 
 
