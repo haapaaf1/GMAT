@@ -323,12 +323,13 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
       if (order > 2)
          return false;
    
-      if ((state == NULL) || (deriv == NULL))
+      if ((state == NULL) || (deriv == NULL) || (theState == NULL))
          // throw("Arrays not yet initialized -- exiting");
          return false;
    
       Real radius, r3, mu_r, rbb3, mu_rbb, a_indirect[3];
    
+      epoch = theState->GetEpoch();
       now = epoch + dt/86400.0;
       Real relativePosition[3];
       bodyrv = body->GetState(now);
@@ -409,10 +410,16 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
                deriv[3 + i6] = relativePosition[0] * mu_r - a_indirect[0];
                deriv[4 + i6] = relativePosition[1] * mu_r - a_indirect[1];
                deriv[5 + i6] = relativePosition[2] * mu_r - a_indirect[2];
-               // dr/dt = v
-               deriv[i6]     = state[3 + i6];
-               deriv[1 + i6] = state[4 + i6];
-               deriv[2 + i6] = state[5 + i6];
+               // dr/dt = v, but only fill this piece for the central body
+               if (rbb3 == 0.0)
+               {
+                  deriv[i6]     = state[3 + i6];
+                  deriv[1 + i6] = state[4 + i6];
+                  deriv[2 + i6] = state[5 + i6];
+               }
+               else
+                  deriv[i6] = deriv[1 + i6] = deriv[2 + i6] = 0.0;
+                  
             } 
             else 
             {
@@ -448,7 +455,7 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
          for (Integer i = 0; i < stmCount; ++i)
          {
             i6 = stmIndex + i * 36;
-            associate = theState->GetAssociateIndex(i6);  // todo: Fix this!!!
+            associate = theState->GetAssociateIndex(i6);
             
             relativePosition[0] = rv[0] - state[ associate ];
             relativePosition[1] = rv[1] - state[associate+1];
@@ -472,11 +479,21 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
             aTilde[27] = aTilde[28] = aTilde[29] =
             aTilde[33] = aTilde[34] = aTilde[35] = 0.0;
             
-            // B = I
-            aTilde[ 3] = aTilde[10] = aTilde[17] = 1.0;
-            aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
-            aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
-            
+            // Contributions for the origin term only:
+            if (rbb3 == 0.0)
+            {
+               // B = I
+               aTilde[ 3] = aTilde[10] = aTilde[17] = 1.0;
+               aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
+               aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
+            }
+            else
+            {
+               aTilde[ 3] = aTilde[10] = aTilde[17] = 
+               aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
+               aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
+            }
+               
             // Math spec, equ 6.69, broken into separate pieces
             aTilde[18] = - mu_r + 3.0 * mu_r / (radius*radius) * 
                              relativePosition[0] * relativePosition[0];

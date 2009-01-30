@@ -94,7 +94,7 @@ public:
    
    // Methods needed to run an ODEModel 
    virtual void SetSolarSystem(SolarSystem *ss);
-   virtual bool BuildModelFromMap(PropagationStateManager *psm);
+   virtual bool BuildModelFromMap();
    virtual bool Initialize();
    virtual bool GetDerivatives(Real * state, Real dt = 0.0, Integer order = 1, 
          const Integer id = -1);
@@ -113,9 +113,9 @@ public:
 //   PhysicalModel* GetForce(Integer index) const;
 //   const PhysicalModel* GetForce(std::string forcetype, Integer whichOne = 0) const; 
 //   bool AddSpaceObject(SpaceObject *so);
-//   void UpdateSpaceObject(Real newEpoch = -1.0);
-//   void UpdateFromSpaceObject();
-//   void RevertSpaceObject();
+   void UpdateSpaceObject(Real newEpoch = -1.0);
+   void UpdateFromSpaceObject();
+   void RevertSpaceObject();
    
 //   virtual void IncrementTime(Real dt);
 //   virtual void SetTime(Real t);
@@ -191,6 +191,7 @@ public:
    void                 UpdateInitialData();
    void                 ReportEpochData();
    
+   void                 SetPropStateManager(PropagationStateManager *sm);
    void                 SetState(GmatState *gms);
 
 protected:
@@ -202,6 +203,8 @@ protected:
    Integer stateSize;
    /// The state that the model uses; set by a StateManager
    GmatState *state;
+   /// Associated Prop State Manager
+   PropagationStateManager *psm;
    
 //   /// List of spacecraft and formations that get propagated
 //   std::vector<SpaceObject *> spacecraft;
@@ -213,6 +216,8 @@ protected:
 //   /// User defined forces
 //   std::vector<PhysicalModel *> userForces;
    
+   /// Buffer that allows quick reversion to the previous state
+   GmatState previousState;
 //   /// Epoch for the previous state
 //   Real previousTime;
 //   /// Buffer that allows quick reversion to the previous state

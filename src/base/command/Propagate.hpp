@@ -219,6 +219,8 @@ protected:
    std::vector<Propagator*>     p;
    /// The ForceModel
    std::vector<ODEModel*>       fm;
+   /// The Propagation State Managers
+   std::vector<PropagationStateManager*>  psm;
    
    // Members used to flag most recent detected stop, so we don't stop multiple 
    // times at the same point

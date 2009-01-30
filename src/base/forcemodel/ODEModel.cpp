@@ -688,26 +688,46 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 //}
 
 
-////------------------------------------------------------------------------------
-//// void ODEModel::UpdateSpaceObject(Real newEpoch)
-////------------------------------------------------------------------------------
-///**
-// * Updates state data for the spacecraft or formation that use this force model.
-// */
-////------------------------------------------------------------------------------
-//void ODEModel::UpdateSpaceObject(Real newEpoch)
-//{
+//------------------------------------------------------------------------------
+// void ODEModel::UpdateSpaceObject(Real newEpoch)
+//------------------------------------------------------------------------------
+/**
+ * Updates state data for the spacecraft or formation that use this force model.
+ */
+//------------------------------------------------------------------------------
+void ODEModel::UpdateSpaceObject(Real newEpoch)
+{
 //   if (spacecraft.size() > 0) 
 //   {
 //      Integer j = 0;
-//      Integer stateSize;
-//      Integer vectorSize;
+      Integer stateSize;
+      Integer vectorSize;
 //      std::vector<SpaceObject *>::iterator sat;
-//      GmatState *state;
-//
-//      ReturnFromOrigin(newEpoch);
-//      
-//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) {
+      GmatState *state;
+      ReturnFromOrigin(newEpoch);
+      
+      state = psm->GetState();
+      stateSize = state->GetSize();
+      vectorSize = stateSize * sizeof(Real);
+
+      previousState = (*state);
+      
+//      memcpy(previousState, state->GetState(), vectorSize);
+//      previousTime = (state->GetEpoch()) * 86400.0;
+      memcpy(state->GetState(), rawState, vectorSize);
+
+      Real newepoch = epoch + elapsedTime / 86400.0;      
+
+      // Update the epoch if it was passed in
+      if (newEpoch != -1.0)
+         newepoch = newEpoch;
+      
+      state->SetEpoch(newepoch);
+      psm->MapVectorToObjects();
+
+      
+//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
+//      {
 //         state = &((*sat)->GetState());
 //         stateSize = state->GetSize();
 //         vectorSize = stateSize * sizeof(Real);
@@ -737,23 +757,27 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 //            ((Formation*)(*sat))->UpdateElements();
 //      }
 //   }
-//}
+}
 
 
-////------------------------------------------------------------------------------
-//// void UpdateFromSpacecraft()
-////------------------------------------------------------------------------------
-///**
-// * Updates the model state data from the spacecraft state -- useful to revert
-// * to a previous step.
-// *
-// * @note This method will need to be updated when the multi-step integrators are
-// *       folded into the code
-// */
-////------------------------------------------------------------------------------
-//void ODEModel::UpdateFromSpaceObject()
-//{
-//    if (spacecraft.size() > 0) 
+//------------------------------------------------------------------------------
+// void UpdateFromSpacecraft()
+//------------------------------------------------------------------------------
+/**
+ * Updates the model state data from the spacecraft state -- useful to revert
+ * to a previous step.
+ *
+ * @note This method will need to be updated when the multi-step integrators are
+ *       folded into the code
+ */
+//------------------------------------------------------------------------------
+void ODEModel::UpdateFromSpaceObject()
+{
+   psm->MapObjectsToVector();
+   GmatState *state = psm->GetState();
+   memcpy(rawState, state->GetState(), state->GetSize() * sizeof(Real));
+   
+//   if (spacecraft.size() > 0) 
 //    {
 //        Integer j = 0;
 //        Integer stateSize;
@@ -769,39 +793,39 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 //        }
 //    }
 //    
-//    // Transform to the force model origin
-//    MoveToOrigin();
-//}
+    // Transform to the force model origin
+    MoveToOrigin();
+}
 
 
-////------------------------------------------------------------------------------
-//// void RevertSpacecraft()
-////------------------------------------------------------------------------------
-///**
-// * Resets the model state data from the previous spacecraft state.
-// *
-// * @note This method will need to be updated when the multi-step integrators are
-// *       folded into the code
-// */
-////------------------------------------------------------------------------------
-//void ODEModel::RevertSpaceObject()
-//{
-//   #ifdef DEBUG_ODEMODEL_EXE
-//      MessageInterface::ShowMessage
-//         ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
-//          prevElapsedTime, elapsedTime);
-//   #endif
-//   //loj: 7/1/04 elapsedTime = previousTime;
-//   elapsedTime = prevElapsedTime;
-//   
-//   memcpy(rawState, previousState, dimension*sizeof(Real)); 
-//   MoveToOrigin();
-//}
+//------------------------------------------------------------------------------
+// void RevertSpacecraft()
+//------------------------------------------------------------------------------
+/**
+ * Resets the model state data from the previous spacecraft state.
+ *
+ * @note This method will need to be updated when the multi-step integrators are
+ *       folded into the code
+ */
+//------------------------------------------------------------------------------
+void ODEModel::RevertSpaceObject()
+{
+   #ifdef DEBUG_ODEMODEL_EXE
+      MessageInterface::ShowMessage
+         ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
+          prevElapsedTime, elapsedTime);
+   #endif
+   //loj: 7/1/04 elapsedTime = previousTime;
+   elapsedTime = previousState.GetEpoch() * 86400.0;
+   
+   memcpy(rawState, previousState.GetState(), dimension*sizeof(Real)); 
+   MoveToOrigin();
+}
 
 
 
 //------------------------------------------------------------------------------
-// bool BuildModelFromMap(PropagationStateManager *psm)
+// bool BuildModelFromMap()
 //------------------------------------------------------------------------------
 /**
  * Sets up the PhysicalModels in the ODEModel.
@@ -827,13 +851,11 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
  * The mapping between the state elements and the differential equations modeled
  * in this ODEModel are constructed using integer identifiers for the data built 
  * in each PhysicalModel.
- *  
- * @param psm The PropagationStateManager.
  * 
  * @return true if the physical models were mapped successfully, false if not. 
  */
 //------------------------------------------------------------------------------
-bool ODEModel::BuildModelFromMap(PropagationStateManager *psm)
+bool ODEModel::BuildModelFromMap()
 {
    bool retval = false;
    
@@ -1657,6 +1679,7 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
 #ifdef DEBUG_ODEMODEL_EXE
    MessageInterface::ShowMessage("   %s\n", ((*i)->GetTypeName()).c_str());
 #endif
+   
       ddt = (*i)->GetDerivativeArray();
       if (!(*i)->GetDerivatives(state, dt, order))
       {
@@ -1678,6 +1701,19 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
 
       for (Integer j = 0; j < dimension; ++j) 
       {
+         // todo: Handle the first order CartesianState term dr/dt = v
+         //for (i = 0; i < satCount; ++i) 
+         //{
+         //   iOffset = i*stateSize;
+         //   if (order == 1) //loj: changed from =
+         //   {
+         //      deriv[iOffset+3] += ddt[iOffset+3];
+         //      deriv[iOffset+4] += ddt[iOffset+4];
+         //      deriv[iOffset+5] += ddt[iOffset+5];
+         //   }
+         //}
+         //continue;
+
          deriv[j] += ddt[j];
          #ifdef DEBUG_ODEMODEL_EXE
             MessageInterface::ShowMessage("  deriv[%d] = %16.14le\n", j, 
@@ -3246,6 +3282,12 @@ void ODEModel::ReportEpochData()
       throw ODEModelException(
          "ODEModel::ReportEpochData: Attempting to write epoch data without "
          "opening the data file.");
+}
+
+
+void ODEModel::SetPropStateManager(PropagationStateManager *sm)
+{
+   psm = sm;
 }
 
 void ODEModel::SetState(GmatState *gms)
