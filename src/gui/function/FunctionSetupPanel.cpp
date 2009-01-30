@@ -192,7 +192,7 @@ void FunctionSetupPanel::SaveData()
       MessageInterface::ShowMessage("   contents saved to '%s'\n", pathname.c_str());
       #endif
    #else
-      mFileContentsTextCtrl->SaveFile(pathname);
+      mFileContentsTextCtrl->SaveFile(pathname.c_str());
       mFileContentsTextCtrl->SetModified(false);
       #ifdef DEBUG_FUNCTIONPANEL_SAVE
       MessageInterface::ShowMessage("   contents saved to '%s'\n", pathname.c_str());

@@ -543,7 +543,7 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
          }
          
          // Append object type name to title (loj: 2009.01.28)
-         wxString objType = obj->GetTypeName();
+         wxString objType = (obj->GetTypeName()).c_str();
          wxString newTitle = objType + " - " + name;
          item->SetTitle(newTitle);
       }
