@@ -573,6 +573,7 @@ MissionTree::AppendCommand(wxTreeItemId parent, GmatTree::MissionIconType icon,
          nodeName.Printf("%s%d", cmdTypeName.c_str(), ++(*cmdCount));      
    }
    
+   // Show "ScriptEvent" instead of "BeginScript" to be more clear for user
    if (nodeName.Contains("BeginScript"))
       nodeName.Replace("BeginScript", "ScriptEvent");
    
@@ -654,6 +655,14 @@ MissionTree::InsertCommand(wxTreeItemId parentId, wxTreeItemId currId,
    if (prevTypeName == "GMAT")
       prevTypeName = "Equation";
    
+   // Show "ScriptEvent" instead of "BeginScript" to be more clear for user
+   if (currTypeName == "BeginScript")
+      currTypeName = "ScriptEvent";
+   if (cmdTypeName == "BeginScript")
+      cmdTypeName = "ScriptEvent";
+   if (prevTypeName == "BeginScript")
+      prevTypeName = "ScriptEvent";
+   
    #if DEBUG_MISSION_TREE_INSERT
    MissionTreeItemData *parentItem = (MissionTreeItemData *)GetItemData(parentId); 
    GmatCommand *parentCmd = parentItem->GetCommand();
@@ -687,8 +696,14 @@ MissionTree::InsertCommand(wxTreeItemId parentId, wxTreeItemId currId,
    //------------------------------------------------------------
    if (cmdTypeName == "Target" || cmdTypeName == "For"  ||
        cmdTypeName == "While"  ||  cmdTypeName == "If"  ||
-       cmdTypeName == "BeginScript" || cmdTypeName == "Optimize")
+       //cmdTypeName == "BeginScript" || cmdTypeName == "Optimize")
+       cmdTypeName == "ScriptEvent" || cmdTypeName == "Optimize")
    {
+      #if DEBUG_MISSION_TREE_INSERT
+      MessageInterface::ShowMessage
+         ("   Creating End* for '%s'\n", cmdTypeName.c_str());
+      #endif
+      
       if (cmdTypeName == "Target")
       {
          endCmd = CreateCommand("EndTarget");
@@ -709,16 +724,23 @@ MissionTree::InsertCommand(wxTreeItemId parentId, wxTreeItemId currId,
          endCmd = CreateCommand("EndIf");
          endType = GmatTree::END_IF_CONTROL;
       }
-      else if (cmdTypeName == "BeginScript")
+      //else if (cmdTypeName == "BeginScript")
+      else if (cmdTypeName == "ScriptEvent")
       {
          endCmd = CreateCommand("EndScript");
-         endType = GmatTree::END_TARGET;
+         endType = GmatTree::END_SCRIPT_EVENT;
       }
       else if (cmdTypeName == "Optimize")
       {
          endCmd = CreateCommand("EndOptimize");
          endType = GmatTree::END_OPTIMIZE;
       }
+      
+      #if DEBUG_MISSION_TREE_INSERT
+      if (endCmd != NULL)
+         MessageInterface::ShowMessage
+            ("   '%s' created\n", endCmd->GetTypeName().c_str());
+      #endif
       
       // create Else (temp code)
       if (cmdName == "IfElse")
@@ -2903,6 +2925,8 @@ GmatTree::MissionIconType MissionTree::GetIconId(const wxString &cmd)
       return GmatTree::MISSION_ICON_STOP;
    if (cmd == "BeginScript")
       return GmatTree::MISSION_ICON_SCRIPTEVENT;
+   if (cmd == "ScriptEvent")
+      return GmatTree::MISSION_ICON_SCRIPTEVENT;
    
    return GmatTree::MISSION_ICON_FILE;
 }
@@ -3055,6 +3079,8 @@ int* MissionTree::GetCommandCounter(const wxString &cmd)
    if (cmd == "NonlinearConstraint")
       return &mNumNonlinearConstraint;
    if (cmd == "BeginScript")
+      return &mNumScriptEvent;
+   if (cmd == "ScriptEvent")
       return &mNumScriptEvent;
    
    return &mTempCounter;
