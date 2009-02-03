@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              ScriptEventPanel
 //------------------------------------------------------------------------------
@@ -18,6 +18,10 @@
 #include "GmatPanel.hpp"
 #include "Parameter.hpp"
 
+#ifdef __USE_STC_EDITOR__
+#include "Editor.hpp"
+#endif
+
 class ScriptEventPanel: public GmatPanel
 {
 public:
@@ -27,17 +31,28 @@ public:
    ~ScriptEventPanel();
    
    wxTextCtrl *mFileContentsTextCtrl;
+   virtual void OnApply(wxCommandEvent &event);
+   virtual void OnOK(wxCommandEvent &event);
+   
+#ifdef __USE_STC_EDITOR__
+   Editor* GetEditor() { return mEditor; };
+#endif
    
 private:
    // member data
+#ifdef __USE_STC_EDITOR__
+   Editor *mEditor;
+#endif
+   
    MissionTreeItemData *theItem;
    GmatCommand *theCommand;
    GmatCommand *mPrevCommand;
    GmatCommand *mNextCommand;
    GmatCommand *mNewCommand;
    
+   wxTextCtrl  *mCommentTextCtrl;
    wxGridSizer *mBottomSizer;
-   wxBoxSizer *mPageSizer;
+   wxBoxSizer  *mPageSizer;
 
    void ReplaceScriptEvent();
    
@@ -59,10 +74,6 @@ private:
    enum
    {     
       ID_TEXT = 9000,
-      ID_LISTBOX,
-      ID_BUTTON,
-      ID_COLOR_BUTTON,
-      ID_COMBO,
       ID_TEXTCTRL
    };
 };
