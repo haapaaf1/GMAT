@@ -252,6 +252,7 @@ namespace GmatTree
       END_DO_CONTROL,
       END_WHILE_CONTROL,
       END_SWITCH_CONTROL,
+      END_SCRIPT_EVENT,
       END_NO_PANEL,
    };
 }
