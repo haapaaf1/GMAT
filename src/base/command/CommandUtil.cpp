@@ -572,11 +572,14 @@ bool GmatCommandUtil::ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd)
       cmd->RunComplete();      
       removedCmd = RemoveCommand(seq, cmd);
       
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         (removedCmd, removedCmd->GetTypeName(), "CommandUtil::ClearCommandSeq()");
-      #endif
-      delete removedCmd;
+      if (removedCmd != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (removedCmd, removedCmd->GetTypeName(), "CommandUtil::ClearCommandSeq()");
+         #endif
+         delete removedCmd;
+      }
       removedCmd = NULL;
       cmd = seq->GetNext();
    }

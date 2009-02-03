@@ -190,6 +190,8 @@ bool Validator::StartServer(GmatCommand *cmd)
  *
  * @param  obj  input object of undefined reference object to be checked
  * @param <contOnError> flag indicating whether or not to continue on error (true)
+ *
+ * @return true if no undefined references found, false otherwise
  */
 //------------------------------------------------------------------------------
 bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
@@ -302,7 +304,9 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
    }
    
    #ifdef DEBUG_CHECK_OBJECT
-   MessageInterface::ShowMessage("CheckUndefinedReference() returning %d\n", retval);
+   MessageInterface::ShowMessage
+      ("Validator::CheckUndefinedReference() theErrorList.size()=%d, returning %d\n",
+       theErrorList.size(), retval);
    #endif
    
    return retval;
@@ -321,6 +325,8 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
  * @param <manage>  0, if parameter is not managed
  *                  1, if parameter is added to configuration (default)
  *                  2, if Parameter is added to function object map
+ *
+ * @return true if command has no error, false otherwise
  */
 //------------------------------------------------------------------------------
 bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer manage)
