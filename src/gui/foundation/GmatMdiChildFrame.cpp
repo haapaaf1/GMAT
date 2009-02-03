@@ -310,6 +310,12 @@ void GmatMdiChildFrame::OnClose(wxCloseEvent &event)
       {
          event.Veto();
          mCanClose = false;
+         
+         #ifdef DEBUG_MDI_CHILD_FRAME
+         MessageInterface::ShowMessage
+            ("GmatMdiChildFrame::OnClose() exiting, close event was vetoed\n");
+         #endif
+         
          return;
       }
    }
@@ -372,6 +378,9 @@ void GmatMdiChildFrame::UpdateGuiItem(int updateEdit, int updateAnimation)
    #endif
    
    wxToolBar *toolBar = theParent->GetToolBar();
+   if (toolBar == NULL)
+      return;
+   
    int editIndex = theMenuBar->FindMenu("Edit");
    
    //------------------------------------------------------------
