@@ -156,14 +156,17 @@ const std::string& BeginScript::GetGeneratingString(Gmat::WriteMode mode,
    std::string commentLine = GetCommentLine();
    std::string inlineComment = GetInlineComment();
    std::string beginPrefix = prefix;
+
+   if (mode != Gmat::GUI_EDITOR)
+   {
+      IndentComment(gen, commentLine, prefix);
+      gen << prefix << "BeginScript";   
    
-   IndentComment(gen, commentLine, prefix);
-   gen << prefix << "BeginScript";
-   
-   if (inlineComment != "")
-      gen << inlineComment << "\n";
-   else
-      gen << "\n";
+      if (inlineComment != "")
+         gen << inlineComment << "\n";
+      else
+         gen << "\n";
+   }
    
    #if DBGLVL_GEN_STRING
    MessageInterface::ShowMessage
@@ -195,8 +198,11 @@ const std::string& BeginScript::GetGeneratingString(Gmat::WriteMode mode,
       }
       else
       {
-         // Indent whole block within Begin/EndScript
-         IndentChildString(gen, current, indent, mode, beginPrefix, useName, true);
+         if (mode != Gmat::GUI_EDITOR)
+         {
+            // Indent whole block within Begin/EndScript
+            IndentChildString(gen, current, indent, mode, beginPrefix, useName, true);
+         }
          current = NULL;
       }
    }
