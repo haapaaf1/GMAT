@@ -1019,9 +1019,11 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
             canDelete = true;
          }
       }
+
+      bool childDeleted = false;
       
       //--------------------------------------------------------------
-      // delete chilren by child->OnClose()
+      // delete chilren by child->OnClose() on Windows
       //--------------------------------------------------------------
       #ifdef __WXMSW__
       if (canDelete)
@@ -1039,31 +1041,42 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
          if (mExitWithoutConfirm)
             child->SetDirty(false);
          
+         #ifdef DEBUG_MAINFRAME_CLOSE
+         MessageInterface::ShowMessage("   ==> calling child->OnClose()\n");
+         #endif
          child->OnClose(event);
+         if (child->CanClose())
+            childDeleted = true;
          
          // if type is not output, check if child can be closed (loj: 2008.02.22)
          if (type < GmatTree::BEGIN_OF_OUTPUT && type > GmatTree::END_OF_OUTPUT)
          {
             if (!child->CanClose())
             {
-               #ifdef DEBUG_MAINFRAME_CLOSE
-               MessageInterface::ShowMessage("   ==> cannot close this child\n");
-               #endif
-               
                canDelete = false;
+               #ifdef DEBUG_MAINFRAME_CLOSE
+               MessageInterface::ShowMessage("   ==> cannot close this child, so returning false\n");
+               #endif
                return false;
             }
          }
       }
-      
+            
       //-------------------------------------------------
       // Note: The node is deleted from RemoveChild()
       //-------------------------------------------------
       wxNode *nextNode = NULL;
-      if (canDelete)
+      //if (canDelete)
+      if (childDeleted)
          nextNode = theMdiChildren->GetFirst();
       else
+      {
          nextNode = node->GetNext();
+         #ifdef DEBUG_MAINFRAME_CLOSE
+         MessageInterface::ShowMessage("   ==> child was not deleted, so returning false\n");
+         #endif
+         return false;
+      }
       
       #ifdef DEBUG_MAINFRAME_CLOSE
       MessageInterface::ShowMessage
@@ -1108,6 +1121,11 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
    }
    
    wxSafeYield();
+   
+   #ifdef DEBUG_MAINFRAME_CLOSE
+   MessageInterface::ShowMessage("GmatMainFrame::CloseAllChildren() returning true\n");
+   #endif
+   
    return true;
 }
 
