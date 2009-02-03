@@ -196,7 +196,7 @@ namespace Gmat
       SOLVEDPASS,
       WAITING
    };
-
+   
    enum WriteMode 
    {
       SCRIPTING,
@@ -205,8 +205,9 @@ namespace Gmat
       MATLAB_STRUCT,
       EPHEM_HEADER,
       NO_COMMENTS,
+      GUI_EDITOR,
    };
-
+   
 }
 
 typedef std::vector<Gmat::ObjectType> ObjectTypeArray;
