@@ -116,7 +116,8 @@ public:
    void UpdateSpaceObject(Real newEpoch = -1.0);
    void UpdateFromSpaceObject();
    void RevertSpaceObject();
-   
+   void BufferState();
+
 //   virtual void IncrementTime(Real dt);
 //   virtual void SetTime(Real t);
    

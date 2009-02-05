@@ -131,7 +131,10 @@ GravityField::GravityField(const std::string &name, const std::string &forBodyNa
     sum2Diag        (NULL),
     sum3Diag        (NULL),
     sum2OffDiag     (NULL),
-    sum3OffDiag     (NULL)
+    sum3OffDiag     (NULL),
+    satCount        (0),
+    cartIndex       (-1),
+    fillCartesian   (false)
     
 {
    objectTypeNames.push_back("GravityField");
@@ -222,7 +225,7 @@ GravityField::GravityField(const GravityField &gf) :
     frv                    (gf.frv),
     trv                    (gf.trv),
     now                    (gf.now),
-    satcount               (gf.satcount),
+//    satcount               (gf.satcount),
     sum2Diag               (NULL),
     sum3Diag               (NULL),
     sum2OffDiag            (NULL),
@@ -230,7 +233,10 @@ GravityField::GravityField(const GravityField &gf) :
     cc                     (gf.cc),
     rotMatrix              (gf.rotMatrix),
     outState               (gf.outState),
-    theState               (gf.theState)
+    theState               (gf.theState),
+    satCount               (gf.satCount),
+    cartIndex              (gf.cartIndex),
+    fillCartesian          (gf.fillCartesian)
 {
    objectTypeNames.push_back("GravityField");
    bodyName = gf.bodyName;
@@ -287,7 +293,6 @@ GravityField& GravityField::operator=(const GravityField &gf)
    frv                    = gf.frv;
    trv                    = gf.trv;
    now                    = gf.now;
-   satcount               = gf.satcount;
    sum2Diag               = NULL;
    sum3Diag               = NULL;
    sum2OffDiag            = NULL;
@@ -297,6 +302,10 @@ GravityField& GravityField::operator=(const GravityField &gf)
    outState               = gf.outState;
    theState               = gf.theState;
    
+   satCount               = gf.satCount;
+   cartIndex              = gf.cartIndex;
+   fillCartesian          = gf.fillCartesian;
+
    for (Integer i = 0; i < 361; i++)
    {
       for (Integer j = 0; j < 361; j++)
@@ -576,17 +585,23 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder,
       
 /// @todo Optimize this code -- May be possible to make GravityField calcs more efficient
 
-   //Integer stateSize = 6;
-   satcount = dimension / stateSize; 
-   
-   if (stateSize * satcount != dimension)
-      throw ODEModelException(
-         "GravityField state dimension and state size do not match!");
+//   //Integer stateSize = 6;
+//   satcount = dimension / stateSize; 
+//   
+//   if (stateSize * satcount != dimension)
+//      throw ODEModelException(
+//         "GravityField state dimension and state size do not match!");
 
    // Currently hardcoded for one spacecraft.  - remove this!!!!!!!!!!!!!!
-   if (satcount < 1)
+   if (satCount < 1)
       throw ODEModelException(
          "GravityField requires at least one spacecraft.");
+   
+   // todo: Move into header; this flag is used to decide if the velocity terms 
+   // are copied into the position derivatives for first order integrators, so 
+   // when the GravityField is set to work at non-central bodies, the detection 
+   // will need to happen in initialization.
+   bool isCentralBody = true;
       
    //Real* satState;
    Real satState[6];
@@ -695,145 +710,158 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder,
 //   }
 //   else
       aIndirect[0] = aIndirect[1] = aIndirect[2] = 0.0;
-
-   for (Integer n = 0; n < satcount; ++n) 
+      
+   if (fillCartesian)
    {
-      nOffset = n * stateSize;
-      //satState = state + nOffset;
-      for (Integer i=0;i<6;i++) satState[i] = state[i+nOffset];
-      
-      // convert to body fixed coordinate system
-      //A1Mjd               a1Now(now);
-      Real                tmpState[6];
-      //theState.Set(satState);
-      //cc.Convert(a1Now, theState, inputCS, outState, fixedCS);
-      //cc.Convert(now, theState, inputCS, outState, fixedCS);
-      cc.Convert(now, satState, inputCS, tmpState, fixedCS);
-
-      #ifdef DEBUG_FIRST_CALL
-         if (firstCallFired == false)
-         {
-            MessageInterface::ShowMessage(
-               "   State conversion check:\n      %s --> %s\n", 
-               inputCS->GetName().c_str(), fixedCS->GetName().c_str());
-            MessageInterface::ShowMessage(
-               "      Epoch: %.12lf\n", now.Get());
-            MessageInterface::ShowMessage(
-               "      input State  = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-               theState[0], theState[1], theState[2], theState[3], theState[4], 
-               theState[5]);
-            MessageInterface::ShowMessage(
-               "      output State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-               outState[0], outState[1], outState[2], outState[3], outState[4], 
-               outState[5]);
-         }
-      #endif
-
-      if (sameCS) rotMatrix = cc.GetLastRotationMatrix();
-      //outState.GetR(tmpState);
-      //outState.GetV(tmpState + 3);
-
-      #ifdef DEBUG_FIRST_CALL
-         if (firstCallFired == false)
-         {
-            MessageInterface::ShowMessage(
-               "   tmpState = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-               tmpState[0], tmpState[1], tmpState[2], tmpState[3], tmpState[4], 
-               tmpState[5]);
-         }
-      #endif
-
-      //if (!legendreP_rtq(satState))
-      if (!legendreP_rtq(tmpState))
-         throw ODEModelException("GravityField::legendreP_rtq failed");
-
-      #ifdef DEBUG_GRAVITY_FIELD
-         MessageInterface::ShowMessage("%s%le  s = %le  t = %le  u = %le\n", 
-            "legendreP_rtq r = ", r, s, t, u);
-         MessageInterface::ShowMessage("%s%le\n", 
-                           "Calling gravity_rtq for Julian epoch = ", 
-                           epoch + GmatTimeUtil::JD_JAN_5_1941 
-                           + dt/GmatTimeUtil::SECS_PER_DAY);
-      #endif
-
-      if (!gravity_rtq(epoch + GmatTimeUtil::JD_JAN_5_1941 + 
-                       dt/GmatTimeUtil::SECS_PER_DAY, f))
-         throw ODEModelException("GravityField::gravity_rtq failed");
-
-      #ifdef DEBUG_GRAVITY_FIELD
-         MessageInterface::ShowMessage("%s %le  %le  %le\n", 
-            "gravity_rtq returned force = ", f[0], f[1], f[2]);
-         MessageInterface::ShowMessage("%s %le  %le  %le\n", 
-            "Indirect term is", aIndirect[0], aIndirect[1], aIndirect[2]);
-      #endif
-
-      // Convert back to target CS
-      Real fNew[3];
-      if (sameCS)
+      for (Integer n = 0; n < satCount; ++n) 
       {
+         nOffset = cartIndex + n * stateSize;
+         //satState = state + nOffset;
+         for (Integer i = 0; i < 6; ++i)
+            satState[i] = state[i+nOffset];
          
-         const Real *rm = rotMatrix.GetDataVector();
-         const Real  rmt[9] = {rm[0], rm[3], rm[6],
-                               rm[1], rm[4], rm[7],
-                               rm[2], rm[5], rm[8]};
-         Integer p3 = 0;
-         for (Integer p = 0; p < 3; ++p)
+         // convert to body fixed coordinate system
+         //A1Mjd               a1Now(now);
+         Real                tmpState[6];
+         //theState.Set(satState);
+         //cc.Convert(a1Now, theState, inputCS, outState, fixedCS);
+         //cc.Convert(now, theState, inputCS, outState, fixedCS);
+         cc.Convert(now, satState, inputCS, tmpState, fixedCS);
+   
+         #ifdef DEBUG_FIRST_CALL
+            if (firstCallFired == false)
+            {
+               MessageInterface::ShowMessage(
+                  "   State conversion check:\n      %s --> %s\n", 
+                  inputCS->GetName().c_str(), fixedCS->GetName().c_str());
+               MessageInterface::ShowMessage(
+                  "      Epoch: %.12lf\n", now.Get());
+               MessageInterface::ShowMessage(
+                  "      input State  = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
+                  theState[0], theState[1], theState[2], theState[3], theState[4], 
+                  theState[5]);
+               MessageInterface::ShowMessage(
+                  "      output State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
+                  outState[0], outState[1], outState[2], outState[3], outState[4], 
+                  outState[5]);
+            }
+         #endif
+   
+         if (sameCS) rotMatrix = cc.GetLastRotationMatrix();
+         //outState.GetR(tmpState);
+         //outState.GetV(tmpState + 3);
+   
+         #ifdef DEBUG_FIRST_CALL
+            if (firstCallFired == false)
+            {
+               MessageInterface::ShowMessage(
+                  "   tmpState = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
+                  tmpState[0], tmpState[1], tmpState[2], tmpState[3], tmpState[4], 
+                  tmpState[5]);
+            }
+         #endif
+   
+         //if (!legendreP_rtq(satState))
+         if (!legendreP_rtq(tmpState))
+            throw ODEModelException("GravityField::legendreP_rtq failed");
+   
+         #ifdef DEBUG_GRAVITY_FIELD
+            MessageInterface::ShowMessage("%s%le  s = %le  t = %le  u = %le\n", 
+               "legendreP_rtq r = ", r, s, t, u);
+            MessageInterface::ShowMessage("%s%le\n", 
+                              "Calling gravity_rtq for Julian epoch = ", 
+                              epoch + GmatTimeUtil::JD_JAN_5_1941 
+                              + dt/GmatTimeUtil::SECS_PER_DAY);
+         #endif
+   
+         if (!gravity_rtq(epoch + GmatTimeUtil::JD_JAN_5_1941 + 
+                          dt/GmatTimeUtil::SECS_PER_DAY, f))
+            throw ODEModelException("GravityField::gravity_rtq failed");
+   
+         #ifdef DEBUG_GRAVITY_FIELD
+            MessageInterface::ShowMessage("%s %le  %le  %le\n", 
+               "gravity_rtq returned force = ", f[0], f[1], f[2]);
+            MessageInterface::ShowMessage("%s %le  %le  %le\n", 
+               "Indirect term is", aIndirect[0], aIndirect[1], aIndirect[2]);
+         #endif
+   
+         // Convert back to target CS
+         Real fNew[3];
+         if (sameCS)
          {
-            p3 = 3*p;
-            fNew[p] = rmt[p3]   * f[0] + 
-                      rmt[p3+1] * f[1] + 
-                      rmt[p3+2] * f[2];
-        }  
-        
-          /*
-         Rvector3 fAccel(f[0], f[1], f[2]);
-         Rvector3 fNewVector = rotMatrix.Transpose() * fAccel;
-         fNew[0] = fNewVector[0];
-         fNew[1] = fNewVector[1];
-         fNew[2] = fNewVector[2];
-         */
-      }
-      else
-      {
-         Rvector6 fState(f[0], f[1], f[2], 0.0, 0.0, 0.0);
-         Rvector6 fConv;
-         //cc.Convert(a1Now, fState, fixedCS, fConv, targetCS, true); 
-         cc.Convert(now, fState, fixedCS, fConv, targetCS, true); 
-         fNew[0] = fConv[0];
-         fNew[1] = fConv[1];
-         fNew[2] = fConv[2];
-      }
+            
+            const Real *rm = rotMatrix.GetDataVector();
+            const Real  rmt[9] = {rm[0], rm[3], rm[6],
+                                  rm[1], rm[4], rm[7],
+                                  rm[2], rm[5], rm[8]};
+            Integer p3 = 0;
+            for (Integer p = 0; p < 3; ++p)
+            {
+               p3 = 3*p;
+               fNew[p] = rmt[p3]   * f[0] + 
+                         rmt[p3+1] * f[1] + 
+                         rmt[p3+2] * f[2];
+           }  
+           
+             /*
+            Rvector3 fAccel(f[0], f[1], f[2]);
+            Rvector3 fNewVector = rotMatrix.Transpose() * fAccel;
+            fNew[0] = fNewVector[0];
+            fNew[1] = fNewVector[1];
+            fNew[2] = fNewVector[2];
+            */
+         }
+         else
+         {
+            Rvector6 fState(f[0], f[1], f[2], 0.0, 0.0, 0.0);
+            Rvector6 fConv;
+            //cc.Convert(a1Now, fState, fixedCS, fConv, targetCS, true); 
+            cc.Convert(now, fState, fixedCS, fConv, targetCS, true); 
+            fNew[0] = fConv[0];
+            fNew[1] = fConv[1];
+            fNew[2] = fConv[2];
+         }
+         
+         #ifdef DEBUG_GRAVITY_FIELD
+            MessageInterface::ShowMessage("%s %le  %le  %le\n", 
+                    "converted force = ", fNew[0], fNew[1], fNew[2]);
+         #endif
       
-      #ifdef DEBUG_GRAVITY_FIELD
-         MessageInterface::ShowMessage("%s %le  %le  %le\n", 
-                 "converted force = ", fNew[0], fNew[1], fNew[2]);
-      #endif
+         switch (dvorder)
+         {
+            case 1:
+               if (isCentralBody)
+               {
+                  deriv[0+nOffset] = satState[3];
+                  deriv[1+nOffset] = satState[4];
+                  deriv[2+nOffset] = satState[5];
+               }
+               else
+               {
+                  deriv[0+nOffset] =
+                  deriv[1+nOffset] =
+                  deriv[2+nOffset] = 0.0;
+               }
+               deriv[3+nOffset] = fNew[0] - aIndirect[0];
+               deriv[4+nOffset] = fNew[1] - aIndirect[1];
+               deriv[5+nOffset] = fNew[2] - aIndirect[2];
+               break;
+      
+            case 2:
+               deriv[0+nOffset] = fNew[0] - aIndirect[0];
+               deriv[1+nOffset] = fNew[1] - aIndirect[1];
+               deriv[2+nOffset] = fNew[2] - aIndirect[2];
+               deriv[3+nOffset] =
+                  deriv[4+nOffset] =
+                  deriv[5+nOffset] = 0.0;
+               break;
+      
+            default:
+               throw ODEModelException("GravityField::GetDerivatives requires order = 1 or 2");
+         } // end switch
+      }  // end for
+   }
    
-      switch (dvorder)
-      {
-         case 1:
-            deriv[0+nOffset] = satState[3];
-            deriv[1+nOffset] = satState[4];
-            deriv[2+nOffset] = satState[5];
-            deriv[3+nOffset] = fNew[0] - aIndirect[0];
-            deriv[4+nOffset] = fNew[1] - aIndirect[1];
-            deriv[5+nOffset] = fNew[2] - aIndirect[2];
-            break;
-   
-         case 2:
-            deriv[0+nOffset] = fNew[0] - aIndirect[0];
-            deriv[1+nOffset] = fNew[1] - aIndirect[1];
-            deriv[2+nOffset] = fNew[2] - aIndirect[2];
-            deriv[3+nOffset] =
-               deriv[4+nOffset] =
-               deriv[5+nOffset] = 0.0;
-            break;
-   
-         default:
-            throw ODEModelException("GravityField::GetDerivatives requires order = 1 or 2");
-      } // end switch
-   }  // end for
-
    #ifdef DEBUG_FIRST_CALL
       if (firstCallFired == false)
       {
@@ -1006,7 +1034,85 @@ Real        GravityField::SetRealParameter(const std::string &label,
    Integer id = GetParameterID(label);
    return SetRealParameter(id, value);
 }
-                                     
+
+
+//------------------------------------------------------------------------------
+// bool SupportsDerivative(Gmat::StateElementId id)
+//------------------------------------------------------------------------------
+/**
+ * Function used to determine if the physical model supports derivative 
+ * information for a specified type.
+ * 
+ * @param id State Element ID for the derivative type
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
+bool GravityField::SupportsDerivative(Gmat::StateElementId id)
+{
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage(
+            "GravityField checking for support for id %d\n", id);
+   #endif
+      
+   if (id == Gmat::CARTESIAN_STATE)
+      return true;
+   
+//   if (id == Gmat::ORBIT_STATE_TRANSITION_MATRIX)
+//      return true;
+   
+   return PhysicalModel::SupportsDerivative(id);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetStart(Gmat::StateElementId id, Integer index, Integer quantity)
+//------------------------------------------------------------------------------
+/**
+ * Function used to set the start point and size information for the state 
+ * vector, so that the derivative information can be placed in the correct place 
+ * in the derivative vector.
+ * 
+ * @param id State Element ID for the derivative type
+ * @param index Starting index in the state vector for this type of derivative
+ * @param quantity Number of objects that supply this type of data
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
+bool GravityField::SetStart(Gmat::StateElementId id, Integer index, 
+                      Integer quantity)
+{
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage("GravityFiels setting start data for id = "
+            "%d to index %d; %d objects identified\n", id, index, quantity);
+   #endif
+   
+   bool retval = false;
+   
+   switch (id)
+   {
+      case Gmat::CARTESIAN_STATE:
+         satCount = quantity;
+         cartIndex = index;
+         fillCartesian = true;
+         retval = true;
+         break;
+         
+//      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+//         stmCount = quantity;
+//         stmIndex = index;
+//         fillSTM = true;
+//         retval = true;
+//         break;
+         
+      default:
+         break;
+   }
+   
+   return retval;
+}
+
 
 //------------------------------------------------------------------------------
 // protected methods

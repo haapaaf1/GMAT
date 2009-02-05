@@ -688,6 +688,13 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 //}
 
 
+void ODEModel::BufferState()
+{
+   state = psm->GetState();
+   previousState = (*state);
+}
+
+
 //------------------------------------------------------------------------------
 // void ODEModel::UpdateSpaceObject(Real newEpoch)
 //------------------------------------------------------------------------------
@@ -710,11 +717,14 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
       stateSize = state->GetSize();
       vectorSize = stateSize * sizeof(Real);
 
-      previousState = (*state);
+//      previousState = (*state);
       
 //      memcpy(previousState, state->GetState(), vectorSize);
 //      previousTime = (state->GetEpoch()) * 86400.0;
       memcpy(state->GetState(), rawState, vectorSize);
+      
+//      MessageInterface::ShowMessage("Previous[0] = %.12lf, current = %.12lf\n",
+//            previousState[0], (*state)[0]);
 
       Real newepoch = epoch + elapsedTime / 86400.0;      
 
@@ -724,6 +734,13 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
       
       state->SetEpoch(newepoch);
       psm->MapVectorToObjects();
+
+      #ifdef DEBUG_ODEMODEL_EXE
+          MessageInterface::ShowMessage
+             ("ODEModel::UpdateSpaceObject() on \"%s\" prevElapsedTime = %f "
+              "elapsedTime = %f newepoch = %f\n", GetName().c_str(), 
+              previousState.GetEpoch(), elapsedTime, newepoch);
+      #endif
 
       
 //      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
@@ -810,13 +827,13 @@ void ODEModel::UpdateFromSpaceObject()
 //------------------------------------------------------------------------------
 void ODEModel::RevertSpaceObject()
 {
-   #ifdef DEBUG_ODEMODEL_EXE
+//   #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage
          ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
           prevElapsedTime, elapsedTime);
-   #endif
+//   #endif
    //loj: 7/1/04 elapsedTime = previousTime;
-   elapsedTime = previousState.GetEpoch() * 86400.0;
+   elapsedTime = prevElapsedTime;//previousState.GetEpoch();// * 86400.0;
    
    memcpy(rawState, previousState.GetState(), dimension*sizeof(Real)); 
    MoveToOrigin();
@@ -3156,6 +3173,7 @@ std::string ODEModel::BuildForceNameString(PhysicalModel *force)
 //------------------------------------------------------------------------------
 void ODEModel::MoveToOrigin(Real newEpoch)
 {
+   // todo: Clean this up
    Integer satCount = dimension / stateSize;
    Integer currentScState = 0;
     
@@ -3213,6 +3231,7 @@ void ODEModel::MoveToOrigin(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::ReturnFromOrigin(Real newEpoch)
 {
+   // todo: Clean this up
 //static Integer counter = 0;
 
    Integer satCount = dimension / stateSize;

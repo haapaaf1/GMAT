@@ -99,6 +99,11 @@ public:
                                       const std::string parmName, 
                                       const Real parm);
    virtual void ClearSatelliteParameters(const std::string parmName = "");
+   
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
 
 protected:
    // Parameter IDs
@@ -173,6 +178,12 @@ protected:
    Rvector6 sunrv;
    Rvector6 cbrv;
 
+   /// Number of spacecraft in the state vector that use CartesianState
+   Integer              satCount;
+   /// Start index for the Cartesian state
+   Integer              cartIndex;
+   /// Flag indicating if the Cartesian state should be populated
+   bool                 fillCartesian;
    
    void FindShadowState(bool &lit, bool &dark, Real *state);
    Real ShadowFunction(Real *state);

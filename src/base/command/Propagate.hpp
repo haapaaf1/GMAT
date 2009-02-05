@@ -254,6 +254,8 @@ protected:
    Real                    firstStepTolerance;
    /// Dimension used for (local) state vector
    Integer                 dim;
+   /// Dimension used for (local) state vector's Cartesian elements
+   Integer                 cartDim;
    /// Identifies when the command is in single step mode
    bool                    singleStepMode;
    /// List of forces that can be turned on or off by other commands

@@ -109,6 +109,11 @@ public:
    virtual Real        SetRealParameter(const std::string &label,
                                         const Real value);
 
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
+
 
 protected:
 
@@ -164,7 +169,9 @@ protected:
    Rvector6 frv;
    Rvector6 trv;
    A1Mjd    now;
-   Integer satcount;
+//   Integer satcount;
+   
+   
    
    Real     *sum2Diag;
    Real     *sum3Diag;
@@ -175,6 +182,15 @@ protected:
    Rmatrix33           rotMatrix;
    Rvector6            outState;
    Rvector6            theState;
+
+   /// Number of spacecraft in the state vector that use CartesianState
+   Integer              satCount;
+/// Start index for the Cartesian state
+   Integer              cartIndex;
+   /// Flag indicating if the Cartesian state should be populated
+   bool                 fillCartesian;
+
+
 };
 
 

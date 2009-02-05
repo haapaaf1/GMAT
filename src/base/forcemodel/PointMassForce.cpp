@@ -98,13 +98,13 @@ PointMassForce::PARAMETER_TYPE[PointMassParamCount - PhysicalModelParamCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// PointMassForce::PointMassForce(const std::string &name, Integer satcount)
+// PointMassForce::PointMassForce(const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * Constructor for point mass gravitational model
  */
 //------------------------------------------------------------------------------
-PointMassForce::PointMassForce(const std::string &name, Integer satcount) :
+PointMassForce::PointMassForce(const std::string &name) :
    PhysicalModel          (Gmat::PHYSICAL_MODEL, "PointMassForce", name),
    mu                     (398600.4415),
    estimationMethod       (1.0),
@@ -117,13 +117,14 @@ PointMassForce::PointMassForce(const std::string &name, Integer satcount) :
    fillSTM                (false)
 {
    parameterCount = PointMassParamCount;
-   dimension = 6 * satcount;
+   dimension = 6 * satCount;
    body = NULL;
    
    // create default body
    bodyName = SolarSystem::EARTH_NAME; //loj: 5/20/04 added
    
    derivativeIds.push_back(Gmat::CARTESIAN_STATE);
+   derivativeIds.push_back(Gmat::ORBIT_STATE_TRANSITION_MATRIX);
 }
 
 //------------------------------------------------------------------------------
@@ -264,13 +265,6 @@ bool PointMassForce::Initialize()
          "PointMassForce::Initialize() solarSystem is NULL\n");
    }
    
-//   satCount = (Integer)(dimension / 6);
-//   if (dimension != satCount * 6) 
-//   {
-//      initialized = false;
-//      return false;
-//   }
-
    Integer i6;
    for (Integer i = 0; i < satCount; i++) 
    {
@@ -572,8 +566,6 @@ bool PointMassForce::GetComponentMap(Integer * map, Integer order) const
    if (order != 1)
       return false;
 
-   // Calculate how many spacecraft are in the model
-   Integer satCount = (Integer)(dimension / 6);
    for (Integer i = 0; i < satCount; i++) 
    {
       i6 = cartIndex + i * 6;
@@ -887,6 +879,18 @@ bool PointMassForce::SetBooleanParameter(const Integer id, const bool value)
 }
 
 
+//------------------------------------------------------------------------------
+// bool SupportsDerivative(Gmat::StateElementId id)
+//------------------------------------------------------------------------------
+/**
+ * Function used to determine if the physical model supports derivative 
+ * information for a specified type.
+ * 
+ * @param id State Element ID for the derivative type
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
 bool PointMassForce::SupportsDerivative(Gmat::StateElementId id)
 {
    #ifdef DEBUG_REGISTRATION
@@ -903,6 +907,22 @@ bool PointMassForce::SupportsDerivative(Gmat::StateElementId id)
    return PhysicalModel::SupportsDerivative(id);
 }
 
+
+//------------------------------------------------------------------------------
+// bool SetStart(Gmat::StateElementId id, Integer index, Integer quantity)
+//------------------------------------------------------------------------------
+/**
+ * Function used to set the start point and size information for the state 
+ * vector, so that the derivative information can be placed in the correct place 
+ * in the derivative vector.
+ * 
+ * @param id State Element ID for the derivative type
+ * @param index Starting index in the state vector for this type of derivative
+ * @param quantity Number of objects that supply this type of data
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
 bool PointMassForce::SetStart(Gmat::StateElementId id, Integer index, 
                       Integer quantity)
 {

@@ -122,7 +122,10 @@ SolarRadiationPressure::SolarRadiationPressure(const std::string &name) :
    fluxPressure        (flux / SPEED_OF_LIGHT),   // converted to N/m^2
    sunDistance         (149597870.691),
    nominalSun          (149597870.691),
-   bodyIsTheSun        (false)
+   bodyIsTheSun        (false),
+   satCount            (0),
+   cartIndex           (0),
+   fillCartesian       (false)
 {
    parameterCount = SRPParamCount;
    derivativeIds.push_back(Gmat::CARTESIAN_STATE);
@@ -157,7 +160,10 @@ SolarRadiationPressure::SolarRadiationPressure(const SolarRadiationPressure &srp
    psunrad             (srp.psunrad),
    pcbrad              (srp.pcbrad),
    percentSun          (srp.percentSun),
-   bodyID              (srp.bodyID)
+   bodyID              (srp.bodyID),
+   satCount            (srp.satCount),
+   cartIndex           (srp.cartIndex),
+   fillCartesian       (srp.fillCartesian)
 {
    parameterCount = SRPParamCount;
 }
@@ -196,7 +202,11 @@ SolarRadiationPressure& SolarRadiationPressure::operator=(const SolarRadiationPr
    pcbrad       = srp.pcbrad;
    percentSun   = srp.percentSun;
    bodyID       = srp.bodyID;
-   
+
+   satCount      = srp.satCount;
+   cartIndex     = srp.cartIndex;
+   fillCartesian = srp.fillCartesian;
+
    return *this;
 }
 
@@ -611,61 +621,59 @@ bool SolarRadiationPressure::SetCentralBody()
 bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order, 
       const Integer id)
 {
-    if (!initialized)
-        return false;
+   if (!initialized)
+      return false;
         
-    Real satCount = dimension / 6;
+   if (!theSun)
+      throw ODEModelException("The Sun is not set in SRP::GetDerivatives");
 
-    if (!theSun)
-       throw ODEModelException("The Sun is not set in SRP::GetDerivatives");
-
-    if (!body)
-       throw ODEModelException(
-          "The central body is not set in SRP::GetDerivatives");
+   if (!body)
+      throw ODEModelException(
+         "The central body is not set in SRP::GetDerivatives");
     
-    if (!cbSunVector)
-       throw ODEModelException(
-          "The sun vector is not initialized in SRP::GetDerivatives");
+   if (!cbSunVector)
+      throw ODEModelException(
+         "The sun vector is not initialized in SRP::GetDerivatives");
 
-    if (cr.size() != satCount)
-    {
-       std::stringstream msg;
-       msg << "Mismatch between satellite count (" << satCount 
-           << ") and radiation coefficient count (" << cr.size() << ")"; 
-       throw ODEModelException(msg.str());
-    }
+   if (cr.size() != satCount)
+   {
+      std::stringstream msg;
+      msg << "Mismatch between satellite count (" << satCount 
+          << ") and radiation coefficient count (" << cr.size() << ")"; 
+      throw ODEModelException(msg.str());
+   }
 
-    if (area.size() != satCount)
-    {
-       std::stringstream msg;
-       msg << "Mismatch between satellite count (" << satCount   
-           << ") and area count (" << area.size() << ")"; 
-       throw ODEModelException(msg.str());
-    }
+   if (area.size() != satCount)
+   {
+      std::stringstream msg;
+      msg << "Mismatch between satellite count (" << satCount   
+          << ") and area count (" << area.size() << ")"; 
+      throw ODEModelException(msg.str());
+   }
 
-    if (mass.size() != satCount)
-    {
-       std::stringstream msg;
-       msg << "Mismatch between satellite count (" << satCount   
-           << ") and mass count (" << mass.size() << ")"; 
-       throw ODEModelException(msg.str());
-    }
+   if (mass.size() != satCount)
+   {
+      std::stringstream msg;
+      msg << "Mismatch between satellite count (" << satCount   
+          << ") and mass count (" << mass.size() << ")"; 
+      throw ODEModelException(msg.str());
+   }
 
-    Real distancefactor = 1.0, mag = 0.0;
-    bool inSunlight = true, inShadow = false;
+   Real distancefactor = 1.0, mag = 0.0;
+   bool inSunlight = true, inShadow = false;
 
-    Real ep = epoch + dt / 86400.0;
-    sunrv = theSun->GetState(ep);
+   Real ep = epoch + dt / 86400.0;
+   sunrv = theSun->GetState(ep);
     
-    // Rvector6 is initialized to all 0.0's; only change it if the body is not 
-    // the Sun
-    if (!bodyIsTheSun)
-       cbrv = body->GetState(ep);
-    cbSunVector[0] = sunrv[0] - cbrv[0];
-    cbSunVector[1] = sunrv[1] - cbrv[1];
-    cbSunVector[2] = sunrv[2] - cbrv[2];
+   // Rvector6 is initialized to all 0.0's; only change it if the body is not 
+   // the Sun
+   if (!bodyIsTheSun)
+      cbrv = body->GetState(ep);
+   cbSunVector[0] = sunrv[0] - cbrv[0];
+   cbSunVector[1] = sunrv[1] - cbrv[1];
+   cbSunVector[2] = sunrv[2] - cbrv[2];
 
-    #ifdef DEBUG_SRP_ORIGIN
+   #ifdef DEBUG_SRP_ORIGIN
       bool showData = false;
       if (shadowModel == 0) 
       {
@@ -674,73 +682,76 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
             cbSunVector[2]);
          showData = true;
       }
-    #endif
+   #endif
  
-    if (order > 2)
-        return false;
+   if (order > 2)
+      return false;
 
-    Integer i6;
-    Real sunSat[3];
+   Integer i6;
+   Real sunSat[3];
+    
+   if (fillCartesian)
+   {
+      for (Integer i = 0; i < satCount; ++i) 
+      {
+         i6 = cartIndex + i*6;
 
-    for (Integer i = 0; i < satCount; ++i) 
-    {
-        i6 = i*6;
-
-        // Build vector from the Sun to the current spacecraft
-        sunSat[0] = state[i6] - cbSunVector[0];
-        sunSat[1] = state[i6+1] - cbSunVector[1];
-        sunSat[2] = state[i6+2] - cbSunVector[2];
-        sunDistance = sqrt(sunSat[0]*sunSat[0] + sunSat[1]*sunSat[1] + 
+         // Build vector from the Sun to the current spacecraft
+         sunSat[0] = state[i6] - cbSunVector[0];
+         sunSat[1] = state[i6+1] - cbSunVector[1];
+         sunSat[2] = state[i6+2] - cbSunVector[2];
+         sunDistance = sqrt(sunSat[0]*sunSat[0] + sunSat[1]*sunSat[1] + 
                            sunSat[2]*sunSat[2]);
-        if (sunDistance == 0.0)
-           sunDistance = 1.0;
-        // Make a unit vector for the force direction
-        forceVector[0] = sunSat[0] / sunDistance;
-        forceVector[1] = sunSat[1] / sunDistance;
-        forceVector[2] = sunSat[2] / sunDistance;
+         if (sunDistance == 0.0)
+            sunDistance = 1.0;
+         // Make a unit vector for the force direction
+         forceVector[0] = sunSat[0] / sunDistance;
+         forceVector[1] = sunSat[1] / sunDistance;
+         forceVector[2] = sunSat[2] / sunDistance;
         
-        distancefactor = nominalSun / sunDistance;
-        // Factor of 0.001 converts m/s^2 to km/s^2
-        distancefactor *= distancefactor * 0.001;
+         distancefactor = nominalSun / sunDistance;
+         // Factor of 0.001 converts m/s^2 to km/s^2
+         distancefactor *= distancefactor * 0.001;
       
-        #ifdef DEBUG_SRP_ORIGIN
-           if (shadowModel == 0) 
-              shadowModel = CONICAL_MODEL;
-        #endif
+         #ifdef DEBUG_SRP_ORIGIN
+            if (shadowModel == 0) 
+               shadowModel = CONICAL_MODEL;
+         #endif
         
-        // Test shadow condition for current spacecraft (only if body isn't Sol)
-        if (!bodyIsTheSun)
-        {
-           psunrad = asin(sunRadius / sunDistance);
-           FindShadowState(inSunlight, inShadow, &state[i6]);
-        }
+         // Test shadow condition for current spacecraft (only if body isn't Sol)
+         if (!bodyIsTheSun)
+         {
+            psunrad = asin(sunRadius / sunDistance);
+            FindShadowState(inSunlight, inShadow, &state[i6]);
+         }
         
-        if (!inShadow) 
-        {
-           // Montenbruck and Gill, eq. 3.75
-           mag = percentSun * cr[i] * fluxPressure * area[i] * distancefactor / 
+         if (!inShadow) 
+         {
+            // Montenbruck and Gill, eq. 3.75
+            mag = percentSun * cr[i] * fluxPressure * area[i] * distancefactor / 
                                 mass[i];
 
             if (order == 1) 
             {
-                deriv[i6] = deriv[i6 + 1] = deriv[i6 + 2] = 0.0;
-                deriv[i6 + 3] = mag * forceVector[0];
-                deriv[i6 + 4] = mag * forceVector[1];
-                deriv[i6 + 5] = mag * forceVector[2];
+               deriv[i6] = deriv[i6 + 1] = deriv[i6 + 2] = 0.0;
+               deriv[i6 + 3] = mag * forceVector[0];
+               deriv[i6 + 4] = mag * forceVector[1];
+               deriv[i6 + 5] = mag * forceVector[2];
             }
             else 
             {
-                deriv[ i6 ] = mag * forceVector[0];
-                deriv[i6+1] = mag * forceVector[1];
-                deriv[i6+2] = mag * forceVector[2];
-                deriv[i6 + 3] = deriv[i6 + 4] = deriv[i6 + 5] = 0.0;
+               deriv[ i6 ] = mag * forceVector[0];
+               deriv[i6+1] = mag * forceVector[1];
+               deriv[i6+2] = mag * forceVector[2];
+               deriv[i6 + 3] = deriv[i6 + 4] = deriv[i6 + 5] = 0.0;
             }
-        }
-        else 
-        {
+         }
+         else 
+         {
             deriv[i6] = deriv[i6 + 1] = deriv[i6 + 2] = 
             deriv[i6 + 3] = deriv[i6 + 4] = deriv[i6 + 5] = 0.0;
-        }
+         }
+      }
    }
     
    #ifdef DEBUG_SOLAR_RADIATION_PRESSURE    
@@ -1005,4 +1016,83 @@ void SolarRadiationPressure::ClearSatelliteParameters(
       cr.clear();
    if ((parmName == "SRPArea") || (parmName == ""))
       area.clear();
+}
+
+
+//------------------------------------------------------------------------------
+// bool SupportsDerivative(Gmat::StateElementId id)
+//------------------------------------------------------------------------------
+/**
+ * Function used to determine if the physical model supports derivative 
+ * information for a specified type.
+ * 
+ * @param id State Element ID for the derivative type
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
+bool SolarRadiationPressure::SupportsDerivative(Gmat::StateElementId id)
+{
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage(
+            "SolarRadiationPressure checking for support for id %d\n", id);
+   #endif
+      
+   if (id == Gmat::CARTESIAN_STATE)
+      return true;
+   
+//   if (id == Gmat::ORBIT_STATE_TRANSITION_MATRIX)
+//      return true;
+   
+   return PhysicalModel::SupportsDerivative(id);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetStart(Gmat::StateElementId id, Integer index, Integer quantity)
+//------------------------------------------------------------------------------
+/**
+ * Function used to set the start point and size information for the state 
+ * vector, so that the derivative information can be placed in the correct place 
+ * in the derivative vector.
+ * 
+ * @param id State Element ID for the derivative type
+ * @param index Starting index in the state vector for this type of derivative
+ * @param quantity Number of objects that supply this type of data
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
+bool SolarRadiationPressure::SetStart(Gmat::StateElementId id, Integer index, 
+                      Integer quantity)
+{
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage("SolarRadiationPressure setting start data "
+            "for id = %d to index %d; %d objects identified\n", id, index, 
+            quantity);
+   #endif
+   
+   bool retval = false;
+   
+   switch (id)
+   {
+      case Gmat::CARTESIAN_STATE:
+         satCount = quantity;
+         cartIndex = index;
+         fillCartesian = true;
+         retval = true;
+         break;
+         
+//      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+//         stmCount = quantity;
+//         stmIndex = index;
+//         fillSTM = true;
+//         retval = true;
+//         break;
+         
+      default:
+         break;
+   }
+   
+   return retval;
 }

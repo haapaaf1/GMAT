@@ -56,6 +56,12 @@ public:
    virtual bool            Initialize();
    virtual bool            GetDerivatives(Real * state, Real dt, Integer order, 
                                           const Integer id = -1);
+   
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
+
 protected:
    // Pieces needed for bookkeeping
    /// Not sure if this is needed yet
@@ -68,6 +74,12 @@ protected:
    std::vector<SpaceObject *>    *spacecraft;
    /// Indexes (in the spacecraft vector) for the Spacecraft used by this force
    std::vector<Integer>          scIndices;
+   /// Number of spacecraft in the state vector that use CartesianState
+   Integer                       satCount;
+   /// Start index for the Cartesian state
+   Integer                       cartIndex;
+   /// Flag indicating if the Cartesian state should be populated
+   bool                          fillCartesian;
 };
 
 #endif // FiniteThrust_hpp

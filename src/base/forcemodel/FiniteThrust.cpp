@@ -39,7 +39,10 @@
  */
 //------------------------------------------------------------------------------
 FiniteThrust::FiniteThrust(const std::string &name) :
-   PhysicalModel        (Gmat::PHYSICAL_MODEL, "FiniteThrust", name)
+   PhysicalModel        (Gmat::PHYSICAL_MODEL, "FiniteThrust", name),
+   satCount             (0),
+   cartIndex            (-1),
+   fillCartesian        (false)
 {
    derivativeIds.push_back(Gmat::CARTESIAN_STATE);
 }
@@ -69,7 +72,10 @@ FiniteThrust::~FiniteThrust()
 FiniteThrust::FiniteThrust(const FiniteThrust& ft) :
    PhysicalModel          (ft),
    burnNames              (ft.burnNames),
-   mySpacecraft           (ft.mySpacecraft)
+   mySpacecraft           (ft.mySpacecraft),
+   satCount               (ft.satCount),
+   cartIndex              (ft.cartIndex),
+   fillCartesian          (ft.fillCartesian)
 {
         burns.clear();
         scIndices.clear();
@@ -100,6 +106,10 @@ FiniteThrust& FiniteThrust::operator=(const FiniteThrust& ft)
    burns.clear();
         scIndices.clear();
    spacecraft->clear();
+   
+   satCount      = ft.satCount;
+   cartIndex     = ft.cartIndex;
+   fillCartesian = ft.fillCartesian;
       
    return *this;
 }
@@ -340,118 +350,121 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
    SpaceObject *sat;
    Real mTotal;
    
-   // Loop through the spacecraft list, building accels for active sats
-   for (std::vector<SpaceObject *>::iterator sc = spacecraft->begin();
-        sc != spacecraft->end(); ++sc) 
+   if (fillCartesian)
    {
-      i6 = i * 6;
-      // Just a convenience
-      sat = *sc;
-
-      #ifdef DEBUG_FINITETHRUST_EXE
-         MessageInterface::ShowMessage("   Checking spacecraft %s\n", 
-            sat->GetName().c_str());
-      #endif
-
-      if (find(mySpacecraft.begin(), mySpacecraft.end(), sat->GetName()) != 
-          mySpacecraft.end()) 
+      // Loop through the spacecraft list, building accels for active sats
+      for (std::vector<SpaceObject *>::iterator sc = spacecraft->begin();
+           sc != spacecraft->end(); ++sc) 
       {
-
-         #ifdef DEBUG_FINITETHRUST_EXE
-            MessageInterface::ShowMessage("   Maneuvering ");
-         #endif
-
-         if (sat->GetType() != Gmat::SPACECRAFT)
-            throw ODEModelException("FiniteThrust::GetDerivatives Finite "
-            "burns cannot maneuver " + sat->GetTypeName() + " objects");
-         // Start with zero thrust
-         mDot = accel[0] = accel[1] = accel[2] = 0.0;
-
-         // Accumulate thrust and mass flow for each active thruster
-         for (std::vector <FiniteBurn*>::iterator fb = burns.begin();
-              fb != burns.end(); ++fb)
-         {
-            (*fb)->SetSpacecraftToManeuver((Spacecraft*)sat);
-            Real now = epoch + dt / 86400.0;
-            if ((*fb)->Fire(burnData, now)) 
-            {
-               #ifdef DEBUG_FINITETHRUST_EXE
-                  MessageInterface::ShowMessage("%s ",(*fb)->GetName().c_str());
-               #endif
-               accel[0] += burnData[0];
-               accel[1] += burnData[1];
-               accel[2] += burnData[2];
-               mDot     += burnData[3];
-            }
-            #ifdef DEBUG_FINITETHRUST_EXE
-               MessageInterface::ShowMessage(
-                  "\n   Acceleration = [%18le  %18le  %18le]", accel[0], 
-                  accel[1], accel[2]);
-            #endif
-         }
+         i6 = cartIndex + i * 6;
+         // Just a convenience
+         sat = *sc;
    
          #ifdef DEBUG_FINITETHRUST_EXE
-            MessageInterface::ShowMessage("\n");
+            MessageInterface::ShowMessage("   Checking spacecraft %s\n", 
+               sat->GetName().c_str());
          #endif
-         // Divide through by masses to get accelerations
-         mTotal = sat->GetRealParameter("TotalMass");
-         if (mTotal <= 0.0) 
+   
+         if (find(mySpacecraft.begin(), mySpacecraft.end(), sat->GetName()) != 
+             mySpacecraft.end()) 
          {
-            std::stringstream massval;
-            massval << mTotal;
-            throw ODEModelException("Finite thrust applied to spacecraft " +
-                     sat->GetName() + " which has nonphysical mass " +
-                     massval.str());
+   
+            #ifdef DEBUG_FINITETHRUST_EXE
+               MessageInterface::ShowMessage("   Maneuvering ");
+            #endif
+   
+            if (sat->GetType() != Gmat::SPACECRAFT)
+               throw ODEModelException("FiniteThrust::GetDerivatives Finite "
+               "burns cannot maneuver " + sat->GetTypeName() + " objects");
+            // Start with zero thrust
+            mDot = accel[0] = accel[1] = accel[2] = 0.0;
+   
+            // Accumulate thrust and mass flow for each active thruster
+            for (std::vector <FiniteBurn*>::iterator fb = burns.begin();
+                 fb != burns.end(); ++fb)
+            {
+               (*fb)->SetSpacecraftToManeuver((Spacecraft*)sat);
+               Real now = epoch + dt / 86400.0;
+               if ((*fb)->Fire(burnData, now)) 
+               {
+                  #ifdef DEBUG_FINITETHRUST_EXE
+                     MessageInterface::ShowMessage("%s ",(*fb)->GetName().c_str());
+                  #endif
+                  accel[0] += burnData[0];
+                  accel[1] += burnData[1];
+                  accel[2] += burnData[2];
+                  mDot     += burnData[3];
+               }
+               #ifdef DEBUG_FINITETHRUST_EXE
+                  MessageInterface::ShowMessage(
+                     "\n   Acceleration = [%18le  %18le  %18le]", accel[0], 
+                     accel[1], accel[2]);
+               #endif
+            }
+      
+            #ifdef DEBUG_FINITETHRUST_EXE
+               MessageInterface::ShowMessage("\n");
+            #endif
+            // Divide through by masses to get accelerations
+            mTotal = sat->GetRealParameter("TotalMass");
+            if (mTotal <= 0.0) 
+            {
+               std::stringstream massval;
+               massval << mTotal;
+               throw ODEModelException("Finite thrust applied to spacecraft " +
+                        sat->GetName() + " which has nonphysical mass " +
+                        massval.str());
+            }
+            accel[0] /= mTotal;
+            accel[1] /= mTotal; 
+            accel[2] /= mTotal;
+            
+            // Apply the burns to the state vector
+            if (order == 1) 
+            {
+               // dr/dt = v
+               deriv[i6]     = state[3 + i6];
+               deriv[1 + i6] = state[4 + i6];
+               deriv[2 + i6] = state[5 + i6];
+               deriv[3 + i6] = accel[0];
+               deriv[4 + i6] = accel[1];
+               deriv[5 + i6] = accel[2];
+            } 
+            else  
+            {
+               deriv[ i6 ] = accel[0]; 
+               deriv[i6+1] = accel[1]; 
+               deriv[i6+2] = accel[2]; 
+               deriv[i6+3] = 0.0; 
+               deriv[i6+4] = 0.0; 
+               deriv[i6+5] = 0.0; 
+            }
          }
-         accel[0] /= mTotal;
-         accel[1] /= mTotal; 
-         accel[2] /= mTotal;
-         
-         // Apply the burns to the state vector
-         if (order == 1) 
+         else
          {
-            // dr/dt = v
-            deriv[i6]     = state[3 + i6];
-            deriv[1 + i6] = state[4 + i6];
-            deriv[2 + i6] = state[5 + i6];
-            deriv[3 + i6] = accel[0];
-            deriv[4 + i6] = accel[1];
-            deriv[5 + i6] = accel[2];
-         } 
-         else  
-         {
-            deriv[ i6 ] = accel[0]; 
-            deriv[i6+1] = accel[1]; 
-            deriv[i6+2] = accel[2]; 
-            deriv[i6+3] = 0.0; 
-            deriv[i6+4] = 0.0; 
-            deriv[i6+5] = 0.0; 
+            // Zero any burn contribution that is not made for this spacecraft
+            if (order == 1) 
+            {
+               // dr/dt = v
+               deriv[i6]     = state[3 + i6];
+               deriv[1 + i6] = state[4 + i6];
+               deriv[2 + i6] = state[5 + i6];
+               deriv[3 + i6] = 0.0;
+               deriv[4 + i6] = 0.0;
+               deriv[5 + i6] = 0.0;
+            } 
+            else  
+            {
+               deriv[ i6 ] = 0.0; 
+               deriv[i6+1] = 0.0; 
+               deriv[i6+2] = 0.0; 
+               deriv[i6+3] = 0.0; 
+               deriv[i6+4] = 0.0; 
+               deriv[i6+5] = 0.0; 
+            }
          }
+         ++i;
       }
-      else
-      {
-         // Zero any burn contribution that is not made for this spacecraft
-         if (order == 1) 
-         {
-            // dr/dt = v
-            deriv[i6]     = state[3 + i6];
-            deriv[1 + i6] = state[4 + i6];
-            deriv[2 + i6] = state[5 + i6];
-            deriv[3 + i6] = 0.0;
-            deriv[4 + i6] = 0.0;
-            deriv[5 + i6] = 0.0;
-         } 
-         else  
-         {
-            deriv[ i6 ] = 0.0; 
-            deriv[i6+1] = 0.0; 
-            deriv[i6+2] = 0.0; 
-            deriv[i6+3] = 0.0; 
-            deriv[i6+4] = 0.0; 
-            deriv[i6+5] = 0.0; 
-         }
-      }
-      ++i;
    }
 
    #ifdef DEBUG_FINITETHRUST_EXE
@@ -461,4 +474,90 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
    #endif
    
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// bool SupportsDerivative(Gmat::StateElementId id)
+//------------------------------------------------------------------------------
+/**
+ * Function used to determine if the physical model supports derivative 
+ * information for a specified type.
+ * 
+ * @param id State Element ID for the derivative type
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
+bool FiniteThrust::SupportsDerivative(Gmat::StateElementId id)
+{
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage(
+            "FiniteThrust checking for support for id %d\n", id);
+   #endif
+      
+   if (id == Gmat::CARTESIAN_STATE)
+      return true;
+   
+//   if (id == Gmat::ORBIT_STATE_TRANSITION_MATRIX)
+//      return true;
+   
+   if (id == Gmat::MASS_FLOW)
+      // todo: Make true when mass flow is added
+      return false;
+   
+   return PhysicalModel::SupportsDerivative(id);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetStart(Gmat::StateElementId id, Integer index, Integer quantity)
+//------------------------------------------------------------------------------
+/**
+ * Function used to set the start point and size information for the state 
+ * vector, so that the derivative information can be placed in the correct place 
+ * in the derivative vector.
+ * 
+ * @param id State Element ID for the derivative type
+ * @param index Starting index in the state vector for this type of derivative
+ * @param quantity Number of objects that supply this type of data
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
+bool FiniteThrust::SetStart(Gmat::StateElementId id, Integer index, 
+                      Integer quantity)
+{
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage("FiniteThrust setting start data for id = "
+            "%d to index %d; %d objects identified\n", id, index, quantity);
+   #endif
+   
+   bool retval = false;
+   
+   switch (id)
+   {
+      case Gmat::CARTESIAN_STATE:
+         satCount = quantity;
+         cartIndex = index;
+         fillCartesian = true;
+         retval = true;
+         break;
+         
+//      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+//         stmCount = quantity;
+//         stmIndex = index;
+//         fillSTM = true;
+//         retval = true;
+//         break;
+         
+      case Gmat::MASS_FLOW:
+         // todo: add mass flow bits here
+         break;
+         
+      default:
+         break;
+   }
+   
+   return retval;
 }

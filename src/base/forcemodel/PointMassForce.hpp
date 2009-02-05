@@ -68,7 +68,7 @@ class GMAT_API PointMassForce : public PhysicalModel
 {
 public:
     
-   PointMassForce(const std::string &name = "", Integer satcount = 1);
+   PointMassForce(const std::string &name = "");
    virtual ~PointMassForce();
    PointMassForce(const PointMassForce& pmf);
    PointMassForce& operator= (const PointMassForce& pmf);

@@ -82,13 +82,16 @@ DragForce::DragForce(const std::string &name) :
    prefactor              (NULL),
    firedOnce              (false),
    satCount               (1),
+   orbitDimension         (0),
    dragState              (NULL),
    //bodyName               ("Earth"),
    dataType               ("Constant"),
    fluxFile               (""),
    fluxF107               (150.0),
    fluxF107A              (150.0),
-   kp                     (3.0)
+   kp                     (3.0),
+   cartIndex              (0),
+   fillCartesian          (false)
 {
    dimension = 6;
    parameterCount = DragForceParamCount;
@@ -174,7 +177,9 @@ DragForce::DragForce(const DragForce& df) :
    fluxFile                (df.fluxFile),
    fluxF107                (df.fluxF107),
    fluxF107A               (df.fluxF107A),
-   kp                      (df.kp)
+   kp                      (df.kp),
+   cartIndex               (df.cartIndex),
+   fillCartesian           (df.fillCartesian)
 {
    if (useExternalAtmosphere)
    {
@@ -187,6 +192,7 @@ DragForce::DragForce(const DragForce& df) :
    
    parameterCount += 7;
    dimension = df.dimension;
+   orbitDimension = df.orbitDimension;
 
    sunLoc[0] = df.sunLoc[0];
    sunLoc[1] = df.sunLoc[1];
@@ -255,6 +261,7 @@ DragForce& DragForce::operator=(const DragForce& df)
    ap                    = CalculateAp(kp);
    
    dimension = df.dimension;
+   orbitDimension = df. orbitDimension;
 
    sunLoc[0] = df.sunLoc[0];
    sunLoc[1] = df.sunLoc[1];
@@ -273,6 +280,9 @@ DragForce& DragForce::operator=(const DragForce& df)
    area.clear();
    mass.clear();
    dragCoeff.clear();
+   
+   cartIndex = df.cartIndex;
+   fillCartesian - df.fillCartesian;
 
    return *this;
 }
@@ -317,10 +327,9 @@ bool DragForce::GetComponentMap(Integer * map, Integer order) const
          "Drag supports 1st order equations of motion only");
 
    // Calculate how many spacecraft are in the model
-   Integer satCount = (Integer)(dimension / 6);
    for (Integer i = 0; i < satCount; i++)
    {
-      i6 = i * 6;
+      i6 = i * 6 + cartIndex;
 
       map[ i6 ] = i6 + 3;
       map[i6+1] = i6 + 4;
@@ -443,14 +452,14 @@ bool DragForce::Initialize()
     
    if (retval)
    {
-      satCount = dimension / 6;
+      orbitDimension = 6 * satCount;
       
       if (dragState)
-         delete [] dragState;\
-      dragState = new Real[dimension];
+         delete [] dragState;
+      dragState = new Real[orbitDimension];
       
       if (satCount <= 0)
-         throw ODEModelException("Drag called with dimension zero");
+         throw ODEModelException("Drag called with orbit dimension zero");
            
       density   = new Real[satCount];
       prefactor = new Real[satCount];
@@ -621,7 +630,7 @@ void DragForce::BuildPrefactors()
 //------------------------------------------------------------------------------
 void DragForce::TranslateOrigin(const Real *state, const Real now)
 {
-   memcpy(dragState, state, dimension * sizeof(Real));
+   memcpy(dragState, &(state[cartIndex]),  orbitDimension * sizeof(Real));
    if (forceOrigin != centralBody)
    {
       throw ODEModelException(
@@ -677,7 +686,7 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
       dragdata << "Entered DragForce::GetDerivatives()\n";
    #endif
 
-   Integer i, i6;
+   Integer i, i6, j6;
    Real vRelative[3], vRelMag, factor;
 
    if (!firedOnce)
@@ -717,94 +726,99 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
    
    #ifdef DEBUG_DRAGFORCE_EPOCH
       MessageInterface::ShowMessage("Drag epoch = %16.11lf\n", now);
-   #endif
    
-   for (i = 0; i < satCount; ++i)
+   #endif
+   if (fillCartesian)
    {
-      i6 = i * 6;
-      #ifdef DEBUG_DRAGFORCE_DENSITY
-         dragdata << "Spacecraft " << (i+1) << ": ";
-      #endif
-
-      // v_rel = v - w x R
-      vRelative[0] = dragState[i6+3] -
-                     (angVel[1]*dragState[i6+2] - angVel[2]*dragState[i6+1]);
-      vRelative[1] = dragState[i6+4] -
-                     (angVel[2]*dragState[ i6 ] - angVel[0]*dragState[i6+2]);
-      vRelative[2] = dragState[i6+5] -
-                     (angVel[0]*dragState[i6+1] - angVel[1]*dragState[ i6 ]);
-      vRelMag = sqrt(vRelative[0]*vRelative[0] + vRelative[1]*vRelative[1] +
-                     vRelative[2]*vRelative[2]);
-        
-      factor = prefactor[i] * density[i];
-
-      if (order == 1)
+   
+      for (i = 0; i < satCount; ++i)
       {
-         // Do dv/dt first, in case deriv = state
-         deriv[3+i6] = factor * vRelMag * vRelative[0];// - a_indirect[0];
-         deriv[4+i6] = factor * vRelMag * vRelative[1];// - a_indirect[1];
-         deriv[5+i6] = factor * vRelMag * vRelative[2];// - a_indirect[2];
-         // dr/dt = v
-         deriv[i6]   = state[3+i6];
-         deriv[1+i6] = state[4+i6];
-         deriv[2+i6] = state[5+i6];
-
+         i6 = i * 6;
+         j6 = cartIndex + i * 6;
          #ifdef DEBUG_DRAGFORCE_DENSITY
-            for (Integer m = 0; m < satCount; ++m)
-               dragdata << "   Drag Accel: "
-                        << deriv[3+i6] << "  "
-                        << deriv[4+i6] << "  "
-                        << deriv[5+i6] << "\n";
-            for (Integer m = 0; m < satCount; ++m)
-            {
-               MessageInterface::ShowMessage(
-                  "   Position:   %16.9le  %16.9le  %16.9le\n",
-                  state[i6], state[i6+1], state[i6+2]);
-               MessageInterface::ShowMessage(
-                  "   Velocity:   %16.9le  %16.9le  %16.9le\n",
-                  state[i6+3], state[i6+4], state[i6+5]);
-               MessageInterface::ShowMessage(
-                  "   Drag Accel: %16.9le  %16.9le  %16.9le\n",
-                  deriv[3+i6], deriv[4+i6], deriv[5+i6]);
-               MessageInterface::ShowMessage(
-                  "   Density:    %16.9le\n", density[i]);
-            }
+            dragdata << "Spacecraft " << (i+1) << ": ";
          #endif
-      }
-      else
-      {
-         // Feed accelerations to corresponding components directly for RKN
-         deriv[ i6 ] = factor * vRelMag * vRelative[0];// - a_indirect[0];
-         deriv[1+i6] = factor * vRelMag * vRelative[1];// - a_indirect[1];
-         deriv[2+i6] = factor * vRelMag * vRelative[2];// - a_indirect[2];
-         deriv[3+i6] = 0.0;
-         deriv[4+i6] = 0.0;
-         deriv[5+i6] = 0.0;
-
-         #ifdef DEBUG_DRAGFORCE_DENSITY
-            for (Integer m = 0; m < satCount; ++m)
-               dragdata << "   Accel: "
-                        << deriv[i6] << "  "
-                        << deriv[1+i6] << "  "
-                        << deriv[2+i6] << "\n";
-            for (Integer m = 0; m < satCount; ++m)
-            {
-               MessageInterface::ShowMessage(
-                  "   Position:   %16.9le  %16.9le  %16.9le\n",
-                  state[i6], state[i6+1], state[i6+2]);
-               MessageInterface::ShowMessage(
-                  "    Velocity:   %16.9le  %16.9le  %16.9le\n",
-                  state[i6+3], state[i6+4], state[i6+5]);
-               MessageInterface::ShowMessage(
-                  "   Drag Accel: %16.9le  %16.9le  %16.9le\n",
-                  deriv[i6], deriv[1+i6], deriv[2+i6]);
-               MessageInterface::ShowMessage("   Density:    %16.9le\n",
-                  density[i]);
-            }
-         #endif
+   
+         // v_rel = v - w x R
+         vRelative[0] = dragState[i6+3] -
+                        (angVel[1]*dragState[i6+2] - angVel[2]*dragState[i6+1]);
+         vRelative[1] = dragState[i6+4] -
+                        (angVel[2]*dragState[ i6 ] - angVel[0]*dragState[i6+2]);
+         vRelative[2] = dragState[i6+5] -
+                        (angVel[0]*dragState[i6+1] - angVel[1]*dragState[ i6 ]);
+         vRelMag = sqrt(vRelative[0]*vRelative[0] + vRelative[1]*vRelative[1] +
+                        vRelative[2]*vRelative[2]);
+           
+         factor = prefactor[i] * density[i];
+   
+         if (order == 1)
+         {
+            // Do dv/dt first, in case deriv = state
+            deriv[3+j6] = factor * vRelMag * vRelative[0];// - a_indirect[0];
+            deriv[4+j6] = factor * vRelMag * vRelative[1];// - a_indirect[1];
+            deriv[5+j6] = factor * vRelMag * vRelative[2];// - a_indirect[2];
+            // dr/dt = v term not built from drap force
+            deriv[j6]   = 
+            deriv[1+j6] = 
+            deriv[2+j6] = 0.0;
+   
+            #ifdef DEBUG_DRAGFORCE_DENSITY
+               for (Integer m = 0; m < satCount; ++m)
+                  dragdata << "   Drag Accel: "
+                           << deriv[3+i6] << "  "
+                           << deriv[4+i6] << "  "
+                           << deriv[5+i6] << "\n";
+               for (Integer m = 0; m < satCount; ++m)
+               {
+                  MessageInterface::ShowMessage(
+                     "   Position:   %16.9le  %16.9le  %16.9le\n",
+                     state[i6], state[i6+1], state[i6+2]);
+                  MessageInterface::ShowMessage(
+                     "   Velocity:   %16.9le  %16.9le  %16.9le\n",
+                     state[i6+3], state[i6+4], state[i6+5]);
+                  MessageInterface::ShowMessage(
+                     "   Drag Accel: %16.9le  %16.9le  %16.9le\n",
+                     deriv[3+i6], deriv[4+i6], deriv[5+i6]);
+                  MessageInterface::ShowMessage(
+                     "   Density:    %16.9le\n", density[i]);
+               }
+            #endif
+         }
+         else
+         {
+            // Feed accelerations to corresponding components directly for RKN
+            deriv[ j6 ] = factor * vRelMag * vRelative[0];// - a_indirect[0];
+            deriv[1+j6] = factor * vRelMag * vRelative[1];// - a_indirect[1];
+            deriv[2+j6] = factor * vRelMag * vRelative[2];// - a_indirect[2];
+            deriv[3+j6] = 0.0;
+            deriv[4+j6] = 0.0;
+            deriv[5+j6] = 0.0;
+   
+            #ifdef DEBUG_DRAGFORCE_DENSITY
+               for (Integer m = 0; m < satCount; ++m)
+                  dragdata << "   Accel: "
+                           << deriv[i6] << "  "
+                           << deriv[1+i6] << "  "
+                           << deriv[2+i6] << "\n";
+               for (Integer m = 0; m < satCount; ++m)
+               {
+                  MessageInterface::ShowMessage(
+                     "   Position:   %16.9le  %16.9le  %16.9le\n",
+                     state[i6], state[i6+1], state[i6+2]);
+                  MessageInterface::ShowMessage(
+                     "    Velocity:   %16.9le  %16.9le  %16.9le\n",
+                     state[i6+3], state[i6+4], state[i6+5]);
+                  MessageInterface::ShowMessage(
+                     "   Drag Accel: %16.9le  %16.9le  %16.9le\n",
+                     deriv[i6], deriv[1+i6], deriv[2+i6]);
+                  MessageInterface::ShowMessage("   Density:    %16.9le\n",
+                     density[i]);
+               }
+            #endif
+         }
       }
    }
-    
+   
    return true;
 }
 
@@ -1250,6 +1264,84 @@ bool DragForce::SetInternalAtmosphereModel(AtmosphereModel* atm)
 AtmosphereModel* DragForce::GetInternalAtmosphereModel()
 {
    return internalAtmos;
+}
+
+
+//------------------------------------------------------------------------------
+// bool SupportsDerivative(Gmat::StateElementId id)
+//------------------------------------------------------------------------------
+/**
+ * Function used to determine if the physical model supports derivative 
+ * information for a specified type.
+ * 
+ * @param id State Element ID for the derivative type
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
+bool DragForce::SupportsDerivative(Gmat::StateElementId id)
+{
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage(
+            "DragForce checking for support for id %d\n", id);
+   #endif
+      
+   if (id == Gmat::CARTESIAN_STATE)
+      return true;
+   
+//   if (id == Gmat::ORBIT_STATE_TRANSITION_MATRIX)
+//      return true;
+   
+   return PhysicalModel::SupportsDerivative(id);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetStart(Gmat::StateElementId id, Integer index, Integer quantity)
+//------------------------------------------------------------------------------
+/**
+ * Function used to set the start point and size information for the state 
+ * vector, so that the derivative information can be placed in the correct place 
+ * in the derivative vector.
+ * 
+ * @param id State Element ID for the derivative type
+ * @param index Starting index in the state vector for this type of derivative
+ * @param quantity Number of objects that supply this type of data
+ * 
+ * @return true if the type is supported, false otherwise. 
+ */
+//------------------------------------------------------------------------------
+bool DragForce::SetStart(Gmat::StateElementId id, Integer index, 
+                      Integer quantity)
+{
+   #ifdef DEBUG_REGISTRATION
+      MessageInterface::ShowMessage("DragForce setting start data for id = %d"
+            " to index %d; %d objects identified\n", id, index, quantity);
+   #endif
+   
+   bool retval = false;
+   
+   switch (id)
+   {
+      case Gmat::CARTESIAN_STATE:
+         satCount = quantity;
+         cartIndex = index;
+         fillCartesian = true;
+         retval = true;
+         break;
+         
+//      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+//         stmCount = quantity;
+//         stmIndex = index;
+//         fillSTM = true;
+//         retval = true;
+//         break;
+         
+      default:
+         break;
+   }
+   
+   return retval;
 }
 
 
