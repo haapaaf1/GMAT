@@ -36,17 +36,17 @@
 //#define DEBUG_PROPAGATE_INIT 1
 //#define DEBUG_PROPAGATE_DIRECTION 1
 //#define DEBUG_PROPAGATE_STEPSIZE 1
-//#define DEBUG_PROPAGATE_EXE 1
-//#define DEBUG_STOPPING_CONDITIONS 1
-//#define DEBUG_FIRST_STEP_STOP 1
+#define DEBUG_PROPAGATE_EXE 1
+#define DEBUG_STOPPING_CONDITIONS 1
+#define DEBUG_FIRST_STEP_STOP 1
 //#define DEBUG_RENAME
 //#define DEBUG_PROP_PERFORMANCE
 //#define DEBUG_FIRST_CALL
 //#define DEBUG_FIXED_STEP
 //#define DEBUG_EPOCH_UPDATES
 //#define DEBUG_EPOCH_SYNC
-//#define DEBUG_SECANT_DETAILS
-//#define DEBUG_BISECTION_DETAILS
+#define DEBUG_SECANT_DETAILS
+#define DEBUG_BISECTION_DETAILS
 //#define DEBUG_WRAPPERS
 //#define DEBUG_PUBLISH_DATA
 
@@ -3226,6 +3226,9 @@ bool Propagate::Execute()
             fm[0]->ReportEpochData();
          #endif
 
+         for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
+            (*f)->BufferState();
+
          if (!TakeAStep())
             throw CommandException(
                "Propagate::Execute() Propagator Failed to Step\n");
@@ -3361,6 +3364,9 @@ bool Propagate::Execute()
    inProgress = false;
    if (!singleStepMode)
    {
+      for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
+         (*f)->RevertSpaceObject();
+
       TakeFinalStep(epochID, trigger);
       // reset the stopping conditions so that scanning starts over
       for (UnsignedInt i=0; i<stopWhen.size(); i++)
@@ -3407,8 +3413,8 @@ bool Propagate::TakeAStep(Real propStep)
       std::vector<ODEModel *>::iterator fmod = fm.begin();
    #endif
 
-   for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
-      (*f)->BufferState();
+//   for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
+//      (*f)->BufferState();
 
       
    std::vector<Propagator*>::iterator current = p.begin();

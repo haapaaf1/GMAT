@@ -22,7 +22,7 @@
 #include "NotAKnotInterpolator.hpp"
 #include "MessageInterface.hpp"
 
-//#define DUMP_SPLINE_POINTS
+#define DUMP_SPLINE_POINTS
 
 //---------------------------------
 //  public methods

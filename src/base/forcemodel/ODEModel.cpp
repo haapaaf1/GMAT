@@ -690,6 +690,7 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 
 void ODEModel::BufferState()
 {
+   MessageInterface::ShowMessage("Buffering state\n");
    state = psm->GetState();
    previousState = (*state);
 }
@@ -704,6 +705,7 @@ void ODEModel::BufferState()
 //------------------------------------------------------------------------------
 void ODEModel::UpdateSpaceObject(Real newEpoch)
 {
+   MessageInterface::ShowMessage("Updating objects\n");
 //   if (spacecraft.size() > 0) 
 //   {
 //      Integer j = 0;
@@ -790,6 +792,7 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::UpdateFromSpaceObject()
 {
+   MessageInterface::ShowMessage("Updating state from objects\n");
    psm->MapObjectsToVector();
    GmatState *state = psm->GetState();
    memcpy(rawState, state->GetState(), state->GetSize() * sizeof(Real));
@@ -827,6 +830,8 @@ void ODEModel::UpdateFromSpaceObject()
 //------------------------------------------------------------------------------
 void ODEModel::RevertSpaceObject()
 {
+   MessageInterface::ShowMessage("Reverting objects\n");
+
 //   #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage
          ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
