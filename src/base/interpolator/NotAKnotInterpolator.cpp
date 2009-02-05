@@ -186,6 +186,17 @@ bool NotAKnotInterpolator::Interpolate(const Real ind, Real *results)
       retval = Estimate(ind, results);
       
    #ifdef DUMP_SPLINE_POINTS
+      MessageInterface::ShowMessage("Cubic spline uses these points:\n");
+      for (Integer i = 0; i < 5; ++i)
+      {
+         MessageInterface::ShowMessage("   %.12lf:", x[i]);
+         for (Integer j = 0; j < dimension; ++j)
+            MessageInterface::ShowMessage("   %.12lf", y[i][j]);
+         MessageInterface::ShowMessage("\n");
+      }
+            
+         
+   
       MessageInterface::ShowMessage("Cubic spline (not a knot) data points:\n");
       
       Real increment = (x[bufferSize - 1] - x[0]) / 100.0, xval;
@@ -199,6 +210,10 @@ bool NotAKnotInterpolator::Interpolate(const Real ind, Real *results)
             MessageInterface::ShowMessage("   %.12lf", dumpData[j]);
          MessageInterface::ShowMessage("\n");
       } 
+      
+      MessageInterface::ShowMessage("Spline Estimate:\n");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("   %02d:   %.12lf\n", i, results[i]);
       
       delete [] dumpData;   
    #endif

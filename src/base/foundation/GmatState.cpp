@@ -105,13 +105,14 @@ GmatState::GmatState(const GmatState& gs) :
       theData = new Real[stateSize];
       dataIDs = new Integer[stateSize];
       associatedElements = new Integer[stateSize];
-            
+      
+      memcpy(theData, gs.theData, stateSize * sizeof(Real));
+      memcpy(dataIDs, gs.dataIDs, stateSize * sizeof(Integer));
+      memcpy(associatedElements, gs.associatedElements, stateSize * sizeof(Integer));
+      
+      dataTypes.assign(stateSize, "");
       for (Integer i = 0; i < stateSize; ++i)
-      {
-         theData[i] = gs.theData[i];
-         dataIDs[i] = gs.dataIDs[i];
-         associatedElements[i] = gs.associatedElements[i];
-      }
+         dataTypes[i] = gs.dataTypes[i];
    }
 }
 
@@ -137,6 +138,8 @@ GmatState& GmatState::operator=(const GmatState& gs)
          delete [] dataIDs;
       if (associatedElements != NULL)
          delete [] associatedElements;
+      
+      dataTypes.clear();
 
       if (stateSize == 0)
       {
@@ -149,14 +152,13 @@ GmatState& GmatState::operator=(const GmatState& gs)
          theData = new Real[stateSize];
          dataIDs = new Integer[stateSize];
          associatedElements = new Integer[stateSize];
+         memcpy(theData, gs.theData, stateSize * sizeof(Real));
+         memcpy(dataIDs, gs.dataIDs, stateSize * sizeof(Integer));
+         memcpy(associatedElements, gs.associatedElements, stateSize * sizeof(Integer));
+         
          dataTypes.assign(stateSize, "");
          for (Integer i = 0; i < stateSize; ++i)
-         {
-            theData[i] = gs.theData[i];
-            dataIDs[i] = gs.dataIDs[i];
             dataTypes[i] = gs.dataTypes[i];
-            associatedElements[i] = gs.associatedElements[i];
-         }
       }
    }
 
