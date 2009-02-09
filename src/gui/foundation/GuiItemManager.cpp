@@ -2685,7 +2685,7 @@ wxSizer* GuiItemManager::Create3ColParameterSizer
    wxArrayString tmpObjTypeList;
    
    // add more object types to the list
-   if (showSysParam)
+   if (showSysParam || allowWholeObject)
       tmpObjTypeList = objectTypeList;
    
    if (showVariable)
@@ -2768,36 +2768,43 @@ wxSizer* GuiItemManager::Create3ColParameterSizer
    //-----------------------------------------------------------------
    // Object properties
    //-----------------------------------------------------------------
-   
-   wxStaticText *propertyStaticText =
-      new wxStaticText(parent, -1, wxT("Object Properties"),
-                       wxDefaultPosition, wxDefaultSize, 0);
-   
-   *propertyListBox = 
-      GetPropertyListBox(parent, propertyListBoxId, wxSize(170, 230), objectType,
-                         showOption, allowMultiSelect);
-   
-   *coordSysLabel =
-      new wxStaticText(parent, -1, wxT("Coordinate System"),
-                       wxDefaultPosition, wxDefaultSize, 0);
-   
-   *coordSysComboBox =
-      GetCoordSysComboBox(parent, coordSysComboBoxId, wxSize(170, 20));
-   
-   *originComboBox =
-      GetConfigBodyComboBox(parent, originComboBoxId, wxSize(170, 20));
-   
-   //----- coordSysBoxSizer
-   *coordSysBoxSizer = new wxBoxSizer(wxVERTICAL);   
-   (*coordSysBoxSizer)->Add(*coordSysLabel, 0, wxALIGN_CENTRE|wxALL, bsize);
-   
    //----- propertySizer
    GmatStaticBoxSizer *propertySizer =
       new GmatStaticBoxSizer(wxVERTICAL, parent, "");
    
-   propertySizer->Add(propertyStaticText, 0, wxALIGN_CENTRE|wxALL, bsize);
-   propertySizer->Add(*propertyListBox, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
-   propertySizer->Add(*coordSysBoxSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
+   if (showOption == SHOW_WHOLE_OBJECT_ONLY)
+   {
+      (*entireObjCheckBox)->SetValue(true);
+      (*entireObjCheckBox)->Disable();
+   }
+   else
+   {
+      wxStaticText *propertyStaticText =
+         new wxStaticText(parent, -1, wxT("Object Properties"),
+                          wxDefaultPosition, wxDefaultSize, 0);
+      
+      *propertyListBox = 
+         GetPropertyListBox(parent, propertyListBoxId, wxSize(170, 230), objectType,
+                            showOption, allowMultiSelect);
+      
+      *coordSysLabel =
+         new wxStaticText(parent, -1, wxT("Coordinate System"),
+                          wxDefaultPosition, wxDefaultSize, 0);
+      
+      *coordSysComboBox =
+         GetCoordSysComboBox(parent, coordSysComboBoxId, wxSize(170, 20));
+      
+      *originComboBox =
+         GetConfigBodyComboBox(parent, originComboBoxId, wxSize(170, 20));
+      
+      //----- coordSysBoxSizer
+      *coordSysBoxSizer = new wxBoxSizer(wxVERTICAL);   
+      (*coordSysBoxSizer)->Add(*coordSysLabel, 0, wxALIGN_CENTRE|wxALL, bsize);
+      
+      propertySizer->Add(propertyStaticText, 0, wxALIGN_CENTRE|wxALL, bsize);
+      propertySizer->Add(*propertyListBox, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
+      propertySizer->Add(*coordSysBoxSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
+   }
    
    //-----------------------------------------------------------------
    // Arrows
@@ -2877,7 +2884,8 @@ wxSizer* GuiItemManager::Create3ColParameterSizer
    //----- paramSizer
    wxFlexGridSizer *paramSizer = new wxFlexGridSizer(4);
    paramSizer->Add(objectListSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
-   paramSizer->Add(propertySizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
+   if (showOption != SHOW_WHOLE_OBJECT_ONLY)
+      paramSizer->Add(propertySizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
    paramSizer->Add(arrowButtonsSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
    paramSizer->Add(selectedSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
    

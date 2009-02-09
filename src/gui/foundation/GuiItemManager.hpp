@@ -38,9 +38,10 @@ public:
 
    enum ShowParamOption
    {
-      SHOW_REPORTABLE, // Real, Array, String
-      SHOW_PLOTTABLE,  // Real
-      SHOW_SETTABLE,   // for Vary command
+      SHOW_REPORTABLE,         // Real, Array, String
+      SHOW_PLOTTABLE,          // Real
+      SHOW_SETTABLE,           // for Vary command
+      SHOW_WHOLE_OBJECT_ONLY,
    };
    
    static GuiItemManager* GetInstance();
