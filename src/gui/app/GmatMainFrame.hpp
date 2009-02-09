@@ -91,13 +91,64 @@ public:
    wxToolBar* GetMainFrameToolBar();
    wxStatusBar* GetMainFrameStatusBar();
    
-   //void UpdateUI();
-   //void OnSize(wxSizeEvent& event);
+   // event handling
    void OnClose(wxCloseEvent& event);
-   //void OnQuit(wxCommandEvent& event);
-   //void OnOpenTrajectoryFile(wxCommandEvent& event);
-   //void OnZoomIn(wxCommandEvent& event);
-   //void OnZoomOut(wxCommandEvent& event);
+   void OnProjectNew(wxCommandEvent &event);
+   void OnClearCurrentMission(wxCommandEvent &event);
+   void OnLoadDefaultMission(wxCommandEvent &event);
+   void OnSaveScriptAs(wxCommandEvent &event);
+   void OnSaveScript(wxCommandEvent &event);
+   void OnPrintSetup(wxCommandEvent &event);
+   void OnPrint(wxCommandEvent &event);
+   void OnProjectExit(wxCommandEvent &event);
+   void OnRun(wxCommandEvent &event);
+   void OnPause(wxCommandEvent &event);
+   void OnStop(wxCommandEvent &event);
+   void OnHelpAbout(wxCommandEvent &event);
+   void OnHelpOnline(wxCommandEvent &event);
+   void OnHyperLinkClick(wxHyperlinkEvent &event);
+   
+   void OnNewScript(wxCommandEvent &event);
+   void OnOpenScript(wxCommandEvent &event);
+   void OnSetPath(wxCommandEvent &event);
+   
+   void OnUndo(wxCommandEvent& event);
+   void OnRedo(wxCommandEvent& event);
+   void OnCut(wxCommandEvent& event);
+   void OnCopy(wxCommandEvent& event);
+   void OnPaste(wxCommandEvent& event);
+   void OnComment(wxCommandEvent& event);
+   void OnUncomment(wxCommandEvent& event);
+   void OnSelectAll(wxCommandEvent& event);
+   
+   void OnFind(wxCommandEvent& event);
+   void OnFindNext(wxCommandEvent& event);
+   void OnReplace(wxCommandEvent& event);
+   void OnReplaceNext(wxCommandEvent& event);
+   void OnGoToLine(wxCommandEvent& event);
+   void OnLineNumber(wxCommandEvent& event);
+   void OnIndentMore(wxCommandEvent& event);
+   void OnIndentLess(wxCommandEvent& event);
+   
+   void OnFont(wxCommandEvent& event);
+   
+   void OnStartServer(wxCommandEvent& event);
+   void OnStopServer(wxCommandEvent& event);
+   
+   void OnOpenMatlab(wxCommandEvent& event);
+   void OnCloseMatlab(wxCommandEvent& event);
+   
+   void OnFileCompareNumeric(wxCommandEvent& event);
+   void OnFileCompareText(wxCommandEvent& event);
+   void OnGenerateTextEphemFile(wxCommandEvent& event);
+   
+   void OnSashDrag(wxSashEvent &event);
+   void OnMsgSashDrag(wxSashEvent &event);
+   void OnMainFrameSize(wxSizeEvent &event);
+   void OnSetFocus(wxFocusEvent &event);
+   void OnKeyDown(wxKeyEvent &event);
+   
+   void OnAnimation(wxCommandEvent& event);
    
    void UpdateMenus(bool openOn);
    void EnableMenuAndToolBar(bool enable, bool missionRunning = false,
@@ -166,62 +217,6 @@ private:
    
    // event handling
    DECLARE_EVENT_TABLE();
-   void OnProjectNew(wxCommandEvent &event);
-   void OnClearCurrentMission(wxCommandEvent &event);
-   void OnLoadDefaultMission(wxCommandEvent &event);
-   void OnSaveScriptAs(wxCommandEvent &event);
-   void OnSaveScript(wxCommandEvent &event);
-   void OnPrintSetup(wxCommandEvent &event);
-   void OnPrint(wxCommandEvent &event);
-   void OnProjectExit(wxCommandEvent &event);
-   void OnRun(wxCommandEvent &event);
-   void OnPause(wxCommandEvent &event);
-   void OnStop(wxCommandEvent &event);
-   void OnHelpAbout(wxCommandEvent &event);
-   void OnHelpOnline(wxCommandEvent &event);
-   void OnHyperLinkClick(wxHyperlinkEvent &event);
-   
-   void OnNewScript(wxCommandEvent &event);
-   void OnOpenScript(wxCommandEvent &event);
-   void OnSetPath(wxCommandEvent &event);
-   
-   void OnUndo(wxCommandEvent& event);
-   void OnRedo(wxCommandEvent& event);
-   void OnCut(wxCommandEvent& event);
-   void OnCopy(wxCommandEvent& event);
-   void OnPaste(wxCommandEvent& event);
-   void OnComment(wxCommandEvent& event);
-   void OnUncomment(wxCommandEvent& event);
-   void OnSelectAll(wxCommandEvent& event);
-   
-   void OnFind(wxCommandEvent& event);
-   void OnFindNext(wxCommandEvent& event);
-   void OnReplace(wxCommandEvent& event);
-   void OnReplaceNext(wxCommandEvent& event);
-   void OnGoToLine(wxCommandEvent& event);
-   void OnLineNumber(wxCommandEvent& event);
-   void OnIndentMore(wxCommandEvent& event);
-   void OnIndentLess(wxCommandEvent& event);
-   
-   void OnFont(wxCommandEvent& event);
-   
-   void OnStartServer(wxCommandEvent& event);
-   void OnStopServer(wxCommandEvent& event);
-   
-   void OnOpenMatlab(wxCommandEvent& event);
-   void OnCloseMatlab(wxCommandEvent& event);
-   
-   void OnFileCompareNumeric(wxCommandEvent& event);
-   void OnFileCompareText(wxCommandEvent& event);
-   void OnGenerateTextEphemFile(wxCommandEvent& event);
-   
-   void OnSashDrag(wxSashEvent &event);
-   void OnMsgSashDrag(wxSashEvent &event);
-   void OnMainFrameSize(wxSizeEvent &event);
-   void OnSetFocus(wxFocusEvent &event);
-   void OnKeyDown(wxKeyEvent &event);
-   
-   void OnAnimation(wxCommandEvent& event);
    
 };
 

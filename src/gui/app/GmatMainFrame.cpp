@@ -359,10 +359,11 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    theMessageWin->SetSashVisible(wxSASH_TOP, TRUE);
    
    // create MessageWindow TextCtrl
-   // Made readonly (loj: 2009.01.27)
+   // Set additional style wxTE_READONLY and wxTE_RICH to Ctrl + mouse scroll 
+   // wheel to decrease or increase text size(loj: 2009.02.05)
    wxTextCtrl *msgTextCtrl =
       new wxTextCtrl(theMessageWin, -1, _T(""), wxDefaultPosition, wxDefaultSize,
-                     wxTE_MULTILINE|wxTE_READONLY);
+                     wxTE_MULTILINE|wxTE_READONLY|wxTE_RICH);
    
    msgTextCtrl->SetMaxLength(320000);
    gmatAppData->SetMessageTextCtrl(msgTextCtrl);
@@ -379,16 +380,21 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    msgWin->Show(true);
    
    // create MessageWindow TextCtrl
+   // Set additional style wxTE_READONLY and wxTE_RICH to Ctrl + mouse scroll 
+   // wheel to decrease or increase text size on Windows(loj: 2009.02.05)
    wxTextCtrl *floatingMsgTextCtrl =
       new wxTextCtrl(msgWin, -1, _T(""), wxDefaultPosition, wxDefaultSize,
-                     wxTE_MULTILINE);
+                     wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH);
    
    msgTextCtrl->SetMaxLength(320000);
    gmatAppData->SetMessageTextCtrl(floatingMsgTextCtrl);
    #endif
    //-----------------------------------------------------------------
    
-   msgTextCtrl->SetDefaultStyle(wxTextAttr(wxTELETYPE));
+   // Set font style
+   // Commented out because it showed in color other than black when
+   // style is wxTE_RICH (loj: 2009.02.05)
+   //msgTextCtrl->SetDefaultStyle(wxTextAttr(wxTELETYPE));
    
    // A window w/sash for gmat notebook
    theMainWin = new wxSashLayoutWindow(this, ID_SASH_WINDOW,
@@ -2308,7 +2314,11 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
       ScriptEventPanel *scriptEventPanel =
          new ScriptEventPanel(scrolledWin, (MissionTreeItemData*)item);
       sizer->Add(scriptEventPanel, 0, wxGROW|wxALL, 0);
+      #ifdef __USE_STC_EDITOR__
+      newChild->SetEditor(scriptEventPanel->GetEditor());
+      #else
       newChild->SetScriptTextCtrl(scriptEventPanel->mFileContentsTextCtrl);
+      #endif
       break;
    }
    case GmatTree::ASSIGNMENT:
