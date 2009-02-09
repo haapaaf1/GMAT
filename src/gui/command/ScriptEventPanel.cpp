@@ -247,6 +247,8 @@ void ScriptEventPanel::LoadData()
    
    #ifdef __USE_STC_EDITOR__
    mEditor->AppendText(scriptText);
+   mEditor->EmptyUndoBuffer();
+   mEditor->SetSavePoint();
    #else
    mFileContentsTextCtrl->AppendText(scriptText);
    mFileContentsTextCtrl->SetModified(false);
