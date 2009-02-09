@@ -388,7 +388,8 @@ void GmatMdiChildFrame::UpdateGuiItem(int updateEdit, int updateAnimation)
    //------------------------------------------------------------
    // Update MenuBar for this child
    if (updateEdit == 1 && (mItemType == GmatTree::SCRIPT_FILE ||
-                           mItemType == GmatTree::GMAT_FUNCTION))
+                           mItemType == GmatTree::GMAT_FUNCTION ||
+                           mItemType == GmatTree::SCRIPT_EVENT))
    {
       theMenuBar->EnableTop(editIndex, true);
       toolBar->EnableTool(GmatMenu::MENU_EDIT_CUT, TRUE);
