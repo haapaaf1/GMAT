@@ -51,8 +51,10 @@ ViewTextDialog::ViewTextDialog(wxWindow *parent, const wxString& title, int w, i
    theButtonSizer->Add(theOkButton, 0, wxALIGN_CENTER | wxALL, 2);   
    theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, 2);
    
+   // Set additional style wxTE_RICH to Ctrl + mouse scroll wheel to decrease or
+   // increase text size(loj: 2009.02.05)
    theText = new wxTextCtrl(this, -1, _T(""), wxDefaultPosition, wxSize(w,h),
-                            wxTE_MULTILINE | wxTE_READONLY);
+                            wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH);
    
    theText->SetMaxLength(320000);
    //theText->SetFont( GmatAppData::GetFont());

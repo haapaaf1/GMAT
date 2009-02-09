@@ -68,8 +68,10 @@ void ShowSummaryDialog::Create()
       scriptPanelSize.Set(500, 400);
    }
    
+   // Set additional style wxTE_RICH to Ctrl + mouse scroll wheel to decrease or
+   // increase text size on Windows(loj: 2009.02.05)
    theSummary = new wxTextCtrl(this, -1, text, wxPoint(0,0), scriptPanelSize, 
-                      wxTE_MULTILINE | wxTE_READONLY | wxHSCROLL);
+                    wxTE_MULTILINE | wxTE_READONLY | wxHSCROLL | wxTE_RICH);
    theSummary->SetFont( GmatAppData::Instance()->GetFont() );
    theMiddleSizer->Add(theSummary, 1, wxGROW|wxALL, 3);
 }

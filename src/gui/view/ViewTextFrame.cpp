@@ -45,8 +45,11 @@ ViewTextFrame::ViewTextFrame(wxFrame *frame, const wxString& title,
    CreateStatusBar(2);
    mWindowMode = mode;
    mTextType = type;
+   
+   // Set additional style wxTE_RICH to Ctrl + mouse scroll wheel to decrease or
+   // increase text size(loj: 2009.02.05)
    mTextCtrl = new wxTextCtrl(this, -1, _T(""), wxPoint(0, 0), wxSize(0, 0),
-                              wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP);
+                              wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH);
    mTextCtrl->SetMaxLength(320000);
    mTextCtrl->SetFont(GmatAppData::Instance()->GetFont());
    
