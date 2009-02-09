@@ -245,36 +245,41 @@ void ParameterSelectDialog::LoadData()
    MessageInterface::ShowMessage("ParameterSelectDialog::LoadData() entered.\n");
    #endif
    
-   if (mAllowSysParam)
+   if (mShowOption != GuiItemManager::SHOW_WHOLE_OBJECT_ONLY)
    {
-      if (!mAllowMultiSelect)
+      if (mAllowSysParam)
+      {
+         // Let's alway select the first item (loj: 2009.02.04)
+         //if (!mAllowMultiSelect)
          mPropertyListBox->SetSelection(0);
-      
-      if (mObjectType == "ImpulsiveBurn" || mAllowMultiSelect)
-      {
-         mCoordSysLabel->Hide();
-         mCoordSysComboBox->SetValue("");
-         mCentralBodyComboBox->SetValue("");
-         mCoordSysComboBox->Hide();
-         mCentralBodyComboBox->Hide();
-      }
-      else
-      {
-         mLastCoordSysName = mCoordSysComboBox->GetString(0);
          
-         // show coordinate system or central body
-         ShowCoordSystem();
+         if (mObjectType == "ImpulsiveBurn" || mAllowMultiSelect)
+         {
+            mCoordSysLabel->Hide();
+            mCoordSysComboBox->SetValue("");
+            mCentralBodyComboBox->SetValue("");
+            mCoordSysComboBox->Hide();
+            mCentralBodyComboBox->Hide();
+         }
+         else
+         {
+            mLastCoordSysName = mCoordSysComboBox->GetString(0);
+            
+            // show coordinate system or central body
+            ShowCoordSystem();
+         }
       }
    }
    
+   // Let's alway select the first item (loj: 2009.02.04)   
    // fire ListBoxSect event to show array info or not if single selection
-   if (!mAllowMultiSelect)
-   {
+   //if (!mAllowMultiSelect)
+   //{
       mObjectListBox->SetSelection(0);
       wxCommandEvent tempEvent;
       tempEvent.SetEventObject(mObjectListBox);
       OnListBoxSelect(tempEvent);
-   }
+   //}
    
    // hide array element
    ShowArrayInfo(false);
