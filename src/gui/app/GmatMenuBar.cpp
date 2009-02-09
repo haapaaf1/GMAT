@@ -18,6 +18,7 @@
 #include "MessageInterface.hpp"
 
 #define __ADD_CLOSE_TO_WINDOW_MENU__
+//#define __SHOW_EPHEM_FILE__
 
 //#define DEBUG_MENUBAR 1
 
@@ -145,6 +146,10 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
       wxMenu *toolsMenu = new wxMenu;
       toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_NUMERIC, wxT("Compare Numeric Values"), wxT(""));
       toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_TEXT, wxT("Compare Text Lines"), wxT(""));
+
+      #ifdef __SHOW_EPHEM_FILE__
+      toolsMenu->Append(MENU_TOOLS_GEN_TEXT_EPHEM_FILE, wxT("Generate Text Ephemeris File"), wxT(""));
+      #endif
       
       this->Append(toolsMenu, wxT("Tools"));
    }
