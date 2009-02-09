@@ -273,3 +273,40 @@ int GmatApp::OnExit()
    
    return 0;
 }
+
+
+//------------------------------------------------------------------------------
+// int FilterEvent(wxEvent& event)
+//------------------------------------------------------------------------------
+/**
+ * Keyboard events go to the component that currently has focus and do not propagate
+ * to the parent.
+ *
+ * This function is called early in event-processing, so we can catch key events
+ * globally and do things like F3 for find next.
+ */
+//------------------------------------------------------------------------------
+int GmatApp::FilterEvent(wxEvent& event)
+{
+   if (theMainFrame)
+   {
+      if (event.GetEventType() == wxEVT_KEY_DOWN)
+      {
+         // Find Next
+         if (((wxKeyEvent&)event).GetKeyCode() == WXK_F3)
+         {
+            theMainFrame->OnFindNext( (wxCommandEvent&)event );
+            return true;
+         }
+
+         // Find and Replace
+         if (((wxKeyEvent&)event).GetKeyCode() == 'H' &&     
+             ((wxKeyEvent&)event).GetModifiers() == wxMOD_CONTROL)
+         {
+            theMainFrame->OnReplaceNext( (wxCommandEvent&)event );
+         }
+      }
+   }
+   
+   return -1;
+}
