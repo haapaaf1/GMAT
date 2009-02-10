@@ -14,7 +14,7 @@
 //                             Original delivery
 //
 // **Legal**
-//                             
+//
 //                           : 2003/09/16 - W. Shoan/GSFC/583
 //                             added ObjectTypes enum type in namespace Gmat
 //                           : 11/9/2003 - D. Conway, Thinking Systems, Inc.
@@ -26,6 +26,7 @@
 
 
 #include <string>               // For std::string
+#include <cstring>              // Resolves issues for GCC 4.3
 #include <vector>               // For std::vector
 #include <map>                  // For std::map
 #include <stack>                // for std::stack
@@ -39,7 +40,7 @@
       #include <windows.h>
 
       #define  _USE_MATH_DEFINES  // makes Msoft define pi
-    
+
    #endif  // End Microsoft C++ specific block
 
    #ifdef _DYNAMICLINK  // Only used for Windows DLLs
@@ -78,17 +79,17 @@ typedef std::stack<ObjectMap*> ObjectMapStack;
 typedef struct geoparms
 {
    Real xtemp;  /// minimum global exospheric temperature (degrees K)
-   Real tkp;    /// geomagnetic index 
+   Real tkp;    /// geomagnetic index
 
-} GEOPARMS; 
+} GEOPARMS;
 
 
 namespace Gmat
 {
    /**
     * The list of object types
-    * 
-    * This list needs to be synchronized with the GmatBase::OBJECT_TYPE_STRING 
+    *
+    * This list needs to be synchronized with the GmatBase::OBJECT_TYPE_STRING
     * list found in base/Foundation/GmatBase.cpp
     */
    enum ObjectType
@@ -141,8 +142,8 @@ namespace Gmat
 
    /**
     * The list of data types
-    * 
-    * This list needs to be synchronized with the GmatBase::PARAM_TYPE_STRING 
+    *
+    * This list needs to be synchronized with the GmatBase::PARAM_TYPE_STRING
     * list found in base/Foundation/GmatBase.cpp
     */
    enum ParameterType
@@ -165,7 +166,7 @@ namespace Gmat
       TypeCount,
       UNKNOWN_PARAMETER_TYPE = -1
    };
-   
+
    enum WrapperDataType
    {
       NUMBER_WT,          // Real, Integer
@@ -183,9 +184,9 @@ namespace Gmat
       ON_OFF_WT,
       UNKNOWN_WRAPPER_TYPE = -2
    };
-   
-   
-   enum RunState 
+
+
+   enum RunState
    {
       IDLE = 10000,
       RUNNING,
@@ -196,8 +197,8 @@ namespace Gmat
       SOLVEDPASS,
       WAITING
    };
-   
-   enum WriteMode 
+
+   enum WriteMode
    {
       SCRIPTING,
       SHOW_SCRIPT,
@@ -207,7 +208,7 @@ namespace Gmat
       NO_COMMENTS,
       GUI_EDITOR,
    };
-   
+
 }
 
 typedef std::vector<Gmat::ObjectType> ObjectTypeArray;

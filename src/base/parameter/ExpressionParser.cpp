@@ -35,6 +35,9 @@
 #include "ParameterException.hpp"
 #include "MessageInterface.hpp"
 #include <iostream>
+
+#include <cstdlib>			// Required for GCC 4.3
+
 using namespace std;
 
 //#define DEBUG_EXP_PARSER 1
@@ -51,7 +54,7 @@ ExpressionParser::ExpressionParser()
 {
    mExp = NULL;
    mParamDb = NULL;
-   
+
    for (int i=0; i<NUM_VARS; i++)
       mVars[i] = 0.0;
 }
@@ -81,12 +84,12 @@ Real ExpressionParser::EvalExp(const char *exp)
    Real result;
    mExp = exp;
    *mToken = '\0';
-   
+
 #if DEBUG_EXP_PARSER
    MessageInterface::ShowMessage
       ("ExpressionParser::EvalExp() exp=%s\n", exp);
 #endif
-   
+
    GetToken();
 
    if (!*mToken)
@@ -100,7 +103,7 @@ Real ExpressionParser::EvalExp(const char *exp)
    if (*mToken)
       HandleSyntaxError(SYNTAX_ERROR); // last token must be null
 
-   
+
    return result;
 }
 
@@ -123,7 +126,7 @@ void ExpressionParser::SetParameterDatabase(ParameterDatabase *pdb)
 //---------------------------------
 // private methods
 //---------------------------------
- 
+
 //------------------------------------------------------------------------------
 // void EvalTwoTerms(Real &result)
 //------------------------------------------------------------------------------
@@ -221,7 +224,7 @@ void ExpressionParser::EvalExponent(Real &result)
       // This will not work for 10^.5
       //for (t=(int)temp-1; t>0; --t)
       //   result = result * (Real)ex;
-      
+
       result = pow(result, temp);
       //MessageInterface::ShowMessage
       //   ("===> result=%f, ex=%f, temp=%f\n", result, ex, temp);
@@ -295,7 +298,7 @@ void ExpressionParser::GetValue(Real &result)
    MessageInterface::ShowMessage
       ("ExpressionParser::GetValue() mToken=%s\n", mToken);
 #endif
-   
+
    switch (mTokenType)
    {
    case VARIABLE:
@@ -339,7 +342,7 @@ Real ExpressionParser::EvalVariable(char *var)
    //   MessageInterface::ShowMessage
    //      ("ExpressionParser::EvalVariable() In mParamDb: %s\n", paramNames[i].c_str());
 #endif
-   
+
    if (param != NULL)
    {
       return param->EvaluateReal();
@@ -350,7 +353,7 @@ Real ExpressionParser::EvalVariable(char *var)
          ("ExpressionParser::EvalVariable() Requested parameter: " + varName +
           " has NULL pointer. Make sure to call SetRefObject() of variable.\n");
    }
-   
+
 }
 
 
@@ -384,7 +387,7 @@ void ExpressionParser::GetToken()
    {
       while (!IsDelimiter(*mExp))
          *temp++ = *mExp++;
-      
+
       mTokenType = VARIABLE;
    }
    //else if (isdigit(*mExp))
@@ -392,7 +395,7 @@ void ExpressionParser::GetToken()
    {
       while (!IsDelimiter(*mExp))
          *temp++ = *mExp++;
-      
+
       mTokenType = NUMBER;
    }
 

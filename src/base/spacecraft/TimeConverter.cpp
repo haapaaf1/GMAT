@@ -1,4 +1,4 @@
-//$Header$ 
+//$Header$
 //------------------------------------------------------------------------------
 //                              TimeConverter
 //------------------------------------------------------------------------------
@@ -19,6 +19,8 @@
 
 #include "TimeConverter.hpp"
 
+#include <cstdlib>			// Required for GCC 4.3
+
 //-------------------------------------
 // public methods
 //-------------------------------------
@@ -31,7 +33,7 @@
  *
  */
 TimeConverter::TimeConverter() :
-   Converter("ModifiedJulian") 
+   Converter("ModifiedJulian")
 {
 }
 
@@ -45,7 +47,7 @@ TimeConverter::TimeConverter() :
  *
  */
 TimeConverter::TimeConverter(const std::string &type) :
-   Converter(type) 
+   Converter(type)
 {
 }
 
@@ -93,20 +95,20 @@ TimeConverter& TimeConverter::operator=(const TimeConverter &timeConverter)
 }
 
 //---------------------------------------------------------------------------
-//  Real TimeConverter::Convert(const Real time,   
+//  Real TimeConverter::Convert(const Real time,
 //                              const std::string &fromDateFormat,
 //                              const std::string &toDateFormat)
 //---------------------------------------------------------------------------
 /**
  * Assignment operator for TimeConverter structures.
  *
- * @param <time>            Given Time 
+ * @param <time>            Given Time
  * @param <fromDateFormat>  Time which is converted from date format
- * @param <toDateFormat>    Tiem which is converted to date format 
+ * @param <toDateFormat>    Tiem which is converted to date format
  *
- * @return Converted time from the specific data format 
+ * @return Converted time from the specific data format
  */
-std::string TimeConverter::Convert(const std::string &time,   
+std::string TimeConverter::Convert(const std::string &time,
                                    const std::string &fromDateFormat,
                                    const std::string &toDateFormat)
 {
@@ -123,11 +125,11 @@ std::string TimeConverter::Convert(const std::string &time,
    {
       if (toDateFormat == "TAIGregorian")
          return ModJulianToGregorian(inTime);
-      
+
     // 20.02.06 - arg: changed to use enum types instead of strings
 //      outTime = TimeConverterUtil::Convert(inTime, "A1Mjd", "UtcMjd",
 //         GmatTimeUtil::JD_JAN_5_1941);
-      outTime = TimeConverterUtil::Convert(inTime, TimeConverterUtil::A1MJD, 
+      outTime = TimeConverterUtil::Convert(inTime, TimeConverterUtil::A1MJD,
          TimeConverterUtil::UTCMJD, GmatTimeUtil::JD_JAN_5_1941);
 
       if (toDateFormat == "UTCModJulian")
@@ -150,7 +152,7 @@ std::string TimeConverter::Convert(const std::string &time,
     // 20.02.06 - arg: changed to use enum types instead of strings
 //      outTime = TimeConverterUtil::Convert(inTime, "A1Mjd", "UtcMjd",
 //         GmatTimeUtil::JD_JAN_5_1941);
-      outTime = TimeConverterUtil::Convert(inTime, TimeConverterUtil::A1MJD, 
+      outTime = TimeConverterUtil::Convert(inTime, TimeConverterUtil::A1MJD,
          TimeConverterUtil::UTCMJD, GmatTimeUtil::JD_JAN_5_1941);
 
       if (toDateFormat == "UTCGregorian")
@@ -169,9 +171,9 @@ std::string TimeConverter::Convert(const std::string &time,
     // 20.02.06 - arg: changed to use enum types instead of strings
 //      outTime = TimeConverterUtil::Convert(inTime, "UtcMjd", "A1Mjd",
 //         GmatTimeUtil::JD_JAN_5_1941);
-      outTime = TimeConverterUtil::Convert(inTime, TimeConverterUtil::UTCMJD, 
+      outTime = TimeConverterUtil::Convert(inTime, TimeConverterUtil::UTCMJD,
          TimeConverterUtil::A1MJD, GmatTimeUtil::JD_JAN_5_1941);
-         
+
       if (toDateFormat == "TAIGregorian")
          newTime = ModJulianToGregorian(outTime);
       else if (toDateFormat == "TAIModJulian")
@@ -192,7 +194,7 @@ std::string TimeConverter::Convert(const std::string &time,
     // 20.02.06 - arg: changed to use enum types instead of strings
 //      outTime = TimeConverterUtil::Convert(inTime, "UtcMjd", "A1Mjd",
 //         GmatTimeUtil::JD_JAN_5_1941);
-      outTime = TimeConverterUtil::Convert(inTime, TimeConverterUtil::UTCMJD, 
+      outTime = TimeConverterUtil::Convert(inTime, TimeConverterUtil::UTCMJD,
          TimeConverterUtil::A1MJD, GmatTimeUtil::JD_JAN_5_1941);
 
       if (toDateFormat == "TAIModJulian")

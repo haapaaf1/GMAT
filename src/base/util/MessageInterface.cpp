@@ -16,6 +16,8 @@
 #include "MessageInterface.hpp"
 #include <stdarg.h>              // for va_start() and va_end()
 
+#include <cstdlib>			// Required for GCC 4.3
+
 //---------------------------------
 //  static data
 //---------------------------------
@@ -72,7 +74,7 @@ MessageReceiver* MessageInterface::GetMessageReceiver()
 //------------------------------------------------------------------------------
 /**
  * Passes an std::string message to the MessageReceiver.
- * 
+ *
  * @param msgString The message that is displayed.
  */
 //------------------------------------------------------------------------------
@@ -88,12 +90,12 @@ void MessageInterface::ShowMessage(const std::string &msgString)
 //------------------------------------------------------------------------------
 /**
  * Passes a variable argument delimited message to the MessageReceiver.
- * 
- * @param msg The message, possibly including markers for variable argument 
+ *
+ * @param msg The message, possibly including markers for variable argument
  *            substitution.
- * @param ... The optional list of parameters that are inserted into the msg 
+ * @param ... The optional list of parameters that are inserted into the msg
  *            string.
- */ 
+ */
 //------------------------------------------------------------------------------
 void MessageInterface::ShowMessage(const char *msg, ...)
 {
@@ -108,10 +110,10 @@ void MessageInterface::ShowMessage(const char *msg, ...)
       // actual max message length is MAX_MESSAGE_LENGTH
       size = strlen(msg) + MAX_MESSAGE_LENGTH;
       //LogMessage("strlen(msg)=%d, size=%d\n", strlen(msg), size);
-      
+
       if( (msgBuffer = (char *)malloc(size)) != NULL )
       {
-         va_start(marker, msg);      
+         va_start(marker, msg);
          ret = vsprintf(msgBuffer, msg, marker);
          va_end(marker);
       }
@@ -120,7 +122,7 @@ void MessageInterface::ShowMessage(const char *msg, ...)
          msgBuffer = "*** WARNING *** Cannot allocate enough memory to show "
             "the message.\n";
       }
-      
+
       theMessageReceiver->ShowMessage(std::string(msgBuffer));
       free(msgBuffer);
    }
@@ -132,7 +134,7 @@ void MessageInterface::ShowMessage(const char *msg, ...)
 //------------------------------------------------------------------------------
 /**
  * Passes a popup message to the MessageReceiver.
- * 
+ *
  * @param msgType The type of message that is displayed, selected from the set
  *                {ERROR_, WARNING_, INFO_} enumerated in the Gmat namespace.
  * @param msg The message.
@@ -152,16 +154,16 @@ void MessageInterface::PopupMessage(Gmat::MessageType msgType, const std::string
 //------------------------------------------------------------------------------
 /**
  * Passes a variable argument delimited popup message to the MessageReceiver.
- * 
+ *
  * @param msgType The type of message that is displayed, selected from the set
  *                {ERROR_, WARNING_, INFO_} enumerated in the Gmat namespace.
- * @param msg The message, possibly including markers for variable argument 
+ * @param msg The message, possibly including markers for variable argument
  *            substitution.
- * @param ... The optional list of parameters that are inserted into the msg 
+ * @param ... The optional list of parameters that are inserted into the msg
  *            string.
  */
 //------------------------------------------------------------------------------
-void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg, 
+void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg,
       ...)
 {
    if (theMessageReceiver != NULL)
@@ -170,17 +172,17 @@ void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg,
       short    size;
       va_list  marker;
       char     *msgBuffer;
-      
+
       // msg is vsprintf format
       // actual max message length is MAX_MESSAGE_LENGTH
       size = strlen(msg) + MAX_MESSAGE_LENGTH;
-      
+
       if ( (msgBuffer = (char *)malloc(size)) != NULL )
       {
-         va_start(marker, msg);      
-         ret = vsprintf(msgBuffer, msg, marker);      
+         va_start(marker, msg);
+         ret = vsprintf(msgBuffer, msg, marker);
          va_end(marker);
-         
+
          // if no EOL then append it
          if (msgBuffer[strlen(msgBuffer)-1] != '\n')
             msgBuffer[strlen(msgBuffer)] = '\n';
@@ -189,9 +191,9 @@ void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg,
       {
          msgBuffer = "*** WARNING *** Cannot allocate enough memory to show the message.\n";
       }
-      
+
       theMessageReceiver->PopupMessage(msgType, std::string(msgBuffer));
-      
+
       free(msgBuffer);
    }
 } // end PopupMessage()
@@ -201,7 +203,7 @@ void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg,
 //------------------------------------------------------------------------------
 /**
  * Retrieves the fully qualified name of the log file from the MessageReceiver.
- * 
+ *
  * @return The name of the log file, including path information.
  */
 //------------------------------------------------------------------------------
@@ -217,8 +219,8 @@ std::string MessageInterface::GetLogFileName()
 //------------------------------------------------------------------------------
 /**
  * Tells the MessageReceiver to turn logging on or off.
- * 
- * @param flag The new logging state -- true enables logging, and false disables 
+ *
+ * @param flag The new logging state -- true enables logging, and false disables
  *             it.  The logging state is idempotent.
  */
 //------------------------------------------------------------------------------
@@ -264,7 +266,7 @@ void MessageInterface::SetLogFile(const std::string &filename)
 //------------------------------------------------------------------------------
 /**
  * Sends a message to the MessageReceiver for logging.
- * 
+ *
  * @param msg The message.
  */
 //------------------------------------------------------------------------------
@@ -279,10 +281,10 @@ void MessageInterface::LogMessage(const std::string &msg)
 //------------------------------------------------------------------------------
 /**
  * Sends a variable argument message to the MessageReceiver for logging.
- * 
- * @param msg The message, possibly including markers for variable argument 
+ *
+ * @param msg The message, possibly including markers for variable argument
  *            substitution.
- * @param ... The optional list of parameters that are inserted into the msg 
+ * @param ... The optional list of parameters that are inserted into the msg
  *            string.
  */
 //------------------------------------------------------------------------------
@@ -298,7 +300,7 @@ void MessageInterface::LogMessage(const char *msg, ...)
 //------------------------------------------------------------------------------
 /**
  * Tells the MessageReceiver to clear the message window.
- */  
+ */
 //------------------------------------------------------------------------------
 void MessageInterface::ClearMessage()
 {
