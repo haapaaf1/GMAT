@@ -35,41 +35,41 @@ public:
    virtual ~Thruster();
    Thruster(const Thruster& th);
    Thruster&                  operator=(const Thruster& th);
-   
+
    // Parameter access methods - overridden from GmatBase
-   virtual bool               SetRefObject(GmatBase *obj, 
+   virtual bool               SetRefObject(GmatBase *obj,
                                     const Gmat::ObjectType type,
                                     const std::string &name = "");
    virtual ObjectArray&       GetRefObjectArray(const Gmat::ObjectType type);
    virtual ObjectArray&       GetRefObjectArray(const std::string& typeString);
-   
+
    virtual std::string        GetParameterText(const Integer id) const;
    virtual Integer            GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType
                               GetParameterType(const Integer id) const;
    virtual std::string        GetParameterTypeString(const Integer id) const;
    virtual bool               IsParameterReadOnly(const Integer id) const;
-   
+
    virtual Real               GetRealParameter(const Integer id) const;
    virtual Real               SetRealParameter(const Integer id,
                                                const Real value);
    virtual std::string        GetStringParameter(const Integer id) const;
-   virtual bool               SetStringParameter(const Integer id, 
+   virtual bool               SetStringParameter(const Integer id,
                                                  const std::string &value);
 //   virtual std::string GetStringParameter(const Integer id,
 //                                          const Integer index) const;
-//   virtual bool        SetStringParameter(const Integer id, 
+//   virtual bool        SetStringParameter(const Integer id,
 //                                          const std::string &value,
 //                                          const Integer index);
    virtual bool               GetBooleanParameter(const Integer id) const;
    virtual bool               SetBooleanParameter(const Integer id,
                                                   const bool value);
-   
-   virtual const StringArray& GetStringArrayParameter(const Integer id) const; 
 
-   virtual bool               TakeAction(const std::string &action,  
+   virtual const StringArray& GetStringArrayParameter(const Integer id) const;
+
+   virtual bool               TakeAction(const std::string &action,
                                  const std::string &actionData = "");
-   
+
 
    // required method for all subclasses
    virtual GmatBase*          Clone() const;
@@ -77,11 +77,11 @@ public:
    virtual bool RenameRefObject(const Gmat::ObjectType type,
                                 const std::string &oldName,
                                 const std::string &newName);
-   
+
 protected:
    /// Finite burn instances access thruster data directly
    friend class FiniteBurn;
-   
+
    /// Tank names
    StringArray                tankNames;
    /// The tanks
@@ -91,10 +91,10 @@ protected:
    // /// Coordinate system -- currently a placeholder, waiting for build 4 code
    // CoordinateSystem     theCoordinates
    /// Array of thrust coefficients
-   Real                       cCoefficients[14];
+   Real                       cCoefficients[15];
    /// Array of specific impulse coefficients
-   Real                       kCoefficients[14];
-   
+   Real                       kCoefficients[15];
+
    /// Flag used to turn thruster on or off
    bool                       thrusterFiring;
    /// Thrust scale factor for this thruster
@@ -119,27 +119,27 @@ protected:
    /// Published parameters for thrusters
    enum
    {
-      TANK = HardwareParamCount, 
-      C1,    C2,    C3,    C4,    C5,    C6,    C7, 
-      C8,    C9,   C10,   C11,   C12,   C13,   C14, 
-      K1,    K2,    K3,    K4,    K5,    K6,    K7, 
-      K8,    K9,   K10,   K11,   K12,   K13,   K14,
+      TANK = HardwareParamCount,
+      C1,    C2,    C3,    C4,    C5,    C6,    C7,
+      C8,    C9,   C10,   C11,   C12,   C13,   C14,  C15,
+      K1,    K2,    K3,    K4,    K5,    K6,    K7,
+      K8,    K9,   K10,   K11,   K12,   K13,   K14,  K15,
       THRUSTER_FIRING,
-      COORDINATE_SYSTEM, 
+      COORDINATE_SYSTEM,
       THRUST_SCALE_FACTOR,
       ThrusterParamCount
    };
-   
+
    /// Thruster parameter labels
-   static const std::string 
+   static const std::string
                         PARAMETER_TEXT[ThrusterParamCount - HardwareParamCount];
    /// Thruster parameter types
-   static const Gmat::ParameterType 
+   static const Gmat::ParameterType
                         PARAMETER_TYPE[ThrusterParamCount - HardwareParamCount];
-                        
+
    bool                       CalculateThrustAndIsp();
    Real                       CalculateMassFlow();
-   
+
 };
 
 #endif // THRUSTER_HPP
