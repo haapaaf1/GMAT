@@ -35,10 +35,14 @@ const std::string
 Thruster::PARAMETER_TEXT[ThrusterParamCount - HardwareParamCount] =
 {
    "Tank",
-   "C1",  "C2",  "C3",  "C4",  "C5",  "C6",  "C7",
-   "C8",  "C9", "C10", "C11", "C12", "C13", "C14", "C15",
-   "K1",  "K2",  "K3",  "K4",  "K5",  "K6",  "K7",
-   "K8",  "K9", "K10", "K11", "K12", "K13", "K14", "K15",
+   
+   "C1",  "C2",  "C3",  "C4",  "C5",  "C6",  "C7",  "C8",  
+   "C9", "C10", "C11", "C12", "C13", "C14", "C15", "C16",
+   
+   "K1",  "K2",  "K3",  "K4",  "K5",  "K6",  "K7",  "K8",  
+   "K9", "K10", "K11", "K12", "K13", "K14", "K15", "K16",
+   
+   "GravitationalAcceleration",
    "IsFiring",
    "CoordinateSystem",
    "ThrustScaleFactor"
@@ -49,14 +53,18 @@ const Gmat::ParameterType
 Thruster::PARAMETER_TYPE[ThrusterParamCount - HardwareParamCount] =
 {
    Gmat::STRINGARRAY_TYPE,
+   // C's
    Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
    Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
    Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
+   Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
+   // K's
    Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
    Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
    Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
+   Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
+   
+   Gmat::REAL_TYPE,
    Gmat::BOOLEAN_TYPE,
    Gmat::STRING_TYPE,
    Gmat::REAL_TYPE,
@@ -76,6 +84,7 @@ Thruster::Thruster(std::string nomme) :
    Hardware             (Gmat::HARDWARE, "Thruster", nomme),
    coordinateName       ("MJ2000EarthEquator"),
    // theCoordinates       (NULL),
+   gravityAccel         (9.81),
    thrusterFiring       (false),
    thrustScaleFactor    (1.0),
    pressure             (1500.0),
@@ -90,21 +99,21 @@ Thruster::Thruster(std::string nomme) :
    objectTypeNames.push_back("Thruster");
    parameterCount = ThrusterParamCount;
 
-   cCoefficients[0]  = 500.0;
-   cCoefficients[11] = 1.0;
-   cCoefficients[1]  = cCoefficients[2] =  cCoefficients[3] =
-   cCoefficients[4]  = cCoefficients[5] =  cCoefficients[6] =
-   cCoefficients[7]  = cCoefficients[8] =  cCoefficients[9] =
-   cCoefficients[10] = cCoefficients[12] = cCoefficients[13] =
-   cCoefficients[14] = 0.0;
+   cCoefficients[2]  = 500.0;
+   cCoefficients[12] = 1.0;
+   cCoefficients[0]  = cCoefficients[1]  = cCoefficients[3] =
+   cCoefficients[4]  = cCoefficients[5]  = cCoefficients[6] =
+   cCoefficients[7]  = cCoefficients[8]  = cCoefficients[9] =
+   cCoefficients[10] = cCoefficients[11] = cCoefficients[13] =
+   cCoefficients[14] = cCoefficients[15] = 0.0;
 
-   kCoefficients[0]  = 2150.0;
-   kCoefficients[11] = 1.0;
-   kCoefficients[1]  = kCoefficients[2]  = kCoefficients[3] =
+   kCoefficients[2]  = 2150.0;
+   kCoefficients[12] = 1.0;
+   kCoefficients[0]  = kCoefficients[1]  = kCoefficients[3] =
    kCoefficients[4]  = kCoefficients[5]  = kCoefficients[6] =
    kCoefficients[7]  = kCoefficients[8]  = kCoefficients[9] =
-   kCoefficients[10] = kCoefficients[12] = kCoefficients[13] =
-   kCoefficients[14] = 0.0;
+   kCoefficients[10] = kCoefficients[11] = kCoefficients[13] =
+   kCoefficients[14] = kCoefficients[15] = 0.0;
 
    thrustDirection[0] = 1.0;
    thrustDirection[1] = 0.0;
@@ -138,6 +147,7 @@ Thruster::Thruster(const Thruster& th) :
    tankNames            (th.tankNames),
    coordinateName       (th.coordinateName),
    // theCoordinates       (th.theCoordinates), // Assumes CS's are globally accessed
+   gravityAccel         (th.gravityAccel),
    thrusterFiring       (th.thrusterFiring),
    thrustScaleFactor    (th.thrustScaleFactor),
    pressure             (th.pressure),
@@ -181,6 +191,8 @@ Thruster& Thruster::operator=(const Thruster& th)
 
    memcpy(cCoefficients, th.cCoefficients, 15 * sizeof(Real));
    memcpy(kCoefficients, th.kCoefficients, 15 * sizeof(Real));
+
+   gravityAccel = th.gravityAccel;
 
    thrustDirection[0] = th.thrustDirection[0];
    thrustDirection[1] = th.thrustDirection[1];
@@ -469,6 +481,8 @@ Real Thruster::GetRealParameter(const Integer id) const
          return cCoefficients[13];
       case C15:
          return cCoefficients[14];
+      case C16:
+         return cCoefficients[15];
 
       case K1:
          return kCoefficients[0];
@@ -500,6 +514,11 @@ Real Thruster::GetRealParameter(const Integer id) const
          return kCoefficients[13];
       case K15:
          return kCoefficients[14];
+      case K16:
+         return kCoefficients[15];
+         
+      case GRAVITATIONAL_ACCELERATION:
+         return gravityAccel;
       case THRUST_SCALE_FACTOR:
          return thrustScaleFactor;
 
@@ -526,7 +545,9 @@ Real Thruster::GetRealParameter(const Integer id) const
 //------------------------------------------------------------------------------
 Real Thruster::SetRealParameter(const Integer id, const Real value)
 {
-   switch (id) {
+   switch (id) 
+   {
+      // Thrust coefficients
       case C1:
          return cCoefficients[0] = value;
       case C2:
@@ -534,73 +555,84 @@ Real Thruster::SetRealParameter(const Integer id, const Real value)
             constantExpressions = false;
          return cCoefficients[1] = value;
       case C3:
-         if (value != 0.0)
-            constantExpressions = false;
          return cCoefficients[2] = value;
       case C4:
-         if (value != 0.0) {
+         if (value != 0.0) 
             constantExpressions = false;
-            simpleExpressions = false;
-         }
          return cCoefficients[3] = value;
       case C5:
-         if (value != 0.0) {
+         if (value != 0.0) 
             constantExpressions = false;
-            simpleExpressions = false;
-         }
          return cCoefficients[4] = value;
       case C6:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return cCoefficients[5] = value;
       case C7:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return cCoefficients[6] = value;
       case C8:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return cCoefficients[7] = value;
       case C9:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return cCoefficients[8] = value;
       case C10:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return cCoefficients[9] = value;
       case C11:
-         if (value != 0.0) {
+         if (value != 0.0)
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return cCoefficients[10] = value;
       case C12:
-         if (value != 0.0) {
+         if (value != 0.0)
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return cCoefficients[11] = value;
       case C13:
-         if (value != 0.0) {
+         if ((value != 0.0) && (value != 1.0)) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return cCoefficients[12] = value;
       case C14:
+         if (value != 0.0) 
+         {
+            constantExpressions = false;
+            simpleExpressions = false;
+         }
          return cCoefficients[13] = value;
       case C15:
          return cCoefficients[14] = value;
+      case C16:
+         return cCoefficients[15] = value;
+         
+      // Isp Coefficients
       case K1:
          return kCoefficients[0] = value;
       case K2:
@@ -608,78 +640,90 @@ Real Thruster::SetRealParameter(const Integer id, const Real value)
             constantExpressions = false;
          return kCoefficients[1] = value;
       case K3:
-         if (value != 0.0)
-            constantExpressions = false;
          return kCoefficients[2] = value;
       case K4:
-         if (value != 0.0) {
+         if (value != 0.0) 
             constantExpressions = false;
-            simpleExpressions = false;
-         }
          return kCoefficients[3] = value;
       case K5:
-         if (value != 0.0) {
+         if (value != 0.0) 
             constantExpressions = false;
-            simpleExpressions = false;
-         }
          return kCoefficients[4] = value;
       case K6:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return kCoefficients[5] = value;
       case K7:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return kCoefficients[6] = value;
       case K8:
-         if (value != 0.0) {
+         if (value != 0.0)
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return kCoefficients[7] = value;
       case K9:
-         if (value != 0.0) {
+         if (value != 0.0)
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return kCoefficients[8] = value;
       case K10:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return kCoefficients[9] = value;
       case K11:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return kCoefficients[10] = value;
       case K12:
-         if (value != 0.0) {
+         if (value != 0.0) 
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return kCoefficients[11] = value;
       case K13:
-         if (value != 0.0) {
+         if ((value != 0.0) && (value != 1.0))  
+         {
             constantExpressions = false;
             simpleExpressions = false;
          }
          return kCoefficients[12] = value;
       case K14:
+         if (value != 0.0) 
+         {
+            constantExpressions = false;
+            simpleExpressions = false;
+         }
          return kCoefficients[13] = value;
       case K15:
          return kCoefficients[14] = value;
-      case THRUST_SCALE_FACTOR:
-//         if (value > 0.0)
-//            thrustScaleFactor = value;
-//         return thrustScaleFactor;
+      case K16:
+         return kCoefficients[15] = value;
+         
+      // Other parameters
+      case GRAVITATIONAL_ACCELERATION:
+         if (value > 0.0)
+            gravityAccel = value;
+         return gravityAccel;
 
+      case THRUST_SCALE_FACTOR:
          if (value >= 0.0)
             thrustScaleFactor = value;
          else
@@ -692,6 +736,7 @@ Real Thruster::SetRealParameter(const Integer id, const Real value)
                "The allowed values are: [ Real Number >= 0.0 ]. ");
          }
          return thrustScaleFactor;
+
       default:
          break;   // Default just drops through
    }
@@ -939,35 +984,36 @@ bool Thruster::RenameRefObject(const Gmat::ObjectType type,
  * engine is given by
  *
    \f[
-    F_{T}(P,T) = \left\{ C_{1}+C_{2}P+C_{3}P^{2}+C_{4}P^{C_{5}}+
-                   C_{6}P^{C_{7}}+C_{8}P^{C_{9}}+
-                   C_{10}C_{11}^{C_{12}P}\right\} \left(\frac{T}{T_{ref}}
-                   \right)^{1+C_{13}+C_{14}P}\f]
+    F_{T}(P,T) = C_{1}+C_{2}P + \left\{ C_{3}+C_{4}P+C_{5}P^{2}+C_{6}P^{C_{7}}+
+                   C_{8}P^{C_{9}}+C_{10}P^{C_{11}}+
+                   C_{12}C_{13}^{C_{14}P}\right\} \left(\frac{T}{T_{ref}}
+                   \right)^{1+C_{15}+C_{16}P}\f]
  *
  * Pressures are expressed in kilopascals, and temperatures in degrees
- * centigrade. The coefficients C1 - C14 are set by the user. Each coefficient
+ * centigrade. The coefficients C1 - C16 are set by the user. Each coefficient
  * is expressed in units commiserate with the final expression in Newtons;
  * for example, C1 is expressed in Newtons, C2 in Newtons per kilopascal,
  * and so forth.
  *
- * Specific Impulse, measured in m/s (or, equivalently, Newton Seconds/kilogram)
- * is expressed using a similar equation:
+ * Specific Impulse, measured in sec is expressed using a similar equation:
  *
    \f[
-    I_{sp}(P,T) = \left\{ K_{1}+K_{2}P+K_{3}P^{2}+K_{4}P^{K_{5}}+
-                    K_{6}P^{K_{7}}+K_{8}P^{K_{9}}+K_{10}K_{11}^{K_{12}P}\right\}
-         \left(\frac{T}{T_{ref}}\right)^{1+K_{13}+K_{14}P}\f]
+    I_{sp}(P,T) = K_{1}+K_{2}P + \left\{ K_{3}+K_{4}P+K_{5}P^{2}+K_{6}P^{K_{7}}+
+                    K_{8}P^{K_{9}}+K_{10}P^{K_{11}}+K_{12}K_{13}^{K_{14}P}\right\}
+         \left(\frac{T}{T_{ref}}\right)^{1+K_{15}+K_{16}P}\f]
  *
  * @return true on successful evaluation.
  */
 //---------------------------------------------------------------------------
 bool Thruster::CalculateThrustAndIsp()
 {
-   if (!thrusterFiring) {
+   if (!thrusterFiring) 
+   {
       thrust  = 0.0;
       impulse = 0.0;
    }
-   else {
+   else 
+   {
       if (tanks.empty())
          throw HardwareException("Thruster \"" + instanceName +
                                     "\" does not have a fuel tank");
@@ -981,37 +1027,40 @@ bool Thruster::CalculateThrustAndIsp()
       temperatureRatio = tanks[0]->GetRealParameter(tempID) /
                          tanks[0]->GetRealParameter(refTempID);
 
-      thrust = cCoefficients[0];
-      impulse = kCoefficients[0];
+      thrust = cCoefficients[2];
+      impulse = kCoefficients[2];
 
-      if (!constantExpressions) {
+      if (!constantExpressions) 
+      {
 
-         thrust  += pressure*(cCoefficients[1] + pressure*(cCoefficients[2]
-                              + pressure*cCoefficients[3]));
-         impulse += pressure*(kCoefficients[1] + pressure*(kCoefficients[2]
-                              + pressure*kCoefficients[3]));
+         thrust  += pressure*(cCoefficients[3] + pressure*cCoefficients[4]);
+         impulse += pressure*(kCoefficients[3] + pressure*kCoefficients[4]);
 
          // For efficiency, if thrust and Isp are simple, don't bother evaluating
          // higher order terms
          if (!simpleExpressions) {
-            thrust  += cCoefficients[4] * pow(pressure, cCoefficients[5]) +
-                       cCoefficients[6] * pow(pressure, cCoefficients[7]) +
-                       cCoefficients[8] * pow(pressure, cCoefficients[9]) +
-                       cCoefficients[10] * pow(cCoefficients[11],
-                                              pressure * cCoefficients[12]);
+            thrust  += cCoefficients[5] * pow(pressure, cCoefficients[6]) +
+                       cCoefficients[7] * pow(pressure, cCoefficients[8]) +
+                       cCoefficients[9] * pow(pressure, cCoefficients[10]) +
+                       cCoefficients[11] * pow(cCoefficients[12],
+                                              pressure * cCoefficients[13]);
 
-            impulse += kCoefficients[4] * pow(pressure, kCoefficients[5]) +
-                       kCoefficients[6] * pow(pressure, kCoefficients[7]) +
-                       kCoefficients[8] * pow(pressure, kCoefficients[9]) +
-                       kCoefficients[10] * pow(kCoefficients[11],
-                                              pressure * kCoefficients[12]);
+            impulse += kCoefficients[5] * pow(pressure, kCoefficients[6]) +
+                       kCoefficients[7] * pow(pressure, kCoefficients[8]) +
+                       kCoefficients[9] * pow(pressure, kCoefficients[10]) +
+                       kCoefficients[11] * pow(kCoefficients[12],
+                                              pressure * kCoefficients[13]);
          }
       }
 
-      thrust  *= pow(temperatureRatio, (1.0 + cCoefficients[13] +
-                     pressure*cCoefficients[14])) * thrustScaleFactor;
-      impulse *= pow(temperatureRatio, (1.0 + kCoefficients[13] +
-                     pressure*kCoefficients[14]));
+      thrust  *= pow(temperatureRatio, (1.0 + cCoefficients[14] +
+                     pressure*cCoefficients[15])) * thrustScaleFactor;
+      impulse *= pow(temperatureRatio, (1.0 + kCoefficients[14] +
+                     pressure*kCoefficients[15]));
+      
+      // Now add the temperature independent pieces
+      thrust  += cCoefficients[0] + cCoefficients[1] * pressure;
+      impulse += kCoefficients[0] + kCoefficients[1] * pressure;
    }
 
    return true;
@@ -1033,7 +1082,8 @@ Real Thruster::CalculateMassFlow()
 {
    if (!thrusterFiring)
       return 0.0;
-   else {
+   else 
+   {
       if (tanks.empty())
          throw HardwareException("Thruster \"" + instanceName +
                                     "\" does not have a fuel tank");
@@ -1046,14 +1096,16 @@ Real Thruster::CalculateMassFlow()
          if (impulse == 0.0)
             throw HardwareException("Thruster \"" + instanceName +
                                     "\" has specific impulse == 0.0");
-         mDot = (thrust/thrustScaleFactor) / impulse;
+         mDot = (thrust/thrustScaleFactor) / (gravityAccel * impulse);
       //}
    }
 
    #ifdef DEBUG_THRUSTER
       MessageInterface::ShowMessage(
-            "   Thrust = %15lf, Isp = %15lf, MassFlow = %15lf T/Isp =  %lf\n",
-            thrust, impulse, mDot, thrust/impulse);
+            "   Thrust = %15lf, Isp = %15lf, gravity accel = %lf, TSF = %lf, "
+            "MassFlow = %15lf T/Isp =  %lf\n",
+            thrust, impulse, gravityAccel, thrustScaleFactor, mDot, 
+            thrust/impulse);
    #endif
 
    return mDot;

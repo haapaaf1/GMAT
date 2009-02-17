@@ -23,6 +23,7 @@
 #include "FuelTank.hpp"
 #include "MessageInterface.hpp"
 
+#define COEFFICIENT_COUNT 16
 
 /**
  * Thruster model used for finite maneuvers
@@ -91,9 +92,11 @@ protected:
    // /// Coordinate system -- currently a placeholder, waiting for build 4 code
    // CoordinateSystem     theCoordinates
    /// Array of thrust coefficients
-   Real                       cCoefficients[15];
+   Real                       cCoefficients[COEFFICIENT_COUNT];
    /// Array of specific impulse coefficients
-   Real                       kCoefficients[15];
+   Real                       kCoefficients[COEFFICIENT_COUNT];
+   /// Acceleration due to gravity, used to specify Isp in seconds
+   Real                       gravityAccel;
 
    /// Flag used to turn thruster on or off
    bool                       thrusterFiring;
@@ -120,10 +123,11 @@ protected:
    enum
    {
       TANK = HardwareParamCount,
-      C1,    C2,    C3,    C4,    C5,    C6,    C7,
-      C8,    C9,   C10,   C11,   C12,   C13,   C14,  C15,
-      K1,    K2,    K3,    K4,    K5,    K6,    K7,
-      K8,    K9,   K10,   K11,   K12,   K13,   K14,  K15,
+      C1,    C2,    C3,    C4,    C5,    C6,    C7,    C8,    
+      C9,   C10,   C11,   C12,   C13,   C14,   C15,   C16, 
+      K1,    K2,    K3,    K4,    K5,    K6,    K7,    K8,    
+      K9,   K10,   K11,   K12,   K13,   K14,   K15,   K16,
+      GRAVITATIONAL_ACCELERATION,
       THRUSTER_FIRING,
       COORDINATE_SYSTEM,
       THRUST_SCALE_FACTOR,
