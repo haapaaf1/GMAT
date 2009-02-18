@@ -89,6 +89,20 @@ wxString GuiItemManager::ToWxString(Real rval)
    return str;
 }
 
+//------------------------------------------------------------------------------
+// wxString ToWxString(Integer ival)
+//------------------------------------------------------------------------------
+wxString GuiItemManager::ToWxString(Integer ival)
+{
+   wxString str;
+   std::stringstream ss;
+//   ss.precision(theDataPrecision);
+   
+   ss << ival;
+   str.Printf("%s", ss.str().c_str());
+   return str;
+}
+
 
 //------------------------------------------------------------------------------
 // int IsValidVariable(const std::string &varName, Gmat::ObjectType ownerType,
@@ -517,6 +531,7 @@ void GuiItemManager::UpdateSolarSystem(bool updateObjectArray)
    
    UpdateCelestialBodyList();
    UpdateCelestialPointList();
+   UpdateSpacePointList();
    if (updateObjectArray)
       AddToAllObjectArray();
 }
@@ -767,6 +782,14 @@ void GuiItemManager::UnregisterComboBox(const wxString &type, wxComboBox *cb)
       
       if (pos != mSpacePointCBList.end())
          mSpacePointCBList.erase(pos);
+   }
+   else if (type == "CelestialBody")
+   {
+      std::vector<wxComboBox*>::iterator pos =
+         find(mCelesBodyCBList.begin(), mCelesBodyCBList.end(), cb);
+      
+      if (pos != mCelesBodyCBList.end())
+         mCelesBodyCBList.erase(pos);
    }
    else if (type == "Spacecraft")
    {
@@ -1282,6 +1305,45 @@ GuiItemManager::GetCelestialPointComboBox(wxWindow *parent, wxWindowID id,
    celestialPointComboBox->SetSelection(0);
    
    return celestialPointComboBox;
+}
+
+//------------------------------------------------------------------------------
+// wxComboBox* GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id,
+//                                      const wxSize &size, bool addVector = false)
+//------------------------------------------------------------------------------
+/**
+ * @return configured CelestialBody object ComboBox pointer
+ */
+//------------------------------------------------------------------------------
+wxComboBox*
+GuiItemManager::GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id,
+                                         const wxSize &size, bool addVector)
+{
+   #if DBGLVL_GUI_ITEM
+   MessageInterface::ShowMessage
+      ("GuiItemManager::GetCelestialBodyComboBox()\n");
+   #endif
+      
+   wxArrayString emptyList;
+   wxComboBox * celestialBodyComboBox =
+      new wxComboBox(parent, id, wxT(""), wxDefaultPosition, size, emptyList,
+                     wxCB_READONLY);
+   
+   if (addVector)
+      celestialBodyComboBox->Append("Vector");
+   
+   for (int i=0; i<theNumCelesBody; i++)
+      celestialBodyComboBox->Append(theCelesBodyList[i]);
+    
+   // select first item
+   celestialBodyComboBox->SetSelection(0);
+      
+   //---------------------------------------------
+   // register to update list
+   //---------------------------------------------
+   mCelesBodyCBList.push_back(celestialBodyComboBox);
+   
+   return celestialBodyComboBox;
 }
 
 
@@ -3456,6 +3518,27 @@ void GuiItemManager::UpdateCelestialBodyList()
                                     std::string(theCelesBodyList[i].c_str()) + "\n");
       #endif
    }
+//   //-------------------------------------------------------
+//   // update registered SpacePoint ComboBox
+//   //-------------------------------------------------------
+//   for (std::vector<wxComboBox*>::iterator pos = theCelesBodyList.begin();
+//        pos != theCelesBodyList.end(); ++pos)
+//   {
+//      wxString str = (*pos)->GetStringSelection();
+//      
+//      if ((*pos)->FindString("Vector") == wxNOT_FOUND)
+//      {
+//         (*pos)->Clear();
+//      }
+//      else
+//      {
+//         (*pos)->Clear();
+//         (*pos)->Append("Vector");
+//      }
+//      
+//      (*pos)->Append(theCelesBodyList);
+//      (*pos)->SetStringSelection(str);
+//   }
 }
 
 

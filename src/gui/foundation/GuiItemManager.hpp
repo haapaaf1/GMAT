@@ -47,6 +47,7 @@ public:
    static GuiItemManager* GetInstance();
    
    wxString ToWxString(Real rval);
+   wxString ToWxString(Integer ival);
    int IsValidVariable(const std::string &varName, Gmat::ObjectType ownerType,
                        bool allowNumber = false, bool allowNonPlottable = false);
    
@@ -155,6 +156,9 @@ public:
    
    wxComboBox* GetCelestialPointComboBox(wxWindow *parent, wxWindowID id, 
                                          const wxSize &size, bool addVector = false);
+   
+   wxComboBox* GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id, 
+                                        const wxSize &size, bool addVector = false);
    
    wxComboBox* GetUserVariableComboBox(wxWindow *parent, wxWindowID id,
                                        const wxSize &size);
@@ -352,6 +356,7 @@ private:
    
    std::vector<wxComboBox*> mSpacePointCBList;
    std::vector<wxComboBox*> mSpacecraftCBList;
+   std::vector<wxComboBox*> mCelesBodyCBList;
    std::vector<wxComboBox*> mImpBurnCBList;
    std::vector<wxComboBox*> mFiniteBurnCBList;
    std::vector<wxComboBox*> mCoordSysCBList;
