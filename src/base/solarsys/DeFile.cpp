@@ -484,13 +484,14 @@ void DeFile::InitializeDeFile(std::string fName, Gmat::DeFileFormat fileFmt)
       binaryFileName = fName;
    }
 
-   if (defType == Gmat::DE200)
-   {
-
-      arraySize = DeFile::ARRAY_SIZE_200;
-      EPHEMERIS = 200;
-   }
-   else if (defType == Gmat::DE405)
+//   if (defType == Gmat::DE200)
+//   {
+//
+//      arraySize = DeFile::ARRAY_SIZE_200;
+//      EPHEMERIS = 200;
+//   }
+//   else if (defType == Gmat::DE_DE405)
+   if (defType == Gmat::DE_DE405)
    {
       arraySize = DeFile::ARRAY_SIZE_405;
       EPHEMERIS = 405;

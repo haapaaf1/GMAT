@@ -588,9 +588,11 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       #endif
 
    }
+//   else if ((originName == SolarSystem::MOON_NAME) &&
+//      ((((CelestialBody*)origin)->GetPosVelSource() == Gmat::DE_200) ||
+//       (((CelestialBody*)origin)->GetPosVelSource() == Gmat::DE_405)))
    else if ((originName == SolarSystem::MOON_NAME) &&
-      ((((CelestialBody*)origin)->GetPosVelSource() == Gmat::DE_200) ||
-       (((CelestialBody*)origin)->GetPosVelSource() == Gmat::DE_405)))
+       (((CelestialBody*)origin)->GetPosVelSource() == Gmat::DE405))
    {
       if (!de)
       {
