@@ -35,7 +35,7 @@ namespace Gmat  // does this belong in DeFIle.hpp???????????????
       DE405,
       DE406
    };
-   
+
    // different types of DE files
    enum DeFileFormat
    {
@@ -72,7 +72,7 @@ public:
     */
    //------------------------------------------------------------------------------
    virtual Integer GetBodyID(std::string bodyName) = 0;
-   
+
    //------------------------------------------------------------------------------
    //  Real* GetPosVel(Integer forBody, A1Mjd atTime)
    //------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ public:
     *         time.
     */
    //------------------------------------------------------------------------------
-   virtual Real* GetPosVel(Integer forBody, A1Mjd atTime, 
+   virtual Real* GetPosVel(Integer forBody, A1Mjd atTime,
                            bool overrideTimeSystem = false) = 0;
 
    // method to return the day-of-year and year of the start time of the
@@ -104,7 +104,7 @@ public:
    //------------------------------------------------------------------------------
    virtual Integer* GetStartDayAndYear() = 0;
 
-  
+
 protected:
    // file type (from Swingby - added constructors, operator=, destructor
    struct dcb_type
