@@ -21,6 +21,7 @@
 #include "gmatdefs.hpp"
 #include "GuiInterpreter.hpp"
 #include "MessageInterface.hpp"
+#include "GmatStaticBoxSizer.hpp"
 
 //#define DEBUG_VARY_PANEL 1
 
@@ -96,9 +97,12 @@ void VaryPanel::Create()
       theGuiManager->GetSolverComboBox(this, ID_COMBO, wxSize(180,-1));
    
    // Variable
+//   wxStaticText *varStaticText =
+//      new wxStaticText(this, ID_TEXT, wxT("Variable"), 
+//                       wxDefaultPosition, wxSize(40, -1), 0);
    wxStaticText *varStaticText =
       new wxStaticText(this, ID_TEXT, wxT("Variable"), 
-                       wxDefaultPosition, wxSize(40, -1), 0);
+                       wxDefaultPosition, wxSize(55, -1), 0);
    mVarNameTextCtrl = new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
                                      wxDefaultPosition, wxSize(250,-1), 0);
    mViewVarButton = new
@@ -155,8 +159,9 @@ void VaryPanel::Create()
    
    // wx*Sizers
    wxBoxSizer *panelSizer = new wxBoxSizer(wxVERTICAL);
-   wxStaticBox *varSetupStaticBox = new wxStaticBox(this, -1, wxT("Variable Setup"));
-   wxStaticBoxSizer *varSetupSizer = new wxStaticBoxSizer(varSetupStaticBox, wxVERTICAL);
+//   wxStaticBox *varSetupStaticBox = new wxStaticBox(this, -1, wxT("Variable Setup"));
+   //wxStaticBoxSizer *varSetupSizer = new wxStaticBoxSizer(varSetupStaticBox, wxVERTICAL);
+   GmatStaticBoxSizer *varSetupSizer = new GmatStaticBoxSizer(wxVERTICAL, this, "Variable Setup");
    wxFlexGridSizer *valueGridSizer = new wxFlexGridSizer(6, 0, 0);
    wxBoxSizer *solverBoxSizer = new wxBoxSizer(wxHORIZONTAL);
    wxBoxSizer *variableBoxSizer = new wxBoxSizer(wxHORIZONTAL);
