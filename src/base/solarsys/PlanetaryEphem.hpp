@@ -28,12 +28,12 @@ namespace Gmat  // does this belong in DeFIle.hpp???????????????
    // different types of DE files
    enum DeFileType
    {
-      DE102 = 0,
-      DE200,
-      DE202,
-      DE403,
-      DE405,
-      DE406
+//      DE102 = 0,
+//      DE200,
+//      DE202,
+//      DE403,
+      DE_DE405,
+//      DE406
    };
    
    // different types of DE files
