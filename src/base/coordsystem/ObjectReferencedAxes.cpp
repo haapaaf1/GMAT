@@ -6,14 +6,14 @@
 //
 // **Legal**
 //
-// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under 
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
 // MOMS Task order 124.
 //
 // Author: Wendy C. Shoan
 // Created: 2005/03/02
 //
 /**
- * Implementation of the ObjectReferencedAxes class.  
+ * Implementation of the ObjectReferencedAxes class.
  *
  */
 //------------------------------------------------------------------------------
@@ -25,6 +25,8 @@
 #include "CoordinateSystemException.hpp"
 
 #include "MessageInterface.hpp"
+
+#include <algorithm>			// Required by GCC 4.3
 
 //#define DEBUG_OR_AXES
 
@@ -389,16 +391,16 @@ bool ObjectReferencedAxes::RenameRefObject(const Gmat::ObjectType type,
       ("ObjectReferencedAxes::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
-   
+
    if (type != Gmat::CALCULATED_POINT)
       return true;
 
    if (primaryName == oldName)
       primaryName = newName;
-   
+
    if (secondaryName == oldName)
       secondaryName = newName;
-   
+
    return true;
 }
 
@@ -441,7 +443,7 @@ Integer ObjectReferencedAxes::GetParameterID(const std::string &str) const
       if (str == PARAMETER_TEXT[i - DynamicAxesParamCount])
          return i;
    }
-   
+
    return DynamicAxes::GetParameterID(str);
 }
 
@@ -461,7 +463,7 @@ Gmat::ParameterType ObjectReferencedAxes::GetParameterType(const Integer id) con
 {
    if (id >= DynamicAxesParamCount && id < ObjectReferencedAxesParamCount)
       return PARAMETER_TYPE[id - DynamicAxesParamCount];
-   
+
    return DynamicAxes::GetParameterType(id);
 }
 
@@ -555,7 +557,7 @@ bool ObjectReferencedAxes::SetStringParameter(const Integer id,
       OK = true;
    }
    if (OK) return true;
-   
+
    return DynamicAxes::SetStringParameter(id, value);
 }
 
@@ -656,7 +658,7 @@ const StringArray& ObjectReferencedAxes::GetRefObjectNameArray(const Gmat::Objec
          refs.push_back(originName);
       if (find(refs.begin(), refs.end(), j2000BodyName) == refs.end())
          refs.push_back(j2000BodyName);
-         
+
       #ifdef DEBUG_REFERENCE_SETTING
          MessageInterface::ShowMessage("+++ReferenceObjects:\n");
          for (StringArray::iterator i = refs.begin(); i != refs.end(); ++i)
@@ -764,7 +766,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    if (!primary)
       throw CoordinateSystemException("Primary \"" + primaryName +
          "\" is not yet set in object referenced!");
-   
+
    if ((xAxis == yAxis) || (xAxis == zAxis) ||
        (yAxis == zAxis))
       throw CoordinateSystemException(
@@ -792,7 +794,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       visitCount++;
    }
 #endif
-   Rvector3 a     =  useAsSecondary->GetMJ2000Acceleration(atEpoch) - 
+   Rvector3 a     =  useAsSecondary->GetMJ2000Acceleration(atEpoch) -
                      primary->GetMJ2000Acceleration(atEpoch);
    Rvector3 r      = rv.GetR();
    Rvector3 v      = rv.GetV();
@@ -944,7 +946,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    rotMatrix(2,0) = xUnit(2);
    rotMatrix(2,1) = yUnit(2);
    rotMatrix(2,2) = zUnit(2);
-   
+
    // Compute the rotation derivative matrix
    rotDotMatrix(0,0) = xDot(0);
    rotDotMatrix(0,1) = yDot(0);
@@ -955,7 +957,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    rotDotMatrix(2,0) = xDot(2);
    rotDotMatrix(2,1) = yDot(2);
    rotDotMatrix(2,2) = zDot(2);
-   
+
 #ifdef DEBUG_ROT_MATRIX
    MessageInterface::ShowMessage
       ("rotMatrix=%s\n", rotMatrix.ToString().c_str());
@@ -967,7 +969,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
 #endif
 
    // Check for orthogonality - is this correct?
-   // orthonormal instead? accuracy (tolerance)? 
+   // orthonormal instead? accuracy (tolerance)?
    if (!rotMatrix.IsOrthogonal(1.0e-15))
       throw CoordinateSystemException(
   "Object referenced axes definition does not result in an orthogonal system.");
