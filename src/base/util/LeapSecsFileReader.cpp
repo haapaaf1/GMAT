@@ -29,6 +29,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include <cstdlib>
+
 using namespace std;
 
 //---------------------------------
@@ -111,8 +113,8 @@ bool LeapSecsFileReader::Initialize()
 //------------------------------------------------------------------------------
 /**
  * Parses each line to add leap second information to the table
- * 
- * Format of the line is: 
+ *
+ * Format of the line is:
  *       YYYY MMM  D =JD jDate  TAI-UTC= off1 S + (MJD - off2) X off3 S
  * @return true if the file parses successfully
  */
@@ -121,17 +123,17 @@ bool LeapSecsFileReader::Parse(std::string line)
 {
 //   MessageInterface::ShowMessage("LeapSecsFileReader::Parse()\n");
    Real jDate, off1, off2, off3;
-    
+
    StringTokenizer stringToken(line," ");
    Integer count = stringToken.CountTokens();
-   
+
    if (count == 15)
    {
       jDate = atof(stringToken.GetToken(4).c_str());
       off1 = atof(stringToken.GetToken(6).c_str());
       off2 = atof(stringToken.GetToken(11).c_str());
       off3 = atof(stringToken.GetToken(13).c_str());
-   
+
       LeapSecondInformation leapSecInfo = {jDate, off1, off2, off3};
       lookUpTable.push_back(leapSecInfo);
       return true;
@@ -147,7 +149,7 @@ bool LeapSecsFileReader::Parse(std::string line)
 /**
  * Converts utcmjd to utcjd and then looks it up from the table.  If file is not
  * read, 0 is returned.
- * 
+ *
  * @return number of leap seconds
  * @note Assumes that JD from table is utcjd.
  */
