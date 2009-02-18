@@ -130,7 +130,7 @@ PhysicalModel::PARAMETER_TYPE[PhysicalModelParamCount - GmatBaseParamCount] =
  *
  * This constructor sets the size of the physical model to one variable, and
  * NULLs the state pointer.  Derived classes should set the dimension parameter
- * to a more appropriate value; the Initialize() method is used to allocate 
+ * to a more appropriate value; the Initialize() method is used to allocate
  * state data array.
  */
 //------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ PhysicalModel::PhysicalModel(Gmat::ObjectType id, const std::string &typeStr,
    objectTypeNames.push_back("PhysicalModel");
    parameterCount = PhysicalModelParamCount;
 }
-             
+
 //------------------------------------------------------------------------------
 // PhysicalModel::~PhysicalModel()
 //------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ PhysicalModel::~PhysicalModel()
 //   if (rawState != modelState)
 //      if (rawState)
 //         delete [] rawState;
-         
+
 //   if (modelState)
 //      delete [] modelState;
 
@@ -207,10 +207,10 @@ PhysicalModel::PhysicalModel(const PhysicalModel& pm) :
    relativeErrorThreshold      (pm.relativeErrorThreshold),
    solarSystem                 (pm.solarSystem)
 {
-   if (pm.modelState != NULL) 
+   if (pm.modelState != NULL)
    {
       modelState = new Real[dimension];
-      if (modelState != NULL) 
+      if (modelState != NULL)
          memcpy(modelState, pm.modelState, dimension * sizeof(Real));
       else
          initialized = false;
@@ -219,10 +219,10 @@ PhysicalModel::PhysicalModel(const PhysicalModel& pm) :
       modelState = NULL;
    rawState = modelState;
 
-   if (pm.deriv != NULL) 
+   if (pm.deriv != NULL)
    {
       deriv = new Real[dimension];
-      if (deriv != NULL) 
+      if (deriv != NULL)
          memcpy(deriv, pm.deriv, dimension * sizeof(Real));
       else
          initialized = false;
@@ -246,7 +246,7 @@ PhysicalModel& PhysicalModel::operator=(const PhysicalModel& pm)
       return *this;
 
    GmatBase::operator=(pm);
-   
+
    /// @note: Since the next two are global objects, assignment works
    body        = pm.body;
    forceOrigin = pm.forceOrigin;
@@ -259,28 +259,28 @@ PhysicalModel& PhysicalModel::operator=(const PhysicalModel& pm)
    prevElapsedTime = pm.prevElapsedTime;
    relativeErrorThreshold = pm.relativeErrorThreshold;
    solarSystem = pm.solarSystem;
-   
+
    theState = pm.theState;
-   
-   if (pm.modelState) 
+
+   if (pm.modelState)
    {
-      if (modelState) 
+      if (modelState)
       {
          delete [] modelState;
          modelState = NULL;
       }
       modelState = new Real[dimension];
-      if (modelState != NULL) 
+      if (modelState != NULL)
          memcpy(modelState, pm.modelState, dimension * sizeof(Real));
       else
          initialized = false;
-   
+
       stateChanged = pm.stateChanged;
    }
 
    rawState = modelState;
-   
-   if (pm.deriv) 
+
+   if (pm.deriv)
    {
       if (deriv)
       {
@@ -288,12 +288,12 @@ PhysicalModel& PhysicalModel::operator=(const PhysicalModel& pm)
          deriv = NULL;
       }
       deriv = new Real[dimension];
-      if (deriv != NULL) 
+      if (deriv != NULL)
          memcpy(deriv, pm.deriv, dimension * sizeof(Real));
       else
          initialized = false;
    }
-   
+
    return *this;
 }
 
@@ -329,7 +329,7 @@ std::string PhysicalModel::GetBodyName()
  */
 //------------------------------------------------------------------------------
 void PhysicalModel::SetBody(CelestialBody *theBody)
-{  
+{
    if (theBody != NULL)
    {
       if (body != NULL)
@@ -337,7 +337,7 @@ void PhysicalModel::SetBody(CelestialBody *theBody)
             delete body;
       }
    }
-      
+
    body = theBody;
    bodyName = body->GetName();
 //    mu = theBody->GetGravitationalConstant();
@@ -355,22 +355,22 @@ void PhysicalModel::SetForceOrigin(CelestialBody* toBody)
 /**
  * Prepare the physical model for use
  *
- * This method allocates the state and deriv arrays, and can be overridden to 
+ * This method allocates the state and deriv arrays, and can be overridden to
  * perform other actions for the system setup.
  *
- * Note that deriv is allocated even if it is not used.  This feature may be 
+ * Note that deriv is allocated even if it is not used.  This feature may be
  * PhysicalModelremoved in a later release.
  */
 //------------------------------------------------------------------------------
 bool PhysicalModel::Initialize()
-{ 
+{
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage(
-            "PhysicalModel::Initialize() entered for %s; dimension = %d\n", 
+            "PhysicalModel::Initialize() entered for %s; dimension = %d\n",
             typeName.c_str(), dimension);
    #endif
-   
-   if (modelState) 
+
+   if (modelState)
    {
       delete [] modelState;
       modelState = NULL;
@@ -378,15 +378,15 @@ bool PhysicalModel::Initialize()
       initialized = false;
    }
 
-   if (deriv) 
+   if (deriv)
    {
       delete [] deriv;
       deriv = NULL;
    }
-   
-   
+
+
    modelState = new Real[dimension];
-   if (modelState != NULL) 
+   if (modelState != NULL)
    {
       deriv = new Real[dimension];
       if (deriv)
@@ -395,7 +395,7 @@ bool PhysicalModel::Initialize()
          initialized = false;
    }
    rawState = modelState;
-  
+
    return initialized;
 }
 
@@ -466,9 +466,9 @@ bool PhysicalModel::SetErrorThreshold(const Real thold)
 /**
  * Accessor method used by Propagator class to determine # of vars
  * The Propagator class evolves the system being modeled by advancing some
- * number of variables.  The count of the variables must be coordinated 
- * between the propagator and the physical model of the system; 
- * GetDimension() is called by the Propagator class to obtain this 
+ * number of variables.  The count of the variables must be coordinated
+ * between the propagator and the physical model of the system;
+ * GetDimension() is called by the Propagator class to obtain this
  * information from the PhysicalModel class.
 */
 //------------------------------------------------------------------------------
@@ -482,7 +482,7 @@ Integer PhysicalModel::GetDimension(void)
 //------------------------------------------------------------------------------
 /**
  * Accessor method used to set # of vars
- * Use this method to reset the count of the variables modeled by the physical 
+ * Use this method to reset the count of the variables modeled by the physical
  * model of the system for models that allow for changes in this value.
 */
 //------------------------------------------------------------------------------
@@ -499,7 +499,7 @@ void PhysicalModel::SetDimension(Integer n)
  * Accessor method used to access the state array
  * Use this method with care -- it exposes the internal array of state data to
  * external users.  The Propagator and Integrator classes can use this access to
- * make system evelotion more efficient, but at the cost of loss of 
+ * make system evelotion more efficient, but at the cost of loss of
  * encapsulation of the state data.
  */
 //------------------------------------------------------------------------------
@@ -516,7 +516,7 @@ Real * PhysicalModel::GetState()
  * Accessor method used to access the J2000 body based state array
  * Use this method with care -- it exposes the internal array of state data to
  * external users.  The Propagator and Integrator classes can use this access to
- * make system evelotion more efficient, but at the cost of loss of 
+ * make system evelotion more efficient, but at the cost of loss of
  * encapsulation of the state data.
  */
 //------------------------------------------------------------------------------
@@ -538,10 +538,10 @@ void PhysicalModel::SetState(const Real * st)
 {
    #ifdef PHYSICAL_MODEL_DEBUG_INIT
       MessageInterface::ShowMessage(
-         "PhysicalModel::SetState() called for %s<%s>\n", 
+         "PhysicalModel::SetState() called for %s<%s>\n",
          typeName.c_str(), instanceName.c_str());
    #endif
-                                 
+
    for (Integer i = 0; i < dimension; i++)
       modelState[i] = st[i];
    stateChanged = true;
@@ -563,7 +563,7 @@ void PhysicalModel::SetState(GmatState * st)
  * Correctors need this access in order to extrapolate the next state.
  */
 //------------------------------------------------------------------------------
-const Real* PhysicalModel::GetDerivativeArray(void)
+const Real* PhysicalModel::GetDerivativeArray()
 {
    return deriv;
 }
@@ -588,10 +588,10 @@ void PhysicalModel::IncrementTime(Real dt)
 // Real PhysicalModel::GetTime()
 //------------------------------------------------------------------------------
 /**
- * Read accessor for the time elapsed 
- * Use this method to track the elapsed time for the model.  You can set the 
+ * Read accessor for the time elapsed
+ * Use this method to track the elapsed time for the model.  You can set the
  * system to start from a non-zero time by setting the value for the elapsedTime
- * parameter to the desired start value.  See the SetTime parameter for the  
+ * parameter to the desired start value.  See the SetTime parameter for the
  * write accessor.
  */
 //------------------------------------------------------------------------------
@@ -604,7 +604,7 @@ Real PhysicalModel::GetTime()
 // void PhysicalModel::SetTime(Real t)
 //------------------------------------------------------------------------------
 /**
- * Write accessor for the total time elapsed 
+ * Write accessor for the total time elapsed
  * Use this method to set time for the model
  */
 //------------------------------------------------------------------------------
@@ -615,35 +615,35 @@ void PhysicalModel::SetTime(Real t)
 
 
 //------------------------------------------------------------------------------
-// bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order, 
+// bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order,
 //                                    const Integer id)
 //------------------------------------------------------------------------------
 /**
  * Method invoked to calculate derivatives
- * This method is invoked to fill the deriv array with derivative information 
- * for the system that is being integrated.  It uses the state and elapsedTime 
- * parameters, along with the time interval dt passed in as a parameter, to 
+ * This method is invoked to fill the deriv array with derivative information
+ * for the system that is being integrated.  It uses the state and elapsedTime
+ * parameters, along with the time interval dt passed in as a parameter, to
  * calculate the derivative information at time \f$t=t_0+t_{elapsed}+dt\f$.
  *
- * @param dt            Additional time increment for the derivatitive 
+ * @param dt            Additional time increment for the derivatitive
  *                      calculation; defaults to 0.
  * @param state         Pointer to the current state data.  This can differ
  *                      from the PhysicalModel state if the subscribing
- *                      integrator samples other state values during 
- *                      propagation.  (For example, the Runge-Kutta integrators 
+ *                      integrator samples other state values during
+ *                      propagation.  (For example, the Runge-Kutta integrators
  *                      do this during the stage calculations.)
- * @param order         The order of the derivative to be taken (first 
+ * @param order         The order of the derivative to be taken (first
  *                      derivative, second derivative, etc)
  * @param id            ID for the type of derivative requested for models that
- *                      support more than one type.  Default value of -1 
- *                      indicates that the default derivative model is 
+ *                      support more than one type.  Default value of -1
+ *                      indicates that the default derivative model is
  *                      requested.  This number should be a StateElementId.
  *
- * @return              true if the call succeeds, false on failure.  This  
+ * @return              true if the call succeeds, false on failure.  This
  *                      default implementation always returns false.
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order, 
+bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order,
       const Integer id)
 {
    return false;
@@ -655,43 +655,43 @@ bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order,
 /**
  * Interface used to estimate the error in the current step
  *
- * The method calculates the largest local estimate of the error from the 
- * integration given the components of the differences calculated by the 
- * integrator.  It returns the largest error estimate found.  
- *  
- * The default implementation returns the largest single relative component 
- * found based on the input arrays.  In other words, the implementation provided 
+ * The method calculates the largest local estimate of the error from the
+ * integration given the components of the differences calculated by the
+ * integrator.  It returns the largest error estimate found.
+ *
+ * The default implementation returns the largest single relative component
+ * found based on the input arrays.  In other words, the implementation provided
  * here returns the largest component of the following vector:
  *
  * \f[\vec \epsilon = |{{{EE}_n}\over{x_n^f - x_n^i}}|\f]
  *
  * subject to the discussion of the relativeErrorThreshold parameter, below.
- *  
- * There are several alternatives that users of this class can implement: the 
- * error could be calculated based on the largest error in the individual 
- * components of the state vector, as the magnitude of the state vector (that 
- * is, the L2 (rss) norm of the error estimate vector).  The estimated error 
- * should never be negative, so a return value less than 0.0 can be used to 
+ *
+ * There are several alternatives that users of this class can implement: the
+ * error could be calculated based on the largest error in the individual
+ * components of the state vector, as the magnitude of the state vector (that
+ * is, the L2 (rss) norm of the error estimate vector).  The estimated error
+ * should never be negative, so a return value less than 0.0 can be used to
  * indicate an error condition.
  *
- * One item to note in this implementation is the relativeErrorThreshold local 
- * variable.  This parameter looks at the difference between the initial state 
- * of the variables and the state after the integration.  If that difference is 
- * smaller in magnitude than the value of relativeErrorThreshold, then the error 
- * value calculated is the absolute error; if it is larger, the calculated value 
+ * One item to note in this implementation is the relativeErrorThreshold local
+ * variable.  This parameter looks at the difference between the initial state
+ * of the variables and the state after the integration.  If that difference is
+ * smaller in magnitude than the value of relativeErrorThreshold, then the error
+ * value calculated is the absolute error; if it is larger, the calculated value
  * is scaled by the difference.  In other words, given
  *
  * \f[\Delta^i = |r^i(t + \delta t) - r^i(t)|\f]
  *
- * this method will return the largest error in the final states if each 
- * component of \f$\Delta^i\f$ is smaller than relativeErrorThreshold, and will 
- * return the largest value of the error divided by the corresponding 
- * \f$\Delta^i\f$ if each component of \f$\Delta^i\f$ is larger than 
+ * this method will return the largest error in the final states if each
+ * component of \f$\Delta^i\f$ is smaller than relativeErrorThreshold, and will
+ * return the largest value of the error divided by the corresponding
+ * \f$\Delta^i\f$ if each component of \f$\Delta^i\f$ is larger than
  * relativeErrorThreshold.  This property lets the integrators step over small
- * discontinuities (for example, shadow crossings for spacecraft orbital models) 
+ * discontinuities (for example, shadow crossings for spacecraft orbital models)
  * without hanging.
- *    
- * @param diffs         Array of differences calculated by the integrator.  This array 
+ *
+ * @param diffs         Array of differences calculated by the integrator.  This array
  *                      must be the same size as the state vector
  * @param answer        Candidate new state from the integrator
  *
@@ -720,43 +720,43 @@ Real PhysicalModel::EstimateError(Real * diffs, Real * answer) const
 // bool GetComponentMap(Integer * map, Integer order, Integer id) const
 //------------------------------------------------------------------------------
 /**
- * Used to get the mapping in the state variable between components 
+ * Used to get the mapping in the state variable between components
  * This method is used to obtain a mapping between the elements of the state
  * vector.  It is used, for instance, to map the position components to the
- * velocity components for a spacecraft state vector so that the 
- * Runge-Kutta-Nystrom integrators can obtain the velocity information they 
+ * velocity components for a spacecraft state vector so that the
+ * Runge-Kutta-Nystrom integrators can obtain the velocity information they
  * need.  The default implementation simply returns false.
  *
  * When the model for the class can provide a map for the data elements, it will
- * fill in the array of elements with either a "no map" indicator of -1, or the 
+ * fill in the array of elements with either a "no map" indicator of -1, or the
  * mapping between the selected element and its corresponding derivative.  These
  * data are placed into the input "map" array, which must be an integer array
  * sized to match the dimension of the model.  The user also specifies the order
- * of the mapping; for instance, to obtain the mapping for first derivative 
+ * of the mapping; for instance, to obtain the mapping for first derivative
  * information, the order is set to 1.
  *
- * An example of the return data is in order for this method.  Suppose that the 
- * state vector consists of six elements, (X, Y, Z, Vx, Vy, Vz).  A user can 
- * request the mapping for the first derivative components by calling 
+ * An example of the return data is in order for this method.  Suppose that the
+ * state vector consists of six elements, (X, Y, Z, Vx, Vy, Vz).  A user can
+ * request the mapping for the first derivative components by calling
  * GetComponentMap(map, 1).  The array, map, that is returned will contain these
  * data: (3, 4, 5, -1, -1, -1).
  *
  * @param map          Array that will contain the mapping of the elements
- * @param order        The order for the mapping (1 maps 1st derivatives to  
+ * @param order        The order for the mapping (1 maps 1st derivatives to
  *                     their base components, 2 maps 2nd derivatives, and so on)
- * @param id           Identifier for the particular set of derivatives 
+ * @param id           Identifier for the particular set of derivatives
  *                     requested.  The default, -1, returns the complete map.
  *
- * @return             Returns true if a mapping was made, false otherwise.  A 
- *                     false return value can be used to indicate that the 
+ * @return             Returns true if a mapping was made, false otherwise.  A
+ *                     false return value can be used to indicate that the
  *                     requested map is not available, and verefore that the
- *                     model may not be appropriate for the requested 
+ *                     model may not be appropriate for the requested
  *                     operations.
- * 
+ *
  * @todo This method needs serious rework for the formation pieces in build 3.
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::GetComponentMap(Integer * map, Integer order, 
+bool PhysicalModel::GetComponentMap(Integer * map, Integer order,
       Integer id) const
 {
    //    return false;
@@ -767,7 +767,7 @@ bool PhysicalModel::GetComponentMap(Integer * map, Integer order,
       int satCount = (int)(dimension / 6);
       for (int i = 0; i < satCount; i++) {
          i6 = i * 6;
-    
+
          map[ i6 ] = i6 + 3;
          map[i6+1] = i6 + 4;
          map[i6+2] = i6 + 5;
@@ -776,7 +776,7 @@ bool PhysicalModel::GetComponentMap(Integer * map, Integer order,
          map[i6+5] = -1;
       }
    }
-    
+
    return true;
 
 }
@@ -786,7 +786,7 @@ bool PhysicalModel::GetComponentMap(Integer * map, Integer order,
 //------------------------------------------------------------------------------
 /**
  * Sets the solar system pointer
- * 
+ *
  * @param ss Pointer to the solar system used in the modeling.
  */
 //------------------------------------------------------------------------------
@@ -796,43 +796,43 @@ void PhysicalModel::SetSolarSystem(SolarSystem *ss)
 }
 
 //------------------------------------------------------------------------------
-// void PhysicalModel::SetSatelliteParameter(const Integer i, 
-//                                           const std::string parmName, 
+// void PhysicalModel::SetSatelliteParameter(const Integer i,
+//                                           const std::string parmName,
 //                                           const Real parm)
 //------------------------------------------------------------------------------
 /**
  * Passes spacecraft parameters to the force model.
- * 
+ *
  * This default implementation just returns.
- * 
+ *
  * @param i ID for the spacecraft
- * @param parmName name of the Spacecraft parameter 
+ * @param parmName name of the Spacecraft parameter
  * @param parm Parameter value
  */
 //------------------------------------------------------------------------------
-void PhysicalModel::SetSatelliteParameter(const Integer i, 
-                                          const std::string parmName, 
+void PhysicalModel::SetSatelliteParameter(const Integer i,
+                                          const std::string parmName,
                                           const Real parm)
 {
 }
 
 //------------------------------------------------------------------------------
-// void PhysicalModel::SetSatelliteParameter(const Integer i, 
-//                                           const std::string parmName, 
+// void PhysicalModel::SetSatelliteParameter(const Integer i,
+//                                           const std::string parmName,
 //                                           const std::string parm)
 //------------------------------------------------------------------------------
 /**
  * Passes spacecraft parameters to the force model.
- * 
+ *
  * This default implementation just returns.
- * 
+ *
  * @param i ID for the spacecraft
- * @param parmName name of the Spacecraft parameter 
+ * @param parmName name of the Spacecraft parameter
  * @param parm Parameter value
  */
 //------------------------------------------------------------------------------
-void PhysicalModel::SetSatelliteParameter(const Integer i, 
-                                          const std::string parmName, 
+void PhysicalModel::SetSatelliteParameter(const Integer i,
+                                          const std::string parmName,
                                           const std::string parm)
 {
 }
@@ -874,7 +874,7 @@ bool PhysicalModel::StateChanged(bool reset)
 //------------------------------------------------------------------------------
 /**
  * Specifies whether the PhysicalModel is transient or always applied.
- * 
+ *
  * @return true if transient, false (the default) if not.
  */
 //------------------------------------------------------------------------------
@@ -889,11 +889,11 @@ bool PhysicalModel::IsTransient()
 //------------------------------------------------------------------------------
 /**
  * Specifies if a force is set by a user module.
- * 
- * Specifies whether the PhysicalModel is an "extra" force added by a plug-in or 
- * other user method.  Forces added to the ODEModel this way appear in the 
+ *
+ * Specifies whether the PhysicalModel is an "extra" force added by a plug-in or
+ * other user method.  Forces added to the ODEModel this way appear in the
  * "UserDefined" field of the force model when it is written out or parsed.
- * 
+ *
  * @return true if the force should be in the "UserDefined" field.
  */
 //------------------------------------------------------------------------------
@@ -919,7 +919,7 @@ bool PhysicalModel::SupportsDerivative(Gmat::StateElementId id)
    return false;
 }
 
-bool PhysicalModel::SetStart(Gmat::StateElementId id, Integer index, 
+bool PhysicalModel::SetStart(Gmat::StateElementId id, Integer index,
       Integer quantity)
 {
    return false;
@@ -1005,7 +1005,7 @@ std::string PhysicalModel::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool PhysicalModel::IsParameterReadOnly(const Integer id) const
 {
-   if ((id == EPOCH)     || (id == ELAPSED_SECS) || 
+   if ((id == EPOCH)     || (id == ELAPSED_SECS) ||
        (id == BODY_NAME) || (id == DERIVATIVE_ID))
       return true;
 
@@ -1026,8 +1026,8 @@ bool PhysicalModel::IsParameterReadOnly(const Integer id) const
 //---------------------------------------------------------------------------
 bool PhysicalModel::IsParameterReadOnly(const std::string &label) const
 {
-   if ((label == PARAMETER_TEXT[EPOCH - GmatBaseParamCount]) || 
-       (label == PARAMETER_TEXT[ELAPSED_SECS - GmatBaseParamCount]) || 
+   if ((label == PARAMETER_TEXT[EPOCH - GmatBaseParamCount]) ||
+       (label == PARAMETER_TEXT[ELAPSED_SECS - GmatBaseParamCount]) ||
        (label == PARAMETER_TEXT[BODY_NAME - GmatBaseParamCount]) ||
        (label == PARAMETER_TEXT[DERIVATIVE_ID - GmatBaseParamCount]))
       return true;
@@ -1061,12 +1061,12 @@ Real PhysicalModel::GetRealParameter(const Integer id) const
 //------------------------------------------------------------------------------
 Real PhysicalModel::SetRealParameter(const Integer id, const Real value)
 {
-   if (id == ELAPSED_SECS) 
+   if (id == ELAPSED_SECS)
    {
       elapsedTime = value;
       return elapsedTime;
    }
-   if (id == EPOCH) 
+   if (id == EPOCH)
    {
       epoch = value;
       elapsedTime = 0.0;
@@ -1110,7 +1110,7 @@ bool PhysicalModel::SetStringParameter(const Integer id,
       ("PhysicalModel::SetStringParameter() entered, id=%d, value='%s'\n",
        id, value.c_str());
    #endif
-   
+
    if (id == BODY_NAME)
    {
       if (!solarSystem)
@@ -1197,7 +1197,7 @@ GmatBase* PhysicalModel::GetRefObject(const Gmat::ObjectType type,
       default:
             break;
    }
-   
+
    // Not handled here -- invoke the next higher GetRefObject call
    return GmatBase::GetRefObject(type, name);
 }
@@ -1222,18 +1222,18 @@ const StringArray& PhysicalModel::GetRefObjectNameArray(
    if (type == Gmat::UNKNOWN_OBJECT)
    {
       static StringArray refs;
-      
+
          refs.push_back(bodyName);
-      
+
          #ifdef DEBUG_REFERENCE_SETTING
             MessageInterface::ShowMessage("+++ReferenceObjects:\n");
             for (StringArray::iterator i = refs.begin(); i != refs.end(); ++i)
                MessageInterface::ShowMessage("   %s\n", i->c_str());
          #endif
-      
+
       return refs;
    }
-   
+
    // Not handled here -- invoke the next higher GetRefObject call
    return GmatBase::GetRefObjectNameArray(type);
 }
@@ -1270,7 +1270,7 @@ bool PhysicalModel::SetRefObject(GmatBase *obj,
       }
       return true;
    }
-   
+
    // Not handled here -- invoke the next higher SetRefObject call
    return GmatBase::SetRefObject(obj, type, name);
 }
