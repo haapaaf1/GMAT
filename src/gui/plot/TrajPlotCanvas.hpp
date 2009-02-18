@@ -406,7 +406,7 @@ private:
    // texture
    bool LoadGLTextures();
    bool LoadBodyTextures();
-   GLuint BindTexture(const wxString &objName);
+   GLuint BindTexture(SpacePoint *obj, const wxString &objName);
    void SetDefaultView();
    
    // view objects

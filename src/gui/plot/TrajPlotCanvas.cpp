@@ -18,6 +18,7 @@
 #include "ColorTypes.hpp"          // for namespace GmatColor::
 #include "Rvector3.hpp"            // for Rvector3::GetMagnitude()
 #include "AngleUtil.hpp"           // for ComputeAngleInDeg()
+#include "CelestialBody.hpp"
 #include "MdiGlPlotData.hpp"
 #include "MessageInterface.hpp"
 #include "SubscriberException.hpp"
@@ -2364,7 +2365,8 @@ bool TrajPlotCanvas::LoadGLTextures()
             ("TrajPlotCanvas::LoadGLTextures() object=%s\n", mObjectNames[i].c_str());
          #endif
          
-         mObjectTextureIdMap[mObjectNames[i]] = BindTexture(mObjectNames[i]);
+         mObjectTextureIdMap[mObjectNames[i]] = BindTexture(mObjectArray[i], mObjectNames[i]);
+//         mObjectTextureIdMap[mObjectNames[i]] = BindTexture(mObjectNames[i]);
       }
    }
    
@@ -2374,26 +2376,28 @@ bool TrajPlotCanvas::LoadGLTextures()
 
 
 //------------------------------------------------------------------------------
-// GLuint BindTexture(const wxString &objName)
+// GLuint BindTexture(SpacePoint *obj, const wxString &objName)
 //------------------------------------------------------------------------------
 /**
  * Loads textures and returns binding index.
  */
 //------------------------------------------------------------------------------
-GLuint TrajPlotCanvas::BindTexture(const wxString &objName)
+GLuint TrajPlotCanvas::BindTexture(SpacePoint *obj, const wxString &objName)
 {
    GLuint ret = GmatPlot::UNINIT_TEXTURE;
 
    //MessageInterface::ShowMessage("===> TrajPlotCanvas::BindTexture() ret = %d\n", ret);
-   
-   FileManager *fm = FileManager::Instance();
+   // texture map file names now stored with the CelestialBody  wcs 2009.01.06
+//   FileManager *fm = FileManager::Instance();
    std::string textureFile;  
-   std::string name = std::string(objName.Upper().c_str());
-   std::string filename = name + "_TEXTURE_FILE";
+//   std::string name = std::string(objName.Upper().c_str());
+//   std::string filename = name + "_TEXTURE_FILE";
    
    try
    {
-      textureFile = fm->GetFullPathname(filename);
+//      textureFile = fm->GetFullPathname(filename);
+      CelestialBody *body = (CelestialBody*) obj;
+      textureFile = body->GetStringParameter(body->GetParameterID("TextureMapFileName"));
       
       #ifndef SKIP_DEVIL
          ILboolean status = ilLoadImage((char*)textureFile.c_str());
