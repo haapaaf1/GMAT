@@ -62,7 +62,7 @@ UniversePanel::UniversePanel(wxWindow *parent):GmatPanel(parent)
 {
    mHasFileTypesInUseChanged = false;
    mHasFileNameChanged = false;
-   mHasAnaModelChanged = false;
+//   mHasAnaModelChanged = false;
    mHasTextModified = false;
    
    Create();
@@ -171,13 +171,13 @@ void UniversePanel::Create()
    // analytic motel
    //-------------------------------------------------------
    
-   wxStaticText *anaModelLabel =
-      new wxStaticText(this, ID_TEXT, wxT("Analytic Model"),
-                       wxDefaultPosition, wxSize(-1,-1), 0);
-   
-   mAnalyticModelComboBox = 
-      new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxDefaultSize, //0,
-                     emptyArray, wxCB_READONLY);
+//   wxStaticText *anaModelLabel =
+//      new wxStaticText(this, ID_TEXT, wxT("Analytic Model"),
+//                       wxDefaultPosition, wxSize(-1,-1), 0);
+//   
+//   mAnalyticModelComboBox = 
+//      new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxDefaultSize, //0,
+//                     emptyArray, wxCB_READONLY);
    
    //-------------------------------------------------------
    // Add to bottom grid sizer
@@ -199,17 +199,17 @@ void UniversePanel::Create()
    //-------------------------------------------------------
    // Add to analytical model sizer
    //-------------------------------------------------------    
-   mAnaModelSizer = new wxBoxSizer(wxHORIZONTAL);
-   mAnaModelSizer->Add(anaModelLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   mAnaModelSizer->Add(mAnalyticModelComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-   mAnaModelSizer->Add(20,20, 0, wxALIGN_LEFT|wxALL, bsize);
+//   mAnaModelSizer = new wxBoxSizer(wxHORIZONTAL);
+//   mAnaModelSizer->Add(anaModelLabel, 0, wxALIGN_LEFT|wxALL, bsize);
+//   mAnaModelSizer->Add(mAnalyticModelComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
+//   mAnaModelSizer->Add(20,20, 0, wxALIGN_LEFT|wxALL, bsize);
    
    //-------------------------------------------------------
    // Add to pageSizer
    //------------------------------------------------------- 
    mPageSizer = new wxBoxSizer(wxVERTICAL);
    mPageSizer->Add(bottomGridSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
-   mPageSizer->Add(mAnaModelSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+//   mPageSizer->Add(mAnaModelSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    
    theMiddleSizer->Add(mPageSizer, 0, wxALIGN_CENTER|wxALL, bsize);
 }
@@ -223,7 +223,7 @@ void UniversePanel::LoadData()
    // load data from the core engine
    theSolarSystem = theGuiInterpreter->GetSolarSystemInUse();
    mAllFileTypes = theGuiInterpreter->GetPlanetarySourceTypes();
-   mAnalyticModels = theGuiInterpreter->GetAnalyticModelNames();
+//   mAnalyticModels = theGuiInterpreter->GetAnalyticModelNames();
    StringArray fileTypesInUse = theGuiInterpreter->GetPlanetarySourceTypesInUse();
    
    // load  ephemeris update interval
@@ -241,26 +241,27 @@ void UniversePanel::LoadData()
    }
    
    // available analytic models
-   for (unsigned int i=0; i<mAnalyticModels.size(); i++)
-   {
-      mAnalyticModelComboBox->Append(mAnalyticModels[i].c_str());
-   }
-   
-   // set defaults
-   mAnalyticModelComboBox->SetSelection(0);
+//   for (unsigned int i=0; i<mAnalyticModels.size(); i++)
+//   {
+//      mAnalyticModelComboBox->Append(mAnalyticModels[i].c_str());
+//   }
+//   
+//   // set defaults
+//   mAnalyticModelComboBox->SetSelection(0);
    
    mFileTypeComboBox->SetStringSelection(fileTypesInUse[0].c_str());
-   if (mFileTypeComboBox->GetStringSelection() == "Analytic")
+//   if (mFileTypeComboBox->GetStringSelection() == "Analytic")
+   if (mFileTypeComboBox->GetStringSelection() == "TwoBodyPropagation")
    {
       mBrowseButton->Disable();
       mFileNameTextCtrl->Disable();
-      mPageSizer->Show(mAnaModelSizer, true);
+//      mPageSizer->Show(mAnaModelSizer, true);
    }
    else
    {
       mBrowseButton->Enable();
       mFileNameTextCtrl->Enable();
-      mPageSizer->Show(mAnaModelSizer, false);
+//      mPageSizer->Show(mAnaModelSizer, false);
    }
    
    mFileNameTextCtrl->
@@ -333,7 +334,8 @@ void UniversePanel::SaveData()
          std::ifstream filename(str.c_str());
          
          // Check if the file doesn't exist then stop
-         if (type != "Analytic" && !filename) 
+//         if (type != "Analytic" && !filename) 
+         if (type != "TwoBodyPropagation" && !filename) 
          {
             MessageInterface::PopupMessage
                (Gmat::ERROR_, mMsgFormat.c_str(),
@@ -354,12 +356,12 @@ void UniversePanel::SaveData()
       }
 
       // save analytical model, if changed 
-      if (mHasAnaModelChanged)
-      {
-         theGuiInterpreter->
-            SetAnalyticModelToUse(mAnalyticModelComboBox->GetStringSelection().c_str());
-         mHasAnaModelChanged = false;
-      }
+//      if (mHasAnaModelChanged)
+//      {
+//         theGuiInterpreter->
+//            SetAnalyticModelToUse(mAnalyticModelComboBox->GetStringSelection().c_str());
+//         mHasAnaModelChanged = false;
+//      }
       
       theSolarSystem->SetBooleanParameter("UseTTForEphemeris",
                                           mOverrideCheckBox->IsChecked());
@@ -409,24 +411,25 @@ void UniversePanel::OnComboBoxChange(wxCommandEvent& event)
       wxString type = mFileTypeComboBox->GetStringSelection();
       mFileNameTextCtrl->SetValue(mFileTypeNameMap[type]);
 
-      if (type == "Analytic")
+//      if (type == "Analytic")
+      if (type == "TwoBodyPropagation")
       {
-         mPageSizer->Show(mAnaModelSizer, true);
+//         mPageSizer->Show(mAnaModelSizer, true);
          mBrowseButton->Disable();
          mFileNameTextCtrl->Disable();
       }
       else
       {
-         mPageSizer->Show(mAnaModelSizer, false);
+//         mPageSizer->Show(mAnaModelSizer, false);
          mBrowseButton->Enable();
       }
 
       mPageSizer->Layout();
    }
-   else if (event.GetEventObject() == mAnalyticModelComboBox)
-   {
-      mHasAnaModelChanged = true;
-   }
+//   else if (event.GetEventObject() == mAnalyticModelComboBox)
+//   {
+//      mHasAnaModelChanged = true;
+//   }
    
    mHasFileTypesInUseChanged = true;
    EnableUpdate(true);

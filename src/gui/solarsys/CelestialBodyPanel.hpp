@@ -4,20 +4,26 @@
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
-// Author: Allison Greene
-// Created: 2005/07/06
+// Author: Wendy C. Shoan (original author: Allison Greene 2005.07.06)
+// Created: 2009.01.26
 //
 /**
- * Declares CelestialBodyPanel class.
+ * Declares CelestialBodyPanel class.  This panel contains a notebook with
+ * three tabs for Properties, Orbit, and Orientation.
  */
 //------------------------------------------------------------------------------
 
 #ifndef CelestialBodyPanel_hpp
 #define CelestialBodyPanel_hpp
 
+#include "gmatwxdefs.hpp"
 #include "GmatPanel.hpp"
 #include "CelestialBody.hpp"
-#include "Planet.hpp"
+#include "CelestialBodyPropertiesPanel.hpp"
+#include "CelestialBodyOrbitPanel.hpp"
+#include "CelestialBodyOrientationPanel.hpp"
+#include "GuiInterpreter.hpp"
+#include "gmatdefs.hpp"
 
 class CelestialBodyPanel: public GmatPanel
 {
@@ -25,69 +31,31 @@ public:
    
    // constructors
    CelestialBodyPanel(wxWindow *parent, const wxString &name);
+   virtual ~CelestialBodyPanel();
     
 private:
-   
-   CelestialBody *theCelestialBody;
-   Planet *thePlanet;
-   wxString bodyName;
-   
-   bool isTextModified;
-   bool isStateTextModified;
-   bool isRotDataSourceChanged;
-   
-   wxTextCtrl *mMuTextCtrl;
-   wxTextCtrl *mEquatorialRadiusTextCtrl;
-   wxTextCtrl *mFlatteningTextCtrl;
-   wxTextCtrl *mEpochTextCtrl;
-   wxTextCtrl *mIntervalTextCtrl;
-   wxTextCtrl *mElement1TextCtrl;
-   wxTextCtrl *mElement2TextCtrl;
-   wxTextCtrl *mElement3TextCtrl;
-   wxTextCtrl *mElement4TextCtrl;
-   wxTextCtrl *mElement5TextCtrl;
-   wxTextCtrl *mElement6TextCtrl;
-   wxTextCtrl *mElement7TextCtrl;
-
-   wxStaticText *muStaticText;
-   wxStaticText *unitStaticTextMu;
-   wxStaticText *equatorialRadiusStaticText;
-   wxStaticText *unitStaticTextER;
-   wxStaticText *flatteningStaticText;
-   wxStaticText *unitStaticTextFlat;
-   wxStaticText *epochStaticText;
-   wxStaticText *unitStaticTextepoch;
-   wxStaticText *intervalStaticText;
-   wxStaticText *unitStaticTextinterval;
-   wxStaticText *initialStaticText;
-   wxStaticText *centralBodyText;
-   wxStaticText *noCentralBodyText;
-   wxStaticText *nameStaticText1;
-   wxStaticText *unitStaticText1;
-   wxStaticText *nameStaticText2;
-   wxStaticText *unitStaticText2;
-   wxStaticText *nameStaticText3;
-   wxStaticText *unitStaticText3;
-   wxStaticText *nameStaticText4;
-   wxStaticText *unitStaticText4;
-   wxStaticText *nameStaticText5;
-   wxStaticText *unitStaticText5;
-   wxStaticText *nameStaticText6;
-   wxStaticText *unitStaticText6;
-   wxStaticText *rotDataSourceText;
-   
-   wxComboBox *rotDataSourceCB;
    
    // methods inherited from GmatPanel
    virtual void Create();
    virtual void LoadData();
    virtual void SaveData();
+   void OnPageChange(wxCommandEvent &event);
     
-   void EnableAll(bool enable);
+   CelestialBody *theCelestialBody;
+   //Planet *thePlanet;
+   wxString      bodyName;
+   bool          isUserDefined;
+   
+   wxNotebook    *cbNotebook;
+   
+   CelestialBodyPropertiesPanel  *properties;
+   CelestialBodyOrbitPanel       *orbit;
+   CelestialBodyOrientationPanel *orientation;
+   
+   
+   void EnableAll(bool enable); // ????????????? //
 
    // event handling
-   void OnTextUpdate(wxCommandEvent& event);
-   void OnComboBoxChange(wxCommandEvent& event);
    
    DECLARE_EVENT_TABLE();
 
@@ -95,12 +63,13 @@ private:
    enum
    {     
       ID_TEXT = 9000,
-      ID_TEXTCTRL,
-      ID_COMBO
+      ID_NOTEBOOK,
+      ID_BUTTON_OK,
+      ID_BUTTON_APPLY,
+      ID_BUTTON_CANCEL,
+      ID_BUTTON_HELP,
    };
    
-   static const std::string KEP_ELEMENT_NAMES[6];
-   static const std::string KEP_ELEMENT_UNITS[6];
 };
 
 #endif

@@ -33,17 +33,17 @@ public:
 private:
    StringArray mAllFileTypes;
    StringArray mFileTypesInUse;
-   StringArray mAnalyticModels;
+//   StringArray mAnalyticModels;
    
    std::map<wxString, wxString> mFileTypeNameMap;
    
    bool mHasFileTypesInUseChanged;
    bool mHasFileNameChanged;
-   bool mHasAnaModelChanged;
+//   bool mHasAnaModelChanged;
    bool mHasTextModified;
    
    wxComboBox *mFileTypeComboBox;
-   wxComboBox *mAnalyticModelComboBox;
+//   wxComboBox *mAnalyticModelComboBox;
    
    wxTextCtrl *mIntervalTextCtrl;
    wxTextCtrl *mFileNameTextCtrl;
@@ -59,7 +59,7 @@ private:
    
    wxCheckBox *mOverrideCheckBox;
 
-   wxBoxSizer *mAnaModelSizer;
+//   wxBoxSizer *mAnaModelSizer;
    wxBoxSizer *mPageSizer;
    
    SolarSystem *theSolarSystem;
