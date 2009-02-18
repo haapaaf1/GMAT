@@ -23,6 +23,8 @@
 #include "Star.hpp"
 #include "Planet.hpp"
 #include "Moon.hpp"
+#include "Comet.hpp"
+#include "Asteroid.hpp"
 
 
 //---------------------------------
@@ -53,7 +55,11 @@ CelestialBody* CelestialBodyFactory::CreateCelestialBody(
       return new Planet(withName);
    else if (ofType == "Moon")
       return new Moon(withName);
-   // add more here .......
+   else if (ofType == "Comet")
+      return new Comet(withName);
+   else if (ofType == "Asteroid")
+      return new Asteroid(withName);
+   // add more here ??  KBOs?  .......
    else
    {
       return NULL;   // doesn't match any known type of command
@@ -78,6 +84,8 @@ Factory(Gmat::CELESTIAL_BODY)
       creatables.push_back("Star");
       creatables.push_back("Planet");
       creatables.push_back("Moon");
+      creatables.push_back("Comet");
+      creatables.push_back("Asteroid");
    }
 }
 
@@ -100,6 +108,8 @@ Factory(createList,Gmat::CELESTIAL_BODY)
       creatables.push_back("Star");
       creatables.push_back("Planet");
       creatables.push_back("Moon");
+      creatables.push_back("Comet");
+      creatables.push_back("Asteroid");
    }
 }
 
@@ -121,6 +131,8 @@ Factory(fact)
       creatables.push_back("Star");
       creatables.push_back("Planet");
       creatables.push_back("Moon");
+      creatables.push_back("Comet");
+      creatables.push_back("Asteroid");
    }
 }
 
@@ -146,6 +158,8 @@ CelestialBodyFactory& CelestialBodyFactory::operator= (
       creatables.push_back("Star");
       creatables.push_back("Planet");
       creatables.push_back("Moon");
+      creatables.push_back("Comet");
+      creatables.push_back("Asteroid");
    }
    return *this;
 }

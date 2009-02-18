@@ -382,10 +382,12 @@ OBJECTS = \
     propagator/RungeKuttaFehlberg56.o \
     propagator/RungeKuttaNystrom.o \
     propagator/RungeKutta.o \
+    solarsys/Asteroid.o \
     solarsys/AtmosphereModel.o \
     solarsys/Barycenter.o \
     solarsys/CalculatedPoint.o \
     solarsys/CelestialBody.o \
+    solarsys/Comet.o \
     solarsys/DeFile.o \
     solarsys/ExponentialAtmosphere.o \
     solarsys/JacchiaRobertsAtmosphere.o \
