@@ -35,6 +35,10 @@
 #include "bitmaps/network.xpm"
 #include "bitmaps/burn.xpm"
 #include "bitmaps/moon.xpm"
+#include "bitmaps/moon_generic.xpm"
+#include "bitmaps/planet_generic.xpm"
+#include "bitmaps/asteroid.xpm"
+#include "bitmaps/comet.xpm"
 #include "bitmaps/function.xpm"
 #include "bitmaps/matlabfunction.xpm"
 #include "bitmaps/coordinatesystem.xpm"
@@ -63,6 +67,8 @@
 #include "FileUtil.hpp"               // for Compare()
 #include "GmatGlobal.hpp"             // for SetBatchMode()
 #include "StringUtil.hpp"             // for GmatStringUtil::
+#include "SolarSystem.hpp"
+#include "CelestialBody.hpp"
 #include <sstream>
 #include <fstream>
 #include <ctime>                      // for clock()
@@ -128,6 +134,10 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_COORD_SYS, ResourceTree::OnAddCoordSys)
    EVT_MENU(POPUP_ADD_BARYCENTER, ResourceTree::OnAddBarycenter)
    EVT_MENU(POPUP_ADD_LIBRATION, ResourceTree::OnAddLibration)
+   EVT_MENU(POPUP_ADD_PLANET, ResourceTree::OnAddPlanet)
+   EVT_MENU(POPUP_ADD_MOON, ResourceTree::OnAddMoon)
+   EVT_MENU(POPUP_ADD_COMET, ResourceTree::OnAddComet)
+   EVT_MENU(POPUP_ADD_ASTEROID, ResourceTree::OnAddAsteroid)
    EVT_MENU(POPUP_OPEN, ResourceTree::OnOpen)
    EVT_MENU(POPUP_CLOSE, ResourceTree::OnClose)
    EVT_MENU(POPUP_RENAME, ResourceTree::OnRename)
@@ -615,7 +625,7 @@ void ResourceTree::AddDefaultResources()
    SetItemImage(mScriptItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
    
-   //----- Vairables
+   //----- Variables
    mVariableItem = 
       AppendItem(resource, wxT("Variables/Arrays/Strings"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Variables/Arrays/Strings"),
@@ -674,32 +684,75 @@ void ResourceTree::AddDefaultResources()
 //------------------------------------------------------------------------------
 void ResourceTree::AddDefaultBodies(wxTreeItemId itemId)
 {
-   AppendItem(itemId, wxT("Sun"), GmatTree::ICON_SUN, -1,
-              new GmatTreeItemData(wxT("Sun"), GmatTree::CELESTIAL_BODY));
-   AppendItem(itemId, wxT("Mercury"), GmatTree::ICON_MERCURY, -1,
-              new GmatTreeItemData(wxT("Mercury"), GmatTree::CELESTIAL_BODY));
-   AppendItem(itemId, wxT("Venus"), GmatTree::ICON_VENUS, -1,
-              new GmatTreeItemData(wxT("Venus"), GmatTree::CELESTIAL_BODY));
+   SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+   StringArray   bodies      = ss->GetBodiesInUse();
+   CelestialBody *body       = NULL;
+   std::string   centralBody = "";
    
-   wxTreeItemId earth =
-      AppendItem(itemId, wxT("Earth"), GmatTree::ICON_EARTH, -1,
-                 new GmatTreeItemData(wxT("Earth"), GmatTree::CELESTIAL_BODY));
-   AppendItem(earth, wxT("Luna"), GmatTree::ICON_MOON, -1,
-              new GmatTreeItemData(wxT("Luna"), GmatTree::CELESTIAL_BODY));
+   std::string  star;
+   StringArray  sunOrbiters;
    
-   AppendItem(itemId, wxT("Mars"), GmatTree::ICON_MARS, -1,
-              new GmatTreeItemData(wxT("Mars"), GmatTree::CELESTIAL_BODY));
-   AppendItem(itemId, wxT("Jupiter"), GmatTree::ICON_JUPITER, -1,
-              new GmatTreeItemData(wxT("Jupiter"), GmatTree::CELESTIAL_BODY));
-   AppendItem(itemId, wxT("Saturn"), GmatTree::ICON_SATURN, -1,
-              new GmatTreeItemData(wxT("Saturn"), GmatTree::CELESTIAL_BODY));
-   AppendItem(itemId, wxT("Uranus"), GmatTree::ICON_URANUS, -1,
-              new GmatTreeItemData(wxT("Uranus"), GmatTree::CELESTIAL_BODY));
-   AppendItem(itemId, wxT("Neptune"), GmatTree::ICON_NEPTUNE, -1,
-              new GmatTreeItemData(wxT("Neptune"), GmatTree::CELESTIAL_BODY));
-   AppendItem(itemId, wxT("Pluto"), GmatTree::ICON_PLUTO, -1,
-              new GmatTreeItemData(wxT("Pluto"), GmatTree::CELESTIAL_BODY));
+   unsigned int      numBodies = bodies.size();
+   
+   GmatTree::ResourceIconType starIcon = GmatTree::ICON_SUN;
+   
+   // find the star (assume there's one for now)
+   for (unsigned int ii = 0; ii < numBodies; ii++)
+   {
+      body = ss->GetBody(bodies.at(ii));
+      if (body->GetBodyType() == Gmat::STAR)  star = bodies.at(ii);
+      break;   // assuming one star, for now at least
+   }
+ 
+   for (unsigned int ii = 0; ii < numBodies; ii++)
+   {
+      body = ss->GetBody(bodies.at(ii));
+      centralBody = body->GetStringParameter(body->GetParameterID("CentralBody"));
+      if (centralBody == star)
+      {
+         sunOrbiters.push_back(bodies.at(ii));
+      }
+   }
+   unsigned int numSunOrbiters = sunOrbiters.size();
+   StringArray otherOrbiters[numSunOrbiters];
+   
+   for (unsigned int ii = 0; ii < numBodies; ii++)
+   {
+      // skip the sun for now, as it has the Earth set as its central body, for reference
+      if (bodies.at(ii) == star) continue;
+      body = ss->GetBody(bodies.at(ii));
+      centralBody = body->GetStringParameter(body->GetParameterID("CentralBody"));
+      for (unsigned int jj = 0; jj < numSunOrbiters; jj++)
+      {
+         if (centralBody == sunOrbiters.at(jj))  
+         {
+            otherOrbiters[jj].push_back(bodies.at(ii));
+            break;
+         }
+      }
+   }
+   
+   AppendItem(itemId, wxT(star.c_str()), starIcon, -1,
+         new GmatTreeItemData(wxT(star.c_str()), GmatTree::CELESTIAL_BODY_STAR));
+   
+   wxTreeItemId theSunOrbiter;
 
+   for (unsigned int kk = 0; kk < numSunOrbiters; kk++)
+   {
+      GmatTree::ItemType         iType    = GmatTree::CELESTIAL_BODY;
+      GmatTree::ResourceIconType iconType = GmatTree::ICON_MOON;
+      std::string bodyName = sunOrbiters.at(kk);
+      GetBodyTypeAndIcon(bodyName, iType, iconType);
+      theSunOrbiter = AppendItem(itemId, wxT(bodyName.c_str()), iconType, -1, 
+                   new GmatTreeItemData(wxT(bodyName.c_str()), iType));
+      for (unsigned int mm = 0; mm < (otherOrbiters[kk]).size(); mm++)
+      {
+         bodyName = otherOrbiters[kk].at(mm);
+         GetBodyTypeAndIcon(bodyName, iType, iconType);
+         AppendItem(theSunOrbiter, wxT(bodyName.c_str()), iconType, -1,
+                    new GmatTreeItemData(wxT(bodyName.c_str()), iType));
+      }
+   }
 }
 
 
@@ -1797,7 +1850,11 @@ void ResourceTree::AddIcons()
    icons[++index] = wxIcon ( network_xpm );
    icons[++index] = wxIcon ( burn_xpm );
    
-   icons[++index] = wxIcon ( moon_xpm );   
+   icons[++index] = wxIcon ( moon_xpm ); 
+   icons[++index] = wxIcon ( moon_generic_xpm);
+   icons[++index] = wxIcon ( planet_generic_xpm);
+   icons[++index] = wxIcon ( comet_xpm);
+   icons[++index] = wxIcon ( asteroid_xpm);
    icons[++index] = wxIcon ( matlabfunction_xpm );
    icons[++index] = wxIcon ( function_xpm );
    icons[++index] = wxIcon ( coordinatesystem_xpm );
@@ -1840,8 +1897,35 @@ void ResourceTree::AddIcons()
 void ResourceTree::OnAddBody(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   AppendItem(item, wxT("New Body"), GmatTree::ICON_EARTH, -1,
-              new GmatTreeItemData(wxT("New Body"), GmatTree::CELESTIAL_BODY));
+   wxString name, centralBody, prompt;
+   
+   //Get name from the user first
+   name = wxGetTextFromUser(wxT("Name: "), wxT("Celestial Body"), name, this);
+   prompt = "Central Body for " + name;
+   centralBody = wxGetTextFromUser(wxT(prompt), wxT("Central Body"), centralBody, this);
+   
+   if (!name.IsEmpty())
+   {
+      const std::string newName = name.c_str();
+      const std::string newCentralBody = centralBody.c_str();
+      GmatBase *obj = theGuiInterpreter->CreateObject("Moon", newName); // ************
+      ((CelestialBody*) obj)->SetCentralBody(newCentralBody);
+      
+      if (obj != NULL)
+      {
+         // need to get teh sub-item for the appropriate central body here ...
+         AppendItem(item, name, GmatTree::ICON_MOON, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY));
+         Expand(item);
+         
+//         theGuiManager->UpdateFunction();
+      }
+      
+      SelectItem(GetLastChild(item));
+   }
+//   wxTreeItemId item = GetSelection();
+//   AppendItem(item, wxT("New Body"), GmatTree::ICON_EARTH, -1,
+//              new GmatTreeItemData(wxT("New Body"), GmatTree::CELESTIAL_BODY));
 }
 
 
@@ -2530,6 +2614,152 @@ void ResourceTree::OnAddLibration(wxCommandEvent &event)
       theGuiManager->UpdateCelestialPoint();
    }
 }
+
+void ResourceTree::OnAddPlanet(wxCommandEvent &event)
+{
+   // get the central body name
+   wxTreeItemId item = GetSelection();
+   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
+   wxString cBodyName = selItem->GetName();
+   std::string cBody  = cBodyName.c_str();
+   wxString name;
+   
+   //Get name from the user first
+   name = wxGetTextFromUser(wxT("Name: "), wxT("Planet"), name, this);
+   
+   if (!name.IsEmpty())
+   {
+      const std::string newName = name.c_str();
+      GmatBase *obj = theGuiInterpreter->CreateObject("Planet", newName);
+      ((CelestialBody*)obj)->SetCentralBody(cBody); 
+      // For now, we only have one solar system with one star ...
+      if (cBody == SolarSystem::SUN_NAME)
+      {
+         wxTreeItemId parent = GetItemParent(item);
+         AppendItem(parent, name, GmatTree::ICON_PLANET_GENERIC, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_PLANET));
+         Expand(parent);
+      }
+      else
+      {
+         AppendItem(item, name, GmatTree::ICON_PLANET_GENERIC, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_PLANET));
+         Expand(item);
+      }
+      
+      theGuiManager->UpdateSolarSystem();
+   }
+}
+
+void ResourceTree::OnAddMoon(wxCommandEvent &event)
+{
+   // get the central body name
+   wxTreeItemId item = GetSelection();
+   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
+   wxString cBodyName = selItem->GetName();
+   std::string cBody  = cBodyName.c_str();
+   wxString name;
+   
+   //Get name from the user first
+   name = wxGetTextFromUser(wxT("Name: "), wxT("Moon"), name, this);
+   
+   if (!name.IsEmpty())
+   {
+      const std::string newName = name.c_str();
+      GmatBase *obj = theGuiInterpreter->CreateObject("Moon", newName);
+      ((CelestialBody*)obj)->SetCentralBody(cBody); 
+      // For now, we only have one solar system with one star ...
+      // Of course, a moon around a star makes no sense ...
+      if (cBody == SolarSystem::SUN_NAME)
+      {
+         wxTreeItemId parent = GetItemParent(item);
+         AppendItem(parent, name, GmatTree::ICON_MOON_GENERIC, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_MOON));
+         Expand(parent);
+      }
+      else
+      {
+         AppendItem(item, name, GmatTree::ICON_MOON_GENERIC, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_MOON));
+         Expand(item);
+      }
+      
+      theGuiManager->UpdateSolarSystem();
+   }
+}
+
+void ResourceTree::OnAddComet(wxCommandEvent &event)
+{
+   // get the central body name
+   wxTreeItemId item = GetSelection();
+   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
+   wxString cBodyName = selItem->GetName();
+   std::string cBody  = cBodyName.c_str();
+   wxString name;
+   
+   //Get name from the user first
+   name = wxGetTextFromUser(wxT("Name: "), wxT("Comet"), name, this);
+   
+   if (!name.IsEmpty())
+   {
+      const std::string newName = name.c_str();
+      GmatBase *obj = theGuiInterpreter->CreateObject("Comet", newName);
+      ((CelestialBody*)obj)->SetCentralBody(cBody); 
+      // For now, we only have one solar system with one star ...
+      if (cBody == SolarSystem::SUN_NAME)
+      {
+         wxTreeItemId parent = GetItemParent(item);
+         AppendItem(parent, name, GmatTree::ICON_COMET, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_COMET));
+         Expand(parent);
+      }
+      else
+      {
+         AppendItem(item, name, GmatTree::ICON_COMET, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_COMET));
+         Expand(item);
+      }
+      
+      theGuiManager->UpdateSolarSystem();
+   }
+}
+
+void ResourceTree::OnAddAsteroid(wxCommandEvent &event)
+{
+   // get the central body name
+   wxTreeItemId item = GetSelection();
+   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
+   wxString cBodyName = selItem->GetName();
+   std::string cBody  = cBodyName.c_str();
+   wxString name;
+   
+   //Get name from the user first
+   name = wxGetTextFromUser(wxT("Name: "), wxT("Asteroid"), name, this);
+   
+   if (!name.IsEmpty())
+   {
+      const std::string newName = name.c_str();
+      GmatBase *obj = theGuiInterpreter->CreateObject("Asteroid", newName);
+      ((CelestialBody*)obj)->SetCentralBody(cBody); 
+      // For now, we only have one solar system with one star ...
+      if (cBody == SolarSystem::SUN_NAME)
+      {
+         wxTreeItemId parent = GetItemParent(item);
+         AppendItem(parent, name, GmatTree::ICON_ASTEROID, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_ASTEROID));
+         Expand(parent);
+      }
+      else
+      {
+         AppendItem(item, name, GmatTree::ICON_ASTEROID, -1,
+                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_ASTEROID));
+         Expand(item);
+      }
+      
+      theGuiManager->UpdateSolarSystem();
+   }
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -3224,8 +3454,16 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
       menu.Append(POPUP_ADD_OPTIMIZER, wxT("Add"), CreatePopupMenu(itemType));
       break;
    case GmatTree::SOLAR_SYSTEM:
-      menu.Append(POPUP_ADD_BODY, wxT("Add Body"));
-      menu.Enable(POPUP_ADD_BODY, false);
+//      menu.Append(POPUP_ADD_BODY, wxT("Add Body"));
+//      menu.Enable(POPUP_ADD_BODY, false);
+      break;
+//   case GmatTree::CELESTIAL_BODY:
+   case GmatTree::CELESTIAL_BODY_STAR:
+   case GmatTree::CELESTIAL_BODY_PLANET:
+   case GmatTree::CELESTIAL_BODY_MOON:
+   case GmatTree::CELESTIAL_BODY_COMET:
+   case GmatTree::CELESTIAL_BODY_ASTEROID:
+      menu.Append(POPUP_ADD_BODY, _T("Add"), CreatePopupMenu(itemType));
       break;
    case GmatTree::SPECIAL_POINT_FOLDER:
       menu.Append(POPUP_ADD_SPECIAL_POINT, _T("Add"), CreatePopupMenu(itemType));
@@ -3298,6 +3536,11 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
       {
       case GmatTree::SOLAR_SYSTEM:
       case GmatTree::CELESTIAL_BODY:
+      case GmatTree::CELESTIAL_BODY_STAR:
+      case GmatTree::CELESTIAL_BODY_PLANET:
+      case GmatTree::CELESTIAL_BODY_MOON:
+      case GmatTree::CELESTIAL_BODY_COMET:
+      case GmatTree::CELESTIAL_BODY_ASTEROID:
       case GmatTree::COORD_SYSTEM:
          menu.Append(POPUP_OPEN, wxT("Open"));
          menu.Append(POPUP_CLOSE, wxT("Close"));
@@ -3400,6 +3643,24 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
          menu->Append(POPUP_ADD_GMAT_FUNCTION, wxT("GMAT Function"), gfMenu);      
          break;
       }
+   case GmatTree::CELESTIAL_BODY:
+   case GmatTree::CELESTIAL_BODY_STAR:
+      menu->Append(POPUP_ADD_PLANET, wxT("Planet"));
+      menu->Append(POPUP_ADD_COMET, wxT("Comet"));
+      menu->Append(POPUP_ADD_ASTEROID, wxT("Asteroid"));
+      break;
+   case GmatTree::CELESTIAL_BODY_PLANET:
+      menu->Append(POPUP_ADD_MOON, wxT("Moon"));
+      break;
+   case GmatTree::CELESTIAL_BODY_MOON:
+      menu->Append(POPUP_ADD_MOON, wxT("Moon"));  // huh?
+      break;
+   case GmatTree::CELESTIAL_BODY_COMET:
+      menu->Append(POPUP_ADD_COMET, wxT("Comet"));  // huh?
+      break;
+   case GmatTree::CELESTIAL_BODY_ASTEROID:
+      menu->Append(POPUP_ADD_ASTEROID, wxT("Asteroid"));
+      break;
    case GmatTree::SPECIAL_POINT_FOLDER:
       menu->Append(POPUP_ADD_BARYCENTER, wxT("Barycenter"));
       menu->Append(POPUP_ADD_LIBRATION, wxT("Libration Point"));
@@ -3580,6 +3841,55 @@ GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType item
          return GmatTree::ICON_FOLDER;
       else
          return GmatTree::ICON_DEFAULT;
+   }
+}
+
+void ResourceTree::GetBodyTypeAndIcon(const std::string bodyName, 
+                                      GmatTree::ItemType &bodyItemType,
+                                      GmatTree::ResourceIconType &iconType)
+{
+   SolarSystem   *ss           = theGuiInterpreter->GetSolarSystemInUse();
+   CelestialBody *body         = ss->GetBody(bodyName);
+   Gmat::BodyType typeOfBody   = body->GetBodyType();
+   // These bodies have specific icons ...
+   if (bodyName      == SolarSystem::MERCURY_NAME) iconType = GmatTree::ICON_MERCURY;
+   else if (bodyName == SolarSystem::VENUS_NAME)   iconType = GmatTree::ICON_VENUS;
+   else if (bodyName == SolarSystem::EARTH_NAME)   iconType = GmatTree::ICON_EARTH;
+   else if (bodyName == SolarSystem::MARS_NAME)    iconType = GmatTree::ICON_MARS;
+   else if (bodyName == SolarSystem::JUPITER_NAME) iconType = GmatTree::ICON_JUPITER;
+   else if (bodyName == SolarSystem::SATURN_NAME)  iconType = GmatTree::ICON_SATURN;
+   else if (bodyName == SolarSystem::URANUS_NAME)  iconType = GmatTree::ICON_URANUS;
+   else if (bodyName == SolarSystem::NEPTUNE_NAME) iconType = GmatTree::ICON_NEPTUNE;
+   else if (bodyName == SolarSystem::PLUTO_NAME)   iconType = GmatTree::ICON_PLUTO;
+   else if (bodyName == SolarSystem::MOON_NAME)    iconType = GmatTree::ICON_MOON;
+   else // these bodies don't have specific icons ...
+   {
+      if (typeOfBody   == Gmat::STAR)        iconType = GmatTree::ICON_SUN;  // should NOT happen
+      else if (typeOfBody == Gmat::PLANET)   iconType = GmatTree::ICON_PLANET_GENERIC; // ICON_PLANET TBD
+      else if (typeOfBody == Gmat::MOON)     iconType = GmatTree::ICON_MOON_GENERIC;  // ICON_OTHER_MOON TBD
+      else if (typeOfBody == Gmat::COMET)    iconType = GmatTree::ICON_COMET;  // ICON_COMET TBD
+      else if (typeOfBody == Gmat::ASTEROID) iconType = GmatTree::ICON_ASTEROID; // ICON_ASTEROID TBD
+   }
+   switch (typeOfBody)
+   {
+   case Gmat::STAR :
+      bodyItemType = GmatTree::CELESTIAL_BODY_STAR;
+      break;
+   case Gmat::PLANET :
+      bodyItemType = GmatTree::CELESTIAL_BODY_PLANET;
+      break;
+   case Gmat::MOON :
+      bodyItemType = GmatTree::CELESTIAL_BODY_MOON;
+      break;
+   case Gmat::COMET :
+      bodyItemType = GmatTree::CELESTIAL_BODY_COMET;
+      break;
+   case Gmat::ASTEROID :
+      bodyItemType = GmatTree::CELESTIAL_BODY_ASTEROID;
+      break;
+   default:
+      bodyItemType = GmatTree::CELESTIAL_BODY;
+      break;
    }
 }
 

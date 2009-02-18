@@ -50,7 +50,11 @@ namespace GmatTree
       ICON_NETWORK,
       ICON_BURN,
       
-      ICON_MOON,      
+      ICON_MOON,  
+      ICON_MOON_GENERIC,
+      ICON_PLANET_GENERIC,
+      ICON_COMET,
+      ICON_ASTEROID,
       ICON_MATLAB_FUNCTION,
       ICON_FUNCTION,
       ICON_COORDINATE_SYSTEM,
@@ -159,6 +163,11 @@ namespace GmatTree
       
       SOLAR_SYSTEM = 41300,
       CELESTIAL_BODY,
+      CELESTIAL_BODY_STAR,    // need to differentiate these because they will have different 
+      CELESTIAL_BODY_PLANET,  // submenus for adding orbiting body(ies)
+      CELESTIAL_BODY_MOON,    //
+      CELESTIAL_BODY_COMET,   // wcs 2009.01.09
+      CELESTIAL_BODY_ASTEROID,//
       BARYCENTER,
       LIBRATION_POINT,
       

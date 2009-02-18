@@ -54,6 +54,7 @@ public:
                                   Integer sandboxNum = 1);
    // SolarSystem
    SolarSystem* GetDefaultSolarSystem();
+   SolarSystem* GetSolarSystemInUse();
    CoordinateSystem* GetInternalCoordinateSystem();
    bool IsDefaultCoordinateSystem(const std::string &name);
    
@@ -78,8 +79,8 @@ public:
    const StringArray& GetPlanetarySourceTypes();
    const StringArray& GetPlanetarySourceNames();
    const StringArray& GetPlanetarySourceTypesInUse();
-   const StringArray& GetAnalyticModelNames();
-   bool SetAnalyticModelToUse(const std::string &modelName);
+//   const StringArray& GetAnalyticModelNames();
+//   bool SetAnalyticModelToUse(const std::string &modelName);
    bool SetPlanetarySourceName(const std::string &sourceType,
                                const std::string &filename);
    Integer SetPlanetarySourceTypesInUse(const StringArray &sourceTypes);

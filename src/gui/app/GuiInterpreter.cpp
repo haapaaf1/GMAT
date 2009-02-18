@@ -237,6 +237,20 @@ SolarSystem* GuiInterpreter::GetDefaultSolarSystem()
    return theModerator->GetDefaultSolarSystem();
 }
 
+//------------------------------------------------------------------------------
+// SolarSystem* GetSolarSystemInUse()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the solar system is use object pointer.
+ *
+ * @return a default solar system object pointer
+ */
+//------------------------------------------------------------------------------
+SolarSystem* GuiInterpreter::GetSolarSystemInUse()
+{
+   return theModerator->GetSolarSystemInUse();
+}
+
 
 //------------------------------------------------------------------------------
 // Parameter* GetParameter(const std::string &name)
@@ -412,27 +426,27 @@ const StringArray& GuiInterpreter::GetPlanetarySourceTypesInUse()
 }
 
 
-//------------------------------------------------------------------------------
-// const StringArray& GetAnalyticModelNames()
-//------------------------------------------------------------------------------
-/*
- * @return analytic model name used of the solar system in use.
- */
-//------------------------------------------------------------------------------
-const StringArray& GuiInterpreter::GetAnalyticModelNames()
-{
-   return theModerator->GetAnalyticModelNames();
-}
-
-
-//------------------------------------------------------------------------------
-// bool SetAnalyticModelToUse(const std::string &modelName)
-//------------------------------------------------------------------------------
-bool GuiInterpreter::SetAnalyticModelToUse(const std::string &modelName)
-{
-   return theModerator->SetAnalyticModelToUse(modelName);
-}
-
+////------------------------------------------------------------------------------
+//// const StringArray& GetAnalyticModelNames()
+////------------------------------------------------------------------------------
+///*
+// * @return analytic model name used of the solar system in use.
+// */
+////------------------------------------------------------------------------------
+//const StringArray& GuiInterpreter::GetAnalyticModelNames()
+//{
+//   return theModerator->GetAnalyticModelNames();
+//}
+//
+//
+////------------------------------------------------------------------------------
+//// bool SetAnalyticModelToUse(const std::string &modelName)
+////------------------------------------------------------------------------------
+//bool GuiInterpreter::SetAnalyticModelToUse(const std::string &modelName)
+//{
+//   return theModerator->SetAnalyticModelToUse(modelName);
+//}
+//
 
 //------------------------------------------------------------------------------
 // bool SetPlanetarySourceName(const std::string &sourceType,

@@ -144,6 +144,10 @@ private:
    void OnAddCoordSys(wxCommandEvent &event);
    void OnAddBarycenter(wxCommandEvent &event);
    void OnAddLibration(wxCommandEvent &event);
+   void OnAddPlanet(wxCommandEvent &event);
+   void OnAddMoon(wxCommandEvent &event);
+   void OnAddComet(wxCommandEvent &event);
+   void OnAddAsteroid(wxCommandEvent &event);
 
    //void OnAddScript(wxCommandEvent &event);
    //void OnNewScript(wxCommandEvent &event);
@@ -168,6 +172,10 @@ private:
    Gmat::ObjectType GetObjectType(GmatTree::ItemType itemType);
    wxTreeItemId GetTreeItemId(GmatTree::ItemType type);
    GmatTree::ResourceIconType GetTreeItemIcon(GmatTree::ItemType type);
+   
+   void GetBodyTypeAndIcon(const std::string bodyName, 
+                          GmatTree::ItemType &bodyItemType,
+                          GmatTree::ResourceIconType &iconType);
    
    // compare
    void CompareScriptRunResult(Real absTol, const wxString &replaceStr,
@@ -238,6 +246,10 @@ private:
       POPUP_ADD_SPECIAL_POINT,
       POPUP_ADD_BARYCENTER,
       POPUP_ADD_LIBRATION,
+      POPUP_ADD_PLANET,
+      POPUP_ADD_MOON,
+      POPUP_ADD_COMET,
+      POPUP_ADD_ASTEROID,
 
       POPUP_OPEN,
       POPUP_CLOSE,

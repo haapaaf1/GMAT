@@ -2115,6 +2115,11 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new SpacecraftPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::CELESTIAL_BODY:
+   case GmatTree::CELESTIAL_BODY_STAR:
+   case GmatTree::CELESTIAL_BODY_PLANET:
+   case GmatTree::CELESTIAL_BODY_MOON:
+   case GmatTree::CELESTIAL_BODY_COMET:
+   case GmatTree::CELESTIAL_BODY_ASTEROID:
       sizer->Add(new CelestialBodyPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::FUELTANK:
