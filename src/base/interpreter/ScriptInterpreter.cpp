@@ -1067,6 +1067,49 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
       WriteObjects(objs, "Calculated Points", mode);
    
    //-----------------------------------
+   // Celestial Bodies (for now, only user-defined ones)
+   //-----------------------------------
+   objs = theModerator->GetListOfObjects(Gmat::CELESTIAL_BODY);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d CelestialBodys\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+   {
+      bool        foundUserDefinedBodies = false;
+      bool        foundModifiedBodies    = false;
+      StringArray userDefinedBodies;
+      StringArray modifiedBodies;
+      for (current = objs.begin(); current != objs.end(); ++current)
+      {
+         #ifdef DEBUG_SCRIPT_WRITING
+         MessageInterface::ShowMessage("      body name = '%s'\n", (*current).c_str());
+         #endif
+         
+         object = FindObject(*current);
+         if (object == NULL)
+            throw InterpreterException("Cannot write NULL object \"" + (*current) + "\"");
+         
+         if (!(object->IsOfType("CelestialBody")))
+            throw InterpreterException("Error writing invalid celestial body \"" + (*current) + "\"");
+         CelestialBody *theBody = (CelestialBody*) object;
+         if (theBody->IsUserDefined())
+         {
+            foundUserDefinedBodies = true;
+            userDefinedBodies.push_back(*current);
+         }
+         else if (theBody->HasBeenModified())
+         {
+            foundModifiedBodies = true;
+            modifiedBodies.push_back(*current);
+         }
+      }
+//      if (foundModifiedBodies)  // wcs 2009.02.17 not currently working  @todo - fix writing of modified default bodies
+//         WriteObjects(modifiedBodies, "User-Modified Default Celestial Bodies", mode);
+      if (foundUserDefinedBodies) 
+         WriteObjects(userDefinedBodies, "User-Defined Celestial Bodies", mode);
+   }
+   
+   //-----------------------------------
    // Burn
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::BURN);

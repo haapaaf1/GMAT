@@ -26,6 +26,7 @@
 #include "AttitudeFactory.hpp"
 #include "AxisSystemFactory.hpp"
 #include "BurnFactory.hpp"
+#include "CelestialBodyFactory.hpp"
 #include "CommandFactory.hpp"
 #include "CoordinateSystemFactory.hpp"
 #include "ODEModelFactory.hpp"
@@ -78,6 +79,7 @@
 //#define DEBUG_ADD_OBJECT 1
 //#define DEBUG_SOLAR_SYSTEM 1
 //#define DEBUG_SOLAR_SYSTEM_IN_USE 1
+//#define DEBUG_CREATE_BODY
 // #define DEBUG_PLUGIN_REGISTRATION
 
 //#ifndef DEBUG_MEMORY
@@ -177,7 +179,8 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       theFactoryManager->RegisterFactory(new SpacecraftFactory());
       theFactoryManager->RegisterFactory(new StopConditionFactory());
       theFactoryManager->RegisterFactory(new SubscriberFactory());
-      
+
+      theFactoryManager->RegisterFactory(new CelestialBodyFactory());
       theFactoryManager->RegisterFactory(new AssetFactory());
       
       // Create publisher
@@ -284,7 +287,7 @@ void Moderator::Finalize()
 {
    MessageInterface::ShowMessage("Moderator is deleting core engine...\n");
    
-   #if DEBUG_FINALIZE
+   #if DEBUG_FINALIZE > 0
    MessageInterface::ShowMessage("Moderator::Finalize() entered\n");
    #endif
    
@@ -296,11 +299,11 @@ void Moderator::Finalize()
    MessageInterface::ShowMessage(GetScript());
    #endif
    
-   #if DEBUG_FINALIZE
-   MessageInterface::ShowMessage(".....deleting (%p)theFileManager\n", theFileManager);
-   MessageInterface::ShowMessage(".....deleting (%p)theEopFile\n", theEopFile);
-   MessageInterface::ShowMessage(".....deleting (%p)theItrfFile\n", theItrfFile);
-   MessageInterface::ShowMessage(".....deleting (%p)theLeapSecsFile\n", theLeapSecsFile);
+   #if DEBUG_FINALIZE > 0
+   MessageInterface::ShowMessage(".....Mod::deleting (%p)theFileManager\n", theFileManager);
+   MessageInterface::ShowMessage(".....Mod::deleting (%p)theEopFile\n", theEopFile);
+   MessageInterface::ShowMessage(".....Mod::deleting (%p)theItrfFile\n", theItrfFile);
+   MessageInterface::ShowMessage(".....Mod::deleting (%p)theLeapSecsFile\n", theLeapSecsFile);
    #endif
    
    delete theFileManager;
@@ -316,7 +319,7 @@ void Moderator::Finalize()
    //clear resource and command sequence
    try
    {
-      #if DEBUG_FINALIZE
+      #if DEBUG_FINALIZE > 0
       MessageInterface::ShowMessage(".....clearing resource\n");
       MessageInterface::ShowMessage(".....clearing command sequence\n");
       #endif
@@ -328,9 +331,9 @@ void Moderator::Finalize()
       {
          // only 1 sandbox for now
          GmatCommand *cmd = commands[0];
-         #if DEBUG_FINALIZE
+         #if DEBUG_FINALIZE > 0
          MessageInterface::ShowMessage
-            (".....deleting (%p)%s\n", cmd, cmd->GetTypeName().c_str());
+            (".....Mod::deleting (%p)%s\n", cmd, cmd->GetTypeName().c_str());
          #endif
          
          #ifdef DEBUG_MEMORY
@@ -357,7 +360,7 @@ void Moderator::Finalize()
       }
 
       
-//       #if DEBUG_FINALIZE
+//       #if DEBUG_FINALIZE > 0
 //       MessageInterface::ShowMessage
 //          (".....deleting (%p)theGuiInterpreter\n", theGuiInterpreter);
 //       #endif
@@ -371,9 +374,9 @@ void Moderator::Finalize()
       //delete thePublisher; (private destructor)
       
       // delete solar systems
-      #if DEBUG_FINALIZE
+      #if DEBUG_FINALIZE > 0
       MessageInterface::ShowMessage
-         (".....deleting (%p)theDefaultSolarSystem\n", theDefaultSolarSystem);
+         (".....Mod::deleting (%p)theDefaultSolarSystem\n", theDefaultSolarSystem);
       #endif      
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
@@ -385,9 +388,9 @@ void Moderator::Finalize()
       
       if (theSolarSystemInUse != NULL)
       {
-         #if DEBUG_FINALIZE
+         #if DEBUG_FINALIZE > 0
          MessageInterface::ShowMessage
-            (".....deleting (%p)theSolarSystemInUse\n", theSolarSystemInUse);
+            (".....Mod::deleting (%p)theSolarSystemInUse\n", theSolarSystemInUse);
          #endif
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
@@ -401,9 +404,9 @@ void Moderator::Finalize()
       // delete internal coordinate system
       if (theInternalCoordSystem != NULL)
       {
-         #if DEBUG_FINALIZE
+         #if DEBUG_FINALIZE > 0
          MessageInterface::ShowMessage
-            (".....deleting (%p)theInternalCoordSystem\n", theInternalCoordSystem);
+            (".....Mod::deleting (%p)theInternalCoordSystem\n", theInternalCoordSystem);
          #endif
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
@@ -415,9 +418,9 @@ void Moderator::Finalize()
       }
       
       // delete Sanbox (only 1 Sandbox for now)
-      #if DEBUG_FINALIZE
+      #if DEBUG_FINALIZE > 0
       MessageInterface::ShowMessage
-         (".....deleting (%p)sandbox 1\n", sandboxes[0]);
+         (".....Mod::deleting (%p)sandbox 1\n", sandboxes[0]);
       #endif
       delete sandboxes[0];
       commands[0] = NULL;
@@ -439,7 +442,7 @@ void Moderator::Finalize()
       MessageInterface::ShowMessage("%s\n", tracks[i].c_str());
    #endif
    
-   #if DEBUG_FINALIZE
+   #if DEBUG_FINALIZE > 0
    MessageInterface::ShowMessage("Moderator::Finalize() exiting\n");
    #endif
 } // Finalize()
@@ -1535,6 +1538,16 @@ CelestialBody* Moderator::CreateCelestialBody(const std::string &type,
          MemoryTracker::Instance()->Add
             (body, name, "Moderator::CreateCelestialBody()", funcName);
       }
+      #endif
+      
+      Integer manage = 0;
+      SolarSystem *ss = GetSolarSystemInUse(manage);
+      ss->AddBody(body);
+      body->SetUserDefined(true);
+      #ifdef DEBUG_CREATE_BODY
+      MessageInterface::ShowMessage
+         ("Moderator::CreateCelestialBody() Created CelestialBody "
+          "\"%s\" and added to Solar System\n", name.c_str());
       #endif
       
 //      // Manage it if it is a named body
@@ -2938,6 +2951,12 @@ CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
          // or object map in use (loj: 2008.06.27)
          SolarSystem *ss = GetSolarSystemInUse(manage);
          CelestialBody *earth = ss->GetBody("Earth");
+         #if DEBUG_CREATE_COORDSYS
+            MessageInterface::ShowMessage
+               ("Mod::CreateCS = SolarSystem found at <%p>\n", ss);
+            MessageInterface::ShowMessage
+               ("Mod::CreateCS = Earth found at <%p>\n", earth);
+         #endif
          
          // Set J2000Body and SolarSystem
          cs->SetStringParameter("J2000Body", "Earth");
@@ -4148,26 +4167,26 @@ const StringArray& Moderator::GetPlanetarySourceTypesInUse()
 }
 
 
-//------------------------------------------------------------------------------
-// StringArray& GetAnalyticModelNames()
-//------------------------------------------------------------------------------
-/**
- * @return available planetary analytic model names.
- */
-//------------------------------------------------------------------------------
-const StringArray& Moderator::GetAnalyticModelNames()
-{
-   return theSolarSystemInUse->GetAnalyticModelNames();
-}
-
-
-//------------------------------------------------------------------------------
-// bool SetAnalyticModelToUse(const std::string &modelName)
-//------------------------------------------------------------------------------
-bool Moderator::SetAnalyticModelToUse(const std::string &modelName)
-{
-   return theSolarSystemInUse->SetAnalyticModelToUse(modelName);
-}
+////------------------------------------------------------------------------------
+//// StringArray& GetAnalyticModelNames()
+////------------------------------------------------------------------------------
+///**
+// * @return available planetary analytic model names.
+// */
+////------------------------------------------------------------------------------
+//const StringArray& Moderator::GetAnalyticModelNames()
+//{
+//   return theSolarSystemInUse->GetAnalyticModelNames();
+//}
+//
+//
+////------------------------------------------------------------------------------
+//// bool SetAnalyticModelToUse(const std::string &modelName)
+////------------------------------------------------------------------------------
+//bool Moderator::SetAnalyticModelToUse(const std::string &modelName)
+//{
+//   return theSolarSystemInUse->SetAnalyticModelToUse(modelName);
+//}
 
 
 //------------------------------------------------------------------------------
@@ -4291,11 +4310,11 @@ bool Moderator::ClearResource()
    #ifndef __DISABLE_SOLAR_SYSTEM_CLONING__
       if (theSolarSystemInUse != NULL)
       {
-         #if DEBUG_FINALIZE
+         #if DEBUG_FINALIZE > 0
          MessageInterface::ShowMessage
-            (".....deleting (%p)theSolarSystemInUse\n", theSolarSystemInUse);
+            (".....Mod::ClearResource - deleting (%p)theSolarSystemInUse\n", theSolarSystemInUse);
          #endif
-         
+         if (theInternalSolarSystem == theSolarSystemInUse) theInternalSolarSystem = NULL;
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (theSolarSystemInUse, theSolarSystemInUse->GetName(),
@@ -5080,6 +5099,11 @@ void Moderator::CreateSolarSystemInUse()
          #endif
          delete theSolarSystemInUse;
       }
+      
+      #if DEBUG_INITIALIZE
+      MessageInterface::ShowMessage
+         ("ModeratorCreateSSInUse: current SS is at %p\n", theDefaultSolarSystem);
+      #endif
       theSolarSystemInUse = NULL;
       
       #if DEBUG_SOLAR_SYSTEM_IN_USE

@@ -278,8 +278,8 @@ public:
    const StringArray& GetPlanetarySourceTypes();
    const StringArray& GetPlanetarySourceNames();
    const StringArray& GetPlanetarySourceTypesInUse();
-   const StringArray& GetAnalyticModelNames();
-   bool SetAnalyticModelToUse(const std::string &modelName);
+//   const StringArray& GetAnalyticModelNames();
+//   bool SetAnalyticModelToUse(const std::string &modelName);
    bool SetPlanetarySourceName(const std::string &sourceType,
                                const std::string &fileName);
    Integer SetPlanetarySourceTypesInUse(const StringArray &sourceTypes); 

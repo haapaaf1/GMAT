@@ -40,6 +40,7 @@
 //#define DEBUG_OBJECT_LIST
 //#define DEBUG_ARRAY_GET
 //#define DEBUG_CREATE_OBJECT
+//#define DEBUG_CREATE_CELESTIAL_BODY
 //#define DEBUG_CREATE_PARAM
 //#define DEBUG_CREATE_ARRAY
 //#define DEBUG_CREATE_COMMAND
@@ -220,6 +221,10 @@ void Interpreter::BuildCreatableObjectMaps()
    }
    
    // Build a mapping for all of the defined objects
+   celestialBodyList.clear();
+   StringArray cbs = theModerator->GetListOfFactoryItems(Gmat::CELESTIAL_BODY);
+   copy(cbs.begin(), cbs.end(), back_inserter(celestialBodyList));
+   
    atmosphereList.clear();
    StringArray atms = theModerator->GetListOfFactoryItems(Gmat::ATMOSPHERE);
    copy(atms.begin(), atms.end(), back_inserter(atmosphereList));
@@ -380,6 +385,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
    
    switch (type)
    {
+      case Gmat::CELESTIAL_BODY:
+         clist = celestialBodyList;
+         break;
+      
       case Gmat::ATMOSPHERE:
          clist = atmosphereList;
          break;
@@ -454,7 +463,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::TRANSIENT_FORCE:
       case Gmat::INTERPOLATOR:
       case Gmat::SOLAR_SYSTEM:
-      case Gmat::CELESTIAL_BODY:
+//      case Gmat::CELESTIAL_BODY:
       case Gmat::LIBRATION_POINT:
       case Gmat::BARYCENTER:
       case Gmat::PROP_SETUP:
@@ -629,6 +638,10 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       
       if (!isValid)
       {
+         #ifdef DEBUG_CREATE_OBJECT
+         MessageInterface::ShowMessage
+            ("Object name %s is NOT valid\n", name.c_str());
+         #endif
          InterpreterException ex
             (type + " object can not be named to \"" + name + "\"");
          HandleError(ex);
@@ -682,6 +695,9 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
          }
       }
    }
+#ifdef DEBUG_CREATE_CELESTIAL_BODY
+      MessageInterface::ShowMessage("In CreateObject, about to set Object manager option\n");
+#endif
    
    // Set manage option to Moderator
    theModerator->SetObjectManageOption(manage);
@@ -703,6 +719,11 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    
    else
    {
+#ifdef DEBUG_CREATE_CELESTIAL_BODY
+      MessageInterface::ShowMessage("In CreateObject, list of celestial body types are: \n");
+      for (unsigned int ii = 0; ii < celestialBodyList.size(); ii++)
+         MessageInterface::ShowMessage(" ... %s\n", (celestialBodyList.at(ii)).c_str());
+#endif
       // Handle Propagator
       if (find(propagatorList.begin(), propagatorList.end(), type) != 
           propagatorList.end())
@@ -717,6 +738,11 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       else if (find(axisSystemList.begin(), axisSystemList.end(), type) != 
                axisSystemList.end())
          obj =(GmatBase*) theModerator->CreateAxisSystem(type, name);
+      
+      // Handle Celestial Body
+      else if (find(celestialBodyList.begin(), celestialBodyList.end(), type) != 
+            celestialBodyList.end())
+         obj = (GmatBase*)theModerator->CreateCelestialBody(type, name);
       
       // Handle Atmosphere Model
       else if (find(atmosphereList.begin(), atmosphereList.end(), type) != 
@@ -5852,6 +5878,10 @@ bool Interpreter::IsObjectType(const std::string &type)
    
    if (find(axisSystemList.begin(), axisSystemList.end(), type) !=
        axisSystemList.end())
+      return true;
+   
+   if (find(celestialBodyList.begin(), celestialBodyList.end(), type) !=
+      celestialBodyList.end())
       return true;
    
    if (find(atmosphereList.begin(), atmosphereList.end(), type) !=

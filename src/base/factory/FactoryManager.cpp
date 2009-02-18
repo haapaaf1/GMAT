@@ -656,6 +656,7 @@ const StringArray& FactoryManager::GetListOfAllItems()
    GetList(Gmat::SPACE_POINT);
    GetList(Gmat::STOP_CONDITION);
    GetList(Gmat::SUBSCRIBER);
+   GetList(Gmat::CELESTIAL_BODY);
    
    return entireList;
 }

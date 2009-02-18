@@ -312,6 +312,7 @@ private:
    StringArray   stopcondList;
    StringArray   subscriberList;
    StringArray   spacePointList;
+   StringArray   celestialBodyList;
    
    bool IsObjectType(const std::string &type);
    bool IsParameterType(const std::string &desc);
