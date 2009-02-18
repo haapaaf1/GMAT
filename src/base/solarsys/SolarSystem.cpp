@@ -17,6 +17,7 @@
 #include <string>
 #include "SolarSystem.hpp"              // class's header file
 #include "SolarSystemException.hpp"
+#include "UtilityException.hpp"
 #include "CelestialBody.hpp"
 #include "Star.hpp"
 #include "Planet.hpp"
@@ -28,6 +29,9 @@
 //#define DEBUG_SS_COPY
 //#define DEBUG_SS_CLONING
 //#define DEBUG_SS_PLANETARY_FILE
+//#define DEBUG_SS_FIND_BODY
+//#define DEBUG_SS_ADD_BODY
+//#define SS_CONSTRUCT_DESTRUCT
 
 //---------------------------------
 // static data
@@ -52,20 +56,22 @@ SolarSystem::PARAMETER_TYPE[SolarSystemParamCount - GmatBaseParamCount] =
    Gmat::REAL_TYPE,
 };
 
-const std::string
-SolarSystem::PLANETARY_SOURCE_STRING[PlanetarySourceCount] =
-{
-   "Analytic",
-   "SLP",
-   "DE200",
-   "DE405",
-};
+//const std::string
+//SolarSystem::PLANETARY_SOURCE_STRING[PlanetarySourceCount] =
+//{
+////   "Analytic",
+////   "SLP",
+////   "DE200",
+//   "TwoBodyPropagation",
+//   "DE405",
+////   "SPICE",   // not for the whole solar system
+//};
 
-const std::string
-SolarSystem::ANALYTIC_MODEL_STRING[AnalyticModelCount] =
-{
-   "Low Fidelity",
-};
+//const std::string
+//SolarSystem::ANALYTIC_MODEL_STRING[AnalyticModelCount] =
+//{
+//   "Low Fidelity",
+//};
 
 // define default names form solar system bodies
 const std::string SolarSystem::SUN_NAME        = "Sun";
@@ -139,6 +145,570 @@ const std::string SolarSystem::TRITON_NAME     = "Triton";
 const std::string SolarSystem::PLUTO_NAME      = "Pluto";
 const std::string SolarSystem::CHARON_NAME     = "Charon";
 
+
+// default values for Planet data ------------------------ planets ------------------------
+const std::string
+SolarSystem::PLANET_NAMES[NumberOfDefaultPlanets] =
+{
+   SolarSystem::MERCURY_NAME,
+   SolarSystem::VENUS_NAME,
+   SolarSystem::EARTH_NAME,
+   SolarSystem::MARS_NAME,
+   SolarSystem::JUPITER_NAME,
+   SolarSystem::SATURN_NAME,
+   SolarSystem::URANUS_NAME,
+   SolarSystem::NEPTUNE_NAME,
+   SolarSystem::PLUTO_NAME,
+};
+
+const Gmat::PosVelSource    SolarSystem::PLANET_POS_VEL_SOURCE    = Gmat::DE405; 
+//const Gmat::AnalyticMethod  Planet::DEFAULT_ANALYTIC_METHOD   = Gmat::LOW_FIDELITY;
+
+// Units for Equatorial radius are km
+const Real                  SolarSystem::PLANET_EQUATORIAL_RADIUS[NumberOfDefaultPlanets]         =
+{
+   2.43970000000000e+003, // to match STK 2006.01.31 - was 2439.7,
+   6.05190000000000e+003, // match to STK 2006.01.31 - was 6051.8,
+   6.3781363E3, // to match STK 2006.01.31 - was 6378.1363,
+   3.39700000000000e+003, // to match STK 2006.01.31 - was 3396.200,
+   7.14920000000000e+004, // to match STK 2006.01.31 - was 71492.00,
+   6.02680000000000e+004, // to match STK 2006.01.31 - was 60368.0,
+   2.55590000000000e+004, // to match STK 2006.01.31 - was 25559.0,
+   2.52690000000000e+004, // to match STK 2006.01.31 - was 24764.0,
+   1162.0 // changed to match with STK. old:1195.0
+};
+const Real                  SolarSystem::PLANET_FLATTENING[NumberOfDefaultPlanets]         =   
+{
+   0.0,
+   0.0,
+   0.00335270, // match to STK 2006.01.31 - was 0.0033528,
+   0.00647630, // match to STK 2006.01.31 - was 0.0064763,
+   0.06487439, // match to STK 2006.01.31 - was 0.0648744,
+   0.09796243, // match to STK 2006.01.31 - was 0.0979624,
+   0.02292734, // match to STK 2006.01.31 - was 0.0229273,
+   0.01856029, // match to STK 2006.01.31 - was 0.0171,
+   0.0
+};
+// Units for Mu are km^3/s^2
+const Real                  SolarSystem::PLANET_MU[NumberOfDefaultPlanets]                        =
+{
+   22032.080486418, 
+   324858.59882646, 
+   398600.4415,  
+   42828.314258067, 
+   126712767.85780, 
+   37940626.061137,
+   5794549.0070719, 
+   6836534.0638793, 
+   981.60088770700  
+};
+const Integer               SolarSystem::PLANET_ORDER[NumberOfDefaultPlanets]               =
+                            {0, 0, 4, 0, 0, 0, 0, 0, 0};
+
+const Integer               SolarSystem::PLANET_DEGREE[NumberOfDefaultPlanets]              =
+                            {0, 0, 4, 0, 0, 0, 0, 0, 0};
+const Rmatrix               SolarSystem::PLANET_SIJ[NumberOfDefaultPlanets]                 =
+{
+   Rmatrix(5,5,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0),
+   Rmatrix(5,5,
+           0.0,                  0.0,                  0.0,                  
+           0.0,                  0.0,
+           0.0,                  0.0,                  0.0,                  
+           0.0,                  0.0,
+           0.0, 1.47467423600000E-08,-9.53141845209000E-08,                  
+           0.0,                  0.0,
+           0.0, 5.40176936891000E-07, 8.11618282044000E-07, 
+           2.11451354723000E-07, 0.0,
+           0.0, 4.91465604098000E-07, 4.83653955909000E-07,
+          -1.18564194898000E-07,      1.37586364127000E-06),
+   Rmatrix(5,5,
+           0.0,                  0.0,                  0.0,                  
+           0.0,                  0.0,
+           0.0,                  0.0,                  0.0,                  
+           0.0,                  0.0,
+           0.0, 1.19528010000000E-09,-1.40026639758800E-06,                  
+           0.0,                  0.0,
+           0.0, 2.48130798255610E-07,-6.18922846478490E-07, 
+           1.41420398473540E-06, 0.0,
+           0.0,-4.73772370615970E-07, 6.62571345942680E-07,
+          -2.00987354847310E-07,      3.08848036903550E-07),
+   Rmatrix(5,5,
+           0.0,                  0.0,                  0.0,                  
+           0.0,                  0.0,
+           0.0,                  0.0,                  0.0,                  
+           0.0,                  0.0,
+           0.0, 6.54655690000000E-09, 4.90611750000000E-05,                  
+           0.0,                  0.0,
+           0.0, 2.52926620000000E-05, 8.31603630000000E-06, 
+           2.55554990000000E-05, 0.0,
+           0.0, 3.70906170000000E-06,-8.97764090000000E-06,
+          -1.72832060000000E-07,     -1.28554120000000E-05),
+   Rmatrix(5,5,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0),
+   Rmatrix(5,5,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0),
+   Rmatrix(5,5,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0),
+   Rmatrix(5,5,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0),
+   Rmatrix(5,5,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0),
+};
+const Rmatrix               SolarSystem::PLANET_CIJ[NumberOfDefaultPlanets]                 =
+{
+   Rmatrix(5,5,
+                             1.0, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0,
+           -2.68328157300000E-05, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0),
+   Rmatrix(5,5,
+                             1.0,                  0.0,                  0.0,
+                             0.0,                  0.0,
+                             0.0,                  0.0,                  0.0,
+                             0.0,                  0.0,
+           -1.95847963769000E-06, 2.87322988834000E-08, 8.52182522007000E-07,
+                             0.0,                  0.0,
+            7.98507258430000E-07, 2.34759127059000E-06,-9.45132723095000E-09,
+           -1.84756674598000E-07,                  0.0,
+            7.15385582249000E-07,-4.58736811774000E-07, 1.26875441402000E-07,
+           -1.74034531883000E-07, 1.78438307106000E-07),
+   Rmatrix(5,5,
+                             1.0,                  0.0,                  0.0,
+                             0.0,                   0.0,
+                             0.0,                  0.0,                  0.0,
+                             0.0,                   0.0,
+           -4.84165374886470E-04,-1.86987640000000E-10, 2.43926074865630E-06,
+                             0.0,                   0.0,
+            9.57170590888000E-07, 2.03013720555300E-06, 9.04706341272910E-07, 
+            7.21144939823090E-07,                   0.0,
+            5.39777068357300E-07,-5.36243554298510E-07, 3.50670156459380E-07,
+            9.90868905774410E-07,-1.88481367425270E-07),
+   Rmatrix(5,5,
+                             1.0,                  0.0,                  0.0,
+                             0.0,                   0.0,
+                             0.0,                  0.0,                  0.0,
+                             0.0,                   0.0,
+           -8.75977040000000E-04, 3.69395770000000E-09,-8.46829230000000E-05,
+                             0.0,                   0.0,
+           -1.19062310000000E-05, 3.74737410000000E-06,-1.59844090000000E-05, 
+            3.51325710000000E-05,                   0.0,
+            5.14919500000000E-06, 4.26122630000000E-06,-1.05467200000000E-06, 
+            6.47421510000000E-06, 2.97350070000000E-07),
+   Rmatrix(5,5,
+                             1.0, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0,
+           -6.59640053360000E-03, 0.0,             0.0,             0.0,
+                             0.0,
+            2.19219394350000E-04, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0),
+   Rmatrix(5,5,
+                             1.0, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0,
+           -7.35666364600000E-03, 0.0,             0.0,             0.0,
+                             0.0,
+           -3.77964473010000E-04, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0),
+   Rmatrix(5,5,
+                             1.0, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0,
+           -5.36656314600000E-03, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0),
+   Rmatrix(5,5,
+                             1.0, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0,
+           -1.78885438200000E-03, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0,
+                             0.0, 0.0,             0.0,             0.0,
+                             0.0),
+   Rmatrix(5,5,
+           1.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0,
+           0.0, 0.0,             0.0,             0.0,             0.0),
+};
+const Real                  SolarSystem::PLANET_TWO_BODY_EPOCH[NumberOfDefaultPlanets]      =
+{
+   21544.500370768266, 21544.500370768266, 21544.500370768266,
+   21544.500370768266, 21544.500370768266, 21544.500370768266,
+   21544.500370768266, 21544.500370768266, 21544.500370768266
+};
+const Rvector6              SolarSystem::PLANET_TWO_BODY_ELEMENTS[NumberOfDefaultPlanets]   =
+{
+   Rvector6(57909212.938567216, 0.20562729774965544, 28.551674963293556,
+            10.99100758149257, 67.548689584103984,  175.10396761800456),
+   Rvector6(108208423.76486244, 0.0067572911404369688, 24.433051334216176,
+            8.007373221205856, 124.55871063212626,     49.889845117140576),
+   Rvector6(149653978.9783766,        0.01704556707314489, 23.439034090426388,
+            0.00018646554487906264, 101.7416388084352,    358.12708491129), 
+   Rvector6(227939100.16983532,   0.093314935483163344, 24.677089965042784,
+            3.3736838414054472, 333.01849018562076,     23.020633424007744),
+   Rvector6(779362950.5867208, 0.049715759324379896, 23.235170252934984,
+            3.253166212922,   12.959463238924978,    20.296667207322848),
+   Rvector6(1433895241.1645338,  0.055944006117351672, 22.551333377462712, 
+            5.9451029086964872, 83.977808941927856,   316.23400767222348),
+   Rvector6(2876804054.239868,   0.044369079419761096, 23.663364175915172,
+            1.850441916938424, 168.86875273062818,    145.8502865552013),
+   Rvector6(4503691751.2342816, 0.011211871260687014, 22.29780590076114,
+            3.47555654789392,  33.957145210261132,   266.76236610390636),
+   Rvector6(5909627293.567856,    0.24928777871911536, 23.4740184346088,
+            43.998303104440304, 183.03164997859696,    25.513664216653164)
+};
+
+const Integer               SolarSystem::PLANET_NUM_GRAVITY_MODELS[NumberOfDefaultPlanets] = 
+   {  1,  2,  3,  1,  1,  1,  1,  1,  0 };
+const Integer               SolarSystem::PLANET_NUM_ATMOSPHERE_MODELS[NumberOfDefaultPlanets] =
+   {  0,  0,  3,  0,  0,  0,  0,  0,  0};
+const Integer               SolarSystem::PLANET_NUM_MAGNETIC_MODELS[NumberOfDefaultPlanets]=
+   {  0,  0,  0,  0,  0,  0,  0,  0,  0};
+const Integer               SolarSystem::PLANET_NUM_SHAPE_MODELS[NumberOfDefaultPlanets] = 
+   {  0,  0,  0,  0,  0,  0,  0,  0,  0};
+
+const std::string           SolarSystem::PLANET_GRAVITY_MODELS[] = 
+{
+   "mercury2x0",
+   "mgn75hsaap", "shg120",
+   "JGM2",       "JGM3",       "EGM96",
+   "GMM-1",
+   "jupiter6x2",
+   "saturn8x0",
+   "uranus4x0",
+   "neptune4x0",
+   // none for Pluto at this time
+};
+
+const std::string           SolarSystem::PLANET_ATMOSPHERE_MODELS[] = 
+{
+   // none for Mercury at this time
+   // none for Venus at this time
+   "Exponential", "MSISE90",  "Jacchia-Roberts",
+   // none for Mars at this time
+   // none for Jupiter at this time
+   // none for Saturn at this time
+   // none for Uranus at this time
+   // none for Neptune at this time
+   // none for Pluto at this time
+};
+
+const std::string           SolarSystem::PLANET_MAGNETIC_MODELS[] = 
+{
+      // none for Mercury at this time
+      // none for Venus at this time
+      // none for Earth at this time
+      // none for Mars at this time
+      // none for Jupiter at this time
+      // none for Saturn at this time
+      // none for Uranus at this time
+      // none for Neptune at this time
+      // none for Pluto at this time
+};
+
+const std::string          SolarSystem::PLANET_SHAPE_MODELS[] = 
+{
+      // none for Mercury at this time
+      // none for Venus at this time
+      // none for Earth at this time
+      // none for Mars at this time
+      // none for Jupiter at this time
+      // none for Saturn at this time
+      // none for Uranus at this time
+      // none for Neptune at this time
+      // none for Pluto at this time
+};
+
+//         SpinAxisRA  Rate        SpinAxisDEC  Rate        Rotation    Rate
+const Rvector6              SolarSystem::PLANET_ORIENTATION_PARAMETERS[NumberOfDefaultPlanets]   =
+{
+   Rvector6(281.01,    -0.033,      61.45,    -0.005,        329.548,    6.1385025),
+   Rvector6(272.76,     0.0   ,     67.16,     0.0,          160.20,    -1.4813688),
+   Rvector6(  0.0,     -0.641,      90.00,    -0.557,        190.147,  360.9856235), 
+   Rvector6(317.68143, -0.1061,     52.88650, -0.0609,       176.630,  350.89198226),
+   Rvector6(268.05,    -0.009,      64.49,     0.003,        284.95,   870.5366420),
+   Rvector6( 40.589,   -0.036,      83.537,   -0.004,         38.90,   810.7939024),
+   
+   Rvector6(257.311,    0.0,       -15.175,    0.0,          203.81,  -501.1600928),
+   Rvector6(299.36,     0.70,       43.46,    -0.51,         253.18,   536.3128492), // Neptune needs more, though
+   Rvector6(313.02,     0.0,         9.09,     0.0,          236.77,   -56.3623195)
+};
+
+// default values for Planet data ------------------------  moons  ------------------------
+const std::string           SolarSystem::MOON_NAMES[NumberOfDefaultMoons] =
+{
+   SolarSystem::MOON_NAME,
+//   SolarSystem::PHOBOS_NAME,
+//   SolarSystem::DEIMOS_NAME,
+};
+
+const std::string           SolarSystem::MOON_CENTRAL_BODIES[NumberOfDefaultMoons] =
+{
+   SolarSystem::EARTH_NAME,
+//   SolarSystem::MARS_NAME,
+//   SolarSystem::MARS_NAME,
+};
+
+const Gmat::PosVelSource    SolarSystem::MOON_POS_VEL_SOURCE[NumberOfDefaultMoons]    = 
+{
+         Gmat::DE405,
+//         Gmat::TWO_BODY_PROPAGATION,  
+//         Gmat::TWO_BODY_PROPAGATION,  
+//       Gmat::TWO_BODY_PROPAGATION,
+};
+//const Gmat::AnalyticMethod  Planet::DEFAULT_ANALYTIC_METHOD   = Gmat::LOW_FIDELITY;
+
+// Units for Equatorial radius are km
+const Real                  SolarSystem::MOON_EQUATORIAL_RADIUS[NumberOfDefaultMoons]         =
+{
+   1738.2000, 
+//   11.1,       // *** TEMPORARY ***
+//   11.1,       // *** TEMPORARY ***
+};
+const Real                  SolarSystem::MOON_FLATTENING[NumberOfDefaultMoons]         =   
+{
+   0.0,
+//   0.0,
+//   0.0,
+};
+// Units for Mu are km^3/s^2
+const Real                  SolarSystem::MOON_MU[NumberOfDefaultMoons]                        =
+{
+   4902.8005821478,
+//   7.22e-4,        // *** TEMPORARY ***
+//   7.22e-4,        // *** TEMPORARY ***
+};
+const Integer               SolarSystem::MOON_ORDER[NumberOfDefaultMoons]               =
+{
+   0,
+//   0,   // *** TEMPORARY ***
+//   0,   // *** TEMPORARY ***
+};
+
+const Integer               SolarSystem::MOON_DEGREE[NumberOfDefaultMoons]              =
+{
+   0,
+//   0, // *** TEMPORARY ***
+//   0, // *** TEMPORARY ***
+};
+const Rmatrix               SolarSystem::MOON_SIJ[NumberOfDefaultMoons]                 =
+{
+   Rmatrix(5,5,
+         0.0,                  0.0,                  0.0,                  0.0,
+         0.0,
+         0.0,                  0.0,                  0.0,                  0.0,
+         0.0,
+         0.0, 4.78976286742000E-09, 1.19043314469000E-08,                  0.0,
+         0.0,
+         0.0, 5.46564929895000E-06, 4.88875341590000E-06,-1.76416063010000E-06,
+         0.0,
+         0.0, 1.63304293851000E-06,-6.76012176494000E-06,-1.34287028168000E-05,
+         3.94334642990000E-06),
+//   Rmatrix(5,5,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0),
+//   Rmatrix(5,5,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0),
+};
+const Rmatrix               SolarSystem::MOON_CIJ[NumberOfDefaultMoons]                 =
+{
+   Rmatrix(5,5,
+         1.0,                 0.0,                  0.0,
+         0.0,                 0.0,
+         0.0,                 0.0,                  0.0,
+         0.0,                 0.0,
+-9.09314486280000E-05, 9.88441569067000E-09, 3.47139237760000E-05,
+         0.0,                 0.0,
+-3.17765981183000E-06, 2.63497832935000E-05, 1.42005317544000E-05,
+1.22860504604000E-05,                 0.0,
+3.21502582986000E-06,-6.01154071094000E-06,-7.10667037450000E-06,
+-1.37041711834000E-06,-6.03652719918000E-06),
+//   Rmatrix(5,5,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0),
+//   Rmatrix(5,5,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0,
+//         0.0,                  0.0,                  0.0,                  0.0,
+//         0.0),
+};
+const Real                  SolarSystem::MOON_TWO_BODY_EPOCH[NumberOfDefaultMoons]      =
+{
+      21544.500370768266,
+//      21544.500370768266,   // *** TEMPORARY ***
+//      21544.500370768266,   // *** TEMPORARY ***
+};
+const Rvector6              SolarSystem::MOON_TWO_BODY_ELEMENTS[NumberOfDefaultMoons]   =
+{
+      Rvector6(      385494.90434829952,  0.055908943292024992,   20.940245433093748,
+            12.233244412716252, 68.004298803147648,     137.94325682926458),
+//      Rvector6(      385494.90434829952,  0.055908943292024992,   20.940245433093748,
+//            12.233244412716252, 68.004298803147648,     137.94325682926458),           // *** TEMPORARY ***
+//      Rvector6(      385494.90434829952,  0.055908943292024992,   20.940245433093748,
+//            12.233244412716252, 68.004298803147648,     137.94325682926458),           // *** TEMPORARY ***
+};
+
+const Integer               SolarSystem::MOON_NUM_GRAVITY_MODELS[NumberOfDefaultMoons] = 
+   {  1, 
+         //0, 0, 
+   };
+const Integer               SolarSystem::MOON_NUM_ATMOSPHERE_MODELS[NumberOfDefaultMoons] =
+   {  0, 
+         //0, 0, 
+   };
+const Integer               SolarSystem::MOON_NUM_MAGNETIC_MODELS[NumberOfDefaultMoons]=
+   {  0, 
+         //0, 0, 
+   };
+const Integer               SolarSystem::MOON_NUM_SHAPE_MODELS[NumberOfDefaultMoons] = 
+   {  0, 
+         //0, 0, 
+   };
+
+const std::string           SolarSystem::MOON_GRAVITY_MODELS[] = 
+{
+   "LP100",
+};
+
+const std::string           SolarSystem::MOON_ATMOSPHERE_MODELS[] = 
+{
+};
+
+const std::string           SolarSystem::MOON_MAGNETIC_MODELS[] = 
+{
+};
+
+const std::string          SolarSystem::MOON_SHAPE_MODELS[] = 
+{
+};
+
+//         SpinAxisRA  Rate        SpinAxisDEC  Rate        Rotation    Rate
+const Rvector6              SolarSystem::MOON_ORIENTATION_PARAMETERS[NumberOfDefaultMoons]   =
+{
+   Rvector6(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  // for now, for default moons, calculations are done in the Moon class
+//   Rvector6(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  // for now, for default moons, calculations are done in the Moon class
+//   Rvector6(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  // for now, for default moons, calculations are done in the Moon class
+};
+
+// default values for Planet data ------------------------  the Sun  ------------------------
+
+const Gmat::PosVelSource    SolarSystem::STAR_POS_VEL_SOURCE      = Gmat::DE405;
+const Real                  SolarSystem::STAR_EQUATORIAL_RADIUS   = 695990.0000;  // km
+const Real                  SolarSystem::STAR_FLATTENING          = 0.0; 
+// Units for MU are km^3/s^2
+const Real                  SolarSystem::STAR_MU                  = 132712440017.99;
+//const Gmat::AnalyticMethod  STAR_ANALYTIC_METHOD     = Gmat::LOW_FIDELITY;
+const Integer               SolarSystem::STAR_ORDER               = 0;      
+const Integer               SolarSystem::STAR_DEGREE              = 0;
+const Rmatrix               SolarSystem::STAR_SIJ                 = Rmatrix(5,5); //zeroes
+const Rmatrix               SolarSystem::STAR_CIJ                 = Rmatrix(5,5,
+      1.0, 0.0,             0.0,             0.0,             0.0,
+      0.0, 0.0,             0.0,             0.0,             0.0,
+      0.0, 0.0,             0.0,             0.0,             0.0,
+      0.0, 0.0,             0.0,             0.0,             0.0,
+      0.0, 0.0,             0.0,             0.0,             0.0);
+
+// NOTE - these must change when Earth's default values change!!!!!!!!!!!!
+const Real                  SolarSystem::STAR_TWO_BODY_EPOCH           = 21544.500370768266;
+const Rvector6              SolarSystem::STAR_TWO_BODY_ELEMENTS        = Rvector6(
+      149653978.9783766,        0.01704556707314489,  23.439034090426388,
+      0.00018646554487906264, 281.7416388084352,     358.12708491129);
+
+const Integer               SolarSystem::STAR_NUM_GRAVITY_MODELS = 0;
+const Integer               SolarSystem::STAR_NUM_ATMOSPHERE_MODELS = 0;
+const Integer               SolarSystem::STAR_NUM_MAGNETIC_MODELS = 0;
+const Integer               SolarSystem::STAR_NUM_SHAPE_MODELS = 0;
+const std::string           SolarSystem::STAR_GRAVITY_MODELS = "None";
+const std::string           SolarSystem::STAR_ATMOSPHERE_MODELS = "None";
+const std::string           SolarSystem::STAR_MAGNETIC_MODELS = "None";
+const std::string           SolarSystem::STAR_SHAPE_MODELS = "None"; // @todo add Shape Models
+const Rvector6              SolarSystem::STAR_ORIENTATION_PARAMETERS = Rvector6(
+      286.13, 0.0, 63.87, 0.0, 84.10, 14.1844000);
+
+const Real                  SolarSystem::STAR_RADIANT_POWER       = 1358.0;     
+// Units for reference distance are km (1 AU)
+const Real                  SolarSystem::STAR_REFERENCE_DISTANCE  = 1.49597870e8; 
+// Units for radius are meters
+const Real                  SolarSystem::STAR_PHOTOSPHERE_RADIUS  = 695990000.0;  
+
+
 // add other moons, asteroids, comets, as needed
 // what about libration points?
 
@@ -161,55 +731,238 @@ SolarSystem::SolarSystem(std::string withName)
    objectTypes.push_back(Gmat::SOLAR_SYSTEM);
    objectTypeNames.push_back("SolarSystem");
    parameterCount      = SolarSystemParamCount;
-   pvSrcForAll         = Gmat::DE_405;
-   anMethodForAll      = Gmat::LOW_FIDELITY;
+   pvSrcForAll         = Gmat::DE405;
+//   anMethodForAll      = Gmat::LOW_FIDELITY;
    thePlanetaryEphem   = NULL;
    overrideTimeForAll  = false;
    ephemUpdateInterval = 0.0;
+
+   FileManager *fm = FileManager::Instance();
+   std::string upperCaseName;
+   std::string filename, textureFile;
    
    // create and add the default bodies
+   // Assume only one Star for now : )
    Star* theSun     = new Star(SUN_NAME);
    theSun->SetCentralBody(EARTH_NAME);  // central body here is a reference body
-   Planet* theEarth = new Planet(EARTH_NAME,   SUN_NAME);
-   Moon* theMoon    = new Moon(MOON_NAME,      EARTH_NAME);
-   Planet* mercury  = new Planet(MERCURY_NAME, SUN_NAME);
-   Planet* venus    = new Planet(VENUS_NAME,   SUN_NAME);
-   Planet* mars     = new Planet(MARS_NAME,    SUN_NAME);
-   Planet* jupiter  = new Planet(JUPITER_NAME, SUN_NAME);
-   Planet* saturn   = new Planet(SATURN_NAME,  SUN_NAME);
-   Planet* uranus   = new Planet(URANUS_NAME,  SUN_NAME);
-   Planet* neptune  = new Planet(NEPTUNE_NAME, SUN_NAME);
-   Planet* pluto    = new Planet(PLUTO_NAME,   SUN_NAME);
+   theSun->SetSource(STAR_POS_VEL_SOURCE);
+   theSun->SetEquatorialRadius(STAR_EQUATORIAL_RADIUS, true);
+   theSun->SetFlattening(STAR_FLATTENING, true);
+   theSun->SetGravitationalConstant(STAR_MU, true);
+   theSun->SetOrder(STAR_ORDER);
+   theSun->SetDegree(STAR_DEGREE);
+   theSun->SetHarmonicCoefficientsSij(STAR_SIJ);
+   theSun->SetHarmonicCoefficientsCij(STAR_CIJ);
+   theSun->SetRadiantPower(STAR_RADIANT_POWER, STAR_REFERENCE_DISTANCE);
+   theSun->SetPhotosphereRadius(STAR_PHOTOSPHERE_RADIUS);
 
+//   theSun->SetRefObject(theEarth, Gmat::CELESTIAL_BODY, SolarSystem::EARTH_NAME); // for reference!!!
+
+   theSun->SetTwoBodyEpoch(STAR_TWO_BODY_EPOCH);
+   theSun->SetTwoBodyElements(STAR_TWO_BODY_ELEMENTS);
+   theSun->AddValidModelName(Gmat::GRAVITY_FIELD,"Other");
+   theSun->AddValidModelName(Gmat::ATMOSPHERE_MODEL,"Other");
+   theSun->AddValidModelName(Gmat::MAGNETIC_FIELD,"Other");
+// @todo - add Shape models or remove these if not necessary
+   //         newPlanet->AddValidModelName(Gmat::SHAPE_MODEL,"Other");
+   // Set the orientation parameters for the body 
+   theSun->SetOrientationParameters(STAR_ORIENTATION_PARAMETERS);
+   // find and set the texture map
+   upperCaseName = GmatStringUtil::ToUpper(SUN_NAME);
+   filename      = upperCaseName + "_TEXTURE_FILE";
+   try
+   {
+      textureFile   = fm->GetFullPathname(filename);
+   }
+   catch (UtilityException &ue)
+   {
+      MessageInterface::ShowMessage("Texture map file is missing or unknown for default body %s\n",
+                                    SUN_NAME.c_str());
+   }
+   theSun->SetStringParameter(theSun->GetParameterID("TextureMapFileName"), textureFile);
+   // add the body to the default SolarSystem  
    AddBody(theSun);
-   AddBody(theEarth);
-   AddBody(theMoon);
-   AddBody(mercury);
-   AddBody(venus);
-   AddBody(mars);
-   AddBody(jupiter);
-   AddBody(saturn);
-   AddBody(uranus);
-   AddBody(neptune);
-   AddBody(pluto);
+   
+//   Planet* theEarth = new Planet(EARTH_NAME,   SUN_NAME);
+//   Moon* theMoon    = new Moon(MOON_NAME,      EARTH_NAME);
+//   Planet* mercury  = new Planet(MERCURY_NAME, SUN_NAME);
+//   Planet* venus    = new Planet(VENUS_NAME,   SUN_NAME);
+//   Planet* mars     = new Planet(MARS_NAME,    SUN_NAME);
+//   Planet* jupiter  = new Planet(JUPITER_NAME, SUN_NAME);
+//   Planet* saturn   = new Planet(SATURN_NAME,  SUN_NAME);
+//   Planet* uranus   = new Planet(URANUS_NAME,  SUN_NAME);
+//   Planet* neptune  = new Planet(NEPTUNE_NAME, SUN_NAME);
+//   Planet* pluto    = new Planet(PLUTO_NAME,   SUN_NAME);
+   
+   Planet *theEarth = NULL;
+   Integer indexGravityModels = 0;
+   Integer indexAtmosphereModels = 0;
+   Integer indexMagneticModels = 0;
+//   Integer indexShapeModels = 0;
+   
+   // Add default planets, assuming for now that they all orbit the Sun
+   for (unsigned int ii = 0; ii < NumberOfDefaultPlanets; ii++)
+   {
+      Planet *newPlanet = new Planet(PLANET_NAMES[ii], SUN_NAME);
+      if (PLANET_NAMES[ii] == EARTH_NAME) theEarth = newPlanet;
+      newPlanet->SetSource(PLANET_POS_VEL_SOURCE);
+      newPlanet->SetEquatorialRadius(PLANET_EQUATORIAL_RADIUS[ii], true);
+      newPlanet->SetFlattening(PLANET_FLATTENING[ii], true);
+      newPlanet->SetGravitationalConstant(PLANET_MU[ii], true);
+      newPlanet->SetOrder(PLANET_ORDER[ii]);
+      newPlanet->SetDegree(PLANET_DEGREE[ii]);
+      newPlanet->SetHarmonicCoefficientsSij(PLANET_SIJ[ii]);
+      newPlanet->SetHarmonicCoefficientsCij(PLANET_CIJ[ii]);
+      // reference object must be set before setting TwoBodyEpoch or TwoBodyElements
+      newPlanet->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SUN_NAME);
+
+      newPlanet->SetTwoBodyEpoch(PLANET_TWO_BODY_EPOCH[ii]);
+      newPlanet->SetTwoBodyElements(PLANET_TWO_BODY_ELEMENTS[ii]);
+      for (Integer jj = 0; jj < PLANET_NUM_GRAVITY_MODELS[ii]; jj++)
+         newPlanet->AddValidModelName(Gmat::GRAVITY_FIELD, 
+                    PLANET_GRAVITY_MODELS[indexGravityModels++]);
+      newPlanet->AddValidModelName(Gmat::GRAVITY_FIELD,"Other");
+      for (Integer jj = 0; jj < PLANET_NUM_ATMOSPHERE_MODELS[ii]; jj++)
+         newPlanet->AddValidModelName(Gmat::ATMOSPHERE_MODEL, 
+                    PLANET_ATMOSPHERE_MODELS[indexAtmosphereModels++]);
+      newPlanet->AddValidModelName(Gmat::ATMOSPHERE_MODEL,"Other");
+      for (Integer jj = 0; jj < PLANET_NUM_MAGNETIC_MODELS[ii]; jj++)
+         newPlanet->AddValidModelName(Gmat::MAGNETIC_FIELD, 
+                    PLANET_MAGNETIC_MODELS[indexMagneticModels++]);
+      newPlanet->AddValidModelName(Gmat::MAGNETIC_FIELD,"Other");
+// @todo - add Shape models or remove these if not necessary
+//      for (unsigned int jj = 0; jj < PLANET_NUM_SHAPE_MODELS[ii]; jj++)
+//         newPlanet->AddValidModelName(Gmat::SHAPE_MODEL, 
+//                    PLANET_SHAPE_MODELS[indexShapeModels++]);
+      //         newPlanet->AddValidModelName(Gmat::SHAPE_MODEL,"Other");
+      // Set the orientation parameters for the body (Neptune is a special case - handled in the Planet class
+      newPlanet->SetOrientationParameters(PLANET_ORIENTATION_PARAMETERS[ii]);
+      // find and set the texture map
+      upperCaseName = GmatStringUtil::ToUpper(PLANET_NAMES[ii]);
+      filename      = upperCaseName + "_TEXTURE_FILE";
+      try
+      {
+         textureFile   = fm->GetFullPathname(filename);
+      }
+      catch (UtilityException &ue)
+      {
+         MessageInterface::ShowMessage("Texture map file is missing or unknown for default body %s\n",
+                                       (PLANET_NAMES[ii]).c_str());
+      }
+      newPlanet->SetStringParameter(newPlanet->GetParameterID("TextureMapFileName"), textureFile);
+      // add the body to the default SolarSystem  
+      AddBody(newPlanet);
+   }
+
+   indexGravityModels = 0;
+   indexAtmosphereModels = 0;
+   indexMagneticModels = 0;
+//   Integer indexShapeModels = 0;
+   // Add default moons
+   for (unsigned int ii = 0; ii < NumberOfDefaultMoons; ii++)
+   {
+      Moon *newMoon = new Moon(MOON_NAMES[ii], MOON_CENTRAL_BODIES[ii]);
+      newMoon->SetSource(MOON_POS_VEL_SOURCE[ii]);
+      newMoon->SetEquatorialRadius(MOON_EQUATORIAL_RADIUS[ii], true);
+      newMoon->SetFlattening(MOON_FLATTENING[ii], true);
+      newMoon->SetGravitationalConstant(MOON_MU[ii], true);
+      newMoon->SetOrder(MOON_ORDER[ii]);
+      newMoon->SetDegree(MOON_DEGREE[ii]);
+      newMoon->SetHarmonicCoefficientsSij(MOON_SIJ[ii]);
+      newMoon->SetHarmonicCoefficientsCij(MOON_CIJ[ii]);
+      // reference object must be set before setting TwoBodyEpoch or TwoBodyElements
+      CelestialBody *central = FindBody(MOON_CENTRAL_BODIES[ii]);
+      if (!central)
+      {
+         std::string errMsg = "Central body " + MOON_CENTRAL_BODIES[ii];
+         errMsg += " must be created before moon ";
+         errMsg += MOON_NAMES[ii] + "\n";
+         throw SolarSystemException(errMsg);
+      }
+      newMoon->SetRefObject(central, Gmat::CELESTIAL_BODY, MOON_CENTRAL_BODIES[ii]);
+
+      newMoon->SetTwoBodyEpoch(MOON_TWO_BODY_EPOCH[ii]);
+      newMoon->SetTwoBodyElements(MOON_TWO_BODY_ELEMENTS[ii]);
+      for (Integer jj = 0; jj < MOON_NUM_GRAVITY_MODELS[ii]; jj++)
+         newMoon->AddValidModelName(Gmat::GRAVITY_FIELD, 
+                    MOON_GRAVITY_MODELS[indexGravityModels++]);
+      for (Integer jj = 0; jj < MOON_NUM_ATMOSPHERE_MODELS[ii]; jj++)
+         newMoon->AddValidModelName(Gmat::ATMOSPHERE_MODEL, 
+                    MOON_ATMOSPHERE_MODELS[indexAtmosphereModels++]);
+      for (Integer jj = 0; jj < MOON_NUM_MAGNETIC_MODELS[ii]; jj++)
+         newMoon->AddValidModelName(Gmat::MAGNETIC_FIELD, 
+                    MOON_MAGNETIC_MODELS[indexMagneticModels++]);
+// @todo - add Shape models or remove these if not necessary
+//      for (unsigned int jj = 0; jj < MOON_NUM_SHAPE_MODELS[ii]; jj++)
+//         newMoon->AddValidModelName(Gmat::SHAPE_MODEL, 
+//                    MOON_SHAPE_MODELS[indexShapeModels++]);
+      // Set the orientation parameters for the body (Neptune is a special case - handled in the Planet class
+      newMoon->SetOrientationParameters(PLANET_ORIENTATION_PARAMETERS[ii]);
+      // find and set the texture map
+      upperCaseName = GmatStringUtil::ToUpper(MOON_NAMES[ii]);
+      filename      = upperCaseName + "_TEXTURE_FILE";
+      try
+      {
+         textureFile   = fm->GetFullPathname(filename);
+      }
+      catch (UtilityException &ue)
+      {
+         MessageInterface::ShowMessage("Texture map file is missing or unknown for default body %s\n",
+                                       (MOON_NAMES[ii]).c_str());
+      }
+      newMoon->SetStringParameter(newMoon->GetParameterID("TextureMapFileName"), textureFile);
+      // add the body to the default SolarSystem  
+      AddBody(newMoon);
+   }
+
+//   Moon* theMoon    = new Moon(MOON_NAME,      EARTH_NAME);
+//
+//   AddBody(theSun);
+////   AddBody(theEarth);
+//   AddBody(theMoon);
+//   AddBody(mercury);
+//   AddBody(venus);
+//   AddBody(mars);
+//   AddBody(jupiter);
+//   AddBody(saturn);
+//   AddBody(uranus);
+//   AddBody(neptune);
+//   AddBody(pluto);
+   
+   if (!theEarth) 
+      throw SolarSystemException("The Earth not defined.\n");
    
    // at least for now, give each body a pointer to its central body
    theSun->SetRefObject(theEarth, Gmat::CELESTIAL_BODY, SolarSystem::EARTH_NAME); // for reference!!!
-   theEarth->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
-   theMoon->SetRefObject(theEarth, Gmat::CELESTIAL_BODY, SolarSystem::EARTH_NAME);
-   mercury->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
-   venus->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
-   mars->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
-   jupiter->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
-   saturn->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
-   uranus->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
-   neptune->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
-   pluto->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   theEarth->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   theMoon->SetRefObject(theEarth, Gmat::CELESTIAL_BODY, SolarSystem::EARTH_NAME);
+//   mercury->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   venus->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   mars->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   jupiter->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   saturn->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   uranus->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   neptune->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
+//   pluto->SetRefObject(theSun, Gmat::CELESTIAL_BODY, SolarSystem::SUN_NAME);
    
-   theDefaultSlpFile   = NULL;
+//   theDefaultSlpFile   = NULL;
    theDefaultDeFile    = NULL;
    
+   // clear the modified flags for all default bodies
+   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+   while (cbi != bodiesInUse.end())
+   {
+      (*cbi)->ClearModifiedFlag();      
+      ++cbi;
+   }
+   
+   
    CreatePlanetarySource();
+   
+   #ifdef SS_CONSTRUCT_DESTRUCT
+      MessageInterface::ShowMessage("Just constructed a new SolarSystem with name %s at <%p>\n",
+            withName.c_str(), this);
+   #endif
 }
 
 
@@ -224,15 +977,17 @@ SolarSystem::SolarSystem(std::string withName)
  */
 //------------------------------------------------------------------------------
 SolarSystem::SolarSystem(const SolarSystem &ss) :
-   GmatBase            (ss),
-   pvSrcForAll         (ss.pvSrcForAll),
-   anMethodForAll      (ss.anMethodForAll),
-   thePlanetaryEphem   (NULL),
-   overrideTimeForAll  (ss.overrideTimeForAll),
-   ephemUpdateInterval (ss.ephemUpdateInterval),
-   bodyStrings         (ss.bodyStrings)
+   GmatBase               (ss),
+   pvSrcForAll            (ss.pvSrcForAll),
+//   anMethodForAll      (ss.anMethodForAll),
+   thePlanetaryEphem      (NULL),
+   overrideTimeForAll     (ss.overrideTimeForAll),
+   ephemUpdateInterval    (ss.ephemUpdateInterval),
+   bodyStrings            (ss.bodyStrings),
+   defaultBodyStrings     (ss.defaultBodyStrings),
+   userDefinedBodyStrings (ss.userDefinedBodyStrings)
 {
-   theDefaultSlpFile = NULL;
+//   theDefaultSlpFile = NULL;
    theDefaultDeFile  = NULL;
    parameterCount    = SolarSystemParamCount;
    
@@ -273,15 +1028,17 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
 SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
 {
    GmatBase::operator=(ss);
-   pvSrcForAll         = ss.pvSrcForAll;
-   anMethodForAll      = ss.anMethodForAll;
-   thePlanetaryEphem   = NULL;
-   overrideTimeForAll  = ss.overrideTimeForAll;
-   ephemUpdateInterval = ss.ephemUpdateInterval;
-   bodyStrings         = ss.bodyStrings;
-   parameterCount      = SolarSystemParamCount;
-   theDefaultSlpFile   = NULL;
-   theDefaultDeFile    = NULL;
+   pvSrcForAll            = ss.pvSrcForAll;
+//   anMethodForAll      = ss.anMethodForAll;
+   thePlanetaryEphem      = NULL;
+   overrideTimeForAll     = ss.overrideTimeForAll;
+   ephemUpdateInterval    = ss.ephemUpdateInterval;
+   bodyStrings            = ss.bodyStrings;
+   defaultBodyStrings     = ss.defaultBodyStrings;
+   userDefinedBodyStrings = ss.userDefinedBodyStrings;
+   parameterCount         = SolarSystemParamCount;
+//   theDefaultSlpFile   = NULL;
+   theDefaultDeFile       = NULL;
    
    // create planetary source first, but do not create default
    CreatePlanetarySource(false);
@@ -308,6 +1065,11 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
 SolarSystem::~SolarSystem()
 {
    DeleteBodiesInUse();
+   #ifdef SS_CONSTRUCT_DESTRUCT
+      MessageInterface::ShowMessage("Now destructing the SolarSystem with name %s at <%p>\n",
+            instanceName.c_str(), this);
+   #endif
+
    
    #ifdef DEBUG_SS_CLONING   
    MessageInterface::ShowMessage
@@ -315,15 +1077,15 @@ SolarSystem::~SolarSystem()
        GetName().c_str(), thePlanetaryEphem);
    #endif
    
-   if (theDefaultSlpFile != NULL)
-   {      
-      #ifdef DEBUG_SS_CLONING   
-      MessageInterface::ShowMessage
-         ("   deleting theDefaultSlpFile=%p\n",  theDefaultSlpFile);
-      #endif
-      
-      delete theDefaultSlpFile;
-   }
+//   if (theDefaultSlpFile != NULL)
+//   {      
+//      #ifdef DEBUG_SS_CLONING   
+//      MessageInterface::ShowMessage
+//         ("   deleting theDefaultSlpFile=%p\n",  theDefaultSlpFile);
+//      #endif
+//      
+//      delete theDefaultSlpFile;
+//   }
    
    if (theDefaultDeFile != NULL)
    {
@@ -370,28 +1132,39 @@ void SolarSystem::CreatePlanetarySource(bool setDefault)
    #endif
    
    // initialize planetary source
-   for (int i=0; i<PlanetarySourceCount; i++)
+//   for (int i=0; i<PlanetarySourceCount; i++)
+   for (int i=0; i<Gmat::PosVelSourceCount; i++)
    {
+      if (i == Gmat::SPICE) continue; // SPICE not selectable for entire solar system
       thePlanetarySourcePriority[i] = 0;
       isPlanetarySourceInUse[i] = false;
       
-      thePlanetarySourceTypes.push_back(PLANETARY_SOURCE_STRING[i]);
+//      thePlanetarySourceTypes.push_back(PLANETARY_SOURCE_STRING[i]);
+      thePlanetarySourceTypes.push_back(Gmat::POS_VEL_SOURCE_STRINGS[i]);
    }
    
-   for (int i=0; i<AnalyticModelCount; i++)
-   {
-      theAnalyticModelNames.push_back(ANALYTIC_MODEL_STRING[i]);
-   }
-   
-   theAnalyticMethod = Gmat::LOW_FIDELITY;
+//   for (int i=0; i<AnalyticModelCount; i++)
+//   {
+//      theAnalyticModelNames.push_back(ANALYTIC_MODEL_STRING[i]);
+//   }
+//   
+//   theAnalyticMethod = Gmat::LOW_FIDELITY;
    
    FileManager *fm = FileManager::Instance();
    
    //initialize file names
-   thePlanetarySourceNames.push_back("NA");
-   thePlanetarySourceNames.push_back(fm->GetFullPathname("SLP_FILE"));
-   thePlanetarySourceNames.push_back(fm->GetFullPathname("DE200_FILE"));
+   thePlanetarySourceNames.push_back("NA");  // TwoBodyPropagation has no file associated with it
+//   std::string slpFullPath = fm->GetFullPathname("SLP_FILE");
+   std::string deFullPath  = fm->GetFullPathname("DE405_FILE");
+   #ifdef DEBUG_SS_PLANETARY_FILE
+//      MessageInterface::ShowMessage("Full path for SLP file is : %s\n", slpFullPath.c_str());
+      MessageInterface::ShowMessage("Full path for DE405 file is : %s\n", deFullPath.c_str());
+   #endif
+   
+//   thePlanetarySourceNames.push_back(fm->GetFullPathname("SLP_FILE"));
+//   thePlanetarySourceNames.push_back(fm->GetFullPathname("DE200_FILE"));
    thePlanetarySourceNames.push_back(fm->GetFullPathname("DE405_FILE"));
+   // @todo - add SPICE here ?????
    
    // Set planetary ephemeris source
    if (setDefault)
@@ -440,46 +1213,46 @@ const StringArray& SolarSystem::GetPlanetarySourceTypesInUse()
 }
 
 
-//------------------------------------------------------------------------------
-// const StringArray& GetAnalyticModelNames()
-//------------------------------------------------------------------------------
-/**
- * @return available planetary analytic model names.
- */
-//------------------------------------------------------------------------------
-const StringArray& SolarSystem::GetAnalyticModelNames()
-{
-   return theAnalyticModelNames;
-}
-
-
-//------------------------------------------------------------------------------
-// bool SetAnalyticModelToUse(const std::string &modelName)
-//------------------------------------------------------------------------------
-bool SolarSystem::SetAnalyticModelToUse(const std::string &modelName)
-{
-   int modelId = 0;
-   for (int i=0; i<AnalyticModelCount; i++)
-   {
-      if (ANALYTIC_MODEL_STRING[i] == modelName)
-      {
-         modelId = i;
-         break;
-      }
-   }
-   
-   // because NO_ANALYTIC_METHOD = 0 in CelestialBody.hpp
-   theAnalyticMethod = Gmat::AnalyticMethod(modelId + 1);
-   
-   #if DEBUG_PLANETARY_FILE
-   MessageInterface::ShowMessage
-      ("SolarSystem::SetAnalyticModelToUse() theAnalyticMethod=%d\n",
-       theAnalyticMethod);
-   #endif
-   
-   return SetAnalyticMethod(theAnalyticMethod);
-}
-
+////------------------------------------------------------------------------------
+//// const StringArray& GetAnalyticModelNames()
+////------------------------------------------------------------------------------
+///**
+// * @return available planetary analytic model names.
+// */
+////------------------------------------------------------------------------------
+//const StringArray& SolarSystem::GetAnalyticModelNames()
+//{
+//   return theAnalyticModelNames;
+//}
+//
+//
+////------------------------------------------------------------------------------
+//// bool SetAnalyticModelToUse(const std::string &modelName)
+////------------------------------------------------------------------------------
+//bool SolarSystem::SetAnalyticModelToUse(const std::string &modelName)
+//{
+//   int modelId = 0;
+//   for (int i=0; i<AnalyticModelCount; i++)
+//   {
+//      if (ANALYTIC_MODEL_STRING[i] == modelName)
+//      {
+//         modelId = i;
+//         break;
+//      }
+//   }
+//   
+//   // because NO_ANALYTIC_METHOD = 0 in CelestialBody.hpp
+//   theAnalyticMethod = Gmat::AnalyticMethod(modelId + 1);
+//   
+//   #if DEBUG_PLANETARY_FILE
+//   MessageInterface::ShowMessage
+//      ("SolarSystem::SetAnalyticModelToUse() theAnalyticMethod=%d\n",
+//       theAnalyticMethod);
+//   #endif
+//   
+//   return SetAnalyticMethod(theAnalyticMethod);
+//}
+//
 
 //------------------------------------------------------------------------------
 // bool SetPlanetarySourceName(const std::string &sourceType,
@@ -490,6 +1263,12 @@ bool SolarSystem::SetPlanetarySourceName(const std::string &sourceType,
 {
    bool status = false;
    Integer id = GetPlanetarySourceId(sourceType);
+   #ifdef DEBUG_SS_PLANETARY_FILE
+      MessageInterface::ShowMessage(
+            "In SS:SetPlanetarySourceName, sourceType = %s  and fileName = %s\n",
+            sourceType.c_str(), fileName.c_str());
+      MessageInterface::ShowMessage("   and id for that type = %d\n", id);
+   #endif
 
    if (id >= 0)
    {
@@ -553,6 +1332,11 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
       
       for (unsigned int i=0; i<sourceTypes.size(); i++)
       {
+         #ifdef DEBUG_SS_PLANETARY_FILE
+         MessageInterface::ShowMessage
+            ("   and the input sourceTypes[%d] = %s\n",
+                  (Integer) i, (sourceTypes.at(i)).c_str());
+         #endif
          thePlanetarySourceTypesInUse.push_back(sourceTypes[i]);
       }
    }
@@ -564,69 +1348,92 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
    // create planetary ephem file if non-analytic
    for (unsigned int i=0; i<thePlanetarySourceTypesInUse.size(); i++)
    {
-      if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[ANALYTIC])
+//      if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[ANALYTIC])
+//      if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[TWO_BODY_PROPAGATION])
+      if (thePlanetarySourceTypesInUse[i] == Gmat::POS_VEL_SOURCE_STRINGS[Gmat::TWO_BODY_PROPAGATION])
       {
-         thePlanetarySourcePriority[ANALYTIC] = 0;
-         status = SetAnalyticMethod(theAnalyticMethod);
-         if (status)
-         {
-            thePlanetarySourcePriority[ANALYTIC] = HIGHEST_PRIORITY - i;
-            isPlanetarySourceInUse[ANALYTIC] = true;
-            sourceTypeInUse = ANALYTIC;
+//         thePlanetarySourcePriority[ANALYTIC] = 0;
+//         thePlanetarySourcePriority[Gmat::TWO_BODY_PROPAGATION] = 0;
+//         status = SetAnalyticMethod(theAnalyticMethod);
+//         if (status)
+//         {
+//            thePlanetarySourcePriority[ANALYTIC] = HIGHEST_PRIORITY - i;
+//            isPlanetarySourceInUse[ANALYTIC] = true;
+//            sourceTypeInUse = ANALYTIC;
+            thePlanetarySourcePriority[Gmat::TWO_BODY_PROPAGATION] = HIGHEST_PRIORITY - i;
+            isPlanetarySourceInUse[Gmat::TWO_BODY_PROPAGATION] = true;
+            sourceTypeInUse = Gmat::TWO_BODY_PROPAGATION;
             break;
-         }
-         else
-         {
-            MessageInterface::ShowMessage
-               ("*** Error *** Failed to Set AnalyticMethod: %d\n",
-                theAnalyticMethod);
-         }
+//         }
+//         else
+//         {
+//            MessageInterface::ShowMessage
+//               ("*** Error *** Failed to Set AnalyticMethod: %d\n",
+//                theAnalyticMethod);
+//         }
       }
-      else if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[SLP])
-      {
-         thePlanetarySourcePriority[SLP] = 0;
-         status = CreateSlpFile(thePlanetarySourceNames[SLP]);
-         if (status)
-         {
-            thePlanetarySourcePriority[SLP] = HIGHEST_PRIORITY - i;
-            isPlanetarySourceInUse[SLP] = true;
-            sourceTypeInUse = SLP;
-            break;
-         }
-      }
-      else if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[DE200])
-      {
-         #ifdef DEBUG_SS_PLANETARY_FILE
-         MessageInterface::
-            ShowMessage("SolarSystem::SetPlanetarySourceTypesInUse() create DE200\n");
-         #endif
-         
-         thePlanetarySourcePriority[DE200] = 0;
-         status = CreateDeFile(DE200, thePlanetarySourceNames[DE200]);
-         if (status)
-         {
-            thePlanetarySourcePriority[DE200] = HIGHEST_PRIORITY - i;
-            isPlanetarySourceInUse[DE200] = true;
-            sourceTypeInUse = DE200;
-            break;
-         }
-      }
-      else if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[DE405])
+//      else if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[SLP])
+//      {
+//         thePlanetarySourcePriority[SLP] = 0;
+//         status = CreateSlpFile(thePlanetarySourceNames[SLP]);
+//         if (status)
+//         {
+//            thePlanetarySourcePriority[SLP] = HIGHEST_PRIORITY - i;
+//            isPlanetarySourceInUse[SLP] = true;
+//            sourceTypeInUse = SLP;
+//            break;
+//         }
+//      }
+//      else if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[DE200])
+//      {
+//         #ifdef DEBUG_SS_PLANETARY_FILE
+//         MessageInterface::
+//            ShowMessage("SolarSystem::SetPlanetarySourceTypesInUse() create DE200\n");
+//         #endif
+//         
+//         thePlanetarySourcePriority[DE200] = 0;
+//         status = CreateDeFile(DE200, thePlanetarySourceNames[DE200]);
+//         if (status)
+//         {
+//            thePlanetarySourcePriority[DE200] = HIGHEST_PRIORITY - i;
+//            isPlanetarySourceInUse[DE200] = true;
+//            sourceTypeInUse = DE200;
+//            break;
+//         }
+//      }
+//      else if (thePlanetarySourceTypesInUse[i] == PLANETARY_SOURCE_STRING[DE405])
+      else if (thePlanetarySourceTypesInUse[i] == Gmat::POS_VEL_SOURCE_STRINGS[Gmat::DE405])
       {
          #ifdef DEBUG_SS_PLANETARY_FILE
          MessageInterface::
             ShowMessage("SolarSystem::SetPlanetarySourceTypesInUse() create DE405\n");
          #endif
          
-         thePlanetarySourcePriority[DE405] = 0;
-         status = CreateDeFile(DE405, thePlanetarySourceNames[DE405]);
+         thePlanetarySourcePriority[Gmat::DE405] = 0;
+         status = CreateDeFile(Gmat::DE405, thePlanetarySourceNames[Gmat::DE405]);
          if (status)
          {
-            thePlanetarySourcePriority[DE405] = HIGHEST_PRIORITY - i;
-            isPlanetarySourceInUse[DE405] = true;
-            sourceTypeInUse = DE405;
+            thePlanetarySourcePriority[Gmat::DE405] = HIGHEST_PRIORITY - i;
+            isPlanetarySourceInUse[Gmat::DE405] = true;
+            sourceTypeInUse = Gmat::DE405;
             break;
          }
+      }
+      else if (thePlanetarySourceTypesInUse[i] == Gmat::POS_VEL_SOURCE_STRINGS[Gmat::SPICE])
+      {
+         #ifdef DEBUG_SS_PLANETARY_FILE
+         MessageInterface::
+            ShowMessage("SolarSystem::SetPlanetarySourceTypesInUse() SPICE selected\n");
+         #endif
+         std::string errMsg = "Cannot be selected for ephemeris source for entire solar system: \"";
+         errMsg += thePlanetarySourceTypesInUse[i] + "\"\n";
+         throw SolarSystemException(errMsg);
+      }
+      else 
+      {
+         std::string errMsg = "Unknown planetary ephemeris source \"";
+         errMsg += thePlanetarySourceTypesInUse[i] + "\"\n";
+         throw SolarSystemException(errMsg);
       }
    }
    
@@ -646,33 +1453,39 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
       #endif
       switch (sourceTypeInUse)
       {
-      case ANALYTIC:
-         if (SetSource(Gmat::ANALYTIC))
-            if (SetAnalyticMethod(theAnalyticMethod))
-               retCode = 1;
+//      case ANALYTIC:
+//         if (SetSource(Gmat::ANALYTIC))
+//            if (SetAnalyticMethod(theAnalyticMethod))
+//               retCode = 1;
+//         break;
+//      case SLP:
+//         if (SetSource(Gmat::SLP))
+//            if (SetSourceFile(theDefaultSlpFile))
+//               retCode = 1;
+//         break;
+//      case DE200:
+//         if (SetSource(Gmat::DE_200))
+//            if (SetSourceFile(theDefaultDeFile))
+//               retCode = 1;
+//         break;
+      case Gmat::TWO_BODY_PROPAGATION:
+         if (SetSource(Gmat::TWO_BODY_PROPAGATION))
+            retCode = 1;
          break;
-      case SLP:
-         if (SetSource(Gmat::SLP))
-            if (SetSourceFile(theDefaultSlpFile))
-               retCode = 1;
-         break;
-      case DE200:
-         if (SetSource(Gmat::DE_200))
+      case Gmat::DE405:
+         if (SetSource(Gmat::DE405))
             if (SetSourceFile(theDefaultDeFile))
                retCode = 1;
          break;
-      case DE405:
-         if (SetSource(Gmat::DE_405))
-            if (SetSourceFile(theDefaultDeFile))
-               retCode = 1;
-         break;
+      // SPICE should not be selected at this point
       default:
          break;
       }
    }
    
    // if planetary file is set to first type in the list
-   if (retCode == 1 && PLANETARY_SOURCE_STRING[sourceTypeInUse] == sourceTypes[0])
+//   if (retCode == 1 && PLANETARY_SOURCE_STRING[sourceTypeInUse] == sourceTypes[0])
+   if (retCode == 1 && Gmat::POS_VEL_SOURCE_STRINGS[sourceTypeInUse] == sourceTypes[0])
       retCode = 2;
    
    
@@ -683,25 +1496,30 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
 
       for (unsigned int i=0; i<theTempFileList.size(); i++)
       {            
-         if (theTempFileList[i] == PLANETARY_SOURCE_STRING[ANALYTIC])
+//         if (theTempFileList[i] == PLANETARY_SOURCE_STRING[ANALYTIC])
+//         {
+//            if (thePlanetarySourcePriority[ANALYTIC] > 0)
+//               thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[ANALYTIC]);
+//         }
+//         else if (theTempFileList[i] == PLANETARY_SOURCE_STRING[SLP])
+//         {
+//            if (thePlanetarySourcePriority[SLP] > 0)
+//               thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[SLP]);
+//         }
+//         else if (theTempFileList[i] == PLANETARY_SOURCE_STRING[DE200])
+//         {
+//            if (thePlanetarySourcePriority[DE200] > 0)
+//               thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[DE200]);
+//         }
+         if (theTempFileList[i] == Gmat::POS_VEL_SOURCE_STRINGS[Gmat::TWO_BODY_PROPAGATION])
          {
-            if (thePlanetarySourcePriority[ANALYTIC] > 0)
-               thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[ANALYTIC]);
+            if (thePlanetarySourcePriority[Gmat::TWO_BODY_PROPAGATION] > 0)
+               thePlanetarySourceTypesInUse.push_back(Gmat::POS_VEL_SOURCE_STRINGS[Gmat::TWO_BODY_PROPAGATION]);
          }
-         else if (theTempFileList[i] == PLANETARY_SOURCE_STRING[SLP])
+         else if (theTempFileList[i] == Gmat::POS_VEL_SOURCE_STRINGS[Gmat::DE405])
          {
-            if (thePlanetarySourcePriority[SLP] > 0)
-               thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[SLP]);
-         }
-         else if (theTempFileList[i] == PLANETARY_SOURCE_STRING[DE200])
-         {
-            if (thePlanetarySourcePriority[DE200] > 0)
-               thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[DE200]);
-         }
-         else if (theTempFileList[i] == PLANETARY_SOURCE_STRING[DE405])
-         {
-            if (thePlanetarySourcePriority[DE405] > 0)
-               thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[DE405]);
+            if (thePlanetarySourcePriority[Gmat::DE405] > 0)
+               thePlanetarySourceTypesInUse.push_back(Gmat::POS_VEL_SOURCE_STRINGS[Gmat::DE405]);
          }
       }
       
@@ -718,9 +1536,9 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
    if (retCode > 0)
       MessageInterface::ShowMessage
          ("Successfully set Planetary Source to use: %s\n",
-          PLANETARY_SOURCE_STRING[sourceTypeInUse].c_str());
+          Gmat::POS_VEL_SOURCE_STRINGS[sourceTypeInUse].c_str());
    
-   theCurrentPlanetarySource = PLANETARY_SOURCE_STRING[sourceTypeInUse];
+   theCurrentPlanetarySource = Gmat::POS_VEL_SOURCE_STRINGS[sourceTypeInUse];
    
    #ifdef DEBUG_SS_PLANETARY_FILE
    MessageInterface::ShowMessage
@@ -737,9 +1555,9 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
 //------------------------------------------------------------------------------
 Integer SolarSystem::GetPlanetarySourceId(const std::string &sourceType)
 {
-   for (int i=0; i<PlanetarySourceCount; i++)
+   for (int i=0; i<Gmat::PosVelSourceCount; i++)
    {
-      if (sourceType == PLANETARY_SOURCE_STRING[i])
+      if (sourceType == Gmat::POS_VEL_SOURCE_STRINGS[i])
          return i;
    }
    
@@ -766,8 +1584,8 @@ void SolarSystem::ResetToDefaults()
       ("SolarSystem::ResetToDefaults() <%p> '%s' entered\n", this, GetName().c_str());
    #endif
    
-   pvSrcForAll         = Gmat::DE_405;
-   anMethodForAll      = Gmat::LOW_FIDELITY;
+   pvSrcForAll         = Gmat::DE405;
+//   anMethodForAll      = Gmat::LOW_FIDELITY;
    thePlanetaryEphem   = NULL;
    overrideTimeForAll  = false;
    ephemUpdateInterval = 0.0;
@@ -776,11 +1594,11 @@ void SolarSystem::ResetToDefaults()
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
    {
-      (*cbi)->SetSource(pvSrcForAll);
-      (*cbi)->SetAnalyticMethod(anMethodForAll);
+      if (!((*cbi)->IsUserDefined())) (*cbi)->SetSource(pvSrcForAll);
+//      (*cbi)->SetAnalyticMethod(anMethodForAll);
       (*cbi)->SetOverrideTimeSystem(overrideTimeForAll);
       (*cbi)->SetEphemUpdateInterval(ephemUpdateInterval);
-      (*cbi)->SetEphemUpdateInterval(ephemUpdateInterval);
+//      (*cbi)->SetEphemUpdateInterval(ephemUpdateInterval);
       (*cbi)->SetUsePotentialFile(false);
       ++cbi;
    }
@@ -811,8 +1629,11 @@ bool SolarSystem::AddBody(CelestialBody* cb)
       return false;    // write some kind of error or throw an exception?
    }
    
+   bool userDef = cb->IsUserDefined();
    bodiesInUse.push_back(cb);
    bodyStrings.push_back(cb->GetName());
+   if (userDef)  userDefinedBodyStrings.push_back(cb->GetName());
+   else          defaultBodyStrings.push_back(cb->GetName());
 
    #ifdef DEBUG_SS_ADD_BODY
    MessageInterface::ShowMessage
@@ -821,10 +1642,13 @@ bool SolarSystem::AddBody(CelestialBody* cb)
    
    // Set the source, source file, analytic method, and override flag for the 
    // new body
-   if (!cb->SetSource(pvSrcForAll))  return false; 
-   if (!cb->SetAnalyticMethod(anMethodForAll))  return false; 
-   if (thePlanetaryEphem)
-      if (!cb->SetSourceFile(thePlanetaryEphem))  return false; 
+   if (!userDef)
+   {
+      if (!cb->SetSource(pvSrcForAll))  return false; 
+   //   if (!cb->SetAnalyticMethod(anMethodForAll))  return false; 
+      if (thePlanetaryEphem)
+         if (!cb->SetSourceFile(thePlanetaryEphem))  return false; 
+   }
    if (!cb->SetOverrideTimeSystem(overrideTimeForAll))  return false; 
    
    return true;
@@ -867,13 +1691,22 @@ bool SolarSystem::IsBodyInUse(std::string theBody)
    while (cbi != bodiesInUse.end())
    {
       if ((*cbi)->GetName() == theBody)
-      {
          return true;
-      }
       ++cbi;
    }
    return false;
 }
+
+const StringArray& SolarSystem::GetDefaultBodies() const
+{
+   return defaultBodyStrings;
+}
+
+const StringArray& SolarSystem::GetUserDefinedBodies() const
+{
+   return userDefinedBodyStrings;
+}
+
 
 //------------------------------------------------------------------------------
 //  Gmat::PosVelSource GetPosVelSource() const
@@ -891,21 +1724,36 @@ Gmat::PosVelSource   SolarSystem::GetPosVelSource() const
    return pvSrcForAll;
 }
 
-//------------------------------------------------------------------------------
-//  Gmat::AnalyticMethod GetAnalyticMethod() const
-//------------------------------------------------------------------------------
-/**
- * This method returns the analytic method for the bodies in
- * use (assuming all have the same method), when the source is ANALYTIC_METHOD.
- *
- * @return analytic method for the bodies.
- *
- */
-//------------------------------------------------------------------------------
-Gmat::AnalyticMethod SolarSystem::GetAnalyticMethod() const
-{
-   return anMethodForAll;
-}
+//Gmat::PosVelSource SolarSystem::GetPosVelSourceForBody(const std::string &theBody) const
+//{
+//   // Search through bodiesInUse for the body with the name theBody
+//   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+//   while (cbi != bodiesInUse.end())
+//   {
+//      if ((*cbi)->GetName() == theBody)
+//         return ((*cbi)->GetPosVelSource());
+//      ++cbi;
+//   }
+//   throw SolarSystemException("PosVelSource requested for unknown body " 
+//                               + theBody);
+//}
+
+
+////------------------------------------------------------------------------------
+////  Gmat::AnalyticMethod GetAnalyticMethod() const
+////------------------------------------------------------------------------------
+///**
+// * This method returns the analytic method for the bodies in
+// * use (assuming all have the same method), when the source is ANALYTIC_METHOD.
+// *
+// * @return analytic method for the bodies.
+// *
+// */
+////------------------------------------------------------------------------------
+//Gmat::AnalyticMethod SolarSystem::GetAnalyticMethod() const
+//{
+//   return anMethodForAll;
+//}
 
 //------------------------------------------------------------------------------
 //  std::string GetSourceFileName() const
@@ -1060,66 +1908,66 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
 }
 
 
-//------------------------------------------------------------------------------
-//  bool SetAnalyticMethod(Gmat::AnalyticMethod aM)
-//------------------------------------------------------------------------------
-/**
-* This method sets the analytic method for the bodies in
- * use (assuming all have the same method).
- *
- * @param aMc> analytic method selection for all of the bodies.
- *
- * @return success flag for the operation.
- *
- */
-//------------------------------------------------------------------------------
-bool SolarSystem::SetAnalyticMethod(Gmat::AnalyticMethod aM)
-{
-   // Search through bodiesInUse for the body with the name withName
-   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
-   while (cbi != bodiesInUse.end())
-   {
-      if ((*cbi)->SetAnalyticMethod(aM) == false)  return false;
-      ++cbi;
-   }
-   anMethodForAll = aM;
-   return true;
-}
-
-//------------------------------------------------------------------------------
-//  bool SetAnalyticMethod(const std::string &aM)
-//------------------------------------------------------------------------------
-/**
- * This method sets the analytic method for the bodies in
- * use (assuming all have the same method).
- *
- * @param aMc> analytic method selection for all of the bodies.
- *
- * @return success flag for the operation.
- *
- */
-//------------------------------------------------------------------------------
-bool SolarSystem::SetAnalyticMethod(const std::string &aM)
-{
-   Gmat::AnalyticMethod theMethod = Gmat::AnalyticMethodCount;
-   for (Integer i = 0; i < Gmat::AnalyticMethodCount; i++)
-   {
-      if (aM == Gmat::ANALYTIC_METHOD_STRINGS[i]) 
-         theMethod = (Gmat::AnalyticMethod) i; 
-   }
-   if (theMethod == Gmat::AnalyticMethodCount)
-      throw SolarSystemException("Unknown analytic method " + aM);
-   
-   // Search through bodiesInUse and set it for all
-   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
-   while (cbi != bodiesInUse.end())
-   {
-      if ((*cbi)->SetAnalyticMethod(theMethod) == false)  return false;
-      ++cbi;
-   }
-   anMethodForAll = theMethod;
-   return true;
-}
+////------------------------------------------------------------------------------
+////  bool SetAnalyticMethod(Gmat::AnalyticMethod aM)
+////------------------------------------------------------------------------------
+///**
+//* This method sets the analytic method for the bodies in
+// * use (assuming all have the same method).
+// *
+// * @param aMc> analytic method selection for all of the bodies.
+// *
+// * @return success flag for the operation.
+// *
+// */
+////------------------------------------------------------------------------------
+//bool SolarSystem::SetAnalyticMethod(Gmat::AnalyticMethod aM)
+//{
+//   // Search through bodiesInUse for the body with the name withName
+//   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+//   while (cbi != bodiesInUse.end())
+//   {
+//      if ((*cbi)->SetAnalyticMethod(aM) == false)  return false;
+//      ++cbi;
+//   }
+//   anMethodForAll = aM;
+//   return true;
+//}
+//
+////------------------------------------------------------------------------------
+////  bool SetAnalyticMethod(const std::string &aM)
+////------------------------------------------------------------------------------
+///**
+// * This method sets the analytic method for the bodies in
+// * use (assuming all have the same method).
+// *
+// * @param aMc> analytic method selection for all of the bodies.
+// *
+// * @return success flag for the operation.
+// *
+// */
+////------------------------------------------------------------------------------
+//bool SolarSystem::SetAnalyticMethod(const std::string &aM)
+//{
+//   Gmat::AnalyticMethod theMethod = Gmat::AnalyticMethodCount;
+//   for (Integer i = 0; i < Gmat::AnalyticMethodCount; i++)
+//   {
+//      if (aM == Gmat::ANALYTIC_METHOD_STRINGS[i]) 
+//         theMethod = (Gmat::AnalyticMethod) i; 
+//   }
+//   if (theMethod == Gmat::AnalyticMethodCount)
+//      throw SolarSystemException("Unknown analytic method " + aM);
+//   
+//   // Search through bodiesInUse and set it for all
+//   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+//   while (cbi != bodiesInUse.end())
+//   {
+//      if ((*cbi)->SetAnalyticMethod(theMethod) == false)  return false;
+//      ++cbi;
+//   }
+//   anMethodForAll = theMethod;
+//   return true;
+//}
 
 //------------------------------------------------------------------------------
 //  bool SetOverrideTimeSystem(bool overrideIt)
@@ -1245,8 +2093,15 @@ const StringArray& SolarSystem::GetBodiesInUse() const
 SolarSystem* SolarSystem::Clone(void) const
 {
    // clone all objects in the Solar System as well
+   SolarSystem * clonedSS = new SolarSystem(*this);
+   #ifdef SS_CONSTRUCT_DESTRUCT
+      MessageInterface::ShowMessage("Now cloning a new SolarSystem from <%p> to <%p>\n",
+            this, clonedSS);
+   #endif
+
+   return clonedSS;
    
-   return new SolarSystem(*this);
+//   return new SolarSystem(*this);
 }
 
 
@@ -1265,11 +2120,13 @@ void SolarSystem::Copy(const GmatBase* orig)
    
    SolarSystem *ss = (SolarSystem*)orig;
    
-   pvSrcForAll         = ss->pvSrcForAll;
-   anMethodForAll      = ss->anMethodForAll;
-   overrideTimeForAll  = ss->overrideTimeForAll;
-   ephemUpdateInterval = ss->ephemUpdateInterval;
-   bodyStrings         = ss->bodyStrings;
+   pvSrcForAll            = ss->pvSrcForAll;
+//   anMethodForAll      = ss->anMethodForAll;
+   overrideTimeForAll     = ss->overrideTimeForAll;
+   ephemUpdateInterval    = ss->ephemUpdateInterval;
+   bodyStrings            = ss->bodyStrings;
+   defaultBodyStrings     = ss->defaultBodyStrings;
+   userDefinedBodyStrings = ss->userDefinedBodyStrings;
    
    // The SolarSystem has its own PlnetaryEphem files, so do not copy pointers
    //thePlanetaryEphem   = ss->thePlanetaryEphem;
@@ -1630,6 +2487,20 @@ GmatBase* SolarSystem::GetOwnedObject(Integer whichOne)
 //------------------------------------------------------------------------------
 CelestialBody* SolarSystem::FindBody(std::string withName) 
 {
+   #ifdef DEBUG_SS_FIND_BODY
+      MessageInterface::ShowMessage("In SS::FindBody (%s) at location <%p>, there are %d bodiesInUse\n",
+            withName.c_str(), (this), (Integer) bodiesInUse.size());
+//      Integer counter = 0;
+//      std::vector<CelestialBody*>::iterator cbiter = bodiesInUse.begin();
+//      while (cbiter != bodiesInUse.end())
+//      {
+//         if ((*cbiter) == NULL)
+//            MessageInterface::ShowMessage("Pointer %d is NULL!!!!!\n", counter);
+//         else
+//            MessageInterface::ShowMessage("      body is \"%s\"\n",
+//                  ((*cbiter)->GetName()).c_str());
+//      }
+   #endif
    // Search through bodiesInUse for the body with the name withName
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
@@ -1692,13 +2563,20 @@ void SolarSystem::CloneBodiesInUse(const SolarSystem &ss)
       bodiesInUse.push_back(cb);
       
       #ifdef DEBUG_SS_CLONING
-      MessageInterface::ShowMessage("   Cloned <%p> %s\n", cb, cb->GetName().c_str());
+      MessageInterface::ShowMessage("   Cloned <%p> %s to <%p> %s\n", 
+            (*cbi), ((*cbi)->GetName()).c_str(), cb, cb->GetName().c_str());
       #endif
    }
    
    // set references to cloned bodies
    CelestialBody *sun = FindBody(SolarSystem::SUN_NAME);
    CelestialBody *earth = FindBody(SolarSystem::EARTH_NAME);
+   #ifdef DEBUG_SS_CLONING
+      if (!sun) MessageInterface::ShowMessage("SUN not found!\n");
+      if (!earth) MessageInterface::ShowMessage("EARTH not found!\n");
+      MessageInterface::ShowMessage("   there are now %d cloned celestial bodies\n",
+                        ((Integer) bodiesInUse.size()));
+   #endif
    
    if (sun != NULL && earth != NULL)
    {
@@ -1706,6 +2584,10 @@ void SolarSystem::CloneBodiesInUse(const SolarSystem &ss)
            cbi != bodiesInUse.end(); ++cbi)
       {
          CelestialBody *cb = (*cbi);
+         #ifdef DEBUG_SS_CLONING
+         MessageInterface::ShowMessage("   setting reference objects on %s\n",
+                           (cb->GetName()).c_str());
+         #endif
          cb->SetRefObject(sun, Gmat::CELESTIAL_BODY, sun->GetName());
          cb->SetRefObject(earth, Gmat::CELESTIAL_BODY, earth->GetName());
       }
@@ -1751,47 +2633,48 @@ void SolarSystem::SetDefaultPlanetarySource()
    // initialize planetary file types/names in use
    // Set DE405 as default
    thePlanetarySourceTypesInUse.clear();
-   thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[DE405]);
-   thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[ANALYTIC]); 
-   thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[SLP]);
+   thePlanetarySourceTypesInUse.push_back(Gmat::POS_VEL_SOURCE_STRINGS[Gmat::DE405]);
+   thePlanetarySourceTypesInUse.push_back(Gmat::POS_VEL_SOURCE_STRINGS[Gmat::TWO_BODY_PROPAGATION]);
+//   thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[ANALYTIC]); 
+//   thePlanetarySourceTypesInUse.push_back(PLANETARY_SOURCE_STRING[SLP]);
    
    SetPlanetarySourceTypesInUse(thePlanetarySourceTypesInUse);
 }
 
 
-//------------------------------------------------------------------------------
-// bool CreateSlpFile(const std::string &fileName)
-//------------------------------------------------------------------------------
-bool SolarSystem::CreateSlpFile(const std::string &fileName)
-{
-   #ifdef DEBUG_SS_PLANETARY_FILE
-   MessageInterface::ShowMessage
-      ("SolarSystem::CreateSlpFile() fileName=%s\n", fileName.c_str());
-   #endif
-   
-   bool status = false;
-   
-   if (isPlanetarySourceInUse[SLP])
-   {
-      MessageInterface::ShowMessage
-         ("SolarSystem::CreateSlpFile() SlpFile already created\n");
-      status = true;
-   }
-   else
-   {
-      theDefaultSlpFile = new SlpFile(fileName);
-      
-      #ifdef DEBUG_SS_PLANETARY_FILE
-      MessageInterface::ShowMessage("SolarSystem::CreateSlpFile() SlpFile created\n");
-      #endif
-      
-      if (theDefaultSlpFile != NULL)
-         status = true;
-   }
-   
-   return status;
-}
-
+////------------------------------------------------------------------------------
+//// bool CreateSlpFile(const std::string &fileName)
+////------------------------------------------------------------------------------
+//bool SolarSystem::CreateSlpFile(const std::string &fileName)
+//{
+//   #ifdef DEBUG_SS_PLANETARY_FILE
+//   MessageInterface::ShowMessage
+//      ("SolarSystem::CreateSlpFile() fileName=%s\n", fileName.c_str());
+//   #endif
+//   
+//   bool status = false;
+//   
+//   if (isPlanetarySourceInUse[SLP])
+//   {
+//      MessageInterface::ShowMessage
+//         ("SolarSystem::CreateSlpFile() SlpFile already created\n");
+//      status = true;
+//   }
+//   else
+//   {
+//      theDefaultSlpFile = new SlpFile(fileName);
+//      
+//      #ifdef DEBUG_SS_PLANETARY_FILE
+//      MessageInterface::ShowMessage("SolarSystem::CreateSlpFile() SlpFile created\n");
+//      #endif
+//      
+//      if (theDefaultSlpFile != NULL)
+//         status = true;
+//   }
+//   
+//   return status;
+//}
+//
 
 //------------------------------------------------------------------------------
 // bool CreateDeFile(const Integer id, const std::string &fileName,
@@ -1813,11 +2696,11 @@ bool SolarSystem::CreateDeFile(Integer id, const std::string &fileName,
    {
       switch (id)
       {
-      case DE200:
-         deFileType = Gmat::DE200;
-         break;
-      case DE405:
-         deFileType = Gmat::DE405;
+//      case DE200:
+//         deFileType = Gmat::DE200;
+//         break;
+      case Gmat::DE405:
+         deFileType = Gmat::DE_DE405;
          break;
       default:
          MessageInterface::PopupMessage

@@ -34,7 +34,7 @@
 #include "GmatBase.hpp"
 #include "CelestialBody.hpp"
 #include "PlanetaryEphem.hpp"
-#include "SlpFile.hpp"
+//#include "SlpFile.hpp"
 #include "DeFile.hpp"
 
 /**
@@ -66,8 +66,8 @@ public:
    const StringArray& GetPlanetarySourceTypes();
    const StringArray& GetPlanetarySourceNames();
    const StringArray& GetPlanetarySourceTypesInUse();
-   const StringArray& GetAnalyticModelNames();
-   bool SetAnalyticModelToUse(const std::string &modelName);
+//   const StringArray& GetAnalyticModelNames();
+//   bool SetAnalyticModelToUse(const std::string &modelName);
    bool SetPlanetarySourceName(const std::string &sourceType,
                                const std::string &fileName);
    Integer SetPlanetarySourceTypesInUse(const StringArray &sourceTypes); 
@@ -88,10 +88,13 @@ public:
    // method to return a flag indicating whether or not the specified
    // body is in use for this solar system
    bool                 IsBodyInUse(std::string theBody);
+   const StringArray&   GetDefaultBodies() const;
+   const StringArray&   GetUserDefinedBodies() const;
    
-   // methods to gt the source and analytic model flags
+   // methods to get the source and analytic model flags
    Gmat::PosVelSource   GetPosVelSource() const;
-   Gmat::AnalyticMethod GetAnalyticMethod() const;
+//   Gmat::PosVelSource   GetPosVelSourceForBody(const std::string &theBody) const;
+//   Gmat::AnalyticMethod GetAnalyticMethod() const;
    std::string          GetSourceFileName() const;
    bool                 GetOverrideTimeSystem() const;
    Real                 GetEphemUpdateInterval() const;
@@ -103,8 +106,8 @@ public:
    bool SetSource(Gmat::PosVelSource pvSrc);
    bool SetSource(const std::string &pvSrc);
    bool SetSourceFile(PlanetaryEphem *src);
-   bool SetAnalyticMethod(Gmat::AnalyticMethod aM);
-   bool SetAnalyticMethod(const std::string &aM);
+//   bool SetAnalyticMethod(Gmat::AnalyticMethod aM);
+//   bool SetAnalyticMethod(const std::string &aM);
    
    bool SetOverrideTimeSystem(bool overrideIt);
    bool SetEphemUpdateInterval(Real intvl);
@@ -237,8 +240,8 @@ protected:
       EPHEM_UPDATE_INTERVAL,
       SolarSystemParamCount
    };
-   
-   
+      
+
    static const std::string
       PARAMETER_TEXT[SolarSystemParamCount - GmatBaseParamCount];
    
@@ -247,44 +250,48 @@ protected:
    
    
    Gmat::PosVelSource    pvSrcForAll;
-   Gmat::AnalyticMethod  anMethodForAll;
+//   Gmat::AnalyticMethod  anMethodForAll;
    PlanetaryEphem*       thePlanetaryEphem;
    bool                  overrideTimeForAll;
    Real                  ephemUpdateInterval;
 
 private:
    
-   enum
-   {
-      ANALYTIC = 0,
-      SLP,
-      DE200,
-      DE405,
-      PlanetarySourceCount,
-   };
+//   enum
+//   {
+////      ANALYTIC = 0,
+////      SLP,
+////      DE200,
+//      TWO_BODY_PROPAGATION = 0,
+//      DE405,
+////      SPICE,                 // not for default bodies; only for user-defined bodies
+//      PlanetarySourceCount,
+//   };
    
-   enum
-   {
-      LOW_FIDELITY = 0,
-      AnalyticModelCount,
-   };
+//   enum
+//   {
+//      LOW_FIDELITY = 0,
+//      AnalyticModelCount,
+//   };
    
    std::string theCurrentPlanetarySource;
-   Integer thePlanetarySourcePriority[PlanetarySourceCount];
-   bool isPlanetarySourceInUse[PlanetarySourceCount];
-   static const std::string PLANETARY_SOURCE_STRING[PlanetarySourceCount];
-   static const std::string ANALYTIC_MODEL_STRING[AnalyticModelCount];
+//   Integer thePlanetarySourcePriority[PlanetarySourceCount];
+//   bool isPlanetarySourceInUse[PlanetarySourceCount];
+   Integer thePlanetarySourcePriority[Gmat::PosVelSourceCount];
+   bool isPlanetarySourceInUse[Gmat::PosVelSourceCount];
+//   static const std::string PLANETARY_SOURCE_STRING[PlanetarySourceCount];
+//   static const std::string ANALYTIC_MODEL_STRING[AnalyticModelCount];
    static const Integer HIGHEST_PRIORITY = 10;
    
    // list for planetary source
    StringArray thePlanetarySourceTypes;
    StringArray thePlanetarySourceNames;
    StringArray thePlanetarySourceTypesInUse;
-   StringArray theAnalyticModelNames;
+//   StringArray theAnalyticModelNames;
    StringArray theTempFileList;
-   Gmat::AnalyticMethod theAnalyticMethod;
+//   Gmat::AnalyticMethod theAnalyticMethod;
    
-   SlpFile *theDefaultSlpFile;
+//   SlpFile *theDefaultSlpFile;
    DeFile *theDefaultDeFile;
    
    /// list of the celestial bodies that are included in this solar system
@@ -292,6 +299,8 @@ private:
    
    /// the names of the bodies in use
    StringArray bodyStrings;  // is this needed, or just a convenience?
+   StringArray defaultBodyStrings;
+   StringArray userDefinedBodyStrings;
    
    // method to find a body in the solar system, given its name
    CelestialBody* FindBody(std::string withName);
@@ -301,10 +310,116 @@ private:
    
    // methods to create planetary source file
    void SetDefaultPlanetarySource();
-   bool CreateSlpFile(const std::string &fileName);
+//   bool CreateSlpFile(const std::string &fileName);
    bool CreateDeFile(const Integer id, const std::string &fileName,
                      Gmat::DeFileFormat format = Gmat::DE_BINARY);
    
+   /// Default planet data ---------------------------- planets ---------------
+   enum DefaultPlanets
+   {
+      MERCURY = 0,
+      VENUS,
+      EARTH,
+      MARS,
+      JUPITER,
+      SATURN,
+      URANUS,
+      NEPTUNE,
+      PLUTO,
+      NumberOfDefaultPlanets
+   };
+   
+   // default values for CelestialBody data
+   static const std::string           PLANET_NAMES[NumberOfDefaultPlanets];
+   static const Gmat::PosVelSource    PLANET_POS_VEL_SOURCE;
+
+   static const Real                  PLANET_EQUATORIAL_RADIUS[NumberOfDefaultPlanets];
+   static const Real                  PLANET_FLATTENING[NumberOfDefaultPlanets];
+   static const Real                  PLANET_MU[NumberOfDefaultPlanets];
+   static const Integer               PLANET_ORDER[NumberOfDefaultPlanets];
+   static const Integer               PLANET_DEGREE[NumberOfDefaultPlanets];
+   static const Rmatrix               PLANET_SIJ[NumberOfDefaultPlanets];
+   static const Rmatrix               PLANET_CIJ[NumberOfDefaultPlanets];
+   
+   static const Real                  PLANET_TWO_BODY_EPOCH[NumberOfDefaultPlanets];
+   static const Rvector6              PLANET_TWO_BODY_ELEMENTS[NumberOfDefaultPlanets];
+   
+   static const Integer               PLANET_NUM_GRAVITY_MODELS[NumberOfDefaultPlanets];
+   static const Integer               PLANET_NUM_ATMOSPHERE_MODELS[NumberOfDefaultPlanets];
+   static const Integer               PLANET_NUM_MAGNETIC_MODELS[NumberOfDefaultPlanets];
+   static const Integer               PLANET_NUM_SHAPE_MODELS[NumberOfDefaultPlanets];
+   static const std::string           PLANET_GRAVITY_MODELS[];
+   static const std::string           PLANET_ATMOSPHERE_MODELS[];
+   static const std::string           PLANET_MAGNETIC_MODELS[];
+   static const std::string           PLANET_SHAPE_MODELS[]; // @todo add Shape Models
+   static const Rvector6              PLANET_ORIENTATION_PARAMETERS[NumberOfDefaultPlanets];
+  
+   /// Default planet data ----------------------------  moons  ---------------
+   enum DefaultMoons
+   {
+      LUNA = 0,
+//      PHOBOS, // wcs 2009.02.17 - add these later?
+//      DEIMOS,
+      // @todo - add other solar system moons here
+      NumberOfDefaultMoons
+   };
+   
+   // default values for CelestialBody data
+   static const std::string           MOON_NAMES[NumberOfDefaultMoons];
+   static const std::string           MOON_CENTRAL_BODIES[NumberOfDefaultMoons];
+   static const Gmat::PosVelSource    MOON_POS_VEL_SOURCE[NumberOfDefaultMoons];
+
+   static const Real                  MOON_EQUATORIAL_RADIUS[NumberOfDefaultMoons];
+   static const Real                  MOON_FLATTENING[NumberOfDefaultMoons];
+   static const Real                  MOON_MU[NumberOfDefaultMoons];
+   static const Integer               MOON_ORDER[NumberOfDefaultMoons];
+   static const Integer               MOON_DEGREE[NumberOfDefaultMoons];
+   static const Rmatrix               MOON_SIJ[NumberOfDefaultMoons];
+   static const Rmatrix               MOON_CIJ[NumberOfDefaultMoons];
+   
+   static const Real                  MOON_TWO_BODY_EPOCH[NumberOfDefaultMoons];
+   static const Rvector6              MOON_TWO_BODY_ELEMENTS[NumberOfDefaultMoons];
+   
+   static const Integer               MOON_NUM_GRAVITY_MODELS[NumberOfDefaultMoons];
+   static const Integer               MOON_NUM_ATMOSPHERE_MODELS[NumberOfDefaultMoons];
+   static const Integer               MOON_NUM_MAGNETIC_MODELS[NumberOfDefaultMoons];
+   static const Integer               MOON_NUM_SHAPE_MODELS[NumberOfDefaultMoons];
+   static const std::string           MOON_GRAVITY_MODELS[];
+   static const std::string           MOON_ATMOSPHERE_MODELS[];
+   static const std::string           MOON_MAGNETIC_MODELS[];
+   static const std::string           MOON_SHAPE_MODELS[]; // @todo add Shape Models
+   static const Rvector6              MOON_ORIENTATION_PARAMETERS[NumberOfDefaultMoons];
+ 
+   /// Default planet data ----------------------------  the Sun  ---------------
+   
+   // default values for CelestialBody data
+   static const Gmat::PosVelSource    STAR_POS_VEL_SOURCE;
+
+   static const Real                  STAR_EQUATORIAL_RADIUS;
+   static const Real                  STAR_FLATTENING;
+   static const Real                  STAR_MU;
+   static const Integer               STAR_ORDER;
+   static const Integer               STAR_DEGREE;
+   static const Rmatrix               STAR_SIJ;
+   static const Rmatrix               STAR_CIJ;
+   
+   static const Real                  STAR_TWO_BODY_EPOCH;
+   static const Rvector6              STAR_TWO_BODY_ELEMENTS;
+   
+   static const Integer               STAR_NUM_GRAVITY_MODELS;
+   static const Integer               STAR_NUM_ATMOSPHERE_MODELS;
+   static const Integer               STAR_NUM_MAGNETIC_MODELS;
+   static const Integer               STAR_NUM_SHAPE_MODELS;
+   static const std::string           STAR_GRAVITY_MODELS;
+   static const std::string           STAR_ATMOSPHERE_MODELS;
+   static const std::string           STAR_MAGNETIC_MODELS;
+   static const std::string           STAR_SHAPE_MODELS; // @todo add Shape Models
+   static const Rvector6              STAR_ORIENTATION_PARAMETERS;
+
+   static const Real                  STAR_RADIANT_POWER;       // W / m^2
+   static const Real                  STAR_REFERENCE_DISTANCE;  // km
+   static const Real                  STAR_PHOTOSPHERE_RADIUS;  // m
+
 };
 
 #endif // SolarSystem_hpp

@@ -22,7 +22,7 @@
 #include "MessageInterface.hpp"
 #include "RealUtilities.hpp"
 #include "AngleUtil.hpp"
-#include "FileManager.hpp"
+//#include "FileManager.hpp"
 #include "StringUtil.hpp"
 
 //#define DEBUG_MOON 1
@@ -32,47 +32,47 @@ using namespace GmatMathUtil;
 
 // initialize static default values
 // default values for CelesitalBody data
-const Gmat::BodyType        Moon::BODY_TYPE           = Gmat::MOON;
-const Gmat::PosVelSource    Moon::POS_VEL_SOURCE      = Gmat::DE_405; 
-const Gmat::AnalyticMethod  Moon::ANALYTIC_METHOD     = Gmat::LOW_FIDELITY; 
-const Integer               Moon::ORDER               = 0; 
-const Integer               Moon::DEGREE              = 0;  
- // 2006.01.31 Equatorial radius - to match STK; was 1738.1; 
-const Real                  Moon::LUNA_EQUATORIAL_RADIUS   = 1738.2000;// km
-const Real                  Moon::LUNA_FLATTENING          = 0.0;
-// Units for mu are km^3 / s^2
-const Real                  Moon::LUNA_MU                  = 4902.8005821478;
-const Integer               Moon::LUNA_BODY_NUMBER         = 2; 
-const Integer               Moon::LUNA_REF_BODY_NUMBER     = 3; 
-
-const Rmatrix               Moon::LUNA_SIJ                 = Rmatrix(5,5,
-   0.0,                  0.0,                  0.0,                  0.0,
-   0.0,
-   0.0,                  0.0,                  0.0,                  0.0,
-   0.0,
-   0.0, 4.78976286742000E-09, 1.19043314469000E-08,                  0.0,
-   0.0,
-   0.0, 5.46564929895000E-06, 4.88875341590000E-06,-1.76416063010000E-06,
-   0.0,
-   0.0, 1.63304293851000E-06,-6.76012176494000E-06,-1.34287028168000E-05,
-   3.94334642990000E-06);
-const Rmatrix               Moon::LUNA_CIJ                 = Rmatrix(5,5,
-                     1.0,                 0.0,                  0.0,
-                     0.0,                 0.0,
-                     0.0,                 0.0,                  0.0,
-                     0.0,                 0.0,
-   -9.09314486280000E-05, 9.88441569067000E-09, 3.47139237760000E-05,
-                     0.0,                 0.0,
-   -3.17765981183000E-06, 2.63497832935000E-05, 1.42005317544000E-05,
-    1.22860504604000E-05,                 0.0,
-    3.21502582986000E-06,-6.01154071094000E-06,-7.10667037450000E-06,
-   -1.37041711834000E-06,-6.03652719918000E-06);
-
-const Real                  Moon::ANALYTIC_EPOCH      = 21544.500370768266;
-const Rvector6              Moon::ANALYTIC_ELEMENTS   = Rvector6(
-      385494.90434829952,  0.055908943292024992,   20.940245433093748,
-      12.233244412716252, 68.004298803147648,     137.94325682926458);
-
+//const Gmat::BodyType        Moon::BODY_TYPE           = Gmat::MOON;
+//const Gmat::PosVelSource    Moon::POS_VEL_SOURCE      = Gmat::DE405; 
+////const Gmat::AnalyticMethod  Moon::ANALYTIC_METHOD     = Gmat::LOW_FIDELITY; 
+//const Integer               Moon::ORDER               = 0; 
+//const Integer               Moon::DEGREE              = 0;  
+// // 2006.01.31 Equatorial radius - to match STK; was 1738.1; 
+//const Real                  Moon::LUNA_EQUATORIAL_RADIUS   = 1738.2000;// km
+//const Real                  Moon::LUNA_FLATTENING          = 0.0;
+//// Units for mu are km^3 / s^2
+//const Real                  Moon::LUNA_MU                  = 4902.8005821478;
+//const Integer               Moon::LUNA_BODY_NUMBER         = 2; 
+//const Integer               Moon::LUNA_REF_BODY_NUMBER     = 3; 
+//
+//const Rmatrix               Moon::LUNA_SIJ                 = Rmatrix(5,5,
+//   0.0,                  0.0,                  0.0,                  0.0,
+//   0.0,
+//   0.0,                  0.0,                  0.0,                  0.0,
+//   0.0,
+//   0.0, 4.78976286742000E-09, 1.19043314469000E-08,                  0.0,
+//   0.0,
+//   0.0, 5.46564929895000E-06, 4.88875341590000E-06,-1.76416063010000E-06,
+//   0.0,
+//   0.0, 1.63304293851000E-06,-6.76012176494000E-06,-1.34287028168000E-05,
+//   3.94334642990000E-06);
+//const Rmatrix               Moon::LUNA_CIJ                 = Rmatrix(5,5,
+//                     1.0,                 0.0,                  0.0,
+//                     0.0,                 0.0,
+//                     0.0,                 0.0,                  0.0,
+//                     0.0,                 0.0,
+//   -9.09314486280000E-05, 9.88441569067000E-09, 3.47139237760000E-05,
+//                     0.0,                 0.0,
+//   -3.17765981183000E-06, 2.63497832935000E-05, 1.42005317544000E-05,
+//    1.22860504604000E-05,                 0.0,
+//    3.21502582986000E-06,-6.01154071094000E-06,-7.10667037450000E-06,
+//   -1.37041711834000E-06,-6.03652719918000E-06);
+//
+//const Real                  Moon::TWO_BODY_EPOCH      = 21544.500370768266;
+//const Rvector6              Moon::TWO_BODY_ELEMENTS   = Rvector6(
+//      385494.90434829952,  0.055908943292024992,   20.940245433093748,
+//      12.233244412716252, 68.004298803147648,     137.94325682926458);
+//
 
 /// @todo add other ones as needed
 
@@ -109,9 +109,36 @@ const Rvector6              Moon::ANALYTIC_ELEMENTS   = Rvector6(
 Moon::Moon(std::string name) :
 CelestialBody     ("Moon",name)
 {
+   CelestialBody::InitializeBody();
+   
    objectTypeNames.push_back("Moon");
-   InitializeMoon(SolarSystem::EARTH_NAME);  
+//   InitializeMoon(SolarSystem::EARTH_NAME);  
    parameterCount = MoonParamCount;
+   
+   theCentralBodyName  = SolarSystem::EARTH_NAME; // by default, it is Luna 
+   bodyType            = Gmat::MOON;
+   bodyNumber          = 2;
+   referenceBodyNumber = 3;
+   rotationSrc         = Gmat::DE_FILE;
+
+   // defaults for now ...
+   Rmatrix s(5,5,
+         0.0, 0.0,             0.0,             0.0,             0.0,
+         0.0, 0.0,             0.0,             0.0,             0.0,
+         0.0, 0.0,             0.0,             0.0,             0.0,
+         0.0, 0.0,             0.0,             0.0,             0.0,
+         0.0, 0.0,             0.0,             0.0,             0.0);
+   Rmatrix c(5,5,
+         0.0, 0.0,             0.0,             0.0,             0.0,
+         0.0, 0.0,             0.0,             0.0,             0.0,
+         0.0, 0.0,             0.0,             0.0,             0.0,
+         0.0, 0.0,             0.0,             0.0,             0.0,
+         0.0, 0.0,             0.0,             0.0,             0.0);
+   sij = s;
+   cij = c;
+
+   DeterminePotentialFileNameFromStartup();
+
 }
 
 //------------------------------------------------------------------------------
@@ -129,9 +156,20 @@ CelestialBody     ("Moon",name)
 Moon::Moon(std::string name, const std::string &cBody) :
 CelestialBody     ("Moon",name)
 {
+   CelestialBody::InitializeBody();
+   
    objectTypeNames.push_back("Moon");
-   InitializeMoon(cBody); 
+//   InitializeMoon(cBody); 
    parameterCount = MoonParamCount;
+
+   theCentralBodyName  = cBody; 
+   bodyType            = Gmat::MOON;
+   bodyNumber          = 2;
+   referenceBodyNumber = 3;
+   rotationSrc         = Gmat::DE_FILE;
+
+   DeterminePotentialFileNameFromStartup();
+
 }
 
 //------------------------------------------------------------------------------
@@ -300,21 +338,21 @@ Rvector Moon::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
  *
  */
 //------------------------------------------------------------------------------
-Real  Moon::GetHourAngle(A1Mjd atTime) 
-{
-   try
-   {
-      Rvector cart = GetBodyCartographicCoordinates(atTime);
-      hourAngle = cart[2];  
-      // reduce to a quantity within one day (86400 seconds, 360.0 degrees)
-      hourAngle = AngleUtil::PutAngleInDegRange(hourAngle,0.0,360.0);
-      return hourAngle;
-   }
-   catch (SolarSystemException &sse)
-   {
-      return CelestialBody::GetHourAngle(atTime);
-   }
-}
+//Real  Moon::GetHourAngle(A1Mjd atTime) 
+//{
+//   try
+//   {
+//      Rvector cart = GetBodyCartographicCoordinates(atTime);
+//      hourAngle = cart[2];  
+//      // reduce to a quantity within one day (86400 seconds, 360.0 degrees)
+//      hourAngle = AngleUtil::PutAngleInDegRange(hourAngle,0.0,360.0);
+//      return hourAngle;
+//   }
+//   catch (SolarSystemException &sse)
+//   {
+//      return CelestialBody::GetHourAngle(atTime);
+//   }
+//}
 
 
 //------------------------------------------------------------------------------
@@ -346,97 +384,99 @@ GmatBase* Moon::Clone(void) const
  *
  */
 //------------------------------------------------------------------------------
-void Moon::InitializeMoon(const std::string &cBody)
-{
-   CelestialBody::InitializeBody();
-   
+//void Moon::InitializeMoon(const std::string &cBody)
+//{
+//   CelestialBody::InitializeBody();
+//   
    // fill in with default values, for the Sun
-   bodyType            = Moon::BODY_TYPE;
-   posVelSrc           = Moon::POS_VEL_SOURCE;
-   analyticMethod      = Moon::ANALYTIC_METHOD;
-   theCentralBodyName  = cBody;
-
-   order               = Moon::ORDER;
-   degree              = Moon::DEGREE;
-   
-   analyticEpoch       = Moon::ANALYTIC_EPOCH;
-   analyticKepler      = Moon::ANALYTIC_ELEMENTS;
-   rotationSrc         = Gmat::IAU_DATA;
-
-   if (instanceName == SolarSystem::MOON_NAME)
-   {
-      mu                  = Moon::LUNA_MU;
-      mass                = mu /
-         GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
-      // mass                = Moon::MASS;
-      equatorialRadius    = Moon::LUNA_EQUATORIAL_RADIUS;
-      flattening          = Moon::LUNA_FLATTENING;
-      polarRadius         = (1.0 - flattening) * equatorialRadius;
-      bodyNumber          = Moon::LUNA_BODY_NUMBER;
-      referenceBodyNumber = Moon::LUNA_REF_BODY_NUMBER;
-      sij                 = Moon::LUNA_SIJ;
-      cij                 = Moon::LUNA_CIJ;
-      
-      defaultMu           = Moon::LUNA_MU;
-      defaultEqRadius     = Moon::LUNA_EQUATORIAL_RADIUS;
-      models[Gmat::GRAVITY_FIELD].push_back("LP100");
-      models[Gmat::GRAVITY_FIELD].push_back("Other");
-      rotationSrc         = Gmat::DE_FILE;
-   }
-   else if (instanceName == SolarSystem::AMALTHEA_NAME)
-   {
-      models[Gmat::GRAVITY_FIELD].push_back("amalthea6x6");
-      models[Gmat::GRAVITY_FIELD].push_back("Other");
-   }
-   else if (instanceName == SolarSystem::CALLISTO_NAME)
-   {
-      models[Gmat::GRAVITY_FIELD].push_back("callisto2x2");
-      models[Gmat::GRAVITY_FIELD].push_back("Other");
-   }
-   else if (instanceName == SolarSystem::EUROPA_NAME)
-   {
-      models[Gmat::GRAVITY_FIELD].push_back("europa2x2");
-      models[Gmat::GRAVITY_FIELD].push_back("Other");
-   }
-   else if (instanceName == SolarSystem::GANYMEDE_NAME)
-   {
-      models[Gmat::GRAVITY_FIELD].push_back("ganymede2x2");
-      models[Gmat::GRAVITY_FIELD].push_back("Other");
-   }
-   else if (instanceName == SolarSystem::IO_NAME)
-   {
-      models[Gmat::GRAVITY_FIELD].push_back("io2x2");
-      models[Gmat::GRAVITY_FIELD].push_back("Other");
-   }
-   
+//   bodyType            = Moon::BODY_TYPE;
+//   posVelSrc           = Moon::POS_VEL_SOURCE;
+////   analyticMethod      = Moon::ANALYTIC_METHOD;
+//   theCentralBodyName  = cBody;
+//
+//   order               = Moon::ORDER;
+//   degree              = Moon::DEGREE;
+//   
+//   twoBodyEpoch        = Moon::TWO_BODY_EPOCH;
+//   twoBodyKepler       = Moon::TWO_BODY_ELEMENTS;
+//   rotationSrc         = Gmat::IAU_DATA;
+//
+//   if (instanceName == SolarSystem::MOON_NAME)
+//   {
+//      mu                  = Moon::LUNA_MU;
+//      mass                = mu /
+//         GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+//      // mass                = Moon::MASS;
+//      equatorialRadius    = Moon::LUNA_EQUATORIAL_RADIUS;
+//      flattening          = Moon::LUNA_FLATTENING;
+//      polarRadius         = (1.0 - flattening) * equatorialRadius;
+//      bodyNumber          = Moon::LUNA_BODY_NUMBER;
+//      referenceBodyNumber = Moon::LUNA_REF_BODY_NUMBER;
+//      sij                 = Moon::LUNA_SIJ;
+//      cij                 = Moon::LUNA_CIJ;
+//      
+//      defaultMu           = Moon::LUNA_MU;
+//      defaultEqRadius     = Moon::LUNA_EQUATORIAL_RADIUS;
+//      models[Gmat::GRAVITY_FIELD].push_back("LP100");
+//      models[Gmat::GRAVITY_FIELD].push_back("Other");
+//      rotationSrc         = Gmat::DE_FILE;
+//   }
+//   else if (instanceName == SolarSystem::AMALTHEA_NAME)
+//   {
+//      models[Gmat::GRAVITY_FIELD].push_back("amalthea6x6");
+//      models[Gmat::GRAVITY_FIELD].push_back("Other");
+//   }
+//   else if (instanceName == SolarSystem::CALLISTO_NAME)
+//   {
+//      models[Gmat::GRAVITY_FIELD].push_back("callisto2x2");
+//      models[Gmat::GRAVITY_FIELD].push_back("Other");
+//   }
+//   else if (instanceName == SolarSystem::EUROPA_NAME)
+//   {
+//      models[Gmat::GRAVITY_FIELD].push_back("europa2x2");
+//      models[Gmat::GRAVITY_FIELD].push_back("Other");
+//   }
+//   else if (instanceName == SolarSystem::GANYMEDE_NAME)
+//   {
+//      models[Gmat::GRAVITY_FIELD].push_back("ganymede2x2");
+//      models[Gmat::GRAVITY_FIELD].push_back("Other");
+//   }
+//   else if (instanceName == SolarSystem::IO_NAME)
+//   {
+//      models[Gmat::GRAVITY_FIELD].push_back("io2x2");
+//      models[Gmat::GRAVITY_FIELD].push_back("Other");
+//   }
+//   
    // NEED values for other moons in here!!!!
    // And how do I get position and velocity for the other moons?
    
    //loj: 3/23/06 set default potential file name from the startup file.
-   try
-   {
-      FileManager *fm = FileManager::Instance();
-      std::string potfile = GmatStringUtil::ToUpper(instanceName) + "_POT_FILE";
-      std::string filename = fm->GetFullPathname(potfile);
-
-      #if DEBUG_MOON
-      MessageInterface::ShowMessage
-         ("Moon::InitializeMoon() body=%s, potfilename=%s\n", instanceName.c_str(),
-          filename.c_str());
-      #endif
-      
-      potentialFileName = filename;
-   }
-   catch (BaseException &e)
-   {
-      MessageInterface::ShowMessage(e.GetFullMessage());
-   }
-
+//   try
+//   {
+//      FileManager *fm = FileManager::Instance();
+//      std::string potfile = GmatStringUtil::ToUpper(instanceName) + "_POT_FILE";
+//      std::string filename = fm->GetFullPathname(potfile);
+//
+//      #if DEBUG_MOON
+//      MessageInterface::ShowMessage
+//         ("Moon::InitializeMoon() body=%s, potfilename=%s\n", instanceName.c_str(),
+//          filename.c_str());
+//      #endif
+//      
+//      potentialFileName = filename;
+//   }
+//   catch (BaseException &e)
+//   {
+//      MessageInterface::ShowMessage(e.GetFullMessage());
+//   }
+//
+//   DeterminePotentialFileNameFromStartup();
+   
    // write message for now
-   if (instanceName != SolarSystem::MOON_NAME)
-   MessageInterface::ShowMessage(
-         "Unknown moon created - please supply physical parameter values");
-}
+//   if (instanceName != SolarSystem::MOON_NAME)
+//   MessageInterface::ShowMessage(
+//         "Unknown moon created - please supply physical parameter values");
+//}
 
 
 //------------------------------------------------------------------------------

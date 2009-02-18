@@ -50,10 +50,11 @@ public:
    Real GetReferenceDistance() const;  // km
 
    bool SetRadiantPower(Real radPower, Real refDistance);
+   bool SetPhotosphereRadius(Real rad);
 
-   virtual Rvector       GetBodyCartographicCoordinates(
-                            const A1Mjd &forTime) const;
-   virtual Real          GetHourAngle(A1Mjd atTime); 
+//   virtual Rvector       GetBodyCartographicCoordinates(
+//                            const A1Mjd &forTime) const;
+//   virtual Real          GetHourAngle(A1Mjd atTime); 
 
    // overridden access methods from CelestialBody
    virtual std::string    GetParameterText(const Integer id) const;
@@ -69,28 +70,28 @@ public:
    virtual GmatBase* Clone(void) const;
 
    // default values for CelesitalBody data
-   static const Gmat::BodyType        BODY_TYPE;
-   //static const Real                  MASS;
-   static const Real                  EQUATORIAL_RADIUS;
-   static const Real                  FLATTENING;
-   //static const Real                  POLAR_RADIUS;
-   static const Real                  MU;
-   static const Gmat::PosVelSource    POS_VEL_SOURCE;
-   static const Gmat::AnalyticMethod  ANALYTIC_METHOD;
-   static const Integer               BODY_NUMBER;
-   static const Integer               REF_BODY_NUMBER;
-   //static const Integer               COEFFICIENT_SIZE;
-   static const Integer               ORDER;
-   static const Integer               DEGREE;
-   static const Rmatrix               SIJ;
-   static const Rmatrix               CIJ;
-   
-   static const Real                  ANALYTIC_EPOCH;
-   static const Rvector6              ANALYTIC_ELEMENTS;
+//   static const Gmat::BodyType        BODY_TYPE;
+//   //static const Real                  MASS;
+//   static const Real                  EQUATORIAL_RADIUS;
+//   static const Real                  FLATTENING;
+//   //static const Real                  POLAR_RADIUS;
+//   static const Real                  MU;
+//   static const Gmat::PosVelSource    POS_VEL_SOURCE;
+////   static const Gmat::AnalyticMethod  ANALYTIC_METHOD;
+//   static const Integer               BODY_NUMBER;
+//   static const Integer               REF_BODY_NUMBER;
+//   //static const Integer               COEFFICIENT_SIZE;
+//   static const Integer               ORDER;
+//   static const Integer               DEGREE;
+//   static const Rmatrix               SIJ;
+//   static const Rmatrix               CIJ;
+//   
+//   static const Real                  TWO_BODY_EPOCH;
+//   static const Rvector6              TWO_BODY_ELEMENTS;
 
-   static const Real                  STAR_RADIANT_POWER;       // W / m^2
-   static const Real                  STAR_REFERENCE_DISTANCE;  // km
-   static const Real                  STAR_PHOTOSPHERE_RADIUS;  // m
+//   static const Real                  STAR_RADIANT_POWER;       // W / m^2
+//   static const Real                  STAR_REFERENCE_DISTANCE;  // km
+//   static const Real                  STAR_PHOTOSPHERE_RADIUS;  // m
    // add other ones as needed
 
 protected:
@@ -121,8 +122,8 @@ protected:
    Real      referenceDistance;
    Real      photosphereRadius;  // meters
 
-   void             InitializeStar();
-   virtual Rvector6 ComputeLowFidelity(const A1Mjd &forTime);
+//   void             InitializeStar();
+   virtual Rvector6 ComputeTwoBody(const A1Mjd &forTime);
 
 private:
 

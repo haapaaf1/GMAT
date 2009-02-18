@@ -68,8 +68,8 @@ public:
    // For the Earth, these methods need to update the Sun's information, as the 
    // Sun has no cental body and its initial epoch and keplerian elements need 
    // to be set and stored differently
-   virtual bool          SetAnalyticEpoch(const A1Mjd &toTime);
-   virtual bool          SetAnalyticElements(const Rvector6 &kepl);
+   virtual bool          SetTwoBodyEpoch(const A1Mjd &toTime);
+   virtual bool          SetTwoBodyElements(const Rvector6 &kepl);
    
    virtual Real          GetNutationUpdateInterval() const;
    virtual bool          SetNutationUpdateInterval(Real val);
@@ -95,20 +95,20 @@ public:
                                             
 protected:
 
-   enum
-   {
-      MERCURY = 0,
-      VENUS,
-      EARTH,
-      MARS,
-      JUPITER,
-      SATURN,
-      URANUS,
-      NEPTUNE,
-      PLUTO,
-      NumberOfPlanets
-      /// @todo  add Sedna later??
-   };
+//   enum
+//   {
+//      MERCURY = 0,
+//      VENUS,
+//      EARTH,
+//      MARS,
+//      JUPITER,
+//      SATURN,
+//      URANUS,
+//      NEPTUNE,
+//      PLUTO,
+//      NumberOfPlanets
+//      /// @todo  add Sedna later??
+//   };
 
    enum
    {
@@ -121,29 +121,29 @@ protected:
    
    static const Gmat::ParameterType PARAMETER_TYPE[PlanetParamCount - CelestialBodyParamCount];
    
-   // default values for CelestialBody data
-   static const Gmat::BodyType        DEFAULT_BODY_TYPE;
-   static const Gmat::PosVelSource    DEFAULT_POS_VEL_SOURCE;
-   static const Gmat::AnalyticMethod  DEFAULT_ANALYTIC_METHOD;
-   static const Integer               DEFAULT_BODY_NUMBER;
-   static const Integer               DEFAULT_REF_BODY_NUMBER;
-
-   static const Real                  EQUATORIAL_RADIUS[NumberOfPlanets];
-   static const Real                  FLATTENING[NumberOfPlanets];
-   static const Real                  MU[NumberOfPlanets];
-   static const Integer               ORDER[NumberOfPlanets];
-   static const Integer               DEGREE[NumberOfPlanets];
-   static const Rmatrix               SIJ[NumberOfPlanets];
-   static const Rmatrix               CIJ[NumberOfPlanets];
-   
-   static const Real                  ANALYTIC_EPOCH[NumberOfPlanets];
-   static const Rvector6              ANALYTIC_ELEMENTS[NumberOfPlanets];
+//   // default values for CelestialBody data
+//   static const Gmat::BodyType        DEFAULT_BODY_TYPE;
+//   static const Gmat::PosVelSource    DEFAULT_POS_VEL_SOURCE;
+////   static const Gmat::AnalyticMethod  DEFAULT_ANALYTIC_METHOD;
+//   static const Integer               DEFAULT_BODY_NUMBER;
+//   static const Integer               DEFAULT_REF_BODY_NUMBER;
+//
+//   static const Real                  EQUATORIAL_RADIUS[NumberOfPlanets];
+//   static const Real                  FLATTENING[NumberOfPlanets];
+//   static const Real                  MU[NumberOfPlanets];
+//   static const Integer               ORDER[NumberOfPlanets];
+//   static const Integer               DEGREE[NumberOfPlanets];
+//   static const Rmatrix               SIJ[NumberOfPlanets];
+//   static const Rmatrix               CIJ[NumberOfPlanets];
+//   
+//   static const Real                  ANALYTIC_EPOCH[NumberOfPlanets];
+//   static const Rvector6              ANALYTIC_ELEMENTS[NumberOfPlanets];
                                             
 //   Real                               updateInterval;
    Real                               nutationUpdateInterval;
    /// @todo add other ones as needed
 
-   void             InitializePlanet(const std::string &cBody);
+//   void             InitializePlanet(const std::string &cBody);
                                           
 
 private:

@@ -30,6 +30,7 @@
 #include "SolarSystem.hpp"
 #include "SolarSystemException.hpp"
 #include "PlanetaryEphemException.hpp"
+#include "FileManager.hpp"
 #include "Rvector3.hpp"
 #include "Rvector6.hpp"
 #include "Rmatrix.hpp"
@@ -48,8 +49,9 @@
 //#define DEBUG_CELESTIAL_BODY 1
 //#define DEBUG_GET_STATE
 //#define DEBUG_CB_SET
-//#define DEBUG_CB_ANALYTIC
+//#define DEBUG_TWO_BODY
 //#define DEBUG_EPHEM_SOURCE
+//#define DEBUG_MODIFIED_FLAG
 
 using namespace GmatMathUtil;
 using namespace std; 
@@ -67,7 +69,7 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "PolarRadius",
    "Mu",
    "PosVelSource",
-   "AnalyticMethod",
+//   "AnalyticMethod",
    "State",
    "StateTime",
    "CentralBody",
@@ -83,15 +85,25 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "Order",
    "Degree",
    "RotationDataSource",
-   "DateFormat",               // for analytic method
-   "StateType",                // for analytic method
-   "InitialEpoch",             // for analytic method
-   "SMA",                      // for analytic method
-   "ECC",                      // for analytic method
-   "INC",                      // for analytic method
-   "RAAN",                     // for analytic method
-   "AOP",                      // for analytic method
-   "TA",                       // for analytic method
+   "DateFormat",               // for two-body method
+   "StateType",                // for two-body method
+   "InitialEpoch",             // for two-body method
+   "SMA",                      // for two-body method
+   "ECC",                      // for two-body method
+   "INC",                      // for two-body method
+   "RAAN",                     // for two-body method
+   "AOP",                      // for two-body method
+   "TA",                       // for two-body method
+   "OrientationDateFormat",    // orientation parameters, used to compute alpha, delta, W, Wdot
+   "OrientationEpoch",
+   "SpinAxisRAConstant",
+   "SpinAxisRARate",
+   "SpinAxisDECConstant",
+   "SpinAxisDECRate",
+   "RotationConstant",
+   "RotationRate",
+   "NAIFId",
+   "TextureMapFileName",
 };
 
 const Gmat::ParameterType
@@ -104,7 +116,7 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::REAL_TYPE,     //"PolarRadius",
    Gmat::REAL_TYPE,     //"Mu",
    Gmat::STRING_TYPE,   //"PosVelSource",
-   Gmat::STRING_TYPE,   //"AnalyticMethod",
+//   Gmat::STRING_TYPE,   //"AnalyticMethod",
    Gmat::RVECTOR_TYPE,  //"State",
    Gmat::TIME_TYPE,     //"StateTime",
    Gmat::STRING_TYPE,   //"CentralBody",
@@ -129,10 +141,20 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::REAL_TYPE,     //"RAAN",    
    Gmat::REAL_TYPE,     //"AOP",  
    Gmat::REAL_TYPE,     //"TA", 
+   Gmat::STRING_TYPE,   //"OrientationDateFormat",  
+   Gmat::REAL_TYPE,     //"OrientationEpoch",
+   Gmat::REAL_TYPE,     //"SpinAxisRAConstant", 
+   Gmat::REAL_TYPE,     //"SpinAxisRARate", 
+   Gmat::REAL_TYPE,     //"SpinAxisDECConstant", 
+   Gmat::REAL_TYPE,     //"SpinAxisDECRate", 
+   Gmat::REAL_TYPE,     //"RotationConstant", 
+   Gmat::REAL_TYPE,     //"RotationRate", 
+   Gmat::INTEGER_TYPE,  //"NAIFId"
+   Gmat::STRING_TYPE,   //"TextureMapFileName"
 };
 
 const Real CelestialBody::JD_EPOCH_2000_TCB = 2451545.0;
-const Real CelestialBody::JD_EPOCH_2000_TT  = 2451545.0; // FIGURE THIS OUT!!!
+const Real CelestialBody::JD_EPOCH_2000_TT  = 2451545.0; // @ todo Figure out JD_EPOCH_2000_TT
 const Real CelestialBody::dDot              = 1.0;
 const Real CelestialBody::TDot              = 1.0;
 const Real CelestialBody::KEPLER_TOL        = 1.0e-06;
@@ -158,8 +180,8 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    flattening         (0.0033528106647474807198455),
    polarRadius        (6356.76),
    mu                 (398600.4415),
-   posVelSrc          (Gmat::DE_405),
-   analyticMethod     (Gmat::LOW_FIDELITY),
+   posVelSrc          (Gmat::DE405),
+//   analyticMethod     (Gmat::LOW_FIDELITY),
    stateTime          (21545.0),
    theCentralBodyName (""),
    theCentralBody     (NULL),
@@ -171,22 +193,31 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    potentialFileName  (""),
    hourAngle          (0.0),
    atmModel           (NULL),
-   atmModelType       (""),
+   atmModelType       ("None"),
    potentialFileRead  (false),
    defaultMu          (398600.4415),
    defaultEqRadius    (6378.14),
-   order              (4),
-   degree             (4),
-   analyticFormat     ("TAIModJulian"),
-   analyticStateType  ("Keplerian"),
-   newAnalytic        (true),
+   defaultFlattening  (0.0033528106647474807198455),
+   order              (0),
+   degree             (0),
+   twoBodyFormat     ("TAIModJulian"),
+   twoBodyStateType  ("Keplerian"),
+   newTwoBody        (true),
    overrideTime       (false),
    ephemUpdateInterval (0.0),
    lastEphemTime      (0.0),
-   rotationSrc        (Gmat::NOT_APPLICABLE)
+   rotationSrc        (Gmat::NOT_APPLICABLE),
+   userDefined        (false),
+   hasBeenModified    (false),
+   orientationDateFormat ("TAIModJulian"),
+   orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
+   orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
+   naifId             (-1),
+   textureMapFileName ("GenericCelestialBody.jpg")
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
    objectTypeNames.push_back("CelestialBody");
+  
    
    for (Integer i = 0; i < Gmat::ModelTypeCount; i++)
       models[i].push_back("None");
@@ -222,8 +253,8 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    flattening         (0.0033528106647474807198455),
    polarRadius        (6356.76),
    mu                 (398600.4415),
-   posVelSrc          (Gmat::DE_405),
-   analyticMethod     (Gmat::LOW_FIDELITY),
+   posVelSrc          (Gmat::DE405),
+//   analyticMethod     (Gmat::LOW_FIDELITY),
    stateTime          (21545.0),
    theCentralBodyName (""),
    theCentralBody     (NULL),
@@ -235,19 +266,27 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    potentialFileName  (""),
    hourAngle          (0.0),
    atmModel           (NULL),
-   atmModelType       (""),
+   atmModelType       ("None"),
    potentialFileRead  (false),
    defaultMu          (398600.4415),
    defaultEqRadius    (6378.14),
+   defaultFlattening  (0.0033528106647474807198455),
    order              (0),
    degree             (0),
-   analyticFormat     ("TAIModjulian"),
-   analyticStateType  ("Keplerian"),
-   newAnalytic        (true),
+   twoBodyFormat     ("TAIModjulian"),
+   twoBodyStateType  ("Keplerian"),
+   newTwoBody        (true),
    overrideTime       (false),
    ephemUpdateInterval (0.0),
    lastEphemTime      (0.0),
-   rotationSrc        (Gmat::NOT_APPLICABLE)
+   rotationSrc        (Gmat::NOT_APPLICABLE),
+   userDefined        (false),
+   hasBeenModified    (false),
+   orientationDateFormat ("TAIModJulian"),
+   orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
+   orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
+   naifId             (-1),
+   textureMapFileName ("GenericCelestialBody.jpg")
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
    objectTypeNames.push_back("CelestialBody");
@@ -286,7 +325,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    polarRadius         (cBody.polarRadius),
    mu                  (cBody.mu),
    posVelSrc           (cBody.posVelSrc),
-   analyticMethod      (cBody.analyticMethod),
+//   analyticMethod      (cBody.analyticMethod),
    theCentralBodyName  (cBody.theCentralBodyName),
    theCentralBody      (cBody.theCentralBody),
    bodyNumber          (cBody.bodyNumber),
@@ -301,24 +340,32 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    degree              (cBody.degree),
    sij                 (cBody.sij),
    cij                 (cBody.cij),
-   analyticFormat      (cBody.analyticFormat),
-   analyticStateType   (cBody.analyticStateType),
-   analyticEpoch       (cBody.analyticEpoch),
-   analyticKepler      (cBody.analyticKepler),
-   prevAnalyticEpoch   (cBody.prevAnalyticEpoch),
-   prevAnalyticState   (cBody.prevAnalyticState),
-   newAnalytic         (cBody.newAnalytic),
+   twoBodyFormat      (cBody.twoBodyFormat),
+   twoBodyStateType   (cBody.twoBodyStateType),
+   twoBodyEpoch       (cBody.twoBodyEpoch),
+   twoBodyKepler      (cBody.twoBodyKepler),
+   prevTwoBodyEpoch   (cBody.prevTwoBodyEpoch),
+   prevTwoBodyState   (cBody.prevTwoBodyState),
+   newTwoBody         (cBody.newTwoBody),
    overrideTime        (cBody.overrideTime),
    ephemUpdateInterval (cBody.ephemUpdateInterval),
    lastEphemTime       (cBody.lastEphemTime),
    lastState           (cBody.lastState),
-   rotationSrc         (cBody.rotationSrc)
+   rotationSrc         (cBody.rotationSrc),
+   userDefined         (cBody.userDefined),
+   hasBeenModified     (cBody.hasBeenModified),
+   orientationDateFormat (cBody.orientationDateFormat),
+   orientationEpoch    (cBody.orientationEpoch),
+   orientation         (cBody.orientation),
+   naifId              (cBody.naifId),
+   textureMapFileName  (cBody.textureMapFileName)
 {
    state                  = cBody.state;
    stateTime              = cBody.stateTime;
    angularVelocity        = cBody.angularVelocity;
    defaultMu              = cBody.defaultMu;
    defaultEqRadius        = cBody.defaultEqRadius;
+   defaultFlattening      = cBody.defaultFlattening;
    isFirstTimeMu          = true;
    isFirstTimeRadius      = true;
    potentialFileRead      = false;
@@ -370,7 +417,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    polarRadius         = cBody.polarRadius;
    mu                  = cBody.mu;
    posVelSrc           = cBody.posVelSrc;
-   analyticMethod      = cBody.analyticMethod;
+//   analyticMethod      = cBody.analyticMethod;
    state               = cBody.state;
    stateTime           = cBody.stateTime;
    theCentralBodyName  = cBody.theCentralBodyName;
@@ -396,26 +443,37 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    
    defaultMu           = cBody.defaultMu;
    defaultEqRadius     = cBody.defaultEqRadius;
+   defaultFlattening   = cBody.defaultFlattening;
    
    for (Integer i = 0; i < Gmat::ModelTypeCount; i++)
       models[i] = cBody.models[i];
    
-   analyticEpoch       = cBody.analyticEpoch;
-   analyticKepler      = cBody.analyticKepler;
-   prevAnalyticEpoch   = cBody.prevAnalyticEpoch;
-   prevAnalyticState   = cBody.prevAnalyticState;
-   analyticFormat      = cBody.analyticFormat;
-   analyticStateType   = cBody.analyticStateType;
-   newAnalytic         = cBody.newAnalytic;
+   twoBodyEpoch       = cBody.twoBodyEpoch;
+   twoBodyKepler      = cBody.twoBodyKepler;
+   prevTwoBodyEpoch   = cBody.prevTwoBodyEpoch;
+   prevTwoBodyState   = cBody.prevTwoBodyState;
+   twoBodyFormat      = cBody.twoBodyFormat;
+   twoBodyStateType   = cBody.twoBodyStateType;
+   newTwoBody         = cBody.newTwoBody;
    overrideTime        = cBody.overrideTime;
    ephemUpdateInterval = cBody.ephemUpdateInterval;
    lastEphemTime       = cBody.lastEphemTime;
    lastState           = cBody.lastState;
    rotationSrc         = cBody.rotationSrc;
+   userDefined         = cBody.userDefined;
+   hasBeenModified     = cBody.hasBeenModified;
+   orientationDateFormat = cBody.orientationDateFormat;
+   orientationEpoch    = cBody.orientationEpoch;
+   orientation         = cBody.orientation;
+   
+   naifId              = cBody.naifId;
+   textureMapFileName  = cBody.textureMapFileName;
    
    for (Integer i=0;i<6;i++)  prevState[i] = cBody.prevState[i];
    
    potentialFileRead   = false;
+   
+   hasBeenModified     = true;
    
    return *this;
 }
@@ -453,7 +511,7 @@ bool CelestialBody::Initialize()
    
    lastEphemTime = 0.0;
    stateTime = 0.0;   
-   newAnalytic = true;
+   newTwoBody = true;
    
    return true;
 }
@@ -499,26 +557,25 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
    Real*     posVel = NULL;
    switch (posVelSrc)
    {
-      case Gmat::ANALYTIC :
-         switch (analyticMethod)
-         {
-            case Gmat::NO_ANALYTIC_METHOD :
-               throw SolarSystemException(
-                      "No analytic method specified for body " +instanceName);
-            case Gmat::LOW_FIDELITY :
-               state = ComputeLowFidelity(atTime);
-               break;
-            default:
-               break;
-         }
+//      case Gmat::ANALYTIC :
+//         switch (analyticMethod)
+//         {
+//            case Gmat::NO_ANALYTIC_METHOD :
+//               throw SolarSystemException(
+//                      "No analytic method specified for body " +instanceName);
+//            case Gmat::LOW_FIDELITY :
+//               state = ComputeTwoBody(atTime);
+//               break;
+//            default:
+//               break;
+//         }
+//         break;
+//      case Gmat::SLP :
+//      case Gmat::DE_200 :
+      case Gmat::TWO_BODY_PROPAGATION :
+         state = ComputeTwoBody(atTime);
          break;
-      case Gmat::SLP :
-//      case Gmat::DE_102 :
-      case Gmat::DE_200 :
-//      case Gmat::DE_202 :
-//      case Gmat::DE_403 :
-      case Gmat::DE_405 :
-//      case Gmat::DE_406 :
+      case Gmat::DE405 :
          if (!theSourceFile)
          {
             throw PlanetaryEphemException(
@@ -534,8 +591,12 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
          state.Set(posVel[0], posVel[1], posVel[2],
                    posVel[3], posVel[4], posVel[5]);
          break;
-//      case Gmat::EPHEMERIS :  
-//         break; // other cases later <<<<<<<<<<<<<<<<
+      case Gmat::SPICE :
+         MessageInterface::ShowMessage(
+               "Use of SPICE file for planetary ephemeris not yet implemented for %s.  Switching to TwoBodyPropagation.\n",
+               instanceName.c_str());
+         state = ComputeTwoBody(atTime); // ********** temporary ******************
+         break;
       default:
          throw SolarSystemException("Invalid data source defined for body "
                                     + instanceName);
@@ -595,41 +656,52 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
       for (Integer i=0;i<6;i++) outState[i] = prevState[i];
    }
    
+   Rvector6 state;
    switch (posVelSrc)
    {
-      case Gmat::ANALYTIC :
-         switch (analyticMethod)
-         {
-            case Gmat::NO_ANALYTIC_METHOD :
-               throw SolarSystemException(
-                      "No analytic method specified for body " +instanceName);
-            case Gmat::LOW_FIDELITY :
-            {
-               Rvector6 state;
-               state = ComputeLowFidelity(atTime);
-               for (Integer i=0;i<6;i++) outState[i] = state[i];
-               break;
-            }
-            default:
-               break;
-         }
+//      case Gmat::ANALYTIC :
+//         switch (analyticMethod)
+//         {
+//            case Gmat::NO_ANALYTIC_METHOD :
+//               throw SolarSystemException(
+//                      "No analytic method specified for body " +instanceName);
+//            case Gmat::LOW_FIDELITY :
+//            {
+//               Rvector6 state;
+//               state = ComputeTwoBody(atTime);
+//               for (Integer i=0;i<6;i++) outState[i] = state[i];
+//               break;
+//            }
+//            default:
+//               break;
+//         }
+//         break;
+//      case Gmat::SLP :
+//      case Gmat::DE_200 :
+      case Gmat::TWO_BODY_PROPAGATION :
+      {
+//         Rvector6 state;
+         state = ComputeTwoBody(atTime);
+         for (Integer i=0;i<6;i++) outState[i] = state[i];
          break;
-      case Gmat::SLP :
-//      case Gmat::DE_102 :
-      case Gmat::DE_200 :
-//      case Gmat::DE_202 :
-//      case Gmat::DE_403 :
-      case Gmat::DE_405 :
-//      case Gmat::DE_406 :
+      }
+      case Gmat::DE405 :
          if (!theSourceFile)
          {
             throw PlanetaryEphemException(
-                  "SLP or DE file requested, but no file specified");
+                  "DE 405 file requested, but no file specified");
+//                 "SLP or DE file requested, but no file specified");
          }
          outState     = theSourceFile->GetPosVel(bodyNumber,atTime, overrideTime);
          break;
-//      case Gmat::EPHEMERIS :  
-//         break; // other cases later <<<<<<<<<<<<<<<<
+      case Gmat::SPICE :
+         MessageInterface::ShowMessage(
+               "Use of SPICE file for planetary ephemeris not yet implemented for %s.  Switching to TwoBodyPropagation.\n",
+               instanceName.c_str());
+//         Rvector6 state;   // ***** temporary ************
+         state = ComputeTwoBody(atTime);
+         for (Integer i=0;i<6;i++) outState[i] = state[i];
+         break;
       default:
          throw SolarSystemException("Invalid data source defined for body "
                                     + instanceName);
@@ -888,20 +960,20 @@ PlanetaryEphem*  CelestialBody::GetSourceFile() const
    return theSourceFile;
 }
 
-//------------------------------------------------------------------------------
-//  Gmat::AnalyticMethod GetAnalyticMethod() const
-//------------------------------------------------------------------------------
-/**
- * This method returns the analytic method used for the body.
- *
- * @return analytic method for the body.
- *
- */
-//------------------------------------------------------------------------------
-Gmat::AnalyticMethod CelestialBody::GetAnalyticMethod() const
-{
-   return analyticMethod;
-}
+////------------------------------------------------------------------------------
+////  Gmat::AnalyticMethod GetAnalyticMethod() const
+////------------------------------------------------------------------------------
+///**
+// * This method returns the analytic method used for the body.
+// *
+// * @return analytic method for the body.
+// *
+// */
+////------------------------------------------------------------------------------
+//Gmat::AnalyticMethod CelestialBody::GetAnalyticMethod() const
+//{
+//   return analyticMethod;
+//}
 
 //------------------------------------------------------------------------------
 //  bool CelestialBody::GetUsePotentialFile() const
@@ -979,9 +1051,11 @@ const Rvector3& CelestialBody::GetAngularVelocity()
 //------------------------------------------------------------------------------
 Real  CelestialBody::GetHourAngle(A1Mjd atTime) 
 {
-   // should be implemented in derived classes
-   throw SolarSystemException(
-         "Hour Angles not yet available for body " + instanceName);
+   Rvector cart = GetBodyCartographicCoordinates(atTime);
+   hourAngle = cart[2];  
+   // reduce to a quantity within one day (86400 seconds, 360.0 degrees)
+   hourAngle = AngleUtil::PutAngleInDegRange(hourAngle,0.0,360.0);
+   return hourAngle;
 }
 
 //------------------------------------------------------------------------------
@@ -1156,20 +1230,20 @@ bool CelestialBody::GetDensity(Real *position, Real *density, Real epoch,
 
 
 //------------------------------------------------------------------------------
-// A1Mjd GetAnalyticEpoch() const
+// A1Mjd GetTwoBodyEpoch() const
 //------------------------------------------------------------------------------
-A1Mjd CelestialBody::GetAnalyticEpoch() const
+A1Mjd CelestialBody::GetTwoBodyEpoch() const
 {
-   return analyticEpoch;
+   return twoBodyEpoch;
 }
 
 
 //------------------------------------------------------------------------------
-// Rvector6 GetAnalyticElements() const
+// Rvector6 GetTwoBodyElements() const
 //------------------------------------------------------------------------------
-Rvector6 CelestialBody::GetAnalyticElements() const
+Rvector6 CelestialBody::GetTwoBodyElements() const
 {
-   return analyticKepler;
+   return twoBodyKepler;
 }
 
 //------------------------------------------------------------------------------
@@ -1179,6 +1253,68 @@ Gmat::RotationDataSource CelestialBody::GetRotationDataSource() const
 {
    return rotationSrc;
 }
+
+//------------------------------------------------------------------------------
+// StringArray GetRotationDataSourceList() const
+//------------------------------------------------------------------------------
+StringArray CelestialBody::GetRotationDataSourceList() const
+{
+   StringArray srcList;
+   for (unsigned int ii = 0; ii < Gmat::RotationDataSrcCount; ii++)
+      srcList.push_back(Gmat::ROTATION_DATA_SOURCE_STRINGS[ii]);
+   
+   return srcList;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsUserDefined() const
+//------------------------------------------------------------------------------
+bool CelestialBody::IsUserDefined() const
+{
+   return userDefined;
+}
+
+//------------------------------------------------------------------------------
+// bool HasBeenModified() const
+//------------------------------------------------------------------------------
+bool CelestialBody::HasBeenModified() const
+{
+   return hasBeenModified;
+}
+
+
+//------------------------------------------------------------------------------
+// StringArray GetEphemSourceList() const
+//------------------------------------------------------------------------------
+StringArray CelestialBody::GetEphemSourceList() const
+{
+   StringArray srcList;
+   for (int jj = 0; jj < Gmat::PosVelSourceCount; jj++)
+   {
+      std::string src = Gmat::POS_VEL_SOURCE_STRINGS[jj];
+      if (userDefined)
+      {
+         if (!(GmatStringUtil::StartsWith(src, "DE")))
+            srcList.push_back(Gmat::POS_VEL_SOURCE_STRINGS[jj]);            
+      }
+      else  // default bodies
+      {
+         if (src.find("SPICE") == std::string::npos)
+            srcList.push_back(Gmat::POS_VEL_SOURCE_STRINGS[jj]);
+      }
+   }
+   return srcList;
+}
+
+//------------------------------------------------------------------------------
+// Rvector6 GetOrientationParameters() const
+//------------------------------------------------------------------------------
+Rvector6 CelestialBody::GetOrientationParameters() const
+{
+   return orientation;
+}
+
 
 //------------------------------------------------------------------------------
 //  bool SetBodyType(Gmat::BodyType bType)
@@ -1194,7 +1330,7 @@ Gmat::RotationDataSource CelestialBody::GetRotationDataSource() const
 //------------------------------------------------------------------------------
 bool CelestialBody::SetBodyType(Gmat::BodyType bType)
 {
-   bodyType = bType;
+   bodyType            = bType;
    return true; // will need to change default parameters here too, if they
                 // are set to values that make no sense for this type of body?
 }
@@ -1214,11 +1350,12 @@ bool CelestialBody::SetBodyType(Gmat::BodyType bType)
 bool CelestialBody::SetCentralBody(const std::string &cBody)
 {
    theCentralBodyName = cBody;
+   hasBeenModified    = true;
    return true;
 }
 
 //------------------------------------------------------------------------------
-//  bool SetGravitationalConstant(Real newMu)
+//  bool SetGravitationalConstant(Real newMu, bool makeDefault = false)
 //------------------------------------------------------------------------------
 /**
  * This method sets the gravitational constant for the body.
@@ -1231,7 +1368,7 @@ bool CelestialBody::SetCentralBody(const std::string &cBody)
  *
  */
 //------------------------------------------------------------------------------
-bool CelestialBody::SetGravitationalConstant(Real newMu)
+bool CelestialBody::SetGravitationalConstant(Real newMu, bool makeDefault)
 {
    if (newMu <= 0.0)
    {
@@ -1242,13 +1379,15 @@ bool CelestialBody::SetGravitationalConstant(Real newMu)
       throw sse;
    }
    
-   mu   = newMu;
-   mass = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+   mu                         = newMu;
+   mass                       = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+   if (makeDefault) defaultMu = mu;
+   hasBeenModified            = true;
    return true;
 }
 
 //------------------------------------------------------------------------------
-//  bool SetEquatorialRadius(Real newEqRadius)
+//  bool SetEquatorialRadius(Real newEqRadius, bool makeDefault = false)
 //------------------------------------------------------------------------------
 /**
  * This method sets the equatorial radius for the body.
@@ -1261,7 +1400,7 @@ bool CelestialBody::SetGravitationalConstant(Real newMu)
  *
  */
 //------------------------------------------------------------------------------
-bool CelestialBody::SetEquatorialRadius(Real newEqRadius)
+bool CelestialBody::SetEquatorialRadius(Real newEqRadius, bool makeDefault)
 {
    if (newEqRadius <= 0.0)
    {
@@ -1272,13 +1411,15 @@ bool CelestialBody::SetEquatorialRadius(Real newEqRadius)
       throw sse;
    }
    
-   equatorialRadius = newEqRadius;
-   polarRadius      = (1.0 - flattening) * equatorialRadius;
+   equatorialRadius                 = newEqRadius;
+   polarRadius                      = (1.0 - flattening) * equatorialRadius;
+   if (makeDefault) defaultEqRadius = equatorialRadius;
+   hasBeenModified                  = true;
    return true;
 }
 
 //------------------------------------------------------------------------------
-//  bool SetFlattening(Real flat)
+//  bool SetFlattening(Real flat, bool makeDefault = false)
 //------------------------------------------------------------------------------
 /**
  * This method sets the flattening value for the body.
@@ -1289,10 +1430,12 @@ bool CelestialBody::SetEquatorialRadius(Real newEqRadius)
  *
  */
 //------------------------------------------------------------------------------
-bool CelestialBody::SetFlattening(Real flat) 
+bool CelestialBody::SetFlattening(Real flat, bool makeDefault) 
 {
-   flattening  = flat;
-   polarRadius = (1.0 - flattening) * equatorialRadius;
+   flattening                          = flat;
+   polarRadius                         = (1.0 - flattening) * equatorialRadius;
+   if (makeDefault)  defaultFlattening = flattening;
+   hasBeenModified                     = true;
    return true;
 }
 
@@ -1334,7 +1477,34 @@ bool CelestialBody::SetSource(Gmat::PosVelSource pvSrc)
        GetName().c_str(), pvSrc);
    #endif
    
-   posVelSrc = pvSrc;
+   if (pvSrc == posVelSrc) return true;
+
+   if (pvSrc == Gmat::DE405)
+   {
+      if (userDefined)
+      {
+         std::string errmsg = "DE405 file option not available for user-defined body";
+         errmsg += instanceName + "\n";
+         throw SolarSystemException(errmsg);
+      }
+   }
+   if (pvSrc == Gmat::SPICE)
+   {
+      if (!userDefined)
+      {
+         std::string errmsg = "SPICE file option not available for default body";
+         errmsg += instanceName + "\n";
+         throw SolarSystemException(errmsg);
+      }
+      std::string warn = "SPICE file options not yet implemented.  ";
+      warn += "Switching to TwoBodyPropagation for body " + instanceName + "\n";
+      MessageInterface::PopupMessage(Gmat::WARNING_, warn);
+      posVelSrc = Gmat::TWO_BODY_PROPAGATION;
+      hasBeenModified     = true;
+      return true;
+   }
+   posVelSrc           = pvSrc;
+   hasBeenModified     = true;
    return true;
 }
 
@@ -1362,26 +1532,27 @@ bool CelestialBody::SetSourceFile(PlanetaryEphem *src)
    theSourceFile = src;
    sourceFilename = theSourceFile->GetName();
    bodyNumber = theSourceFile->GetBodyID(instanceName);
+   hasBeenModified     = true;
    return true;
 }
 
-//------------------------------------------------------------------------------
-//  bool SetAnalyticMethod(Gmat::AnalyticMethod aM)
-//------------------------------------------------------------------------------
-/**
-* This method sets the analytic method for the body.
- *
- * @param <aM> analytic method for the body.
- *
- * @return flag indicating success of the method.
- *
- */
-//------------------------------------------------------------------------------
-bool CelestialBody::SetAnalyticMethod(Gmat::AnalyticMethod aM)
-{
-   analyticMethod = aM;
-   return true; 
-}
+////------------------------------------------------------------------------------
+////  bool SetAnalyticMethod(Gmat::AnalyticMethod aM)
+////------------------------------------------------------------------------------
+///**
+//* This method sets the analytic method for the body.
+// *
+// * @param <aM> analytic method for the body.
+// *
+// * @return flag indicating success of the method.
+// *
+// */
+////------------------------------------------------------------------------------
+//bool CelestialBody::SetAnalyticMethod(Gmat::AnalyticMethod aM)
+//{
+//   analyticMethod = aM;
+//   return true; 
+//}
 
 //------------------------------------------------------------------------------
 //  bool SetUsePotentialFile(bool useIt)
@@ -1422,7 +1593,8 @@ bool CelestialBody::SetUsePotentialFile(bool useIt)
       isFirstTimeRadius = true;
    }
    
-   usePotentialFile = useIt;
+   usePotentialFile    = useIt;
+   hasBeenModified     = true;
    return true;
 }
 
@@ -1446,7 +1618,8 @@ bool CelestialBody::SetOverrideTimeSystem(bool overrideIt)
       ("CelestialBody::SetOverrideTimeSystem() <%p> '%s' entered, overrideIt=%d\n",
        this, GetName().c_str(), overrideIt);
    #endif
-   overrideTime = overrideIt;
+   overrideTime        = overrideIt;
+   hasBeenModified     = true;
    return true;
 }
 
@@ -1465,6 +1638,7 @@ bool CelestialBody::SetEphemUpdateInterval(Real intvl)
       throw sse;
    }
    ephemUpdateInterval = intvl;
+   hasBeenModified     = true;
    return true;
 }
 
@@ -1506,6 +1680,44 @@ bool CelestialBody::RemoveValidModelName(Gmat::ModelType m,
    }
    return true;  // found?
 }
+   
+bool CelestialBody::SetValidModelList(Gmat::ModelType m, const StringArray &toList)
+{
+   models[(Integer)m].clear();
+   for (unsigned int ii = 0; ii < toList.size(); ii++)
+      models[(Integer)m].push_back(toList.at(ii));
+      
+   return true;     
+}
+
+bool CelestialBody::SetOrder(Integer toOrder)
+{
+   order               = toOrder;
+   hasBeenModified     = true;
+   return true;
+}
+
+bool CelestialBody::SetDegree(Integer toDegree)
+{
+   degree              = toDegree;
+   hasBeenModified     = true;
+   return true;
+}
+
+bool CelestialBody::SetHarmonicCoefficientsSij(const Rmatrix &coeffSij)
+{
+   sij                 = coeffSij;
+   hasBeenModified     = true;
+   return true;
+}
+
+bool CelestialBody::SetHarmonicCoefficientsCij(const Rmatrix &coeffCij)
+{
+   cij                 = coeffCij;
+   hasBeenModified     = true;
+   return true;
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -1525,7 +1737,8 @@ bool CelestialBody::RemoveValidModelName(Gmat::ModelType m,
 //------------------------------------------------------------------------------
 bool CelestialBody::SetAtmosphereModelType(std::string toAtmModelType)
 {
-   atmModelType = toAtmModelType;
+   atmModelType        = toAtmModelType;
+   hasBeenModified     = true;
    return true;
 }
 
@@ -1545,7 +1758,8 @@ bool CelestialBody::SetAtmosphereModelType(std::string toAtmModelType)
 bool CelestialBody::SetAtmosphereModel(AtmosphereModel *toAtmModel)
 {
    if (atmModel) delete atmModel;
-   atmModel = toAtmModel;
+   atmModel            = toAtmModel;
+   hasBeenModified     = true;
    return true;
 }
 
@@ -1570,22 +1784,25 @@ bool CelestialBody::SetPotentialFilename(const std::string &fn)
       isFirstTimeRadius = true;
    }
    
-   potentialFileName = fn;
+   potentialFileName   = fn;
+   hasBeenModified     = true;
    return true;
 }
 
 
 //------------------------------------------------------------------------------
-// bool SetAnalyticEpoch(const A1Mjd &toTime)
+// bool SetTwoBodyEpoch(const A1Mjd &toTime)
 //------------------------------------------------------------------------------
-bool CelestialBody::SetAnalyticEpoch(const A1Mjd &toTime)
+bool CelestialBody::SetTwoBodyEpoch(const A1Mjd &toTime)
 {
-   #ifdef DEBUG_CB_ANALYTIC
+   #ifdef DEBUG_TWO_BODY
       MessageInterface::ShowMessage(
-      "In CB::SetAnalyticEpoch, setting epoch to %.12f\n", toTime.Get());
+         "In CB::SetTwoBodyEpoch, setting epoch to %.12f\n", toTime.Get());
+//      "In CB::SetAnalyticEpoch, setting epoch to %.12f\n", toTime.Get());
    #endif
-   analyticEpoch = toTime;
-   newAnalytic   = true;
+   twoBodyEpoch        = toTime;
+   newTwoBody          = true;
+   hasBeenModified     = true;
    return true;
 }
 
@@ -1594,7 +1811,7 @@ bool CelestialBody::SetAnalyticEpoch(const A1Mjd &toTime)
 // bool SetSMA(Real value)
 //------------------------------------------------------------------------------
 /*
- * Sets SemimajorAxis of analytic model state.
+ * Sets SemimajorAxis of twoBody model state.
  *
  * @param  value  value of semimajor axis
  *
@@ -1609,12 +1826,12 @@ bool CelestialBody::SetSMA(Real value)
       SolarSystemException sse;
       sse.SetDetails(errorMessageFormat.c_str(),
                      GmatStringUtil::ToString(value, GetDataPrecision()).c_str(),
-                     PARAMETER_TEXT[ANALYTIC_SMA - SpacePointParamCount].c_str(),
+                     PARAMETER_TEXT[TWO_BODY_SMA - SpacePointParamCount].c_str(),
                      "Real Number != 0.0");
       throw sse;
    }
    
-   analyticKepler[0] = value;
+   twoBodyKepler[0]    = value;
    return true;
 }
 
@@ -1623,7 +1840,7 @@ bool CelestialBody::SetSMA(Real value)
 // bool SetECC(Real value)
 //------------------------------------------------------------------------------
 /*
- * Sets Eccentricity of analytic model state.
+ * Sets Eccentricity of twoBody model state.
  *
  * @param  value  eccentricity value
  *
@@ -1638,25 +1855,27 @@ bool CelestialBody::SetECC(Real value)
       SolarSystemException sse;
       sse.SetDetails(errorMessageFormat.c_str(),
                      GmatStringUtil::ToString(value, GetDataPrecision()).c_str(),
-                     PARAMETER_TEXT[ANALYTIC_ECC - SpacePointParamCount].c_str(),
+                     PARAMETER_TEXT[TWO_BODY_ECC - SpacePointParamCount].c_str(),
                      "Real Number >= 0.0");
       throw sse;
    }
    
-   analyticKepler[1] = value;
+   twoBodyKepler[1] = value;
    return true;
 }
 
 
 //------------------------------------------------------------------------------
-// bool SetAnalyticElements(const Rvector6 &kepl)
+// bool SetTwoBodyElements(const Rvector6 &kepl)
 //------------------------------------------------------------------------------
-bool CelestialBody::SetAnalyticElements(const Rvector6 &kepl)
+bool CelestialBody::SetTwoBodyElements(const Rvector6 &kepl)
 {
-   #ifdef DEBUG_CB_ANALYTIC
+   #ifdef DEBUG_TWO_BODY
       MessageInterface::ShowMessage(
-      "In CB::SetAnalyticElements, setting elements to\n%.12f %.12f %.12f %.12f"
-      " %.12f %.12f\n", kepl[0],kepl[1],kepl[2],kepl[3],kepl[4],kepl[5]);
+         "In CB::SetTwoBodyElements, setting elements to\n%.12f %.12f %.12f %.12f"
+         " %.12f %.12f\n", kepl[0],kepl[1],kepl[2],kepl[3],kepl[4],kepl[5]);
+//      "In CB::SetAnalyticElements, setting elements to\n%.12f %.12f %.12f %.12f"
+//      " %.12f %.12f\n", kepl[0],kepl[1],kepl[2],kepl[3],kepl[4],kepl[5]);
    #endif
       
    SetSMA(kepl[0]);
@@ -1669,7 +1888,7 @@ bool CelestialBody::SetAnalyticElements(const Rvector6 &kepl)
 //       std::stringstream buffer;
 //       buffer << kepl[0];
 //       std::string errMsg = "The value of \"" + buffer.str() + "\" for field \"" + 
-//          PARAMETER_TEXT[ANALYTIC_SMA - SpacePointParamCount] + "\" on object \"" + instanceName +
+//          PARAMETER_TEXT[TWO_BODY_SMA - SpacePointParamCount] + "\" on object \"" + instanceName +
 //          "\" is not an allowed value.  \nThe allowed values are: " +
 //          " [Real number non-zero]."; 
 //       throw SolarSystemException(errMsg);
@@ -1682,14 +1901,15 @@ bool CelestialBody::SetAnalyticElements(const Rvector6 &kepl)
 //       std::stringstream buffer;
 //       buffer << kepl[1];
 //       std::string errMsg = "The value of \"" + buffer.str() + "\" for field " + 
-//          PARAMETER_TEXT[ANALYTIC_ECC - SpacePointParamCount] + "\" on object \"" + instanceName +
+//          PARAMETER_TEXT[TWO_BODY_ECC - SpacePointParamCount] + "\" on object \"" + instanceName +
 //          "\" is not an allowed value.  \nThe allowed values are: " +
 //          " [Real number >= zero]."; 
 //       throw SolarSystemException(errMsg);
 //    }
    
-   analyticKepler = kepl;
-   newAnalytic    = true;
+   twoBodyKepler       = kepl;
+   newTwoBody          = true;
+   hasBeenModified     = true;
    return true;
 }
 
@@ -1699,10 +1919,35 @@ bool CelestialBody::SetAnalyticElements(const Rvector6 &kepl)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetRotationDataSource(Gmat::RotationDataSource src)
 {
-   rotationSrc = src;
+   rotationSrc         = src;
+   hasBeenModified     = true;
    return true;
 }
 
+//------------------------------------------------------------------------------
+// bool SetUserDefined(bool userDefinedBody)
+//------------------------------------------------------------------------------
+bool CelestialBody::SetUserDefined(bool userDefinedBody)
+{
+   // make sure source makes sense
+   if ((userDefinedBody) && (posVelSrc == Gmat::DE405)) posVelSrc = Gmat::TWO_BODY_PROPAGATION;
+//   else if ((!userDefinedBody) && (posVelSrc == Gmat::SPICE)) posVelSrc = Gmat::DE405;
+   else if ((!userDefinedBody) && (posVelSrc == Gmat::SPICE)) posVelSrc = Gmat::DE405;
+   userDefined         = userDefinedBody;
+   hasBeenModified     = true;
+   return true;
+}
+
+//------------------------------------------------------------------------------
+// void ClearModifiedFlag() 
+//------------------------------------------------------------------------------
+void CelestialBody::ClearModifiedFlag()
+{
+   #ifdef DEBUG_MODIFIED_FLAG
+      MessageInterface::ShowMessage("Clearing hasBeenModified flag ...........\n");
+   #endif
+   hasBeenModified = false;
+}
 
 //------------------------------------------------------------------------------
 // const Rvector6 GetMJ2000State(const A1Mjd &atTime)
@@ -1765,6 +2010,13 @@ const Rvector3 CelestialBody::GetMJ2000Velocity(const A1Mjd &atTime)
    return (tmp.GetV());
 }
 
+bool CelestialBody::SetOrientationParameters(const Rvector6 &orient)
+{
+   orientation         = orient;
+   hasBeenModified     = true;
+   return true;
+}
+
 
 //------------------------------------------------------------------------------
 //  Rvector GetBodyCartographicCoordinates(const A1Mjd &forTime) const
@@ -1785,9 +2037,29 @@ const Rvector3 CelestialBody::GetMJ2000Velocity(const A1Mjd &atTime)
 //------------------------------------------------------------------------------
 Rvector CelestialBody::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
 {
-   // should be implemented in derived classes
-   throw SolarSystemException(
-         "Cartographic Coordinates not yet computed for body " + instanceName);
+   bool orientationDefined = false;
+   for (unsigned int ii = 0; ii < 6; ii++)
+      if (orientation[ii] != 0.0)  
+      {
+         orientationDefined = true;
+         break;
+      }
+   if (!orientationDefined)
+      throw SolarSystemException(
+         "Orientation parameters not yet set for body " + instanceName);
+   Real alpha = 0;
+   Real delta = 0;
+   Real W     = 0;
+   Real Wdot  = 0.0; 
+   Real d = GetJulianDaysFromTCBEpoch(forTime); // interval in Julian days
+   Real T = d / 36525;                        // interval in Julian centuries
+   
+   alpha = orientation[0]  + orientation[1] * T;
+   delta = orientation[2]  + orientation[3] * T;
+   W     = orientation[4]  + orientation[5] * d;
+   Wdot  = orientation[5]  * CelestialBody::dDot;
+   
+   return Rvector(4, alpha, delta, W, Wdot);
 }
 
 
@@ -1951,14 +2223,22 @@ Real        CelestialBody::GetRealParameter(const Integer id) const
    // issues are updated in the Spacecraft/SpaceObject code.
    if (id == STATE_TIME)              return stateTime.Get();
    
-   if (id == ANALYTIC_INITIAL_EPOCH)  return analyticEpoch.Get();
-   if (id == ANALYTIC_SMA)            return analyticKepler[0];
-   if (id == ANALYTIC_ECC)            return analyticKepler[1];
-   if (id == ANALYTIC_INC)            return analyticKepler[2];
-   if (id == ANALYTIC_RAAN)           return analyticKepler[3];
-   if (id == ANALYTIC_AOP)            return analyticKepler[4];
-   if (id == ANALYTIC_TA)             return analyticKepler[5];
-   
+   if (id == TWO_BODY_INITIAL_EPOCH)  return twoBodyEpoch.Get();
+   if (id == TWO_BODY_SMA)            return twoBodyKepler[0];
+   if (id == TWO_BODY_ECC)            return twoBodyKepler[1];
+   if (id == TWO_BODY_INC)            return twoBodyKepler[2];
+   if (id == TWO_BODY_RAAN)           return twoBodyKepler[3];
+   if (id == TWO_BODY_AOP)            return twoBodyKepler[4];
+   if (id == TWO_BODY_TA)             return twoBodyKepler[5];
+
+   if (id == ORIENTATION_EPOCH)       return orientationEpoch.Get();
+   if (id == SPIN_AXIS_RA_CONSTANT)   return orientation[0];
+   if (id == SPIN_AXIS_RA_RATE)       return orientation[1];
+   if (id == SPIN_AXIS_DEC_CONSTANT)  return orientation[2];
+   if (id == SPIN_AXIS_DEC_RATE)      return orientation[3];
+   if (id == ROTATION_CONSTANT)       return orientation[4];
+   if (id == ROTATION_RATE)           return orientation[5];
+
    return SpacePoint::GetRealParameter(id);
 }
 
@@ -1977,8 +2257,8 @@ Real        CelestialBody::GetRealParameter(const Integer id) const
 //------------------------------------------------------------------------------
 Real CelestialBody::SetRealParameter(const Integer id, const Real value)
 {
-   Rvector6 tmpKepl = analyticKepler;
-   #ifdef DEBUG_CB_ANALYTIC
+   Rvector6 tmpKepl = twoBodyKepler;
+   #ifdef DEBUG_CB_SET
       MessageInterface::ShowMessage("In CB::SetReal with id = %d, and value = %.14f\n",
       id, value);
    #endif
@@ -1986,101 +2266,162 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
    //if (id == MASS)              return (mass               = value); // make sense?
    if (id == EQUATORIAL_RADIUS)
    {
+      hasBeenModified     = true;
       return SetEquatorialRadius(value);
    }
    if (id == FLATTENING)
    {
-      flattening = value;
-      polarRadius = (1.0 - flattening) * equatorialRadius;
+      flattening          = value;
+      polarRadius         = (1.0 - flattening) * equatorialRadius;
+      hasBeenModified     = true;
       return true;
    }
    //if (id == POLAR_RADIUS)      return (polarRadius        = value); // make sense?
    if (id == MU)
    {
+      hasBeenModified     = true;
       return SetGravitationalConstant(value);
    }
-   if (id == HOUR_ANGLE)
-   {
-      hourAngle = value;
+   if (id == HOUR_ANGLE) // does this even make sense?
+   { 
+      hourAngle           = value;
+      hasBeenModified     = true;
       return true;
    }
-   if (id == ANALYTIC_INITIAL_EPOCH)
+   if (id == TWO_BODY_INITIAL_EPOCH)
    {
-      if (SetAnalyticEpoch(A1Mjd(value)))
+//      if (SetAnalyticEpoch(A1Mjd(value)))
+      if (SetTwoBodyEpoch(A1Mjd(value)))
       {
-         newAnalytic = true;
+         newTwoBody          = true;
+         hasBeenModified     = true;
          return true;
       }
       else return false;
    }
-   if (id == ANALYTIC_SMA)
+   if (id == TWO_BODY_SMA)
    {
       tmpKepl[0] = value;
-      if (SetAnalyticElements(tmpKepl)) 
+//      if (SetAnalyticElements(tmpKepl)) 
+      if (SetTwoBodyElements(tmpKepl)) 
       {
-         newAnalytic = true;
+         newTwoBody          = true;
+         hasBeenModified     = true;
          return true;
       }
       else return false;
    }
-   if (id == ANALYTIC_ECC)
+   if (id == TWO_BODY_ECC)
    {
       tmpKepl[1] = value;
-      if (SetAnalyticElements(tmpKepl)) 
+//      if (SetAnalyticElements(tmpKepl)) 
+      if (SetTwoBodyElements(tmpKepl)) 
       {
-         newAnalytic = true;
+         newTwoBody          = true;
+         hasBeenModified     = true;
          return true;
       }
       else return false;
    }
-   if (id == ANALYTIC_INC)
+   if (id == TWO_BODY_INC)
    {
       tmpKepl[2] = value;
-      if (SetAnalyticElements(tmpKepl)) 
+//      if (SetAnalyticElements(tmpKepl)) 
+      if (SetTwoBodyElements(tmpKepl)) 
       {
-         newAnalytic = true;
+         newTwoBody          = true;
+         hasBeenModified     = true;
          return true;
       }
       else return false;
    }
-   if (id == ANALYTIC_RAAN)
+   if (id == TWO_BODY_RAAN)
    {
       tmpKepl[3] = value;
-      if (SetAnalyticElements(tmpKepl)) 
+//      if (SetAnalyticElements(tmpKepl)) 
+      if (SetTwoBodyElements(tmpKepl)) 
       {
-         newAnalytic = true;
+         newTwoBody          = true;
+         hasBeenModified     = true;
          return true;
       }
       else return false;
    }
-   if (id == ANALYTIC_AOP)
+   if (id == TWO_BODY_AOP)
    {
       tmpKepl[4] = value;
-      if (SetAnalyticElements(tmpKepl)) 
+//      if (SetAnalyticElements(tmpKepl)) 
+      if (SetTwoBodyElements(tmpKepl)) 
       {
-         newAnalytic = true;
+         newTwoBody          = true;
+         hasBeenModified     = true;
          return true;
       }
       else return false;
    }
-   if (id == ANALYTIC_TA)
+   if (id == TWO_BODY_TA)
    {
       tmpKepl[5] = value;
-      if (SetAnalyticElements(tmpKepl)) 
+//      if (SetAnalyticElements(tmpKepl)) 
+      if (SetTwoBodyElements(tmpKepl)) 
       {
-         newAnalytic = true;
+         newTwoBody          = true;
+         hasBeenModified     = true;
          return true;
       }
       else return false;
    }
 
-   #ifdef DEBUG_CB_ANALYTIC
+   if (id == ORIENTATION_EPOCH)
+   {
+      orientationEpoch    = value;
+      hasBeenModified     = true;
+      return true;
+   }
+   if (id == SPIN_AXIS_RA_CONSTANT)
+   {
+      orientation[0]      = value;
+      hasBeenModified     = true;
+      return true;
+   }
+   if (id == SPIN_AXIS_RA_RATE)
+   {
+      orientation[1]      = value;
+      hasBeenModified     = true;
+      return true;
+   }
+   if (id == SPIN_AXIS_DEC_CONSTANT)
+   {
+      orientation[2]      = value;
+      hasBeenModified     = true;
+      return true;
+   }
+   if (id == SPIN_AXIS_DEC_RATE)
+   {
+      orientation[3]      = value;
+      hasBeenModified     = true;
+      return true;
+   }
+   if (id == ROTATION_CONSTANT)
+   {
+      orientation[4]      = value;
+      hasBeenModified     = true;
+      return true;
+   }
+   if (id == ROTATION_RATE)
+   {
+      orientation[5]      = value;
+      hasBeenModified     = true;
+      return true;
+   }
+
+   #ifdef DEBUG_TWO_BODY
       MessageInterface::ShowMessage(
       "At end of CB::SetReal, Keplerian elements are %.14f %.14f %.14f %.14f %.14f %.14f\n",
-      analyticKepler[0],analyticKepler[1],analyticKepler[2],analyticKepler[3],
-      analyticKepler[4],analyticKepler[5]);
+      twoBodyKepler[0],twoBodyKepler[1],twoBodyKepler[2],twoBodyKepler[3],
+      twoBodyKepler[4],twoBodyKepler[5]);
       MessageInterface::ShowMessage(
-      "..... and epoch is: %.14f\n",analyticEpoch.Get());
+      "..... and epoch is: %.14f\n",twoBodyEpoch.Get());
    #endif
    
    return SpacePoint::SetRealParameter(id, value);
@@ -2106,6 +2447,7 @@ Integer CelestialBody::GetIntegerParameter(const Integer id) const
    if (id == BODY_NUMBER)          return bodyNumber;
    if (id == REF_BODY_NUMBER)      return referenceBodyNumber;
    if (id == ROTATION_DATA_SRC)    return (Integer) rotationSrc;
+   if (id == NAIF_ID)              return naifId;
    
    return SpacePoint::GetIntegerParameter(id); // add others in later?
 }
@@ -2129,22 +2471,32 @@ Integer CelestialBody::SetIntegerParameter(const Integer id,
 {
    if (id == ORDER)
    {
-      order = value;
+      order               = value;
+      hasBeenModified     = true;
       return true;
    }
    if (id == DEGREE)
    {
-      degree = value;
+      degree              = value;
+      hasBeenModified     = true;
       return true;
    }
    if (id == BODY_NUMBER)
    {
-      bodyNumber = value;
+      bodyNumber          = value;
+      hasBeenModified     = true;
       return true;
    }
    if (id == REF_BODY_NUMBER)
    {
       referenceBodyNumber = value;
+      hasBeenModified     = true;
+      return true;
+   }
+   if (id == NAIF_ID)
+   {
+      naifId              = value;
+      hasBeenModified     = true;
       return true;
    }
    
@@ -2168,7 +2520,7 @@ std::string CelestialBody::GetStringParameter(const Integer id) const
 {
    if (id == BODY_TYPE)             return Gmat::BODY_TYPE_STRINGS[bodyType];
    if (id == POS_VEL_SOURCE)        return Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc];
-   if (id == ANALYTIC_METHOD)       return Gmat::ANALYTIC_METHOD_STRINGS[analyticMethod];
+//   if (id == ANALYTIC_METHOD)       return Gmat::TWO_BODY_METHOD_STRINGS[analyticMethod];
    if (id == SOURCE_FILENAME)       return sourceFilename;
    if (id == SOURCE_FILE)           return sourceFilename;
    if (id == POTENTIAL_FILE_NAME)   return potentialFileName;
@@ -2178,10 +2530,14 @@ std::string CelestialBody::GetStringParameter(const Integer id) const
       return atmModel->GetTypeName();
    }
    if (id == CENTRAL_BODY)          return theCentralBodyName;
-   if (id == ANALYTIC_DATE_FORMAT)  return analyticFormat;
-   if (id == ANALYTIC_STATE_TYPE)   return analyticStateType;
+   if (id == TWO_BODY_DATE_FORMAT)  return twoBodyFormat;
+   if (id == TWO_BODY_STATE_TYPE)   return twoBodyStateType;
    if (id == ROTATION_DATA_SRC)     return Gmat::ROTATION_DATA_SOURCE_STRINGS[rotationSrc];
+
+   if (id == ORIENTATION_DATE_FORMAT)  return orientationDateFormat;
    
+   if (id == TEXTURE_MAP_FILE_NAME)    return textureMapFileName;
+
    return SpacePoint::GetStringParameter(id);
 }
 
@@ -2211,114 +2567,161 @@ bool CelestialBody::SetStringParameter(const Integer id,
          if (value == Gmat::BODY_TYPE_STRINGS[i])
          {
             bodyType = (Gmat::BodyType) i;
+            hasBeenModified     = true;
             return true;
          }
       return false;
    }
    if (id == POS_VEL_SOURCE)
    {
+      if (userDefined && (value == "DE405"))
+      {
+         std::string errmsg = "DE405 not allowed as ephemeris source for user-defined body \"";
+         errmsg += instanceName + "\"\n";
+         throw SolarSystemException(errmsg);
+      }
+      else if ((!userDefined) && (value == "SPICE"))
+      {
+         std::string errmsg = "SPICE not allowed as ephemeris source for default body \"";
+         errmsg += instanceName + "\"\n";
+         throw SolarSystemException(errmsg);
+      }
+      else if (value == "SPICE")
+      {
+         std::string warn = "SPICE not yet implemented as ephemeris source.  ";
+         warn += "Switching to TwoBodyPropagation for user-defined body \"";
+         warn += instanceName + "\"\n";
+         MessageInterface::PopupMessage(Gmat::WARNING_, warn); 
+         posVelSrc = Gmat::TWO_BODY_PROPAGATION;
+         return true;
+      }
       for (i=0;i<Gmat::PosVelSourceCount;i++)
          if (value == Gmat::POS_VEL_SOURCE_STRINGS[i])
          {
             posVelSrc = (Gmat::PosVelSource) i;
+            hasBeenModified     = true;
             return true;
          }
       return false;
    }
-   if (id == ANALYTIC_METHOD)
-   {
-      for (i=0;i<Gmat::AnalyticMethodCount;i++)
-         if (value == Gmat::ANALYTIC_METHOD_STRINGS[i])
-         {
-            analyticMethod = (Gmat::AnalyticMethod) i;
-            return true;
-         }
-      return false;
-   }
+//   if (id == ANALYTIC_METHOD)
+//   {
+//      for (i=0;i<Gmat::AnalyticMethodCount;i++)
+//         if (value == Gmat::ANALYTIC_METHOD_STRINGS[i])
+//         {
+//            analyticMethod = (Gmat::AnalyticMethod) i;
+//            return true;
+//         }
+//      return false;
+//   }
    if (id == SOURCE_FILENAME)
    {
       sourceFilename = value;
+      hasBeenModified     = true;
       return true;
    }
    if (id == POTENTIAL_FILE_NAME)
    {
       potentialFileName = value;
+      hasBeenModified     = true;
       return true;
    }
    if (id == ATMOS_MODEL_NAME)
    {
       atmModelType = value;
+      hasBeenModified     = true;
       return true;
    }
    if (id == CENTRAL_BODY)
    {
       theCentralBodyName = value;
+      hasBeenModified     = true;
       return true;
    }
-   if (id == ANALYTIC_DATE_FORMAT)
+   if (id == TWO_BODY_DATE_FORMAT)
    {
-      #ifdef DEBUG_CB_ANALYTIC
+      #ifdef DEBUG_TWO_BODY
          MessageInterface::ShowMessage(
-         "In CB::SetString (ANALYTIC_DATE_FORMAT) with id = %d, and value = %s\n",
+         "In CB::SetString (TWO_BODY_DATE_FORMAT) with id = %d, and value = %s\n",
          id, value.c_str());
       #endif
       if (value != "TAIModJulian")
       {
          SolarSystemException sse;
          sse.SetDetails(errorMessageFormat.c_str(), value.c_str(),
-                        PARAMETER_TEXT[ANALYTIC_DATE_FORMAT - SpacePointParamCount].c_str(),
+                        PARAMETER_TEXT[TWO_BODY_DATE_FORMAT - SpacePointParamCount].c_str(),
                         "TAIModJulian");
          throw sse;
       }
-      analyticFormat = value;
+      twoBodyFormat = value;
+      hasBeenModified     = true;
       return true;
    }
-   if (id == ANALYTIC_STATE_TYPE)
+   if (id == TWO_BODY_STATE_TYPE)
    {
-      #ifdef DEBUG_CB_ANALYTIC
+      #ifdef DEBUG_TWO_BODY
          MessageInterface::ShowMessage(
-         "In CB::SetString (ANALYTIC_STATE_TYPE) with id = %d, and value = %s\n",
+         "In CB::SetString (TWO_BODY_STATE_TYPE) with id = %d, and value = %s\n",
          id, value.c_str());
       #endif
       if (value != "Keplerian")
       {
          SolarSystemException sse;
          sse.SetDetails(errorMessageFormat.c_str(), value.c_str(),
-                        PARAMETER_TEXT[ANALYTIC_STATE_TYPE - SpacePointParamCount].c_str(),
+                        PARAMETER_TEXT[TWO_BODY_STATE_TYPE - SpacePointParamCount].c_str(),
                         "Keplerian");
          
          throw sse;
       }
-      analyticStateType = value;
+      twoBodyStateType = value;
+      hasBeenModified     = true;
       return true;
    }
    
    if (id == ROTATION_DATA_SRC)
    {
-      MessageInterface::ShowMessage
-         ("CelestialBody::SetStringParameter -> value = %s\n", value.c_str());
-      //if (value == "DE405")
       if (value == Gmat::ROTATION_DATA_SOURCE_STRINGS[Gmat::DE_FILE])
          SetRotationDataSource(Gmat::DE_FILE);
-      //else if (value == "IAU2002")
       else if (value == Gmat::ROTATION_DATA_SOURCE_STRINGS[Gmat::IAU_DATA])
          SetRotationDataSource(Gmat::IAU_DATA);
       else
       {
          SolarSystemException sse;
-         std::string validStr;
+         std::string validStr = "";
          for (int i = 0; i < Gmat::NOT_APPLICABLE; i++)
             validStr = validStr + Gmat::ROTATION_DATA_SOURCE_STRINGS[i] + ", ";
          
          sse.SetDetails(errorMessageFormat.c_str(), value.c_str(),
                         PARAMETER_TEXT[ROTATION_DATA_SRC - SpacePointParamCount].c_str(),
-                        //"DE405, IAU2002");
                         validStr.c_str());
          throw sse;
       }
+      hasBeenModified     = true;
       return true;
    }
-   
+
+   if (id == ORIENTATION_DATE_FORMAT)
+   {
+      if (value != "TAIModJulian")
+      {
+         SolarSystemException sse;
+         sse.SetDetails(errorMessageFormat.c_str(), value.c_str(),
+                        PARAMETER_TEXT[ORIENTATION_DATE_FORMAT - SpacePointParamCount].c_str(),
+                        "TAIModJulian");
+         throw sse;
+      }
+      orientationDateFormat = value;
+      hasBeenModified     = true;
+      return true;
+   }
+
+   if (id == TEXTURE_MAP_FILE_NAME)
+   {
+      textureMapFileName = value;
+      hasBeenModified     = true;
+      return true;
+   }
+
    return SpacePoint::SetStringParameter(id, value);
 }
 
@@ -2380,6 +2783,7 @@ bool CelestialBody::SetBooleanParameter(const Integer id,
       }
    
       usePotentialFile = value;
+      hasBeenModified     = true;
       return true; 
    }
 
@@ -2432,6 +2836,7 @@ const Rvector&  CelestialBody::SetRvectorParameter(const Integer id,
       if (sz != 6) throw SolarSystemException(
                   "Incorrectly sized Rvector passed in for state.");
       for (i=0;i<6;i++) state(i) = value(i);
+      hasBeenModified     = true;
       return state;
    }
    if (id == ANGULAR_VELOCITY)
@@ -2439,6 +2844,7 @@ const Rvector&  CelestialBody::SetRvectorParameter(const Integer id,
       if (sz != 3) throw SolarSystemException(
                    "Incorrectly sized Rvector passed in for angular velocity.");
       for (i=0;i<3;i++) angularVelocity(i) = value(i);
+      hasBeenModified     = true;
       return angularVelocity;
    }
 
@@ -2697,13 +3103,17 @@ bool CelestialBody::SetRefObject(GmatBase *obj,
    {
       if (name == theCentralBodyName)
       {
-         #ifdef DEBUG_REFERENCE_SETTING
-            MessageInterface::ShowMessage("   Setting %s as primary for %s\n",
-                                          name.c_str(), instanceName.c_str());
-         #endif
-         theCentralBody = (CelestialBody*) obj;
-         foundHere = true;
-      }
+         CelestialBody *cb = (CelestialBody*) obj;
+         if ((theCentralBody == NULL) || (theCentralBody != cb))
+         {
+            #ifdef DEBUG_REFERENCE_SETTING
+               MessageInterface::ShowMessage("   Setting %s as central body for %s\n",
+                                             name.c_str(), instanceName.c_str());
+            #endif
+            theCentralBody  = cb;
+            foundHere = true;
+         }
+     }
    }
    
    // may also be the right object for a higher level parameter ...
@@ -2719,7 +3129,11 @@ bool CelestialBody::SetRefObject(GmatBase *obj,
       MessageInterface::ShowMessage(e.GetFullMessage() + "\n");
       #endif
    }
-   if (foundHere || trySP) return true;
+   if (foundHere || trySP) 
+   {
+      hasBeenModified = true;
+      return true;
+   }
    return false;
 }
 
@@ -2729,23 +3143,30 @@ bool CelestialBody::SetRefObject(GmatBase *obj,
 //------------------------------------------------------------------------------
 bool CelestialBody::IsParameterReadOnly(const Integer id) const
 {
-   // if we're not using an analytic model, those parameters are read-only
-   if (posVelSrc != Gmat::ANALYTIC)
+   // if we're not using an twoBody model, those parameters are read-only
+//   if (posVelSrc != Gmat::ANALYTIC)
+   if (posVelSrc != Gmat::TWO_BODY_PROPAGATION)
    {
-      if ((id == ANALYTIC_DATE_FORMAT)   || (id == ANALYTIC_STATE_TYPE) ||
-          (id == ANALYTIC_INITIAL_EPOCH) || (id == ANALYTIC_SMA)        ||
-          (id == ANALYTIC_ECC)           || (id == ANALYTIC_INC)        ||
-          (id == ANALYTIC_RAAN)          || (id == ANALYTIC_AOP)        ||
-          (id == ANALYTIC_TA)            || (id == ANALYTIC_METHOD)      )
+      if ((id == TWO_BODY_DATE_FORMAT)   || (id == TWO_BODY_STATE_TYPE) ||
+          (id == TWO_BODY_INITIAL_EPOCH) || (id == TWO_BODY_SMA)        ||
+          (id == TWO_BODY_ECC)           || (id == TWO_BODY_INC)        ||
+          (id == TWO_BODY_RAAN)          || (id == TWO_BODY_AOP)        ||
+          (id == TWO_BODY_TA) )
+//         (id == TWO_BODY_TA)            || (id == ANALYTIC_METHOD)      )
       {
-         #ifdef DEBUG_CB_ANALYTIC
-            MessageInterface::ShowMessage(
-            "In CB::IParameterReadOnly, id = %d, returning TRUE\n",
-            id);
+         #ifdef DEBUG_TWO_BODY
+//            MessageInterface::ShowMessage(
+//            "In CB::IParameterReadOnly, id = %d, returning TRUE\n",
+//            id);
          #endif
-         return true;
+//         return true; // 2009.01.11 WCS - always write out elements, no matter the source
       }
    }
+   // do not write out computed items
+   if ((id == BODY_TYPE) || (id == MASS)       || (id == POLAR_RADIUS) || 
+       (id == STATE)     || (id == STATE_TIME) || (id == HOUR_ANGLE)     )
+      return true;
+   
    return SpacePoint::IsParameterReadOnly(id);
 }
 
@@ -2801,21 +3222,47 @@ void CelestialBody::InitializeBody(std::string withBodyType)
    theSourceFile     = NULL;
    stateTime         = 0.0;
    state             = Rvector6(0.0,0.0,0.0,0.0,0.0,0.0);
-   angularVelocity   = Rvector3(0.0,0.0,0.0);
+   angularVelocity   = Rvector3(0.0,0.0,7.29211585530e-5); // correct, for a default?
+//   angularVelocity(0) = 0.0;
+//   angularVelocity(1) = 0.0;
+//   angularVelocity(2) = 7.29211585530e-5; 
    potentialFileRead = false;
    atmModel          = NULL;
-   int i;
-   bodyType = Gmat::PLANET;  // default to Planet
-   for (i = 0; i < (Integer) Gmat::BodyTypeCount; i++)
+//   int i;
+//   bodyType = Gmat::PLANET;  // default to Planet
+   for (Integer i = 0; i < (Integer) Gmat::BodyTypeCount; i++)
       if (withBodyType == Gmat::BODY_TYPE_STRINGS[i]) bodyType = (Gmat::BodyType) i;
-   angularVelocity(0) = 0.0;
-   angularVelocity(1) = 0.0;
-   angularVelocity(2) = 7.29211585530e-5;  // should I do this here or in Planet??
 
    isFirstTimeMu = true;
    isFirstTimeRadius = true;
    rotationSrc = Gmat::NOT_APPLICABLE;
 }
+
+bool CelestialBody::DeterminePotentialFileNameFromStartup()
+{
+   //loj: 3/23/06 set default potential file name from the startup file.
+   try
+   {
+      FileManager *fm = FileManager::Instance();
+      std::string potfile = GmatStringUtil::ToUpper(instanceName) + "_POT_FILE";
+      std::string filename = fm->GetFullPathname(potfile);
+      
+      #if DEBUG_CELESTIAL_BODY
+      MessageInterface::ShowMessage
+         ("Planet::DeterminePotentialFileNameFromStartup() body=%s, potfilename=%s\n", instanceName.c_str(),
+          filename.c_str());
+      #endif
+      
+      potentialFileName = filename;
+   }
+   catch (BaseException &e)
+   {
+      MessageInterface::ShowMessage(e.GetFullMessage());
+   }
+   return true;
+}
+
+
 
 //------------------------------------------------------------------------------
 //  bool  ReadPotentialFile()
@@ -2904,7 +3351,7 @@ Real CelestialBody::GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const
 }
 
 //------------------------------------------------------------------------------
-//  Rvector6 ComputeLowFidelity(const A1Mjd &forTime)
+//  Rvector6 ComputeTwoBody(const A1Mjd &forTime)
 //------------------------------------------------------------------------------
 /**
  * This method computes the position and velocity at time forTime
@@ -2914,13 +3361,13 @@ Real CelestialBody::GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const
  *
  */
 //------------------------------------------------------------------------------
-Rvector6 CelestialBody::ComputeLowFidelity(const A1Mjd &forTime)
+Rvector6 CelestialBody::ComputeTwoBody(const A1Mjd &forTime)
 {
-   #ifdef DEBUG_LOW_FIDELITY
-   MessageInterface::ShowMessage
-      ("CelestialBody::ComputeLowFidelity() this=<%p> %s, "
-       "theCentralBody=<%p> %s\n", this, GetName().c_str(), theCentralBody,
-       theCentralBodyName.c_str());
+   #ifdef DEBUG_TWO_BODY
+//   MessageInterface::ShowMessage
+//      ("CelestialBody::ComputeTwoBody() this=<%p> %s, "
+//       "theCentralBody=<%p> %s\n", this, GetName().c_str(), theCentralBody,
+//       theCentralBodyName.c_str());
    #endif
    
    // Since we want the state in MJ2000Eq Earth-centered
@@ -2928,7 +3375,6 @@ Rvector6 CelestialBody::ComputeLowFidelity(const A1Mjd &forTime)
       return Rvector6(0.0,0.0,0.0,0.0,0.0,0.0);
    
    Rvector6 cbState = theCentralBody->GetState(forTime);
-   Rvector6 posvel = KeplersProblem(forTime);
    
    return (KeplersProblem(forTime) + cbState);    
 }
@@ -2950,19 +3396,37 @@ Rvector6 CelestialBody::ComputeLowFidelity(const A1Mjd &forTime)
 //------------------------------------------------------------------------------
 Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
 {
+   #ifdef DEBUG_TWO_BODY
+      if (IsOfType("Moon"))
+      {
+         MessageInterface::ShowMessage
+            ("CelestialBody::KeplersProblem() this=<%p> %s, "
+             "theCentralBody=<%p> %s\n", this, GetName().c_str(), theCentralBody,
+             theCentralBodyName.c_str());
+         MessageInterface::ShowMessage("newTwoBody = %s\n", (newTwoBody? "TRUE" : "FALSE"));
+      }
+   #endif
    Real     cbMu  = theCentralBody->GetGravitationalConstant() + mu;
    Rvector6 cart;  // or MA???
    Real     dTime;
-   if (newAnalytic)
+   if (newTwoBody)
    {
-      cart  = CoordUtil::KeplerianToCartesian(analyticKepler, cbMu, CoordUtil::TA);  // or MA???
-      dTime = forTime.Subtract(analyticEpoch) * GmatTimeUtil::SECS_PER_DAY;
+      cart  = CoordUtil::KeplerianToCartesian(twoBodyKepler, cbMu, CoordUtil::TA);  // or MA???
+      dTime = forTime.Subtract(twoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
    }
    else
    {
-      cart  = prevAnalyticState;
-      dTime = forTime.Subtract(prevAnalyticEpoch) * GmatTimeUtil::SECS_PER_DAY;
+      cart  = prevTwoBodyState;
+      dTime = forTime.Subtract(prevTwoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
    }
+   #ifdef DEBUG_TWO_BODY
+   if (IsOfType("Moon"))
+   {
+      MessageInterface::ShowMessage("cbMu = %12.8f    dTime = %12.8f\n", cbMu, dTime);
+      MessageInterface::ShowMessage("cart = %12.8f   %12,4f   %12.8f   %12,4f   %12.8f   %12,4f\n",
+            cart[0], cart[1], cart[2], cart[3], cart[4], cart[5]);
+   }
+   #endif
    Rvector3 r0    = cart.GetR();
    Rvector3 v0    = cart.GetV();
    Real     rMag  = r0.GetMagnitude();
@@ -2971,13 +3435,20 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    Real     x0    = -999.999;
    Real     rDotv = r0 * v0;
    
+   #ifdef DEBUG_TWO_BODY
+   if (IsOfType("Moon"))
+   {
+      MessageInterface::ShowMessage("alpha = %12.8f    rDotv = %12.8f\n", alpha, rDotv);
+      MessageInterface::ShowMessage("KEPLER_TOL = %12.8f\n", KEPLER_TOL);
+   }
+   #endif
    // Determine initial guess .......
    // for a circle or ellipse
    if (alpha > KEPLER_TOL)  
    {
       x0 = GmatMathUtil::Sqrt(cbMu) * dTime * cbMu;
       if (alpha == 1.0) 
-         throw SolarSystemException("Low fidelity model error for body "
+         throw SolarSystemException("Two body model error for body "
                                     + instanceName);
    }
    // for a parabola
@@ -3048,13 +3519,13 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    
    if (!IsEqual((f * gDot - g * fDot), 1.0, 1.0e-9))
       throw SolarSystemException(
-            "Error computing low fidelity ephemeris for body "
+            "Error performing two body propagation for body "
             + instanceName);
    
    Rvector6 newState(r,v);
-   prevAnalyticEpoch = forTime;
-   prevAnalyticState = newState;
-   newAnalytic       = false;
+   prevTwoBodyEpoch = forTime;
+   prevTwoBodyState = newState;
+   newTwoBody       = false;
    /* debug stuff
    static std::ofstream foutMarsFromEarth;
    static bool first = true;

@@ -41,39 +41,38 @@ namespace Gmat
    // possible sources of position and velocity data for celestial bodies
    enum PosVelSource
    {
-      ANALYTIC = 0,
-      SLP,
-//      DE_102,
-      DE_200,
-//      DE_202,
-//      DE_403,
-      DE_405,
-//      DE_406,
-//      EPHEMERIS,           // do we need more?
+//      ANALYTIC = 0,
+//      SLP,
+//      DE_200,
+      TWO_BODY_PROPAGATION,
+      DE405,
+      SPICE,
       PosVelSourceCount
    };
    
    const std::string POS_VEL_SOURCE_STRINGS[PosVelSourceCount] = 
    {
-      "Analytic",
-      "SLP",
-      "DE_200", 
-      "DE_405",
+//      "Analytic",
+//      "SLP",
+//      "DE_200", 
+      "TwoBodyPropagation",
+      "DE405",
+      "SPICE"
    };
 
    // if using an analytical method, which one?
-   enum AnalyticMethod
-   {
-      NO_ANALYTIC_METHOD = 0,
-      LOW_FIDELITY,
-      AnalyticMethodCount
-   };
+//   enum AnalyticMethod
+//   {
+//      NO_ANALYTIC_METHOD = 0,
+//      LOW_FIDELITY,
+//      AnalyticMethodCount
+//   };
 
-   const std::string ANALYTIC_METHOD_STRINGS[AnalyticMethodCount] = 
-   {
-      "NoAnalyticMethod",
-      "LowFidelity",
-   };
+//   const std::string ANALYTIC_METHOD_STRINGS[AnalyticMethodCount] = 
+//   {
+//      "NoAnalyticMethod",
+//      "LowFidelity",
+//   };
    
    // possible types of celestial bodies
    enum BodyType
@@ -82,8 +81,8 @@ namespace Gmat
       PLANET,
       MOON,
       ASTEROID,             // asteroids not yet implemented
-      COMET,                // comets not yet implemented
-      KBO,                  // KBOs not yet implemented
+      COMET,
+      KUIPER_BELT_OBJECT,   // KBOs not yet implemented
       BodyTypeCount
    };
    
@@ -93,7 +92,7 @@ namespace Gmat
       "Planet",
       "Moon",
       "Asteroid",           // asteroids not yet implemented
-      "Comet",              // comets not yet implemented
+      "Comet",
       "KuiperBeltObject",   // KBOs not yet implemented
    };
    
@@ -103,6 +102,7 @@ namespace Gmat
       ATMOSPHERE_MODEL = 0,
       GRAVITY_FIELD,
       MAGNETIC_FIELD,
+      SHAPE_MODEL,     // reserved for future use
       ModelTypeCount
    };
    
@@ -111,12 +111,14 @@ namespace Gmat
       "AtmosphereModel",
       "GravityField",
       "MagneticField",
+      "ShapeModel",    // reserved for future use
    };
    
    enum RotationDataSource
    {
       DE_FILE = 0,
       IAU_DATA,
+//      IAU_FILE,   // TBD
       NOT_APPLICABLE,
       RotationDataSrcCount
    };
@@ -125,6 +127,7 @@ namespace Gmat
    {
       "DE405",
       "IAU2002",
+//      "IAUFile",  // TBD
       "NotApplicable",
    };
 };
@@ -160,7 +163,7 @@ public:
    virtual void                 GetState(const A1Mjd &atTime, Real *outState);
    
    // methods to return the body type, central body, gravitational constant,
-   // radius, mass, posvel source, and analytic method 
+   // radius, mass, posvel source, analytic method, and userDefined flag
    virtual Gmat::BodyType       GetBodyType() const;
    virtual const std::string&   GetCentralBody() const;
    virtual Real                 GetGravitationalConstant();
@@ -171,7 +174,7 @@ public:
    virtual Gmat::PosVelSource   GetPosVelSource() const;
    virtual std::string          GetSourceFileName() const;
    virtual PlanetaryEphem*      GetSourceFile() const;
-   virtual Gmat::AnalyticMethod GetAnalyticMethod() const;
+//   virtual Gmat::AnalyticMethod GetAnalyticMethod() const;
    virtual bool                 GetUsePotentialFile() const;
    virtual bool                 GetOverrideTimeSystem() const;
    virtual Real                 GetEphemUpdateInterval() const;
@@ -190,24 +193,26 @@ public:
                                         Real epoch = 21545.0,
                                         Integer count = 1);
    // methods to get the initial epoch and keplerian elements 
-   virtual A1Mjd                GetAnalyticEpoch() const;
-   virtual Rvector6             GetAnalyticElements() const; 
+   virtual A1Mjd                GetTwoBodyEpoch() const;
+   virtual Rvector6             GetTwoBodyElements() const; 
    virtual Gmat::RotationDataSource 
                                 GetRotationDataSource() const;
+   virtual StringArray          GetRotationDataSourceList() const;
+   virtual bool                 IsUserDefined() const;
+   virtual bool                 HasBeenModified() const;
+   virtual StringArray          GetEphemSourceList() const;
+   virtual Rvector6             GetOrientationParameters() const;
    
 
-   // methods to return the body type, central body,
-   // posvel source, and analytic method
+   // methods to set data for the body
    virtual bool           SetBodyType(Gmat::BodyType bType);
    virtual bool           SetCentralBody(const std::string &cBody);
-   virtual bool           SetGravitationalConstant(Real newMu);
-   virtual bool           SetEquatorialRadius(Real newEqRadius);
-   virtual bool           SetFlattening(Real flat);
-   //virtual bool           SetPolarRadius(Real newPolarRadius);
-   //virtual bool           SetMass(Real newMass);
+   virtual bool           SetGravitationalConstant(Real newMu, bool makeDefault = false);
+   virtual bool           SetEquatorialRadius(Real newEqRadius, bool makeDefault = false);
+   virtual bool           SetFlattening(Real flat, bool makeDefault = false);
    virtual bool           SetSource(Gmat::PosVelSource pvSrc);
    virtual bool           SetSourceFile(PlanetaryEphem *src);
-   virtual bool           SetAnalyticMethod(Gmat::AnalyticMethod aM);
+//   virtual bool           SetAnalyticMethod(Gmat::AnalyticMethod aM);
    virtual bool           SetUsePotentialFile(bool useIt);
    
    virtual bool           SetOverrideTimeSystem(bool overrideIt);
@@ -216,16 +221,23 @@ public:
                                             const std::string &newModel);
    virtual bool           RemoveValidModelName(Gmat::ModelType m, 
                                                const std::string &modelName);
+   virtual bool           SetValidModelList(Gmat::ModelType m, const StringArray &toList);
+   virtual bool           SetOrder(Integer toOrder);
+   virtual bool           SetDegree(Integer toDegree);
+   virtual bool           SetHarmonicCoefficientsSij(const Rmatrix &coeffSij);
+   virtual bool           SetHarmonicCoefficientsCij(const Rmatrix &coeffCij);
 
    
    virtual bool           SetAtmosphereModelType(std::string toAtmModelType);
    virtual bool           SetAtmosphereModel(AtmosphereModel *toAtmModel);
    virtual bool           SetPotentialFilename(const std::string &fn);
-   virtual bool           SetAnalyticEpoch(const A1Mjd &toTime);
-   virtual bool           SetAnalyticElements(const Rvector6 &kepl);
+   virtual bool           SetTwoBodyEpoch(const A1Mjd &toTime);
+   virtual bool           SetTwoBodyElements(const Rvector6 &kepl);
    virtual bool           SetSMA(Real value);
    virtual bool           SetECC(Real value);   
    virtual bool           SetRotationDataSource(Gmat::RotationDataSource src);
+   virtual bool           SetUserDefined(bool userDefinedBody);
+   virtual void           ClearModifiedFlag();
    
    // methods inherited from SpacePoint, that must be implemented here (and/or
    // in the derived classes
@@ -233,6 +245,26 @@ public:
    virtual const Rvector3 GetMJ2000Position(const A1Mjd &atTime);
    virtual const Rvector3 GetMJ2000Velocity(const A1Mjd &atTime);
 
+   // Inputs to SetOrientationParameters are in the order:
+   // SpinAxisRAConstant
+   // SpinAxisRARate
+   // SpinAxisDECConstant
+   // SpinAxisDECRate
+   // RotationConstant
+   // RotationRate
+   //
+   // Currently, for all non-Earth bodies (except for the Moon and Neptune), 
+   // cartographic coordinates are computed as follows:
+   //   alpha = SpinAxisRAConstant + SpinAxisRARate * T
+   //   delta = SpinAxisDECConstant + SpinAxisDECRate * T
+   //   W     = RotationConstant + RotationRate * d;
+   //   Wdot  = RotationRate;
+   // where T = Julian Days from TCB epoch
+   //       d = Julian centuries from TCB epoch
+   //
+   // @todo - we will need to use more terms for moons in the future
+   //
+   virtual bool          SetOrientationParameters(const Rvector6 &orient);
    // method to return the alpha, delta, W, and Wdot for the body (specifying
    // the direction of the north pole of rotation (right ascension and
    // declination) and the prime meridian.  
@@ -333,7 +365,7 @@ protected:
       POLAR_RADIUS,
       MU,
       POS_VEL_SOURCE,
-      ANALYTIC_METHOD,
+//      ANALYTIC_METHOD,
       STATE,
       STATE_TIME,
       CENTRAL_BODY,
@@ -353,15 +385,28 @@ protected:
       //SIJ,
       //CIJ,
       ROTATION_DATA_SRC,
-      ANALYTIC_DATE_FORMAT,
-      ANALYTIC_STATE_TYPE,
-      ANALYTIC_INITIAL_EPOCH,
-      ANALYTIC_SMA,
-      ANALYTIC_ECC,
-      ANALYTIC_INC,
-      ANALYTIC_RAAN,
-      ANALYTIC_AOP,
-      ANALYTIC_TA,
+      TWO_BODY_DATE_FORMAT,
+      TWO_BODY_STATE_TYPE,
+      TWO_BODY_INITIAL_EPOCH,
+      TWO_BODY_SMA,
+      TWO_BODY_ECC,
+      TWO_BODY_INC,
+      TWO_BODY_RAAN,
+      TWO_BODY_AOP,
+      TWO_BODY_TA,
+      //
+      ORIENTATION_DATE_FORMAT,
+      ORIENTATION_EPOCH,
+      SPIN_AXIS_RA_CONSTANT,
+      SPIN_AXIS_RA_RATE,
+      SPIN_AXIS_DEC_CONSTANT,
+      SPIN_AXIS_DEC_RATE,
+      ROTATION_CONSTANT,
+      ROTATION_RATE,
+      //
+      NAIF_ID,
+      TEXTURE_MAP_FILE_NAME,
+      // @todo - add Shape Models, etc.
       CelestialBodyParamCount
    };
    static const std::string PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount];
@@ -390,7 +435,7 @@ protected:
    /// source for position and velocity
    Gmat::PosVelSource     posVelSrc;
    /// analytic method to use
-   Gmat::AnalyticMethod   analyticMethod;
+   //Gmat::AnalyticMethod   analyticMethod;
    /// state of the body 0-2 position 3-5 velocity
    Rvector6               state ;
    // time of the state
@@ -425,10 +470,12 @@ protected:
    /// has the potential file been read already?
    bool                   potentialFileRead;
 
-   /// defaults mu to use if potential file is not used
+   /// default mu to use if potential file is not used
    Real                   defaultMu;
-   /// defaults eauatorial radius to use if potential file is not used
+   /// default eauatorial radius to use if potential file is not used
    Real                   defaultEqRadius;
+   /// default flattening coefficient
+   Real                   defaultFlattening;
    
    /// order of the gravity model
    Integer                order;    
@@ -438,22 +485,22 @@ protected:
    Rmatrix                sij;
    /// spherical harmonic coefficients (Cij) for the body
    Rmatrix                cij;
-   /// date format for the analytic method epoch
-   std::string            analyticFormat;
-   /// state type for analytic inputs
-   std::string            analyticStateType;
-   /// Initial epoch for analytic method
-   A1Mjd                  analyticEpoch;
-   /// initial Keplerian elements for analytic method 
+   /// date format for the twoBody method epoch
+   std::string            twoBodyFormat;
+   /// state type for twoBody inputs
+   std::string            twoBodyStateType;
+   /// Initial epoch for twoBody method
+   A1Mjd                  twoBodyEpoch;
+   /// initial Keplerian elements for twoBody method 
    /// (with respect to central body)
-   Rvector6               analyticKepler; 
-   /// most recent epoch for analytic method
-   A1Mjd                  prevAnalyticEpoch;  
-   /// most recent state (cartesian - wrt the Earth) for analytic method
-   Rvector6               prevAnalyticState;
-   /// flag indicating whether or not the analytic method epoch and 
+   Rvector6               twoBodyKepler; 
+   /// most recent epoch for twoBody method
+   A1Mjd                  prevTwoBodyEpoch;  
+   /// most recent state (cartesian - wrt the Earth) for twoBody method
+   Rvector6               prevTwoBodyState;
+   /// flag indicating whether or not the twoBody method epoch and 
    /// state have been modified
-   bool                   newAnalytic;
+   bool                   newTwoBody;
    /// flag indicating whether or not to override the TDB/TCB tiems with TT
    bool                   overrideTime;
    /// update interval for the ephemeris calsulations (file-reading)
@@ -471,6 +518,25 @@ protected:
    /// source to use for computing rotation data
    Gmat::RotationDataSource rotationSrc;   // 0 -> DE405,  1 -> IAU (see above)
    
+   /// flag specifying whether or not the body was user-defined 
+   /// (i.e. not a default soalr system body)
+   bool                   userDefined;
+   /// flag indicating whether or not data for this celestial body has been modified (particularly
+   /// important for the user bodies, as this determines whether or not the data
+   /// willbe written to the saved script file)
+   bool                   hasBeenModified;
+   
+   /// date format for the orientation epoch
+   std::string            orientationDateFormat;
+   /// initial epoch for the orientation parameters
+   A1Mjd                  orientationEpoch;  // A1Mjd?  Ew.
+   /// orientation parameters for the body in the order: 
+   /// SpinAxisRAConstant, SpinAxisRARate, SpinAxisDECConstant, SpinAxisDECRate, RotationConstant, RotationRate
+   Rvector6               orientation;   
+   /// NAIF Id (for SPICE)
+   Integer                naifId;
+   /// Name of the texture map file to use when plotting
+   std::string            textureMapFileName;
    /// date and time of start of source file
    //A1Mjd                  sourceStart;      // currently unused
    /// date and time of end of sourcce file
@@ -485,11 +551,12 @@ protected:
    // initialze the body
    void             InitializeBody(std::string withBodyType = "Planet");
    // methods to read the potential file, if requested
+   virtual bool     DeterminePotentialFileNameFromStartup();
    bool             ReadPotentialFile();
    
    bool             IsBlank(char* aLine);
    virtual Real     GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const;
-   virtual Rvector6 ComputeLowFidelity(const A1Mjd &forTime);
+   virtual Rvector6 ComputeTwoBody(const A1Mjd &forTime);
    virtual Rvector6 KeplersProblem(const A1Mjd &forTime);
    
 private:
