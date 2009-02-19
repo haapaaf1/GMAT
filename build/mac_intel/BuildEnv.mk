@@ -13,6 +13,7 @@ CONSOLE_APP = 0
 DEBUG_BUILD = 0
 PROFILE_BUILD = 0
 WX_28_SYNTAX = 1
+USE_STC_EDITOR = 0
 
 # Not currently used 
 USE_SHARED = 1
@@ -21,7 +22,7 @@ USE_SHARED = 1
 SHARED_BASE = 0
 
 # *** EDIT THIS *** - put the top of the GMAT project directory structure here ....
-TOP_DIR = /Users/wcshoan/Documents/workspace/Delivery
+TOP_DIR = < put your top directory here >
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
 WX_HOME = /Applications/wxmac-2.8.9/osx-build
 #WX_HOME = /Applications/wxmac-2.8.8/osx-build
@@ -41,6 +42,15 @@ ifeq ($(PROFILE_BUILD), 1)
 USE_PROFILING = 1
 else
 USE_PROFILING = 0
+endif
+
+# STC editor (wxStyledTextCtrl) data
+ifeq ($(USE_STC_EDITOR), 1)
+STC_CPP_FLAGS = -D__USE_STC_EDITOR__
+STC_LIBRARIES = -L<put the location here> -lwx_msw_stc-2.8
+else
+STC_CPP_FLAGS =
+STC_LIBRARIES =
 endif
 
 # currently cannot use MATLAB or shared base library with console version 
@@ -153,6 +163,7 @@ ifeq ($(USE_MATLAB),1)
 CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
            $(WXCPPFLAGS)\
            $(MATLAB_INCLUDE) $(IL_HEADERS) \
+           $(STC_CPP_FLAGS) \
            -fpascal-strings -I/Developer/Headers/FlatCarbon  \
            -D__WXMAC__ $(WX_28_DEFINES) -fno-strict-aliasing -fno-common
 F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
@@ -161,7 +172,7 @@ F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
 TCPIP_OBJECTS =	$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabClient.o \
 				$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabConnection.o
 else
-CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
+CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(STC_CPP_FLAGS) \
            $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
 F77_FLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
             $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
@@ -173,14 +184,14 @@ endif
 #                     i.e. 2.8, 2.6, etc.)
 ifeq ($(USE_MATLAB),1)
 LINK_FLAGS = $(WXLINKFLAGS)\
-             $(MATLAB_LIB) $(MATLAB_LIBRARIES) \
+             $(MATLAB_LIB) $(MATLAB_LIBRARIES) $(STC_LIBRARIES) \
              $(FORTRAN_LIB) -framework OpenGL -framework AGL -headerpad_max_install_names\
              -lwx_mac_gl-2.8 $(IL_LIBRARIES) $(DEBUG_FLAGS)
 #             -lwx_mac_gl-2.8 -lg2c $(IL_LIBRARIES) $(DEBUG_FLAGS)
 else
 LINK_FLAGS = $(WXLINKFLAGS)\
                $(FORTRAN_LIB) -framework OpenGL -framework AGL  -headerpad_max_install_names \
-             -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) 
+             -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) $(STC_LIBRARIES)
 #             -lwx_mac_gl-2.8 -lg2c $(DEBUG_FLAGS) $(IL_LIBRARIES) 
 endif
 
