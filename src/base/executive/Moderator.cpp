@@ -925,6 +925,10 @@ GmatBase* Moderator::GetConfiguredObject(const std::string &name)
    
    std::string newName = name;
    
+   // check for SolarSystem first until SolarSystem can be configured(LOJ: 2009.02.19)
+   if (name == "SolarSystem" || name == "Solar System")
+      return theSolarSystemInUse;
+   
    // Ignore array indexing of Array
    std::string::size_type index = name.find_first_of("([");
    if (index != name.npos)
