@@ -93,7 +93,13 @@
 #define SOLVER_END 200
 
 //------------------------------------------------------------------------------
-// event tables and other macros for wxWindows
+// static data
+//------------------------------------------------------------------------------
+const Integer ResourceTree::MAX_SUN_ORBITERS = 120;
+
+
+//------------------------------------------------------------------------------
+// event tables and other macros for wxWidgets
 //------------------------------------------------------------------------------
 
 BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
@@ -714,7 +720,8 @@ void ResourceTree::AddDefaultBodies(wxTreeItemId itemId)
       }
    }
    unsigned int numSunOrbiters = sunOrbiters.size();
-   StringArray otherOrbiters[numSunOrbiters];
+//   StringArray otherOrbiters[numSunOrbiters];  // 2009.02.20 MSVC won't allow this ... tsk tsk
+   StringArray otherOrbiters[MAX_SUN_ORBITERS];
    
    for (unsigned int ii = 0; ii < numBodies; ii++)
    {

@@ -78,6 +78,9 @@ private:
    // Mapping for plug-in objects
    std::map<Integer, std::string> pluginMap;
    
+   // MSVC compiler will not accept a non-constant size for std::vector
+   static const Integer MAX_SUN_ORBITERS;
+   
    // objects
    GmatBase* GetObject(const std::string &name);
    void UpdateGuiItem(GmatTree::ItemType itemType);
