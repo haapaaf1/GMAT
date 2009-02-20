@@ -2241,6 +2241,9 @@ bool Propagate::Initialize()
       if (psm->BuildState() == false)
          throw CommandException("Could not build the state for the command \n" +
                generatingString);
+      if (psm->MapObjectsToVector() == false)
+         throw CommandException("Could not map state objects for the command\n" +
+               generatingString);
 
       odem->SetState(psm->GetState());
 
@@ -2776,11 +2779,12 @@ void Propagate::PrepareToPropagate()
    // Publish the data
    pubdata[0] = currEpoch[0];
    memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
-//   #ifdef DEBUG_PUBLISH_DATA
+   
+   #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
          ("Propagate::PrepareToPropagate() publishing initial %d data to stream %d, "
           "1st data = %f\n", dim+1, streamID, pubdata[0]);
-//   #endif
+   #endif
    publisher->Publish(streamID, pubdata, dim+1);
 
 

@@ -995,7 +995,7 @@ bool PropSetup::Initialize()
             mODEModel->GetName().c_str());
       #endif
 
-      mPropagator->Initialize();
+//      mPropagator->Initialize();
       
       #ifdef DEBUG_INITIALIZATION
          MessageInterface::ShowMessage(

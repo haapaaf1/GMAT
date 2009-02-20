@@ -103,15 +103,15 @@ public:
    void AddForce(PhysicalModel *pPhysicalModel);
    
 // Methods that were removed
-//   void DeleteForce(const std::string &name);
-//   void DeleteForce(PhysicalModel *pPhyscialModel);
-//   bool HasForce(const std::string &name);
-//   Integer GetNumForces();
-//   StringArray& GetForceTypeNames();
-//   std::string GetForceTypeName(Integer index);
+   void DeleteForce(const std::string &name);
+   void DeleteForce(PhysicalModel *pPhyscialModel);
+   bool HasForce(const std::string &name);
+   Integer GetNumForces();
+   StringArray& GetForceTypeNames();
+   std::string GetForceTypeName(Integer index);
 //   void ClearSpacecraft();
-//   PhysicalModel* GetForce(Integer index) const;
-//   const PhysicalModel* GetForce(std::string forcetype, Integer whichOne = 0) const; 
+   PhysicalModel* GetForce(Integer index) const;
+   const PhysicalModel* GetForce(std::string forcetype, Integer whichOne = 0) const; 
 //   bool AddSpaceObject(SpaceObject *so);
    void UpdateSpaceObject(Real newEpoch = -1.0);
    void UpdateFromSpaceObject();

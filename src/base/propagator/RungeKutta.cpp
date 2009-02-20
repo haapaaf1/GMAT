@@ -54,6 +54,7 @@
 #include "RungeKutta.hpp"
 
 //#define DEBUG_PROPAGATOR_FLOW
+//#define DEBUG_RAW_STEP_STATE
 
 //---------------------------------
 // public
@@ -329,80 +330,89 @@ bool RungeKutta::Step()
 //------------------------------------------------------------------------------
 bool RungeKutta::RawStep()
 {
-    #ifdef DEBUG_PROPAGATOR_FLOW
-       MessageInterface::ShowMessage("*");
-    #endif
+   #ifdef DEBUG_PROPAGATOR_FLOW
+      MessageInterface::ShowMessage("*");
+   #endif
 
-    Integer i, j, k;
+   Integer i, j, k;
 
-   Real *inState = new Real[dimension];
+//   Real *inState = new Real[dimension];
 
    memcpy(inState, physicalModel->GetState(), sizeof(Real) * dimension);
 
-//MessageInterface::ShowMessage("inState: [");
-//for (Integer q = 0; q < dimension-1; ++q)
-//	MessageInterface::ShowMessage("%le, ", inState[q]);
-//MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
-
+   #ifdef DEBUG_RAW_STEP_STATE
+      MessageInterface::ShowMessage("inState: [");
+      for (Integer q = 0; q < dimension-1; ++q)
+      	MessageInterface::ShowMessage("%le, ", inState[q]);
+      MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
+   #endif
+   
    // Calculate the stages
-    for (i = 0; i < stages; i++)
-    {
-        memcpy(stageState, inState, sizeof(Real) * dimension);
+   for (i = 0; i < stages; i++)
+   {
+      memcpy(stageState, inState, sizeof(Real) * dimension);
 
-//MessageInterface::ShowMessage("inState[%d]: [", i);
-//for (Integer q = 0; q < dimension-1; ++q)
-//	MessageInterface::ShowMessage("%le, ", inState[q]);
-//MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
-//MessageInterface::ShowMessage("stageState: [");
-//for (Integer q = 0; q < dimension-1; ++q)
-//	MessageInterface::ShowMessage("%le, ", stageState[q]);
-//MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
-//
+      #ifdef DEBUG_RAW_STEP_STATE
+         MessageInterface::ShowMessage("inState[%d]: [", i);
+         for (Integer q = 0; q < dimension-1; ++q)
+         	MessageInterface::ShowMessage("%le, ", inState[q]);
+         MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
+         MessageInterface::ShowMessage("stageState: [");
+         for (Integer q = 0; q < dimension-1; ++q)
+         	MessageInterface::ShowMessage("%le, ", stageState[q]);
+         MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
+      #endif
 
-        // Built the accumulated state if this is not the initial step
-        if (i > 0)
-        {
-            for (j = 0; j < i; j++)
-            {
-                for (k = 0; k < dimension; k++)
-                    stageState[k] += bij[i][j] * ki[j][k];
-            }
-        }
+      // Built the accumulated state if this is not the initial step
+      if (i > 0)
+      {
+         for (j = 0; j < i; j++)
+         {
+            for (k = 0; k < dimension; k++)
+               stageState[k] += bij[i][j] * ki[j][k];
+         }
+      }
 
-        if (!physicalModel->GetDerivatives(stageState, stepSize * ai[i]))
-        {
-            return false;
-        }
-//MessageInterface::ShowMessage("ddt data: [");
-//for (Integer q = 0; q < dimension-1; ++q)
-//	MessageInterface::ShowMessage("%le, ", ddt[q]);
-//MessageInterface::ShowMessage("%le]\n", ddt[dimension-1]);
-//MessageInterface::ShowMessage("++ After GetDerivatives,  stageState: [");
-//for (Integer q = 0; q < dimension-1; ++q)
-//   MessageInterface::ShowMessage("%le, ", stageState[q]);
-//MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
+      if (!physicalModel->GetDerivatives(stageState, stepSize * ai[i]))
+      {
+         return false;
+      }
 
-		for (j = 0; j < dimension; j++)
-            ki[i][j] = stepSize * ddt[j];
-    }
+      #ifdef DEBUG_RAW_STEP_STATE
+         MessageInterface::ShowMessage("ddt data: [");
+         for (Integer q = 0; q < dimension-1; ++q)
+         	MessageInterface::ShowMessage("%le, ", ddt[q]);
+         MessageInterface::ShowMessage("%le]\n", ddt[dimension-1]);
+         MessageInterface::ShowMessage("++ After GetDerivatives,  stageState: [");
+         for (Integer q = 0; q < dimension-1; ++q)
+            MessageInterface::ShowMessage("%le, ", stageState[q]);
+         MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
+      #endif
+         
+      for (j = 0; j < dimension; j++)
+         ki[i][j] = stepSize * ddt[j];
+   }
 
-    // Accumulate the stages for the RK step
-    memcpy(candidateState, inState, dimension*sizeof(Real));
-    for (i = 0; i < stages; i++)
-    {
-        for (j = 0; j < dimension; j++)
-        {
-            candidateState[j] += cj[i] * ki[i][j];
-        }
-    }
-//MessageInterface::ShowMessage("candidateState: [");
-//for (Integer q = 0; q < dimension-1; ++q)
-//   MessageInterface::ShowMessage("%le, ", candidateState[q]);
-//MessageInterface::ShowMessage("%le]\n", candidateState[dimension-1]);
+   // Accumulate the stages for the RK step
+   memcpy(candidateState, inState, dimension*sizeof(Real));
+   for (i = 0; i < stages; i++)
+   {
+      for (j = 0; j < dimension; j++)
+      {
+         candidateState[j] += cj[i] * ki[i][j];
+      }
+   }
+    
+   #ifdef DEBUG_RAW_STEP_STATE
+      MessageInterface::ShowMessage("candidateState: [");
+      for (Integer q = 0; q < dimension-1; ++q)
+         MessageInterface::ShowMessage("%le, ", candidateState[q]);
+      MessageInterface::ShowMessage("%le]\n", candidateState[dimension-1]);
+   #endif 
+   
+//   delete [] inState;
 
-delete [] inState;
-
-    return true;
+   return true;
 }
 
 //------------------------------------------------------------------------------

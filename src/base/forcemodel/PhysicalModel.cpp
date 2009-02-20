@@ -350,7 +350,7 @@ void PhysicalModel::SetForceOrigin(CelestialBody* toBody)
 }
 
 //------------------------------------------------------------------------------
-// bool PhysicalModel::Initialize(void)
+// bool PhysicalModel::Initialize()
 //------------------------------------------------------------------------------
 /**
  * Prepare the physical model for use
@@ -461,7 +461,7 @@ bool PhysicalModel::SetErrorThreshold(const Real thold)
 }
 
 //------------------------------------------------------------------------------
-// Integer PhysicalModel::GetDimension(void)
+// Integer PhysicalModel::GetDimension()
 //------------------------------------------------------------------------------
 /**
  * Accessor method used by Propagator class to determine # of vars
@@ -472,7 +472,7 @@ bool PhysicalModel::SetErrorThreshold(const Real thold)
  * information from the PhysicalModel class.
 */
 //------------------------------------------------------------------------------
-Integer PhysicalModel::GetDimension(void)
+Integer PhysicalModel::GetDimension()
 {
    return dimension;
 }
@@ -551,6 +551,10 @@ void PhysicalModel::SetState(const Real * st)
 void PhysicalModel::SetState(GmatState * st)
 {
    theState = st;
+   if (dimension != st->GetSize())
+      MessageInterface::ShowMessage("Dimension mismatch!!!\n");
+   if (modelState != NULL)
+      SetState(st->GetState());
 }
 
 
@@ -762,10 +766,12 @@ bool PhysicalModel::GetComponentMap(Integer * map, Integer order,
    //    return false;
    int i6;
 
-   if (order == 1) {
+   if (order == 1) 
+   {
       // Calculate how many spacecraft are in the model
       int satCount = (int)(dimension / 6);
-      for (int i = 0; i < satCount; i++) {
+      for (int i = 0; i < satCount; i++) 
+      {
          i6 = i * 6;
 
          map[ i6 ] = i6 + 3;

@@ -140,10 +140,10 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
          sc->GetName().c_str());
       MessageInterface::ShowMessage(
          "   Position for burn:    %18le  %18le  %18le\n",
-         (*state)[0], (*state)[1], (*state)[2]);
+         satState[0], satState[1], satState[2]);
       MessageInterface::ShowMessage(
          "   Velocity before burn: %18le  %18le  %18le\n",
-         (*state)[3], (*state)[4], (*state)[5]);
+         satState[3], satState[4], satState[5]);
    #endif
 
    // Add in the delta-V
@@ -162,7 +162,7 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
    #ifdef DEBUG_IMPULSIVE_BURN
       MessageInterface::ShowMessage(
          "   Velocity after burn:  %18le  %18le  %18le\n",
-         (*state)[3], (*state)[4], (*state)[5]);
+         satState[3], satState[4], satState[5]);
    #endif
 
    return true;

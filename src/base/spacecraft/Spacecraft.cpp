@@ -1285,6 +1285,11 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
       return true;
    }
    
+   if (id == ORBIT_STM)
+   {
+      return true;
+   }
+   
    // if (id == STATE_TYPE) return true;   when deprecated stuff goes away
    
    return SpaceObject::IsParameterReadOnly(id);

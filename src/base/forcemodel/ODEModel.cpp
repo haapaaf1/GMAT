@@ -454,138 +454,138 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
    numForces = forceList.size();
 }
 
-////------------------------------------------------------------------------------
-//// void DeleteForce(const std::string &name)
-////------------------------------------------------------------------------------
-///**
-// * Deletes named force from the force model.
-// *
-// * @param name The name of the force to delete
-// */
-////------------------------------------------------------------------------------
-//void ODEModel::DeleteForce(const std::string &name)
-//{
-//   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
-//        force != forceList.end(); ++force)
-//   {
-//      std::string pmName = (*force)->GetName();
-//      if (name == pmName)
-//      {
-//         PhysicalModel* pm = *force;
-//         forceList.erase(force);
-//         numForces = forceList.size();
-//
-//         // Shouldn't we also delete force? (loj: 2008.11.05)
-//         if (!pm->IsTransient())
-//         {
-//            #ifdef DEBUG_MEMORY
-//            MemoryTracker::Instance()->Remove
-//               (pm, pm->GetName(), "ODEModel::DeleteForce()",
-//                "deleting non-transient force of " + pm->GetTypeName());
-//            #endif
-//            delete pm;
-//         }
-//
-//         return;
-//      }
-//   }
-//}
+//------------------------------------------------------------------------------
+// void DeleteForce(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Deletes named force from the force model.
+ *
+ * @param name The name of the force to delete
+ */
+//------------------------------------------------------------------------------
+void ODEModel::DeleteForce(const std::string &name)
+{
+   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
+        force != forceList.end(); ++force)
+   {
+      std::string pmName = (*force)->GetName();
+      if (name == pmName)
+      {
+         PhysicalModel* pm = *force;
+         forceList.erase(force);
+         numForces = forceList.size();
+
+         // Shouldn't we also delete force? (loj: 2008.11.05)
+         if (!pm->IsTransient())
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (pm, pm->GetName(), "ODEModel::DeleteForce()",
+                "deleting non-transient force of " + pm->GetTypeName());
+            #endif
+            delete pm;
+         }
+
+         return;
+      }
+   }
+}
 
 
-////------------------------------------------------------------------------------
-//// void DeleteForce(PhysicalModel *pPhyscialModel)
-////------------------------------------------------------------------------------
-///**
-// * Deletes force from the force model.
-// *
-// * @param pPhyscialModel The force name to delete
-// */
-////------------------------------------------------------------------------------
-//void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
-//{
-//   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
-//        force != forceList.end(); ++force)
-//   {
-//      if (*force == pPhysicalModel)
-//      {
-//         PhysicalModel* pm = *force;
-//         forceList.erase(force);
-//         numForces = forceList.size();
-//
-//         // Shouldn't we also delete force? (loj: 2008.11.05)
-//         if (!pm->IsTransient())
-//         {
-//            #ifdef DEBUG_MEMORY
-//            MemoryTracker::Instance()->Remove
-//               (pm, pm->GetName(), "ODEModel::DeleteForce()",
-//                "deleting non-transient force of " + pm->GetTypeName());
-//            #endif
-//            delete pm;
-//         }
-//
-//         return;
-//      }
-//   }
-//}
+//------------------------------------------------------------------------------
+// void DeleteForce(PhysicalModel *pPhyscialModel)
+//------------------------------------------------------------------------------
+/**
+ * Deletes force from the force model.
+ *
+ * @param pPhyscialModel The force name to delete
+ */
+//------------------------------------------------------------------------------
+void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
+{
+   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
+        force != forceList.end(); ++force)
+   {
+      if (*force == pPhysicalModel)
+      {
+         PhysicalModel* pm = *force;
+         forceList.erase(force);
+         numForces = forceList.size();
+
+         // Shouldn't we also delete force? (loj: 2008.11.05)
+         if (!pm->IsTransient())
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (pm, pm->GetName(), "ODEModel::DeleteForce()",
+                "deleting non-transient force of " + pm->GetTypeName());
+            #endif
+            delete pm;
+         }
+
+         return;
+      }
+   }
+}
 
 
-////------------------------------------------------------------------------------
-//// bool HasForce(const std::string &name)
-////------------------------------------------------------------------------------
-///**
-// * Search force in the force model.
-// *
-// * @param  name The force name to look up
-// * @return true if force exists, else false
-// */
-////------------------------------------------------------------------------------
-//bool ODEModel::HasForce(const std::string &name)
-//{
-//   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
-//       force != forceList.end(); force++)
-//   {
-//      if (name == (*force)->GetName())
-//         return true;
-//   }
-//   return false;
-//}
+//------------------------------------------------------------------------------
+// bool HasForce(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Search force in the force model.
+ *
+ * @param  name The force name to look up
+ * @return true if force exists, else false
+ */
+//------------------------------------------------------------------------------
+bool ODEModel::HasForce(const std::string &name)
+{
+   for (std::vector<PhysicalModel *>::iterator force = forceList.begin();
+       force != forceList.end(); force++)
+   {
+      if (name == (*force)->GetName())
+         return true;
+   }
+   return false;
+}
 
 
-////------------------------------------------------------------------------------
-//// Integer GetNumForces()
-////------------------------------------------------------------------------------
-//Integer ODEModel::GetNumForces()
-//{
-//    return numForces;
-//}
+//------------------------------------------------------------------------------
+// Integer GetNumForces()
+//------------------------------------------------------------------------------
+Integer ODEModel::GetNumForces()
+{
+    return numForces;
+}
 
 
-////------------------------------------------------------------------------------
-//// StringArray& GetForceTypeNames()
-////------------------------------------------------------------------------------
-//StringArray& ODEModel::GetForceTypeNames()
-//{
-//    forceTypeNames.clear();
-//
-//    for (int i=0; i<numForces; i++)
-//        forceTypeNames.push_back(forceList[i]->GetTypeName());
-//
-//    return forceTypeNames;
-//}
+//------------------------------------------------------------------------------
+// StringArray& GetForceTypeNames()
+//------------------------------------------------------------------------------
+StringArray& ODEModel::GetForceTypeNames()
+{
+    forceTypeNames.clear();
+
+    for (int i=0; i<numForces; i++)
+        forceTypeNames.push_back(forceList[i]->GetTypeName());
+
+    return forceTypeNames;
+}
 
 
 //------------------------------------------------------------------------------
 // std::string GetForceTypeName(Integer index)
 //------------------------------------------------------------------------------
-//std::string ODEModel::GetForceTypeName(Integer index)
-//{
-//    StringArray typeList = GetForceTypeNames();
-//
-//    if (index >= 0 && index < numForces)
-//        return typeList[index];
-//
-//    return "UNDEFINED_FORCE_TYPE";
-//}
+std::string ODEModel::GetForceTypeName(Integer index)
+{
+    StringArray typeList = GetForceTypeNames();
+
+    if (index >= 0 && index < numForces)
+        return typeList[index];
+
+    return "UNDEFINED_FORCE_TYPE";
+}
 
 
 ////------------------------------------------------------------------------------
@@ -597,49 +597,49 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 //}
 
 
-////------------------------------------------------------------------------------
-//// PhysicalModel* GetForce(Integer index) const
-////------------------------------------------------------------------------------
-//PhysicalModel* ODEModel::GetForce(Integer index) const
-//{
-//    if (index >= 0 && index < numForces)
-//       return forceList[index];
-//
-//    return NULL;
-//}
+//------------------------------------------------------------------------------
+// PhysicalModel* GetForce(Integer index) const
+//------------------------------------------------------------------------------
+PhysicalModel* ODEModel::GetForce(Integer index) const
+{
+    if (index >= 0 && index < numForces)
+       return forceList[index];
+
+    return NULL;
+}
 
 
-////------------------------------------------------------------------------------
-//// PhysicalModel* GetForce(std::string forcetype, Integer whichOne)
-////------------------------------------------------------------------------------
-///**
-// * Search for a force in the force model.
-// *
-// * @param  forcetype The kind of force desired.
-// * @param  whichOne  Which force (zero-based index) of that type is desired.
-// *
-// * @return The pointer to that force instance.
-// */
-////------------------------------------------------------------------------------
-//const PhysicalModel* ODEModel::GetForce(std::string forcetype,
-//                                          Integer whichOne) const
-//{
-//   Integer i = 0;
-//
-//   for (std::vector<PhysicalModel *>::const_iterator force = forceList.begin();
-//        force != forceList.end(); ++force)
-//   {
-//      std::string pmName = (*force)->GetTypeName();
-//      if (pmName == forcetype) {
-//         if (whichOne <= i)
-//            return *force;
-//         else
-//            ++i;
-//      }
-//   }
-//
-//   return NULL;
-//}
+//------------------------------------------------------------------------------
+// PhysicalModel* GetForce(std::string forcetype, Integer whichOne)
+//------------------------------------------------------------------------------
+/**
+ * Search for a force in the force model.
+ *
+ * @param  forcetype The kind of force desired.
+ * @param  whichOne  Which force (zero-based index) of that type is desired.
+ *
+ * @return The pointer to that force instance.
+ */
+//------------------------------------------------------------------------------
+const PhysicalModel* ODEModel::GetForce(std::string forcetype,
+                                          Integer whichOne) const
+{
+   Integer i = 0;
+
+   for (std::vector<PhysicalModel *>::const_iterator force = forceList.begin();
+        force != forceList.end(); ++force)
+   {
+      std::string pmName = (*force)->GetTypeName();
+      if (pmName == forcetype) {
+         if (whichOne <= i)
+            return *force;
+         else
+            ++i;
+      }
+   }
+
+   return NULL;
+}
 
 
 ////------------------------------------------------------------------------------
@@ -691,7 +691,6 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 
 void ODEModel::BufferState()
 {
-   MessageInterface::ShowMessage("Buffering state\n");
    state = psm->GetState();
    previousState = (*state);
 }
@@ -706,7 +705,6 @@ void ODEModel::BufferState()
 //------------------------------------------------------------------------------
 void ODEModel::UpdateSpaceObject(Real newEpoch)
 {
-   MessageInterface::ShowMessage("Updating objects\n");
 //   if (spacecraft.size() > 0)
 //   {
 //      Integer j = 0;
@@ -793,7 +791,6 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::UpdateFromSpaceObject()
 {
-   MessageInterface::ShowMessage("Updating state from objects\n");
    psm->MapObjectsToVector();
    GmatState *state = psm->GetState();
    memcpy(rawState, state->GetState(), state->GetSize() * sizeof(Real));
@@ -831,13 +828,11 @@ void ODEModel::UpdateFromSpaceObject()
 //------------------------------------------------------------------------------
 void ODEModel::RevertSpaceObject()
 {
-   MessageInterface::ShowMessage("Reverting objects\n");
-
-//   #ifdef DEBUG_ODEMODEL_EXE
+   #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage
          ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
           prevElapsedTime, elapsedTime);
-//   #endif
+   #endif
    //loj: 7/1/04 elapsedTime = previousTime;
    elapsedTime = prevElapsedTime;//previousState.GetEpoch();// * 86400.0;
 
@@ -1069,6 +1064,9 @@ bool ODEModel::Initialize()
    if (!PhysicalModel::Initialize())
       return false;
 
+   // Incorporate any temporary affects -- e.g. finite burn
+   UpdateTransientForces();
+
    dimension = state->GetSize();
 
    #ifdef DEBUG_INITIALIZATION
@@ -1076,9 +1074,10 @@ bool ODEModel::Initialize()
             dimension);
    #endif
 
-   rawState = state->GetState();// new Real[dimension];
-   modelState = state->GetState();// new Real[dimension];
-//   memcpy(rawState, state->GetState(), dimension * sizeof(Real));
+   rawState = // state->GetState();// new Real[dimension];
+   modelState = // state->GetState();// new Real[dimension];
+      new Real[dimension];
+   memcpy(rawState, state->GetState(), dimension * sizeof(Real));
 
 //   modelState = new Real[dimension];
 //   memcpy(modelState, state->GetState(), dimension * sizeof(Real));
@@ -1109,8 +1108,6 @@ bool ODEModel::Initialize()
 //      }
 //      MoveToOrigin();
 //   }
-
-   UpdateTransientForces();
 
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
