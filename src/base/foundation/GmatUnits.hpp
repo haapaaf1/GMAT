@@ -22,7 +22,7 @@
 
 #include "GmatBase.hpp"
 
-class GMAT_API GmatUnits : public GmatBase
+class GmatUnits
 {
 
 public:
@@ -32,7 +32,7 @@ public:
     GmatUnits(const StringArray &numerator, const StringArray &denominator);
     ~GmatUnits();
     GmatUnits(const GmatUnits &units);
-    GmatUnits& operator=(const GmatUnits &units);
+    const GmatUnits& operator=(const GmatUnits &units);
 
     
    /**
@@ -550,7 +550,7 @@ protected:
     static const std::string ENERGY_UNITS_SYMBOL[UNKNOWN_ENERGY_UNIT+1];
     static const std::string ENERGY_UNITS_STRING[UNKNOWN_ENERGY_UNIT+1];
 
-    static const Real FORCE_UNITS_CONVERSION[UNKNOWN_FORCE_UNIT+1][UNKNOWN_FORCE_UNIT+1];
+    //static const Real FORCE_UNITS_CONVERSION[UNKNOWN_FORCE_UNIT+1][UNKNOWN_FORCE_UNIT+1];
     static const std::string FORCE_UNITS_SYMBOL[UNKNOWN_FORCE_UNIT+1];
     static const std::string FORCE_UNITS_STRING[UNKNOWN_FORCE_UNIT+1];
 

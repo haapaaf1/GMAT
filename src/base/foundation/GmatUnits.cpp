@@ -24,6 +24,7 @@
   1e-15,    1e-18,  1e-21,  1e-24,  1.0
 };
 
+ 
  const std::string
 GmatUnits::SI_PREFIXES_SYMBOL[UNKNOWN_SI_PREFIX+1] =
 {
@@ -139,8 +140,6 @@ const Real GmatUnits::FORCE_UNITS_CONVERSION[UNKNOWN_FORCE_UNIT+1] =
 1 lbf	≈ 4.448222 N	≈ 444822 dyn	≈ 0.45359 kp	≡ gn·(1 lb)	≈ 32.174 pdl
 1 pdl	≈ 0.138255 N	≈ 13825 dyn	≈ 0.014098 kp	≈ 0.031081 lbf	≡ 1 lb·ft/s²
 
- */
-
 const Real GmatUnits::FORCE_UNITS_CONVERSION[UNKNOWN_FORCE_UNIT+1][UNKNOWN_FORCE_UNIT+1] =
 {
     1, 105, 0.10197, 0.22481, 7.2330, 0, 0, 0, 0,
@@ -153,6 +152,8 @@ const Real GmatUnits::FORCE_UNITS_CONVERSION[UNKNOWN_FORCE_UNIT+1][UNKNOWN_FORCE
     0, 0, 0, 0, 0, 0, 0, 1, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0
 };
+
+ */
 
  const std::string
 GmatUnits::FORCE_UNITS_SYMBOL[UNKNOWN_FORCE_UNIT+1] =
@@ -388,13 +389,13 @@ GmatUnits::GmatUnits(const std::string &myUnits) :
  * @param <denominator> String array containing base SI units in denominator
  */
 //---------------------------------------------------------------------------
-GmatUnits::GmatUnits(const StringArray &numerator,
+/*GmatUnits::GmatUnits(const StringArray &numerator,
                      const StringArray &denominator) :
-    unitNumerator(numerator), unitDenominator(denominator)
+    numeratorUnits(numerator), denominatorUnits(denominator)
 {
     // Initialize rest of unit information here
 }
-
+*/
 //---------------------------------------------------------------------------
 //  ~GmatUnits()
 //---------------------------------------------------------------------------
@@ -402,7 +403,7 @@ GmatUnits::GmatUnits(const StringArray &numerator,
  * Destructor
  */
 //---------------------------------------------------------------------------
-~GmatUnits::GmatUnits()
+GmatUnits::~GmatUnits()
 {
 }
 
@@ -440,7 +441,7 @@ GmatUnits::GmatUnits(const GmatUnits &units) :
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-GmatUnits& GmatUnits::GmatUnits& operator=(const GmatUnits &units)
+const GmatUnits& GmatUnits::operator=(const GmatUnits &units)
 {
    // Don't do anything if copying self
    if (&units == this)
@@ -449,12 +450,12 @@ GmatUnits& GmatUnits::GmatUnits& operator=(const GmatUnits &units)
     unitType = units.unitType;
     displayUnits = units.displayUnits;
     conversionFactor = units.conversionFactor;
-    numeratorUnits = units.numeratorUnits;
-    denominatorUnits = units.denominatorUnits;
-    numeratorPowers = units.numeratorPowers;
-    denominatorPowers = units.denominatorPowers;
-    numeratorPrefix = units.numeratorPrefix;
-    denominatorPrefix = units.denominatorPrefix);
+    //strcpy(numeratorUnits.c_str(),units.numeratorUnits);
+    //strcpy(denominatorUnits.c_str(),units.denominatorUnits);
+    //strcpy(numeratorPowers.c_str(),units.numeratorPowers);
+    //strcpy(denominatorPowers.c_str(),units.denominatorPowers);
+    //strcpy(numeratorPrefix.c_str(),units.numeratorPrefix);
+    //strcpy(denominatorPrefix.c_str(),units.denominatorPrefix);
 
     return *this;
 
