@@ -792,7 +792,7 @@ Real CelestialBody::GetGravitationalConstant()
       {
          if (isFirstTimeMu)
          {
-            MessageInterface::ShowMessage
+            MessageInterface::LogMessage
                ("For body %s, using mu (%.18f) from file \"%s\"\n",
                 instanceName.c_str(), mu, potentialFileName.c_str());
             
@@ -804,7 +804,7 @@ Real CelestialBody::GetGravitationalConstant()
    {
       if (isFirstTimeMu)
       {
-         MessageInterface::ShowMessage
+         MessageInterface::LogMessage
             ("For body %s, not using potential file, so using default mu (%.18f)\n",
              instanceName.c_str(), mu, potentialFileName.c_str());
          
@@ -864,7 +864,7 @@ Real CelestialBody::GetEquatorialRadius()
    {
       if (isFirstTimeRadius)
       {
-         MessageInterface::ShowMessage
+         MessageInterface::LogMessage
             ("For body %s, not using potential file, so using default eq. radius (%.18f)\n",
              instanceName.c_str(), equatorialRadius, potentialFileName.c_str());
          
