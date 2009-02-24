@@ -441,28 +441,30 @@ const std::string           SolarSystem::PLANET_ATMOSPHERE_MODELS[] =
 
 const std::string           SolarSystem::PLANET_MAGNETIC_MODELS[] = 
 {
-      // none for Mercury at this time
-      // none for Venus at this time
-      // none for Earth at this time
-      // none for Mars at this time
-      // none for Jupiter at this time
-      // none for Saturn at this time
-      // none for Uranus at this time
-      // none for Neptune at this time
-      // none for Pluto at this time
+   "None"
+   // none for Mercury at this time
+   // none for Venus at this time
+   // none for Earth at this time
+   // none for Mars at this time
+   // none for Jupiter at this time
+   // none for Saturn at this time
+   // none for Uranus at this time
+   // none for Neptune at this time
+   // none for Pluto at this time
 };
 
 const std::string          SolarSystem::PLANET_SHAPE_MODELS[] = 
 {
-      // none for Mercury at this time
-      // none for Venus at this time
-      // none for Earth at this time
-      // none for Mars at this time
-      // none for Jupiter at this time
-      // none for Saturn at this time
-      // none for Uranus at this time
-      // none for Neptune at this time
-      // none for Pluto at this time
+   "None"
+   // none for Mercury at this time
+   // none for Venus at this time
+   // none for Earth at this time
+   // none for Mars at this time
+   // none for Jupiter at this time
+   // none for Saturn at this time
+   // none for Uranus at this time
+   // none for Neptune at this time
+   // none for Pluto at this time
 };
 
 //         SpinAxisRA  Rate        SpinAxisDEC  Rate        Rotation    Rate
@@ -649,14 +651,17 @@ const std::string           SolarSystem::MOON_GRAVITY_MODELS[] =
 
 const std::string           SolarSystem::MOON_ATMOSPHERE_MODELS[] = 
 {
+   "None"
 };
 
 const std::string           SolarSystem::MOON_MAGNETIC_MODELS[] = 
 {
+   "None"
 };
 
 const std::string          SolarSystem::MOON_SHAPE_MODELS[] = 
 {
+   "None"
 };
 
 //         SpinAxisRA  Rate        SpinAxisDEC  Rate        Rotation    Rate
@@ -1534,7 +1539,7 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
    }
    
    if (retCode > 0)
-      MessageInterface::ShowMessage
+      MessageInterface::LogMessage
          ("Successfully set Planetary Source to use: %s\n",
           Gmat::POS_VEL_SOURCE_STRINGS[sourceTypeInUse].c_str());
    
