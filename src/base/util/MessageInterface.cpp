@@ -16,7 +16,7 @@
 #include "MessageInterface.hpp"
 #include <stdarg.h>              // for va_start() and va_end()
 
-#include <cstdlib>			// Required for GCC 4.3
+#include <cstdlib>                      // Required for GCC 4.3
 
 //---------------------------------
 //  static data
@@ -105,12 +105,12 @@ void MessageInterface::ShowMessage(const char *msg, ...)
       short    size;
       va_list  marker;
       char     *msgBuffer;
-
+      
       // msg is vsprintf format
       // actual max message length is MAX_MESSAGE_LENGTH
       size = strlen(msg) + MAX_MESSAGE_LENGTH;
       //LogMessage("strlen(msg)=%d, size=%d\n", strlen(msg), size);
-
+      
       if( (msgBuffer = (char *)malloc(size)) != NULL )
       {
          va_start(marker, msg);
@@ -122,7 +122,7 @@ void MessageInterface::ShowMessage(const char *msg, ...)
          msgBuffer = "*** WARNING *** Cannot allocate enough memory to show "
             "the message.\n";
       }
-
+      
       theMessageReceiver->ShowMessage(std::string(msgBuffer));
       free(msgBuffer);
    }
@@ -291,8 +291,32 @@ void MessageInterface::LogMessage(const std::string &msg)
 void MessageInterface::LogMessage(const char *msg, ...)
 {
    if (theMessageReceiver != NULL)
-      theMessageReceiver->LogMessage(
-            "Hey, you still need to hook up LogMessage in MessageInterface!!!");
+   {
+      short    ret;
+      short    size;
+      va_list  marker;
+      char     *msgBuffer;
+      
+      // msg is vsprintf format
+      // actual max message length is MAX_MESSAGE_LENGTH
+      size = strlen(msg) + MAX_MESSAGE_LENGTH;
+      //LogMessage("strlen(msg)=%d, size=%d\n", strlen(msg), size);
+      
+      if( (msgBuffer = (char *)malloc(size)) != NULL )
+      {
+         va_start(marker, msg);
+         ret = vsprintf(msgBuffer, msg, marker);
+         va_end(marker);
+      }
+      else
+      {
+         msgBuffer = "*** WARNING *** Cannot allocate enough memory to show "
+            "the message.\n";
+      }
+      
+      theMessageReceiver->LogMessage(std::string(msgBuffer));
+      free(msgBuffer);
+   }
 }
 
 //------------------------------------------------------------------------------
