@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RaDecMeasurementModel
+//                              GeometricRaDecMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -28,7 +28,7 @@
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-  Bool RaDecMeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
+  Bool GeometricRaDecMeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
   {
       
     // GMAT's A.1 modified Julian epoch
@@ -79,7 +79,7 @@
  */
 //------------------------------------------------------------------------------
 
-  Bool RaDecMeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
+  Bool GeometricRaDecMeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
   {
       return false;
   }

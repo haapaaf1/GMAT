@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeRaDecMeasurementModel
+//                              GeometricRangeRaDecMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -18,21 +18,41 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef _RangeRaDecMEASUREMENTMODEL_HPP
-#define	_RangeRaDecMEASUREMENTMODEL_HPP
+#ifndef _GeometricRangeRaDecMeasurementModel_HPP
+#define	_GeometricRangeRaDecMeasurementModel_HPP
 
-class GMAT_API RangeRaDecMeasurementModel : public MeasurmentModel
+class GMAT_API GeometricRangeRaDecMeasurementModel : public MeasurmentModel
 {
 public:
-    RangeRaDecMeasurementModel();
-    RangeRaDecMeasurementModel(const RangeRaDecMeasurementModel &RangeRaDecMeasurementModel);
-    RangeRaDecMeasurementModel& operator=(const RangeRaDecMeasurementModel &RangeRaDecMeasurementModel);
-    virtual ~RangeRaDecMeasurementModel();  
+
+   GeometricRangeRaDecMeasurementModel(const std::string name);
+   GeometricRangeRaDecMeasurementModel(const GeometricRangeRaDecMeasurementModel &rrdModel);
+   GeometricRangeRaDecMeasurementModel& operator=(const GeometricRangeRaDecMeasurementModel &rrdModel);
+   virtual ~GeometricRangeRaDecMeasurementModel();
+
+   virtual bool Initialize();
+
+   GmatBase *Clone() const;
+
+   void SetGroundStation(GroundStation* gs);
+   GroundStation* GetGroundStation();
+
+   bool ComputeMeasurement(GroundStation *theStation, Spacecraft *theSat,
+          LaVectorDouble &myMeasurements);
+   bool ComputeCartesianPartialDerivative(GroundStation *theStation,
+          Spacecraft *theSat, LaGenMatDouble &myCartDerivatives);
+
 private:
-    
+
 protected:
-    
+
+   Real           bodySpinRate;
+
+   // TODO: Is this the best way for the measurement model
+   // to know what ground station it is associated with?
+   GroundStation* theStation;
+
 }
 
-#endif	/* _RangeRaDecMEASUREMENTMODEL_HPP */
+#endif	/* _GeometricRangeRaDecMeasurementModel_HPP */
 

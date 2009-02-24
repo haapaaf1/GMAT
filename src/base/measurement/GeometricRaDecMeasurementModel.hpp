@@ -18,21 +18,21 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef _RADECMEASUREMENTMODEL_HPP
-#define	_RADECMEASUREMENTMODEL_HPP
+#ifndef _GeometricRaDecMeasurementModel_HPP
+#define	_GeometricRaDecMeasurementModel_HPP
 
-class GMAT_API RaDecMeasurementModel : public MeasurmentModel
+class GMAT_API GeometricRaDecMeasurementModel : public MeasurmentModel
 {
 public:
-    RaDecMeasurementModel();
-    RaDecMeasurementModel(const RaDecMeasurementModel &RaDecMeasurementModel);
-    RaDecMeasurementModel& operator=(const RaDecMeasurementModel &RaDecMeasurementModel);
-    virtual ~RaDecMeasurementModel();  
+    GeometricRaDecMeasurementModel();
+    GeometricRaDecMeasurementModel(const GeometricRaDecMeasurementModel &GeometricRaDecMeasurementModel);
+    GeometricRaDecMeasurementModel& operator=(const GeometricRaDecMeasurementModel &GeometricRaDecMeasurementModel);
+    virtual ~GeometricRaDecMeasurementModel();
 private:
     
 protected:
     
 }
 
-#endif	/* _RADECMEASUREMENTMODEL_HPP */
+#endif	/* _GeometricRaDecMeasurementModel_HPP */
 

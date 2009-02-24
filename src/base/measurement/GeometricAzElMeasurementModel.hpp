@@ -18,21 +18,21 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef _AzElMEASUREMENTMODEL_HPP
-#define	_AzElMEASUREMENTMODEL_HPP
+#ifndef _GeometricAzElMeasurementModel_HPP
+#define	_GeometricAzElMeasurementModel_HPP
 
-class GMAT_API AzElMeasurementModel : public MeasurmentModel
+class GMAT_API GeometricAzElMeasurementModel : public MeasurmentModel
 {
 public:
-    AzElMeasurementModel();
-    AzElMeasurementModel(const AzElMeasurementModel &AzElMeasurementModel);
-    AzElMeasurementModel& operator=(const AzElMeasurementModel &AzElMeasurementModel);
-    virtual ~AzElMeasurementModel();  
+    GeometricAzElMeasurementModel();
+    GeometricAzElMeasurementModel(const GeometricAzElMeasurementModel &GeometricAzElMeasurementModel);
+    GeometricAzElMeasurementModel& operator=(const GeometricAzElMeasurementModel &GeometricAzElMeasurementModel);
+    virtual ~GeometricAzElMeasurementModel();
 private:
     
 protected:
     
 }
 
-#endif	/* _AzElMEASUREMENTMODEL_HPP */
+#endif	/* _GeometricAzElMeasurementModel_HPP */
 

@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeMeasurementModel
+//                              GeometricRangeMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -18,19 +18,19 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef _RANGEMEASUREMENTMODEL_HPP
-#define	_RANGEMEASUREMENTMODEL_HPP
+#ifndef _GeometricRangeMeasurementModel_HPP
+#define	_GeometricRangeMeasurementModel_HPP
 
 #include "MeasurementModel.hpp"
 #include "CoordinateConverter.hpp"
 
-class GMAT_API RangeMeasurementModel : public MeasurementModel
+class GMAT_API GeometricRangeMeasurementModel : public MeasurementModel
 {
 public:
-    RangeMeasurementModel(const std::string name = "");
-    RangeMeasurementModel(const RangeMeasurementModel &RMM);
-    RangeMeasurementModel& operator=(const RangeMeasurementModel &RMM);
-    virtual ~RangeMeasurementModel();
+    GeometricRangeMeasurementModel(const std::string name = "");
+    GeometricRangeMeasurementModel(const GeometricRangeMeasurementModel &RMM);
+    GeometricRangeMeasurementModel& operator=(const GeometricRangeMeasurementModel &RMM);
+    virtual ~GeometricRangeMeasurementModel();
 
     void Initialize() const;
     
@@ -49,5 +49,5 @@ protected:
 
 };
 
-#endif	/* _RANGEMEASUREMENTMODEL_HPP */
+#endif	/* _GeometricRangeMeasurementModel_HPP */
 

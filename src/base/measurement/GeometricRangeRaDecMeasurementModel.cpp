@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeRaDecMeasurementModel
+//                              GeometricRangeRaDecMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -18,6 +18,95 @@
  */
 //------------------------------------------------------------------------------
 
+GeometricRangeRaDecMeasurementModel::GeometricRangeRaDecMeasurementModel(const std::string name) :
+   MeasurementModel  ("GeometricRangeRaDec", name),
+   bodySpinRate          (7.29211585530e-5)
+{
+  numMeasurements = 3;
+
+  // TODO: FIX the "new" statements
+  // Name of each measurement returned
+  //measurementNames = new StringArray(numMeasurements);
+  // Units of each measurement returned
+  //measurementUnits = new StringArray(numMeasurements);
+  // Measurement returned by the model
+  measurements = new Real[numMeasurements];
+}
+
+GeometricRangeRaDecMeasurementModel::GeometricRangeRaDecMeasurementModel(const GeometricRangeRaDecMeasurementModel &rrdModel) :
+   MeasurementModel        (rrdModel),
+   bodySpinRate            (rrdModel.bodySpinRate),
+   theStation		   (rrdModel.theStation)
+{
+}
+
+GeometricRangeRaDecMeasurementModel& GeometricRangeRaDecMeasurementModel::operator=(const GeometricRangeRaDecMeasurementModel &rrdModel)
+{
+    // TODO: Is this correct?
+   if (&rrdModel != this)
+   {
+      //theBody = NULL;
+   }
+   return *this;
+}
+
+GeometricRangeRaDecMeasurementModel::~GeometricRangeRaDecMeasurementModel()
+{
+    delete[] &measurementNames;
+    delete[] &measurementUnits;
+    delete[] measurements;
+}
+
+GmatBase *GeometricRangeRaDecMeasurementModel::Clone() const
+{
+   return new GeometricRangeRaDecMeasurementModel(*this);
+}
+
+// Initialize
+
+//------------------------------------------------------------------------------
+// Integer Initialize() const
+//------------------------------------------------------------------------------
+/**
+ * Initializes the measurement model.
+ */
+//------------------------------------------------------------------------------
+bool GeometricRangeRaDecMeasurementModel::Initialize()
+{
+
+    bodySpinRate = theStation->GetSpinRate();
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+// void SetGroundStation(GroundStation* gs)
+//------------------------------------------------------------------------------
+/**
+ * Set the ground station for this instance of the measurement model.
+ *
+ * @param mm The ground station that is assigned.
+ */
+//------------------------------------------------------------------------------
+void GeometricRangeAzElMeasurementModel::SetGroundStation(GroundStation* gs)
+{
+    theStation = gs;
+}
+
+//------------------------------------------------------------------------------
+// GroundStation* GetGroundStation()
+//------------------------------------------------------------------------------
+/**
+ * Return the ground station for this instance of the measurement model.
+ *
+ * @return A pointer to the ground station.
+ */
+//------------------------------------------------------------------------------
+GroundStation* GeometricRangeAzElMeasurementModel::GetGroundStation()
+{
+    return theStation;
+}
+
 //------------------------------------------------------------------------------
 // Integer ComputeMeasurement(const GroundStation &theStation, 
 //		const Spacecraft &theSat, const Rvector &myMeasurements); 
@@ -28,7 +117,7 @@
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-  Bool RangeRaDecMeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
+  Bool GeometricRangeRaDecMeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
   {
       
     // GMAT's A.1 modified Julian epoch
@@ -79,7 +168,7 @@
  */
 //------------------------------------------------------------------------------
 
-  Bool RangeRaDecMeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
+  Bool GeometricRangeRaDecMeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
   {
       return false;
   }

@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              AzElMeasurementModel
+//                              GeometricAzElMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -28,7 +28,7 @@
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-  Bool AzElMeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
+  Bool GeometricAzElMeasurementModel::ComputeMeasurement(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myMeasurements)
   {
       
     // GMAT's A.1 modified Julian epoch
@@ -79,7 +79,7 @@
  */
 //------------------------------------------------------------------------------
 
-  Bool AzElMeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
+  Bool GeometricAzElMeasurementModel::ComputeCartesianPartialDerivative(const GroundStation &theStation, const Spacecraft &theSat, const Rvector &myCartDerivatives);
   {
       return false;
   }

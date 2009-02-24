@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeMeasurementModel
+//                              GeometricRangeMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -18,22 +18,22 @@
  */
 //------------------------------------------------------------------------------
 
-#include "RangeMeasurementModel.hpp"
+#include "GeometricRangeMeasurementModel.hpp"
 #include "Rvector6.hpp"
 
-RangeMeasurementModel::RangeMeasurementModel(const std::string name) :
-   MeasurementModel        ("Range", name)
+GeometricRangeMeasurementModel::GeometricRangeMeasurementModel(const std::string name) :
+   MeasurementModel        ("GeometricRange", name)
 {
 
 }
 
-RangeMeasurementModel::RangeMeasurementModel(const RangeMeasurementModel &RMM):
+GeometricRangeMeasurementModel::GeometricRangeMeasurementModel(const GeometricRangeMeasurementModel &RMM):
    MeasurementModel        (RMM)
 {
 
 }
 
-RangeMeasurementModel& RangeMeasurementModel::operator=(const RangeMeasurementModel &RMM)
+GeometricRangeMeasurementModel& GeometricRangeMeasurementModel::operator=(const GeometricRangeMeasurementModel &RMM)
 {
    if (&RMM != this)
    {
@@ -42,13 +42,13 @@ RangeMeasurementModel& RangeMeasurementModel::operator=(const RangeMeasurementMo
    return *this;
 }
 
-RangeMeasurementModel::~RangeMeasurementModel()
+GeometricRangeMeasurementModel::~GeometricRangeMeasurementModel()
 {
 }
 
-GmatBase *RangeMeasurementModel::Clone() const
+GmatBase *GeometricRangeMeasurementModel::Clone() const
 {
-   return new RangeMeasurementModel(*this);
+   return new GeometricRangeMeasurementModel(*this);
 }
 
 // Initialize
@@ -60,7 +60,7 @@ GmatBase *RangeMeasurementModel::Clone() const
  * Initializes the measurement model.
  */
 //------------------------------------------------------------------------------
-void RangeMeasurementModel::Initialize() const
+void GeometricRangeMeasurementModel::Initialize() const
 {
 
 }
@@ -75,7 +75,7 @@ void RangeMeasurementModel::Initialize() const
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-bool RangeMeasurementModel::ComputeMeasurement(
+bool GeometricRangeMeasurementModel::ComputeMeasurement(
       GroundStation *theStation, Spacecraft *theSat, LaVectorDouble &myMeasurements)
 {
 
@@ -106,7 +106,7 @@ bool RangeMeasurementModel::ComputeMeasurement(
  * computed.
  */
 //------------------------------------------------------------------------------
-bool RangeMeasurementModel::ComputeCartesianPartialDerivative(
+bool GeometricRangeMeasurementModel::ComputeCartesianPartialDerivative(
       GroundStation *theStation, Spacecraft *theSat, LaGenMatDouble &myCartDerivatives)
 {
     

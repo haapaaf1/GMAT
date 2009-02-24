@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeAzElMeasurementModel
+//                              GeometricRangeAzElMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -18,15 +18,15 @@
  */
 //------------------------------------------------------------------------------
 
-#include "RangeAzElMeasurementModel.hpp"
+#include "GeometricRangeAzElMeasurementModel.hpp"
 #include "BodyFixedPoint.hpp"
 
 
 //#define DEBUG_PARAMETER_CALCULATIONS
 
 
-RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
-   MeasurementModel  ("RangeAzEl", name),
+GeometricRangeAzElMeasurementModel::GeometricRangeAzElMeasurementModel(const std::string name) :
+   MeasurementModel  ("GeometricRangeAzEl", name),
    bodySpinRate          (7.29211585530e-5)
 {
   numMeasurements = 3;
@@ -40,14 +40,14 @@ RangeAzElMeasurementModel::RangeAzElMeasurementModel(const std::string name) :
   measurements = new Real[numMeasurements];
 }
 
-RangeAzElMeasurementModel::RangeAzElMeasurementModel(const RangeAzElMeasurementModel &raeModel) :
+GeometricRangeAzElMeasurementModel::GeometricRangeAzElMeasurementModel(const GeometricRangeAzElMeasurementModel &raeModel) :
    MeasurementModel        (raeModel),
    bodySpinRate            (raeModel.bodySpinRate),
    theStation		   (raeModel.theStation)
 {
 }
 
-RangeAzElMeasurementModel& RangeAzElMeasurementModel::operator=(const RangeAzElMeasurementModel &raeModel)
+GeometricRangeAzElMeasurementModel& GeometricRangeAzElMeasurementModel::operator=(const GeometricRangeAzElMeasurementModel &raeModel)
 {
     // TODO: Is this correct?
    if (&raeModel != this)
@@ -57,16 +57,16 @@ RangeAzElMeasurementModel& RangeAzElMeasurementModel::operator=(const RangeAzElM
    return *this;
 }
 
-RangeAzElMeasurementModel::~RangeAzElMeasurementModel()
+GeometricRangeAzElMeasurementModel::~GeometricRangeAzElMeasurementModel()
 {
     delete[] &measurementNames;
     delete[] &measurementUnits;
     delete[] measurements;
 }
 
-GmatBase *RangeAzElMeasurementModel::Clone() const
+GmatBase *GeometricRangeAzElMeasurementModel::Clone() const
 {
-   return new RangeAzElMeasurementModel(*this);
+   return new GeometricRangeAzElMeasurementModel(*this);
 }
 
 // Initialize
@@ -78,7 +78,7 @@ GmatBase *RangeAzElMeasurementModel::Clone() const
  * Initializes the measurement model.
  */
 //------------------------------------------------------------------------------
-bool RangeAzElMeasurementModel::Initialize()
+bool GeometricRangeAzElMeasurementModel::Initialize()
 {
 
     bodySpinRate = theStation->GetSpinRate();     
@@ -96,7 +96,7 @@ bool RangeAzElMeasurementModel::Initialize()
  * the time of the spacecraft state was surotMatessfully computed.
  */
 //------------------------------------------------------------------------------
-  bool RangeAzElMeasurementModel::ComputeMeasurement(GroundStation *theStation,
+  bool GeometricRangeAzElMeasurementModel::ComputeMeasurement(GroundStation *theStation,
         Spacecraft *theSat, LaVectorDouble &myMeasurements)
   {
 
@@ -210,7 +210,7 @@ bool RangeAzElMeasurementModel::Initialize()
  * computed.
  */
 //------------------------------------------------------------------------------
-  bool RangeAzElMeasurementModel::ComputeCartesianPartialDerivative(
+  bool GeometricRangeAzElMeasurementModel::ComputeCartesianPartialDerivative(
         GroundStation *theStation, Spacecraft *theSat, LaGenMatDouble &myCartDerivatives)
   {
     
@@ -380,7 +380,7 @@ bool RangeAzElMeasurementModel::Initialize()
  * @param mm The ground station that is assigned.
  */
 //------------------------------------------------------------------------------
-void RangeAzElMeasurementModel::SetGroundStation(GroundStation* gs)
+void GeometricRangeAzElMeasurementModel::SetGroundStation(GroundStation* gs)
 {
     theStation = gs;
 }
@@ -394,7 +394,7 @@ void RangeAzElMeasurementModel::SetGroundStation(GroundStation* gs)
  * @return A pointer to the ground station.
  */
 //------------------------------------------------------------------------------
-GroundStation* RangeAzElMeasurementModel::GetGroundStation()
+GroundStation* GeometricRangeAzElMeasurementModel::GetGroundStation()
 {
     return theStation;
 }

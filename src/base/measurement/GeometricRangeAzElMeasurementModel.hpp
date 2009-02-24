@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeAzElMeasurementModel
+//                              GeometricRangeAzElMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -18,21 +18,21 @@
  */
 //------------------------------------------------------------------------------
 
-#ifndef RangeAzElMeasurementModel_hpp
-#define RangeAzElMeasurementModel_hpp
+#ifndef GeometricRangeAzElMeasurementModel_hpp
+#define GeometricRangeAzElMeasurementModel_hpp
 
 #include "MeasurementModel.hpp"
 #include "CoordinateConverter.hpp"
 #include "BodyFixedAxes.hpp"
 
-class GMAT_API RangeAzElMeasurementModel : public MeasurementModel
+class GMAT_API GeometricRangeAzElMeasurementModel : public MeasurementModel
 {
 public:
     
-   RangeAzElMeasurementModel(const std::string name);
-   RangeAzElMeasurementModel(const RangeAzElMeasurementModel &raeModel);
-   RangeAzElMeasurementModel& operator=(const RangeAzElMeasurementModel &raeModel);
-   virtual ~RangeAzElMeasurementModel();
+   GeometricRangeAzElMeasurementModel(const std::string name);
+   GeometricRangeAzElMeasurementModel(const GeometricRangeAzElMeasurementModel &raeModel);
+   GeometricRangeAzElMeasurementModel& operator=(const GeometricRangeAzElMeasurementModel &raeModel);
+   virtual ~GeometricRangeAzElMeasurementModel();
 
    virtual bool Initialize();
    
@@ -58,6 +58,6 @@ protected:
 
 };
 
-#endif	/* RangeAzElMeasurementModel_hpp */
+#endif	/* GeometricRangeAzElMeasurementModel_hpp */
 
 
