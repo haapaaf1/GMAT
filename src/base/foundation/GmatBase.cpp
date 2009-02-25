@@ -2915,18 +2915,28 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
    std::stringstream value;
    value.precision(GetDataPrecision());
 
+   // Create parameter write order if it is empty (LOJ: 2009.02.13)
+   if (parameterWriteOrder.empty())
+   {
+      for (i = 0; i < parameterCount; ++i)
+         parameterWriteOrder.push_back(i);
+   }
+   
+   Integer id;
    for (i = 0; i < parameterCount; ++i)
    {
+      id = parameterWriteOrder[i];
+      
       #ifdef DEBUG_WRITE_PARAM
       MessageInterface::ShowMessage
-         ("   %2d, checking %s, type=%s, %s\n", i, GetParameterText(i).c_str(),
-          PARAM_TYPE_STRING[GetParameterType(i)].c_str(),
-          (IsParameterReadOnly(i) ? "ReadOnly" : "Writable"));
+         ("   %2d, checking %s, type=%s, %s\n", i, GetParameterText(id).c_str(),
+          PARAM_TYPE_STRING[GetParameterType(id)].c_str(),
+          (IsParameterReadOnly(id) ? "ReadOnly" : "Writable"));
       #endif
 
-      if (IsParameterReadOnly(i) == false)
+      if (IsParameterReadOnly(id) == false)
       {
-         parmType = GetParameterType(i);
+         parmType = GetParameterType(id);
 
          // Handle STRINGARRAY_TYPE or OBJECTARRAY_TYPE
          if (parmType == Gmat::STRINGARRAY_TYPE ||
@@ -2934,10 +2944,10 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
          {
             bool writeQuotes = inMatlabMode || parmType == Gmat::STRINGARRAY_TYPE;
 
-            StringArray sar = GetStringArrayParameter(i);
+            StringArray sar = GetStringArrayParameter(id);
             if (sar.size() > 0)
             {
-               std::string attCmtLn = GetAttributeCommentLine(i);
+               std::string attCmtLn = GetAttributeCommentLine(id);
 
                if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                                         (mode == Gmat::OWNED_OBJECT) ||
@@ -2946,7 +2956,7 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
                   stream << attCmtLn.c_str();
                }
 
-               stream << prefix << GetParameterText(i) << " = {";
+               stream << prefix << GetParameterText(id) << " = {";
 
                for (StringArray::iterator n = sar.begin(); n != sar.end(); ++n)
                {
@@ -2959,7 +2969,7 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
                      stream << "'";
                }
 
-               attCmtLn  = GetInlineAttributeComment(i);
+               attCmtLn  = GetInlineAttributeComment(id);
 
                if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                                         (mode == Gmat::OWNED_OBJECT) ||
@@ -2979,10 +2989,10 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
             {
                // Fill in the l.h.s.
                value.str("");
-               WriteParameterValue(i, value);
+               WriteParameterValue(id, value);
                if (value.str() != "")
                {
-                  std::string attCmtLn = GetAttributeCommentLine(i);
+                  std::string attCmtLn = GetAttributeCommentLine(id);
 
                   if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                      (mode == Gmat::OWNED_OBJECT) || (mode == Gmat::SHOW_SCRIPT)))
@@ -2992,11 +3002,11 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
                   if (parmType == Gmat::REAL_ELEMENT_TYPE)
                      stream << value.str();
                   else
-                     stream << prefix << GetParameterText(i)
+                     stream << prefix << GetParameterText(id)
                             << " = " << value.str() << ";";
 
                   // overwrite tmp variable for attribute cmt line
-                  attCmtLn = GetInlineAttributeComment(i);
+                  attCmtLn = GetInlineAttributeComment(id);
 
                   if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                       (mode == Gmat::OWNED_OBJECT) || (mode == Gmat::SHOW_SCRIPT)))

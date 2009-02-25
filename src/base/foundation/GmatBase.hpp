@@ -402,6 +402,9 @@ protected:
    /// flag used to deterine if the current write is in Matlab mode
    bool                inMatlabMode;
 
+   /// Integer array used to hold the parameter write order
+   /// This array is automatically created if array is empty
+   IntegerArray         parameterWriteOrder;
    /// String used to hold the comment line
    std::string         commentLine;
    /// String used to hold inline comment
