@@ -457,8 +457,10 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
       theGuiManager->UpdateSpacecraft();
       break;
    case GmatTree::FUELTANK:
+      theGuiManager->UpdateFuelTank();
+      break;
    case GmatTree::THRUSTER:
-      theGuiManager->UpdateHardware();
+      theGuiManager->UpdateThruster();
       break;
    case GmatTree::IMPULSIVE_BURN:
    case GmatTree::FINITE_BURN:
@@ -588,8 +590,8 @@ void ResourceTree::AddDefaultResources()
    
    //----- Universe
    mUniverseItem =
-      AppendItem(resource, wxT("Solar System"), GmatTree::ICON_FOLDER, -1,
-                 new GmatTreeItemData(wxT("Solar System"),
+      AppendItem(resource, wxT("SolarSystem"), GmatTree::ICON_FOLDER, -1,
+                 new GmatTreeItemData(wxT("SolarSystem"),
                                       GmatTree::SOLAR_SYSTEM));
    
    SetItemImage(mUniverseItem, GmatTree::ICON_OPENFOLDER, 
@@ -2012,7 +2014,7 @@ void ResourceTree::OnAddFuelTank(wxCommandEvent &event)
                  new GmatTreeItemData(name, GmatTree::FUELTANK));
       Expand(item);
       
-      theGuiManager->UpdateHardware();
+      theGuiManager->UpdateFuelTank();
    }
 }
 
@@ -2039,7 +2041,7 @@ void ResourceTree::OnAddThruster(wxCommandEvent &event)
                  new GmatTreeItemData(name, GmatTree::THRUSTER));
       Expand(item);
       
-      theGuiManager->UpdateHardware();      
+      theGuiManager->UpdateThruster();
    }
 }
 
@@ -3119,11 +3121,10 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
       titleText.Printf("%s - General Mission Analysis Tool (GMAT)", filename.c_str());      
       theMainFrame->SetTitle(titleText);
       
-      // Set main frame status bar text
+      // Set running script text
       wxString text;
-      text.Printf("Running script %d out of %d: %s\n", count, runCount,
+      text.Printf("Running script %d of %d;   %s\n", count, runCount,
                   filename.c_str());
-      theMainFrame->SetStatusText(text, 1);
       
       if (compare)
          textCtrl->AppendText(text);
@@ -3154,15 +3155,16 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
          }
          
          MessageInterface::ShowMessage
-            ("\nStarting script %d out of %d: %s\n", count, runCount, filename.c_str());
+            ("\nStarting script %d of %d: %s\n", count, runCount, filename.c_str());
          
          MessageInterface::ShowMessage
             ("==> Run Count: %d\n", i+1);
          
-         // Set main frame status bar repeat count
+         // Write repeat and run count to main frame status bar
          wxString text;
-         text.Printf("Repeat Count %d", i+1);
-         theMainFrame->SetStatusText(text, 0);
+         text.Printf("Repeat Count %d of %d;  Running script %d of %d;  File:%s",
+                     i+1, repeatCount, count, runCount, filename.c_str());
+         theMainFrame->SetStatusText(text, 2);
          
          if (compare)
          {
@@ -3242,8 +3244,8 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    // Report completion
    wxString text;
    text.Printf("Finished running %d scripts\n", runCount);
-   theMainFrame->SetStatusText(text, 1);
-   theMainFrame->SetStatusText("", 0);
+   theMainFrame->SetStatusText(text, 2);
+   theMainFrame->SetStatusText("", 1);
    
    // Set batch mode to false
    GmatGlobal::Instance()->SetBatchMode(false);
