@@ -19,7 +19,8 @@
 #include "ShowScriptDialog.hpp"
 #include "ShowSummaryDialog.hpp"
 
-//#define DEBUG_GMAT_PANEL_SAVE 1
+//#define DEBUG_GMATPANEL
+//#define DEBUG_GMATPANEL_SAVE
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -38,84 +39,117 @@ END_EVENT_TABLE()
 //------------------------------
 
 //------------------------------------------------------------------------------
-// GmatPanel(wxWindow *parent)
+// GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButton)
 //------------------------------------------------------------------------------
 /**
  * Constructs GmatPanel object.
  *
  * @param <parent> parent window.
+ * @param <showBottomSizer> if true, shows bottom OK, Apply, Cancel buttons (true)
+ * @param <showScriptButton> if true, shows Show Script button (true)
  *
  */
 //------------------------------------------------------------------------------
-GmatPanel::GmatPanel(wxWindow *parent, bool showScriptButton)
-    : wxPanel(parent)
+GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButton)
+   : wxPanel(parent)
 {
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
    canClose = true;
    mDataChanged = false;
    
+   mShowBottomSizer = showBottomSizer;
    mShowScriptButton = showScriptButton;
    
    theParent = parent;
    
    #ifdef DEBUG_GMATPANEL
    MessageInterface::ShowMessage
-      ("GmatPanel::GmatPanel() entered. theGuiInterpreter=<%p>\n", theGuiInterpreter);
+      ("GmatPanel::GmatPanel() entered. theGuiInterpreter=<%p>\n   "
+       "showBottomSizer=%d, showScriptButton=%d\n", theGuiInterpreter,
+       showBottomSizer, showScriptButton);
    #endif
    
-   int borderSize = 3;
-   //wxStaticBox *topStaticBox = new wxStaticBox( this, -1, wxT("") );
-   wxStaticBox *middleStaticBox = new wxStaticBox( this, -1, wxT("") );
-   wxStaticBox *bottomStaticBox = new wxStaticBox( this, -1, wxT("") );
-
    // create sizers
    thePanelSizer = new wxBoxSizer(wxVERTICAL);
-   //theTopSizer = new wxStaticBoxSizer( topStaticBox, wxVERTICAL );
-   theMiddleSizer = new wxStaticBoxSizer( middleStaticBox, wxVERTICAL );
-   theBottomSizer = new wxStaticBoxSizer( bottomStaticBox, wxVERTICAL );
-   wxBoxSizer *theButtonSizer = new wxBoxSizer(wxHORIZONTAL);
+   
+   #ifdef __SHOW_TOP_SIZER__
+   theTopSizer = new wxStaticBoxSizer(wxVERTICAL, this );
+   #endif
 
-   //wxBoxSizer *theTopButtonSizer = new wxBoxSizer(wxHORIZONTAL);
+   if (showBottomSizer)
+      theMiddleSizer = (wxSizer*)(new wxStaticBoxSizer(wxVERTICAL, this));
+   else
+      theMiddleSizer = (wxSizer*)(new wxBoxSizer(wxVERTICAL));
    
-   // create bottom buttons
-   theOkButton = new wxButton
-      (this, ID_BUTTON_OK, "OK", wxDefaultPosition, wxDefaultSize, 0);
-   theApplyButton = new wxButton
-      (this, ID_BUTTON_APPLY, "Apply", wxDefaultPosition, wxDefaultSize, 0);
-   theCancelButton = new wxButton
-      (this, ID_BUTTON_CANCEL, "Cancel", wxDefaultPosition, wxDefaultSize, 0);
-   //theHelpButton = new wxButton
-   //   (this, ID_BUTTON_HELP, "Help", wxDefaultPosition, wxDefaultSize, 0);
-   theScriptButton = new wxButton
-      (this, ID_BUTTON_SCRIPT, "Show Script", wxDefaultPosition, wxDefaultSize, 0);
-   theSummaryButton = new wxButton
-      (this, ID_BUTTON_SUMMARY, "Command Summary", wxDefaultPosition, wxDefaultSize, 0);
+   theBottomSizer = new wxStaticBoxSizer(wxVERTICAL, this );
+   wxBoxSizer *theButtonSizer = new wxBoxSizer(wxHORIZONTAL);
    
-   // use different color for Show Script, and Command Summary for now
-   theScriptButton->SetForegroundColour(*wxBLUE);
-   theSummaryButton->SetForegroundColour(*wxBLUE);
+   #ifdef __SHOW_TOP_SIZER__
+   wxBoxSizer *theTopButtonSizer = new wxBoxSizer(wxHORIZONTAL);
+   #endif
+   
+   if (showBottomSizer)
+   {
+      // create bottom buttons
+      theOkButton = new wxButton
+         (this, ID_BUTTON_OK, "OK", wxDefaultPosition, wxDefaultSize, 0);
+      theApplyButton = new wxButton
+         (this, ID_BUTTON_APPLY, "Apply", wxDefaultPosition, wxDefaultSize, 0);
+      theCancelButton = new wxButton
+         (this, ID_BUTTON_CANCEL, "Cancel", wxDefaultPosition, wxDefaultSize, 0);
+      
+      #ifdef __SHOW_HELP_BUTTON__
+      theHelpButton = new wxButton
+         (this, ID_BUTTON_HELP, "Help", wxDefaultPosition, wxDefaultSize, 0);
+      #endif
+      
+      theScriptButton = new wxButton
+         (this, ID_BUTTON_SCRIPT, "Show Script", wxDefaultPosition, wxDefaultSize, 0);
+      theSummaryButton = new wxButton
+         (this, ID_BUTTON_SUMMARY, "Command Summary", wxDefaultPosition, wxDefaultSize, 0);
+      
+      // use different color for Show Script, and Command Summary for now
+      theScriptButton->SetForegroundColour(*wxBLUE);
+      theSummaryButton->SetForegroundColour(*wxBLUE);
+   }
+   
+   int borderSize = 3;
    
    // add items to top sizer
-   //theTopButtonSizer->Add(theScriptButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
-   //theTopButtonSizer->Add(theSummaryButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
-   //theTopSizer->Add(theTopButtonSizer, 0, wxALIGN_RIGHT | wxALL, borderSize);
+   #ifdef __SHOW_TOP_SIZER__   
+   theTopButtonSizer->Add(theScriptButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
+   theTopButtonSizer->Add(theSummaryButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
+   theTopSizer->Add(theTopButtonSizer, 0, wxALIGN_RIGHT | wxALL, borderSize);
+   #endif
    
    // adds the buttons to button sizer
-   theButtonSizer->Add(theOkButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-   theButtonSizer->Add(theApplyButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-   theButtonSizer->Add(theCancelButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-   //theButtonSizer->Add(theHelpButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-   theButtonSizer->Add(100, 20, 0, wxALIGN_CENTER | wxALL, borderSize);   
-   theButtonSizer->Add(theScriptButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-   theButtonSizer->Add(theSummaryButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+   if (showBottomSizer)
+   {
+      theButtonSizer->Add(theOkButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+      theButtonSizer->Add(theApplyButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+      theButtonSizer->Add(theCancelButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+      
+      #ifdef __SHOW_HELP_BUTTON__
+      theButtonSizer->Add(theHelpButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+      #endif
+      
+      theButtonSizer->Add(100, 20, 0, wxALIGN_CENTER | wxALL, borderSize);   
+      theButtonSizer->Add(theScriptButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+      theButtonSizer->Add(theSummaryButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+      
+      theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, borderSize);
+   }
    
-   theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, borderSize);
+   #ifdef __SHOW_TOP_SIZER__
+   topStaticBox->Show(mShowScriptButton);
+   #endif
    
-   //topStaticBox->Show(mShowScriptButton);
-
    mObject = NULL;
    
+   #ifdef DEBUG_GMATPANEL
+   MessageInterface::ShowMessage("GmatPanel::GmatPanel() exiting\n");
+   #endif
 }
 
 
@@ -124,7 +158,7 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showScriptButton)
 //------------------------------------------------------------------------------
 void GmatPanel::EnableUpdate(bool enable)
 {
-   #if DEBUG_GMAT_PANEL_SAVE
+   #ifdef DEBUG_GMATPANEL_SAVE
    MessageInterface::ShowMessage
       ("GmatPanel::EnableUpdate() enable=%d\n", enable);
    #endif
@@ -141,9 +175,6 @@ void GmatPanel::EnableUpdate(bool enable)
       mDataChanged = false;
       mdichild->SetDirty(false);
    }
-   
-   //theApplyButton->Enable(enable);
-   //theOkButton->Enable(enable);
 }
 
 
@@ -176,7 +207,7 @@ void GmatPanel::ObjectNameChanged(Gmat::ObjectType type, const wxString &oldName
 //------------------------------------------------------------------------------
 void GmatPanel::OnApply(wxCommandEvent &event)
 {
-   #if DEBUG_GMAT_PANEL_SAVE
+   #ifdef DEBUG_GMATPANEL_SAVE
    MessageInterface::ShowMessage
       ("GmatPanel::OnApply() mDataChanged=%d\n", mDataChanged);
    #endif
@@ -204,7 +235,7 @@ void GmatPanel::OnApply(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GmatPanel::OnOK(wxCommandEvent &event)
 {
-   #if DEBUG_GMAT_PANEL_SAVE
+   #ifdef DEBUG_GMATPANEL_SAVE
    MessageInterface::ShowMessage
       ("GmatPanel::OnOK() mDataChanged=%d\n", mDataChanged);
    #endif
@@ -318,9 +349,11 @@ bool GmatPanel::CheckReal(Real &rvalue, const std::string &str,
                           const std::string &field, const std::string &expRange,
                           bool onlyMsg, bool positive, bool zeroOk)
 {
-   //MessageInterface::ShowMessage
-   //   ("===> CheckReal() str=%s, field=%s, expRange=%s\n", str.c_str(),
-   //    field.c_str(), expRange.c_str());
+   #ifdef DEBUG_CHECK_REAL
+   MessageInterface::ShowMessage
+      ("GmatPanel::CheckReal() str=%s, field=%s, expRange=%s\n", str.c_str(),
+       field.c_str(), expRange.c_str());
+   #endif
    
    if (onlyMsg)
    {
@@ -499,13 +532,22 @@ void GmatPanel::Show()
 {
    // add items to panel sizer
    
-   //thePanelSizer->Add(theTopSizer, 0, wxGROW | wxALL, 1);
-   thePanelSizer->Add(theMiddleSizer, 1, wxGROW | wxALL, 1);
-   thePanelSizer->Add(theBottomSizer, 0, wxGROW | wxALL, 1);
+   #ifdef __SHOW_TOP_SIZER__
+   thePanelSizer->Add(theTopSizer, 0, wxGROW | wxALL, 1);
+   #endif
    
-   // displays the script button
-   //thePanelSizer->Show(theTopSizer, mShowScriptButton);
-   theScriptButton->Show(mShowScriptButton);
+   thePanelSizer->Add(theMiddleSizer, 1, wxGROW | wxALL, 1);
+   
+   if (mShowBottomSizer)
+      thePanelSizer->Add(theBottomSizer, 0, wxGROW | wxALL, 1);
+   
+   // displays the script button   
+   #ifdef __SHOW_TOP_SIZER__
+   thePanelSizer->Show(theTopSizer, mShowScriptButton);
+   #endif
+   
+   if (mShowBottomSizer)
+      theScriptButton->Show(mShowScriptButton);
    thePanelSizer->Layout();
    
    // tells the enclosing window to adjust to the size of the sizer
@@ -543,13 +585,47 @@ void GmatPanel::Show()
    
    EnableUpdate(false);
    
-   // We want to enable all the time (12/22/06)
-   //theApplyButton->Disable();
-   //theOkButton->Disable();
-   //theHelpButton->Disable();  // Not implemented yet
-   
-   if ((mObject == NULL) || (!mObject->IsOfType(Gmat::COMMAND)))
-      theSummaryButton->Hide();
+   if (mShowBottomSizer)
+      if ((mObject == NULL) || (!mObject->IsOfType(Gmat::COMMAND)))
+         theSummaryButton->Hide();
 }
 
 
+//------------------------------------------------------------------------------
+// wxArrayString ToWxArrayString(const StringArray &array)
+//------------------------------------------------------------------------------
+/**
+ * Converts std::string array to wxString array.
+ */
+//------------------------------------------------------------------------------
+wxArrayString GmatPanel::ToWxArrayString(const StringArray &array)
+{
+   wxArrayString newArray;
+   for (UnsignedInt i=0; i<array.size(); i++)
+      newArray.Add(array[i].c_str());
+   
+   return newArray;
+}
+
+
+//------------------------------------------------------------------------------
+// wxString ToWxString(const wxArrayString &names)
+//------------------------------------------------------------------------------
+/**
+ * Converts wxString array to wxString separated by comma.
+ */
+//------------------------------------------------------------------------------
+wxString GmatPanel::ToWxString(const wxArrayString &names)
+{
+   wxString str = "";
+   wxString delimiter = ", ";
+   if (names.Count() > 0)
+   {
+      str = names[0];
+      
+      for (unsigned int i=1; i<names.Count(); i++)
+         str = str + delimiter + names[i];
+   }
+   
+   return str;
+}

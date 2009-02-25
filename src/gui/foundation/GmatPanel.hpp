@@ -35,8 +35,9 @@ class GmatPanel : public wxPanel
 public:
    
    // constructors
-   GmatPanel( wxWindow *parent, bool showScriptButton = true);
-
+   GmatPanel(wxWindow *parent, bool showBottomSizer = true,
+             bool showScriptButton = true);
+   
    virtual bool PrepareObjectNameChange();
    virtual void ObjectNameChanged(Gmat::ObjectType type,
                                   const wxString &oldName,
@@ -71,10 +72,14 @@ protected:
    virtual void LoadData() = 0;
    virtual void SaveData() = 0;
    
+   wxArrayString ToWxArrayString(const StringArray &array);
+   wxString ToWxString(const wxArrayString &names);
+   
    // member data
    GuiInterpreter *theGuiInterpreter;
    GuiItemManager *theGuiManager;
    bool canClose;
+   bool mShowBottomSizer;
    bool mShowScriptButton;
    bool mDataChanged;
    std::string mMsgFormat;
@@ -82,14 +87,19 @@ protected:
    wxWindow *theParent;
    
    wxBoxSizer *thePanelSizer;
-   //wxStaticBoxSizer *theTopSizer;
-   wxStaticBoxSizer *theMiddleSizer;
+   #ifdef __SHOW_TOP_SIZER__
+   wxStaticBoxSizer *theTopSizer;
+   #endif
+   //wxStaticBoxSizer *theMiddleSizer;
+   wxSizer *theMiddleSizer;
    wxStaticBoxSizer *theBottomSizer;
    
    wxButton *theOkButton;
    wxButton *theApplyButton;
    wxButton *theCancelButton;
-   //wxButton *theHelpButton;
+   #ifdef __SHOW_HELP_BUTTON__
+   wxButton *theHelpButton;
+   #endif
    wxButton *theScriptButton;
    wxButton *theSummaryButton;
    
