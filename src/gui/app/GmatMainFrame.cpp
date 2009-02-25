@@ -34,7 +34,6 @@
 #include "GmatMenuBar.hpp"
 #include "GmatToolBar.hpp"
 #include "GmatTreeItemData.hpp"
-#include "SolarSystemWindow.hpp"
 #include "GmatMdiChildFrame.hpp"
 // panels
 #include "GmatBaseSetupPanel.hpp"
@@ -305,10 +304,13 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    //-----------------------------------------------------------------
 #if wxUSE_STATUSBAR
    // create a status bar
-   int widths[] = {150, 600, 300};
-   theStatusBar = CreateStatusBar(3, wxBORDER);
-   SetStatusWidths(3, widths);
-   SetStatusText(_T("Welcome to GMAT!"));
+   // There is a problem with status bar field 0 being blank out when
+   // mouse is moved around the tool bar, so make the number of field
+   // to 4 and start from field 1 (LOJ: 2009.02.12)
+   theStatusBar = CreateStatusBar(4, wxBORDER);
+   int widths[] = {1, 150, -3, -1};
+   SetStatusWidths(4, widths);
+   SetStatusText(_T("Welcome to GMAT!"), 1);
 #endif // wxUSE_STATUSBAR
    
    //-----------------------------------------------------------------
@@ -1282,7 +1284,7 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
          
          // if not running script folder, clear status
          if (!multiScripts)
-            SetStatusText("", 1);
+            SetStatusText("", 2);
          
          // open script editor
          if (scriptOpenOpt == GmatGui::ALWAYS_OPEN_SCRIPT)
@@ -1290,7 +1292,7 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
       }
       else
       {
-         SetStatusText("Errors were Found in the Script!!", 1);
+         SetStatusText("Errors were Found in the Script!!", 2);
          
          // open script editor
          if (scriptOpenOpt == GmatGui::ALWAYS_OPEN_SCRIPT ||
@@ -1361,9 +1363,11 @@ Integer GmatMainFrame::RunCurrentMission()
       
       MessageInterface::ShowMessage("Execution resumed.\n");
       theGuiInterpreter->ChangeRunState("Resume");
+      SetStatusText("Busy", 1);
    }
    else
    {
+      SetStatusText("Busy", 1);
       MinimizeChildren();
       retval = theGuiInterpreter->RunMission();
       
@@ -1379,6 +1383,7 @@ Integer GmatMainFrame::RunCurrentMission()
                        // when run stopped by user
       
       EnableMenuAndToolBar(true, true);
+      SetStatusText("", 1);
       
       //put items in output tab
       GmatAppData::Instance()->GetOutputTree()->UpdateOutput(false, true);
@@ -2000,11 +2005,12 @@ void GmatMainFrame::OnPause(wxCommandEvent& WXUNUSED(event))
    
    theGuiInterpreter->ChangeRunState("Pause");
    MessageInterface::ShowMessage("Execution paused.\n");
-  
+   
    theMenuBar->Enable(MENU_FILE_OPEN_SCRIPT, FALSE);
    UpdateMenus(FALSE);
    toolBar->EnableTool(MENU_FILE_OPEN_SCRIPT, FALSE);
    toolBar->EnableTool(TOOL_RUN, TRUE);
+   SetStatusText("Paused", 1);
    mRunPaused = true;
 }
 
@@ -2134,9 +2140,6 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::SOLAR_SYSTEM:
       sizer->Add(new UniversePanel(scrolledWin), 0, wxGROW|wxALL, 0);
       break;
-      //case itemType == GmatTree::BODY:
-      //sizer->Add(new SolarSystemWindow(scrolledWin), 0, wxGROW|wxALL, 0);      
-      //break;
    case GmatTree::IMPULSIVE_BURN:
       sizer->Add(new ImpulsiveBurnSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
@@ -2585,7 +2588,7 @@ void GmatMainFrame::OnOpenScript(wxCommandEvent& event)
           mScriptFilename = tmpFilename;
       }
       
-      SetStatusText("", 1);
+      SetStatusText("", 2);
       InterpretScript(mScriptFilename.c_str(), GmatGui::OPEN_SCRIPT_ON_ERROR, true);
    }
 }
@@ -3285,6 +3288,10 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
    {
       toolBar->EnableTool(TOOL_PAUSE, !enable);
       toolBar->EnableTool(TOOL_STOP, !enable);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, false);
    }
    else
    {
@@ -3309,6 +3316,7 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
    GmatMdiChildFrame *child = (GmatMdiChildFrame*)GetActiveChild();
    if (child != NULL)
    {
+      child->UpdateGuiItem(true, true);
       wxMenuBar *childMenuBar = child->GetMenuBar();
       
       #if DBGLVL_MENUBAR > 1
