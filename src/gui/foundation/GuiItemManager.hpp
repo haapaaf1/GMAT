@@ -58,7 +58,8 @@ public:
    void UpdateForceModel(bool updateObjectArray = true);
    void UpdateFormation(bool updateObjectArray = true);
    void UpdateFunction(bool updateObjectArray = true);
-   void UpdateHardware(bool updateObjectArray = true);
+   void UpdateFuelTank(bool updateObjectArray = true);
+   void UpdateThruster(bool updateObjectArray = true);
    void UpdateParameter(bool updateObjectArray = true);
    void UpdatePropagator(bool updateObjectArray = true);
    void UpdateSolarSystem(bool updateObjectArray = true);
@@ -145,8 +146,8 @@ public:
    wxComboBox* GetCoordSysComboBox(wxWindow *parent, wxWindowID id,
                                    const wxSize &size);
    
-   wxComboBox* GetConfigBodyComboBox(wxWindow *parent, wxWindowID id,
-                                     const wxSize &size);
+   wxComboBox* GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id,
+                                        const wxSize &size);
    
    wxComboBox* GetFunctionComboBox(wxWindow *parent, wxWindowID id,
                                    const wxSize &size);
@@ -156,9 +157,6 @@ public:
    
    wxComboBox* GetCelestialPointComboBox(wxWindow *parent, wxWindowID id, 
                                          const wxSize &size, bool addVector = false);
-   
-   wxComboBox* GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id, 
-                                        const wxSize &size, bool addVector = false);
    
    wxComboBox* GetUserVariableComboBox(wxWindow *parent, wxWindowID id,
                                        const wxSize &size);
@@ -327,7 +325,8 @@ private:
    void UpdateSpacePointList();
    void UpdateBurnList();
    void UpdateCoordSystemList();
-   void UpdateHardwareList();
+   void UpdateFuelTankList();
+   void UpdateThrusterList();
    void UpdateFunctionList();
    void UpdateSubscriberList();
    void UpdateSolverList();
@@ -355,8 +354,8 @@ private:
    std::vector<wxListBox*> mThrusterLBList;
    
    std::vector<wxComboBox*> mSpacePointCBList;
+   std::vector<wxComboBox*> mCelestialBodyCBList;
    std::vector<wxComboBox*> mSpacecraftCBList;
-   std::vector<wxComboBox*> mCelesBodyCBList;
    std::vector<wxComboBox*> mImpBurnCBList;
    std::vector<wxComboBox*> mFiniteBurnCBList;
    std::vector<wxComboBox*> mCoordSysCBList;

@@ -273,9 +273,14 @@ void GuiItemManager::UpdateAll()
    MessageInterface::ShowMessage("===> after UpdateForceModel()\n");
    #endif
    
-   UpdateHardware(false);
+   UpdateFuelTank(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateHardware()\n");
+   MessageInterface::ShowMessage("===> after UpdateFuelTank()\n");
+   #endif
+   
+   UpdateThruster(false);
+   #if DBGLVL_GUI_ITEM_UPDATE
+   MessageInterface::ShowMessage("===> after UpdateThruster()\n");
    #endif
    
    UpdateFunction(false);
@@ -460,19 +465,38 @@ void GuiItemManager::UpdateFunction(bool updateObjectArray)
 
 
 //------------------------------------------------------------------------------
-//  void UpdateHardware(bool updateObjectArray = true)
+//  void UpdateFuelTank(bool updateObjectArray = true)
 //------------------------------------------------------------------------------
 /**
- * Updates hardware related gui components.
+ * Updates FuelTank gui components.
  */
 //------------------------------------------------------------------------------
-void GuiItemManager::UpdateHardware(bool updateObjectArray)
+void GuiItemManager::UpdateFuelTank(bool updateObjectArray)
 {
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> UpdateHardware\n");
+   MessageInterface::ShowMessage("===> UpdateFuelTank\n");
    #endif
    
-   UpdateHardwareList();
+   UpdateFuelTankList();
+   if (updateObjectArray)
+      AddToAllObjectArray();
+}
+
+
+//------------------------------------------------------------------------------
+//  void UpdateThruster(bool updateObjectArray = true)
+//------------------------------------------------------------------------------
+/**
+ * Updates Thruster gui components.
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::UpdateThruster(bool updateObjectArray)
+{
+   #if DBGLVL_GUI_ITEM_UPDATE
+   MessageInterface::ShowMessage("===> UpdateThruster\n");
+   #endif
+   
+   UpdateThrusterList();
    if (updateObjectArray)
       AddToAllObjectArray();
 }
@@ -786,10 +810,10 @@ void GuiItemManager::UnregisterComboBox(const wxString &type, wxComboBox *cb)
    else if (type == "CelestialBody")
    {
       std::vector<wxComboBox*>::iterator pos =
-         find(mCelesBodyCBList.begin(), mCelesBodyCBList.end(), cb);
+         find(mCelestialBodyCBList.begin(), mCelestialBodyCBList.end(), cb);
       
-      if (pos != mCelesBodyCBList.end())
-         mCelesBodyCBList.erase(pos);
+      if (pos != mCelestialBodyCBList.end())
+         mCelestialBodyCBList.erase(pos);
    }
    else if (type == "Spacecraft")
    {
@@ -1181,14 +1205,14 @@ wxComboBox* GuiItemManager::GetCoordSysComboBox(wxWindow *parent, wxWindowID id,
 
 
 //------------------------------------------------------------------------------
-//  wxComboBox* GetConfigBodyComboBox(wxWindow *parent, const wxSize &size)
+//  wxComboBox* GetCelestialBodyComboBox(wxWindow *parent, const wxSize &size)
 //------------------------------------------------------------------------------
 /**
  * @return CelestialBody ComboBox pointer
  */
 //------------------------------------------------------------------------------
-wxComboBox* GuiItemManager::GetConfigBodyComboBox(wxWindow *parent, wxWindowID id,
-                                                  const wxSize &size)
+wxComboBox* GuiItemManager::GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id,
+                                                     const wxSize &size)
 {
    int numBody = theNumCelesBody;
    
@@ -1201,6 +1225,11 @@ wxComboBox* GuiItemManager::GetConfigBodyComboBox(wxWindow *parent, wxWindowID i
    
    // show Earth as a default body
    celesBodyComboBox->SetStringSelection("Earth");
+   
+   //---------------------------------------------
+   // register for update
+   //---------------------------------------------
+   mCelestialBodyCBList.push_back(celesBodyComboBox);
    
    return celesBodyComboBox;
 }
@@ -1262,7 +1291,7 @@ GuiItemManager::GetSpacePointComboBox(wxWindow *parent, wxWindowID id,
    
    for (int i=0; i<theNumSpacePoint; i++)
       spacePointComboBox->Append(theSpacePointList[i]);
-      
+   
    //---------------------------------------------
    // register to update list
    //---------------------------------------------
@@ -1306,46 +1335,6 @@ GuiItemManager::GetCelestialPointComboBox(wxWindow *parent, wxWindowID id,
    
    return celestialPointComboBox;
 }
-
-//------------------------------------------------------------------------------
-// wxComboBox* GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id,
-//                                      const wxSize &size, bool addVector = false)
-//------------------------------------------------------------------------------
-/**
- * @return configured CelestialBody object ComboBox pointer
- */
-//------------------------------------------------------------------------------
-wxComboBox*
-GuiItemManager::GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id,
-                                         const wxSize &size, bool addVector)
-{
-   #if DBGLVL_GUI_ITEM
-   MessageInterface::ShowMessage
-      ("GuiItemManager::GetCelestialBodyComboBox()\n");
-   #endif
-      
-   wxArrayString emptyList;
-   wxComboBox * celestialBodyComboBox =
-      new wxComboBox(parent, id, wxT(""), wxDefaultPosition, size, emptyList,
-                     wxCB_READONLY);
-   
-   if (addVector)
-      celestialBodyComboBox->Append("Vector");
-   
-   for (int i=0; i<theNumCelesBody; i++)
-      celestialBodyComboBox->Append(theCelesBodyList[i]);
-    
-   // select first item
-   celestialBodyComboBox->SetSelection(0);
-      
-   //---------------------------------------------
-   // register to update list
-   //---------------------------------------------
-   mCelesBodyCBList.push_back(celestialBodyComboBox);
-   
-   return celestialBodyComboBox;
-}
-
 
 //------------------------------------------------------------------------------
 //  wxComboBox* GetUserVariableComboBox(wxWindow *parent, const wxSize &size)
@@ -2577,7 +2566,7 @@ CreateParameterSizer(wxWindow *parent,
    
    // Origin ComboBox
    *originComboBox =
-      GetConfigBodyComboBox(parent, originComboBoxId, wxSize(170, 20));
+      GetCelestialBodyComboBox(parent, originComboBoxId, wxSize(170, 20));
    
    //-----------------------------------------------------------------
    // user parameter
@@ -2857,7 +2846,7 @@ wxSizer* GuiItemManager::Create3ColParameterSizer
          GetCoordSysComboBox(parent, coordSysComboBoxId, wxSize(170, 20));
       
       *originComboBox =
-         GetConfigBodyComboBox(parent, originComboBoxId, wxSize(170, 20));
+         GetCelestialBodyComboBox(parent, originComboBoxId, wxSize(170, 20));
       
       //----- coordSysBoxSizer
       *coordSysBoxSizer = new wxBoxSizer(wxVERTICAL);   
@@ -3518,27 +3507,17 @@ void GuiItemManager::UpdateCelestialBodyList()
                                     std::string(theCelesBodyList[i].c_str()) + "\n");
       #endif
    }
-//   //-------------------------------------------------------
-//   // update registered SpacePoint ComboBox
-//   //-------------------------------------------------------
-//   for (std::vector<wxComboBox*>::iterator pos = theCelesBodyList.begin();
-//        pos != theCelesBodyList.end(); ++pos)
-//   {
-//      wxString str = (*pos)->GetStringSelection();
-//      
-//      if ((*pos)->FindString("Vector") == wxNOT_FOUND)
-//      {
-//         (*pos)->Clear();
-//      }
-//      else
-//      {
-//         (*pos)->Clear();
-//         (*pos)->Append("Vector");
-//      }
-//      
-//      (*pos)->Append(theCelesBodyList);
-//      (*pos)->SetStringSelection(str);
-//   }
+   
+   //-------------------------------------------------------
+   // update registered CelestialBody ComboBox
+   //-------------------------------------------------------
+   for (std::vector<wxComboBox*>::iterator pos = mCelestialBodyCBList.begin();
+        pos != mCelestialBodyCBList.end(); ++pos)
+   {
+      wxString str = (*pos)->GetStringSelection();      
+      (*pos)->Append(theCelesBodyList);
+      (*pos)->SetStringSelection(str);
+   }
 }
 
 
@@ -3778,50 +3757,37 @@ void GuiItemManager::UpdateCoordSystemList()
 
 
 //------------------------------------------------------------------------------
-// void UpdateHardwareList()
+// void UpdateFuelTankList()
 //------------------------------------------------------------------------------
 /**
- * Updates configured hardware list.
+ * Updates configured FuelTank list.
  */
 //------------------------------------------------------------------------------
-void GuiItemManager::UpdateHardwareList()
+void GuiItemManager::UpdateFuelTankList()
 {
    StringArray items =
-      theGuiInterpreter->GetListOfObjects(Gmat::HARDWARE);
-   int numHardware = items.size();
+      theGuiInterpreter->GetListOfObjects(Gmat::FUEL_TANK);
+   int numFuelTank = items.size();
    
    #if DBGLVL_GUI_ITEM_HW
    MessageInterface::ShowMessage
-      ("GuiItemManager::UpdateHardwareList() numHardware=%d\n", numHardware);
+      ("GuiItemManager::UpdateFuelTankList() numFuelTank=%d\n", numFuelTank);
    #endif
    
    theNumFuelTank = 0;
-   theNumThruster = 0;
-   GmatBase *hw;
    theFuelTankList.Clear();
-   theThrusterList.Clear();
    
-   for (int i=0; i<numHardware; i++)
+   for (int i=0; i<numFuelTank; i++)
    {
-      hw = theGuiInterpreter->GetConfiguredObject(items[i]);
-      
-      if (hw->IsOfType(Gmat::FUEL_TANK))
-      {
-         theFuelTankList.Add(items[i].c_str());
-      }
-      else if (hw->IsOfType(Gmat::THRUSTER))
-      {
-         theThrusterList.Add(items[i].c_str());
-      }
+      theFuelTankList.Add(items[i].c_str());
       
       #if DBGLVL_GUI_ITEM_HW > 1
       MessageInterface::ShowMessage
-         ("GuiItemManager::UpdateHardwareList() " + items[i] + "\n");
+         ("GuiItemManager::UpdateFuelTankList() " + items[i] + "\n");
       #endif
    }
    
    theNumFuelTank = theFuelTankList.GetCount();
-   theNumThruster = theThrusterList.GetCount();
    
    //-------------------------------------------------------
    // update registered FuelTank ListBox
@@ -3846,11 +3812,76 @@ void GuiItemManager::UpdateHardwareList()
    }
    
    //-------------------------------------------------------
+   // update registered FuelTank ComboBox
+   //-------------------------------------------------------   
+   int sel;
+   wxString selStr;
+   for (std::vector<wxComboBox*>::iterator pos = mFuelTankCBList.begin();
+        pos != mFuelTankCBList.end(); ++pos)
+   {
+      sel = (*pos)->GetSelection();
+      selStr = (*pos)->GetValue();
+      
+      if (theNumFuelTank > 0)
+      {
+         (*pos)->Clear();
+         (*pos)->Append(theFuelTankList);
+         
+         // Insert first item as "No Fuel Tank Selected"
+         if (theFuelTankList[0] != selStr)
+         {
+            (*pos)->Insert("No Fuel Tank Selected", 0);
+            (*pos)->SetSelection(0);
+         }
+         else
+         {
+            (*pos)->SetSelection(sel);
+         }
+      }
+   }
+   
+} // end UpdateFuelTankList()
+
+
+//------------------------------------------------------------------------------
+// void UpdateThrusterList()
+//------------------------------------------------------------------------------
+/**
+ * Updates configured Thruster list.
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::UpdateThrusterList()
+{
+   StringArray items =
+      theGuiInterpreter->GetListOfObjects(Gmat::THRUSTER);
+   int numThruster = items.size();
+   
+   #if DBGLVL_GUI_ITEM_HW
+   MessageInterface::ShowMessage
+      ("GuiItemManager::UpdateThrusterList() numThruster=%d\n", numThruster);
+   #endif
+   
+   theNumThruster = 0;
+   theThrusterList.Clear();
+   
+   for (int i=0; i<numThruster; i++)
+   {
+      theThrusterList.Add(items[i].c_str());
+      
+      #if DBGLVL_GUI_ITEM_HW > 1
+      MessageInterface::ShowMessage
+         ("GuiItemManager::UpdateThrusterList() " + items[i] + "\n");
+      #endif
+   }
+   
+   theNumThruster = theThrusterList.GetCount();
+   
+   //-------------------------------------------------------
    // update registered Thruster ListBox
    //-------------------------------------------------------
    // It's ok to have the same Thruster in more than one spacecraft since
    // the Sandbox will clone it.
-   exPos = mThrusterExcList.begin();
+   std::vector<wxArrayString*>::iterator exPos = mThrusterExcList.begin();
    
    for (std::vector<wxListBox*>::iterator pos = mThrusterLBList.begin();
         pos != mThrusterLBList.end(); ++pos)
@@ -3868,34 +3899,35 @@ void GuiItemManager::UpdateHardwareList()
    }
    
    //-------------------------------------------------------
-   // update registered FuelTank ComboBox
-   //-------------------------------------------------------
-   
-   int sel;
-   for (std::vector<wxComboBox*>::iterator pos = mFuelTankCBList.begin();
-        pos != mFuelTankCBList.end(); ++pos)
-   {
-      sel = (*pos)->GetSelection();
-      
-      (*pos)->Clear();
-      (*pos)->Append(theFuelTankList);
-      (*pos)->SetSelection(sel);
-   }
-   
-   //-------------------------------------------------------
    // update registered Thruster ComboBox
    //-------------------------------------------------------
+   int sel;
+   wxString selStr;
    for (std::vector<wxComboBox*>::iterator pos = mThrusterCBList.begin();
         pos != mThrusterCBList.end(); ++pos)
    {
       sel = (*pos)->GetSelection();
+      selStr = (*pos)->GetValue();
       
-      (*pos)->Clear();
-      (*pos)->Append(theThrusterList);
-      (*pos)->SetSelection(sel);
+      if (theNumThruster > 0)
+      {
+         (*pos)->Clear();
+         (*pos)->Append(theThrusterList);
+         
+         // Insert first item as "No Thruster Selected"
+         if (theThrusterList[0] != selStr)
+         {
+            (*pos)->Insert("No Thruster Selected", 0);
+            (*pos)->SetSelection(0);
+         }
+         else
+         {
+            (*pos)->SetSelection(sel);
+         }
+      }
    }
    
-} // end UpdateHardwareList()
+} // end UpdateThrusterList()
 
 
 //------------------------------------------------------------------------------
