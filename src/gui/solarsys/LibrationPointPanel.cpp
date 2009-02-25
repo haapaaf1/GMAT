@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              LibrationPointPanel
 //------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void LibrationPointPanel::Create()
       
       // combo box for avaliable bodies 
       primaryBodyCB = 
-         theGuiManager->GetConfigBodyComboBox(this, ID_COMBOBOX, wxSize(100,-1));
+         theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX, wxSize(100,-1));
       
       // label for secondary body combobox
       wxStaticText *secondaryBodyLabel = new wxStaticText(this, ID_TEXT,
@@ -121,7 +121,7 @@ void LibrationPointPanel::Create()
         
       // combo box for avaliable bodies 
       secondaryBodyCB = 
-         theGuiManager->GetConfigBodyComboBox(this, ID_COMBOBOX, wxSize(100,-1));
+         theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX, wxSize(100,-1));
 
       // label for libration point combobox
       wxStaticText *librationPointLabel = new wxStaticText(this, ID_TEXT,
