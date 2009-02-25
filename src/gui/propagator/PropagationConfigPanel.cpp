@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              PropagationConfigPanel
 //------------------------------------------------------------------------------
@@ -1248,7 +1248,7 @@ void PropagationConfigPanel::Setup(wxWindow *parent)
       new wxStaticText( parent, ID_TEXT, wxT("Central Body"),
                         wxDefaultPosition, wxSize(70,20), wxST_NO_AUTORESIZE);
    theOriginComboBox  =
-      theGuiManager->GetConfigBodyComboBox(this, ID_CB_ORIGIN, wxSize(100,-1));
+      theGuiManager->GetCelestialBodyComboBox(this, ID_CB_ORIGIN, wxSize(100,-1));
    
    wxFlexGridSizer *centralBodySizer = new wxFlexGridSizer( 2, 0, 2 );
    centralBodySizer->Add( centralBodyStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
