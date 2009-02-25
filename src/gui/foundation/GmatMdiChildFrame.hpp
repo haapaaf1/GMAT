@@ -47,6 +47,7 @@ public:
    void SetDataType(GmatTree::ItemType type);
    wxTextCtrl* GetScriptTextCtrl();
    void SetScriptTextCtrl(wxTextCtrl *textCtrl);
+   void UpdateGuiItem(int updateEdit, int updateAnimation);
    
 #ifdef __USE_STC_EDITOR__
    Editor* GetEditor();
@@ -79,8 +80,6 @@ protected:
    Editor *theEditor;
 #endif
 
-   void UpdateGuiItem(int updateEdit, int updateAnimation);
-   
    // any class wishing to process wxWindows events must use this macro
    DECLARE_EVENT_TABLE();
       

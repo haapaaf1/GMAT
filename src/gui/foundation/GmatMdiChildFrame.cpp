@@ -27,6 +27,7 @@
 //#define __CREATE_CHILD_MENU_BAR__
 
 //#define DEBUG_MDI_CHILD_FRAME
+//#define DEBUG_UPDATE_GUI_ITEM
 
 //------------------------------
 // event tables for wxWindows
@@ -103,6 +104,10 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
    #endif
    
    // Enable Edit menu and tools if ScriptFile
+   #ifdef DEBUG_UPDATE_GUI_ITEM
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame() constructor calling UpdateGuiItem()\n");
+   #endif
    UpdateGuiItem(1, 0);
    
    // Set icon if icon file is in the start up file
@@ -136,6 +141,10 @@ GmatMdiChildFrame::~GmatMdiChildFrame()
       // There should be only one MenuBar associated with GmatMainFrame,
       // so we cannot delete it here.
       // Disable Edit menu and tools
+      #ifdef DEBUG_UPDATE_GUI_ITEM
+      MessageInterface::ShowMessage
+         ("GmatMdiChildFrame() destructor calling UpdateGuiItem()\n");
+      #endif
       UpdateGuiItem(2, 0);
    #endif
 }
@@ -254,6 +263,10 @@ void GmatMdiChildFrame::OnActivate(wxActivateEvent &event)
    #endif
    
    // update both edit and animation tools
+   #ifdef DEBUG_UPDATE_GUI_ITEM
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame()::OnActivate calling UpdateGuiItem()\n");
+   #endif
    UpdateGuiItem(1, 1);
    
    event.Skip();
@@ -407,12 +420,27 @@ void GmatMdiChildFrame::UpdateGuiItem(int updateEdit, int updateAnimation)
    //------------------------------------------------------------
    // update animation icons from toolbar
    //------------------------------------------------------------
+   // If mission is running, ignore   
    if (updateAnimation == 1 && mItemType == GmatTree::OUTPUT_OPENGL_PLOT)
    {
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, true);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, true);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, true);
-      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, true);
+      // If Play button is enabled, mission is not running
+      if (toolBar->GetToolEnabled(GmatMenu::TOOL_RUN))
+      {
+         toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, true);
+         toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, true);
+         toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, true);
+         toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, true);
+         #ifdef DEBUG_UPDATE_GUI_ITEM
+         MessageInterface::ShowMessage("   Animation tools enabled\n");
+         #endif
+      }
+      else
+      {
+         #ifdef DEBUG_UPDATE_GUI_ITEM
+         MessageInterface::ShowMessage
+            ("   Cannot enable animation tools, mission is still running\n");
+         #endif
+      }
    }
    else
    {
@@ -421,4 +449,9 @@ void GmatMdiChildFrame::UpdateGuiItem(int updateEdit, int updateAnimation)
       toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, false);
       toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, false);
    }
+   
+   #ifdef DEBUG_UPDATE_GUI_ITEM
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame::UpdateGuiItem() exiting\n");
+   #endif
 }
