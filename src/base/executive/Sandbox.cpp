@@ -308,7 +308,9 @@ bool Sandbox::AddSolarSystem(SolarSystem *ss)
 #ifdef DISABLE_SOLAR_SYSTEM_CLONING
    solarSys = ss;
 #else
-   MessageInterface::ShowMessage("Cloning the solar system in the Sandbox\n");
+   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING)
+      MessageInterface::LogMessage("Cloning the solar system in the Sandbox\n");
+   
    solarSys = (SolarSystem*)(ss->Clone());
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
