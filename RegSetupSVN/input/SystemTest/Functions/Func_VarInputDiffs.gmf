@@ -1,0 +1,5 @@
+function [outVar] = Func_VarInputDiffs
+
+Create Variable outVar;
+
+GMAT outVar = 5000;

@@ -1,0 +1,17 @@
+Create Spacecraft DefaultSC;
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+Create Variable newVar;
+Create Variable input1 input2;
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.Filename = './output/SystemTest/Func_VarInputDiffs.report';
+
+Propagate DefaultProp(DefaultSC);
+ 
+[newVar] = Func_VarInputDiffs(input1, input2); % Call Function 
+Report ReportFile1 newVar;

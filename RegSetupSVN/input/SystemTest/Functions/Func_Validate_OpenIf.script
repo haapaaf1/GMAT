@@ -1,0 +1,13 @@
+Create Spacecraft DefaultSC;
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+Create Variable input1 input2;
+Create Variable output1;
+
+Propagate DefaultProp(DefaultSC);
+ 
+[output1] = Func_Validate_OpenIf(input1, input2); % Call Function 

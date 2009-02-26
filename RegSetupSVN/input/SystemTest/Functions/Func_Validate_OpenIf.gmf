@@ -1,0 +1,9 @@
+function [outVar] = Func_Validate_OpenIf(input1, input2)
+
+Create Variable outVar;
+
+GMAT input1 = 3;
+GMAT input2 = 6;
+
+If input2 > input1;
+   input1 = 20;
