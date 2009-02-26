@@ -1,0 +1,46 @@
+% $Id: Func_allPropagates.script,v 1.4 2008/04/22 18:24:01 edove Exp $
+
+% Func_allPropagates - This script tests to make sure 
+%
+% Function used: Func_allPropagates.gmf, Func_allPropagates_nested.gmf
+% Function path: ./output/SystemTest/
+% Outputs to: ./output/SystemTest/ 
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create String reportLoc;
+GMAT reportLoc = './output/SystemTest/Func_allPropagates.report';
+
+Create String reportLoc_nested;
+GMAT reportLoc_nested = './output/SystemTest/Func_allPropagates_nested.report';
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% Not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+
+% Call functions
+Func_allPropagates(reportLoc);
+Func_allPropagates_nested(reportLoc_nested);
