@@ -1,0 +1,24 @@
+% $Id: Func_MakeDeg0to360.script,v 1.1 2008/11/24 22:26:49 edove Exp $
+
+Create Spacecraft DefaultSC;
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+Create Variable posDegNum negDegNum newDegNum1 newDegNum2;
+GMAT negDegNum = -4563.213;
+GMAT posDegNum = 4563.213;
+
+Create ReportFile Data;
+GMAT Data.Filename = './output/SystemTest/Func_MakeDeg0to360.report';
+
+% Force Start of Mission Sequence
+BeginScript;
+EndScript;
+
+[newDegNum1] = Func_MakeDeg0to360(negDegNum);
+[newDegNum2] = Func_MakeDeg0to360(posDegNum);
+
+Report Data negDegNum newDegNum1 posDegNum newDegNum2;

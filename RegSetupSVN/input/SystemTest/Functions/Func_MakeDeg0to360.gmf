@@ -1,0 +1,52 @@
+function [OutputNum] = Func_MakeDeg0to360(InputNum)
+% $Id: Func_MakeDeg0to360.gmf,v 1.1 2008/11/24 22:26:49 edove Exp $
+
+%   Func_MakeDeg0to360 converts a number in degrees that is outside of the 0 to 360 degree 
+%   range to a number that falls within that range.
+%
+%   Modification History
+%   ---------------------------------------------------------------------------------
+%   11/24/2008 - E.Dove:  Created the first version.
+%   11/25/2008 - E.Dove:  Added code to make sure output number couldn't be 360 degrees
+
+% ---- Create Variables ----
+Create Variable posNum negNum;
+Create Variable signFlag;
+Create Variable calcNum;
+Create Variable countSub;
+Create Variable OutputNum;
+
+% ---- Define Variables ----
+countSub = 0
+posNum   = abs(InputNum);
+negNum   = -abs(InputNum);
+
+% ---- Check Sign of Input Number ----
+If negNum == InputNum 
+	signFlag = 0;
+EndIf
+If posNum == InputNum 
+	signFlag = 1;
+EndIf
+
+
+% ---- Determine How many times 360 needs to be subtracted from Input Number ----
+calcNum = posNum;
+
+While calcNum >= 360
+	calcNum = calcNum - 360;
+	countSub = countSub + 1;
+EndWhile
+
+% ---- Store final answer as the output variable
+If signFlag == 1;
+	OutputNum = calcNum;
+EndIf
+If signFlag == 0;
+	OutputNum = 360 - calcNum;
+EndIf
+
+% Prevent output from being 360. Convert to 0 instead
+If OutputNum == 360
+	OutputNum = 0;
+EndIf

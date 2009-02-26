@@ -1,0 +1,132 @@
+function Func_NonLinearConstraintTests(reportLoc)
+% $Id: Func_NonLinearConstraintTests.gmf,v 1.2 2008/05/02 19:05:34 edove Exp $
+
+%  This block of tests verifies that NonLinearConstraint handles
+%  all allowed usages including conditions (>=,<=, =) and 
+%  variables, arrays, array elements, and spacecraft parameters.
+%  If the script runs correctly, the optimizer should converge 
+%  to Sat1.X = 4, Sat1.Y = 4;
+
+%-----------------------------------------------------------------
+%---------------------- Create Spacecraft ------------------------
+%-----------------------------------------------------------------
+Create Spacecraft Sat;
+GMAT Sat.DisplayStateType = Cartesian;
+%  Do not change these, they are used later in the tests and need
+%  to have these specific values!!!
+GMAT Sat.VX         = 0;
+GMAT Sat.VY         = 8;
+GMAT Sat.VZ         = 10;
+
+%-----------------------------------------------------------------
+%-----------------Create and Setup the Optimizer------------------
+%-----------------------------------------------------------------
+Create FminconOptimizer SQPfmincon
+GMAT SQPfmincon.DiffMaxChange = 0.01;      % Real number
+GMAT SQPfmincon.DiffMinChange = 0.000001;  % Real number
+GMAT SQPfmincon.MaxFunEvals   = 1000;    % Real number
+GMAT SQPfmincon.MaxIter       = 250;     % Real number
+GMAT SQPfmincon.TolX          = 0.01;    % Real number
+GMAT SQPfmincon.TolFun        = 0.0001;  % Real number
+GMAT SQPfmincon.TolCon        = 0.0001;  % Real number
+GMAT SQPfmincon.DerivativeCheck = Off;   % {On, Off}
+GMAT SQPfmincon.Diagnostics     = On;    % {On, Off}
+GMAT SQPfmincon.Display         = Iter   % {Iter, Off, Notify, Final}
+GMAT SQPfmincon.GradObj         = Off;   % {On, Off}
+GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
+
+%-----------------------------------------------------------------
+%-----------------Create Variable and Arrays ---------------------
+%-----------------------------------------------------------------
+Create Variable X1 X2 F G TestNumber
+Create Variable Eight Zero Ten
+Create Array AEight[2,2] AZero[2,2] ATen[2,2] AG[3,1] AC[3,1];
+Create ReportFile Data;
+GMAT Data.Filename = reportLoc;
+GMAT Data.Precision = 15;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-----------------------------------------------------------------
+%----------------- Run the Optimization Loop ---------------------
+%-----------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Eight = 8;
+Zero   = 0;
+Ten   = 10;
+AEight(2,2) = 8;
+ATen(2,2)   = 10;
+
+Optimize SQPfmincon;
+
+    %  Vary the independent variables
+    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+    GMAT X1 = Sat.X;
+    GMAT X2 = Sat.Y;
+   
+    %  The cost function and Minimize command
+    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+    Minimize SQPfmincon(F);
+
+    %  Calculate constraint and use NonLinearConstraint command
+    %   ( yes, the equation below is actually a linear constraint, were 
+    %     testing functionality with this test)
+    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+    %  or X2 >= -X1 + 6;
+    GMAT G =  X2 + X1;
+
+    %  Test all conditions (Including a few that are not allowed)
+    NonlinearConstraint SQPfmincon( G  = 8  );
+    NonlinearConstraint SQPfmincon( G >= 0  );
+    NonlinearConstraint SQPfmincon( G <= 10 );
+
+    %  Test using variables on RHS
+    NonlinearConstraint SQPfmincon( G  = Eight );
+    NonlinearConstraint SQPfmincon( G >= Zero  );
+    NonlinearConstraint SQPfmincon( G <= Ten   );
+
+    %  Test using variables on LHS
+    NonlinearConstraint SQPfmincon( Eight = G  );
+    NonlinearConstraint SQPfmincon( Zero <= G  );
+    NonlinearConstraint SQPfmincon( Ten  >= G );
+
+    %  Test using s/c parameters on RHS
+    NonlinearConstraint SQPfmincon( G  = Sat.VY );
+    NonlinearConstraint SQPfmincon( G >= Sat.VX  );
+    NonlinearConstraint SQPfmincon( G <= Sat.VZ   );
+
+    %  Test using s/c parameters on LHS
+    NonlinearConstraint SQPfmincon( Sat.VY = G  );
+    NonlinearConstraint SQPfmincon( Sat.VX <= G  );
+    NonlinearConstraint SQPfmincon( Sat.VZ  >= G );
+
+
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%!!!!!!!! These lines are not currently working !!!!!
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% Currently GMAT is not going to support this feature
+
+
+%    %  Test using array elements on RHS
+%    NonlinearConstraint SQPfmincon( G  = AEight(2,2) );
+%    NonlinearConstraint SQPfmincon( G >= AZero(2,2)  );
+%    NonlinearConstraint SQPfmincon( G <= ATen(2,2)   );
+%
+%    %  Test using array elements on LHS
+%    NonlinearConstraint SQPfmincon( AEight(2,2) = G  );
+%    NonlinearConstraint SQPfmincon( AZero(2,2) <= G  );
+%    NonlinearConstraint SQPfmincon( ATen(2,2)  >= G );
+%
+%    %  Test using full arrays on both sides
+%    NonlinearConstraint SQPfmincon( AC = AG  );
+%    NonlinearConstraint SQPfmincon( AC <= AG  );
+%    NonlinearConstraint SQPfmincon( AC  >= AG );
+
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%!!!!!!!! These lines are not currently working !!!!!
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+EndOptimize;
+
+Report Data  X1 X2;

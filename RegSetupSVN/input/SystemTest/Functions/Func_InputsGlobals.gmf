@@ -1,0 +1,81 @@
+function Func_InputsGlobals
+% $Id: Func_InputsGlobals.gmf,v 1.4 2008/11/05 22:23:49 edove Exp $
+
+Global FuncInputSC;
+Global FuncInputFormation;
+Global FuncInputIB;
+Global FuncInputFB;
+Global FuncInputDC;
+Global FuncInputSQP;
+Global FuncInputThruster;
+Global FuncInputFuelTank;
+Global FuncInputBarycenter;
+Global FuncInputLibration;
+%Global FuncInputProp; % Shouldn't be needed if automatically global
+%Global FuncInputProp_ForceModel; % Shouldn't be needed if automatically global
+%Global FuncInputCoordSys; % Shouldn't be needed if automatically global
+Global FuncInputReport; 
+Global FuncInputOpenGLPlot;
+Global FuncInputXYPlot; 
+Global testVar1;
+Global testVar2;
+Global testVar3;
+Global testArr1;
+Global testArr2;
+Global testArr3;
+Global testString;
+
+Create Spacecraft FuncInputGlobalinfuncSC;
+GMAT FuncInputGlobalinfuncSC = FuncInputSC;
+Create FuelTank FuncInputGlobalinfuncFuelTank;
+GMAT FuncInputGlobalinfuncFuelTank = FuncInputFuelTank;
+Create Thruster FuncInputGlobalinfuncThruster;
+GMAT FuncInputGlobalinfuncThruster = FuncInputThruster;
+Create Formation FuncInputGlobalinfuncFormation;
+GMAT FuncInputGlobalinfuncFormation = FuncInputFormation;
+Create ForceModel FuncInputGlobalinfuncProp_ForceModel;
+GMAT FuncInputGlobalinfuncProp_ForceModel = FuncInputProp_ForceModel;
+Create Propagator FuncInputGlobalinfuncProp;
+GMAT FuncInputGlobalinfuncProp = FuncInputProp;
+Create Barycenter FuncInputGlobalinfuncBarycenter;
+GMAT FuncInputGlobalinfuncBarycenter = FuncInputBarycenter;
+Create LibrationPoint FuncInputGlobalinfuncLibration;
+GMAT FuncInputGlobalinfuncLibration = FuncInputLibration;
+Create ImpulsiveBurn FuncInputGlobalinfuncIB;
+GMAT FuncInputGlobalinfuncIB = FuncInputIB;
+Create FiniteBurn FuncInputGlobalinfuncFB;
+GMAT FuncInputGlobalinfuncFB = FuncInputFB;
+Create DifferentialCorrector FuncInputGlobalinfuncDC;
+GMAT FuncInputGlobalinfuncDC = FuncInputDC;
+Create FminconOptimizer FuncInputGlobalinfuncSQP;
+GMAT FuncInputGlobalinfuncSQP = FuncInputSQP;
+Create ReportFile FuncInputGlobalinfuncReport;
+GMAT FuncInputGlobalinfuncReport = FuncInputReport;
+Create XYPlot FuncInputGlobalinfuncXYPlot;
+GMAT FuncInputGlobalinfuncXYPlot = FuncInputXYPlot;
+Create OpenGLPlot FuncInputGlobalinfuncOpenGLPlot;
+GMAT FuncInputGlobalinfuncOpenGLPlot = FuncInputOpenGLPlot;
+Create CoordinateSystem FuncInputGlobalinfuncCoordSys;
+GMAT FuncInputGlobalinfuncCoordSys = FuncInputCoordSys;
+
+
+%Save a series of different resource objects
+Save FuncInputGlobalinfuncSC;
+Save FuncInputGlobalinfuncFormation;
+Save FuncInputGlobalinfuncProp;
+Save FuncInputGlobalinfuncProp_ForceModel;
+Save FuncInputGlobalinfuncCoordSys
+Save FuncInputGlobalinfuncIB;
+Save FuncInputGlobalinfuncFB;
+Save FuncInputGlobalinfuncDC;
+Save FuncInputGlobalinfuncSQP;
+Save FuncInputGlobalinfuncThruster;
+Save FuncInputGlobalinfuncFuelTank;
+Save FuncInputGlobalinfuncReport;
+Save FuncInputGlobalinfuncOpenGLPlot;
+Save FuncInputGlobalinfuncXYPlot;
+Save FuncInputGlobalinfuncBarycenter;
+Save FuncInputGlobalinfuncLibration;
+
+%Report a series of different reportables variables, arrays, and strings
+Report FuncInputReport testVar1 testVar2 testVar3 testArr1 testArr2 testArr3 testString;

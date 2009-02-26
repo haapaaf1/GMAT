@@ -1,0 +1,5 @@
+function Func_LibrationSEM_nested(reportLoc)
+% $Id: Func_LibrationSEM_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
+
+% Call function
+Func_LibrationSEM(reportLoc);

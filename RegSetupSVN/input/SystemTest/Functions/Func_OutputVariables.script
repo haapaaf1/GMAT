@@ -1,0 +1,17 @@
+Create Spacecraft DefaultSC;
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+Create Variable input1 input2;
+Create Variable output1 output2 output3;
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.Filename = './output/SystemTest/Func_OutputVariables.report';
+
+Propagate DefaultProp(DefaultSC);
+ 
+[output1, output2, output3] = Func_OutputVariables(input1); % Call Function 
+Report ReportFile1 input1 output1 output2 output3;

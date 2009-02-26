@@ -1,0 +1,551 @@
+function Func_ParenthesisInMathTests(reportLoc)
+% $Id: Func_ParenthesisInMathTests.gmf,v 1.1 2008/09/26 18:35:33 edove Exp $
+
+%  This script is for checking usage of parenthesis in inline math
+Create Spacecraft Sat;
+
+Create ReportFile Data;
+GMAT Data.WriteHeaders = Off;
+GMAT Data.Filename = reportLoc;
+GMAT Data.Precision = 15;
+
+Create Variable a b c d Test TestNum;
+Create Array vec[4,1];
+
+
+%  Set up values for certain parameters
+BeginScript
+
+   GMAT TestNum = 0;
+   GMAT a = 2.34;
+   GMAT b = 1000;
+   GMAT c = 34.78;
+   GMAT d = 0.000134;
+   GMAT Sat.X  = a;
+   GMAT Sat.Y  = b;
+   GMAT Sat.Z  = c;
+   GMAT Sat.VX = d;
+   GMAT vec(1,1) = a;
+   GMAT vec(2,1) = b;
+   GMAT vec(3,1) = c;
+   GMAT vec(4,1) = d;
+
+EndScript
+
+
+%--------------------------------------------------------------
+%--------------------  Mulitiplication and () -----------------
+%--------------------------------------------------------------
+
+%  Test 1
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*c*d   - 10.9056168
+Report Data TestNum Test
+
+%  Test 2
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*(b*c*d) - 10.9056168
+Report Data TestNum Test
+
+%  Test 3
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*(c*d) - 10.9056168
+Report Data TestNum Test
+
+%  Test 4
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*c*(d) - 10.9056168
+Report Data TestNum Test
+
+%  Test 5
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*b*c)*d - 10.9056168
+Report Data TestNum Test
+
+%  Test 6
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*b)*c*d - 10.9056168
+Report Data TestNum Test
+
+%  Test 7
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a)*b*c*d - 10.9056168
+Report Data TestNum Test
+
+
+%--------------------------------------------------------------
+%-------------------------- Division and () -------------------
+%--------------------------------------------------------------
+  
+%  Test 8
+GMAT TestNum = TestNum + 1;
+GMAT Test  = a/(b*c*d)  - 0.502089895548136
+Report Data TestNum Test
+
+%  Test 9
+GMAT TestNum = TestNum + 1;
+GMAT Test  =  a*d/(c*b)  - 9.01552616446233*10^(-9)
+Report Data TestNum Test
+
+%  Test 10
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*d*c/(b)  - 1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 11
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*d*c)/b  - 1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 12
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*b)/c*d  - 0.00901552616446233
+Report Data TestNum Test
+
+%  Test 13
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a)*d*c/b  - 1.09056168*10^(-5)
+Report Data TestNum Test
+
+%--------------------------------------------------------------
+%---------Multiplication using spacecraft parameters-----------
+%--------------------------------------------------------------
+
+%  Test 14
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*Sat.Y*Sat.Z*Sat.VX   - 10.9056168
+Report Data TestNum Test
+
+%  Test 15
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*(Sat.Y*Sat.Z*Sat.VX) - 10.9056168
+Report Data TestNum Test
+
+%  Test 16
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*Sat.Y*(Sat.Z*Sat.VX) - 10.9056168
+Report Data TestNum Test
+
+%  Test 17
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*Sat.Y*Sat.Z*(Sat.VX) - 10.9056168
+Report Data TestNum Test
+
+%  Test 18
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X*Sat.Y*Sat.Z)*Sat.VX - 10.9056168
+Report Data TestNum Test
+
+%  Test 19
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X*Sat.Y)*Sat.Z*Sat.VX - 10.9056168
+Report Data TestNum Test
+
+%  Test 20
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)*Sat.Y*Sat.Z*Sat.VX - 10.9056168
+Report Data TestNum Test
+
+%--------------------------------------------------------------
+%------------ Division using spacecraft parameters-------------
+%--------------------------------------------------------------
+
+%  Test 21
+GMAT TestNum = TestNum + 1;
+GMAT Test  = Sat.X/(Sat.Y*Sat.Z*Sat.VX) - 0.502089895548136
+Report Data TestNum Test
+
+%  Test 22
+GMAT TestNum = TestNum + 1;
+GMAT Test  = Sat.X*Sat.VX/(Sat.Z*Sat.Y) - 9.01552616446233*10^(-9)
+Report Data TestNum Test
+
+%  Test 23
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*Sat.Y*Sat.Z*(Sat.VX)  - 10.9056168
+Report Data TestNum Test
+
+%  Test 24
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X*Sat.VX*Sat.Z)/Sat.Y - 1.09056168*10^(-5);
+Report Data TestNum Test
+
+%  Test 25
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X*Sat.Y)/Sat.Z*Sat.VX  - 0.00901552616446233
+Report Data TestNum Test
+
+%  Test 26
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)*Sat.VX*Sat.Z/Sat.Y  -  1.09056168*10^(-5)
+Report Data TestNum Test
+
+%--------------------------------------------------------------
+%------------ Multiplication using mixed variables ------------
+%--------------------------------------------------------------
+
+%  Test 27
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*Sat.Y*c*d   - 10.9056168
+Report Data TestNum Test
+
+%  Test 28
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*(b*c*d) - 10.9056168
+Report Data TestNum Test
+
+%  Test 29
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*(Sat.Z*d) - 10.9056168
+Report Data TestNum Test
+
+%  Test 30
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*c*(Sat.VX) - 10.9056168
+Report Data TestNum Test
+
+%  Test 31
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*Sat.Y*c)*d - 10.9056168
+Report Data TestNum Test
+
+%  Test 32
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X*Sat.Y)*c*d - 10.9056168
+Report Data TestNum Test
+
+%  Test 33
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)*b*c*Sat.VX - 10.9056168
+Report Data TestNum Test
+
+%  Test 34
+GMAT TestNum = TestNum + 1;
+GMAT Test = 2.34*Sat.Y*c*.000134  - 10.9056168
+Report Data TestNum Test
+
+%  Test 35
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*(1000*c*d) - 10.9056168
+Report Data TestNum Test
+
+%  Test 36
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*(Sat.Z*.000134) - 10.9056168
+Report Data TestNum Test
+
+%  Test 37
+GMAT TestNum = TestNum + 1;
+GMAT Test = 2.34*1000*34.78*(Sat.VX) - 10.9056168
+Report Data TestNum Test
+
+%  Test 38
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*Sat.Y*c)*.000134 - 10.9056168
+Report Data TestNum Test
+
+%  Test 39
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X*Sat.Y)*34.78*d - 10.9056168
+Report Data TestNum Test
+
+%  Test 40
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)*b*c*.000134 - 10.9056168
+Report Data TestNum Test
+
+%--------------------------------------------------------------
+%---------------- Division using mixed variables --------------
+%--------------------------------------------------------------
+
+%  Test 41
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*Sat.Y/c*d   - 0.00901552616446233
+Report Data TestNum Test
+
+%  Test 42
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*(b/c*d) - 0.00901552616446233
+Report Data TestNum Test
+
+%  Test 43
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b/(Sat.Z*d)/1000000 - 0.502089895548136
+Report Data TestNum Test
+
+%  Test 44
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*c/(Sat.VX)/100000000 - 6.0735223880597
+Report Data TestNum Test
+
+%  Test 45
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*Sat.VX*c)/b  - 1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 46
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X/Sat.Y)/c*d - 9.01552616446233*10^(-9)
+Report Data TestNum Test
+
+%  Test 47
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)/b/c/Sat.VX - 0.502089895548136
+Report Data TestNum Test
+
+%  Test 48
+GMAT TestNum = TestNum + 1;
+GMAT Test = 2.34/Sat.Y/c*.000134 - 9.01552616446233*10^(-9)
+Report Data TestNum Test
+
+%  Test 49
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X/(1000/c/d) - 1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 50
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b/(Sat.Z*.000134)/1000000 -  0.502089895548136
+Report Data TestNum Test
+
+%  Test 51
+GMAT TestNum = TestNum + 1;
+GMAT Test = 2.34/1000*34.78*(Sat.VX) -  1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 52
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*Sat.VX*c)/1000 -  1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 53
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X*Sat.Y)/34.78*d  - 0.00901552616446233
+Report Data TestNum Test
+
+%  Test 54
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)/b/c/.000134 - 0.502089895548136
+Report Data TestNum Test
+
+
+%--------------------------------------------------------------
+%---------------- Multiplication using Arrays -----------------
+%--------------------------------------------------------------
+
+%  Test 55
+GMAT TestNum = TestNum + 1;
+GMAT Test =vec(1,1)*vec(2,1)*vec(3,1)*vec(4,1)   - 10.9056168
+Report Data TestNum Test
+
+%%  Test 56
+GMAT TestNum = TestNum + 1;
+GMAT Test =vec(1,1)*(vec(2,1)*vec(3,1)*vec(4,1)) - 10.9056168
+Report Data TestNum Test
+
+%%  Test 57
+GMAT TestNum = TestNum + 1;
+GMAT Test =vec(1,1)*vec(2,1)*(vec(3,1)*vec(4,1)) - 10.9056168
+Report Data TestNum Test
+
+%%  Test 58
+GMAT TestNum = TestNum + 1;
+GMAT Test =vec(1,1)*vec(2,1)*vec(3,1)*(vec(4,1)) - 10.9056168
+Report Data TestNum Test
+
+%%  Test 59
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*vec(2,1)*vec(3,1))*vec(4,1) - 10.9056168
+Report Data TestNum Test
+%
+%%  Test 60
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*vec(2,1))*vec(3,1)*vec(4,1) - 10.9056168
+Report Data TestNum Test
+%
+%%  Test 61
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1))*vec(2,1)*vec(3,1)*vec(4,1) - 10.9056168
+Report Data TestNum Test
+
+%--------------------------------------------------------------
+%--------------------- Division using Arrays ------------------
+%--------------------------------------------------------------
+%%  Test 62
+GMAT TestNum = TestNum + 1;
+GMAT Test  =vec(1,1)/(vec(2,1)*vec(3,1)*vec(4,1)) - 0.502089895548136
+Report Data TestNum Test
+%
+%%  Test 63
+GMAT TestNum = TestNum + 1;
+GMAT Test  =vec(1,1)*vec(4,1)/(vec(3,1)*vec(2,1)) - 9.01552616446233*10^(-9)
+Report Data TestNum Test
+%
+%%  Test 64
+GMAT TestNum = TestNum + 1;
+GMAT Test =vec(1,1)*vec(2,1)*vec(3,1)*(vec(4,1))  - 10.9056168
+Report Data TestNum Test
+%
+%%  Test 65
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*vec(4,1)*vec(3,1))/vec(2,1) - 1.09056168*10^(-5);
+Report Data TestNum Test
+%
+%%  Test 66
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*vec(2,1))/vec(3,1)*vec(4,1)  - 0.00901552616446233
+Report Data TestNum Test
+%
+%%  Test 67
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1))*vec(4,1)*vec(3,1)/vec(2,1)  -  1.09056168*10^(-5)
+Report Data TestNum Test
+
+
+%--------------------------------------------------------------
+%------------ Multiplication using mixed variables ------------
+%--------------------------------------------------------------
+
+%  Test 68
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*Sat.Y*vec(3,1)*d   - 10.9056168
+Report Data TestNum Test
+
+%  Test 69
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*(b*c*vec(4,1)) - 10.9056168
+Report Data TestNum Test
+
+%  Test 70
+GMAT TestNum = TestNum + 1;
+GMAT Test = vec(1,1)*b*(Sat.Z*d) - 10.9056168
+Report Data TestNum Test
+
+%  Test 71
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*c*(vec(4,1)) - 10.9056168
+Report Data TestNum Test
+
+%  Test 72
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*Sat.Y*vec(3,1))*d - 10.9056168
+Report Data TestNum Test
+
+%  Test 73
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*1000)*c*d - 10.9056168
+Report Data TestNum Test
+
+%  Test 74
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)*vec(2,1)*34.78*Sat.VX - 10.9056168
+Report Data TestNum Test
+
+%  Test 75
+GMAT TestNum = TestNum + 1;
+GMAT Test = 2.34*Sat.Y*vec(3,1)*.000134  - 10.9056168
+Report Data TestNum Test
+
+%  Test 76
+GMAT TestNum = TestNum + 1;
+GMAT Test = vec(1,1)*(1000*c*vec(4,1)) - 10.9056168
+Report Data TestNum Test
+
+%  Test 77
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*vec(2,1)*(Sat.Z*.000134) - 10.9056168
+Report Data TestNum Test
+
+%  Test 78
+GMAT TestNum = TestNum + 1;
+GMAT Test = 2.34*1000*34.78*(vec(4,1)) - 10.9056168
+Report Data TestNum Test
+
+%  Test 79
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*vec(2,1)*c)*.000134 - 10.9056168
+Report Data TestNum Test
+
+%  Test 80
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*Sat.Y)*34.78*vec(4,1) - 10.9056168
+Report Data TestNum Test
+
+%  Test 81
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)*vec(2,1)*c*.000134 - 10.9056168
+Report Data TestNum Test
+
+%--------------------------------------------------------------
+%---------------- Division using mixed variables --------------
+%--------------------------------------------------------------
+
+%  Test 82
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*Sat.Y/vec(3,1)*d   - 0.00901552616446233
+Report Data TestNum Test
+
+%  Test 83
+GMAT TestNum = TestNum + 1;
+GMAT Test = Sat.X*(vec(2,1)/c*d) - 0.00901552616446233
+Report Data TestNum Test
+
+%  Test 84
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b/(vec(3,1)*d)/1000000 - 0.502089895548136
+Report Data TestNum Test
+
+%  Test 85
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*b*c/(vec(4,1))/100000000 - 6.0735223880597
+Report Data TestNum Test
+
+%  Test 86
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*Sat.VX*vec(3,1))/b  - 1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 87
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)/Sat.Y)/c*vec(4,1) - 9.01552616446233*10^(-9)
+Report Data TestNum Test
+
+%  Test 88
+GMAT TestNum = TestNum + 1;
+GMAT Test = (Sat.X)/b/vec(3,1)/vec(4,1) - 0.502089895548136
+Report Data TestNum Test
+
+%  Test 89
+GMAT TestNum = TestNum + 1;
+GMAT Test = 2.34/vec(2,1)/c*.000134 - 9.01552616446233*10^(-9)
+Report Data TestNum Test
+
+%  Test 90
+GMAT TestNum = TestNum + 1;
+GMAT Test = vec(1,1)/(1000/c/vec(4,1)) - 1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 91
+GMAT TestNum = TestNum + 1;
+GMAT Test = a*vec(2,1)/(Sat.Z*.000134)/1000000 -  0.502089895548136
+Report Data TestNum Test
+
+%  Test 91
+GMAT TestNum = TestNum + 1;
+GMAT Test = 2.34/1000*34.78*(vec(4,1)) -  1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 92
+GMAT TestNum = TestNum + 1;
+GMAT Test = (a*Sat.VX*vec(3,1))/1000 -  1.09056168*10^(-5)
+Report Data TestNum Test
+
+%  Test 93
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1)*Sat.Y)/34.78*d  - 0.00901552616446233
+Report Data TestNum Test
+
+%  Test 94
+GMAT TestNum = TestNum + 1;
+GMAT Test = (vec(1,1))/vec(2,1)/c/.000134 - 0.502089895548136
+Report Data TestNum Test

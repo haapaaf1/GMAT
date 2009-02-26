@@ -1,0 +1,8 @@
+function [outVar1, outVar2, outVar3] = Func_OutputVariables(input1)
+
+Create Variable outVar1 outVar2 outVar3; % Blah
+
+GMAT input1  = 50;
+GMAT outVar1 = 1;
+GMAT outVar2 = 2;
+GMAT outVar3 = 3;

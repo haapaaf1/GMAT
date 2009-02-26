@@ -1,0 +1,46 @@
+% $Id: Func_DV_IEarthCart.script,v 1.2 2008/05/02 19:05:34 edove Exp $
+
+% Func_DV_IEarthCart - This script tests to make sure 
+%
+% Function used: Func_DV_IEarthCart.gmf, Func_DV_IEarthCart_nested.gmf
+% Function path: ./output/SystemTest/
+% Outputs to: ./output/SystemTest/ 
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create String reportLoc;
+GMAT reportLoc = './output/SystemTest/Func_DV_IEarthCart.report';
+
+Create String reportLoc_nested;
+GMAT reportLoc_nested = './output/SystemTest/Func_DV_IEarthCart_nested.report';
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% Not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+
+% Call function
+Func_DV_IEarthCart(reportLoc);
+Func_DV_IEarthCart_nested(reportLoc_nested);
