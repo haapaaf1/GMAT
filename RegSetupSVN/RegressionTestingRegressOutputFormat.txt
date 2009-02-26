@@ -1,0 +1,20 @@
+GMAT Regression System Output File
+
+Regression Test Performed by: XXX
+Regression Test Performed on: YYYY-MM-DD
+Comparison Type: Build Date vs Good data or Build Date vs Good data 
+Folder1: [Good or Build1]_reports
+Folder2: [Build1 or Build2]_reports
+
+[Test type] Results
+---------------------------
+x out of x unique test reports did not exist in both folders
+x out of x unique test reports existed in both folders but have a different number of lines
+x out of x unique test reports existed in both folders but some lines did not match
+
+[filename w/o extension] - More than 5 lines do not match
+[filename w/o extension] - Lines 1 2 6 8 do not match
+[filename w/o extension] - Does not exist in both folders
+[filename w/o extension] - Does not have the same amount of lines in both folders
+[filename w/o extension] - Exact match
+---------------------------

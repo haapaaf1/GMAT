@@ -1,0 +1,25 @@
+% GMAT Regression System Input File
+% This script allows a user to skip several menu prompts in matlab
+% and begin regression testing faster.
+%
+% =====================================
+% Specify where to move files
+% =====================================
+MoveFiles = N; % Y or N
+Move_AllOneBuild = Y; % Y or N
+Move_AllBuild = 20070110; % YYYYMMDD or NA
+Move_SystemTestBuild = NA; % YYYYMMDD or NA
+Move_AcceptTestBuild = NA; % YYYYMMDD or NA
+Move_ValidationBuild = NA; % YYYYMMDD or NA
+% =====================================
+% Specify type of comparison to perform
+% =====================================
+BBorBG = BG; % BB or BG
+Build1 = 20061122; % YYYYMMDD or NA
+Build2 = NA; % YYYYMMDD or NA
+% =====================================
+% Specify the files compare
+% =====================================
+What2Compare = all; % files, test, or all
+Scripts2Compare = NA; % {list of scripts seperated by commas} or NA
+Test2Compare = NA; % SystemTest, AcceptTest, Validation, or NA

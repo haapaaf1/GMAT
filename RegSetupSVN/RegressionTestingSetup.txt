@@ -1,0 +1,114 @@
+Welcome to the GMAT Regression Testing program. 
+   - If testing the latest build of GMAT, make sure to have all the relevant 
+   System, Acceptance, and Range tests built and run using the GMAT Regression Testing
+   system setup before continuing further.
+   - Clear reports from the [system folder]/output/*/ folders, if you do not know what 
+   build they are related to.
+
+Press any alpha or numeric key to continue.
+
+Do you want to use the input file (regressInput.txt) for the setup of this program? (Y or N)
+
+Please enter your initials: ___ or __
+
+~ If the above answer is a N, do the follwing internally *********
+*****************************
+Move files in the [current folder]/output/*/ folders to a specifc Build Date folder?
+Y or N
+
+~If above is Y
+[
+Are all [current folder]/output/*/ folders created by the same build? (Y or N)
+What Build Date does the [current folder]/output/AcceptTest/ folder pertain to? (YYYYMMDD)
+What Build Date does the [current folder]/output/SystemTest/ folder pertain to? (YYYYMMDD)
+What Build Date does the [current folder]/output/*Test/ folder pertain to? (YYYYMMDD)
+]
+
+Do you want a Build vs Build(BB) or a Build vs Good data(BG) comparison? (BB or BG)
+
+Below are all of the BuildDates to choose from for omparison:
+~Insert menu of all build dates available
+
+~If above is BB
+[
+Enter the first BuildDate for comparison: (YYYYMMDD)
+Enter the second BuildDate for comparison: (YYYYMMDD)
+]
+~If above is BG
+[
+Enter the BuildDate for comparison: (YYYYMMDD)
+]
+
+Do you want to compare indivual scripts, certain tests, or all tests? (files, test, or all)
+~ If files
+[
+1) First script file
+*) Other script files
+Which scripts do you want to run from the list above?
+(1 or 1,99 or 1-99 or [1,5,7-20,30-33,35,38] are all valid types of entries)
+]
+
+~ If test
+[
+1) AcceptTest
+2) SystemTest
+Which type of test do you want to perform comparisons on?
+]
+
+~ If all
+[
+
+]
+*****************************
+
+Generating Summary of comparison results for display
+Details of the comparison can be found in 
+[system folder]/output/Comparisons/YYYYMMDD_##_ABC.regrpt
+BB or BG
+Build Date vs Build Date or Build Date vs Good
+====================================================
+~ If all or test
+[
+# out of # tests failed for Acceptance Testing
+# out of # tests failed for System Testing
+]
+~ If files
+[
+~If < = 5 differences
+*.script differs on lines #,#, .... and # 
+~Else If > 5 differences
+*.script contains more than 5 line differences
+]
+
+Do you want to approve any of the failed cases as good? (Y or N)
+~ If N
+[
+Thank you for using the GMAT Regression Testing software. 
+Make sure to check your changes into CVS.
+~ Else
+~ Load Seperate MATLAB script file for approval
+
+Welcome message for GMAT Report Approval System
+
+The messages displayed by this script are based on a Regression 
+System test. It checks for files that failed the selected regression testing. If 
+all of these files do not exist on your system a warning message will
+be thrown and this prgram will exit.
+
+Please enter your initials: ___ or __
+
+Select the regression summary that contains the files you'd like to approve
+(Display list of *.regrpt files with latest date first)
+
+What files do you want to approve?
+(Display list of files)
+
+Are you sure you want to overwrite the old (selected) file with the new file (selected) file?
+
+Please add a description for why you changed the old good file:
+{User's comments}
+
+Press any alpha-numeric key and then ENTER to rerun this comparison script or
+Press Enter to exit
+]
+

@@ -1,0 +1,36 @@
+Revision History
+$Id: RegressionTestingInstructions.txt,v 1.4 2007/02/09 21:29:46 edove Exp $
+
+1) Checkout the entire GMAT_RegSetup repository
+or
+1) Update the entire GMAT_RegSetup repository
+2) Place the GMAT .exe for testing into the main folder of the GMAT_RegSetup and
+  remove any previous executables
+3) Build & Run the AcceptTest and SystemTest script that you want to regression test, 
+  using the new executable. They are located in the input/AcceptTest and 
+  input/SystemTest folders.
+4) Move the reports that were outputted to the main output/AcceptTest and 
+  output/SystemTest folders to output/AcceptTest/YYYYMMDDGMAT_reports and
+  output/SystemTest/YYYYMMDDGMAT_reports folders, respectively. YYYYMMDD is the Year
+  Month and Day of the current Build Date that you are using.
+5) Edit the matlab/comparisons/regressInput.txt file. Make sure to change UserIntials. 
+  At the time these instructions were written, the following features are disabled:
+	- Automatic Build & Run of the script files in the input/[Test type] folder
+	- Automatic moving of the outputted report files to their YYYYMMDD folders
+	- Build to Build comparisons (Only Build to Good data comparison are functional)
+	- Comparing individual or specific tests (Can only compare all report files for 
+	 all tests)
+	- Running the GMAT regression system from the matlab command prompt (Can only be
+	 run from the regressInput.txt setup file)
+	- Approval process for modifying the *.good files
+6) Open the matlab/comparisons/RegressionSystem.m in Matlab and run it. When prompted 
+  change your current MAtlab directory to the one the file is in. The script will 
+  automatically add any additional paths that it needs.
+7) Follow the instruction on the screen, enter Y to load the setup from a file and 
+  enjoy the results :).
+8) Detail output is located in a *.regrpt file with the current date as part of the 
+  file name.
+
+IMPORTANT NOTES
+- Do not CVS check-in the YYYYMMDDGMAT_reports folders created on your local machine.
+- Do not CVS check-in the regressInput.txt setup file. 

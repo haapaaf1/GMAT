@@ -1,0 +1,65 @@
+The GMAT regression testing system is meant to automatically test the Acceptance and System tests using
+a file difference comparison method between builds or a build and the good data. At the very least the 
+truth data folder and scripts for testing will be CVS controlled.
+
+Initially, users will have to have the latest scripts files built before runnning this program.
+
+All scripts have to be unique to each test with the output have /*Test/ in the filename
+
+Allow the user to add approved good data by file. Recording the approvers name to 
+summary file selected for tracking.
+
+Folder Structure:
+========================
+GMAT_RegSetup Folder 	- Main setup folder containing GMAT executable files, regression testing files, and 
+	folders related to the aforementioned files. 
+- *.dll 			- dll library files needed to run GMAT
+- *.exe 			- There should only be one GMAT executable in this folder at the time of testing.
+- GmatLog.txt		- 
+- gmat_startup_file.txt	- Setup file needed to run GMAT
+
+- files Folder		- Folder containing folders with planetary files, icons, etc
+
+- matlab Folder		- Folder containing folder with matlab scripts
+-- regressInput.txt	- Optional setup file for the regression testing system
+-- comparisons Folder	- Folder containing matlab scripts needed for report comparisons
+
+- input Folder		- Folder containing script folders for each type of test
+-- AcceptTest Folder	- Folder containing all Acceptance Test scripts (MUST BE CVS controlled)
+-- SystemTest Folder	- Folder containing all System Test scripts (MUST BE CVS controlled)
+
+- output Folder		- Folder marked as default output for report files
+-- AcceptTest Folder	- Folder containing all output for Acceptance Test reports
+--- YYYYMMDD_reports	- Folders containing all Build Date specific output folders for Acceptance Test reports
+--- Good_reports Folder	- Folder containing report files validated as good for testing 
+    (MUST BE CVS controlled)
+
+-- SystemTest Folder	- Folder containing all output for System Test reports
+--- YYYYMMDD_reports	- Folders containing all Build Date specific output folders for System Test reports
+--- Good_reports Folder	- Folder containing report files validated as good for testing 
+    (MUST BE CVS controlled)
+
+-- Comparisons Folder	- Folder containing all of the regression test summary files
+-- YYYYMMDD_##_ABC.regrpt - Report files contianing the results of the regression testing system
+
+
+Regression System Input:
+========================
+- The user will have have the choice of using a setup file or using the matlab command window for 
+intial setup
+- The user will have the option of building and running the scripts in the input folder themselves or 
+having the program do it for them.
+- The user will get to approve files as good after completing the regression test 
+(Only one file can be approved at a time). Approvals will be logged into the selected regression 
+test summary.
+
+Regression System Output:
+========================
+- Comparison Summary
+- Report files in a Build related folder
+
+Regression System Current Problems:
+======================== 
+- If an error or crash occurs while Building and running a script in matlab GMAT doesn't continue unless 
+the user hits the OK button.
+- Approval process will be tedious if several files need to be approved.

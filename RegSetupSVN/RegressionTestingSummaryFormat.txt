@@ -1,0 +1,38 @@
+RegressionTestingPerformed: YYYY-MM-DD
+RegressionTestNumber: ##
+TesterInitials: ___
+TotalTestCases: ###
+TotalFailedTestCases: ###
+ComparisonType: Build-to-Build or Build-to-Good
+Build1: YYYY-MM-DD
+Build2: YYYY-MM-DD or NA
+
+Acceptance Testing
+****************************************
+The following summary displays the lines in the Build1 report
+that differ from either the Good or Build2 report.
+
+*.report 
+-----------
+Lines: #,#,#,#, and #
+or
+Lines: >5 lines differ in this script 
+
+*.report 
+-----------
+Lines: #,#,#,#, and #
+or
+Lines: >5 lines differ in this script 
+===========
+ApprovedBy: ___
+ApprovedOn: YYYYMMDD
+Reasoning: 
+****************************************
+
+System Testing
+****************************************
+****************************************
+
+Validation Testing
+****************************************
+****************************************
