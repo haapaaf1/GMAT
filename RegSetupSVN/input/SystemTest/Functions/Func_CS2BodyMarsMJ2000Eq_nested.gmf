@@ -1,0 +1,5 @@
+function Func_CS2BodyMarsMJ2000Eq_nested(reportLoc)
+% $Id: Func_CS2BodyMarsMJ2000Eq_nested.gmf,v 1.2 2008/07/21 21:24:58 edove Exp $
+
+% Call function
+Func_CS2BodyMarsMJ2000Eq(reportLoc);

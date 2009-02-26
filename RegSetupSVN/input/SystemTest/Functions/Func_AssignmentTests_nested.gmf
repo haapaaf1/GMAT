@@ -1,0 +1,5 @@
+function Func_AssignmentTests_nested
+% $Id: Func_AssignmentTests_nested.gmf,v 1.2 2008/07/21 21:24:58 edove Exp $
+
+% Call function
+Func_AssignmentTests;

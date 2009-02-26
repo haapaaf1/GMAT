@@ -1,0 +1,282 @@
+function Func_CoordSysInputTests(reportLoc)
+% $Id: Func_CoordSysInputTests.gmf,v 1.3 2008/05/02 19:05:34 edove Exp $
+
+%  Test Description and Summary 
+% 
+%  This script is designed to make sure that the spacecraft object correctly 
+%  handles coordinates system transformations when given an initial state in
+%  many different coordinate system types.  There are several spacecraft created 
+%  in this test, and each spacecraft uses a different coordinate system.  
+%  However, the states are equivalent, meaning that if you request the state 
+%  vector of any of the spacecraft in EarthMJ2000Eq, you should get identical answers.
+%  The script tests all permutations of setting and requesting a state in the following 
+%  coordinate systems:  EarthMJ2000Eq, EarthMJ2000Ec, EarthFixed, LunaFixed,
+%  EarthMoonRotating, SunMj2000Ec
+%  
+%
+%  Expected Results
+%
+%  For each  chunk of data in the report file,
+%  all lines in the chunk should be identical, or off only at the last decimal place.
+%  Currently GMAT does not support parameters for AZ, FPH, or any equinctial state component
+%  So they are commmented out so we can at least perform the rest of the tests!
+ 
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+ 
+Create Spacecraft SatEarthMJ2000Eq;
+GMAT SatEarthMJ2000Eq.DateFormat = TAIModJulian;
+GMAT SatEarthMJ2000Eq.Epoch = 21945.000000000;
+GMAT SatEarthMJ2000Eq.CoordinateSystem = EarthMJ2000Eq;
+GMAT SatEarthMJ2000Eq.DisplayStateType = Cartesian;
+GMAT SatEarthMJ2000Eq.X = 5071.298226925739;
+GMAT SatEarthMJ2000Eq.Y = 7611.115643763225;
+GMAT SatEarthMJ2000Eq.Z = 3591.57811088299;
+GMAT SatEarthMJ2000Eq.VX = -5.443963856628132;
+GMAT SatEarthMJ2000Eq.VY = 2.768170139549618;
+GMAT SatEarthMJ2000Eq.VZ = 1.993434604659487;
+ 
+Create Spacecraft SatEarthMJ2000Ec;
+GMAT SatEarthMJ2000Ec.DateFormat = TAIModJulian;
+GMAT SatEarthMJ2000Ec.Epoch = 21945.000000000;
+GMAT SatEarthMJ2000Ec.CoordinateSystem = EarthMJ2000Ec; 
+GMAT SatEarthMJ2000Ec.DisplayStateType = Cartesian;
+GMAT SatEarthMJ2000Ec.X = 5071.298226925739;
+GMAT SatEarthMJ2000Ec.Y = 8411.709801736053;
+GMAT SatEarthMJ2000Ec.Z = 267.6805571735545;
+GMAT SatEarthMJ2000Ec.VX = -5.443963856628132;
+GMAT SatEarthMJ2000Ec.VY = 3.332689195355914;
+GMAT SatEarthMJ2000Ec.VZ = 0.7278256465019841;
+ 
+Create Spacecraft SatEarthFixed;
+GMAT SatEarthFixed.DateFormat = TAIModJulian;
+GMAT SatEarthFixed.Epoch = 21945.000000000;
+GMAT SatEarthFixed.CoordinateSystem = EarthFixed; 
+GMAT SatEarthFixed.DisplayStateType = Cartesian;
+GMAT SatEarthFixed.X = -1863.057586156957;
+GMAT SatEarthFixed.Y = 8953.983672005044;
+GMAT SatEarthFixed.Z = 3591.903841678024;
+GMAT SatEarthFixed.VX = -5.139752274381255;
+GMAT SatEarthFixed.VY = -1.799622041945275;
+GMAT SatEarthFixed.VZ = 1.992983977541724;                                                                                                                  
+           
+Create Spacecraft SatLunaFixed;
+GMAT SatLunaFixed.DateFormat = TAIModJulian;
+GMAT SatLunaFixed.Epoch = 21945.000000000;
+GMAT SatLunaFixed.CoordinateSystem = LunaFixed; 
+GMAT SatLunaFixed.DisplayStateType = Cartesian;
+GMAT SatLunaFixed.X = 356291.5164882602;
+GMAT SatLunaFixed.Y = -33974.36961780395;
+GMAT SatLunaFixed.Z = 16667.54936624816;
+GMAT SatLunaFixed.VX = -3.267914664134139;
+GMAT SatLunaFixed.VY = -5.374404304814976;
+GMAT SatLunaFixed.VZ = 0.7247736501205497;                    
+                                                                                                                              
+Create Spacecraft SatEarthMoonRot;
+GMAT SatEarthMoonRot.DateFormat = TAIModJulian;
+GMAT SatEarthMoonRot.Epoch = 21945.000000000;
+GMAT SatEarthMoonRot.CoordinateSystem = EarthMoonRot; 
+GMAT SatEarthMoonRot.DisplayStateType = Cartesian;
+GMAT SatEarthMoonRot.X = 8968.872502970022;
+GMAT SatEarthMoonRot.Y = -3907.72335034847;
+GMAT SatEarthMoonRot.Z =  914.1141166948714;
+GMAT SatEarthMoonRot.VX = 2.581713440043834;
+GMAT SatEarthMoonRot.VY = 5.842794343296872;
+GMAT SatEarthMoonRot.VZ = 0.3253861743578401;
+                                                       
+Create Spacecraft SatSunMJ2000Ec;
+GMAT SatSunMJ2000Ec.DateFormat = TAIModJulian;
+GMAT SatSunMJ2000Ec.Epoch = 21945.000000000;
+GMAT SatSunMJ2000Ec.CoordinateSystem = SunMJ2000Ec; 
+GMAT SatSunMJ2000Ec.DisplayStateType = Cartesian;
+GMAT SatSunMJ2000Ec.X = -105610452.529566;
+GMAT SatSunMJ2000Ec.Y = 102950234.9717935;
+GMAT SatSunMJ2000Ec.Z = 199.1551456674933 ;
+GMAT SatSunMJ2000Ec.VX = -26.70904151371823;
+GMAT SatSunMJ2000Ec.VY = -18.11049917126225;
+GMAT SatSunMJ2000Ec.VZ = 0.7267681120742253;                                                                    
+                                 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+ 
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+ 
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.Origin = Earth;
+GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.VectorFormat = Cartesian;
+GMAT DefaultIB.Element1 = 0;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0; 
+ 
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+ 
+Create CoordinateSystem LunaFixed;
+GMAT LunaFixed.Origin = Luna;
+GMAT LunaFixed.Axes = BodyFixed;
+GMAT LunaFixed.UpdateInterval = 60;
+GMAT LunaFixed.OverrideOriginInterval = false;
+ 
+Create CoordinateSystem EarthMoonRot;
+GMAT EarthMoonRot.Origin = Earth;
+GMAT EarthMoonRot.Axes = ObjectReferenced;
+GMAT EarthMoonRot.UpdateInterval = 60;
+GMAT EarthMoonRot.OverrideOriginInterval = false;
+GMAT EarthMoonRot.XAxis = R;
+GMAT EarthMoonRot.ZAxis = N;
+GMAT EarthMoonRot.Primary = Earth;
+GMAT EarthMoonRot.Secondary = Luna;
+ 
+Create CoordinateSystem SunMJ2000Ec;
+GMAT SunMJ2000Ec.Origin = Sun;
+GMAT SunMJ2000Ec.Axes = MJ2000Ec;
+GMAT SunMJ2000Ec.UpdateInterval = 60;
+GMAT SunMJ2000Ec.OverrideOriginInterval = false; 
+ 
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+ 
+Create ReportFile CoordSysInputTests
+CoordSysInputTests.Filename = reportLoc;
+CoordSysInputTests.WriteHeaders = Off;
+GMAT CoordSysInputTests.ColumnWidth = 25;
+ 
+Create String EarthMJ2000EqState;
+EarthMJ2000EqState = '------ State Values in  EarthMJ2000Eq System ----';
+ 
+Create String EarthMJ2000EcState;
+EarthMJ2000EcState = '------ State Values in  EarthMJ2000Ec System ----';
+ 
+Create String EarthFixedState;
+EarthFixedState = '------ State Values in  EarthFixed System ----';
+ 
+Create String LunaFixedState;
+LunaFixedState = '------ State Values in LunaFixed System ----';
+ 
+Create String EarthMoonRotState;
+EarthMoonRotState = '------ State Values in EarthMoonRot System ----';
+ 
+Create String SunMJ2000EcState;
+SunMJ2000EcState = '------ State Values in SunMJ2000Ec System ----';
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+% ---- Ouput all spacecraft in EarthMJ2000Eq
+Report CoordSysInputTests EarthMJ2000EqState
+Report CoordSysInputTests SatEarthMJ2000Eq.EarthMJ2000Eq.X SatEarthMJ2000Eq.EarthMJ2000Eq.Y SatEarthMJ2000Eq.EarthMJ2000Eq.Z ...
+       SatEarthMJ2000Eq.EarthMJ2000Eq.VX SatEarthMJ2000Eq.EarthMJ2000Eq.VY  SatEarthMJ2000Eq.EarthMJ2000Eq.VZ;
+Report CoordSysInputTests SatEarthMJ2000Ec.EarthMJ2000Eq.X SatEarthMJ2000Ec.EarthMJ2000Eq.Y SatEarthMJ2000Ec.EarthMJ2000Eq.Z ...
+       SatEarthMJ2000Ec.EarthMJ2000Eq.VX SatEarthMJ2000Ec.EarthMJ2000Eq.VY  SatEarthMJ2000Ec.EarthMJ2000Eq.VZ;
+Report CoordSysInputTests SatEarthFixed.EarthMJ2000Eq.X SatEarthFixed.EarthMJ2000Eq.Y SatEarthFixed.EarthMJ2000Eq.Z ...
+       SatEarthFixed.EarthMJ2000Eq.VX SatEarthFixed.EarthMJ2000Eq.VY  SatEarthFixed.EarthMJ2000Eq.VZ;
+Report CoordSysInputTests SatLunaFixed.EarthMJ2000Eq.X SatLunaFixed.EarthMJ2000Eq.Y SatLunaFixed.EarthMJ2000Eq.Z ...
+       SatLunaFixed.EarthMJ2000Eq.VX SatLunaFixed.EarthMJ2000Eq.VY  SatLunaFixed.EarthMJ2000Eq.VZ;
+Report CoordSysInputTests SatEarthMoonRot.EarthMJ2000Eq.X SatEarthMoonRot.EarthMJ2000Eq.Y SatEarthMoonRot.EarthMJ2000Eq.Z ...
+       SatEarthMoonRot.EarthMJ2000Eq.VX SatEarthMoonRot.EarthMJ2000Eq.VY  SatEarthMoonRot.EarthMJ2000Eq.VZ;
+Report CoordSysInputTests SatSunMJ2000Ec.EarthMJ2000Eq.X SatSunMJ2000Ec.EarthMJ2000Eq.Y SatSunMJ2000Ec.EarthMJ2000Eq.Z ...
+       SatSunMJ2000Ec.EarthMJ2000Eq.VX SatSunMJ2000Ec.EarthMJ2000Eq.VY  SatSunMJ2000Ec.EarthMJ2000Eq.VZ;
+ 
+% ---- Ouput all spacecraft in EarthMJ2000Ec
+Report CoordSysInputTests EarthMJ2000EcState
+Report CoordSysInputTests SatEarthMJ2000Eq.EarthMJ2000Ec.X SatEarthMJ2000Eq.EarthMJ2000Ec.Y SatEarthMJ2000Eq.EarthMJ2000Ec.Z ...
+       SatEarthMJ2000Eq.EarthMJ2000Ec.VX SatEarthMJ2000Eq.EarthMJ2000Ec.VY  SatEarthMJ2000Eq.EarthMJ2000Ec.VZ;
+Report CoordSysInputTests SatEarthMJ2000Ec.EarthMJ2000Ec.X SatEarthMJ2000Ec.EarthMJ2000Ec.Y SatEarthMJ2000Ec.EarthMJ2000Ec.Z ...
+       SatEarthMJ2000Ec.EarthMJ2000Ec.VX SatEarthMJ2000Ec.EarthMJ2000Ec.VY  SatEarthMJ2000Ec.EarthMJ2000Ec.VZ;
+Report CoordSysInputTests SatEarthFixed.EarthMJ2000Ec.X SatEarthFixed.EarthMJ2000Ec.Y SatEarthFixed.EarthMJ2000Ec.Z ...
+       SatEarthFixed.EarthMJ2000Ec.VX SatEarthFixed.EarthMJ2000Ec.VY  SatEarthFixed.EarthMJ2000Ec.VZ;
+Report CoordSysInputTests SatLunaFixed.EarthMJ2000Ec.X SatLunaFixed.EarthMJ2000Ec.Y SatLunaFixed.EarthMJ2000Ec.Z ...
+       SatLunaFixed.EarthMJ2000Ec.VX SatLunaFixed.EarthMJ2000Ec.VY  SatLunaFixed.EarthMJ2000Ec.VZ;
+Report CoordSysInputTests SatEarthMoonRot.EarthMJ2000Ec.X SatEarthMoonRot.EarthMJ2000Ec.Y SatEarthMoonRot.EarthMJ2000Ec.Z ...
+       SatEarthMoonRot.EarthMJ2000Ec.VX SatEarthMoonRot.EarthMJ2000Ec.VY  SatEarthMoonRot.EarthMJ2000Ec.VZ;
+Report CoordSysInputTests SatSunMJ2000Ec.EarthMJ2000Ec.X SatSunMJ2000Ec.EarthMJ2000Ec.Y SatSunMJ2000Ec.EarthMJ2000Ec.Z ...
+       SatSunMJ2000Ec.EarthMJ2000Ec.VX SatSunMJ2000Ec.EarthMJ2000Ec.VY  SatSunMJ2000Ec.EarthMJ2000Ec.VZ;
+ 
+% ---- Ouput all spacecraft in EarthFixed
+Report CoordSysInputTests EarthFixedState
+Report CoordSysInputTests SatEarthMJ2000Eq.EarthFixed.X SatEarthMJ2000Eq.EarthFixed.Y SatEarthMJ2000Eq.EarthFixed.Z ...
+       SatEarthMJ2000Eq.EarthFixed.VX SatEarthMJ2000Eq.EarthFixed.VY  SatEarthMJ2000Eq.EarthFixed.VZ;
+Report CoordSysInputTests SatEarthMJ2000Ec.EarthFixed.X SatEarthMJ2000Ec.EarthFixed.Y SatEarthMJ2000Ec.EarthFixed.Z ...
+       SatEarthMJ2000Ec.EarthFixed.VX SatEarthMJ2000Ec.EarthFixed.VY  SatEarthMJ2000Ec.EarthFixed.VZ;
+Report CoordSysInputTests SatEarthFixed.EarthFixed.X SatEarthFixed.EarthFixed.Y SatEarthFixed.EarthFixed.Z ...
+       SatEarthFixed.EarthFixed.VX SatEarthFixed.EarthFixed.VY  SatEarthFixed.EarthFixed.VZ;
+Report CoordSysInputTests SatLunaFixed.EarthFixed.X SatLunaFixed.EarthFixed.Y SatLunaFixed.EarthFixed.Z ...
+       SatLunaFixed.EarthFixed.VX SatLunaFixed.EarthFixed.VY  SatLunaFixed.EarthFixed.VZ;
+Report CoordSysInputTests SatEarthMoonRot.EarthFixed.X SatEarthMoonRot.EarthFixed.Y SatEarthMoonRot.EarthFixed.Z ...
+       SatEarthMoonRot.EarthFixed.VX SatEarthMoonRot.EarthFixed.VY  SatEarthMoonRot.EarthFixed.VZ;
+Report CoordSysInputTests SatSunMJ2000Ec.EarthFixed.X SatSunMJ2000Ec.EarthFixed.Y SatSunMJ2000Ec.EarthFixed.Z ...
+       SatSunMJ2000Ec.EarthFixed.VX SatSunMJ2000Ec.EarthFixed.VY  SatSunMJ2000Ec.EarthFixed.VZ;
+ 
+% ---- Ouput all spacecraft in LunaFixed
+Report CoordSysInputTests LunaFixedState
+Report CoordSysInputTests SatEarthMJ2000Eq.LunaFixed.X SatEarthMJ2000Eq.LunaFixed.Y SatEarthMJ2000Eq.LunaFixed.Z ...
+       SatEarthMJ2000Eq.LunaFixed.VX SatEarthMJ2000Eq.LunaFixed.VY  SatEarthMJ2000Eq.LunaFixed.VZ;
+Report CoordSysInputTests SatEarthMJ2000Ec.LunaFixed.X SatEarthMJ2000Ec.LunaFixed.Y SatEarthMJ2000Ec.LunaFixed.Z ...
+       SatEarthMJ2000Ec.LunaFixed.VX SatEarthMJ2000Ec.LunaFixed.VY  SatEarthMJ2000Ec.LunaFixed.VZ;
+Report CoordSysInputTests SatEarthFixed.LunaFixed.X SatEarthFixed.LunaFixed.Y SatEarthFixed.LunaFixed.Z ...
+       SatEarthFixed.LunaFixed.VX SatEarthFixed.LunaFixed.VY  SatEarthFixed.LunaFixed.VZ;
+Report CoordSysInputTests SatLunaFixed.LunaFixed.X SatLunaFixed.LunaFixed.Y SatLunaFixed.LunaFixed.Z ...
+       SatLunaFixed.LunaFixed.VX SatLunaFixed.LunaFixed.VY  SatLunaFixed.LunaFixed.VZ;
+Report CoordSysInputTests SatEarthMoonRot.LunaFixed.X SatEarthMoonRot.LunaFixed.Y SatEarthMoonRot.LunaFixed.Z ...
+       SatEarthMoonRot.LunaFixed.VX SatEarthMoonRot.LunaFixed.VY  SatEarthMoonRot.LunaFixed.VZ;
+Report CoordSysInputTests SatSunMJ2000Ec.LunaFixed.X SatSunMJ2000Ec.LunaFixed.Y SatSunMJ2000Ec.LunaFixed.Z ...
+       SatSunMJ2000Ec.LunaFixed.VX SatSunMJ2000Ec.LunaFixed.VY  SatSunMJ2000Ec.LunaFixed.VZ;
+ 
+% ---- Ouput all spacecraft in EarthMoonRot
+Report CoordSysInputTests EarthMoonRotState;
+Report CoordSysInputTests SatEarthMJ2000Eq.EarthMoonRot.X SatEarthMJ2000Eq.EarthMoonRot.Y SatEarthMJ2000Eq.EarthMoonRot.Z ...
+       SatEarthMJ2000Eq.EarthMoonRot.VX SatEarthMJ2000Eq.EarthMoonRot.VY  SatEarthMJ2000Eq.EarthMoonRot.VZ;
+Report CoordSysInputTests SatEarthMJ2000Ec.EarthMoonRot.X SatEarthMJ2000Ec.EarthMoonRot.Y SatEarthMJ2000Ec.EarthMoonRot.Z ...
+       SatEarthMJ2000Ec.EarthMoonRot.VX SatEarthMJ2000Ec.EarthMoonRot.VY  SatEarthMJ2000Ec.EarthMoonRot.VZ;
+Report CoordSysInputTests SatEarthFixed.EarthMoonRot.X SatEarthFixed.EarthMoonRot.Y SatEarthFixed.EarthMoonRot.Z ...
+       SatEarthFixed.EarthMoonRot.VX SatEarthFixed.EarthMoonRot.VY  SatEarthFixed.EarthMoonRot.VZ;
+Report CoordSysInputTests SatLunaFixed.EarthMoonRot.X SatLunaFixed.EarthMoonRot.Y SatLunaFixed.EarthMoonRot.Z ...
+       SatLunaFixed.EarthMoonRot.VX SatLunaFixed.EarthMoonRot.VY  SatLunaFixed.EarthMoonRot.VZ;
+Report CoordSysInputTests SatEarthMoonRot.EarthMoonRot.X SatEarthMoonRot.EarthMoonRot.Y SatEarthMoonRot.EarthMoonRot.Z ...
+       SatEarthMoonRot.EarthMoonRot.VX SatEarthMoonRot.EarthMoonRot.VY  SatEarthMoonRot.EarthMoonRot.VZ;
+Report CoordSysInputTests SatSunMJ2000Ec.EarthMoonRot.X SatSunMJ2000Ec.EarthMoonRot.Y SatSunMJ2000Ec.EarthMoonRot.Z ...
+       SatSunMJ2000Ec.EarthMoonRot.VX SatSunMJ2000Ec.EarthMoonRot.VY  SatSunMJ2000Ec.EarthMoonRot.VZ;
+ 
+ 
+% ---- Ouput all spacecraft in SunMJ2000Ec
+Report CoordSysInputTests SunMJ2000EcState;
+Report CoordSysInputTests SatEarthMJ2000Eq.SunMJ2000Ec.X SatEarthMJ2000Eq.SunMJ2000Ec.Y SatEarthMJ2000Eq.SunMJ2000Ec.Z ...
+       SatEarthMJ2000Eq.SunMJ2000Ec.VX SatEarthMJ2000Eq.SunMJ2000Ec.VY  SatEarthMJ2000Eq.SunMJ2000Ec.VZ
+Report CoordSysInputTests SatEarthMJ2000Ec.SunMJ2000Ec.X SatEarthMJ2000Ec.SunMJ2000Ec.Y SatEarthMJ2000Ec.SunMJ2000Ec.Z ...
+       SatEarthMJ2000Ec.SunMJ2000Ec.VX SatEarthMJ2000Ec.SunMJ2000Ec.VY  SatEarthMJ2000Ec.SunMJ2000Ec.VZ
+Report CoordSysInputTests SatEarthFixed.SunMJ2000Ec.X SatEarthFixed.SunMJ2000Ec.Y SatEarthFixed.SunMJ2000Ec.Z ...
+       SatEarthFixed.SunMJ2000Ec.VX SatEarthFixed.SunMJ2000Ec.VY  SatEarthFixed.SunMJ2000Ec.VZ
+Report CoordSysInputTests SatLunaFixed.SunMJ2000Ec.X SatLunaFixed.SunMJ2000Ec.Y SatLunaFixed.SunMJ2000Ec.Z ...
+       SatLunaFixed.SunMJ2000Ec.VX SatLunaFixed.SunMJ2000Ec.VY  SatLunaFixed.SunMJ2000Ec.VZ;
+Report CoordSysInputTests SatEarthMoonRot.SunMJ2000Ec.X SatEarthMoonRot.SunMJ2000Ec.Y SatEarthMoonRot.SunMJ2000Ec.Z ...
+       SatEarthMoonRot.SunMJ2000Ec.VX SatEarthMoonRot.SunMJ2000Ec.VY  SatEarthMoonRot.SunMJ2000Ec.VZ
+Report CoordSysInputTests SatSunMJ2000Ec.SunMJ2000Ec.X SatSunMJ2000Ec.SunMJ2000Ec.Y SatSunMJ2000Ec.SunMJ2000Ec.Z ...
+       SatSunMJ2000Ec.SunMJ2000Ec.VX SatSunMJ2000Ec.SunMJ2000Ec.VY  SatSunMJ2000Ec.SunMJ2000Ec.VZ
+
