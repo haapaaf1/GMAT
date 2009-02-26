@@ -1,0 +1,319 @@
+% $Id: CoupledInputTests.script,v 1.3 2007/07/26 19:13:13 edove Exp $
+%  Test Description and Summary 
+% 
+%  This script is designed to make sure that the spacecraft object correctly 
+%  handles simultaneous coordinates system and representatin transformations.
+%  There are several spacecraft used in this test.  Each spacecrafts state is
+%  expressed w/r/t to the MJ2000Eq Axes system, and w/r/t the origin used
+%  in the spacecraft name. The states for each spacecraft are equivalent, 
+%  meaning that if you request the state vector of any of the spacecraft
+%  in EarthMJ2000Eq, you should get identical answers.
+%  The script tests all permutations of setting and requesting a state in
+%  the following coordinate systems:  EarthMJ2000Eq, SunMJ2000Ec, and 
+%  LunaFixed, and in the following state representations:  Cartesian, 
+%  Keplerian, Modified Keplerian, SphericalAZFPA, SphericalRADEC, and Equinoctial.
+
+%
+%  Expected Results
+%
+%  Each number in the file is the difference between two conversions
+%  that should yield the same number, so all numbers in the file
+%  should be near zero.  Numbers near 1e-8 are ok for many cases due
+%  to machine precision issues when adding large vectors.
+
+%%-----------------------------------------------------------
+%%-------------------  Define Spacecraft --------------------
+%%-----------------------------------------------------------
+
+%------ Define the initial conditions for EarthSat ------
+Create Spacecraft EarthSat;
+GMAT EarthSat.DateFormat = UTCGregorian;
+GMAT EarthSat.Epoch = 12 Nov 2003 12:27:20.951;
+GMAT EarthSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT EarthSat.DisplayStateType = Cartesian;
+GMAT EarthSat.X = -197850.2306922056;
+GMAT EarthSat.Y = -116548.3343388685;
+GMAT EarthSat.Z = 98852.27350888991;
+GMAT EarthSat.VX = -1.280123034749322;
+GMAT EarthSat.VY = -1.882289813971446;
+GMAT EarthSat.VZ = 0.008706987052266571;
+
+%------ Define the initial conditions for SunSat ------
+Create Spacecraft SunSat;
+GMAT SunSat.DateFormat = UTCGregorian;
+GMAT SunSat.Epoch = 12 Nov 2003 12:27:20.951;
+GMAT SunSat.CoordinateSystem = SunMJ2000Ec;
+GMAT SunSat.DisplayStateType = Cartesian;
+GMAT SunSat.X = 95668466.90671603;
+GMAT SunSat.Y = 112785492.2208855;
+GMAT SunSat.Z = 135721.8366087005;
+GMAT SunSat.VX = -24.45664176531646;
+GMAT SunSat.VY = 17.44973190296121;
+GMAT SunSat.VZ = 0.7556767147355457;
+
+%------ Define the initial conditions for MoonSat ------
+Create Spacecraft MoonSat;
+GMAT MoonSat.DateFormat = UTCGregorian;
+GMAT MoonSat.Epoch = 12 Nov 2003 12:27:20.951;
+GMAT MoonSat.CoordinateSystem = MoonFixed;
+GMAT MoonSat.DisplayStateType = Cartesian;
+GMAT MoonSat.X = 471578.774424035;
+GMAT MoonSat.Y = -219245.1869027317;
+GMAT MoonSat.Z = 111175.0036223247;
+GMAT MoonSat.VX = 1.175661046162028;
+GMAT MoonSat.VY = -1.565480751391342;
+GMAT MoonSat.VZ = 0.6625005544001953;
+                                
+%%------------------------------------------------------------
+%%-------------------  Create Coordinate Systems -------------
+%%------------------------------------------------------------
+
+Create ReportFile CoupledInputTests;
+CoupledInputTests.Filename = ./output/SystemTest/CoupledInputTests.report;
+CoupledInputTests.ColumnWidth = 25;
+CoupledInputTests.WriteHeaders = Off;
+
+Create CoordinateSystem MoonFixed;
+GMAT MoonFixed.Origin = Luna;
+GMAT MoonFixed.Axes = BodyFixed;
+
+Create CoordinateSystem SunMJ2000Ec;
+SunMJ2000Ec.Origin = Sun;
+SunMJ2000Ec.Axes   = MJ2000Ec;
+
+Create Variable E1 E2 E3 E4 E5 E6
+
+Create String Cart Kep ModKep SphAZEL SphRADEC Equinoc
+Cart =   ------  Catesian State Transformation Tests ------   ;
+Kep =   ------  Keplerian State Transformation Tests ------   ;
+ModKep =   ------  Modified Keplerian State Transformation Tests ------   ;
+SphAZEL =   ------  Spherical (AZEL) State Transformation Tests ------   ;
+SphRADEC =   ------  Spherical (RADEC) Transformation Tests ------   ;
+Equinoc =   ------  Equinoctial Transformation Tests ------   ;
+
+
+%%*****************************************************************************************
+%%*****************************************************************************************
+%%-----------------------------------------------------------------------------------------
+%%-------------------------------  Mission Sequence  --------------------------------------
+%%-----------------------------------------------------------------------------------------
+%%*****************************************************************************************
+%%*****************************************************************************************
+
+
+%-----------------------------------------------------------
+%-----------------  Cartesian State Outputs ----------------
+%-----------------------------------------------------------
+Report CoupledInputTests Cart;
+
+%----- Convert them to EarthMJ2000Eq Cartesian
+
+E1 = SunSat.EarthMJ2000Eq.X   - EarthSat.EarthMJ2000Eq.X;
+E2 = SunSat.EarthMJ2000Eq.Y   - EarthSat.EarthMJ2000Eq.Y;
+E3 = SunSat.EarthMJ2000Eq.Z   - EarthSat.EarthMJ2000Eq.Z;
+E4 = SunSat.EarthMJ2000Eq.VX  - EarthSat.EarthMJ2000Eq.VX
+E5 = SunSat.EarthMJ2000Eq.VY  - EarthSat.EarthMJ2000Eq.VY 
+E6 = SunSat.EarthMJ2000Eq.VZ  - EarthSat.EarthMJ2000Eq.VZ;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = MoonSat.EarthMJ2000Eq.X   - EarthSat.EarthMJ2000Eq.X;
+E2 = MoonSat.EarthMJ2000Eq.Y   - EarthSat.EarthMJ2000Eq.Y;
+E3 = MoonSat.EarthMJ2000Eq.Z   - EarthSat.EarthMJ2000Eq.Z;
+E4 = MoonSat.EarthMJ2000Eq.VX  - EarthSat.EarthMJ2000Eq.VX
+E5 = MoonSat.EarthMJ2000Eq.VY  - EarthSat.EarthMJ2000Eq.VY 
+E6 = MoonSat.EarthMJ2000Eq.VZ  - EarthSat.EarthMJ2000Eq.VZ;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+%----- Convert all to SunMJ2000Ec Cartesian
+
+E1 = SunSat.SunMJ2000Ec.X   - EarthSat.SunMJ2000Ec.X;
+E2 = SunSat.SunMJ2000Ec.Y   - EarthSat.SunMJ2000Ec.Y;
+E3 = SunSat.SunMJ2000Ec.Z   - EarthSat.SunMJ2000Ec.Z;
+E4 = SunSat.SunMJ2000Ec.VX  - EarthSat.SunMJ2000Ec.VX
+E5 = SunSat.SunMJ2000Ec.VY  - EarthSat.SunMJ2000Ec.VY 
+E6 = SunSat.SunMJ2000Ec.VZ  - EarthSat.SunMJ2000Ec.VZ;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = SunSat.SunMJ2000Ec.X   - MoonSat.SunMJ2000Ec.X;
+E2 = SunSat.SunMJ2000Ec.Y   - MoonSat.SunMJ2000Ec.Y;
+E3 = SunSat.SunMJ2000Ec.Z   - MoonSat.SunMJ2000Ec.Z;
+E4 = SunSat.SunMJ2000Ec.VX  - MoonSat.SunMJ2000Ec.VX
+E5 = SunSat.SunMJ2000Ec.VY  - MoonSat.SunMJ2000Ec.VY 
+E6 = SunSat.SunMJ2000Ec.VZ  - MoonSat.SunMJ2000Ec.VZ;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+%----- Convert all to MoonFixed Cartesian
+
+E1 = MoonSat.MoonFixed.X   - EarthSat.MoonFixed.X;
+E2 = MoonSat.MoonFixed.Y   - EarthSat.MoonFixed.Y;
+E3 = MoonSat.MoonFixed.Z   - EarthSat.MoonFixed.Z;
+E4 = MoonSat.MoonFixed.VX  - EarthSat.MoonFixed.VX
+E5 = MoonSat.MoonFixed.VY  - EarthSat.MoonFixed.VY 
+E6 = MoonSat.MoonFixed.VZ  - EarthSat.MoonFixed.VZ;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = MoonSat.MoonFixed.X   - SunSat.MoonFixed.X;
+E2 = MoonSat.MoonFixed.Y   - SunSat.MoonFixed.Y;
+E3 = MoonSat.MoonFixed.Z   - SunSat.MoonFixed.Z;
+E4 = MoonSat.MoonFixed.VX  - SunSat.MoonFixed.VX
+E5 = MoonSat.MoonFixed.VY  - SunSat.MoonFixed.VY 
+E6 = MoonSat.MoonFixed.VZ  - SunSat.MoonFixed.VZ;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+%-----------------------------------------------------------
+%-----------------  Keplerian State Outputs ----------------
+%-----------------------------------------------------------
+Report CoupledInputTests Kep;
+
+%----- Convert them to EarthMJ2000Eq Keplerian
+
+E1 = SunSat.Earth.SMA   - EarthSat.Earth.SMA;
+E2 = SunSat.Earth.ECC   - EarthSat.Earth.ECC;
+E3 = SunSat.EarthMJ2000Eq.INC   - EarthSat.EarthMJ2000Eq.INC;
+E4 = SunSat.EarthMJ2000Eq.RAAN  - EarthSat.EarthMJ2000Eq.RAAN
+E5 = SunSat.EarthMJ2000Eq.AOP   - EarthSat.EarthMJ2000Eq.AOP 
+E6 = SunSat.Earth.TA    - EarthSat.Earth.TA;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = MoonSat.Earth.SMA   - EarthSat.Earth.SMA;
+E2 = MoonSat.Earth.ECC   - EarthSat.Earth.ECC;
+E3 = MoonSat.EarthMJ2000Eq.INC   - EarthSat.EarthMJ2000Eq.INC;
+E4 = MoonSat.EarthMJ2000Eq.RAAN  - EarthSat.EarthMJ2000Eq.RAAN
+E5 = MoonSat.EarthMJ2000Eq.AOP  - EarthSat.EarthMJ2000Eq.AOP 
+E6 = MoonSat.Earth.TA  - EarthSat.Earth.TA;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+%----- Convert all to SunMJ2000Ec Keplerian
+
+E1 = SunSat.Sun.SMA   - EarthSat.Sun.SMA;
+E2 = SunSat.Sun.ECC   - EarthSat.Sun.ECC;
+E3 = SunSat.SunMJ2000Ec.INC   - EarthSat.SunMJ2000Ec.INC;
+E4 = SunSat.SunMJ2000Ec.RAAN  - EarthSat.SunMJ2000Ec.RAAN
+E5 = SunSat.SunMJ2000Ec.AOP  - EarthSat.SunMJ2000Ec.AOP 
+E6 = SunSat.Sun.TA  - EarthSat.Sun.TA;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = SunSat.Sun.SMA   - MoonSat.Sun.SMA;
+E2 = SunSat.Sun.ECC   - MoonSat.Sun.ECC;
+E3 = SunSat.SunMJ2000Ec.INC   - MoonSat.SunMJ2000Ec.INC;
+E4 = SunSat.SunMJ2000Ec.RAAN  - MoonSat.SunMJ2000Ec.RAAN
+E5 = SunSat.SunMJ2000Ec.AOP  - MoonSat.SunMJ2000Ec.AOP 
+E6 = SunSat.Sun.TA  - MoonSat.Sun.TA;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+%----- Convert all to MoonFixed Keplerian
+
+E1 = MoonSat.Luna.SMA   - EarthSat.Luna.SMA;
+E2 = MoonSat.Luna.ECC   - EarthSat.Luna.ECC;
+E3 = MoonSat.MoonFixed.INC   - EarthSat.MoonFixed.INC;
+E4 = MoonSat.MoonFixed.RAAN  - EarthSat.MoonFixed.RAAN
+E5 = MoonSat.MoonFixed.AOP  - EarthSat.MoonFixed.AOP 
+E6 = MoonSat.Luna.TA  - EarthSat.Luna.TA;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = MoonSat.Luna.SMA   - SunSat.Luna.SMA;
+E2 = MoonSat.Luna.ECC   - SunSat.Luna.ECC;
+E3 = MoonSat.MoonFixed.INC   - SunSat.MoonFixed.INC;
+E4 = MoonSat.MoonFixed.RAAN  - SunSat.MoonFixed.RAAN
+E5 = MoonSat.MoonFixed.AOP  - SunSat.MoonFixed.AOP 
+E6 = MoonSat.Luna.TA  - SunSat.Luna.TA;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+%-----------------------------------------------------------
+%-----------  Modified Keplerian State Outputs -------------
+%-----------------------------------------------------------
+Report CoupledInputTests ModKep;
+
+
+%----- Convert them to Earth Modified Keplerian
+
+E1 = SunSat.Earth.RadPer   - EarthSat.Earth.RadPer;
+E2 = SunSat.Earth.RadApo   - EarthSat.Earth.RadApo;
+Report CoupledInputTests E1 E2 
+
+E1 = MoonSat.Earth.RadPer   - EarthSat.Earth.RadPer;
+E2 = MoonSat.Earth.RadApo   - EarthSat.Earth.RadApo;
+Report CoupledInputTests E1 E2 
+
+%----- Convert them to Moon Modified Keplerian
+
+E1 = SunSat.Sun.RadPer   - EarthSat.Sun.RadPer;
+E2 = SunSat.Sun.RadApo   - EarthSat.Sun.RadApo;
+Report CoupledInputTests E1 E2 
+
+E1 = SunSat.Sun.RadPer   - MoonSat.Sun.RadPer;
+E2 = SunSat.Sun.RadApo   - MoonSat.Sun.RadApo;
+Report CoupledInputTests E1 E2
+
+%----- Convert all to Moon Modified Keplerian
+
+E1 = MoonSat.Luna.RadPer   - EarthSat.Luna.RadPer;
+E2 = MoonSat.Luna.RadApo   - EarthSat.Luna.RadApo;
+Report CoupledInputTests E1 E2
+
+E1 = MoonSat.Luna.RadPer   - SunSat.Luna.RadPer;
+E2 = MoonSat.Luna.RadApo   - SunSat.Luna.RadApo;
+Report CoupledInputTests E1 E2 
+
+%-----------------------------------------------------------
+%-----------  Spherical (RADEC) State Outputs --------------
+%-----------------------------------------------------------
+Report CoupledInputTests ModKep;
+
+%----- Convert them to EarthMJ2000Eq Keplerian
+
+E1 = SunSat.Earth.RMAG   - EarthSat.Earth.RMAG;
+E2 = SunSat.EarthMJ2000Eq.DEC   - EarthSat.EarthMJ2000Eq.DEC;
+E3 = SunSat.EarthMJ2000Eq.DEC   - EarthSat.EarthMJ2000Eq.DEC;
+E4 = SunSat.EarthMJ2000Eq.VMAG  - EarthSat.EarthMJ2000Eq.VMAG;
+E5 = SunSat.EarthMJ2000Eq.RAV   - EarthSat.EarthMJ2000Eq.RAV ;
+E6 = SunSat.EarthMJ2000Eq.DECV  - EarthSat.EarthMJ2000Eq.DECV;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = MoonSat.Earth.RMAG   - EarthSat.Earth.RMAG;
+E2 = MoonSat.EarthMJ2000Eq.DEC   - EarthSat.EarthMJ2000Eq.DEC;
+E3 = MoonSat.EarthMJ2000Eq.DEC   - EarthSat.EarthMJ2000Eq.DEC;
+E4 = MoonSat.EarthMJ2000Eq.VMAG  - EarthSat.EarthMJ2000Eq.VMAG
+E5 = MoonSat.EarthMJ2000Eq.RAV  - EarthSat.EarthMJ2000Eq.RAV 
+E6 = MoonSat.EarthMJ2000Eq.DECV  - EarthSat.EarthMJ2000Eq.DECV;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+%----- Convert all to SunMJ2000Ec Keplerian
+
+E1 = SunSat.Sun.RMAG   - EarthSat.Sun.RMAG;
+E2 = SunSat.SunMJ2000Ec.DEC   - EarthSat.SunMJ2000Ec.DEC;
+E3 = SunSat.SunMJ2000Ec.DEC   - EarthSat.SunMJ2000Ec.DEC;
+E4 = SunSat.SunMJ2000Ec.VMAG  - EarthSat.SunMJ2000Ec.VMAG
+E5 = SunSat.SunMJ2000Ec.RAV  - EarthSat.SunMJ2000Ec.RAV 
+E6 = SunSat.SunMJ2000Ec.DECV  - EarthSat.SunMJ2000Ec.DECV;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = SunSat.Sun.RMAG   - MoonSat.Sun.RMAG;
+E2 = SunSat.SunMJ2000Ec.DEC   - MoonSat.SunMJ2000Ec.DEC;
+E3 = SunSat.SunMJ2000Ec.DEC   - MoonSat.SunMJ2000Ec.DEC;
+E4 = SunSat.SunMJ2000Ec.VMAG  - MoonSat.SunMJ2000Ec.VMAG
+E5 = SunSat.SunMJ2000Ec.RAV  - MoonSat.SunMJ2000Ec.RAV 
+E6 = SunSat.SunMJ2000Ec.DECV  - MoonSat.SunMJ2000Ec.DECV;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+%----- Convert all to MoonFixed Keplerian
+
+E1 = MoonSat.Luna.RMAG   - EarthSat.Luna.RMAG;
+E2 = MoonSat.MoonFixed.DEC   - EarthSat.MoonFixed.DEC;
+E3 = MoonSat.MoonFixed.DEC   - EarthSat.MoonFixed.DEC;
+E4 = MoonSat.MoonFixed.VMAG  - EarthSat.MoonFixed.VMAG
+E5 = MoonSat.MoonFixed.RAV  - EarthSat.MoonFixed.RAV 
+E6 = MoonSat.MoonFixed.DECV  - EarthSat.MoonFixed.DECV;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+E1 = MoonSat.Luna.RMAG   - SunSat.Luna.RMAG;
+E2 = MoonSat.MoonFixed.DEC   - SunSat.MoonFixed.DEC;
+E3 = MoonSat.MoonFixed.DEC   - SunSat.MoonFixed.DEC;
+E4 = MoonSat.MoonFixed.VMAG  - SunSat.MoonFixed.VMAG
+E5 = MoonSat.MoonFixed.RAV  - SunSat.MoonFixed.RAV 
+E6 = MoonSat.MoonFixed.DECV  - SunSat.MoonFixed.DECV;
+Report CoupledInputTests E1 E2 E3 E4 E5 E6
+
+
+
+

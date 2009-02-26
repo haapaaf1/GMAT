@@ -1,0 +1,245 @@
+% $Id: AssigningWholeObjects.script,v 1.3 2008/10/22 20:57:35 edove Exp $
+%
+% AssigningWholeObjects - Tests to make sure every object in GMAT can be copied.
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft SCorig;
+GMAT SCorig.DateFormat = UTCModJulian;
+GMAT SCorig.Epoch = 21545.000000000;
+GMAT SCorig.CoordinateSystem = EarthMJ2000Eq;
+GMAT SCorig.DisplayStateType = Cartesian;
+GMAT SCorig.X = 0;
+GMAT SCorig.Y = 7100;
+GMAT SCorig.Z = 130;
+GMAT SCorig.VX = 2.1;
+GMAT SCorig.VY = 7.0;
+GMAT SCorig.VZ = 0.2;
+GMAT SCorig.DryMass = 1000;
+GMAT SCorig.Cd = 2.0;
+GMAT SCorig.Cr = 2.0;
+GMAT SCorig.DragArea = 14;
+GMAT SCorig.SRPArea = 5;
+
+Create Spacecraft SCdup;
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+
+Create FuelTank FuelTankOrig;
+% Need to change some of the default values
+
+Create FuelTank FuelTankDup;
+
+Create Thruster ThrusterOrig;
+% Need to change some of the default values
+
+Create Thruster ThrusterDup;
+
+
+%----------------------------------------
+%---------- Formation
+%----------------------------------------
+
+Create Formation FormationOrig;
+GMAT FormationOrig.A1Epoch = 21545;
+GMAT FormationOrig.Add = {SCorig};
+
+Create Formation FormationDup;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel PropOrig_ForceModel;
+GMAT PropOrig_ForceModel.CentralBody = Mars;
+GMAT PropOrig_ForceModel.PointMasses = {Mars};
+GMAT PropOrig_ForceModel.Drag = None;
+GMAT PropOrig_ForceModel.SRP = Off;
+GMAT PropOrig_ForceModel.ErrorControl = RSSStep;
+
+Create ForceModel PropDup_ForceModel;
+
+Create Propagator PropOrig;
+GMAT PropOrig.FM = PropOrig_ForceModel;
+GMAT PropOrig.Type = RungeKutta89;
+GMAT PropOrig.InitialStepSize = 50;
+GMAT PropOrig.Accuracy = 1e-11;
+GMAT PropOrig.MinStep = 0.1;
+GMAT PropOrig.MaxStep = 270;
+GMAT PropOrig.MaxStepAttempts = 50;
+
+Create Propagator PropDup;
+
+%----------------------------------------
+%---------- Calculated Points
+%----------------------------------------
+
+Create Barycenter BCorig;
+GMAT BCorig.BodyNames = {Sun, Earth};
+
+Create Barycenter BCdup;
+
+
+Create LibrationPoint LibOrig;
+GMAT LibOrig.Primary = Earth;
+GMAT LibOrig.Secondary = Luna;
+GMAT LibOrig.Point = L1;
+
+Create LibrationPoint LibDup;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn IBorig;
+GMAT IBorig.Origin = Mars;
+GMAT IBorig.Axes = VNB;
+GMAT IBorig.VectorFormat = Cartesian;
+GMAT IBorig.Element1 = 1;
+GMAT IBorig.Element2 = 2;
+GMAT IBorig.Element3 = 3;
+
+Create ImpulsiveBurn IBdup;
+
+Create FiniteBurn FBorig;
+% Need to change some of the default values
+
+Create FiniteBurn FBdup;
+
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector DCorig;
+% Need to change some of the default values
+
+Create DifferentialCorrector DCdup;
+
+Create FminconOptimizer SQPorig;
+% Need to change some of the default values
+
+Create FminconOptimizer SQPdup;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem CSorig;
+GMAT CSorig.Origin = Mars;
+GMAT CSorig.Axes = MJ2000Eq;
+GMAT CSorig.UpdateInterval = 30;
+GMAT CSorig.OverrideOriginInterval = true;
+
+Create CoordinateSystem CSdup;
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create OpenGLPlot OpenGLorig;
+GMAT OpenGLorig.SolverIterations = All;
+GMAT OpenGLorig.Add = {SCorig, Sun, Earth};
+GMAT OpenGLorig.ViewUpAxis = X;
+GMAT OpenGLorig.WireFrame = On;
+GMAT OpenGLorig.Grid = On;
+
+Create OpenGLPlot OpenGLdup;
+
+Create ReportFile ReportFileOrig;
+GMAT ReportFileOrig.SolverIterations = All;
+GMAT ReportFileOrig.Filename = 'ReporFileOrig.txt';
+GMAT ReportFileOrig.Precision = 18;
+GMAT ReportFileOrig.Add = {SCorig.A1ModJulian, SCorig.EarthMJ2000Eq.X};
+GMAT ReportFileOrig.WriteHeaders = Off;
+GMAT ReportFileOrig.LeftJustify = Off;
+GMAT ReportFileOrig.ZeroFill = On;
+GMAT ReportFileOrig.ColumnWidth = 30;
+
+Create ReportFile ReportFileDup;
+
+
+Create XYPlot XYPlotOrig;
+GMAT XYPlotOrig.SolverIterations = All;
+GMAT XYPlotOrig.IndVar = SCorig.A1ModJulian;
+GMAT XYPlotOrig.Add = {SCorig.EarthMJ2000Eq.Z};
+GMAT XYPlotOrig.Grid = On;
+GMAT XYPlotOrig.ShowPlot = true;
+
+Create XYPlot XYPlotDup;
+
+%----------------------------------------
+%---------- Functions
+%----------------------------------------
+
+Create MatlabFunction MatlabFuncCallOrig;
+GMAT MatlabFuncCallOrig.FunctionPath = './output/SystemTest';
+
+Create MatlabFunction MatlabFuncCallDup;
+
+
+Create GmatFunction GMATFuncCallOrig;
+% Need to change some of the default values
+
+Create GmatFunction GMATFuncCallDup;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+% Using BeginEndScript forces GMAT to change to command mode
+BeginScript;
+EndScript;
+
+GMAT SCdup = SCorig;
+GMAT FuelTankDup = FuelTankOrig;
+GMAT ThrusterDup = ThrusterOrig;
+GMAT FormationOrig = FormationDup;
+GMAT PropDup_ForceModel = PropOrig_ForceModel;
+GMAT PropDup = PropOrig;
+GMAT BCdup = BCorig;
+GMAT LibDup = LibOrig;
+GMAT IBdup = IBorig;
+GMAT FBdup = FBorig;
+GMAT DCdup = DCorig;
+GMAT SQPdup = SQPorig;
+GMAT CSdup = CSorig;
+GMAT OpenGLdup = OpenGLorig;
+GMAT ReportFileDup = ReportFileOrig;
+GMAT XYPlotDup = XYPlotOrig;
+GMAT MatlabFuncCallOrig = MatlabFuncCallDup;
+GMAT GMATFuncCallDup = GMATFuncCallOrig;
+
+Save SCorig;
+Save SCdup;
+Save PropOrig;
+Save PropDup;
+Save PropOrig_ForceModel;
+Save PropDup_ForceModel;
+Save FormationOrig;
+Save FormationDup;
+Save IBorig;
+Save IBdup;
+Save FBorig;
+Save FBdup;
+Save DCorig;
+Save DCdup;
+Save SQPorig;
+Save SQPdup;
+Save ThrusterOrig;
+Save ThrusterDup;
+Save FuelTankOrig;
+Save FuelTankDup;
+Save BCorig;
+Save BCdup;
+Save LibOrig;
+Save LibDup;
+Save ReportFileOrig;
+Save ReportFileDup;
+Save OpenGLorig;
+Save OpenGLdup;
+Save XYPlotOrig;
+Save XYPlotDup;
