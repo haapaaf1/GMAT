@@ -1,0 +1,112 @@
+%  Script Mission - TRMM mission Example
+%
+%  This script demonstrates spacecraft propagation and targeting
+%  based off of the TRMM mission.
+%
+%  REVSION HISTORY
+%  $Id: Ex_TRMM.script,v 1.4 2007/11/20 22:37:14 edove Exp $
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft sat
+GMAT sat.J2000BodyName = Earth;
+GMAT sat.Epoch = 21548.996371235044;
+GMAT sat.X = -4083.9936142885431;
+GMAT sat.Y = 4691.8318877406455;
+GMAT sat.Z = -2576.745527780432;
+GMAT sat.VX = -4.252071046388588;
+GMAT sat.VY = -5.5096338388169208;
+GMAT sat.VZ = -3.2843018636452466;
+GMAT sat.DisplayStateType = Cartesian;
+GMAT sat.AnomalyType = TA;
+GMAT sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat.DryMass = 850;
+GMAT sat.DateFormat = TAIModJulian;
+GMAT sat.Cd = 2.2000000000000002;
+GMAT sat.Cr = 1.8;
+GMAT sat.DragArea = 15;
+GMAT sat.SRPArea = 1;
+GMAT sat.TotalMass = 850;
+
+%----------------------------------------
+%---------- ForceModels and Propagators
+%----------------------------------------
+
+Create ForceModel fm;
+GMAT fm.PrimaryBodies = {Earth};
+GMAT fm.PointMasses = {Luna, Sun};
+GMAT fm.Drag = JacchiaRoberts;
+GMAT fm.Drag.F107 = 180;
+GMAT fm.Drag.F107A = 200;
+
+Create Propagator prop;
+GMAT prop.FM = fm;
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector DC;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn burn;
+GMAT burn.Axes = VNB;
+
+%----------------------------------------
+%---------- Plots/Reports
+%----------------------------------------
+
+Create XYPlot plot;
+GMAT plot.IndVar = sat.CurrA1MJD;
+GMAT plot.Add = sat.Altitude;
+GMAT plot.Grid = On;
+GMAT plot.SolverIterations = None;
+
+Create ReportFile Data;
+GMAT Data.Filename = ./output/SampleMissions/Ex_TRMM.report;
+GMAT Data.Precision = 16;
+GMAT Data.WriteHeaders = On;
+GMAT Data.ColumnWidth = 20;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
+GMAT Data.WriteHeaders = Off;
+Propagate prop(sat, {sat.ElapsedDays = 0.1});
+Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
+
+While sat.ElapsedDays < 10
+   Propagate prop(sat);
+   Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
+   If sat.Altitude < 342
+      Target DC;
+         Vary DC(burn.V = 0.002, {Perturbation = 0.0001});
+         Maneuver burn(sat);
+         Achieve DC(sat.SMA = 6734, {Tolerance = 0.1});
+      EndTarget;
+      Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
+    
+      Propagate prop(sat, {sat.Apoapsis});
+      Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
+
+      Target DC;
+         Vary DC(burn.V = 0.001, {Perturbation = 0.00005});
+         Maneuver burn(sat);
+         Achieve DC(sat.ECC = 0.0005, {Tolerance = 0.0001});
+      EndTarget;
+      Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
+
+      Save sat;
+   EndIf
+EndWhile
+Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
+
+Propagate prop(sat, {sat.Apoapsis});
+Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;

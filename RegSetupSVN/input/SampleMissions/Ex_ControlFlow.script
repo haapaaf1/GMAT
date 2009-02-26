@@ -1,0 +1,109 @@
+%  Script Mission - Control Flow Examples  
+%
+%  This script demonstrates how to use basic control flow in GMAT.
+%  The control flow used are For, While, and If statements.
+%
+%  REVSION HISTORY
+%  $Id: Ex_ControlFlow.script,v 1.3 2007/11/20 22:37:15 edove Exp $
+%
+% -------------------------------------------------------------------------
+% --------------------------- Create Objects ------------------------------
+% -------------------------------------------------------------------------
+
+% Create Sat1 and define its orbit
+Create Spacecraft Sat1;
+GMAT Sat1.Epoch.TAIGregorian  = 09 Oct 2004 16:30:00.124;
+GMAT Sat1.DisplayStateType = Cartesian;
+GMAT Sat1.X  = 10000;
+GMAT Sat1.Y  = 0;
+GMAT Sat1.Z  = 0;
+GMAT Sat1.VX = 0;
+GMAT Sat1.VY = 8.0;
+GMAT Sat1.VZ = 1.0;
+
+%  Define Force Model 
+Create ForceModel FM;
+GMAT FM.PointMasses = {Earth, Sun, Luna}; 
+
+% Create Propagator
+Create Propagator RKV_LowEarth_JR;
+GMAT RKV_LowEarth_JR.Type    = RungeKutta89;
+GMAT RKV_LowEarth_JR.MinStep = .01;
+GMAT RKV_LowEarth_JR.MaxStep = 900;
+GMAT RKV_LowEarth_JR.FM      = FM;
+
+%  Create Variables and Arrays
+Create Array MMS1M_ApoEphem[20,7];
+Create Variable I Count;
+
+%  Create OpenGL Plot
+Create OpenGLPlot GLPlot;
+GMAT GLPlot.Add = {Sat1,Earth};
+GMAT GLPlot.CoordinateSystem = EarthMJ2000Eq;
+GMAT GLPlot.ViewPointReference = Earth;
+GMAT GLPlot.ViewDirection = Earth;
+GMAT GLPlot.ViewScaleFactor = 2.5;
+GMAT GLPlot.FixedFovAngle = 45;
+GMAT GLPlot.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT GLPlot.ViewUpAxis = X;
+
+Create ReportFile ControlFlow;
+GMAT ControlFlow.Filename = ./output/SampleMissions/Ex_ControlFlow.report
+GMAT ControlFlow.Precision = 16;
+GMAT ControlFlow.WriteHeaders = On;
+GMAT ControlFlow.ColumnWidth = 20;
+
+% -------------------------------------------------------------------------
+% ---------------------------  Begin Mission Sequence ---------------------
+% -------------------------------------------------------------------------
+
+% =========================================================================
+%  Prop for 5 orbits and save ephem at every apogee
+% =========================================================================
+
+Report ControlFlow Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ Sat1.TA;
+GMAT ControlFlow.WriteHeaders = Off;
+
+For I = 1:5;
+
+     %Propagate to next apoapsis
+     Propagate RKV_LowEarth_JR(Sat1,  {Sat1.Apoapsis} );
+     
+     Report ControlFlow Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ Sat1.TA;
+
+EndFor;
+% =========================================================================
+
+
+% =========================================================================
+%  Prop to next apogee while the ElapsedDays of the propagation 
+%  start epoch is less than ten days
+% =========================================================================
+
+Report ControlFlow Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ Sat1.TA;
+
+While Sat1.ElapsedDays < 10;
+
+   Propagate RKV_LowEarth_JR(Sat1,  {Sat1.Apoapsis} );
+
+   Report ControlFlow Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ Sat1.TA;
+ 
+EndWhile;
+% =========================================================================
+
+
+% =========================================================================
+%  If the true anomaly of Sat1's orbit is greater than 178 degrees, then
+%  propagate to periapsis.
+% =========================================================================
+
+Report ControlFlow Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ Sat1.TA;
+
+If  Sat1.TA > 178;
+    
+    Propagate RKV_LowEarth_JR(Sat1,  {Sat1.Periapsis} );
+
+    Report ControlFlow Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ Sat1.TA;
+    
+EndIf;
+% =========================================================================

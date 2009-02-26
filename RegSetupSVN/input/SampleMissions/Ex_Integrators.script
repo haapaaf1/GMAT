@@ -1,0 +1,148 @@
+%  Script Mission - Integrator Examples  
+%
+%  This script demonstrates how to choose different numerical integrators
+%  in the propagator set up
+%
+%  REVSION HISTORY
+%  $Id: Ex_Integrators.script,v 1.3 2007/11/20 22:37:15 edove Exp $
+
+% -------------------------------------------------------------------------
+% --------------------------- Create Objects ------------------------------
+% -------------------------------------------------------------------------
+
+%----------------------------Create the Spacecraft-------------------------
+% Create Sat1 and define its orbit
+Create Spacecraft Sat1;
+GMAT Sat1.Epoch.UTCGregorian  = 04 Jan 2003 00:00:00.000;
+GMAT Sat1.DisplayStateType = Cartesian;
+GMAT Sat1.X     = -20320.831700;
+GMAT Sat1.Y     = 7859.549800 ;
+GMAT Sat1.Z     = 4411.786100;
+GMAT Sat1.VX    = 1.491571300;
+GMAT Sat1.VY    = -2.771848000;
+GMAT Sat1.VZ    = 1.649569600;
+GMAT Sat1.Cd    = 2.2;
+GMAT Sat1.Cr    = 1.2;
+GMAT Sat1.DragArea = 4;
+GMAT Sat1.SRPArea  = 4;
+GMAT Sat1.DryMass  = 100;
+
+%----------------------------Create ForceModels---------------------------
+%  Define Force Model with point mass only
+Create ForceModel PointMass;
+GMAT PointMass.PrimaryBodies        =  {Earth};
+GMAT PointMass.Gravity.Earth.Model  = JGM2;
+GMAT PointMass.Gravity.Earth.Degree = 0;
+GMAT PointMass.Gravity.Earth.Order  = 0;
+
+%----------------------------Create Propagators---------------------------
+
+%Create a Runge Kutta Fehlburg (56) Propagator
+Create Propagator RungeKutta56;
+GMAT  RungeKutta56.Type     = RungeKuttaFehlberg56;
+GMAT  RungeKutta56.InitialStepSize = 30;;
+GMAT  RungeKutta56.Accuracy = 1e-12;
+GMAT  RungeKutta56.MinStep  = 1e-5;
+GMAT  RungeKutta56.MaxStep  = 1000;
+GMAT  RungeKutta56.FM       =  PointMass;
+
+%Create a Runge Kutta Nystrom (68) Propagator
+Create Propagator RungeKutta68;
+GMAT  RungeKutta68.Type     = DormandElMikkawyPrince68;
+GMAT  RungeKutta68.InitialStepSize = 30;;
+GMAT  RungeKutta68.Accuracy = 1e-12;
+GMAT  RungeKutta68.MinStep  = 1e-5;
+GMAT  RungeKutta68.MaxStep  = 1000;
+GMAT  RungeKutta68.FM       =  PointMass;
+
+% Create a Runge Kutta Verner (89) Propagator
+Create Propagator RungeKutta89;
+GMAT  RungeKutta89.Type     = RungeKutta89;
+GMAT  RungeKutta89.InitialStepSize = 30;;
+GMAT  RungeKutta89.Accuracy = 1e-12;
+GMAT  RungeKutta89.MinStep  = 1e-5;
+GMAT  RungeKutta89.MaxStep  = 1000;
+GMAT  RungeKutta89.FM       =  PointMass;
+
+% Create a Prince Dormand (45) Propagator
+Create Propagator PrinceDormand45;
+GMAT  PrinceDormand45.Type     = PrinceDormand45;
+GMAT  PrinceDormand45.InitialStepSize = 30;;
+GMAT  PrinceDormand45.Accuracy = 1e-12;
+GMAT  PrinceDormand45.MinStep  = 1e-5;
+GMAT  PrinceDormand45.MaxStep  = 1000;
+GMAT  PrinceDormand45.FM       =  PointMass;
+
+% Create a Prince Dormand (78) Propagator
+Create Propagator PrinceDormand78;
+GMAT  PrinceDormand78.Type     = PrinceDormand78;
+GMAT  PrinceDormand78.InitialStepSize = 30;;
+GMAT  PrinceDormand78.Accuracy = 1e-12;
+GMAT  PrinceDormand78.MinStep  = 1e-5;
+GMAT  PrinceDormand78.MaxStep  = 1000;
+GMAT  PrinceDormand78.FM       =  PointMass;
+
+% Create a Bulirsch Stoer Propagator
+Create Propagator BulirschStoer;
+GMAT  BulirschStoer.Type     = BulirschStoer;
+GMAT  BulirschStoer.InitialStepSize = 30;;
+GMAT  BulirschStoer.Accuracy = 1e-12;
+GMAT  BulirschStoer.MinStep  = 1e-5;
+GMAT  BulirschStoer.MaxStep  = 1000;
+GMAT  BulirschStoer.FM       =  PointMass;
+
+% Create a Adams Bashforth Moulton Propagator
+Create Propagator AdamsBashfourthMoulton;
+GMAT  AdamsBashfourthMoulton.Type     = AdamsBashforthMoulton;
+GMAT  AdamsBashfourthMoulton.InitialStepSize = 30;;
+GMAT  AdamsBashfourthMoulton.Accuracy = 1e-12;
+GMAT  AdamsBashfourthMoulton.MinStep  = 1e-5;
+GMAT  AdamsBashfourthMoulton.MaxStep  = 1000;
+GMAT  AdamsBashfourthMoulton.FM       =  PointMass;
+
+%----------------------------Create OpenGL Plot_---------------------------
+Create OpenGLPlot GLPlot;
+GMAT GLPlot.Add = {Sat1, Earth};
+GMAT GLPlot.CoordinateSystem = EarthMJ2000Eq;
+GMAT GLPlot.ViewPointReference = Earth;
+GMAT GLPlot.ViewDirection = Earth;
+GMAT GLPlot.ViewScaleFactor = 3;
+GMAT GLPlot.FixedFovAngle = 45;
+GMAT GLPlot.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT GLPlot.ViewUpAxis = X;
+GMAT GLPlot.Axes       = On;
+
+%------------------------------ Create Report -----------------------------
+Create ReportFile IntegratorRpt;
+GMAT IntegratorRpt.Filename = ./output/SampleMissions/Ex_Integrators.report
+GMAT IntegratorRpt.Precision = 16;
+GMAT IntegratorRpt.WriteHeaders = On;
+GMAT IntegratorRpt.ColumnWidth = 20;
+
+% -------------------------------------------------------------------------
+% ---------------------------  Begin Mission Sequence
+% -------------------------------------------------------------------------
+%  Propagate using each of the propagators created above
+
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+GMAT IntegratorRpt.WriteHeaders = Off;
+Propagate  RungeKutta56(Sat1, {Sat1.ElapsedDays = 1.0});
+
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  RungeKutta68(Sat1, {Sat1.ElapsedDays = 1.0});
+
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  RungeKutta89(Sat1, {Sat1.ElapsedDays = 1.0});
+
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  PrinceDormand45(Sat1, {Sat1.ElapsedDays = 1.0});
+
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  PrinceDormand78(Sat1, {Sat1.ElapsedDays = 1.0});
+
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  BulirschStoer(Sat1, {Sat1.ElapsedDays = 1.0});
+
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  AdamsBashfourthMoulton(Sat1, {Sat1.ElapsedDays = 1.0});
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;

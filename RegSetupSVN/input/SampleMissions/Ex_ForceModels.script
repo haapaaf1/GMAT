@@ -1,0 +1,189 @@
+%  Script Mission - Force Model Examples  
+%
+%  This script demonstrates how to set up different force models in the
+%  propagator setup
+%
+%  REVSION HISTORY
+%  $Id: Ex_ForceModels.script,v 1.4 2007/12/26 16:53:33 edove Exp $
+
+
+% -------------------------------------------------------------------------
+% --------------------------- Create Objects ------------------------------
+% -------------------------------------------------------------------------
+
+%----------------------------Create the Spacecraft----------------------
+% Create Sat1 and define its orbit
+Create Spacecraft Sat1;
+GMAT Sat1.Epoch.UTCGregorian  = 04 Jan 2003 00:00:00.000;
+GMAT Sat1.DisplayStateType = Keplerian;
+GMAT Sat1.X     = 9000;
+GMAT Sat1.Y     = 0 ;
+GMAT Sat1.Z     = 0;
+GMAT Sat1.VX    = 0;
+GMAT Sat1.VY    = 7.3;
+GMAT Sat1.VZ    = 0;
+GMAT Sat1.Cd    = 2.2;
+GMAT Sat1.Cr    = 1.2;
+GMAT Sat1.DragArea = 4;
+GMAT Sat1.SRPArea  = 4;
+GMAT Sat1.DryMass  = 100;
+
+%----------------------------Create ForceModels----------------------
+
+%  Define Force Model with point mass only
+Create ForceModel PointMass;
+GMAT PointMass.PrimaryBodies        = {Earth};
+GMAT PointMass.Gravity.Earth.Model  = JGM2;
+GMAT PointMass.Gravity.Earth.Degree = 0;
+GMAT PointMass.Gravity.Earth.Order  = 0;
+
+%  Define Force Model with third bodies 
+Create ForceModel ThirdBodies;
+GMAT ThirdBodies.PrimaryBodies        = {Earth};
+GMAT ThirdBodies.Gravity.Earth.Model  = JGM2;
+GMAT ThirdBodies.Gravity.Earth.Degree = 0;
+GMAT ThirdBodies.Gravity.Earth.Order  = 0;
+GMAT ThirdBodies.PointMasses   = { Sun, Luna,  Venus, Mars, Jupiter, Saturn, Uranus, Neptune};
+
+%  Define Force Model with 12x12 gravity
+Create ForceModel NonSpherical12;
+GMAT NonSpherical12.PrimaryBodies        = {Earth};
+GMAT NonSpherical12.Gravity.Earth.Model  = JGM2;
+GMAT NonSpherical12.Gravity.Earth.Degree = 12;
+GMAT NonSpherical12.Gravity.Earth.Order  = 12;
+
+%  Define Force Model with MSISE90 Drag 
+Create ForceModel  MSISE90Drag;
+GMAT  MSISE90Drag.PrimaryBodies        = {Earth};
+GMAT  MSISE90Drag.Gravity.Earth.Model  = JGM2;
+GMAT  MSISE90Drag.Gravity.Earth.Degree = 0;
+GMAT  MSISE90Drag.Gravity.Earth.Order  = 0;
+GMAT  MSISE90Drag.Drag       = MSISE90;
+GMAT  MSISE90Drag.Drag.F107  = 150;
+GMAT  MSISE90Drag.Drag.F107A = 150;
+GMAT  MSISE90Drag.Drag.MagneticIndex = 3;
+
+
+
+%  Define Force Model with Jacchia Roberts Drag 
+Create ForceModel  JRDrag;
+GMAT  JRDrag.PrimaryBodies        = {Earth};
+GMAT  JRDrag.Gravity.Earth.Model  = JGM2;
+GMAT  JRDrag.Gravity.Earth.Degree = 0;
+GMAT  JRDrag.Gravity.Earth.Order  = 0;
+GMAT  JRDrag.Drag       = JacchiaRoberts;
+GMAT  JRDrag.Drag.F107  = 150;
+GMAT  JRDrag.Drag.F107A = 150;
+GMAT  JRDrag.Drag.MagneticIndex = 3;
+
+%  Define Force Model with SRP
+Create ForceModel  SRP;
+GMAT  SRP.PrimaryBodies        = {Earth};
+GMAT  SRP.Gravity.Earth.Model  = JGM2;
+GMAT  SRP.Gravity.Earth.Degree = 0;
+GMAT  SRP.Gravity.Earth.Order  = 0;
+GMAT  SRP.SRP = On;
+
+%----------------------------Create Propagators----------------------
+% Create propgator with point mass only
+Create Propagator  RKV89PointMass;
+GMAT  RKV89PointMass.Type     = RungeKutta89;
+GMAT  RKV89PointMass.InitialStepSize = 30;
+GMAT  RKV89PointMass.Accuracy = 1e-12;
+GMAT  RKV89PointMass.MinStep  = 30;
+GMAT RKV89PointMass.MaxStep   = 30;
+GMAT  RKV89PointMass.FM       = PointMass;
+
+% Create propgator with third bodies only
+Create Propagator  RKV89ThirdBodies;
+GMAT  RKV89ThirdBodies.Type     = RungeKutta89;
+GMAT  RKV89ThirdBodies.InitialStepSize = 30;
+GMAT RKV89ThirdBodies.Accuracy  = 1e-12;
+GMAT RKV89ThirdBodies.MinStep   = 30;
+GMAT RKV89ThirdBodies.MaxStep   = 30;
+GMAT  RKV89ThirdBodies.FM       =  ThirdBodies;
+
+% Create propgator with 12x12 gravity only
+Create Propagator  RKV8912x12;
+GMAT RKV8912x12.Type      = RungeKutta89;
+GMAT  RKV8912x12.InitialStepSize = 30;
+GMAT  RKV8912x12.Accuracy = 1e-12;
+GMAT RKV8912x12.MinStep   = 30;
+GMAT RKV8912x12.MaxStep   = 30;
+GMAT  RKV8912x12.FM       =  NonSpherical12;
+
+% Create propgator with MSISE-90 drag only
+Create Propagator  RKV89MSISE90;
+GMAT RKV89MSISE90.Type     = RungeKutta89;
+GMAT RKV89MSISE90.Accuracy = 1e-12;
+GMAT RKV89MSISE90.MinStep  = 30;
+GMAT RKV89MSISE90.MaxStep  = 30;
+GMAT  RKV89MSISE90.FM      =   MSISE90Drag;
+
+% Create propgator with Jacchia-Roberts drag only
+Create Propagator  RKV89JR;
+GMAT RKV89JR.Type     = RungeKutta89;
+GMAT RKV89JR.InitialStepSize = 30;
+GMAT RKV89JR.Accuracy = 1e-12;
+GMAT RKV89JR.MinStep  = 30;
+GMAT RKV89JR.MaxStep  = 30;
+GMAT  RKV89JR.FM      =   JRDrag;
+
+% Create propgator with SRP only
+Create Propagator  RKV89SRP;
+GMAT  RKV89SRP.Type     = RungeKutta89;
+GMAT  RKV89SRP.InitialStepSize = 30;
+GMAT  RKV89SRP.Accuracy = 1e-12;
+GMAT  RKV89SRP.MinStep  = 30;
+GMAT  RKV89SRP.MaxStep  = 30;
+GMAT  RKV89SRP.FM       =   SRP;
+
+%----------------------------Create Plots/Reports----------------------
+
+% Create OpenGLPlot 
+Create OpenGLPlot OpenGLSat1;
+GMAT OpenGLSat1.Add = {Sat1, Earth};
+GMAT OpenGLSat1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLSat1.ViewPointReference = Earth;
+GMAT OpenGLSat1.ViewDirection = Earth;
+GMAT OpenGLSat1.ViewScaleFactor = 1;
+GMAT OpenGLSat1.FixedFovAngle = 45;
+GMAT OpenGLSat1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLSat1.ViewUpAxis = X;
+
+% Create Report
+Create ReportFile ForceModelRpt;
+GMAT ForceModelRpt.Filename = ./output/SampleMissions/Ex_ForceModels.report;
+GMAT ForceModelRpt.Precision = 16;
+GMAT ForceModelRpt.WriteHeaders = On;
+GMAT ForceModelRpt.ColumnWidth = 20;
+
+% -------------------------------------------------------------------------
+% ---------------------------  Begin Mission Sequence ---------------------
+% -------------------------------------------------------------------------
+
+%Propagate using point mass propagator
+Report ForceModelRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+GMAT ForceModelRpt.WriteHeaders = Off;
+Propagate  RKV89PointMass(Sat1, {Sat1.ElapsedDays = 0.1});
+
+%Propagate using third bodies propagator
+Report ForceModelRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate   RKV89ThirdBodies(Sat1, {Sat1.ElapsedDays = 0.1});
+
+%Propagate using 12x12 gravity model propgator
+Report ForceModelRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  RKV8912x12(Sat1, {Sat1.ElapsedDays = 0.1});
+
+%Propagate using MSISE-90 propagator
+Report ForceModelRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  RKV89MSISE90(Sat1, {Sat1.ElapsedDays = 0.1});
+
+%Propagate using Jacchia-Roberts propagator
+Report ForceModelRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  RKV89JR(Sat1, {Sat1.ElapsedDays = 0.1});
+
+%Propagate using SRP propagator
+Report ForceModelRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+Propagate  RKV89SRP(Sat1, {Sat1.ElapsedDays = 0.1});
+Report ForceModelRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;

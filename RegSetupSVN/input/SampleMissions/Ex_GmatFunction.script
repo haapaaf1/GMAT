@@ -1,0 +1,162 @@
+% Script Mission - GMAT Function example 
+%
+% This script provides an example of how to use GMAT Functions
+% Related Files needed: ./GmatFunction/QualityFactor.gmf
+%
+%  REVISION HISTORY
+% $Id: Ex_GmatFunction.script,v 1.1 2008/09/29 22:12:39 edove Exp $
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft MMS_E_SC1;
+GMAT MMS_E_SC1.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS_E_SC1.DateFormat = TAIModJulian;
+GMAT MMS_E_SC1.Epoch = 26586;
+GMAT MMS_E_SC1.StateType = Cartesian;
+GMAT MMS_E_SC1.DryMass = 710;
+GMAT MMS_E_SC1.Cd = 2.2;
+GMAT MMS_E_SC1.Cr = 1.4;
+GMAT MMS_E_SC1.DragArea = 2.5;
+GMAT MMS_E_SC1.SRPArea = 2.5;
+GMAT MMS_E_SC1.TotalMass = 350;
+ 
+Create Spacecraft MMS_E_SC2;
+GMAT MMS_E_SC2 = MMS_E_SC1;
+ 
+Create Spacecraft MMS_E_SC3;
+GMAT MMS_E_SC3 = MMS_E_SC1;
+ 
+Create Spacecraft MMS_E_SC4;
+GMAT MMS_E_SC4 = MMS_E_SC1;
+ 
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel MMS_EarthModel;
+GMAT MMS_EarthModel.CentralBody = Earth;
+GMAT MMS_EarthModel.PrimaryBodies = {Earth};
+GMAT MMS_EarthModel.PointMasses = {Sun, Luna};
+GMAT MMS_EarthModel.Drag = None;
+%GMAT MMS_EarthModel.Drag.F107 = 150;
+%GMAT MMS_EarthModel.Drag.F107A = 150;
+%GMAT MMS_EarthModel.Drag.MagneticIndex = 3;
+GMAT MMS_EarthModel.SRP = On;
+GMAT MMS_EarthModel.SRP.Flux_Pressure = 4.53443218374393e-006;
+GMAT MMS_EarthModel.ErrorControl = RSSStep;
+GMAT MMS_EarthModel.Gravity.Earth.Degree = 4;
+GMAT MMS_EarthModel.Gravity.Earth.Order = 4;
+GMAT MMS_EarthModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+ 
+Create Propagator MMS_Prop;
+GMAT MMS_Prop.FM = MMS_EarthModel;
+GMAT MMS_Prop.Type = RungeKutta89;
+GMAT MMS_Prop.InitialStepSize = 60;
+GMAT MMS_Prop.Accuracy = 1.0e-013;
+GMAT MMS_Prop.MinStep = 0.001;
+GMAT MMS_Prop.MaxStep = 40000;
+GMAT MMS_Prop.MaxStepAttempts = 50;
+ 
+
+  
+%----------------------------------------
+%---------- Solar System Settings
+%----------------------------------------
+ 
+GMAT SolarSystem.EphemerisUpdateInterval = 0; 
+ 
+
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create Variable sideLength12 sideLength13 sideLength14 sideLength24 sideLength23 sideLength34;
+Create Variable sideLength12_E sideLength13_E sideLength14_E sideLength24_E sideLength23_E sideLength34_E;
+Create Variable Q_volume Q_size Q Q_E QRoI QRoI_E RoI1 RoI2;
+Create Variable CountDays;
+Create Variable InitialJD InitialJD4loop; % Variable used to set the initial UTC Modified Julian Date
+Create Variable FormSize;
+
+
+%----------------------------------------
+%---------- Plots
+%----------------------------------------
+
+Create XYPlot QvsDays_E;
+GMAT QvsDays_E.IndVar = MMS_E_SC1.ElapsedDays;
+GMAT QvsDays_E.Add = {Q_E};
+
+
+Create XYPlot SideLengthvsDays_E;
+GMAT SideLengthvsDays_E.IndVar = MMS_E_SC1.ElapsedDays;
+GMAT SideLengthvsDays_E.Add = {sideLength12_E,sideLength13_E,sideLength14_E,sideLength24_E,sideLength23_E,sideLength34_E};
+ 
+ 
+Create ReportFile FuncOutput;
+GMAT FuncOutput.Filename = ./output/SampleMissions/Ex_GmatFunction.report;
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+
+BeginScript;
+% Set the initial state of the MMS formation
+
+GMAT FormSize = 10;
+GMAT MMS_E_SC1.X = -2052.261709458413;
+GMAT MMS_E_SC1.Y = 51923.11513542047;
+GMAT MMS_E_SC1.Z = 24953.110154551749;
+GMAT MMS_E_SC1.VX = -1.321842325969903;
+GMAT MMS_E_SC1.VY = 1.5523567625352781;
+GMAT MMS_E_SC1.VZ = 0.450580090228968;
+ 
+GMAT MMS_E_SC2.X = -2040.781625903029;
+GMAT MMS_E_SC2.Y = 51935.737126537373;
+GMAT MMS_E_SC2.Z = 24958.748425263741;
+GMAT MMS_E_SC2.VX = -1.321487041622041;
+GMAT MMS_E_SC2.VY = 1.5517271135498989;
+GMAT MMS_E_SC2.VZ = 0.45021983263011017;
+ 
+GMAT MMS_E_SC3.X = -2061.804602937465;
+GMAT MMS_E_SC3.Y = 51944.19070733327;
+GMAT MMS_E_SC3.Z = 24957.543603516631;
+GMAT MMS_E_SC3.VX = -1.3211013300793559;
+GMAT MMS_E_SC3.VY = 1.551465364915448;
+GMAT MMS_E_SC3.VZ = 0.45017633744638419;
+ 
+GMAT MMS_E_SC4.X = -2053.6618378721118;
+GMAT MMS_E_SC4.Y = 51935.707404067551;
+GMAT MMS_E_SC4.Z = 24966.398940128762;
+GMAT MMS_E_SC4.VX = -1.321380771517553;
+GMAT MMS_E_SC4.VY = 1.551431537087574;
+GMAT MMS_E_SC4.VZ = 0.4505582250519527;
+ 
+ 
+GMAT InitialJD = MMS_E_SC1.UTCModJulian;
+
+EndScript;
+ 
+
+% Propagate S/C based on integrator step size
+GMAT CountDays = 0;
+GMAT InitialJD4loop = MMS_E_SC1.UTCModJulian; 
+Report FuncOutput CountDays Q_E sideLength12_E sideLength13_E sideLength14_E sideLength23_E sideLength24_E sideLength34_E;
+GMAT FuncOutput.WriteHeaders = Off;
+While CountDays < 1;
+    GMAT CountDays = MMS_E_SC1.UTCModJulian - InitialJD4loop;
+	
+	Propagate MMS_Prop(MMS_E_SC1, MMS_E_SC2, MMS_E_SC3, MMS_E_SC4);
+ 
+	%----------------------------------------
+	%---------- Side Length and Quality Factor Calculation
+	%----------------------------------------            
+	% Call GMAT Function
+	[Q_E, sideLength12_E, sideLength13_E, sideLength14_E, sideLength23_E, sideLength24_E, sideLength34_E] = QualityFactor(MMS_E_SC1, MMS_E_SC2, MMS_E_SC3, MMS_E_SC4, FormSize);
+	Report FuncOutput CountDays Q_E sideLength12_E sideLength13_E sideLength14_E sideLength23_E sideLength24_E sideLength34_E;
+
+EndWhile;
