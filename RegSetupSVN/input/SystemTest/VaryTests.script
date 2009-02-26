@@ -1,0 +1,207 @@
+
+
+%-----------------------------------------------------------------
+%---------------------- Create Spacecraft ------------------------
+%-----------------------------------------------------------------
+Create Spacecraft Sat;
+GMAT Sat.DisplayStateType = Cartesian;
+%  Do not change these, they are used later in the tests and need
+%  to have these specific values!!!
+GMAT Sat.VX         = 0;
+GMAT Sat.VY         = 8;
+GMAT Sat.VZ         = 10;
+
+%-----------------------------------------------------------------
+%-----------------Create and Setup the Optimizer------------------
+%-----------------------------------------------------------------
+Create FminconOptimizer SQPfmincon
+GMAT SQPfmincon.DiffMaxChange = 0.01;      % Real number
+GMAT SQPfmincon.DiffMinChange = 0.000001;  % Real number
+GMAT SQPfmincon.MaxFunEvals   = 1000;    % Real number
+GMAT SQPfmincon.MaxIter       = 250;     % Real number
+GMAT SQPfmincon.TolX          = 0.01;    % Real number
+GMAT SQPfmincon.TolFun        = 0.0001;  % Real number
+GMAT SQPfmincon.TolCon        = 0.0001;  % Real number
+GMAT SQPfmincon.DerivativeCheck = Off;   % {On, Off}
+GMAT SQPfmincon.Diagnostics     = On;    % {On, Off}
+GMAT SQPfmincon.Display         = Iter   % {Iter, Off, Notify, Final}
+GMAT SQPfmincon.GradObj         = Off;   % {On, Off}
+GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
+
+%-----------------------------------------------------------------
+%-----------------Create Variable and Arrays ---------------------
+%-----------------------------------------------------------------
+Create Variable X1 X2 F G TestNumber
+Create Variable Zero
+Create Array AZero[2,2] Vec[2,1];
+
+Create ReportFile Data;
+GMAT Data.Filename = ./output/SystemTest/VaryTests.report;
+GMAT Data.Precision = 15;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-----------------------------------------------------------------
+%----------------- Run the Optimization Loop ---------------------
+%-----------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%-----------------
+%----Test 1-------
+%-----------------
+
+%  Test Numbers in RHS of Vary
+Optimize SQPfmincon;
+
+    %  Vary the independent variables
+    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+    GMAT X1 = Sat.X;
+    GMAT X2 = Sat.Y;
+   
+    %  The cost function and Minimize command
+    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+    Minimize SQPfmincon(F);
+
+    %  Calculate constraint and use NonLinearConstraint command
+    %   ( yes, the equation below is actually a linear constraint, were 
+    %     testing functionality with this test)
+    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+    %  or X2 >= -X1 + 6;
+    GMAT G =  X2 + X1;
+    NonlinearConstraint SQPfmincon( G = 8 );
+
+EndOptimize;
+
+%-----------------
+%----Test 2-------
+%-----------------
+%  Test variables in RHS of Vary
+Optimize SQPfmincon;
+
+    %  Vary the independent variables
+    Vary SQPfmincon( Sat.X = Zero  , { Upper = 10, Lower = -10 } );
+    Vary SQPfmincon( Sat.Y = Zero  , { Upper = 10, Lower = -10 } );
+    GMAT X1 = Sat.X;
+    GMAT X2 = Sat.Y;
+   
+    %  The cost function and Minimize command
+    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+    Minimize SQPfmincon(F);
+
+    %  Calculate constraint and use NonLinearConstraint command
+    %   ( yes, the equation below is actually a linear constraint, were 
+    %     testing functionality with this test)
+    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+    %  or X2 >= -X1 + 6;
+    GMAT G =  X2 + X1;
+    NonlinearConstraint SQPfmincon( G = 8 );
+
+EndOptimize;
+Report Data X1 X2;
+
+%-----------------
+%----Test 3-------
+%-----------------
+
+%  Test s/c parameters in RHS of Vary
+Optimize SQPfmincon;
+
+    %  Vary the independent variables
+    Vary SQPfmincon( Sat.X = Sat.VX  , { Upper = 10, Lower = -10 } );
+    Vary SQPfmincon( Sat.Y = Sat.VX  , { Upper = 10, Lower = -10 } );
+    GMAT X1 = Sat.X;
+    GMAT X2 = Sat.Y;
+   
+    %  The cost function and Minimize command
+    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+    Minimize SQPfmincon(F);
+
+    %  Calculate constraint and use NonLinearConstraint command
+    %   ( yes, the equation below is actually a linear constraint, were 
+    %     testing functionality with this test)
+    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+    %  or X2 >= -X1 + 6;
+    GMAT G =  X2 + X1;
+    NonlinearConstraint SQPfmincon( G = 8 );
+
+EndOptimize;
+
+%-----------------
+%----Test 4-------
+%-----------------
+%  Test array elements in RHS of Vary
+Optimize SQPfmincon;
+
+    %  Vary the independent variables
+    Vary SQPfmincon( Sat.X = AZero(2,2)  , { Upper = 10, Lower = -10 } );
+    Vary SQPfmincon( Sat.Y = AZero(2,2)  , { Upper = 10, Lower = -10 } );
+    GMAT X1 = Sat.X;
+    GMAT X2 = Sat.Y;
+   
+    %  The cost function and Minimize command
+    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+    Minimize SQPfmincon(F);
+
+    %  Calculate constraint and use NonLinearConstraint command
+    %   ( yes, the equation below is actually a linear constraint, were 
+    %     testing functionality with this test)
+    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+    %  or X2 >= -X1 + 6;
+    GMAT G =  X2 + X1;
+    NonlinearConstraint SQPfmincon( G = 8 );
+
+EndOptimize;
+Report Data X1 X2;
+
+%-----------------
+%----Test 5-------
+%-----------------
+%  Test variables in LHS of Vary
+Optimize SQPfmincon;
+
+    %  Vary the independent variables
+    Vary SQPfmincon( X1 = 0 , { Upper = 10, Lower = -10 } );
+    Vary SQPfmincon( X2 = 0  , { Upper = 10, Lower = -10 } );
+   
+    %  The cost function and Minimize command
+    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+    Minimize SQPfmincon(F);
+
+    %  Calculate constraint and use NonLinearConstraint command
+    %   ( yes, the equation below is actually a linear constraint, were 
+    %     testing functionality with this test)
+    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+    %  or X2 >= -X1 + 6;
+    GMAT G =  X2 + X1;
+    NonlinearConstraint SQPfmincon( G = 8 );
+
+EndOptimize;
+
+%-----------------
+%----Test 6-------
+%-----------------
+%  Test array elements in LHS of Vary
+Optimize SQPfmincon;
+
+    %  Vary the independent variables
+    Vary SQPfmincon( Vec(1,1) = 0 , { Upper = 10, Lower = -10 } );
+    Vary SQPfmincon( Vec(2,1) = 0  , { Upper = 10, Lower = -10 } );
+    GMAT X1 = Vec(1,1);
+    GMAT X2 = Vec(2,1);
+   
+    %  The cost function and Minimize command
+    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+    Minimize SQPfmincon(F);
+
+    %  Calculate constraint and use NonLinearConstraint command
+    %   ( yes, the equation below is actually a linear constraint, were 
+    %     testing functionality with this test)
+    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+    %  or X2 >= -X1 + 6;
+    GMAT G =  X2 + X1;
+    NonlinearConstraint SQPfmincon( G = 8 );
+
+EndOptimize;
+
+Report Data X1 X2;
+
