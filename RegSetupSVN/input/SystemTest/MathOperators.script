@@ -1,0 +1,839 @@
+%  Create a spacecraft with cartesian state as StateType
+Create Spacecraft Sat;
+GMAT Sat.DisplayStateType = Cartesian;
+GMAT Sat.X         =   5116.1085;
+GMAT Sat.Y         =  -4237.076770;
+GMAT Sat.Z         =   6457.297;
+GMAT Sat.VX        =   5.436081;
+GMAT Sat.VY        =   3.74267;
+GMAT Sat.VZ        =  -0.211975;
+
+%  Create variables with same numerical values as state type
+Create Variable x y z vx vy vz;
+GMAT x =  5116.1085;
+GMAT y = -4237.076770;
+GMAT z =  6457.297;
+GMAT vx = 5.436081;
+GMAT vy = 3.74267;
+GMAT vz = -0.211975;
+
+
+%  Create column vectors with same numerical values as state type
+Create Array v1[3,1] v2[3,1];
+GMAT v1(1,1) = 5116.1085;
+GMAT v1(2,1) = -4237.076770;
+GMAT v1(3,1) = 6457.297;
+GMAT v2(1,1) = 5.436081;
+GMAT v2(2,1) = 3.74267;
+GMAT v2(3,1) = -0.211975;
+
+
+%  Create row vectors with same numerical values as state type
+Create Array v3[1,3] v4[1,3];
+GMAT v3(1,1) = 5116.1085;
+GMAT v3(1,2) = -4237.076770;
+GMAT v3(1,3) = 6457.297;
+GMAT v4(1,1) = 5.436081;
+GMAT v4(1,2) = 3.74267;
+GMAT v4(1,3) = -0.211975;
+
+
+%  Create Array M1
+Create Array M1[3,3];
+GMAT M1(1,1) = -0.321135520517664;
+GMAT M1(1,2) =  0.947033249670028;
+GMAT M1(1,3) = -3.84873275031802e-005;
+GMAT M1(2,1) = -0.868890124913615;
+GMAT M1(2,2) = -0.294653636678538;
+GMAT M1(2,3) = -0.397755182517731;
+GMAT M1(3,1) = -0.376698723503877;
+GMAT M1(3,2) = -0.127699876317628;
+GMAT M1(3,3) = 0.917491587590323;
+
+
+
+%  Create Array M2
+Create Array M2[3,3];
+GMAT M2(1,1) = -3.84873275031802e-005;
+GMAT M2(1,2) =  0.329411187888449;
+GMAT M2(1,3) = -0.944186564092419;
+GMAT M2(2,1) = -0.397755182517731;
+GMAT M2(2,2) =  0.86627818815144;
+GMAT M2(2,3) =  0.302246448305593;
+GMAT M2(3,1) =  0.917491587590323;
+GMAT M2(3,2) =  0.375566731789412;
+GMAT M2(3,3) =  0.130991666429616;
+
+
+%  Create variables and arrays for output of tests
+Create Variable TestNum test;
+Create Variable Theta1 sinTheta1 cosTheta1 tanTheta1;
+Create Array Theta1Arr[1,1] sinTheta1Arr[1,1] cosTheta1Arr[1,1] tanTheta1Arr[1,1];
+Create Array Array3by3[3,3]  Array3by1[3,1] Array1by3[1,3];
+Create String Header;
+
+%  Create Report
+Create ReportFile rf;
+GMAT rf.Filename = ./output/SystemTest/MathOperators.report;
+GMAT rf.Precision = 16;
+GMAT rf.WriteHeaders = Off;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 22;
+
+
+%  -------------------------------------------
+%  Check simple addition of scalars and arrays.
+%  -------------------------------------------
+
+%%% Added to test undefined objects
+Create Spacecraft Sat1;
+Create Array M3[3,3];
+
+BeginScript;
+%  -------------------------------------------
+%  Check simple addition of scalars and arrays.
+%  -------------------------------------------
+GMAT TestNum = 0;
+GMAT Header = Addition of scalars and arrays;
+Report rf Header;
+
+% test addition of two numbers
+%%% 1
+GMAT TestNum = TestNum+1;
+GMAT test = 5116.1085 + (-4237.076770);
+Report rf TestNum test;
+
+
+% test addition of two variables
+%%% 2
+GMAT TestNum = TestNum + 1;
+GMAT test = x+y;
+Report rf TestNum test;
+
+
+% test addition of two spacecraft parameters
+%%% 3
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X+Sat.Y;
+Report rf TestNum test;
+
+
+% test addition of two 3x3 arrays
+%%% 4
+GMAT TestNum = TestNum + 1;
+GMAT Array3by3 = M1+M2;
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+% test addition of two column vectors
+%%% 5
+GMAT TestNum = TestNum + 1;
+GMAT Array3by1 =  v1+v2;
+%%%Report rf TestNum Array3by1;
+Report rf TestNum Array3by1(1,1) Array3by1(2,1) Array3by1(3,1);
+
+
+% test addition of two row vectors
+%%% 6
+GMAT TestNum = TestNum + 1;
+GMAT Array1by3 =  v3+v4;
+%%%Report rf TestNum Array1by3;
+Report rf TestNum Array1by3(1,1) Array1by3(1,2) Array1by3(1,3);
+EndScript;
+
+
+
+
+BeginScript;
+%  -------------------------------------------
+%  Check simple subtraction of scalars and arrays.
+%  -------------------------------------------
+GMAT TestNum = 0;
+GMAT Header = Subtraction of scalars and arrays;
+Report rf Header;
+
+% test subtraction of two numbers
+%%% 1
+GMAT TestNum = TestNum + 1;
+GMAT test = 5116.1085 - (-4237.076770);
+Report rf TestNum test;
+
+
+% test subtraction of two variables
+%%% 2
+GMAT TestNum = TestNum + 1;
+GMAT test = x - y;
+Report rf TestNum test;
+
+
+% test subtraction of two spacecraft parameters
+%%% 3
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X - Sat.Y;
+Report rf TestNum test;
+
+
+% test subtraction of two 3x3 arrays
+%%% 4
+GMAT TestNum = TestNum + 1;
+GMAT Array3by3 = M1 - M2;
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+% test subtraction of two column vectors
+%%% 5
+GMAT TestNum = TestNum + 1;
+GMAT Array3by1 =  v1 - v2;
+%%%Report rf TestNum Array3by1;
+Report rf TestNum Array3by1(1,1) Array3by1(2,1) Array3by1(3,1);
+
+
+% test subtraction of two row vectors
+%%% 6
+GMAT TestNum = TestNum + 1;
+GMAT Array1by3 =  v3 - v4;
+%%%Report rf TestNum Array1by3;
+Report rf TestNum Array1by3(1,1) Array1by3(1,2) Array1by3(1,3);
+EndScript;
+
+
+
+
+
+BeginScript;
+%  --------------------------------------------------
+%  Check simple multiplication of scalars and arrays.
+%  --------------------------------------------------
+
+GMAT TestNum = 0;
+GMAT Header = Multiplication of scalars and arrays;
+Report rf Header;
+
+% test multiplication of two numbers
+%%% 1
+GMAT TestNum = TestNum + 1;
+GMAT test  = 5116.1085*(-4237.076770);
+Report rf TestNum test;
+
+
+% test multiplication of two variables
+%%% 2
+GMAT TestNum = TestNum + 1;
+GMAT test = x*y;
+Report rf TestNum test;
+
+
+% test multiplication of two spacecraft parameters
+%%% 3
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X * Sat.Y;
+Report rf TestNum test;
+
+
+% test multiplication of two 3x3 arrays
+%%% 4
+GMAT TestNum = TestNum + 1;
+GMAT Array3by3 = M1*M2;
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+% test multiplication of row times column vector
+%%% 5
+GMAT TestNum = TestNum + 1;
+GMAT test =  v3*v1;
+Report rf TestNum test;
+
+
+% test multiplication of column times row vector
+%%% 6
+GMAT TestNum = TestNum + 1;
+GMAT Array3by3 =  v1*v3;
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+% test multiplication of scalar times an array
+%%% 7
+GMAT TestNum = TestNum + 1;
+GMAT Array3by3 =  x*M1;
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+
+% test multiplication of 1x3 times 3x3
+%%% 8
+GMAT TestNum = TestNum + 1;
+GMAT Array1by3 =  v3*M1;
+%%%Report rf TestNum Array1by3;
+Report rf TestNum Array3by1(1,1) Array3by1(2,1) Array3by1(3,1);
+
+
+% test multiplication of 3x3 times 3x1
+%%% 9
+GMAT TestNum = TestNum + 1;
+GMAT Array3by1 =  M1*v1;
+%%%Report rf TestNum Array3by1;
+Report rf TestNum Array1by3(1,1) Array1by3(1,2) Array1by3(1,3);
+EndScript;
+
+
+
+BeginScript;
+%  --------------------------------------------------
+%  Check simple division of scalars and arrays.
+%  --------------------------------------------------
+
+GMAT TestNum = 0;
+GMAT Header = Division of scalars and arrays;
+Report rf Header;
+
+% test division of two numbers
+%%% 1
+GMAT TestNum = TestNum + 1;
+GMAT test  = 5116.1085 / (-4237.076770);
+Report rf TestNum test;
+
+
+% test division of two variables
+%%% 2
+GMAT TestNum = TestNum + 1;
+GMAT test = x / y;
+Report rf TestNum test;
+
+
+% test division of two spacecraft parameters
+%%% 3
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X / Sat.Y;
+Report rf TestNum test;
+
+
+% test division of array by a scalar
+%%% 4
+GMAT TestNum = TestNum + 1;
+GMAT Array3by3 =  M1 / x;
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+EndScript;
+
+
+
+BeginScript;
+%  Create a spacecraft with cartesian state as StateType
+GMAT Sat.X         = 5116.1085;
+GMAT Sat.Y         =  -4237.076770;
+GMAT Sat.Z         =  6457.297;
+GMAT Sat.VX        =  5.436081;
+GMAT Sat.VY        =  3.74267;
+GMAT Sat.VZ        = -0.211975;
+
+
+%  Create variables with same numerical values as state type
+GMAT x  =  5116.1085;
+GMAT y  = -4237.076770;
+GMAT z  =  6457.297;
+GMAT vx =  5.436081;
+GMAT vy =  3.74267;
+GMAT vz = -0.211975;
+
+
+%  Create theta 1
+GMAT Theta1 = 30;
+GMAT Theta1Arr(1,1) = 30;
+GMAT sinTheta1 = 0.5;
+GMAT sinTheta1Arr(1,1) = 0.5;
+GMAT cosTheta1 = 0.866025403784439;
+GMAT cosTheta1Arr(1,1) = 0.866025403784439;
+GMAT tanTheta1 = 0.577350269189626;
+GMAT tanTheta1Arr(1,1) = 0.577350269189626;
+EndScript;
+
+
+
+BeginScript;
+%  -------------------------------------------
+%  --------------Check exponents--------------
+%  -------------------------------------------
+
+
+GMAT TestNum = 0;
+GMAT Header = Exponentials;
+Report rf Header;
+
+% test raising a number to power 0
+%%% 1
+GMAT TestNum = TestNum + 1;
+GMAT test = 5116.1085 ^ 0;
+Report rf TestNum test;
+
+
+% test raising a number to power 1
+%%% 2
+GMAT TestNum = TestNum + 1;
+GMAT test = 5116.1085 ^ 1;
+Report rf TestNum test;
+
+
+% test raising a number to power 2
+%%% 3
+GMAT TestNum = TestNum + 1;
+GMAT test = 5116.1085 ^ 2;
+Report rf TestNum test;
+
+
+% test raising a number to power -1
+%%% 4
+GMAT TestNum = TestNum + 1;
+GMAT test = 5116.1085 ^ -1;
+Report rf TestNum test;
+
+
+% test raising a number to power -2
+%%% 5
+GMAT TestNum = TestNum + 1;
+GMAT test = 5116.1085 ^ -2;
+Report rf TestNum test;
+
+
+% test raising a number to power (1/2)
+%%% 6
+GMAT TestNum = TestNum + 1;
+GMAT test = 5116.1085 ^ (1/2);
+Report rf TestNum test;
+
+
+% test raising a number to power (-1/2)
+%%% 7
+GMAT TestNum = TestNum + 1;
+GMAT test = 5116.1085 ^ (-1/2);
+Report rf TestNum test;
+
+
+% test raising a variable to power 0
+%%% 8
+GMAT TestNum = TestNum + 1;
+GMAT test = x ^ 0;
+Report rf TestNum test;
+
+
+% test raising a variable to power 1
+%%% 9
+GMAT TestNum = TestNum + 1;
+GMAT test = x ^ 1;
+Report rf TestNum test;
+
+
+% test raising a variable to power 2
+%%% 10
+GMAT TestNum = TestNum + 1;
+GMAT test = x ^ 2;
+Report rf TestNum test;
+
+
+% test raising a variable to power -1
+%%% 11
+GMAT TestNum = TestNum + 1;
+GMAT test = x ^ -1;
+Report rf TestNum test;
+
+
+% test raising a variable to power -2
+%%% 12
+GMAT TestNum = TestNum + 1;
+GMAT test = x ^ -2;
+Report rf TestNum test;
+
+
+% test raising a variable to power (1/2)
+%%% 13
+GMAT TestNum = TestNum + 1;
+GMAT test = x ^ (1/2);
+Report rf TestNum test;
+
+
+% test raising a variable to power (-1/2)
+%%% 14
+GMAT TestNum = TestNum + 1;
+GMAT test = x ^ (-1/2);
+Report rf TestNum test;
+
+
+% test raising a s/c parameter to power 0
+%%% 15
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X ^ 0;
+Report rf TestNum test;
+
+
+% test raising a s/c to power 1
+%%% 16
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X ^ 1;
+Report rf TestNum test;
+
+
+% test raising a s/c to power 2
+%%% 17
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X ^ 2;
+Report rf TestNum test;
+
+
+% test raising a s/c to power -1
+%%% 18
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X ^ -1;
+Report rf TestNum test;
+
+
+% test raising a s/c to power -2
+%%% 19
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X ^ -2;
+Report rf TestNum test;
+
+
+% test raising a s/c to power (1/2)
+%%% 20
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X ^ (1/2);
+Report rf TestNum test;
+
+
+% test raising a s/c to power (-1/2)
+%%% 21
+GMAT TestNum = TestNum + 1;
+GMAT test = Sat.X ^ (-1/2);
+Report rf TestNum test;
+EndScript;
+
+
+
+
+
+BeginScript;
+%  -------------------------------------------
+%  -------- Check trig functions -------------
+%  -------------------------------------------
+GMAT TestNum = 0;
+GMAT Header = Trigonometry;
+Report rf Header;
+
+%  Test the sine function with a number
+%%% 1
+GMAT TestNum = TestNum + 1;
+GMAT test = sin(30);
+Report rf TestNum test;
+
+%  Test the sine function with a variable
+%%% 2
+GMAT TestNum = TestNum + 1;
+GMAT test = sin(Theta1);
+Report rf TestNum test;
+
+%  Test the sine function with an array
+%%% 3
+GMAT TestNum = TestNum + 1;
+GMAT test = sin(Theta1Arr(1,1));
+Report rf TestNum test;
+
+
+%  Test the cosine function with a number
+%%% 4
+GMAT TestNum = TestNum + 1;
+GMAT test = cos(30);
+Report rf TestNum test;
+
+%  Test the cosine function with a variable
+%%% 5
+GMAT TestNum = TestNum + 1;
+GMAT test = cos(Theta1);
+Report rf TestNum test;
+
+%  Test the cosine function with an array
+%%% 6
+GMAT TestNum = TestNum + 1;
+GMAT test = cos(Theta1Arr(1,1));
+Report rf TestNum test;
+
+%  Test the tangent function with a number
+%%% 7
+GMAT TestNum = TestNum + 1;
+GMAT test = tan(30);
+Report rf TestNum test;
+
+%  Test the tangent function with a variable
+%%% 8
+GMAT TestNum = TestNum + 1;
+GMAT test = tan(Theta1);
+Report rf TestNum test;
+
+%  Test the tangent function with an array
+%%% 9
+GMAT TestNum = TestNum + 1;
+GMAT test = tan(Theta1);
+Report rf TestNum test;
+
+%  Test the arcsine function with a number
+%%% 10
+GMAT TestNum = TestNum + 1;
+GMAT test = asin(0.5);
+Report rf TestNum test;
+
+%  Test the arcsine function with a variable
+%%% 11
+GMAT TestNum = TestNum + 1;
+GMAT test = asin(sinTheta1);
+Report rf TestNum test;
+
+%  Test the arcsine function with an array
+%%% 12
+GMAT TestNum = TestNum + 1;
+GMAT test = asin(sinTheta1Arr(1,1));
+Report rf TestNum test;
+
+%  Test the arccosine function with a number
+%%% 13
+GMAT TestNum = TestNum + 1;
+GMAT test = acos(0.866025403784439);
+Report rf TestNum test;
+
+%  Test the arccosine function with a variable
+%%% 14
+GMAT TestNum = TestNum + 1;
+GMAT test = acos(cosTheta1);
+Report rf TestNum test;
+
+%  Test the arccosine function with an array
+%%% 15
+GMAT TestNum = TestNum + 1;
+GMAT test = acos(cosTheta1Arr(1,1));
+Report rf TestNum test;
+
+%  Test the arctangent function with a number
+%%% 16
+GMAT TestNum = TestNum + 1;
+GMAT test = atan(0.577350269189626);
+Report rf TestNum test;
+
+%  Test the arctangent function with a variable
+%%% 17
+GMAT TestNum = TestNum + 1;
+GMAT test = atan(tanTheta1);
+Report rf TestNum test;
+
+%  Test the arctangent function with an array
+%%% 18
+GMAT TestNum = TestNum + 1;
+GMAT test = atan(tanTheta1Arr(1,1));
+Report rf TestNum test;
+
+%  Test the atan2 function with a number
+%%% 19
+GMAT TestNum = TestNum + 1;
+GMAT test = atan2(0.5,0.866025403784439);
+Report rf TestNum test;
+
+%  Test the atan2 function with a variable
+%%% 20
+GMAT TestNum = TestNum + 1;
+GMAT test = atan2(sinTheta1,cosTheta1);
+Report rf TestNum test;
+
+%  Test the atan2 function with an array CURRENTLY BROKEN
+%%% 21
+%GMAT TestNum = TestNum + 1;
+%GMAT test = atan2(sinTheta1Arr(1,1),cosTheta1Arr(1,1));
+%Report rf TestNum test;
+EndScript;
+
+
+
+
+BeginScript;
+%  -------------------------------------------
+%  -------- Check sqrt function- -------------
+%  -------------------------------------------
+GMAT TestNum = 0;
+GMAT Header = Square Root;
+Report rf Header;
+
+%  Test the sqrt function with numeric input
+%%% 1
+GMAT TestNum = TestNum + 1;
+GMAT test = sqrt(5116.1085);
+Report rf TestNum test;
+
+
+%  Test the sqrt function with variable as input
+%%% 2
+GMAT TestNum = TestNum + 1;
+GMAT test = sqrt(x);
+Report rf TestNum test;
+
+
+%  Test the sqrt function with s/c parameter as input
+%%% 3
+GMAT TestNum = TestNum + 1;
+GMAT test = sqrt(Sat.X);
+Report rf TestNum test;
+
+EndScript;
+
+BeginScript;
+%  -------------------------------------------
+%  -------- Check norm function- -------------
+%  -------------------------------------------
+GMAT TestNum = 0;
+GMAT Header = norm;
+Report rf Header;
+
+%  norm of a column vector
+%%% 1
+GMAT TestNum = TestNum + 1;
+GMAT test = norm(v1);
+Report rf TestNum test;
+
+
+%  norm of a row vector
+%%% 2
+GMAT TestNum = TestNum + 1;
+GMAT test = norm(v3);
+Report rf TestNum test;
+
+EndScript;
+
+
+
+
+BeginScript;
+%  -------------------------------------------
+%  -------- Check log functions -------------
+%  -------------------------------------------
+GMAT TestNum = 0;
+GMAT Header = Logarithms;
+Report rf Header;
+
+%  Check log function
+%%% 34
+GMAT TestNum = TestNum + 1;
+GMAT test = log(x);
+Report rf TestNum test;
+
+
+%  Check log10 function
+%%% 35
+GMAT TestNum = TestNum + 1;
+GMAT test = log10(x);
+Report rf TestNum test;
+
+
+%  Check log10 function
+%%% 36
+GMAT TestNum = TestNum + 1;
+GMAT test = exp(3);
+Report rf TestNum test;
+
+EndScript;
+
+
+
+
+BeginScript;
+%  -------------------------------------------
+%  -------- Matrix Functionality -------------
+%  -------------------------------------------
+GMAT TestNum = 0;
+GMAT Header = Matrix functionality;
+Report rf Header;
+
+%  Check matrix inverse, method 1
+%%% 1
+GMAT TestNum   = TestNum + 1;
+GMAT Array3by3 = inv(M1);
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+%  Check matrix inverse, method 2
+%%% 2
+GMAT TestNum   = TestNum + 1;
+GMAT Array3by3 = M1 ^(-1);
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+%  Check matrix transpose, method 1
+%%% 3
+GMAT TestNum   = TestNum + 1;
+GMAT Array3by3 = transpose(M1);
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+%  Check matrix transpose, method 2
+%%% 4
+GMAT TestNum   = TestNum + 1;
+GMAT Array3by3 = M1';
+%%%Report rf TestNum Array3by3;
+Report rf TestNum Array3by3(1,1) Array3by3(1,2) Array3by3(1,3);
+Report rf TestNum Array3by3(2,1) Array3by3(2,2) Array3by3(2,3);
+Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
+
+
+%  Check matrix determinant
+%%% 5
+GMAT TestNum   = TestNum + 1;
+GMAT test = det(M1);
+Report rf TestNum test;
+
+EndScript;
+
+
+
+
+BeginScript;
+%  -------------------------------------------
+%  -------- Radian and  Degrees  -------------
+%  -------------------------------------------
+GMAT TestNum = 0;
+GMAT Header = Radians and Degrees;
+Report rf Header;
+
+%  Convert from radians to degrees
+%%% 1
+GMAT TestNum   = TestNum + 1;
+GMAT test = DegToRad(Theta1);
+Report rf TestNum test;
+
+
+%%% 2
+GMAT TestNum   = TestNum + 1;
+GMAT test = RadToDeg(test);
+Report rf TestNum test;
+
+EndScript;
+

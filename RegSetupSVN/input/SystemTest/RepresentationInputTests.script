@@ -1,0 +1,268 @@
+% $Id: RepresentationInputTests.script,v 1.3 2007/08/10 21:15:04 edove Exp $
+% System Test Script File
+%
+%  Test Description and Summary
+%
+%  This tests currently inputs an equivalent state in all state representations,
+%  and the writes out the state in all state representations.  All permutations of
+%  setting and requesting a spacecraft state is performed for the following state
+%  representations:  Cartesian, Keplerian, Modified Keplerian, SphericalAZFPA, 
+%  SphericalRADEC, and Equinoctial.
+%
+%  Expected Results:  
+%
+%  For each  chunk of data in the report file,
+%  all lines in the chunk should be identical, or off only at the last decimal place.
+%  Currently GMAT does not support parameters for AZ, FPH, or any equinctial state component
+%  So they are commmented out so we can at least perform the rest of the tests!
+  
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft CartSat;
+CartSat.DateFormat = TAIModJulian;
+CartSat.Epoch = 21545.000000000;
+CartSat.CoordinateSystem = EarthMJ2000Eq;
+CartSat.DisplayStateType = Cartesian;
+CartSat.X = -2011.554639349956;
+CartSat.Y = 7587.193672855249;
+CartSat.Z = 1362.382029017782;
+CartSat.VX = -7.694247416401868;
+CartSat.VY = -0.9065479140190984;
+CartSat.VZ = 0.4284953758282981;
+CartSat.DryMass = 850;
+CartSat.Cd = 2.2;
+CartSat.Cr = 1.8;
+CartSat.DragArea = 15;
+CartSat.SRPArea = 1;
+
+Create Spacecraft KepSat;
+KepSat.DateFormat = TAIModJulian;
+KepSat.Epoch = 21545;
+KepSat.CoordinateSystem = EarthMJ2000Eq;
+KepSat.DisplayStateType = Keplerian;
+KepSat.SMA = 10000;
+KepSat.ECC = 0.25;
+KepSat.INC = 10.0;
+KepSat.RAAN = 25.0;
+KepSat.AOP = 35.0;
+KepSat.TA = 45.0;
+KepSat.DryMass = 850;
+KepSat.Cd = 2.2;
+KepSat.Cr = 1.8;
+KepSat.DragArea = 15;
+KepSat.SRPArea = 1;
+
+Create Spacecraft ModKepSat;
+ModKepSat.DateFormat = TAIModJulian;
+ModKepSat.Epoch = 21545;
+ModKepSat.CoordinateSystem = EarthMJ2000Eq;
+ModKepSat.DisplayStateType = ModifiedKeplerian;
+ModKepSat.RadPer = 7500;
+ModKepSat.RadApo = 12500;
+ModKepSat.INC = 10.0;
+ModKepSat.RAAN = 25;
+ModKepSat.AOP = 35;
+ModKepSat.TA = 45;
+ModKepSat.DryMass = 850;
+ModKepSat.Cd = 2.2;
+ModKepSat.Cr = 1.8;
+ModKepSat.DragArea = 15;
+ModKepSat.SRPArea = 1;
+
+Create Spacecraft SphAZFPASat;
+SphAZFPASat.DateFormat = TAIModJulian;
+SphAZFPASat.Epoch = 21545;
+SphAZFPASat.CoordinateSystem = EarthMJ2000Eq;
+SphAZFPASat.DisplayStateType = SphericalAZFPA;
+SphAZFPASat.RMAG = 7966.67714229061;
+SphAZFPASat.RA = 104.8489182889519;
+SphAZFPASat.DEC = 9.846551939834079;
+SphAZFPASat.VMAG = 7.759309293508375;
+SphAZFPASat.AZI = 88.24621654190652;
+SphAZFPASat.FPA = 81.45684518510772;
+SphAZFPASat.DryMass = 850;
+SphAZFPASat.Cd = 2.2;
+SphAZFPASat.Cr = 1.8;
+SphAZFPASat.DragArea = 15;
+SphAZFPASat.SRPArea = 1;
+
+Create Spacecraft SphRADECSat;
+SphRADECSat.DateFormat = TAIModJulian;
+SphRADECSat.Epoch = 21545;
+SphRADECSat.CoordinateSystem = EarthMJ2000Eq;
+SphRADECSat.DisplayStateType = SphericalRADEC;
+SphRADECSat.RMAG = 7966.67714229061;
+SphRADECSat.RA = 104.8489182889519;
+SphRADECSat.DEC = 9.846551939834081;
+SphRADECSat.VMAG = 7.759309293508375;
+SphRADECSat.RAV = -173.2803040524276;
+SphRADECSat.DECV = 3.165677683357204;
+SphRADECSat.DryMass = 850;
+SphRADECSat.Cd = 2.2;
+SphRADECSat.Cr = 1.8;
+SphRADECSat.DragArea = 15;
+SphRADECSat.SRPArea = 1;
+
+Create Spacecraft EquinocSat;
+EquinocSat.DateFormat = TAIModJulian;
+EquinocSat.Epoch = 21545;
+EquinocSat.CoordinateSystem = EarthMJ2000Eq;
+EquinocSat.DisplayStateType = Equinoctial;
+%EquinocSat.SMA = 10000;
+%EquinocSat.h = 0.2165063509461095;
+%EquinocSat.k = 0.125;
+%EquinocSat.p = 0.03697430690134294;
+%EquinocSat.q = 0.07929165703097431;
+%EquinocSat.MLONG = 87.2437891126329;
+EquinocSat.DryMass = 850;
+EquinocSat.Cd = 2.2;
+EquinocSat.Cr = 1.8;
+EquinocSat.DragArea = 15;
+EquinocSat.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+DefaultProp_ForceModel.CentralBody = Earth;
+DefaultProp_ForceModel.PrimaryBodies = {Earth};
+DefaultProp_ForceModel.Drag = None;
+DefaultProp_ForceModel.SRP = Off;
+DefaultProp_ForceModel.ErrorControl = RSSStep;
+DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
+DefaultProp_ForceModel.Gravity.Earth.Order = 4;
+DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+
+Create Propagator DefaultProp;
+DefaultProp.FM = DefaultProp_ForceModel;
+DefaultProp.Type = RungeKutta89;
+DefaultProp.InitialStepSize = 60;
+DefaultProp.Accuracy = 9.999999999999999e-012;
+DefaultProp.MinStep = 0.001;
+DefaultProp.MaxStep = 2700;
+DefaultProp.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+DefaultIB.Origin = Earth;
+DefaultIB.Axes = VNB;
+DefaultIB.VectorFormat = Cartesian;
+DefaultIB.Element1 = 0;
+DefaultIB.Element2 = 0;
+DefaultIB.Element3 = 0;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+EarthMJ2000Eq.Origin = Earth;
+EarthMJ2000Eq.Axes = MJ2000Eq;
+EarthMJ2000Eq.UpdateInterval = 60;
+EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+EarthMJ2000Ec.Origin = Earth;
+EarthMJ2000Ec.Axes = MJ2000Ec;
+EarthMJ2000Ec.UpdateInterval = 60;
+EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+EarthFixed.Origin = Earth;
+EarthFixed.Axes = BodyFixed;
+EarthFixed.UpdateInterval = 60;
+EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile RepresentationInputTests
+RepresentationInputTests.Filename = ./output/SystemTest/RepresentationInputTests.report
+GMAT RepresentationInputTests.WriteHeaders = Off;
+GMAT RepresentationInputTests.ColumnWidth = 25;
+
+Create String CartState;
+CartState = ------ State Values in Cartesian Representation ---- ;
+
+Create String KepState;
+KepState = ------ State Values in Keplerian Representation ---- ;
+
+
+Create String ModKepState;
+ModKepState = ------ State Values in Modified Keplerian Representation ---- ;
+
+Create String SphAZElState;
+SphAZElState = ------ State Values in Spherical (AZ/El) Representation ---- ;
+
+Create String SphRADEState;
+SphRADEState = ------ State Values in Spherical (RA/DEC) Representation ----;
+
+Create String  EquinocState;
+EquinocState = ------ State Values in  Equinoctial Representation ----;
+
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+%  Output all states in Cartesian representation
+Report RepresentationInputTests CartState
+Report RepresentationInputTests CartSat.X CartSat.Y CartSat.Z CartSat.VX CartSat.VY CartSat.VZ
+Report RepresentationInputTests KepSat.X KepSat.Y KepSat.Z KepSat.VX KepSat.VY KepSat.VZ
+Report RepresentationInputTests ModKepSat.X ModKepSat.Y ModKepSat.Z ModKepSat.VX ModKepSat.VY ModKepSat.VZ
+Report RepresentationInputTests SphAZFPASat.X SphAZFPASat.Y SphAZFPASat.Z SphAZFPASat.VX SphAZFPASat.VY SphAZFPASat.VZ
+Report RepresentationInputTests SphRADECSat.X SphRADECSat.Y SphRADECSat.Z SphRADECSat.VX SphRADECSat.VY SphRADECSat.VZ
+Report RepresentationInputTests EquinocSat.X EquinocSat.Y EquinocSat.Z EquinocSat.VX EquinocSat.VY EquinocSat.VZ
+
+%  Output all states in Keplerian representation
+Report RepresentationInputTests KepState
+Report RepresentationInputTests CartSat.SMA CartSat.ECC CartSat.INC CartSat.RAAN CartSat.AOP CartSat.TA
+Report RepresentationInputTests KepSat.SMA KepSat.ECC KepSat.INC KepSat.RAAN KepSat.AOP KepSat.TA
+Report RepresentationInputTests ModKepSat.SMA ModKepSat.ECC ModKepSat.INC ModKepSat.RAAN ModKepSat.AOP ModKepSat.TA
+Report RepresentationInputTests SphAZFPASat.SMA SphAZFPASat.ECC SphAZFPASat.INC SphAZFPASat.RAAN SphAZFPASat.AOP SphAZFPASat.TA
+Report RepresentationInputTests SphRADECSat.SMA SphRADECSat.ECC SphRADECSat.INC SphRADECSat.RAAN SphRADECSat.AOP SphRADECSat.TA
+Report RepresentationInputTests EquinocSat.SMA EquinocSat.ECC EquinocSat.INC EquinocSat.RAAN EquinocSat.AOP EquinocSat.TA
+
+%  Output all states in Modified Keplerian representation
+Report RepresentationInputTests ModKepState
+Report RepresentationInputTests CartSat.RadPer CartSat.RadApo 
+Report RepresentationInputTests KepSat.RadPer KepSat.RadApo 
+Report RepresentationInputTests ModKepSat.RadPer ModKepSat.RadApo 
+Report RepresentationInputTests SphAZFPASat.RadPer SphAZFPASat.RadApo 
+Report RepresentationInputTests SphRADECSat.RadPer SphRADECSat.RadApo
+Report RepresentationInputTests EquinocSat.RadPer EquinocSat.RadApo 
+
+%  Output all states in shperical ra-dec
+Report RepresentationInputTests SphAZElState
+Report RepresentationInputTests CartSat.RMAG CartSat.RA CartSat.DEC CartSat.VMAG CartSat.RAV CartSat.DECV
+Report RepresentationInputTests KepSat.RMAG KepSat.RA KepSat.DEC KepSat.VMAG KepSat.RAV KepSat.DECV
+Report RepresentationInputTests ModKepSat.RMAG ModKepSat.RA ModKepSat.DEC ModKepSat.VMAG ModKepSat.RAV ModKepSat.DECV
+Report RepresentationInputTests SphAZFPASat.RMAG SphAZFPASat.RA SphAZFPASat.DEC SphAZFPASat.VMAG SphAZFPASat.RAV SphAZFPASat.DECV
+Report RepresentationInputTests SphRADECSat.RMAG SphRADECSat.RA SphRADECSat.DEC SphRADECSat.VMAG SphRADECSat.RAV SphRADECSat.DECV
+Report RepresentationInputTests EquinocSat.RMAG EquinocSat.RA EquinocSat.DEC EquinocSat.VMAG EquinocSat.RAV EquinocSat.DECV
+
+%  Output all states in shperical az-el
+Report RepresentationInputTests  SphRADEState 
+%Report RepresentationInputTests CartSat.AZI CartSat.FPA 
+%Report RepresentationInputTests KepSat.AZI KepSat.FPA 
+%Report RepresentationInputTests ModKepSat.AZI ModKepSat.FPA 
+%Report RepresentationInputTests SphAZFPASat.AZI SphAZFPASat.FPA 
+%Report RepresentationInputTests SphRADECSat.AZI SphRADECSat.FPA 
+%Report RepresentationInputTests EquinocSat.AZI EquinocSat.FPA 
+
+
+
+

@@ -1,0 +1,233 @@
+% $Id: StateInputTests.script,v 1.8 2007/08/10 21:15:04 edove Exp $
+% GMAT System Test Script File
+%
+%  This tests currently inputs an equivalent state in all state representations,
+%  and the writes out the state in all state representations.  
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft CartSat;
+GMAT CartSat.DateFormat = TAIModJulian;
+GMAT CartSat.Epoch = 21545.000000000;
+GMAT CartSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT CartSat.DisplayStateType = Cartesian;
+GMAT CartSat.X = 7100;
+GMAT CartSat.Y = 0;
+GMAT CartSat.Z = 1300;
+GMAT CartSat.VX = 0;
+GMAT CartSat.VY = 7.35;
+GMAT CartSat.VZ = 1;
+GMAT CartSat.DryMass = 850;
+GMAT CartSat.Cd = 2.2;
+GMAT CartSat.Cr = 1.8;
+GMAT CartSat.DragArea = 15;
+GMAT CartSat.SRPArea = 1;
+
+Create Spacecraft KepSat;
+GMAT KepSat.DateFormat = TAIModJulian;
+GMAT KepSat.Epoch = 21545;
+GMAT KepSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT KepSat.DisplayStateType = Keplerian;
+GMAT KepSat.SMA = 7191.938817629017;
+GMAT KepSat.ECC = 0.02454974900598149;
+GMAT KepSat.INC = 12.85008005658097;
+GMAT KepSat.RAAN = 306.6148021947984;
+GMAT KepSat.AOP = 314.1905515359927;
+GMAT KepSat.TA = 99.88774933204816;
+GMAT KepSat.DryMass = 850;
+GMAT KepSat.Cd = 2.2;
+GMAT KepSat.Cr = 1.8;
+GMAT KepSat.DragArea = 15;
+GMAT KepSat.SRPArea = 1;
+
+Create Spacecraft ModKepSat;
+GMAT ModKepSat.DateFormat = TAIModJulian;
+GMAT ModKepSat.Epoch = 21545;
+GMAT ModKepSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT ModKepSat.DisplayStateType = ModifiedKeplerian;
+GMAT ModKepSat.RadPer = 7015.378524789847;
+GMAT ModKepSat.RadApo = 7368.499110468183;
+GMAT ModKepSat.INC = 12.85008005658097;
+GMAT ModKepSat.RAAN = 306.6148021947984;
+GMAT ModKepSat.AOP = 314.1905515359921;
+GMAT ModKepSat.TA = 99.88774933204876;
+GMAT ModKepSat.DryMass = 850;
+GMAT ModKepSat.Cd = 2.2;
+GMAT ModKepSat.Cr = 1.8;
+GMAT ModKepSat.DragArea = 15;
+GMAT ModKepSat.SRPArea = 1;
+
+Create Spacecraft SphAZElSat;
+GMAT SphAZElSat.DateFormat = TAIModJulian;
+GMAT SphAZElSat.Epoch = 21545;
+GMAT SphAZElSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT SphAZElSat.DisplayStateType = SphericalAZFPA;
+GMAT SphAZElSat.RMAG = 7218.032973047435;
+GMAT SphAZElSat.RA = 0;
+GMAT SphAZElSat.DEC = 10.37584492005105;
+GMAT SphAZElSat.VMAG = 7.417715281675347;
+GMAT SphAZElSat.AZI = 82.37742168155043;
+GMAT SphAZElSat.FPA = 88.6087036537045;
+GMAT SphAZElSat.DryMass = 850;
+GMAT SphAZElSat.Cd = 2.2;
+GMAT SphAZElSat.Cr = 1.8;
+GMAT SphAZElSat.DragArea = 15;
+GMAT SphAZElSat.SRPArea = 1;
+
+Create Spacecraft SphRADECSat;
+GMAT SphRADECSat.DateFormat = TAIModJulian;
+GMAT SphRADECSat.Epoch = 21545;
+GMAT SphRADECSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT SphRADECSat.DisplayStateType = SphericalRADEC;
+GMAT SphRADECSat.RMAG = 7218.032973047435;
+GMAT SphRADECSat.RA = 0;
+GMAT SphRADECSat.DEC = 10.37584492005105;
+GMAT SphRADECSat.VMAG = 7.417715281675347;
+GMAT SphRADECSat.RAV = 90;
+GMAT SphRADECSat.DECV = 7.747772036108116;
+GMAT SphRADECSat.DryMass = 850;
+GMAT SphRADECSat.Cd = 2.2;
+GMAT SphRADECSat.Cr = 1.8;
+GMAT SphRADECSat.DragArea = 15;
+GMAT SphRADECSat.SRPArea = 1;
+
+Create Spacecraft EquinocSat;
+GMAT EquinocSat.DateFormat = TAIModJulian;
+GMAT EquinocSat.Epoch = 21545;
+GMAT EquinocSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT EquinocSat.DisplayStateType = Equinoctial;
+%GMAT EquinocSat.SMA = 7191.938817629014;
+%GMAT EquinocSat.h = -0.02423431419337063;
+%GMAT EquinocSat.k = -0.003922778585859438;
+%GMAT EquinocSat.p = -0.09038834725719355;
+%GMAT EquinocSat.q = 0.06716454898232073;
+%GMAT EquinocSat.MLONG = 357.9131803707106;
+GMAT EquinocSat.DryMass = 850;
+GMAT EquinocSat.Cd = 2.2;
+GMAT EquinocSat.Cr = 1.8;
+GMAT EquinocSat.DragArea = 15;
+GMAT EquinocSat.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.Origin = Earth;
+GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.VectorFormat = Cartesian;
+GMAT DefaultIB.Element1 = 0;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile GMAT_StateRepresentations
+GMAT GMAT_StateRepresentations.Filename = ./output/SystemTest/StateInputTests.report
+GMAT GMAT_StateRepresentations.WriteHeaders = On;
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+%  Output all states in Cartesian representation
+Report GMAT_StateRepresentations CartSat.X CartSat.Y CartSat.Z CartSat.VX CartSat.VY CartSat.VZ
+GMAT GMAT_StateRepresentations.WriteHeaders = Off;
+Report GMAT_StateRepresentations KepSat.X KepSat.Y KepSat.Z KepSat.VX KepSat.VY KepSat.VZ
+Report GMAT_StateRepresentations ModKepSat.X ModKepSat.Y ModKepSat.Z ModKepSat.VX ModKepSat.VY ModKepSat.VZ
+Report GMAT_StateRepresentations SphAZElSat.X SphAZElSat.Y SphAZElSat.Z SphAZElSat.VX SphAZElSat.VY SphAZElSat.VZ
+Report GMAT_StateRepresentations SphRADECSat.X SphRADECSat.Y SphRADECSat.Z SphRADECSat.VX SphRADECSat.VY SphRADECSat.VZ
+Report GMAT_StateRepresentations EquinocSat.X EquinocSat.Y EquinocSat.Z EquinocSat.VX EquinocSat.VY EquinocSat.VZ
+GMAT GMAT_StateRepresentations.WriteHeaders = On;
+
+%  Output all states in Keplerian representation
+Report GMAT_StateRepresentations CartSat.SMA CartSat.Y CartSat.Z CartSat.VX CartSat.VY CartSat.VZ
+GMAT GMAT_StateRepresentations.WriteHeaders = Off;
+Report GMAT_StateRepresentations KepSat.SMA KepSat.Y KepSat.Z KepSat.VX KepSat.VY KepSat.VZ
+Report GMAT_StateRepresentations ModKepSat.SMA ModKepSat.Y ModKepSat.Z ModKepSat.VX ModKepSat.VY ModKepSat.VZ
+Report GMAT_StateRepresentations SphAZElSat.SMA SphAZElSat.Y SphAZElSat.Z SphAZElSat.VX SphAZElSat.VY SphAZElSat.VZ
+Report GMAT_StateRepresentations SphRADECSat.SMA SphRADECSat.Y SphRADECSat.Z SphRADECSat.VX SphRADECSat.VY SphRADECSat.VZ
+Report GMAT_StateRepresentations EquinocSat.SMA EquinocSat.ECC EquinocSat.INC EquinocSat.RAAN EquinocSat.AOP EquinocSat.TA
+GMAT GMAT_StateRepresentations.WriteHeaders = On;
+
+%  Output all states in Modified Keplerian representation
+Report GMAT_StateRepresentations CartSat.RadPer CartSat.RadApo 
+GMAT GMAT_StateRepresentations.WriteHeaders = Off;
+Report GMAT_StateRepresentations KepSat.RadPer KepSat.RadApo 
+Report GMAT_StateRepresentations ModKepSat.RadPer ModKepSat.RadApo 
+Report GMAT_StateRepresentations SphAZElSat.RadPer SphAZElSat.RadApo 
+Report GMAT_StateRepresentations SphRADECSat.RadPer SphRADECSat.RadApo
+Report GMAT_StateRepresentations EquinocSat.RadPer EquinocSat.RadApo 
+GMAT GMAT_StateRepresentations.WriteHeaders = On;
+
+%  Output all states in shperical ra-dec
+Report GMAT_StateRepresentations CartSat.RMAG CartSat.RA CartSat.DEC CartSat.VMAG CartSat.RAV CartSat.DECV
+GMAT GMAT_StateRepresentations.WriteHeaders = Off;
+Report GMAT_StateRepresentations KepSat.RMAG KepSat.RA KepSat.DEC KepSat.VMAG KepSat.RAV KepSat.DECV
+Report GMAT_StateRepresentations ModKepSat.RMAG ModKepSat.RA ModKepSat.DEC ModKepSat.VMAG ModKepSat.RAV ModKepSat.DECV
+Report GMAT_StateRepresentations SphAZElSat.RMAG SphAZElSat.RA SphAZElSat.DEC SphAZElSat.VMAG SphAZElSat.RAV SphAZElSat.DECV
+Report GMAT_StateRepresentations SphRADECSat.RMAG SphRADECSat.RA SphRADECSat.DEC SphRADECSat.VMAG SphRADECSat.RAV SphRADECSat.DECV
+Report GMAT_StateRepresentations EquinocSat.RMAG EquinocSat.RA EquinocSat.DEC EquinocSat.VMAG EquinocSat.RAV EquinocSat.DECV
+GMAT GMAT_StateRepresentations.WriteHeaders = On;
+
+%  Output all states in shperical az-el
+Report GMAT_StateRepresentations CartSat.AZI CartSat.FPA 
+GMAT GMAT_StateRepresentations.WriteHeaders = Off;
+Report GMAT_StateRepresentations KepSat.AZI KepSat.FPA 
+Report GMAT_StateRepresentations ModKepSat.AZI ModKepSat.FPA 
+Report GMAT_StateRepresentations SphAZElSat.AZI SphAZElSat.FPA 
+Report GMAT_StateRepresentations SphRADECSat.AZI SphRADECSat.FPA 
+Report GMAT_StateRepresentations EquinocSat.AZI EquinocSat.FPA 
+GMAT GMAT_StateRepresentations.WriteHeaders = On;

@@ -1,0 +1,183 @@
+%% $Id: OptimizersInControlFlow.script,v 1.5 2007/10/04 20:26:50 edove Exp $
+%  This is the simplest test of the fmincon optimizer.  If it 
+%  converges correctly, it should converge to
+%   Sat.X = 4.0
+%   Sat.Y = 4.0
+%   To within a tolerance of about 1e-7
+
+
+%-----------------------------------------------------------------
+%---------------------- Create Spacecraft ------------------------
+%-----------------------------------------------------------------
+Create Spacecraft Sat;
+GMAT Sat.DisplayStateType = Cartesian;
+%  Do not change these, they are used later in the tests and need
+%  to have these specific values!!!
+GMAT Sat.VX         = 0;
+GMAT Sat.VY         = 8;
+GMAT Sat.VZ         = 10;
+
+%-----------------------------------------------------------------
+%-----------------Create and Setup the Optimizer------------------
+%-----------------------------------------------------------------
+Create FminconOptimizer SQPfmincon
+GMAT SQPfmincon.DiffMaxChange = 0.01;      % Real number
+GMAT SQPfmincon.DiffMinChange = 0.000001;  % Real number
+GMAT SQPfmincon.MaxFunEvals   = 1000;    % Real number
+GMAT SQPfmincon.MaxIter       = 250;     % Real number
+GMAT SQPfmincon.TolX          = 0.01;    % Real number
+GMAT SQPfmincon.TolFun        = 0.0001;  % Real number
+GMAT SQPfmincon.TolCon        = 0.0001;  % Real number
+GMAT SQPfmincon.DerivativeCheck = Off;   % {On, Off}
+GMAT SQPfmincon.Diagnostics     = On;    % {On, Off}
+GMAT SQPfmincon.Display         = Iter   % {Iter, Off, Notify, Final}
+GMAT SQPfmincon.GradObj         = Off;   % {On, Off}
+GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
+
+Create DifferentialCorrector DC1;
+%-----------------------------------------------------------------
+%-----------------Create Variable and Arrays ---------------------
+%-----------------------------------------------------------------
+Create Variable X1 X2 F G TestNumber I
+Create Variable Count;
+
+Create ReportFile Data;
+GMAT Data.Filename = ./output/SystemTest/OptimizersInControlFlow.report;
+GMAT Data.Precision = 15;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-----------------------------------------------------------------
+%----------------- Run the Optimization Loop ---------------------
+%-----------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%-----------------
+%----Test 1-------
+%-----------------
+%  Optimizer in a for loop
+For I = 1:2
+
+    Optimize SQPfmincon;
+
+       %  Vary the independent variables
+       Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+       Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+       GMAT X1 = Sat.X;
+       GMAT X2 = Sat.Y;
+   
+       %  The cost function and Minimize command
+       GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+       Minimize SQPfmincon(F);
+
+       %  Calculate constraint and use NonLinearConstraint command
+       %   ( yes, the equation below is actually a linear constraint, were 
+       %     testing functionality with this test)
+       %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+       %  or X2 >= -X1 + 6;
+       GMAT G =  X2 + X1;
+       NonlinearConstraint SQPfmincon( G = 8 );
+
+   EndOptimize;
+
+EndFor;
+Report Data X1 X2;
+
+%-----------------
+%----Test 2-------
+%-----------------
+%  Optimizer in a for loop
+Count = 0;
+While Count < 2 
+    Count = Count + 1;
+    Optimize SQPfmincon;
+
+       %  Vary the independent variables
+       Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+       Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+       GMAT X1 = Sat.X;
+       GMAT X2 = Sat.Y;
+   
+       %  The cost function and Minimize command
+       GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+       Minimize SQPfmincon(F);
+
+       %  Calculate constraint and use NonLinearConstraint command
+       %   ( yes, the equation below is actually a linear constraint, were 
+       %     testing functionality with this test)
+       %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+       %  or X2 >= -X1 + 6;
+       GMAT G =  X2 + X1;
+       NonlinearConstraint SQPfmincon( G = 8 );
+
+   EndOptimize;
+
+EndWhile;
+Report Data X1 X2;
+
+%-----------------
+%----Test 3-------
+%-----------------
+%  Optimizer in a for loop
+Count = 2;
+If Count == 2 
+
+    Optimize SQPfmincon;
+
+       %  Vary the independent variables
+       Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+       Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+       GMAT X1 = Sat.X;
+       GMAT X2 = Sat.Y;
+   
+       %  The cost function and Minimize command
+       GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+       Minimize SQPfmincon(F);
+
+       %  Calculate constraint and use NonLinearConstraint command
+       %   ( yes, the equation below is actually a linear constraint, were 
+       %     testing functionality with this test)
+       %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+       %  or X2 >= -X1 + 6;
+       GMAT G =  X2 + X1;
+       NonlinearConstraint SQPfmincon( G = 8 );
+
+   EndOptimize;
+
+EndIf;
+
+Report Data X1 X2;
+
+%-----------------
+%----Test 3-------
+%-----------------
+%  Optimizer in a for loop
+Target DC1
+
+    Vary DC1(Sat.VZ = 4 , {Perturbation = .001, Lower = 0, Upper = 10});
+    Optimize SQPfmincon;
+
+       %  Vary the independent variables
+       Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+       Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+       GMAT X1 = Sat.X;
+       GMAT X2 = Sat.Y;
+   
+       %  The cost function and Minimize command
+       GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+       Minimize SQPfmincon(F);
+
+       %  Calculate constraint and use NonLinearConstraint command
+       %   ( yes, the equation below is actually a linear constraint, were 
+       %     testing functionality with this test)
+       %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+       %  or X2 >= -X1 + 6;
+       GMAT G =  X2 + X1;
+       NonlinearConstraint SQPfmincon( G = 8 );
+
+   EndOptimize;
+   Achieve DC1(Sat.VZ = 6 , {Tolerance = .000001});
+
+EndTarget;
+
+Report Data X1 X2;
+

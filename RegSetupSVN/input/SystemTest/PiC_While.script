@@ -1,0 +1,193 @@
+% $Id: PiC_While.script,v 1.4 2007/07/26 19:13:13 edove Exp $
+ 
+Create Spacecraft sat;
+GMAT sat.J2000BodyName = Earth;
+GMAT sat.Epoch = 21545;
+GMAT sat.X = 7100;
+GMAT sat.Y = 0;
+GMAT sat.Z = 1300;
+GMAT sat.VX = 0;
+GMAT sat.VY = 7.3499999999999996;
+GMAT sat.VZ = 2;
+GMAT sat.DisplayStateType = Cartesian;
+GMAT sat.AnomalyType = TA;
+GMAT sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat.DryMass = 850;
+GMAT sat.DateFormat = TAIModJulian;
+GMAT sat.Cd = 2.2000000000000002;
+GMAT sat.Cr = 1.8;
+GMAT sat.DragArea = 15;
+GMAT sat.SRPArea = 1;
+GMAT sat.TotalMass = 850;
+ 
+Create Spacecraft SaveSat  LowSat HighSat;
+ 
+Create ReportFile PiC_While;
+PiC_While.Filename = ./output/SystemTest/PiC_While.report;
+PiC_While.WriteHeaders = Off;
+ 
+Create Variable var1 var2;
+Create Array array1[2,2];
+Create Variable idx1 idx2;
+Create Variable vLow vHigh vRHS vLHS vPert vMaxStep;
+Create Array aLow[2,2] aHigh[2,2] aRHS[2,2] aLHS[2,2] aPert[2,2] aMaxStep[2,2];
+Create Array One[2,2];
+Create Array Two[2,2];
+Create Variable tempLow tempHigh;
+ 
+Create Variable Flag;
+ 
+ 
+%  Lower Bound
+vLow      = -1.234;
+aLow(1,2) = -1.234;
+LowSat.X  = -1.234;
+tempLow   = vLow;
+ 
+%  UpperBound Bound
+vHigh      = 3.14159;
+aHigh(1,2) = 3.14159;
+HighSat.X  = 3.14159;
+tempHigh   = vHigh;
+
+%  Integers for testing variables in arrays
+idx1 = 1;
+idx2 = 2;
+ 
+%  Arrays for testing 3-level recursion
+One(1,1) = 1;
+Two(2,2) = 2;
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%------------------------------------------------------------------------------
+%This first set of tests look at everything except LHS ( what is being varied)
+%------------------------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+ 
+ 
+ 
+%%-------------------------------------------------------------------
+%%  Test using variables for everything 
+%%-------------------------------------------------------------------
+Flag = 0;
+While vLow <  vHigh;
+   Flag = 1;
+   vLow = 1000;
+EndWhile
+vLow = tempLow;
+Report PiC_While Flag;
+ 
+Flag = 1;
+While vLow >  vHigh;
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+Flag = 1;
+While vLow ==  vHigh;
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+ 
+%%-------------------------------------------------------------------
+%%  Test using arrays for everything  
+%%-------------------------------------------------------------------
+Flag = 0;
+While aLow(1,2) <  aHigh(1,2);
+   Flag = 1;
+   aLow(1,2) = 1000;
+EndWhile
+aLow(1,2) = tempLow;
+Report PiC_While Flag;
+ 
+Flag = 1;
+While aLow(1,2) >  aHigh(1,2);
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+Flag = 1;
+While aLow(1,2) ==  aHigh(1,2);
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+%%-------------------------------------------------------------------
+%%  Test using Spacecraft parameters for everything 
+%%-------------------------------------------------------------------
+ 
+Flag = 0;
+While LowSat.X <  HighSat.X;
+   Flag = 1;
+   LowSat.X = 1000;
+EndWhile
+LowSat.X = tempLow;
+Report PiC_While Flag;
+ 
+Flag = 1;
+While LowSat.X >  HighSat.X;
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+Flag = 1;
+While LowSat.X ==  HighSat.X;
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+ 
+%%-------------------------------------------------------------------
+%%  Test using arrays idexed with variables for everything except LHS
+%%-------------------------------------------------------------------
+Flag = 0;
+While aLow(idx1,idx2) <  aHigh(idx1,idx2);
+   Flag = 1;
+   aLow(1,2) = 1000;
+EndWhile
+aLow(1,2) = tempLow;
+Report PiC_While Flag;
+ 
+Flag = 1;
+While aLow(idx1,idx2) >  aHigh(idx1,idx2);
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+Flag = 1;
+While aLow(idx1,idx2) ==  aHigh(idx1,idx2);
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+%
+%%-------------------------------------------------------------------
+%%  Test using 3-level recursion in arrays 
+%%-------------------------------------------------------------------
+
+Flag = 0;
+While aLow(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))) < ...
+   aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
+   Flag = 1;
+   aLow(1,2) = 1000;
+EndWhile
+aLow(1,2) = tempLow;
+Report PiC_While Flag;
+
+Flag = 1;
+While aLow(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))) > ...
+   aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+Flag = 1;
+While aLow(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))) == ...
+   aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
+   Flag = 0;
+EndWhile
+Report PiC_While Flag;
+ 
+
