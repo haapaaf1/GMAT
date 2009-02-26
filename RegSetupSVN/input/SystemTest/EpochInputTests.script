@@ -1,0 +1,180 @@
+% $Id: EpochInputTests.script,v 1.3 2007/07/26 19:13:13 edove Exp $
+%  Test Description and Summary:
+%
+%  This script is written to verify that time conversions are
+%  are being performed correctly by the spacecraft.  There is a spacecraft
+%  named after each time system.   A common instant in time, 
+%  04 Jul 2004 12:34:56.789 UTC, was chosen for all spacecraft, and this
+%  instant in time was used for each spacecraft, but in each spacecraft's
+%  time system and Format.  Basically, the epochs for all spacecraft 
+%  are equivalent.  
+%
+%  Expected Results:
+%  
+%  In the output, each spacecraft's epoch is requested
+%  in all possible time systems.  For each  chunk of data in the report file,
+%  all lines in the chunk should be identical, or off only at the last decimal place.
+%
+%  
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft SatUTCGregorian;
+SatUTCGregorian.DateFormat = UTCGregorian;
+SatUTCGregorian.Epoch = 04 Jul 2004 12:34:56.789;
+
+Create Spacecraft SatUTCModJulian;
+SatUTCModJulian.DateFormat = UTCModJulian;
+SatUTCModJulian.Epoch = 23191.0242683912;
+
+Create Spacecraft SatTAIGregorian;
+SatTAIGregorian.DateFormat = TAIGregorian;
+SatTAIGregorian.Epoch = 04 Jul 2004 12:35:28.789; 
+
+Create Spacecraft SatTAIModJulian;
+SatTAIModJulian.DateFormat = TAIModJulian;
+SatTAIModJulian.Epoch = 23191.02463876157;
+
+Create Spacecraft SatA1Gregorian;
+SatA1Gregorian.DateFormat = A1Gregorian;
+SatA1Gregorian.Epoch = 04 Jul 2004 12:35:28.823;
+
+Create Spacecraft SatA1ModJulian;
+SatA1ModJulian.DateFormat = A1ModJulian;
+SatA1ModJulian.Epoch = 23191.02463915951;
+
+Create Spacecraft SatTTGregorian;
+SatTTGregorian.DateFormat = TTGregorian;
+SatTTGregorian.Epoch = 04 Jul 2004 12:36:00.973 ;
+
+Create Spacecraft SatTTModJulian;
+SatTTModJulian.DateFormat = TTModJulian;
+SatTTModJulian.Epoch = 23191.0250112616;
+
+%----------------------------------------
+%---------- Reports
+%----------------------------------------
+
+Create ReportFile EpochInputTests;
+EpochInputTests.Filename = ./output/SystemTest/EpochInputTests.report;
+GMAT EpochInputTests.WriteHeaders = Off;
+
+%----------------------------------------
+%---------- Variables
+%----------------------------------------
+
+Create String UTCGregorianEpoch
+UTCGregorianEpoch = ------ Epoch Values in  UTCGregorian ---- 
+
+Create String UTCModJulianEpoch
+UTCModJulianEpoch = ------ Epoch Values in  UTCModJulian ---- 
+
+Create String TAIGregorianEpoch
+TAIGregorianEpoch = ------ Epoch Values in  TAIGregorian ---- 
+
+Create String TAIModJulianEpoch
+TAIModJulianEpoch = ------ Epoch Values in  TAIModJulian ---- 
+
+Create String A1GregorianEpoch
+A1GregorianEpoch = ------ Epoch Values in  A1Gregorian ---- 
+
+Create String A1ModJulianEpoch
+A1ModJulianEpoch = ------ Epoch Values in  A1ModJulian ---- 
+
+Create String TTGregorianEpoch
+TTGregorianEpoch = ------ Epoch Values in  TTGregorian ---- 
+
+Create String TTModJulianEpoch
+TTModJulianEpoch = ------ Epoch Values in  TTModJulian ---- 
+
+
+%----------------------------------------
+%---------- Write out the data
+%----------------------------------------
+
+
+Report EpochInputTests UTCGregorianEpoch
+Report EpochInputTests SatUTCGregorian.UTCGregorian;
+Report EpochInputTests SatUTCModJulian.UTCGregorian;
+Report EpochInputTests SatTAIGregorian.UTCGregorian;
+Report EpochInputTests SatTAIModJulian.UTCGregorian;
+Report EpochInputTests SatA1Gregorian.UTCGregorian;
+Report EpochInputTests SatA1ModJulian.UTCGregorian;
+Report EpochInputTests SatTTGregorian.UTCGregorian;
+Report EpochInputTests SatTTModJulian.UTCGregorian;
+
+Report EpochInputTests UTCModJulianEpoch
+Report EpochInputTests SatUTCGregorian.UTCModJulian;
+Report EpochInputTests SatUTCModJulian.UTCModJulian;
+Report EpochInputTests SatTAIGregorian.UTCModJulian;
+Report EpochInputTests SatTAIModJulian.UTCModJulian;
+Report EpochInputTests SatA1Gregorian.UTCModJulian;
+Report EpochInputTests SatA1ModJulian.UTCModJulian;
+Report EpochInputTests SatTTGregorian.UTCModJulian;
+Report EpochInputTests SatTTModJulian.UTCModJulian;
+
+Report EpochInputTests TAIGregorianEpoch
+Report EpochInputTests SatUTCGregorian.TAIGregorian;
+Report EpochInputTests SatUTCModJulian.TAIGregorian;
+Report EpochInputTests SatTAIGregorian.TAIGregorian;
+Report EpochInputTests SatTAIModJulian.TAIGregorian;
+Report EpochInputTests SatA1Gregorian.TAIGregorian;
+Report EpochInputTests SatA1ModJulian.TAIGregorian;
+Report EpochInputTests SatTTGregorian.TAIGregorian;
+Report EpochInputTests SatTTModJulian.TAIGregorian;
+
+Report EpochInputTests TAIModJulianEpoch
+Report EpochInputTests SatUTCGregorian.TAIModJulian;
+Report EpochInputTests SatUTCModJulian.TAIModJulian;
+Report EpochInputTests SatTAIGregorian.TAIModJulian;
+Report EpochInputTests SatTAIModJulian.TAIModJulian;
+Report EpochInputTests SatA1Gregorian.TAIModJulian;
+Report EpochInputTests SatA1ModJulian.TAIModJulian;
+Report EpochInputTests SatTTGregorian.TAIModJulian;
+Report EpochInputTests SatTTModJulian.TAIModJulian;
+
+Report EpochInputTests A1GregorianEpoch
+Report EpochInputTests SatUTCGregorian.A1Gregorian;
+Report EpochInputTests SatUTCModJulian.A1Gregorian;
+Report EpochInputTests SatTAIGregorian.A1Gregorian;
+Report EpochInputTests SatTAIModJulian.A1Gregorian;
+Report EpochInputTests SatA1Gregorian.A1Gregorian;
+Report EpochInputTests SatA1ModJulian.A1Gregorian;
+Report EpochInputTests SatTTGregorian.A1Gregorian;
+Report EpochInputTests SatTTModJulian.A1Gregorian;
+ 
+Report EpochInputTests A1ModJulianEpoch
+Report EpochInputTests SatUTCGregorian.A1ModJulian;
+Report EpochInputTests SatUTCModJulian.A1ModJulian;
+Report EpochInputTests SatTAIGregorian.A1ModJulian;
+Report EpochInputTests SatTAIModJulian.A1ModJulian;
+Report EpochInputTests SatA1Gregorian.A1ModJulian;
+Report EpochInputTests SatA1ModJulian.A1ModJulian;
+Report EpochInputTests SatTTGregorian.A1ModJulian;
+Report EpochInputTests SatTTModJulian.A1ModJulian;
+
+Report EpochInputTests TTGregorianEpoch
+Report EpochInputTests SatUTCGregorian.TTGregorian;
+Report EpochInputTests SatUTCModJulian.TTGregorian;
+Report EpochInputTests SatTAIGregorian.TTGregorian;
+Report EpochInputTests SatTAIModJulian.TTGregorian;
+Report EpochInputTests SatA1Gregorian.TTGregorian;
+Report EpochInputTests SatA1ModJulian.TTGregorian;
+Report EpochInputTests SatTTGregorian.TTGregorian;
+Report EpochInputTests SatTTModJulian.TTGregorian;
+ 
+Report EpochInputTests TTModJulianEpoch
+Report EpochInputTests SatUTCGregorian.TTModJulian;
+Report EpochInputTests SatUTCModJulian.TTModJulian;
+Report EpochInputTests SatTAIGregorian.TTModJulian;
+Report EpochInputTests SatTAIModJulian.TTModJulian;
+Report EpochInputTests SatA1Gregorian.TTModJulian;
+Report EpochInputTests SatA1ModJulian.TTModJulian;
+Report EpochInputTests SatTTGregorian.TTModJulian;
+Report EpochInputTests SatTTModJulian.TTModJulian;
+
+
+
+
+

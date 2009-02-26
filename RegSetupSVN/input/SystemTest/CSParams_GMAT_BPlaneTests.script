@@ -1,0 +1,181 @@
+% $Id: CSParams_GMAT_BPlaneTests.script,v 1.9 2008/04/18 13:42:09 lojun Exp $
+%   This script tests GMAT calculation of B-Plane parameters.  
+%   There are two test cases, one w/r/t the the Earth, the other
+%   w/r/t the moon.  The intial conditions create hyperbolic orbits,
+%   which are propagated using two body propgators to minimize any 
+%   propagation error that will inevitably enter the BPlane calculations
+%   The tests are for:   BdotT, BdotR, BVectorMag, BVectorAngle
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft Sat;
+GMAT Sat.DateFormat = UTCGregorian;
+GMAT Sat.Epoch = 01 Jan 2000 12:00:00.000;
+GMAT Sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat.DisplayStateType = Cartesian;
+GMAT Sat.X = -9.698899999999999e-012;
+GMAT Sat.Y = -37335.23804664972;
+GMAT Sat.Z = -37335.23804664971;
+GMAT Sat.VX = 2.747589995975537;
+GMAT Sat.VY = 2.331407421689545;
+GMAT Sat.VZ = 2.331407421689544;
+GMAT Sat.DryMass = 850;
+GMAT Sat.Cd = 2.2;
+GMAT Sat.Cr = 1.8;
+GMAT Sat.DragArea = 15;
+GMAT Sat.SRPArea = 1;
+
+Create Spacecraft MoonSat;
+GMAT MoonSat.DateFormat = UTCGregorian;
+GMAT MoonSat.Epoch = 01 Jan 2000 12:00:00.000;
+GMAT MoonSat.CoordinateSystem = MoonMJ2000Eq;
+GMAT MoonSat.DisplayStateType = Cartesian;
+GMAT MoonSat.X = -4.2782e-012;
+GMAT MoonSat.Y = -45726.14131981838;
+GMAT MoonSat.Z = -26400;
+GMAT MoonSat.VX = 0.3047229424109499;
+GMAT MoonSat.VY = 0.3166773710925901;
+GMAT MoonSat.VZ = 0.1828337654465699;
+GMAT MoonSat.DryMass = 850;
+GMAT MoonSat.Cd = 2.2;
+GMAT MoonSat.Cr = 1.8;
+GMAT MoonSat.DragArea = 15;
+GMAT MoonSat.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel Prop_ForceModel;
+GMAT Prop_ForceModel.CentralBody = Earth;
+GMAT Prop_ForceModel.PointMasses = {Earth};
+GMAT Prop_ForceModel.Drag = None;
+GMAT Prop_ForceModel.SRP = Off;
+GMAT Prop_ForceModel.ErrorControl = RSSStep;
+
+Create ForceModel MoonProp_ForceModel;
+GMAT MoonProp_ForceModel.CentralBody = Luna;
+GMAT MoonProp_ForceModel.PointMasses = {Luna};
+GMAT MoonProp_ForceModel.Drag = None;
+GMAT MoonProp_ForceModel.SRP = Off;
+GMAT MoonProp_ForceModel.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator Prop;
+GMAT Prop.FM = Prop_ForceModel;
+GMAT Prop.Type = RungeKutta89;
+GMAT Prop.InitialStepSize = 10;
+GMAT Prop.Accuracy = 1e-013;
+GMAT Prop.MinStep = 0.001;
+GMAT Prop.MaxStep = 60;
+GMAT Prop.MaxStepAttempts = 50;
+
+Create Propagator MoonProp;
+GMAT MoonProp.FM = MoonProp_ForceModel;
+GMAT MoonProp.Type = RungeKutta89;
+GMAT MoonProp.InitialStepSize = 60;
+GMAT MoonProp.Accuracy = 1e-012;
+GMAT MoonProp.MinStep = 0.001;
+GMAT MoonProp.MaxStep = 60;
+GMAT MoonProp.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.Origin = Earth;
+GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.VectorFormat = Cartesian;
+GMAT DefaultIB.Element1 = 0;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0;
+
+
+%----------------------------------------
+%---------- Parameters
+%----------------------------------------
+
+Create Variable I;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+Create CoordinateSystem MoonMJ2000Eq;
+GMAT MoonMJ2000Eq.Origin = Luna;
+GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
+GMAT MoonMJ2000Eq.UpdateInterval = 60;
+GMAT MoonMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem MoonMJ2000Ec;
+GMAT MoonMJ2000Ec.Origin = Luna;
+GMAT MoonMJ2000Ec.Axes = MJ2000Ec;
+GMAT MoonMJ2000Ec.UpdateInterval = 60;
+GMAT MoonMJ2000Ec.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile EarthBPlaneData;
+GMAT EarthBPlaneData.Filename = ./output/SystemTest/EarthBPlaneData.report;
+GMAT EarthBPlaneData.Precision = 15;
+GMAT EarthBPlaneData.WriteHeaders = Off;
+GMAT EarthBPlaneData.LeftJustify = On;
+GMAT EarthBPlaneData.ZeroFill = Off;
+GMAT EarthBPlaneData.ColumnWidth = 20;
+GMAT EarthBPlaneData.SolverIterations = None;
+
+Create ReportFile MoonBPlaneData;
+GMAT MoonBPlaneData.Filename = ./output/SystemTest/MoonBPlaneData.report;
+GMAT MoonBPlaneData.Precision = 15;
+GMAT MoonBPlaneData.WriteHeaders = Off;
+GMAT MoonBPlaneData.LeftJustify = On;
+GMAT MoonBPlaneData.ZeroFill = Off;
+GMAT MoonBPlaneData.ColumnWidth = 20;
+GMAT MoonBPlaneData.SolverIterations = None;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+Report EarthBPlaneData Sat.UTCGregorian     Sat.EarthMJ2000Eq.BdotT    Sat.EarthMJ2000Eq.BdotR    Sat.EarthMJ2000Eq.BVectorMag    Sat.EarthMJ2000Eq.BVectorAngle
+Report MoonBPlaneData  MoonSat.UTCGregorian MoonSat.MoonMJ2000Eq.BdotT MoonSat.MoonMJ2000Eq.BdotR MoonSat.MoonMJ2000Eq.BVectorMag MoonSat.MoonMJ2000Eq.BVectorAngle
+For I = 1:1:382;
+   Propagate Prop(Sat) {Sat.ElapsedSecs = 60.0};
+   Propagate MoonProp(MoonSat) {MoonSat.ElapsedSecs = 60.0};
+   Report EarthBPlaneData Sat.UTCGregorian Sat.EarthMJ2000Eq.BdotT Sat.EarthMJ2000Eq.BdotR Sat.EarthMJ2000Eq.BVectorMag Sat.EarthMJ2000Eq.BVectorAngle
+   Report MoonBPlaneData MoonSat.UTCGregorian MoonSat.MoonMJ2000Eq.BdotT MoonSat.MoonMJ2000Eq.BdotR MoonSat.MoonMJ2000Eq.BVectorMag MoonSat.MoonMJ2000Eq.BVectorAngle
+EndFor;
+
