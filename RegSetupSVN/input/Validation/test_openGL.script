@@ -1,0 +1,441 @@
+% ----------------------------------
+% Test validation scripts for OpenGL
+% ----------------------------------
+Create OpenGLPlot DefaultOpenGL;
+
+Create Variable testVar;
+GMAT testVar.Expression = -3.8;
+Create String testString;
+GMAT testString.Expression = TEST;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4;
+
+% -----------------
+% Unknown parameter
+% -----------------
+GMAT DefaultOpenGL.DoesNotExist = 1;
+
+% ---------
+% Show Plot
+% ---------
+GMAT DefaultOpenGL.ShowPlot = DoesNotExist;
+GMAT DefaultOpenGL.ShowPlot = ON;
+GMAT DefaultOpenGL.ShowPlot = On;
+GMAT DefaultOpenGL.ShowPlot = on;
+GMAT DefaultOpenGL.ShowPlot = OFF;
+GMAT DefaultOpenGL.ShowPlot = Off;
+GMAT DefaultOpenGL.ShowPlot = off;
+GMAT DefaultOpenGL.ShowPlot = 0;
+GMAT DefaultOpenGL.ShowPlot = 1;
+GMAT DefaultOpenGL.ShowPlot = TRUE;
+GMAT DefaultOpenGL.ShowPlot = True;
+GMAT DefaultOpenGL.ShowPlot = true;
+GMAT DefaultOpenGL.ShowPlot = FALSE;
+GMAT DefaultOpenGL.ShowPlot = False;
+GMAT DefaultOpenGL.ShowPlot = false;
+GMAT DefaultOpenGL.ShowPlot = 1.0;
+GMAT DefaultOpenGL.ShowPlot = testVar;
+GMAT DefaultOpenGL.ShowPlot = testString;
+GMAT DefaultOpenGL.ShowPlot = testArray(1,1);
+
+% ----------------------
+% Data Collect Frequency
+% ----------------------
+GMAT DefaultOpenGL.DataCollectFrequency = DoesNotExist;
+GMAT DefaultOpenGL.DataCollectFrequency = -1;
+GMAT DefaultOpenGL.DataCollectFrequency = 1.01;
+GMAT DefaultOpenGL.DataCollectFrequency = 1;
+GMAT DefaultOpenGL.DataCollectFrequency = testVar;
+GMAT DefaultOpenGL.DataCollectFrequency = testString;
+GMAT DefaultOpenGL.DataCollectFrequency = testArray(1,1);
+
+% ---------------------
+% Update Plot Frequency
+% ---------------------
+GMAT DefaultOpenGL.UpdatePlotFrequency = DoesNotExist;
+GMAT DefaultOpenGL.UpdatePlotFrequency = -1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 1.01;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = testVar;
+GMAT DefaultOpenGL.UpdatePlotFrequency = testString;
+GMAT DefaultOpenGL.UpdatePlotFrequency = testArray(1,1);
+
+% --------------------
+% Num Points To Redraw
+% --------------------
+GMAT DefaultOpenGL.NumPointsToRedraw = DoesNotExist;
+GMAT DefaultOpenGL.NumPointsToRedraw = -1;
+GMAT DefaultOpenGL.NumPointsToRedraw = 1.01;
+GMAT DefaultOpenGL.NumPointsToRedraw = 1;
+GMAT DefaultOpenGL.NumPointsToRedraw = testVar;
+GMAT DefaultOpenGL.NumPointsToRedraw = testString;
+GMAT DefaultOpenGL.NumPointsToRedraw = testArray(1,1);
+
+% ----------
+% Wire Frame
+% ----------
+GMAT DefaultOpenGL.WireFrame = DoesNotExist;
+GMAT DefaultOpenGL.WireFrame = TRUE;
+GMAT DefaultOpenGL.WireFrame = True;
+GMAT DefaultOpenGL.WireFrame = true;
+GMAT DefaultOpenGL.WireFrame = FALSE;
+GMAT DefaultOpenGL.WireFrame = False;
+GMAT DefaultOpenGL.WireFrame = false;
+GMAT DefaultOpenGL.WireFrame = 0;
+GMAT DefaultOpenGL.WireFrame = 1;
+GMAT DefaultOpenGL.WireFrame = ON;
+GMAT DefaultOpenGL.WireFrame = On;
+GMAT DefaultOpenGL.WireFrame = on;
+GMAT DefaultOpenGL.WireFrame = OFF;
+GMAT DefaultOpenGL.WireFrame = Off;
+GMAT DefaultOpenGL.WireFrame = off;
+GMAT DefaultOpenGL.WireFrame = 1.0;
+GMAT DefaultOpenGL.WireFrame = testVar;
+GMAT DefaultOpenGL.WireFrame = testString;
+GMAT DefaultOpenGL.WireFrame = testArray(1,1);
+
+% -----------------
+% Solver Iterations
+% -----------------
+GMAT DefaultOpenGL.SolverIterations = DoesNotExist;
+GMAT DefaultOpenGL.SolverIterations = TRUE;
+GMAT DefaultOpenGL.SolverIterations = True;
+GMAT DefaultOpenGL.SolverIterations = true;
+GMAT DefaultOpenGL.SolverIterations = FALSE;
+GMAT DefaultOpenGL.SolverIterations = False;
+GMAT DefaultOpenGL.SolverIterations = false;
+GMAT DefaultOpenGL.SolverIterations = 0;
+GMAT DefaultOpenGL.SolverIterations = 1;
+GMAT DefaultOpenGL.SolverIterations = ON;
+GMAT DefaultOpenGL.SolverIterations = On;
+GMAT DefaultOpenGL.SolverIterations = on;
+GMAT DefaultOpenGL.SolverIterations = OFF;
+GMAT DefaultOpenGL.SolverIterations = Off;
+GMAT DefaultOpenGL.SolverIterations = off;
+GMAT DefaultOpenGL.SolverIterations = 1.0;
+GMAT DefaultOpenGL.SolverIterations = testVar;
+GMAT DefaultOpenGL.SolverIterations = testString;
+GMAT DefaultOpenGL.SolverIterations = testArray(1,1);
+
+% --------------
+% Ecliptic Plane
+% --------------
+GMAT DefaultOpenGL.EclipticPlane = DoesNotExist;
+GMAT DefaultOpenGL.EclipticPlane = TRUE;
+GMAT DefaultOpenGL.EclipticPlane = True;
+GMAT DefaultOpenGL.EclipticPlane = true;
+GMAT DefaultOpenGL.EclipticPlane = FALSE;
+GMAT DefaultOpenGL.EclipticPlane = False;
+GMAT DefaultOpenGL.EclipticPlane = false;
+GMAT DefaultOpenGL.EclipticPlane = 0;
+GMAT DefaultOpenGL.EclipticPlane = 1;
+GMAT DefaultOpenGL.EclipticPlane = ON;
+GMAT DefaultOpenGL.EclipticPlane = On;
+GMAT DefaultOpenGL.EclipticPlane = on;
+GMAT DefaultOpenGL.EclipticPlane = OFF;
+GMAT DefaultOpenGL.EclipticPlane = Off;
+GMAT DefaultOpenGL.EclipticPlane = off;
+GMAT DefaultOpenGL.EclipticPlane = 1.0;
+GMAT DefaultOpenGL.EclipticPlane = testVar;
+GMAT DefaultOpenGL.EclipticPlane = testString;
+GMAT DefaultOpenGL.EclipticPlane = testArray(1,1);
+
+% --------
+% XY Plane
+% --------
+GMAT DefaultOpenGL.XYPlane = DoesNotExist;
+GMAT DefaultOpenGL.XYPlane = TRUE;
+GMAT DefaultOpenGL.XYPlane = True;
+GMAT DefaultOpenGL.XYPlane = true;
+GMAT DefaultOpenGL.XYPlane = FALSE;
+GMAT DefaultOpenGL.XYPlane = False;
+GMAT DefaultOpenGL.XYPlane = false;
+GMAT DefaultOpenGL.XYPlane = 0;
+GMAT DefaultOpenGL.XYPlane = 1;
+GMAT DefaultOpenGL.XYPlane = ON;
+GMAT DefaultOpenGL.XYPlane = On;
+GMAT DefaultOpenGL.XYPlane = on;
+GMAT DefaultOpenGL.XYPlane = OFF;
+GMAT DefaultOpenGL.XYPlane = Off;
+GMAT DefaultOpenGL.XYPlane = off;
+GMAT DefaultOpenGL.XYPlane = 1.0;
+GMAT DefaultOpenGL.XYPlane = testVar;
+GMAT DefaultOpenGL.XYPlane = testString;
+GMAT DefaultOpenGL.XYPlane = testArray(1,1);
+
+% ----
+% Axes
+% ----
+GMAT DefaultOpenGL.Axes = DoesNotExist;
+GMAT DefaultOpenGL.Axes = TRUE;
+GMAT DefaultOpenGL.Axes = True;
+GMAT DefaultOpenGL.Axes = true;
+GMAT DefaultOpenGL.Axes = FALSE;
+GMAT DefaultOpenGL.Axes = False;
+GMAT DefaultOpenGL.Axes = false;
+GMAT DefaultOpenGL.Axes = 0;
+GMAT DefaultOpenGL.Axes = 1;
+GMAT DefaultOpenGL.Axes = ON;
+GMAT DefaultOpenGL.Axes = On;
+GMAT DefaultOpenGL.Axes = on;
+GMAT DefaultOpenGL.Axes = OFF;
+GMAT DefaultOpenGL.Axes = Off;
+GMAT DefaultOpenGL.Axes = off;
+GMAT DefaultOpenGL.Axes = 1.0;
+GMAT DefaultOpenGL.Axes = testVar;
+GMAT DefaultOpenGL.Axes = testString;
+GMAT DefaultOpenGL.Axes = testArray(1,1);
+
+% ----
+% Grid
+% ----
+GMAT DefaultOpenGL.Grid = DoesNotExist;
+GMAT DefaultOpenGL.Grid = TRUE;
+GMAT DefaultOpenGL.Grid = True;
+GMAT DefaultOpenGL.Grid = true;
+GMAT DefaultOpenGL.Grid = FALSE;
+GMAT DefaultOpenGL.Grid = False;
+GMAT DefaultOpenGL.Grid = false;
+GMAT DefaultOpenGL.Grid = 0;
+GMAT DefaultOpenGL.Grid = 1;
+GMAT DefaultOpenGL.Grid = ON;
+GMAT DefaultOpenGL.Grid = On;
+GMAT DefaultOpenGL.Grid = on;
+GMAT DefaultOpenGL.Grid = OFF;
+GMAT DefaultOpenGL.Grid = Off;
+GMAT DefaultOpenGL.Grid = off;
+GMAT DefaultOpenGL.Grid = 1.0;
+GMAT DefaultOpenGL.Grid = testVar;
+GMAT DefaultOpenGL.Grid = testString;
+GMAT DefaultOpenGL.Grid = testArray(1,1);
+
+% ---------------
+% Earth Sun Lines
+% ---------------
+GMAT DefaultOpenGL.EarthSunLines = DoesNotExist;
+GMAT DefaultOpenGL.EarthSunLines = TRUE;
+GMAT DefaultOpenGL.EarthSunLines = True;
+GMAT DefaultOpenGL.EarthSunLines = true;
+GMAT DefaultOpenGL.EarthSunLines = FALSE;
+GMAT DefaultOpenGL.EarthSunLines = False;
+GMAT DefaultOpenGL.EarthSunLines = false;
+GMAT DefaultOpenGL.EarthSunLines = 0;
+GMAT DefaultOpenGL.EarthSunLines = 1;
+GMAT DefaultOpenGL.EarthSunLines = ON;
+GMAT DefaultOpenGL.EarthSunLines = On;
+GMAT DefaultOpenGL.EarthSunLines = on;
+GMAT DefaultOpenGL.EarthSunLines = OFF;
+GMAT DefaultOpenGL.EarthSunLines = Off;
+GMAT DefaultOpenGL.EarthSunLines = off;
+GMAT DefaultOpenGL.EarthSunLines = 1.0;
+GMAT DefaultOpenGL.EarthSunLines = testVar;
+GMAT DefaultOpenGL.EarthSunLines = testString;
+GMAT DefaultOpenGL.EarthSunLines = testArray(1,1);
+
+% -----------------
+% Coordinate System
+% -----------------
+GMAT DefaultOpenGL.CoordinateSystem = DoesNotExist;
+GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.CoordinateSystem = 1;
+GMAT DefaultOpenGL.CoordinateSystem = 1.0;
+GMAT DefaultOpenGL.CoordinateSystem = testVar;
+GMAT DefaultOpenGL.CoordinateSystem = testString;
+GMAT DefaultOpenGL.CoordinateSystem = testArray(1,1);
+
+% ---
+% Add
+% ---
+GMAT DefaultOpenGL.Add = DoesNotExist;
+GMAT DefaultOpenGL.Add = {DoesNotExist};
+GMAT DefaultOpenGL.Add = { };
+GMAT DefaultOpenGL.Add = ;
+Create Spacecraft DefaultSC;
+Create Planet Earth;
+GMAT DefaultOpenGL.Add = DefaultSC, Earth;
+GMAT DefaultOpenGL.Add = {DefaultSC, Earth};
+GMAT DefaultOpenGL.Add = 1;
+GMAT DefaultOpenGL.Add = 1.0;
+GMAT DefaultOpenGL.Add = testVar;
+GMAT DefaultOpenGL.Add = testString;
+GMAT DefaultOpenGL.Add = testArray(1,1);
+
+% ------
+% Remove
+% ------
+GMAT DefaultOpenGL.Remove = DoesNotExist;
+GMAT DefaultOpenGL.Remove = {DoesNotExist};
+GMAT DefaultOpenGL.Remove = { };
+GMAT DefaultOpenGL.Remove = ;
+Create Spacecraft DefaultSC;
+Create Planet Earth;
+GMAT DefaultOpenGL.Remove = DefaultSC, Earth;
+GMAT DefaultOpenGL.Remove = {DefaultSC, Earth};
+GMAT DefaultOpenGL.Remove = 1;
+GMAT DefaultOpenGL.Remove = 1.0;
+GMAT DefaultOpenGL.Remove = testVar;
+GMAT DefaultOpenGL.Remove = testString;
+GMAT DefaultOpenGL.Remove = testArray(1,1);
+
+% --------------
+% View Point Ref
+% --------------
+GMAT DefaultOpenGL.ViewPointRef = DoesNotExist;
+GMAT DefaultOpenGL.ViewPointRef = {DoesNotExist};
+GMAT DefaultOpenGL.ViewPointRef = {DoesNotExist, Earth};
+GMAT DefaultOpenGL.ViewPointRef = DoesNotExist, Earth;
+GMAT DefaultOpenGL.ViewPointRef = {Earth};
+GMAT DefaultOpenGL.ViewPointRef = Earth;
+GMAT DefaultOpenGL.ViewPointRef = 1;
+GMAT DefaultOpenGL.ViewPointRef = 1.0;
+GMAT DefaultOpenGL.ViewPointRef = testVar;
+GMAT DefaultOpenGL.ViewPointRef = testString;
+GMAT DefaultOpenGL.ViewPointRef = testArray(1,1);
+
+% -----------------
+% View Point Vector
+% -----------------
+GMAT DefaultOpenGL.ViewPointVector = DoesNotExist;
+GMAT DefaultOpenGL.ViewPointVector = Vector;
+GMAT DefaultOpenGL.ViewPointVector = 1;
+GMAT DefaultOpenGL.ViewPointVector = 1.0;
+GMAT DefaultOpenGL.ViewPointVector = testVar;
+GMAT DefaultOpenGL.ViewPointVector = testString;
+GMAT DefaultOpenGL.ViewPointVector = testArray(1,1);
+
+% --------------
+% View Direction
+% --------------
+GMAT DefaultOpenGL.ViewDirection = DoesNotExist;
+GMAT DefaultOpenGL.ViewDirection = {DoesNotExist};
+GMAT DefaultOpenGL.ViewDirection = {DoesNotExist, Earth};
+GMAT DefaultOpenGL.ViewDirection = DoesNotExist, Earth;
+GMAT DefaultOpenGL.ViewDirection = {Earth};
+GMAT DefaultOpenGL.ViewDirection = Earth;
+GMAT DefaultOpenGL.ViewDirection = 1;
+GMAT DefaultOpenGL.ViewDirection = 1.0;
+GMAT DefaultOpenGL.ViewDirection = testVar;
+GMAT DefaultOpenGL.ViewDirection = testString;
+GMAT DefaultOpenGL.ViewDirection = testArray(1,1);
+
+% -----------------
+% View Scale Factor
+% -----------------
+GMAT DefaultOpenGL.ViewScaleFactor = DoesNotExist;
+GMAT DefaultOpenGL.ViewScaleFactor = -1.01;
+GMAT DefaultOpenGL.ViewScaleFactor = 1.01;
+GMAT DefaultOpenGL.ViewScaleFactor = 1;
+GMAT DefaultOpenGL.ViewScaleFactor = testVar;
+GMAT DefaultOpenGL.ViewScaleFactor = testString;
+GMAT DefaultOpenGL.ViewScaleFactor = testArray(1,1);
+
+% -------------------------
+% View Up Coordinate System
+% -------------------------
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = DoesNotExist;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = 1;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = 1.0;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = testVar;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = testString;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = testArray(1,1);
+
+% ------------
+% View Up Axis
+% ------------
+GMAT DefaultOpenGL.ViewUpAxis = DoesNotExist;
+GMAT DefaultOpenGL.ViewUpAxis = "Z";
+GMAT DefaultOpenGL.ViewUpAxis = {Z};
+GMAT DefaultOpenGL.ViewUpAxis = "Z, -x";
+GMAT DefaultOpenGL.ViewUpAxis = {Z, -X};
+GMAT DefaultOpenGL.ViewUpAxis = x;
+GMAT DefaultOpenGL.ViewUpAxis = X;
+GMAT DefaultOpenGL.ViewUpAxis = -x;
+GMAT DefaultOpenGL.ViewUpAxis = -X;
+GMAT DefaultOpenGL.ViewUpAxis = 1;
+GMAT DefaultOpenGL.ViewUpAxis = 1.0;
+GMAT DefaultOpenGL.ViewUpAxis = testVar;
+GMAT DefaultOpenGL.ViewUpAxis = testString;
+GMAT DefaultOpenGL.ViewUpAxis = testArray(1,1);
+
+% ----------------
+% Use Initial View
+% ----------------
+GMAT DefaultOpenGL.UseInitialView = DoesNotExist;
+GMAT DefaultOpenGL.UseInitialView = TRUE;
+GMAT DefaultOpenGL.UseInitialView = True;
+GMAT DefaultOpenGL.UseInitialView = true;
+GMAT DefaultOpenGL.UseInitialView = FALSE;
+GMAT DefaultOpenGL.UseInitialView = False;
+GMAT DefaultOpenGL.UseInitialView = false;
+GMAT DefaultOpenGL.UseInitialView = 0;
+GMAT DefaultOpenGL.UseInitialView = 1;
+GMAT DefaultOpenGL.UseInitialView = ON;
+GMAT DefaultOpenGL.UseInitialView = On;
+GMAT DefaultOpenGL.UseInitialView = on;
+GMAT DefaultOpenGL.UseInitialView = OFF;
+GMAT DefaultOpenGL.UseInitialView = Off;
+GMAT DefaultOpenGL.UseInitialView = off;
+GMAT DefaultOpenGL.UseInitialView = 1.0;
+GMAT DefaultOpenGL.UseInitialView = testVar;
+GMAT DefaultOpenGL.UseInitialView = testString;
+GMAT DefaultOpenGL.UseInitialView = testArray(1,1);
+
+% ----------------
+% Perspective Mode
+% ----------------
+GMAT DefaultOpenGL.PerspectiveMode = DoesNotExist;
+GMAT DefaultOpenGL.PerspectiveMode = TRUE;
+GMAT DefaultOpenGL.PerspectiveMode = True;
+GMAT DefaultOpenGL.PerspectiveMode = true;
+GMAT DefaultOpenGL.PerspectiveMode = FALSE;
+GMAT DefaultOpenGL.PerspectiveMode = False;
+GMAT DefaultOpenGL.PerspectiveMode = false;
+GMAT DefaultOpenGL.PerspectiveMode = 0;
+GMAT DefaultOpenGL.PerspectiveMode = 1;
+GMAT DefaultOpenGL.PerspectiveMode = ON;
+GMAT DefaultOpenGL.PerspectiveMode = On;
+GMAT DefaultOpenGL.PerspectiveMode = on;
+GMAT DefaultOpenGL.PerspectiveMode = OFF;
+GMAT DefaultOpenGL.PerspectiveMode = Off;
+GMAT DefaultOpenGL.PerspectiveMode = off;
+GMAT DefaultOpenGL.PerspectiveMode = 1.0;
+GMAT DefaultOpenGL.PerspectiveMode = testVar;
+GMAT DefaultOpenGL.PerspectiveMode = testString;
+GMAT DefaultOpenGL.PerspectiveMode = testArray(1,1);
+
+% -----------
+% Use Fix Fov
+% -----------
+GMAT DefaultOpenGL.UseFixedFov = DoesNotExist;
+GMAT DefaultOpenGL.UseFixedFov = TRUE;
+GMAT DefaultOpenGL.UseFixedFov = True;
+GMAT DefaultOpenGL.UseFixedFov = true;
+GMAT DefaultOpenGL.UseFixedFov = FALSE;
+GMAT DefaultOpenGL.UseFixedFov = False;
+GMAT DefaultOpenGL.UseFixedFov = false;
+GMAT DefaultOpenGL.UseFixedFov = 0;
+GMAT DefaultOpenGL.UseFixedFov = 1;
+GMAT DefaultOpenGL.UseFixedFov = ON;
+GMAT DefaultOpenGL.UseFixedFov = On;
+GMAT DefaultOpenGL.UseFixedFov = on;
+GMAT DefaultOpenGL.UseFixedFov = OFF;
+GMAT DefaultOpenGL.UseFixedFov = Off;
+GMAT DefaultOpenGL.UseFixedFov = off;
+GMAT DefaultOpenGL.UseFixedFov = 1.0;
+GMAT DefaultOpenGL.UseFixedFov = testVar;
+GMAT DefaultOpenGL.UseFixedFov = testString;
+GMAT DefaultOpenGL.UseFixedFov = testArray(1,1);
+
+% ---------------
+% Fixed Fov Angle
+% ---------------
+GMAT DefaultOpenGL.FixedFovAngle = DoesNotExist;
+GMAT DefaultOpenGL.FixedFovAngle = -1.0;
+GMAT DefaultOpenGL.FixedFovAngle = 0.0;
+GMAT DefaultOpenGL.FixedFovAngle = 1.0;
+GMAT DefaultOpenGL.FixedFovAngle = 1;
+GMAT DefaultOpenGL.FixedFovAngle = testVar;
+GMAT DefaultOpenGL.FixedFovAngle = testString;
+GMAT DefaultOpenGL.FixedFovAngle = testArray(1,1);

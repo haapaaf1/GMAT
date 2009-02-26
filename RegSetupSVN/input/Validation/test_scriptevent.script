@@ -1,0 +1,159 @@
+Create Spacecraft sc;
+Create Propagator DefaultProp;
+Create Variable TestNum; 
+Create DifferentialCorrector dc;
+Create ImpulsiveBurn ImpulsiveBurn1;
+GMAT TestNum = 0;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+%Error in script line
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0;
+EndScript;
+
+BeginScript;
+   Target dc
+   EndTarget;
+EndScript;
+
+BeginScript
+   Maneuver ImpulsiveBurn1(sc);
+EndScript;
+
+BeginScript
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript
+
+BeginScript
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0}
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};  % Testing inline comment
+EndScript;
+
+BeginScript;
+   % Testing attribute comment
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   % Testing attribute comment
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0}; % Testing inline comment
+EndScript;
+
+BEGINSCRIPT;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+ENDSCRIPT;
+
+BEGINSCRIPT;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+ENDSCRIPT;
+
+beginscript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+endscript;
+
+beginscript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+endscript;
+
+BeginScript;
+   NotACommand;
+EndScript;
+
+BeginScript;
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+   BeginScript;
+      Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+   EndScript;
+EndScript;
+
+BeginScript;
+   Create Spacecraft sc2;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc2) {sc2.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   Create Spacecraft sc2;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+   Propagate DefaultProp(sc2) {sc2.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0;
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) ...
+   {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginnScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EnddScript;
+
+BeginScript;
+   Propagates DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+
+
+BeginScript
+   GMAT TestNum = TestNum + 1;
+EndScript
+
+BeginScript
+   GMAT TestNum = TestNum * 12;
+   TestNum = TestNum * 10;
+EndScript
+
+%Control logic test
+BeginScript
+  If (TestNum > 10)
+     TestNum = 25;
+  EndIf;
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+EndScript;
+EndScript;
+
+BeginScript;
+   Propagate DefaultProp(sc) {sc.ElapsedSecs = 8640.0};
+

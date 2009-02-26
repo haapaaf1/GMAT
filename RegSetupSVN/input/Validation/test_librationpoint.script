@@ -1,0 +1,87 @@
+% --------------------------------------------
+% Test validation scripts for Celestial Bodies
+% --------------------------------------------
+Create LibrationPoint Libration1;
+
+% ---------
+% Duplicate
+% ---------
+Create LibrationPoint Libration1;
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+Create String testString;
+GMAT testString.Expression = Pluto;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT Libration1.DoesNotExist = 1;
+
+% -------
+% Primary
+% -------
+Create LibrationPoint Libration2;
+%GMAT Libration2.Primary = 1;
+%GMAT Libration2.Primary = 1.0;
+%GMAT Libration2.Primary = testString;
+%GMAT Libration2.Primary = testVar;
+%GMAT Libration2.Primary = testArray(1,1);
+%GMAT Libration2.Primary = testSc.A1ModJulian;
+%GMAT Libration2.Primary = DoesNotExist;
+%GMAT Libration2.Primary = Sun, Jupiter;
+%GMAT Libration2.Primary = {Luna, Pluto};
+GMAT Libration2.Primary = Venus;
+%GMAT Libration2.Primary = {Neptune};
+
+%% Coupling
+GMAT Libration2.Secondary = Neptune;
+
+% ---------
+% Secondary
+% ---------
+Create LibrationPoint Libration3;
+
+%% Coupling
+GMAT Libration3.Primary = Neptune;
+
+%GMAT Libration3.Secondary = 1;
+%GMAT Libration3.Secondary = 1.0;
+%GMAT Libration3.Secondary = testString;
+%GMAT Libration3.Secondary = testVar;
+%GMAT Libration3.Secondary = testArray(1,1);
+%GMAT Libration3.Secondary = testSc.A1ModJulian;
+%GMAT Libration3.Secondary = DoesNotExist;
+%GMAT Libration3.Secondary = Sun, Jupiter;
+%GMAT Libration3.Secondary = {Luna, Pluto};
+GMAT Libration3.Secondary = Venus;
+%GMAT Libration3.Secondary = {Neptune};
+
+% -----
+% Point
+% -----
+Create LibrationPoint Libration4;
+%GMAT Libration4.Point = 1;
+%GMAT Libration4.Point = 1.0;
+%GMAT testString.Expression = L3;
+%GMAT Libration4.Point = testString;
+%GMAT Libration4.Point = testVar;
+%GMAT Libration4.Point = testArray(1,1);
+%GMAT Libration4.Point = testSc.A1ModJulian;
+%GMAT Libration4.Point = DoesNotExist;
+%GMAT Libration4.Point = L1, L2;
+%GMAT Libration4.Point = {L1, L2};
+%GMAT Libration4.Point = Earth, Luna;
+%GMAT Libration4.Point = {Earth, Luna};
+%GMAT Libration4.Point = L4;
+%GMAT Libration4.Point = {L5};
+%GMAT Libration4.Point = {L4};
+GMAT Libration4.Point = {L3};
+%GMAT Libration4.Point = {L2};
+%GMAT Libration4.Point = {L1};

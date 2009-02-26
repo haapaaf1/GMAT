@@ -1,0 +1,130 @@
+Create Spacecraft DefaultSC, SC1, SC2, SC3;
+Create Formation Form1, Form2, Form3;
+Create Propagator DefaultProp, Prop1;
+
+Create Variable One = 1;
+Create Array ArrayZero[2, 2];
+Create String myStr;
+GMAT myStr.Expression = test;
+
+%Backwards
+Propagate BackProp DefaultProp(DefaultSC);
+Propagate +DefaultProp(DefaultSC);
+Propagate =DefaultProp(DefaultSC);
+Propagate Backwards DefaultProp(DefaultSC);
+Propagate backwards DefaultProp(DefaultSC);
+Propagate BACKWARDS DefaultProp(DefaultSC);
+Propagate Forwards DefaultProp(DefaultSC);
+Propagate forwards DefaultProp(DefaultSC);
+Propagate FORWARDS DefaultProp(DefaultSC);
+
+Propagate 1 DefaultProp(DefaultSC);
+Propagate 1.0 DefaultProp(DefaultSC);
+Propagate ArrayZero(0,0) DefaultProp(DefaultSC);
+Propagate One DefaultProp(DefaultSC);
+Propagate myStr DefaultProp(DefaultSC);
+Propagate DoesNotExist DefaultProp(DefaultSC);
+
+%Synchronized
+Propagate Synchronized DefaultProp(DefaultSC);
+Propagate synchronized DefaultProp(DefaultSC);
+Propagate SYNCHRONIZED DefaultProp(DefaultSC);
+
+%Single prop and single spacecraft
+Propagate 1(DefaultSC);
+Propagate 1.0(DefaultSC);
+Propagate ArrayZero(0,0)(DefaultSC);
+Propagate One(DefaultSC);
+Propagate myStr(DefaultSC);
+Propagate DoesNotExist(DefaultSC);
+Propagate DefaultProp(DoesNotExist);
+Propagate (DefaultSC);
+Propagate DefaultProp;
+Propagate DefaultProp DefaultSC;
+Propagate DefaultSC (DefaultProp)
+
+%Satellites
+Propagate DefaultProp(1);
+Propagate DefaultProp(1.0);
+Propagate DefaultProp(myStr);
+Propagate DefaultProp(ArrayZero(0,0));
+Propagate DefaultProp(DefaultProp);
+Propagate DefaultProp(DoesNotExist);
+Propagate DefaultProp(DefaultSC);
+Propagate DefaultProp();
+
+%Multi sc
+Propagate DefaultProp(DefaultSC, SC1);
+Propagate (DefaultSC, SC1);
+Propagate DefaultProp{DefaultSC, SC1};
+
+%Multi prop & multi sc
+Propagate DefaultProp(DefaultSC) Prop1(SC1);
+Propagate DefaultProp() Prop1(SC1);
+Propagate DefaultProp(DefaultSC) Prop1();
+Propagate (DefaultSC) Prop1(SC1);
+Propagate DefaultProp(DefaultSC) (SC1);
+Propagate DefaultProp(DefaultSC, SC1) Prop1(SC1);
+Propagate DefaultProp(DefaultSC, SC1) Prop1(SC2);
+Propagate DefaultProp(DefaultSC, SC1, SC2) Prop1(SC3);
+Propagate DefaultProp(DefaultSC) Prop1(SC1, SC3);
+Propagate DefaultProp(DefaultSC, SC2) Prop1(SC1, SC3);
+Propagate DefaultProp(DefaultSC) Prop1(DoesNotExist);
+Propagate DefaultProp(DefaultSC) DoesNotExist(SC1);
+Propagate DefaultProp(DoesNotExist) Prop1(SC1);
+Propagate DoesNotExist(DefaultSC) Prop1(SC1);
+
+%Stopping condition
+Propagate {DefaultSC.ElapsedSecs = 8640.0};
+Propagate DefaultProp {DefaultSC.ElapsedSecs = 8640.0};
+
+Propagate DefaultProp(DefaultSC) {DoesNotExist};
+Propagate DefaultProp(DefaultSC) {DoesNotExist  = 8640.0};
+Propagate DefaultProp(DefaultSC) {1 = 8640.0};
+Propagate DefaultProp(DefaultSC) {1.0 = 8640.0};
+Propagate DefaultProp(DefaultSC) {One = 8640.0};
+Propagate DefaultProp(DefaultSC) {myStr = 8640.0};
+Propagate DefaultProp(DefaultSC) {ArrayZero(0,0) = 8640.0};
+
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = DoesNotExist};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = One};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = myStr};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = ArrayZero(0,0)};
+
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = };
+Propagate DefaultProp(DefaultSC) {DefaultSC.DoesNotExist = 8640.0};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs 8640.0};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = DoesNotExist};
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Propagate DefaultProp(DefaultSC), {DefaultSC.ElapsedSecs = 8640.0};
+Propagate DefaultProp(DefaultSC) {DefaultSC.EarthMJ2000Eq.Z = One};                  %  Test variable on RHS
+Propagate DefaultProp(DefaultSC) {DefaultSC.EarthMJ2000Eq.Z = 1};                    %  Test Number on RHS
+Propagate DefaultProp(DefaultSC) {DefaultSC.EarthMJ2000Eq.X = SC2.EarthMJ2000Eq.Y};  %  Test s/c parameter on RHS
+Propagate DefaultProp(DefaultSC) {DefaultSC.EarthMJ2000Eq.Z = ArrayZero(2,2)};       %  Test Array Element on RHS
+Propagate DefaultProp(DefaultSC) {DefaultSC.EarthMJ2000Eq.Z = DoesNotExist};         % Test variable on RHS
+Propagate DefaultProp(DefaultSC) {DefaultSC.EarthMJ2000Eq.Z = };                     % Test variable on RHS
+
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0, DefaultSC.MA = 90};
+Propagate DefaultProp(DefaultSC, SC1) {DefaultSC.ElapsedSecs = 8640.0, DefaultSC.MA = 90};
+
+Propagate DefaultProp(DefaultSC {DoesNotExist});
+Propagate DefaultProp(DefaultSC {DefaultSC.ElapsedSecs});
+Propagate DefaultProp(DefaultSC {DefaultSC.ElapsedSecs = });
+Propagate DefaultProp(DefaultSC {DefaultSC.DoesNotExist = 8640.0});
+Propagate DefaultProp(DefaultSC {DefaultSC.ElapsedSecs 8640.0});
+Propagate DefaultProp(DefaultSC {DefaultSC.ElapsedSecs = DoesNotExist});
+Propagate DefaultProp(DefaultSC {DefaultSC.ElapsedSecs = 8640.0});
+Propagate DefaultProp(DefaultSC, {DefaultSC.ElapsedSecs = 8640.0});
+Propagate DefaultProp(DefaultSC {DefaultSC.EarthMJ2000Eq.Z = One});                  %  Test variable on RHS
+Propagate DefaultProp(DefaultSC {DefaultSC.EarthMJ2000Eq.Z = 1});                    %  Test Number on RHS
+Propagate DefaultProp(DefaultSC {DefaultSC.EarthMJ2000Eq.X = SC2.EarthMJ2000Eq.Y});  %  Test s/c parameter on RHS
+Propagate DefaultProp(DefaultSC {DefaultSC.EarthMJ2000Eq.Z = ArrayZero(2,2))};       %  Test Array Element on RHS
+Propagate DefaultProp(DefaultSC {DefaultSC.EarthMJ2000Eq.Z = DoesNotExist});         % Test variable on RHS
+Propagate DefaultProp(DefaultSC {DefaultSC.EarthMJ2000Eq.Z = });                     % Test variable on RHS
+
+Propagate DefaultProp(DefaultSC {DefaultSC.ElapsedSecs = 8640.0, DefaultSC.MA = 90});
+Propagate DefaultProp(DefaultSC, SC1 {DefaultSC.ElapsedSecs = 8640.0, DefaultSC.MA = 90});
+Propagate DefaultProp(DefaultSC, SC1, {DefaultSC.ElapsedSecs = 8640.0, DefaultSC.MA = 90});

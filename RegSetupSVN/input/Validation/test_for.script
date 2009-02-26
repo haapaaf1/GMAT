@@ -1,0 +1,196 @@
+Create Spacecraft DefaultSC;
+
+Create ForceModel DefaultProp_ForceModel;
+Create Propagator DefaultProp;
+
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+
+Create String testString;
+GMAT testString.Expression = TEST;
+
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 1;
+GMAT testArray(1, 2) = 2;
+GMAT testArray(2, 1) = 3;
+GMAT testArray(2, 2) = 4;
+
+% Simple For statement
+For DoesNotExist = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = DoesNotExist:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:DoesNotExist;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+%EndFor;
+
+FOR I = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+ENDFOR;
+
+%   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+%EndFor;
+%
+%For I = 1:10;
+%   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+
+% Variable
+For I = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For testVar = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For testString = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For testArray = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For testArray(1, 1) = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For 1 = 2::10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For 1.0 = 2::10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For 2::10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For = 2::10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+
+% Start
+For I = testVar:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = testArray:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = testArray(2, 2):10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = testString:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1.2:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1.2:10.5;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+% End
+For I = 1:testVar;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:testArray;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:testArray(2, 2);
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:testString;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+% Expanded For statement
+For I = 1:DoesNotExist:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:2:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:1.5:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:testVar:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:testArray:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:testArray(2, 2):10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+For I = 1:testString:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndFor;
+
+%Nested
+For I = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+   For I = 1::10;
+      Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+   EndFor;
+EndFor;
+
+%double end
+For I = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+   EndFor;
+EndFor;
+
+%no end
+For I = 1:10;
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};

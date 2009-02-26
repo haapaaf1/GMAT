@@ -1,0 +1,149 @@
+
+%---------------------------------------------------------------
+%  These objects are for use in commands. They are necessary 
+%  to test when resources are not used correctly in commands.
+%---------------------------------------------------------------
+Create Spacecraft Sat WrongSat;
+Create Thruster Thruster WrongThruster;
+Create FuelTank WrongTank;
+Create Formation Formation WrongFormation
+Create ImpulsiveBurn ImpBurn WrongImpBurn
+Create FiniteBurn FiniteBurn WrongFiniteBurn
+Create Propagator Prop WrongProp
+Create OpenGLPlot OpenGL WrongOpenGL
+%Create XYPlot XYPlot WrongXYPlot
+Create XYPlot XYPlot1 WrongXYPlot
+XYPlot1.IndVar = Sat.X;
+WrongXYPlot.IndVar = WrongSat.X;
+Create ReportFile ReportFile WrongReportFile
+Create Variable Var WrongVar
+Create Array Array[3,3] WrongArray[3,3]
+Create CoordinateSystem CoordSys WrongCoordSys;
+
+%***************************************************************
+%--------------------------------------------------------------
+%-----------  Command Exceptions !!!
+%--------------------------------------------------------------
+%***************************************************************
+
+
+%***************************************************************
+%--------------------------------------------------------------
+%-----------  Interpreter Exceptions !!!
+%--------------------------------------------------------------
+%***************************************************************
+For Var = WrongArray:2:3
+EndFor
+For Var = 1:WrongArray:3
+EndFor
+For Var = 1:2:WrongArray
+EndFor
+For Var = WrongArray:2
+EndFor
+For Var = 1:WrongArray
+EndFor
+For Var = WrongArray:WrongArray
+EndFor;
+
+
+%---------------------------------------
+%  Test for use of nonexistent resources
+%---------------------------------------
+For Var = DNE:2:5
+EndFor;
+For Var = 1:DNE:10;
+EndFor;
+For Var = Sat.X:Sat.Y:DNE
+EndFor;
+For Var = 1:DNE
+EndFor
+For Var = DNE:2
+EndFor
+For Var = DNE:DNE
+EndFor;
+
+%---------------------------------------
+%  Test for improper use of parameters
+%---------------------------------------
+
+%---- Improper use of allowed parameters
+
+
+%---- Disallowed parameters:  Arrays are not allowed 
+%                             in if statements.
+%********* Command Exceptions ***********
+%///  For Var = WrongArray:2:3
+%///  EndFor
+%///  For Var = 1:WrongArray:3
+%///  EndFor
+%///  For Var = 1:2:WrongArray
+%///  EndFor
+%///  For Var = WrongArray:2
+%///  EndFor
+%///  For Var = 1:WrongArray
+%///  EndFor
+%///  For Var = WrongArray:WrongArray
+%///  EndFor;
+
+%---------------------------------------
+%  Test for improper use of resources
+%---------------------------------------
+For Sat = 1:2:3;  % this one is caught properly
+EndFor
+For Var = Sat:2:3;
+EndFor
+For Var = 1:Sat:3;
+EndFor
+For Var = 1:2:Sat;
+EndFor
+For Var = Prop:Prop
+EndFor
+
+%---------------------------------------
+%  Test for missing elements
+%---------------------------------------
+
+For Var 1:3
+EndFor
+For = 1:2:3
+EndFor
+%  
+For Var = 1:2:
+EndFor
+%
+For Var = 123
+EndFor
+%
+For Var = 1 2;
+EndFor
+For Var = 1:2 3;
+EndFor
+
+%-------------------------------------------------
+%  Test for improper use of conditional operators
+%-------------------------------------------------
+% 
+For Var = 1 to 5
+EndFor
+
+%---------------------------------------------------
+%  Test for improper use of brackets and parenthesis
+%---------------------------------------------------
+For (Var = 1:2:3)
+EndFor
+For [Var = 1:2:3]
+EndFor
+For {Var = 1:2:3}
+EndFor
+For Var = 1:2:3)
+EndFor
+For (Var = 1:2:3;
+EndFor
+
+%----------------------------------------------------------
+%  Test for erroneous text after the statement
+%----------------------------------------------------------
+For Var = 1:2:30   other-stuff-that-should-not-be-here;
+EndFor;
+For Var = 1:2:30   % but inline comments should be OK
+EndFor;

@@ -1,0 +1,29 @@
+%----------------------------------------
+%---------- Begin Finite Burn Components
+%----------------------------------------
+
+Create Spacecraft DefaultSC, DefaultSC2;
+Create ImpulsiveBurn DefaultIB;
+Create FiniteBurn DefaultFB;
+Create Formation DefaultFormation;
+
+
+BeginFiniteBurn ;
+BeginFiniteBurn DoesNotExist;
+BeginFiniteBurn DoesNotExist(DefaultSC);
+BeginFiniteBurn DefaultFB;
+BeginFiniteBurn (DefaultFB);
+BeginFiniteBurn {DefaultFB};
+BeginFiniteBurn (DefaultSC);
+BeginFiniteBurn {DefaultSC};
+BeginFiniteBurn DefaultFB(DoesNotExist);
+BeginFiniteBurn DefaultFB(DefaultFormation);
+BeginFiniteBurn DefaultFB(DefaultSC);
+BeginFiniteBurn DefaultFB DefaultSC);
+BeginFiniteBurn DefaultFB(DefaultSC;
+BeginFiniteBurn DefaultFB{DefaultSC};
+BeginFiniteBurn DefaultFB(DefaultSC,DefaultSC2);
+BeginFiniteBurn DefaultFB{DefaultSC,DefaultSC2};
+BeginFiniteBurn DefaulIB(DefaultSC);
+beginFiniteBurn DefaultFB(DoesNotExist);
+

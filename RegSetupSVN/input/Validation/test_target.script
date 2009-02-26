@@ -1,0 +1,87 @@
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+
+Create String testString;
+GMAT testString.Expression = TEST;
+
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 1;
+GMAT testArray(1, 2) = 2;
+GMAT testArray(2, 1) = 2;
+GMAT testArray(2, 2) = 4;
+
+Create DifferentialCorrector DC1;
+Target DC1;
+EndTarget;
+
+Target DoesNotExist;
+EndTarget;
+
+Create DifferentialCorrector DC2;
+Target DC2
+   Vary DC2(DefaultIB.V = 0, {Pert = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Maneuver DefaultIB(DefaultSC);
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+   Achieve DC2(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = 0.1});
+EndTarget
+
+Create ImpulsiveBurn DefaultIB;
+Create Spacecraft DefaultSC;
+Create Propagator DefaultProp;
+Target DC1
+   Vary DC1(DefaultIB.V = 0, {Pert = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Maneuver DefaultIB(DefaultSC);
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+   Achieve DC1(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = 0.1});
+EndTarget
+
+% Target variations that should pass??
+Target DC1
+EndTarget;
+
+Target DC1
+EndTarget
+
+Target 1
+EndTarget
+
+Target 1.0
+EndTarget
+
+Target testVar
+EndTarget
+
+Target testString
+EndTarget
+
+Target testArray(0,0)
+EndTarget
+
+Target DoesNotExist
+EndTarget
+
+Target DC1
+   Target DC1
+   EndTarget
+EndTarget
+
+Target DC1
+   Target DC2
+   EndTarget
+EndTarget
+
+% Target variations that should fail!
+TARGET DC1;  % creates a Call Function
+EndTarget;
+
+Target DC1;  % creates Target without End Target
+ENDTARGET;
+
+Target;      % creates target with DC1 solver
+EndTarget;
+
+DC1;
+EndTarget;
+
+Target DC1;  % creates Target without End Target

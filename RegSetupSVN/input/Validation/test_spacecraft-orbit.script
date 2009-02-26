@@ -1,0 +1,184 @@
+% --------------------------------------------
+% Test validation scripts for Spacecraft-Orbit
+% --------------------------------------------
+Create Spacecraft DefaultSC;
+
+% -----------------
+% Unknown parameter
+% -----------------
+GMAT DefaultSC.DoesNotExist = 1;
+
+% ----------
+% State Type
+% ----------
+GMAT DefaultSC.DisplayStateType = DoesNotExist;	
+GMAT DefaultSC.DisplayStateType = 1;	
+GMAT DefaultSC.DisplayStateType = Cartesian;
+
+% -----------------
+% Coordinate System
+% -----------------
+Create CoordinateSystem MyCoordSys;
+GMAT DefaultSC.CoordinateSystem = DoesNotExist;		
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.CoordinateSystem = MyCoordSys;
+
+% -----------
+% Date Format
+% -----------
+GMAT DefaultSC.DateFormat = DoesNotExist;
+GMAT DefaultSC.DateFormat = 1;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.DateFormat = UTCGregorian;
+
+% ----------
+% Date Epoch
+% ----------
+GMAT DefaultSC.Epoch = DoesNotExist;
+GMAT DefaultSC.Epoch = -1.0;
+GMAT DefaultSC.Epoch = 0.0;
+GMAT DefaultSC.Epoch = 1.0;
+GMAT DefaultSC.Epoch = 01 Jan 2000 11:59:28.000;
+
+% ---------
+% Cartesian
+% ---------
+GMAT DefaultSC.X = DoesNotExist;
+GMAT DefaultSC.X = -1.01;
+GMAT DefaultSC.X = 1.01;
+
+GMAT DefaultSC.Y = DoesNotExist;
+GMAT DefaultSC.Y = -1.01;
+GMAT DefaultSC.Y = 1.01;
+
+GMAT DefaultSC.Z = DoesNotExist;
+GMAT DefaultSC.Z = -1.01;
+GMAT DefaultSC.Z = 1.01;
+
+GMAT DefaultSC.VX = DoesNotExist;
+GMAT DefaultSC.VX = -1.01;
+GMAT DefaultSC.VX = 1.01;
+
+GMAT DefaultSC.VY = DoesNotExist;
+GMAT DefaultSC.VY = -1.01;
+GMAT DefaultSC.VY = 1.01;
+
+GMAT DefaultSC.VZ = DoesNotExist;
+GMAT DefaultSC.VZ = -1.01;
+GMAT DefaultSC.VZ = 1.01;
+
+% ---------
+% Keplerian
+% ---------
+GMAT DefaultSC.DisplayStateType = Keplerian;
+GMAT DefaultSC.SMA = DoesNotExist;
+GMAT DefaultSC.SMA = -1.01;
+GMAT DefaultSC.SMA = 1.01;
+
+GMAT DefaultSC.ECC = DoesNotExist;
+GMAT DefaultSC.ECC = -1.01;
+GMAT DefaultSC.ECC = 1.01;
+
+GMAT DefaultSC.INC = DoesNotExist;
+GMAT DefaultSC.INC = -1.01;
+GMAT DefaultSC.INC = 1.01;
+
+GMAT DefaultSC.RAAN = DoesNotExist;
+GMAT DefaultSC.RAAN = -1.01;
+GMAT DefaultSC.RAAN = 1.01;
+
+GMAT DefaultSC.AOP = DoesNotExist;
+GMAT DefaultSC.AOP = -1.01;
+GMAT DefaultSC.AOP = 1.01;
+
+GMAT DefaultSC.TA = DoesNotExist;
+GMAT DefaultSC.TA = -1.01;
+GMAT DefaultSC.TA = 1.01;
+
+GMAT DefaultSC.MA = DoesNotExist;
+GMAT DefaultSC.MA = -1.01;
+GMAT DefaultSC.MA = 1.01;
+
+GMAT DefaultSC.EA = DoesNotExist;
+GMAT DefaultSC.EA = -1.01;
+GMAT DefaultSC.EA = 1.01;
+
+GMAT DefaultSC.HA = DoesNotExist;
+GMAT DefaultSC.HA = -1.01;
+GMAT DefaultSC.HA = 1.01;
+
+% ------------------
+% Modified Keplerian
+% ------------------
+GMAT DefaultSC.DisplayStateType = ModifiedKeplerian;
+GMAT DefaultSC.RadPer = DoesNotExist;
+GMAT DefaultSC.RadPer = -1.01;
+GMAT DefaultSC.RadPer = 1.01;
+
+GMAT DefaultSC.RadApo = DoesNotExist;
+GMAT DefaultSC.RadApo = -1.01;
+GMAT DefaultSC.RadApo = 1.01;
+
+% ---------
+% Spherical
+% ---------
+GMAT DefaultSC.DisplayStateType = SphericalAZFPA;
+GMAT DefaultSC.RMAG = DoesNotExist;
+GMAT DefaultSC.RMAG = -1.01;
+GMAT DefaultSC.RMAG = 1.01;
+
+GMAT DefaultSC.RA = DoesNotExist;
+GMAT DefaultSC.RA = -1.01;
+GMAT DefaultSC.RA = 1.01;
+
+GMAT DefaultSC.DEC = DoesNotExist;
+GMAT DefaultSC.DEC = -1.01;
+GMAT DefaultSC.DEC = 1.01;
+
+GMAT DefaultSC.VMAG = DoesNotExist;
+GMAT DefaultSC.VMAG = -1.01;
+GMAT DefaultSC.VMAG = 1.01;
+
+GMAT DefaultSC.AZI = DoesNotExist;
+GMAT DefaultSC.AZI = -1.01;
+GMAT DefaultSC.AZI = 1.01;
+
+GMAT DefaultSC.FPA = DoesNotExist;
+GMAT DefaultSC.FPA = -1.01;
+GMAT DefaultSC.FPA = 1.01;
+
+% ---------
+% Spherical
+% ---------
+GMAT DefaultSC.DisplayStateType = SphericalRADEC;
+GMAT DefaultSC.RAV = DoesNotExist;
+GMAT DefaultSC.RAV = -1.01;
+GMAT DefaultSC.RAV = 1.01;
+
+GMAT DefaultSC.DECV = DoesNotExist;
+GMAT DefaultSC.DECV = -1.01;
+GMAT DefaultSC.DECV = 1.01;
+
+% -----------
+% Equinoctial
+% -----------
+%GMAT DefaultSC.DisplayStateType = Equinoctial;
+%GMAT DefaultSC.h = DoesNotExist;
+%GMAT DefaultSC.h = -1.01;
+%GMAT DefaultSC.h = 1.01;
+%
+%GMAT DefaultSC.k = DoesNotExist;
+%GMAT DefaultSC.k = -1.01;
+%GMAT DefaultSC.k = 1.01;
+%
+%GMAT DefaultSC.p = DoesNotExist;
+%GMAT DefaultSC.p = -1.01;
+%GMAT DefaultSC.p = 1.01;
+%
+%GMAT DefaultSC.q = DoesNotExist;
+%GMAT DefaultSC.q = -1.01;
+%GMAT DefaultSC.q = 1.01;
+%
+%GMAT DefaultSC.MLONG = DoesNotExist;
+%GMAT DefaultSC.MLONG = -1.01;
+%GMAT DefaultSC.MLONG = 1.01;

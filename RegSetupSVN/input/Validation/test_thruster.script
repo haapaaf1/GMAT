@@ -1,0 +1,222 @@
+% ------------------------------------
+% Test validation scripts for Thruster
+% ------------------------------------
+Create Thruster Thruster1;
+
+Create Variable testVar;
+GMAT testVar.Expression = -3.8;
+Create String testString;
+GMAT testString.Expression = TEST;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4;
+
+% -----------------
+% Unknown parameter
+% -----------------
+GMAT Thruster1.DoesNotExist = 1;
+
+% -----------------
+% Coordinate System
+% -----------------
+Create CoordinateSystem MyCoordSys;
+GMAT Thruster1.CoordinateSystem = DoesNotExist;
+GMAT Thruster1.CoordinateSystem = MJ2000EarthEq;
+GMAT Thruster1.CoordinateSystem = MyCoordSys;
+GMAT Thruster1.CoordinateSystem = 1;
+GMAT Thruster1.CoordinateSystem = 1.0;
+GMAT Thruster1.CoordinateSystem = testVar;
+GMAT Thruster1.CoordinateSystem = testString;
+GMAT Thruster1.CoordinateSystem = testArray(1,1);
+
+% ----
+% Axis
+% ----
+GMAT Thruster1.Axis = DoesNotExist;
+GMAT Thruster1.Axis = VNB;
+GMAT Thruster1.Axis = 1;
+GMAT Thruster1.Axis = testVar;
+GMAT Thruster1.Axis = testString;
+GMAT Thruster1.Axis = testArray(1,1);
+
+% ------
+% Origin
+% ------
+GMAT Thruster1.Origin = DoesNotExist;
+GMAT Thruster1.Origin = Earth;
+GMAT Thruster1.Origin = 1;
+GMAT Thruster1.Origin = 1.0;
+GMAT Thruster1.Origin = testVar;
+GMAT Thruster1.Origin = testString;
+GMAT Thruster1.Origin = testArray(1,1);
+
+% -----------
+% X-Direction
+% -----------
+GMAT Thruster1.Element1 = DoesNotExist;
+GMAT Thruster1.Element1 = -1.01;
+GMAT Thruster1.Element1 = 1.01;
+GMAT Thruster1.Element1 = 1;
+GMAT Thruster1.Element1 = testVar;
+GMAT Thruster1.Element1 = testString;
+GMAT Thruster1.Element1 = testArray(1,1);
+
+% -----------
+% Y-Direction
+% -----------
+GMAT Thruster1.Element2 = DoesNotExist;
+GMAT Thruster1.Element2 = -1.01;
+GMAT Thruster1.Element2 = 1.01;
+GMAT FuelTank1.FuelMass = 1;
+GMAT FuelTank1.FuelMass = testVar;
+GMAT FuelTank1.FuelMass = testString;
+GMAT FuelTank1.FuelMass = testArray(1,1);
+
+% -----------
+% Z-Direction
+% -----------
+GMAT Thruster1.Element3 = DoesNotExist;
+GMAT Thruster1.Element3 = -1.01;
+GMAT Thruster1.Element3 = 1.01;
+GMAT Thruster1.Element3 = 1;
+GMAT Thruster1.Element3 = testVar;
+GMAT Thruster1.Element3 = testString;
+GMAT Thruster1.Element3 = testArray(1,1);
+
+% -------------------
+% Thrust Scale Factor
+% -------------------
+%GMAT Thruster1.ThrustScaleFactor = DoesNotExist;
+%GMAT Thruster1.ThrustScaleFactor = -1.0;
+GMAT Thruster1.ThrustScaleFactor = 0.0;
+GMAT Thruster1.ThrustScaleFactor = 1.0;
+GMAT FuelTank1.FuelMass = 1;
+GMAT FuelTank1.FuelMass = testVar;
+GMAT FuelTank1.FuelMass = testString;
+GMAT FuelTank1.FuelMass = testArray(1,1);
+
+% ---------------------
+% Thruster Coefficients
+% ---------------------
+GMAT Thruster1.C1 = DoesNotExist;
+GMAT Thruster1.C1 = -1.01;
+GMAT Thruster1.C1 = 1.01;
+GMAT Thruster1.C1 = 1;
+GMAT Thruster1.C1 = testVar;
+GMAT Thruster1.C1 = testString;
+GMAT Thruster1.C1 = testArray(1,1);
+
+GMAT Thruster1.C2 = DoesNotExist;
+GMAT Thruster1.C2 = -1.01;
+GMAT Thruster1.C2 = 1.01;
+
+GMAT Thruster1.C3 = DoesNotExist;
+GMAT Thruster1.C3 = -1.01;
+GMAT Thruster1.C3 = 1.01;
+
+GMAT Thruster1.C4 = DoesNotExist;
+GMAT Thruster1.C4 = -1.01;
+GMAT Thruster1.C4 = 1.01;
+
+GMAT Thruster1.C5 = DoesNotExist;
+GMAT Thruster1.C5 = -1.01;
+GMAT Thruster1.C5 = 1.01;
+
+GMAT Thruster1.C6 = DoesNotExist;
+GMAT Thruster1.C6 = -1.01;
+GMAT Thruster1.C6 = 1.01;
+
+GMAT Thruster1.C7 = DoesNotExist;
+GMAT Thruster1.C7 = -1.01;
+GMAT Thruster1.C7 = 1.01;
+
+GMAT Thruster1.C8 = DoesNotExist;
+GMAT Thruster1.C8 = -1.01;
+GMAT Thruster1.C8 = 1.01;
+
+GMAT Thruster1.C9 = DoesNotExist;
+GMAT Thruster1.C9 = -1.01;
+GMAT Thruster1.C9 = 1.01;
+
+GMAT Thruster1.C10 = DoesNotExist;
+GMAT Thruster1.C10 = -1.01;
+GMAT Thruster1.C10 = 1.01;
+
+GMAT Thruster1.C11 = DoesNotExist;
+GMAT Thruster1.C11 = -1.01;
+GMAT Thruster1.C11 = 1.01;
+
+GMAT Thruster1.C12 = DoesNotExist;
+GMAT Thruster1.C12 = -1.01;
+GMAT Thruster1.C12 = 1.01;
+
+GMAT Thruster1.C13 = DoesNotExist;
+GMAT Thruster1.C13 = -1.01;
+GMAT Thruster1.C13 = 1.01;
+
+GMAT Thruster1.C14 = DoesNotExist;
+GMAT Thruster1.C14 = -1.01;
+GMAT Thruster1.C14 = 1.01;
+
+% ---------------------
+% Impulse Coefficients
+% ---------------------
+GMAT Thruster1.K1 = DoesNotExist;
+GMAT Thruster1.K1 = -1.01;
+GMAT Thruster1.K1 = 1.01;
+GMAT Thruster1.K1 = 1;
+GMAT Thruster1.K1 = testVar;
+GMAT Thruster1.K1 = testString;
+GMAT Thruster1.K1 = testArray(1,1);
+
+GMAT Thruster1.K2 = DoesNotExist;
+GMAT Thruster1.K2 = -1.01;
+GMAT Thruster1.K2 = 1.01;
+
+GMAT Thruster1.K3 = DoesNotExist;
+GMAT Thruster1.K3 = -1.01;
+GMAT Thruster1.K3 = 1.01;
+
+GMAT Thruster1.K4 = DoesNotExist;
+GMAT Thruster1.K4 = -1.01;
+GMAT Thruster1.K4 = 1.01;
+
+GMAT Thruster1.K5 = DoesNotExist;
+GMAT Thruster1.K5 = -1.01;
+GMAT Thruster1.K5 = 1.01;
+
+GMAT Thruster1.K6 = DoesNotExist;
+GMAT Thruster1.K6 = -1.01;
+GMAT Thruster1.K6 = 1.01;
+
+GMAT Thruster1.K7 = DoesNotExist;
+GMAT Thruster1.K7 = -1.01;
+GMAT Thruster1.K7 = 1.01;
+
+GMAT Thruster1.K8 = DoesNotExist;
+GMAT Thruster1.K8 = -1.01;
+GMAT Thruster1.K8 = 1.01;
+
+GMAT Thruster1.K9 = DoesNotExist;
+GMAT Thruster1.K9 = -1.01;
+GMAT Thruster1.K9 = 1.01;
+
+GMAT Thruster1.K10 = DoesNotExist;
+GMAT Thruster1.K10 = -1.01;
+GMAT Thruster1.K10 = 1.01;
+
+GMAT Thruster1.K11 = DoesNotExist;
+GMAT Thruster1.K11 = -1.01;
+GMAT Thruster1.K11 = 1.01;
+
+GMAT Thruster1.K12 = DoesNotExist;
+GMAT Thruster1.K12 = -1.01;
+GMAT Thruster1.K12 = 1.01;
+
+GMAT Thruster1.K13 = DoesNotExist;
+GMAT Thruster1.K13 = -1.01;
+GMAT Thruster1.K13 = 1.01;
+
+GMAT Thruster1.K14 = DoesNotExist;
+GMAT Thruster1.K14 = -1.01;
+GMAT Thruster1.K14 = 1.01;

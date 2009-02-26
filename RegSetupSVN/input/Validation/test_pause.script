@@ -1,0 +1,19 @@
+Create Spacecraft DefaultSC;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Pause;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+pause;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+PAUSE;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Pause DefaultSC;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Pause Nonexistant;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Pauses Nonexistant;

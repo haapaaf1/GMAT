@@ -1,0 +1,88 @@
+% ------------------------------------------
+% Test validation scripts for Impulsive Burn
+% ------------------------------------------
+Create ImpulsiveBurn DefaultIB;
+%Create ImpulsiveBurn DefaultIB;
+
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+Create String testString;
+GMAT testString.Expression = TEST;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT DefaultIB.DoesNotExist = 1;
+
+% ------
+% Origin
+% ------
+GMAT DefaultIB.Origin = DoesNotExist;
+GMAT DefaultIB.Origin = 1;
+GMAT DefaultIB.Origin = 1.0;
+%GMAT DefaultIB.Origin = testVar;
+GMAT DefaultIB.Origin = testString;
+%GMAT DefaultIB.Origin = testArray(1,1);
+%GMAT DefaultIB.Origin = Earth;
+%GMAT DefaultIB.Origin = Earth;
+%
+%% ----
+%% Axes
+%% ----
+%GMAT DefaultIB.Axes = DoesNotExist;
+%GMAT DefaultIB.Axes = 1;
+%GMAT DefaultIB.Axes = 1.0;
+%GMAT DefaultIB.Axes = testVar;
+GMAT DefaultIB.Axes = testString;
+GMAT DefaultIB.Axes = testArray(1,1);
+%GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.Origin = Earth;
+%
+%% -------------
+%% Vector Format
+%% -------------
+%GMAT DefaultIB.VectorFormat = DoesNotExist;
+%GMAT DefaultIB.VectorFormat = 1;
+%GMAT DefaultIB.VectorFormat = 1.0;
+GMAT DefaultIB.VectorFormat = testVar;
+GMAT DefaultIB.VectorFormat = testString;
+GMAT DefaultIB.VectorFormat = testArray(1,1);
+%GMAT DefaultIB.VectorFormat = Cartesian;
+%GMAT DefaultIB.VectorFormat = Cartesian;
+%
+%% ---------
+%% Element 1
+%% ---------
+%GMAT DefaultIB.Element1 = DoesNotExist;
+GMAT DefaultIB.Element1 = -1.01;
+GMAT DefaultIB.Element1 = 1.01;
+GMAT DefaultIB.Element1 = 1;
+GMAT DefaultIB.Element1 = testVar;
+GMAT DefaultIB.Element1 = testString;
+GMAT DefaultIB.Element1 = testArray(1,1);
+%
+%% ---------
+%% Element 2
+%% ---------
+%GMAT DefaultIB.Element2 = DoesNotExist;
+%GMAT DefaultIB.Element2 = -1.01;
+%GMAT DefaultIB.Element2 = 1.01;
+%GMAT DefaultIB.Element2 = 1;
+%GMAT DefaultIB.Element2 = testVar;
+%GMAT DefaultIB.Element2 = testString;
+%GMAT DefaultIB.Element2 = testArray(1,1);
+%
+%% ---------
+%% Element 3
+%% ---------
+%GMAT DefaultIB.Element3 = DoesNotExist;
+%GMAT DefaultIB.Element3 = -1.01;
+%GMAT DefaultIB.Element3 = 1.01;
+%GMAT DefaultIB.Element3 = 1;
+%GMAT DefaultIB.Element3 = testVar;
+%GMAT DefaultIB.Element3 = testString;
+%GMAT DefaultIB.Element3 = testArray(1,1);
+%

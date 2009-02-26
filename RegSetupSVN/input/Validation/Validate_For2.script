@@ -1,0 +1,36 @@
+
+%---------------------------------------------------------------
+%  These objects are for use in commands. They are necessary 
+%  to test when resources are not used correctly in commands.
+%---------------------------------------------------------------
+Create Spacecraft Sat WrongSat;
+Create Thruster Thruster WrongThruster;
+Create FuelTank WrongTank;
+Create Formation Formation WrongFormation
+Create ImpulsiveBurn ImpBurn WrongImpBurn
+Create FiniteBurn FiniteBurn WrongFiniteBurn
+Create Propagator Prop WrongProp
+Create OpenGLPlot OpenGL WrongOpenGL
+%Create XYPlot XYPlot WrongXYPlot
+Create XYPlot XYPlot1 WrongXYPlot
+XYPlot1.IndVar = Sat.X;
+WrongXYPlot.IndVar = WrongSat.X;
+Create ReportFile ReportFile WrongReportFile
+Create Variable Var WrongVar
+Create Array Array[3,3] WrongArray[3,3]
+Create CoordinateSystem CoordSys WrongCoordSys;
+
+
+%----------------------------------------------------------
+%  Test for improper use of closing branch command statement
+%----------------------------------------------------------
+%%%% Each of these must be tested individually - these are all OK
+%For Var = 1:2:3
+%For Var = 1:3;
+%End
+% 
+%For Var = 1:3;
+%EndIf
+%  ... and for this one
+%For Var = 1:6;
+%EndWhile

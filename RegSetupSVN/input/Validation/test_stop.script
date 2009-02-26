@@ -1,0 +1,19 @@
+Create Spacecraft DefaultSC;
+Create Propagator DefaultProp;
+Create ImpulsiveBurn DefaultIB;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Stop;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+stop;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+STOP;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Stop DefaultSC;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Stop Nonexistant;

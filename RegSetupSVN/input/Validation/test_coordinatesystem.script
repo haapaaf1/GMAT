@@ -1,0 +1,223 @@
+% --------------------------------------------
+% Test validation scripts for Coordinate System
+% --------------------------------------------
+Create CoordinateSystem Test;
+Create CoordinateSystem Test;
+
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar.Expression = -0.5;
+Create String testString;
+GMAT testString.Expression = Earth;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = -10.0;
+
+% -----------------
+% Unknown parameter
+% -----------------
+GMAT Test.DoesNotExist = 1;
+
+% ------
+% Origin
+% ------
+GMAT Test.Origin = 1;
+GMAT Test.Origin = 1.0;
+GMAT Test.Origin = testVar;
+GMAT Test.Origin = testString;
+GMAT Test.Origin = testArray(1,1);
+GMAT Test.Origin = testSc.A1ModJulian;
+GMAT Test.Origin = DoesNotExist;
+GMAT Test.Origin = {Sun};
+GMAT Test.Origin = Mars;
+
+% ---------------------------------------- 
+% MJ2000Eq and MJ2000Ec axes no parameters
+% ---------------------------------------- 
+Create CoordinateSystem Test1;
+GMAT Test1.Origin = Venus;
+GMAT Test1.Axes = MJ2000Eq;
+GMAT Test1.Axes = MJ2000Ec;
+GMAT Test1.Primary = Earth;
+GMAT Test1.Secondary = Luna;
+GMAT Test1.Epoch = 21545.0;
+GMAT Test1.XAxis = -N;
+GMAT Test1.YAxis = -N;
+GMAT Test1.ZAxis = -N;
+GMAT Test1.UpdateInterval = 60.0;
+GMAT Test1.OverrideOriginInterval = false;
+
+
+
+%% ----
+%% Axes
+%% ----
+%GMAT Test.Axes = 1;
+%GMAT Test.Axes = 1.0;
+%GMAT Test.Axes = testVar;
+%GMAT Test.Axes = testString;
+%GMAT Test.Axes = testArray(1,1);
+%GMAT Test.Axes = testSc.A1ModJulian;
+%GMAT Test.Axes = DoesNotExist;
+%GMAT Test.Axes = {ObjectReferenced};
+%GMAT Test.Axes = MJ2000Eq;
+%GMAT Test.Axes = MJ2000Ec;
+%
+%% -------
+%% Primary
+%% -------
+%GMAT Test.Axes = TOEEq;
+%GMAT Test.Axes = TOEEc;
+%GMAT Test.Primary = 1;
+%GMAT Test.Primary = 1.0;
+%GMAT Test.Primary = testVar;
+%GMAT Test.Primary = testString;
+%GMAT Test.Primary = testArray(1,1);
+%%GMAT Test.Primary = testSc.A1ModJulian;
+%GMAT Test.Primary = DoesNotExist;
+%GMAT Test.Primary = {Earth};
+%GMAT Test.Primary = Venus;
+%GMAT Test.Primary = L1;
+%GMAT Test.Primary = SC1;
+%GMAT Test.Primary = Earth;
+%
+%% ---------
+%% Secondary
+%% ---------
+%GMAT Test.Secondary = 1;
+%GMAT Test.Secondary = 1.0;
+%GMAT Test.Secondary = testVar;
+%GMAT Test.Secondary = testString;
+%%GMAT Test.Secondary = testSc.A1ModJulian;
+%GMAT Test.Secondary = testArray(1,1);
+%GMAT Test.Secondary = DoesNotExist;
+%GMAT Test.Secondary = {Luna};
+%GMAT Test.Secondary = Venus;
+%GMAT Test.Secondary = L1;
+%GMAT Test.Secondary = SC1;
+%GMAT Test.Secondary = Luna;
+%
+%% -----
+%% Epoch
+%% -----
+%GMAT Test.Epoch = 1;
+%GMAT Test.Epoch = 1.0;
+%GMAT Test.Epoch = testVar;
+%GMAT Test.Epoch = testString;
+%%GMAT Test.Epoch = testSc.A1ModJulian;
+%GMAT Test.Epoch = testArray(1,1);
+%GMAT Test.Epoch = DoesNotExist;
+%GMAT Test.Epoch = -21545.0;
+%GMAT Test.Epoch = 0.0;
+%GMAT Test.Epoch = 21545.0;
+%
+%% ------
+%% X Axis
+%% ------
+%GMAT Test.XAxis = 1;
+%GMAT Test.XAxis = 1.0;
+%GMAT Test.XAxis = testVar;
+%GMAT Test.XAxis = testString;
+%%GMAT Test.XAxis = testSc.A1ModJulian;
+%GMAT Test.XAxis = testArray(1,1);
+%GMAT Test.XAxis = DoesNotExist;
+%GMAT Test.XAxis = {R};
+%GMAT Test.XAxis = r;
+%GMAT Test.XAxis = -r;
+%GMAT Test.XAxis = v;
+%GMAT Test.XAxis = -v;
+%GMAT Test.XAxis = n;
+%GMAT Test.XAxis = -n;
+%GMAT Test.XAxis = R;
+%GMAT Test.XAxis = -R;
+%GMAT Test.XAxis = V;
+%GMAT Test.XAxis = -V;
+%GMAT Test.XAxis = N;
+%GMAT Test.XAxis = -N;
+%
+%% ------
+%% Y Axis
+%% ------
+%GMAT Test.YAxis = 1;
+%GMAT Test.YAxis = 1.0;
+%GMAT Test.YAxis = testVar;
+%GMAT Test.YAxis = testString;
+%%GMAT Test.YAxis = testSc.A1ModJulian;
+%GMAT Test.YAxis = testArray(1,1);
+%GMAT Test.YAxis = DoesNotExist;
+%GMAT Test.YAxis = {R};
+%GMAT Test.XAxis = r;
+%GMAT Test.XAxis = -r;
+%GMAT Test.XAxis = v;
+%GMAT Test.XAxis = -v;
+%GMAT Test.XAxis = n;
+%GMAT Test.XAxis = -n;
+%GMAT Test.XAxis = R;
+%GMAT Test.XAxis = -R;
+%GMAT Test.XAxis = V;
+%GMAT Test.XAxis = -V;
+%GMAT Test.XAxis = N;
+%GMAT Test.XAxis = -N;
+%
+%% ------
+%% Z Axis
+%% ------
+%GMAT Test.ZAxis = 1;
+%GMAT Test.ZAxis = 1.0;
+%GMAT Test.ZAxis = testVar;
+%GMAT Test.ZAxis = testString;
+%%GMAT Test.ZAxis = testSc.A1ModJulian;
+%GMAT Test.ZAxis = testArray(1,1);
+%GMAT Test.ZAxis = DoesNotExist;
+%GMAT Test.ZAxis = {R};
+%GMAT Test.XAxis = r;
+%GMAT Test.XAxis = -r;
+%GMAT Test.XAxis = v;
+%GMAT Test.XAxis = -v;
+%GMAT Test.XAxis = n;
+%GMAT Test.XAxis = -n;
+%GMAT Test.XAxis = R;
+%GMAT Test.XAxis = -R;
+%GMAT Test.XAxis = V;
+%GMAT Test.XAxis = -V;
+%GMAT Test.XAxis = N;
+%GMAT Test.XAxis = -N;
+%
+%% ---------------
+%% Update Interval
+%% ---------------
+%GMAT Test.UpdateInterval = 1;
+%GMAT Test.UpdateInterval = 1.0;
+%GMAT Test.UpdateInterval = testVar;
+%GMAT Test.UpdateInterval = testString;
+%%GMAT Test.UpdateInterval = testSc.A1ModJulian;
+%GMAT Test.UpdateInterval = testArray(1,1);
+%GMAT Test.UpdateInterval = DoesNotExist;
+%GMAT Test.UpdateInterval = -60.0;
+%GMAT Test.UpdateInterval = 0.0;
+%GMAT Test.UpdateInterval = 60.0;
+%
+%% ------------------------
+%% Override Origin Interval
+%% ------------------------
+%GMAT Test.OverrideOriginInterval = 1;
+%GMAT Test.OverrideOriginInterval = 1.0;
+%GMAT Test.OverrideOriginInterval = testVar;
+%GMAT Test.OverrideOriginInterval = testString;
+%%GMAT Test.OverrideOriginInterval = testSc.A1ModJulian;
+%GMAT Test.OverrideOriginInterval = testArray(1,1);
+%GMAT Test.OverrideOriginInterval = DoesNotExist;
+%GMAT Test.OverrideOriginInterval = ON;
+%GMAT Test.OverrideOriginInterval = On;
+%GMAT Test.OverrideOriginInterval = on;
+%GMAT Test.OverrideOriginInterval = OFF;
+%GMAT Test.OverrideOriginInterval = Off;
+%GMAT Test.OverrideOriginInterval = off;
+%GMAT Test.OverrideOriginInterval = 0;
+%GMAT Test.OverrideOriginInterval = 1;
+%GMAT Test.OverrideOriginInterval = TRUE;
+%GMAT Test.OverrideOriginInterval = True;
+%GMAT Test.OverrideOriginInterval = true;
+%GMAT Test.OverrideOriginInterval = FALSE;
+%GMAT Test.OverrideOriginInterval = False;
+%GMAT Test.OverrideOriginInterval = false;

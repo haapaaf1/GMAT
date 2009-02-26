@@ -1,0 +1,123 @@
+
+%---------------------------------------------------------------
+%  These objects are for use in commands. They are necessary 
+%  to test when resources are not used correctly in commands.
+%---------------------------------------------------------------
+Create Spacecraft Sat WrongSat;
+Create Thruster Thruster WrongThruster;
+Create FuelTank WrongTank;
+Create Formation Formation WrongFormation
+Create ImpulsiveBurn ImpBurn WrongImpBurn
+Create FiniteBurn FiniteBurn WrongFiniteBurn
+Create Propagator Prop WrongProp
+Create OpenGLPlot OpenGL WrongOpenGL
+Create XYPlot XYPlot1 WrongXYPlot
+XYPlot1.IndVar = Sat.X;
+WrongXYPlot.IndVar = WrongSat.X;
+Create ReportFile ReportFile WrongReportFile
+Create Variable Var WrongVar
+Create Array Array[3,3] WrongArray[3,3]
+Create CoordinateSystem CoordSys WrongCoordSys;
+
+%---------------------------------------
+%  Test for use of nonexistent resources
+%---------------------------------------
+%  The script line is not output for these errors
+BeginScript DNE
+EndScript;
+BeginScript Sat.X DNE1.Y DNE2.Y
+EndScript;
+BeginScript Sat.X DNE;
+EndScript;
+BeginScript DNE Sat.X;
+EndScript;
+
+%---------------------------------------
+%  Test for improper use of parameters
+%---------------------------------------
+
+%---- Non-existent parameters
+BeginScript Sat.DNE
+EndScript;
+
+%---- Improper use of allowed parameters
+
+%---- Disallowed parameters
+BeginScript WrongArray(2,1);
+EndScript;
+
+%---- Disallowed use of numbers
+BeginScript 1.0;
+EndScript;
+BeginScript 1.0 1.0;
+EndScript;
+% will probably cause 'too many EdnScripts' error
+%1.0 BeginScript Sat.X;
+%EndScript;
+
+%---------------------------------------
+%  Test for improper use of resources
+%---------------------------------------
+BeginScript WrongSat;
+EndScript;
+BeginScript WrongProp Sat.X;
+EndScript;
+
+%---------------------------------------
+%  Test for missing elements
+%---------------------------------------
+% N/A
+
+%-------------------------------------------------
+%  Test for improper use of conditional operators
+%-------------------------------------------------
+BeginScript WrongTank < 3;
+EndScript;
+
+%---------------------------------------------------
+%  Test for improper use of brackets and parenthesis
+%---------------------------------------------------
+
+%---  Missing Parenthesis ----
+%  not applicable
+
+%---  Missing curly brackets
+%  not applicable
+
+%--- Mixed incorrect brackets
+%(BeginScript) OpenGL
+%EndScript;
+BeginScript OpenGL (Sat.X)
+EndScript;
+BeginScript (OpenGL)
+EndScript;
+BeginScript (OpenGL Sat.X)
+EndScript;
+BeginScript {OpenGL}
+EndScript;
+BeginScript OpenGL {Sat.X}
+EndScript;
+BeginScript {OpenGL Sat.X}
+EndScript;
+
+%--------------------------------
+%-------  Comma Errors    -------
+%--------------------------------
+
+%---  Missing commas
+%  not applicable
+
+%---  Improper use of commas
+%  Are these not allowed?
+BeginScript , OpenGL Sat.X Sat.Y
+EndScript;
+BeginScript OpenGL Sat.X, Sat.Y
+EndScript;
+
+%----------------------------------------------------------
+%  Test for erroneous text after the BeginScript statement
+%----------------------------------------------------------
+BeginScript other-stuff-that-should-not-be-here;
+EndScript;
+BeginScript % but inline comments should be OK
+EndScript;

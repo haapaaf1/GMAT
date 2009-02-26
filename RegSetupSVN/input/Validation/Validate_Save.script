@@ -1,0 +1,121 @@
+
+%---------------------------------------------------------------
+%  These objects are for use in commands. They are necessary 
+%  to test when resources are not used correctly in commands.
+%---------------------------------------------------------------
+Create Spacecraft Sat WrongSat;
+Create Thruster Thruster WrongThruster;
+Create FuelTank Tank WrongTank;
+Create Formation Formation1 WrongFormation
+Create ImpulsiveBurn ImpBurn WrongImpBurn
+Create FiniteBurn FiniteBurn1 WrongFiniteBurn
+Create Propagator Prop WrongProp
+Create OpenGLPlot OpenGL WrongOpenGL
+%Create XYPlot XYPlot WrongXYPlot
+Create XYPlot XYPlot1 WrongXYPlot
+XYPlot1.IndVar = Sat.X;
+XYPlot1.IndVar = Sat.Y;
+WrongXYPlot.IndVar = WrongSat.X;
+Create ReportFile ReportFile WrongReportFile
+Create Variable Var WrongVar
+Create Array Array[3,3] WrongArray[3,3]
+Create CoordinateSystem CoordSys WrongCoordSys;
+
+
+%---------------------------------------
+%  These should all be OK
+%---------------------------------------
+Save Sat;
+Save Thruster ImpBurn XYPlot1 ReportFile 
+Save Tank Formation1 FiniteBurn1
+Save Prop OpenGL CoordSys;
+Save Array;
+
+
+%---------------------------------------
+%  Test for use of nonexistent resources
+%---------------------------------------
+%  
+Save DNE
+Save Sat.X DNE1.Y DNE2.Y
+Save Sat.X DNE;
+Save DNE Sat.X;
+
+%---------------------------------------
+%  Test for improper use of parameters
+%---------------------------------------
+
+%---- Non-existent parameters
+Save Sat.DNE
+
+%---- Improper use of allowed parameters
+
+%---- Disallowed parameters
+% 
+Save WrongArray(2,1);
+Save Var;         % should not be OK
+
+%---- Disallowed use of numbers
+Save 1.0;
+Save 1.0 1.0;
+1.0 Save Sat.X;
+
+%---------------------------------------
+%  Test for improper use of resources
+%---------------------------------------
+Save Sat.X
+%
+Save WrongProp Sat.X;
+
+%---------------------------------------
+%  Test for missing elements
+%---------------------------------------
+Save
+% 
+Save OpenGL Sat.X
+
+%-------------------------------------------------
+%  Test for improper use of conditional operators
+%-------------------------------------------------
+Save OpenGL < 3;
+Save Sat == WrongSat;
+Save Array >= Var;
+
+%---------------------------------------------------
+%  Test for improper use of brackets and parenthesis
+%---------------------------------------------------
+
+%---  Missing Parenthesis ----
+%  not applicable
+
+%---  Missing curly brackets
+%  not applicable
+
+%--- Mixed incorrect brackets
+(Save) OpenGL
+Save OpenGL (Sat.X)
+Save (OpenGL)
+Save (OpenGL Sat.X)
+Save {OpenGL}
+Save OpenGL {Sat.X}
+Save {OpenGL Sat.X}
+
+%----------------------------------------------------------
+%  Test for improper use of closing branch command statement
+%----------------------------------------------------------
+%  not applicable
+
+%--------------------------------
+%-------  Comma Errors    -------
+%--------------------------------
+
+%---  Missing commas
+%  not applicable
+
+%---  Improper use of commas
+%  Are these not allowed?
+Save Sat ,
+Save, Sat
+Save , Sat
+Save , OpenGL Sat.X Sat.Y
+Save OpenGL Sat.X, Sat.Y

@@ -1,0 +1,162 @@
+% --------------------------------------------
+% Test validation scripts for Celestial Bodies
+% --------------------------------------------
+
+% ---------
+% Duplicate
+% ---------
+Create Planet Mercury;
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar.Expression = 1.01;
+Create String testString;
+GMAT testString.Expression = "12.45";
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = -1.01;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT Mercury.DoesNotExist = 1;
+
+% --
+% Mu
+% --
+GMAT Mercury.Mu = 1;
+GMAT Mercury.Mu = 1.1;
+%GMAT Mercury.Mu = testString;
+GMAT Mercury.Mu = testVar;
+%GMAT Mercury.Mu = testArray(1,1);
+%GMAT Mercury.Mu = testSc.A1ModJulian;
+%GMAT Mercury.Mu = DoesNotExist;
+
+% -----------------
+% Equatorial Radius
+% -----------------
+GMAT Venus.EquatorialRadius = 2;
+GMAT Venus.EquatorialRadius = 2.2;
+%GMAT Venus.EquatorialRadius = testString;
+GMAT Venus.EquatorialRadius = testVar;
+%GMAT Venus.EquatorialRadius = testArray(1,1);
+%GMAT Venus.EquatorialRadius = testSc.A1ModJulian;
+%GMAT Venus.EquatorialRadius = DoesNotExist;
+
+% ----------
+% Flattening
+% ----------
+GMAT Earth.Flattening = 3;
+GMAT Earth.Flattening = 3.3;
+%GMAT Earth.Flattening = testString;
+GMAT Earth.Flattening = testVar;
+GMAT Earth.Flattening = testArray(1,1);
+%GMAT Earth.Flattening = testSc.A1ModJulian;
+%GMAT Earth.Flattening = DoesNotExist;
+
+% -------------
+% Initial Epoch
+% -------------
+GMAT Mars.InitialEpoch = 4;
+GMAT Mars.InitialEpoch = 4.4;
+%GMAT Mars.InitialEpoch = testString;
+GMAT Mars.InitialEpoch = testVar;
+GMAT Mars.InitialEpoch = testArray(1,1);
+%GMAT Mars.InitialEpoch = testSc.A1ModJulian;
+%GMAT Mars.InitialEpoch = DoesNotExist;
+
+% ---
+% SMA
+% ---
+GMAT Jupiter.SMA = 5;
+GMAT Jupiter.SMA = 5.5;
+%GMAT Jupiter.SMA = testString;
+GMAT Jupiter.SMA = testVar;
+GMAT Jupiter.SMA = testArray(1,1);
+%GMAT Jupiter.SMA = testSc.A1ModJulian;
+%GMAT Jupiter.SMA = DoesNotExist;
+
+% ---
+% ECC
+% ---
+GMAT Saturn.ECC = 6;
+GMAT Saturn.ECC = 6.6;
+%GMAT Saturn.ECC = testString;
+GMAT Saturn.ECC = testVar;
+%GMAT Saturn.ECC = testArray(1,1);
+%GMAT Saturn.ECC = testSc.A1ModJulian;
+%GMAT Saturn.ECC = DoesNotExist;
+
+%% ---
+% INC
+% ---
+GMAT Uranus.INC = 7;
+GMAT Uranus.INC = 7.7;
+%GMAT Uranus.INC = testString;
+GMAT Uranus.INC = testVar;
+GMAT Uranus.INC = testArray(1,1);
+%GMAT Uranus.INC = testSc.A1ModJulian;
+%GMAT Uranus.INC = DoesNotExist;
+
+% ----
+% RAAN
+% ----
+GMAT Neptune.RAAN = 8;
+GMAT Neptune.RAAN = 8.8;
+%GMAT Neptune.RAAN = testString;
+GMAT Neptune.RAAN = testVar;
+GMAT Neptune.RAAN = testArray(1,1);
+%GMAT Neptune.RAAN = testSc.A1ModJulian;
+%GMAT Neptune.RAAN = DoesNotExist;
+
+% ---
+% AOP
+% ---
+GMAT Pluto.AOP = 9;
+GMAT Pluto.AOP = 9.9;
+%GMAT Pluto.AOP = testString;
+GMAT Pluto.AOP = testVar;
+GMAT Pluto.AOP = testArray(1,1);
+%GMAT Pluto.AOP = testSc.A1ModJulian;
+%GMAT Pluto.AOP = DoesNotExist;
+
+% --
+% TA
+% --
+GMAT Mercury.TA = 10;
+GMAT Mercury.TA = 10.10;
+%GMAT Mercury.TA = testString;
+GMAT Mercury.TA = testVar;
+GMAT Mercury.TA = testArray(1,1);
+%GMAT Mercury.TA = testSc.A1ModJulian;
+%GMAT Mercury.TA = DoesNotExist;
+
+% ------------------------
+% Nutation Update Interval
+% ------------------------
+%GMAT Earth.NutationUpdateInterval = -11;
+GMAT Earth.NutationUpdateInterval = 11.11;
+%GMAT Earth.NutationUpdateInterval = testString;
+%GMAT Earth.NutationUpdateInterval = testVar;
+%GMAT Earth.NutationUpdateInterval = testArray(1,1);
+%GMAT Earth.NutationUpdateInterval = testSc.A1ModJulian;
+%GMAT Earth.NutationUpdateInterval = DoesNotExist;
+
+% --------------------
+% Rotation Data Source
+% --------------------
+GMAT Luna.RotationDataSource = 12;
+%GMAT Luna.RotationDataSource = 12.12;
+%GMAT testString.Expression = IAU2002;
+%GMAT Luna.RotationDataSource = testString;
+%GMAT Luna.RotationDataSource = testVar;
+%GMAT Luna.RotationDataSource = testArray(1,1);
+%GMAT Luna.RotationDataSource = testSc.A1ModJulian;
+%GMAT Luna.RotationDataSource = DoesNotExist;
+%GMAT Luna.RotationDataSource = {DoesNotExist};
+%GMAT Luna.RotationDataSource = {DE405};
+GMAT Luna.RotationDataSource = IAU2002;
+%GMAT Luna.RotationDataSource = DE405;

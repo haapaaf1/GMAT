@@ -1,0 +1,32 @@
+Create ReportFile rf;
+Create XYPlot xy;
+Create OpenGLPlot gl;
+Create Spacecraft sc sc2;
+Create FiniteBurn fb;
+Create ImpulsiveBurn ib;
+Create Propagator prop;
+Create String myStr;
+GMAT myStr.Expression = testStr;
+Create Array myArray[2, 2];
+
+Save;
+Save DoesNotExist;
+Save sc;
+Save sc On;
+Save sc sc2;
+Save sc, sc2;
+Save sc, sc2, fb, ib;
+
+Save 1;
+Save 1.0;
+Save myStr;
+Save myArray;
+Save myArray[1, 1];
+Save sc.A1ModJulian;
+
+Save sc, sc2, fb, ib, rf, xy, gl;
+Save rf;
+Save prop;
+save sc;
+SAVE sc;
+

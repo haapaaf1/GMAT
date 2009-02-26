@@ -1,0 +1,164 @@
+% ---------------------------------------
+% Test validation scripts for Report File
+% ---------------------------------------
+Create ReportFile ReportFile1;
+
+% ---------
+% Duplicate
+% ---------
+Create ReportFile ReportFile1;
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar.Expression = -3.8;
+Create String testString;
+GMAT testString.Expression = Jupiter;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4;
+
+% -----------------
+% Unknown parameter`
+% -----------------
+%ReportFile1.DoesNotExist = 1;
+
+% ---------
+% File Name
+% ---------
+Create ReportFile ReportFile2;
+%GMAT ReportFile2.Filename = 1;
+%GMAT ReportFile2.Filename = 1.0;
+%GMAT testString.Expression = C:/dev/GMAT/workspace/CvsGmat/bin/files/output/ReportFile2.txt;
+%GMAT ReportFile2.Filename = testString;
+%GMAT ReportFile2.Filename = testVar;
+%GMAT ReportFile2.Filename = testArray(1,1);
+%GMAT ReportFile2.Filename = DoesNotExist
+GMAT ReportFile2.Filename = C:/dev/GMAT/workspace/CvsGmat/bin/files/output/ReportFile2.txt;
+
+% ---------
+% Precision
+% ---------
+Create ReportFile ReportFile3;
+%GMAT ReportFile3.Precision = -3;
+%GMAT ReportFile3.Precision = 3.3;
+%GMAT ReportFile3.Precision = testString;
+%GMAT ReportFile3.Precision = testVar;
+%GMAT ReportFile3.Precision = testArray(1,1);
+%GMAT ReportFile3.Precision = testSc.A1ModJulian;
+%GMAT ReportFile3.Precision = DoesNotExist;
+GMAT ReportFile3.Precision = 16;
+
+% ---
+% Add
+% ---
+Create ReportFile ReportFile4;
+%GMAT ReportFile4.Add = 1;
+%GMAT ReportFile4.Add = 1.0;
+GMAT testString.Expression = testSc.A1ModJulian;
+GMAT ReportFile4.Add = testString;
+GMAT ReportFile4.Add = testVar;
+%GMAT ReportFile4.Add = testArray(1,1);
+GMAT ReportFile4.Add = testSc.A1ModJulian;
+GMAT ReportFile4.Add = {DoesNotExist};
+GMAT ReportFile4.Add = DoesNotExist;
+GMAT ReportFile4.Add = { };
+GMAT ReportFile4.Add = testSc.A1ModJulian;
+GMAT ReportFile4.Add = {testSc.A1ModJulian};
+GMAT ReportFile4.Add = testSc.A1ModJulian, testSc.EarthMJ2000Eq.X;
+GMAT ReportFile4.Add = {testSc.A1ModJulian, testSc.EarthMJ2000Eq.X};
+
+% -------------
+% Write Headers
+% -------------
+Create ReportFile ReportFile5;
+%GMAT ReportFile5.WriteHeaders = 1;
+%GMAT ReportFile5.WriteHeaders = 1.0;
+GMAT testString.Expression = Off;
+GMAT ReportFile5.WriteHeaders = testString;
+%GMAT ReportFile5.WriteHeaders = testVar;
+%GMAT ReportFile5.WriteHeaders = testArray(1,1);
+%GMAT ReportFile5.WriteHeaders = testSc.A1ModJulian;
+%GMAT ReportFile5.WriteHeaders = DoesNotExist;
+%GMAT ReportFile5.WriteHeaders = 0;
+%GMAT ReportFile5.WriteHeaders = On;
+%GMAT ReportFile5.WriteHeaders = Off;
+%GMAT ReportFile5.WriteHeaders = ON;
+%GMAT ReportFile5.WriteHeaders = OFF;
+%GMAT ReportFile5.WriteHeaders = on;
+%GMAT ReportFile5.WriteHeaders = off;
+
+% ------------
+% Left Justify
+% ------------
+Create ReportFile ReportFile6;
+%GMAT ReportFile6.LeftJustify = 1;
+%GMAT ReportFile6.LeftJustify = 1.0;
+GMAT testString.Expression = Off;
+GMAT ReportFile6.LeftJustify = testString;
+%GMAT ReportFile6.LeftJustify = testVar;
+%GMAT ReportFile6.LeftJustify = testArray(1,1);
+%GMAT ReportFile6.LeftJustify = testSc.A1ModJulian;
+%GMAT ReportFile6.LeftJustify = DoesNotExist;
+%GMAT ReportFile6.LeftJustify = 0;
+%GMAT ReportFile6.LeftJustify = On;
+%GMAT ReportFile6.LeftJustify = Off;
+%GMAT ReportFile6.LeftJustify = ON;
+%GMAT ReportFile6.LeftJustify = OFF;
+%GMAT ReportFile6.LeftJustify = on;
+%GMAT ReportFile6.LeftJustify = off;
+
+% ---------
+% Zero Fill
+% ---------
+Create ReportFile ReportFile7;
+%GMAT ReportFile7.ZeroFill = 1;
+%GMAT ReportFile7.ZeroFill = 1.0;
+GMAT testString.Expression = Off;
+GMAT ReportFile7.ZeroFill = testString;
+%GMAT ReportFile7.ZeroFill = testVar;
+%GMAT ReportFile7.ZeroFill = testArray(1,1);
+%GMAT ReportFile7.ZeroFill = testSc.A1ModJulian;
+%GMAT ReportFile7.ZeroFill = DoesNotExist;
+%GMAT ReportFile7.ZeroFill = 0;
+GMAT ReportFile7.ZeroFill = On;
+GMAT ReportFile7.ZeroFill = Off;
+%GMAT ReportFile7.ZeroFill = ON;
+%GMAT ReportFile7.ZeroFill = OFF;
+%GMAT ReportFile7.ZeroFill = on;
+%GMAT ReportFile7.ZeroFill = off;
+
+% ------------
+% Column Width
+% ------------
+Create ReportFile ReportFile8;
+GMAT ReportFile8.ColumnWidth = -8;
+GMAT ReportFile8.ColumnWidth = 8.8;
+GMAT ReportFile8.ColumnWidth = testString;
+GMAT ReportFile8.ColumnWidth = testVar;
+GMAT ReportFile8.ColumnWidth = testArray(1,1);
+GMAT ReportFile8.ColumnWidth = testSc.A1ModJulian;
+GMAT ReportFile8.ColumnWidth = DoesNotExist;
+GMAT ReportFile8.ColumnWidth = 20;
+
+% -----------------
+% Solver Iterations
+% -----------------
+Create ReportFile ReportFile9;
+%GMAT ReportFile9.SolverIterations = 1;
+%GMAT ReportFile9.SolverIterations = 1.0;
+GMAT testString.Expression = Off;
+GMAT ReportFile9.SolverIterations = testString;
+%GMAT ReportFile9.SolverIterations = testVar;
+%GMAT ReportFile9.SolverIterations = testArray(1,1);
+%GMAT ReportFile9.SolverIterations = testSc.A1ModJulian;
+%GMAT ReportFile9.SolverIterations = DoesNotExist;
+%GMAT ReportFile9.SolverIterations = 0;
+GMAT ReportFile9.SolverIterations = On;
+GMAT ReportFile9.SolverIterations = Off;
+%GMAT ReportFile9.SolverIterations = ON;
+%GMAT ReportFile9.SolverIterations = OFF;
+%GMAT ReportFile9.SolverIterations = on;
+%GMAT ReportFile9.SolverIterations = off;

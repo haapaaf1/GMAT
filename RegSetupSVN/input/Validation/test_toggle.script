@@ -1,0 +1,55 @@
+Create ReportFile rf;
+Create XYPlot xy;
+Create OpenGLPlot gl;
+Create String myStr;
+Create Array myArray[2,2];
+
+Toggle;
+Toggle rf;
+Toggle rf xy gl;
+Toggle DoesNotExist On;
+
+Toggle rf DoesNotExist;
+Toggle rf On;
+Toggle rf Off;
+Toggle 1 On;
+Toggle 1.0 On;
+Toggle myStr On;
+Toggle myArray[1,1] On;
+Toggle 1 On;
+Toggle 1 1;
+Toggle sc On;
+Toggle rf on;
+Toggle rf off;
+Toggle rf ON;
+Toggle rf OFF;
+Toggle rf true;
+Toggle rf false;
+Toggle rf True;
+Toggle rf False;
+Toggle rf TRUE;
+Toggle rf FALSE;
+Toggle rf 0;
+Toggle rf 1;
+
+Toggle rf xy gl DoesNotExist;
+Toggle rf xy gl On;
+Toggle rf xy gl Off;
+Toggle rf xy gl on;
+Toggle rf xy gl off;
+Toggle rf xy gl ON;
+Toggle rf xy gl OFF;
+Toggle rf xy gl true;
+Toggle rf xy gl false;
+Toggle rf xy gl True;
+Toggle rf xy gl False;
+Toggle rf xy gl TRUE;
+Toggle rf xy gl FALSE;
+Toggle rf xy gl 0;
+Toggle rf xy gl 1;
+
+Toggle rf rf On;
+toggle rf On;
+TOGGLE rf On;
+Toggle rf On Off;
+Toggle rf, xy, gl On;
