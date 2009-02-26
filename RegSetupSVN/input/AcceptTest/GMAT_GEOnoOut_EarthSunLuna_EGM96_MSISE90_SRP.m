@@ -1,0 +1,46 @@
+%% $Id: GMAT_GEOnoOut_EarthSunLuna_EGM96_MSISE90_SRP.m,v 1.3 2007/08/10 21:15:02 edove Exp $
+
+Create Spacecraft GEO;
+ GMAT GEO.J2000BodyName = Earth;
+ GMAT GEO.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+ GMAT GEO.DisplayStateType = Cartesian;
+ GMAT GEO.CoordinateSystem = EarthMJ2000Eq;
+ GMAT GEO.X = 36607.3582560;
+ GMAT GEO.Y = -20921.723703;
+ GMAT GEO.Z = 0.0;
+ GMAT GEO.VX = 1.52563600;
+ GMAT GEO.VY = 2.66945100;
+ GMAT GEO.VZ = 0.0;
+ GMAT GEO.Cd = 2.2;
+ GMAT GEO.Cr = 1.2;
+ GMAT GEO.DragArea = 20;
+ GMAT GEO.SRPArea = 20;
+ GMAT GEO.DryMass = 1000;
+ GMAT GEO.TotalMass = 1000;
+
+Create ForceModel EarthEGM96;
+GMAT EarthEGM96.PrimaryBodies = {Earth};
+GMAT EarthEGM96.Drag = MSISE90;
+GMAT EarthEGM96.Drag.F107 = 150;
+GMAT EarthEGM96.Drag.F107A = 150;
+GMAT EarthEGM96.Drag.MagneticIndex = 3;
+GMAT EarthEGM96.SRP = On;
+GMAT EarthEGM96.SRP.Flux_Pressure = 4.53443218374393e-006;
+GMAT EarthEGM96.Gravity.Earth.Model = ./files/gravity/earth/EGM96.cof;
+GMAT EarthEGM96.Gravity.Earth.Degree = 20;
+GMAT EarthEGM96.Gravity.Earth.Order = 20;
+GMAT EarthEGM96.PointMasses   = {Sun, Luna};
+
+Create Propagator RKV89;
+GMAT RKV89.FM = EarthEGM96;
+GMAT RKV89.Type = RungeKutta89;
+GMAT RKV89.InitialStepSize = 60;
+GMAT RKV89.Accuracy = 1e-013;
+GMAT RKV89.MinStep = 60;
+GMAT RKV89.MaxStep = 60;
+GMAT RKV89.MaxStepAttempts = 50; 
+ 
+GMAT SolarSystem.EphemerisUpdateInterval = 0.0;
+GMAT SolarSystem.Earth.NutationUpdateInterval = 60.0; 
+
+Propagate   RKV89(GEO, {GEO.ElapsedSecs = 604800});
