@@ -972,12 +972,12 @@ void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
 {
     unsigned parmNumber = (unsigned)(i);
 
-    #ifdef DEBUG_SOLAR_RADIATION_PRESSURE
+//    #ifdef DEBUG_SOLAR_RADIATION_PRESSURE
          std::stringstream msg;
          msg << "Setting satellite parameter " << parmName << " for Spacecraft " 
              << i << " to " << parm << "\n";
          MessageInterface::ShowMessage(msg.str());
-    #endif
+//    #endif
     
     if (parmName == "DryMass")
         if (parmNumber < mass.size())
@@ -1010,6 +1010,11 @@ void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
 void SolarRadiationPressure::ClearSatelliteParameters(
                                                    const std::string parmName)
 {
+   //    #ifdef DEBUG_SOLAR_RADIATION_PRESSURE
+            std::stringstream msg;
+            msg << "Clearing satellite parameter " << parmName << "\n";
+            MessageInterface::ShowMessage(msg.str());
+   //    #endif
    if ((parmName == "DryMass") || (parmName == ""))
       mass.clear();
    if ((parmName == "Cr") || (parmName == ""))

@@ -916,7 +916,7 @@ bool PhysicalModel::IsUserForce()
  * Sets the list of propagated space objects for transient forces.
  */
 //------------------------------------------------------------------------------
-void PhysicalModel::SetPropList(std::vector<SpaceObject*> *soList)
+void PhysicalModel::SetPropList(ObjectArray *soList)
 {
 }
 

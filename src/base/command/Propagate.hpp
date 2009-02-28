@@ -180,7 +180,8 @@ protected:
    /// The propagator(s) used by this command
    std::vector<PropSetup*>      prop;
    /// The spacecraft and formations that are propagated
-   std::vector<SpaceObject *>   sats;
+   ObjectArray                  sats;
+//   std::vector<SpaceObject *>   sats;
    /// The stopping conditions
    std::vector<StopCondition *> stopWhen;
    /// The time step that we need to interpolate across

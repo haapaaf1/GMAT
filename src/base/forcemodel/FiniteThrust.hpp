@@ -52,7 +52,7 @@ public:
 //                              const Gmat::ObjectType type,
 //                              const std::string &name, const Integer index);
    virtual bool            IsTransient();
-   virtual void            SetPropList(std::vector<SpaceObject*> *soList);
+   virtual void            SetPropList(ObjectArray *soList);
    virtual bool            Initialize();
    virtual bool            GetDerivatives(Real * state, Real dt, Integer order, 
                                           const Integer id = -1);
@@ -71,7 +71,7 @@ protected:
    /// Names of the spacecraft accessed by this force
    StringArray                   mySpacecraft;
    /// Spacecraft, in order, used in the ODEModel
-   std::vector<SpaceObject *>    *spacecraft;
+   ObjectArray                   *spacecraft;
    /// Indexes (in the spacecraft vector) for the Spacecraft used by this force
    std::vector<Integer>          scIndices;
    /// Number of spacecraft in the state vector that use CartesianState

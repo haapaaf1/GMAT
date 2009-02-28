@@ -66,3 +66,9 @@ GmatState* StateManager::GetState()
 {
    return &state;
 }
+
+
+ObjectArray* StateManager::GetStateObjects()
+{
+   return &objects;
+}

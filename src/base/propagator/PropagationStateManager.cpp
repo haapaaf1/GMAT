@@ -121,6 +121,7 @@ bool PropagationStateManager::SetProperty(std::string propName)
             
       return true;
    }
+   
    return false;   
 }
 

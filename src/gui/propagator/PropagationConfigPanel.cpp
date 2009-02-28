@@ -213,8 +213,7 @@ void PropagationConfigPanel::LoadData()
       
       for (Integer i = 0; i < numOfForces; i++)
       {
-// todo: Add force accessors to ODEModel
-//         force = theForceModel->GetForce(i);
+         force = theForceModel->GetForce(i);
          if (force == NULL)
          {
             MessageInterface::ShowMessage
@@ -866,8 +865,7 @@ void PropagationConfigPanel::SaveData()
       int size = primaryBodyList.size();
       for (int i=0; i<numOfForces; i++)
       {
-// todo: Add force accessors to ODEModel
-//         pm = theForceModel->GetForce(i);
+         pm = theForceModel->GetForce(i);
          
          #ifdef DEBUG_PROP_PANEL_SAVE
          MessageInterface::ShowMessage
@@ -2745,8 +2743,7 @@ void PropagationConfigPanel::ShowPropData(const std::string& header)
    
    for (int i=0; i<numOfForces; i++)
    {
-// todo: Add force accessors to ODEModel
-//      force = theForceModel->GetForce(i);
+      force = theForceModel->GetForce(i);
       forceType = force->GetTypeName();
       
       forceBody = force->GetStringParameter("BodyName");
@@ -2803,18 +2800,13 @@ void PropagationConfigPanel::ShowForceModel(const std::string &header)
 {
    MessageInterface::ShowMessage(">>>>>=======================================\n");
    MessageInterface::ShowMessage("%s%s\n", header.c_str(), " --- ForceModel");
-// todo: Add force accessors to ODEModel
-   Integer numForces; //  = theForceModel->GetNumForces();
-//   MessageInterface::ShowMessage
-//      ("CentralBody=%s, numForces=%d\n",
-//       theForceModel->GetStringParameter("CentralBody").c_str(), numForces);
+
+   Integer numForces = theForceModel->GetNumForces();
    PhysicalModel *pm;
    
-// todo: Use STL Iterators like they are intended?
    for (int i = 0; i < numForces; i++)
    {
-// todo: Add force accessors to ODEModel
-//      pm = theForceModel->GetForce(i);
+      pm = theForceModel->GetForce(i);
       MessageInterface::ShowMessage
          ("id=%d, body=%s, type=%s, addr=%p\n", i, pm->GetBodyName().c_str(),
           pm->GetTypeName().c_str(), pm);

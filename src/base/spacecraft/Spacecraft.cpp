@@ -42,6 +42,7 @@
 //#define DEBUG_STATE_INTERFACE
 //#define DEBUG_SC_ATTITUDE
 //#define DEBUG_GET_REAL
+//#define DEBUG_GET_STATE
 //#define DEBUG_SC_PARAMETER_TEXT
 //#define DEBUG_SC_REF_OBJECT
 //#define DEBUG_SC_EPOCHSTR
@@ -87,6 +88,12 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::OBJECT_TYPE,      // Attitude
       Gmat::RMATRIX_TYPE,     // OrbitSTM
       Gmat::STRING_TYPE,      // UTCGregorian
+      Gmat::REAL_TYPE,        // CartesianX
+      Gmat::REAL_TYPE,        // CartesianY
+      Gmat::REAL_TYPE,        // CartesianZ
+      Gmat::REAL_TYPE,        // CartesianVX
+      Gmat::REAL_TYPE,        // CartesianVY
+      Gmat::REAL_TYPE,        // CartesianVZ
    };
    
 const std::string 
@@ -121,6 +128,12 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "Attitude",
       "OrbitSTM",
       "UTCGregorian",
+      "CartesianX",
+      "CartesianY",
+      "CartesianZ",
+      "CartesianVX",
+      "CartesianVY",
+      "CartesianVZ",
    };
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] = 
@@ -574,7 +587,7 @@ GmatState& Spacecraft::GetState()
 //------------------------------------------------------------------------------
 Rvector6 Spacecraft::GetState(std::string rep) 
 {
-   #ifdef DEGUG_STATE_INTERFACE
+   #ifdef DEBUG_STATE_INTERFACE
       MessageInterface::ShowMessage("Getting state in representation %s", 
          rep.c_str());
    #endif
@@ -1170,7 +1183,7 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
 
    Integer retval = -1;
    if (str == "Element1" || str == "X" || str == "SMA" || str == "RadPer" ||
-       str == "RMAG" || str == "CartesianState")
+       str == "RMAG")
       retval =  ELEMENT1_ID;
       //return ELEMENT1_ID;
 
@@ -1240,6 +1253,14 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
       }
       
    }
+   
+   if ((str == "CartesianState") || (str == "CartesianX")) return CARTESIAN_X;
+   if (str == "CartesianY" )  return CARTESIAN_Y;
+   if (str == "CartesianZ" )  return CARTESIAN_Z;
+   if (str == "CartesianVX")  return CARTESIAN_VX;
+   if (str == "CartesianVY")  return CARTESIAN_VY;
+   if (str == "CartesianVZ")  return CARTESIAN_VZ;
+
    return SpaceObject::GetParameterID(str);
 }
 
@@ -1264,6 +1285,11 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
          return attitude->IsParameterReadOnly(id - ATTITUDE_ID_OFFSET);
    }
    if ((id >= ELEMENT1UNIT_ID) && (id <= ELEMENT6UNIT_ID))
+   {
+      return true;
+   }
+   
+   if ((id >= CARTESIAN_X) && (id <= CARTESIAN_VZ))
    {
       return true;
    }
@@ -1440,7 +1466,14 @@ Real Spacecraft::GetRealParameter(const Integer id) const
    if (id == DRAG_AREA_ID) return dragArea;
    if (id == SRP_AREA_ID) return srpArea;
    if (id == TOTAL_MASS_ID)  return UpdateTotalMass();
-   
+
+   if (id == CARTESIAN_X )  return state[0];
+   if (id == CARTESIAN_Y )  return state[1];
+   if (id == CARTESIAN_Z )  return state[2];
+   if (id == CARTESIAN_VX)  return state[3];
+   if (id == CARTESIAN_VY)  return state[4];
+   if (id == CARTESIAN_VZ)  return state[5];
+
    if (id >= ATTITUDE_ID_OFFSET)
       if (attitude)
       {
@@ -1547,6 +1580,42 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value)
    if (id >= ATTITUDE_ID_OFFSET)
       if (attitude) 
          return attitude->SetRealParameter(id - ATTITUDE_ID_OFFSET,value);
+
+   if (id == CARTESIAN_X )
+   {
+      state[0] = value;
+      return state[0];
+   }
+   
+   if (id == CARTESIAN_Y )
+   {
+      state[1] = value;
+      return state[1];
+   }
+   
+   if (id == CARTESIAN_Z )
+   {
+      state[2] = value;
+      return state[2];
+   }
+   
+   if (id == CARTESIAN_VX)
+   {
+      state[3] = value;
+      return state[3];
+   }
+   
+   if (id == CARTESIAN_VY)
+   {
+      state[4] = value;
+      return state[4];
+   }
+   
+   if (id == CARTESIAN_VZ)
+   {
+      state[5] = value;
+      return state[5];
+   }
    
    return SpaceObject::SetRealParameter(id, value);
 }

@@ -175,7 +175,7 @@ public:
    
    virtual bool IsTransient();
    virtual bool IsUserForce();
-   virtual void SetPropList(std::vector<SpaceObject *> *soList);
+   virtual void SetPropList(ObjectArray *soList);
    
    // Methods used by the ODEModel to set the state indexes, etc
    virtual bool SupportsDerivative(Gmat::StateElementId id);

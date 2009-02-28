@@ -21,7 +21,7 @@
 
 #include "FiniteThrust.hpp"
 
-//#define DEBUG_FINITETHRUST_INIT
+#define DEBUG_FINITETHRUST_INIT
 //#define DEBUG_FINITETHRUST_EXE
 
 
@@ -40,6 +40,7 @@
 //------------------------------------------------------------------------------
 FiniteThrust::FiniteThrust(const std::string &name) :
    PhysicalModel        (Gmat::PHYSICAL_MODEL, "FiniteThrust", name),
+   spacecraft           (NULL),
    satCount             (0),
    cartIndex            (-1),
    fillCartesian        (false)
@@ -73,6 +74,7 @@ FiniteThrust::FiniteThrust(const FiniteThrust& ft) :
    PhysicalModel          (ft),
    burnNames              (ft.burnNames),
    mySpacecraft           (ft.mySpacecraft),
+   spacecraft             (ft.spacecraft),
    satCount               (ft.satCount),
    cartIndex              (ft.cartIndex),
    fillCartesian          (ft.fillCartesian)
@@ -101,11 +103,10 @@ FiniteThrust& FiniteThrust::operator=(const FiniteThrust& ft)
    PhysicalModel::operator=(ft);
    
    burnNames    = ft.burnNames;
-   mySpacecraft = ft.mySpacecraft;
+   spacecraft   = ft.spacecraft;
    mySpacecraft = ft.mySpacecraft;
    burns.clear();
         scIndices.clear();
-   spacecraft->clear();
    
    satCount      = ft.satCount;
    cartIndex     = ft.cartIndex;
@@ -142,12 +143,14 @@ GmatBase* FiniteThrust::Clone() const
 //------------------------------------------------------------------------------
 void FiniteThrust::Clear(const Gmat::ObjectType type)
 {
-   if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::SPACECRAFT)) {
+   if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::SPACECRAFT)) 
+   {
       mySpacecraft.clear();
-      spacecraft->clear();
+      spacecraft = NULL;
    }
    
-   if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::THRUSTER)) {
+   if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::THRUSTER)) 
+   {
       burnNames.clear();
    }
 }
@@ -171,13 +174,15 @@ void FiniteThrust::Clear(const Gmat::ObjectType type)
 bool FiniteThrust::SetRefObjectName(const Gmat::ObjectType type,
                                   const std::string &name)
 {
-   if (type == Gmat::SPACECRAFT) {
+   if (type == Gmat::SPACECRAFT) 
+   {
       if (find(mySpacecraft.begin(), mySpacecraft.end(), name) == mySpacecraft.end())
          mySpacecraft.push_back(name);
       return true;
    }
    
-   if (type == Gmat::FINITE_BURN) {
+   if (type == Gmat::FINITE_BURN) 
+   {
       if (find(burnNames.begin(), burnNames.end(), name) == burnNames.end())
          burnNames.push_back(name);
       return true;
@@ -225,7 +230,8 @@ const StringArray& FiniteThrust::GetRefObjectNameArray(
 bool FiniteThrust::SetRefObject(GmatBase *obj, const Gmat::ObjectType type, 
                                 const std::string &name)
 {
-   if (type == Gmat::FINITE_BURN) {
+   if (type == Gmat::FINITE_BURN) 
+   {
       if (obj->GetTypeName() != "FiniteBurn")
          throw ODEModelException(
             "FiniteThrust::SetRefObject cannot use objects of type " + 
@@ -267,7 +273,7 @@ bool FiniteThrust::IsTransient()
  * Sets the list of propagated space objects for transient forces.
  */
 //------------------------------------------------------------------------------
-void FiniteThrust::SetPropList(std::vector<SpaceObject*> *soList)
+void FiniteThrust::SetPropList(ObjectArray *soList)
 {
    spacecraft = soList;
 }
@@ -284,30 +290,66 @@ void FiniteThrust::SetPropList(std::vector<SpaceObject*> *soList)
 //------------------------------------------------------------------------------
 bool FiniteThrust::Initialize()
 {
+   #ifdef DEBUG_FINITETHRUST_INIT
+      MessageInterface::ShowMessage("FiniteThrust::Initialize entered\n");
+   #endif
+      
    if (!PhysicalModel::Initialize())
       throw ODEModelException("Unable to initialize FiniteThrust base");
-      
+
+   if (spacecraft == NULL)
+      throw ODEModelException(
+            "FiniteThrust cannot initialize: no prop object list");
+
    // set up the indices into the state vector that match spacecraft with active 
    // thrusters
    Integer satIndex, stateIndex;
+   #ifdef DEBUG_FINITETHRUST_INIT
+      MessageInterface::ShowMessage(
+            "   Looping over satNames\n");
+   #endif
    for (StringArray::iterator satName = mySpacecraft.begin(); 
         satName != mySpacecraft.end(); ++satName)
    {
+      #ifdef DEBUG_FINITETHRUST_INIT
+         MessageInterface::ShowMessage(
+               "      satName = %s\n", satName->c_str());
+      #endif
       satIndex = 0;
       stateIndex = 0;
       
-      for (std::vector<SpaceObject *>::iterator propSat = spacecraft->begin();
-           propSat != spacecraft->end(); ++propSat) {
-         if ((*propSat)->GetName() == *satName) {
+      for (ObjectArray::iterator propSat = spacecraft->begin();
+           propSat != spacecraft->end(); ++propSat) 
+      {
+         #ifdef DEBUG_FINITETHRUST_INIT
+            MessageInterface::ShowMessage(
+                  "      Looking at satIndex %d; stateIndex = %d\n", satIndex, 
+                  stateIndex);
+         #endif
+         if ((*propSat)->GetName() == *satName) 
+         {
             #ifdef DEBUG_FINITETHRUST_INIT
                MessageInterface::ShowMessage(
-                  "FiniteThrust::Initialize Matched up %s\n", satName->c_str());
+                  "      FiniteThrust::Initialize Matched up %s\n", 
+                  satName->c_str());
             #endif
          }
-         stateIndex += (*propSat)->GetState().GetSize();
-         ++satIndex;
+         #ifdef DEBUG_FINITETHRUST_INIT
+            MessageInterface::ShowMessage(
+                  "      PropSat is \"%s\"\n", (*satName).c_str());
+         #endif
+         if ((*propSat)->IsOfType(Gmat::SPACEOBJECT))
+         {
+            stateIndex += ((SpaceObject*)(*propSat))->GetState().GetSize();
+           ++satIndex;
+         }
       }
    }
+
+   #ifdef DEBUG_FINITETHRUST_INIT
+      MessageInterface::ShowMessage(
+            "FiniteThrust::Initialize finished\n");
+   #endif
    
    return true;
 }
@@ -353,12 +395,16 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
    if (fillCartesian)
    {
       // Loop through the spacecraft list, building accels for active sats
-      for (std::vector<SpaceObject *>::iterator sc = spacecraft->begin();
+      for (ObjectArray::iterator sc = spacecraft->begin();
            sc != spacecraft->end(); ++sc) 
       {
          i6 = cartIndex + i * 6;
+         
+         if ((*sc)->IsOfType(Gmat::SPACEOBJECT) == false)
+            continue;
+         
          // Just a convenience
-         sat = *sc;
+         sat = (SpaceObject*)(*sc);
    
          #ifdef DEBUG_FINITETHRUST_EXE
             MessageInterface::ShowMessage("   Checking spacecraft %s\n", 

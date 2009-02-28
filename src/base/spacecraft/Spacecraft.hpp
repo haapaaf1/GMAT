@@ -200,6 +200,15 @@ protected:
       
       // special parameter to handle in GmatFunction
       UTC_GREGORIAN,
+
+      // Hidden parameters used by the PSM
+      CARTESIAN_X,
+      CARTESIAN_Y,
+      CARTESIAN_Z,
+      CARTESIAN_VX,
+      CARTESIAN_VY,
+      CARTESIAN_VZ,
+
       SpacecraftParamCount
    };
    

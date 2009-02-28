@@ -392,8 +392,7 @@ void PropSetup::AddForce(PhysicalModel *force)
 //------------------------------------------------------------------------------
 PhysicalModel* PropSetup::GetForce(Integer index)
 {
-// todo: Add forces to ODEModel
-//   return mODEModel->GetForce(index);      
+   return mODEModel->GetForce(index);      
 }
 
 
@@ -406,8 +405,7 @@ PhysicalModel* PropSetup::GetForce(Integer index)
 //------------------------------------------------------------------------------
 Integer PropSetup::GetNumForces()
 {
-// todo: Add forces to ODEModel
-//   return mODEModel->GetNumForces();
+   return mODEModel->GetNumForces();
 }
 
 //------------------------------------------------------------------------------
@@ -971,15 +969,14 @@ bool PropSetup::Initialize()
       #endif
       mInitialized = false;
    }
-// todo: Manage no force state here
-//   else if (mODEModel->GetNumForces() == 0)
-//   {
-//      #ifdef DEBUG_INITIALIZATION
-//         MessageInterface::ShowMessage(
-//            "PropSetup::Initialize() NumForces is 0\n");
-//      #endif
-//      mInitialized = false;
-//   }
+   else if (mODEModel->GetNumForces() == 0)
+   {
+      #ifdef DEBUG_INITIALIZATION
+         MessageInterface::ShowMessage(
+            "PropSetup::Initialize() NumForces is 0\n");
+      #endif
+      mInitialized = false;
+   }
    
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage(

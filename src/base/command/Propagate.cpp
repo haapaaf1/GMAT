@@ -39,6 +39,7 @@
 //#define DEBUG_PROPAGATE_EXE 1
 //#define DEBUG_STOPPING_CONDITIONS 1
 //#define DEBUG_FIRST_STEP_STOP 1
+#define DEBUG_FINITE_MANEUVER
 //#define DEBUG_RENAME
 //#define DEBUG_PROP_PERFORMANCE
 //#define DEBUG_FIRST_CALL
@@ -2198,8 +2199,9 @@ bool Propagate::Initialize()
            ++scName)
       {
          #if DEBUG_PROPAGATE_INIT
-            MessageInterface::ShowMessage("   Adding '%s' to propsetup '%s'\n",
-               scName->c_str(), i->c_str());
+            MessageInterface::ShowMessage(
+                  "   Adding '%s' to prop state manager '%s'\n",
+                  scName->c_str(), i->c_str());
          #endif
          if ((mapObj = FindObject(*scName)) == NULL)
          {
@@ -2265,6 +2267,13 @@ bool Propagate::Initialize()
       p->SetRealParameter("InitialStepSize",
          fabs(p->GetRealParameter("InitialStepSize")) * direction);
       p->Initialize();
+
+      // Set spacecraft parameters for forces that need them
+      if (odem->SetupSpacecraftData(&sats, 0) <= 0)
+         throw PropagatorException("Propagate::Initialize -- "
+               "ODE model cannot set spacecraft parameters");
+
+
       ++index;
    } // End of loop through PropSetups
 
@@ -2273,8 +2282,8 @@ bool Propagate::Initialize()
    stopSats.clear();
    // Setup spacecraft array used for stopping conditions
    for (StringArray::iterator sc = stopSatNames.begin();
-        sc != stopSatNames.end(); ++sc) {
-
+        sc != stopSatNames.end(); ++sc) 
+   {
       if ((mapObj = FindObject(*sc)) == NULL)
       {
          std::string errmsg = "Unknown SpaceObject \"";
@@ -2319,7 +2328,7 @@ bool Propagate::Initialize()
          }
 
          stopWhen[i]->Initialize();
-         stopWhen[i]->SetSpacecraft(sats[0]);
+         stopWhen[i]->SetSpacecraft((SpaceObject*)sats[0]);
 
          if (!stopWhen[i]->IsInitialized())
          {
@@ -2484,10 +2493,10 @@ void Propagate::PrepareToPropagate()
    if (hasFired == true)
    {
       // Handle the transient forces
-      for (std::vector<SpaceObject *>::iterator sc = sats.begin();
+      for (ObjectArray::iterator sc = sats.begin();
            sc != sats.end(); ++sc)
       {
-         if ((*sc)->IsManeuvering())
+         if (((SpaceObject*)(*sc))->IsManeuvering())
          {
             #ifdef DEBUG_FINITE_MANEUVER
                MessageInterface::ShowMessage(
@@ -2503,8 +2512,8 @@ void Propagate::PrepareToPropagate()
                   ODEModel *fm = prop[index]->GetODEModel();
                   const StringArray sar = fm->GetRefObjectNameArray(Gmat::SPACEOBJECT);
 // todo: Register transient forces here
-//                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end())
-//                     prop[index]->GetODEModel()->AddForce(*i);
+                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end())
+                     prop[index]->GetODEModel()->AddForce(*i);
                }
             }
          }
@@ -3379,9 +3388,9 @@ bool Propagate::Execute()
    else
    {
       // clear first step stopping condition flags
-      for (std::vector<SpaceObject *>::iterator i = sats.begin();
+      for (ObjectArray::iterator i = sats.begin();
            i != sats.end(); ++i)
-         (*i)->ClearLastStopTriggered();
+         ((SpaceObject*)(*i))->ClearLastStopTriggered();
    }
 
    #ifdef DEBUG_EPOCH_UPDATES
@@ -3505,7 +3514,6 @@ bool Propagate::TakeAStep(Real propStep)
             throw CommandException("Propagator " + (*current)->GetName() +
                " failed to take a good final step (size = " + size + ")\n");
          }
-
 
          #ifdef DEBUG_FIXED_STEP
             MessageInterface::ShowMessage("   Stepped to epoch = %16.11lf\n",
@@ -3962,9 +3970,9 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 
    // Clear previous stop conditions from the spacecraft, and then store the
    // stop name in the spacecraft that triggered it
-   for (std::vector<SpaceObject *>::iterator it = sats.begin();
+   for (ObjectArray::iterator it = sats.begin();
         it != sats.end(); ++it)
-      (*it)->ClearLastStopTriggered();
+      ((SpaceObject*)(*it))->ClearLastStopTriggered();
 
    if (stopper != NULL)
    {
@@ -4552,7 +4560,7 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
          if (find(tfSats.begin(), tfSats.end(), *current) != tfSats.end())
          {
 // todo: Add in the transient force
-//            p->AddForce(*i);
+            p->AddForce(*i);
             break;      // Avoid multiple adds
          }
       }
@@ -4606,15 +4614,15 @@ void Propagate::ClearTransientForces()
          throw CommandException("ForceModel not set in PropSetup \"" +
                                 (*p)->GetName() + "\"");
 // todo: Remove the transient forces
-//      for (Integer i = 0; i < fm->GetNumForces(); ++i)
-//      {
-//         pm = fm->GetForce(i);
-//         if (pm->IsTransient())
-//         {
-//            fm->DeleteForce(pm->GetName());
-//            i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
-//         }
-//      }
+      for (Integer i = 0; i < fm->GetNumForces(); ++i)
+      {
+         pm = fm->GetForce(i);
+         if (pm->IsTransient())
+         {
+            fm->DeleteForce(pm->GetName());
+            i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
+         }
+      }
    }
 
    #ifdef DEBUG_PROPAGATE_INIT

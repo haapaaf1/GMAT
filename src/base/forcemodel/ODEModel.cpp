@@ -602,10 +602,10 @@ std::string ODEModel::GetForceTypeName(Integer index)
 //------------------------------------------------------------------------------
 PhysicalModel* ODEModel::GetForce(Integer index) const
 {
-    if (index >= 0 && index < numForces)
-       return forceList[index];
+   if (index >= 0 && index < numForces)
+      return forceList[index];
 
-    return NULL;
+   return NULL;
 }
 
 
@@ -1046,20 +1046,10 @@ bool ODEModel::Initialize()
             ") was not found in the solar system");
    }
 
-//   GmatState *state;
-//   StringArray finiteSats;
-//
-//   // Calculate the dimension of the state
-//   dimension = 0;
-//
-//   if (dimension == 0)
-//      throw ODEModelException("Attempting to initialize force model '" +
-//         instanceName + "' with dimension 0 -- No referenced spacecraft?");
-//
-//   #ifdef DEBUG_INITIALIZATION
-//      MessageInterface::ShowMessage(
-//         "Calling PhysicalModel::Initialize(); dimension = %d\n", dimension);
-//   #endif
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage(
+         "Calling PhysicalModel::Initialize(); dimension = %d\n", dimension);
+   #endif
 
    if (!PhysicalModel::Initialize())
       return false;
@@ -1162,14 +1152,6 @@ bool ODEModel::Initialize()
          throw ODEModelException(msg);
       }
       (*current)->SetState(modelState);
-
-      // todo: Set spacecraft parameters for forces that need them
-//      i = 0;
-//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat)
-//      {
-//         i = SetupSpacecraftData(*sat, (*current), i);
-//         ++i;
-//      }
    }
 
    #ifdef DEBUG_FORCE_EPOCHS
@@ -1385,15 +1367,15 @@ std::string ODEModel::BuildPropertyName(GmatBase *ownedObj)
 void ODEModel::UpdateInitialData()
 {
 // todo: Fix UpdateInitialData
-   return;
+//   return;
 
-   Integer cf = currentForce;
-   PhysicalModel *current = forceList[cf];  // waw: added 06/04/04
+//   Integer cf = currentForce;
+   PhysicalModel *current; // = forceList[cf];  // waw: added 06/04/04
 
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
    std::vector<SpaceObject *>::iterator sat;
-   Integer i;
+   Integer index;
 
 //   // Detect if spacecraft parameters need complete refresh
 //   // Set spacecraft parameters for forces that need them
@@ -1408,21 +1390,16 @@ void ODEModel::UpdateInitialData()
 //         (*sat)->ParametersHaveChanged(false);
 //      }
 
-   while (current)
+   for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
+        i != forceList.end(); ++i)
    {
+      current = (*i);
       if (!parametersSetOnce)
       {
          current->ClearSatelliteParameters();
       }
-      i = 0;
-//      // Set spacecraft parameters for forces that need them
-//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat)
-//      {
-//         SetupSpacecraftData(*sat, current, i);
-//         ++i;
-//      }
-      cf++;
-      current = forceList[cf];
+      
+      SetupSpacecraftData(psm->GetStateObjects(), 0);
    }
 
    parametersSetOnce = true;
@@ -1448,185 +1425,198 @@ void ODEModel::UpdateInitialData()
 //------------------------------------------------------------------------------
 void ODEModel::UpdateTransientForces()
 {
-//   for (std::vector<PhysicalModel *>::iterator tf = forceList.begin();
-//        tf != forceList.end(); ++tf) {
-//      if ((*tf)->IsTransient())
-//         (*tf)->SetPropList(&spacecraft);
-//
-//   }
+   ObjectArray *propList = psm->GetStateObjects();
+   for (std::vector<PhysicalModel *>::iterator tf = forceList.begin();
+        tf != forceList.end(); ++tf) 
+   {
+      if ((*tf)->IsTransient())
+         (*tf)->SetPropList(propList);
+   }
 }
 
 
-////------------------------------------------------------------------------------
-//// Integer SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm, Integer i)
-////------------------------------------------------------------------------------
-///**
-// * Passes spacecraft parameters into the force model.
-// *
-// * @param <sat>   The SpaceObject that supplies the parameters.
-// * @param <pm>    The PhysicalModel receiving the data.
-// * @param <i>     The index of the SpaceObject in the physical model.
-// *
-// * @return For Spacecraft, the corresponding index; for formations, a count of
-// *         the number of spacecraft in the formation.
-// */
-////------------------------------------------------------------------------------
-//Integer ODEModel::SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm,
-//                                        Integer i)
-//{
-//   Integer retval = i; //, id;
-//   Real parm;
-//   std::string stringParm;
-//
-//   // Only retrieve the parameter IDs once
-//   if ((satIds[1] < 0) && sat->IsOfType("Spacecraft"))
-//   {
-//      satIds[0] = sat->GetParameterID("A1Epoch");
-//      if (satIds[0] < 0)
-//         throw ODEModelException("Epoch parameter undefined on object " +
-//                                   sat->GetName());
-//
-////      modelEpochId = pm->GetParameterID("Epoch");
-////      if (modelEpochId < 0)
-////         throw ODEModelException("Epoch parameter undefined on PhysicalModel");
-//
-//      satIds[1] = sat->GetParameterID("CoordinateSystem");
-//      if (satIds[1] < 0)
-//         throw ODEModelException(
-//            "CoordinateSystem parameter undefined on object " + sat->GetName());
-//
-//      // Should this be total mass?
-//      satIds[2] = sat->GetParameterID("DryMass");
-//      if (satIds[2] < 0)
-//         throw ODEModelException("DryMass parameter undefined on object " +
-//                                   sat->GetName());
-//
-//      satIds[3] = sat->GetParameterID("Cd");
-//      if (satIds[3] < 0)
-//         throw ODEModelException("Cd parameter undefined on object " +
-//                                   sat->GetName());
-//
-//      satIds[4] = sat->GetParameterID("DragArea");
-//      if (satIds[4] < 0)
-//         throw ODEModelException("Drag Area parameter undefined on object " +
-//                                   sat->GetName());
-//
-//      satIds[5] = sat->GetParameterID("SRPArea");
-//      if (satIds[5] < 0)
-//         throw ODEModelException("SRP Area parameter undefined on object " +
-//                                   sat->GetName());
-//
-//      satIds[6] = sat->GetParameterID("Cr");
-//      if (satIds[6] < 0)
-//         throw ODEModelException("Cr parameter undefined on object " +
-//                                   sat->GetName());
-//
-//      #ifdef DEBUG_SATELLITE_PARAMETERS
-//         MessageInterface::ShowMessage(
-//            "Parameter ID Array: [%d %d %d %d %d %d %d]; PMepoch id  = %d\n",
-//            satIds[0], satIds[1], satIds[2], satIds[3], satIds[4], satIds[5],
-//            satIds[6], PhysicalModel::EPOCH);
-//      #endif
-//   }
-//
-//   if (sat->GetType() == Gmat::SPACECRAFT)
-//   {
-//      #ifdef DEBUG_SATELLITE_PARAMETERS
-//         MessageInterface::ShowMessage(
-//            "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
-//            "parametersSetOnce = %s\n",
-//            GetName().c_str(), pm->GetTypeName().c_str(),
-//            sat->GetName().c_str(),
-//            (((SpaceObject*)sat)->ParametersHaveChanged() ? "true" : "false"),
-//            (parametersSetOnce ? "true" : "false"));
-//      #endif
-//
-//      // Manage the epoch ...
-//      parm = sat->GetRealParameter(satIds[0]);
-//      // Update local value for epoch
-//      epoch = parm;
-//      pm->SetRealParameter(PhysicalModel::EPOCH, parm);
-//
-//      if (((SpaceObject*)sat)->ParametersHaveChanged() || !parametersSetOnce)
-//      {
-//         #ifdef DEBUG_SATELLITE_PARAMETERS
-//            MessageInterface::ShowMessage("Setting parameters for %s\n",
-//               pm->GetTypeName().c_str());
-//         #endif
-//
-//         // ... Coordinate System ...
-//         stringParm = sat->GetStringParameter(satIds[1]);
-//
-//         CoordinateSystem *cs =
-//            (CoordinateSystem*)(sat->GetRefObject(Gmat::COORDINATE_SYSTEM,
-//                                stringParm));
-//         if (!cs)
-//         {
-//            char sataddr[20];
-//            std::sprintf(sataddr, "%lx", (unsigned long)sat);
-//            throw ODEModelException(
-//               "CoordinateSystem is NULL on Spacecraft " + sat->GetName() +
-//               " at address " + sataddr);
-//         }
-//         pm->SetSatelliteParameter(i, "ReferenceBody", cs->GetOriginName());
-//
-//         // ... Mass ...
-//         parm = sat->GetRealParameter(satIds[2]);
-//         if (parm <= 0)
-//            throw ODEModelException("Mass parameter unphysical on object " +
-//                                            sat->GetName());
-//         pm->SetSatelliteParameter(i, "DryMass", parm);
-//
-//         // ... Coefficient of drag ...
-//         parm = sat->GetRealParameter(satIds[3]);
-//         if (parm < 0)
-//            throw ODEModelException("Cd parameter unphysical on object " +
-//                                      sat->GetName());
-//         pm->SetSatelliteParameter(i, "Cd", parm);
-//
-//         // ... Drag area ...
-//         parm = sat->GetRealParameter(satIds[4]);
-//         if (parm < 0)
-//            throw ODEModelException("Drag Area parameter unphysical on object " +
-//                                      sat->GetName());
-//         pm->SetSatelliteParameter(i, "DragArea", parm);
-//
-//         // ... SRP area ...
-//         parm = sat->GetRealParameter(satIds[5]);
-//         if (parm < 0)
-//            throw ODEModelException("SRP Area parameter unphysical on object " +
-//                                      sat->GetName());
-//         pm->SetSatelliteParameter(i, "SRPArea", parm);
-//
-//         // ... and Coefficient of reflectivity
-//         parm = sat->GetRealParameter(satIds[6]);
-//         if (parm < 0)
-//            throw ODEModelException("Cr parameter unphysical on object " +
-//                                      sat->GetName());
-//         pm->SetSatelliteParameter(i, "Cr", parm);
-//
-//         ((SpaceObject*)sat)->ParametersHaveChanged(false);
-//      }
-//   }
-//   else if (sat->GetType() == Gmat::FORMATION)
-//   {
-//      Integer j = -1;
-//      ObjectArray elements = sat->GetRefObjectArray("SpaceObject");
-//      for (ObjectArray::iterator n = elements.begin(); n != elements.end();
-//           ++n)
-//      {
-//         ++j;
-//         j = SetupSpacecraftData(*n, pm, j);
-//      }
-//      retval = j;
-//   }
-//   else
-//      throw ODEModelException(
-//         "Setting SpaceObject parameters on unknown type for " +
-//         sat->GetName());
-//
-//   return retval;
-//}
+//------------------------------------------------------------------------------
+// Integer SetupSpacecraftData(GmatBase *sat, PhysicalModel *pm, Integer i)
+//------------------------------------------------------------------------------
+/**
+ * Passes spacecraft parameters into the force model.
+ *
+ * @param <sat>   The SpaceObject that supplies the parameters.
+ * @param <pm>    The PhysicalModel receiving the data.
+ * @param <i>     The index of the SpaceObject in the physical model.
+ *
+ * @return For Spacecraft, the corresponding index; for formations, a count of
+ *         the number of spacecraft in the formation.
+ */
+//------------------------------------------------------------------------------
+Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
+{
+   Real parm;
+   std::string stringParm;
+   
+   GmatBase* sat;
+   
+   for (ObjectArray::iterator j = sats->begin(); 
+        j != sats->end(); ++j)
+   {
+      sat = *j;
+
+      // Only retrieve the parameter IDs once
+      if ((satIds[1] < 0) && sat->IsOfType("Spacecraft"))
+      {
+         satIds[0] = sat->GetParameterID("A1Epoch");
+         if (satIds[0] < 0)
+            throw ODEModelException("Epoch parameter undefined on object " +
+                                      sat->GetName());
+   
+         satIds[1] = sat->GetParameterID("CoordinateSystem");
+         if (satIds[1] < 0)
+            throw ODEModelException(
+               "CoordinateSystem parameter undefined on object " + sat->GetName());
+   
+         // Should this be total mass?
+         satIds[2] = sat->GetParameterID("DryMass");
+         if (satIds[2] < 0)
+            throw ODEModelException("DryMass parameter undefined on object " +
+                                      sat->GetName());
+   
+         satIds[3] = sat->GetParameterID("Cd");
+         if (satIds[3] < 0)
+            throw ODEModelException("Cd parameter undefined on object " +
+                                      sat->GetName());
+   
+         satIds[4] = sat->GetParameterID("DragArea");
+         if (satIds[4] < 0)
+            throw ODEModelException("Drag Area parameter undefined on object " +
+                                      sat->GetName());
+   
+         satIds[5] = sat->GetParameterID("SRPArea");
+         if (satIds[5] < 0)
+            throw ODEModelException("SRP Area parameter undefined on object " +
+                                      sat->GetName());
+   
+         satIds[6] = sat->GetParameterID("Cr");
+         if (satIds[6] < 0)
+            throw ODEModelException("Cr parameter undefined on object " +
+                                      sat->GetName());
+   
+         #ifdef DEBUG_SATELLITE_PARAMETERS
+            MessageInterface::ShowMessage(
+               "Parameter ID Array: [%d %d %d %d %d %d %d]; PMepoch id  = %d\n",
+               satIds[0], satIds[1], satIds[2], satIds[3], satIds[4], satIds[5],
+               satIds[6], PhysicalModel::EPOCH);
+         #endif
+      }
+   
+      PhysicalModel *pm;
+      for (std::vector<PhysicalModel *>::iterator current = forceList.begin();
+           current != forceList.end(); ++current)
+      {
+         pm = *current;
+      
+         if (sat->GetType() == Gmat::SPACECRAFT)
+         {
+            #ifdef DEBUG_SATELLITE_PARAMETERS
+               MessageInterface::ShowMessage(
+                  "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
+                  "parametersSetOnce = %s\n",
+                  GetName().c_str(), pm->GetTypeName().c_str(),
+                  sat->GetName().c_str(),
+                  (((SpaceObject*)sat)->ParametersHaveChanged() ? "true" : "false"),
+                  (parametersSetOnce ? "true" : "false"));
+            #endif
+      
+            // Manage the epoch ...
+            parm = sat->GetRealParameter(satIds[0]);
+            // Update local value for epoch
+            epoch = parm;
+            pm->SetRealParameter(PhysicalModel::EPOCH, parm);
+      
+            if (((SpaceObject*)sat)->ParametersHaveChanged() || !parametersSetOnce)
+            {
+//               #ifdef DEBUG_SATELLITE_PARAMETERS
+                  MessageInterface::ShowMessage("Setting parameters for %s\n",
+                     pm->GetTypeName().c_str());
+//               #endif
+      
+               // ... Coordinate System ...
+               stringParm = sat->GetStringParameter(satIds[1]);
+      
+               CoordinateSystem *cs =
+                  (CoordinateSystem*)(sat->GetRefObject(Gmat::COORDINATE_SYSTEM,
+                                      stringParm));
+               if (!cs)
+               {
+                  char sataddr[20];
+                  std::sprintf(sataddr, "%lx", (unsigned long)sat);
+                  throw ODEModelException(
+                     "CoordinateSystem is NULL on Spacecraft " + sat->GetName() +
+                     " at address " + sataddr);
+               }
+               pm->SetSatelliteParameter(i, "ReferenceBody", cs->GetOriginName());
+      
+               // ... Mass ...
+               parm = sat->GetRealParameter(satIds[2]);
+               if (parm <= 0)
+                  throw ODEModelException("Mass parameter unphysical on object " +
+                                                  sat->GetName());
+               pm->SetSatelliteParameter(i, "DryMass", parm);
+      
+               // ... Coefficient of drag ...
+               parm = sat->GetRealParameter(satIds[3]);
+               if (parm < 0)
+                  throw ODEModelException("Cd parameter unphysical on object " +
+                                            sat->GetName());
+               pm->SetSatelliteParameter(i, "Cd", parm);
+      
+               // ... Drag area ...
+               parm = sat->GetRealParameter(satIds[4]);
+               if (parm < 0)
+                  throw ODEModelException("Drag Area parameter unphysical on object " +
+                                            sat->GetName());
+               pm->SetSatelliteParameter(i, "DragArea", parm);
+      
+               // ... SRP area ...
+               parm = sat->GetRealParameter(satIds[5]);
+               if (parm < 0)
+                  throw ODEModelException("SRP Area parameter unphysical on object " +
+                                            sat->GetName());
+               pm->SetSatelliteParameter(i, "SRPArea", parm);
+      
+               // ... and Coefficient of reflectivity
+               parm = sat->GetRealParameter(satIds[6]);
+               if (parm < 0)
+                  throw ODEModelException("Cr parameter unphysical on object " +
+                                            sat->GetName());
+               pm->SetSatelliteParameter(i, "Cr", parm);
+      
+               ((SpaceObject*)sat)->ParametersHaveChanged(false);
+            }
+         }
+         else if (sat->GetType() == Gmat::FORMATION)
+         {
+            ObjectArray formSats;
+            ObjectArray elements = sat->GetRefObjectArray("SpaceObject");
+            for (ObjectArray::iterator n = elements.begin(); n != elements.end();
+                 ++n)
+            {
+               if ((*n)->IsOfType(Gmat::SPACEOBJECT))
+                  formSats.push_back((SpaceObject *)(*n));
+               else
+                  throw ODEModelException("Object \"" + sat->GetName() +
+                        "\" is not a SpaceObject.");
+            }
+            SetupSpacecraftData(&formSats, i);
+         }
+         else
+            throw ODEModelException(
+               "Setting SpaceObject parameters on unknown type for " +
+               sat->GetName());
+      }
+      ++i;
+   }
+   return i;
+}
 
 
 ////------------------------------------------------------------------------------
@@ -1682,12 +1672,11 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
    #ifdef DEBUG_STATE
       MessageInterface::ShowMessage(
                "Top of GetDeriv; State with dimension %d = [", dimension);
-//               state->GetSize());
       for (Integer i = 0; i < dimension; ++i) //< state->GetSize()-1; ++i)
          MessageInterface::ShowMessage("%le, ", state[i]); //(*state)[i]);
       MessageInterface::ShowMessage("%le]\n", state[dimension-1]); //(*state)[state->GetSize()-1]);
    #endif
-
+      
    // Initialize the derivative array
    for (Integer i = 0; i < dimension; ++i)
    {
@@ -1696,16 +1685,16 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
 
    const Real* ddt;
 
-#ifdef DEBUG_ODEMODEL_EXE
-   MessageInterface::ShowMessage("Looping through %d PhysicalModels\n",
-         forceList.size());
-#endif
+   #ifdef DEBUG_ODEMODEL_EXE
+      MessageInterface::ShowMessage("Looping through %d PhysicalModels\n",
+            forceList.size());
+   #endif
    for (std::vector<PhysicalModel *>::iterator i = forceList.begin();
          i != forceList.end(); ++i)
    {
-#ifdef DEBUG_ODEMODEL_EXE
-   MessageInterface::ShowMessage("   %s\n", ((*i)->GetTypeName()).c_str());
-#endif
+      #ifdef DEBUG_ODEMODEL_EXE
+         MessageInterface::ShowMessage("   %s\n", ((*i)->GetTypeName()).c_str());
+      #endif
 
       ddt = (*i)->GetDerivativeArray();
       if (!(*i)->GetDerivatives(state, dt, order))
@@ -1728,19 +1717,6 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
 
       for (Integer j = 0; j < dimension; ++j)
       {
-         // todo: Handle the first order CartesianState term dr/dt = v
-         //for (i = 0; i < satCount; ++i)
-         //{
-         //   iOffset = i*stateSize;
-         //   if (order == 1) //loj: changed from =
-         //   {
-         //      deriv[iOffset+3] += ddt[iOffset+3];
-         //      deriv[iOffset+4] += ddt[iOffset+4];
-         //      deriv[iOffset+5] += ddt[iOffset+5];
-         //   }
-         //}
-         //continue;
-
          deriv[j] += ddt[j];
          #ifdef DEBUG_ODEMODEL_EXE
             MessageInterface::ShowMessage("  deriv[%d] = %16.14le\n", j,
@@ -1787,106 +1763,8 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
    #endif
 
    return true;
-
-
-   // Old code:
-//
-//   Integer satCount = dimension / stateSize, i, iOffset;
-//
-//
-//   #ifdef DEBUG_ODEMODEL_EPOCHS
-//      MessageInterface::ShowMessage(
-//         "Input time offset = %16.14le; epoch = %16.10lf\n", dt, epoch);
-//   #endif
-//
-//   // Initialize the derivative array
-//   for (i = 0; i < satCount; ++i) {
-//      iOffset = i*stateSize;
-//      if (order == 1) //loj: changed from =
-//      {
-//          deriv[ iOffset ] = state[iOffset+3];
-//          deriv[iOffset+1] = state[iOffset+4];
-//          deriv[iOffset+2] = state[iOffset+5];
-//          deriv[iOffset+3] = deriv[iOffset+4] = deriv[iOffset+5] = 0.0;
-//      }
-//      else
-//      {
-//          deriv[iOffset] = deriv[iOffset+1] = deriv[iOffset+2] =
-//          deriv[iOffset+3] = deriv[iOffset+4] = deriv[iOffset+5] = 0.0;
-//      }
-//   }
-//
-//   Integer cf = currentForce;
-//   PhysicalModel *current = forceList[cf];
-//
-//   const Real * ddt;
-//   while (current)
-//   {
-//      ddt = current->GetDerivativeArray();
-//      if (!current->GetDerivatives(state, dt, order))
-//         return false;
-//
-//      #ifdef DEBUG_ODEMODEL_EXE
-//      for (i = 0; i < satCount; ++i)
-//         MessageInterface::ShowMessage("  ddt(%s[%s])[%d] = %le %le %le\n",
-//            (current->GetTypeName().c_str()),
-//            (current->GetStringParameter(
-//               current->GetParameterID("BodyName"))).c_str(), i,
-//            ddt[i*stateSize + 3], ddt[i*stateSize + 4], ddt[i*stateSize + 5]);
-//      #endif
-//
-//      for (i = 0; i < satCount; ++i) {
-//         iOffset = i*stateSize;
-//         if (order == 1) //loj: changed from =
-//         {
-//            deriv[iOffset+3] += ddt[iOffset+3];
-//            deriv[iOffset+4] += ddt[iOffset+4];
-//            deriv[iOffset+5] += ddt[iOffset+5];
-//         }
-//         else
-//         {
-//            deriv[ iOffset ] += ddt[ iOffset ];
-//            deriv[iOffset+1] += ddt[iOffset+1];
-//            deriv[iOffset+2] += ddt[iOffset+2];
-//         }
-//         #ifdef DEBUG_ODEMODEL_EXE
-//            MessageInterface::ShowMessage("  deriv[%d] = %le %le %le\n", i,
-//               deriv[iOffset + 3], deriv[iOffset + 4],
-//               deriv[iOffset + 5]);
-//         #endif
-//      }
-//
-//      #ifdef DEBUG_FIRST_CALL
-//         if (firstCallFired == false)
-//         {
-//            MessageInterface::ShowMessage(
-//               "   %s(%s)::GetDerivatives --> "
-//               "[%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-//               current->GetTypeName().c_str(), current->GetName().c_str(),
-//               ddt[0], ddt[1], ddt[2], ddt[3], ddt[4], ddt[5]);
-//         }
-//      #endif
-//
-//      ++cf;
-//      current = forceList[cf];
-//   }
-//   #ifdef DEBUG_ODEMODEL_EXE
-//      MessageInterface::ShowMessage("  ===============================\n");
-//   #endif
-//
-//   #ifdef DEBUG_FIRST_CALL
-//      if (firstCallFired == false)
-//      {
-//         MessageInterface::ShowMessage(
-//            "GetDerivatives: [%.16lf %.16lf %.16lf %.16lf %.16lf %.16lf]\n",
-//            deriv[0], deriv[1], deriv[2], deriv[3], deriv[4], deriv[5]);
-//      }
-//
-//      firstCallFired = true;
-//   #endif
-//
-//   return true;
 }
+
 
 //------------------------------------------------------------------------------
 // Real ODEModel::EstimateError(Real *diffs, Real *answer) const
@@ -2415,8 +2293,7 @@ std::string ODEModel::GetStringParameter(const Integer id) const
       case  DRAG:
       {
          // Find the drag force
-         /// todo: FIX THIS!!!!!!!!!!
-         const PhysicalModel *pm;// = GetForce("DragForce");
+         const PhysicalModel *pm = GetForce("DragForce");
          // No drag force, return "None"
          if (pm == NULL)
             return "None";
@@ -2564,8 +2441,7 @@ std::string ODEModel::GetOnOffParameter(const Integer id) const
    {
    case SRP:
       {
-         /// todo:  FIX THIS!!!!!!
-         const PhysicalModel *pm;// = GetForce("SolarRadiationPressure");
+         const PhysicalModel *pm = GetForce("SolarRadiationPressure");
          if (pm == NULL)
             return "Off";
          return "On";
