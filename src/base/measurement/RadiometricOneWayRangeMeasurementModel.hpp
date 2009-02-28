@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeMeasurementModel
+//                              RadiometricOneWayRangeMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -13,24 +13,24 @@
 //
 /**
  *
- * Implements the geometric range measurement model.
+ * Implements the Radiometric range measurement model.
  *
  */
 //------------------------------------------------------------------------------
 
-#ifndef _RANGEMEASUREMENTMODEL_HPP
-#define	_RANGEMEASUREMENTMODEL_HPP
+#ifndef _RadiometricOneWayRangeMeasurementModel_HPP
+#define	_RadiometricOneWayRangeMeasurementModel_HPP
 
 #include "MeasurementModel.hpp"
 #include "CoordinateConverter.hpp"
 
-class GMAT_API RangeMeasurementModel : public MeasurementModel
+class GMAT_API RadiometricOneWayRangeMeasurementModel : public MeasurementModel
 {
 public:
-    RangeMeasurementModel(const std::string name = "");
-    RangeMeasurementModel(const RangeMeasurementModel &RMM);
-    RangeMeasurementModel& operator=(const RangeMeasurementModel &RMM);
-    virtual ~RangeMeasurementModel();
+    RadiometricOneWayRangeMeasurementModel(const std::string name = "");
+    RadiometricOneWayRangeMeasurementModel(const RadiometricOneWayRangeMeasurementModel &RMM);
+    RadiometricOneWayRangeMeasurementModel& operator=(const RadiometricOneWayRangeMeasurementModel &RMM);
+    virtual ~RadiometricOneWayRangeMeasurementModel();
 
     void Initialize() const;
     
@@ -49,5 +49,5 @@ protected:
 
 };
 
-#endif	/* _RANGEMEASUREMENTMODEL_HPP */
+#endif	/* _RadiometricOneWayRangeMeasurementModel_HPP */
 

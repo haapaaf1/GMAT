@@ -328,8 +328,8 @@ OBJECTS = \
     math/Transpose.o \
     measurement/MeasurementModel.o \
     measurement/MeasurementModelException.o \
-    measurement/RangeMeasurementModel.o \
-    measurement/RangeAzElMeasurementModel.o \
+    measurement/GeometricRangeMeasurementModel.o \
+    measurement/GeometricRangeAzElMeasurementModel.o \
     measurement/DataFile.o \
     measurement/DataFileException.o \
     measurement/ProcessTLEData.o \
@@ -496,11 +496,10 @@ OBJECTS = \
 #    environment/Msise00Atmosphere.o \
 #    propagator/Cowell.o \
 #    measurement/SimMeasurementModel.o \
-#    measurement/AzElMeasurementModel.o \
-#    measurement/RangeMeasurementModel.o \
-#    measurement/RangeRaDecMeasurementModel.o \
-#    measurement/RaDecMeasurementModel.o \
-#    measurement/RangeAzElMeasurementModel.o \
+#    measurement/GeometricAzElMeasurementModel.o \
+#    measurement/GeometricRangeRaDecMeasurementModel.o \
+#    measurement/GeometricRaDecMeasurementModel.o \
+#    measurement/GeometricRangeAzElMeasurementModel.o \
 
 
 

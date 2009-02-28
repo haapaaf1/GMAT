@@ -22,6 +22,7 @@
 #include "CoordinateConverter.hpp"
 #include "TimeSystemConverter.hpp"
 #include "StateConverter.hpp"
+#include "Moderator.hpp"
 
 //---------------------------------
 //  static data
@@ -54,6 +55,9 @@ const std::string
 MeasurementModel::PARAMETER_TEXT[MeasurementModelParamCount - GmatBaseParamCount] =
 {
    "DataSource",
+   "DataType",
+   "DataFileNameß",
+   "NumLines",
    "MeasurementTypes",
    "LightTimeCorrection",
    "IonosphericCorrection",
@@ -68,6 +72,9 @@ const Gmat::ParameterType
 MeasurementModel::PARAMETER_TYPE[MeasurementModelParamCount - GmatBaseParamCount] =
 {
    Gmat::OBJECTARRAY_TYPE,
+   Gmat::STRINGARRAY_TYPE,
+   Gmat::STRINGARRAY_TYPE,
+   Gmat::INTEGER_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::BOOLEAN_TYPE,
    Gmat::BOOLEAN_TYPE,
@@ -313,6 +320,13 @@ bool MeasurementModel::SetBooleanParameter(const Integer id, const bool &value)
 //------------------------------------------------------------------------------
 const StringArray& MeasurementModel::GetStringArrayParameter(const Integer id) const
 {
+
+   if (id == FILEFORMAT_ID)
+      return myDataFileFormats;
+
+   if (id == FILENAME_ID)
+      return myDataFileNames;
+
    if (id == MEASUREMENTTYPES_ID)
       return measurementTypesAllowed;
   
@@ -324,8 +338,8 @@ const StringArray& MeasurementModel::GetStringArrayParameter(const Integer id) c
 //------------------------------------------------------------------------------
 Integer MeasurementModel::GetIntegerParameter(const Integer id) const
 {
-//    if (id == NUMLINES_ID)
-//      return numLines;
+    if (id == NUMLINES_ID)
+      return numLines;
 
     return GmatBase::GetIntegerParameter(id);
 }
@@ -497,6 +511,8 @@ MeasurementModel::MeasurementModel(const std::string typeName,
    myDataFileTypes.push_back("");
    myDataFileNames.push_back("");
    myDataSources.push_back(NULL);
+
+   theModerator  = Moderator::Instance();
 }
 
 //------------------------------------------------------------------------------
@@ -504,6 +520,7 @@ MeasurementModel::MeasurementModel(const std::string typeName,
 //------------------------------------------------------------------------------
 MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
    GmatBase    (mm),
+   theModerator (mm.theModerator),
    modelID  (mm.modelID),
    ionoModelName (mm.ionoModelName),
    tropoModelName (mm.tropoModelName),
@@ -576,54 +593,37 @@ std::istream& operator>>(std::istream& input, MeasurementModel &mm)
  * Initializes the measurement model.
  */
 //------------------------------------------------------------------------------
-void MeasurementModel::Initialize() const
+bool MeasurementModel::Initialize() const
 {
     CoordinateConverter ccvtr;
 
     // Check to see if a DataSource has already been created elsewhere
     // If not, then create the appropriate kind.
-    if (myDataSources.size() == 0 && myDataFileNames.size() > 0) {
+    if (myDataSources.size() == 0 && myDataFileFormats.size() > 0)
+    {
 
- /*
-    for (Integer i = 0; i != myDataFileNames.size(); i++)
+        for (unsigned int i = 0; i != myDataFileFormats.size(); i++)
         {
 
-            Integer id = DataFile::GetFileFormatID(myDataFileTypes[i]);
+            GmatBase *obj = NULL;
             
-            switch (id)
+            obj = (GmatBase*)theModerator->CreateDataFile(myDataFileFormats[i],myDataFileNames[i]);
+            if (obj == NULL)
             {
-              
-                case DataFile::B3_ID:
+                MessageInterface::ShowMessage("MeasurementModel could not create datafile of type "+myDataFileFormats[i]+"\n");
+                throw MeasurementModelException("MeasurementModel could not create datafile of type "+myDataFileFormats[i]+"\n");
 
-                    ProcessB3Data myB3Data = new ProcessB3Data("myData");
-                    myB3Data.SetFileName(myDataFileNames[i];
-                    myB3Data.Initialize();
-                    myDataSources.push_back(myB3Data);
-                    break;
-
-                case DataFile::SLR_ID:
-
-                    ProcessSLRData mySLRData = new ProcessSLRData("myData");
-                    mySLRData.SetFileName(myDataFileNames[i];
-                    mySLRData.Initialize();
-                    myDataSources.push_back(mySLRData);
-                    break;
-
-                case DataFile::TLE_ID:
-
-                    ProcessTLEData myTLEData = new ProcessTLEData("myData");
-                    myTLEData.SetFileName(myDataFileNames[i];
-                    myTLEData.Initialize();
-                    myDataSources.push_back(myTLEData);
-                    break;
-
-                default:
-
-                    MessageInterface::ShowMessage("MeasurementModel could not create datafile of type %s\n",myDataFileTypes[i]);
-                    throw MeasurementModelException("MeasurementModel could not create datafile of type %s\n",myDataFileTypes[i]);
+            }
+            else
+            {
+                obj->SetFile
+                obj->SetFileFormatName(myDataFileNames[i]);
+                obj->SetNumLines(numLines[i]);
+                obj->
+                obj->Initialize();
+                SetRefObject(obj,Gmat::DATA_FILE);
             }
         }
-*/
                 
     }
 
@@ -632,6 +632,8 @@ void MeasurementModel::Initialize() const
     //    std::string str = "test";
         //(*i)->CheckDataAvailability(str);
     //}
+
+    return true;
 
 }
 

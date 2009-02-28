@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                              RangeMeasurementModel
+//                              RadiometricOneWayRangeMeasurementModel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -13,27 +13,27 @@
 //
 /**
  *
- * Implements the geometric range measurement model.
+ * Implements the Radiometric range measurement model.
  *
  */
 //------------------------------------------------------------------------------
 
-#include "RangeMeasurementModel.hpp"
+#include "RadiometricOneWayRangeMeasurementModel.hpp"
 #include "Rvector6.hpp"
 
-RangeMeasurementModel::RangeMeasurementModel(const std::string name) :
-   MeasurementModel        ("Range", name)
+RadiometricOneWayRangeMeasurementModel::RadiometricOneWayRangeMeasurementModel(const std::string name) :
+   MeasurementModel        ("RadiometricOneWayRange", name)
 {
 
 }
 
-RangeMeasurementModel::RangeMeasurementModel(const RangeMeasurementModel &RMM):
+RadiometricOneWayRangeMeasurementModel::RadiometricOneWayRangeMeasurementModel(const RadiometricOneWayRangeMeasurementModel &RMM):
    MeasurementModel        (RMM)
 {
 
 }
 
-RangeMeasurementModel& RangeMeasurementModel::operator=(const RangeMeasurementModel &RMM)
+RadiometricOneWayRangeMeasurementModel& RadiometricOneWayRangeMeasurementModel::operator=(const RadiometricOneWayRangeMeasurementModel &RMM)
 {
    if (&RMM != this)
    {
@@ -42,13 +42,13 @@ RangeMeasurementModel& RangeMeasurementModel::operator=(const RangeMeasurementMo
    return *this;
 }
 
-RangeMeasurementModel::~RangeMeasurementModel()
+RadiometricOneWayRangeMeasurementModel::~RadiometricOneWayRangeMeasurementModel()
 {
 }
 
-GmatBase *RangeMeasurementModel::Clone() const
+GmatBase *RadiometricOneWayRangeMeasurementModel::Clone() const
 {
-   return new RangeMeasurementModel(*this);
+   return new RadiometricOneWayRangeMeasurementModel(*this);
 }
 
 // Initialize
@@ -60,7 +60,7 @@ GmatBase *RangeMeasurementModel::Clone() const
  * Initializes the measurement model.
  */
 //------------------------------------------------------------------------------
-void RangeMeasurementModel::Initialize() const
+void RadiometricOneWayRangeMeasurementModel::Initialize() const
 {
 
 }
@@ -75,7 +75,7 @@ void RangeMeasurementModel::Initialize() const
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-bool RangeMeasurementModel::ComputeMeasurement(
+bool RadiometricOneWayRangeMeasurementModel::ComputeMeasurement(
       GroundStation *theStation, Spacecraft *theSat, LaVectorDouble &myMeasurements)
 {
 
@@ -106,7 +106,7 @@ bool RangeMeasurementModel::ComputeMeasurement(
  * computed.
  */
 //------------------------------------------------------------------------------
-bool RangeMeasurementModel::ComputeCartesianPartialDerivative(
+bool RadiometricOneWayRangeMeasurementModel::ComputeCartesianPartialDerivative(
       GroundStation *theStation, Spacecraft *theSat, LaGenMatDouble &myCartDerivatives)
 {
     

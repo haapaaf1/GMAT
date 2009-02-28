@@ -681,22 +681,47 @@ void BatchLeastSquares::Accumulate()
    // Compute observed minus computed measurement
    for (std::vector<MeasurementModel*>::iterator i = measModels.begin(); i != measModels.end(); ++i)
    {
-       MeasurementModel *current = *i;
-       m = current->GetNumMeasurements();
+       MeasurementModel *currentMM = *i;
+       m = currentMM->GetNumMeasurements();
        LaVectorDouble ycomputed(m);
        
-       if(current->ComputeMeasurement(theGroundStation,theSat,ycomputed))
+       if(currentMM->ComputeMeasurement(theGroundStation,theSat,ycomputed))
        {
 	    z(LaIndex(obIndex,obIndex+m)) = y(LaIndex(obIndex,obIndex+m))-ycomputed;
        }
        
        // Get partial derivatives
        LaGenMatDouble thisH(m,6);
-       current->ComputeCartesianPartialDerivative(theGroundStation,theSat,thisH);
+       currentMM->ComputeCartesianPartialDerivative(theGroundStation,theSat,thisH);
        
        //H(LaIndex(obIndex,obIndex+m),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
-       // TODO: STM = GetStateTransitionMatrix();
-       LaGenMatDouble STM = LaGenMatDouble::eye(stateCount);
+
+       // Obtain the state transition matrix and it's dimensions
+       Integer orbitStmId = theSat->GetParameterID("OrbitSTM");
+       Rmatrix localSTMcopy = theSat->GetRmatrixParameter(orbitStmId);
+       Integer numColumns = localSTMcopy.GetNumColumns();
+       Integer numRows = localSTMcopy.GetNumRows();
+
+       // Obtain the STM matrix in vector form
+       const Real *STMvec = localSTMcopy.GetDataVector();
+
+       // Create a safe copy of the STM to initialize the
+       // LaGenMatDouble matrix
+       double* safeSTMvec = new double[numColumns * numRows];
+       memcpy(safeSTMvec, STMvec, numColumns * numRows * sizeof(Real));
+
+
+       // Copy the Rmatrix STM into a Lapack matrix
+       // This constructs an m x n matrix using the values from the
+       // originating matrix. By specifying the row_ordering = true,
+       // a deep copy of the matrix is performed. The LaGenMatDouble
+       // class expects a non const variable to initialize the matrix.
+       LaGenMatDouble STM(safeSTMvec,numRows,numColumns,true);
+
+       // delete the local copy of the STM as we no longer need it
+       delete [] safeSTMvec;
+       
+       //LaGenMatDouble STM = LaGenMatDouble::eye(stateCount);
 
        H = thisH(LaIndex(0,m-1),LaIndex(0,5))*STM;
 

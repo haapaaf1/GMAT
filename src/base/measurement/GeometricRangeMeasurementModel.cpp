@@ -60,9 +60,9 @@ GmatBase *GeometricRangeMeasurementModel::Clone() const
  * Initializes the measurement model.
  */
 //------------------------------------------------------------------------------
-void GeometricRangeMeasurementModel::Initialize() const
+bool GeometricRangeMeasurementModel::Initialize() const
 {
-
+    return true;
 }
 
 //------------------------------------------------------------------------------

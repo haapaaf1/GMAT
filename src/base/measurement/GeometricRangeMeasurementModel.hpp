@@ -32,7 +32,7 @@ public:
     GeometricRangeMeasurementModel& operator=(const GeometricRangeMeasurementModel &RMM);
     virtual ~GeometricRangeMeasurementModel();
 
-    void Initialize() const;
+    bool Initialize() const;
     
     virtual bool ComputeMeasurement(GroundStation *theStation,
           Spacecraft *theSat, LaVectorDouble &myMeasurements);

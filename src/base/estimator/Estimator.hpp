@@ -96,6 +96,7 @@ public:
 //   };
 
 public:
+
    Estimator(const std::string &type, const std::string &name);
    virtual ~Estimator();
    Estimator(const Estimator& sol);

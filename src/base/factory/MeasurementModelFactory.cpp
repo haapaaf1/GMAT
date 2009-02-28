@@ -22,10 +22,10 @@
 #include "MessageInterface.hpp"  // temporary
 
 // Here we include the header files that define our supported models
-//#include "AzElMeasurementModel.hpp"
-#include "RangeMeasurementModel.hpp"
-#include "RangeAzElMeasurementModel.hpp"
-//#include "RangeRaDecMeasurementModel.hpp"
+//#include "GeometricAzElMeasurementModel.hpp"
+#include "GeometricRangeMeasurementModel.hpp"
+#include "GeometricRangeAzElMeasurementModel.hpp"
+//#include "GeometricRangeRaDecMeasurementModel.hpp"
 
 //---------------------------------
 //  public methods
@@ -49,12 +49,12 @@ MeasurementModel* MeasurementModelFactory::CreateMeasurementModel
             (const std::string &ofType, const std::string &withName)
 {
 
-    if (ofType == "Range")
-      return new RangeMeasurementModel(withName);
-    else if (ofType == "RangeAzEl")
-      return new RangeAzElMeasurementModel(withName);
-//    else if (ofType == "RangeRate")
-//      return new RangeRate(withName);
+    if (ofType == "Range" || ofType == "GeometricRange")
+      return new GeometricRangeMeasurementModel(withName);
+    else if (ofType == "RangeAzEl" || ofType == "GeometricRangeAzEl")
+      return new GeometricRangeAzElMeasurementModel(withName);
+//    else if (ofType == "RangeRate" || ofType == "GeometricRangeRate")
+//      return new GeometricRangeRate(withName);
     //else if (ofType == "LightTime")
     //  return new LightTime(withName);
     //else if (ofType == "VariableTransmitterRange")
@@ -83,12 +83,12 @@ MeasurementModel* MeasurementModelFactory::CreateMeasurementModel
     //  return new IMU(withName);
     //else if (ofType == "Magnetometer")
     //  return new Magnetometer(withName);
-    //else if (ofType == "AO_AzEl")
-    //  return new AO_AzEl(withName);
-//    else if (ofType == "AO_RaDec")
-//      return new AO_RaDec(withName);
-//    else if (ofType == "RangeRaDec")
-//      return new RangeRaDec(withName);
+    //else if (ofType == "AzEl" || ofType == "AOAzEl" || ofType == "GeometricAzEl")
+    //  return new GeometricAzEl(withName);
+//    else if (ofType == "RaDec" ||ofType == "AORaDec" || ofType == "GeometricRaDec")
+//      return new GeometricRaDec(withName);
+//    else if (ofType == "RangeRaDec" || ofType == "GeometricRangeRaDec")
+//      return new GeometricRangeRaDec(withName);
 
    return NULL;
 }
@@ -108,9 +108,9 @@ MeasurementModelFactory::MeasurementModelFactory() :
    if (creatables.empty())
    {
 
-        creatables.push_back("Range");
-        creatables.push_back("RangeAzEl");
-        //creatables.push_back("RangeRate");
+        creatables.push_back("GeometricRange");
+        creatables.push_back("GeometricRangeAzEl");
+        //creatables.push_back("GeometricRangeRate");
         //creatables.push_back("LightTime");
         //creatables.push_back("VariableTransmitterRange");
         //creatables.push_back("AntennaTracking");
@@ -125,9 +125,9 @@ MeasurementModelFactory::MeasurementModelFactory() :
         //creatables.push_back("IntegratedDopplerCount");
         //creatables.push_back("IMU");
         //creatables.push_back("Magnetometer");
-        //creatables.push_back("AO_AzEl");
-        //creatables.push_back("AO_RaDec");
-        //creatables.push_back("RangeRaDec");
+        //creatables.push_back("GeometricAzEl");
+        //creatables.push_back("GeometricRaDec");
+        //creatables.push_back("GeometricRangeRaDec");
 
    }
 }
@@ -165,9 +165,9 @@ MeasurementModelFactory::MeasurementModelFactory
    if (creatables.empty())
    {
 
-       creatables.push_back("Range");
-       creatables.push_back("RangeAzEl");
-       // creatables.push_back("RangeRate");
+       creatables.push_back("GeometricRange");
+       creatables.push_back("GeometricRangeAzEl");
+       // creatables.push_back("GeometricRangeRate");
         //creatables.push_back("LightTime");
         //creatables.push_back("VariableTransmitterRange");
         //creatables.push_back("AntennaTracking");
@@ -182,9 +182,9 @@ MeasurementModelFactory::MeasurementModelFactory
         //creatables.push_back("IntegratedDopplerCount");
         //creatables.push_back("IMU");
         //creatables.push_back("Magnetometer");
-        //creatables.push_back("AO_AzEl");
-        //creatables.push_back("AO_RaDec");
-        //creatables.push_back("RangeRaDec");
+        //creatables.push_back("GeometricAzEl");
+        //creatables.push_back("GeometricRaDec");
+        //creatables.push_back("GeometricRangeRaDec");
 
    }
 }

@@ -33,6 +33,9 @@
 #include "ProcessSLRData.hpp"
 #include "ProcessTLEData.hpp"
 
+// Forward references for GMAT core objects
+class Moderator;
+
 class GMAT_API MeasurementModel : public GmatBase
 {
 
@@ -75,9 +78,9 @@ public:
   virtual bool     SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name = "");
    
+  virtual bool Initialize() const;
 
-  
-  virtual void Initialize() const;
+  friend class DataFile;
   
   const std::string* GetModelDescriptions() const;
   std::string GetModelNameText(const Integer &id) const;
@@ -105,6 +108,8 @@ public:
         LaGenMatDouble &myCartDerivatives);
    
 protected:
+
+    Moderator    *theModerator;
     
     enum MODEL_REPS {
 	DEFAULT_ID = 0,
@@ -133,6 +138,9 @@ protected:
    enum
    {
       DATASOURCE_ID   = GmatBaseParamCount,
+      FILEFORMAT_ID,
+      FILENAME_ID,
+      NUMLINES_ID,
       MEASUREMENTTYPES_ID,
       LIGHTTIMEFLAG_ID,
       IONOSPHEREFLAG_ID,
@@ -187,7 +195,8 @@ protected:
 			    const Real maxAngle);
     
   // Data file objects
-  StringArray myDataFileTypes;
+  IntegerArray numLines;
+  StringArray myDataFileFormats;
   StringArray myDataFileNames;
   ObjectArray myDataSources;
 
