@@ -1776,6 +1776,12 @@ void GmatCommand::BuildCommandSummary(bool commandCompleted)
       }
       if (satsInMaps > 0)
       {
+         if (epochData != NULL)
+            delete [] epochData;
+         if (stateData != NULL)
+            delete [] stateData;
+         if (parmData != NULL)
+            delete [] parmData;
          epochData = new Real[satsInMaps];
          stateData = new Real[6*satsInMaps];
          parmData = new Real[6*satsInMaps];
