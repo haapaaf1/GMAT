@@ -276,6 +276,8 @@ bool FiniteThrust::IsTransient()
 void FiniteThrust::SetPropList(ObjectArray *soList)
 {
    spacecraft = soList;
+   MessageInterface::ShowMessage("Spacecraft list contains %d objects\n",
+         spacecraft->size());
 }
 
 
@@ -317,10 +319,12 @@ bool FiniteThrust::Initialize()
       #endif
       satIndex = 0;
       stateIndex = 0;
-      
+MessageInterface::ShowMessage("1; Spacecraft %s\n", (spacecraft == NULL ? "is NULL" : "is ready"));
+            
       for (ObjectArray::iterator propSat = spacecraft->begin();
            propSat != spacecraft->end(); ++propSat) 
       {
+MessageInterface::ShowMessage("2\n");
          #ifdef DEBUG_FINITETHRUST_INIT
             MessageInterface::ShowMessage(
                   "      Looking at satIndex %d; stateIndex = %d\n", satIndex, 
@@ -334,17 +338,20 @@ bool FiniteThrust::Initialize()
                   satName->c_str());
             #endif
          }
+MessageInterface::ShowMessage("3\n");
          #ifdef DEBUG_FINITETHRUST_INIT
             MessageInterface::ShowMessage(
                   "      PropSat is \"%s\"\n", (*satName).c_str());
          #endif
          if ((*propSat)->IsOfType(Gmat::SPACEOBJECT))
          {
+MessageInterface::ShowMessage("4\n");
             stateIndex += ((SpaceObject*)(*propSat))->GetState().GetSize();
            ++satIndex;
          }
       }
    }
+MessageInterface::ShowMessage("5\n");
 
    #ifdef DEBUG_FINITETHRUST_INIT
       MessageInterface::ShowMessage(

@@ -19,12 +19,16 @@
 //------------------------------------------------------------------------------
 
 #include "StateManager.hpp"
+#include "MessageInterface.hpp"
 
 StateManager::StateManager(Integer size) :
    stateSize      (size),
    state          (size),
    current        (NULL)
 {
+   objects.clear();
+   epochIDs.clear();
+   elements.clear();
 }
 
 StateManager::~StateManager()
@@ -36,6 +40,9 @@ StateManager::StateManager(const StateManager& sm) :
    state       (sm.state),
    current     (NULL)
 {
+   objects.clear();
+   epochIDs.clear();
+   elements.clear();
 }
 
 StateManager& StateManager::operator=(const StateManager& sm)
@@ -70,5 +77,9 @@ GmatState* StateManager::GetState()
 
 ObjectArray* StateManager::GetStateObjects()
 {
+   MessageInterface::ShowMessage("Accessing object list at address %p\n",
+         &objects);
+   MessageInterface::ShowMessage("In StateManager, list size is %d\n",
+         objects.size());
    return &objects;
 }

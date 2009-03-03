@@ -1426,6 +1426,10 @@ void ODEModel::UpdateInitialData()
 void ODEModel::UpdateTransientForces()
 {
    ObjectArray *propList = psm->GetStateObjects();
+   
+   MessageInterface::ShowMessage("propList address: %p\n", propList);
+   MessageInterface::ShowMessage("propList has %d elements\n", propList->size());
+
    for (std::vector<PhysicalModel *>::iterator tf = forceList.begin();
         tf != forceList.end(); ++tf) 
    {

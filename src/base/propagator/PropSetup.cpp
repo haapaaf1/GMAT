@@ -148,8 +148,9 @@ PropSetup::PropSetup(const std::string &name)
  * Copy constructor.
  */
 //------------------------------------------------------------------------------
-PropSetup::PropSetup(const PropSetup &ps)
-   : GmatBase(ps)
+PropSetup::PropSetup(const PropSetup &ps) : 
+   GmatBase(ps),
+   psm         (ps.psm)
 {
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
@@ -215,6 +216,8 @@ PropSetup& PropSetup::operator= (const PropSetup &ps)
    mPropagator = NULL;
    mODEModel = NULL;
    
+   psm = ps.psm;
+
    if (ps.mPropagator != NULL)
       mPropagatorName = ps.mPropagator->GetName();
    if (ps.mODEModel != NULL)

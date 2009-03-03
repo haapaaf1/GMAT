@@ -24,6 +24,7 @@
 #include "GmatState.hpp"
 #include "StateVectorIds.hpp"
 #include <map>
+#include <vector>
 
 /**
  * The state manager base class.
@@ -53,7 +54,7 @@ protected:
    Integer                    stateSize;
    GmatState                  state;
    
-   ObjectArray                objects;
+   std::vector<GmatBase*>     objects;
    std::vector<Integer>       epochIDs;
    std::map<GmatBase*, StringArray*>  elements;
    GmatBase*                  current;
