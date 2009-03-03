@@ -360,10 +360,19 @@ bool PhysicalModel::Initialize(void)
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("PhysicalModel::Initialize() entered\n");
    #endif
+
+   if (rawState != modelState)
+   {
+      if (rawState != NULL)
+         delete [] rawState;
+      rawState = NULL;
+   }
    
-   if (modelState) {
+   if (modelState) 
+   {
       delete [] modelState;
       modelState = NULL;
+      rawState = NULL;
 
       initialized = false;
    }
