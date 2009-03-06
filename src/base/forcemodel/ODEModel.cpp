@@ -65,7 +65,7 @@
 //#define DEBUG_FIRST_CALL
 //#define DEBUG_GEN_STRING
 //#define DEBUG_OWNED_OBJECT_STRINGS
-//#define DEBUG_INITIALIZATION
+#define DEBUG_INITIALIZATION
 //#define DEBUG_BUILDING_MODELS
 //#define DEBUG_STATE
 
@@ -1054,10 +1054,16 @@ bool ODEModel::Initialize()
    if (!PhysicalModel::Initialize())
       return false;
 
+Integer id = 0;
+MessageInterface::ShowMessage("%d\n PM init complete; back in OD\n", ++id);
+
    // Incorporate any temporary affects -- e.g. finite burn
    UpdateTransientForces();
+MessageInterface::ShowMessage("%d\n", ++id);
 
    dimension = state->GetSize();
+
+MessageInterface::ShowMessage("%d\n", ++id);
 
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("Configuring for state of dimension %d\n",
@@ -1068,6 +1074,7 @@ bool ODEModel::Initialize()
    modelState = // state->GetState();// new Real[dimension];
       new Real[dimension];
    memcpy(rawState, state->GetState(), dimension * sizeof(Real));
+MessageInterface::ShowMessage("%d\n", ++id);
 
 //   modelState = new Real[dimension];
 //   memcpy(modelState, state->GetState(), dimension * sizeof(Real));
@@ -1100,6 +1107,7 @@ bool ODEModel::Initialize()
 //   }
 
    // Variables used to set spacecraft parameters
+MessageInterface::ShowMessage("%d\n", ++id);
    std::string parmName, stringParm;
 //   Integer i;
 
@@ -1109,6 +1117,7 @@ bool ODEModel::Initialize()
 //   PhysicalModel *current = GetForce(cf);  // waw: added 06/04/04
 //   PhysicalModel *currentPm;
 
+MessageInterface::ShowMessage("%d FM loop starting\n", ++id);
    for (std::vector<PhysicalModel *>::iterator current = forceList.begin();
         current != forceList.end(); ++current)
    {
@@ -1153,6 +1162,8 @@ bool ODEModel::Initialize()
       }
       (*current)->SetState(modelState);
    }
+   
+MessageInterface::ShowMessage("%d FM loop done\n", ++id);
 
    #ifdef DEBUG_FORCE_EPOCHS
       std::string epfile = "ForceEpochs.txt";
@@ -1375,7 +1386,7 @@ void ODEModel::UpdateInitialData()
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
    std::vector<SpaceObject *>::iterator sat;
-   Integer index;
+//   Integer index;
 
 //   // Detect if spacecraft parameters need complete refresh
 //   // Set spacecraft parameters for forces that need them
@@ -1398,8 +1409,10 @@ void ODEModel::UpdateInitialData()
       {
          current->ClearSatelliteParameters();
       }
+      stateObjects.clear();
+      psm->GetStateObjects(stateObjects, Gmat::SPACEOBJECT);
       
-      SetupSpacecraftData(psm->GetStateObjects(), 0);
+      SetupSpacecraftData(&stateObjects, 0);
    }
 
    parametersSetOnce = true;
@@ -1425,16 +1438,23 @@ void ODEModel::UpdateInitialData()
 //------------------------------------------------------------------------------
 void ODEModel::UpdateTransientForces()
 {
-   ObjectArray *propList = psm->GetStateObjects();
+   if (psm == NULL)
+   {
+//      throw ODEModelException(
+//            "Cannot initialize ODEModel; no PropagationStateManager");
+      return;
+   }
    
-   MessageInterface::ShowMessage("propList address: %p\n", propList);
-   MessageInterface::ShowMessage("propList has %d elements\n", propList->size());
+   const std::vector<ListItem*> *propList = psm->GetStateMap();
+    
+//   MessageInterface::ShowMessage("propList address: %p\n", propList);
+//   MessageInterface::ShowMessage("propList has %d elements\n", propList->size());
 
    for (std::vector<PhysicalModel *>::iterator tf = forceList.begin();
         tf != forceList.end(); ++tf) 
    {
-      if ((*tf)->IsTransient())
-         (*tf)->SetPropList(propList);
+//      if ((*tf)->IsTransient())
+//         (*tf)->SetPropList(propList);
    }
 }
 

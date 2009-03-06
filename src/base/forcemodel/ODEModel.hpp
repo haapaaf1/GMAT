@@ -277,6 +277,8 @@ protected:
    /// EarthFixed pointer, so that it can be cloned to make other fixed systems 
    CoordinateSystem          *earthFixed;
    
+   ObjectArray               stateObjects;
+   
    void                      MoveToOrigin(Real newEpoch = -1.0);
    void                      ReturnFromOrigin(Real newEpoch = -1.0);
    

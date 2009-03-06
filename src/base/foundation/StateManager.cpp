@@ -20,7 +20,15 @@
 
 #include "StateManager.hpp"
 #include "MessageInterface.hpp"
+#include "GmatBase.hpp"
 
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+/**
+ */
+//------------------------------------------------------------------------------
 StateManager::StateManager(Integer size) :
    stateSize      (size),
    state          (size),
@@ -31,10 +39,22 @@ StateManager::StateManager(Integer size) :
    elements.clear();
 }
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+/**
+ */
+//------------------------------------------------------------------------------
 StateManager::~StateManager()
 {
 }
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+/**
+ */
+//------------------------------------------------------------------------------
 StateManager::StateManager(const StateManager& sm) :
    stateSize   (sm.stateSize),
    state       (sm.state),
@@ -45,6 +65,12 @@ StateManager::StateManager(const StateManager& sm) :
    elements.clear();
 }
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+/**
+ */
+//------------------------------------------------------------------------------
 StateManager& StateManager::operator=(const StateManager& sm)
 {
    if (this != &sm)
@@ -63,23 +89,68 @@ StateManager& StateManager::operator=(const StateManager& sm)
 }
 
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+/**
+ */
+//------------------------------------------------------------------------------
 bool StateManager::UpdateState() 
 {
    return true;
 }
 
 
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+/**
+ */
+//------------------------------------------------------------------------------
 GmatState* StateManager::GetState()
 {
    return &state;
 }
 
 
-ObjectArray* StateManager::GetStateObjects()
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+/**
+ */
+//------------------------------------------------------------------------------
+bool StateManager::GetStateObjects(ObjectArray& pObjects, 
+      Gmat::ObjectType type)
 {
-   MessageInterface::ShowMessage("Accessing object list at address %p\n",
-         &objects);
+   bool retval = false;
+   
+   if (type == Gmat::UNKNOWN_OBJECT)
+   {
+      for (ObjectArray::iterator i = objects.begin(); i != objects.end(); ++i)
+      {
+         if (find(pObjects.begin(), pObjects.end(), (*i)) == pObjects.end())
+         {
+            pObjects.push_back(*i);
+            retval = true;
+         }
+      }
+   }
+   else
+   {
+      for (ObjectArray::iterator i = objects.begin(); i != objects.end(); ++i)
+      {
+         if ((*i)->IsOfType(type))
+         {
+            if (find(pObjects.begin(), pObjects.end(), (*i)) == pObjects.end())
+            {
+               pObjects.push_back(*i);
+               retval = true;
+            }
+         }
+      }
+   }
+   
    MessageInterface::ShowMessage("In StateManager, list size is %d\n",
-         objects.size());
-   return &objects;
+         pObjects.size());
+   return retval;
 }

@@ -2108,9 +2108,9 @@ void Propagate::SetTransientForces(std::vector<PhysicalModel*> *tf)
 //------------------------------------------------------------------------------
 bool Propagate::Initialize()
 {
-   #if DEBUG_PROPAGATE_INIT
       MessageInterface::ShowMessage("Propagate::Initialize() entered.\n%s\n",
                                     generatingString.c_str());
+#if DEBUG_PROPAGATE_INIT
       MessageInterface::ShowMessage("  Size of propName is %d\n",
                                     propName.size());
       for (UnsignedInt ind = 0; ind < propName.size(); ++ind)
@@ -2141,9 +2141,16 @@ bool Propagate::Initialize()
       *ps = NULL;
       delete oldPs;
    }
-   prop.clear();
-   p.clear();
-   fm.clear();
+   if (prop.size() > 0)
+   {
+      for (std::vector<PropSetup*>::iterator ps = prop.begin(); 
+            ps != prop.end(); ++ps)
+         delete (*ps);
+      
+      prop.clear();
+      p.clear();
+      fm.clear();
+   }
 
    for (StringArray::iterator i = propName.begin(); i != propName.end(); ++i)
    {
@@ -2524,8 +2531,10 @@ void Propagate::PrepareToPropagate()
          elapsedTime[n] = 0.0;
          currEpoch[n]   = 0.0;
          fm[n]->SetTime(0.0);
+         fm[n]->SetPropStateManager(prop[n]->GetPropStateManager());
          fm[n]->UpdateInitialData();
          dim += fm[n]->GetDimension();
+
 
 
          p[n]->Initialize();
@@ -2646,16 +2655,23 @@ void Propagate::PrepareToPropagate()
    }
    else
    {
+      // Set the prop state managers for the PropSetup ODEModels
+      for (std::vector<PropSetup*>::iterator i=prop.begin(); i != prop.end(); ++i)
+      {
+         ODEModel *ode = (*i)->GetODEModel();
+         if (ode != NULL)    // Only do this for the PropSetups that integrate
+            ode->SetPropStateManager((*i)->GetPropStateManager());
+      }
+
       // Initialize the subsystem
       Initialize();
 
-      // Loop through the PropSetups
+      // Loop through the PropSetups and build the models
       for (std::vector<PropSetup*>::iterator i=prop.begin(); i != prop.end(); ++i)
       {
          ODEModel *ode = (*i)->GetODEModel();
          if (ode != NULL)    // Only do this for the PropSetups that integrate
          {
-            ode->SetPropStateManager((*i)->GetPropStateManager());
             // Build the ODE model
             if (ode->BuildModelFromMap() == false)
                throw CommandException("Unable to assemble the ODE model for " +

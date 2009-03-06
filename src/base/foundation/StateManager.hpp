@@ -47,14 +47,15 @@ public:
    virtual bool UpdateState();
    virtual GmatState* GetState();
    
-   ObjectArray* GetStateObjects();
+   virtual bool GetStateObjects(ObjectArray& pObjects, 
+         Gmat::ObjectType type = Gmat::UNKNOWN_OBJECT);
    
 protected:
    /// Size of the managed state vector
    Integer                    stateSize;
    GmatState                  state;
    
-   std::vector<GmatBase*>     objects;
+   ObjectArray                objects;
    std::vector<Integer>       epochIDs;
    std::map<GmatBase*, StringArray*>  elements;
    GmatBase*                  current;

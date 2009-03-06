@@ -40,7 +40,6 @@
 //------------------------------------------------------------------------------
 FiniteThrust::FiniteThrust(const std::string &name) :
    PhysicalModel        (Gmat::PHYSICAL_MODEL, "FiniteThrust", name),
-   spacecraft           (NULL),
    satCount             (0),
    cartIndex            (-1),
    fillCartesian        (false)
@@ -146,7 +145,7 @@ void FiniteThrust::Clear(const Gmat::ObjectType type)
    if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::SPACECRAFT)) 
    {
       mySpacecraft.clear();
-      spacecraft = NULL;
+      spacecraft.clear();
    }
    
    if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::THRUSTER)) 
@@ -273,11 +272,16 @@ bool FiniteThrust::IsTransient()
  * Sets the list of propagated space objects for transient forces.
  */
 //------------------------------------------------------------------------------
-void FiniteThrust::SetPropList(ObjectArray *soList)
+void FiniteThrust::SetPropList(ObjectArray &soList)
 {
-   spacecraft = soList;
-   MessageInterface::ShowMessage("Spacecraft list contains %d objects\n",
-         spacecraft->size());
+   spacecraft.clear();
+   for (ObjectArray::iterator i = soList.begin(); i != soList.end(); ++i)
+      spacecraft.push_back(*i);
+   
+   #ifdef DEBUG_FINITETHRUST_INIT
+      MessageInterface::ShowMessage("Spacecraft list contains %d objects\n",
+            spacecraft.size());
+   #endif
 }
 
 
@@ -299,10 +303,6 @@ bool FiniteThrust::Initialize()
    if (!PhysicalModel::Initialize())
       throw ODEModelException("Unable to initialize FiniteThrust base");
 
-   if (spacecraft == NULL)
-      throw ODEModelException(
-            "FiniteThrust cannot initialize: no prop object list");
-
    // set up the indices into the state vector that match spacecraft with active 
    // thrusters
    Integer satIndex, stateIndex;
@@ -319,10 +319,10 @@ bool FiniteThrust::Initialize()
       #endif
       satIndex = 0;
       stateIndex = 0;
-MessageInterface::ShowMessage("1; Spacecraft %s\n", (spacecraft == NULL ? "is NULL" : "is ready"));
+MessageInterface::ShowMessage("1; Spacecraft contains %d objects\n", spacecraft.size());
             
-      for (ObjectArray::iterator propSat = spacecraft->begin();
-           propSat != spacecraft->end(); ++propSat) 
+      for (ObjectArray::iterator propSat = spacecraft.begin();
+           propSat != spacecraft.end(); ++propSat) 
       {
 MessageInterface::ShowMessage("2\n");
          #ifdef DEBUG_FINITETHRUST_INIT
@@ -402,8 +402,8 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
    if (fillCartesian)
    {
       // Loop through the spacecraft list, building accels for active sats
-      for (ObjectArray::iterator sc = spacecraft->begin();
-           sc != spacecraft->end(); ++sc) 
+      for (ObjectArray::iterator sc = spacecraft.begin();
+           sc != spacecraft.end(); ++sc) 
       {
          i6 = cartIndex + i * 6;
          
