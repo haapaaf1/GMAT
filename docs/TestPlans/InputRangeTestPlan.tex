@@ -1,0 +1,495 @@
+
+%-------------------------------------------------------------------------------
+%---------------------------Define Document Class and Packages------------------
+%-------------------------------------------------------------------------------
+\documentclass[10 pt]{book}
+
+%  Standard packages
+\usepackage{epstopdf,graphics,overcite,amsmath, color}
+
+%  for making index, using landscape mode, for multi page tables, supertabular??
+\usepackage{makeidx, lscape, longtable, supertabular}
+
+%  Used for drawing lines in figures
+\usepackage{epic}
+
+%  for showing script lines as they appear in GMAT
+\usepackage{verbatim}
+
+%  for using multicolumn format
+\usepackage{multicol}
+
+% Use if want to click dvi to ps and ps to pdf to create pdf
+%\usepackage[ dvips, bookmarks = true, bookmarksopen ]{hyperref}
+
+% Use if want to click dvi to pdf to create pdf . Bookmarks don't open using this method.
+\usepackage[ dvipdfm, bookmarks = true, bookmarksopen]{hyperref}
+
+%\usepackage[T1]{fontenc}
+%\usepackage[latin1]{inputenc}
+%\usepackage{geometry}
+%\usepackage{graphics,color}
+%\geometry{letterpaper}
+%\usepackage{array}
+%\usepackage{floatflt}
+%\usepackage{subfloat}
+%\usepackage{lineno}
+%\usepackage{amsmath}
+%\usepackage{fancyvrb}
+%%\usepackage[listofnumwidth=5.5em]{subfig}
+%\usepackage{tocloft}
+%-------------------------------------------------------------------------------
+%---------------------------Define  the Page Size-------------------------------
+%-------------------------------------------------------------------------------
+\setlength{\textwidth}{7.0 in} \setlength{\textheight}{9.5in}
+\setlength{\oddsidemargin}{-.2in} \setlength{\evensidemargin}{-.2in}
+\setlength{\topmargin}{-0.35in} \setlength{\headheight}{0.0in}
+\setlength{\parskip}{8pt}
+
+%-------------------------------------------------------------------------------
+%------------------------------------New Commands-------------------------------
+%-------------------------------------------------------------------------------
+\newcommand{\st}[1]{\begin{ttfamily}#1\end{ttfamily}}
+\newcommand{\boldst}[1]{\begin{ttfamily}\textbf{#1} \end{ttfamily}}
+\newcommand{\br}[0]{$\mathbf{r} $}
+\newcommand{\bv}[0]{$\mathbf{v} $}
+\newcommand{\ba}[0]{$\mathbf{a} $}
+\newcommand{\mbr}[0]{\mathbf{r} }
+\newcommand{\mbv}[0]{\mathbf{v} }
+\newcommand{\mba}[0]{\mathbf{a} }
+
+%-------------------------------------------------------------------------------
+%------------------------------------New Environments----------------------------
+%-------------------------------------------------------------------------------
+
+\newenvironment{ScriptType}
+  {\noindent \begin{ttfamily}   }
+   { \end{ttfamily} }
+
+\newenvironment{Script}
+ { \vspace{-.15 in} \begin{ttfamily} }
+ { \end{ttfamily}\vspace{-.25 in} }
+
+%-------------------------------------------------------------------------------
+%------------------------------------Miscellaneous------------------------------
+%-------------------------------------------------------------------------------
+\makeindex
+%\let\package\textsf
+%\let\env\textsf
+\providecommand\finalclearpage{\clearpage}
+
+\graphicspath{{../Common/Images/}}
+
+%-------------------------------------------------------------------------------
+%------------------------------------Begin The Doc!!----------------------------
+%-------------------------------------------------------------------------------
+%  Make the watermark
+\usepackage{eso-pic}
+\usepackage{color}
+\usepackage{type1cm}
+\makeatletter
+  \AddToShipoutPicture{%
+    \setlength{\@tempdimb}{.5\paperwidth}%
+    \setlength{\@tempdimc}{.5\paperheight}%
+    \setlength{\unitlength}{1pt}%
+    \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
+      \makebox(0,730){\rotatebox{0}{\textcolor[gray]{0.75}{\fontsize{1.2cm}{1.2cm}\selectfont{Draft: Work in Progress}}}}
+    }
+} \makeatother
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\begin{center}
+{\renewcommand{\thefootnote}{\fnsymbol{footnote}} { \huge \bf
+Input Range Testing for the \\General Mission Analysis Tool (GMAT) \\
+}}
+\end{center}
+\begin{center}
+{\renewcommand{\thefootnote}{\fnsymbol{footnote}} { \Huge \bf
+ DRAFT }}
+\end{center}
+
+\begin{figure}[htbp!]
+    \begin{center}
+    \scalebox{1.25}{\includegraphics*[337,337]{GMATsplash.png}}
+    \end{center}
+\end{figure}
+
+\begin{center}
+Steve Hughes and Edwin Dove\\
+
+NASA Goddard Space Flight Center\\
+Greenbelt, MD 20771
+
+\today
+\end{center}
+
+\clearpage \clearpage
+
+
+
+\tableofcontents \listoftables
+
+\chapter{Test Plan Overview}
+
+This document contains a test plan for testing input values to the
+General Mission Analysis Tool (GMAT).  The plan includes four
+primary types of information, which rigorously define all tests that
+should be performed to validate that GMAT will accept allowable
+inputs and deny disallowed inputs. The first is a complete list of
+all allowed object fields in GMAT. The second type of information,
+is test input to be attempted for each field. The third type of
+information is allowable input values for all objects fields in
+GMAT.  The final piece of information is how GMAT should respond to
+both valid and invalid information.
+
+It is VERY important to note that the tests below must be performed
+for both the Graphical User Interface and the script!!  The examples
+are illustrated using a scripting perspective, because it is simpler
+to write up.  However, the test must be performed for both
+interfaces to GMAT.
+
+\section{Tests to Verify Disallowed Fields are Rejected }
+
+The tables contained in this document detail all allowed fields that
+the user should have access to in the GMAT user interfaces including
+the script and GUI.  The tables are organized in terms of objects.
+Each object has a table that defines the allowable field names. The
+tables contain a complete definition of what object fields the user
+should have access to in the user interface.  The user should not
+have access to or be able to set fields that are not contained in
+the field lists. This includes being able to set the field from the
+GUI or script, or seeing the field when the "Show Script" button is
+hit on the object's associated dialogue box or a mission is saved.
+
+These following tests should be performed to ensure that the user
+does not have access to fields that are read only or some other type
+internal field.
+
+\begin{itemize}
+
+\item Using show script and by saving missions, verify that only
+fields that are defined in the tables below are user settable and
+accessible.  If a field name does not appear in the tables below, it
+should not appear in show script, or a saved mission.
+
+\item Verify that the setting for fields in a saved mission and show
+script meet the allowable values.  For example, currently if you hit
+show script on an OpenGL plot, you'll see a line like this\\
+
+\noindent \st{OpenGLPlot1.ViewPointVector = Vector};
+
+The word ``Vector" is not an allowable value  for the
+\st{ViewPointVector} field.
+
+\item Try \st{GMAT Object.DoesNotExist = 1} for all objects;
+
+\end{itemize}
+
+
+\section{Input Range Tests for Fields that Accept Numeric Values }
+
+This section documents tests to be performed to ensure that GMAT
+accepts allowable values for numeric fields, and denies disallowed
+values.  The tests apply to fields that accept real numbers or
+integers.  The tests ensure that both allowed and disallowed values
+are attempted in the test process.
+
+The tests are described in Table \ref{Table:NumericInputTests}.
+Let's illustrate one of the tests and select the case where the
+input is a real number such that  $Real \geq c$.  The \st{ECC} field
+on the Spacecraft object is in this category.  According to the
+Table \ref{Table:NumericInputTests}, the tests to be performed on
+the \st{ECC} field are to try inputing values of -1, 0, 1,
+'DoesNotExist', and ' ' (Note: according to the notation in the table, $c=0$
+for the \st{ECC} field). In the GMAT script syntax, the tests to be
+performed on the \st{ECC} field are:\\
+
+\noindent \st{GMAT DefaultSC.ECC = -1.0} \\
+\st{GMAT DefaultSC.ECC =  0.0} \\
+\st{GMAT DefaultSC.ECC =  1.0} \\
+\st{GMAT DefaultSC.ECC =  DoesNotExist} \\
+\st{GMAT DefaultSC.ECC =  } \\
+
+We see in Table \ref{Table:SCOrbitFields} that the allowable options
+are \st{ECC}$\geq 0$, so we know that only the second and third
+lines above should pass the test. The first, fourth, and fifth lines should
+throw an error message consistent with the format discussed in Sec.
+\ref{Sec:ErrorHandling}.
+
+\begin{table}[h]
+    \centering \caption{Input Range Tests for Fields that Accept Real
+    Numbers and Integers}
+    \begin{tabular}{p{1.75 in} |p{4.0 in} }
+    \hline\hline
+    Allowable Input Type & Test Input \\
+    \hline
+    Real  & -1.01 , 1.01 , `DoesNotExist' , ' '\\
+    \hline
+    Real $\geq$ c & c-1 , c , c+1 , `DoesNotExist' , ' '\\
+    Real $\leq$ c & \\
+    Real $>$ c & \\
+    Real $<$ c & \\
+    Real $\neq$ c & \\
+    \hline
+    $ c_1 > $ Real $>  c_2$  & $c_1-1 , c_1 , (c_1 + c_2)/2 , c_2 , c2+1$, `DoesNotExist' , ' '\\
+    $ c_1 \geq $ Real $\geq c_2$  & $c_1-1 , c_1 , (c_1 + c_2)/2 , c_2 , c2+1$ , `DoesNotExist' , ' '\\
+    \hline
+    Integer  & -1, 1, 1.01 , `DoesNotExist', ' '\\
+    \hline
+    Integer $\geq$ c & $c- 0.5$, $c - 1$ , c , $c + 0.5$ , $c + 1$ , `DoesNotExist' , ' '\\
+    Integer $\leq$ c & \\
+    Integer $>$ c & \\
+    Integer $<$ c &  \\
+    \hline
+    $ c_1 > $ Integer $>  c_2$  & $c_1- 0.5 , c_1$ , round$( (c_1 + c_2)/2) , c_2, c2+0.5$ , `DoesNotExist' , ' '\\
+    $ c_1 \geq $ Integer $\geq c_2$  & $c_1-0.5 , c_1$ , round$( (c_1 + c_2)/2) , c_2 , c2+0.5$ , `DoesNotExist' , ' '\\
+    \hline
+    \end{tabular} \label{Table:NumericInputTests}
+\end{table}
+
+\section{Input Range Tests for Fields that Accept Strings }
+
+There are numerous fields in GMAT that accept strings as input
+values.  For some fields, the list of strings that are acceptable is
+predefined, and the user cannot add to the list of possible values.
+A good example of this type of field is the \st{StateType} field on
+the Spacecraft object.  The allowable inputs for the \st{StateType}
+are restricted to the following:
+\input{../Common/List_OrbitStateRepresentations}.  The user cannot add to this
+list.
+
+The second type of field that accepts strings as input is best
+illustrated by the \st{CoordinateSystem} field on the Spacecraft
+object.  For the \st{CoordinateSystem} field, the user can select
+from the default list of coordinate systems such as
+\st{EarthMJ2000Eq}, \st{EarthMJ2000Ec}, or \st{EarthFixed}. However,
+the user can also select from any user-defined coordinate system. So
+if the user has defined a coordinate system called
+\st{EarthSunRotating}, then they can choose this as the coordinate
+system defined by the \st{CoordinateSystem} field object on the
+Spacecraft object.
+
+For all string fields we should test that numeric values (use 1.0
+for value) and the string \st{DoesNotExist} are not accepted by
+GMAT. Now let's look at the tests for these two types of fields.
+
+\subsection{Tests for Strings that are Restricted to a Predefined
+List}
+
+ For the first type, where the user can only select from a list
+of predefined strings, we should attempt two of the strings.  The
+first should be the default value, the second should not be a
+default value. As an example, for the \st{StateType} field on the
+spacecraft object, we should test the following two inputs:\\
+
+\noindent \st{DefaultSC.StateType = Cartesian};\\
+\st{DefaultSC.StateType = Keplerian};\\
+
+We should perform similar tests for all fields of this type.
+
+\subsection{Tests for Strings that are not Restricted to a Predefined
+List}
+
+For the second type of string input, where the user can select from
+a predefined list of strings as well as a user defined list, we
+should test one value from the predefined list.  Then we should
+create an object of the type appropriate to the field, and test that
+the object name can be used as input to the field.  Let's look again
+at the \st{CoordinateSystem} field on the spacecraft object as an
+example.  We should perform the following:\\
+
+\noindent \st{Create CoordinateSystem MyCoordSys};\\
+\st{DefaultSC.CoordinateSystem = EarthMJ2000Eq};\\
+\st{DefaultSC.CoordinateSystem = MyCoordSys};\\
+
+We should perform similar tests for all fields of this type.
+
+\section{Behavior When a Disallowed Object Field is Encountered }
+\label{Sec:ErrorHandling}
+
+There are two types of error handling described in this section. The
+first, is when a user tries to set a field that does not exist, or
+that the user is not allowed access to.  The second type, is when
+the user tries to set an allowed field, but does not use an
+allowable setting for the field.
+
+\subsection{Error Message for a Disallowed Field}
+
+If a field that is not allowed is encountered by GMAT, GMAT should
+output the following error message: \\
+
+\noindent The field name `` " on object `` " is not permitted. As an
+example, if the user inputs the
+following, \\
+
+\noindent \st{DefaultSC.DoesNotExist = 5}\\
+
+\noindent then GMAT should respond with the following error
+message:\\
+
+\noindent  The field name ``DoesNotExist" on object DefaultSC is not
+permitted.
+
+\subsection{Error Message for an Invalid Input for an Allowed Field}
+
+If the user inputs a disallowed value for an allowed field GMAT
+should respond with the following message\\
+
+\noindent The value of `` " for field `` " on object `` " is not an
+allowed value.  The allowed values are: [insert options here].\\
+
+For example, if the user
+input the following line of script\\
+
+\noindent \st{DefaultSC.StateType = DoesNotExist}\\
+
+\noindent then GMAT should respond with the following error
+message:\\
+
+The value of DoesNotExist for field StateType on object DefaultSC is
+not an allowed value. The allowed values are: [\st{Cartesian},
+\st{Keplerian}, \st{ModifiedKeplerian}, \st{SphericalAZFPA},
+\st{SphericalRADEC} , \st{Equinoctial}].
+
+The allowed values for all other fields are found in the the tables
+below.
+
+
+\section{Notes}
+ ABM integrator
+settings.
+
+For Differential corrector, UseCentralDifferencing is not
+implemented in base code.
+
+Normalization of quaternion, are we doing this?
+
+Changed TargetStatus to SolverIterations on XYplots and OpenGL
+plots, and added the field to Reports.
+
+The following fields have been changed according to this document
+
+SolarSystem.RotationDataSource = \st{DE405} or false \st{IAU2002}
+(used to be 0 or 1)
+
+Equinoctial elements have changed from the labels on the GUI.
+
+\st{Spacecraft.DateFormat} -$>$ \st{Spacecraft.EpochFormat}  for
+consistency with the rest of GMAT
+
+ABM integrator settings changed
+
+\st{LowerError}  -$>$  \st{MinIntegrationError} \\
+\st{TargetError} -$>$  \st{NomIntegrationError}
+
+\chapter{Objects and Resources}
+\label{Ch:ObjectsNResources}
+
+\section{Spacecraft and Hardware Fields}
+
+\input{../Common/Table_SCFields}
+
+\input{../Common/Table_SCAttitudeFields}
+
+\input{../Common/Table_SCTank}
+
+\input{../Common/Table_SCThruster}
+
+\section{Propagator Fields}
+
+\input{../Common/Table_ForceModel}
+
+\input{../Common/Table_Integrator}
+
+\section{Maneuvers}
+
+\input{../Common/Table_ImpulsiveBurn}
+
+\input{../Common/Table_FiniteBurn}
+
+\section{Solver Fields}
+
+\input{../Common/Table_fminconSolver}
+
+\input{../Common/Table_DifferentialCorrector}
+
+\section{Plots and Reports}
+
+\input{../Common/Table_OpenGLPlots}
+
+\input{../Common/Table_Reports}
+
+\input{../Common/Table_XYPlots}
+
+\section{Solar System, Celestial Bodies and other Space Points}
+
+\input{../Common/Table_SolarSystem}
+
+\input{../Common/Table_LibrationPoint}
+
+\input{../Common/Table_BaryCenter}
+
+\input{../Common/Table_CelestialBodies}
+
+\input{../Common/Table_CoordinateSystems}
+
+\input{../Common/Table_MatlabFunctions}
+
+\chapter{Commands and Events}
+
+\section{Propagation}
+\input{../Common/Table_PropagateCommand}
+
+\clearpage
+\section{Control Flow}
+\input{../Common/Table_Ifstatement}
+
+\input{../Common/Table_WhileLoop}
+
+\input{../Common/Table_ForLoop}
+
+\clearpage
+\section{Solver-related}
+\input{../Common/Table_Target}
+
+\input{../Common/Table_Optimize}
+
+\input{../Common/Table_AchieveCommand}
+
+\input{../Common/Table_VaryCommand}
+
+\input{../Common/Table_Minimize}
+
+\clearpage
+
+\input{../Common/Table_NonLinearConstraint}
+
+\clearpage
+\section{Miscellaneous}
+
+\input{../Common/Table_Maneuver}
+
+\input{../Common/Table_BeginFiniteManeuver}
+
+\input{../Common/Table_EndFiniteManeuver}
+
+\input{../Common/Table_CallFunction}
+
+\input{../Common/Table_Toggle}
+
+\input{../Common/Table_ReportCommand}
+
+\input{../Common/Table_ScriptEvent}
+
+\input{../Common/Table_Pause}
+
+\input{../Common/Table_Stop}
+
+\input{../Common/Table_Save}
+
+\printindex
+
+\end{document}

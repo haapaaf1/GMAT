@@ -1,0 +1,53 @@
+\chapter{Introduction}
+
+\chapauthor{Darrel J. Conway\\Thinking Systems, Inc.}
+
+The General Mission Analysis Tool (GMAT) is a spacecraft mission analysis tool tailored to support
+missions involving groups of spacecraft interacting throughout a modeled time period.  The
+potential complexity of this problem makes GMAT an intricate software system.  GMAT is designed
+using an object-oriented architecture\cite{GDT} and coded using extensive object-oriented
+structures written in C++.
+
+The object based approach employed in GMAT's design and implementation makes the system robust and
+relatively easy to use for experienced analysts.  The extent of the object model implemented to
+make GMAT a complete and robust system dictates a comprehensive testing philosophy, described in
+this document.
+
+\section{Test regimes}
+
+This document presents a discussion of the test plans used for the GMAT system.  The testing
+strategy is based on the IEEE test planning standard, as described in \cite{Craig}.  GMAT is tested on four distinct levels: (1) Unit tests are performed to debug and validate individual system
+objects, (2) Integration tests are performed to debug and validate the interfaces between objects,
+(3) System tests are performed to measure and validate the integrity of the GMAT system as a whole, and (4) Acceptance tests are performed to identify modeling precision, pointing out any
+discrepancies in the software and verifying that the system produces accurate models of spacecraft
+on orbit.
+
+Of these four test regimes, the first two are performed during development by the software developers.  System tests and acceptance tests are performed by members of analysis and development teams, based on the domain expertise of the members of these groups.
+
+This document focuses on the integration, system and acceptance tests.  
+
+\section{Software Test Responsibilities}
+
+The responsibility for GMAT testing is as follows:
+
+\begin{itemize}
+\item Unit Testing is the responsibility of the Development Team.
+\item Integration Testing is the responsibility of the Development Team, with input from the
+Analysis Team.
+\item System Testing is the shared responsibility of the Development and Analysis Teams.
+\item Acceptance Testing is the Responsibility of the Analysis Team.
+\end{itemize}
+
+
+\section{Document Layout}
+
+The chapters that follow are broken into two major sections.  The first section documents the
+approach take for each of these categories of tests.  Each test category is further described in
+terms of the type of tests that are performed, the methodology employed to measure the results of
+the tests, and the testing artifacts that result from completion of a test run.
+
+The second section collects and summarized the data produced from the tests.  That section takes the test artifacts, post processes them into tabular form, and identifies passed and failed tests so that readers can evaluate the state of GMAT at any point in time.  Detailed test results are
+accumulated in separate documents; the results presented in these chapters merely summarize the
+status of the system.
+
+The appendices at the end of this document present templates used to build the test artifacts.  All of the test artifacts are generated as ASCII files so that post processing can be performed.   
