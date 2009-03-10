@@ -1,0 +1,54 @@
+This section describes the naming convention for loop test scripts
+and output reports. The naming convention consists of an ordered
+series of option strings. Currently, options are allowed for the
+following fields, and will be present in the file name in order, if
+applicable to the test:
+
+\begin{enumerate}
+  \item \emph{LoopType1} - Type of loop test
+  \item \emph{LoopType2} - Type of loop test, if applicable
+  \item \emph{LHS/RHS} - Parameter type in LHS/RHS of loop
+  condition, if applicable
+\end{enumerate}
+
+Loop\_GMAT\_ precedes the \emph{LoopType1} field. The
+\emph{LoopType1} field should always be the first option field. No
+additional fields should be added to the list of fields. If
+\emph{LoopType2} is present, then \emph{LoopType2} is nested inside
+\emph{LoopType1} in the test. Examples of the final Loop Test file
+format are as followed:\\
+
+Loop\_GMAT\_\emph{LoopType1}\#\#\_\#\#.report or\\
+Loop\_GMAT\_\emph{LoopType1}\emph{LoopType2}\#\#.report or\\
+Loop\_GMAT\_\emph{LoopType1}\emph{LoopType2}.report\\
+
+Each field has a finite list of options, as follows (future options
+should be added to this list):
+
+\begin{enumerate}
+  \item \emph{LoopType1}
+
+  \begin{tabular}{ll}
+    For  & - For Loop\\
+    While   & - While Loop\\
+    If & - If or If-Else statement\\
+  \end{tabular}
+
+  \item \emph{LoopType2}
+
+  \begin{tabular}{ll}
+    For  & - For Loop\\
+    While   & - While Loop\\
+    If & - If or If-Else statement\\
+  \end{tabular}
+
+  \item \emph{LHS/RHS}
+
+  \begin{tabular}{ll}
+    \#\# & - \# can either be a 1, 2, 3, 4, or 5$*$\\
+    \#\#\_\#\# & - \# can either be a 1, 2, 3, 4, or 5$*$\\
+  \end{tabular}
+
+  NOTE:  $*$ 1=number $|$ 2=variable $|$ 3=array $|$ 4=S/C non-time parameter $|$ 5=S/C time
+  parameter. No value means there is no LHS/RHS of the loop condition. For loops are a good example of this.
+\end{enumerate}

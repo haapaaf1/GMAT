@@ -1,0 +1,52 @@
+\chapter{Integrators} \label{Ch:Integrators}
+GMAT's integrators were tested on a system level in order to verify
+that all the integrators were working correctly. In order to
+minimize the effects of other forces/elements, the two-body cases
+from the Propagators section were used, with some modification, for
+testing the integrators. The report output interval and integrators
+were the only parameter changed when using the Propagator two body
+test cases. Data was outputted in ten minute intervals.
+
+\section{Initial Orbit Conditions}
+The ISS\index{ISS} and GEO\index{GEO} two-body case's initial orbit
+parameters were used from the Propagation\index{Propagation} section
+(Chapter~\ref{Ch:Propagators}) for the test cases in this section.
+
+Refer to Appendix ~\ref{Sec:initCondsProp} Tables~\ref{Table:
+InitStateISS}-~\ref{Table: InitStateVenus} for a listing of all
+Propagation\index{Propagation} initial orbit states used for the
+Integrator test cases.
+
+\section{Naming Convention}
+\label{nameConvInteg}
+\input{NamingConventionInteg.tex}
+
+\section{Comparison Script Information}
+Comparison\_Integ.m is the script used to perform the integrator
+comparisons needed for the Integrators section of the Acceptance
+Test Plan. This script was designed to allow the user to select a
+GMAT Build or the exact analytic solution to compare to one
+another.\\
+
+Refer to Appendix~\ref{Ch:CompScripts} for more details about this
+script and others used in the Acceptance Test Plan document.
+\clearpage
+
+\section{Test Case Results}
+The following results are for the Integrator section. The GMAT
+Integrator results are being compared to an exact analytical
+two-body solution. We'd like the comparison data to be as close to
+zero as possible. A detailed acceptance metric/matrix will be
+developed at a later date.
+
+\input{../Exact-GMAT-Integrator-GEO.tex}
+\input{../Exact-GMAT-Integrator-ISS.tex}
+
+\subsection{Win/Mac GMAT Comparison}
+\input{../GMAT-MacGMAT-Integrator-GEO.tex}
+\input{../GMAT-MacGMAT-Integrator-ISS.tex}
+
+\clearpage
+\subsection{Win/Linux GMAT Comparison}
+\input{../GMAT-LinuxGMAT-Integrator-GEO.tex}
+\input{../GMAT-LinuxGMAT-Integrator-ISS.tex}

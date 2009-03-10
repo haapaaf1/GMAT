@@ -1,0 +1,459 @@
+                INTERNATIONAL EARTH ROTATION SERVICE (IERS)
+              SERVICE INTERNATIONAL DE LA ROTATION TERRESTRE
+
+MARCH 1999
+
+EXPLANATORY SUPPLEMENT TO IERS BULLETINS A AND B
+
+
+
+     IERS Bulletins A and B provide current information on the Earth's
+orientation in the IERS Reference System.  This includes Universal Time,
+coordinates of the terrestrial pole, and celestial pole offsets.  Bulletin A
+gives an advanced solution semiweekly; the standard solution is given monthly
+in Bulletin B and updated every week in the (IERS) C04 solution.  The Annual
+Report, issued six months after the end of each year, contains information on
+the data used, the models, the algorithms and the reference frames, as well as
+revised solutions for the past years. All solutions are continuous within their
+respective uncertainties.  Bulletin A is issued by the Sub-bureau for Rapid
+Service and Predictions at the U.S. Naval Observatory, Washington;  Bulletin B
+and the Annual Report are issued by the Central Bureau, at the Paris
+Observatory.
+
+     Bulletins A and B are respectively meant for rapid service and standard
+use.  For scientific and long term analyses of the Earth's orientation, users
+are advised to request the long term continuous series maintained by the
+Central Bureau from 1846 (x, y), 1962 (UT), and 1981 (dPsi, dEpsilon) to the
+current date. All solutions are available electronically (see below).
+
+
+THE IERS CONVENTIONS
+
+        The IERS uses the following as its conventions
+
+   1. The International Celestial and Terrestrial Reference Systems
+      -------------------------------------------------------------
+     The International Celestial and Terrestrial Reference Systems (respectively
+ICRS, ITRS) are defined by their origins, directions of axes and, in the case of
+the ITRS, length unit. The ICRS is described by Arias et al. (1995).  Its
+origin is at the barycenter of the solar system.  The directions of its axes
+are fixed with respect to the quasars to better than +/- 20 micro-arcseconds;
+they are aligned with those of the FK5 within the consistency of the latter
+(+/- 80 milliarcseconds at epoch J1991.25 (van Leeuwen et al., 1997).  The ICRS
+is realized by estimates of the coordinates of a set of quasars:  the
+International Celestial Reference Frame (ICRF) (Ma and Feissel, 1997; Ma et
+al., 1998).  According to Resolution B2 of the IAU 23rd General Assembly
+(Kyoto, 1998), after 1 January 1998 the IAU celestial reference system is the
+International Celestial Reference System (ICRS) as defined by the International
+Earth Rotation Service (IERS) and the corresponding fundamental reference frame
+is the International  Celestial Reference Frame (ICRF) constructed by the IAU
+Working Group on  Reference Frames. The IERS was asked to monitor the
+maintenance of the ICRF and its ties to the reference frames at other
+wavelengths. In the present IERS structure, two groups will share this task:
+the VLBI Coordinating Center (VCC) and the Celestial System Section of the
+IERS/CB (CSS).
+
+     The ITRS origin is at the center of mass of the whole Earth, including the
+oceans and the atmosphere. Its length unit is the meter (SI), consistent with
+the TCG time coordinate for a geocentric local frame.  The orientation of its
+axes is consistent with that of the BIH System at 1984.0 within +/- 3
+milliarcseconds. The International Reference Meridian (IRM) is implicitly
+defined through the adoption of the set of coordinates of stations realizing
+the ITRF.
+
+     Its time evolution in orientation is such that it has no residual rotation
+relative to the Earth's crust.  The ITRS is realized by estimates of the
+coordinates and velocities of a set of observing stations, the International
+Terrestrial Reference Frame (ITRF).  For more details, see Boucher et al.
+(1996) and The IERS Conventions (McCarthy, 1996).
+
+
+    2. IERS constants and models.
+       --------------------------
+     The IERS Conventions (McCarthy, 1996) are a set of constants and models
+used by the IERS Analysis Centers for Very Long Baseline Interferometry (VLBI),
+Global Positioning System (GPS), satellite radiopositioning (DORIS), Lunar and
+Satellite Laser Ranging (LLR, SLR), and by the Central Bureau and Sub-bureau
+in the combination of results.
+
+     The values of the constants are adopted from recent analyses.  In some
+cases they differ from the current IAU and IAG conventional ones.  The models
+are, in general, the best estimates in the field concerned.  VLBI and LLR
+observations have shown that there are deficiencies in the IAU 1976 Theory of
+Precession and in the IAU 1980 Theory of Nutation.  However, these models are
+kept as a part of the IERS conventions, and the observed differences with
+respect to the conventional celestial pole position defined by the models are
+monitored and reported by the IERS in its publications.
+
+
+THE EARTH ORIENTATION PARAMETERS
+
+     The IERS Earth Orientation Parameters (EOP) describe the rotation of the
+ITRS relative to the ICRS, in conjunction with the conventional Precession-
+Nutation model.
+
+1.  x and y are the coordinates of the Celestial Ephemeris Pole (CEP) relative
+to the International Reference Pole IRP.  The CEP differs from the instantaneous
+rotation axis by quasi-diurnal terms with amplitudes under 0.01" (see
+Seidelmann, 1982).  The x-axis is in the direction of the IERS Reference
+Meridian (IRM), the y-axis is in the direction 90 degrees West longitude.
+
+2.  UT1 is the rotation angle about the pole. It is related to the Greenwich
+mean sidereal time (GMST) by a conventional relationship (Aoki et al., 1982).
+It gives access to the direction of the International Reference Meridian IRM in
+the ICRS, reckoned around the CEP axis. It is expressed as the difference
+UT1-TAI or UT1-UTC.
+
+     TAI is the atomic time scale calculated by the BIPM.  Its unit interval is
+exactly one SI second at mean sea level.  The origin of TAI is such that UT1-TAI
+is approximately 0 on 1958 January 1.  The instability of TAI is about six
+orders of magnitude smaller than that of UT1.
+
+     UTC is defined by the 1986 CCIR Recommendation 460-4 (CCIR, 1986).  It
+differs from TAI by an integral number of seconds in such a way that UT1-UTC
+remains smaller than 0.9s in absolute value. The decision to introduce a leap
+second in UTC to meet this condition is the responsibility of the IERS; it is
+announced in Bulletin C. According to the CCIR Recommendation, first preference
+is given to opportunities at the end of June and December and second preference
+to those at the end of March and September.  Since the system was introduced in
+1972, only dates in June and December have been used.
+
+     DUT1 is the difference UT1-UTC expressed with a precision of +/- 0.1s; it
+is broadcast with the time signals and announced in Bulletin D.  The changes in
+DUT1 are decided by the IERS.
+
+     UT2 is defined from UT1 by adding the following conventional annual and
+semiannual terms:
+
+     UT2-UT1 = 0.0220sin(2*3.141593*t) - 0.0120cos(2*3.141593*t)
+             - 0.0060sin(4*3.141593*t) + 0.0070cos(4*3.141593*t),
+
+the unit is the second and t is the date in Besselian years given by
+t = 2000.000 + (MJD - 51544.03) / 365.2422.
+
+     The difference between the astronomically determined duration of the day
+(D) and 86400s of TAI, is called length of day (LOD).  Its relationship with the
+angular velocity of the Earth, Omega, is:
+
+     Omega = 72 921 151.467064 - 0.843994803 D,
+
+where Omega is in picoradians/s and D in ms.
+
+     UT1, hence D and Omega, are subject to variations due to zonal tides.  The
+model which is a part of the IERS Conventions includes 62 periodic components,
+with periods ranging from 5.6 days to 18.6 years.  UT1R, DR, and OmegaR are the
+values of UT1, D, and Omega corrected for the short-term part of the model,
+i.e., the 41 components with periods under 35 days.  In absolute value UT1R-UT1
+is smaller than 2.5ms, LODR-LOD is smaller than 1 ms. As it was recommended in
+the IERS Gazette #13, IERS Earth orientation data are produced at daily
+intervals and do not include the effects of semidiurnal and diurnal variations
+Ray's model has been adopted for interpolation. The corresponding numerical
+program is available on request.
+
+
+3.  dPsi and dEpsilon are the offsets in longitude and obliquity of the
+celestial pole with respect to its direction defined using the conventional IAU
+precession/nutation theory.  An a priori correction model is available in the
+IERS Conventions (1996), (McCarthy, 1996).
+
+
+THE DATA ANALYSIS
+
+     The data analysis which yields the values of the EOP published in Bulletins
+A and B includes several steps which are summarized below.
+
+1.  Observations by the VLBI, LLR, SLR, GPS and DORIS networks.
+
+2.  Analyses (operational and refined) by the IERS Analysis Centers.  The
+operational results are transmitted weekly in parallel to the Sub-bureau for
+Rapid Service and Predictions to contribute to Bulletin A and to the Central
+Bureau to contribute to Bulletin B.  The refined results are transmitted yearly
+to the Central Bureau.
+
+3.  General adjustment of ICRF, ITRF and EOP by the Central Bureau, based on
+the refined results.  This adjustment, described in the Annual Report provides
+the basis for determining the systematic corrections to be added to the
+individual series for the following year in order to bring them into the IERS
+Reference System.  These corrections are used in step 5.  The general results
+are published in the Annual Report.
+
+4.  Determination of EOP by the Sub-bureau for Rapid Service and Predictions is
+in the form of smoothed solutions at one-day intervals.  This involves the
+application of systematic corrections and statistical weighting.  The accuracy
+of this solution is given in Table 1.  The results are published in Bulletin A
+with a delay of about one to two days between the date of publication and the
+last available date with estimated EOP.  The details of the procedure are
+outlined in McCarthy and Luzum (1991a).
+
+5.  Determination of EOP by the Central Bureau in the form of combined solutions
+derived from the individual series. Various solutions are computed: normal
+values at five-day intervals and smoothed solutions at one-day and five-day
+intervals. In the procedure we apply systematic corrections determined in step
+3 and statistical weighting.  The accuracy of these solutions is given in Table
+1.  The results are published in Bulletin B with a delay of thirty days between
+the date of publication and the last date of the standard solution. EOP(IERS)
+C 04 solution, taking into account updated values of the individual series is
+now computed as soon as new contributions are available from the various
+analysis centers.
+
+6.  Prediction of the EOP.  Bulletins A and B provide predictions of the EOP.
+Details of the procedure used are given in McCarthy and Luzum (1991b) and
+Luzum et al. (1997) for Bulletin A and in Feissel et al. (1988) for Bulletin B.
+The predictions use similar algorithms, based on seasonal filtering and auto-
+regressive processing for x, y, UT1 and on an approximate modelled correction
+for the celestial pole offsets.  Their performances are given in Table 1.
+
+
+Table 1- Precision of the various solutions.  The accuracy which
+includes the uncertainty of the tie to the IERS System can be
+estimated by adding quadratically 0.0002" in terrestrial pole,
+0.00003s in UT1, and 0.0002" in celestial pole.
+---------------------------------------------------------------
+    Solutions             !  terr.pole      UT      celest.pole
+                          !   0.001"      0.0001s       0.001"
+--------------------------!------------------------------------
+Bulletin A daily (1)      !    0.2          0.7        0.3
+prediction (2)     10d    !    2.9         14.         0.3
+                   40d    !    9.          60.         0.3
+                   90d    !   14.         117.         0.3
+                          !
+Bulletin B                !
+  smoothed (3)1-d, 5-d    !    0.2          0.2        0.3
+  raw (3)          5-d    !    0.2          0.2        0.3
+  prediction (3)   5-d    !    3.0         14.0        0.3
+                   10d    !    5.0         23.0        0.3
+                   30d    !   11.0         77.0        0.3
+--------------------------!------------------------------------
+Notes.
+(1) Based on data after 1997; applies only to latest epochs in
+    each update.
+(2) Based on data since 1995.
+(3) Based on data since 1996.
+
+CONTENTS OF BULLETINS A AND B.
+
+BULLETIN A (semiweekly)
+
+General information including key definitions and the most recently adopted
+values of DUT1 and TAI-UTC.
+
+Quick-look daily estimates of the EOP, determined by applying systematic
+corrections and smoothing the observed data, with accuracies as shown in Table
+1.  The characteristics of the transfer function of the smoothing process are
+given in Table 2.  The results are published with a delay of about one to two
+days between the date of publication and the last available date with estimated
+EOP.
+
+Predictions of x, y, UT1-UTC daily up to 360 days following the last day of data
+in Section 4, smoothed daily values of celestial pole offsets.
+
+
+Table 2.  Frequency filtering characteristic of smoothing for
+          Bulletins A and B
+            ----------------------------------------------
+                                      PERIOD FOR
+             Epsilon            REMAINING AMPLITUDE
+                            5%          50%            95%
+            ----------------------------------------------
+IERS Bull A     -           -           1d             3d
+
+IERS Bull B   1e +2       1.5d         2.8d           4.5d
+            ----------------------------------------------
+
+
+BULLETIN B (Monthly)
+
+Section 1:  Five days sampling of section 2.  Final Bulletin B values over one
+month and provisional extension over the next three months.
+
+Section 2 : Smoothed values of x, y, UT1-UTC, UT1-UT1R, dPsi, dEpsilon, at one-
+day interval based on a combination of the series presented in section 6. Table
+2 gives the characteristics of the transfer function of the smoothing applied
+(Vondrak, 1977; Feissel and Lewandowski, 1984). Since December 1995, a mixed
+series of UT-UTC based on LOD/UT estimates of GPS and calibrated by VLBI
+solutions is routinely computed and used for near real time determination from
+the last currently available UT1 VLBI estimate.
+
+Section 3:  Five-day normal values of x, y, UT1-UTC, dPsi, dEpsilon, and their
+uncertainties, based on a combination of the series of section 6.
+
+Section 4:  Smoothed values of DR and OmegaR, with the same degree of smoothing
+as UT1R-UTC (see table 2).
+
+Section 5:  Current values of UTC-TAI and DUT1, reproducing IERS Bulletins C
+and D.  Announcement of the leap seconds.
+
+Section 6:  This section gives the average precision of the individual series
+contributing to the combination and their agreement with the combination.
+
+Section 7:  (available only on the electronic and ftp version): Data of IERS
+analysis centers (Table 3).
+
+
+Table 3- Individual series contributing to IERS Bulletins A and B,
+January 1998.  The formal uncertainties are those which are
+reported by the contributors.  They are used in the combinations
+for Bulletins A and B after being calibrated by statistical
+assessment.
+-----------------------------------------------------------------------------
+                        !  sampling          formal uncertainties
+                                            based on 1997-98 data
+        Series          !   time        terr.pole        UT     LOD  celest.pole
+                        !                 0.001"          0.0001s       0.001"
+------------------------!----------------------------------------------------
+EOP(IAA)     98 R 01    !      7d          0.12        0.05               0.25
+EOP(USNO)    98 R 10    !      7d          0.12        0.05     0.18      0.27
+EOP(USNO)    98 R 11    !   1-3 d                      0.16
+EOP(OPA)*    98 R 01    !   1-3 d                      0.12
+EOP(SPBU)*   99 R 01    !   1-3 d                      0.17
+EOP(UTXMO)   96 M 01    ! 0.1-30d                      2.32
+EOP(CGS)     97 L 02    !      3d          0.23        0.39
+EOP(CSR)     95 L 01    !      3d          0.38        0.30
+EOP(DUT)     98 L 01    !      3d          0.14        0.27
+EOP(IAA)     98 L 02    !      1d          0.04        0.03     0.03
+EOP(MCC)     97 L 01    !      3d          0.07                 0.11
+EOP(CODE)    98 P 01    !      1d          0.01        0.03     0.02
+EOP(EMR)     96 P 03    !      1d          0.06        0.22     0.10
+EOP(ESOC)    96 P 01    !      1d          0.05        0.08     0.06
+EOP(GFZ)     96 P 02    !      1d          0.02        0.02     0.03
+EOP(JPL)     96 P 03    !      1d          0.04        0.11     0.11
+EOP(NOAA)    96 P 01    !      1d          0.03        0.06     0.13
+EOP(SIO)     96 P 01    !      1d          0.06        0.37     0.18
+
+
+*  Series contributing since January 1999
+DISTRIBUTION OF THE PUBLICATIONS
+
+
+Sub-bureau for Rapid Service and Prediction, at U.S. Naval Observatory:
+----------------------------------------------------------------------
+
+BULLETIN A
+
+        By 0h UTC of Tuesday and Friday of each week:
+                - e-mail (contact:  ser7@maia.usno.navy.mil)
+                - World Wide Web (http://maia.usno.navy.mil/)
+                - Anonymous ftp (maia.usno.navy.mil or 192.5.41.22)
+
+
+Central Bureau, at Paris Observatory:
+------------------------------------
+
+                - e-mail (contact:  iers@obspm.fr)
+                - World Wide Web (http://hpiers.obspm.fr/)
+                - Anonymous ftp (hpiers.obspm.fr or 145.238.100.28)
+
+BULLETIN B
+
+        Updated at the beginning of each month
+                - World Wide Web
+                - Anonymous ftp (directory iers/bul/bulb)
+                - airmail
+
+Permanent EOP series
+                - World Wide Web
+                - Anonymous ftp (directory iers/eop)
+
+IERS Gazettes
+                - World Wide Web
+                - Anonymous ftp (directory iers/info)
+
+
+Dennis D. McCarthy               Daniel Gambis
+Head, IERS Sub-bureau for        Director
+Rapid Service and Prediction     Central Bureau of IERS
+dmc@maia.usno.navy.mil           gambis@obspm.fr
+
+
+GLOSSARY
+
+AAM          Atmospheric Angular Momentum
+BIH          Bureau International de l'Heure
+BIPM         Bureau International des Poids et Mesures
+CEP          Celestial Ephemeris Pole
+CERGA        Centre d'Etudes et de Recherches Geodynamiques et Astronomiques
+CCIR         International Radio Consultative Committee
+CIO          Conventional International Origin
+CODE         Center for Orbit Determination in Europe
+CGS          Space Geodesy Center, Matera
+CSR          Center for Space Research, University of Texas
+DORIS        Doppler Orbit determination and Radiopositioning Integrate on
+             Satellite
+DUT          Delft University of Technology
+ECMWF        European Centre for Medium-range Weather Forecasting
+EMR          See NRCan
+EOP          Earth Orientation Parameters
+ESOC         European Space Operations Center
+GFZ          GeoForschungsZentrum
+GMST         Greenwich Mean Sidereal Time
+GPS          Global Positioning System
+IAA          Institute of Applied Astronomy
+IAG          International Association of Geodesy
+IAU          International Astronomical Union
+IERS         International Earth Rotation Service
+ICRF         IERS Celestial Reference Frame
+ICRS         International Celestial Reference System
+IGS          International GPS Service for Geodynamics
+ITRF         IERS Terrestrial Reference Frame
+ITRS         International Terrestrial Reference System
+IRP          IERS Reference Pole
+IRM          IERS Reference Meridian
+JPL          Jet Propulsion Laboratory
+LLR          Lunar Laser Ranging
+MCC          Russian Mission Control Center
+MJD          Modified Julian Day
+NEOS         National Earth Orientation Service
+NOAA         National Oceanic and Atmospheric Administration
+NRCan        Natural Resources Canada, formerly EMR
+OPA          Paris Observatory
+SPBU         St Petersburg University
+SLR          Satellite Laser Ranging
+SI           Systeme International
+SIO          Scripps Institution of Oceanography
+TAI          Temps Atomique International
+TCG          Geocentric Coordinate Time
+TT           Terrestrial Time
+UKMO         U.K. Meteorological Office
+USNO         United States Naval Observatory
+UTC          Coordinated Universal Time
+UTXMO        Dept. of Astronomy. The University of Texas at Austin.
+VLBI         Very Long Baseline Interferometry
+
+
+
+REFERENCES
+
+Aoki, S.,Guinot, B., Kaplan, G.H., Kinoshita, H., McCarthy, D.D.,
+         Seidelmann, P.K., 1982: Astron. Astrophys.,105, 1.
+Arias, F., Charlot, P., Feissel, M. and Lestrade, J.-F., 1995:
+         Astron. Astrophys., 303, 604.
+Boucher, C., Altamimi, Z., Feissel, M., Sillard, P., 1996: IERS T.N. 20,
+         Observatoire de Paris.
+CCIR, 1986: Recommendation and Reports of the CCIR, 16th Plenary Assembly
+         (Dubrovnik), Vol 7, p 12, International Telecommuniactions Union,
+         Geneva.
+Feissel, M. and Lewandowski, W., 1984: Bull. Geod., 58, 464.
+Feissel M, Gambis D. and T. Vesperini,1988, The Earth's Rotation and Reference
+         Frame for Geodesy and Geodynamics, Babcock and Wilkins (eds), Reidel,
+         269.
+Gambis D., 1996a, Proc. coll. IAU 165, Dynamics and astrometry of natural and
+         artificial celestial bodies Poznan, Poland, July 1996.
+Gambis D., 1996b, Proc. International IGS Workshop, Silver Spring, USA, 61.
+Luzum, B. J., McCarthy, D. D., and Kosek, W., 1997, to be published.
+Ma, C. and Feissel, M., 1997, Definition and realization of the International
+         Celestial Reference System by VLBI Astrometry of Extragalactic Objects,
+         IERS Technical Note 23, Observatoire de Paris.
+Ma C., Arias, E.F., Eubanks, T.M., Fey, A.L., Gontier, A.M. , Jacobs, C.S.,
+         Sovers, O.J., Archinal, B.A., Charlot, P., 1998, the International
+         Celestial Reference Frame as realized by Very Long baseline
+         Interferometry, A.J., 116, 516-546.
+McCarthy, D.D. (ed.), 1996: IERS Conventions (1996), T.N. 21, Observatoire de
+          Paris.
+McCarthy, D.D. and Luzum, B.J., 1991a: Bull. Geod., 65, 22.
+McCarthy, D.D. and Luzum, B.J., 1991b: Bull. Geod., 65, 18.
+McCarthy, D.D.(ed.) 1996: IERS Conventions, IERS T.N. 21.
+Seidelmann, P.K., 1982: Celest. Mech., 27, 79.
+van Leeuwen, F., Lindgren, L., and Mignard, F., 1997:  The Hipparcos and Tycho
+          Catalogues, Volume 3, Construction of the Hipparcos Catalogue, ESA
+          Publications Division, Noordwijk, The Netherlands.
+Vondrak, J., 1977: Bull. of the Astron. Inst. of Czechoslovakia, 28, 84.

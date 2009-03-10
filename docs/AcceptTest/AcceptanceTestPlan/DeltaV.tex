@@ -1,0 +1,193 @@
+\chapter{Delta V}
+\label{Ch:DeltaV}
+
+Once an initial state was created for these Delta V test cases, a
+set amount of Delta V was applied. For the impulsive burn test cases
+delta V values of 0.1, 0.1, and 0.1 were applied in the X,Y, and Z
+axes respectively for either the Cartesian or VNB axes. Each test
+case generate a report that contains the Cartesian elements of the
+state before and after the impulsive burn.
+
+\section{Initial Orbit Conditions}
+Initial conditions for the impulsive burn delta V test cases are
+presented in Tables~\ref{Table:
+InitDVStateEarthImpulse}-~\ref{Table: InitDVStateSunImpulse}.
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Earth Impulsive
+Burns)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start \& Stop Time & 01 Jan 2000 11:59:28.000 (UTCG)\\
+            Central Body & Earth\\
+            Coordinate System & Earth Mean J2000 Equator\\
+            X & 7378.0 (km)\\
+            Y & 0.0 (km)\\
+            Z & 0.0 (km)\\
+            VX & 0.0 (km)\\
+            VY & 5.1973811193846027 (km)\\
+            VZ & 5.1973811193846018 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag & 15 ($m^2$)\\
+            Drag Model & None\\
+            PMG Bodies & Only Central Body\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. & 60 (sec)\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Report Precision & 16 significant figures\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitDVStateEarthImpulse}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Mars Impulsive Burns)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start \& Stop Time & 01 Jan 2000 11:59:28.000 (UTCG)\\
+            Central Body & Mars\\
+            Coordinate System & Mars Mean J2000 Equator\\
+            X & 4500.0 (km)\\
+            Y & 0.0 (km)\\
+            Z & 0.0 (km)\\
+            VX & 0.0 (km)\\
+            VY & 2.1814448386859766 (km)\\
+            VZ & 2.1814448386859713 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag & 15 ($m^2$)\\
+            Drag Model & None\\
+            PMG Bodies & Only Central Body\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. & 60 (sec)\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Report Precision & 16 significant figures\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitDVStateMarsImpulse}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Moon Impulsive Burns)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start \& Stop Time & 01 Jan 2000 11:59:28.000 (UTCG)\\
+            Central Body & Moon\\
+            Coordinate System & Moon Mean J2000 Equator\\
+            X & 2050.0 (km)\\
+            Y & 0.0 (km)\\
+            Z & 0.0 (km)\\
+            VX & 0.0 (km)\\
+            VY & 1.093528701 (km)\\
+            VZ & 1.093528701 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag & 15 ($m^2$)\\
+            Drag Model & None\\
+            PMG Bodies & Only Central Body\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. & 60 (sec)\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Report Precision & 16 significant figures\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitDVStateMoonImpulse}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Sun Impulsive Burns)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start \& Stop Time & 01 Jan 2000 11:59:28.000 (UTCG)\\
+            Central Body & Sun\\
+            Coordinate System & Sun Mean J2000 Equator\\
+            X & 1000000.0 (km)\\
+            Y & 0.0 (km)\\
+            Z & 0.0 (km)\\
+            VX & 0.0 (km)\\
+            VY & 257.597010870 (km)\\
+            VZ & 257.597010870 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag & 15 ($m^2$)\\
+            Drag Model & None\\
+            PMG Bodies & Only Central Body\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. & 60 (sec)\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Report Precision & 16 significant figures\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitDVStateSunImpulse}
+\end{tabular}
+\end{table}
+
+\clearpage
+\section{Naming Convention}
+\input{NamingConventionDeltaV.tex}
+
+\section{Comparison Script Information}
+Comparison\_DeltaV.m is the script used to perform the comparisons
+needed for the Delta V chapter of the Acceptance Test Plan. This
+script was designed to allow the user to select a GMAT Build and/or
+the exact solution to compare to one another.\\
+
+Refer to Appendix~\ref{Ch:CompScripts} for more details on this
+script and others used in the Acceptance Test Plan document.
+
+\clearpage
+\section{Test Case Results}
+The following results are for the Delta V section. The GMAT Delta V
+results are being compared to the exact desired Delta V values. We'd
+like the comparison data to be as close to zero as possible. A
+detailed acceptance metric/matrix will be developed at a later date.
+
+\input{../Exact-GMAT-DeltaV-IEarth.tex}
+\input{../Exact-GMAT-DeltaV-IMars.tex}
+\input{../Exact-GMAT-DeltaV-IMoon.tex}
+\input{../Exact-GMAT-DeltaV-ISun.tex}
+\clearpage
+
+\subsection{Win/Mac GMAT Comparison}
+\input{../GMAT-MacGMAT-DeltaV-IEarth.tex}
+\input{../GMAT-MacGMAT-DeltaV-IMars.tex}
+\input{../GMAT-MacGMAT-DeltaV-IMoon.tex}
+\input{../GMAT-MacGMAT-DeltaV-ISun.tex}
+
+\subsection{Win/Linux GMAT Comparison}
+\input{../GMAT-LinuxGMAT-DeltaV-IEarth.tex}
+\input{../GMAT-LinuxGMAT-DeltaV-IMars.tex}
+\input{../GMAT-LinuxGMAT-DeltaV-IMoon.tex}
+\input{../GMAT-LinuxGMAT-DeltaV-ISun.tex}

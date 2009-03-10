@@ -1,0 +1,113 @@
+\chapter{Libration Points}
+\label{Ch:LibPoint}
+
+The libration point tests are designed to verify the location of
+various libration points. In each software tool used the location of
+the libration point is defined by the tool and then converted to a
+MJ2000Eq representation for comparison purposes.
+
+\section{Initial Orbit Conditions}
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Sun-Earth(SE)
+Libration Points)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Coordinate System (CS) & Sun-Earth L\#$^*$ MJ2000Eq\\
+            X & 0 (km)\\
+            Y & 0 (km)\\
+            Z & 0 (km)\\
+            VX & 0 (km)\\
+            VY & 0 (km)\\
+            VZ & 0 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag Area & 15 ($m^2$)\\
+            Drag Model & None\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & N/A\\
+            Integrator Init. StepSize & N/A\\
+            Integrator Accuracy & N/A\\
+            Integrator Max. StepSize & N/A\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & Only initial state\\
+            Report CS/Cb & Earth MJ2000Eq\\
+      \hline\hline
+      NOTES: (*) All five libration points are defined in the test
+      script.
+      \label{Table:InitialSEstate}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Sun-Earth-Moon(SEM)
+Libration Points)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Coordinate System (CS) & Sun-Earth-Moon L\#$^*$ MJ2000Eq\\
+            X & 0 (km)\\
+            Y & 0 (km)\\
+            Z & 0 (km)\\
+            VX & 0 (km)\\
+            VY & 0 (km)\\
+            VZ & 0 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag Area & 15 ($m^2$)\\
+            Drag Model & None\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & N/A\\
+            Integrator Init. StepSize & N/A\\
+            Integrator Accuracy & N/A\\
+            Integrator Max. StepSize & N/A\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & Only initial state\\
+            Report CS/Cb & Earth MJ2000Eq\\
+      \hline\hline
+      NOTES: (*) All five libration points are defined in the test
+      script.
+      \label{Table:InitialSEMstate}
+\end{tabular}
+\end{table}
+
+\section{Naming Convention}
+\label{nameConvLibPoint}
+\input{NamingConventionLibPoint.tex}
+
+\section{Comparison Script Information}
+Comparison\_Tool1\_Tool2\_Libr.m is the script used to perform the
+comparisons needed for the Libration Points chapter of the
+Acceptance Test Plan. This script was designed to allow the user to
+select two tools from a list for comparison. The Tools available are
+presented in this chapter's Naming Convention section.\\
+
+Refer to Appendix~\ref{Ch:CompScripts} for more details on this
+script and others used in the Acceptance Test Plan document.
+
+\section{Test Case Results}
+The following results are for the Libration Points section. The
+current GMAT Build is compared to STK\index{STK} for the Libration
+Points section. We'd like the comparison data to be as close to zero
+as possible. A detailed acceptance metric/matrix will be developed
+at a later date.
+
+\input{../GMAT-STK-SEM.tex}
+\input{../GMAT-STK-SE.tex}
+
+\subsection{Win/Mac GMAT Comparison}
+\input{../GMAT-MacGMAT-SEM.tex}
+\input{../GMAT-MacGMAT-SE.tex}
+
+\clearpage
+\subsection{Win/Linux GMAT Comparison}
+\input{../GMAT-LinuxGMAT-SEM.tex}
+\input{../GMAT-LinuxGMAT-SE.tex}

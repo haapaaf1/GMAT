@@ -1,0 +1,602 @@
+\chapter{Comparison Scripts Guide}
+\label{Ch:CompScripts}
+
+Using specific naming conventions, outlined in this acceptance test
+plan, and a folder architecture, highlighted below for the test
+cases, several semi-automated scripts were generated to compare all
+of the GMAT test case results with other tools. Most of these
+scripts have the ability to also compare results of older versions
+of GMAT.
+
+\section{Folder Architecture}\label{Sec:FolderArch}
+The folder architecture for the files needed for the comparison
+scripts is presented below:
+
+\begin{itemize}
+    \itemindent -0.1in
+    \item GMAT\_RegSetup/
+        \itemindent 0.1in
+        \item output/AcceptTest/CompareResults/
+            \itemindent 0.3in
+            \item $[$Tool1$]$\_$[$Tool2$]$
+        \itemindent 0.1in
+        \item input/AcceptTest/
+        \item output/AcceptTest/$[$Tool$]$\_reports/
+        \item output/AcceptTest/Good\_reports/
+            \itemindent 0.3in
+            \item FF
+            \item STK
+    \itemindent -0.1in
+    \item GMATDocuments/
+        \itemindent 0.1in
+        \item AcceptTest
+\end{itemize}
+
+\section{Install Instructions}
+\begin{enumerate}
+  \item Copy the GMAT\_RegSetup and GMATDocuments folders to the same location on your hard drive.
+  \item Check to make sure the folders listed in Section~\ref{Sec:FolderArch}
+  \item Make sure the GMAT executable folder has a Matlab folder with the latest GMAT commands
+and keywords
+  \item Open Matlab
+  \item Set the path in Matlab to include the GMAT matlab folder
+  \item Open GMAT and start the Matlab server
+  \item Make sure Excel is closed
+  \item Set current directory to the main\\
+  GMAT\_results/GMAT\_scripts folder and then
+  type BuildCompare\_GMATteam in the command window or
+  \item Open one of the following files and run (F5 in Windows):\\
+\emph{Click ok to change the current Matlab directory if prompted}
+    \begin{enumerate}
+    \item BuildRun\_Script\_GMAT.m
+    \item Comparison\_Tool1\_Tool2\_PV.m
+    \item Comparison\_Tool1\_Tool2\_CS.m
+    \item Comparison\_Tool1\_Tool2\_Cb.m
+    \item Comparison\_Tool1\_Tool2\_Libr.m
+    \item Comparison\_Integ.m
+    \item Comparison\_DeltaV.m
+    \item Comparison\_StopCond.m
+    \item TimeComparo.m
+    \item LoopTestSummary.m
+    \end{enumerate}
+\end{enumerate}
+
+\section{Warnings/Script Hints}
+\begin{itemize}
+  \item The following scripts were not designed for the user to hit one
+  button, run multiple calculations, and output data without user
+  interaction. User interaction is necessary in all of these scripts.
+  \item The $[$ $]$ notation indicates multiple words can be used.
+  For example,[Tool] means replace the bracketed expression with
+  words such as FF,STK, and GMAT.
+  \item As of November 2005, the Excel data created by the comparison
+  scripts will be saved in one file name $[$Tool1$]$\_$[$Tool2$]$\_Results\_$[$DD-MMM-YYYY$]$.xls
+  in their respective $[$Tool1$]$\_$[$Tool2$]$ folder in the CompareResults folder.
+  \item Be careful adding MATLAB .m files that contain the text GMAT
+  in their file name. These scripts use the text GMAT as an indicator
+  to know if the file is a GMAT compatible script.
+  \item The adherence to the naming conventions are very strict in these
+  scripts. Make sure when adding reports, scripts, or folders to use
+  case sensitive filenames that agree with the naming conventions
+  at all times.
+  \item Several output formats are overwritten when running each script. The
+  Excel documents are saved with the current date as part of the
+  filename. If the filename exists it will be replaced. The same
+  overwriting process occurs with the Matlab .mat files.
+  \item In order to compare old GMAT Builds to one another, a new folder
+  must be created with the date of the GMAT Build. For example, the
+  $[$Month$]$ $[$Day$]$ build performed well so after running the scripts that
+  generate all the comparison data for the $[$Month$]$ $[$Day$]$ Build, a new
+  folder must be created. The folder can be named YYMMDDGMAT\_reports
+  with the appropriate GMAT Build Year Month and Date replacing
+  YYMMDD. Now simply copy the contents of GMAT\_reports into
+  YYMMDDGMAT\_reports and the data can be used to compare future build
+  of GMAT to one another.
+  \item All the .mat files, except for the TimeComparo files, are formatted
+  in a similar way. They contain the following variables mat\_Tool11,
+  mat\_Tool21, mat\_header, maxDiffs, and diffMat\_Tool1\_Tool2 or
+  normMat\_Tool1\_Tool2.\\
+
+  The mat\_header variable contains what parameters each column
+  represents for the other variables The mat\_Tool11 and mat\_Tool21
+  variables contain the report file data minus any headers. Tool1 is
+  the alphabetical first tool selected and Tool2 is the other tool
+  selected
+  \item Common mistakes made with these scripts:
+    \begin{itemize}
+        \item Adding report files and not following the naming convention
+        (i.e. FF\_ISS\_Earth\_0\_0\_0 was misnamed as FF\_ISS\_Earth\_0\_0).
+        \item Outputting other tools and not following the proper ordering of
+        parameters for comparison
+        \item Report files were outputted in the
+        wrong time interval increment
+        \item  Report files were outputted without enough numerical precision.
+        GMAT outputs data at a fixed width of 12 numerical characters (default).
+        Other programs should be the same or better.
+    \end{itemize}
+\end{itemize}
+
+\section{BuildRun\_Script\_GMAT.m script}
+Win compatible / Mac \& Linux ? \\
+\subsection{Purpose}
+This script was designed to send multiple GMAT scripts from Matlab
+to GMAT to be built and ran. In early versions of GMAT, there was no
+capability to run multiple scripts, but since current versions of
+GMAT contain this capability this script is not as vital in the
+Acceptance test plan.
+
+Its secondary purpose is to record the individual time elapsed to
+run each test case and output the results to a .mat file for later
+use.
+\subsection{Inputs}
+\begin{itemize}
+    \item All .m files located in the GMAT\_RegSetup/input/AcceptTest/ folder that follow the
+    GMAT comparison naming convention described in
+    Sections~\ref{nameConvProp},~\ref{nameConvCb},~\ref{nameConvCS},
+    and~\ref{nameConvInteg}
+\end{itemize}
+\subsection{Outputs}
+\begin{itemize}
+    \item When choosing to build multiple scripts and the all command is
+    used a mat file is created, which keeps a log of the time it takes
+    to run each case. The script also displays the case name and the
+    time it takes for GMAT to run the file in Matlab's command window.
+    \item Any other output data is dependent on the GMAT script.
+\end{itemize}
+\subsection{Script Algorithm}
+
+\section{Comparison\_Tool1\_Tool2\_PV.m}
+Win/Mac/Linux compatible
+\subsection{Purpose}
+This script is used to perform the position and velocity comparisons
+needed for the Propagator Section (~\ref{Ch:Propagators}) of the
+Acceptance Test Plan. This script takes the normalized position and
+velocity vector differences between the two selected programs.
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Folder to search for files$:$ $[Root Folder]/[$Tool$]$\_reports. \\
+    (Refer to Section~\ref{nameConvProp} for the naming convention
+    of these report files.)
+    \item The report files must be formatted the same way. The first
+    column is time (Mod. Julian Date), second-fourth columns are the position vector
+    components $(x,y,z)$, and fifth-seventh columns are the velocity
+    vector components $(Vx,Vy,Vz)$. The data must be separated by
+    spaces.
+    \item Currently the location of the report's first row of numerical data is coded into the script.
+    FreeFlyer is the fourth row, STK is the seventh row, GMAT is the
+    first row, OD toolbox is the first row, and any other tools added
+    will automatically search the first row.
+\end{itemize}
+\subsection{Outputs}
+\begin{itemize}
+    \item Comparison data is displayed in MATLAB's command window
+    for all test cases.
+    \item Excel documents with comparison data and pass/fail
+    information.
+    \item MATLAB .mat files with comparison data.
+    \item Latex documents with comparison data.
+\end{itemize}
+\subsection{Script Algorithm}
+\begin{itemize}
+    \item Display welcome message
+    \item Display menu for Tool1 options based on [Tool]\_reports folder
+    \item Wait for user to choose tool from menu
+        \subitem Implement error system for incorrect choice
+    \item Display menu for Tool2 options based on [Tool]\_reports folder
+    \item Wait for user to choose tool from menu
+        \subitem Implement error system for incorrect choice
+    \item Alphabetize Tool1 and Tool2 for naming purposes and rename
+    if necessary
+    \item Store the row location of the first instance of numerical
+    data for both Tools' report files
+    \item Initialize variables and folder locations
+    \item Display a menu of Tool1 $*$.report files
+        \subitem Generate error report if no $*$.report files are located
+    in [Tool1]\_report folder
+    \item Wait for user to choose report comparison option
+        \subitem Implement error system for incorrect choice
+        \subitem Open Excel Connection if compare all choice selected
+    \item Display filename, position difference, and velocity difference header
+    \item Begin Loop. Loop once for single comparison and several
+    times for comparing all files.
+    \begin{itemize}
+        \item Check the Tool2 folder for the same report
+            \subitem Display error message if no report found
+        \item Continue if match found or exit loop if no match found
+        \item Read both output files and save the data to different matrices
+        \item Check to see if the row sizes are the same in
+        both matrices
+            \subitem Display error if row sizes do not match
+        \item Take difference of both Tools report data
+        \item Normalize the results based on position and velocity
+        \item Determine the maximum normalized position and velocity
+        difference
+        \item Store propagation duration of the test cases in a
+        variable
+        \item Add acceptable differences values for Excel output
+        \item Save comparison data to .mat file
+        \begin{itemize}
+            \item If compare all reports chosen, format data for
+            output to Latex
+            \item Use BasicLatexTable script to save data to LaTex
+            file
+            \item Save comparison results, acceptance errors, and
+            duration to Excel
+        \end{itemize}
+        \item Close Excel connection if open.
+    \end{itemize}
+    \item End Loop. Allow user to rerun script
+\end{itemize}
+
+\section{Comparison\_Tool1\_Tool2\_CS.m}
+Win/Mac/Linux compatible
+\subsection{Purpose}
+This script is used to perform the coordinate system dependent
+comparisons needed for the Calculation Parameters Section
+(~\ref{Ch:CalcParameters}) of the Acceptance Test Plan. The
+comparison involves taking the maximum absolute value of the
+differences of the variables listed in the Inputs section of this
+help guide.
+\subsection{Inputs}
+\begin{itemize}
+    \item Folder to search for files$:$ $[Root Folder]/[$Tool$]$\_reports. \\
+    (Refer to Section~\ref{nameConvCS} for the naming convention
+    of these report files.)
+    \item The report files must be formatted the same way. Time, $[X,Y,and Z]$
+    Position(km), $[X,Y,and Z]$ Velocity(km/sec), Mag. of
+    Velocity(km/sec), Right Ascension of Velocity(deg), $[X,Y,and Z]$
+    RxV-Specific Angular Momentum($km^2/sec$), Arg. of Perigee(deg),
+    Declination(deg), Declination of Velocity(deg), Inclination(deg),
+    Right Ascension(deg), Right Ascension of Ascending Node(deg)
+    \item Currently the location of the reports first row of numerical
+    data is coded into the script. FreeFlyer is the fourth row, STK is
+    the seventh row, GMAT is the second row, OD toolbox is the first
+    row, and any other tools added will automatically search the first
+    row.
+\end{itemize}
+\subsection{Outputs}
+\begin{itemize}
+    \item Excel documents with comparison data
+    \item MATLAB .mat files with comparison data
+    \item Latex documents with comparison data
+\end{itemize}
+\subsection{Script Algorithm}
+\begin{itemize}
+    \item Display welcome message
+    \item Display menu for Tool1 options based on [Tool]\_reports folder
+    \item Wait for user to choose tool from menu
+        \subitem Implement error system for incorrect choice
+    \item Display menu for Tool2 options based on [Tool]\_reports folder
+    \item Wait for user to choose tool from menu
+        \subitem Implement error system for incorrect choice
+    \item Alphabetize Tool1 and Tool2 for naming purposes and rename
+    if necessary
+    \item Store the row location of the first instance of numerical
+    data for both Tools' report files
+    \item Initialize variables and folder locations
+    \item Display a menu of Tool1 $*$.report files
+        \subitem Generate error report if no $*$.report files are located
+    in [Tool1]\_report folder
+    \item Wait for user to choose report comparison option
+        \subitem Implement error system for incorrect choice
+        \subitem Open Excel Connection if compare all choice selected
+    \item Display filename, position difference, and velocity difference header
+    \item Begin Loop. Loop once for single comparison and several
+    times for comparing all files.
+    \begin{itemize}
+        \item Check the Tool2 folder for the same report
+            \subitem Display error message if no report found
+        \item Continue if match found or exit loop if no match found
+        \item Read both output files and save the data to different matrices
+        \item Check to see if the row sizes are the same in
+        both matrices
+            \subitem Display error if row sizes do not match
+        \item Take difference of both Tools report data
+        \item Determine the maximum difference for each coordinate
+        system dependent parameter
+        \item Store propagation duration of the test cases in a
+        variable
+        \item Save comparison data to .mat file
+        \begin{itemize}
+            \item If compare all reports chosen, format data for
+            output to Latex
+            \item Use BasicLatexTable script to save data to LaTex
+            file
+            \item Save comparison results, acceptance errors, and
+            duration to Excel
+        \end{itemize}
+        \item Close Excel connection if open.
+    \end{itemize}
+    \item End Loop. Allow user to rerun script
+\end{itemize}
+
+\section{Comparison\_Tool1\_Tool2\_Cb.m}
+Win/Mac/Linux compatible
+\subsection{Purpose}
+This script is used to perform the central body dependent
+comparisons needed for the Calculation Parameters Section
+(~\ref{Ch:CalcParameters}) of the Acceptance Test Plan. The
+comparison involves taking the maximum absolute value of the
+differences of the variables listed in the Inputs section of this
+help guide.
+\subsection{Inputs}
+\begin{itemize}
+    \item Folder to search for files$:$ $[Root Folder]/[Tool]$\_reports. \\
+    (Refer to Section~\ref{nameConvCb} for the naming convention
+    of these report files.)
+    \item The report files must be formatted the same way. Time, Altitude
+    (km), Beta Angle (deg), C3\_Energy ($km^2/sec^2$), Eccentricity,
+    Latitude (deg), Longitude (deg), (RxV)\_Mag ($km^2/sec$), Mean Anomaly
+    (deg), Mean Motion ($rad/sec$), Period (sec), Apoapsis Radius (km),
+    Perigee Radius (km), R\_Mag (km), Semi-major Axis (km), True Anomaly
+    (deg), Semilatus Rectum(km), Apoapsis Velocity ($km/sec$), Periapsis
+    Velocity ($km/sec$), Greenwich Hour Angle(deg), Local Sidereal Time
+    \item Due to the inability of FF and STK tools to output all the
+    parameters listed in the previous bullet, exceptions for FF and STK
+    are built into the code.\\
+
+    STK: Semilatus Rectum, Apoapsis Velocity, Perigee Velocity,
+    Greenwich Hour Angle, and Local Sidereal Time can not be outputted
+    in the same report file. Out of the aforementioned parameters
+    Greenwich Hour Angle is the only parameter that can be outputted in
+    a separate file. All the other parameters are calculated in MATLAB
+    based on the results STK could generate.\\
+
+    FF: (RxV)\_Mag and R\_Mag could not be outputted easily. Instead the
+    $[$XYZ$]$ components were outputted and the script computes the
+    magnitude of the vectors. Apoapsis Velocity, Periapsis Velocity, and
+    Local Sidereal Time are all created in this script based on
+    available parameters.\\
+
+    Modifications to the code will need to be made to add a new tool
+    that cannot output all of the central body parameters that GMAT
+    does.\\
+    \item Currently the location of the reports first row of
+    numerical data is coded into the script. FreeFlyer is the fourth
+    row, STK is the seventh row, GMAT is the second row, OD toolbox is
+    the first row, and any other tools added will automatically search
+    the first row.
+\end{itemize}
+\subsection{Outputs}
+\begin{itemize}
+    \item Excel documents with comparison data
+    \item MATLAB .mat files with comparison data
+    \item Latex documents with comparison data
+\end{itemize}
+\subsection{Script Algorithm}
+\begin{itemize}
+    \item Display welcome message
+    \item Display menu for Tool1 options based on [Tool]\_reports folder
+    \item Wait for user to choose tool from menu
+        \subitem Implement error system for incorrect choice
+    \item Display menu for Tool2 options based on [Tool]\_reports folder
+    \item Wait for user to choose tool from menu
+        \subitem Implement error system for incorrect choice
+    \item Alphabetize Tool1 and Tool2 for naming purposes and rename
+    if necessary
+    \item Store the row location of the first instance of numerical
+    data for both Tools' report files
+    \item Initialize variables and folder locations
+    \item Display a menu of Tool1 $*$.report files
+        \subitem Generate error report if no $*$.report files are located
+    in [Tool1]\_report folder
+    \item Wait for user to choose report comparison option
+        \subitem Implement error system for incorrect choice
+        \subitem Open Excel Connection if compare all choice selected
+    \item Display filename, position difference, and velocity difference header
+    \item Begin Loop. Loop once for single comparison and several
+    times for comparing all files.
+    \begin{itemize}
+        \item Check the Tool2 folder for the same report
+            \subitem Display error message if no report found
+        \item Continue if match found or exit loop if no match found
+        \item Read both output files and save the data to different matrices
+        \item Check to see if the row sizes are the same in
+        both matrices
+            \subitem Display error if row sizes do not match
+        \item Take difference of both Tools report data
+        \item Code in exceptions for STK, FF, and any other tools
+        that don't output all the desired GMAT central body
+        dependent parameters
+        \item Determine the maximum difference for each central body
+        dependent parameter
+        \item Store propagation duration of the test cases in a
+        variable
+        \item Save comparison data to .mat file
+        \begin{itemize}
+            \item If compare all reports chosen, format data for
+            output to Latex
+            \item Use BasicLatexTable script to save data to LaTex
+            file
+            \item Save comparison results, acceptance errors, and
+            duration to Excel
+        \end{itemize}
+        \item Close Excel connection if open.
+    \end{itemize}
+    \item End Loop. Allow user to rerun script
+\end{itemize}
+
+\section{Comparison\_Tool1\_Tool2\_Libr.m}
+Win/Mac/Linux compatible
+\subsection{Purpose}
+This script is used to perform the position and velocity comparisons
+needed for the Libration Points Section (~\ref{Ch:LibPoint}) of the
+Acceptance Test Plan. This script takes the normalized position and
+velocity vector differences between the two selected programs.
+
+\subsection{Inputs}
+\begin{itemize}
+    \item Folder to search for files$:$ $[$Root Folder$]/[$Tool$]$\_reports. \\
+    (Refer to Section~\ref{nameConvLibPoint} for the naming convention
+    of these report files.)
+    \item The report files must be formatted the same way. The first
+    column is time (Mod. Julian Date), second-fourth columns are the position vector
+    components $(x,y,z)$, and fifth-seventh columns are the velocity
+    vector components $(Vx,Vy,Vz)$. The data must be separated by
+    spaces.
+    \item Currently the location of the report's first row of numerical data is coded into the script.
+    FreeFlyer is the fourth row, STK is the seventh row, GMAT is the
+    first row, OD toolbox is the first row, and any other tools added
+    will automatically search the first row.
+\end{itemize}
+\subsection{Outputs}
+\begin{itemize}
+    \item Comparison data is displayed in MATLAB's command window
+    for all test cases.
+    \item Excel documents with comparison data and pass/fail
+    information.
+    \item MATLAB .mat files with comparison data.
+    \item Latex documents with comparison data.
+\end{itemize}
+\subsection{Script Algorithm}
+[INSERT script Algorithm]
+
+\section{Comparison\_Integ.m}
+Win/Mac/Linux compatible
+\subsection{Purpose}
+This script is used to perform the integrator comparisons needed for
+the Integrator Section (~\ref{Ch:Integrators}) of the Acceptance
+Test Plan. The comparison involves taking the difference of the
+position and velocity vector and then normalizing these two vectors
+to get the position and velocity difference. This script behaves
+similar to the Comparison\_Tool1\_Tool2\_PV.m script but the
+components being varied are the integrators for two body test cases.
+\subsection{Inputs}
+\begin{itemize}
+    \item Folder to search for files: $[Root Folder]/[Tool]$\_reports.
+    \item Naming convention: Integrator\_$[Tool]$\_$[Trajectory]$\_$[IntegratorType]$\_2Body.report
+    \item The report files must be formatted the same way. The first column is
+    time, second-fourth columns are the position vector (x,y,z), and
+    fifth-seventh columns are the velocity vector (x,y,z). The data must
+    be separated by spaces.
+    \item Currently the location of the reports'
+    first row of numerical data is coded into the script. FreeFlyer is
+    the fourth row, STK is the seventh row, GMAT is the second row, OD
+    toolbox is the first row, and any other tools added will
+    automatically search the first row.
+\end{itemize}
+\subsection{Outputs}
+\begin{itemize}
+    \item Excel documents with comparison data into the following
+    folder:\\
+    $[Root Folder]/$CompareResults$/[Tool1]$\_$[Tool2]$
+    \item MATLAB .mat files with comparison data into the following
+    folder:\\
+    $[Root Folder]/$CompareResults$/[Tool1]$\_$[Tool2]$
+    \item Latex documents with comparison data into the following
+    folder:\\
+    $[Root Folder]/$Latex\_Docs
+\end{itemize}
+\subsection{Script Algorithm}
+\begin{itemize}
+    \item Display welcome message
+    \item Display menu for Tool1 options based on [Tool]\_reports
+    folder (Can only be Exact or GMAT folders)
+    \item Wait for user to choose tool from menu
+        \subitem Implement error system for incorrect choice
+    \item Display menu for Tool2 options based on [Tool]\_reports
+    folder (Can only be Exact or GMAT folders)
+    \item Wait for user to choose tool from menu
+        \subitem Implement error system for incorrect choice
+    \item Alphabetize Tool1 and Tool2 for naming purposes and rename
+    if necessary
+    \item Store the row location of the first instance of numerical
+    data for both Tools' report files
+    \item Initialize variables and folder locations
+    \item Display a menu of Tool1 $*$.report files
+        \subitem Generate error report if no $*$.report files are located
+    in [Tool1]\_report folder
+    \item Wait for user to choose report comparison option
+        \subitem Implement error system for incorrect choice
+        \subitem Open Excel Connection if compare all choice selected
+    \item Display filename, position difference, and velocity difference header
+    \item Begin Loop. Loop once for single comparison and several
+    times for comparing all files.
+    \begin{itemize}
+        \item Check the Tool2 folder for the same report
+            \subitem Display error message if no report found
+        \item Continue if match found or exit loop if no match found
+        \item Read both output files and save the data to different matrices
+        \item Check to see if the row sizes are the same in
+        both matrices
+            \subitem Display error if row sizes do not match
+        \item Take difference of both Tools report data
+        \item Normalize the results based on position and velocity
+        \item Determine the maximum normalized position and velocity
+        difference
+        \item Store propagation duration of the test cases in a
+        variable
+        \item Save comparison data to .mat file
+        \begin{itemize}
+            \item If compare all reports chosen, format data for
+            output to Latex
+            \item Use BasicLatexTable script to save data to LaTex
+            file
+            \item Save comparison results, acceptance errors, and
+            duration to Excel
+        \end{itemize}
+        \item Close Excel connection if open.
+    \end{itemize}
+    \item End Loop. Allow user to rerun script
+\end{itemize}
+
+\section{Comparison\_DeltaV.m}
+Win/Mac/Linux compatible
+\subsection{Purpose}
+\subsection{Inputs}
+\subsection{Outputs}
+\subsection{Script Algorithm}
+
+\section{Comparison\_StopCond.m}
+Win/Mac/Linux compatible
+\subsection{Purpose}
+\subsection{Inputs}
+\subsection{Outputs}
+\subsection{Script Algorithm}
+
+\section{STK\_Repropagate.m}
+Win compatible
+\subsection{Purpose}
+The STK\_Repropagate script was designed to reduce the time it took
+to generate STK report files, after modifications to the STK
+scenario were made, and obtain more accurate STK run times. Through
+STK's connect module Matlab connect with STK and propagates
+satellites, generates reports, and outputs run times.
+\subsection{Inputs}
+\begin{itemize}
+    \item STK scenario folders that follow the GMAT Acceptance Test Plan
+    naming convention, in the following folder:
+    $[Root Folder]/$TruthFiles/STK
+\end{itemize}
+\subsection{Outputs}
+\begin{itemize}
+    \item STK report file saved into $[Root Folder]/$STK\_reports.
+    \item Matlab .mat file with the time taken to propagate each satellite.
+\end{itemize}
+\subsection{Script Algorithm}
+
+\section{TimeComparo.m}
+Win/Mac/Linux compatible
+\subsection{Purpose}
+When running the BuildRun\_Script\_GMAT.m script there is an all
+option after selecting the build \& run multiple cases choice. By
+using this all option, the GMAT performance times for all the test
+cases are saved to a .mat file. This script uses those saved
+performance times and, based on a pre-selected amount of test cases,
+creates a new excel file that contains GMAT, FF, and STK performance
+times for those pre-selected cases.
+\subsection{Inputs}
+\begin{itemize}
+    \item Template file containing pre-selected cases:
+    $[Root Folder]/$NonGMATrunTimes.xls
+    \item Folder to search for files:
+    $[Root Folder]/$CompareResults
+    \item Naming convention:\\
+    $[Date]/$\_Time2RunAll.mat
+\end{itemize}
+\subsection{Outputs}
+\begin{itemize}
+    \item Excel document with comparison data
+\end{itemize}
+\subsection{Script Algorithm}

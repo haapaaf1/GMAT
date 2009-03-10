@@ -1,0 +1,42 @@
+This section describes the naming convention for libration point
+scripts and output reports generated for use in GMAT's Acceptance
+Test Plan. The naming convention consists of an ordered series of
+option strings, separated by underscores (\_ ). Currently, options
+are allowed for the following fields, and will be present in the
+file name in order:
+\begin{enumerate}
+  \item \emph{tool} - The tool used to generate the trajectory.
+  \item \emph{libType} - The type of libration point used for the test
+  case.
+  \item \emph{libPoint} - The libration point used for the test
+  case.
+\end{enumerate}
+
+The word LibrationTest precedes the \emph{tool} field. The final
+stopping condition file format is as followed:\\
+LibrationTest\_\emph{tool}\_\emph{libType}\_\emph{libPoint}.report\\
+
+The \emph{tool} field should always be the first option field.
+Future additional fields should be added to the end of the list of
+fields. Each field has a finite list of options, as follows (future
+options should be added to this list):
+\begin{enumerate}
+  \item \emph{tool}
+  \begin{tabular}{ll}
+    STK  & - Satellite Toolkit HPOP or Astrogator\\
+    FF   & - FreeFlyer\\
+    GMAT & - General Mission Analysis Tool\\
+    OD   & - Orbital Determination Toolbox\\
+  \end{tabular}
+
+  \item \emph{libType}
+  \begin{tabular}{ll}
+    SEML & - Sun Earth Moon\\
+    SEL  & - Sun Earth\\
+  \end{tabular}
+
+  \item \emph{libPoint}
+  \begin{tabular}{ll}
+    \#   & - The libration Point number\\
+  \end{tabular}
+\end{enumerate}

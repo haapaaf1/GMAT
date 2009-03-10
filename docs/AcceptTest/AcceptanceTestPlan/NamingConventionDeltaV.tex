@@ -1,0 +1,43 @@
+This section describes the naming convention for Delta V scripts and
+output reports generated for use in GMAT's Acceptance Test Plan. The
+naming convention consists of an ordered series of option strings,
+separated by underscores (\_ ). Currently, options are allowed for
+the following fields, and will be present in the file name in order:
+\begin{enumerate}
+  \item \emph{tool} - The tool used to generate the trajectory.
+  \item \emph{deltaVbody} - The type of Delta V applied and the
+  central body the test case uses.
+  \item \emph{axes} - Axes type used for burn maneuver.
+\end{enumerate}
+
+The word DeltaV precedes the \emph{tool} field. The final
+stopping condition file format is as followed:\\
+DeltaV\_\emph{tool}\_\emph{deltaVbody}\_\emph{axes}.report\\
+
+The \emph{tool} field should always be the first option field.
+Future additional fields should be added to the end of the list of
+fields. Each field has a finite list of options, as follows (future
+options should be added to this list):
+\begin{enumerate}
+  \item \emph{tool}
+  \begin{tabular}{ll}
+    STK  & - Satellite Toolkit HPOP or Astrogator\\
+    FF   & - FreeFlyer\\
+    GMAT & - General Mission Analysis Tool\\
+    OD   & - Orbital Determination Toolbox\\
+  \end{tabular}
+
+  \item \emph{deltaVbody}
+  \begin{tabular}{ll}
+    IEarth & - Earth centered impulsive burn\\
+    IMars  & - Mars centered impulsive burn\\
+    IMoon  & - Moon centered impulsive burn\\
+    ISun  & - Sun centered impulsive burn\\
+  \end{tabular}
+
+  \item \emph{axes}
+  \begin{tabular}{ll}
+    VNB   & - Velocity, Velocity Normal, Velocity BiNormal axes\\
+    Cartesian & - Typical X,Y,Z,Vx,Vy,Vz axes\\
+  \end{tabular}
+\end{enumerate}

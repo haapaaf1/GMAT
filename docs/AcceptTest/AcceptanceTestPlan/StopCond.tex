@@ -1,0 +1,277 @@
+\chapter{Stopping Conditions}
+\label{Ch:StopCond}
+
+GMAT's Stopping Conditions were tested on a system level in order to
+determine if it stops correctly on user selected conditions. Refer
+to Table~\ref{Table: InitStopCond} for a list of the stopping
+conditions tested and the units used for the output of data.
+
+\begin{table}[htbp!]
+\centering \caption{Stopping Conditions}
+      \begin{tabular}{lcl}
+      \hline\hline
+         Stopping Condition & Stopping Value & Unit Used\\
+         \hline
+         Epoch (A1 Modified Julian Date) & 23158.042037434974 & Days\\
+         Apoapsis & 180 & TA in degrees\\
+         Elapsed Days & 6 Hours & Days\\
+         Elapsed Days (Multiple Satellites) & 5 Hours & Days\\
+         Mean Anomaly & 45, 90, \& 180 & MA in degrees\\
+         Periapsis & 0 & TA in degrees\\
+         Elapsed Seconds & 3600 & Seconds\\
+         True Anomaly & 45, 90, \& 180 & TA in degrees\\
+         XY Plane Intersection & Z=0 & Km\\
+         XZ Plane Intersection & Y=0 & Km\\
+         YZ Plane Intersection & X=0 & Km\\
+      \hline\hline
+      \label{Table: InitStopCond}
+\end{tabular}
+\end{table}
+
+\clearpage
+\section{Initial Orbit Conditions}
+For a listing of the initial conditions used to produce the data for
+the Stopping Conditions Section, refer to Table~\ref{Table:
+InitStopCondStatePM} for the Earth based non-hyperbolic point mass
+test cases, Table~\ref{Table: InitStopCondStateAll} for the Earth
+based non-hyperbolic all forces test cases, and Table~\ref{Table:
+InitStopCondStatePMhyper} for the Earth based hyperbolic point mass
+test cases.
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (EarthPM \&
+EarthMJ2000EqPM)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Coordinate System (CS) & Earth Mean J2000 Equator\\
+            X & -8043.9600382977915 (km)\\
+            Y & -1564.9950345568864 (km)\\
+            Z & 3750.9601677510364 (km)\\
+            VX & 0.99861303787927636 (km)\\
+            VY & -6.8834168529193462 (km)\\
+            VZ & -0.46566090709653452 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag Area & 15 ($m^2$)\\
+            Drag Model & None\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. StepSize & 60 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & Only initial state\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStopCondStatePM}
+\end{tabular}
+\end{table}
+
+\clearpage
+\begin{table}[htp!]
+\centering \caption{Initial Orbit Parameters (EarthAll \&
+EarthMJ2000EqAll)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Coordinate System (CS) & Earth Mean J2000 Equator\\
+            X & -8043.9600382977915 (km)\\
+            Y & -1564.9950345568864 (km)\\
+            Z & 3750.9601677510364 (km)\\
+            VX & 0.99861303787927636 (km)\\
+            VY & -6.8834168529193462 (km)\\
+            VZ & -0.46566090709653452 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag Area & 15 ($m^2$)\\
+            Drag Model & Jacchia Roberts\\
+            Drag F107/F107A & 150/150\\
+            Drag Kp & 3\\
+            NSG Model & JGM2\\
+            Degree x Order & 4x4\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & On\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. StepSize & 60 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & Only initial state\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStopCondStateAll}
+\end{tabular}
+\end{table}
+
+\begin{table}[hbp!]
+\centering \caption{Initial Orbit Parameters (EarthPMhyper \&
+EarthMJ2000EqPMhyper)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Coordinate System (CS) & Earth Mean J2000 Equator\\
+            X & 12371.791482634855 (km)\\
+            Y & 5050.7627227610719 (km)\\
+            Z & 5050.762722761071 (km)\\
+            VX & -7.9859921512608487 (km)\\
+            VY & 2.44520073255755 (km)\\
+            VZ & 2.4452007325575495 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag Area & 15 ($m^2$)\\
+            Drag Model & None\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. StepSize & 60 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & Only initial state\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStopCondStatePMhyper}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (MoonPM)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Coordinate System (CS) & Earth Mean J2000 Equator\\
+            X & -1486.792117191545200 (km)\\
+            Y & 0.0 (km)\\
+            Z & 1486.792117191543000 (km)\\
+            VX & -0.142927729144255 (km)\\
+            VY & -1.631407624437537 (km)\\
+            VZ & 0.142927729144255 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag Area & 15 ($m^2$)\\
+            Drag Model & None\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. StepSize & 60 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & Only initial state\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStopCondStateMoonPM}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (MarsPM)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Coordinate System (CS) & Earth Mean J2000 Equator\\
+            X & -2737.481646173082000 (km)\\
+            Y & 0.0 (km)\\
+            Z & 2737.481646173082000 (km)\\
+            VX & -0.311321695052649 (km)\\
+            VY & -3.553492313930950 (km)\\
+            VZ & 0.311321695052650 (km)\\
+            Mass (No Fuel) & 850 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.8\\
+            Drag Area & 15 ($m^2$)\\
+            Drag Model & None\\
+            NSG Model & None\\
+            SRP Area & 1 ($m^2$)\\
+            SRP & Off\\
+            Integrator Type & RungaKutta 8(9)\\
+            Integrator Init. StepSize & 60 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 2700 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & Only initial state\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStopCondStateMarsPM}
+\end{tabular}
+\end{table}
+
+\clearpage
+\section{Naming Convention}
+\label{nameConvStopCond}
+\input{NamingConventionStopCond.tex}
+
+\section{Comparison Script Information}
+Comparison\_StopCond.m is the script used to perform the comparisons
+needed for the Stopping Condition chapter of the Acceptance Test
+Plan. This script was designed to allow the user to select a
+GMAT Build and/or the exact solution to compare to one another.\\
+
+Refer to Appendix~\ref{Ch:CompScripts} for more details on this
+script and others used in the Acceptance Test Plan document.
+
+\clearpage
+\section{Test Case Results}
+The following results are for the Stopping Condition section. The
+GMAT Stopping Condition results are being compared to the exact
+desired stopping condition. We'd like the comparison data to be as
+close to zero as possible. A detailed acceptance metric/matrix will
+be developed at a later date.
+
+Refer to Table~\ref{Table: InitStopCond} to determine the units used
+in the Difference(s) column of the Stopping Condition
+comparison results.\\
+
+\input{../Exact-GMAT-StopCond-EarthPM.tex}
+\input{../Exact-GMAT-StopCond-EarthAll.tex}
+\input{../Exact-GMAT-StopCond-EarthPMhyper.tex}
+\input{../Exact-GMAT-StopCond-MoonPM.tex}
+\input{../Exact-GMAT-StopCond-MarsPM.tex}
+\input{../Exact-GMAT-StopCond-EarthMJ2000EqPM.tex}
+\input{../Exact-GMAT-StopCond-EarthMJ2000EqAll.tex}
+\input{../Exact-GMAT-StopCond-EarthMJ2000EqPMhyper.tex}
+\input{../Exact-GMAT-StopCond-MoonMJ2000EqPM.tex}
+\input{../Exact-GMAT-StopCond-MarsMJ2000EqPM.tex}
+\input{../Exact-GMAT-StopCond-Earth3MultiSatsPM.tex}
+\clearpage
+
+\subsection{Win/Mac GMAT Comparison}
+\input{../GMAT-MacGMAT-StopCond-EarthPM.tex}
+\input{../GMAT-MacGMAT-StopCond-EarthAll.tex}
+\input{../GMAT-MacGMAT-StopCond-EarthPMhyper.tex}
+\input{../GMAT-MacGMAT-StopCond-MoonPM.tex}
+\input{../GMAT-MacGMAT-StopCond-MarsPM.tex}
+\input{../GMAT-MacGMAT-StopCond-EarthMJ2000EqPM.tex}
+\input{../GMAT-MacGMAT-StopCond-EarthMJ2000EqAll.tex}
+\input{../GMAT-MacGMAT-StopCond-EarthMJ2000EqPMhyper.tex}
+\input{../GMAT-MacGMAT-StopCond-MoonMJ2000EqPM.tex}
+\input{../GMAT-MacGMAT-StopCond-MarsMJ2000EqPM.tex}
+\input{../GMAT-MacGMAT-StopCond-Earth3MultiSatsPM.tex}
+\clearpage
+
+\subsection{Win/Linux GMAT Comparison}
+\input{../GMAT-LinuxGMAT-StopCond-EarthPM.tex}
+\input{../GMAT-LinuxGMAT-StopCond-EarthAll.tex}
+\input{../GMAT-LinuxGMAT-StopCond-EarthPMhyper.tex}
+\input{../GMAT-LinuxGMAT-StopCond-MoonPM.tex}
+\input{../GMAT-LinuxGMAT-StopCond-MarsPM.tex}
+\input{../GMAT-LinuxGMAT-StopCond-EarthMJ2000EqPM.tex}
+\input{../GMAT-LinuxGMAT-StopCond-EarthMJ2000EqAll.tex}
+\input{../GMAT-LinuxGMAT-StopCond-EarthMJ2000EqPMhyper.tex}
+\input{../GMAT-LinuxGMAT-StopCond-MoonMJ2000EqPM.tex}
+\input{../GMAT-LinuxGMAT-StopCond-MarsMJ2000EqPM.tex}
+\input{../GMAT-LinuxGMAT-StopCond-Earth3MultiSatsPM.tex}

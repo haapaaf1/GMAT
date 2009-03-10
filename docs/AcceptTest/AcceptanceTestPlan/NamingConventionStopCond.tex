@@ -1,0 +1,55 @@
+This section describes the naming convention for stopping condition
+scripts and output reports generated for use in GMAT's Acceptance
+Test Plan. The naming convention consists of an ordered series of
+option strings, separated by underscores (\_ ). Currently, options
+are allowed for the following fields, and will be present in the
+file name in order:
+\begin{enumerate}
+  \item \emph{tool} - The tool used to generate the test cases.
+  \item \emph{Cb} - The Central Body used for the stopping
+  condition, including the force model setup.
+  \item \emph{stopCond} - The stopping condition used for the test
+  case.
+\end{enumerate}
+
+The word StopCond precedes the \emph{tool} field. The final
+stopping condition file format is as followed:\\
+StopCond\_\emph{tool}\_\emph{Cb}\_\emph{stopCond}.report\\
+
+The \emph{tool} field should always be the first option field.
+Future additional fields should be added to the end of the list of
+fields. Each field has a finite list of options, as follows (future
+options should be added to this list):
+\begin{enumerate}
+  \item \emph{tool}
+  \begin{tabular}{ll}
+    STK  & - Satellite Toolkit HPOP or Astrogator\\
+    FF   & - FreeFlyer\\
+    GMAT & - General Mission Analysis Tool\\
+  \end{tabular}
+
+  \item \emph{Cb}
+  \begin{tabular}{ll}
+    EarthPM & - Earth central body with point mass force model\\
+    EarthMJ2000EqPM & - Same as EarthPM and plane intersection calculations based on EarthMJ2000Eq\\
+    EarthAll & - Earth central body with all force model types turned on\\
+    EarthMJ2000EqAll & - Same as EarthAll and plane intersection calculations based on EarthMJ2000Eq\\
+    Earth\#MultiSatsPM & - Same as EarthPM and the test case involves \# satellites \\
+    MarsPM & - Mars central body with point mass force model\\
+    MoonPM & - Moon central body with point mass force model\\
+  \end{tabular}
+
+  \item \emph{stopCond}
+  \begin{tabular}{ll}
+    A1ModJulian & - A1 Modified Julian Date\\
+    Apoapsis & - Apoapsis of orbit based on TA\\
+    Days & - Elapsed Days\\
+    MA\#\#\# & - \#\#\# degree Mean Anomaly\\
+    Periapsis  & - Periapsis of orbit based on TA\\
+    Seconds  & - Elapsed Seconds\\
+    TA\#\#\# & - \#\#\# degree True Anomaly\\
+    XYplane & - XY Plane Intersection\\
+    XZplane & - XZ Plane Intersection\\
+    YZplane & - YZ Plane Intersection\\
+  \end{tabular}
+\end{enumerate}

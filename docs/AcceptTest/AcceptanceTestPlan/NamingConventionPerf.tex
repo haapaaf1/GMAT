@@ -1,0 +1,59 @@
+This section describes the naming convention for Performance scripts
+and output reports generated for use in GMAT's Acceptance Test Plan.
+The naming convention consists of an ordered series of option
+strings, separated by underscores (\_ ). Currently, options are
+allowed for the following fields, and will be present in the file
+name in order:
+\begin{enumerate}
+  \item \emph{tool} - Tool used to generate the trajectory.
+  \item \emph{traj} - Type of trajectory.
+  \item \emph{forces} - Forces applied.
+  \item \emph{output} - Flag noting if there is output.
+\end{enumerate}
+
+The word Performance precedes the \emph{tool} field. The final
+stopping condition file format is as followed:\\
+Performance\_\emph{tool}\_\emph{traj}\_\emph{forces}\_\emph{output}.report or\\
+Performance\_\emph{tool}\_\emph{traj}PM\_\emph{forces}\_\emph{output}.report
+
+The \emph{tool} field should always be the first option field.
+Future additional fields should be added to the end of the list of
+fields. Each field has a finite list of options, as follows (future
+options should be added to this list):
+\begin{enumerate}
+  \item \emph{tool}
+  \begin{tabular}{ll}
+    STK  & - Satellite Toolkit HPOP or Astrogator\\
+    FF   & - FreeFlyer\\
+    GMAT & - General Mission Analysis Tool\\
+    OD   & - Orbital Determination Toolbox\\
+  \end{tabular}
+
+  \item \emph{traj}
+  \begin{tabular}{ll}
+    Deepspace & - deep space orbit\\
+    EML2      & - Earth Moon L2 orbit\\
+    GEO       & - GEO orbit\\
+    GPS       & - MEO orbit\\
+    ISS       & - LEO orbit\\
+    Mars1     & - eccentric low orbit\\
+    Molniya   & - HEO orbit\\
+    Moon      & - eccentric low orbit\\
+    SunSync   & - LEO orbit\\
+  \end{tabular}
+
+NOTE:  Some test cases contain \emph{traj} variations. In this case
+\emph{traj} precedes the modification. For example, an ISS
+trajectory is used and the point mass code is used in GMAT instead
+of JGM2 0x0. In this case the \emph{traj} is ISSPM.
+
+  \item \emph{forces}
+  \begin{tabular}{ll}
+    AllPlanets  & - Sun, Mercury, Venus, Earth, Moon, Mars, Mercury, Jupiter,\\
+    &   and Pluto point mass gravity included.\\
+    1PM         & - Central body is the only point mass included.\\
+    Drag        & - JR is used for Earth cases.\\
+    NSG         & - JGM2 20x20 is used.\\
+    SRP         & - SRP is turned on
+  \end{tabular}
+\end{enumerate}

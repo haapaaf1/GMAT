@@ -1,0 +1,44 @@
+This section describes the naming convention for central body
+dependent parameter scripts and output reports. The naming
+convention consists of a case sensitive ordered series of option
+strings, separated by underscores (\_ ). Currently, options are
+allowed for the following fields, and will be present in the file
+name:
+\begin{enumerate}
+  \item \emph{tool} - The tool used to generate the test case.
+  \item \emph{traj} - The trajectory to use.  This includes initial conditions, physical parameters, and time
+  step.
+\end{enumerate}
+
+CbParams precedes the \emph{tool} field and 2Body follows the
+\emph{traj} field. The central body used can be determined based on
+the \emph{traj} field. The final Cb file format is as followed:\\
+CbParams\_\emph{tool}\_\emph{traj}\_2Body.report\\
+
+The \emph{tool} field should always be the first option field. Each
+field has a finite list of options, as follows (future options
+should be added to this list):
+\begin{enumerate}
+  \item \emph{tool}\\
+  \begin{tabular}{ll}
+    STK  & - Satellite Toolkit HPOP or Astrogator\\
+    FF   & - FreeFlyer\\
+    GMAT & - General Mission Analysis Tool\\
+  \end{tabular}
+
+  \item \emph{traj}\\
+  \begin{tabular}{ll}
+    ISS & - leo orbit\\
+    Mars1 & - eccentric low orbit\\
+    Mercury1 & - eccentric low orbit\\
+    Moon & - eccentric low orbit\\
+    Pluto1 & - eccentric low orbit\\
+    Venus1 & - eccentric low orbit\\
+  \end{tabular}
+
+NOTE:  Some test cases contain \emph{traj} variations. In this case
+\emph{traj} precedes the modification. For example, if an ISS
+trajectory is needed with a different Cd, \emph{traj} could be
+ISSdiffCd1.
+
+\end{enumerate}

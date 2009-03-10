@@ -1,0 +1,294 @@
+\chapter{Acceptance Test Plan Overview} \label{Ch:AcceptPlanIntro}
+
+\section{GMAT Introduction}
+The information presented in this Acceptance Test Plan document
+shows the current status of the General Mission Analysis Tool
+(GMAT). GMAT is a software system developed by NASA Goddard Space
+Flight Center (GSFC) in collaboration with the private sector. The
+GMAT development team continuously performs acceptance tests in
+order to verify that the software continues to operate properly
+after updates are made. The GMAT Development team consists of
+NASA/GSFC Code 583 software developers, NASA/GSFC Code 595 analysts,
+and contractors of varying professions.
+
+GMAT was developed to provide a development approach that maintains
+involvement from the private sector and academia, encourages
+collaborative funding from multiple government agencies and the
+private sector, and promotes the transfer of technology from
+government funded research to the private sector.
+
+GMAT contains many capabilities, such as integrated formation flying
+modeling and MATLAB\index{MATLAB} compatibility. The propagation
+capabilities in GMAT allow for fully coupled dynamics modeling of
+multiple spacecraft, in any flight regime. Other capabilities in
+GMAT include: user definable coordinate systems, 3-D graphics in any
+coordinate system GMAT can calculate, 2-D plots, branch commands,
+solvers, optimizers, GMAT functions, planetary ephemeris sources
+including DE405\index{DE405}, DE200\index{DE200}, SLP\index{SLP} and
+analytic models, script events, impulsive and finite maneuver
+models, and many more.
+
+GMAT runs on Windows, Mac, and Linux platforms. Both the Graphical
+User Interface (GUI) and the GMAT engine were built and tested on
+all of the mentioned platforms. GMAT was designed for intuitive use
+from both the GUI and with an importable script language similar to
+that of MATLAB\index{MATLAB}.
+
+\section{Testing Methodology}
+\subsubsection{Purpose}
+GMAT needs to undergo a series of rigorous tests to validate the
+numerical implementations of its models and establish a set of
+acceptable performance times. The 595 analysts created the
+acceptance test plan to achieve this goal by comparing GMAT with
+flight-operational reference software packages and documenting the
+results. Results can be reproduced with the initial conditions and
+software setups presented in this document.
+
+\subsubsection{Reference software}
+For this comparative study to have merit, GMAT was tested against
+reliable, trustworthy, and flight operational programs, such as
+STK-HPOP\index{STK!HPOP},STK-Astrogator\index{STK!Astrogator},
+Free-Flyer\index{FreeFlyer}, Swingby\index{Swingby}, and previous
+GMAT Builds that were comparable to the aforementioned programs. To
+achieve accurate comparison results, each program was compared with
+equivalent, or close to equivalent, test case setups.
+
+\subsubsection{Testing Categories}
+The Acceptance Test Plan divides into the following testing
+categories: Propagation\index{Propagation}, Calculation Parameters
+[Central body(Cb)\index{Cb} and Coordinate System(CS)\index{CS}
+dependent], Integrators\index{Integrators}, Libration
+Points\index{Libration Points}, Stopping Conditions\index{Stopping
+Conditions}, Delta V\index{Delta V}, and
+Performance\index{Performance}.
+
+\subsubsection{Scripts Used}
+MATLAB\index{MATLAB} scripts were created to make comparisons
+between GMAT Builds and the reference software. The majority of the
+comparisons involved taking the difference of the data and
+extracting the maximum absolute difference observed over the
+propagation duration. Scripts were also created to compare
+performance times for individual GMAT test cases to the reference
+software. The scripts created are as followed:
+Comparison\_Tool1\_Tool2\_PV.m, Comparison\_Tool1\_Tool2\_CS.m,
+Comparison\_Tool1\_Tool2\_Cb.m, Comparison\_Integ.m, TimeComparo.m,
+BuildRun\_Script\_GMAT.m,
+Comparison\_Tool1\_Tool2\_Libr.m, Comparison\_StopCond, and \\
+STK\_Repropagate.m.
+
+The user of the semi-automated scripts provides input when
+requested, in order to perform the script's core functions. For
+example, a user that wants to see the position and velocity
+differences between STK\index{STK} and GMAT would select a few
+choices from a menu. Next, the script would generate the comparisons
+based on the report data available. The semi-automation scripts
+adhere to the naming conventions outlined in their relevant testing
+category chapter.
+
+Most of the scripts generate output in at least one of the following
+formats: ASCII, LaTex\index{LaTex}, MATLAB\index{MATLAB} .mat, or
+Excel .xls files. The report files are in an ASCII space delimited
+format and contain the different test case parameters outputted
+after propagation. The LaTex\index{LaTex} files contain the
+comparison data between two programs and provide an easy way to
+include that data into a PDF document. The .mat and .xls file are
+two other methods used to save the comparison data that proved
+useful from the software development team.
+
+The details of each script and how to use them are outlined in the
+relevant Testing Category section and/or the Comparison Scripts
+Guide section, located in Appendix ~\ref{Ch:CompScripts}.
+
+\subsection{Propagation}\index{Propagation}
+The propagation test cases account for various orbits about Earth,
+as well as other celestial bodies. The main propagation parameters
+to monitor for differences are the position and velocity vectors.
+The following script was generated to perform the
+comparisons for this category:\\
+Comparison\_Tool1\_Tool2\_CS.m
+
+See the Propagators section (Chapter~\ref{Ch:Propagators}) for more
+detail and comparison results.\\
+
+\subsection{Calculation Parameters}
+The calculation parameter test cases verify the internal
+calculations used to output the various parameters presented in the
+list below. This section consists of two subsections: Coordinate
+System(CS)\index{CS} and Central Body(Cb)\index{Cb} dependent
+parameters. The following scripts
+were generated to perform the comparisons for this testing category: \\
+Comparison\_Tool1\_Tool2\_CS.m \& Comparison\_Tool1\_Tool2\_Cb.m\\
+
+\begin{itemize}
+    \item Coordinate Systems
+        \begin{itemize}
+            \item Earth Fixed
+            \item Earth Mean J2000 Equator (MJ2000Eq)
+            \item Earth Mean J2000 Ecliptic (MJ2000Ec)
+            \item Earth Mean of Date Equator (MODEq)
+            \item Earth Mean of Date Ecliptic (MODEc)
+            \item Earth True of Date Equator (TODEq)
+            \item Earth True of Date Ecliptic (TODEq)
+            \item Earth Geocentric Solar Ecliptic (GSE)
+            \item Earth Geocentric Solar Magnetic (GSM)
+            \item Mars Fixed
+            \item Mars MJ2000Eq
+            \item Mars MJ2000Ec
+            \item Mercury Fixed
+            \item Mercury MJ2000Eq
+            \item Mercury MJ2000Ec
+            \item Moon Fixed
+            \item Moon MJ2000Eq
+            \item Moon MJ2000Ec
+            \item Neptune Fixed
+            \item Neptune MJ2000Eq
+            \item Neptune MJ2000Ec
+            \item Pluto Fixed
+            \item Pluto MJ2000Eq
+            \item Pluto MJ2000Ec
+            \item Saturn Fixed
+            \item Saturn MJ2000Eq
+            \item Saturn MJ2000Ec
+            \item Uranus Fixed
+            \item Uranus MJ2000Eq
+            \item Uranus MJ2000Ec
+            \item Venus Fixed
+            \item Venus MJ2000Eq
+            \item Venus MJ2000Ec
+        \end{itemize}
+    \item Coordinate System Parameters
+        \begin{itemize}
+            \item Position (X,Y,Z)
+            \item Velocity(X,Y,Z)
+            \item Magnitude of Velocity
+            \item Right Ascension of Velocity
+            \item Specific Angular Momentum
+            \item Argument of Periapsis
+            \item Declination
+            \item Declination of Velocity
+            \item Inclination
+            \item Right Ascension
+            \item Right Ascension of Ascending Node
+        \end{itemize}
+    \item Central Body Parameters
+        \begin{itemize}
+            \item Altitude
+            \item Beta Angle
+            \item C3 Energy
+            \item Eccentricity
+            \item Latitude
+            \item Longitude
+            \item Specific Angular Momentum
+            \item Mean Anomaly
+            \item Mean Motion
+            \item Period
+            \item Apoapsis Radius
+            \item Perigee Radius
+            \item Position Magnitude
+            \item Semi-major Axis
+            \item True Anomaly
+            \item Semilatus Rectum
+            \item Apoapsis Velocity
+            \item Periapsis Velocity
+            \item Greenwich Hour Angle
+            \item Local Sidereal Time
+        \end{itemize}
+\end{itemize}
+
+See the Calculation Parameters Section
+(Chapter~\ref{Ch:CalcParameters}) for more detail and comparison
+results.
+
+\subsection{Integrators}\index{Integrators}
+The integrator test cases isolate the differences that would occur
+when changing the integrators for the same orbit. The following
+script was generated to perform the test case comparisons for this category:\\
+Comparison\_Integ.m
+
+\begin{itemize}
+    \item RungaKutta(RKV) 8(9)
+    \item DormandElMikkawyPrince(RKN) 6(8)
+    \item RungeKuttaFehlberg(RKF) 5(6)
+    \item PrinceDormand(PD) 4(5)
+    \item PrinceDormand(PD) 7(8)
+    \item BulirschStoer(BS)
+    \item AdamsBashforthMoulton(ABM)
+\end{itemize}
+
+See the Integrators\index{Integrators} Section
+(Chapter~\ref{Ch:Integrators}) for more detail and comparison
+results.
+
+\subsection{Stopping Conditions}\index{Stopping Conditions}
+The stopping condition test cases determine how effective GMAT is at
+stopping satellite propagation on certain conditions. The following
+script was created to
+perform the test case comparisons for this category: \\
+Comparison\_StopCond.m
+
+The stopping conditions tested are as followed:
+\begin{itemize}
+    \item Epoch (A1 Modified Julian Date)
+    \item Apoapsis
+    \item Elapsed Days
+    \item Mean Anomaly
+    \item Periapsis
+    \item Elapsed Seconds
+    \item True Anomaly
+    \item XY Plane Intersection
+    \item XZ Plane Intersection
+    \item YZ Plane Intersection
+\end{itemize}
+
+See the Stopping Conditions\index{Stopping Conditions} Section
+(Chapter~\ref{Ch:StopCond}) for more detail and comparison results.
+
+\subsection{Libration Point}\index{Libration Points}
+
+The libration point test cases create data about the location of
+several libration points. Current and future satellite missions use
+libration points as part of their mission architecture. It is
+important to have accurate data for these libration points. The
+following script was created to perform the test case
+comparisons for this category: \\
+Comparison\_Tool1\_Tool2\_Libr.m
+
+See the Libration Point\index{Libration Point} Section
+(Chapter~\ref{Ch:LibPoint}) for more detail and comparison results.
+
+\subsection{Delta V}\index{Delta V}
+
+The delta v test cases determine the effectiveness of the delta v
+capabilities built into GMAT. When thruster burns are added to the
+mission sequence it is important that they are added correctly. The
+following script was created to perform the test case comparisons
+for this category: \\
+Comparison\_DeltaV.m
+
+See the Delta V\index{Delta V} Section (Chapter~\ref{Ch:DeltaV}) for
+more detail and comparison results.
+
+\subsection{Performance}\index{Performance}
+
+The performance test cases generate performance time data for later
+comparison between GMAT and the reference software packages.
+Numerical calculation accuracy is important, but the amount of
+computing time it takes for the software to run is equally as
+important. We extracted several test cases from previous sections
+and ran them on the reference software packages, in order to check
+to make sure GMAT can perform just as good or better.
+
+See the Performance Section\index{Performance}
+(Chapter~\ref{Ch:Performance}) for more detail and comparison
+results.
+
+\subsection{Control Flow}\index{Control Flow}
+
+The control flow tests generate report data that easily allows a
+Matlab script to produce a table of Pass and Fail cases.The
+following script was created to generate the Pass/Fail table
+for this category: \\
+LoopTestSummary.m
+
+See the Control Flow Section\index{Control Flow}
+(Chapter~\ref{Ch:ControlFlow}) for more detail and results.

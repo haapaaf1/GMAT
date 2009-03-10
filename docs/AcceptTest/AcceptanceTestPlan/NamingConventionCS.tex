@@ -1,0 +1,63 @@
+This section describes the naming convention for coordinate system
+dependent parameter scripts and output reports. The naming
+convention consists of a case sensitive ordered series of option
+strings, separated by underscores (\_ ). Currently, options are
+allowed for the following fields, and will be present in the file
+name:
+\begin{enumerate}
+  \item \emph{tool} - The tool used to generate the test case
+  \item \emph{traj} - The trajectory to use.  This includes initial conditions, physical parameters, and time step
+  \item \emph{CS} - The coordinate system to use. The celestial
+  body to use is followed by the CS in the name
+\end{enumerate}
+
+CSParams precedes the \emph{tool} field and 2Body precedes the
+\emph{CS} field. The final CS file format is as followed:\\
+CSParams\_\emph{tool}\_\emph{traj}\_2Body\_\emph{CS}.report\\
+
+The \emph{tool} field should always be the first option field. Each
+field has a finite list of options, as follows (future options
+should be added to this list):
+\begin{enumerate}
+  \item \emph{tool}\\
+  \begin{tabular}{ll}
+    STK  & - Satellite Toolkit HPOP or Astrogator\\
+    FF   & - FreeFlyer\\
+    GMAT & - General Mission Analysis Tool\\
+  \end{tabular}
+
+  \item \emph{traj}\\
+  \begin{tabular}{ll}
+    ISS & - leo orbit\\
+    SunSync & - leo orbit\\
+    GPS & - meo orbit\\
+    GEO & - geo orbit\\
+    Molniya & - heo orbit\\
+    Mars1 & - eccentric low orbit\\
+    Mercury1 & - eccentric low orbit\\
+    Moon & - eccentric low orbit\\
+    Pluto1 & - eccentric low orbit\\
+    Venus1 & - eccentric low orbit\\
+  \end{tabular}
+
+NOTE:  Some test cases contain \emph{traj} variations. In this case
+\emph{traj} precedes the modification. For example, if ISS
+trajectory is needed with no output, then \emph{traj} can be
+ISSnoOut. The lack of a report file is shortened to noOut.
+
+  \item \emph{CS}\\
+  \begin{tabular}{lll}
+    EarthFixed & EarthMJ2000Eq & EarthMJ2000Ec\\
+    EarthTODEq & EarthTODEc & EarthMODEq\\
+    EarthMODEc & EarthGSM & EarthGSE\\
+    MarsFixed & MarsMJ2000Eq & MarsMJ2000Ec\\
+    MercuryFixed & MercuryMJ2000Eq & MercuryMJ2000Ec\\
+    MoonFixed & MoonMJ2000Eq & MoonMJ2000Ec\\
+    NeptuneFixed & NeptuneMJ2000Eq & NeptuneMJ2000Ec\\
+    PlutoFixed & PlutoMJ2000Eq & PlutoMJ2000Ec\\
+    SaturnFixed & SaturnMJ2000Eq & SaturnMJ2000Ec\\
+    UranusFixed & UranusMJ2000Eq & UranusMJ2000Ec\\
+    VenusFixed & VenusMJ2000Eq & VenusMJ2000Ec\\
+  \end{tabular}
+
+\end{enumerate}

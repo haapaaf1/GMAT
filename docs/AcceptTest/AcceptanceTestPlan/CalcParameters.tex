@@ -1,0 +1,163 @@
+\chapter{Calculation Parameters}
+\label{Ch:CalcParameters}
+
+GMAT's Central Body (Cb)\index{Cb} and Coordinate System
+(CS)\index{CS} dependent parameters were tested to verify that the
+internal calculations were correct. In order to minimize the effects
+of other forces/elements, the two-body cases from the Propagators
+section were used, with some modification, to test both the central
+body and coordinate system parameters. The only changes to the two
+body cases were in the report output intervals and report output
+parameters. Data was outputted in ten minute intervals. The
+ISS\index{ISS} two-body case was used for the Earth case and each
+planets respective two-body case was used for the non-Earth cases.
+
+\section{Initial Orbit State Conditions}
+The ISS\index{ISS}, GEO\index{GEO}, Mars1, Mercury1, Moon, Neptune1,
+Pluto1, Saturn1, Uranus1 and Venus1 two-body case's initial orbit
+parameters were used from the Propagation\index{Propagation} section
+(Chapter~\ref{Ch:Propagators}) for the test cases in this section.
+
+Refer to Appendix ~\ref{Sec:initCondsProp} Tables~\ref{Table:
+InitStateISS}-~\ref{Table: InitStateVenus} for a listing of all
+Propagator initial orbit states used for the Calculation Parameter
+test cases.
+
+\section{Central Body Dependent Parameters}
+\subsection{Naming Convention}
+\label{nameConvCb}
+\input{NamingConventionCb.tex}
+
+\subsection{Comparison Script Information}
+Comparison\_Tool1\_Tool2\_Cb.m is the script used to perform the
+coordinate system comparisons needed for the Acceptance Test Plan.
+Many elements of this script were extracted from the
+Comparison\_Tool1\_Tool2\_CS.m script.
+
+Comparison\_Tool1\_Tool2\_Cb.m was designed to allow the user to
+select two programs to compare to one another. The comparison
+involves taking the difference of the variables listed in the
+Acceptance Test Plan Overview Chapter-$>$Testing
+Methodology-$>$Calculation Parameters section.
+
+Refer to Appendix~\ref{Ch:CompScripts} for more details on this
+script and others used in the Acceptance Test Plan document.
+
+\subsection{Test Case Results}
+The following results are for the Central Body-Calculation Parameter
+section. The current GMAT Build is compared to STK\index{STK} and
+FreeFlyer\index{FreeFlyer} for this section.
+
+FF-STK comparison results presented in Tables~\ref{Table: FF-STK CB
+Parameters Set 1}-~\ref{Table: FF-STK CB Parameters Set 5} are used
+as a way to determine if the GMAT comparison values are acceptable.
+If GMAT comparison data is within the same order of magnitude as the
+FF-STK comparison data, that is acceptable. A more detailed
+acceptance metric/matrix will be developed at a later date.
+
+\input{../GMAT-STK-CbParams-1.tex}\index{STK}
+\input{../GMAT-STK-CbParams-2.tex}\index{STK}
+\input{../GMAT-STK-CbParams-3.tex}\index{STK}
+\input{../GMAT-STK-CbParams-4.tex}\index{STK}
+\input{../GMAT-STK-CbParams-5.tex}\index{STK}
+\clearpage
+
+\input{../FF-GMAT-CbParams-1.tex}\index{FreeFlyer}
+\input{../FF-GMAT-CbParams-2.tex}\index{FreeFlyer}
+\input{../FF-GMAT-CbParams-3.tex}\index{FreeFlyer}
+\input{../FF-GMAT-CbParams-4.tex}\index{FreeFlyer}
+\input{../FF-GMAT-CbParams-5.tex}\index{FreeFlyer}
+\clearpage
+
+\input{../FF-STK-CbParams-1.tex}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-CbParams-2.tex}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-CbParams-3.tex}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-CbParams-4.tex}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-CbParams-5.tex}\index{STK}\index{FreeFlyer}
+\clearpage
+
+\subsection{Win/Mac GMAT Comparison}
+\input{../GMAT-MacGMAT-CbParams-1.tex}
+\input{../GMAT-MacGMAT-CbParams-2.tex}
+\input{../GMAT-MacGMAT-CbParams-3.tex}
+\input{../GMAT-MacGMAT-CbParams-4.tex}
+\input{../GMAT-MacGMAT-CbParams-5.tex}
+\clearpage
+
+\subsection{Win/Linux GMAT Comparison}
+\input{../GMAT-LinuxGMAT-CbParams-1.tex}
+\input{../GMAT-LinuxGMAT-CbParams-2.tex}
+\input{../GMAT-LinuxGMAT-CbParams-3.tex}
+\input{../GMAT-LinuxGMAT-CbParams-4.tex}
+\input{../GMAT-LinuxGMAT-CbParams-5.tex}
+
+\section{Coordinate System Dependent Parameters}
+\subsection{Naming Convention}
+\label{nameConvCS}
+\input{NamingConventionCS.tex}
+
+\subsection{Comparison Script Information}
+The script used to perform the Coordinate System comparisons needed
+for the Acceptance Test Plan is Comparison\_Tool1\_Tool2\_CS.m. Many
+elements of this script were extracted from the
+Comparison\_Tool1\_Tool2\_PV.m script.
+
+Comparison\_Tool1\_Tool2\_CS.m was designed to allow the user to
+select two programs to compare to one another. The comparison
+involves taking the difference of the variables listed in the
+Acceptance Test Plan Overview Chapter-$>$Testing
+Methodology-$>$Calculation Parameters section.
+
+Refer to Appendix~\ref{Ch:CompScripts} for more details of this
+script and others used in the Acceptance Test Plan document.
+
+\subsection{Test Case Results}
+The following results are for the Coordinate System-Calculation
+Parameter section. The current GMAT Build is compared to
+STK\index{STK} and FreeFlyer\index{FreeFlyer} for this section.
+
+ FF-STK comparison results presented in
+Tables~\ref{Table: FF-STK CS Parameters Set 1}-~\ref{Table: FF-STK
+CS Parameters Set 5} are used as a way to determine if the GMAT
+comparison values are acceptable. If GMAT comparison data is within
+the same order of magnitude as the
+FF-STK\index{FreeFlyer}\index{STK} comparison data that is
+acceptable. A more detailed acceptance metric/matrix will be
+developed at a later date.
+
+\input{../GMAT-STK-CSParams-Pos.tex}\index{STK}
+\input{../GMAT-STK-CSParams-Vel.tex}\index{STK}
+\input{../GMAT-STK-CSParams-H.tex}\index{STK}
+\input{../GMAT-STK-CSParams-VelVec.tex}\index{STK}
+\input{../GMAT-STK-CSParams-Angle.tex}\index{STK}
+\clearpage
+
+\input{../FF-GMAT-CSParams-Pos.tex}\index{FreeFlyer}
+\input{../FF-GMAT-CSParams-Vel.tex}\index{FreeFlyer}
+\input{../FF-GMAT-CSParams-H.tex}\index{FreeFlyer}
+\input{../FF-GMAT-CSParams-VelVec.tex}\index{FreeFlyer}
+\input{../FF-GMAT-CSParams-Angle.tex}\index{FreeFlyer}
+\clearpage
+
+\input{../FF-STK-CSParams-Pos.tex}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-CSParams-Vel.tex}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-CSParams-H.tex}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-CSParams-VelVec.tex}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-CSParams-Angle.tex}\index{STK}\index{FreeFlyer}
+\clearpage
+
+\subsection{Win/Mac GMAT Comparison}
+\input{../GMAT-MacGMAT-CSParams-Pos.tex}
+\input{../GMAT-MacGMAT-CSParams-Vel.tex}
+\input{../GMAT-MacGMAT-CSParams-H.tex}
+\input{../GMAT-MacGMAT-CSParams-VelVec.tex}
+\input{../GMAT-MacGMAT-CSParams-Angle.tex}
+\clearpage
+
+\subsection{Win/Linux GMAT Comparison}
+\input{../GMAT-LinuxGMAT-CSParams-Pos.tex}
+\input{../GMAT-LinuxGMAT-CSParams-Vel.tex}
+\input{../GMAT-LinuxGMAT-CSParams-H.tex}
+\input{../GMAT-LinuxGMAT-CSParams-VelVec.tex}
+\input{../GMAT-LinuxGMAT-CSParams-Angle.tex}
+\clearpage

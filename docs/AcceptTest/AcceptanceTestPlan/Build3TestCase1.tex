@@ -1,0 +1,121 @@
+\begin{Script}\begin{verbatim}
+%  Build 3, Test Case 1
+
+% -------------------------------------------------------------------------
+% --------------------------- Create Objects ------------------------------
+% -------------------------------------------------------------------------
+
+% Create Sat1 and define its orbit
+Create Spacecraft Sat1;
+GMAT Sat1.Epoch.TAIGregorian  = 09 Oct 2004 16:30:00.120;
+GMAT Sat1.StateType = Keplerian;
+GMAT Sat1.SMA      = 8000;
+GMAT Sat1.ECC      = .01;
+GMAT Sat1.INC      = 28.5;
+GMAT Sat1.AOP      = 0;
+GMAT Sat1.RAAN     = 90;
+GMAT Sat1.TA       = 180;
+GMAT Sat1.Cd       = 2.0;
+GMAT Sat1.Cr       = 1.4;
+GMAT Sat1.DragArea = 1;
+GMAT Sat1.SRPArea  = 1;
+GMAT Sat1.DryMass  = 100;
+
+% Create Sat2 and define its orbit
+Create Spacecraft Sat2;
+GMAT Sat2.Epoch.TAIGregorian  = 09 Oct 2004 16:30:00.120;
+GMAT Sat2.StateType = Keplerian;
+GMAT Sat2.SMA     = 8000;
+GMAT Sat2.ECC     = .01;
+GMAT Sat2.INC     = 28.5;
+GMAT Sat2.AOP     = 0;
+GMAT Sat2.RAAN    = 90;
+GMAT Sat2.TA      = 181;
+GMAT Sat2.Cd      = 2.0;
+GMAT Sat2.Cr      = 1.4;
+GMAT Sat2.DragArea = 1;
+GMAT Sat2.SRPArea  = 1;
+GMAT Sat2.DryMass  = 100;
+
+% Create Sat3 and define its orbit
+Create Spacecraft Sat3;
+GMAT Sat3.Epoch.TAIGregorian  = 09 Oct 2004 16:30:00.120;
+GMAT Sat3.StateType = Keplerian;
+GMAT Sat3.SMA   = 8000;
+GMAT Sat3.ECC     = .01;
+GMAT Sat3.INC     = 28.5;
+GMAT Sat3.AOP   = 0;
+GMAT Sat3.RAAN  = 90;
+GMAT Sat3.TA    = 182;
+GMAT Sat3.Cd    = 2.0;
+GMAT Sat3.Cr    = 1.4;
+GMAT Sat3.DragArea = 1;
+GMAT Sat3.SRPArea  = 1;
+GMAT Sat3.DryMass  = 100;
+
+%  Define Force Model with JR drag
+Create ForceModel LowEarth_JR;
+GMAT LowEarth_JR.PrimaryBodies      = {Earth};
+GMAT LowEarth_JR.PointMasses        = {Sun, Luna, Jupiter};
+GMAT LowEarth_JR.Drag               = JacchiaRoberts;
+GMAT LowEarth_JR.Drag.F107       = 100;
+GMAT LowEarth_JR.Drag.F107A      = 120;
+GMAT LowEarth_JR.Drag.MagneticIndex = 20;
+GMAT LowEarth_JR.Gravity.Earth.Model  = JGM2;
+GMAT LowEarth_JR.Gravity.Earth.Degree = 20;
+GMAT LowEarth_JR.Gravity.Earth.Order  = 20;
+
+%  Define Force Model with no drag
+Create ForceModel HighEarth;
+GMAT HighEarth.PrimaryBodies        = {Earth};
+GMAT HighEarth.PointMasses          = {Sun, Luna, Jupiter};
+GMAT HighEarth.Drag                 = None;
+GMAT HighEarth.Gravity.Earth.Model  = JGM2;
+GMAT HighEarth.Gravity.Earth.Degree = 20;
+GMAT HighEarth.Gravity.Earth.Order  = 20;
+GMAT HighEarth.SRP                  = On;
+
+% Create Propagator
+Create Propagator RKV_LowEarth_JR;
+GMAT RKV_LowEarth_JR.Type     = RungeKutta89;
+GMAT RKV_LowEarth_JR.MinStep  = .01;
+GMAT RKV_LowEarth_JR.MaxStep  = 900;
+GMAT RKV_LowEarth_JR.FM       = LowEarth_JR;
+
+% Create Propagator
+Create Propagator RKF_HighEarth;
+GMAT RKF_HighEarth.Type    = RungeKuttaFehlberg56;
+GMAT RKF_HighEarth.MinStep = .01;
+GMAT RKF_HighEarth.MaxStep = 900;
+GMAT RKF_HighEarth.FM      = HighEarth;
+
+%  Create XYPlot
+Create XYPlot Sat1XYZvsTime;
+GMAT Sat1XYZvsTime.TargetStatus = Off;
+GMAT Sat1XYZvsTime.IndVar   = Sat1.ElapsedDays;
+GMAT Sat1XYZvsTime.Add = Sat1.X;
+GMAT Sat1XYZvsTime.Add = Sat1.Y;
+GMAT Sat1XYZvsTime.Add = Sat1.Z;
+
+%  Create OpenGL Plot
+Create OpenGLPlot SatOpenGL;
+GMAT SatOpenGL.TargetStatus = Off;
+GMAT SatOpenGL.Add = Sat1;
+GMAT SatOpenGL.Add = Sat2;
+GMAT SatOpenGL.Add = Sat3;
+
+
+% -------------------------------------------------------------------------
+% -------------------- Begin Mission Sequence -----------------------------
+% -------------------------------------------------------------------------
+
+Toggle Sat1XYZvsTime On;
+Toggle SatOpenGL On;
+
+%  First Propagation Sequence
+Propagate Synchronized RKV_LowEarth_JR(Sat1,{Sat1.Periapsis}) RKF_HighEarth(Sat2,Sat3,{Sat2.TA = 155});
+
+%  Second Propagation Sequence
+Propagate RKF_HighEarth(Sat1,Sat2,Sat3,{Sat2.MA = 0});
+
+\end{verbatim}\end{Script}

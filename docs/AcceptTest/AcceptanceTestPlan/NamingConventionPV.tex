@@ -1,0 +1,108 @@
+This section describes the naming convention for propagator scripts
+and output reports. The naming convention consists of an ordered
+series of option strings, separated by underscores (\_ ). Currently,
+options are allowed for the following fields, and will be present in
+the file name in order:
+\begin{enumerate}
+  \item \emph{tool} - The tool used to generate the test case
+  \item \emph{traj} - The trajectory to use.  This includes initial conditions, physical parameters, and time step
+  \item \emph{pmg} - The point-mass gravity model to use
+  \item \emph{nsg} - The non-spherical gravity model to use
+  \item \emph{drag} - The atmospheric drag model to use
+  \item \emph{other} - Any other forces to include, such as SRP, secondary body gravity, etc
+\end{enumerate}
+The \emph{tool} field should always be the first field.  Future
+additional fields should be added to the end of the list of fields.
+If multiple \emph{other} options are required, they should be added
+to the end of the file as required.  For example, the file name will
+be \emph{tool\_traj\_pmg\_nsg\_drag\_other1\_other2.report} (file
+extensions are described later.)  Each field has a finite list of
+options, as follows (future options should be added to this list):
+\begin{enumerate}
+  \item \emph{tool}
+
+  \begin{tabular}{ll}
+    STK  & - Satellite Toolkit HPOP or Astrogator\\
+    FF   & - FreeFlyer\\
+    GMAT & - General Mission Analysis Tool\\
+  \end{tabular}
+
+  \item \emph{traj}
+
+  \begin{tabular}{ll}
+    ISS & - LEO orbit\\
+    SunSync & - LEO orbit\\
+    GPS & - MEO orbit\\
+    GEO & - GEO orbit\\
+    Molniya & - HEO orbit\\
+    Mars1 & - eccentric low orbit\\
+    Mercury1 & - eccentric low orbit\\
+    Moon & - eccentric low orbit\\
+    Neptune1 & - eccentric low orbit\\
+    Pluto1 & - eccentric low orbit\\
+    Saturn1 & - eccentric low orbit\\
+    Uranus1 & - eccentric low orbit\\
+    Venus1 & - eccentric low orbit\\
+    DeepSpace & deep space orbit\\
+    EML2 & - Earth Moon L2 orbit\\
+    ESL2 & - Earth Sun L2 orbit\\
+  \end{tabular}
+
+NOTE:  Some test cases contain \emph{traj} variations. In these
+cases, \emph{traj} precedes the modification. For example, if ISS
+trajectory is needed with no output, then \emph{traj} can be
+ISSnoOut. The lack of a report file is shortened to noOut.
+
+  \item \emph{pmg}
+
+  \begin{tabular}{ll}
+    Earth & - Earth point mass gravity \\
+    Sun & - Sun point mass gravity\\
+    Luna & - Lunar point mass gravity\\
+    AllPlanets & - Sun, Mercury, Venus, Earth, Moon, Mars, Mercury, Jupiter, and
+    Pluto point mass gravity included.\\
+  \end{tabular}
+
+NOTE:  When dealing with a combination of \emph{pmg}'s the first
+point mass is the primary body and the following are third body
+point masses. For example, LunaSunEarth would be a Lunar primary
+body with the Earth and Sun as third body point masses. The
+\emph{pmg}'s after the primary body are arranged based on the order
+from the sun, in order to reduce repeat filenames.
+
+  \item \emph{nsg}
+
+  \begin{tabular}{ll}
+    0       & - no non-spherical gravity included \\
+    JGM2    & - Earth JGM2 20x20 gravity \\
+    JGM3    & - Earth JGM3 20x20 gravity \\
+    EGM96   & - Earth EGM96 20x20 gravity \\
+    MARS50C & - Mars Mars50c 20x20 gravity\\
+    LP165P  & - Moon LP165P 20x20 gravity\\
+   \end{tabular}
+  \item \emph{drag}
+
+  \begin{tabular}{ll}
+    0 & - drag not included\\
+    HP & - Harris Priester \\
+    JRXX & - Jacchia-Roberts\\
+    MSISEXX & - NRL MSISE\\
+  \end{tabular}
+
+NOTE:  XX in the \emph{drag} field refers to the year.  For example,
+JR77 would be the Jacchia-Roberts 1977 model, and MSISE00 would be
+NRL MSISE 2000. Refer to Table~\ref{Table: InitialCond} for the drag
+settings used.
+
+  \item \emph{other}
+
+  \begin{tabular}{ll}
+    0 & - no other forces included\\
+    SRP & - Solar Radiation Pressure\\
+  \end{tabular}
+
+NOTE:  Any of the above options may be included as an \emph{other}
+field.  Refer to Table~\ref{Table: InitialCond} for the SRP settings
+used.
+
+\end{enumerate}

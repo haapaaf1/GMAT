@@ -1,0 +1,29 @@
+\chapter{ControlFlow}
+\label{Ch:ControlFlow}
+
+The Control Flow tests were designed to verify that the control flow
+commands (If, While, and For) function as expected. There are
+scripts that test the control flow commands by themselves, nested,
+and using different user defined parameters, such as arrays,
+numbers, variables, and spacecraft parameters. Each test script was
+designed to store flags that contained details of the command
+execution for each test case and reported to a text file.
+
+Due to the layout of the report, a Matlab script can easily create a
+pass and fail table based on the values of the flag variables. In
+the report output the main columns to pay attention to are the ranOK
+and ansFlag columns. The ansFlag variable tells us if there was an
+incorrect control flow execution (ansFlag=-99), correct control flow
+execution (ansFlag=1), or the control flow didn't get executed
+(ansFlag=1). The ranOK variable tells us if each test case inside
+the test script ran correctly (ranOK = 1) or not (ranOK = 0). The
+only scripts that do not generate the ranOK column are the
+IfLoopTest\#\#\_\_\#\#, IfLoopTest\#\#, and
+IfIfLoopTest\#\#\_\_\#\#.m, because the ansFlag column is
+sufficient.
+
+\section{Test Case Results}
+The results in Table~\ref{Table: LoopResults} display the Pass and
+Fail outcome of each Control Flow test script.
+
+\input{../LoopResults.tex}

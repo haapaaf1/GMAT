@@ -1,0 +1,586 @@
+\chapter{Propagation}
+\label{Ch:Propagators}
+\providecommand{\tabref}[1]{Table~\ref{#1}}
+\providecommand{\pref}[1]{Page~\pageref{#1}}
+
+In order to validate the accuracy of GMAT's propagation, the
+fundamental unit-level components need to be combined and propagated
+on a system level. From a software development point of view, if the
+program under development is tested in a wide range of core
+applications, it is more likely that problems would be found before
+each new version is released to the public. This Acceptance Test
+Plan tests GMAT by comparing many possible scenarios users of GMAT
+would encounter to reference software packages. Although it is
+impossible to create all the possible scenarios each user would
+encounter in GMAT, this is a start to eliminate possible
+frustrations a user could experience if a component did not work
+correctly.
+
+Propagation\index{Propagation} is one of the most important aspects
+of GMAT. Everything from outputting parameters to performing a
+thruster burns at the correct stopping condition depend on whether
+or not GMAT is able to propagate the satellite/object for a defined
+time period with acceptable accuracy.
+
+Parts of the Initial Orbit State Conditions section are referenced
+from Emergent Space Technologies' Orbit Determination Toolbox
+(ODTBX)\index{ODTBX} Spiral 1 DEMO document~\cite{ODTBX1:2005}, due to a similar
+objective of testing the numerical implementation of the
+programs base functions.\\
+
+\section{Initial Orbit State Conditions}
+\label{Sec: InitOrbitState}
+\subsection{Earth Based Test Cases}
+\label{SubSec: EarthInitState}
+
+The initial orbit states for the Sun-Synchronous
+(SunSync)\index{SunSync}, Geostationary (GEO)\index{GEO},
+Molniya\index{Molniya}, International Space Station (ISS)\index{ISS}
+and the Global Positioning Satellite (GPS)\index{GPS} orbits were
+obtained from Emergent Space Technologies' ODTBX\index{ODTBX} Spiral
+1 Demo ~\cite{ODTBX1:2005}. Emergent used STK-High Precision Orbit
+Propagator (STK-HPOP)\index{STK!HPOP} models and two-Line Element
+(TLE) sets with an initial UTC orbit epoch of June 1st 2004,
+12:00:00:00. The initial orbit states that were used for the test
+case orbits can be seen in \tabref{Tab:Initial}, on
+\pref{Tab:Initial}. The perigee and apogee altitudes of the test
+case orbits can be seen in
+\tabref{Tab:Apogee/Perigee}, on \pref{Tab:Apogee/Perigee}.\\
+
+\begin{table}[htb]
+\centering \caption{ Satellite Initial Conditions}
+    \begin{tabular}{lccccccc}
+    \hline\hline
+        Category & Orbit Type & X(km) & Y(km) & Z(km) & Vx(km/s) & Vy(km/s) & Vz(km/s) \\
+        \hline
+         %---New Row---%
+         LEO & ISS & -4453.783586 & -5038.203756 & -426.384456 & 3.831888 & -2.887221 & -6.018232 \\
+         %---New Row---%
+         LEO & Sun-Sync & -2290.301063 & -6379.471940 & 0 & -0.883923 & 0.317338 & 7.610832 \\
+         %---New Row---%
+         MEO & GPS & 5525.33668 & -15871.18494 & -20998.992446 & 2.750341 & 2.434198 & -1.068884 \\
+         %---New Row---%
+         HEO & Molniya & -1529.894287 & -2672.877357 & -6150.115340 & 8.717518 & -4.989709 & 0 \\
+         %---New Row---%
+         GEO & GEO & 36607.358256 & -20921.723703 & 0 & 1.525636 & 2.669451 & 0 \\
+      \hline\hline
+      \label{Tab:Initial}
+\end{tabular}
+\end{table}
+\begin{table}[htb]
+\centering \caption{Apogee and Perigee Altitudes for Test
+Satellites}
+    \begin{tabular}{lcc}
+    \hline\hline
+        Orbit Type & Perigee Altitude(km) & Apogee Altitude(km) \\
+        \hline
+         %---New Row---%
+         ISS & 358.168 & 380.387 \\
+         %---New Row---%
+         Sun-Sync & 400 & 400 \\
+         %---New Row---%
+         GPS & 19757.6 & 20603.8 \\
+         %---New Row---%
+         Molniya & 500 & 39850.5 \\
+         %---New Row---%
+         GEO & 35786 & 35786 \\
+      \hline\hline
+      \label{Tab:Apogee/Perigee}
+\end{tabular}
+\end{table}
+
+The propagation duration, report output step size, and integrator
+step sizes were varied for the different test cases. For the ISS,
+SunSync\index{SunSync}, GPS\index{GPS}, Molynia\index{Molynia}, and
+GEO\index{GEO} cases, the propagation length and report output step
+size were chosen based on a study performed by The Aerospace
+Corporation to validate STK-HPOP's\index{STK!HPOP}~\cite{Chao:2000}.
+The integrator time steps were chosen to allow for the most accurate
+comparison of the test case results. These time steps were based on
+Vallado's analysis of state vector propagation~\cite{Vallado:2005}.\\
+
+The chosen parameters can be seen in \tabref{Tab:Frequency}, on \pref{Tab:Frequency}.\\
+
+\begin{table}[htb]
+\centering \caption{Integrator,Propagator, and Output Frequency}
+    \begin{tabular}{lccc}
+    \hline\hline
+        Orbit Type & Integrator Step Size(s) & Propagator Length(days) & Output Frequency(mins) \\
+        \hline
+         %---New Row---%
+         ISS & 5 & 1 & 1\\
+         %---New Row---%
+         Sun-Sync & 5 & 1 & 1 \\
+         %---New Row---%
+         GPS & 60 & 2 & 2 \\
+         %---New Row---%
+         Molniya & 5 & 3 & 5 \\
+         %---New Row---%
+         GEO & 60 & 7 & 10 \\
+      \hline\hline
+      \label{Tab:Frequency}
+\end{tabular}
+\end{table}
+
+Several test cases were created for each satellite orbit to verify
+GMAT's ability to perform accurately, while applying various forces.
+The forces used for Earth-based test cases were two-body,
+JGM2\index{JGM2}, EGM96\index{EGM96}, and JGM3\index{JGM3} gravity
+models, third-body perturbation effects from other planets, the
+Jacchia-Roberts (JR)\index{JR} and the Mass Spectrometer and
+Incoherent Scatter Radar Exosphere (MSISE\index{MSISE} 1990 \& 2000)
+Atmospheric Drag Model, and Solar Radiation Pressure
+(SRP)\index{SRP}. Each of the force models were run independently
+within GMAT to verify their individual accuracy, as well as a test
+case that includes an atmospheric drag model, the SRP\index{SRP}
+model, a non-spherical gravity model, and third-body perturbations.
+These last test cases were performed to validate the capability of
+the GMAT to accurately propagate satellite orbits while multiple
+force models were applied.\\
+
+The Degree and Order for Earth-based non-spherical gravity cases was
+set at a constant 20 by 20.\\
+
+Refer to Appendix ~\ref{Sec:initCondsProp} for an alternate listing
+of all Propagator initial orbit state conditions.
+
+\clearpage
+\subsection{Non-Earth Based Test Cases}
+\label{SubSec: NonEarthInitState}
+
+GMAT is designed for accuracy in non-Earth mission scenarios. Test
+cases for Mars, Mercury, the Moon, Neptune, Pluto, Saturn, Uranus,
+Venus, L2 orbits, and deep space orbits were created to test various
+forces,individually and jointly, affecting a spacecraft in an orbit.
+Many satellite parameters, such as Cd,Cr, satellite area, and
+satellite mass, were kept the same as the Earth test cases for
+simplicity and consistency. The initial Keplerian satellite state
+only varied in Semi-Major Axis and gravity field degree \& order for
+the non-Earth test cases.\\
+
+Refer to Table~\ref{Tab:NonEarthInitial} for the initial Keplerian
+orbital elements and the Degree \& Order used for the non-spherical
+gravity force cases. The integrator step size, propagation length,
+and output frequency for all the non-Earth cases are 5 seconds, 3
+days, and 5 minutes, respectively. Table~\ref{Tab:NonEarthInitial}
+excludes the deep space and L2 orbit test cases. \\
+
+\begin{table}[htb!]
+\centering \caption{Non-Earth Keplerian Orbital Elements}
+    \begin{tabular}{lccccccc}
+    \hline\hline
+        Orbit Type & SMA (km) & Ecc. & Inc. (deg) & AOP (deg) & RAAN (deg) & TA (deg) & Deg. x Ord. used\\
+        \hline
+         Mars & 4603 & 0.2 & 45 & 45 & 90 & 45 & 20x20\\
+         Mercury & 3640 & 0.2 & 45 & 45 & 90 & 45 & 4x0\\
+         Moon & 2500 & 0.2 & 45 & 45 & 90 & 45 & 20x20\\
+         Neptune & 34999 & 0.2 & 45 & 45 & 90 & 45 & 4x0\\
+         Pluto & 1795 & 0.2 & 45 & 45 & 90 & 45 & 4x0\\
+         Saturn & 80000 & 0.2 & 45 & 45 & 90 & 45 & 4x0\\
+         Uranus & 45000 & 0.2 & 45 & 45 & 90 & 45 & 4x0\\
+         Venus & 8125 & 0.2 & 45 & 45 & 90 & 45 & 20x20\\
+      \hline\hline
+      \multicolumn{7}{l}{SMA: Semi-Major Axis $|$ Ecc.: Eccentricity $|$ Inc.: Inclination $|$ AOP: Argument of Perigee}\\
+      \multicolumn{7}{l}{RAAN: Right Ascension of Ascending Node $|$ TA: True Anomaly}\\
+      \label{Tab:NonEarthInitial}
+\end{tabular}
+\end{table}
+
+The DeepSpace\index{DeepSpace}, Earth Moon L2 (EML2)\index{EML2},
+and Earth Sun L2 (ESL2)\index{ESL2} cases involve propagating about
+libration points and propagating deep space orbits. Table
+~\ref{Table: InitStateDeepSpace}, ~\ref{Table: InitStateEML2}, and
+~\ref{Table: InitStateESL2}, in Appendix~\ref{Ch:initConds}, provide
+the initial states for the DeepSpace\index{DeepSpace},
+EML2\index{EML2}, and ESL2\index{ESL2} test cases, respectively.\\
+
+Refer to Appendix ~\ref{Sec:initCondsProp} for a listing of all
+Propagator initial orbit state conditions.
+
+\section{Other Initial State Conditions}
+\label{Sec: OtherInitStateCond}
+
+In order to reduce the complications of the comparisons, certain
+initial orbit parameters were kept constant throughout all of the
+cases. These parameters are Cd, Cr, Spacecraft Area, each programs
+integrator, and software settings affecting the results of various
+force models.
+
+The GMAT integrator used for all the test cases was Runga Kutta
+8(9), except for the STK-HPOP\index{STK!HPOP} test cases, to avoid
+any additional differences that could occur from changing
+integrators. The Integrators Section compares the differences
+between the various integrators GMAT can use.
+
+The parameters in Table~\ref{Table: InitialCond} shows the
+differences between GMAT and the reference programs. The ideal
+situation would be for all the programs to match perfectly, but that
+is not realistic due to the different approaches each program takes
+to solve each problem.
+
+\begin{table}[htbp!]
+\centering \caption{Universal Test Case
+Parameters}\index{STK!HPOP}\index{STK!Astrogator}\index{FreeFlyer}
+      \begin{tabular}{lcccc}
+      \hline\hline
+         Parameter & GMAT & STK-HPOP & FF & STK-Astro\\
+         \hline
+         Cd & 2.2 & 2.2 & 2.2 & 2.2\\
+         Cr & 1.2 & 1.2 & 1.2 & 1.2\\
+         Area($m^2$) & 20 & 20 & 20 & 20\\
+         Satellite Mass(kg) & 1000 & 1000 & 1000 & 1000\\
+         Integrator (excluding integrator test cases) & RK8(9) & RK7(8) & RK8(9) & RK8(9)\\
+         Integrator error tolerance & 1e-013 & 1e-013 & 1e-013 & 1e-013\\
+         Integrator error control. Relative to & Step & Step? & ? & Step\\
+         Drag: Altitude Calculation & Approximate & Approximate & Exact & ?\\
+         Drag: Sun Position & True & True & True & True\\
+         SRP: Sun Position  & True & True & True? & True\\
+         Solar Flux ($W/m^2$) at 1 AU & 1359.38857 & 1359.38857 & 1358 & 1359.38857\\
+         Solid Tides & N/A & Disabled & N/A & N/A\\
+         Ocean Tides & N/A & Disabled & N/A & N/A\\
+         Daily F10.7: JR and MSISE models & 150 & 150 & N/A & 150\\
+         Average F10.7 & 150 & 150 & 150 & 150\\
+         Geomagnetic Index(Kp): JR and MSISE only  & 3 & 3 & N/A & 3\\
+         Drag: Geomagnetic Flux Update  & Constant & Constant & N/A & Constant\\
+         Boundary Mitigation & N/A & Disabled & N/A & N/A\\
+         Relativistic Accelerations & N/A & Disabled & N/A & N/A\\
+         Shadow Modeling & Dual Cone & Dual Cone & Dual Cone & ?\\
+         IERS EOP format used: & Long term C04 & Bulletin A & Bulletin A & Bulletin A\\
+         Polar Motion calculation: & Enabled & Enabled & Enabled & Enabled?\\
+         Nutation update interval: Earth (sec) & 60 & 60 & 60 & 60\\
+         Planetary Ephemeris update interval (sec) & 0 & 0? & 0 & 0?\\
+      \hline\hline
+      \label{Table: InitialCond}
+\end{tabular}
+\end{table}
+
+\clearpage
+Exceptions to Table~\ref{Table: InitialCond} are as followed:\\
+\begin{itemize}
+    \item STK has trouble propagating the EML2\index{EML2} test case at an error
+    tolerance of 1e-013 with a relative to step error control. The GMAT
+    and STK cases were changed to both use relative to state error control
+\end{itemize}
+
+\subsection{Earth Orientation Parameters(EOP) data}\index{EOP}
+\label{Sec: EOP}
+
+\emph{"International Earth Rotation Service (IERS)\index{IERS}
+Bulletins A and B provide current information on the Earth's
+orientation in the IERS Reference System. This includes Universal
+Time, coordinates of the terrestrial pole, and celestial pole
+offsets.  Bulletin A gives an advanced solution updated weekly by
+e-mail subscription or daily by anonymous ftp; the standard solution
+is given monthly in Bulletin B and updated every week in the
+(IERS)\index{IERS} C04 solution."}~\cite{IERSab:1999}
+
+\emph{"Bulletin A is issued by the IERS\index{IERS} Rapid
+Service/Prediction Centre at the U.S. Naval Observatory(USNO),
+Washington, DC and Bulletin B"}, as well as the C04 data, \emph{"is
+issued by the IERS\index{IERS} Earth Orientation Centre at the Paris
+Observatory."}~\cite{IERSab:2004}
+
+\emph{"Bulletin A is intended for users who need accurate
+information before the Bulletin B “finals” series is available,
+i.e., those who reduce data in the very recent past (require rapid
+service) or those who operate in real-time (require predictions).
+Bulletin B is intended for standard use.  For scientific and
+long-term analyses of the Earth's orientation, the long-term
+continuous series"}~\cite{IERSab:2004}, C04 (1962- present), can be
+used.
+
+\emph{"EOP\index{EOP} (IERS)\index{IERS} C04 is regularly recomputed
+to take advantage on one hand of the improvement of the various
+individual contributions and in the other hand of the refinement of
+the analysis procedures. To date, it is twice-weekly
+updated."}~\cite{IERSc04}
+
+\emph{"The EOP\index{EOP} (IERS)\index{IERS} C04 is given at one-day
+intervals, it is free from the diurnal/subdiurnal terms due to the
+oceanic effects and can be interpolated linearly. The oscillations
+in UT and duration of the days due to zonal tides for periods under
+35 days are present in full size in the series."}~\cite{IERSc04}
+
+GMAT retrieves long term earth orientation IERS\index{IERS}
+EOP\index{EOP} CO4 data, which includes UTC-UT1 data, from a file.
+This file includes smoothed values at 1-day intervals and data from
+1962-present.
+
+STK and FF retrieves its EOP\index{EOP} data from the USNO series 7
+/ IERS\index{IERS} Bulletin A.
+
+The differences between the EOP\index{EOP} data sets are displayed
+in Table~\ref{Table: EOPAccuracy}. The Terrestrial Pole column
+refers to the accuracy of the pole position [x,y] and the UT1 column
+refers to the accuracy of the rotation angle about the pole UT1.
+
+\begin{table}[htbp!]
+\centering \caption{EOP Format Accuracy}\index{EOP}
+      \begin{tabular}{lcc}
+      \hline\hline
+         EOP Format & Pole Position (mas)& UT1 (ms)\\
+         \hline
+         Bulletin A obs. 1-d (1)& 0.10 & 0.02\\
+         Bulletin A pred. 1-d (2)& 0.50 & 0.14\\
+         Bulletin A pred. 4-d (2)& 1.60 & 0.52\\
+         Bulletin A pred. 10-d (2)& 3.9 & 1.60\\
+         Bulletin A pred. 40-d (2)& 11.2 & 7.70\\
+         Bulletin B obs. smooth 5-d (3)& 0.15 & 0.02\\
+         Bulletin B obs. raw 5-d (3)& 0.15 & 0.02\\
+         Bulletin B pred. 5-d (3)& 1.6 & 0.60\\
+         Bulletin B pred. 10-d (3)& 3.0 & 1.60\\
+         Bulletin B pred. 30-d (3)& 10.0 & 4.0\\
+         Long-Term C04 '62-'67 & 30.0 & 2.0\\
+         Long-Term C04 '68-'71 & 20.0 & 1.5\\
+         Long-Term C04 '72-'79 & 15.0 & 1.0\\
+         Long-Term C04 '80-'83 & 2.0 & 0.4\\
+         Long-Term C04 '84-'95 & 0.7 & 0.04\\
+         Long-Term C04 '96-present & 0.2 & 0.02\\
+      \hline\hline
+      \multicolumn{3}{l}{NOTES: (1) Based on data after 1997; applies only to latest epochs in each update.}\\
+      \multicolumn{3}{l}{(2) Based on data since 1995.}\\
+      \multicolumn{3}{l}{(3) Based on data since 1996.}\\
+      \multicolumn{3}{l}{The Terrestrial Pole and UT1 data is free from the diurnal/subdiurnal}\\
+      \multicolumn{3}{l}{terms due to the oceanic effects and can be interpolated linearly.}\\
+      \multicolumn{3}{l}{These terms can be added after interpolation.}\\
+      \label{Table: EOPAccuracy}
+\end{tabular}
+\end{table}
+
+As shown in Table~\ref{Table: EOPAccuracy}, there are differences
+between STK\index{STK} and GMAT, but the Terrestrial Pole data
+agrees to within the thousandth place of a milli-arcseconds and the
+UT1 data agrees to within the hundredth place of second.
+
+\clearpage
+\subsection{Other Planetary Parameters}
+\label{Sec: PlanetInfo}
+\subsubsection{Gravitational Constant}\index{mu}
+All programs used for comparisons utilize the DE405\index{DE405}
+Planetary Gravitational Constants listed in Table~\ref{Table:
+muValues}, except when non-spherical gravity was used. When
+non-spherical gravity files are used they typically call the
+gravitational constants located in the file, unless the program
+creates an exception.
+\begin{table}[htbp!]
+\centering \caption{Planetary Gravitational Constants(mu
+values)}\index{mu}
+      \begin{tabular}{lc}
+      \hline\hline
+         Planet & mu ($km^3/s^2$)\\
+         \hline
+         Sun & 132712440017.99\\
+         Mercury & 22032.080486418\\
+         Venus & 324858.59882646\\
+         Earth & 398600.44150000\\
+         Moon & 4902.8005821478\\
+         Mars & 42828.314258067\\
+         Jupiter & 126712767.85780\\
+         Saturn & 37940626.061137\\
+         Uranus & 5794549.0070719\\
+         Neptune & 6836534.0638793\\
+         Pluto & 981.60088770700\\
+      \hline\hline
+      \label{Table: muValues}
+\end{tabular}
+\end{table}
+
+\subsubsection{Flattening Coefficient}
+Whenever possible the flattening coefficients listed in
+Table~\ref{Table: flatCoeff} were used. Without the use of these
+values the planetary bodies could have wildly different shapes,
+which would result in large differences in parameters such as
+longitude, latitude, and altitude.
+
+\begin{table}[htbp!]
+\centering \caption{Flattening Coefficient}
+      \begin{tabular}{lc}
+      \hline\hline
+         Planet & Flattening Coefficient\\
+         \hline
+         Sun & 0.00000000\\
+         Mercury & 0.00000000\\
+         Venus & 0.00000000\\
+         Earth & 0.00335270\\
+         Moon & 0.00000000\\
+         Mars & 0.00647630\\
+         Jupiter & 0.06487439\\
+         Saturn & 0.09796243\\
+         Uranus & 0.02292734\\
+         Neptune & 0.01856029\\
+         Pluto & 0.00000000\\
+      \hline\hline
+      \label{Table: flatCoeff}
+\end{tabular}
+\end{table}
+
+\clearpage
+\subsubsection{Equatorial Radius}
+The several celestial body equatorial radii used are listed in
+Table~\ref{Table: equRadii}. Similar differences as the flattening
+coefficient occur when GMAT and the reference programs don't use the
+same values.
+
+\begin{table}[htbp!]
+\centering \caption{Equatorial Radius}
+      \begin{tabular}{lc}
+      \hline\hline
+         Planet & Radius (km)\\
+         \hline
+         Sun & 695990.0\\
+         Mercury & 2439.7\\
+         Venus & 6051.90\\
+         Earth & 6378.1363\\
+         Moon & 1738.2\\
+         Mars & 3397.0\\
+         Jupiter & 71492.0\\
+         Saturn & 60268.0\\
+         Uranus & 25559.0\\
+         Neptune & 25269.0\\
+         Pluto & 1162.0\\
+      \hline\hline
+      \label{Table: equRadii}
+\end{tabular}
+\end{table}
+
+\subsubsection{Leap Seconds}
+The amount of leap seconds, or $\Delta$\emph{AT}, has been used
+since 1972 in order to keep |UTC-UT1|\index{UTC-UT1}$\leq$ 0.9sec.
+GMAT and the reference software packages use all the leap seconds up
+until 2004. In 2004 the amount of leap seconds in use were 32
+seconds.
+
+\clearpage
+\section{Naming Convention} \label{nameConvProp}
+\input{NamingConventionPV.tex}
+
+\subsection{Comparison Script Information}
+The script used to perform the position and velocity comparisons
+needed for the Propagator section is Comparison\_Tool1\_Tool2\_PV.m.
+This script takes the normalized position and velocity vector
+difference between two programs.
+
+Refer to Appendix~\ref{Ch:CompScripts} for more details about this
+script and others used in the Acceptance Test Plan document.
+
+\section{Test Case Results}
+The following results are for the Propagator section. The current
+GMAT Build is compared to STK\index{STK} and
+FreeFlyer\index{FreeFlyer} for this section, with the maximum
+normalized position and velocity difference displayed in table
+format.
+
+To determine if a propagator test case comparison value was
+acceptable, an acceptance matrix\index{Acceptance Matrix}, presented
+in Table~\ref{Table: AcceptMatrix}, was created. The values in
+Table~\ref{Table: AcceptMatrix} were obtained from the lower
+position difference bounds of David Vallado’s “An Analysis of State
+Vector Propagation Using Differing Flight Dynamics Programs”,
+presented at the 2005 American Astronomical Society (AAS)/AIAA
+Astrodynamics Specialist Conference. These lower bounds are
+difficult to meet in some orbits due to the wide range of orbits
+that are possible but they give a order of magnitude number to
+strive for. If a case has a combination of either Drag,
+Non-Spherical Gravity, Solar Radiation Pressure(SRP)\index{SRP}, or
+Point Mass gravity, the largest acceptable position difference is
+used.
+
+The next step beyond this acceptance matrix is to compare GMAT's
+comparison data to differences seen in FF\index{FreeFlyer} and
+STK\index{STK} comparisons, and peer reviews.
+
+\begin{table}[htbp!]
+\centering \caption{Acceptance Matrix}\index{Acceptance Matrix}
+      \begin{tabular}{lc}
+      \hline\hline
+         Difference in & Acceptable Position Difference (m)\\
+         \hline
+         Non-Spherical Gravity & $<$ 0.001\\
+         Point Mass Gravity & $<$ 0.001\\
+         Solar Radiation Pressure & $<$ 0.6\\
+         Drag & $<$ 20\\
+      \hline\hline
+      \label{Table: AcceptMatrix}
+\end{tabular}
+\end{table}
+
+\input{../GMAT-STK-GEO.tex}\index{GEO}\index{STK}
+\input{../GMAT-STK-GPS.tex}\index{GPS}\index{STK}
+\input{../GMAT-STK-ISS.tex}\index{ISS}\index{STK}
+\input{../GMAT-STK-Molniya.tex}\index{Molniya}\index{STK}
+\input{../GMAT-STK-SunSync.tex}\index{Sunsync}\index{STK}
+\clearpage
+\input{../GMAT-STK-Mars1.tex}\index{STK}
+\input{../GMAT-STK-Mercury1.tex}\index{STK}
+\input{../GMAT-STK-Moon.tex}\index{STK}
+\input{../GMAT-STK-Neptune1.tex}\index{STK}
+\input{../GMAT-STK-Pluto1.tex}\index{STK}
+\input{../GMAT-STK-Saturn1.tex}\index{STK}
+\input{../GMAT-STK-Uranus1.tex}\index{STK}
+\input{../GMAT-STK-Venus1.tex}\index{STK}
+\clearpage
+\input{../GMAT-STK-DeepSpace.tex}\index{DeepSpace}\index{STK}
+\input{../GMAT-STK-EML2.tex}\index{EML2}\index{STK}
+\input{../GMAT-STK-ESL2.tex}\index{ESL2}\index{STK}
+\clearpage
+\input{../FF-GMAT-GEO.tex}\index{GEO}\index{FreeFlyer}
+\input{../FF-GMAT-GPS.tex}\index{GPS}\index{FreeFlyer}
+\input{../FF-GMAT-ISS.tex}\index{ISS}\index{FreeFlyer}
+\input{../FF-GMAT-Molniya.tex}\index{Molniya}\index{FreeFlyer}
+\input{../FF-GMAT-SunSync.tex}\index{SunSync}\index{FreeFlyer}
+\clearpage
+\input{../FF-GMAT-EML2.tex}\index{EML2}\index{FreeFlyer}
+\input{../FF-GMAT-ESL2.tex}\index{ESL2}\index{FreeFlyer}
+\clearpage
+
+\section{Win/Mac GMAT Comparison}
+\input{../GMAT-MacGMAT-GEO.tex}\index{GEO}
+\input{../GMAT-MacGMAT-GPS.tex}\index{GPS}
+\input{../GMAT-MacGMAT-ISS.tex}\index{ISS}
+\input{../GMAT-MacGMAT-Molniya.tex}\index{Molniya}
+\input{../GMAT-MacGMAT-SunSync.tex}\index{Sunsync}
+\clearpage
+\input{../GMAT-MacGMAT-Mars1.tex}
+\input{../GMAT-MacGMAT-Mercury1.tex}
+\input{../GMAT-MacGMAT-Moon.tex}
+\input{../GMAT-MacGMAT-Neptune1.tex}
+\input{../GMAT-MacGMAT-Pluto1.tex}
+\input{../GMAT-MacGMAT-Saturn1.tex}
+\input{../GMAT-MacGMAT-Uranus1.tex}
+\input{../GMAT-MacGMAT-Venus1.tex}
+\clearpage
+\input{../GMAT-MacGMAT-DeepSpace.tex}\index{DeepSpace}
+\input{../GMAT-MacGMAT-EML2.tex}\index{EML2}
+\input{../GMAT-MacGMAT-ESL2.tex}\index{ESL2}
+\clearpage
+
+\section{Win/Linux GMAT Comparison}
+\input{../GMAT-LinuxGMAT-GEO.tex}\index{GEO}
+\input{../GMAT-LinuxGMAT-GPS.tex}\index{GPS}
+\input{../GMAT-LinuxGMAT-ISS.tex}\index{ISS}
+\input{../GMAT-LinuxGMAT-Molniya.tex}\index{Molniya}
+\input{../GMAT-LinuxGMAT-SunSync.tex}\index{Sunsync}
+\clearpage
+\input{../GMAT-LinuxGMAT-Mars1.tex}
+\input{../GMAT-LinuxGMAT-Mercury1.tex}
+\input{../GMAT-LinuxGMAT-Moon.tex}
+\input{../GMAT-LinuxGMAT-Neptune1.tex}
+\input{../GMAT-LinuxGMAT-Pluto1.tex}
+\input{../GMAT-LinuxGMAT-Saturn1.tex}
+\input{../GMAT-LinuxGMAT-Uranus1.tex}
+\input{../GMAT-LinuxGMAT-Venus1.tex}
+\clearpage
+\input{../GMAT-LinuxGMAT-DeepSpace.tex}\index{DeepSpace}
+\input{../GMAT-LinuxGMAT-EML2.tex}\index{EML2}
+\input{../GMAT-LinuxGMAT-ESL2.tex}\index{ESL2}
+\clearpage
+
+\section{FF/STK Comparison}
+\input{../FF-STK-GEO.tex}\index{GEO}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-GPS.tex}\index{GPS}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-ISS.tex}\index{ISS}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-Molniya.tex}\index{Molniya}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-SunSync.tex}\index{SunSync}\index{STK}\index{FreeFlyer}
+\clearpage
+\input{../FF-STK-EML2.tex}\index{EML2}\index{STK}\index{FreeFlyer}
+\input{../FF-STK-ESL2.tex}\index{ESL2}\index{STK}\index{FreeFlyer}

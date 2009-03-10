@@ -1,0 +1,49 @@
+This section describes the naming convention for integrator scripts
+and output reports. The naming convention consists of an ordered
+series of option strings, separated by underscores (\_ ). Currently,
+options are allowed for the following fields, and will be present in
+the file name in order:
+\begin{enumerate}
+  \item \emph{tool} - The tool used to generate the test case
+  \item \emph{traj} - The trajectory to use.  This includes initial conditions, physical parameters, and time step
+  \item \emph{integ} - The integrator to use
+\end{enumerate}
+
+The word Integrator precedes the \emph{tool} field and 2Body follows
+the \emph{integ} field. The final integrator file format is as followed:\\
+Integrator\_\emph{tool}\_\emph{traj}\_\emph{integ}\_2Body.report\\
+
+The \emph{tool} field should always be the first option field.
+Future additional fields should be added to the end of the list of
+fields. Each field has a finite list of options, as follows (future
+options should be added to this list):
+\begin{enumerate}
+  \item \emph{tool}
+  \begin{tabular}{ll}
+    STK  & - Satellite Toolkit HPOP or Astrogator\\
+    FF   & - FreeFlyer\\
+    GMAT & - General Mission Analysis Tool\\
+  \end{tabular}
+
+  \item \emph{traj}
+  \begin{tabular}{ll}
+    ISS & - leo orbit\\
+    GEO & - geo orbit\\
+  \end{tabular}
+
+NOTE:  Some test cases contain \emph{traj} variations. In this case
+\emph{traj} precedes the modification. For example, if an ISS
+trajectory is needed with a different Cd, \emph{traj} could be
+ISSdiffCd1.
+
+  \item \emph{integ}
+  \begin{tabular}{ll}
+    RKV89 & - RungaKutta 8(9)\\
+    RKN68 & - DormandElMikkawyPrince 6(8)\\
+    RKF56 & - RungeKuttaFehlberg 5(6)\\
+    PD45  & - PrinceDormand 4(5)\\
+    PD78  & - PrinceDormand 7(8)\\
+    BS & - BulirschStoer\\
+    ABM & - AdamsBashforthMoulton\\
+  \end{tabular}
+\end{enumerate}

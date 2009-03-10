@@ -1,0 +1,569 @@
+\chapter{Initial Conditions}
+\label{Ch:initConds}
+
+The text and tables in this appendix allow someone to have an easier
+time duplicating the test case setups described in the previous
+chapters. The same information was presented in the previous
+chapters but this appendix has the information arranged
+different for ease of duplication reasons.\\
+
+\section{Propagator Test Cases}
+\label{Sec:initCondsProp}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (ISS)}\index{ISS}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 2 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateISS}
+            Mass (No Fuel) & 1000 (kg) (some exceptions)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 60 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateISS}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters
+(Sun-Sync)}\index{SunSync}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 2 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateSunSync}
+            Mass (No Fuel) & 1000 (kg) (some exceptions)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 60 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateSunSync}
+\end{tabular}
+\end{table}
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (GPS)}\index{GPS}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 3 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateGPS}
+            Mass (No Fuel) & 1000 (kg) (some exceptions)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 60 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 60 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 120 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateGPS}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters
+(Molniya)}\index{Molniya}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateMolniya}
+            Mass (No Fuel) & 1000 (kg) (some exceptions)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateMolniya}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (GEO)}\index{GEO}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 8 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateGEO}
+            Mass (No Fuel) & 1000 (kg) (some exceptions)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 60 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 60 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 600 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateGEO}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Mars)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateMars}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateMars}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Mercury)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateMercury}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateMercury}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Moon)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateMoon}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateMoon}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Neptune)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateNeptune}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateNeptune}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Pluto)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStatePluto}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStatePluto}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Saturn)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateSaturn}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateSaturn}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Uranus)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateUranus}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateUranus}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Venus)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 1 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 4 Jun 2004 12:00:00.000 (UTCG)\\
+            \input{initStateVenus}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 300 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateVenus}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters
+(DeepSpace)}\index{DeepSpace}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 01 Jan 2000 12:00:00.000 (UTCG)\\
+            Stop Time & 01 Jan 2001 12:00:00.000 (UTCG)\\
+            \input{initStateDeepSpace}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Variable\\
+            Integrator Init. StepSize & 30000 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 30000 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 86400 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateDeepSpace}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (EML2)}\index{EML2}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 23 Jan 2010 00:00:03.999 (UTCG)\\
+            Stop Time & 6 Feb 2010 00:00:03.999 (UTCG)\\
+            \input{initStateEML2}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Variable\\
+            Integrator Init. StepSize & 1200 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 1200 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 2400 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateEML2}
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (ESL2)}\index{ESL2}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Start Time & 5 Feb 2006 17:05:48.772 (UTCG)\\
+            Stop Time & 4 Aug 2006 17:05:48.772 (UTCG)\\
+            \input{initStateESL2}
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & Case dependent\\
+            NSG Model & Case dependent\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & Case dependent\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Variable\\
+            Integrator Init. StepSize & 15000 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 15000 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 43200 (sec)\\
+            Report CS/Cb & Same as initial state CS\\
+      \hline\hline
+      \label{Table: InitStateESL2}
+\end{tabular}
+\end{table}
+
+\clearpage
+\section{Calculation Parameter Test Cases}
+
+The Cb\index{Cb} and CS\index{CS} initial orbit state conditions for
+the ISS\index{ISS}, GEO\index{GEO}, Mars1, Mercury1, Moon, Neptune1,
+Pluto1, Saturn1, Uranus1 and Venus1 test cases are the same as the
+vales presented in Tables ~\ref{Table: InitStateISS},~\ref{Table:
+InitStateGEO},~\ref{Table: InitStateMars}-~\ref{Table:
+InitStateVenus}. The only exception is that the Report StepSize is
+600 seconds.
+
+\begin{table}[htbp!]
+\centering \caption{Initial Orbit Parameters (Hyperbolic)}
+      \begin{tabular}{lc}
+      \hline\hline
+            Initial State Parameter & Parameter Value (unit)\\
+            \hline
+            Coordinate System & Earth Mean J2000 Equator\\
+            Start Time & 01 Jun 2004 12:00:00.000 (UTCG)\\
+            Stop Time & 02 Jun 2004 12:00:00.000 (UTCG)\\
+            X & 12371.791482634855 (km)\\
+            Y & 5050.7627227610719 (km)\\
+            Z & 5050.762722761071 (km)\\
+            VX & -7.9859921512608487 (km)\\
+            VY & 2.44520073255755 (km)\\
+            VZ & 2.4452007325575495 (km)\\
+            Mass (No Fuel) & 1000 (kg)\\
+            Cd & 2.2\\
+            Cr & 1.2\\
+            Drag Area & 20 ($m^2$)\\
+            Drag Model & None\\
+            NSG Model & None\\
+            SRP Area & 20 ($m^2$)\\
+            SRP & None\\
+            Integration Method & Tool/Program Dependent\\
+            Integrator StepSize control & Fixed\\
+            Integrator Init. StepSize & 5 (sec)\\
+            Integrator Accuracy & 1e-13\\
+            Integrator Max. StepSize & 5 (sec)\\
+            Report Precision & 16 significant figures\\
+            Report StepSize & 600 (sec)\\
+            Report CS/Cb & Case Dependent\\
+      \hline\hline
+      \label{Table: InitStateHyper}
+\end{tabular}
+\end{table}
+
+\clearpage
+\section{Integrator Test Cases}\index{Integrators}
+The integrator initial orbit state conditions for the ISS\index{ISS}
+and GEO\index{GEO} test cases are the same as the vales presented in
+Tables ~\ref{Table: InitStateISS} and ~\ref{Table: InitStateGEO}.
+The only exception is that each test case uses one of the following
+Integration Methods: ABM, BS, PD45, PD78, RKF56, RKN68, and RKV89.
+
+\section{Stopping Condition Test Cases}\index{Stopping Condition}
+Refer to Tables~\ref{Table: InitStopCondStatePM}-~\ref{Table:
+InitStopCondStateMarsPM} in Chapter~\ref{Ch:StopCond} for initial
+orbit state values for the Stopping Condition test cases.
+
+\section{Libration Point Test Cases}\index{Libration Points}
+Refer to
+Tables~\ref{Table:InitialSEstate}-~\ref{Table:InitialSEMstate} in
+Chapter~\ref{Ch:LibPoint} for initial orbit state values for the
+Stopping Condition test cases.
+
+\section{DeltaV Test Cases}\index{Delta V}
+Refer to Tables~\ref{Table: InitDVStateEarthImpulse}-~\ref{Table:
+InitDVStateSunImpulse} in Chapter~\ref{Ch:DeltaV} for initial orbit
+state values for the Performance test cases.
+
+\section{Performance}\index{Performance}
+Refer to Tables~\ref{Table: InitPerfStateDeepSpace}-~\ref{Table:
+InitPerfStateSunSync} in Chapter~\ref{Ch:Performance} for initial
+orbit state values for the Performance test cases.

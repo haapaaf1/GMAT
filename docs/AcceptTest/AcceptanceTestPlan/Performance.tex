@@ -1,0 +1,116 @@
+\chapter{Performance}
+\label{Ch:Performance}
+
+One of the many goals of GMAT is to perform at satisfactory speed
+when running a script. By running similar scripts in GMAT and
+reference software, time performance comparisons could be made. We
+generated several test cases centered around the Earth and a minimal
+set of test cases about a few non-Earth bodies. Many of the test
+cases were extracted from the previous Chapters and used in these
+tests.\\
+
+The performance tests cases were created from the propagator test
+cases with some slight variations. We were interested in test cases
+focused on only point mass bodies, non-spherical gravity present,
+solar radiation pressure turned on, or drag effects. Isolation of
+the mentioned perturbation forces allows us to see how long each
+process take for GMAT to complete. The deepspace, non-earth, and
+libration point test cases only focused on point mass bodies.\\
+
+Propagation duration times for the GEO, GPS, LEO, Molniya, and
+SunSync cases were increased to obtain a more accurate measurement
+of the time between GMAT and the reference software packages. This
+could have been done for the other test cases but the amount time
+needed to modify the automation scripts was not worth the extra
+data. The reason extra code would have been needed was to account
+for the differences in propagation modules for STK. STK-HPOP is used
+for the GEO, GPS, LEO, Molniya, and Sunsyc test cases and
+STK-Astrogator is used for the others.\\
+
+\section{Test Machine Specifications}
+\label{Sec: MachineSpecs}
+
+All tests presented in this Acceptance Test Plan document were
+performed on a desktop machine with the following
+specifications:\\
+
+Computer Type - PC\\
+OS            - Microsoft Windows XP\\
+RAM           - 2.0 GB\\
+Processor     - Intel(R) Pentium(R) 4 CPU 3.40GHz\\
+Architecture  - 32-bit\\
+Manufacturer  - Dell\\
+STK Version   - STK 6.2.0\index{STK}\\
+FF Version    - FF 5.6.5.35\index{FreeFlyer}\\
+
+\clearpage
+\section{Initial Orbit Conditions}
+
+All of the initial orbit parameters for the test cases in this
+section were obtained from the Propagation\index{Propagation}
+section (Chapter~\ref{Ch:Propagators}) test cases. One of the
+differences is the propagation duration is extended to 30 days,
+excluding the DeepSpace, ESL2, and EML2 cases. Another difference is
+the use of NSG, PMG, Drag, and SRP. Refer to the Performance naming
+conventions section (Section ~\ref{nameConvPerf}) for the types of
+settings used.
+
+Refer to Appendix ~\ref{Sec:initCondsProp} Tables~\ref{Table:
+InitStateISS}-~\ref{Table: InitStateVenus} for a listing of all
+Propagator initial orbit states used for the Performance test cases.
+
+\clearpage
+\section{Naming Convention}
+\label{nameConvPerf}
+\input{NamingConventionPerf.tex}
+
+\section{Comparison Script Information}
+TimeComparo.m is the script used to perform the comparison data
+needed for the Performance chapter of the Acceptance Test Plan. This
+script was designed to allow the user to select from a list of dates
+and then generates output that includes all available performance
+results from GMAT, STK, and FF. The dates represent the times when
+all of the performance test cases were run from the
+BuildRun\_Script\_GMAT.m script.\\
+
+STK\_Repropagate.m is the script that generates the performance
+times for STK. The data generated is then exported into an excel
+document for use with the TimeComparo.m script.\\
+
+Refer to Appendix~\ref{Ch:CompScripts} for more details of this
+script and others used in the Acceptance Test Plan document.
+
+\section{Test Results}
+We strive to make GMAT perform just as good or better than the
+reference software packages. For the test cases with performance
+numbers that are not nearly equivalent or better, work is being done
+to improve GMAT's performance without affecting its numerical
+accuracy.
+
+The main performance output parameters of interest are the time
+taken to run the script, the amount of integration step taken during
+that run, and the time per integration step. The results in this
+section are outputted in seconds. Tables~\ref{Table:
+Performance1-1}-~\ref{Table: Performance2-3} contain these
+performance parameters by tool.
+
+Tables~\ref{Table: Performance3-1}-~\ref{Table: Performance4-3}
+contain a percentage difference between GMAT and the other reference
+software used. The data indicates GMAT's performance data was
+divided into the reference softwares same performance data to obtain
+a percentage. A value of 100\% indicates both tools were the same,
+greater than 100\% indicates GMAT performed worse, and less than
+100\% indicates GMAT performed better.
+
+\input{../PerformanceTime1-1.tex}
+\input{../PerformanceTime1-2.tex}
+\input{../PerformanceTime1-3.tex}
+\input{../PerformanceTime2-1.tex}
+\input{../PerformanceTime2-2.tex}
+\input{../PerformanceTime2-3.tex}
+\input{../PerformanceTime3-1.tex}
+\input{../PerformanceTime3-2.tex}
+\input{../PerformanceTime3-3.tex}
+\input{../PerformanceTime4-1.tex}
+\input{../PerformanceTime4-2.tex}
+\input{../PerformanceTime4-3.tex}
