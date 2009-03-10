@@ -21,6 +21,7 @@
 #define Estimator_hpp
 
 #include <fstream>          // for std::ofstream
+#include <Spacecraft.hpp>
 
 #include "GmatBase.hpp"
 #include "Solver.hpp"
@@ -264,7 +265,9 @@ protected:
    /// H is the Jacobian of y w.r.t. x
    LaGenMatDouble	H;
    /// Phi is the Jacobian of f w.r.t. x
-   LaGenMatDouble	Phi;
+   LaGenMatDouble       Phi;
+   /// The current state transition matrix
+   LaGenMatDouble	stateTransitionMatrix;
    
    
    // Cost function evaluation
@@ -272,7 +275,8 @@ protected:
    // Global Convergence Tolerance
    Real			globalConvergenceTolerance;
 
-   /// Filename containing observations. An empty string says use observations stored in internal arrays
+   /// Filename containing observations. An empty string says use
+   /// observations stored in internal arrays
    std::string		observationTextFile;
    /// Type of observation
    StringArray		observationTypes;
@@ -311,23 +315,30 @@ protected:
    /// x(t1) = f(x(t0),u(t0),t0)
    /// y(t1) = h(x(t1),u(t1),t1)
    ///
-   virtual LaVectorDouble f();
-   virtual LaVectorDouble f(LaVectorDouble x, Real t0, Real t1);
-   virtual LaVectorDouble f(LaVectorDouble x, LaVectorDouble u, Real t0, Real t1);
+   virtual LaVectorDouble f(Real &t0, Real &t1);
+   virtual LaVectorDouble f(LaVectorDouble &x, Real &t0, Real &t1);
+   virtual LaVectorDouble f(LaVectorDouble &x, LaVectorDouble &u, Real &t0,
+                            Real &t1);
 
-   virtual LaVectorDouble h(StringArray observationTypes);
-   virtual LaVectorDouble h(StringArray observationTypes, LaVectorDouble x, Real t1);
-   virtual LaVectorDouble h(StringArray observationTypes, LaVectorDouble x, LaVectorDouble u, Real t1);
+   virtual LaVectorDouble h(StringArray &observationTypes, Real &t1);
+   virtual LaVectorDouble h(StringArray &observationTypes, LaVectorDouble &x,
+                            Real &t1);
+   virtual LaVectorDouble h(StringArray &observationTypes, LaVectorDouble &x,
+                            LaVectorDouble &u, Real &t1);
 
    /// H is a function that computes the Jacobian of y w.r.t. x
    virtual LaGenMatDouble ComputeH();
-   virtual LaGenMatDouble ComputeH(LaVectorDouble x, Real t0);
+   virtual LaGenMatDouble ComputeH(LaVectorDouble &x, Real &t0);
 
-   /// Phi is a function that computes the Jacobian of f w.r.t. x
+   /// Compute Phi is a function that returns the Jacobian of f w.r.t. x
    virtual LaGenMatDouble ComputePhi();
-   virtual LaGenMatDouble ComputePhi(LaVectorDouble x, Real t0);
-
-
+   virtual LaGenMatDouble ComputePhi(LaVectorDouble &x, Real &t0);
+   
+   // This returns the current State Transtion Matrix associated with a given
+   // space object
+   LaGenMatDouble GetStateTransitionMatrix(const Spacecraft *theSat);
+   LaGenMatDouble GetStateTransitionMatrix(const Spacecraft *theSat,
+                                Integer &numRows = 0, Integer &numColumns = 0);
 
    /// The number of iterations taken ( used for batch processing )
    Integer             iterationsTaken;

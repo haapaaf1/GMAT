@@ -1208,58 +1208,308 @@ std::string Estimator::GetProgressString()
    return "Estimator progress string not yet implemented for " + typeName;
 }
 
-/// For nonlinear systems, we need to define a function f that
-/// predicts the estimator state at time t2 given a prior
-/// state at time t1 and the associated control vector u during that time period
-/// h is a function that computes an estimated observation at time t given
-/// the current state and control vectors.
-///
-/// x(t1) = f(x(t0),u(t0),t0)
-/// y(t1) = h(x(t1),u(t1),t1)
-///
-LaVectorDouble Estimator::f()
-{
-  return x;
-}
-LaVectorDouble Estimator::f(LaVectorDouble x, Real t0, Real t1)
-{
-  return x;
-}
-LaVectorDouble Estimator::f(LaVectorDouble x, LaVectorDouble u, Real t0, Real t1)
+//------------------------------------------------------------------------------
+//  LaGenMatDouble f(Real &t0, Real &t1)
+//------------------------------------------------------------------------------
+/**
+ * Computes the estimated state at the specified time.
+ *
+ * For nonlinear systems, we need to define a function f that
+ * predicts the estimator state at time t2 given a prior
+ * state at time t1 and the associated control vector u during that time period
+ * h is a function that computes an estimated observation at time t given
+ * the current state and control vectors.
+ *
+ * x(t1) = f(x(t0),u(t0),t0)
+ * y(t1) = h(x(t1),u(t1),t1)
+ *
+ * @param <t0> The current time.
+ * @param <t1> The time at which an computed state is requested.
+ * @return The computed estimator state.
+ */
+//------------------------------------------------------------------------------
+LaVectorDouble Estimator::f(Real &t0, Real &t1)
 {
   return x;
 }
 
-LaVectorDouble Estimator::h(StringArray observationTypes)
+//------------------------------------------------------------------------------
+//  LaGenMatDouble f(LaVectorDouble &x, Real &t0, Real &t1)
+//------------------------------------------------------------------------------
+/**
+ * Computes a set of observations of the specified type at the specified time.
+ *
+ * For nonlinear systems, we need to define a function f that
+ * predicts the estimator state at time t2 given a prior
+ * state at time t1 and the associated control vector u during that time period
+ * h is a function that computes an estimated observation at time t given
+ * the current state and control vectors.
+ *
+ * x(t1) = f(x(t0),u(t0),t0)
+ * y(t1) = h(x(t1),u(t1),t1)
+ *
+ * @param <x> The current estimator state.
+ * @param <t0> The current time.
+ * @param <t1> The time at which an computed state is requested.
+ * @return The computed estimator state.
+ */
+//------------------------------------------------------------------------------
+LaVectorDouble Estimator::f(LaVectorDouble &x, Real &t0, Real &t1)
 {
-  return y;
+  return x;
 }
-LaVectorDouble Estimator::h(StringArray observationTypes, LaVectorDouble x, Real t1)
+
+//------------------------------------------------------------------------------
+//  LaGenMatDouble f(LaVectorDouble &x, LaVectorDouble &u, Real &t0, Real &t1)
+//------------------------------------------------------------------------------
+/**
+ * Computes a set of observations of the specified type at the specified time.
+ *
+ * For nonlinear systems, we need to define a function f that
+ * predicts the estimator state at time t2 given a prior
+ * state at time t1 and the associated control vector u during that time period
+ * h is a function that computes an estimated observation at time t given
+ * the current state and control vectors.
+ *
+ * x(t1) = f(x(t0),u(t0),t0)
+ * y(t1) = h(x(t1),u(t1),t1)
+ *
+ * @param <x> The current estimator state.
+ * @param <u> The current control vector.
+ * @param <t0> The current time.
+ * @param <t1> The time at which an computed state is requested.
+ * @return The computed estimator state.
+ */
+//------------------------------------------------------------------------------
+LaVectorDouble Estimator::f(LaVectorDouble &x, LaVectorDouble &u, Real &t0, Real &t1)
 {
-  return y;
+  return x;
 }
-LaVectorDouble Estimator::h(StringArray observationTypes, LaVectorDouble x, LaVectorDouble u, Real t1)
+
+//------------------------------------------------------------------------------
+//  LaGenMatDouble h(StringArray &observationTypes, Real &t1)
+//------------------------------------------------------------------------------
+/**
+ * Computes a set of observations of the specified type at the specified time.
+ *
+ * For nonlinear systems, we need to define a function f that
+ * predicts the estimator state at time t2 given a prior
+ * state at time t1 and the associated control vector u during that time period
+ * h is a function that computes an estimated observation at time t given
+ * the current state and control vectors.
+ *
+ * x(t1) = f(x(t0),u(t0),t0)
+ * y(t1) = h(x(t1),u(t1),t1)
+ *
+ * @param <observationTypes> Array of requested observation types.
+ * @param <t1> The time at which an observation is requested.
+ * @return The computed observation.
+ */
+//------------------------------------------------------------------------------
+LaVectorDouble Estimator::h(StringArray &observationTypes, Real &t1)
 {
   return y;
 }
 
-/// H is a function that computes the Jacobian of y w.r.t. x
+//------------------------------------------------------------------------------
+//  LaGenMatDouble h(StringArray observationTypes, LaVectorDouble &x, Real &t1)
+//------------------------------------------------------------------------------
+/**
+ * Computes a set of observations of the specified type.
+ *
+ * For nonlinear systems, we need to define a function f that
+ * predicts the estimator state at time t2 given a prior
+ * state at time t1 and the associated control vector u during that time period
+ * h is a function that computes an estimated observation at time t given
+ * the current state and control vectors.
+ *
+ * x(t1) = f(x(t0),u(t0),t0)
+ * y(t1) = h(x(t1),u(t1),t1)
+ *
+ * @param <observationTypes> Array of requested observation types.
+ * @param <x> The current estimator state.
+ * @param <t1> The time at which an observation is requested.
+ *
+ * @return The computed observation.
+ */
+//------------------------------------------------------------------------------
+LaVectorDouble Estimator::h(StringArray &observationTypes,
+                            LaVectorDouble &x, Real &t1)
+{
+  return y;
+}
+
+//------------------------------------------------------------------------------
+//  LaGenMatDouble h(StringArray observationTypes, LaVectorDouble &x,
+//                   LaVectorDouble &u, Real &t1)
+//------------------------------------------------------------------------------
+/**
+ * Computes a set of observations of the specified type.
+ *
+ * For nonlinear systems, we need to define a function f that
+ * predicts the estimator state at time t2 given a prior
+ * state at time t1 and the associated control vector u during that time period
+ * h is a function that computes an estimated observation at time t given
+ * the current state and control vectors.
+ *
+ * x(t1) = f(x(t0),u(t0),t0)
+ * y(t1) = h(x(t1),u(t1),t1)
+ *
+ * @param <observationTypes> Array of requested observation types.
+ * @param <x> The current estimator state.
+ * @param <u> The current control vector.
+ * @param <t1> The time at which an observation is requested.
+ *
+ * @return The computed observation.
+ */
+//------------------------------------------------------------------------------
+LaVectorDouble Estimator::h(StringArray &observationTypes, LaVectorDouble &x,
+                            LaVectorDouble &u, Real &t1)
+{
+  return y;
+}
+
+//------------------------------------------------------------------------------
+//  LaGenMatDouble ComputeH()
+//------------------------------------------------------------------------------
+/**
+ * Computes the Jacobian of y w.r.t. x
+ *
+ * @return The Jacobian of y w.r.t. x
+ */
+//------------------------------------------------------------------------------
 LaGenMatDouble Estimator::ComputeH()
 {
   return LaGenMatDouble::eye(observationTypeCount,stateCount);
 }
-LaGenMatDouble Estimator::ComputeH(LaVectorDouble x, Real t0)
+
+//------------------------------------------------------------------------------
+//  LaGenMatDouble ComputeH(LaVectorDouble &x, Real &t0)
+//------------------------------------------------------------------------------
+/**
+ * Computes the Jacobian of y w.r.t. x
+ *
+ * @param <x> the current state
+ * @param <t0> the current time
+ *
+ * @return The Jacobian of y w.r.t. x
+ */
+//------------------------------------------------------------------------------
+LaGenMatDouble Estimator::ComputeH(LaVectorDouble &x, Real &t0)
 {
   return LaGenMatDouble::eye(observationTypeCount,stateCount);
 }
 
-/// Phi is a function that computes the Jacobian of f w.r.t. x
+//------------------------------------------------------------------------------
+//  LaGenMatDouble ComputePhi()
+//------------------------------------------------------------------------------
+/**
+ * Computes the Jacobian of f w.r.t. x
+ *
+ * @return The Jacobian of f w.r.t. x
+ */
+//------------------------------------------------------------------------------
 LaGenMatDouble Estimator::ComputePhi()
 {
     return LaGenMatDouble::eye(stateCount);
 }
 
-LaGenMatDouble Estimator::ComputePhi(LaVectorDouble x, Real t0)
+//------------------------------------------------------------------------------
+//  LaGenMatDouble ComputePhi(LaVectorDouble &x, Real &t0)
+//------------------------------------------------------------------------------
+/**
+ * Computes the Jacobian of f w.r.t. x
+ *
+ * @param <x> the current state
+ * @param <t0> the current time
+ *
+ * @return The Jacobian of f w.r.t. x
+ */
+//------------------------------------------------------------------------------
+LaGenMatDouble Estimator::ComputePhi(LaVectorDouble &x, Real &t0)
 {
     return LaGenMatDouble::eye(stateCount);
+}
+
+//------------------------------------------------------------------------------
+//  LaGenMatDouble GetStateTransitionMatrix(const Spacecraft *theSat,
+//                                      Integer &numRows, Integer &numColumns)
+//------------------------------------------------------------------------------
+/**
+ * Obtains the current state transition matrix.
+ *
+ * @param <theSat> pointer to spacecraft object
+ *
+ * @return The state transition matrix in LaGenMatDouble form.
+ */
+//------------------------------------------------------------------------------
+LaGenMatDouble Estimator::GetStateTransitionMatrix(const Spacecraft *theSat)
+{
+
+    // Obtain the state transition matrix and it's dimensions
+    Integer orbitStmId = theSat->GetParameterID("OrbitSTM");
+    Rmatrix localSTMcopy = theSat->GetRmatrixParameter(orbitStmId);
+    Integer numColumns = localSTMcopy.GetNumColumns();
+    Integer numRows = localSTMcopy.GetNumRows();
+
+    // Obtain the STM matrix in vector form
+    const Real *STMvec = localSTMcopy.GetDataVector();
+
+    // Create a safe copy of the STM to initialize the
+    // LaGenMatDouble matrix
+    double* safeSTMvec = new double[numColumns * numRows];
+    memcpy(safeSTMvec, STMvec, numColumns * numRows * sizeof(Real));
+
+    // Copy the Rmatrix STM into a Lapack matrix
+    // This constructs an m x n matrix using the values from the
+    // originating matrix. By specifying the row_ordering = true,
+    // a deep copy of the matrix is performed. The LaGenMatDouble
+    // class expects a non const variable to initialize the matrix.
+    LaGenMatDouble STM(safeSTMvec,numRows,numColumns,true);
+
+    return STM;
+
+}
+
+//------------------------------------------------------------------------------
+//  LaGenMatDouble GetStateTransitionMatrix(const Spacecraft *theSat,
+//                                      Integer &numRows, Integer &numColumns)
+//------------------------------------------------------------------------------
+/**
+ * Obtains the current state transition matrix.
+ *
+ * @param <theSat> pointer to spacecraft object
+ * @param <numRows> number of rows in STM matrix
+ * @param <numColumns> number of columns in STM matrix
+ *
+ * @return The state transition matrix in LaGenMatDouble form.
+ */
+//------------------------------------------------------------------------------
+LaGenMatDouble Estimator::GetStateTransitionMatrix(const Spacecraft *theSat,
+                                        Integer &numRows, Integer &numColumns)
+{
+    
+    // Obtain the state transition matrix and it's dimensions
+    Integer orbitStmId = theSat->GetParameterID("OrbitSTM");
+    Rmatrix localSTMcopy = theSat->GetRmatrixParameter(orbitStmId);
+    numColumns = localSTMcopy.GetNumColumns();
+    numRows = localSTMcopy.GetNumRows();
+
+    // Obtain the STM matrix in vector form
+    const Real *STMvec = localSTMcopy.GetDataVector();
+
+    // Create a safe copy of the STM to initialize the
+    // LaGenMatDouble matrix
+    double* safeSTMvec = new double[numColumns * numRows];
+    memcpy(safeSTMvec, STMvec, numColumns * numRows * sizeof(Real));
+
+    // Copy the Rmatrix STM into a Lapack matrix
+    // This constructs an m x n matrix using the values from the
+    // originating matrix. By specifying the row_ordering = true,
+    // a deep copy of the matrix is performed. The LaGenMatDouble
+    // class expects a non const variable to initialize the matrix.
+    LaGenMatDouble STM(safeSTMvec,numRows,numColumns,true);
+
+    return STM;
+
 }

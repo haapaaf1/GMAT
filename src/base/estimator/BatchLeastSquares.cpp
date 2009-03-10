@@ -696,31 +696,10 @@ void BatchLeastSquares::Accumulate()
        
        //H(LaIndex(obIndex,obIndex+m),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
 
-       // Obtain the state transition matrix and it's dimensions
-       Integer orbitStmId = theSat->GetParameterID("OrbitSTM");
-       Rmatrix localSTMcopy = theSat->GetRmatrixParameter(orbitStmId);
-       Integer numColumns = localSTMcopy.GetNumColumns();
-       Integer numRows = localSTMcopy.GetNumRows();
+       // numRows and numColumns contain the dimensions of the STM
+       Integer stmRows,stmColumns;
+       LaGenMatDouble STM = GetStateTransitionMatrix(theSat,stmRows,stmColumns);
 
-       // Obtain the STM matrix in vector form
-       const Real *STMvec = localSTMcopy.GetDataVector();
-
-       // Create a safe copy of the STM to initialize the
-       // LaGenMatDouble matrix
-       double* safeSTMvec = new double[numColumns * numRows];
-       memcpy(safeSTMvec, STMvec, numColumns * numRows * sizeof(Real));
-
-
-       // Copy the Rmatrix STM into a Lapack matrix
-       // This constructs an m x n matrix using the values from the
-       // originating matrix. By specifying the row_ordering = true,
-       // a deep copy of the matrix is performed. The LaGenMatDouble
-       // class expects a non const variable to initialize the matrix.
-       LaGenMatDouble STM(safeSTMvec,numRows,numColumns,true);
-
-       // delete the local copy of the STM as we no longer need it
-       delete [] safeSTMvec;
-       
        //LaGenMatDouble STM = LaGenMatDouble::eye(stateCount);
 
        H = thisH(LaIndex(0,m-1),LaIndex(0,5))*STM;
