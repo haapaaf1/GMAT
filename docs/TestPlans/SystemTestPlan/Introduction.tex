@@ -1,0 +1,173 @@
+\chapter{Introduction}
+
+%\chapauthor{Darrel J. Conway\\Thinking Systems, Inc.}
+
+\section{Overview}
+
+The General Mission Analysis Tool (GMAT) is a spacecraft mission analysis tool tailored to support
+missions involving groups of spacecraft interacting throughout a modeled time period.  The potential
+complexity of this problem makes GMAT an intricate software system.  This complexity necessitates a
+rigorous testing environment to ensure that the system meets its objectives.
+
+GMAT is designed using an object-oriented architecture\cite{GDT} and coded using extensive
+object-oriented structures written in C++.  The object based approach employed in GMAT's design and
+implementation makes the system robust and relatively easy to use for experienced analysts.  The
+extent of the object model implemented to make GMAT a complete and robust system dictates a
+comprehensive testing philosophy, described in the GMAT Master Test Plan\cite{MTP}.  This document
+describes one component of the overall testing strategy, the system testing.
+
+System testing is a black box form of testing, designed to exercise the GMAT system from the user's
+perspective.  The system tests are designed to exercise all of the user accessible objects in GMAT.
+
+\section{Purpose of this Document}
+
+This document serves as the System Test Approach for the GMAT Project.  Preparation for system
+testing consists of three major stages:
+
+\begin{itemize}
+\item The Test Approach sets the scope of system testing, the overall strategy to be adopted, the
+activities to be completed, the general resources required and the methods and processes to be used
+to test the release. It also details the activities, dependencies and effort required to conduct the
+System Test.
+\item Test Planning details the activities, dependencies and effort required to conduct the System
+Test.
+\item Test Cases documents the tests to be applied, the data to be processed, the automated testing
+coverage and the expected results.
+\end{itemize}
+
+This document covers the first two of these items, and established the framework used for the GMAT
+test case development.  The test cases themselves exist as separate components, and are managed
+outside of and concurrently with this System Test Plan.
+
+\section{Overview of the GMAT Development and Testing Process}
+
+The GMAT development process identifies several review points for the system.  GMAT development is
+conducted as a cooperative effort between an analysis team, typically composed of flight dynamics
+specialists, and a development team consisting of talented software developers.  New requirements
+for the system are defined and written by the analysis team.  Mathematical and design specifications
+are derived from these requirements and compiled into a format that can be used to code the new
+functionality.  Requirements, Specifications, and Designs are reviewed by the development team prior
+to implementation.  This review is typically conducted in an informal, iterative manner until the
+specifications are understood by all involved parties.  The specifications and design documentation
+are then used to write the software.
+
+During the development process, new features of a component under development may be detected that
+need further specification.  When that happens, the new features are discussed and collected
+together.  This may result in an immediate update to the design documents, or it may result in
+collection of the new feature implementation for inclusion in a final update performed when the
+component is ready for integration.  In either case, the design documentation is updated to reflect
+the implemented functionality prior to formal acceptance of the related components.
+
+During development, the software undergoes internal testing in the development team at both a unit
+and an integration level.  Unit testing is intended to exercise all of the executable paths through
+the code, validating that the internal working of the code behaves correctly.  Integration testing
+takes unit tested components and builds those components, either one at a time or collectively, into
+the system.  From time to time, the development team will interact with the analysis team during
+integration testing to confirm that the observed behavior of the new code conforms to the
+expectations of the users.  Unit testing and integration testing are performed in the course of the
+development of the software; neither will necessarily provide test results in a formal manner,
+though informal communications of the component and integrated test results are strongly encouraged.
+
+When the GMAT development team completes integration of new functionality into the system, that new
+functionality is ready for system test.  GMAT system testing follows a more formal test procedure
+than unit or integration testing.  New components are exercised both from the GMAT scripting
+language and from the GMAT Graphical User Interface (GUI).  The test cases exercised are documented
+using the procedures described later in this document.  Test cases are managed using a traceability
+matrix that lists all of the elements of GMAT visible at the user level, and matches those elements
+to test cases that are executed in system testing.  This master traceability matrix is used to
+generate a spreadsheet of test cases each time GMAT enters a system test cycle.  All tests are
+tracked using this spreadsheet; formal system test is complete when every test case has been
+exercised and the results of the tests have been tabulated and accepted after review.
+
+\section{System Test Objectives}
+
+At a high level, System Test intends to prove that
+
+\begin{itemize}
+\item The functionality, delivered by the development team, is as specified by the Mathematical and
+Design Specifications\footnote{System test does not provide a formal mechanism for mapping the
+system requirements to the implemented functionality; that is the responsibility of Acceptance
+testing.  The system test validates that the implemented functionality is correct.}.
+\item The software is stable and of high quality.
+\item The software models spacecraft missions faithfully.
+\item The software interfaces correctly with other systems, specifically MATLAB.
+\item The software user interfaces are stable, complete, and understandable by novice and
+experienced users.
+\end{itemize}
+
+These objectives are addressed through the development of a suite of test cases exercised on builds of the GMAT system.  Each major release of GMAT is tested using this suite, and the results of the
+tests are collected and reviewd by all interested parties prior to release.  This document
+describes the procedures followed for system testing.
+
+\section{Formal System Testing}
+
+While system tests can be performed as soon as new features are available, there is not a
+requirement that they must be performed at that time.  However, system tests shall be performed
+prior to each major release of GMAT to the aerospace community.  Part of the GMAT release process
+includes a review of the system test matrices and results to ensure that the system has maintained
+its integrity for the release.  The review performed at each major release:
+
+\begin{itemize}
+\item Checks the System Test matrices to ensure full system coverage for User Elements, Parameters,
+Commands, and GUI Widgets.
+\item Ensures that the system tests have been run for all test cases.
+\item Ensures that the data produced from GMAT is consistent with known ``truth'' data.
+\item Ensures that system tests that failed have documented the cause or causes of the failure
+\item Ensures that any failures that must be addressed for the release have (1) been addressed and
+(2) that the resulting correction has been validated to meet the expected results.
+\item Ensures that all scripting elements of GMAT have been exercised, and function correctly.
+\item Ensures that all GUI elements of GMAT have been exercised, and function correctly.
+\item Ensures that the system is stable.  Stability in this context means that GMAT
+\begin{itemize}
+\item Does not crash
+\item Produces identical results on rerun
+\item Produces comparable results on all supported platforms
+\item Allocates and releases memory consistently, without long term memory artifacts (aka ``memory
+leaks'')
+\item Produces identical results when configured from the GUI, from a script file, and when saved to
+file and reloaded, both into the running instance and into a new image.
+\end{itemize}
+\item Ensures that GMAT performs efficiently, both when executing mission sequences, and when saving
+and loading missions.
+\end{itemize}
+
+System test review is performed by members of the analysis and development teams.  Detailed testing
+of the system numerics and scripting is performed by the domain experts on the analysis team.  GUI
+testing is performed by the development team.
+
+While the formal test responsibilities are as described in the previous paragraph, both teams are
+encouraged to exercise the features being tested by the other team to help identify any additional
+issues that exist.  For example, the analysis team is encouraged to create all test cases using the
+GMAT GUI, and to report any difficulties encountered when following this approach.  Similarly, the
+development team is encouraged to test the GUI in such a way as to produce functional models, to
+run those models, and to report any resulting anomalous behavior.  This cross checking of
+functionality ensures that the system has been exercised as much as possible, given the resources
+available for development of GMAT.
+
+\section{Items Not Addressed in System Tests}
+
+The system tests described in this document are used to validate the stability and accessibility of
+GMAT components to users attempting to use the system to solve flight dynamics problems.  These
+tests do not address several key system elements.  Those elements are covered by other components of
+the GMAT test suite.
+
+Specifically, the tests defined in this document do not address these items:
+
+\begin{itemize}
+\item Internal data representations and data flow in the GMAT code.  These elements are tested in
+the GMAT unit and integration test processes.
+\item Numerical fidelity of the models.  The detailed numerical testing of the components are part
+of the GMAT acceptance tests.
+\item Data range validation.  The data range tests are performed as part of the integration tests.
+\item Requirements Validation.  The mapping of GMAT capabilities to the system requirements is made
+and validated in the GMAT acceptance tests.
+\end{itemize}
+
+\section{Document Layout}
+
+The remainder of this document describes the procedures followed to prepare for, conduct, and
+document the GMAT system tests.  Chapter~\ref{chap:testprep} describes the procedured followed
+when preparing for the system tests.  Chapters~\ref{chap:scripttests} and~\ref{chap:guitests}
+document the procedures followed when running the test cases.  Chapter~\ref{chap:reporting}
+describes the data collection and review procedures followed for the system.  The Appendices at the
+end of the document provide additional information that may be useful during system test.

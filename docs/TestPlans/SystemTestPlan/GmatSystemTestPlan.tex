@@ -1,0 +1,200 @@
+%$Id: GmatSystemTestPlan.tex,v 1.10 2007/08/13 22:29:59 dconway Exp $
+\documentclass[letterpaper,10pt]{book}
+
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{geometry}
+\usepackage{graphics,color}
+\geometry{letterpaper}
+
+% Allows alignment of multiple columns of text
+\usepackage{array}
+
+% Enables text wrapping around small tables and figures
+\usepackage{float}
+
+% Enables text wrapping around small tables and figures
+\usepackage{floatflt}
+
+% Enables side by side figures
+\usepackage[countmax]{subfloat}
+
+% Enables line numbering for verbatim text
+\usepackage{lineno}
+
+% Some text listing help for script files
+\usepackage{listings}
+\lstset{frame=single, captionpos=b, language=Matlab, xleftmargin=36pt, xrightmargin=36pt,
+basicstyle=\ttfamily, numberstyle=\tiny, numbers=none}
+
+% Use special characters defined by the ams
+\usepackage{amsmath}
+
+% Enable verbatiminput so functional script files can be read in directly
+\usepackage{fancyvrb}
+
+% Fixes some font sizing problems
+\usepackage{fix-cm}
+
+%  for making index, using landscape mode, for multi page tables, supertabular??
+% This package is needed to include the tables in the GMATDocuments/common subfolder
+\usepackage{longtable, supertabular}
+
+%\usepackage{rotating}  %This breaks the png files in \includegraphics{} calls???
+
+% Used for table organization
+\usepackage{tabularx}
+
+%\usepackage[listofnumwidth=5.5em]{subfig}
+
+% Used to customize table and figure list spacings
+\usepackage{tocloft}
+
+% Used to customize captions
+\usepackage{caption}
+
+% for creating bookmarks in the final pdf file when using dvipdfm
+\usepackage[dvipdfm, bookmarks = true, bookmarksopen]{hyperref}
+
+\oddsidemargin  0.0in
+\evensidemargin 0.0in
+\textwidth      6.5in
+\headheight     0.25in
+\topmargin      0.0in
+\textheight=8.5in
+
+%\DeclareGraphicsExtensions{.png}
+
+% More space for figure numbers
+\setlength{\cftfignumwidth}{3em}
+% Space between elements of the list
+%\setlength{\cftbeforefigskip}{0.1cm}
+% Space before chapter entries in the TOC
+%\setlength{\cftbeforechapskip}{0.2cm}
+% Space before parts in the TOC
+%\setlength{\cftbeforepartskip}{0.7cm}
+
+\title{The General Mission Analysis Tool (GMAT)\\System Test Plan}
+\author{Darrel J. Conway\\Thinking Systems, Inc.\\ \\Steven P. Hughes\\Goddard Space Flight Center}
+
+
+%  Make the watermark
+\usepackage{eso-pic}
+\usepackage{color}
+\usepackage{type1cm}
+\makeatletter
+  \AddToShipoutPicture{%
+    \setlength{\@tempdimb}{.5\paperwidth}%
+    \setlength{\@tempdimc}{.5\paperheight}%
+    \setlength{\unitlength}{1pt}%
+    \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
+      \makebox(0,700){\rotatebox{0}{\textcolor[gray]{0.75}{\fontsize{2cm}{2cm}\selectfont{Draft: Work in Progress}}}}
+    }
+} \makeatother
+
+\begin{document}
+
+\newcommand\chapauthor[1]{\emph{#1}}
+
+%\begin{titlepage}
+%\maketitle
+%\end{titlepage}
+
+\thispagestyle{empty}
+\begin{center}
+{\renewcommand{\thefootnote}{\fnsymbol{footnote}} { \huge \bf DRAFT
+\\General Mission Analysis Tool (GMAT)\\System Test Plan\\}
+\vspace{0.1in} }
+\end{center}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[411,380]{../../Common/Images/GMATsplash.png}
+\end{center}
+\end{figure}
+
+\begin{center}
+%{\Large \bf The GMAT Development Team}\\
+%\vspace{0.1in}
+\begin{tabular}{c c c}
+  Steven P. Hughes & & Darrel J. Conway \\
+  Goddard Space Flight Center & & Thinking Systems, Inc. \\
+  Codes 583 and 595 & \hspace{0.3in} & 6441 N Camino Libby \\
+  Greenbelt, Maryland 20771 & & Tucson, Arizona 85718 \\
+\end{tabular}
+
+\vspace{0.1in}{\today}
+
+\end{center}
+
+\clearpage \clearpage
+
+\thispagestyle{empty}
+
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+%\listoftables
+
+\part{Overview}
+\thispagestyle{empty}
+
+\include{Introduction}
+
+\part{System Test Procedures}
+\thispagestyle{empty}
+
+\include{SystemTestPrep}
+
+\include{ScriptedTests}
+
+\include{GuiTests}
+
+\include{Reporting}
+
+%\appendix
+%
+%\part{Appendices}
+%
+%\include{Artifacts}
+%
+%\include{Scripts}
+%
+%\include{GUITestCaseTemplate}
+%
+\backmatter
+
+\begin{thebibliography}{poseidon} % start the bibliography
+
+\bibitem[Black]{Black} Rex Black, ``Managing the Testing Process,'' Second Edition, Wiley
+Publishing, 2002.
+
+\bibitem[Craig]{Craig} Rick D. Craig and Stefan P. Jaskiel, ``Systematic Software Testing,'' Artech
+House, 2002.
+
+\bibitem[Dove]{Dove} Edwin G. Dove, ``GUI Philosophy for the General Mission Analysis Tool
+(GMAT).''
+
+\bibitem[MTP]{MTP} GMAT Test Team, ``General Mission Analysis Tool (GMAT) Master Test Plan.''
+
+\bibitem[GDT]{GDT} GMAT Development Team, ``General Mission Analysis Tool (GMAT) Architectural
+Specification.''
+
+\bibitem[hughes]{hughes} Steven P. Hughes, ``General Mission Analysis Tool (GMAT) Mathematical
+Specification.''
+
+\bibitem[hughes2]{hughes2} Steven P. Hughes, ``General Mission Analysis Tool (GMAT) User's Guide.''
+
+\bibitem[matlab]{MATLAB} The MathWorks, Inc, ``MATLAB'', available from http://www.mathworks.com.
+
+\bibitem[OOo]{OOo} OpenOffice.org, ``OpenOffice'', available from http://www.openoffice.org/.
+
+\bibitem[opttools]{opttools} The MathWorks, Inc, ``Optimization Toolbox'', available from
+http://www.mathworks.com.
+
+%\bibitem[wx]{wxWidgets} wxWidgets Cross Platform GUI Library, available from http://wxWidgets.org.
+
+\end{thebibliography}
+
+\end{document}

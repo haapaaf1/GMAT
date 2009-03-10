@@ -1,0 +1,93 @@
+%  This is the list of tests associated with panel aesthetics
+\subsubsection{Aesthetics}
+
+Description:  This set of tests verifies platform-specific look and feel of a panel, as extended
+by the GMAT GUI Philosophy document\cite{Dove}. Each criterion must be met to pass the aesthetics
+tests.
+
+\begin{itemize}
+\item All of the data input fields and bounding boxes can be seen at the panel size displayed when
+the panel is first opened, for all tabs on the panel.
+\item The blank space surrounding the data area is not distracting, and does not dominate the
+appearance of the interface.  As a guideline, for platforms that allow control of the surrounding
+white space, that region should not consume more than 20\% of the total space dedicated to the
+panel when it is opened.
+\item The data area does not appear too crowded; the surrounding blank space is appropriately sized.
+\item The window cannot be resized so that the data cannot be seen.
+\end{itemize}
+
+\subsubsection{General Panel Functionality}
+
+Description:  This is the list of tests associated with basic panel functionality: open, close,
+rename, minimize, ok, cancel, help, show script, command summary.  Additionally, the behavior of
+open panels needs to be consistent with deletion actions taken on the resource and mission trees 
+-- if an object in the tree is deleted, any open panel associated with that object should close.
+All of these functions must pass.
+
+\begin{itemize}
+\item New objects of the type being tested can be created from the appropriate tree on the Resource
+or Mission panels.
+\item Double clicking in a new object opens the panel for that object.
+\item Double clicking in a object that has an open panel brings the panel for that object to the
+front of the displayed panels.
+\item New objects can be renamed.
+\item Default objects, when they exist, can be renamed.
+\item Default objects, when they exist, can be deleted.
+\begin{itemize}
+\item The object can be renamed.
+\item References to the renamed object are updated in related elements of the system.
+\end{itemize}
+\item Renaming works after making changes to the data on the object panel.
+\begin{itemize}
+\item The object can be renamed while the panel is open.
+\item A change can be made on the panel, and then the object can be renamed before the change is
+applied.
+\item A change can be made on the panel, the change can be applied, and then the object can be
+renamed.
+\item For each of the above cases, references to the object's name are updated throughout the
+system when the object's name is changed.
+\end{itemize}
+\item Changes made on the panel and applied using the OK button appear on the panel when it is
+reopened.
+\item Changes made on the panel and applied using the Apply button are visible in the script when
+viewed using the Show Script dialog.
+\item When you open the panel, make a minor change in the panel, and click button to close the
+panel (on Windows, this is the small ``x'' button in the upper right hand corner; on the Mac, it is
+the red button on the left side of the frame controls, and on Linux, varies based on the
+configuration of the Linux window manager), you are prompted to save data before closing. Check
+that:
+\begin{itemize}
+\item The prompt does appear.
+\item Selecting ``Yes'' updates the underlying data.
+\item Selecting ``No'' discards the changes.
+\end{itemize}
+\item Cancelling closes the opened panel without changing the underlying data.
+\begin{itemize}
+\item The object does not change when you open the panel and press the Cancel button without making
+any changes.
+\item The object does not change when you open the panel, make a minor change in the data, and press
+the Cancel button.
+\item The object does not change when you open the panel and click the close button in the panel's
+frame to close the panel, but the panel does close without prompting.
+\end{itemize}
+\item The panel is minimized when the minimize button on the panel frame is pressed.
+\item The panel reopens to previous size when maximize icon on the minimized panel is pressed
+\item The tab key navigates the open panel in agreement with style and GUI design philosophy. 
+Navigation is orderly and sensible using the tab key.
+\end{itemize}
+
+\subsubsection{Panel Data Element Completeness and Correctness}
+
+Description: This set of tests verifies that all data elements that should appear on the panel
+are present on the panel.  It also tests that all elements that should appear in ``Show Script''
+dialog appear there, and that items that should not appear in show script do not appear there.
+
+\begin{itemize}
+\item Verify that only data elements that occur in the Range Test Plan appear in show script and
+that the user does not see any other object fields.
+\item Verify that defaults agree with the values in the Range Test Plan.
+\item Press the ``Show Script'' button, and verify that all elements on the GUI panel also appear on
+the show script dialog.  Verify that these elements match the description in the Range Test Plan.
+\item  Verify that all data elements that appear in Show Script also appear on the GUI.  (This
+step validates that all scriptable settings also appear in the GUI.)
+\end{itemize}

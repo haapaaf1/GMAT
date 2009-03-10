@@ -1,0 +1,177 @@
+$Id $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Description:  
+
+This test validates the functionality of the OpenGL panel.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate object panel.
+                                                                                   
+   Create OpenGL Resource                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Open OpenGL Resource                      [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the panel.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual panel elements.
+
+   Show Plot Check Box                       [ ] Pass  [ ] Fail  Bug# ______
+
+   Collect Data Text Field                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Update Plot Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Number of Points to Redraw Text Field     [ ] Pass  [ ] Fail  Bug# ______
+
+   Draw Wireframe Check Box                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Draw Targeting Check Box                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Draw Ecliptic Plane Check Box             [ ] Pass  [ ] Fail  Bug# ______
+
+   Draw XY Plane Check Box                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Draw Axes Check Box                       [ ] Pass  [ ] Fail  Bug# ______
+
+   Draw Grid Check Box                       [ ] Pass  [ ] Fail  Bug# ______
+
+   Draw Earth/Sun Lines Check Box            [ ] Pass  [ ] Fail  Bug# ______
+
+   Spacecraft List                           [ ] Pass  [ ] Fail  Bug# ______
+
+   Selected Spacecraft List                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Celestial Object List                     [ ] Pass  [ ] Fail  Bug# ______
+
+   Selected Celestial Object List            [ ] Pass  [ ] Fail  Bug# ______
+
+   --> (Add) Selection Button                [ ] Pass  [ ] Fail  Bug# ______
+
+   <-- (Remove) Selection Button             [ ] Pass  [ ] Fail  Bug# ______
+
+   < = (Remove All) Selection Button         [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Object Check Box                     [ ] Pass  [ ] Fail  Bug# ______
+
+   Orbit Color Select Box                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Target Color Select Box                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Use Initial View Definition Check Box     [ ] Pass  [ ] Fail  Bug# ______
+
+   Use Perspective Mode Check Box            [ ] Pass  [ ] Fail  Bug# ______
+
+   Use Fixed FOV Angle Check Box             [ ] Pass  [ ] Fail  Bug# ______
+
+   Field of View Text Field                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Coordinate System Combo Box               [ ] Pass  [ ] Fail  Bug# ______
+
+   View Point Reference Combo Box (see 4a)   [ ] Pass  [ ] Fail  Bug# ______
+
+   View Point Vector Combo Box (see 4b)      [ ] Pass  [ ] Fail  Bug# ______
+
+   View Scale Factor Text Field              [ ] Pass  [ ] Fail  Bug# ______
+
+   View Direction Combo Box (see 4c)         [ ] Pass  [ ] Fail  Bug# ______
+
+   Coordinate System Combo Box               [ ] Pass  [ ] Fail  Bug# ______
+
+   Axis Combo Box                            [ ] Pass  [ ] Fail  Bug# ______
+   
+
+4. Evaluate panel-specific functionality.
+
+   a. Select 'Vector' for View Point Reference
+
+      Vector 1 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+      Vector 2 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+      Vector 3 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+   b. Select 'Vector' for View Point Vector
+
+      Vector 1 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+      Vector 2 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+      Vector 3 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+   c. Select 'Vector' for View Direction
+
+      Vector 1 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+      Vector 2 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+      Vector 3 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Use Perspective Mode Check Box            [ ] Pass  [ ] Fail  Bug# ______
+   --- select checkbox to check following
+
+   Use Fixed FOV Angle Check Box             [ ] Pass  [ ] Fail  Bug# ______
+   --- select checkbox to check following
+
+   Field of View Text Field                  [ ] Pass  [ ] Fail  Bug# ______
+
+   
+5. Evaluate data.
+   
+   Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Script                               [ ] Pass  [ ] Fail  Bug# ______
+
+
+6. Evaluate panel control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Cancel                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Apply                                     [ ] Pass  [ ] Fail  Bug# ______
+
+   OK (Save)                                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Help [DEFERRED]
+   
+   Restore                                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Minimize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Rename (on resource tree)                 [ ] Pass  [ ] Fail  Bug# ______
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

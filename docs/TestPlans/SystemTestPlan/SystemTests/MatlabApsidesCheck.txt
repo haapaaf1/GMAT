@@ -1,0 +1,69 @@
+$Id: MatlabApsidesCheck.txt,v 1.3 2006/11/23 00:27:43 dconway Exp $ 
+
+
+Tester: ___D. Conway__________________      Date: _11/21/06________________
+
+
+Platform:   _X_ Windows, Version: XP, Service Pack 2____
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the MATLAB interface, including passing of arrays into 
+MATLAB and receipt of data back from MATLAB.
+
+
+Script Test Results:
+
+Loads Correctly:  [XX] Pass   [  ] Fail  Bug# ______
+
+Runs Correctly:   [XX] Pass   [  ] Fail  Bug# ______
+                  [  ] Unable to evaluate
+
+3D Visualization: [  ] Pass   [  ] Fail  Bug# ______
+                  [XX] Not Applicable
+                  [  ] Unable to evaluate
+
+Plots:            [  ] Pass   [  ] Fail  Bug# ______
+                  [XX] Not Applicable
+                  [  ] Unable to evaluate
+
+Output:           [XX] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Truth Data:       [  ] Pass   [XX] Fail  Bug# _511__
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Rerun:            [XX] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Save and Load:    [  ] Pass   [XX] Fail  Bug# _512__
+                  [  ] Unable to evaluate
+
+Summary: 
+
+   Number of passed test elements      __4___
+
+   Total number of test elements       __6___
+
+   Test case status                          [ ] Pass  [X] Fail  
+
+
+Bugs Reported:  
+
+   511, 512
+
+Notes:
+
+1. Truth data file shows a defect in data handling when receiving data from 
+MATLAB.  The MATLAB return only has 6 digits of precision.  A bug needs to be
+entered into Bugzilla for this defect.
+
+2. Save fails when there are multiple conditions on an If command.

@@ -1,0 +1,71 @@
+$Id: ImpulsiveBurnPanel.txt,v 1.4 2006/10/13 19:22:24 dconway Exp $ 
+
+Description: This test validates the functionality of the Impulsive Burn
+configuration panel.
+
+Procedure:
+
+1. Open GMAT.  Create an ImpulsiveBurn resource.
+
+   [  ] Pass   [  ] Fail  Bug# ______
+
+2. Open the panel for the new ImpulsiveBurn.
+
+   [  ] Pass   [  ] Fail  Bug# ______
+
+3. Evaluate the aesthetic qualities of the panel.
+
+   [  ] Pass   [  ] Fail  Bug# ______
+
+4. Evaluate the panel functionality by exercising these elements:
+
+     Axes ComboBox             [  ] Pass   [  ] Fail  Bug# ______
+
+     Vector Format ComboBox    [  ] Pass   [  ] Fail  Bug# ______
+
+     Vector Element 1 Text     [  ] Pass   [  ] Fail  Bug# ______
+
+     Vector Element 2 Text     [  ] Pass   [  ] Fail  Bug# ______
+
+     Vector Element 3 Text     [  ] Pass   [  ] Fail  Bug# ______
+
+     Origin ComboBox           [  ] Pass   [  ] Fail  Bug# ______
+
+5. Evaluate panel save/cancel/restore functionality.
+
+     Cancel          [  ] Pass   [  ] Fail  Bug# ______
+
+     Apply           [  ] Pass   [  ] Fail  Bug# ______
+
+     Save            [  ] Pass   [  ] Fail  Bug# ______
+
+     Restore         [  ] Pass   [  ] Fail  Bug# ______
+
+     Window Icons    [  ] Pass   [  ] Fail  Bug# ______
+
+6. Evaluate rename functionality.
+
+   [  ] Pass   [  ] Fail  Bug# ______
+
+7. Validate that the configured object is correct on run.
+
+   [  ] Pass   [  ] Fail  Bug# ______
+
+8. Perform additional experiments with the panel controls. 
+
+Summary: 
+
+Test case status:
+
+   [  ] Pass   [  ] Fail  
+
+Bugs Reported:  
+
+Notes:
+
+
+
+
+Tester:  ____________________________
+
+Date:    ____________________________

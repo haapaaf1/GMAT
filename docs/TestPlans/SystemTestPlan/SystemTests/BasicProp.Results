@@ -1,0 +1,33 @@
+Script Test Case Results: BasicProp.m
+
+Defect Summary:  Script fails to generate correct output on Linux because of 
+Windows specific path information.
+
+Loads Correctly:  [XX] Pass   [  ] Fail  Bug# ______
+
+Runs Correctly:   [XX] Pass   [  ] Fail  Bug# ______
+                  [  ] Unable to evaluate
+
+3D Visualization: [XX] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Plots:            [XX] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Output:           [  ] Pass   [XX] Fail  Bug# _472__
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Rerun:            [XX] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Save and Load:    [XX] Pass   [  ] Fail  Bug# ______
+                  [  ] Unable to evaluate
+
+
+Tester:  _D. Conway__________________
+
+Date:    _10/11/2006_________________

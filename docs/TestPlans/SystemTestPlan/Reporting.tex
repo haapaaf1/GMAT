@@ -1,0 +1,55 @@
+\chapter{\label{chap:reporting}Reporting and Reviewing Test Results}
+
+This chapter describes the process followed for tracking the state of the system test process and for reporting the results of the testing.
+
+\section{\label{section:TestStatus}System Test Status}
+
+The status of the system tests is tracked using the Script and GUI test tracking spreadsheets described in Chapters~\ref{chap:scripttests} and~\ref{chap:guitests}.  System testers update their copies of these spreadsheet daily during system testing.  Once a week or upon request, the system test lead consolidates these spreadsheets, collecting the test results in master system test spreadsheets that can be reviewed by interested parties.
+
+\section{\label{section:TestReport}The System Test Report}
+
+At the conclusion of system test cycle, the reports generated during system test are consolidated into a single document.  This document is prepared using the following outline:
+
+\renewcommand\theenumi   {\Roman{enumi}}
+\renewcommand\theenumii  {\Alph{enumii}}
+\renewcommand\labelenumii{\theenumii.}
+\begin{enumerate}
+\item Overview
+\begin{enumerate}
+\item Executive Summary
+\item Test Results
+\item Recommendations
+\end{enumerate}
+%%% Script Test Results
+\item Script Test Case Results
+\begin{enumerate}
+\item Test Result Statistics
+\item Summary of Failed Tests (if any)
+\item Test Results
+\begin{enumerate}
+\item ParametersinCommands Test Case Report
+\item CbParams\_GMAT\_GEO\_2Body Test Case Report\\
+...
+\end{enumerate}
+\end{enumerate}
+%%% GUI Test Results
+\item GUI Test Case Results
+\begin{enumerate}
+\item Test Result Statistics
+\item Summary of Failed Tests (if any)
+\item Test Results
+\begin{enumerate}
+\item Mainframe Test Case Worksheet
+\item Resource Tree Test Case Worksheet\\
+...
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+
+\section{\label{section:TestReview}System Test Review}
+
+The final step in the system test process is to perform a review of the test results.  In preparation for this review, each team member and reviewer reviews the System Test Report, highlighting any issues that raise concerns.  These parties then meet and discuss the findings of the system testing.  The outcome of this review is a list of action items, assigned to specific individuals or teams, and a recommendation about the status of the system for release.  
+
+A typical release recommendation will fall into one of three categories: (1) GMAT is ready for release, (2) GMAT is ready for release, contingent on specific items being addressed and approved prior to that release, or (3) GMAT is not ready for release, and needs to meet specific items and be reviewed again before release will be approved.
+
+Following this review, a summary documenting the findings of the review is written and provided to all team members and interested parties.  Once GMAT has been released as an open source project, a public version of this summary is made available with the other project artifacts.

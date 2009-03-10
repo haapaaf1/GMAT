@@ -1,0 +1,35 @@
+Provided at meeting on 12/7/06
+
+W.S. +  There are a few things that need to be added to the GUI checklists, but no major issues in process.
+        +  Add total number of tests in each checklist to make it easier to generate statistics.   This way we only have to count the number of failed tests.
+        +  How do we address three versions of parameter select dialogue box?
+        +  It was awkward needing three docs to perform tests ( System Test Plan, GUI Checklists, and Range Test Plan)
+        +  We'll use one checklist for all Celestial Bodies except Sun, Earth, and Moon.
+A.G  +  Checklists need more detail.  The test procedures do not ensure that the tests are run the same every time.
+        +  Main menu checklist needs to be completed.
+E.D   +  No major issues
+S.H.  +  Determine whether or not we need to run all script tests rigorously once we have run System Tests with tests passing.
+        +  We need to develop a set of missions to enter via the GUI to be performed during the next system test
+L.J    +  No feedback, didn't work on testing.
+L.R.  +  Add delete and clone to checklists
+D.C  +  Automate bug statistics before running test procedure again. 
+
+Others:
+S.H.  Add panel specific tests to spacecraft checklists.
+S.H.  Add propagator specific tests to checklists.
+S.H.  We need to add a relative metric for numerical tests of parameters (and coordinate systems?).  We had an issue with the eccentricity calculation for
+         near circular orbits.  For example, for test case named CbParams_GMAT_GEO_2Body.m
+         GMAT calculates the eccentricity to be  1.352465491689587e-007 and STK calculates the eccentricity to be 0.00000013419396
+         When you difference the two we get -1.0526e-009 which at first glance seems ok, however,  in relative terms the
+         percent difference is 0.77%, which indicates a problem.   This was caught by inspecting the numbers
+         by hand by DJC, and was not caught by our numerical tests.
+E.D.   Suggested modifications to System Test Plan pdf:
+       - (Section 3.2.1, bullet #5) Does it matter if we don't state that the tester should use Build & Run or the Run button?
+       - (Section 3.2.1, bullet #14) It's important to mention that the script should not be saved from the script editor. The tester needs to save using the Save to Scrip or Save to Script As option from the GUI.
+       - (Section 3.2.1, bullet #16) Do you mean repeat steps 3 through 13? 
+       - (Section 3.2.1, bullet #17) Since the .report extension is used by our script output I'd like to use the .results extenstion for test reports. 
+E.D.   The following scripts are duplicated in the System Test Matrix Spreadsheet:
+       LibrationTest_GMAT_SEM.m
+       LibrationTest_GMAT_SE.m
+       EpochFormatCheck.m
+       ForArray
