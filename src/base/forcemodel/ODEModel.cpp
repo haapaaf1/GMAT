@@ -54,6 +54,7 @@
 //#include "Formation.hpp"      // for BuildState()
 
 #include <string.h>
+#include <algorithm>    // for find()
 
 
 //#define DEBUG_ODEMODEL
@@ -1468,12 +1469,30 @@ void ODEModel::UpdateTransientForces()
    }
    
    const std::vector<ListItem*> *propList = psm->GetStateMap();
+   
+   // This version won't work for Formations.  
+   // todo: make into a recursive method for Formations
+   ObjectArray propObjects;
+   for (std::vector<ListItem*>::const_iterator i = propList->begin(); 
+        i != propList->end(); ++i)
+   {
+      GmatBase *obj =  (*i)->object;
+      if (obj != NULL)
+      {
+         if (obj->IsOfType(Gmat::SPACECRAFT))
+         {
+            if (find(propObjects.begin(), propObjects.end(), obj) == 
+                      propObjects.end())
+               propObjects.push_back(obj);
+         }
+      }
+   }
     
    for (std::vector<PhysicalModel *>::iterator tf = forceList.begin();
         tf != forceList.end(); ++tf) 
    {
-//      if ((*tf)->IsTransient())
-//         (*tf)->SetPropList(propList);
+      if ((*tf)->IsTransient())
+          (*tf)->SetPropList(&propObjects);
    }
 }
 

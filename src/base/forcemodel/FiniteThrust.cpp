@@ -21,7 +21,7 @@
 
 #include "FiniteThrust.hpp"
 
-#define DEBUG_FINITETHRUST_INIT
+//#define DEBUG_FINITETHRUST_INIT
 //#define DEBUG_FINITETHRUST_EXE
 
 
@@ -272,10 +272,10 @@ bool FiniteThrust::IsTransient()
  * Sets the list of propagated space objects for transient forces.
  */
 //------------------------------------------------------------------------------
-void FiniteThrust::SetPropList(ObjectArray &soList)
+void FiniteThrust::SetPropList(ObjectArray *soList)
 {
    spacecraft.clear();
-   for (ObjectArray::iterator i = soList.begin(); i != soList.end(); ++i)
+   for (ObjectArray::iterator i = soList->begin(); i != soList->end(); ++i)
       spacecraft.push_back(*i);
    
    #ifdef DEBUG_FINITETHRUST_INIT
@@ -319,12 +319,10 @@ bool FiniteThrust::Initialize()
       #endif
       satIndex = 0;
       stateIndex = 0;
-MessageInterface::ShowMessage("1; Spacecraft contains %d objects\n", spacecraft.size());
             
       for (ObjectArray::iterator propSat = spacecraft.begin();
            propSat != spacecraft.end(); ++propSat) 
       {
-MessageInterface::ShowMessage("2\n");
          #ifdef DEBUG_FINITETHRUST_INIT
             MessageInterface::ShowMessage(
                   "      Looking at satIndex %d; stateIndex = %d\n", satIndex, 
@@ -338,20 +336,17 @@ MessageInterface::ShowMessage("2\n");
                   satName->c_str());
             #endif
          }
-MessageInterface::ShowMessage("3\n");
          #ifdef DEBUG_FINITETHRUST_INIT
             MessageInterface::ShowMessage(
                   "      PropSat is \"%s\"\n", (*satName).c_str());
          #endif
          if ((*propSat)->IsOfType(Gmat::SPACEOBJECT))
          {
-MessageInterface::ShowMessage("4\n");
             stateIndex += ((SpaceObject*)(*propSat))->GetState().GetSize();
            ++satIndex;
          }
       }
    }
-MessageInterface::ShowMessage("5\n");
 
    #ifdef DEBUG_FINITETHRUST_INIT
       MessageInterface::ShowMessage(
@@ -390,7 +385,10 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
       const Integer id)
 {
    #ifdef DEBUG_FINITETHRUST_EXE
-      MessageInterface::ShowMessage("FiniteThrust::GetDerivatives entered\n");
+      MessageInterface::ShowMessage(
+            "FiniteThrust::GetDerivatives entered; fillCartesian is %s, "
+            "maneuvering %d spacecraft\n", (fillCartesian ? "true" : "false"),
+            spacecraft.size());
    #endif
 
    Real accel[3], mDot, burnData[4];
@@ -476,9 +474,9 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
             if (order == 1) 
             {
                // dr/dt = v
-               deriv[i6]     = state[3 + i6];
-               deriv[1 + i6] = state[4 + i6];
-               deriv[2 + i6] = state[5 + i6];
+               deriv[i6]     = 
+               deriv[1 + i6] = 
+               deriv[2 + i6] = 0.0;
                deriv[3 + i6] = accel[0];
                deriv[4 + i6] = accel[1];
                deriv[5 + i6] = accel[2];
@@ -499,11 +497,11 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
             if (order == 1) 
             {
                // dr/dt = v
-               deriv[i6]     = state[3 + i6];
-               deriv[1 + i6] = state[4 + i6];
-               deriv[2 + i6] = state[5 + i6];
-               deriv[3 + i6] = 0.0;
-               deriv[4 + i6] = 0.0;
+               deriv[i6]     = 
+               deriv[1 + i6] = 
+               deriv[2 + i6] = 
+               deriv[3 + i6] = 
+               deriv[4 + i6] = 
                deriv[5 + i6] = 0.0;
             } 
             else  

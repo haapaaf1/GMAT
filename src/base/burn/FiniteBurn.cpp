@@ -22,6 +22,7 @@
 #include "StringUtil.hpp"     // for ToString()
 
 //#define DEBUG_BURN_ORIGIN
+//#define DEBUG_FINITE_BURN
 //#define DEBUG_RENAME 1
 
 //---------------------------------
@@ -537,10 +538,10 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
          sc->GetName().c_str());
       MessageInterface::ShowMessage(
          "   Position for burn:    %18le  %18le  %18le\n",
-         (*state)[0], (*state)[1], (*state)[2]);
+         satState[0], satState[1], satState[2]);
       MessageInterface::ShowMessage(
          "   Velocity for burn: %18le  %18le  %18le\n   Mass = %18le kg\n",
-         (*state)[3], (*state)[4], (*state)[5], tMass);
+         satState[3], satState[4], satState[5], tMass);
    #endif
    
    for (StringArray::iterator i = thrusters.begin(); 

@@ -994,6 +994,8 @@ bool Thruster::CalculateThrustAndIsp()
                      pressure*kCoefficients[13]));
    }
    
+   
+   
    return true;
 }
 

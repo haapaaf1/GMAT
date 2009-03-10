@@ -52,7 +52,7 @@ public:
 //                              const Gmat::ObjectType type,
 //                              const std::string &name, const Integer index);
    virtual bool            IsTransient();
-   virtual void            SetPropList(ObjectArray &soList);
+   virtual void            SetPropList(ObjectArray *soList);
    virtual bool            Initialize();
    virtual bool            GetDerivatives(Real * state, Real dt, Integer order, 
                                           const Integer id = -1);
