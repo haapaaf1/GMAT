@@ -1,0 +1,58 @@
+$Id: ScriptTestFailure.Results,v 1.2 2007/01/11 13:19:58 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+
+Description:  
+
+This test validates the functionality of the OpenGL panel.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Script Test Results:
+
+Loads Correctly:  [  ] Pass   [  ] Fail  Bug# ______
+
+Runs Correctly:   [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Unable to evaluate
+
+3D Visualization: [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Plots:            [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Output:           [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Truth Data:       [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Rerun:            [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Save and Load:    [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Unable to evaluate
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [X] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+

@@ -1,0 +1,32 @@
+$Id: GuiTestSummary.txt,v 1.1 2006/10/11 18:40:02 dconway Exp $ 
+
+Description: 
+
+Procedure:
+1. 
+
+Results:
+
+Aesthetics:      [  ] Pass   [  ] Fail  Bug# ______
+                 [  ] Unable to evaluate
+
+Functionality:   [  ] Pass   [  ] Fail  Bug# ______
+                 [  ] Unable to evaluate
+
+Save/Restore:    [  ] Pass   [  ] Fail  Bug# ______
+                 [  ] Unable to evaluate
+
+Rename:          [  ] Pass   [  ] Fail  Bug# ______
+                 [  ] Unable to evaluate
+
+Runs Correctly:  [  ] Pass   [  ] Fail  Bug# ______
+                 [  ] Unable to evaluate
+
+
+Notes:
+
+
+
+Tester:  ____________________________
+
+Date:    ____________________________

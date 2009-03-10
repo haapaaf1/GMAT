@@ -1,0 +1,64 @@
+$Id: ScriptTestFailure.txt,v 1.3 2006/12/01 00:09:04 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+Script: ______________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+
+
+Script Test Results:
+
+Loads Correctly:  [  ] Pass   [  ] Fail  Bug# ______
+
+Runs Correctly:   [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Unable to evaluate
+
+3D Visualization: [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Plots:            [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Output:           [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Truth Data:       [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Rerun:            [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Not Applicable
+                  [  ] Unable to evaluate
+
+Save and Load:    [  ] Pass   [  ] Fail  Bug# ______
+                  [  ] Unable to evaluate
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
