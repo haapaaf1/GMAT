@@ -65,7 +65,7 @@
 //#define DEBUG_FIRST_CALL
 //#define DEBUG_GEN_STRING
 //#define DEBUG_OWNED_OBJECT_STRINGS
-#define DEBUG_INITIALIZATION
+//#define DEBUG_INITIALIZATION
 //#define DEBUG_BUILDING_MODELS
 //#define DEBUG_STATE
 
@@ -147,6 +147,8 @@ std::map<std::string, std::string> ODEModel::scriptAliases;
 ODEModel::ODEModel(const std::string &modelName, const std::string typeName) :
    PhysicalModel     (Gmat::ODE_MODEL, typeName, modelName),
 //   previousState     (NULL),
+   state             (NULL),
+   psm               (NULL),
    estimationMethod  (ESTIMATE_STEP),     // Should this be removed?
    normType          (L2_DIFFERENCES),
    parametersSetOnce (false),
@@ -241,6 +243,8 @@ ODEModel::~ODEModel()
 ODEModel::ODEModel(const ODEModel& fdf) :
    PhysicalModel              (fdf),
 //   previousState              (fdf.previousState),
+   state                      (NULL),
+   psm                        (NULL),
    estimationMethod           (fdf.estimationMethod),
    normType                   (fdf.normType),
    parametersSetOnce          (false),
@@ -315,6 +319,10 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
 
    satIds[0] = satIds[1] = satIds[2] = satIds[3] = satIds[4] =
    satIds[5] = satIds[6] = -1;
+   
+   state = NULL;
+   psm   = NULL;
+
 
    numForces           = fdf.numForces;
    stateSize           = fdf.stateSize;
@@ -876,8 +884,24 @@ void ODEModel::RevertSpaceObject()
 bool ODEModel::BuildModelFromMap()
 {
    bool retval = false;
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap() Entered\n");
+   #endif
+
+   if (psm == NULL)
+   {
+      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot build the model: PropStateManager is NULL\n");
+      return retval;
+   }
 
    const std::vector<ListItem*> *map = psm->GetStateMap();
+
+   if (map == NULL)
+   {
+      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot build the model: the map is NULL\n");
+      return retval;
+   }
+
    Integer start = 0, objectCount = 0;
    Gmat::StateElementId id = Gmat::UNKNOWN_STATE;
    GmatBase *currentObject = NULL;
@@ -885,6 +909,7 @@ bool ODEModel::BuildModelFromMap()
    // Loop through the state map, counting objects for each type needed
    for (Integer index = 0; index < (Integer)map->size(); ++index)
    {
+
       // When the elementID changes, act on the previous data processed
       if (id != (*map)[index]->elementID)
       {
@@ -910,6 +935,7 @@ bool ODEModel::BuildModelFromMap()
          ++objectCount;
       }
    }
+
    // Catch the last element
    if (objectCount > 0)
    {
@@ -928,7 +954,10 @@ bool ODEModel::BuildModelFromMap()
                i->count);
    #endif
 
-   return retval;
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap() Finished\n");
+   #endif
+return retval;
 }
 
 //------------------------------------------------------------------------------
@@ -1054,16 +1083,10 @@ bool ODEModel::Initialize()
    if (!PhysicalModel::Initialize())
       return false;
 
-Integer id = 0;
-MessageInterface::ShowMessage("%d\n PM init complete; back in OD\n", ++id);
-
    // Incorporate any temporary affects -- e.g. finite burn
    UpdateTransientForces();
-MessageInterface::ShowMessage("%d\n", ++id);
 
    dimension = state->GetSize();
-
-MessageInterface::ShowMessage("%d\n", ++id);
 
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("Configuring for state of dimension %d\n",
@@ -1074,7 +1097,6 @@ MessageInterface::ShowMessage("%d\n", ++id);
    modelState = // state->GetState();// new Real[dimension];
       new Real[dimension];
    memcpy(rawState, state->GetState(), dimension * sizeof(Real));
-MessageInterface::ShowMessage("%d\n", ++id);
 
 //   modelState = new Real[dimension];
 //   memcpy(modelState, state->GetState(), dimension * sizeof(Real));
@@ -1107,7 +1129,6 @@ MessageInterface::ShowMessage("%d\n", ++id);
 //   }
 
    // Variables used to set spacecraft parameters
-MessageInterface::ShowMessage("%d\n", ++id);
    std::string parmName, stringParm;
 //   Integer i;
 
@@ -1117,7 +1138,6 @@ MessageInterface::ShowMessage("%d\n", ++id);
 //   PhysicalModel *current = GetForce(cf);  // waw: added 06/04/04
 //   PhysicalModel *currentPm;
 
-MessageInterface::ShowMessage("%d FM loop starting\n", ++id);
    for (std::vector<PhysicalModel *>::iterator current = forceList.begin();
         current != forceList.end(); ++current)
    {
@@ -1163,8 +1183,6 @@ MessageInterface::ShowMessage("%d FM loop starting\n", ++id);
       (*current)->SetState(modelState);
    }
    
-MessageInterface::ShowMessage("%d FM loop done\n", ++id);
-
    #ifdef DEBUG_FORCE_EPOCHS
       std::string epfile = "ForceEpochs.txt";
       if (instanceName != "")
@@ -1438,8 +1456,12 @@ void ODEModel::UpdateInitialData()
 //------------------------------------------------------------------------------
 void ODEModel::UpdateTransientForces()
 {
+   #ifdef DEBUG_INITIALIZATION
+     MessageInterface::ShowMessage("ODEModel::UpdateTransientForces entered\n");
+   #endif
    if (psm == NULL)
    {
+//      MessageInterface::ShowMessage("PSM is NULL\n");
 //      throw ODEModelException(
 //            "Cannot initialize ODEModel; no PropagationStateManager");
       return;
@@ -1447,9 +1469,6 @@ void ODEModel::UpdateTransientForces()
    
    const std::vector<ListItem*> *propList = psm->GetStateMap();
     
-//   MessageInterface::ShowMessage("propList address: %p\n", propList);
-//   MessageInterface::ShowMessage("propList has %d elements\n", propList->size());
-
    for (std::vector<PhysicalModel *>::iterator tf = forceList.begin();
         tf != forceList.end(); ++tf) 
    {
@@ -1558,10 +1577,11 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
       
             if (((SpaceObject*)sat)->ParametersHaveChanged() || !parametersSetOnce)
             {
-//               #ifdef DEBUG_SATELLITE_PARAMETERS
-                  MessageInterface::ShowMessage("Setting parameters for %s\n",
-                     pm->GetTypeName().c_str());
-//               #endif
+               #ifdef DEBUG_SATELLITE_PARAMETERS
+                  MessageInterface::ShowMessage(
+                        "Setting parameters for %s using data from %s\n",
+                        pm->GetTypeName().c_str(), sat->GetName().c_str());
+               #endif
       
                // ... Coordinate System ...
                stringParm = sat->GetStringParameter(satIds[1]);
@@ -1639,6 +1659,7 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
       }
       ++i;
    }
+
    return i;
 }
 

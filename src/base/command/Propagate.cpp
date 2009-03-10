@@ -39,7 +39,7 @@
 //#define DEBUG_PROPAGATE_EXE 1
 //#define DEBUG_STOPPING_CONDITIONS 1
 //#define DEBUG_FIRST_STEP_STOP 1
-#define DEBUG_FINITE_MANEUVER
+//#define DEBUG_FINITE_MANEUVER
 //#define DEBUG_RENAME
 //#define DEBUG_PROP_PERFORMANCE
 //#define DEBUG_FIRST_CALL
@@ -2108,9 +2108,7 @@ void Propagate::SetTransientForces(std::vector<PhysicalModel*> *tf)
 //------------------------------------------------------------------------------
 bool Propagate::Initialize()
 {
-      MessageInterface::ShowMessage("Propagate::Initialize() entered.\n%s\n",
-                                    generatingString.c_str());
-#if DEBUG_PROPAGATE_INIT
+   #if DEBUG_PROPAGATE_INIT
       MessageInterface::ShowMessage("  Size of propName is %d\n",
                                     propName.size());
       for (UnsignedInt ind = 0; ind < propName.size(); ++ind)
@@ -2673,6 +2671,7 @@ void Propagate::PrepareToPropagate()
          if (ode != NULL)    // Only do this for the PropSetups that integrate
          {
             // Build the ODE model
+            ode->SetPropStateManager((*i)->GetPropStateManager());
             if (ode->BuildModelFromMap() == false)
                throw CommandException("Unable to assemble the ODE model for " +
                      (*i)->GetName());

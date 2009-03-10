@@ -92,9 +92,8 @@
 #include "CelestialBody.hpp"
 #include "MessageInterface.hpp"
 
-
-#define PHYSICAL_MODEL_DEBUG_INIT
-#define DEBUG_INITIALIZATION
+//#define PHYSICAL_MODEL_DEBUG_INIT
+//#define DEBUG_INITIALIZATION
 
 //---------------------------------
 // static data
@@ -370,48 +369,30 @@ bool PhysicalModel::Initialize()
             typeName.c_str(), dimension);
    #endif
       
-Integer i = 0;
-      MessageInterface::ShowMessage("%d\n", ++i);
-
    if (modelState)
    {
-      MessageInterface::ShowMessage("%d\n", ++i);
       delete [] modelState;
       modelState = NULL;
-      MessageInterface::ShowMessage("%d\n", ++i);
-
       initialized = false;
-      MessageInterface::ShowMessage("%d\n", ++i);
    }
-   MessageInterface::ShowMessage("%d\n", ++i);
 
    if (deriv)
    {
-      MessageInterface::ShowMessage("%d\n", ++i);
       delete [] deriv;
-      MessageInterface::ShowMessage("%d\n", ++i);
       deriv = NULL;
-      MessageInterface::ShowMessage("%d\n", ++i);
    }
 
 
-   MessageInterface::ShowMessage("%d nrd\n", ++i);
    modelState = new Real[dimension];
-   MessageInterface::ShowMessage("%d\n", ++i);
    if (modelState != NULL)
    {
-      MessageInterface::ShowMessage("%d\n", ++i);
       deriv = new Real[dimension];
-      MessageInterface::ShowMessage("%d\n", ++i);
       if (deriv)
          initialized = true;
       else
          initialized = false;
-      MessageInterface::ShowMessage("%d\n", ++i);
    }
-   MessageInterface::ShowMessage("%d\n", ++i);
    rawState = modelState;
-   MessageInterface::ShowMessage("%d\n PM init complete\n", ++i);
 
    return initialized;
 }

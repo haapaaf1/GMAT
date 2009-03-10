@@ -150,7 +150,5 @@ bool StateManager::GetStateObjects(ObjectArray& pObjects,
       }
    }
    
-   MessageInterface::ShowMessage("In StateManager, list size is %d\n",
-         pObjects.size());
    return retval;
 }

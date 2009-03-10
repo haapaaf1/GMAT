@@ -287,8 +287,6 @@ bool PropagationStateManager::MapVectorToObjects()
 
 const std::vector<ListItem*>* PropagationStateManager::GetStateMap()
 {
-   MessageInterface::ShowMessage("Gettin' state map\n");
-
    return &stateMap;
 }
 
