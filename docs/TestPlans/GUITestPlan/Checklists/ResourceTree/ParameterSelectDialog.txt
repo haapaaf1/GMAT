@@ -1,0 +1,111 @@
+$Id: ParameterSelectDialog.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the Parameter Select dialog, which
+appears via other panels (e.g. IfCmdPanel, WhileCmdPanel)
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate object panel.
+                                                                                   
+   Create other panel Resource               [ ] Pass  [ ] Fail  Bug# ______
+
+   Open other panel Resource                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Open Create Action Button                 [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the panel.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual panel elements.
+
+   Create Action Button*                     [ ] Pass  [ ] Fail  Bug# ______
+   
+   Object Type Combo Box                     [ ] Pass  [ ] Fail  Bug# ______
+   
+   Object Combo Box                          [ ] Pass  [ ] Fail  Bug# ______
+   
+   Property Selection List                   [ ] Pass  [ ] Fail  Bug# ______
+   
+   Selected List                             [ ] Pass  [ ] Fail  Bug# ______
+   
+   -> (Add) Selection Button                 [ ] Pass  [ ] Fail  Bug# ______
+   
+   <- (Remove) Selection Button              [ ] Pass  [ ] Fail  Bug# ______
+   
+   <= (Remove All) Selection Button          [ ] Pass  [ ] Fail  Bug# ______
+      
+   
+4. Evaluate panel-specific functionality.
+
+   N/A
+   
+
+5. Evaluate data.
+   
+   Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Script [N/A]
+
+   Command Summary [N/A]
+
+
+6. Evaluate panel control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Cancel                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Apply                                     [ ] Pass  [ ] Fail  Bug# ______
+
+   OK (Save)                                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Help [DEFERRED]
+   
+   Restore [N/A]
+
+   Minimize [N/A]
+
+   Maximize [N/A]
+
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Rename [N/A]
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

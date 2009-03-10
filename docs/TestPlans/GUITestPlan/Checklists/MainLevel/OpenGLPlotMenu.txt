@@ -1,0 +1,146 @@
+$Id: OpenGLPlotMenu.txt,v 1.9 2006/11/22 21:32:34 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the GMAT OpenGL Plot menu.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate element.
+
+   Load/create script with plots             [ ] Pass  [ ] Fail  Bug# ______
+                                                                                   
+   Run script                                [ ] Pass  [ ] Fail  Bug# ______
+                                                                                   
+   Click on an OpenGL Plot                   [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the menu.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual menu elements.
+
+   a. File Submenu:
+      New Script                             [ ] Pass  [ ] Fail  Bug# ______
+      Open Script                            [ ] Pass  [ ] Fail  Bug# ______
+      Save To Script                         [ ] Pass  [ ] Fail  Bug# ______
+      Save To Script As                      [ ] Pass  [ ] Fail  Bug# ______
+      Close All                              [ ] Pass  [ ] Fail  Bug# ______
+      Close This Child                       [ ] Pass  [ ] Fail  Bug# ______
+      Default Project                        [ ] Pass  [ ] Fail  Bug# ______
+      Preferences                            [ ] Pass  [ ] Fail  Bug# ______
+         Font                                [ ] Pass  [ ] Fail  Bug# ______
+      Quit                                   [ ] Pass  [ ] Fail  Bug# ______
+
+   b. Edit Submenu:
+      TBD
+   
+   c. Plot Submenu:
+      Clear Plot                             [ ] Pass  [ ] Fail  Bug# ______
+      Change Title                           [ ] Pass  [ ] Fail  Bug# ______
+         Change Title Dialog:
+         New Title Text Field                [ ] Pass  [ ] Fail  Bug# ______
+         OK                                  [ ] Pass  [ ] Fail  Bug# ______
+         Cancel                              [ ] Pass  [ ] Fail  Bug# ______
+         Close                               [ ] Pass  [ ] Fail  Bug# ______
+      
+   d. View Submenu:
+      Default                                [ ] Pass  [ ] Fail  Bug# ______
+      Zoom in                                [ ] Pass  [ ] Fail  Bug# ______
+      Zoom out                               [ ] Pass  [ ] Fail  Bug# ______
+      Show View Option Dialog:               [ ] Pass  [ ] Fail  Bug# ______
+         Use Initial View Definition Checkbox[ ] Pass  [ ] Fail  Bug# ______
+         Update Interval Text Field          [ ] Pass  [ ] Fail  Bug# ______
+         View Animation Action Button        [ ] Pass  [ ] Fail  Bug# ______
+         Perspective Mode Checkbox           [ ] Pass  [ ] Fail  Bug# ______
+         Distance Text Field                 [ ] Pass  [ ] Fail  Bug# ______
+         Go To Combo Box                     [ ] Pass  [ ] Fail  Bug# ______
+         Coordinate System Combo Box         [ ] Pass  [ ] Fail  Bug# ______
+         Rotate XY Checkbox                  [ ] Pass  [ ] Fail  Bug# ______
+         Draw Wireframe Checkbox             [ ] Pass  [ ] Fail  Bug# ______
+         Draw Axes Checkbox                  [ ] Pass  [ ] Fail  Bug# ______
+         Draw XY Plane Checkbox              [ ] Pass  [ ] Fail  Bug# ______
+         XY Plane Color Select               [ ] Pass  [ ] Fail  Bug# ______
+         Draw Ecliptic Plane Checkbox        [ ] Pass  [ ] Fail  Bug# ______
+         Ecliptic Plane Color Select         [ ] Pass  [ ] Fail  Bug# ______
+         Draw Earth Sun Lines Checkbox       [ ] Pass  [ ] Fail  Bug# ______
+         Earth Sun Lines Color Select        [ ] Pass  [ ] Fail  Bug# ______
+         View Object Selection List          [ ] Pass  [ ] Fail  Bug# ______
+         View Object Color Select            [ ] Pass  [ ] Fail  Bug# ______
+         Show Checkbox                       [ ] Pass  [ ] Fail  Bug# ______
+         Draw Orbit Normal Checkbox          [ ] Pass  [ ] Fail  Bug# ______
+         Apply                               [ ] Pass  [ ] Fail  Bug# ______
+         Close                               [ ] Pass  [ ] Fail  Bug# ______
+
+      Option->Show Wireframe                 [ ] Pass  [ ] Fail  Bug# ______
+      Option->Show Equatorial Plane          [ ] Pass  [ ] Fail  Bug# ______
+      Animation                              [ ] Pass  [ ] Fail  Bug# ______
+         Update Interval Dialog:
+         Update Interval Text Field          [ ] Pass  [ ] Fail  Bug# ______
+         OK                                  [ ] Pass  [ ] Fail  Bug# ______
+         Cancel                              [ ] Pass  [ ] Fail  Bug# ______
+         Close                               [ ] Pass  [ ] Fail  Bug# ______
+
+   e. Tools Submenu:
+      [DEFERRED]
+
+   f. Window Submenu:
+      Minimize                               [ ] Pass  [ ] Fail  Bug# ______
+      Zoom                                   [ ] Pass  [ ] Fail  Bug# ______
+      Bring All to Front                     [ ] Pass  [ ] Fail  Bug# ______
+
+   g. Help Submenu:
+      [DEFERRED]
+
+
+4. Evaluate menu-specific functionality.
+
+   N/A
+   
+   
+5. Evaluate data.
+   
+   N/A
+
+
+6. Evaluate menu control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   N/A
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

@@ -1,0 +1,85 @@
+$Id: OutputTree.txt,v 1.4 2006/11/22 21:32:34 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the GMAT Output Tree.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate element.
+
+   Load/create script with plots & reports   [ ] Pass  [ ] Fail  Bug# ______
+                                                                                   
+   Run script                                [ ] Pass  [ ] Fail  Bug# ______
+                                                                                   
+   Click on Output Tab                       [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the tree.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual tab elements.
+
+   a. Reports Folder                         [ ] Pass  [ ] Fail  Bug# ______
+      All reports are listed                 [ ] Pass  [ ] Fail  Bug# ______
+      All report(s) open                     [ ] Pass  [ ] Fail  Bug# ______
+
+   b. OpenGL Plots Folder                    [ ] Pass  [ ] Fail  Bug# ______
+      All OpenGl plots are listed            [ ] Pass  [ ] Fail  Bug# ______
+
+   c. XY Plots Folder                        [ ] Pass  [ ] Fail  Bug# ______
+      All XY plots are listed                [ ] Pass  [ ] Fail  Bug# ______
+
+  
+4. Evaluate tree-specific functionality.
+
+   N/A
+   
+5. Evaluate data.
+   
+   N/A
+
+
+6. Evaluate tree control.
+
+   All folders open and close                [ ] Pass  [ ] Fail  Bug# ______
+   
+   Tab Key Navigation    (applicable?)       [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Included in panel checklists.
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

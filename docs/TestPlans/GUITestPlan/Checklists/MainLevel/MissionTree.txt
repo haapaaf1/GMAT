@@ -1,0 +1,113 @@
+$Id: MissionTree.txt,v 1.4 2006/11/22 21:32:34 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the GMAT Mission Tree.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate element.
+                                                                                   
+   Click on Mission Tab                      [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the tree.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual tab elements.
+
+   MissionSequence exists                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Subfolder Sequence1 exists                [ ] Pass  [ ] Fail  Bug# ______
+      Append                                 [ ] Pass  [ ] Fail  Bug# ______
+      Run                                    [ ] Pass  [ ] Fail  Bug# ______
+      Show Script                            [ ] Pass  [ ] Fail  Bug# ______
+
+      Propagate1 exists                      [ ] Pass  [ ] Fail  Bug# ______
+
+  
+4. Evaluate tree-specific functionality.
+
+   Append one of each:
+      Propagate                              [ ] Pass  [ ] Fail  Bug# ______
+      Maneuver                               [ ] Pass  [ ] Fail  Bug# ______
+      BeginFiniteBurn                        [ ] Pass  [ ] Fail  Bug# ______
+      EndFIniteBurn                          [ ] Pass  [ ] Fail  Bug# ______
+      Target                                 [ ] Pass  [ ] Fail  Bug# ______
+      Optimize                               [ ] Pass  [ ] Fail  Bug# ______
+      CallFunction                           [ ] Pass  [ ] Fail  Bug# ______
+      Report                                 [ ] Pass  [ ] Fail  Bug# ______
+      Toggle                                 [ ] Pass  [ ] Fail  Bug# ______
+      Save                                   [ ] Pass  [ ] Fail  Bug# ______
+      Stop                                   [ ] Pass  [ ] Fail  Bug# ______
+      GMAT (assignment)                      [ ] Pass  [ ] Fail  Bug# ______
+      Script Event                           [ ] Pass  [ ] Fail  Bug# ______
+      Control Logic -> If                    [ ] Pass  [ ] Fail  Bug# ______
+      Control Logic -> If-Else               [ ] Pass  [ ] Fail  Bug# ______
+      Control Logic -> For                   [ ] Pass  [ ] Fail  Bug# ______
+      Control Logic -> While                 [ ] Pass  [ ] Fail  Bug# ______
+   
+   Append to Target:
+      Vary                                   [ ] Pass  [ ] Fail  Bug# ______
+      Achieve                                [ ] Pass  [ ] Fail  Bug# ______
+   
+   Append to Optimize:
+      Vary                                   [ ] Pass  [ ] Fail  Bug# ______
+      Minimize                               [ ] Pass  [ ] Fail  Bug# ______
+      NonlinearConstraint                               [ ] Pass  [ ] Fail  Bug# ______
+      
+   Select all created commands (e.g. Achieve, Save, etc.)
+       Open                                  [ ] Pass  [ ] Fail  Bug# ______
+       Close                                 [ ] Pass  [ ] Fail  Bug# ______
+       Insert Before                         [ ] Pass  [ ] Fail  Bug# ______
+       Delete                                [ ] Pass  [ ] Fail  Bug# ______
+   
+   
+5. Evaluate data.
+   
+   N/A
+
+
+6. Evaluate tree control.
+
+   All folders open and close                [ ] Pass  [ ] Fail  Bug# ______
+   
+   Tab Key Navigation    (applicable?)       [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Included in panel checklists.
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

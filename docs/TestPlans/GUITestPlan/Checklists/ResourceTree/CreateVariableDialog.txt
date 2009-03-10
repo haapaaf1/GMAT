@@ -1,0 +1,115 @@
+$Id: CreateVariableDialog.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the Create Variable dialog, which
+appears via other panels (e.g. ReportFile, XYPlotPanel)
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate object panel.
+                                                                                   
+   Create other panel Resource               [ ] Pass  [ ] Fail  Bug# ______
+
+   Open other panel Resource                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Open Create Action Button                 [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the panel.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual panel elements.
+
+   Variable Name Text Field                  [ ] Pass  [ ] Fail  Bug# ______
+   
+   Variable Expression Text Field            [ ] Pass  [ ] Fail  Bug# ______
+   
+   Paste Property Button                     [ ] Pass  [ ] Fail  Bug# ______
+   
+   Paste Variables Button                    [ ] Pass  [ ] Fail  Bug# ______
+   
+   Create Object Button                      [ ] Pass  [ ] Fail  Bug# ______
+   
+   Color Selection Button                    [ ] Pass  [ ] Fail  Bug# ______
+   
+   String Name Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+   
+   String Value Text Field                   [ ] Pass  [ ] Fail  Bug# ______
+   
+   Array Name Text Field                     [ ] Pass  [ ] Fail  Bug# ______
+   
+   Array Row Text Field                      [ ] Pass  [ ] Fail  Bug# ______
+   
+   Array Column Text Field                   [ ] Pass  [ ] Fail  Bug# ______
+      
+   
+4. Evaluate panel-specific functionality.
+
+   N/A
+   
+
+5. Evaluate data.
+   
+   Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Script [N/A]
+
+
+6. Evaluate panel control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Cancel                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Apply                                     [ ] Pass  [ ] Fail  Bug# ______
+
+   OK (Save)                                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Help [DEFERRED]
+   
+   Restore [N/A]
+
+   Minimize [N/A]
+
+   Maximize [N/A]
+
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Rename [N/A]
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

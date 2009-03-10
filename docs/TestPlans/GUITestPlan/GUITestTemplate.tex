@@ -1,0 +1,104 @@
+
+%  This is the list of tests associated with panel aesthetics
+\noindent\textbf{Aesthetics}\\
+
+\noindent Description:  This set of tests is to verify look and feel
+of a panel.
+
+%
+\begin{itemize}
+    \item Can all of the data input fields be seen at the default panel
+    size for all tabs on panel?  This includes bounding boxes.
+    %
+    \item Is there too much blank space surrounding the data area?
+    %
+    \item Is there too little blank space surrounding the data area?
+    %
+    \item Can the window be resized so that the data cannot be seen?
+    %
+\end{itemize}
+\vspace{.25 in}
+
+%
+\noindent\textbf{General Panel Functionality}\\
+
+\noindent Description:  This is the list of tests associated with
+basic  panel functionality: open, close, rename, minimize, ok,
+cancel, help, show script, command summary.
+
+\begin{itemize}
+    %
+    \item From the appropriate tree (Resource or Mission), can you create a new object of the type being tested?
+    %
+    \item Can you double left click and open the panel of the new
+    object?
+    %
+    \item Can you rename the new object?
+    %
+    \item If there is a default object of the type being tested, can you rename
+    it?  Check at least one place in the mission sequence or resource tree to
+    ensure the new name is being used.
+    %
+    \item Can you make a minor change on the panel, hit ok, and then rename the object?
+    %
+    \item Can you make a minor change on the panel, hit ok, reopen,
+    and see that the change was saved?
+    %
+    \item Can you make a minor change on the panel, hit apply, then
+    hit show script to see that the apply button saved the change
+    and  it is visible in the script?
+    %
+    \item Can you open the panel, and while the panel is open,
+    change the name in the resource tree.  Check at least one place in the mission sequence or resource tree to
+    ensure the new name is being used.
+    %
+    \item Can you open the panel and hit cancel and the panel
+    closes?
+    %
+    \item Can you open the panel, make a minor change in the data,
+    hit cancel, reopen the panel and confirm the data was not saved?
+    %
+    \item Can you open the panel and
+    click the small ``x" button in the upper right hand corner and close the panel?
+    %
+    \item Can you open the panel, make a minor change in the panel,
+    click the small x button in the upper left hand corner, and be
+    prompted to save data before closing?
+    %
+    \item When you click the minimize icon does the panel minimize?
+    %
+    \item When the panel is minimized, can you hit the maximize icon
+     and the panel reopens to previous size?
+    %
+    \item When the panel is open and you use the tab key to
+    negotiate panel, does the action agree with style and GUI
+    philosophy?
+\end{itemize}
+\vspace{.25 in}
+
+%
+\noindent\textbf{Panel Data Element Completeness and Correctness}\\
+
+\noindent Description: This set of tests verifies that all data
+elements that should appear on the panel indeed appear on the panel.
+It also tests that all elements that should appear in show script
+appear there and that items that should not appear in show script do
+not appear there.
+
+\begin{itemize}
+    %
+    \item Verify that only data elements that occur in the Range
+    Test Plan appear in show script and that the user does not see
+    any other object fields.   Also check that defaults agree with
+    Range Test Plan.
+    %
+    \item Verify that all elements that should appear in show script
+    appear.  (See range test plan)
+    %
+    \item  Verify that all data elements
+    that appear in Show Script also appear on the GUI.  This
+    means that if you can set something in the script, ensure that it
+    appears in the GUI.
+    %
+\end{itemize}
+\vspace{.25 in}

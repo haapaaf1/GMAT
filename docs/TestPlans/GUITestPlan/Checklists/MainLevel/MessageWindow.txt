@@ -1,0 +1,75 @@
+$Id: MessageWindow.txt,v 1.4 2006/11/22 21:32:34 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the GMAT Message Window.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate element.
+                                                                                   
+   Load/create script                        [ ] Pass  [ ] Fail  Bug# ______
+                                                                                   
+   Run script                                [ ] Pass  [ ] Fail  Bug# ______
+                                                                                      
+
+2. Evaluate the aesthetic qualities of the message window.
+
+   Window Aesthetics                         [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual message window elements.
+
+   Appropriate messages appear               [ ] Pass  [ ] Fail  Bug# ______
+   No extra debug appears                    [ ] Pass  [ ] Fail  Bug# ______
+ 
+
+4. Evaluate bar-specific functionality.
+
+   N/A
+   
+   
+5. Evaluate data.
+   
+   N/A
+
+
+6. Evaluate window control.
+
+    N/A
+   
+
+7. Evaluate rename functionality.
+
+   N/A
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

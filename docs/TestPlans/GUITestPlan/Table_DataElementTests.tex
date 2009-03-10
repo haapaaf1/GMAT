@@ -1,0 +1,117 @@
+ \begin{longtable}{p{1.25 in} |p{4.5 in} }
+ \caption
+ [Tests for Data Objects on All Panels]
+ {Tests for Data Objects on All Panels \label{Table:DataElementTests}}\\
+ \hline\hline
+% \multicolumn{2}{@{*}c@{*}}%
+%      {This part appears at the top of the table}\\
+ Element Type & Tests\\
+ \hline
+ \endfirsthead
+ \caption[]{(Tests for Data Objects on All Panels...continued)}\\
+ \hline\hline
+ Element Type & Tests\\
+ \hline\hline
+ \endhead
+ \hline
+ % This goes at the&bottom.\\
+ \hline
+ \endfoot
+ \hline
+ \hline
+ \endlastfoot
+%-----------------------------------------------------------------------
+%-----------------------Begin Table Here--------------------------------
+%-----------------------------------------------------------------------
+% ---- Column 1--------%
+Check Boxes &
+% ---- Column 2--------%
+\begin{itemize} \vspace{-.25 in}
+\item Set all check boxes to off (unchecked), hit show script, and verify that the functionality is
+indeed turned off for each radio button and check box.
+%
+\item Set all check buttons to on (checked), hit apply, and show script
+and verify that the functionality is indeed turned on for each radio
+button and check box.
+\end{itemize} \\
+\hline
+% ---- Column 1--------%
+Radio Buttons &
+% ---- Column 2--------%
+\begin{itemize} \vspace{-.25 in}
+   \item For each radio button on panel, select the button, and ensure that it activates
+   and all others are deactivated.  Hit Apply, and then check show
+   script to ensure that the configuration was properly saved.
+\end{itemize} \\
+\hline
+%-------------- This is the beginning of a new row!!!----------------------
+% ---- Column 1--------%
+Combo Boxes &
+% ---- Column 2--------%
+\begin{itemize} \vspace{-.25 in}
+\item  For each combo box on the panel, ensure that all options that
+appear in Range Test Plan appear in the pull down menu.
+%
+\item  For each Combo box on the panel, select each allowable option, hit apply and show script
+and check to see that the option was correctly saved.
+%
+\item Check to ensure that the combo box is not editable.
+\end{itemize} \\
+\hline
+%-------------- This is the beginning of a new row!!!----------------------
+% ---- Column 1--------%
+Text Fields &
+% ---- Column 2--------%
+\begin{itemize} \vspace{-.2 in}
+\item For each text field enter ``DNE" and ensure that if GMAT should reject this string that the string is
+rejected. ( Currently, this is not an acceptable value for any GMAT
+field unless the user has created an appropriate object type and
+named it DNE, and is using it correctly in the GUI. )
+%
+\item Perform all range tests as described in Range Test Plan.
+%
+\item For all numeric fields, enter an allowed numeric value, hit
+apply and show script and check that the value was saved.
+%
+\item If user-defined objects can appear in the combo box, create
+one object for all allowable object types for the particular combo
+box, and ensure that it appears in the combo box.  Also, hit apply
+and ensure that each case appears in show script.
+%
+\end{itemize} \\
+\hline
+%-------------- This is the beginning of a new row!!!----------------------
+% ---- Column 1--------%
+Action Buttons &
+% ---- Column 2--------%
+\begin{itemize} \vspace{-.2 in}
+\item For each button ensure that clicking on the button brings up the appropriate panel.
+\item For the panel opened up, perform all tests defined in Section \ref{Sec:GeneralTests} and Table \ref{Table:DataElementTests}
+\end{itemize} \\
+\hline
+%-------------- This is the beginning of a new row!!!----------------------
+% ---- Column 1--------%
+Selection Lists &
+% ---- Column 2--------%
+\begin{itemize} \vspace{-.2 in}
+\item First Item
+\item Second Item
+\end{itemize} \\
+\hline
+
+%-------------- This is the beginning of a new row!!!----------------------
+% ---- Column 1--------%
+Tabbed Panels &  % ---- Column 2--------%
+\begin{itemize} \vspace{-.2 in}
+\item First Item
+\item Second Item
+\end{itemize} \\
+\end{longtable}
+
+
+%% ---- Column 2--------%
+%\begin{itemize} \vspace{-.2 in}
+%\item First Item
+%\item Second Item
+%\end{itemize} \\
+%\hline

@@ -1,0 +1,150 @@
+$Id: ResourceTree.txt,v 1.5 2006/11/22 21:32:34 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the GMAT Resource Tree.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate element.
+                                                                                   
+   Click on Resources Tab                    [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the tree.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual tree elements.
+
+   a. Spacecraft Folder                      [ ] Pass  [ ] Fail  Bug# ______
+      Subfolder Hardware                     [ ] Pass  [ ] Fail  Bug# ______
+         Add Thruster                        [ ] Pass  [ ] Fail  Bug# ______
+         Add Fuel Tank                       [ ] Pass  [ ] Fail  Bug# ______
+      DefaultSC exists                       [ ] Pass  [ ] Fail  Bug# ______
+      Add Spacecraft                         [ ] Pass  [ ] Fail  Bug# ______
+
+   b. Formation Folder                       [ ] Pass  [ ] Fail  Bug# ______
+      Add Formation                          [ ] Pass  [ ] Fail  Bug# ______
+
+   c. Burn Folder                            [ ] Pass  [ ] Fail  Bug# ______
+      Add Impulsive Burn                     [ ] Pass  [ ] Fail  Bug# ______
+      Add Finite Burn                        [ ] Pass  [ ] Fail  Bug# ______
+
+   d. Propagators Folder                     [ ] Pass  [ ] Fail  Bug# ______
+      DefaultProp exists                     [ ] Pass  [ ] Fail  Bug# ______
+      Add Propagator                         [ ] Pass  [ ] Fail  Bug# ______
+
+   e. Solar System Folder                    [ ] Pass  [ ] Fail  Bug# ______
+      Subfolder Special Points               [ ] Pass  [ ] Fail  Bug# ______
+         Add Barycenter                      [ ] Pass  [ ] Fail  Bug# ______
+         Add Libration Point                 [ ] Pass  [ ] Fail  Bug# ______
+      Sun exists                             [ ] Pass  [ ] Fail  Bug# ______
+      Mercury exists                         [ ] Pass  [ ] Fail  Bug# ______
+      Venus exists                           [ ] Pass  [ ] Fail  Bug# ______
+      Subfolder Earth                        [ ] Pass  [ ] Fail  Bug# ______
+         Luna exists                         [ ] Pass  [ ] Fail  Bug# ______
+      Mars exists                            [ ] Pass  [ ] Fail  Bug# ______
+      Jupiter exists                         [ ] Pass  [ ] Fail  Bug# ______
+      Saturn exists                          [ ] Pass  [ ] Fail  Bug# ______
+      Uranus exists                          [ ] Pass  [ ] Fail  Bug# ______
+      Neptune exists                         [ ] Pass  [ ] Fail  Bug# ______
+      Pluto exists                           [ ] Pass  [ ] Fail  Bug# ______
+
+   f. Solvers Folder                         [ ] Pass  [ ] Fail  Bug# ______
+      Subfolder Boundary Value Solvers       [ ] Pass  [ ] Fail  Bug# ______
+         Add Differential Corrector          [ ] Pass  [ ] Fail  Bug# ______
+      Subfolder Optimizers                   [ ] Pass  [ ] Fail  Bug# ______
+         Add SQP (fmincon)                   [ ] Pass  [ ] Fail  Bug# ______
+
+   g. Plots/Reports Folder                   [ ] Pass  [ ] Fail  Bug# ______
+      DefaultOpenGL exists                   [ ] Pass  [ ] Fail  Bug# ______
+      Add ReportFile                         [ ] Pass  [ ] Fail  Bug# ______
+      Add OpenGLPlot                         [ ] Pass  [ ] Fail  Bug# ______
+      Add XYPlot                             [ ] Pass  [ ] Fail  Bug# ______
+
+   h. Interfaces Folder                      [ ] Pass  [ ] Fail  Bug# ______
+      Matlab exists                          [ ] Pass  [ ] Fail  Bug# ______
+         Open                                [ ] Pass  [ ] Fail  Bug# ______
+         Close                               [ ] Pass  [ ] Fail  Bug# ______
+      Matlab Server exists                   [ ] Pass  [ ] Fail  Bug# ______
+         Start                               [ ] Pass  [ ] Fail  Bug# ______
+         Stop                                [ ] Pass  [ ] Fail  Bug# ______
+  
+   i. Scripts Folder                         [ ] Pass  [ ] Fail  Bug# ______
+      Add Script                             [ ] Pass  [ ] Fail  Bug# ______
+      Add Script Folder                      [ ] Pass  [ ] Fail  Bug# ______
+      Remove All                             [ ] Pass  [ ] Fail  Bug# ______
+  
+   j. Variables/Arrays Folder                [ ] Pass  [ ] Fail  Bug# ______
+      Add Variable                           [ ] Pass  [ ] Fail  Bug# ______
+
+   k. Coordinate Systems Folder              [ ] Pass  [ ] Fail  Bug# ______
+      EarthMJ2000Eq exists                   [ ] Pass  [ ] Fail  Bug# ______
+      EarthMJ2000Ec exists                   [ ] Pass  [ ] Fail  Bug# ______
+      EarthFixed exists                      [ ] Pass  [ ] Fail  Bug# ______
+      Add Coordinate System                  [ ] Pass  [ ] Fail  Bug# ______
+ 
+   l. Functions Folder                       [ ] Pass  [ ] Fail  Bug# ______
+      Subfolder Predefined Functions         [ ] Pass  [ ] Fail  Bug# ______
+      Add Matlab Function                    [ ] Pass  [ ] Fail  Bug# ______
+      Add GMAT Function                      [ ] Pass  [ ] Fail  Bug# ______
+  
+
+4. Evaluate tree-specific functionality.
+
+   Select all created items (e.g. Spacecraft, Burn, etc.)
+       Open                                  [ ] Pass  [ ] Fail  Bug# ______
+       Close                                 [ ] Pass  [ ] Fail  Bug# ______
+       Rename                                [ ] Pass  [ ] Fail  Bug# ______
+       Delete                                [ ] Pass  [ ] Fail  Bug# ______
+       Clone                                 [ ] Pass  [ ] Fail  Bug# ______
+   
+   
+5. Evaluate data.
+   
+   N/A
+
+
+6. Evaluate tree control.
+
+   All folders open and close                [ ] Pass  [ ] Fail  Bug# ______
+   
+   Tab Key Navigation    (applicable?)       [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Included in panel checklists.
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

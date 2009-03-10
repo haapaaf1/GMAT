@@ -1,0 +1,121 @@
+$Id: PropagateCmdPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the Propagate Command panel.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate object panel.
+                                                                                
+   Create Propagate Command                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Open Propagate Command                    [ ] Pass  [ ] Fail  Bug# ______
+
+
+2. Evaluate the aesthetic qualities of the panel.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+
+
+3. Evaluate the individual panel elements.
+
+   Propagate Mode Combo Box                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Propagate/SC/Backward Grid                [ ] Pass  [ ] Fail  Bug# ______
+
+   Stopping Conditions Grid                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Stopping Condition Name Text Field        [ ] Pass  [ ] Fail  Bug# ______
+
+   Update Action Button                      [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete Action Button                      [ ] Pass  [ ] Fail  Bug# ______
+
+   Variable Text Field                       [ ] Pass  [ ] Fail  Bug# ______
+
+   View Action Button (Par. Select Dialog)*  [ ] Pass  [ ] Fail  Bug# ______
+
+   Operator Combo Box                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Value Text Field                          [ ] Pass  [ ] Fail  Bug# ______
+
+   View Action Button (Par. Select Dialog)*  [ ] Pass  [ ] Fail  Bug# ______
+
+
+4. Evaluate panel-specific functionality.
+
+   a. Check SpaceObjects list:
+      Create spacecraft SC1, SC2, and SC3
+      Put SC1 and SC2 into Formation1
+      Open up the Propagate command panel
+      Open the Spacecraft List panel 
+       (i.e. SpaceObjectSelectDialog)
+      Only Formation1 and SC3 should be in   [ ] Pass  [ ] Fail  Bug# ______
+       the lists of SpaceObjects
+   
+
+5. Evaluate data.
+   
+   Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Script                               [ ] Pass  [ ] Fail  Bug# ______
+
+   Command Summary (must run script)         [ ] Pass  [ ] Fail  Bug# ______
+
+
+6. Evaluate panel control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Cancel                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Apply                                     [ ] Pass  [ ] Fail  Bug# ______
+
+   OK (Save)                                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Help [DEFERRED]
+   
+   Restore                                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Minimize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Rename (on mission tree)                  [ ] Pass  [ ] Fail  Bug# ______
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

@@ -1,0 +1,128 @@
+\documentclass[letterpaper,10pt]{book}
+
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{geometry}
+\usepackage{graphics,color}
+\geometry{letterpaper}
+\usepackage{array}
+\usepackage{floatflt}
+\usepackage{subfloat}
+\usepackage{lineno}
+\usepackage{amsmath}
+\usepackage{fancyvrb}
+%\usepackage[listofnumwidth=5.5em]{subfig}
+\usepackage{tocloft}
+\usepackage{longtable}
+
+%  for showing script lines as they appear in GMAT
+\usepackage{verbatim}
+
+
+\oddsidemargin  0.0in \evensidemargin 0.0in \textwidth      6.5in
+\headheight     0.25in \topmargin      0.0in \textheight=8.5in
+
+
+% More space for figure numbers
+\setlength{\cftfignumwidth}{3em}
+% Space between elements of the list
+%\setlength{\cftbeforefigskip}{0.1cm}
+% Space before chapter entries in the TOC
+%\setlength{\cftbeforechapskip}{0.2cm}
+% Space before parts in the TOC
+%\setlength{\cftbeforepartskip}{0.7cm}
+
+%\setlength{\emergencystretch}{6em}
+%\pretolerance=10000
+%\tolerance=10000
+
+%\define@key{caption}{listofnumwidth}[4em]{\def\sf@numwidth{#1}}
+\begin{document}
+
+%----------------------------------------------------------
+%----------------Cover Page Stuff -------------------------
+%----------------------------------------------------------
+\thispagestyle{empty}
+\begin{center}
+{\renewcommand{\thefootnote}{\fnsymbol{footnote}} { \Huge \bf
+General Mission Analysis Tool\\ (GMAT)\\ Graphical User Interface
+Test Plan }}
+\end{center}
+\begin{center}
+{\renewcommand{\thefootnote}{\fnsymbol{footnote}} { \Huge \bf
+ DRAFT }}
+\end{center}
+
+\vspace{1.0 in}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[421,303]{Images/GMATSplash.png}
+\end{center}
+\end{figure}
+%
+%\vspace{0.25 in}
+\begin{center}
+\Large{NASA Goddard Space Flight Center\\
+Greenbelt RD\\
+Greenbelt, MD 20771}
+\end{center}
+
+\clearpage\clearpage
+
+\verbatiminput{ImpulsiveBurnPanel.txt }
+
+\end{document}
+%----------------------------------------------------------
+%----------------  The document body-----------------------
+%----------------------------------------------------------
+\tableofcontents \clearpage \listoffigures \clearpage
+
+\chapter{General Tests}
+
+\section{Main Window and Menu Bar}
+
+\section{Tests That Apply to All Panels and Dialogue Boxes}
+\label{Sec:GeneralTests}
+
+\input{GUITestTemplate}
+
+\section{Tests for Specific Data Element Types on Panels}
+
+\input{Table_DataElementTests}
+
+\chapter{Specific Tests for Panels and Dialogue Boxes Under Resources Tree}
+
+\input{PropagatorPanel}
+
+\chapter{Specific Tests for Panels and Dialogue Boxes Under Mission Tree}
+
+\backmatter
+
+\begin{thebibliography}{poseidon} % start the bibliography
+
+\bibitem[Bazman]{Bazman} http://members.tripod.com/~bazman/checklist.html
+
+\bibitem[Black]{Black} Rex Black, ``Managing the Testing Process,'' Second Edition, WileyPublishing, 2002.
+
+\bibitem[Craig]{Craig} Rick D. Craig and Stefan P. Jaskiel, ``Systematic Software Testing,'' Artech House, 2002.
+
+\bibitem[MTP]{MTP} GMAT Analysis Team, ``General Mission Analysis Tool (GMAT) Master Test Plan.''
+
+\bibitem[GDT]{GDT} GMAT Development Team, ``General Mission Analysis Tool (GMAT) Architectural
+Specification.''
+
+\bibitem[hughes]{hughes} Steven P. Hughes, ``General Mission Analysis Tool (GMAT) Mathematical
+Specification.''
+
+\bibitem[hughes2]{hughes2} Steven P. Hughes, ``General Mission Analysis Tool (GMAT) User's Guide.''
+
+\bibitem[Schiff]{schiff} Conrad Schiff, ``Personal Correspondence''
+
+\bibitem[matlab]{MATLAB} The MathWorks, Inc, ``MATLAB'', available from http://www.mathworks.com.
+
+\bibitem[OOo]{OOo} OpenOffice.org, ``OpenOffice'', available from http://www.openoffice.org/.
+
+\end{thebibliography}
+
+\end{document}

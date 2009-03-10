@@ -1,0 +1,172 @@
+$Id: PropagatorPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the Propagator panel.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate object panel.
+                                                                                
+   Create Propagator Resource                [ ] Pass  [ ] Fail  Bug# ______
+
+   Open Propagator Resource                  [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the panel.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual panel elements.
+
+   Integrator Type Combo Box                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Initial Step Size Text Field              [ ] Pass  [ ] Fail  Bug# ______
+
+   Accuracy Text Field                       [ ] Pass  [ ] Fail  Bug# ______
+
+   Minimum Step Size Text Field              [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximum Step Size Text Field              [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximum Step Attempts Text Field          [ ] Pass  [ ] Fail  Bug# ______
+
+   Minimum Integration Error Text Field      [ ] Pass  [ ] Fail  Bug# ______
+
+   Nominal Integration Error Text Field      [ ] Pass  [ ] Fail  Bug# ______
+
+   Error Control Combo Box                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Central Body Combo Box                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Primary Bodies Combo Box                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Primary Bodies Action Button      
+      Available Bodies List                  [ ] Pass  [ ] Fail  Bug# ______
+      Bodies Selected List                   [ ] Pass  [ ] Fail  Bug# ______
+      -> (Add) Selection Button              [ ] Pass  [ ] Fail  Bug# ______
+      <- (Remove) Selection Button           [ ] Pass  [ ] Fail  Bug# ______
+      <= (Remove All) Selection Button       [ ] Pass  [ ] Fail  Bug# ______
+      Orbit Color Selection Button           [ ] Pass  [ ] Fail  Bug# ______
+      Cancel Button                          [ ] Pass  [ ] Fail  Bug# ______
+      OK Button                              [ ] Pass  [ ] Fail  Bug# ______
+      Help [DEFERRED]
+
+   Primary Bodies Text List                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Gravity Field Type Combo Box              [ ] Pass  [ ] Fail  Bug# ______
+
+   Gravity Field Degree Text Field           [ ] Pass  [ ] Fail  Bug# ______
+
+   Gravity Field Order Text Field            [ ] Pass  [ ] Fail  Bug# ______
+
+   Gravity Model File Select Action Button   [ ] Pass  [ ] Fail  Bug# ______
+
+   Gravity Model File Text Field             [ ] Pass  [ ] Fail  Bug# ______
+
+   Atmosphere Model Type Combo Box           [ ] Pass  [ ] Fail  Bug# ______
+
+   Atmosphere Model Setup Action Button      [ ] Pass  [ ] Fail  Bug# ______
+      User Input Radio Button                [ ] Pass  [ ] Fail  Bug# ______
+      Solar Flux Text Field                  [ ] Pass  [ ] Fail  Bug# ______
+      Average Solar Flux Text Field          [ ] Pass  [ ] Fail  Bug# ______
+      Geomagnetic Index (Kp) Text Field      [ ] Pass  [ ] Fail  Bug# ______
+      File Input Radio Button                [ ] Pass  [ ] Fail  Bug# ______
+      File Name Text Field                   [ ] Pass  [ ] Fail  Bug# ______
+      File Selection Button                  [ ] Pass  [ ] Fail  Bug# ______
+      Cancel Button                          [ ] Pass  [ ] Fail  Bug# ______
+      OK Button                              [ ] Pass  [ ] Fail  Bug# ______
+      Help [DEFERRED]
+
+   Magnetic Field Type Combo Box             [ ] Pass  [ ] Fail  Bug# ______
+
+   Magnetic Field Degree Text Field          [ ] Pass  [ ] Fail  Bug# ______
+
+   Magnetic Field Order Text Field           [ ] Pass  [ ] Fail  Bug# ______
+
+   Magn. Field File Select Action Button     [ ] Pass  [ ] Fail  Bug# ______
+
+   Point Masses Select Action Button      
+      Available Bodies List                  [ ] Pass  [ ] Fail  Bug# ______
+      Bodies Selected List                   [ ] Pass  [ ] Fail  Bug# ______
+      -> (Add) Selection Button              [ ] Pass  [ ] Fail  Bug# ______
+      <- (Remove) Selection Button           [ ] Pass  [ ] Fail  Bug# ______
+      <= (Remove All) Selection Button       [ ] Pass  [ ] Fail  Bug# ______
+      Orbit Color Selection Button           [ ] Pass  [ ] Fail  Bug# ______
+      Cancel Button                          [ ] Pass  [ ] Fail  Bug# ______
+      OK Button                              [ ] Pass  [ ] Fail  Bug# ______
+      Help [DEFERRED]
+
+   Point Masses Text List                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Solar Radiation Pressure Check Box        [ ] Pass  [ ] Fail  Bug# ______
+   
+
+4. Evaluate panel-specific functionality.
+
+   N/A
+   
+
+5. Evaluate data.
+   
+   Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Script                               [ ] Pass  [ ] Fail  Bug# ______
+
+
+6. Evaluate panel control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Cancel                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Apply                                     [ ] Pass  [ ] Fail  Bug# ______
+
+   OK (Save)                                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Help [DEFERRED]
+   
+   Restore                                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Minimize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Rename (on resource tree)                 [ ] Pass  [ ] Fail  Bug# ______
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

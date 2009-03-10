@@ -1,0 +1,102 @@
+$Id: SpacecraftBallisticPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
+
+
+Tester: ______________________________      Date: _________________________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the Spacecraft Ballistic/Mass panel.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate object panel.
+                                                                                
+   Create Spacecraft Resource                [ ] Pass  [ ] Fail  Bug# ______
+
+   Open Spacecraft Resource                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Select Ballistic/Mass Tab                 [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the panel.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual panel elements.
+
+   Dry Mass Text Field                       [ ] Pass  [ ] Fail  Bug# ______
+
+   Coefficient of Drag Text Field            [ ] Pass  [ ] Fail  Bug# ______
+
+   Coefficient of Reflectivity Text Field    [ ] Pass  [ ] Fail  Bug# ______
+
+   Drag Area Text Field                      [ ] Pass  [ ] Fail  Bug# ______
+
+   Solar Radiation Pressure Area Text Field  [ ] Pass  [ ] Fail  Bug# ______
+   
+
+4. Evaluate panel-specific functionality.
+
+   N/A
+   
+
+5. Evaluate data.
+   
+   Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Script                               [ ] Pass  [ ] Fail  Bug# ______
+
+
+6. Evaluate panel control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Cancel                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Apply                                     [ ] Pass  [ ] Fail  Bug# ______
+
+   OK (Save)                                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Help [DEFERRED]
+   
+   Restore                                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Minimize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Rename (on resource tree)                 [ ] Pass  [ ] Fail  Bug# ______
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+
