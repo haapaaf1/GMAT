@@ -119,7 +119,14 @@ CoordinateBase (coordSys)
 //axes           (coordSys.axes)
 {
    if (coordSys.axes)
+   {
       axes = (AxisSystem*)coordSys.axes->Clone();
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (axes, "clonedAxes", "CoordinateSystem Copy Constructor",
+          "(AxisSystem*) obj->Clone()");
+      #endif
+   }
    else
       axes = NULL;
 }
@@ -144,7 +151,14 @@ const CoordinateSystem& CoordinateSystem::operator=(
    //axes           = coordSys.axes;
    
    if (coordSys.axes)
+   {
       axes = (AxisSystem*)coordSys.axes->Clone();
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (axes, "clonedAxes", "CoordinateSystem Assignment operator",
+          "(AxisSystem*) obj->Clone()");
+      #endif
+   }
    else
       axes = NULL;
    
@@ -1228,6 +1242,11 @@ bool CoordinateSystem::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          AxisSystem *oldAxis = axes;
          
          axes = (AxisSystem*) obj->Clone();
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (axes, "clonedAxes", "CoordinateSystem::SetRefObject()",
+             "(AxisSystem*) obj->Clone()");
+         #endif
          axes->SetName("");
          ownedObjectCount = 1;
          
@@ -1237,8 +1256,15 @@ bool CoordinateSystem::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
              GetName().c_str(), axes);
          #endif
          if (oldAxis)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (oldAxis, oldAxis->GetTypeName(), "CoordinateSystem::SetRefObject()",
+                "deleting oldAxis");
+            #endif
             delete oldAxis;
-         
+            oldAxis = NULL;
+         }
          return true;
       }
       default:
