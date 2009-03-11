@@ -1,0 +1,59 @@
+%$Id: APT_FunctionTestTimes.script,v 1.1 2008/09/26 17:03:53 ljun Exp $
+%----- Variables, Arrays
+Create Variable x, y, result, I;
+Create Array state[6];
+Create String msg;
+
+state(1) = 20;
+state(2) = 40;
+
+%----- ReportFile
+Create ReportFile rf;
+GMAT rf.Filename = 'APT_FunctionTestTimes.report';
+GMAT rf.ZeroFill = Off;
+GMAT rf.WriteHeaders = Off;
+
+x = 10;
+y = 20;
+
+BeginScript
+
+   result = Times(20,30);
+   Report rf result;
+
+   [result] = Times(2,3);
+   Report rf result;
+
+   [result] = Times(x, y);
+   Report rf result;
+
+   [result] = Times(state(1), state(2));
+   Report rf result;
+
+   [result] = Times(state(1,1), state(1,2));
+   Report rf result;
+
+   result = Times(x,y) + Times(x, y);
+   Report rf result;
+
+   result = Times(1,2) + Times(3,4);
+   Report rf result;
+
+   result = Times(1,2) * Times(3,4) - Times(2, 2);
+   Report rf result;
+
+   result = Times(1,2) * Times(3,4) + 10;
+   Report rf result;
+
+   result = 100 + Times(x,y) + 10 ;
+   Report rf result;
+
+   result = 400 - Times(1,2) * Times(x,y) + 10;
+   Report rf result;
+
+   For I = 1:3
+      result = Times(I,y) + Times(x, I);
+      Report rf result;
+   EndFor;
+
+EndScript

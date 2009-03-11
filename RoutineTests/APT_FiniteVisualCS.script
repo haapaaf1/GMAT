@@ -1,0 +1,244 @@
+% GMAT Build 4 Test Script
+% Written by Darrel J. Conway, Thinking Systems, Inc.
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Sc;
+GMAT Sc.DateFormat = TAIModJulian;
+GMAT Sc.Epoch = 21545.000000000;
+GMAT Sc.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sc.DisplayStateType = Cartesian;
+GMAT Sc.X = 7100;
+GMAT Sc.Y = 0;
+GMAT Sc.Z = 1300;
+GMAT Sc.VX = 0;
+GMAT Sc.VY = 7.35;
+GMAT Sc.VZ = 1;
+GMAT Sc.DryMass = 850;
+GMAT Sc.Cd = 2.2;
+GMAT Sc.Cr = 1.8;
+GMAT Sc.DragArea = 15;
+GMAT Sc.SRPArea = 1;
+GMAT Sc.Tanks = {tank1, tank2};
+GMAT Sc.Thrusters = {engine1, engine2};
+
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+
+Create FuelTank tank1;
+GMAT tank1.FuelMass = 725;
+GMAT tank1.Pressure = 1200;
+GMAT tank1.Temperature = 20;
+GMAT tank1.RefTemperature = 12;
+GMAT tank1.Volume = 0.8;
+GMAT tank1.FuelDensity = 1029;
+GMAT tank1.PressureRegulated = true;
+
+Create FuelTank tank2;
+GMAT tank2.FuelMass = 325;
+GMAT tank2.Pressure = 1500;
+GMAT tank2.Temperature = 20;
+%GMAT tank2 = tank1;
+GMAT tank2.RefTemperature = 32;
+GMAT tank2.Volume = 0.75;
+GMAT tank2.FuelDensity = 1260;
+GMAT tank2.PressureRegulated = true;
+
+Create Thruster engine1;
+GMAT engine1.CoordinateSystem = Local;
+GMAT engine1.Origin = Earth;
+GMAT engine1.Axes = VNB;
+GMAT engine1.Element1 = 1;
+GMAT engine1.Element2 = 0;
+GMAT engine1.Element3 = 0;
+GMAT engine1.Tank = {tank1};
+GMAT engine1.C3  = 400;
+GMAT engine1.C4  = 0.15;
+GMAT engine1.C13 = 1;
+GMAT engine1.K3  = 1500;
+GMAT engine1.K5  = 0.000451;
+GMAT engine1.K13 = 1;
+
+Create Thruster engine2;
+GMAT engine2.CoordinateSystem = Local;
+GMAT engine2.Origin = Earth;
+GMAT engine2.Axes = VNB;
+GMAT engine2.Element1 = 1;
+GMAT engine2.Element2 = 0;
+GMAT engine2.Element3 = 0;
+GMAT engine2.Tank = {tank2};
+GMAT engine2.C3  = 500;
+GMAT engine2.C13 = 1;
+GMAT engine2.K3  = 2150;
+GMAT engine2.K13 = 1;
+GMAT engine2.CoordinateSystem = MJ2000EarthEquator;
+GMAT engine2.ThrustScaleFactor = 1;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel fm;
+GMAT fm.CentralBody = Earth;
+GMAT fm.PointMasses = {Earth, Sun, Luna};
+GMAT fm.Drag = None;
+GMAT fm.SRP = Off;
+GMAT fm.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator prop;
+GMAT prop.FM = fm;
+GMAT prop.Type = RungeKutta89;
+GMAT prop.InitialStepSize = 60;
+GMAT prop.Accuracy = 9.999999999999999e-012;
+GMAT prop.MinStep = 0.001;
+GMAT prop.MaxStep = 2700;
+GMAT prop.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn ib;
+GMAT ib.Origin = Earth;
+GMAT ib.Axes = VNB;
+GMAT ib.VectorFormat = Cartesian;
+GMAT ib.Element1 = 0;
+GMAT ib.Element2 = 0;
+GMAT ib.Element3 = 0;
+
+Create FiniteBurn fb;
+%%GMAT fb.Origin = Earth;
+%%GMAT fb.Axes = VNB;
+GMAT fb.Thrusters = {engine1, engine2};
+%%GMAT fb.BurnScaleFactor = 1;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile rf;
+GMAT rf.Filename = APT_FiniteVisualCS.report;
+GMAT rf.Precision = 15;
+GMAT rf.Add = {Sc.ElapsedSecs, Sc.X, Sc.Y, Sc.Z, Sc.SMA, Sc.Energy};
+GMAT rf.WriteHeaders = On;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = On;
+GMAT rf.ColumnWidth = 20;
+GMAT rf.SolverIterations = None;
+
+%  Create XYPlot  
+Create XYPlot energy;
+GMAT energy.IndVar = Sc.ElapsedDays;
+GMAT energy.Add = {Sc.Energy};
+GMAT energy.Grid = On;
+GMAT energy.SolverIterations = None;
+GMAT energy.ShowPlot = true;
+
+%  Create OpenGL Plot  
+Create OpenGLPlot SatOpenGL;
+GMAT SatOpenGL.Add = {Sc};
+GMAT SatOpenGL.OrbitColor = [ 255 ];
+GMAT SatOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT SatOpenGL.ViewPointReference = Earth;
+GMAT SatOpenGL.ViewPointVector = [ 0 0 30000];
+GMAT SatOpenGL.ViewDirection = Earth;
+GMAT SatOpenGL.ViewScaleFactor = 1;
+GMAT SatOpenGL.FixedFovAngle = 45;
+GMAT SatOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT SatOpenGL.ViewUpAxis = Z;
+GMAT SatOpenGL.CelestialPlane = Off;
+GMAT SatOpenGL.XYPlane = On;
+GMAT SatOpenGL.WireFrame = Off;
+GMAT SatOpenGL.SolverIterations = None;
+GMAT SatOpenGL.Axes = On;
+GMAT SatOpenGL.Grid = Off;
+GMAT SatOpenGL.SunLine = Off;
+GMAT SatOpenGL.UseInitialView = On;
+GMAT SatOpenGL.PerspectiveMode = Off;
+GMAT SatOpenGL.UseFixedFov = Off;
+GMAT SatOpenGL.DataCollectFrequency = 1;
+GMAT SatOpenGL.UpdatePlotFrequency = 50;
+GMAT SatOpenGL.NumPointsToRedraw = 0;
+GMAT SatOpenGL.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {Sc};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 1;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = X;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = Sc.A1ModJulian;
+GMAT XYPlot1.Add = {Sc.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+% Mission sequence
+Propagate prop(Sc) {Sc.ElapsedSecs = 8640};
+BeginFiniteBurn fb(Sc);
+Propagate prop(Sc) {Sc.ElapsedSecs = 3600};
+EndFiniteBurn fb(Sc);
+Propagate prop(Sc) {Sc.ElapsedSecs = 43200};
+

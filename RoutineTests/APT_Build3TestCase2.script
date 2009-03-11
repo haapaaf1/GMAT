@@ -1,0 +1,260 @@
+%  Build 3, Test Case 2
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft MMS1;
+GMAT MMS1.DateFormat = TAIGregorian;
+GMAT MMS1.Epoch = 09 Oct 2004 16:30:00.124;
+GMAT MMS1.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS1.DisplayStateType = Keplerian;
+GMAT MMS1.SMA = 47000;
+GMAT MMS1.ECC = 0.7999999999999998;
+GMAT MMS1.INC = 28.5;
+GMAT MMS1.RAAN = 90;
+GMAT MMS1.AOP = 0;
+GMAT MMS1.TA = 180;
+GMAT MMS1.DryMass = 100;
+GMAT MMS1.Cd = 2;
+GMAT MMS1.Cr = 1.4;
+GMAT MMS1.DragArea = 1;
+GMAT MMS1.SRPArea = 1;
+
+Create Spacecraft MMS2;
+GMAT MMS2.DateFormat = TAIGregorian;
+GMAT MMS2.Epoch = 09 Oct 2004 16:30:00.124;
+GMAT MMS2.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS2.DisplayStateType = Keplerian;
+GMAT MMS2.SMA = 46999.99999999999;
+GMAT MMS2.ECC = 0.7999999999999999;
+GMAT MMS2.INC = 28.5;
+GMAT MMS2.RAAN = 90;
+GMAT MMS2.AOP = 0;
+GMAT MMS2.TA = 180.9999999999999;
+GMAT MMS2.DryMass = 100;
+GMAT MMS2.Cd = 2;
+GMAT MMS2.Cr = 1.4;
+GMAT MMS2.DragArea = 1;
+GMAT MMS2.SRPArea = 1;
+
+Create Spacecraft Sat3;
+GMAT Sat3.DateFormat = TAIGregorian;
+GMAT Sat3.Epoch = 09 Oct 2004 16:30:00.124;
+GMAT Sat3.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat3.DisplayStateType = Keplerian;
+GMAT Sat3.SMA = 8000.000000000001;
+GMAT Sat3.ECC = 0.009999999999999898;
+GMAT Sat3.INC = 28.50000000000001;
+GMAT Sat3.RAAN = 90;
+GMAT Sat3.AOP = 0;
+GMAT Sat3.TA = 181.9999999999999;
+GMAT Sat3.DryMass = 100;
+GMAT Sat3.Cd = 2;
+GMAT Sat3.Cr = 1.4;
+GMAT Sat3.DragArea = 1;
+GMAT Sat3.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- Formation
+%----------------------------------------
+
+%  Create Formation
+Create Formation MMS;
+GMAT MMS.A1Epoch = 21545;
+GMAT MMS.Add = {MMS1, MMS2};
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel LowEarth_JR;
+GMAT LowEarth_JR.CentralBody = Earth;
+GMAT LowEarth_JR.PrimaryBodies = {Earth};
+GMAT LowEarth_JR.PointMasses = {Sun, Luna, Jupiter};
+GMAT LowEarth_JR.Drag = JacchiaRoberts;
+GMAT LowEarth_JR.SRP = Off;
+GMAT LowEarth_JR.ErrorControl = RSSStep;
+GMAT LowEarth_JR.Gravity.Earth.Degree = 20;
+GMAT LowEarth_JR.Gravity.Earth.Order = 20;
+GMAT LowEarth_JR.Gravity.Earth.PotentialFile = JGM2.cof;
+
+Create ForceModel HighEarth;
+GMAT HighEarth.CentralBody = Earth;
+GMAT HighEarth.PrimaryBodies = {Earth};
+GMAT HighEarth.PointMasses = {Sun, Luna, Jupiter};
+GMAT HighEarth.Drag = None;
+GMAT HighEarth.SRP = On;
+GMAT HighEarth.ErrorControl = RSSStep;
+GMAT HighEarth.Gravity.Earth.Degree = 20;
+GMAT HighEarth.Gravity.Earth.Order = 20;
+GMAT HighEarth.Gravity.Earth.PotentialFile = JGM2.cof;
+GMAT HighEarth.SRP.Flux = 1367;
+GMAT HighEarth.SRP.Nominal_Sun = 149597870.691;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+% Create Propagator
+Create Propagator RKV_LowEarth_JR;
+GMAT RKV_LowEarth_JR.FM = LowEarth_JR;
+GMAT RKV_LowEarth_JR.Type = RungeKutta89;
+GMAT RKV_LowEarth_JR.InitialStepSize = 60;
+GMAT RKV_LowEarth_JR.Accuracy = 9.999999999999999e-012;
+GMAT RKV_LowEarth_JR.MinStep = 0.01;
+GMAT RKV_LowEarth_JR.MaxStep = 900;
+GMAT RKV_LowEarth_JR.MaxStepAttempts = 50;
+
+% Create Propagator
+Create Propagator RKF_HighEarth;
+GMAT RKF_HighEarth.FM = HighEarth;
+GMAT RKF_HighEarth.Type = RungeKuttaFehlberg56;
+GMAT RKF_HighEarth.InitialStepSize = 60;
+GMAT RKF_HighEarth.Accuracy = 9.999999999999999e-012;
+GMAT RKF_HighEarth.MinStep = 1;
+GMAT RKF_HighEarth.MaxStep = 900;
+GMAT RKF_HighEarth.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+%  Create ReportFile
+Create ReportFile rf;
+GMAT rf.Filename = APT_Build3TestCase2.report;
+GMAT rf.Precision = 16;
+GMAT rf.WriteHeaders = On;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 20;
+GMAT rf.SolverIterations = None;
+
+%  Create XYPlot  
+Create XYPlot MMS1XYZvsTime;
+GMAT MMS1XYZvsTime.IndVar = MMS1.ElapsedDays;
+GMAT MMS1XYZvsTime.Add = {MMS1.X, MMS1.Y, MMS1.Z};
+GMAT MMS1XYZvsTime.Grid = On;
+GMAT MMS1XYZvsTime.SolverIterations = None;
+GMAT MMS1XYZvsTime.ShowPlot = true;
+
+%  Create OpenGL Plot  
+Create OpenGLPlot SatOpenGL;
+GMAT SatOpenGL.Add = {MMS1, MMS2, Sat3};
+GMAT SatOpenGL.OrbitColor = [ 255 65280 65535 ];
+GMAT SatOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT SatOpenGL.ViewPointReference = Earth;
+GMAT SatOpenGL.ViewPointVector = [ 0 0 30000];
+GMAT SatOpenGL.ViewDirection = Earth;
+GMAT SatOpenGL.ViewScaleFactor = 1;
+GMAT SatOpenGL.FixedFovAngle = 45;
+GMAT SatOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT SatOpenGL.ViewUpAxis = Z;
+GMAT SatOpenGL.CelestialPlane = Off;
+GMAT SatOpenGL.XYPlane = On;
+GMAT SatOpenGL.WireFrame = Off;
+GMAT SatOpenGL.SolverIterations = All;
+GMAT SatOpenGL.Axes = On;
+GMAT SatOpenGL.Grid = Off;
+GMAT SatOpenGL.SunLine = Off;
+GMAT SatOpenGL.UseInitialView = On;
+GMAT SatOpenGL.PerspectiveMode = Off;
+GMAT SatOpenGL.UseFixedFov = Off;
+GMAT SatOpenGL.DataCollectFrequency = 1;
+GMAT SatOpenGL.UpdatePlotFrequency = 50;
+GMAT SatOpenGL.NumPointsToRedraw = 0;
+GMAT SatOpenGL.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {MMS1};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 10;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = X;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = MMS1.A1ModJulian;
+GMAT XYPlot1.Add = {MMS1.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+% -------------------------------------------------------------------------
+% -------------------- Begin Mission Sequence -----------------------------
+% -------------------------------------------------------------------------
+% Turn plots on
+Toggle SatOpenGL On;
+Toggle MMS1XYZvsTime On;
+Report rf Sat3.A1ModJulian Sat3.X Sat3.Y Sat3.Z Sat3.VX Sat3.VY Sat3.VZ 
+%  Propagation Sequence One
+Propagate Synchronized RKV_LowEarth_JR(Sat3) RKF_HighEarth(MMS) {Sat3.Periapsis, MMS1.TA = 155};
+GMAT rf.WriteHeaders = Off;
+Report rf Sat3.A1ModJulian Sat3.X Sat3.Y Sat3.Z Sat3.VX Sat3.VY Sat3.VZ 
+%  Propagation Sequence Two
+Propagate Synchronized RKV_LowEarth_JR(Sat3) RKF_HighEarth(MMS) {MMS1.Apoapsis};
+Report rf Sat3.A1ModJulian Sat3.X Sat3.Y Sat3.Z Sat3.VX Sat3.VY Sat3.VZ 
+%  Add Sat3 to MMS Formation
+GMAT MMS.Add = Sat3;
+%  Propagation Sequence Three
+Propagate RKF_HighEarth(MMS) {Sat3.Periapsis};
+Report rf Sat3.A1ModJulian Sat3.X Sat3.Y Sat3.Z Sat3.VX Sat3.VY Sat3.VZ 
+% Now pull apart the formation and handle the spacecraft separately
+GMAT MMS.Remove = MMS1;
+GMAT MMS.Remove = MMS2;
+GMAT MMS.Remove = Sat3;
+%  Propagation Sequence Four
+Propagate Synchronized RKV_LowEarth_JR(MMS1, MMS2, Sat3) {Sat3.Periapsis};
+Report rf Sat3.A1ModJulian Sat3.X Sat3.Y Sat3.Z Sat3.VX Sat3.VY Sat3.VZ 
+

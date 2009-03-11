@@ -1,0 +1,225 @@
+%  Script Mission - TRMM mission Example
+%
+%  This script demonstrates spacecraft propagation and targeting
+%  based off of the TRMM mission.
+%
+%  REVSION HISTORY
+%  $Id: Bug874-Ex_TRMM.script,v 1.2 2008/09/26 17:02:38 ljun Exp $
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft sat;
+GMAT sat.DateFormat = TAIModJulian;
+GMAT sat.Epoch = 21548.99637123504;
+GMAT sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat.DisplayStateType = Cartesian;
+GMAT sat.X = -4083.993614288543;
+GMAT sat.Y = 4691.831887740646;
+GMAT sat.Z = -2576.745527780432;
+GMAT sat.VX = -4.252071046388588;
+GMAT sat.VY = -5.509633838816921;
+GMAT sat.VZ = -3.284301863645247;
+GMAT sat.DryMass = 850;
+GMAT sat.Cd = 2.2;
+GMAT sat.Cr = 1.8;
+GMAT sat.DragArea = 15;
+GMAT sat.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel fm;
+GMAT fm.CentralBody = Earth;
+GMAT fm.PrimaryBodies = {Earth};
+GMAT fm.PointMasses = {Luna, Sun};
+GMAT fm.Drag = JacchiaRoberts;
+GMAT fm.SRP = Off;
+GMAT fm.ErrorControl = RSSStep;
+GMAT fm.Gravity.Earth.Degree = 4;
+GMAT fm.Gravity.Earth.Order = 4;
+GMAT fm.Gravity.Earth.PotentialFile = JGM2.cof;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator prop;
+GMAT prop.FM = fm;
+GMAT prop.Type = RungeKutta89;
+GMAT prop.InitialStepSize = 60;
+GMAT prop.Accuracy = 9.999999999999999e-012;
+GMAT prop.MinStep = 0.001;
+GMAT prop.MaxStep = 2700;
+GMAT prop.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn burn;
+GMAT burn.Origin = Earth;
+GMAT burn.Axes = VNB;
+GMAT burn.VectorFormat = Cartesian;
+GMAT burn.Element1 = 0.001545357175413331;
+GMAT burn.Element2 = 0;
+GMAT burn.Element3 = 0;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector DC;
+GMAT DC.ShowProgress = true;
+GMAT DC.ReportStyle = Normal;
+GMAT DC.TargeterTextFile = Bug874-DC.data;
+GMAT DC.MaximumIterations = 25;
+GMAT DC.UseCentralDifferences = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create XYPlot plot;
+GMAT plot.IndVar = sat.CurrA1MJD;
+GMAT plot.Add = {sat.Altitude};
+GMAT plot.Grid = On;
+GMAT plot.SolverIterations = None;
+GMAT plot.ShowPlot = true;
+
+Create ReportFile Data;
+%%%GMAT Data.Filename = ./output/SampleMissions/Ex_TRMM.report;
+GMAT Data.Filename = Bug874-Ex_TRMM.report;
+GMAT Data.Precision = 16;
+GMAT Data.WriteHeaders = On;
+GMAT Data.LeftJustify = On;
+GMAT Data.ZeroFill = Off;
+GMAT Data.ColumnWidth = 20;
+GMAT Data.SolverIterations = None;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = sat.A1ModJulian;
+GMAT XYPlot1.Add = {sat.Earth.ECC};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {sat};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 1;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = Z;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 100;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot2;
+GMAT OpenGLPlot2.Add = {sat};
+GMAT OpenGLPlot2.OrbitColor = [ 255 ];
+GMAT OpenGLPlot2.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot2.ViewPointReference = Earth;
+GMAT OpenGLPlot2.ViewDirection = Earth;
+GMAT OpenGLPlot2.ViewScaleFactor = 0.7;
+GMAT OpenGLPlot2.FixedFovAngle = 45;
+GMAT OpenGLPlot2.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot2.ViewUpAxis = Z;
+GMAT OpenGLPlot2.CelestialPlane = Off;
+GMAT OpenGLPlot2.XYPlane = On;
+GMAT OpenGLPlot2.WireFrame = Off;
+GMAT OpenGLPlot2.SolverIterations = None;
+GMAT OpenGLPlot2.Axes = On;
+GMAT OpenGLPlot2.Grid = Off;
+GMAT OpenGLPlot2.SunLine = Off;
+GMAT OpenGLPlot2.UseInitialView = On;
+GMAT OpenGLPlot2.PerspectiveMode = Off;
+GMAT OpenGLPlot2.UseFixedFov = Off;
+GMAT OpenGLPlot2.DataCollectFrequency = 1;
+GMAT OpenGLPlot2.UpdatePlotFrequency = 100;
+GMAT OpenGLPlot2.NumPointsToRedraw = 0;
+GMAT OpenGLPlot2.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
+GMAT Data.WriteHeaders = Off;
+Propagate prop(sat) {sat.ElapsedDays = 0.1};
+Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
+
+%%%While sat.ElapsedDays < 10
+While sat.ElapsedDays < 5
+   Propagate prop(sat);
+   Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
+   If sat.Altitude < 342
+      Target DC;
+         Vary DC(burn.V = 0.002, {Perturbation = 0.0001, MaxStep = 9.999999e300, Lower = -9.999999e300, Upper = 9.999999e300});
+         Maneuver burn(sat);
+         Achieve DC(sat.SMA = 6734, {Tolerance = 0.1});
+      EndTarget;  % For targeter DC
+      Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
+      Propagate prop(sat) {sat.Apoapsis};
+      Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
+      Target DC;
+         Vary DC(burn.V = 0.001, {Perturbation = 0.00005, MaxStep = 9.999999e300, Lower = -9.999999e300, Upper = 9.999999e300});
+         Maneuver burn(sat);
+         Achieve DC(sat.ECC = 0.0005, {Tolerance = 0.0001});
+      EndTarget;  % For targeter DC
+      Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
+      Save sat;
+   EndIf;
+EndWhile;
+
+Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
+Propagate prop(sat) {sat.Apoapsis};
+Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
+

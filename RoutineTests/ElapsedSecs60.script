@@ -1,0 +1,182 @@
+% MATLAB Autogeneration GMAT Script File
+% MATLAB script last modified 29-Jul-2005 by EDove
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft ISS;
+GMAT ISS.DateFormat = UTCGregorian;
+GMAT ISS.Epoch = 01 Jun 2004 12:00:00.000;
+GMAT ISS.CoordinateSystem = EarthMJ2000Eq;
+GMAT ISS.DisplayStateType = Cartesian;
+GMAT ISS.X = -4453.783586;
+GMAT ISS.Y = -5038.203756;
+GMAT ISS.Z = -426.384456;
+GMAT ISS.VX = 3.831888;
+GMAT ISS.VY = -2.887221;
+GMAT ISS.VZ = -6.018232;
+GMAT ISS.DryMass = 1000;
+GMAT ISS.Cd = 2.2;
+GMAT ISS.Cr = 1.2;
+GMAT ISS.DragArea = 20;
+GMAT ISS.SRPArea = 20;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel Earth2Body;
+GMAT Earth2Body.CentralBody = Earth;
+GMAT Earth2Body.PrimaryBodies = {Earth};
+GMAT Earth2Body.Drag = None;
+GMAT Earth2Body.SRP = Off;
+GMAT Earth2Body.ErrorControl = RSSStep;
+GMAT Earth2Body.Gravity.Earth.Degree = 0;
+GMAT Earth2Body.Gravity.Earth.Order = 0;
+GMAT Earth2Body.Gravity.Earth.PotentialFile = JGM2.cof;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator RKV89;
+GMAT RKV89.FM = Earth2Body;
+GMAT RKV89.Type = RungeKutta89;
+GMAT RKV89.InitialStepSize = 5;
+GMAT RKV89.Accuracy = 9.999999999999999e-012;
+GMAT RKV89.MinStep = 5;
+GMAT RKV89.MaxStep = 5;
+GMAT RKV89.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Parameters
+%----------------------------------------
+
+Create Variable OutputStepSize 
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile ISS_Report;
+GMAT ISS_Report.Filename = ElapsedSecs60.report;
+GMAT ISS_Report.Precision = 16;
+GMAT ISS_Report.WriteHeaders = Off;
+GMAT ISS_Report.LeftJustify = On;
+GMAT ISS_Report.ZeroFill = Off;
+GMAT ISS_Report.ColumnWidth = 20;
+GMAT ISS_Report.SolverIterations = None;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {ISS};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 1;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = Z;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot2;
+GMAT OpenGLPlot2.Add = {ISS};
+GMAT OpenGLPlot2.OrbitColor = [ 255 ];
+GMAT OpenGLPlot2.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot2.ViewPointReference = Earth;
+GMAT OpenGLPlot2.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot2.ViewDirection = Earth;
+GMAT OpenGLPlot2.ViewScaleFactor = 1;
+GMAT OpenGLPlot2.FixedFovAngle = 45;
+GMAT OpenGLPlot2.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot2.ViewUpAxis = X;
+GMAT OpenGLPlot2.CelestialPlane = Off;
+GMAT OpenGLPlot2.XYPlane = On;
+GMAT OpenGLPlot2.WireFrame = Off;
+GMAT OpenGLPlot2.SolverIterations = None;
+GMAT OpenGLPlot2.Axes = On;
+GMAT OpenGLPlot2.Grid = Off;
+GMAT OpenGLPlot2.SunLine = Off;
+GMAT OpenGLPlot2.UseInitialView = On;
+GMAT OpenGLPlot2.PerspectiveMode = Off;
+GMAT OpenGLPlot2.UseFixedFov = Off;
+GMAT OpenGLPlot2.DataCollectFrequency = 1;
+GMAT OpenGLPlot2.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot2.NumPointsToRedraw = 0;
+GMAT OpenGLPlot2.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = ISS.A1ModJulian;
+GMAT XYPlot1.Add = {ISS.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot2;
+GMAT XYPlot2.IndVar = ISS.A1ModJulian;
+GMAT XYPlot2.Add = {ISS.EarthMJ2000Eq.Y};
+GMAT XYPlot2.Grid = On;
+GMAT XYPlot2.SolverIterations = None;
+GMAT XYPlot2.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+% Propagate based on preset propagation parameters
+% and current stop conditions.
+% Output Report file data for each propagation set in the FOR loop
+Report ISS_Report ISS.A1ModJulian ISS.X ISS.Y ISS.Z ISS.VX ISS.VY ISS.VZ 
+
+%Propagate   RKV89(ISS, {ISS.ElapsedSecs = 60}); 
+%Report      ISS_Report ISS.ElapsedSecs ISS.X ISS.Y ISS.Z ISS.VX ISS.VY ISS.VZ;
+%For OutputStepSize = 1:1440;
+For OutputStepSize = 1:1:10;
+   Propagate RKV89(ISS) {ISS.ElapsedSecs = 60};
+   Report ISS_Report ISS.ElapsedSecs ISS.X ISS.Y ISS.Z ISS.VX ISS.VY ISS.VZ 
+EndFor;
+
+

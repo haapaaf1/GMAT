@@ -1,0 +1,117 @@
+%   This test uses the GMAT script to calculate a rotation
+%   matrix using the Euler Axis/Angle approach.  
+%   The case is intended to test that GMAT handles complicated equations 
+%   that contain products of vectors, matrices, and scalars.
+%   My usual disclaimer:  since GMAT currenty doesn't run this 
+%   script, I can't be sure it doesn't contain typos, because 
+%   I can't test it.
+
+
+%  Create a s/c
+Create Spacecraft Sat;
+GMAT Sat.DateFormat = TAIModJulian;
+GMAT Sat.Epoch = 21545.000000000;
+GMAT Sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat.DisplayStateType = Cartesian;
+GMAT Sat.X = 7100;
+GMAT Sat.Y = 0;
+GMAT Sat.Z = 1300;
+GMAT Sat.VX = 0;
+GMAT Sat.VY = 7.35;
+GMAT Sat.VZ = 1;
+GMAT Sat.DryMass = 850;
+GMAT Sat.Cd = 2.2;
+GMAT Sat.Cr = 1.8;
+GMAT Sat.DragArea = 15;
+GMAT Sat.SRPArea = 1;
+
+
+%  Create a report to output error data
+Create ReportFile ErrorData;
+GMAT ErrorData.Filename = ErrorData.report;
+
+
+%   Create variables and arrays that are needed in calculations
+Create Variable phi pi2
+Create Array across[3,3] I3[3,3] R[3,3] Sol[3,3];
+Create Array av[3,1];
+
+
+%  Define the Euler Axis
+GMAT av(1,1) = 0.577350269189626;
+GMAT av(2,1) = 0.577350269189626;
+GMAT av(3,1) = 0.577350269189626;
+
+
+%  Define the Euler Angle
+GMAT pi2 = 6.28318530717959;
+GMAT phi = 45 * pi2;
+
+
+%  Define the skew symmetric matrix
+GMAT across(1,1) =  0;
+GMAT across(1,2) = -av(3,1);
+GMAT across(1,3) =  av(2,1);
+
+
+GMAT across(2,1) =  av(3,1);
+GMAT across(2,2) =  0;
+GMAT across(2,3) = -av(1,1);
+
+
+GMAT across(3,1) = -av(2,1);
+GMAT across(3,2) =  av(1,1);
+GMAT across(3,3) =  0;
+
+
+%  Define the 3x3 Identity Matrix
+GMAT I3(1,1) = 1;
+GMAT I3(1,2) = 0;
+GMAT I3(1,3) = 0;
+
+
+GMAT I3(2,1) = 0;
+GMAT I3(2,2) = 1;
+GMAT I3(2,3) = 0;
+
+
+GMAT I3(3,1) = 0;
+GMAT I3(3,2) = 0;
+GMAT I3(3,3) = 1;
+
+
+
+%  Define the solution as calculated in Matlab
+GMAT Sol(1,1) = 1;
+GMAT Sol(1,2) = 0.505879363401681  ;
+GMAT Sol(1,3) = -0.310617217526046;
+
+
+GMAT Sol(2,1) = -0.310617217526046 ;
+GMAT Sol(2,2) = 0.804737854124365 ;
+GMAT Sol(2,3) = 0.505879363401681;
+
+
+GMAT Sol(3,1) = 0.505879363401681;
+GMAT Sol(3,2) = -0.310617217526046;
+GMAT Sol(3,3) = 0.804737854124365;
+
+Create Array E[3,3];
+
+%------------------------------------ Mission Sequence
+Report ErrorData E;
+%%%GMAT phi = 45 * pi2;
+
+%  Peform the Euler Axis/Angle calculation
+GMAT R = cos(phi)*I3 + (1 - cos(phi))*av*av' - sin(phi)*across;
+
+
+%  Now difference the GMAT and Matlab solutions
+GMAT E = R - Sol;
+
+
+%  Report the error data.
+Report ErrorData E;
+%%%Report ErrorData E(1,1) E(1,2) E(1,3);
+%%%Report ErrorData E(2,1) E(2,2) E(2,3);
+%%%Report ErrorData E(3,1) E(3,2) E(3,3);

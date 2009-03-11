@@ -1,0 +1,185 @@
+% Backwards proagation script
+% Created 1/27/2005, Darrel J. Conway, Thinking Systems, Inc.
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft forward;
+GMAT forward.DateFormat = TAIModJulian;
+GMAT forward.Epoch = 21545.000000000;
+GMAT forward.CoordinateSystem = EarthMJ2000Eq;
+GMAT forward.DisplayStateType = Cartesian;
+GMAT forward.X = 7000;
+GMAT forward.Y = 0;
+GMAT forward.Z = 0;
+GMAT forward.VX = 0;
+GMAT forward.VY = 2;
+GMAT forward.VZ = 9.5;
+GMAT forward.DryMass = 850;
+GMAT forward.Cd = 2.2;
+GMAT forward.Cr = 1.8;
+GMAT forward.DragArea = 15;
+GMAT forward.SRPArea = 1;
+
+Create Spacecraft backward;
+GMAT backward.DateFormat = TAIModJulian;
+GMAT backward.Epoch = 21545.000000000;
+GMAT backward.CoordinateSystem = EarthMJ2000Eq;
+GMAT backward.DisplayStateType = Cartesian;
+GMAT backward.X = 7000;
+GMAT backward.Y = 0;
+GMAT backward.Z = 0;
+GMAT backward.VX = 0;
+GMAT backward.VY = 2;
+GMAT backward.VZ = 9.5;
+GMAT backward.DryMass = 850;
+GMAT backward.Cd = 2.2;
+GMAT backward.Cr = 1.8;
+GMAT backward.DragArea = 15;
+GMAT backward.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel fm;
+GMAT fm.CentralBody = Earth;
+GMAT fm.PointMasses = {Earth};
+GMAT fm.Drag = None;
+GMAT fm.SRP = Off;
+GMAT fm.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator prop;
+GMAT prop.FM = fm;
+GMAT prop.Type = RungeKutta89;
+GMAT prop.InitialStepSize = 60;
+GMAT prop.Accuracy = 1e-015;
+GMAT prop.MinStep = 0.001;
+GMAT prop.MaxStep = 2700;
+GMAT prop.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile bp;
+GMAT bp.Filename = BackPropElapsedSecs.report;
+GMAT bp.Precision = 16;
+GMAT bp.Add = {backward.ElapsedSecs, backward.X, backward.Y, backward.Z, backward.VX, backward.VY, backward.VZ};
+GMAT bp.WriteHeaders = On;
+GMAT bp.LeftJustify = On;
+GMAT bp.ZeroFill = On;
+GMAT bp.ColumnWidth = 20;
+GMAT bp.SolverIterations = None;
+
+%  Create XYPlot  
+Create XYPlot Sat1SphereCoord;
+GMAT Sat1SphereCoord.IndVar = backward.ElapsedDays;
+GMAT Sat1SphereCoord.Add = {backward.TA, backward.RAAN};
+GMAT Sat1SphereCoord.Grid = On;
+GMAT Sat1SphereCoord.SolverIterations = None;
+GMAT Sat1SphereCoord.ShowPlot = true;
+
+%  Create OpenGL Plot  
+Create OpenGLPlot SatOpenGL;
+GMAT SatOpenGL.Add = {forward, backward, Earth};
+GMAT SatOpenGL.OrbitColor = [ 255 65280 32768 ];
+GMAT SatOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT SatOpenGL.ViewPointReference = Earth;
+GMAT SatOpenGL.ViewDirection = Earth;
+GMAT SatOpenGL.ViewScaleFactor = 1;
+GMAT SatOpenGL.FixedFovAngle = 45;
+GMAT SatOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT SatOpenGL.ViewUpAxis = Z;
+GMAT SatOpenGL.CelestialPlane = Off;
+GMAT SatOpenGL.XYPlane = On;
+GMAT SatOpenGL.WireFrame = Off;
+GMAT SatOpenGL.SolverIterations = None;
+GMAT SatOpenGL.Axes = On;
+GMAT SatOpenGL.Grid = Off;
+GMAT SatOpenGL.SunLine = Off;
+GMAT SatOpenGL.UseInitialView = On;
+GMAT SatOpenGL.PerspectiveMode = Off;
+GMAT SatOpenGL.UseFixedFov = Off;
+GMAT SatOpenGL.DataCollectFrequency = 1;
+GMAT SatOpenGL.UpdatePlotFrequency = 50;
+GMAT SatOpenGL.NumPointsToRedraw = 0;
+GMAT SatOpenGL.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {forward};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 3000 30000];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 2;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = Z;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = forward.A1ModJulian;
+GMAT XYPlot1.Add = {forward.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+Propagate prop(forward) {forward.ElapsedSecs = 86400};
+GMAT backward = forward;
+Propagate BackProp prop(backward) {backward.ElapsedSecs = -86400};
+Save forward;
+Save backward;
+Save prop;
+

@@ -1,0 +1,171 @@
+% GMAT Script File
+% Updated:
+%    2004/06/08 - OpenGLPlot takes spacecraft. format: GMAT 3DPlot.Add = Moly;
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Moly;
+GMAT Moly.DateFormat = TAIModJulian;
+GMAT Moly.Epoch = 21545;
+GMAT Moly.CoordinateSystem = EarthMJ2000Eq;
+GMAT Moly.DisplayStateType = Cartesian;
+GMAT Moly.X = -10515.45;
+GMAT Moly.Y = -5235.37;
+GMAT Moly.Z = 49.17;
+GMAT Moly.VX = -2.10305;
+GMAT Moly.VY = -4.18146;
+GMAT Moly.VZ = 5.56329;
+GMAT Moly.DryMass = 850;
+GMAT Moly.Cd = 2.2;
+GMAT Moly.Cr = 1.8;
+GMAT Moly.DragArea = 15;
+GMAT Moly.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator MolyProp;
+GMAT MolyProp.FM = InternalForceModel;
+GMAT MolyProp.Type = RungeKutta89;
+GMAT MolyProp.InitialStepSize = 60;
+GMAT MolyProp.Accuracy = 9.999999999999999e-012;
+GMAT MolyProp.MinStep = 0.001;
+GMAT MolyProp.MaxStep = 2700;
+GMAT MolyProp.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Parameters
+%----------------------------------------
+
+%----- Varibles
+Create TAIModJulian Time
+GMAT Time.Object = Moly;
+Create X x
+GMAT x.Object = Moly;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create MessageWindow display;
+GMAT display.Precision = 10;
+
+%----- 3D plot
+Create OpenGLPlot Plot3D;
+GMAT Plot3D.Add = {Moly};
+GMAT Plot3D.OrbitColor = [ 255 ];
+GMAT Plot3D.CoordinateSystem = EarthMJ2000Eq;
+GMAT Plot3D.ViewPointReference = Earth;
+GMAT Plot3D.ViewPointVector = [ 0 0 30000];
+GMAT Plot3D.ViewDirection = Earth;
+GMAT Plot3D.ViewScaleFactor = 3;
+GMAT Plot3D.FixedFovAngle = 45;
+GMAT Plot3D.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT Plot3D.ViewUpAxis = Z;
+GMAT Plot3D.CelestialPlane = Off;
+GMAT Plot3D.XYPlane = On;
+GMAT Plot3D.WireFrame = Off;
+GMAT Plot3D.SolverIterations = None;
+GMAT Plot3D.Axes = On;
+GMAT Plot3D.Grid = Off;
+GMAT Plot3D.SunLine = Off;
+GMAT Plot3D.UseInitialView = On;
+GMAT Plot3D.PerspectiveMode = Off;
+GMAT Plot3D.UseFixedFov = Off;
+GMAT Plot3D.DataCollectFrequency = 1;
+GMAT Plot3D.UpdatePlotFrequency = 50;
+GMAT Plot3D.NumPointsToRedraw = 0;
+GMAT Plot3D.ShowPlot = true;
+
+%----- Report file
+Create ReportFile MolyEphem;
+GMAT MolyEphem.Filename = StopOnApoapsis.report;
+GMAT MolyEphem.Precision = 12;
+GMAT MolyEphem.Add = {Time, x};
+GMAT MolyEphem.WriteHeaders = On;
+GMAT MolyEphem.LeftJustify = On;
+GMAT MolyEphem.ZeroFill = On;
+GMAT MolyEphem.ColumnWidth = 20;
+GMAT MolyEphem.SolverIterations = None;
+
+%----- XY plot
+Create XYPlot TimeVsX;
+GMAT TimeVsX.IndVar = Time;
+GMAT TimeVsX.Add = {x};
+GMAT TimeVsX.Grid = On;
+GMAT TimeVsX.SolverIterations = None;
+GMAT TimeVsX.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {Moly};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 3;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = X;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = Moly.A1ModJulian;
+GMAT XYPlot1.Add = {Moly.EarthMJ2000Eq.Z};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+Toggle MolyEphem On;
+Toggle display Off;
+Toggle Plot3D On;
+Toggle TimeVsX On;
+Propagate MolyProp(Moly) {Moly.Apoapsis};
+
