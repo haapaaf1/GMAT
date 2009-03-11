@@ -28,6 +28,7 @@
 #include "MessageInterface.hpp"
 #include "SpaceObjectException.hpp"
 #include "StringUtil.hpp"
+#include "CSFixed.hpp"               // for default attitude creation
 
 // Do we want to write anomaly type?
 //#define __WRITE_ANOMALY_TYPE__
@@ -45,13 +46,22 @@
 //#define DEBUG_SC_PARAMETER_TEXT
 //#define DEBUG_SC_REF_OBJECT
 //#define DEBUG_SC_EPOCHSTR
-//#define DEBUG_WRITE_PARAMETERS
 //#define DEBUG_SC_ATTITUDE
 //#define DEBUG_SC_SET_STRING
+//#define DEBUG_WRITE_PARAMETERS
+//#define DEBUG_OWNED_OBJECT_STRINGS
 
 #if DEBUG_SPACECRAFT
 #include <iostream>
 #include <sstream> 
+#endif
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
 #endif
 
 // Spacecraft parameter types
@@ -176,6 +186,7 @@ const Integer Spacecraft::ATTITUDE_ID_OFFSET = 20000;
  * @param <name> Optional name for the object.  Defaults to "".
  *
  */
+//---------------------------------------------------------------------------
 Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    SpaceObject          (Gmat::SPACECRAFT, typeStr, name),
    scEpochStr           ("21545.000000000"), 
@@ -198,8 +209,10 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    initialDisplay       (false),
    csSet                (false)
 {
-   //MessageInterface::ShowMessage("=====> Spacecraft::Spacecraft(%s) entered\n",
-   //                              name.c_str());
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Spacecraft::Spacecraft() <%p>'%s' entered\n", this, name.c_str());
+   #endif
    
    objectTypes.push_back(Gmat::SPACECRAFT);
    objectTypeNames.push_back("Spacecraft");
@@ -245,10 +258,23 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    
    parameterCount = SpacecraftParamCount;
    
+   // Create a default unnamed attitude (LOJ: 2009.03.10)
+   attitude = new CSFixed("");
+   attitude->SetEpoch(state.GetEpoch());
+   ownedObjectCount++;
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (attitude, "new attitude", "Spacecraft constructor()",
+       "attitude = new CSFixed("")");
+   #endif
+   
    BuildElementLabelMap();
    
-   //MessageInterface::ShowMessage("=====> Spacecraft::Spacecraft(%s) exiting\n",
-   //                              name.c_str());
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Spacecraft::Spacecraft() <%p>'%s' exiting\n", this, name.c_str());
+   #endif
 }
 
 
@@ -260,12 +286,45 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
  */
 Spacecraft::~Spacecraft()
 {
-   // Delete the attached hardware (it was set as clones)
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Spacecraft::~Spacecraft() <%p>'%s' entered\n", this, GetName().c_str());
+   #endif
+   
+   // Delete the attached hardware (it was set as clones in the Sandbox)
    for (ObjectArray::iterator i = tanks.begin(); i < tanks.end(); ++i)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (*i, (*i)->GetName(), "Spacecraft::~Spacecraft()",
+          "deleting cloned Tank");
+      #endif
       delete *i;
+   }
    for (ObjectArray::iterator i = thrusters.begin(); i < thrusters.end(); ++i)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (*i, (*i)->GetName(), "Spacecraft::~Spacecraft()",
+          "deleting cloned Thruster");
+      #endif
       delete *i;
-   if (attitude) delete attitude;
+   }
+   if (attitude)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (attitude, "attitude", "Spacecraft::~Spacecraft()",
+          "deleting attitude of " + GetName());
+      #endif
+      delete attitude;
+      ownedObjectCount--;
+   }
+   
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Spacecraft::Spacecraft() <%p>'%s' exiting\n", this, GetName().c_str());
+   #endif
 }
 
 
@@ -280,6 +339,7 @@ Spacecraft::~Spacecraft()
  * @notes We need to copy internal and display coordinate systems to work
  * properly in the mission sequence for object copy.
  */
+//---------------------------------------------------------------------------
 Spacecraft::Spacecraft(const Spacecraft &a) :
    SpaceObject          (a),
    scEpochStr           (a.scEpochStr),
@@ -303,15 +363,16 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    initialDisplay       (false),
    csSet                (a.csSet)
 {
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Spacecraft::Spacecraft(copy) <%p>'%s' entered\n", this, GetName().c_str());
+   #endif
+   
    objectTypes.push_back(Gmat::SPACECRAFT);
    objectTypeNames.push_back("Spacecraft");
    parameterCount = a.parameterCount;
    
    state.SetEpoch(a.state.GetEpoch());
-   // clone the attitude
-   if (a.attitude) attitude = (Attitude*) a.attitude->Clone();
-   else            attitude = NULL;
-   
    state[0] = a.state[0];
    state[1] = a.state[1];
    state[2] = a.state[2];
@@ -325,8 +386,27 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    representations   = a.representations;
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
-
+   
+   // clone the attitude
+   if (a.attitude)
+   {
+      attitude = (Attitude*) a.attitude->Clone();
+      attitude->SetEpoch(state.GetEpoch());      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (attitude, "cloned attitude", "Spacecraft copy constructor()",
+          "attitude = (Attitude*) a.attitude->Clone()");
+      #endif
+   }
+   else
+      attitude = NULL;
+   
    BuildElementLabelMap();
+   
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Spacecraft::Spacecraft(copy) <%p>'%s' exiting\n", this, GetName().c_str());
+   #endif
 }
 
 
@@ -344,12 +424,18 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
  * 
  * @todo Determine how to handle hardware when copying Spacecraft objects.
  */
+//---------------------------------------------------------------------------
 Spacecraft& Spacecraft::operator=(const Spacecraft &a)
 {
    // Don't do anything if copying self
    if (&a == this)
       return *this;
 
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Spacecraft::Spacecraft(=) <%p>'%s' entered\n", this, GetName().c_str());
+   #endif
+   
    SpaceObject::operator=(a);
 
    scEpochStr           = a.scEpochStr;
@@ -365,7 +451,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    displayStateType     = a.displayStateType;
    anomalyType          = a.anomalyType;
    coordSysName         = a.coordSysName;
-   internalCoordSystem  = a.internalCoordSystem; // need to copoy
+   internalCoordSystem  = a.internalCoordSystem; // need to copy
    coordinateSystem     = NULL;
    //attitude             = a.attitude,        // correct?
    //attitude             = (Attitude*) a.attitude->Clone(),        // correct?
@@ -377,15 +463,14 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    trueAnomaly          = a.trueAnomaly;
 //   tanks                = a.tanks;
 //   thrusters            = a.thrusters;
-
-//   MessageInterface::ShowMessage("Anomaly has type %s, copied from %s\n", 
-//      trueAnomaly.GetTypeString().c_str(), a.trueAnomaly.GetTypeString().c_str());
+   
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Anomaly has type %s, copied from %s\n", trueAnomaly.GetTypeString().c_str(),
+       a.trueAnomaly.GetTypeString().c_str());
+   #endif
    
    state.SetEpoch(a.state.GetEpoch());
-   // clone the attitude
-   if (a.attitude) attitude = (Attitude*) a.attitude->Clone();
-   else            attitude = NULL;
-   
    state[0] = a.state[0];
    state[1] = a.state[1];
    state[2] = a.state[2];
@@ -404,11 +489,37 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    representations   = a.representations;
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
-   if (attitude) delete attitude;  // right?
-   if (a.attitude)  attitude = (Attitude*) a.attitude->Clone();
-   else             attitude = NULL;
+   
+   // clone the attitude
+   if (a.attitude)
+   {
+      if (attitude)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (attitude, "attitude", "Spacecraft::operator=()",
+             "deleting attitude of " + GetName());
+         #endif
+         delete attitude;
+      }
+      
+      attitude = (Attitude*) a.attitude->Clone();
+      attitude->SetEpoch(state.GetEpoch());
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (attitude, "cloned attitude", "Spacecraft assignment operator",
+          "attitude = (Attitude*) a.attitude->Clone()");
+      #endif
+   }
+   else
+      attitude = NULL;
    
    BuildElementLabelMap();
+   
+   #ifdef DEBUG_SPACECRAFT
+   MessageInterface::ShowMessage
+      ("Spacecraft::Spacecraft(=) <%p>'%s' exiting\n", this, GetName().c_str());
+   #endif
    
    return *this;
 }
@@ -1057,7 +1168,16 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          MessageInterface::ShowMessage("Setting attitude object on spacecraft %s\n",
          instanceName.c_str());
       #endif
-      if ((attitude != NULL) && (attitude != (Attitude*) obj)) delete attitude;
+      if ((attitude != NULL) && (attitude != (Attitude*) obj))
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (attitude, "attitude", "Spacecraft::SetRefObject()",
+             "deleting attitude of " + GetName());
+         #endif
+         delete attitude;
+         ownedObjectCount--;
+      }
       attitude = (Attitude*) obj;
       // set epoch ...
       #ifdef DEBUG_SC_ATTITUDE
@@ -1935,7 +2055,7 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
 bool Spacecraft::SetStringParameter(const std::string &label, 
                                     const std::string &value)
 {
-   #if DEBUG_SPACECRAFT
+   #if DEBUG_SPACECRAFT_SET
        MessageInterface::ShowMessage
           ("\nSpacecraft::SetStringParameter(\"%s\", \"%s\") enters\n",
            label.c_str(), value.c_str() ); 
