@@ -134,7 +134,9 @@ ProcessTLEData::ProcessTLEData(const std::string &itsName) :
 {
    objectTypeNames.push_back("TLEDataFile");
    fileFormatName = "TLE";
-   fileFormatID = 2; 
+   fileFormatID = 2;
+   // Initialize to 0 so that some value will be set and can be tested
+   numLines = 0;
 }
 
 

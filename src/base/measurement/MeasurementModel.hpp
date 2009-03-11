@@ -63,12 +63,16 @@ public:
   std::string GetStringParameter(const Integer id) const;
   bool SetStringParameter(const Integer id, const std::string &value);
   const StringArray& GetStringArrayParameter(const Integer id) const;
-  Integer GetIntegerParameter(const Integer id) const;
-  Integer GetIntegerParameter(const std::string &label) const;
+  //Integer GetIntegerParameter(const Integer id) const;
+  //Integer GetIntegerParameter(const Integer id, const Integer index) const;
+  //Integer GetIntegerParameter(const std::string &label) const;
+  //Integer GetIntegerParameter(const std::string &label, const Integer index) const;
   Integer SetIntegerParameter(const Integer id, const Integer value);
+  Integer SetIntegerParameter(const Integer id, const Integer value, const Integer index);
   Integer SetIntegerParameter(const std::string &label, const Integer value);
-  bool MeasurementModel::GetBooleanParameter(const Integer id) const;
-  bool MeasurementModel::SetBooleanParameter(const Integer id, const bool &value);
+  Integer SetIntegerParameter(const std::string &label, const Integer value, const Integer index);
+  bool GetBooleanParameter(const Integer id) const;
+  bool SetBooleanParameter(const Integer id, const bool &value);
 
   virtual GmatBase* 
                     GetRefObject(const Gmat::ObjectType type,

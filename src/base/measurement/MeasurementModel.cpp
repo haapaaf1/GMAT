@@ -332,34 +332,53 @@ const StringArray& MeasurementModel::GetStringArrayParameter(const Integer id) c
   
    return GmatBase::GetStringArrayParameter(id);
 }
-
+/*
 //------------------------------------------------------------------------------
-// virtual Integer GetIntegerParameter(const Integer id) const
+// Integer GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
 Integer MeasurementModel::GetIntegerParameter(const Integer id) const
 {
     if (id == NUMLINES_ID)
-      return numLines;
+    {
+       //return numLines.front();
+        return 0;
+    }
 
     return GmatBase::GetIntegerParameter(id);
 }
 
+//------------------------------------------------------------------------------
+// Integer GetIntegerParameter(const Integer id, const Integer index) const
+//------------------------------------------------------------------------------
+Integer MeasurementModel::GetIntegerParameter(const Integer id,
+                                              const Integer index) const
+{
+    if (id == NUMLINES_ID)
+      return numLines[index];
+
+    return GmatBase::GetIntegerParameter(id);
+}
 
 //------------------------------------------------------------------------------
-// virtual Integer GetIntegerParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see GmatBase
- */
+// Integer GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 Integer MeasurementModel::GetIntegerParameter(const std::string &label) const
 {
    return GetIntegerParameter(GetParameterID(label));
 }
 
+//------------------------------------------------------------------------------
+// Integer GetIntegerParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+Integer MeasurementModel::GetIntegerParameter(const std::string &label,
+                                              const Integer index) const
+{
+   return GetIntegerParameter(GetParameterID(label), index);
+}
+*/
 
 //------------------------------------------------------------------------------
-// virtual Integer SetIntegerParameter(const Integer id, const Integer value)
+// Integer SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------
 /**
  * Sets the value for a integer parameter.
@@ -367,26 +386,56 @@ Integer MeasurementModel::GetIntegerParameter(const std::string &label) const
  * @param <id>    Integer ID of the parameter.
  * @param <value> New value for the parameter.
  * 
- * @return The value of the parameter.
+ * @return The value of the parameter
  *
  */
 //------------------------------------------------------------------------------
-Integer MeasurementModel::SetIntegerParameter(const Integer id, const Integer value)
+Integer MeasurementModel::SetIntegerParameter(const Integer id,
+                                              const Integer value)
 {
 
-//   if (id == NUMLINES_ID)
-//   {
-//         numLines = value;
-//         return value;
-//   }
+   if (id == NUMLINES_ID)
+   {
+         numLines.push_back(value);
+         return value;
+   }
    
    return GmatBase::SetIntegerParameter(id, value);
 
 }
 
+//------------------------------------------------------------------------------
+// Integer SetIntegerParameter(const Integer id, const Integer value,
+//                             const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a integer parameter.
+ *
+ * @param <id>    Integer ID of the parameter.
+ * @param <value> New value for the parameter.
+ * @param <index> Integer index of the parameter for arrays.
+ *
+ * @return The value of the parameter
+ *
+ */
+//------------------------------------------------------------------------------
+Integer MeasurementModel::SetIntegerParameter(const Integer id,
+                                              const Integer value,
+                                              const Integer index)
+{
+
+   if (id == NUMLINES_ID)
+   {
+         numLines[index] = value;
+         return value;
+   }
+
+   return GmatBase::SetIntegerParameter(id, value, index);
+
+}
 
 //------------------------------------------------------------------------------
-// virtual Integer SetIntegerParameter(std::string &label, const Integer value)
+// Integer SetIntegerParameter(std::string &label, const Integer& value)
 //------------------------------------------------------------------------------
 /**
  * Sets the value for a integer parameter.
@@ -397,9 +446,30 @@ Integer MeasurementModel::SetIntegerParameter(const Integer id, const Integer va
  * @return The value of the parameter.
  */
 //------------------------------------------------------------------------------
-Integer MeasurementModel::SetIntegerParameter(const std::string &label, const Integer value)
+Integer MeasurementModel::SetIntegerParameter(const std::string &label,
+                                              const Integer value)
 {
    return SetIntegerParameter(GetParameterID(label), value);
+}
+
+//------------------------------------------------------------------------------
+// Integer SetIntegerParameter(std::string &label, const Integer& value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a integer parameter.
+ *
+ * @param <id>    Integer ID of the parameter.
+ * @param <value> New value for the parameter.
+ * @param <index> Integer index of the parameter for arrays.
+ *
+ * @return The value of the parameter.
+ */
+//------------------------------------------------------------------------------
+Integer MeasurementModel::SetIntegerParameter(const std::string &label,
+                                              const Integer value,
+                                              const Integer index)
+{
+   return SetIntegerParameter(GetParameterID(label), value, index);
 }
 
 //------------------------------------------------------------------------------
@@ -508,7 +578,8 @@ MeasurementModel::MeasurementModel(const std::string typeName,
    objectTypeNames.push_back("MeasurementModel");
    measurementTypesAllowed.push_back("");
    tempNameArray.push_back("");
-   myDataFileTypes.push_back("");
+   //numLines.push_back("");
+   myDataFileFormats.push_back("");
    myDataFileNames.push_back("");
    myDataSources.push_back(NULL);
 
@@ -535,7 +606,7 @@ MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
    measurementTypesAllowed (mm.measurementTypesAllowed),
    tempNameArray (mm.tempNameArray),
    ccvtr (mm.ccvtr),
-   myDataFileTypes (mm.myDataFileTypes),
+   myDataFileFormats (mm.myDataFileFormats),
    myDataFileNames (mm.myDataFileNames),
    myDataSources (mm.myDataSources)
 {
@@ -595,6 +666,7 @@ std::istream& operator>>(std::istream& input, MeasurementModel &mm)
 //------------------------------------------------------------------------------
 bool MeasurementModel::Initialize() const
 {
+    // Initialize the coordinate converter
     CoordinateConverter ccvtr;
 
     // Check to see if a DataSource has already been created elsewhere
@@ -605,9 +677,12 @@ bool MeasurementModel::Initialize() const
         for (unsigned int i = 0; i != myDataFileFormats.size(); i++)
         {
 
-            GmatBase *obj = NULL;
-            
-            obj = (GmatBase*)theModerator->CreateDataFile(myDataFileFormats[i],myDataFileNames[i]);
+            DataFile *obj = NULL;
+
+            char str[2];
+            sprintf(str,"%d",i);
+            std::string name = myDataFileFormats[i]+str;
+            obj = theModerator->CreateDataFile(myDataFileFormats[i],name);
             if (obj == NULL)
             {
                 MessageInterface::ShowMessage("MeasurementModel could not create datafile of type "+myDataFileFormats[i]+"\n");
@@ -616,12 +691,24 @@ bool MeasurementModel::Initialize() const
             }
             else
             {
-                obj->SetFile
-                obj->SetFileFormatName(myDataFileNames[i]);
-                obj->SetNumLines(numLines[i]);
-                obj->
+
+                if (numLines[i] > 0)
+                {
+                    Integer requiredNumLines = obj->GetNumLines();
+                    if(requiredNumLines > 0 && numLines[i] != requiredNumLines )
+                    {
+                        MessageInterface::ShowMessage("WARNING: The "+myDataFileFormats[i]+" format processes a fixed number of lines at a time that can not be overriden.\n");
+                    }
+                    else
+                    {
+                        obj->SetNumLines(numLines[i]);
+                    }
+                }
+                obj->SetFileName(myDataFileNames[i].c_str());
                 obj->Initialize();
-                SetRefObject(obj,Gmat::DATA_FILE);
+                // TODO: Why can't I push this newly created data file object
+                // onto the myDataFileSources stack?!?!?!?!?!
+                //SetRefObject(obj,Gmat::DATA_FILE,"");
             }
         }
                 
