@@ -1,0 +1,366 @@
+% GMAT Script File
+% GMAT Release Build 5.0, August 2005
+
+%----------------------------------------------------------------------
+%--------------------------- Create Spacecraft-------------------------
+%----------------------------------------------------------------------
+Create Spacecraft MMS1;
+GMAT MMS1.DateFormat = TAIModJulian;
+GMAT MMS1.Epoch = 21545.000000000;
+%%%GMAT MMS1.Epoch = 21545.0;
+GMAT MMS1.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS1.DisplayStateType = Keplerian;
+GMAT MMS1.SMA =   42095.69958;
+GMAT MMS1.ECC = 0.8181818181;
+GMAT MMS1.INC = 10;
+GMAT MMS1.RAAN = 0;
+GMAT MMS1.AOP = 40;
+GMAT MMS1.TA = 0;
+GMAT MMS1.DryMass = 850;
+GMAT MMS1.Cd = 2.2;
+GMAT MMS1.Cr = 1.8;
+GMAT MMS1.DragArea = 15;
+GMAT MMS1.SRPArea = 1;
+
+Create Spacecraft MMS2;
+Create Spacecraft MMS3;
+Create Spacecraft MMS4;
+
+%===> LOJ: Added to give the same results with old script interpreter
+GMAT MMS2.Epoch = MMS1.Epoch;
+GMAT MMS3.Epoch = MMS1.Epoch;
+GMAT MMS4.Epoch = MMS1.Epoch;
+
+Create Formation MMS;
+GMAT MMS.Add = {MMS1, MMS2, MMS3, MMS4};
+
+%----------------------------------------------------------------------
+%--------------------------- Create Maneuvers -------------------------
+%----------------------------------------------------------------------
+
+
+Create ImpulsiveBurn ApodV1;
+GMAT ApodV1.Origin = Earth;
+GMAT ApodV1.Axes = VNB;
+GMAT ApodV1.VectorFormat = Cartesian;
+GMAT ApodV1.Element1 = 0;
+GMAT ApodV1.Element2 = 0;
+GMAT ApodV1.Element3 = 0;
+
+Create ImpulsiveBurn ApodV2;
+GMAT ApodV2.Origin = Earth;
+GMAT ApodV2.Axes = VNB;
+GMAT ApodV2.VectorFormat = Cartesian;
+GMAT ApodV2.Element1 = 0
+GMAT ApodV2.Element2 = 0;
+GMAT ApodV2.Element3 = 0;
+
+Create ImpulsiveBurn ApodV3;
+GMAT ApodV3.Origin = Earth;
+GMAT ApodV3.Axes = VNB;
+GMAT ApodV3.VectorFormat = Cartesian;
+GMAT ApodV3.Element1 = 0;
+GMAT ApodV3.Element2 = 0;
+GMAT ApodV3.Element3 = 0;
+
+Create ImpulsiveBurn ApodV4;
+GMAT ApodV4.Origin = Earth;
+GMAT ApodV4.Axes = VNB;
+GMAT ApodV4.VectorFormat = Cartesian;
+GMAT ApodV4.Element1 = 0;
+GMAT ApodV4.Element2 = 0;
+GMAT ApodV4.Element3 = 0;
+
+Create ImpulsiveBurn ApodV5;
+GMAT ApodV5.Origin = Earth;
+GMAT ApodV5.Axes = VNB;
+GMAT ApodV5.VectorFormat = Cartesian;
+GMAT ApodV5.Element1 = 0;
+GMAT ApodV5.Element2 = 0;
+GMAT ApodV5.Element3 = 0;
+
+Create ImpulsiveBurn ApodV6;
+GMAT ApodV6.Origin = Earth;
+GMAT ApodV6.Axes = VNB;
+GMAT ApodV6.VectorFormat = Cartesian;
+GMAT ApodV6.Element1 = 0;
+GMAT ApodV6.Element2 = 0;
+GMAT ApodV6.Element3 = 0;
+
+Create ImpulsiveBurn ApodV7;
+GMAT ApodV7.Origin = Earth;
+GMAT ApodV7.Axes = VNB;
+GMAT ApodV7.VectorFormat = Cartesian;
+GMAT ApodV7.Element1 = 0;
+GMAT ApodV7.Element2 = 0;
+GMAT ApodV7.Element3 = 0;
+
+ 
+%----------------------------------------------------------------------
+%--------------------------- Create Solvers-------------------------
+%----------------------------------------------------------------------
+
+Create DifferentialCorrector DC1;
+GMAT DC1.TargeterTextFile = Bug182-DC1.data;
+
+%----------------------------------------------------------------------
+%--------------------------- Create Propagators------------------------
+%----------------------------------------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PointMasses = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+%GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = JGM2.cof;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.9999999999999994e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%----------------------------------------------------------------------
+%--------------------------- Create Plots and Reports------------------
+%----------------------------------------------------------------------
+
+Create OpenGLPlot DefaultOpenGL;
+GMAT DefaultOpenGL.Add = {MMS1, MMS2, MMS3, MMS4, Earth};
+GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewPointReference = Earth;
+GMAT DefaultOpenGL.ViewPointVector = Vector;
+GMAT DefaultOpenGL.ViewDirection = Earth;
+GMAT DefaultOpenGL.ViewScaleFactor = 5;
+GMAT DefaultOpenGL.FixedFovAngle = 45;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewUpAxis = X;
+GMAT DefaultOpenGL.CelestialPlane = Off;
+GMAT DefaultOpenGL.XYPlane = On;
+GMAT DefaultOpenGL.WireFrame = Off;
+GMAT DefaultOpenGL.SolverIterations = None;
+GMAT DefaultOpenGL.Axes = Off;
+GMAT DefaultOpenGL.Grid = Off;
+GMAT DefaultOpenGL.SunLine = Off;
+GMAT DefaultOpenGL.UseInitialView = On;
+GMAT DefaultOpenGL.PerspectiveMode = Off;
+GMAT DefaultOpenGL.UseFixedFov = Off;
+GMAT DefaultOpenGL.DataCollectFrequency = 1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
+GMAT DefaultOpenGL.NumPointsToRedraw = 0;
+GMAT DefaultOpenGL.ShowPlot = true;
+
+Create OpenGLPlot MMS1RBNView;
+GMAT MMS1RBNView.Add = {MMS1, MMS2, MMS3, MMS4};
+GMAT MMS1RBNView.CoordinateSystem = MMS1RBN;
+GMAT MMS1RBNView.ViewPointReference = MMS1;
+GMAT MMS1RBNView.ViewPointVector = Vector;
+GMAT MMS1RBNView.ViewDirection = MMS1;
+GMAT MMS1RBNView.ViewScaleFactor = 1.7;
+GMAT MMS1RBNView.FixedFovAngle = 45;
+GMAT MMS1RBNView.ViewUpCoordinateSystem = MMS1RBN;
+GMAT MMS1RBNView.ViewUpAxis = -Y;
+GMAT MMS1RBNView.CelestialPlane = Off;
+GMAT MMS1RBNView.XYPlane = On;
+GMAT MMS1RBNView.WireFrame = Off;
+GMAT MMS1RBNView.SolverIterations = None;
+GMAT MMS1RBNView.Axes = Off;
+GMAT MMS1RBNView.Grid = Off;
+GMAT MMS1RBNView.SunLine = Off;
+GMAT MMS1RBNView.UseInitialView = On;
+GMAT MMS1RBNView.PerspectiveMode = Off;
+GMAT MMS1RBNView.UseFixedFov = Off;
+GMAT MMS1RBNView.NumPointsToRedraw = 0;
+
+Create OpenGLPlot MMS2RBNView;
+GMAT MMS2RBNView.Add = {MMS1, MMS2, MMS3, MMS4};
+GMAT MMS2RBNView.CoordinateSystem = MMS2RBN;
+GMAT MMS2RBNView.ViewPointReference = MMS2;
+GMAT MMS2RBNView.ViewPointVector = Vector;
+GMAT MMS2RBNView.ViewDirection = MMS2;
+GMAT MMS2RBNView.ViewScaleFactor = 1.2;
+GMAT MMS2RBNView.FixedFovAngle = 45;
+GMAT MMS2RBNView.ViewUpCoordinateSystem = MMS2RBN;
+GMAT MMS2RBNView.ViewUpAxis = X;
+GMAT MMS2RBNView.CelestialPlane = Off;
+GMAT MMS2RBNView.XYPlane = On;
+GMAT MMS2RBNView.WireFrame = Off;
+GMAT MMS2RBNView.SolverIterations = None;
+GMAT MMS2RBNView.Axes = Off;
+GMAT MMS2RBNView.Grid = Off;
+GMAT MMS2RBNView.SunLine = Off;
+GMAT MMS2RBNView.UseInitialView = On;
+GMAT MMS2RBNView.PerspectiveMode = Off;
+GMAT MMS2RBNView.UseFixedFov = Off;
+
+Create OpenGLPlot MMS3RBNView;
+GMAT MMS3RBNView.Add = {MMS1, MMS2, MMS3, MMS4};
+GMAT MMS3RBNView.CoordinateSystem = MMS3RBN;
+GMAT MMS3RBNView.ViewPointReference = MMS3;
+GMAT MMS3RBNView.ViewPointVector = Vector;
+GMAT MMS3RBNView.ViewDirection = MMS3;
+GMAT MMS3RBNView.ViewScaleFactor = 3.5;
+GMAT MMS3RBNView.FixedFovAngle = 45;
+GMAT MMS3RBNView.ViewUpCoordinateSystem = MMS3RBN;
+GMAT MMS3RBNView.ViewUpAxis = X;
+GMAT MMS3RBNView.CelestialPlane = Off;
+GMAT MMS3RBNView.XYPlane = On;
+GMAT MMS3RBNView.WireFrame = Off;
+GMAT MMS3RBNView.SolverIterations = None;
+GMAT MMS3RBNView.Axes = Off;
+GMAT MMS3RBNView.Grid = Off;
+GMAT MMS3RBNView.SunLine = Off;
+GMAT MMS3RBNView.UseInitialView = On;
+GMAT MMS3RBNView.PerspectiveMode = Off;
+GMAT MMS3RBNView.UseFixedFov = Off;
+
+Create ReportFile MMSMeanAnomaly;
+GMAT MMSMeanAnomaly.Filename = Bug182-MMSMA.report;
+GMAT MMSMeanAnomaly.Add = {MMS1.MA, MMS2.MA, MMS3.MA, MMS4.MA}
+GMAT MMSMeanAnomaly.ZeroFill = On;
+
+Create ReportFile MMS1Ephem;
+GMAT MMS1Ephem.Filename = Bug182-MMS1Ephem.report;
+GMAT MMS1Ephem.Add = {MMS1.A1ModJulian, MMS1.X, MMS1.Y, MMS1.Z, MMS1.VX, MMS1.VY, MMS1.VZ  };
+GMAT MMS1Ephem.WriteHeaders = Off;
+GMAT MMS1Ephem.ZeroFill = On;
+
+Create ReportFile MMS2Ephem;
+GMAT MMS2Ephem.Filename = Bug182-MMS2Ephem.report;
+GMAT MMS2Ephem.Add = {MMS2.A1ModJulian, MMS2.X, MMS2.Y, MMS2.Z, MMS2.VX, MMS2.VY, MMS2.VZ  };
+GMAT MMS2Ephem.WriteHeaders = Off;
+GMAT MMS2Ephem.ZeroFill = On;
+
+Create ReportFile MMS3Ephem;
+GMAT MMS3Ephem.Filename = Bug182-MMS3Ephem.report;
+GMAT MMS3Ephem.Add = {MMS3.A1ModJulian, MMS3.X, MMS3.Y, MMS3.Z, MMS3.VX, MMS3.VY, MMS3.VZ  };
+GMAT MMS3Ephem.WriteHeaders = Off;
+GMAT MMS3Ephem.ZeroFill = On;
+
+Create ReportFile MMS4Ephem;
+GMAT MMS4Ephem.Filename = Bug182-MMS4Ephem.report;
+GMAT MMS4Ephem.Add = {MMS4.A1ModJulian, MMS4.X, MMS4.Y, MMS4.Z, MMS4.VX, MMS4.VY, MMS4.VZ  };
+GMAT MMS4Ephem.WriteHeaders = Off;
+GMAT MMS4Ephem.ZeroFill = On;
+
+%----------------------------------------------------------------------
+%--------------------------- Create Coordinate Systems-----------------
+%----------------------------------------------------------------------
+
+Create CoordinateSystem MMS1RBN;
+GMAT MMS1RBN.Origin = MMS1;
+GMAT MMS1RBN.Axes = GSM;
+%GMAT MMS1RBN.XAxis = V;
+%GMAT MMS1RBN.ZAxis = N;
+%GMAT MMS1RBN.Primary = Earth;
+%GMAT MMS1RBN.Secondary = MMS1;
+
+Create CoordinateSystem MMS2RBN;
+GMAT MMS2RBN.Origin = MMS2;
+GMAT MMS2RBN.Axes = ObjectReferenced;
+GMAT MMS2RBN.XAxis = R;
+GMAT MMS2RBN.ZAxis = N;
+GMAT MMS2RBN.Primary = Earth;
+GMAT MMS2RBN.Secondary = MMS2;
+
+Create CoordinateSystem MMS3RBN;
+GMAT MMS3RBN.Origin = MMS3;
+GMAT MMS3RBN.Axes = ObjectReferenced;
+GMAT MMS3RBN.XAxis = R;
+GMAT MMS3RBN.ZAxis = N;
+GMAT MMS3RBN.Primary = Earth;
+GMAT MMS3RBN.Secondary = MMS3;
+
+Create CoordinateSystem MMS4RBN;
+GMAT MMS4RBN.Origin = MMS4;
+GMAT MMS4RBN.Axes = ObjectReferenced;
+GMAT MMS4RBN.XAxis = R;
+GMAT MMS4RBN.ZAxis = N;
+GMAT MMS4RBN.Primary = Earth;
+GMAT MMS4RBN.Secondary = MMS4;
+
+%----------------------------------------------------------------------
+%--------------------------- Create Variables and Arrays---------------
+%----------------------------------------------------------------------
+
+Create Variable I;
+
+
+%**********************************************************************
+%----------------------------------------------------------------------
+%--------------------------- The Mission Sequence ---------------------
+%----------------------------------------------------------------------
+%**********************************************************************
+
+BeginScript
+   GMAT ApodV1.Element1 = 0.0025500111;
+   GMAT ApodV2.Element1 = 0.0060633842;
+   GMAT ApodV3.Element1 =  0.006725246;
+   GMAT ApodV4.Element1 = 0.01;
+   GMAT ApodV5.Element1 = 0.0074499889;
+   GMAT ApodV6.Element1 = 0.0039366158;
+   GMAT ApodV7.Element1 = 0.003274754;
+EndScript
+
+%  Make the initial states equal
+BeginScript
+   GMAT MMS2 = MMS1;
+   GMAT MMS3 = MMS1;
+   GMAT MMS4 = MMS1;
+EndScript
+
+%  Propagate to periapsis and location of first maneuver
+%Propagate DefaultProp(MMS, {MMS1.Periapsis});
+
+
+
+
+
+%%  Propagate through phasing loops and perform first maneuver
+Maneuver ApodV1(MMS2);
+For I = 1:1
+   Propagate DefaultProp(MMS, {MMS1.Periapsis});
+EndFor;
+
+%%  Propagate through phasing loops and perform first maneuver
+Maneuver ApodV2(MMS3);
+For I = 1:1
+   Propagate DefaultProp(MMS, {MMS1.Periapsis});
+EndFor;
+
+%%  Propagate through phasing loops and perform first maneuver
+Maneuver ApodV3(MMS4);
+For I = 1:1
+   Propagate DefaultProp(MMS, {MMS1.Periapsis});
+EndFor;
+
+%%  Propagate through phasing loops and perform first maneuver
+Maneuver ApodV4(MMS1);
+For I = 1:1
+   Propagate DefaultProp(MMS, {MMS1.Periapsis});
+EndFor;
+
+%%  Propagate through phasing loops and perform first maneuver
+Maneuver ApodV5(MMS2);
+For I = 1:1
+   Propagate DefaultProp(MMS, {MMS1.Periapsis});
+EndFor;
+
+%%  Propagate through phasing loops and perform first maneuver
+Maneuver ApodV7(MMS4);
+For I = 1:1
+   Propagate DefaultProp(MMS, {MMS1.Periapsis});
+EndFor;
+
+%%  Propagate through phasing loops and perform first maneuver
+Maneuver ApodV6(MMS3);
+For I = 1:1
+   Propagate DefaultProp(MMS, {MMS1.Periapsis});
+EndFor;
+
+
+Propagate DefaultProp(MMS, {MMS1.Periapsis});
+

@@ -1,0 +1,300 @@
+%**************************************************************************
+%************ Create Objects for Use in Mission Sequence ******************
+%**************************************************************************
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft MMS1;
+GMAT MMS1.DateFormat = TAIModJulian;
+GMAT MMS1.Epoch = 21545;
+GMAT MMS1.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS1.DisplayStateType = Cartesian;
+GMAT MMS1.X = 94014.9802636963;
+GMAT MMS1.Y = -17744.3869768447;
+GMAT MMS1.Z = -11504.7654230613;
+GMAT MMS1.VX = -2.43772257125241;
+GMAT MMS1.VY = -0.721844628938091;
+GMAT MMS1.VZ = -0.468015780915198;
+GMAT MMS1.DryMass = 380;
+GMAT MMS1.Cd = 2.2;
+GMAT MMS1.Cr = 1.8;
+GMAT MMS1.DragArea = 15;
+GMAT MMS1.SRPArea = 1;
+
+Create Spacecraft MMS2;
+GMAT MMS2.DateFormat = TAIModJulian;
+GMAT MMS2.Epoch = 21545;
+GMAT MMS2.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS2.DisplayStateType = Cartesian;
+GMAT MMS2.X = 39239.3935645988;
+GMAT MMS2.Y = 105253.639145201;
+GMAT MMS2.Z = -31545.6057054514;
+GMAT MMS2.VX = 0.263515582219571;
+GMAT MMS2.VY = -2.27405483865991;
+GMAT MMS2.VZ = 0.0406743912347313;
+GMAT MMS2.DryMass = 380;
+GMAT MMS2.Cd = 2.2;
+GMAT MMS2.Cr = 1.8;
+GMAT MMS2.DragArea = 15;
+GMAT MMS2.SRPArea = 1;
+
+Create Spacecraft MMS3;
+GMAT MMS3.DateFormat = TAIModJulian;
+GMAT MMS3.Epoch = 21545;
+GMAT MMS3.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS3.DisplayStateType = Cartesian;
+GMAT MMS3.X = 54990.8600162284;
+GMAT MMS3.Y = -69446.3721013669;
+GMAT MMS3.Z = -36613.7576437167;
+GMAT MMS3.VX = 1.33932355399639;
+GMAT MMS3.VY = 1.68214534402487;
+GMAT MMS3.VZ = 0.887115756785049;
+GMAT MMS3.DryMass = 380;
+GMAT MMS3.Cd = 2.2;
+GMAT MMS3.Cr = 1.8;
+GMAT MMS3.DragArea = 15;
+GMAT MMS3.SRPArea = 1;
+
+Create Spacecraft MMS4;
+GMAT MMS4.DateFormat = TAIModJulian;
+GMAT MMS4.Epoch = 21545;
+GMAT MMS4.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS4.DisplayStateType = Cartesian;
+GMAT MMS4.X = 54988.1646799273;
+GMAT MMS4.Y = -69444.5700013414;
+GMAT MMS4.Z = -36621.235099848;
+GMAT MMS4.VX = 1.3393754098524;
+GMAT MMS4.VY = 1.68229552124334;
+GMAT MMS4.VZ = 0.886752387354261;
+GMAT MMS4.DryMass = 850;
+GMAT MMS4.Cd = 2.2;
+GMAT MMS4.Cr = 1.8;
+GMAT MMS4.DragArea = 15;
+GMAT MMS4.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- Formation
+%----------------------------------------
+
+Create Formation MMS;
+GMAT MMS.A1Epoch = 21545;
+GMAT MMS.Add = {MMS1, MMS2, MMS3, MMS4};
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel MMS_Prop_ForceModel;
+GMAT MMS_Prop_ForceModel.CentralBody = Earth;
+GMAT MMS_Prop_ForceModel.PointMasses = {Earth, Sun, Luna};
+GMAT MMS_Prop_ForceModel.Drag = None;
+GMAT MMS_Prop_ForceModel.SRP = Off;
+GMAT MMS_Prop_ForceModel.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+%GMAT MMS_Prop_ForceModel.Gravity.Earth.Degree = 4;
+%GMAT MMS_Prop_ForceModel.Gravity.Earth.Order = 4;
+Create Propagator MMS_Prop;
+GMAT MMS_Prop.FM = MMS_Prop_ForceModel;
+GMAT MMS_Prop.Type = PrinceDormand78;
+GMAT MMS_Prop.InitialStepSize = 60;
+GMAT MMS_Prop.Accuracy = 9.999999999999999e-012;
+GMAT MMS_Prop.MinStep = 500;
+GMAT MMS_Prop.MaxStep = 10000;
+GMAT MMS_Prop.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Parameters
+%----------------------------------------
+
+
+Create Array FormState[24,1] 
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+Create CoordinateSystem MMS1RIC;
+GMAT MMS1RIC.Origin = MMS1;
+GMAT MMS1RIC.Axes = ObjectReferenced;
+GMAT MMS1RIC.UpdateInterval = 60;
+GMAT MMS1RIC.OverrideOriginInterval = false;
+GMAT MMS1RIC.XAxis = R;
+GMAT MMS1RIC.ZAxis = N;
+GMAT MMS1RIC.Primary = Earth;
+GMAT MMS1RIC.Secondary = MMS1;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile rf;
+GMAT rf.Filename = ScriptEventTest.report;
+GMAT rf.Precision = 16;
+GMAT rf.WriteHeaders = On;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 20;
+GMAT rf.SolverIterations = None;
+
+Create OpenGLPlot EarthInertial_View;
+GMAT EarthInertial_View.Add = {MMS1, MMS2, MMS3, MMS4, Earth, Luna, Sun};
+GMAT EarthInertial_View.OrbitColor = [ 255 65280 65535 16776960 32768 12632256 4227327 ];
+GMAT EarthInertial_View.CoordinateSystem = EarthMJ2000Eq;
+GMAT EarthInertial_View.ViewPointReference = Earth;
+GMAT EarthInertial_View.ViewPointVector = [ 0 0 30000];
+GMAT EarthInertial_View.ViewDirection = Earth;
+GMAT EarthInertial_View.ViewScaleFactor = 4;
+GMAT EarthInertial_View.FixedFovAngle = 45;
+GMAT EarthInertial_View.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT EarthInertial_View.ViewUpAxis = Z;
+GMAT EarthInertial_View.CelestialPlane = Off;
+GMAT EarthInertial_View.XYPlane = On;
+GMAT EarthInertial_View.WireFrame = Off;
+GMAT EarthInertial_View.SolverIterations = None;
+GMAT EarthInertial_View.Axes = On;
+GMAT EarthInertial_View.Grid = Off;
+GMAT EarthInertial_View.SunLine = Off;
+GMAT EarthInertial_View.UseInitialView = On;
+GMAT EarthInertial_View.PerspectiveMode = Off;
+GMAT EarthInertial_View.UseFixedFov = Off;
+GMAT EarthInertial_View.DataCollectFrequency = 1;
+GMAT EarthInertial_View.UpdatePlotFrequency = 50;
+GMAT EarthInertial_View.NumPointsToRedraw = 0;
+GMAT EarthInertial_View.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {MMS1, MMS2, MMS3, MMS4};
+GMAT OpenGLPlot1.OrbitColor = [ 255 65280 65535 16776960 ];
+GMAT OpenGLPlot1.CoordinateSystem = MMS1RIC;
+GMAT OpenGLPlot1.ViewPointReference = MMS2;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot1.ViewDirection = MMS1;
+GMAT OpenGLPlot1.ViewScaleFactor = 0.2;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = MMS1RIC;
+GMAT OpenGLPlot1.ViewUpAxis = Z;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 2;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 10;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = MMS1.A1ModJulian;
+GMAT XYPlot1.Add = {MMS1.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot2;
+GMAT XYPlot2.IndVar = MMS1.A1ModJulian;
+GMAT XYPlot2.Add = {MMS1.EarthMJ2000Eq.Z};
+GMAT XYPlot2.Grid = On;
+GMAT XYPlot2.SolverIterations = None;
+GMAT XYPlot2.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+%**************************************************************************
+%**************************The Mission Sequence****************************
+%**************************************************************************
+BeginScript
+   GMAT FormState(1, 1) = -461961.1561;
+   GMAT FormState(2, 1) = -121901.5987;
+   GMAT FormState(3, 1) = -21494.5408;
+   GMAT FormState(4, 1) = 0.071668;
+   GMAT FormState(5, 1) = -0.26341;
+   GMAT FormState(6, 1) = -0.046446;
+   GMAT FormState(7, 1) = -460449.6805;
+   GMAT FormState(8, 1) = -123234.4215;
+   GMAT FormState(9, 1) = -21824.1473;
+   GMAT FormState(10, 1) = 0.070242;
+   GMAT FormState(11, 1) = -0.27081;
+   GMAT FormState(12, 1) = -0.047489;
+   GMAT FormState(13, 1) = -460725.0813;
+   GMAT FormState(14, 1) = -120787.9156;
+   GMAT FormState(15, 1) = -22171.3499;
+   GMAT FormState(16, 1) = 0.075002;
+   GMAT FormState(17, 1) = -0.27175;
+   GMAT FormState(18, 1) = -0.047552;
+   GMAT FormState(19, 1) = -460866.7397;
+   GMAT FormState(20, 1) = -121930.1189;
+   GMAT FormState(21, 1) = -19152.8076;
+   GMAT FormState(22, 1) = 0.07336;
+   GMAT FormState(23, 1) = -0.27028;
+   GMAT FormState(24, 1) = -0.04756;
+EndScript;
+
+%  Set states
+BeginScript
+   GMAT MMS1.X = FormState(1,1);
+   GMAT MMS1.Y = FormState(2,1);
+   GMAT MMS1.Z = FormState(3,1);
+   GMAT MMS1.VX = FormState(4,1);
+   GMAT MMS1.VY = FormState(5,1);
+   GMAT MMS1.VZ = FormState(6,1);
+   GMAT MMS2.X = FormState(7,1);
+   GMAT MMS2.Y = FormState(8,1);
+   GMAT MMS2.Z = FormState(9,1);
+   GMAT MMS2.VX = FormState(10,1);
+   GMAT MMS2.VY = FormState(11,1);
+   GMAT MMS2.VZ = FormState(12,1);
+   GMAT MMS3.X = FormState(13,1);
+   GMAT MMS3.Y = FormState(14,1);
+   GMAT MMS3.Z = FormState(15,1);
+   GMAT MMS3.VX = FormState(16,1);
+   GMAT MMS3.VY = FormState(17,1);
+   GMAT MMS3.VZ = FormState(18,1);
+   GMAT MMS4.X = FormState(19,1);
+   GMAT MMS4.Y = FormState(20,1);
+   GMAT MMS4.Z = FormState(21,1);
+   GMAT MMS4.VX = FormState(22,1);
+   GMAT MMS4.VY = FormState(23,1);
+   GMAT MMS4.VZ = FormState(24,1);
+EndScript;
+
+Propagate MMS_Prop(MMS) {MMS1.ElapsedDays = 15};
+Report rf MMS1.X MMS2.X MMS3.X MMS4.X MMS3.VX MMS3.VY MMS3.VZ 
+

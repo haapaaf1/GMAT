@@ -1,0 +1,59 @@
+% GMAT Script File
+% GMAT Release Build 6.0, February 2006
+
+Create Spacecraft MoonSat;
+GMAT MoonSat.DateFormat = UTCGregorian;
+GMAT MoonSat.Epoch = 01 Jan 2000 12:00:00.000;
+GMAT MoonSat.CoordinateSystem = LunaFK5;
+GMAT MoonSat.DisplayStateType = Cartesian;
+GMAT MoonSat.X = 0.00000000000;
+GMAT MoonSat.Y = 1000.00;
+GMAT MoonSat.Z = 1732.05080756888;
+GMAT MoonSat.VX = -1.98046719070;
+GMAT MoonSat.VY = 0.00000108078 ;
+GMAT MoonSat.VZ = -0.00000120488 ;
+GMAT MoonSat.DryMass = 850;
+GMAT MoonSat.Cd = 2.2;
+GMAT MoonSat.Cr = 1.8;
+GMAT MoonSat.DragArea = 15;
+GMAT MoonSat.SRPArea = 1;
+
+Create ForceModel MoonProp_ForceModel;
+GMAT MoonProp_ForceModel.CentralBody = Luna;
+GMAT MoonProp_ForceModel.PointMasses = {Luna, Earth};
+GMAT MoonProp_ForceModel.Drag = None;
+GMAT MoonProp_ForceModel.SRP = Off;
+GMAT MoonProp_ForceModel.ErrorControl = RSSStep;
+
+Create Propagator MoonProp;
+GMAT MoonProp.FM = MoonProp_ForceModel;
+GMAT MoonProp.Type = RungeKutta89;
+GMAT MoonProp.InitialStepSize = 60;
+GMAT MoonProp.Accuracy = 9.9999999999999998e-013;
+GMAT MoonProp.MinStep = 0.001;
+GMAT MoonProp.MaxStep = 15000;
+GMAT MoonProp.MaxStepAttempts = 50;
+
+Create ReportFile Data;
+GMAT Data.Filename = Bug383-MoonEqTest.report;
+GMAT Data.Precision = 16;
+GMAT Data.WriteHeaders = On;
+GMAT Data.LeftJustify = On;
+GMAT Data.ZeroFill    = Off;
+GMAT Data.ColumnWidth = 20;
+
+Create CoordinateSystem LunaEquator;
+GMAT LunaEquator.Origin = Luna;
+GMAT LunaEquator.Axes   = Equator;
+
+Create CoordinateSystem LunaFK5;
+GMAT LunaFK5.Origin = Luna;
+GMAT LunaFK5.Axes   = MJ2000Eq;
+
+Create CoordinateSystem LunaFixed;
+GMAT LunaFixed.Axes   = BodyFixed;
+GMAT LunaFixed.Origin = Luna; 
+
+Report Data MoonSat.UTCGregorian MoonSat.LunaFK5.X MoonSat.LunaFK5.Y MoonSat.LunaFK5.Z MoonSat.LunaFK5.VX MoonSat.LunaFK5.VY MoonSat.LunaFK5.VZ
+%%%Report Data MoonSat.UTCGregorian MoonSat.LunaEquator.X MoonSat.LunaEquator.Y MoonSat.LunaEquator.Z MoonSat.LunaEquator.VX MoonSat.LunaEquator.VY MoonSat.LunaEquator.VZ
+Report Data MoonSat.UTCGregorian MoonSat.LunaFixed.X MoonSat.LunaFixed.Y MoonSat.LunaFixed.Z MoonSat.LunaFixed.VX MoonSat.LunaFixed.VY MoonSat.LunaFixed.VZ

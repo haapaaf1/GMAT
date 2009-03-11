@@ -1,0 +1,149 @@
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft EarthSat;
+GMAT EarthSat.DateFormat = TAIModJulian;
+GMAT EarthSat.Epoch = '21545.000000000';
+GMAT EarthSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT EarthSat.DisplayStateType = Cartesian;
+GMAT EarthSat.X = 7100;
+GMAT EarthSat.Y = 0;
+GMAT EarthSat.Z = 1300;
+GMAT EarthSat.VX = 0;
+GMAT EarthSat.VY = 7.35;
+GMAT EarthSat.VZ = 1;
+GMAT EarthSat.DryMass = 850;
+GMAT EarthSat.Cd = 2.2;
+GMAT EarthSat.Cr = 1.8;
+GMAT EarthSat.DragArea = 15;
+GMAT EarthSat.SRPArea = 1;
+
+Create Spacecraft MoonSat;
+GMAT MoonSat.DateFormat = TAIModJulian;
+GMAT MoonSat.Epoch = '21545.000000000';
+GMAT MoonSat.CoordinateSystem = MoonMJ2000Eq;
+GMAT MoonSat.DisplayStateType = Cartesian;
+GMAT MoonSat.X = 298687.6761426753;
+GMAT MoonSat.Y = 266738.2657112182;
+GMAT MoonSat.Z = 77412.17892951725;
+GMAT MoonSat.VX = -0.6435900197055967;
+GMAT MoonSat.VY = 8.016034988886;
+GMAT MoonSat.VZ = 1.301310784904445;
+GMAT MoonSat.DryMass = 850;
+GMAT MoonSat.Cd = 2.2;
+GMAT MoonSat.Cr = 1.8;
+GMAT MoonSat.DragArea = 15;
+GMAT MoonSat.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator Prop;
+GMAT Prop.FM = DefaultProp_ForceModel;
+GMAT Prop.Type = RungeKutta89;
+GMAT Prop.InitialStepSize = 60;
+GMAT Prop.Accuracy = 9.999999999999999e-12;
+GMAT Prop.MinStep = 0.001;
+GMAT Prop.MaxStep = 2700;
+GMAT Prop.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn dvLVLH;
+GMAT dvLVLH.CoordinateSystem = Local;
+GMAT dvLVLH.Origin = Earth;
+GMAT dvLVLH.Axes = LVLH;
+GMAT dvLVLH.VectorFormat = Cartesian;
+GMAT dvLVLH.Element1 = .1;
+GMAT dvLVLH.Element2 = .1;
+GMAT dvLVLH.Element3 = .1;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+Create CoordinateSystem MoonMJ2000Eq;
+GMAT MoonMJ2000Eq.Origin = Luna;
+GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
+GMAT MoonMJ2000Eq.UpdateInterval = 60;
+GMAT MoonMJ2000Eq.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create OpenGLPlot DefaultOpenGL;
+GMAT DefaultOpenGL.SolverIterations = Current;
+GMAT DefaultOpenGL.Add = {EarthSat, Earth};
+GMAT DefaultOpenGL.OrbitColor = [ 255 32768 ];
+GMAT DefaultOpenGL.TargetColor = [ 8421440 0 ];
+GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewPointReference = Earth;
+GMAT DefaultOpenGL.ViewPointVector = [ 0 0 30000 ];
+GMAT DefaultOpenGL.ViewDirection = Earth;
+GMAT DefaultOpenGL.ViewScaleFactor = 1;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewUpAxis = Z;
+GMAT DefaultOpenGL.CelestialPlane = Off;
+GMAT DefaultOpenGL.XYPlane = On;
+GMAT DefaultOpenGL.WireFrame = Off;
+GMAT DefaultOpenGL.Axes = On;
+GMAT DefaultOpenGL.Grid = Off;
+GMAT DefaultOpenGL.SunLine = Off;
+GMAT DefaultOpenGL.UseInitialView = On;
+GMAT DefaultOpenGL.DataCollectFrequency = 1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
+GMAT DefaultOpenGL.NumPointsToRedraw = 0;
+GMAT DefaultOpenGL.ShowPlot = true;
+
+Create ReportFile Data;
+Data.Filename = 'APT_LVLHManeuverTest.report';
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+Maneuver dvLVLH(EarthSat);
+Maneuver dvLVLH(MoonSat);
+
+Report Data EarthSat.EarthMJ2000Eq.VX EarthSat.EarthMJ2000Eq.VY EarthSat.EarthMJ2000Eq.VZ;
+Report Data MoonSat.EarthMJ2000Eq.VX MoonSat.EarthMJ2000Eq.VY MoonSat.EarthMJ2000Eq.VZ;
+
+%Propagate Prop(EarthSat) {EarthSat.ElapsedSecs = 8640.0};

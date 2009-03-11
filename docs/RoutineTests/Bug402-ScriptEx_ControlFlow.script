@@ -1,0 +1,222 @@
+%  Script Example:  
+%
+%  This script demonstrates how to use basic control flow in GMAT,
+%  including For, While, and If statements.
+%
+% -------------------------------------------------------------------------
+% --------------------------- Create Objects ------------------------------
+% -------------------------------------------------------------------------
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Sat1;
+GMAT Sat1.DateFormat = TAIGregorian;
+GMAT Sat1.Epoch = 09 Oct 2004 16:30:00.124;
+GMAT Sat1.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat1.DisplayStateType = Cartesian;
+GMAT Sat1.X = 10000;
+GMAT Sat1.Y = 0;
+GMAT Sat1.Z = 0;
+GMAT Sat1.VX = 0;
+GMAT Sat1.VY = 8;
+GMAT Sat1.VZ = 1;
+GMAT Sat1.DryMass = 850;
+GMAT Sat1.Cd = 2.2;
+GMAT Sat1.Cr = 1.8;
+GMAT Sat1.DragArea = 15;
+GMAT Sat1.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel FM;
+GMAT FM.CentralBody = Earth;
+GMAT FM.PointMasses = {Earth, Sun, Luna};
+GMAT FM.Drag = None;
+GMAT FM.SRP = Off;
+GMAT FM.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+% Create Propagator
+Create Propagator RKV_LowEarth_JR;
+GMAT RKV_LowEarth_JR.FM = FM;
+GMAT RKV_LowEarth_JR.Type = RungeKutta89;
+GMAT RKV_LowEarth_JR.InitialStepSize = 60;
+GMAT RKV_LowEarth_JR.Accuracy = 9.999999999999999e-012;
+GMAT RKV_LowEarth_JR.MinStep = 0.01;
+GMAT RKV_LowEarth_JR.MaxStep = 900;
+GMAT RKV_LowEarth_JR.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Parameters
+%----------------------------------------
+
+Create Variable I Count 
+%  Create Variables and Arrays
+Create Array MMS1M_ApoEphem[20,7] 
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+%  Create OpenGL Plot
+Create OpenGLPlot GLPlot;
+GMAT GLPlot.Add = {Sat1, Earth, Sun};
+GMAT GLPlot.OrbitColor = [ 255 32768 4227327 ];
+GMAT GLPlot.CoordinateSystem = EarthMJ2000Eq;
+GMAT GLPlot.ViewPointReference = Earth;
+GMAT GLPlot.ViewPointVector = [ 0 0 30000];
+GMAT GLPlot.ViewDirection = Earth;
+GMAT GLPlot.ViewScaleFactor = 3;
+GMAT GLPlot.FixedFovAngle = 45;
+GMAT GLPlot.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT GLPlot.ViewUpAxis = Z;
+GMAT GLPlot.CelestialPlane = Off;
+GMAT GLPlot.XYPlane = On;
+GMAT GLPlot.WireFrame = Off;
+GMAT GLPlot.SolverIterations = None;
+GMAT GLPlot.Axes = On;
+GMAT GLPlot.Grid = On;
+GMAT GLPlot.SunLine = On;
+GMAT GLPlot.UseInitialView = On;
+GMAT GLPlot.PerspectiveMode = Off;
+GMAT GLPlot.UseFixedFov = Off;
+GMAT GLPlot.DataCollectFrequency = 1;
+GMAT GLPlot.UpdatePlotFrequency = 50;
+GMAT GLPlot.NumPointsToRedraw = 0;
+GMAT GLPlot.ShowPlot = true;
+
+%  Create Report
+Create ReportFile rpt;
+GMAT rpt.Filename = Bug402-ScriptEx_ControlFlow.report;
+GMAT rpt.Precision = 16;
+GMAT rpt.WriteHeaders = On;
+GMAT rpt.LeftJustify = On;
+GMAT rpt.ZeroFill = Off;
+GMAT rpt.ColumnWidth = 20;
+GMAT rpt.SolverIterations = None;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = Sat1.A1ModJulian;
+GMAT XYPlot1.Add = {Sat1.Earth.TA};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {Sat1};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 3;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = X;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot2;
+GMAT XYPlot2.IndVar = Sat1.A1ModJulian;
+GMAT XYPlot2.Add = {Sat1.EarthMJ2000Eq.Y};
+GMAT XYPlot2.Grid = On;
+GMAT XYPlot2.SolverIterations = None;
+GMAT XYPlot2.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+
+% -------------------------------------------------------------------------
+% ---------------------------  Begin Mission Sequence ---------------------
+% -------------------------------------------------------------------------
+% %  Prop for 20 orbits and save ephem at every apogee
+For I = 1:1:20;
+   %Propagate to next apoapsis
+   Propagate RKV_LowEarth_JR(Sat1) {Sat1.Apoapsis};
+   Report rpt I 
+   %  This used to work but no longer does.
+   BeginScript
+      %GMAT MMS1M_ApoEphem(1,1) = Sat1.A1ModJulian;
+      GMAT MMS1M_ApoEphem(I, 2) = Sat1.X * 1;
+      GMAT MMS1M_ApoEphem(I, 3) = Sat1.Y * 1;
+      GMAT MMS1M_ApoEphem(I, 4) = Sat1.Z * 1;
+      GMAT MMS1M_ApoEphem(I, 5) = Sat1.VX * 1;
+      GMAT MMS1M_ApoEphem(I, 6) = Sat1.VY * 1;
+      GMAT MMS1M_ApoEphem(I, 7) = Sat1.VZ * 1;
+      GMAT MMS1M_ApoEphem(I, 2) = Sat1.X;
+      GMAT MMS1M_ApoEphem(I, 3) = Sat1.Y;
+      GMAT MMS1M_ApoEphem(I, 4) = Sat1.Z;
+      GMAT MMS1M_ApoEphem(I, 5) = Sat1.VX;
+      GMAT MMS1M_ApoEphem(I, 6) = Sat1.VY;
+      GMAT MMS1M_ApoEphem(I, 7) = Sat1.VZ;
+   EndScript;
+
+EndFor;
+
+Report rpt Sat1.ElapsedDays 
+
+%  Prop to next apogee while the ElapsedDays of the propagation 
+%  start epoch is less than ten days
+While Sat1.ElapsedDays < 10
+   Report rpt Sat1.ElapsedDays 
+   Propagate RKV_LowEarth_JR(Sat1) {Sat1.Apoapsis};
+EndWhile;
+
+
+%  If the true anomaly of Sat1's orbit is greater than 178 degrees, then
+%  propagate to periapsis.
+If Sat1.TA > 178
+   Report rpt Sat1.TA 
+   Propagate RKV_LowEarth_JR(Sat1) {Sat1.Periapsis};
+EndIf;
+
+

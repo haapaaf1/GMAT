@@ -1,0 +1,277 @@
+% GMAT Script File
+% GMAT Release Build 5, August 2005
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft sat;
+GMAT sat.DateFormat = TAIModJulian;
+GMAT sat.Epoch = 21563.8095650782416;
+GMAT sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat.DisplayStateType = Cartesian;
+GMAT sat.X = -104881.3429737999;
+GMAT sat.Y = 319780.950939143;
+GMAT sat.Z = 126987.5373057609;
+GMAT sat.VX = 0.1559529133599189;
+GMAT sat.VY = -0.4024846468653523;
+GMAT sat.VZ = 1.639767694725554;
+GMAT sat.DryMass = 850;
+GMAT sat.Cd = 2.2;
+GMAT sat.Cr = 1.8;
+GMAT sat.DragArea = 15;
+GMAT sat.SRPArea = 1;
+GMAT sat.Tanks = {tank};
+GMAT sat.Thrusters = {thruster};
+
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+
+Create FuelTank tank;
+GMAT tank.FuelMass = 756;
+GMAT tank.Pressure = 1500;
+GMAT tank.Temperature = 20;
+GMAT tank.RefTemperature = 20;
+GMAT tank.Volume = 0.75;
+GMAT tank.FuelDensity = 1260;
+GMAT tank.PressureRegulated = true;
+
+Create Thruster thruster;
+GMAT thruster.Element1 = -1;
+GMAT thruster.Element2 = 0;
+GMAT thruster.Element3 = 0;
+GMAT thruster.Tank = {tank};
+%% Notes: There were some coeff changes by Darrel on 2009.02.17
+GMAT thruster.C3 = 1;
+GMAT thruster.C13 = 1;
+%%GMAT thruster.CoordinateSystem = MJ2000EarthEquator;
+GMAT thruster.ThrustScaleFactor = 1;
+%% Note: Origin, Axes, Tanks and BurnScaleFactor are no longer valid FiniteBurn fields 
+%%       Instead set these to thruster (2009.03.05)
+GMAT thruster.CoordinateSystem = Local;
+GMAT thruster.Origin = Luna;
+GMAT thruster.Axes = VNB;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel ATM_ForceModel;
+GMAT ATM_ForceModel.CentralBody = Luna;
+GMAT ATM_ForceModel.PointMasses = {Luna, Sun, Earth};
+GMAT ATM_ForceModel.Drag = None;
+GMAT ATM_ForceModel.SRP = Off;
+GMAT ATM_ForceModel.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator ATM_Prop;
+GMAT ATM_Prop.FM = ATM_ForceModel;
+GMAT ATM_Prop.Type = RungeKutta89;
+GMAT ATM_Prop.InitialStepSize = 60;
+GMAT ATM_Prop.Accuracy = 1e-012;
+GMAT ATM_Prop.MinStep = 0.001;
+GMAT ATM_Prop.MaxStep = 10000;
+GMAT ATM_Prop.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn moonBurn;
+GMAT moonBurn.CoordinateSystem = Local;
+GMAT moonBurn.Origin = Luna;
+GMAT moonBurn.Axes = VNB;
+%% Note: VectorFormat is no longer valid fields (2009.03.05)
+%%GMAT moonBurn.VectorFormat = Cartesian;
+GMAT moonBurn.Element1 = 0.296;  % Circularizes the lunar orbit
+GMAT moonBurn.Element2 = 0;
+GMAT moonBurn.Element3 = 0;
+
+Create FiniteBurn descentBurn;
+%% Note: Origin, Axes, Tanks and BurnScaleFactor are no longer valid FiniteBurn fields 
+%%       Instead set these to thruster (2009.03.05)
+%%GMAT descentBurn.Origin = Luna;
+%%GMAT descentBurn.Axes = VNB;
+GMAT descentBurn.Thrusters = {thruster};
+%%GMAT descentBurn.Tanks = {tank};
+%%GMAT descentBurn.BurnScaleFactor = 1;
+
+
+%----------------------------------------
+%---------- Parameters
+%----------------------------------------
+
+Create Variable i 
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+Create CoordinateSystem MoonFixed;
+GMAT MoonFixed.Origin = Luna;
+GMAT MoonFixed.Axes = BodyFixed;
+GMAT MoonFixed.UpdateInterval = 60;
+GMAT MoonFixed.OverrideOriginInterval = false;
+
+Create CoordinateSystem MoonMJ2000Ec;
+GMAT MoonMJ2000Ec.Origin = Luna;
+GMAT MoonMJ2000Ec.Axes = MJ2000Ec;
+GMAT MoonMJ2000Ec.UpdateInterval = 60;
+GMAT MoonMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem MoonMJ2000Eq;
+GMAT MoonMJ2000Eq.Origin = Luna;
+GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
+GMAT MoonMJ2000Eq.UpdateInterval = 60;
+GMAT MoonMJ2000Eq.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile rf;
+GMAT rf.Filename = APT_FiniteBurnLunaTestCS.report;
+GMAT rf.Precision = 16;
+GMAT rf.WriteHeaders = On;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 20;
+GMAT rf.SolverIterations = None;
+
+Create OpenGLPlot MoonEqPlot;
+GMAT MoonEqPlot.Add = {Earth, Luna, Sun, sat};
+GMAT MoonEqPlot.OrbitColor = [ 32768 12632256 4227327 255 ];
+GMAT MoonEqPlot.CoordinateSystem = MoonMJ2000Ec;
+GMAT MoonEqPlot.ViewPointReference = Luna;
+GMAT MoonEqPlot.ViewPointVector = [ 0 0 30000];
+GMAT MoonEqPlot.ViewDirection = Luna;
+GMAT MoonEqPlot.ViewScaleFactor = 1;
+GMAT MoonEqPlot.FixedFovAngle = 45;
+GMAT MoonEqPlot.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT MoonEqPlot.ViewUpAxis = Z;
+GMAT MoonEqPlot.CelestialPlane = Off;
+GMAT MoonEqPlot.XYPlane = On;
+GMAT MoonEqPlot.WireFrame = Off;
+GMAT MoonEqPlot.SolverIterations = All;
+GMAT MoonEqPlot.Axes = On;
+GMAT MoonEqPlot.Grid = Off;
+GMAT MoonEqPlot.SunLine = Off;
+GMAT MoonEqPlot.UseInitialView = On;
+GMAT MoonEqPlot.PerspectiveMode = Off;
+GMAT MoonEqPlot.UseFixedFov = Off;
+GMAT MoonEqPlot.DataCollectFrequency = 1;
+GMAT MoonEqPlot.UpdatePlotFrequency = 50;
+GMAT MoonEqPlot.NumPointsToRedraw = 0;
+GMAT MoonEqPlot.ShowPlot = true;
+
+Create XYPlot OrbitingLuna;
+%GMAT OrbitingLuna.IndVar = sat.ElapsedSecs;
+GMAT OrbitingLuna.IndVar = sat.A1ModJulian;
+GMAT OrbitingLuna.Add = {sat.Luna.RMAG};
+GMAT OrbitingLuna.Grid = On;
+GMAT OrbitingLuna.SolverIterations = None;
+GMAT OrbitingLuna.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {sat};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 30000 30000 0];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 20;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = Z;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = sat.A1ModJulian;
+GMAT XYPlot1.Add = {sat.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+% -------------------------------------------------------------------------
+% --------------------------- Mission Sequence ----------------------------
+% -------------------------------------------------------------------------
+Report rf sat.A1ModJulian sat.MoonMJ2000Ec.X sat.MoonMJ2000Ec.Y sat.MoonMJ2000Ec.Z 
+
+For i = 1:1:4;
+   Propagate ATM_Prop(sat) {sat.Luna.Apoapsis};
+   Propagate ATM_Prop(sat) {sat.Luna.Periapsis};
+EndFor;
+
+GMAT rf.WriteHeaders = Off;
+Report rf sat.A1ModJulian sat.MoonMJ2000Ec.X sat.MoonMJ2000Ec.Y sat.MoonMJ2000Ec.Z 
+Propagate ATM_Prop(sat) {sat.Luna.Apoapsis};
+Report rf sat.A1ModJulian sat.MoonMJ2000Ec.X sat.MoonMJ2000Ec.Y sat.MoonMJ2000Ec.Z 
+Maneuver moonBurn(sat);
+
+% Do 2 loops at luna
+For i = 1:1:2;
+   Propagate ATM_Prop(sat) {sat.Luna.Periapsis};
+   Propagate ATM_Prop(sat) {sat.Luna.Apoapsis};
+EndFor;
+
+Report rf sat.A1ModJulian sat.MoonMJ2000Ec.X sat.MoonMJ2000Ec.Y sat.MoonMJ2000Ec.Z 
+% Now apply breaking burn until we reach the desired Luna.SMA
+BeginFiniteBurn descentBurn(sat);
+Propagate ATM_Prop(sat) {sat.ElapsedSecs = 960000};
+EndFiniteBurn descentBurn(sat);
+Report rf sat.A1ModJulian sat.MoonMJ2000Ec.X sat.MoonMJ2000Ec.Y sat.MoonMJ2000Ec.Z 
+
+% Do 2 more loops
+For i = 1:1:12;
+   Propagate ATM_Prop(sat) {sat.Luna.Periapsis};
+   Propagate ATM_Prop(sat) {sat.Luna.Apoapsis};
+EndFor;
+
+Report rf sat.A1ModJulian sat.MoonMJ2000Ec.X sat.MoonMJ2000Ec.Y sat.MoonMJ2000Ec.Z 
+

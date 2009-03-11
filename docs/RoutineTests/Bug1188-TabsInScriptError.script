@@ -1,0 +1,16 @@
+	Create Spacecraft DefaultSC;	
+	
+Create ForceModel 	DefaultProp_ForceModel;	
+	
+Create Propagator DefaultProp;	
+GMAT DefaultProp.FM 	= DefaultProp_ForceModel;	
+	
+Propagate DefaultProp(	DefaultSC);	
+	
+% Spaces after end of lines
+If DefaultSC.TA > 	0  
+EndIf;   
+	
+% Tab after end of 	line
+If DefaultSC.TA 	> 0	
+EndIf;	

@@ -1,0 +1,271 @@
+% GMAT Script File
+% GMAT Release Build 6.0, February 2006
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft MarsL1Sat;
+GMAT MarsL1Sat.DateFormat = TTModJulian;
+GMAT MarsL1Sat.Epoch = 26296.6291566798;
+GMAT MarsL1Sat.CoordinateSystem = SunMarsRotCS;
+GMAT MarsL1Sat.DisplayStateType = Cartesian;
+GMAT MarsL1Sat.X = -499403.4194645392;
+GMAT MarsL1Sat.Y = 194188.4290991365;
+GMAT MarsL1Sat.Z = -13690.62769460739;
+GMAT MarsL1Sat.VX = -0.1969101738854244;
+GMAT MarsL1Sat.VY = -0.03479817193452008;
+GMAT MarsL1Sat.VZ = 0.02021415456468112;
+GMAT MarsL1Sat.DryMass = 850;
+GMAT MarsL1Sat.Cd = 2.2;
+GMAT MarsL1Sat.Cr = 1.8;
+GMAT MarsL1Sat.DragArea = 15;
+GMAT MarsL1Sat.SRPArea = 1;
+
+Create Spacecraft dummysat;
+GMAT dummysat.DateFormat = TAIModJulian;
+GMAT dummysat.Epoch = 21545.000000000;
+GMAT dummysat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dummysat.DisplayStateType = Cartesian;
+GMAT dummysat.X = 7100;
+GMAT dummysat.Y = 0;
+GMAT dummysat.Z = 1300;
+GMAT dummysat.VX = 0;
+GMAT dummysat.VY = 7.35;
+GMAT dummysat.VZ = 1;
+GMAT dummysat.DryMass = 850;
+GMAT dummysat.Cd = 2.2;
+GMAT dummysat.Cr = 1.8;
+GMAT dummysat.DragArea = 15;
+GMAT dummysat.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel MarsProp_ForceModel;
+GMAT MarsProp_ForceModel.CentralBody = Mars;
+GMAT MarsProp_ForceModel.PointMasses = {Mars, Sun};
+GMAT MarsProp_ForceModel.Drag = None;
+GMAT MarsProp_ForceModel.SRP = Off;
+GMAT MarsProp_ForceModel.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator MarsProp;
+GMAT MarsProp.FM = MarsProp_ForceModel;
+GMAT MarsProp.Type = RungeKutta89;
+GMAT MarsProp.InitialStepSize = 60;
+GMAT MarsProp.Accuracy = 1e-012;
+GMAT MarsProp.MinStep = 0.001;
+GMAT MarsProp.MaxStep = 150000;
+GMAT MarsProp.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Calculated Points
+%----------------------------------------
+
+Create Barycenter DefaultBC;
+GMAT DefaultBC.BodyNames = {Earth, Luna};
+
+Create LibrationPoint SunMarsL1;
+GMAT SunMarsL1.Primary = Sun;
+GMAT SunMarsL1.Secondary = Mars;
+GMAT SunMarsL1.Point = L1;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn dV;
+GMAT dV.Origin = Mars;
+GMAT dV.Axes = VNB;
+GMAT dV.VectorFormat = Cartesian;
+GMAT dV.Element1 = 0;
+GMAT dV.Element2 = 0;
+GMAT dV.Element3 = 0.000278022832085473;
+
+
+%----------------------------------------
+%---------- Parameters
+%----------------------------------------
+
+Create Variable VX VY VZ TotaldV currentdV sqrtCurrentdV I 
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+Create CoordinateSystem MarsFK5;
+GMAT MarsFK5.Origin = Mars;
+GMAT MarsFK5.Axes = MJ2000Eq;
+GMAT MarsFK5.UpdateInterval = 60;
+GMAT MarsFK5.OverrideOriginInterval = false;
+
+Create CoordinateSystem SunMarsL1CS;
+GMAT SunMarsL1CS.Origin = SunMarsL1;
+GMAT SunMarsL1CS.Axes = ObjectReferenced;
+GMAT SunMarsL1CS.UpdateInterval = 60;
+GMAT SunMarsL1CS.OverrideOriginInterval = false;
+GMAT SunMarsL1CS.XAxis = R;
+GMAT SunMarsL1CS.ZAxis = N;
+GMAT SunMarsL1CS.Primary = Sun;
+GMAT SunMarsL1CS.Secondary = Mars;
+
+Create CoordinateSystem SunMarsRotCS;
+GMAT SunMarsRotCS.Origin = Mars;
+GMAT SunMarsRotCS.Axes = ObjectReferenced;
+GMAT SunMarsRotCS.UpdateInterval = 60;
+GMAT SunMarsRotCS.OverrideOriginInterval = false;
+GMAT SunMarsRotCS.XAxis = R;
+GMAT SunMarsRotCS.ZAxis = N;
+GMAT SunMarsRotCS.Primary = Sun;
+GMAT SunMarsRotCS.Secondary = Mars;
+
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector DC;
+GMAT DC.ShowProgress = true;
+GMAT DC.ReportStyle = Normal;
+GMAT DC.TargeterTextFile = Bug357-DC.data;
+GMAT DC.MaximumIterations = 25;
+GMAT DC.UseCentralDifferences = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile Data;
+GMAT Data.Filename = Bug357-SumSquaresMathBug.report;
+GMAT Data.Precision = 16;
+GMAT Data.WriteHeaders = On;
+GMAT Data.LeftJustify = On;
+GMAT Data.ZeroFill = On;
+GMAT Data.ColumnWidth = 20;
+GMAT Data.SolverIterations = None;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {MarsL1Sat};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 30000;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = X;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot2;
+GMAT OpenGLPlot2.Add = {MarsL1Sat};
+GMAT OpenGLPlot2.OrbitColor = [ 255 ];
+GMAT OpenGLPlot2.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot2.ViewPointReference = Earth;
+GMAT OpenGLPlot2.ViewPointVector = [ 30000 30000 30000];
+GMAT OpenGLPlot2.ViewDirection = Earth;
+GMAT OpenGLPlot2.ViewScaleFactor = 20000;
+GMAT OpenGLPlot2.FixedFovAngle = 45;
+GMAT OpenGLPlot2.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot2.ViewUpAxis = Y;
+GMAT OpenGLPlot2.CelestialPlane = Off;
+GMAT OpenGLPlot2.XYPlane = On;
+GMAT OpenGLPlot2.WireFrame = Off;
+GMAT OpenGLPlot2.SolverIterations = None;
+GMAT OpenGLPlot2.Axes = On;
+GMAT OpenGLPlot2.Grid = Off;
+GMAT OpenGLPlot2.SunLine = Off;
+GMAT OpenGLPlot2.UseInitialView = On;
+GMAT OpenGLPlot2.PerspectiveMode = Off;
+GMAT OpenGLPlot2.UseFixedFov = Off;
+GMAT OpenGLPlot2.DataCollectFrequency = 1;
+GMAT OpenGLPlot2.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot2.NumPointsToRedraw = 0;
+GMAT OpenGLPlot2.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = MarsL1Sat.A1ModJulian;
+GMAT XYPlot1.Add = {MarsL1Sat.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot2;
+GMAT XYPlot2.IndVar = MarsL1Sat.A1ModJulian;
+GMAT XYPlot2.Add = {MarsL1Sat.EarthMJ2000Eq.Y};
+GMAT XYPlot2.Grid = On;
+GMAT XYPlot2.SolverIterations = None;
+GMAT XYPlot2.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+Propagate MarsProp(MarsL1Sat) {MarsL1Sat.SunMarsL1CS.Y = 0};
+GMAT TotaldV = 0.0;
+
+For I = 1:1:5;
+   
+   BeginScript
+      GMAT VX = MarsL1Sat.MarsFK5.VX;
+      GMAT VY = MarsL1Sat.MarsFK5.VY;
+      GMAT VZ = MarsL1Sat.MarsFK5.VZ;
+   EndScript;
+
+   Target DC;
+      Vary DC(dV.B = 0, {Perturbation = 1e-5, MaxStep = 0.01, Lower = -0.1, Upper = 0.1});
+      Maneuver dV(MarsL1Sat);
+      GMAT dummysat = MarsL1Sat;
+      Propagate MarsProp(MarsL1Sat) {MarsL1Sat.SunMarsL1CS.Y = 0};
+      Achieve DC(MarsL1Sat.SunMarsL1CS.VX = 0, {Tolerance = 1e-005});
+   EndTarget;  % For targeter DefaultDC
+   GMAT currentdV = ( VX - MarsL1Sat.MarsFK5.VX )^2 + ( VY - MarsL1Sat.MarsFK5.VY )^2 + ( VZ - MarsL1Sat.MarsFK5.VZ )^2;
+   GMAT sqrtCurrentdV = sqrt( currentdV );
+   Report Data currentdV sqrtCurrentdV 
+   GMAT TotaldV = TotaldV + sqrt( currentdV );
+EndFor;
+
+
