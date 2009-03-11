@@ -1,0 +1,18 @@
+%---------------------------------------------------------------------
+% This function propagates spacecraft Sat for 8640 seconds with OpenGL plot
+%---------------------------------------------------------------------
+function [x, y, z, vx, vy, vz] = GlobalSatPlotPropagate8640Secs
+
+Create Variable x y z vx vy vz;
+
+Global GLPlot Sat;
+
+Propagate Prop(Sat) {Sat.ElapsedSecs = 8640.0};
+
+% After the Propagate command
+x  = Sat.X
+y  = Sat.Y
+z  = Sat.Z
+vx = Sat.VX
+vy = Sat.VY
+vz = Sat.VZ

@@ -1,0 +1,5 @@
+function Func_allPropagates_nested(reportLoc)
+% $Id: Func_allPropagates_nested.gmf,v 1.1 2008/10/09 14:27:32 ljun Exp $
+
+% Call function
+Func_allPropagates(reportLoc);
