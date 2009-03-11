@@ -446,6 +446,8 @@ void AttitudePanel::LoadData()
       
       theAttitude = (Attitude *)theGuiInterpreter->
          CreateObject((attitudeModelArray[0]).c_str(), ""); // Use no name
+      // Set new attitude to spacecraft (LOJ: 2009.03.10)
+      theSpacecraft->SetRefObject(theAttitude, Gmat::ATTITUDE);
       newAttitude = true;
    }
    if (theAttitude == NULL)
