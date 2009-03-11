@@ -233,7 +233,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    for (omi = LOS->begin(); omi != LOS->end(); ++omi)
    {
       obj = omi->second;
-      if (obj->GetType() == Gmat::COORDINATE_SYSTEM)
+      if (obj->IsOfType(Gmat::COORDINATE_SYSTEM))
       {
          #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage("Initializing CS %s\n",
@@ -251,7 +251,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
       for (omi = GOS->begin(); omi != GOS->end(); ++omi)
       {
          obj = omi->second;
-         if (obj->GetType() == Gmat::COORDINATE_SYSTEM)
+         if (obj->IsOfType(Gmat::COORDINATE_SYSTEM))
          {
             #ifdef DEBUG_OBJECT_INITIALIZER
                MessageInterface::ShowMessage("Initializing CS %s\n",
@@ -269,7 +269,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    for (omi = LOS->begin(); omi != LOS->end(); ++omi)
    {
       obj = omi->second;
-      if (obj->GetType() == Gmat::SPACECRAFT)
+      if (obj->IsOfType(Gmat::SPACECRAFT))
       {
          obj->SetSolarSystem(ss);
          ((Spacecraft *)obj)->SetInternalCoordSystem(internalCS);
@@ -288,7 +288,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
       for (omi = GOS->begin(); omi != GOS->end(); ++omi)
       {
          obj = omi->second;
-         if (obj->GetType() == Gmat::SPACECRAFT)
+         if (obj->IsOfType(Gmat::SPACECRAFT))
          {
             obj->SetSolarSystem(ss);
             ((Spacecraft *)obj)->SetInternalCoordSystem(internalCS);
@@ -325,7 +325,10 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
          {
             obj->SetSolarSystem(ss);
             obj->SetInternalCoordSystem(internalCS); // added (loj: 2008.10.06)
-            if (obj->IsOfType(Gmat::SPACE_POINT))
+            // Why aren't we building references other than SpacePoint here?
+            // Added BURN and HARDWARE(LOJ: 2009.03.03)
+            if (obj->IsOfType(Gmat::SPACE_POINT) || obj->IsOfType(Gmat::BURN) ||
+                obj->IsOfType(Gmat::HARDWARE))
             {
                BuildReferences(obj);
                obj->Initialize();
@@ -374,7 +377,10 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             {
                obj->SetSolarSystem(ss);
                obj->SetInternalCoordSystem(internalCS); // added (loj: 2008.10.06)
-               if (obj->IsOfType(Gmat::SPACE_POINT))
+               // Why aren't we building references other than SpacePoint here?
+               // Added BURN and HARDWARE(LOJ: 2009.03.03)
+               if (obj->IsOfType(Gmat::SPACE_POINT) || obj->IsOfType(Gmat::BURN) ||
+                   obj->IsOfType(Gmat::HARDWARE))
                {
                   BuildReferences(obj);
                   obj->Initialize();
@@ -410,7 +416,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
 
       // Treat parameters as a special case -- because system parameters have
       // to be initialized before other parameters.
-      if (obj->GetType() == Gmat::PARAMETER)
+      if (obj->IsOfType(Gmat::PARAMETER))
       {
          Parameter *param = (Parameter *)obj;
          // Make sure system parameters are configured before others
@@ -438,7 +444,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
 
          // Treat parameters as a special case -- because system parameters have
          // to be initialized before other parameters.
-         if (obj->GetType() == Gmat::PARAMETER)
+         if (obj->IsOfType(Gmat::PARAMETER))
          {
             Parameter *param = (Parameter *)obj;
             // Make sure system parameters are configured before others
@@ -464,7 +470,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    for (omi = LOS->begin(); omi != LOS->end(); ++omi)
    {
       obj = omi->second;
-      if (obj->GetType() == Gmat::PARAMETER)
+      if (obj->IsOfType(Gmat::PARAMETER))
       {
          Parameter *param = (Parameter *)obj;
          // Make sure system parameters are configured before others
@@ -484,7 +490,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
       for (omi = GOS->begin(); omi != GOS->end(); ++omi)
       {
          obj = omi->second;
-         if (obj->GetType() == Gmat::PARAMETER)
+         if (obj->IsOfType(Gmat::PARAMETER))
          {
             Parameter *param = (Parameter *)obj;
             // Make sure system parameters are configured before others
@@ -507,7 +513,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    {
       obj = omi->second;
       // Parameters were initialized above
-      if (obj->GetType() == Gmat::SUBSCRIBER)
+      if (obj->IsOfType(Gmat::SUBSCRIBER))
       {
          #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage(
@@ -539,7 +545,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
       {
          obj = omi->second;
          // Parameters were initialized above
-         if (obj->GetType() == Gmat::SUBSCRIBER)
+         if (obj->IsOfType(Gmat::SUBSCRIBER))
          {
             #ifdef DEBUG_OBJECT_INITIALIZER
                MessageInterface::ShowMessage(
@@ -729,8 +735,8 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
 
    obj->SetSolarSystem(ss);
    // PropSetup probably should do this...
-   if ((obj->GetType() == Gmat::PROP_SETUP) ||
-       (obj->GetType() == Gmat::ODE_MODEL))
+   if ((obj->IsOfType(Gmat::PROP_SETUP)) ||
+       (obj->IsOfType(Gmat::ODE_MODEL)))
    {
       #ifdef DEBUG_OBJECT_INITIALIZER
          MessageInterface::ShowMessage("--- it is a PropSetup or ODEModel ...\n");
@@ -781,8 +787,15 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
             fixedCS->SetRefObject(axes, Gmat::AXIS_SYSTEM, "");
             fixedCS->SetOriginName(fm->GetStringParameter("CentralBody"));
             
-            fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);         
-
+            // Since CoordinateSystem clones AxisSystem, delete it from here
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (axes, "localAxes", "ObjectInitializer::BuildReferences()",
+                "deleting localAxes");
+            #endif
+            
+            fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);
+            
             fixedCS->SetSolarSystem(ss);
             BuildReferences(fixedCS); 
             InitializeCoordinateSystem(fixedCS);
@@ -868,7 +881,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
          #endif
       }
 
-      if (obj->GetType() == Gmat::ODE_MODEL)
+      if (obj->IsOfType(Gmat::ODE_MODEL))
          return;
    }
 
@@ -1002,16 +1015,16 @@ void ObjectInitializer::SetRefFromName(GmatBase *obj, const std::string &oName)
       MessageInterface::ShowMessage("Setting reference '%s' on '%s'\n", 
          oName.c_str(), obj->GetName().c_str());
    #endif
-   
+      
    GmatBase *refObj = NULL;
-
+   
    if ((refObj = FindObject(oName)) != NULL)
       obj->SetRefObject(refObj, refObj->GetType(), refObj->GetName());
    else
    {
       // look in the SolarSystem
       refObj = FindSpacePoint(oName);
-
+      
       if (refObj == NULL)
          throw GmatBaseException("Unknown object " + oName + " requested by " +
                                   obj->GetName());
@@ -1044,7 +1057,7 @@ void ObjectInitializer::SetRefFromName(GmatBase *obj, const std::string &oName)
 void ObjectInitializer::BuildAssociations(GmatBase * obj)
 {
    // Spacecraft receive clones of the associated hardware objects
-   if (obj->GetType() == Gmat::SPACECRAFT) 
+   if (obj->IsOfType(Gmat::SPACECRAFT))
    {
       StringArray hw = obj->GetRefObjectNameArray(Gmat::HARDWARE);
       for (StringArray::iterator i = hw.begin(); i < hw.end(); ++i) {
@@ -1054,31 +1067,39 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
                ("ObjectInitializer::BuildAssociations() setting \"%s\" on \"%s\"\n",
                 i->c_str(), obj->GetName().c_str());
          #endif
-
-         GmatBase *el = NULL;
-         if ((el = FindObject(*i)) == NULL)
+         
+         GmatBase *elem = NULL;
+         if ((elem = FindObject(*i)) == NULL)
             throw GmatBaseException("ObjectInitializer::BuildAssociations: Cannot find "
                                     "hardware element \"" + (*i) + "\"\n");
-         //GmatBase *el = objectMap[*i];
-         GmatBase *newEl = el->Clone();
+         //GmatBase *elem = objectMap[*i];
+         GmatBase *newElem = elem->Clone();
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Add
-            (newEl, newEl->GetName(), "ObjectInitializer::BuildAssociations()",
-             "newEl = el->Clone()");
+            (newElem, newElem->GetName(), "ObjectInitializer::BuildAssociations()",
+             "newElem = elem->Clone()");
          #endif
          
          #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage
                ("ObjectInitializer::BuildAssociations() created clone \"%s\" of type \"%s\"\n",
-               newEl->GetName().c_str(), newEl->GetTypeName().c_str());
+               newElem->GetName().c_str(), newElem->GetTypeName().c_str());
          #endif
-         if (!obj->SetRefObject(newEl, newEl->GetType(), newEl->GetName()))
+         if (!obj->SetRefObject(newElem, newElem->GetType(), newElem->GetName()))
             MessageInterface::ShowMessage
                ("ObjectInitializer::BuildAssociations() failed to set %s\n",
-               newEl->GetName().c_str());
-         ;
+                newElem->GetName().c_str());
+         
+         // Set SolarSystem and Spacecraft to Thruster since it needs coordinate
+         // conversion during Thruster initialization (LOJ: 2009.03.05)
+         if (newElem->IsOfType(Gmat::THRUSTER))
+         {
+            newElem->SetSolarSystem(ss);
+            newElem->SetRefObject(obj, Gmat::SPACECRAFT);
+            newElem->Initialize();
+         }
       }
-
+      
       obj->TakeAction("SetupHardware");
    }
 }
