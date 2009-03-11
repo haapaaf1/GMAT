@@ -368,6 +368,9 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
                      wxTE_MULTILINE|wxTE_READONLY|wxTE_RICH);
    
    msgTextCtrl->SetMaxLength(320000);
+   // Added SetFocus() to automatically show the last line. (LOJ: 2009.03.04)
+   // This was needed since msgTextCtrl changed to read-only.
+   msgTextCtrl->SetFocus();
    gmatAppData->SetMessageTextCtrl(msgTextCtrl);
    
    //-----------------------------------------------------------------
@@ -538,7 +541,8 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
    if (itemType >= GmatTree::BEGIN_OF_RESOURCE &&
        itemType <= GmatTree::END_OF_RESOURCE)
    {
-      if (item->GetTitle() == "")
+      // Added check for SCRIPT_FILE when showing error message(LOJ: 2009.03.04)
+      if (item->GetTitle() == "" && itemType != GmatTree::SCRIPT_FILE)
       {
          wxString name = item->GetName();
          GmatBase *obj = theGuiInterpreter->GetConfiguredObject(name.c_str());
@@ -1369,6 +1373,7 @@ Integer GmatMainFrame::RunCurrentMission()
    {
       SetStatusText("Busy", 1);
       MinimizeChildren();
+      GmatAppData::Instance()->GetMessageTextCtrl()->SetFocus();
       retval = theGuiInterpreter->RunMission();
       
       #ifdef DEBUG_RUN
