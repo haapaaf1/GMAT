@@ -990,7 +990,10 @@ void ResourceTree::AddDefaultPropagators(wxTreeItemId itemId, bool restartCounte
 //------------------------------------------------------------------------------
 void ResourceTree::AddDefaultBurns(wxTreeItemId itemId, bool restartCounter)
 {
-   //MessageInterface::ShowMessage("ResourceTree::AddDefaultBurns() entered\n");
+   #ifdef DEBUG_DEFAULT_BURNS
+   MessageInterface::ShowMessage("ResourceTree::AddDefaultBurns() entered\n");
+   #endif
+   
    StringArray itemNames = theGuiInterpreter->GetListOfObjects(Gmat::BURN);
    int size = itemNames.size();
    wxString objName;
@@ -1004,18 +1007,20 @@ void ResourceTree::AddDefaultBurns(wxTreeItemId itemId, bool restartCounter)
       
       if (objTypeName == "ImpulsiveBurn")
       {
-         //MessageInterface::ShowMessage
-         //   ("ResourceTree::AddDefaultBurns() objTypeName = ImpulsiveBurn\n");
-         
+         #ifdef DEBUG_DEFAULT_BURNS
+         MessageInterface::ShowMessage
+            ("ResourceTree::AddDefaultBurns() objTypeName = ImpulsiveBurn\n");
+         #endif
          AppendItem(itemId, wxT(objName), GmatTree::ICON_BURN, -1,
                     new GmatTreeItemData(wxT(objName),
                                          GmatTree::IMPULSIVE_BURN));
       }
       else if (objTypeName == "FiniteBurn")
       {
-         //MessageInterface::ShowMessage
-         //   ("ResourceTree::AddDefaultBurns() objTypeName = ImpulsiveBurn\n");
-         
+         #ifdef DEBUG_DEFAULT_BURNS
+         MessageInterface::ShowMessage
+            ("ResourceTree::AddDefaultBurns() objTypeName = ImpulsiveBurn\n");
+         #endif
          AppendItem(itemId, wxT(objName), GmatTree::ICON_BURN, -1,
                     new GmatTreeItemData(wxT(objName),
                                          GmatTree::FINITE_BURN));
@@ -2149,7 +2154,7 @@ void ResourceTree::OnAddImpulsiveBurn(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("ImpulsiveBurn", 1);   
-   GmatBase *obj = theGuiInterpreter->CreateObject("ImpulsiveBurn", newName);
+   GmatBase *obj = theGuiInterpreter->CreateObject("ImpulsiveBurn", newName, true);
    
    if (obj != NULL)
    {
