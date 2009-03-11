@@ -67,6 +67,7 @@
 //#define DEBUG_MATH_TREE
 //#define DBGLVL_FUNCTION_DEF 2
 //#define DBGLVL_FINAL_PASS 1
+//#define DEBUG_AXIS_SYSTEM
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -598,7 +599,7 @@ GmatBase* Interpreter::GetConfiguredObject(const std::string &name)
 
 //------------------------------------------------------------------------------
 // GmatBase* CreateObject(const std::string &type, const std::string &name,
-//                        Integer manage)
+//                        Integer manage, bool createDefault)
 //------------------------------------------------------------------------------
 /**
  * Calls the Moderator to build core objects and put them in the ConfigManager.
@@ -608,13 +609,14 @@ GmatBase* Interpreter::GetConfiguredObject(const std::string &name)
  * @param  manage   0, if parameter is not managed
  *                  1, if parameter is added to configuration (default)
  *                  2, if Parameter is added to function object map
+ * @param <createDefault> set to true if default object to be created (false)
  *
  * @return object pointer on success, NULL on failure.
  */
 //------------------------------------------------------------------------------
 GmatBase* Interpreter::CreateObject(const std::string &type,
                                     const std::string &name,
-                                    Integer manage)
+                                    Integer manage, bool createDefault)
 {
    #ifdef DEBUG_CREATE_OBJECT
    MessageInterface::ShowMessage
@@ -757,7 +759,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       // Handle Burns
       else if (find(burnList.begin(), burnList.end(), type) != 
                burnList.end())
-         obj = (GmatBase*)theModerator->CreateBurn(type, name);
+         obj = (GmatBase*)theModerator->CreateBurn(type, name, createDefault);
       
       // Handle CalculatedPoint (Barycenter, LibrationPoint)
       // Creates default Barycentor or LibrationPoint
@@ -3500,7 +3502,22 @@ bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toPr
          
          toObj->SetStringParameter(toProp, fromObj->GetName());
          if (toObj->IsOwnedObject(toId))
+         {
             toObj->SetRefObject(fromObj, fromObj->GetType(), fromObj->GetName());
+            
+            // Since CoordinateSystem::SetRefObject() clones AxisSystem, delete it from here
+            if (toObj->GetType() == Gmat::COORDINATE_SYSTEM &&
+                (fromObj->GetType() == Gmat::AXIS_SYSTEM))
+            {
+               #ifdef DEBUG_MEMORY
+               MemoryTracker::Instance()->Remove
+                  (fromObj, "oldLocalAxes", "Interpreter::SetObjectToProperty()",
+                   "deleting oldLocalAxes");
+               #endif
+               delete fromObj;
+               fromObj = NULL;
+            }
+         }
       }
    }
    catch (BaseException &ex)
@@ -4407,13 +4424,30 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                #endif
                
                obj->SetRefObject(ownedObj, ownedObj->GetType(), ownedObj->GetName());
+               
+               // Since PropSetup::SetRefObjet() clones Propagator and
+               // CoordinateSystem::SetRefObject() clones AxisSystem, delete it from here
+               // (LOJ: 2009.03.03)
+               if ((obj->GetType() == Gmat::PROP_SETUP &&
+                    (ownedObj->GetType() == Gmat::PROPAGATOR)) ||
+                   (obj->GetType() == Gmat::COORDINATE_SYSTEM &&
+                    (ownedObj->GetType() == Gmat::AXIS_SYSTEM)))
+               {
+                  #ifdef DEBUG_MEMORY
+                  MemoryTracker::Instance()->Remove
+                     (ownedObj, "oldOwnedObject", "Interpreter::SetPropertyObjectValue()",
+                      "deleting oldOwnedObject");
+                  delete ownedObj;
+                  ownedObj = NULL;
+                  #endif
+               }
             }
             else
             {
-               // Special case of InternalForceModel in script
-               // Since PropSetup no longer creates InternalForceModel
+               // Special case of InternalODEModel in script
+               // Since PropSetup no longer creates InternalODEModel
                // create it here (loj: 2008.11.06)
-               if (value == "InternalForceModel")
+               if (value == "InternalODEModel")
                {
                   ownedObj = CreateObject("ForceModel", value);
                   obj->SetRefObject(ownedObj, ownedObj->GetType(), value);
@@ -5291,6 +5325,11 @@ bool Interpreter::ParseVariableExpression(Parameter *var, const std::string &exp
 //------------------------------------------------------------------------------
 AxisSystem* Interpreter::CreateAxisSystem(std::string type, GmatBase *owner)
 {
+   #ifdef DEBUG_AXIS_SYSTEM
+   MessageInterface::ShowMessage
+      ("Interpreter::CreateAxisSystem() type = '%s'\n", type.c_str());
+   #endif
+   
    AxisSystem *axis = theValidator->CreateAxisSystem(type, owner);
    
    // Handle error messages here
@@ -5300,6 +5339,11 @@ AxisSystem* Interpreter::CreateAxisSystem(std::string type, GmatBase *owner)
       for (UnsignedInt i=0; i<errList.size(); i++)
          HandleError(InterpreterException(errList[i]));
    }
+   
+   #ifdef DEBUG_AXIS_SYSTEM
+   MessageInterface::ShowMessage
+      ("Interpreter::CreateAxisSystem() returning <%p>\n", axis);
+   #endif
    
    return axis;
 }
@@ -5608,12 +5652,13 @@ bool Interpreter::FinalPass()
       // add to this list. This was added to write specific error messages.
       //-----------------------------------------------------------------
       
-      else if (obj->GetType() == Gmat::BURN ||
-               obj->GetType() == Gmat::SPACECRAFT ||
-               obj->GetType() == Gmat::ODE_MODEL ||
-               obj->GetType() == Gmat::COORDINATE_SYSTEM ||
-               obj->GetType() == Gmat::CALCULATED_POINT ||
-               obj->GetType() == Gmat::SUBSCRIBER)
+      // Changed GetType() == to IsOfType() (LOJ: 2009.03.03)
+      else if (obj->IsOfType(Gmat::BURN) ||
+               obj->IsOfType(Gmat::SPACECRAFT) ||
+               obj->IsOfType(Gmat::ODE_MODEL) ||
+               obj->IsOfType(Gmat::COORDINATE_SYSTEM) ||
+               obj->IsOfType(Gmat::CALCULATED_POINT) ||
+               obj->IsOfType(Gmat::SUBSCRIBER))
       {
          // Set return flag to false if any check failed
          try
@@ -5623,7 +5668,7 @@ bool Interpreter::FinalPass()
             
             // Subscribers uses ElementWrapper to handle Parameter, Variable,
             // Array, Array elements, so create wrappers in ValidateSubscriber()
-            if (retval && obj->GetType() == Gmat::SUBSCRIBER)
+            if (retval && obj->IsOfType(Gmat::SUBSCRIBER))
                retval = retval && ValidateSubscriber(obj);
          }
          catch (BaseException &ex)
