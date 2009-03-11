@@ -219,6 +219,7 @@ OBJECTS = \
     foundation/SinglePathSetupPanel.o \
     function/FunctionSetupPanel.o \
     function/MatlabFunctionSetupPanel.o \
+    hardware/BurnThrusterPanel.o \
     hardware/TankConfigPanel.o \
     hardware/ThrusterCoefficientDialog.o \
     hardware/ThrusterConfigPanel.o \
