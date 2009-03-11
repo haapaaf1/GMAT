@@ -1,9 +1,0 @@
-function [val]=magnitude_CF(vecl)
-
-% This function takes a 3-vector in a GMAT array and
-% calculates its magnitude
-
-Create Variable val dotval;
-
-[dotval] = dot(vecl, vecl);
-val = sqrt(dotval);
