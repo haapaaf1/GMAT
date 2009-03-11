@@ -78,7 +78,8 @@ SpacecraftPanel::~SpacecraftPanel()
    // need to delete child from list in mainFrame
    //    delete(theBallisticMassPanel);
    //    delete(theOrbitPanel);
-   //    delete(currentSpacecraft);
+   
+   delete currentSpacecraft;
 }
 
 //-------------------------------
@@ -254,7 +255,6 @@ void SpacecraftPanel::SaveData()
    
    // copy the current info into theSpacecraft
    theSpacecraft->Copy(currentSpacecraft);
-   
    EnableUpdate(false);
 }
 
