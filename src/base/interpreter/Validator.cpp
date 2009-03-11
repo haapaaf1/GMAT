@@ -52,6 +52,7 @@
 //#define DEBUG_PROP_SETUP_PROP
 //#define DEBUG_FORCE_MODEL_PROP
 //#define DBGLVL_WRAPPERS 1
+//#define DEBUG_AXIS_SYSTEM
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -227,10 +228,21 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
    {
       if (obj->GetRefObject(Gmat::AXIS_SYSTEM, "") == NULL)
       {
-         CreateAxisSystem("MJ2000Eq", obj);
+         AxisSystem *axis = CreateAxisSystem("MJ2000Eq", obj);
          theErrorMsg = "The CoordinateSystem \"" + obj->GetName() +
             "\" has empty AxisSystem, so default MJ2000Eq was created";
          retval = retval && HandleError();
+         
+         // Set AxisSystem to CoordinateSystem
+         obj->SetRefObject(axis, axis->GetType(), axis->GetName());
+         
+         // Since CoordinateSystem clones AxisSystem, delete it from here
+         // (LOJ: 2009.03.03)
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (axis, "localAxes", "Validator::CreateAxisSystem()", "deleting localAxes");
+         #endif
+         delete axis;
       }
    }
    
@@ -1709,6 +1721,11 @@ Parameter* Validator::CreateArray(const std::string &arrayStr, Integer manage)
 //------------------------------------------------------------------------------
 AxisSystem* Validator::CreateAxisSystem(std::string type, GmatBase *owner)
 {
+   #ifdef DEBUG_AXIS_SYSTEM
+   MessageInterface::ShowMessage
+      ("Validator::CreateAxisSystem() type = '%s'\n", type.c_str());
+   #endif
+   
    if (owner == NULL)
    {
       theErrorMsg = "Validator::CreateAxisSystem needs a "
@@ -1726,9 +1743,16 @@ AxisSystem* Validator::CreateAxisSystem(std::string type, GmatBase *owner)
       return NULL;
    }
    
-   AxisSystem* axes = (AxisSystem *)(theModerator->CreateAxisSystem(type, ""));
-   owner->SetRefObject(axes, axes->GetType(), axes->GetName());
-   return axes;
+   AxisSystem* axis = (AxisSystem *)(theModerator->CreateAxisSystem(type, ""));
+   // Moved setting ref object to CreateCoordSystemProperty()
+   //owner->SetRefObject(axis, axis->GetType(), axis->GetName());
+   
+   #ifdef DEBUG_AXIS_SYSTEM
+   MessageInterface::ShowMessage
+      ("Validator::CreateAxisSystem() returning <%p>\n", axis);
+   #endif
+   
+   return axis;
 }
 
 
@@ -2355,16 +2379,26 @@ bool Validator::CreateCoordSystemProperty(GmatBase *obj, const std::string &prop
        obj, obj->GetName().c_str(), prop.c_str(), value.c_str());
    #endif
    
-   CreateAxisSystem(value, obj);
+   AxisSystem *axis = CreateAxisSystem(value, obj);
+   if (axis == NULL)
+      return false;
    
    #ifdef DEBUG_COORD_SYS_PROP
    MessageInterface::ShowMessage
       ("Validator::CreateCoordSystemProperty() AxisSystem '%s' created\n", value.c_str());
-   #endif
-   
-   #ifdef DEBUG_COORD_SYS_PROP
    MessageInterface::ShowMessage("   Setting CS ref objects and Initializing...\n");
    #endif
+   
+   // Set AxisSystem to CoordinateSystem
+   obj->SetRefObject(axis, axis->GetType(), axis->GetName());
+   
+   // Since CoordinateSystem clones AxisSystem, delete it from here
+   // (LOJ: 2009.03.03)
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Remove
+      (axis, "localAxes", "Validator::CreateAxisSystem()", "deleting localAxes");
+   #endif
+   delete axis;
    
    StringArray refNameList = obj->GetRefObjectNameArray(Gmat::SPACE_POINT);
    for (UnsignedInt j = 0; j < refNameList.size(); j++)
