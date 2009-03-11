@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              ThrusterCoefficientDialog
 //------------------------------------------------------------------------------
@@ -18,24 +18,25 @@
 
 #include "gmatwxdefs.hpp"
 #include "GmatDialog.hpp"
-#include "Thruster.hpp"
 
 class ThrusterCoefficientDialog : public GmatDialog
 {
 public:
-   ThrusterCoefficientDialog(wxWindow *parent, Thruster *thruster, std::string type);
+   ThrusterCoefficientDialog(wxWindow *parent, wxWindowID id, 
+                             const wxString &title, GmatBase *obj,
+                             const wxString &type);
    
-private:  
-    
-   Thruster *theThruster;
+private:
+   
+   GmatBase *theObject;
    
    StringArray coefName;
    RealArray coefValue;
    
-   std::string coefType;
-     
-   wxGrid *coefficientGrid;
-
+   wxString coefType;
+   
+   wxGrid *coefGrid;
+   
    // methods inherited from GmatDialog
    virtual void Create();
    virtual void LoadData();
