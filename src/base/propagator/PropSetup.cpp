@@ -116,7 +116,7 @@ PropSetup::PropSetup(const std::string &name)
    // When Propagator or ForceModes is cloned these names are set to "" so that they
    // can be deleted.
    mPropagatorName = "InternalPropagator";
-   mODEModelName = "InternalForceModel";
+   mODEModelName = "InternalODEModel";
    
    // Create default Integrator and ODEModel
    mPropagator = new RungeKutta89("RungeKutta89");
@@ -320,7 +320,7 @@ void PropSetup::SetPropagator(Propagator *propagator)
    if (propagator == NULL)
       throw PropSetupException("SetPropagator() failed: propagator is NULL");
    
-   DeleteOwnedObject(PROPAGATOR);
+   DeleteOwnedObject(PROPAGATOR, true);
    ClonePropagator(propagator);
 }
 
@@ -344,7 +344,7 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
    if (odeModel == NULL)
       throw PropSetupException("SetODEModel() failed: ODEModel is NULL");
    
-   DeleteOwnedObject(ODE_MODEL);
+   DeleteOwnedObject(ODE_MODEL, true);
    CloneODEModel(odeModel);
    
    #ifdef DEBUG_PROPSETUP_SET
