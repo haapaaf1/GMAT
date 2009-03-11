@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              FiniteBurn
 //------------------------------------------------------------------------------
@@ -35,6 +35,10 @@ public:
    FiniteBurn(const FiniteBurn& fb);
    FiniteBurn&          operator=(const FiniteBurn& fb);
    
+   // inherited methods from Burn
+   virtual void         SetSpacecraftToManeuver(Spacecraft *sat);
+   virtual bool         Fire(Real *burnData = NULL, Real epoch = 21545.0);
+   
    // Inherited (GmatBase) methods
    virtual std::string  GetParameterText(const Integer id) const;
    virtual Integer      GetParameterID(const std::string &str) const;
@@ -43,6 +47,7 @@ public:
    virtual std::string  GetParameterTypeString(const Integer id) const;
    virtual bool         IsParameterReadOnly(const Integer id) const;
 
+   virtual std::string  GetStringParameter(const Integer id) const;
    virtual bool         SetStringParameter(const Integer id, 
                                            const std::string &value);
    virtual bool         SetStringParameter(const Integer id,
@@ -60,7 +65,6 @@ public:
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    
    virtual bool         Initialize();
-   virtual bool         Fire(Real *burnData, Real epoch);
    
    virtual GmatBase*    Clone() const;
    virtual void         Copy(const GmatBase* orig);
@@ -70,20 +74,21 @@ public:
                                         const std::string &newName);
    
 protected:
+
    /// List of thrusters used in the maneuver
-   StringArray             thrusters;
-   /// List of fuel tanks used in the maneuver
-   StringArray             tanks;
-   /// Overall thrust scale factor for this burn
-   Real                    burnScaleFactor;
-   /// Flag used to determine if the configuration needs updating
-   bool                    initialized;
+   StringArray             thrusterNames;
+   /// List of thrusters used in the maneuver
+   ObjectMap               thrusterMap;
+   /// List of fuel tanks used in the maneuver (deprecated)
+   StringArray             tankNames;
+   
+   bool SetThrustersFromSpacecraft();
    
    /// Published parameters for thrusters
    enum
    {
       THRUSTER = BurnParamCount,
-      FUEL_TANK, 
+      FUEL_TANK,
       BURN_SCALE_FACTOR,
       FiniteBurnParamCount
    };
@@ -94,6 +99,7 @@ protected:
    /// Thruster parameter types
    static const Gmat::ParameterType 
                         PARAMETER_TYPE[FiniteBurnParamCount - BurnParamCount];
+   
 };
 
 #endif // FiniteBurn_hpp
