@@ -172,7 +172,7 @@ public:
    
    // Burn
    Burn* CreateBurn(const std::string &type,
-                    const std::string &name);
+                    const std::string &name, bool createDefault = false);
    Burn* GetBurn(const std::string &name);
    
    // Parameter

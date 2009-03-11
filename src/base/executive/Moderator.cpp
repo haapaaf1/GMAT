@@ -125,17 +125,16 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 {
    isFromGui = fromGui;
    
-   // Should we turn this on globally?
-   #ifdef DEBUG_MEMORY
-   //MemoryTracker::Instance()->SetShowTrace(true);
-   MemoryTracker::Instance()->SetShowTrace(false);
-   #endif
-   
    try
    {
       // Read startup file, Set Log file
       theFileManager = FileManager::Instance();
       theFileManager->ReadStartupFile(startupFile);
+      
+      // Set trace flag globally
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->SetShowTrace(false);
+      #endif
       
       MessageInterface::ShowMessage("Moderator is creating core engine...\n");
       
@@ -223,9 +222,18 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       CreatePlanetaryCoeffFile();
       CreateTimeFile();
       
-      // create at least 1 Sandbox and Command
-      sandboxes.push_back(new Sandbox());
-      commands.push_back(new NoOp());
+      // create at least 1 Sandbox and NoOp Command
+      Sandbox *sandbox = new Sandbox();
+      GmatCommand *noOp = new NoOp();
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add(sandbox, "Sandbox", "Moderator::Initialize()", "");
+      MemoryTracker::Instance()->Add(noOp, "NoOP", "Moderator::Initialize()", "");
+      #endif
+      
+      sandboxes.push_back(sandbox);
+      commands.push_back(noOp);
+      
       #if DEBUG_INITIALIZE
       MessageInterface::ShowMessage
          (".....created  (%p)Sandbox 1\n", sandboxes[0]);
@@ -300,10 +308,14 @@ void Moderator::Finalize()
    #endif
    
    #if DEBUG_FINALIZE > 0
-   MessageInterface::ShowMessage(".....Mod::deleting (%p)theFileManager\n", theFileManager);
-   MessageInterface::ShowMessage(".....Mod::deleting (%p)theEopFile\n", theEopFile);
-   MessageInterface::ShowMessage(".....Mod::deleting (%p)theItrfFile\n", theItrfFile);
-   MessageInterface::ShowMessage(".....Mod::deleting (%p)theLeapSecsFile\n", theLeapSecsFile);
+   MessageInterface::ShowMessage
+      (".....Moderator::Finalize() deleting (%p)theFileManager\n", theFileManager);
+   MessageInterface::ShowMessage
+      (".....Moderator::Finalize() deleting (%p)theEopFile\n", theEopFile);
+   MessageInterface::ShowMessage
+      (".....Moderator::Finalize() deleting (%p)theItrfFile\n", theItrfFile);
+   MessageInterface::ShowMessage
+      (".....Moderator::Finalize() deleting (%p)theLeapSecsFile\n", theLeapSecsFile);
    #endif
    
    delete theFileManager;
@@ -333,7 +345,8 @@ void Moderator::Finalize()
          GmatCommand *cmd = commands[0];
          #if DEBUG_FINALIZE > 0
          MessageInterface::ShowMessage
-            (".....Mod::deleting (%p)%s\n", cmd, cmd->GetTypeName().c_str());
+            (".....Moderator::Finalize() deleting (%p)%s\n", cmd,
+             cmd->GetTypeName().c_str());
          #endif
          
          #ifdef DEBUG_MEMORY
@@ -376,7 +389,8 @@ void Moderator::Finalize()
       // delete solar systems
       #if DEBUG_FINALIZE > 0
       MessageInterface::ShowMessage
-         (".....Mod::deleting (%p)theDefaultSolarSystem\n", theDefaultSolarSystem);
+         (".....Moderator::Finalize() deleting (%p)theDefaultSolarSystem\n",
+          theDefaultSolarSystem);
       #endif      
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
@@ -390,7 +404,8 @@ void Moderator::Finalize()
       {
          #if DEBUG_FINALIZE > 0
          MessageInterface::ShowMessage
-            (".....Mod::deleting (%p)theSolarSystemInUse\n", theSolarSystemInUse);
+            (".....Moderator::Finalize() deleting (%p)theSolarSystemInUse\n",
+             theSolarSystemInUse);
          #endif
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
@@ -406,7 +421,8 @@ void Moderator::Finalize()
       {
          #if DEBUG_FINALIZE > 0
          MessageInterface::ShowMessage
-            (".....Mod::deleting (%p)theInternalCoordSystem\n", theInternalCoordSystem);
+            (".....Moderator::Finalize() deleting (%p)theInternalCoordSystem\n",
+             theInternalCoordSystem);
          #endif
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
@@ -420,14 +436,17 @@ void Moderator::Finalize()
       // delete Sanbox (only 1 Sandbox for now)
       #if DEBUG_FINALIZE > 0
       MessageInterface::ShowMessage
-         (".....Mod::deleting (%p)sandbox 1\n", sandboxes[0]);
+         (".....Moderator::Finalize() deleting (%p)sandbox 1\n", sandboxes[0]);
+      #endif
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (sandboxes[0], "Sandbox", "Moderator::Finalize()");
       #endif
       delete sandboxes[0];
       commands[0] = NULL;
       sandboxes[0] = NULL;
       commands.clear();
       sandboxes.clear();
-      
    }
    catch (BaseException &e)
    {
@@ -1659,7 +1678,7 @@ SpaceObject* Moderator::CreateSpacecraft(const std::string &type,
          MessageInterface::ShowMessage("Moderator::CreateSpacecraft()\n" +
                                        e.GetFullMessage());
       }
-
+      
       return sc;
    }
    else
@@ -2195,19 +2214,24 @@ AtmosphereModel* Moderator::GetAtmosphereModel(const std::string &name)
 
 // Burn
 //------------------------------------------------------------------------------
-// Burn* CreateBurn(const std::string &type, const std::string &name)
+// Burn* CreateBurn(const std::string &type, const std::string &name,
+//                  bool createDefault)
 //------------------------------------------------------------------------------
 /**
  * Creates a burn object by given type and name and add to configuration.
+ * If createDefault is true, it will create "Local" coordinate system with
+ * "VNB" axes. Usually this flag is set to true if ImpulsiveBurn object is
+ * created from the GUI.
  *
  * @param <type> object type
  * @param <name> object name
+ * @param <createDefault> set to true if default burn to be created (false)
  *
  * @return a burn object pointer
  */
 //------------------------------------------------------------------------------
 Burn* Moderator::CreateBurn(const std::string &type,
-                            const std::string &name)
+                            const std::string &name, bool createDefault)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
@@ -2235,7 +2259,11 @@ Burn* Moderator::CreateBurn(const std::string &type,
       #endif
       
       // Set default Axes to VNB
-      burn->SetStringParameter(burn->GetParameterID("Axes"), "VNB");
+      if (createDefault)
+      {
+         burn->SetStringParameter(burn->GetParameterID("CoordinateSystem"), "Local");
+         burn->SetStringParameter(burn->GetParameterID("Axes"), "VNB");
+      }
       
       // Manage it if it is a named burn
       try
@@ -2363,7 +2391,7 @@ Parameter* Moderator::CreateParameter(const std::string &type,
    Parameter *param = GetParameter(name);
    #if DEBUG_CREATE_PARAMETER
    MessageInterface::ShowMessage
-      ("   configured param = <%p> '%s'\n", param, param ? param->GetName().c_str() : "NULL");
+      ("   managed param = <%p> '%s'\n", param, param ? param->GetName().c_str() : "NULL");
    #endif
    
    // if Parameter was created during GmatFunction parsing, just set reference object
@@ -2447,6 +2475,10 @@ Parameter* Moderator::CreateParameter(const std::string &type,
             
             theConfigManager->ConfigurationChanged(oldFlag);
          }
+      }
+      else if (manage == 2) //LOJ: Add object if managed in FOS(2009.03.09)
+      {
+         AddObject(param);
       }
    }
    catch (BaseException &e)
@@ -2534,9 +2566,9 @@ ODEModel* Moderator::CreateODEModel(const std::string &type,
       #endif
       
       // Create default force model of PointMassForce if name is blank or
-      // InternalForceModel. (loj: 2008.11.06)
-      // PropSetup no longer creates InternalForceModel
-      if (name == "InternalForceModel")
+      // InternalODEModel. (loj: 2008.11.06)
+      // PropSetup no longer creates InternalODEModel
+      if (name == "InternalODEModel")
       {
          PhysicalModel *pmf = CreatePhysicalModel("PointMassForce", "");
          fm->AddForce(pmf);
@@ -2978,6 +3010,13 @@ CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
             cs->SetRefObject(axis, Gmat::AXIS_SYSTEM, axis->GetName());
             cs->SetSolarSystem(theSolarSystemInUse);
             cs->Initialize();
+            
+            // Since CoordinateSystem clones AxisSystem, delete it from here
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (axis, "localAxes", "Moderator::CreateCoordinateSystem()",
+                "deleting localAxes");
+            #endif
          }
       }
       catch (BaseException &e)
@@ -3359,6 +3398,11 @@ AxisSystem* Moderator::CreateAxisSystem(const std::string &type,
       axisSystem->SetEopFile(theEopFile);
    if (axisSystem->UsesItrfFile() == GmatCoordinate::REQUIRED)
       axisSystem->SetCoefficientsFile(theItrfFile);
+   
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage
+      ("Moderator::CreateAxisSystem() returning <%p>\n", axisSystem);
+   #endif
    
    return axisSystem;
 }
@@ -4510,7 +4554,8 @@ Integer Moderator::RunMission(Integer sandboxNum)
       {
          MessageInterface::ShowMessage
             ("Moderator::RunMission() Unknown error occurred.\n");
-         throw;
+         status = -4;
+         //throw; // LOJ: We want to finish up the clearing process below
       }
    }
    else
@@ -5252,6 +5297,13 @@ void Moderator::CreateDefaultCoordSystems()
          eccs->SetJ2000Body(earth);
          eccs->SetSolarSystem(theSolarSystemInUse);
          eccs->Initialize();
+         
+         // Since CoordinateSystem clones AxisSystem, delete it from here
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (ecAxis, "localAxes", "Moderator::CreateDefaultCoordSystems()",
+             "deleting localAxes");
+         #endif
       }
       else
       {
@@ -5275,6 +5327,13 @@ void Moderator::CreateDefaultCoordSystems()
          bfcs->SetJ2000Body(earth);
          bfcs->SetSolarSystem(theSolarSystemInUse);
          bfcs->Initialize();
+         
+         // Since CoordinateSystem clones AxisSystem, delete it from here
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (bfecAxis, "localAxes", "Moderator::CreateDefaultCoordSystems()",
+             "deleting localAxes");
+         #endif
       }
       else
       {
@@ -5359,6 +5418,14 @@ void Moderator::CreateDefaultMission()
       orAxis->SetStringParameter("Secondary", "DefaultSC");
       vnb->SetStringParameter("Origin", "Earth");
       vnb->SetRefObject(orAxis, Gmat::AXIS_SYSTEM, orAxis->GetName());
+      
+      // Since CoordinateSystem clones AxisSystem, delete it from here
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (orAxis, "localAxes", "Moderator::CreateCoordinateSystem()",
+          "deleting localAxes");
+      #endif
+      
       #if DEBUG_DEFAULT_MISSION > 0
       MessageInterface::ShowMessage("-->default vnb coordinate system created\n");
       #endif
@@ -5802,6 +5869,13 @@ void Moderator::SetParameterRefObject(Parameter *param, const std::string &type,
          cs->SetRefObject(FindObject("Earth"), Gmat::SPACE_POINT, "Earth");
          cs->SetSolarSystem(theSolarSystemInUse);
          cs->Initialize();
+         
+         // Since CoordinateSystem clones AxisSystem, delete it from here
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (axis, "localAxes", "Moderator::SetParameterRefObject()",
+             "deleting localAxes");
+         #endif
          
          param->SetRefObjectName(Gmat::COORDINATE_SYSTEM, axisName);
          // Set CoordinateSystem to param (2008.06.26)
