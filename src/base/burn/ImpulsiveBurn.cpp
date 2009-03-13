@@ -22,7 +22,7 @@
 #include "MessageInterface.hpp"
  
 
-#define DEBUG_IMPULSIVE_BURN
+//#define DEBUG_IMPULSIVE_BURN
 
 
 //------------------------------------------------------------------------------

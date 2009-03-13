@@ -21,10 +21,10 @@
 #include "Target.hpp"
 
 
-// #define DEBUG_TARGETER_PARSING
-#define DEBUG_TARGETER
-#define DEBUG_START_MODE
-#define DEBUG_TARGET_COMMANDS
+//#define DEBUG_TARGETER_PARSING
+//#define DEBUG_TARGETER
+//#define DEBUG_START_MODE
+//#define DEBUG_TARGET_COMMANDS
 
 
 //------------------------------------------------------------------------------

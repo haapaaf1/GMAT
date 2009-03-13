@@ -69,6 +69,7 @@
 //#define DEBUG_INITIALIZATION
 //#define DEBUG_BUILDING_MODELS
 //#define DEBUG_STATE
+#define DEBUG_REORIGIN
 
 
 //#ifndef DEBUG_MEMORY
@@ -3140,6 +3141,19 @@ void ODEModel::MoveToOrigin(Real newEpoch)
    Integer satCount = dimension / stateSize;
    Integer currentScState = 0;
 
+#ifdef DEBUG_REORIGIN
+   MessageInterface::ShowMessage(
+         "SatCount = %d, dimension = %d, stateSize = %d\n",satCount, 
+         dimension, stateSize); 
+   MessageInterface::ShowMessage(
+       "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
+       "%lf]\n   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
+       rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
+       rawState[5],
+       modelState[0], modelState[1], modelState[2], modelState[3],
+       modelState[4], modelState[5]);
+#endif
+
    if (centralBodyName == j2kBodyName)
       memcpy(modelState, rawState, dimension*sizeof(Real));
    else
@@ -3156,13 +3170,50 @@ void ODEModel::MoveToOrigin(Real newEpoch)
          for (int j = 0; j < 6; ++j)
             modelState[currentScState+j] = rawState[currentScState+j] - delta[j];
 
+#ifdef DEBUG_REORIGIN
+   MessageInterface::ShowMessage(
+       "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
+       "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+       "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+       "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+       "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
+       rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
+       rawState[5],
+       j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
+       j2kState[5],
+       cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+       cbState[5],
+       delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+       modelState[0], modelState[1], modelState[2], modelState[3],
+       modelState[4], modelState[5]);
+#endif
+   
          // Copy any remaining state elements
          if (stateSize > 6)
             memcpy(&modelState[currentScState+6], &rawState[currentScState+6],
                 (stateSize-6)*sizeof(Real));
          // Move to the next state
          currentScState += stateSize;
+         
+#ifdef DEBUG_REORIGIN
+   MessageInterface::ShowMessage(
+       "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
+       "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+       "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+       "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+       "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
+       rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
+       rawState[5],
+       j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
+       j2kState[5],
+       cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+       cbState[5],
+       delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+       modelState[0], modelState[1], modelState[2], modelState[3],
+       modelState[4], modelState[5]);
+#endif
       }
+      
       #ifdef DEBUG_REORIGIN
          MessageInterface::ShowMessage(
              "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
