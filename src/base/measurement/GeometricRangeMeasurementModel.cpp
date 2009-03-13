@@ -24,6 +24,14 @@
 GeometricRangeMeasurementModel::GeometricRangeMeasurementModel(const std::string name) :
    MeasurementModel        ("GeometricRange", name)
 {
+  numMeasurements = 1;
+
+  // TODO: FIX the "new" statements
+  // Name of each measurement returned
+  //StringArray *myMeasurementNames = new StringArray[numMeasurements];
+  //measurementNames = &myMeasurementNames;
+  // Units of each measurement returned
+  //measurementUnits = new String("Kilometers");
 
 }
 

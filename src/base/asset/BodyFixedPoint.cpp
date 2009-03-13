@@ -40,7 +40,7 @@ BodyFixedPoint::PARAMETER_TEXT[BodyFixedPointParamCount - SpacePointParamCount] 
    {
          "CentralBody",
          "StateType",         // Cartesian or Geographical
-         "HorizonReference",  // Sphere or Ellipsoid
+         "HorizonReference",  // Sphere, Ellipsoid, or Geoid
 	 "LatitudeGeometry",  // Geodetic, Geocentric, or Reduced
          "Location1",         // X or Latitude value
          "Location2",         // Y or Longitude value

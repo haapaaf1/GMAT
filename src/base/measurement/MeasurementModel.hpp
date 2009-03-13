@@ -95,19 +95,22 @@ public:
   Integer GetNumMeasurements() const;
   std::string GetMeasurementNameText(Integer id) const;
   std::string GetMeasurementUnitText(Integer id) const;
-  const Real* GetMeasurements() const;
+
+  void SetGroundStation(GroundStation* gs);
+  GroundStation* GetGroundStation();
 
   // Compute measurements
+  virtual bool ComputeMeasurement(Spacecraft* theSat);
   virtual bool ComputeMeasurement(ObjectArray participants, 
 				  LaVectorDouble &myMeasurements);
   virtual bool ComputeMeasurement(GroundStation* theStation,
         Spacecraft* theSat, LaVectorDouble &myMeasurements);
  
   // Compute partial derivatives
+  virtual bool ComputeCartesianPartialDerivative(Spacecraft* theSat);
   virtual bool ComputeCartesianPartialDerivative(ObjectArray participants, 
 				  LaGenMatDouble &myMeasurements);
-
-   virtual bool ComputeCartesianPartialDerivative(
+  virtual bool ComputeCartesianPartialDerivative(
         GroundStation* theStation, Spacecraft* theSat,
         LaGenMatDouble &myCartDerivatives);
    
@@ -183,11 +186,16 @@ protected:
   StringArray measurementNames;
   // Units of each measurement returned
   StringArray measurementUnits;
-  // Measurement returned by the model
-  Real *measurements;
+
+  // Vector containing resultant measurements
+  LaVectorDouble theMeasurements;
+
+  // Matrix containing cartesian partial derivatives
+  LaGenMatDouble theCartDerivatives;
 
   // This array of datatypes can be used to select a specific
   // subset of available data from a given dataFormat
+  // TODO: Should all measurement types be default ON or OFF?
   StringArray measurementTypesAllowed;
   
   /// Array of strings passed to the GMAT engine
@@ -198,11 +206,17 @@ protected:
   Real GetDegree(const Real angle, const Real minAngle, 
 			    const Real maxAngle);
     
-  // Data file objects
+  // Data file object definition
+  // This is only needed if a data file object was
+  // not previously set up
   IntegerArray numLines;
   StringArray myDataFileFormats;
   StringArray myDataFileNames;
   ObjectArray myDataSources;
+
+  // TODO: Is this the best way for the measurement model
+  // to know what ground station it is associated with?
+  GroundStation* theStation;
 
 };
 
