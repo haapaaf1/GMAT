@@ -1433,6 +1433,8 @@ void ODEModel::UpdateInitialData()
       
       SetupSpacecraftData(&stateObjects, 0);
    }
+   
+   psm->MapObjectsToVector();
 
    parametersSetOnce = true;
 }

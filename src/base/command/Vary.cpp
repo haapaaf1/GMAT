@@ -27,9 +27,9 @@
 #include <sstream>         // for std::stringstream
 
 
-//#define DEBUG_VARIABLE_RANGES
-//#define DEBUG_VARY_EXECUTE 1
-//#define DEBUG_VARY_PARAMS
+#define DEBUG_VARIABLE_RANGES
+#define DEBUG_VARY_EXECUTE 1
+#define DEBUG_VARY_PARAMS
 //#define DEBUG_VARY_PARSING
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_RENAME

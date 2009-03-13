@@ -20,7 +20,7 @@
  
 #include "Maneuver.hpp"
 
-//#define DEBUG_MANEUVER 1
+#define DEBUG_MANEUVER 1
 //#define DEBUG_MANEUVER_PARSE
 
 //------------------------------------------------------------------------------
@@ -550,9 +550,19 @@ bool Maneuver::Initialize(void)
 //------------------------------------------------------------------------------
 bool Maneuver::Execute()
 {
+   #ifdef DEBUG_MANEUVER
+      MessageInterface::ShowMessage("Maneuver::Execute maneuvering %s\n",
+            ((sat == NULL) ? "a NULL spaceecraft" : sat->GetName().c_str()));
+   #endif
+      
    Real epoch = sat->GetRealParameter("A1Epoch");
    burn->SetSpacecraftToManeuver(sat);
    bool retval = burn->Fire(NULL, epoch);
    BuildCommandSummary(true);
+   
+   #ifdef DEBUG_MANEUVER
+      MessageInterface::ShowMessage("Maneuver::Execute complete\n");
+   #endif
+   
    return retval;
 }

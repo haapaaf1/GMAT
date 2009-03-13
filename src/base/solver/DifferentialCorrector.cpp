@@ -28,11 +28,11 @@
 #include <cmath>
 #include <sstream>
 
-//#define DEBUG_STATE_MACHINE
-//#define DEBUG_DC_INIT 1
+#define DEBUG_STATE_MACHINE
+#define DEBUG_DC_INIT 1
 //#define DEBUG_JACOBIAN
-//#define DEBUG_VARIABLES_CALCS
-//#define DEBUG_TARGETING_MODES
+#define DEBUG_VARIABLES_CALCS
+#define DEBUG_TARGETING_MODES
 
 // Turn on other debug if working on modes
 #ifdef DEBUG_TARGETING_MODES
