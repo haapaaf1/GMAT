@@ -35,7 +35,9 @@ Formation::PARAMETER_TEXT[FormationParamCount - SpaceObjectParamCount] =
 {
    "Add",
    "Remove",
-   "Clear"
+   "Clear",
+   "STM",
+   "CartesianState",
 };
 
 
@@ -44,7 +46,9 @@ Formation::PARAMETER_TYPE[FormationParamCount - SpaceObjectParamCount] =
 {
    Gmat::OBJECTARRAY_TYPE,
    Gmat::OBJECT_TYPE,     
-   Gmat::BOOLEAN_TYPE
+   Gmat::BOOLEAN_TYPE,
+   Gmat::RMATRIX_TYPE,      // FORMATION_STM,
+   Gmat::REAL_TYPE,        // FORMATION_CARTESIAN_STATE,
 };
 
 
@@ -565,6 +569,13 @@ Real Formation::SetRealParameter(const Integer id, const Real value)
             throw SpaceObjectException(
                "Formation constituent returned incorrect epoch");
       }
+   }
+   
+
+   if (id >= FORMATION_CARTESIAN_STATE)
+   {
+      state[id - FORMATION_CARTESIAN_STATE] = value;
+      retval = true;
    }
    
    return retval;
@@ -1146,3 +1157,187 @@ bool Formation::RemoveSpacecraft(const std::string &name)
 
    return false;
 }
+
+
+Integer Formation::SetPropItem(std::string propItem)
+{
+   if (propItem == "CartesianState")
+      return Gmat::CARTESIAN_STATE;
+   if (propItem == "STM")
+      return Gmat::ORBIT_STATE_TRANSITION_MATRIX;
+   
+   return SpaceObject::SetPropItem(propItem);
+}
+
+
+StringArray Formation::GetDefaultPropItems()
+{
+   StringArray defaults = SpaceObject::GetDefaultPropItems();
+   defaults.push_back("CartesianState");
+   return defaults;
+}
+
+
+Real* Formation::GetPropItem(Integer item)
+{
+   Real* retval = NULL;
+   switch (item)
+   {
+      case Gmat::CARTESIAN_STATE:
+         retval = state.GetState();
+         break;
+         
+      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+//         retval = stm;
+         break;
+         
+      case Gmat::MASS_FLOW:
+         // todo: Access tanks for mass information to handle mass flow
+         break;
+         
+      // All other values call up the class heirarchy
+      default:
+         retval = SpaceObject::GetPropItem(item);
+   }
+   
+   return retval;
+}
+
+Integer Formation::GetPropItemSize(Integer item)
+{
+   Integer retval = -1;
+   switch (item)
+   {
+      case Gmat::CARTESIAN_STATE:
+         retval = state.GetSize();
+         break;
+         
+      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+         retval = 36 * satCount;
+         break;
+         
+      case Gmat::MASS_FLOW:
+         // todo: Access tanks for mass information to handle mass flow
+         break;
+         
+      // All other values call up the heirarchy
+      default:
+         retval = SpaceObject::GetPropItemSize(item);
+   }
+   
+   return retval;
+}
+
+
+
+
+
+
+
+
+
+
+
+//---------------------------------------------------------------------------
+//  Real GetRealParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the value for a Real parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The parameter's value.
+ */
+Real Formation::GetRealParameter(const Integer id) const
+{
+   #ifdef DEBUG_GET_REAL
+      MessageInterface::ShowMessage(
+      "In Formation::GetReal, asking for parameter %d, whose string is \"%s\"\n", 
+      id, (GetParameterText(id)).c_str());
+      //for (Integer i=0; i<6;i++)
+      //   MessageInterface::ShowMessage("   state(%d) = %.12f\n",
+      //   i, state[i]);
+      //MessageInterface::ShowMessage("    and stateType = %s\n",
+      //   stateType.c_str());
+   #endif
+
+   if (id >= FORMATION_CARTESIAN_STATE )
+      return state[id - FORMATION_CARTESIAN_STATE];
+   
+   return SpaceObject::GetRealParameter(id);
+}
+
+//---------------------------------------------------------------------------
+//  Real GetRealParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the value for a Real parameter.
+ *
+ * @param <label> The label of the parameter.
+ *
+ * @return The parameter's value.
+ */
+Real Formation::GetRealParameter(const std::string &label) const
+{
+   // Performance!
+    if (label == "A1Epoch")
+       return state.GetEpoch();
+   
+    return GetRealParameter(GetParameterID(label));
+}
+
+////---------------------------------------------------------------------------
+////  Real SetRealParameter(const Integer id, const Real value)
+////---------------------------------------------------------------------------
+///**
+// * Set the value for a Real parameter.
+// *
+// * @param <id> The integer ID for the parameter.
+// * @param <value> The new parameter value.
+// *
+// * @return the parameter value at the end of this call, or 
+// *         REAL_PARAMETER_UNDEFINED if the parameter id is invalid or the 
+// *         parameter type is not Real.
+// */
+//Real Formation::SetRealParameter(const Integer id, const Real value)
+//{
+//   #ifdef DEBUG_SPACECRAFT_SET
+//   MessageInterface::ShowMessage("In Formation::SetRealParameter, "
+//         "id = %d and value = %.12f\n", id, value);
+//   #endif
+//   if (id >= CARTESIAN_STATE )
+//   {
+//      state[id - FORMATION_CARTESIAN_STATE] = value;
+//      return state[id - FORMATION_CARTESIAN_STATE];
+//   }
+//   
+//   return SpaceObject::SetRealParameter(id, value);
+//}
+//
+////---------------------------------------------------------------------------
+////  Real SetRealParameter(const std::string &label, const Real value)
+////---------------------------------------------------------------------------
+///**
+// * Set the value for a Real parameter.
+// *
+// * @param <label> The label of the parameter.
+// * @param <value> The new parameter value.
+// *
+// * @return the parameter value at the end of this call, or 
+// *         REAL_PARAMETER_UNDEFINED if the parameter id is invalid or the 
+// *         parameter type is not Real.
+// */
+//Real Formation::SetRealParameter(const std::string &label, const Real value)
+//{
+//   #ifdef DEBUG_SPACECRAFT_SET
+//   MessageInterface::ShowMessage
+//      ("In Formation::SetRealParameter(label), label = %s and value = %.12f\n",
+//       label.c_str(), value);
+//   #endif
+//
+//   
+//   return SpaceObject::SetRealParameter(label, value);
+//}
+
+
+

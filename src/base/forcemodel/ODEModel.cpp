@@ -69,7 +69,7 @@
 //#define DEBUG_INITIALIZATION
 //#define DEBUG_BUILDING_MODELS
 //#define DEBUG_STATE
-#define DEBUG_REORIGIN
+//#define DEBUG_REORIGIN
 
 
 //#ifndef DEBUG_MEMORY
@@ -1095,10 +1095,11 @@ bool ODEModel::Initialize()
             dimension);
    #endif
 
-   rawState = // state->GetState();// new Real[dimension];
-   modelState = // state->GetState();// new Real[dimension];
-      new Real[dimension];
+   rawState = new Real[dimension];
+//   modelState = // state->GetState();// new Real[dimension];
+//      new Real[dimension];
    memcpy(rawState, state->GetState(), dimension * sizeof(Real));
+   MoveToOrigin();
 
 //   modelState = new Real[dimension];
 //   memcpy(modelState, state->GetState(), dimension * sizeof(Real));

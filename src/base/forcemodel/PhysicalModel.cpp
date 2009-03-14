@@ -369,6 +369,12 @@ bool PhysicalModel::Initialize()
             typeName.c_str(), dimension);
    #endif
       
+   if ((rawState != NULL) && (rawState != modelState))
+   {
+      delete [] rawState;
+      rawState = NULL;
+   }
+   
    if (modelState)
    {
       delete [] modelState;

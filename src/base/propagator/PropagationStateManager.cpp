@@ -27,7 +27,7 @@
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
 
-//#define DEBUG_STATE_CONSTRUCTION
+#define DEBUG_STATE_CONSTRUCTION
 //#define DUMP_STATE
 //#define DEBUG_OBJECT_UPDATES
 
@@ -78,10 +78,18 @@ bool PropagationStateManager::SetObject(GmatBase* theObject)
    // todo: validate that theObject can be propagated 
 
    objects.push_back(theObject);
-   Integer id = theObject->GetParameterID("Epoch");
-   if (theObject->GetParameterType(id) != Gmat::REAL_TYPE)
-      id = theObject->GetParameterID("A1Epoch");
-   epochIDs.push_back(id);
+   if (theObject->IsOfType(Gmat::FORMATION))
+   {
+      Integer id = theObject->GetParameterID("A1Epoch");
+      epochIDs.push_back(id);
+   }
+   else
+   {
+      Integer id = theObject->GetParameterID("Epoch");
+      if (theObject->GetParameterType(id) != Gmat::REAL_TYPE)
+         id = theObject->GetParameterID("A1Epoch");
+      epochIDs.push_back(id);
+   }
    
    current = theObject;
    StringArray *objectProps = new StringArray;
