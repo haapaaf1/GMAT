@@ -1,0 +1,36 @@
+% Function used: Product.gmf, BasicMath.gmf
+% Function path: ./input/SystemTest/Function/
+% Outputs to: ./output/SystemTest/
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+Create Variable OptionFlag;
+Create Variable MathOutput;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+
+OptionFlag = 1
+
+% Call function
+[MathOutput] = Func_GFuncInsideCFlow(OptionFlag)
