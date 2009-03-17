@@ -715,12 +715,8 @@ void ODEModel::BufferState()
 //------------------------------------------------------------------------------
 void ODEModel::UpdateSpaceObject(Real newEpoch)
 {
-//   if (spacecraft.size() > 0)
-//   {
-//      Integer j = 0;
       Integer stateSize;
       Integer vectorSize;
-//      std::vector<SpaceObject *>::iterator sat;
       GmatState *state;
       ReturnFromOrigin(newEpoch);
 
@@ -728,7 +724,7 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
       stateSize = state->GetSize();
       vectorSize = stateSize * sizeof(Real);
 
-//      previousState = (*state);
+      previousState = (*state);
 
 //      memcpy(previousState, state->GetState(), vectorSize);
 //      previousTime = (state->GetEpoch()) * 86400.0;
@@ -749,8 +745,11 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
       #ifdef DEBUG_ODEMODEL_EXE
           MessageInterface::ShowMessage
              ("ODEModel::UpdateSpaceObject() on \"%s\" prevElapsedTime = %f "
-              "elapsedTime = %f newepoch = %f\n", GetName().c_str(),
-              previousState.GetEpoch(), elapsedTime, newepoch);
+              "elapsedTime = %f newepoch = %f passed in epoch = %f "
+              "dX's: [%.12lf] - [%.12lf] = [%.12lf]\n", 
+              GetName().c_str(), previousState.GetEpoch(), elapsedTime, 
+              newepoch, newEpoch, (*state)[0], previousState[0], 
+              ((*state)[0] - previousState[0]));
       #endif
 
 

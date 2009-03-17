@@ -3429,11 +3429,12 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
    for (UnsignedInt i = 0; i < fm.size(); ++i)
    {
       #if DEBUG_PROPAGATE_EXE
-         MessageInterface::ShowMessage("   CurrentEpoch[%d] = %.12lf\n", i,
+         MessageInterface::ShowMessage("   TakeFinalStep calling update with CurrentEpoch[%d] = %.12lf\n", i,
             currEpoch[i]);
       #endif
 
-      fm[i]->UpdateSpaceObject(currEpoch[i]);
+      fm[i]->UpdateSpaceObject(  // currEpoch[i]);
+            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
    }
    BufferSatelliteStates(true);
 

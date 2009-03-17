@@ -970,7 +970,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
 
    // Check for orthogonality - is this correct?
    // orthonormal instead? accuracy (tolerance)?
-   if (!rotMatrix.IsOrthogonal(1.0e-15))
+   if (!rotMatrix.IsOrthogonal(5.0e-12))
       throw CoordinateSystemException(
   "Object referenced axes definition does not result in an orthogonal system.");
 }
