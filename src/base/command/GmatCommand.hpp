@@ -311,10 +311,15 @@ protected:
    // Temporary -- replace when convenient
    void CartToKep(const Rvector6 in, Rvector6 &out);
    GmatBase* FindObject(const std::string &name);
-
    
    // Method(s) used for ParametersInCommands
    bool                SetWrapperReferences(ElementWrapper &wrapper);
+   
+   // Used for deleting old ElementWrappers
+   std::vector<ElementWrapper*> oldWrappers;   
+   void                ClearOldWrappers();
+   void                CollectOldWrappers(ElementWrapper **wrapper);
+   void                DeleteOldWrappers();
 };
 
 #endif // Command_hpp

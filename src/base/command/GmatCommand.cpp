@@ -1777,11 +1777,32 @@ void GmatCommand::BuildCommandSummary(bool commandCompleted)
       if (satsInMaps > 0)
       {
          if (epochData != NULL)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (epochData, "epochData", this->GetTypeName() + "::BuildCommandSummary()",
+                "deleting epochData");
+            #endif
             delete [] epochData;
+         }
          if (stateData != NULL)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (stateData, "stateData", this->GetTypeName() + "::BuildCommandSummary()",
+                "deleting stateData");
+            #endif
             delete [] stateData;
+         }
          if (parmData != NULL)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (parmData, "parmData", this->GetTypeName() + "::BuildCommandSummary()",
+                "deleting parmData");
+            #endif
             delete [] parmData;
+         }
          epochData = new Real[satsInMaps];
          stateData = new Real[6*satsInMaps];
          parmData = new Real[6*satsInMaps];
@@ -2408,3 +2429,63 @@ bool GmatCommand::SetWrapperReferences(ElementWrapper &wrapper)
    return true;
 }
 
+
+//------------------------------------------------------------------------------
+// void ClearOldWrappers()
+//------------------------------------------------------------------------------
+void GmatCommand::ClearOldWrappers()
+{
+   oldWrappers.clear();
+}
+
+
+//------------------------------------------------------------------------------
+// void CollectOldWrappers(ElementWrapper **wrapper)
+//------------------------------------------------------------------------------
+void GmatCommand::CollectOldWrappers(ElementWrapper **wrapper)
+{
+   if (*wrapper)
+   {
+      if (find(oldWrappers.begin(), oldWrappers.end(), *wrapper) == oldWrappers.end())
+      {
+         oldWrappers.push_back(*wrapper);
+         *wrapper = NULL;
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void DeleteOldWrappers()
+//------------------------------------------------------------------------------
+void GmatCommand::DeleteOldWrappers()
+{
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("GmatCommand::DeleteOldWrappers() <%p>'%s' entered, has %d old wrappers\n",
+       this, GetTypeName().c_str(), oldWrappers.size());
+   #endif
+   
+   ElementWrapper *wrapper;
+   for (UnsignedInt i = 0; i < oldWrappers.size(); ++i)
+   {
+      wrapper = oldWrappers[i];
+      
+      #ifdef DEBUG_WRAPPER_CODE
+      MessageInterface::ShowMessage
+         ("   wrapper=<%p>'%s'\n", wrapper, wrapper ? wrapper->GetDescription().c_str() : "NULL");
+      #endif
+      if (wrapper)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (wrapper, wrapper->GetDescription(), "GmatCommand::ClearWrappers()",
+             GetTypeName() + " deleting wrapper");
+         #endif
+         delete wrapper;
+         wrapper = NULL;
+      }
+   }
+   
+   oldWrappers.clear();
+}
