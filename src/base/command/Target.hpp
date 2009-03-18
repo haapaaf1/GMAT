@@ -82,7 +82,8 @@ public:
 protected:
    /// Flag indicating is the targeter has converged
    bool                targeterConverged;
-    
+   bool                targeterInFunctionInitialized;
+   
    // Parameter IDs 
    /// ID for the burn object
    Integer             TargeterConvergedID;
