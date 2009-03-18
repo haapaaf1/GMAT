@@ -70,7 +70,9 @@ public:
    
    // methods to set/get the automatic objects
    virtual void         ClearAutomaticObjects();
-   virtual void         AddAutomaticObject(const std::string &withName, GmatBase *obj);
+   virtual void         AddAutomaticObject(const std::string &withName, GmatBase *obj,
+                                           bool alreadyManaged);
+   virtual GmatBase*    FindAutomaticObject(const std::string &name);
    virtual ObjectMap&   GetAutomaticObjects();
    
    // Inherited (GmatBase) methods
@@ -120,6 +122,8 @@ protected:
    WrapperArray         wrappersToDelete;
    /// Object array to delete
    ObjectArray          objectsToDelete;
+   /// Objects already in the Sandbox object map
+   ObjectArray          sandboxObjects;
    /// Object store for the Function 
    ObjectMap            *objectStore;
    /// Object store obtained from the Sandbox
