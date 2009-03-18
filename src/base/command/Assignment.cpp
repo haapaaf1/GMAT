@@ -36,12 +36,12 @@
 
 //#define DEBUG_RENAME
 //#define DEBUG_EVAL_RHS
-//#define DEBUG_ASSIGNMENT_IA 1
-//#define DEBUG_ASSIGNMENT_SET 1
-//#define DEBUG_ASSIGNMENT_INIT 1
-//#define DEBUG_ASSIGNMENT_EXEC 1
+//#define DEBUG_ASSIGNMENT_IA
+//#define DEBUG_ASSIGNMENT_SET
+//#define DEBUG_ASSIGNMENT_INIT
+//#define DEBUG_ASSIGNMENT_EXEC
 //#define DEBUG_EQUATION 1
-//#define DEBUG_WRAPPER_CODE 1
+//#define DEBUG_WRAPPER_CODE
 //#define DEBUG_FUNCTION 1
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_ASSIGN_CALLING_FUNCTION
@@ -433,14 +433,14 @@ bool Assignment::InterpretAction()
    if (mp.IsEquation(rhs))
    {
       // Parse RHS if equation
-      #if DEBUG_EQUATION
+      #ifdef DEBUG_EQUATION
       MessageInterface::ShowMessage
          ("Assignment::InterpretAction() %s is an equation\n", rhs.c_str());
       #endif
       
       MathNode *topNode = mp.Parse(rhs);
       
-      #if DEBUG_EQUATION
+      #ifdef DEBUG_EQUATION
       if (topNode)
          MessageInterface::ShowMessage
             ("   topNode=%s\n", topNode->GetTypeName().c_str());
@@ -452,7 +452,7 @@ bool Assignment::InterpretAction()
       std::string str1 = rhs;
       if (GmatStringUtil::EndsWith(str1, "'"))
       {
-         #if DEBUG_EQUATION
+         #ifdef DEBUG_EQUATION
          MessageInterface::ShowMessage("   <%s> ends with '\n", str1.c_str());
          #endif
          
@@ -1285,7 +1285,7 @@ ElementWrapper* Assignment::RunMathTree()
    
    if (topNode)
    {
-      #if DEBUG_EQUATION
+      #ifdef DEBUG_EQUATION
       MessageInterface::ShowMessage
          ("Assignment::RunMathTree() topNode=%s, %s\n", topNode->GetTypeName().c_str(),
           topNode->GetName().c_str());
@@ -1293,7 +1293,7 @@ ElementWrapper* Assignment::RunMathTree()
       
       topNode->GetOutputInfo(returnType, numRow, numCol);
       
-      #if DEBUG_ASSIGNMENT_EXEC
+      #ifdef DEBUG_ASSIGNMENT_EXEC
       MessageInterface::ShowMessage("   returnType=%d\n", returnType);
       #endif
       
@@ -1313,14 +1313,14 @@ ElementWrapper* Assignment::RunMathTree()
       {
       case Gmat::REAL_TYPE:
          {
-            #if DEBUG_ASSIGNMENT_EXEC
+            #ifdef DEBUG_ASSIGNMENT_EXEC
             MessageInterface::ShowMessage("   Calling topNode->Evaluate()\n");
             #endif
             
             Real rval = -9999.9999;
             rval = topNode->Evaluate();
             
-            #if DEBUG_ASSIGNMENT_EXEC
+            #ifdef DEBUG_ASSIGNMENT_EXEC
             MessageInterface::ShowMessage("   Returned %f\n", rval);
             MessageInterface::ShowMessage("   Creating NumberWrapper for output\n");
             #endif
@@ -1338,7 +1338,7 @@ ElementWrapper* Assignment::RunMathTree()
          }
       case Gmat::RMATRIX_TYPE:
          {
-            #if DEBUG_ASSIGNMENT_EXEC
+            #ifdef DEBUG_ASSIGNMENT_EXEC
             MessageInterface::ShowMessage("   Calling topNode->MatrixEvaluate()\n");
             #endif
             
@@ -1355,11 +1355,16 @@ ElementWrapper* Assignment::RunMathTree()
             outArray->SetSize(numRow, numCol);
             outArray->SetRmatrix(rmat);
             
-            #if DEBUG_ASSIGNMENT_EXEC
+            #ifdef DEBUG_ASSIGNMENT_EXEC
             MessageInterface::ShowMessage("   Creating ArrayWrapper for output\n");
             #endif
             
             outWrapper = new ArrayWrapper();
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (outWrapper, "outWrapper", "Assignment::RunMathTree()",
+                "outWrapper = new ArrayWrapper()");
+            #endif
             outWrapper->SetDescription("ArrayOutput");
             outWrapper->SetRefObject(outArray);
             break;

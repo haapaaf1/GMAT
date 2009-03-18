@@ -2280,6 +2280,11 @@ bool Propagate::Initialize()
    {
       PropSetup *oldPs = *ps;
       *ps = NULL;
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (oldPs, oldPs->GetName(), "Propagate::Initialize()",
+          "deleting oldPs");
+      #endif
       delete oldPs;
    }
    prop.clear();
@@ -2310,8 +2315,15 @@ bool Propagate::Initialize()
          singleStepMode = true;
       else
          singleStepMode = false;
-
-      prop.push_back((PropSetup *)(mapObj->Clone()));
+      
+      PropSetup *clonedProp = (PropSetup *)(mapObj->Clone());
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (clonedProp, clonedProp->GetName(), "Propagate::Initialize()",
+          "(PropSetup *)(mapObj->Clone())");
+      #endif
+      //prop.push_back((PropSetup *)(mapObj->Clone()));
+      prop.push_back(clonedProp);
       if (!prop[index])
          return false;
       
@@ -3767,10 +3779,15 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       {
          StopCondition *localSc = *i;
          stopWhen.erase(i);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (localSc, localSc->GetName(), "Propagate::TakeFinalStep()",
+             "deleting localSc");
+         #endif
          delete localSc;
       }
    }
-
+   
    // Toggle propagators out of final step mode
    /// @note This code should be removed if the minimum step is removed from 
    /// the RK integrators
@@ -4448,12 +4465,26 @@ void Propagate::AddToBuffer(SpaceObject *so)
    
    if (so->IsOfType(Gmat::SPACECRAFT))
    {
-      satBuffer.push_back((Spacecraft *)(so->Clone()));
+      Spacecraft *clonedSat = (Spacecraft *)(so->Clone());
+      satBuffer.push_back(clonedSat);
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (clonedSat, clonedSat->GetName(), "Propagate::AddToBuffer()",
+          "(Spacecraft *)(so->Clone())");
+      #endif
+      //satBuffer.push_back((Spacecraft *)(so->Clone()));
    }
    else if (so->IsOfType(Gmat::FORMATION))
    {
       Formation *form = (Formation*)so;
-      formBuffer.push_back((Formation *)(so->Clone()));
+      Formation *clonedForm = (Formation *)(so->Clone());
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (clonedForm, clonedForm->GetName(), "Propagate::AddToBuffer()",
+          "(Formation *)(so->Clone())");
+      #endif
+      //formBuffer.push_back((Formation *)(so->Clone()));
+      formBuffer.push_back(clonedForm);
       StringArray formSats = form->GetStringArrayParameter("Add");
       
       for (StringArray::iterator i = formSats.begin(); i != formSats.end(); ++i)
@@ -4478,6 +4509,10 @@ void Propagate::EmptyBuffer()
    for (std::vector<Spacecraft *>::iterator i = satBuffer.begin(); 
         i != satBuffer.end(); ++i)
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*i), (*i)->GetName(), "Propagate::EmptyBuffer()", "deleting from satBuffer");
+      #endif
       delete (*i);
    }
    satBuffer.clear();
@@ -4485,6 +4520,10 @@ void Propagate::EmptyBuffer()
    for (std::vector<Formation *>::iterator i = formBuffer.begin(); 
         i != formBuffer.end(); ++i)
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         ((*i), (*i)->GetName(), "Propagate::EmptyBuffer()", "deleting from fromBuffer");
+      #endif
       delete (*i);
    }
    formBuffer.clear();

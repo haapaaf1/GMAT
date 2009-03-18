@@ -25,6 +25,14 @@
 
 #include "Vary.hpp"           // For SetInitialValue() method
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //------------------------------------------------------------------------------
 //  SolverBranchCommand(const std::string &typeStr)
 //------------------------------------------------------------------------------
@@ -65,7 +73,14 @@ SolverBranchCommand::SolverBranchCommand(const std::string &typeStr) :
 SolverBranchCommand::~SolverBranchCommand()
 {
    if (theSolver)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (theSolver, "local solver", "SolverBranchCommand::~SolverBranchCommand()",
+          "deleting local solver");
+      #endif
       delete theSolver;
+   }
 }
 
 
@@ -179,6 +194,11 @@ void SolverBranchCommand::StoreLoopData()
       {
          Spacecraft *orig = (Spacecraft*)(obj);
          Spacecraft *sc = new Spacecraft(*orig);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            ((GmatBase*)sc, "cloned local sc", "SolverBranchCommand::StoreLoopData()",
+             "Spacecraft *sc = new Spacecraft(*orig)");
+         #endif
          // Handle CoordinateSystems
          if (orig->GetInternalCoordSystem() == NULL)
             MessageInterface::ShowMessage(
@@ -198,6 +218,12 @@ void SolverBranchCommand::StoreLoopData()
       {
          Formation *orig = (Formation*)(obj);
          Formation *form  = new Formation(*orig);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            ((GmatBase*)form, "cloned local form", "SolverBranchCommand::StoreLoopData()",
+             "Formation *form  = new Formation(*orig)");
+         #endif
+         
          localStore.push_back(form);
       }
       ++pair;
@@ -296,6 +322,11 @@ void SolverBranchCommand::FreeLoopData()
    while (!localStore.empty()) {
       obj = *(--localStore.end());
       localStore.pop_back();
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (obj, obj->GetName(), "SolverBranchCommand::FreeLoopData()",
+          "deleting local obj");
+      #endif
       delete obj;
    }
 }
