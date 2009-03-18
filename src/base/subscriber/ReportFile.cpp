@@ -32,6 +32,7 @@
 //#define DEBUG_REPORTFILE_SET
 //#define DEBUG_REPORTFILE_GET
 //#define DEBUG_REPORTFILE_INIT
+//#define DEBUG_REPORTFILE_REF_OBJ
 //#define DEBUG_RENAME
 //#define DEBUG_WRAPPER_CODE
 //#define DBGLVL_REPORTFILE_DATA 1
@@ -828,10 +829,11 @@ GmatBase* ReportFile::GetRefObject(const Gmat::ObjectType type,
 bool ReportFile::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                               const std::string &name)
 {
-   #ifdef DEBUG_REPORTFILE_SET
+   #ifdef DEBUG_REPORTFILE_REF_OBJ
    MessageInterface::ShowMessage
-      ("ReportFile::SetRefObject() obj=%p, name=%s, objtype=%s, objname=%s\n",
-       obj, name.c_str(), obj->GetTypeName().c_str(), obj->GetName().c_str());
+      ("ReportFile::SetRefObject() <%p>'%s' entered, obj=%p, name=%s, objtype=%s, "
+       "objname=%s\n", this, GetName().c_str(), obj, name.c_str(), obj->GetTypeName().c_str(),
+       obj->GetName().c_str());
    #endif
    
    if (type == Gmat::PARAMETER)
@@ -961,8 +963,9 @@ void ReportFile::ClearParameters()
    mParamNames.clear();
    mNumParams = 0;
    ClearWrappers();
-   depParamWrappers.clear();
-   paramWrappers.clear();
+   // commented out since these are cleared in Subscriber::ClearWrappers() (LOJ: 2009.03.10)
+   //depParamWrappers.clear();
+   //paramWrappers.clear();
    initial = true;   
 }
 
