@@ -300,7 +300,13 @@ bool GmatFunction::Initialize()
       {
          // get error message (loj: 2008.06.04)
          StringArray errList = validator->GetErrorList();
-         throw FunctionException(errList[0] + " in the function \"" + functionPath + "\"");
+         std::string msg; // Check for empty errList (loj: 2009.03.17)
+         if (errList.empty())
+            msg = "Error occurred";
+         else
+            msg = errList[0];
+         
+         throw FunctionException(msg + " in the function \"" + functionPath + "\"");
       }
       
       #ifdef DEBUG_FUNCTION_INIT
@@ -384,6 +390,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
       MessageInterface::ShowMessage
          ("......Function executing <%p><%s> [%s]\n", current, current->GetTypeName().c_str(),
           current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+      MessageInterface::ShowMessage("      objectsInitialized=%d\n", objectsInitialized);
       #endif
       
       last = current;
@@ -454,6 +461,11 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
       
       try
       {
+         #ifdef DEBUG_FUNCTION_EXEC
+         MessageInterface::ShowMessage
+            ("Now calling %s->Execute()\n",
+             current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+         #endif
          if (!(current->Execute()))
             return false;
       }
