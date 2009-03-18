@@ -892,7 +892,7 @@ void Sandbox::Clear()
    
    #ifdef DEBUG_MORE_MEMORY
    MessageInterface::ShowMessage
-      ("--- Sandbox::Clear() deleting %d objects\n", objectMap.size());
+      ("--- Sandbox::Clear() deleting %d objects from objectMap\n", objectMap.size());
    #endif
    
    for (omi = objectMap.begin(); omi != objectMap.end(); omi++)
@@ -911,7 +911,7 @@ void Sandbox::Clear()
       #endif
       {
          #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-            MessageInterface::ShowMessage("Deleting '%s'\n",
+            MessageInterface::ShowMessage("   Deleting '%s'\n",
                (omi->second)->GetName().c_str());
          #endif
          #ifdef DEBUG_MEMORY
@@ -920,9 +920,17 @@ void Sandbox::Clear()
                 " deleting cloned obj from objectMap");
          #endif
          delete omi->second;
+         omi->second = NULL;
          //objectMap.erase(omi);
       }
    }
+   #ifdef DEBUG_MORE_MEMORY
+   MessageInterface::ShowMessage
+      ("--- Sandbox::Clear() deleting objects from objectMap done\n");
+   MessageInterface::ShowMessage
+      ("--- Sandbox::Clear() deleting %d objects from globalObjectMap\n",
+       globalObjectMap.size());
+   #endif
    for (omi = globalObjectMap.begin(); omi != globalObjectMap.end(); omi++)
    {
       if ((omi->second)->GetType() == Gmat::SUBSCRIBER)
@@ -939,7 +947,7 @@ void Sandbox::Clear()
       #endif
       {
          #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-            MessageInterface::ShowMessage("Deleting '%s'\n",
+            MessageInterface::ShowMessage("   Deleting '%s'\n",
                (omi->second)->GetName().c_str());
          #endif
          #ifdef DEBUG_MEMORY
@@ -948,13 +956,14 @@ void Sandbox::Clear()
                 " deleting cloned obj from globalObjectMap");
          #endif
          delete omi->second;
-         //objectMap.erase(omi);
+         omi->second = NULL;
+         //globalObjectMap.erase(omi);
       }
    }
    
    #ifdef DEBUG_MORE_MEMORY
    MessageInterface::ShowMessage
-      ("--- Sandbox::Clear() deleting done\n");
+      ("--- Sandbox::Clear() deleting objects from globalObjectMap done\n");
    #endif
    
    // delete subscribers
