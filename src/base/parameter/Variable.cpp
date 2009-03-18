@@ -29,10 +29,11 @@
 #include "StringUtil.hpp"         // for Replace()
 #include <sstream>
 
-//#define DEBUG_VARIABLE_SET 1
-//#define DEBUG_VARIABLE_EVAL 1
-//#define DEBUG_RENAME 1
-//#define DEBUG_GEN_STRING 1
+//#define DEBUG_VARIABLE_SET
+//#define DEBUG_VARIABLE_EVAL
+//#define DEBUG_RENAME
+//#define DEBUG_GEN_STRING
+//#define DEBUG_VARIABLE_CLONE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -87,7 +88,7 @@ Variable::Variable(const std::string &name, const std::string &valStr,
    mRealValue = 0.0;
    mExpr = "0";
    
-   #if DEBUG_VARIABLE
+   #ifdef DEBUG_VARIABLE_CREATE
    MessageInterface::ShowMessage("Variable::Variable() constructor\n");
    MessageInterface::ShowMessage
       ("   numDBParams = %d\n", mParamDb->GetNumParameters());
@@ -107,6 +108,12 @@ Variable::Variable(const std::string &name, const std::string &valStr,
 Variable::Variable(const Variable &copy)
    : RealVar(copy)
 {
+   #ifdef DEBUG_VARIABLE_CLONE
+   MessageInterface::ShowMessage
+      ("Variable copy constructor <%p>'%s' entered, mParamDb=<%p>, mExpParser=<%p>\n",
+       this, GetName().c_str(), mParamDb, mExpParser);
+   #endif
+   
    mParamDb = new ParameterDatabase(*copy.mParamDb);
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
@@ -120,15 +127,15 @@ Variable::Variable(const Variable &copy)
    #endif
    mExpParser->SetParameterDatabase(mParamDb);
    
-   #if DEBUG_VARIABLE
-   MessageInterface::ShowMessage("Variable::Variable() copy constructor\n");
+   #ifdef DEBUG_VARIABLE_CLONE
+   MessageInterface::ShowMessage("Variable::Variable(copy)\n");
    MessageInterface::ShowMessage
       ("   copy.numDBParams = %d\n", copy.mParamDb->GetNumParameters());
    MessageInterface::ShowMessage
       ("   numDBParams = %d\n", mParamDb->GetNumParameters());
    #endif
    
-   #if DEBUG_VARIABLE > 1
+   #ifdef DEBUG_VARIABLE_CLONE
    MessageInterface::ShowMessage
       ("***** Variable(copy) this=<%p> '%s', mRealValue=%f\n",
        this, GetName().c_str(), mRealValue);
@@ -166,14 +173,14 @@ Variable& Variable::operator=(const Variable &right)
       mParamDb = new ParameterDatabase(*right.mParamDb);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (mParamDb, GetName(), "Variable::Variable(=)", "mParamDb = new ParameterDatabase()");
+         (mParamDb, GetName(), "Variable::operator=", "mParamDb = new ParameterDatabase()");
       #endif
       
       if (mExpParser)
       {
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
-            (mExpParser, GetName(), "Variable::Variable(=)", "deleting mExpParser");
+            (mExpParser, GetName(), "Variable::operator=", "deleting mExpParser");
          #endif
          delete mExpParser;
       }
@@ -181,7 +188,7 @@ Variable& Variable::operator=(const Variable &right)
       mExpParser = new ExpressionParser();
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (mExpParser, GetName(), "Variable::Variable(=)", "mExpParser = new ExpressionParser()");
+         (mExpParser, GetName(), "Variable::operator=", "mExpParser = new ExpressionParser()");
       #endif
       
       mExpParser->SetParameterDatabase(mParamDb);
@@ -195,7 +202,7 @@ Variable& Variable::operator=(const Variable &right)
       SetName(thisName);
    }
    
-   #if DEBUG_VARIABLE > 1
+   #ifdef DEBUG_VARIABLE_ASSIGN
    MessageInterface::ShowMessage
       ("***** Variable(=) this=<%p> '%s', mRealValue=%f\n",
        this, GetName().c_str(), mRealValue);
@@ -252,7 +259,7 @@ Real Variable::GetReal()
 //------------------------------------------------------------------------------
 Real Variable::EvaluateReal()
 {
-   #if DEBUG_VARIABLE_EVAL
+   #ifdef DEBUG_VARIABLE_EVAL
    MessageInterface::ShowMessage
       ("Variable::EvaluateReal() this=<%p>'%s', mExpr=%s, mIsNumber=%d\n",
        this, GetName().c_str(), mExpr.c_str(), mIsNumber);
@@ -260,7 +267,7 @@ Real Variable::EvaluateReal()
    
    if (mIsNumber)
    {      
-      #if DEBUG_VARIABLE_EVAL
+      #ifdef DEBUG_VARIABLE_EVAL
       MessageInterface::ShowMessage
          ("Variable::EvaluateReal() Returning just a number: mRealValue=%f\n",
           mRealValue);
@@ -275,7 +282,7 @@ Real Variable::EvaluateReal()
          // Evaluate the expression
          mRealValue = mExpParser->EvalExp(mExpr.c_str());
          
-         #if DEBUG_VARIABLE_EVAL
+         #ifdef DEBUG_VARIABLE_EVAL
          MessageInterface::ShowMessage
             ("Variable::EvaluateReal() Returning expression evaluation: "
              "mRealValue=%f\n", mRealValue);
@@ -332,7 +339,7 @@ void Variable::Copy(const GmatBase* orig)
 //------------------------------------------------------------------------------
 bool Variable::SetStringParameter(const Integer id, const std::string &value)
 {
-   #if DEBUG_VARIABLE_SET
+   #ifdef DEBUG_VARIABLE_SET
    MessageInterface::ShowMessage
       ("Variable::SetStringParameter() this=<%p>'%s', id=%d, value='%s'\n", this,
        GetName().c_str(), id, value.c_str());
@@ -354,7 +361,7 @@ bool Variable::SetStringParameter(const Integer id, const std::string &value)
             mIsNumber = false;
             mExpr = value;  
             
-            #if DEBUG_VARIABLE_SET
+            #ifdef DEBUG_VARIABLE_SET
             MessageInterface::ShowMessage
                ("   Variable expression set to '%s'\n", value.c_str());
             #endif
@@ -383,7 +390,7 @@ bool Variable::SetStringParameter(const Integer id, const std::string &value)
 bool Variable::SetStringParameter(const std::string &label,
                                  const std::string &value)
 {
-   #if DEBUG_VARIABLE_SET
+   #ifdef DEBUG_VARIABLE_SET
    MessageInterface::ShowMessage
       ("Variable::SetStringParameter() label=%s value=%s\n",
        label.c_str(), value.c_str());
@@ -401,7 +408,7 @@ bool Variable::RenameRefObject(const Gmat::ObjectType type,
                                const std::string &oldName,
                                const std::string &newName)
 {
-   #if DEBUG_RENAME
+   #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage
       ("Variable::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
@@ -460,7 +467,7 @@ std::string Variable::GetRefObjectName(const Gmat::ObjectType type) const
 bool Variable::SetRefObjectName(const Gmat::ObjectType type,
                                 const std::string &name)
 {
-   #if DEBUG_VARIABLE_SET
+   #ifdef DEBUG_VARIABLE_SET
    MessageInterface::ShowMessage
       ("Variable::SetRefObjectName() this=<%p>'%s', type=%d, name=%s\n", this,
        GetName().c_str(), type, name.c_str());
@@ -473,7 +480,7 @@ bool Variable::SetRefObjectName(const Gmat::ObjectType type,
           " is not valid object type of " + this->GetTypeName() + "\n");
    }
    
-   #if DEBUG_VARIABLE_SET
+   #ifdef DEBUG_VARIABLE_SET
    MessageInterface::ShowMessage
       ("   Adding '%s' to '%s' parameter database\n", name.c_str(), GetName().c_str());
    #endif
@@ -548,7 +555,7 @@ const StringArray& Variable::GetRefObjectNameArray(const Gmat::ObjectType type)
       throw ParameterException
          ("Variable::GetRefObjectNameArray() mParamDb is NULL\n");
    
-   #if DEBUG_VARIABLE
+   #ifdef DEBUG_REF_OBJ
    MessageInterface::ShowMessage
       ("Variable::GetRefObjectNameArray() type=%d\n", type);
    StringArray paramNames = mParamDb->GetNamesOfParameters();
