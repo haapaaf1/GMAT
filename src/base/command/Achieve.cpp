@@ -32,6 +32,14 @@
 //#define DEBUG_WRAPPER_CODE
 
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -926,31 +934,7 @@ bool Achieve::SetElementWrapper(ElementWrapper *toWrapper,
                   "\" is not an allowed value.\nThe allowed values are:"
                   " [ Real Number, Variable, Array Element, or Parameter ]. "); 
    }
-   /*
-   if (toWrapper->GetWrapperType() == Gmat::STRING_OBJECT)
-   {
-      throw CommandException("A value of type \"String Object\" on command \"" 
-                  + typeName + 
-                  "\" is not an allowed value.\nThe allowed values are:"
-                  " [ Real Number, Variable, Array Element, or Parameter ]. "); 
-   }
-
-   try
-   {
-       if ( ((toWrapper->GetDataType()) != Gmat::REAL_TYPE) &&
-            ((toWrapper->GetDataType()  != Gmat::INTEGER_TYPE)) )
-       {
-           throw CommandException("A value of base type \"non-Real\" on command \"" + 
-                       typeName + 
-                       "\" is not an allowed value.\nThe allowed values are:"
-                       " [ Real Number, Variable, Array Element, or Parameter ]. "); 
-       }
-   }
-   catch (BaseException &be)
-   {
-       // just ignore it here - will need to check data type on initialization
-   }
-   */
+   
    CheckDataType(toWrapper, Gmat::REAL_TYPE, "Achieve", true);
 
    #ifdef DEBUG_WRAPPER_CODE   
@@ -977,18 +961,45 @@ bool Achieve::SetElementWrapper(ElementWrapper *toWrapper,
    
    if (achieveName == withName)
    {
+      if (achieve != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (achieve, achieve->GetDescription(),
+             "Achieve::SetElementWrapper()",
+             GetGeneratingString(Gmat::NO_COMMENTS) +
+             " deleting achieve ew");
+         #endif
+         delete achieve;
+      }
       achieve = toWrapper;
       retval = true;
    }
    
    if (toleranceName == withName)
    {
+      if (tolerance != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (tolerance, tolerance->GetDescription(),
+             "Achieve::SetElementWrapper()",
+             GetGeneratingString(Gmat::NO_COMMENTS) +
+             " deleting tolerance ew");
+         #endif
+         delete tolerance;
+      }
       tolerance = toWrapper;
       retval = true;
    }
+   
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// void ClearWrappers()
+//------------------------------------------------------------------------------
 void Achieve::ClearWrappers()
 {
    std::vector<ElementWrapper*> temp;
@@ -1013,14 +1024,19 @@ void Achieve::ClearWrappers()
          tolerance = NULL;
       }
    }
+   
    ElementWrapper *wrapper;
    for (UnsignedInt i = 0; i < temp.size(); ++i)
    {
       wrapper = temp[i];
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (wrapper, wrapper->GetDescription(), "Achieve::ClearWrappers()",
+          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting wrapper");
+      #endif
       delete wrapper;
    }
 }
-
 
 
 //------------------------------------------------------------------------------
