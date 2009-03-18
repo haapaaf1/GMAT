@@ -858,7 +858,7 @@ StringArray& GmatFileUtil::Compare(const std::string &filename1,
    // report the difference summary
    std::string outLine;
    outLine = "Total lines compared: " + ToString(count) + ",   Tolerance: " +
-      ToString(tol, false, true, 7, 6) + "\n\n";
+      ToString(tol, false, true, true, 7, 6) + "\n\n";
    textBuffer.push_back(outLine);
 
    #if DBGLVL_COMPARE_REPORT
@@ -903,17 +903,17 @@ StringArray& GmatFileUtil::Compare(const std::string &filename1,
 
       if (colTitles.size() == 0)
       {
-         outLine = ToString(i+1) + "     " + ToString(minDiffs[i], false, true, 7, 6) +
+         outLine = ToString(i+1) + "     " + ToString(minDiffs[i], false, true, true, 7, 6) +
             "   " + ToString(minLines[i]) + "    " +
-            ToString(maxDiffs[i], false, true, 7, 6) + "   " + ToString(maxLines[i]) +
+            ToString(maxDiffs[i], false, true, true, 7, 6) + "   " + ToString(maxLines[i]) +
             "       " + minGtTol + "         " + maxGtTol + "\n";
       }
       else
       {
          sprintf(title, "%-30.30s", colTitles[i].c_str());
          outLine = ToString(i+1) + "     " + title + "   " +
-            ToString(minDiffs[i], false, true, 7, 6) + "   " + ToString(minLines[i]) +
-            "    " + ToString(maxDiffs[i], false, true, 7, 6) + "   " +
+            ToString(minDiffs[i], false, true, true, 7, 6) + "   " + ToString(minLines[i]) +
+            "    " + ToString(maxDiffs[i], false, true, true, 7, 6) + "   " +
             ToString(maxLines[i]) + "       " + minGtTol + "         " +
             maxGtTol + "\n";
       }
@@ -1221,7 +1221,7 @@ StringArray& GmatFileUtil::Compare(Integer numDirsToCompare, const std::string &
    // report the difference summary
    std::string outLine;
    outLine = "Total lines compared: " + ToString(count) + ",   Tolerance: " +
-      ToString(tol, false, true, 7, 6) + "\n\n";
+      ToString(tol, false, true, true, 7, 6) + "\n\n";
    textBuffer.push_back(outLine);
 
    #if DBGLVL_COMPARE_REPORT
