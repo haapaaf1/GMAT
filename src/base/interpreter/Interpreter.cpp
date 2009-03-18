@@ -62,9 +62,9 @@
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_FIND_OBJECT
 //#define DEBUG_FIND_PROP_ID
-//#define DEBUG_FUNCTION
 //#define DEBUG_VAR_EXPRESSION
 //#define DEBUG_MATH_TREE
+//#define DEBUG_FUNCTION
 //#define DBGLVL_FUNCTION_DEF 2
 //#define DBGLVL_FINAL_PASS 1
 //#define DEBUG_AXIS_SYSTEM
@@ -1094,7 +1094,9 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
    }
    
    Subscriber *sub = (Subscriber*)obj;
-   sub->ClearWrappers();
+   // We don't want to clear wrappers since Subscriber::ClearWrappers() changed to
+   // also empty wrappers.  (LOJ: 2009.03.12)
+   //sub->ClearWrappers();
    const StringArray wrapperNames = sub->GetWrapperObjectNameArray();
    
    #ifdef DEBUG_WRAPPERS
@@ -4435,7 +4437,7 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                {
                   #ifdef DEBUG_MEMORY
                   MemoryTracker::Instance()->Remove
-                     (ownedObj, "oldOwnedObject", "Interpreter::SetPropertyObjectValue()",
+                     (ownedObj, ownedObj->GetName(), "Interpreter::SetPropertyObjectValue()",
                       "deleting oldOwnedObject");
                   delete ownedObj;
                   ownedObj = NULL;
