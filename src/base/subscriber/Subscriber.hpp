@@ -138,21 +138,23 @@ protected:
    CelestialBody    *theDataMJ2000EqOrigin;
    SolarSystem      *theSolarSystem;
    
-   bool active;
-   bool isEndOfReceive;
-   bool isEndOfRun;
-   bool isInitialized;
+   bool             active;
+   bool             isEndOfReceive;
+   bool             isEndOfRun;
+   bool             isInitialized;
    
    /// The current run state, so actions based on state can be taken
-   Gmat::RunState runstate;
-   Integer        currentProvider;
+   Gmat::RunState   runstate;
+   Integer          currentProvider;
    
    /// The list of names of Wrapper objects
-   StringArray wrapperObjectNames;
+   StringArray      wrapperObjectNames;
    /// vector of pointers to ElementWrappers for the item
-   std::vector<ElementWrapper*> depParamWrappers;
-   std::vector<ElementWrapper*> paramWrappers;
+   WrapperArray     depParamWrappers;
+   WrapperArray     paramWrappers;
    
+   bool                CloneWrappers(WrapperArray &toWrappers,
+                                     const WrapperArray &fromWrappers);
    bool                SetWrapperReference(GmatBase *obj, const std::string &name);
    virtual bool        Distribute(Integer len) = 0;
    virtual bool        Distribute(const Real *dat, Integer len);
@@ -173,7 +175,7 @@ protected:
 private:
    
    static const std::string SOLVER_ITER_OPTION_TEXT[SolverIterOptionCount];
-   
+   bool  isCloned;
 };
 #endif // Subscribe_hpp
 

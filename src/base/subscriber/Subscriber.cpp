@@ -38,10 +38,21 @@
 #include "StringUtil.hpp"          // for Replace()
 #include "MessageInterface.hpp"
 
+// Cloning wrapper is not ready
+//#define __ENABLE_CLONING_WRAPPERS__
+
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_SUBSCRIBER
 //#define DEBUG_SUBSCRIBER_PARAM
 //#define DEBUG_RENAME
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //---------------------------------
 // static data
@@ -94,6 +105,8 @@ Subscriber::Subscriber(std::string typeStr, std::string nomme) :
    
    mSolverIterations = "Current";
    mSolverIterOption = SI_CURRENT;
+   
+   isCloned = false;
 }
 
 
@@ -113,11 +126,21 @@ Subscriber::Subscriber(const Subscriber &copy) :
    isInitialized(copy.isInitialized),
    runstate(copy.runstate),
    currentProvider(copy.currentProvider),
-   wrapperObjectNames(copy.wrapperObjectNames),
-   paramWrappers(copy.paramWrappers)
+   wrapperObjectNames(copy.wrapperObjectNames)
 {
    mSolverIterations = copy.mSolverIterations;
    mSolverIterOption = copy.mSolverIterOption;
+   isCloned = true;
+   
+#ifdef __ENABLE_CLONING_WRAPPERS__
+   // Create new wrappers by cloning (LOJ: 2009.03.10)
+   CloneWrappers(depParamWrappers, copy.depParamWrappers);
+   CloneWrappers(paramWrappers, copy.paramWrappers);   
+#else
+   // Copy wrappers
+   depParamWrappers = copy.depParamWrappers;
+   paramWrappers = copy.paramWrappers;
+#endif
 }
 
 
@@ -146,9 +169,20 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    theInternalCoordSystem = NULL;
    theDataCoordSystem = NULL;
    wrapperObjectNames = rhs.wrapperObjectNames;
-   paramWrappers = rhs.paramWrappers;
    mSolverIterations = rhs.mSolverIterations;
    mSolverIterOption = rhs.mSolverIterOption;
+   
+#ifdef __ENABLE_CLONING_WRAPPERS__
+   // Clear old wrappers
+   ClearWrappers();
+   // Create new wrappers by cloning (LOJ: 2009.03.10)
+   CloneWrappers(depParamWrappers, rhs.depParamWrappers);
+   CloneWrappers(paramWrappers, rhs.paramWrappers);
+   #else
+   // Copy wrappers
+   depParamWrappers = rhs.depParamWrappers;
+   paramWrappers = rhs.paramWrappers;
+#endif
    
    return *this;
 }
@@ -159,6 +193,12 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
 //------------------------------------------------------------------------------
 Subscriber::~Subscriber()
 {
+#ifdef __ENABLE_CLONING_WRAPPERS__
+   ClearWrappers();
+#else
+   if (!isCloned)
+      ClearWrappers();
+#endif
 }
 
 
@@ -469,9 +509,9 @@ bool Subscriber::SetElementWrapper(ElementWrapper* toWrapper,
       return false;
    
    #ifdef DEBUG_WRAPPER_CODE   
-   MessageInterface::ShowMessage(
-      "Subscriber::SetElementWrapper() Setting wrapper \"%s\" size=%d in %s \"%s\"\n",
-      name.c_str(), wrapperObjectNames.size(), GetTypeName().c_str(), instanceName.c_str());
+   MessageInterface::ShowMessage
+      ("Subscriber::SetElementWrapper() <%p>'%s' entered, toWrapper=<%p>, name='%s'\n",
+       this, GetName().c_str(), toWrapper, name.c_str());
    #endif
    
    Integer sz = wrapperObjectNames.size();
@@ -483,11 +523,16 @@ bool Subscriber::SetElementWrapper(ElementWrapper* toWrapper,
          MessageInterface::ShowMessage
             ("   Found wrapper name \"%s\", wrapper=%p\n", name.c_str(), paramWrappers.at(i));
          #endif
-                  
+         
          if (paramWrappers.at(i) != NULL)
          {
             ew = paramWrappers.at(i);
             paramWrappers.at(i) = toWrapper;
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (ew, ew->GetDescription(), "Subscriber::SetElementWrapper",
+                "deleting old wrapper");
+            #endif
             delete ew;
          }
          else
@@ -509,6 +554,34 @@ bool Subscriber::SetElementWrapper(ElementWrapper* toWrapper,
 
 
 //------------------------------------------------------------------------------
+// bool CloneWrappers(WrapperArray &toWrappers, const WrapperArray &fromWrappers);
+//------------------------------------------------------------------------------
+bool Subscriber::CloneWrappers(WrapperArray &toWrappers,
+                               const WrapperArray &fromWrappers)
+{
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("Subscriber::CloneWrappers() <%p>'%s' entered\n", this, GetName().c_str());
+   #endif
+   for (UnsignedInt i=0; i<fromWrappers.size(); i++)
+   {
+      if (fromWrappers[i] != NULL)
+      {
+         ElementWrapper *ew = fromWrappers[i]->Clone();
+         toWrappers.push_back(ew);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (ew, ew->GetDescription(), "Subscriber::CloneWrappers()",
+             "ew = fromWrappers[i]->Clone()");
+         #endif         
+      }
+   }
+   
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
 // bool SetWrapperReference(GmatBase *obj, const std::string &name)
 //------------------------------------------------------------------------------
 bool Subscriber::SetWrapperReference(GmatBase *obj, const std::string &name)
@@ -520,7 +593,7 @@ bool Subscriber::SetWrapperReference(GmatBase *obj, const std::string &name)
    
    #ifdef DEBUG_WRAPPER_CODE   
    MessageInterface::ShowMessage
-      ("Subscriber::SetWrapperReference() obj=(%p)%s, name=%s, size=%d\n",
+      ("Subscriber::SetWrapperReference() obj=<%p>'%s', name='%s', size=%d\n",
        obj, obj->GetName().c_str(), name.c_str(), sz);
    #endif
    
@@ -620,7 +693,11 @@ bool Subscriber::SetWrapperReference(GmatBase *obj, const std::string &name)
 void Subscriber::ClearWrappers()
 {
    #ifdef DEBUG_WRAPPER_CODE
-   MessageInterface::ShowMessage("Subscriber::ClearWrappers() entered\n");
+   MessageInterface::ShowMessage
+      ("Subscriber::ClearWrappers() <%p>'%s' entered\n", this, GetName().c_str());
+   MessageInterface::ShowMessage
+      ("   depParamWrappers.size()=%d, paramWrappers.size()=%d\n",
+       depParamWrappers.size(), paramWrappers.size());
    #endif
    
    ElementWrapper *wrapper;
@@ -634,12 +711,13 @@ void Subscriber::ClearWrappers()
           find(paramWrappers.begin(), paramWrappers.end(), wrapper) ==
           paramWrappers.end())
       {
-         #ifdef DEBUG_WRAPPER_CODE
-         MessageInterface::ShowMessage
-            ("   deleting wrapper=(%p)'%s'\n", wrapper,
-             wrapper->GetDescription().c_str());
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (wrapper, wrapper->GetDescription(), "Subscriber::ClearWrappers()",
+             "deleting old dep wrapper");
          #endif
          delete wrapper;
+         wrapper = NULL;
       }
       
       depParamWrappers[i] = NULL;
@@ -649,21 +727,30 @@ void Subscriber::ClearWrappers()
    {
       wrapper = paramWrappers[i];
       
+      #ifdef DEBUG_WRAPPER_CODE
+      MessageInterface::ShowMessage("   wrapper=<%p>\n", wrapper);
+      #endif
+      
       if (wrapper != NULL)
       {
-         #ifdef DEBUG_WRAPPER_CODE
-         MessageInterface::ShowMessage
-            ("   deleting wrapper=(%p)'%s'\n", wrapper,
-             wrapper->GetDescription().c_str());
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (wrapper, wrapper->GetDescription(), "Subscriber::ClearWrappers()",
+             "deleting old wrapper");
          #endif
          delete wrapper;
+         wrapper = NULL;
       }
       
       paramWrappers[i] = NULL;
    }
    
+   depParamWrappers.clear();
+   paramWrappers.clear();
+   
    #ifdef DEBUG_WRAPPER_CODE
-   MessageInterface::ShowMessage("Subscriber::ClearWrappers() leaving\n");
+   MessageInterface::ShowMessage
+      ("Subscriber::ClearWrappers() <%p>'%s' leaving\n", this, GetName().c_str());
    #endif
 }
 
