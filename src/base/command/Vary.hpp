@@ -58,8 +58,8 @@ public:
    virtual GmatBase*  Clone() const;
    virtual const std::string&
                       GetGeneratingString(Gmat::WriteMode mode,
-                                          const std::string &prefix,
-                                          const std::string &useName);
+                                          const std::string &prefix = "",
+                                          const std::string &useName = "");
    // for Ref Objects
    virtual bool        RenameRefObject(const Gmat::ObjectType type,
                                        const std::string &oldName,
@@ -83,10 +83,6 @@ public:
    virtual std::string GetStringParameter(const Integer id) const;
    virtual bool        SetStringParameter(const Integer id, 
                                           const std::string &value);
-
-// Multiple variables specified on the same line are not allowed in build 2
-//    virtual const StringArray& 
-//                        GetStringArrayParameter(const Integer id) const; 
 
    virtual bool        SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                     const std::string &name = "");
@@ -177,9 +173,6 @@ protected:
    /// Flag used to finalize the solver data during execution
    bool                solverDataFinalized;
    
-   /// ???
-   std::string         variableValueString;
-
 };
 
 

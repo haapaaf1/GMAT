@@ -28,11 +28,19 @@
 
 
 //#define DEBUG_VARIABLE_RANGES
-//#define DEBUG_VARY_EXECUTE 1
+//#define DEBUG_VARY_EXECUTE
 //#define DEBUG_VARY_PARAMS
 //#define DEBUG_VARY_PARSING
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_RENAME
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //------------------------------------------------------------------------------
 //  static data
@@ -683,9 +691,6 @@ bool Vary::SetStringParameter(const Integer id, const std::string &value)
 }
 
 
-
-//const StringArray& Vary::GetStringArrayParameter(const Integer id) const; 
-
 //------------------------------------------------------------------------------
 //  bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //                                     const std::string &name = "")
@@ -805,8 +810,7 @@ bool Vary::InterpretAction()
       
    variableName = lhs;
    variableID = -1;
-
-   variableValueString = rhs;
+   
    initialValueName = rhs;
    
    #ifdef DEBUG_VARY_PARSING
@@ -858,6 +862,9 @@ bool Vary::InterpretAction()
 }
 
 
+//------------------------------------------------------------------------------
+// const StringArray& GetWrapperObjectNameArray()
+//------------------------------------------------------------------------------
 const StringArray& Vary::GetWrapperObjectNameArray()
 {
    wrapperObjectNames.clear();
@@ -896,6 +903,9 @@ const StringArray& Vary::GetWrapperObjectNameArray()
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetElementWrapper(ElementWrapper *toWrapper, const std::string &withName)
+//------------------------------------------------------------------------------
 bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withName)
 {
    bool retval = false;
@@ -908,91 +918,122 @@ bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withN
                   "\" is not an allowed value.\nThe allowed values are:"
                   " [ Real Number, Variable, Array Element, or Parameter ]. "); 
    }
-   /*
-   if (toWrapper->GetWrapperType() == Gmat::STRING_OBJECT)
-   {
-      throw CommandException("A value of type \"String Object\" on command \"" + typeName + 
-                  "\" is not an allowed value.\nThe allowed values are:"
-                  " [ Real Number, Variable, Array Element, or Parameter ]. "); 
-   }
-
-   try
-   {
-       if ( ((toWrapper->GetDataType()) != Gmat::REAL_TYPE) &&
-            ((toWrapper->GetDataType()  != Gmat::INTEGER_TYPE)) )
-       {
-           throw CommandException("A value of base type \"non-Real\" on command \"" + 
-                       typeName + 
-                       "\" is not an allowed value.\nThe allowed values are:"
-                       " [ Real Number, Variable, Array Element, or Parameter ]. "); 
-       }
-   }
-   catch (BaseException &be)
-   {
-       // just ignore it here - will need to check data type on initialization
-   }
-   */
    CheckDataType(toWrapper, Gmat::REAL_TYPE, "Vary", true);
-
-
+   
+   
    #ifdef DEBUG_WRAPPER_CODE   
    MessageInterface::ShowMessage("   Setting wrapper \"%s\" on Vary command\n", 
       withName.c_str());
    #endif
-
+   
    if (variableName == withName)
    {
+      if (variable != NULL)
+         CollectOldWrappers(&variable);
+      
       variable = toWrapper;
       retval = true;
    }
    
    if (initialValueName == withName)
    {
+      if (initialValue != NULL)
+         CollectOldWrappers(&initialValue);
+      
       initialValue = toWrapper;
       retval = true;
    }
    
    if (perturbationName == withName)
    {
+      if (perturbation != NULL)
+         CollectOldWrappers(&perturbation);
+      
       perturbation = toWrapper;
       retval = true;
    }
    
    if (variableMinimumName == withName)
    {
+      if (variableMinimum != NULL)
+         CollectOldWrappers(&variableMinimum);
+      
       variableMinimum = toWrapper;
       retval = true;
    }
    
    if (variableMaximumName == withName)
    {
+      if (variableMaximum != NULL)
+         CollectOldWrappers(&variableMaximum);
+      
       variableMaximum = toWrapper;
       retval = true;
    }
    
    if (variableMaximumStepName == withName) 
    {
+      if (variableMaximumStep != NULL)
+         CollectOldWrappers(&variableMaximumStep);
+      
       variableMaximumStep = toWrapper;
       retval = true;
    }
    
    if (additiveScaleFactorName == withName)
    {
+      if (additiveScaleFactor != NULL)
+         CollectOldWrappers(&additiveScaleFactor);
+      
       additiveScaleFactor = toWrapper;
       retval = true;
    }
    
    if (multiplicativeScaleFactorName == withName)
    {
+      if (multiplicativeScaleFactor != NULL)
+         CollectOldWrappers(&multiplicativeScaleFactor);
+      
       multiplicativeScaleFactor = toWrapper;
       retval = true;
    }
-      
+   
+   //@todo In nested function, there are still bad wrapper pointers so until it is resolved
+   // delete if not in function. (tested with Func_BasicOptimizerTest.script,
+   // Func_Pic_Achieve.script)
+   if (currentFunction == NULL)
+      DeleteOldWrappers();
+   
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// void ClearWrappers()
+//------------------------------------------------------------------------------
 void Vary::ClearWrappers()
 {
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("Vary::ClearWrappers() entered, has %d old wrappers\n", oldWrappers.size());
+   #endif
+   
+   // to use new methods
+   #if 1
+   
+   ClearOldWrappers();
+   CollectOldWrappers(&variable);
+   CollectOldWrappers(&initialValue);
+   CollectOldWrappers(&perturbation);
+   CollectOldWrappers(&variableMinimum);
+   CollectOldWrappers(&variableMaximum);
+   CollectOldWrappers(&variableMaximumStep);
+   CollectOldWrappers(&additiveScaleFactor);
+   CollectOldWrappers(&multiplicativeScaleFactor);
+   DeleteOldWrappers();
+   
+   #else
+   
    std::vector<ElementWrapper*> temp;
    if (variable)
    {
@@ -1060,8 +1101,16 @@ void Vary::ClearWrappers()
    for (UnsignedInt i = 0; i < temp.size(); ++i)
    {
       wrapper = temp[i];
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (wrapper, wrapper->GetDescription(), "Vary::ClearWrappers()",
+          " deleting wrapper");
+      #endif
       delete wrapper;
    }
+   
+   #endif
 }
 
 
