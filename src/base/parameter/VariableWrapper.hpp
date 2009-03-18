@@ -40,8 +40,9 @@ public:
    // destructor
    virtual ~VariableWrapper();
    
-   virtual std::string         ToString();  
+   virtual ElementWrapper*     Clone() const;
    virtual Gmat::ParameterType GetDataType() const;
+   virtual std::string         ToString();  
    
    virtual bool                SetRefObject(GmatBase *obj);
    virtual bool                RenameObject(const std::string &oldName, 

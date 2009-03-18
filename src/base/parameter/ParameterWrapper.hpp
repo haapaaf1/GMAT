@@ -40,6 +40,7 @@ public:
    // destructor
    virtual ~ParameterWrapper();
    
+   virtual ElementWrapper*    Clone() const;
    virtual Gmat::ParameterType GetDataType() const;
    
    virtual GmatBase*    GetRefObject(const std::string &name = "");
