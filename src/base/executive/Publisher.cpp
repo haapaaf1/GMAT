@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            Publisher
 //------------------------------------------------------------------------------
@@ -394,9 +394,11 @@ Integer Publisher::RegisterPublishedData(const StringArray& owners,
    {
       // Let's just show warning (loj: 2008.06.17)
       //throw PublisherException("There are no registered subscribers.");
+      #if DBGLVL_PUBLISHER_REGISTER // show warning if debug is turned on (LOJ: 2008.03.10)
       MessageInterface::ShowMessage
          ("*** WARNING *** Publisher::RegisterPublishedData() There are no "
           "subscribers to register data\n");
+      #endif
       return providerID;
    }
    
