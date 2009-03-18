@@ -413,7 +413,17 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    if (cmd->GetTypeName() == "GMAT")
    {
       if (!CreateAssignmentWrappers(cmd, manage))
-         return false;
+      {
+         // Handle error if function (LOJ: 2009.03.17)
+         if (manage != 1)
+         {
+            theErrorMsg = "Could not create an ElementWrapper for \"" +
+               theDescription + "\"";
+            return HandleError();
+         }
+         else
+            return false;
+      }
    }
    else
    {
@@ -1423,7 +1433,7 @@ GmatBase* Validator::FindObject(const std::string &name, const std::string &ofTy
          ("Validator::FindObject() entered: newName=%s\n", newName.c_str());
       #endif
    }
-
+   
    #ifdef DEBUG_OBJECT_MAP
    if (theFunction != NULL)
       ShowObjectMap("Validator::FindObject()");
@@ -1468,8 +1478,8 @@ Parameter* Validator::GetParameter(const std::string name)
    
    #if DBGLVL_WRAPPERS > 1
    MessageInterface::ShowMessage
-      ("Validator::GetParameter() type of <%s> is <%s>\n", name.c_str(),
-       (obj ? obj->GetTypeName().c_str() : "Unknown obj"));
+      ("Validator::GetParameter() obj=<%p><%s>'%s'\n", obj,
+       (obj ? obj->GetTypeName().c_str() : "UnknownType"), name.c_str());
    #endif
    
    if (obj && obj->GetType() == Gmat::PARAMETER)
@@ -1565,7 +1575,9 @@ Parameter* Validator::CreateSystemParameter(bool &paramCreated,
       if (find(theParameterList.begin(), theParameterList.end(), paramType) != 
           theParameterList.end())
       {
-         param = CreateParameter(paramType, names[i], ownerName, depName, manage);
+         bool alreadyManaged;
+         param = CreateAutoParameter(paramType, names[i], alreadyManaged, ownerName,
+                                     depName, manage);
          paramCreated = true;
          
          #ifdef DEBUG_CREATE_PARAM
@@ -1584,7 +1596,11 @@ Parameter* Validator::CreateSystemParameter(bool &paramCreated,
                 param, param->GetTypeName().c_str(), param->GetName().c_str());
             #endif
             
-            theFunction->AddAutomaticObject(param->GetName(),(GmatBase*)param);
+            // if automatic parameter is in the objectMap, set flag so that
+            // it won't be deleted in the function since it is deleted in the
+            // Sandbox. (LOJ: 2009.03.16)
+            theFunction->AddAutomaticObject(param->GetName(),(GmatBase*)param,
+                                            alreadyManaged);
          }
       }
       else
@@ -1615,6 +1631,63 @@ Parameter* Validator::CreateSystemParameter(bool &paramCreated,
    #endif
    
    return realParam;
+}
+
+
+//------------------------------------------------------------------------------
+// Parameter* CreateAutoParameter(const std::string &type, const std::string &name,
+//                            const std::string &ownerName, const std::string &depName
+//                            Integer manage = 1)
+//------------------------------------------------------------------------------
+/**
+ * Calls the Moderator to create a Parameter. If object is not managed this
+ * method does not check for existing Parameter before creating one since
+ * Moderator::CreateParameter() sets Parameter reference objects if Parameter
+ * was created without reference during GmatFunction parsing.
+ * 
+ * @param  type       Type of parameter requested
+ * @param  name       Name for the parameter.
+ * @param  ownerName  object name of parameter requested ("")
+ * @param  depName    Dependent object name of parameter requested ("")
+ * @param  manage     0, if parameter is not managed
+ *                    1, if parameter is added to configuration (default)
+ *                    2, if Parameter is added to function object map
+ * 
+ * @return Pointer to the constructed Parameter.
+ */
+//------------------------------------------------------------------------------
+Parameter* Validator::CreateAutoParameter(const std::string &type, 
+                                          const std::string &name,
+                                          bool &alreadyManaged,
+                                          const std::string &ownerName,
+                                          const std::string &depName,
+                                          Integer manage)
+{
+   #ifdef DEBUG_CREATE_PARAM
+   MessageInterface::ShowMessage
+      ("Validator::CreateParameter() type='%s', name='%s', ownerName='%s', "
+       "depName='%s', manage=%d\n", type.c_str(), name.c_str(),
+       ownerName.c_str(), depName.c_str(), manage);
+   #endif
+   
+   Parameter *param = NULL;
+   
+   // Check if create an array
+   if (type == "Array")
+      param = CreateArray(name, manage);
+   else
+      param = theModerator->CreateAutoParameter(type, name, alreadyManaged,
+                                                ownerName, depName, manage);
+   
+   #ifdef DEBUG_CREATE_PARAM
+   MessageInterface::ShowMessage
+      ("Validator::CreateParameter() returning %s <%p><%s> '%s'\n",
+       alreadyManaged ? "old" : "new", param,
+       (param == NULL) ? "NULL" : param->GetTypeName().c_str(),
+       (param == NULL) ? "NULL" : param->GetName().c_str());
+   #endif
+   
+   return param;
 }
 
 
@@ -2465,6 +2538,15 @@ bool Validator::CreatePropSetupProperty(GmatBase *obj, const std::string &prop,
    #endif
    
    obj->SetRefObject(propagator, propagator->GetType(), propagator->GetName());
+   
+   // Since PropSetup::SetRefObject() clones the propagator,
+   // we need to delete original here (LOJ: 2009.03.18)
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Remove
+      (propagator, "value", "Validator::CreatePropSetupProperty()",
+       "deleting unnamed propagator");
+   #endif
+   delete propagator;
    
    #ifdef DEBUG_PROP_SETUP_PROP
    MessageInterface::ShowMessage

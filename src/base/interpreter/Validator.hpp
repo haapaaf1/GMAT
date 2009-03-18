@@ -65,6 +65,12 @@ public:
                               const std::string &ownerName = "",
                               const std::string &depName = "",
                               Integer manage = 1);
+   Parameter* CreateAutoParameter(const std::string &type,
+                                  const std::string &name,
+                                  bool &alreadyManaged,
+                                  const std::string &ownerName = "",
+                                  const std::string &depName = "",
+                                  Integer manage = 1);
    Parameter* CreateArray( const std::string &arrayStr, Integer manage = 1);   
    Parameter* CreateSystemParameter(bool &paramCreated, const std::string &str,
                                     Integer manage = 1);
