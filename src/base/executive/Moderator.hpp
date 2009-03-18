@@ -177,6 +177,12 @@ public:
    
    // Parameter
    bool IsParameter(const std::string &type);
+   Parameter* CreateAutoParameter(const std::string &type,
+                                  const std::string &name,
+                                  bool &alreadyManaged,
+                                  const std::string &ownerName = "",
+                                  const std::string &depName = "",
+                                  Integer manage = 1);
    Parameter* CreateParameter(const std::string &type,
                               const std::string &name,
                               const std::string &ownerName = "",

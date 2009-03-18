@@ -2355,6 +2355,78 @@ bool Moderator::IsParameter(const std::string &str)
 
 
 //------------------------------------------------------------------------------
+// Parameter* CreateAutoParameter(const std::string &type, const std::string &name
+//                            const std::string &ownerName,
+//                            const std::string &depName, bool manage)
+//------------------------------------------------------------------------------
+/**
+ * Creates a parameter object by given type and name and add to configuration.
+ *
+ * @param <type> parameter type
+ * @param <name> parameter name
+ * @param <ownerName> parameter owner name ("")
+ * @param <depName> dependent object name ("")
+ * @param <manage>  0, if parameter is not managed
+ *                  1, if parameter is added to configuration (default)
+ *                  2, if Parameter is added to function object map
+ *
+ * @return a parameter object pointer
+ */
+//------------------------------------------------------------------------------
+Parameter* Moderator::CreateAutoParameter(const std::string &type,
+                                          const std::string &name,
+                                          bool &alreadyManaged,
+                                          const std::string &ownerName,
+                                          const std::string &depName,
+                                          Integer manage)
+{
+   #if DEBUG_CREATE_PARAMETER
+   MessageInterface::ShowMessage
+      ("Moderator::CreateParameter() type='%s', name='%s', ownerName='%s', "
+       "depName='%s', manage=%d\n", type.c_str(), name.c_str(), ownerName.c_str(),
+       depName.c_str(), manage);
+   #endif
+   
+   // if managing and Parameter already exist, give warning and return existing
+   // Parameter
+   alreadyManaged = false;
+   Parameter *param = GetParameter(name);
+   #if DEBUG_CREATE_PARAMETER
+   MessageInterface::ShowMessage
+      ("   managed param = <%p> '%s'\n", param, param ? param->GetName().c_str() : "NULL");
+   #endif
+   
+   // if Parameter was created during GmatFunction parsing, just set reference object
+   if (param != NULL && manage != 0)
+   {
+      #if DEBUG_CREATE_PARAMETER
+      MessageInterface::ShowMessage
+         ("*** WARNING *** Moderator::CreateParameter() Unable to create "
+          "Parameter name: %s already exist\n", name.c_str());
+      MessageInterface::ShowMessage
+         ("Moderator::CreateParameter() returning <%s><%p>\n", param->GetName().c_str(),
+          param);
+      #endif
+      
+      // set Parameter reference object
+      SetParameterRefObject(param, type, name, ownerName, depName, manage);
+      
+      // if Parameter is managed in the function object map, add it (loj: 2008.12.16)
+      // so that we won't create multiple Parameters. FindObject() finds object from
+      // objectMapInUse which can be object map from configuration or passed function
+      // object map
+      if (manage == 2)
+         AddObject(param);
+      
+      alreadyManaged = true;
+      return param;
+   }
+   
+   return CreateParameter(type, name, ownerName, depName, manage);
+}
+
+
+//------------------------------------------------------------------------------
 // Parameter* CreateParameter(const std::string &type, const std::string &name
 //                            const std::string &ownerName = "",
 //                            const std::string &depName = "", bool manage = 1)
@@ -2418,7 +2490,6 @@ Parameter* Moderator::CreateParameter(const std::string &type,
       
       return param;
    }
-   
    
    // Ceate new Parameter
    param = theFactoryManager->CreateParameter(type, name);
