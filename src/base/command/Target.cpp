@@ -24,6 +24,14 @@
 // #define DEBUG_TARGETER_PARSING
 // #define DEBUG_TARGETER
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 
 //------------------------------------------------------------------------------
 //  Target()
@@ -36,6 +44,7 @@ Target::Target() :
    SolverBranchCommand("Target"),
 //   targeterName       (""),
    targeterConverged  (false),
+   targeterInFunctionInitialized (false),
    TargeterConvergedID(parameterCount),
    targeterInDebugMode(false)
 {
@@ -68,6 +77,7 @@ Target::~Target()
 Target::Target(const Target& t) :
    SolverBranchCommand (t),
    targeterConverged   (false),
+   targeterInFunctionInitialized (false),
    TargeterConvergedID (t.TargeterConvergedID),
    targeterInDebugMode (t.targeterInDebugMode)
 {
@@ -95,6 +105,7 @@ Target& Target::operator=(const Target& t)
    GmatCommand::operator=(t);
 
    targeterConverged   = false;
+   targeterInFunctionInitialized = false;
    TargeterConvergedID = t.TargeterConvergedID;
    targeterInDebugMode = t.targeterInDebugMode;
    localStore.clear();
@@ -464,9 +475,33 @@ bool Target::Initialize()
       errorString += "\"";
       throw CommandException(errorString);
    }
-
+   
    // Clone the targeter for local use
+   #ifdef DEBUG_TARGET_INIT
+   MessageInterface::ShowMessage
+      ("Target::Initialize() cloning mapObj <%p>'%s'\n", mapObj,
+       mapObj->GetName().c_str());
+   MessageInterface::ShowMessage
+      ("mapObj maxIter=%d\n",
+       mapObj->GetIntegerParameter(mapObj->GetParameterID("MaximumIterations")));
+   #endif
+   
+   if (theSolver)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (theSolver, "local solver", "Target::Initialize()",
+          "deleting local solver");
+      #endif
+   }
+   
    theSolver = (Solver *)(mapObj->Clone());
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (theSolver, theSolver->GetName(), "Target::Initialize()",
+       "theSolver = (Solver *)(mapObj->Clone())");
+   #endif
+   
    theSolver->TakeAction("IncrementInstanceCount");
    mapObj->TakeAction("IncrementInstanceCount");
    
@@ -476,7 +511,7 @@ bool Target::Initialize()
          GetStringParameter(SOLVER_SOLVE_MODE));
    theSolver->SetStringParameter("ExitMode", 
          GetStringParameter(SOLVER_EXIT_MODE));
-    
+   
    // Set the local copy of the targeter on each node
    std::vector<GmatCommand*>::iterator node;
    GmatCommand *current;
@@ -517,7 +552,9 @@ bool Target::Initialize()
 
       retval = theSolver->Initialize();
    }
-        
+   
+   targeterInFunctionInitialized = false;
+   
    return retval;
 }
 
@@ -538,8 +575,29 @@ bool Target::Initialize()
 //------------------------------------------------------------------------------
 bool Target::Execute()
 {
+   #ifdef DEBUG_TARGET_EXEC
+   MessageInterface::ShowMessage
+      ("Target::Execute() entered, theSolver=<%p>'%s'\n", (GmatBase*)theSolver,
+       theSolver->GetName().c_str());
+   MessageInterface::ShowMessage
+      ("maxIter=%d\n",
+       theSolver->GetIntegerParameter(theSolver->GetParameterID("MaximumIterations")));
+   MessageInterface::ShowMessage
+      ("currentFunction=<%p>'%s'\n",
+       currentFunction, currentFunction ? ((GmatBase*)currentFunction)->GetName().c_str() : "NULL");
+   #endif
+   
+   // If targeting inside a function, we need to reinitialize since the local solver is
+   // cloned in Initialize(). All objects including solvers are initialized in
+   // assignment command which happens after Target::Initialize(). (LOJ: 2009.03.17)
+   if (currentFunction != NULL && !targeterInFunctionInitialized)
+   {
+      Initialize();
+      targeterInFunctionInitialized = true;
+   }
+   
    bool retval = true;
-
+   
    // Drive through the state machine.
    Solver::SolverState state = theSolver->GetState();
    
@@ -759,6 +817,13 @@ bool Target::Execute()
       theSolver->SetDebugString(dbgData);
    }
    BuildCommandSummary(true);
+   
+   #ifdef DEBUG_TARGET_EXEC
+   MessageInterface::ShowMessage
+      ("Target::Execute() returning %d, theSolver=<%p>'%s'\n", retval,
+       theSolver, theSolver->GetName().c_str());
+   #endif
+   
    return retval;
 }
 
@@ -774,8 +839,9 @@ void Target::RunComplete()
 {
    if (theSolver != NULL)
       theSolver->Finalize();
-
-   //Call RunComplete of parent (loj: 2/23/06)
-   //GmatCommand::RunComplete();
+   
+   // Free local data (LOJ: 2009.03.17)
+   FreeLoopData();
+   
    BranchCommand::RunComplete();
 }
