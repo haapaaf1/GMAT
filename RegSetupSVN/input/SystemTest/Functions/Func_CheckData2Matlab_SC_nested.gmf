@@ -1,0 +1,5 @@
+function Func_CheckData2Matlab_SC_nested(reportLoc1, reportLoc2)
+% $Id$
+
+% Call function
+Func_CheckData2Matlab_SC(reportLoc1, reportLoc2);
