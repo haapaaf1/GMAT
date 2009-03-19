@@ -241,6 +241,9 @@ protected:
    /// Flag used to prevent unnecessary initialization calls
    bool forceMembersNotInitialized;
    
+   /// Number of objects that propagate a 6-vector in this ODEModel
+   Integer satCount;
+   
    /// Parameter IDs on spacecraft needed to access the parms during integration
    Integer satIds[7];
 //   /// ID for the "Epoch" parameter  -- NOT NEEDED, THIS IS A PHYSICAL MODEL ALREADY!!!

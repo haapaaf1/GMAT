@@ -388,6 +388,7 @@ bool PhysicalModel::Initialize()
       deriv = NULL;
    }
 
+   // MessageInterface::ShowMessage("PMInitialize setting dim = %d\n", dimension);   
 
    modelState = new Real[dimension];
    if (modelState != NULL)

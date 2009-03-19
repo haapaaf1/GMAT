@@ -156,6 +156,7 @@ ODEModel::ODEModel(const std::string &modelName, const std::string typeName) :
    parametersSetOnce (false),
    centralBodyName   ("Earth"),
    forceMembersNotInitialized (true),
+   satCount          (0),
    j2kBodyName       ("Earth"),
    j2kBody           (NULL),
    earthEq           (NULL),
@@ -252,6 +253,7 @@ ODEModel::ODEModel(const ODEModel& fdf) :
    parametersSetOnce          (false),
    centralBodyName            (fdf.centralBodyName),
    forceMembersNotInitialized (true),
+   satCount                   (0),
    j2kBodyName                (fdf.j2kBodyName),
    /// @note: Since the next three are global objects or reset by the Sandbox,
    ///assignment works
@@ -324,7 +326,7 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    
    state = NULL;
    psm   = NULL;
-
+   satCount = 0;
 
    numForces           = fdf.numForces;
    stateSize           = fdf.stateSize;
@@ -725,13 +727,7 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
       vectorSize = stateSize * sizeof(Real);
 
       previousState = (*state);
-
-//      memcpy(previousState, state->GetState(), vectorSize);
-//      previousTime = (state->GetEpoch()) * 86400.0;
       memcpy(state->GetState(), rawState, vectorSize);
-
-//      MessageInterface::ShowMessage("Previous[0] = %.12lf, current = %.12lf\n",
-//            previousState[0], (*state)[0]);
 
       Real newepoch = epoch + elapsedTime / 86400.0;
 
@@ -804,22 +800,6 @@ void ODEModel::UpdateFromSpaceObject()
    GmatState *state = psm->GetState();
    memcpy(rawState, state->GetState(), state->GetSize() * sizeof(Real));
 
-//   if (spacecraft.size() > 0)
-//    {
-//        Integer j = 0;
-//        Integer stateSize;
-//        std::vector<SpaceObject *>::iterator sat;
-//        GmatState *state;
-//        for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat)
-//        {
-//            state = &((*sat)->GetState());
-//            stateSize = state->GetSize();
-//            memcpy(&rawState[j*stateSize], state->GetState(),
-//                   stateSize * sizeof(Real));
-//            ++j;
-//        }
-//    }
-//
     // Transform to the force model origin
     MoveToOrigin();
 }
@@ -1081,64 +1061,37 @@ bool ODEModel::Initialize()
          "Calling PhysicalModel::Initialize(); dimension = %d\n", dimension);
    #endif
 
+   dimension = state->GetSize();
+
    if (!PhysicalModel::Initialize())
       return false;
 
    // Incorporate any temporary affects -- e.g. finite burn
    UpdateTransientForces();
 
-   dimension = state->GetSize();
+   Integer newDim = state->GetSize();
+   if (newDim != dimension)
+   {
+      // If dimensions don't match with transient forces, reinitialize
+      dimension = newDim;
+      if (!PhysicalModel::Initialize())
+         return false;
+   }
 
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("Configuring for state of dimension %d\n",
             dimension);
    #endif
 
+   // rawState deallocated in PhysicalModel::Initialize() method so reallocate
+   MessageInterface::ShowMessage("ODEInitialize setting raw dim = %d\n", dimension);   
    rawState = new Real[dimension];
-//   modelState = // state->GetState();// new Real[dimension];
-//      new Real[dimension];
    memcpy(rawState, state->GetState(), dimension * sizeof(Real));
+
    MoveToOrigin();
-
-//   modelState = new Real[dimension];
-//   memcpy(modelState, state->GetState(), dimension * sizeof(Real));
-
-//   if (spacecraft.size() == 0)
-//   {
-//      #ifdef DEBUG_INITIALIZATION
-//         MessageInterface::ShowMessage("Setting state data; dimension = %d\n",
-//            dimension);
-//      #endif
-//
-//      modelState[0] = 7000.0;
-//      modelState[1] =    0.0;
-//      modelState[2] = 1000.0;
-//      modelState[3] =    0.0;
-//      modelState[4] =    7.4;
-//      modelState[5] =    0.0;
-//   }
-//   else
-//   {
-//      Integer j = 0;
-//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat)
-//      {
-//         state = &((*sat)->GetState());
-//         stateSize = state->GetSize();
-//         memcpy(&rawState[j], state->GetState(), stateSize * sizeof(Real));
-//         j += stateSize;
-//      }
-//      MoveToOrigin();
-//   }
 
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
-//   Integer i;
-
-
-
-//   Integer cf = currentForce;
-//   PhysicalModel *current = GetForce(cf);  // waw: added 06/04/04
-//   PhysicalModel *currentPm;
 
    for (std::vector<PhysicalModel *>::iterator current = forceList.begin();
         current != forceList.end(); ++current)
@@ -3137,21 +3090,28 @@ std::string ODEModel::BuildForceNameString(PhysicalModel *force)
 //------------------------------------------------------------------------------
 void ODEModel::MoveToOrigin(Real newEpoch)
 {
-   // todo: Clean this up
-   Integer satCount = dimension / stateSize;
+#ifdef DEBUG_REORIGIN
+   MessageInterface::ShowMessage("ODEModel::MoveToOrigin entered\n");
+#endif
+   
+   satCount = dimension / stateSize;   // psm->GetSatCount();
    Integer currentScState = 0;
 
 #ifdef DEBUG_REORIGIN
    MessageInterface::ShowMessage(
          "SatCount = %d, dimension = %d, stateSize = %d\n",satCount, 
-         dimension, stateSize); 
+         dimension, stateSize);
    MessageInterface::ShowMessage(
-       "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
-       "%lf]\n   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-       rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
-       rawState[5],
-       modelState[0], modelState[1], modelState[2], modelState[3],
-       modelState[4], modelState[5]);
+         "StatePointers: rawState = %p, modelState = %p\n", rawState, 
+         modelState);
+   MessageInterface::ShowMessage(
+       "ODEModel::MoveToOrigin()\n   Input state: [ ");
+   for (Integer i = 0; i < dimension; ++i)
+      MessageInterface::ShowMessage("%lf ", rawState[i]); 
+   MessageInterface::ShowMessage("]\n   model state: [ ");
+   for (Integer i = 0; i < dimension; ++i)
+      MessageInterface::ShowMessage("%lf ", modelState[i]);
+   MessageInterface::ShowMessage("]\n\n");
 #endif
 
    if (centralBodyName == j2kBodyName)
@@ -3232,6 +3192,19 @@ void ODEModel::MoveToOrigin(Real newEpoch)
              modelState[4], modelState[5]);
       #endif
    }
+   
+#ifdef DEBUG_REORIGIN
+   MessageInterface::ShowMessage(
+       "   Move Complete\n   Input state: [ ");
+   for (Integer i = 0; i < dimension; ++i)
+      MessageInterface::ShowMessage("%lf ", rawState[i]); 
+   MessageInterface::ShowMessage("]\n   model state: [ ");
+   for (Integer i = 0; i < dimension; ++i)
+      MessageInterface::ShowMessage("%lf ", modelState[i]);
+   MessageInterface::ShowMessage("]\n\n");
+
+   MessageInterface::ShowMessage("ODEModel::MoveToOrigin Finished\n");
+#endif
 }
 
 

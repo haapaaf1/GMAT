@@ -972,5 +972,6 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    // orthonormal instead? accuracy (tolerance)?
    if (!rotMatrix.IsOrthogonal(5.0e-12))
       throw CoordinateSystemException(
-  "Object referenced axes definition does not result in an orthogonal system.");
+            "Object referenced axes definition does not result in an "
+            "orthogonal system\n\nrotMatrix = " + rotMatrix.ToString());
 }
