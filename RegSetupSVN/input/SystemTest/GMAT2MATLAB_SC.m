@@ -1,4 +1,4 @@
-function GMAT2MATLAB_SC(SCgregorian,SCmodjulian)
+function GMAT2MATLAB_SC(SCgregorian,SCmodjulian,DataGregRpt,DataModJulRpt)
 
 format long g
 
@@ -21,10 +21,12 @@ outputDir = [cd,'/output'];
 cd(currDir)
 
 % Process SC save using Gregorian for DateFormat
-SCgregRptName = 'CheckData2Matlab_SCgreg.report';
+findSlashes   = findstr(DataGregRpt,'/');
+lastSlash     = findSlashes(size(findSlashes,2)) + 1;
+SCgregRptName = DataGregRpt(lastSlash:size(DataGregRpt,2));
 
 % Load contents of report file into Matlab as a cell array
-fid1 = fopen([outputDir,'\SystemTest\',SCgregRptName]);
+fid1 = fopen([rootDir,'/output/SystemTest/',SCgregRptName]);
 eval('CheckData2Matlab_SCgreg = textscan(fid1,''%s'',''delimiter'',''\n'',''whitespace'','''');'); % store data as a variable name
 fclose(fid1);
 
@@ -46,10 +48,12 @@ fclose(fid1);
 
 
 % Process SC save using Modified Julian for DateFormat
-SCmodJulRptName = 'CheckData2Matlab_SCmodJul.report';
+findSlashes   = findstr(DataModJulRpt,'/');
+lastSlash     = findSlashes(size(findSlashes,2)) + 1;
+SCmodJulRptName = DataModJulRpt(lastSlash:size(DataModJulRpt,2));
 
 % Load contents of report file into Matlab as a cell array
-fid2 = fopen([outputDir,'\SystemTest\',SCmodJulRptName]);
+fid2 = fopen([rootDir,'/output/SystemTest/',SCmodJulRptName]);
 eval('CheckData2Matlab_SCmodJul = textscan(fid2,''%s'',''delimiter'',''\n'',''whitespace'','''');'); % store data as a variable name
 fclose(fid2);
 

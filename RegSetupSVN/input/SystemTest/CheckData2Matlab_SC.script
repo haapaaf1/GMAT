@@ -40,6 +40,16 @@ GMAT SCmodjulian.DragArea = 3;
 GMAT SCmodjulian.SRPArea = 25;
 
 %----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create String DataGregRpt;
+GMAT DataGregRpt = './output/SystemTest/CheckData2Matlab_SCgreg.report';
+
+Create String DataModJulRpt;
+GMAT DataModJulRpt = './output/SystemTest/CheckData2Matlab_SCmodJul.report';
+
+%----------------------------------------
 %---------- ForceModels
 %----------------------------------------
 
@@ -64,14 +74,14 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile DataGreg
-GMAT DataGreg.Filename = ./output/SystemTest/CheckData2Matlab_SCgreg.report;
+GMAT DataGreg.Filename = DataGregRpt;
 GMAT DataGreg.Precision = 16;
 GMAT DataGreg.WriteHeaders = On;
 GMAT DataGreg.ZeroFill = On;
 GMAT DataGreg.ColumnWidth = 28;
 
 Create ReportFile DataModJul
-GMAT DataModJul.Filename = ./output/SystemTest/CheckData2Matlab_SCmodJul.report;
+GMAT DataModJul.Filename = DataModJulRpt;
 GMAT DataModJul.Precision = 16;
 GMAT DataModJul.WriteHeaders = On;
 GMAT DataModJul.ZeroFill = On;
@@ -90,4 +100,4 @@ Propagate DefaultProp(SCmodjulian) {SCmodjulian.ElapsedDays = 5};
 Report DataGreg   SCgregorian.UTCModJulian SCgregorian.TAIModJulian SCgregorian.UTCGregorian SCgregorian.EarthMJ2000Eq.X SCgregorian.EarthMJ2000Eq.Y SCgregorian.EarthMJ2000Eq.Z SCgregorian.EarthMJ2000Eq.VX SCgregorian.EarthMJ2000Eq.VY SCgregorian.EarthMJ2000Eq.VZ;
 Report DataModJul SCmodjulian.UTCModJulian SCmodjulian.TAIModJulian SCmodjulian.UTCModJulian SCmodjulian.EarthMJ2000Eq.X SCmodjulian.EarthMJ2000Eq.Y SCmodjulian.EarthMJ2000Eq.Z SCmodjulian.EarthMJ2000Eq.VX SCmodjulian.EarthMJ2000Eq.VY SCmodjulian.EarthMJ2000Eq.VZ;
 
-GMAT GMAT2MATLAB_SC(SCgregorian,SCmodjulian);
+GMAT GMAT2MATLAB_SC(SCgregorian,SCmodjulian,DataGregRpt,DataModJulRpt);
