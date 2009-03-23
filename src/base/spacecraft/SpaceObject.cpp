@@ -520,7 +520,7 @@ Real SpaceObject::SetRealParameter(const Integer id, const Real value)
 {
    if (id == EPOCH_PARAM)
       return state.SetEpoch(value);
-   return SpacePoint::GetRealParameter(id);
+   return SpacePoint::SetRealParameter(id, value);
 }
 
 
