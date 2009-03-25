@@ -275,29 +275,22 @@ protected:
    // Global Convergence Tolerance
    Real			globalConvergenceTolerance;
 
-   /// Filename containing observations. An empty string says use
-   /// observations stored in internal arrays
-   std::string		observationTextFile;
-   /// Type of observation
-   StringArray		observationTypes;
+   /// Vector of observation times
+   LaVectorDouble	observationTimes;
    /// Vector of observations
    LaVectorDouble	y;
    /// Vector containing differences between observed and computed measurements
    LaVectorDouble	z;
-   /// Vector of observation times in GMAT's A.1 modified Julian date
-   LaVectorDouble	observationTimes;
-   /// The number of observations in the estimator problem
-   Integer		observationCount;
-   // Current observation index that is being processed
-   Integer		obIndex;
+   // The number of observations in the estimator problem
+   Integer              observationCount;
    /// The number of observation types in the estimator problem
    Integer		observationTypeCount;
    /// The number of observation stations in the estimator problem
    Integer		observerCount;
    // Index of which observer we are working with
    Integer		observerIndex;
-   /// List of names of observation stations
-   StringArray		stationNames;
+   // Index of the observation to be processed
+   Integer              obIndex;
 
    /// Vector of state biases
    LaVectorDouble	stateBiases;
@@ -347,8 +340,12 @@ protected:
    /// Maximum number of iterations allowed ( used for batch processing )
    Integer             maxIterations;
    /// Limits on the lowest value of the state variables
+   // this is a sanity check not a constraint
+   // e.g. for eccentricity this value would be 0
    LaVectorDouble stateMinimum;
    /// Limits on the highest value of the state variables
+   // this is a sanity check not a constraint
+   // e.g. for eccentricity this value would be 1
    LaVectorDouble stateMaximum;
 
 
@@ -356,6 +353,7 @@ protected:
    bool                 initialized;
    /// Flag used to test if the estimator has converged
    bool			converged;
+
    /// Output mode: Compact, Normal, and Verbose
    std::string         textFileMode;
    /// Toggle for showing estimator status
@@ -381,6 +379,8 @@ protected:
    StringArray          participantNames;
    /// The participants
    ObjectArray          participants;
+   /// The data sources
+   ObjectArray          dataSources;
    /// Measurement Model names
    StringArray          measModelNames;
    /// SolveFor parameter IDs

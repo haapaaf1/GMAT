@@ -100,19 +100,22 @@ public:
   GroundStation* GetGroundStation();
 
   // Compute measurements
+
+  // This function takes a spacecraft and computes a measurement
+  // between the associated ground station and the spacecraft
   virtual bool ComputeMeasurement(Spacecraft* theSat);
-  virtual bool ComputeMeasurement(ObjectArray participants, 
-				  LaVectorDouble &myMeasurements);
-  virtual bool ComputeMeasurement(GroundStation* theStation,
-        Spacecraft* theSat, LaVectorDouble &myMeasurements);
+
+  // This function takes any set of GMAT defined objects as targets and
+  // computes a measurement between the associated ground station and the target
+  virtual bool ComputeMeasurement(ObjectArray targets);
  
   // Compute partial derivatives
   virtual bool ComputeCartesianPartialDerivative(Spacecraft* theSat);
-  virtual bool ComputeCartesianPartialDerivative(ObjectArray participants, 
-				  LaGenMatDouble &myMeasurements);
-  virtual bool ComputeCartesianPartialDerivative(
-        GroundStation* theStation, Spacecraft* theSat,
-        LaGenMatDouble &myCartDerivatives);
+  virtual bool ComputeCartesianPartialDerivative(ObjectArray targets);
+
+  // Obtain the measurements and partials
+  virtual LaVectorDouble GetTheMeasurements();
+  virtual LaGenMatDouble GetTheCartesianPartials();
    
 protected:
 

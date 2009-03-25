@@ -74,8 +74,7 @@ bool GeometricRangeMeasurementModel::Initialize() const
 }
 
 //------------------------------------------------------------------------------
-// Integer ComputeMeasurement(const GroundStation &theStation,
-//		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
+// Integer ComputeMeasurement(Spacecraft &theSat);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurements between a ground station and a
@@ -84,7 +83,7 @@ bool GeometricRangeMeasurementModel::Initialize() const
  */
 //------------------------------------------------------------------------------
 bool GeometricRangeMeasurementModel::ComputeMeasurement(
-      GroundStation *theStation, Spacecraft *theSat, LaVectorDouble &myMeasurements)
+                                                    Spacecraft *theSat)
 {
 
     // GMAT's A.1 modified Julian epoch
@@ -98,15 +97,14 @@ bool GeometricRangeMeasurementModel::ComputeMeasurement(
 
     Rvector6 range = satState-gsState;
 
-    myMeasurements(0) = range.GetMagnitude();
+    theMeasurements(0) = range.GetMagnitude();
 
     return true;
 
 }
 
 //------------------------------------------------------------------------------
-// bool ComputeCartesianPartialDerivative(const GroundStation &theStation,
-//		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
+// bool ComputeCartesianPartialDerivative(Spacecraft &theSat);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurement derivatives with respect to the estimator
@@ -115,10 +113,10 @@ bool GeometricRangeMeasurementModel::ComputeMeasurement(
  */
 //------------------------------------------------------------------------------
 bool GeometricRangeMeasurementModel::ComputeCartesianPartialDerivative(
-      GroundStation *theStation, Spacecraft *theSat, LaGenMatDouble &myCartDerivatives)
+                                                      Spacecraft *theSat)
 {
     
-    if (myCartDerivatives.size(0) < 6)
+    if (theCartDerivatives.size(0) < 6)
 	return false;
     
     // GMAT's A.1 modified Julian epoch
@@ -135,12 +133,12 @@ bool GeometricRangeMeasurementModel::ComputeCartesianPartialDerivative(
     Real rangeMag = range.GetMagnitude();
 
     if (rangeMag > 0) {
-        myCartDerivatives(0,0) = range(0)/rangeMag;
-	myCartDerivatives(0,1) = range(1)/rangeMag;
-	myCartDerivatives(0,2) = range(2)/rangeMag;
-	myCartDerivatives(0,3) = 0;
-	myCartDerivatives(0,4) = 0;
-	myCartDerivatives(0,5) = 0;
+        theCartDerivatives(0,0) = range(0)/rangeMag;
+	theCartDerivatives(0,1) = range(1)/rangeMag;
+	theCartDerivatives(0,2) = range(2)/rangeMag;
+	theCartDerivatives(0,3) = 0;
+	theCartDerivatives(0,4) = 0;
+	theCartDerivatives(0,5) = 0;
 	return true;
     }
     else

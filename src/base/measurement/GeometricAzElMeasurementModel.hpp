@@ -28,6 +28,10 @@ public:
     GeometricAzElMeasurementModel(const GeometricAzElMeasurementModel &GeometricAzElMeasurementModel);
     GeometricAzElMeasurementModel& operator=(const GeometricAzElMeasurementModel &GeometricAzElMeasurementModel);
     virtual ~GeometricAzElMeasurementModel();
+
+    bool ComputeMeasurement(Spacecraft* theSat);
+    bool ComputeCartesianPartialDerivative(Spacecraft* theSat);
+
 private:
     
 protected:

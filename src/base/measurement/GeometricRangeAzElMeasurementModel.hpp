@@ -39,11 +39,7 @@ public:
    GmatBase *Clone() const;
    
    bool ComputeMeasurement(Spacecraft *theSat);
-   bool ComputeMeasurement(GroundStation *myStation, Spacecraft *theSat,
-          LaVectorDouble &myMeasurements);
    bool ComputeCartesianPartialDerivative(Spacecraft *theSat);
-   bool ComputeCartesianPartialDerivative(GroundStation *myStation,
-          Spacecraft *theSat, LaGenMatDouble &myCartDerivatives);
 
 private:
 

@@ -28,6 +28,10 @@ public:
     GeometricRaDecMeasurementModel(const GeometricRaDecMeasurementModel &GeometricRaDecMeasurementModel);
     GeometricRaDecMeasurementModel& operator=(const GeometricRaDecMeasurementModel &GeometricRaDecMeasurementModel);
     virtual ~GeometricRaDecMeasurementModel();
+
+    bool ComputeMeasurement(Spacecraft *theSat);
+    bool ComputeCartesianPartialDerivative(Spacecraft *theSat);
+
 private:
     
 protected:

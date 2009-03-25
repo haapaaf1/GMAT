@@ -233,6 +233,9 @@ bool Estimator::Initialize()
    // Initialize observer count to zero
    observerCount = 0;
    
+   // The number of observations in the estimator problem
+   observationCount = 0;
+
    // Initialize observer index to zero
    observerIndex = 0;   
    
@@ -251,18 +254,6 @@ bool Estimator::Initialize()
    // Initialize the Global Convergence Tolerance
    globalConvergenceTolerance = 1e-3;
 
-   // Filename containing observations. An empty string says use observations stored in internal arrays
-   observationTextFile = "";
-
-   // The number of observations in the estimator problem
-   observationCount = 0;
-
-   // The number of observation stations in the estimator problem
-   observerCount = 0;
-   
-   // Index of which observer we are working with
-   observerIndex = 0;
-
    // The number of iterations taken ( used for batch processing )
    iterationsTaken = 0;
    
@@ -272,14 +263,9 @@ bool Estimator::Initialize()
    // Toggle for showing estimator status
    showProgress = true;
    
-   // Flag used to ensure the estimator is ready to go
-   // Only set to true when all variables have been properly
-   // initialized by the specific estimator implementation
-   initialized = false;
-
    // Construct the SolveFor lists and count the number of states
    for (StringArray::iterator i = solveForParms.begin();
-        i != solveForParms.end(); ++i)
+                                                 i != solveForParms.end(); ++i)
    {
       std::string ownerName, val;
       Integer dotPos = i->find('.', 0);
@@ -352,8 +338,11 @@ bool Estimator::Initialize()
    // Initialize converged flag
    converged = false;   
 
-   initialized = true;
-   
+   // Flag used to ensure the estimator is ready to go
+   // Only set to true when all variables have been properly
+   // initialized by the specific estimator implementation
+   initialized = false;
+
    return true;
 }
 
@@ -1009,10 +998,25 @@ GmatBase* Estimator::GetRefObject(const Gmat::ObjectType type,
       retval = (GmatBase*)propagator;
    }
 
-   if (type == Gmat::MEASUREMENT_MODEL)
+   if (type == Gmat::DATA_FILE)
    {
-      // Needs code
+      for (ObjectArray::iterator i = dataSources.begin();
+           i != dataSources.end(); ++i)
+      {
+         if ((*i)->GetName() == name)
+         {
+            retval = *i;
+            break;
+         }
+      }
    }
+
+   // MPW - Commented out because measurement models
+   // are "owned" by other objects
+   //if (type == Gmat::MEASUREMENT_MODEL)
+   //{
+      // Needs code
+   //}
 
    if (retval != NULL)
       return retval;
@@ -1047,6 +1051,15 @@ bool Estimator::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       }
    }
 
+   if (obj->IsOfType(Gmat::DATA_FILE))
+   {
+      if (find(dataSources.begin(), dataSources.end(), obj) == dataSources.end())
+      {
+         dataSources.push_back(obj);
+         retval = true;
+      }
+   }
+
    if (obj->IsOfType(Gmat::PROP_SETUP))
    {
       // Do we need to save this here?
@@ -1054,14 +1067,16 @@ bool Estimator::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       retval = true;
    }
 
-   if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
-   {
+   // MPW - commented out because measurement models are owned by
+   // other objects
+   //if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+   //{
 //      if (find(measModels.begin(), measModels.end(), obj) == measModels.end())
 //      {
 //         measModels.push_back((MeasurementModel*)obj);
-         retval = true;
+   //      retval = true;
 //      }
-   }
+   //}
 
    return retval;
 }

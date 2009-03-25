@@ -34,11 +34,8 @@ public:
 
     bool Initialize() const;
     
-    virtual bool ComputeMeasurement(GroundStation *theStation,
-          Spacecraft *theSat, LaVectorDouble &myMeasurements);
-    virtual bool ComputeCartesianPartialDerivative(
-          GroundStation *theStation, Spacecraft *theSat,
-          LaGenMatDouble &myCartDerivatives);
+    virtual bool ComputeMeasurement(Spacecraft *theSat);
+    virtual bool ComputeCartesianPartialDerivative(Spacecraft *theSat);
 
 
     virtual GmatBase *Clone() const;

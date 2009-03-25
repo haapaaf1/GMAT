@@ -34,23 +34,14 @@ public:
 
    GmatBase *Clone() const;
 
-   void SetGroundStation(GroundStation* gs);
-   GroundStation* GetGroundStation();
-
-   bool ComputeMeasurement(GroundStation *theStation, Spacecraft *theSat,
-          LaVectorDouble &myMeasurements);
-   bool ComputeCartesianPartialDerivative(GroundStation *theStation,
-          Spacecraft *theSat, LaGenMatDouble &myCartDerivatives);
+   bool ComputeMeasurement(Spacecraft *theSat);
+   bool ComputeCartesianPartialDerivative(Spacecraft *theSat);
 
 private:
 
 protected:
 
    Real           bodySpinRate;
-
-   // TODO: Is this the best way for the measurement model
-   // to know what ground station it is associated with?
-   GroundStation* theStation;
 
 }
 

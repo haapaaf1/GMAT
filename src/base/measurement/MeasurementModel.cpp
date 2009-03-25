@@ -893,8 +893,7 @@ bool MeasurementModel::ComputeMeasurement(Spacecraft *theSat)
 
 
 //------------------------------------------------------------------------------
-// Integer ComputeMeasurement(ObjectArray participants,
-//			      const LaVectorDouble &myMeasurements);
+// Integer ComputeMeasurement(const ObjectArray targets);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurements between a ground station and a
@@ -902,24 +901,7 @@ bool MeasurementModel::ComputeMeasurement(Spacecraft *theSat)
  * the time of the spacecraft state was successfully computed.
  */
 //------------------------------------------------------------------------------
-bool MeasurementModel::ComputeMeasurement(ObjectArray participants,
-					  LaVectorDouble &myMeasurements)
-{
-      return false;
-}
-
-//------------------------------------------------------------------------------
-// Integer ComputeMeasurement(const GroundStation &theStation,
-//		const Spacecraft &theSat, const LaVectorDouble &myMeasurements);
-//------------------------------------------------------------------------------
-/**
- * Code used to simulate measurements between a ground station and a
- * spacecraft. The model returns true if a vector of measurments at
- * the time of the spacecraft state was successfully computed.
- */
-//------------------------------------------------------------------------------
-bool MeasurementModel::ComputeMeasurement(GroundStation *theStation,
-      Spacecraft *theSat, LaVectorDouble &myMeasurements)
+bool MeasurementModel::ComputeMeasurement(ObjectArray targets)
 {
       return false;
 }
@@ -933,14 +915,14 @@ bool MeasurementModel::ComputeMeasurement(GroundStation *theStation,
  * computed.
  */
 //------------------------------------------------------------------------------
-bool MeasurementModel::ComputeCartesianPartialDerivative(Spacecraft *theSat)
+bool MeasurementModel::ComputeCartesianPartialDerivative
+                                                    (Spacecraft *theSat)
 {
       return false;
 }
 
 //------------------------------------------------------------------------------
-// Integer ComputeCartesianPartialDerivative(ObjectArray participants, 
-//		const LaGenMatDouble &myMeasurements);
+// Integer ComputeCartesianPartialDerivative(const ObjectArray participants);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurement derivatives with respect to the estimator
@@ -949,25 +931,9 @@ bool MeasurementModel::ComputeCartesianPartialDerivative(Spacecraft *theSat)
  */
 //------------------------------------------------------------------------------
 bool MeasurementModel::ComputeCartesianPartialDerivative(
-	    ObjectArray participants, LaGenMatDouble &myCartDerivatives)
+                                                const ObjectArray participants)
 {
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// Integer ComputeCartesianPartialDerivative(const GroundStation &theStation,
-//		const Spacecraft &theSat, const LaGenMatDouble &myMeasurements);
-//------------------------------------------------------------------------------
-/**
- * Code used to simulate measurement derivatives with respect to the estimator
- * state. The code returns true if the partial derivatives were successfully
- * computed.
- */
-//------------------------------------------------------------------------------
-bool MeasurementModel::ComputeCartesianPartialDerivative(
-      GroundStation *theStation, Spacecraft *theSat, LaGenMatDouble &myCartDerivatives)
-{
-    return false;
+      return false;
 }
 
 //------------------------------------------------------------------------------
@@ -989,6 +955,19 @@ Real MeasurementModel::GetDegree(const Real angle, const Real minAngle,
 }
 
 
+//------------------------------------------------------------------------------
+// LaVectorDouble GetTheMeasurements()
+//------------------------------------------------------------------------------
+LaVectorDouble MeasurementModel::GetTheMeasurements()
+{
+    return theMeasurements;
+}
 
-
+//------------------------------------------------------------------------------
+// LaVectorDouble GetTheCartesianPartials()
+//------------------------------------------------------------------------------
+LaGenMatDouble MeasurementModel::GetTheCartesianPartials()
+{
+    return theCartDerivatives;
+}
 

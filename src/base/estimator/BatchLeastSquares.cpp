@@ -580,7 +580,7 @@ void BatchLeastSquares::CompleteInitialization()
    // Copy xtemp into x.
    x.copy(xtemp);
 
-   // Get stations involved in this
+   // Count the number of ground stations participating in the process
    for (ObjectArray::iterator j = participants.begin();
            j != participants.end(); ++j)
    {
@@ -684,15 +684,17 @@ void BatchLeastSquares::Accumulate()
        MeasurementModel *currentMM = *i;
        m = currentMM->GetNumMeasurements();
        LaVectorDouble ycomputed(m);
-       
-       if(currentMM->ComputeMeasurement(theGroundStation,theSat,ycomputed))
+
+       if(currentMM->ComputeMeasurement(theSat))
        {
-	    z(LaIndex(obIndex,obIndex+m)) = y(LaIndex(obIndex,obIndex+m))-ycomputed;
+           ycomputed = currentMM->GetTheMeasurements();
+	   z(LaIndex(obIndex,obIndex+m)) = y(LaIndex(obIndex,obIndex+m))-ycomputed;
        }
        
        // Get partial derivatives
+       currentMM->ComputeCartesianPartialDerivative(theSat);
        LaGenMatDouble thisH(m,6);
-       currentMM->ComputeCartesianPartialDerivative(theGroundStation,theSat,thisH);
+       thisH = currentMM->GetTheCartesianPartials();
        
        //H(LaIndex(obIndex,obIndex+m),LaIndex(0,5)) = thisH(LaIndex(0,m-1),LaIndex(0,5));
 
