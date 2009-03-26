@@ -47,6 +47,7 @@
 // **************************************************************************
 
 #include "ODEModel.hpp"
+#include "Formation.hpp"
 #include "MessageInterface.hpp"
 #include "PropagationStateManager.hpp"
 
@@ -717,69 +718,41 @@ void ODEModel::BufferState()
 //------------------------------------------------------------------------------
 void ODEModel::UpdateSpaceObject(Real newEpoch)
 {
-      Integer stateSize;
-      Integer vectorSize;
-      GmatState *state;
-      ReturnFromOrigin(newEpoch);
+   #ifdef DEBUG_ODEMODEL_EXE
+      MessageInterface::ShowMessage(
+            "ODEModel::UpdateSpaceObject(%.12lf) called\n", newEpoch);
+   #endif
 
-      state = psm->GetState();
-      stateSize = state->GetSize();
-      vectorSize = stateSize * sizeof(Real);
+   Integer stateSize;
+   Integer vectorSize;
+   GmatState *state;
+   ReturnFromOrigin(newEpoch);
 
-      previousState = (*state);
-      memcpy(state->GetState(), rawState, vectorSize);
+   state = psm->GetState();
+   stateSize = state->GetSize();
+   vectorSize = stateSize * sizeof(Real);
 
-      Real newepoch = epoch + elapsedTime / 86400.0;
+   previousState = (*state);
+   memcpy(state->GetState(), rawState, vectorSize);
 
-      // Update the epoch if it was passed in
-      if (newEpoch != -1.0)
-         newepoch = newEpoch;
+   Real newepoch = epoch + elapsedTime / 86400.0;
 
-      state->SetEpoch(newepoch);
-      psm->MapVectorToObjects();
+   // Update the epoch if it was passed in
+   if (newEpoch != -1.0)
+      newepoch = newEpoch;
 
-      #ifdef DEBUG_ODEMODEL_EXE
-          MessageInterface::ShowMessage
-             ("ODEModel::UpdateSpaceObject() on \"%s\" prevElapsedTime = %f "
-              "elapsedTime = %f newepoch = %f passed in epoch = %f "
-              "dX's: [%.12lf] - [%.12lf] = [%.12lf]\n", 
-              GetName().c_str(), previousState.GetEpoch(), elapsedTime, 
-              newepoch, newEpoch, (*state)[0], previousState[0], 
-              ((*state)[0] - previousState[0]));
-      #endif
+   state->SetEpoch(newepoch);
+   psm->MapVectorToObjects();
 
-
-//      for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat)
-//      {
-//         state = &((*sat)->GetState());
-//         stateSize = state->GetSize();
-//         vectorSize = stateSize * sizeof(Real);
-//         memcpy(&previousState[j*stateSize], state->GetState(), vectorSize);
-//         previousTime =
-//            ((*sat)->GetRealParameter(satIds[0]) - epoch)
-//            * 86400.0;
-//
-//         memcpy(state->GetState(), &rawState[j*stateSize], vectorSize);
-//         ++j;
-//
-//         // Quick fix to get the epoch updated
-//         Real newepoch = epoch + elapsedTime / 86400.0;
-//
-//         // Update the epoch if it was passed in
-//         if (newEpoch != -1.0)
-//            newepoch = newEpoch;
-//
-//         (*sat)->SetRealParameter(satIds[0], newepoch);
-//         #ifdef DEBUG_ODEMODEL_EXE
-//             MessageInterface::ShowMessage
-//                ("ODEModel::UpdateSpacecraft() on \"%s\" prevElapsedTime=%f "
-//                 "elapsedTime=%f newepoch=%f\n", (*sat)->GetName().c_str(),
-//                 prevElapsedTime, elapsedTime, newepoch);
-//         #endif
-//         if ((*sat)->GetType() == Gmat::FORMATION)
-//            ((Formation*)(*sat))->UpdateElements();
-//      }
-//   }
+   #ifdef DEBUG_ODEMODEL_EXE
+      MessageInterface::ShowMessage
+            ("ODEModel::UpdateSpaceObject() on \"%s\" prevElapsedTime = %f "
+             "elapsedTime = %f newepoch = %f passed in epoch = %f "
+             "dX's: [%.12lf] - [%.12lf] = [%.12lf]\n", 
+             GetName().c_str(), previousState.GetEpoch(), elapsedTime, 
+             newepoch, newEpoch, (*state)[0], previousState[0], 
+             ((*state)[0] - previousState[0]));
+   #endif
 }
 
 
@@ -913,7 +886,15 @@ bool ODEModel::BuildModelFromMap()
       if (currentObject != (*map)[index]->object)
       {
          currentObject = (*map)[index]->object;
-         ++objectCount;
+         if (currentObject->IsOfType(Gmat::FORMATION))
+         {
+            Formation *form = (Formation*)currentObject;
+            ObjectArray oa = form->GetRefObjectArray(Gmat::SPACEOBJECT);
+            Integer fc = oa.size();
+            objectCount += fc;
+         }
+         else
+            ++objectCount;
       }
    }
 
@@ -1084,7 +1065,6 @@ bool ODEModel::Initialize()
    #endif
 
    // rawState deallocated in PhysicalModel::Initialize() method so reallocate
-   MessageInterface::ShowMessage("ODEInitialize setting raw dim = %d\n", dimension);   
    rawState = new Real[dimension];
    memcpy(rawState, state->GetState(), dimension * sizeof(Real));
 
@@ -1350,29 +1330,11 @@ std::string ODEModel::BuildPropertyName(GmatBase *ownedObj)
 //------------------------------------------------------------------------------
 void ODEModel::UpdateInitialData()
 {
-// todo: Fix UpdateInitialData
-//   return;
-
-//   Integer cf = currentForce;
    PhysicalModel *current; // = forceList[cf];  // waw: added 06/04/04
 
    // Variables used to set spacecraft parameters
    std::string parmName, stringParm;
    std::vector<SpaceObject *>::iterator sat;
-//   Integer index;
-
-//   // Detect if spacecraft parameters need complete refresh
-//   // Set spacecraft parameters for forces that need them
-//   for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat)
-//      if ((*sat)->ParametersHaveChanged())
-//      {
-//         #ifdef DEBUG_SATELLITE_PARAMETERS
-//            MessageInterface::ShowMessage("Parms changed for %s\n",
-//               (*sat)->GetName().c_str());
-//         #endif
-//         parametersSetOnce = false;
-//         (*sat)->ParametersHaveChanged(false);
-//      }
 
    for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
         i != forceList.end(); ++i)
@@ -1775,11 +1737,16 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
 
    #ifdef DEBUG_STATE
       MessageInterface::ShowMessage(
-               "Top of GetDeriv; State with dimension %d = [", dimension);
-//               state->GetSize());
-      for (Integer i = 0; i < dimension; ++i) //< state->GetSize()-1; ++i)
+               "End of GetDeriv; State with dimension %d = [", dimension);
+      for (Integer i = 0; i < dimension-1; ++i) //< state->GetSize()-1; ++i)
          MessageInterface::ShowMessage("%le, ", state[i]); //(*state)[i]);
       MessageInterface::ShowMessage("%le]\n", state[dimension-1]); //(*state)[state->GetSize()-1]);
+
+      MessageInterface::ShowMessage(
+               "   Derivative = [");
+      for (Integer i = 0; i < dimension-1; ++i) //< state->GetSize()-1; ++i)
+         MessageInterface::ShowMessage("%le, ", deriv[i]); //(*state)[i]);
+      MessageInterface::ShowMessage("%le]\n", deriv[dimension-1]); //(*state)[state->GetSize()-1]);
    #endif
 
    return true;
@@ -3218,9 +3185,6 @@ void ODEModel::MoveToOrigin(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::ReturnFromOrigin(Real newEpoch)
 {
-   // todo: Clean this up
-//static Integer counter = 0;
-
    Integer satCount = dimension / stateSize;
    Integer currentScState = 0;
 

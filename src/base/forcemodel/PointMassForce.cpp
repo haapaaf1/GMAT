@@ -306,8 +306,8 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
 {
 #ifdef DEBUG_PMF_DERV
    MessageInterface::ShowMessage("Evaluating PointMassForce; "
-      "state pointer = %d, time offset = %le, order = %d, id = %d\n", state, dt, 
-      order, id);
+      "state pointer = %d, time offset = %le, order = %d, id = %d "
+      "satCount = %d\n", state, dt, order, id, satCount);
 #endif
    
    Integer i6;
@@ -927,8 +927,8 @@ bool PointMassForce::SetStart(Gmat::StateElementId id, Integer index,
                       Integer quantity)
 {
    #ifdef DEBUG_REGISTRATION
-      MessageInterface::ShowMessage("PointMassForce setting start data for id = %d"
-            " to index %d; %d objects identified\n", id, index, quantity);
+      MessageInterface::ShowMessage("PointMassForce setting start data for id "
+            "= %d to index %d; %d objects identified\n", id, index, quantity);
    #endif
    
    bool retval = false;

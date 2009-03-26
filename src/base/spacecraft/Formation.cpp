@@ -322,6 +322,11 @@ std::string Formation::GetParameterText(const Integer id) const
 {
    if (id >= SpaceObjectParamCount && id < FormationParamCount)
       return PARAMETER_TEXT[id - SpaceObjectParamCount];
+   
+   if ((id >= FORMATION_CARTESIAN_STATE) && 
+       (id < FORMATION_CARTESIAN_STATE + dimension))
+      return PARAMETER_TEXT[FORMATION_CARTESIAN_STATE - SpaceObjectParamCount];
+      
    return SpaceObject::GetParameterText(id);
 }
 
@@ -364,6 +369,10 @@ Gmat::ParameterType Formation::GetParameterType(const Integer id) const
 {
    if (id >= SpaceObjectParamCount && id < FormationParamCount)
       return PARAMETER_TYPE[id - SpaceObjectParamCount];
+
+   if ((id >= FORMATION_CARTESIAN_STATE) && 
+       (id < FORMATION_CARTESIAN_STATE + dimension))
+      return PARAMETER_TYPE[FORMATION_CARTESIAN_STATE - SpaceObjectParamCount];
       
    return SpaceObject::GetParameterType(id);
 }
@@ -383,6 +392,10 @@ Gmat::ParameterType Formation::GetParameterType(const Integer id) const
 bool Formation::IsParameterReadOnly(const Integer id) const
 {
    if ((id == REMOVED_SPACECRAFT) || (id == CLEAR_NAMES))
+      return true;
+   
+   if ((id >= FORMATION_CARTESIAN_STATE) && 
+       (id < FORMATION_CARTESIAN_STATE + dimension))
       return true;
 
    return SpaceObject::IsParameterReadOnly(id);
@@ -553,31 +566,35 @@ bool Formation::SetStringParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
 Real Formation::SetRealParameter(const Integer id, const Real value)
 {
-   Real retval = SpaceObject::SetRealParameter(id, value);
-      
-   if (id == EPOCH_PARAM)
-   {
-      if (retval != value)
-         throw SpaceObjectException(
-            "Formation update returned incorrect epoch");
-      // Update the epoch on the constituent pieces
-      for (std::vector<SpaceObject*>::iterator i = components.begin();
-           i != components.end(); ++i)
-      {
-         retval = (*i)->SetRealParameter(id, value);
-         if (retval != value)
-            throw SpaceObjectException(
-               "Formation constituent returned incorrect epoch");
-      }
-   }
-   
+   Real retval = -1.0;
 
-   if (id >= FORMATION_CARTESIAN_STATE)
+   if ((id >= FORMATION_CARTESIAN_STATE) && 
+       (id < FORMATION_CARTESIAN_STATE + dimension))
    {
       state[id - FORMATION_CARTESIAN_STATE] = value;
-      retval = true;
+      retval = value;
    }
-   
+   else
+   {
+      retval = SpaceObject::SetRealParameter(id, value);
+         
+      if (id == EPOCH_PARAM)
+      {
+         if (retval != value)
+            throw SpaceObjectException(
+               "Formation update returned incorrect epoch");
+         // Update the epoch on the constituent pieces
+         for (std::vector<SpaceObject*>::iterator i = components.begin();
+              i != components.end(); ++i)
+         {
+            retval = (*i)->SetRealParameter(id, value);
+            if (retval != value)
+               throw SpaceObjectException(
+                  "Formation constituent returned incorrect epoch");
+         }
+      }
+   }   
+
    return retval;
 }
 

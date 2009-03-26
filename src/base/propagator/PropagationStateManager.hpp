@@ -52,7 +52,10 @@ public:
 	PropagationStateManager(const PropagationStateManager& psm);
 	PropagationStateManager& operator=(const PropagationStateManager& psm);
 	
-	virtual bool SetObject(GmatBase* theObject);
+   virtual Integer GetCount(Gmat::StateElementId elementType = 
+                               Gmat::UNKNOWN_STATE);
+
+   virtual bool SetObject(GmatBase* theObject);
 	virtual bool SetProperty(std::string propName);
    virtual bool BuildState();
    virtual bool MapObjectsToVector();

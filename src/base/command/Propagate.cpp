@@ -2927,7 +2927,8 @@ bool Propagate::Execute()
             // won't get updated for consecutive Propagate command
             #ifdef DEBUG_PROPAGATE_EXE
                MessageInterface::ShowMessage
-                  ("Propagate::Execute() Updating SpaceObjects; first vector element = %.12lf\n", (psm[i]->GetState()->GetState())[0]);
+                  ("Propagate::Execute() Updating SpaceObjects; first vector "
+                   "element = %.12lf\n", (psm[i]->GetState()->GetState())[0]);
             #endif
                fm[i]->UpdateSpaceObject(currEpoch[i]);
          }
@@ -4511,7 +4512,7 @@ void Propagate::BufferSatelliteStates(bool fillingBuffer)
                satrv[i*6+4], satrv[i*6+5]);
       #endif
    }
-
+   
    #ifdef DEBUG_STOPPING_CONDITIONS
       for (std::vector<Spacecraft *>::iterator i = satBuffer.begin();
            i != satBuffer.end(); ++i)

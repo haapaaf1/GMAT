@@ -43,6 +43,9 @@ public:
    virtual bool BuildState() = 0;
    virtual bool MapObjectsToVector() = 0;
    virtual bool MapVectorToObjects() = 0;
+   
+   virtual Integer GetCount(Gmat::StateElementId elementType = 
+                               Gmat::UNKNOWN_STATE);
 
    virtual bool UpdateState();
    virtual GmatState* GetState();

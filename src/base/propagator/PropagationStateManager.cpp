@@ -27,7 +27,7 @@
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
 
-#define DEBUG_STATE_CONSTRUCTION
+//#define DEBUG_STATE_CONSTRUCTION
 //#define DUMP_STATE
 //#define DEBUG_OBJECT_UPDATES
 
@@ -61,6 +61,49 @@ PropagationStateManager&
    }
    
    return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer GetCount(Integer elementType)
+//------------------------------------------------------------------------------
+/**
+ * Returns the number of objects that support the specified type
+ * 
+ * This default version just returns the total number of unique objects managed
+ * by the StateManager
+ * 
+ * @param elementType ID for the type of state element that is being queried.  
+ * 
+ * @return The count of the number of objects supporting the type specified
+ */
+//------------------------------------------------------------------------------
+Integer PropagationStateManager::GetCount(Gmat::StateElementId elementType)
+{
+   if (elementType == Gmat::UNKNOWN_STATE)
+      return StateManager::GetCount(elementType);
+   
+   Integer count = 0;
+   GmatBase *obj = NULL;
+   
+   for (Integer index = 0; index < stateSize; ++index)
+   {
+      if (stateMap[index]->elementID == elementType)
+      {
+         if (stateMap[index]->object != obj)
+         {
+            obj = stateMap[index]->object;
+            ++count;
+         }
+      }
+   }
+   
+   #ifdef DEBUG_STATE_ACCESS
+      MessageInterface::ShowMessage("PropagationStateManager::GetCount found "
+            "%d objects supporting type %d\n", count, elementType);
+   #endif
+      
+   return count;
 }
 
 
@@ -265,7 +308,7 @@ bool PropagationStateManager::MapVectorToObjects()
       switch (stateMap[index]->parameterType)
       {
          case Gmat::REAL_TYPE:
-            stateMap[index]->object->SetRealParameter(
+            (stateMap[index]->object)->SetRealParameter(
                      stateMap[index]->parameterID, state[index]);
             break;
             

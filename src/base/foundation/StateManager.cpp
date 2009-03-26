@@ -23,6 +23,9 @@
 #include "GmatBase.hpp"
 
 
+#define DEBUG_STATE_ACCESS
+
+
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
@@ -86,6 +89,39 @@ StateManager& StateManager::operator=(const StateManager& sm)
    }
    
    return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer GetCount(Gmat::StateElementId elementType)
+//------------------------------------------------------------------------------
+/**
+ * Returns the number of objects that support the specified type
+ * 
+ * This default version just returns the total number of unique objects managed
+ * by the StateManager
+ * 
+ * @param elementType ID for the type of state element that is being queried.  
+ *                    Gmat::UNKNOWN_STATE, the default, counts the total number
+ *                    of objects being managed.
+ * 
+ * @return The count of the number of objects supporting the type specified
+ */
+//------------------------------------------------------------------------------
+Integer StateManager::GetCount(Gmat::StateElementId elementType)
+{
+   ObjectArray pObjects;
+ 
+   GetStateObjects(pObjects, Gmat::UNKNOWN_OBJECT);
+   Integer count = pObjects.size();
+
+   #ifdef DEBUG_STATE_ACCESS
+      MessageInterface::ShowMessage(
+            "StateManager::GetCount found %d objects supporting type %d\n",
+            count, elementType);
+   #endif
+      
+   return count;
 }
 
 
