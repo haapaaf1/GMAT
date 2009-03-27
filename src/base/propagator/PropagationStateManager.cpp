@@ -327,6 +327,7 @@ bool PropagationStateManager::MapVectorToObjects()
                   "%s not set; Element type not handled\n",label.c_str());
       }
    }
+   
 
    GmatEpoch theEpoch = state.GetEpoch();
    for (UnsignedInt i = 0; i < objects.size(); ++i)

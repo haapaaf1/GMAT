@@ -2684,13 +2684,14 @@ void Propagate::PrepareToPropagate()
       for (Integer n = 0; n < (Integer)prop.size(); ++n)
       {
          elapsedTime.push_back(0.0);
-         currEpoch.push_back(0.0);
+//         currEpoch.push_back(0.0);
 
          p.push_back(prop[n]->GetPropagator());
          fm.push_back(prop[n]->GetODEModel());
          dim += fm[n]->GetDimension();
 
          psm.push_back(prop[n]->GetPropStateManager());
+         currEpoch.push_back(psm[n]->GetState()->GetEpoch());
 
          p[n]->Initialize();
          psm[n]->MapObjectsToVector();
@@ -2804,8 +2805,8 @@ void Propagate::PrepareToPropagate()
    
    #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() publishing initial %d data to stream %d, "
-          "1st data = %f\n", dim+1, streamID, pubdata[0]);
+         ("Propagate::PrepareToPropagate() publishing initial %d data to "
+          "stream %d, 1st data = %f\n", dim+1, streamID, pubdata[0]);
    #endif
    publisher->Publish(streamID, pubdata, dim+1);
 }

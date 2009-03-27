@@ -29,6 +29,8 @@
 #include <algorithm>			// Required by GCC 4.3
 
 //#define DEBUG_OR_AXES
+//#define DEBUG_ROT_MATRIX
+
 
 #ifdef DEBUG_OR_AXES
 #include <iostream>
@@ -781,11 +783,12 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
 #ifdef DEBUG_ROT_MATRIX
    if (visitCount == 0)
    {
-      cout.precision(30);
-      cout << " ----------------- rv Primary to Secondary    = " << rv << endl;
+      MessageInterface::ShowMessage(" ------------ rv Primary to Secondary = %s\n",
+            rv.ToString().c_str());
       visitCount++;
    }
 #endif
+
 #ifdef DEBUG_ROT_MATRIX
    if (visitCount == 0)
    {
@@ -794,8 +797,10 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       visitCount++;
    }
 #endif
+
    Rvector3 a     =  useAsSecondary->GetMJ2000Acceleration(atEpoch) -
                      primary->GetMJ2000Acceleration(atEpoch);
+   
    Rvector3 r      = rv.GetR();
    Rvector3 v      = rv.GetV();
    Rvector3 n     =  Cross(r,v);
@@ -810,6 +815,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    Rvector3 nDot = (Cross(r,a) / nMag) - (nUnit / nMag) * (Cross(r,a) * nUnit);
    Rvector3 xUnit, yUnit, zUnit, xDot, yDot, zDot;
    bool     xUsed = true, yUsed = true, zUsed = true;
+
    // determine the x-axis
    if ((xAxis == "R") || (xAxis == "r"))
    {

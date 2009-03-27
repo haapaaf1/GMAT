@@ -743,7 +743,12 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
 
    state->SetEpoch(newepoch);
    psm->MapVectorToObjects();
-
+   
+   // Update elements for each Formation
+   for (UnsignedInt i = 0; i < stateObjects.size(); ++i)
+      if (stateObjects[i]->IsOfType(Gmat::FORMATION))
+         ((Formation*)stateObjects[i])->UpdateElements();
+   
    #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage
             ("ODEModel::UpdateSpaceObject() on \"%s\" prevElapsedTime = %f "
@@ -769,6 +774,11 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::UpdateFromSpaceObject()
 {
+   // Update elements for each Formation
+   for (UnsignedInt i = 0; i < stateObjects.size(); ++i)
+      if (stateObjects[i]->IsOfType(Gmat::FORMATION))
+         ((Formation*)stateObjects[i])->UpdateState();
+
    psm->MapObjectsToVector();
    GmatState *state = psm->GetState();
    memcpy(rawState, state->GetState(), state->GetSize() * sizeof(Real));
@@ -873,8 +883,13 @@ bool ODEModel::BuildModelFromMap()
             // Build the derivative model piece for this element
             retval = BuildModelElement(id, start, objectCount);
             if (retval == false)
-               throw ODEModelException(
-                     "Failed to build an element of the ODEModel.");
+            {
+//               throw ODEModelException(
+               MessageInterface::ShowMessage(
+                     "Failed to build an element of the ODEModel.\n");
+               
+               retval = true;
+            }
          }
          // A new element type was encountered, so reset the pointers & counters
          id = (*map)[index]->elementID;
@@ -903,7 +918,12 @@ bool ODEModel::BuildModelFromMap()
    {
       retval = BuildModelElement(id, start, objectCount);
       if (retval == false)
-         throw ODEModelException("Failed to build an element of the ODEModel.");
+      {
+         // throw ODEModelException(
+         MessageInterface::ShowMessage(
+            "Failed to build an element of the ODEModel.\n");
+         retval = true;
+      }
    }
 
    #ifdef DEBUG_BUILDING_MODELS
@@ -919,7 +939,8 @@ bool ODEModel::BuildModelFromMap()
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("ODEModel::BuildModelFromMap() Finished\n");
    #endif
-return retval;
+
+   return retval;
 }
 
 //------------------------------------------------------------------------------

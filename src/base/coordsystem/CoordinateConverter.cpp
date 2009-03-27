@@ -251,6 +251,11 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
                           CoordinateSystem *outCoord, 
                           bool forceComputation, bool omitTranslation)
 {
+//   if (epoch.Get() < 10.0)
+//   {
+//      Real *epochCatcher = NULL;
+//      (*epochCatcher) = inState[0];
+//   }
    
    #ifdef DEBUG_TO_FROM
       MessageInterface::ShowMessage
