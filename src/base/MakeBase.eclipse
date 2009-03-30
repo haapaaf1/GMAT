@@ -265,8 +265,10 @@ OBJECTS = \
     foundation/ElementWrapper.o \
     foundation/GmatBaseException.o \
     foundation/GmatBase.o \
+    foundation/GmatState.o \
     foundation/ObjectInitializer.o \
     foundation/SpacePoint.o \
+    foundation/StateManager.o \
     function/Function.o \
     function/FunctionException.o \
     function/FunctionManager.o \
@@ -416,7 +418,6 @@ OBJECTS = \
     spacecraft/FuelTank.o \
     spacecraft/HardwareException.o \
     spacecraft/Hardware.o \
-    spacecraft/PropState.o \
     spacecraft/Spacecraft.o \
     spacecraft/SpaceObject.o \
     spacecraft/StateConverter.o \
@@ -474,6 +475,12 @@ OBJECTS = \
     util/TimeTypes.o \
     util/UtcDate.o \
     $(TCPIP_OBJECTS)
+
+#    Needed Soon:
+#    propagator/PropagationStateManager.o \
+
+#    No Longer Used:
+#    spacecraft/PropState.o \
     
 #    $(BRIDGEOBJECTS)
 

@@ -62,6 +62,7 @@ const Gmat::ParameterType SpaceObject::PARAMETER_TYPE[SpaceObjectParamCount -
 SpaceObject::SpaceObject(Gmat::ObjectType typeId, const std::string &typeStr,
                          const std::string &instName) :
    SpacePoint        (typeId, typeStr, instName),
+   state             (6),
    isManeuvering     (false),
    originName        ("Earth"),
    origin            (NULL),
@@ -134,15 +135,15 @@ SpaceObject& SpaceObject::operator=(const SpaceObject& so)
 
 
 //------------------------------------------------------------------------------
-// PropState& GetState()
+// GmatState& GetState()
 //------------------------------------------------------------------------------
 /**
- * Accessor for the PropState of the object.
+ * Accessor for the GmatState of the object.
  *
- * @return The embedded PropState.
+ * @return The embedded GmatState.
  */
 //------------------------------------------------------------------------------
-PropState& SpaceObject::GetState()
+GmatState& SpaceObject::GetState()
 {
    return state;
 }
@@ -291,7 +292,7 @@ const Rvector6 SpaceObject::GetMJ2000State(const A1Mjd &atTime)
          "SpaceObject::GetMJ2000State MJ2000 body not yet set for " +
          instanceName + "\n");
          
-   PropState ps = GetState();
+   GmatState ps = GetState();
    
    Real *st = ps.GetState();
 
@@ -539,6 +540,32 @@ Real SpaceObject::SetRealParameter(const Integer id, const Real value)
 Real SpaceObject::SetRealParameter(const std::string &label, const Real value)
 {
    return SetRealParameter(GetParameterID(label), value);
+}
+
+Real SpaceObject::GetRealParameter(const Integer id, const Integer row,
+                                   const Integer col) const
+{
+   return SpacePoint::GetRealParameter(id, row, col);
+}
+
+Real SpaceObject::GetRealParameter(const std::string &label, 
+                                      const Integer row, 
+                                      const Integer col) const
+{
+   return GetRealParameter(GetParameterID(label), row, col);
+}
+
+Real SpaceObject::SetRealParameter(const Integer id, const Real value,
+                                      const Integer row, const Integer col)
+{
+   return SpacePoint::SetRealParameter(id, value, row, col);
+}
+
+Real SpaceObject::SetRealParameter(const std::string &label,
+                                      const Real value, const Integer row,
+                                      const Integer col)
+{
+   return SetRealParameter(GetParameterID(label), value, row, col);
 }
 
 

@@ -1403,6 +1403,8 @@ bool Thruster::CalculateThrustAndIsp()
       impulse += kCoefficients[0] + kCoefficients[1] * pressure;
    }
    
+   
+   
    return true;
 }
 

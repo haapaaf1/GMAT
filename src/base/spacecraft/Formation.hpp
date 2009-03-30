@@ -58,6 +58,10 @@ public:
    virtual std::string  GetStringParameter(const Integer id) const;
    virtual std::string  GetStringParameter(const Integer id,
                                            const Integer index) const;
+   
+   
+   virtual Real         GetRealParameter(const Integer id) const;
+   virtual Real         GetRealParameter(const std::string &label) const;
    virtual Real         SetRealParameter(const Integer id, const Real value);
    virtual Real         SetRealParameter(const std::string &label, 
                                          const Real value);
@@ -93,6 +97,12 @@ public:
    // virtual void SetLastStopTriggered(const std::string &stopCondName);
    // virtual bool WasLastStopTriggered(const std::string &stopCondName);
    
+   virtual Integer         SetPropItem(std::string propItem);
+   virtual StringArray     GetDefaultPropItems();
+   virtual Real*           GetPropItem(Integer item);
+   virtual Integer         GetPropItemSize(Integer item);
+
+   
 protected:
    /// List of the object names used in the formation
    StringArray                      componentNames;
@@ -109,6 +119,8 @@ protected:
       ADDED_SPACECRAFT = SpaceObjectParamCount,
       REMOVED_SPACECRAFT,
       CLEAR_NAMES,
+      FORMATION_STM,
+      FORMATION_CARTESIAN_STATE,
       FormationParamCount
    };
    

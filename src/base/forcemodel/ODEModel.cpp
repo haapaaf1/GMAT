@@ -696,7 +696,7 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
       Integer stateSize;
       Integer vectorSize;
       std::vector<SpaceObject *>::iterator sat;
-      PropState *state;
+      GmatState *state;
 
       ReturnFromOrigin(newEpoch);
       
@@ -751,7 +751,7 @@ void ODEModel::UpdateFromSpaceObject()
         Integer j = 0;
         Integer stateSize;
         std::vector<SpaceObject *>::iterator sat;
-        PropState *state;
+        GmatState *state;
         for (sat = spacecraft.begin(); sat != spacecraft.end(); ++sat) 
         {
             state = &((*sat)->GetState());
@@ -821,7 +821,7 @@ bool ODEModel::Initialize()
    if (spacecraft.size() > 0)
       satCount = spacecraft.size();
    
-   PropState *state;
+   GmatState *state;
    StringArray finiteSats;
    
    // Calculate the dimension of the state

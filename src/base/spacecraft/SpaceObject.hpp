@@ -23,7 +23,7 @@
 
 #include "GmatBase.hpp"
 #include "SpacePoint.hpp"
-#include "PropState.hpp"
+#include "GmatState.hpp"
 #include "SpaceObjectException.hpp"
 
 class GMAT_API SpaceObject : public SpacePoint
@@ -35,7 +35,7 @@ public:
    SpaceObject(const SpaceObject& so);
    SpaceObject&         operator=(const SpaceObject& so);
    
-   virtual PropState&   GetState();
+   virtual GmatState&   GetState();
    virtual Real         GetEpoch();
    virtual Real         SetEpoch(const Real ep);
    virtual bool         IsManeuvering();
@@ -48,6 +48,17 @@ public:
    virtual Real GetRealParameter(const std::string &label) const;
    virtual Real SetRealParameter(const Integer id, const Real value);
    virtual Real SetRealParameter(const std::string &label, const Real value);
+   
+   virtual Real         GetRealParameter(const Integer id, const Integer row,
+                                         const Integer col) const;
+   virtual Real         GetRealParameter(const std::string &label, 
+                                         const Integer row, 
+                                         const Integer col) const;
+   virtual Real         SetRealParameter(const Integer id, const Real value,
+                                         const Integer row, const Integer col);
+   virtual Real         SetRealParameter(const std::string &label,
+                                         const Real value, const Integer row,
+                                         const Integer col);
 
    /// @todo Waiting for CoordinateSystems in Spacecraft, then see if needed
    virtual void SetOriginName(std::string cbName);
@@ -69,7 +80,7 @@ public:
    
 protected:
    /// The spacecraft state
-   PropState         state;
+   GmatState         state;
    /// true when a finite burn needs to be applied to this SpaceObject
    bool              isManeuvering;
    /// Reference SpacePoint for the data

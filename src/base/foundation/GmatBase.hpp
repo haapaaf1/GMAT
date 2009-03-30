@@ -32,7 +32,8 @@
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
 
-#include <algorithm>       // Required for GCC 4.3
+#include <algorithm>			// Required by GCC 4.3 for find
+
 
 // Forward reference
 class SolarSystem;
@@ -357,6 +358,11 @@ public:
    static Integer          GetDataPrecision();
    /// Method for getting time precision
    static Integer          GetTimePrecision();
+
+   virtual Integer         SetPropItem(std::string propItem);
+   virtual StringArray     GetDefaultPropItems();
+   virtual Real*           GetPropItem(Integer item);
+   virtual Integer         GetPropItemSize(Integer item);
 
 protected:
    /// Parameter IDs

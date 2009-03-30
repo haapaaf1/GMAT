@@ -23,7 +23,7 @@
 #include <valarray>
 #include "SpaceObject.hpp"
 #include "Rvector6.hpp"
-#include "PropState.hpp"
+#include "GmatState.hpp"
 #include "FuelTank.hpp"
 #include "Thruster.hpp"
 #include "Anomaly.hpp"
@@ -54,7 +54,7 @@ public:
    void                 SetState(const Real s1, const Real s2, const Real s3, 
                                  const Real s4, const Real s5, const Real s6);
    
-   virtual PropState&   GetState();
+   virtual GmatState&   GetState();
    virtual Rvector6     GetState(std::string rep);
    virtual Rvector6     GetState(Integer rep);
    Rvector6             GetCartesianState();
@@ -111,7 +111,28 @@ public:
    virtual bool         SetStringParameter(const std::string &label, 
                                            const std::string &value,
                                            const Integer index);
-   
+
+   virtual const Rmatrix&
+                        GetRmatrixParameter(const Integer id) const;
+   virtual const Rmatrix&
+                        SetRmatrixParameter(const Integer id,
+                                            const Rmatrix &value);
+   virtual const Rmatrix&
+                        GetRmatrixParameter(const std::string &label) const;
+   virtual const Rmatrix&
+                        SetRmatrixParameter(const std::string &label,
+                                            const Rmatrix &value);
+   virtual Real         GetRealParameter(const Integer id, const Integer row,
+                                         const Integer col) const;
+   virtual Real         GetRealParameter(const std::string &label, 
+                                         const Integer row, 
+                                         const Integer col) const;
+   virtual Real         SetRealParameter(const Integer id, const Real value,
+                                         const Integer row, const Integer col);
+   virtual Real         SetRealParameter(const std::string &label,
+                                         const Real value, const Integer row,
+                                         const Integer col);
+
    const StringArray&   GetStringArrayParameter(const Integer id) const;
    
    virtual std::string  GetParameterText(const Integer id) const;
@@ -138,6 +159,12 @@ public:
    void SetEpoch(const std::string &type, const std::string &ep, Real a1mjd);
    void SetState(const std::string &type, const Rvector6 &cartState);
    void SetAnomaly(const std::string &type, const Anomaly &ta);
+   
+   virtual Integer         SetPropItem(std::string propItem);
+   virtual StringArray     GetDefaultPropItems();
+   virtual Real*           GetPropItem(Integer item);
+   virtual Integer         GetPropItemSize(Integer item);
+
    
 protected:
    enum SC_Param_ID 
@@ -167,11 +194,21 @@ protected:
       SRP_AREA_ID,
       FUEL_TANK_ID, 
       THRUSTER_ID, 
-      TOTAL_MASS_ID, 
+      TOTAL_MASS_ID,
       ATTITUDE,
+      ORBIT_STM,
       
       // special parameter to handle in GmatFunction
       UTC_GREGORIAN,
+
+      // Hidden parameters used by the PSM
+      CARTESIAN_X,
+      CARTESIAN_Y,
+      CARTESIAN_Z,
+      CARTESIAN_VX,
+      CARTESIAN_VY,
+      CARTESIAN_VZ,
+
       SpacecraftParamCount
    };
    
@@ -207,7 +244,7 @@ protected:
       EQ_PNY,
       EQ_PNX,
       EQ_MLONG, 
-      EndMultipleReps    
+      EndMultipleReps
    };
    // these are the corresponding strings
    static const std::string MULT_REP_STRINGS[EndMultipleReps - CART_X];
@@ -285,14 +322,17 @@ protected:
    
    // New constructs needed to preserve interfaces
    Rvector6          rvState;
+   
+   bool              initialDisplay;
+   bool              csSet;
+
+   /// The orbit State Transition Matrix
+   Rmatrix           orbitSTM;
 
    // protected methods
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
    
-   bool              initialDisplay;
-   bool              csSet;
-
    virtual void      WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
                         std::stringstream &stream);
                                 
