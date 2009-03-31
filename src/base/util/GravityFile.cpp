@@ -26,7 +26,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <cstdlib>
 #include <cstdlib>			// Required for GCC 4.3
 
 //#define DEBUG_GRAVITY_FILE

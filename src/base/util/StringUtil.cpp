@@ -24,6 +24,7 @@
 #include "Linear.hpp"            // for ToString()
 #include "StringTokenizer.hpp"   // for StringTokenizer()
 #include <map>
+#include <algorithm>
 
 #include <cstdlib>			// Required for GCC 4.3
 #include <algorithm>			// Required for GCC 4.3

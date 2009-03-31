@@ -1074,7 +1074,7 @@ void FileManager::AddGmatFunctionPath(const std::string &path, bool addFront)
       // if existing pathname remove and add front or back of the list
       #ifdef DEBUG_FUNCTION_PATH
       MessageInterface::ShowMessage
-         ("   the pathname <%s> already exist, so moving to %s\n", pathname.c_str(),
+         ("   the pathname <%s> already exists, so moving to %s\n", pathname.c_str(),
           addFront ? "front" : "back");
       #endif
 

@@ -15,6 +15,7 @@
 //------------------------------------------------------------------------------
 #include "MessageInterface.hpp"
 #include <stdarg.h>              // for va_start() and va_end()
+#include <cstdlib>
 
 #include <cstdlib>                      // Required for GCC 4.3
 
@@ -110,7 +111,7 @@ void MessageInterface::ShowMessage(const char *msg, ...)
       // actual max message length is MAX_MESSAGE_LENGTH
       size = strlen(msg) + MAX_MESSAGE_LENGTH;
       //LogMessage("strlen(msg)=%d, size=%d\n", strlen(msg), size);
-      
+
       if( (msgBuffer = (char *)malloc(size)) != NULL )
       {
          va_start(marker, msg);
@@ -122,7 +123,7 @@ void MessageInterface::ShowMessage(const char *msg, ...)
          msgBuffer = "*** WARNING *** Cannot allocate enough memory to show "
             "the message.\n";
       }
-      
+
       theMessageReceiver->ShowMessage(std::string(msgBuffer));
       free(msgBuffer);
    }

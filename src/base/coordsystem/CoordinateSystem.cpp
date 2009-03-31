@@ -29,6 +29,8 @@
 #include "Rmatrix33.hpp"
 #include "MessageInterface.hpp"
 
+#include <algorithm>			// Required by GCC 4.3
+
 //#define DEBUG_RENAME 1
 //#define DEBUG_INPUTS_OUTPUTS
 //#define DEBUG_DESTRUCTION
