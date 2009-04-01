@@ -53,6 +53,9 @@
 #include "gmatdefs.hpp"
 #include "RungeKutta.hpp"
 
+//#define DEBUG_PROPAGATOR_FLOW
+//#define DEBUG_RAW_STEP_STATE
+
 //---------------------------------
 // public
 //---------------------------------
@@ -61,7 +64,7 @@
 // RungeKutta::RungeKutta(Integer st, Integer order)
 //------------------------------------------------------------------------------
 /**
- * The RK Constructor 
+ * The RK Constructor
  *
  * @param st	Number of stages in the specific algorithm implemented
  * @param order	Order of the expansion used for the integrator
@@ -91,13 +94,13 @@ RungeKutta::RungeKutta(Integer st, Integer order, const std::string &typeStr,
  * The RK destructor
  */
 //------------------------------------------------------------------------------
-RungeKutta::~RungeKutta(void)
+RungeKutta::~RungeKutta()
 {
     ClearArrays();
 }
 
 //------------------------------------------------------------------------------
-// RungeKutta::RungeKutta(const RungeKutta& rk) 
+// RungeKutta::RungeKutta(const RungeKutta& rk)
 //------------------------------------------------------------------------------
 /**
  * The copy constructor
@@ -136,7 +139,7 @@ RungeKutta& RungeKutta::operator=(const RungeKutta& rk)
     sigma = rk.sigma;
     incPower = rk.incPower;
     decPower = rk.decPower;
-    
+
     ki = NULL;
     ai = NULL;
     bij = NULL;
@@ -144,20 +147,20 @@ RungeKutta& RungeKutta::operator=(const RungeKutta& rk)
     ee = NULL;
     stageState = NULL;
     candidateState = NULL;
-    
+
     initialized = false;
 
     return *this;
-}        
-        
+}
+
 //------------------------------------------------------------------------------
 // void RungeKutta::SetPhysicalModel(PhysicalModel *pPhysicalModel)
 //------------------------------------------------------------------------------
 /**
  * Sets up the derivative source
  *
- * This method calls the Integrator::SetDerivatives() method.  If that method 
- * succeeds and the system reports that it is initialized, the accumulator 
+ * This method calls the Integrator::SetDerivatives() method.  If that method
+ * succeeds and the system reports that it is initialized, the accumulator
  * arrays are also setup.
  */
 //------------------------------------------------------------------------------
@@ -172,7 +175,7 @@ void RungeKutta::SetPhysicalModel(PhysicalModel *pPhysicalModel)
 // bool RungeKutta::Initialize()
 //------------------------------------------------------------------------------
 /**
- * Initializes the internal data structures 
+ * Initializes the internal data structures
  *
  * This method allocates the data arrays and calls the functions that set the
  * RK coefficients and accumulator array (ki) memory allocation.  If any of the
@@ -184,7 +187,7 @@ void RungeKutta::SetPhysicalModel(PhysicalModel *pPhysicalModel)
 bool RungeKutta::Initialize()
 {
     Propagator::Initialize();
-    if (stages <= 0) 
+    if (stages <= 0)
     {
         initialized = false;
         return initialized;
@@ -192,25 +195,25 @@ bool RungeKutta::Initialize()
 
     ClearArrays();
 
-    if ((ai = new Real [stages]) == NULL) 
+    if ((ai = new Real [stages]) == NULL)
     {
         initialized = false;
         return initialized;
     }
-    if ((bij = new Real*[stages]) == NULL) 
+    if ((bij = new Real*[stages]) == NULL)
     {
         delete [] ai;
         initialized = false;
         return initialized;
     }
-    if ((cj = new Real [stages]) == NULL) 
+    if ((cj = new Real [stages]) == NULL)
     {
         delete [] ai;
         delete [] bij;
         initialized = false;
         return initialized;
     }
-    if ((ki = new Real*[stages]) == NULL) 
+    if ((ki = new Real*[stages]) == NULL)
     {
         delete [] ai;
         delete [] bij;
@@ -218,7 +221,7 @@ bool RungeKutta::Initialize()
         initialized = false;
         return initialized;
     }
-    if ((ee = new Real [stages]) == NULL) 
+    if ((ee = new Real [stages]) == NULL)
     {
         delete [] ai;
         delete [] bij;
@@ -228,10 +231,10 @@ bool RungeKutta::Initialize()
         return initialized;
     }
 
-    for (int i = 0; i < stages; i++) 
+    for (int i = 0; i < stages; i++)
     {
         ki[i] = NULL;
-        if ((bij[i] = new Real[i+1]) == NULL) 
+        if ((bij[i] = new Real[i+1]) == NULL)
         {
             for (int j = 0; j < i; j++)
                 delete [] bij[j];
@@ -243,13 +246,14 @@ bool RungeKutta::Initialize()
             return initialized;
         }
     }
-    
+
     // DJC: 06/18/04 Only set coefficients here for 1st order propagators
-    if (derivativeOrder == 1) {
+    if (derivativeOrder == 1)
+    {
        SetCoefficients();
        SetupAccumulator();
     }
-    
+
     return true;
 }
 
@@ -262,7 +266,7 @@ bool RungeKutta::Initialize()
  * This method implements the heart of the Runge-Kutta integration
  *
  * @return	true if a good step was taken, false if no good step was found or
- *    		if another failure was encountered (a bad force model call, for 
+ *    		if another failure was encountered (a bad force model call, for
  *      	example)
  */
 //------------------------------------------------------------------------------
@@ -277,7 +281,11 @@ bool RungeKutta::Step()
     // ((ForceModel*)physicalModel)->UpdateInitialData();
 
     if (!initialized)
-        return false;
+    {
+       MessageInterface::ShowMessage("RK not initialized\n");
+       return false;
+    }
+
     if ((fabs(stepSize) < minimumStep) && !finalStep)
         stepSize = ((stepSize > 0.0) ? minimumStep : -minimumStep);
     if (fabs(stepSize) > maximumStep)
@@ -285,8 +293,8 @@ bool RungeKutta::Step()
 
     bool goodStepTaken = false;
     Real maxerror;
-    
-    do 
+
+    do
     {
         if (!RawStep())
             return false;
@@ -304,7 +312,7 @@ bool RungeKutta::Step()
            stepAttempts = 0;
            goodStepTaken = true;
         }
-        
+
         if (stepAttempts >= maxStepAttempts)
             return false;
     } while (!goodStepTaken);
@@ -322,53 +330,96 @@ bool RungeKutta::Step()
 //------------------------------------------------------------------------------
 bool RungeKutta::RawStep()
 {
-    #ifdef DEBUG_PROPAGATOR_FLOW
-       MessageInterface::ShowMessage("*");
-    #endif
+   #ifdef DEBUG_PROPAGATOR_FLOW
+      MessageInterface::ShowMessage("*");
+   #endif
+
+   Integer i, j, k;
+
+//   Real *inState = new Real[dimension];
+
+   memcpy(inState, physicalModel->GetState(), sizeof(Real) * dimension);
+
+   #ifdef DEBUG_RAW_STEP_STATE
+      MessageInterface::ShowMessage("inState: [");
+      for (Integer q = 0; q < dimension-1; ++q)
+      	MessageInterface::ShowMessage("%le, ", inState[q]);
+      MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
+   #endif
+   
+   // Calculate the stages
+   for (i = 0; i < stages; i++)
+   {
+      memcpy(stageState, inState, sizeof(Real) * dimension);
+
+      #ifdef DEBUG_RAW_STEP_STATE
+         MessageInterface::ShowMessage("inState[%d]: [", i);
+         for (Integer q = 0; q < dimension-1; ++q)
+         	MessageInterface::ShowMessage("%le, ", inState[q]);
+         MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
+         MessageInterface::ShowMessage("stageState: [");
+         for (Integer q = 0; q < dimension-1; ++q)
+         	MessageInterface::ShowMessage("%le, ", stageState[q]);
+         MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
+      #endif
+
+      // Built the accumulated state if this is not the initial step
+      if (i > 0)
+      {
+         for (j = 0; j < i; j++)
+         {
+            for (k = 0; k < dimension; k++)
+               stageState[k] += bij[i][j] * ki[j][k];
+         }
+      }
+
+      if (!physicalModel->GetDerivatives(stageState, stepSize * ai[i]))
+      {
+         return false;
+      }
+
+      #ifdef DEBUG_RAW_STEP_STATE
+         MessageInterface::ShowMessage("ddt data: [");
+         for (Integer q = 0; q < dimension-1; ++q)
+         	MessageInterface::ShowMessage("%le, ", ddt[q]);
+         MessageInterface::ShowMessage("%le]\n", ddt[dimension-1]);
+         MessageInterface::ShowMessage("++ After GetDerivatives,  stageState: [");
+         for (Integer q = 0; q < dimension-1; ++q)
+            MessageInterface::ShowMessage("%le, ", stageState[q]);
+         MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
+      #endif
+         
+      for (j = 0; j < dimension; j++)
+         ki[i][j] = stepSize * ddt[j];
+   }
+
+   // Accumulate the stages for the RK step
+   memcpy(candidateState, inState, dimension*sizeof(Real));
+   for (i = 0; i < stages; i++)
+   {
+      for (j = 0; j < dimension; j++)
+      {
+         candidateState[j] += cj[i] * ki[i][j];
+      }
+   }
     
-    Integer i, j, k;
+   #ifdef DEBUG_RAW_STEP_STATE
+      MessageInterface::ShowMessage("candidateState: [");
+      for (Integer q = 0; q < dimension-1; ++q)
+         MessageInterface::ShowMessage("%le, ", candidateState[q]);
+      MessageInterface::ShowMessage("%le]\n", candidateState[dimension-1]);
+   #endif 
+   
+//   delete [] inState;
 
-    // Calculate the stages
-    for (i = 0; i < stages; i++) 
-    {
-        memcpy(stageState, inState, sizeof(Real) * dimension);
-        // Built the accumulated state if this is not the initial step
-        if (i > 0) 
-        {
-            for (j = 0; j < i; j++) 
-            {
-                for (k = 0; k < dimension; k++)
-                    stageState[k] += bij[i][j] * ki[j][k];
-            }
-        }
-
-        if (!physicalModel->GetDerivatives(stageState, stepSize * ai[i])) 
-        {
-            return false;
-        }
-
-        for (j = 0; j < dimension; j++) 
-            ki[i][j] = stepSize * ddt[j];
-    }
-
-    // Accumulate the stages for the RK step
-    memcpy(candidateState, inState, dimension*sizeof(Real));
-    for (i = 0; i < stages; i++) 
-    {
-        for (j = 0; j < dimension; j++) 
-        {
-            candidateState[j] += cj[i] * ki[i][j];
-        }
-    }
-
-    return true;
+   return true;
 }
 
 //------------------------------------------------------------------------------
 // bool RungeKutta::Step(Real dt)
 //------------------------------------------------------------------------------
 /**
- * Method used to step a fixed time 
+ * Method used to step a fixed time
  *
  * @param dt	The time interval to step
  */
@@ -378,7 +429,7 @@ bool RungeKutta::Step(Real dt)
     bool stepFinished = false;
     timeleft = dt;
     Integer attemptsTaken = 0;
-    do 
+    do
     {
         if (attemptsTaken > maxStepAttempts)
         {
@@ -407,29 +458,29 @@ bool RungeKutta::Step(Real dt)
 /**
  * Provides the greatest relative error in the state vector
  *
- * This method takes the state vector and calculates the error in each 
+ * This method takes the state vector and calculates the error in each
  * component.  The error is then divided by the change in the component.  The
  * function returns the largest of the resulting relative errors.
  *
- * Override this method if you want a different error estimate for the stepsize 
+ * Override this method if you want a different error estimate for the stepsize
  * control.  For example, we are using
  *
- * \f[error_i = \left({{\Delta_i(t+\delta t)}\over 
+ * \f[error_i = \left({{\Delta_i(t+\delta t)}\over
  *                  {r_i(t+\delta t) - r_i(t)}}\right)\f]
  *
- * Another popular approach is to divide the estimated error \f$\Delta_i\f$ by 
- * the norm of the corresponding 3-vector; for instance, divide the error in x 
+ * Another popular approach is to divide the estimated error \f$\Delta_i\f$ by
+ * the norm of the corresponding 3-vector; for instance, divide the error in x
  * by the magnitude of the displacement in position for the step.
  */
 //------------------------------------------------------------------------------
-Real RungeKutta::EstimateError(void)
+Real RungeKutta::EstimateError()
 {
     Integer i, j;
 
-    for (i = 0; i < dimension; i++) 
+    for (i = 0; i < dimension; i++)
     {
         errorEstimates[i] = 0.0;
-        for (j = 0; j < stages; j++) 
+        for (j = 0; j < stages; j++)
         {
             errorEstimates[i] += ee[j] * ki[j][i];
         }
@@ -443,15 +494,15 @@ Real RungeKutta::EstimateError(void)
 // bool RungeKutta::AdaptStep(Real maxerror)
 //------------------------------------------------------------------------------
 /**
- * Adjust the stepsize to maintain the accuracy and step constraints 
+ * Adjust the stepsize to maintain the accuracy and step constraints
  *
  *  Note that there is a kludge in this method to force the RK integrator to
- *  accept bad steps -- steps with too much error -- if the stepsize == the 
- *  minimum value.  
- *  
- *  This is not the correct approach; that means the system can run without error 
- *  control, and without reporting the bad steps.  It has been put in place to 
- *  allow propagation across the SRP discontinuity experienced by a satellite 
+ *  accept bad steps -- steps with too much error -- if the stepsize == the
+ *  minimum value.
+ *
+ *  This is not the correct approach; that means the system can run without error
+ *  control, and without reporting the bad steps.  It has been put in place to
+ *  allow propagation across the SRP discontinuity experienced by a satellite
  *  crossing into or out of shadow when using a cylindrical shadow model.
  *
  *  This issue needs to be reexamined once the system is functional.
@@ -465,12 +516,12 @@ bool RungeKutta::AdaptStep(Real maxerror)
 {
     // Adapt the step if necessary
     if (maxerror > tolerance)  // Too much error, so need to try again
-    {     
+    {
 
-        // The following code is in place to omit error control for steps 
-        // at the minimum stepsize.  See the note above for more 
+        // The following code is in place to omit error control for steps
+        // at the minimum stepsize.  See the note above for more
         // information.  Remove this block if the issue gets resolved.
-        if (fabs(stepSize) == minimumStep) 
+        if (fabs(stepSize) == minimumStep)
         {
             // Do this if the step was at the minimum stepSize
             memcpy(outState, candidateState, dimension*sizeof(Real));
@@ -480,7 +531,7 @@ bool RungeKutta::AdaptStep(Real maxerror)
 
         stepSize = sigma * stepSize * pow(tolerance/maxerror, decPower);
 
-        if (fabs(stepSize) < minimumStep) 
+        if (fabs(stepSize) < minimumStep)
             stepSize = ((stepSize < 0.0) ? -minimumStep : minimumStep);
         ++stepAttempts;
 
@@ -504,13 +555,13 @@ bool RungeKutta::AdaptStep(Real maxerror)
  * Deallocates and NULLs the array data structures
  */
 //------------------------------------------------------------------------------
-void RungeKutta::ClearArrays(void)
+void RungeKutta::ClearArrays()
 {
-    if (ki != NULL) 
+    if (ki != NULL)
     {
-        for (int i = 0; i < stages; i++) 
+        for (int i = 0; i < stages; i++)
         {
-            if (ki[i] != NULL) 
+            if (ki[i] != NULL)
             {
                 delete [] ki[i];
                 ki[i] = NULL;
@@ -522,9 +573,9 @@ void RungeKutta::ClearArrays(void)
     if (ai != NULL)
         delete [] ai;
 
-    if (bij != NULL) 
+    if (bij != NULL)
     {
-        for (int i = 0; i < stages; i++) 
+        for (int i = 0; i < stages; i++)
         {
             if (bij[i] != NULL)
                 delete [] bij[i];
@@ -541,7 +592,7 @@ void RungeKutta::ClearArrays(void)
     if (stageState != NULL)
         delete [] stageState;
 
-    if (candidateState != NULL) 
+    if (candidateState != NULL)
     {
         delete [] candidateState;
     }
@@ -552,15 +603,15 @@ void RungeKutta::ClearArrays(void)
 }
 
 //------------------------------------------------------------------------------
-// bool RungeKutta::SetupAccumulator(void)
+// bool RungeKutta::SetupAccumulator()
 //------------------------------------------------------------------------------
 /**
  * Sets memory for the stageState and the members of the ki array
  */
 //------------------------------------------------------------------------------
-bool RungeKutta::SetupAccumulator(void)
+bool RungeKutta::SetupAccumulator()
 {
-    if (physicalModel) 
+    if (physicalModel)
     {
         initialized = true;
         dimension = physicalModel->GetDimension();
@@ -568,7 +619,7 @@ bool RungeKutta::SetupAccumulator(void)
         if (stageState)
             delete [] stageState;
 
-        if ((stageState = new Real[dimension]) == NULL) 
+        if ((stageState = new Real[dimension]) == NULL)
         {
             initialized = false;
             return false;
@@ -577,7 +628,7 @@ bool RungeKutta::SetupAccumulator(void)
         if (candidateState)
             delete [] candidateState;
 
-        if ((candidateState = new Real[dimension]) == NULL) 
+        if ((candidateState = new Real[dimension]) == NULL)
         {
             initialized = false;
             delete [] stageState;
@@ -590,7 +641,7 @@ bool RungeKutta::SetupAccumulator(void)
         if (errorEstimates)
             delete [] errorEstimates;
 
-        if ((errorEstimates = new Real[dimension]) == NULL) 
+        if ((errorEstimates = new Real[dimension]) == NULL)
         {
             initialized = false;
             delete [] stageState;
@@ -600,13 +651,13 @@ bool RungeKutta::SetupAccumulator(void)
             return false;
         }
 
-        if (ki) 
+        if (ki)
         {
-            for (int i = 0; i < stages; i++) 
+            for (int i = 0; i < stages; i++)
             {
                 if (ki[i])
                     delete [] ki[i];
-                if ((ki[i] = new Real[dimension]) == NULL) 
+                if ((ki[i] = new Real[dimension]) == NULL)
                 {
                     initialized = false;
                     delete [] stageState;

@@ -49,7 +49,8 @@ public:
    
    bool                 Initialize();
    virtual bool         GetDerivatives(Real * state, Real dt = 0.0, 
-                                       Integer order = 1);
+                                       Integer order = 1, 
+                                       const Integer id = -1);
    
    // inherited from GmatBase
    virtual GmatBase*    Clone(void) const;
@@ -83,6 +84,12 @@ public:
    bool                 SetInternalAtmosphereModel(AtmosphereModel* atm);
    AtmosphereModel*     GetInternalAtmosphereModel();
    
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
+
+   
 protected:
    /// Sun pointer for bulge calculations
    CelestialBody        *sun;
@@ -108,7 +115,7 @@ protected:
    Real                 *prefactor;
    /// Flag used to determine if data has changed for the prefactors
    bool                 firedOnce;
-   /// Number of spacecraft in the state vector
+   /// Number of spacecraft in the state vector that use CartesianState
    Integer              satCount;
    /// Central bodies used for atmosphere source
    StringArray          dragBody;
@@ -118,6 +125,8 @@ protected:
    std::vector <Real>   mass;
    /// Spacecraft coefficients of drag
    std::vector <Real>   dragCoeff;
+   /// Size of the CartesianState data -- in other words, 6 * satCount
+   Integer              orbitDimension;
    /// State vector translated from force model origin to body with atmosphere
    Real                 *dragState;
    
@@ -136,6 +145,12 @@ protected:
    Real                 ap;
    /// Magnetic field index, Kp (user specified)
    Real                 kp;
+
+   /// Start index for the Cartesian state
+   Integer              cartIndex;
+   /// Flag indicating if the Cartesian state should be populated
+   bool                 fillCartesian;
+
    
    void                 BuildPrefactors();
    void                 TranslateOrigin(const Real *state, const Real now);

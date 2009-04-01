@@ -18,6 +18,10 @@
 //------------------------------------------------------------------------------
 
 #include "PropSetup.hpp"
+
+#include "ODEModel.hpp"
+#include "Propagator.hpp"
+
 #include "PropSetupException.hpp"
 #include "PhysicalModel.hpp"
 #include "RungeKutta89.hpp"
@@ -30,7 +34,7 @@
 //#define DEBUG_PROPSETUP_DELETE
 //#define DEBUG_PROPSETUP_GEN_STRING
 
-//#ifndef DEBUG_MEMORY
+//#ifndef DEBUG_MEMORY 
 //#define DEBUG_MEMORY
 //#endif
 
@@ -144,8 +148,9 @@ PropSetup::PropSetup(const std::string &name)
  * Copy constructor.
  */
 //------------------------------------------------------------------------------
-PropSetup::PropSetup(const PropSetup &ps)
-   : GmatBase(ps)
+PropSetup::PropSetup(const PropSetup &ps) : 
+   GmatBase(ps),
+   psm         (ps.psm)
 {
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
@@ -211,6 +216,8 @@ PropSetup& PropSetup::operator= (const PropSetup &ps)
    mPropagator = NULL;
    mODEModel = NULL;
    
+   psm = ps.psm;
+
    if (ps.mPropagator != NULL)
       mPropagatorName = ps.mPropagator->GetName();
    if (ps.mODEModel != NULL)
@@ -298,6 +305,18 @@ Propagator* PropSetup::GetPropagator()
 ODEModel* PropSetup::GetODEModel()
 {
    return mODEModel;
+}
+
+//------------------------------------------------------------------------------
+// PropagationStateManager* GetPropStateManager()
+//------------------------------------------------------------------------------
+/**
+ *@return The PropagationStateManager for this PropSetup
+ */
+//------------------------------------------------------------------------------
+PropagationStateManager* PropSetup::GetPropStateManager()
+{
+   return &psm;
 }
 
 //------------------------------------------------------------------------------
@@ -976,7 +995,7 @@ bool PropSetup::Initialize()
             mODEModel->GetName().c_str());
       #endif
 
-      mPropagator->Initialize();
+//      mPropagator->Initialize();
       
       #ifdef DEBUG_INITIALIZATION
          MessageInterface::ShowMessage(

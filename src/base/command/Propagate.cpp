@@ -18,6 +18,10 @@
 //------------------------------------------------------------------------------
 
 #include "Propagate.hpp"
+
+#include "Propagator.hpp"
+#include "ODEModel.hpp"
+
 #include "Publisher.hpp"
 #include "Parameter.hpp"
 #include "StringUtil.hpp" // for Trim()
@@ -34,10 +38,13 @@
 //#define DEBUG_PROPAGATE_STEPSIZE 1
 //#define DEBUG_PROPAGATE_EXE 1
 //#define DEBUG_STOPPING_CONDITIONS 1
+//#define DEBUG_FIRST_STEP_STOP 1
+//#define DEBUG_FINITE_MANEUVER
 //#define DEBUG_RENAME
 //#define DEBUG_PROP_PERFORMANCE
 //#define DEBUG_FIRST_CALL
 //#define DEBUG_FIXED_STEP
+//#define DEBUG_EPOCH_UPDATES
 //#define DEBUG_EPOCH_SYNC
 //#define DEBUG_SECANT_DETAILS
 //#define DEBUG_BISECTION_DETAILS
@@ -132,6 +139,7 @@ Propagate::Propagate() :
    stopAccuracy                (DEFAULT_STOP_TOLERANCE),
    timeAccuracy                (1.0e-6),
    dim                         (0),
+   cartDim                     (0),
    singleStepMode              (false),
    currentMode                 (INDEPENDENT),
    stopCondEpochID             (-1),
@@ -250,6 +258,7 @@ Propagate::Propagate(const Propagate &prp) :
    stopAccuracy                (prp.stopAccuracy),
    timeAccuracy                (prp.timeAccuracy),
    dim                         (prp.dim),
+   cartDim                     (prp.cartDim),
    singleStepMode              (prp.singleStepMode),
    transientForces             (NULL),
    currentMode                 (prp.currentMode),
@@ -309,6 +318,7 @@ Propagate& Propagate::operator=(const Propagate &prp)
    stopAccuracy            = prp.stopAccuracy;
    timeAccuracy            = prp.timeAccuracy;
    dim                     = prp.dim;
+   cartDim                 = prp.cartDim;
    singleStepMode          = prp.singleStepMode;
    currentMode             = prp.currentMode;
    stopCondEpochID         = prp.stopCondEpochID;
@@ -2024,7 +2034,7 @@ void Propagate::ConfigurePropSetup(std::string &setupDesc)
       CleanString(sat, &extras);
       
       #ifdef DEBUG_PROPAGATE_ASSEMBLE
-         MessageInterface::ShowMessage("   Found satellite '%s'\n", sat.c_str());
+         MessageInterface::ShowMessage("   Found prop object \"%s\"\n", sat.c_str());
       #endif
       SetObject(sat, Gmat::SPACECRAFT);
    }
@@ -2189,7 +2199,7 @@ void Propagate::CleanString(std::string &theString, const StringArray *extras)
    // Clean up the start of the string
    for (loc = 0; loc < len; ++loc)
    {
-      if (theString[loc] != ' ')
+      if ((theString[loc] != ' ') && (theString[loc] != '\''))
       {
          if (extras != NULL)
             for (StringArray::const_iterator i = extras->begin(); i != extras->end(); ++i)
@@ -2207,7 +2217,7 @@ void Propagate::CleanString(std::string &theString, const StringArray *extras)
    keepGoing = false;
    for (loc = theString.length() - 1; loc >= 0; --loc)
    {
-      if (theString[loc] != ' ')
+      if ((theString[loc] != ' ') && (theString[loc] != '\''))
       {
          if (extras != NULL)
             for (StringArray::const_iterator i = extras->begin(); i != extras->end(); ++i)
@@ -2250,8 +2260,6 @@ void Propagate::SetTransientForces(std::vector<PhysicalModel*> *tf)
 bool Propagate::Initialize()
 {
    #if DEBUG_PROPAGATE_INIT
-      MessageInterface::ShowMessage("Propagate::Initialize() entered.\n%s\n",
-                                    generatingString.c_str());
       MessageInterface::ShowMessage("  Size of propName is %d\n",
                                     propName.size());
       for (UnsignedInt ind = 0; ind < propName.size(); ++ind)
@@ -2287,9 +2295,16 @@ bool Propagate::Initialize()
       #endif
       delete oldPs;
    }
+   if (prop.size() > 0)
+   {
+      for (std::vector<PropSetup*>::iterator ps = prop.begin(); 
+            ps != prop.end(); ++ps)
+         delete (*ps);
+      
    prop.clear();
    p.clear();
    fm.clear();
+   }
    
    for (StringArray::iterator i = propName.begin(); i != propName.end(); ++i)
    {
@@ -2331,11 +2346,13 @@ bool Propagate::Initialize()
       if (!p)
          throw CommandException("Propagator not set in PropSetup\n");
    
-      // Toss the spacecraft into the force model
-      ODEModel *fm = prop[index]->GetODEModel();
-      if (!fm)
+      // Toss the spacecraft into the prop state manager
+
+      ODEModel *odem = prop[index]->GetODEModel();
+      if (!odem)
          throw CommandException("ForceModel not set in PropSetup\n");
-      fm->ClearSpacecraft();
+
+      PropagationStateManager *psm = prop[index]->GetPropStateManager();
       StringArray::iterator scName;
       StringArray owners, elements;
 
@@ -2349,16 +2366,29 @@ bool Propagate::Initialize()
            ++scName) 
       {
          #if DEBUG_PROPAGATE_INIT
-            MessageInterface::ShowMessage("   Adding '%s' to propsetup '%s'\n",
+            MessageInterface::ShowMessage(
+                  "   Adding '%s' to prop state manager '%s'\n",
                scName->c_str(), i->c_str());
          #endif
          if ((mapObj = FindObject(*scName)) == NULL) 
          {
-            std::string errmsg = "Unknown SpaceObject \"";
+            #if DEBUG_PROPAGATE_INIT
+               MessageInterface::ShowMessage("   '%s' is not an object; "
+                     "attempting to set as a prop property\n",
+                     scName->c_str());
+            #endif
+            if (psm->SetProperty(*scName) == false)
+            {
+               std::string errmsg = "Unknown SpaceObject property \"";
             errmsg += *scName;
             errmsg += "\"";
             throw CommandException(errmsg);
+            }
          }
+         else
+         {
+            psm->SetObject(mapObj);
+
          so = (SpaceObject*)mapObj;
          if (epochID == -1)
             epochID = so->GetParameterID("A1Epoch");
@@ -2366,21 +2396,31 @@ bool Propagate::Initialize()
             finiteBurnActive = true;
          sats.push_back(so);
          AddToBuffer(so);
-         fm->AddSpaceObject(so);
+
          if (so->GetType() == Gmat::FORMATION)
             FillFormation(so, owners, elements);
          else 
          {
             SetNames(so->GetName(), owners, elements);
+            }
          }
       }
+
+      if (psm->BuildState() == false)
+         throw CommandException("Could not build the state for the command \n" +
+               generatingString);
+      if (psm->MapObjectsToVector() == false)
+         throw CommandException("Could not map state objects for the command\n" +
+               generatingString);
+
+      odem->SetState(psm->GetState());
       
       // Set solar system to ForceModel for Propagate inside a GmatFunction(loj: 2008.06.06)
-      fm->SetSolarSystem(solarSys);
+      odem->SetSolarSystem(solarSys);
       
       // Check for finite thrusts and update the force model if there are any
       if (finiteBurnActive == true)
-         AddTransientForce(satName[index], fm);
+         AddTransientForce(satName[index], odem);
       
       #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
@@ -2389,10 +2429,17 @@ bool Propagate::Initialize()
       
       streamID = publisher->RegisterPublishedData(owners, elements);
       
-      p->SetPhysicalModel(fm);
+      p->SetPhysicalModel(odem);
       p->SetRealParameter("InitialStepSize", 
          fabs(p->GetRealParameter("InitialStepSize")) * direction);
       p->Initialize();
+
+      // Set spacecraft parameters for forces that need them
+      if (odem->SetupSpacecraftData(&sats, 0) <= 0)
+         throw PropagatorException("Propagate::Initialize -- "
+               "ODE model cannot set spacecraft parameters");
+
+
       ++index;
    } // End of loop through PropSetups
    
@@ -2401,8 +2448,8 @@ bool Propagate::Initialize()
    stopSats.clear();
    // Setup spacecraft array used for stopping conditions
    for (StringArray::iterator sc = stopSatNames.begin(); 
-        sc != stopSatNames.end(); ++sc) {
-
+        sc != stopSatNames.end(); ++sc) 
+   {
       if ((mapObj = FindObject(*sc)) == NULL)
       {
          std::string errmsg = "Unknown SpaceObject \"";
@@ -2447,7 +2494,7 @@ bool Propagate::Initialize()
          }
          
          stopWhen[i]->Initialize();
-         stopWhen[i]->SetSpacecraft(sats[0]);
+         stopWhen[i]->SetSpacecraft((SpaceObject*)sats[0]);
          
          if (!stopWhen[i]->IsInitialized())
          {
@@ -2594,19 +2641,28 @@ GmatCommand* Propagate::GetNext()
 //------------------------------------------------------------------------------
 void Propagate::PrepareToPropagate()
 {
-   #ifdef DEBUG_PROP_PERFORMANCE
+   #ifdef DEBUG_PROPAGATE_INIT
+      GmatState *dstate = prop[0]->GetPropStateManager()->GetState();
+      Integer dimension = dstate->GetSize();
       MessageInterface::ShowMessage(
-         "Entered PrepareToPropagate; hasFired = %s\n", 
-         (hasFired ? "True" : "False"));
+            "PrepareToPropagate top; State vector contents and fm state are\n"
+            "   Epoch = %.12lf\n", (dstate->GetEpoch()));
+      for (Integer index = 0; index < dimension; ++index)
+      {
+         MessageInterface::ShowMessage("   %d:   %.12lf\n", index,
+               (*dstate)[index]);
+      }
    #endif
+
+   dim = 0;
    
    if (hasFired == true) 
    {
       // Handle the transient forces
-      for (std::vector<SpaceObject *>::iterator sc = sats.begin(); 
+      for (ObjectArray::iterator sc = sats.begin();
            sc != sats.end(); ++sc)
       {
-         if ((*sc)->IsManeuvering())
+         if (((SpaceObject*)(*sc))->IsManeuvering())
          {
             #ifdef DEBUG_FINITE_MANEUVER
                MessageInterface::ShowMessage(
@@ -2633,7 +2689,9 @@ void Propagate::PrepareToPropagate()
          elapsedTime[n] = 0.0;
          currEpoch[n]   = 0.0;
          fm[n]->SetTime(0.0);
+         fm[n]->SetPropStateManager(prop[n]->GetPropStateManager());
          fm[n]->UpdateInitialData();
+         dim += fm[n]->GetDimension();
       
          p[n]->Initialize();
          p[n]->Update(direction > 0.0);
@@ -2643,7 +2701,8 @@ void Propagate::PrepareToPropagate()
 
       baseEpoch.clear();
 
-      for (Integer n = 0; n < (Integer)prop.size(); ++n) {
+      for (Integer n = 0; n < (Integer)prop.size(); ++n)
+      {
          #if DEBUG_PROPAGATE_EXE
             MessageInterface::ShowMessage
                ("Propagate::PrepareToPropagate() SpaceObject names\n");
@@ -2711,7 +2770,8 @@ void Propagate::PrepareToPropagate()
       #endif
       
       
-      try {
+      try
+      {
          for (UnsignedInt i = 0; i<stopWhen.size(); i++)
          {
             if (i >= stopSats.size())
@@ -2738,7 +2798,8 @@ void Propagate::PrepareToPropagate()
             }
          }
       }
-      catch (BaseException &ex) {
+      catch (BaseException &ex)
+      {
          MessageInterface::ShowMessage(
             "Propagate::PrepareToPropagate() Exception while initializing stopping "
             "conditions\n");
@@ -2746,217 +2807,201 @@ void Propagate::PrepareToPropagate()
          throw;
       }
       
-      // Publish the initial data
-      pubdata[0] = currEpoch[0];
-      memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
-      #ifdef DEBUG_PUBLISH_DATA
-      MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() hasFired, publishing initial %d data to stream %d, 1st data = %f\n",
-          dim+1, streamID, pubdata[0]);
-      #endif
-      publisher->Publish(streamID, pubdata, dim+1);
-      
       inProgress = true;
-      return;
    }
-   
-   // Reset the initialization data
-   Initialize();
-
-   // Validate that all spacecraft coupled by a PropSetup have same epoch
-   // Comment this for loop to skip epoch matching checks
-   for (Integer n = 0; n < (Integer)prop.size(); ++n) {
-      StringArray *sar = satName[n];
-      GmatBase* sat1;
-      Real baseEp = 0.0;
-      for (StringArray::iterator s = sar->begin(); s != sar->end(); ++s)
+   else
+   {
+      // Set the prop state managers for the PropSetup ODEModels
+      for (std::vector<PropSetup*>::iterator i=prop.begin(); i != prop.end(); ++i)
       {
-         sat1 = FindObject(*s);
-         if (s == sar->begin())
-            baseEp = sat1->GetRealParameter(epochID);
-         else if (baseEp != sat1->GetRealParameter(epochID))
+         ODEModel *ode = (*i)->GetODEModel();
+         if (ode != NULL)    // Only do this for the PropSetups that integrate
+            ode->SetPropStateManager((*i)->GetPropStateManager());
+      }
+
+      // Initialize the subsystem
+      Initialize();
+
+      // Loop through the PropSetups and build the models
+      for (std::vector<PropSetup*>::iterator i=prop.begin(); i != prop.end(); ++i)
+      {
+         ODEModel *ode = (*i)->GetODEModel();
+         if (ode != NULL)    // Only do this for the PropSetups that integrate
          {
-            #ifdef DEBUG_EPOCH_SYNC
-               MessageInterface::ShowMessage(
-                     "Epoch mismatch:   Base = %18.12lf\n   %s = %18.12lf\n"
-                     "   delta = %18.12le\n\n", baseEp, sat1->GetName().c_str(), 
-                     sat1->GetRealParameter(epochID),
-                     (sat1->GetRealParameter(epochID) - baseEp));
-               for (StringArray::iterator sd = sar->begin(); sd != sar->end(); ++sd)
-               {
-                  GmatBase *theSat = FindObject(*sd);
-                  MessageInterface::ShowMessage("   %s epoch = %18.12lf\n", 
-                        theSat->GetName().c_str(), 
-                        theSat->GetRealParameter(epochID));
-               }
-            #endif
-            throw CommandException(
-               "Epochs are out of sync on Propagation line:\n\"" + 
-               generatingString + "\"\n");
+            // Build the ODE model
+            ode->SetPropStateManager((*i)->GetPropStateManager());
+            if (ode->BuildModelFromMap() == false)
+               throw CommandException("Unable to assemble the ODE model for " +
+                     (*i)->GetName());
          }
       }
-   }
    
-   dim = 0;
-   p.clear();
-   fm.clear();
+      p.clear();
+      fm.clear();
+      psm.clear();
+      baseEpoch.clear();
    
-   for (Integer n = 0; n < (Integer)prop.size(); ++n) {
-      elapsedTime.push_back(0.0);
-      currEpoch.push_back(0.0);
-      p.push_back(prop[n]->GetPropagator());
-      fm.push_back(prop[n]->GetODEModel());
-      fm[n]->SetTime(0.0);
-      fm[n]->UpdateInitialData();
-   
-      p[n]->Initialize();
-      p[n]->Update(direction > 0.0);
-      state = fm[n]->GetState();
-      j2kState = fm[n]->GetJ2KState();
-      dim += fm[n]->GetDimension();
-   }   
+      for (Integer n = 0; n < (Integer)prop.size(); ++n)
+      {
+         elapsedTime.push_back(0.0);
+//         currEpoch.push_back(0.0);
 
-   // Delete old pubdata (loj: 2008.12.15)
+         p.push_back(prop[n]->GetPropagator());
+         fm.push_back(prop[n]->GetODEModel());
+         dim += fm[n]->GetDimension();
+
+//         // Delete old pubdata (loj: 2008.12.15)
+//         if (pubdata)
+//         {
+//            #ifdef DEBUG_MEMORY
+//               MemoryTracker::Instance()->Remove
+//                  (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+//                   "deleting pub data");
+//            #endif
+//            delete [] pubdata;
+//         }
+//      
+//         pubdata = new Real[dim+1];
+//         #ifdef DEBUG_MEMORY
+//            MemoryTracker::Instance()->Add
+//               (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+//                "pubdata = new Real[dim+1]");
+//         #endif
+//         baseEpoch.clear();
+
+         psm.push_back(prop[n]->GetPropStateManager());
+         currEpoch.push_back(psm[n]->GetState()->GetEpoch());
+   
+         p[n]->Initialize();
+         psm[n]->MapObjectsToVector();
+         
+         p[n]->Update(direction > 0.0);
+         state = fm[n]->GetState();
+         j2kState = fm[n]->GetJ2KState();
+         baseEpoch.push_back(psm[n]->GetState()->GetEpoch());
+   
+         #ifdef DEBUG_PROPAGATE_INIT
+            GmatState *dstate = psm[n]->GetState();
+            Integer dimension = dstate->GetSize();
+            MessageInterface::ShowMessage(
+                     "State vector contents and fm state are\n"
+                     "   Epoch = %.12lf\n", (dstate->GetEpoch()));
+            for (Integer index = 0; index < dimension; ++index)
+            {
+               MessageInterface::ShowMessage("   %d:   %.12lf   %.12lf\n", index,
+                     (*dstate)[index], state[index]);
+            }
+         #endif
+
+         // Now setup the stopping condition elements
+         #if DEBUG_PROPAGATE_EXE
+            MessageInterface::ShowMessage
+               ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
+             (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
+            MessageInterface::ShowMessage
+               ("Propagate::PrepareToPropagate() Propagate start; fm epoch = %f\n",
+               (fm[0]->GetRealParameter(fm[0]->GetParameterID("Epoch"))));
+            Integer stopCondCount = stopWhen.size();
+            MessageInterface::ShowMessage
+               ("Propagate::PrepareToPropagate() stopCondCount = %d\n", stopCondCount);
+            for (Integer i=0; i<stopCondCount; i++)
+            {
+               MessageInterface::ShowMessage
+                  ("Propagate::PrepareToPropagate() stopCondName[%d]=%s\n", i,
+                         stopWhen[i]->GetName().c_str());
+            }
+         #endif
+          
+         stopCondMet = false;
+         stopEpoch = 0.0;
+         std::string stopVar;
+         Real stopEpochBase;
+   
+         try
+         {
+            for (UnsignedInt i = 0; i<stopWhen.size(); i++)
+            {
+               if (i >= stopSats.size())
+                  throw CommandException("Stopping condition " + 
+                  stopWhen[i]->GetName() + " has no associated spacecraft.");
+         
+               #if DEBUG_PROPAGATE_EXE
+                  MessageInterface::ShowMessage(
+                     "Propagate::PrepareToPropagate() stopSat = %s\n",
+                     stopSats[i]->GetName().c_str());
+               #endif
+         
+               stopEpochBase = stopSats[i]->GetRealParameter(epochID);
+               
+               // StopCondition need new base epoch
+               stopWhen[i]->SetRealParameter(stopCondBaseEpochID, stopEpochBase);
+         
+               // ElapsedTime parameters need new initial epoch
+               stopVar = stopWhen[i]->GetStringParameter(stopCondStopVarID);
+               if (stopVar.find("Elapsed") != stopVar.npos)
+               {
+                  stopWhen[i]->GetStopParameter()->
+                     SetRealParameter("InitialEpoch", stopEpochBase);
+               }
+            }
+         }
+         catch (BaseException &ex)
+         {
+            MessageInterface::ShowMessage(
+               "Propagate::PrepareToPropagate() Exception while initializing stopping "
+               "conditions\n");
+            inProgress = false;
+            throw;
+         }
+   
+         hasFired = true;
+         inProgress = true;
+
+         #ifdef DEBUG_FIRST_CALL
+            if (state)
+            {
+               MessageInterface::ShowMessage("Debugging first step\n");
+               MessageInterface::ShowMessage(
+                  "State = [%16.9lf %16.9lf %16.9lf %16.14lf %16.14lf %16.14lf]\n",
+                  state[0], state[1], state[2], state[3], state[4], state[5]);
+               MessageInterface::ShowMessage(
+                  "Propagator = \n%s\n", 
+                  prop[0]->GetGeneratingString(Gmat::SCRIPTING, "   ").c_str());
+            }
+            else
+               MessageInterface::ShowMessage("Debugging first step: State not set\n");
+            firstStepFired = true;
+         #endif
+
+      }
+   }
+
    if (pubdata)
    {
       #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
-          "deleting pub data");
+         MemoryTracker::Instance()->Remove
+            (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+             "deleting pub data");
       #endif
       delete [] pubdata;
    }
-   
    pubdata = new Real[dim+1];
    #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Add
-      (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
-       "pubdata = new Real[dim+1]");
+      MemoryTracker::Instance()->Add
+         (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+          "pubdata = new Real[dim+1]");
    #endif
-   baseEpoch.clear();
-   
-   for (Integer n = 0; n < (Integer)prop.size(); ++n) {
-      #if DEBUG_PROPAGATE_EXE
-         MessageInterface::ShowMessage
-            ("Propagate::PrepareToPropagate() SpaceObject names\n");
-         
-         MessageInterface::ShowMessage
-            ("SpaceObject Count = %d\n", satName[n]->size());
-         StringArray *sar = satName[n];
-         for (Integer i=0; i < (Integer)satName[n]->size(); i++)
-         {
-            MessageInterface::ShowMessage
-               ("   SpaceObjectName[%d] = %s\n", i, (*sar)[i].c_str());
-         }
-      #endif
-      
-      if (satName[n]->empty())
-         throw CommandException(
-            "Propagator has no associated space objects.");
-      GmatBase* sat1 = FindObject(*(satName[n]->begin()));
 
-      baseEpoch.push_back(sat1->GetRealParameter(epochID));
-      elapsedTime[n] = fm[n]->GetTime();
-      currEpoch[n] = baseEpoch[n] + elapsedTime[n] /
-         GmatTimeUtil::SECS_PER_DAY;
-      #if DEBUG_PROPAGATE_DIRECTION
-         MessageInterface::ShowMessage(
-            "Propagate::PrepareToPropagate() running %s %s.\n",
-            prop[n]->GetName().c_str(),
-            (prop[n]->GetPropagator()->GetRealParameter("InitialStepSize") > 0.0
-               ? "forwards" : "backwards"));
-          MessageInterface::ShowMessage("   direction =  %lf.\n",
-            direction);
-      #endif
-   }
-
-   // Now setup the stopping condition elements
-   #if DEBUG_PROPAGATE_EXE
-      MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
-       (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
-      MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() Propagate start; fm epoch = %f\n",
-         (fm[0]->GetRealParameter(fm[0]->GetParameterID("Epoch"))));
-      Integer stopCondCount = stopWhen.size();
-      MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() stopCondCount = %d\n", stopCondCount);
-      for (Integer i=0; i<stopCondCount; i++)
-      {
-         MessageInterface::ShowMessage
-            ("Propagate::PrepareToPropagate() stopCondName[%d]=%s\n", i,
-                   stopWhen[i]->GetName().c_str());
-      }
-   #endif
-    
-   stopCondMet = false;
-   stopEpoch = 0.0;
-   std::string stopVar;
-   Real stopEpochBase;
-   
-   try {
-      for (UnsignedInt i = 0; i<stopWhen.size(); i++)
-      {
-         if (i >= stopSats.size())
-            throw CommandException("Stopping condition " + 
-            stopWhen[i]->GetName() + " has no associated spacecraft.");
-   
-         #if DEBUG_PROPAGATE_EXE
-            MessageInterface::ShowMessage(
-               "Propagate::PrepareToPropagate() stopSat = %s\n",
-               stopSats[i]->GetName().c_str());
-         #endif
-   
-         stopEpochBase = stopSats[i]->GetRealParameter(epochID);
-         
-         // StopCondition need new base epoch
-         stopWhen[i]->SetRealParameter(stopCondBaseEpochID, stopEpochBase);
-   
-         // ElapsedTime parameters need new initial epoch
-         stopVar = stopWhen[i]->GetStringParameter(stopCondStopVarID);
-         if (stopVar.find("Elapsed") != stopVar.npos)
-         {
-            stopWhen[i]->GetStopParameter()->
-               SetRealParameter("InitialEpoch", stopEpochBase);
-         }
-      }
-   }
-   catch (BaseException &ex) {
-      MessageInterface::ShowMessage(
-         "Propagate::PrepareToPropagate() Exception while initializing stopping "
-         "conditions\n");
-      inProgress = false;
-      throw;
-   }
-   
-   // Publish the initial data
+   // Publish the data
    pubdata[0] = currEpoch[0];
    memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
+   
    #ifdef DEBUG_PUBLISH_DATA
-   MessageInterface::ShowMessage
-      ("Propagate::PrepareToPropagate() publishing initial %d data to stream %d, "
-       "1st data = %f\n", dim+1, streamID, pubdata[0]);
+      MessageInterface::ShowMessage
+         ("Propagate::PrepareToPropagate() publishing initial %d data to "
+          "stream %d, 1st data = %f\n", dim+1, streamID, pubdata[0]);
    #endif
    publisher->Publish(streamID, pubdata, dim+1);
-   
-   hasFired = true;
-   inProgress = true;
-
-   #ifdef DEBUG_FIRST_CALL
-   if (state)
-   {
-      MessageInterface::ShowMessage("Debugging first step\n");
-      MessageInterface::ShowMessage(
-         "State = [%16.9lf %16.9lf %16.9lf %16.14lf %16.14lf %16.14lf]\n",
-         state[0], state[1], state[2], state[3], state[4], state[5]);
-      MessageInterface::ShowMessage(
-         "Propagator = \n%s\n", 
-         prop[0]->GetGeneratingString(Gmat::SCRIPTING, "   ").c_str());
-   }
-   else
-      MessageInterface::ShowMessage("Debugging first step: State not set\n");
-      firstStepFired = true;
-   #endif
 }
 
 
@@ -3049,23 +3094,49 @@ bool Propagate::Execute()
             fm[0]->ReportEpochData();
          #endif
 
+         for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
+            (*f)->BufferState();
+
          if (!TakeAStep())
             throw CommandException(
                "Propagate::Execute() Propagator Failed to Step\n");
-         for (UnsignedInt i = 0; i < fm.size(); ++i) {
+         for (UnsignedInt i = 0; i < fm.size(); ++i)
+         {
             // orbit related parameters use spacecraft for data
+            #ifdef DEBUG_PROPAGATE_EXE
+               MessageInterface::ShowMessage
+                  ("Propagate::Execute() Updating epoch data\n");
+            #endif
             elapsedTime[i] = fm[i]->GetTime();
             currEpoch[i] = baseEpoch[i] + elapsedTime[i] /
                GmatTimeUtil::SECS_PER_DAY;
+            #ifdef DEBUG_PROPAGATE_EXE
+               MessageInterface::ShowMessage
+                  ("   %d  BaseEpoch = %.12lf elapsedTime = %.12lf "
+                   "currEpoch size = %.12lf\n", i, baseEpoch[i],
+                   elapsedTime[i], currEpoch[i]);
+            #endif
             
             // Update spacecraft epoch, without argument the spacecraft epoch
             // won't get updated for consecutive Propagate command
+            #ifdef DEBUG_PROPAGATE_EXE
+               MessageInterface::ShowMessage
+                  ("Propagate::Execute() Updating SpaceObjects; first vector "
+                   "element = %.12lf\n", (psm[i]->GetState()->GetState())[0]);
+            #endif
             fm[i]->UpdateSpaceObject(currEpoch[i]);
          }
 
          // In single step mode, we're done!
          if (singleStepMode)
+         {
+            #ifdef DEBUG_PROPAGATE_EXE
+               MessageInterface::ShowMessage
+                  ("Propagate::Breaking for Single Step\n");
+            #endif
+
             break;
+         }
 
          CheckStopConditions(epochID);
          
@@ -3093,7 +3164,6 @@ bool Propagate::Execute()
                if (fabs(timestep) > fabs(stopInterval))
                   stopInterval = timestep;
                
-               fm[i]->RevertSpaceObject();
                switch (currentMode)
                {
                   case SYNCHRONIZED:
@@ -3163,6 +3233,9 @@ bool Propagate::Execute()
    inProgress = false;
    if (!singleStepMode)
    {
+      for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
+         (*f)->RevertSpaceObject();
+
       TakeFinalStep(epochID, trigger);
       // reset the stopping conditions so that scanning starts over
       for (UnsignedInt i=0; i<stopWhen.size(); i++)
@@ -3171,9 +3244,9 @@ bool Propagate::Execute()
    else
    {
       // clear first step stopping condition flags
-      for (std::vector<SpaceObject *>::iterator i = sats.begin(); 
+      for (ObjectArray::iterator i = sats.begin();
            i != sats.end(); ++i)
-         (*i)->ClearLastStopTriggered();
+         ((SpaceObject*)(*i))->ClearLastStopTriggered();
    }
 
    #ifdef DEBUG_EPOCH_UPDATES
@@ -3206,8 +3279,12 @@ bool Propagate::TakeAStep(Real propStep)
    Real stepToTake;
  
    #ifdef DEBUG_FIXED_STEP
-      std::vector<ForceModel *>::iterator fmod = fm.begin();
+      std::vector<ODEModel *>::iterator fmod = fm.begin();
    #endif
+
+//   for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
+//      (*f)->BufferState();
+
 
    std::vector<Propagator*>::iterator current = p.begin();
    if (propStep == 0.0) 
@@ -3261,6 +3338,10 @@ bool Propagate::TakeAStep(Real propStep)
             #endif
             retval = false;
       }
+      #ifdef DEBUG_PROPAGATE_EXE
+         MessageInterface::ShowMessage
+            ("Propagate::TakeAStep() Step Taken\n");
+      #endif
    }
    else 
    {
@@ -3530,8 +3611,8 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       MessageInterface::ShowMessage("Top of final step code:\n");
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
          MessageInterface::ShowMessage(
-            "   Force model[%d] has base epoch %16.11lf, time dt = %.11lf\n",
-            i, baseEpoch[i], fm[i]->GetTime());
+            "   Force model[%d] has base epoch %16.11lf, time dt = %.11lf, stopInterval = %.12lf\n",
+            i, baseEpoch[i], fm[i]->GetTime(), stopInterval);
    #endif   
    
    // Toggle propagators into final step mode
@@ -3545,10 +3626,12 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
    for (UnsignedInt i = 0; i < fm.size(); ++i) 
    {
       #if DEBUG_PROPAGATE_EXE
-         MessageInterface::ShowMessage("   CurrentEpoch[%d] = %.12lf\n", i,
+         MessageInterface::ShowMessage("   TakeFinalStep calling update with CurrentEpoch[%d] = %.12lf\n", i,
             currEpoch[i]);
       #endif
-      fm[i]->UpdateSpaceObject(currEpoch[i]);
+
+      fm[i]->UpdateSpaceObject(  // currEpoch[i]);
+            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
    }
    BufferSatelliteStates(true);
    
@@ -3681,8 +3764,8 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          BufferSatelliteStates(false);
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateFromSpaceObject();
             // Back out the steps taken to build the ring buffer
+            fm[i]->UpdateFromSpaceObject();
             fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
          }
 
@@ -3704,7 +3787,7 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
             throw CommandException(
                "Propagator Failed to Step fixed interval\n");
 
-         for (UnsignedInt i = 0; i < fm.size(); ++i) 
+         for (UnsignedInt i = 0; i < psm.size(); ++i)
          {
             fm[i]->UpdateSpaceObject(
                baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
@@ -3746,9 +3829,9 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 
    // Clear previous stop conditions from the spacecraft, and then store the 
    // stop name in the spacecraft that triggered it
-   for (std::vector<SpaceObject *>::iterator it = sats.begin(); 
+   for (ObjectArray::iterator it = sats.begin();
         it != sats.end(); ++it)
-      (*it)->ClearLastStopTriggered();      
+      ((SpaceObject*)(*it))->ClearLastStopTriggered();
 
    if (stopper != NULL)
    {
@@ -4336,8 +4419,10 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
       // Loop through the spacecraft that go with the force model, ans see if 
       // they are in the spacecraft list for the current transient force
       for (StringArray::iterator current = sats->begin(); 
-           current != sats->end(); ++current) {
-         if (find(tfSats.begin(), tfSats.end(), *current) != tfSats.end()) {
+           current != sats->end(); ++current)
+      {
+         if (find(tfSats.begin(), tfSats.end(), *current) != tfSats.end())
+         {
             p->AddForce(*i);
             break;      // Avoid multiple adds
          }
@@ -4345,26 +4430,29 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
    }
 
    #ifdef DEBUG_PROPAGATE_INIT
-      ForceModel *fm;
+      ODEModel *fm;
       PhysicalModel *pm;
    
       MessageInterface::ShowMessage(
          "Propagate::AddTransientForces completed; force details:\n");
       for (std::vector<PropSetup*>::iterator p = prop.begin(); 
-           p != prop.end(); ++p) {
-         fm = (*p)->GetForceModel();
-         if (!fm)
-            throw CommandException("ForceModel not set in PropSetup \"" + 
-                                   (*p)->GetName() + "\"");
-         MessageInterface::ShowMessage(
-            "   Forces in %s:\n", fm->GetName().c_str());
-         for (Integer i = 0; i < fm->GetNumForces(); ++i) {
-            pm = fm->GetForce(i);
-            MessageInterface::ShowMessage(
-               "      %s   %s\n", pm->GetTypeName().c_str(),
-               pm->GetName().c_str());
+           p != prop.end(); ++p)
+      {
+         // todo: fix calls in the debug messages
+//         fm = (*p)->GetForceModel();
+//         if (!fm)
+//            throw CommandException("ForceModel not set in PropSetup \"" +
+//                                   (*p)->GetName() + "\"");
+//         MessageInterface::ShowMessage(
+//            "   Forces in %s:\n", fm->GetName().c_str());
+//         for (Integer i = 0; i < fm->GetNumForces(); ++i)
+//         {
+//            pm = fm->GetForce(i);
+//            MessageInterface::ShowMessage(
+//               "      %s   %s\n", pm->GetTypeName().c_str(),
+//               pm->GetName().c_str());
+//         }
          }
-      }
    #endif
 }
 
@@ -4388,9 +4476,12 @@ void Propagate::ClearTransientForces()
       if (!fm)
          throw CommandException("ForceModel not set in PropSetup \"" + 
                                 (*p)->GetName() + "\"");
-      for (Integer i = 0; i < fm->GetNumForces(); ++i) {
+
+      for (Integer i = 0; i < fm->GetNumForces(); ++i)
+      {
          pm = fm->GetForce(i);
-         if (pm->IsTransient()) {
+         if (pm->IsTransient())
+         {
             fm->DeleteForce(pm->GetName());
             i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
          }
@@ -4402,18 +4493,20 @@ void Propagate::ClearTransientForces()
          "Propagate::ClearTransientForces completed; force details:\n");
       for (std::vector<PropSetup*>::iterator p = prop.begin(); 
            p != prop.end(); ++p) {
-         fm = (*p)->GetForceModel();
+         fm = (*p)->GetODEModel();
          if (!fm)
             throw CommandException("ForceModel not set in PropSetup \"" + 
                                    (*p)->GetName() + "\"");
          MessageInterface::ShowMessage(
             "   Forces in %s:\n", fm->GetName().c_str());
-         for (Integer i = 0; i < fm->GetNumForces(); ++i) {
-            pm = fm->GetForce(i);
-            MessageInterface::ShowMessage(
-               "      %s   %s\n", pm->GetTypeName().c_str(),
-               pm->GetName().c_str());
-         }
+         // todo: fix calls in the debug messages
+//         for (Integer i = 0; i < fm->GetNumForces(); ++i)
+//         {
+//            pm = fm->GetForce(i);
+//            MessageInterface::ShowMessage(
+//               "      %s   %s\n", pm->GetTypeName().c_str(),
+//               pm->GetName().c_str());
+//         }
       }
    #endif
 }

@@ -378,6 +378,7 @@ OBJECTS = \
     propagator/PredictorCorrector.o \
     propagator/PrinceDormand45.o \
     propagator/PrinceDormand78.o \
+    propagator/PropagationStateManager.o \
     propagator/Propagator.o \
     propagator/PropSetup.o \
     propagator/RungeKutta89.o \
@@ -476,12 +477,6 @@ OBJECTS = \
     util/UtcDate.o \
     $(TCPIP_OBJECTS)
 
-#    Needed Soon:
-#    propagator/PropagationStateManager.o \
-
-#    No Longer Used:
-#    spacecraft/PropState.o \
-    
 #    $(BRIDGEOBJECTS)
 
 # Future classes:

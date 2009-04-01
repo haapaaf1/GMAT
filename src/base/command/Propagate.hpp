@@ -181,7 +181,8 @@ protected:
    /// The propagator(s) used by this command
    std::vector<PropSetup*>      prop;
    /// The spacecraft and formations that are propagated
-   std::vector<SpaceObject *>   sats;
+   ObjectArray                  sats;
+//   std::vector<SpaceObject *>   sats;
    /// The stopping conditions
    std::vector<StopCondition *> stopWhen;
    /// The time step that we need to interpolate across
@@ -220,6 +221,8 @@ protected:
    std::vector<Propagator*>     p;
    /// The ForceModel
    std::vector<ODEModel*>       fm;
+   /// The Propagation State Managers
+   std::vector<PropagationStateManager*>  psm;
    
    // Members used to flag most recent detected stop, so we don't stop multiple 
    // times at the same point
@@ -253,6 +256,8 @@ protected:
    Real                    firstStepTolerance;
    /// Dimension used for (local) state vector
    Integer                 dim;
+   /// Dimension used for (local) state vector's Cartesian elements
+   Integer                 cartDim;
    /// Identifies when the command is in single step mode
    bool                    singleStepMode;
    /// List of forces that can be turned on or off by other commands

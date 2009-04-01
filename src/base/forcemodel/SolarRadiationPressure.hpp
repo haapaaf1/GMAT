@@ -69,16 +69,17 @@ class GMAT_API SolarRadiationPressure : public PhysicalModel
 {
 public:
    SolarRadiationPressure(const std::string &name = ""); //loj: 5/28/04 added default
-   virtual ~SolarRadiationPressure(void);
+   virtual ~SolarRadiationPressure();
    SolarRadiationPressure(const SolarRadiationPressure &srp);
    SolarRadiationPressure& operator=(const SolarRadiationPressure &srp);
 
-   virtual bool Initialize(void);
+   virtual bool Initialize();
    virtual bool SetCentralBody();
-   virtual bool GetDerivatives(Real *state, Real dt = 0.0,Integer order = 1);
+   virtual bool GetDerivatives(Real *state, Real dt = 0.0, Integer order = 1, 
+         const Integer id = -1);
 
    // inherited from GmatBase
-   virtual GmatBase* Clone(void) const;
+   virtual GmatBase* Clone() const;
 
    // Parameter access methods - overridden from GmatBase
    virtual std::string         GetParameterText(const Integer id) const;
@@ -98,6 +99,11 @@ public:
                                       const std::string parmName, 
                                       const Real parm);
    virtual void ClearSatelliteParameters(const std::string parmName = "");
+   
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
 
 protected:
    // Parameter IDs
@@ -172,6 +178,12 @@ protected:
    Rvector6 sunrv;
    Rvector6 cbrv;
 
+   /// Number of spacecraft in the state vector that use CartesianState
+   Integer              satCount;
+   /// Start index for the Cartesian state
+   Integer              cartIndex;
+   /// Flag indicating if the Cartesian state should be populated
+   bool                 fillCartesian;
    
    void FindShadowState(bool &lit, bool &dark, Real *state);
    Real ShadowFunction(Real *state);

@@ -636,7 +636,8 @@ void PropagationConfigPanel::SaveData()
          bodyName = pointMassBodyList[i]->bodyName.c_str();
          thePMF->SetBodyName(bodyName);
          pointMassBodyList[i]->pmf = thePMF;
-         newFm->AddForce(thePMF);
+// todo: Add forces to ODEModel
+//         newFm->AddForce(thePMF);
       }
       
       //----------------------------------------------------
@@ -680,7 +681,8 @@ void PropagationConfigPanel::SaveData()
             }
             
             primaryBodyList[i]->gravf = theGravForce;            
-            newFm->AddForce(theGravForce);
+// todo: Add forces to ODEModel
+//            newFm->AddForce(theGravForce);
          }
       }
       catch (BaseException &e)
@@ -766,7 +768,8 @@ void PropagationConfigPanel::SaveData()
                }
                
                primaryBodyList[i]->dragf = theDragForce;
-               newFm->AddForce(theDragForce);
+// todo: Add forces to ODEModel
+//               newFm->AddForce(theDragForce);
                
                #ifdef DEBUG_PROP_PANEL_SAVE
                ShowForceList("SaveData() AFTER  saving DragForce");
@@ -791,7 +794,8 @@ void PropagationConfigPanel::SaveData()
             theSRP = new SolarRadiationPressure();
             bodyName = propOriginName;
             theSRP->SetStringParameter("BodyName", bodyName);
-            newFm->AddForce(theSRP);
+// todo: Add forces to ODEModel
+//            newFm->AddForce(theSRP);
             newFm->SetOnOffParameter(paramId, "On");
          }
          else
@@ -2796,13 +2800,11 @@ void PropagationConfigPanel::ShowForceModel(const std::string &header)
 {
    MessageInterface::ShowMessage(">>>>>=======================================\n");
    MessageInterface::ShowMessage("%s%s\n", header.c_str(), " --- ForceModel");
-   Integer numForces  = theForceModel->GetNumForces();
-   MessageInterface::ShowMessage
-      ("CentralBody=%s, numForces=%d\n",
-       theForceModel->GetStringParameter("CentralBody").c_str(), numForces);
+
+   Integer numForces = theForceModel->GetNumForces();
    PhysicalModel *pm;
    
-   for (int i=0; i<numForces; i++)
+   for (int i = 0; i < numForces; i++)
    {
       pm = theForceModel->GetForce(i);
       MessageInterface::ShowMessage

@@ -52,9 +52,16 @@ public:
 //                              const Gmat::ObjectType type,
 //                              const std::string &name, const Integer index);
    virtual bool            IsTransient();
-   virtual void            SetPropList(std::vector<SpaceObject*> *soList);
+   virtual void            SetPropList(ObjectArray *soList);
    virtual bool            Initialize();
-   virtual bool            GetDerivatives(Real * state, Real dt, Integer order);
+   virtual bool            GetDerivatives(Real * state, Real dt, Integer order, 
+                                          const Integer id = -1);
+   
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
+
 protected:
    // Pieces needed for bookkeeping
    /// Not sure if this is needed yet
@@ -63,10 +70,16 @@ protected:
    StringArray                   burnNames;
    /// Names of the spacecraft accessed by this force
    StringArray                   mySpacecraft;
-   /// Spacecraft, in order, used in the ODEModel
-   std::vector<SpaceObject *>    *spacecraft;
+   /// Propagated objects used in the ODEModel
+   ObjectArray                   spacecraft;
    /// Indexes (in the spacecraft vector) for the Spacecraft used by this force
    std::vector<Integer>          scIndices;
+   /// Number of spacecraft in the state vector that use CartesianState
+   Integer                       satCount;
+   /// Start index for the Cartesian state
+   Integer                       cartIndex;
+   /// Flag indicating if the Cartesian state should be populated
+   bool                          fillCartesian;
 };
 
 #endif // FiniteThrust_hpp

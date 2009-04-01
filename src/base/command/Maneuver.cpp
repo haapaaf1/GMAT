@@ -17,7 +17,7 @@
  */
 //------------------------------------------------------------------------------
 
- 
+
 #include "Maneuver.hpp"
 
 //#define DEBUG_MANEUVER 1
@@ -219,10 +219,10 @@ bool Maneuver::RenameRefObject(const Gmat::ObjectType type,
          ("Maneuver::RenameConfiguredItem() type=%s, oldName=%s, newName=%s\n",
           GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
-   
+
    if (type != Gmat::SPACECRAFT && type != Gmat::IMPULSIVE_BURN)
       return true;
-   
+
    if (type == Gmat::SPACECRAFT)
    {
       if (satName == oldName)
@@ -238,7 +238,7 @@ bool Maneuver::RenameRefObject(const Gmat::ObjectType type,
          burnName = newName;
       }
    }
-   
+
    return true;
 }
 
@@ -250,7 +250,7 @@ bool Maneuver::RenameRefObject(const Gmat::ObjectType type,
  * Retrieves the list of ref object types used by the Maneuver.
  *
  * @return the list of object types.
- * 
+ *
  */
 //------------------------------------------------------------------------------
 const ObjectTypeArray& Maneuver::GetRefObjectTypeArray()
@@ -270,9 +270,9 @@ const ObjectTypeArray& Maneuver::GetRefObjectTypeArray()
  *
  * @param <type> The type of object desired, or Gmat::UNKNOWN_OBJECT for the
  *               full list.
- * 
+ *
  * @return the list of object names.
- * 
+ *
  */
 //------------------------------------------------------------------------------
 const StringArray& Maneuver::GetRefObjectNameArray(const Gmat::ObjectType type)
@@ -280,27 +280,27 @@ const StringArray& Maneuver::GetRefObjectNameArray(const Gmat::ObjectType type)
    #ifdef DEBUG_MANEUVER_REFOBJ
    MessageInterface::ShowMessage("Maneuver::GetRefObjectNameArray(%d)\n", type);
    #endif
-   
+
    refObjectNames.clear();
-   
+
    if (type == Gmat::UNKNOWN_OBJECT ||
        type == Gmat::IMPULSIVE_BURN)
    {
       refObjectNames.push_back(burnName);
    }
-   
+
    if (type == Gmat::UNKNOWN_OBJECT ||
        type == Gmat::SPACECRAFT)
    {
       refObjectNames.push_back(satName);
    }
-   
+
    #ifdef DEBUG_MANEUVER_REFOBJ
    MessageInterface::ShowMessage("===> returning\n");
    for (UnsignedInt i=0; i<refObjectNames.size(); i++)
       MessageInterface::ShowMessage("   %s\n", refObjectNames[i].c_str());
    #endif
-   
+
    return refObjectNames;
 }
 
@@ -321,11 +321,11 @@ std::string Maneuver::GetParameterText(const Integer id) const
    if (id == burnNameID) {
       return "Burn";
    }
-   
+
    else if (id == satNameID) {
       return "Spacecraft";
    }
-   
+
    return GmatCommand::GetParameterText(id);
 }
 
@@ -346,7 +346,7 @@ Integer Maneuver::GetParameterID(const std::string &str) const
    if (str == "Burn") {
       return burnNameID;
    }
-    
+
    else if (str == "Spacecraft") {
       return satNameID;
    }
@@ -371,11 +371,11 @@ Gmat::ParameterType Maneuver::GetParameterType(const Integer id) const
    if (id == burnNameID) {
       return Gmat::STRING_TYPE;
    }
-    
+
    if (id == satNameID) {
       return Gmat::STRING_TYPE;
    }
-    
+
    return GmatCommand::GetParameterType(id);
 }
 
@@ -395,10 +395,10 @@ std::string Maneuver::GetParameterTypeString(const Integer id) const
 {
    if (id == burnNameID)
       return PARAM_TYPE_STRING[Gmat::STRING_TYPE];
-    
+
    if (id == satNameID)
       return PARAM_TYPE_STRING[Gmat::STRING_TYPE];
-    
+
    return GmatCommand::GetParameterTypeString(id);
 }
 
@@ -419,10 +419,10 @@ std::string Maneuver::GetStringParameter(const Integer id) const
 {
    if (id == burnNameID)
       return burnName;
-    
+
    if (id == satNameID)
       return satName;
-    
+
    return GmatCommand::GetStringParameter(id);
 }
 
@@ -446,12 +446,12 @@ bool Maneuver::SetStringParameter(const Integer id, const std::string &value)
       burnName = value;
       return true;
    }
-   
+
    if (id == satNameID) {
       satName = value;
       return true;
    }
-   
+
    return GmatCommand::SetStringParameter(id, value);
 }
 
@@ -476,16 +476,16 @@ bool Maneuver::SetStringParameter(const Integer id, const std::string &value)
 bool Maneuver::InterpretAction()
 {
    StringArray chunks = InterpretPreface();
-   
+
    // Find and set the burn object name ...
    StringArray currentChunks = parser.Decompose(chunks[1], "()", false);
-   
+
    if (currentChunks.size() < 2)
       throw CommandException("Missing Maneuver parameter. Expecting "
                              "\"ImpulsiveBurnName(SpacecraftName)\"\n");
-   
+
    SetStringParameter(burnNameID, currentChunks[0]);
-   
+
    #ifdef DEBUG_MANEUVER_PARSE
       MessageInterface::ShowMessage("In Maneuver, after Decompose, currentChunks = \n");
       for (unsigned int ii=0; ii<currentChunks.size(); ii++)
@@ -500,9 +500,9 @@ bool Maneuver::InterpretAction()
    #endif
    if (currentChunks.size() > 1)
       throw CommandException("Unexpected text after spacecraft name in Maneuver command\n");
-      
+
    SetStringParameter(satNameID, currentChunks[0]);
-   
+
    return true;
 }
 
@@ -526,13 +526,13 @@ bool Maneuver::Initialize(void)
    burn = (Burn *)mapObj;
    if (!burn)
       return false;
-    
+
    if ((mapObj = FindObject(satName)) == NULL)
       throw CommandException("Maneuver command cannot find Spacecraft");
    sat = (Spacecraft *)mapObj;
    if (!sat)
       return false;
-    
+
    return true;
 }
 
@@ -550,9 +550,19 @@ bool Maneuver::Initialize(void)
 //------------------------------------------------------------------------------
 bool Maneuver::Execute()
 {
+   #ifdef DEBUG_MANEUVER
+      MessageInterface::ShowMessage("Maneuver::Execute maneuvering %s\n",
+            ((sat == NULL) ? "a NULL spaceecraft" : sat->GetName().c_str()));
+   #endif
+
    Real epoch = sat->GetRealParameter("A1Epoch");
    burn->SetSpacecraftToManeuver(sat);
    bool retval = burn->Fire(NULL, epoch);
    BuildCommandSummary(true);
+
+   #ifdef DEBUG_MANEUVER
+      MessageInterface::ShowMessage("Maneuver::Execute complete\n");
+   #endif
+
    return retval;
 }

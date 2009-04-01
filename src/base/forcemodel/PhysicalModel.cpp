@@ -94,6 +94,7 @@
 
 
 //#define PHYSICAL_MODEL_DEBUG_INIT
+//#define DEBUG_INITIALIZATION
 
 
 //---------------------------------
@@ -105,6 +106,7 @@ PhysicalModel::PARAMETER_TEXT[PhysicalModelParamCount - GmatBaseParamCount] =
    "Epoch",
    "ElapsedSeconds",
    "BodyName",
+   "DerivativeID",
 };
 
 const Gmat::ParameterType
@@ -112,8 +114,8 @@ PhysicalModel::PARAMETER_TYPE[PhysicalModelParamCount - GmatBaseParamCount] =
 {
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
-   //Gmat::STRING_TYPE,
    Gmat::OBJECT_TYPE,
+   Gmat::INTEGER_TYPE,
 };
 
 //---------------------------------
@@ -142,6 +144,7 @@ PhysicalModel::PhysicalModel(Gmat::ObjectType id, const std::string &typeStr,
    dimension                   (1),
    initialized                 (false),
    stateChanged                (false),
+   theState                    (NULL),
    modelState                  (NULL),
    rawState                    (NULL),
    epoch                       (21545.0),
@@ -166,12 +169,12 @@ PhysicalModel::PhysicalModel(Gmat::ObjectType id, const std::string &typeStr,
 //------------------------------------------------------------------------------
 PhysicalModel::~PhysicalModel()
 {
-   if (rawState != modelState)
-      if (rawState)
-         delete [] rawState;
+//   if (rawState != modelState)
+//      if (rawState)
+//         delete [] rawState;
          
-   if (modelState)
-      delete [] modelState;
+//   if (modelState)
+//      delete [] modelState;
 
    if (deriv)
       delete [] deriv;
@@ -193,12 +196,15 @@ PhysicalModel::PhysicalModel(const PhysicalModel& pm) :
    dimension                   (pm.dimension),
    initialized                 (false),
    stateChanged                (pm.stateChanged),
+   theState                    (NULL),
    modelState                  (NULL),
    rawState                    (NULL),
    epoch                       (pm.epoch),
    elapsedTime                 (pm.elapsedTime),
    prevElapsedTime             (pm.prevElapsedTime),
    deriv                       (NULL),
+   derivativeIds               (pm.derivativeIds),
+   derivativeNames             (pm.derivativeNames),
    relativeErrorThreshold      (pm.relativeErrorThreshold),
    solarSystem                 (pm.solarSystem)
 {
@@ -255,6 +261,8 @@ PhysicalModel& PhysicalModel::operator=(const PhysicalModel& pm)
    relativeErrorThreshold = pm.relativeErrorThreshold;
    solarSystem = pm.solarSystem;
    
+   theState = pm.theState;
+
    if (pm.modelState) 
    {
       if (modelState) 
@@ -343,7 +351,7 @@ void PhysicalModel::SetForceOrigin(CelestialBody* toBody)
 }
 
 //------------------------------------------------------------------------------
-// bool PhysicalModel::Initialize(void)
+// bool PhysicalModel::Initialize()
 //------------------------------------------------------------------------------
 /**
  * Prepare the physical model for use
@@ -355,19 +363,20 @@ void PhysicalModel::SetForceOrigin(CelestialBody* toBody)
  * PhysicalModelremoved in a later release.
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::Initialize(void)
+bool PhysicalModel::Initialize()
 { 
    #ifdef DEBUG_INITIALIZATION
-      MessageInterface::ShowMessage("PhysicalModel::Initialize() entered\n");
+      MessageInterface::ShowMessage(
+            "PhysicalModel::Initialize() entered for %s; dimension = %d\n",
+            typeName.c_str(), dimension);
    #endif
-
-   if (rawState != modelState)
+      
+   if ((rawState != NULL) && (rawState != modelState))
    {
-      if (rawState != NULL)
-         delete [] rawState;
+      delete [] rawState;
       rawState = NULL;
    }
-   
+
    if (modelState) 
    {
       delete [] modelState;
@@ -377,13 +386,17 @@ bool PhysicalModel::Initialize(void)
       initialized = false;
    }
 
-   if (deriv) {
+   if (deriv)
+   {
       delete [] deriv;
       deriv = NULL;
    }
+
+   // MessageInterface::ShowMessage("PMInitialize setting dim = %d\n", dimension);   
    
    modelState = new Real[dimension];
-   if (modelState != NULL) {
+   if (modelState != NULL)
+   {
       deriv = new Real[dimension];
       if (deriv)
          initialized = true;
@@ -457,7 +470,7 @@ bool PhysicalModel::SetErrorThreshold(const Real thold)
 }
 
 //------------------------------------------------------------------------------
-// Integer PhysicalModel::GetDimension(void)
+// Integer PhysicalModel::GetDimension()
 //------------------------------------------------------------------------------
 /**
  * Accessor method used by Propagator class to determine # of vars
@@ -468,7 +481,7 @@ bool PhysicalModel::SetErrorThreshold(const Real thold)
  * information from the PhysicalModel class.
 */
 //------------------------------------------------------------------------------
-Integer PhysicalModel::GetDimension(void)
+Integer PhysicalModel::GetDimension()
 {
    return dimension;
 }
@@ -506,7 +519,7 @@ Real * PhysicalModel::GetState()
 }
 
 //------------------------------------------------------------------------------
-// Real * PhysicalModel::GetState()
+// Real * PhysicalModel::GetJ2KState()
 //------------------------------------------------------------------------------
 /**
  * Accessor method used to access the J2000 body based state array
@@ -543,6 +556,17 @@ void PhysicalModel::SetState(const Real * st)
    stateChanged = true;
 }
 
+
+void PhysicalModel::SetState(GmatState * st)
+{
+   theState = st;
+   if (dimension != st->GetSize())
+      MessageInterface::ShowMessage("Dimension mismatch!!!\n");
+   if (modelState != NULL)
+      SetState(st->GetState());
+}
+
+
 //------------------------------------------------------------------------------
 // const Real* PhysicalModel::GetDerivativeArray(void)
 //------------------------------------------------------------------------------
@@ -552,7 +576,7 @@ void PhysicalModel::SetState(const Real * st)
  * Correctors need this access in order to extrapolate the next state.
  */
 //------------------------------------------------------------------------------
-const Real* PhysicalModel::GetDerivativeArray(void)
+const Real* PhysicalModel::GetDerivativeArray()
 {
    return deriv;
 }
@@ -604,7 +628,8 @@ void PhysicalModel::SetTime(Real t)
 
 
 //------------------------------------------------------------------------------
-// bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order)
+// bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order,
+//                                    const Integer id)
 //------------------------------------------------------------------------------
 /**
  * Method invoked to calculate derivatives
@@ -622,12 +647,17 @@ void PhysicalModel::SetTime(Real t)
  *                      do this during the stage calculations.)
  * @param order         The order of the derivative to be taken (first 
  *                              derivative, second derivative, etc)
+ * @param id            ID for the type of derivative requested for models that
+ *                      support more than one type.  Default value of -1
+ *                      indicates that the default derivative model is
+ *                      requested.  This number should be a StateElementId.
  *
- * @return                      true if the call succeeds, false on failure.  This default 
- *                      implementation always returns false.
+ * @return              true if the call succeeds, false on failure.  This
+ *                      default implementation always returns false.
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order)
+bool PhysicalModel::GetDerivatives(Real * state, Real dt, Integer order,
+      const Integer id)
 {
    return false;
 }
@@ -700,7 +730,7 @@ Real PhysicalModel::EstimateError(Real * diffs, Real * answer) const
 }
 
 //------------------------------------------------------------------------------
-// bool PhysicalModel::GetComponentMap(Integer * map, Integer order) const
+// bool GetComponentMap(Integer * map, Integer order, Integer id) const
 //------------------------------------------------------------------------------
 /**
  * Used to get the mapping in the state variable between components 
@@ -725,26 +755,32 @@ Real PhysicalModel::EstimateError(Real * diffs, Real * answer) const
  * data: (3, 4, 5, -1, -1, -1).
  *
  *  @param map          Array that will contain the mapping of the elements
- *  @param order        The order for the mapping (1 maps 1st derivatives to their base 
- *                      components, 2 maps 2nd derivatives, and so on)
+ * @param order        The order for the mapping (1 maps 1st derivatives to
+ *                     their base components, 2 maps 2nd derivatives, and so on)
+ * @param id           Identifier for the particular set of derivatives
+ *                     requested.  The default, -1, returns the complete map.
  *
- *  @return             Returns true if a mapping was made, false otherwise.  A false return 
- *                      value can be used to indicate that the requested map is not 
- *                      available, and verefore that the model may not be appropriate for the
- *                      requested operations.
+ * @return             Returns true if a mapping was made, false otherwise.  A
+ *                     false return value can be used to indicate that the
+ *                     requested map is not available, and verefore that the
+ *                     model may not be appropriate for the requested
+ *                     operations.
  * 
  * @todo This method needs serious rework for the formation pieces in build 3.
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::GetComponentMap(Integer * map, Integer order) const
+bool PhysicalModel::GetComponentMap(Integer * map, Integer order,
+      Integer id) const
 {
    //    return false;
    int i6;
 
-   if (order == 1) {
+   if (order == 1) 
+   {
       // Calculate how many spacecraft are in the model
       int satCount = (int)(dimension / 6);
-      for (int i = 0; i < satCount; i++) {
+      for (int i = 0; i < satCount; i++) 
+      {
          i6 = i * 6;
     
          map[ i6 ] = i6 + 3;
@@ -889,10 +925,20 @@ bool PhysicalModel::IsUserForce()
  * Sets the list of propagated space objects for transient forces.
  */
 //------------------------------------------------------------------------------
-void PhysicalModel::SetPropList(std::vector<SpaceObject*> *soList)
+void PhysicalModel::SetPropList(ObjectArray *soList)
 {
 }
 
+bool PhysicalModel::SupportsDerivative(Gmat::StateElementId id)
+{
+   return false;
+}
+
+bool PhysicalModel::SetStart(Gmat::StateElementId id, Integer index,
+      Integer quantity)
+{
+   return false;
+}
 
 //---------------------------------
 // inherited methods from GmatBase
@@ -974,7 +1020,8 @@ std::string PhysicalModel::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool PhysicalModel::IsParameterReadOnly(const Integer id) const
 {
-   if ((id == EPOCH) || (id == ELAPSED_SECS) || (id == BODY_NAME))
+   if ((id == EPOCH)     || (id == ELAPSED_SECS) ||
+       (id == BODY_NAME) || (id == DERIVATIVE_ID))
       return true;
 
    return GmatBase::IsParameterReadOnly(id);
@@ -986,7 +1033,7 @@ bool PhysicalModel::IsParameterReadOnly(const Integer id) const
 /**
  * Checks to see if the requested parameter is read only.
  *
- * @param <label> Text label for the parameter.
+ * @param label Text label for the parameter.
  *
  * @return true if the parameter is read only, false (the default) if not,
  *         throws if the parameter is out of the valid range of values.
@@ -996,7 +1043,8 @@ bool PhysicalModel::IsParameterReadOnly(const std::string &label) const
 {
    if ((label == PARAMETER_TEXT[EPOCH - GmatBaseParamCount]) || 
        (label == PARAMETER_TEXT[ELAPSED_SECS - GmatBaseParamCount]) || 
-       (label == PARAMETER_TEXT[BODY_NAME - GmatBaseParamCount]))
+       (label == PARAMETER_TEXT[BODY_NAME - GmatBaseParamCount]) ||
+       (label == PARAMETER_TEXT[DERIVATIVE_ID - GmatBaseParamCount]))
       return true;
 
    return GmatBase::IsParameterReadOnly(label);
@@ -1240,4 +1288,17 @@ bool PhysicalModel::SetRefObject(GmatBase *obj,
    
    // Not handled here -- invoke the next higher SetRefObject call
    return GmatBase::SetRefObject(obj, type, name);
+}
+
+// Support for extra derivative calcs
+
+const IntegerArray& PhysicalModel::GetSupportedDerivativeIds()
+{
+   return derivativeIds;
+}
+
+
+const StringArray&  PhysicalModel::GetSupportedDerivativeNames()
+{
+   return derivativeNames;
 }

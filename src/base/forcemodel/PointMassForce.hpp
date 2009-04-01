@@ -68,14 +68,15 @@ class GMAT_API PointMassForce : public PhysicalModel
 {
 public:
     
-   PointMassForce(const std::string &name = "", Integer satcount = 1);
-   virtual ~PointMassForce(void);
+   PointMassForce(const std::string &name = "");
+   virtual ~PointMassForce();
    PointMassForce(const PointMassForce& pmf);
    PointMassForce& operator= (const PointMassForce& pmf);
 
-   bool GetDerivatives(Real *state, Real dt = 0.0, Integer order = 1);
+   bool GetDerivatives(Real *state, Real dt = 0.0, Integer order = 1, 
+         const Integer id = -1);
    bool GetComponentMap(Integer * map, Integer order) const;
-   bool Initialize(void);
+   bool Initialize();
    virtual Real EstimateError(Real *diffs, Real *answer) const;
 
    //CelestialBody* GetBody();  // wcs: 2004/06/21 moved to PhysicalModel
@@ -85,7 +86,7 @@ public:
    //void SetBodyName(const std::string &name); //loj: 5/7/04 added
 
    // inherited from GmatBase
-   virtual GmatBase* Clone(void) const;
+   virtual GmatBase* Clone() const;
 
    // inherited methods from GmatBase
    virtual std::string GetParameterText(const Integer id) const;
@@ -106,7 +107,12 @@ public:
                                           const std::string &value);
    virtual bool           GetBooleanParameter(const Integer id) const;
    virtual bool           SetBooleanParameter(const Integer id,
-                                              const bool value);  
+                                              const bool value);
+
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
 
 protected:
    // Parameter IDs
@@ -142,6 +148,11 @@ protected:
    Rvector3 rv;
    A1Mjd now;
    Integer satCount;
+   Integer cartIndex;
+   bool fillCartesian;
+   Integer stmCount;
+   Integer stmIndex;
+   bool fillSTM;
    
    // for Debug
    void ShowBodyState(const std::string &header, Real time, Rvector6 &rv);

@@ -21,10 +21,50 @@
 
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
-#include "Propagator.hpp"
-#include "ODEModel.hpp"
-#include "PhysicalModel.hpp"
+#include "PropagationStateManager.hpp"
 
+// Forward references
+class PhysicalModel;
+class ODEModel;
+class Propagator;
+
+/**
+ * The propagator subsystem interface
+ * 
+ * PropSetup is a container class that acts as the interface between the 
+ * propagation subsystem and the rest of GMAT.  The core elements of the class 
+ * are the Propagator, a PropagationStateManager, and, if needed, an ODEModel.  
+ * 
+ * The PropagationStateManager (PSM) is the interface between GMAT objects that 
+ * move in time in the simulation and the propagation subsystem.  The PSM holds 
+ * the data that is needed to build the state data that is propagated, and to
+ * configure the corresponding ODEModel for propagators that perform numerical
+ * integration.  The PSM retrieves current values for the elements that need 
+ * propagation -- examples are the orbital state of a Spacecraft, the State 
+ * Transition Matrix, and tank mass during a finite burn -- and constructs a 
+ * vector that will change as the epoch changes in the simulation.  After a 
+ * propagation step has been taken, the PSM is the interface used to update 
+ * GMAT's objects with the new state data.
+ * 
+ * The Propagator performs the actual evolution of the state, changing the 
+ * values in the state vector to match changes in the simulation epoch.  GMAT
+ * supports three classes of propagators: Numerical Integrators, Analytic 
+ * Propagators (not yet implemented), and ephemeris based propagators (not yet
+ * implemented).  Of these three classes, the numerical integrators require 
+ * additional configuration in the PropSetup so that the differential equations 
+ * that are integrated are constructed consistently with the propagation state 
+ * vector.  The differential equations are managed in the ODEModel.
+ * 
+ * GMAT's ODEModel class is a PhysicalModel that collects other PhysicalModel
+ * objects and adds up their contributions, generating the total contribution to 
+ * an integrator.  In other words, the ODEModel instance is a container class 
+ * that collects individual objects that supply contributions to the total
+ * differential equation, and adds these contributions together, generating the
+ * superposition needed by the integrator.  The ODEModel places these totals 
+ * into a state vector supplied by the PropagationStateManager.  The ODEModel is
+ * responsible for ensuring that each contribution is assembled in the correct
+ * element of the state vector. 
+ */
 class GMAT_API PropSetup : public GmatBase
 {
 public:
@@ -37,6 +77,8 @@ public:
    bool                 IsInitialized();
    Propagator*          GetPropagator();
    ODEModel*            GetODEModel();
+   PropagationStateManager*            
+                        GetPropStateManager();
    void                 SetPropagator(Propagator *propagator);
    void                 SetODEModel(ODEModel *odeModel);
    void                 SetUseDrag(bool flag);
@@ -101,19 +143,19 @@ public:
                                             const std::string &prefix = "",
                                             const std::string &useName = "");
    
-   
 private:
-   
-   void    ClonePropagator(Propagator *prop);
-   void    CloneODEModel(ODEModel *fm);
-   void    DeleteOwnedObject(Integer id, bool forceDelete = false);
-   Integer GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const;
    
    bool mInitialized;
    std::string mPropagatorName;
    std::string mODEModelName;
    Propagator *mPropagator;
    ODEModel *mODEModel;
+   PropagationStateManager psm;
+   
+   void    ClonePropagator(Propagator *prop);
+   void    CloneODEModel(ODEModel *fm);
+   void    DeleteOwnedObject(Integer id, bool forceDelete = false);
+   Integer GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const;
    
    enum
    {

@@ -93,7 +93,7 @@
 #include "SolarSystem.hpp"
 #include "CelestialBody.hpp"
 #include "Spacecraft.hpp"
-
+#include "GmatState.hpp"
 
 #include "ODEModelException.hpp"
 
@@ -128,14 +128,14 @@ public:
    //void SetBody(CelestialBody *body);
    //bool SetBody(const std::string &name);
 
-   virtual bool Initialize(void);
+   virtual bool Initialize();
 
    virtual CelestialBody* GetBody();
    virtual std::string    GetBodyName();
-   virtual Integer        GetDimension(void);
-   virtual Real *         GetState(void);
+   virtual Integer        GetDimension();
+   virtual Real *         GetState();
    virtual Real*          GetJ2KState();
-   const Real *           GetDerivativeArray(void);
+   const Real *           GetDerivativeArray();
 
    virtual bool SetBody(const std::string& theBody);
    virtual void SetBodyName(const std::string& theBody);
@@ -143,18 +143,26 @@ public:
    virtual void SetForceOrigin(CelestialBody* toBody);
    virtual void SetDimension(Integer);
    virtual void SetState(const Real * st);
+   virtual void SetState(GmatState * st);
 
-   Real GetErrorThreshold(void) const;
+   Real GetErrorThreshold() const;
    bool SetErrorThreshold(const Real thold = 0.10);
 
    virtual void IncrementTime(Real dt);
-   virtual Real GetTime(void);
+   virtual Real GetTime();
    virtual void SetTime(Real t);
 
-   virtual bool GetDerivatives(Real * state, Real dt = 0.0, Integer order = 1);
+   virtual bool GetDerivatives(Real * state, Real dt = 0.0, Integer order = 1, 
+         const Integer id = -1);
    virtual Real EstimateError(Real * diffs, Real * answer) const;
-   virtual bool GetComponentMap(Integer * map, Integer order = 1) const;
-    
+   virtual bool GetComponentMap(Integer * map, Integer order = 1, 
+         Integer id = -1) const;
+
+   // Support for extra derivative calcs -- the STM contribution, for example
+   virtual const IntegerArray& GetSupportedDerivativeIds();
+   virtual const StringArray&  GetSupportedDerivativeNames();
+
+   
    virtual void SetSolarSystem(SolarSystem *ss);
    virtual void SetSatelliteParameter(const Integer i, 
                                       const std::string parmName, 
@@ -167,7 +175,13 @@ public:
    
    virtual bool IsTransient();
    virtual bool IsUserForce();
-   virtual void SetPropList(std::vector<SpaceObject *> *soList);
+   virtual void SetPropList(ObjectArray *soList);
+   
+   // Methods used by the ODEModel to set the state indexes, etc
+   virtual bool SupportsDerivative(Gmat::StateElementId id);
+   virtual bool SetStart(Gmat::StateElementId id, Integer index, 
+                         Integer quantity);
+   
 
    // Parameter accessor methods -- inherited from GmatBase
    virtual std::string GetParameterText(const Integer id) const;
@@ -205,6 +219,8 @@ protected:
    /// Flag that is set when SetState() or SetTime() is called
    bool stateChanged;
    
+   /// GMAT state that the physical model uses
+   GmatState *theState;
    /// Array of data parameters containing the model data
    Real *modelState;
    /// The state vector in J2000BodyMJ2000Eq coordinates.
@@ -217,6 +233,10 @@ protected:
    Real prevElapsedTime;
    /// Array containing the most recent derivative calculation, when needed
    Real * deriv;
+   /// IDs for each element of the derivative vector 
+   IntegerArray derivativeIds;
+   /// Text names for each element of the derivative vector 
+   StringArray derivativeNames;
    /// Threshold for switching between relative and absolute error control
    Real relativeErrorThreshold;
    /// Pointer to the solar system model used as a data provider for the forces
@@ -230,6 +250,7 @@ protected:
       EPOCH = GmatBaseParamCount, 
       ELAPSED_SECS,
       BODY_NAME,
+      DERIVATIVE_ID,
       PhysicalModelParamCount
    };
 

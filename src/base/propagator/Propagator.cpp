@@ -76,6 +76,7 @@
 
 
 //#define DEBUG_PROP_RERUN
+//#define DEBUG_INITIALIZATION
 
 //---------------------------------
 // static data
@@ -342,6 +343,7 @@ bool Propagator::Initialize()
           MessageInterface::ShowMessage(
              "Propagator::Initialize() calling physicalModel->Initialize() \n");
        #endif
+             
        if ( physicalModel->Initialize() )
           initialized = true;
 
