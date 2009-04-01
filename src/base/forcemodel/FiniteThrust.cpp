@@ -104,7 +104,6 @@ FiniteThrust& FiniteThrust::operator=(const FiniteThrust& ft)
    burnNames    = ft.burnNames;
    spacecraft   = ft.spacecraft;
    mySpacecraft = ft.mySpacecraft;
-   mySpacecraft = ft.mySpacecraft;   // Twice???
    burns.clear();
    scIndices.clear();
    
@@ -396,11 +395,10 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
    Integer i6;
    Integer i = 0;
    SpaceObject *sat;
-   Real mTotal;
    
    if (fillCartesian)
    {
-   // Loop through the spacecraft list, building accels for active sats
+      // Loop through the spacecraft list, building accels for active sats
       for (ObjectArray::iterator sc = spacecraft.begin();
            sc != spacecraft.end(); ++sc) 
       {
@@ -452,24 +450,11 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
                      "\n   Acceleration = [%18le  %18le  %18le]", accel[0], 
                      accel[1], accel[2]);
                #endif
-               }
-         
-               #ifdef DEBUG_FINITETHRUST_EXE
-                  MessageInterface::ShowMessage("\n");
-               #endif
-               // Divide through by masses to get accelerations
-               mTotal = sat->GetRealParameter("TotalMass");
-               if (mTotal <= 0.0) 
-               {
-                  std::stringstream massval;
-                  massval << mTotal;
-                  throw ODEModelException("Finite thrust applied to spacecraft " +
-                           sat->GetName() + " which has nonphysical mass " +
-                           massval.str());
-               }
-               accel[0] /= mTotal;
-               accel[1] /= mTotal; 
-               accel[2] /= mTotal;
+            }
+      
+            #ifdef DEBUG_FINITETHRUST_EXE
+               MessageInterface::ShowMessage("\n");
+            #endif
             
             // Apply the burns to the state vector
             if (order == 1) 
