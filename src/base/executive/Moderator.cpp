@@ -5713,6 +5713,7 @@ void Moderator::CreateDefaultMission()
       MessageInterface::ShowMessage("-->default attitude parameters created\n");
       #endif
       
+      #ifdef __ENABLE_NEW_PARAMETERS__
       // Ballistic/Mass parameters
       CreateParameter("DryMass", "DefaultSC.DryMass");
       CreateParameter("Cd", "DefaultSC.Cd");
@@ -5733,6 +5734,7 @@ void Moderator::CreateDefaultMission()
       #if DEBUG_DEFAULT_MISSION > 1
       MessageInterface::ShowMessage("-->default STM parameters created\n");
       #endif
+      #endif // __ENABLE_NEW_PARAMETERS__
       
       #ifdef DEBUG_CREATE_VAR
       // User variable
