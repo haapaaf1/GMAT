@@ -271,6 +271,12 @@ int GmatApp::OnExit()
       delete globalPageSetupData;
 #endif // wxUSE_PRINTING_ARCHITECTURE
    
+   wxDateTime now = wxDateTime::Now();
+   wxString wxNowStr = now.FormatISODate() + " " + now.FormatISOTime() + " ";
+   std::string nowStr = wxNowStr.c_str();
+   
+   MessageInterface::LogMessage(nowStr + "GMAT GUI exiting.\n");
+   
    return 0;
 }
 
