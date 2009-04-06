@@ -370,7 +370,9 @@ bool Create::Initialize()
    
    #ifdef DEBUG_CREATE_INIT
       MessageInterface::ShowMessage("Exiting Create::Initialize()\n");
+      #ifdef DEBUG_OBJECT_MAP
       ShowObjectMaps("object maps at the end");
+      #endif
    #endif
    
    #ifdef DEBUG_PERFORMANCE
