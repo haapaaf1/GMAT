@@ -2085,15 +2085,21 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
    {
       if (omi->second != NULL)
       {
-         #ifdef DEBUG_OBJECT_MAP
-         GmatBase *obj = omi->second;
-         MessageInterface::ShowMessage
-            ("   Deleting <%p> <%s> '%s'\n", obj, obj->GetTypeName().c_str(),
-             obj->GetName().c_str());
-         #endif
-         // for now, don't delete subscribers as the Publisher still points to them and
-         // bad things happen at the end of the run if they disappear
-         if (!((omi->second)->IsOfType(Gmat::SUBSCRIBER)))
+         if ((omi->second)->IsOfType(Gmat::SUBSCRIBER))
+         {
+            // for now, don't delete subscribers as the Publisher still points to them and
+            // bad things happen at the end of the run if they disappear
+            #ifdef DEBUG_MEMORY
+            GmatBase *obj = omi->second;
+            MessageInterface::ShowMessage
+               ("*** FunctionManager::EmptyObjectMap() should delete <%p> <%s> '%s'\n",
+                obj, obj->GetTypeName().c_str(), obj->GetName().c_str());
+            MessageInterface::ShowMessage
+               ("*** For now, don't delete subscribers as the Publisher still points "
+                "to them and bad things happen at the end of the run if they disappear.\n");
+            #endif
+         }
+         else
          {
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
