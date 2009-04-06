@@ -53,6 +53,14 @@
 //#define DEBUG_EPHEM_SOURCE
 //#define DEBUG_MODIFIED_FLAG
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 using namespace GmatMathUtil;
 using namespace std; 
 
@@ -372,8 +380,14 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    
    if (cBody.atmModel)
    {
-      atmModel = (AtmosphereModel*)(cBody.atmModel->Clone());
-      
+      //atmModel = (AtmosphereModel*)(cBody.atmModel->Clone());      
+      AtmosphereModel *clonedAM = (AtmosphereModel*)(cBody.atmModel->Clone());   
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (clonedAM, clonedAM->GetName(), "CelestialBody::copy constructor",
+          "clonedAM = (AtmosphereModel*)cBody.atmModel->Clone()");
+      #endif
+      atmModel = clonedAM;
       #ifdef DEBUG_CELESTIAL_BODY
       MessageInterface::ShowMessage
          ("CelestialBody::CelestialBody() Setting ATM:%s on %s\n",
@@ -434,10 +448,26 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    isFirstTimeRadius   = cBody.isFirstTimeRadius;
    
    if (atmModel)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (atmModel, atmModel->GetName(), "CelestialBody::operator=",
+          "deleting atmModel");
+      #endif
       delete atmModel;
+   }
    
    if (cBody.atmModel)
-      atmModel = (AtmosphereModel*)(cBody.atmModel)->Clone();
+   {
+      //atmModel = (AtmosphereModel*)(cBody.atmModel)->Clone();
+      AtmosphereModel *clonedAM = (AtmosphereModel*)(cBody.atmModel)->Clone();
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (clonedAM, clonedAM->GetName(), "CelestialBody::operator=",
+          "clonedAM = (AtmosphereModel*)cBody.atmModel->Clone()");
+      #endif
+      atmModel = clonedAM;
+   }
    else
       atmModel = NULL;
    
@@ -487,7 +517,15 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
 //------------------------------------------------------------------------------
 CelestialBody::~CelestialBody()
 {
-   delete atmModel;  
+   if (atmModel)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (atmModel, atmModel->GetName(), "CelestialBody::~CelestialBody()",
+          "deleting atmModel");
+      #endif
+      delete atmModel;
+   }
 }
 
 
@@ -1757,7 +1795,15 @@ bool CelestialBody::SetAtmosphereModelType(std::string toAtmModelType)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetAtmosphereModel(AtmosphereModel *toAtmModel)
 {
-   if (atmModel) delete atmModel;
+   if (atmModel)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (atmModel, atmModel->GetName(), "CelestialBody::SetAtmosphereModel()",
+          "deleting atmModel");
+      #endif
+      delete atmModel;
+   }
    atmModel            = toAtmModel;
    hasBeenModified     = true;
    return true;
