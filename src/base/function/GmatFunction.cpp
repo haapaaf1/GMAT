@@ -223,8 +223,9 @@ void GmatFunction::SetNewFunction(bool flag)
 bool GmatFunction::Initialize()
 {
    #ifdef DEBUG_FUNCTION_INIT
-      MessageInterface::ShowMessage("Entering GmatFunction::Initialize for function '%s'\n",
-            functionName.c_str());
+      MessageInterface::ShowMessage
+         ("======================================================================\n"
+          "GmatFunction::Initialize() entered for function '%s'\n", functionName.c_str());
       MessageInterface::ShowMessage("   and FCS is %s set.\n", (fcs? "correctly" : "NOT"));
       MessageInterface::ShowMessage("   Pointer for FCS is %p\n", fcs);
       MessageInterface::ShowMessage("   First command in fcs is %s\n",
@@ -344,7 +345,7 @@ bool GmatFunction::Initialize()
    fcsFinalized = false;
    #ifdef DEBUG_FUNCTION_INIT
    MessageInterface::ShowMessage
-      ("Exiting  GmatFunction::Initialize for function '%s' with true\n",
+      ("GmatFunction::Initialize() exiting for function '%s' with true\n",
        functionName.c_str());
    #endif
    return true;
@@ -370,7 +371,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
    
    #ifdef DEBUG_FUNCTION_EXEC
    MessageInterface::ShowMessage
-      ("GmatFunction::Execute() entered for '%s'\n   internalCS is %p\n",
+      ("======================================================================\n"
+       "GmatFunction::Execute() entered for '%s'\n   internalCS is %p\n",
        functionName.c_str(), internalCoordSys);
    #endif
    
@@ -463,9 +465,10 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
       {
          #ifdef DEBUG_FUNCTION_EXEC
          MessageInterface::ShowMessage
-            ("Now calling %s->Execute()\n",
+            ("Now calling <%p>[%s]->Execute()\n", current->GetTypeName().c_str(),
              current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
          #endif
+         
          if (!(current->Execute()))
             return false;
       }
@@ -505,7 +508,26 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
             return false;
       }
       
+      // If current command is BranchCommand and still executing, continue to next
+      // command in the branch (LOJ: 2009.03.24)
+      if (current->IsOfType("BranchCommand") && current->IsExecuting())
+      {
+         #ifdef DEBUG_FUNCTION_EXEC
+         MessageInterface::ShowMessage
+            ("In Function '%s', still executing current command is <%p><%s>\n",
+             functionName.c_str(), current, current ? current->GetTypeName().c_str() : "NULL");
+         #endif
+         
+         continue;
+      }
+      
       current = current->GetNext();
+      
+      #ifdef DEBUG_FUNCTION_EXEC
+      MessageInterface::ShowMessage
+         ("In Function '%s', the next command is <%p><%s>\n", functionName.c_str(),
+          current, current ? current->GetTypeName().c_str() : "NULL");
+      #endif
    }
    
    // Set ObjectMap from the last command to Validator in order to create
@@ -585,7 +607,8 @@ void GmatFunction::Finalize()
    
    #ifdef DEBUG_FUNCTION_FINALIZE
    MessageInterface::ShowMessage
-      ("GmatFunction::Finalize() entered for '%s', FCS %sfinalized\n",
+      ("======================================================================\n"
+       "GmatFunction::Finalize() entered for '%s', FCS %sfinalized\n",
        functionName.c_str(), fcsFinalized ? "already " : "NOT ");
    #endif
    
