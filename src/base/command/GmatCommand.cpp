@@ -2036,6 +2036,20 @@ bool GmatCommand::NeedsServerStartup()
 }
 
 //------------------------------------------------------------------------------
+// bool IsExecuting()
+//------------------------------------------------------------------------------
+/**
+ * Indicates whether the command is executing or not.
+ *
+ * @return true if command is executing
+ */
+//------------------------------------------------------------------------------
+bool GmatCommand::IsExecuting()
+{
+   return false;
+}
+
+//------------------------------------------------------------------------------
 // void ShowCommand(const std::string &prefix = "",
 //                  const std::string &title1, GmatCommand *cmd1,
 //                  const std::string &title2 = "", GmatCommand *cmd2 = NULL)
@@ -2051,30 +2065,20 @@ void GmatCommand::ShowCommand(const std::string &prefix,
 {
    if (title2 == "")
    {
-      if (cmd1 == NULL)
-         MessageInterface::ShowMessage
-            ("%s%s::%sNULL(%p)\n", prefix.c_str(), this->GetTypeName().c_str(),
-             title1.c_str(), cmd1);
-      else
-         MessageInterface::ShowMessage
-            ("%s%s::%s%s(%p)\n", prefix.c_str(), this->GetTypeName().c_str(),
-             title1.c_str(), cmd1->GetTypeName().c_str(), cmd1);
+      MessageInterface::ShowMessage
+         ("%s%s: %s<%p><%s>[%s]\n", prefix.c_str(), this->GetTypeName().c_str(),
+          title1.c_str(), cmd1, cmd1 ? cmd1->GetTypeName().c_str() : "NULL",
+          cmd1 ? cmd1->GetGeneratingString(Gmat::NO_COMMENTS).c_str() : "NULL");
    }
    else
    {
-      if (cmd1 == NULL)
-         MessageInterface::ShowMessage
-            ("%s%s::%sNULL(%p)%s%s(%p)\n", prefix.c_str(), this->GetTypeName().c_str(),
-             title1.c_str(), cmd1, title2.c_str(), cmd2->GetTypeName().c_str(), cmd2);
-      else if (cmd2 == NULL)
-         MessageInterface::ShowMessage
-            ("%s%s::%s%s(%p)%sNULL(%p)\n", prefix.c_str(), this->GetTypeName().c_str(),
-             title1.c_str(), cmd1->GetTypeName().c_str(), cmd1, title2.c_str(), cmd2);
-      else
-         MessageInterface::ShowMessage
-            ("%s%s::%s%s(%p)%s%s(%p)\n", prefix.c_str(), this->GetTypeName().c_str(),
-             title1.c_str(), cmd1->GetTypeName().c_str(), cmd1,
-             title2.c_str(), cmd2->GetTypeName().c_str(), cmd2);
+      MessageInterface::ShowMessage
+         ("%s%s:\n   %s<%p><%s>[%s]\n   %s<%p><%s>[%s]\n", prefix.c_str(),
+          this->GetTypeName().c_str(), title1.c_str(), cmd1,
+          cmd1 ? cmd1->GetTypeName().c_str() : "NULL",
+          cmd1 ? cmd1->GetGeneratingString(Gmat::NO_COMMENTS).c_str() : "NULL",
+          title2.c_str(), cmd2, cmd2 ? cmd2->GetTypeName().c_str() : "NULL",
+          cmd2 ? cmd2->GetGeneratingString(Gmat::NO_COMMENTS).c_str() : "NULL");
    }
 }
 

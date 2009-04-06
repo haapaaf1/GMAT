@@ -195,6 +195,7 @@ public:
    virtual void        ConfigurationChanged(bool tf, bool setAll = false);
    virtual bool        HasAFunction();
    virtual bool        NeedsServerStartup();
+   virtual bool        IsExecuting();
    
 protected:
    enum

@@ -275,6 +275,10 @@ void BranchCommand::SetTransientForces(std::vector<PhysicalModel*> *tf)
 //------------------------------------------------------------------------------
 bool BranchCommand::Initialize()
 {
+   #ifdef DEBUG_BRANCHCOMMAND_INIT
+   ShowCommand("BranchCommand::Initialize() entered ", "this=", this);
+   #endif
+   
    GmatCommand::Initialize();
    
    std::vector<GmatCommand*>::iterator node;
@@ -286,6 +290,9 @@ bool BranchCommand::Initialize()
       currentPtr = *node;
       while (currentPtr != this)
       {
+         #ifdef DEBUG_BRANCHCOMMAND_INIT
+         ShowCommand("About to initialize child in ", "child=", currentPtr);
+         #endif
          if (!currentPtr->Initialize())
                retval = false;
          currentPtr = currentPtr->GetNext();
@@ -1070,16 +1077,7 @@ bool BranchCommand::ExecuteBranch(Integer which)
       current = branch[which];
    
    #ifdef DEBUG_BRANCHCOMMAND_EXECUTION
-   if (current != NULL)
-   {
-      std::string curName = current->GetTypeName();
-      MessageInterface::ShowMessage
-         ("In ExecuteBranch (%s) - current = %s\n", 
-      typeName.c_str(), curName.c_str());
-   }
-   else
-      MessageInterface::ShowMessage
-         ("In ExecuteBranch (%s)  - current = NULL\n", typeName.c_str());
+   ShowCommand("In ExecuteBranch:", "current = ", current, "this    = ", this);
    #endif
    
    if (current == this)
@@ -1104,15 +1102,18 @@ bool BranchCommand::ExecuteBranch(Integer which)
    if (current != NULL)
    {
       #ifdef DEBUG_BRANCHCOMMAND_EXECUTION
-      MessageInterface::ShowMessage
-         ("   Calling %s->Execute()\n", current->GetTypeName().c_str());
+      ShowCommand("   Calling in ", "current = ", current);
       #endif
       
       try
       {
+         // Save current command and set it after current command finished executing
+         // incase for calling GmatFunction.
+         GmatCommand *curcmd = current;
          if (current->Execute() == false)
             retval = false;
          
+         current = curcmd;
          // check for user interruption here (loj: 2007.05.11 Added)
          if (GmatGlobal::Instance()->GetRunInterrupted())
             throw CommandException
@@ -1131,7 +1132,9 @@ bool BranchCommand::ExecuteBranch(Integer which)
          }
          
          if (current != NULL)
-            current = current->GetNext();         
+            current = current->GetNext();
+         
+         branchExecuting = true;
       }
       catch (BaseException &e)
       {
@@ -1143,6 +1146,10 @@ bool BranchCommand::ExecuteBranch(Integer which)
          throw;
       }
    }
+   
+   #ifdef DEBUG_BRANCHCOMMAND_EXECUTION
+   ShowCommand("Exiting ExecuteBranch:", "current = ", current, "this    = ", this);
+   #endif
    
    return retval;
 } // ExecuteBranch()
@@ -1364,5 +1371,19 @@ void BranchCommand::SetCallingFunction(FunctionManager *fm)
                                    "\" was not terminated!");
       }
    }
+}
+
+//------------------------------------------------------------------------------
+// bool IsExecuting()
+//------------------------------------------------------------------------------
+/**
+ * Indicates whether the command is executing or not.
+ *
+ * @return true if command is executing
+ */
+//------------------------------------------------------------------------------
+bool BranchCommand::IsExecuting()
+{
+   return branchExecuting;
 }
 

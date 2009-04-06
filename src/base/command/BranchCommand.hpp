@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               BranchCommand
 //------------------------------------------------------------------------------
@@ -56,10 +56,10 @@ public:
                                                const std::string &prefix = "",
                                                const std::string &useName = "");
    
-   virtual bool      RenameRefObject(const Gmat::ObjectType type,
-                                     const std::string &oldName,
-                                     const std::string &newName);
-
+   virtual bool            RenameRefObject(const Gmat::ObjectType type,
+                                           const std::string &oldName,
+                                           const std::string &newName);
+   
    virtual GmatCommand*    GetNext();
    virtual GmatCommand*    GetChildCommand(Integer whichOne = 0);
    virtual void            SetTransientForces(std::vector<PhysicalModel*> *tf);
@@ -73,6 +73,7 @@ public:
                            GetCommandsWithGmatFunctions();
    virtual bool            HasAFunction();
    virtual void            SetCallingFunction(FunctionManager *fm);
+   virtual bool            IsExecuting();
 
 
 protected:
