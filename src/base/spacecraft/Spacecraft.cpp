@@ -308,7 +308,8 @@ Spacecraft::~Spacecraft()
 {
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
-      ("Spacecraft::~Spacecraft() <%p>'%s' entered\n", this, GetName().c_str());
+      ("Spacecraft::~Spacecraft() <%p>'%s' entered, attitude=<%p>\n",
+       this, GetName().c_str(), attitude);
    #endif
    
    // Delete the attached hardware (it was set as clones in the Sandbox)
@@ -412,10 +413,10 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    if (a.attitude)
    {
       attitude = (Attitude*) a.attitude->Clone();
-      attitude->SetEpoch(state.GetEpoch());      
+      attitude->SetEpoch(state.GetEpoch());
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (attitude, "cloned attitude", "Spacecraft copy constructor()",
+         (attitude, "cloned attitude", "Spacecraft copy constructor",
           "attitude = (Attitude*) a.attitude->Clone()");
       #endif
    }
@@ -528,7 +529,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
       attitude->SetEpoch(state.GetEpoch());
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (attitude, "cloned attitude", "Spacecraft assignment operator",
+         (attitude, "cloned attitude", "Spacecraft::operator=()",
           "attitude = (Attitude*) a.attitude->Clone()");
       #endif
    }
@@ -3083,10 +3084,13 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       else if (parmOrder[i] == ATTITUDE)
       {
          if (attitude)
-            stream << prefix << "Attitude = " << attitude->GetAttitudeModelName() << ";\n";
+            if (inMatlabMode)
+               stream << prefix << "Attitude = '" << attitude->GetAttitudeModelName() << "';\n";
+            else
+               stream << prefix << "Attitude = " << attitude->GetAttitudeModelName() << ";\n";
          else 
             ;// ignore
-      }      
+      }
       
    }
 
