@@ -25,6 +25,7 @@
 //#define DEBUG_FUNCTION_IN_OUT
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_AUTO_OBJ
+//#define DEBUG_OBJECT_MAP
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -253,24 +254,14 @@ bool Function::IsFcsFinalized()
 }
 
 //------------------------------------------------------------------------------
-// void SetObjectMap(std::map<std::string, GmatBase *> *map)
+// void SetObjectMap(ObjectMap *objMap)
 //------------------------------------------------------------------------------
-void Function::SetObjectMap(std::map<std::string, GmatBase *> *map)
+void Function::SetObjectMap(ObjectMap *objMap)
 {
-   #ifdef DEBUG_FM_EXECUTE // ------------------------------------------------- debug ---
-      MessageInterface::ShowMessage("Entering Function::SetObjectMap:\n");
-      std::map<std::string, GmatBase *>::iterator omi;
-      GmatBase *objInMap;
-      std::string strInMap;
-      for (omi = map.begin(); omi != map.end(); ++omi)
-      {
-         strInMap = omi->first;
-         objInMap = omi->second;
-         MessageInterface::ShowMessage("  %s, which is of type %s, with pointer %p\n",
-               strInMap.c_str(), (objInMap->GetTypeName()).c_str(), objInMap);
-      }
-   #endif // -------------------------------------------------------------- end debug ---
-   objectStore = map;
+   #ifdef DEBUG_OBJECT_MAP
+   ShowObjectMap(objMap, "In Function::SetObjectMap");
+   #endif
+   objectStore = objMap;
 }
 
 //------------------------------------------------------------------------------
@@ -489,9 +480,47 @@ void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj,
    #ifdef DEBUG_AUTO_OBJ
    MessageInterface::ShowMessage
       ("Function::AddAutomaticObject() <%p>'%s' entered, name='%s', obj=<%p> '%s', "
-       "alreadyManaged=%d\n", this, GetName().c_str(), withName.c_str(), obj,
-       obj->GetName().c_str(), alreadyManaged);
+       "alreadyManaged=%d, objectStore=<%p>\n", this, GetName().c_str(),
+       withName.c_str(), obj, obj->GetName().c_str(), alreadyManaged, objectStore);
    #endif
+   
+   // Make sure that the owner of automatic Parameter exist in the objectStore
+   // (LOJ: 2009.03.25)
+   if (objectStore != NULL)
+   {
+      std::string type, ownerName, dep;
+      GmatStringUtil::ParseParameter(withName, type, ownerName, dep);
+      GmatBase *owner = FindObject(ownerName);
+      #ifdef DEBUG_AUTO_OBJ
+      MessageInterface::ShowMessage
+         ("Function::AddAutomaticObject(), ownerName='%s', owner=<%p>'%s'\n",
+          ownerName.c_str(), owner, owner ? owner->GetName().c_str() : "NULL");
+         #ifdef DEBUG_OBJECT_MAP
+         ShowObjectMap(objectStore, "In Function::AddAutomaticObject");
+         #endif
+      #endif
+      if (owner == NULL)
+      {
+         FunctionException fe;;
+         fe.SetDetails("Cannot find the object named \"%s\" in the function "
+                       "object store", ownerName.c_str());
+         throw fe;
+      }
+      
+      GmatBase *refObj = obj->GetRefObject(Gmat::SPACECRAFT, ownerName);
+      if (owner != refObj)
+      {
+         MessageInterface::ShowMessage
+            ("*** WARNING *** The ref object \"%s\" of the Parameter \"%s\""
+             "does not points to object in object store", ownerName.c_str(),
+             withName.c_str());
+         FunctionException fe;;
+         fe.SetDetails("The ref object \"%s\" of the Parameter \"%s\""
+                       "does not points to object in object store", ownerName.c_str(),
+                       withName.c_str());
+         throw fe;
+      }
+   }
    
    if (alreadyManaged)
    {
@@ -1109,11 +1138,34 @@ void Function::ClearAutomaticObjects()
 
 
 //------------------------------------------------------------------------------
+// void ShowObjectMap(ObjectMap *objMap, const std::string &title)
+//------------------------------------------------------------------------------
+void Function::ShowObjectMap(ObjectMap *objMap, const std::string &title)
+{
+   MessageInterface::ShowMessage("%s\n", title.c_str());
+   MessageInterface::ShowMessage("this=<%p>, functionName='%s'\n", this, functionName.c_str());
+   if (objMap == NULL)
+   {
+      MessageInterface::ShowMessage("ObjectMap is NULL\n");
+      return;
+   }
+   
+   MessageInterface::ShowMessage("========================================\n");
+   MessageInterface::ShowMessage
+      ("Here is objectStore <%p>, it has %d objects\n", objMap, objMap->size());
+   for (ObjectMap::iterator i = objMap->begin(); i != objMap->end(); ++i)
+      MessageInterface::ShowMessage
+         ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+          i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+}
+
+
+//------------------------------------------------------------------------------
 // void ShowObjects(const std::string &title)
 //------------------------------------------------------------------------------
 void Function::ShowObjects(const std::string &title)
 {
-   MessageInterface::ShowMessage(title);
+   MessageInterface::ShowMessage("%s\n", title.c_str());
    MessageInterface::ShowMessage("this=<%p>, functionName='%s'\n", this, functionName.c_str());
    MessageInterface::ShowMessage("========================================\n");
    MessageInterface::ShowMessage("solarSys         = <%p>\n", solarSys);
@@ -1122,16 +1174,14 @@ void Function::ShowObjects(const std::string &title)
    MessageInterface::ShowMessage
       ("Here is objectStore <%p>, it has %d objects\n", objectStore,
        objectStore->size());
-   for (std::map<std::string, GmatBase *>::iterator i = objectStore->begin();
-        i != objectStore->end(); ++i)
+   for (ObjectMap::iterator i = objectStore->begin(); i != objectStore->end(); ++i)
       MessageInterface::ShowMessage
          ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
           i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
    MessageInterface::ShowMessage
       ("Here is globalObjectStore <%p>, it has %d objects\n", globalObjectStore,
        globalObjectStore->size());
-   for (std::map<std::string, GmatBase *>::iterator i = globalObjectStore->begin();
-        i != globalObjectStore->end(); ++i)
+   for (ObjectMap::iterator i = globalObjectStore->begin(); i != globalObjectStore->end(); ++i)
       MessageInterface::ShowMessage
          ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
           i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());

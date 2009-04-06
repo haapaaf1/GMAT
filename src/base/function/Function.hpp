@@ -49,7 +49,7 @@ public:
    virtual bool         Execute(ObjectInitializer *objInit, bool reinitialize);
    virtual void         Finalize();
    virtual bool         IsFcsFinalized();
-   virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
+   virtual void         SetObjectMap(ObjectMap *objMap);
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetSolarSystem(SolarSystem *ss);
    virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
@@ -169,8 +169,8 @@ protected:
    GmatBase* FindObject(const std::string &name);
    
    // for debug
+   void ShowObjectMap(ObjectMap *objMap, const std::string &title = "");
    void ShowObjects(const std::string &title);
-   
 };
 
 
