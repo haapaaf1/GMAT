@@ -105,7 +105,8 @@ public:
    
    //----- configuration
    ObjectMap* GetConfiguredObjectMap();
-   const StringArray& GetListOfObjects(Gmat::ObjectType type);
+   const StringArray& GetListOfObjects(Gmat::ObjectType type,
+                                       bool excludeDefaultObjects = false);
    GmatBase* GetConfiguredObject(const std::string &name);
    std::string GetNewName(const std::string &name, Integer startCount);
    std::string AddClone(const std::string &name);
@@ -208,9 +209,6 @@ public:
    
    // PropSetup
    PropSetup* CreateDefaultPropSetup(const std::string &name);
-//    PropSetup* CreatePropSetup(const std::string &name,
-//                               const std::string &propagatorName = "",
-//                               const std::string &ODEModelName = "");
    PropSetup* CreatePropSetup(const std::string &name);
    PropSetup* GetPropSetup(const std::string &name);
    
@@ -351,6 +349,9 @@ private:
    // object map
    GmatBase* FindObject(const std::string &name);
    bool AddObject(GmatBase *obj);
+   void SetSolarSystemAndObjectMap(SolarSystem *ss, ObjectMap *objMap,
+                                   bool forFunction,
+                                   const std::string &callFrom = "");
    
    // default objects
    Spacecraft* GetDefaultSpacecraft();
@@ -404,6 +405,7 @@ private:
    
    ObjectMap *objectMapInUse;
    Function *currentFunction;
+   ObjectArray unmanagedFunctions;
    
    static Moderator *instance;
    static ScriptInterpreter *theUiInterpreter;
@@ -417,7 +419,7 @@ private:
    SolarSystem *theSolarSystemInUse;
    SolarSystem *theInternalSolarSystem;
    CoordinateSystem *theInternalCoordSystem;
-   StringArray theSpacePointList;
+   StringArray tempObjectNames;
    EopFile *theEopFile;
    ItrfCoefficientsFile *theItrfFile;
    LeapSecsFileReader *theLeapSecsFile;

@@ -433,6 +433,20 @@ void Moderator::Finalize()
          theInternalCoordSystem = NULL;
       }
       
+      // Delete unmanaged functions (LOJ: 2009.03.24)
+      for (UnsignedInt i=0; i<unmanagedFunctions.size(); i++)
+      {
+         GmatBase *func = (GmatBase*)(unmanagedFunctions[i]);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (func, func->GetName(), "Moderator::Finalize()",
+             "deleting unmanaged function");
+         #endif
+         delete func;
+         func = NULL;
+      }
+      unmanagedFunctions.clear();
+      
       // delete Sanbox (only 1 Sandbox for now)
       #if DEBUG_FINALIZE > 0
       MessageInterface::ShowMessage
@@ -764,7 +778,7 @@ void Moderator::SetScriptInterpreter(ScriptInterpreter *scriptInterp)
 // void SetInterpreterMapAndSS(Interpreter *interp)
 //------------------------------------------------------------------------------
 /**
- * Sets Interpreter ObjectMap and SolarSystem to current versions in use.
+ * Sets Interpreter ObjectMap and SolarSystem to current pointers in use.
  * 
  * @param interp The Interpreter that is setup. 
  */
@@ -787,7 +801,8 @@ void Moderator::SetObjectMap(ObjectMap *objMap)
       
       #ifdef DEBUG_OBJECT_MAP
       MessageInterface::ShowMessage
-         ("Moderator::SetObjectMap() objectMapInUse was set to input objMap\n");
+         ("Moderator::SetObjectMap() objectMapInUse was set to input objMap <%p>\n",
+          objMap);
       ShowObjectMap("Moderator::SetObjectMap() Here is the object map in use");
       #endif
    }
@@ -875,57 +890,73 @@ ObjectMap* Moderator::GetConfiguredObjectMap()
 
 
 //------------------------------------------------------------------------------
-// const StringArray& GetListOfObjects(Gmat::ObjectType type)
+// const StringArray& GetListOfObjects(Gmat::ObjectType type,
+//                                     bool excludeDefaultObjects)
 //------------------------------------------------------------------------------
 /**
  * Returns names of all configured items of object type.
  *
  * @param <type> object type
+ * @param <excludeDefaultObjects> set this flag to true if default objects
+ *           should be execluded, such as  default coordinate systems
  *
  * @return array of configured item names of the type; return empty array if none
  *  return all configured item if type is UNKNOWN_OBJECT
  */
 //------------------------------------------------------------------------------
-const StringArray& Moderator::GetListOfObjects(Gmat::ObjectType type)
+const StringArray& Moderator::GetListOfObjects(Gmat::ObjectType type,
+                                               bool excludeDefaultObjects)
 {
    if (type == Gmat::UNKNOWN_OBJECT)
       return theConfigManager->GetListOfAllItems();
    
    if (type == Gmat::CELESTIAL_BODY || type == Gmat::SPACE_POINT)
    {
-      theSpacePointList.clear();
+      tempObjectNames.clear();
       
       if (theSolarSystemInUse == NULL)
-         return theSpacePointList;
+         return tempObjectNames;
       
       if (type == Gmat::CELESTIAL_BODY)
       {
          // add bodies to the list
-         theSpacePointList = theSolarSystemInUse->GetBodiesInUse();
+         tempObjectNames = theSolarSystemInUse->GetBodiesInUse();
       }
       else if (type == Gmat::SPACE_POINT)
       {
          // add Spacecraft to the list
-         theSpacePointList = theConfigManager->GetListOfItems(Gmat::SPACECRAFT);
+         tempObjectNames = theConfigManager->GetListOfItems(Gmat::SPACECRAFT);
          
          // add bodies to the list
          StringArray bodyList = theSolarSystemInUse->GetBodiesInUse();
          for (UnsignedInt i=0; i<bodyList.size(); i++)
-            theSpacePointList.push_back(bodyList[i]);
+            tempObjectNames.push_back(bodyList[i]);
          
          // add CalculatedPoint to the list
          StringArray calptList =
             theConfigManager->GetListOfItems(Gmat::CALCULATED_POINT);
          for (UnsignedInt i=0; i<calptList.size(); i++)
-            theSpacePointList.push_back(calptList[i]);
-
+            tempObjectNames.push_back(calptList[i]);
+         
          StringArray osptList =
             theConfigManager->GetListOfItems(Gmat::SPACE_POINT);
          for (UnsignedInt i=0; i<osptList.size(); i++)
-            theSpacePointList.push_back(osptList[i]);
+            tempObjectNames.push_back(osptList[i]);
       }
       
-      return theSpacePointList;
+      return tempObjectNames;
+   }
+   
+   // Do not add default coordinate systems on option
+   if (type == Gmat::COORDINATE_SYSTEM && excludeDefaultObjects)
+   {
+      tempObjectNames.clear();
+      StringArray csObjNames = theConfigManager->GetListOfItems(type);
+      for (UnsignedInt i=0; i<csObjNames.size(); i++)
+         if (csObjNames[i] != "EarthMJ2000Eq" && csObjNames[i] != "EarthMJ2000Ec" &&
+             csObjNames[i] != "EarthFixed")
+            tempObjectNames.push_back(csObjNames[i]);
+      return tempObjectNames;
    }
    
    return theConfigManager->GetListOfItems(type);
@@ -1355,6 +1386,14 @@ void Moderator::SetSolarSystemInUse(SolarSystem *ss)
 
 //------------------------------------------------------------------------------
 // void SetInternalSolarSystem(SolarSystem *ss)
+//------------------------------------------------------------------------------
+/*
+ * Sets the internal solar system. The internal solar system is initially set to
+ * theSolarSystemInUse for creating main objects and commands. When creating
+ * objects and commands for GmatFunction, it will use the solar system cloned in
+ * the Sandbox during the Sandbox initialization. Setting this internal solar
+ * system happens during the GmatFunction initialization.
+ */
 //------------------------------------------------------------------------------
 void Moderator::SetInternalSolarSystem(SolarSystem *ss)
 {
@@ -2382,7 +2421,7 @@ Parameter* Moderator::CreateAutoParameter(const std::string &type,
 {
    #if DEBUG_CREATE_PARAMETER
    MessageInterface::ShowMessage
-      ("Moderator::CreateParameter() type='%s', name='%s', ownerName='%s', "
+      ("Moderator::CreateAutoParameter() type='%s', name='%s', ownerName='%s', "
        "depName='%s', manage=%d\n", type.c_str(), name.c_str(), ownerName.c_str(),
        depName.c_str(), manage);
    #endif
@@ -2401,10 +2440,10 @@ Parameter* Moderator::CreateAutoParameter(const std::string &type,
    {
       #if DEBUG_CREATE_PARAMETER
       MessageInterface::ShowMessage
-         ("*** WARNING *** Moderator::CreateParameter() Unable to create "
+         ("*** WARNING *** Moderator::CreateAutoParameter() Unable to create "
           "Parameter name: %s already exist\n", name.c_str());
       MessageInterface::ShowMessage
-         ("Moderator::CreateParameter() returning <%s><%p>\n", param->GetName().c_str(),
+         ("Moderator::CreateAutoParameter() returning <%s><%p>\n", param->GetName().c_str(),
           param);
       #endif
       
@@ -3156,8 +3195,11 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
       ("Moderator::CreateSubscriber() type='%s', name='%s', fileName='%s'\n"
-       "createDefault=%d\n", type.c_str(), name.c_str(), fileName.c_str(),
+       "   createDefault=%d\n", type.c_str(), name.c_str(), fileName.c_str(),
        createDefault);
+   MessageInterface::ShowMessage
+      ("   in function = <%p>'%s'\n", currentFunction,
+       currentFunction ? currentFunction->GetName().c_str() : "NULL");
    #endif
    
    if (GetSubscriber(name) == NULL)
@@ -3288,6 +3330,9 @@ Function* Moderator::CreateFunction(const std::string &type,
    MessageInterface::ShowMessage
       ("Moderator::CreateFunction() type = '%s', name = '%s', manage=%d\n",
        type.c_str(), name.c_str(), manage);
+   MessageInterface::ShowMessage
+      ("   in function = <%p>'%s'\n", currentFunction,
+       currentFunction ? currentFunction->GetName().c_str() : "NULL");
    #endif
    
    if (GetFunction(name) == NULL)
@@ -3322,6 +3367,8 @@ Function* Moderator::CreateFunction(const std::string &type,
       {
          if ((function->GetName() != "") && manage == 1)
             theConfigManager->AddFunction(function);
+         else if (currentFunction != NULL && manage == 0)
+            unmanagedFunctions.push_back(function);
       }
       catch (BaseException &e)
       {
@@ -3623,7 +3670,7 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
       ("Moderator::InterpretGmatFunction() function=<%p>, objMap=<%p>\n",
        funct, objMap);
    #endif
-
+   
    currentFunction = funct;
    
    // If input objMap is NULL, use configured objects
@@ -3667,13 +3714,9 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    ShowObjectMap("Moderator::InterpretGmatFunction() Here is the object map in use");
    #endif
    
-   theScriptInterpreter->SetObjectMap(objectMapInUse, true);
-   theScriptInterpreter->SetSolarSystemInUse(solarSystemInUse);
-   if (theUiInterpreter != NULL)
-   {
-      theUiInterpreter->SetObjectMap(objectMapInUse, true);   
-      theUiInterpreter->SetSolarSystemInUse(solarSystemInUse);
-   }
+   // Set solar system in use and object map for GmatFunction
+   SetSolarSystemAndObjectMap(solarSystemInUse, objectMapInUse, true,
+                              "InterpretGmatFunction()");
    
    GmatCommand *cmd = NULL;
    cmd = theScriptInterpreter->InterpretGmatFunction(funct);
@@ -3688,7 +3731,7 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    #endif
    
    return cmd;
-}
+} // InterpretGmatFunction()
 
 
 //------------------------------------------------------------------------------
@@ -4677,8 +4720,14 @@ Integer Moderator::RunMission(Integer sandboxNum)
       MessageInterface::ShowMessage("\n========================================\n");
    }
    
+   // Reset solar system in use and object map (LOJ: 2009.03.19)
+   // So that users can create new objects from the GUI after GmatFunction run.
+   objectMapInUse = theConfigManager->GetObjectMap();
+   SetSolarSystemAndObjectMap(theSolarSystemInUse, objectMapInUse, false,
+                              "RunMission()");
+   
    return status;
-}
+} // RunMission()
 
 
 //------------------------------------------------------------------------------
@@ -5175,24 +5224,32 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
    MessageInterface::ShowMessage(".....Setting SolarSystem and ObjectMap to Interpreter...\n");
    #endif
    
-   theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-   theScriptInterpreter->SetObjectMap(objectMapInUse);
-   theScriptInterpreter->SetFunction(NULL); // Added (loj: 2008.07.22)
-   if (theUiInterpreter != NULL)
+   // Reset initial solar system in use and object map 
+   SetSolarSystemAndObjectMap(theSolarSystemInUse, objectMapInUse, false,
+                              "PrepareNextScriptReading()");
+   currentFunction = NULL;
+   
+   // Delete unmanaged functions (LOJ: 2009.03.24)
+   for (UnsignedInt i=0; i<unmanagedFunctions.size(); i++)
    {
-      theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theUiInterpreter->SetObjectMap(objectMapInUse);
-      theUiInterpreter->SetFunction(NULL); // Added (loj: 2008.07.22)
+      GmatBase *func = (GmatBase*)(unmanagedFunctions[i]);
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (func, func->GetName(), "Moderator::CreateSolarSystemInUse()",
+          "deleting unmanaged function");
+      #endif
+      delete func;
+      func = NULL;
    }
    
-   currentFunction = NULL;
+   unmanagedFunctions.clear();
    
    #if DEBUG_RUN
    MessageInterface::ShowMessage
       ("Moderator::PrepareNextScriptReading() exiting\n"
        "======================================================================\n");
    #endif
-}
+} // PrepareNextScriptReading
 
 
 //------------------------------------------------------------------------------
@@ -5656,6 +5713,27 @@ void Moderator::CreateDefaultMission()
       MessageInterface::ShowMessage("-->default attitude parameters created\n");
       #endif
       
+      // Ballistic/Mass parameters
+      CreateParameter("DryMass", "DefaultSC.DryMass");
+      CreateParameter("Cd", "DefaultSC.Cd");
+      CreateParameter("Cr", "DefaultSC.Cr");
+      CreateParameter("DragArea", "DefaultSC.DragArea");
+      CreateParameter("SRPArea", "DefaultSC.SRPArea");
+      CreateParameter("TotalMass", "DefaultSC.TotalMass");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default ballistic/mass parameters created\n");
+      #endif
+      
+      // STM parameters
+      CreateParameter("OrbitSTM", "DefaultSC.OrbitSTM");
+      CreateParameter("OrbitSTMA", "DefaultSC.OrbitSTMA");
+      CreateParameter("OrbitSTMB", "DefaultSC.OrbitSTMB");
+      CreateParameter("OrbitSTMC", "DefaultSC.OrbitSTMC");
+      CreateParameter("OrbitSTMD", "DefaultSC.OrbitSTMD");
+      #if DEBUG_DEFAULT_MISSION > 1
+      MessageInterface::ShowMessage("-->default STM parameters created\n");
+      #endif
+      
       #ifdef DEBUG_CREATE_VAR
       // User variable
       Parameter *var = CreateParameter("Variable", "DefaultSC_EarthMJ2000Eq_Xx2");
@@ -5734,7 +5812,6 @@ void Moderator::CreateDefaultMission()
       propCommand->SetObject("DefaultProp", Gmat::PROP_SETUP);
       propCommand->SetObject("DefaultSC", Gmat::SPACECRAFT);
       propCommand->SetRefObject(stopOnElapsedSecs, Gmat::STOP_CONDITION, "", 0);
-      
       propCommand->SetSolarSystem(theSolarSystemInUse);
       
       #if DEBUG_MULTI_STOP
@@ -5771,14 +5848,10 @@ void Moderator::CreateDefaultMission()
           theSolarSystemInUse, theConfigManager->GetObjectMap());
       #endif
       
-      // Set solar system in use and object map (loj: 2008.03.31)
-      theScriptInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-      theScriptInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
-      if (theUiInterpreter != NULL)
-      {
-         theUiInterpreter->SetSolarSystemInUse(theSolarSystemInUse);
-         theUiInterpreter->SetObjectMap(theConfigManager->GetObjectMap());
-      }
+      // Reset initial solar system in use and object map
+      objectMapInUse = theConfigManager->GetObjectMap();
+      SetSolarSystemAndObjectMap(theSolarSystemInUse, objectMapInUse, false,
+                                 "CreateDefaultMission()");
       
       isRunReady = true;
    }
@@ -5789,7 +5862,7 @@ void Moderator::CreateDefaultMission()
           "*** Error occurred during default mission creation.\n    The default "
           "mission will not run.\n    Message: " + e.GetFullMessage());
    }
-}
+} // CreateDefaultMission()
 
 
 // Parameter reference object setting
@@ -6117,6 +6190,44 @@ bool Moderator::AddObject(GmatBase *obj)
    #endif
    
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetSolarSystemAndObjectMap(SolarSystem *ss, ObjectMap *objMap,
+//         bool forFunction, const std::string &callFrom)
+//------------------------------------------------------------------------------
+/*
+ * Sets the solar system in use and configured object map to interpreters.
+ *
+ * @param <ss> Pointer to the solar system
+ * @param <objMap> Pointer to the object map
+ * @param <forFunction> True if setting object map for function (false)
+ */
+//------------------------------------------------------------------------------
+void Moderator::SetSolarSystemAndObjectMap(SolarSystem *ss, ObjectMap *objMap,
+                                           bool forFunction,
+                                           const std::string &callFrom)
+{
+   #if DEBUG_OBJECT_MAP
+   MessageInterface::ShowMessage
+      ("=====> Moderator::%s setting solarSystemInUse=<%p>, "
+       "objectMapInUse=<%p> %s\n", callFrom.c_str(), ss, objMap,
+       forFunction ? "for function" : "");
+   #endif
+   
+   // Set solar system in use and object map 
+   theScriptInterpreter->SetSolarSystemInUse(ss);
+   theScriptInterpreter->SetObjectMap(objMap);
+   if (!forFunction)
+      theScriptInterpreter->SetFunction(NULL);
+   if (theUiInterpreter != NULL)
+   {
+      theUiInterpreter->SetSolarSystemInUse(ss);
+      theUiInterpreter->SetObjectMap(objMap);
+      if (!forFunction)
+         theUiInterpreter->SetFunction(NULL);
+   }
 }
 
 
