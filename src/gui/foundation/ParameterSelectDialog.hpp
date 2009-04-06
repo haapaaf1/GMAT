@@ -142,6 +142,7 @@ private:
    void ShowArrayInfo(bool show);
    void ShowCoordSystem();
    void ClearProperties();
+   void DeselectAllObjects();
    void DeselectObjects(wxArrayInt &newSelects, wxArrayInt &oldSelects);
    int  GetLastPropertySelection();
    

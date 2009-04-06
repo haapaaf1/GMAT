@@ -396,7 +396,7 @@ void ParameterSelectDialog::OnButtonClick(wxCommandEvent& event)
          
          // set adding mode to true
          mIsAddingMode = true;
-      
+         
          if (AddMultipleSelections())
             mHasSelectionChanged = true;
          
@@ -424,7 +424,7 @@ void ParameterSelectDialog::OnButtonClick(wxCommandEvent& event)
       mSelectedListBox->Clear();
       mHasSelectionChanged = true;
    }
-
+   
    if (mHasSelectionChanged)
       EnableUpdate(true);
 }
@@ -696,11 +696,28 @@ void ParameterSelectDialog::OnCheckBoxChange(wxCommandEvent& event)
 {
    if (event.GetEventObject() == mEntireObjectCheckBox)
    {
-      #ifdef DEBUG_PSDIALOG_CHECK_BOX
+      bool allowWholeObject = mEntireObjectCheckBox->IsChecked();
+      //#ifdef DEBUG_PSDIALOG_CHECK_BOX
       MessageInterface::ShowMessage
          ("OnCheckBoxChange() IsChecked()=%d\n",
           mEntireObjectCheckBox->IsChecked());
-      #endif
+      MessageInterface::ShowMessage
+         ("On\nCheck\nBox\nChange() IsChecked()=%d\n",
+          mEntireObjectCheckBox->IsChecked());
+      //#endif
+      
+      // if user can whole object, set ListBox style to wxLB_EXTENDED
+      if (allowWholeObject)
+         mObjectListBox->SetWindowStyle(wxLB_EXTENDED);
+      else
+      {
+         // Deselect all objects and Select first one
+         DeselectAllObjects();
+         mObjectListBox->SetSelection(0);
+         mObjectListBox->SetWindowStyle(wxLB_SINGLE);
+      }
+      
+      Refresh();
    }
 }
 
@@ -1229,6 +1246,19 @@ void ParameterSelectDialog::ClearProperties()
    mCoordSysComboBox->Hide();
    mCentralBodyComboBox->Hide();
    mParameterSizer->Layout();
+}
+
+
+//------------------------------------------------------------------------------
+// void DeselectAllObjects()
+//------------------------------------------------------------------------------
+void ParameterSelectDialog::DeselectAllObjects()
+{
+   wxArrayInt selections;
+   int count = mObjectListBox->GetSelections(selections);
+   
+   for (int i=0; i<count; i++)
+      mObjectListBox->Deselect(selections[i]);
 }
 
 

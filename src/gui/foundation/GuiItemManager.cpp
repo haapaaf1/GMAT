@@ -1889,7 +1889,7 @@ wxListBox* GuiItemManager::GetSpacecraftListBox(wxWindow *parent, wxWindowID id,
    if (multiSelect)
    {
       spacecraftListBox = new wxListBox(parent, id, wxDefaultPosition, size, 
-                                        emptyList, wxLB_MULTIPLE|wxLB_SORT);
+                                        emptyList, wxLB_EXTENDED|wxLB_SORT);
    }
    else
    {
@@ -1947,7 +1947,7 @@ wxListBox* GuiItemManager::GetImpBurnListBox(wxWindow *parent, wxWindowID id,
    if (multiSelect)
    {
       impBurnListBox = new wxListBox(parent, id, wxDefaultPosition, size,
-                                     emptyList, wxLB_MULTIPLE|wxLB_SORT);
+                                     emptyList, wxLB_EXTENDED|wxLB_SORT);
    }
    else
    {
@@ -2009,7 +2009,7 @@ wxListBox* GuiItemManager::GetPropertyListBox(wxWindow *parent, wxWindowID id,
    if (multiSelect)
    {
       propertyListBox = new wxListBox(parent, id, wxDefaultPosition, size, 
-                                      emptyList, wxLB_MULTIPLE|wxLB_SORT);
+                                      emptyList, wxLB_EXTENDED|wxLB_SORT);
    }
    else
    {
@@ -2181,7 +2181,7 @@ wxListBox* GuiItemManager::GetUserVariableListBox(wxWindow *parent, wxWindowID i
    if (multiSelect)
    {
       userVariableListBox = new wxListBox(parent, id, wxDefaultPosition, size, 
-                                          emptyList, wxLB_MULTIPLE|wxLB_SORT);
+                                          emptyList, wxLB_EXTENDED|wxLB_SORT);
    }
    else
    {      
@@ -2228,7 +2228,7 @@ wxListBox* GuiItemManager::GetUserStringListBox(wxWindow *parent, wxWindowID id,
    if (multiSelect)
    {
       userStringListBox = new wxListBox(parent, id, wxDefaultPosition, size,
-                                        emptyList, wxLB_MULTIPLE|wxLB_SORT);
+                                        emptyList, wxLB_EXTENDED|wxLB_SORT);
    }
    else
    {
@@ -2275,7 +2275,7 @@ wxListBox* GuiItemManager::GetUserArrayListBox(wxWindow *parent, wxWindowID id,
    if (multiSelect)
    {
       userArrayListBox = new wxListBox(parent, id, wxDefaultPosition, size,
-                                       emptyList, wxLB_MULTIPLE|wxLB_SORT);
+                                       emptyList, wxLB_EXTENDED|wxLB_SORT);
    }
    else
    {
@@ -2708,9 +2708,9 @@ wxSizer* GuiItemManager::Create3ColParameterSizer
    #if DEBUG_PARAM_SIZER
    MessageInterface::ShowMessage
       ("GuiItemManager::Create3ColParameterSizer() entered\n"
-       "   allowMultiSelect=%d, showString=%d, allowWholeObject=%d, "
+       "   showOption=%d, allowMultiSelect=%d, showString=%d, allowWholeObject=%d, "
        "showSysParam=%d\n   showVariable=%d, showArray=%d, objectType=%s\n",
-       allowMultiSelect, showString, allowWholeObject, showSysParam,
+       showOption, allowMultiSelect, showString, allowWholeObject, showSysParam,
        showVariable, showArray, objectType.c_str());
    #endif
    
