@@ -39,6 +39,14 @@
 //#define DEBUG_OPTIMIZE_INIT
 //#define DEBUG_OPTIMIZE_EXECUTION
    
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
@@ -66,6 +74,7 @@ Optimize::PARAMETER_TYPE[OptimizeParamCount - SolverBranchCommandParamCount] =
 Optimize::Optimize() :
    SolverBranchCommand ("Optimize"),
    optimizerConverged  (false),
+   optimizerInFunctionInitialized(false),
    optimizerInDebugMode(false)
 {
    #ifdef DEBUG_OPTIMIZE_CONSTRUCTION
@@ -81,6 +90,7 @@ Optimize::Optimize() :
 Optimize::Optimize(const Optimize& o) :
    SolverBranchCommand  (o),
    optimizerConverged   (false),
+   optimizerInFunctionInitialized(false),
    optimizerInDebugMode (o.optimizerInDebugMode)
 {
    //parameterCount = OptimizeParamCount;  // this is set in GmatBase copy constructor
@@ -101,6 +111,7 @@ Optimize& Optimize::operator=(const Optimize& o)
    GmatCommand::operator=(o);
 
    optimizerConverged   = false;
+   optimizerInFunctionInitialized = false;
    optimizerInDebugMode = o.optimizerInDebugMode;
    localStore.clear();
 
@@ -333,6 +344,12 @@ bool Optimize::Initialize()
 
    // Clone the optimizer for local use
    theSolver = (Solver *)(mapObj->Clone());
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (theSolver, theSolver->GetName(), "Optimize::Initialize()",
+       "theSolver = (Solver *)(mapObj->Clone())");
+   #endif
+   
    theSolver->TakeAction("IncrementInstanceCount");
    mapObj->TakeAction("IncrementInstanceCount");
    
@@ -413,7 +430,8 @@ bool Optimize::Initialize()
             gmatInt->RegisterCallbackServer(this);
       #endif
    }
-
+   
+   optimizerInFunctionInitialized = false;
    return retval;
 }
 
@@ -426,6 +444,15 @@ bool Optimize::Execute()
    // session. This will allow to run back to back optimization.
    if (!commandExecuting)
       Initialize();
+   
+   // If optimizing inside a function, we need to reinitialize since the local solver is
+   // cloned in Initialize(). All object data setting are done through assignment command
+   // which happens after Optimize::Initialize(). (LOJ: 2009.03.19)
+   if (currentFunction != NULL && !optimizerInFunctionInitialized)
+   {
+      Initialize();
+      optimizerInFunctionInitialized = true;
+   }
    
    bool retval = true;
    
@@ -734,6 +761,9 @@ void Optimize::RunComplete()
 {
    if (theSolver != NULL)
       theSolver->Finalize();
+   
+   // Free local data (LOJ: 2009.03.19)
+   FreeLoopData();
    
    SolverBranchCommand::RunComplete();
 }

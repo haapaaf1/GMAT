@@ -88,6 +88,8 @@ protected:
    
    /// Flag indicating is the optimizer has converged
    bool                optimizerConverged;
+   /// Flag indicating optimpzer in function initialized
+   bool                optimizerInFunctionInitialized;
    
    StringArray         callbackResults;
    std::string         callbackData;
