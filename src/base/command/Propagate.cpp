@@ -2658,6 +2658,17 @@ void Propagate::PrepareToPropagate()
    
    if (hasFired == true) 
    {
+      // Check for the size of propator and ODE model (LOJ: 2009.04.09)
+      // @todo Func_PiC_Achieve crashes due to empty fm in line 2701
+      if ((prop.size() == 0 || fm.size() == 0) &&
+          (prop.size() != fm.size()))
+      {
+         CommandException ce;
+         ce.SetDetails("Cannot continue due to unmatching %d Propagator and %d ODEModel",
+                       prop.size(), fm.size());
+         throw ce;
+      }
+      
       // Handle the transient forces
       for (ObjectArray::iterator sc = sats.begin();
            sc != sats.end(); ++sc)
