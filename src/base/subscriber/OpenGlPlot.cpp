@@ -418,8 +418,27 @@ OpenGlPlot& OpenGlPlot::operator=(const OpenGlPlot& ogl)
 // ~OpenGlPlot(void)
 //------------------------------------------------------------------------------
 OpenGlPlot::~OpenGlPlot(void)
-{
+{   
+   #ifdef DEBUG_RESOURCE_CLEARING
+   MessageInterface::ShowMessage
+      ("OpenGlPlot::~OpenGlPlot() '%s' entered\n", instanceName.c_str());
+   #endif
+   
+   // Delete plot canvas
+   if (instanceName != "")
+   {
+      #ifdef DEBUG_RESOURCE_CLEARING
+      MessageInterface::ShowMessage("   Deleting OpenGL plot canvas\n");
+      #endif
+      PlotInterface::DeleteGlPlot(instanceName);
+   }
+   
+   #ifdef DEBUG_RESOURCE_CLEARING
+   MessageInterface::ShowMessage
+      ("OpenGlPlot::~OpenGlPlot() '%s' exiting\n", instanceName.c_str());
+   #endif
 }
+
 
 //------------------------------------------------------------------------------
 // const StringArray& GetSpacePointList()
