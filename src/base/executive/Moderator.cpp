@@ -434,6 +434,14 @@ void Moderator::Finalize()
       }
       
       // Delete unmanaged functions (LOJ: 2009.03.24)
+      // This causes crash on Func_MatlabObjectPassingCheck.script
+      // so disable until it is fully tested (LOJ: 2009.04.08)
+      #ifdef __ENABLE_CLEAR_UNMANAGED_FUNCTIONS__
+      #if DEBUG_FINALIZE > 0
+      MessageInterface::ShowMessage
+         (".....Moderator::Finalize() deleting %d unmanaged functions\n",
+          unmanagedFunctions.size());
+      #endif
       for (UnsignedInt i=0; i<unmanagedFunctions.size(); i++)
       {
          GmatBase *func = (GmatBase*)(unmanagedFunctions[i]);
@@ -446,6 +454,7 @@ void Moderator::Finalize()
          func = NULL;
       }
       unmanagedFunctions.clear();
+      #endif
       
       // delete Sanbox (only 1 Sandbox for now)
       #if DEBUG_FINALIZE > 0
@@ -4460,7 +4469,7 @@ bool Moderator::LoadDefaultMission()
 //------------------------------------------------------------------------------
 bool Moderator::ClearResource()
 {
-   #if DEBUG_RUN
+   #if DEBUG_SEQUENCE_CLEARING
    MessageInterface::ShowMessage("Moderator::ClearResource() entered\n");
    #endif
    
@@ -4472,7 +4481,7 @@ bool Moderator::ClearResource()
    #ifndef __DISABLE_SOLAR_SYSTEM_CLONING__
       if (theSolarSystemInUse != NULL)
       {
-         #if DEBUG_FINALIZE > 0
+         #if DEBUG_SEQUENCE_CLEARING | DEBUG_FINALIZE > 0
          MessageInterface::ShowMessage
             (".....Mod::ClearResource - deleting (%p)theSolarSystemInUse\n", theSolarSystemInUse);
          #endif
@@ -4488,8 +4497,8 @@ bool Moderator::ClearResource()
       }
    #endif
       
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage("Moderator::ClearResource() exiting\n");
+   #if DEBUG_SEQUENCE_CLEARING
+   MessageInterface::ShowMessage("Moderator::ClearResource() returning true\n");
    #endif
    
    return true;
@@ -4515,7 +4524,14 @@ bool Moderator::ClearCommandSeq(Integer sandboxNum)
    }
    
    GmatCommand *cmd = commands[sandboxNum-1];
-   return GmatCommandUtil::ClearCommandSeq(cmd);
+   bool retval = GmatCommandUtil::ClearCommandSeq(cmd);
+   
+   #if DEBUG_SEQUENCE_CLEARING
+   MessageInterface::ShowMessage
+      ("Moderator::ClearCommandSeq() returning %s\n", retval ? "true" : "false");
+   #endif
+   
+   return retval;
 }
 
 
@@ -5230,6 +5246,15 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
    currentFunction = NULL;
    
    // Delete unmanaged functions (LOJ: 2009.03.24)
+   // This causes crash on Func_AssignmentTest after running
+   // Func_MatlabObjectPassingCheck.script
+   // so disable until it is fully tested (LOJ: 2009.04.08)
+   #ifdef __ENABLE_CLEAR_UNMANAGED_FUNCTIONS__
+   #if DEBUG_RUN > 0
+   MessageInterface::ShowMessage
+      (".....Moderator::Finalize() deleting %d unmanaged functions\n",
+       unmanagedFunctions.size());
+   #endif
    for (UnsignedInt i=0; i<unmanagedFunctions.size(); i++)
    {
       GmatBase *func = (GmatBase*)(unmanagedFunctions[i]);
@@ -5241,8 +5266,8 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
       delete func;
       func = NULL;
    }
-   
    unmanagedFunctions.clear();
+   #endif
    
    #if DEBUG_RUN
    MessageInterface::ShowMessage
