@@ -58,6 +58,7 @@ public:
    void                 SetSolarSystem(SolarSystem *ss);
    void                 SetInternalCoordSystem(CoordinateSystem *cs);
    void                 SetTransientForces(std::vector<PhysicalModel*> *tf);
+   void                 SetPublisher(Publisher *pub);
    
    // inherited from MathFunction
    virtual void         GetOutputInfo(Integer &type, Integer &rowCount, 

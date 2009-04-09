@@ -51,6 +51,7 @@ public:
    virtual std::vector<Function*> GetFunctions() const;
    
    // inherited from GmatCommand
+   virtual void         SetPublisher(Publisher *pub);
    virtual void         SetSolarSystem(SolarSystem *ss);
    virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
    virtual void         SetTransientForces(std::vector<PhysicalModel*> *tf);

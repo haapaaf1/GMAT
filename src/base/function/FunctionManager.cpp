@@ -30,6 +30,9 @@
 
 //#define DO_NOT_EXECUTE_NESTED_GMAT_FUNCTIONS
 
+// Deleting subscribers needs more testing but try
+//#define __DO_NOT_DELETE_SUBSCRIBERS__
+
 //#define DEBUG_FUNCTION_MANAGER
 //#define DEBUG_FM_SET
 //#define DEBUG_FM_INIT
@@ -71,6 +74,7 @@
  */
 //------------------------------------------------------------------------------
 FunctionManager::FunctionManager() :
+   publisher           (NULL),
    functionObjectStore (NULL),
    localObjectStore    (NULL),
    globalObjectStore   (NULL),
@@ -135,6 +139,7 @@ FunctionManager::~FunctionManager()
  */
 //------------------------------------------------------------------------------
 FunctionManager::FunctionManager(const FunctionManager &fm) :
+   publisher           (fm.publisher),
    functionObjectStore (NULL),
    localObjectStore    (NULL),
    globalObjectStore   (fm.globalObjectStore),
@@ -181,6 +186,7 @@ FunctionManager& FunctionManager::operator=(const FunctionManager &fm)
 {
    if (&fm != this)
    {
+      publisher           = fm.publisher;
       functionObjectStore = NULL;
       globalObjectStore   = fm.globalObjectStore; // is that right?
       solarSys            = fm.solarSys;
@@ -207,6 +213,30 @@ FunctionManager& FunctionManager::operator=(const FunctionManager &fm)
    }
    return *this;
 }
+
+
+//------------------------------------------------------------------------------
+// virtual void SetPublisher(Publisher *pub)
+//------------------------------------------------------------------------------
+void FunctionManager::SetPublisher(Publisher *pub)
+{
+   #ifdef DEBUG_PUBLISHER
+   MessageInterface::ShowMessage
+      ("FunctionManager::SetPublisher() '%s' setting publiser <%p>\n",
+       fName.c_str(), pub);
+   #endif
+   publisher = pub;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual Publisher* GetPublisher()
+//------------------------------------------------------------------------------
+Publisher* FunctionManager::GetPublisher()
+{
+   return publisher;
+}
+
 
 //------------------------------------------------------------------------------
 // void SetObjectMap(std::map<std::string, GmatBase *> *map)
@@ -2087,6 +2117,10 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
       {
          if ((omi->second)->IsOfType(Gmat::SUBSCRIBER))
          {
+            //=============================================================
+            #ifdef __DO_NOT_DELETE_SUBSCRIBERS__
+            //=============================================================
+            
             // for now, don't delete subscribers as the Publisher still points to them and
             // bad things happen at the end of the run if they disappear
             #ifdef DEBUG_MEMORY
@@ -2098,6 +2132,38 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
                ("*** For now, don't delete subscribers as the Publisher still points "
                 "to them and bad things happen at the end of the run if they disappear.\n");
             #endif
+            
+            //=============================================================
+            #else
+            //=============================================================
+            
+            // Unsubscribe subscriber before deleting (LOJ: 2009.04.07)
+            #ifdef DEBUG_OBJECT_MAP
+            MessageInterface::ShowMessage
+               ("   '%s' Unsubscribe <%p>'%s' from the publisher <%p>\n",
+                fName.c_str(), omi->second, (omi->second)->GetName().c_str(), publisher);
+            #endif
+            
+            if (publisher)
+               publisher->Unsubscribe((Subscriber*)omi->second);
+            else
+            {
+               #ifdef DEBUG_OBJECT_MAP
+               MessageInterface::ShowMessage
+                  ("   '%s' Cannot unsubscribe, the publisher is NULL\n", fName.c_str());
+               #endif
+            }
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (omi->second, (omi->second)->GetName(), "FunctionManager::EmptyObjectMap()",
+                "deleting subscriber from ObjectMap");
+            #endif
+            delete omi->second;
+            omi->second = NULL;
+            
+            //=============================================================
+            #endif
+            //=============================================================
          }
          else
          {

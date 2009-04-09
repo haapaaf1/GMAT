@@ -22,6 +22,7 @@
 #include "MessageInterface.hpp"
 #include "Moderator.hpp"
 #include <string>
+#include <algorithm>               // for find()
 
 //#define DBGLVL_PUBLISHER_SUBS 1
 //#define DBGLVL_PUBLISHER_REGISTER 2
@@ -59,7 +60,7 @@ Publisher::Publisher() :
 //------------------------------------------------------------------------------
 Publisher::~Publisher()
 {
-   subs.clear();
+   subscriberList.clear();
    coordSysMap.clear();
 }
 
@@ -70,14 +71,32 @@ bool Publisher::Subscribe(Subscriber *s)
 {
    #if DBGLVL_PUBLISHER_SUBS
    MessageInterface::ShowMessage
-      ("Publisher::Subscribe() sub = %s\n", s->GetName().c_str());
+      ("Publisher::Subscribe() sub = <%p>'%s'\n", s, s->GetName().c_str());
    #endif
    
    if (!s)
       return false;
    
-   subs.push_back(s);
-   s->SetProviderId(currentProvider);
+   // Add if subscriber is already not in the list (LOJ: 2009.04.08)
+   if (find(subscriberList.begin(), subscriberList.end(), s) == subscriberList.end())
+   {
+      subscriberList.push_back(s);
+      s->SetProviderId(currentProvider);
+      #if DBGLVL_PUBLISHER_SUBS
+      MessageInterface::ShowMessage
+         ("   Adding <%p>'%s' to subscriber list\n", s, s->GetName().c_str());
+      ShowSubscribers();
+      #endif
+   }
+   else
+   {
+      #if DBGLVL_PUBLISHER_SUBS
+      MessageInterface::ShowMessage
+         ("   <%p>'%s' was already added\n", s, s->GetName().c_str());
+      #endif      
+   }
+   
+   //s->SetProviderId(currentProvider);
    return true;
 }
 
@@ -86,15 +105,33 @@ bool Publisher::Subscribe(Subscriber *s)
 //------------------------------------------------------------------------------
 bool Publisher::Unsubscribe(Subscriber *s)
 {
-   #if DBGLVL_PUBLISHER_SUBS
-   MessageInterface::ShowMessage
-      ("Publisher::Unsubscribe() sub = %s\n", s->GetName().c_str());
-   #endif
-   
    if (!s)
       return false;
    
-   subs.remove(s);
+   if (subscriberList.empty())
+   {
+      MessageInterface::ShowMessage
+         ("Publisher::Unsubscribe() sub = <%p>'%s' returning false, "
+          "the subscriber list is empty\n", s, s->GetName().c_str());
+       return false;
+   }
+   
+   #if DBGLVL_PUBLISHER_SUBS
+   MessageInterface::ShowMessage
+      ("Publisher::Unsubscribe() sub = <%p>'%s'\n", s, s->GetName().c_str());
+   #endif
+   
+   #if DBGLVL_PUBLISHER_SUBS
+   MessageInterface::ShowMessage("   About to remove <%p> from the list\n", s);
+   ShowSubscribers();
+   #endif
+   
+   subscriberList.remove(s);
+   
+   #if DBGLVL_PUBLISHER_SUBS
+   MessageInterface::ShowMessage("Publisher::Unsubscribe() returning true\n");
+   #endif
+   
    return true;
 }
 
@@ -106,10 +143,10 @@ bool Publisher::UnsubscribeAll()
    #if DBGLVL_PUBLISHER_SUBS
    MessageInterface::ShowMessage
       ("Publisher::UnsubscribeAll() entered. Clearing %d subscribers\n",
-       subs.size());
+       subscriberList.size());
    #endif
    
-   subs.clear();
+   subscriberList.clear();
    
    ClearPublishedData();
    
@@ -144,7 +181,7 @@ bool Publisher::Publish(Integer id, Real *data, Integer count)
    #endif
    
    // No subscribers
-   if (subs.empty())
+   if (subscriberList.empty())
    {
       #if DBGLVL_PUBLISHER_PUBLISH
       MessageInterface::ShowMessage
@@ -187,11 +224,11 @@ bool Publisher::Publish(Integer id, Real *data, Integer count)
    #if DBGLVL_PUBLISHER_PUBLISH
    MessageInterface::ShowMessage
       ("Publisher::Publish() calling ReceiveData() number of sub = %d\n",
-       subs.size());
+       subscriberList.size());
    #endif
    
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       #if DBGLVL_PUBLISHER_PUBLISH > 1
       MessageInterface::ShowMessage("Publisher::Publish() sub = %s\n",
@@ -216,7 +253,7 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
    Integer i;
     
    // No subscribers
-   if (subs.empty())
+   if (subscriberList.empty())
       return false;
 
    #if DBGLVL_PUBLISHER_PUBLISH > 1
@@ -250,8 +287,8 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
    
    strcat(stream, "\n");
 
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       if (!(*current)->ReceiveData(stream))
          return false;
@@ -267,7 +304,7 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
 bool Publisher::Publish(Integer id, Integer *data, Integer count)
 {
    // No subscribers
-   if (subs.empty())
+   if (subscriberList.empty())
       return false;
    
    #if DBGLVL_PUBLISHER_PUBLISH > 1
@@ -295,8 +332,8 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
          strcat(stream, "\n");
    }
 
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       if (!(*current)->ReceiveData(stream))
          return false;
@@ -312,11 +349,11 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
 bool Publisher::FlushBuffers()
 {
    // No subscribers
-   if (subs.empty())
+   if (subscriberList.empty())
       return false;
    
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       if (!(*current)->FlushData())
          return false;
@@ -333,11 +370,11 @@ bool Publisher::FlushBuffers()
 bool Publisher::NotifyEndOfRun()
 {
    // No subscribers
-   if (subs.empty())
+   if (subscriberList.empty())
       return false;
    
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       if (!(*current)->SetEndOfRun())
          return false;
@@ -364,8 +401,8 @@ void Publisher::ClearPublishedData()
    currentProvider = -1;
    
    // Clear subscriber's data
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       (*current)->ClearDataLabels();
       current++;
@@ -387,10 +424,10 @@ Integer Publisher::RegisterPublishedData(const StringArray& owners,
    for (unsigned int i=0; i<elements.size(); i++)
       MessageInterface::ShowMessage("   elements[%d]=%s\n", i, elements[i].c_str());   
    MessageInterface::ShowMessage
-      ("   providerID=%d, subs.size()=%d\n", providerID, subs.size());
+      ("   providerID=%d, subscriberList.size()=%d\n", providerID, subscriberList.size());
    #endif
    
-   if (subs.empty())
+   if (subscriberList.empty())
    {
       // Let's just show warning (loj: 2008.06.17)
       //throw PublisherException("There are no registered subscribers.");
@@ -412,8 +449,8 @@ Integer Publisher::RegisterPublishedData(const StringArray& owners,
    elementMap.push_back(StringArray(elements));
    ++providerID;
    
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       
       #if DBGLVL_PUBLISHER_REGISTER > 1
@@ -485,8 +522,8 @@ void Publisher::SetDataCoordSystem(CoordinateSystem *cs)
       return;
    
    dataCoordSystem = cs;
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       (*current)->SetDataCoordSystem(cs);
       current++;
@@ -559,8 +596,8 @@ void Publisher::SetDataMJ2000EqOrigin(CelestialBody *cb)
    }
    
    // set to subscribers
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       (*current)->SetDataMJ2000EqOrigin(cb);
       (*current)->SetDataCoordSystem(dataCoordSystem);
@@ -574,10 +611,20 @@ void Publisher::SetDataMJ2000EqOrigin(CelestialBody *cb)
 //------------------------------------------------------------------------------
 void Publisher::SetRunState(const Gmat::RunState state)
 {
+   #ifdef DEBUG_PUBLISHER_RUN_STATE
+   MessageInterface::ShowMessage
+      ("Publisher::SetRunState() entered, setting run state %d to "
+       "%d subscribers\n", state, subscriberList.size());
+   #endif
+   
    runState = state;
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
+      #ifdef DEBUG_PUBLISHER_RUN_STATE
+      MessageInterface::ShowMessage("   current=<%p>\n", *current);
+      #endif
+      
       (*current)->SetRunState(runState);
       current++;
    }
@@ -589,10 +636,35 @@ void Publisher::SetRunState(const Gmat::RunState state)
 //------------------------------------------------------------------------------
 void Publisher::UpdateProviderID(Integer newId)
 {
-   std::list<Subscriber*>::iterator current = subs.begin();
-   while (current != subs.end())
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
    {
       (*current)->SetProviderId(newId);
       current++;
    }
 }
+
+
+//------------------------------------------------------------------------------
+// void ShowSubscribers()
+//------------------------------------------------------------------------------
+void Publisher::ShowSubscribers()
+{
+   if (subscriberList.empty())
+   {
+      MessageInterface::ShowMessage("   ===== There are no subscribers\n");
+      return;
+   }
+   
+   MessageInterface::ShowMessage
+      ("   ===== There are %d subscriber(s)\n", subscriberList.size());
+   
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
+   {
+      MessageInterface::ShowMessage
+         ("   <%p>'%s'\n", *current, (*current)->GetName().c_str());
+      current++;
+   }
+}
+

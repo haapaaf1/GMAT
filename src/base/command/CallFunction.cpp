@@ -1597,8 +1597,6 @@ void CallFunction::ClearOutputParameters()
  *  Sets the internal coordinate system used by the Sandbox.
  *
  *  @param <cs> The internal coordinate system.
- *
- *  @return true if the command was added to the sequence, false if not.
  */
 //------------------------------------------------------------------------------
 void CallFunction::SetInternalCoordSystem(CoordinateSystem *cs)
@@ -1607,6 +1605,26 @@ void CallFunction::SetInternalCoordSystem(CoordinateSystem *cs)
    //internalCoordSys = (CoordinateSystem*)(cs->Clone());
    internalCoordSys = cs;
    fm.SetInternalCoordinateSystem(internalCoordSys);
+}
+
+
+//------------------------------------------------------------------------------
+// void SetPublisher(Publisher *pub)
+//------------------------------------------------------------------------------
+/**
+ *  Passes the Publisher used by the Sandbox to FunctionManager
+ *
+ *  @param <pub> The publisher
+ */
+//------------------------------------------------------------------------------
+void CallFunction::SetPublisher(Publisher *pub)
+{
+   #ifdef DEBUG_PUBLISHER
+   MessageInterface::ShowMessage
+      ("CallFunction::SetPublisher() setting publiser <%p> to FunctionManager\n", pub);
+   #endif
+   GmatCommand::SetPublisher(pub);
+   fm.SetPublisher(pub);
 }
 
 

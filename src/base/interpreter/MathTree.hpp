@@ -31,6 +31,7 @@ class FunctionManager;
 class SolarSystem;
 class PhysicalModel;
 class CoordinateSystem;
+class Publisher;
 
 class GMAT_API MathTree : public GmatBase
 {
@@ -67,6 +68,7 @@ public:
    void                 SetSolarSystem(SolarSystem *ss);
    void                 SetInternalCoordSystem(CoordinateSystem *cs);
    void                 SetTransientForces(std::vector<PhysicalModel*> *tf);
+   void                 SetPublisher(Publisher *pub);
    
    // Inherited (GmatBase) methods
    virtual GmatBase*    Clone(void) const;
@@ -105,6 +107,7 @@ protected:
    void SetSolarSystemToRunner(MathNode *node, SolarSystem *ss);
    void SetInternalCoordSystemToRunner(MathNode *node, CoordinateSystem *cs);
    void SetTransientForcesToRunner(MathNode *node, std::vector<PhysicalModel*> *tf);
+   void SetPublisherToRunner(MathNode *node, Publisher *pub);
    bool RenameParameter(MathNode *node, const Gmat::ObjectType type,
                         const std::string &oldName, const std::string &newName);
    void CreateParameterNameArray(MathNode *node);

@@ -53,7 +53,9 @@ public:
    FunctionManager(const FunctionManager &fm);
    // Assignment operator
    FunctionManager&     operator=(const FunctionManager &fm);
-   
+      
+   virtual void         SetPublisher(Publisher *pub);
+   virtual Publisher*   GetPublisher();
    
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
@@ -91,6 +93,8 @@ public:
 
 protected:
    
+   /// Publisher for data generation
+   Publisher            *publisher;
    /// Object store for the Function 
    ObjectMap            *functionObjectStore;
    /// Object store obtained from the caller

@@ -492,6 +492,32 @@ void MathTree::SetTransientForces(std::vector<PhysicalModel*> *tf)
 }
 
 
+//------------------------------------------------------------------------------
+// void SetPublisher(Publisher *pub)
+//------------------------------------------------------------------------------
+void MathTree::SetPublisher(Publisher *pub)
+{
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage("MathTree::SetPublisher() pub=<%p>\n", pub);
+   #endif
+   
+   if (theTopNode == NULL)
+      return;
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("   Calling SetPublisherToRunner() theTopNode type='%s', desc='%s'\n",
+       theTopNode->GetTypeName().c_str(), theTopNode->GetName().c_str());
+   #endif
+   
+   SetPublisherToRunner(theTopNode, pub);
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage("MathTree::SetPublisher() returning\n");
+   #endif
+}
+
+
 //---------------------------------------------------------------------------
 // virtual bool RenameRefObject(const Gmat::ObjectType type,
 //                 const std::string &oldName, const std::string &newName)
@@ -942,6 +968,39 @@ void MathTree::SetTransientForcesToRunner(MathNode *node, std::vector<PhysicalMo
    
    MathNode *right = node->GetRight();
    SetTransientForcesToRunner(right, tf);
+}
+
+
+//------------------------------------------------------------------------------
+// void SetPublisherToRunner(MathNode *node, Publisher *pub)
+//------------------------------------------------------------------------------
+void MathTree::SetPublisherToRunner(MathNode *node, Publisher *pub)
+{
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("MathTree::SetPublisherToRunner() node=<%p>, pub=<%p>\n", node, pub);
+   #endif
+   
+   if (node == NULL)
+      return;
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("   node type='%s', desc='%s'\n", node->GetTypeName().c_str(),
+       node->GetName().c_str());
+   #endif
+   
+   if (!node->IsFunction())
+      return;
+   
+   if (node->IsOfType("FunctionRunner"))
+      ((FunctionRunner*)(node))->SetPublisher(pub);
+   
+   MathNode *left = node->GetLeft();
+   SetPublisherToRunner(left, pub);
+   
+   MathNode *right = node->GetRight();
+   SetPublisherToRunner(right, pub);
 }
 
 

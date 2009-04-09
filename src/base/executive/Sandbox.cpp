@@ -624,6 +624,7 @@ bool Sandbox::Initialize()
       current->SetGlobalObjectMap(&globalObjectMap);
       current->SetSolarSystem(solarSys);
       current->SetTransientForces(&transientForces);
+      current->SetPublisher(publisher); //Added LOJ: 2009.04.08
       
       // Handle GmatFunctions
       if ((current->IsOfType("CallFunction")) ||
@@ -1258,22 +1259,47 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
                //Let's handle GmatFunction first
                OK += HandleGmatFunction(fcsCmd, &globalObjectMap);
                // do not set the non-global object map here; it will need to be
-               // setup y the FunctionManager at execution
+               // setup by the FunctionManager at execution
                fcsCmd->SetGlobalObjectMap(&globalObjectMap);
                fcsCmd->SetSolarSystem(solarSys);
                fcsCmd->SetTransientForces(&transientForces);
-               if (fcsCmd->GetTypeName() == "CallFunction") 
-                  ((CallFunction *)fcsCmd)->SetInternalCoordSystem(internalCoordSys);
+               //if (fcsCmd->GetTypeName() == "CallFunction")
+               //{
+                  #ifdef DEBUG_SANDBOX_GMATFUNCTION
+                  MessageInterface::ShowMessage
+                     ("   Setting publisher <%p> to '%s'\n", publisher,
+                      fcsCmd->GetTypeName().c_str());
+                  #endif
+                  // Need to pass publisher to fcs commands (LOJ: 2009.04.08)
+                  fcsCmd->SetPublisher(publisher);
+                  fcsCmd->SetInternalCoordSystem(internalCoordSys);
+                  //((CallFunction *)fcsCmd)->SetInternalCoordSystem(internalCoordSys);
+                  //}
             }
             if (fcsCmd->IsOfType("BranchCommand"))
             {
-               std::vector<GmatCommand*> cmdList = ((BranchCommand*) fcsCmd)->GetCommandsWithGmatFunctions();
+               std::vector<GmatCommand*> cmdList =
+                  ((BranchCommand*) fcsCmd)->GetCommandsWithGmatFunctions();
                Integer sz = (Integer) cmdList.size();
                for (Integer jj = 0; jj < sz; jj++)
                {
-                  HandleGmatFunction(cmdList.at(jj), &globalObjectMap);
-                  if ((cmdList.at(jj))->GetTypeName() == "CallFunction") 
-                     ((CallFunction *)cmdList.at(jj))->SetInternalCoordSystem(internalCoordSys);
+                  GmatCommand *childCmd = cmdList.at(jj);
+                  HandleGmatFunction(childCmd, &globalObjectMap);
+                  //if ((cmdList.at(jj))->GetTypeName() == "CallFunction")
+                  if ((childCmd->GetTypeName() == "CallFunction") ||
+                      (childCmd->IsOfType("Assignment")))
+                  {
+                     #ifdef DEBUG_SANDBOX_GMATFUNCTION
+                     MessageInterface::ShowMessage
+                        ("   Setting publisher <%p> to '%s' inside '%s'\n",
+                         publisher, childCmd->GetTypeName().c_str(),
+                         fcsCmd->GetTypeName().c_str());
+                     #endif
+                     // Need to pass publisher to child commands (LOJ: 2009.04.08)
+                     childCmd->SetPublisher(publisher);
+                     childCmd->SetInternalCoordSystem(internalCoordSys);
+                     //((CallFunction *)cmdList.at(jj))->SetInternalCoordSystem(internalCoordSys);
+                  }
                }
             }
             fcsCmd = fcsCmd->GetNext();

@@ -393,6 +393,31 @@ void FunctionRunner::SetTransientForces(std::vector<PhysicalModel*> *tf)
 
 
 //------------------------------------------------------------------------------
+//  void SetPublisher(Publisher *pub)
+//------------------------------------------------------------------------------
+/**
+ * Called by the MathTree to set the Publisher used by the GmatCommand
+ * 
+ * @param <pub> Pointer to the Publisher
+ */
+//------------------------------------------------------------------------------
+void FunctionRunner::SetPublisher(Publisher *pub)
+{
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("FunctionRunner::SetPublisher() entered, theFunctionName='%s', "
+       "pub=<%p>\n", theFunctionName.c_str(), pub);
+   #endif
+   
+   theFunctionManager.SetPublisher(pub);
+   
+   #ifdef DEBUG_FUNCTION
+   MessageInterface::ShowMessage("FunctionRunner::SetPublisher() exiting\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
 // void GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 void FunctionRunner::GetOutputInfo(Integer &type,

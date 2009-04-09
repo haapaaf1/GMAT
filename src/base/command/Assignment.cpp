@@ -245,6 +245,30 @@ std::vector<Function*> Assignment::GetFunctions() const
 
 
 //------------------------------------------------------------------------------
+// void SetPublisher(Publisher *pub)
+//------------------------------------------------------------------------------
+/**
+ *  Passes the Publisher used by the Sandbox to FunctionManager through
+ *  MathTree's FunctionRunner node.
+ *
+ *  @param <pub> The publisher
+ */
+//------------------------------------------------------------------------------
+void Assignment::SetPublisher(Publisher *pub)
+{
+   GmatCommand::SetPublisher(pub);
+   if (mathTree)
+   {
+      #ifdef DEBUG_PUBLISHER
+      MessageInterface::ShowMessage
+         ("Assignment::SetPublisher() setting publiser <%p> to MathTree\n");
+      #endif
+      mathTree->SetPublisher(pub);
+   }
+}
+
+
+//------------------------------------------------------------------------------
 //  void SetSolarSystem(SolarSystem *ss)
 //------------------------------------------------------------------------------
 /**

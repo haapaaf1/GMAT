@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Publisher
 //------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ private:
    /// The singleton
    static Publisher         *instance;
    /// List of the subscribers
-   std::list<Subscriber*>   subs;
+   std::list<Subscriber*>   subscriberList;
    /// Index used to identify number of registered data providers
    Integer                  providerID;
    /// ID for the current data provider
@@ -84,6 +84,10 @@ private:
    std::map<std::string, CoordinateSystem*> coordSysMap;
    
    void                 UpdateProviderID(Integer newId);
+   
+   // for debug
+   void                 ShowSubscribers();
+   
    // default constructor
    Publisher();
    // assignment operator

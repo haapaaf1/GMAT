@@ -38,6 +38,10 @@
 #include "MatlabInterface.hpp"
 #endif
 
+// Forward references for GMAT core objects
+class Publisher;
+
+
 class CallFunction : public GmatCommand
 {
 public:
@@ -58,6 +62,7 @@ public:
    virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
    
    // override these to set on FunctionManager (and find function object in GOS)
+   virtual void         SetPublisher(Publisher *pub);
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
    virtual bool         HasAFunction();
