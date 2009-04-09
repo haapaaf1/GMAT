@@ -636,8 +636,7 @@ void PropagationConfigPanel::SaveData()
          bodyName = pointMassBodyList[i]->bodyName.c_str();
          thePMF->SetBodyName(bodyName);
          pointMassBodyList[i]->pmf = thePMF;
-// todo: Add forces to ODEModel
-//         newFm->AddForce(thePMF);
+         newFm->AddForce(thePMF);
       }
       
       //----------------------------------------------------
@@ -681,8 +680,7 @@ void PropagationConfigPanel::SaveData()
             }
             
             primaryBodyList[i]->gravf = theGravForce;            
-// todo: Add forces to ODEModel
-//            newFm->AddForce(theGravForce);
+            newFm->AddForce(theGravForce);
          }
       }
       catch (BaseException &e)
@@ -768,8 +766,7 @@ void PropagationConfigPanel::SaveData()
                }
                
                primaryBodyList[i]->dragf = theDragForce;
-// todo: Add forces to ODEModel
-//               newFm->AddForce(theDragForce);
+               newFm->AddForce(theDragForce);
                
                #ifdef DEBUG_PROP_PANEL_SAVE
                ShowForceList("SaveData() AFTER  saving DragForce");
@@ -794,8 +791,7 @@ void PropagationConfigPanel::SaveData()
             theSRP = new SolarRadiationPressure();
             bodyName = propOriginName;
             theSRP->SetStringParameter("BodyName", bodyName);
-// todo: Add forces to ODEModel
-//            newFm->AddForce(theSRP);
+            newFm->AddForce(theSRP);
             newFm->SetOnOffParameter(paramId, "On");
          }
          else
