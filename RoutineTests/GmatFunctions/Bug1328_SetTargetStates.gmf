@@ -1,0 +1,34 @@
+function [MMS1target,MMS2target,MMS3target,MMS4target] = Bug1328_SetTargetStates(FormationState,MMS1target,MMS2target,MMS3target,MMS4target);
+
+
+
+Create Spacecraft MMS1target MMS2target MMS3target MMS4target;
+
+MMS1target.X = FormationState(1,1);
+MMS1target.Y = FormationState(2,1);
+MMS1target.Z = FormationState(3,1);
+MMS1target.VX = FormationState(4,1);
+MMS1target.VY = FormationState(5,1);
+MMS1target.VZ = FormationState(6,1);
+
+MMS2target.X = FormationState(1,2);
+MMS2target.Y = FormationState(2,2);
+MMS2target.Z = FormationState(3,2);
+MMS2target.VX = FormationState(4,2);
+MMS2target.VY = FormationState(5,2);
+MMS2target.VZ = FormationState(6,2);
+
+
+MMS3target.X = FormationState(1,3);
+MMS3target.Y = FormationState(2,3);
+MMS3target.Z = FormationState(3,3);
+MMS3target.VX = FormationState(4,3);
+MMS3target.VY = FormationState(5,3);
+MMS3target.VZ = FormationState(6,3);
+
+MMS4target.X = FormationState(1,4);
+MMS4target.Y = FormationState(2,4);
+MMS4target.Z = FormationState(3,4);
+MMS4target.VX = FormationState(4,4);
+MMS4target.VY = FormationState(5,4);
+MMS4target.VZ = FormationState(6,4);

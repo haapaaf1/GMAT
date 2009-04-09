@@ -1,0 +1,17 @@
+function Bug1432_CheckDCsettingsInFunc
+
+Create DifferentialCorrector MyNewDC;
+GMAT MyNewDC.ShowProgress = true;
+GMAT MyNewDC.ReportStyle = 'Concise';
+GMAT MyNewDC.TargeterTextFile = 'MyNewDC.data';
+GMAT MyNewDC.MaximumIterations = 50;
+GMAT MyNewDC.UseCentralDifferences = true;
+
+Create Variable VaryVar;
+
+Save MyNewDC;
+
+Target MyNewDC;
+   Vary MyNewDC(VaryVar = 1, {Perturbation = 1, MaxStep = 5});
+   Achieve MyNewDC(VaryVar = 200, {Tolerance = .000001})
+EndTarget;

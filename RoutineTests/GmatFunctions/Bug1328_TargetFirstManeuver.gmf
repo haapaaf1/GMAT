@@ -1,0 +1,38 @@
+function [dV2,dV3,dV4] = Bug1328_TargetFirstManeuver(DC,Est_Prop,MMS1, MMS2, MMS3, MMS4, MMS2target,MMS3target,MMS4target)   
+ 
+Create ImpulsiveBurn dV2 dV3 dV4
+ 
+Target DC
+
+	Vary DC(dV2.Element1 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+	Vary DC(dV2.Element2 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+	Vary DC(dV2.Element3 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+
+	Vary DC(dV3.Element1 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+	Vary DC(dV3.Element2 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+	Vary DC(dV3.Element3 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+
+	Vary DC(dV4.Element1 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+	Vary DC(dV4.Element2 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+	Vary DC(dV4.Element3 = .00001, {Perturbation = .0000001, MaxStep = .0005})
+
+	Maneuver dV2(MMS2);
+	Maneuver dV3(MMS3);
+	Maneuver dV4(MMS4);
+
+	Propagate Est_Prop(MMS1,MMS2,MMS3,MMS4, {MMS1.A1ModJulian = MMS1target.A1ModJulian});
+	Stop;
+
+	Achieve DC(MMS2.X = MMS2target.X , {Tolerance = .00001});
+	Achieve DC(MMS2.Y = MMS2target.Y ,{Tolerance = .00001});
+	Achieve DC(MMS2.Z = MMS2target.Z ,{Tolerance = .00001});
+
+	Achieve DC(MMS3.X = MMS3target.X ,{Tolerance = .00001});
+	Achieve DC(MMS3.Y = MMS3target.Y ,{Tolerance = .00001});
+	Achieve DC(MMS3.Z = MMS3target.Z ,{Tolerance = .00001});
+
+	Achieve DC(MMS4.X = MMS4target.X ,{Tolerance = .00001});
+	Achieve DC(MMS4.Y = MMS4target.Y ,{Tolerance = .00001});
+	Achieve DC(MMS4.Z = MMS4target.Z ,{Tolerance = .00001});
+
+EndTarget

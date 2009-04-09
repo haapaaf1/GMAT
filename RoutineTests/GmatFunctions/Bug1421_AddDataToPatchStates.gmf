@@ -1,0 +1,67 @@
+function [PatchStates1,PatchStates2,PatchStates3,PatchStates4] = Bug1421_AddDataToPatchStates(PatchStates11,PatchStates22,PatchStates33,PatchStates44,MMS1,MMS2,MMS3,MMS4,col)
+
+Create Array PatchStates1[14,2] PatchStates2[14,2] PatchStates3[14,2] PatchStates4[14,2] 
+PatchStates1 = PatchStates11;
+PatchStates2 = PatchStates22;
+PatchStates3 = PatchStates33;
+PatchStates4 = PatchStates44;
+
+PatchStates1(1,col)  = MMS1.UTCModJulian;
+PatchStates1(2,col)  = MMS1.X;
+PatchStates1(3,col)  = MMS1.Y;
+PatchStates1(4,col)  = MMS1.Z;
+PatchStates1(5,col)  = MMS1.VX;
+PatchStates1(6,col)  = MMS1.VY;
+PatchStates1(7,col)  = MMS1.VZ;
+PatchStates1(8,col)  = MMS1.UTCModJulian;
+PatchStates1(9,col)  = MMS1.X;
+PatchStates1(10,col) = MMS1.Y;
+PatchStates1(11,col) = MMS1.Z;
+PatchStates1(12,col) = MMS1.VX;
+PatchStates1(13,col) = MMS1.VY;
+PatchStates1(14,col) = MMS1.VZ;
+
+PatchStates2(1,col)  = MMS2.UTCModJulian;
+PatchStates2(2,col)  = MMS2.X;
+PatchStates2(3,col)  = MMS2.Y;
+PatchStates2(4,col)  = MMS2.Z;
+PatchStates2(5,col)  = MMS2.VX;
+PatchStates2(6,col)  = MMS2.VY;
+PatchStates2(7,col)  = MMS2.VZ;
+PatchStates2(8,col)  = MMS2.UTCModJulian;
+PatchStates2(9,col)  = MMS2.X;
+PatchStates2(10,col) = MMS2.Y;
+PatchStates2(11,col) = MMS2.Z;
+PatchStates2(12,col) = MMS2.VX;
+PatchStates2(13,col) = MMS2.VY;
+PatchStates2(14,col) = MMS2.VZ;
+
+PatchStates3(1,col)  = MMS3.UTCModJulian;
+PatchStates3(2,col)  = MMS3.X;
+PatchStates3(3,col)  = MMS3.Y;
+PatchStates3(4,col)  = MMS3.Z;
+PatchStates3(5,col)  = MMS3.VX;
+PatchStates3(6,col)  = MMS3.VY;
+PatchStates3(7,col)  = MMS3.VZ;
+PatchStates3(8,col)  = MMS3.UTCModJulian;
+PatchStates3(9,col)  = MMS3.X;
+PatchStates3(10,col) = MMS3.Y;
+PatchStates3(11,col) = MMS3.Z;
+PatchStates3(12,col) = MMS3.VX;
+PatchStates3(13,col) = MMS3.VY;
+PatchStates3(14,col) = MMS3.VZ;
+
+PatchStates4(1,col)  = MMS4.UTCModJulian;
+PatchStates4(2,col)  = MMS4.X;
+PatchStates4(3,col)  = MMS4.Y;
+PatchStates4(4,col)  = MMS4.Z;
+PatchStates4(5,col)  = MMS4.VX;
+PatchStates4(6,col)  = MMS4.VY;
+PatchStates4(7,col)  = MMS4.VZ;
+PatchStates4(8,col)  = MMS4.UTCModJulian;
+PatchStates4(9,col)  = MMS4.X;
+PatchStates4(10,col) = MMS4.Y;
+PatchStates4(11,col) = MMS4.Z;
+PatchStates4(12,col) = MMS4.VX;
+PatchStates4(13,col) = MMS4.VY;
+PatchStates4(14,col) = MMS4.VZ;

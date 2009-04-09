@@ -1,0 +1,16 @@
+%$Id%
+
+Create Variable var1, var2, var3, var4
+
+Create ReportFile rf;
+GMAT rf.Filename = SimpleMathTest.report;
+GMAT rf.Add = {var1, var2, var3, var4};
+
+BeginScript
+   GMAT var1 = 1.111;
+   GMAT var2 = 2.222;
+   GMAT var3 = 3.333;
+EndScript
+
+GMAT var4 = var2 / var1;
+Report rf var1 var2 var3 var4;

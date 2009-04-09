@@ -1,0 +1,25 @@
+%----- Variables, Arrays
+Create Variable var result counter;
+Create String msg;
+
+%----- ReportFile
+Create ReportFile RF;
+GMAT RF.Filename = TestFactorial_CF.report;
+GMAT RF.ZeroFill = Off;
+GMAT RF.WriteHeaders = Off;
+
+msg = 'In TestFactorial_CF.script';
+var = 6;
+
+Global RF;
+
+Report RF msg;
+[result] = Factorial_CF(var);
+
+msg = 'In TestFactorial_CF.script, Done';
+Report RF msg;
+Report RF result;
+
+msg = 'Expected result is ';
+result = 1*2*3*4*5*6;
+Report RF msg result;

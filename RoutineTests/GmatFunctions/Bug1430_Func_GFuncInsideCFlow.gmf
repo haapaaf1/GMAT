@@ -1,0 +1,78 @@
+function  [Answer] = Bug1430_Func_GFuncInsideCFlow(Flag)
+
+Create Variable Answer;
+Create Variable MyVar1;
+Create Variable MyVar2;
+Create Variable loop;
+Create Variable ranOK;
+Create String ControlFlow;
+Create String expResults;
+
+Create ReportFile Results;
+GMAT Results.Filename = 'Bug1430-Func_GFuncInsideCFlow.report';
+
+MyVar1 = 5;
+MyVar2 = 6;
+ranOK  = 0;
+Answer = 0;
+
+% ======================================
+% Test GMAT Function Call Inside If
+% ======================================
+
+ControlFlow = 'If';
+
+If Flag == 1
+   %%ranOK = 1;
+   Answer = Product2(MyVar1,MyVar2);
+   ranOK  = 1;
+Else
+   Stop
+EndIf
+
+expResults = 'Report line should read: If 1 5 6 30';
+Report Results expResults;
+Report Results ControlFlow ranOK MyVar1 MyVar2 Answer; % Report line should read: If  1 5 6 30
+Results.WriteHeaders = Off;
+% ======================================
+
+
+% ======================================
+% Test GMAT Function Call Inside While
+% ======================================
+
+MyVar1 = 2;
+MyVar2 = 3;
+ranOK = 0;
+ControlFlow = 'While';
+
+While Flag == 1
+   Answer = Product2(MyVar1,MyVar2);
+   ranOK  = 1;
+   Flag = 2
+EndWhile
+
+expResults = 'Report line should read: While 1 2 3 6';
+Report Results expResults;
+Report Results ControlFlow ranOK MyVar1 MyVar2 Answer; % Report line should read: While  1 2 3 6
+% ======================================
+
+
+% ======================================
+% Test GMAT Function Call Inside For
+% ======================================
+
+MyVar1 = -2;
+MyVar2 = 10;
+ranOK = 0;
+ControlFlow = 'For';
+
+For loop = 1:1
+   Answer = Product2(MyVar1,MyVar2);
+   ranOK  = 1;
+EndFor
+
+expResults = 'Report line should read: For 1 -2 10 -20';
+Report Results expResults;
+Report Results ControlFlow ranOK MyVar1 MyVar2 Answer; % Report line should read: For  1 -2 10 -20
+% ======================================

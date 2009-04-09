@@ -1,0 +1,6 @@
+function  [OutputVar] = Product2(Input1,Input2)
+
+Create Variable OutputVar;
+
+OutputVar = Input1 * Input2;
+

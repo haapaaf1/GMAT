@@ -1,0 +1,393 @@
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft MMS1;
+GMAT MMS1.DateFormat = TTModJulian;
+GMAT MMS1.Epoch = '26948.00076641646';
+GMAT MMS1.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS1.DisplayStateType = Cartesian;
+GMAT MMS1.X = 7100;
+GMAT MMS1.Y = 0;
+GMAT MMS1.Z = 1300;
+GMAT MMS1.VX = 0;
+GMAT MMS1.VY = 7.35;
+GMAT MMS1.VZ = 1;
+GMAT MMS1.DryMass = 1087;
+GMAT MMS1.Cd = 2.2;
+GMAT MMS1.Cr = 1.4;
+GMAT MMS1.DragArea = 2;
+GMAT MMS1.SRPArea = 2;
+
+Create Spacecraft MMS2;
+GMAT MMS2.DateFormat = TAIModJulian;
+GMAT MMS2.Epoch = '26948.00039391646';
+GMAT MMS2.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS2.DisplayStateType = Cartesian;
+GMAT MMS2.X = 7100;
+GMAT MMS2.Y = 0;
+GMAT MMS2.Z = 1300;
+GMAT MMS2.VX = 0;
+GMAT MMS2.VY = 7.35;
+GMAT MMS2.VZ = 1;
+GMAT MMS2.DryMass = 1087;
+GMAT MMS2.Cd = 2.2;
+GMAT MMS2.Cr = 1.4;
+GMAT MMS2.DragArea = 2;
+GMAT MMS2.SRPArea = 2;
+
+Create Spacecraft MMS3;
+GMAT MMS3.DateFormat = TAIModJulian;
+GMAT MMS3.Epoch = '26948.00039391646';
+GMAT MMS3.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS3.DisplayStateType = Cartesian;
+GMAT MMS3.X = 7100;
+GMAT MMS3.Y = 0;
+GMAT MMS3.Z = 1300;
+GMAT MMS3.VX = 0;
+GMAT MMS3.VY = 7.35;
+GMAT MMS3.VZ = 1;
+GMAT MMS3.DryMass = 1087;
+GMAT MMS3.Cd = 2.2;
+GMAT MMS3.Cr = 1.4;
+GMAT MMS3.DragArea = 2;
+GMAT MMS3.SRPArea = 2;
+
+Create Spacecraft MMS4;
+GMAT MMS4.DateFormat = TAIModJulian;
+GMAT MMS4.Epoch = '26948.00039391646';
+GMAT MMS4.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS4.DisplayStateType = Cartesian;
+GMAT MMS4.X = 7100;
+GMAT MMS4.Y = 0;
+GMAT MMS4.Z = 1300;
+GMAT MMS4.VX = 0;
+GMAT MMS4.VY = 7.35;
+GMAT MMS4.VZ = 1;
+GMAT MMS4.DryMass = 1087;
+GMAT MMS4.Cd = 2.2;
+GMAT MMS4.Cr = 1.4;
+GMAT MMS4.DragArea = 2;
+GMAT MMS4.SRPArea = 2;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel MMS_EarthModel;
+GMAT MMS_EarthModel.CentralBody = Earth;
+GMAT MMS_EarthModel.PrimaryBodies = {Earth};
+GMAT MMS_EarthModel.PointMasses = {Sun, Luna};
+GMAT MMS_EarthModel.Drag = None;
+GMAT MMS_EarthModel.SRP = On;
+GMAT MMS_EarthModel.ErrorControl = RSSStep;
+GMAT MMS_EarthModel.GravityField.Earth.Degree = 4;
+GMAT MMS_EarthModel.GravityField.Earth.Order = 4;
+GMAT MMS_EarthModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT MMS_EarthModel.SRP.Flux = 1359.3885699989;
+GMAT MMS_EarthModel.SRP.Nominal_Sun = 149597870.691;
+
+Create ForceModel Propagator1_ForceModel;
+GMAT Propagator1_ForceModel.CentralBody = Earth;
+GMAT Propagator1_ForceModel.PointMasses = {Earth};
+GMAT Propagator1_ForceModel.Drag = None;
+GMAT Propagator1_ForceModel.SRP = Off;
+GMAT Propagator1_ForceModel.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator MMS_Prop;
+GMAT MMS_Prop.FM = MMS_EarthModel;
+GMAT MMS_Prop.Type = RungeKutta89;
+GMAT MMS_Prop.InitialStepSize = 60;
+GMAT MMS_Prop.Accuracy = 9.999999999999999e-12;
+GMAT MMS_Prop.MinStep = 0.001;
+GMAT MMS_Prop.MaxStep = 86400;
+GMAT MMS_Prop.MaxStepAttempts = 50;
+
+Create Propagator Propagator1;
+GMAT Propagator1.FM = Propagator1_ForceModel;
+GMAT Propagator1.Type = RungeKutta89;
+GMAT Propagator1.InitialStepSize = 60;
+GMAT Propagator1.Accuracy = 9.999999999999999e-12;
+GMAT Propagator1.MinStep = 0.001;
+GMAT Propagator1.MaxStep = 86400;
+GMAT Propagator1.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create Variable sideLength12 sideLength13 sideLength14 sideLength24 sideLength23 sideLength34 sideLength12_E sideLength13_E sideLength14_E sideLength24_E;
+Create Variable sideLength23_E sideLength34_E Q_volume Q_size Q Q_E QRoI QRoI_E RoI1 RoI2;
+Create Variable CountDays InitialJD InitialJD4loop FormSize col;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Plots
+%----------------------------------------
+
+Create XYPlot QvsDays_E;
+GMAT QvsDays_E.SolverIterations = Current;
+GMAT QvsDays_E.IndVar = MMS1.ElapsedDays;
+GMAT QvsDays_E.Add = {Q_E};
+GMAT QvsDays_E.Grid = On;
+GMAT QvsDays_E.ShowPlot = true;
+
+Create XYPlot SideLengthvsDays_E;
+GMAT SideLengthvsDays_E.SolverIterations = Current;
+GMAT SideLengthvsDays_E.IndVar = MMS1.ElapsedDays;
+GMAT SideLengthvsDays_E.Add = {sideLength12_E, sideLength13_E, sideLength14_E, sideLength24_E, sideLength23_E, sideLength34_E};
+GMAT SideLengthvsDays_E.Grid = On;
+GMAT SideLengthvsDays_E.ShowPlot = true;
+
+Create ReportFile FuncOutput;
+GMAT FuncOutput.SolverIterations = Current;
+%%GMAT FuncOutput.Filename = './output/SampleMissions/Ex_GmatFunction.report';
+GMAT FuncOutput.Filename = 'Bug1421-GenerateMMSGuess.report';
+GMAT FuncOutput.Precision = 16;
+GMAT FuncOutput.WriteHeaders = On;
+GMAT FuncOutput.LeftJustify = On;
+GMAT FuncOutput.ZeroFill = Off;
+GMAT FuncOutput.ColumnWidth = 20;
+
+Create ReportFile Data;
+GMAT Data.SolverIterations = Current;
+GMAT Data.Filename = '';
+GMAT Data.Precision = 16;
+GMAT Data.WriteHeaders = On;
+GMAT Data.LeftJustify = On;
+GMAT Data.ZeroFill = Off;
+GMAT Data.ColumnWidth = 20;
+
+%----------------------------------------
+%---------- Functions
+%----------------------------------------
+Create Array PatchStates1[14,2] PatchStates2[14,2] PatchStates3[14,2] PatchStates4[14,2] 
+%%Create GmatFunction QualityFactor Bug1421_AddDataToPatchStates;
+Create GmatFunction QualityFactor;
+%%GMAT QualityFactor.FunctionPath = './GmatFunctions/QualityFactor.gmf';
+
+%============================================================
+%------------------------------------------------------------
+%                    The Mission Sequence 
+%------------------------------------------------------------
+%============================================================
+
+BeginScript
+   
+   % Set the initial state of the MMS formation
+   
+   GMAT FormSize = 25;
+   GMAT MMS1.SMA = 42095.7000000013;
+   GMAT MMS1.ECC = 0.817993172685943;
+   GMAT MMS1.INC = 28.5003790595235;
+   GMAT MMS1.AOP = 204.993201955866;
+   GMAT MMS1.RAAN = 50.1805331681099;
+   GMAT MMS1.TA = 180;
+   
+   GMAT MMS2.SMA = 42095.7000000015;
+   GMAT MMS2.ECC = 0.818157688384989;
+   GMAT MMS2.INC = 28.4943230559791;
+   GMAT MMS2.AOP = 204.99560247649;
+   GMAT MMS2.RAAN = 50.2005877759487;
+   GMAT MMS2.TA = 179.9913746065945;
+   
+   GMAT MMS3.SMA = 42095.7000000015;
+   GMAT MMS3.ECC = 0.81777977350433;
+   GMAT MMS3.INC = 28.4950827809966;
+   GMAT MMS3.AOP = 204.992510281742;
+   GMAT MMS3.RAAN = 50.201111171398;
+   GMAT MMS3.TA = 179.9924578185955;
+   
+   GMAT MMS4.SMA = 42095.7000000004;
+   GMAT MMS4.ECC = 0.817955867182671;
+   GMAT MMS4.INC = 28.502612332656;
+   GMAT MMS4.AOP = 205.028751509876;
+   GMAT MMS4.RAAN = 50.172017130693;
+   GMAT MMS4.TA = 179.987919080679;
+   
+%   GMAT FormSize = 60;
+%   GMAT MMS1.SMA = 83553.6000000061;
+%   GMAT MMS1.ECC = 0.908745757564005;
+%   GMAT MMS1.INC = 28.6194267914538;
+%   GMAT MMS1.AOP = 204.904205339722;
+%   GMAT MMS1.RAAN = 50.2882997585982;
+%   GMAT MMS1.TA = 160.050655774943;
+%   
+%   GMAT MMS2.SMA = 83553.6000000247;
+%   GMAT MMS2.ECC = 0.90898379018469;
+%   GMAT MMS2.INC = 28.6191434030798;
+%   GMAT MMS2.AOP = 204.903266772594;
+%   GMAT MMS2.RAAN = 50.3107330169626;
+%   GMAT MMS2.TA = 160.065755218177;
+%   
+%   GMAT MMS3.SMA = 83553.6000000247;
+%   GMAT MMS3.ECC = 0.908753473383959;
+%   GMAT MMS3.INC = 28.618950818528;
+%   GMAT MMS3.AOP = 204.85920819647;
+%   GMAT MMS3.RAAN = 50.3429536209476;
+%   GMAT MMS3.TA = 160.049269963238;
+%   
+%   GMAT MMS4.SMA = 83553.6000000247;
+%   GMAT MMS4.ECC = 0.908597494367473;
+%   GMAT MMS4.INC = 28.6193859500583;
+%   GMAT MMS4.AOP = 204.906109224634;
+%   GMAT MMS4.RAAN = 50.3111433362687;
+%   GMAT MMS4.TA = 160.013394323943;
+   
+%   MMS1.X = 22595.74508561743
+%MMS1.Y = 71478.64866351539
+%MMS1.Z = 15434.80331530897
+%MMS1.VX = -0.8587145987910982
+%MMS1.VY = 0.1806394234942645
+%MMS1.VZ = 0.4205712347767289
+%   
+%MMS2.X = 22617.6790620481
+%MMS2.Y = 71467.77019144483
+%MMS2.Z = 15453.02998644677
+%MMS2.VX = -0.8588019174947642
+%MMS2.VY = 0.1803226049950388
+%MMS2.VZ = 0.4205292609500455
+%   
+%MMS3.X = 22618.78796239255
+%MMS3.Y = 71473.78527525402
+%MMS3.Z = 15423.51925630179
+%MMS3.VX = -0.8589313223408451
+%MMS3.VY = 0.1799516642876626
+%MMS3.VZ = 0.4204251449498801
+%   
+%MMS4.X = 22615.20921059689
+%MMS4.Y = 71487.79666950945
+%MMS4.Z = 15439.81763658692
+%MMS4.VX = -0.8578946356320562
+%MMS4.VY = 0.1801082508639165
+%MMS4.VZ = 0.419996757320737
+
+MMS1.X = 22595.74508561743
+MMS1.Y = 71478.64866351539
+MMS1.Z = 15434.80331530897
+MMS1.VX = -0.8587145987910982
+MMS1.VY = 0.1806394234942645
+MMS1.VZ = 0.4205712347767289
+   
+MMS2.X = 22617.6790620481
+MMS2.Y = 71467.77019144483
+MMS2.Z = 15453.02998644677
+MMS2.VX = -0.8588019174947642
+MMS2.VY = 0.1803226049950388
+MMS2.VZ = 0.4205292609500455
+   
+MMS3.X = 22618.78796239255
+MMS3.Y = 71473.78527525402
+MMS3.Z = 15423.51925630179
+MMS3.VX = -0.8589313223408451
+MMS3.VY = 0.1799516642876626
+MMS3.VZ = 0.4204251449498801
+   
+MMS4.X = 22615.20921059689
+MMS4.Y = 71487.79666950945
+MMS4.Z = 15439.81763658692
+MMS4.VX = -0.8578946356320562
+MMS4.VY = 0.1801082508639165
+MMS4.VZ = 0.419996757320737
+   
+   GMAT InitialJD = MMS1.UTCModJulian;
+   
+EndScript;
+
+
+% Propagate S/C based on integrator step size
+GMAT CountDays = 0;
+GMAT InitialJD4loop = MMS1.UTCModJulian;
+Report FuncOutput CountDays Q_E sideLength12_E sideLength13_E sideLength14_E sideLength23_E sideLength24_E sideLength34_E;
+GMAT FuncOutput.WriteHeaders = Off;
+
+
+Propagate Propagator1(MMS1, MMS2, MMS3, MMS4) {MMS1.Apoapsis};
+Report Data MMS1.UTCGregorian;
+Report Data MMS1.SMA MMS1.ECC MMS1.INC MMS1.RAAN MMS1.AOP MMS1.TA;
+Report Data MMS2.SMA MMS2.ECC MMS2.INC MMS2.RAAN MMS2.AOP MMS2.TA;
+Report Data MMS3.SMA MMS3.ECC MMS3.INC MMS3.RAAN MMS3.AOP MMS3.TA;
+Report Data MMS4.SMA MMS4.ECC MMS4.INC MMS4.RAAN MMS4.AOP MMS4.TA;
+
+
+
+%%While CountDays < 35
+While CountDays < 0.1
+   GMAT CountDays = MMS1.UTCModJulian - InitialJD4loop;
+   
+   Propagate MMS_Prop(MMS1, MMS2, MMS3, MMS4);
+   
+   %----------------------------------------
+   %---------- Side Length and Quality Factor Calculation
+   %----------------------------------------            
+   % Call GMAT Function
+   GMAT [Q_E, sideLength12_E, sideLength13_E, sideLength14_E, sideLength23_E, sideLength24_E, sideLength34_E] = QualityFactor(MMS1, MMS2, MMS3, MMS4, FormSize);
+   Report FuncOutput CountDays Q_E MMS1.RMAG MMS1.SMA MMS1.ECC;
+
+EndWhile;
+
+Propagate MMS_Prop(MMS1, MMS2, MMS3, MMS4) {MMS1.TA = 200};
+Report Data MMS1.UTCGregorian;
+Report Data MMS1.SMA MMS1.ECC MMS1.INC MMS1.RAAN MMS1.AOP MMS1.TA;
+Report Data MMS2.SMA MMS2.ECC MMS2.INC MMS2.RAAN MMS2.AOP MMS2.TA;
+Report Data MMS3.SMA MMS3.ECC MMS3.INC MMS3.RAAN MMS3.AOP MMS3.TA;
+Report Data MMS4.SMA MMS4.ECC MMS4.INC MMS4.RAAN MMS4.AOP MMS4.TA;
+
+col = 1;
+[PatchStates1,PatchStates2,PatchStates3,PatchStates4] = Bug1421_AddDataToPatchStates(PatchStates1,...
+                             PatchStates2,PatchStates3,PatchStates4,MMS1,MMS2,MMS3,MMS4,col)
+%%Propagate MMS_Prop(MMS1, MMS2, MMS3, MMS4) {MMS1.TA = 170};
+
+%%col = 2;
+%%[PatchStates1,PatchStates2,PatchStates3,PatchStates4] = Bug1421_AddDataToPatchStates(PatchStates1,...
+%%                             PatchStates2,PatchStates3,PatchStates4,MMS1,MMS2,MMS3,MMS4,col)
+
+Report Data PatchStates1 
+Report Data PatchStates2 
+Report Data PatchStates3
+Report Data PatchStates4
+
+%Report Data MMS1.UTCGregorian;
+%Report Data MMS1.UTCModJulian;
+%Report Data MMS1.X MMS2.X MMS3.X MMS4.X;
+%Report Data MMS1.Y MMS2.Y MMS3.Y MMS4.Y;
+%Report Data MMS1.Z MMS2.Z MMS3.Z MMS4.Z;
+%Report Data MMS1.VX MMS2.VX MMS3.VX MMS4.VX;
+%Report Data MMS1.VY MMS2.VY MMS3.VY MMS4.VY;
+%Report Data MMS1.VZ MMS2.VZ MMS3.VZ MMS4.VZ;
+%
+%Propagate MMS_Prop(MMS1, MMS2, MMS3, MMS4) {MMS1.TA = 200};
+%Report Data MMS1.UTCGregorian;
+%Report Data MMS1.UTCModJulian;
+%Report Data MMS1.X MMS2.X MMS3.X MMS4.X;
+%Report Data MMS1.Y MMS2.Y MMS3.Y MMS4.Y;
+%Report Data MMS1.Z MMS2.Z MMS3.Z MMS4.Z;
+%Report Data MMS1.VX MMS2.VX MMS3.VX MMS4.VX;
+%Report Data MMS1.VY MMS2.VY MMS3.VY MMS4.VY;
+%Report Data MMS1.VZ MMS2.VZ MMS3.VZ MMS4.VZ;

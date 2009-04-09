@@ -18,10 +18,14 @@ Else
    %% We cannot pass math expression to function (2008.08.29)
    %% val = number * Factorial_FR(number - 1)
    %%======================================================
-   
    N = number - 1;
-   tmp = number * Factorial_FR(N);
+   
+   %%======================================================
+   %% We still cannot assign value to output parameter
+   %% inside a branch, so assign to tmp (2008.03.25)
    %%val = number * Factorial_FR(N);
+   %%======================================================
+   tmp = number * Factorial_FR(N);
 EndIf;
 
 %% without this line, Function Exception Thrown: Function:

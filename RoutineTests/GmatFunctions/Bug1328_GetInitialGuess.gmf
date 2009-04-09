@@ -1,0 +1,29 @@
+function [allCartStates] = Bug1328_GetInitialGuess(MMS1target,MMS2target,MMS3target,MMS4target)
+
+Create Array allCartStates[24,1];
+
+
+    allCartStates(1,1)  = MMS1target.X;
+    allCartStates(2,1)  = MMS1target.Y;
+    allCartStates(3,1)  = MMS1target.Z;
+    allCartStates(4,1)  = MMS1target.VX;
+    allCartStates(5,1)  = MMS1target.VY;
+    allCartStates(6,1)  = MMS1target.VZ;
+    allCartStates(7,1)  = MMS2target.X;
+    allCartStates(8,1)  = MMS2target.Y; 
+    allCartStates(9,1)  = MMS2target.Z;
+    allCartStates(10,1) = MMS2target.VX;
+    allCartStates(11,1) = MMS2target.VY;
+    allCartStates(12,1) = MMS2target.VZ;
+    allCartStates(13,1) = MMS3target.X;
+    allCartStates(14,1) = MMS3target.Y; 
+    allCartStates(15,1) = MMS3target.Z;
+    allCartStates(16,1) = MMS3target.VX;
+    allCartStates(17,1) = MMS3target.VY;
+    allCartStates(18,1) = MMS3target.VZ;
+    allCartStates(19,1) = MMS4target.X;
+    allCartStates(20,1) = MMS4target.Y;
+    allCartStates(21,1) = MMS4target.Z;
+    allCartStates(22,1) = MMS4target.VX;
+    allCartStates(23,1) = MMS4target.VY;
+    allCartStates(24,1) = MMS4target.VZ;

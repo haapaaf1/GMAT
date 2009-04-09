@@ -1,0 +1,33 @@
+function [val] = Factorial_CF(number)
+
+Global RF;
+Create Variable val tmp tmp2 N;
+Create String msg;
+
+msg = 'Entering Factorial_CF';
+Report RF msg number;
+
+N = number;
+
+If number <= 1
+   tmp = 1;
+   msg = ' In   If, number, tmp';
+   Report RF msg number tmp;
+Else
+   N = number - 1;
+   [tmp2] = Factorial_CF(N);
+   %%======================================================
+   %% We still cannot assign value to output parameter
+   %% inside a branch, so assign to tmp (2008.03.25)
+   %%val = number * tmp2;
+   %%======================================================
+   tmp = number * tmp2;
+   msg = ' In Else, number, tmp';
+   Report RF msg number tmp
+EndIf;
+
+%% without this line, Function Exception Thrown: Function:
+%% Output "val not found for function "Factorial"
+val = tmp;
+msg = 'Leaving  Factorial_CF';
+Report RF msg number;

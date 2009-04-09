@@ -1,0 +1,526 @@
+%**************************************************************************
+%************ Create Objects for Use in Mission Sequence ******************
+%**************************************************************************
+ 
+ 
+%--------------------------------------------------------------------------
+%----------------- SpaceCraft, Formations, Constellations -----------------
+%--------------------------------------------------------------------------
+Create Spacecraft MMS1 MMS2 MMS3 MMS4;
+Create Spacecraft MMS1truth MMS2truth MMS3truth MMS4truth;
+Create Spacecraft MMS1target MMS2target MMS3target MMS4target;
+GMAT MMS1.DateFormat = UTCGregorian;
+GMAT MMS1.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS1.DisplayStateType = Keplerian;
+GMAT MMS1.DryMass = 1000;
+GMAT MMS1.Cd = 2.2;
+GMAT MMS1.Cr = 1.8;
+GMAT MMS1.DragArea = 15;
+GMAT MMS1.SRPArea = 1;
+ 
+%--------------------------------------------------------------------------
+%----------------------------- Propagators  -------------------------------
+%--------------------------------------------------------------------------
+ 
+Create ForceModel Est_Prop_FM;
+GMAT Est_Prop_FM.CentralBody = Earth;
+GMAT Est_Prop_FM.PrimaryBodies = {Earth};
+GMAT Est_Prop_FM.PointMasses = {Sun, Luna};
+GMAT Est_Prop_FM.Drag = None;
+GMAT Est_Prop_FM.SRP = On;
+GMAT Est_Prop_FM.ErrorControl = RSSStep;
+GMAT Est_Prop_FM.GravityField.Earth.Degree = 4;
+GMAT Est_Prop_FM.GravityField.Earth.Order = 4;
+GMAT Est_Prop_FM.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT Est_Prop_FM.SRP.Flux = 1367;
+GMAT Est_Prop_FM.SRP.Nominal_Sun = 149597870.691;
+ 
+Create ForceModel Truth_Prop_FM;
+GMAT Truth_Prop_FM.CentralBody = Earth;
+GMAT Truth_Prop_FM.PrimaryBodies = {Earth};
+GMAT Truth_Prop_FM.PointMasses = {Sun, Luna, Jupiter};
+GMAT Truth_Prop_FM.Drag = None;
+GMAT Truth_Prop_FM.SRP = On;
+GMAT Truth_Prop_FM.ErrorControl = RSSStep;
+GMAT Truth_Prop_FM.GravityField.Earth.Degree = 10;
+GMAT Truth_Prop_FM.GravityField.Earth.Order = 10;
+GMAT Truth_Prop_FM.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT Truth_Prop_FM.SRP.Flux = 1367;
+GMAT Truth_Prop_FM.SRP.Nominal_Sun = 149597870.691;
+ 
+Create ForceModel TwoBodyProp_FM;
+GMAT TwoBodyProp_FM.CentralBody = Earth;
+GMAT TwoBodyProp_FM.PointMasses = {Earth};
+GMAT TwoBodyProp_FM.Drag = None;
+GMAT TwoBodyProp_FM.SRP = On;
+GMAT TwoBodyProp_FM.ErrorControl = RSSStep;
+ 
+ 
+Create Propagator Est_Prop;
+GMAT Est_Prop.FM = Est_Prop_FM;
+GMAT Est_Prop.Type = PrinceDormand78;
+GMAT Est_Prop.InitialStepSize = 60;
+GMAT Est_Prop.Accuracy = 1e-010;
+GMAT Est_Prop.MinStep = 0.001;
+GMAT Est_Prop.MaxStep = 86400;
+GMAT Est_Prop.MaxStepAttempts = 50;
+ 
+Create Propagator Truth_Prop;
+GMAT Truth_Prop.FM = Truth_Prop_FM;
+GMAT Truth_Prop.Type = PrinceDormand78;
+GMAT Truth_Prop.InitialStepSize = 60;
+GMAT Truth_Prop.Accuracy = 1e-010;
+GMAT Truth_Prop.MinStep = 0.001;
+GMAT Truth_Prop.MaxStep = 86400;
+GMAT Truth_Prop.MaxStepAttempts = 50;
+ 
+Create Propagator TwoBodyProp;
+GMAT TwoBodyProp.FM = TwoBodyProp_FM;
+GMAT TwoBodyProp.Type = RungeKutta89;
+GMAT TwoBodyProp.InitialStepSize = 60;
+GMAT TwoBodyProp.Accuracy = 1e-010;
+GMAT TwoBodyProp.MinStep = 0.001;
+GMAT TwoBodyProp.MaxStep = 2700;
+GMAT TwoBodyProp.MaxStepAttempts = 50;
+ 
+%--------------------------------------------------------------------------
+%--------------------------------- HardWare -------------------------------
+%--------------------------------------------------------------------------
+ 
+%--------------------------------------------------------------------------
+%--------------------------------- Burns ----------------------------------
+%--------------------------------------------------------------------------
+ 
+Create ImpulsiveBurn dV1;
+GMAT dV1.Origin = Earth;
+GMAT dV1.Axes = VNB;
+GMAT dV1.VectorFormat = Cartesian;
+GMAT dV1.Element1 = 1e-007;
+GMAT dV1.Element2 = 1e-006;
+GMAT dV1.Element3 = 1e-006;
+ 
+Create ImpulsiveBurn dV2;
+GMAT dV2.Origin = Earth;
+GMAT dV2.Axes = VNB;
+GMAT dV2.VectorFormat = Cartesian;
+GMAT dV2.Element1 = 1e-007;
+GMAT dV2.Element2 = 1e-007;
+GMAT dV2.Element3 = 1e-007; 
+ 
+Create ImpulsiveBurn dV3;
+GMAT dV3.Origin = Earth;
+GMAT dV3.Axes = VNB;
+GMAT dV3.VectorFormat = Cartesian;
+GMAT dV3.Element1 = 1e-007;
+GMAT dV3.Element2 = 1e-007;
+GMAT dV3.Element3 = 1e-007;
+
+Create ImpulsiveBurn dV4;
+GMAT dV4.Origin = Earth;
+GMAT dV4.Axes = VNB;
+GMAT dV4.VectorFormat = Cartesian;
+GMAT dV4.Element1 = 1e-007;
+GMAT dV4.Element2 = 1e-007;
+GMAT dV4.Element3 = 1e-007;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create Variable side1 side2 side3 side4 side5 side6
+Create Variable RoILowerBound initialGuessType
+Create Variable flag I Qsum n
+Create Variable L  Q 
+Create Variable   Case ROICount QMean LastRMAG;
+Create Variable TempTA ROILowerTA ROIUpperTA PercentTime Abovep7Count Point7Line BackProp;
+
+Create Variable  initialEpoch refSatIndex includeRefInOpt
+Create Variable objStepSize nominalSideLength roiLowerBound numRevs closeApproachLimit conStepSizeCA
+Create Variable conScaleFactorCA  objScaleFactor posScaleFactor velScaleFactor  Maneuvs
+
+ 
+%  Used in calculating the quality factor
+Create Array sideVec1[3,1] sideVec2[3,1] sideVec3[3,1] sideVec4[3,1] sideVec5[3,1] sideVec6[3,1]
+Create Array OptStateVec[24,1] dV[3,1] allCartStates[24,1] refKepState[1,6] FormationState[6,4];
+ 
+Create String DataBreak outputStateType;
+GMAT DataBreak = --------------------------------;
+ 
+%--------------------------------------------------------------------------
+%-------------------------- Coordinate Systems ----------------------------
+%--------------------------------------------------------------------------
+ 
+Create CoordinateSystem MMS1VNB;
+GMAT MMS1VNB.Origin = MMS1;
+GMAT MMS1VNB.Axes = ObjectReferenced;
+GMAT MMS1VNB.UpdateInterval = 60;
+GMAT MMS1VNB.OverrideOriginInterval = false;
+GMAT MMS1VNB.XAxis = V;
+GMAT MMS1VNB.YAxis = N;
+GMAT MMS1VNB.Primary = Earth;
+GMAT MMS1VNB.Secondary = MMS1;
+ 
+Create CoordinateSystem MMS2VNB;
+GMAT MMS2VNB.Origin = MMS2;
+GMAT MMS2VNB.Axes = ObjectReferenced;
+GMAT MMS2VNB.UpdateInterval = 60;
+GMAT MMS2VNB.OverrideOriginInterval = false;
+GMAT MMS2VNB.XAxis = V;
+GMAT MMS2VNB.YAxis = N;
+GMAT MMS2VNB.Primary = Earth;
+GMAT MMS2VNB.Secondary = MMS2;
+ 
+Create CoordinateSystem MMS3VNB;
+GMAT MMS3VNB.Origin = MMS3;
+GMAT MMS3VNB.Axes = ObjectReferenced;
+GMAT MMS3VNB.UpdateInterval = 60;
+GMAT MMS3VNB.OverrideOriginInterval = false;
+GMAT MMS3VNB.XAxis = V;
+GMAT MMS3VNB.YAxis = N;
+GMAT MMS3VNB.Primary = Earth;
+GMAT MMS3VNB.Secondary = MMS3;
+ 
+Create CoordinateSystem MMS4VNB;
+GMAT MMS4VNB.Origin = MMS4;
+GMAT MMS4VNB.Axes = ObjectReferenced;
+GMAT MMS4VNB.UpdateInterval = 60;
+GMAT MMS4VNB.OverrideOriginInterval = false;
+GMAT MMS4VNB.XAxis = V;
+GMAT MMS4VNB.YAxis = N;
+GMAT MMS4VNB.Primary = Earth;
+GMAT MMS4VNB.Secondary = MMS4;
+ 
+Create CoordinateSystem MMS1RIC;
+GMAT MMS1RIC.Origin = MMS1;
+GMAT MMS1RIC.Axes = ObjectReferenced;
+GMAT MMS1RIC.UpdateInterval = 60;
+GMAT MMS1RIC.OverrideOriginInterval = false;
+GMAT MMS1RIC.XAxis = R;
+GMAT MMS1RIC.ZAxis = N;
+GMAT MMS1RIC.Primary = Earth;
+GMAT MMS1RIC.Secondary = MMS1;
+ 
+%--------------------------------------------------------------------------
+%----------------------- Solar System Configuration -----------------------
+%--------------------------------------------------------------------------
+ 
+ 
+%--------------------------------------------------------------------------
+%-------------------------------- Solvers ---------------------------------
+%--------------------------------------------------------------------------
+
+%%Create VF13ad VF13ad1;
+%%GMAT VF13ad1.ShowProgress = true;
+%%GMAT VF13ad1.ReportStyle = 'Normal';
+%%GMAT VF13ad1.TargeterTextFile = 'VF13adVF13ad1.data';
+%%GMAT VF13ad1.MaximumIterations = 200;
+%%GMAT VF13ad1.Tolerance = 1e-07;
+%%GMAT VF13ad1.UseCentralDifferences = false; 
+
+Create DifferentialCorrector DC;
+ 
+%--------------------------------------------------------------------------
+%-------------------------- Plots and Reports -----------------------------
+%--------------------------------------------------------------------------
+ 
+%  This is a view of MMS2 w/r/t MMS1
+Create OpenGLPlot FormationView1;
+GMAT FormationView1.SolverIterations = None;
+GMAT FormationView1.Add = {MMS1, MMS2, MMS3, MMS4};
+GMAT FormationView1.OrbitColor = [ 255 65280 65535 16776960 ];
+GMAT FormationView1.TargetColor = [ 8421440 8421440 8421440 8421440 ];
+GMAT FormationView1.CoordinateSystem = MMS1RIC;
+GMAT FormationView1.ViewPointReference = MMS1;
+GMAT FormationView1.ViewPointVector = [ 0 0 30000 ];
+GMAT FormationView1.ViewDirection = MMS1;
+GMAT FormationView1.ViewScaleFactor = 0.12;
+GMAT FormationView1.ViewUpCoordinateSystem = MMS1RIC;
+GMAT FormationView1.ViewUpAxis = Y;
+GMAT FormationView1.CelestialPlane = Off;
+GMAT FormationView1.XYPlane = Off;
+GMAT FormationView1.WireFrame = Off;
+GMAT FormationView1.Axes = On;
+GMAT FormationView1.Grid = Off;
+GMAT FormationView1.SunLine = Off;
+GMAT FormationView1.UseInitialView = On;
+GMAT FormationView1.DataCollectFrequency = 1;
+GMAT FormationView1.UpdatePlotFrequency = 10;
+GMAT FormationView1.NumPointsToRedraw = 50;
+GMAT FormationView1.ShowPlot = false;
+ 
+Create OpenGLPlot EarthView;
+GMAT EarthView.SolverIterations = None;
+GMAT EarthView.Add = {MMS1, MMS1target};
+GMAT EarthView.OrbitColor = [ 255 65280  ];
+GMAT EarthView.TargetColor = [ 8421440 8421440   ];
+GMAT EarthView.CoordinateSystem = EarthMJ2000Eq;
+GMAT EarthView.ViewPointReference = Earth;
+GMAT EarthView.ViewPointVector = [ 0 0 30000 ];
+GMAT EarthView.ViewDirection = Earth;
+GMAT EarthView.ViewScaleFactor = 4;
+GMAT EarthView.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT EarthView.ViewUpAxis = Y;
+GMAT EarthView.CelestialPlane = Off;
+GMAT EarthView.XYPlane = On;
+GMAT EarthView.WireFrame = Off;
+GMAT EarthView.Axes = On;
+GMAT EarthView.Grid = Off;
+GMAT EarthView.SunLine = Off;
+GMAT EarthView.UseInitialView = On;
+GMAT EarthView.DataCollectFrequency = 1;
+GMAT EarthView.UpdatePlotFrequency = 10;
+GMAT EarthView.NumPointsToRedraw = 500;
+GMAT EarthView.ShowPlot = true;
+ 
+%  This is a plot of the formation quality factor
+Create XYPlot Qvst;
+GMAT Qvst.SolverIterations = Current;
+GMAT Qvst.IndVar = MMS1.ElapsedDays;
+GMAT Qvst.Add = {Q, Point7Line};
+GMAT Qvst.Grid = On;
+GMAT Qvst.ShowPlot = false;
+ 
+Create XYPlot ECCvst;
+GMAT ECCvst.SolverIterations = Current;
+GMAT ECCvst.IndVar = MMS1.ElapsedDays;
+GMAT ECCvst.Add = {MMS1.ECC};
+GMAT ECCvst.Grid = On;
+GMAT ECCvst.ShowPlot = false;
+ 
+%  This is a plot of the formation quality factor
+Create XYPlot Qdatavst;
+GMAT Qdatavst.SolverIterations = Current;
+GMAT Qdatavst.IndVar = MMS1.ElapsedDays;
+GMAT Qdatavst.Add = {PercentTime, Q, QMean, Point7Line};
+GMAT Qdatavst.Grid = On;
+GMAT Qdatavst.ShowPlot = true;
+ 
+%  This is a plot of the side lengths
+Create XYPlot CartPos;
+GMAT CartPos.SolverIterations = Current;
+GMAT CartPos.IndVar = MMS1.ElapsedDays;
+GMAT CartPos.Add = {side1, side2, side3, side4, side5, side6};
+GMAT CartPos.Grid = On;
+GMAT CartPos.ShowPlot = true;
+ 
+%  Generic report file for debugging and testing
+Create ReportFile Data;
+GMAT Data.SolverIterations = Current;
+GMAT Data.Filename = 'Bug1328-DesignMMSManeuvers.report';
+GMAT Data.Precision = 16;
+GMAT Data.WriteHeaders = On;
+GMAT Data.LeftJustify = On; 
+GMAT Data.ZeroFill = Off;
+GMAT Data.ColumnWidth = 20;
+
+%--------------------------------------------------------------------------
+%----------------------------- Functions ----------------------------------
+%--------------------------------------------------------------------------
+Create GmatFunction QualityFactor Bug1328_SetTargetStates Bug1328_GetInitialGuess Bug1328_TargetFirstManeuver
+Create MatlabFunction Bug1328_DesignFormationGMAT 
+
+Toggle EarthView Off;
+ 
+% %**************************************************************************
+% %**************************The Mission Sequence****************************
+% %**************************************************************************
+% 
+% %  Define constants
+BeginScript
+   GMAT flag = 1;
+   GMAT Case = 1;
+   GMAT Point7Line = 0.7;
+   GMAT RoILowerBound = 9*6378.1363;
+EndScript;
+
+BeginScript
+    initialGuessType   = 1
+    refSatIndex        = 1;
+    includeRefInOpt    = 0;
+    objStepSize        = 6000;
+    nominalSideLength  = 10;
+    roiLowerBound      = 9;
+    numRevs            = 1;
+    closeApproachLimit = 4;
+    conStepSizeCA      = 4000;
+    conScaleFactorCA   = 10;
+    outputStateType    = 'cart';
+    objScaleFactor     = 1;
+    posScaleFactor     = 1;
+    velScaleFactor     = 1e-4;
+EndScript
+
+BeginScript
+    
+   GMAT MMS1.SMA = 42095;
+   GMAT MMS1.ECC = 0.81818181;
+   GMAT MMS1.INC = 28.5;
+   GMAT MMS1.RAAN = 357.849953011;
+   GMAT MMS1.AOP = 298.228459309;
+   GMAT MMS1.TA = 160;
+   
+   GMAT MMS2.SMA = 42095;
+   GMAT MMS2.ECC = 0.818084134243;
+   GMAT MMS2.INC = 28.5004512657;
+   GMAT MMS2.RAAN = 357.850638929;
+   GMAT MMS2.AOP = 298.215024448;
+   GMAT MMS2.TA = 160.002061894;
+   
+   GMAT MMS3.SMA = 42095;
+   GMAT MMS3.ECC = 0.81827525122;
+   GMAT MMS3.INC = 28.504159285;
+   GMAT MMS3.RAAN = 357.844733577;
+   GMAT MMS3.AOP = 298.220911903;
+   GMAT MMS3.TA = 160.015234981;
+   
+   GMAT MMS4.SMA = 42095;
+   GMAT MMS4.ECC = 0.818146643362;
+   GMAT MMS4.INC = 28.5081563945;
+   GMAT MMS4.RAAN = 357.856049752;
+   GMAT MMS4.AOP = 298.217059608;
+   GMAT MMS4.TA = 160.000995856;
+ 
+EndScript;
+
+Propagate TwoBodyProp(MMS1, MMS2, MMS3, MMS4) {MMS1.Apoapsis};
+Propagate Est_Prop(MMS1, MMS2, MMS3, MMS4) {MMS1.Periapsis};
+
+%%For Maneuvs = 1:5
+For Maneuvs = 1:1
+
+   GMAT QMean = 1; 
+   GMAT Qsum = 0;
+   GMAT n = 0;
+
+    %%%==>While QMean > .7
+
+          GMAT LastRMAG = MMS1.RMAG
+
+          %Step the formation
+          Propagate Est_Prop(MMS1, MMS2, MMS3, MMS4);
+
+          %  Determine if we just stepped into RoI.  If so
+          %  Reinitialize variables for performing sums.
+          If LastRMAG < RoILowerBound & MMS1.RMAG > RoILowerBound
+             GMAT n = 0;
+             GMAT Qsum = 0;
+             GMAT Abovep7Count = 0;
+          EndIf;
+
+          %  Determine if we just exited RoI.  If so
+          %  calculate the mean Q from last pass and send to report.
+          If LastRMAG > RoILowerBound & MMS1.RMAG <  RoILowerBound
+             GMAT QMean = Qsum/n;
+             GMAT ROICount = ROICount + 1;
+             GMAT PercentTime = Abovep7Count/n;
+             Report Data ROICount QMean PercentTime;
+          EndIf;
+
+          GMAT n = n + 1;
+          If MMS1.RMAG >= RoILowerBound
+              GMAT [Q,side1,side2,side3,side4,side5,side6] = QualityFactor(MMS1, MMS2, MMS3, MMS4, nominalSideLength);
+          EndIf
+
+          If Q > 0.7
+             Abovep7Count = Abovep7Count + 1;
+             Qsum = Qsum + Q;
+          EndIf;
+
+          Report Data Q LastRMAG MMS1.RMAG n Qsum Abovep7Count
+
+    %%%==>EndWhile;
+
+    Propagate BackProp Est_Prop(MMS1, MMS2, MMS3, MMS4, {MMS1.TA = 200});
+
+
+    MMS1target = MMS1;
+    MMS2target = MMS2;
+    MMS3target = MMS3; 
+    MMS4target = MMS4;
+
+    Propagate Est_Prop(MMS1target, MMS2target, MMS3target, MMS4target, {MMS1target.TA = 160});
+
+    [allCartStates] = Bug1328_GetInitialGuess(MMS1target,MMS2target,MMS3target,MMS4target)
+
+    initialEpoch = MMS1target.TDBModJulian + 2430000.0; 
+
+    [FormationState] = Bug1328_DesignFormationGMAT(allCartStates, refKepState, ...
+             initialEpoch, refSatIndex, includeRefInOpt, objStepSize,...
+             nominalSideLength, roiLowerBound, numRevs, closeApproachLimit,...
+             conStepSizeCA, conScaleFactorCA, outputStateType, objScaleFactor, ...
+             posScaleFactor, velScaleFactor);
+
+   
+
+   %[MMS1target,MMS1target,MMS1target,MMS1target] = Bug1328_SetTargetStates(FormationState, MMS1target,MMS1target,MMS1target,MMS1target);
+MMS1target.X = FormationState(1,1);
+MMS1target.Y = FormationState(2,1);
+MMS1target.Z = FormationState(3,1);
+MMS1target.VX = FormationState(4,1);
+MMS1target.VY = FormationState(5,1);
+MMS1target.VZ = FormationState(6,1);
+
+MMS2target.X = FormationState(1,2);
+MMS2target.Y = FormationState(2,2);
+MMS2target.Z = FormationState(3,2);
+MMS2target.VX = FormationState(4,2);
+MMS2target.VY = FormationState(5,2);
+MMS2target.VZ = FormationState(6,2);
+
+
+MMS3target.X = FormationState(1,3);
+MMS3target.Y = FormationState(2,3);
+MMS3target.Z = FormationState(3,3);
+MMS3target.VX = FormationState(4,3);
+MMS3target.VY = FormationState(5,3);
+MMS3target.VZ = FormationState(6,3);
+
+MMS4target.X = FormationState(1,4);
+MMS4target.Y = FormationState(2,4);
+MMS4target.Z = FormationState(3,4);
+MMS4target.VX = FormationState(4,4);
+MMS4target.VY = FormationState(5,4);
+MMS4target.VZ = FormationState(6,4);
+
+    Toggle EarthView On;
+    [dV2,dV3,dV4] = Bug1328_TargetFirstManeuver(DC,Est_Prop,MMS1, MMS2, MMS3, MMS4, MMS2target,MMS3target,MMS4target)
+
+    Maneuver dV2(MMS2);
+    Maneuver dV3(MMS3);
+    Maneuver dV4(MMS4);
+
+    Propagate Est_Prop(MMS1,MMS2,MMS3,MMS4, {MMS1.A1ModJulian = MMS1target.A1ModJulian});
+
+    Target DC
+
+        Vary DC(dV2.Element1 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+        Vary DC(dV2.Element2 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+        Vary DC(dV2.Element3 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+
+        Vary DC(dV3.Element1 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+        Vary DC(dV3.Element2 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+        Vary DC(dV3.Element3 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+
+        Vary DC(dV4.Element1 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+        Vary DC(dV4.Element2 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+        Vary DC(dV4.Element3 = .00001, {Perturbation = .0000001, MaxStep = .0005});
+
+        Maneuver dV2(MMS2);
+        Maneuver dV3(MMS3);
+        Maneuver dV4(MMS4);
+
+        Achieve DC(MMS2.VX = MMS2target.VX , {Tolerance = .00001});
+        Achieve DC(MMS2.VY = MMS2target.VY ,{Tolerance = .00001});
+        Achieve DC(MMS2.VZ = MMS2target.VZ ,{Tolerance = .00001});
+
+        Achieve DC(MMS3.VX = MMS3target.VX ,{Tolerance = .00001});
+        Achieve DC(MMS3.VY = MMS3target.VY ,{Tolerance = .00001});
+        Achieve DC(MMS3.VZ = MMS3target.VZ ,{Tolerance = .00001});
+
+        Achieve DC(MMS4.VX = MMS4target.VX ,{Tolerance = .00001});
+        Achieve DC(MMS4.VY = MMS4target.VY ,{Tolerance = .00001});
+        Achieve DC(MMS4.VZ = MMS4target.VZ ,{Tolerance = .00001});
+
+    EndTarget
+
+EndFor

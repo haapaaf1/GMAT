@@ -1,0 +1,323 @@
+function Func_PiC_Achieve(reportLoc)
+% $Id: Func_PiC_Achieve.gmf,v 1.3 2008/07/21 21:24:58 edove Exp $
+
+Create Spacecraft sat;
+GMAT sat.J2000BodyName = Earth;
+GMAT sat.Epoch = 21545;
+GMAT sat.X = 7100;
+GMAT sat.Y = 0;
+GMAT sat.Z = 1300;
+GMAT sat.VX = 0;
+GMAT sat.VY = 7.3499999999999996;
+GMAT sat.VZ = 2;
+GMAT sat.DisplayStateType = Cartesian;
+GMAT sat.AnomalyType = TA;
+GMAT sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat.DryMass = 850;
+GMAT sat.DateFormat = TAIModJulian;
+GMAT sat.Cd = 2.2000000000000002;
+GMAT sat.Cr = 1.8;
+GMAT sat.DragArea = 15;
+GMAT sat.SRPArea = 1;
+GMAT sat.TotalMass = 850;
+
+Create Spacecraft SaveSat RHSSat TolSat LHSSat;
+
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.Accuracy = 9.9999999999999994e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.InitialStepSize = 133.08433978347313;
+GMAT DefaultProp.Accuracy = 9.9999999999999994e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+
+Create ImpulsiveBurn TOI;
+%GMAT TOI.Axes = MJ2000Eq
+GMAT TOI.Axes = VNB;
+GMAT TOI.VectorFormat = Cartesian;
+GMAT TOI.Element1 = 0.0001;
+GMAT TOI.Element2 = 0;
+GMAT TOI.Element3 = 0;
+
+
+Create ImpulsiveBurn GOI;
+GMAT GOI.Axes = VNB;
+GMAT GOI.VectorFormat = Cartesian;
+GMAT GOI.Element1 = 0;
+GMAT GOI.Element2 = 0;
+GMAT GOI.Element3 = 0;
+
+
+Create DifferentialCorrector DC DC2;
+GMAT DC.TargeterTextFile = 'targeter_DefaultDC.data';
+GMAT DC.MaximumIterations = 25;
+GMAT DC.UseCentralDifferences = false;
+GMAT DC.ReportStyle = Debug;
+
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {sat, Earth};
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 3;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = All;
+
+Create ReportFile PiC_Achieve;
+PiC_Achieve.Filename = reportLoc;
+PiC_Achieve.WriteHeaders = Off;
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.J2000Body = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.J2000Body = Earth;
+GMAT EarthMJ2000Eq.Epoch = 21545;
+
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.J2000Body = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.J2000Body = Earth;
+GMAT EarthMJ2000Ec.Epoch = 21545;
+
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.J2000Body = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.J2000Body = Earth;
+GMAT EarthFixed.Epoch = 21545;
+
+Create Variable var1 var2 Flag;
+Create Array array1[2,2];
+Create Variable idx1 idx2;
+Create Variable vLow vHigh vRHS vLHS vTol vMaxStep;
+Create Array aLow[2,2] aHigh[2,2] aRHS[2,2] aLHS[2,2] aTol[2,2] aMaxStep[2,2];
+Create Array One[2,2];
+Create Array Two[2,2];
+
+%  UpperBound Bound
+vRHS      = 42165;
+aRHS(1,2) = 42165;
+RHSSat.X  = 42165;
+
+%  Perturbation
+vTol      =  0.1;
+aTol(1,2) =  0.1;
+TolSat.X  =  0.1;
+
+%  Integers for testing variables in arrays
+idx1 = 1;
+idx2 = 2;
+
+%  Arrays for testing 3-level recursion
+One(1,1) = 1;
+Two(2,2) = 2;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%------------------------------------------------------------------------------
+%This first set of tests look at everything except LHS ( what is being varied)
+%------------------------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+Propagate DefaultProp(sat, {sat.Periapsis}); 
+SaveSat = sat;
+
+%-------------------------------------------------------------------
+%  Test using numbers for everything except LHS
+%-------------------------------------------------------------------
+Target DC;
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+
+Flag = 1;
+If sat.Earth.RMAG < 42164.9;
+   Flag = 0;
+EndIf 
+If sat.Earth.RMAG > 42165.1;
+   Flag = 0;
+EndIf 
+Report PiC_Achieve Flag;
+
+%%-------------------------------------------------------------------
+%%  Test using variables for everything except LHS
+%%-------------------------------------------------------------------
+sat = SaveSat;
+Target DC;
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   Achieve DC(sat.Earth.RMAG = vRHS, {Tolerance = vTol});
+EndTarget;  % For targeter DC
+
+Flag = 1;
+If sat.Earth.RMAG < 42164.9;
+   Flag = 0;
+EndIf 
+If sat.Earth.RMAG > 42165.1;
+   Flag = 0;
+EndIf 
+Report PiC_Achieve Flag;
+
+%%-------------------------------------------------------------------
+%%  Test using arrays for everything except LHS
+%%-------------------------------------------------------------------
+sat = SaveSat;
+Target DC;
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   Achieve DC(sat.Earth.RMAG = aRHS(1,2), {Tolerance = aTol(1,2)});
+EndTarget;  % For targeter DC
+
+Flag = 1;
+If sat.Earth.RMAG < 42164.9;
+   Flag = 0;
+EndIf 
+If sat.Earth.RMAG > 42165.1;
+   Flag = 0;
+EndIf 
+Report PiC_Achieve Flag;
+
+%%-------------------------------------------------------------------
+%%  Test using arrays idexed with variables for everything except LHS
+%%-------------------------------------------------------------------
+sat = SaveSat;
+Target DC;
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   Achieve DC(sat.Earth.RMAG = aRHS(idx1,idx2), {Tolerance = aTol(idx1,idx2)});
+EndTarget;  % For targeter DC
+
+Flag = 1;
+If sat.Earth.RMAG < 42164.9;
+   Flag = 0;
+EndIf 
+If sat.Earth.RMAG > 42165.1;
+   Flag = 0;
+EndIf 
+Report PiC_Achieve Flag;
+
+%%-------------------------------------------------------------------
+%%  Test using Spacecraft parameters for everything except LHS
+%%-------------------------------------------------------------------
+sat = SaveSat;
+Target DC;
+      Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   Achieve DC(sat.Earth.RMAG = RHSSat.X, {Tolerance = TolSat.X});
+EndTarget;  % For targeter DC
+
+Flag = 1;
+If sat.Earth.RMAG < 42164.9;
+   Flag = 0;
+EndIf 
+If sat.Earth.RMAG > 42165.1;
+   Flag = 0;
+EndIf 
+Report PiC_Achieve Flag;
+
+%%-------------------------------------------------------------------
+%%  Test using 3-level recursion in arrays for everything except LHS
+%%-------------------------------------------------------------------
+%%  Comment: To show that the correct numbers are indeed being used by GMAT,
+%%  you can change "aHigh" to "aLow" below, and whey you run you should
+%%  get the following message: 
+%%              Solver subsystem exception: Minimum allowed variable 
+%%              value (received -1.234) must be less than maximum
+%%               (received -1.234)*** Mission run failed.
+sat = SaveSat;
+Target DC;
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   Achieve DC(sat.Earth.RMAG = aRHS(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))...
+            , {Tolerance = aTol(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))});
+EndTarget;  % For targeter DC
+
+Flag = 1;
+If sat.Earth.RMAG < 42164.9;
+   Flag = 0;
+EndIf 
+If sat.Earth.RMAG > 42165.1;
+   Flag = 0;
+EndIf 
+Report PiC_Achieve Flag;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%------------------------------------------------------------------------------
+%%The second set of tests looks at using different types of parameters on the LHS
+%%------------------------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+%%-------------------------------------------------------------------
+%%        Test using variable on LHS
+%%-------------------------------------------------------------------
+sat = SaveSat;
+Target DC;
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   vLHS = sat.Earth.RMAG;
+   Achieve DC(vLHS = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+
+Flag = 1;
+If vLHS < 42164.9;
+   Flag = 0;
+EndIf 
+If vLHS > 42165.1;
+   Flag = 0;
+EndIf 
+Report PiC_Achieve Flag;
+
+%%-------------------------------------------------------------------
+%%        Test using array on LHS
+%%-------------------------------------------------------------------
+sat = SaveSat;
+Target DC;
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   aLHS(1,1) = sat.Earth.RMAG;
+   Achieve DC(aLHS(1,1) = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+
+Propagate DefaultProp(sat, {sat.ElapsedSecs = 86400});
+
+Flag = 1;
+If aLHS(1,1) < 42164.9;
+   Flag = 0;
+EndIf 
+If aLHS(1,1) > 42165.1;
+   Flag = 0;
+EndIf 
+Report PiC_Achieve Flag;
