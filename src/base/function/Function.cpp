@@ -493,8 +493,9 @@ void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj,
       GmatBase *owner = FindObject(ownerName);
       #ifdef DEBUG_AUTO_OBJ
       MessageInterface::ShowMessage
-         ("Function::AddAutomaticObject(), ownerName='%s', owner=<%p>'%s'\n",
-          ownerName.c_str(), owner, owner ? owner->GetName().c_str() : "NULL");
+         ("Function::AddAutomaticObject(), ownerName='%s', owner=<%p><%s>'%s'\n",
+          ownerName.c_str(), owner, owner ? owner->GetTypeName().c_str() : "NULL",
+          owner ? owner->GetName().c_str() : "NULL");
          #ifdef DEBUG_OBJECT_MAP
          ShowObjectMap(objectStore, "In Function::AddAutomaticObject");
          #endif
@@ -507,7 +508,7 @@ void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj,
          throw fe;
       }
       
-      GmatBase *refObj = obj->GetRefObject(Gmat::SPACECRAFT, ownerName);
+      GmatBase *refObj = obj->GetRefObject(owner->GetType(), ownerName);
       if (owner != refObj)
       {
          MessageInterface::ShowMessage
