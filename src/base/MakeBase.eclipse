@@ -277,6 +277,7 @@ OBJECTS = \
     interface/InterfaceException.o \
     interface/GmatInterface.o \
     interface/MatlabInterface.o \
+    interpolator/BrentDekkerZero.o \
     interpolator/CubicSplineInterpolator.o \
     interpolator/Interpolator.o \
     interpolator/LinearInterpolator.o \

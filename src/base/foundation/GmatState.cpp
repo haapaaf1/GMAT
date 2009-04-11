@@ -305,8 +305,9 @@ bool GmatState::SetElementProperties(const Integer index, const Integer id,
                                      const Integer associate)
 {
    #ifdef DEBUG_STATE_LOADING
-      MessageInterface::ShowMessage("Setting element %d, id = %d, desc = %s\n",
-            index, id, textId.c_str());
+      MessageInterface::ShowMessage(
+            "Setting element %d, id = %d, desc = %s, assoc = %d\n", index, id, 
+            textId.c_str(), associate);
    #endif
       
    if ((index < 0) || (index >= stateSize))
@@ -335,7 +336,7 @@ void GmatState::Resize(Integer newSize, bool withCopy)
 {
    if (newSize == stateSize)
    {
-      // If size does not change, do not zero reagardless of the withCopy 
+      // If size does not change, do not zero regardless of the withCopy 
       //setting and just return
       return;
    }

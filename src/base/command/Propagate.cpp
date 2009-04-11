@@ -2301,9 +2301,9 @@ bool Propagate::Initialize()
             ps != prop.end(); ++ps)
          delete (*ps);
       
-   prop.clear();
-   p.clear();
-   fm.clear();
+      prop.clear();
+      p.clear();
+      fm.clear();
    }
    
    for (StringArray::iterator i = propName.begin(); i != propName.end(); ++i)
@@ -2389,19 +2389,19 @@ bool Propagate::Initialize()
          {
             psm->SetObject(mapObj);
 
-         so = (SpaceObject*)mapObj;
-         if (epochID == -1)
-            epochID = so->GetParameterID("A1Epoch");
-         if (so->IsManeuvering())
-            finiteBurnActive = true;
-         sats.push_back(so);
-         AddToBuffer(so);
-
-         if (so->GetType() == Gmat::FORMATION)
-            FillFormation(so, owners, elements);
-         else 
-         {
-            SetNames(so->GetName(), owners, elements);
+            so = (SpaceObject*)mapObj;
+            if (epochID == -1)
+               epochID = so->GetParameterID("A1Epoch");
+            if (so->IsManeuvering())
+               finiteBurnActive = true;
+            sats.push_back(so);
+            AddToBuffer(so);
+   
+            if (so->GetType() == Gmat::FORMATION)
+               FillFormation(so, owners, elements);
+            else 
+            {
+               SetNames(so->GetName(), owners, elements);
             }
          }
       }
@@ -2658,17 +2658,6 @@ void Propagate::PrepareToPropagate()
    
    if (hasFired == true) 
    {
-      // Check for the size of propator and ODE model (LOJ: 2009.04.09)
-      // @todo Func_PiC_Achieve crashes due to empty fm in line 2701
-      if ((prop.size() == 0 || fm.size() == 0) &&
-          (prop.size() != fm.size()))
-      {
-         CommandException ce;
-         ce.SetDetails("Cannot continue due to unmatching %d Propagator and %d ODEModel",
-                       prop.size(), fm.size());
-         throw ce;
-      }
-      
       // Handle the transient forces
       for (ObjectArray::iterator sc = sats.begin();
            sc != sats.end(); ++sc)
@@ -2690,6 +2679,8 @@ void Propagate::PrepareToPropagate()
                   const StringArray sar = fm->GetRefObjectNameArray(Gmat::SPACEOBJECT);
                   if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end()) 
                      prop[index]->GetODEModel()->AddForce(*i);
+                  
+                  // todo: Rebuild ODEModel by calling BuildModelFromMap()
                }
             }
          }
@@ -2855,30 +2846,10 @@ void Propagate::PrepareToPropagate()
       for (Integer n = 0; n < (Integer)prop.size(); ++n)
       {
          elapsedTime.push_back(0.0);
-//         currEpoch.push_back(0.0);
 
          p.push_back(prop[n]->GetPropagator());
          fm.push_back(prop[n]->GetODEModel());
          dim += fm[n]->GetDimension();
-
-//         // Delete old pubdata (loj: 2008.12.15)
-//         if (pubdata)
-//         {
-//            #ifdef DEBUG_MEMORY
-//               MemoryTracker::Instance()->Remove
-//                  (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
-//                   "deleting pub data");
-//            #endif
-//            delete [] pubdata;
-//         }
-//      
-//         pubdata = new Real[dim+1];
-//         #ifdef DEBUG_MEMORY
-//            MemoryTracker::Instance()->Add
-//               (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
-//                "pubdata = new Real[dim+1]");
-//         #endif
-//         baseEpoch.clear();
 
          psm.push_back(prop[n]->GetPropStateManager());
          currEpoch.push_back(psm[n]->GetState()->GetEpoch());
