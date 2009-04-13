@@ -11,7 +11,11 @@ public:
    BrentDekkerZero(const BrentDekkerZero &bdz);
    BrentDekkerZero&  operator=(const BrentDekkerZero &bdz);
    
-   // Methods used to test the implementation
+   void SetInterval(Real a0, Real b0, Real fa0, Real fb0, Real tolerance);
+   Real FindStep(Real lastStep, Real lastEval);
+   bool CheckConvergence();
+   
+   // Method used to test the implementation
    Real TestDriver(Real aVal, Real bVal, Real tVal);
    
 protected:
@@ -33,10 +37,11 @@ protected:
    Real r;
    Real s;
 
-   // Methods used to test the implementation
+   void SwapAC();
+   void FindStepParameters();
+
+   // Test function for the implementation
    Real TestFunction(Real value);
-   void Interpolate();
-   void Extrapolate();
 };
 
 #endif /*BrentDekkerZero_hpp*/

@@ -2,6 +2,10 @@
 #include <cmath>
 #include "MessageInterface.hpp"
 
+
+#define DEBUG_ZERO_FINDER
+
+
 BrentDekkerZero::BrentDekkerZero() :
    macheps        (1.0e-15)
 {
@@ -28,11 +32,41 @@ BrentDekkerZero&  BrentDekkerZero::operator=(const BrentDekkerZero &bdz)
 }
 
 
+void BrentDekkerZero::SetInterval(Real a0, Real b0, Real fa0, Real fb0, 
+      Real tolerance)
+{
+   a = a0;
+   b = b0;
+   fa = fa0;
+   fb = fb0;
+   t = tolerance;
+   
+   // Load up the c, fc, d, e variables
+   SwapAC();
+}
+
+
+Real BrentDekkerZero::FindStep(Real lastStep, Real lastEval)
+{
+   Real newStep = 0.0;
+   
+   return newStep;
+}
+
+
+bool BrentDekkerZero::CheckConvergence()
+{
+   return false;
+}
+
+
 Real BrentDekkerZero::TestDriver(Real aVal, Real bVal, Real tVal)
 {
-   MessageInterface::ShowMessage("Testing Brent-Dekker Zero\n   Inputs:\n");
-   MessageInterface::ShowMessage("      a = %.12lf\n      b = %.12lf\n      "
-         "tol = %le\n", aVal, bVal, tVal);
+   #ifdef DEBUG_ZERO_FINDER
+      MessageInterface::ShowMessage("Testing Brent-Dekker Zero\n   Inputs:\n");
+      MessageInterface::ShowMessage("      a = %.12lf\n      b = %.12lf\n      "
+            "tol = %le\n", aVal, bVal, tVal);
+   #endif
    
    a = aVal;
    b = bVal;
@@ -40,12 +74,14 @@ Real BrentDekkerZero::TestDriver(Real aVal, Real bVal, Real tVal)
 
    fa = TestFunction(a);
    fb = TestFunction(b);
-   
-   MessageInterface::ShowMessage("      fa = %.12lf\n      fb = %.12lf\n", 
-         fa, fb);
-   
-   Interpolate();
-   Extrapolate();
+
+   #ifdef DEBUG_ZERO_FINDER
+      MessageInterface::ShowMessage("      fa = %.12lf\n      fb = %.12lf\n", 
+            fa, fb);
+   #endif
+      
+   SwapAC();
+   FindStepParameters();
    
    Integer count = 0;
    
@@ -53,11 +89,12 @@ Real BrentDekkerZero::TestDriver(Real aVal, Real bVal, Real tVal)
    {
       if ((fabs(e) < tol) || (fabs(fa) <= fabs(fb)))
       {
-         MessageInterface::ShowMessage("   |e|(%.12lf) < tol(%.12lf)? %s\n",
-               e, tol, ((fabs(e) < tol) ? "true" : "false"));
-         MessageInterface::ShowMessage("   |fa|(%.12lf) < |fb|(%.12lf)? %s\n",
-               fa, fb, ((fabs(fa) <= fabs(fb)) ? "true" : "false"));
-
+         #ifdef DEBUG_ZERO_FINDER
+            MessageInterface::ShowMessage("   |e|(%.12lf) < tol(%.12lf)? %s\n",
+                  e, tol, ((fabs(e) < tol) ? "true" : "false"));
+            MessageInterface::ShowMessage("   |fa|(%.12lf) < |fb|(%.12lf)? %s\n",
+                  fa, fb, ((fabs(fa) <= fabs(fb)) ? "true" : "false"));
+         #endif
          d = e = m;
       }
       else
@@ -66,14 +103,18 @@ Real BrentDekkerZero::TestDriver(Real aVal, Real bVal, Real tVal)
          if (a == c)
          {
             // Linear interpolation
-            MessageInterface::ShowMessage("   Using Linear Interp\n");
+            #ifdef DEBUG_ZERO_FINDER
+               MessageInterface::ShowMessage("   Using Linear Interp\n");
+            #endif
             p = 2 * m * s;
             q = 1 - s;
          }
          else
          {
             // Inverse quadratic interpolation
-            MessageInterface::ShowMessage("   Using Inverse Q Interp\n");
+            #ifdef DEBUG_ZERO_FINDER
+               MessageInterface::ShowMessage("   Using Inverse Q Interp\n");
+            #endif
             q = fa / fc;
             r = fb / fc;
             p = s * (2.0 * m * q * (q - r) - (b - a) * (r - 1));
@@ -108,30 +149,48 @@ Real BrentDekkerZero::TestDriver(Real aVal, Real bVal, Real tVal)
       }
       fb = TestFunction(b);
       
-      if ((fb > 0.0) && (fc > 0.0))
-         Interpolate();
+      if (((fb > 0.0) && (fc > 0.0)) || ((fb <= 0.0) && (fc <= 0.0)))
+         SwapAC();
       
-      Extrapolate();
+      FindStepParameters();
       
-      MessageInterface::ShowMessage("   Iteration %d:\n", ++count);
-      MessageInterface::ShowMessage("      a = %.12lf, f(a) = %.12lf"
-            "\n      b = %.12lf, f(b) = %.12lf\n", a, fa, b, fb);
+      #ifdef DEBUG_ZERO_FINDER
+         MessageInterface::ShowMessage("   Iteration %d:\n", ++count);
+         MessageInterface::ShowMessage("      a = %.12lf, f(a) = %.12lf"
+               "\n      b = %.12lf, f(b) = %.12lf\n", a, fa, b, fb);
+      #endif
    }
    
-   MessageInterface::ShowMessage("   Converged to b = %.12lf\n", b);
+   #ifdef DEBUG_ZERO_FINDER
+      MessageInterface::ShowMessage("   Converged to b = %.12lf\n", b);
+   #endif
+
    return b;
 }
 
-void BrentDekkerZero::Interpolate()
+void BrentDekkerZero::SwapAC()
 {
    c = a;
    fc = fa;
    d = e = b - a;
+   #ifdef DEBUG_ZERO_FINDER
+      MessageInterface::ShowMessage("Int at end: a  = %.12lf b  = %.12lf  "
+                                    "c = %.12lf\n            fa = %.12lf "
+                                    "fb = %.12lf fc = %.12lf\n"
+                                    "            d = %.12lf e = %.12lf\n",
+                                    a, b, c, fa, fb, fc, d, e);
+   #endif
 }
 
 
-void BrentDekkerZero::Extrapolate()
+void BrentDekkerZero::FindStepParameters()
 {
+   #ifdef DEBUG_ZERO_FINDER
+      MessageInterface::ShowMessage("Ext: a  = %.12lf b  = %.12lf  c = %.12lf\n"
+                                    "     fa = %.12lf fb = %.12lf "
+                                    "fc = %.12lf\n", a, b, c, fa, fb, fc);
+   #endif
+   
    if (fabs(fc) < fabs(fb))
    {
       a = b;
@@ -142,12 +201,23 @@ void BrentDekkerZero::Extrapolate()
       fc = fa;
    }
    tol = 2.0 * macheps * fabs(b) + t;
-   m = 0.5 * (c - b);   
+   m = 0.5 * (c - b);
+   
+   #ifdef DEBUG_ZERO_FINDER
+      MessageInterface::ShowMessage("Ext at end: a  = %.12lf b  = %.12lf  "
+                                    "c = %.12lf\n            fa = %.12lf "
+                                    "fb = %.12lf fc = %.12lf\n", a, b, c, fa, 
+                                    fb, fc);
+      MessageInterface::ShowMessage("            tol = %.12lf  m = %.12lf\n"
+                                    "=================\n", tol, m);
+   #endif
 }
 
 
-Real BrentDekkerZero::TestFunction(Real x)
-{
-   // Zero at about 0.7531
-   return 3.0 * x * x * x - x * x + 7.0 * x - 6.0;  
-}
+#ifdef DEBUG_ZERO_FINDER
+   Real BrentDekkerZero::TestFunction(Real x)
+   {
+      // Zero at about 0.7544
+      return 3.0 * x * x * x - x * x + 7.0 * x - 6.0;  
+   }
+#endif
