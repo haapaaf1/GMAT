@@ -101,7 +101,7 @@ Star::PARAMETER_TYPE[StarParamCount - CelestialBodyParamCount] =
 Star::Star(std::string name) :
 CelestialBody       ("Star",name)
 {
-   CelestialBody::InitializeBody();
+//   CelestialBody::InitializeBody();
 
    objectTypeNames.push_back("Star");
    parameterCount = StarParamCount;
