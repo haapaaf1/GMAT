@@ -44,6 +44,7 @@
 //#define DEBUG_DEFILE
 //#define DEBUG_DEFILE_READ
 //#define DEBUG_DEFILE_INIT
+//#define DEBUG_DEFILE_GET
 
 // DE file code from JPL/JSC (Hoffman) includes
 #include <stdio.h>
@@ -296,10 +297,16 @@ Real* DeFile::GetPosVel(Integer forBody, A1Mjd atTime, bool overrideTimeSystem)
    double absJD = 0.0;
    if (overrideTimeSystem)
    {
-       double mjdTT = (double) TimeConverterUtil::Convert(atTime.Get(),
-                       TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
-                       GmatTimeUtil::JD_JAN_5_1941);
-       absJD = mjdTT + GmatTimeUtil::JD_JAN_5_1941;
+      double mjdTT = (double) TimeConverterUtil::Convert(atTime.Get(),
+                      TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
+                      GmatTimeUtil::JD_JAN_5_1941);
+      absJD = mjdTT + GmatTimeUtil::JD_JAN_5_1941;
+      #ifdef DEBUG_DEFILE_GET
+         MessageInterface::ShowMessage
+            ("DeFile::GetPosVel() : mjdTT = %12.10f\n", mjdTT);
+         MessageInterface::ShowMessage
+            ("DeFile::GetPosVel() : absJD = %12.10f\n", absJD);
+      #endif
    }
    else
    {
@@ -307,6 +314,12 @@ Real* DeFile::GetPosVel(Integer forBody, A1Mjd atTime, bool overrideTimeSystem)
                       TimeConverterUtil::A1MJD, TimeConverterUtil::TDBMJD, 
                       GmatTimeUtil::JD_JAN_5_1941);
       absJD = mjdTDB + GmatTimeUtil::JD_JAN_5_1941;
+      #ifdef DEBUG_DEFILE_GET
+         MessageInterface::ShowMessage
+            ("DeFile::GetPosVel() : mjdTDB = %12.10f\n", mjdTDB);
+         MessageInterface::ShowMessage
+            ("DeFile::GetPosVel() : absJD = %12.10f\n", absJD);
+      #endif
    }
    
    
