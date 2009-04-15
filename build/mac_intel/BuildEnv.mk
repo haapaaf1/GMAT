@@ -8,6 +8,7 @@
 # Flags used to control the build
 # Make this 1 if you want MATLAB 
 USE_MATLAB = 1
+USE_SPICE = 1
 USE_DEVIL = 0
 CONSOLE_APP = 0
 DEBUG_BUILD = 0
@@ -22,10 +23,9 @@ USE_SHARED = 1
 SHARED_BASE = 0
 
 # *** EDIT THIS *** - put the top of the GMAT project directory structure here ....
-TOP_DIR = < put your top directory here >
+TOP_DIR = < put your top level directory here >
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
-WX_HOME = /Applications/wxmac-2.8.9/osx-build
-#WX_HOME = /Applications/wxmac-2.8.8/osx-build
+WX_HOME = /Applications/wxmac-2.8.8/osx-build
 #WX_HOME = /Applications/wxmac-2.8.7/osx-build
 # *** EDIT THIS *** - 'sudo make install' of wxMac will put things here ......
 WX_INSTALLED = /usr/local/bin
@@ -33,24 +33,32 @@ WX_INSTALLED = /usr/local/bin
 MATLAB = /Applications/MATLAB_R2007b
 # *** EDIT THIS *** - this should match the version of wxMac you are using
 #INSTALL_WX_LIBS = install_libs_into_bundle_2_8_7
-#INSTALL_WX_LIBS = install_libs_into_bundle_2_8_8
-INSTALL_WX_LIBS = install_libs_into_bundle_2_8_9
+INSTALL_WX_LIBS = install_libs_into_bundle_2_8_8
+#INSTALL_WX_LIBS = install_libs_into_bundle_2_8_10
 
 BUILD = release
+
+ifeq ($(USE_SPICE), 1)
+# location of CSPICE headers and libraries
+# *** EDIT THIS *** -this is where you installed the version of CSPICE that you're using ...
+SPICE_DIR = /Applications/CSPICE
+SPICE_INCLUDE = -I$(SPICE_DIR)/cspice/include
+SPICE_LIB_DIR = $(SPICE_DIR)/cspice/lib
+SPICE_LIBRARIES = $(SPICE_LIB_DIR)/cspice.a
+SPICE_DIRECTIVE = -D__cplusplus -D__USE_SPICE__
+SPICE_STACKSIZE = ulimit -s 61440
+else
+SPICE_INCLUDE =
+SPICE_LIB_DIR =
+SPICE_LIBRARIES =
+SPICE_DIRECTIVE = 
+SPICE_STACKSIZE = echo 'SPICE not included in this build ...'
+endif
 
 ifeq ($(PROFILE_BUILD), 1)
 USE_PROFILING = 1
 else
 USE_PROFILING = 0
-endif
-
-# STC editor (wxStyledTextCtrl) data
-ifeq ($(USE_STC_EDITOR), 1)
-STC_CPP_FLAGS = -D__USE_STC_EDITOR__
-STC_LIBRARIES = -L<put the location here> -lwx_msw_stc-2.8
-else
-STC_CPP_FLAGS =
-STC_LIBRARIES =
 endif
 
 # currently cannot use MATLAB or shared base library with console version 
@@ -117,9 +125,8 @@ else
 EXECUTABLE  = $(TOP_DIR)/bin/GMATNoMatlab
 endif
 # *** EDIT THIS *** - put the version number of the wxMac that you're using here ...
-#WX_VERSION   = 2.8.7
-#WX_VERSION   = 2.8.8
-WX_VERSION   = 2.8.9
+#WX_VERSION   = 2.8.10
+WX_VERSION   = 2.8.8
 GMAT_INFO    = $(TOP_DIR)/src/gui/Info_GMAT.plist
 CONTENTS_DIR = $(EXECUTABLE).app/Contents
 MACOS_DIR    = $(CONTENTS_DIR)/MacOS
@@ -161,9 +168,8 @@ DEBUG_FLAGS =
 # Build the complete list of flags for the compilers
 ifeq ($(USE_MATLAB),1)
 CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
-           $(WXCPPFLAGS)\
+           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE)\
            $(MATLAB_INCLUDE) $(IL_HEADERS) \
-           $(STC_CPP_FLAGS) \
            -fpascal-strings -I/Developer/Headers/FlatCarbon  \
            -D__WXMAC__ $(WX_28_DEFINES) -fno-strict-aliasing -fno-common
 F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
@@ -172,8 +178,8 @@ F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
 TCPIP_OBJECTS =	$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabClient.o \
 				$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabConnection.o
 else
-CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(STC_CPP_FLAGS) \
-           $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
+CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
+           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
 F77_FLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
             $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
 TCPIP_OBJECTS =	
@@ -184,14 +190,16 @@ endif
 #                     i.e. 2.8, 2.6, etc.)
 ifeq ($(USE_MATLAB),1)
 LINK_FLAGS = $(WXLINKFLAGS)\
-             $(MATLAB_LIB) $(MATLAB_LIBRARIES) $(STC_LIBRARIES) \
+             $(MATLAB_LIB) $(MATLAB_LIBRARIES) \
+             $(SPICE_LIBRARIES) -lm\
              $(FORTRAN_LIB) -framework OpenGL -framework AGL -headerpad_max_install_names\
              -lwx_mac_gl-2.8 $(IL_LIBRARIES) $(DEBUG_FLAGS)
 #             -lwx_mac_gl-2.8 -lg2c $(IL_LIBRARIES) $(DEBUG_FLAGS)
 else
 LINK_FLAGS = $(WXLINKFLAGS)\
                $(FORTRAN_LIB) -framework OpenGL -framework AGL  -headerpad_max_install_names \
-             -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) $(STC_LIBRARIES)
+               $(SPICE_LIBRARIES) -lm\
+             -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) 
 #             -lwx_mac_gl-2.8 -lg2c $(DEBUG_FLAGS) $(IL_LIBRARIES) 
 endif
 
@@ -201,6 +209,6 @@ endif
 #            			$(FORTRAN_LIB) \
 #                     -lg2c -ldl $(DEBUG_FLAGS) 
 # else
-#CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) -lg2c -ldl $(DEBUG_FLAGS) 
-CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) -ldl $(DEBUG_FLAGS) 
+#CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) $(SPICE_LIBRARIES) -lm -lg2c -ldl $(DEBUG_FLAGS) 
+CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) $(SPICE_LIBRARIES) -lm -ldl $(DEBUG_FLAGS) 
 # endif
