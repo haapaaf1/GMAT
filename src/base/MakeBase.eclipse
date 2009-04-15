@@ -63,6 +63,14 @@ BRIDGEOBJECTS =
 endif
 endif
 
+ifeq ($(USE_SPICE),1)
+SPICE_OBJECTS = \
+    util/SpiceKernelReader.o
+else
+SPICE_OBJECTS =
+endif
+
+
 all: $(TARGET)
 gui: $(WXTARGET)
 console: $(CONSOLETARGET)
@@ -476,7 +484,9 @@ OBJECTS = \
     util/TimeSystemConverter.o \
     util/TimeTypes.o \
     util/UtcDate.o \
-    $(TCPIP_OBJECTS)
+    $(TCPIP_OBJECTS) \
+    $(SPICE_OBJECTS)
+
 
 #    $(BRIDGEOBJECTS)
 
