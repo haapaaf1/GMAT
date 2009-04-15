@@ -34,6 +34,9 @@
 #include "Rmatrix.hpp"
 #include "Rvector6.hpp"
 #include "TimeTypes.hpp"
+#ifdef __USE_SPICE__
+#include "SpiceKernelReader.hpp"
+#endif
 
 // Add needed things to Gmat namespace
 namespace Gmat
@@ -174,7 +177,7 @@ public:
    virtual Gmat::PosVelSource   GetPosVelSource() const;
    virtual std::string          GetSourceFileName() const;
    virtual PlanetaryEphem*      GetSourceFile() const;
-//   virtual Gmat::AnalyticMethod GetAnalyticMethod() const;
+   virtual const StringArray&   GetSpiceKernelNames() const;
    virtual bool                 GetUsePotentialFile() const;
    virtual bool                 GetOverrideTimeSystem() const;
    virtual Real                 GetEphemUpdateInterval() const;
@@ -212,7 +215,7 @@ public:
    virtual bool           SetFlattening(Real flat, bool makeDefault = false);
    virtual bool           SetSource(Gmat::PosVelSource pvSrc);
    virtual bool           SetSourceFile(PlanetaryEphem *src);
-//   virtual bool           SetAnalyticMethod(Gmat::AnalyticMethod aM);
+   virtual bool           SetAllowSpice(const bool allow);
    virtual bool           SetUsePotentialFile(bool useIt);
    
    virtual bool           SetOverrideTimeSystem(bool overrideIt);
@@ -290,8 +293,12 @@ public:
    virtual Integer        SetIntegerParameter(const Integer id,
                                               const Integer value); // const?
    virtual std::string    GetStringParameter(const Integer id) const; // const?
+   virtual std::string    GetStringParameter(const Integer id,
+                                             const Integer index) const;
    virtual bool           SetStringParameter(const Integer id, 
                                              const std::string &value); // const?
+   virtual bool           SetStringParameter(const Integer id, const std::string &value,
+                                             const Integer index);
    virtual bool           GetBooleanParameter(const Integer id) const; // const?
    virtual bool           SetBooleanParameter(const Integer id,
                                               const bool value); // const?
@@ -301,12 +308,6 @@ public:
    virtual const Rvector&    GetRvectorParameter(const std::string &label) const;
    virtual const Rvector&    SetRvectorParameter(const std::string &label,
                                                  const Rvector &value);
-   //virtual const Rmatrix&    GetRmatrixParameter(const Integer id) const;
-   //virtual const Rmatrix&    SetRmatrixParameter(const Integer id,
-   //                                              const Rmatrix &value);
-   //virtual const Rmatrix&    GetRmatrixParameter(const std::string &label) const;
-   //virtual const Rmatrix&    SetRmatrixParameter(const std::string &label,
-   //                                              const Rmatrix &value);
    virtual const StringArray& GetStringArrayParameter(const Integer id) const;
 
    virtual GmatBase*   GetRefObject(const Gmat::ObjectType type,
@@ -373,6 +374,7 @@ protected:
       REF_BODY_NUMBER,
       SOURCE_FILENAME,
       SOURCE_FILE,
+      SPICE_KERNEL_NAME,
       USE_POTENTIAL_FILE_FLAG,
       POTENTIAL_FILE_NAME,
       ANGULAR_VELOCITY,
@@ -412,13 +414,14 @@ protected:
    static const std::string PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount];
 
    static const Gmat::ParameterType PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount];
-   static const Real JD_EPOCH_2000_TCB;
-   static const Real JD_EPOCH_2000_TT;
+   static const Real    JD_EPOCH_2000_TCB;
+   static const Real    JD_EPOCH_2000_TT;
    //static const Real dDot              = 1.0 / GmatTimeUtil::SECS_PER_DAY;
    //static const Real TDot              = dDot / 36525.0;
-   static const Real dDot;
-   static const Real TDot;
-   static const Real KEPLER_TOL;
+   static const Real    dDot;
+   static const Real    TDot;
+   static const Real    KEPLER_TOL;
+   static const Integer KEPLER_MAX_ITERATIONS;
    
    // body type of the body
    Gmat::BodyType         bodyType;
@@ -449,10 +452,16 @@ protected:
    Integer                bodyNumber;
    /// body number of origin of coordinate system for file
    Integer                referenceBodyNumber;
-   /// name of file that is the source of position and velocity for this body
+   /// name of file that is the source of position and velocity for this body (DE)
    std::string            sourceFilename;
-   // the source file
-   PlanetaryEphem*        theSourceFile;
+   /// the source file (DE)
+   PlanetaryEphem         *theSourceFile;
+   /// the name(s) of the SPK file(s)
+   StringArray            spiceKernelNames;
+   #ifdef __USE_SPICE__
+      /// the SPICE file (kernel) reader
+      SpiceKernelReader      *kernelReader;
+   #endif
    
    /// flag indicating whether or not to get data from potential file
    bool                   usePotentialFile;
@@ -519,8 +528,11 @@ protected:
    Gmat::RotationDataSource rotationSrc;   // 0 -> DE405,  1 -> IAU (see above)
    
    /// flag specifying whether or not the body was user-defined 
-   /// (i.e. not a default soalr system body)
+   /// (i.e. not a default solar system body)
    bool                   userDefined;
+   /// flag indicating whether or not SPICE is allowed as position/velocity source
+   /// for this (default) body
+   bool                   allowSpice;
    /// flag indicating whether or not data for this celestial body has been modified (particularly
    /// important for the user bodies, as this determines whether or not the data
    /// willbe written to the saved script file)
@@ -558,6 +570,7 @@ protected:
    virtual Real     GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const;
    virtual Rvector6 ComputeTwoBody(const A1Mjd &forTime);
    virtual Rvector6 KeplersProblem(const A1Mjd &forTime);
+   virtual bool     SetUpSPICE();
    
 private:
 

@@ -30,10 +30,12 @@
 #include "SolarSystem.hpp"
 #include "SolarSystemException.hpp"
 #include "PlanetaryEphemException.hpp"
+#include "UtilityException.hpp"
 #include "FileManager.hpp"
 #include "Rvector3.hpp"
 #include "Rvector6.hpp"
 #include "Rmatrix.hpp"
+#include "RealUtilities.hpp"
 #include "AtmosphereModel.hpp"
 #include "MessageInterface.hpp"
 #include "PhysicalConstants.hpp"
@@ -52,6 +54,9 @@
 //#define DEBUG_TWO_BODY
 //#define DEBUG_EPHEM_SOURCE
 //#define DEBUG_MODIFIED_FLAG
+//#define DEBUG_CB_SET_STRING
+//#define DEBUG_CB_SPICE
+//#define DEBUG_CB_USER_DEFINED
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -85,6 +90,7 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "RefBodyNumber",
    "SourceFilename",
    "SourceFile",
+   "SpiceKernelName",
    "UsePotentialFileFlag",
    "PotentialFileName",
    "AngularVelocity",
@@ -132,6 +138,7 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::INTEGER_TYPE,  //"RefBodyNumber",
    Gmat::STRING_TYPE,   //"SourceFilename",
    Gmat::OBJECT_TYPE,   //"SourceFile",
+   Gmat::STRINGARRAY_TYPE,   //"SpiceKernelName",
    Gmat::BOOLEAN_TYPE,  //"UsePotentialFileFlag",
    Gmat::STRING_TYPE,   //"PotentialFileName",
    Gmat::RVECTOR_TYPE,  //"AngularVelocity",
@@ -161,11 +168,12 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::STRING_TYPE,   //"TextureMapFileName"
 };
 
-const Real CelestialBody::JD_EPOCH_2000_TCB = 2451545.0;
-const Real CelestialBody::JD_EPOCH_2000_TT  = 2451545.0; // @ todo Figure out JD_EPOCH_2000_TT
-const Real CelestialBody::dDot              = 1.0;
-const Real CelestialBody::TDot              = 1.0;
-const Real CelestialBody::KEPLER_TOL        = 1.0e-06;
+const Real    CelestialBody::JD_EPOCH_2000_TCB     = 2451545.0;
+const Real    CelestialBody::JD_EPOCH_2000_TT      = 2451545.0; // @ todo Figure out JD_EPOCH_2000_TT
+const Real    CelestialBody::dDot                  = 1.0;
+const Real    CelestialBody::TDot                  = 1.0;
+const Real    CelestialBody::KEPLER_TOL            = 1.0e-06;  // should be 1.0e-08;
+const Integer CelestialBody::KEPLER_MAX_ITERATIONS = 50;
 
 //------------------------------------------------------------------------------
 // public methods
@@ -197,6 +205,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
+//   kernelReader       (NULL),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -216,6 +225,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    lastEphemTime      (0.0),
    rotationSrc        (Gmat::NOT_APPLICABLE),
    userDefined        (false),
+   allowSpice         (false),
    hasBeenModified    (false),
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
@@ -231,6 +241,10 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
       models[i].push_back("None");
    
    for (Integer i=0;i<6;i++)  prevState[i] = 0.0;
+   #ifdef __USE_SPICE__
+      kernelReader = NULL;
+   #endif
+   spiceKernelNames.clear();
    
    parameterCount = CelestialBodyParamCount;
    InitializeBody(itsBodyType);
@@ -270,6 +284,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
+//   kernelReader       (NULL),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -289,6 +304,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    lastEphemTime      (0.0),
    rotationSrc        (Gmat::NOT_APPLICABLE),
    userDefined        (false),
+   allowSpice         (false),
    hasBeenModified    (false),
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
@@ -302,6 +318,11 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    for (Integer i = 0; i < Gmat::ModelTypeCount; i++)
       models[i].push_back("None");
    for (Integer i=0;i<6;i++)  prevState[i] = 0.0;
+   
+   #ifdef __USE_SPICE__
+      kernelReader = NULL;
+   #endif
+   spiceKernelNames.clear();
    
    parameterCount = CelestialBodyParamCount;
    
@@ -340,6 +361,8 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    referenceBodyNumber (cBody.referenceBodyNumber),
    sourceFilename      (cBody.sourceFilename),
    theSourceFile       (cBody.theSourceFile), // ????????????????
+   spiceKernelNames    (cBody.spiceKernelNames),
+//   kernelReader        (cBody.kernelReader),
    usePotentialFile    (cBody.usePotentialFile),
    potentialFileName   (cBody.potentialFileName),
    hourAngle           (cBody.hourAngle),
@@ -361,6 +384,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    lastState           (cBody.lastState),
    rotationSrc         (cBody.rotationSrc),
    userDefined         (cBody.userDefined),
+   allowSpice          (cBody.allowSpice),
    hasBeenModified     (cBody.hasBeenModified),
    orientationDateFormat (cBody.orientationDateFormat),
    orientationEpoch    (cBody.orientationEpoch),
@@ -377,6 +401,9 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    isFirstTimeMu          = true;
    isFirstTimeRadius      = true;
    potentialFileRead      = false;
+   #ifdef __USE_SPICE__
+      kernelReader = cBody.kernelReader;
+   #endif
    
    if (cBody.atmModel)
    {
@@ -440,6 +467,10 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    referenceBodyNumber = cBody.referenceBodyNumber;
    sourceFilename      = cBody.sourceFilename;
    theSourceFile       = cBody.theSourceFile;   // ??????????????
+   spiceKernelNames    = cBody.spiceKernelNames;
+   #ifdef __USE_SPICE__
+      kernelReader        = cBody.kernelReader;
+   #endif
    usePotentialFile    = cBody.usePotentialFile;
    potentialFileName   = cBody.potentialFileName;
    angularVelocity     = cBody.angularVelocity;
@@ -491,6 +522,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    lastState           = cBody.lastState;
    rotationSrc         = cBody.rotationSrc;
    userDefined         = cBody.userDefined;
+   allowSpice          = cBody.allowSpice;
    hasBeenModified     = cBody.hasBeenModified;
    orientationDateFormat = cBody.orientationDateFormat;
    orientationEpoch    = cBody.orientationEpoch;
@@ -526,6 +558,19 @@ CelestialBody::~CelestialBody()
       #endif
       delete atmModel;
    }
+   #ifdef DEBUG_CB_SPICE
+      MessageInterface::ShowMessage("In CB (%s) destructor, attempting to unload the kernel(s):\n",
+            instanceName.c_str());
+      for (unsigned int jj = 0; jj < spiceKernelNames.size(); jj++)
+         MessageInterface::ShowMessage("    %s\n", (spiceKernelNames.at(jj)).c_str());
+   #endif
+   #ifdef __USE_SPICE__
+   // unload the kernel(s) from the SpiceKernelReader
+      for (unsigned int kk = 0; kk < spiceKernelNames.size(); kk++)
+         if (spiceKernelNames.at(kk) != "" && (kernelReader != NULL) && 
+            (kernelReader->IsLoaded(spiceKernelNames.at(kk))))
+            kernelReader->UnloadKernel(spiceKernelNames.at(kk));
+   #endif
 }
 
 
@@ -550,7 +595,9 @@ bool CelestialBody::Initialize()
    lastEphemTime = 0.0;
    stateTime = 0.0;   
    newTwoBody = true;
-   
+
+   // Set up the kernel reader, if required
+   SetUpSPICE();
    return true;
 }
 
@@ -614,10 +661,12 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
          state = ComputeTwoBody(atTime);
          break;
       case Gmat::DE405 :
+      {
          if (!theSourceFile)
          {
             throw PlanetaryEphemException(
-                  "SLP or DE file requested, but no file specified");
+//                  "SLP or DE file requested, but no file specified");
+                  "DE file requested, but no file specified");
          }
          #ifdef DEBUG_GET_STATE
          MessageInterface::ShowMessage
@@ -629,12 +678,27 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
          state.Set(posVel[0], posVel[1], posVel[2],
                    posVel[3], posVel[4], posVel[5]);
          break;
+      }
       case Gmat::SPICE :
-         MessageInterface::ShowMessage(
-               "Use of SPICE file for planetary ephemeris not yet implemented for %s.  Switching to TwoBodyPropagation.\n",
-               instanceName.c_str());
-         state = ComputeTwoBody(atTime); // ********** temporary ******************
+      {
+         #ifdef __USE_SPICE__
+//         MessageInterface::ShowMessage(
+//               "Use of SPICE file for planetary ephemeris not yet implemented for %s.  Switching to TwoBodyPropagation.\n",
+//               instanceName.c_str());
+//         state = ComputeTwoBody(atTime); // ********** temporary ******************
+         SetUpSPICE();
+//         #ifdef DEBUG_CB_SPICE
+//            MessageInterface::ShowMessage("In GetState, after SetUpSpice ...kernelReader is %s NULL\n",
+//                  (kernelReader == NULL? "really" : "NOT"));       
+//         #endif
+         // @todo - what is the observing body here??  Need to handle exceptions here
+         Rvector6 spiceState = kernelReader->GetTargetState(instanceName, atTime, j2000BodyName);
+//         for (Integer i=0;i<6;i++) state[i] = spiceState[i];
+         state.Set(spiceState[0], spiceState[1], spiceState[2],
+                   spiceState[3], spiceState[4], spiceState[5]);
+         #endif
          break;
+      }
       default:
          throw SolarSystemException("Invalid data source defined for body "
                                     + instanceName);
@@ -697,25 +761,6 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
    Rvector6 state;
    switch (posVelSrc)
    {
-//      case Gmat::ANALYTIC :
-//         switch (analyticMethod)
-//         {
-//            case Gmat::NO_ANALYTIC_METHOD :
-//               throw SolarSystemException(
-//                      "No analytic method specified for body " +instanceName);
-//            case Gmat::LOW_FIDELITY :
-//            {
-//               Rvector6 state;
-//               state = ComputeTwoBody(atTime);
-//               for (Integer i=0;i<6;i++) outState[i] = state[i];
-//               break;
-//            }
-//            default:
-//               break;
-//         }
-//         break;
-//      case Gmat::SLP :
-//      case Gmat::DE_200 :
       case Gmat::TWO_BODY_PROPAGATION :
       {
 //         Rvector6 state;
@@ -733,12 +778,16 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
          outState     = theSourceFile->GetPosVel(bodyNumber,atTime, overrideTime);
          break;
       case Gmat::SPICE :
-         MessageInterface::ShowMessage(
-               "Use of SPICE file for planetary ephemeris not yet implemented for %s.  Switching to TwoBodyPropagation.\n",
-               instanceName.c_str());
-//         Rvector6 state;   // ***** temporary ************
-         state = ComputeTwoBody(atTime);
+      #ifdef __USE_SPICE__
+//         MessageInterface::ShowMessage(
+//               "Use of SPICE file for planetary ephemeris not yet implemented for %s.  Switching to TwoBodyPropagation.\n",
+//               instanceName.c_str());
+////         Rvector6 state;   // ***** temporary ************
+//         state = ComputeTwoBody(atTime);
+         SetUpSPICE();
+         state = kernelReader->GetTargetState(instanceName, atTime, j2000BodyName);
          for (Integer i=0;i<6;i++) outState[i] = state[i];
+      #endif
          break;
       default:
          throw SolarSystemException("Invalid data source defined for body "
@@ -989,6 +1038,10 @@ std::string CelestialBody::GetSourceFileName() const
    return "";
 }
 
+const StringArray& CelestialBody::GetSpiceKernelNames() const
+{
+   return spiceKernelNames;
+}
 
 //------------------------------------------------------------------------------
 // PlanetaryEphem* GetSourceFile() const
@@ -1331,15 +1384,31 @@ StringArray CelestialBody::GetEphemSourceList() const
    for (int jj = 0; jj < Gmat::PosVelSourceCount; jj++)
    {
       std::string src = Gmat::POS_VEL_SOURCE_STRINGS[jj];
+         
       if (userDefined)
       {
+      #ifdef __USE_SPICE__
          if (!(GmatStringUtil::StartsWith(src, "DE")))
-            srcList.push_back(Gmat::POS_VEL_SOURCE_STRINGS[jj]);            
+            srcList.push_back(Gmat::POS_VEL_SOURCE_STRINGS[jj]);  
+      #else
+            if ((!(GmatStringUtil::StartsWith(src, "DE"))) &&
+                  (src.find("SPICE") == std::string::npos))
+               srcList.push_back(Gmat::POS_VEL_SOURCE_STRINGS[jj]);  
+      #endif
       }
-      else  // default bodies
+      else if (!allowSpice)
       {
          if (src.find("SPICE") == std::string::npos)
             srcList.push_back(Gmat::POS_VEL_SOURCE_STRINGS[jj]);
+      }
+      else
+      {
+      #ifdef __USE_SPICE__
+         srcList.push_back(Gmat::POS_VEL_SOURCE_STRINGS[jj]);
+      #else
+      if (src.find("SPICE") == std::string::npos)
+         srcList.push_back(Gmat::POS_VEL_SOURCE_STRINGS[jj]);
+      #endif
       }
    }
    return srcList;
@@ -1511,8 +1580,8 @@ bool CelestialBody::SetSource(Gmat::PosVelSource pvSrc)
 {
    #ifdef DEBUG_EPHEM_SOURCE
    MessageInterface::ShowMessage
-      ("CelestialBody::SetSource() <%p> %s, Setting source to %d\n", this,
-       GetName().c_str(), pvSrc);
+      ("CelestialBody::SetSource() <%p> %s, Setting source to %d(%s)\n", this,
+       GetName().c_str(), pvSrc, Gmat::POS_VEL_SOURCE_STRINGS[pvSrc].c_str());
    #endif
    
    if (pvSrc == posVelSrc) return true;
@@ -1521,25 +1590,25 @@ bool CelestialBody::SetSource(Gmat::PosVelSource pvSrc)
    {
       if (userDefined)
       {
-         std::string errmsg = "DE405 file option not available for user-defined body";
+         std::string errmsg = "DE405 file option not available for user-defined body ";
          errmsg += instanceName + "\n";
          throw SolarSystemException(errmsg);
       }
    }
    if (pvSrc == Gmat::SPICE)
    {
-      if (!userDefined)
+      if ((!userDefined) && (!allowSpice))
       {
-         std::string errmsg = "SPICE file option not available for default body";
+         std::string errmsg = "SPICE file option not available for default body ";
          errmsg += instanceName + "\n";
          throw SolarSystemException(errmsg);
       }
-      std::string warn = "SPICE file options not yet implemented.  ";
-      warn += "Switching to TwoBodyPropagation for body " + instanceName + "\n";
-      MessageInterface::PopupMessage(Gmat::WARNING_, warn);
-      posVelSrc = Gmat::TWO_BODY_PROPAGATION;
-      hasBeenModified     = true;
-      return true;
+//      std::string warn = "SPICE file options not yet implemented.  ";
+//      warn += "Switching to TwoBodyPropagation for body " + instanceName + "\n";
+//      MessageInterface::PopupMessage(Gmat::WARNING_, warn);
+//      posVelSrc = Gmat::TWO_BODY_PROPAGATION;
+//      hasBeenModified     = true;
+//      return true;
    }
    posVelSrc           = pvSrc;
    hasBeenModified     = true;
@@ -1571,6 +1640,20 @@ bool CelestialBody::SetSourceFile(PlanetaryEphem *src)
    sourceFilename = theSourceFile->GetName();
    bodyNumber = theSourceFile->GetBodyID(instanceName);
    hasBeenModified     = true;
+   return true;
+}
+
+bool CelestialBody::SetAllowSpice(const bool allow)
+{
+   #ifdef DEBUG_CB_SPICE
+      if (userDefined)
+         MessageInterface::ShowMessage("Cannot set allowSpice flag for body %s - it is user-defined.\n",
+               instanceName.c_str());
+      else
+         MessageInterface::ShowMessage("Setting allowSpice flag for body %s to %s\n",
+               instanceName.c_str(), (allow? "true" : "false"));
+   #endif
+   if (!userDefined) allowSpice = allow; // set for default bodies only
    return true;
 }
 
@@ -1977,10 +2060,16 @@ bool CelestialBody::SetUserDefined(bool userDefinedBody)
 {
    // make sure source makes sense
    if ((userDefinedBody) && (posVelSrc == Gmat::DE405)) posVelSrc = Gmat::TWO_BODY_PROPAGATION;
-//   else if ((!userDefinedBody) && (posVelSrc == Gmat::SPICE)) posVelSrc = Gmat::DE405;
-   else if ((!userDefinedBody) && (posVelSrc == Gmat::SPICE)) posVelSrc = Gmat::DE405;
+   else if ((!userDefinedBody) && (!allowSpice) && (posVelSrc == Gmat::SPICE)) posVelSrc = Gmat::DE405;
    userDefined         = userDefinedBody;
+   if (userDefined) allowSpice = true;
    hasBeenModified     = true;
+   #ifdef DEBUG_CB_USER_DEFINED
+      MessageInterface::ShowMessage(
+            "In CB::SetUserDefined, body %s has been set to userDefined = %s and allowSpice = %s\n",
+            instanceName.c_str(), (userDefined? "true" : "false"),
+            (allowSpice? "true" : "false"));
+   #endif
    return true;
 }
 
@@ -2569,6 +2658,7 @@ std::string CelestialBody::GetStringParameter(const Integer id) const
 //   if (id == ANALYTIC_METHOD)       return Gmat::TWO_BODY_METHOD_STRINGS[analyticMethod];
    if (id == SOURCE_FILENAME)       return sourceFilename;
    if (id == SOURCE_FILE)           return sourceFilename;
+
    if (id == POTENTIAL_FILE_NAME)   return potentialFileName;
    if (id == ATMOS_MODEL_NAME)
    {
@@ -2587,8 +2677,25 @@ std::string CelestialBody::GetStringParameter(const Integer id) const
    return SpacePoint::GetStringParameter(id);
 }
 
+std::string CelestialBody::GetStringParameter(const Integer id,
+                                              const Integer index) const
+{   
+   if (id == SPICE_KERNEL_NAME)
+   {
+      if (index < 0 || (index >= (Integer) (spiceKernelNames.size())))
+      {
+         std::string errmsg = "CelestialBody::GetStringParameter - Index into spice kernel names for body ";
+         errmsg += instanceName + " is out of range.\n";
+         throw SolarSystemException(errmsg);
+      }
+      return spiceKernelNames.at(index);
+   }
+   return SpacePoint::GetStringParameter(id, index);
+}
+
+
 //------------------------------------------------------------------------------
-//  std::string  SetStringParameter(const Integer id, const std::string value)
+//  bool  SetStringParameter(const Integer id, const std::string value)
 //------------------------------------------------------------------------------
 /**
  * This method sets the string parameter value, given the input
@@ -2606,6 +2713,11 @@ std::string CelestialBody::GetStringParameter(const Integer id) const
 bool CelestialBody::SetStringParameter(const Integer id,
                                        const std::string &value) // const?
 {
+   #ifdef DEBUG_CB_SET_STRING
+      std::string idString = GetParameterText(id);
+//      MessageInterface::ShowMessage("CelestialBody::SetStringP:: id = %d (%s), value = %s\n",
+//            id, idString.c_str(), value);
+   #endif
    int i;
    if (id == BODY_TYPE)
    {
@@ -2626,20 +2738,11 @@ bool CelestialBody::SetStringParameter(const Integer id,
          errmsg += instanceName + "\"\n";
          throw SolarSystemException(errmsg);
       }
-      else if ((!userDefined) && (value == "SPICE"))
+      else if ((!userDefined) && !allowSpice && (value == "SPICE"))
       {
          std::string errmsg = "SPICE not allowed as ephemeris source for default body \"";
          errmsg += instanceName + "\"\n";
          throw SolarSystemException(errmsg);
-      }
-      else if (value == "SPICE")
-      {
-         std::string warn = "SPICE not yet implemented as ephemeris source.  ";
-         warn += "Switching to TwoBodyPropagation for user-defined body \"";
-         warn += instanceName + "\"\n";
-         MessageInterface::PopupMessage(Gmat::WARNING_, warn); 
-         posVelSrc = Gmat::TWO_BODY_PROPAGATION;
-         return true;
       }
       for (i=0;i<Gmat::PosVelSourceCount;i++)
          if (value == Gmat::POS_VEL_SOURCE_STRINGS[i])
@@ -2650,20 +2753,25 @@ bool CelestialBody::SetStringParameter(const Integer id,
          }
       return false;
    }
-//   if (id == ANALYTIC_METHOD)
-//   {
-//      for (i=0;i<Gmat::AnalyticMethodCount;i++)
-//         if (value == Gmat::ANALYTIC_METHOD_STRINGS[i])
-//         {
-//            analyticMethod = (Gmat::AnalyticMethod) i;
-//            return true;
-//         }
-//      return false;
-//   }
    if (id == SOURCE_FILENAME)
    {
       sourceFilename = value;
       hasBeenModified     = true;
+      return true;
+   }
+   if (id == SPICE_KERNEL_NAME)
+   {
+      bool alreadyInList = false;
+      StringArray::iterator i;
+      for (i = spiceKernelNames.begin(); i != spiceKernelNames.end(); ++i)
+      {
+         if ((*i) == value)
+         {
+            alreadyInList = true;
+            break;
+         }
+      }
+      if (!alreadyInList)  spiceKernelNames.push_back(value);
       return true;
    }
    if (id == POTENTIAL_FILE_NAME)
@@ -2770,6 +2878,24 @@ bool CelestialBody::SetStringParameter(const Integer id,
 
    return SpacePoint::SetStringParameter(id, value);
 }
+   
+bool CelestialBody::SetStringParameter(const Integer id, const std::string &value,
+                                       const Integer index)
+{
+   if (id == SPICE_KERNEL_NAME)
+   {
+      if (index < 0 || index >= (Integer) spiceKernelNames.size())
+      {
+            std::string errmsg = "CelestialBody::GetStringParameter - Index into spice kernel names for body ";
+            errmsg += instanceName + " is out of range.\n";
+            throw SolarSystemException(errmsg);
+      }
+      spiceKernelNames.at(index) = value;
+      return true;
+   }
+   return SpacePoint::SetStringParameter(id, value, index);
+}
+
 
 //------------------------------------------------------------------------------
 //  bool  GetBooleanParameter(const Integer id) const
@@ -3042,6 +3168,8 @@ const Rvector& CelestialBody::SetRvectorParameter(const std::string &label,
 //------------------------------------------------------------------------------
 const StringArray& CelestialBody::GetStringArrayParameter(const Integer id) const
 {
+   if (id == SPICE_KERNEL_NAME)
+      return spiceKernelNames;
    return SpacePoint::GetStringArrayParameter(id);
 }
 
@@ -3269,13 +3397,8 @@ void CelestialBody::InitializeBody(std::string withBodyType)
    stateTime         = 0.0;
    state             = Rvector6(0.0,0.0,0.0,0.0,0.0,0.0);
    angularVelocity   = Rvector3(0.0,0.0,7.29211585530e-5); // correct, for a default?
-//   angularVelocity(0) = 0.0;
-//   angularVelocity(1) = 0.0;
-//   angularVelocity(2) = 7.29211585530e-5; 
    potentialFileRead = false;
    atmModel          = NULL;
-//   int i;
-//   bodyType = Gmat::PLANET;  // default to Planet
    for (Integer i = 0; i < (Integer) Gmat::BodyTypeCount; i++)
       if (withBodyType == Gmat::BODY_TYPE_STRINGS[i]) bodyType = (Gmat::BodyType) i;
 
@@ -3410,10 +3533,10 @@ Real CelestialBody::GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const
 Rvector6 CelestialBody::ComputeTwoBody(const A1Mjd &forTime)
 {
    #ifdef DEBUG_TWO_BODY
-//   MessageInterface::ShowMessage
-//      ("CelestialBody::ComputeTwoBody() this=<%p> %s, "
-//       "theCentralBody=<%p> %s\n", this, GetName().c_str(), theCentralBody,
-//       theCentralBodyName.c_str());
+   MessageInterface::ShowMessage
+      ("CelestialBody::ComputeTwoBody() this=<%p> %s, "
+       "theCentralBody=<%p> %s\n", this, GetName().c_str(), theCentralBody,
+       theCentralBodyName.c_str());
    #endif
    
    // Since we want the state in MJ2000Eq Earth-centered
@@ -3443,15 +3566,17 @@ Rvector6 CelestialBody::ComputeTwoBody(const A1Mjd &forTime)
 Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
 {
    #ifdef DEBUG_TWO_BODY
-      if (IsOfType("Moon"))
-      {
          MessageInterface::ShowMessage
             ("CelestialBody::KeplersProblem() this=<%p> %s, "
              "theCentralBody=<%p> %s\n", this, GetName().c_str(), theCentralBody,
              theCentralBodyName.c_str());
          MessageInterface::ShowMessage("newTwoBody = %s\n", (newTwoBody? "TRUE" : "FALSE"));
-      }
+         MessageInterface::ShowMessage("keplerian elements = %12.10f   %12.10f   %12.10f   %12.10f   %12.10f   %12.10f\n",
+               twoBodyKepler[0],twoBodyKepler[1],twoBodyKepler[2],twoBodyKepler[3],twoBodyKepler[4],twoBodyKepler[5]); 
+         MessageInterface::ShowMessage("epoch = %12.10f\n",twoBodyEpoch.Get()); 
+         MessageInterface::ShowMessage("forTime = %12.10f\n",forTime.Get());         
    #endif
+
    Real     cbMu  = theCentralBody->GetGravitationalConstant() + mu;
    Rvector6 cart;  // or MA???
    Real     dTime;
@@ -3466,104 +3591,155 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
       dTime = forTime.Subtract(prevTwoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
    }
    #ifdef DEBUG_TWO_BODY
-   if (IsOfType("Moon"))
-   {
       MessageInterface::ShowMessage("cbMu = %12.8f    dTime = %12.8f\n", cbMu, dTime);
-      MessageInterface::ShowMessage("cart = %12.8f   %12,4f   %12.8f   %12,4f   %12.8f   %12,4f\n",
-            cart[0], cart[1], cart[2], cart[3], cart[4], cart[5]);
-   }
    #endif
-   Rvector3 r0    = cart.GetR();
-   Rvector3 v0    = cart.GetV();
-   Real     rMag  = r0.GetMagnitude();
-   Real     vMag  = v0.GetMagnitude();
-   Real     alpha = (-vMag * vMag / cbMu) + (2.0 / rMag);
+
+   //   // check for number of revs and reduce dTime if necessary
+   Real a = twoBodyKepler[0];   // SMA, which should be constant
+   Real T = 2 * PI * Sqrt(Abs(a)*Abs(a)*Abs(a)/cbMu);
+
+   Real revs = dTime/T;
+   Integer signOfTime = SignOf(revs);
+   revs = Abs(revs);
+   dTime = signOfTime * ((revs - Floor(revs)) * GmatTimeUtil::SECS_PER_DAY);
+
+   // if it hasnt been much time since the last call, just pass back the current (last
+   // computed) state
+   if (Abs(dTime) <= KEPLER_TOL) return cart;
+
+   #ifdef DEBUG_TWO_BODY
+      MessageInterface::ShowMessage("r0 = %12.8f   %12.8f   %12.8f  & v0 = %12.8f   %12.8f   %12.8f\n",
+            cart[0], cart[1], cart[2], cart[3], cart[4], cart[5]);
+   #endif
+   Rvector3 r0     = cart.GetR();
+   Rvector3 v0     = cart.GetV();
+
+   Real     rMag0  = r0.GetMagnitude();
+   Real     vMag0  = v0.GetMagnitude();
+   Real     alpha = (-(vMag0 * vMag0) / cbMu) + (2.0 / rMag0);
    Real     x0    = -999.999;
-   Real     rDotv = r0 * v0;
+   Real     rDotv = r0 * v0;  // dot product
    
    #ifdef DEBUG_TWO_BODY
-   if (IsOfType("Moon"))
-   {
-      MessageInterface::ShowMessage("alpha = %12.8f    rDotv = %12.8f\n", alpha, rDotv);
-      MessageInterface::ShowMessage("KEPLER_TOL = %12.8f\n", KEPLER_TOL);
-   }
+      MessageInterface::ShowMessage("alpha = %12.10f    rDotv = %12.10f\n", alpha, rDotv);
+      MessageInterface::ShowMessage("KEPLER_TOL = %12.10f\n", KEPLER_TOL);
    #endif
    // Determine initial guess .......
    // for a circle or ellipse
    if (alpha > KEPLER_TOL)  
    {
-      x0 = GmatMathUtil::Sqrt(cbMu) * dTime * cbMu;
-      if (alpha == 1.0) 
-         throw SolarSystemException("Two body model error for body "
-                                    + instanceName);
+      x0 = Sqrt(cbMu) * dTime * alpha;
+//      if (alpha == 1.0) 
+      if (Abs(alpha - 1.0) <= KEPLER_TOL)
+      {
+         // match Vallado matlab code 
+         x0 = x0 * 0.97;
+//         throw SolarSystemException("Two body model error for body "
+//                                    + instanceName);
+      }
    }
    // for a parabola
-   else if (GmatMathUtil::Abs(alpha) < KEPLER_TOL)
+   else if (Abs(alpha) < KEPLER_TOL)
    {
-      Rvector3 h    = Cross(r0, v0);
-      Real     hMag = h.GetMagnitude();
-      Real     p    = (hMag * hMag) / cbMu;
-      Real     s    = (1.0 / 2.0) * (PI_OVER_TWO - 
-                      ATan(3.0 * Sqrt(cbMu / (p * p * p)) * dTime));
-      Real     w    = ATan(Pow(Tan(s), (1.0 / 3.0)));
-      x0            = Sqrt(p) * 2.0 / Tan(2.0 * w);
+      Rvector3 h     = Cross(r0, v0);
+      Real     hMag0 = h.GetMagnitude();
+      Real     p     = (hMag0 * hMag0) / cbMu;
+      Real     s     = (1.0 / 2.0) * (PI_OVER_TWO - 
+                       ATan(3.0 * Sqrt(cbMu / (p * p * p)) * dTime));
+      Real     w     = ATan(Pow(Tan(s), (1.0 / 3.0)));
+      x0             = Sqrt(p) * 2.0 / Tan(2.0 * w);
+      alpha          = 0.0;   // per kepler function by Vallado
    }
    // for a hyperbola
    else if (alpha < -KEPLER_TOL)
    {
       Real     a     = 1.0 / alpha;
-      Real     signT;
-      if (dTime >= 0.0) signT =  1.0;
-      else              signT = -1.0;
+      Integer  signT = SignOf(dTime);
       Real     num   = -2.0 * cbMu * alpha * dTime;
       Real     den   = rDotv + signT * Sqrt(-cbMu * a) * 
-                       (1.0 - rMag * alpha);
+                       (1.0 - rMag0 * alpha);
       x0             = signT * Sqrt(-a) * Ln(num / den);
    }
    // Loop until difference falls within tolerance
-   Real psi, rVal, xNew;
-   Real xn    = x0;
-   bool done  = false;
-   Real c2    = -999.99;
-   Real c3    = -999.99;
+   Real    rVal    = 0.0;
+   Real    xNew    = 0.0;
+   Real    xn      = x0;
+   Real    psi     = xn * xn * alpha;
+   Real    sqrtPsi = 0.0;
+   bool    done    = false;
+   Real    c2      = -999.99;
+   Real    c3      = -999.99;
+   Integer counter = 0;
+//   Real    dtNew   = -10;  // see Vallado matlab code 
    while (!done)
+   // 2009.03.09 WCS - changing to match Vallado matlab code (though it does
+   // not appear to match pp. 101-102)
+//   while ((Abs(dtNew/Sqrt(cbMu) - dTime) >= KEPLER_TOL) && (counter < KEPLER_MAX_ITERATIONS))
    {
       psi = xn * xn * alpha;
       
       // compute c2 and c3, per Algorithm 1, p. 71
       if (psi > KEPLER_TOL)
       {
-         c2 = (1.0 - Cos(Sqrt(psi))) / psi;
-         c3 = (Sqrt(psi) - Sin(Sqrt(psi))) / Sqrt(psi * psi * psi);
+         sqrtPsi = Sqrt(psi);
+         c2      = (1.0 - Cos(sqrtPsi)) / psi;
+         c3      = (sqrtPsi - Sin(sqrtPsi)) / Sqrt(psi * psi * psi);
       }
       else if (psi < -KEPLER_TOL)
       {
-         c2 = (1.0 - Cosh(Sqrt(-psi))) / psi;
-         c3 = (Sinh(Sqrt(-psi)) - Sqrt(-psi)) / Sqrt((-psi) * (-psi) * (-psi));
+         sqrtPsi = Sqrt(-psi);
+         c2      = (1.0 - Cosh(sqrtPsi)) / psi;
+         c3      = (Sinh(sqrtPsi) - sqrtPsi) / Sqrt((-psi) * (-psi) * (-psi));
       }
       else
       {
-         c2 = 1.0 / 2.0;
-         c3 = 1.0 / 6.0;
+         c2      = 1.0 / 2.0;
+         c3      = 1.0 / 6.0;
       }
       rVal = (xn * xn * c2) + (rDotv / Sqrt(cbMu)) * xn * (1.0 - psi * c3) +
-              rMag * (1.0 - psi * c2);
+              rMag0 * (1.0 - psi * c2);
+//      dtNew = (xn * xn * xn * c3) + (rDotv / Sqrt(cbMu)) * (xn * xn * c2) +
+//                rMag0 * xn * (1.0 - psi *c3);
+//      xNew  = xn + ((Sqrt(cbMu) * dTime) - dtNew) / rVal;
+                
       xNew = xn + ((Sqrt(cbMu) * dTime) - (xn * xn * xn * c3) - 
                    (rDotv / Sqrt(cbMu)) * (xn * xn * c2) -
-                   rMag * xn * (1.0 - psi *c3)) / rVal;
+                   rMag0 * xn * (1.0 - psi *c3)) / rVal;
       
       if (Abs(xn - xNew) < KEPLER_TOL) done = true;
       xn = xNew;
+      counter++;
+   }
+   if (counter >= KEPLER_MAX_ITERATIONS)
+   {
+      std::stringstream ss;
+      ss << "Kepler's Problem (TwoBodyPropagation) for Body \"" << instanceName <<
+            "\" is not converging after " << KEPLER_MAX_ITERATIONS << "iterations.";
+      throw SolarSystemException(ss.str());
    }
    
-   Real f     = 1.0 - ((xn * xn) / rMag) * c2;
+   Real f     = 1.0 - ((xn * xn) / rMag0) * c2;
    Real g     = dTime - ((xn * xn * xn) / Sqrt(cbMu)) * c3;
-   Real gDot  = 1.0 - ((xn * xn) / rVal) * c2;
-   Real fDot  = (Sqrt(cbMu) / (rVal * rMag)) * xn * (psi * c3 - 1.0);
-   Rvector3 r = f    * r0 + g    * v0;
+   Rvector3 r = f * r0 + g * v0;
+   // recompute magnitude, etc. (per Vallado matlab code)
+   Real rMagNew = r.GetMagnitude();
+//   Real gDot  = 1.0 - ((xn * xn) / rVal) * c2;
+//   Real fDot  = (Sqrt(cbMu) / (rVal * rMag0)) * xn * (psi * c3 - 1.0);
+   // Mods to this computation per Vallado matlab code
+   Real gDot  = 1.0 - ((xn * xn) / rMagNew) * c2;
+   Real fDot  = (Sqrt(cbMu) / (rMagNew * rMag0)) * xn * (psi * c3 - 1.0);
    Rvector3 v = fDot * r0 + gDot * v0;
+//   Real     fg = f*gDot - fDot * g;
    
-   if (!IsEqual((f * gDot - g * fDot), 1.0, 1.0e-9))
+   #ifdef DEBUG_TWO_BODY
+      MessageInterface::ShowMessage("f    = %12.10f, g    = %12.10f\n", f, g);
+      MessageInterface::ShowMessage("fDot = %12.10f, gDot = %12.10f\n", fDot, gDot);
+      MessageInterface::ShowMessage("Computed quantity (fg) = %12.10f\n", (Abs(f * gDot - g * fDot)));
+   #endif
+//   if (!IsEqual((f * gDot - g * fDot), 1.0, 1.0e-9))
+   if (!IsEqual(Abs(f * gDot - g * fDot), 1.0, 1.0e-5))  // e-5 per S. Hughes 2009.02.19
+//   if (Abs((f*gDot-fDot*g) - 1.0) > (KEPLER_TOL * 100)) // mods per Vallado matlab code
+//   if (Abs(fg - 1.0) > 1.0e-5) // mods per Vallado matlab code
       throw SolarSystemException(
             "Error performing two body propagation for body "
             + instanceName);
@@ -3572,26 +3748,77 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    prevTwoBodyEpoch = forTime;
    prevTwoBodyState = newState;
    newTwoBody       = false;
-   /* debug stuff
-   static std::ofstream foutMarsFromEarth;
-   static bool first = true;
-   if (first)
-   {
-      foutMarsFromEarth.open("./TestLowMarsData.out");
-      foutMarsFromEarth.setf(ios::fixed);
-      foutMarsFromEarth.precision(30);
-      first = false;
-   }
-   if (instanceName == SolarSystem::MARS_NAME)
-   {
-      Real  td = (Real) forTime.Subtract(lfEpoch) * GmatTimeUtil::SECS_PER_DAY;
-      foutMarsFromEarth << td << "  " << newState[0] << " " << newState[1] << " " << newState[2]
-         << "  " << newState[3] << " " << newState[4] << " " << newState[5] << std::endl;
-
-   }
-   */
+   // debug stuff
+   #ifdef DEBUG_TWO_BODY
+      MessageInterface::ShowMessage("At end of TwoBody computation, new r  = %12.10f    %12.10f    %12.10f\n",
+            newState[0], newState[1], newState[2]);
+      MessageInterface::ShowMessage("At end of TwoBody computation, new v  = %12.10f    %12.10f    %12.10f\n",
+            newState[3], newState[4], newState[5]);
+   #endif
    
    return newState;
+}
+
+bool CelestialBody::SetUpSPICE()
+{
+#ifdef __USE_SPICE__
+   #ifdef DEBUG_CB_SPICE
+      MessageInterface::ShowMessage(
+            "Entering SetUpSpice for body %s with source = %s and spiceKernelNames:\n", 
+            instanceName.c_str(), Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc].c_str());
+      for (unsigned int ii = 0; ii < spiceKernelNames.size(); ii++)
+         MessageInterface::ShowMessage("     %s\n", (spiceKernelNames.at(ii)).c_str());
+      if (kernelReader == NULL)
+         MessageInterface::ShowMessage("   kernelReader is NULL\n");
+   #endif
+   if (posVelSrc != Gmat::SPICE) return false;
+   if (kernelReader == NULL) kernelReader = SpiceKernelReader::Instance();
+   // Load the leap second kernel
+   kernelReader->SetLeapSecondKernel("./files/time/naif0009.tls"); // ******* get from FileManager ****
+   #ifdef DEBUG_CB_SPICE
+      if (kernelReader == NULL)
+         MessageInterface::ShowMessage("   kernelReader is STILL NULL\n");
+   #endif
+
+   if (spiceKernelNames.empty())
+   {
+      std::string errmsg = "ERROR - SPICE selected as source for body \"";
+      errmsg += instanceName + "\", but no SPK file(s) specified.\n";
+      throw SolarSystemException(errmsg);
+   }
+   for (unsigned int ii = 0; ii < spiceKernelNames.size(); ii++)
+   {
+      if (!(kernelReader->IsLoaded(spiceKernelNames.at(ii))))
+         try
+         {
+            kernelReader->LoadKernel(spiceKernelNames.at(ii));
+            #ifdef DEBUG_CB_SPICE
+               MessageInterface::ShowMessage("   kernelReader has loaded file %s\n",
+                     (spiceKernelNames.at(ii)).c_str());
+            #endif
+            // get the NAIF Id from the Spice Kernel(s)
+            Integer spiceNaifId = kernelReader->GetNaifID(instanceName);
+            if ((naifId != -1) && (spiceNaifId != naifId))
+            {
+               std::stringstream ss;
+               ss << "Overriding input NAIF ID for body \"" << instanceName <<
+                     "\" with SPICE NAIF ID (" << spiceNaifId << ").\n";
+               MessageInterface::PopupMessage(Gmat::WARNING_, ss.str());
+            }
+            naifId = spiceNaifId;
+            #ifdef DEBUG_CB_SPICE
+               MessageInterface::ShowMessage("   naifID for body %s is %d\n",
+                     instanceName.c_str(), naifId);
+            #endif
+         }
+         catch (UtilityException& ue)
+         {
+            MessageInterface::ShowMessage("ERROR loading kernel %s\n", (spiceKernelNames.at(ii).c_str()));
+            throw; // rethrow the exception, for now
+         }
+   }
+#endif
+   return true;
 }
 
 //------------------------------------------------------------------------------

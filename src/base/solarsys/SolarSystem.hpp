@@ -34,7 +34,6 @@
 #include "GmatBase.hpp"
 #include "CelestialBody.hpp"
 #include "PlanetaryEphem.hpp"
-//#include "SlpFile.hpp"
 #include "DeFile.hpp"
 
 /**
@@ -66,14 +65,14 @@ public:
    const StringArray& GetPlanetarySourceTypes();
    const StringArray& GetPlanetarySourceNames();
    const StringArray& GetPlanetarySourceTypesInUse();
-//   const StringArray& GetAnalyticModelNames();
-//   bool SetAnalyticModelToUse(const std::string &modelName);
    bool SetPlanetarySourceName(const std::string &sourceType,
                                const std::string &fileName);
    Integer SetPlanetarySourceTypesInUse(const StringArray &sourceTypes); 
    Integer GetPlanetarySourceId(const std::string &sourceType);
    std::string GetPlanetarySourceName(const std::string &sourceType);
    std::string GetCurrentPlanetarySource();
+   void        SetIsSpiceAllowedForDefaultBodies(const bool allowSpice);
+   bool        IsSpiceAllowedForDefaultBodies() const;
    
    void ResetToDefaults();
    
@@ -81,6 +80,8 @@ public:
    bool                 AddBody(CelestialBody* cb);
    // method to return a body of the solar system, given its name
    CelestialBody*       GetBody(std::string withName);
+   // method to remove a body from the solar system
+   bool                 DeleteBody(const std::string &withName);
    
    // method to return an array of the names of the bodies included in
    // this solar system
@@ -93,8 +94,6 @@ public:
    
    // methods to get the source and analytic model flags
    Gmat::PosVelSource   GetPosVelSource() const;
-//   Gmat::PosVelSource   GetPosVelSourceForBody(const std::string &theBody) const;
-//   Gmat::AnalyticMethod GetAnalyticMethod() const;
    std::string          GetSourceFileName() const;
    bool                 GetOverrideTimeSystem() const;
    Real                 GetEphemUpdateInterval() const;
@@ -106,8 +105,7 @@ public:
    bool SetSource(Gmat::PosVelSource pvSrc);
    bool SetSource(const std::string &pvSrc);
    bool SetSourceFile(PlanetaryEphem *src);
-//   bool SetAnalyticMethod(Gmat::AnalyticMethod aM);
-//   bool SetAnalyticMethod(const std::string &aM);
+   bool SetSPKFile(const std::string &spkFile);
    
    bool SetOverrideTimeSystem(bool overrideIt);
    bool SetEphemUpdateInterval(Real intvl);
@@ -250,48 +248,24 @@ protected:
    
    
    Gmat::PosVelSource    pvSrcForAll;
-//   Gmat::AnalyticMethod  anMethodForAll;
    PlanetaryEphem*       thePlanetaryEphem;
    bool                  overrideTimeForAll;
    Real                  ephemUpdateInterval;
 
 private:
    
-//   enum
-//   {
-////      ANALYTIC = 0,
-////      SLP,
-////      DE200,
-//      TWO_BODY_PROPAGATION = 0,
-//      DE405,
-////      SPICE,                 // not for default bodies; only for user-defined bodies
-//      PlanetarySourceCount,
-//   };
-   
-//   enum
-//   {
-//      LOW_FIDELITY = 0,
-//      AnalyticModelCount,
-//   };
    
    std::string theCurrentPlanetarySource;
-//   Integer thePlanetarySourcePriority[PlanetarySourceCount];
-//   bool isPlanetarySourceInUse[PlanetarySourceCount];
    Integer thePlanetarySourcePriority[Gmat::PosVelSourceCount];
    bool isPlanetarySourceInUse[Gmat::PosVelSourceCount];
-//   static const std::string PLANETARY_SOURCE_STRING[PlanetarySourceCount];
-//   static const std::string ANALYTIC_MODEL_STRING[AnalyticModelCount];
    static const Integer HIGHEST_PRIORITY = 10;
    
    // list for planetary source
    StringArray thePlanetarySourceTypes;
    StringArray thePlanetarySourceNames;
    StringArray thePlanetarySourceTypesInUse;
-//   StringArray theAnalyticModelNames;
    StringArray theTempFileList;
-//   Gmat::AnalyticMethod theAnalyticMethod;
    
-//   SlpFile *theDefaultSlpFile;
    DeFile *theDefaultDeFile;
    
    /// list of the celestial bodies that are included in this solar system
@@ -301,6 +275,12 @@ private:
    StringArray bodyStrings;  // is this needed, or just a convenience?
    StringArray defaultBodyStrings;
    StringArray userDefinedBodyStrings;
+   /// flag indicating whether or not SPICE is allowed as a position/velocity 
+   /// source for default bodies
+   bool        allowSpiceForDefaultBodies;
+   bool        spiceAvailable;
+   /// name of the SPK file for the default bodies
+   std::string theSPKFilename;
    
    // method to find a body in the solar system, given its name
    CelestialBody* FindBody(std::string withName);
@@ -310,7 +290,6 @@ private:
    
    // methods to create planetary source file
    void SetDefaultPlanetarySource();
-//   bool CreateSlpFile(const std::string &fileName);
    bool CreateDeFile(const Integer id, const std::string &fileName,
                      Gmat::DeFileFormat format = Gmat::DE_BINARY);
    
@@ -353,6 +332,7 @@ private:
    static const std::string           PLANET_MAGNETIC_MODELS[];
    static const std::string           PLANET_SHAPE_MODELS[]; // @todo add Shape Models
    static const Rvector6              PLANET_ORIENTATION_PARAMETERS[NumberOfDefaultPlanets];
+   static const Integer               PLANET_NAIF_IDS[NumberOfDefaultPlanets];
   
    /// Default planet data ----------------------------  moons  ---------------
    enum DefaultMoons
@@ -389,8 +369,9 @@ private:
    static const std::string           MOON_MAGNETIC_MODELS[];
    static const std::string           MOON_SHAPE_MODELS[]; // @todo add Shape Models
    static const Rvector6              MOON_ORIENTATION_PARAMETERS[NumberOfDefaultMoons];
+   static const Integer               MOON_NAIF_IDS[NumberOfDefaultPlanets];
  
-   /// Default planet data ----------------------------  the Sun  ---------------
+   /// Default star data ----------------------------  the Sun  ---------------
    
    // default values for CelestialBody data
    static const Gmat::PosVelSource    STAR_POS_VEL_SOURCE;
@@ -415,6 +396,7 @@ private:
    static const std::string           STAR_MAGNETIC_MODELS;
    static const std::string           STAR_SHAPE_MODELS; // @todo add Shape Models
    static const Rvector6              STAR_ORIENTATION_PARAMETERS;
+   static const Integer               STAR_NAIF_IDS;
 
    static const Real                  STAR_RADIANT_POWER;       // W / m^2
    static const Real                  STAR_REFERENCE_DISTANCE;  // km
