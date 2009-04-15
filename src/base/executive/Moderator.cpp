@@ -1593,6 +1593,13 @@ CalculatedPoint* Moderator::GetCalculatedPoint(const std::string &name)
 CelestialBody* Moderator::CreateCelestialBody(const std::string &type,
                                               const std::string &name)
 {
+   #ifdef DEBUG_CREATE_BODY
+      MessageInterface::ShowMessage
+         ("Moderator::CreateCelestialBody() called with type = %s and name = %s\n",
+          type.c_str(), name.c_str());
+      if (GetCelestialBody(name) != NULL) 
+         MessageInterface::ShowMessage("... that body alreday exists\n");
+   #endif
    if (GetCelestialBody(name) == NULL)
    {
       CelestialBody *body = theFactoryManager->CreateCelestialBody(type, name);
@@ -1613,8 +1620,8 @@ CelestialBody* Moderator::CreateCelestialBody(const std::string &type,
       
       Integer manage = 0;
       SolarSystem *ss = GetSolarSystemInUse(manage);
-      ss->AddBody(body);
       body->SetUserDefined(true);
+      ss->AddBody(body);
       #ifdef DEBUG_CREATE_BODY
       MessageInterface::ShowMessage
          ("Moderator::CreateCelestialBody() Created CelestialBody "
