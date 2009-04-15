@@ -1,29 +1,47 @@
 function  [Answer] = Func_GFuncInsideCFlow(Flag)
 
-Create Variable Answer;
-Create Variable MyVar1;
-Create Variable MyVar2;
-Create Variable loop;
-Create Variable ranOK;
+Create Variable Answer MyVar1 MyVar2 loop ranOK;
+Create Variable VarCheck AnswerCheck;
+Create Array ArrCheck[2,1];
+Create String StringCheck;
 Create String ControlFlow;
 
 Create ReportFile Results;
 GMAT Results.Filename = './output/SystemTest/Func_GFuncInsideCFlow.report';
 
+Create MatlabFunction prod;
+
+StringCheck = ' ';
+
+% ======================================
+% Test GMAT Function Call Inside If
+% ======================================
 MyVar1 = 5;
 MyVar2 = 6;
 ranOK  = 0;
 Answer = 0;
 
-% ======================================
-% Test GMAT Function Call Inside If
-% ======================================
-
 ControlFlow = 'If';
 
 If Flag == 1
    Answer = Product(MyVar1,MyVar2);
-   ranOK  = 1;
+   ranOK  = ranOK + 1;
+
+   VarCheck      = MyVar1;
+   ranOK  = ranOK + 1;
+   
+   ArrCheck(1,1) = MyVar1;
+   ranOK  = ranOK + 1;
+      
+   ArrCheck(2,1) = MyVar2;
+   ranOK  = ranOK + 1;
+   
+   StringCheck   = 'TestingIf';
+   ranOK  = ranOK + 1;
+   
+   [AnswerCheck] = prod(ArrCheck)
+   ranOK  = ranOK + 1;
+   
 Else
    Stop
 EndIf
@@ -44,8 +62,23 @@ ControlFlow = 'While';
 
 While Flag == 1
    Answer = Product(MyVar1,MyVar2);
-   ranOK  = 1;
+   ranOK  = ranOK + 1;
    Flag = 2
+   
+   VarCheck      = MyVar1;
+   ranOK  = ranOK + 1;
+   
+   ArrCheck(1,1) = MyVar1;
+   ranOK  = ranOK + 1;
+      
+   ArrCheck(2,1) = MyVar2;
+   ranOK  = ranOK + 1;
+   
+   StringCheck   = 'TestingWhile';
+   ranOK  = ranOK + 1;
+   
+   [AnswerCheck] = prod(ArrCheck)
+   ranOK  = ranOK + 1;   
 EndWhile
 
 Report Results ControlFlow ranOK MyVar1 MyVar2 Answer; % Report line should read: While  1 2 3 6
@@ -63,7 +96,22 @@ ControlFlow = 'For';
 
 For loop = 1:1
    Answer = Product(MyVar1,MyVar2);
-   ranOK  = 1;
+   ranOK  = ranOK + 1;
+   
+   VarCheck      = MyVar1;
+   ranOK  = ranOK + 1;
+   
+   ArrCheck(1,1) = MyVar1;
+   ranOK  = ranOK + 1;
+      
+   ArrCheck(2,1) = MyVar2;
+   ranOK  = ranOK + 1;
+   
+   StringCheck   = 'TestingFor';
+   ranOK  = ranOK + 1;
+   
+   [AnswerCheck] = prod(ArrCheck)
+   ranOK  = ranOK + 1;   
 EndFor
 
 Report Results ControlFlow ranOK MyVar1 MyVar2 Answer; % Report line should read: For  1 -2 10 -20
