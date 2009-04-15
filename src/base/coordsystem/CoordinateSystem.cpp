@@ -1315,8 +1315,8 @@ bool CoordinateSystem::TranslateToMJ2000Eq(const A1Mjd &epoch,
 {
    #ifdef DEBUG_TRANSLATION
       MessageInterface::ShowMessage(
-            "In translation, origin is %s and j2000Body is %s\n",
-            (origin->GetName()).c_str(), (j2000Body->GetName()).c_str());
+            "In TranslateToMJ2000Eq, coord. system is %s, origin is %s and j2000Body is %s\n",
+            (axes->GetTypeName()).c_str(), (origin->GetName()).c_str(), (j2000Body->GetName()).c_str());
    #endif
    if (origin == j2000Body)  
       outState = inState;
@@ -1361,6 +1361,11 @@ bool CoordinateSystem::TranslateToMJ2000Eq(const A1Mjd &epoch,
                                            const Real *inState,
                                            Real *outState)
 {
+   #ifdef DEBUG_TRANSLATION
+      MessageInterface::ShowMessage(
+            "In TranslateToMJ2000Eq, coord. system is %s, origin is %s and j2000Body is %s\n",
+            (axes->GetTypeName()).c_str(), (origin->GetName()).c_str(), (j2000Body->GetName()).c_str());
+   #endif
    #ifdef DEBUG_INPUTS_OUTPUTS
    MessageInterface::ShowMessage
       ("In CS::TranslateToMJ2000Eq, inState = %.17f  %.17f  %.17f  %.17f  %.17f  "
@@ -1411,6 +1416,11 @@ bool CoordinateSystem::TranslateFromMJ2000Eq(const A1Mjd &epoch,
                                              const Rvector &inState,
                                              Rvector &outState)
 {
+   #ifdef DEBUG_TRANSLATION
+      MessageInterface::ShowMessage(
+            "In TranslateFromMJ2000Eq, coord. system is %s, origin is %s and j2000Body is %s\n",
+            (axes->GetTypeName()).c_str(), (origin->GetName()).c_str(), (j2000Body->GetName()).c_str());
+   #endif
    if (origin == j2000Body)  
       outState = inState;
    else
@@ -1432,6 +1442,11 @@ bool CoordinateSystem::TranslateFromMJ2000Eq(const A1Mjd &epoch,
                                              const Real *inState,
                                              Real *outState)
 {
+   #ifdef DEBUG_TRANSLATION
+      MessageInterface::ShowMessage(
+            "In TranslateFromMJ2000Eq, coord. system is %s, origin is %s and j2000Body is %s\n",
+            (axes->GetTypeName()).c_str(), (origin->GetName()).c_str(), (j2000Body->GetName()).c_str());
+   #endif
    if (origin == j2000Body)  
       for (Integer i=0; i<6; i++) outState[i] = inState[i];
    else
