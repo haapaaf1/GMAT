@@ -2273,6 +2273,7 @@ bool Propagate::Initialize()
    GmatCommand::Initialize();
    
    inProgress = false;
+   hasFired = false;
    UnsignedInt index = 0;
    sats.clear();
    SpaceObject *so;
