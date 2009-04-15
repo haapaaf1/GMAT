@@ -109,13 +109,13 @@ using namespace GmatMathUtil;
 Moon::Moon(std::string name) :
 CelestialBody     ("Moon",name)
 {
-   CelestialBody::InitializeBody();
+//   CelestialBody::InitializeBody("Moon");
    
    objectTypeNames.push_back("Moon");
 //   InitializeMoon(SolarSystem::EARTH_NAME);  
    parameterCount = MoonParamCount;
    
-   theCentralBodyName  = SolarSystem::EARTH_NAME; // by default, it is Luna 
+   theCentralBodyName  = SolarSystem::EARTH_NAME; // by default, the Moon is Luna 
    bodyType            = Gmat::MOON;
    bodyNumber          = 2;
    referenceBodyNumber = 3;
@@ -156,7 +156,7 @@ CelestialBody     ("Moon",name)
 Moon::Moon(std::string name, const std::string &cBody) :
 CelestialBody     ("Moon",name)
 {
-   CelestialBody::InitializeBody();
+//   CelestialBody::InitializeBody("Moon");
    
    objectTypeNames.push_back("Moon");
 //   InitializeMoon(cBody); 

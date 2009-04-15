@@ -317,7 +317,7 @@ Planet::Planet(std::string name) :
    CelestialBody     ("Planet",name),
    nutationUpdateInterval    (60.0)
 {   
-   CelestialBody::InitializeBody();
+//   CelestialBody::InitializeBody();
 
    objectTypeNames.push_back("Planet");
    parameterCount = PlanetParamCount;
@@ -365,7 +365,7 @@ Planet::Planet(std::string name, const std::string &cBody) :
    CelestialBody     ("Planet",name),
    nutationUpdateInterval    (60.0)
 {
-   CelestialBody::InitializeBody();
+//   CelestialBody::InitializeBody();
 
    objectTypeNames.push_back("Planet");
    parameterCount = PlanetParamCount;

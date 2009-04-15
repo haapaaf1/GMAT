@@ -26,50 +26,6 @@
 
 //#define DEBUG_ASTEROID 1
 
-// initialize static default values
-// default values for CelesitalBody data
-//const Gmat::BodyType        Asteroid::BODY_TYPE           = Gmat::ASTEROID;
-//const Gmat::PosVelSource    Asteroid::POS_VEL_SOURCE      = Gmat::SPICE; 
-//const Integer               Asteroid::ORDER               = 0; 
-//const Integer               Asteroid::DEGREE              = 0;  
-// // 2006.01.31 Equatorial radius - to match STK; was 1738.1; 
-//const Real                  Asteroid::LUNA_EQUATORIAL_RADIUS   = 1738.2000;// km
-//const Real                  Asteroid::LUNA_FLATTENING          = 0.0;
-//// Units for mu are km^3 / s^2
-//const Real                  Asteroid::LUNA_MU                  = 4902.8005821478;
-//const Integer               Asteroid::LUNA_BODY_NUMBER         = 2; 
-//const Integer               Asteroid::LUNA_REF_BODY_NUMBER     = 3; 
-//
-//const Rmatrix               Asteroid::LUNA_SIJ                 = Rmatrix(5,5,
-//   0.0,                  0.0,                  0.0,                  0.0,
-//   0.0,
-//   0.0,                  0.0,                  0.0,                  0.0,
-//   0.0,
-//   0.0, 4.78976286742000E-09, 1.19043314469000E-08,                  0.0,
-//   0.0,
-//   0.0, 5.46564929895000E-06, 4.88875341590000E-06,-1.76416063010000E-06,
-//   0.0,
-//   0.0, 1.63304293851000E-06,-6.76012176494000E-06,-1.34287028168000E-05,
-//   3.94334642990000E-06);
-//const Rmatrix               Asteroid::LUNA_CIJ                 = Rmatrix(5,5,
-//                     1.0,                 0.0,                  0.0,
-//                     0.0,                 0.0,
-//                     0.0,                 0.0,                  0.0,
-//                     0.0,                 0.0,
-//   -9.09314486280000E-05, 9.88441569067000E-09, 3.47139237760000E-05,
-//                     0.0,                 0.0,
-//   -3.17765981183000E-06, 2.63497832935000E-05, 1.42005317544000E-05,
-//    1.22860504604000E-05,                 0.0,
-//    3.21502582986000E-06,-6.01154071094000E-06,-7.10667037450000E-06,
-//   -1.37041711834000E-06,-6.03652719918000E-06);
-//
-//const Real                  Asteroid::TWO_BODY_EPOCH      = 21544.500370768266;
-//const Rvector6              Asteroid::TWO_BODY_ELEMENTS   = Rvector6(
-//      385494.90434829952,  0.055908943292024992,   20.940245433093748,
-//      12.233244412716252, 68.004298803147648,     137.94325682926458);
-//
-
-/// @todo add other ones as needed
 
 //---------------------------------
 // static data
@@ -104,7 +60,7 @@
 Asteroid::Asteroid(std::string name) :
 CelestialBody     ("Asteroid",name)
 {
-   CelestialBody::InitializeBody();
+//   CelestialBody::InitializeBody("Asteroid");
    
    objectTypeNames.push_back("Asteroid"); 
    parameterCount = AsteroidParamCount;
@@ -152,7 +108,7 @@ CelestialBody     ("Asteroid",name)
 Asteroid::Asteroid(std::string name, const std::string &cBody) :
 CelestialBody     ("Asteroid",name)
 {
-   CelestialBody::InitializeBody();
+//   CelestialBody::InitializeBody("Asteroid");
    
    objectTypeNames.push_back("Asteroid");
    parameterCount = AsteroidParamCount;
