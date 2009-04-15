@@ -118,7 +118,7 @@ ParameterSelectDialog::~ParameterSelectDialog()
    
    theGuiManager->UnregisterListBox(mObjectType, mObjectListBox);
    theGuiManager->UnregisterComboBox("CoordinateSystem", mCoordSysComboBox);
-   theGuiManager->UnregisterComboBox("SpacePoint", mCentralBodyComboBox);
+   theGuiManager->UnregisterComboBox("CelestialBody", mCentralBodyComboBox);
 }
 
 
