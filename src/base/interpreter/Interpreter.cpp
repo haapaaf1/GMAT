@@ -722,6 +722,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    else
    {
 #ifdef DEBUG_CREATE_CELESTIAL_BODY
+      MessageInterface::ShowMessage("In CreateObject, type = %s\n", type.c_str());
       MessageInterface::ShowMessage("In CreateObject, list of celestial body types are: \n");
       for (unsigned int ii = 0; ii < celestialBodyList.size(); ii++)
          MessageInterface::ShowMessage(" ... %s\n", (celestialBodyList.at(ii)).c_str());
