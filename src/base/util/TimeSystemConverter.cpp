@@ -194,7 +194,7 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
     case TimeConverterUtil::TDBMJD:
     case TimeConverterUtil::TDB:
           throw UnimplementedException(
-               "Not Implement - TDB to TAI");
+               "Not Implemented - TDB to TAI");
 //      Real tdbJd = origValue + jdOffset;
 //      Real taiJd = ((tdbJd - ((TDB_COEFF1 *sin(m_E)) +
 //                    (TDB_COEFF2 * sin(2 * m_E)))) * T_TT_COEFF1) - T_TT_OFFSET;
@@ -202,7 +202,7 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
     case TimeConverterUtil::TCBMJD:
     case TimeConverterUtil::TCB:
           throw UnimplementedException(
-               "Not Implement - TCB to TAI");
+               "Not Implemented - TCB to TAI");
 //      Real tdbMjd;
 //      return ConvertToTaiMjd("TdbMjd", tdbMjd);    
     case TimeConverterUtil::TTMJD:
