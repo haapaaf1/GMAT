@@ -255,15 +255,19 @@ void CelestialBodyPropertiesPanel::Create()
    cbPropGridSizer->Add(flatTextCtrl,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(flatUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
-   cbPropGridSizer->Add(textureStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   cbPropGridSizer->Add(textureTextCtrl,0, wxALIGN_LEFT|wxALL, bSize);
-   cbPropGridSizer->Add(browseButton,0, wxALIGN_CENTRE|wxALL, bSize);
    cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
+   cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
+   
+   wxFlexGridSizer *cbPropGridSizer2 = new wxFlexGridSizer(3,0,0);
+   cbPropGridSizer2->Add(textureStaticText,0, wxALIGN_LEFT|wxALL, bSize);
+   cbPropGridSizer2->Add(textureTextCtrl,0, wxALIGN_LEFT|wxALL, bSize);
+   cbPropGridSizer2->Add(browseButton,0, wxALIGN_CENTRE|wxALL, bSize);
    
    pageSizer    = new GmatStaticBoxSizer(wxVERTICAL, this, "");
    
    pageSizer->Add(cbPropGridSizer, 0, wxALIGN_CENTRE|wxALL, bSize); 
+   pageSizer->Add(cbPropGridSizer2, 0, wxALIGN_CENTRE|wxALL, bSize); 
    
    this->SetAutoLayout(true);
    this->SetSizer(pageSizer);

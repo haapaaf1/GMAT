@@ -55,7 +55,9 @@ private:
    SolarSystem    *ss;
    
    std::string    ephemSrc;
+   std::string    previousEphemSrc;
    std::string    ephemFile;
+   StringArray    spkFiles;
    Integer        naifID;
    std::string    centralBody;
    Real           initialEpoch;
@@ -68,6 +70,7 @@ private:
    
    bool           ephemSrcChanged;
    bool           ephemFileChanged;
+   bool           spkFileChanged;
    bool           naifIDChanged;
    bool           cBodyChanged;
    bool           epochChanged;
@@ -79,8 +82,10 @@ private:
    bool           TAChanged;
    
    bool           userDef;
+   bool           allowSpiceForDefaultBodies;
    
    bool           isSun;
+   bool           spiceAvailable;
    
    GmatPanel      *theCBPanel;
    
@@ -93,6 +98,8 @@ private:
    void     OnEphemSourceComboBoxChange(wxCommandEvent &event);
    void     OnEphemFileTextCtrlChange(wxCommandEvent &event);
    void     OnEphemFileBrowseButton(wxCommandEvent &event);
+   void     OnSpkFileBrowseButton(wxCommandEvent &event);
+   void     OnSpkFileListBoxChange(wxCommandEvent &event);
    void     OnNaifIdTextCtrlChange(wxCommandEvent &event);
    void     OnCentralBodyComboBoxChange(wxCommandEvent &event);
    void     OnEpochTextCtrlChange(wxCommandEvent &event);
@@ -107,7 +114,9 @@ private:
    
    wxStaticText *ephemSourceStaticText;
    wxStaticText *ephemFileStaticText;
+   wxStaticText *spkFileStaticText;
    wxStaticText *naifIDStaticText;
+   wxStaticText *naifIDBlankText;
    wxStaticText *centralBodyStaticText;
    wxStaticText *initialEpochStaticText;
    wxStaticText *SMAStaticText;
@@ -134,21 +143,28 @@ private:
    wxTextCtrl   *AOPTextCtrl;
    wxTextCtrl   *TATextCtrl;
    
+   wxListBox    *spkFileListBox;
+   
    wxComboBox   *ephemSourceComboBox;
    wxComboBox   *centralBodyComboBox;
+   
    wxButton     *ephemFileBrowseButton;
+   wxButton     *spkFileBrowseButton;
    
    // strings for the combo boxes
    StringArray  sourceArray;
+   StringArray  spkFileArray;
 //   StringArray  centralBodyArray;
    
    // wxString arrays for the combo boxes
    wxString     *sourceArrayWX;
+   wxString     *spkFileArrayWX;
 //   wxString     *centralBodyArrayWX;
    
    /// string versions of current data
    wxString     ephemSourceStringWX;
    wxString     ephemFileStringWX;
+   wxString     spkFileStringWX;
    wxString     naifIDStringWX;
    wxString     centralBodyStringWX;
    wxString     initialEpochStringWX;
@@ -161,6 +177,8 @@ private:
    
    
    GmatStaticBoxSizer *mainBoxSizer;
+   wxFlexGridSizer    *orbitDataFlexGridSizer;
+
    
    /// IDs for the controls 
    enum
@@ -168,7 +186,9 @@ private:
       ID_TEXT = 7100,
       ID_COMBO_BOX_EPHEM_SOURCE,
       ID_TEXT_CTRL_EPHEM_FILE,
+      ID_LIST_BOX_SPK_FILE,
       ID_BROWSE_BUTTON_EPHEM_FILE,
+      ID_BROWSE_BUTTON_SPK_FILE,
       ID_TEXT_CTRL_NAIF_ID,
       ID_COMBO_BOX_CENTRAL_BODY,
       ID_TEXT_CTRL_INITIAL_EPOCH,
