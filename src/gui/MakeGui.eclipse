@@ -22,9 +22,9 @@ endif
 
 ifdef MAC_SPECIFIC
 ifeq ($(USE_MATLAB),1)
-TARGETS = $(WXTARGET) macrez macosx macmatlab
+TARGETS = $(WXTARGET) macstacksize macrez macosx macmatlab
 else
-TARGETS = $(WXTARGET) macrez macosx macnomatlab
+TARGETS = $(WXTARGET) macstacksize macrez macosx macnomatlab
 endif
 CLEANTARGET = archclean cleanmacosx
 else
@@ -340,7 +340,7 @@ macmatlab:
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMATML $(MAC_SCRIPT_DIR)/RunGMATML
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMAT
+	./$(INSTALL_WX_LIBS) GMAT $(SPICE_LIBRARIES)
 
 macnomatlab:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
@@ -349,7 +349,11 @@ macnomatlab:
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMATNoML $(MAC_SCRIPT_DIR)/RunGMATNoML
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMATNoMatlab
+	./$(INSTALL_WX_LIBS) GMATNoMatlab $(SPICE_LIBRARIES)
+
+macstacksize:
+	echo "setting stack size needed for SPICE"
+	$(SPICE_STACKSIZE)
 
 #macnomatlab:
 #	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
