@@ -3,11 +3,14 @@
 
 # Flags used to control the build
 USE_MATLAB = 1
+USE_SPICE = 0
 USE_DEVIL = 1
 CONSOLE_APP = 0
 DEBUG_BUILD = 0
 PROFILE_BUILD = 0
 WX_28_SYNTAX = 1
+USE_STC_EDITOR = 0
+
 SHARED_BASE = 1
 
 # For AMD64 native code, this variable should be set equal to 1
