@@ -26,13 +26,13 @@
 //#define __ALLOW_OBJECT_CREATION_IN_COMMAND_MODE__
 
 
-//#define DEBUG_READ_FIRST_PASS 1
-//#define DEBUG_SCRIPT_READING 1
-//#define DEBUG_SCRIPT_WRITING 1
-//#define DEBUG_DELAYED_BLOCK 1
-//#define DEBUG_PARSE 1
-//#define DEBUG_PARSE_FOOTER 1
-//#define DEBUG_SET_COMMENTS 1
+//#define DEBUG_READ_FIRST_PASS
+//#define DEBUG_DELAYED_BLOCK
+//#define DEBUG_PARSE
+//#define DEBUG_PARSE_FOOTER
+//#define DEBUG_SET_COMMENTS
+//#define DEBUG_SCRIPT_WRITING
+//#define DBGLVL_SCRIPT_READING
 //#define DBGLVL_GMAT_FUNCTION 1
 
 //#ifndef DEBUG_MEMORY
@@ -114,7 +114,7 @@ ScriptInterpreter::~ScriptInterpreter()
 //------------------------------------------------------------------------------
 bool ScriptInterpreter::Interpret()
 {
-   #if DEBUG_SCRIPT_READING
+   #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage
       ("ScriptInterpreter::Interpret() entered, Calling Initialize()\n");
    #endif
@@ -125,7 +125,7 @@ bool ScriptInterpreter::Interpret()
    inRealCommandMode = false;
    
    // Before parsing script, check for unmatching control logic
-   #if DEBUG_SCRIPT_READING
+   #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage("   Calling ReadFirstPass()\n");
    #endif
    
@@ -143,7 +143,7 @@ bool ScriptInterpreter::Interpret()
    for (UnsignedInt i=0; i<errorList.size(); i++)
       MessageInterface::ShowMessage("%d: %s\n", i+1, errorList[i].c_str());
    
-   #if DEBUG_SCRIPT_READING
+   #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage
       ("ScriptInterpreter::Interpret() Leaving retval1=%d, retval2=%d\n",
        retval1, retval2);
@@ -170,7 +170,7 @@ bool ScriptInterpreter::Interpret(GmatCommand *inCmd, bool skipHeader,
 {
    Initialize();
    
-   #if DEBUG_SCRIPT_READING
+   #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage
       ("ScriptInterpreter::Interpret(%p) Entered inCmd=%s, skipHeader=%d, "
        "functionMode=%d\n", inCmd, inCmd->GetTypeName().c_str(), skipHeader,
@@ -203,7 +203,7 @@ bool ScriptInterpreter::Interpret(GmatCommand *inCmd, bool skipHeader,
    for (UnsignedInt i=0; i<errorList.size(); i++)
       MessageInterface::ShowMessage("%d: %s\n", i+1, errorList[i].c_str());
    
-   #if DEBUG_SCRIPT_READING
+   #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage
       ("ScriptInterpreter::Interpret(GmatCommand) Leaving retval1=%d, retval2=%d\n",
        retval1, retval2);
@@ -257,7 +257,8 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
 {
    #if DBGLVL_GMAT_FUNCTION
    MessageInterface::ShowMessage
-      ("ScriptInterpreter::InterpretGmatFunction()\n   filename = %s\n",
+      ("======================================================================\n",
+       "ScriptInterpreter::InterpretGmatFunction()\n   filename = %s\n",
        fileName.c_str());
    #endif
    
@@ -462,7 +463,7 @@ bool ScriptInterpreter::Build(const std::string &scriptfile, Gmat::WriteMode mod
 //------------------------------------------------------------------------------
 bool ScriptInterpreter::SetInStream(std::istream *str)
 {
-   #ifdef DEBUG_SCRIPT_READING
+   #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage
       ("ScriptInterpreter::SetInStream() entered str=<%p>\n", str);
    #endif
@@ -504,7 +505,7 @@ bool ScriptInterpreter::SetOutStream(std::ostream *str)
 //------------------------------------------------------------------------------
 bool ScriptInterpreter::ReadFirstPass()
 {
-   #if DEBUG_READ_FIRST_PASS
+   #ifdef DEBUG_READ_FIRST_PASS
    MessageInterface::ShowMessage
       ("ScriptInterpreter::ReadFirstPass() entered, inStream=<%p>\n", inStream);
    #endif
@@ -552,7 +553,7 @@ bool ScriptInterpreter::ReadFirstPass()
             newLine = newLine.substr(0, index);
          }
          
-         #if DEBUG_READ_FIRST_PASS
+         #ifdef DEBUG_READ_FIRST_PASS
          MessageInterface::ShowMessage("newLine=%s\n", newLine.c_str());
          #endif
          
@@ -591,7 +592,7 @@ bool ScriptInterpreter::ReadFirstPass()
    inStream->clear();
    inStream->seekg(std::ios::beg);
    
-   #if DEBUG_READ_FIRST_PASS
+   #ifdef DEBUG_READ_FIRST_PASS
    for (UnsignedInt i=0; i<lineNumbers.size(); i++)
       MessageInterface::ShowMessage
          ("     %d: %s\n", lineNumbers[i], controlLines[i].c_str());
@@ -600,7 +601,7 @@ bool ScriptInterpreter::ReadFirstPass()
    // Check for unbalaced branch command Begin/End
    bool retval = CheckBranchCommands(lineNumbers, controlLines);
    
-   #if DEBUG_READ_FIRST_PASS
+   #ifdef DEBUG_READ_FIRST_PASS
    MessageInterface::ShowMessage
       ("ScriptInterpreter::ReadFirstPass() returning %d\n", retval);
    #endif
@@ -656,7 +657,7 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
    if (inCmd == NULL)
       headerComment = tempHeader;
    
-   #if DEBUG_SCRIPT_READING
+   #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage
       ("===> currentBlock:\n<<<%s>>>\n", currentBlock.c_str());
    MessageInterface::ShowMessage
@@ -667,18 +668,18 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
    {
       try
       {
-         #if DEBUG_SCRIPT_READING
+         #if DBGLVL_SCRIPT_READING
          MessageInterface::ShowMessage("==========> Calling EvaluateBlock()\n");
          #endif
          
          currentBlockType = theTextParser.EvaluateBlock(currentBlock);
          
-         #if DEBUG_SCRIPT_READING > 1
+         #if DBGLVL_SCRIPT_READING > 1
          MessageInterface::ShowMessage
             ("===> after EvaluateBlock() currentBlock:\n<<<%s>>>\n", currentBlock.c_str());
          #endif
          
-         #if DEBUG_SCRIPT_READING
+         #if DBGLVL_SCRIPT_READING
          MessageInterface::ShowMessage
             ("==========> Calling Parse() currentBlockType=%d\n", currentBlockType);
          #endif
@@ -686,7 +687,7 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
          // Keep previous retval1 value
          retval1 = Parse(inCmd) && retval1;
          
-         #if DEBUG_SCRIPT_READING > 1
+         #if DBGLVL_SCRIPT_READING > 1
          MessageInterface::ShowMessage
             ("===> after Parse() currentBlock:\n<<<%s>>>\n", currentBlock.c_str());
          MessageInterface::ShowMessage
@@ -702,7 +703,7 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
       
       if (!retval1 && !continueOnError)
       {
-         #if DEBUG_SCRIPT_READING
+         #if DBGLVL_SCRIPT_READING
          MessageInterface::ShowMessage
             ("ScriptInterpreter::ReadScript() Leaving retval1=%d, "
              "continueOnError=%d\n", retval1, continueOnError);
@@ -711,13 +712,13 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
          return false;
       }
       
-      #if DEBUG_SCRIPT_READING
+      #if DBGLVL_SCRIPT_READING
       MessageInterface::ShowMessage("===> Read next logical block\n");
       #endif
       
       currentBlock = theReadWriter->ReadLogicalBlock();
       
-      #if DEBUG_SCRIPT_READING
+      #if DBGLVL_SCRIPT_READING
       MessageInterface::ShowMessage
          ("===> currentBlock:\n<<<%s>>>\n", currentBlock.c_str());
       #endif
@@ -728,7 +729,7 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
    bool retval2 = true;
    inCommandMode = false;
    
-   #if DEBUG_DELAYED_BLOCK
+   #ifdef DEBUG_DELAYED_BLOCK
    MessageInterface::ShowMessage
       ("===> ScriptInterpreter::ReadScript() Start parsing delayed blocks. count=%d\n",
        delayedBlocks.size());
@@ -738,7 +739,7 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
    
    for (Integer i = 0; i < delayedCount; i++)
    {
-      #if DEBUG_DELAYED_BLOCK
+      #ifdef DEBUG_DELAYED_BLOCK
       MessageInterface::ShowMessage
          ("===> delayedBlocks[%d]=%s\n", i, delayedBlocks[i].c_str());
       #endif
@@ -751,13 +752,13 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
       // Keep previous retval1 value
       retval2 = Parse(inCmd) && retval2;
       
-      #if DEBUG_DELAYED_BLOCK
+      #ifdef DEBUG_DELAYED_BLOCK
       MessageInterface::ShowMessage("===> delayedCount:%d, retval2=%d\n", i, retval2);
       #endif
       
       if (!retval2 && !continueOnError)
       {
-         #if DEBUG_SCRIPT_READING
+         #if DBGLVL_SCRIPT_READING
          MessageInterface::ShowMessage
             ("In delayed block: Leaving retval1=%d, "
              "continueOnError=%d\n", retval1, continueOnError);
@@ -767,7 +768,7 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
       }
    }
    
-   #if DEBUG_SCRIPT_READING
+   #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage
       ("Leaving ReadScript() retval1=%d, retval2=%d\n", retval1, retval2);
    #endif
@@ -968,7 +969,7 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
       break;
    }
    
-   #if DEBUG_PARSE
+   #ifdef DEBUG_PARSE
    MessageInterface::ShowMessage("ScriptInterpreter::Parse() retval=%d\n", retval);
    #endif
    
@@ -1158,7 +1159,8 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    //-----------------------------------
    // Coordinate System
    //-----------------------------------
-   objs = theModerator->GetListOfObjects(Gmat::COORDINATE_SYSTEM);
+   // Don't write default coordinate systems since they are automatically created
+   objs = theModerator->GetListOfObjects(Gmat::COORDINATE_SYSTEM, true);
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Coordinate Systems\n", objs.size());
    #endif
@@ -1539,7 +1541,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
       StringArray lhsParts = theTextParser.SeparateDots(lhs);
       if (lhsParts[1] == "LogFile")
       {
-         #if DEBUG_PARSE
+         #ifdef DEBUG_PARSE
          MessageInterface::ShowMessage
             ("   Found Global.LogFile, so calling MI::SetLogFile(%s)\n",
              rhs.c_str());
@@ -1558,7 +1560,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    Integer paramID = -1;
    Gmat::ParameterType paramType;
    
-   #if DEBUG_PARSE
+   #ifdef DEBUG_PARSE
    MessageInterface::ShowMessage("   before check, inCommandMode=%d\n", inCommandMode);
    #endif
    
@@ -1571,7 +1573,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
       {
          if (mp.IsEquation(rhs))
          {
-            #if DEBUG_PARSE
+            #ifdef DEBUG_PARSE
             MessageInterface::ShowMessage("   It is a math equation\n");
             #endif
             
@@ -1663,7 +1665,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    
    if (obj == NULL)
    {
-      #if DEBUG_PARSE
+      #ifdef DEBUG_PARSE
       MessageInterface::ShowMessage("   obj is NULL, so just return false\n");
       #endif
       return false;
@@ -1734,7 +1736,7 @@ bool ScriptInterpreter::IsOneWordCommand(const std::string &str)
 void ScriptInterpreter::SetComments(GmatBase *obj, const std::string &preStr,
                                     const std::string &inStr)
 {
-   #if DEBUG_SET_COMMENTS
+   #ifdef DEBUG_SET_COMMENTS
    MessageInterface::ShowMessage
       ("ScriptInterpreter::SetComments() %s<%s>\n   preStr=%s\n    inStr=%s\n",
        obj->GetTypeName().c_str(), obj->GetName().c_str(), preStr.c_str(),
@@ -1780,7 +1782,7 @@ void ScriptInterpreter::WriteSectionDelimiter(const std::string &firstObj,
    
    std::string comment = object->GetCommentLine();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteSectionDelimiter() PrefaceComment of %s=<%s>\n",
        object->GetName().c_str(), comment.c_str());
@@ -2038,7 +2040,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    Integer counter = 0;
    UnsignedInt size = varList.size();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Variables without initial values \n", size);
    #endif
@@ -2074,7 +2076,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    //-----------------------------------------------------------------
    size = varWithValList.size();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Variables with initial Real values \n", size);
    #endif
@@ -2093,7 +2095,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    //-----------------------------------------------------------------
    size = varWithObjList.size();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Variables with initial Variable \n", size);
    #endif
@@ -2113,7 +2115,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    counter = 0;
    size = arrList.size();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Arrays without initial values \n", size);
    #endif
@@ -2143,7 +2145,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    //-----------------------------------------------------------------
    size = arrWithValList.size();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Arrays with initial values \n", size);
    #endif
@@ -2164,7 +2166,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    counter = 0;   
    size = strList.size();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Strings without initial values \n", size);
    #endif
@@ -2195,7 +2197,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    //-----------------------------------------------------------------
    size = strWithValList.size();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Strings with initial values \n", size);
    #endif
@@ -2220,7 +2222,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    //-----------------------------------------------------------------
    size = strWithObjList.size();
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Strings with initial String object\n", size);
    #endif
@@ -2279,7 +2281,7 @@ void ScriptInterpreter::WriteOtherParameters(StringArray &objs,
                
                std::string genStr = object->GetGeneratingString(mode);
                
-               #if DEBUG_SCRIPT_WRITING
+               #ifdef DEBUG_SCRIPT_WRITING
                MessageInterface::ShowMessage
                   ("WriteOtherParameters() writing typeName=<%s>\n", typeName.c_str());
                #endif
@@ -2314,7 +2316,7 @@ void ScriptInterpreter::WriteCommandSequence(Gmat::WriteMode mode)
    if (cmd == NULL)
       return;
    
-   #if DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
       ("WriteCommandSequence() Writing Command Sequence\nPrefaceComment of %s=%s\n",
        cmd->GetTypeName().c_str(), cmd->GetCommentLine().c_str());

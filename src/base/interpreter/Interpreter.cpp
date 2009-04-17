@@ -1023,6 +1023,15 @@ bool Interpreter::ValidateCommand(GmatCommand *cmd)
    #endif
    
    // Create Parameters
+   // Even in the function we still need to create automatic Parameters,
+   // such sat.X in mySatX = sat.X in the assignment command, in order for Validator
+   // to set wrapper reference for auto object used in the function command sequence
+   // during the function initiaization. But we don't want to add to function's
+   // automatic store at this time. It will be added during function initialization.
+   #ifdef DEBUG_VALIDATE_COMMAND
+   MessageInterface::ShowMessage
+      ("Calling CreateSystemParameter() for each ref. names\n");
+   #endif
    for (UnsignedInt i=0; i<names.size(); i++)
    {
       CreateSystemParameter(names[i]);
@@ -4873,11 +4882,10 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
       
       // Create PhysicalModel
       std::string forceName = pmType + "." + centralBodyName;
-      ////PhysicalModel *pm = (PhysicalModel*)CreateObject(forceType, "");
+      //@note 0.ForceName indicates unmanaged internal forcename.
       PhysicalModel *pm = (PhysicalModel*)CreateObject(forceType, "0."+forceName, 0);
-      ////pm->SetName(pmType + "." + centralBodyName);
       pm->SetName(forceName);
-     
+      
       // Special handling for Drag
       if (pmType == "Drag")
       {
@@ -4894,7 +4902,6 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
          if (value != "BodyDefault")
          {
             pm->SetStringParameter("BodyName", centralBodyName);
-            ////GmatBase *am = CreateObject(value, "");
             GmatBase *am = CreateObject(value, value, 0);
             if (am)
                pm->SetRefObject(am, Gmat::ATMOSPHERE, am->GetName());

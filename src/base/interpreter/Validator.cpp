@@ -329,13 +329,12 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
 // bool ValidateCommand(GmatCommand *cmd, bool contOnError, Integer manage)
 //------------------------------------------------------------------------------
 /**
- * Checks the input command to make sure it wrappers are set up for it
- * correctly, if necessary.
+ * Checks the input command to make sure wrappers are set up correctly.
  *
  * @param <cmd> the command to validate
  * @param <contOnError> flag indicating whether or not to continue on error (true)
- * @param <manage>  0, if parameter is not managed
- *                  1, if parameter is added to configuration (default)
+ * @param <manage>  0, if Parameter is not managed
+ *                  1, if Parameter is added to configuration (default)
  *                  2, if Parameter is added to function object map
  *
  * @return true if command has no error, false otherwise
@@ -614,7 +613,7 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
             }
          }
       }
-      // check to see if it is an object property or a parameter
+      // check to see if it is an object property or a Parameter
       else if (theDescription.find(".") != std::string::npos)
       {
          ew = CreateWrapperWithDot(parametersFirst, manage);
@@ -1592,8 +1591,9 @@ Parameter* Validator::CreateSystemParameter(bool &paramCreated,
          {
             #ifdef DEBUG_AUTO_PARAM
             MessageInterface::ShowMessage
-               ("   Adding <%p><%s> '%s' to function's automatic object map\n",
-                param, param->GetTypeName().c_str(), param->GetName().c_str());
+               ("Validator::CreateSystemParameter() Adding <%p><%s> '%s' to "
+                "function's automatic object map\n", param, param->GetTypeName().c_str(),
+                param->GetName().c_str());
             #endif
             
             // if automatic parameter is in the objectMap, set flag so that
