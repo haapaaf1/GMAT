@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                TimeString
 //------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ public:
    virtual ~TimeString();
 
    // methods inherited from Parameter
-   virtual std::string EvaluateString();
+   virtual const std::string& EvaluateString();
    
    virtual Integer GetNumRefObjects() const;
    virtual bool Validate();

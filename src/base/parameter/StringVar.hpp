@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  StringVar
 //------------------------------------------------------------------------------
@@ -44,8 +44,8 @@ public:
 
    // methods inherited from Parameter
    virtual std::string ToString();
-   virtual std::string GetString() const;
-   virtual std::string EvaluateString();
+   virtual const std::string& GetString() const;
+   virtual const std::string& EvaluateString();
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone() const;

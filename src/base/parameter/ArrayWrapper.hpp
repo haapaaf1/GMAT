@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  ArrayWrapper
 //------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ public:
    virtual bool                RenameObject(const std::string &oldName, 
                                            const std::string &newName);
    
-   virtual Rmatrix             EvaluateArray() const;
+   virtual const Rmatrix&      EvaluateArray() const;
    virtual bool                SetArray(const Rmatrix &toValue); 
    
 protected:  

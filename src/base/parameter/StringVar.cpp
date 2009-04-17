@@ -194,7 +194,7 @@ std::string StringVar::ToString()
 
 
 //------------------------------------------------------------------------------
-// std::string GetString() const
+// const std::string& GetString() const
 //------------------------------------------------------------------------------
 /**
  * Retrieves string value of parameter.
@@ -202,14 +202,14 @@ std::string StringVar::ToString()
  * @return string value.
  */
 //------------------------------------------------------------------------------
-std::string StringVar::GetString() const
+const std::string& StringVar::GetString() const
 {
    return mStringValue;
 }
 
 
 //------------------------------------------------------------------------------
-// std::string EvaluateString()
+// const std::string& EvaluateString()
 //------------------------------------------------------------------------------
 /**
  * Retrieves string value of parameter.
@@ -217,7 +217,7 @@ std::string StringVar::GetString() const
  * @return string value.
  */
 //------------------------------------------------------------------------------
-std::string StringVar::EvaluateString()
+const std::string& StringVar::EvaluateString()
 {
    return mStringValue;
 }
@@ -302,7 +302,8 @@ bool StringVar::SetStringParameter(const Integer id, const std::string &value)
 {
    #ifdef DEBUG_STRINGVAR
    MessageInterface::ShowMessage
-      ("StringVar::SetStringParameter() id=%d, value=%s\n", id, value.c_str());
+      ("StringVar::SetStringParameter() this=<%p>, id=%d, value='%s'\n", this,
+       id, value.c_str());
    #endif
    
    switch (id)
@@ -339,7 +340,7 @@ bool StringVar::SetStringParameter(const std::string &label,
 {
    #ifdef DEBUG_STRINGVAR
    MessageInterface::ShowMessage
-      ("StringVar::SetStringParameter() label=%s value=%s\n",
+      ("StringVar::SetStringParameter() label=%s value='%s'\n",
        label.c_str(), value.c_str());
    #endif
    

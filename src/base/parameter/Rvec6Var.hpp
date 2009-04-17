@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Rvec6Var
 //------------------------------------------------------------------------------
@@ -41,16 +41,16 @@ public:
    bool operator==(const Rvec6Var &right) const;
    bool operator!=(const Rvec6Var &right) const;
    
-   virtual std::string ToString();
+   virtual std::string  ToString();
    
-   virtual Rvector6 GetRvector6() const;
-   virtual void SetRvector6(const Rvector6 &val); //loj: 1/26/05 Added
-   virtual Rvector6 EvaluateRvector6();
+   virtual const        Rvector6& GetRvector6() const;
+   virtual void         SetRvector6(const Rvector6 &val);
+   virtual const        Rvector6& EvaluateRvector6();
    
 protected:
-       
+   
    Rvector6 mRvec6Value;
-      
+   
 private:
 
 };

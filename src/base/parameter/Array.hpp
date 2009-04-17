@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Array
 //------------------------------------------------------------------------------
@@ -45,10 +45,10 @@ public:
    // methods inherited from Parameter
    virtual void SetRmatrix(const Rmatrix &mat);
    virtual const Rmatrix& GetRmatrix() const { return mRmatValue; }
-   virtual Rmatrix EvaluateRmatrix() { return mRmatValue; } /// assumes it has only numbers
+   virtual const Rmatrix& EvaluateRmatrix() { return mRmatValue; } /// assumes it has only numbers
    virtual std::string ToString();
    virtual const std::string* GetParameterList() const;
-
+   
    // methods inherited from GmatBase
    virtual GmatBase* Clone() const;
    virtual void Copy(const GmatBase*);

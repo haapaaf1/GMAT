@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                OrbitRvec6
 //------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ public:
    virtual ~OrbitRvec6();
    
    // methods inherited from Parameter
-   virtual Rvector6 EvaluateRvector6();
+   virtual const Rvector6& EvaluateRvector6();
    
    virtual Integer GetNumRefObjects() const;
    virtual void SetSolarSystem(SolarSystem *ss);

@@ -281,7 +281,7 @@ bool ArrayWrapper::SetReal(const Real toValue)
 }
 
 //---------------------------------------------------------------------------
-//  Rmatrix EvaluateArray() const
+//  const Rmatrix& EvaluateArray() const
 //---------------------------------------------------------------------------
 /**
  * Method to return the Array (Rmatrix) value of the wrapped object.
@@ -290,7 +290,7 @@ bool ArrayWrapper::SetReal(const Real toValue)
  * 
  */
 //---------------------------------------------------------------------------
-Rmatrix ArrayWrapper::EvaluateArray() const
+const Rmatrix& ArrayWrapper::EvaluateArray() const
 {
    #ifdef DEBUG_ARRAY_WRAPPER
       MessageInterface::ShowMessage(

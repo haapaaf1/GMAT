@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                TimeString
 //------------------------------------------------------------------------------
@@ -101,13 +101,13 @@ TimeString::~TimeString()
 //-------------------------------------
 
 //------------------------------------------------------------------------------
-// virtual std::string EvaluateString()
+// const virtual std::string& EvaluateString()
 //------------------------------------------------------------------------------
 /**
  * @return newly evaluated value of parameter
  */
 //------------------------------------------------------------------------------
-std::string TimeString::EvaluateString()
+const std::string& TimeString::EvaluateString()
 {
    Evaluate();
    return mStringValue;
