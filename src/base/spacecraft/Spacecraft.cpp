@@ -960,27 +960,21 @@ const StringArray&
    static StringArray fullList;  // Maintain scope if the full list is requested
    fullList.clear();
    
-   if (attitude)
-   {
-      try
-      {
-         fullList.push_back(attitude->GetRefObjectName(type));
-      }
-      catch (GmatBaseException& be)
-      {
-         // ignore exceptions here
-      }
-   }
-   
+   // if type is UNKNOWN_OBJECT, add only coordinate system and attitude
+   // other objects are handled separately in the ObjectInitializer
    if (type == Gmat::UNKNOWN_OBJECT)
    {
       fullList.push_back(coordSysName);
+      fullList.push_back(attitude->GetRefObjectName(type));
       return fullList;      
    }
    else
    {
       if (type == Gmat::ATTITUDE)
+      {
+         fullList.push_back(attitude->GetRefObjectName(type));
          return fullList;
+      }
       
       if (type == Gmat::FUEL_TANK)
          return tankNames;
@@ -989,11 +983,8 @@ const StringArray&
       
       if (type == Gmat::HARDWARE) 
       {
-         fullList.clear();
          fullList = tankNames;
-         for (StringArray::iterator i = thrusterNames.begin();
-              i < thrusterNames.end(); ++i)
-            fullList.push_back(*i);
+         fullList.insert(fullList.end(), thrusterNames.begin(), thrusterNames.end());
          return fullList;
       }
       
@@ -1094,7 +1085,9 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 {
    #ifdef DEBUG_SC_REF_OBJECT
    MessageInterface::ShowMessage
-      ("Entering SC::SetRefObject '%s'\n", GetName().c_str());
+      ("Entering SC::SetRefObject '%s', obj=<%p><%s>'%s'\n", GetName().c_str(),
+       obj, obj ? obj->GetTypeName().c_str() : "NULL",
+       obj ? obj->GetName().c_str() : "NULL");
    #endif
    
    if (obj == NULL)
@@ -2112,9 +2105,9 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
           tankNames.push_back(value);
       }
    }
-   else // id == THRUSTER_ID 
+   else if (id == THRUSTER_ID)
    { 
-      // Only add the tank if it is not in the list already
+      // Only add the thruster if it is not in the list already
       if (find(thrusterNames.begin(), thrusterNames.end(), value) == 
           thrusterNames.end()) 
       {
@@ -2706,10 +2699,10 @@ void Spacecraft::SetAnomaly(const std::string &type, const Anomaly &ta)
 
    #if DEBUG_SPACECRAFT_SET
    MessageInterface::ShowMessage
-      ("===> Spacecraft::SetAnomaly() anomalyType=%s, value=%f\n", anomalyType.c_str(),
+      ("Spacecraft::SetAnomaly() anomalyType=%s, value=%f\n", anomalyType.c_str(),
        trueAnomaly.GetValue());
    MessageInterface::ShowMessage
-      ("===> Spacecraft::SetAnomaly() stateElementLabel[5] = %s\n", 
+      ("Spacecraft::SetAnomaly() stateElementLabel[5] = %s\n", 
       stateElementLabel[5].c_str());
    #endif
 }
