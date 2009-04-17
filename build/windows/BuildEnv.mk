@@ -3,6 +3,7 @@
 
 # Flags used to control the build
 USE_MATLAB = 1
+USE_SPICE = 0
 USE_DEVIL = 0
 CONSOLE_APP = 0
 DEBUG_BUILD = 0
@@ -13,6 +14,7 @@ SHARED_BASE = 1
 USE_STC_EDITOR = 1
 
 # GMAT application icon for Windows only
+# location of GmatIcon
 GMAT_ICON_RC = D:/Projects/GmatDev/src/gui/resource/GmatIcon.rc
 GMAT_ICON_O  = D:/Projects/GmatDev/src/gui/resource/GmatIcon.o
 
@@ -24,18 +26,35 @@ else
 CONSOLE_FLAGS =
 endif
 
-# MATLAB specific data
+# MATLAB data
+# location of MATLAB headers and libraries
 ifeq ($(USE_MATLAB), 1)
-MATLAB_CPP_FLAGS = -D__USE_MATLAB__=1 -IC:/Program\ Files/MATLAB/R2007B/extern/include
-MATLAB_LIB = -LC:/Program\ Files/MATLAB/R2007B/bin/win32
-MATLAB_LIBRARIES = -leng -lmx -lmat
+MATLAB_DIR = C:/Program\ Files/MATLAB/R2007B
+MATLAB_CPP_FLAGS = -D__USE_MATLAB__=1 -I$(MATLAB_DIR)/extern/include
+MATLAB_LIB_DIR = -L$(MATLAB_DIR)/bin/win32
+MATLAB_LIBRARIES = $(MATLAB_LIB_DIR) -leng -lmx -lmat
 else
 MATLAB_CPP_FLAGS =
-MATLAB_LIB =
 MATLAB_LIBRARIES =
 endif
 
+# SPICE data
+# location of CSPICE headers and libraries
+ifeq ($(USE_SPICE), 1)
+SPICE_DIR = d:/cspice
+SPICE_INCLUDE = -I$(SPICE_DIR)/include
+SPICE_CPP_FLAGS = -D__cplusplus -D__USE_CSPICE__ $(SPICE_INCLUDE)
+SPICE_LIB_DIR = $(SPICE_DIR)/lib
+SPICE_LIBRARIES = $(SPICE_LIB_DIR)/cspice.a
+else
+SPICE_INCLUDE =
+SPICE_CPP_FLAGS =
+SPICE_LIB_DIR =
+SPICE_LIBRARIES =
+endif
+
 # DevIL data
+# location of DevIL headers and libraries
 ifeq ($(USE_DEVIL), 1)
 IL_CPP_FLAGS = -ID:/DevIL/include/il -ID:/DevIL/include
 IL_LIBRARIES = -LD:/devIL/dlls -lilu -lilut -lDevIL
@@ -45,6 +64,7 @@ IL_LIBRARIES =
 endif
 
 # STC editor (wxStyledTextCtrl) data
+# location of STC headers and libraries
 ifeq ($(USE_STC_EDITOR), 1)
 STC_CPP_FLAGS = -D__USE_STC_EDITOR__
 STC_LIBRARIES = -LD:/wxWidgets-2.8.9/lib -lwx_msw_stc-2.8
@@ -53,8 +73,8 @@ STC_CPP_FLAGS =
 STC_LIBRARIES =
 endif
 
-GMAT_CPP_FLAGS = $(MATLAB_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS)
-GMAT_LINK_FLAGS = $(MATLAB_LIB) $(MATLAB_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES)
+GMAT_CPP_FLAGS = $(MATLAB_CPP_FLAGS) $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS)
+GMAT_LINK_FLAGS = $(MATLAB_LIBRARIES) $(SPICE_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES)
 
 # wxWidgets settings
 ifeq ($(WX_28_SYNTAX), 1)
@@ -116,7 +136,7 @@ LINK_FLAGS = $(GMAT_LINK_FLAGS) $(WXLINKFLAGS) \
              $(FORTRAN_LIB) $(DEBUG_FLAGS)
 
 ifeq ($(USE_MATLAB),1)
-CONSOLE_LINK_FLAGS = $(MATLAB_LIB) $(MATLAB_LIBRARIES) -L../base/lib \
+CONSOLE_LINK_FLAGS = $(MATLAB_LIBRARIES) -L../base/lib \
                     -lgfortran $(DEBUG_FLAGS) $(PROFILE_FLAGS)
 else
 CONSOLE_LINK_FLAGS = -L../base/lib $(FORTRAN_LIB) $(DEBUG_FLAGS) 
