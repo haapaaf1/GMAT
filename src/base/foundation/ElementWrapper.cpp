@@ -310,9 +310,9 @@ bool ElementWrapper::RenameObject(const std::string &oldName,
 }
 
 //---------------------------------------------------------------------------
-// Rmatrix EvaluateArray() const
+// const Rmatrix& EvaluateArray() const
 //---------------------------------------------------------------------------
-Rmatrix ElementWrapper::EvaluateArray() const
+const Rmatrix& ElementWrapper::EvaluateArray() const
 {
    throw GmatBaseException(
       "In ElementWrapper, EvaluateArray() method not valid for wrapper of non-Array type.\n");

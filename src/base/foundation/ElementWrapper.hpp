@@ -112,7 +112,7 @@ public:
 //---------------------------------------------------------------------------
    virtual bool            SetReal(const Real toValue) = 0;
    
-   virtual Rmatrix         EvaluateArray() const;
+   virtual const Rmatrix&  EvaluateArray() const;
    virtual bool            SetArray(const Rmatrix &toValue); 
    virtual std::string     EvaluateString() const;
    virtual bool            SetString(const std::string &toValue); 
