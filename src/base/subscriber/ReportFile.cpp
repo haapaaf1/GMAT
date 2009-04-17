@@ -434,9 +434,10 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
             desc.length() : columnWidth;
          
          dstream.width(width);
-         // if writing headers add 3 more spaces since header has 3 spacing
-         //if (writeHeaders) (Always add 3 spaces, to match with previous report)
-         dstream.width(width + 3);
+         // if writing headers or called by Report add 3 more spaces
+         // since header adds 3 more spaces
+         if (writeHeaders || calledByReport)
+            dstream.width(width + 3);
          
          // if zero fill, show decimal point
          // showing decimal point automatically filles zero
