@@ -27,6 +27,7 @@ typedef Real Radians;
 namespace GmatRealConst
 {
    const Real    REAL_TOL = 1.0e-16; // Changed from 1.0e-15
+   const Real    REAL_UNDEFINED = -987654321.0123e-45;
    
    #ifdef __glibcpp_f64_radix
       const Integer SHORT_REAL_RADIX = __glibcpp_f64_radix;
