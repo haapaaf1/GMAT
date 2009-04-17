@@ -338,6 +338,8 @@ OBJECTS = \
     parameter/AttitudeData.o \
     parameter/AttitudeParameters.o \
     parameter/AttitudeReal.o \
+    parameter/BallisticMassParameters.o \
+    parameter/BallisticMassReal.o \
     parameter/BooleanWrapper.o \
     parameter/BplaneData.o \
     parameter/BplaneParameters.o \
@@ -358,7 +360,10 @@ OBJECTS = \
     parameter/OrbitalParameters.o \
     parameter/OrbitData.o \
     parameter/OrbitReal.o \
+    parameter/OrbitRmat33.o \
+    parameter/OrbitRmat66.o \
     parameter/OrbitRvec6.o \
+    parameter/OrbitStmParameters.o \
     parameter/ParameterDatabase.o \
     parameter/ParameterInfo.o \
     parameter/Parameter.o \
@@ -368,7 +373,10 @@ OBJECTS = \
     parameter/PlanetReal.o \
     parameter/RealVar.o \
     parameter/RefData.o \
+    parameter/Rmat33Var.o \
+    parameter/Rmat66Var.o \
     parameter/Rvec6Var.o \
+    parameter/SpacecraftData.o \
     parameter/SphericalParameters.o \
     parameter/StringWrapper.o \
     parameter/StringObjectWrapper.o \
@@ -471,6 +479,7 @@ OBJECTS = \
     util/RealUtilities.o \
     util/RgbColor.o \
     util/Rmatrix33.o \
+    util/Rmatrix66.o \
     util/Rmatrix.o \
     util/Rvector3.o \
     util/Rvector6.o \
