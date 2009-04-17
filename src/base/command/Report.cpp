@@ -23,6 +23,9 @@
 #include "StringUtil.hpp"       // for GetArrayIndex()
 #include <sstream>
 
+// To use ReportFile::WriteData()
+#define __USE_REPORTFILE_WRITE_DATA__
+
 //#define DEBUG_REPORT_OBJ
 //#define DEBUG_REPORT_SET
 //#define DEBUG_REPORT_INIT
@@ -771,8 +774,21 @@ bool Report::Initialize()
       parms.push_back((Parameter *)mapObj);
    }
    
+   // Set Wrapper references (LOJ: 2009.04.01)
+   // We need this to use ReportFile::WriteData() in Execute()
+   for (WrapperArray::iterator i = parmWrappers.begin(); i < parmWrappers.end(); i++)
+   {
+      #ifdef DEBUG_REPORT_INIT
+      MessageInterface::ShowMessage
+         ("   wrapper desc = '%s'\n", (*i)->GetDescription().c_str());
+      #endif
+      
+      if (SetWrapperReferences(*(*i)) == false)
+         return false;      
+   }
+   
    #ifdef DEBUG_REPORT_INIT
-   MessageInterface::ShowMessage("Report::Initialize() returnin true.\n");
+   MessageInterface::ShowMessage("Report::Initialize() returning true.\n");
    #endif
    
    return true;
@@ -833,6 +849,19 @@ bool Report::Execute()
    // showing decimal point automatically filles zero
    if (zeroFill)
       datastream.setf(std::ios::showpoint);
+   
+   // Write to report file using ReportFile::WriateData().
+   // This method takes ElementWrapper array to write data to stream
+   //=================================================================
+   #ifdef __USE_REPORTFILE_WRITE_DATA__
+   //=================================================================
+   reporter->TakeAction("ActivateForReport", "On");
+   bool retval = reporter->WriteData(parmWrappers);
+   reporter->TakeAction("ActivateForReport", "Off");
+   BuildCommandSummary(true);
+   return retval;
+   #endif
+   //=================================================================
    
    // Added try/catch block for better error message (loj: 2008.08.06)
    try
