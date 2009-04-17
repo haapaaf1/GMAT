@@ -293,6 +293,12 @@ bool StringObjectWrapper::SetString(const std::string &toValue)
    if (stringVar == NULL)
       throw ParameterException(
       "Cannot set value of String - object pointer is NULL\n");
+   
+   #ifdef DEBUG_STRING_WRAPPER
+   MessageInterface::ShowMessage
+      ("   stringVar=<%p>'%s'\n", stringVar, stringVar->GetName().c_str());
+   #endif
+   
    try
    {
       stringVar->SetStringParameter("Value",toValue);
