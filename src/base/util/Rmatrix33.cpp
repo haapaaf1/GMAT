@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Rmatrix33
 //------------------------------------------------------------------------------
@@ -83,6 +83,14 @@ Rmatrix33::Rmatrix33(Real a00, Real a01, Real a02,
 //  const Rmatrix33(const Rmatrix33 &m)
 //------------------------------------------------------------------------------
 Rmatrix33::Rmatrix33(const Rmatrix33 &m) 
+  : Rmatrix(m)
+{
+}
+
+//------------------------------------------------------------------------------
+//  const Rmatrix33(const Rmatrix &m)
+//------------------------------------------------------------------------------
+Rmatrix33::Rmatrix33(const Rmatrix &m) 
   : Rmatrix(m)
 {
 }
@@ -333,16 +341,13 @@ const Rmatrix33& Rmatrix33::operator*=(Real scalar)
 //------------------------------------------------------------------------------
 Rmatrix33 Rmatrix33::operator/(Real scalar) const 
 {
-    if(scalar < 0.0001) throw Rmatrix::DivideByZero();
-    return Rmatrix33(elementD[0]/scalar,
-            elementD[1]/scalar,
-            elementD[2]/scalar, 
-            elementD[3]/scalar, 
-            elementD[4]/scalar, 
-            elementD[5]/scalar, 
-            elementD[6]/scalar, 
-            elementD[7]/scalar, 
-            elementD[8]/scalar);
+   // Why checking for less than 0.0001? Replaced with IsZero() (LOJ: 2009.03.30)
+   //if(scalar < 0.0001) throw Rmatrix::DivideByZero();
+   if (GmatMathUtil::IsZero(scalar))
+      throw Rmatrix::DivideByZero();
+   return Rmatrix33(elementD[0]/scalar, elementD[1]/scalar, elementD[2]/scalar, 
+                    elementD[3]/scalar, elementD[4]/scalar, elementD[5]/scalar, 
+                    elementD[6]/scalar, elementD[7]/scalar, elementD[8]/scalar);
 }
 
 //------------------------------------------------------------------------------
@@ -350,18 +355,21 @@ Rmatrix33 Rmatrix33::operator/(Real scalar) const
 //------------------------------------------------------------------------------
 const Rmatrix33& Rmatrix33::operator/=(Real scalar) 
 {
-    if(scalar == 0) throw Rmatrix::DivideByZero();
-    elementD[0] = elementD[0]/scalar;
-    elementD[1] = elementD[1]/scalar;
-    elementD[2] = elementD[2]/scalar; 
-    elementD[3] = elementD[3]/scalar; 
-    elementD[4] = elementD[4]/scalar;
-    elementD[5] = elementD[5]/scalar; 
-    elementD[6] = elementD[6]/scalar; 
-    elementD[7] = elementD[7]/scalar; 
-    elementD[8] = elementD[8]/scalar;
-    
-    return *this;
+   // Replaced with IsZero() (LOJ: 2009.03.30)
+   //if(scalar == 0) throw Rmatrix::DivideByZero();
+   if (GmatMathUtil::IsZero(scalar))
+      throw Rmatrix::DivideByZero();
+   elementD[0] = elementD[0]/scalar;
+   elementD[1] = elementD[1]/scalar;
+   elementD[2] = elementD[2]/scalar; 
+   elementD[3] = elementD[3]/scalar; 
+   elementD[4] = elementD[4]/scalar;
+   elementD[5] = elementD[5]/scalar; 
+   elementD[6] = elementD[6]/scalar; 
+   elementD[7] = elementD[7]/scalar; 
+   elementD[8] = elementD[8]/scalar;
+   
+   return *this;
 }
 
 //------------------------------------------------------------------------------

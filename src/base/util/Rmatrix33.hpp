@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Rmatrix33
 //------------------------------------------------------------------------------
@@ -36,11 +36,12 @@ public:
              Real a10, Real a11, Real a12,
              Real a20, Real a21, Real a22);
    Rmatrix33(const Rmatrix33 &m);
+   Rmatrix33(const Rmatrix &m);
    virtual ~Rmatrix33();
    const Rmatrix33& operator=(const Rmatrix33 &m);
    bool operator==(const Rmatrix33 &m)const;
    bool operator!=(const Rmatrix33 &m)const;
-
+   
    void Set(Real a00, Real a01, Real a02,
             Real a10, Real a11, Real a12,
             Real a20, Real a21, Real a22);
