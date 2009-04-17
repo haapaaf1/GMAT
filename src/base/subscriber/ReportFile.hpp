@@ -49,6 +49,7 @@ public:
    Integer              GetNumParameters();
    bool                 AddParameter(const std::string &paramName, Integer index);
    bool                 AddParameterForTitleOnly(const std::string &paramName);
+   bool                 WriteData(WrapperArray dataArray);
    
    // methods inherited from Subscriber
    virtual bool         Initialize();
