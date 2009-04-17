@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            ParameterFactory
 //------------------------------------------------------------------------------
@@ -35,6 +35,8 @@
 #include "BplaneParameters.hpp"
 #include "BurnParameters.hpp"
 #include "AttitudeParameters.hpp"
+#include "BallisticMassParameters.hpp"
+#include "OrbitStmParameters.hpp"
 
 //---------------------------------
 //  public methods
@@ -280,6 +282,32 @@ Parameter* ParameterFactory::CreateParameter(const std::string &ofType,
    if (ofType == "EulerAngleRate3")
       return new EulerAngleRate3(withName);
    
+   // Ballistic/Mass parameters
+   if (ofType == "DryMass")
+      return new DryMass(withName);
+   if (ofType == "Cd")
+      return new DragCoeff(withName);
+   if (ofType == "Cr")
+      return new ReflectCoeff(withName);
+   if (ofType == "DragArea")
+      return new DragArea(withName);
+   if (ofType == "SRPArea")
+      return new SRPArea(withName);
+   if (ofType == "TotalMass")
+      return new TotalMass(withName);
+   
+   // orbit STM parameters
+   if (ofType == "OrbitSTM")
+      return new OrbitStm(withName);
+   if (ofType == "OrbitSTMA")
+      return new OrbitStmA(withName);
+   if (ofType == "OrbitSTMB")
+      return new OrbitStmB(withName);
+   if (ofType == "OrbitSTMC")
+      return new OrbitStmC(withName);
+   if (ofType == "OrbitSTMD")
+      return new OrbitStmD(withName);
+   
    // add others here
    
    else
@@ -432,6 +460,21 @@ ParameterFactory::ParameterFactory()
       creatables.push_back("EulerAngleRate1");
       creatables.push_back("EulerAngleRate2");
       creatables.push_back("EulerAngleRate3");
+      
+      // Ballistic/Mass parameters
+      creatables.push_back("DryMass");
+      creatables.push_back("Cd");
+      creatables.push_back("Cr");
+      creatables.push_back("DragArea");
+      creatables.push_back("SRPArea");
+      creatables.push_back("TotalMass");
+      
+      // Orbit STM parameters
+      creatables.push_back("OrbitSTM");
+      creatables.push_back("OrbitSTMA");
+      creatables.push_back("OrbitSTMB");
+      creatables.push_back("OrbitSTMC");
+      creatables.push_back("OrbitSTMD");
    }
 }
 
