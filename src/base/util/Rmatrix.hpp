@@ -102,7 +102,7 @@ public:
    
    // friends
    friend Rmatrix SkewSymmetric4by4(const Rvector3 &v);
-   friend Rmatrix TransposeTimesRmatrix(const Rmatrix &m1, const Rmatrix &m2);
+   friend Rmatrix TransposeTimesMatrix(const Rmatrix &m1, const Rmatrix &m2);
    friend Rmatrix MatrixTimesTranspose(const Rmatrix &m1, const Rmatrix &m2);
    friend Rmatrix TransposeTimesTranspose(const Rmatrix &m1, const Rmatrix &m2);
    
@@ -117,7 +117,8 @@ public:
    
    virtual std::string ToString(Integer precision, Integer width = 1,
                                 bool horizontal = false,
-                                const std::string &prefix = "") const;
+                                const std::string &prefix = "",
+                                bool appendEol = true) const;
    
    virtual std::string ToString(bool useCurrentFormat = true,
                                 bool scientific = false, bool showPoint = false,
@@ -126,6 +127,9 @@ public:
                                 bool horizontal = true, Integer spacing = 1,
                                 const std::string &prefix = "",
                                 bool appendEol = true) const;
+   
+   virtual std::string ToRowString(Integer row, Integer precision,
+                                   Integer width = 1) const;
    
 protected:   
    StringArray stringVals;

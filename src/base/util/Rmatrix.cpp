@@ -821,7 +821,7 @@ Rmatrix Rmatrix::Pseudoinverse() const
    } 
    else if (rowsD > colsD) 
    {
-      m2 = TransposeTimesRmatrix(*this, *this);
+      m2 = TransposeTimesMatrix(*this, *this);
       if (!GmatMathUtil::IsZero(m2.Determinant(),accuracyRequired))
          InverseM = m2.Inverse()*Transpose();
       else 
@@ -899,9 +899,9 @@ Rmatrix SkewSymmetric4by4(const Rvector3 &v)
 
 //------------------------------------------------------------------------------
 //  <friend>
-//  Rmatrix TransposeTimesRmatrix(const Rmatrix &m1, const Rmatrix &m2)
+//  Rmatrix TransposeTimesMatrix(const Rmatrix &m1, const Rmatrix &m2)
 //------------------------------------------------------------------------------
-Rmatrix TransposeTimesRmatrix(const Rmatrix &m1, const Rmatrix &m2) 
+Rmatrix TransposeTimesMatrix(const Rmatrix &m1, const Rmatrix &m2) 
 {
    if ((m1.IsSized() == false) || (m2.IsSized() == false))
    {
@@ -1016,10 +1016,10 @@ std::ostream& operator<< (std::ostream &output, const Rmatrix &a)
 Rvector Rmatrix::GetRow(int r) const
 {
    Rvector rvec(colsD);
-  
+   
    for (int i=0; i<colsD; i++)
       rvec.SetElement(i, GetElement(r, i));
-
+   
    return rvec;
 }
 
@@ -1062,24 +1062,26 @@ const StringArray& Rmatrix::GetStringVals(Integer p, Integer w)
 
 //------------------------------------------------------------------------------
 // std::string ToString(Integer precision, Integer width, bool horizontal,
-//                      const std::string &prefix = "") const
+//                      const std::string &prefix, bool appendEol) const
 //------------------------------------------------------------------------------
 /*
  * Formats Rmatrix value to String.
  *
- * @param  precision  Precision to be used in formatting
- * @param  precision  Width to be used in formatting (1)
+ * @param  precision   Precision to be used in formatting
+ * @param  width       Width to be used in formatting (1)
  * @param  horizontal  Format horizontally if true (false)
- * @param  prefix  Prefix to be used in vertical formatting ("")
+ * @param  prefix      Prefix to be used in vertical formatting ("")
+ * @param  appendEol   Appends eol if true (true)
  *
  * @return Formatted Rmatrix value string
  */
 //------------------------------------------------------------------------------
 std::string Rmatrix::ToString(Integer precision, Integer width, bool horizontal,
-                              const std::string &prefix) const
+                              const std::string &prefix, bool appendEol) const
 {
    GmatGlobal *global = GmatGlobal::Instance();
-   global->SetActualFormat(false, false, precision, width, horizontal, 1, prefix);
+   global->SetActualFormat(false, false, precision, width, horizontal, 1, prefix,
+                           appendEol);
    
    std::stringstream ss("");
    ss << *this;
@@ -1123,4 +1125,29 @@ std::string Rmatrix::ToString(bool useCurrentFormat, bool scientific,
    ss << *this;
    return ss.str();
 }
+
+
+//------------------------------------------------------------------------------
+// std::string ToRowString(Integer row, Integer precision, Integer width)
+//------------------------------------------------------------------------------
+/*
+ * Formats Rmatrix row value to String.
+ *
+ * @param  row         Row values to format
+ * @param  precision   Precision to be used in formatting
+ * @param  width       Width to be used in formatting (1)
+ *
+ * @return Formatted Rmatrix value string
+ */
+//------------------------------------------------------------------------------
+std::string Rmatrix::ToRowString(Integer row, Integer precision, Integer width) const
+{
+   GmatGlobal *global = GmatGlobal::Instance();
+   global->SetActualFormat(false, false, precision, width, true, 1, "", false);
+   Rvector rowVec = GetRow(row);
+   std::stringstream ss("");
+   ss << rowVec;
+   return ss.str();
+}
+
 
