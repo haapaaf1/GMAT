@@ -452,7 +452,7 @@ Real Parameter::GetReal() const
 
 
 //------------------------------------------------------------------------------
-// Rvector6 GetRvector6() const
+// const Rvector6& GetRvector6() const
 //------------------------------------------------------------------------------
 /**
  * @return parameter value without evaluating.
@@ -460,7 +460,7 @@ Real Parameter::GetReal() const
  * @exception <ParameterException> thrown if this method is called.
  */
 //------------------------------------------------------------------------------
-Rvector6 Parameter::GetRvector6() const
+const Rvector6& Parameter::GetRvector6() const
 {
    throw ParameterException
       ("Parameter: GetRvector6(): " + this->GetTypeName() + " has no "
@@ -470,7 +470,43 @@ Rvector6 Parameter::GetRvector6() const
 
 
 //------------------------------------------------------------------------------
-// Rmatrix GetRmatrix() const
+// const Rmatrix66& GetRmatrix66() const
+//------------------------------------------------------------------------------
+/**
+ * @return parameter value without evaluating.
+ *
+ * @exception <ParameterException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+const Rmatrix66& Parameter::GetRmatrix66() const
+{
+   throw ParameterException
+      ("Parameter: GetRmatrix66(): " + this->GetTypeName() + " has no "
+       "implementation of GetRmatrix66().\nMay be an invalid call to this "
+       "function.\n");
+}
+
+
+//------------------------------------------------------------------------------
+// const Rmatrix33& GetRmatrix33() const
+//------------------------------------------------------------------------------
+/**
+ * @return parameter value without evaluating.
+ *
+ * @exception <ParameterException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+const Rmatrix33& Parameter::GetRmatrix33() const
+{
+   throw ParameterException
+      ("Parameter: GetRmatrix33(): " + this->GetTypeName() + " has no "
+       "implementation of GetRmatrix33().\nMay be an invalid call to this "
+       "function.\n");
+}
+
+
+//------------------------------------------------------------------------------
+// const Rmatrix& GetRmatrix() const
 //------------------------------------------------------------------------------
 /**
  * @return parameter value without evaluating.
@@ -488,7 +524,7 @@ const Rmatrix& Parameter::GetRmatrix() const
 
 
 //------------------------------------------------------------------------------
-// std::string GetString() const
+// const std::string& GetString() const
 //------------------------------------------------------------------------------
 /**
  * @return parameter value without evaluating.
@@ -496,7 +532,7 @@ const Rmatrix& Parameter::GetRmatrix() const
  * @exception <ParameterException> thrown if this method is called.
  */
 //------------------------------------------------------------------------------
-std::string Parameter::GetString() const
+const std::string& Parameter::GetString() const
 {
    throw ParameterException
       ("Parameter: GetString(): " + this->GetTypeName() + " has no "
@@ -537,6 +573,42 @@ void Parameter::SetRvector6(const Rvector6 &val)
    throw ParameterException
       ("Parameter: SetRvector6(): " + this->GetTypeName() + " has no "
        "implementation of SetRvector6().\nMay be an invalid call to this "
+       "function.\n");
+}
+
+
+//------------------------------------------------------------------------------
+// void SetRmatrix66(const Rmatrix66 &mat)
+//------------------------------------------------------------------------------
+/**
+ * Sets Rmatrix66 value of parameter.
+ *
+ * @exception <ParameterException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+void Parameter::SetRmatrix66(const Rmatrix66 &mat)
+{
+   throw ParameterException
+      ("Parameter: SetRmatrix66(): " + this->GetTypeName() + " has no "
+       "implementation of SetRmatrix66().\nMay be an invalid call to this "
+       "function.\n");
+}
+
+
+//------------------------------------------------------------------------------
+// void SetRmatrix33(const Rmatrix33 &mat)
+//------------------------------------------------------------------------------
+/**
+ * Sets Rmatrix33 value of parameter.
+ *
+ * @exception <ParameterException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+void Parameter::SetRmatrix33(const Rmatrix33 &mat)
+{
+   throw ParameterException
+      ("Parameter: SetRmatrix33(): " + this->GetTypeName() + " has no "
+       "implementation of SetRmatrix33().\nMay be an invalid call to this "
        "function.\n");
 }
 
@@ -596,7 +668,7 @@ Real Parameter::EvaluateReal()
 
 
 //------------------------------------------------------------------------------
-// Rvector6 EvaluateRvector6()
+// const Rvector6& EvaluateRvector6()
 //------------------------------------------------------------------------------
 /**
  * @return newly evaluated parameter value.
@@ -604,7 +676,7 @@ Real Parameter::EvaluateReal()
  * @exception <ParameterException> thrown if this method is called.
  */
 //------------------------------------------------------------------------------
-Rvector6 Parameter::EvaluateRvector6()
+const Rvector6& Parameter::EvaluateRvector6()
 {
    throw ParameterException
       ("Parameter: EvaluateRvector6(): " + this->GetTypeName() + " has no "
@@ -614,7 +686,7 @@ Rvector6 Parameter::EvaluateRvector6()
 
 
 //------------------------------------------------------------------------------
-// Rmatrix EvaluateRmatrix()
+// const Rmatrix66& EvaluateRmatrix66()
 //------------------------------------------------------------------------------
 /**
  * @return newly evaluated parameter value.
@@ -622,7 +694,43 @@ Rvector6 Parameter::EvaluateRvector6()
  * @exception <ParameterException> thrown if this method is called.
  */
 //------------------------------------------------------------------------------
-Rmatrix Parameter::EvaluateRmatrix()
+const Rmatrix66& Parameter::EvaluateRmatrix66()
+{
+   throw ParameterException
+      ("Parameter: EvaluateRmatrix66(): " + this->GetTypeName() + " has no "
+       "implementation of EvaluateRmatrix66().\nMay be an invalid call to this "
+       "function.\n");
+}
+
+
+//------------------------------------------------------------------------------
+// const Rmatrix33& EvaluateRmatrix33()
+//------------------------------------------------------------------------------
+/**
+ * @return newly evaluated parameter value.
+ *
+ * @exception <ParameterException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+const Rmatrix33& Parameter::EvaluateRmatrix33()
+{
+   throw ParameterException
+      ("Parameter: EvaluateRmatrix33(): " + this->GetTypeName() + " has no "
+       "implementation of EvaluateRmatrix33().\nMay be an invalid call to this "
+       "function.\n");
+}
+
+
+//------------------------------------------------------------------------------
+// const Rmatrix& EvaluateRmatrix()
+//------------------------------------------------------------------------------
+/**
+ * @return newly evaluated parameter value.
+ *
+ * @exception <ParameterException> thrown if this method is called.
+ */
+//------------------------------------------------------------------------------
+const Rmatrix& Parameter::EvaluateRmatrix()
 {
    throw ParameterException
       ("Parameter: EvaluateRmatrix(): " + this->GetTypeName() + " has no "
@@ -632,7 +740,7 @@ Rmatrix Parameter::EvaluateRmatrix()
 
 
 //------------------------------------------------------------------------------
-// std::string EvaluateString()
+// const std::string& EvaluateString()
 //------------------------------------------------------------------------------
 /**
  * @return newly evaluated parameter value.
@@ -640,7 +748,7 @@ Rmatrix Parameter::EvaluateRmatrix()
  * @exception <ParameterException> thrown if this method is called.
  */
 //------------------------------------------------------------------------------
-std::string Parameter::EvaluateString()
+const std::string& Parameter::EvaluateString()
 {
    throw ParameterException
       ("Parameter: EvaluateString(): " + this->GetTypeName() + " has no "
