@@ -26,8 +26,8 @@
 #include <map>
 #include <algorithm>
 
-#include <cstdlib>			// Required for GCC 4.3
-#include <algorithm>			// Required for GCC 4.3
+#include <cstdlib>                      // Required for GCC 4.3
+#include <algorithm>                    // Required for GCC 4.3
 
 //#define DEBUG_STRING_UTIL 1
 //#define DEBUG_ARRAY_INDEX 2
@@ -481,19 +481,20 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
 
 
 //------------------------------------------------------------------------------
-// std::string ToString(const Real &val, Integer precision)
+// std::string ToString(const Real &val, Integer precision, bool showPoint)
 //------------------------------------------------------------------------------
 /*
  * Formats Real value to String.
  *
  * @param  val  Real value
  * @param  precision  Precision to be used in formatting
+ * @param  showPoint  Formats using ios::showpoint if true (false)
  */
 //------------------------------------------------------------------------------
-std::string GmatStringUtil::ToString(const Real &val, Integer precision)
+std::string GmatStringUtil::ToString(const Real &val, Integer precision,
+                                     bool showPoint)
 {
-   //return GmatRealUtil::ToString(val, false, false, true, precision, 0);
-   return GmatRealUtil::ToString(val, false, false, false, precision, 0);
+   return GmatRealUtil::ToString(val, false, false, showPoint, precision, 1);
 }
 
 
