@@ -73,7 +73,7 @@ DryMass::~DryMass()
 //------------------------------------------------------------------------------
 bool DryMass::Evaluate()
 {
-   mRealValue = BallisticMassData::GetReal(DRY_MASS);
+   mRealValue = SpacecraftData::GetReal(DRY_MASS);
    
     
    if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
@@ -144,7 +144,7 @@ DragCoeff::~DragCoeff()
 //------------------------------------------------------------------------------
 bool DragCoeff::Evaluate()
 {
-   mRealValue = BallisticMassData::GetReal(DRAG_COEFF);
+   mRealValue = SpacecraftData::GetReal(DRAG_COEFF);
     
    if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
       return false;
@@ -214,7 +214,7 @@ ReflectCoeff::~ReflectCoeff()
 //------------------------------------------------------------------------------
 bool ReflectCoeff::Evaluate()
 {
-   mRealValue = BallisticMassData::GetReal(REFLECT_COEFF);
+   mRealValue = SpacecraftData::GetReal(REFLECT_COEFF);
     
    if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
       return false;
@@ -284,7 +284,7 @@ DragArea::~DragArea()
 //------------------------------------------------------------------------------
 bool DragArea::Evaluate()
 {
-   mRealValue = BallisticMassData::GetReal(DRAG_AREA);
+   mRealValue = SpacecraftData::GetReal(DRAG_AREA);
     
    if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
       return false;
@@ -354,7 +354,7 @@ SRPArea::~SRPArea()
 //------------------------------------------------------------------------------
 bool SRPArea::Evaluate()
 {
-   mRealValue = BallisticMassData::GetReal(SRP_AREA);
+   mRealValue = SpacecraftData::GetReal(SRP_AREA);
    
    if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
       return false;
@@ -424,7 +424,7 @@ TotalMass::~TotalMass()
 //------------------------------------------------------------------------------
 bool TotalMass::Evaluate()
 {
-   mRealValue = BallisticMassData::GetReal(TOTAL_MASS);
+   mRealValue = SpacecraftData::GetReal(TOTAL_MASS);
    
    if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
       return false;

@@ -20,10 +20,10 @@
 
 #include "gmatdefs.hpp"
 #include "RealVar.hpp"
-#include "BallisticMassData.hpp"
+#include "SpacecraftData.hpp"
 
 
-class GMAT_API BallisticMassReal : public RealVar, public BallisticMassData
+class GMAT_API BallisticMassReal : public RealVar, public SpacecraftData
 {
 public:
 

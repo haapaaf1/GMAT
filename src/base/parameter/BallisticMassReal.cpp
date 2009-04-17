@@ -39,7 +39,7 @@ BallisticMassReal::BallisticMassReal(const std::string &name, const std::string 
 // BallisticMassReal(const BallisticMassReal &copy)
 //------------------------------------------------------------------------------
 BallisticMassReal::BallisticMassReal(const BallisticMassReal &copy)
-   : RealVar(copy), BallisticMassData(copy)
+   : RealVar(copy), SpacecraftData(copy)
 {
 }
 
@@ -52,7 +52,7 @@ BallisticMassReal& BallisticMassReal::operator=(const BallisticMassReal &right)
    if (this != &right)
    {
       RealVar::operator=(right);
-      BallisticMassData::operator=(right);
+      SpacecraftData::operator=(right);
    }
    
    return *this;
@@ -82,7 +82,7 @@ Real BallisticMassReal::EvaluateReal()
 //------------------------------------------------------------------------------
 Integer BallisticMassReal::GetNumRefObjects() const
 {
-   return BallisticMassData::GetNumRefObjects();
+   return SpacecraftData::GetNumRefObjects();
 }
 
 
@@ -99,7 +99,7 @@ bool BallisticMassReal::AddRefObject(GmatBase *obj, bool replaceName)
           obj->GetName().c_str(), obj->GetType());
       #endif
       
-      return BallisticMassData::AddRefObject(obj->GetType(), obj->GetName(), obj,
+      return SpacecraftData::AddRefObject(obj->GetType(), obj->GetName(), obj,
                                         replaceName);
       
    }
@@ -145,7 +145,7 @@ bool BallisticMassReal::RenameRefObject(const Gmat::ObjectType type,
                                         const std::string &oldName,
                                         const std::string &newName)
 {
-   return BallisticMassData::RenameRefObject(type, oldName, newName);
+   return SpacecraftData::RenameRefObject(type, oldName, newName);
 }
 
 
@@ -154,7 +154,7 @@ bool BallisticMassReal::RenameRefObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 std::string BallisticMassReal::GetRefObjectName(const Gmat::ObjectType type) const
 {
-   std::string objName = BallisticMassData::GetRefObjectName(type);
+   std::string objName = SpacecraftData::GetRefObjectName(type);
    
    if (objName == "INVALID_OBJECT_TYPE")
    {
@@ -172,7 +172,7 @@ std::string BallisticMassReal::GetRefObjectName(const Gmat::ObjectType type) con
 //------------------------------------------------------------------------------
 const StringArray& BallisticMassReal::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   return BallisticMassData::GetRefObjectNameArray(type);
+   return SpacecraftData::GetRefObjectNameArray(type);
 }
 
 
@@ -182,7 +182,7 @@ const StringArray& BallisticMassReal::GetRefObjectNameArray(const Gmat::ObjectTy
 bool BallisticMassReal::SetRefObjectName(const Gmat::ObjectType type,
                                          const std::string &name)
 {
-   bool ret = BallisticMassData::SetRefObjectName(type, name);
+   bool ret = SpacecraftData::SetRefObjectName(type, name);
    
    if (!ret)
       MessageInterface::ShowMessage
@@ -200,7 +200,7 @@ bool BallisticMassReal::SetRefObjectName(const Gmat::ObjectType type,
 GmatBase* BallisticMassReal::GetRefObject(const Gmat::ObjectType type,
                                           const std::string &name)
 {
-   GmatBase *obj = BallisticMassData::GetRefObject(type, name);
+   GmatBase *obj = SpacecraftData::GetRefObject(type, name);
    
    if (obj == NULL)
    {
@@ -227,6 +227,6 @@ bool BallisticMassReal::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
        type, name.c_str(), this->GetName().c_str());
    #endif
    
-   return BallisticMassData::SetRefObject(obj, type, name);
+   return SpacecraftData::SetRefObject(obj, type, name);
 }
 
