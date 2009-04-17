@@ -1,3 +1,8 @@
+
+%===== Modification History
+% 04/16/09 S. Hughes.  Initial Version
+% 04/16/09 S. Hughes.  Fixed typo in function Meas
+
 classdef Measurement < handle
 
     %----------------------------------------------------------------------
@@ -36,7 +41,7 @@ classdef Measurement < handle
         function Meas = Measurement(Meas)
             Simulator.StartTime = {};
             Simulator.StopTime  = {};
-            Simulator.TimeSte   = [];
+            Simulator.TimeStep   = [];
             Meas.Simulator = Simulator;
         end
         

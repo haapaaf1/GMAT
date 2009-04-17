@@ -57,6 +57,7 @@ BLS.AbsTolerance    = 1e-5;
 BLS.Measurements    = {'MauiData'};
 BLS.SolveFor        = {'ODSat.CartesianState'};
 BLS.Propagator      = 'ODProp';
+BLS.RunMode         = 'Solve';
  
 %==========================================================================
 %==========================================================================
@@ -118,7 +119,7 @@ SandBox.AddObject(BLS,'BLS');
 SandBox.AddObject(Maui,'Maui');
 SandBox.AddObject(MauiData,'MauiData');
 SandBox.AddObject(ODProp,'ODProp');
-SandBox.AddObject(NewGS,'NewGS')
+SandBox.AddObject(NewGS,'NewGS');
 SandBox.Initialize(SolarSystem);
 
 

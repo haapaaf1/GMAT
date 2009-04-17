@@ -1,3 +1,6 @@
+
+%  04/16/09 S. Hughes.  Updated to handle infeasbile measurements.
+
 classdef GroundStationMeasurement < Measurement
 
     %----------------------------------------------------------------------
@@ -166,7 +169,7 @@ classdef GroundStationMeasurement < Measurement
             for i = 1:GSMeas.numDataTypes
                
                 %----- Concatenate Types, Epochs, Obs
-                numcurrObs    = size(MeasData{i}.Obs,1);
+                numcurrObs = size(MeasData{i}.Obs,1);
                 low  = totalnumObs;
                 high = totalnumObs+numcurrObs-1;
                 DataTypes(low:high,1) = ones(numcurrObs,1)*MeasData{i}.DataType;
@@ -210,6 +213,7 @@ classdef GroundStationMeasurement < Measurement
                 totalnumObs = totalnumObs + numcurrObs;
 
             end %  for i = 1:GSMeas.numDataTypes 
+            
             GSMeas.Obs       = Obs;
             GSMeas.Epochs    = Epochs;
             GSMeas.dataTypeIndeces = typeIndex;
@@ -241,7 +245,7 @@ classdef GroundStationMeasurement < Measurement
         end
         
         %----- Evaluate measurements
-        function [y,dydx] = Evaluate(Meas,dataIndex,Participants,partialsMap)
+        function [y,dydx,isFeasible] = Evaluate(Meas,dataIndex,Participants,partialsMap)
             
             %  
             Sat         = Participants{1,1};
@@ -249,25 +253,53 @@ classdef GroundStationMeasurement < Measurement
             dataType    = Meas.dataTypes(dataIndex);
             
             if dataType     == 1001;
-                [y,dydx] = Meas.EvaluateRange(Sat,Station);
+                [y,dydx,isFeasible] = Meas.EvaluateRange(Sat,Station);
             elseif dataType == 1002;
-                [y,dydx] = Meas.EvaluateRADec(Sat,Station);
+                [y,dydx,isFeasible] = Meas.EvaluateRADec(Sat,Station);
             else
                 stop
             end
               
         end
         
-        function [y,dydx] = EvaluateRange(Meas,Sat,Station)
-
+        %----- Evaluate measurements
+        function [y,dydx,isFeasible] = Simulate(Meas,dataType,Participants)
+            
             %  
-            jd       = Sat.Epoch + 2430000;
-            rangevec = [Sat.X Sat.Y Sat.Z]' - Station.InertialState(jd);
-            range    = norm(rangevec);
+            Sat         = Participants{1,1};
+            Station     = Participants{1,2};
+            
+            if dataType     == 1001;
+                [y,dydx,isFeasible] = Meas.EvaluateRange(Sat,Station);
+            elseif dataType == 1002;
+                [y,dydx,isFeasible] = Meas.EvaluateRADec(Sat,Station);
+            else
+                stop
+            end
+              
+        end
+        
+        function [y,dydx,isFeasible] = EvaluateRange(Meas,Sat,Station)
 
-            y    = range + Meas.RangeMeas.Bias;
-            dydx = rangevec'/range;
+            %  Convert station location to inertial system
+            jd         = Sat.Epoch + 2430000;
+            stationLoc = Station.InertialState(jd);
+            rangevec   = [Sat.X Sat.Y Sat.Z]' - stationLoc;
+            range      = norm(rangevec);
 
+            %  Calculate measurement and partial if feasible
+            if dot(rangevec,stationLoc) > 0
+                isFeasible = 1;
+                y    = range + Meas.RangeMeas.Bias;
+                dydx = rangevec'/range;
+            else
+                isFeasible = 1;
+                y    = range + Meas.RangeMeas.Bias;
+                dydx = rangevec'/range;
+%                 isFeasible = 0;
+%                 y   = [];
+%                 dydx = [];
+            end
             
             return
             Partials = [101 201 301];

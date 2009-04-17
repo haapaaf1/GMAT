@@ -127,11 +127,11 @@ classdef MeasurementManager < handle
             
         end
         
-        function [y, Htilde, Htildec, W, Phi] = GetMeasurement(measManager,index)
+        function [y, Htilde, isFeasible , Htildec, W, Phi] = GetMeasurement(measManager,index)
             
             % -- Call the measurement model
              dataType   = measManager.dataTypeIndeces(index);
-            [y, Htilde] = measManager.MeasurementHandles{index}.Evaluate(dataType,measManager.MeasurementHandles{index}.Participants{dataType});
+            [y, Htilde, isFeasible] = measManager.MeasurementHandles{index}.Evaluate(dataType,measManager.MeasurementHandles{index}.Participants{dataType});
             
         end
 

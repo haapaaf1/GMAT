@@ -230,8 +230,18 @@ classdef GroundStationMeasurement < Measurement
 
         end % GetParamId
         
+        function names = GetParticipantNames(Meas)
+            
+            for i = 1:Meas.numDataTypes
+                for j = 2:size(Meas.AddDataType{i},2)
+                    names{i}{j-1} = Meas.AddDataType{i}{j};
+                end
+            end
+            
+        end
+        
         %----- Evaluate measurements
-        function [y,dydx] = Evaluate(Meas,dataIndex,Participants,partialsMap)
+        function [y,dydx,isFeasible] = Evaluate(Meas,dataIndex,Participants,partialsMap)
             
             %  
             Sat         = Participants{1,1};
@@ -248,15 +258,20 @@ classdef GroundStationMeasurement < Measurement
               
         end
         
-        function [y,dydx] = EvaluateRange(Meas,Sat,Station)
+        function [y,dydx,isFeasible] = EvaluateRange(Meas,Sat,Station)
 
             %  
             jd       = Sat.Epoch + 2430000;
-            rangevec = [Sat.X Sat.Y Sat.Z]' - Station.InertialState(jd);
+            stationLoc = Station.InertialState(jd
+            rangevec = [Sat.X Sat.Y Sat.Z]' - stationLoc;
             range    = norm(rangevec);
 
+            if dot(rangevec,stationLoc) > 0
             y    = range + Meas.RangeMeas.Bias;
             dydx = rangevec'/range;
+            else 
+                y = [];
+                d
 
             
             return
@@ -281,15 +296,7 @@ classdef GroundStationMeasurement < Measurement
 
         end
         
-        function names = GetParticipantNames(Meas)
-            
-            for i = 1:Meas.numDataTypes
-                for j = 2:size(Meas.AddDataType{i},2)
-                    names{i}{j-1} = Meas.AddDataType{i}{j};
-                end
-            end
-            
-        end
+
    
         function [y,dydx] = EvaluateRADec(Meas,Sat,Station)
 

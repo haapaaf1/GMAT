@@ -1,3 +1,6 @@
+
+%===== Modification History
+% 04/16/09 S. Hughes.  Fixed typo in function 
 classdef Measurement < handle
 
     %----------------------------------------------------------------------
@@ -15,14 +18,15 @@ classdef Measurement < handle
         GenRelativityModel = 'Moyer';
         AddDataType        = {};
         Participants       = {};
-        Types              = [];
         Simulator          = {};
-        
+        dataTypeID         = [];
     end
 
     %----- Set the private properties
-    properties  (SetAccess = 'protected')
-        
+    properties  (SetAccess = 'protected')     
+        numDataTypes
+        Obs                
+        Epochs
     end
     
     %----------------------------------------------------------------------

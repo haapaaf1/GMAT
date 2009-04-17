@@ -10,6 +10,7 @@ classdef BatchEstimator < handle
         Propagator;
         ESV;
         SolutionEpoch;
+        RunMode       = 'Solve'
     end
 
     % Set the private properties

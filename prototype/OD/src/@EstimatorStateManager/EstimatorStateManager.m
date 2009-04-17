@@ -33,8 +33,9 @@ classdef EstimatorStateManager < StateManager
 
             %=============================================================
             %=============================================================
-            %  - Set handles for objects that are being estimated
-            %  - Set paramId's for all properties being estimated
+            %  - Create array of pointers for objects that have states being
+            %  estimated 
+            %  - Create vector of stateId's for all states being estimated 
             %  - Set chunkSizes for propagator state vector
             %  - Set chunkSizes for estimator state vector
             %=============================================================
