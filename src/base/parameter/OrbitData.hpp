@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  OrbitData
 //------------------------------------------------------------------------------
@@ -23,6 +23,8 @@
 #include "GmatBase.hpp"
 #include "RefData.hpp"
 #include "Rvector6.hpp"
+#include "Rmatrix66.hpp"
+#include "Rmatrix33.hpp"
 #include "Spacecraft.hpp"
 #include "SolarSystem.hpp"
 #include "CoordinateSystem.hpp"
@@ -64,20 +66,23 @@ public:
    
    Real GetOtherAngleReal(Integer item);
    Real GetOtherAngleReal(const std::string &str);
-
+   
    Real GetEquinReal(Integer item);
    Real GetEquinReal(const std::string &str);
-
+   
+   const Rmatrix66& GetStmRmat66(Integer item);
+   const Rmatrix33& GetStmRmat33(Integer item);
+   
    // The inherited methods from RefData
    virtual bool ValidateRefObjects(GmatBase *param);
    virtual const std::string* GetValidObjectList() const;
-      
+   
 protected:
-
+   
    bool mOriginDep;
    SolarSystem* GetSolarSystem();
    CoordinateSystem* GetInternalCoordSys();
-      
+   
    void SetInternalCoordSys(CoordinateSystem *cs);
    Rvector6 GetRelativeCartState(SpacePoint *origin);
    Real GetPositionMagnitude(SpacePoint *origin);
@@ -91,6 +96,9 @@ protected:
    Rvector6 mModKepState;
    Rvector6 mSphRaDecState;
    Rvector6 mSphAzFpaState;
+   
+   Rmatrix66  mSTM;
+   Rmatrix33  mSTMSubset;
    
    Real mCartEpoch;
    Real mGravConst;
@@ -114,6 +122,7 @@ protected:
          RAD_PERIAPSIS, C3_ENERGY, ENERGY};
    enum {SEMILATUS_RECTUM, HMAG, HX, HY, HZ, BETA_ANGLE};
    enum {EQ_SMA, EY, EX, NY, NX, MLONG};
+   enum {ORBIT_STM, ORBIT_STM_A, ORBIT_STM_B, ORBIT_STM_C, ORBIT_STM_D};
    
    enum
    {

@@ -31,6 +31,7 @@
 #include "Equinoctial.hpp"
 #include "CelestialBody.hpp"
 #include "OrbitTypes.hpp"        // for KEP_TOL, KEP_ZERO_TOL
+#include "StringUtil.hpp"        // for ToString()
 #include "MessageInterface.hpp"
 
 
@@ -776,6 +777,76 @@ Real OrbitData::GetEquinReal(Integer item)
    }
 }
 
+
+//------------------------------------------------------------------------------
+// const Rmatrix66& GetStmRmat66(Integer item)
+//------------------------------------------------------------------------------
+/**
+ * Retrives Spacecraft Rmatrix66 data.
+ */
+//------------------------------------------------------------------------------
+const Rmatrix66& OrbitData::GetStmRmat66(Integer item)
+{
+   #ifdef DEBUG_SCDATA_GET
+   MessageInterface::ShowMessage
+      ("OrbitData::GetStmRmat66() entered, mSpacecraft=<%p>'%s'\n",
+       mSpacecraft, mSpacecraft ? mSpacecraft->GetName().c_str() : "NULL");
+   #endif
+   
+   if (mSpacecraft == NULL)
+      InitializeRefObjects();
+   
+   switch (item)
+   {
+   case ORBIT_STM:
+      {
+         mSTM = mSpacecraft->GetRmatrixParameter("OrbitSTM");
+         return mSTM;
+      }
+   default:
+      // otherwise, there is an error   
+      throw ParameterException
+         ("OrbitData::GetStmRmat66() Unknown parameter id: " +
+          GmatStringUtil::ToString(item));
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// const Rmatrix33& GetStmRmat33(Integer item)
+//------------------------------------------------------------------------------
+/**
+ * Retrives Spacecraft Rmatrix33 data.
+ */
+//------------------------------------------------------------------------------
+const Rmatrix33& OrbitData::GetStmRmat33(Integer item)
+{
+   if (mSpacecraft == NULL)
+      InitializeRefObjects();
+   
+   mSTM = mSpacecraft->GetRmatrixParameter("OrbitSTM");
+   
+   switch (item)
+   {
+   case ORBIT_STM_A:
+      mSTMSubset = mSTM.UpperLeft();
+      return mSTMSubset;
+   case ORBIT_STM_B:
+      mSTMSubset = mSTM.UpperRight();
+      return mSTMSubset;
+   case ORBIT_STM_C:
+      mSTMSubset = mSTM.LowerLeft();
+      return mSTMSubset;
+   case ORBIT_STM_D:
+      mSTMSubset = mSTM.LowerRight();
+      return mSTMSubset;
+   default:
+      // otherwise, there is an error   
+      throw ParameterException
+         ("OrbitData::GetStmRmat33() Unknown parameter id: " +
+          GmatStringUtil::ToString(item));
+   }
+}
 
 //-------------------------------------
 // Inherited methods from RefData
