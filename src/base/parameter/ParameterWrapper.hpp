@@ -40,25 +40,28 @@ public:
    // destructor
    virtual ~ParameterWrapper();
    
-   virtual ElementWrapper*    Clone() const;
+   virtual ElementWrapper*     Clone() const;
    virtual Gmat::ParameterType GetDataType() const;
    
-   virtual GmatBase*    GetRefObject(const std::string &name = "");
-   virtual bool         SetRefObject(GmatBase *obj);
-   virtual bool         RenameObject(const std::string &oldName, 
-                                     const std::string &newName);
+   virtual GmatBase*           GetRefObject(const std::string &name = "");
+   virtual bool                SetRefObject(GmatBase *obj);
+   virtual bool                RenameObject(const std::string &oldName, 
+                                            const std::string &newName);
    
-   virtual Real         EvaluateReal() const;
-   virtual bool         SetReal(const Real toValue);
+   virtual Real                EvaluateReal() const;
+   virtual bool                SetReal(const Real toValue);
    
-   virtual GmatBase*    EvaluateObject() const;
-   virtual bool         SetObject(const GmatBase* obj);
+   virtual const Rmatrix&      EvaluateArray() const;
+   virtual bool                SetArray(const Rmatrix &toValue);
+   
+   virtual GmatBase*           EvaluateObject() const;
+   virtual bool                SetObject(const GmatBase* obj);
    
 protected:  
-
+   
    // pointer to the Parameter object
    Parameter *param;
    
-   virtual void            SetupWrapper(); 
+   virtual void                SetupWrapper(); 
 };
 #endif // ParameterWrapper_hpp

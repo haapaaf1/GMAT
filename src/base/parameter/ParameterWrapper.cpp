@@ -230,6 +230,48 @@ bool ParameterWrapper::SetReal(const Real toValue)
 }
 
 
+//---------------------------------------------------------------------------
+//  const Rmatrix& EvaluateArray() const
+//---------------------------------------------------------------------------
+/**
+ * Method to return the Rmatrix value of the wrapped object.
+ *
+ * @return Rmatrix value of the wrapped number object.
+ * 
+ */
+//---------------------------------------------------------------------------
+const Rmatrix& ParameterWrapper::EvaluateArray() const
+{
+   if (param == NULL)
+      throw ParameterException(
+      "Cannot return value of Parameter - pointer is NULL\n");
+   #ifdef DEBUG_PW
+      MessageInterface::ShowMessage(
+      "In ParameterWrapper::EvaluateArray, value is %.12f\n", param->EvaluateRmatrix());
+   #endif
+   return param->EvaluateRmatrix();
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetArray(const Rmatrix &toValue)
+//---------------------------------------------------------------------------
+/**
+ * Method to set the Real value of the wrapped object.
+ *
+ * @return true if successful; false otherwise.
+ */
+//---------------------------------------------------------------------------
+bool ParameterWrapper::SetArray(const Rmatrix &toValue)
+{
+   if (param == NULL)
+      throw ParameterException(
+      "Cannot set value of Parameter - pointer is NULL\n");
+   param->SetRmatrix(toValue);
+   return true;
+}
+
+
 //------------------------------------------------------------------------------
 // GmatBase* EvaluateObject() const
 //------------------------------------------------------------------------------
