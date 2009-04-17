@@ -395,6 +395,19 @@ const Rvector6& Rvector6::operator*=(Real s)
 }
 
 //------------------------------------------------------------------------------
+//  Real operator*(const Rvector6& v) const        // dot product
+//------------------------------------------------------------------------------
+Real Rvector6::operator*(const Rvector6& v) const 
+{
+   Real sum = 0.0;
+   
+   for (int i=0; i<sizeD; i++)
+      sum += elementD[i] * v.elementD[i];
+   
+   return sum;
+}
+
+//------------------------------------------------------------------------------
 //  Rvector6 operator/(Real s) const
 //------------------------------------------------------------------------------
 /**

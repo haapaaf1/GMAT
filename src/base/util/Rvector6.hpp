@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                Rvector6
 //------------------------------------------------------------------------------
@@ -25,6 +25,7 @@
 #include "GmatGlobal.hpp"      // for DATA_PRECISION
 
 class Rvector3;
+class Rmatrix66;
 
 #define NUM_DATA_INIT 6
 
@@ -52,7 +53,7 @@ public:
    void Set(const Real v[6]);
    void SetR(const Rvector3 &v);
    void SetV(const Rvector3 &v);
-
+   
    bool operator==(const Rvector6 &v)const;
    bool operator!=(const Rvector6 &v)const;
    Rvector6 operator-() const;                    // negation 
@@ -62,8 +63,15 @@ public:
    const Rvector6& operator-=(const Rvector6 &v);
    Rvector6 operator*(Real s) const;
    const Rvector6& operator*=(Real s);
+   Real operator*(const Rvector6 &v) const;       // dot product
    Rvector6 operator/(Real s) const;
    const Rvector6& operator/=(Real s);
+   
+   friend class Rmatrix66;
+   Rvector6 operator*(const Rmatrix66 &m) const; 
+   const Rvector6& operator*=(const Rmatrix66 &m);
+   Rvector6 operator/(const Rmatrix66 &m) const;
+   const Rvector6& operator/=(const Rmatrix66 &m);
    
    Integer GetNumData() const;
    const std::string* GetDataDescriptions() const;
