@@ -399,7 +399,10 @@ std::ostream& GmatRealUtil::operator<< (std::ostream &output, const Rmatrix &a)
             for (int j=0; j<column; j++)
                output << setw(w) << setprecision(p) << a.GetElement(i,j) << spaces;
             
-            output << std::endl;
+            if (i < row-1)
+               output << std::endl;
+            else if (appendEol)
+               output << std::endl;
          }
       }
    }
