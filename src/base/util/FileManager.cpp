@@ -57,6 +57,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "OUTPUT_PATH",
    "SLP_PATH",
    "DE_PATH",
+   "SPK_PATH",
    "EARTH_POT_PATH",
    "LUNA_POT_PATH",
    "VENUS_POT_PATH",
@@ -74,6 +75,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "DE200_FILE",
    "DE202_FILE",
    "DE405_FILE",
+   "PLANETARY_SPK_FILE",
    "JGM2_FILE",
    "JGM3_FILE",
    "EGM96_FILE",
@@ -523,6 +525,16 @@ void FileManager::WriteStartupFile(const std::string &fileName)
          break;
       }
    }
+   outStream << "#-----------------------------------------------------------\n";
+
+   //---------------------------------------------
+   // write the SPK_PATH and SPK file next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing SPK path\n");
+   #endif
+   outStream << setw(20) << "SPK_PATH" << " = " << mPathMap["SPK_PATH"] << "\n";
+   WriteFiles(outStream, "SPK");
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
@@ -1561,6 +1573,10 @@ void FileManager::RefreshFiles()
    AddFileType("DE200_FILE", "DE_PATH/winp1941.200");
    AddFileType("DE202_FILE", "DE_PATH/winp1950.202");
    AddFileType("DE405_FILE", "DE_PATH/winp1941.405");
+
+   // spk files
+   AddFileType("SPK_PATH", "./files/planetary_ephem/spk/");
+   AddFileType("PLANETARY_SPK_FILE", "DE_PATH/de421.bsp");
 
    // earth gravity files
    AddFileType("EARTH_POT_PATH", "./files/gravity/earth/");
