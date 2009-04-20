@@ -953,7 +953,7 @@ SolarSystem::SolarSystem(std::string withName)
    #else
       spiceAvailable = false;
    #endif
-   SetIsSpiceAllowedForDefaultBodies(false);  // for now, this is false
+   SetIsSpiceAllowedForDefaultBodies(false);  // for now, this is false, per S. Hughes
    
    CreatePlanetarySource();
    
@@ -984,6 +984,7 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
    defaultBodyStrings         (ss.defaultBodyStrings),
    userDefinedBodyStrings     (ss.userDefinedBodyStrings),
    allowSpiceForDefaultBodies (ss.allowSpiceForDefaultBodies),
+   spiceAvailable             (ss.spiceAvailable),
    theSPKFilename             (ss.theSPKFilename)
 {
    theDefaultDeFile  = NULL;
@@ -1034,6 +1035,7 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    defaultBodyStrings         = ss.defaultBodyStrings;
    userDefinedBodyStrings     = ss.userDefinedBodyStrings;
    allowSpiceForDefaultBodies = ss.allowSpiceForDefaultBodies;
+   spiceAvailable             = ss.spiceAvailable;
    theSPKFilename             = ss.theSPKFilename;
    parameterCount             = SolarSystemParamCount;
    theDefaultDeFile           = NULL;
@@ -1375,12 +1377,12 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
       }
       else if (thePlanetarySourceTypesInUse[i] == Gmat::POS_VEL_SOURCE_STRINGS[Gmat::SPICE])
       {
-         if (!(allowSpiceForDefaultBodies) || !spiceAvailable)
+         #ifdef DEBUG_SS_PLANETARY_FILE
+            MessageInterface::ShowMessage(
+                  "SolarSystem::SetPlanetarySourceTypesInUse() SPICE selected\n");
+         #endif
+         if ((!allowSpiceForDefaultBodies) || (!spiceAvailable))
          {
-            #ifdef DEBUG_SS_PLANETARY_FILE
-               MessageInterface::ShowMessage(
-                     "SolarSystem::SetPlanetarySourceTypesInUse() SPICE selected\n");
-            #endif
             std::string errMsg = "Cannot be selected for ephemeris source for entire solar system: \"";
             errMsg += thePlanetarySourceTypesInUse[i] + "\"\n";
             throw SolarSystemException(errMsg);
