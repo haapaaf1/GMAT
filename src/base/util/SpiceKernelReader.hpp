@@ -36,10 +36,10 @@
 #include "Rmatrix33.hpp"
 // shouldn't have to do 'extern "C"', as it is handled in the header, as long as 
 // the __cplusplus directive is used
-//extern "C"  
-//{
+extern "C"  
+{
 #include "SpiceUsr.h"    // for CSPICE routines
-//}
+}
 
 class GMAT_API SpiceKernelReader
 {
