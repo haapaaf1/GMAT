@@ -12,18 +12,23 @@ classdef RunEstimator < handle
 
     % Set the methods
     methods
+        
+        %------------------------------------------------------------------
+        %-----  Initialize
+        %------------------------------------------------------------------
+         function obj = Initialize(obj,Estimator)
+
+            %----- Add the estimator
+            obj.Estimator = Estimator;
+
+                end
+        
 
         %------------------------------------------------------------------
         %-----  Initialize
         %------------------------------------------------------------------
 
         function obj = Initialize(obj,Estimator)
-
-            %==============================================================
-            %==============================================================
-            % - Add estimator to RunEstimator Object
-            %==============================================================
-            %==============================================================
 
             %----- Add the estimator
             obj.Estimator = Estimator;
@@ -35,7 +40,6 @@ classdef RunEstimator < handle
         %------------------------------------------------------------------
 
         % - Set up the estimation state vector
-
         function RunEst = PreparetoSolve(RunEst)
 
             RunEst.Estimator.ESV = RunEst.Estimator.ESM.GetStates();
@@ -62,7 +66,7 @@ classdef RunEstimator < handle
 
         function Execute(RunEst)
 
-            global TestCase
+            global TestCase theSandbox
 
             %----- Call prepare to solve to populate ESV with values.
             RunEst.PreparetoSolve();
@@ -87,10 +91,11 @@ classdef RunEstimator < handle
 
             if strcmp(Estimator.RunMode,'Simulate')
                                     
-                  Estimator.ESM.Objects = Estimator.ESM.CopyObjects(estObjectClone);
-                  RunEst = RunEst.PreparetoPropagate();
-
-                
+%                   %  Prepare the propagator for propagation
+%                   RunEst                = RunEst.PreparetoPropagate();
+%                   
+%                   %  Prepare the vector of observation times
+%                   Prop                  = Prop.SteptoEpoch(Epochs(i));
 
             elseif strcmp(Estimator.RunMode,'Solve')
 
@@ -233,7 +238,6 @@ classdef RunEstimator < handle
                 for i = 1:Estimator.ESM.numObjects
 
                     for j = 1:size(Estimator.ESM.ParamIds{i},2)
-
 
                         Id = Estimator.ESM.ParamIds{i}(j);
                         State = Estimator.ESM.Objects{i}.GetState(Id);
