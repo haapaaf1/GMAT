@@ -57,6 +57,7 @@
 //#define DEBUG_CB_SET_STRING
 //#define DEBUG_CB_SPICE
 //#define DEBUG_CB_USER_DEFINED
+//#define DEBUG_CB_GET_MJ2000_STATE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -231,6 +232,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
    naifId             (-1),
+   naifIdSet          (false),
    textureMapFileName ("GenericCelestialBody.jpg")
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
@@ -310,6 +312,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
    naifId             (-1),
+   naifIdSet          (false),
    textureMapFileName ("GenericCelestialBody.jpg")
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
@@ -390,6 +393,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    orientationEpoch    (cBody.orientationEpoch),
    orientation         (cBody.orientation),
    naifId              (cBody.naifId),
+   naifIdSet           (cBody.naifIdSet),
    textureMapFileName  (cBody.textureMapFileName)
 {
    state                  = cBody.state;
@@ -529,6 +533,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    orientation         = cBody.orientation;
    
    naifId              = cBody.naifId;
+   naifIdSet           = cBody.naifIdSet;
    textureMapFileName  = cBody.textureMapFileName;
    
    for (Integer i=0;i<6;i++)  prevState[i] = cBody.prevState[i];
@@ -2105,7 +2110,7 @@ const Rvector6 CelestialBody::GetMJ2000State(const A1Mjd &atTime)
    }
    else if (ot == Gmat::CALCULATED_POINT)
    {
-      // fill in with calculated point stuff when it's done
+      // @todo fill in with calculated point stuff when it's done
       //j2kEphemState = ((CalculatedPoint*)j2000Body)->GetState(atTime);
    }
    else
@@ -2121,8 +2126,24 @@ const Rvector6 CelestialBody::GetMJ2000State(const A1Mjd &atTime)
       ("CelestialBody::GetMJ2000State() j2kEphemState =\n   %s\n",
        j2kEphemState.ToString().c_str());
    #endif
-   
-   return (stateEphem - j2kEphemState);
+#ifdef DEBUG_CB_GET_MJ2000_STATE
+   Rvector6 theState = stateEphem - j2kEphemState;
+//   Real utcTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
+//                    TimeConverterUtil::UTCMJD, GmatTimeUtil::JD_JAN_5_1941);
+   Real ttTime    = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
+                    TimeConverterUtil::TTMJD, GmatTimeUtil::JD_JAN_5_1941);
+   Real tdbTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
+                    TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
+   MessageInterface::ShowMessage(
+         "Body: %s   TT(TDB) Time: %12.10f (%12.10f)   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
+         instanceName.c_str(), ttTime, tdbTime, 
+         theState[0], theState[1], theState[2], theState[3], theState[4], theState[5]);
+#endif
+   // SPICE does the subtraction itself
+   if (posVelSrc == Gmat::SPICE)
+      return stateEphem;
+   else
+      return (stateEphem - j2kEphemState);
 }
 
 
@@ -3796,20 +3817,6 @@ bool CelestialBody::SetUpSPICE()
                MessageInterface::ShowMessage("   kernelReader has loaded file %s\n",
                      (spiceKernelNames.at(ii)).c_str());
             #endif
-            // get the NAIF Id from the Spice Kernel(s)
-            Integer spiceNaifId = kernelReader->GetNaifID(instanceName);
-            if ((naifId != -1) && (spiceNaifId != naifId))
-            {
-               std::stringstream ss;
-               ss << "Overriding input NAIF ID for body \"" << instanceName <<
-                     "\" with SPICE NAIF ID (" << spiceNaifId << ").\n";
-               MessageInterface::PopupMessage(Gmat::WARNING_, ss.str());
-            }
-            naifId = spiceNaifId;
-            #ifdef DEBUG_CB_SPICE
-               MessageInterface::ShowMessage("   naifID for body %s is %d\n",
-                     instanceName.c_str(), naifId);
-            #endif
          }
          catch (UtilityException& ue)
          {
@@ -3817,6 +3824,31 @@ bool CelestialBody::SetUpSPICE()
             throw; // rethrow the exception, for now
          }
    }
+   // get the NAIF Id from the Spice Kernel(s)
+   if (!naifIdSet)
+   {
+      // SPICE calls Earth's moon "Moon" (like it's the only important one or something - sheesh!)
+      // GMAT calls Earth's moon "Luna"    
+      Integer spiceNaifId; 
+      if (instanceName == SolarSystem::MOON_NAME)
+         spiceNaifId = kernelReader->GetNaifID("MOON"); 
+      else
+         spiceNaifId = kernelReader->GetNaifID(instanceName); 
+      
+      if ((naifId != -1) && (spiceNaifId != naifId))
+      {
+         std::stringstream ss;
+         ss << "Overriding input NAIF ID for body \"" << instanceName <<
+               "\" with SPICE NAIF ID (" << spiceNaifId << ").\n";
+         MessageInterface::PopupMessage(Gmat::WARNING_, ss.str());
+         naifId    = spiceNaifId;
+      }
+      naifIdSet = true;
+   }
+   #ifdef DEBUG_CB_SPICE
+      MessageInterface::ShowMessage("   naifID for body %s is %d\n",
+            instanceName.c_str(), naifId);
+   #endif
 #endif
    return true;
 }

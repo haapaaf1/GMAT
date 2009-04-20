@@ -547,6 +547,8 @@ protected:
    Rvector6               orientation;   
    /// NAIF Id (for SPICE)
    Integer                naifId;
+   // has the naifID been set (figured out from SPK file(s))
+   bool                   naifIdSet;
    /// Name of the texture map file to use when plotting
    std::string            textureMapFileName;
    /// date and time of start of source file
