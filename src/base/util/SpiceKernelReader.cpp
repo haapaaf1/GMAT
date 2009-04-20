@@ -288,7 +288,6 @@ Rvector6 SpiceKernelReader::GetTargetState(const std::string &targetName,
 //   // ***************** temporary ******************
 //   etMjdAtTime = 21545.6003724989; // for testing vs. John D.'s results
 //   // ***************** temporary ******************
-   Real etJd                 = etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
    etSPICE                   = (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
    #ifdef DEBUG_SPK_READING
       MessageInterface::ShowMessage("j2ET = %12.10f\n", (Real) j2ET);
@@ -303,8 +302,9 @@ Rvector6 SpiceKernelReader::GetTargetState(const std::string &targetName,
    spkezr_c(targetBodyNameSPICE, etSPICE, referenceFrameSPICE, aberrationSPICE,
             observingBodyNameSPICE, state, &oneWayLightTime);
 #ifdef DEBUG_SPK_PLANETS
+   Real etJd                 = etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
    MessageInterface::ShowMessage(
-         "Body: %s   Time: %12.10f   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
+         "In SpiceKernelReader --- Body: %s   Time: %12.10f   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
          targetName.c_str(), etJd, state[0], state[1], state[2], state[3], state[4], state[5]);
 #endif
    if (failed_c())
