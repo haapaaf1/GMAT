@@ -26,6 +26,8 @@ VERSION = 2005-07-13
 #-------------------------------------------------------------------------------
 ROOT_PATH            = ./files/
 #-----------------------------------------------------------
+RUN_MODE             = TESTING
+#-----------------------------------------------------------
 OUTPUT_PATH          = ./output/
 LOG_FILE             = ./GmatLog.txt
 #REPORT_FILE         = OUTPUT_PATH/GmatReport.txt
@@ -45,12 +47,15 @@ MAIN_ICON_FILE       = ICON_PATH/GMATWin32.ico
 #MAIN_ICON_FILE      = ICON_PATH/GMATMac.icn
 #MAIN_ICON_FILE      = ICON_PATH/GMATLinux48.ico
 #-----------------------------------------------------------
-SLP_PATH             = ROOT_PATH/planetary_ephem/slp/
-SLP_FILE             = SLP_PATH/DBS_mn2000.pc
+#SLP_PATH             = ROOT_PATH/planetary_ephem/slp/
+#SLP_FILE             = SLP_PATH/DBS_mn2000.pc
 #-----------------------------------------------------------
 DE_PATH              = ROOT_PATH/planetary_ephem/de/
 DE200_FILE           = DE_PATH/leDE1941.200
 DE405_FILE           = DE_PATH/leDE1941.405
+#-----------------------------------------------------------
+SPK_PATH             = ROOT_PATH/planetary_ephem/spk
+PLANETARY_SPK_FILE   = SPK_PATH/de421.bsp
 #-----------------------------------------------------------
 EARTH_POT_PATH       = ROOT_PATH/gravity/earth/
 JGM2_FILE            = EARTH_POT_PATH/JGM2.cof
