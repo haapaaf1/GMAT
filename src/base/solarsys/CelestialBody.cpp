@@ -3795,7 +3795,7 @@ bool CelestialBody::SetUpSPICE()
    if (posVelSrc != Gmat::SPICE) return false;
    if (kernelReader == NULL) kernelReader = SpiceKernelReader::Instance();
    // Load the leap second kernel
-   kernelReader->SetLeapSecondKernel("./files/time/naif0009.tls"); // ******* get from FileManager ****
+//   kernelReader->SetLeapSecondKernel("./files/time/naif0009.tls"); // @todo (when needed) ******* get from FileManager ****
    #ifdef DEBUG_CB_SPICE
       if (kernelReader == NULL)
          MessageInterface::ShowMessage("   kernelReader is STILL NULL\n");
