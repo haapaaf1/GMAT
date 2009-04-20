@@ -1162,7 +1162,11 @@ void SolarSystem::CreatePlanetarySource(bool setDefault)
 //   thePlanetarySourceNames.push_back(fm->GetFullPathname("SPK_FILE"));
    if (spiceAvailable) 
    {
-      SetSPKFile("./files/planetary_ephem/spk/de421.bsp"); 
+      std::string spkFullPath = fm->GetFullPathname("PLANETARY_SPK_FILE");
+      bool isOK = SetSPKFile(spkFullPath); 
+      if (!isOK)
+         throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
+//      SetSPKFile("./files/planetary_ephem/spk/de421.bsp"); 
 //   thePlanetarySourceNames.push_back(fm->GetFullPathname(theSPKFilename));
       thePlanetarySourceNames.push_back(theSPKFilename);
    }
@@ -1428,7 +1432,12 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
          break;
       case Gmat::SPICE:
          if (SetSource(Gmat::SPICE))
-            if (theSPKFilename != "") SetSPKFile(theSPKFilename); 
+            if (theSPKFilename != "")
+            {
+               bool isOK = SetSPKFile(theSPKFilename); 
+               if (!isOK)
+                  throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
+            }
             retCode = 1;
          break;
       default:
