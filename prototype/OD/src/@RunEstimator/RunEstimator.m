@@ -62,7 +62,7 @@ classdef RunEstimator < handle
 
         function Execute(RunEst)
 
-            global TestCase
+            global TestCase theSandbox
 
             %----- Call prepare to solve to populate ESV with values.
             RunEst.PreparetoSolve();

@@ -15,6 +15,21 @@
 %------ To do
 %--------------------------------------------------------------------------
 
+Fix measurement epochs in data files and corresponding code in estimator.  
+Currently, it appears that measurement epochs are in elapsed seconds from
+the previous measurement.  They need to be in some absolution epoch, probably
+modified Julian date.
+
+Fix Measurements to handle derivative map method.  Measurements need to 
+return to the Ids of partials that are nonzero, given the estimator states.  
+They also need to return the values of nonzero measurement partials when requested.
+
+Fix hard coded kludge in RunEstimator that handles concatenation of Htilde matrix 
+based on what estimator states are being included.
+
+Write a measurement simulator by creating a new object or modifying the estimator.
+
+
 Measurement Manager
    - Add error checking for missing or incorrect data on file
    - Fix to handle measurements that have more than one value 
@@ -26,8 +41,6 @@ Measurements
    - Add range rate measurements
    - Fix approach to determining measurement partials for each parameter
 Solve fors/Considers
-   - Measurement bias
-   - Ground station location
    - Cd (??)
 Estimator GetSTM
    - Spacecraft
