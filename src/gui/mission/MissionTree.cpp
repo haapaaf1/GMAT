@@ -2521,7 +2521,10 @@ void MissionTree::OnShowDetail(wxCommandEvent &event)
 void MissionTree::OnShowScript(wxCommandEvent &event)
 {
    std::string str = theGuiInterpreter->GetScript();
-
+   
+   if (str == "")
+      return;
+   
    ViewTextFrame *vtf =
       new ViewTextFrame(theMainFrame, _T("Show Script"),
        50, 50, 800, 500, "Temporary", "Script");
