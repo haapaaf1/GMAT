@@ -1,7 +1,10 @@
-   
-
-
-
+%  The Truth state for this case
+% ODSat.X     = 9872.164071524565;
+% ODSat.Y     = 0;
+% ODSat.Z     = 1807.579337039707;
+% ODSat.VX    = 0;
+% ODSat.VY    = 6.233189510799131;
+% ODSat.VZ    = 0.8480529946665489;
 
 %------  Prepare GMAT creates the sandbox, and sets path data
 global TestCase
@@ -12,12 +15,6 @@ TestCase = 1;
 ODSat       = Create('Spacecraft','ODSat');
 ODSat.Id    = 21639;
 ODSat.Epoch = 24228.72771990741;
-% ODSat.X     = 9872.164071524565;
-% ODSat.Y     = 0;
-% ODSat.Z     = 1807.579337039707;
-% ODSat.VX    = 0;
-% ODSat.VY    = 6.233189510799131;
-% ODSat.VZ    = 0.8480529946665489;
 ODSat.X     = 9882.164071524565;
 ODSat.Y     = -23;
 ODSat.Z     = 1837.579337039707;

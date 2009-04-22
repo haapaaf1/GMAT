@@ -106,10 +106,10 @@ classdef RunEstimator < handle
                     %------------------------------------------------------
                     infoMat   = zeros(numStates,numStates);  % Set info mat to zer
                     residMat  = zeros(numStates,1);          % Set rediduals to zero
-                    Estimator.ESM.SetObjectstoClones;        % Set Objects to Clones
+                    Estimator.ESM.SetObjectstoClones;        % Set Objects to Clones                 
                     Estimator.ESM.SetStates(Estimator.ESV);  % Update states based on ESV
-                    RunEst = RunEst.PreparetoPropagate();    % Update PSV               
-
+                    RunEst = RunEst.PreparetoPropagate();    % Update PSV
+                    
                     %------------------------------------------------------
                     %----- Perform the accumulation
                     %------------------------------------------------------
@@ -120,42 +120,27 @@ classdef RunEstimator < handle
                         Prop = Prop.SteptoEpoch(Epochs(i));
 
                         %  KLUDGE - THIS WILL BE AVOIDED BY MODS TO MEASUREMENT MANAGER 
+                        %  TO HANDLE THE PARTIALS MAP
+                        dgdvv        = zeros(1,3);
                         if TestCase == 1
-                            dgdvv        = zeros(1,3);
                             [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                           % if isFeasible
-                                residCount = residCount + 1;
-                                Htilde       = [htilde dgdvv];
-                                observations(residCount,1) = y;
-                           % end
+                            Htilde       = [htilde dgdvv];
                         elseif TestCase == 2
-                            dgdvv        = zeros(1,3);
                             [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                           % if isFeasible
-                                residCount = residCount + 1;
-                                Htilde       = [htilde dgdvv 1];
-                                observations(residCount,1) = y;
-                          %  end
-                        else
-                            dgdvv        = zeros(1,3);
-                            [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                           %if isFeasible
-                                residCount = residCount + 1;
-                                Htilde       = [htilde dgdvv 1 -htilde];
-                                observations(residCount,1) = y;
-                           % end
-
+                             Htilde       = [htilde dgdvv 1];
+                        else ;
+                             [y,htilde,isFeasible] = measManager.GetMeasurement(i);
+                             Htilde       = [htilde dgdvv 1 -htilde];
                         end
 
                         %  Calculate the H matrix and accumulate
+                        observations(i,1) = y;
                         STM          = Estimator.ESM.GetSTM;
-                        if isFeasible
-                            Hi           = Htilde*STM;
-                            resid(residCount,1)   = Obs(residCount,1) - y;
-                            infoMat      = infoMat + Hi'*Hi;
-                            residMat     = residMat + Hi'*resid(residCount,1);
-                        end
-
+                        Hi           = Htilde*STM;
+                        resid(i,1)   = Obs(i,1) - y;
+                        infoMat      = infoMat + Hi'*Hi;
+                        residMat     = residMat + Hi'*resid(i,1);
+                        
                     end
 
                     %  Solve the normal equations and update the ESV

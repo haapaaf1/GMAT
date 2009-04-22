@@ -95,7 +95,7 @@ classdef StateManager < handle
             %  Step through the objects and call their copy constructors
             numObjects = size(Objects,2);
             for i = 1:numObjects;
-                
+
                 %  Extract the current object
                 currObj  = Objects{i};
                 

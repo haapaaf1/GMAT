@@ -27,7 +27,7 @@ MauiData.AddDataType{2} = {'Range','ODSat','NewGS'};
 
 %------  Define the batch least squares solver
 BLS = Create('BatchEstimator','BLS');
-BLS.MaxIterations   = 10;
+BLS.MaxIterations   = 120;
 BLS.RelTolerance    = 1e-5;
 BLS.AbsTolerance    = 1e-5;
 BLS.Measurements    = {'MauiData'};

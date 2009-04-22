@@ -47,8 +47,8 @@ classdef Measurement < handle
         
         %----- Assign all fields of current object to input object
         function Assignment(obj,obj2)
-            obj.RangeMeas = obj2.RangeMeas;
             %Major kludge.  Need deep assignment algorithm!!!!
+            obj.RangeMeas.Bias = obj2.RangeMeas.Bias;
         end % Assignment
         
     end % methods

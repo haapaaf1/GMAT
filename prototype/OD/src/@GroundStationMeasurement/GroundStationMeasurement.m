@@ -288,18 +288,18 @@ classdef GroundStationMeasurement < Measurement
             range      = norm(rangevec);
 
             %  Calculate measurement and partial if feasible
-            if dot(rangevec,stationLoc) > 0
+           % if dot(rangevec,stationLoc) > 0
                 isFeasible = 1;
                 y    = range + Meas.RangeMeas.Bias;
                 dydx = rangevec'/range;
-            else
-                isFeasible = 1;
-                y    = range + Meas.RangeMeas.Bias;
-                dydx = rangevec'/range;
-%                 isFeasible = 0;
+           % else
+           %     isFeasible = 1;
+           %     y    = range + Meas.RangeMeas.Bias;
+           %     dydx = rangevec'/range;
+%          %       isFeasible = 0;
 %                 y   = [];
 %                 dydx = [];
-            end
+           % end
             
             return
             Partials = [101 201 301];
