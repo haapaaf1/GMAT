@@ -5098,8 +5098,8 @@ std::string Moderator::GetScript(Gmat::WriteMode mode)
    }
    catch (BaseException &e)
    {
-      MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
-      return false;
+      MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage() + "\n");
+      return "";
    }
 }
 
