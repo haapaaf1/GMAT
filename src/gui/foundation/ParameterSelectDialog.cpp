@@ -1210,10 +1210,10 @@ void ParameterSelectDialog::ShowCoordSystem()
       mCoordSysLabel->Show();
       mCoordSysLabel->SetLabel("Central Body");
       
-      //mCentralBodyComboBox->SetStringSelection("Earth");
-      
-      mCoordSysSizer->Remove(mCentralBodyComboBox);
+      // I had to remove mCoordSysComboBox first and then mCentralBodyComboBox,
+      // otherwise, mCentralBodyComboBox shows too far to right
       mCoordSysSizer->Remove(mCoordSysComboBox);
+      mCoordSysSizer->Remove(mCentralBodyComboBox);
       mCoordSysSizer->Add(mCentralBodyComboBox);
       mCentralBodyComboBox->Show();
       mCoordSysComboBox->Hide();
