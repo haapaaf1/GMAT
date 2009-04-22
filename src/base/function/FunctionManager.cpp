@@ -2138,14 +2138,23 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
             //=============================================================
             
             // Unsubscribe subscriber before deleting (LOJ: 2009.04.07)
+            Subscriber *sub = (Subscriber*)omi->second;
+            // Instead of deleting OpenGL plot from the OpenGlPlot destructor
+            // call TakeAction() to delete it (LOJ:2009.04.22)
+            sub->TakeAction("DeletePlot");
+            
             #ifdef DEBUG_OBJECT_MAP
             MessageInterface::ShowMessage
                ("   '%s' Unsubscribe <%p>'%s' from the publisher <%p>\n",
-                fName.c_str(), omi->second, (omi->second)->GetName().c_str(), publisher);
+                fName.c_str(), sub, (omi->second)->GetName().c_str(), publisher);
             #endif
             
             if (publisher)
-               publisher->Unsubscribe((Subscriber*)omi->second);
+            {
+               //@todo This causes Func_AssigningWholeObjects crash
+               //sub->ClearWrappers();
+               publisher->Unsubscribe(sub);
+            }
             else
             {
                #ifdef DEBUG_OBJECT_MAP
