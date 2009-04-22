@@ -321,7 +321,8 @@ protected:
    
    virtual std::string GetProgressString();
    virtual void        FreeArrays();
-    
+   void                OpenSolverTextFile();
+   
    //---------------------------------------------------------------------------
    //  void WriteToTextFile()
    //---------------------------------------------------------------------------

@@ -145,7 +145,6 @@ Solver::Solver(const std::string &type, const std::string &name) :
 //------------------------------------------------------------------------------
 Solver::~Solver()
 {
-   // Added per Linda, 2/7/07
    if (textFile.is_open())
       textFile.close();
 }
@@ -291,33 +290,7 @@ bool Solver::Initialize()
       throw SolverException("Range error initializing Solver object %s\n",
             instanceName.c_str());
    }
-
-   #ifdef DEBUG_SOLVER_INIT
-      MessageInterface::ShowMessage(
-         "In Solver::Initialize - about to prepare text file for output\n");
-   #endif
-   // Prepare the text file for output
-   if (solverTextFile != "")
-   {
-      // Added per Linda, 2/7/07
-      FileManager *fm;
-      fm = FileManager::Instance();
-      std::string outPath = fm->GetFullPathname(FileManager::OUTPUT_PATH);
-      std::string fullSolverTextFile = outPath + solverTextFile;
    
-      if (textFile.is_open())
-         textFile.close();
-      
-      if (instanceNumber == 1)
-         textFile.open(fullSolverTextFile.c_str());
-      else
-         textFile.open(fullSolverTextFile.c_str(), std::ios::app);
-      if (!textFile.is_open())
-         throw SolverException("Error opening targeter text file " +
-                               solverTextFile);
-      textFile.precision(16);
-      WriteToTextFile();
-   }
    initialized = true; 
    iterationsTaken = 0;
    #ifdef DEBUG_SOLVER_INIT
@@ -521,7 +494,7 @@ Solver::SolverState Solver::AdvanceState()
     ReportProgress();
     return currentState; 
 }
-    
+
 //------------------------------------------------------------------------------
 //  StringArray AdvanceNestedState(std::vector<Real> vars)
 //------------------------------------------------------------------------------
@@ -1049,13 +1022,16 @@ void Solver::SetDebugString(const std::string &str)
 //------------------------------------------------------------------------------
 void Solver::CompleteInitialization()
 {
-    currentState = NOMINAL;
-    
-    // Reset initial values if in DiscardAndContinue mode
-    if (exitMode == DISCARD)
-    {
-       ResetVariables();
-    }
+   OpenSolverTextFile();
+   WriteToTextFile();
+   
+   currentState = NOMINAL;
+   
+   // Reset initial values if in DiscardAndContinue mode
+   if (exitMode == DISCARD)
+   {
+      ResetVariables();
+   }
 }
 
 
@@ -1210,5 +1186,48 @@ void Solver::FreeArrays()
    variableMaximum.clear();
    variableMaximumStep.clear();
    pertDirection.clear();
+}
+
+
+//------------------------------------------------------------------------------
+// void OpenSolverTextFile();
+//------------------------------------------------------------------------------
+void Solver::OpenSolverTextFile()
+{
+   #ifdef DEBUG_SOLVER_INIT
+   MessageInterface::ShowMessage
+      ("Solver::OpenSolverTextFile() entered, showProgress=%d, solverTextFile='%s', "
+       "textFileOpen=%d", showProgress, solverTextFile.c_str(), textFile.is_open());
+   #endif
+   
+   if (!showProgress)
+      return;
+   
+   FileManager *fm;
+   fm = FileManager::Instance();
+   std::string outPath = fm->GetFullPathname(FileManager::OUTPUT_PATH);
+   std::string fullSolverTextFile = outPath + solverTextFile;
+   
+   if (textFile.is_open())
+      textFile.close();
+   
+   #ifdef DEBUG_SOLVER_INIT
+   MessageInterface::ShowMessage("   instanceNumber=%d\n", instanceNumber);
+   #endif
+   
+   if (instanceNumber == 1)
+      textFile.open(fullSolverTextFile.c_str());
+   else
+      textFile.open(fullSolverTextFile.c_str(), std::ios::app);
+   
+   if (!textFile.is_open())
+      throw SolverException("Error opening targeter text file " +
+                            solverTextFile);
+   
+   textFile.precision(16);
+   
+   #ifdef DEBUG_SOLVER_INIT
+   MessageInterface::ShowMessage("Solver::OpenSolverTextFile() leaving\n");
+   #endif
 }
 
