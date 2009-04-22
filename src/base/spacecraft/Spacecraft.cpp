@@ -1098,7 +1098,14 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    {
       try
       {
-         attitude->SetRefObject(obj, type, name);
+         #ifdef DEBUG_SC_ATTITUDE
+         MessageInterface::ShowMessage
+            ("   Setting <%p><%s>'%s' to attitude <%p>\n", obj,
+             obj->GetTypeName().c_str(), obj->GetName().c_str(), attitude);
+         #endif
+         // Pass obj->GetName() as name since name can be blank.
+         // Attitude::SetRefObject() checks names before setting
+         attitude->SetRefObject(obj, type, obj->GetName());
       }
       catch (BaseException &be)
       {
