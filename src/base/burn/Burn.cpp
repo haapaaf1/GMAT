@@ -892,7 +892,11 @@ void Burn::SetSolarSystem(SolarSystem *ss)
    MessageInterface::ShowMessage
       ("Burn::SetSolarSystem() ss=<%p> '%s'\n", ss, ss->GetName().c_str());
    #endif
+   SolarSystem *oldSS = solarSystem;
    solarSystem = ss;
+   
+   if (solarSystem != oldSS)
+      Initialize();
 }
 
 
@@ -965,8 +969,23 @@ CoordinateSystem* Burn::CreateLocalCoordinateSystem()
    #ifdef DEBUG_BURN_INIT
    MessageInterface::ShowMessage
       ("Burn::CreateLocalCoordinateSystem() '%s' entered, usingLocalCoordSys=%d, "
-       "spacecraft=<%p>\n", GetName().c_str(), usingLocalCoordSys, spacecraft);
+       "spacecraft=<%p>, solarSystem=<%p>\n", GetName().c_str(), usingLocalCoordSys,
+       spacecraft, solarSystem);
    #endif
+
+   // Why solarSystem gets NULL when running MMS script?
+   // Added a check here for now (LOJ: 2009.04.22)
+   if (solarSystem == NULL)
+   {
+      #ifdef DEBUG_BURN_INIT
+      MessageInterface::ShowMessage
+         ("*** WARNING *** Burn::CreateLocalCoordinateSystem() Unable to create local "
+          "coordiante system, SolarSystem is NULL\n");
+      #endif
+      throw BurnException
+         ("*** WARNING *** Burn::CreateLocalCoordinateSystem() Unable to create "
+          "local coordiante system, SolarSystem is NULL\n");
+   }
    
    CoordinateSystem *localCS = NULL;
    
@@ -998,6 +1017,15 @@ CoordinateSystem* Burn::CreateLocalCoordinateSystem()
          (orAxes, "localAxes", "Burn::CreateLocalCoordinateSystem()",
           "new ObjectReferencedAxes()");
       #endif
+      
+      #ifdef DEBUG_BURN_INIT
+      CelestialBody *tempCb = solarSystem->GetBody(localOriginName);
+      MessageInterface::ShowMessage
+         ("   Setting <%p>'%s' as Primary, <%p>'%s' as Secondary to orAxes <%p>\n",
+          tempCb, tempCb->GetName().c_str(), spacecraft,
+          spacecraft->GetName().c_str(), orAxes);
+      #endif
+      
       orAxes->SetStringParameter("Primary", localOriginName);
       orAxes->SetStringParameter("Secondary", satName);
       orAxes->SetRefObject(solarSystem->GetBody(localOriginName),
@@ -1018,6 +1046,12 @@ CoordinateSystem* Burn::CreateLocalCoordinateSystem()
          throw BurnException("ImpulsiveBurn cannot use SpacecraftBody yet.");
       }
       
+      #ifdef DEBUG_BURN_INIT
+      MessageInterface::ShowMessage
+         ("   Setting <%p>'%s' as Origin, <%p> as SolarSystem to localCS <%p>\n",
+          j2000Body, j2000Body->GetName().c_str(), solarSystem);
+      #endif
+      
       // If I set origin same as the primary body, it doesn't work correctly
       // for origin other than Earth. GMAT LOI.Origin = Luna in APT_Ex_LunarTransfer.script
       // so set Earth as origin
@@ -1031,13 +1065,15 @@ CoordinateSystem* Burn::CreateLocalCoordinateSystem()
       #ifdef DEBUG_BURN_INIT
       MessageInterface::ShowMessage
          ("   Local CS <%p> created with AxisSystem <%p>:\n"
-          "      localAxesName = '%s'\n      Origin        = '%s'\n"
-          "      Primary       = '%s'\n      Secondary     = '%s'\n"
-          "      j2000body     = '%s'\n", localCS, orAxes, localAxesName.c_str(),
-          localCS->GetOriginName().c_str(),
+          "      localAxesName = '%s'\n      Origin        = <%p>'%s'\n"
+          "      Primary       = <%p>'%s'\n      Secondary     = <%p>'%s'\n"
+          "      j2000body     = <%p>'%s'\n", localCS, orAxes, localAxesName.c_str(),
+          localCS->GetOrigin(), localCS->GetOriginName().c_str(), localCS->GetPrimaryObject(),
           localCS->GetPrimaryObject() ? localCS->GetPrimaryObject()->GetName().c_str() : "NULL",
+          localCS->GetSecondaryObject(),
           localCS->GetSecondaryObject() ? localCS->GetSecondaryObject()->GetName().c_str() : "NULL",
-          localCS->GetJ2000BodyName().c_str());
+          localCS->GetJ2000Body(),
+          localCS->GetJ2000Body() ? localCS->GetJ2000Body()->GetName().c_str() : "NULL");
       #endif
       
       // Since CoordinateSystem clones AxisSystem, delete it from here
