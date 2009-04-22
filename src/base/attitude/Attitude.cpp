@@ -1647,6 +1647,16 @@ GmatBase* Attitude::GetRefObject(const Gmat::ObjectType type,
 bool Attitude::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                             const std::string &name)
 {
+   #ifdef DEBUG_REF_SETTING
+   MessageInterface::ShowMessage
+      ("Attitude::SetRefObject() entered, refCSName='%s', name='%s', obj=<%p><%s>'%s'\n",
+       refCSName.c_str(), name.c_str(), obj, obj ? obj->GetTypeName().c_str() : "NULL",
+       obj ? obj->GetName().c_str() : "NULL");
+   #endif
+   
+   if (obj == NULL)
+      return false;
+   
    if (obj->IsOfType("CoordinateSystem"))
    {
       if (name == refCSName)
