@@ -6,6 +6,7 @@ function [] = RegSys_compareFiles(Build1,Build2,Folder1,Folder2,mainDir,What2Com
 %   ??/??/???? - E.Dove:  Created the first version.
 %   04/21/2009 - E.Dove:  Enabled build to build comparison functionality and moved comparison
 %       code to seperate function.
+%   04/22/2009 - E.Dove:  Corrected bug that was applying AcceptTest data to all other test-types.
 
 % Initialize Variables
 if isempty(Build1)
@@ -43,10 +44,10 @@ for testLoop = find(sharedTestLoc)'; % Loop of tests in common
     fprintf(fid,['\n',folder1Tests{testLoop,1},' Results\n']);
     fprintf(fid,['Test Folder Report Location: /output/',folder1Tests{testLoop,1},'\n']);
     fprintf(fid,'---------------------------\n');
-
-    [diffFiles, diffIA, diffIB] = setxor(Folder1FilesAll.AcceptTest,Folder2FilesAll.AcceptTest);
+    
+    [diffFiles, diffIA, diffIB] = eval(['setxor(Folder1FilesAll.',folder1Tests{testLoop,1},',Folder2FilesAll.',folder1Tests{testLoop,1},')']);
     trackDNE = numel(diffIA) + numel(diffIB);
-    [sameFiles, sameIA, sameIB] = intersect(Folder1FilesAll.AcceptTest,Folder2FilesAll.AcceptTest);
+    [sameFiles, sameIA, sameIB] = eval(['intersect(Folder1FilesAll.',folder1Tests{testLoop,1},',Folder2FilesAll.',folder1Tests{testLoop,1},')']);
     
     % Report files that don't exist in both folders and send details to regression summary
     for scriptDiffLoopA = 1:numel(diffIA)
