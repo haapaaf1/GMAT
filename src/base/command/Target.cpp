@@ -488,13 +488,15 @@ bool Target::Initialize()
        mapObj->GetIntegerParameter(mapObj->GetParameterID("MaximumIterations")));
    #endif
    
+   // Delete the old cloned solver
    if (theSolver)
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (theSolver, "local solver", "Target::Initialize()",
-          "deleting local solver");
+          "deleting local cloned solver");
       #endif
+      delete theSolver;
    }
    
    theSolver = (Solver *)(mapObj->Clone());
@@ -503,6 +505,9 @@ bool Target::Initialize()
       (theSolver, theSolver->GetName(), "Target::Initialize()",
        "theSolver = (Solver *)(mapObj->Clone())");
    #endif
+   
+   theSolver->TakeAction("ResetInstanceCount");
+   mapObj->TakeAction("ResetInstanceCount");
    
    theSolver->TakeAction("IncrementInstanceCount");
    mapObj->TakeAction("IncrementInstanceCount");

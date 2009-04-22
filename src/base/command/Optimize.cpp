@@ -341,7 +341,18 @@ bool Optimize::Initialize()
       errorString += "\"";
       throw CommandException(errorString);
    }
-
+   
+   // Delete the old cloned solver
+   if (theSolver)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (theSolver, "local solver", "Optimize::Initialize()",
+          "deleting local cloned solver");
+      #endif
+      delete theSolver;
+   }
+   
    // Clone the optimizer for local use
    theSolver = (Solver *)(mapObj->Clone());
    #ifdef DEBUG_MEMORY
@@ -349,6 +360,9 @@ bool Optimize::Initialize()
       (theSolver, theSolver->GetName(), "Optimize::Initialize()",
        "theSolver = (Solver *)(mapObj->Clone())");
    #endif
+   
+   theSolver->TakeAction("ResetInstanceCount");
+   mapObj->TakeAction("ResetInstanceCount");
    
    theSolver->TakeAction("IncrementInstanceCount");
    mapObj->TakeAction("IncrementInstanceCount");
