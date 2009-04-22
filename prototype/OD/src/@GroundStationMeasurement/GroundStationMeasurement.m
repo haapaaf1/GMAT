@@ -243,7 +243,7 @@ classdef GroundStationMeasurement < Measurement
             end
             
         end
-        
+                
         %----- Evaluate measurements
         function [y,dydx,isFeasible] = Evaluate(Meas,dataIndex,Participants,partialsMap)
             

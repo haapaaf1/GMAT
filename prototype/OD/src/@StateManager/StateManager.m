@@ -14,6 +14,7 @@ classdef StateManager < handle
         numStates     =  0;
         ObjectsVector  = {};
         paramIdsVector = [];
+        ObjectClones   = {};
     end
 
     % Set the methods
@@ -81,7 +82,8 @@ classdef StateManager < handle
                 objClass = class(currObj);
                 
                 %  Call the copy constructor
-                estObjClone{i} = feval(objClass,currObj);
+                estObjClone{i}      = feval(objClass,currObj);
+                Manager.ObjectClones{i} = estObjClone{i};
                 
             end
             
@@ -101,11 +103,25 @@ classdef StateManager < handle
                 objClass = class(currObj);
                 
                 %  Call the copy constructor
-                estObjClone{i} = feval(objClass,currObj);
+                estObjClone{i}      = feval(objClass,currObj);
                 
             end
             
         end
+        
+         %----- SetObjectstoClones
+        function Manager = SetObjectstoClones(Manager)
+            
+            %  Step through the objects and call their copy constructors
+            for i = 1:Manager.numObjects;
+                
+                %  Extract the current object
+                cloneObj = Manager.ObjectClones{i};
+                Manager.Objects{i}.Assignment(cloneObj)    
+               
+            end
+            
+        end % SetObjectstoClones
 
     end % methods
 

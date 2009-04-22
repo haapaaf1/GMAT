@@ -95,94 +95,57 @@ classdef RunEstimator < handle
             elseif strcmp(Estimator.RunMode,'Solve')
 
                 %----- The Estimator Loop
-                oldRMS = 0;  newRMS = 1e12; normdx = 1e12;
-                iter = 1;
+                oldRMS = 0;  newRMS = 1e12; normdx = 1e12; iter = 1;
                 numStates = Estimator.ESM.numStates;
                 while abs( newRMS - oldRMS ) > Estimator.RelTolerance ...
                         & iter <= Estimator.MaxIterations ...
                         & normdx > Estimator.AbsTolerance;
 
-                    infoMat   = zeros(numStates,numStates);
-                    residMat  = zeros(numStates,1);
+                    %------------------------------------------------------
+                    %  Initializations for the next iteration
+                    %------------------------------------------------------
+                    infoMat   = zeros(numStates,numStates);  % Set info mat to zer
+                    residMat  = zeros(numStates,1);          % Set rediduals to zero
+                    Estimator.ESM.SetObjectstoClones;        % Set Objects to Clones
+                    Estimator.ESM.SetStates(Estimator.ESV);  % Update states based on ESV
+                    RunEst = RunEst.PreparetoPropagate();    % Update PSV               
 
-                    %  Copy object clones in ESM.Objects
-                    Estimator.ESM.Objects = Estimator.ESM.CopyObjects(estObjectClone);
-
-                    %----------------------------------------------------------
-                    %  Update the states of objects based on current iteration
-                    %  !!! This part of the code is probably more complex than
-                    %  it would be in C, C++, based on the fact that if I
-                    %  change an object on the ESM, it does not update that
-                    %  same object on the PSM or MM. ??? Not sure why, matlab
-                    %  handle classes are supposed be similar to pointers.
-                    %----------------------------------------------------------
-
-                    %  update objects on ESM
-                    Estimator.ESM.SetStates(Estimator.ESV);
-
-                    %  update objects on PSM
-                    Prop.PSM  = Prop.PSM.UpdateObjects(Estimator.ESM);
-
-                    % update objects on MM
-
-
-                    %----------------------------------------------------------
-                    %  Prepare to Propagate
-                    %  update the values in the state vector, based on updates
-                    %  to the objects being propagated.
-                    %----------------------------------------------------------
-                    RunEst = RunEst.PreparetoPropagate();
-
+                    %------------------------------------------------------
                     %----- Perform the accumulation
+                    %------------------------------------------------------
                     residCount = 0;
                     for i = 1:numObs
 
                         %  Step to next measurement epoch
                         Prop = Prop.SteptoEpoch(Epochs(i));
 
-                        %  KLUDGE - THIS WILL BE AVOIDED BY MODS TO MEASUREMENT
-                        %  MANAGER AND SOME CODE CHANGES TO ADDRESS HANDLE
-                        %  CLASS SHORTCOMINGS IN MATLAB.
+                        %  KLUDGE - THIS WILL BE AVOIDED BY MODS TO MEASUREMENT MANAGER 
                         if TestCase == 1
-                            Estimator.ESM.Objects{1} = Prop.PSM.Objects{1};
-                            measManager.MeasurementHandles{i}.Participants{1}{1} = Prop.PSM.Objects{1};
                             dgdvv        = zeros(1,3);
                             [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                            if isFeasible
+                           % if isFeasible
                                 residCount = residCount + 1;
                                 Htilde       = [htilde dgdvv];
                                 observations(residCount,1) = y;
-                            end
+                           % end
                         elseif TestCase == 2
-                            Estimator.ESM.Objects{1} = Prop.PSM.Objects{1};
-                            measManager.MeasurementHandles{i}.Participants{1}{1} = Prop.PSM.Objects{1};
-                            measManager.MeasurementHandles{i}.Participants{2}{1} = Prop.PSM.Objects{1};
-                            measManager.MeasurementHandles{i}.RangeMeas.Bias     = Estimator.ESV(7,1);
                             dgdvv        = zeros(1,3);
                             [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                            if isFeasible
+                           % if isFeasible
                                 residCount = residCount + 1;
                                 Htilde       = [htilde dgdvv 1];
                                 observations(residCount,1) = y;
-                            end
+                          %  end
                         else
-
-                            Estimator.ESM.Objects{1} = Prop.PSM.Objects{1};
-                            measManager.MeasurementHandles{i}.Participants{1}{1} = Prop.PSM.Objects{1};
-                            measManager.MeasurementHandles{i}.Participants{2}{1} = Prop.PSM.Objects{1};
-                            measManager.MeasurementHandles{i}.RangeMeas.Bias     = Estimator.ESV(7,1);
                             dgdvv        = zeros(1,3);
                             [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                            if isFeasible
+                           %if isFeasible
                                 residCount = residCount + 1;
                                 Htilde       = [htilde dgdvv 1 -htilde];
                                 observations(residCount,1) = y;
-                            end
+                           % end
 
                         end
-
-                        %  If not feasible, remove row from Obs vector
-
 
                         %  Calculate the H matrix and accumulate
                         STM          = Estimator.ESM.GetSTM;
@@ -226,8 +189,8 @@ classdef RunEstimator < handle
                 plot(1:1:numObs,resid,'*')
 
                 %  Copy object clones in ESM.Objects
-                Estimator.ESM.Objects = Estimator.ESM.CopyObjects(estObjectClone);
-                Estimator.ESM.SetStates(Estimator.ESV);
+                Estimator.ESM.SetObjectstoClones;        % Set Objects to Clones
+                Estimator.ESM.SetStates(Estimator.ESV);  % Update states based on ESV
 
                 % -- This is another KLUDGE!!
                 for i = 1:Estimator.ESM.numObjects

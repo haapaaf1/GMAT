@@ -29,6 +29,10 @@ based on what estimator states are being included.
 
 Write a measurement simulator by creating a new object or modifying the estimator.
 
+Fix copy constructor and assignment method on Measurement to handle deep copy and assignment.
+Currently, the copy constructor doesn't deep copy and the assignment command
+only copies the Range Bias Value.
+
 
 Measurement Manager
    - Add error checking for missing or incorrect data on file

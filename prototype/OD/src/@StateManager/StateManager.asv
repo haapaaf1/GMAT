@@ -12,6 +12,9 @@ classdef StateManager < handle
         subStateSizes = {};
         numObjects    =  0;
         numStates     =  0;
+        ObjectsVector  = {};
+        paramIdsVector = [];
+        ObjectClones   = {};
     end
 
     % Set the methods
@@ -67,14 +70,60 @@ classdef StateManager < handle
         end % SetStates
         
         %----- CloneObjects
-        function estObjClone = CloneObjects(ESM)
+        function estObjClone = CloneObjects(Manager)
             
-            %  Step through the o
-            for i = 1:ESM.numObjects;
-                currObj  = ESM.Objects{i};
+            %  Step through the objects and call their copy constructors
+            for i = 1:Manager.numObjects;
+                
+                %  Extract the current object
+                currObj  = Manager.Objects{i};
+                
+                %  Determine the class type of the object
                 objClass = class(currObj);
+                
                 %  Call the copy constructor
-                estObjClone{i} = feval(objClass,currObj);
+                estObjClone{i}      = feval(objClass,currObj);
+                ESM.ObjectClones{i} = estObjClone{i};
+                
+            end
+            
+        end
+        
+        function estObjClone = CloneObjects(Manager)
+            
+            %  Step through the objects and call their copy constructors
+            for i = 1:Manager.numObjects;
+                
+                %  Extract the current object
+                currObj  = Manager.Objects{i};
+                
+                %  Determine the class type of the object
+                objClass = class(currObj);
+                
+                %  Call the copy constructor
+                estObjClone{i}      = feval(objClass,currObj);
+                ESM.ObjectClones{i} = estObjClone{i};
+                
+            end
+            
+        end
+        
+        %----- Copy Objects
+        function SetObjectstoClones(Manager)
+            
+            %  Step through the objects and call their copy constructors
+            for i = 1:Manager.numObjects;
+                
+                %  Extract the current object
+                cloneObj = Manager.ObjectClones{i};
+                currObj  = Manager.Objects{i}.   ;
+                
+                %  Determine the class type of the object
+                objClass = class(currObj);
+                
+                %  Call the copy constructor
+                estObjClone{i}      = feval(objClass,currObj);
+                
             end
             
         end

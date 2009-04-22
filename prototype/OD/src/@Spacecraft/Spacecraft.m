@@ -145,6 +145,14 @@ classdef Spacecraft < handle
         function Sat = ResetSTM(Sat)
             Sat.STM = eye(6);
         end % Resest STM
+        
+        %----- Assign all fields of current object to input object
+        function Assignment(obj,obj2)
+            fns = fieldnames(obj);
+            for i = 1:length(fns)
+                obj.(fns{i}) = obj2.(fns{i});
+            end
+        end % Assignment
 
     end % method
 

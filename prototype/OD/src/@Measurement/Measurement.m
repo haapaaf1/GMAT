@@ -45,6 +45,12 @@ classdef Measurement < handle
             Meas.Simulator = Simulator;
         end
         
+        %----- Assign all fields of current object to input object
+        function Assignment(obj,obj2)
+            obj.RangeMeas = obj2.RangeMeas;
+            %Major kludge.  Need deep assignment algorithm!!!!
+        end % Assignment
+        
     end % methods
 
 end % classdef
