@@ -817,7 +817,10 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
    SolverState trigger = currentState;
    if (stateToUse != UNDEFINED_STATE)
       trigger = stateToUse;
-      
+   
+   if (!textFile.is_open())
+      OpenSolverTextFile();
+   
    if (initialized)
    {
       std::stringstream message;

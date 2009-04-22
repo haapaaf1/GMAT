@@ -489,12 +489,18 @@ const StringArray& DifferentialCorrector::GetStringArrayParameter(
 bool DifferentialCorrector::TakeAction(const std::string &action,
                                        const std::string &actionData)
 {
+   if (action == "ResetInstanceCount")
+   {
+      instanceNumber = 0;
+      return true;
+   }
+   
    if (action == "IncrementInstanceCount")
    {
       ++instanceNumber;
       return true;
    }
-
+   
    if (action == "Reset")
    {
       currentState = INITIALIZING;
@@ -1317,6 +1323,19 @@ std::string DifferentialCorrector::GetProgressString()
 //------------------------------------------------------------------------------
 void DifferentialCorrector::WriteToTextFile(SolverState stateToUse)
 {
+   #ifdef DEBUG_SOLVER_WRITE
+   MessageInterface::ShowMessage
+      ("DC::WriteToTextFile() entered, stateToUse=%d, solverTextFile='%s', "
+       "textFileOpen=%d, initialized=%d\n", stateToUse, solverTextFile.c_str(),
+       textFile.is_open(), initialized);
+   #endif
+   
+   if (!showProgress)
+      return;
+   
+   if (!textFile.is_open())
+      OpenSolverTextFile();
+   
    StringArray::iterator current;
    Integer i, j;
    if (initialized)
