@@ -38,7 +38,8 @@
 //#define DBGLVL_OPENGL_PARAM_STRING 2
 //#define DBGLVL_OPENGL_PARAM_RVEC3 1
 //#define DBGLVL_OPENGL_UPDATE 2
-//#define DBGLVL_REMOVE_ACTION 1
+//#define DBGLVL_TAKE_ACTION 1
+//#define DBGLVL_REMOVE_SP 1
 //#define DBGLVL_RENAME 1
 //#define DBGLVL_SOLVER_CURRENT_ITER 2
 
@@ -419,24 +420,6 @@ OpenGlPlot& OpenGlPlot::operator=(const OpenGlPlot& ogl)
 //------------------------------------------------------------------------------
 OpenGlPlot::~OpenGlPlot(void)
 {   
-   #ifdef DEBUG_RESOURCE_CLEARING
-   MessageInterface::ShowMessage
-      ("OpenGlPlot::~OpenGlPlot() '%s' entered\n", instanceName.c_str());
-   #endif
-   
-   // Delete plot canvas
-   if (instanceName != "")
-   {
-      #ifdef DEBUG_RESOURCE_CLEARING
-      MessageInterface::ShowMessage("   Deleting OpenGL plot canvas\n");
-      #endif
-      PlotInterface::DeleteGlPlot(instanceName);
-   }
-   
-   #ifdef DEBUG_RESOURCE_CLEARING
-   MessageInterface::ShowMessage
-      ("OpenGlPlot::~OpenGlPlot() '%s' exiting\n", instanceName.c_str());
-   #endif
 }
 
 
@@ -1001,9 +984,10 @@ bool OpenGlPlot::SetName(const std::string &who, const std::string &oldName)
 bool OpenGlPlot::TakeAction(const std::string &action,
                             const std::string &actionData)
 {
-   #if DBGLVL_REMOVE_ACTION
-   MessageInterface::ShowMessage("OpenGlPlot::TakeAction() action=%s, actionData=%s\n",
-                                 action.c_str(), actionData.c_str());
+   #if DBGLVL_TAKE_ACTION
+   MessageInterface::ShowMessage
+      ("OpenGlPlot::TakeAction() '%s' entered, action='%s', actionData='%s'\n",
+       GetName().c_str(), action.c_str(), actionData.c_str());
    #endif
    if (action == "Clear")
    {
@@ -1012,6 +996,10 @@ bool OpenGlPlot::TakeAction(const std::string &action,
    else if (action == "Remove")
    {
       return RemoveSpacePoint(actionData);
+   }
+   else if (action == "DeletePlot")
+   {
+      PlotInterface::DeleteGlPlot(instanceName);
    }
    
    return false;
@@ -2289,7 +2277,7 @@ bool OpenGlPlot::RemoveSpacePoint(const std::string &name)
    //-------------------------------------------------------
    // remove from mScNameArray
    //-------------------------------------------------------
-   #if DBGLVL_REMOVE_ACTION
+   #if DBGLVL_REMOVE_SP
    MessageInterface::ShowMessage
       ("OpenGlPlot::RemoveSpacePoint() name=%s\n--- Before remove from "
        "mScNameArray:\n", name.c_str());
@@ -2330,7 +2318,7 @@ bool OpenGlPlot::RemoveSpacePoint(const std::string &name)
          mScTargetColorArray[i] = mTargetColorMap[mScNameArray[i]];
       }
       
-      #if DBGLVL_REMOVE_ACTION
+      #if DBGLVL_REMOVE_SP
       MessageInterface::ShowMessage("---After remove from mScNameArray:\n");
       MessageInterface::ShowMessage("mScCount=%d\n", mScCount);
       for (int i=0; i<mScCount; i++)
@@ -2348,7 +2336,7 @@ bool OpenGlPlot::RemoveSpacePoint(const std::string &name)
    //-------------------------------------------------------
    // remove from mAllSpNameArray and mObjectNameArray
    //-------------------------------------------------------
-   #if DBGLVL_REMOVE_ACTION
+   #if DBGLVL_REMOVE_SP
    MessageInterface::ShowMessage
       ("OpenGlPlot::RemoveSpacePoint() name=%s\n--- Before remove from "
        "mAllSpNameArray:\n", name.c_str());
@@ -2393,7 +2381,7 @@ bool OpenGlPlot::RemoveSpacePoint(const std::string &name)
             mTargetColorArray[i] = mTargetColorMap[mAllSpNameArray[i]];
          }
          
-         #if DBGLVL_REMOVE_ACTION
+         #if DBGLVL_REMOVE_SP
          MessageInterface::ShowMessage("---After remove from mAllSpNameArray\n");
          MessageInterface::ShowMessage("mAllSpCount=%d\n", mAllSpCount);
          for (int i=0; i<mAllSpCount; i++)
@@ -2410,7 +2398,7 @@ bool OpenGlPlot::RemoveSpacePoint(const std::string &name)
    //-------------------------------------------------------
    // remove from mObjectArray
    //-------------------------------------------------------
-   #if DBGLVL_REMOVE_ACTION
+   #if DBGLVL_REMOVE_SP
    MessageInterface::ShowMessage
       ("OpenGlPlot::RemoveSpacePoint() name=%s\n--- Before remove from "
        "mObjectArray:\n", name.c_str());
@@ -2429,7 +2417,7 @@ bool OpenGlPlot::RemoveSpacePoint(const std::string &name)
       }
    }
    
-   #if DBGLVL_REMOVE_ACTION
+   #if DBGLVL_REMOVE_SP
    MessageInterface::ShowMessage
       ("OpenGlPlot::RemoveSpacePoint() name=%s\n--- After remove from "
        "mObjectArray:\n", name.c_str());
