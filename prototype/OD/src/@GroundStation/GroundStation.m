@@ -9,18 +9,12 @@ classdef GroundStation < handle
         CentralBodyShape = 'OblateSphere';
         StateType        = 'Cartesian';
         Sensors          = {}
+        cbPointer
         
         %----- Define the location
         X                = -4460.9879936
         Y                =  2682.3627968
         Z                = -3674.6265773
-
-    end
-    
-    % Set the private properties
-    properties  (SetAccess = 'public')
-        
-        cbPointer
 
     end
 
@@ -115,6 +109,14 @@ classdef GroundStation < handle
             rv = R*[Station.X Station.Y Station.Z]';
 
         end
+        
+        %----- Assign all fields of current object to input object
+        function Assignment(obj,obj2)
+            fns = fieldnames(obj);
+            for i = 1:length(fns)
+                obj.(fns{i}) = obj2.(fns{i});
+            end
+        end % Assignment
 
     end
 end
