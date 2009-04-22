@@ -74,10 +74,11 @@ ParameterCreateDialog::~ParameterCreateDialog()
       ("ParameterCreateDialog::~ParameterCreateDialog() Unregister Spacecraft:%d\n",
        mObjectListBox);
    #endif
-
+   
    // Unregister GUI components
    theGuiManager->UnregisterListBox("Spacecraft", mObjectListBox, &mExcludedScList);
    theGuiManager->UnregisterComboBox("CoordinateSystem", mCoordSysComboBox);
+   theGuiManager->UnregisterComboBox("CelestialBody", mCentralBodyComboBox);
 }
 
 
@@ -199,7 +200,6 @@ void ParameterCreateDialog::Create()
    // wxComboBox
    mCoordSysComboBox = theGuiManager->GetCoordSysComboBox(this, ID_COMBO, wxSize(120,-1));
    mCentralBodyComboBox = theGuiManager->GetCelestialBodyComboBox(this, ID_COMBO, wxSize(100,-1));
-   //mCentralBodyComboBox->SetStringSelection("Earth"); // Earth is the default
    
    // wxSizers
    wxBoxSizer *pageBoxSizer = new wxBoxSizer(wxVERTICAL);
