@@ -42,6 +42,9 @@
 %   ??/??/???? - E.Dove:  Created the first version.
 %   04/21/2009 - E.Dove:  Enabled build to build comparison functionality and moved comparison
 %       code to seperate function.
+%   04/22/2009 - E.Dove:  Added syntax to parse validation reports according to the BBorBG flag
+%   
+%   
 
 
 clc
@@ -86,8 +89,13 @@ if isempty(Build1);
     return;
 end;
 
-RegSys_parseValidation(Move_AllBuild,mainDir); % *** Function Call ***
-RegSys_parseValidation(Build1,mainDir); % *** Function Call ***
+if strcmpi(BBorBG,'bg');
+    RegSys_parseValidation(Move_AllBuild,mainDir); % *** Function Call ***
+    RegSys_parseValidation(Build1,mainDir); % *** Function Call ***
+else
+    RegSys_parseValidation(Build1,mainDir); % *** Function Call ***
+    RegSys_parseValidation(Build2,mainDir); % *** Function Call ***
+end
 
 if strcmpi(MoveFiles,'y');
     RegSys_moveFiles(Build1, Build2, mainDir, Move_AllOneBuild, Move_AllBuild,...
@@ -165,7 +173,7 @@ elseif strcmpi(What2Compare,'test');
     disp('Comparing only test specific files option is NOT FUNCTIONAL YET');
     return;
 elseif strcmpi(What2Compare,'all');
-    if strcmp(lower(BBorBG),'bg');
+    if strcmpi(BBorBG,'bg');
         RegSys_compareFiles(Build2,Build1,Folder1,Folder2,mainDir,What2Compare,BBorBG,goodFilesAll,build1FilesAll,regSummaryPath,regSummaryFile);
     else
         RegSys_compareFiles(Build1,Build2,Folder1,Folder2,mainDir,What2Compare,BBorBG,build1FilesAll,build2FilesAll,regSummaryPath,regSummaryFile);
