@@ -50,7 +50,7 @@ public:
   virtual Integer         GetParameterID(const std::string &str) const;
   virtual Gmat::ParameterType
                           GetParameterType(const Integer id) const;
-
+  virtual Integer     GetDependentParameterID(const std::string &str) const;
   
   // Friend function
   friend std::ostream& operator<<(std::ostream& output, MeasurementModel &mm);
@@ -115,13 +115,15 @@ public:
 
   // Obtain the measurements and partials
   virtual LaVectorDouble GetTheMeasurements();
-  virtual LaGenMatDouble GetTheCartesianPartials();
+  virtual LaGenMatDouble GetThePartials(const std::string param);
+  virtual LaGenMatDouble GetThePartials(const Integer paramID);
    
 protected:
 
     Moderator    *theModerator;
     
-    enum MODEL_REPS {
+    enum MODEL_REPS
+    {
 	DEFAULT_ID = 0,
 	RANGE_ID,
 	RANGERATE_ID,
@@ -160,6 +162,14 @@ protected:
       TROPOSPHERE_ID,
       MeasurementModelParamCount
    };
+
+   enum DEPENDENT_PARAMS
+   {
+      MeasurementModelDependentParamCount = 0,
+   };
+
+
+   static const std::string    DEPENDENT_PARAMETER_TEXT[MeasurementModelDependentParamCount];
 
    static const std::string    PARAMETER_TEXT[MeasurementModelParamCount -
                                               GmatBaseParamCount];

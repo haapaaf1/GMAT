@@ -307,6 +307,28 @@ bool Estimator::Initialize()
       }
    }
 
+   // Count the number of ground stations participating in the process
+   for (ObjectArray::iterator j = participants.begin();
+           j != participants.end(); ++j)
+   {
+	if ((*j)->IsOfType(Gmat::GROUND_STATION))
+        {
+
+	    // TODO: Make this work for any number of ground stations
+	    // We found an observer so increment observerCount
+	    observerCount++;
+	    //theGroundStation = (GroundStation*)*j;
+
+	    // TODO: Somewhere in the script when ground stations are set up
+	    // a pointer to a measurement model needs to be instantiated and
+	    // assigned. Here, I assume this pointer exists and I assign the
+	    // ground station pointer to that measurement model so it can be
+	    // initialized.
+	    // theGroundStation->GetMeasurementModel()->SetGroundStation(theGroundStation);
+	    // theGroundStation->GetMeasurementModel()->Initialize();
+	}
+   }
+
    // Prepare the text file for output
    if (estimatorTextFile != "")
    {

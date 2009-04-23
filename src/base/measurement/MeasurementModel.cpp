@@ -162,6 +162,21 @@ Integer MeasurementModel::GetParameterID(const std::string &str) const
    return GmatBase::GetParameterID(str);
 }
 
+//------------------------------------------------------------------------------
+//  Integer  GetDependentParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the dependent parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested dependent parameter.
+ *
+ * @return ID for the requested dependent parameter or -1 for no associated ID.
+ */
+//------------------------------------------------------------------------------
+Integer MeasurementModel::GetDependentParameterID(const std::string &str) const
+{
+   return -1;
+}
 
 //------------------------------------------------------------------------------
 //  Gmat::ParameterType  GetParameterType(const Integer id) const
@@ -964,10 +979,17 @@ LaVectorDouble MeasurementModel::GetTheMeasurements()
 }
 
 //------------------------------------------------------------------------------
-// LaVectorDouble GetTheCartesianPartials()
+// LaVectorDouble GetThePartials(const std::string param)
 //------------------------------------------------------------------------------
-LaGenMatDouble MeasurementModel::GetTheCartesianPartials()
+LaGenMatDouble MeasurementModel::GetThePartials(const std::string param)
 {
-    return theCartDerivatives;
+    return GetThePartials(GetDependentParameterID(param));
 }
 
+//------------------------------------------------------------------------------
+// LaVectorDouble GetThePartials(const Integer paramID)
+//------------------------------------------------------------------------------
+LaGenMatDouble MeasurementModel::GetThePartials(const Integer paramID)
+{
+    return LaGenMatDouble::zeros(1);
+}
