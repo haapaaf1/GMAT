@@ -1,6 +1,8 @@
 
 %===== Modification History
-% 04/16/09 S. Hughes.  Fixed typo in function 
+% 04/16/09 S. Hughes.  Initial Version
+% 04/16/09 S. Hughes.  Fixed typo in function Meas
+
 classdef Measurement < handle
 
     %----------------------------------------------------------------------
@@ -9,24 +11,36 @@ classdef Measurement < handle
     
     %----- Set the public properties
     properties  (SetAccess = 'public')
-        TruthSource        = 'Simulation';
         Filename           = ' '
-        FileFormat         = 'B3';
         LightTimeModel     = 'LineofSight';
         TroposphereModel   = 'Saastamoinen';
         IonosphereModel    = 'ISI';
         GenRelativityModel = 'Moyer';
         AddDataType        = {};
         Participants       = {};
-        Simulator          = {};
         dataTypeID         = [];
     end
 
-    %----- Set the private properties
+    %----- Set the protected properties
     properties  (SetAccess = 'protected')     
         numDataTypes
         Obs                
         Epochs
+        InitialBias
+        BiasStdDev
+        BiasNoise
+        BiasTimeConstant
+    end
+    
+    %
+        properties  (SetAccess = 'protected')     
+        numDataTypes
+        Obs                
+        Epochs
+        InitialBias
+        BiasStdDev
+        BiasNoise
+        BiasTimeConstant
     end
     
     %----------------------------------------------------------------------
@@ -37,11 +51,14 @@ classdef Measurement < handle
     methods
         
         function Meas = Measurement(Meas)
-            Simulator.StartTime = {};
-            Simulator.StopTime  = {};
-            Simulator.TimeSte   = [];
-            Meas.Simulator = Simulator;
+
         end
+        
+        %----- Assign all fields of current object to input object
+        function Assignment(obj,obj2)
+            %Major kludge.  Need deep assignment algorithm!!!!
+            obj.RangeMeas.Bias = obj2.RangeMeas.Bias;
+        end % Assignment
         
     end % methods
 

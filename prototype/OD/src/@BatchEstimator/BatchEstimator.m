@@ -53,11 +53,7 @@ classdef BatchEstimator < handle
             Estimator.Propagator.PSM.Initialize(Estimator.ESM);
             
             %  Initialize the measurement manager and measurements.
-            %Estimator.Measurements{1} = Sandbox.GetHandle(Estimator.Measurements);
-            %Estimator.Measurements{1} = Estimator.Measurements{1}.Initialize(Sandbox);
-            %  Get handle to measurements:  Replace string with handle!
             Estimator.MeasManager.Initialize(Sandbox,Estimator);
-           % Estimator.Measurements{1} = Sandbox.GetHandle(Estimator.Measurements);
             
             
         end % Initialize

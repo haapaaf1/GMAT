@@ -177,7 +177,8 @@ classdef RunEstimator < handle
                 Estimator.ESM.SetObjectstoClones;        % Set Objects to Clones
                 Estimator.ESM.SetStates(Estimator.ESV);  % Update states based on ESV
 
-                % -- This is another KLUDGE!!
+                % -- This is another KLUDGE!!  Find out where this should
+                % go and move it there.  Also, generalize the output.
                 for i = 1:Estimator.ESM.numObjects
 
                     for j = 1:size(Estimator.ESM.ParamIds{i},2)

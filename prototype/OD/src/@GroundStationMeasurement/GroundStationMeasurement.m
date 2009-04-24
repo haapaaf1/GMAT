@@ -24,6 +24,8 @@ classdef GroundStationMeasurement < Measurement
     properties  (SetAccess = 'private')
         Measurements
         dataTypes
+        y           = 0;
+        partialsMap = {};
     end
 
     %----------------------------------------------------------------------
@@ -233,17 +235,7 @@ classdef GroundStationMeasurement < Measurement
             end
 
         end % GetParamId
-        
-        function names = GetParticipantNames(Meas)
-            
-            for i = 1:Meas.numDataTypes
-                for j = 2:size(Meas.AddDataType{i},2)
-                    names{i}{j-1} = Meas.AddDataType{i}{j};
-                end
-            end
-            
-        end
-                
+                        
         %----- Evaluate measurements
         function [y,dydx,isFeasible] = Evaluate(Meas,dataIndex,Participants,partialsMap)
             
@@ -261,24 +253,7 @@ classdef GroundStationMeasurement < Measurement
             end
               
         end
-        
-        %----- Evaluate measurements
-        function [y,dydx,isFeasible] = Simulate(Meas,dataType,Participants)
-            
-            %  
-            Sat         = Participants{1,1};
-            Station     = Participants{1,2};
-            
-            if dataType     == 1001;
-                [y,dydx,isFeasible] = Meas.EvaluateRange(Sat,Station);
-            elseif dataType == 1002;
-                [y,dydx,isFeasible] = Meas.EvaluateRADec(Sat,Station);
-            else
-                stop
-            end
-              
-        end
-        
+                
         function [y,dydx,isFeasible] = EvaluateRange(Meas,Sat,Station)
 
             %  Convert station location to inertial system
@@ -301,30 +276,29 @@ classdef GroundStationMeasurement < Measurement
 %                 dydx = [];
            % end
             
-            return
-            Partials = [101 201 301];
-
-            for i = 1:size(Partials,2)
-
-                switch Partials(i)
-
-                    case 101
-                        %  Derivative w/r/t spacecraft position
-                        dydx.d101 = [rangevec'/range; zeros(3,1)];
-                    case 201
-                        %  Derivative w/r/t ground station location
-                        dydx.d201 = -rangevec'/range;
-                    case 301
-                        %  Derivative w/r/t measurement bias
-                        dydx.d301 = 1;
-                end
-
-            end
+%            return
+%           OLD CODE THAT WILL BE USEFUL FOR PARTIALS MAP
+%             Partials = [101 201 301];
+% 
+%             for i = 1:size(Partials,2)
+% 
+%                 switch Partials(i)
+% 
+%                     case 101
+%                         %  Derivative w/r/t spacecraft position
+%                         dydx.d101 = [rangevec'/range; zeros(3,1)];
+%                     case 201
+%                         %  Derivative w/r/t ground station location
+%                         dydx.d201 = -rangevec'/range;
+%                     case 301
+%                         %  Derivative w/r/t measurement bias
+%                         dydx.d301 = 1;
+%                 end
+% 
+%             end
 
         end
-        
-
-   
+           
         function [y,dydx] = EvaluateRADec(Meas,Sat,Station)
 
             global eciPos  OWLT  speedoflight

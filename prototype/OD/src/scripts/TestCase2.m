@@ -18,7 +18,7 @@ ODSat.OrbitCovariance = diag([100000^2*ones(3,1);1000^2*ones(3,1)]);
 ODSat.Cr      = 2.2;
 ODSat.Cd      = 1.8;
 
-%------  Define the batch least squares solver
+%------  Define the measurements
 MauiData                = Create('GroundStationMeasurement','MauiData');
 MauiData.Filename       = 'LEOMaui.mat';
 MauiData.AddDataType{1} = {'Range','ODSat','Maui'};

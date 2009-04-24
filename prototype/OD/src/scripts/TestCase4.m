@@ -1,5 +1,4 @@
 
-
 global TestCase
 OpenGMAT
 TestCase = 4;
@@ -27,7 +26,7 @@ MauiData.AddDataType{2} = {'Range','ODSat','NewGS'};
 
 %------  Define the batch least squares solver
 BLS = Create('BatchEstimator','BLS');
-BLS.MaxIterations   = 120;
+BLS.MaxIterations   = 20;
 BLS.RelTolerance    = 1e-5;
 BLS.AbsTolerance    = 1e-5;
 BLS.Measurements    = {'MauiData'};
@@ -39,12 +38,12 @@ Maui = Create('GroundStation','Maui');
 Maui.Id = 222;
 Maui.X  = -4450.8;
 Maui.Y  =  2676.1;
-Maui.Z  = -3691.38 ;
+Maui.Z  = -3691.38;
 
 NewGS = Create('GroundStation','NewGS');
 NewGS.Id = 223;
 NewGS.X  = 6378*cos(0.785398163397448)*sin(0.785398163397448);
-NewGS.Y  = 6378*cos(0.785398163397448)*cos(0.785398163397448);;
+NewGS.Y  = 6378*cos(0.785398163397448)*cos(0.785398163397448);
 NewGS.Z  = 6378*sin(0.785398163397448);
 
 %-----  Define the Propagator   
@@ -58,5 +57,4 @@ ODProp.Accuracy        = 1.0e-8;
 
 %------ The mission sequence
 RunEstimator('BLS');
-
 RunGMAT

@@ -2,6 +2,7 @@
 %===== Modification History
 % 04/16/09 S. Hughes.  Initial Version
 % 04/16/09 S. Hughes.  Fixed typo in function Meas
+% 04/24/09 S. Hughes.  Changed property accesses for many properties
 
 classdef Measurement < handle
 
@@ -11,24 +12,25 @@ classdef Measurement < handle
     
     %----- Set the public properties
     properties  (SetAccess = 'public')
-        TruthSource        = 'Simulation';
         Filename           = ' '
-        FileFormat         = 'B3';
-        LightTimeModel     = 'LineofSight';
-        TroposphereModel   = 'Saastamoinen';
-        IonosphereModel    = 'ISI';
-        GenRelativityModel = 'Moyer';
         AddDataType        = {};
-        Participants       = {};
-        Simulator          = {};
-        dataTypeID         = [];
     end
 
+    %----- Set the protected properties
+    properties  (SetAccess = 'protected')     
+        Bias
+        BiasStdDev
+        BiasNoise
+        BiasTimeConstant
+    end
+    
     %----- Set the private properties
     properties  (SetAccess = 'protected')     
         numDataTypes
         Obs                
         Epochs
+        Participants       = {};
+        dataTypeID         = [];
     end
     
     %----------------------------------------------------------------------
@@ -39,10 +41,7 @@ classdef Measurement < handle
     methods
         
         function Meas = Measurement(Meas)
-            Simulator.StartTime = {};
-            Simulator.StopTime  = {};
-            Simulator.TimeStep   = [];
-            Meas.Simulator = Simulator;
+
         end
         
         %----- Assign all fields of current object to input object

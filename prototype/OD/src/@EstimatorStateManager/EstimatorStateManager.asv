@@ -11,8 +11,8 @@ classdef EstimatorStateManager < StateManager
 
     %----- Set the public properties
     properties  (SetAccess = 'private')
-        Measurements      = {};
-        ObjectMap         = {};
+        Measurements = {};
+        ObjectMap    = Map;
     end
 
     %----------------------------------------------------------------------
@@ -33,8 +33,8 @@ classdef EstimatorStateManager < StateManager
 
             %=============================================================
             %=============================================================
-            %  - Set handles for objects that are being estimated
-            %  - Set paramId's for all properties being estimated
+            %  - Create array of pointers for objects that have states being estimated 
+            %  - Create vector of stateId's for all states being estimated 
             %  - Set chunkSizes for propagator state vector
             %  - Set chunkSizes for estimator state vector
             %=============================================================
@@ -56,12 +56,11 @@ classdef EstimatorStateManager < StateManager
                 objType      = class(solveObj);
                 paramId      = solveObj.GetParamId(propName);
                 stateChunk   = solveObj.GetState(paramId);
-                ESM.numStates    = ESM.numStates + size(stateChunk,1);
                 if isempty(paramId)
                     display(['The solve-for parameter "' solveFor '" is not supported'])
                     stop
                 end
-         
+                         
                 %------------------------------------------------------
                 %----- Estimator related items.
                 %------------------------------------------------------
@@ -79,6 +78,7 @@ classdef EstimatorStateManager < StateManager
                     %  Add objects
                     ESM.numObjects              = ESM.numObjects + 1;
                     ESM.Objects{ESM.numObjects} = solveObj;
+                    
                     %  Add another column to ParamIds and subStateSizes
                     ESM.ParamIds{ESM.numObjects} = [];
                     ESM.subStateSizes{ESM.numObjects} = [];
@@ -105,7 +105,7 @@ classdef EstimatorStateManager < StateManager
             for i = 1:ESM.numObjects
                 for j = 1:size(ESM.ParamIds{i},2)
                     c = c + 1;
-                    ESM.ObjectsVector{c}   = ESM.Objects{i};
+                    ESM.ObjectsVector{c}  = ESM.Objects{i};
                     ESM.paramIdsVector{c} = ESM.ParamIds{i}(j);
                 end
             end
@@ -115,7 +115,7 @@ classdef EstimatorStateManager < StateManager
         %----- GetSTM
         function STM = GetSTM(ESM)
             
-            STM = zeros(ESM.numStates);
+            STM   = zeros(ESM.numStates);
             count = 1;
             for i = 1:ESM.numObjects
                 for j = 1:size(ESM.ParamIds{i})

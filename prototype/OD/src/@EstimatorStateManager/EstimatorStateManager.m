@@ -33,8 +33,7 @@ classdef EstimatorStateManager < StateManager
 
             %=============================================================
             %=============================================================
-            %  - Create array of pointers for objects that have states being
-            %  estimated 
+            %  - Create array of pointers for objects that have states being estimated 
             %  - Create vector of stateId's for all states being estimated 
             %  - Set chunkSizes for propagator state vector
             %  - Set chunkSizes for estimator state vector
@@ -53,11 +52,11 @@ classdef EstimatorStateManager < StateManager
                 [objName,propName] = ParseSolveFor(solveFor);
 
                 %-----  Get handle from SandBox for the current object
-                solveObj     = Sandbox.GetHandle(objName);
-                objType      = class(solveObj);
-                paramId      = solveObj.GetParamId(propName);
-                stateChunk   = solveObj.GetState(paramId);
-                ESM.numStates    = ESM.numStates + size(stateChunk,1);
+                solveObj      = Sandbox.GetHandle(objName);
+                objType       = class(solveObj);
+                paramId       = solveObj.GetParamId(propName);
+                stateChunk    = solveObj.GetState(paramId);
+                ESM.numStates = ESM.numStates + size(stateChunk,1);
                 if isempty(paramId)
                     display(['The solve-for parameter "' solveFor '" is not supported'])
                     stop
@@ -81,12 +80,6 @@ classdef EstimatorStateManager < StateManager
                     ESM.numObjects              = ESM.numObjects + 1;
                     ESM.Objects{ESM.numObjects} = solveObj;
                     
-                    %  This is a work-around for the prototype to handle
-                    %  the fact that Matlab doesn't support pointers.  The
-                    %  ObjectMap should not be needed in GMAT I suspect.
-                    %  ... SPH.
-                    ESM.ObjectMap.Add(solveObj,objName);   
-                    
                     %  Add another column to ParamIds and subStateSizes
                     ESM.ParamIds{ESM.numObjects} = [];
                     ESM.subStateSizes{ESM.numObjects} = [];
@@ -102,8 +95,9 @@ classdef EstimatorStateManager < StateManager
                     paramIndex = paramIndex + 1;
                 end
                 if ~isDuplicate
-                    ESM.ParamIds{objIndex}(paramIndex) = paramId ;
+                    ESM.ParamIds{objIndex}(paramIndex)      = paramId ;
                     ESM.subStateSizes{objIndex}(paramIndex) = size(stateChunk,1);
+    
                 end
 
             end % i = 1:size(obj.SolveFor,2)
