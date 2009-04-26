@@ -30,10 +30,302 @@
 namespace DataFormats
 {
  
+    // See the following website for a complete description of the SP3c
+    // data format. Comments below are taken directly from the format
+    // description on the website.
+    // http://igscb.jpl.nasa.gov/components/formats.html
+    // The SP3c data format has space to add additional parameters in the
+    // future. At this time, the C++ structure defined below does not contain
+    // variables to store the blank data. If the SP3c format does change in the
+    // future, then this structure will need to be updated to handle the
+    // additional information.
+    struct sp3c_header
+    {
+        // The Position Record Flag, P, in line one indicates that no
+        // velocities are included.  The Velocity Record Flag, V, in
+        // line one indicates that at each epoch, for each satellite,
+        // an additional satellite velocity and clock rate-of-change
+        // has been computed.
+        std::string posVelFlag;
+
+        // Start Year, Month, Day of Month, Hour, Minute, Second
+        // This is the Gregorian date and time of day of the first
+        // epoch of the orbit.
+        Integer startYear;
+        Integer startMonth;
+        Integer startHour;
+        Integer startMinute;
+        Real startSecond;
+
+        // Number of Epochs (up to 10 million)
+        long int numEpochs;
+
+        // Data Used Descriptor (primarily used by the agency
+        // that generated the data. A suggested convention is listed here:
+        // u  -- differenced carrier phase
+        // du -- change in u with time
+        // s  -- 2-receiver/1-satellite carrier phase
+        // ds -- change in s with time
+        // d  -- 2-receiver/2-satellite carrier phase
+        // dd -- change in d with time
+        // U  -- undifferenced code phase
+        // dU -- change in U with time
+        // S  -- 2-receiver/1-satellite code phase
+        // dS -- change in S with time
+        // D  -- 2-receiver/2-satellite code phase
+        // dD -- change in D with time
+        // + -- type separator
+        // Combinations such as "u+U" seem reasonable. Complex combinations
+        // of data types could use "mixed" where mixed would be explained on
+        // the comment lines.
+        std::string dataUsed;
+
+        // Coordinate System
+        // Documentation does not clarify this variable but it appears to
+        // be ITRyy where yy is a year (e.g. ITR97, ITR00, etc)
+        std::string coordSys;
+
+        // Orbit Type (only 4 currently defined)
+        // FIT - fitted
+        // EXT - extrapolated or predicted
+        // BCT - broadcast
+        // HLM - fitted after applying a Helmert transformation
+        std::string orbitType;
+
+        // Agency
+        std::string agency;
+
+        // GPS Week, seconds of week ( 0.0 <= secondsOfWeek < 604800.0 )
+        Integer gpsWeek;
+        Real secondsOfWeek;
+
+        // Epoch Interval ( 0.0 < epoch interval < 100000.0 ) in seconds
+        Real epochInterval;
+
+        // The Starting Mod Julian Day, fractional day
+        // 44244 represents GPS zero time - Jan 6, 1980
+        // 0.0 <= fractionOfDay < 1.0
+        Integer modJulianDay;
+        Real fractionOfDay;
+
+        // Number of satellites in this file
+        Integer numSats;
+
+        // Satellite ID's in this file which may be listed in any order but
+        // should be in alpha/numerical order of use for ease of viewing
+        // The value 0 should only appear after all ID's have been listed.
+        // Each identifier will consist of a letter followed by a 2-digit
+        // integer between 01 and 99.  For example, "Gnn" for GPS satellites,
+        // "Rnn" for GLONASS satellites, "Lnn" for Low-Earth Orbiting (LEO)
+        // satellites, and "Enn" for Galileo satellites.  Other letters will
+        // be allowed for other types of satellites.  Lower numbered satellites
+        // must always have a preceding zero (e.g., "G09" not "G 9").  The
+        // letter, which represents the Satellite System Indicator, must always
+        // be present (i.e.," 09" is no longer a valid satellite identifier).
+        // This is a significant change from SP3-a and needs to be noted when
+        // software is updated to read the new SP3-c format.  A list of
+        // identifiers created for LEO satellites can be viewed at
+        // http://cddis.gsfc.nasa.gov/sp3c_satlist.html
+        StringArray satID[85];
+
+        // Satellite accuracy
+        // The value 0 is interpreted as accuracy unknown. A satellite's accuracy
+        // exponent appears in the same slot on lines 8-12 as the identifier
+        // on lines 3-7.  The accuracy is computed from the exponent as in the
+        // following example.  If the accuracy exponent is 13, the accuracy
+        // is 2**13 mm or ~ 8 m. The quoted orbital error should represent one
+        // standard deviation and be based on the orbital error in the entire
+        // file for the respective satellite. This may lead to some distortion
+        // when orbit files are joined together, or when a file contains both
+        //observed and predicted data.
+        IntegerArray satAccuracy[85];
+
+        // File Type
+        // The currently defined values are: "G " for GPS only files, "M "
+        // for mixed files, "R " for GLONASS only files, "L " for LEO only
+        // files, and "E " for Galileo only files. No default values are
+        // implied; either "G ", "M ", "R ", "L ", or "E " is required.
+        Integer fileType;
+
+        // Time System
+        // This field specifies the time system used in each SP3-c file: use
+        // "GPS" to identify GPS Time, "GLO" to identify the GLONASS UTC time
+        // system, "GAL" to identify Galileo system time, "TAI" to identify
+        // International Atomic Time, or "UTC" to identify Coordinated Universal
+        // Time.  No default value is implied; either "GPS", "GLO", "GAL", "TAI,
+        // or "UTC" must be specified.
+        Integer timeSystem;
+
+        // Base value for pos/vel standard deviation (base^n)
+        // where n is provided in the individual data record
+        // mm or 10^-4 mm/sec
+        Real basePosVelStdDev;
+
+        // Base value for clk/rate standard deviation (base^n)
+        // where n is provided in the individual data record
+        // psec or 10^-4 psec/sec
+        Real baseClkRateStdDev;
+
+        // Comment lines
+        StringArray comments[4];
+
+    };
+
+    struct sp3c_position
+    {
+        // Vehicle ID
+        std::string vehicleID;
+
+        // X,Y,Z coordinates (km)
+        // The positional values are preceise to 1 mm. Bad or absent position
+        // values are to be set to 0.0.
+        Real X, Y, Z;
+
+        // Clock value (micro seconds)
+        // The clock values are accurate to 1 picosecond. Bad or absent clock
+        // values should be set to 999999.999999 with the six integer 9's
+        // being required and the fractional 9's being optional.
+        Real clockValue;
+
+        // Clock rate-of-change value (10^-4 microseconds/second)
+        // These values are precise to 10^-16 seconds/second. Bad or absent
+        // values are set to 999999.99999 with the six integer 9's
+        // being required and the fractional 9's being optional.
+
+        // X,Y,Z standard deviations (base^n mm)
+        Integer stdDevX, stdDevY, stdDevZ;
+
+        // Clock standard deviation (base^n pico seconds)
+        Integer stdDevClock;
+
+        // Clock event flag
+        // This flag is true when a discontinuity in the satellite clock
+        // correction is present sometime between the previous and the current
+        // epoch or at the current epoch.
+        bool clockEventFlag;
+
+        // Clock prediction flag
+        // This flag is true when the clock correction is predicted and false
+        // when the clock correction is observed.
+        bool clockPredictionFlag;
+
+        // Maneuver flag
+        // This flag is true if a maneuver occured sometime between the previous
+        // and the current epoch or at the current epoch. As an example,
+        // if a certain maneuver lasted 50 minutes (a satellite changing orbital
+        // planes) then these M-flags could conceivably appear at five separate
+        // 15-minute orbit epochs.  If the maneuver started at 11h 14m and
+        // lasted to 12h 04m, M-flags would appear for the epochs 11:15, 11:30,
+        // 11:45, 12:00 and 12:15.  A maneuver is loosely defined as any planned
+        // or humanly-detectable thruster firing that changes the orbit of a
+        // satellite.  When this flag is false it means either no maneuver
+        // occurred, or it is unknown whether any maneuver occurred.
+        bool maneuverFlag;
+
+        // Orbit prediction flag
+        // When this flag is true, it means that the satellite position at this
+        // epoch is predicted. When this flag is false, it means the satellite
+        // position at this epoch is observed.
+        bool orbitPredictFlag;
+
+    };
+
+    struct sp3c_velocity
+    {
+        // Vehicle ID
+        std::string vehicleID;
+
+        // VX, VY, VZ velocity components (decimeters/second)
+        // These values are precise to 10^-4 mm/second. Bad or absent velocity
+        // values are to be set to 0.0.
+        Real VX, VY, VZ;
+
+        // Clock rate-of-change value (10^-4 microseconds/second)
+        // These values are precise to 10^-16 seconds/second. Bad or absent
+        // values are set to 999999.99999 with the six integer 9's
+        // being required and the fractional 9's being optional.
+
+        // VX,VY,VZ standard deviations (base^n 10^-4 mm/sec)
+        Integer stdDevVX, stdDevVY, stdDevVZ;
+
+        // Clock rate standard deviation (base^n 10^-4 picoseconds/sec)
+        Integer stdDevClockRate;
+
+    };
+
+    struct sp3c_posClockCorrelation
+    {
+
+        // X,Y,Z Std Dev (10^-4 mm)
+        // The standard deviations in this record are given to greater
+        // resolution than the approximate values given in the Position and
+        // Clock Record. A value of 9999 would mean that a standard deviation
+        // was too large to be represented. If a standard deviation is unknown,
+        // its field is left blank.
+        Integer stdDevX, stdDevY, stdDevZ;
+
+        // Clock Std Dev (10^-4 picoseconds)
+        // A value of 9999999 would mean that the standard deviation was too
+        // large to be represented.
+        Integer stdDevClock;
+
+        // VXVY, VXVZ, VXC, VYVZ, VYC, VZC correlation
+        // The correlation values are between -0.999999 and +0.9999999
+        Real vxVYCorrelation;
+        Real vxVZCorrelation;
+        Real vxCCorrelation;
+        Real vyVZCorrelation;
+        Real vyCCorrelation;
+        Real vzCCorrelation;
+
+    };
+
+    struct sp3c_velClockRateCorrelation
+    {
+
+        // VX,VY,VZ Std Dev (10^-4 mm/sec)
+        Integer stdDevVX, stdDevVY, stdDevVZ;
+
+        // Clock Rate Std Dev (10^-4 picoseconds/sec)
+        Integer stdDevClockRate;
+
+        // VXVY, VXVZ, VXC, VYVZ, VYC, VZC correlation
+        Real vxVYCorrelation;
+        Real vxVZCorrelation;
+        Real vxCCorrelation;
+        Real vyVZCorrelation;
+        Real vyCCorrelation;
+        Real vzCCorrelation;
+
+    };
+
+    struct sp3c_obtype
+    {
+
+        // Iterator Pointer to the header record
+        std::vector<sp3c_header*>::iterator headerVectorIndex;
+
+        // Start Year, Month, Day of Month, Hour, Minute, Second
+        // This is the Gregorian date and time of day of the first
+        // epoch of the orbit.
+        Integer Year;
+        Integer Month;
+        Integer Hour;
+        Integer Minute;
+        Real Second;
+        
+        std::vector<sp3c_position*> position;
+        std::vector<sp3c_posClockCorrelation*> posClockCorrelation;
+        std::vector<sp3c_velocity*> velocity;
+        std::vector<sp3c_velClockRateCorrelation*> velClockRateCorrelation;
+        
+    };
+
     // See the following website for a complete description of the SLR
     // data format. The comments below are taken directly from the ILRS website.
     // http://ilrs.gsfc.nasa.gov/products_formats_procedures/normal_point/np_format.html    
-    struct slr_header {
+    struct slr_header
+    {
 	
 	// SLR Type
 	// 99999 - Standard observation data
@@ -177,7 +469,8 @@ namespace DataFormats
 	
     };
 
-    struct slr_obtype {
+    struct slr_obtype
+    {
 
         // Iterator Pointer to the header record
         std::vector<slr_header*>::iterator headerVectorIndex;
@@ -441,7 +734,8 @@ namespace DataFormats
 
     // The description and background info for the TLE variables come 
     // from Tom Kelecy's website http://www.celestrak.com
-    struct tle_obtype {
+    struct tle_obtype
+    {
 	
 	// The NORAD satellite Catalog number is a unique idenitifier
 	// assigned by NORAD for each earth-orbiting satellite. This
@@ -551,7 +845,7 @@ namespace DataFormats
 	
     };
 
-        enum TLE_DATA_REPS
+    enum TLE_DATA_REPS
     {
 	TLE_SATNUM_ID,
 	TLE_SECURITYCLASSIFICATION_ID,
@@ -637,7 +931,8 @@ namespace DataFormats
     };
 
     // The B3 observation type specification
-    struct b3_obtype {      
+    struct b3_obtype
+    {
     
         // Possible obtype values and their meaning
         // 0 - Range rate only
