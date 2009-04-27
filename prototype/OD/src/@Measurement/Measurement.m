@@ -18,7 +18,7 @@ classdef Measurement < handle
 
     %----- Set the protected properties
     properties  (SetAccess = 'protected')     
-        Bias
+        Bias               = 0;
         BiasStdDev
         BiasNoise
         BiasTimeConstant
@@ -47,7 +47,7 @@ classdef Measurement < handle
         %----- Assign all fields of current object to input object
         function Assignment(obj,obj2)
             %Major kludge.  Need deep assignment algorithm!!!!
-            obj.RangeMeas.Bias = obj2.RangeMeas.Bias;
+            obj.Bias = obj2.Bias;
         end % Assignment
         
     end % methods

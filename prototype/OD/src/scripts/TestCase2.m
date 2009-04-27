@@ -19,7 +19,7 @@ ODSat.Cr      = 2.2;
 ODSat.Cd      = 1.8;
 
 %------  Define the measurements
-MauiData                = Create('GroundStationMeasurement','MauiData');
+MauiData                = Create('GroundStationRange','MauiData');
 MauiData.Filename       = 'LEOMaui.mat';
 MauiData.AddDataType{1} = {'Range','ODSat','Maui'};
 
@@ -29,7 +29,7 @@ BLS.MaxIterations   = 10;
 BLS.RelTolerance    = 1e-5;
 BLS.AbsTolerance    = 1e-5;
 BLS.Measurements    = {'MauiData'};
-BLS.SolveFor        = {'ODSat.CartesianState','MauiData.RangeMeas.Bias'};
+BLS.SolveFor        = {'ODSat.CartesianState','MauiData.Bias'};
 BLS.Propagator      = 'ODProp';
  
 %-----  Define the ground station properties    

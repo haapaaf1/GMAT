@@ -82,21 +82,20 @@ classdef MeasurementManager < handle
                     MeasManager.MeasurementHandles{hcount} =  currMeas;
                 end
                 
-                MeasManager.dataTypeIndeces = [MeasManager.dataTypeIndeces currMeas.dataTypeIndeces];
                 
                 %  Loop over participants for the current measurement and
                 %  add state Ids to its partials map.               
-                MeasManager.partialsMap{i} = Map();
-                numParticipants    = size(currMeas.Participants{i},2);
-                for j = 1:size(Estimator.ESM.ParamIds,2)
-                    %  loop over data types
-                    numStates = size(Estimator.ESM.ParamIds{j},1);
-                    for k = 1:numStates
-                        stateSize = Estimator.ESM.subStateSizes{j}(k);
-                        paramId   = Estimator.ESM.ParamIds{j}(k);
-                        MeasManager.partialsMap{i}.Add(zeros(stateSize,1),paramId);
-                    end
-                end
+%                 MeasManager.partialsMap{i} = Map();
+%                 numParticipants    = size(currMeas.Participants{i},2);
+%                 for j = 1:size(Estimator.ESM.ParamIds,2)
+%                     %  loop over data types
+%                     numStates = size(Estimator.ESM.ParamIds{j},1);
+%                     for k = 1:numStates
+%                         stateSize = Estimator.ESM.subStateSizes{j}(k);
+%                         paramId   = Estimator.ESM.ParamIds{j}(k);
+%                         MeasManager.partialsMap{i}.Add(zeros(stateSize,1),paramId);
+%                     end
+%                 end
 
             end
             
@@ -104,7 +103,6 @@ classdef MeasurementManager < handle
             [MeasManager.Epochs, sortIndeces] = sort(MeasManager.Epochs);
             MeasManager.Obs                   = MeasManager.Obs(sortIndeces);
             MeasManager.MeasurementHandles    = MeasManager.MeasurementHandles(sortIndeces);
-            MeasManager.dataTypeIndeces       = MeasManager.dataTypeIndeces(sortIndeces);
             MeasManager.numObs                = size(MeasManager.Obs,1);
                                  
         end
@@ -112,9 +110,9 @@ classdef MeasurementManager < handle
         function [y, Htilde, isFeasible, Htildec, W, Phi] = GetMeasurement(measManager,index)
             
             % -- Call the measurement model
-            dataType   = measManager.dataTypeIndeces(index);
             Htilde = zeros(measManager.numStates);
-            [y, Htilde, isFeasible] = measManager.MeasurementHandles{index}.Evaluate(dataType,measManager.MeasurementHandles{index}.Participants{dataType});
+            isFeasible = 1;
+            [y, Htilde] = measManager.MeasurementHandles{index}.Evaluate();
             
         end
 

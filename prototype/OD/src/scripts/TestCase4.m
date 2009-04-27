@@ -19,7 +19,7 @@ ODSat.Cr      = 2.2;
 ODSat.Cd      = 1.8;
 
 %------  Define the batch least squares solver
-MauiData                = Create('GroundStationMeasurement','MauiData');
+MauiData                = Create('GroundStationRange','MauiData');
 MauiData.Filename       = 'LEOMaui2Stations.mat';
 MauiData.AddDataType{1} = {'Range','ODSat','Maui'};
 MauiData.AddDataType{2} = {'Range','ODSat','NewGS'};
@@ -30,7 +30,7 @@ BLS.MaxIterations   = 20;
 BLS.RelTolerance    = 1e-5;
 BLS.AbsTolerance    = 1e-5;
 BLS.Measurements    = {'MauiData'};
-BLS.SolveFor        = {'ODSat.CartesianState','MauiData.RangeMeas.Bias', 'Maui.Location'};
+BLS.SolveFor        = {'ODSat.CartesianState','MauiData.Bias', 'Maui.Location'};
 BLS.Propagator      = 'ODProp';
  
 %-----  Define the ground station properties    

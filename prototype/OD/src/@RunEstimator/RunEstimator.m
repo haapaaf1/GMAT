@@ -128,9 +128,12 @@ classdef RunEstimator < handle
                         elseif TestCase == 2
                             [y,htilde,isFeasible] = measManager.GetMeasurement(i);
                              Htilde       = [htilde dgdvv 1];
-                        else ;
+                        elseif TestCase == 3 || TestCase == 4 ;
                              [y,htilde,isFeasible] = measManager.GetMeasurement(i);
                              Htilde       = [htilde dgdvv 1 -htilde];
+                        else
+                            [y,htilde,isFeasible] = measManager.GetMeasurement(i);
+                             Htilde       = [htilde dgdvv 1];
                         end
 
                         %  Calculate the H matrix and accumulate

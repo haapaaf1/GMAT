@@ -7,25 +7,14 @@ classdef GroundStationMeasurement < Measurement
     %  Define the object properties
     %----------------------------------------------------------------------
 
-    %----- Set the public properties
-    properties  (SetAccess = 'public')
-
-        RangeMeas
-        RangeRateMeas
-        AzimuthMeas
-        ElevationMeas
-        RightAscMeas
-        DeclinationMeas
-        dataTypeIndeces
-
-    end
-
     %----- Set the private properties
-    properties  (SetAccess = 'private')
+    properties  (SetAccess = 'protected')
         Measurements
         dataTypes
         y           = 0;
         partialsMap = {};
+        Spacecraft
+        GroundStation
     end
 
     %----------------------------------------------------------------------
@@ -37,61 +26,12 @@ classdef GroundStationMeasurement < Measurement
 
         function Meas = GroundStationMeasurement(Meas)
 
-            % Error Model for RangeRateMeas
-            RangeMeas.StochasticModel  = 'WhiteNoise';
-            RangeMeas.Bias             = 0;
-            RangeMeas.BiasStdDev       = 0;
-            RangeMeas.NoiseStdDev      = 0;
-            RangeMeas.TimeConstant     = 0;
-            Meas.RangeMeas             = RangeMeas;
-
-            % Error Model for RangeRateMeas
-            RangeRateMeas.StochasticModel  = 'WhiteNoise';
-            RangeRateMeas.Bias             = 0;
-            RangeRateMeas.BiasStdDev       = 0.5;
-            RangeRateMeas.NoiseStdDev      = 0;
-            RangeRateMeas.TimeConstant     = 0;
-            Meas.RangeRateMeas             = RangeRateMeas;
-
-            %-----  Use Random Walk Model for Azimuth Measurements
-            AzimuthMeas.StochasticModel = 'WhiteNoise';
-            AzimuthMeas.Bias            = 0;
-            AzimuthMeas.BiasStdDev      = .01;
-            AzimuthMeas.NoiseStdDev     = 0;
-            AzimuthMeas.TimeConstant    = 0;
-            Meas.AzimuthMeas            = AzimuthMeas;
-
-
-            %-----  Use White Noise Model for Azimuth Measurements
-            ElevationMeas.StochasticModel = 'WhiteNoise';
-            ElevationMeas.Bias            = 0;
-            ElevationMeas.NoiseStdDev     = 0.02;
-            ElevationMeas.NoiseStdDev     = 0;
-            ElevationMeas.TimeConstant    = 0;
-            Meas.ElevationMeas            = ElevationMeas;
-
-            %-----  Use Random Walk Model for Azimuth Measurements
-            RightAscMeas.StochasticModel  = 'WhiteNoise';
-            RightAscMeas.Bias             = 0;
-            RightAscMeas.BiasStdDev       = .01;
-            RightAscMeas.NoiseStdDev      = 0;
-            RightAscMeas.TimeConstant     = 0;
-            Meas.RightAscMeas             = RightAscMeas;
-
-            %-----  Use White Noise Model for Azimuth Measurements
-            DeclinationMeas.StochasticModel = 'WhiteNoise';
-            DeclinationMeas.Bias            = 0;
-            DeclinationMeas.NoiseStdDev     = 0.02;
-            DeclinationMeas.NoiseStdDev     = 0;
-            DeclinationMeas.TimeConstant    = 0;
-            Meas.DeclinationMeas            = DeclinationMeas;
-
         end % GroundStationMeasurement
 
         function Id = GetParamId(Sat,name);
 
             switch name
-                case 'RangeMeas.Bias'
+                case 'Bias'
                     Id = 401;
                 otherwise
                     Id = '';
@@ -104,7 +44,7 @@ classdef GroundStationMeasurement < Measurement
 
             switch Id
                 case 401
-                    x = [Meas.RangeMeas.Bias]';
+                    x = [Meas.Bias]';
                 otherwise
                     x = [];
             end
@@ -116,7 +56,7 @@ classdef GroundStationMeasurement < Measurement
 
             switch Id
                 case 401
-                    Meas.RangeMeas.Bias = x(1);
+                    Meas.Bias = x(1);
                 otherwise
                     disp(['State Id ' num2str(x) ' is not a supported set state in GroundStationMeasurement::SetState'])
             end
@@ -145,7 +85,7 @@ classdef GroundStationMeasurement < Measurement
                     Id = [];
             end
             
-        end
+        end % GetDynamicsId
 
         %----- Initialization
         function GSMeas = Initialize(GSMeas,Sandbox)
@@ -208,17 +148,23 @@ classdef GroundStationMeasurement < Measurement
                     stop
                 end
                 
-                GSMeas.Participants{i}{1} = Participant1;
-                GSMeas.Participants{i}{2} = Participant2;
+                if strcmp(class(Participant1),'Spacecraft')
+                   GSMeas.Spacecraft    = Participant1;
+                   GSMeas.GroundStation = Participant2;
+                else
+                   GSMeas.Spacecraft    = Participant2;
+                   GSMeas.GroundStation = Participant1;
+                end
+                %GSMeas.Participants{i}{1} = Participant1;
+                %GSMeas.Participants{i}{2} = Participant2;
 
-                GSMeas.dataTypes(i)       = GSMeas.GetDataTypeId(GSMeas.AddDataType{i}{1});
+                %GSMeas.dataTypes(i)       = GSMeas.GetDataTypeId(GSMeas.AddDataType{i}{1});
                 totalnumObs = totalnumObs + numcurrObs;
 
             end %  for i = 1:GSMeas.numDataTypes 
             
             GSMeas.Obs       = Obs;
             GSMeas.Epochs    = Epochs;
-            GSMeas.dataTypeIndeces = typeIndex;
 
         end %----- function Intialize
         
@@ -234,136 +180,7 @@ classdef GroundStationMeasurement < Measurement
                     Id = [];
             end
 
-        end % GetParamId
-                        
-        %----- Evaluate measurements
-        function [y,dydx,isFeasible] = Evaluate(Meas,dataIndex,Participants,partialsMap)
-            
-            %  
-            Sat         = Participants{1,1};
-            Station     = Participants{1,2};
-            dataType    = Meas.dataTypes(dataIndex);
-            
-            if dataType     == 1001;
-                [y,dydx,isFeasible] = Meas.EvaluateRange(Sat,Station);
-            elseif dataType == 1002;
-                [y,dydx,isFeasible] = Meas.EvaluateRADec(Sat,Station);
-            else
-                stop
-            end
-              
-        end
-                
-        function [y,dydx,isFeasible] = EvaluateRange(Meas,Sat,Station)
-
-            %  Convert station location to inertial system
-            jd         = Sat.Epoch + 2430000;
-            stationLoc = Station.InertialState(jd);
-            rangevec   = [Sat.X Sat.Y Sat.Z]' - stationLoc;
-            range      = norm(rangevec);
-
-            %  Calculate measurement and partial if feasible
-           % if dot(rangevec,stationLoc) > 0
-                isFeasible = 1;
-                y    = range + Meas.RangeMeas.Bias;
-                dydx = rangevec'/range;
-           % else
-           %     isFeasible = 1;
-           %     y    = range + Meas.RangeMeas.Bias;
-           %     dydx = rangevec'/range;
-%          %       isFeasible = 0;
-%                 y   = [];
-%                 dydx = [];
-           % end
-            
-%            return
-%           OLD CODE THAT WILL BE USEFUL FOR PARTIALS MAP
-%             Partials = [101 201 301];
-% 
-%             for i = 1:size(Partials,2)
-% 
-%                 switch Partials(i)
-% 
-%                     case 101
-%                         %  Derivative w/r/t spacecraft position
-%                         dydx.d101 = [rangevec'/range; zeros(3,1)];
-%                     case 201
-%                         %  Derivative w/r/t ground station location
-%                         dydx.d201 = -rangevec'/range;
-%                     case 301
-%                         %  Derivative w/r/t measurement bias
-%                         dydx.d301 = 1;
-%                 end
-% 
-%             end
-
-        end
-           
-        function [y,dydx] = EvaluateRADec(Meas,Sat,Station)
-
-            global eciPos  OWLT  speedoflight
-
-            jd            = Sat.Epoch + 2430000;
-
-            %===========================
-            %--- The function values
-            %===========================
-            rangevec = [Sat.X;Sat.Y;Sat.Z] - Station.InertialState(jd);
-            range     = norm(rangevec);
-
-            % compute apparent Declination
-            decTop = asin(rangevec(3,1)/range);
-
-            % compute apparent Right Ascension
-            foo = sqrt(rangevec(1,1)^2+rangevec(2,1)^2);
-            raTop = atan2((rangevec(2,1)/foo),(rangevec(1,1)/foo));
-            raTop = mod(raTop,2*pi); % RA is between 0 and 360 degrees
-
-            y = [raTop;decTop];
-            
-            %=========================
-            %--- The partials
-            %===========================
-            xhat = [1 0 0]';
-            yhat = [0 1 0]';
-            zhat = [0 0 1]';
-            ddecdsatpos = 1/sqrt(1 - (rangevec(3,1)/range)^2)*...
-                          (zhat'/range - rangevec(3,1)/range^3*rangevec');
-            dradsatpos  = 1/ (1 + (rangevec(2,1)/rangevec(1,1))^2)*...
-                            (yhat'/rangevec(1,1) - xhat'*rangevec(2,1)/rangevec(1,1)^2);
-            dydx = -[ddecdsatpos;dradsatpos];
-
-            Partials = [101 201 301];
-
-            for i = 1:size(Partials,2)
-
-                switch Partials(i)
-
-                    case 101
-                        %  Derivative w/r/t spacecraft position
-                        ddecdsatpos = 1/sqrt(1 - (rangevec(3,1)/range)^2)*...
-                            (zhat'/range - rangevec(3,1)/range^3*rangevec');
-                        dradsatpos  = 1/ (1 + (rangevec(2,1)/rangevec(1,1))^2)*...
-                            (yhat'/rangevec(1,1) - xhat'*rangevec(2,1)/rangevec(1,1)^2);
-                        dydx.d101 = -[ddecdsatpos;dradsatpos];
-
-                    case 201
-                        %  Derivative w/r/t ground station location
-                        ddecdsatpos = 1/sqrt(1 - (rangevec(3,1)/range)^2)*...
-                            (zhat'/range - rangevec(3,1)/range^3*rangevec');
-                        dradsatpos  = 1/ (1 + (rangevec(2,1)/rangevec(1,1))^2)*...
-                            (yhat'/rangevec(1,1) - xhat'*rangevec(2,1)/rangevec(1,1)^2);
-                        dydx = [ddecdsatpos;dradsatpos];
-                        dydx.d201 = - [ddecdsatpos;dradsatpos];;
-
-                    case 301
-                        %  Derivative w/r/t measurement bias
-                        dydx.d301 = [1;1];
-                end
-
-            end
-
-        end
+        end % GetParamId        
 
     end % methods
 

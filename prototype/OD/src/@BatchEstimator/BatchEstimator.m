@@ -40,7 +40,7 @@ classdef BatchEstimator < handle
             % - Initialize the estimator
             % - Initialize the estimator state manager
             % - Initialize the propagator state manager
-            % - Intialize the measurement manager
+            % - Initialize the measurement manager
             %--------------------------------------------------------------
 
             %  Get handle to propagator:  Replace string with handle!

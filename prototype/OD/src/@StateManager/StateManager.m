@@ -88,27 +88,7 @@ classdef StateManager < handle
             end
             
         end
-        
-        %----- Copy Objects
-        function estObjClone = CopyObjects(ESM,Objects)
-            
-            %  Step through the objects and call their copy constructors
-            numObjects = size(Objects,2);
-            for i = 1:numObjects;
-
-                %  Extract the current object
-                currObj  = Objects{i};
-                
-                %  Determine the class type of the object
-                objClass = class(currObj);
-                
-                %  Call the copy constructor
-                estObjClone{i}      = feval(objClass,currObj);
-                
-            end
-            
-        end
-        
+               
          %----- SetObjectstoClones
         function Manager = SetObjectstoClones(Manager)
             
