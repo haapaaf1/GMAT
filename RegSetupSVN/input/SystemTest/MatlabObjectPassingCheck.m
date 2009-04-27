@@ -1,8 +1,5 @@
 %$Id: MatlabObjectPassingCheck.m,v 1.10 2008/04/15 21:19:09 edove Exp $
 
-% Global settings
-GMAT SolarSystem.Ephemeris = {SLP}
-
 %----------------------------------------
 %---------- Spacecraft
 %----------------------------------------
@@ -32,12 +29,12 @@ GMAT Sat.SRPArea = 1;
 Create ForceModel Prop_ForceModel;
 GMAT Prop_ForceModel.CentralBody = Earth;
 GMAT Prop_ForceModel.PrimaryBodies = {Earth};
-GMAT Prop_ForceModel.Drag = Exponential;
+GMAT Prop_ForceModel.Drag = None;
 GMAT Prop_ForceModel.SRP = Off;
 GMAT Prop_ForceModel.ErrorControl = RSSStep;
 GMAT Prop_ForceModel.Gravity.Earth.Degree = 4;
 GMAT Prop_ForceModel.Gravity.Earth.Order = 4;
-GMAT Prop_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT Prop_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 
 %----------------------------------------
@@ -75,30 +72,6 @@ GMAT state(1, 5) = 0;
 GMAT state(1, 6) = 0;
 
 
-
-%----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
-
 %----------------------------------------
 %---------- Subscribers
 %----------------------------------------
@@ -126,7 +99,7 @@ GMAT CalculateApsidesFromSat.FunctionPath = ./input/SystemTest/;
 %----------------------------------------
 
 
-For I = 1:1:1000;
+For I = 1:50;
    If Sat.TA > 170 & Sat.TA < 180
       Propagate Prop(Sat) {Sat.Apoapsis};
    Else
@@ -143,6 +116,5 @@ For I = 1:1:1000;
    GMAT state(1, 5) = Sat.VY;
    GMAT state(1, 6) = Sat.VZ;
    GMAT [RdotV, Energy] = CalculateApsidesFromSat(Sat);
-   Report RVReport Sat.A1ModJulian Sat.Earth.Apoapsis Sat.Earth.Periapsis RdotV Sat.TA Energy Sat.Energy
+   Report RVReport Sat.A1ModJulian RdotV Sat.TA Energy Sat.Energy
 EndFor;
-
