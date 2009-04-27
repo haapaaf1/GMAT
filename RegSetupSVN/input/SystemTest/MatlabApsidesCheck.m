@@ -33,7 +33,7 @@ GMAT Prop_ForceModel.SRP = Off;
 GMAT Prop_ForceModel.ErrorControl = RSSStep;
 GMAT Prop_ForceModel.Gravity.Earth.Degree = 4;
 GMAT Prop_ForceModel.Gravity.Earth.Order = 4;
-GMAT Prop_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT Prop_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 
 %----------------------------------------
@@ -61,35 +61,13 @@ Create Variable I;
 
 Create Array state[1,6];
 
-%----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
 
 %----------------------------------------
 %---------- Subscribers
 %----------------------------------------
 
 Create ReportFile RVReport;
-GMAT RVReport.Filename = ./output/SystemTest/MatlabApsidesCheck.report;
+GMAT RVReport.Filename = './output/SystemTest/MatlabApsidesCheck.report';
 GMAT RVReport.Precision = 16;
 GMAT RVReport.WriteHeaders = On;
 GMAT RVReport.LeftJustify = On;
@@ -103,7 +81,7 @@ GMAT RVReport.SolverIterations = None;
 %----------------------------------------
 
 Create MatlabFunction CalculateApsides;
-GMAT CalculateApsides.FunctionPath = ./input/SystemTest/;
+GMAT CalculateApsides.FunctionPath = './input/SystemTest/';
 
 
 %----------------------------------------
@@ -111,7 +89,7 @@ GMAT CalculateApsides.FunctionPath = ./input/SystemTest/;
 %----------------------------------------
 
 
-For I = 1:1:1000;
+For I = 1:1:100;
    If Sat.TA > 170 & Sat.TA < 180
       Propagate Prop(Sat) {Sat.Apoapsis};
    Else
@@ -132,4 +110,3 @@ For I = 1:1:1000;
 
    Report RVReport Sat.A1ModJulian Sat.Earth.Apoapsis Sat.Earth.Periapsis RdotV Sat.TA;
 EndFor;
-
