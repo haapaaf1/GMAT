@@ -2094,6 +2094,12 @@ void CelestialBody::ClearModifiedFlag()
 //------------------------------------------------------------------------------
 const Rvector6 CelestialBody::GetMJ2000State(const A1Mjd &atTime)
 {
+   #ifdef DEBUG_CB_GET_MJ2000_STATE
+   MessageInterface::ShowMessage("In GetMJ2000State, body is %s, time is %12.10f\n",
+         instanceName.c_str(), atTime.Get());
+   MessageInterface::ShowMessage("In GetMJ2000State, j2000Body is %s\n",
+         (j2000Body->GetName()).c_str());
+   #endif
    if (j2000Body == NULL)
       throw SolarSystemException("j2000Body is NULL for " + instanceName);
    
