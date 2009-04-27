@@ -25,6 +25,7 @@
 #include "StringUtil.hpp"               // for ToString()
 #include "FileManager.hpp"              // for GetFullPathname()
 #include "MessageInterface.hpp"         // for debugging
+#include "CoordinateSystem.hpp"
 
 //#define DEBUG_SS_COPY
 //#define DEBUG_SS_CLONING
@@ -741,6 +742,14 @@ const Integer               SolarSystem::STAR_NAIF_IDS            = 10;
 //------------------------------------------------------------------------------
 // public methods
 //------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// static methods
+//------------------------------------------------------------------------------
+// none at this time
+
+
 //------------------------------------------------------------------------------
 //  SolarSystem(std::string withName)
 //------------------------------------------------------------------------------
@@ -2082,7 +2091,6 @@ bool SolarSystem::AddValidModelName(Gmat::ModelType m,
                               + forBody);
 }
 
-
 //------------------------------------------------------------------------------
 // bool SolarSystem::RemoveValidModelName(Gmat::ModelType m, 
 //                  const std::string & forBody,
@@ -2101,6 +2109,28 @@ bool SolarSystem::RemoveValidModelName(Gmat::ModelType m,
    throw SolarSystemException("Cannot remove model for unknown body " 
                               + forBody);
 }
+
+//------------------------------------------------------------------------------
+// Rvector6 SolarSystem::GetCelestialBodyState(const std::string &bodyName,
+//                       CoordinateSystem *cs, const A1Mjd &epoch)
+//------------------------------------------------------------------------------
+Rvector6 SolarSystem::GetCelestialBodyState(const std::string &bodyName, 
+                                           CoordinateSystem *cs, const A1Mjd &epoch)
+{
+   // check to see if the body is a valid celestial body in this solar system
+   if (!IsBodyInUse(bodyName))
+   {
+      std::string errmsg = "GetCelestialBodyState:: Body \"";
+      errmsg += bodyName + "\" is not in use.\n";
+      throw SolarSystemException(errmsg);
+   }
+   CelestialBody *body  = GetBody(bodyName);
+   Rvector6 mj2000State = body->GetMJ2000State(epoch);
+   Rvector state        = cs->FromMJ2000Eq(epoch, mj2000State);
+   Rvector6 cbState(state[0],state[1],state[2],state[3],state[4],state[5]);
+   return cbState;
+}
+
 
 //------------------------------------------------------------------------------
 //  const StringArray& GetBodiesInUse() const
