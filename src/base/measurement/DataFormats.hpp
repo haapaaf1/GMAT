@@ -126,7 +126,7 @@ namespace DataFormats
         // software is updated to read the new SP3-c format.  A list of
         // identifiers created for LEO satellites can be viewed at
         // http://cddis.gsfc.nasa.gov/sp3c_satlist.html
-        StringArray satID[85];
+        StringArray satIdList[85];
 
         // Satellite accuracy
         // The value 0 is interpreted as accuracy unknown. A satellite's accuracy
@@ -138,7 +138,7 @@ namespace DataFormats
         // file for the respective satellite. This may lead to some distortion
         // when orbit files are joined together, or when a file contains both
         //observed and predicted data.
-        IntegerArray satAccuracy[85];
+        IntegerArray satAccuracyList[85];
 
         // File Type
         // The currently defined values are: "G " for GPS only files, "M "
@@ -262,21 +262,23 @@ namespace DataFormats
         // Clock Record. A value of 9999 would mean that a standard deviation
         // was too large to be represented. If a standard deviation is unknown,
         // its field is left blank.
-        Integer stdDevX, stdDevY, stdDevZ;
+        Integer highResolutionStdDevX;
+        Integer highResolutionStdDevY;
+        Integer highResolutionStdDevZ;
 
         // Clock Std Dev (10^-4 picoseconds)
         // A value of 9999999 would mean that the standard deviation was too
         // large to be represented.
-        Integer stdDevClock;
+        Integer highResolutionStdDevClock;
 
-        // VXVY, VXVZ, VXC, VYVZ, VYC, VZC correlation
+        // XVY, XVZ, XC, YVZ, YC, ZC correlation
         // The correlation values are between -0.999999 and +0.9999999
-        Real vxVYCorrelation;
-        Real vxVZCorrelation;
-        Real vxCCorrelation;
-        Real vyVZCorrelation;
-        Real vyCCorrelation;
-        Real vzCCorrelation;
+        Real xYCorrelation;
+        Real xZCorrelation;
+        Real xCCorrelation;
+        Real yZCorrelation;
+        Real yCCorrelation;
+        Real zCCorrelation;
 
     };
 
@@ -284,12 +286,20 @@ namespace DataFormats
     {
 
         // VX,VY,VZ Std Dev (10^-4 mm/sec)
-        Integer stdDevVX, stdDevVY, stdDevVZ;
+        // The standard deviations in this record are given to greater
+        // resolution than the approximate values given in the Velcoity and
+        // Clock Rate Record. A value of 9999 would mean that a standard deviation
+        // was too large to be represented. If a standard deviation is unknown,
+        // its field is left blank.
+        Integer highResolutionStdDevVX;
+        Integer highResolutionStdDevVY;
+        Integer highResolutionStdDevVZ;
 
         // Clock Rate Std Dev (10^-4 picoseconds/sec)
-        Integer stdDevClockRate;
+        Integer highResolutionStdDevClockRate;
 
         // VXVY, VXVZ, VXC, VYVZ, VYC, VZC correlation
+        // The correlation values are between -0.999999 and +0.9999999
         Real vxVYCorrelation;
         Real vxVZCorrelation;
         Real vxCCorrelation;
@@ -319,6 +329,226 @@ namespace DataFormats
         std::vector<sp3c_velocity*> velocity;
         std::vector<sp3c_velClockRateCorrelation*> velClockRateCorrelation;
         
+    };
+
+    enum SP3c_DATA_REPS
+    {
+        SP3c_POSVELFLAG_ID,
+        SP3c_STARTYEAR_ID,
+        SP3c_STARTMONTH_ID,
+        SP3c_STARTHOUR_ID,
+        SP3c_STARTMINUTE_ID,
+        SP3c_STARTSECOND_ID,
+        SP3c_NUMEPOCHS_ID,
+        SP3c_DATAUSED_ID,
+        SP3c_COORDSYS_ID,
+        SP3c_ORBITTYPE_ID,
+        SP3c_AGENCY_ID,
+        SP3c_GPSWEEK_ID,
+        SP3c_SECONDSOFWEEK_ID,
+        SP3c_EPOCHINTERVAL_ID,
+        SP3c_MODJULIANDAY_ID,
+        SP3c_FRACTIONOFDAY_ID,
+        SP3c_NUMSATS_ID,
+        SP3c_SATIDLIST_ID,
+        SP3c_SATACCURACYLIST_ID,
+        SP3c_FILETYPE_ID,
+        SP3c_TIMESYSTEM_ID,
+        SP3c_BASEPOSVELSTDDEV_ID,
+        SP3c_BASECLKRATESTDDEV_ID,
+        SP3c_COMMENTS_ID,
+        SP3c_VEHICLEID_ID,
+        SP3c_X_ID,
+        SP3c_Y_ID,
+        SP3c_Z_ID,
+        SP3c_VX_ID,
+        SP3c_VY_ID,
+        SP3c_VZ_ID,
+        SP3c_CLOCKVALUE_ID,
+        SP3c_STDDEV_X_ID,
+        SP3c_STDDEV_Y_ID,
+        SP3c_STDDEV_Z_ID,
+        SP3c_STDDEV_VX_ID,
+        SP3c_STDDEV_VY_ID,
+        SP3c_STDDEV_VZ_ID,
+        SP3c_STDDEV_CLOCK_ID,
+        SP3c_STDDEV_CLOCKRATE_ID,
+        SP3c_CLOCKEVENTFLAG_ID,
+        SP3c_CLOCKPREDICTIONFLAG_ID,
+        SP3c_MANEUVERFLAG_ID,
+        SP3c_ORBITPREDICTFLAG_ID,
+        SP3c_XY_CORRELATION_ID,
+        SP3c_XZ_CORRELATION_ID,
+        SP3c_XC_CORRELATION_ID,
+        SP3c_YZ_CORRELATION_ID,
+        SP3c_YC_CORRELATION_ID,
+        SP3c_ZC_CORRELATION_ID,
+        SP3c_VXVY_CORRELATION_ID,
+        SP3c_VXVZ_CORRELATION_ID,
+        SP3c_VXC_CORRELATION_ID,
+        SP3c_VYVZ_CORRELATION_ID,
+        SP3c_VYC_CORRELATION_ID,
+        SP3c_VZC_CORRELATION_ID,
+        SP3c_HIGHRESOLUTION_STDDEV_X_ID,
+        SP3c_HIGHRESOLUTION_STDDEV_Y_ID,
+        SP3c_HIGHRESOLUTION_STDDEV_Z_ID,
+        SP3c_HIGHRESOLUTION_STDDEV_VX_ID,
+        SP3c_HIGHRESOLUTION_STDDEV_VY_ID,
+        SP3c_HIGHRESOLUTION_STDDEV_VZ_ID,
+        SP3c_HIGHRESOLUTION_STDDEV_CLOCK_ID,
+        SP3c_HIGHRESOLUTION_STDDEV_CLOCKRATE_ID,
+        SP3c_YEAR_ID,
+        SP3c_MONTH_ID,
+        SP3c_HOUR_ID,
+        SP3c_MINUTE_ID,
+        SP3c_SECOND_ID,
+        EndSP3cDataReps
+    };
+
+    static const std::string SP3c_FILEFORMAT_DESCRIPTIONS[EndSP3cDataReps] =
+    {
+        "PosVelFlag",
+        "StartYear",
+        "StartMonth",
+        "StartHour",
+        "StartMinute",
+        "StartSecond",
+        "NumEpochs",
+        "DataUsed",
+        "CoordSys",
+        "OrbitType",
+        "Agency",
+        "GpsWeek",
+        "SecondsOfWeek",
+        "EpochInterval",
+        "ModJulianDay",
+        "FractionOfDay",
+        "NumSats",
+        "SatIdList",
+        "satAccuracyList",
+        "FileType",
+        "TimeSystem",
+        "BasePosVelStdDev",
+        "BaseClkRateStdDev",
+        "Comments",
+        "VehicleID",
+        "X",
+        "Y",
+        "Z",
+        "VX",
+        "VY",
+        "VZ",
+        "ClockValue",
+        "StdDevX",
+        "StdDevY",
+        "StdDevZ",
+        "StdDevVX",
+        "StdDevVY",
+        "StdDevVZ",
+        "StdDevClock",
+        "StdDevClockRate",
+        "ClockEventFlag",
+        "ClockPredictionFlag",
+        "ManeuverFlag",
+        "OrbitPredictFlag",
+        "XYCorrelation",
+        "XZCorrelation",
+        "XCCorrelation",
+        "YZCorrelation",
+        "YCCorrelation",
+        "ZCCorrelation",
+        "VXVYCorrelation",
+        "VXVZCorrelation",
+        "VXCCorrelation",
+        "VYVZCorrelation",
+        "VYCCorrelation",
+        "VZCCorrelation",
+        "HighResolutionStdDevX",
+        "HighResolutionStdDevY",
+        "HighResolutionStdDevZ",
+        "HighResolutionStdDevVX",
+        "HighResolutionStdDevVY",
+        "HighResolutionStdDevVZ",
+        "HighResolutionStdDevClock",
+        "HighResolutionStdDevClockRate",
+        "Year",
+        "Month",
+        "Hour",
+        "Minute",
+        "Second"
+    };
+
+    static const std::string SP3c_UNIT_DESCRIPTIONS[EndSP3cDataReps] =
+    {
+        "",
+        "years",
+        "months",
+        "hrs",
+        "min",
+        "sec",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "sec",
+        "sec",
+        "",
+        "FractionOfDay",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "km",
+        "km",
+        "km",
+        "dm/sec",
+        "dm/sec",
+        "dm/sec",
+        "microsec",
+        "mm",
+        "mm",
+        "mm",
+        "mm/sec",
+        "mm/sec",
+        "mm/sec",
+        "picosec",
+        "picosec/sec",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "years",
+        "months",
+        "hrs",
+        "min",
+        "sec"
     };
 
     // See the following website for a complete description of the SLR
@@ -658,29 +888,29 @@ namespace DataFormats
     {
 	"",
 	"",
-	"Year",
+	"years",
 	"DayOfYear",
 	"",
 	"",
 	"",
-	"NanoMeter",
-	"PicoSec",
-	"PicoSec",
-	"PicoSec",
+	"nm",
+	"picosec",
+	"picosec",
+	"picosec",
 	"",
 	"",
 	"",
 	"",
 	"",
-	"PicoSec",
+	"picosec",
 	"",
 	"",
-	"Sec",
-	"Sec",
-	"PicoSec",
-	"MilliBar",
+	"sec",
+	"sec",
+	"picosec",
+	"millibar",
 	"Kelvin",
-	"Percent",
+	"%",
 	"",
 	"",
 	"",
@@ -689,8 +919,8 @@ namespace DataFormats
         "",
 	"",
         "",
-        "Deg",
-        "Deg"
+        "deg",
+        "deg"
     };
 
     static const Gmat::ParameterType SLR_PARAMETER_TYPE[EndSLRDataReps] =
@@ -893,19 +1123,19 @@ namespace DataFormats
 	"",
 	"",
 	"",
-	"Year",
+	"years",
 	"DayOfYear",
-	"Rev/Sec^2",
-	"Rad/Sec^3",
+	"rev/sec^2",
+	"rad/sec^3",
 	"1/EarthRadii",
 	"",
 	"",
-	"Deg",
-	"Deg",
+	"deg",
+	"deg",
 	"",
-	"Deg",
-	"Deg",
-	"Rev/Day",
+	"deg",
+	"deg",
+	"rev/day",
 	""
     };
 
@@ -1046,20 +1276,20 @@ namespace DataFormats
         "",
         "",
         "",
-        "Year",
+        "year",
         "DayOfYear",
-        "Hour",
-        "Min",
-        "Sec",
-        "Deg",
-        "Deg",
-        "Deg",
-        "Deg",
-        "Km",
-        "Km/s",
-        "Km",
-        "Km",
-        "Km"
+        "hrs",
+        "min",
+        "sec",
+        "deg",
+        "deg",
+        "deg",
+        "deg",
+        "km",
+        "km/sec",
+        "km",
+        "km",
+        "km"
     };
 
 
