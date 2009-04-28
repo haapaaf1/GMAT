@@ -77,6 +77,7 @@ console: $(CONSOLETARGET)
 
 HEADERS = -Iinclude \
           -Ifoundation \
+          -Iestimator \
           -Iexecutive \
           -Iattitude \
           -Ispacecraft \
@@ -92,6 +93,7 @@ HEADERS = -Iinclude \
           -Iutil \
           -Iinterpolator \
           -Iinterface \
+          -Imeasurement \
           -Iparameter \
           -Iconfigs \
           -Iburn \
@@ -99,7 +101,9 @@ HEADERS = -Iinclude \
           -Ifunction \
           -Icoordsystem \
           -Imath \
+          -Iasset \
           -Iplugin \
+          -Ienvironment \
           -I../gui/include \
           -I../gui/include/bitmaps \
           -I../gui/app \
@@ -107,7 +111,9 @@ HEADERS = -Iinclude \
           -I../gui/output \
           -I../gui/foundation \
           -I../gui/plot \
-          -I../gui/mission
+          -I../gui/mission \
+          -I/usr/local/include/lapackpp \
+          -I/usr/local/include/unicode \
 
 
 
@@ -193,6 +199,8 @@ OBJECTS = \
     command/PenUp.o \
     command/Propagate.o \
     command/Report.o \
+    command/RunEstimator.o \
+    command/Load.o \
     command/Save.o \
     command/SolverBranchCommand.o \
     command/Stop.o \
@@ -229,6 +237,8 @@ OBJECTS = \
     coordsystem/TOEEqAxes.o \
     coordsystem/TopocentricAxes.o \
     coordsystem/TrueOfDateAxes.o \
+    estimator/Estimator.o \
+    estimator/BatchLeastSquares.o \
     executive/Moderator.o \
     executive/PlotInterface.o \
     executive/PlotReceiver.o \
@@ -236,6 +246,7 @@ OBJECTS = \
     executive/Publisher.o \
     executive/SandboxException.o \
     executive/Sandbox.o \
+    factory/AssetFactory.o \
     factory/AtmosphereFactory.o \
     factory/AssetFactory.o \
     factory/AttitudeFactory.o \
@@ -245,6 +256,9 @@ OBJECTS = \
     factory/CelestialBodyFactory.o \
     factory/CommandFactory.o \
     factory/CoordinateSystemFactory.o \
+    factory/DataFileFactory.o \
+    factory/EstimatorFactory.o \
+    factory/EstimatorCommandFactory.o \
     factory/FactoryException.o \
     factory/FactoryManager.o \
     factory/Factory.o \
@@ -252,6 +266,7 @@ OBJECTS = \
     factory/FunctionFactory.o \
     factory/HardwareFactory.o \
     factory/MathFactory.o \
+    factory/MeasurementModelFactory.o \
     factory/ParameterFactory.o \
     factory/PhysicalModelFactory.o \
     factory/PropagatorFactory.o \
@@ -274,6 +289,7 @@ OBJECTS = \
     foundation/GmatBaseException.o \
     foundation/GmatBase.o \
     foundation/GmatState.o \
+    foundation/GmatUnits.o \
     foundation/ObjectInitializer.o \
     foundation/SpacePoint.o \
     foundation/StateManager.o \
@@ -331,6 +347,15 @@ OBJECTS = \
     math/Tan.o \
     math/Tanh.o \
     math/Transpose.o \
+    measurement/MeasurementModel.o \
+    measurement/MeasurementModelException.o \
+    measurement/GeometricRangeMeasurementModel.o \
+    measurement/GeometricRangeAzElMeasurementModel.o \
+    measurement/DataFile.o \
+    measurement/DataFileException.o \
+    measurement/ProcessTLEData.o \
+    measurement/ProcessB3Data.o \
+    measurement/ProcessSLRData.o \
     parameter/AngularParameters.o \
     parameter/Array.o \
     parameter/ArrayWrapper.o \
@@ -409,16 +434,16 @@ OBJECTS = \
     solarsys/CelestialBody.o \
     solarsys/Comet.o \
     solarsys/DeFile.o \
-    solarsys/ExponentialAtmosphere.o \
-    solarsys/JacchiaRobertsAtmosphere.o \
+    environment/ExponentialAtmosphere.o \
+    environment/JacchiaRobertsAtmosphere.o \
     solarsys/LibrationPoint.o \
     solarsys/Moon.o \
-    solarsys/Msise90Atmosphere.o \
+    environment/Msise90Atmosphere.o \
     solarsys/PlanetaryEphemException.o \
     solarsys/PlanetaryEphem.o \
     solarsys/Planet.o \
     solarsys/SlpFile.o \
-    solarsys/SolarFluxFileReader.o \
+    environment/SolarFluxFileReader.o \
     solarsys/SolarSystemException.o \
     solarsys/SolarSystem.o \
     solarsys/Star.o \
@@ -436,6 +461,8 @@ OBJECTS = \
     spacecraft/FuelTank.o \
     spacecraft/HardwareException.o \
     spacecraft/Hardware.o \
+    spacecraft/PropCovar.o \
+    spacecraft/PropState.o \
     spacecraft/Spacecraft.o \
     spacecraft/SpaceObject.o \
     spacecraft/StateConverter.o \
@@ -500,14 +527,21 @@ OBJECTS = \
 #    $(BRIDGEOBJECTS)
 
 # Future classes:
+#    solarsys/IonosphereModel.o \
+#    solarsys/TroposphereModel.o \
+#    environment/Msise00Atmosphere.o \
 #    propagator/Cowell.o \
+#    measurement/SimMeasurementModel.o \
+#    measurement/GeometricAzElMeasurementModel.o \
+#    measurement/GeometricRangeRaDecMeasurementModel.o \
+#    measurement/GeometricRaDecMeasurementModel.o \
+#    measurement/GeometricRangeAzElMeasurementModel.o \
+#    parameter/EquinoctialParameters.o \
+#    stopcond/BaseStopCondition.o \
+#    environment/msise00_sub.o
 
 
-
-FORTRAN_OBJECTS = solarsys/msise90_sub.o
-
-    # parameter/EquinoctialParameters.o \
-    # stopcond/BaseStopCondition.o \
+FORTRAN_OBJECTS = environment/msise90_sub.o 
 
 ifeq ($(SHARED_BASE), 1)
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
@@ -531,8 +565,11 @@ endif
 
 
 # Specific instructions for the fortran code
-solarsys/msise90_sub.o: solarsys/msise90_sub.for
-	$(FORTRAN) -c solarsys/msise90_sub.for -o solarsys/msise90_sub.o $(F77_FLAGS) 
+environment/msise90_sub.o: environment/msise90_sub.for
+	$(FORTRAN) -c environment/msise90_sub.for -o environment/msise90_sub.o $(F77_FLAGS) 
+
+environment/msise00_sub.o: environment/msise00_sub.for
+	$(FORTRAN) -c enviroment/msise00_sub.for -o enviroment/msise00_sub.o $(F77_FLAGS) -ff2c
 
 # Instructions for the console app interfaces
 interpreter/GuiInterpreterConsole.o : interpreter/GuiInterpreter.cpp \
