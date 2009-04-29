@@ -57,7 +57,7 @@ namespace GmatTimeUtil
    {
       public:
       ElapsedDate(Integer d, Integer h, Integer m, Real s)
-         : days(d), hours(d), minutes(m), seconds(s)
+         : days(d), hours(h), minutes(m), seconds(s)
          {};
 
       ElapsedDate() : days(0), hours(0), minutes(0), seconds(0.0) {};
