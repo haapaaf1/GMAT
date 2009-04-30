@@ -763,96 +763,97 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
          }
       }
    }
-   
-   if (fillSTM)
-   {
-      Real aTilde[36];
-      Integer associate, element;
-      for (Integer i = 0; i < stmCount; ++i)
-      {
-         i6 = stmIndex + i * 36;
-         associate = theState->GetAssociateIndex(i6);
-         
-//         relativePosition[0] = rv[0] - state[ associate ];
-//         relativePosition[1] = rv[1] - state[associate+1];
-//         relativePosition[2] = rv[2] - state[associate+2];
-//   
-//         r3 = relativePosition[0]*relativePosition[0] + 
-//              relativePosition[1]*relativePosition[1] + 
-//              relativePosition[2]*relativePosition[2];
+
+//// Uncomment the following to work on the SRP STM piece
+//   if (fillSTM)
+//   {
+//      Real aTilde[36];
+//      Integer associate, element;
+//      for (Integer i = 0; i < stmCount; ++i)
+//      {
+//         i6 = stmIndex + i * 36;
+//         associate = theState->GetAssociateIndex(i6);
 //         
-//         radius = sqrt(r3);
-//         r3 *= radius;
-//         mu_r = mu / r3;
-         
-         // Calculate A-tilde
-         
-         // A = D = 0
-         aTilde[ 0] = aTilde[ 1] = aTilde[ 2] = 
-         aTilde[ 6] = aTilde[ 7] = aTilde[ 8] =
-         aTilde[12] = aTilde[13] = aTilde[14] =
-         aTilde[21] = aTilde[22] = aTilde[23] = 
-         aTilde[27] = aTilde[28] = aTilde[29] =
-         aTilde[33] = aTilde[34] = aTilde[35] = 0.0;
-         
-         // Contributions for the origin term only:
-//         if (rbb3 == 0.0)
-//         {
-//            // B = I
-//            aTilde[ 3] = aTilde[10] = aTilde[17] = 1.0;
+////         relativePosition[0] = rv[0] - state[ associate ];
+////         relativePosition[1] = rv[1] - state[associate+1];
+////         relativePosition[2] = rv[2] - state[associate+2];
+////   
+////         r3 = relativePosition[0]*relativePosition[0] + 
+////              relativePosition[1]*relativePosition[1] + 
+////              relativePosition[2]*relativePosition[2];
+////         
+////         radius = sqrt(r3);
+////         r3 *= radius;
+////         mu_r = mu / r3;
+//         
+//         // Calculate A-tilde
+//         
+//         // A = D = 0
+//         aTilde[ 0] = aTilde[ 1] = aTilde[ 2] = 
+//         aTilde[ 6] = aTilde[ 7] = aTilde[ 8] =
+//         aTilde[12] = aTilde[13] = aTilde[14] =
+//         aTilde[21] = aTilde[22] = aTilde[23] = 
+//         aTilde[27] = aTilde[28] = aTilde[29] =
+//         aTilde[33] = aTilde[34] = aTilde[35] = 0.0;
+//         
+//         // Contributions for the origin term only:
+////         if (rbb3 == 0.0)
+////         {
+////            // B = I
+////            aTilde[ 3] = aTilde[10] = aTilde[17] = 1.0;
+////            aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
+////            aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
+////         }
+////         else
+////         {
+//            aTilde[ 3] = aTilde[10] = aTilde[17] = 
 //            aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
 //            aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
-//         }
-//         else
+////         }
+//            
+//         // Math spec, equ 6.69, broken into separate pieces
+////         aTilde[18] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[0] * relativePosition[0];
+////         
+////         aTilde[19] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[0] * relativePosition[1];
+////         
+////         aTilde[20] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[0] * relativePosition[2];
+////         
+////         aTilde[24] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[1] * relativePosition[0];
+////         
+////         aTilde[25] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[1] * relativePosition[1];
+////         
+////         aTilde[26] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[1] * relativePosition[2];
+////         
+////         aTilde[30] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[2] * relativePosition[0];
+////         
+////         aTilde[31] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[2] * relativePosition[1];
+////         
+////         aTilde[32] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[2] * relativePosition[2];
+//         
+//         // Now Phi_dot = A_tilde Phi
+//         for (Integer j = 0; j < 6; ++j)
 //         {
-            aTilde[ 3] = aTilde[10] = aTilde[17] = 
-            aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
-            aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
+//            for (Integer k = 0; k < 6; ++k)
+//            {
+//               element = j * 6 + k;
+//               deriv[i6+element] = 0.0;
+////               for (Integer l = 0; l < 6; ++l)
+////               {
+////                  deriv[i6+element] += aTilde[j*6+l] * state[i6+l*6+k];
+////               }
+//            }
 //         }
-            
-         // Math spec, equ 6.69, broken into separate pieces
-//         aTilde[18] = - mu_r + 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[0] * relativePosition[0];
-//         
-//         aTilde[19] = 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[0] * relativePosition[1];
-//         
-//         aTilde[20] = 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[0] * relativePosition[2];
-//         
-//         aTilde[24] = 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[1] * relativePosition[0];
-//         
-//         aTilde[25] = - mu_r + 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[1] * relativePosition[1];
-//         
-//         aTilde[26] = 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[1] * relativePosition[2];
-//         
-//         aTilde[30] = 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[2] * relativePosition[0];
-//         
-//         aTilde[31] = 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[2] * relativePosition[1];
-//         
-//         aTilde[32] = - mu_r + 3.0 * mu_r / (radius*radius) * 
-//                          relativePosition[2] * relativePosition[2];
-         
-         // Now Phi_dot = A_tilde Phi
-         for (Integer j = 0; j < 6; ++j)
-         {
-            for (Integer k = 0; k < 6; ++k)
-            {
-               element = j * 6 + k;
-               deriv[i6+element] = 0.0;
-//               for (Integer l = 0; l < 6; ++l)
-//               {
-//                  deriv[i6+element] += aTilde[j*6+l] * state[i6+l*6+k];
-//               }
-            }
-         }
-      }
-   }
+//      }
+//   }
     
    #ifdef DEBUG_SOLAR_RADIATION_PRESSURE    
       MessageInterface::ShowMessage(
