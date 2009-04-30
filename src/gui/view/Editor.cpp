@@ -19,6 +19,7 @@
 #include <wx/filename.h>           // for wxFileName
 #include <wx/numdlg.h>             // for wxGetNumberFromUser
 
+//#define DEBUG_EDITOR
 //#define DEBUG_EDITOR_FIND
 //#define DEBUG_EDITOR_PREF
 

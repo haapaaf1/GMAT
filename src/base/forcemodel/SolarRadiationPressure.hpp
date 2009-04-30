@@ -185,6 +185,13 @@ protected:
    /// Flag indicating if the Cartesian state should be populated
    bool                 fillCartesian;
    
+   /// Number of spacecraft in the state vector that use OrbitSTM
+   Integer              stmCount;
+   /// Start index for the OrbitSTM
+   Integer              stmIndex;
+   /// Flag indicating if the OrbitSTM should be populated
+   bool                 fillSTM;
+
    void FindShadowState(bool &lit, bool &dark, Real *state);
    Real ShadowFunction(Real *state);
 

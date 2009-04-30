@@ -20,6 +20,7 @@
 
 //#define DEBUG_EDITORPANEL
 //#define DEBUG_EDITORPANEL_CREATE
+//#define DEBUG_EDITORPANEL_CLOSE
 
 // to add build and build&run at top of the panel
 #define __ADD_BUILD_TO_TOP__
