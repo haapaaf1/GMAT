@@ -981,15 +981,15 @@ LaVectorDouble MeasurementModel::GetTheMeasurements()
 //------------------------------------------------------------------------------
 // LaVectorDouble GetThePartials(const std::string param)
 //------------------------------------------------------------------------------
-LaGenMatDouble MeasurementModel::GetThePartials(const std::string param)
+LaGenMatDouble MeasurementModel::GetThePartials(const std::string param, Integer size, Spacecraft *theSat)
 {
-    return GetThePartials(GetDependentParameterID(param));
+    return GetThePartials(GetDependentParameterID(param), Integer size, Spacecraft *theSat);
 }
 
 //------------------------------------------------------------------------------
 // LaVectorDouble GetThePartials(const Integer paramID)
 //------------------------------------------------------------------------------
-LaGenMatDouble MeasurementModel::GetThePartials(const Integer paramID)
+LaGenMatDouble MeasurementModel::GetThePartials(const Integer paramID, Integer size, Spacecraft *theSat)
 {
-    return LaGenMatDouble::zeros(1);
+    return LaGenMatDouble::zeros(size);
 }

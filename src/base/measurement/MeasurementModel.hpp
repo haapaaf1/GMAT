@@ -115,8 +115,8 @@ public:
 
   // Obtain the measurements and partials
   virtual LaVectorDouble GetTheMeasurements();
-  virtual LaGenMatDouble GetThePartials(const std::string param);
-  virtual LaGenMatDouble GetThePartials(const Integer paramID);
+  virtual LaGenMatDouble GetThePartials(const std::string param, Integer size, Spacecraft *theSat);
+  virtual LaGenMatDouble GetThePartials(const Integer paramID, Integer size, Spacecraft *theSat);
    
 protected:
 
