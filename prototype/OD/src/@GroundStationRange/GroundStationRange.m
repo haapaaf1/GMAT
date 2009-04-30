@@ -7,6 +7,7 @@ classdef GroundStationRange < GroundStationMeasurement
     properties  (SetAccess = 'private')
         partialsMap
         computedMeas
+        lengthMeas = 1;
     end
 
     %----------------------------------------------------------------------
@@ -40,6 +41,17 @@ classdef GroundStationRange < GroundStationMeasurement
             end
 
         end % GetParamId
+        
+        %----- CheckFeasiblity
+        function [isFeasible] = CheckFeasibility(Meas)
+                         
+            %  Convert station location to inertial system
+            jd         = Meas.Spacecraft.Epoch + 2430000;
+            stationLoc = Meas.GroundStation.InertialState(jd);
+            rangevec   = [Meas.Spacecraft.X Meas.Spacecraft.Y Meas.Spacecraft.Z]' - stationLoc;
+            isFeasible = dot(rangevec,stationLoc)/norm(rangevec)/norm(stationLoc);
+
+        end % CheckFeasiblity
                 
         %----- Evaluate measurements
         function [y,dydx] = Evaluate(Meas)
@@ -49,8 +61,8 @@ classdef GroundStationRange < GroundStationMeasurement
             stationLoc = Meas.GroundStation.InertialState(jd);
             rangevec   = [Meas.Spacecraft.X Meas.Spacecraft.Y Meas.Spacecraft.Z]' - stationLoc;
             range      = norm(rangevec);
-            y    = range + Meas.Bias;
-            dydx = rangevec'/range;
+            y          = range + Meas.Bias;
+            dydx       = rangevec'/range;
 
         end % Evaluate
         

@@ -1,0 +1,85 @@
+
+%  04/16/09 S. Hughes.  Updated to handle infeasbile measurements.
+
+classdef RunSimulator < handle
+
+    % Set the public properties
+    properties  (SetAccess = 'public')
+
+        Simulator
+
+    end
+
+    % Set the methods
+    methods
+        
+        %------------------------------------------------------------------
+        %-----  Initialize
+        %------------------------------------------------------------------
+         function obj = RunSimulator(Simulator)
+             
+            global theSandbox
+
+            %----- Add the estimator
+            obj.Simulator = theSandbox.GetHandle(Simulator);
+            theSandbox.AddCommand(obj);
+
+        end
+        
+        %------------------------------------------------------------------
+        %-----  Initialize
+        %------------------------------------------------------------------
+
+        function obj = Initialize(obj,theSandbox)
+
+            %----- Initialize the estimator
+            %obj.Simulator.Initialize(theSandbox);
+
+        end
+
+        %------------------------------------------------------------------
+        %----- Prepare to Propagate
+        %------------------------------------------------------------------
+
+        function RunSim = PreparetoPropagate(RunSim)
+
+            %---- KLUDGE TO GET EPOCH FOR PROPAGATOR
+            RunSim.Simulator.Propagator.Epoch =RunSim.Simulator.Propagator.PSM.Objects{1}.Epoch;
+
+            %Prop.PSV = PSV;
+            RunSim.Simulator.Propagator.PSV   = RunSim.Simulator.Propagator.PSM.GetStates();
+
+        end % Prepare to Propagate
+
+        %------------------------------------------------------------------
+        %----- Execute:  Solve the problem.
+        %------------------------------------------------------------------
+
+        function Execute(RunSim)
+
+            global theSandbox
+
+            %----- Extract attached objects and variables to shorten later code
+            Prop        = RunSim.Simulator.Propagator;
+            Simulator   = RunSim.Simulator;
+            measManager = Simulator.MeasManager;
+            Epochs      = Simulator.SimulationEpochs;
+            numEpochs   = size(Epochs,1);
+            RunSim      = RunSim.PreparetoPropagate();    % Update PSV
+
+            %----- The Simulator Loop
+            for i = 1:numEpochs
+                
+                %  Prop all participants to next epoch
+                Prop = Prop.SteptoEpoch(Epochs(i));
+                Yc(i,1) = measManager.measHandles{1}.Evaluate();
+                
+            end
+            
+            MeasData.Epochs = Epochs;
+            MeasData.Obs    = Yc;
+            save(Simulator.Filename, 'MeasData');
+           
+        end % Execute
+    end
+end

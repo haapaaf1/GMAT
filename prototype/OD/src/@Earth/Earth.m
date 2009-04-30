@@ -80,12 +80,10 @@ classdef Earth < handle
             
             %  Calculate the polar motion
             [pm] = polarm(earth.xp,earth.yp,TT,'80');
-            
-            thetasa= 7.29211514670698e-05*(1.0  - earth.lod/86400.0 );
+            thetasa = 7.29211514670698e-05*(1.0  - earth.lod/86400.0 );
             omegaearth = [0; 0; thetasa;];
-            
-            R    = prec*nut*st*pm;
-            Rdot = prec*nut*stdot*pm;
+            R    = (prec*nut*st*pm);
+            Rdot = (prec*nut*stdot*pm);
             
         end  % Fixed2Inert
         

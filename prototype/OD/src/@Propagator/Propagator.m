@@ -176,29 +176,29 @@ classdef Propagator < handle
 
         end % SteptoEpoch
 
-        function  Prop = Step(Prop)
-
-            %==============================================================
-            %==============================================================
-            %---- Take one step
-            %==============================================================
-            %==============================================================
-
-            %  Call the integrator
-            [t,X] = ODE78('Propagator_ODEmodel', 0,  ...
-                    10000, Prop.PSV, Prop.Accuracy , [], [], Prop,1);
-            X(1,1:6)'
-
-            %  Extract state from ephemeris output and update the propagator
-            numSteps   = size(t,1);
-            X          = X(numSteps,:)';
-            Prop.Epoch = Prop.Epoch + t(numSteps)/86400;
-            Prop.PSV   = X;
-
-            %---- Populate the propagated objects with the new state data
-            Prop.PSM.SetStates(X,Prop.Epoch);
-
-        end % SteptoEpoch
+%         function  Prop = Step(Prop)
+% 
+%             %==============================================================
+%             %==============================================================
+%             %---- Take one step
+%             %==============================================================
+%             %==============================================================
+% 
+%             %  Call the integrator
+%             [t,X] = ODE78('Propagator_ODEmodel', 0,  ...
+%                     10000, Prop.PSV, Prop.Accuracy , [], [], Prop,1);
+%             X(1,1:6)'
+% 
+%             %  Extract state from ephemeris output and update the propagator
+%             numSteps   = size(t,1);
+%             X          = X(numSteps,:)';
+%             Prop.Epoch = Prop.Epoch + t(numSteps)/86400;
+%             Prop.PSV   = X;
+% 
+%             %---- Populate the propagated objects with the new state data
+%             Prop.PSM.SetStates(X,Prop.Epoch);
+% 
+%         end % SteptoEpoch
 
     end  % methods
 end % classdef

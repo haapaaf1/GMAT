@@ -44,12 +44,12 @@ classdef Earth < handle
     methods
         
         %----- Intialize
-        function earth = Earth(earth)
+        function earth = Earth(obj)
             
             if nargin ~= 0
-                fns = fieldnames(earth);
+                fns = fieldnames(obj);
                 for i = 1:length(fns)
-                    Sat.(fns{i}) = earth.(fns{i});
+                    earth.(fns{i}) = obj.(fns{i});
                 end
             end
             
@@ -84,8 +84,8 @@ classdef Earth < handle
             thetasa= 7.29211514670698e-05*(1.0  - earth.lod/86400.0 );
             omegaearth = [0; 0; thetasa;];
             
-            R    = prec*nut*st*pm;
-            Rdot = prec*nut*stdot*pm;
+            R    = (prec*nut*st*pm);
+            Rdot = (prec*nut*stdot*pm);
             
         end  % Fixed2Inert
         
@@ -93,7 +93,7 @@ classdef Earth < handle
         function Assignment(obj,obj2)
             fns = fieldnames(obj);
             for i = 1:length(fns)
-                obj.(fns{i}) = obj2.(fns{i});
+                earth.(fns{i}) = obj.(fns{i});
             end
         end % Assignment
         

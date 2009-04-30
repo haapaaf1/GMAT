@@ -82,6 +82,26 @@ classdef MeasurementManager < handle
                     MeasManager.MeasurementHandles{hcount} =  currMeas;
                 end
                 
+%             load(GSMeas.Filename);
+%             %----- KLUDGE WHILE REWORKING THIS COMPONENT
+%             GSMeas.Measurements.Obs    = MeasData{1}.Obs;
+%             GSMeas.Measurements.Epochs = MeasData{1}.Epochs;
+            
+            %----- Loop over all data types to get handles for participants
+            %      and to add data for each type to the allData structure.
+%             for i = 1:MeasManager.measHandles{i}.numDataTypes
+%                
+%                 %----- Concatenate Types, Epochs, Obs
+%                 numcurrObs            = size(MeasData{i}.Obs,1);
+%                 low                   = totalnumObs;
+%                 high                  = totalnumObs+numcurrObs-1;
+%                 DataTypes(low:high,1) = ones(numcurrObs,1)*MeasData{i}.DataType;
+%                 Epochs(low:high,1)    = MeasData{i}.Epochs;
+%                 Obs(low:high,:)       = MeasData{i}.Obs;
+%                 typeIndex(low:high,1) = ones(numcurrObs,1)*i;
+%                 
+%             end
+%                 
                 
                 %  Loop over participants for the current measurement and
                 %  add state Ids to its partials map.               
@@ -101,8 +121,39 @@ classdef MeasurementManager < handle
             
             %----- Sort the measurements
             [MeasManager.Epochs, sortIndeces] = sort(MeasManager.Epochs);
-            MeasManager.Obs                   = MeasManager.Obs(sortIndeces);
+            MeasManager.Obs                   = MeasManager.Obs(sortIndeces,:);
             MeasManager.MeasurementHandles    = MeasManager.MeasurementHandles(sortIndeces);
+            MeasManager.numObs                = size(MeasManager.Obs,1);
+                                 
+        end
+        
+                %----- The initialize method
+        function MeasManager = InitializeforSim(MeasManager,Sandbox,Simulator)
+            
+            %==============================================================
+            %  -- Get pointers to all measurements
+            %  -- Get participants handles for each measurement data type
+            %  -- Initialize each measurement for simulation 
+            %  -- Assemble array of data types for each measurement
+            %  -- Determine number of data types for each meas. object
+            %==============================================================
+            
+            %----- Extract data just to make code shorter
+            Meas                = Simulator.Measurements;
+            MeasManager.numMeas = size(Simulator.Measurements,2);
+            hcount = 0;
+            for i = 1:MeasManager.numMeas
+                
+                %  Initialize the ith measurement
+                MeasManager.measHandles{i}  = Sandbox.GetHandle(Simulator.Measurements{i});
+                MeasManager.numDataTypes(i) = size(MeasManager.measHandles{i}.AddDataType,2);
+                MeasManager.measHandles{i}.InitializeforSimulation(Sandbox);
+                               
+            end
+            
+            %----- Sort the measurements
+            [MeasManager.Epochs, sortIndeces] = sort(MeasManager.Epochs);
+            MeasManager.Obs                   = MeasManager.Obs(sortIndeces);
             MeasManager.numObs                = size(MeasManager.Obs,1);
                                  
         end

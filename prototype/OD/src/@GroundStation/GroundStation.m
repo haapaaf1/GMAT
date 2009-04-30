@@ -4,7 +4,7 @@ classdef GroundStation < handle
     properties  (SetAccess = 'public')
         
         %----- Properties
-        Id  = 21;
+        Id               = 21;
         CentralBody      = 'Earth';
         CentralBodyShape = 'OblateSphere';
         StateType        = 'Cartesian';
@@ -113,7 +113,7 @@ classdef GroundStation < handle
         function [rv] = InertialState(Station,jd)
             
             [R,Rdot] = Station.cbPointer.Fixed2Inert(jd);
-            rv = R*[Station.X Station.Y Station.Z]';
+            rv       = R*[Station.X Station.Y Station.Z]';
             
         end
         
