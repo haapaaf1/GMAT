@@ -6,10 +6,14 @@
 //
 // **Legal**
 //
-// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+// Developed jointly by Dr. Matthew P. Wilkins, Schafer Corporation
+// and by Thinking Systems, Inc. under contract number NNG06CA54C
 //
-// Author: Matthew P. Wilkins
+// Authors: Matthew P. Wilkins, Schafer Corporation
+//          Darrel J. Conway, Thinking Systems, Inc.
+//
 // Created: 2008/05/20
+// Modified: 2008/10/01
 //
 /**
  * Implementation for the batch least squares estimation method
