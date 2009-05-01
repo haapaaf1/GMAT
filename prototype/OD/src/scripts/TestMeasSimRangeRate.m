@@ -1,3 +1,5 @@
+%===== Modification History
+% 05/01/09 D. Conway.  Initial Version, based on TestMeasSim
 
 %------  Prepare GMAT creates the sandbox, and sets path data
 global TestCase
