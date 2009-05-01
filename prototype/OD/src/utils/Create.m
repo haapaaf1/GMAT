@@ -8,6 +8,8 @@ elseif strcmp(type,'GroundStationMeasurement')
     obj = GroundStationMeasurement;
 elseif strcmp(type,'GroundStationRange')
     obj = GroundStationRange;
+elseif strcmp(type,'GroundStationRangeRate')
+    obj = GroundStationRangeRate;
 elseif strcmp(type,'BatchEstimator')
     obj = BatchEstimator;
 elseif strcmp(type,'GroundStation')

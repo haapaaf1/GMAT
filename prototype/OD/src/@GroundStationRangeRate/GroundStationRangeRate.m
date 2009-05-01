@@ -10,6 +10,7 @@ classdef GroundStationRangeRate < GroundStationMeasurement
     properties  (SetAccess = 'private')
         partialsMap
         computedMeas
+        lengthMeas = 1;
     end
 
     %----------------------------------------------------------------------
@@ -44,6 +45,17 @@ classdef GroundStationRangeRate < GroundStationMeasurement
 
         end % GetParamId
                 
+        %----- CheckFeasiblity
+        function [isFeasible] = CheckFeasibility(Meas)
+                         
+            %  Convert station location to inertial system
+            jd         = Meas.Spacecraft.Epoch + 2430000;
+            stationLoc = Meas.GroundStation.InertialState(jd);
+            rangevec   = [Meas.Spacecraft.X Meas.Spacecraft.Y Meas.Spacecraft.Z]' - stationLoc;
+            isFeasible = dot(rangevec,stationLoc)/norm(rangevec)/norm(stationLoc);
+
+        end % CheckFeasiblity
+                
         %----- Evaluate measurements
         function [y,dydx] = Evaluate(Meas)
                          
@@ -59,11 +71,11 @@ classdef GroundStationRangeRate < GroundStationMeasurement
             relVel = [Meas.Spacecraft.VX Meas.Spacecraft.VY Meas.Spacecraft.VZ]' - stationVel;
             
             % Calculate the range rate
-            rate       = rangevec' * relVel / range;
+            rate       = rangeVec' * relVel / range;
             y    = rate + Meas.Bias;
 
             % And the derivatives
-            dotprod = rangeVec' * relVel;
+            dotProd = rangeVec' * relVel;
             range3 = range^3;
             
             % Note: Derivative w.r.t. sat coordinates.  Derivative w.r.t.
