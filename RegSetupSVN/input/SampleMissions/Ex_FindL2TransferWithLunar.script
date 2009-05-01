@@ -100,33 +100,25 @@ GMAT ESML2.Point     = L2;
 %----------------------------------------
 
 Create ImpulsiveBurn TOI;
-GMAT TOI.Origin = Earth;
 GMAT TOI.Axes = VNB;
-GMAT TOI.VectorFormat = Cartesian;
 GMAT TOI.Element1 = 3.10;         
 GMAT TOI.Element2 = 0; 
 GMAT TOI.Element3 = 0;
 
 Create ImpulsiveBurn P1; 
-GMAT P1.Origin = Earth;
 GMAT P1.Axes = VNB;
-GMAT P1.VectorFormat = Cartesian;
 GMAT P1.Element1 = 0;      
 GMAT P1.Element2 = 0;
 GMAT P1.Element3 = 0;
 
 Create ImpulsiveBurn P2;
-GMAT P2.Origin = Earth; 
 GMAT P2.Axes = VNB;
-GMAT P2.VectorFormat = Cartesian;
 GMAT P2.Element1 = 0 ;     
 GMAT P2.Element2 = 0;  
 GMAT P2.Element3 = 0;
 
 Create ImpulsiveBurn P3;
-GMAT P3.Origin = Earth;
 GMAT P3.Axes = VNB;
-GMAT P3.VectorFormat = Cartesian;
 GMAT P3.Element1 = 0 ;     
 GMAT P3.Element2 = 0;
 GMAT P3.Element3 = 0;

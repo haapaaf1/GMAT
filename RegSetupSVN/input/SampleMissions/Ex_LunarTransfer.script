@@ -49,18 +49,14 @@ GMAT EarthSunRot.Secondary = Earth;
 %--------------------------------------------------------------------------
 
 Create ImpulsiveBurn LSI;
-GMAT LSI.Origin = Earth;
 GMAT LSI.Axes = VNB;
-GMAT LSI.VectorFormat = Cartesian;
 GMAT LSI.V = 0.14676929889000001;
 GMAT LSI.N = 0.046042675892;
 GMAT LSI.B = 0.090223244096999999;
 
 
 Create ImpulsiveBurn ALM;
-GMAT ALM.Origin = Earth;
 GMAT ALM.Axes = VNB;
-GMAT ALM.VectorFormat = Cartesian;
 GMAT ALM.V = -0.3198120104;
 
 Create ImpulsiveBurn LOI

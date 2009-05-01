@@ -63,9 +63,7 @@ GMAT DefaultProp.MaxStepAttempts = 100;
 %----------------------------------------------------------------------
 
 Create ImpulsiveBurn dV;
-GMAT dV.Origin = Earth;
 GMAT dV.Axes = VNB;
-GMAT dV.VectorFormat = Cartesian;
 GMAT dV.Element1 = 0;
 GMAT dV.Element2 = 0;
 GMAT dV.Element3 = 0;
