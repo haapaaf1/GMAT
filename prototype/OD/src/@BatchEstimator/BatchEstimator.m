@@ -11,6 +11,7 @@ classdef BatchEstimator < handle
         ESV;
         SolutionEpoch;
         RunMode       = 'Solve'
+        UseAprioriCovariance = 0;
     end
 
     % Set the private properties

@@ -30,7 +30,7 @@ BLS.MaxIterations   = 10;
 BLS.RelTolerance    = 1e-7;
 BLS.AbsTolerance    = 1e-7;
 BLS.Measurements    = {'MauiData'};
-BLS.SolveFor        = {'ODSat.CartesianState'};
+BLS.SolveFor        = {'ODSat.CartesianState','MauiData.Bias'};
 BLS.Propagator      = 'ODProp';
 BLS.RunMode         = 'Solve';
  

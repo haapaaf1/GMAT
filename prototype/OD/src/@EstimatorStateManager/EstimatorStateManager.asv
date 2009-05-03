@@ -52,10 +52,11 @@ classdef EstimatorStateManager < StateManager
                 [objName,propName] = ParseSolveFor(solveFor);
 
                 %-----  Get handle from SandBox for the current object
-                solveObj     = Sandbox.GetHandle(objName);
-                objType      = class(solveObj);
-                paramId      = solveObj.GetParamId(propName);
-                stateChunk   = solveObj.GetState(paramId);
+                solveObj      = Sandbox.GetHandle(objName);
+                objType       = class(solveObj);
+                paramId       = solveObj.GetParamId(propName);
+                stateChunk    = solveObj.GetState(paramId);
+                ESM.numStates = ESM.numStates + size(stateChunk,1);
                 if isempty(paramId)
                     display(['The solve-for parameter "' solveFor '" is not supported'])
                     stop
@@ -94,8 +95,9 @@ classdef EstimatorStateManager < StateManager
                     paramIndex = paramIndex + 1;
                 end
                 if ~isDuplicate
-                    ESM.ParamIds{objIndex}(paramIndex) = paramId ;
+                    ESM.ParamIds{objIndex}(paramIndex)      = paramId ;
                     ESM.subStateSizes{objIndex}(paramIndex) = size(stateChunk,1);
+    
                 end
 
             end % i = 1:size(obj.SolveFor,2)
@@ -127,7 +129,39 @@ classdef EstimatorStateManager < StateManager
             end
             
         end % GetSTM
-     
+        
+        %----- GetSTM
+        function Cov = GetCovariance(ESM)
+            
+            Cov   = zeros(ESM.numStates,ESM.numStates);
+            count = 1;
+            for i = 1:ESM.numObjects
+                for j = 1:size(ESM.ParamIds{i})
+                   chunkSize = ESM.subStateSizes{i}(j);
+                   Covchunk = ESM.Objects{i}.GetCovariance(ESM.ParamIds{i}(j));
+                   Cov(count:count+chunkSize-1,count:count+chunkSize-1) = Covchunk;
+                   count = count + chunkSize;
+                end
+            end
+            
+        end % GetSTM
+        
+        %----- SetCovariance
+        function Cov = SetCovariance(ESM)
+            
+            Cov   = zeros(ESM.numStates);
+            count = 1;
+            for i = 1:ESM.numObjects
+                for j = 1:size(ESM.ParamIds{i})
+                   chunkSize = ESM.subStateSizes{i}(j);
+                   Covchunk = ESM.Objects{i}.GetCovariance(ESM.ParamIds{i}(j));
+                   Cov(count:count+chunkSize-1,count:count+chunkSize-1) = Covchunk;
+                   count = count + chunkSize;
+                end
+            end
+            
+        end % GetSTM
+          
     end % methods
 
 end % classdef

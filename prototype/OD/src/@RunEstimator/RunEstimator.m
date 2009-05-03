@@ -90,7 +90,6 @@ classdef RunEstimator < handle
             disp('------------------------------------')
             formatstr   = '%5.0f  %14.6g %14.6g %12.4g %12.3g %12.3g %12.3g %s  %s';
 
-
             %----- The Estimator Loop
             oldRMS = 0;  newRMS = 1e12; normdx = 1e12; iter = 1;
             numStates = Estimator.ESM.numStates;
@@ -101,11 +100,23 @@ classdef RunEstimator < handle
                 %------------------------------------------------------
                 %  Initializations for the next iteration
                 %------------------------------------------------------
-                infoMat   = zeros(numStates,numStates);  % Set info mat to zer
-                residMat  = zeros(numStates,1);          % Set rediduals to zero
                 Estimator.ESM.SetObjectstoClones;        % Set Objects to Clones
                 Estimator.ESM.SetStates(Estimator.ESV);  % Update states based on ESV
                 RunEst = RunEst.PreparetoPropagate();    % Update PSV
+                if Estimator.UseAprioriCovariance
+                    if iter == 1
+                        aprioriCov          = Estimator.ESM.GetCovariance;
+                        invaprioriCov       = inv(aprioriCov);
+                        x0bar = Estimator.ESV;
+                    else
+                       %f x0bar = x0bar - Estimator.ESV;
+                    end
+                    infoMat  = invaprioriCov;
+                    residMat = invaprioriCov*x0bar;
+                else
+                    infoMat   = zeros(numStates,numStates);  % Set info mat to zer
+                    residMat  = zeros(numStates,1);          % Set rediduals to zero
+                end
 
                 %------------------------------------------------------
                 %----- Perform the accumulation
@@ -116,42 +127,19 @@ classdef RunEstimator < handle
 
                     %  Step to next measurement epoch
                     Prop = Prop.SteptoEpoch(Epochs(i));
-
-                    %  KLUDGE - THIS WILL BE AVOIDED BY MODS TO MEASUREMENT MANAGER
-                    %  TO HANDLE THE PARTIALS MAP
-                    dgdvv        = zeros(1,3);
-                    if find(TestCase == [1 8])
-                        [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                        dgv         = zeros(1,3);
-                        for k = 1:size(y,1)-1
-                            dgdvv        = [dgdvv;dgv];
-                        end
-                        Htilde       = [htilde dgdvv];
-                    elseif TestCase == 2
-                        [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                        Htilde       = [htilde dgdvv 1];
-                    elseif TestCase == 3 || TestCase == 4 ;
-                        [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                        Htilde       = [htilde dgdvv 1 -htilde];
-                    else
-                        [y,htilde,isFeasible] = measManager.GetMeasurement(i);
-                        Htilde       = [htilde dgdvv 1];
-                    end
-
-                    %  Calculate the H matrix and accumulate
-                    %observations(i,:) = y;
-                    
+                    [y,Htilde,isFeasible] = measManager.GetMeasurement(i);
                     newResid    = Obs(i,:)' - y;
                     resid       = [resid; newResid];
                     STM         = Estimator.ESM.GetSTM;
                     Hi          = Htilde*STM;
-                    %resid(i,1)   = Obs(i,1) - y;
                     infoMat     = infoMat + Hi'*Hi;
                     residMat    = residMat + Hi'*newResid;
 
                 end
 
+                %------------------------------------------------------
                 %  Solve the normal equations and update the ESV
+                %------------------------------------------------------
                 oldRMS = newRMS;
                 newRMS = sqrt( sum(resid) / numObs );
                 dx     = inv(infoMat)*residMat;
@@ -171,6 +159,7 @@ classdef RunEstimator < handle
 
             end
 
+            Estimator.ESM.SetCovariance(inv(infoMat))
             %  Display convergence method
             if iter > Estimator.MaxIterations
                 disp(' ')

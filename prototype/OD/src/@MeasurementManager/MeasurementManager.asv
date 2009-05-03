@@ -7,10 +7,10 @@ classdef MeasurementManager < handle
     %  multiple data types for each measurement object.
     %
     %  - Maintain information on which measurements are functions of which
-    %  solver for and consider
+    %    solver for and consider
     %  - Construct total Htilde and STM matrices from submatrices
-    %  associated with different measurements and states
-    
+    %    associated with different measurements and states
+    %
     %----------------------------------------------------------------------
     %  Define the object properties
     %----------------------------------------------------------------------
@@ -32,7 +32,9 @@ classdef MeasurementManager < handle
         numObs       = 0;
         numDataTypes = [];
         numStates    = 0;
-        partialsMap  = {};
+        paramIdsVector;
+        lengthObjects = 0;
+        chunkSizeVector;
     end
     
     %----------------------------------------------------------------------
@@ -63,6 +65,9 @@ classdef MeasurementManager < handle
             Meas                = Estimator.Measurements;
             MeasManager.numMeas = size(Estimator.Measurements,2);
             MeasManager.numStates = Estimator.ESM.numStates;
+            MeasManager.paramIdsVector = ESM.paramIdsVector;
+            MeasManager.lengthObjects = size(Estimator.ESM.ObjectsVector,2);
+            MeasManager.chunkSizeVector = ESM.chunkSizeVector;
             hcount = 0;
             for i = 1:MeasManager.numMeas
                 
@@ -70,6 +75,14 @@ classdef MeasurementManager < handle
                 MeasManager.measHandles{i}  = Sandbox.GetHandle(Estimator.Measurements{i});
                 MeasManager.numDataTypes(i) = size(MeasManager.measHandles{i}.AddDataType,2);
                 MeasManager.measHandles{i}.Initialize(Sandbox);
+                MeasManager.measHandles{i}.thisObject = MeasManager.measHandles{i};
+                
+                %  
+                for j = 1:MeasManager.lengthObjects;
+                   currentParticipant = ESM.ObjectsVector{j};
+                   dependInd = MeasManager.measHandles{i}.GetParticipantId(currentParticipant);
+                   MeasManager.measHandles{i}.ObjectDependencies(j) = dependInd;
+                end
                 
                 %----- Add meas times, handles, and other data to total
                 %      data arrays
@@ -82,57 +95,65 @@ classdef MeasurementManager < handle
                     MeasManager.MeasurementHandles{hcount} =  currMeas;
                 end
                 
-                MeasManager.dataTypeIndeces = [MeasManager.dataTypeIndeces currMeas.dataTypeIndeces];
+            end
+            
+            %----- Sort the measurements
+            [MeasManager.Epochs, sortIndeces] = sort(MeasManager.Epochs);
+            MeasManager.Obs                   = MeasManager.Obs(sortIndeces,:);
+            MeasManager.MeasurementHandles    = MeasManager.MeasurementHandles(sortIndeces);
+            MeasManager.numObs                = size(MeasManager.Obs,1);
+                                 
+        end
+        
+                %----- The initialize method
+        function MeasManager = InitializeforSim(MeasManager,Sandbox,Simulator)
+            
+            %==============================================================
+            %  -- Get pointers to all measurements
+            %  -- Get participants handles for each measurement data type
+            %  -- Initialize each measurement for simulation 
+            %  -- Assemble array of data types for each measurement
+            %  -- Determine number of data types for each meas. object
+            %==============================================================
+            
+            %----- Extract data just to make code shorter
+            Meas                = Simulator.Measurements;
+            MeasManager.numMeas = size(Simulator.Measurements,2);
+            hcount = 0;
+            for i = 1:MeasManager.numMeas
                 
-                %  Loop over participants for the current measurement and
-                %  add state Ids to its partials map.               
-                MeasManager.partialsMap{i} = Map();
-                numParticipants    = size(currMeas.Participants{i},2);
-                for j = 1:size(Estimator.ESM.ParamIds,2)
-                    %  loop over data types
-                    numStates = size(Estimator.ESM.ParamIds{j},1);
-                    for k = 1:numStates
-                        stateSize = Estimator.ESM.subStateSizes{j}(k);
-                        paramId   = Estimator.ESM.ParamIds{j}(k);
-                        MeasManager.partialsMap{i}.Add(zeros(stateSize,1),paramId);
-                    end
-                end
-
+                %  Initialize the ith measurement
+                MeasManager.measHandles{i}  = Sandbox.GetHandle(Simulator.Measurements{i});
+                MeasManager.numDataTypes(i) = size(MeasManager.measHandles{i}.AddDataType,2);
+                MeasManager.measHandles{i}.InitializeforSimulation(Sandbox);
+                               
             end
             
             %----- Sort the measurements
             [MeasManager.Epochs, sortIndeces] = sort(MeasManager.Epochs);
             MeasManager.Obs                   = MeasManager.Obs(sortIndeces);
-            MeasManager.MeasurementHandles    = MeasManager.MeasurementHandles(sortIndeces);
-            MeasManager.dataTypeIndeces       = MeasManager.dataTypeIndeces(sortIndeces);
             MeasManager.numObs                = size(MeasManager.Obs,1);
                                  
         end
-        
-        function measManager = UpdateObjects(measManager,ESM)
-            
-            % Copy over updated objects from Objects list to Object Map
-            ESM.ObjectMap.Contents = ESM.Objects;
-            
-            % Update participants on each measurement object
-            for i = 1:measManager.numMeas
-                for j = 1:size(measManager.participantNames{i},2)
-                    for k = 1:size(measManager.participantNames{i}{j},2)
-                       currentName = measManager.participantNames{i}{j}{k};
-                       newObj = ESM.ObjectMap.Get(currentName);
-                       measManager.MeasurementHandles{i}.Participants{j}{k} = newObj;
-                    end
-                end
-            end
-            
-        end
-        
+              
         function [y, Htilde, isFeasible, Htildec, W, Phi] = GetMeasurement(measManager,index)
             
             % -- Call the measurement model
-            dataType   = measManager.dataTypeIndeces(index);
             Htilde = zeros(measManager.numStates);
-            [y, Htilde, partialsMap, isFeasible] = measManager.MeasurementHandles{index}.Evaluate(dataType,measManager.MeasurementHandles{index}.Participants{dataType});
+            isFeasible = 1;
+            [y] = measManager.MeasurementHandles{index}.Evaluate();
+            Htilde = zeros(1,measManager.numStates);
+            runningTotal = 1;
+            for i = 1:measManager.lengthObjects
+                participantId = measManager.measHandles{index}.ObjectDependencies(i);
+                stateId       = measManager.paramIdsVector{i};
+                chunkSize     = measManager.chunkSizeVector{i}
+                if participantId
+                    dydx = measManager.measHandles{index}.GetPartial(participantId,stateId);
+                    Htilde(runningTotal:runningTotal+chunkSize-1) = dydx; 
+                end
+                runningTotal = runningTotal + chunkSize;
+            end
             
         end
 

@@ -13,6 +13,7 @@ classdef EstimatorStateManager < StateManager
     properties  (SetAccess = 'private')
         Measurements = {};
         ObjectMap    = Map;
+        chunkSizeVector;
     end
 
     %----------------------------------------------------------------------
@@ -79,6 +80,7 @@ classdef EstimatorStateManager < StateManager
                     %  Add objects
                     ESM.numObjects              = ESM.numObjects + 1;
                     ESM.Objects{ESM.numObjects} = solveObj;
+                    ESM.ObjectNames{ESM.numObjects} = objName;
                     
                     %  Add another column to ParamIds and subStateSizes
                     ESM.ParamIds{ESM.numObjects} = [];
@@ -102,13 +104,15 @@ classdef EstimatorStateManager < StateManager
 
             end % i = 1:size(obj.SolveFor,2)
             
-            %  Assemble the ObjectVector and paramIdVector for later use
+            %  Assemble the ObjectVector and paramIdVector and chunkSize
+            %  vector for later use
             c = 0;
             for i = 1:ESM.numObjects
                 for j = 1:size(ESM.ParamIds{i},2)
                     c = c + 1;
-                    ESM.ObjectsVector{c}  = ESM.Objects{i};
-                    ESM.paramIdsVector{c} = ESM.ParamIds{i}(j);
+                    ESM.ObjectsVector{c}    = ESM.Objects{i};
+                    ESM.paramIdsVector{c}   = ESM.ParamIds{i}(j);
+                    ESM.chunkSizeVector{c}  = ESM.subStateSizes{i}(j);
                 end
             end
 
@@ -117,7 +121,7 @@ classdef EstimatorStateManager < StateManager
         %----- GetSTM
         function STM = GetSTM(ESM)
             
-            STM   = zeros(ESM.numStates);
+            STM   = zeros(ESM.numStates,ESM.numStates);
             count = 1;
             for i = 1:ESM.numObjects
                 for j = 1:size(ESM.ParamIds{i})
@@ -129,7 +133,45 @@ classdef EstimatorStateManager < StateManager
             end
             
         end % GetSTM
-     
+        
+        %----- GetCovariance
+        function Cov = GetCovariance(ESM)
+            
+            Cov   = zeros(ESM.numStates,ESM.numStates);
+            count = 1;
+            for i = 1:ESM.numObjects
+                for j = 1:size(ESM.ParamIds{i})
+                   chunkSize = ESM.subStateSizes{i}(j);
+                   Covchunk = ESM.Objects{i}.GetCovariance(ESM.ParamIds{i}(j));
+                   Cov(count:count+chunkSize-1,count:count+chunkSize-1) = Covchunk;
+                   count = count + chunkSize;
+                end
+            end
+            
+        end % GetSTM
+        
+        %  Set covariance
+        function StateManager = SetCovariance(StateManager, P)
+
+            xIndex = 1;
+            
+            %----- Loop over the objects 
+            for i = 1:size(StateManager.Objects,2)
+                currObj = StateManager.Objects{i};
+                %----- Loop over the parameters 
+                for j = 1:size(StateManager.ParamIds{i},2)
+                      chunkSize = StateManager.subStateSizes{i}(j);
+                      x         = P(xIndex:xIndex+chunkSize-1,xIndex:xIndex+chunkSize-1);
+                      currObj   = currObj.SetCovariance(StateManager.ParamIds{i}(j),x);
+                      xIndex    = xIndex + chunkSize;
+                end % j = 1:size(StateManager.ParamIds{i},2)
+                
+                StateManager.Objects{i} = currObj;
+
+            end % i = 1:size(StateManager.Objects,2)
+
+        end % SetCovariance
+          
     end % methods
 
 end % classdef

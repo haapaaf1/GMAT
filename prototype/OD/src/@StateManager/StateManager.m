@@ -4,6 +4,7 @@ classdef StateManager < handle
     % Set the public properties
     properties  (SetAccess = 'public')
         Objects    = {};  %  This should be moved to private and scoping issue fixed
+        ObjectNames = {};
     end
 
     % Set the public properties

@@ -32,7 +32,9 @@ classdef MeasurementManager < handle
         numObs       = 0;
         numDataTypes = [];
         numStates    = 0;
-        partialsMap  = {};
+        paramIdsVector;
+        lengthObjects = 0;
+        chunkSizeVector;
     end
     
     %----------------------------------------------------------------------
@@ -63,6 +65,9 @@ classdef MeasurementManager < handle
             Meas                = Estimator.Measurements;
             MeasManager.numMeas = size(Estimator.Measurements,2);
             MeasManager.numStates = Estimator.ESM.numStates;
+            MeasManager.paramIdsVector = ESM.paramIdsVector;
+            MeasManager.lengthObjects = size(Estimator.ESM.ObjectsVector,2);
+            MeasManager.chunkSizeVector = ESM.chunkSizeVector;
             hcount = 0;
             for i = 1:MeasManager.numMeas
                 
@@ -70,6 +75,14 @@ classdef MeasurementManager < handle
                 MeasManager.measHandles{i}  = Sandbox.GetHandle(Estimator.Measurements{i});
                 MeasManager.numDataTypes(i) = size(MeasManager.measHandles{i}.AddDataType,2);
                 MeasManager.measHandles{i}.Initialize(Sandbox);
+                MeasManager.measHandles{i}.thisObject = MeasManager.measHandles{i};
+                
+                %  
+                for j = 1:MeasManager.lengthObjects;
+                   currentParticipant = ESM.ObjectsVector{j};
+                   dependInd = MeasManager.measHandles{i}.GetParticipantId(currentParticipant);
+                   MeasManager.measHandles{i}.ObjectDependencies(j) = dependInd;
+                end
                 
                 %----- Add meas times, handles, and other data to total
                 %      data arrays
@@ -82,41 +95,6 @@ classdef MeasurementManager < handle
                     MeasManager.MeasurementHandles{hcount} =  currMeas;
                 end
                 
-%             load(GSMeas.Filename);
-%             %----- KLUDGE WHILE REWORKING THIS COMPONENT
-%             GSMeas.Measurements.Obs    = MeasData{1}.Obs;
-%             GSMeas.Measurements.Epochs = MeasData{1}.Epochs;
-            
-            %----- Loop over all data types to get handles for participants
-            %      and to add data for each type to the allData structure.
-%             for i = 1:MeasManager.measHandles{i}.numDataTypes
-%                
-%                 %----- Concatenate Types, Epochs, Obs
-%                 numcurrObs            = size(MeasData{i}.Obs,1);
-%                 low                   = totalnumObs;
-%                 high                  = totalnumObs+numcurrObs-1;
-%                 DataTypes(low:high,1) = ones(numcurrObs,1)*MeasData{i}.DataType;
-%                 Epochs(low:high,1)    = MeasData{i}.Epochs;
-%                 Obs(low:high,:)       = MeasData{i}.Obs;
-%                 typeIndex(low:high,1) = ones(numcurrObs,1)*i;
-%                 
-%             end
-%                 
-                
-                %  Loop over participants for the current measurement and
-                %  add state Ids to its partials map.               
-%                 MeasManager.partialsMap{i} = Map();
-%                 numParticipants    = size(currMeas.Participants{i},2);
-%                 for j = 1:size(Estimator.ESM.ParamIds,2)
-%                     %  loop over data types
-%                     numStates = size(Estimator.ESM.ParamIds{j},1);
-%                     for k = 1:numStates
-%                         stateSize = Estimator.ESM.subStateSizes{j}(k);
-%                         paramId   = Estimator.ESM.ParamIds{j}(k);
-%                         MeasManager.partialsMap{i}.Add(zeros(stateSize,1),paramId);
-%                     end
-%                 end
-
             end
             
             %----- Sort the measurements
@@ -163,7 +141,20 @@ classdef MeasurementManager < handle
             % -- Call the measurement model
             Htilde = zeros(measManager.numStates);
             isFeasible = 1;
-            [y, Htilde] = measManager.MeasurementHandles{index}.Evaluate();
+            [y] = measManager.MeasurementHandles{index}.Evaluate;
+            sizeY = size(y,1);
+            Htilde = zeros(sizeY,measManager.numStates);
+            runningTotal = 1;
+            for i = 1:measManager.lengthObjects
+                participantId = measManager.MeasurementHandles{index}.ObjectDependencies(i);
+                stateId       = measManager.paramIdsVector{i};
+                chunkSize     = measManager.chunkSizeVector{i};
+                if participantId
+                    dydx = measManager.MeasurementHandles{index}.GetPartial(participantId,stateId);
+                    Htilde(1:sizeY,runningTotal:runningTotal+chunkSize-1) = dydx; 
+                end
+                runningTotal = runningTotal + chunkSize;
+            end
             
         end
 

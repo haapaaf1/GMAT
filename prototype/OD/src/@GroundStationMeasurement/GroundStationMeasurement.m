@@ -38,13 +38,37 @@ classdef GroundStationMeasurement < Measurement
             end
 
         end % GetParamId
-
-        %----- GetState
+        
+                %----- GetState
         function x = GetState(Meas,Id);
 
             switch Id
                 case 401
                     x = [Meas.Bias]';
+                otherwise
+                    x = [];
+            end
+
+        end % GetState
+
+        %----- SetState
+        function Meas = SetCovariance(Meas,Id,x);
+
+            switch Id
+                case 401
+                    Meas.BiasCovariance = x;
+                otherwise
+                    disp(['State Id ' num2str(Id) ' is not a supported set state in GroundStationMeasurement::SetState'])
+            end
+
+        end % SetState
+
+        %----- GetState
+        function x = GetCovariance(Meas,Id);
+
+            switch Id
+                case 401
+                    x = [Meas.BiasCovariance]';
                 otherwise
                     x = [];
             end
@@ -201,7 +225,7 @@ classdef GroundStationMeasurement < Measurement
         end %----- function Intialize
         
         %----- Get the data type Id, given the string representation.
-        function Id = GetDataTypeId(Sat,name);
+        function Id = GetDataTypeId(GSMeas,name);
 
             switch name
                 case 'Range'
@@ -213,6 +237,20 @@ classdef GroundStationMeasurement < Measurement
             end
 
         end % GetParamId        
+        
+        function Id = GetParticipantId(GSMeas,Participant)
+            
+            if isequal(Participant,GSMeas.Spacecraft)
+                Id = 1;
+            elseif isequal(Participant,GSMeas.GroundStation)
+                Id = 2;
+            elseif isequal(Participant,GSMeas.thisObject)
+                Id = 3;
+            else 
+                Id = 0;
+            end
+            
+        end  %  Get ParticpantId
 
     end % methods
 

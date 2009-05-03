@@ -10,6 +10,7 @@ classdef GroundStation < handle
         StateType        = 'Cartesian';
         Sensors          = {}
         cbPointer
+        Covariance       = diag([.1 .1 .1]);
         
         %----- Define the location
         X                = -4460.9879936
@@ -80,9 +81,31 @@ classdef GroundStation < handle
                     Station.Y = x(2);
                     Station.Z = x(3);
                 otherwise
-                    disp(['State Id ' num2str(x) ' is not a supported set state in GroundStation::SetState'])
+                    disp(['State Id ' num2str(Id) ' is not a supported set state in GroundStation::SetState'])
             end
             
+        end % SetState
+        
+                 %-----  GetState
+        function x = GetCovariance(Station,Id)
+
+            if Id == 301;
+                x = Station.Covariance;
+            else
+                disp(['State Id ' num2str(Id) ' is not a supported set state in GroundStation::GetCovariances']);
+            end
+
+        end % GetState
+
+        %----- SetState
+        function Station = SetCovariance(Station,Id,x)
+
+            if Id == 301;
+                Station.Covariance  = x;
+            else
+                disp(['State Id ' num2str(Id) ' is not a supported set state in GroundStation::SetCovariance']);
+            end
+
         end % SetState
         
         %----- GetSTM

@@ -67,7 +67,7 @@ classdef Spacecraft < handle
             elseif Id == 205
                 x = Sat.Epoch;
             else
-                disp(['State Id ' num2str(x) ' is not a supported set state in Spacecraft::GetState']);
+                disp(['State Id ' num2str(Id) ' is not a supported set state in Spacecraft::GetState']);
             end
 
         end % GetState
@@ -91,7 +91,29 @@ classdef Spacecraft < handle
             elseif Id == 205
                 Sat.Epoch = x(1,1);
             else
-                disp(['State Id ' num2str(x) ' is not a supported set state in Spacecraft::SetState']);
+                disp(['State Id ' num2str(Id) ' is not a supported set state in Spacecraft::SetState']);
+            end
+
+        end % SetState
+        
+         %-----  GetState
+        function x = GetCovariance(Sat,Id)
+
+            if Id == 201;
+                x = Sat.OrbitCovariance;
+            else
+                disp(['State Id ' num2str(Id) ' is not a supported set state in Spacecraft::GetCovariance']);
+            end
+
+        end % GetState
+
+        %----- SetState
+        function Sat = SetCovariance(Sat,Id,x)
+
+            if Id == 201;
+                Sat.OrbitCovariance  = x;
+            else
+                disp(['State Id ' num2str(Id) ' is not a supported set state in Spacecraft::SetCovariance']);
             end
 
         end % SetState

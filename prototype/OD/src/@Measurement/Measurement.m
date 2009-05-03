@@ -14,16 +14,15 @@ classdef Measurement < handle
     properties  (SetAccess = 'public')
         Filename           = ' '
         AddDataType        = {};
+        Bias               = 0;
+        BiasCovariance     = .001;
+        BiasStdDev         = 3;
+        BiasNoise          = .01
+        BiasTimeConstant   = inf; 
+        ObjectDependencies = [];
+        thisObject;
     end
 
-    %----- Set the protected properties
-    properties  (SetAccess = 'protected')     
-        Bias               = 0;
-        BiasStdDev
-        BiasNoise
-        BiasTimeConstant
-    end
-    
     %----- Set the private properties
     properties  (SetAccess = 'protected')     
         numDataTypes
@@ -31,6 +30,7 @@ classdef Measurement < handle
         Epochs
         Participants       = {};
         dataTypeID         = [];
+        EstimatorObjectNames = {};
     end
     
     %----------------------------------------------------------------------
