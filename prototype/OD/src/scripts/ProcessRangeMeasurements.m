@@ -1,14 +1,13 @@
 
-%------  Prepare GMAT creates the sandbox, and sets path data
 global TestCase
 OpenGMAT
-TestCase = 1;
+TestCase = 3;
 
 %------  Define the spacecraft properties
 ODSat       = Create('Spacecraft','ODSat');
 ODSat.Id    = 21639;
 ODSat.Epoch = 24228.72771990741;
-ODSat.X     = 9892.164071524565;
+ODSat.X     = 9882.164071524565;
 ODSat.Y     = -23;
 ODSat.Z     = 1837.579337039707;
 ODSat.VX    = 0;
@@ -20,29 +19,18 @@ ODSat.Cr      = 2.2;
 ODSat.Cd      = 1.8;
 
 %------  Define the batch least squares solver
-MauiData                = Create('GroundStationRaDec','MauiData');
+MauiData                = Create('GroundStationRange','MauiData');
 MauiData.Filename       = 'LEOMaui.mat';
 MauiData.AddDataType{1} = {'Range','ODSat','Maui'};
 
-%------ Create the measuremetn simulator
-MeasSim = Create('MeasurementSimulator','MeasSim');
-MeasSim.Measurements    = {'MauiData'};
-MeasSim.Propagator      = 'ODProp';
-MeasSim.InitialEpoch    = 24228.72771990741;
-MeasSim.FinalEpoch      = 24229.02771990741;
-MeasSim.MeasurementTimeStep = 100;
-MeasSim.Filename        = 'c:\LEOMauiRADec.mat';
-MeasSim.Fileformat      = 'mat';
- 
 %------  Define the batch least squares solver
 BLS = Create('BatchEstimator','BLS');
-BLS.MaxIterations   = 10;
+BLS.MaxIterations   = 20;
 BLS.RelTolerance    = 1e-5;
 BLS.AbsTolerance    = 1e-5;
 BLS.Measurements    = {'MauiData'};
-BLS.SolveFor        = {'ODSat.CartesianState'};
+BLS.SolveFor        = {'ODSat.CartesianState','MauiData.Bias'};
 BLS.Propagator      = 'ODProp';
-BLS.RunMode         = 'Solve';
  
 %-----  Define the ground station properties    
 Maui = Create('GroundStation','Maui');
@@ -61,5 +49,7 @@ ODProp.InitialStepSize = 60;
 ODProp.Accuracy        = 1.0e-8;
 
 %------ The mission sequence
-RunSimulator('MeasSim');
+RunEstimator('BLS');
+
+%----- Run the mission
 RunGMAT

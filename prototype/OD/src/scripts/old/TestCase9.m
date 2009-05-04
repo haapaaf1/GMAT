@@ -2,9 +2,7 @@
 % 05/01/09 D. Conway.  Initial Version, based on TestCase8
 
 %------  Prepare GMAT creates the sandbox, and sets path data
-global TestCase
 OpenGMAT
-TestCase = 1;
 
 %------  Define the spacecraft properties
 ODSat       = Create('Spacecraft','ODSat');
@@ -32,9 +30,10 @@ BLS.MaxIterations   = 10;
 BLS.RelTolerance    = 1e-7;
 BLS.AbsTolerance    = 1e-7;
 BLS.Measurements    = {'MauiData'};
-BLS.SolveFor        = {'ODSat.CartesianState'};
+BLS.SolveFor        = {'ODSat.CartesianState','MauiData.Bias'};
 BLS.Propagator      = 'ODProp';
 BLS.RunMode         = 'Solve';
+BLS.UseAprioriCovariance = 1;
  
 %-----  Define the ground station properties    
 Maui = Create('GroundStation','Maui');
