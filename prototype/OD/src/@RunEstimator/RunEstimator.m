@@ -158,8 +158,7 @@ classdef RunEstimator < handle
                 plot(1:1:size(resid,1),resid,'*')
 
             end
-
-            Estimator.ESM.SetCovariance(inv(infoMat))
+            
             %  Display convergence method
             if iter > Estimator.MaxIterations
                 disp(' ')
@@ -172,6 +171,7 @@ classdef RunEstimator < handle
             %  Copy object clones in ESM.Objects
             Estimator.ESM.SetObjectstoClones;        % Set Objects to Clones
             Estimator.ESM.SetStates(Estimator.ESV);  % Update states based on ESV
+            Estimator.ESM.SetCovariance(inv(infoMat))
 
             % -- This is another KLUDGE!!  Find out where this should
             % go and move it there.  Also, generalize the output.
@@ -179,8 +179,9 @@ classdef RunEstimator < handle
 
                 for j = 1:size(Estimator.ESM.ParamIds{i},2)
 
-                    Id = Estimator.ESM.ParamIds{i}(j);
+                    Id    = Estimator.ESM.ParamIds{i}(j);
                     State = Estimator.ESM.Objects{i}.GetState(Id);
+                    Cov   = Estimator.ESM.Objects{i}.GetCovariance(Id);
                     disp(' ');
                     if Id == 201
                         disp('Spacecraft State Estimate is:')
@@ -190,6 +191,14 @@ classdef RunEstimator < handle
                         disp('Ground Station Location Estimate is:')
                     end
                     disp(State)
+                    if Id == 201
+                        disp('Spacecraft Covariance is:')
+                    elseif Id ==401
+                        disp('Measurement Bias Covariance is:')
+                    elseif Id ==301
+                        disp('Ground Station Location Covariance is:')
+                    end
+                    disp(Cov)
 
                 end
             end

@@ -19,11 +19,11 @@ classdef Measurement < handle
         BiasStdDev         = 3;
         BiasNoise          = .01
         BiasTimeConstant   = inf; 
-        ObjectDependencies = [];
-        thisObject;
+        ObjectDependencies = [];   %  This should be a private property on derived class??
+        thisObject;                %  This should be a private property on derived class??
     end
 
-    %----- Set the private properties
+    %----- Set the protected properties
     properties  (SetAccess = 'protected')     
         numDataTypes
         Obs                
@@ -31,6 +31,11 @@ classdef Measurement < handle
         Participants       = {};
         dataTypeID         = [];
         EstimatorObjectNames = {};
+    end
+    
+    %----- Set the private properties
+    properties (SetAccess = 'private')
+        
     end
     
     %----------------------------------------------------------------------

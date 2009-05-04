@@ -12,7 +12,6 @@ classdef GroundStationMeasurement < Measurement
         Measurements
         dataTypes
         y           = 0;
-        partialsMap = {};
         Spacecraft
         GroundStation
     end
@@ -39,7 +38,7 @@ classdef GroundStationMeasurement < Measurement
 
         end % GetParamId
         
-                %----- GetState
+        %----- GetState
         function x = GetState(Meas,Id);
 
             switch Id
@@ -200,6 +199,7 @@ classdef GroundStationMeasurement < Measurement
             %  Fix to loop over the number of data types
             %Fix this loop index KLUDGE
             numDataTypes = size(GSMeas.AddDataType,2);
+            GSMeas.thisObject = GSMeas;
             for i = 1:numDataTypes
                 
                 objNames = GSMeas.AddDataType{i};

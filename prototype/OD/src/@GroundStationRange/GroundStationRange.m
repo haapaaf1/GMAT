@@ -67,7 +67,7 @@ classdef GroundStationRange < GroundStationMeasurement
         end % Evaluate
         
         
-        %----- Evaluate measurements
+        %----- GetPartials
         function [dydx] = GetPartial(Meas,participantIndex,Id)
                          
             %  Convert station location to inertial system
@@ -93,8 +93,8 @@ classdef GroundStationRange < GroundStationMeasurement
                 end
             end
             
-
-        end % Evaluate
+        end % GetPartials
+        
     end % methods
 
 end % classdef
