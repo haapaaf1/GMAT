@@ -75,14 +75,8 @@ classdef MeasurementManager < handle
                 MeasManager.measHandles{i}  = Sandbox.GetHandle(Estimator.Measurements{i});
                 MeasManager.numDataTypes(i) = size(MeasManager.measHandles{i}.AddDataType,2);
                 MeasManager.measHandles{i}.Initialize(Sandbox);
-                MeasManager.measHandles{i}.thisObject = MeasManager.measHandles{i};
-                
-                %  
-                for j = 1:MeasManager.lengthObjects;
-                   currentParticipant = ESM.ObjectsVector{j};
-                   dependInd = MeasManager.measHandles{i}.GetParticipantId(currentParticipant);
-                   MeasManager.measHandles{i}.ObjectDependencies(j) = dependInd;
-                end
+                MeasManager.measHandles{i}.SetThisPointer;
+                MeasManager.measHandles{i}.SetObjectDependencies(ESM.ObjectsVector);
                 
                 %----- Add meas times, handles, and other data to total
                 %      data arrays

@@ -5,8 +5,7 @@ classdef GroundStationRange < GroundStationMeasurement
     %----------------------------------------------------------------------
     %----- Set the private properties
     properties  (SetAccess = 'private')
-        partialsMap
-        computedMeas
+        y          = 0;
         lengthMeas = 1;
     end
 

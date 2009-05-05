@@ -33,7 +33,7 @@ BLS.Measurements    = {'MauiData'};
 BLS.SolveFor        = {'ODSat.CartesianState','MauiData.Bias'};
 BLS.Propagator      = 'ODProp';
 BLS.RunMode         = 'Solve';
-BLS.UseAprioriCovariance = 0;
+BLS.UseAprioriCovariance = 1;
  
 %-----  Define the ground station properties    
 Maui = Create('GroundStation','Maui');

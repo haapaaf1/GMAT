@@ -9,11 +9,11 @@ classdef GroundStationMeasurement < Measurement
 
     %----- Set the private properties
     properties  (SetAccess = 'protected')
-        Measurements
         dataTypes
-        y           = 0;
         Spacecraft
         GroundStation
+        ObjectDependencies = [];   
+        thisObject;                
     end
 
     %----------------------------------------------------------------------
@@ -119,14 +119,10 @@ classdef GroundStationMeasurement < Measurement
             % -- Set up the allData structure which contains all data types
             %==============================================================
             
-            %----- Read the file:  Currently only support Matlab .mat file with
+            %----- Read the file:  Currently only support Matlab.mat file with
             %  required data format.  Later include file reader here.
             load(GSMeas.Filename);
-            
-            %----- KLUDGE WHILE REWORKING THIS COMPONENT
-            GSMeas.Measurements.Obs    = MeasData{1}.Obs;
-            GSMeas.Measurements.Epochs = MeasData{1}.Epochs;
-            
+                       
             %----- Loop over all data types to get handles for participants
             %      and to add data for each type to the allData structure.
             GSMeas.numDataTypes = size(MeasData,2);
@@ -222,35 +218,29 @@ classdef GroundStationMeasurement < Measurement
               
             end %  for i = 1:GSMeas.numDataTypes 
             
-        end %----- function Intialize
+        end %----- function Intialize  
         
-        %----- Get the data type Id, given the string representation.
-        function Id = GetDataTypeId(GSMeas,name);
-
-            switch name
-                case 'Range'
-                    Id = 1001;
-                case 'STM'
-                    Id = 1002;
-                otherwise
-                    Id = [];
+        %  GetParticipant Id
+        function Id = SetObjectDependencies(GSMeas,ObjectList)
+            
+            numObj = size(ObjectList,2);
+            GSMeas.ObjectDependencies = zeros(1,numObj);
+            for i = 1:numObj 
+                Participant = ObjectList{1,i};
+                if isequal(Participant,GSMeas.Spacecraft)
+                    GSMeas.ObjectDependencies(1,i) = 1;
+                elseif isequal(Participant,GSMeas.GroundStation)
+                    GSMeas.ObjectDependencies(1,i)= 2;
+                elseif isequal(Participant,GSMeas.thisObject)
+                    GSMeas.ObjectDependencies(1,i) = 3;
+                end
             end
 
-        end % GetParamId        
-        
-        function Id = GetParticipantId(GSMeas,Participant)
-            
-            if isequal(Participant,GSMeas.Spacecraft)
-                Id = 1;
-            elseif isequal(Participant,GSMeas.GroundStation)
-                Id = 2;
-            elseif isequal(Participant,GSMeas.thisObject)
-                Id = 3;
-            else 
-                Id = 0;
-            end
-            
         end  %  Get ParticpantId
+        
+        function SetThisPointer(GSMeas)
+            GSMeas.thisObject = GSMeas;
+        end  % SetThisPointer
 
     end % methods
 

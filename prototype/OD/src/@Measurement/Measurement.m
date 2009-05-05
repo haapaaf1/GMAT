@@ -13,14 +13,13 @@ classdef Measurement < handle
     %----- Set the public properties
     properties  (SetAccess = 'public')
         Filename           = ' '
+        FileFormat         = ' '
         AddDataType        = {};
         Bias               = 0;
-        BiasCovariance     = .001;
+        BiasCovariance     = .01;
         BiasStdDev         = 3;
-        BiasNoise          = .01
+        BiasNoise          = 0;
         BiasTimeConstant   = inf; 
-        ObjectDependencies = [];   %  This should be a private property on derived class??
-        thisObject;                %  This should be a private property on derived class??
     end
 
     %----- Set the protected properties
@@ -28,16 +27,9 @@ classdef Measurement < handle
         numDataTypes
         Obs                
         Epochs
-        Participants       = {};
         dataTypeID         = [];
-        EstimatorObjectNames = {};
     end
-    
-    %----- Set the private properties
-    properties (SetAccess = 'private')
         
-    end
-    
     %----------------------------------------------------------------------
     %  Define the object's methods
     %----------------------------------------------------------------------

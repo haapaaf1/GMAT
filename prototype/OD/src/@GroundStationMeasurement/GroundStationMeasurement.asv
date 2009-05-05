@@ -11,10 +11,10 @@ classdef GroundStationMeasurement < Measurement
     properties  (SetAccess = 'protected')
         Measurements
         dataTypes
-        y           = 0;
-        partialsMap = {};
         Spacecraft
         GroundStation
+        ObjectDependencies = [];   
+        thisObject;                
     end
 
     %----------------------------------------------------------------------
@@ -39,7 +39,7 @@ classdef GroundStationMeasurement < Measurement
 
         end % GetParamId
         
-                %----- GetState
+        %----- GetState
         function x = GetState(Meas,Id);
 
             switch Id
@@ -200,6 +200,7 @@ classdef GroundStationMeasurement < Measurement
             %  Fix to loop over the number of data types
             %Fix this loop index KLUDGE
             numDataTypes = size(GSMeas.AddDataType,2);
+            GSMeas.thisObject = GSMeas;
             for i = 1:numDataTypes
                 
                 objNames = GSMeas.AddDataType{i};
@@ -222,33 +223,31 @@ classdef GroundStationMeasurement < Measurement
               
             end %  for i = 1:GSMeas.numDataTypes 
             
-        end %----- function Intialize
+        end %----- function Intialize  
         
-        %----- Get the data type Id, given the string representation.
-        function Id = GetDataTypeId(GSMeas,name);
-
-            switch name
-                case 'Range'
-                    Id = 1001;
-                case 'STM'
-                    Id = 1002;
-                otherwise
-                    Id = [];
-            end
-
-        end % GetParamId        
-        
-        function Id = GetParticipantId(GSMeas,Participant)
+        %  GetParticipant Id
+        function Id = SetObjectDependencies(GSMeas,ObjectList)
             
+            numObj = size(ObjectList,2);
+            GSMeas.ObjecDependencies = zeros(1,numObj);
+            
+            for i = 1:numObj = size(ObjectList,2)
             if isequal(Participant,GSMeas.Spacecraft)
                 Id = 1;
             elseif isequal(Participant,GSMeas.GroundStation)
                 Id = 2;
-            else isequal(Participant,GSMeas.GroundStation)
+            elseif isequal(Participant,GSMeas.thisObject)
+                Id = 3;
+            else 
                 Id = 0;
+            end
             end
             
         end  %  Get ParticpantId
+        
+        function SetThisPointer(GSMeas)
+            GSMeas.thisObject = GSMeas;
+        end  % SetThisPointer
 
     end % methods
 
