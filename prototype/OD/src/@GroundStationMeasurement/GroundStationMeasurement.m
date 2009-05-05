@@ -49,31 +49,7 @@ classdef GroundStationMeasurement < Measurement
             end
 
         end % GetState
-
-        %----- SetState
-        function Meas = SetCovariance(Meas,Id,x);
-
-            switch Id
-                case 401
-                    Meas.BiasCovariance = x;
-                otherwise
-                    disp(['State Id ' num2str(Id) ' is not a supported set state in GroundStationMeasurement::SetState'])
-            end
-
-        end % SetState
-
-        %----- GetState
-        function x = GetCovariance(Meas,Id);
-
-            switch Id
-                case 401
-                    x = [Meas.BiasCovariance]';
-                otherwise
-                    x = [];
-            end
-
-        end % GetState
-
+        
         %----- SetState
         function Meas = SetState(Meas,Id,x);
 
@@ -85,6 +61,30 @@ classdef GroundStationMeasurement < Measurement
             end
 
         end % SetState
+
+        %----- GetCovariance
+        function x = GetCovariance(Meas,Id);
+
+            switch Id
+                case 401
+                    x = [Meas.BiasCovariance]';
+                otherwise
+                    x = [];
+            end
+
+        end % GetCovariance
+
+        %----- SetCovariance
+        function Meas = SetCovariance(Meas,Id,x);
+
+            switch Id
+                case 401
+                    Meas.BiasCovariance = x;
+                otherwise
+                    disp(['State Id ' num2str(Id) ' is not a supported set state in GroundStationMeasurement::SetState'])
+            end
+
+        end % SetCovariance
         
         %----- GetSTM
         function STM = GetSTM(Meas,Id);
