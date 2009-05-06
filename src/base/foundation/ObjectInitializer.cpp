@@ -1092,10 +1092,14 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
          
          // Set SolarSystem and Spacecraft to Thruster since it needs coordinate
          // conversion during Thruster initialization (LOJ: 2009.03.05)
+         // Set CoordinateSystem (LOJ: 2009.05.05)
          if (newElem->IsOfType(Gmat::THRUSTER))
          {
             newElem->SetSolarSystem(ss);
-            newElem->SetRefObject(obj, Gmat::SPACECRAFT);
+            newElem->SetRefObject(obj, Gmat::SPACECRAFT, obj->GetName());
+            std::string csName = newElem->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
+            if (csName != "")
+               newElem->SetRefObject(FindObject(csName), Gmat::COORDINATE_SYSTEM, csName);
             newElem->Initialize();
          }
       }
