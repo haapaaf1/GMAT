@@ -321,53 +321,6 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
    if (decrementMass)
       DecrementMass();
    
-   #if 0
-   {
-      totalTankMass = spacecraft->GetRealParameter("TotalMass");
-      
-      #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage
-         ("   Now decrementing mass\n      before maneuver totalTankMass = %f\n",
-          totalTankMass);
-      #endif
-      
-      Real dv = sqrt( deltaV[0]*deltaV[0] + deltaV[1]*deltaV[1] + deltaV[2]*deltaV[2]);
-      deltaTankMass = totalTankMass * (exp(-dv * 1000/(isp * gravityAccel)) - 1.0);
-      
-      #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage
-         ("       after maneuver deltaTankMass = %f\n", deltaTankMass);
-      #endif
-      
-      totalTankMass = totalTankMass + deltaTankMass;
-      
-      #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage
-         ("       after maneuver totalTankMass = %f\n", totalTankMass);
-      #endif
-      
-      // Update tank mass
-      if (!tankMap.empty())
-      {
-         for (ObjectMap::iterator tankPos = tankMap.begin();
-              tankPos != tankMap.end(); ++tankPos)
-         {
-            GmatBase *currTank = tankPos->second;
-            Integer paramID = currTank->GetParameterID("FuelMass");
-            Real currTankMass = currTank->GetRealParameter(paramID);
-            currTankMass = currTankMass + deltaTankMass;
-            currTank->SetRealParameter(paramID, currTankMass);
-            
-            #ifdef DEBUG_IMPBURN_FIRE
-            MessageInterface::ShowMessage
-               ("       after maneuver '%s' tankMass = %f\n", (tankPos->first).c_str(),
-                currTankMass);
-            #endif
-         }
-      }
-   }
-   #endif
-   
    //=================================================================
    #endif // #ifdef __USE_MANEUVER_FRAME__
    //=================================================================
