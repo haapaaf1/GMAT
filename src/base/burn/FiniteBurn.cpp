@@ -149,6 +149,10 @@ void FiniteBurn::SetSpacecraftToManeuver(Spacecraft *sat)
    MessageInterface::ShowMessage
       ("FiniteBurn::SetSpacecraftToManeuver() sat=<%p>'%s'\n", sat,
        sat->GetName().c_str());
+   Real *state = (sat->GetState()).GetState();
+   MessageInterface::ShowMessage
+      ("   state = [%.13f %.13f %.13f %.13f %.13f %.13f]\n", state[0],
+       state[1], state[2], state[3], state[4], state[5]);
    #endif
    
    if (sat == NULL)
@@ -196,8 +200,9 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
 {
    #ifdef DEBUG_FINITEBURN_FIRE
       MessageInterface::ShowMessage
-         ("FiniteBurn::Fire entered for <%p>%s, epoch=%f\n", this,
-          instanceName.c_str(), epoch);
+         ("FiniteBurn::Fire() this<%p>'%s' entered, epoch=%f, spacecraft=<%p>'%s'\n",
+          this, instanceName.c_str(), epoch, spacecraft,
+          spacecraft ? spacecraft->GetName().c_str() : "NULL");
    #endif
    
    if (initialized == false)
@@ -288,11 +293,13 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
                              " has no direction.");
       
       dm = current->CalculateMassFlow();
-      tOverM = current->thrust / (tMass * norm * 1000.0);
+      //tOverM = current->thrust / (tMass * norm * 1000.0);
+      tOverM = current->thrust * current->thrustScaleFactor *
+               current->dutyCycle / (tMass * norm * 1000.0);
       deltaV[0] += dir[0] * tOverM;
       deltaV[1] += dir[1] * tOverM;
       deltaV[2] += dir[2] * tOverM;
-      
+
       #ifdef DEBUG_FINITE_BURN
          MessageInterface::ShowMessage("   Thruster %s = %s details:\n", 
             (*i).c_str(), current->GetName().c_str());
@@ -321,7 +328,7 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
    //=================================================================
    
    // Accumulate the individual accelerations from the thrusters
-   Real dm, tMass, tOverM, *dir, norm;
+   Real dm = 0.0, tMass, tOverM, *dir, norm;
    deltaV[0] = deltaV[1] = deltaV[2] = 0.0;
    Thruster *current;
    
@@ -331,10 +338,10 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
    Real *satState = spacecraft->GetState().GetState();
    MessageInterface::ShowMessage
       ("FiniteBurn Vectors:\n   "
-       "Sat   = [%lf %lf %lf %lf %lf %lf]\n   "
-       "Frame = [%lf %lf %lf\n   " 
-       "         %lf %lf %lf\n   "
-       "         %lf %lf %lf]\n\n",
+       "Sat   = [%.15f %.15f %.15f %.15f %.15f %.15f]\n   "
+       "Frame = [%.15f %.15f %.15f\n   " 
+       "         %.15f %.15f %.15f\n   "
+       "         %.15f %.15f %.15f]\n\n",
        satState[0], satState[1], satState[2], satState[3], satState[4], satState[5], 
        frameBasis[0][0], frameBasis[0][1], frameBasis[0][2],
        frameBasis[1][0], frameBasis[1][1], frameBasis[1][2],
@@ -362,8 +369,8 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
       
       #ifdef DEBUG_FINITE_BURN
          MessageInterface::ShowMessage
-         ("   Thruster Direction: %18le  %18le  %18le\n"
-          "                 norm: %18le\n", dir[0], dir[1], dir[2], norm);
+         ("   Thruster Direction: %.15f  %.15f  %.15f\n"
+          "                 norm: %.15f\n", dir[0], dir[1], dir[2], norm);
       #endif
          
       if (norm == 0.0)
@@ -372,7 +379,10 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
                              " has no direction.");
       
       dm = current->CalculateMassFlow();
-      tOverM = current->thrust / (tMass * norm * 1000.0);
+      //tOverM = current->thrust / (tMass * norm * 1000.0); //old code
+      tOverM = current->thrust * current->thrustScaleFactor *
+               current->dutyCycle / (tMass * norm * 1000.0);
+      
       deltaV[0] += dir[0] * tOverM;
       deltaV[1] += dir[1] * tOverM;
       deltaV[2] += dir[2] * tOverM;
@@ -381,10 +391,11 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
          MessageInterface::ShowMessage("   Thruster %s = %s details:\n", 
             (*i).c_str(), current->GetName().c_str());
          MessageInterface::ShowMessage(
-            "      dM    = %16.13le\n      Mass  = %16.13lf\n"
-            "      TSF   = %16.13lf\n      |Acc| = %16.13le\n      "
-            "Acc   = [%16.13le   %16.13le   %16.13le]\n", dm, tMass, 
-            current->thrustScaleFactor, tOverM,
+            "   thrust   = %.15f\n"
+            "       dM   = %.15e\n      Mass  = %.15f\n"
+            "      TSF   = %.15f\n      |Acc| = %.15e\n      "
+            "Acc   = [%.15e   %.15e   %.15e]\n", current->thrust,
+            dm, tMass, current->thrustScaleFactor, tOverM,
             deltaV[0], deltaV[1], deltaV[2]);
       #endif
    }
@@ -399,6 +410,7 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
    burnData[2] = deltaV[0]*frameBasis[2][0] +
                  deltaV[1]*frameBasis[2][1] +
                  deltaV[2]*frameBasis[2][2];
+   burnData[3] = dm;
    
    //=================================================================
    #endif // #ifdef __USE_MANEUVER_FRAME__
@@ -406,8 +418,9 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
    
    #ifdef DEBUG_FINITEBURN_FIRE
       MessageInterface::ShowMessage(
-         "   Acceleration from burn:  %18le  %18le  %18le\n   dm/dt: %18le\n",
-         burnData[0], burnData[1], burnData[2], burnData[3]);
+          "FiniteBurn::Fire() this<%p>'%s' returning\n"
+          "   Acceleration:  %.15e  %.15e  %.15e  dm: %.15e\n", this,
+          GetName().c_str(), burnData[0], burnData[1], burnData[2], dm);
    #endif
 
    return true;
