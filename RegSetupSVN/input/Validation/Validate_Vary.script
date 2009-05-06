@@ -181,12 +181,12 @@ Target DC;
    %---------------------------------------
    %  Test for use of nonexistent resources
    %---------------------------------------
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, DNE = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = DNE});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, DNE = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = DNE});
    Vary DC(TOI.DNE = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DNE(TOI.V = 0.5, {Perturbation = .001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
-   Vary DC(DNE.V = 0.5, {Perturbation = .001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
-   DNE DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DNE(TOI.Element1 = 0.5, {Perturbation = .001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
+   Vary DC(DNE.Element1 = 0.5, {Perturbation = .001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
+   DNE DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
 
    %---------------------------------------
    %  Test for improper use of parameters
@@ -196,50 +196,50 @@ Target DC;
 
    %---- Disallowed parameters
    Vary DC(WrongArray = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = WrongArray, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = WrongArray, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = .00001, MaxStep = WrongArray, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = WrongArray, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = 0, Upper = WrongArray});
-   Vary DC(TOI.V = WrongString, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = WrongString, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = WrongThruster, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = 0, Upper = WrongThruster});
+   Vary DC(TOI.Element1 = WrongArray, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = WrongArray, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = .00001, MaxStep = WrongArray, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = WrongArray, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = 0, Upper = WrongArray});
+   Vary DC(TOI.Element1 = WrongString, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = WrongString, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = WrongThruster, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = 0, Upper = WrongThruster});
 
    %---------------------------------------
    %  Test for improper use of resources
    %---------------------------------------
-   Vary WrongSat(TOI.V = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {WrongSat.CoordinateSystem = .0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary WrongSat(TOI.Element1 = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {WrongSat.CoordinateSystem = .0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
 
    %---------------------------------------
    %  Test for missing elements
    %---------------------------------------
    % bad error message here ...
-   DC(TOI.V = 0.5, {Perturbation = .001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});  %%%%%%%%%%%%%%%%%%%%%%%%%
-   Vary DC(TOI.V = 0.5, { = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
+   DC(TOI.Element1 = 0.5, {Perturbation = .001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});  %%%%%%%%%%%%%%%%%%%%%%%%%
+   Vary DC(TOI.Element1 = 0.5, { = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
    Vary DC(  = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V =  , {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V   0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper =  });
-   Vary DC(TOI.V = 0.5, {Perturbation = , MaxStep = 0.2, Lower = 0, Upper = 3.14159 });
-   Vary DC(TOI.V = 0.5, {  = .0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159 });
+   Vary DC(TOI.Element1 =  , {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1   0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper =  });
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = , MaxStep = 0.2, Lower = 0, Upper = 3.14159 });
+   Vary DC(TOI.Element1 = 0.5, {  = .0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159 });
    % 
-   Vary  (TOI.V = 0.5, {Perturbation = .001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159}); %%%%%%%%%%%%%%
+   Vary  (TOI.Element1 = 0.5, {Perturbation = .001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159}); %%%%%%%%%%%%%%
 
    %-------------------------------------------------
    %  Test for improper use of conditional operators
    %-------------------------------------------------
-   Vary DC(TOI.V < 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V <= 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V >= 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V == 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V => 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V =< 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V ~= 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation == 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001 , MaxStep <= 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower >= 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 < 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 <= 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 >= 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 == 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 => 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 =< 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 ~= 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation == 0.0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001 , MaxStep <= 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001 , MaxStep = 0.2, Lower >= 0, Upper = 3.14159});
 
 
    %---------------------------------------------------
@@ -247,27 +247,27 @@ Target DC;
    %---------------------------------------------------
 
    %---  Missing Parenthesis ----
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159};
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159;
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159};
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159;
    %
-   Vary DC TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
-   Vary DCTOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159};  %%% bad error message here
+   Vary DC TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
+   Vary DCTOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159};  %%% bad error message here
 
    %---  Missing curly brackets
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper 3.14159);
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper 3.14159);
    %
-   Vary DC(TOI.V = 0.5, Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper 3.14159);
-   Vary DC(TOI.V = 0.5, Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper 3.14159);
+   Vary DC(TOI.Element1 = 0.5, Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
 
    %--- Mixed incorrect brackets
-   Vary DC(TOI.V = 0.5, (Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, [Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159)); 
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}}; 
-   Vary DC[TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}]; 
+   Vary DC(TOI.Element1 = 0.5, (Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, [Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159)); 
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}}; 
+   Vary DC[TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}]; 
    %  These lines cause crashes - not any more
-   Vary DC[TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
-   Vary DC{TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
+   Vary DC[TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
+   Vary DC{TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159}); 
 
    %----------------------------------------------------------
    %  Test for improper use of closing branch command statement
@@ -277,9 +277,9 @@ Target DC;
    %--------------------------------
    %-------  Missing Commas    -----
    %--------------------------------
-   Vary  DC(TOI.V = 0.5, {Perturbation = .001 , MaxStep = 0.2  Lower = 0, Upper = 3.14159}); 
-   Vary  DC(TOI.V = 0.5  {Perturbation = .001 , MaxStep = 0.2 , Lower = 0, Upper = 3.14159}); 
-   Vary  DC(TOI.V = 0.5,  {Perturbation = .001 , MaxStep = 0.2 , Lower = 0 Upper = 3.14159}); 
+   Vary  DC(TOI.Element1 = 0.5, {Perturbation = .001 , MaxStep = 0.2  Lower = 0, Upper = 3.14159}); 
+   Vary  DC(TOI.Element1 = 0.5  {Perturbation = .001 , MaxStep = 0.2 , Lower = 0, Upper = 3.14159}); 
+   Vary  DC(TOI.Element1 = 0.5,  {Perturbation = .001 , MaxStep = 0.2 , Lower = 0 Upper = 3.14159}); 
 
    %---------------------------------------------
    %---   The rest of the mission sequence   ----

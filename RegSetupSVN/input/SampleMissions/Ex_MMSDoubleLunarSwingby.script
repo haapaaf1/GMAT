@@ -51,24 +51,24 @@ GMAT EarthSunRot.Secondary = Earth;
 
 Create ImpulsiveBurn LSI;
 GMAT LSI.Axes = VNB;
-GMAT LSI.V = .01;
-GMAT LSI.N = -0.0;
-GMAT LSI.B = 0.0;
+GMAT LSI.Element1 = .01;
+GMAT LSI.Element2 = -0.0;
+GMAT LSI.Element3 = 0.0;
 
 Create ImpulsiveBurn LST;
 GMAT LST.Axes = VNB;
-GMAT LST.V = 0.00;
-GMAT LST.N = -0.0;
-GMAT LST.B = 0.0;
+GMAT LST.Element1 = 0.00;
+GMAT LST.Element2 = -0.0;
+GMAT LST.Element3 = 0.0;
 
 
 Create ImpulsiveBurn ALM;
 GMAT ALM.Axes = VNB;
-GMAT ALM.V = -0.354
+GMAT ALM.Element1 = -0.354
 
 Create ImpulsiveBurn LunarPhasedV;
 GMAT LunarPhasedV.Axes = VNB;
-GMAT LunarPhasedV.V = 0.027;
+GMAT LunarPhasedV.Element1 = 0.027;
 
 %--------------------------------------------------------------------------
 %------------------------------ Propagators -------------------------------
@@ -283,9 +283,9 @@ Propagate LunarSB(MMSRef, {MMSRef.Apoapsis});
 %------------------------------
 Target DC1
 
-     %Vary DC1(LST.V = 0.00959956311556,   {Perturbation = 1e-005, MaxStep = .02, Lower = .02, Upper = .4});
-     Vary DC1(LST.N  = 0.03413111106956,   {Perturbation = 1e-005, MaxStep = .02, Lower = -.5, Upper = .5});
-     Vary DC1(LST.B  = -0.0907895972828,  {Perturbation = 1e-004, MaxStep = .01, Lower = -.5, Upper = .5});
+     %Vary DC1(LST.Element1 = 0.00959956311556,   {Perturbation = 1e-005, MaxStep = .02, Lower = .02, Upper = .4});
+     Vary DC1(LST.Element2  = 0.03413111106956,   {Perturbation = 1e-005, MaxStep = .02, Lower = -.5, Upper = .5});
+     Vary DC1(LST.Element3  = -0.0907895972828,  {Perturbation = 1e-004, MaxStep = .01, Lower = -.5, Upper = .5});
 
      Maneuver LST(MMSRef);
      
@@ -309,7 +309,7 @@ Propagate LunarSB(MMSRef, {MMSRef.Periapsis});
 %------------------------------
 Target DC1
 
-     Vary DC1(ALM.V = -0.3198120104, {Perturbation = 1e-006, MaxStep = .08, Lower = -.5, Upper = .5});
+     Vary DC1(ALM.Element1 = -0.3198120104, {Perturbation = 1e-006, MaxStep = .08, Lower = -.5, Upper = .5});
 
      Maneuver ALM(MMSRef);
 

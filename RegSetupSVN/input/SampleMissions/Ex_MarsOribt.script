@@ -238,9 +238,9 @@ GMAT Data.ColumnWidth = 20;
 Create ImpulsiveBurn TOI;
 GMAT TOI.Axes = VNB;
 GMAT TOI.Origin = Mars;
-GMAT TOI.V    = -1.15;
-GMAT TOI.N    = 0;
-GMAT TOI.B    = 0;
+GMAT TOI.Element1    = -1.15;
+GMAT TOI.Element2    = 0;
+GMAT TOI.Element3    = 0;
 
 %----------------------------------------
 %---------- Solvers
@@ -251,18 +251,18 @@ Create DifferentialCorrector MarsTOIDC;
 Create ImpulsiveBurn MarsTOI;
 GMAT MarsTOI.Axes = VNB;
 GMAT MarsTOI.Origin = Earth;
-GMAT MarsTOI.V      = 0;
+GMAT MarsTOI.Element1      = 0;
 
 Create ImpulsiveBurn MarsMCC;
 GMAT MarsMCC.Axes = VNB;
 GMAT MarsMCC.Origin = Sun;
-GMAT MarsMCC.V      = 0;
+GMAT MarsMCC.Element1      = 0;
 
 Create ImpulsiveBurn MarsBPlane;
 GMAT MarsBPlane.Axes = VNB;
 GMAT MarsBPlane.Origin = Sun;
-GMAT MarsBPlane.V      = 0;
-%GMAT MarsBPlane.B      = -0.214972341605;
+GMAT MarsBPlane.Element1      = 0;
+%GMAT MarsBPlane.Element3      = -0.214972341605;
 
 %----------------------------------------
 %---------- Mission Sequence

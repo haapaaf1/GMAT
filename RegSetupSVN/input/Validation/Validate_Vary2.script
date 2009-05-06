@@ -182,9 +182,9 @@ Target DC;
    %  Test for omproper use of parameterss
    Vary DC(WrongSat.CoordinateSystem = 0.5, {Perturbation = .00001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
    %  
-   %Vary DC(TOI.V = WrongSat.CoordinateSystem, {Perturbation = .0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   %Vary DC(TOI.V = 0.5, {Perturbation = WrongSat.CoordinateSystem , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
-   Vary DC(TOI.V = 0.5, {Perturbation = .0001 , MaxStep = 0.2, Lower = WrongSat.CoordinateSystem, Upper = 3.14159});
+   %Vary DC(TOI.Element1 = WrongSat.CoordinateSystem, {Perturbation = .0001 , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   %Vary DC(TOI.Element1 = 0.5, {Perturbation = WrongSat.CoordinateSystem , MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = .0001 , MaxStep = 0.2, Lower = WrongSat.CoordinateSystem, Upper = 3.14159});
    
 EndTarget;  % For targeter DC
 

@@ -4,42 +4,42 @@ Create ImpulsiveBurn DefaultIB;
 Create Spacecraft DefaultSC;
 Create Propagator DefaultProp;
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = 0.1});
 EndTarget
 
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DoesNotExist(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = 0.1});
 EndTarget
 
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DoesNotExist.Earth.RMAG = 42165.0, {Tolerance = 0.1});
 EndTarget
 
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.DoesNotExist.RMAG = 42165.0, {Tolerance = 0.1});
 EndTarget
 
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.DoesNotExist = 42165.0, {Tolerance = 0.1});
 EndTarget
 
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.RMAG = DoesNotExist, {Tolerance = 0.1});
@@ -48,7 +48,7 @@ EndTarget
 Create Variable testVar;
 GMAT testVar.Expression = 3;
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.RMAG = testVar, {Tolerance = 0.1});
@@ -57,7 +57,7 @@ EndTarget
 Create String testString;
 GMAT testString.Expression = TEST;
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.RMAG = testString, {Tolerance = 0.1});
@@ -67,21 +67,21 @@ Create Array testArray[2, 2];
 GMAT testArray.Expression = testArray;
 GMAT testArray(1, 1) = 4;
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.RMAG = testArray(1, 1), {Tolerance = 0.1});
 EndTarget
 
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.RMAG = DefaultSC.ElapsedSecs, {Tolerance = 0.1});
 EndTarget
 
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Perturbation = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = DoesNotExist});

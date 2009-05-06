@@ -160,9 +160,9 @@ While Sat.ElapsedDays < 2
        Sat.AOP Sat.TA Sat.BetaAngle;
 EndWhile;
 Target DefaultDC;
-   Vary DefaultDC(Burn1.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+   Vary DefaultDC(Burn1.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
    Maneuver Burn1(Sat);
-   Report burn1Report Burn1.V Burn1.N Burn1.B
+   Report burn1Report Burn1.Element1 Burn1.Element2 Burn1.Element3
    Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
    Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
        Sat.AOP Sat.TA Sat.BetaAngle;

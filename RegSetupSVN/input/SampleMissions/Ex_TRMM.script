@@ -87,7 +87,7 @@ While sat.ElapsedDays < 10
    Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
    If sat.Altitude < 342
       Target DC;
-         Vary DC(burn.V = 0.002, {Perturbation = 0.0001});
+         Vary DC(burn.Element1 = 0.002, {Perturbation = 0.0001});
          Maneuver burn(sat);
          Achieve DC(sat.SMA = 6734, {Tolerance = 0.1});
       EndTarget;
@@ -97,7 +97,7 @@ While sat.ElapsedDays < 10
       Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA;
 
       Target DC;
-         Vary DC(burn.V = 0.001, {Perturbation = 0.00005});
+         Vary DC(burn.Element1 = 0.001, {Perturbation = 0.00005});
          Maneuver burn(sat);
          Achieve DC(sat.ECC = 0.0005, {Tolerance = 0.0001});
       EndTarget;

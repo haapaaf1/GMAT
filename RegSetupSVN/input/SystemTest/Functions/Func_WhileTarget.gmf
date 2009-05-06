@@ -78,7 +78,7 @@ BeginScript;
         
         GMAT SMAtarget = SC1.SMA + 300;
         Target DC1;
-           Vary DC1(DefaultIB.V = 0.08, {Perturbation = 1e-004, MaxStep = 0.05, Lower = -0.5, Upper = 0.5});
+           Vary DC1(DefaultIB.Element1 = 0.08, {Perturbation = 1e-004, MaxStep = 0.05, Lower = -0.5, Upper = 0.5});
 
            Maneuver DefaultIB(SC1);
 

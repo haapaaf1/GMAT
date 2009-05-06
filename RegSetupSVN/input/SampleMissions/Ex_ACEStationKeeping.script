@@ -179,7 +179,7 @@ For I = 1:7
 
    Target DefaultDC {ExitMode = SaveAndContinue};
 
-      Vary DefaultDC(dV.B = 0, {Perturbation = 1e-5, MaxStep = 0.01, Lower = -0.1, Upper = 0.1});
+      Vary DefaultDC(dV.Element3 = 0, {Perturbation = 1e-5, MaxStep = 0.01, Lower = -0.1, Upper = 0.1});
 
       GMAT VX = ACE.VX;
       GMAT VY = ACE.VY;

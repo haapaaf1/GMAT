@@ -72,12 +72,12 @@ GMAT EarthProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn dV
 GMAT dV.Axes = VNB;
 GMAT dV.Origin = Earth;
-GMAT dV.V = -0.00003;
+GMAT dV.Element1 = -0.00003;
 
 Create ImpulsiveBurn dVCirc
 GMAT dVCirc.Axes = VNB;
 GMAT dVCirc.Origin = Earth;
-GMAT dVCirc.V = -0.00003;
+GMAT dVCirc.Element1 = -0.00003;
 
 Create DifferentialCorrector DC;
 
@@ -222,7 +222,7 @@ For J = 1:1;
    Target DC;
       
      PenDown ERRot_YZ;
-     Vary DC(dV.V =  0.0005, {Perturbation = 1e-6, MaxStep = 0.0005, Lower = -0.04 , Upper =  0.0297});
+     Vary DC(dV.Element1 =  0.0005, {Perturbation = 1e-6, MaxStep = 0.0005, Lower = -0.04 , Upper =  0.0297});
      Maneuver dV(Sat);
      
      For I = 1:3;

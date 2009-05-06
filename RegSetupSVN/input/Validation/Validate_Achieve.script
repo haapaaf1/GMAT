@@ -116,7 +116,7 @@ Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
 Target DC;
 
    %  
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
    Maneuver TOI(sat);
    Propagate DefaultProp(sat, {sat.Apoapsis});
 

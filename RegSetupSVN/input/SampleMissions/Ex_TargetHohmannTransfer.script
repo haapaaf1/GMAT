@@ -153,7 +153,7 @@ Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
 
 % Burn in the velocity direction to reach an alternate Apoapsis point
 Target DC;
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
    Maneuver TOI(sat);
    Propagate DefaultProp(sat, {sat.Apoapsis});
    Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
@@ -170,7 +170,7 @@ Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
 
 % Burn in the velocity direction to reach an alternate Periapsis point
 Target DC;
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
    Maneuver TOI(sat);
    Propagate DefaultProp(sat, {sat.Periapsis});
    Achieve DC(sat.Earth.SMA = 42165, {Tolerance = 0.1});

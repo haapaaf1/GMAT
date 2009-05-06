@@ -249,15 +249,15 @@ Report Data MarsSupply.A1ModJulian MarsSupply.X MarsSupply.Y MarsSupply.Z MarsSu
 
 
 Target MarsTOIDC;
-   Vary MarsTOIDC(MarsMCC.N = 0, {Perturbation = 0.1, MaxStep = 0.5, Lower = -8, Upper = 8, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+   Vary MarsTOIDC(MarsMCC.Element2 = 0, {Perturbation = 0.1, MaxStep = 0.5, Lower = -8, Upper = 8, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
    Maneuver MarsMCC(MarsSupply);
    Achieve MarsTOIDC(MarsSupply.SunMJ2kEq.INC = 24.677090, {Tolerance = 0.001});
 EndTarget;  % For targeter MarsTOIDC
 Report Data MarsSupply.A1ModJulian MarsSupply.X MarsSupply.Y MarsSupply.Z MarsSupply.VX MarsSupply.VY MarsSupply.VZ;
 
 Target MarsTOIDC;
-   Vary MarsTOIDC(MarsBPlane.V = -0.233834, {Perturbation = 0.001, MaxStep = 0.1, Lower = -3, Upper = 3, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Vary MarsTOIDC(MarsBPlane.B = 0.668261, {Perturbation = 0.001, MaxStep = 0.12, Lower = -3, Upper = 3, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+   Vary MarsTOIDC(MarsBPlane.Element1 = -0.233834, {Perturbation = 0.001, MaxStep = 0.1, Lower = -3, Upper = 3, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+   Vary MarsTOIDC(MarsBPlane.Element3 = 0.668261, {Perturbation = 0.001, MaxStep = 0.12, Lower = -3, Upper = 3, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
    Maneuver MarsBPlane(MarsSupply);
    Propagate SunProp(MarsSupply) {MarsSupply.ElapsedDays = 50};
    Propagate MarsProp(MarsSupply) {MarsSupply.Mars.Periapsis};

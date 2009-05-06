@@ -185,9 +185,9 @@ Report DataReport Sat4.X Sat4.Y Sat4.Z Sat4.VX Sat4.VY Sat4.VZ;
 %  Target for rendezvous
 Target DC;
 
-     Vary DC(Burn1.V = 0.0001, {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
-     Vary DC(Burn1.N = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
-     Vary DC(Burn1.B = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
+     Vary DC(Burn1.Element1 = 0.0001, {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
+     Vary DC(Burn1.Element2 = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
+     Vary DC(Burn1.Element3 = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
      
      Maneuver Burn1(Sat2);
      
@@ -207,9 +207,9 @@ Report DataReport Sat4.X Sat4.Y Sat4.Z Sat4.VX Sat4.VY Sat4.VZ;
 %  Target for rendezvous
 Target DC;
 
-     Vary DC(Burn1.V = 0.0001, {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
-     Vary DC(Burn1.N = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
-     Vary DC(Burn1.B = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
+     Vary DC(Burn1.Element1 = 0.0001, {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
+     Vary DC(Burn1.Element2 = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
+     Vary DC(Burn1.Element3 = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
      
      Maneuver Burn1(Sat2);
      

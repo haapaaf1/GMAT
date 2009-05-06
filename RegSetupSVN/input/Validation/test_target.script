@@ -20,7 +20,7 @@ EndTarget;
 
 Create DifferentialCorrector DC2;
 Target DC2
-   Vary DC2(DefaultIB.V = 0, {Pert = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC2(DefaultIB.Element1 = 0, {Pert = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC2(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = 0.1});
@@ -30,7 +30,7 @@ Create ImpulsiveBurn DefaultIB;
 Create Spacecraft DefaultSC;
 Create Propagator DefaultProp;
 Target DC1
-   Vary DC1(DefaultIB.V = 0, {Pert = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
+   Vary DC1(DefaultIB.Element1 = 0, {Pert = 1e-006, MaxStep = 0.001, Lower = -1, Upper = 1});
    Maneuver DefaultIB(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
    Achieve DC1(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = 0.1});

@@ -46,19 +46,19 @@ GMAT EarthSunRot.Secondary = Earth;
 
 Create ImpulsiveBurn LSI;
 GMAT LSI.Axes = VNB;
-GMAT LSI.V = 0.14676929889000001;
-GMAT LSI.N = 0.046042675892;
-GMAT LSI.B = 0.090223244096999999;
+GMAT LSI.Element1 = 0.14676929889000001;
+GMAT LSI.Element2 = 0.046042675892;
+GMAT LSI.Element3 = 0.090223244096999999;
 
 
 Create ImpulsiveBurn ALM;
 GMAT ALM.Axes = VNB;
-GMAT ALM.V = -0.3198120104;
+GMAT ALM.Element1 = -0.3198120104;
 
 Create ImpulsiveBurn LOI
 GMAT LOI.Origin = Luna;
 GMAT LOI.Axes   = VNB;
-GMAT LOI.V      = -0.652;
+GMAT LOI.Element1      = -0.652;
 
 %--------------------------------------------------------------------------
 %------------------------------ Propagators -------------------------------
@@ -275,15 +275,15 @@ Optimize SQP1
      GMAT stringVar = 2;
      Report DebugRpt stringVar;
 
-     Vary SQP1(LSI.V = 0.1592 ,   { Lower = -1, Upper = 1, MultiplicativeScaleFactor = 1});
+     Vary SQP1(LSI.Element1 = 0.1592 ,   { Lower = -1, Upper = 1, MultiplicativeScaleFactor = 1});
      GMAT stringVar = 3;
      Report DebugRpt stringVar;
 	 
-     Vary SQP1(LSI.N = 0.0460 ,   { Lower = -1, Upper = 1, MultiplicativeScaleFactor = 1});
+     Vary SQP1(LSI.Element2 = 0.0460 ,   { Lower = -1, Upper = 1, MultiplicativeScaleFactor = 1});
      GMAT stringVar = 4;
      Report DebugRpt stringVar;	 
 	 
-     Vary SQP1(LSI.B = 0.1286 ,   { Lower = -1, Upper = 1, MultiplicativeScaleFactor = 1}); 
+     Vary SQP1(LSI.Element3 = 0.1286 ,   { Lower = -1, Upper = 1, MultiplicativeScaleFactor = 1}); 
      GMAT stringVar = 5;
      Report DebugRpt stringVar;	 	 
  
@@ -317,7 +317,7 @@ EndOptimize
 %------------------------------
 % Propagate for a few days
 %------------------------------
-LOI.V = -0.65198120104
+LOI.Element1 = -0.65198120104
 GMAT stringVar = 12;
 Report DebugRpt stringVar;
 	 
