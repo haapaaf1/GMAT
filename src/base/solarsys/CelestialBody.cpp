@@ -173,7 +173,7 @@ const Real    CelestialBody::JD_EPOCH_2000_TCB     = 2451545.0;
 const Real    CelestialBody::JD_EPOCH_2000_TT      = 2451545.0; // @ todo Figure out JD_EPOCH_2000_TT
 const Real    CelestialBody::dDot                  = 1.0;
 const Real    CelestialBody::TDot                  = 1.0;
-const Real    CelestialBody::KEPLER_TOL            = 1.0e-06;  // should be 1.0e-08;
+const Real    CelestialBody::KEPLER_TOL            = 1.0e-08;  // should be 1.0e-08;
 const Integer CelestialBody::KEPLER_MAX_ITERATIONS = 50;
 
 //------------------------------------------------------------------------------
@@ -2148,7 +2148,7 @@ const Rvector6 CelestialBody::GetMJ2000State(const A1Mjd &atTime)
    // SPICE does the subtraction itself
    if (posVelSrc == Gmat::SPICE)
       return stateEphem;
-   else
+   else // DE or TwoBodyPropagation
       return (stateEphem - j2kEphemState);
 }
 
@@ -3626,16 +3626,14 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    Real T = 2 * PI * Sqrt(Abs(a)*Abs(a)*Abs(a)/cbMu);
 
    Real revs = dTime/T;
-   Integer signOfTime = SignOf(revs);
-   revs = Abs(revs);
-   dTime = signOfTime * ((revs - Floor(revs)) * GmatTimeUtil::SECS_PER_DAY);
+   dTime = dTime - T * Fix(revs);
 
-   // if it hasnt been much time since the last call, just pass back the current (last
+   // if it hasn't been much time since the last call, just pass back the current (last
    // computed) state
    if (Abs(dTime) <= KEPLER_TOL) return cart;
 
    #ifdef DEBUG_TWO_BODY
-      MessageInterface::ShowMessage("r0 = %12.8f   %12.8f   %12.8f  & v0 = %12.8f   %12.8f   %12.8f\n",
+      MessageInterface::ShowMessage("r0 = %12.16f   %12.16f   %12.16f  & v0 = %12.16f   %12.16f   %12.16f\n",
             cart[0], cart[1], cart[2], cart[3], cart[4], cart[5]);
    #endif
    Rvector3 r0     = cart.GetR();
@@ -3648,7 +3646,7 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    Real     rDotv = r0 * v0;  // dot product
    
    #ifdef DEBUG_TWO_BODY
-      MessageInterface::ShowMessage("alpha = %12.10f    rDotv = %12.10f\n", alpha, rDotv);
+      MessageInterface::ShowMessage("alpha = %12.14f    rDotv = %12.14f\n", alpha, rDotv);
       MessageInterface::ShowMessage("KEPLER_TOL = %12.10f\n", KEPLER_TOL);
    #endif
    // Determine initial guess .......
@@ -3657,6 +3655,10 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    {
       x0 = Sqrt(cbMu) * dTime * alpha;
 //      if (alpha == 1.0) 
+#ifdef DEBUG_TWO_BODY
+   MessageInterface::ShowMessage("alpha = %12.10f    dTime = %12.10f,  cbMu = %12.10f\n", alpha, dTime, cbMu);
+   MessageInterface::ShowMessage("x0 = %12.10f\n", x0);
+#endif
       if (Abs(alpha - 1.0) <= KEPLER_TOL)
       {
          // match Vallado matlab code 
@@ -3699,9 +3701,6 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    Integer counter = 0;
 //   Real    dtNew   = -10;  // see Vallado matlab code 
    while (!done)
-   // 2009.03.09 WCS - changing to match Vallado matlab code (though it does
-   // not appear to match pp. 101-102)
-//   while ((Abs(dtNew/Sqrt(cbMu) - dTime) >= KEPLER_TOL) && (counter < KEPLER_MAX_ITERATIONS))
    {
       psi = xn * xn * alpha;
       
@@ -3725,6 +3724,11 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
       }
       rVal = (xn * xn * c2) + (rDotv / Sqrt(cbMu)) * xn * (1.0 - psi * c3) +
               rMag0 * (1.0 - psi * c2);
+#ifdef DEBUG_TWO_BODY
+      MessageInterface::ShowMessage(" at start of loop,xn = %12.10f and psi = %12.10f\n",  xn, psi);
+      MessageInterface::ShowMessage("                  c2 = %12.10f and c3 = %12.10f\n",  c2, c3);
+      MessageInterface::ShowMessage("                  rVal = %12.10ff\n",  rVal);
+#endif
 //      dtNew = (xn * xn * xn * c3) + (rDotv / Sqrt(cbMu)) * (xn * xn * c2) +
 //                rMag0 * xn * (1.0 - psi *c3);
 //      xNew  = xn + ((Sqrt(cbMu) * dTime) - dtNew) / rVal;
@@ -3737,6 +3741,10 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
       xn = xNew;
       counter++;
    }
+#ifdef DEBUG_TWO_BODY
+   MessageInterface::ShowMessage(" after loop is done, xNew = %12.10f    xn = %12.10f\n", xNew, xn);
+#endif
+
    if (counter >= KEPLER_MAX_ITERATIONS)
    {
       std::stringstream ss;
