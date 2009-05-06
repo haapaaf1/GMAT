@@ -86,7 +86,8 @@ Burn::PARAMETER_TYPE[BurnParamCount - GmatBaseParamCount] =
 //  Burn(std::string typeStr, std::string nomme)
 //------------------------------------------------------------------------------
 /**
- * Constructs the Burn object (default constructor).
+ * Constructs the Burn object (default constructor) with default VNB Local
+ * CoordinateSystem.
  * 
  * @param <type>    Gmat::ObjectTypes enumeration for the object.
  * @param <typeStr> String text identifying the object type
@@ -107,7 +108,7 @@ Burn::Burn(Gmat::ObjectType type, const std::string &typeStr,
    localOrigin        (NULL),
    j2000Body          (NULL),
    spacecraft         (NULL),
-   coordSystemName    ("EarthMJ2000Eq"),
+   coordSystemName    ("Local"),
    localOriginName    ("Earth"),
    localAxesName      ("VNB"),
    j2000BodyName      ("Earth"),
@@ -134,6 +135,8 @@ Burn::Burn(Gmat::ObjectType type, const std::string &typeStr,
    #endif
    
    // Available local axes labels
+   // Since it is static data, clear it first
+   localAxesLabels.clear();
    localAxesLabels.push_back("VNB");
    localAxesLabels.push_back("LVLH");
    localAxesLabels.push_back("MJ2000Eq");
@@ -277,6 +280,15 @@ Burn& Burn::operator=(const Burn &b)
 
 
 //------------------------------------------------------------------------------
+// bool IsUsingLocalCoordSystem()
+//------------------------------------------------------------------------------
+bool Burn::IsUsingLocalCoordSystem()
+{
+   return usingLocalCoordSys;
+}
+
+
+//------------------------------------------------------------------------------
 //  std::string GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
@@ -308,6 +320,11 @@ std::string Burn::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer Burn::GetParameterID(const std::string &str) const
 {
+   static bool vectorFormatFirstWarning = true;
+   static bool vFirstWarning = true;
+   static bool nFirstWarning = true;
+   static bool bFirstWarning = true;
+   
    #ifdef DEBUG_BURN_PARAM
    MessageInterface::ShowMessage
       ("Burn::GetParameterID() str=%s\n", str.c_str());
@@ -317,33 +334,49 @@ Integer Burn::GetParameterID(const std::string &str) const
    
    if (str == "VectorFormat")
    {
-      MessageInterface::ShowMessage
-         ("*** WARNING *** \"VectorFormat\" field of Burn "
-          "is deprecated and will be removed from a future build.\n");
+      if (vectorFormatFirstWarning)
+      {
+         MessageInterface::ShowMessage
+            ("*** WARNING *** \"VectorFormat\" field of Burn "
+             "is deprecated and will be removed from a future build.\n");
+         vectorFormatFirstWarning = false;
+      }
       return VECTORFORMAT;
    }
    
    if (str == "V")
    {
-      MessageInterface::ShowMessage
-         ("*** WARNING *** \"V\" field of Burn is deprecated and will be "
-          "removed from a future build; please use \"Element1\" instead.\n");
+      if (vFirstWarning)
+      {
+         MessageInterface::ShowMessage
+            ("*** WARNING *** \"V\" field of Burn is deprecated and will be "
+             "removed from a future build; please use \"Element1\" instead.\n");
+         vFirstWarning = false;
+      }
       return DELTAV1;
    }
    
    if (str == "N")
    {
-      MessageInterface::ShowMessage
-         ("*** WARNING *** \"N\" field of Burn is deprecated and will be "
-          "removed from a future build; please use \"Element2\" instead.\n");
+      if (nFirstWarning)
+      {
+         MessageInterface::ShowMessage
+            ("*** WARNING *** \"N\" field of Burn is deprecated and will be "
+             "removed from a future build; please use \"Element2\" instead.\n");
+         nFirstWarning = false;
+      }
       return DELTAV2;
    }
    
    if (str == "B")
    {
-      MessageInterface::ShowMessage
-         ("*** WARNING *** \"B\" field of Burn is deprecated and will be "
-          "removed from a future build; please use \"Element3\" instead.\n");
+      if (bFirstWarning)
+      {
+         MessageInterface::ShowMessage
+            ("*** WARNING *** \"B\" field of Burn is deprecated and will be "
+             "removed from a future build; please use \"Element3\" instead.\n");
+         bFirstWarning = false;
+      }
       return DELTAV3;
    }
    
@@ -421,6 +454,9 @@ std::string Burn::GetParameterTypeString(const Integer id) const
 bool Burn::IsParameterReadOnly(const Integer id) const
 {
    if (id == SATNAME)
+      return true;
+   
+   if (id == VECTORFORMAT)
       return true;
    
    if ((id == BURNORIGIN || id == BURNAXES))
@@ -611,7 +647,7 @@ bool Burn::SetStringParameter(const Integer id, const std::string &value)
          frame = frameman->GetFrameInstance(localAxesName);
          
          //===========================================================
-         #endif
+         #else
          //===========================================================
          
          localAxesName = value;
@@ -630,9 +666,32 @@ bool Burn::SetStringParameter(const Integer id, const std::string &value)
             coordSystemName = "Local";
             usingLocalCoordSys = true;
          }
+         else
+         {
+            std::string framelist = localAxesLabels[0];
+            for (UnsignedInt n = 1; n < localAxesLabels.size(); ++n)
+               framelist += ", " + localAxesLabels[n];
+            
+            std::string msg =
+               "*** WARNING *** The value of \"" + value + "\" for field \"Axes\""
+               " on object \"" + instanceName + "\" is not an allowed value.\n"
+               "The allowed values are: [ " + framelist + " ]. ";
+            
+            if (value == "Inertial")
+            {
+               coordSystemName = "EarthMJ2000Eq";
+               usingLocalCoordSys = false;
+               MessageInterface::ShowMessage(msg + "\n");
+            }
+            else
+               throw BurnException(msg);
+         }
+         
+         //===========================================================
+         #endif
+         //===========================================================
          
          return true;
-         
       }
    case VECTORFORMAT: // deprecated
       vectorFormat = value;

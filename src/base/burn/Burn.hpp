@@ -42,6 +42,8 @@ public:
    virtual ~Burn();
    Burn(const Burn &b);
    Burn&                operator=(const Burn &b);
+
+   bool                 IsUsingLocalCoordSystem();
    
    // Inherited (GmatBase) methods
    // for parameters
