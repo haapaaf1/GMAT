@@ -992,14 +992,23 @@ void Sandbox::Clear()
    objectMap.clear();
    globalObjectMap.clear();
    
+   #ifdef DEBUG_TRANSIENT_FORCES
+   MessageInterface::ShowMessage
+      ("Sandbox::Clear() transientForces<%p> has %d transient forces\n",
+       &transientForces, transientForces.size());
+   #endif
    // who pushes forces to transientForces?
    // Should we delete transient forces here? (loj: 2008.11.03)
    for (std::vector<PhysicalModel*>::iterator tf = transientForces.begin();
         tf != transientForces.end(); ++tf)
    {
+      #ifdef DEBUG_TRANSIENT_FORCES
+      MessageInterface::ShowMessage("   tf=<%p>\n", (*tf));
+      #endif
+      
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
-         ((*tf), "transient force", "Sandbox::Clear()");
+         ((*tf), (*tf)->GetName(), "Sandbox::Clear()", "deleting transient force");
       #endif
       delete (*tf);
    }
