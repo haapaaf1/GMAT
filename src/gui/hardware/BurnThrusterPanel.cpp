@@ -435,13 +435,16 @@ void BurnThrusterPanel::SaveData()
          isCoordSysChanged = false;
       }
       
-      // Origin
-      paramID = theObject->GetParameterID("Origin");
-      theObject->SetStringParameter(paramID, originComboBox->GetValue().c_str());
-      
-      // Axes
-      paramID = theObject->GetParameterID("Axes");
-      theObject->SetStringParameter(paramID, axesComboBox->GetValue().c_str());
+      if (coordSysName == "Local")
+      {
+         // Origin
+         paramID = theObject->GetParameterID("Origin");
+         theObject->SetStringParameter(paramID, originComboBox->GetValue().c_str());
+         
+         // Axes
+         paramID = theObject->GetParameterID("Axes");
+         theObject->SetStringParameter(paramID, axesComboBox->GetValue().c_str());
+      }
       
       // Save Elements
       if (realDataChanged)
