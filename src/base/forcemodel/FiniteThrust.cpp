@@ -78,8 +78,8 @@ FiniteThrust::FiniteThrust(const FiniteThrust& ft) :
    cartIndex              (ft.cartIndex),
    fillCartesian          (ft.fillCartesian)
 {
-        burns.clear();
-        scIndices.clear();
+   burns.clear();
+   scIndices.clear();
 }
 
 
@@ -420,7 +420,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
          {
 
             #ifdef DEBUG_FINITETHRUST_EXE
-               MessageInterface::ShowMessage("   Maneuvering ");
+               MessageInterface::ShowMessage("   Maneuvering\n");
             #endif
    
             if (sat->GetType() != Gmat::SPACECRAFT)
@@ -460,9 +460,9 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
             if (order == 1) 
             {
                // dr/dt = v
-                  deriv[i6]     = 
-                  deriv[1 + i6] = 
-                  deriv[2 + i6] = 0.0;
+               deriv[i6]     = 
+               deriv[1 + i6] = 
+               deriv[2 + i6] = 0.0;
                deriv[3 + i6] = accel[0];
                deriv[4 + i6] = accel[1];
                deriv[5 + i6] = accel[2];
@@ -508,7 +508,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
       //ShowDerivative("FiniteThrust::GetDerivatives() AFTER compute", state,
       //               satCount);
       MessageInterface::ShowMessage
-         ("   deriv[1:3] = [%18le %18le %18le]\n   deriv[4:6] = [%18le %18le %18le]\n",
+         ("     deriv[1:3] = [%18le %18le %18le]\n     deriv[4:6] = [%18le %18le %18le]\n",
           deriv[0], deriv[1], deriv[2], deriv[3], deriv[4], deriv[5]);
       MessageInterface::ShowMessage("FiniteThrust::GetDerivatives finished\n");
    #endif
