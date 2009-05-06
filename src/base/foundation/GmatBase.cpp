@@ -67,7 +67,7 @@ const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
 const std::string
 GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 {
-   "Integer",     "UnsignedInt", "UnsignedIntArray", "Real",
+   "Integer",     "UnsignedInt", "UnsignedIntArray", "IntegerArray", "Real",
    "RealElement", "String",      "StringArray",      "Boolean",
    "Rvector",     "Rmatrix",     "Time",             "Object",
    "ObjectArray", "OnOff",       "Enumeration",
@@ -1394,6 +1394,49 @@ const UnsignedIntArray& GmatBase::GetUnsignedIntArrayParameter(const Integer id)
                            " on " + typeName + " named " + instanceName);
 }
 
+//---------------------------------------------------------------------------
+//  const IntegerArray& GetIntegerArrayParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Access an array of integer data.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The requested IntegerArray; throws if the parameter is not a
+ *         IntegerArray.
+ */
+const IntegerArray& GmatBase::GetIntegerArrayParameter(const Integer id) const
+{
+   std::stringstream idString;
+   idString << id << ": \"" << GetParameterText(id) << "\"";
+   throw GmatBaseException("Cannot get integer array parameter with "
+                           " ID " + idString.str() +
+                           " on " + typeName + " named " + instanceName);
+}
+
+//---------------------------------------------------------------------------
+//  const IntegerArray& GetIntegerArrayParameter(const Integer id,
+//                                             const Integer index) const
+//---------------------------------------------------------------------------
+/**
+ * Access an array of integer data.
+ *
+ * @param id The integer ID for the parameter.
+ * @param index The index when multiple IntegerArrays are supported.
+ *
+ * @return The requested IntegerArray; throws if the parameter is not a
+ *         IntegerArray.
+ */
+const IntegerArray& GmatBase::GetIntegerArrayParameter(const Integer id,
+                                               const Integer index) const
+{
+   std::stringstream indexString, idString;
+   idString << id << ": \"" << GetParameterText(id) << "\"";
+   indexString << index;
+   throw GmatBaseException("Cannot get integer array parameter with ID " +
+                           idString.str() + " and index " + indexString.str() +
+                           " on " + typeName + " named " + instanceName);
+}
 
 //---------------------------------------------------------------------------
 //  const Rvector& GetRvectorParameter(const Integer id) const

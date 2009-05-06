@@ -45,17 +45,20 @@ namespace DataFormats
         // velocities are included.  The Velocity Record Flag, V, in
         // line one indicates that at each epoch, for each satellite,
         // an additional satellite velocity and clock rate-of-change
-        // has been computed.
-        std::string posVelFlag;
+        // has been computed. Here, if V is present, we set velFlag to true,
+        // otherwise velFlag = false indicates the position flag was set.
+        bool velFlag;
+
+        // These two flags are not part of the original data format but
+        // are created to make it easy to test for the presence of optional
+        // position and velocity correlation records.
+        bool epFlag, evFlag;
 
         // Start Year, Month, Day of Month, Hour, Minute, Second
         // This is the Gregorian date and time of day of the first
         // epoch of the orbit.
-        Integer startYear;
-        Integer startMonth;
-        Integer startHour;
-        Integer startMinute;
-        Real startSecond;
+        Integer startYear, startMonth, startDay, startHour, startMinute;
+        Real startSeconds;
 
         // Number of Epochs (up to 10 million)
         long int numEpochs;
@@ -83,7 +86,7 @@ namespace DataFormats
         // Coordinate System
         // Documentation does not clarify this variable but it appears to
         // be ITRyy where yy is a year (e.g. ITR97, ITR00, etc)
-        std::string coordSys;
+        std::string coordSystem;
 
         // Orbit Type (only 4 currently defined)
         // FIT - fitted
@@ -126,7 +129,7 @@ namespace DataFormats
         // software is updated to read the new SP3-c format.  A list of
         // identifiers created for LEO satellites can be viewed at
         // http://cddis.gsfc.nasa.gov/sp3c_satlist.html
-        StringArray satIdList[85];
+        StringArray satIdList;
 
         // Satellite accuracy
         // The value 0 is interpreted as accuracy unknown. A satellite's accuracy
@@ -138,7 +141,7 @@ namespace DataFormats
         // file for the respective satellite. This may lead to some distortion
         // when orbit files are joined together, or when a file contains both
         //observed and predicted data.
-        IntegerArray satAccuracyList[85];
+        IntegerArray satAccuracyList;
 
         // File Type
         // The currently defined values are: "G " for GPS only files, "M "
@@ -167,7 +170,7 @@ namespace DataFormats
         Real baseClkRateStdDev;
 
         // Comment lines
-        StringArray comments[4];
+        StringArray comments;
 
     };
 
@@ -179,7 +182,7 @@ namespace DataFormats
         // X,Y,Z coordinates (km)
         // The positional values are preceise to 1 mm. Bad or absent position
         // values are to be set to 0.0.
-        Real X, Y, Z;
+        Real x, y, z;
 
         // Clock value (micro seconds)
         // The clock values are accurate to 1 picosecond. Bad or absent clock
@@ -193,10 +196,10 @@ namespace DataFormats
         // being required and the fractional 9's being optional.
 
         // X,Y,Z standard deviations (base^n mm)
-        Integer stdDevX, stdDevY, stdDevZ;
+        Real stdDevX, stdDevY, stdDevZ;
 
         // Clock standard deviation (base^n pico seconds)
-        Integer stdDevClock;
+        Real stdDevClock;
 
         // Clock event flag
         // This flag is true when a discontinuity in the satellite clock
@@ -238,18 +241,19 @@ namespace DataFormats
         // VX, VY, VZ velocity components (decimeters/second)
         // These values are precise to 10^-4 mm/second. Bad or absent velocity
         // values are to be set to 0.0.
-        Real VX, VY, VZ;
+        Real vx, vy, vz;
 
         // Clock rate-of-change value (10^-4 microseconds/second)
         // These values are precise to 10^-16 seconds/second. Bad or absent
         // values are set to 999999.99999 with the six integer 9's
         // being required and the fractional 9's being optional.
+        Real clockRateOfChange;
 
         // VX,VY,VZ standard deviations (base^n 10^-4 mm/sec)
-        Integer stdDevVX, stdDevVY, stdDevVZ;
+        Real stdDevVX, stdDevVY, stdDevVZ;
 
         // Clock rate standard deviation (base^n 10^-4 picoseconds/sec)
-        Integer stdDevClockRate;
+        Real stdDevClockRate;
 
     };
 
@@ -262,14 +266,14 @@ namespace DataFormats
         // Clock Record. A value of 9999 would mean that a standard deviation
         // was too large to be represented. If a standard deviation is unknown,
         // its field is left blank.
-        Integer highResolutionStdDevX;
-        Integer highResolutionStdDevY;
-        Integer highResolutionStdDevZ;
+        Real highResolutionStdDevX;
+        Real highResolutionStdDevY;
+        Real highResolutionStdDevZ;
 
         // Clock Std Dev (10^-4 picoseconds)
         // A value of 9999999 would mean that the standard deviation was too
         // large to be represented.
-        Integer highResolutionStdDevClock;
+        Real highResolutionStdDevClock;
 
         // XVY, XVZ, XC, YVZ, YC, ZC correlation
         // The correlation values are between -0.999999 and +0.9999999
@@ -291,12 +295,12 @@ namespace DataFormats
         // Clock Rate Record. A value of 9999 would mean that a standard deviation
         // was too large to be represented. If a standard deviation is unknown,
         // its field is left blank.
-        Integer highResolutionStdDevVX;
-        Integer highResolutionStdDevVY;
-        Integer highResolutionStdDevVZ;
+        Real highResolutionStdDevVX;
+        Real highResolutionStdDevVY;
+        Real highResolutionStdDevVZ;
 
         // Clock Rate Std Dev (10^-4 picoseconds/sec)
-        Integer highResolutionStdDevClockRate;
+        Real highResolutionStdDevClockRate;
 
         // VXVY, VXVZ, VXC, VYVZ, VYC, VZC correlation
         // The correlation values are between -0.999999 and +0.9999999
@@ -318,11 +322,12 @@ namespace DataFormats
         // Start Year, Month, Day of Month, Hour, Minute, Second
         // This is the Gregorian date and time of day of the first
         // epoch of the orbit.
-        Integer Year;
-        Integer Month;
-        Integer Hour;
-        Integer Minute;
-        Real Second;
+        Integer year;
+        Integer month;
+        Integer day;
+        Integer hour;
+        Integer minute;
+        Real seconds;
         
         std::vector<sp3c_position*> position;
         std::vector<sp3c_posClockCorrelation*> posClockCorrelation;
@@ -336,6 +341,7 @@ namespace DataFormats
         SP3c_POSVELFLAG_ID,
         SP3c_STARTYEAR_ID,
         SP3c_STARTMONTH_ID,
+        SP3c_STARTDAY_ID,
         SP3c_STARTHOUR_ID,
         SP3c_STARTMINUTE_ID,
         SP3c_STARTSECOND_ID,
@@ -399,10 +405,86 @@ namespace DataFormats
         SP3c_HIGHRESOLUTION_STDDEV_CLOCKRATE_ID,
         SP3c_YEAR_ID,
         SP3c_MONTH_ID,
+        SP3c_DAY_ID,
         SP3c_HOUR_ID,
         SP3c_MINUTE_ID,
         SP3c_SECOND_ID,
         EndSP3cDataReps
+    };
+
+    static const Gmat::ParameterType SP3c_PARAMETER_TYPE[EndSP3cDataReps] =
+    {
+        Gmat::BOOLEAN_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::STRING_TYPE,
+        Gmat::STRING_TYPE,
+        Gmat::STRING_TYPE,
+        Gmat::STRING_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::STRINGARRAY_TYPE,
+        Gmat::INTARRAY_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::STRINGARRAY_TYPE,
+        Gmat::STRING_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::BOOLEAN_TYPE,
+        Gmat::BOOLEAN_TYPE,
+        Gmat::BOOLEAN_TYPE,
+        Gmat::BOOLEAN_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
     };
 
     static const std::string SP3c_FILEFORMAT_DESCRIPTIONS[EndSP3cDataReps] =

@@ -189,7 +189,13 @@ public:
                                                 const Integer index);
    virtual const UnsignedIntArray& 
                         GetUnsignedIntArrayParameter(const Integer id) const;
-   
+
+   virtual const IntegerArray&
+                        GetIntegerArrayParameter(const Integer id) const;
+   virtual const IntegerArray&
+                        GetIntegerArrayParameter(const Integer id,
+                                                const Integer index) const;
+
    virtual const Rvector&
                         GetRvectorParameter(const Integer id) const;
    virtual const Rvector&

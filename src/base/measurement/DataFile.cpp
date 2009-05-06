@@ -30,11 +30,12 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string DataFile::FILEFORMAT_DESCRIPTIONS[NUM_FILEFORMATS] =
+const std::string DataFile::FILEFORMAT_DESCRIPTIONS[EndFileFormatReps] =
 {
     "B3 Data",
     "SLR Data",
-    "TLE Data"
+    "TLE Data",
+    "SP3c Data"
 };
 
 const std::string
@@ -252,6 +253,27 @@ Integer DataFile::GetIntegerParameter(const std::string &label) const
    return GetIntegerParameter(GetParameterID(label));
 }
 
+//------------------------------------------------------------------------------
+// virtual IntegerArray GetIntegerArrayParameter(const Integer id) const
+//------------------------------------------------------------------------------
+IntegerArray DataFile::GetIntegerArrayDataParameter(const Integer id) const
+{
+
+    return GmatBase::GetIntegerArrayParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+// virtual IntegerArray GetIntegerArrayParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+IntegerArray DataFile::GetIntegerArrayDataParameter(const std::string &label) const
+{
+   return GetIntegerArrayParameter(GetParameterID(label));
+}
 
 //------------------------------------------------------------------------------
 // virtual Integer SetIntegerParameter(const Integer id, const Integer value)
@@ -1045,4 +1067,25 @@ std::string DataFile::GetStringDataParameter(const Integer id) const
 std::string DataFile::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual StringArray GetStringArrayDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+StringArray DataFile::GetStringArrayDataParameter(const Integer id) const
+{
+    StringArray str;
+    return str;
+}
+
+//------------------------------------------------------------------------------
+// virtual StringArray GetStringArrayDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+StringArray DataFile::GetStringArrayDataParameter(const std::string &label) const
+{
+   return GetStringArrayDataParameter(GetDataParameterID(label));
 }

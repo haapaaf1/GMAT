@@ -79,12 +79,16 @@ public:
 
     virtual Integer     GetIntegerDataParameter(const Integer id) const;
     virtual Integer     GetIntegerDataParameter(const std::string &label) const;
+    virtual IntegerArray     GetIntegerArrayDataParameter(const Integer id) const;
+    virtual IntegerArray     GetIntegerArrayDataParameter(const std::string &label) const;
     virtual Real        GetRealDataParameter(const Integer id) const;
     virtual Real        GetRealDataParameter(const std::string &label) const;
     virtual bool        GetBoolDataParameter(const Integer id) const;
     virtual bool        GetBoolDataParameter(const std::string &label) const;
     virtual std::string GetStringDataParameter(const Integer id) const;
     virtual std::string GetStringDataParameter(const std::string &label) const;
+    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
+    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
     virtual bool CheckDataAvailability(const std::string str) const;
@@ -138,7 +142,8 @@ public:
 
     bool IsEOF(std::ifstream &theFile);
     
-    enum OBSERVATION_TYPE_REPS {
+    enum OBSERVATION_TYPE_REPS
+    {
 	RANGE_ID = 0,
 	RANGERATE_ID,
 	AZIMUTH_ID,
@@ -167,17 +172,18 @@ public:
 	EndObservationTypeReps
     };
 
-    enum DATAFILE_REPS {
+    enum DATAFILE_REPS
+    {
 	B3_ID = 0,
 	SLR_ID,
 	TLE_ID,
+        SP3C_ID,
 	EndFileFormatReps
     };
 
 private:
     
-    static const Integer NUM_FILEFORMATS = 3;
-    static const std::string FILEFORMAT_DESCRIPTIONS[NUM_FILEFORMATS];
+    static const std::string FILEFORMAT_DESCRIPTIONS[EndFileFormatReps];
     
 protected:
 
