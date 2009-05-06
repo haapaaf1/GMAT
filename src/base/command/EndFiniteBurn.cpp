@@ -419,7 +419,7 @@ bool EndFiniteBurn::Initialize()
       StringArray::iterator scName;
       Spacecraft *sc;
       
-		sats.clear();
+      sats.clear();
       for (scName = satNames.begin(); scName != satNames.end(); ++scName)
       {
          if ((mapObj = FindObject(*scName)) == NULL) 
@@ -523,11 +523,16 @@ bool EndFiniteBurn::Execute()
    {
       if (((*j)->GetName()) == thrustName)
       {
+         #ifdef DEBUG_TRANSIENT_FORCES
+         MessageInterface::ShowMessage
+            ("EndFiniteBurn::Execute() Removing burnForce<%p>'%s' from transientForces\n",
+             burnForce, burnForce->GetName().c_str());
+         #endif
          transientForces->erase(j);
          break;
       }
    }
-
+   
    #ifdef DEBUG_END_MANEUVER_EXE
       MessageInterface::ShowMessage("Current TransientForces list:\n");
       for (std::vector<PhysicalModel*>::iterator j = transientForces->begin();
