@@ -278,16 +278,12 @@ Rvector6 SpiceKernelReader::GetTargetState(const std::string &targetName,
    targetNameToUse           = GmatStringUtil::ToUpper(targetNameToUse);
    targetBodyNameSPICE       = targetNameToUse.c_str();
    observingBodyNameSPICE    = observingBodyName.c_str();
-//   observingBodyNameSPICE    = "SUN";  // for testing vs. John D.'s results
    referenceFrameSPICE       = referenceFrame.c_str();
    aberrationSPICE           = aberration.c_str();
    // convert time to Ephemeris Time (TDB)
    SpiceDouble j2ET          = j2000_c();
    Real        etMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
                                TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
-//   // ***************** temporary ******************
-//   etMjdAtTime = 21545.6003724989; // for testing vs. John D.'s results
-//   // ***************** temporary ******************
    etSPICE                   = (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
    #ifdef DEBUG_SPK_READING
       MessageInterface::ShowMessage("j2ET = %12.10f\n", (Real) j2ET);
@@ -295,17 +291,22 @@ Rvector6 SpiceKernelReader::GetTargetState(const std::string &targetName,
             "In SPKReader::Converted (to TBD) time = %12.10f\n", etMjdAtTime);
       MessageInterface::ShowMessage("  then the full JD = %12.10f\n",
             (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941));
-      MessageInterface::ShowMessage("So time passed to SPICE is %12.10f\n", (Real) etSPICE);
+      MessageInterface::ShowMessage("So time passed to SPICE is %12.14f\n", (Real) etSPICE);
    #endif
    SpiceDouble state[6];
    SpiceDouble oneWayLightTime;
    spkezr_c(targetBodyNameSPICE, etSPICE, referenceFrameSPICE, aberrationSPICE,
             observingBodyNameSPICE, state, &oneWayLightTime);
 #ifdef DEBUG_SPK_PLANETS
+   Real        ttMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
+                               TimeConverterUtil::TTMJD, GmatTimeUtil::JD_JAN_5_1941);
    Real etJd                 = etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
+   Real ttJd                 = ttMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
+   MessageInterface::ShowMessage("Asking CSPICE for state of body %s, with observer %s, referenceFrame %s, and aberration correction %s\n",
+         targetBodyNameSPICE, observingBodyNameSPICE, referenceFrameSPICE, aberrationSPICE);
    MessageInterface::ShowMessage(
-         "In SpiceKernelReader --- Body: %s   Time: %12.10f   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
-         targetName.c_str(), etJd, state[0], state[1], state[2], state[3], state[4], state[5]);
+         "           Body: %s   TT Time:  %12.10f  TDB Time: %12.10f   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
+         targetName.c_str(), ttJd, etJd, state[0], state[1], state[2], state[3], state[4], state[5]);
 #endif
    if (failed_c())
    {
