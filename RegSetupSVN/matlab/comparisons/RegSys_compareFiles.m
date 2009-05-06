@@ -7,6 +7,7 @@ function [] = RegSys_compareFiles(Build1,Build2,Folder1,Folder2,mainDir,What2Com
 %   04/21/2009 - E.Dove:  Enabled build to build comparison functionality and moved comparison
 %       code to seperate function.
 %   04/22/2009 - E.Dove:  Corrected bug that was applying AcceptTest data to all other test-types.
+%   05/06/2009 - E.Dove:  Added error checking for when a folder selected does not exist.
 
 % Initialize Variables
 if isempty(Build1)
@@ -16,6 +17,29 @@ else
 end
 build2FileExt = '.report';
 sharedTestLoc = [];
+
+% Check to see if both folders contain data
+if isempty(Folder1FilesAll) || isempty(Folder2FilesAll)
+    if isempty(Folder1FilesAll) && isempty(Folder2FilesAll)
+        disp(['The ', Folder1, ' and ', Folder2,' output folders located in the specified testSuite folder(s)'])
+        disp('either don''t exist or there are no report files in them.')
+        disp(' ')
+        disp('Please correct this issue before rerunning the regression system.')
+        return        
+    elseif isempty(Folder1FilesAll)
+        disp(['The ', Folder1, ' output folder located in the specified testSuite folder(s) either'])
+        disp('doesn''t exist or there are no report files in it.')
+        disp(' ')
+        disp('Please correct this issue before rerunning the regression system.')
+        return
+    elseif isempty(Folder2FilesAll)
+        disp(['The ', Folder2, ' output folder located in the specified testSuite folder(s) either'])
+        disp('doesn''t exist or there are no report files in it.')
+        disp(' ')
+        disp('Please correct this issue before rerunning the regression system.')        
+        return
+    end
+end
 
 folder1Tests = fieldnames(Folder1FilesAll);
 size(folder1Tests,1);
