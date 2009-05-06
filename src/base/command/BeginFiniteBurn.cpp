@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            BeginFiniteBurn
 //------------------------------------------------------------------------------
@@ -22,7 +22,15 @@
 
 //#define DEBUG_BEGIN_MANEUVER
 //#define DEBUG_BEGIN_MANEUVER_EXE
+//#define DEBUG_TRANSIENT_FORCES
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 #include "MessageInterface.hpp"
 
@@ -55,8 +63,21 @@ BeginFiniteBurn::BeginFiniteBurn() :
 //------------------------------------------------------------------------------
 BeginFiniteBurn::~BeginFiniteBurn()
 {
+   #ifdef DEBUG_TRANSIENT_FORCES
+   MessageInterface::ShowMessage
+      ("BeginFiniteBurn destructor entered, this=<%p>, burnForce=<%p>'%s'\n",
+       this, burnForce, burnForce ? burnForce->GetName().c_str() : "NULL");
+   #endif
+   
    if (burnForce)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (burnForce, burnForce->GetName(), "BeginFiniteBurn::~BeginFiniteBurn()",
+          "deleting burn force");
+      #endif
       delete burnForce;
+   }
 }
 
 
@@ -77,8 +98,8 @@ BeginFiniteBurn::BeginFiniteBurn(const BeginFiniteBurn& begman) :
    transientForces   (NULL),
    satNames          (begman.satNames)
 {
-        sats.clear();
-        thrusters.clear();
+   sats.clear();
+   thrusters.clear();
 }
 
 
@@ -322,10 +343,14 @@ GmatBase* BeginFiniteBurn::GetObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 void BeginFiniteBurn::SetTransientForces(std::vector<PhysicalModel*> *tf)
 {
+   #ifdef DEBUG_TRANSIENT_FORCES
+   MessageInterface::ShowMessage
+      ("BeginFiniteBurn::SetTransientForces() tf=<%p>\n", tf);
+   #endif
    transientForces = tf;
 }
 
-                                  
+
 //------------------------------------------------------------------------------
 //  GmatBase* Clone(void) const
 //------------------------------------------------------------------------------
@@ -509,7 +534,12 @@ bool BeginFiniteBurn::Initialize()
       // If all is okay, create the FiniteThrust object and configure it.
       std::string thrustName = burnName + "_FiniteThrust";
       burnForce = new FiniteThrust(thrustName);
-
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (burnForce, thrustName, "BeginFiniteBurn::Initialize()",
+          "burnForce = new FiniteThrust()");
+      #endif
+      
       burnForce->SetRefObject(maneuver, maneuver->GetType(), 
                               maneuver->GetName());
       Gmat::ObjectType type = Gmat::SPACECRAFT;
@@ -526,7 +556,7 @@ bool BeginFiniteBurn::Initialize()
          burnForce->SetRefObjectName(type, *iter);
       }
    }
-
+   
    return initialized;
 }
 
@@ -565,13 +595,22 @@ bool BeginFiniteBurn::Execute()
    // Tell active spacecraft that they are now firing
    for (std::vector<Spacecraft*>::iterator s=sats.begin(); s!=sats.end(); ++s)
       (*s)->IsManeuvering(true);
-
+   
    if (transientForces == NULL)
       throw CommandException("Transient force list was NOT initialized; ABORTING RUN!!!\n\n");
-      
-   // Insert the force into the list of transient forces
-   transientForces->push_back(burnForce);
-
+   
+   // Insert the force into the list of transient forces if not found
+   if (find(transientForces->begin(), transientForces->end(), burnForce) ==
+       transientForces->end())
+   {
+      #ifdef DEBUG_TRANSIENT_FORCES
+      MessageInterface::ShowMessage
+         ("BeginFiniteBurn::Execute() Adding burnForce<%p>'%s' to transientForces\n",
+          burnForce, burnForce->GetName().c_str());
+      #endif
+      transientForces->push_back(burnForce);
+   }
+   
    #ifdef DEBUG_BEGIN_MANEUVER_EXE
       MessageInterface::ShowMessage("Current TransientForces list:\n");
       for (std::vector<PhysicalModel*>::iterator j = transientForces->begin();
