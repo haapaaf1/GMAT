@@ -75,6 +75,7 @@ namespace GmatMathUtil
    Real    NearestInt(Real theNumber);
    Real    Round(Real theNumber);
    Real    Floor(Real theNumber);
+   Real    Fix(Real theNumber);
    Real    Ceiling(Real theNumber);
    Real    Mod(Real left, Real right);
    Real    Rem(Real left, Real right);

@@ -85,6 +85,15 @@ Real GmatMathUtil::Floor(Real theNumber)
 }
 
 //------------------------------------------------------------------------------
+//  Real Fix(Real theNumber)
+//------------------------------------------------------------------------------
+Real GmatMathUtil::Fix(Real theNumber)
+{
+   Real towardZero = SignOf(theNumber) * Floor(Abs(theNumber));
+   return towardZero;
+}
+
+//------------------------------------------------------------------------------
 //  Real Ceiling(Real theNumber)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::Ceiling(Real theNumber)
