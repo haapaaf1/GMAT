@@ -69,6 +69,11 @@ public:
                         GetStringArrayParameter(const Integer id) const; 
    
    // Ref. object access methods - overridden from GmatBase
+   virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
+   virtual const ObjectTypeArray&
+                        GetRefObjectTypeArray();
+   virtual const StringArray&
+                        GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool         RenameRefObject(const Gmat::ObjectType type,
                                         const std::string &oldName,
                                         const std::string &newName);
