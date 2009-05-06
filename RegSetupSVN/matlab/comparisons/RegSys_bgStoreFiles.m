@@ -6,6 +6,7 @@ function [build1FilesAll,build2FilesAll] = RegSys_bgStoreFiles(Build1, Build2, F
 %   ??/??/???? - E.Dove:  Created the first version.
 %   04/21/2009 - E.Dove:  Removed the saving of the *.report and *.good as part of filename. 
 %      Enabled build to build comparison functionality.
+%   05/06/2009 - E.Dove:  Added code to ignore .svn folders during search for reports
 
 
 % Initialize variables
@@ -30,8 +31,8 @@ temp = dir([mainDir,'/output',]);
 loopFolder = size(temp,1);
 
 for loop = 1:loopFolder;
-    if (temp(loop).isdir == 1) & (strcmp(temp(loop).name, '.') ~= 1) & (strcmp(temp(loop).name, '..') ~= 1);
-        if (strcmp(lower(temp(loop).name), 'comparisons') ~= 1) & (strcmp(lower(temp(loop).name), 'cvs') ~= 1);
+    if (temp(loop).isdir == 1) && (strcmp(temp(loop).name, '.') ~= 1) && (strcmp(temp(loop).name, '..') ~= 1);
+        if (strcmpi(temp(loop).name, 'comparisons') ~= 1) && (strcmpi(temp(loop).name, 'cvs') ~= 1) && (strcmpi(temp(loop).name, '.svn') ~= 1);
             folderCount = folderCount + 1;
             validFolder{folderCount,1} = temp(loop).name;
         end;
