@@ -2676,10 +2676,36 @@ void Propagate::PrepareToPropagate()
                for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
                     i != transientForces->end(); ++i) 
                {
+                  // @todo Do we really want to check for spacecraft in the
+                  // SpaceObject list? Don't check it for now (LOJ: 2009.05.04)
+                  //======================================================
+                  #ifdef __CHECK_SPACEOBJECT__             
+                  //======================================================
                   ODEModel *fm = prop[index]->GetODEModel();
                   const StringArray sar = fm->GetRefObjectNameArray(Gmat::SPACEOBJECT);
-                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end()) 
+                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end())
+                  {
+                     #ifdef DEBUG_TRANSIENT_FORCES
+                     MessageInterface::ShowMessage
+                        ("   Adding tf<%p>'%' to forceList\n",
+                         *i, (*i)->GetName().c_str());
+                     #endif
                      prop[index]->GetODEModel()->AddForce(*i);
+                  }
+                  
+                  //======================================================
+                  #else
+                  //======================================================
+                  #ifdef DEBUG_TRANSIENT_FORCES
+                  MessageInterface::ShowMessage
+                     ("Propagate::PrepareToPropagate() Adding transientForce<%p>'%s'\n",
+                      *i, (*i)->GetName().c_str());
+                  #endif
+                  prop[index]->GetODEModel()->AddForce(*i);
+                  
+                  //======================================================
+                  #endif
+                  //======================================================
                   
                   // todo: Rebuild ODEModel by calling BuildModelFromMap()
                }
