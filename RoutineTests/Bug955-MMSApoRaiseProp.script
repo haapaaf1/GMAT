@@ -69,7 +69,7 @@ GMAT Thruster1.K11 = 1;
 GMAT Thruster1.K12 = 0;
 GMAT Thruster1.K13 = 0;
 GMAT Thruster1.K14 = 0;
-GMAT Thruster1.CoordinateSystem = MJ2000EarthEquator;
+GMAT Thruster1.CoordinateSystem = EarthMJ2000Eq;
 GMAT Thruster1.ThrustScaleFactor = 1;
 
 

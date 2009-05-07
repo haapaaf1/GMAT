@@ -63,7 +63,6 @@ GMAT engine1.K3  = 1500;
 GMAT engine1.K5  = 0.000451;
 GMAT engine1.K13 = 1.0;
 
-GMAT engine1.CoordinateSystem = Sat1VNB;
 GMAT engine1.ThrustScaleFactor = 1;
 
 Create Thruster engine2;
@@ -75,7 +74,7 @@ GMAT engine2.C3  = 500;
 GMAT engine2.C13 = 1.0;
 GMAT engine2.K3  = 2150;
 GMAT engine2.K13 = 1.0;
-GMAT engine2.CoordinateSystem = MJ2000EarthEquator;
+GMAT engine2.CoordinateSystem = EarthMJ2000Eq;
 GMAT engine2.ThrustScaleFactor = 1;
 
 

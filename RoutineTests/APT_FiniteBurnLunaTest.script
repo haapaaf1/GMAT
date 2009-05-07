@@ -48,7 +48,7 @@ GMAT thruster.Tank = {tank};
 GMAT thruster.C3 = 1;
 GMAT thruster.C13 = 1;
 
-GMAT thruster.CoordinateSystem = MJ2000EarthEquator;
+GMAT thruster.CoordinateSystem = EarthMJ2000Eq;
 GMAT thruster.ThrustScaleFactor = 1;
 
 

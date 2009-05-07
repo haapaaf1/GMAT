@@ -75,7 +75,6 @@ GMAT engine2.C3  = 500;
 GMAT engine2.C13 = 1;
 GMAT engine2.K3  = 2150;
 GMAT engine2.K13 = 1;
-GMAT engine2.CoordinateSystem = MJ2000EarthEquator;
 GMAT engine2.ThrustScaleFactor = 1;
 
 
