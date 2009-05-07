@@ -1,0 +1,124 @@
+function Func_BallisticMassParam
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545.000000000';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = 7100;
+GMAT DefaultSC.Y = 0;
+GMAT DefaultSC.Z = 1300;
+GMAT DefaultSC.VX = 0;
+GMAT DefaultSC.VY = 7.35;
+GMAT DefaultSC.VZ = 1;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.Q1 = 0;
+GMAT DefaultSC.Q2 = 0;
+GMAT DefaultSC.Q3 = 0;
+GMAT DefaultSC.Q4 = 1;
+GMAT DefaultSC.EulerAngleSequence = '312';
+GMAT DefaultSC.AngularVelocityX = 0;
+GMAT DefaultSC.AngularVelocityY = 0;
+GMAT DefaultSC.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultIB.Element1 = 0;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0;
+GMAT DefaultIB.DecrementMass = false;
+GMAT DefaultIB.Isp = 300;
+GMAT DefaultIB.GravitationalAccel = 9.810000000000001;
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create OpenGLPlot DefaultOpenGL;
+GMAT DefaultOpenGL.SolverIterations = Current;
+GMAT DefaultOpenGL.Add = {DefaultSC, Earth};
+GMAT DefaultOpenGL.OrbitColor = [ 255 32768 ];
+GMAT DefaultOpenGL.TargetColor = [ 8421440 0 ];
+GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewPointReference = Earth;
+GMAT DefaultOpenGL.ViewPointVector = [ 0 0 30000 ];
+GMAT DefaultOpenGL.ViewDirection = Earth;
+GMAT DefaultOpenGL.ViewScaleFactor = 1;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewUpAxis = Z;
+GMAT DefaultOpenGL.CelestialPlane = Off;
+GMAT DefaultOpenGL.XYPlane = On;
+GMAT DefaultOpenGL.WireFrame = Off;
+GMAT DefaultOpenGL.Axes = On;
+GMAT DefaultOpenGL.Grid = Off;
+GMAT DefaultOpenGL.SunLine = Off;
+GMAT DefaultOpenGL.UseInitialView = On;
+GMAT DefaultOpenGL.DataCollectFrequency = 1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
+GMAT DefaultOpenGL.NumPointsToRedraw = 0;
+GMAT DefaultOpenGL.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.SolverIterations = Current;
+GMAT XYPlot1.IndVar = DefaultSC.A1ModJulian;
+GMAT XYPlot1.Add = {DefaultSC.Cd, DefaultSC.Cr};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.ShowPlot = true;
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.Filename = 'Func_BallisticMassParam.report';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {DefaultSC.A1ModJulian, DefaultSC.Cd, DefaultSC.Cr, DefaultSC.DragArea, DefaultSC.DryMass, DefaultSC.SRPArea, DefaultSC.TotalMass};
+GMAT ReportFile1.WriteHeaders = On;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.ColumnWidth = 20;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
