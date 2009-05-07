@@ -1,0 +1,8 @@
+function Func_IBurnCStest4MJ2k_nested(reportLoc1,reportLoc2,reportLoc3,reportLoc4)
+
+%   Modification History
+%   ---------------------------------------------------------------------------------
+%   05/07/2009 - E.Dove:  Created the first version.
+
+% Call function
+Func_IBurnCStest4MJ2k(reportLoc1,reportLoc2,reportLoc3,reportLoc4);
