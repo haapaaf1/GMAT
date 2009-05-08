@@ -132,7 +132,7 @@ Create ReportFile ESL1Ephem;
 GMAT ESL1Ephem.Filename = ./output/SampleMissions/Ex_ACEStationKeeping.report;
 GMAT ESL1Ephem.Precision = 16;
 GMAT ESL1Ephem.WriteHeaders = On;
-GMAT ESL1Ephem.ColumnWidth = 20;
+GMAT ESL1Ephem.ColumnWidth = 26;
 
 %----------------------------------------------------------------------
 %---------------------- Create Coordinate Systems ---------------------
