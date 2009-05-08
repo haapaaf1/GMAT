@@ -1,0 +1,66 @@
+% Func_IBurnCStest4VNB - This script tests to make sure 
+%
+% Function used: Func_IBurnCStest4VNB.gmf, Func_IBurnCStest4VNB_nested.gmf
+% Function path: ./output/SystemTest/
+% Outputs to: ./output/SystemTest/ 
+%
+%   Modification History
+%   ---------------------------------------------------------------------------------
+%   05/08/2009 - E.Dove:  Created the first version.
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_IBurnEarthCStest4VNB.report';
+
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_IBurnEarthCStest4VNB_nested.report';
+
+Create String reportLoc2;
+GMAT reportLoc2 = './output/SystemTest/Func_IBurnSunCStest4VNB.report';
+
+Create String reportLoc2_nested;
+GMAT reportLoc2_nested = './output/SystemTest/Func_IBurnSunCStest4VNB_nested.report';
+
+Create String reportLoc3;
+GMAT reportLoc3 = './output/SystemTest/Func_IBurnMarsCStest4VNB.report';
+
+Create String reportLoc3_nested;
+GMAT reportLoc3_nested = './output/SystemTest/Func_IBurnMarsCStest4VNB_nested.report';
+
+Create String reportLoc4;
+GMAT reportLoc4 = './output/SystemTest/Func_IBurnMoonCStest4VNB.report';
+
+Create String reportLoc4_nested;
+GMAT reportLoc4_nested = './output/SystemTest/Func_IBurnMoonCStest4VNB_nested.report';
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% Not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+
+% Call functions
+Func_IBurnCStest4VNB(reportLoc1,reportLoc2,reportLoc3,reportLoc4);
+Func_IBurnCStest4VNB_nested(reportLoc1_nested,reportLoc2_nested,reportLoc3_nested,reportLoc4_nested);
