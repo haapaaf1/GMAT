@@ -18,6 +18,7 @@ function Func_IBurnCStest4MJ2k(reportLoc1,reportLoc2,reportLoc3,reportLoc4)
 %   Modification History
 %   ---------------------------------------------------------------------------------
 %   05/07/2009 - E.Dove:  Created the first version.
+%   05/08/2009 - E.Dove:  Fixed MarsBurn5 coordinate system to be Mars based
 
 %----------------------------------------
 %---------- Spacecrafts
@@ -251,7 +252,7 @@ GMAT MarsBurn4.Element2     = 0.1;
 GMAT MarsBurn4.Element3     = 0.1;
 
 Create ImpulsiveBurn MarsBurn5;
-GMAT MarsBurn5.CoordinateSystem = MoonMJ2000Eq;
+GMAT MarsBurn5.CoordinateSystem = MarsMJ2000Eq;
 GMAT MarsBurn5.Element1         = 0.1;
 GMAT MarsBurn5.Element2         = 0.1;
 GMAT MarsBurn5.Element3         = 0.1;
@@ -329,16 +330,16 @@ SunCase2   = 'SunCase2';
 SunCase3   = 'SunCase3';
 SunCase4   = 'SunCase4';
 SunCase5   = 'SunCase5';
-MarsCase1   = 'MarsCase1';
-MarsCase2   = 'MarsCase2';
-MarsCase3   = 'MarsCase3';
-MarsCase4   = 'MarsCase4';
-MarsCase5   = 'MarsCase5';
-MoonCase1   = 'MoonCase1';
-MoonCase2   = 'MoonCase2';
-MoonCase3   = 'MoonCase3';
-MoonCase4   = 'MoonCase4';
-MoonCase5   = 'MoonCase5';
+MarsCase1  = 'MarsCase1';
+MarsCase2  = 'MarsCase2';
+MarsCase3  = 'MarsCase3';
+MarsCase4  = 'MarsCase4';
+MarsCase5  = 'MarsCase5';
+MoonCase1  = 'MoonCase1';
+MoonCase2  = 'MoonCase2';
+MoonCase3  = 'MoonCase3';
+MoonCase4  = 'MoonCase4';
+MoonCase5  = 'MoonCase5';
 
 %----------------------------------------
 %---------- Plots and Reports
