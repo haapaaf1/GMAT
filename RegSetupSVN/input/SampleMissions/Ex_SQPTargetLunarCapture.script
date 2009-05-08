@@ -208,7 +208,7 @@ Create ReportFile BPlaneCoords;
 GMAT BPlaneCoords.Filename = ./output/SampleMissions/Ex_SQPTargetLunarCapture.report;
 GMAT BPlaneCoords.Precision = 12;
 GMAT BPlaneCoords.WriteHeaders = On;
-GMAT BPlaneCoords.ColumnWidth = 20;
+GMAT BPlaneCoords.ColumnWidth = 25;
 
 Create ReportFile DebugRpt;
 GMAT DebugRpt.Filename = ./output/DebugRpt.report

@@ -163,7 +163,7 @@ GMAT SunMJ2000Ec.OverrideOriginInterval = false;
 Create ReportFile CoordSysInputTests
 CoordSysInputTests.Filename = ./output/SystemTest/CoordSysInputTests.report;
 CoordSysInputTests.WriteHeaders = Off;
-GMAT CoordSysInputTests.ColumnWidth = 25;
+GMAT CoordSysInputTests.ColumnWidth = 36;
  
 Create String EarthMJ2000EqState;
 EarthMJ2000EqState = ------ State Values in  EarthMJ2000Eq System ---- 
