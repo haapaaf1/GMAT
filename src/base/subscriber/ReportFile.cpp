@@ -324,6 +324,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
    
    // create output buffer
    StringArray *output = new StringArray[numData];
+   Integer *colWidths = new Integer[numData];
    
    #ifdef DEBUG_WRITE_DATA
    MessageInterface::ShowMessage("ReportFile::WriteData() has %d wrappers\n", numData);
@@ -331,7 +332,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
    #endif
    
    // buffer formatted data
-   for (int i=0; i < numData; i++)
+   for (Integer i=0; i < numData; i++)
    {
       desc = wrapperArray[i]->GetDescription();
       
@@ -344,6 +345,17 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
       MessageInterface::ShowMessage
          ("      It's wrapper type is %d\n", wrapperType);
       #endif
+      
+      // set longer width of param names or columnWidth
+      Integer defWidth = (Integer)desc.length() > columnWidth ?
+         desc.length() : columnWidth;
+      
+      // if writing headers or called by Report add 3 more spaces
+      // since header adds 3 more spaces
+      if (writeHeaders || calledByReport)
+         defWidth = defWidth + 3;
+      
+      colWidths[i] = defWidth;
       
       switch (wrapperType)
       {
@@ -373,11 +385,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
             case Gmat::RMATRIX_TYPE:
                {
                   Rmatrix rmat = wrapperArray[i]->EvaluateArray();
-                  UnsignedInt numRow = rmat.GetNumRows();
-                  if (numRow > maxRow)
-                     maxRow = numRow;
-                  for (UnsignedInt jj=0; jj<numRow; jj++)
-                     output[i].push_back(rmat.ToRowString(jj, precision));
+                  colWidths[i] = WriteMatrix(output, i, rmat, maxRow, defWidth);
                   break;
                }
             case Gmat::STRING_TYPE:
@@ -396,11 +404,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
       case Gmat::ARRAY_WT:
          {
             Rmatrix rmat = wrapperArray[i]->EvaluateArray();
-            UnsignedInt numRow = rmat.GetNumRows();
-            if (numRow > maxRow)
-               maxRow = numRow;
-            for (UnsignedInt jj=0; jj<numRow; jj++)
-               output[i].push_back(rmat.ToRowString(jj, precision));
+            colWidths[i] = WriteMatrix(output, i, rmat, maxRow, defWidth);
             break;
          }
       case Gmat::STRING_OBJECT_WT:
@@ -429,20 +433,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
       for (int param=0; param < numData; param++)
       {
          std::string desc = wrapperArray[param]->GetDescription();
-         // set longer width of param names or columnWidth
-         Integer width = (Integer)desc.length() > columnWidth ?
-            desc.length() : columnWidth;
-         
-         dstream.width(width);
-         // if writing headers or called by Report add 3 more spaces
-         // since header adds 3 more spaces
-         if (writeHeaders || calledByReport)
-            dstream.width(width + 3);
-         
-         // if zero fill, show decimal point
-         // showing decimal point automatically filles zero
-         if (zeroFill)
-            dstream.setf(std::ios::showpoint);
+         dstream.width(colWidths[param]);
          
          if (leftJustify)
             dstream.setf(std::ios::left);
@@ -455,11 +446,10 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
       }
       dstream << std::endl;
    }
-   // Do we need blank line to separate each output?
-   //dstream << std::endl;
    
    // delete output buffer
    delete[] output;
+   delete[] colWidths;
    
    if (isEndOfRun)  // close file
    {
@@ -1197,6 +1187,69 @@ void ReportFile::WriteHeaders()
    initial = false;
 }
 
+
+//------------------------------------------------------------------------------
+// Integer WriteMatrix(StringArray *output, Integer param, const Rmatrix &rmat,
+//                     Integer &maxRow, Integer defWidth)
+//------------------------------------------------------------------------------
+/*
+ * Writes Rmatrix data to String array and returns newly computed column width.
+ *
+ * @param  output    Input/output String array pointer
+ * @param  param     Input parameter index
+ * @param  rmat      Input Rmatrix data
+ * @param  maxRow    Input/output computed maximum lenth of row
+ * @param  defWidth  Input default column width
+ *
+ * @return  newly computed column width
+ */
+//------------------------------------------------------------------------------
+Integer ReportFile::WriteMatrix(StringArray *output, Integer param,
+                                const Rmatrix &rmat, UnsignedInt &maxRow,
+                                Integer defWidth)
+{
+   #ifdef DEBUG_WRITE_MATRIX
+   MessageInterface::ShowMessage
+      ("ReportFile::WriteMatrix() maxRow=%d, defWidth=%d\n", maxRow, defWidth);
+   #endif
+   
+   UnsignedInt numRow = rmat.GetNumRows();
+   if (numRow > maxRow)
+      maxRow = numRow;
+   
+   Integer w = 1;
+   if (zeroFill)
+      w = precision + 4;
+   Integer colWidth = 0;
+   
+   for (UnsignedInt jj=0; jj<numRow; jj++)
+   {
+      std::string rowStr = rmat.ToRowString(jj, precision, w, zeroFill);
+      output[param].push_back(rowStr);
+      
+      #ifdef DEBUG_WRITE_MATRIX
+      MessageInterface::ShowMessage
+         ("   rowStr.length()=%d, colWidth=%d\n", rowStr.length(), colWidth);
+      #endif
+      
+      if (rowStr.length() > (UnsignedInt)colWidth)
+         colWidth = rowStr.length();
+   }
+   
+   // if writing headers or called by Report add 3 more spaces
+   // since header adds 3 more spaces
+   if (writeHeaders || calledByReport)
+      colWidth = colWidth + 3;
+   
+   // set longer width of param names or columnWidth
+   Integer newWidth = defWidth > colWidth ? defWidth : colWidth;
+   
+   #ifdef DEBUG_WRITE_MATRIX
+   MessageInterface::ShowMessage
+      ("ReportFile::WriteMatrix() returning %d\n", newWidth);
+   #endif
+   return newWidth;
+}
 
 //--------------------------------------
 // methods inherited from Subscriber

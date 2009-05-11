@@ -144,6 +144,9 @@ protected:
    virtual bool         OpenReportFile(void);
    void                 ClearParameters();
    void                 WriteHeaders();
+   Integer              WriteMatrix(StringArray *output, Integer param,
+                                    const Rmatrix &rmat, UnsignedInt &maxRow,
+                                    Integer defWidth);
    
    // methods inherited from Subscriber
    virtual bool         Distribute(Integer len);
