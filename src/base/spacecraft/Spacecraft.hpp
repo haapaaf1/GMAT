@@ -63,9 +63,10 @@ public:
    
    Anomaly              GetAnomaly() const;
    
-   Rmatrix33            GetAttitude(Real a1mjdTime) const;
-   Rvector3             GetAngularVelocity(Real a1mjdTime) const;
-   UnsignedIntArray     GetEulerAngleSequence() const;
+   const Rmatrix33&     GetAttitude(Real a1mjdTime) const;
+   const Rvector3&      GetAngularVelocity(Real a1mjdTime) const;
+   const UnsignedIntArray&
+                        GetEulerAngleSequence() const;
    
    // inherited from GmatBase
    virtual GmatBase*    Clone(void) const;

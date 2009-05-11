@@ -787,37 +787,49 @@ Rvector6 Spacecraft::GetModifiedKeplerianState()
 }
 
 
+//------------------------------------------------------------------------------
+// Anomaly GetAnomaly() const
+//------------------------------------------------------------------------------
 Anomaly Spacecraft::GetAnomaly() const
 {
    return trueAnomaly;
 }
 
-Rmatrix33 Spacecraft::GetAttitude(Real a1mjdTime) const
+//------------------------------------------------------------------------------
+// const Rmatrix33& GetAttitude(Real a1mjdTime) const
+//------------------------------------------------------------------------------
+const Rmatrix33& Spacecraft::GetAttitude(Real a1mjdTime) const
 {
    if (attitude) return attitude->GetCosineMatrix(a1mjdTime);
    else 
    {
-      //MessageInterface::PopupMessage(Gmat::WARNING_, 
-      //"No attitude defined for spacecraft %s, returning identity matrix.\n",
-      //instanceName.c_str());
-      return Rmatrix33();  // temporary - return identity matrix
+      std::string errmsg = 
+         "Error attempting to retrieve Attitude Matrix for spacecraft \"";
+      errmsg += instanceName + "\", for which no attitude has been set.\n";
+      throw SpaceObjectException(errmsg);
    }
 }
 
 
-Rvector3  Spacecraft::GetAngularVelocity(Real a1mjdTime) const
+//------------------------------------------------------------------------------
+// const Rvector3& GetAngularVelocity(Real a1mjdTime) const
+//------------------------------------------------------------------------------
+const Rvector3&  Spacecraft::GetAngularVelocity(Real a1mjdTime) const
 {
    if (attitude) return attitude->GetAngularVelocity(a1mjdTime);
    else 
    {
-      //MessageInterface::PopupMessage(Gmat::WARNING_, 
-      //"No attitude defined for spacecraft %s, returning zero angular velocity vector.\n",
-      //instanceName.c_str());
-      return Rvector3(); // temporary - return zero vector
+      std::string errmsg = 
+         "Error attempting to retrieve Angular Velocity for spacecraft \"";
+      errmsg += instanceName + "\", for which no attitude has been set.\n";
+      throw SpaceObjectException(errmsg);
    }
 }
 
-UnsignedIntArray Spacecraft::GetEulerAngleSequence() const
+//------------------------------------------------------------------------------
+// const UnsignedIntArray& GetEulerAngleSequence() const
+//------------------------------------------------------------------------------
+const UnsignedIntArray& Spacecraft::GetEulerAngleSequence() const
 {
    if (attitude) 
       return attitude->GetUnsignedIntArrayParameter("EulerSequenceArray");
