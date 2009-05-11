@@ -997,8 +997,12 @@ void Sandbox::Clear()
       ("Sandbox::Clear() transientForces<%p> has %d transient forces\n",
        &transientForces, transientForces.size());
    #endif
-   // who pushes forces to transientForces?
+   // Who pushes forces to transientForces?
+   //    BeginFiniteBurn::Execute() pushes burn force
    // Should we delete transient forces here? (loj: 2008.11.03)
+   // @note transient forces are deleted in the BeginFiniteBurn destructor
+   // so we don't need to delete here. (LOJ: 2009.05.08)
+   #if 0
    for (std::vector<PhysicalModel*>::iterator tf = transientForces.begin();
         tf != transientForces.end(); ++tf)
    {
@@ -1012,6 +1016,8 @@ void Sandbox::Clear()
       #endif
       delete (*tf);
    }
+   #endif
+   
    transientForces.clear();
    
    // Update the sandbox state
