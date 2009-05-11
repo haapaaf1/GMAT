@@ -50,6 +50,7 @@
 //#define DEBUG_BISECTION_DETAILS
 //#define DEBUG_WRAPPERS
 //#define DEBUG_PUBLISH_DATA
+//#define DEBUG_TRANSIENT_FORCES
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -4404,6 +4405,9 @@ void Propagate::RunComplete()
    #ifdef DEBUG_FIRST_CALL
       firstStepFired = false;
    #endif
+      
+   // Clear transient forces(LOJ: 2009.05.07)
+   ClearTransientForces();
    
    GmatCommand::RunComplete();
 }
@@ -4421,9 +4425,16 @@ void Propagate::RunComplete()
 //------------------------------------------------------------------------------
 void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
 {
+   #ifdef DEBUG_TRANSIENT_FORCES
+   MessageInterface::ShowMessage
+      ("Propagate::AddTransientForce() entered, ODEModel=<%p>, transientForces=<%p>\n",
+       p, transientForces);
+   #endif
+   
    // Find any transient force that is active and add it to the force model
    for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
-        i != transientForces->end(); ++i) {
+        i != transientForces->end(); ++i)
+   {
       StringArray tfSats = (*i)->GetRefObjectNameArray(Gmat::SPACECRAFT);
       // Loop through the spacecraft that go with the force model, ans see if 
       // they are in the spacecraft list for the current transient force
@@ -4432,36 +4443,41 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
       {
          if (find(tfSats.begin(), tfSats.end(), *current) != tfSats.end())
          {
+            #ifdef DEBUG_TRANSIENT_FORCES
+            MessageInterface::ShowMessage
+               ("   Adding transientForce <%p>'%s' to ODEModel\n", *i,
+                (*i)->GetName().c_str());
+            #endif
             p->AddForce(*i);
             break;      // Avoid multiple adds
          }
       }
    }
-
-   #ifdef DEBUG_PROPAGATE_INIT
+   
+   #ifdef DEBUG_TRANSIENT_FORCES
       ODEModel *fm;
       PhysicalModel *pm;
-   
+      
       MessageInterface::ShowMessage(
          "Propagate::AddTransientForces completed; force details:\n");
       for (std::vector<PropSetup*>::iterator p = prop.begin(); 
            p != prop.end(); ++p)
       {
          // todo: fix calls in the debug messages
-//         fm = (*p)->GetForceModel();
-//         if (!fm)
-//            throw CommandException("ForceModel not set in PropSetup \"" +
-//                                   (*p)->GetName() + "\"");
-//         MessageInterface::ShowMessage(
-//            "   Forces in %s:\n", fm->GetName().c_str());
-//         for (Integer i = 0; i < fm->GetNumForces(); ++i)
-//         {
-//            pm = fm->GetForce(i);
-//            MessageInterface::ShowMessage(
-//               "      %s   %s\n", pm->GetTypeName().c_str(),
-//               pm->GetName().c_str());
-//         }
+         fm = (*p)->GetODEModel();
+         if (!fm)
+            throw CommandException("ODEModel not set in PropSetup \"" +
+                                   (*p)->GetName() + "\"");
+         MessageInterface::ShowMessage(
+            "   Forces in %s:\n", fm->GetName().c_str());
+         for (Integer i = 0; i < fm->GetNumForces(); ++i)
+         {
+            pm = fm->GetForce(i);
+            MessageInterface::ShowMessage(
+               "      %15s   %s\n", pm->GetTypeName().c_str(),
+               pm->GetName().c_str());
          }
+      }
    #endif
 }
 
@@ -4475,47 +4491,67 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
 //------------------------------------------------------------------------------
 void Propagate::ClearTransientForces()
 {
+   #ifdef DEBUG_TRANSIENT_FORCES
+   MessageInterface::ShowMessage
+      ("Propagate::ClearTransientForces() entered, prop.size()=%d\n",
+       prop.size());
+   #endif
+   
    ODEModel *fm;
    PhysicalModel *pm;
    
    // Loop through the forces in each force model, and remove transient ones
    for (std::vector<PropSetup*>::iterator p = prop.begin(); 
-        p != prop.end(); ++p) {
+        p != prop.end(); ++p)
+   {
       fm = (*p)->GetODEModel();
       if (!fm)
          throw CommandException("ForceModel not set in PropSetup \"" + 
                                 (*p)->GetName() + "\"");
-
+      
+      #ifdef DEBUG_TRANSIENT_FORCES
+      MessageInterface::ShowMessage("   ODEModel=<%p>\n", fm);
+      #endif
       for (Integer i = 0; i < fm->GetNumForces(); ++i)
       {
          pm = fm->GetForce(i);
+         #ifdef DEBUG_TRANSIENT_FORCES
+         MessageInterface::ShowMessage
+            ("      Checking if pm<%p>'%s' is transient\n", pm, pm->GetName().c_str());
+         #endif
          if (pm->IsTransient())
-         {
+         {            
+            #ifdef DEBUG_TRANSIENT_FORCES
+            MessageInterface::ShowMessage("   calling fm->DeleteForce()\n");
+            #endif
             fm->DeleteForce(pm->GetName());
             i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
          }
       }
    }
    
-   #ifdef DEBUG_PROPAGATE_INIT
+   #ifdef DEBUG_TRANSIENT_FORCES
       MessageInterface::ShowMessage(
          "Propagate::ClearTransientForces completed; force details:\n");
-      for (std::vector<PropSetup*>::iterator p = prop.begin(); 
-           p != prop.end(); ++p) {
+      for (std::vector<PropSetup*>::iterator p = prop.begin();
+           p != prop.end(); ++p)
+      {
          fm = (*p)->GetODEModel();
          if (!fm)
             throw CommandException("ForceModel not set in PropSetup \"" + 
                                    (*p)->GetName() + "\"");
+         #ifdef DEBUG_TRANSIENT_FORCES
+         MessageInterface::ShowMessage("   ODEModel=<%p>\n", fm);
+         #endif
          MessageInterface::ShowMessage(
-            "   Forces in %s:\n", fm->GetName().c_str());
-         // todo: fix calls in the debug messages
-//         for (Integer i = 0; i < fm->GetNumForces(); ++i)
-//         {
-//            pm = fm->GetForce(i);
-//            MessageInterface::ShowMessage(
-//               "      %s   %s\n", pm->GetTypeName().c_str(),
-//               pm->GetName().c_str());
-//         }
+            "      Forces in %s:\n", fm->GetName().c_str());
+         for (Integer i = 0; i < fm->GetNumForces(); ++i)
+         {
+            pm = fm->GetForce(i);
+            MessageInterface::ShowMessage(
+                "      %15s   %s\n", pm->GetTypeName().c_str(),
+                pm->GetName().c_str());
+          }
       }
    #endif
 }
