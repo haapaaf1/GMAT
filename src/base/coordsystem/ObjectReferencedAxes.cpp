@@ -26,7 +26,7 @@
 
 #include "MessageInterface.hpp"
 
-#include <algorithm>			// Required by GCC 4.3
+#include <algorithm>                    // Required by GCC 4.3
 
 //#define DEBUG_OR_AXES
 //#define DEBUG_ROT_MATRIX
@@ -976,8 +976,9 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
 
    // Check for orthogonality - is this correct?
    // orthonormal instead? accuracy (tolerance)?
-   if (!rotMatrix.IsOrthogonal(1.0e-15))
+   //if (!rotMatrix.IsOrthogonal(1.0e-15))
+   if (!rotMatrix.IsOrthogonal(1.0e-14))
       throw CoordinateSystemException(
-            "Object referenced axes definition does not result in an "
-            "orthogonal system\n\nrotMatrix = " + rotMatrix.ToString());
+         "Object referenced axes definition does not result in an "
+         "orthogonal system\n\nrotMatrix =\n" + rotMatrix.ToString(16, 20));
 }
