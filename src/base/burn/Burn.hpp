@@ -144,6 +144,10 @@ protected:
    std::string          vectorFormat;
    /// Flag indicating if local coordinate system is used
    bool                 usingLocalCoordSys;
+   /// Flag indicating if axes is MJ2000Eq
+   bool                 isMJ2000EqAxes;
+   /// Flag indicating if axes is SpacecrftBody
+   bool                 isSpacecraftBodyAxes;
    /// Flag used to determine if the configuration needs updating
    bool                 initialized;
    
