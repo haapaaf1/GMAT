@@ -129,7 +129,7 @@ public:
                                 bool appendEol = true) const;
    
    virtual std::string ToRowString(Integer row, Integer precision,
-                                   Integer width = 1) const;
+                                   Integer width = 1, bool zeroFill = false) const;
    
 protected:   
    StringArray stringVals;
