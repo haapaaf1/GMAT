@@ -20,6 +20,7 @@ function Func_IBurnCStest4VNB(reportLoc1,reportLoc2,reportLoc3,reportLoc4)
 %   Modification History
 %   ---------------------------------------------------------------------------------
 %   05/08/2009 - E.Dove:  Created the first version.
+%   05/12/2009 - E.Dove:  Changed Impulsive Burn object Axes to VNB from MJ2000Eq
 
 %----------------------------------------
 %---------- Spacecrafts
@@ -145,14 +146,14 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ImpulsiveBurn EarthBurn1;
 GMAT EarthBurn1.Origin   = Earth;
-GMAT EarthBurn1.Axes     = MJ2000Eq;
+GMAT EarthBurn1.Axes     = VNB;
 GMAT EarthBurn1.Element1 = 0.1;
 GMAT EarthBurn1.Element2 = 0.1;
 GMAT EarthBurn1.Element3 = 0.1;
 
 Create ImpulsiveBurn EarthBurn3;
 GMAT EarthBurn3.Origin       = Earth;
-GMAT EarthBurn3.Axes         = MJ2000Eq;
+GMAT EarthBurn3.Axes         = VNB;
 GMAT EarthBurn3.VectorFormat = Cartesian;
 GMAT EarthBurn3.Element1     = 0.1;
 GMAT EarthBurn3.Element2     = 0.1;
@@ -167,14 +168,14 @@ GMAT EarthBurn5.Element3         = 0.1;
 
 Create ImpulsiveBurn SunBurn1;
 GMAT SunBurn1.Origin   = Sun;
-GMAT SunBurn1.Axes     = MJ2000Eq;
+GMAT SunBurn1.Axes     = VNB;
 GMAT SunBurn1.Element1 = 0.1;
 GMAT SunBurn1.Element2 = 0.1;
 GMAT SunBurn1.Element3 = 0.1;
 
 Create ImpulsiveBurn SunBurn3;
 GMAT SunBurn3.Origin       = Sun;
-GMAT SunBurn3.Axes         = MJ2000Eq;
+GMAT SunBurn3.Axes         = VNB;
 GMAT SunBurn3.VectorFormat = Cartesian;
 GMAT SunBurn3.Element1     = 0.1;
 GMAT SunBurn3.Element2     = 0.1;
@@ -189,14 +190,14 @@ GMAT SunBurn5.Element3         = 0.1;
 
 Create ImpulsiveBurn MarsBurn1;
 GMAT MarsBurn1.Origin   = Mars;
-GMAT MarsBurn1.Axes     = MJ2000Eq;
+GMAT MarsBurn1.Axes     = VNB;
 GMAT MarsBurn1.Element1 = 0.1;
 GMAT MarsBurn1.Element2 = 0.1;
 GMAT MarsBurn1.Element3 = 0.1;
 
 Create ImpulsiveBurn MarsBurn3;
 GMAT MarsBurn3.Origin       = Mars;
-GMAT MarsBurn3.Axes         = MJ2000Eq;
+GMAT MarsBurn3.Axes         = VNB;
 GMAT MarsBurn3.VectorFormat = Cartesian;
 GMAT MarsBurn3.Element1     = 0.1;
 GMAT MarsBurn3.Element2     = 0.1;
@@ -211,14 +212,14 @@ GMAT MarsBurn5.Element3         = 0.1;
 
 Create ImpulsiveBurn MoonBurn1;
 GMAT MoonBurn1.Origin   = Luna;
-GMAT MoonBurn1.Axes     = MJ2000Eq;
+GMAT MoonBurn1.Axes     = VNB;
 GMAT MoonBurn1.Element1 = 0.1;
 GMAT MoonBurn1.Element2 = 0.1;
 GMAT MoonBurn1.Element3 = 0.1;
 
 Create ImpulsiveBurn MoonBurn3;
 GMAT MoonBurn3.Origin       = Luna;
-GMAT MoonBurn3.Axes         = MJ2000Eq;
+GMAT MoonBurn3.Axes         = VNB;
 GMAT MoonBurn3.VectorFormat = Cartesian;
 GMAT MoonBurn3.Element1     = 0.1;
 GMAT MoonBurn3.Element2     = 0.1;
