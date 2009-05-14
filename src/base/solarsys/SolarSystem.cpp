@@ -962,7 +962,7 @@ SolarSystem::SolarSystem(std::string withName)
    #else
       spiceAvailable = false;
    #endif
-   SetIsSpiceAllowedForDefaultBodies(false);  // for now, this is false, per S. Hughes
+   SetIsSpiceAllowedForDefaultBodies(true);  // for now, this is false, per S. Hughes
    
    CreatePlanetarySource();
    
