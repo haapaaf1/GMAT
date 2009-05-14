@@ -3607,30 +3607,41 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    Real     cbMu  = theCentralBody->GetGravitationalConstant() + mu;
    Rvector6 cart;  // or MA???
    Real     dTime;
-   if (newTwoBody)
-   {
+   
+   if ((!newTwoBody) && 
+       (Abs(forTime.Subtract(prevTwoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY) <= KEPLER_TOL))
+      return prevTwoBodyState;
+//   if (newTwoBody)
+//   {
       cart  = CoordUtil::KeplerianToCartesian(twoBodyKepler, cbMu, CoordUtil::TA);  // or MA???
       dTime = forTime.Subtract(twoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
-   }
-   else
-   {
-      cart  = prevTwoBodyState;
-      dTime = forTime.Subtract(prevTwoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
-   }
+//   }
+//   else
+//   {
+//      cart  = prevTwoBodyState;
+//      dTime = forTime.Subtract(prevTwoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
+//   }
    #ifdef DEBUG_TWO_BODY
-      MessageInterface::ShowMessage("cbMu = %12.8f    dTime = %12.8f\n", cbMu, dTime);
+      MessageInterface::ShowMessage("cbMu = %12.14f    dTime = %12.14f\n", cbMu, dTime);
    #endif
+//   // if it hasn't been much time since the last call, just pass back the current (last
+//   // computed) state
+//   if (Abs(dTime) <= KEPLER_TOL) return cart;
 
-   //   // check for number of revs and reduce dTime if necessary
-   Real a = twoBodyKepler[0];   // SMA, which should be constant
-   Real T = 2 * PI * Sqrt(Abs(a)*Abs(a)*Abs(a)/cbMu);
+   //   // check for number of revs and reduce dTime if necessary (this does not work for the Sun)
+   if (instanceName != SolarSystem::SUN_NAME)
+   {
+      Real sma = twoBodyKepler[0];   // SMA, which should be constant
+      Real T = 2 * PI * Sqrt(Abs(sma)*Abs(sma)*Abs(sma)/cbMu);
+   
+      Real revs = dTime/T;
+      dTime = dTime - T * Fix(revs);
+      #ifdef DEBUG_TWO_BODY
+         MessageInterface::ShowMessage("After Fix, sma = %12.14f    T = %12.14f     revs = %12.14f    dTime = %12.14f\n", 
+               sma, T, revs, dTime);
+      #endif
+   }
 
-   Real revs = dTime/T;
-   dTime = dTime - T * Fix(revs);
-
-   // if it hasn't been much time since the last call, just pass back the current (last
-   // computed) state
-   if (Abs(dTime) <= KEPLER_TOL) return cart;
 
    #ifdef DEBUG_TWO_BODY
       MessageInterface::ShowMessage("r0 = %12.16f   %12.16f   %12.16f  & v0 = %12.16f   %12.16f   %12.16f\n",
@@ -3647,7 +3658,7 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    
    #ifdef DEBUG_TWO_BODY
       MessageInterface::ShowMessage("alpha = %12.14f    rDotv = %12.14f\n", alpha, rDotv);
-      MessageInterface::ShowMessage("KEPLER_TOL = %12.10f\n", KEPLER_TOL);
+      MessageInterface::ShowMessage("KEPLER_TOL = %12.14f\n", KEPLER_TOL);
    #endif
    // Determine initial guess .......
    // for a circle or ellipse
@@ -3655,10 +3666,10 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    {
       x0 = Sqrt(cbMu) * dTime * alpha;
 //      if (alpha == 1.0) 
-#ifdef DEBUG_TWO_BODY
-   MessageInterface::ShowMessage("alpha = %12.10f    dTime = %12.10f,  cbMu = %12.10f\n", alpha, dTime, cbMu);
-   MessageInterface::ShowMessage("x0 = %12.10f\n", x0);
-#endif
+      #ifdef DEBUG_TWO_BODY
+      //   MessageInterface::ShowMessage("alpha = %12.14f    dTime = %12.14f,  cbMu = %12.14f\n", alpha, dTime, cbMu);
+         MessageInterface::ShowMessage("x0 = %12.14f\n", x0);
+      #endif
       if (Abs(alpha - 1.0) <= KEPLER_TOL)
       {
          // match Vallado matlab code 
@@ -3724,11 +3735,11 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
       }
       rVal = (xn * xn * c2) + (rDotv / Sqrt(cbMu)) * xn * (1.0 - psi * c3) +
               rMag0 * (1.0 - psi * c2);
-#ifdef DEBUG_TWO_BODY
-      MessageInterface::ShowMessage(" at start of loop,xn = %12.10f and psi = %12.10f\n",  xn, psi);
-      MessageInterface::ShowMessage("                  c2 = %12.10f and c3 = %12.10f\n",  c2, c3);
-      MessageInterface::ShowMessage("                  rVal = %12.10ff\n",  rVal);
-#endif
+      #ifdef DEBUG_TWO_BODY
+         MessageInterface::ShowMessage(" at start of loop,xn = %12.14f and psi = %12.14f\n",  xn, psi);
+         MessageInterface::ShowMessage("                  c2 = %12.14f and c3 = %12.14f\n",  c2, c3);
+         MessageInterface::ShowMessage("                  rVal = %12.14ff\n",  rVal);
+      #endif
 //      dtNew = (xn * xn * xn * c3) + (rDotv / Sqrt(cbMu)) * (xn * xn * c2) +
 //                rMag0 * xn * (1.0 - psi *c3);
 //      xNew  = xn + ((Sqrt(cbMu) * dTime) - dtNew) / rVal;
@@ -3741,9 +3752,9 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
       xn = xNew;
       counter++;
    }
-#ifdef DEBUG_TWO_BODY
-   MessageInterface::ShowMessage(" after loop is done, xNew = %12.10f    xn = %12.10f\n", xNew, xn);
-#endif
+   #ifdef DEBUG_TWO_BODY
+      MessageInterface::ShowMessage(" after loop is done, xNew = %12.14f    xn = %12.14f\n", xNew, xn);
+   #endif
 
    if (counter >= KEPLER_MAX_ITERATIONS)
    {
@@ -3767,9 +3778,9 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
 //   Real     fg = f*gDot - fDot * g;
    
    #ifdef DEBUG_TWO_BODY
-      MessageInterface::ShowMessage("f    = %12.10f, g    = %12.10f\n", f, g);
-      MessageInterface::ShowMessage("fDot = %12.10f, gDot = %12.10f\n", fDot, gDot);
-      MessageInterface::ShowMessage("Computed quantity (fg) = %12.10f\n", (Abs(f * gDot - g * fDot)));
+      MessageInterface::ShowMessage("f    = %12.14f, g    = %12.14f\n", f, g);
+      MessageInterface::ShowMessage("fDot = %12.14f, gDot = %12.14f\n", fDot, gDot);
+      MessageInterface::ShowMessage("Computed quantity (f*gDot - fDot * g) = %12.14f\n", (Abs(f * gDot - g * fDot)));
    #endif
 //   if (!IsEqual((f * gDot - g * fDot), 1.0, 1.0e-9))
    if (!IsEqual(Abs(f * gDot - g * fDot), 1.0, 1.0e-5))  // e-5 per S. Hughes 2009.02.19
@@ -3785,9 +3796,9 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    newTwoBody       = false;
    // debug stuff
    #ifdef DEBUG_TWO_BODY
-      MessageInterface::ShowMessage("At end of TwoBody computation, new r  = %12.10f    %12.10f    %12.10f\n",
+      MessageInterface::ShowMessage("At end of TwoBody computation, new r  = %12.14f    %12.14f    %12.14f\n",
             newState[0], newState[1], newState[2]);
-      MessageInterface::ShowMessage("At end of TwoBody computation, new v  = %12.10f    %12.10f    %12.10f\n",
+      MessageInterface::ShowMessage("At end of TwoBody computation, new v  = %12.14f    %12.14f    %12.14f\n",
             newState[3], newState[4], newState[5]);
    #endif
    
