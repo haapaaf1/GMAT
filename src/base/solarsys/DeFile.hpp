@@ -73,7 +73,8 @@ public:
    // at the specified time
    Real* GetPosVel(Integer forBody, A1Mjd atTime, 
                    bool overrideTimeSystem = false);
-                   
+   
+   /// method to return angles and rates (for Luna ONLY!!)                
    void  GetAnglesAndRates(A1Mjd atTime, Real* angles, Real* rates, 
                            bool overrideTimeSystem = false);
 
