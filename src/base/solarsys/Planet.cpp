@@ -26,7 +26,6 @@
 #include "TimeTypes.hpp"
 #include "TimeSystemConverter.hpp"
 #include "AngleUtil.hpp"
-//#include "FileManager.hpp"
 #include "StringUtil.hpp"
 
 //#define DEBUG_PLANET 1
@@ -317,8 +316,6 @@ Planet::Planet(std::string name) :
    CelestialBody     ("Planet",name),
    nutationUpdateInterval    (60.0)
 {   
-//   CelestialBody::InitializeBody();
-
    objectTypeNames.push_back("Planet");
    parameterCount = PlanetParamCount;
 
@@ -365,8 +362,6 @@ Planet::Planet(std::string name, const std::string &cBody) :
    CelestialBody     ("Planet",name),
    nutationUpdateInterval    (60.0)
 {
-//   CelestialBody::InitializeBody();
-
    objectTypeNames.push_back("Planet");
    parameterCount = PlanetParamCount;
    
@@ -462,81 +457,9 @@ Rvector Planet::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
       Real Wdot      = orientation[5] * CelestialBody::dDot - 0.48 * NDot * Cos(Rad(N));
       return Rvector(4, alpha, delta, W, Wdot);
    }
-   else
-      return CelestialBody::GetBodyCartographicCoordinates(forTime);
+
+   return CelestialBody::GetBodyCartographicCoordinates(forTime);
    
-//   if (instanceName == SolarSystem::MERCURY_NAME)
-//   {
-//      alpha = 281.01  - 0.033 * T;
-//      delta = 61.45   - 0.005 * T;
-//      W     = 329.548 + 6.1385025 * d;
-//      Wdot  = 6.1385025 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::VENUS_NAME)
-//   {
-//      alpha = 272.76;
-//      delta = 67.16;
-//      W     = 160.20 - 1.4813688 * d;
-//      Wdot = - 1.4813688 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::EARTH_NAME)
-//   {
-//      alpha = 0.00    - 0.641 * T;
-//      delta = 90.00   - 0.557 * T;
-//      W     = 190.147 + 360.9856235 * d;
-//      Wdot  = 360.9856235 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::MARS_NAME)
-//   {
-//      alpha = 317.68143 - 0.1061 * T;
-//      delta = 52.88650  - 0.0609 * T;
-//      W     = 176.630   + 350.89198226 * d;
-//      Wdot = 350.89198226 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::JUPITER_NAME)
-//   {
-//      alpha = 268.05 - 0.009 * T;
-//      delta = 64.49  + 0.003 * T;
-//      W     = 284.95 + 870.5366420 * d;
-//      Wdot  = 870.5366420 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::SATURN_NAME)
-//   {
-//      alpha = 40.589 - 0.036 * T;
-//      delta = 83.537 - 0.004 * T;
-//      W     = 38.90  + 810.7939024 * d;
-//      Wdot  = 810.7939024 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::URANUS_NAME)
-//   {
-//      alpha = 257.311;
-//      delta = -15.175;
-//      W     = 203.81 - 501.1600928 * d;
-//      Wdot  = - 501.1600928 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::NEPTUNE_NAME)
-//   {
-//      Real N    = 357.85 + 52.316 * T;
-//      //Real NDot = 52.316 * CelestialBody::TDot;
-//      Real NDot = 6.0551e-04;   // per new specs 2004.02.22
-//      alpha     = 299.36 + 0.70 * Sin(Rad(N));
-//      delta     = 43.46  - 0.51 * Cos(Rad(N));
-//      W         = 253.18 + 536.3128492 * d - 0.48 * Sin(Rad(N));
-//      Wdot      = 536.3128492 * CelestialBody::dDot - 0.48 * NDot * Cos(Rad(N));
-//   }
-//   else if (instanceName == SolarSystem::PLUTO_NAME)
-//   {
-//      alpha = 313.02;
-//      delta = 9.09;
-//      W     = 236.77 - 56.3623195 * d;
-//      Wdot  = - 56.3623195 * CelestialBody::dDot;
-//   }
-//   else
-//   {
-//      return CelestialBody::GetBodyCartographicCoordinates(forTime);
-//   }
-//   
-//   return Rvector(4, alpha, delta, W, Wdot);
 }
 
 //------------------------------------------------------------------------------
@@ -561,8 +484,6 @@ Real  Planet::GetHourAngle(A1Mjd atTime)
    {
       // Convert the time to a UT1 MJD
       // 20.02.06 - arg: changed to use enum types instead of strings
-//      Real mjdUT1 = TimeConverterUtil::Convert(atTime.Get(),
-//                                               "A1Mjd", "Ut1Mjd", GmatTimeUtil::JD_JAN_5_1941);
       Real mjdUT1 = TimeConverterUtil::Convert(atTime.Get(),
                                  TimeConverterUtil::A1MJD, TimeConverterUtil::UT1MJD,
                                  GmatTimeUtil::JD_JAN_5_1941);
@@ -584,56 +505,6 @@ Real  Planet::GetHourAngle(A1Mjd atTime)
       hourAngle = AngleUtil::PutAngleInDegRange(mst,0.0,360.0);
       return hourAngle;
    }
-//   else
-//   {
-//      Real d = GetJulianDaysFromTCBEpoch(atTime); // interval in Julian days
-//      Real T = d / 36525;                        // interval in Julian centuries
-//      if (instanceName == SolarSystem::MERCURY_NAME)
-//      {
-//         hourAngle     = 329.548 + 6.1385025 * d;
-//      }
-//      else if (instanceName == SolarSystem::VENUS_NAME)
-//      {
-//         hourAngle     = 160.20 - 1.4813688 * d;
-//      }
-//      //else if (instanceName == SolarSystem::EARTH_NAME)
-//      //{
-//      //   hourAngle     = 190.147 + 360.9856235 * d;
-//      //}
-//      else if (instanceName == SolarSystem::MARS_NAME)
-//      {
-//         hourAngle     = 176.630   + 350.89198226 * d;
-//      }
-//      else if (instanceName == SolarSystem::JUPITER_NAME)
-//      {
-//         hourAngle     = 284.95 + 870.5366420 * d;
-//      }
-//      else if (instanceName == SolarSystem::SATURN_NAME)
-//      {
-//         hourAngle     = 38.90  + 810.7939024 * d;
-//      }
-//      else if (instanceName == SolarSystem::URANUS_NAME)
-//      {
-//         hourAngle     = 203.81 - 501.1600928 * d;
-//      }
-//      else if (instanceName == SolarSystem::NEPTUNE_NAME)
-//      {
-//         Real N        = 357.85 + 52.316 * T;
-//         hourAngle     = 253.18 + 536.3128492 * d - 0.48 * Sin(Rad(N));
-//      }
-//      else if (instanceName == SolarSystem::PLUTO_NAME)
-//      {
-//         hourAngle     = 236.77 - 56.3623195 * d;
-//      }
-//      else
-//      {
-//         return CelestialBody::GetHourAngle(atTime);
-//      }
-//      // reduce to a quantity within one day (86400 seconds, 360.0 degrees)
-//      hourAngle = AngleUtil::PutAngleInDegRange(hourAngle,0.0,360.0);
-//  }
-   
-//   return hourAngle; 
    return CelestialBody::GetHourAngle(atTime);
 }
 
@@ -936,52 +807,7 @@ Real Planet::SetRealParameter(const std::string &label, const Real value)
 //------------------------------------------------------------------------------
 // protected methods
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//  void  InitializePlanet(const std::string &cBody)
-//------------------------------------------------------------------------------
-/**
- * This method initializes the data values for the body.
- *
- * @param <cBody> central body (default is NULL).
- *
- */
-//------------------------------------------------------------------------------
-//void Planet::InitializePlanet(const std::string &cBody)
-//{
-//   CelestialBody::InitializeBody();
-//
-//   // fill in with default values, use Earth values for Earth and unheard-of
-//   // planets
-//   theCentralBodyName  = cBody;
-//   bodyType            = Gmat::PLANET;
-//   bodyNumber          = 1;
-//   referenceBodyNumber = 3;
-//   rotationSrc         = Gmat::IAU_DATA;
-//
-////   bodyType            = Planet::DEFAULT_BODY_TYPE;
-////   posVelSrc           = Planet::DEFAULT_POS_VEL_SOURCE;
-//////   analyticMethod      = Planet::DEFAULT_ANALYTIC_METHOD;
-////   bodyNumber          = Planet::DEFAULT_BODY_NUMBER;
-////   referenceBodyNumber = Planet::DEFAULT_REF_BODY_NUMBER;
-////   rotationSrc         = Gmat::IAU_DATA;
-////
-////   if (instanceName == SolarSystem::MERCURY_NAME)      bodyIndex = MERCURY;
-////   else if (instanceName == SolarSystem::VENUS_NAME)   bodyIndex = VENUS;
-////   else if (instanceName == SolarSystem::EARTH_NAME)   bodyIndex = EARTH;
-////   else if (instanceName == SolarSystem::MARS_NAME)    bodyIndex = MARS;
-////   else if (instanceName == SolarSystem::JUPITER_NAME) bodyIndex = JUPITER;
-////   else if (instanceName == SolarSystem::SATURN_NAME)  bodyIndex = SATURN;
-////   else if (instanceName == SolarSystem::URANUS_NAME)  bodyIndex = URANUS;
-////   else if (instanceName == SolarSystem::NEPTUNE_NAME) bodyIndex = NEPTUNE;
-////   else if (instanceName == SolarSystem::PLUTO_NAME)   bodyIndex = PLUTO;
-////   else    // for Earth and other(?) planets, use Earth defaults
-////   {
-////      bodyIndex = EARTH;
-////      std::string errMsg =  "Unknown planet created - please supply ";
-////      errMsg            +=  "potential file or physical parameter values\n";
-////      MessageInterface::ShowMessage(errMsg);
-////   }
-//}
+// none at this time
 
 //------------------------------------------------------------------------------
 // private methods
