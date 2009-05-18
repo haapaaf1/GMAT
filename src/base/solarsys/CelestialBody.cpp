@@ -1357,7 +1357,11 @@ StringArray CelestialBody::GetRotationDataSourceList() const
 {
    StringArray srcList;
    for (unsigned int ii = 0; ii < Gmat::RotationDataSrcCount; ii++)
-      srcList.push_back(Gmat::ROTATION_DATA_SOURCE_STRINGS[ii]);
+   {
+      // exclude NOT_APPLICABLE for now
+      if (Gmat::ROTATION_DATA_SOURCE_STRINGS[ii] != "NotApplicable")
+         srcList.push_back(Gmat::ROTATION_DATA_SOURCE_STRINGS[ii]);
+   }
    
    return srcList;
 }
@@ -2865,18 +2869,36 @@ bool CelestialBody::SetStringParameter(const Integer id,
          SetRotationDataSource(Gmat::DE_FILE);
       else if (value == Gmat::ROTATION_DATA_SOURCE_STRINGS[Gmat::IAU_DATA])
          SetRotationDataSource(Gmat::IAU_DATA);
+      else if (value == Gmat::ROTATION_DATA_SOURCE_STRINGS[Gmat::NOT_APPLICABLE])
+         SetRotationDataSource(Gmat::NOT_APPLICABLE);
       else
       {
-         SolarSystemException sse;
-         std::string validStr = "";
-         for (int i = 0; i < Gmat::NOT_APPLICABLE; i++)
-            validStr = validStr + Gmat::ROTATION_DATA_SOURCE_STRINGS[i] + ", ";
-         
-         sse.SetDetails(errorMessageFormat.c_str(), value.c_str(),
-                        PARAMETER_TEXT[ROTATION_DATA_SRC - SpacePointParamCount].c_str(),
-                        validStr.c_str());
-         throw sse;
+         std::string errmsg = "Unrecognized Rotation Data Source \"";
+         errmsg += value + "\" for body ";
+         errmsg += instanceName + "\n";
+         throw SolarSystemException(errmsg);
       }
+//      else // this does not work - crashing on throwing the exception ???
+//      {
+////         SolarSystemException sse;
+////         std::string validStr = "";
+//         if (instanceName == SolarSystem::MOON_NAME)
+//         {
+//            std::string validStr = 
+//               "\"Not Applicable\" is not a valid value for the Rotation Data Source for ";
+//            validStr += instanceName + "\n";
+//MessageInterface::ShowMessage("validStr = %s\n", validStr.c_str());
+//            throw SolarSystemException(validStr);
+//MessageInterface::ShowMessage("After throwing exception......\n");
+//         }
+//         for (int i = 0; i < Gmat::NOT_APPLICABLE; i++)
+//            validStr = validStr + Gmat::ROTATION_DATA_SOURCE_STRINGS[i] + ", ";
+//         
+//         sse.SetDetails(errorMessageFormat.c_str(), value.c_str(),
+//               PARAMETER_TEXT[ROTATION_DATA_SRC - SpacePointParamCount].c_str(),
+//                        validStr.c_str());
+//         throw sse;
+//      }
       hasBeenModified     = true;
       return true;
    }
