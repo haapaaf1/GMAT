@@ -44,11 +44,13 @@ classdef BatchEstimator < handle
             % - Initialize the measurement manager
             %--------------------------------------------------------------
 
-            %  Get handle to propagator:  Replace string with handle!
-            Estimator.Propagator = Sandbox.GetHandle(Estimator.Propagator);
+
 
             %  Initialize the ESM for the estimator
             Estimator.ESM = Estimator.ESM.Initialize(Sandbox,Estimator);
+            
+            %  Get handle to propagator:  Replace string with handle!
+            Estimator.Propagator = Sandbox.GetHandle(Estimator.Propagator);
             
             %  Intialize the PSM for the propagator
             Estimator.Propagator.PSM.Initialize(Estimator.ESM);

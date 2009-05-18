@@ -22,15 +22,13 @@ classdef MeasurementManager < handle
     
     %----- Set the public properties
     properties  (SetAccess = 'private')
-        measHandles  = {};
-        Epochs       = [];
+        measHandles  = {}; % handles for measurement objects attached by user.
+        Epochs       = []; % v  
         Obs          = [];
-        dataTypeIndeces = [];
         Htilde       = [];
-        Htildemap    = [];
-        numMeas      = 0;
-        numObs       = 0;
-        numDataTypes = [];
+        numMeas      = 0   % number of measurement objects attached by user
+        numObs       = 0;  % number of total observations (vector obs counted as 1)
+        numDataTypes = []; 
         numStates    = 0;
         paramIdsVector;
         lengthObjects = 0;
