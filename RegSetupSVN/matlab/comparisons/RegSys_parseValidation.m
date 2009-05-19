@@ -1,9 +1,19 @@
 function [] = RegSys_parseValidation(Build1,mainDir)
 % $Id: RegSys_parseValidation.m,v 1.6 2008/03/17 20:08:50 edove Exp $
+%
+%   Modification History
+%   ---------------------------------------------------------------------------------
+%   ??/??/???? - E.Dove:  Created the first version.
+%   05/19/2009 - E.Dove:  Throw an exception when scripts in log file aren't Validation scripts,
+%       Delete existing *.regrpt and *.report files
 
 validFolder = [mainDir,'/output/Validation/',num2str(Build1),'GMAT_reports/'];
 
 if exist(validFolder,'dir') == 7;
+    % Delete existing Validation reports
+    delete([validFolder,'*.report']);
+    delete([validFolder,'*.regrpt']);
+    
     if exist([validFolder,'GMATlog.txt'],'file') == 2;
         % Open log file and store in Matlab
         fid1 = fopen([validFolder,'GMATlog.txt']);
@@ -11,7 +21,20 @@ if exist(validFolder,'dir') == 7;
         fclose(fid1);
         
         % Find starting and ending points for each script log
-        findScript = strmatch('Starting script',ValidData{1,1});
+        findScript1    = strmatch('Starting script',ValidData{1,1});
+        storedScripts  = [ValidData{1,1}(findScript1)];
+        findValidation = strfind(storedScripts,'Validation');
+        findScript     = findScript1(find(cell2mat(findValidation)));
+        
+        if isempty(findScript)
+            disp(' ')
+            disp('The scripts contained in the batch run were not located in the Validation folder.')
+            disp('Check to make sure the scripts contained in the log file are only Validation scripts.')
+            disp('The log file in question is in the following folder:')
+            disp(validFolder)
+            return
+        end
+        
         lastScriptLog = strmatch('===> Grand Total',ValidData{1,1}(findScript(size(findScript,1))+1 : size(ValidData{1,1},1))) - 2; % Amount of lines after last row of findScript
         
         % If there is no script file summary for all files with errors 
@@ -46,7 +69,7 @@ if exist(validFolder,'dir') == 7;
                     warning on;
                 end;
                 fclose(fid);
-            else;
+            else
                 save2Report = ValidData{1,1}(findScript(logScriptLoop):(findScript(logScriptLoop)+lastScriptLog));
                 findEndLog = strmatch('Errors were found',save2Report)-1;
                 findFilename = max([cell2mat(strfind(ValidData{1,1}(findScript(logScriptLoop)), '\')), cell2mat(strfind(ValidData{1,1}(findScript(logScriptLoop)), '/'))]);
@@ -72,7 +95,7 @@ if exist(validFolder,'dir') == 7;
                 fclose(fid);
             end;
         end;
-    else;
+    else
         disp(' ')
         disp('The Validation folder does not contain a GMATlog.txt file.');
         disp('If you want to run validation comparisons please rerun the');
