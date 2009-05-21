@@ -195,13 +195,18 @@ void SpaceObjectSelectDialog::OnButton(wxCommandEvent& event)
       //-----------------------------------
       // add spacecraft object
       //-----------------------------------
-      wxString str = spaceObjAvailableListBox->GetStringSelection();
       int sel = spaceObjAvailableListBox->GetSelection();
+
+      if (sel == wxNOT_FOUND)
+         return;
+      
+      wxString str = spaceObjAvailableListBox->GetStringSelection();
       int strId = spaceObjSelectedListBox->FindString(str);
       
       #ifdef DEBUG_SO_DIALOG
       MessageInterface::ShowMessage
-         ( "SpaceObjectSelectDialog::OnButton() adding <%s>\n", str.c_str() );
+         ( "SpaceObjectSelectDialog::OnButton() sel=%d, strId=%d, adding '%s'\n",
+           sel, strId, str.c_str() );
       #endif
       
       // if the string wasn't found in the second list, insert it
@@ -262,6 +267,7 @@ void SpaceObjectSelectDialog::OnButton(wxCommandEvent& event)
          spaceObjAvailableListBox->Append(spaceObjSelectedListBox->GetString(i));
       
       spaceObjSelectedListBox->Clear();
+      spaceObjAvailableListBox->SetSelection(0);
       EnableUpdate(true);
    }
 }
@@ -272,6 +278,7 @@ void SpaceObjectSelectDialog::OnButton(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void SpaceObjectSelectDialog::LoadData()
 {
+   spaceObjSelectedListBox->SetSelection(0);
 }
 
 
