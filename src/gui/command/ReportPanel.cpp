@@ -280,6 +280,11 @@ void ReportPanel::SaveData()
             theCommand->SetStringParameter("Add", selName);
             theCommand->SetRefObject(param, Gmat::PARAMETER, selName, i);
          }
+         
+         // Now validate command and create element wrappers
+         if (!theGuiInterpreter->ValidateCommand(theCommand))
+            canClose = false;
+         
       }
    }
    catch (BaseException &e)
