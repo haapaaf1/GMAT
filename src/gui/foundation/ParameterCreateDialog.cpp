@@ -158,9 +158,9 @@ void ParameterCreateDialog::Create()
    mArrNameTextCtrl = new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
                                      wxDefaultPosition, wxSize(102,20), 0);
    mArrRowTextCtrl = new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
-                                    wxDefaultPosition, wxSize(35,20), 0);
+                                    wxDefaultPosition, wxSize(50,20), 0);
    mArrColTextCtrl = new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
-                                    wxDefaultPosition, wxSize(35,20), 0);
+                                    wxDefaultPosition, wxSize(50,20), 0);
    mStringNameTextCtrl = new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
                                         wxDefaultPosition, wxSize(80,20), 0);
    mStringValueTextCtrl = new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
@@ -895,14 +895,25 @@ void ParameterCreateDialog::CreateArray()
    {
       wxLogError(wxT("Row or Column is not a number"));
       wxLog::FlushActive();
+      canClose = false;
       return;
    }
-
+   
+   // Check for maximum array size of 1000x1000
+   if (row > 1000 || col > 1000)
+   {
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "The array size %d x %d is too big. The maximum "
+          "allowed size is 1000 x 1000", row, col);
+      canClose = false;
+      return;
+   }
+   
    try
    {
       wxString wxarrName = mArrNameTextCtrl->GetValue().Trim();
       std::string arrName = std::string(wxarrName.c_str());
-
+      
       // if new user array to create
       if (theGuiInterpreter->GetParameter(arrName) == NULL)
       {
