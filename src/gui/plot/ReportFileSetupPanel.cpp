@@ -525,12 +525,6 @@ void ReportFileSetupPanel::SaveData()
          
          if (mNumParameters >= 0) // >=0 because the list needs to be cleared
          {
-            if (mNumParameters == 0)
-            {
-               MessageInterface::ShowMessage
-                  ("\nWarning:  No variable in %s's \"Selected\"  selection box",
-                   reportFile->GetName().c_str());
-            }
             reportFile->TakeAction("Clear");
             for (int i=0; i<mNumParameters; i++)
             {
