@@ -1163,7 +1163,7 @@ void GmatMainFrame::MinimizeChildren()
 
 
 //------------------------------------------------------------------------------
-// void GmatMainFrame::SetActiveChildDirty()
+// void SetActiveChildDirty()
 //------------------------------------------------------------------------------
 void GmatMainFrame::SetActiveChildDirty(bool dirty)
 {
@@ -1171,6 +1171,18 @@ void GmatMainFrame::SetActiveChildDirty(bool dirty)
    
    if (child != NULL)
       child->SetDirty(dirty); 
+}
+
+
+//------------------------------------------------------------------------------
+// void OverrideActiveChildDirty()
+//------------------------------------------------------------------------------
+void GmatMainFrame::OverrideActiveChildDirty(bool override)
+{
+   GmatMdiChildFrame *child = (GmatMdiChildFrame *)GetActiveChild();
+   
+   if (child != NULL)
+      child->OverrideDirty(override); 
 }
 
 
@@ -1609,6 +1621,8 @@ bool GmatMainFrame::ShowSaveMessage()
       
       if (result == wxID_CANCEL)
       {
+         // per kw report
+         delete msgDlg;
          return true;
       }
       else if (result == wxID_NO)
@@ -1616,6 +1630,8 @@ bool GmatMainFrame::ShowSaveMessage()
          // If we decided to ignore any changes made to panel later,
          // just uncomment this
          //mExitWithoutConfirm = true;
+         // per kw report
+         delete msgDlg;
          return false;
       }
       else if (result == wxID_YES)
@@ -1644,6 +1660,8 @@ bool GmatMainFrame::ShowSaveMessage()
                (Gmat::INFO_, "Script saved to \"%s\"\nSaved backup to \"%s\"\n",
                 mScriptFilename.c_str(), wxBackupFilename.c_str());
          }
+         // per kw report
+         delete msgDlg;
       }
    }
    else
@@ -1656,7 +1674,11 @@ bool GmatMainFrame::ShowSaveMessage()
       int result = msgDlg->ShowModal();
       
       if (result == wxID_NO)
+      {
+         // per kw report
+         delete msgDlg;
          return false;
+      }
       #endif
    }
    

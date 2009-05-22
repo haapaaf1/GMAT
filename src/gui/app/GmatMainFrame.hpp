@@ -78,6 +78,7 @@ public:
                          bool closeReports = true);
    void MinimizeChildren();
    void SetActiveChildDirty(bool dirty);
+   void OverrideActiveChildDirty(bool override);
    void CloseCurrentProject();
    bool InterpretScript(const wxString &filename, Integer scriptOpenOpt = 0,
                         bool closeScript = false, bool readBack = false,
