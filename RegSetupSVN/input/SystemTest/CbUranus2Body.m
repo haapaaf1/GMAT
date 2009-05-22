@@ -2,7 +2,7 @@
 
 Create Spacecraft UranusSC;
 GMAT UranusSC.DateFormat = UTCGregorian
-GMAT UranusSC.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+GMAT UranusSC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
 GMAT UranusSC.CoordinateSystem = UranusMJ2000Eq;
 GMAT UranusSC.DisplayStateType = Cartesian;
 GMAT UranusSC.X = -26762.258109447845000;

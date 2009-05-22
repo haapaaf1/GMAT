@@ -43,11 +43,7 @@ GMAT SCmodjulian.SRPArea = 25;
 %---------- Variables, Arrays, Strings
 %----------------------------------------
 
-Create String DataGregRpt;
-GMAT DataGregRpt = './output/SystemTest/CheckData2Matlab_SCgreg.report';
-
-Create String DataModJulRpt;
-GMAT DataModJulRpt = './output/SystemTest/CheckData2Matlab_SCmodJul.report';
+Create String DataGregRpt DataModJulRpt;
 
 %----------------------------------------
 %---------- ForceModels
@@ -74,14 +70,14 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile DataGreg
-GMAT DataGreg.Filename = DataGregRpt;
+GMAT DataGreg.Filename = './output/SystemTest/CheckData2Matlab_SCgreg.report';
 GMAT DataGreg.Precision = 16;
 GMAT DataGreg.WriteHeaders = On;
 GMAT DataGreg.ZeroFill = On;
 GMAT DataGreg.ColumnWidth = 28;
 
 Create ReportFile DataModJul
-GMAT DataModJul.Filename = DataModJulRpt;
+GMAT DataModJul.Filename = './output/SystemTest/CheckData2Matlab_SCmodJul.report';
 GMAT DataModJul.Precision = 16;
 GMAT DataModJul.WriteHeaders = On;
 GMAT DataModJul.ZeroFill = On;
@@ -89,6 +85,9 @@ GMAT DataModJul.ColumnWidth = 28;
 
 Create MatlabFunction GMAT2MATLAB_SC
 GMAT GMAT2MATLAB_SC.FunctionPath = './input/SystemTest/';
+
+GMAT DataGregRpt   = DataGreg.Filename;
+GMAT DataModJulRpt = DataModJul.Filename;
 
 %----------------------------------------
 %---------- Mission Sequence

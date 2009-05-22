@@ -2,7 +2,7 @@
 
 Create Spacecraft MercurySC;
 GMAT MercurySC.DateFormat = UTCGregorian
-GMAT MercurySC.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+GMAT MercurySC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
 GMAT MercurySC.CoordinateSystem = MercuryMJ2000Eq;
 GMAT MercurySC.DisplayStateType = Cartesian;
 GMAT MercurySC.X = -2164.769322630887000;

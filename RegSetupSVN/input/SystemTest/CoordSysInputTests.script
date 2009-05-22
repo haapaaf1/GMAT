@@ -107,7 +107,7 @@ GMAT DefaultProp_ForceModel.SRP = Off;
 GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
  
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
@@ -166,22 +166,22 @@ CoordSysInputTests.WriteHeaders = Off;
 GMAT CoordSysInputTests.ColumnWidth = 36;
  
 Create String EarthMJ2000EqState;
-EarthMJ2000EqState = ------ State Values in  EarthMJ2000Eq System ---- 
+EarthMJ2000EqState = '------ State Values in  EarthMJ2000Eq System ----';
  
 Create String EarthMJ2000EcState;
-EarthMJ2000EcState = ------ State Values in  EarthMJ2000Ec System ---- 
+EarthMJ2000EcState = '------ State Values in  EarthMJ2000Ec System ----'; 
  
 Create String EarthFixedState;
-EarthFixedState = ------ State Values in  EarthFixed System ---- 
+EarthFixedState = '------ State Values in  EarthFixed System ----'; 
  
 Create String LunaFixedState;
-LunaFixedState = ------ State Values in LunaFixed System ---- 
+LunaFixedState = '------ State Values in LunaFixed System ----'; 
  
 Create String EarthMoonRotState;
-EarthMoonRotState = ------ State Values in EarthMoonRot System ---- 
+EarthMoonRotState = '------ State Values in EarthMoonRot System ----'; 
  
 Create String SunMJ2000EcState;
-SunMJ2000EcState = ------ State Values in SunMJ2000Ec System ---- 
+SunMJ2000EcState = '------ State Values in SunMJ2000Ec System ----'; 
  
 %----------------------------------------
 %---------- Mission Sequence

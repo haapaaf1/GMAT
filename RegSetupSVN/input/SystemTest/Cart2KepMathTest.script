@@ -34,7 +34,7 @@ GMAT Propagator1_ForceModel.SRP = Off;
 GMAT Propagator1_ForceModel.ErrorControl = RSSStep;
 GMAT Propagator1_ForceModel.Gravity.Earth.Degree = 4;
 GMAT Propagator1_ForceModel.Gravity.Earth.Order = 4;
-GMAT Propagator1_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT Propagator1_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create Propagator Prop;
 GMAT Prop.FM = Propagator1_ForceModel;
@@ -74,7 +74,7 @@ GMAT RAANvsTimeScript.Add = {RAAN }
 
 %  Create a report to output error data
 Create ReportFile Cart2KeptConvert;
-GMAT Cart2KeptConvert.Filename = ./output/SystemTest/Cart2KepMathTest.report;
+GMAT Cart2KeptConvert.Filename = './output/SystemTest/Cart2KepMathTest.report';
 GMAT Cart2KeptConvert.Precision = 16;
 GMAT Cart2KeptConvert.WriteHeaders = On;
 GMAT Cart2KeptConvert.LeftJustify = On;

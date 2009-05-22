@@ -2,7 +2,7 @@
 
 Create Spacecraft SaturnSC;
 GMAT SaturnSC.DateFormat = UTCGregorian
-GMAT SaturnSC.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+GMAT SaturnSC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
 GMAT SaturnSC.CoordinateSystem = SaturnMJ2000Eq;
 GMAT SaturnSC.DisplayStateType = Cartesian;
 GMAT SaturnSC.X = -47577.347750129338000;

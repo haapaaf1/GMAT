@@ -190,7 +190,7 @@ GMAT DefaultProp2.MaxStepAttempts = 50;
 %----------------------------------------
 
 Create ReportFile ReportFile1;
-GMAT ReportFile1.Filename = ./output/SystemTest/allPropagates.report;
+GMAT ReportFile1.Filename = './output/SystemTest/allPropagates.report';
 GMAT ReportFile1.Precision = 15;
 
 

@@ -134,7 +134,7 @@ GMAT DefaultProp_ForceModel.SRP = Off;
 GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
@@ -194,9 +194,9 @@ GMAT array2(3, 2) = 0;
 GMAT array2(3, 3) = 0;
 
 Create String string1;
-GMAT string1 = Here is a test string;
+GMAT string1 = 'Here is a test string';
 Create String string2;
-GMAT string2 = TTModJulian
+GMAT string2 = 'TTModJulian';
 
 
 %----------------------------------------

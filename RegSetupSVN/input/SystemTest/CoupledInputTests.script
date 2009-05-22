@@ -28,7 +28,7 @@
 %------ Define the initial conditions for EarthSat ------
 Create Spacecraft EarthSat;
 GMAT EarthSat.DateFormat = UTCGregorian;
-GMAT EarthSat.Epoch = 12 Nov 2003 12:27:20.951;
+GMAT EarthSat.Epoch = '12 Nov 2003 12:27:20.951';
 GMAT EarthSat.CoordinateSystem = EarthMJ2000Eq;
 GMAT EarthSat.DisplayStateType = Cartesian;
 GMAT EarthSat.X = -197850.2306922056;
@@ -41,7 +41,7 @@ GMAT EarthSat.VZ = 0.008706987052266571;
 %------ Define the initial conditions for SunSat ------
 Create Spacecraft SunSat;
 GMAT SunSat.DateFormat = UTCGregorian;
-GMAT SunSat.Epoch = 12 Nov 2003 12:27:20.951;
+GMAT SunSat.Epoch = '12 Nov 2003 12:27:20.951';
 GMAT SunSat.CoordinateSystem = SunMJ2000Ec;
 GMAT SunSat.DisplayStateType = Cartesian;
 GMAT SunSat.X = 95668466.90671603;
@@ -54,7 +54,7 @@ GMAT SunSat.VZ = 0.7556767147355457;
 %------ Define the initial conditions for MoonSat ------
 Create Spacecraft MoonSat;
 GMAT MoonSat.DateFormat = UTCGregorian;
-GMAT MoonSat.Epoch = 12 Nov 2003 12:27:20.951;
+GMAT MoonSat.Epoch = '12 Nov 2003 12:27:20.951';
 GMAT MoonSat.CoordinateSystem = MoonFixed;
 GMAT MoonSat.DisplayStateType = Cartesian;
 GMAT MoonSat.X = 471578.774424035;
@@ -69,7 +69,7 @@ GMAT MoonSat.VZ = 0.6625005544001953;
 %%------------------------------------------------------------
 
 Create ReportFile CoupledInputTests;
-CoupledInputTests.Filename = ./output/SystemTest/CoupledInputTests.report;
+CoupledInputTests.Filename = './output/SystemTest/CoupledInputTests.report';
 CoupledInputTests.ColumnWidth = 25;
 CoupledInputTests.WriteHeaders = Off;
 
@@ -84,12 +84,12 @@ SunMJ2000Ec.Axes   = MJ2000Ec;
 Create Variable E1 E2 E3 E4 E5 E6
 
 Create String Cart Kep ModKep SphAZEL SphRADEC Equinoc
-Cart =   ------  Catesian State Transformation Tests ------   ;
-Kep =   ------  Keplerian State Transformation Tests ------   ;
-ModKep =   ------  Modified Keplerian State Transformation Tests ------   ;
-SphAZEL =   ------  Spherical (AZEL) State Transformation Tests ------   ;
-SphRADEC =   ------  Spherical (RADEC) Transformation Tests ------   ;
-Equinoc =   ------  Equinoctial Transformation Tests ------   ;
+Cart     =   '------  Catesian State Transformation Tests ------';
+Kep      =   '------  Keplerian State Transformation Tests ------';
+ModKep   =   '------  Modified Keplerian State Transformation Tests ------';
+SphAZEL  =   '------  Spherical (AZEL) State Transformation Tests ------';
+SphRADEC =   '------  Spherical (RADEC) Transformation Tests ------';
+Equinoc  =   '------  Equinoctial Transformation Tests ------';
 
 
 %%*****************************************************************************************
