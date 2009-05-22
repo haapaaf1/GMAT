@@ -147,21 +147,13 @@ Thruster::Thruster(std::string nomme) :
    inertialDirection[1] = 0.0;
    inertialDirection[2] = 0.0;
    
-   cCoefficients[2]  = 500.0;
-   cCoefficients[12] = 1.0;
-   cCoefficients[0]  = cCoefficients[1]  = cCoefficients[3] =
-   cCoefficients[4]  = cCoefficients[5]  = cCoefficients[6] =
-   cCoefficients[7]  = cCoefficients[8]  = cCoefficients[9] =
-   cCoefficients[10] = cCoefficients[11] = cCoefficients[13] =
-   cCoefficients[14] = cCoefficients[15] = 0.0;
-
-   kCoefficients[2]  = 2150.0;
-   kCoefficients[12] = 1.0;
-   kCoefficients[0]  = kCoefficients[1]  = kCoefficients[3] =
-   kCoefficients[4]  = kCoefficients[5]  = kCoefficients[6] =
-   kCoefficients[7]  = kCoefficients[8]  = kCoefficients[9] =
-   kCoefficients[10] = kCoefficients[11] = kCoefficients[13] =
-   kCoefficients[14] = kCoefficients[15] = 0.0;
+   cCoefficients[0]  = 10.0;
+   for (int i=1; i<COEFFICIENT_COUNT; i++)
+      cCoefficients[i] = 0.0;
+   
+   kCoefficients[0]  = 300.0;
+   for (int i=1; i<COEFFICIENT_COUNT; i++)
+      kCoefficients[i] = 0.0;
    
    // Local axes labels
    localAxesLabels.push_back("VNB");
