@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              PhysicalModel
 //------------------------------------------------------------------------------
@@ -169,13 +169,13 @@ PhysicalModel::PhysicalModel(Gmat::ObjectType id, const std::string &typeStr,
 //------------------------------------------------------------------------------
 PhysicalModel::~PhysicalModel()
 {
-//   if (rawState != modelState)
-//      if (rawState)
-//         delete [] rawState;
-         
-//   if (modelState)
-//      delete [] modelState;
-
+   if (rawState != modelState)
+      if (rawState)
+         delete [] rawState;
+   
+   if (modelState)
+      delete [] modelState;
+   
    if (deriv)
       delete [] deriv;
 }
