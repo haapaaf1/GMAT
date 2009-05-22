@@ -29,7 +29,7 @@
 #include "Rmatrix33.hpp"
 #include "MessageInterface.hpp"
 
-#include <algorithm>			// Required by GCC 4.3
+#include <algorithm>                    // Required by GCC 4.3
 
 //#define DEBUG_RENAME 1
 //#define DEBUG_INPUTS_OUTPUTS
@@ -150,7 +150,16 @@ const CoordinateSystem& CoordinateSystem::operator=(
    if (&coordSys == this)
       return *this;
    CoordinateBase::operator=(coordSys);
-   //axes           = coordSys.axes;
+   
+   if (axes)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (axes, axes->GetTypeName(), "CoordinateSystem::operator=",
+          "deleting axes");
+      #endif
+      delete axes;
+   }
    
    if (coordSys.axes)
    {
