@@ -59,6 +59,7 @@ GmatDialog::GmatDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    
    canClose = true;
    mDataChanged = false;
+   mDataUpdated = false;
    int borderSize = 2;
    
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
@@ -112,6 +113,15 @@ void GmatDialog::EnableUpdate(bool enable)
       mDataChanged = true;
    else
       mDataChanged = false;
+}
+
+
+//------------------------------------------------------------------------------
+// bool HasDataUpdated
+//------------------------------------------------------------------------------
+bool GmatDialog::HasDataUpdated()
+{
+   return mDataUpdated;
 }
 
 

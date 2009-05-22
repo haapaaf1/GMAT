@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              GmatDialog
 //------------------------------------------------------------------------------
@@ -39,6 +39,7 @@ public:
               const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
    
    virtual void EnableUpdate(bool enable = true);
+   virtual bool HasDataUpdated();
    
    virtual void OnOK(wxCommandEvent &event);
    virtual void OnCancel(wxCommandEvent &event);
@@ -69,6 +70,7 @@ protected:
    GmatBase *mObject;
    bool canClose;
    bool mDataChanged;
+   bool mDataUpdated;
    std::string mMsgFormat;
    
    wxWindow *theParent;
