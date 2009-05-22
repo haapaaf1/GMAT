@@ -107,6 +107,8 @@ void EditorPanel::OnClosePanel(wxCommandEvent &event)
          OnSave(event);
       else
          SetModified(false);
+      
+      delete msgDlg;
    }
    
    GmatSavePanel::OnClosePanel(event);
@@ -195,6 +197,8 @@ void EditorPanel::LoadData()
    theSaveButton->Enable(true);
    GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(false);
    
+   delete file;
+   
    #ifdef DEBUG_EDITORPANEL
    MessageInterface::ShowMessage("EditorPanel::LoadData() exiting\n");
    #endif
@@ -245,6 +249,8 @@ void EditorPanel::OnButton(wxCommandEvent& event)
          (this, "Can not build an empty file ", "Can not build...",
           wxOK | wxICON_INFORMATION, wxDefaultPosition);
       msgDlg->ShowModal();
+      
+      delete msgDlg;
       return;
    }
    
