@@ -1,52 +1,51 @@
-% $Id: Func_StopTarget.script,v 1.2 2008/05/02 19:05:35 edove Exp $
-
-% Func_StopTarget - This script tests to make sure 
+% Created from the following script: StopTarget.m
 %
-% Function used: Func_StopTarget.gmf, Func_StopTarget_nested.gmf
+% Functions used: Func_StopTarget.gmf, Func_StopTarget_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
+ 
 Create String reportLoc1;
 GMAT reportLoc1 = './output/SystemTest/Func_StopTargetManeuver.report';
-
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_StopTargetManeuver_nested.report';
+ 
 Create String reportLoc2;
 GMAT reportLoc2 = './output/SystemTest/Func_StopTarget.report';
-
-Create String reportLoc_nested1;
-GMAT reportLoc_nested1 = './output/SystemTest/Func_StopTargetManeuver_nested.report';
-
-Create String reportLoc_nested2;
-GMAT reportLoc_nested2 = './output/SystemTest/Func_StopTarget_nested.report';
-
+ 
+Create String reportLoc2_nested;
+GMAT reportLoc2_nested = './output/SystemTest/Func_StopTarget_nested.report';
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_StopTarget(reportLoc1, reportLoc2);
-Func_StopTarget_nested(reportLoc_nested1, reportLoc_nested2);
+Func_StopTarget(reportLoc1,reportLoc2)
+Func_StopTarget_nested(reportLoc1_nested,reportLoc2_nested)

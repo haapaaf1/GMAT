@@ -1,5 +1,4 @@
-function Func_StopTargetWhile_nested(reportLoc)
-% $Id: Func_StopTargetWhile_nested.gmf,v 1.2 2008/07/21 21:24:58 edove Exp $
-
+function Func_StopTargetWhile_nested(reportLoc1)
+ 
 % Call function
-Func_StopTargetWhile(reportLoc);
+Func_StopTargetWhile(reportLoc1)

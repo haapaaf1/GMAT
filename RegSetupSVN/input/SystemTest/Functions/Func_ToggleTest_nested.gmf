@@ -1,5 +1,4 @@
-function Func_ToggleTest_nested(reportLoc1, reportLoc2)
-% $Id: Func_ToggleTest_nested.gmf,v 1.2 2008/07/21 21:24:57 edove Exp $
-
+function Func_ToggleTest_nested(reportLoc1,reportLoc2)
+ 
 % Call function
-Func_ToggleTest(reportLoc1, reportLoc2);
+Func_ToggleTest(reportLoc1,reportLoc2)

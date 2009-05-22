@@ -1,46 +1,45 @@
-% $Id: Func_StopCond_EarthAll_Days.script,v 1.2 2008/05/02 19:05:34 edove Exp $
-
-% Func_StopCond_EarthAll_Days - This script tests to make sure 
+% Created from the following script: StopCond_EarthAll_Days.m
 %
-% Function used: Func_StopCond_EarthAll_Days.gmf, Func_StopCond_EarthAll_Days_nested.gmf
+% Functions used: Func_StopCond_EarthAll_Days.gmf, Func_StopCond_EarthAll_Days_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
-Create String reportLoc;
-GMAT reportLoc = './output/SystemTest/Func_StopCond_EarthAll_Days.report';
-
-Create String reportLoc_nested;
-GMAT reportLoc_nested = './output/SystemTest/Func_StopCond_EarthAll_Days_nested.report';
-
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_StopCond_EarthAll_Days.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_StopCond_EarthAll_Days_nested.report';
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_StopCond_EarthAll_Days(reportLoc);
-Func_StopCond_EarthAll_Days_nested(reportLoc_nested);
+Func_StopCond_EarthAll_Days(reportLoc1)
+Func_StopCond_EarthAll_Days_nested(reportLoc1_nested)

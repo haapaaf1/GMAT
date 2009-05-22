@@ -1,5 +1,5 @@
-function Func_ToggleTest(reportLoc1, reportLoc2)
-% $Id: Func_ToggleTest.gmf,v 1.5 2008/09/05 20:46:31 edove Exp $
+function Func_ToggleTest(reportLoc1,reportLoc2)
+%$Id: ToggleTest.m,v 1.8 2008/09/05 20:46:56 edove Exp $
 % 
 % Script used to exercise the XY plot for data that is single 
 % valued (i.e. a "function") and data that in multivalued (a
@@ -71,29 +71,6 @@ Create Variable RCalc;
 
 Create Variable I;
 
-
-
-%----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
 
 
 %----------------------------------------
@@ -197,11 +174,11 @@ Toggle ReportFile1 On;
 Toggle ReportFile2 Off;
 
 For I = 1:1:10;
-   GMAT XYMag = sqrt( Sat.X^2 + Sat.Y^2 );
-   GMAT XZMag = sqrt( Sat.X^2 + Sat.Z^2 );
-   GMAT YZMag = sqrt( Sat.Y^2 + Sat.Z^2 );
-   GMAT RCalc = sqrt(XYMag^2 + XZMag^2 + YZMag^2);
-   Propagate prop(Sat);
+GMAT XYMag = sqrt( Sat.X^2 + Sat.Y^2 );
+GMAT XZMag = sqrt( Sat.X^2 + Sat.Z^2 );
+GMAT YZMag = sqrt( Sat.Y^2 + Sat.Z^2 );
+GMAT RCalc = sqrt(XYMag^2 + XZMag^2 + YZMag^2);
+Propagate prop(Sat);
 EndFor;
 
 Toggle XYZT1 Off;

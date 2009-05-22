@@ -1,5 +1,5 @@
 function Func_StopTarget(reportLoc1,reportLoc2)
-% $Id: Func_StopTarget.gmf,v 1.4 2008/10/14 17:57:50 edove Exp $
+%$Id: StopTarget.m,v 1.9 2008/04/18 13:42:11 lojun Exp $ 
 
 %----------------------------------------
 %---------- Spacecraft
@@ -70,7 +70,6 @@ GMAT Burn1.Element3 = 0;
 %----------------------------------------
 
 Create Variable I;
-
 
 
 %----------------------------------------
@@ -145,29 +144,29 @@ GMAT stopReport.SolverIterations = None;
 
 Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
 Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-    Sat.AOP Sat.TA Sat.BetaAngle;
+Sat.AOP Sat.TA Sat.BetaAngle;
 If Sat.Earth.SMA > 6378.14
-   Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
-   Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-       Sat.AOP Sat.TA Sat.BetaAngle;
+Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
+Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
+Sat.AOP Sat.TA Sat.BetaAngle;
 EndIf;
 For I = 1:1:10;
-   Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
-   Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-       Sat.AOP Sat.TA Sat.BetaAngle;
+Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
+Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
+Sat.AOP Sat.TA Sat.BetaAngle;
 EndFor;
 While Sat.ElapsedDays < 2
-   Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
-   Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-       Sat.AOP Sat.TA Sat.BetaAngle;
+Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
+Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
+Sat.AOP Sat.TA Sat.BetaAngle;
 EndWhile;
 Target DefaultDC;
-   Vary DefaultDC(Burn1.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver Burn1(Sat);
-   Report burn1Report Burn1.Element1 Burn1.Element2 Burn1.Element3
-   Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
-   Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-       Sat.AOP Sat.TA Sat.BetaAngle;
-   Stop;
-   Achieve DefaultDC(Sat.Earth.RMAG = 42165.0, {Tolerance = 0.1});
+Vary DefaultDC(Burn1.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver Burn1(Sat);
+Report burn1Report Burn1.Element1 Burn1.Element2 Burn1.Element3
+Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
+Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
+Sat.AOP Sat.TA Sat.BetaAngle;
+Stop;
+Achieve DefaultDC(Sat.Earth.RMAG = 42165.0, {Tolerance = 0.1});
 EndTarget;  % For targeter DefaultDC

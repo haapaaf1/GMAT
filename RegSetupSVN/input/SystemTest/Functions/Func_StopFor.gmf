@@ -1,5 +1,5 @@
-function Func_StopFor(reportLoc)
-% $Id: Func_StopFor.gmf,v 1.4 2008/10/14 17:57:50 edove Exp $
+function Func_StopFor(reportLoc1)
+%$Id: StopFor.m,v 1.8 2008/04/18 13:42:10 lojun Exp $ 
 
 %----------------------------------------
 %---------- Spacecraft
@@ -70,7 +70,6 @@ GMAT Burn1.Element3 = 0;
 %----------------------------------------
 
 Create Variable I;
-
 Create Variable counter;
 
 
@@ -121,7 +120,7 @@ GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
 Create ReportFile stopReport;
-GMAT stopReport.Filename = reportLoc;
+GMAT stopReport.Filename = reportLoc1;
 GMAT stopReport.Precision = 15;
 GMAT stopReport.WriteHeaders = On;
 GMAT stopReport.LeftJustify = On;
@@ -137,24 +136,24 @@ GMAT stopReport.SolverIterations = None;
 
 Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
 Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-    Sat.AOP Sat.TA Sat.BetaAngle;
+Sat.AOP Sat.TA Sat.BetaAngle;
 counter = 0;
 For I = 1:1:10;
-   Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
-   Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-       Sat.AOP Sat.TA Sat.BetaAngle;
-   Stop;
+Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
+Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
+Sat.AOP Sat.TA Sat.BetaAngle;
+Stop;
 EndFor;
 While Sat.ElapsedDays < 2
-   Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
-   Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-       Sat.AOP Sat.TA Sat.BetaAngle;
+Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
+Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
+Sat.AOP Sat.TA Sat.BetaAngle;
 EndWhile;
 Target DefaultDC;
-   Vary DefaultDC(Burn1.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
-   Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
-       Sat.AOP Sat.TA Sat.BetaAngle;
-   Achieve DefaultDC(Sat.Earth.RMAG = 42165.0, {Tolerance = 0.1});
+Vary DefaultDC(Burn1.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Propagate DefaultProp(Sat) {Sat.ElapsedSecs = 8640.0};
+Report stopReport Sat.ElapsedSecs Sat.SMA Sat.ECC Sat.INC Sat.RAAN ...
+Sat.AOP Sat.TA Sat.BetaAngle;
+Achieve DefaultDC(Sat.Earth.RMAG = 42165.0, {Tolerance = 0.1});
 EndTarget;
 

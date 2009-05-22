@@ -1,5 +1,6 @@
-function Func_StopCond_Earth3MultiSatsPM_Days(reportLoc)
-% $Id: Func_StopCond_Earth3MultiSatsPM_Days.gmf,v 1.3 2008/07/21 21:25:00 edove Exp $
+function Func_StopCond_Earth3MultiSatsPM_Days(reportLoc1)
+% REVISION HISTORY
+% $Id: StopCond_Earth3MultiSatsPM_Days.m,v 1.2 2007/07/26 19:13:12 edove Exp $
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = UTCGregorian;
@@ -69,7 +70,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile StopCond_Report
-GMAT StopCond_Report.Filename = reportLoc;
+GMAT StopCond_Report.Filename = reportLoc1;
 GMAT StopCond_Report.Precision = 16;
 GMAT StopCond_Report.WriteHeaders = On;
 GMAT StopCond_Report.ColumnWidth = 20;

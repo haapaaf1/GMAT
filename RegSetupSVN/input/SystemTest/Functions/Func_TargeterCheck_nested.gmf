@@ -1,5 +1,4 @@
-function Func_TargeterCheck_nested(reportLoc)
-% $Id: Func_TargeterCheck_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_TargeterCheck_nested(reportLoc1)
+ 
 % Call function
-Func_TargeterCheck(reportLoc);
+Func_TargeterCheck(reportLoc1)

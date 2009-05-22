@@ -1,6 +1,5 @@
-function Func_TargeterCheck(reportLoc)
-% $Id: Func_TargeterCheck.gmf,v 1.4 2008/10/14 18:29:20 edove Exp $
-%
+function Func_TargeterCheck(reportLoc1)
+%% $Id: TargeterCheck.m,v 1.8 2008/10/14 18:29:20 edove Exp $
 %% GMAT System Test Script File
 %
 % This test script is designed to test the following elements:
@@ -123,28 +122,6 @@ Create Variable varMod3;
 Create Variable varMod10;
 Create Variable varMod11;
 
-%----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
 
 %----------------------------------------
 %---------- Solvers
@@ -175,7 +152,7 @@ GMAT DC2.UseCentralDifferences = false;
 % GMAT OpenGLPlot1.ViewUpAxis = X;
 
 Create ReportFile ReportFile1;
-GMAT ReportFile1.Filename = reportLoc;
+GMAT ReportFile1.Filename = reportLoc1;
 GMAT ReportFile1.Precision = 15;
 GMAT ReportFile1.WriteHeaders = On;
 GMAT ReportFile1.LeftJustify = On;
@@ -189,46 +166,46 @@ GMAT ReportFile1.SolverIterations = None;
 %----------------------------------------
 
 BeginScript
-   GMAT BeginState = DefaultSC;
-   GMAT StartEpoch = DefaultSC.A1ModJulian;
+GMAT BeginState = DefaultSC;
+GMAT StartEpoch = DefaultSC.A1ModJulian;
 
-   GMAT case  = 0;
+GMAT case  = 0;
 
-   GMAT var1  = 0.00001;
-   GMAT var2  = 1e-006;
-   GMAT var3  = 0.5;
-   GMAT var4  = 1e-005;
-   GMAT var5  = 50;
-   GMAT var6  = -5;
-   GMAT var7  = 5;
-   GMAT var8  = 0;
-   GMAT var9  = 1;
-   GMAT var10 = 23922;
-   GMAT var11 = 0.02;
+GMAT var1  = 0.00001;
+GMAT var2  = 1e-006;
+GMAT var3  = 0.5;
+GMAT var4  = 1e-005;
+GMAT var5  = 50;
+GMAT var6  = -5;
+GMAT var7  = 5;
+GMAT var8  = 0;
+GMAT var9  = 1;
+GMAT var10 = 23922;
+GMAT var11 = 0.02;
 
-   GMAT array(1,1)  = 0.00001;
-   GMAT array(2,1)  = 1e-006;
-   GMAT array(3,1)  = 0.5;
-   GMAT array(4,1)  = 1e-005;
-   GMAT array(5,1)  = 50;
-   GMAT array(6,1)  = -5;
-   GMAT array(7,1)  = 5;
-   GMAT array(8,1)  = 0;
-   GMAT array(9,1)  = 1;
-   GMAT array(10,1) = 23922;
-   GMAT array(11,1) = 0.02;
+GMAT array(1,1)  = 0.00001;
+GMAT array(2,1)  = 1e-006;
+GMAT array(3,1)  = 0.5;
+GMAT array(4,1)  = 1e-005;
+GMAT array(5,1)  = 50;
+GMAT array(6,1)  = -5;
+GMAT array(7,1)  = 5;
+GMAT array(8,1)  = 0;
+GMAT array(9,1)  = 1;
+GMAT array(10,1) = 23922;
+GMAT array(11,1) = 0.02;
 
-   GMAT DummySat.X  = 23922;
-   GMAT DummySat.Y  = 0.02;
-   GMAT DummySat.Z  = 0.0001;
-   GMAT DummySat.VX = 1e-006;
-   GMAT DummySat.VY  = 0.5;
-   GMAT DummySat.VZ  = 1e-005;
-   GMAT DummySat2.X  = 50;
-   GMAT DummySat2.Y  = -5;
-   GMAT DummySat2.Z  = 5;
-   GMAT DummySat2.VX  = 0;
-   GMAT DummySat2.VY  = 1;
+GMAT DummySat.X  = 23922;
+GMAT DummySat.Y  = 0.02;
+GMAT DummySat.Z  = 0.0001;
+GMAT DummySat.VX = 1e-006;
+GMAT DummySat.VY  = 0.5;
+GMAT DummySat.VZ  = 1e-005;
+GMAT DummySat2.X  = 50;
+GMAT DummySat2.Y  = -5;
+GMAT DummySat2.Z  = 5;
+GMAT DummySat2.VX  = 0;
+GMAT DummySat2.VY  = 1;
 EndScript;
 
 % ====================================
@@ -240,16 +217,16 @@ GMAT case = case + 1;
 BeginScript;
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   Achieve DC1(DefaultSC.Earth.RadApo = 23922, {Tolerance = 0.00001});
+Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+Achieve DC1(DefaultSC.Earth.RadApo = 23922, {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   Achieve DC2(DefaultSC.Earth.ECC = 0.02, {Tolerance = 1e-006});
+Vary DC2(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+Achieve DC2(DefaultSC.Earth.ECC = 0.02, {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -265,21 +242,21 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   Achieve DC1(DefaultSC.Earth.RadApo = var10, {Tolerance = var1});
+Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+Achieve DC1(DefaultSC.Earth.RadApo = var10, {Tolerance = var1});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   Achieve DC2(DefaultSC.Earth.ECC = var11, {Tolerance = var2});
+Vary DC2(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+Achieve DC2(DefaultSC.Earth.ECC = var11, {Tolerance = var2});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -294,21 +271,21 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(DefaultIB.Element1 = var3, {Perturbation = var4, MaxStep = var5, Lower = var6, Upper = var7, AdditiveScaleFactor = var8, MultiplicativeScaleFactor = var9});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   Achieve DC1(DefaultSC.Earth.RadApo = var10, {Tolerance = var1});
+Vary DC1(DefaultIB.Element1 = var3, {Perturbation = var4, MaxStep = var5, Lower = var6, Upper = var7, AdditiveScaleFactor = var8, MultiplicativeScaleFactor = var9});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+Achieve DC1(DefaultSC.Earth.RadApo = var10, {Tolerance = var1});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(DefaultIB.Element1 = var3, {Perturbation = var4, MaxStep = var5, Lower = var6, Upper = var7, AdditiveScaleFactor = var8, MultiplicativeScaleFactor = var9});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   Achieve DC2(DefaultSC.Earth.ECC = var11, {Tolerance = var2});
+Vary DC2(DefaultIB.Element1 = var3, {Perturbation = var4, MaxStep = var5, Lower = var6, Upper = var7, AdditiveScaleFactor = var8, MultiplicativeScaleFactor = var9});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+Achieve DC2(DefaultSC.Earth.ECC = var11, {Tolerance = var2});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -323,21 +300,21 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   Achieve DC1(DefaultSC.Earth.RadApo = array(10,1), {Tolerance = array(1,1)});
+Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+Achieve DC1(DefaultSC.Earth.RadApo = array(10,1), {Tolerance = array(1,1)});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   Achieve DC2(DefaultSC.Earth.ECC = array(11,1), {Tolerance = array(2,1)});
+Vary DC2(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+Achieve DC2(DefaultSC.Earth.ECC = array(11,1), {Tolerance = array(2,1)});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -352,21 +329,21 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(DefaultIB.Element1 = array(3,1), {Perturbation = array(4,1), MaxStep = array(5,1), Lower = array(6,1), Upper = array(7,1), AdditiveScaleFactor = array(8,1), MultiplicativeScaleFactor = array(9,1)});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   Achieve DC1(DefaultSC.Earth.RadApo = array(10,1), {Tolerance = array(1,1)});
+Vary DC1(DefaultIB.Element1 = array(3,1), {Perturbation = array(4,1), MaxStep = array(5,1), Lower = array(6,1), Upper = array(7,1), AdditiveScaleFactor = array(8,1), MultiplicativeScaleFactor = array(9,1)});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+Achieve DC1(DefaultSC.Earth.RadApo = array(10,1), {Tolerance = array(1,1)});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(DefaultIB.Element1 = array(3,1), {Perturbation = array(4,1), MaxStep = array(5,1), Lower = array(6,1), Upper = array(7,1), AdditiveScaleFactor = array(8,1), MultiplicativeScaleFactor = array(9,1)});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   Achieve DC2(DefaultSC.Earth.ECC = array(11,1), {Tolerance = array(2,1)});
+Vary DC2(DefaultIB.Element1 = array(3,1), {Perturbation = array(4,1), MaxStep = array(5,1), Lower = array(6,1), Upper = array(7,1), AdditiveScaleFactor = array(8,1), MultiplicativeScaleFactor = array(9,1)});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+Achieve DC2(DefaultSC.Earth.ECC = array(11,1), {Tolerance = array(2,1)});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -381,21 +358,21 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   Achieve DC1(DefaultSC.Earth.RadApo = DummySat.X, {Tolerance = DummySat.Z});
+Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+Achieve DC1(DefaultSC.Earth.RadApo = DummySat.X, {Tolerance = DummySat.Z});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   Achieve DC2(DefaultSC.Earth.ECC = DummySat.Y, {Tolerance = DummySat.VX});
+Vary DC2(DefaultIB.Element1 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+Achieve DC2(DefaultSC.Earth.ECC = DummySat.Y, {Tolerance = DummySat.VX});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -410,21 +387,21 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(DefaultIB.Element1 = DummySat.VY, {Perturbation = DummySat.VZ, MaxStep = DummySat2.X, Lower = DummySat2.Y, Upper = DummySat2.Z, AdditiveScaleFactor = DummySat2.VX, MultiplicativeScaleFactor = DummySat2.VY});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   Achieve DC1(DefaultSC.Earth.RadApo = DummySat.X, {Tolerance = DummySat.Z});
+Vary DC1(DefaultIB.Element1 = DummySat.VY, {Perturbation = DummySat.VZ, MaxStep = DummySat2.X, Lower = DummySat2.Y, Upper = DummySat2.Z, AdditiveScaleFactor = DummySat2.VX, MultiplicativeScaleFactor = DummySat2.VY});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+Achieve DC1(DefaultSC.Earth.RadApo = DummySat.X, {Tolerance = DummySat.Z});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(DefaultIB.Element1 = DummySat.VY, {Perturbation = DummySat.VZ, MaxStep = DummySat2.X, Lower = DummySat2.Y, Upper = DummySat2.Z, AdditiveScaleFactor = DummySat2.VX, MultiplicativeScaleFactor = DummySat2.VY});
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   Achieve DC2(DefaultSC.Earth.ECC = DummySat.Y, {Tolerance = DummySat.VX});
+Vary DC2(DefaultIB.Element1 = DummySat.VY, {Perturbation = DummySat.VZ, MaxStep = DummySat2.X, Lower = DummySat2.Y, Upper = DummySat2.Z, AdditiveScaleFactor = DummySat2.VX, MultiplicativeScaleFactor = DummySat2.VY});
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+Achieve DC2(DefaultSC.Earth.ECC = DummySat.Y, {Tolerance = DummySat.VX});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -439,25 +416,25 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(varMod3 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = varMod3;
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   GMAT varMod10 = DefaultSC.Earth.RadApo;
-   Achieve DC1(varMod10 = 23922, {Tolerance = 0.00001});
+Vary DC1(varMod3 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = varMod3;
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+GMAT varMod10 = DefaultSC.Earth.RadApo;
+Achieve DC1(varMod10 = 23922, {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(varMod3 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = varMod3;
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   GMAT varMod11 = DefaultSC.Earth.ECC;
-   Achieve DC2(varMod11 = 0.02, {Tolerance = 1e-006});
+Vary DC2(varMod3 = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = varMod3;
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+GMAT varMod11 = DefaultSC.Earth.ECC;
+Achieve DC2(varMod11 = 0.02, {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -472,25 +449,25 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(varMod3 = DummySat.VY, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = varMod3;
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   GMAT varMod10 = DefaultSC.Earth.RadApo;
-   Achieve DC1(varMod10 = DummySat.X, {Tolerance = 0.00001});
+Vary DC1(varMod3 = DummySat.VY, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = varMod3;
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+GMAT varMod10 = DefaultSC.Earth.RadApo;
+Achieve DC1(varMod10 = DummySat.X, {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(varMod3 = DummySat.VY, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = varMod3;
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   GMAT varMod11 = DefaultSC.Earth.ECC;
-   Achieve DC2(varMod11 = DummySat.Y, {Tolerance = 1e-006});
+Vary DC2(varMod3 = DummySat.VY, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = varMod3;
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+GMAT varMod11 = DefaultSC.Earth.ECC;
+Achieve DC2(varMod11 = DummySat.Y, {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -505,25 +482,25 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(varMod3 = var3, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = varMod3;
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   GMAT varMod10 = DefaultSC.Earth.RadApo;
-   Achieve DC1(varMod10 = var10, {Tolerance = 0.00001});
+Vary DC1(varMod3 = var3, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = varMod3;
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+GMAT varMod10 = DefaultSC.Earth.RadApo;
+Achieve DC1(varMod10 = var10, {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(varMod3 = var3, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = varMod3;
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   GMAT varMod11 = DefaultSC.Earth.ECC;
-   Achieve DC2(varMod11 = var11, {Tolerance = 1e-006});
+Vary DC2(varMod3 = var3, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = varMod3;
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+GMAT varMod11 = DefaultSC.Earth.ECC;
+Achieve DC2(varMod11 = var11, {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -538,25 +515,25 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(varMod3 = array(3,1), {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = varMod3;
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   GMAT varMod10 = DefaultSC.Earth.RadApo;
-   Achieve DC1(varMod10 = array(10,1), {Tolerance = 0.00001});
+Vary DC1(varMod3 = array(3,1), {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = varMod3;
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+GMAT varMod10 = DefaultSC.Earth.RadApo;
+Achieve DC1(varMod10 = array(10,1), {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(varMod3 = array(3,1), {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = varMod3;
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   GMAT varMod11 = DefaultSC.Earth.ECC;
-   Achieve DC2(varMod11 = array(11,1), {Tolerance = 1e-006});
+Vary DC2(varMod3 = array(3,1), {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = varMod3;
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+GMAT varMod11 = DefaultSC.Earth.ECC;
+Achieve DC2(varMod11 = array(11,1), {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -572,25 +549,25 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(arrayMod(3,1) = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = arrayMod(3,1);
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   GMAT arrayMod(10,1) = DefaultSC.Earth.RadApo;
-   Achieve DC1(arrayMod(10,1) = 23922, {Tolerance = 0.00001});
+Vary DC1(arrayMod(3,1) = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = arrayMod(3,1);
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+GMAT arrayMod(10,1) = DefaultSC.Earth.RadApo;
+Achieve DC1(arrayMod(10,1) = 23922, {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(arrayMod(3,1) = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = arrayMod(3,1);
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   GMAT arrayMod(11,1) = DefaultSC.Earth.ECC;
-   Achieve DC2(arrayMod(11,1) = 0.02, {Tolerance = 1e-006});
+Vary DC2(arrayMod(3,1) = 0.5, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = arrayMod(3,1);
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+GMAT arrayMod(11,1) = DefaultSC.Earth.ECC;
+Achieve DC2(arrayMod(11,1) = 0.02, {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -605,25 +582,25 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(arrayMod(3,1) = DummySat.VY, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = arrayMod(3,1);
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   GMAT arrayMod(10,1) = DefaultSC.Earth.RadApo;
-   Achieve DC1(arrayMod(10,1) = DummySat.X, {Tolerance = 0.00001});
+Vary DC1(arrayMod(3,1) = DummySat.VY, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = arrayMod(3,1);
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+GMAT arrayMod(10,1) = DefaultSC.Earth.RadApo;
+Achieve DC1(arrayMod(10,1) = DummySat.X, {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(arrayMod(3,1) = DummySat.VY, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = arrayMod(3,1);
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   GMAT arrayMod(11,1) = DefaultSC.Earth.ECC;
-   Achieve DC2(arrayMod(11,1) = DummySat.Y, {Tolerance = 1e-006});
+Vary DC2(arrayMod(3,1) = DummySat.VY, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = arrayMod(3,1);
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+GMAT arrayMod(11,1) = DefaultSC.Earth.ECC;
+Achieve DC2(arrayMod(11,1) = DummySat.Y, {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -638,25 +615,25 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(arrayMod(3,1) = var3, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = arrayMod(3,1);
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   GMAT arrayMod(10,1) = DefaultSC.Earth.RadApo;
-   Achieve DC1(arrayMod(10,1) = var10, {Tolerance = 0.00001});
+Vary DC1(arrayMod(3,1) = var3, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = arrayMod(3,1);
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+GMAT arrayMod(10,1) = DefaultSC.Earth.RadApo;
+Achieve DC1(arrayMod(10,1) = var10, {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(arrayMod(3,1) = var3, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = arrayMod(3,1);
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   GMAT arrayMod(11,1) = DefaultSC.Earth.ECC;
-   Achieve DC2(arrayMod(11,1) = var11, {Tolerance = 1e-006});
+Vary DC2(arrayMod(3,1) = var3, {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = arrayMod(3,1);
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+GMAT arrayMod(11,1) = DefaultSC.Earth.ECC;
+Achieve DC2(arrayMod(11,1) = var11, {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 
@@ -671,25 +648,25 @@ EndScript;
 GMAT case = case + 1;
 
 BeginScript;
-   GMAT DefaultSC = BeginState;
-   GMAT DefaultSC.A1Epoch = StartEpoch;
+GMAT DefaultSC = BeginState;
+GMAT DefaultSC.A1Epoch = StartEpoch;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Target DC1;
-   Vary DC1(arrayMod(3,1) = array(3,1), {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = arrayMod(3,1);
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
-   GMAT arrayMod(10,1) = DefaultSC.Earth.RadApo;
-   Achieve DC1(arrayMod(10,1) = array(10,1), {Tolerance = 0.00001});
+Vary DC1(arrayMod(3,1) = array(3,1), {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = arrayMod(3,1);
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
+GMAT arrayMod(10,1) = DefaultSC.Earth.RadApo;
+Achieve DC1(arrayMod(10,1) = array(10,1), {Tolerance = 0.00001});
 EndTarget;  % For targeter DC1
 Target DC2;
-   Vary DC2(arrayMod(3,1) = array(3,1), {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
-   GMAT DefaultIB.Element1 = arrayMod(3,1);
-   Maneuver DefaultIB(DefaultSC);
-   Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
-   GMAT arrayMod(11,1) = DefaultSC.Earth.ECC;
-   Achieve DC2(arrayMod(11,1) = array(11,1), {Tolerance = 1e-006});
+Vary DC2(arrayMod(3,1) = array(3,1), {Perturbation = 1e-005, MaxStep = 50, Lower = -5, Upper = 5, AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1});
+GMAT DefaultIB.Element1 = arrayMod(3,1);
+Maneuver DefaultIB(DefaultSC);
+Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
+GMAT arrayMod(11,1) = DefaultSC.Earth.ECC;
+Achieve DC2(arrayMod(11,1) = array(11,1), {Tolerance = 1e-006});
 EndTarget;  % For targeter DC2
 Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
 

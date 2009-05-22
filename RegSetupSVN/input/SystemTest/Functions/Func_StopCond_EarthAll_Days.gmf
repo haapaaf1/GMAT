@@ -1,5 +1,6 @@
-function Func_StopCond_EarthAll_Days(reportLoc)
-% $Id: Func_StopCond_EarthAll_Days.gmf,v 1.3 2008/07/21 21:24:59 edove Exp $
+function Func_StopCond_EarthAll_Days(reportLoc1)
+% REVISION HISTORY
+% $Id: StopCond_EarthAll_Days.m,v 1.3 2007/08/10 21:15:04 edove Exp $
 
 Create Spacecraft DefaultSC;
 GMAT DefaultSC.DateFormat = UTCGregorian;
@@ -43,7 +44,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile StopCond_Report
-GMAT StopCond_Report.Filename = reportLoc;
+GMAT StopCond_Report.Filename = reportLoc1;
 GMAT StopCond_Report.Precision = 16;
 GMAT StopCond_Report.WriteHeaders = On;
 GMAT StopCond_Report.ColumnWidth = 20;

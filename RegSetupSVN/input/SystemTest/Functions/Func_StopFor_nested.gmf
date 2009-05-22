@@ -1,5 +1,4 @@
-function Func_StopFor_nested(reportLoc)
-% $Id: Func_StopFor_nested.gmf,v 1.2 2008/07/21 21:24:58 edove Exp $
-
+function Func_StopFor_nested(reportLoc1)
+ 
 % Call function
-Func_StopFor(reportLoc);
+Func_StopFor(reportLoc1)

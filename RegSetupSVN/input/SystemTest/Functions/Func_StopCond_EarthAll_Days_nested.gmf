@@ -1,5 +1,4 @@
-function Func_StopCond_EarthAll_Days_nested(reportLoc)
-% $Id: Func_StopCond_EarthAll_Days_nested.gmf,v 1.2 2008/07/21 21:24:59 edove Exp $
-
+function Func_StopCond_EarthAll_Days_nested(reportLoc1)
+ 
 % Call function
-Func_StopCond_EarthAll_Days(reportLoc);
+Func_StopCond_EarthAll_Days(reportLoc1)

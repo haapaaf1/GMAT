@@ -1,5 +1,4 @@
-function Func_StopWhileFor_nested(reportLoc)
-% $Id: Func_StopWhileFor_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_StopWhileFor_nested(reportLoc1)
+ 
 % Call function
-Func_StopWhileFor(reportLoc);
+Func_StopWhileFor(reportLoc1)

@@ -1,6 +1,4 @@
-function Func_StopinOptimizerTest(reportLoc)
-% $Id: Func_StopinOptimizerTest.gmf,v 1.2 2008/05/02 19:05:36 edove Exp $
-
+function Func_StopinOptimizerTest(reportLoc1)
 %  This is the simplest test of the fmincon optimizer.  If it 
 %  converges correctly, it should converge to
 %   Sat.X = 4.0
@@ -42,7 +40,7 @@ GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
 Create Variable X1 X2 F G TestNumber
 
 Create ReportFile Data;
-GMAT Data.Filename = reportLoc;
+GMAT Data.Filename = reportLoc1;
 GMAT Data.Precision = 15;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,25 +55,25 @@ GMAT Data.Precision = 15;
 
 Optimize SQPfmincon;
 
-    %  Vary the independent variables
-    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
-    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
-    GMAT X1 = Sat.X;
-    GMAT X2 = Sat.Y;
-   
-    %  The cost function and Minimize command
-    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-    Minimize SQPfmincon(F);
+%  Vary the independent variables
+Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+GMAT X1 = Sat.X;
+GMAT X2 = Sat.Y;
 
-    %  Calculate constraint and use NonLinearConstraint command
-    %   ( yes, the equation below is actually a linear constraint, were 
-    %     testing functionality with this test)
-    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
-    %  or X2 >= -X1 + 6;
-    GMAT G =  X2 + X1;
-    NonlinearConstraint SQPfmincon( G = 8 );
+%  The cost function and Minimize command
+GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+Minimize SQPfmincon(F);
 
-    Stop
+%  Calculate constraint and use NonLinearConstraint command
+%   ( yes, the equation below is actually a linear constraint, were 
+%     testing functionality with this test)
+%  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+%  or X2 >= -X1 + 6;
+GMAT G =  X2 + X1;
+NonlinearConstraint SQPfmincon( G = 8 );
+
+Stop
 
 EndOptimize;
 

@@ -1,6 +1,5 @@
-function Func_StateInputTests(reportLoc)
-% $Id: Func_StateInputTests.gmf,v 1.3 2008/07/21 21:25:00 edove Exp $
-
+function Func_StateInputTests(reportLoc1)
+% $Id: StateInputTests.script,v 1.8 2007/08/10 21:15:04 edove Exp $
 % GMAT System Test Script File
 %
 %  This tests currently inputs an equivalent state in all state representations,
@@ -177,8 +176,8 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 %---------- Subscribers
 %----------------------------------------
 
-Create ReportFile GMAT_StateRepresentations;
-GMAT GMAT_StateRepresentations.Filename = reportLoc;
+Create ReportFile GMAT_StateRepresentations
+GMAT GMAT_StateRepresentations.Filename = reportLoc1;
 GMAT GMAT_StateRepresentations.WriteHeaders = On;
 %----------------------------------------
 %---------- Mission Sequence
