@@ -963,7 +963,14 @@ void Formation::BuildState()
    #endif
    
    if (!state.SetState(data, dimension))
+   {
+      delete [] data;
       throw SpaceObjectException("Error building Formation state");
+   }
+   
+   // as per kw report
+   // Shouldn't we delete data here since GmatState::SetState() copies the data
+   delete [] data;
 }
 
 
