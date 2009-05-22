@@ -362,6 +362,30 @@ Rmatrix33 Outerproduct(const Rvector3 &v1, const Rvector3 &v2)
 }
 
 //------------------------------------------------------------------------------
+// static Real Rvector3::Normalize(const Real from[3], Real to[3])
+//------------------------------------------------------------------------------
+Real Rvector3::Normalize(const Real from[3], Real to[3])
+{
+   Real mag = GmatMathUtil::Sqrt(from[0]*from[0] + from[1]*from[1] + from[2]*from[2]);
+   to[0] = from[0]/mag;
+   to[1] = from[1]/mag;
+   to[2] = from[2]/mag;
+   return mag;
+}
+
+
+//------------------------------------------------------------------------------
+// static void Rvector3::Copy(const Real from[3], Real to[3])
+//------------------------------------------------------------------------------
+void Rvector3::Copy(const Real from[3], Real to[3])
+{
+   to[0] = from[0];
+   to[1] = from[1];
+   to[2] = from[2];
+}
+
+
+//------------------------------------------------------------------------------
 // Integer GetNumData() const
 //------------------------------------------------------------------------------
 Integer Rvector3::GetNumData() const
