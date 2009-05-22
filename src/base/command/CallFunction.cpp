@@ -675,22 +675,22 @@ bool CallFunction::TakeAction(const std::string &action,
 //------------------------------------------------------------------------------
 // StringArray GetRefObjectNameArray(const Gmat::ObjectType type) const
 //------------------------------------------------------------------------------
-StringArray CallFunction::GetRefObjectNameArray(const Gmat::ObjectType type) const
+const StringArray& CallFunction::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   StringArray result;
-
+   refObjectNames.clear();
+   
    switch (type) {
       case Gmat::PARAMETER:         // Input/Output
          for (unsigned int i=0; i<mInputNames.size(); i++)
-            result.push_back(mInputNames[i]);
+            refObjectNames.push_back(mInputNames[i]);
          for (unsigned int i=0; i<mOutputNames.size(); i++)
-            result.push_back(mOutputNames[i]);
-         return result;
+            refObjectNames.push_back(mOutputNames[i]);
+         return refObjectNames;
       default:
          break;
    }
-
-   return result;
+   
+   return refObjectNames;
 }
 
 
