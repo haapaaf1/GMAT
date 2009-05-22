@@ -362,6 +362,11 @@ TrajPlotCanvas::TrajPlotCanvas(wxWindow *parent, wxWindowID id,
 //------------------------------------------------------------------------------
 TrajPlotCanvas::~TrajPlotCanvas()
 {
+   #ifdef DEBUG_RESOURCE_CLEARING
+   MessageInterface::ShowMessage
+      ("TrajPlotCanvas::~TrajPlotCanvas() '%s' entered\n", mPlotName.c_str());
+   #endif
+   
    if (mTextTrajFile)
       delete mTextTrajFile;
    
@@ -370,6 +375,10 @@ TrajPlotCanvas::~TrajPlotCanvas()
    
    ClearObjectArrays();
    
+   #ifdef DEBUG_RESOURCE_CLEARING
+   MessageInterface::ShowMessage
+      ("TrajPlotCanvas::~TrajPlotCanvas() '%s' exiting\n", mPlotName.c_str());
+   #endif
 }
 
 
@@ -1711,6 +1720,11 @@ void TrajPlotCanvas::TakeAction(const std::string &action)
       mSolverAllPosY.clear();
       mSolverAllPosZ.clear();
    }
+   else if (action == "ClearObjects")
+   {
+      mObjectCount = 0;
+      mObjectArray.clear();
+   }
 }
 
 
@@ -2366,7 +2380,8 @@ bool TrajPlotCanvas::LoadGLTextures()
       {
          #if DEBUG_TRAJCANVAS_TEXTURE > 1
          MessageInterface::ShowMessage
-            ("TrajPlotCanvas::LoadGLTextures() object=%s\n", mObjectNames[i].c_str());
+            ("TrajPlotCanvas::LoadGLTextures() object=<%p>'%s'\n",
+             mObjectArray[i], mObjectNames[i].c_str());
          #endif
          
          mObjectTextureIdMap[mObjectNames[i]] = BindTexture(mObjectArray[i], mObjectNames[i]);
