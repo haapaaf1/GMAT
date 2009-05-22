@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  GravityFile
 //------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
-#include <cstdlib>			// Required for GCC 4.3
+#include <cstdlib>                      // Required for GCC 4.3
 
 //#define DEBUG_GRAVITY_FILE
 //#define DEBUG_GRAVITY_COF_FILE
@@ -453,6 +453,8 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
 
    if (maxOrder <= 0 || maxOrder > 360)
    {
+      fclose(fp);
+      
       GravityFileException ue;
       ue.SetDetails("Invalid MAX Order passed %d", maxOrder);
       MessageInterface::ShowMessage
@@ -462,6 +464,8 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
 
    if (maxDriftDegree <= 0 || maxDriftDegree > 2)
    {
+      fclose(fp);
+      
       GravityFileException ue;
       ue.SetDetails("Invalid MAX Drift Degree passed %d", maxDriftDegree);
       MessageInterface::ShowMessage
