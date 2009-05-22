@@ -430,6 +430,8 @@ Integer* DeFile::GetStartDayAndYear()
    uTime.ToYearDOYHourMinSec(y,doy,h,min,sec);
    res[0]   = doy;
    res[1]   = y;
+   
+   delete a;
    return res;
 }
 
