@@ -3,7 +3,7 @@
 
 Create Spacecraft ISS;
  GMAT ISS.J2000BodyName = Earth;
- GMAT ISS.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+ GMAT ISS.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
  GMAT ISS.DisplayStateType = Cartesian;
  GMAT ISS.CoordinateSystem = EarthMJ2000Eq;
  GMAT ISS.X = -4453.7835859999996;
@@ -41,7 +41,7 @@ GMAT SolarSystem.EphemerisUpdateInterval = 0.0;
 GMAT SolarSystem.Earth.NutationUpdateInterval = 60.0; 
 
 Create ReportFile ISS_Report
-GMAT ISS_Report.Filename = ./output/SystemTest/IntegratorPD45_2Body.report;
+GMAT ISS_Report.Filename = './output/SystemTest/IntegratorPD45_2Body.report';
 GMAT ISS_Report.Precision = 16;
 GMAT ISS_Report.WriteHeaders = On;
 GMAT ISS_Report.ColumnWidth = 20;

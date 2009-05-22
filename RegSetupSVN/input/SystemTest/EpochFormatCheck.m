@@ -47,7 +47,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile EpochReport
-GMAT EpochReport.Filename = ./output/SystemTest/EpochFormatCheck.report;
+GMAT EpochReport.Filename = './output/SystemTest/EpochFormatCheck.report';
 GMAT EpochReport.Precision = 12;
 GMAT EpochReport.ColumnWidth = 20;
 

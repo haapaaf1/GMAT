@@ -48,7 +48,7 @@ GMAT SunMJ2000Eq.Origin = Sun;
 GMAT SunMJ2000Eq.Axes = MJ2000Eq;
 
 Create ReportFile DeltaV_Report
-GMAT DeltaV_Report.Filename = ./output/SystemTest/DV_ISunVNB.report;
+GMAT DeltaV_Report.Filename = './output/SystemTest/DV_ISunVNB.report';
 GMAT DeltaV_Report.Precision = 16;
 GMAT DeltaV_Report.WriteHeaders = On;
 GMAT DeltaV_Report.ColumnWidth = 20;

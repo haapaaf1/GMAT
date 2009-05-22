@@ -5,7 +5,7 @@
 
 Create Spacecraft GEO;
  GMAT GEO.J2000BodyName = Earth;
- GMAT GEO.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+ GMAT GEO.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
  GMAT GEO.DisplayStateType = Cartesian;
  GMAT GEO.CoordinateSystem = EarthMJ2000Eq;
  GMAT GEO.X = 36607.3582560;
@@ -29,7 +29,7 @@ GMAT EarthJGM2.Drag.F107A = 150;
 GMAT EarthJGM2.Drag.MagneticIndex = 3;
 GMAT EarthJGM2.SRP = On;
 GMAT EarthJGM2.SRP.Flux_Pressure = 4.53443218374393e-006;
-GMAT EarthJGM2.Gravity.Earth.Model = ./files/gravity/earth/JGM2.cof;
+GMAT EarthJGM2.Gravity.Earth.Model = './files/gravity/earth/JGM2.cof';
 GMAT EarthJGM2.Gravity.Earth.Degree = 20;
 GMAT EarthJGM2.Gravity.Earth.Order = 20;
 GMAT EarthJGM2.PointMasses   = {Sun, Luna};
@@ -47,7 +47,7 @@ GMAT SolarSystem.EphemerisUpdateInterval = 0.0;
 GMAT SolarSystem.Earth.NutationUpdateInterval = 60.0; 
 
 Create ReportFile GEO_Report
-GMAT GEO_Report.Filename = ./output/SystemTest/ESL_JGM2_MSISE90_SRP.report;
+GMAT GEO_Report.Filename = './output/SystemTest/ESL_JGM2_MSISE90_SRP.report';
 GMAT GEO_Report.Precision = 16;
 GMAT GEO_Report.WriteHeaders = Off;
 GMAT GEO_Report.ColumnWidth = 20;

@@ -35,7 +35,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile IfWhile;
-GMAT IfWhile.Filename = ./output/SystemTest/IfWhile.report;
+GMAT IfWhile.Filename = './output/SystemTest/IfWhile.report';
 GMAT IfWhile.Precision = 16;
 
 Create Array testArray[2,1];

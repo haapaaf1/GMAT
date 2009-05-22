@@ -22,7 +22,7 @@
 
 Create Spacecraft SatUTCGregorian;
 SatUTCGregorian.DateFormat = UTCGregorian;
-SatUTCGregorian.Epoch = 04 Jul 2004 12:34:56.789;
+SatUTCGregorian.Epoch = '04 Jul 2004 12:34:56.789';
 
 Create Spacecraft SatUTCModJulian;
 SatUTCModJulian.DateFormat = UTCModJulian;
@@ -30,7 +30,7 @@ SatUTCModJulian.Epoch = 23191.0242683912;
 
 Create Spacecraft SatTAIGregorian;
 SatTAIGregorian.DateFormat = TAIGregorian;
-SatTAIGregorian.Epoch = 04 Jul 2004 12:35:28.789; 
+SatTAIGregorian.Epoch = '04 Jul 2004 12:35:28.789'; 
 
 Create Spacecraft SatTAIModJulian;
 SatTAIModJulian.DateFormat = TAIModJulian;
@@ -38,7 +38,7 @@ SatTAIModJulian.Epoch = 23191.02463876157;
 
 Create Spacecraft SatA1Gregorian;
 SatA1Gregorian.DateFormat = A1Gregorian;
-SatA1Gregorian.Epoch = 04 Jul 2004 12:35:28.823;
+SatA1Gregorian.Epoch = '04 Jul 2004 12:35:28.823';
 
 Create Spacecraft SatA1ModJulian;
 SatA1ModJulian.DateFormat = A1ModJulian;
@@ -46,7 +46,7 @@ SatA1ModJulian.Epoch = 23191.02463915951;
 
 Create Spacecraft SatTTGregorian;
 SatTTGregorian.DateFormat = TTGregorian;
-SatTTGregorian.Epoch = 04 Jul 2004 12:36:00.973 ;
+SatTTGregorian.Epoch = '04 Jul 2004 12:36:00.973';
 
 Create Spacecraft SatTTModJulian;
 SatTTModJulian.DateFormat = TTModJulian;
@@ -57,7 +57,7 @@ SatTTModJulian.Epoch = 23191.0250112616;
 %----------------------------------------
 
 Create ReportFile EpochInputTests;
-EpochInputTests.Filename = ./output/SystemTest/EpochInputTests.report;
+EpochInputTests.Filename = './output/SystemTest/EpochInputTests.report';
 GMAT EpochInputTests.WriteHeaders = Off;
 
 %----------------------------------------
@@ -65,28 +65,28 @@ GMAT EpochInputTests.WriteHeaders = Off;
 %----------------------------------------
 
 Create String UTCGregorianEpoch
-UTCGregorianEpoch = ------ Epoch Values in  UTCGregorian ---- 
+UTCGregorianEpoch = '------ Epoch Values in  UTCGregorian ----'; 
 
 Create String UTCModJulianEpoch
-UTCModJulianEpoch = ------ Epoch Values in  UTCModJulian ---- 
+UTCModJulianEpoch = '------ Epoch Values in  UTCModJulian ----'; 
 
 Create String TAIGregorianEpoch
-TAIGregorianEpoch = ------ Epoch Values in  TAIGregorian ---- 
+TAIGregorianEpoch = '------ Epoch Values in  TAIGregorian ----'; 
 
 Create String TAIModJulianEpoch
-TAIModJulianEpoch = ------ Epoch Values in  TAIModJulian ---- 
+TAIModJulianEpoch = '------ Epoch Values in  TAIModJulian ----'; 
 
 Create String A1GregorianEpoch
-A1GregorianEpoch = ------ Epoch Values in  A1Gregorian ---- 
+A1GregorianEpoch = '------ Epoch Values in  A1Gregorian ----'; 
 
 Create String A1ModJulianEpoch
-A1ModJulianEpoch = ------ Epoch Values in  A1ModJulian ---- 
+A1ModJulianEpoch = '------ Epoch Values in  A1ModJulian ----'; 
 
 Create String TTGregorianEpoch
-TTGregorianEpoch = ------ Epoch Values in  TTGregorian ---- 
+TTGregorianEpoch = '------ Epoch Values in  TTGregorian ----'; 
 
 Create String TTModJulianEpoch
-TTModJulianEpoch = ------ Epoch Values in  TTModJulian ---- 
+TTModJulianEpoch = '------ Epoch Values in  TTModJulian ----'; 
 
 
 %----------------------------------------

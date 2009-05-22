@@ -12,7 +12,7 @@
 
 Create Spacecraft Sat;
 GMAT Sat.DateFormat = UTCGregorian;
-GMAT Sat.Epoch = 01 Jan 2000 12:00:00.000;
+GMAT Sat.Epoch = '01 Jan 2000 12:00:00.000';
 GMAT Sat.CoordinateSystem = EarthMJ2000Eq;
 GMAT Sat.DisplayStateType = Cartesian;
 GMAT Sat.X = -9.698899999999999e-012;
@@ -29,7 +29,7 @@ GMAT Sat.SRPArea = 1;
 
 Create Spacecraft MoonSat;
 GMAT MoonSat.DateFormat = UTCGregorian;
-GMAT MoonSat.Epoch = 01 Jan 2000 12:00:00.000;
+GMAT MoonSat.Epoch = '01 Jan 2000 12:00:00.000';
 GMAT MoonSat.CoordinateSystem = MoonMJ2000Eq;
 GMAT MoonSat.DisplayStateType = Cartesian;
 GMAT MoonSat.X = -4.2782e-012;
@@ -147,7 +147,7 @@ GMAT MoonMJ2000Ec.OverrideOriginInterval = false;
 %----------------------------------------
 
 Create ReportFile EarthBPlaneData;
-GMAT EarthBPlaneData.Filename = ./output/SystemTest/EarthBPlaneData.report;
+GMAT EarthBPlaneData.Filename = './output/SystemTest/EarthBPlaneData.report';
 GMAT EarthBPlaneData.Precision = 15;
 GMAT EarthBPlaneData.WriteHeaders = Off;
 GMAT EarthBPlaneData.LeftJustify = On;
@@ -156,7 +156,7 @@ GMAT EarthBPlaneData.ColumnWidth = 20;
 GMAT EarthBPlaneData.SolverIterations = None;
 
 Create ReportFile MoonBPlaneData;
-GMAT MoonBPlaneData.Filename = ./output/SystemTest/MoonBPlaneData.report;
+GMAT MoonBPlaneData.Filename = './output/SystemTest/MoonBPlaneData.report';
 GMAT MoonBPlaneData.Precision = 15;
 GMAT MoonBPlaneData.WriteHeaders = Off;
 GMAT MoonBPlaneData.LeftJustify = On;

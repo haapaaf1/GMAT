@@ -2,7 +2,7 @@
 
 Create Spacecraft MarsSC;
 GMAT MarsSC.DateFormat = UTCGregorian
-GMAT MarsSC.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+GMAT MarsSC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
 GMAT MarsSC.CoordinateSystem = MarsMJ2000Eq;
 GMAT MarsSC.DisplayStateType = Cartesian;
 GMAT MarsSC.X = -2737.481646173082000;
@@ -45,7 +45,7 @@ GMAT MarsMJ2000Eq.Epoch = 21545;
 GMAT MarsMJ2000Eq.UpdateInterval = 60;
 
 Create ReportFile Mars_Report
-GMAT Mars_Report.Filename = ./output/SystemTest/CS2BodyMarsMJ2000Eq.report;
+GMAT Mars_Report.Filename = './output/SystemTest/CS2BodyMarsMJ2000Eq.report';
 GMAT Mars_Report.Precision = 16;
 GMAT Mars_Report.WriteHeaders = On;
 GMAT Mars_Report.ColumnWidth = 25;
