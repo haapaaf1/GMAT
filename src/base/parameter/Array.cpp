@@ -24,6 +24,7 @@
 #include <sstream>
 
 //#define DEBUG_ARRAY 1
+//#define DEBUG_ARRAY_GET
 //#define DEBUG_ARRAY_SET
 
 //---------------------------------
@@ -669,6 +670,12 @@ Real Array::GetRealParameter(const std::string &label, const Integer index) cons
 Real Array::GetRealParameter(const Integer id, const Integer row,
                              const Integer col) const
 {
+   #if DEBUG_ARRAY_GET
+   MessageInterface::ShowMessage
+      ("Array::GetRealParameter() entered, id=%d, row=%d, col=%d\n", id,
+       row, col);
+   #endif
+   
    switch (id)
    {
    case SINGLE_VALUE:

@@ -37,6 +37,7 @@ public:
    bool operator==(const Array &right) const;
    bool operator!=(const Array &right) const;
    
+   bool IsSized() { return mSizeSet; }
    bool SetSize(const Integer row, const Integer col);
    void GetSize(Integer &row, Integer &col) { row = mNumRows; col = mNumCols; }
    Integer GetRowCount() { return mNumRows; }
