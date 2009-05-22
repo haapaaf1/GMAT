@@ -105,7 +105,7 @@ void MessageInterface::ShowMessage(const char *msg, ...)
       short    ret;
       short    size;
       va_list  marker;
-      char     *msgBuffer;
+      char     *msgBuffer = NULL;
       
       // msg is vsprintf format
       // actual max message length is MAX_MESSAGE_LENGTH
@@ -172,7 +172,7 @@ void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg,
       short    ret;
       short    size;
       va_list  marker;
-      char     *msgBuffer;
+      char     *msgBuffer = NULL;
 
       // msg is vsprintf format
       // actual max message length is MAX_MESSAGE_LENGTH
@@ -296,7 +296,7 @@ void MessageInterface::LogMessage(const char *msg, ...)
       short    ret;
       short    size;
       va_list  marker;
-      char     *msgBuffer;
+      char     *msgBuffer = NULL;
       
       // msg is vsprintf format
       // actual max message length is MAX_MESSAGE_LENGTH
