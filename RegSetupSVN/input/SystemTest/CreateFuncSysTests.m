@@ -45,7 +45,7 @@ for storeLoop = 1:size(storeScriptNames,1)
     storedScripts{storeLoop,1} = loadScript{1,1};
 
     
-    if isempty(strmatch('function',storedScripts{storeLoop,1})) == 0 || isempty(strmatch('_CreateFuncSysTests.script',storeScriptNames{storeLoop,1})) == 0
+    if isempty(strmatch('function',storedScripts{storeLoop,1})) == 0 || isempty(strmatch('CreateFuncSysTests.script',storeScriptNames{storeLoop,1})) == 0
         findRowExclude = [findRowExclude;storeLoop];
     end
 end

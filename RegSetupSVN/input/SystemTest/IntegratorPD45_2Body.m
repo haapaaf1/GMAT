@@ -2,7 +2,7 @@
 % $Id: IntegratorPD45_2Body.m,v 1.3 2008/10/14 17:58:29 edove Exp $
 
 Create Spacecraft ISS;
- GMAT ISS.J2000BodyName = Earth;
+ GMAT ISS.DateFormat = UTCGregorian;
  GMAT ISS.Epoch = '01 Jun 2004 12:00:00.000';
  GMAT ISS.DisplayStateType = Cartesian;
  GMAT ISS.CoordinateSystem = EarthMJ2000Eq;

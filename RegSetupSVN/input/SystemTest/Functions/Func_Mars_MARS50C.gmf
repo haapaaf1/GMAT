@@ -4,7 +4,7 @@ function Func_Mars_MARS50C(reportLoc1)
 
 Create Spacecraft MarsSC;
 GMAT MarsSC.DateFormat = UTCGregorian
-GMAT MarsSC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
+GMAT MarsSC.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT MarsSC.CoordinateSystem = MarsMJ2000Eq;
 GMAT MarsSC.DisplayStateType = Cartesian;
 GMAT MarsSC.X = -2737.481646173082000;

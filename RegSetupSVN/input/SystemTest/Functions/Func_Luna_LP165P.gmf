@@ -4,7 +4,7 @@ function Func_Luna_LP165P(reportLoc1)
 
 Create Spacecraft Moon;
 GMAT Moon.DateFormat = UTCGregorian;
-GMAT Moon.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
+GMAT Moon.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT Moon.CoordinateSystem = MoonMJ2000Eq;
 GMAT Moon.DisplayStateType = Cartesian;
 GMAT Moon.X = -1486.792117191545200;
