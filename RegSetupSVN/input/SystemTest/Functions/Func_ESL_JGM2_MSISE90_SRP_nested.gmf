@@ -1,5 +1,4 @@
-function Func_ESL_JGM2_MSISE90_SRP_nested(reportLoc)
-% $Id: Func_ESL_JGM2_MSISE90_SRP_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_ESL_JGM2_MSISE90_SRP_nested(reportLoc1)
+ 
 % Call function
-Func_ESL_JGM2_MSISE90_SRP(reportLoc);
+Func_ESL_JGM2_MSISE90_SRP(reportLoc1)

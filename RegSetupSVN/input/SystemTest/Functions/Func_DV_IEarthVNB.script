@@ -1,6 +1,6 @@
-% Created from the following script: ForIf42_24.m
+% Created from the following script: DV_IEarthVNB.m
 %
-% Functions used: Func_ForIf42_24.gmf, Func_ForIf42_24_nested.gmf
+% Functions used: Func_DV_IEarthVNB.gmf, Func_DV_IEarthVNB_nested.gmf
 % Function path: ./output/SystemTest/
 % Outputs to: ./output/SystemTest/
  
@@ -24,10 +24,10 @@ GMAT DefaultProp.FM = DefaultProp_ForceModel;
 %----------------------------------------
  
 Create String reportLoc1;
-GMAT reportLoc1 = './output/SystemTest/Func_ForIf42_24.report';
+GMAT reportLoc1 = './output/SystemTest/Func_DV_IEarthVNB.report';
  
 Create String reportLoc1_nested;
-GMAT reportLoc1_nested = './output/SystemTest/Func_ForIf42_24_nested.report';
+GMAT reportLoc1_nested = './output/SystemTest/Func_DV_IEarthVNB_nested.report';
  
  
 %----------------------------------------
@@ -41,5 +41,5 @@ BeginScript;
 EndScript;
  
 % Call function
-Func_ForIf42_24(reportLoc1)
-Func_ForIf42_24_nested(reportLoc1_nested)
+Func_DV_IEarthVNB(reportLoc1)
+Func_DV_IEarthVNB_nested(reportLoc1_nested)

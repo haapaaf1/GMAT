@@ -1,6 +1,5 @@
-function Func_ForArray(reportLoc)
-
-% $Id: Func_ForArray.gmf,v 1.2 2008/05/02 19:05:36 edove Exp $
+function Func_ForArray(reportLoc1)
+%% $Id: ForArray.m,v 1.7 2007/12/18 21:20:30 edove Exp $
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = TAIModJulian;
@@ -36,7 +35,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile Loop_GMAT_For;
-GMAT Loop_GMAT_For.Filename = reportLoc;
+GMAT Loop_GMAT_For.Filename = reportLoc1;
 GMAT Loop_GMAT_For.Precision = 15;
 
 Create Array testArray[2,1];
@@ -58,159 +57,159 @@ GMAT type = 0;
 % Loop_GMAT_For
 % **************
 BeginScript;
-    % ===== 1 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = 1:5
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-    GMAT Loop_GMAT_For.WriteHeaders = Off;
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 1 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = 1:5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+GMAT Loop_GMAT_For.WriteHeaders = Off;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-    % ===== 2 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = testVar1:testVar2
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 2 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = testVar1:testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-    % ===== 3 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = testArray(1,1):testArray(2,1)
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 3 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = testArray(1,1):testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-    % ===== 4 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = 1:testVar2
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 4 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = 1:testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-    % ===== 5 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = testVar1:5
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 5 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = testVar1:5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-    % ===== 6 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = 1:testArray(2,1)
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 6 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = 1:testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-    % ===== 7 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = testArray(1,1):5
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 7 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = testArray(1,1):5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-    % ===== 8 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = testArray(1,1):testVar2
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 8 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = testArray(1,1):testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-    % ===== 9 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    For StepSize = testVar1:testArray(2,1)
-        GMAT ansFlag = 1;
-        GMAT ranOK = ranOK + 1;
-        GMAT SC1.TA = 145;
-        Propagate   DefaultProp(SC1);
-        Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    EndFor;
-    GMAT ranOK = ranOK - 4.999;
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 9 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+For StepSize = testVar1:testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4.999;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 EndScript;
 
 BeginScript;
@@ -219,16 +218,16 @@ GMAT type = type + 1;
 GMAT ranOK = 0;
 GMAT ansFlag = 0;
 For StepSize = 1:2:9
-    GMAT ansFlag = 1;
-    GMAT ranOK = ranOK + 1;
-    GMAT SC1.TA = 145;
-    Propagate   DefaultProp(SC1);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
 EndFor;
 GMAT ranOK = ranOK - 4.999;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 GMAT SC1.TA = 145;
 
 % ===== 11 ======
@@ -236,16 +235,16 @@ GMAT type = type + 1;
 GMAT ranOK = 0;
 GMAT ansFlag = 0;
 For StepSize = testVar1:testVar1:testVar2
-    GMAT ansFlag = 1;
-    GMAT ranOK = ranOK + 1;
-    GMAT SC1.TA = 145;
-    Propagate   DefaultProp(SC1);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
 EndFor;
 GMAT ranOK = ranOK - 4.999;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 GMAT SC1.TA = 145;
 
 % ===== 12 ======
@@ -253,20 +252,20 @@ GMAT type = type + 1;
 GMAT ranOK = 0;
 GMAT ansFlag = 0;
 For StepSize = testArray(1,1):testArray(1,1):testArray(2,1)
-   GMAT ansFlag = 1;
-   GMAT ranOK = ranOK + 1;
-   GMAT SC1.TA = 145;
-   Propagate   DefaultProp(SC1);
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
 EndFor;
 GMAT ranOK = ranOK - 4.999;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT ranOK = 5.0001 - (ranOK + 4.999);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = 5.0001 - (ranOK + 4.999);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 GMAT SC1.TA = 145;
 
 % ===== 13 ====== % GMAT not supporting this For index configuration
- GMAT type = type + 1;
+GMAT type = type + 1;
 % GMAT ranOK = 0;
 % GMAT ansFlag = 0;
 % GMAT SC1.RAAN = 1.0;
@@ -285,7 +284,7 @@ GMAT SC1.TA = 145;
 % GMAT SC1.TA = 145;
 
 % ===== 14 ====== % GMAT not supporting this For index configuration
- GMAT type = type + 1;
+GMAT type = type + 1;
 %GMAT ranOK = 0;
 %GMAT ansFlag = 0;
 %GMAT SC1.RAAN = 1.0;
@@ -308,11 +307,11 @@ GMAT type = type + 1;
 GMAT ranOK = 0;
 GMAT ansFlag = 0;
 For Ivar = 1:5
-    GMAT ansFlag = 1;
-    GMAT ranOK = ranOK + 1;
-    GMAT SC1.TA = 145;
-    Propagate   DefaultProp(SC1);
-    Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
 EndFor;
 GMAT ranOK = ranOK - 4.999;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
@@ -346,11 +345,11 @@ GMAT Iarr(1,1) = 1;
 GMAT Iarr(2,1) = 2;
 GMAT Iarr(3,1) = 9;
 For Ivar = Iarr(1,1):Iarr(2,1):Iarr(3,1)
-   GMAT ansFlag = 1;
-   GMAT ranOK = ranOK + 1;
-   GMAT SC1.TA = 145;
-   Propagate   DefaultProp(SC1);
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
 EndFor;
 GMAT ranOK = ranOK - 4.999;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
@@ -364,14 +363,14 @@ GMAT ranOK = 0;
 GMAT ansFlag = 0;
 GMAT count = 1;
 For Ivar = 1:5
-   GMAT ansFlag = 1;
-   GMAT ranOK = Ivar;
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT ranOK = Ivar - count + 0.0001;
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT ranOK = count - Ivar + 0.0001;
-   Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT count = count + 1;
+GMAT ansFlag = 1;
+GMAT ranOK = Ivar;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = Ivar - count + 0.0001;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = count - Ivar + 0.0001;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT count = count + 1;
 EndFor;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 GMAT SC1.TA = 145;
@@ -382,15 +381,15 @@ GMAT ranOK = 0;
 GMAT ansFlag = 0;
 GMAT count = 1;
 For Ivar = 1:5
-  GMAT ansFlag = 1;
-  GMAT Iarr(Ivar,1) = count; 
-  GMAT ranOK = Iarr(Ivar,1);
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT ranOK = Iarr(Ivar,1) - count + 0.0001;
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT ranOK = count - Iarr(Ivar,1) + 0.0001;
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT count = count + 1;
+GMAT ansFlag = 1;
+GMAT Iarr(Ivar,1) = count; 
+GMAT ranOK = Iarr(Ivar,1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = Iarr(Ivar,1) - count + 0.0001;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = count - Iarr(Ivar,1) + 0.0001;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT count = count + 1;
 EndFor;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 GMAT SC1.TA = 145;
@@ -401,15 +400,15 @@ GMAT ranOK = 0;
 GMAT ansFlag = 0;
 GMAT count = 1;
 For Ivar = 1:5
-  GMAT ansFlag = 1;
-  GMAT Iarr(Ivar,1) = Ivar; 
-  GMAT ranOK = Iarr(Ivar,1);
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT ranOK = Iarr(Ivar,1) - count + 0.0001;
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT ranOK = count - Iarr(Ivar,1) + 0.0001;
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT count = count + 1;
+GMAT ansFlag = 1;
+GMAT Iarr(Ivar,1) = Ivar; 
+GMAT ranOK = Iarr(Ivar,1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = Iarr(Ivar,1) - count + 0.0001;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = count - Iarr(Ivar,1) + 0.0001;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT count = count + 1;
 EndFor;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 GMAT SC1.TA = 145;
@@ -420,16 +419,16 @@ GMAT ranOK = 0;
 GMAT ansFlag = 0;
 GMAT count = 1;
 For Ivar = 1:5
-  GMAT ansFlag = 1;
-  GMAT Iarr(Ivar,1) = count;
-  GMAT Iarr2(Ivar,1) = Iarr(Ivar,1) + 1 - 1;
-  GMAT ranOK = Iarr2(Ivar,1);
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT ranOK = Iarr2(Ivar,1) - count + 0.0001;
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT ranOK = count - Iarr2(Ivar,1) + 0.0001;
-  Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-  GMAT count = count + 1;
+GMAT ansFlag = 1;
+GMAT Iarr(Ivar,1) = count;
+GMAT Iarr2(Ivar,1) = Iarr(Ivar,1) + 1 - 1;
+GMAT ranOK = Iarr2(Ivar,1);
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = Iarr2(Ivar,1) - count + 0.0001;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = count - Iarr2(Ivar,1) + 0.0001;
+Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT count = count + 1;
 EndFor;
 Report      Loop_GMAT_For type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 GMAT SC1.TA = 145;

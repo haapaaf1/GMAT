@@ -1,6 +1,5 @@
-function Func_EpochInputTests(reportLoc)
-% $Id: Func_EpochInputTests.gmf,v 1.4 2008/07/21 21:25:00 edove Exp $
-
+function Func_EpochInputTests(reportLoc1)
+% $Id: EpochInputTests.script,v 1.3 2007/07/26 19:13:13 edove Exp $
 %  Test Description and Summary:
 %
 %  This script is written to verify that time conversions are
@@ -59,7 +58,7 @@ SatTTModJulian.Epoch = 23191.0250112616;
 %----------------------------------------
 
 Create ReportFile EpochInputTests;
-EpochInputTests.Filename = reportLoc;
+EpochInputTests.Filename = reportLoc1;
 GMAT EpochInputTests.WriteHeaders = Off;
 
 %----------------------------------------
@@ -67,28 +66,28 @@ GMAT EpochInputTests.WriteHeaders = Off;
 %----------------------------------------
 
 Create String UTCGregorianEpoch
-UTCGregorianEpoch = '------ Epoch Values in  UTCGregorian ----' 
+UTCGregorianEpoch = '------ Epoch Values in  UTCGregorian ----'; 
 
 Create String UTCModJulianEpoch
-UTCModJulianEpoch = '------ Epoch Values in  UTCModJulian ----' 
+UTCModJulianEpoch = '------ Epoch Values in  UTCModJulian ----'; 
 
 Create String TAIGregorianEpoch
-TAIGregorianEpoch = '------ Epoch Values in  TAIGregorian ----' 
+TAIGregorianEpoch = '------ Epoch Values in  TAIGregorian ----'; 
 
 Create String TAIModJulianEpoch
-TAIModJulianEpoch = '------ Epoch Values in  TAIModJulian ----' 
+TAIModJulianEpoch = '------ Epoch Values in  TAIModJulian ----'; 
 
 Create String A1GregorianEpoch
-A1GregorianEpoch = '------ Epoch Values in  A1Gregorian ----' 
+A1GregorianEpoch = '------ Epoch Values in  A1Gregorian ----'; 
 
 Create String A1ModJulianEpoch
-A1ModJulianEpoch = '------ Epoch Values in  A1ModJulian ----' 
+A1ModJulianEpoch = '------ Epoch Values in  A1ModJulian ----'; 
 
 Create String TTGregorianEpoch
-TTGregorianEpoch = '------ Epoch Values in  TTGregorian ----' 
+TTGregorianEpoch = '------ Epoch Values in  TTGregorian ----'; 
 
 Create String TTModJulianEpoch
-TTModJulianEpoch = '------ Epoch Values in  TTModJulian ----' 
+TTModJulianEpoch = '------ Epoch Values in  TTModJulian ----'; 
 
 
 %----------------------------------------
@@ -145,7 +144,7 @@ Report EpochInputTests SatA1Gregorian.A1Gregorian;
 Report EpochInputTests SatA1ModJulian.A1Gregorian;
 Report EpochInputTests SatTTGregorian.A1Gregorian;
 Report EpochInputTests SatTTModJulian.A1Gregorian;
- 
+
 Report EpochInputTests A1ModJulianEpoch
 Report EpochInputTests SatUTCGregorian.A1ModJulian;
 Report EpochInputTests SatUTCModJulian.A1ModJulian;
@@ -165,7 +164,7 @@ Report EpochInputTests SatA1Gregorian.TTGregorian;
 Report EpochInputTests SatA1ModJulian.TTGregorian;
 Report EpochInputTests SatTTGregorian.TTGregorian;
 Report EpochInputTests SatTTModJulian.TTGregorian;
- 
+
 Report EpochInputTests TTModJulianEpoch
 Report EpochInputTests SatUTCGregorian.TTModJulian;
 Report EpochInputTests SatUTCModJulian.TTModJulian;

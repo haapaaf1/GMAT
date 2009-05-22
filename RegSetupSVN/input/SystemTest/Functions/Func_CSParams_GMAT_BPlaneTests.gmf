@@ -1,6 +1,5 @@
 function Func_CSParams_GMAT_BPlaneTests(reportLoc1,reportLoc2)
-% $Id: Func_CSParams_GMAT_BPlaneTests.gmf,v 1.4 2008/07/21 21:25:00 edove Exp $
-
+% $Id: CSParams_GMAT_BPlaneTests.script,v 1.9 2008/04/18 13:42:09 lojun Exp $
 %   This script tests GMAT calculation of B-Plane parameters.  
 %   There are two test cases, one w/r/t the the Earth, the other
 %   w/r/t the moon.  The intial conditions create hyperbolic orbits,
@@ -175,9 +174,9 @@ GMAT MoonBPlaneData.SolverIterations = None;
 Report EarthBPlaneData Sat.UTCGregorian     Sat.EarthMJ2000Eq.BdotT    Sat.EarthMJ2000Eq.BdotR    Sat.EarthMJ2000Eq.BVectorMag    Sat.EarthMJ2000Eq.BVectorAngle
 Report MoonBPlaneData  MoonSat.UTCGregorian MoonSat.MoonMJ2000Eq.BdotT MoonSat.MoonMJ2000Eq.BdotR MoonSat.MoonMJ2000Eq.BVectorMag MoonSat.MoonMJ2000Eq.BVectorAngle
 For I = 1:1:382;
-   Propagate Prop(Sat) {Sat.ElapsedSecs = 60.0};
-   Propagate MoonProp(MoonSat) {MoonSat.ElapsedSecs = 60.0};
-   Report EarthBPlaneData Sat.UTCGregorian Sat.EarthMJ2000Eq.BdotT Sat.EarthMJ2000Eq.BdotR Sat.EarthMJ2000Eq.BVectorMag Sat.EarthMJ2000Eq.BVectorAngle
-   Report MoonBPlaneData MoonSat.UTCGregorian MoonSat.MoonMJ2000Eq.BdotT MoonSat.MoonMJ2000Eq.BdotR MoonSat.MoonMJ2000Eq.BVectorMag MoonSat.MoonMJ2000Eq.BVectorAngle
+Propagate Prop(Sat) {Sat.ElapsedSecs = 60.0};
+Propagate MoonProp(MoonSat) {MoonSat.ElapsedSecs = 60.0};
+Report EarthBPlaneData Sat.UTCGregorian Sat.EarthMJ2000Eq.BdotT Sat.EarthMJ2000Eq.BdotR Sat.EarthMJ2000Eq.BVectorMag Sat.EarthMJ2000Eq.BVectorAngle
+Report MoonBPlaneData MoonSat.UTCGregorian MoonSat.MoonMJ2000Eq.BdotT MoonSat.MoonMJ2000Eq.BdotR MoonSat.MoonMJ2000Eq.BVectorMag MoonSat.MoonMJ2000Eq.BVectorAngle
 EndFor;
 

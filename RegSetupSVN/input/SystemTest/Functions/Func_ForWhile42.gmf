@@ -1,5 +1,6 @@
-function Func_ForWhile42(reportLoc)
-% $Id: Func_ForWhile42.gmf,v 1.2 2008/05/02 19:05:35 edove Exp $
+function Func_ForWhile42(reportLoc1)
+% REVISION HISTORY
+% $Id: ForWhile42.m,v 1.2 2007/07/26 19:13:11 edove Exp $
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = TAIModJulian;
@@ -35,7 +36,7 @@ GMAT DefaultProp.MaxStep = 60;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile ForWhile42;
-GMAT ForWhile42.Filename = reportLoc;
+GMAT ForWhile42.Filename = reportLoc1;
 GMAT ForWhile42.Precision = 15;
 
 Create Array testArray[1,1];
@@ -56,142 +57,142 @@ GMAT SC1.TA = 145;
 % RHS: variable
 % ********
 BeginScript;
-    % ===== 1 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-   GMAT testVar = 5;
-   For StepSize = 1:5;
-      GMAT ranOK = 1;
-      While SC1.TA == testVar
-          GMAT ansFlag = -99;
-          GMAT ranOK = 0;
-          Propagate   DefaultProp(SC1);
-          Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-          GMAT ForWhile42.WriteHeaders = Off;
-      EndWhile;
-   EndFor;
-    Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT ForWhile42.WriteHeaders = Off;
+% ===== 1 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+GMAT testVar = 5;
+For StepSize = 1:5;
+GMAT ranOK = 1;
+While SC1.TA == testVar
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ForWhile42.WriteHeaders = Off;
+EndWhile;
+EndFor;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ForWhile42.WriteHeaders = Off;
 
-    % ===== 2 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-   For StepSize = 1:5;
-       GMAT testVar = 1*SC1.TA;
-       While SC1.TA == testVar
-           GMAT ansFlag = 1;
-           Propagate   DefaultProp(SC1);
-           GMAT ranOK = ranOK + 1;
-           Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       EndWhile;
-    EndFor;
-    GMAT ranOK = ranOK - 4;
-    Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 2 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = 1:5;
+GMAT testVar = 1*SC1.TA;
+While SC1.TA == testVar
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+GMAT ranOK = ranOK + 1;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+EndFor;
+GMAT ranOK = ranOK - 4;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 3 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-    For StepSize = 1:5;
-        GMAT testVar = 5;
-        While SC1.TA ~= testVar
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-            GMAT testVar = 1*SC1.TA;
-            GMAT ranOK = ranOK + 1;
-            Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        EndWhile;
-    EndFor;
-    GMAT ranOK = ranOK - 4;
-    Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 3 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = 1:5;
+GMAT testVar = 5;
+While SC1.TA ~= testVar
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+GMAT testVar = 1*SC1.TA;
+GMAT ranOK = ranOK + 1;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+EndFor;
+GMAT ranOK = ranOK - 4;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 4 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-    For StepSize = 1:5;
-        GMAT testVar = 1*SC1.TA;
-        GMAT ranOK = ranOK + 1;
-        While SC1.TA ~= testVar
-            GMAT ansFlag = -99;
-            GMAT ranOK = ranOK - 1;
-            Propagate   DefaultProp(SC1);
-            GMAT testVar = 1*SC1.TA;
-            Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        EndWhile;
-    EndFor;
-    GMAT ranOK = ranOK - 4;
-    Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 4 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = 1:5;
+GMAT testVar = 1*SC1.TA;
+GMAT ranOK = ranOK + 1;
+While SC1.TA ~= testVar
+GMAT ansFlag = -99;
+GMAT ranOK = ranOK - 1;
+Propagate   DefaultProp(SC1);
+GMAT testVar = 1*SC1.TA;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+EndFor;
+GMAT ranOK = ranOK - 4;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 5 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-    For StepSize = 1:5;
-        GMAT SC1.TA = 350;
-        GMAT testVar = 5;
-        While SC1.TA > testVar
-            GMAT ansFlag = 1;
-            GMAT ranOK = 1;
-            Propagate   DefaultProp(SC1);
-            Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        EndWhile;
-        GMAT ranOK = testVar - SC1.TA;
-        Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    EndFor;
+% ===== 5 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = 1:5;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+While SC1.TA > testVar
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+GMAT ranOK = testVar - SC1.TA;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndFor;
 
-    % ===== 6 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    For StepSize = 1:5;
-        GMAT SC1.TA = 350;
-        GMAT testVar = 5;
-        GMAT ansFlag = 0;
-        GMAT ranOK = ranOK + 1;
-        While SC1.TA < testVar
-            GMAT ansFlag = -99;
-            GMAT ranOK = 0;
-            Propagate   DefaultProp(SC1);
-            Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        EndWhile;
-    EndFor;
-    GMAT ranOK = ranOK - 4;
-    Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 6 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+For StepSize = 1:5;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = ranOK + 1;
+While SC1.TA < testVar
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+EndFor;
+GMAT ranOK = ranOK - 4;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 7 ======
-    GMAT type = type + 1;
-    For StepSize = 1:5;
-        GMAT SC1.TA = 350;
-        GMAT testVar = 5;
-        GMAT ansFlag = 0;
-        GMAT ranOK = 0;
-        While SC1.TA >= testVar
-            GMAT ansFlag = 1;
-            GMAT ranOK = 1;
-            Propagate   DefaultProp(SC1);
-            Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        EndWhile;
-        GMAT ranOK = testVar - SC1.TA + 0.0001;
-        Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    EndFor;
+% ===== 7 ======
+GMAT type = type + 1;
+For StepSize = 1:5;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+While SC1.TA >= testVar
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+GMAT ranOK = testVar - SC1.TA + 0.0001;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndFor;
 
-    % ===== 8 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    For StepSize = 1:5;
-        GMAT SC1.TA = 350;
-        GMAT testVar = 5;
-        GMAT ansFlag = 0;
-        GMAT ranOK = ranOK + 1;
-        While SC1.TA <= testVar
-            GMAT ansFlag = -99;
-            GMAT ranOK = 0;
-            Propagate   DefaultProp(SC1);
-            Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        EndWhile;
-    EndFor;
-    GMAT ranOK = ranOK - 4;
-    Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 8 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+For StepSize = 1:5;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = ranOK + 1;
+While SC1.TA <= testVar
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+EndFor;
+GMAT ranOK = ranOK - 4;
+Report      ForWhile42 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 EndScript;

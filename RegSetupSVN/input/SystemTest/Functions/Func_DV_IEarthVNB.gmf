@@ -1,5 +1,5 @@
-function Func_DV_IEarthCart(reportLoc1)
-%% $Id: DV_IEarthCart.m,v 1.3 2007/11/20 22:37:14 edove Exp $
+function Func_DV_IEarthVNB(reportLoc1)
+%% $Id: DV_IEarthVNB.m,v 1.2 2007/07/26 19:13:11 edove Exp $
 
 Create Spacecraft DefaultSC;
 GMAT DefaultSC.DateFormat = TAIModJulian;
@@ -39,7 +39,7 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ImpulsiveBurn ImpulsiveBurn1;
 GMAT ImpulsiveBurn1.Origin = Earth;
-GMAT ImpulsiveBurn1.Axes = MJ2000Eq;
+GMAT ImpulsiveBurn1.Axes = VNB;
 GMAT ImpulsiveBurn1.Element1 = 0.1;
 GMAT ImpulsiveBurn1.Element2 = 0.1;
 GMAT ImpulsiveBurn1.Element3 = 0.1;

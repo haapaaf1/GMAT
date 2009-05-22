@@ -1,5 +1,4 @@
-function Func_ForIf42_24_nested(reportLoc)
-% $Id: Func_ForIf42_24_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_ForIf42_24_nested(reportLoc1)
+ 
 % Call function
-Func_ForIf42_24(reportLoc);
+Func_ForIf42_24(reportLoc1)

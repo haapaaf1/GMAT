@@ -1,5 +1,5 @@
-function Func_DV_ISunVNB(reportLoc)
-% $Id: Func_DV_ISunVNB.gmf,v 1.2 2008/05/02 19:05:36 edove Exp $
+function Func_DV_ISunVNB(reportLoc1)
+%% $Id: DV_ISunVNB.m,v 1.2 2007/07/26 19:13:11 edove Exp $
 
 Create Spacecraft DefaultSC;
 GMAT DefaultSC.DateFormat = TAIModJulian;
@@ -49,7 +49,7 @@ GMAT SunMJ2000Eq.Origin = Sun;
 GMAT SunMJ2000Eq.Axes = MJ2000Eq;
 
 Create ReportFile DeltaV_Report
-GMAT DeltaV_Report.Filename = reportLoc;
+GMAT DeltaV_Report.Filename = reportLoc1;
 GMAT DeltaV_Report.Precision = 16;
 GMAT DeltaV_Report.WriteHeaders = On;
 GMAT DeltaV_Report.ColumnWidth = 20;

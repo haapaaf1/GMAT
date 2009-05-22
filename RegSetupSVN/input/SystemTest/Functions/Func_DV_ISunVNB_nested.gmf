@@ -1,5 +1,4 @@
-function Func_DV_ISunVNB_nested(reportLoc)
-% $Id: Func_DV_ISunVNB_nested.gmf,v 1.2 2008/07/21 21:24:59 edove Exp $
-
+function Func_DV_ISunVNB_nested(reportLoc1)
+ 
 % Call function
-Func_DV_ISunVNB(reportLoc);
+Func_DV_ISunVNB(reportLoc1)

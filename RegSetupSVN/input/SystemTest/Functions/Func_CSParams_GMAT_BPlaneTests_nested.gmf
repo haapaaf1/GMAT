@@ -1,5 +1,4 @@
 function Func_CSParams_GMAT_BPlaneTests_nested(reportLoc1,reportLoc2)
-% $Id: Func_CSParams_GMAT_BPlaneTests_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+ 
 % Call function
-Func_CSParams_GMAT_BPlaneTests(reportLoc1,reportLoc2);
+Func_CSParams_GMAT_BPlaneTests(reportLoc1,reportLoc2)

@@ -1,50 +1,45 @@
-% $Id: Func_ForArray.script,v 1.2 2008/05/02 19:05:34 edove Exp $
-
-% Func_ForArray - This script tests to make sure that the For
-% Control Flow is working inside of a function. The contents
-% of the function used in this script are similar to the System Test
-% script of a similar name (ForArray.m)
+% Created from the following script: ForArray.m
 %
-% Function used: Func_ForArray.gmf, Func_ForArray_nested.gmf
+% Functions used: Func_ForArray.gmf, Func_ForArray_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
-Create String reportLoc;
-GMAT reportLoc = './output/SystemTest/Func_ForArray.report';
-
-Create String reportLoc_nested;
-GMAT reportLoc_nested = './output/SystemTest/Func_ForArray_nested.report';
-
-
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_ForArray.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_ForArray_nested.report';
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_ForArray(reportLoc);
-Func_ForArray_nested(reportLoc_nested);
+Func_ForArray(reportLoc1)
+Func_ForArray_nested(reportLoc1_nested)

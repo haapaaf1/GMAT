@@ -1,5 +1,4 @@
-function Func_ForWhile42_nested(reportLoc)
-% $Id: Func_ForWhile42_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_ForWhile42_nested(reportLoc1)
+ 
 % Call function
-Func_ForWhile42(reportLoc);
+Func_ForWhile42(reportLoc1)
