@@ -2,7 +2,7 @@
 
 Create Spacecraft PlutoSC;
 GMAT PlutoSC.DateFormat = UTCGregorian
-GMAT PlutoSC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
+GMAT PlutoSC.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT PlutoSC.CoordinateSystem = PlutoMJ2000Eq;
 GMAT PlutoSC.DisplayStateType = Cartesian;
 GMAT PlutoSC.X = -1067.516740143530600;

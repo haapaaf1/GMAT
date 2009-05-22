@@ -5,7 +5,7 @@
 
 Create Spacecraft GEO;
  GMAT GEO.J2000BodyName = Earth;
- GMAT GEO.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
+ GMAT GEO.Epoch = '01 Jun 2004 12:00:00.000';
  GMAT GEO.DisplayStateType = Cartesian;
  GMAT GEO.CoordinateSystem = EarthMJ2000Eq;
  GMAT GEO.X = 36607.3582560;

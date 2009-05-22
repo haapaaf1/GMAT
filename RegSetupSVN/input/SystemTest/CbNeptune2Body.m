@@ -2,7 +2,7 @@
 
 Create Spacecraft NeptuneSC;
 GMAT NeptuneSC.DateFormat = UTCGregorian
-GMAT NeptuneSC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
+GMAT NeptuneSC.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT NeptuneSC.CoordinateSystem = NeptuneMJ2000Eq;
 GMAT NeptuneSC.DisplayStateType = Cartesian;
 GMAT NeptuneSC.X = -20815.089640681723000;

@@ -488,7 +488,6 @@ GMAT mlCall.FunctionPath = './input/SystemTest/';
 
 Create GmatFunction GMCall;
 
-
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------

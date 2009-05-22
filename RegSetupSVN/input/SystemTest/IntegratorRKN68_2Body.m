@@ -3,7 +3,7 @@
 
 Create Spacecraft ISS;
  GMAT ISS.J2000BodyName = Earth;
- GMAT ISS.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
+ GMAT ISS.Epoch = '01 Jun 2004 12:00:00.000';
  GMAT ISS.DisplayStateType = Cartesian;
  GMAT ISS.CoordinateSystem = EarthMJ2000Eq;
  GMAT ISS.X = -4453.7835859999996;

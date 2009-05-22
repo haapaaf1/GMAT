@@ -2,7 +2,7 @@
 
 Create Spacecraft VenusSC;
 GMAT VenusSC.DateFormat = UTCGregorian
-GMAT VenusSC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
+GMAT VenusSC.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT VenusSC.CoordinateSystem = VenusMJ2000Eq;
 GMAT VenusSC.DisplayStateType = Cartesian;
 GMAT VenusSC.X = -4832.074380872521000;
