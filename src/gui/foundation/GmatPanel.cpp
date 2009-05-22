@@ -548,7 +548,6 @@ void GmatPanel::Show()
    
    if (mShowBottomSizer)
       theScriptButton->Show(mShowScriptButton);
-   thePanelSizer->Layout();
    
    // tells the enclosing window to adjust to the size of the sizer
    SetAutoLayout( TRUE );
@@ -588,6 +587,9 @@ void GmatPanel::Show()
    if (mShowBottomSizer)
       if ((mObject == NULL) || (!mObject->IsOfType(Gmat::COMMAND)))
          theSummaryButton->Hide();
+   
+   // call Layout() to force layout of the children anew
+   thePanelSizer->Layout();
 }
 
 
