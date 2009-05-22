@@ -108,6 +108,14 @@ void RunScriptFolderDialog::Create()
    //------------------------------------------------------
    // run scripts
    //------------------------------------------------------
+   wxStaticText *startingScriptsLabel =
+      new wxStaticText(this, ID_TEXT, wxT("Starting script number:"),
+                       wxDefaultPosition, wxDefaultSize, 0);
+   
+   mStartingScriptTextCtrl =
+      new wxTextCtrl(this, ID_TEXTCTRL, wxT("1"),
+                     wxDefaultPosition, wxSize(80,20), 0);
+   
    wxStaticText *numScriptsLabel =
       new wxStaticText(this, ID_TEXT, wxT("Number of scripts to run:"),
                        wxDefaultPosition, wxDefaultSize, 0);
@@ -115,7 +123,7 @@ void RunScriptFolderDialog::Create()
    mNumScriptsToRunTextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT("1"),
                      wxDefaultPosition, wxSize(80,20), 0);
-
+   
    wxStaticText *numTimesLabel =
       new wxStaticText(this, ID_TEXT, wxT("Number of times to run each script:"),
                        wxDefaultPosition, wxDefaultSize, 0);
@@ -146,10 +154,14 @@ void RunScriptFolderDialog::Create()
    
    //---------- sizer
    wxFlexGridSizer *runSizer = new wxFlexGridSizer(4, 0, 0);
+   runSizer->Add(startingScriptsLabel, 0, wxALIGN_LEFT|wxALL, bsize);
+   runSizer->Add(mStartingScriptTextCtrl, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
+   runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
+   runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runSizer->Add(numScriptsLabel, 0, wxALIGN_LEFT|wxALL, bsize);
    runSizer->Add(mNumScriptsToRunTextCtrl, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
-   runSizer->Add(20, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
+   runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runSizer->Add(numTimesLabel, 0, wxALIGN_LEFT|wxALL, bsize);
    runSizer->Add(mNumTimesToRunTextCtrl, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
@@ -293,10 +305,18 @@ void RunScriptFolderDialog::LoadData()
 //------------------------------------------------------------------------------
 void RunScriptFolderDialog::SaveData()
 {
+   long numStartingScript;
    long numScriptsToRun;
    long numTimesToRun;
    canClose = true;
       
+   if (!mStartingScriptTextCtrl->GetValue().ToLong(&numStartingScript))
+   {
+      wxMessageBox("Invalid number of scripts to run entered.");
+      canClose = false;
+      return;
+   }
+   
    if (!mNumScriptsToRunTextCtrl->GetValue().ToLong(&numScriptsToRun))
    {
       wxMessageBox("Invalid number of scripts to run entered.");
@@ -340,6 +360,7 @@ void RunScriptFolderDialog::SaveData()
    
    mCreateRunFolder = mCreateRunFolderCheckBox->GetValue();
    
+   mNumStartingScript = numStartingScript;
    mNumScriptsToRun = numScriptsToRun;
    mNumTimesToRun = numTimesToRun;
    

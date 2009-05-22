@@ -32,6 +32,7 @@ public:
    bool SaveCompareResults() { return mSaveCompareResults; }
    bool HasOutDirChanged() { return mOutDirChanged; }
    bool CreateRunFolder() { return mCreateRunFolder; }
+   Integer GetStartingScriptNumber() { return mNumStartingScript; }
    Integer GetNumScriptsToRun() { return mNumScriptsToRun; }
    Integer GetNumTimesToRun() { return mNumTimesToRun; }
    Real GetAbsTolerance() { return mAbsTol; }
@@ -49,6 +50,7 @@ protected:
    virtual void SaveData();
    virtual void ResetData();
    
+   wxTextCtrl *mStartingScriptTextCtrl;
    wxTextCtrl *mNumScriptsToRunTextCtrl;
    wxTextCtrl *mNumTimesToRunTextCtrl;
    wxTextCtrl *mCompareDirTextCtrl;
@@ -91,6 +93,7 @@ private:
    bool mSaveCompareResults;
    bool mOutDirChanged;
    bool mCreateRunFolder;
+   Integer mNumStartingScript;
    Integer mNumScriptsToRun;
    Integer mNumTimesToRun;
    Real mAbsTol;

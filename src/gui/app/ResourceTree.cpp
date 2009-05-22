@@ -3010,6 +3010,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
       scriptId = GetNextChild(item, cookie);
    }
    
+   int startNum = 1;
    int runCount = numScripts;
    int repeatCount = 1;
    
@@ -3022,7 +3023,8 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    if (!dlg.RunScripts())
       return;
    
-   runCount = dlg.GetNumScriptsToRun();
+   startNum = dlg.GetStartingScriptNumber();
+   runCount = dlg.GetNumScriptsToRun() + startNum - 1;
    repeatCount = dlg.GetNumTimesToRun();
    bool runFromSavedScripts = dlg.RunFromSavedScripts();
    bool compare = dlg.CompareResults();
@@ -3116,6 +3118,12 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
          break;
       
       count++;
+      
+      if (count < startNum)
+      {
+         scriptId = GetNextChild(item, cookie);
+         continue;
+      }
       
       if (count > runCount)
          break;
