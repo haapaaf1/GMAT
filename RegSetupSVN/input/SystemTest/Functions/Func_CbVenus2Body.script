@@ -1,6 +1,6 @@
-% Created from the following script: AssigningWholeObjects.script
+% Created from the following script: CbVenus2Body.m
 %
-% Functions used: Func_AssigningWholeObjects.gmf, Func_AssigningWholeObjects_nested.gmf
+% Functions used: Func_CbVenus2Body.gmf, Func_CbVenus2Body_nested.gmf
 % Function path: ./output/SystemTest/
 % Outputs to: ./output/SystemTest/
  
@@ -24,16 +24,10 @@ GMAT DefaultProp.FM = DefaultProp_ForceModel;
 %----------------------------------------
  
 Create String reportLoc1;
-GMAT reportLoc1 = './output/SystemTest/Func_ReporFileOrig.report';
+GMAT reportLoc1 = './output/SystemTest/Func_CbVenus2Body.report';
  
 Create String reportLoc1_nested;
-GMAT reportLoc1_nested = './output/SystemTest/Func_ReporFileOrig_nested.report';
- 
-Create String reportLoc2;
-GMAT reportLoc2 = './output/SystemTest/Func_ReporFileOrig.report';
- 
-Create String reportLoc2_nested;
-GMAT reportLoc2_nested = './output/SystemTest/Func_ReporFileOrig_nested.report';
+GMAT reportLoc1_nested = './output/SystemTest/Func_CbVenus2Body_nested.report';
  
  
 %----------------------------------------
@@ -47,5 +41,5 @@ BeginScript;
 EndScript;
  
 % Call function
-Func_AssigningWholeObjects(reportLoc1,reportLoc2)
-Func_AssigningWholeObjects_nested(reportLoc1_nested,reportLoc2_nested)
+Func_CbVenus2Body(reportLoc1)
+Func_CbVenus2Body_nested(reportLoc1_nested)

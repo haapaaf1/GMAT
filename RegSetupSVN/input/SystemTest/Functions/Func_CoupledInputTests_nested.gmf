@@ -1,5 +1,4 @@
-function Func_CoupledInputTests_nested(reportLoc)
-% $Id: Func_CoupledInputTests_nested.gmf,v 1.2 2008/07/21 21:24:58 edove Exp $
-
+function Func_CoupledInputTests_nested(reportLoc1)
+ 
 % Call function
-Func_CoupledInputTests(reportLoc);
+Func_CoupledInputTests(reportLoc1)

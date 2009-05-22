@@ -1,6 +1,5 @@
-function Func_CoupledInputTests(reportLoc)
-% $Id: Func_CoupledInputTests.gmf,v 1.4 2008/07/21 21:24:59 edove Exp $
-
+function Func_CoupledInputTests(reportLoc1)
+% $Id: CoupledInputTests.script,v 1.3 2007/07/26 19:13:13 edove Exp $
 %  Test Description and Summary 
 % 
 %  This script is designed to make sure that the spacecraft object correctly 
@@ -65,13 +64,13 @@ GMAT MoonSat.Z = 111175.0036223247;
 GMAT MoonSat.VX = 1.175661046162028;
 GMAT MoonSat.VY = -1.565480751391342;
 GMAT MoonSat.VZ = 0.6625005544001953;
-                                
+
 %%------------------------------------------------------------
 %%-------------------  Create Coordinate Systems -------------
 %%------------------------------------------------------------
 
 Create ReportFile CoupledInputTests;
-CoupledInputTests.Filename = reportLoc;
+CoupledInputTests.Filename = reportLoc1;
 CoupledInputTests.ColumnWidth = 25;
 CoupledInputTests.WriteHeaders = Off;
 
@@ -86,12 +85,12 @@ SunMJ2000Ec.Axes   = MJ2000Ec;
 Create Variable E1 E2 E3 E4 E5 E6
 
 Create String Cart Kep ModKep SphAZEL SphRADEC Equinoc
-Cart =   '------  Catesian State Transformation Tests ------'   ;
-Kep =   '------  Keplerian State Transformation Tests ------'   ;
-ModKep =   '------  Modified Keplerian State Transformation Tests ------'   ;
-SphAZEL =  '------  Spherical (AZEL) State Transformation Tests ------'   ;
-SphRADEC =  ' ------  Spherical (RADEC) Transformation Tests ------'   ;
-Equinoc =   '------  Equinoctial Transformation Tests ------'   ;
+Cart     =   '------  Catesian State Transformation Tests ------';
+Kep      =   '------  Keplerian State Transformation Tests ------';
+ModKep   =   '------  Modified Keplerian State Transformation Tests ------';
+SphAZEL  =   '------  Spherical (AZEL) State Transformation Tests ------';
+SphRADEC =   '------  Spherical (RADEC) Transformation Tests ------';
+Equinoc  =   '------  Equinoctial Transformation Tests ------';
 
 
 %%*****************************************************************************************

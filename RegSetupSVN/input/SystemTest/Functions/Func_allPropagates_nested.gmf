@@ -1,5 +1,4 @@
-function Func_allPropagates_nested(reportLoc)
-% $Id: Func_allPropagates_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_allPropagates_nested(reportLoc1)
+ 
 % Call function
-Func_allPropagates(reportLoc);
+Func_allPropagates(reportLoc1)

@@ -1,5 +1,5 @@
-function Func_CS2BodyEarthGSE(reportLoc1)
-%% $Id: CS2BodyEarthGSE.m,v 1.3 2008/10/14 17:58:29 edove Exp $
+function Func_CS2BodyEarthMJ2000Ec(reportLoc1)
+%% $Id: CS2BodyEarthMJ2000Ec.m,v 1.3 2008/10/14 17:58:29 edove Exp $
 
 Create Spacecraft ISS;
 GMAT ISS.J2000BodyName = Earth;
@@ -27,6 +27,7 @@ GMAT Earth2Body.Gravity.Earth.Model = 'JGM2.cof';
 GMAT Earth2Body.Gravity.Earth.Degree = 0;
 GMAT Earth2Body.Gravity.Earth.Order = 0;
 
+
 Create Propagator RKV89;
 GMAT RKV89.FM = Earth2Body;
 GMAT RKV89.Type = RungeKutta89;
@@ -38,12 +39,6 @@ GMAT RKV89.MaxStepAttempts = 50;
 
 GMAT SolarSystem.EphemerisUpdateInterval = 0.0;
 GMAT SolarSystem.Earth.NutationUpdateInterval = 60.0; 
-GMAT SolarSystem.UseTTForEphemeris = true;
-
-Create CoordinateSystem EarthGSE;
-GMAT EarthGSE.Origin = Earth;
-GMAT EarthGSE.Axes = GSE;
-GMAT EarthGSE.UpdateInterval = 0;
 
 Create ReportFile ISS_Report
 GMAT ISS_Report.Filename = reportLoc1;
@@ -58,9 +53,9 @@ Create Variable OutputStepSize;
 % and current stop conditions.
 
 % Output Report file data for each propagation set in the FOR loop
-Report      ISS_Report ISS.A1ModJulian ISS.EarthGSE.X ISS.EarthGSE.Y ISS.EarthGSE.Z ISS.EarthGSE.VX ISS.EarthGSE.VY ISS.EarthGSE.VZ ISS.EarthGSE.VMAG ISS.EarthGSE.RAV ISS.EarthGSE.HX ISS.EarthGSE.HY ISS.EarthGSE.HZ ISS.EarthGSE.AOP ISS.EarthGSE.DEC ISS.EarthGSE.DECV ISS.EarthGSE.INC ISS.EarthGSE.RA ISS.EarthGSE.RAAN;
+Report      ISS_Report ISS.A1ModJulian ISS.EarthMJ2000Ec.X ISS.EarthMJ2000Ec.Y ISS.EarthMJ2000Ec.Z ISS.EarthMJ2000Ec.VX ISS.EarthMJ2000Ec.VY ISS.EarthMJ2000Ec.VZ ISS.EarthMJ2000Ec.VMAG ISS.EarthMJ2000Ec.RAV ISS.EarthMJ2000Ec.HX ISS.EarthMJ2000Ec.HY ISS.EarthMJ2000Ec.HZ ISS.EarthMJ2000Ec.AOP ISS.EarthMJ2000Ec.DEC ISS.EarthMJ2000Ec.DECV ISS.EarthMJ2000Ec.INC ISS.EarthMJ2000Ec.RA ISS.EarthMJ2000Ec.RAAN;
 GMAT ISS_Report.WriteHeaders = Off;
 For OutputStepSize = 1:72;
 Propagate   RKV89(ISS, {ISS.ElapsedSecs = 600});
-Report      ISS_Report ISS.A1ModJulian ISS.EarthGSE.X ISS.EarthGSE.Y ISS.EarthGSE.Z ISS.EarthGSE.VX ISS.EarthGSE.VY ISS.EarthGSE.VZ ISS.EarthGSE.VMAG ISS.EarthGSE.RAV ISS.EarthGSE.HX ISS.EarthGSE.HY ISS.EarthGSE.HZ ISS.EarthGSE.AOP ISS.EarthGSE.DEC ISS.EarthGSE.DECV ISS.EarthGSE.INC ISS.EarthGSE.RA ISS.EarthGSE.RAAN;
+Report      ISS_Report ISS.A1ModJulian ISS.EarthMJ2000Ec.X ISS.EarthMJ2000Ec.Y ISS.EarthMJ2000Ec.Z ISS.EarthMJ2000Ec.VX ISS.EarthMJ2000Ec.VY ISS.EarthMJ2000Ec.VZ ISS.EarthMJ2000Ec.VMAG ISS.EarthMJ2000Ec.RAV ISS.EarthMJ2000Ec.HX ISS.EarthMJ2000Ec.HY ISS.EarthMJ2000Ec.HZ ISS.EarthMJ2000Ec.AOP ISS.EarthMJ2000Ec.DEC ISS.EarthMJ2000Ec.DECV ISS.EarthMJ2000Ec.INC ISS.EarthMJ2000Ec.RA ISS.EarthMJ2000Ec.RAAN;
 EndFor ;

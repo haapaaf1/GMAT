@@ -1,36 +1,39 @@
-% $Id: Func_AssignmentTests.script,v 1.2 2008/05/02 19:05:35 edove Exp $
-
-% Func_AssignmentTests - This script tests to make sure 
+% Created from the following script: AssignmentTests.m
 %
-% Function used: Func_AssignmentTests.gmf, Func_AssignmentTests_nested.gmf
+% Functions used: Func_AssignmentTests.gmf, Func_AssignmentTests_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_AssignmentTests;
-Func_AssignmentTests_nested;
+Func_AssignmentTests
+Func_AssignmentTests_nested

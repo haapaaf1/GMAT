@@ -1,5 +1,4 @@
-function Func_BasicOptimizerTest_nested(reportLoc)
-% $Id: Func_BasicOptimizerTest_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_BasicOptimizerTest_nested(reportLoc1)
+ 
 % Call function
-Func_BasicOptimizerTest(reportLoc);
+Func_BasicOptimizerTest(reportLoc1)

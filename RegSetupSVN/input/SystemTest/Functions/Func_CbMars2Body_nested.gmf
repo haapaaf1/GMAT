@@ -1,5 +1,4 @@
-function Func_CbMars2Body_nested(reportLoc)
-% $Id: Func_CbMars2Body_nested.gmf,v 1.2 2008/07/21 21:24:59 edove Exp $
-
+function Func_CbMars2Body_nested(reportLoc1)
+ 
 % Call function
-Func_CbMars2Body(reportLoc);
+Func_CbMars2Body(reportLoc1)

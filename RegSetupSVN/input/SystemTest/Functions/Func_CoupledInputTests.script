@@ -1,46 +1,45 @@
-% $Id: Func_CoupledInputTests.script,v 1.3 2008/10/15 01:01:54 edove Exp $
-
-% Func_CoupledInputTests - This script tests to make sure 
+% Created from the following script: CoupledInputTests.script
 %
-% Function used: Func_CoupledInputTests.gmf, Func_CoupledInputTests_nested.gmf
+% Functions used: Func_CoupledInputTests.gmf, Func_CoupledInputTests_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
-Create String reportLoc;
-GMAT reportLoc = './output/SystemTest/Func_CoupledInputTests.report';
-
-Create String reportLoc_nested;
-GMAT reportLoc_nested = './output/SystemTest/Func_CoupledInputTests_nested.report';
-
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_CoupledInputTests.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_CoupledInputTests_nested.report';
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_CoupledInputTests(reportLoc);
-Func_CoupledInputTests_nested(reportLoc_nested);
+Func_CoupledInputTests(reportLoc1)
+Func_CoupledInputTests_nested(reportLoc1_nested)

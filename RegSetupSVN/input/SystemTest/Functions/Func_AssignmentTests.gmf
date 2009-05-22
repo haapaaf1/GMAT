@@ -1,5 +1,5 @@
 function Func_AssignmentTests
-% $Id: Func_AssignmentTests.gmf,v 1.4 2008/07/21 21:24:57 edove Exp $
+%$Id: AssignmentTests.m,v 1.8 2008/04/22 18:24:01 edove Exp $ 
 
 %----------------------------------------
 %---------- Spacecraft
@@ -195,9 +195,9 @@ GMAT array2(3, 2) = 0;
 GMAT array2(3, 3) = 0;
 
 Create String string1;
-GMAT string1 = Here is a test string;
+GMAT string1 = 'Here is a test string';
 Create String string2;
-GMAT string2 = TTModJulian
+GMAT string2 = 'TTModJulian';
 
 
 %----------------------------------------
@@ -229,36 +229,35 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 
 
 BeginScript
-   % Parm = ... tests
-   GMAT Sat2.Cr = 4.5;
-%   GMAT Sat1.Cd = Sat2.Cr; % This line causes problems with scripts that run after it
-   GMAT hwSat1.Cd = array1(1,1);
-   GMAT Sat1.DateFormat = string2;
+% Parm = ... tests
+GMAT Sat2.Cr = 4.5;
+GMAT Sat1.Cd = Sat2.Cr; % This line causes problems with scripts that run after it
+GMAT hwSat1.Cd = array1(1,1);
+GMAT Sat1.DateFormat = string2;
 
-   % Object = Object tests
-   GMAT Sat2 = Sat1;
-   GMAT hwSat2 = hwSat1;
-   GMAT var2 = var1;
-   GMAT array2 = array1;
-   GMAT string2 = string1;
+% Object = Object tests
+GMAT hwSat2 = hwSat1;
+GMAT var2 = var1;
+GMAT array2 = array1;
+GMAT string2 = string1;
 
-   % Variable = ... tests
-   GMAT temp1 = 12345.6789098765;
-   GMAT temp2 = Sat1.SMA;
-   GMAT temp3 = temp2;
-   GMAT temp4 = array1(3,3);
+% Variable = ... tests
+GMAT temp1 = 12345.6789098765;
+GMAT temp2 = Sat1.SMA;
+GMAT temp3 = temp2;
+GMAT temp4 = array1(3,3);
 
-   % Array element = ... tests
-   GMAT array1(1,1) = 9876.54321012345;
-   GMAT array1(1,2) = Sat1.SMA;
-   GMAT array1(1,3) = temp3;
-   GMAT array1(2,1) = array1(1,3);
+% Array element = ... tests
+GMAT array1(1,1) = 9876.54321012345;
+GMAT array1(1,2) = Sat1.SMA;
+GMAT array1(1,3) = temp3;
+GMAT array1(2,1) = array1(1,3);
 
-   Save Sat1 Sat2
-   Save hwSat1 hwSat2;
-   Save var1 var2;
-   Save array1 array2;
-   Save string1 string2;
-   Save temp1 temp2 temp3 temp4;
+Save Sat1 Sat2
+Save hwSat1 hwSat2;
+Save var1 var2;
+Save array1 array2;
+Save string1 string2;
+Save temp1 temp2 temp3 temp4;
 EndScript
 

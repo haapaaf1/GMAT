@@ -1,5 +1,4 @@
-function Func_CS2BodyEarthFixed_nested(reportLoc)
-% $Id: Func_CS2BodyEarthFixed_nested.gmf,v 1.2 2008/07/21 21:24:59 edove Exp $
-
+function Func_CS2BodyEarthFixed_nested(reportLoc1)
+ 
 % Call function
-Func_CS2BodyEarthFixed(reportLoc);
+Func_CS2BodyEarthFixed(reportLoc1)

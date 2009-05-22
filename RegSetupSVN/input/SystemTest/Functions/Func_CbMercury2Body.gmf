@@ -1,5 +1,5 @@
-function Func_CbMercury2Body(reportLoc)
-% $Id: Func_CbMercury2Body.gmf,v 1.3 2008/07/21 21:24:59 edove Exp $
+function Func_CbMercury2Body(reportLoc1)
+%% $Id: CbMercury2Body.m,v 1.2 2007/07/26 19:13:11 edove Exp $
 
 Create Spacecraft MercurySC;
 GMAT MercurySC.DateFormat = UTCGregorian
@@ -34,7 +34,7 @@ GMAT RKV89.Accuracy = 1e-013;
 GMAT RKV89.MinStep = 5;
 GMAT RKV89.MaxStep = 5;
 GMAT RKV89.MaxStepAttempts = 50; 
- 
+
 GMAT SolarSystem.EphemerisUpdateInterval = 0.0;
 GMAT SolarSystem.Earth.NutationUpdateInterval = 60.0; 
 
@@ -46,7 +46,7 @@ GMAT MercuryMJ2000Eq.Epoch = 21545;
 GMAT MercuryMJ2000Eq.UpdateInterval = 60;
 
 Create ReportFile Mercury_Report
-GMAT Mercury_Report.Filename = reportLoc;
+GMAT Mercury_Report.Filename = reportLoc1;
 GMAT Mercury_Report.Precision = 16;
 GMAT Mercury_Report.WriteHeaders = On;
 GMAT Mercury_Report.ColumnWidth = 20;
@@ -61,6 +61,6 @@ Create Variable OutputStepSize;
 Report Mercury_Report MercurySC.A1ModJulian MercurySC.Mercury.Altitude MercurySC.Mercury.BetaAngle MercurySC.Mercury.C3Energy MercurySC.Mercury.ECC MercurySC.Mercury.Latitude MercurySC.Mercury.Longitude MercurySC.Mercury.HMAG MercurySC.Mercury.MA MercurySC.Mercury.MM MercurySC.Mercury.OrbitPeriod MercurySC.Mercury.RadApo MercurySC.Mercury.RadPer MercurySC.Mercury.RMAG MercurySC.Mercury.SMA MercurySC.Mercury.TA MercurySC.Mercury.SemilatusRectum MercurySC.Mercury.VelApoapsis MercurySC.Mercury.VelPeriapsis MercurySC.Mercury.MHA MercurySC.Mercury.LST;
 GMAT Mercury_Report.WriteHeaders = Off;
 For OutputStepSize = 1:72;
-	Propagate   RKV89(MercurySC, {MercurySC.ElapsedSecs = 600});
-      Report      Mercury_Report MercurySC.A1ModJulian MercurySC.Mercury.Altitude MercurySC.Mercury.BetaAngle MercurySC.Mercury.C3Energy MercurySC.Mercury.ECC MercurySC.Mercury.Latitude MercurySC.Mercury.Longitude MercurySC.Mercury.HMAG MercurySC.Mercury.MA MercurySC.Mercury.MM MercurySC.Mercury.OrbitPeriod MercurySC.Mercury.RadApo MercurySC.Mercury.RadPer MercurySC.Mercury.RMAG MercurySC.Mercury.SMA MercurySC.Mercury.TA MercurySC.Mercury.SemilatusRectum MercurySC.Mercury.VelApoapsis MercurySC.Mercury.VelPeriapsis MercurySC.Mercury.MHA MercurySC.Mercury.LST;
+Propagate   RKV89(MercurySC, {MercurySC.ElapsedSecs = 600});
+Report      Mercury_Report MercurySC.A1ModJulian MercurySC.Mercury.Altitude MercurySC.Mercury.BetaAngle MercurySC.Mercury.C3Energy MercurySC.Mercury.ECC MercurySC.Mercury.Latitude MercurySC.Mercury.Longitude MercurySC.Mercury.HMAG MercurySC.Mercury.MA MercurySC.Mercury.MM MercurySC.Mercury.OrbitPeriod MercurySC.Mercury.RadApo MercurySC.Mercury.RadPer MercurySC.Mercury.RMAG MercurySC.Mercury.SMA MercurySC.Mercury.TA MercurySC.Mercury.SemilatusRectum MercurySC.Mercury.VelApoapsis MercurySC.Mercury.VelPeriapsis MercurySC.Mercury.MHA MercurySC.Mercury.LST;
 EndFor ;

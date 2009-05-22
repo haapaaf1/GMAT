@@ -1,46 +1,45 @@
-% $Id: Func_CS2BodyEarthFixed.script,v 1.3 2008/09/05 20:50:56 edove Exp $
-
-% Func_CS2BodyEarthFixed - This script tests to make sure 
+% Created from the following script: CS2BodyEarthFixed.m
 %
-% Function used: Func_CS2BodyEarthFixed.gmf, Func_CS2BodyEarthFixed_nested.gmf
+% Functions used: Func_CS2BodyEarthFixed.gmf, Func_CS2BodyEarthFixed_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
-Create String reportLoc;
-GMAT reportLoc = './output/SystemTest/Func_CS2BodyEarthFixed.report';
-
-Create String reportLoc_nested;
-GMAT reportLoc_nested = './output/SystemTest/Func_CS2BodyEarthFixed_nested.report';
-
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_CS2BodyEarthFixed.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_CS2BodyEarthFixed_nested.report';
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_CS2BodyEarthFixed(reportLoc);
-Func_CS2BodyEarthFixed_nested(reportLoc_nested);
+Func_CS2BodyEarthFixed(reportLoc1)
+Func_CS2BodyEarthFixed_nested(reportLoc1_nested)
