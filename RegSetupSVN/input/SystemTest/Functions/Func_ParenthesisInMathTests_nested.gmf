@@ -1,4 +1,0 @@
-function Func_ParenthesisinMathTests_nested(reportLoc1)
- 
-% Call function
-Func_ParenthesisinMathTests(reportLoc1)

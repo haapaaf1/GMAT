@@ -1,4 +1,0 @@
-function Func_ParametersInCommands_nested(reportLoc1)
- 
-% Call function
-Func_ParametersInCommands(reportLoc1)
