@@ -1,5 +1,4 @@
-function Func_ParenthesisInMathTests_nested(reportLoc)
-% $Id: Func_ParenthesisInMathTests_nested.gmf,v 1.1 2008/09/26 18:35:33 edove Exp $
-
+function Func_ParenthesisinMathTests_nested(reportLoc1)
+ 
 % Call function
-Func_ParenthesisInMathTests(reportLoc);
+Func_ParenthesisinMathTests(reportLoc1)

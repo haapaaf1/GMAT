@@ -1,5 +1,4 @@
-function Func_PiC_While_nested(reportLoc)
-% $Id: Func_PiC_While_nested.gmf,v 1.2 2008/07/21 21:24:58 edove Exp $
-
+function Func_PiC_While_nested(reportLoc1)
+ 
 % Call function
-Func_PiC_While(reportLoc);
+Func_PiC_While(reportLoc1)

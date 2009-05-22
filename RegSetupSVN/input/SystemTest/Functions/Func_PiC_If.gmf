@@ -1,5 +1,5 @@
-function Func_PiC_If(reportLoc)
-% $Id: Func_PiC_If.gmf,v 1.2 2008/05/02 19:05:34 edove Exp $
+function Func_PiC_If(reportLoc1)
+% $Id: PiC_If.script,v 1.4 2007/07/26 19:13:13 edove Exp $
 
 Create Spacecraft sat;
 GMAT sat.J2000BodyName = Earth;
@@ -24,7 +24,7 @@ GMAT sat.TotalMass = 850;
 Create Spacecraft SaveSat  LowSat HighSat;
 
 Create ReportFile PiC_If;
-PiC_If.Filename = reportLoc;
+PiC_If.Filename = reportLoc1;
 PiC_If.WriteHeaders = Off;
 
 Create Variable var1 var2;
@@ -68,19 +68,19 @@ Two(2,2) = 2;
 %-------------------------------------------------------------------
 Flag = 0;
 If -1.234 <  3.14159;
-   Flag = 1;
+Flag = 1;
 EndIf
 Report PiC_If Flag;
 
 Flag = 1;
 If -1.234 >  3.14159;
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
 
 Flag = 1;
 If -1.234 ==  3.14159;
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
 
@@ -89,19 +89,19 @@ Report PiC_If Flag;
 %%-------------------------------------------------------------------
 Flag = 0;
 If vLow <  vHigh;
-   Flag = 1;
+Flag = 1;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If vLow >  vHigh;
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If vLow ==  vHigh;
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
 
@@ -110,19 +110,19 @@ Report PiC_If Flag;
 %%-------------------------------------------------------------------
 Flag = 0;
 If aLow(1,2) <  aHigh(1,2);
-   Flag = 1;
+Flag = 1;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If aLow(1,2) >  aHigh(1,2);
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If aLow(1,2) ==  aHigh(1,2);
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
 
@@ -132,19 +132,19 @@ Report PiC_If Flag;
 
 Flag = 0;
 If LowSat.X <  HighSat.X;
-   Flag = 1;
+Flag = 1;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If LowSat.X >  HighSat.X;
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If LowSat.X ==  HighSat.X;
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
 
@@ -153,19 +153,19 @@ Report PiC_If Flag;
 %%-------------------------------------------------------------------
 Flag = 0;
 If aLow(idx1,idx2) <  aHigh(idx1,idx2);
-   Flag = 1;
+Flag = 1;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If aLow(idx1,idx2) >  aHigh(idx1,idx2);
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If aLow(idx1,idx2) ==  aHigh(idx1,idx2);
-   Flag = 0;
+Flag = 0;
 EndIf
 Report PiC_If Flag;
 
@@ -175,21 +175,21 @@ Report PiC_If Flag;
 %%-------------------------------------------------------------------
 Flag = 0;
 If aLow(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))) < ...
-   aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
-   Flag = 1;
+aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
+Flag = 1;
 EndIf
 Report PiC_If Flag;
 
 Flag = 1;
 If aLow(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))) > ...
-   aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
-   Flag = 0;
+aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
+Flag = 0;
 EndIf
 Report PiC_If Flag;
- 
+
 Flag = 1;
 If aLow(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))) == ...
-   aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
-   Flag = 0;
+aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))
+Flag = 0;
 EndIf
 Report PiC_If Flag;

@@ -1,5 +1,4 @@
-function Func_SaveAllObjects_nested(reportLoc)
-% $Id: Func_SaveAllObjects_nested.gmf,v 1.2 2008/07/21 21:24:58 edove Exp $
-
+function Func_SaveAllObjects_nested(reportLoc1)
+ 
 % Call function
-Func_SaveAllObjects(reportLoc);
+Func_SaveAllObjects(reportLoc1)

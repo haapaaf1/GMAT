@@ -1,5 +1,4 @@
-function Func_RepresentationInputTests_nested(reportLoc)
-% $Id: Func_RepresentationInputTests_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_RepresentationInputTests_nested(reportLoc1)
+ 
 % Call function
-Func_RepresentationInputTests(reportLoc);
+Func_RepresentationInputTests(reportLoc1)

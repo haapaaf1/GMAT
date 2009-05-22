@@ -1,0 +1,37 @@
+function Func_SetEpochInMission(reportLoc1)
+% $Id: SetEpochInMission.script,v 1.1 2008/09/29 22:12:46 edove Exp $
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+Create String strVar;
+GMAT strVar = '21600.0'
+
+Create Variable numVar;
+GMAT numVar = 21610;
+
+Create Array Arr1[1,1];
+GMAT Arr1(1,1) = 21620;
+
+Create ReportFile Data;
+GMAT Data.Filename = reportLoc1;
+
+% Begin Mision Sequence
+BeginScript;
+EndScript
+
+Propagate DefaultProp(DefaultSC);
+
+DefaultSC.Epoch = 21590.0;
+Report Data DefaultSC.TAIModJulian;
+DefaultSC.Epoch = strVar;
+Report Data strVar;
+DefaultSC.Epoch = numVar;
+Report Data numVar;
+DefaultSC.Epoch = Arr1(1,1);
+Report Data Arr1(1,1);

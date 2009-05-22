@@ -1,6 +1,5 @@
-function Func_ParametersInCommands(reportLoc)
-% $Id: Func_ParametersInCommands.gmf,v 1.4 2008/07/21 21:25:00 edove Exp $
-
+function Func_ParametersInCommands(reportLoc1)
+%% $Id: ParametersInCommands.script,v 1.8 2008/04/15 21:19:09 edove Exp $
 %  This script is for testing the use of variables, s/c parameters, numbers, and array 
 %  elements in stopping conditions, vary, achieve, minimize, and nonlinear constraint commands.
 %  Note:  there are other scripts that test control flow (written by Edwin Dove)!
@@ -94,7 +93,7 @@ GMAT DC.MaximumIterations = 25;
 GMAT DC.UseCentralDifferences = false;
 
 Create ReportFile Data;
-GMAT Data.Filename = reportLoc;
+GMAT Data.Filename = reportLoc1;
 GMAT Data.WriteHeaders = Off;
 
 %-------------------------------------------------------------------
@@ -142,8 +141,8 @@ Report Data Sat2.EarthMJ2000Eq.Y
 GMAT LoopCheck = 0;
 Target DC;
 
-   Vary DC( Sat.VX = 0 , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
-   Achieve DC( Sat.VX  = 1, {Tolerance = .000000001} );
+Vary DC( Sat.VX = 0 , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
+Achieve DC( Sat.VX  = 1, {Tolerance = .000000001} );
 
 EndTarget;
 Report Data Sat.VX;
@@ -152,8 +151,8 @@ Report Data Sat.VX;
 GMAT LoopCheck = 0;
 Target DC;
 
-   Vary DC( Sat.VX = Zero , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
-   Achieve DC( Sat.VX  = One, {Tolerance = .000000001} );
+Vary DC( Sat.VX = Zero , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
+Achieve DC( Sat.VX  = One, {Tolerance = .000000001} );
 
 EndTarget;
 Report Data Sat.VX;
@@ -162,8 +161,8 @@ Report Data Sat.VX;
 GMAT LoopCheck = 0;
 Target DC;
 
-   Vary DC( Sat.VX = Sat2.VX , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
-   Achieve DC( Sat.VX  = Sat2.Y, {Tolerance = .000000001} );
+Vary DC( Sat.VX = Sat2.VX , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
+Achieve DC( Sat.VX  = Sat2.Y, {Tolerance = .000000001} );
 
 EndTarget;
 Report Data Sat.VX;
@@ -172,8 +171,8 @@ Report Data Sat.VX;
 GMAT LoopCheck = 0;
 Target DC;
 
-   Vary    DC( Sat.VX = ArrayZero(1,1) , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
-   Achieve DC( Sat.VX  = ArrayOne(2,2), {Tolerance = .000000001} );
+Vary    DC( Sat.VX = ArrayZero(1,1) , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
+Achieve DC( Sat.VX  = ArrayOne(2,2), {Tolerance = .000000001} );
 
 EndTarget;
 Report Data Sat.VX;
@@ -182,8 +181,8 @@ Report Data Sat.VX;
 %GMAT LoopCheck = 0;
 Target DC;
 
-   Vary    DC( Var = 0 , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
-   Achieve DC( Var = 1, {Tolerance = .000000001} );
+Vary    DC( Var = 0 , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
+Achieve DC( Var = 1, {Tolerance = .000000001} );
 
 EndTarget;
 Report Data Sat.VX;
@@ -192,8 +191,8 @@ Report Data Sat.VX;
 %GMAT LoopCheck = 0;
 Target DC;
 
-   Vary    DC( MyArray(2,2) = 0 , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
-   Achieve DC( MyArray(2,2) = 1, {Tolerance = .000000001} );
+Vary    DC( MyArray(2,2) = 0 , {Upper = 10000, Lower = -10000, Perturbation = 0.001} );
+Achieve DC( MyArray(2,2) = 1, {Tolerance = .000000001} );
 
 EndTarget;
 Report Data Sat.VX;

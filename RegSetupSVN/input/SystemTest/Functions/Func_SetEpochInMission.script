@@ -1,6 +1,6 @@
-% Created from the following script: PiC_If.script
+% Created from the following script: SetEpochInMission.script
 %
-% Functions used: Func_PiC_If.gmf, Func_PiC_If_nested.gmf
+% Functions used: Func_SetEpochInMission.gmf, Func_SetEpochInMission_nested.gmf
 % Function path: ./output/SystemTest/
 % Outputs to: ./output/SystemTest/
  
@@ -24,10 +24,10 @@ GMAT DefaultProp.FM = DefaultProp_ForceModel;
 %----------------------------------------
  
 Create String reportLoc1;
-GMAT reportLoc1 = './output/SystemTest/Func_PiC_If.report';
+GMAT reportLoc1 = './output/SystemTest/Func_SetEpochInMission.report';
  
 Create String reportLoc1_nested;
-GMAT reportLoc1_nested = './output/SystemTest/Func_PiC_If_nested.report';
+GMAT reportLoc1_nested = './output/SystemTest/Func_SetEpochInMission_nested.report';
  
  
 %----------------------------------------
@@ -41,5 +41,5 @@ BeginScript;
 EndScript;
  
 % Call function
-Func_PiC_If(reportLoc1)
-Func_PiC_If_nested(reportLoc1_nested)
+Func_SetEpochInMission(reportLoc1)
+Func_SetEpochInMission_nested(reportLoc1_nested)

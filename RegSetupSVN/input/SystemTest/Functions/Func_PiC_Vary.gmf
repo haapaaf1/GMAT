@@ -1,5 +1,5 @@
-function Func_PiC_Vary(reportLoc)
-% $Id: Func_PiC_Vary.gmf,v 1.4 2008/10/14 18:29:20 edove Exp $
+function Func_PiC_Vary(reportLoc1)
+% $Id: PiC_Vary.script,v 1.6 2008/10/14 18:29:20 edove Exp $
 
 Create Spacecraft sat;
 GMAT sat.J2000BodyName = Earth;
@@ -80,7 +80,7 @@ GMAT DC.ReportStyle = Debug;
 % GMAT OpenGLPlot1.SolverIterations = All;
 
 Create ReportFile PiC_Vary;
-PiC_Vary.Filename = reportLoc;
+PiC_Vary.Filename = reportLoc1;
 PiC_Vary.WriteHeaders = Off;
 
 
@@ -166,18 +166,18 @@ SaveSat = sat;
 %  Test using numbers for everything except LHS
 %-------------------------------------------------------------------
 Target DC;
-   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 
@@ -186,18 +186,18 @@ Report PiC_Vary Flag;
 %-------------------------------------------------------------------
 sat = SaveSat;
 Target DC;
-   Vary DC(TOI.Element1 = vRHS, {Perturbation = vPert, MaxStep = vMaxStep, Lower = vLow, Upper = vHigh});
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(TOI.Element1 = vRHS, {Perturbation = vPert, MaxStep = vMaxStep, Lower = vLow, Upper = vHigh});
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 
@@ -206,18 +206,18 @@ Report PiC_Vary Flag;
 %-------------------------------------------------------------------
 sat = SaveSat;
 Target DC;
-   Vary DC(TOI.Element1 = aRHS(1,2), {Perturbation = aPert(1,2), MaxStep = aMaxStep(1,2), Lower = aLow(1,2), Upper = aHigh(1,2)});
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(TOI.Element1 = aRHS(1,2), {Perturbation = aPert(1,2), MaxStep = aMaxStep(1,2), Lower = aLow(1,2), Upper = aHigh(1,2)});
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 
@@ -226,18 +226,18 @@ Report PiC_Vary Flag;
 %-------------------------------------------------------------------
 sat = SaveSat;
 Target DC;
-   Vary DC(TOI.Element1 = aRHS(idx1,idx2), {Perturbation = aPert(idx1,idx2), MaxStep = aMaxStep(idx1,idx2), Lower = aLow(idx1,idx2), Upper = aHigh(idx1,idx2)});
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(TOI.Element1 = aRHS(idx1,idx2), {Perturbation = aPert(idx1,idx2), MaxStep = aMaxStep(idx1,idx2), Lower = aLow(idx1,idx2), Upper = aHigh(idx1,idx2)});
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 
@@ -246,18 +246,18 @@ Report PiC_Vary Flag;
 %-------------------------------------------------------------------
 sat = SaveSat;
 Target DC;
-   Vary DC(TOI.Element1 = RHSSat.X, {Perturbation = PertSat.X, MaxStep = MaxStepSat.X, Lower = LowSat.X, Upper = HighSat.X});
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(TOI.Element1 = RHSSat.X, {Perturbation = PertSat.X, MaxStep = MaxStepSat.X, Lower = LowSat.X, Upper = HighSat.X});
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 
@@ -272,22 +272,22 @@ Report PiC_Vary Flag;
 %               (received -1.234)*** Mission run failed.
 sat = SaveSat;
 Target DC;
-   Vary DC(TOI.Element1 = aRHS(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))),...
-       {Perturbation = aPert(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))), ...
-        MaxStep = aMaxStep(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))), ...
-        Lower   = aLow(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))),...
-        Upper = aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))});
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(TOI.Element1 = aRHS(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))),...
+{Perturbation = aPert(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))), ...
+MaxStep = aMaxStep(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))), ...
+Lower   = aLow(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2))),...
+Upper = aHigh(One(One(idx1,idx1),One(1,1)),Two(Two(idx2,idx2),Two(2,2)))});
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 
@@ -302,19 +302,19 @@ Report PiC_Vary Flag;
 %-------------------------------------------------------------------
 sat = SaveSat;
 Target DC;
-   Vary DC(LHSSat.X = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
-   TOI.Element1 = LHSSat.X;
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(LHSSat.X = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+TOI.Element1 = LHSSat.X;
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 
@@ -323,19 +323,19 @@ Report PiC_Vary Flag;
 %-------------------------------------------------------------------
 sat = SaveSat;
 Target DC;
-   Vary DC(vLHS = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
-   TOI.Element1 = vLHS;
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(vLHS = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+TOI.Element1 = vLHS;
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 
@@ -344,19 +344,19 @@ Report PiC_Vary Flag;
 %-------------------------------------------------------------------
 sat = SaveSat;
 Target DC;
-   Vary DC(aLHS(1,1) = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
-   TOI.Element1 = aLHS(1,1);
-   Maneuver TOI(sat);
-   Propagate DefaultProp(sat, {sat.Apoapsis});
-   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+Vary DC(aLHS(1,1) = 0.5, {Perturbation = 0.00001, MaxStep = 0.5, Lower = -1.234, Upper = 3.14159});
+TOI.Element1 = aLHS(1,1);
+Maneuver TOI(sat);
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
 Flag = 1;
 If sat.Earth.RMAG < 42164.9;
-   Flag = 0;
+Flag = 0;
 EndIf 
 If sat.Earth.RMAG > 42165.1;
-   Flag = 0;
+Flag = 0;
 EndIf 
 Report PiC_Vary Flag;
 

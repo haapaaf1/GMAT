@@ -1,5 +1,5 @@
-function Func_SaveAllObjects(reportLoc)
-% $Id: Func_SaveAllObjects.gmf,v 1.6 2008/09/30 21:09:15 edove Exp $
+function Func_SaveAllObjects(reportLoc1)
+%$Id: SaveAllObjects.m,v 1.12 2008/09/30 21:09:15 edove Exp $ 
 
 %----------------------------------------
 %---------- Spacecraft
@@ -463,7 +463,7 @@ GMAT OpenGL.NumPointsToRedraw = 0;
 GMAT OpenGL.ShowPlot = true;
 
 Create ReportFile ReportFile1;
-GMAT ReportFile1.Filename = reportLoc;
+GMAT ReportFile1.Filename = reportLoc1;
 GMAT ReportFile1.Precision = 15;
 GMAT ReportFile1.Add = {Sat1.A1ModJulian, Sat1.EarthMJ2000Eq.X};
 GMAT ReportFile1.WriteHeaders = On;
@@ -496,8 +496,8 @@ Create GmatFunction GMCall;
 
 % First save in one big file
 Save Sat1 Sat2 Sat3 Sat4 Sat5 FiniteBurn1 FiniteBurn2 Impulse1 Impulse2 Formation1 ...
-     RKVProp RKNProp RKF56Prop PD45Prop PD78Prop BSProp ABMProp DC1 SQP1 ...
-     OpenGL ReportFile1 XYPlot1 spiffyNewCS mlCall GMCall rotmat;
+RKVProp RKNProp RKF56Prop PD45Prop PD78Prop BSProp ABMProp DC1 SQP1 ...
+OpenGL ReportFile1 XYPlot1 spiffyNewCS mlCall GMCall rotmat;
 %Save fred showMe;
 
 % Now save in separate files

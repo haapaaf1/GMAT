@@ -1,5 +1,5 @@
-function Func_PiC_Minimize(reportLoc)
-% $Id: Func_PiC_Minimize.gmf,v 1.2 2008/05/02 19:05:34 edove Exp $
+function Func_PiC_Minimize(reportLoc1)
+% $Id: PiC_Minimize.script,v 1.4 2007/07/26 19:13:13 edove Exp $
 
 %  This script tests the Minimize command, specifically, that it can
 %  handle variables, array elements, and spacecraft parameters
@@ -33,7 +33,7 @@ GMAT SQPfmincon.GradObj         = Off;   % {On, Off}
 GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
 
 Create ReportFile PiC_Minimize;
-PiC_Minimize.Filename = reportLoc;
+PiC_Minimize.Filename = reportLoc1;
 PiC_Minimize.WriteHeaders = Off;
 
 %-----------------------------------------------------------------
@@ -55,24 +55,24 @@ Create Array AF[2,2];
 
 Optimize SQPfmincon;
 
-    %  Vary the independent variables
-    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
-    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
-    GMAT X1 = Sat.X;
-    GMAT X2 = Sat.Y;
-   
-    %  The cost function and Minimize command
-    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-    Minimize SQPfmincon(F);
+%  Vary the independent variables
+Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+GMAT X1 = Sat.X;
+GMAT X2 = Sat.Y;
+
+%  The cost function and Minimize command
+GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+Minimize SQPfmincon(F);
 
 EndOptimize;
 
 Flag = 1;
 If X1 < 1.9999;  
-   Flag = 0;
+Flag = 0;
 EndIf;
 If X1  > 2.0001;
-   Flag = 0;
+Flag = 0;
 EndIf;
 
 Report PiC_Minimize Flag X1 X2;
@@ -84,24 +84,24 @@ Report PiC_Minimize Flag X1 X2;
 
 Optimize SQPfmincon;
 
-    %  Vary the independent variables
-    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
-    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
-    GMAT X1 = Sat.X;
-    GMAT X2 = Sat.Y;
-   
-    %  The cost function and Minimize command
-    GMAT AF(2,2) =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-    Minimize SQPfmincon(AF(2,2));
+%  Vary the independent variables
+Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+GMAT X1 = Sat.X;
+GMAT X2 = Sat.Y;
+
+%  The cost function and Minimize command
+GMAT AF(2,2) =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+Minimize SQPfmincon(AF(2,2));
 
 EndOptimize;
 
 Flag = 1;
 If X1 < 1.9999;  
-   Flag = 0;
+Flag = 0;
 EndIf;
 If X1  > 2.0001;
-   Flag = 0;
+Flag = 0;
 EndIf;
 
 Report PiC_Minimize Flag X1 X2;
@@ -115,24 +115,24 @@ Report PiC_Minimize Flag X1 X2;
 
 Optimize SQPfmincon;
 
-    %  Vary the independent variables
-    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
-    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
-    GMAT X1 = Sat.X;
-    GMAT X2 = Sat.Y;
-   
-    %  The cost function and Minimize command
-    GMAT Sat.Z =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-    Minimize SQPfmincon(Sat.Z);
+%  Vary the independent variables
+Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+GMAT X1 = Sat.X;
+GMAT X2 = Sat.Y;
+
+%  The cost function and Minimize command
+GMAT Sat.Z =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+Minimize SQPfmincon(Sat.Z);
 
 EndOptimize;
 
 Flag = 1;
 If X1 < 1.9999;  
-   Flag = 0;
+Flag = 0;
 EndIf;
 If X1  > 2.0001;
-   Flag = 0;
+Flag = 0;
 EndIf;
 
 Report PiC_Minimize Flag X1 X2;

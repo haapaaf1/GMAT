@@ -1,12 +1,11 @@
-function Func_ParenthesisInMathTests(reportLoc)
-% $Id: Func_ParenthesisInMathTests.gmf,v 1.1 2008/09/26 18:35:33 edove Exp $
-
+function Func_ParenthesisinMathTests(reportLoc1)
+%% $Id: ParenthesisinMathTests.script,v 1.3 2007/07/26 19:13:13 edove Exp $
 %  This script is for checking usage of parenthesis in inline math
 Create Spacecraft Sat;
 
 Create ReportFile Data;
 GMAT Data.WriteHeaders = Off;
-GMAT Data.Filename = reportLoc;
+GMAT Data.Filename = reportLoc1;
 GMAT Data.Precision = 15;
 
 Create Variable a b c d Test TestNum;
@@ -16,19 +15,19 @@ Create Array vec[4,1];
 %  Set up values for certain parameters
 BeginScript
 
-   GMAT TestNum = 0;
-   GMAT a = 2.34;
-   GMAT b = 1000;
-   GMAT c = 34.78;
-   GMAT d = 0.000134;
-   GMAT Sat.X  = a;
-   GMAT Sat.Y  = b;
-   GMAT Sat.Z  = c;
-   GMAT Sat.VX = d;
-   GMAT vec(1,1) = a;
-   GMAT vec(2,1) = b;
-   GMAT vec(3,1) = c;
-   GMAT vec(4,1) = d;
+GMAT TestNum = 0;
+GMAT a = 2.34;
+GMAT b = 1000;
+GMAT c = 34.78;
+GMAT d = 0.000134;
+GMAT Sat.X  = a;
+GMAT Sat.Y  = b;
+GMAT Sat.Z  = c;
+GMAT Sat.VX = d;
+GMAT vec(1,1) = a;
+GMAT vec(2,1) = b;
+GMAT vec(3,1) = c;
+GMAT vec(4,1) = d;
 
 EndScript
 
@@ -76,7 +75,7 @@ Report Data TestNum Test
 %--------------------------------------------------------------
 %-------------------------- Division and () -------------------
 %--------------------------------------------------------------
-  
+
 %  Test 8
 GMAT TestNum = TestNum + 1;
 GMAT Test  = a/(b*c*d)  - 0.502089895548136

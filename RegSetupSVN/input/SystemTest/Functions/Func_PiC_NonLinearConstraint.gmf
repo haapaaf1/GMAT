@@ -1,6 +1,5 @@
-function Func_PiC_NonLinearConstraint(reportLoc)
-% $Id: Func_PiC_NonLinearConstraint.gmf,v 1.2 2008/05/02 19:05:34 edove Exp $
-
+function Func_PiC_NonLinearConstraint(reportLoc1)
+%% $Id: PiC_NonLinearConstraint.script,v 1.4 2007/07/26 19:13:13 edove Exp $
 %  This block of tests verifies that NonLinearConstraint handles
 %  all allowed usages including conditions (>=,<=, =) and 
 %  variables, arrays, array elements, and spacecraft parameters.
@@ -36,7 +35,7 @@ GMAT SQPfmincon.GradObj         = Off;   % {On, Off}
 GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
 
 Create ReportFile PiC_NonLinearConstraint;
-PiC_NonLinearConstraint.Filename = reportLoc;
+PiC_NonLinearConstraint.Filename = reportLoc1;
 PiC_NonLinearConstraint.WriteHeaders = Off;
 
 %-----------------------------------------------------------------
@@ -60,72 +59,72 @@ ATen(2,2)   = 10;
 
 Optimize SQPfmincon;
 
-    %  Vary the independent variables
-    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
-    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
-    GMAT X1 = Sat.X;
-    GMAT X2 = Sat.Y;
-   
-    %  The cost function and Minimize command
-    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-    Minimize SQPfmincon(F);
+%  Vary the independent variables
+Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+GMAT X1 = Sat.X;
+GMAT X2 = Sat.Y;
 
-    %  Calculate constraint and use NonLinearConstraint command
-    %   ( yes, the equation below is actually a linear constraint, were 
-    %     testing functionality with this test)
-    %  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
-    %  or X2 >= -X1 + 6;
-    GMAT G =  X2 + X1;
+%  The cost function and Minimize command
+GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+Minimize SQPfmincon(F);
 
-    %  Test all conditions (Including a few that are not allowed)
-    NonlinearConstraint SQPfmincon( G  = 8  );
-    NonlinearConstraint SQPfmincon( G >= 0  );
-    NonlinearConstraint SQPfmincon( G <= 10 );
+%  Calculate constraint and use NonLinearConstraint command
+%   ( yes, the equation below is actually a linear constraint, were 
+%     testing functionality with this test)
+%  The constraint is to require the solution to lie above the line defined by X2 = -X1 + 6
+%  or X2 >= -X1 + 6;
+GMAT G =  X2 + X1;
 
-    %  Test using variables on RHS
-    NonlinearConstraint SQPfmincon( G  = Eight );
-    NonlinearConstraint SQPfmincon( G >= Zero  );
-    NonlinearConstraint SQPfmincon( G <= Ten   );
+%  Test all conditions (Including a few that are not allowed)
+NonlinearConstraint SQPfmincon( G  = 8  );
+NonlinearConstraint SQPfmincon( G >= 0  );
+NonlinearConstraint SQPfmincon( G <= 10 );
 
-    %  Test using variables on LHS
-    NonlinearConstraint SQPfmincon( Eight = G  );
-    NonlinearConstraint SQPfmincon( Zero <= G  );
-    NonlinearConstraint SQPfmincon( Ten  >= G );
+%  Test using variables on RHS
+NonlinearConstraint SQPfmincon( G  = Eight );
+NonlinearConstraint SQPfmincon( G >= Zero  );
+NonlinearConstraint SQPfmincon( G <= Ten   );
 
-    %  Test using s/c parameters on RHS
-    NonlinearConstraint SQPfmincon( G  = Sat.VY );
-    NonlinearConstraint SQPfmincon( G >= Sat.VX  );
-    NonlinearConstraint SQPfmincon( G <= Sat.VZ   );
+%  Test using variables on LHS
+NonlinearConstraint SQPfmincon( Eight = G  );
+NonlinearConstraint SQPfmincon( Zero <= G  );
+NonlinearConstraint SQPfmincon( Ten  >= G );
 
-    %  Test using s/c parameters on LHS
-    NonlinearConstraint SQPfmincon( Sat.VY = G  );
-    NonlinearConstraint SQPfmincon( Sat.VX <= G  );
-    NonlinearConstraint SQPfmincon( Sat.VZ  >= G );
+%  Test using s/c parameters on RHS
+NonlinearConstraint SQPfmincon( G  = Sat.VY );
+NonlinearConstraint SQPfmincon( G >= Sat.VX  );
+NonlinearConstraint SQPfmincon( G <= Sat.VZ   );
 
-    %  Test using array elements on RHS
-    NonlinearConstraint SQPfmincon( G  = AEight(2,2) );
-    NonlinearConstraint SQPfmincon( G >= AZero(2,2)  );
-    NonlinearConstraint SQPfmincon( G <= ATen(2,2)   );
+%  Test using s/c parameters on LHS
+NonlinearConstraint SQPfmincon( Sat.VY = G  );
+NonlinearConstraint SQPfmincon( Sat.VX <= G  );
+NonlinearConstraint SQPfmincon( Sat.VZ  >= G );
 
-    %  Test using array elements on LHS
-    NonlinearConstraint SQPfmincon( AEight(2,2) = G  );
-    NonlinearConstraint SQPfmincon( AZero(2,2) <= G  );
-    NonlinearConstraint SQPfmincon( ATen(2,2)  >= G );
+%  Test using array elements on RHS
+NonlinearConstraint SQPfmincon( G  = AEight(2,2) );
+NonlinearConstraint SQPfmincon( G >= AZero(2,2)  );
+NonlinearConstraint SQPfmincon( G <= ATen(2,2)   );
 
-    %  This is not currently supported!!!!
-    %  Test using full arrays on both sides
-    %  NonlinearConstraint SQPfmincon( AC = AG  );
-    %  NonlinearConstraint SQPfmincon( AC <= AG  );
-    %  NonlinearConstraint SQPfmincon( AC  >= AG );
+%  Test using array elements on LHS
+NonlinearConstraint SQPfmincon( AEight(2,2) = G  );
+NonlinearConstraint SQPfmincon( AZero(2,2) <= G  );
+NonlinearConstraint SQPfmincon( ATen(2,2)  >= G );
+
+%  This is not currently supported!!!!
+%  Test using full arrays on both sides
+%  NonlinearConstraint SQPfmincon( AC = AG  );
+%  NonlinearConstraint SQPfmincon( AC <= AG  );
+%  NonlinearConstraint SQPfmincon( AC  >= AG );
 
 EndOptimize;
 
 Flag = 1;
 If X1 < 3.9999;  
-   Flag = 0;
+Flag = 0;
 EndIf;
 If X1  > 4.0001;
-   Flag = 0;
+Flag = 0;
 EndIf;
 
 Report PiC_NonLinearConstraint Flag  X1 X2;
