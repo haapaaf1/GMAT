@@ -34,7 +34,7 @@ GMAT DefaultProp_ForceModel.SRP = Off;
 GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 
 %----------------------------------------
@@ -73,36 +73,13 @@ Create Variable J;
 
 
 %----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
-
-%----------------------------------------
 %---------- Solvers
 %----------------------------------------
 
 Create DifferentialCorrector DefaultDC;
 GMAT DefaultDC.ShowProgress = true;
 GMAT DefaultDC.ReportStyle = Normal;
-GMAT DefaultDC.TargeterTextFile = DifferentialCorrectorDefaultDC.data;
+GMAT DefaultDC.TargeterTextFile = 'DifferentialCorrectorDefaultDC.data';
 GMAT DefaultDC.MaximumIterations = 25;
 GMAT DefaultDC.UseCentralDifferences = false;
 

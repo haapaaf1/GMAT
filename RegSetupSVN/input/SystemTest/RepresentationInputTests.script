@@ -136,7 +136,7 @@ DefaultProp_ForceModel.SRP = Off;
 DefaultProp_ForceModel.ErrorControl = RSSStep;
 DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
 DefaultProp_ForceModel.Gravity.Earth.Order = 4;
-DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+DefaultProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create Propagator DefaultProp;
 DefaultProp.FM = DefaultProp_ForceModel;
@@ -162,55 +162,32 @@ DefaultIB.Element3 = 0;
 
 
 %----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-EarthMJ2000Eq.Origin = Earth;
-EarthMJ2000Eq.Axes = MJ2000Eq;
-EarthMJ2000Eq.UpdateInterval = 60;
-EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-EarthMJ2000Ec.Origin = Earth;
-EarthMJ2000Ec.Axes = MJ2000Ec;
-EarthMJ2000Ec.UpdateInterval = 60;
-EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-EarthFixed.Origin = Earth;
-EarthFixed.Axes = BodyFixed;
-EarthFixed.UpdateInterval = 60;
-EarthFixed.OverrideOriginInterval = false;
-
-
-%----------------------------------------
 %---------- Subscribers
 %----------------------------------------
 
 Create ReportFile RepresentationInputTests
-RepresentationInputTests.Filename = ./output/SystemTest/RepresentationInputTests.report
+RepresentationInputTests.Filename = './output/SystemTest/RepresentationInputTests.report';
 GMAT RepresentationInputTests.WriteHeaders = Off;
 GMAT RepresentationInputTests.ColumnWidth = 25;
 
 Create String CartState;
-CartState = ------ State Values in Cartesian Representation ---- ;
+CartState = '------ State Values in Cartesian Representation ----';
 
 Create String KepState;
-KepState = ------ State Values in Keplerian Representation ---- ;
+KepState = '------ State Values in Keplerian Representation ----';
 
 
 Create String ModKepState;
-ModKepState = ------ State Values in Modified Keplerian Representation ---- ;
+ModKepState = '------ State Values in Modified Keplerian Representation ----';
 
 Create String SphAZElState;
-SphAZElState = ------ State Values in Spherical (AZ/El) Representation ---- ;
+SphAZElState = '------ State Values in Spherical (AZ/El) Representation ----';
 
 Create String SphRADEState;
-SphRADEState = ------ State Values in Spherical (RA/DEC) Representation ----;
+SphRADEState = '------ State Values in Spherical (RA/DEC) Representation ----';
 
 Create String  EquinocState;
-EquinocState = ------ State Values in  Equinoctial Representation ----;
+EquinocState = '------ State Values in  Equinoctial Representation ----';
 
 
 

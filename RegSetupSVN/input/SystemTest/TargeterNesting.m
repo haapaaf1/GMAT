@@ -121,14 +121,14 @@ Create Variable I;
 Create DifferentialCorrector DC1;
 GMAT DC1.ShowProgress = true;
 GMAT DC1.ReportStyle = Normal;
-GMAT DC1.TargeterTextFile = DifferentialCorrectorDC1.data;
+GMAT DC1.TargeterTextFile = 'DifferentialCorrectorDC1.data';
 GMAT DC1.MaximumIterations = 25;
 GMAT DC1.UseCentralDifferences = false;
 
 Create DifferentialCorrector DC2;
 GMAT DC2.ShowProgress = true;
 GMAT DC2.ReportStyle = Normal;
-GMAT DC2.TargeterTextFile = DifferentialCorrectorDC2.data;
+GMAT DC2.TargeterTextFile = 'DifferentialCorrectorDC2.data';
 GMAT DC2.MaximumIterations = 25;
 GMAT DC2.UseCentralDifferences = false;
 
@@ -137,13 +137,8 @@ GMAT DC2.UseCentralDifferences = false;
 %---------- Plot(s)/Report(s)
 %----------------------------------------
 
-% Create OpenGLPlot OpenGLPlot1;
-% GMAT OpenGLPlot1.Add = {DefaultSC, Earth};
-% GMAT OpenGLPlot1.ViewScaleFactor = 5;
-% GMAT OpenGLPlot1.ViewUpAxis = X;
-
 Create ReportFile ReportFile1;
-GMAT ReportFile1.Filename = ./output/SystemTest/TargeterNesting.report;
+GMAT ReportFile1.Filename = './output/SystemTest/TargeterNesting.report';
 GMAT ReportFile1.Precision = 15;
 GMAT ReportFile1.WriteHeaders = On;
 GMAT ReportFile1.LeftJustify = On;

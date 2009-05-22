@@ -41,7 +41,7 @@ GMAT prop_ForceModel.SRP = Off;
 GMAT prop_ForceModel.ErrorControl = RSSStep;
 GMAT prop_ForceModel.Gravity.Earth.Degree = 4;
 GMAT prop_ForceModel.Gravity.Earth.Order = 4;
-GMAT prop_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT prop_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 
 %----------------------------------------

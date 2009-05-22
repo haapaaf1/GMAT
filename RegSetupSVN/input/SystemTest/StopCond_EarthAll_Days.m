@@ -3,7 +3,7 @@
 
 Create Spacecraft DefaultSC;
 GMAT DefaultSC.DateFormat = UTCGregorian;
-GMAT DefaultSC.Epoch = 01 Jun 2004 12:00:00.000;
+GMAT DefaultSC.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
 GMAT DefaultSC.DisplayStateType = Cartesian;
 GMAT DefaultSC.X = -8043.9600382977915;
@@ -31,7 +31,7 @@ GMAT DefaultProp_ForceModel.SRP = On;
 GMAT DefaultProp_ForceModel.SRP.Flux_Pressure = 4.53443218374393e-006;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;

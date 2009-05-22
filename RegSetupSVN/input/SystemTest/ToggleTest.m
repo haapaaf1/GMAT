@@ -38,7 +38,7 @@ GMAT prop_ForceModel.SRP = Off;
 GMAT prop_ForceModel.ErrorControl = RSSStep;
 GMAT prop_ForceModel.Gravity.Earth.Degree = 4;
 GMAT prop_ForceModel.Gravity.Earth.Order = 4;
-GMAT prop_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT prop_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 
 %----------------------------------------
@@ -70,29 +70,6 @@ Create Variable RCalc;
 
 Create Variable I;
 
-
-
-%----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
 
 
 %----------------------------------------
@@ -163,7 +140,7 @@ GMAT OpenGLPlot2.NumPointsToRedraw = 0;
 GMAT OpenGLPlot2.ShowPlot = true;
 
 Create ReportFile ReportFile1;
-GMAT ReportFile1.Filename = ./output/SystemTest/ToggleTestFile1.report;
+GMAT ReportFile1.Filename = './output/SystemTest/ToggleTestFile1.report';
 GMAT ReportFile1.Precision = 16;
 GMAT ReportFile1.Add = {Sat.A1ModJulian, Sat.EarthMJ2000Eq.X, Sat.EarthMJ2000Eq.Y, Sat.EarthMJ2000Eq.Z, Sat.EarthMJ2000Eq.VX, Sat.EarthMJ2000Eq.VY, Sat.EarthMJ2000Eq.VZ};
 GMAT ReportFile1.WriteHeaders = On;
@@ -173,7 +150,7 @@ GMAT ReportFile1.ColumnWidth = 20;
 GMAT ReportFile1.SolverIterations = None;
 
 Create ReportFile ReportFile2;
-GMAT ReportFile2.Filename = ./output/SystemTest/ToggleTestFile2.report;
+GMAT ReportFile2.Filename = './output/SystemTest/ToggleTestFile2.report';
 GMAT ReportFile2.Precision = 16;
 GMAT ReportFile2.Add = {Sat.A1ModJulian, Sat.EarthMJ2000Eq.X, Sat.EarthMJ2000Eq.Y, Sat.EarthMJ2000Eq.Z, Sat.EarthMJ2000Eq.VX, Sat.EarthMJ2000Eq.VY, Sat.EarthMJ2000Eq.VZ};
 GMAT ReportFile2.WriteHeaders = On;

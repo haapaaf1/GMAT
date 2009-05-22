@@ -121,28 +121,6 @@ Create Variable varMod3;
 Create Variable varMod10;
 Create Variable varMod11;
 
-%----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
 
 %----------------------------------------
 %---------- Solvers
@@ -151,14 +129,14 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 Create DifferentialCorrector DC1;
 GMAT DC1.ShowProgress = true;
 GMAT DC1.ReportStyle = Normal;
-GMAT DC1.TargeterTextFile = DifferentialCorrectorDC1.data;
+GMAT DC1.TargeterTextFile = 'DifferentialCorrectorDC1.data';
 GMAT DC1.MaximumIterations = 25;
 GMAT DC1.UseCentralDifferences = false;
 
 Create DifferentialCorrector DC2;
 GMAT DC2.ShowProgress = true;
 GMAT DC2.ReportStyle = Normal;
-GMAT DC2.TargeterTextFile = DifferentialCorrectorDC2.data;
+GMAT DC2.TargeterTextFile = 'DifferentialCorrectorDC2.data';
 GMAT DC2.MaximumIterations = 25;
 GMAT DC2.UseCentralDifferences = false;
 
@@ -173,7 +151,7 @@ GMAT DC2.UseCentralDifferences = false;
 % GMAT OpenGLPlot1.ViewUpAxis = X;
 
 Create ReportFile ReportFile1;
-GMAT ReportFile1.Filename = ./output/SystemTest/TargeterCheck.report;
+GMAT ReportFile1.Filename = './output/SystemTest/TargeterCheck.report';
 GMAT ReportFile1.Precision = 15;
 GMAT ReportFile1.WriteHeaders = On;
 GMAT ReportFile1.LeftJustify = On;

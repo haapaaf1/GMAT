@@ -45,12 +45,12 @@ GMAT DefaultIB.Element3 = 0;
 Create DifferentialCorrector DC1;
 GMAT DC1.ShowProgress = true;
 GMAT DC1.ReportStyle = Normal;
-GMAT DC1.TargeterTextFile = targeter_DC1.data;
+GMAT DC1.TargeterTextFile = 'targeter_DC1.data';
 GMAT DC1.MaximumIterations = 25;
 GMAT DC1.UseCentralDifferences = false;
 
 Create ReportFile WhileTarget;
-GMAT WhileTarget.Filename = ./output/SystemTest/WhileTarget.report;
+GMAT WhileTarget.Filename = './output/SystemTest/WhileTarget.report';
 GMAT WhileTarget.Precision = 15;
 
 Create Array testArray[1,1];

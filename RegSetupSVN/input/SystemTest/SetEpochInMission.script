@@ -18,7 +18,7 @@ Create Array Arr1[1,1];
 GMAT Arr1(1,1) = 21620;
 
 Create ReportFile Data;
-GMAT Data.Filename = ./output/SystemTest/SetEpochInMission.report;
+GMAT Data.Filename = './output/SystemTest/SetEpochInMission.report';
 
 % Begin Mision Sequence
 BeginScript;

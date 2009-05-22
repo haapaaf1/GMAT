@@ -34,7 +34,7 @@ GMAT DefaultProp_ForceModel.SRP = Off;
 GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 
 %----------------------------------------
@@ -102,7 +102,7 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 Create DifferentialCorrector DefaultDC;
 GMAT DefaultDC.ShowProgress = true;
 GMAT DefaultDC.ReportStyle = Normal;
-GMAT DefaultDC.TargeterTextFile = DifferentialCorrectorDefaultDC.data;
+GMAT DefaultDC.TargeterTextFile = 'DifferentialCorrectorDefaultDC.data';
 GMAT DefaultDC.MaximumIterations = 25;
 GMAT DefaultDC.UseCentralDifferences = false;
 

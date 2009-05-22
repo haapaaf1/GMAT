@@ -3,7 +3,7 @@
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = UTCGregorian;
-GMAT SC1.Epoch = 01 Jun 2004 12:00:00.000;
+GMAT SC1.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT SC1.CoordinateSystem = EarthMJ2000Eq;
 GMAT SC1.DisplayStateType = Cartesian;
 GMAT SC1.X = -8043.9600382977915;
@@ -20,7 +20,7 @@ GMAT SC1.SRPArea = 1;
 
 Create Spacecraft SC2;
 GMAT SC2.DateFormat = UTCGregorian;
-GMAT SC2.Epoch = 01 Jun 2004 12:00:00.000;
+GMAT SC2.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT SC2.CoordinateSystem = EarthMJ2000Eq;
 GMAT SC2.DisplayStateType = Cartesian;
 GMAT SC2.X = -8128.5430706081916;
@@ -37,7 +37,7 @@ GMAT SC2.SRPArea = 1;
 
 Create Spacecraft SC3;
 GMAT SC3.DateFormat = UTCGregorian;
-GMAT SC3.Epoch = 01 Jun 2004 12:00:00.000;
+GMAT SC3.Epoch = '01 Jun 2004 12:00:00.000';
 GMAT SC3.CoordinateSystem = EarthMJ2000Eq;
 GMAT SC3.DisplayStateType = Cartesian;
 GMAT SC3.X = -8156.7700833298486;

@@ -160,7 +160,7 @@ GMAT RKVProp_ForceModel.SRP = Off;
 GMAT RKVProp_ForceModel.ErrorControl = RSSStep;
 GMAT RKVProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT RKVProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT RKVProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT RKVProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create ForceModel RKNProp_ForceModel;
 GMAT RKNProp_ForceModel.CentralBody = Earth;
@@ -171,7 +171,7 @@ GMAT RKNProp_ForceModel.SRP = On;
 GMAT RKNProp_ForceModel.ErrorControl = RSSStep;
 GMAT RKNProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT RKNProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT RKNProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT RKNProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 GMAT RKNProp_ForceModel.Drag.AtmosphereModel = Exponential;
 GMAT RKNProp_ForceModel.Drag.InputSource = Constant;
 GMAT RKNProp_ForceModel.Drag.F107 = 150;
@@ -189,7 +189,7 @@ GMAT RKF56Prop_ForceModel.SRP = Off;
 GMAT RKF56Prop_ForceModel.ErrorControl = RSSStep;
 GMAT RKF56Prop_ForceModel.Gravity.Earth.Degree = 4;
 GMAT RKF56Prop_ForceModel.Gravity.Earth.Order = 4;
-GMAT RKF56Prop_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/luna/lp165p.cof;
+GMAT RKF56Prop_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/luna/lp165p.cof';
 GMAT RKF56Prop_ForceModel.Gravity.Luna.Degree = 4;
 GMAT RKF56Prop_ForceModel.Gravity.Luna.Order = 4;
 GMAT RKF56Prop_ForceModel.Drag.AtmosphereModel = MSISE90;
@@ -206,7 +206,7 @@ GMAT PD45Prop_ForceModel.SRP = Off;
 GMAT PD45Prop_ForceModel.ErrorControl = RSSStep;
 GMAT PD45Prop_ForceModel.Gravity.Earth.Degree = 4;
 GMAT PD45Prop_ForceModel.Gravity.Earth.Order = 4;
-GMAT PD45Prop_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT PD45Prop_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create ForceModel PD78Prop_ForceModel;
 GMAT PD78Prop_ForceModel.CentralBody = Earth;
@@ -216,7 +216,7 @@ GMAT PD78Prop_ForceModel.SRP = Off;
 GMAT PD78Prop_ForceModel.ErrorControl = RSSStep;
 GMAT PD78Prop_ForceModel.Gravity.Earth.Degree = 4;
 GMAT PD78Prop_ForceModel.Gravity.Earth.Order = 4;
-GMAT PD78Prop_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT PD78Prop_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create ForceModel BSProp_ForceModel;
 GMAT BSProp_ForceModel.CentralBody = Earth;
@@ -226,7 +226,7 @@ GMAT BSProp_ForceModel.SRP = Off;
 GMAT BSProp_ForceModel.ErrorControl = RSSStep;
 GMAT BSProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT BSProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT BSProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT BSProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create ForceModel ABMProp_ForceModel;
 GMAT ABMProp_ForceModel.CentralBody = Earth;
@@ -236,7 +236,7 @@ GMAT ABMProp_ForceModel.SRP = Off;
 GMAT ABMProp_ForceModel.ErrorControl = RSSStep;
 GMAT ABMProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT ABMProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT ABMProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT ABMProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 
 %----------------------------------------
@@ -407,14 +407,14 @@ GMAT spiffyNewCS.Secondary = Sat5;
 Create DifferentialCorrector DC1;
 GMAT DC1.ShowProgress = true;
 GMAT DC1.ReportStyle = Normal;
-GMAT DC1.TargeterTextFile = DifferentialCorrectorDC1.data;
+GMAT DC1.TargeterTextFile = 'DifferentialCorrectorDC1.data';
 GMAT DC1.MaximumIterations = 25;
 GMAT DC1.UseCentralDifferences = false;
 
 Create FminconOptimizer SQP1;
 GMAT SQP1.ShowProgress = true;
 GMAT SQP1.ReportStyle = Normal;
-GMAT SQP1.TargeterTextFile = FminconOptimizerSQP1.data;
+GMAT SQP1.TargeterTextFile = 'FminconOptimizerSQP1.data';
 GMAT SQP1.MaximumIterations = 25;
 GMAT SQP1.ObjectiveFunction = Objective;
 GMAT SQP1.Tolerance = 0;
@@ -462,7 +462,7 @@ GMAT OpenGL.NumPointsToRedraw = 0;
 GMAT OpenGL.ShowPlot = true;
 
 Create ReportFile ReportFile1;
-GMAT ReportFile1.Filename = ./output/SystemTest/SaveAllObjects.report;
+GMAT ReportFile1.Filename = './output/SystemTest/SaveAllObjects.report';
 GMAT ReportFile1.Precision = 15;
 GMAT ReportFile1.Add = {Sat1.A1ModJulian, Sat1.EarthMJ2000Eq.X};
 GMAT ReportFile1.WriteHeaders = On;
@@ -484,7 +484,7 @@ GMAT XYPlot1.ShowPlot = true;
 %----------------------------------------
 
 Create MatlabFunction mlCall;
-GMAT mlCall.FunctionPath = ./input/SystemTest/;
+GMAT mlCall.FunctionPath = './input/SystemTest/';
 
 Create GmatFunction GMCall;
 
