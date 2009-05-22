@@ -1,6 +1,6 @@
-function Func_XYPlotNonFunctionTest(reportLoc)
-% $Id: Func_XYPlotNonFunctionTest.gmf,v 1.5 2008/09/05 20:46:31 edove Exp $
-
+function Func_XYPlotNonFunctionTest(reportLoc1)
+%$Id: XYPlotNonFunctionTest.m,v 1.8 2008/09/05 20:46:56 edove Exp $
+% 
 % Script used to exercise the XY plot for data that is single 
 % valued (i.e. a "function") and data that in multivalued (a
 % "nonfunction"; hence the script name).
@@ -133,7 +133,7 @@ GMAT VT.SolverIterations = None;
 GMAT VT.ShowPlot = true;
 
 Create ReportFile rf;
-GMAT rf.Filename = reportLoc;
+GMAT rf.Filename = reportLoc1;
 GMAT rf.Precision = 16;
 GMAT rf.Add = {Sat.UTCModJulian, RCalc, Sat.X, Sat.Y, Sat.Z};
 
@@ -143,11 +143,11 @@ GMAT rf.Add = {Sat.UTCModJulian, RCalc, Sat.X, Sat.Y, Sat.Z};
 
 
 For I = 1:1:10;
-   GMAT XYMag = sqrt( Sat.X^2 + Sat.Y^2 );
-   GMAT XZMag = sqrt( Sat.X^2 + Sat.Z^2 );
-   GMAT YZMag = sqrt( Sat.Y^2 + Sat.Z^2 );
-   GMAT RCalc = sqrt(XYMag^2 + XZMag^2 + YZMag^2);
-   Propagate prop(Sat);
+GMAT XYMag = sqrt( Sat.X^2 + Sat.Y^2 );
+GMAT XZMag = sqrt( Sat.X^2 + Sat.Z^2 );
+GMAT YZMag = sqrt( Sat.Y^2 + Sat.Z^2 );
+GMAT RCalc = sqrt(XYMag^2 + XZMag^2 + YZMag^2);
+Propagate prop(Sat);
 EndFor;
 
 % This final propagate should update only the sat parameters; 

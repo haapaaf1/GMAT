@@ -1,5 +1,5 @@
-function Func_WhileForArray(reportLoc)
-% $Id: Func_WhileForArray.gmf,v 1.2 2008/05/02 19:05:35 edove Exp $
+function Func_WhileForArray(reportLoc1)
+%% $Id: WhileForArray.m,v 1.4 2007/07/26 19:13:12 edove Exp $
 
 %   REVISION HISTORY
 %   Author      Date            Comment
@@ -41,7 +41,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile WhileForArray;
-GMAT WhileForArray.Filename = reportLoc;
+GMAT WhileForArray.Filename = reportLoc1;
 GMAT WhileForArray.Precision = 15;
 
 Create Array testArray[2,1];
@@ -63,228 +63,228 @@ GMAT type = 0;
 % ********
 GMAT type = 0;
 BeginScript;
-    % ===== 1 ======
-    GMAT type = type + 1;
-    GMAT count = 1;
-    GMAT ranOK = -1;
-    GMAT ansFlag = 0;
-    While count < 5.5
-        GMAT ansFlag = 0;
-        GMAT ranOK = 0;
-        For StepSize = 1:5
-            GMAT ansFlag = 1;
-            GMAT ranOK = ranOK + 1;
-            GMAT SC1.TA = 145;
-            Propagate   DefaultProp(SC1);
-            Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-        EndFor;
-        GMAT ranOK = ranOK - 4;
-        GMAT count = count + 1;
-        GMAT WhileForArray.WriteHeaders = Off;
-        Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-        GMAT ranOK = 0;
-    EndWhile;
-    GMAT ranOK = ranOK + 1;
-    Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-    GMAT SC1.TA = 145;
+% ===== 1 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = 1:5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 
-   % ===== 2 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = -1;
-   GMAT ansFlag = 0;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       GMAT ranOK = 0;
-       For StepSize = testVar1:testVar2
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-       GMAT count = count + 1;
-       GMAT WhileForArray.WriteHeaders = Off;
-       Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT ranOK = 0;
-   EndWhile;
-   GMAT ranOK = ranOK + 1;
-   Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT SC1.TA = 145;
+% ===== 2 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = testVar1:testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 
-   % ===== 3 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = -1;
-   GMAT ansFlag = 0;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       GMAT ranOK = 0;
-       For StepSize = testArray(1,1):testArray(2,1)
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-       GMAT count = count + 1;
-       GMAT WhileForArray.WriteHeaders = Off;
-       Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT ranOK = 0;
-   EndWhile;
-   GMAT ranOK = ranOK + 1;
-   Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT SC1.TA = 145;
+% ===== 3 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = testArray(1,1):testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 
-   % ===== 4 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = -1;
-   GMAT ansFlag = 0;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       GMAT ranOK = 0;
-       For StepSize = 1:testVar2
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-       GMAT count = count + 1;
-       GMAT WhileForArray.WriteHeaders = Off;
-       Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT ranOK = 0;
-   EndWhile;
-   GMAT ranOK = ranOK + 1;
-   Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT SC1.TA = 145;
+% ===== 4 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = 1:testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 
-   % ===== 5 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = -1;
-   GMAT ansFlag = 0;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       GMAT ranOK = 0;
-       For StepSize = testVar1:5
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-       GMAT count = count + 1;
-       GMAT WhileForArray.WriteHeaders = Off;
-       Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT ranOK = 0;
-   EndWhile;
-   GMAT ranOK = ranOK + 1;
-   Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT SC1.TA = 145;
+% ===== 5 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = testVar1:5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 
-   % ===== 6 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = -1;
-   GMAT ansFlag = 0;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       GMAT ranOK = 0;
-       For StepSize = 1:testArray(2,1)
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-       GMAT count = count + 1;
-       GMAT WhileForArray.WriteHeaders = Off;
-       Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT ranOK = 0;
-   EndWhile;
-   GMAT ranOK = ranOK + 1;
-   Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT SC1.TA = 145;
+% ===== 6 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = 1:testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 
-   % ===== 7 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = -1;
-   GMAT ansFlag = 0;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       GMAT ranOK = 0;
-       For StepSize = testArray(1,1):5
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-       GMAT count = count + 1;
-       GMAT WhileForArray.WriteHeaders = Off;
-       Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT ranOK = 0;
-   EndWhile;
-   GMAT ranOK = ranOK + 1;
-   Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT SC1.TA = 145;
+% ===== 7 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = testArray(1,1):5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 
-   % ===== 8 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = -1;
-   GMAT ansFlag = 0;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       GMAT ranOK = 0;
-       For StepSize = testArray(1,1):testVar2
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-       GMAT count = count + 1;
-       GMAT WhileForArray.WriteHeaders = Off;
-       Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT ranOK = 0;
-   EndWhile;
-   GMAT ranOK = ranOK + 1;
-   Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT SC1.TA = 145;
+% ===== 8 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = testArray(1,1):testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 
-   % ===== 9 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = -1;
-   GMAT ansFlag = 0;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       GMAT ranOK = 0;
-       For StepSize = testVar1:testArray(2,1)
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-       GMAT count = count + 1;
-       GMAT WhileForArray.WriteHeaders = Off;
-       Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT ranOK = 0;
-   EndWhile;
-   GMAT ranOK = ranOK + 1;
-   Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-   GMAT SC1.TA = 145;
+% ===== 9 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = -1;
+GMAT ansFlag = 0;
+While count < 5.5
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+For StepSize = testVar1:testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+GMAT count = count + 1;
+GMAT WhileForArray.WriteHeaders = Off;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT ranOK = 0;
+EndWhile;
+GMAT ranOK = ranOK + 1;
+Report      WhileForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT SC1.TA = 145;
 EndScript;

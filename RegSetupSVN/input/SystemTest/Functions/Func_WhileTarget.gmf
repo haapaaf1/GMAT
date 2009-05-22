@@ -1,5 +1,6 @@
-function Func_WhileTarget(reportLoc)
-% $Id: Func_WhileTarget.gmf,v 1.3 2008/07/21 21:24:59 edove Exp $
+function Func_WhileTarget(reportLoc1)
+% REVISION HISTORY
+% $Id: WhileTarget.m,v 1.3 2007/09/05 14:58:35 edove Exp $
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = TAIModJulian;
@@ -50,7 +51,7 @@ GMAT DC1.MaximumIterations = 25;
 GMAT DC1.UseCentralDifferences = false;
 
 Create ReportFile WhileTarget;
-GMAT WhileTarget.Filename = reportLoc;
+GMAT WhileTarget.Filename = reportLoc1;
 GMAT WhileTarget.Precision = 15;
 
 Create Array testArray[1,1];
@@ -68,36 +69,36 @@ GMAT type = 0;
 GMAT SC1.TA = 145;
 
 BeginScript;    
-    % ===== 1 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT testVar = 5;
-    GMAT ranOK = 0;
-    While SC1.A1ModJulian ~= testVar
-        Propagate DefaultProp(SC1, {SC1.TA = 220});
-        
-        GMAT SMAtarget = SC1.SMA + 300;
-        Target DC1;
-           Vary DC1(DefaultIB.Element1 = 0.08, {Perturbation = 1e-004, MaxStep = 0.05, Lower = -0.5, Upper = 0.5});
+% ===== 1 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT testVar = 5;
+GMAT ranOK = 0;
+While SC1.A1ModJulian ~= testVar
+Propagate DefaultProp(SC1, {SC1.TA = 220});
 
-           Maneuver DefaultIB(SC1);
+GMAT SMAtarget = SC1.SMA + 300;
+Target DC1;
+Vary DC1(DefaultIB.Element1 = 0.08, {Perturbation = 1e-004, MaxStep = 0.05, Lower = -0.5, Upper = 0.5});
 
-           Propagate DefaultProp(SC1 , {SC1.TA = 180});
+Maneuver DefaultIB(SC1);
 
-           GMAT ansFlag = 1;
-           GMAT ranOK = 1;
-           Report      WhileTarget type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.SMA SC1.X SC1.Y SC1.Z;
-           GMAT WhileTarget.WriteHeaders = Off;
+Propagate DefaultProp(SC1 , {SC1.TA = 180});
 
-           Achieve DC1(SC1.SMA = SMAtarget, {Tolerance = 0.0001});
-        EndTarget;
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Report      WhileTarget type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.SMA SC1.X SC1.Y SC1.Z;
+GMAT WhileTarget.WriteHeaders = Off;
 
-     
-        GMAT testVar = 1*SC1.A1ModJulian;
-        Report      WhileTarget type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.SMA SC1.X SC1.Y SC1.Z;
-        GMAT ranOK = ranOK + 1;
+Achieve DC1(SC1.SMA = SMAtarget, {Tolerance = 0.0001});
+EndTarget;
 
-    EndWhile;
-    GMAT ranOK = ranOK - 1;
-    Report      WhileTarget type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.SMA SC1.X SC1.Y SC1.Z;
+
+GMAT testVar = 1*SC1.A1ModJulian;
+Report      WhileTarget type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.SMA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+
+EndWhile;
+GMAT ranOK = ranOK - 1;
+Report      WhileTarget type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.SMA SC1.X SC1.Y SC1.Z;
 EndScript;

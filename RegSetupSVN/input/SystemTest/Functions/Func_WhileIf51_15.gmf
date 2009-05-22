@@ -1,5 +1,6 @@
-function Func_WhileIf51_15(reportLoc)
-% $Id: Func_WhileIf51_15.gmf,v 1.2 2008/05/02 19:05:35 edove Exp $
+function Func_WhileIf51_15(reportLoc1)
+% REVISION HISTORY
+% $Id: WhileIf51_15.m,v 1.2 2007/07/26 19:13:12 edove Exp $
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = TAIModJulian;
@@ -35,7 +36,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile WhileIf51_15;
-GMAT WhileIf51_15.Filename = reportLoc;
+GMAT WhileIf51_15.Filename = reportLoc1;
 GMAT WhileIf51_15.Precision = 15;
 
 Create Array testArray[1,1];
@@ -58,303 +59,303 @@ GMAT SC1.TA = 145;
 % ********
 GMAT type = 0;
 BeginScript;
-    % ===== 1 ======
-    GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-        GMAT ansFlag = 0;
-       If SC1.A1ModJulian == 5
-           GMAT ansFlag = -99;
-            GMAT ranOK = 0;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-        Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT count = count + 1;
-        GMAT WhileIf51_15.WriteHeaders = Off;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 1 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If SC1.A1ModJulian == 5
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT count = count + 1;
+GMAT WhileIf51_15.WriteHeaders = Off;
+EndWhile;
+GMAT SC1.TA = 145;
 
-    % ===== 2 ======
-    GMAT type = type + 1;
-    GMAT count = 1;
-    GMAT ranOK = 1;
-    While count < 5.5
-        GMAT ansFlag = 0;
-        If SC1.A1ModJulian ~= 5
-            GMAT ansFlag = 1;
-            GMAT ranOK = ranOK + 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-        GMAT ranOK = ranOK - 1;
-        Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-        GMAT count = count + 1;
-    EndWhile;
-    GMAT SC1.TA = 145;
+% ===== 2 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If SC1.A1ModJulian ~= 5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 3 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If SC1.A1ModJulian > 5
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       GMAT ranOK = ranOK - 1;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 3 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 4 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If SC1.A1ModJulian < 5
-           GMAT ansFlag = -99;
-           GMAT ranOK = 0;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 4 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If SC1.A1ModJulian < 5
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 5 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If SC1.A1ModJulian >= 5
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       GMAT ranOK = ranOK - 1;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 5 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If SC1.A1ModJulian >= 5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 6 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If SC1.A1ModJulian <= 5
-           GMAT ansFlag = -99;
-           GMAT ranOK = 0;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 6 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If SC1.A1ModJulian <= 5
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 7 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If SC1.A1ModJulian ~= 5
-           GMAT ranOK = 1;
-       Else
-           GMAT ansFlag = -99;
-           GMAT ranOK = 0;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 7 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If SC1.A1ModJulian ~= 5
+GMAT ranOK = 1;
+Else
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 8 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If SC1.A1ModJulian < 5
-       Else
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       GMAT ranOK = ranOK - 1;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 8 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If SC1.A1ModJulian < 5
+Else
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 EndScript;
 
 
-   % ===============
-   %   LHS <-> RHS
-   % ===============
+% ===============
+%   LHS <-> RHS
+% ===============
 
 BeginScript;
-    % ===== 9 ======
-    GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-        GMAT ansFlag = 0;
-       If 5 == SC1.A1ModJulian
-           GMAT ansFlag = -99;
-            GMAT ranOK = 0;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-        Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 9 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If 5 == SC1.A1ModJulian
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 10 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If 5 ~= SC1.A1ModJulian
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       GMAT ranOK = ranOK - 1;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 10 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If 5 ~= SC1.A1ModJulian
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 11 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If 5 > SC1.A1ModJulian
-           GMAT ansFlag = -99;
-           GMAT ranOK = 0;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 11 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If 5 > SC1.A1ModJulian
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 12 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If 5 < SC1.A1ModJulian
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       GMAT ranOK = ranOK - 1;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 12 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If 5 < SC1.A1ModJulian
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 13 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If 5 >= SC1.A1ModJulian
-           GMAT ansFlag = -99;
-           GMAT ranOK = 0;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 13 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If 5 >= SC1.A1ModJulian
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 14 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If 5 <= SC1.A1ModJulian
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       GMAT ranOK = ranOK - 1;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 14 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If 5 <= SC1.A1ModJulian
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 15 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If 5 ~= SC1.A1ModJulian
-           GMAT ranOK = 1;
-       Else
-           GMAT ansFlag = -99;
-           GMAT ranOK = 0;
-           Propagate   DefaultProp(SC1);
-       EndIf;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 15 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If 5 ~= SC1.A1ModJulian
+GMAT ranOK = 1;
+Else
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 
-   % ===== 16 ======
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       If 5 > SC1.A1ModJulian
-           GMAT ranOK = ranOK - 1;
-       Else
-           GMAT ansFlag = 1;
-           Propagate   DefaultProp(SC1);
-           GMAT ranOK = ranOK + 1;
-       EndIf;
-       GMAT ranOK = ranOK - 1;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 16 ======
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+If 5 > SC1.A1ModJulian
+GMAT ranOK = ranOK - 1;
+Else
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+GMAT ranOK = ranOK + 1;
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndWhile;
+GMAT SC1.TA = 145;
 EndScript;
 
-   % ===== 17 ====== 
-   GMAT type = type + 1;
-   GMAT count = 1;
-   GMAT ranOK = 1;
-   While count < 5.5
-       GMAT ansFlag = 0;
-       BeginScript;
-       If 5 > SC1.A1ModJulian
-           GMAT ranOK = ranOK - 1;
-       Else
-           GMAT ansFlag = 1;
-           Propagate   DefaultProp(SC1);
-           GMAT ranOK = ranOK + 1;
-       EndIf;
-       GMAT ranOK = ranOK - 1;
-       Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT count = count + 1;
-       EndScript;
-   EndWhile;
-   GMAT SC1.TA = 145;
+% ===== 17 ====== 
+GMAT type = type + 1;
+GMAT count = 1;
+GMAT ranOK = 1;
+While count < 5.5
+GMAT ansFlag = 0;
+BeginScript;
+If 5 > SC1.A1ModJulian
+GMAT ranOK = ranOK - 1;
+Else
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+GMAT ranOK = ranOK + 1;
+EndIf;
+GMAT ranOK = ranOK - 1;
+Report      WhileIf51_15 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT count = count + 1;
+EndScript;
+EndWhile;
+GMAT SC1.TA = 145;

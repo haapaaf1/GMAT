@@ -1,5 +1,6 @@
-function Func_While42_24(reportLoc)
-% $Id: Func_While42_24.gmf,v 1.2 2008/05/02 19:05:34 edove Exp $
+function Func_While42_24(reportLoc1)
+% REVISION HISTORY
+% $Id: While42_24.m,v 1.2 2007/07/26 19:13:12 edove Exp $
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = TAIModJulian;
@@ -35,7 +36,7 @@ GMAT DefaultProp.MaxStep = 60;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile While42_24;
-GMAT While42_24.Filename = reportLoc;
+GMAT While42_24.Filename = reportLoc1;
 GMAT While42_24.Precision = 15;
 
 Create Array testArray[1,1];
@@ -57,252 +58,252 @@ GMAT SC1.TA = 145;
 % RHS: variable
 % ********
 BeginScript;
-    % ===== 1 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-   GMAT testVar = 5;
-   GMAT ranOK = 1;
-   While SC1.TA == testVar
-       GMAT ansFlag = -99;
-       GMAT ranOK = 0;
-       Propagate   DefaultProp(SC1);
-       Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT While42_24.WriteHeaders = Off;
-   EndWhile;   
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT While42_24.WriteHeaders = Off;
+% ===== 1 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+GMAT testVar = 5;
+GMAT ranOK = 1;
+While SC1.TA == testVar
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT While42_24.WriteHeaders = Off;
+EndWhile;   
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT While42_24.WriteHeaders = Off;
 
-    % ===== 2 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-   GMAT testVar = 1*SC1.TA;
-   While SC1.TA == testVar
-       GMAT ansFlag = 1;
-       GMAT ranOK = 1;
-       Propagate   DefaultProp(SC1);
-       Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT ranOK = ranOK + 1;
-   EndWhile;
-   GMAT ranOK = ranOK - 1;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 2 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+GMAT testVar = 1*SC1.TA;
+While SC1.TA == testVar
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+EndWhile;
+GMAT ranOK = ranOK - 1;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 3 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT testVar = 5;
-    GMAT ranOK = 1;
-    While SC1.TA ~= testVar
-        GMAT ansFlag = 1;
-        GMAT ranOK = 1;
-        Propagate   DefaultProp(SC1);
-        GMAT testVar = 1*SC1.TA;
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        GMAT ranOK = ranOK + 1;
-    EndWhile;
-    GMAT ranOK = ranOK - 1;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 3 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT testVar = 5;
+GMAT ranOK = 1;
+While SC1.TA ~= testVar
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+GMAT testVar = 1*SC1.TA;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+EndWhile;
+GMAT ranOK = ranOK - 1;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 4 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT testVar = 1*SC1.TA;
-    GMAT ranOK = 1;
-    While SC1.TA ~= testVar
-        GMAT ansFlag = -99;
-        GMAT ranOK = 0;
-        Propagate   DefaultProp(SC1);
-        GMAT testVar = 1*SC1.TA;
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    EndWhile;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 4 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT testVar = 1*SC1.TA;
+GMAT ranOK = 1;
+While SC1.TA ~= testVar
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+GMAT testVar = 1*SC1.TA;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 5 ======
-    GMAT type = type + 1;
-    GMAT SC1.TA = 350;
-    GMAT testVar = 5;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-    While SC1.TA > testVar
-        GMAT ansFlag = 1;
-        GMAT ranOK = 1;
-        Propagate   DefaultProp(SC1);
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        GMAT ranOK = ranOK + 1;
-    EndWhile;
-    GMAT ranOK = testVar - SC1.TA;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 5 ======
+GMAT type = type + 1;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+While SC1.TA > testVar
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+EndWhile;
+GMAT ranOK = testVar - SC1.TA;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 6 ======
-    GMAT type = type + 1;
-    GMAT SC1.TA = 350;
-    GMAT testVar = 5;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 1;
-    While SC1.TA < testVar
-        GMAT ansFlag = -99;
-        GMAT ranOK = 0;
-        Propagate   DefaultProp(SC1);
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    EndWhile;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 6 ======
+GMAT type = type + 1;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 1;
+While SC1.TA < testVar
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 7 ======
-    GMAT type = type + 1;
-    GMAT SC1.TA = 350;
-    GMAT testVar = 5;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-    While SC1.TA >= testVar
-        GMAT ansFlag = 1;
-        GMAT ranOK = 1;
-        Propagate   DefaultProp(SC1);
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        GMAT ranOK = ranOK + 1;
-    EndWhile;
-    GMAT ranOK = testVar - (SC1.TA + 0.00001);
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 7 ======
+GMAT type = type + 1;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+While SC1.TA >= testVar
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+EndWhile;
+GMAT ranOK = testVar - (SC1.TA + 0.00001);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
 
-    % ===== 8 ======
-    GMAT type = type + 1;
-    GMAT SC1.TA = 350;
-    GMAT testVar = 5;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 1;
-    While SC1.TA <= testVar
-        GMAT ansFlag = -99;
-        GMAT ranOK = 0;
-        Propagate   DefaultProp(SC1);
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    EndWhile;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 8 ======
+GMAT type = type + 1;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 1;
+While SC1.TA <= testVar
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 EndScript;
 
-    % ===============
-    %   LHS <-> RHS
-    % ===============
+% ===============
+%   LHS <-> RHS
+% ===============
 
 BeginScript;
-    % ===== 9 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-   GMAT testVar = 5;
-   GMAT ranOK = 1;
-   While testVar == SC1.TA
-       GMAT ansFlag = -99;
-       GMAT ranOK = 0;
-       Propagate   DefaultProp(SC1);
-       Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   EndWhile;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 9 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+GMAT testVar = 5;
+GMAT ranOK = 1;
+While testVar == SC1.TA
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 10 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-   GMAT testVar = 1*SC1.TA;
-   While testVar == SC1.TA
-       GMAT ansFlag = 1;
-       GMAT ranOK = 1;
-       Propagate   DefaultProp(SC1);
-       Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-       GMAT ranOK = ranOK + 1;
-   EndWhile;
-   GMAT ranOK = ranOK - 1;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 10 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+GMAT testVar = 1*SC1.TA;
+While testVar == SC1.TA
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+EndWhile;
+GMAT ranOK = ranOK - 1;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 11 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT testVar = 5;
-    GMAT ranOK = 0;
-    While testVar ~= SC1.TA
-        GMAT ansFlag = 1;
-        GMAT ranOK = 1;
-        Propagate   DefaultProp(SC1);
-        GMAT testVar = 1*SC1.TA;
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        GMAT ranOK = ranOK + 1;
-    EndWhile;
-    GMAT ranOK = ranOK - 1;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 11 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT testVar = 5;
+GMAT ranOK = 0;
+While testVar ~= SC1.TA
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+GMAT testVar = 1*SC1.TA;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+EndWhile;
+GMAT ranOK = ranOK - 1;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 12 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT testVar = 1*SC1.TA;
-    GMAT ranOK = 1;
-    While testVar ~= SC1.TA
-        GMAT ansFlag = -99;
-        GMAT ranOK = 0;
-        Propagate   DefaultProp(SC1);
-        GMAT testVar = 1*SC1.TA;
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    EndWhile;
-    GMAT While42_24.WriteHeaders = Off;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 12 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT testVar = 1*SC1.TA;
+GMAT ranOK = 1;
+While testVar ~= SC1.TA
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+GMAT testVar = 1*SC1.TA;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+GMAT While42_24.WriteHeaders = Off;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 13 ======
-    GMAT type = type + 1;
-    GMAT SC1.TA = 350;
-    GMAT testVar = 5;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 1;
-    While testVar > SC1.TA
-        GMAT ansFlag = -99;
-        GMAT ranOK = 0;
-        Propagate   DefaultProp(SC1);
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    EndWhile;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 13 ======
+GMAT type = type + 1;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 1;
+While testVar > SC1.TA
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 14 ======
-    GMAT type = type + 1;
-    GMAT SC1.TA = 350;
-    GMAT testVar = 5;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-    While testVar < SC1.TA
-        GMAT ansFlag = 1;
-        GMAT ranOK = 1;
-        Propagate   DefaultProp(SC1);
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        GMAT ranOK = ranOK + 1;
-    EndWhile;
-    GMAT ranOK = testVar - SC1.TA;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 14 ======
+GMAT type = type + 1;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+While testVar < SC1.TA
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+EndWhile;
+GMAT ranOK = testVar - SC1.TA;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 15 ======
-    GMAT type = type + 1;
-    GMAT SC1.TA = 350;
-    GMAT testVar = 5;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 1;
-    While testVar >= SC1.TA
-        GMAT ansFlag = -99;
-        GMAT ranOK = 0;
-        Propagate   DefaultProp(SC1);
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    EndWhile;
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 15 ======
+GMAT type = type + 1;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 1;
+While testVar >= SC1.TA
+GMAT ansFlag = -99;
+GMAT ranOK = 0;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+EndWhile;
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
 
-    % ===== 16 ======
-    GMAT type = type + 1;
-    GMAT SC1.TA = 350;
-    GMAT testVar = 5;
-    GMAT ansFlag = 0;
-    GMAT ranOK = 0;
-    While testVar <= SC1.TA
-        GMAT ansFlag = 1;
-        GMAT ranOK = 1;
-        Propagate   DefaultProp(SC1);
-        Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-        GMAT ranOK = ranOK + 1;
-    EndWhile;
-    GMAT ranOK = testVar - (SC1.TA + 0.00001);
-    Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 16 ======
+GMAT type = type + 1;
+GMAT SC1.TA = 350;
+GMAT testVar = 5;
+GMAT ansFlag = 0;
+GMAT ranOK = 0;
+While testVar <= SC1.TA
+GMAT ansFlag = 1;
+GMAT ranOK = 1;
+Propagate   DefaultProp(SC1);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT ranOK = ranOK + 1;
+EndWhile;
+GMAT ranOK = testVar - (SC1.TA + 0.00001);
+Report      While42_24 type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 EndScript;
