@@ -21,7 +21,7 @@ GMAT DefaultProp.FM = DefaultProp_ForceModel;
 %----------------------------------------
 
 Create MatlabFunction CreateFuncSysTests;
- 
+GMAT CreateFuncSysTests.FunctionPath = './input/SystemTest/';
  
 %----------------------------------------
 %---------- Mission Sequence
