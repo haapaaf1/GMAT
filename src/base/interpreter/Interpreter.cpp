@@ -49,6 +49,7 @@
 //#define DEBUG_MAKE_ASSIGNMENT
 //#define DEBUG_ASSEMBLE_COMMAND
 //#define DEBUG_ASSEMBLE_CREATE
+//#define DEBUG_ASSEMBLE_CONDITION
 //#define DEBUG_ASSEMBLE_FOR
 //#define DEBUG_ASSEMBLE_CALL_FUNCTION
 //#define DEBUG_ASSEMBLE_REPORT_COMMAND
@@ -1138,7 +1139,7 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
          return false;
       }
    }
-   
+      
    return true;
    
 } // ValidateSubscriber()
@@ -1761,6 +1762,12 @@ bool Interpreter::AssembleCallFunctionCommand(GmatCommand *cmd,
 bool Interpreter::AssembleConditionalCommand(GmatCommand *cmd,
                                              const std::string &desc)
 {
+   #ifdef DEBUG_ASSEMBLE_CONDITION
+   MessageInterface::ShowMessage
+      ("Interpreter::AssembleConditionalCommand() cmd=<%p>'%s', desc='%s'\n",
+       cmd, cmd->GetTypeName().c_str(), desc.c_str());
+   #endif
+   
    debugMsg = "In AssembleConditionalCommand()";
    bool retval = true;
    std::string type = cmd->GetTypeName();
@@ -1833,7 +1840,7 @@ bool Interpreter::AssembleConditionalCommand(GmatCommand *cmd,
          start = op + 1;
    }
    
-   #ifdef DEBUG_ASSEMBLE_COMMAND
+   #ifdef DEBUG_ASSEMBLE_CONDITION
    WriteStringArray("After parsing conditions()", "", parts);
    #endif
    
@@ -1876,7 +1883,7 @@ bool Interpreter::AssembleConditionalCommand(GmatCommand *cmd,
       
       for (int i=0; i<count; i+=4)
       {
-         #ifdef DEBUG_ASSEMBLE_COMMAND
+         #ifdef DEBUG_ASSEMBLE_CONDITION
          MessageInterface::ShowMessage
             ("   lhs:<%s>, op:<%s>, rhs:<%s>\n", parts[i].c_str(), parts[i+1].c_str(),
              parts[i+2].c_str());
@@ -1885,30 +1892,40 @@ bool Interpreter::AssembleConditionalCommand(GmatCommand *cmd,
          // Try to create a parameter first if system parameter
          std::string type, ownerName, depObj;
          GmatStringUtil::ParseParameter(parts[i], type, ownerName, depObj);
-         #ifdef DEBUG_ASSEMBLE_COMMAND // --------------------------------- debug ----
+         #ifdef DEBUG_ASSEMBLE_CONDITION // ---------------------------- debug ----
          MessageInterface::ShowMessage
             ("   lhs: type = %s, ownerName = %s, depObj = %s\n", 
              type.c_str(), ownerName.c_str(), depObj.c_str());
          #endif // ------------------------------------------------- end debug ----
          
-         if (theModerator->IsParameter(type))
-            CreateParameter(type, parts[i], ownerName, depObj);
+         // Create Parameter if not in function, since Parameters are automatically
+         // created in ValidateCommand
+         if (!inFunctionMode)
+         {
+            if (theModerator->IsParameter(type))
+               CreateParameter(type, parts[i], ownerName, depObj);
+         }
          
          GmatStringUtil::ParseParameter(parts[i+2], type, ownerName, depObj);
-         #ifdef DEBUG_ASSEMBLE_COMMAND // --------------------------------- debug ----
+         #ifdef DEBUG_ASSEMBLE_CONDITION // ---------------------------- debug ----
          MessageInterface::ShowMessage
             ("   rhs: type = %s, ownerName = %s, depObj = %s\n", 
              type.c_str(), ownerName.c_str(), depObj.c_str());
          #endif // ------------------------------------------------- end debug ----
          
-         if (theModerator->IsParameter(type))
-            CreateParameter(type, parts[i+2], ownerName, depObj);
+         // Create Parameter if not in function, since Parameters are automatically
+         // created in ValidateCommand
+         if (!inFunctionMode)
+         {
+            if (theModerator->IsParameter(type))
+               CreateParameter(type, parts[i+2], ownerName, depObj);
+         }
          
          cb->SetCondition(parts[i], parts[i+1], parts[i+2]);
          
          if (count > i+3)
          {
-            #ifdef DEBUG_ASSEMBLE_COMMAND
+            #ifdef DEBUG_ASSEMBLE_CONDITION
             MessageInterface::ShowMessage("   logOp=<%s>\n", parts[i+3].c_str());
             #endif
             
@@ -2699,7 +2716,11 @@ Parameter* Interpreter::CreateParameter(const std::string &type,
        ownerName.c_str(), depName.c_str(), inFunctionMode);
    #endif
    
-   return theValidator->CreateParameter(type, name, ownerName, depName, !inFunctionMode);
+   Integer manage = 1;
+   if (inFunctionMode)
+      manage = 0;
+   
+   return theValidator->CreateParameter(type, name, ownerName, depName, manage);
 }
 
 
@@ -4923,7 +4944,7 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
       
       #ifdef DEBUG_SET_FORCE_MODEL
       MessageInterface::ShowMessage
-         ("   Adding type:<%s> name:<%s> to ForceModel:<%s>\n",
+         ("   Adding PhysicalModel <%p><%s>'%s' to ForceModel:<%s>\n", pm,
           pm->GetTypeName().c_str(), pm->GetName().c_str(),
           forceModel->GetName().c_str());
       #endif
