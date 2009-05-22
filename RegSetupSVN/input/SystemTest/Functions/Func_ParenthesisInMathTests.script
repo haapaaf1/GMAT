@@ -1,0 +1,45 @@
+% Created from the following script: ParenthesisInMathTests.script
+%
+% Functions used: Func_ParenthesisInMathTests.gmf, Func_ParenthesisInMathTests_nested.gmf
+% Function path: ./output/SystemTest/
+% Outputs to: ./output/SystemTest/
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_ParenthesisinMathTests.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_ParenthesisinMathTests_nested.report';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+ 
+% Call function
+Func_ParenthesisInMathTests(reportLoc1)
+Func_ParenthesisInMathTests_nested(reportLoc1_nested)
