@@ -313,7 +313,7 @@ void GmatMdiChildFrame::OnClose(wxCloseEvent &event)
    {
       #ifdef DEBUG_MDI_CHILD_FRAME
       MessageInterface::ShowMessage
-         ("GmatMdiChildFrame::OnClose() show exit confirm message\n");
+         ("   Panel has been changed, show exit confirm message\n");
       #endif
       
       if ( wxMessageBox(_T("There were changes made to \"" + GetTitle() + "\" panel"
@@ -331,6 +331,12 @@ void GmatMdiChildFrame::OnClose(wxCloseEvent &event)
          
          return;
       }
+   }
+   else
+   {
+      #ifdef DEBUG_MDI_CHILD_FRAME
+      MessageInterface::ShowMessage("   No changes made to panel\n");
+      #endif
    }
    
    // remove from list of frames
