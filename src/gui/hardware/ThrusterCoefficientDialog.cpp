@@ -378,9 +378,8 @@ void ThrusterCoefficientDialog::OnCellValueChange(wxGridEvent &event)
        if (CheckReal(rvalue, inputString, fieldName, "Real Number"))
        {
           coefValue[row] = rvalue;
-          theOkButton->Enable(true);
+          EnableUpdate(true);
+          mDataUpdated = true;
        }
     }    
 }
-
-
