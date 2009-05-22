@@ -39,6 +39,15 @@ MemoryTracker* MemoryTracker::Instance()
 
 
 //------------------------------------------------------------------------------
+// void SetScript(const std::string &script)
+//------------------------------------------------------------------------------
+void MemoryTracker::SetScript(const std::string &script)
+{
+   scriptFile = script;
+}
+
+
+//------------------------------------------------------------------------------
 // void SetShowTrace(bool show)
 //------------------------------------------------------------------------------
 void MemoryTracker::SetShowTrace(bool show)
@@ -49,35 +58,55 @@ void MemoryTracker::SetShowTrace(bool show)
 
 //------------------------------------------------------------------------------
 // void Add(void *addr, const std::string &objName, const std::string &funName,
-//          const std::string &note)
+//          const std::string &note, void *from)
 //------------------------------------------------------------------------------
 void MemoryTracker::Add(void *addr, const std::string &objName,
-                        const std::string &funName, const std::string &note)
+                        const std::string &funName, const std::string &note,
+                        void *from)
 {
    if (showTrace)
    {
-      MessageInterface::ShowMessage
-         ("+++ Creating <%p> %-20s in %s  %s\n", addr, objName.c_str(),
-          funName.c_str(), note.c_str());
+      if (from == NULL)
+      {
+         MessageInterface::ShowMessage
+            ("+++ Creating <%p> %-20s in %s  %s\n", addr, objName.c_str(),
+             funName.c_str(), note.c_str());
+      }
+      else
+      {
+         MessageInterface::ShowMessage
+            ("+++ Creating <%p> %-20s in %s  %s from <%p>\n", addr, objName.c_str(),
+             funName.c_str(), note.c_str(), from);
+      }
    }
    
-   TrackType track("+++", addr, objName, funName, note);
+   TrackType track("+++", addr, objName, funName, note, scriptFile);
    memoryTracks.push_back(track);
 }
 
 
 //------------------------------------------------------------------------------
 // void Remove(void *addr, const std::string &objName, const std::string &funName,
-//             const std::string &note)
+//             const std::string &note, void *from)
 //------------------------------------------------------------------------------
 void MemoryTracker::Remove(void *addr, const std::string &objName,
-                           const std::string &funName, const std::string &note)
+                           const std::string &funName, const std::string &note,
+                           void *from)
 {
    if (showTrace)
    {
-      MessageInterface::ShowMessage
-         ("--- Deleting <%p> %-20s in %s %s\n", addr, objName.c_str(),
-          funName.c_str(), note.c_str());
+      if (from == NULL)
+      {
+         MessageInterface::ShowMessage
+            ("--- Deleting <%p> %-20s in %s %s\n", addr, objName.c_str(),
+             funName.c_str(), note.c_str());
+      }
+      else
+      {
+         MessageInterface::ShowMessage
+            ("--- Deleting <%p> %-20s in %s %s from <%p>\n", addr, objName.c_str(),
+             funName.c_str(), note.c_str(), from);
+      }
    }
    
    bool trackFound = false;
@@ -96,7 +125,7 @@ void MemoryTracker::Remove(void *addr, const std::string &objName,
    
    if (!trackFound)
    {
-      TrackType track("---", addr, objName, funName, note);
+      TrackType track("---", addr, objName, funName, note, scriptFile);
       memoryTracks.push_back(track);
    }
    
@@ -104,21 +133,28 @@ void MemoryTracker::Remove(void *addr, const std::string &objName,
 
 
 //------------------------------------------------------------------------------
-// StringArray& GetTracks()
+// StringArray& GetTracks(bool clearTracks, bool writeScriptName)
 //------------------------------------------------------------------------------
-StringArray& MemoryTracker::GetTracks()
+StringArray& MemoryTracker::GetTracks(bool clearTracks, bool writeScriptName)
 {
    allTracks.clear();
    std::vector<TrackType>::iterator track = memoryTracks.begin();
-   static char text[100];
+   static char text[300];
+   
    while (track != memoryTracks.end())
    {
-      sprintf(text, "%s <%p> %-20s %-s  %s", ((*track).preface).c_str(), (*track).address,
+      std::string script = "";
+      if (writeScriptName)
+         script = (*track).scriptName;
+      sprintf(text, "%s <%p> %-20s %-s  %s %s", ((*track).preface).c_str(), (*track).address,
               ((*track).objectName).c_str(), ((*track).functionName).c_str(),
-              ((*track).remark).c_str());
+              ((*track).remark).c_str(), script.c_str());
       allTracks.push_back(text);
       ++track;
    }
+   
+   if (clearTracks)
+      memoryTracks.clear();
    
    return allTracks;
 }
