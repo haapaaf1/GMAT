@@ -43,6 +43,7 @@
 //#define DEBUG_FM_FINALIZE
 //#define DEBUG_FM_STACK
 //#define DEBUG_OBJECT_MAP
+//#define DEBUG_WRAPPERS
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -1254,6 +1255,10 @@ bool FunctionManager::CreatePassingArgWrappers()
       passedName = passedIns.at(ii);
       if (!(obj = FindObject(passedName)))
       {
+         #ifdef DEBUG_FM_INIT
+         MessageInterface::ShowMessage
+            ("==========> '%s' not found so creating...\n", passedName.c_str());
+         #endif
          obj = CreateObject(passedName);
          if (!obj)
          {
@@ -1292,8 +1297,15 @@ bool FunctionManager::CreatePassingArgWrappers()
       // Do we neet to set this inside the loop? commented out (loj: 2008.11.21)
       //validator->SetObjectMap(&combinedObjectStore);
       //validator->SetSolarSystem(solarSys);
-      std::string inName = passedIns.at(ii);
+      std::string inName = passedIns.at(ii);      
+      #ifdef DEBUG_WRAPPERS
+      MessageInterface::ShowMessage
+         ("==========> FM:CreatePassingArgWrappers() '%s' Creating "
+          "ElementWrapper for '%s'\n", fName.c_str(), inName.c_str());
+      #endif
+      
       ElementWrapper *inWrapper = validator->CreateElementWrapper(inName, false, false);
+      
       #ifdef DEBUG_MORE_MEMORY
       MessageInterface::ShowMessage
          ("+++ FunctionManager::CreatePassingArgWrappers() *inWrapper = validator->"
@@ -1332,8 +1344,15 @@ bool FunctionManager::CreatePassingArgWrappers()
          // Do we neet to set this inside the loop? commented out (loj: 2008.11.21)
          //validator->SetObjectMap(&combinedObjectStore);
          //validator->SetSolarSystem(solarSys);
-         std::string outName = passedOuts.at(jj);
-         ElementWrapper *outWrapper = validator->CreateElementWrapper(outName);;
+         std::string outName = passedOuts.at(jj);         
+         #ifdef DEBUG_WRAPPERS
+         MessageInterface::ShowMessage
+            ("==========> FM:CreatePassingArgWrappers() '%s' Creating "
+             "ElementWrapper for '%s'\n", fName.c_str(), outName.c_str());
+         #endif
+         
+         ElementWrapper *outWrapper = validator->CreateElementWrapper(outName);
+         
          #ifdef DEBUG_MORE_MEMORY
          MessageInterface::ShowMessage
             ("+++ FunctionManager::CreatePassingArgWrappers() *outWrapper = validator->"
@@ -1613,6 +1632,17 @@ GmatBase* FunctionManager::FindObject(const std::string &name, bool arrayElement
 //------------------------------------------------------------------------------
 // GmatBase* CreateObject(const std::string &fromString)
 //------------------------------------------------------------------------------
+/*
+ * Creates an object from the input string name. If input string is numeric string
+ * it creates a Variable, and StringVar if it is string literal. All other string
+ * values are handled by first creating an element wrapper and create a proper object
+ * based on the wrapper type. The local element wrapper is deleted at last.
+ *
+ * @param fromString input name of the object to be created
+ *
+ * @return newly created object
+ */
+//------------------------------------------------------------------------------
 GmatBase* FunctionManager::CreateObject(const std::string &fromString)
 {
    #ifdef DEBUG_CREATE_OBJ
@@ -1663,7 +1693,10 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
       // NOTE that we are only allowing Real and Array here 
       validator->SetObjectMap(&combinedObjectStore);
       validator->SetSolarSystem(solarSys);
-      ElementWrapper *ew = validator->CreateElementWrapper(fromString);
+      
+      // We should pass manage=2 as Function here so that new objects created
+      // can be stored in the function object store(LOJ: 2009.05.14)
+      ElementWrapper *ew = validator->CreateElementWrapper(fromString, false, 2);
       if (ew)
       {
          #ifdef DEBUG_MORE_MEMORY
@@ -1744,6 +1777,14 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
                break;
             }
          }
+         
+         // We need to delete newly created element wrapper here
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (ew, ew->GetDescription(), "FunctionManager::CreateObject()",
+             "deleting unused wrapper");
+         #endif
+         delete ew;
       }
       if (obj) createdOthers.insert(std::make_pair(str, obj));
    }
@@ -1756,7 +1797,7 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
        obj ? obj->GetName().c_str() : "NULL");
    #endif
    return obj;
-}
+} // CreateObject()
 
 
 //------------------------------------------------------------------------------
@@ -2142,6 +2183,8 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
             // Instead of deleting OpenGL plot from the OpenGlPlot destructor
             // call TakeAction() to delete it (LOJ:2009.04.22)
             sub->TakeAction("DeletePlot");
+            //@todo This causes Func_AssigningWholeObjects crash
+            //sub->ClearWrappers();
             
             #ifdef DEBUG_OBJECT_MAP
             MessageInterface::ShowMessage
@@ -2151,8 +2194,6 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
             
             if (publisher)
             {
-               //@todo This causes Func_AssigningWholeObjects crash
-               //sub->ClearWrappers();
                publisher->Unsubscribe(sub);
             }
             else
