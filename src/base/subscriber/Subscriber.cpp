@@ -106,7 +106,7 @@ Subscriber::Subscriber(std::string typeStr, std::string nomme) :
    mSolverIterations = "Current";
    mSolverIterOption = SI_CURRENT;
    
-   isCloned = false;
+   wrappersCopied = false;
 }
 
 
@@ -130,7 +130,7 @@ Subscriber::Subscriber(const Subscriber &copy) :
 {
    mSolverIterations = copy.mSolverIterations;
    mSolverIterOption = copy.mSolverIterOption;
-   isCloned = true;
+   wrappersCopied = true;
    
 #ifdef __ENABLE_CLONING_WRAPPERS__
    // Create new wrappers by cloning (LOJ: 2009.03.10)
@@ -140,6 +140,10 @@ Subscriber::Subscriber(const Subscriber &copy) :
    // Copy wrappers
    depParamWrappers = copy.depParamWrappers;
    paramWrappers = copy.paramWrappers;
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage("Subscriber(copy) copied wrappers\n");
+   WriteWrappers();
+   #endif
 #endif
 }
 
@@ -171,6 +175,7 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    wrapperObjectNames = rhs.wrapperObjectNames;
    mSolverIterations = rhs.mSolverIterations;
    mSolverIterOption = rhs.mSolverIterOption;
+   wrappersCopied = true;
    
 #ifdef __ENABLE_CLONING_WRAPPERS__
    // Clear old wrappers
@@ -178,10 +183,14 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    // Create new wrappers by cloning (LOJ: 2009.03.10)
    CloneWrappers(depParamWrappers, rhs.depParamWrappers);
    CloneWrappers(paramWrappers, rhs.paramWrappers);
-   #else
+#else
    // Copy wrappers
    depParamWrappers = rhs.depParamWrappers;
    paramWrappers = rhs.paramWrappers;
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage("Subscriber(=) copied wrappers\n");
+   WriteWrappers();
+   #endif
 #endif
    
    return *this;
@@ -196,8 +205,24 @@ Subscriber::~Subscriber()
 #ifdef __ENABLE_CLONING_WRAPPERS__
    ClearWrappers();
 #else
-   if (!isCloned)
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("~Subscriber() <%p>'%s' entered, wrappersCopied = %d\n", this, GetName().c_str(),
+       wrappersCopied);
+   #endif
+   
+   // Since we just copies wrappers, we can only delete if it is not a cloned
+   if (!wrappersCopied)
+   {
       ClearWrappers();
+   }
+   else
+   {
+      //@todo We should delete wrappers here
+      //Func_BallisticMassParamTest.script leaves memory trace
+      //If we clear wrappers, APT_AttitudeTest.script crashes
+      //ClearWrappers();
+   }
 #endif
 }
 
@@ -695,9 +720,7 @@ void Subscriber::ClearWrappers()
    #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("Subscriber::ClearWrappers() <%p>'%s' entered\n", this, GetName().c_str());
-   MessageInterface::ShowMessage
-      ("   depParamWrappers.size()=%d, paramWrappers.size()=%d\n",
-       depParamWrappers.size(), paramWrappers.size());
+   WriteWrappers();
    #endif
    
    ElementWrapper *wrapper;
@@ -711,6 +734,10 @@ void Subscriber::ClearWrappers()
           find(paramWrappers.begin(), paramWrappers.end(), wrapper) ==
           paramWrappers.end())
       {
+         #ifdef DEBUG_WRAPPER_CODE
+         MessageInterface::ShowMessage("   deleting depParamWrapper = <%p>\n", wrapper);
+         #endif
+         
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (wrapper, wrapper->GetDescription(), "Subscriber::ClearWrappers()",
@@ -728,7 +755,7 @@ void Subscriber::ClearWrappers()
       wrapper = paramWrappers[i];
       
       #ifdef DEBUG_WRAPPER_CODE
-      MessageInterface::ShowMessage("   wrapper=<%p>\n", wrapper);
+      MessageInterface::ShowMessage("   deleting paramWrapper = <%p>\n", wrapper);
       #endif
       
       if (wrapper != NULL)
@@ -1165,3 +1192,29 @@ const std::string* Subscriber::GetSolverIterOptionList()
    return SOLVER_ITER_OPTION_TEXT;
 }
 
+
+//------------------------------------------------------------------------------
+// void WriteWrappers()
+//------------------------------------------------------------------------------
+void Subscriber::WriteWrappers()
+{
+   MessageInterface::ShowMessage
+      ("Subscriber::WriteWrappers() <%p>'%s' has %d depParamWrappers and %d "
+       "paramWrappers\n", this, GetName().c_str(), depParamWrappers.size(),
+       paramWrappers.size());
+   
+   ElementWrapper *wrapper;
+   for (UnsignedInt i = 0; i < depParamWrappers.size(); ++i)
+   {
+      wrapper = depParamWrappers[i];
+      MessageInterface::ShowMessage
+         ("   depPaWrapper = <%p> '%s'\n", wrapper, wrapper->GetDescription().c_str());
+   }
+   
+   for (UnsignedInt i = 0; i < paramWrappers.size(); ++i)
+   {
+      wrapper = paramWrappers[i];
+      MessageInterface::ShowMessage
+         ("   paramWrapper = <%p> '%s'\n", wrapper, wrapper->GetDescription().c_str());
+   }
+}

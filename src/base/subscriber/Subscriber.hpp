@@ -72,7 +72,7 @@ public:
    virtual void         SetDataMJ2000EqOrigin(CelestialBody *cb);
    virtual void         SetSolarSystem(SolarSystem *ss);
    
-   // methods for setting up the items to subscribe
+   // methods for element wrappers
    virtual const StringArray&
                         GetWrapperObjectNameArray();
    virtual bool         SetElementWrapper(ElementWrapper* toWrapper,
@@ -125,40 +125,41 @@ public:
    
 protected:
    
-   std::string      mSolverIterations;
-   SolverIterOption mSolverIterOption;
+   std::string          mSolverIterations;
+   SolverIterOption     mSolverIterOption;
    
    /// Arrays used to track elements for published data
    std::vector<StringArray> theDataLabels;
    
-   const char       *data;
-   Subscriber       *next;
-   CoordinateSystem *theInternalCoordSystem;
-   CoordinateSystem *theDataCoordSystem;
-   CelestialBody    *theDataMJ2000EqOrigin;
-   SolarSystem      *theSolarSystem;
+   const char           *data;
+   Subscriber           *next;
+   CoordinateSystem     *theInternalCoordSystem;
+   CoordinateSystem     *theDataCoordSystem;
+   CelestialBody        *theDataMJ2000EqOrigin;
+   SolarSystem          *theSolarSystem;
    
-   bool             active;
-   bool             isEndOfReceive;
-   bool             isEndOfRun;
-   bool             isInitialized;
+   bool                 active;
+   bool                 isEndOfReceive;
+   bool                 isEndOfRun;
+   bool                 isInitialized;
    
    /// The current run state, so actions based on state can be taken
-   Gmat::RunState   runstate;
-   Integer          currentProvider;
+   Gmat::RunState       runstate;
+   Integer              currentProvider;
    
    /// The list of names of Wrapper objects
-   StringArray      wrapperObjectNames;
+   StringArray          wrapperObjectNames;
    /// vector of pointers to ElementWrappers for the item
-   WrapperArray     depParamWrappers;
-   WrapperArray     paramWrappers;
+   WrapperArray         depParamWrappers;
+   WrapperArray         paramWrappers;
    
-   bool                CloneWrappers(WrapperArray &toWrappers,
-                                     const WrapperArray &fromWrappers);
-   bool                SetWrapperReference(GmatBase *obj, const std::string &name);
-   virtual bool        Distribute(Integer len) = 0;
-   virtual bool        Distribute(const Real *dat, Integer len);
+   bool                 CloneWrappers(WrapperArray &toWrappers,
+                                      const WrapperArray &fromWrappers);
+   bool                 SetWrapperReference(GmatBase *obj, const std::string &name);
+   virtual bool         Distribute(Integer len) = 0;
+   virtual bool         Distribute(const Real *dat, Integer len);
    
+   void WriteWrappers();
    
    enum
    {
@@ -175,7 +176,7 @@ protected:
 private:
    
    static const std::string SOLVER_ITER_OPTION_TEXT[SolverIterOptionCount];
-   bool  isCloned;
+   bool    wrappersCopied;
 };
 #endif // Subscribe_hpp
 
