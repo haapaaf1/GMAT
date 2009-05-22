@@ -1,5 +1,4 @@
-function Func_Mars_MARS50C_nested(reportLoc)
-% $Id: Func_Mars_MARS50C_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_Mars_MARS50C_nested(reportLoc1)
+ 
 % Call function
-Func_Mars_MARS50C(reportLoc);
+Func_Mars_MARS50C(reportLoc1)

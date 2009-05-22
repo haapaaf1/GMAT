@@ -1,5 +1,6 @@
-function Func_LibrationSE(reportLoc)
-% $Id: Func_LibrationSE.gmf,v 1.4 2008/10/15 01:01:22 edove Exp $
+function Func_LibrationSE(reportLoc1)
+% REVISION HISTORY
+% $Id: LibrationSE.m,v 1.6 2008/10/15 01:01:21 edove Exp $
 
 %--------------------------------------------------------------------------
 %--------------------------Create Spacecraft ------------------------------
@@ -120,32 +121,8 @@ GMAT SolarSystem.UseTTForEphemeris = true;
 %--------------------------Create Plots and Reports------------------------
 %--------------------------------------------------------------------------
 
-
-% Create OpenGLPlot DefaultOpenGL;
-% GMAT DefaultOpenGL.Add = {Sat1, Sat2, Earth};
-% GMAT DefaultOpenGL.CoordinateSystem = EarthSunL1_MJ2000Eq;
-% GMAT DefaultOpenGL.ViewPointReference = EarthSunL1;
-% GMAT DefaultOpenGL.ViewDirection = EarthSunL1;
-% GMAT DefaultOpenGL.ViewScaleFactor = 1;
-% GMAT DefaultOpenGL.FixedFovAngle = 45;
-% GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthSunL1_MJ2000Eq;
-% GMAT DefaultOpenGL.ViewUpAxis = Z;
-% GMAT DefaultOpenGL.CelestialPlane = Off;
-% GMAT DefaultOpenGL.XYPlane = On;
-% GMAT DefaultOpenGL.WireFrame = Off;
-% GMAT DefaultOpenGL.SolverIterations = None;
-% GMAT DefaultOpenGL.Axes = Off;
-% GMAT DefaultOpenGL.Grid = Off;
-% GMAT DefaultOpenGL.SunLine = Off;
-% GMAT DefaultOpenGL.PerspectiveMode = Off;
-% GMAT DefaultOpenGL.UseFixedFov = Off;
-% GMAT DefaultOpenGL.DataCollectFrequency = 1;
-% GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
-% GMAT DefaultOpenGL.NumPointsToRedraw = 0;
-% GMAT DefaultOpenGL.ShowPlot = true;
-
 Create ReportFile ES_LState;
-GMAT ES_LState.Filename = reportLoc;
+GMAT ES_LState.Filename = reportLoc1;
 GMAT ES_LState.Precision = 16;
 
 %--------------------------------------------------------------------------

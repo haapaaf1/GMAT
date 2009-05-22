@@ -1,46 +1,45 @@
-% $Id: Func_IntegratorPD45_2Body.script,v 1.2 2008/05/02 19:05:34 edove Exp $
-
-% Func_IntegratorPD45_2Body - This script tests to make sure 
+% Created from the following script: IntegratorPD45_2Body.m
 %
-% Function used: Func_IntegratorPD45_2Body.gmf, Func_IntegratorPD45_2Body_nested.gmf
+% Functions used: Func_IntegratorPD45_2Body.gmf, Func_IntegratorPD45_2Body_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
-Create String reportLoc;
-GMAT reportLoc = './output/SystemTest/Func_IntegratorPD45_2Body.report';
-
-Create String reportLoc_nested;
-GMAT reportLoc_nested = './output/SystemTest/Func_IntegratorPD45_2Body_nested.report';
-
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_IntegratorPD45_2Body.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_IntegratorPD45_2Body_nested.report';
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_IntegratorPD45_2Body(reportLoc);
-Func_IntegratorPD45_2Body_nested(reportLoc_nested);
+Func_IntegratorPD45_2Body(reportLoc1)
+Func_IntegratorPD45_2Body_nested(reportLoc1_nested)

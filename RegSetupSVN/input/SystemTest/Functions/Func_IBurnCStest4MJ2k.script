@@ -1,66 +1,63 @@
-% Func_IBurnCStest4MJ2k - This script tests to make sure 
+% Created from the following script: IBurnCStest4MJ2k.script
 %
-% Function used: Func_IBurnCStest4MJ2k.gmf, Func_IBurnCStest4MJ2k_nested.gmf
+% Functions used: Func_IBurnCStest4MJ2k.gmf, Func_IBurnCStest4MJ2k_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-%
-%   Modification History
-%   ---------------------------------------------------------------------------------
-%   05/07/2009 - E.Dove:  Created the first version.
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
+ 
 Create String reportLoc1;
 GMAT reportLoc1 = './output/SystemTest/Func_IBurnEarthCStest4MJ2k.report';
-
+ 
 Create String reportLoc1_nested;
 GMAT reportLoc1_nested = './output/SystemTest/Func_IBurnEarthCStest4MJ2k_nested.report';
-
+ 
 Create String reportLoc2;
-GMAT reportLoc2 = './output/SystemTest/Func_IBurnSunCStest4MJ2k.report';
-
+GMAT reportLoc2 = './output/SystemTest/Func_IBurnMarsCStest4MJ2k.report';
+ 
 Create String reportLoc2_nested;
-GMAT reportLoc2_nested = './output/SystemTest/Func_IBurnSunCStest4MJ2k_nested.report';
-
+GMAT reportLoc2_nested = './output/SystemTest/Func_IBurnMarsCStest4MJ2k_nested.report';
+ 
 Create String reportLoc3;
-GMAT reportLoc3 = './output/SystemTest/Func_IBurnMarsCStest4MJ2k.report';
-
+GMAT reportLoc3 = './output/SystemTest/Func_IBurnSunCStest4MJ2k.report';
+ 
 Create String reportLoc3_nested;
-GMAT reportLoc3_nested = './output/SystemTest/Func_IBurnMarsCStest4MJ2k_nested.report';
-
+GMAT reportLoc3_nested = './output/SystemTest/Func_IBurnSunCStest4MJ2k_nested.report';
+ 
 Create String reportLoc4;
 GMAT reportLoc4 = './output/SystemTest/Func_IBurnMoonCStest4MJ2k.report';
-
+ 
 Create String reportLoc4_nested;
 GMAT reportLoc4_nested = './output/SystemTest/Func_IBurnMoonCStest4MJ2k_nested.report';
-
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
-% Call functions
-Func_IBurnCStest4MJ2k(reportLoc1,reportLoc2,reportLoc3,reportLoc4);
-Func_IBurnCStest4MJ2k_nested(reportLoc1_nested,reportLoc2_nested,reportLoc3_nested,reportLoc4_nested);
+ 
+% Call function
+Func_IBurnCStest4MJ2k(reportLoc1,reportLoc2,reportLoc3,reportLoc4)
+Func_IBurnCStest4MJ2k_nested(reportLoc1_nested,reportLoc2_nested,reportLoc3_nested,reportLoc4_nested)

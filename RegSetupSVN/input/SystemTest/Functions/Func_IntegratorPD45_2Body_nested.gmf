@@ -1,5 +1,4 @@
-function Func_IntegratorPD45_2Body_nested(reportLoc)
-% $Id: Func_IntegratorPD45_2Body_nested.gmf,v 1.2 2008/07/21 21:24:57 edove Exp $
-
+function Func_IntegratorPD45_2Body_nested(reportLoc1)
+ 
 % Call function
-Func_IntegratorPD45_2Body(reportLoc);
+Func_IntegratorPD45_2Body(reportLoc1)

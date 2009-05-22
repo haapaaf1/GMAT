@@ -1,5 +1,4 @@
-function Func_NonLinearConstraintTests_nested(reportLoc)
-% $Id: Func_NonLinearConstraintTests_nested.gmf,v 1.2 2008/07/21 21:24:59 edove Exp $
-
+function Func_NonLinearConstraintTests_nested(reportLoc1)
+ 
 % Call function
-Func_NonLinearConstraintTests(reportLoc);
+Func_NonLinearConstraintTests(reportLoc1)

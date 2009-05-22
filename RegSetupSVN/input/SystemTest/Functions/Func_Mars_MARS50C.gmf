@@ -1,5 +1,6 @@
-function Func_Mars_MARS50C(reportLoc)
-% $Id: Func_Mars_MARS50C.gmf,v 1.4 2008/09/05 20:51:13 edove Exp $
+function Func_Mars_MARS50C(reportLoc1)
+% REVISION HISTORY
+% $Id: Mars_MARS50C.m,v 1.3 2007/08/10 21:15:04 edove Exp $
 
 Create Spacecraft MarsSC;
 GMAT MarsSC.DateFormat = UTCGregorian
@@ -36,7 +37,7 @@ GMAT RKV89.Accuracy = 1e-013;
 GMAT RKV89.MinStep = 5;
 GMAT RKV89.MaxStep = 5;
 GMAT RKV89.MaxStepAttempts = 50; 
- 
+
 GMAT SolarSystem.EphemerisUpdateInterval = 0.0;
 GMAT SolarSystem.Earth.NutationUpdateInterval = 60.0; 
 
@@ -71,7 +72,7 @@ GMAT EarthFixed.Epoch = 21545;
 GMAT EarthFixed.UpdateInterval = 60;
 
 Create ReportFile Mars_Report
-GMAT Mars_Report.Filename = reportLoc;
+GMAT Mars_Report.Filename = reportLoc1;
 GMAT Mars_Report.Precision = 16;
 GMAT Mars_Report.WriteHeaders = Off;
 GMAT Mars_Report.ColumnWidth = 20;
@@ -85,7 +86,7 @@ Create Variable OutputStepSize;
 % Output Report file data for each propagation set in the FOR loop
 Report Mars_Report MarsSC.A1ModJulian MarsSC.MarsMJ2000Eq.X MarsSC.MarsMJ2000Eq.Y MarsSC.MarsMJ2000Eq.Z MarsSC.MarsMJ2000Eq.VX MarsSC.MarsMJ2000Eq.VY MarsSC.MarsMJ2000Eq.VZ;
 For OutputStepSize = 1:72;
-	Propagate   RKV89(MarsSC, {MarsSC.ElapsedSecs = 300});
-	Report      Mars_Report MarsSC.A1ModJulian MarsSC.MarsMJ2000Eq.X MarsSC.MarsMJ2000Eq.Y MarsSC.MarsMJ2000Eq.Z MarsSC.MarsMJ2000Eq.VX MarsSC.MarsMJ2000Eq.VY MarsSC.MarsMJ2000Eq.VZ;
+Propagate   RKV89(MarsSC, {MarsSC.ElapsedSecs = 300});
+Report      Mars_Report MarsSC.A1ModJulian MarsSC.MarsMJ2000Eq.X MarsSC.MarsMJ2000Eq.Y MarsSC.MarsMJ2000Eq.Z MarsSC.MarsMJ2000Eq.VX MarsSC.MarsMJ2000Eq.VY MarsSC.MarsMJ2000Eq.VZ;
 EndFor ;
 

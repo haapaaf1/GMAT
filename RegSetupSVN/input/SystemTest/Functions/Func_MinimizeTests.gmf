@@ -1,6 +1,4 @@
-function Func_MinimizeTests(reportLoc)
-% $Id: Func_MinimizeTests.gmf,v 1.2 2008/05/02 19:05:36 edove Exp $
-
+function Func_MinimizeTests(reportLoc1)
 %  This script tests the Minimize command, specifically, that it can
 %  handle variables, array elements, and spacecraft parameters
 
@@ -38,7 +36,7 @@ GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
 Create Variable X1 X2 F G TestNumber
 Create Array AF[2,2];
 Create ReportFile Data;
-GMAT Data.Filename = reportLoc;
+GMAT Data.Filename = reportLoc1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %-----------------------------------------------------------------
@@ -53,15 +51,15 @@ GMAT Data.Filename = reportLoc;
 
 Optimize SQPfmincon;
 
-    %  Vary the independent variables
-    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
-    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
-    GMAT X1 = Sat.X;
-    GMAT X2 = Sat.Y;
-   
-    %  The cost function and Minimize command
-    GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-    Minimize SQPfmincon(F);
+%  Vary the independent variables
+Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+GMAT X1 = Sat.X;
+GMAT X2 = Sat.Y;
+
+%  The cost function and Minimize command
+GMAT F =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+Minimize SQPfmincon(F);
 
 EndOptimize;
 Report Data F X1 X2
@@ -74,15 +72,15 @@ Report Data F X1 X2
 
 Optimize SQPfmincon;
 
-    %  Vary the independent variables
-    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
-    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
-    GMAT X1 = Sat.X;
-    GMAT X2 = Sat.Y;
-   
-    %  The cost function and Minimize command
-    GMAT AF(2,2) =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-    Minimize SQPfmincon(AF(2,2));
+%  Vary the independent variables
+Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+GMAT X1 = Sat.X;
+GMAT X2 = Sat.Y;
+
+%  The cost function and Minimize command
+GMAT AF(2,2) =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+Minimize SQPfmincon(AF(2,2));
 
 EndOptimize;
 Report Data F X1 X2
@@ -95,15 +93,15 @@ Report Data F X1 X2
 
 Optimize SQPfmincon;
 
-    %  Vary the independent variables
-    Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
-    Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
-    GMAT X1 = Sat.X;
-    GMAT X2 = Sat.Y;
-   
-    %  The cost function and Minimize command
-    GMAT Sat.Z =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
-    Minimize SQPfmincon(Sat.Z);
+%  Vary the independent variables
+Vary SQPfmincon( Sat.X = 0  , { Upper = 10, Lower = -10 } );
+Vary SQPfmincon( Sat.Y = 0  , { Upper = 10, Lower = -10 } );
+GMAT X1 = Sat.X;
+GMAT X2 = Sat.Y;
+
+%  The cost function and Minimize command
+GMAT Sat.Z =  ( X1 - 2 )^2 + ( X2 - 2 )^2 
+Minimize SQPfmincon(Sat.Z);
 
 EndOptimize;
 Report Data F X1 X2

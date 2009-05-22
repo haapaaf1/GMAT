@@ -1,5 +1,4 @@
-function Func_If55_nested(reportLoc)
-% $Id: Func_If55_nested.gmf,v 1.2 2008/07/21 21:25:00 edove Exp $
-
+function Func_If55_nested(reportLoc1)
+ 
 % Call function
-Func_If55(reportLoc);
+Func_If55(reportLoc1)

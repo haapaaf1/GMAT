@@ -1,5 +1,4 @@
-function Func_IfForArray_nested(reportLoc)
-% $Id: Func_IfForArray_nested.gmf,v 1.2 2008/07/21 21:24:58 edove Exp $
-
+function Func_IfForArray_nested(reportLoc1)
+ 
 % Call function
-Func_IfForArray(reportLoc);
+Func_IfForArray(reportLoc1)

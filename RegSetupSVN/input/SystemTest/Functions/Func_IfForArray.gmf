@@ -1,5 +1,11 @@
-function Func_IfForArray(reportLoc)
-% $Id: Func_IfForArray.gmf,v 1.2 2008/05/02 19:05:35 edove Exp $
+function Func_IfForArray(reportLoc1)
+%% $Id: IfForArray.m,v 1.4 2007/07/26 19:13:12 edove Exp $
+
+%   REVISION HISTORY
+%   Author      Date            Comment
+%               (MM/DD/YYYY)
+%   E.Dove      07/03/2006      Original
+%   E.Dove      11/22/2006      Last Modified
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = TAIModJulian;
@@ -35,7 +41,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile IfForArray;
-GMAT IfForArray.Filename = reportLoc;
+GMAT IfForArray.Filename = reportLoc1;
 GMAT IfForArray.Precision = 15;
 
 Create Array testArray[2,1];
@@ -54,157 +60,157 @@ GMAT type = 0;
 % IfForArray
 % **************
 BeginScript;
-    % ===== 1 ======
-    GMAT type = type + 1;
-    GMAT ranOK = 0;
-    GMAT ansFlag = 0;
-    If SC1.A1ModJulian > 5
-        For StepSize = 1:5
-            GMAT ansFlag = 1;
-            GMAT ranOK = ranOK + 1;
-            GMAT SC1.TA = 145;
-            Propagate   DefaultProp(SC1);
-            Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-        EndFor;
-        GMAT ranOK = ranOK - 4;
-    EndIf;
-    GMAT IfForArray.WriteHeaders = Off;
-    Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT SC1.TA = 145;
+% ===== 1 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = 1:5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+GMAT IfForArray.WriteHeaders = Off;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-   % ===== 2 ======
-   GMAT type = type + 1;
-   GMAT ranOK = 0;
-   GMAT ansFlag = 0;
-   If SC1.A1ModJulian > 5
-       For StepSize = testVar1:testVar2
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-   EndIf;
-   Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT SC1.TA = 145;
+% ===== 2 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = testVar1:testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-   % ===== 3 ======
-   GMAT type = type + 1;
-   GMAT ranOK = 0;
-   GMAT ansFlag = 0;
-   If SC1.A1ModJulian > 5
-       For StepSize = testArray(1,1):testArray(2,1)
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-   EndIf;
-   Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT SC1.TA = 145;
+% ===== 3 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = testArray(1,1):testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-   % ===== 4 ======
-   GMAT type = type + 1;
-   GMAT ranOK = 0;
-   GMAT ansFlag = 0;
-   If SC1.A1ModJulian > 5
-       For StepSize = 1:testVar2
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-   EndIf;
-   Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT SC1.TA = 145;
+% ===== 4 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = 1:testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-   % ===== 5 ======
-   GMAT type = type + 1;
-   GMAT ranOK = 0;
-   GMAT ansFlag = 0;
-   If SC1.A1ModJulian > 5
-       For StepSize = testVar1:5
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-   EndIf;
-   Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT SC1.TA = 145;
+% ===== 5 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = testVar1:5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-   % ===== 6 ======
-   GMAT type = type + 1;
-   GMAT ranOK = 0;
-   GMAT ansFlag = 0;
-   If SC1.A1ModJulian > 5
-       For StepSize = 1:testArray(2,1)
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-   EndIf;
-   Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT SC1.TA = 145;
+% ===== 6 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = 1:testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-   % ===== 7 ======
-   GMAT type = type + 1;
-   GMAT ranOK = 0;
-   GMAT ansFlag = 0;
-   If SC1.A1ModJulian > 5
-       For StepSize = testArray(1,1):5
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-   EndIf;
-   Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT SC1.TA = 145;
+% ===== 7 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = testArray(1,1):5
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-   % ===== 8 ======
-   GMAT type = type + 1;
-   GMAT ranOK = 0;
-   GMAT ansFlag = 0;
-   If SC1.A1ModJulian > 5
-       For StepSize = testArray(1,1):testVar2
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-   EndIf;
-   Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT SC1.TA = 145;
+% ===== 8 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = testArray(1,1):testVar2
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 
-   % ===== 9 ======
-   GMAT type = type + 1;
-   GMAT ranOK = 0;
-   GMAT ansFlag = 0;
-   If SC1.A1ModJulian > 5
-       For StepSize = testVar1:testArray(2,1)
-           GMAT ansFlag = 1;
-           GMAT ranOK = ranOK + 1;
-           GMAT SC1.TA = 145;
-           Propagate   DefaultProp(SC1);
-           Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
-       EndFor;
-       GMAT ranOK = ranOK - 4;
-   EndIf;
-   Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-   GMAT SC1.TA = 145;
+% ===== 9 ======
+GMAT type = type + 1;
+GMAT ranOK = 0;
+GMAT ansFlag = 0;
+If SC1.A1ModJulian > 5
+For StepSize = testVar1:testArray(2,1)
+GMAT ansFlag = 1;
+GMAT ranOK = ranOK + 1;
+GMAT SC1.TA = 145;
+Propagate   DefaultProp(SC1);
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z; 
+EndFor;
+GMAT ranOK = ranOK - 4;
+EndIf;
+Report      IfForArray type ansFlag ranOK SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT SC1.TA = 145;
 EndScript;

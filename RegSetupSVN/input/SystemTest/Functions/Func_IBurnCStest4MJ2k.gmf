@@ -4,16 +4,15 @@ function Func_IBurnCStest4MJ2k(reportLoc1,reportLoc2,reportLoc3,reportLoc4)
 %
 % This test script is designed to test the following elements:
 %
-% 1. All variations of the Propagate Command
-%
-% The output file format follows the guidlines documented in
-% the GMAT System Test Plan.
+% 1. Different variations of MJ2000Eq coordinate systems for the Impulsive Burn Object
+% 2. Equivalent setups with different script syntax for the Impulsive Burn Object
 %
 % External dependencies: None
 %
-% Output data generated should be identical in the case, 
-% A1Modulian, and ElapsedSecs column from one build to 
-% the next.
+% Output data generated should adhere to the following guidelines:
+% 1. The [BodyName]Orig line corresponds to initial state for each case
+% 2. All the [Bodyname]Case# lines should have the same values, which should all
+%   be the [BodyName]Orig VX VY VZ values + 0.1
 %
 %   Modification History
 %   ---------------------------------------------------------------------------------
@@ -354,23 +353,23 @@ GMAT EarthReport.LeftJustify = On;
 GMAT EarthReport.ZeroFill = Off;
 GMAT EarthReport.ColumnWidth = 30;
 
-Create ReportFile SunReport;
-GMAT SunReport.SolverIterations = Current;
-GMAT SunReport.Filename = reportLoc2;
-GMAT SunReport.Precision = 16;
-GMAT SunReport.WriteHeaders = On;
-GMAT SunReport.LeftJustify = On;
-GMAT SunReport.ZeroFill = Off;
-GMAT SunReport.ColumnWidth = 30;
-
 Create ReportFile MarsReport;
 GMAT MarsReport.SolverIterations = Current;
-GMAT MarsReport.Filename = reportLoc3;
+GMAT MarsReport.Filename = reportLoc2;
 GMAT MarsReport.Precision = 16;
 GMAT MarsReport.WriteHeaders = On;
 GMAT MarsReport.LeftJustify = On;
 GMAT MarsReport.ZeroFill = Off;
 GMAT MarsReport.ColumnWidth = 30;
+
+Create ReportFile SunReport;
+GMAT SunReport.SolverIterations = Current;
+GMAT SunReport.Filename = reportLoc3;
+GMAT SunReport.Precision = 16;
+GMAT SunReport.WriteHeaders = On;
+GMAT SunReport.LeftJustify = On;
+GMAT SunReport.ZeroFill = Off;
+GMAT SunReport.ColumnWidth = 30;
 
 Create ReportFile MoonReport;
 GMAT MoonReport.SolverIterations = Current;

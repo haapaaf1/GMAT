@@ -1,5 +1,6 @@
-function Func_If11(reportLoc)
-% $Id: Func_If11.gmf,v 1.2 2008/05/02 19:05:35 edove Exp $
+function Func_If11(reportLoc1)
+% REVISION HISTORY
+% $Id: If11.m,v 1.2 2007/07/26 19:13:11 edove Exp $
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = TAIModJulian;
@@ -35,7 +36,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile If11;
-GMAT If11.Filename = reportLoc;
+GMAT If11.Filename = reportLoc1;
 GMAT If11.Precision = 15;
 
 Create Array testArray[1,1];
@@ -55,89 +56,89 @@ GMAT SC1.TA = 145;
 % RHS: number
 % ********
 BeginScript;
-    % ===== 1 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If 145 ~= 5
-        GMAT ansFlag = 1;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT If11.WriteHeaders = Off;
+% ===== 1 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If 145 ~= 5
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT If11.WriteHeaders = Off;
 
-    % ===== 2 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If 145 > 5
-        GMAT ansFlag = 1;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 2 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If 145 > 5
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 3 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 1;
-    If 145 < 5
-        GMAT ansFlag = -99;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 3 ======
+GMAT type = type + 1;
+GMAT ansFlag = 1;
+If 145 < 5
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 4 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If 145 >= 5
-        GMAT ansFlag = 1;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 4 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If 145 >= 5
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 5 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 1;
-    If 145 <= 5
-        GMAT ansFlag = -99;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 5 ======
+GMAT type = type + 1;
+GMAT ansFlag = 1;
+If 145 <= 5
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 6 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If 145 ~= 5
-        GMAT ansFlag = 1;
-    Else
-        GMAT ansFlag = -99;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 6 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If 145 ~= 5
+GMAT ansFlag = 1;
+Else
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 7 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If 145 < 5
-    Else
-        GMAT ansFlag = 1;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 7 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If 145 < 5
+Else
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 8 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    GMAT ansFlag = 1;
-    If 20 == 5
-        GMAT ansFlag = -99;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 8 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+GMAT ansFlag = 1;
+If 20 == 5
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 9 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If 5 == 5
-        GMAT ansFlag = 1;
-        Propagate   DefaultProp(SC1);
-    EndIf;
-    Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 9 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If 5 == 5
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+Report      If11 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 EndScript;

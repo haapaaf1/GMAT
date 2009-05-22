@@ -1,6 +1,5 @@
 function Func_IBurnCStest4VNB(reportLoc1,reportLoc2,reportLoc3,reportLoc4)
 
-
 %% GMAT System Test Script File
 %
 % This test script is designed to test the following elements:

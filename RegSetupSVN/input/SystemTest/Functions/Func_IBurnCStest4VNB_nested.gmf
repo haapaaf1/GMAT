@@ -1,8 +1,4 @@
 function Func_IBurnCStest4VNB_nested(reportLoc1,reportLoc2,reportLoc3,reportLoc4)
-
-%   Modification History
-%   ---------------------------------------------------------------------------------
-%   05/08/2009 - E.Dove:  Created the first version.
-
+ 
 % Call function
-Func_IBurnCStest4VNB(reportLoc1,reportLoc2,reportLoc3,reportLoc4);
+Func_IBurnCStest4VNB(reportLoc1,reportLoc2,reportLoc3,reportLoc4)

@@ -1,5 +1,6 @@
-function Func_Luna_LP165P(reportLoc)
-% $Id: Func_Luna_LP165P.gmf,v 1.4 2008/09/05 20:51:13 edove Exp $
+function Func_Luna_LP165P(reportLoc1)
+% REVISION HISTORY
+% $Id: Luna_LP165P.m,v 1.4 2007/11/20 22:37:14 edove Exp $
 
 Create Spacecraft Moon;
 GMAT Moon.DateFormat = UTCGregorian;
@@ -36,7 +37,7 @@ GMAT RKV89.Accuracy = 1e-013;
 GMAT RKV89.MinStep = 5;
 GMAT RKV89.MaxStep = 5;
 GMAT RKV89.MaxStepAttempts = 50; 
- 
+
 GMAT SolarSystem.EphemerisUpdateInterval = 0.0;
 GMAT SolarSystem.Earth.NutationUpdateInterval = 60.0; 
 
@@ -72,7 +73,7 @@ GMAT EarthFixed.Epoch = 21545;
 GMAT EarthFixed.UpdateInterval = 60;
 
 Create ReportFile Moon_Report
-GMAT Moon_Report.Filename = reportLoc;
+GMAT Moon_Report.Filename = reportLoc1;
 GMAT Moon_Report.Precision = 16;
 GMAT Moon_Report.WriteHeaders = Off;
 GMAT Moon_Report.ColumnWidth = 20;
@@ -86,7 +87,7 @@ Create Variable OutputStepSize;
 % Output Report file data for each propagation set in the FOR loop
 Report Moon_Report Moon.A1ModJulian Moon.MoonMJ2000Eq.X Moon.MoonMJ2000Eq.Y Moon.MoonMJ2000Eq.Z Moon.MoonMJ2000Eq.VX Moon.MoonMJ2000Eq.VY Moon.MoonMJ2000Eq.VZ;
 For OutputStepSize = 1:72;
-	Propagate   RKV89(Moon, {Moon.ElapsedSecs = 300});
-	Report      Moon_Report Moon.A1ModJulian Moon.MoonMJ2000Eq.X Moon.MoonMJ2000Eq.Y Moon.MoonMJ2000Eq.Z Moon.MoonMJ2000Eq.VX Moon.MoonMJ2000Eq.VY Moon.MoonMJ2000Eq.VZ;
+Propagate   RKV89(Moon, {Moon.ElapsedSecs = 300});
+Report      Moon_Report Moon.A1ModJulian Moon.MoonMJ2000Eq.X Moon.MoonMJ2000Eq.Y Moon.MoonMJ2000Eq.Z Moon.MoonMJ2000Eq.VX Moon.MoonMJ2000Eq.VY Moon.MoonMJ2000Eq.VZ;
 EndFor ;
 

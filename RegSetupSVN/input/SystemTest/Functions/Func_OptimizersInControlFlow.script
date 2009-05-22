@@ -1,46 +1,45 @@
-% $Id: Func_OptimizersInControlFlow.script,v 1.2 2008/05/02 19:05:34 edove Exp $
-
-% Func_OptimizersInControlFlow - This script tests to make sure 
+% Created from the following script: OptimizersInControlFlow.script
 %
-% Function used: Func_OptimizersInControlFlow.gmf, Func_OptimizersInControlFlow_nested.gmf
+% Functions used: Func_OptimizersInControlFlow.gmf, Func_OptimizersInControlFlow_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
-Create String reportLoc;
-GMAT reportLoc = './output/SystemTest/Func_OptimizersInControlFlow.report';
-
-Create String reportLoc_nested;
-GMAT reportLoc_nested = './output/SystemTest/Func_OptimizersInControlFlow_nested.report';
-
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_OptimizersInControlFlow.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_OptimizersInControlFlow_nested.report';
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_OptimizersInControlFlow(reportLoc);
-Func_OptimizersInControlFlow_nested(reportLoc_nested);
+Func_OptimizersInControlFlow(reportLoc1)
+Func_OptimizersInControlFlow_nested(reportLoc1_nested)

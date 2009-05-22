@@ -1,46 +1,45 @@
-% $Id: Func_MinimizeTests.script,v 1.2 2008/05/02 19:05:34 edove Exp $
-
-% Func_MinimizeTests - This script tests to make sure 
+% Created from the following script: MinimizeTests.script
 %
-% Function used: Func_MinimizeTests.gmf, Func_MinimizeTests_nested.gmf
+% Functions used: Func_MinimizeTests.gmf, Func_MinimizeTests_nested.gmf
 % Function path: ./output/SystemTest/
-% Outputs to: ./output/SystemTest/ 
-
+% Outputs to: ./output/SystemTest/
+ 
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------
-
+ 
 Create Spacecraft DefaultSC;
-
+ 
 %----------------------------------------
 %---------- Propagators
 %----------------------------------------
-
+ 
 Create ForceModel DefaultProp_ForceModel;
-
+ 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
-
+ 
 %----------------------------------------
 %---------- Variables, Arrays, Strings
 %----------------------------------------
-
-Create String reportLoc;
-GMAT reportLoc = './output/SystemTest/Func_MinimizeTests.report';
-
-Create String reportLoc_nested;
-GMAT reportLoc_nested = './output/SystemTest/Func_MinimizeTests_nested.report';
-
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = './output/SystemTest/Func_MinimizeTests.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = './output/SystemTest/Func_MinimizeTests_nested.report';
+ 
+ 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-
+ 
 % Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
+% not be necessary but I've included it just in case.
  
 BeginScript;
 EndScript;
-
+ 
 % Call function
-Func_MinimizeTests(reportLoc);
-Func_MinimizeTests_nested(reportLoc_nested);
+Func_MinimizeTests(reportLoc1)
+Func_MinimizeTests_nested(reportLoc1_nested)

@@ -1,5 +1,6 @@
-function Func_IfIf43_34(reportLoc)
-% $Id: Func_IfIf43_34.gmf,v 1.2 2008/05/02 19:05:36 edove Exp $
+function Func_IfIf43_34(reportLoc1)
+% REVISION HISTORY
+% $Id: IfIf43_34.m,v 1.2 2007/07/26 19:13:12 edove Exp $
 
 Create Spacecraft SC1;
 GMAT SC1.DateFormat = TAIModJulian;
@@ -35,7 +36,7 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile IfIf43_34;
-GMAT IfIf43_34.Filename = reportLoc;
+GMAT IfIf43_34.Filename = reportLoc1;
 GMAT IfIf43_34.Precision = 15;
 
 Create Array testArray[1,1];
@@ -56,252 +57,252 @@ GMAT SC1.TA = 145;
 % RHS: number
 % ********
 BeginScript;
-    % ===== 1 ======
-    GMAT ansFlag = 0;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If SC1.TA ~= testArray(1,1)
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
-    GMAT IfIf43_34.WriteHeaders = Off;
+% ===== 1 ======
+GMAT ansFlag = 0;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If SC1.TA ~= testArray(1,1)
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+GMAT IfIf43_34.WriteHeaders = Off;
 
-    % ===== 2 ======
-    GMAT ansFlag = 0;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If SC1.TA > testArray(1,1)
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 2 ======
+GMAT ansFlag = 0;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If SC1.TA > testArray(1,1)
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 3 ======
-    GMAT ansFlag = 1;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If SC1.TA < testArray(1,1)
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 3 ======
+GMAT ansFlag = 1;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If SC1.TA < testArray(1,1)
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 4 ======
-    GMAT ansFlag = 0;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If SC1.TA >= testArray(1,1)
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 4 ======
+GMAT ansFlag = 0;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If SC1.TA >= testArray(1,1)
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 5 ======
-    GMAT ansFlag = 1;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If SC1.TA <= testArray(1,1)
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 5 ======
+GMAT ansFlag = 1;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If SC1.TA <= testArray(1,1)
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 6 ======
-    GMAT ansFlag = 1;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If SC1.TA ~= testArray(1,1)
-        Else
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 6 ======
+GMAT ansFlag = 1;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If SC1.TA ~= testArray(1,1)
+Else
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 7 ======
-    GMAT ansFlag = 0;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If SC1.TA < testArray(1,1)
-        Else
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 7 ======
+GMAT ansFlag = 0;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If SC1.TA < testArray(1,1)
+Else
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 EndScript;
 
-    % ===============
-    %   LHS <-> RHS
-    % ===============
+% ===============
+%   LHS <-> RHS
+% ===============
 
 BeginScript;
-    % ===== 8 ======
-    GMAT ansFlag = 0;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If testArray(1,1) ~= SC1.TA
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 8 ======
+GMAT ansFlag = 0;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If testArray(1,1) ~= SC1.TA
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 9 ======
-    GMAT ansFlag = 1;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If testArray(1,1) > SC1.TA
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 9 ======
+GMAT ansFlag = 1;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If testArray(1,1) > SC1.TA
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 10 ======
-    GMAT ansFlag = 0;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If testArray(1,1) < SC1.TA
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 10 ======
+GMAT ansFlag = 0;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If testArray(1,1) < SC1.TA
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 11 ======
-    GMAT ansFlag = 1;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If testArray(1,1) >= SC1.TA
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 11 ======
+GMAT ansFlag = 1;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If testArray(1,1) >= SC1.TA
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 12 ======
-    GMAT ansFlag = 0;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If testArray(1,1) <= SC1.TA
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 12 ======
+GMAT ansFlag = 0;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If testArray(1,1) <= SC1.TA
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 13 ======
-    GMAT ansFlag = 1;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If testArray(1,1) ~= SC1.TA
-        Else
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 13 ======
+GMAT ansFlag = 1;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If testArray(1,1) ~= SC1.TA
+Else
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 14 ======
-    GMAT ansFlag = 0;
-    GMAT type = type + 1;
-    If testVar2 ~= 10
-        If testArray(1,1) > SC1.TA
-        Else
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 14 ======
+GMAT ansFlag = 0;
+GMAT type = type + 1;
+If testVar2 ~= 10
+If testArray(1,1) > SC1.TA
+Else
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 EndScript;
 
 
-    % ===============
-    %   Added Tests
-    % ===============
+% ===============
+%   Added Tests
+% ===============
 
 BeginScript;
-    % ===== 15 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 1;
-    If testVar2 ~= 10
-        If SC1.TA == testVar 
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 15 ======
+GMAT type = type + 1;
+GMAT ansFlag = 1;
+If testVar2 ~= 10
+If SC1.TA == testVar 
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 16 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 1;
-    If testVar2 ~= 10
-        If testVar == SC1.TA
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 16 ======
+GMAT type = type + 1;
+GMAT ansFlag = 1;
+If testVar2 ~= 10
+If testVar == SC1.TA
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 17 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If testVar2 ~= 10
-        If testVar == SC1.TA
-            GMAT ansFlag = -99;
-            Propagate   DefaultProp(SC1);
-        Else
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 17 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If testVar2 ~= 10
+If testVar == SC1.TA
+GMAT ansFlag = -99;
+Propagate   DefaultProp(SC1);
+Else
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 18 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If testVar2 < 10
-        If testVar == SC1.TA
-            GMAT ansFlag = -99;
-        Else
-            GMAT ansFlag = -99;
-        EndIf;
-    Else;
-        If testVar == SC1.TA
-            GMAT ansFlag = -99;
-        Else
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-        EndIf;                
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 18 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If testVar2 < 10
+If testVar == SC1.TA
+GMAT ansFlag = -99;
+Else
+GMAT ansFlag = -99;
+EndIf;
+Else;
+If testVar == SC1.TA
+GMAT ansFlag = -99;
+Else
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndIf;                
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 
-    % ===== 19 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If testVar2 ~= 10
-      BeginScript;
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-      EndScript;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 19 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If testVar2 ~= 10
+BeginScript;
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndScript;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
 EndScript;
 
-    % ===== 20 ======
-    GMAT type = type + 1;
-    GMAT ansFlag = 0;
-    If testVar2 ~= 10
-      BeginScript;
-            GMAT ansFlag = 1;
-            Propagate   DefaultProp(SC1);
-      EndScript;
-    EndIf;
-    Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;
+% ===== 20 ======
+GMAT type = type + 1;
+GMAT ansFlag = 0;
+If testVar2 ~= 10
+BeginScript;
+GMAT ansFlag = 1;
+Propagate   DefaultProp(SC1);
+EndScript;
+EndIf;
+Report      IfIf43_34 type ansFlag SC1.A1ModJulian SC1.ElapsedSecs SC1.TA SC1.X SC1.Y SC1.Z;

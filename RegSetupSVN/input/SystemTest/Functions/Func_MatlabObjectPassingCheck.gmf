@@ -1,5 +1,5 @@
-function Func_MatlabObjectPassingCheck(reportLoc)
-% $Id: Func_MatlabObjectPassingCheck.gmf,v 1.4 2008/05/02 19:05:35 edove Exp $
+function Func_MatlabObjectPassingCheck(reportLoc1)
+%$Id: MatlabObjectPassingCheck.m,v 1.10 2008/04/15 21:19:09 edove Exp $
 
 %----------------------------------------
 %---------- Spacecraft
@@ -78,7 +78,7 @@ GMAT state(1, 6) = 0;
 %----------------------------------------
 
 Create ReportFile RVReport;
-GMAT RVReport.Filename = reportLoc;
+GMAT RVReport.Filename = reportLoc1;
 GMAT RVReport.Precision = 16;
 GMAT RVReport.WriteHeaders = On;
 GMAT RVReport.LeftJustify = On;
@@ -101,21 +101,21 @@ GMAT CalculateApsidesFromSat.FunctionPath = './input/SystemTest/';
 
 
 For I = 1:50;
-   If Sat.TA > 170 & Sat.TA < 180
-      Propagate Prop(Sat) {Sat.Apoapsis};
-   Else
-      If Sat.TA > 350
-         Propagate Prop(Sat) {Sat.Periapsis};
-      Else
-         Propagate Prop(Sat);
-      EndIf;
-   EndIf;
-   GMAT state(1, 1) = Sat.X;
-   GMAT state(1, 2) = Sat.Y;
-   GMAT state(1, 3) = Sat.Z;
-   GMAT state(1, 4) = Sat.VX;
-   GMAT state(1, 5) = Sat.VY;
-   GMAT state(1, 6) = Sat.VZ;
-   GMAT [RdotV, Energy] = CalculateApsidesFromSat(Sat);
-   Report RVReport Sat.A1ModJulian RdotV Sat.TA Energy Sat.Energy
+If Sat.TA > 170 & Sat.TA < 180
+Propagate Prop(Sat) {Sat.Apoapsis};
+Else
+If Sat.TA > 350
+Propagate Prop(Sat) {Sat.Periapsis};
+Else
+Propagate Prop(Sat);
+EndIf;
+EndIf;
+GMAT state(1, 1) = Sat.X;
+GMAT state(1, 2) = Sat.Y;
+GMAT state(1, 3) = Sat.Z;
+GMAT state(1, 4) = Sat.VX;
+GMAT state(1, 5) = Sat.VY;
+GMAT state(1, 6) = Sat.VZ;
+GMAT [RdotV, Energy] = CalculateApsidesFromSat(Sat);
+Report RVReport Sat.A1ModJulian RdotV Sat.TA Energy Sat.Energy
 EndFor;
