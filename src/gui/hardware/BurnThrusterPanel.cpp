@@ -21,6 +21,7 @@
 #include "MessageInterface.hpp"
 #include "StringUtil.hpp"
 #include "ThrusterCoefficientDialog.hpp"
+#include "GmatStaticBoxSizer.hpp"
 #include <wx/variant.h>
 
 //#define DEBUG_BURNPANEL_CREATE
@@ -101,6 +102,9 @@ void BurnThrusterPanel::Create()
    
    Integer bsize = 2; // border size
    
+   //-----------------------------------------------------------------
+   // coordinate system items
+   //-----------------------------------------------------------------
    // Coordinate Systems 
    wxStaticText *coordSysLabel =
       new wxStaticText(this, ID_TEXT, wxT("Coordinate System"));
@@ -127,6 +131,28 @@ void BurnThrusterPanel::Create()
       new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, 
                      wxSize(150,-1), wxAxesLabels, wxCB_DROPDOWN|wxCB_READONLY);
    axesComboBox->SetSelection(0);
+   
+   //----- Add to sizer
+   wxFlexGridSizer *coordSysSizer = new wxFlexGridSizer(3, 0, 0);
+   coordSysSizer->Add(coordSysLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   coordSysSizer->Add(coordSysComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
+   coordSysSizer->Add(20,20);
+   
+   coordSysSizer->Add(originLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   coordSysSizer->Add(originComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
+   coordSysSizer->Add(20,20);
+   
+   coordSysSizer->Add(axisLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   coordSysSizer->Add(axesComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
+   coordSysSizer->Add(20,20);
+   
+   GmatStaticBoxSizer *coordSysBoxSizer =
+      new GmatStaticBoxSizer(wxVERTICAL, this, "Coordinate System");
+   coordSysBoxSizer->Add(coordSysSizer, 0, wxALIGN_CENTER|wxALL, 0);
+   
+   //-----------------------------------------------------------------
+   // thrust vector items
+   //-----------------------------------------------------------------
    
    // Element1
    wxStaticText *elem1Unit = new wxStaticText(this, ID_TEXT, wxT(" km/s"));
@@ -172,6 +198,38 @@ void BurnThrusterPanel::Create()
                         wxDefaultPosition, wxSize(150,-1), 0);
    }
    
+   //----- Add to sizer   
+   wxFlexGridSizer *vectorSizer = new wxFlexGridSizer(3, 0, 0);
+   vectorSizer->Add(XLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   vectorSizer->Add(elem1TextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   vectorSizer->Add(elem1Unit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   
+   vectorSizer->Add(YLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   vectorSizer->Add(elem2TextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   vectorSizer->Add(elem2Unit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   
+   vectorSizer->Add(ZLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   vectorSizer->Add(elem3TextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   vectorSizer->Add(elem3Unit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   
+   if (theObject->IsOfType(Gmat::THRUSTER))
+   {
+      vectorSizer->Add(dutyCycleLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+      vectorSizer->Add(dutyCycleTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+      vectorSizer->Add(20,20);
+      
+      vectorSizer->Add(scaleFactorLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+      vectorSizer->Add(scaleFactorTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+      vectorSizer->Add(20,20);
+   }
+   
+   GmatStaticBoxSizer *vectorBoxSizer =
+      new GmatStaticBoxSizer(wxVERTICAL, this, "Thrust Vector");
+   vectorBoxSizer->Add(vectorSizer, 0, wxALIGN_CENTER|wxALL, 0);
+   
+   //-----------------------------------------------------------------
+   // mass change items
+   //-----------------------------------------------------------------
    // Decrement mass
    decMassCheckBox =
       new wxCheckBox(this, ID_CHECKBOX, wxT("Decrement Mass"),
@@ -182,7 +240,7 @@ void BurnThrusterPanel::Create()
       new wxStaticText(this, ID_TEXT, wxT("Tank"));
    tankComboBox =
       theGuiManager->GetFuelTankComboBox(this, ID_COMBOBOX, wxSize(150,-1));
-
+   
    ispLabel = NULL;
    ispTextCtrl = NULL;
    ispUnit = NULL;
@@ -221,73 +279,48 @@ void BurnThrusterPanel::Create()
       coefSizer->Add(kCoefButton, 0, wxALIGN_CENTER|wxALL, 5);
    }
    
-   // Add to wx*Sizers
-   wxFlexGridSizer *flexGridSizer1 = new wxFlexGridSizer(3, 0, 0);
-   flexGridSizer1->Add(coordSysLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(coordSysComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(20,20);
+   //----- Add to sizer   
+   wxFlexGridSizer *massSizer = new wxFlexGridSizer(3, 0, 0);
+   massSizer->Add(decMassCheckBox, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   massSizer->Add(20,20);
+   massSizer->Add(20,20);
    
-   flexGridSizer1->Add(originLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(originComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(20,20);
-   
-   flexGridSizer1->Add(axisLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(axesComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(20,20);
-   
-   flexGridSizer1->Add(XLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(elem1TextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(elem1Unit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   
-   flexGridSizer1->Add(YLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(elem2TextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(elem2Unit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   
-   flexGridSizer1->Add(ZLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(elem3TextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(elem3Unit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   
-   if (theObject->IsOfType(Gmat::THRUSTER))
-   {
-      flexGridSizer1->Add(dutyCycleLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-      flexGridSizer1->Add(dutyCycleTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
-      flexGridSizer1->Add(20,20);
-      
-      flexGridSizer1->Add(scaleFactorLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-      flexGridSizer1->Add(scaleFactorTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
-      flexGridSizer1->Add(20,20);
-   }
-   
-   flexGridSizer1->Add(decMassCheckBox, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(20,20);
-   flexGridSizer1->Add(20,20);
-   
-   flexGridSizer1->Add(tankLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(tankComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(20,20);
+   massSizer->Add(tankLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   massSizer->Add(tankComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
+   massSizer->Add(20,20);
    
    if (theObject->IsOfType(Gmat::IMPULSIVE_BURN))
    {
-      flexGridSizer1->Add(ispLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-      flexGridSizer1->Add(ispTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
-      flexGridSizer1->Add(ispUnit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+      massSizer->Add(ispLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+      massSizer->Add(ispTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+      massSizer->Add(ispUnit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
    }
    
-   flexGridSizer1->Add(gravityAccelLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   flexGridSizer1->Add(gravityAccelTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(gravityAccelUnit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   
-   wxBoxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
-   pageSizer->Add(flexGridSizer1, 0, wxALIGN_CENTER|wxALL, bsize);
+   massSizer->Add(gravityAccelLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   massSizer->Add(gravityAccelTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   massSizer->Add(gravityAccelUnit, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
    
    if (theObject->IsOfType(Gmat::THRUSTER))
    {      
-      flexGridSizer1->Add(20, 20, 0, wxALIGN_LEFT|wxALL, bsize);
-      flexGridSizer1->Add(20, 20, 0, wxALIGN_LEFT|wxALL, bsize);
-      flexGridSizer1->Add(20, 20, 0, wxALIGN_LEFT|wxALL, bsize);
-      
-      pageSizer->Add(coefSizer, 0, wxALIGN_CENTER|wxALL, bsize);
+      massSizer->Add(20, 20, 0, wxALIGN_LEFT|wxALL, bsize);
+      massSizer->Add(20, 20, 0, wxALIGN_LEFT|wxALL, bsize);
+      massSizer->Add(20, 20, 0, wxALIGN_LEFT|wxALL, bsize);
    }
+   
+   GmatStaticBoxSizer *massBoxSizer =
+      new GmatStaticBoxSizer(wxVERTICAL, this, "Mass Change");
+   massBoxSizer->Add(massSizer, 0, wxALIGN_CENTER|wxALL, 0);
+   
+   //-----------------------------------------------------------------
+   // add to page sizer
+   //-----------------------------------------------------------------
+   wxBoxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
+   pageSizer->Add(coordSysBoxSizer, 0, wxALIGN_CENTER|wxGROW|wxALL, bsize);
+   pageSizer->Add(vectorBoxSizer, 0, wxALIGN_CENTER|wxGROW|wxALL, bsize);
+   pageSizer->Add(massBoxSizer, 0, wxALIGN_CENTER|wxGROW|wxALL, bsize);
+   
+   if (theObject->IsOfType(Gmat::THRUSTER))
+      pageSizer->Add(coefSizer, 0, wxALIGN_CENTER|wxALL, bsize);
    
    theMiddleSizer->Add(pageSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
    
@@ -559,6 +592,7 @@ void BurnThrusterPanel::OnComboBoxChange(wxCommandEvent &event)
    }
 }
 
+
 //------------------------------------------------------------------------------
 // void OnButtonClick()
 //------------------------------------------------------------------------------
@@ -567,15 +601,13 @@ void BurnThrusterPanel::OnButtonClick(wxCommandEvent &event)
     if (event.GetEventObject() == cCoefButton)
     {
        ThrusterCoefficientDialog tcDlg(this, -1, "ThrusterCoefficientDialog", theObject, "C");
-       tcDlg.ShowModal(); 
-       EnableUpdate(true);      
-    } 
+       tcDlg.ShowModal();
+    }
     else if (event.GetEventObject() == kCoefButton)
     {
        ThrusterCoefficientDialog tcDlg(this, -1, "ImpulseCoefficientDialog", theObject, "K");
        tcDlg.ShowModal();
-       EnableUpdate(true);
-    }            
+    }
 }
 
 
