@@ -35,7 +35,7 @@ GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
 Create Variable X1 X2 F G TestNumber
 Create Array AF[2,2];
 Create ReportFile Data;
-GMAT Data.Filename = ./output/SystemTest/MinimizeTests.report;
+GMAT Data.Filename = './output/SystemTest/MinimizeTests.report';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %-----------------------------------------------------------------

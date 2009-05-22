@@ -103,7 +103,7 @@ GMAT DefaultProp_ForceModel.SRP = Off;
 GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
 GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
-GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = ./files/gravity/earth/JGM2.cof;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = './files/gravity/earth/JGM2.cof';
 
 Create Propagator DefaultProp;
 GMAT DefaultProp.FM = DefaultProp_ForceModel;
@@ -121,31 +121,8 @@ GMAT SolarSystem.UseTTForEphemeris = true;
 %--------------------------------------------------------------------------
 
 
-% Create OpenGLPlot DefaultOpenGL;
-% GMAT DefaultOpenGL.Add = {Sat1, Sat2, Earth};
-% GMAT DefaultOpenGL.CoordinateSystem = EarthSunMoonL1_MJ2000Eq;
-% GMAT DefaultOpenGL.ViewPointReference = EarthSunMoonL1;
-% GMAT DefaultOpenGL.ViewDirection = EarthSunMoonL1;
-% GMAT DefaultOpenGL.ViewScaleFactor = 1;
-% GMAT DefaultOpenGL.FixedFovAngle = 45;
-% GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthSunMoonL1_MJ2000Eq;
-% GMAT DefaultOpenGL.ViewUpAxis = Z;
-% GMAT DefaultOpenGL.CelestialPlane = Off;
-% GMAT DefaultOpenGL.XYPlane = On;
-% GMAT DefaultOpenGL.WireFrame = Off;
-% GMAT DefaultOpenGL.SolverIterations = None;
-% GMAT DefaultOpenGL.Axes = Off;
-% GMAT DefaultOpenGL.Grid = Off;
-% GMAT DefaultOpenGL.SunLine = Off;
-% GMAT DefaultOpenGL.PerspectiveMode = Off;
-% GMAT DefaultOpenGL.UseFixedFov = Off;
-% GMAT DefaultOpenGL.DataCollectFrequency = 1;
-% GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
-% GMAT DefaultOpenGL.NumPointsToRedraw = 0;
-% GMAT DefaultOpenGL.ShowPlot = true;
-
 Create ReportFile ESM_LState;
-GMAT ESM_LState.Filename = ./output/SystemTest/LibrationSEM.report;
+GMAT ESM_LState.Filename = './output/SystemTest/LibrationSEM.report';
 GMAT ESM_LState.Precision = 16;
 
 

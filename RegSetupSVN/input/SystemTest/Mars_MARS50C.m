@@ -3,7 +3,7 @@
 
 Create Spacecraft MarsSC;
 GMAT MarsSC.DateFormat = UTCGregorian
-GMAT MarsSC.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+GMAT MarsSC.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
 GMAT MarsSC.CoordinateSystem = MarsMJ2000Eq;
 GMAT MarsSC.DisplayStateType = Cartesian;
 GMAT MarsSC.X = -2737.481646173082000;
@@ -24,7 +24,7 @@ GMAT MARS50C.PrimaryBodies = {Mars};
 GMAT MARS50C.Drag = None;
 GMAT MARS50C.SRP = Off;
 GMAT MARS50C.ErrorControl = RSSStep;
-GMAT MARS50C.Gravity.Mars.PotentialFile = ./files/gravity/mars/Mars50c.cof;
+GMAT MARS50C.Gravity.Mars.PotentialFile = './files/gravity/mars/Mars50c.cof';
 GMAT MARS50C.Gravity.Mars.Degree = 20;
 GMAT MARS50C.Gravity.Mars.Order = 20;
 
@@ -71,7 +71,7 @@ GMAT EarthFixed.Epoch = 21545;
 GMAT EarthFixed.UpdateInterval = 60;
 
 Create ReportFile Mars_Report
-GMAT Mars_Report.Filename = ./output/SystemTest/Mars_MARS50C.report;
+GMAT Mars_Report.Filename = './output/SystemTest/Mars_MARS50C.report';
 GMAT Mars_Report.Precision = 16;
 GMAT Mars_Report.WriteHeaders = Off;
 GMAT Mars_Report.ColumnWidth = 20;

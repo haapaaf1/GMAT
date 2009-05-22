@@ -87,7 +87,7 @@ Create Array MyArray[2,2];
 Create DifferentialCorrector DC;
 GMAT DC.ShowProgress = true;
 GMAT DC.ReportStyle = Normal;
-GMAT DC.TargeterTextFile = DifferentialCorrectorDC1.data;
+GMAT DC.TargeterTextFile = 'DifferentialCorrectorDC1.data';
 GMAT DC.MaximumIterations = 25;
 GMAT DC.UseCentralDifferences = false;
 

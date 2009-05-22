@@ -74,7 +74,7 @@ Create String Header;
 
 %  Create Report
 Create ReportFile rf;
-GMAT rf.Filename = ./output/SystemTest/MathOperators.report;
+GMAT rf.Filename = './output/SystemTest/MathOperators.report';
 GMAT rf.Precision = 16;
 GMAT rf.WriteHeaders = Off;
 GMAT rf.LeftJustify = On;

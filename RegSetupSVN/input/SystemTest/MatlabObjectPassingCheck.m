@@ -77,7 +77,7 @@ GMAT state(1, 6) = 0;
 %----------------------------------------
 
 Create ReportFile RVReport;
-GMAT RVReport.Filename = ./output/SystemTest/MatlabObjectPassingCheck.report;
+GMAT RVReport.Filename = './output/SystemTest/MatlabObjectPassingCheck.report';
 GMAT RVReport.Precision = 16;
 GMAT RVReport.WriteHeaders = On;
 GMAT RVReport.LeftJustify = On;
@@ -91,7 +91,7 @@ GMAT RVReport.SolverIterations = None;
 %----------------------------------------
 
 Create MatlabFunction CalculateApsidesFromSat;
-GMAT CalculateApsidesFromSat.FunctionPath = ./input/SystemTest/;
+GMAT CalculateApsidesFromSat.FunctionPath = './input/SystemTest/';
 
 
 %----------------------------------------

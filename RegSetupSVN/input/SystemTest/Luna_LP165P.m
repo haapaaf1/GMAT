@@ -3,7 +3,7 @@
 
 Create Spacecraft Moon;
 GMAT Moon.DateFormat = UTCGregorian;
-GMAT Moon.Epoch.UTCGregorian = 01 Jun 2004 12:00:00.000;
+GMAT Moon.Epoch.UTCGregorian = '01 Jun 2004 12:00:00.000';
 GMAT Moon.CoordinateSystem = MoonMJ2000Eq;
 GMAT Moon.DisplayStateType = Cartesian;
 GMAT Moon.X = -1486.792117191545200;
@@ -24,7 +24,7 @@ GMAT MoonLP165P.PrimaryBodies = {Luna};
 GMAT MoonLP165P.Drag = None;
 GMAT MoonLP165P.SRP = Off;
 GMAT MoonLP165P.ErrorControl = RSSStep;
-GMAT MoonLP165P.Gravity.Luna.PotentialFile = ./files/gravity/luna/LP165P.cof;
+GMAT MoonLP165P.Gravity.Luna.PotentialFile = './files/gravity/luna/LP165P.cof';
 GMAT MoonLP165P.Gravity.Luna.Degree = 20;
 GMAT MoonLP165P.Gravity.Luna.Order = 20;
 
@@ -72,7 +72,7 @@ GMAT EarthFixed.Epoch = 21545;
 GMAT EarthFixed.UpdateInterval = 60;
 
 Create ReportFile Moon_Report
-GMAT Moon_Report.Filename = ./output/SystemTest/Luna_LP165P.report;
+GMAT Moon_Report.Filename = './output/SystemTest/Luna_LP165P.report';
 GMAT Moon_Report.Precision = 16;
 GMAT Moon_Report.WriteHeaders = Off;
 GMAT Moon_Report.ColumnWidth = 20;
