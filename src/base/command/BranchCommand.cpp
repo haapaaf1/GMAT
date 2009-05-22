@@ -661,14 +661,15 @@ GmatCommand* BranchCommand::Remove(GmatCommand *cmd)
    for (Integer which = 0; which < (Integer)branch.size(); ++which)
    {
       current = branch[which];
-      tempNext = current->GetNext();
-      
-      #ifdef DEBUG_BRANCHCOMMAND_REMOVE
-      ShowCommand("BranchCommand::", "Remove() current = ", current, ", tempNext = ", tempNext);
-      #endif
       
       if (current != NULL)
       {
+         tempNext = current->GetNext();
+      
+         #ifdef DEBUG_BRANCHCOMMAND_REMOVE
+         ShowCommand("BranchCommand::", "Remove() current = ", current, ", tempNext = ", tempNext);
+         #endif
+         
          fromBranch = current->Remove(cmd);
          
          #ifdef DEBUG_BRANCHCOMMAND_REMOVE

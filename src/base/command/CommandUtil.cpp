@@ -448,9 +448,12 @@ GmatCommand* GmatCommandUtil::RemoveCommand(GmatCommand *seq, GmatCommand *cmd)
       #endif
       
       remvCmd = cmd->Remove(current);
-      remvCmd->ForceSetNext(NULL);
+      
+      // per kw report - check remvCmd first
       if (remvCmd != NULL)
       {
+         remvCmd->ForceSetNext(NULL);
+         
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (remvCmd, remvCmd->GetTypeName(), "CommandUtil::RemoveCommand()");
@@ -469,10 +472,12 @@ GmatCommand* GmatCommandUtil::RemoveCommand(GmatCommand *seq, GmatCommand *cmd)
    #endif
    
    remvCmd = cmd->Remove(current);
-   remvCmd->ForceSetNext(NULL);
    
+   // per kw report - check remvCmd first
    if (remvCmd != NULL)
    {
+      remvCmd->ForceSetNext(NULL);
+      
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (remvCmd, remvCmd->GetTypeName(), "CommandUtil::RemoveCommand()");
@@ -806,7 +811,7 @@ bool GmatCommandUtil::FindObjectFromSubCommands(GmatCommand *brCmd, Integer leve
 std::string GmatCommandUtil::GetCommandSeqString(GmatCommand *cmd, bool showAddr,
                                                  bool showGenStr)
 {
-   char buf[10];
+   char buf[13];
    GmatCommand *current = cmd;
    std::string cmdseq, cmdstr, genStr;
    cmdstr = "\n---------- Mission Sequence ----------\n";
@@ -863,7 +868,7 @@ void GmatCommandUtil::GetSubCommandString(GmatCommand* brCmd, Integer level,
                                           std::string &cmdseq, bool showAddr,
                                           bool showGenStr)
 {
-   char buf[10];
+   char buf[13];
    GmatCommand* current = brCmd;
    Integer childNo = 0;
    GmatCommand* nextInBranch;
