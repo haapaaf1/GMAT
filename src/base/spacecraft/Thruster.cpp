@@ -137,6 +137,8 @@ Thruster::Thruster(std::string nomme) :
    constantExpressions  (true),
    simpleExpressions    (true),
    usingLocalCoordSys   (true),
+   isMJ2000EqAxes       (false),
+   isSpacecraftBodyAxes (false),
    initialized          (false)
 {
    objectTypes.push_back(Gmat::THRUSTER);
@@ -155,13 +157,16 @@ Thruster::Thruster(std::string nomme) :
    for (int i=1; i<COEFFICIENT_COUNT; i++)
       kCoefficients[i] = 0.0;
    
-   // Local axes labels
+   // Available local axes labels
+   // Since it is static data, clear it first
+   localAxesLabels.clear();
    localAxesLabels.push_back("VNB");
    localAxesLabels.push_back("LVLH");
    localAxesLabels.push_back("MJ2000Eq");
    localAxesLabels.push_back("SpacecraftBody");
    
    // C coefficient units
+   cCoefUnits.clear();
    cCoefUnits.push_back("N");
    cCoefUnits.push_back("N/Pa");
    cCoefUnits.push_back("N");
@@ -180,6 +185,7 @@ Thruster::Thruster(std::string nomme) :
    cCoefUnits.push_back("1/Pa");
    
    // K coefficient units
+   kCoefUnits.clear();
    kCoefUnits.push_back("s");
    kCoefUnits.push_back("s/Pa");
    kCoefUnits.push_back("s");
@@ -273,6 +279,8 @@ Thruster::Thruster(const Thruster& th) :
    constantExpressions  (th.constantExpressions),
    simpleExpressions    (th.simpleExpressions),
    usingLocalCoordSys   (th.usingLocalCoordSys),
+   isMJ2000EqAxes       (th.isMJ2000EqAxes),
+   isSpacecraftBodyAxes (th.isSpacecraftBodyAxes),
    initialized          (false),
    tankNames            (th.tankNames)
 {
@@ -347,6 +355,8 @@ Thruster& Thruster::operator=(const Thruster& th)
    constantExpressions = th.constantExpressions;
    simpleExpressions   = th.simpleExpressions;
    usingLocalCoordSys  = th.usingLocalCoordSys;
+   usingLocalCoordSys  = th.usingLocalCoordSys;
+   localAxesLabels     = th.localAxesLabels;
    initialized         = false;
    
    localAxesLabels     = th.localAxesLabels;
@@ -520,8 +530,6 @@ std::string Thruster::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool Thruster::IsParameterReadOnly(const Integer id) const
 {
-   //Temporary change until we decide some tank/thruster issues.
-   // if ((id == THRUSTER_FIRING) || (id == TANK))
    if ((id == THRUSTER_FIRING) || id == C_UNITS || id == K_UNITS)
       return true;
    
@@ -930,7 +938,7 @@ bool Thruster::SetStringParameter(const Integer id, const std::string &value)
                framelist += ", " + localAxesLabels[n];
             
             std::string msg =
-               "*** WARNING *** The value of \"" + value + "\" for field \"Axes\""
+               "The value of \"" + value + "\" for field \"Axes\""
                " on object \"" + instanceName + "\" is not an allowed value.\n"
                "The allowed values are: [ " + framelist + " ]. ";
             
@@ -963,9 +971,6 @@ const StringArray& Thruster::GetStringArrayParameter(const Integer id) const
 {
    if (id == TANK)
       return tankNames;
-   
-   if (id == AXES)
-      return localAxesLabels;
    
    if (id == C_UNITS)
       return cCoefUnits;
@@ -1033,6 +1038,44 @@ bool Thruster::SetBooleanParameter(const Integer id, const bool value)
    }
    
    return Hardware::SetBooleanParameter(id, value);
+}
+
+
+//------------------------------------------------------------------------------
+//  const StringArray& GetPropertyEnumStrings(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Access an array of enumerated string data.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The requested StringArray; throws if the parameter is not a 
+ *         StringArray.
+ */
+//------------------------------------------------------------------------------
+const StringArray& Thruster::GetPropertyEnumStrings(const Integer id) const
+{
+   if (id == AXES)
+      return localAxesLabels;
+   
+   return GmatBase::GetPropertyEnumStrings(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  const StringArray& GetPropertyEnumStrings(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Access an array of enumerated string data.
+ *
+ * @param <label> The parameter name.
+ *
+ * @return The requested StringArray
+ */
+//------------------------------------------------------------------------------
+const StringArray& Thruster::GetPropertyEnumStrings(const std::string &label) const
+{
+   return GetPropertyEnumStrings(GetParameterID(label));
 }
 
 
@@ -1664,65 +1707,21 @@ CoordinateSystem* Thruster::CreateLocalCoordinateSystem()
          //throw HardwareException("Unable to initialize the Thruster object " + 
          //   instanceName + " " + satName + " was not set for the thruster.");
       }
+            
+      // Call CoordinateSystem static method to create a local coordinate system
+      localOrigin = solarSystem->GetBody(localOriginName);
+      localCS = CoordinateSystem::CreateLocalCoordinateSystem
+         ("Local", localAxesName, spacecraft, localOrigin, spacecraft,
+          j2000Body, solarSystem);
       
-      satName = spacecraft->GetName();
+      if (localCS == NULL)
+         return NULL;
       
-      localCS = new CoordinateSystem("Local");
-      AxisSystem *orAxes = new ObjectReferencedAxes("Local");
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (localCS, "localCS", "Thruster::CreateLocalCoordinateSystem()",
-          "new CoordinateSystem()");
-      MemoryTracker::Instance()->Add
-         (orAxes, "localAxes", "Thruster::CreateLocalCoordinateSystem()",
-          "new ObjectReferencedAxes()");
-      #endif
-      orAxes->SetStringParameter("Primary", localOriginName);
-      orAxes->SetStringParameter("Secondary", satName);
-      orAxes->SetRefObject(localOrigin, Gmat::SPACE_POINT, localOriginName);
-      orAxes->SetRefObject(spacecraft, Gmat::SPACE_POINT, satName);
-      if (localAxesName == "VNB")
-      {
-         orAxes->SetStringParameter("XAxis", "V");
-         orAxes->SetStringParameter("YAxis", "N");
-      }
-      else if (localAxesName == "LVLH")
-      {
-         orAxes->SetStringParameter("XAxis", "-R");
-         orAxes->SetStringParameter("YAxis", "-N");
-      }
+      if (localAxesName == "MJ2000Eq")
+         isMJ2000EqAxes = true;
       else if (localAxesName == "SpacecraftBody")
-      {
-         throw HardwareException("Thruster cannot use SpacecraftBody yet.");
-      }
+         isSpacecraftBodyAxes = true;
       
-      // If I set origin same as the primary body, it doesn't work correctly
-      // for origin other than Earth. GMAT LOI.Origin = Luna in APT_Ex_LunarTransfer.script
-      // so set Earth as origin
-      //localCS->SetStringParameter("Origin", localOriginName);
-      localCS->SetStringParameter("Origin", j2000BodyName);
-      localCS->SetRefObject(orAxes, Gmat::AXIS_SYSTEM, orAxes->GetName());
-      localCS->SetRefObject(j2000Body, Gmat::SPACE_POINT, j2000BodyName);
-      localCS->SetSolarSystem(solarSystem);
-      localCS->Initialize();
-      
-      #ifdef DEBUG_THRUSTER_INIT
-      MessageInterface::ShowMessage
-         ("   Local CS <%p> created with AxisSystem <%p>:\n"
-          "      localAxesName = '%s'\n      Origin        = '%s'\n"
-          "      Primary       = '%s'\n      Secondary     = '%s'\n"
-          "      j2000Body     = '%s'\n", localCS, orAxes, localAxesName.c_str(),
-          localCS->GetOriginName().c_str(),
-          localCS->GetPrimaryObject() ? localCS->GetPrimaryObject()->GetName().c_str() : "NULL",
-          localCS->GetSecondaryObject() ? localCS->GetSecondaryObject()->GetName().c_str() : "NULL",
-          localCS->GetJ2000BodyName().c_str());
-      #endif
-      
-      // Since CoordinateSystem clones AxisSystem, delete it from here
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         (orAxes, "localAxes", "Thruster::CreateLocalCoordinateSystem()", "deleting localAxes");
-      #endif
    }
    else
    {
@@ -1762,34 +1761,92 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
        coordSystem, localCoordSystem);
    #endif
    
-   CoordinateSystem *csToUse = NULL;
+   if (usingLocalCoordSys && localCoordSystem == NULL)
+   {      
+      throw HardwareException
+         ("Unable to convert burn elements to Inertial, the local Coordinate "
+          "System has not been created");
+   }
+   else if (!usingLocalCoordSys && coordSystem == NULL)
+   {
+      throw HardwareException
+         ("Unable to convert burn elements to Inertial, the Coordinate "
+          "System has not been set");      
+   }
    
    Real inDir[6], outDir[6];
-   for (Integer i=0; i<6; i++)
+   for (Integer i=0; i<3; i++)
+      inDir[i] = dir[i];
+   for (Integer i=3; i<6; i++)
       inDir[i] = 0.0;
    
-   inDir[0] = dir[0];
-   inDir[1] = dir[1];
-   inDir[2] = dir[2];
+   //=================================================================
+   #if 1
+   //=================================================================
    
+   
+   // if not using local CS, use ref CoordinateSystem
    if (!usingLocalCoordSys)
-   {
-      if (coordSystem == NULL)
-         throw HardwareException
-            ("Unable to convert thruster elements to Inertial, the Coordinate "
-             "System has not been set");
+   {     
+      // Now rotate to MJ2000Eq axes, we don't want to translate so
+      // set coincident to true
+      coordSystem->ToMJ2000Eq(epoch, inDir, outDir, true);
       
-      csToUse = coordSystem;
+      #ifdef DEBUG_BURN_CONVERT_ROTMAT
+      Rmatrix33 rotMat = coordSystem->GetLastRotationMatrix();
+      MessageInterface::ShowMessage
+         ("rotMat=\n%s\n", rotMat.ToString(16, 20).c_str());
+      #endif
+      
+      dirInertial[0] = outDir[0];
+      dirInertial[1] = outDir[1];
+      dirInertial[2] = outDir[2];
    }
    else
    {
-      if (localCoordSystem == NULL)
-         throw HardwareException
-            ("Unable to convert thruster elements to Inertial, the local Coordinate "
-             "System has not been created");
-      
-      csToUse = localCoordSystem;
+      // if MJ2000Eq axes rotation matrix is alway identity matrix
+      if (isMJ2000EqAxes)
+      {
+         dirInertial[0] = dir[0];
+         dirInertial[1] = dir[1];
+         dirInertial[2] = dir[2];
+      }
+      else if (isSpacecraftBodyAxes)
+      {
+         Rvector3 inDir(dir[0], dir[1], dir[2]);
+         Rvector3 outDir;
+         // Get attitude matrix from Spacecraft and transpose since
+         // attitide matrix from spacecraft gives rotation matrix from
+         // inertial to body
+         Rmatrix33 inertialToBody = spacecraft->GetAttitude(epoch);
+         Rmatrix33 rotMat = inertialToBody.Transpose();
+         outDir = inDir * rotMat;
+         for (Integer i=0; i<3; i++)
+            dirInertial[i] = outDir[i];
+      }
+      else
+      {         
+         // Now rotate to MJ2000Eq axes
+         localCoordSystem->ToMJ2000Eq(epoch, inDir, outDir, true);
+         
+         dirInertial[0] = outDir[0];
+         dirInertial[1] = outDir[1];
+         dirInertial[2] = outDir[2];
+      }
    }
+   
+   
+   //=================================================================
+   #else
+   //=================================================================
+
+   
+   CoordinateSystem *csToUse = NULL;
+   
+   if (!usingLocalCoordSys)
+      csToUse = coordSystem;
+   else
+      csToUse = localCoordSystem;
    
    #ifdef DEBUG_THRUSTER_CONVERT
    MessageInterface::ShowMessage
@@ -1806,13 +1863,20 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
    }
    #endif
    
-   csToUse->ToMJ2000Eq(epoch, inDir, outDir);
+   // Now rotate to MJ2000Eq axes, we don't want to translate so
+   // set coincident to true
+   csToUse->ToMJ2000Eq(epoch, inDir, outDir, true);
    
    #ifdef DEBUG_THRUSTER_CONVERT_ROTMAT
    Rmatrix33 rotMat = csToUse->GetLastRotationMatrix();
    MessageInterface::ShowMessage
       ("rotMat=\n%s\n", rotMat.ToString(16, 20).c_str());
    #endif
+
+   //=================================================================
+   #endif
+   //=================================================================
+
    
    dirInertial[0] = outDir[0];
    dirInertial[1] = outDir[1];
