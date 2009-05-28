@@ -114,6 +114,8 @@ void MessageInterface::ShowMessage(const char *msg, ...)
 
       if( (msgBuffer = (char *)malloc(size)) != NULL )
       {
+         for (int i=0; i<size; i++)
+            msgBuffer[i] = '\0';
          va_start(marker, msg);
          ret = vsprintf(msgBuffer, msg, marker);
          va_end(marker);
@@ -177,24 +179,27 @@ void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg,
       // msg is vsprintf format
       // actual max message length is MAX_MESSAGE_LENGTH
       size = strlen(msg) + MAX_MESSAGE_LENGTH;
-
+      
       if ( (msgBuffer = (char *)malloc(size)) != NULL )
       {
+         for (int i=0; i<size; i++)
+            msgBuffer[i] = '\0';
          va_start(marker, msg);
          ret = vsprintf(msgBuffer, msg, marker);
          va_end(marker);
-
+         
          // if no EOL then append it
          if (msgBuffer[strlen(msgBuffer)-1] != '\n')
             msgBuffer[strlen(msgBuffer)] = '\n';
+         
       }
       else
       {
          msgBuffer = "*** WARNING *** Cannot allocate enough memory to show the message.\n";
       }
-
+      
       theMessageReceiver->PopupMessage(msgType, std::string(msgBuffer));
-
+      
       free(msgBuffer);
    }
 } // end PopupMessage()
@@ -305,6 +310,8 @@ void MessageInterface::LogMessage(const char *msg, ...)
       
       if( (msgBuffer = (char *)malloc(size)) != NULL )
       {
+         for (int i=0; i<size; i++)
+            msgBuffer[i] = '\0';
          va_start(marker, msg);
          ret = vsprintf(msgBuffer, msg, marker);
          va_end(marker);

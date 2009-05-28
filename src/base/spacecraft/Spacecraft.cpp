@@ -282,7 +282,7 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
       (attitude, "new attitude", "Spacecraft constructor()",
-       "attitude = new CSFixed("")");
+       "attitude = new CSFixed("")", this);
    #endif
    
    BuildElementLabelMap();
@@ -318,7 +318,7 @@ Spacecraft::~Spacecraft()
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (*i, (*i)->GetName(), "Spacecraft::~Spacecraft()",
-          "deleting cloned Tank");
+          "deleting cloned Tank", this);
       #endif
       delete *i;
    }
@@ -327,7 +327,7 @@ Spacecraft::~Spacecraft()
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (*i, (*i)->GetName(), "Spacecraft::~Spacecraft()",
-          "deleting cloned Thruster");
+          "deleting cloned Thruster", this);
       #endif
       delete *i;
    }
@@ -336,7 +336,7 @@ Spacecraft::~Spacecraft()
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (attitude, "attitude", "Spacecraft::~Spacecraft()",
-          "deleting attitude of " + GetName());
+          "deleting attitude of " + GetName(), this);
       #endif
       delete attitude;
       ownedObjectCount--;
@@ -417,7 +417,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (attitude, "cloned attitude", "Spacecraft copy constructor",
-          "attitude = (Attitude*) a.attitude->Clone()");
+          "attitude = (Attitude*) a.attitude->Clone()", this);
       #endif
    }
    else
@@ -520,7 +520,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (attitude, "attitude", "Spacecraft::operator=()",
-             "deleting attitude of " + GetName());
+             "deleting attitude of " + GetName(), this);
          #endif
          delete attitude;
       }
@@ -530,7 +530,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (attitude, "cloned attitude", "Spacecraft::operator=()",
-          "attitude = (Attitude*) a.attitude->Clone()");
+          "attitude = (Attitude*) a.attitude->Clone()", this);
       #endif
    }
    else
@@ -1209,7 +1209,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (attitude, "attitude", "Spacecraft::SetRefObject()",
-             "deleting attitude of " + GetName());
+             "deleting attitude of " + GetName(), this);
          #endif
          delete attitude;
          ownedObjectCount--;

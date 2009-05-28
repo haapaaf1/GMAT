@@ -476,8 +476,9 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    
    #ifdef DEBUG_VALIDATE_COMMAND
    MessageInterface::ShowMessage
-      ("Validator::ValidateCommand() returning %d as result of CheckUndefinedReference(%s)\n",
-       retval, cmd->GetTypeName().c_str());
+      ("Validator::ValidateCommand() <%p><%s> returning %d as result of "
+       "CheckUndefinedReference()\n", cmd,
+       cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str(), retval);
    #endif
    
    #ifdef DEBUG_PERFORMANCE
@@ -631,10 +632,16 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
       // if it's an ArrayElement, set up the row and column wrappers
       if (itsType == Gmat::ARRAY_ELEMENT_WT)
       {
-         std::string    rowName = ((ArrayElementWrapper*)ew)->GetRowName();
+         std::string rowName = ((ArrayElementWrapper*)ew)->GetRowName();
+         std::string colName = ((ArrayElementWrapper*)ew)->GetColumnName();
+         
+         #if DBGLVL_WRAPPERS > 1
+         MessageInterface::ShowMessage
+            ("==> Creating ElementWrapper for row '%s' and column '%s'\n",
+             rowName.c_str(), colName.c_str());
+         #endif                  
          ElementWrapper *row    = CreateElementWrapper(rowName, false, manage);
          ((ArrayElementWrapper*)ew)->SetRow(row);
-         std::string    colName = ((ArrayElementWrapper*)ew)->GetColumnName();
          ElementWrapper *col    = CreateElementWrapper(colName, false, manage);
          ((ArrayElementWrapper*)ew)->SetColumn(col);
       }
@@ -650,7 +657,8 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    
    #if DBGLVL_WRAPPERS > 1
    MessageInterface::ShowMessage
-      ("Validator::CreateElementWrapper() returning <%p>\n", ew);
+      ("Validator::CreateElementWrapper() returning <%p> for '%s'\n",
+       ew, ew->GetDescription().c_str());
    #endif
    
    return ew;
@@ -1665,7 +1673,7 @@ Parameter* Validator::CreateAutoParameter(const std::string &type,
 {
    #ifdef DEBUG_CREATE_PARAM
    MessageInterface::ShowMessage
-      ("Validator::CreateParameter() type='%s', name='%s', ownerName='%s', "
+      ("Validator::CreateAutoParameter() type='%s', name='%s', ownerName='%s', "
        "depName='%s', manage=%d\n", type.c_str(), name.c_str(),
        ownerName.c_str(), depName.c_str(), manage);
    #endif
@@ -1681,7 +1689,7 @@ Parameter* Validator::CreateAutoParameter(const std::string &type,
    
    #ifdef DEBUG_CREATE_PARAM
    MessageInterface::ShowMessage
-      ("Validator::CreateParameter() returning %s <%p><%s> '%s'\n",
+      ("Validator::CreateAutoParameter() returning %s <%p><%s> '%s'\n",
        alreadyManaged ? "old" : "new", param,
        (param == NULL) ? "NULL" : param->GetTypeName().c_str(),
        (param == NULL) ? "NULL" : param->GetName().c_str());

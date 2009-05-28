@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                DragForce
 //------------------------------------------------------------------------------
@@ -26,6 +26,15 @@
 // Uncomment to generate drag model data for debugging:
 //#define DEBUG_DRAGFORCE_DENSITY
 //#define DEBUG_DRAGFORCE_PARAM
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 
 #ifdef DEBUG_DRAGFORCE_DENSITY
    #include <fstream>
@@ -133,17 +142,46 @@ DragForce::~DragForce()
    //if (!useExternalAtmosphere && atmos)
    //   delete atmos;
    if (internalAtmos)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (internalAtmos, "internalAtmos", "DragForce::~DragForce()",
+          "deleting internal atmosphere model", this);
+      #endif
       delete internalAtmos;
-        
+      internalAtmos = NULL;
+   }
+   
    if (density)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (density, "density", "DragForce::Initialize()",
+          "deleting density[satCount]", this);
+      #endif
       delete [] density;
-      
+   }
+   
    if (dragState)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (dragState, "dragState", "DragForce::Initialize()",
+          "deleting dragState[orbitDimension]", this);
+      #endif
       delete [] dragState;
-        
+   }
+   
    if (prefactor)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (prefactor, "prefactor", "DragForce::Initialize()",
+          "deleting prefactor[satCount]", this);
+      #endif
       delete [] prefactor;
-
+   }
+   
    #ifdef DEBUG_DRAGFORCE_DENSITY
       dragdata.close();
    #endif
@@ -187,7 +225,15 @@ DragForce::DragForce(const DragForce& df) :
    }
    else
    {
-      internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone();
+      if (df.internalAtmos)
+      {
+         internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone();
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (internalAtmos, internalAtmos->GetName(), "DragForce::DragForce(copy)",
+             "internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone()", this);
+         #endif
+      }
    }
    
    parameterCount += 7;
@@ -229,22 +275,40 @@ DragForce& DragForce::operator=(const DragForce& df)
 {
    if (this == &df)
       return *this;
-        
+   
    PhysicalModel::operator=(df);
-
+   
    sun                   = NULL;
    centralBody           = NULL;
    useExternalAtmosphere = df.useExternalAtmosphere;
    atmosphereType        = df.atmosphereType;
-
+   
    if (internalAtmos != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (internalAtmos, "internalAtmos", "DragForce::operator=()",
+          "deleting internal atmosphere model");
+      #endif
       delete internalAtmos;
-
+      internalAtmos = NULL;
+   }
+   
    if (useExternalAtmosphere)
       internalAtmos = NULL;
    else
-      internalAtmos = (AtmosphereModel*)df.atmos->Clone();
-
+   {
+      if (df.internalAtmos)
+      {
+         internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone();
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (internalAtmos, internalAtmos->GetName(), "DragForce::operator=()",
+             "internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone()", this);
+         #endif
+      }
+   }
+   
    atmos                 = NULL;
    density               = NULL;
    prefactor             = NULL;
@@ -282,7 +346,7 @@ DragForce& DragForce::operator=(const DragForce& df)
    dragCoeff.clear();
    
    cartIndex = df.cartIndex;
-   fillCartesian - df.fillCartesian;
+   fillCartesian = df.fillCartesian;
 
    return *this;
 }
@@ -455,15 +519,58 @@ bool DragForce::Initialize()
       orbitDimension = 6 * satCount;
       
       if (dragState)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (dragState, "dragState", "DragForce::Initialize()",
+             "deleting dragState[orbitDimension]", this);
+         #endif
          delete [] dragState;
+      }
+      
       dragState = new Real[orbitDimension];
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (dragState, "dragState", "DragForce::Initialize()",
+          "dragState = new Real[orbitDimension]", this);
+      #endif
       
       if (satCount <= 0)
          throw ODEModelException("Drag called with orbit dimension zero");
-           
+
+      if (density)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (density, "density", "DragForce::Initialize()",
+             "deleting density[satCount]", this);
+         #endif
+         delete [] density;
+      }
+      
+      if (prefactor)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (prefactor, "prefactor", "DragForce::Initialize()",
+             "deleting prefactor[satCount]", this);
+         #endif
+         delete [] prefactor;
+      }
+      
       density   = new Real[satCount];
       prefactor = new Real[satCount];
-   
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (density, "density", "DragForce::Initialize()",
+          "density = new Real[satCount]", this);
+      MemoryTracker::Instance()->Add
+         (prefactor, "prefactor", "DragForce::Initialize()",
+          "prefactor = new Real[satCount]", this);
+      #endif
+      
       // Set the atmosphere model
       if (solarSystem)
       {
@@ -505,14 +612,20 @@ bool DragForce::Initialize()
             {
                #ifdef DEBUG_DRAGFORCE_DENSITY
                MessageInterface::ShowMessage
-                  ("===> Setting atmosphereType=%s addr:%d to body:%s\n",
+                  ("   Setting atmosphereType=%s addr:%d to body:%s\n",
                    atmosphereType.c_str(), internalAtmos,
                    centralBody->GetName().c_str());
                #endif
                
+               AtmosphereModel *amCloned = (AtmosphereModel*)internalAtmos->Clone();
+               #ifdef DEBUG_MEMORY
+               MemoryTracker::Instance()->Add
+                  (amCloned, amCloned->GetName(), "DragForce::Initialize()",
+                   "amCloned = (AtmosphereModel*)internalAtmos->Clone()", this);
+               #endif
+               
                centralBody->SetAtmosphereModelType(atmosphereType);
-               centralBody->SetAtmosphereModel(
-                  (AtmosphereModel*)internalAtmos->Clone());
+               centralBody->SetAtmosphereModel(amCloned);
             }
             
             //if (atmosphereType == "BodyDefault")
@@ -525,7 +638,7 @@ bool DragForce::Initialize()
                throw ODEModelException("Atmosphere model not defined");
             
          }
-               
+         
          if (atmos)
          {
             atmos->SetSunVector(sunLoc);
@@ -1137,17 +1250,24 @@ bool DragForce::SetStringParameter(const Integer id, const std::string &value)
    if (id == ATMOSPHERE_MODEL)
    {
       atmosphereType = value;
-
+      
       if ((value == "") || (value == "BodyDefault"))
          useExternalAtmosphere = true;
       else
       {
          if (!useExternalAtmosphere)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (atmos, atmos->GetName(), "DragForce::SetStringParameter()",
+                "deleting atmosphere model");
+            #endif
             delete atmos;
+         }
          atmos = NULL;
          useExternalAtmosphere = false;
       }
-
+      
       return true;
    }
    
@@ -1216,9 +1336,16 @@ bool DragForce::SetStringParameter(const std::string &label,
  * @param type Type of object passed in.
  * @param name Name of the object.
  */
+//------------------------------------------------------------------------------
 bool DragForce::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                                     const std::string &name)
+                             const std::string &name)
 {
+   #ifdef DEBUG_DRAGFORCE_REFOBJ
+   MessageInterface::ShowMessage
+      ("DragForce::SetRefObject() <%p>'%s' entered, obj=<%p>'%s', name='%s'\n",
+       this, GetName().c_str(), obj, obj->GetName().c_str(), name.c_str());
+   #endif
+   
    if (type == Gmat::ATMOSPHERE)
    {
       if (obj->GetType() != Gmat::ATMOSPHERE)
@@ -1245,8 +1372,15 @@ bool DragForce::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 bool DragForce::SetInternalAtmosphereModel(AtmosphereModel* atm)
 {
    if (internalAtmos)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (internalAtmos, "internalAtmos", "DragForce::SetInternalAtmosphereModel()",
+          "deleting internal atmosphere model");
+      #endif
       delete internalAtmos;
-
+   }
+   
    internalAtmos = atm;
    return true;
 }

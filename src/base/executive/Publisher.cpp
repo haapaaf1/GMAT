@@ -24,8 +24,8 @@
 #include <string>
 #include <algorithm>               // for find()
 
-//#define DBGLVL_PUBLISHER_SUBS 1
-//#define DBGLVL_PUBLISHER_REGISTER 2
+//#define DBGLVL_PUBLISHER_SUBSCRIBE 1
+//#define DBGLVL_PUBLISHER_REGISTER 1
 //#define DBGLVL_PUBLISHER_PUBLISH 1
 //#define DBGLVL_PUBLISHER_CLEAR 1
 
@@ -69,7 +69,7 @@ Publisher::~Publisher()
 //------------------------------------------------------------------------------
 bool Publisher::Subscribe(Subscriber *s)
 {
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage
       ("Publisher::Subscribe() sub = <%p>'%s'\n", s, s->GetName().c_str());
    #endif
@@ -82,7 +82,7 @@ bool Publisher::Subscribe(Subscriber *s)
    {
       subscriberList.push_back(s);
       s->SetProviderId(currentProvider);
-      #if DBGLVL_PUBLISHER_SUBS
+      #if DBGLVL_PUBLISHER_SUBSCRIBE
       MessageInterface::ShowMessage
          ("   Adding <%p>'%s' to subscriber list\n", s, s->GetName().c_str());
       ShowSubscribers();
@@ -90,7 +90,7 @@ bool Publisher::Subscribe(Subscriber *s)
    }
    else
    {
-      #if DBGLVL_PUBLISHER_SUBS
+      #if DBGLVL_PUBLISHER_SUBSCRIBE
       MessageInterface::ShowMessage
          ("   <%p>'%s' was already added\n", s, s->GetName().c_str());
       #endif      
@@ -116,19 +116,19 @@ bool Publisher::Unsubscribe(Subscriber *s)
        return false;
    }
    
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage
       ("Publisher::Unsubscribe() sub = <%p>'%s'\n", s, s->GetName().c_str());
    #endif
    
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage("   About to remove <%p> from the list\n", s);
    ShowSubscribers();
    #endif
    
    subscriberList.remove(s);
    
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage("Publisher::Unsubscribe() returning true\n");
    #endif
    
@@ -140,7 +140,7 @@ bool Publisher::Unsubscribe(Subscriber *s)
 //------------------------------------------------------------------------------
 bool Publisher::UnsubscribeAll()
 {
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage
       ("Publisher::UnsubscribeAll() entered. Clearing %d subscribers\n",
        subscriberList.size());
@@ -174,7 +174,7 @@ bool Publisher::UnsubscribeAll()
 //------------------------------------------------------------------------------
 bool Publisher::Publish(Integer id, Real *data, Integer count)
 {
-   #if DBGLVL_PUBLISHER_PUBLISH > 1
+   #if DBGLVL_PUBLISHER_PUBLISH
    MessageInterface::ShowMessage
       ("Publisher::Publish(Real) entered, id=%d, providerID=%d, count=%d\n",
        id, providerID, count);
@@ -209,7 +209,7 @@ bool Publisher::Publish(Integer id, Real *data, Integer count)
    }
    
    // Convert the data into a string for distribution
-   char stream[4096] = "";
+   char stream[4334] = "";
    
    for (Integer i = 0; i < count; ++i)
    {
@@ -231,8 +231,9 @@ bool Publisher::Publish(Integer id, Real *data, Integer count)
    while (current != subscriberList.end())
    {
       #if DBGLVL_PUBLISHER_PUBLISH > 1
-      MessageInterface::ShowMessage("Publisher::Publish() sub = %s\n",
-                                    (*current)->GetName().c_str());
+      MessageInterface::ShowMessage
+         ("Publisher::Publish() sub = <%p>'%s'\n", (*current),
+          (*current)->GetName().c_str());
       #endif
       
       if (!(*current)->ReceiveData(stream))
@@ -272,7 +273,7 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
    }
    
    // Convert the data into a string for distribution
-   char stream[4096];
+   char stream[4334];
 
    if (count)
    {
@@ -321,7 +322,7 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
    }
 
    // Convert the data into a string for distribution
-   char stream[4096];
+   char stream[4334];
 
    for(Integer i = 0; i < count; ++i)
    {
@@ -417,8 +418,13 @@ void Publisher::ClearPublishedData()
 Integer Publisher::RegisterPublishedData(const StringArray& owners, 
                                          const StringArray& elements)
 {
+   #if DBGLVL_PUBLISHER_REGISTER
+   MessageInterface::ShowMessage
+      ("Publisher::RegisterPublishedData() entered, there are %d owners and %d "
+       "elements\n", owners.size(), elements.size());
+   #endif
+   
    #if DBGLVL_PUBLISHER_REGISTER > 1
-   MessageInterface::ShowMessage("Publisher::RegisterPublishedData() entered\n");
    for (unsigned int i=0; i<owners.size(); i++)
       MessageInterface::ShowMessage("   owner[%d]=%s\n", i, owners[i].c_str());
    for (unsigned int i=0; i<elements.size(); i++)

@@ -90,6 +90,9 @@
 #include "MemoryTracker.hpp"
 #endif
 
+// @note If this is enabled, Bug1430-Func_GFuncInsideCFlow.script leaves
+// no memory trcks but AssigningWholeObjects.script crashes when exiting
+//#define __ENABLE_CLEAR_UNMANAGED_FUNCTIONS__
 //#define __CREATE_DEFAULT_BC__
 //#define __SHOW_FINAL_STATE__
 //#define __DISABLE_SOLAR_SYSTEM_CLONING__
@@ -477,7 +480,7 @@ void Moderator::Finalize()
    }
    
    #ifdef DEBUG_MEMORY
-   StringArray tracks = MemoryTracker::Instance()->GetTracks();
+   StringArray tracks = MemoryTracker::Instance()->GetTracks(true, true);
    MessageInterface::ShowMessage
       ("===> There are %d memory tracks\n", tracks.size());
    for (UnsignedInt i=0; i<tracks.size(); i++)
@@ -4195,9 +4198,11 @@ GmatCommand* Moderator::DeleteCommand(GmatCommand *cmd, Integer sandboxNum)
       #endif
       
       remvCmd = cmd->Remove(current);
-      remvCmd->ForceSetNext(NULL);
+      
+      // check remvCmd first
       if (remvCmd != NULL)
       {
+         remvCmd->ForceSetNext(NULL);
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (remvCmd, remvCmd->GetTypeName(), "Moderator::DeleteCommand()");
@@ -4886,6 +4891,10 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
       PrepareNextScriptReading();
       status = theScriptInterpreter->Interpret(filename);
       
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->SetScript(filename);
+      #endif
+      
       if (readBack)
       {
          #if DEBUG_INTERPRET
@@ -5225,7 +5234,7 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
       ClearResource();
    }
    
-   // Set object map in use (loj: 2008.07.16)
+   // Set object map in use
    objectMapInUse = theConfigManager->GetObjectMap();
    
    #ifdef DEBUG_OBJECT_MAP

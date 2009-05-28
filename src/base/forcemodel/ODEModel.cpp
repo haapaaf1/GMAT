@@ -204,6 +204,12 @@ ODEModel::~ODEModel()
    {
       pm = *ppm;
       forceList.erase(ppm);
+      
+      #ifdef DEBUG_ODEMODEL
+      MessageInterface::ShowMessage
+         ("   Checking if pm<%p> is transient\n", pm);
+      #endif
+      
       // Transient forces are managed in the Sandbox.
       if (!pm->IsTransient())
       {
@@ -211,7 +217,7 @@ ODEModel::~ODEModel()
          MemoryTracker::Instance()->Remove
             (pm, pm->GetName(), "ODEModel::~ODEModel()",
              "deleting non-transient \"" + pm->GetTypeName() +
-             "\" PhysicalModel");
+             "\" PhysicalModel", this);
          #endif
          delete pm;
       }
@@ -298,8 +304,8 @@ ODEModel::ODEModel(const ODEModel& fdf) :
       forceList.push_back(newPm);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (newPm, newPm->GetName(), "ODEModel::ODEModel()",
-          "*newPm = (*pm)->Clone()");
+         (newPm, newPm->GetName(), "ODEModel::ODEModel(copy)",
+          "*newPm = (*pm)->Clone()", this);
       #endif
    }
 }
@@ -367,7 +373,7 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (newPm, newPm->GetName(), "ODEModel::operator=",
-          "*newPm = (*pm)->Clone()");
+          "*newPm = (*pm)->Clone()", this);
       #endif
    }
    
@@ -480,6 +486,11 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 //------------------------------------------------------------------------------
 void ODEModel::DeleteForce(const std::string &name)
 {
+   #ifdef DEBUG_ODEMODEL
+   MessageInterface::ShowMessage
+      ("ODEModel::DeleteForce() entered, name='%s'\n", name.c_str());
+   #endif
+   
    for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
         force != forceList.end(); ++force) 
    {
@@ -496,7 +507,7 @@ void ODEModel::DeleteForce(const std::string &name)
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
                (pm, pm->GetName(), "ODEModel::DeleteForce()",
-                "deleting non-transient force of " + pm->GetTypeName());
+                "deleting non-transient force of " + pm->GetTypeName(), this);
             #endif
             delete pm;
          }
@@ -533,7 +544,7 @@ void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
                (pm, pm->GetName(), "ODEModel::DeleteForce()",
-                "deleting non-transient force of " + pm->GetTypeName());
+                "deleting non-transient force of " + pm->GetTypeName(), this);
             #endif
             delete pm;
          }
@@ -1189,7 +1200,7 @@ void ODEModel::ClearInternalCoordinateSystems()
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          ((*i), (*i)->GetName(), "ODEModel::ClearInternalCoordinateSystems()",
-          "deleting ICS");
+          "deleting ICS", this);
       #endif
       delete (*i);
    }
@@ -1256,7 +1267,7 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Add
                (cs, csName, "ODEModel::SetInternalCoordinateSystem()",
-                "cs = earthEq->Clone()");
+                "cs = earthEq->Clone()", this);
             #endif
          }
          else
@@ -1265,7 +1276,7 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Add
                (cs, csName, "ODEModel::SetInternalCoordinateSystem()",
-                "cs = earthFixed->Clone()");
+                "cs = earthFixed->Clone()", this);
             #endif
          }
          

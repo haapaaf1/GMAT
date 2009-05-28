@@ -2426,7 +2426,8 @@ bool Propagate::Initialize()
       
       #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::Initialize() registering published data\n");
+         ("Propagate::Initialize() '%s' registering published data\n",
+          GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       
       streamID = publisher->RegisterPublishedData(owners, elements);
@@ -2768,7 +2769,7 @@ void Propagate::PrepareToPropagate()
       }
    
       // Now setup the stopping condition elements
-      #if DEBUG_PROPAGATE_EXE
+      #if DEBUG_PROPAGATE_INIT
          MessageInterface::ShowMessage
             ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
           (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
@@ -2808,7 +2809,7 @@ void Propagate::PrepareToPropagate()
                throw CommandException("Stopping condition " + 
                stopWhen[i]->GetName() + " has no associated spacecraft.");
       
-            #if DEBUG_PROPAGATE_EXE
+            #if DEBUG_PROPAGATE_INIT
                MessageInterface::ShowMessage(
                   "Propagate::PrepareToPropagate() stopSat = %s\n",
                   stopSats[i]->GetName().c_str());
@@ -2904,7 +2905,7 @@ void Propagate::PrepareToPropagate()
          #endif
 
          // Now setup the stopping condition elements
-         #if DEBUG_PROPAGATE_EXE
+         #if DEBUG_PROPAGATE_INIT
             MessageInterface::ShowMessage
                ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
              (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
@@ -2935,7 +2936,7 @@ void Propagate::PrepareToPropagate()
                   throw CommandException("Stopping condition " + 
                   stopWhen[i]->GetName() + " has no associated spacecraft.");
          
-               #if DEBUG_PROPAGATE_EXE
+               #if DEBUG_PROPAGATE_INIT
                   MessageInterface::ShowMessage(
                      "Propagate::PrepareToPropagate() stopSat = %s\n",
                      stopSats[i]->GetName().c_str());
@@ -3008,8 +3009,9 @@ void Propagate::PrepareToPropagate()
    
    #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() publishing initial %d data to "
-          "stream %d, 1st data = %f\n", dim+1, streamID, pubdata[0]);
+         ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
+          "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+          dim+1, streamID, pubdata[0]);
    #endif
    publisher->Publish(streamID, pubdata, dim+1);
 }
@@ -3160,8 +3162,9 @@ bool Propagate::Execute()
             memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
             #ifdef DEBUG_PUBLISH_DATA
             MessageInterface::ShowMessage
-               ("Propagate::Execute() publishing current %d data to stream %d, "
-                "1st data = %f\n", dim+1, streamID, pubdata[0]);
+               ("Propagate::Execute() '%s' publishing current %d data to stream %d, "
+                "1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+                dim+1, streamID, pubdata[0]);
             #endif
             publisher->Publish(streamID, pubdata, dim+1);
          }
@@ -3815,8 +3818,9 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
       #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::TakeFinalStep() publishing final %d data to stream %d, "
-          "1st data = %f\n", dim+1, streamID, pubdata[0]);
+         ("Propagate::TakeFinalStep() '%s' publishing final %d data to stream %d, "
+          "1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+          dim+1, streamID, pubdata[0]);
       #endif
       publisher->Publish(streamID, pubdata, dim+1);
       
