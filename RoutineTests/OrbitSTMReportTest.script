@@ -1,0 +1,173 @@
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft sat1;
+GMAT sat1.DateFormat = TAIModJulian;
+GMAT sat1.Epoch = '22545.000000000';
+GMAT sat1.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat1.DisplayStateType = Cartesian;
+GMAT sat1.X = 7100;
+GMAT sat1.Y = 0;
+GMAT sat1.Z = 1300;
+GMAT sat1.VX = 0;
+GMAT sat1.VY = 7.35;
+GMAT sat1.VZ = 1;
+GMAT sat1.DryMass = 850;
+GMAT sat1.Cd = 2.2;
+GMAT sat1.Cr = 1.8;
+GMAT sat1.DragArea = 15;
+GMAT sat1.SRPArea = 1;
+GMAT sat1.Attitude = CoordinateSystemFixed;
+GMAT sat1.AttitudeDisplayStateType = 'Quaternion';
+GMAT sat1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT sat1.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT sat1.Q1 = 0;
+GMAT sat1.Q2 = 0;
+GMAT sat1.Q3 = 0;
+GMAT sat1.Q4 = 1;
+GMAT sat1.EulerAngleSequence = '312';
+GMAT sat1.AngularVelocityX = 0;
+GMAT sat1.AngularVelocityY = 0;
+GMAT sat1.AngularVelocityZ = 0;
+
+Create Spacecraft sat2;
+GMAT sat2.DateFormat = TAIModJulian;
+GMAT sat2.Epoch = '22545.000000000';
+GMAT sat2.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat2.DisplayStateType = Cartesian;
+GMAT sat2.X = 7100;
+GMAT sat2.Y = 0;
+GMAT sat2.Z = 1300;
+GMAT sat2.VX = 0;
+GMAT sat2.VY = 7.35;
+GMAT sat2.VZ = 1;
+GMAT sat2.DryMass = 850;
+GMAT sat2.Cd = 2.2;
+GMAT sat2.Cr = 1.8;
+GMAT sat2.DragArea = 15;
+GMAT sat2.SRPArea = 1;
+GMAT sat2.Attitude = CoordinateSystemFixed;
+GMAT sat2.AttitudeDisplayStateType = 'Quaternion';
+GMAT sat2.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT sat2.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT sat2.Q1 = 0;
+GMAT sat2.Q2 = 0;
+GMAT sat2.Q3 = 0;
+GMAT sat2.Q4 = 1;
+GMAT sat2.EulerAngleSequence = '312';
+GMAT sat2.AngularVelocityX = 0;
+GMAT sat2.AngularVelocityY = 0;
+GMAT sat2.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel fm;
+GMAT fm.CentralBody = Earth;
+GMAT fm.PointMasses = {Earth};
+GMAT fm.Drag = None;
+GMAT fm.SRP = Off;
+GMAT fm.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator prop;
+GMAT prop.FM = fm;
+GMAT prop.Type = RungeKutta89;
+GMAT prop.InitialStepSize = 60;
+GMAT prop.Accuracy = 1e-005;
+GMAT prop.MinStep = 60;
+GMAT prop.MaxStep = 60;
+GMAT prop.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+Create Array array3x3[3,3];
+Create String str1 msg1;
+Create Variable I;
+
+GMAT str1 = 'Test string';
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile rf;
+GMAT rf.SolverIterations = Current;
+GMAT rf.Filename = 'OrbitSTM-FancyPropTest.report';
+GMAT rf.Precision = 16;
+GMAT rf.WriteHeaders = On;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 20;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.SolverIterations = Current;
+GMAT OpenGLPlot1.Add = {sat1};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.TargetColor = [ 8421440 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000 ];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 1;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = Z;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot2;
+GMAT OpenGLPlot2.SolverIterations = Current;
+GMAT OpenGLPlot2.Add = {sat2};
+GMAT OpenGLPlot2.OrbitColor = [ 255 ];
+GMAT OpenGLPlot2.TargetColor = [ 4227327 ];
+GMAT OpenGLPlot2.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot2.ViewPointReference = Earth;
+GMAT OpenGLPlot2.ViewPointVector = [ 0 0 30000 ];
+GMAT OpenGLPlot2.ViewDirection = Earth;
+GMAT OpenGLPlot2.ViewScaleFactor = 1;
+GMAT OpenGLPlot2.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot2.ViewUpAxis = Z;
+GMAT OpenGLPlot2.CelestialPlane = Off;
+GMAT OpenGLPlot2.XYPlane = On;
+GMAT OpenGLPlot2.WireFrame = Off;
+GMAT OpenGLPlot2.Axes = On;
+GMAT OpenGLPlot2.Grid = Off;
+GMAT OpenGLPlot2.SunLine = Off;
+GMAT OpenGLPlot2.UseInitialView = On;
+GMAT OpenGLPlot2.DataCollectFrequency = 1;
+GMAT OpenGLPlot2.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot2.NumPointsToRedraw = 0;
+GMAT OpenGLPlot2.ShowPlot = true;
+
+GMAT msg1 = '============================== before Propagate';
+Report rf msg1;
+Report rf sat1.A1ModJulian  str1  sat1.OrbitSTMA  array3x3  sat1.EarthMJ2000Eq.X  sat1.OrbitSTM;
+Report rf sat1.A1ModJulian sat1.OrbitSTM sat2.OrbitSTM;
+Report rf sat1.OrbitSTMA sat1.OrbitSTMB sat1.OrbitSTMC sat1.OrbitSTMD
+
+For I = 1:1:180;
+   Propagate prop(sat1, STM, sat2);
+EndFor;
+
+GMAT msg1 = '============================== After  Propagate';
+GMAT rf.ZeroFill = On;
+Report rf msg1;
+Report rf sat1.A1ModJulian  str1  sat1.OrbitSTMA  array3x3  sat1.EarthMJ2000Eq.X  sat1.OrbitSTM;
+Report rf sat1.A1ModJulian sat1.OrbitSTM sat2.OrbitSTM;
+Report rf sat1.OrbitSTMA sat1.OrbitSTMB sat1.OrbitSTMC sat1.OrbitSTMD
