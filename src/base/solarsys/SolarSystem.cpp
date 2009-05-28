@@ -34,6 +34,8 @@
 //#define DEBUG_SS_ADD_BODY
 //#define SS_CONSTRUCT_DESTRUCT
 //#define DEBUG_SS_SPICE
+//#define DEBUG_SS_CLOAKING
+//#define DEBUG_SS_PARAM_EQUAL
 
 //---------------------------------
 // static data
@@ -44,6 +46,9 @@ SolarSystem::PARAMETER_TEXT[SolarSystemParamCount - GmatBaseParamCount] =
    "BodiesInUse",
    "NumberOfBodies",
    "Ephemeris",
+   "EphemerisSource",
+   "DEFilename",
+   "SPKFilename",
    "UseTTForEphemeris",
    "EphemerisUpdateInterval",
 };
@@ -54,9 +59,13 @@ SolarSystem::PARAMETER_TYPE[SolarSystemParamCount - GmatBaseParamCount] =
    Gmat::STRINGARRAY_TYPE,
    Gmat::INTEGER_TYPE,
    Gmat::STRINGARRAY_TYPE,
+   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
    Gmat::BOOLEAN_TYPE,
    Gmat::REAL_TYPE,
 };
+
 
 //const std::string
 //SolarSystem::PLANETARY_SOURCE_STRING[PlanetarySourceCount] =
@@ -771,6 +780,11 @@ SolarSystem::SolarSystem(std::string withName)
    overrideTimeForAll  = false;
    ephemUpdateInterval = 0.0;
    
+   // we want to cloak the Solar System data; i.e. we want to write only those
+   // parameters that have been modified by the suer to a script; and we don't 
+   // want to include the Create line either
+   cloaking = true;
+   
    theSPKFilename             = "";
 
    FileManager *fm = FileManager::Instance();
@@ -782,9 +796,9 @@ SolarSystem::SolarSystem(std::string withName)
    Star* theSun     = new Star(SUN_NAME);
    theSun->SetCentralBody(EARTH_NAME);  // central body here is a reference body
    theSun->SetSource(STAR_POS_VEL_SOURCE);
-   theSun->SetEquatorialRadius(STAR_EQUATORIAL_RADIUS, true);
-   theSun->SetFlattening(STAR_FLATTENING, true);
-   theSun->SetGravitationalConstant(STAR_MU, true);
+   theSun->SetEquatorialRadius(STAR_EQUATORIAL_RADIUS);
+   theSun->SetFlattening(STAR_FLATTENING);
+   theSun->SetGravitationalConstant(STAR_MU);
    theSun->SetOrder(STAR_ORDER);
    theSun->SetDegree(STAR_DEGREE);
    theSun->SetHarmonicCoefficientsSij(STAR_SIJ);
@@ -830,9 +844,9 @@ SolarSystem::SolarSystem(std::string withName)
       Planet *newPlanet = new Planet(PLANET_NAMES[ii], SUN_NAME);
       if (PLANET_NAMES[ii] == EARTH_NAME) theEarth = newPlanet;
       newPlanet->SetSource(PLANET_POS_VEL_SOURCE);
-      newPlanet->SetEquatorialRadius(PLANET_EQUATORIAL_RADIUS[ii], true);
-      newPlanet->SetFlattening(PLANET_FLATTENING[ii], true);
-      newPlanet->SetGravitationalConstant(PLANET_MU[ii], true);
+      newPlanet->SetEquatorialRadius(PLANET_EQUATORIAL_RADIUS[ii]);
+      newPlanet->SetFlattening(PLANET_FLATTENING[ii]);
+      newPlanet->SetGravitationalConstant(PLANET_MU[ii]);
       newPlanet->SetOrder(PLANET_ORDER[ii]);
       newPlanet->SetDegree(PLANET_DEGREE[ii]);
       newPlanet->SetHarmonicCoefficientsSij(PLANET_SIJ[ii]);
@@ -888,9 +902,9 @@ SolarSystem::SolarSystem(std::string withName)
    {
       Moon *newMoon = new Moon(MOON_NAMES[ii], MOON_CENTRAL_BODIES[ii]);
       newMoon->SetSource(MOON_POS_VEL_SOURCE[ii]);
-      newMoon->SetEquatorialRadius(MOON_EQUATORIAL_RADIUS[ii], true);
-      newMoon->SetFlattening(MOON_FLATTENING[ii], true);
-      newMoon->SetGravitationalConstant(MOON_MU[ii], true);
+      newMoon->SetEquatorialRadius(MOON_EQUATORIAL_RADIUS[ii]);
+      newMoon->SetFlattening(MOON_FLATTENING[ii]);
+      newMoon->SetGravitationalConstant(MOON_MU[ii]);
       newMoon->SetOrder(MOON_ORDER[ii]);
       newMoon->SetDegree(MOON_DEGREE[ii]);
       newMoon->SetHarmonicCoefficientsSij(MOON_SIJ[ii]);
@@ -949,22 +963,24 @@ SolarSystem::SolarSystem(std::string withName)
    theSun->SetRefObject(theEarth, Gmat::CELESTIAL_BODY, SolarSystem::EARTH_NAME); // for reference!!!
    theDefaultDeFile    = NULL;
    
-   // clear the modified flags for all default bodies
-   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
-   while (cbi != bodiesInUse.end())
-   {
-      (*cbi)->ClearModifiedFlag();      
-      ++cbi;
-   }
+
    // Set the Spice flags for the bodies
    #ifdef __USE_SPICE__
       spiceAvailable = true;
    #else
       spiceAvailable = false;
    #endif
-   SetIsSpiceAllowedForDefaultBodies(true);  // for now, this is false, per S. Hughes
+   SetIsSpiceAllowedForDefaultBodies(true);  
    
    CreatePlanetarySource();
+   SaveAllAsDefault();
+   // clear the modified flags for all default bodies
+   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+   while (cbi != bodiesInUse.end())
+   {
+      (*cbi)->SaveAllAsDefault();      
+      ++cbi;
+   }
    
    #ifdef SS_CONSTRUCT_DESTRUCT
       MessageInterface::ShowMessage("Just constructed a new SolarSystem with name %s at <%p>\n",
@@ -984,17 +1000,24 @@ SolarSystem::SolarSystem(std::string withName)
  */
 //------------------------------------------------------------------------------
 SolarSystem::SolarSystem(const SolarSystem &ss) :
-   GmatBase                   (ss),
-   pvSrcForAll                (ss.pvSrcForAll),
-   thePlanetaryEphem          (NULL),
-   overrideTimeForAll         (ss.overrideTimeForAll),
-   ephemUpdateInterval        (ss.ephemUpdateInterval),
-   bodyStrings                (ss.bodyStrings),
-   defaultBodyStrings         (ss.defaultBodyStrings),
-   userDefinedBodyStrings     (ss.userDefinedBodyStrings),
-   allowSpiceForDefaultBodies (ss.allowSpiceForDefaultBodies),
-   spiceAvailable             (ss.spiceAvailable),
-   theSPKFilename             (ss.theSPKFilename)
+   GmatBase                          (ss),
+   pvSrcForAll                       (ss.pvSrcForAll),
+   thePlanetaryEphem                 (NULL),
+   overrideTimeForAll                (ss.overrideTimeForAll),
+   ephemUpdateInterval               (ss.ephemUpdateInterval),
+   bodyStrings                       (ss.bodyStrings),
+   defaultBodyStrings                (ss.defaultBodyStrings),
+   userDefinedBodyStrings            (ss.userDefinedBodyStrings),
+   allowSpiceForDefaultBodies        (ss.allowSpiceForDefaultBodies),
+   spiceAvailable                    (ss.spiceAvailable),
+   theSPKFilename                    (ss.theSPKFilename),
+   default_planetarySourceTypesInUse (ss.default_planetarySourceTypesInUse),
+   default_ephemerisSource           (ss.default_ephemerisSource),
+   default_DEFilename                (ss.default_DEFilename),
+   default_SPKFilename               (ss.default_SPKFilename),
+   default_overrideTimeForAll        (ss.default_overrideTimeForAll),
+   default_ephemUpdateInterval       (ss.default_ephemUpdateInterval)
+
 {
    theDefaultDeFile  = NULL;
    parameterCount    = SolarSystemParamCount;
@@ -1048,7 +1071,13 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    theSPKFilename             = ss.theSPKFilename;
    parameterCount             = SolarSystemParamCount;
    theDefaultDeFile           = NULL;
-   
+   default_planetarySourceTypesInUse = ss.default_planetarySourceTypesInUse;
+   default_ephemerisSource           = ss.default_ephemerisSource;
+   default_DEFilename                = ss.default_DEFilename;
+   default_SPKFilename               = ss.default_SPKFilename;
+   default_overrideTimeForAll        = ss.default_overrideTimeForAll;
+   default_ephemUpdateInterval       = ss.default_ephemUpdateInterval;
+  
    // create planetary source first, but do not create default
    CreatePlanetarySource(false);
    
@@ -1120,7 +1149,6 @@ bool SolarSystem::Initialize()
       (*cbi)->Initialize();      
       ++cbi;
    }
-   
    return true;
 }
 
@@ -1287,6 +1315,7 @@ bool SolarSystem::SetPlanetarySourceName(const std::string &sourceType,
    if (id >= 0)
    {
       thePlanetarySourceNames[id] = fileName;
+      if (id == Gmat::SPICE)  theSPKFilename = fileName;
       status = true;
    }
    
@@ -1853,12 +1882,15 @@ StringArray SolarSystem::GetValidModelList(Gmat::ModelType m,
 //------------------------------------------------------------------------------
 bool SolarSystem::SetSource(Gmat::PosVelSource pvSrc)
 {
-   // Search through bodiesInUse for the body with the name withName
+   // Set the source flag on all of the default bodies
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
    {
-      if ((*cbi)->IsUserDefined()) continue;
-      if ((*cbi)->SetSource(pvSrc) == false)  return false;
+      bool userDef = (*cbi)->IsUserDefined();
+      if (!userDef)
+      {
+         if ((*cbi)->SetSource(pvSrc) == false)  return false;
+      }
       ++cbi;
    }
    pvSrcForAll = pvSrc;
@@ -1932,8 +1964,9 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
    {
-      if ((*cbi)->IsUserDefined()) continue;
-      if ((*cbi)->SetSourceFile(thePlanetaryEphem) == false) return false;
+      bool userDef = (*cbi)->IsUserDefined();
+      if (!userDef)
+         if ((*cbi)->SetSourceFile(thePlanetaryEphem) == false) return false;
       ++cbi;
    }
    
@@ -1946,8 +1979,9 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
    {
-      if ((*cbi)->IsUserDefined()) continue; // set for default bodies only
-      if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("SpiceKernelName"), theSPKFilename) == false) return false;
+      bool userDef = (*cbi)->IsUserDefined();
+      if (!userDef)
+         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("SpiceKernelName"), theSPKFilename) == false) return false;
       ++cbi;
    }
    return true;
@@ -2432,6 +2466,47 @@ bool SolarSystem::SetBooleanParameter(const std::string &label, const bool value
    return SetBooleanParameter(GetParameterID(label), value);
 }
 
+//------------------------------------------------------------------------------
+//  std::string  GetStringParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the string parameter value, given the input
+ * parameter ID.
+ *
+ * @param <id>    ID for the requested parameter.
+ *
+ * @return  string value of the requested parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+std::string SolarSystem::GetStringParameter(const Integer id) const
+{
+   if (id == EPHEMERIS_SOURCE) return theCurrentPlanetarySource;          
+   if (id == DE_FILE_NAME)     return thePlanetarySourceNames[Gmat::DE405];         
+   if (id == SPK_FILE_NAME)    return theSPKFilename;        
+   
+   return GmatBase::GetStringParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  std::string  GetStringParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the string parameter value, given the input
+ * parameter label.
+ *
+ * @param <label> label for the requested parameter.
+ *
+ * @return  string value of the requested parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+std::string SolarSystem::GetStringParameter(const std::string &label) const
+{
+   return GetStringParameter(GetParameterID(label));
+}
+
 
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const Integer id, const std::string &value)
@@ -2456,6 +2531,22 @@ bool SolarSystem::SetStringParameter(const Integer id,
          return true;
       else
          return false;
+   }
+   if (id == EPHEMERIS_SOURCE)
+   {
+      SetSource(value);
+      return true;
+   }
+//   if (id == DE_FILE_NAME)
+//   {
+//      SetSourceFileName(value); // ???
+//      return true;
+//   }
+   if (id == SPK_FILE_NAME)
+   {
+      bool isOK = SetSPKFile(value); 
+      if (!isOK)
+         throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
    }
    
    return GmatBase::SetStringParameter(id, value);
@@ -2535,6 +2626,167 @@ GmatBase* SolarSystem::GetOwnedObject(Integer whichOne)
    
    return NULL;
 }
+
+//------------------------------------------------------------------------------
+// bool IsParameterReadOnly(const Integer id) const
+//------------------------------------------------------------------------------
+bool SolarSystem::IsParameterReadOnly(const Integer id) const
+{
+   // do not write out these items
+   if ((id == BODIES_IN_USE) || (id == NUMBER_OF_BODIES))
+      return true;
+   
+//   if ((theCurrentPlanetarySource == "DE405") && (id == SPK_FILE_NAME))
+//      return true;
+//  
+//   if ((theCurrentPlanetarySource == "SPICE") && (id == DE_FILE_NAME))
+//      return true;
+//   
+   return GmatBase::IsParameterReadOnly(id);
+}
+
+//------------------------------------------------------------------------------
+// bool IsParameterReadOnly(const std::string &label) const
+//------------------------------------------------------------------------------
+//bool SolarSystem::IsParameterReadOnly(const std::string &label) const
+//{
+//   return IsParameterReadOnly(GetParameterID(label));
+//}
+
+bool SolarSystem::IsParameterCloaked(const Integer id) const
+{
+   #ifdef DEBUG_SS_CLOAKING
+      MessageInterface::ShowMessage("In SS:IsParameterCloaked with id = %d (%s)\n",
+            id, (GetParameterText(id)).c_str());
+   #endif
+   if (!cloaking) return false;
+   // if it's read-only, we'll cloak it
+   if (IsParameterReadOnly(id)) return true;
+
+   if (id >= GmatBaseParamCount && id < SolarSystemParamCount)
+      return IsParameterEqualToDefault(id);
+   
+   return GmatBase::IsParameterCloaked(id);
+}
+
+//bool SolarSystem::IsParameterCloaked(const std::string &label) const
+//{
+//   #ifdef DEBUG_SS_CLOAKING
+//      MessageInterface::ShowMessage("In SS:IsParameterCloaked with label = %s\n",
+//            label.c_str());
+//   #endif
+//   return IsParameterCloaked(GetParameterID(label));
+//}
+
+bool SolarSystem::IsParameterEqualToDefault(const Integer id) const
+{
+   #ifdef DEBUG_SS_CLOAKING
+      MessageInterface::ShowMessage("Entering SS:IsParameterEqualToDefault: id = %d (%s)\n",
+            id, (GetParameterText(id)).c_str());
+   #endif
+   if (id == EPHEMERIS)
+   {
+      #ifdef DEBUG_SS_PARAM_EQUAL
+            MessageInterface::ShowMessage("Checking equality for ephem filenames for SS\n");
+            MessageInterface::ShowMessage("size of default list is %d;   size of list is %d\n",
+                  default_planetarySourceTypesInUse.size(), thePlanetarySourceTypesInUse.size());  
+      #endif
+      if (default_planetarySourceTypesInUse.size() != thePlanetarySourceTypesInUse.size()) return false;
+      for (unsigned int ii = 0; ii < default_planetarySourceTypesInUse.size(); ii++)
+      {
+         #ifdef DEBUG_SS_PARAM_EQUAL
+               MessageInterface::ShowMessage("    %s     vs.     %s\n", 
+                     (default_planetarySourceTypesInUse.at(ii)).c_str(), (thePlanetarySourceTypesInUse.at(ii)).c_str());
+         #endif
+         if (default_planetarySourceTypesInUse.at(ii) != thePlanetarySourceTypesInUse.at(ii)) return false;
+      }
+      return true;
+   }
+   if (id == EPHEMERIS_SOURCE)
+   {
+      #ifdef DEBUG_SS_PARAM_EQUAL
+            MessageInterface::ShowMessage("Checking equality for ephem source for SS\n");
+            MessageInterface::ShowMessage("    %s     vs.     %s\n", 
+                  default_ephemerisSource.c_str(), theCurrentPlanetarySource.c_str());
+      #endif
+      return (default_ephemerisSource == theCurrentPlanetarySource);
+   }
+   if (id == DE_FILE_NAME)
+   {
+      return (default_DEFilename == thePlanetarySourceNames[Gmat::DE405]);
+   } 
+   if (id == SPK_FILE_NAME)
+   {
+      return (default_SPKFilename == theSPKFilename);
+   }
+   if (id == OVERRIDE_TIME_SYSTEM)
+   {
+      return (default_overrideTimeForAll == overrideTimeForAll);
+   }
+   if (id == EPHEM_UPDATE_INTERVAL)
+   {
+      return GmatMathUtil::IsEqual(default_ephemUpdateInterval,ephemUpdateInterval);
+   }
+   return GmatBase::IsParameterEqualToDefault(id);
+}
+
+bool SolarSystem::SaveAllAsDefault()
+{
+   #ifdef DEBUG_SS_CLOAKING
+      MessageInterface::ShowMessage("Entering SS:SaveAllAsDefault\n");
+      MessageInterface::ShowMessage(" default_ephemerisSource = \"%s\", theCurrentPlanetarySource = \"%s\"\n",
+            default_ephemerisSource.c_str(), theCurrentPlanetarySource.c_str());
+   #endif
+   default_planetarySourceTypesInUse = thePlanetarySourceTypesInUse;
+   default_ephemerisSource           = theCurrentPlanetarySource;
+   default_DEFilename                = thePlanetarySourceNames[Gmat::DE405];
+   default_SPKFilename               = theSPKFilename;
+   default_overrideTimeForAll        = overrideTimeForAll;
+   default_ephemUpdateInterval       = ephemUpdateInterval;
+#ifdef DEBUG_SS_CLOAKING
+   MessageInterface::ShowMessage("EXITING SS:SaveAllAsDefault\n");
+   MessageInterface::ShowMessage(" default_ephemerisSource = \"%s\", theCurrentPlanetarySource = \"%s\"\n",
+         default_ephemerisSource.c_str(), theCurrentPlanetarySource.c_str());
+#endif
+   return true;  
+}
+
+bool SolarSystem::SaveParameterAsDefault(const Integer id)
+{
+   if (id == EPHEMERIS)  
+   {
+      default_planetarySourceTypesInUse = thePlanetarySourceTypesInUse;
+      return true;
+   }
+   if (id == EPHEMERIS_SOURCE)
+   {
+      default_ephemerisSource = theCurrentPlanetarySource;
+      return true;
+   }
+   if (id == DE_FILE_NAME)
+   {
+      default_DEFilename = thePlanetarySourceNames[Gmat::DE405];
+      return true;
+   } 
+   if (id == SPK_FILE_NAME)
+   {
+      default_SPKFilename = theSPKFilename;
+      return true;
+   }
+   if (id == OVERRIDE_TIME_SYSTEM)
+   {
+      default_overrideTimeForAll = overrideTimeForAll;
+      return true;
+   }
+   if (id == EPHEM_UPDATE_INTERVAL)
+   {
+      default_ephemUpdateInterval = ephemUpdateInterval;
+      return true;
+   }
+   
+   return GmatBase::SaveParameterAsDefault(id);
+}
+
 
 
 //------------------------------------------------------------------------------

@@ -127,7 +127,7 @@ CelestialBody       ("Star",name)
    sij = s;
    cij = c;
 
-
+   SaveAllAsDefault();
 //   InitializeStar();  // should this be the default?
 }
 
@@ -243,64 +243,15 @@ bool Star::SetPhotosphereRadius(Real rad)
 }
 
 
-//------------------------------------------------------------------------------
-//  Rvector GetBodyCartographicCoordinates(const A1Mjd &forTime) const
-//------------------------------------------------------------------------------
-/**
- * This method returns the cartographic coordinates for the star.
- *
- * @param <forTime>    time for which to compute the cartographic coordinates.
- *
- * @return vector containing alpha, delta, W, Wdot.
- *
- * @note currently only implemented for our Star.
- *       See "Report of the IAU/IAG Working Group on
- *       Cartographic Coordinates and Rotational Elements of the Planets
- *       and Satellites: 2000"
- *
- */
-//------------------------------------------------------------------------------
-//Rvector Star::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
-//{
-//   if (instanceName == SolarSystem::SUN_NAME)
-//   {
-//      Real d    = GetJulianDaysFromTCBEpoch(forTime); // interval in Julian days
-//      Real W    = Star::w1 + Star::w2 * d;
-//      Real Wdot = Star::w2 * CelestialBody::dDot;
-//      return Rvector(4, Star::alpha, Star::delta, W, Wdot);
-//   }
-//   return CelestialBody::GetBodyCartographicCoordinates(forTime);
-//}
-
-//------------------------------------------------------------------------------
-//  Real GetHourAngle(A1Mjd atTime)
-//------------------------------------------------------------------------------
-/**
- * This method returns the hour angle for the body, referenced from the
- * Prime Meridian, measured westward
- *
- * @param <atTime> time for which to compute the hour angle
- *
- * @return hour angle for the body, in degrees, from the Prime Meridian
- *
- * @note algorithm 15, Vallado p. 192
- * @todo move this to Planet?  Add generic calculation here.
- *
- */
-//------------------------------------------------------------------------------
-//Real  Star::GetHourAngle(A1Mjd atTime) 
-//{
-//   if (instanceName == SolarSystem::SUN_NAME)
-//   {
-//      Real d         = GetJulianDaysFromTCBEpoch(atTime); 
-//      Real hourAngle = Star::w1 + Star::w2 * d;
-//      // reduce to a quantity within one day (86400 seconds, 360.0 degrees)
-//      hourAngle = AngleUtil::PutAngleInDegRange(hourAngle,0.0,360.0);
-//      return hourAngle;
-//   }
-//   return CelestialBody::GetHourAngle(atTime);
-//}
-
+bool Star::IsParameterReadOnly(const Integer id) const
+{
+   // do not write out these items
+   if ((id == RADIANT_POWER) || (id == REFERENCE_DISTANCE) ||
+       (id == PHOTOSPHERE_RADIUS))
+      return true;
+   
+   return CelestialBody::IsParameterReadOnly(id);
+}
 
 //------------------------------------------------------------------------------
 //  GmatBase* Clone(void) const

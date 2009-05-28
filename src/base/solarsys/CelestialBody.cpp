@@ -58,6 +58,10 @@
 //#define DEBUG_CB_SPICE
 //#define DEBUG_CB_USER_DEFINED
 //#define DEBUG_CB_GET_MJ2000_STATE
+//#define DEBUG_REFERENCE_SETTING
+//#define DEBUG_CB_READ_ONLY
+//#define DEBUG_CB_CLOAKING
+//#define DEBUG_CB_CLOAKING_EPOCH
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -213,21 +217,19 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    atmModel           (NULL),
    atmModelType       ("None"),
    potentialFileRead  (false),
-   defaultMu          (398600.4415),
-   defaultEqRadius    (6378.14),
-   defaultFlattening  (0.0033528106647474807198455),
    order              (0),
    degree             (0),
    twoBodyFormat     ("TAIModJulian"),
    twoBodyStateType  ("Keplerian"),
+   twoBodyEpoch      (21545.0),
    newTwoBody        (true),
-   overrideTime       (false),
+   overrideTime      (false),
    ephemUpdateInterval (0.0),
    lastEphemTime      (0.0),
    rotationSrc        (Gmat::NOT_APPLICABLE),
    userDefined        (false),
    allowSpice         (false),
-   hasBeenModified    (false),
+//   hasBeenModified    (false),
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
@@ -237,7 +239,10 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
    objectTypeNames.push_back("CelestialBody");
-  
+   // @todo - what to use for defaults here? - set different values for different celestial bodies
+   Rvector6 initKepler(149653978.9783766,        0.01704556707314489, 23.439034090426388,
+                       0.00018646554487906264, 101.7416388084352,    358.12708491129);
+   twoBodyKepler = initKepler;
    
    for (Integer i = 0; i < Gmat::ModelTypeCount; i++)
       models[i].push_back("None");
@@ -250,7 +255,14 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    
    parameterCount = CelestialBodyParamCount;
    InitializeBody(itsBodyType);
-   
+   SaveAllAsDefault();
+
+   // we want to cloak the DEFAULT Celestial Body data; i.e. we want to write only those
+   // parameters that have been modified by the suer to a script; and we don't 
+   // want to include the Create line either.  This will not be true for user-defined
+   // bodies
+   cloaking = true;
+
    #ifdef DEBUG_CB_CONSTRUCTOR
    MessageInterface::ShowMessage
       ("CelestialBody(string) <%p> '%s' constructor entered\n", this, GetName().c_str());
@@ -293,13 +305,14 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    atmModel           (NULL),
    atmModelType       ("None"),
    potentialFileRead  (false),
-   defaultMu          (398600.4415),
-   defaultEqRadius    (6378.14),
-   defaultFlattening  (0.0033528106647474807198455),
+//   default_mu          (398600.4415),
+//   default_equatorialRadius    (6378.14),
+//   default_flattening  (0.0033528106647474807198455),
    order              (0),
    degree             (0),
    twoBodyFormat     ("TAIModjulian"),
    twoBodyStateType  ("Keplerian"),
+   twoBodyEpoch      (21545.0),
    newTwoBody        (true),
    overrideTime       (false),
    ephemUpdateInterval (0.0),
@@ -307,7 +320,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    rotationSrc        (Gmat::NOT_APPLICABLE),
    userDefined        (false),
    allowSpice         (false),
-   hasBeenModified    (false),
+//   hasBeenModified    (false),
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
@@ -317,6 +330,11 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
    objectTypeNames.push_back("CelestialBody");
+   
+   // @todo - what to use for defaults here? - set different values for different celestial bodies
+   Rvector6 initKepler(149653978.9783766,        0.01704556707314489, 23.439034090426388,
+                       0.00018646554487906264, 101.7416388084352,    358.12708491129);
+   twoBodyKepler = initKepler;
    
    for (Integer i = 0; i < Gmat::ModelTypeCount; i++)
       models[i].push_back("None");
@@ -330,6 +348,8 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    parameterCount = CelestialBodyParamCount;
    
    InitializeBody(Gmat::BODY_TYPE_STRINGS[itsBodyType]);
+   
+   SaveAllAsDefault();
    
    #ifdef DEBUG_CB_CONSTRUCTOR
    MessageInterface::ShowMessage
@@ -370,17 +390,39 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    potentialFileName   (cBody.potentialFileName),
    hourAngle           (cBody.hourAngle),
    atmModel            (NULL),
+   default_equatorialRadius      (cBody.default_equatorialRadius),
+   default_flattening            (cBody.default_flattening),
+   default_mu                    (cBody.default_mu),
+   default_posVelSrc             (cBody.default_posVelSrc),
+   default_centralBodyName       (cBody.default_centralBodyName),
+//   default_bodyNumber            (cBody.default_bodyNumber),
+   default_sourceFilename        (cBody.default_sourceFilename),
+   default_spiceKernelNames      (cBody.default_spiceKernelNames),
+//   default_usePotentialFile      (cBody.default_usePotentialFile),
+//   default_potentialFileName     (cBody.default_potentialFileName),
+//   default_angularVelocity       (cBody.default_angularVelocity),
+//   default_atmModel              (cBody.default_atmModel),
+   default_rotationSrc           (cBody.default_rotationSrc), 
+//   default_twoBodyFormat         (cBody.default_twoBodyFormat),
+//   default_twoBodyStateType      (cBody.default_twoBodyStateType),
+   default_twoBodyEpoch          (cBody.default_twoBodyEpoch),
+   default_twoBodyKepler         (cBody.default_twoBodyKepler),
+//   default_orientationDateFormat (cBody.default_orientationDateFormat),
+   default_orientationEpoch      (cBody.default_orientationEpoch),
+   default_orientation           (cBody.default_orientation),
+   default_naifId                (cBody.default_naifId),
+   default_textureMapFileName    (cBody.default_textureMapFileName),
    order               (cBody.order),
    degree              (cBody.degree),
    sij                 (cBody.sij),
    cij                 (cBody.cij),
-   twoBodyFormat      (cBody.twoBodyFormat),
-   twoBodyStateType   (cBody.twoBodyStateType),
-   twoBodyEpoch       (cBody.twoBodyEpoch),
-   twoBodyKepler      (cBody.twoBodyKepler),
-   prevTwoBodyEpoch   (cBody.prevTwoBodyEpoch),
-   prevTwoBodyState   (cBody.prevTwoBodyState),
-   newTwoBody         (cBody.newTwoBody),
+   twoBodyFormat       (cBody.twoBodyFormat),
+   twoBodyStateType    (cBody.twoBodyStateType),
+   twoBodyEpoch        (cBody.twoBodyEpoch),
+   twoBodyKepler       (cBody.twoBodyKepler),
+   prevTwoBodyEpoch    (cBody.prevTwoBodyEpoch),
+   prevTwoBodyState    (cBody.prevTwoBodyState),
+   newTwoBody          (cBody.newTwoBody),
    overrideTime        (cBody.overrideTime),
    ephemUpdateInterval (cBody.ephemUpdateInterval),
    lastEphemTime       (cBody.lastEphemTime),
@@ -388,7 +430,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    rotationSrc         (cBody.rotationSrc),
    userDefined         (cBody.userDefined),
    allowSpice          (cBody.allowSpice),
-   hasBeenModified     (cBody.hasBeenModified),
+//   hasBeenModified     (cBody.hasBeenModified),
    orientationDateFormat (cBody.orientationDateFormat),
    orientationEpoch    (cBody.orientationEpoch),
    orientation         (cBody.orientation),
@@ -399,9 +441,6 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    state                  = cBody.state;
    stateTime              = cBody.stateTime;
    angularVelocity        = cBody.angularVelocity;
-   defaultMu              = cBody.defaultMu;
-   defaultEqRadius        = cBody.defaultEqRadius;
-   defaultFlattening      = cBody.defaultFlattening;
    isFirstTimeMu          = true;
    isFirstTimeRadius      = true;
    potentialFileRead      = false;
@@ -479,8 +518,32 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    potentialFileName   = cBody.potentialFileName;
    angularVelocity     = cBody.angularVelocity;
    hourAngle           = cBody.hourAngle;
-   isFirstTimeMu       = cBody.isFirstTimeMu;
-   isFirstTimeRadius   = cBody.isFirstTimeRadius;
+   
+   default_equatorialRadius       = cBody.default_equatorialRadius;
+   default_flattening             = cBody.default_flattening;
+   default_mu                     = cBody.default_mu;
+   default_posVelSrc              = cBody.default_posVelSrc;
+   default_centralBodyName        = cBody.default_centralBodyName;
+//   default_bodyNumber             = cBody.default_bodyNumber;
+   default_sourceFilename         = cBody.default_sourceFilename;
+   default_spiceKernelNames       = cBody.default_spiceKernelNames;
+//   default_usePotentialFile       = cBody.default_usePotentialFile;
+//   default_potentialFileName      = cBody.default_potentialFileName;
+//   default_angularVelocity        = cBody.default_angularVelocity;
+//   default_atmModel               = cBody.default_atmModel;
+   default_rotationSrc            = cBody.default_rotationSrc; 
+//   default_twoBodyFormat          = cBody.default_twoBodyFormat;
+//   default_twoBodyStateType       = cBody.default_twoBodyStateType;
+   default_twoBodyEpoch           = cBody.default_twoBodyEpoch;
+   default_twoBodyKepler          = cBody.default_twoBodyKepler;
+//   default_orientationDateFormat  = cBody.default_orientationDateFormat;
+   default_orientationEpoch       = cBody.default_orientationEpoch;
+   default_orientation            = cBody.default_orientation;
+   default_naifId                 = cBody.default_naifId;
+   default_textureMapFileName     = cBody.default_textureMapFileName;
+   
+   isFirstTimeMu                  = cBody.isFirstTimeMu;
+   isFirstTimeRadius              = cBody.isFirstTimeRadius;
    
    if (atmModel)
    {
@@ -505,21 +568,17 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    }
    else
       atmModel = NULL;
-   
-   defaultMu           = cBody.defaultMu;
-   defaultEqRadius     = cBody.defaultEqRadius;
-   defaultFlattening   = cBody.defaultFlattening;
-   
+      
    for (Integer i = 0; i < Gmat::ModelTypeCount; i++)
       models[i] = cBody.models[i];
    
-   twoBodyEpoch       = cBody.twoBodyEpoch;
-   twoBodyKepler      = cBody.twoBodyKepler;
-   prevTwoBodyEpoch   = cBody.prevTwoBodyEpoch;
-   prevTwoBodyState   = cBody.prevTwoBodyState;
-   twoBodyFormat      = cBody.twoBodyFormat;
-   twoBodyStateType   = cBody.twoBodyStateType;
-   newTwoBody         = cBody.newTwoBody;
+   twoBodyEpoch        = cBody.twoBodyEpoch;
+   twoBodyKepler       = cBody.twoBodyKepler;
+   prevTwoBodyEpoch    = cBody.prevTwoBodyEpoch;
+   prevTwoBodyState    = cBody.prevTwoBodyState;
+   twoBodyFormat       = cBody.twoBodyFormat;
+   twoBodyStateType    = cBody.twoBodyStateType;
+   newTwoBody          = cBody.newTwoBody;
    overrideTime        = cBody.overrideTime;
    ephemUpdateInterval = cBody.ephemUpdateInterval;
    lastEphemTime       = cBody.lastEphemTime;
@@ -527,7 +586,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    rotationSrc         = cBody.rotationSrc;
    userDefined         = cBody.userDefined;
    allowSpice          = cBody.allowSpice;
-   hasBeenModified     = cBody.hasBeenModified;
+//   hasBeenModified     = cBody.hasBeenModified;
    orientationDateFormat = cBody.orientationDateFormat;
    orientationEpoch    = cBody.orientationEpoch;
    orientation         = cBody.orientation;
@@ -540,7 +599,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    
    potentialFileRead   = false;
    
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    
    return *this;
 }
@@ -872,12 +931,14 @@ Real CelestialBody::GetGravitationalConstant()
                MessageInterface::ShowMessage
                   ("For body %s, cannot read file \"%s\", so using default mu"
                    " (%.18f)\n", instanceName.c_str(),
-                   potentialFileName.c_str(), defaultMu);
+//                   potentialFileName.c_str(), defaultMu);
+                   potentialFileName.c_str(), default_mu);
                
                isFirstTimeMu = false;
             }
             
-            mu = defaultMu;
+//            mu = defaultMu;
+            mu = default_mu;
          }
       }
       else
@@ -932,12 +993,14 @@ Real CelestialBody::GetEquatorialRadius()
                MessageInterface::ShowMessage
                   ("For body %s, cannot read file \"%s\", so using default eq. radius"
                    " (%.18f)\n", instanceName.c_str(),
-                   potentialFileName.c_str(), defaultEqRadius);
+//                   potentialFileName.c_str(), defaultEqRadius);
+                   potentialFileName.c_str(), default_equatorialRadius);
                
                isFirstTimeRadius = false;
             }
          
-            equatorialRadius = defaultEqRadius;
+//            equatorialRadius = defaultEqRadius;
+            equatorialRadius = default_equatorialRadius;
          }
       }
       else
@@ -1378,10 +1441,10 @@ bool CelestialBody::IsUserDefined() const
 //------------------------------------------------------------------------------
 // bool HasBeenModified() const
 //------------------------------------------------------------------------------
-bool CelestialBody::HasBeenModified() const
-{
-   return hasBeenModified;
-}
+//bool CelestialBody::HasBeenModified() const
+//{
+//   return hasBeenModified;
+//}
 
 
 //------------------------------------------------------------------------------
@@ -1466,12 +1529,12 @@ bool CelestialBody::SetBodyType(Gmat::BodyType bType)
 bool CelestialBody::SetCentralBody(const std::string &cBody)
 {
    theCentralBodyName = cBody;
-   hasBeenModified    = true;
+//   hasBeenModified    = true;
    return true;
 }
 
 //------------------------------------------------------------------------------
-//  bool SetGravitationalConstant(Real newMu, bool makeDefault = false)
+//  bool SetGravitationalConstant(Real newMu)
 //------------------------------------------------------------------------------
 /**
  * This method sets the gravitational constant for the body.
@@ -1484,7 +1547,7 @@ bool CelestialBody::SetCentralBody(const std::string &cBody)
  *
  */
 //------------------------------------------------------------------------------
-bool CelestialBody::SetGravitationalConstant(Real newMu, bool makeDefault)
+bool CelestialBody::SetGravitationalConstant(Real newMu)
 {
    if (newMu <= 0.0)
    {
@@ -1497,13 +1560,12 @@ bool CelestialBody::SetGravitationalConstant(Real newMu, bool makeDefault)
    
    mu                         = newMu;
    mass                       = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
-   if (makeDefault) defaultMu = mu;
-   hasBeenModified            = true;
+//   hasBeenModified            = true;
    return true;
 }
 
 //------------------------------------------------------------------------------
-//  bool SetEquatorialRadius(Real newEqRadius, bool makeDefault = false)
+//  bool SetEquatorialRadius(Real newEqRadius)
 //------------------------------------------------------------------------------
 /**
  * This method sets the equatorial radius for the body.
@@ -1516,7 +1578,7 @@ bool CelestialBody::SetGravitationalConstant(Real newMu, bool makeDefault)
  *
  */
 //------------------------------------------------------------------------------
-bool CelestialBody::SetEquatorialRadius(Real newEqRadius, bool makeDefault)
+bool CelestialBody::SetEquatorialRadius(Real newEqRadius)
 {
    if (newEqRadius <= 0.0)
    {
@@ -1529,13 +1591,12 @@ bool CelestialBody::SetEquatorialRadius(Real newEqRadius, bool makeDefault)
    
    equatorialRadius                 = newEqRadius;
    polarRadius                      = (1.0 - flattening) * equatorialRadius;
-   if (makeDefault) defaultEqRadius = equatorialRadius;
-   hasBeenModified                  = true;
+//   hasBeenModified                  = true;
    return true;
 }
 
 //------------------------------------------------------------------------------
-//  bool SetFlattening(Real flat, bool makeDefault = false)
+//  bool SetFlattening(Real flat)
 //------------------------------------------------------------------------------
 /**
  * This method sets the flattening value for the body.
@@ -1546,12 +1607,11 @@ bool CelestialBody::SetEquatorialRadius(Real newEqRadius, bool makeDefault)
  *
  */
 //------------------------------------------------------------------------------
-bool CelestialBody::SetFlattening(Real flat, bool makeDefault) 
+bool CelestialBody::SetFlattening(Real flat) 
 {
    flattening                          = flat;
    polarRadius                         = (1.0 - flattening) * equatorialRadius;
-   if (makeDefault)  defaultFlattening = flattening;
-   hasBeenModified                     = true;
+//   hasBeenModified                     = true;
    return true;
 }
 
@@ -1620,7 +1680,7 @@ bool CelestialBody::SetSource(Gmat::PosVelSource pvSrc)
 //      return true;
    }
    posVelSrc           = pvSrc;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1648,7 +1708,7 @@ bool CelestialBody::SetSourceFile(PlanetaryEphem *src)
    theSourceFile = src;
    sourceFilename = theSourceFile->GetName();
    bodyNumber = theSourceFile->GetBodyID(instanceName);
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1713,8 +1773,10 @@ bool CelestialBody::SetUsePotentialFile(bool useIt)
    }
    else if ((usePotentialFile == true) && (useIt == false))
    {
-      mu               = defaultMu;
-      equatorialRadius = defaultEqRadius;
+//      mu               = defaultMu;
+//      equatorialRadius = defaultEqRadius;
+      mu               = default_mu;
+      equatorialRadius = default_equatorialRadius;
       // recompute polar radius
       polarRadius = (1.0 - flattening) * equatorialRadius;
       // recompute mass
@@ -1724,7 +1786,7 @@ bool CelestialBody::SetUsePotentialFile(bool useIt)
    }
    
    usePotentialFile    = useIt;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1749,7 +1811,7 @@ bool CelestialBody::SetOverrideTimeSystem(bool overrideIt)
        this, GetName().c_str(), overrideIt);
    #endif
    overrideTime        = overrideIt;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1768,7 +1830,7 @@ bool CelestialBody::SetEphemUpdateInterval(Real intvl)
       throw sse;
    }
    ephemUpdateInterval = intvl;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1823,28 +1885,28 @@ bool CelestialBody::SetValidModelList(Gmat::ModelType m, const StringArray &toLi
 bool CelestialBody::SetOrder(Integer toOrder)
 {
    order               = toOrder;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
 bool CelestialBody::SetDegree(Integer toDegree)
 {
    degree              = toDegree;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
 bool CelestialBody::SetHarmonicCoefficientsSij(const Rmatrix &coeffSij)
 {
    sij                 = coeffSij;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
 bool CelestialBody::SetHarmonicCoefficientsCij(const Rmatrix &coeffCij)
 {
    cij                 = coeffCij;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1868,7 +1930,7 @@ bool CelestialBody::SetHarmonicCoefficientsCij(const Rmatrix &coeffCij)
 bool CelestialBody::SetAtmosphereModelType(std::string toAtmModelType)
 {
    atmModelType        = toAtmModelType;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1897,7 +1959,7 @@ bool CelestialBody::SetAtmosphereModel(AtmosphereModel *toAtmModel)
       delete atmModel;
    }
    atmModel            = toAtmModel;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1923,7 +1985,7 @@ bool CelestialBody::SetPotentialFilename(const std::string &fn)
    }
    
    potentialFileName   = fn;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -1940,7 +2002,7 @@ bool CelestialBody::SetTwoBodyEpoch(const A1Mjd &toTime)
    #endif
    twoBodyEpoch        = toTime;
    newTwoBody          = true;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -2047,7 +2109,7 @@ bool CelestialBody::SetTwoBodyElements(const Rvector6 &kepl)
    
    twoBodyKepler       = kepl;
    newTwoBody          = true;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -2058,7 +2120,7 @@ bool CelestialBody::SetTwoBodyElements(const Rvector6 &kepl)
 bool CelestialBody::SetRotationDataSource(Gmat::RotationDataSource src)
 {
    rotationSrc         = src;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -2072,26 +2134,30 @@ bool CelestialBody::SetUserDefined(bool userDefinedBody)
    else if ((!userDefinedBody) && (!allowSpice) && (posVelSrc == Gmat::SPICE)) posVelSrc = Gmat::DE405;
    userDefined         = userDefinedBody;
    if (userDefined) allowSpice = true;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    #ifdef DEBUG_CB_USER_DEFINED
       MessageInterface::ShowMessage(
             "In CB::SetUserDefined, body %s has been set to userDefined = %s and allowSpice = %s\n",
             instanceName.c_str(), (userDefined? "true" : "false"),
             (allowSpice? "true" : "false"));
    #endif
+   // we DO want to show the all parameters and the Create line when writing the user-defined 
+   // Celestial Body data out to a script
+   cloaking = false;
+
    return true;
 }
 
 //------------------------------------------------------------------------------
 // void ClearModifiedFlag() 
 //------------------------------------------------------------------------------
-void CelestialBody::ClearModifiedFlag()
-{
-   #ifdef DEBUG_MODIFIED_FLAG
-      MessageInterface::ShowMessage("Clearing hasBeenModified flag ...........\n");
-   #endif
-   hasBeenModified = false;
-}
+//void CelestialBody::ClearModifiedFlag()
+//{
+//   #ifdef DEBUG_MODIFIED_FLAG
+//      MessageInterface::ShowMessage("Clearing hasBeenModified flag ...........\n");
+//   #endif
+//   hasBeenModified = false;
+//}
 
 //------------------------------------------------------------------------------
 // const Rvector6 GetMJ2000State(const A1Mjd &atTime)
@@ -2179,7 +2245,7 @@ const Rvector3 CelestialBody::GetMJ2000Velocity(const A1Mjd &atTime)
 bool CelestialBody::SetOrientationParameters(const Rvector6 &orient)
 {
    orientation         = orient;
-   hasBeenModified     = true;
+//   hasBeenModified     = true;
    return true;
 }
 
@@ -2432,26 +2498,26 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
    //if (id == MASS)              return (mass               = value); // make sense?
    if (id == EQUATORIAL_RADIUS)
    {
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return SetEquatorialRadius(value);
    }
    if (id == FLATTENING)
    {
       flattening          = value;
       polarRadius         = (1.0 - flattening) * equatorialRadius;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    //if (id == POLAR_RADIUS)      return (polarRadius        = value); // make sense?
    if (id == MU)
    {
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return SetGravitationalConstant(value);
    }
    if (id == HOUR_ANGLE) // does this even make sense?
    { 
       hourAngle           = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == TWO_BODY_INITIAL_EPOCH)
@@ -2460,7 +2526,7 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
       if (SetTwoBodyEpoch(A1Mjd(value)))
       {
          newTwoBody          = true;
-         hasBeenModified     = true;
+//         hasBeenModified     = true;
          return true;
       }
       else return false;
@@ -2472,7 +2538,7 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
       if (SetTwoBodyElements(tmpKepl)) 
       {
          newTwoBody          = true;
-         hasBeenModified     = true;
+//         hasBeenModified     = true;
          return true;
       }
       else return false;
@@ -2484,7 +2550,7 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
       if (SetTwoBodyElements(tmpKepl)) 
       {
          newTwoBody          = true;
-         hasBeenModified     = true;
+//         hasBeenModified     = true;
          return true;
       }
       else return false;
@@ -2496,7 +2562,7 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
       if (SetTwoBodyElements(tmpKepl)) 
       {
          newTwoBody          = true;
-         hasBeenModified     = true;
+//         hasBeenModified     = true;
          return true;
       }
       else return false;
@@ -2508,7 +2574,7 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
       if (SetTwoBodyElements(tmpKepl)) 
       {
          newTwoBody          = true;
-         hasBeenModified     = true;
+//         hasBeenModified     = true;
          return true;
       }
       else return false;
@@ -2520,7 +2586,7 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
       if (SetTwoBodyElements(tmpKepl)) 
       {
          newTwoBody          = true;
-         hasBeenModified     = true;
+//         hasBeenModified     = true;
          return true;
       }
       else return false;
@@ -2532,7 +2598,7 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
       if (SetTwoBodyElements(tmpKepl)) 
       {
          newTwoBody          = true;
-         hasBeenModified     = true;
+//         hasBeenModified     = true;
          return true;
       }
       else return false;
@@ -2541,43 +2607,43 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
    if (id == ORIENTATION_EPOCH)
    {
       orientationEpoch    = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == SPIN_AXIS_RA_CONSTANT)
    {
       orientation[0]      = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == SPIN_AXIS_RA_RATE)
    {
       orientation[1]      = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == SPIN_AXIS_DEC_CONSTANT)
    {
       orientation[2]      = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == SPIN_AXIS_DEC_RATE)
    {
       orientation[3]      = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == ROTATION_CONSTANT)
    {
       orientation[4]      = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == ROTATION_RATE)
    {
       orientation[5]      = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
 
@@ -2638,31 +2704,31 @@ Integer CelestialBody::SetIntegerParameter(const Integer id,
    if (id == ORDER)
    {
       order               = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == DEGREE)
    {
       degree              = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == BODY_NUMBER)
    {
       bodyNumber          = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == REF_BODY_NUMBER)
    {
       referenceBodyNumber = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == NAIF_ID)
    {
       naifId              = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    
@@ -2756,7 +2822,7 @@ bool CelestialBody::SetStringParameter(const Integer id,
          if (value == Gmat::BODY_TYPE_STRINGS[i])
          {
             bodyType = (Gmat::BodyType) i;
-            hasBeenModified     = true;
+//            hasBeenModified     = true;
             return true;
          }
       return false;
@@ -2779,7 +2845,7 @@ bool CelestialBody::SetStringParameter(const Integer id,
          if (value == Gmat::POS_VEL_SOURCE_STRINGS[i])
          {
             posVelSrc = (Gmat::PosVelSource) i;
-            hasBeenModified     = true;
+//            hasBeenModified     = true;
             return true;
          }
       return false;
@@ -2787,7 +2853,7 @@ bool CelestialBody::SetStringParameter(const Integer id,
    if (id == SOURCE_FILENAME)
    {
       sourceFilename = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == SPICE_KERNEL_NAME)
@@ -2808,19 +2874,19 @@ bool CelestialBody::SetStringParameter(const Integer id,
    if (id == POTENTIAL_FILE_NAME)
    {
       potentialFileName = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == ATMOS_MODEL_NAME)
    {
       atmModelType = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == CENTRAL_BODY)
    {
       theCentralBodyName = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == TWO_BODY_DATE_FORMAT)
@@ -2839,7 +2905,7 @@ bool CelestialBody::SetStringParameter(const Integer id,
          throw sse;
       }
       twoBodyFormat = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    if (id == TWO_BODY_STATE_TYPE)
@@ -2859,7 +2925,7 @@ bool CelestialBody::SetStringParameter(const Integer id,
          throw sse;
       }
       twoBodyStateType = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
    
@@ -2899,7 +2965,7 @@ bool CelestialBody::SetStringParameter(const Integer id,
 //                        validStr.c_str());
 //         throw sse;
 //      }
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
 
@@ -2914,14 +2980,14 @@ bool CelestialBody::SetStringParameter(const Integer id,
          throw sse;
       }
       orientationDateFormat = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
 
    if (id == TEXTURE_MAP_FILE_NAME)
    {
       textureMapFileName = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true;
    }
 
@@ -2993,8 +3059,10 @@ bool CelestialBody::SetBooleanParameter(const Integer id,
       }
       else if ((usePotentialFile == true) && (value == false))
       {
-         mu               = defaultMu;
-         equatorialRadius = defaultEqRadius;
+//         mu               = defaultMu;
+//         equatorialRadius = defaultEqRadius;
+         mu               = default_mu;
+         equatorialRadius = default_equatorialRadius;
          // recompute polar radius
          polarRadius = (1.0 - flattening) * equatorialRadius;
          // recompute mass
@@ -3004,7 +3072,7 @@ bool CelestialBody::SetBooleanParameter(const Integer id,
       }
    
       usePotentialFile = value;
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return true; 
    }
 
@@ -3057,7 +3125,7 @@ const Rvector&  CelestialBody::SetRvectorParameter(const Integer id,
       if (sz != 6) throw SolarSystemException(
                   "Incorrectly sized Rvector passed in for state.");
       for (i=0;i<6;i++) state(i) = value(i);
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return state;
    }
    if (id == ANGULAR_VELOCITY)
@@ -3065,7 +3133,7 @@ const Rvector&  CelestialBody::SetRvectorParameter(const Integer id,
       if (sz != 3) throw SolarSystemException(
                    "Incorrectly sized Rvector passed in for angular velocity.");
       for (i=0;i<3;i++) angularVelocity(i) = value(i);
-      hasBeenModified     = true;
+//      hasBeenModified     = true;
       return angularVelocity;
    }
 
@@ -3287,6 +3355,10 @@ const StringArray& CelestialBody::GetRefObjectNameArray(
       return refs;
    }
 
+   #ifdef DEBUG_REFERENCE_SETTING
+      MessageInterface::ShowMessage("Calling SpacePoint::GetRefObjectNameArray for body %s\n",
+            instanceName.c_str());
+   #endif
    // Not handled here -- invoke the next higher GetRefObject call
    return SpacePoint::GetRefObjectNameArray(type);
 }
@@ -3315,6 +3387,10 @@ bool CelestialBody::SetRefObject(GmatBase *obj,
    MessageInterface::ShowMessage
       ("CelestialBody::SetRefObject() this=<%p> %s, obj=%p, name=%s\n",
        this, GetName().c_str(), obj, name.c_str());
+//   MessageInterface::ShowMessage("RefObjectNameArray for %s is:\n", instanceName.c_str());
+//   StringArray names = GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+//   for (unsigned int ii = 0; ii < name.size(); ii++)
+//      MessageInterface::ShowMessage("    %s\n", name.at(ii));
    #endif
    
    if (this == obj)
@@ -3354,7 +3430,7 @@ bool CelestialBody::SetRefObject(GmatBase *obj,
    }
    if (foundHere || trySP) 
    {
-      hasBeenModified = true;
+//      hasBeenModified = true;
       return true;
    }
    return false;
@@ -3366,29 +3442,39 @@ bool CelestialBody::SetRefObject(GmatBase *obj,
 //------------------------------------------------------------------------------
 bool CelestialBody::IsParameterReadOnly(const Integer id) const
 {
+//   #ifdef DEBUG_CB_READ_ONLY
+//      MessageInterface::ShowMessage("CB::IsParameterReadOnly (%s) called with id = %d (%s)\n",
+//            instanceName.c_str(), id, (GetParameterText(id)).c_str());
+//   #endif
    // if we're not using an twoBody model, those parameters are read-only
 //   if (posVelSrc != Gmat::ANALYTIC)
-   if (posVelSrc != Gmat::TWO_BODY_PROPAGATION)
-   {
-      if ((id == TWO_BODY_DATE_FORMAT)   || (id == TWO_BODY_STATE_TYPE) ||
-          (id == TWO_BODY_INITIAL_EPOCH) || (id == TWO_BODY_SMA)        ||
-          (id == TWO_BODY_ECC)           || (id == TWO_BODY_INC)        ||
-          (id == TWO_BODY_RAAN)          || (id == TWO_BODY_AOP)        ||
-          (id == TWO_BODY_TA) )
-//         (id == TWO_BODY_TA)            || (id == ANALYTIC_METHOD)      )
-      {
-         #ifdef DEBUG_TWO_BODY
-//            MessageInterface::ShowMessage(
-//            "In CB::IParameterReadOnly, id = %d, returning TRUE\n",
-//            id);
-         #endif
-//         return true; // 2009.01.11 WCS - always write out elements, no matter the source
-      }
-   }
-   // do not write out computed items
-   if ((id == BODY_TYPE) || (id == MASS)       || (id == POLAR_RADIUS) || 
-       (id == STATE)     || (id == STATE_TIME) || (id == HOUR_ANGLE)     )
+//   if (posVelSrc != Gmat::TWO_BODY_PROPAGATION)
+//   {
+//      if ((id == TWO_BODY_DATE_FORMAT)   || (id == TWO_BODY_STATE_TYPE) ||
+//          (id == TWO_BODY_INITIAL_EPOCH) || (id == TWO_BODY_SMA)        ||
+//          (id == TWO_BODY_ECC)           || (id == TWO_BODY_INC)        ||
+//          (id == TWO_BODY_RAAN)          || (id == TWO_BODY_AOP)        ||
+//          (id == TWO_BODY_TA) )
+////         (id == TWO_BODY_TA)            || (id == ANALYTIC_METHOD)      )
+//      {
+//         #ifdef DEBUG_TWO_BODY
+////            MessageInterface::ShowMessage(
+////            "In CB::IParameterReadOnly, id = %d, returning TRUE\n",
+////            id);
+//         #endif
+////         return true; // 2009.01.11 WCS - always write out elements, no matter the source
+//      }
+//   }
+   // do not write out computed and some other items
+   if ((id == BODY_TYPE)               || (id == MASS)                    || (id == POLAR_RADIUS)        || 
+       (id == STATE)                   || (id == STATE_TIME)              || (id == HOUR_ANGLE)          ||
+       (id == REF_BODY_NUMBER)         || (id == SOURCE_FILE)             || (id == ORDER)               ||
+       (id == DEGREE)                  || (id == ATMOS_MODEL_NAME)        || (id == BODY_NUMBER)         ||
+       (id == ANGULAR_VELOCITY)        || (id == TWO_BODY_DATE_FORMAT)    || (id == TWO_BODY_STATE_TYPE) ||
+       (id == ORIENTATION_DATE_FORMAT) || (id == USE_POTENTIAL_FILE_FLAG) || (id == POTENTIAL_FILE_NAME)  )
       return true;
+   // the ephem source for default bodies is set on the Solar System 
+   if ((!userDefined) && (id == POS_VEL_SOURCE)) return true;
    
    return SpacePoint::IsParameterReadOnly(id);
 }
@@ -3396,10 +3482,307 @@ bool CelestialBody::IsParameterReadOnly(const Integer id) const
 //------------------------------------------------------------------------------
 // bool CelestialBody::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
-bool CelestialBody::IsParameterReadOnly(const std::string &label) const
+//bool CelestialBody::IsParameterReadOnly(const std::string &label) const
+//{
+//   return IsParameterReadOnly(GetParameterID(label));
+//}
+
+bool CelestialBody::IsParameterCloaked(const Integer id) const
 {
-   return IsParameterReadOnly(GetParameterID(label));
+//   #ifdef DEBUG_CB_CLOAKING
+//      MessageInterface::ShowMessage("In CelestialBody:IsParameterCloaked with id = %d (%s)\n",
+//            id, (GetParameterText(id)).c_str());
+//   #endif
+   if (!cloaking) return false;
+   // if it's read-only, we'll cloak it
+   if (IsParameterReadOnly(id)) return true;
+
+   if (id >= SpacePointParamCount && id < CelestialBodyParamCount)
+      return IsParameterEqualToDefault(id);
+   
+   return SpacePoint::IsParameterCloaked(id);
 }
+
+//bool CelestialBody::IsParameterCloaked(const std::string &label) const
+//{
+//   #ifdef DEBUG_CB_CLOAKING
+//      MessageInterface::ShowMessage("In CelestialBody :IsParameterCloaked with label = %s\n",
+//            label.c_str());
+//   #endif
+//   return IsParameterCloaked(GetParameterID(label));
+//}
+
+bool CelestialBody::IsParameterEqualToDefault(const Integer id) const
+{
+   if (id == EQUATORIAL_RADIUS)
+   {
+      return GmatMathUtil::IsEqual(default_equatorialRadius,equatorialRadius);
+   }
+   if (id == FLATTENING)
+   {
+      return GmatMathUtil::IsEqual(default_flattening,flattening);
+   }
+   if (id == MU)
+   {
+      return GmatMathUtil::IsEqual(default_mu,mu);
+   } 
+   if (id == POS_VEL_SOURCE)
+   {
+      #ifdef DEBUG_CB_CLOAKING
+            MessageInterface::ShowMessage("In IsPEqual ... posVelSrc = %s & default = %s\n",
+                  (Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc]).c_str(), default_posVelSrc.c_str());
+      #endif
+      return (default_posVelSrc == Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc]);
+   }
+   if (id == CENTRAL_BODY)
+   {
+      return (default_centralBodyName == theCentralBodyName);
+   }
+//   if (id == BODY_NUMBER)
+//   {
+//      return (default_bodyNumber == bodyNumber);
+//   }
+   if (id == SOURCE_FILENAME)
+   {
+      return (default_sourceFilename == sourceFilename);
+   }
+   if (id == SPICE_KERNEL_NAME)
+   {
+      if (default_spiceKernelNames.size() != spiceKernelNames.size()) return false;
+      for (unsigned int ii = 0; ii < default_spiceKernelNames.size(); ii++)
+      {
+         if (default_spiceKernelNames.at(ii) != spiceKernelNames.at(ii)) return false;
+      }
+      return true;
+   }
+//   if (id == USE_POTENTIAL_FILE_FLAG)
+//   {
+//      if (default_usePotentialFile == usePotentialFile)           return true;
+//      else                                                        return false;
+//   }
+//   if (id == POTENTIAL_FILE_NAME)
+//   {
+//      if (default_potentialFileName == potentialFileName)         return true;
+//      else                                                        return false;
+//   }
+//   if (id == ANGULAR_VELOCITY)
+//   {
+//      if (default_angularVelocity == angularVelocity)             return true;
+//      else                                                        return false;
+//   }
+//   if (id == ATMOS_MODEL_NAME)
+//   {
+//      if (default_atmModel == atmModel)                           return true;
+//      else                                                        return false;
+//   }
+   if (id == ROTATION_DATA_SRC)
+   {
+      return (default_rotationSrc == rotationSrc);
+   }
+//   if (id == TWO_BODY_DATE_FORMAT)
+//   {
+//      return (default_twoBodyFormat == twoBodyFormat);
+//   }
+//   if (id == TWO_BODY_STATE_TYPE)
+//   {
+//      return (default_twoBodyStateType == twoBodyStateType);
+//   }
+   if (id == TWO_BODY_INITIAL_EPOCH)
+   {
+      #ifdef DEBUG_CB_CLOAKING_EPOCH
+            MessageInterface::ShowMessage(
+                  "In CB::IsParameterEqualToDefault (%s), twoBody epoch,  time %12.10f == time %12.10f ?  %s\n",
+                  instanceName.c_str(), default_twoBodyEpoch.Get(), twoBodyEpoch.Get(),
+                  (GmatMathUtil::IsEqual(default_twoBodyEpoch.Get(),twoBodyEpoch.Get())? "TRUE" : "FALSE"));
+      #endif
+      return (default_twoBodyEpoch == twoBodyEpoch);
+//      return GmatMathUtil::IsEqual(default_twoBodyEpoch.Get(),twoBodyEpoch.Get());
+   }
+   if ((id == TWO_BODY_SMA)  || (id == TWO_BODY_ECC) || (id == TWO_BODY_INC) ||
+       (id == TWO_BODY_RAAN) || (id == TWO_BODY_AOP) || (id == TWO_BODY_TA) )
+   {
+      return (default_twoBodyKepler == twoBodyKepler); // do we need an IsEqual for vectors?
+   }
+//   if (id == ORIENTATION_DATE_FORMAT)
+//   {
+//      return (default_orientationDateFormat == orientationDateFormat);
+//   }
+   if (id == ORIENTATION_EPOCH)
+   {
+      #ifdef DEBUG_CB_CLOAKING_EPOCH
+            MessageInterface::ShowMessage(
+                  "In CB::IsParameterEqualToDefault (%s), orientation epoch,  time %12.10f == time %12.10f ?  %s\n",
+                  instanceName.c_str(), default_orientationEpoch.Get(), orientationEpoch.Get(),
+                  (GmatMathUtil::IsEqual(default_orientationEpoch.Get(),orientationEpoch.Get())? "TRUE" : "FALSE"));
+      #endif
+      return (default_orientationEpoch == orientationEpoch);
+//      return GmatMathUtil::IsEqual(default_orientationEpoch.Get(),orientationEpoch.Get());
+   }
+   if ((id == SPIN_AXIS_RA_CONSTANT)  || (id == SPIN_AXIS_RA_RATE) || (id == SPIN_AXIS_DEC_CONSTANT) ||
+       (id == SPIN_AXIS_DEC_RATE)     || (id == ROTATION_CONSTANT) || (id == ROTATION_RATE) )
+   {
+      return (default_orientation == orientation);
+   }
+   if (id == NAIF_ID)
+   {
+      return (default_naifId == naifId);
+   }
+   if (id == TEXTURE_MAP_FILE_NAME)
+   {
+      return (default_textureMapFileName == textureMapFileName);
+   }
+   
+   return SpacePoint::IsParameterEqualToDefault(id);
+}
+
+bool CelestialBody::SaveAllAsDefault()
+{
+   SpacePoint::SaveAllAsDefault();
+   
+   default_equatorialRadius       = equatorialRadius;
+   default_flattening             = flattening;
+   default_mu                     = mu;
+   default_posVelSrc              = Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc];
+   default_centralBodyName        = theCentralBodyName;
+//   default_bodyNumber             = bodyNumber;
+   default_sourceFilename         = sourceFilename;
+   default_spiceKernelNames       = spiceKernelNames;
+//   default_usePotentialFile       = usePotentialFile;
+//   default_potentialFileName      = potentialFileName;
+//   default_angularVelocity        = angularVelocity;
+//   default_atmModel               = atmModel;
+   default_rotationSrc            = rotationSrc; 
+//   default_twoBodyFormat          = twoBodyFormat;
+//   default_twoBodyStateType       = twoBodyStateType;
+   default_twoBodyEpoch           = twoBodyEpoch;
+   default_twoBodyKepler          = twoBodyKepler;
+//   default_orientationDateFormat  = orientationDateFormat;
+   default_orientationEpoch       = orientationEpoch;
+   default_orientation            = orientation;
+   default_naifId                 = naifId;
+   default_textureMapFileName     = textureMapFileName;
+   
+   return true;
+}
+
+bool CelestialBody::SaveParameterAsDefault(const Integer id)
+{
+   if (id == EQUATORIAL_RADIUS)
+   {
+      default_equatorialRadius = equatorialRadius;
+      return true;
+   }
+   if (id == FLATTENING)
+   {
+      default_flattening = flattening;
+      return true;
+   }
+   if (id == MU)
+   {
+      default_mu = mu;
+      return true;
+   } 
+   if (id == POS_VEL_SOURCE)
+   {
+      default_posVelSrc = Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc];
+      return true;
+   }
+   if (id == CENTRAL_BODY)
+   {
+      default_centralBodyName = theCentralBodyName;
+      return true;
+   }
+//   if (id == BODY_NUMBER)
+//   {
+//      default_bodyNumber = bodyNumber;
+//      return true;
+//   }
+   if (id == SOURCE_FILENAME)
+   {
+      default_sourceFilename = sourceFilename;
+      return true;
+   }
+   if (id == SPICE_KERNEL_NAME)
+   {
+      default_spiceKernelNames = spiceKernelNames;
+      return true;
+   }
+//   if (id == USE_POTENTIAL_FILE_FLAG)
+//   {
+//      default_usePotentialFile = usePotentialFile;
+//      return true;
+//   }
+//   if (id == POTENTIAL_FILE_NAME)
+//   {
+//      default_potentialFileName = potentialFileName;
+//      return true;
+//   }
+//   if (id == ANGULAR_VELOCITY)
+//   {
+//      default_angularVelocity = angularVelocity;
+//      return true;
+//   }
+//   if (id == ATMOS_MODEL_NAME)
+//   {
+//      default_atmModel = atmModel;
+//      return true;
+//   }
+   if (id == ROTATION_DATA_SRC)
+   {
+      default_rotationSrc = rotationSrc;
+      return true;
+   }
+//   if (id == TWO_BODY_DATE_FORMAT)
+//   {
+//      default_twoBodyFormat = twoBodyFormat;
+//      return true;
+//   }
+//   if (id == TWO_BODY_STATE_TYPE)
+//   {
+//      default_twoBodyStateType = twoBodyStateType;
+//      return true;
+//   }
+   if (id == TWO_BODY_INITIAL_EPOCH)
+   {
+      default_twoBodyEpoch = twoBodyEpoch;
+      return true;
+   }
+   if ((id == TWO_BODY_SMA)  || (id == TWO_BODY_ECC) || (id == TWO_BODY_INC) ||
+       (id == TWO_BODY_RAAN) || (id == TWO_BODY_AOP) || (id == TWO_BODY_TA) )
+   {
+      default_twoBodyKepler = twoBodyKepler;
+      return true;
+   }
+//   if (id == ORIENTATION_DATE_FORMAT)
+//   {
+//      default_orientationDateFormat = orientationDateFormat;
+//      return true;
+//   }
+   if (id == ORIENTATION_EPOCH)
+   {
+      default_orientationEpoch = orientationEpoch;
+      return true;
+   }
+   if ((id == SPIN_AXIS_RA_CONSTANT)  || (id == SPIN_AXIS_RA_RATE) || (id == SPIN_AXIS_DEC_CONSTANT) ||
+       (id == SPIN_AXIS_DEC_RATE)     || (id == ROTATION_CONSTANT) || (id == ROTATION_RATE) )
+   {
+      default_orientation = orientation;
+      return true;
+   }
+   if (id == NAIF_ID)
+   {
+      default_naifId = naifId;
+      return true;
+   }
+   if (id == TEXTURE_MAP_FILE_NAME)
+   {
+      default_textureMapFileName = textureMapFileName;
+      return true;
+   }
+   
+   return SpacePoint::SaveParameterAsDefault(id);
+}
+
 
 
 //---------------------------------------------------------------------------
@@ -3591,8 +3974,19 @@ Rvector6 CelestialBody::ComputeTwoBody(const A1Mjd &forTime)
    // Since we want the state in MJ2000Eq Earth-centered
    if (instanceName == SolarSystem::EARTH_NAME) 
       return Rvector6(0.0,0.0,0.0,0.0,0.0,0.0);
+   #ifdef DEBUG_TWO_BODY
+   MessageInterface::ShowMessage
+      ("CelestialBody::ComputeTwoBody() before call to centralBody->GetState()\n");
+   if (!theCentralBody) 
+      MessageInterface::ShowMessage("The central body (%s) for %s is NULL!!!!\n", 
+            theCentralBodyName.c_str(), instanceName.c_str());
+   #endif
    
    Rvector6 cbState = theCentralBody->GetState(forTime);
+   #ifdef DEBUG_TWO_BODY
+   MessageInterface::ShowMessage
+      ("CelestialBody::ComputeTwoBody() AFTER call to centralBody->GetState()\n");
+   #endif
    
    return (KeplersProblem(forTime) + cbState);    
 }

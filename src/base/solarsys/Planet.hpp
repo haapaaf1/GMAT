@@ -91,6 +91,11 @@ public:
    virtual Real            SetRealParameter(const std::string &label,
                                             const Real value);
                                             
+   virtual bool         IsParameterCloaked(const Integer id) const;
+   virtual bool         IsParameterEqualToDefault(const Integer id) const;
+   virtual bool         SaveAllAsDefault();
+   virtual bool         SaveParameterAsDefault(const Integer id);
+
 protected:
 
    enum
@@ -103,8 +108,10 @@ protected:
    
    static const Gmat::ParameterType PARAMETER_TYPE[PlanetParamCount - CelestialBodyParamCount];
    
-   Real                               nutationUpdateInterval;
+   Real     nutationUpdateInterval;
    /// @todo add other ones as needed
+   /// default values for the parameter(s)
+   Real     default_nutationUpdateInterval;
 
                                           
 

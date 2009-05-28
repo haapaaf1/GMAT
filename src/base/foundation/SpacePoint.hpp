@@ -55,7 +55,12 @@ public:
    SpacePoint*        GetJ2000Body() const;
    bool               SetJ2000BodyName(const std::string &toName);
    void               SetJ2000Body(SpacePoint* toBody);
-   
+
+   virtual bool       IsParameterCloaked(const Integer id) const;
+   virtual bool       IsParameterEqualToDefault(const Integer id) const;
+   virtual bool       SaveAllAsDefault();
+   virtual bool       SaveParameterAsDefault(const Integer id);
+
    //---------------------------------------------------------------------------
    //  const Rvector6 GetMJ2000State(const A1Mjd &atTime)
    //---------------------------------------------------------------------------
@@ -168,6 +173,8 @@ protected:
    SpacePoint      *j2000Body;  
    /// Name for the J2000 body
    std::string     j2000BodyName;
+   // saved default values
+   std::string     default_j2000BodyName;
    
 };
 #endif // SpacePoint_hpp

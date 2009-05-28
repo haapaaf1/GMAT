@@ -90,6 +90,7 @@ CelestialBody     ("Asteroid",name)
    // @todo - add other default values here
 
    DeterminePotentialFileNameFromStartup();
+   SaveAllAsDefault();
 
 }
 
@@ -121,6 +122,7 @@ CelestialBody     ("Asteroid",name)
    // @todo - add other default values here
 
    DeterminePotentialFileNameFromStartup();
+   SaveAllAsDefault();
 
 }
 

@@ -33,6 +33,7 @@
 
 
 //#define DEBUG_J2000_STATE
+//#define DEBUG_SPACE_POINT_CLOAKING
 
 //---------------------------------
 // static data
@@ -79,6 +80,7 @@ j2000BodyName  ("Earth")
 {
    objectTypes.push_back(Gmat::SPACE_POINT);
    objectTypeNames.push_back("SpacePoint");
+   SaveAllAsDefault();
 }
 
 //---------------------------------------------------------------------------
@@ -93,8 +95,9 @@ j2000BodyName  ("Earth")
 //---------------------------------------------------------------------------
 SpacePoint::SpacePoint(const SpacePoint &sp) :
 GmatBase(sp),
-j2000Body     (NULL),
-j2000BodyName (sp.j2000BodyName)
+j2000Body             (NULL),
+j2000BodyName         (sp.j2000BodyName),
+default_j2000BodyName (sp.default_j2000BodyName)
 {
 }
 
@@ -113,8 +116,9 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
 {
    if (&sp == this)
       return *this;
-   j2000Body     = sp.j2000Body;
-   j2000BodyName = sp.j2000BodyName;
+   j2000Body             = sp.j2000Body;
+   j2000BodyName         = sp.j2000BodyName;
+   default_j2000BodyName = sp.default_j2000BodyName;
 
    return *this;
 }
@@ -190,6 +194,47 @@ void SpacePoint::SetJ2000Body(SpacePoint* toBody)
          MessageInterface::ShowMessage("J2000 body is now set\n");
    #endif
 }
+
+bool SpacePoint::IsParameterCloaked(const Integer id) const
+{
+   #ifdef DEBUG_SPACE_POINT_CLOAKING
+      MessageInterface::ShowMessage("In SpacePoint:IsParameterCloaked with id = %d %s)\n",
+            id, (GetParameterText(id)).c_str());
+   #endif
+   if (!cloaking) return false;
+   if (id >= GmatBaseParamCount && id < SpacePointParamCount)
+      return IsParameterEqualToDefault(id);
+   
+   return GmatBase::IsParameterCloaked(id);
+}
+
+bool SpacePoint::IsParameterEqualToDefault(const Integer id) const
+{
+   if (id == J2000_BODY_NAME)
+   {
+      if (j2000BodyName == default_j2000BodyName) return true;
+      else                                        return false;
+   }
+   return GmatBase::IsParameterEqualToDefault(id);    
+}
+
+bool SpacePoint::SaveAllAsDefault()
+{
+   GmatBase::SaveAllAsDefault();
+   default_j2000BodyName = j2000BodyName;
+   return true;
+}
+
+bool SpacePoint::SaveParameterAsDefault(const Integer id)
+{
+   if (id == J2000_BODY_NAME)  
+   {
+      default_j2000BodyName = j2000BodyName;
+      return true;
+   }
+   return GmatBase::SaveParameterAsDefault(id);
+}
+
 
 const Rvector3 SpacePoint::GetMJ2000Acceleration(const A1Mjd &atTime)
 {

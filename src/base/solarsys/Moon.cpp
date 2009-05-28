@@ -138,7 +138,7 @@ CelestialBody     ("Moon",name)
    cij = c;
 
    DeterminePotentialFileNameFromStartup();
-
+   SaveAllAsDefault();
 }
 
 //------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ CelestialBody     ("Moon",name)
    rotationSrc         = Gmat::DE_FILE;
 
    DeterminePotentialFileNameFromStartup();
-
+   SaveAllAsDefault();
 }
 
 //------------------------------------------------------------------------------

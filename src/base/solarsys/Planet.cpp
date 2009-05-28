@@ -96,6 +96,7 @@ Planet::Planet(std::string name) :
    cij = c;
 
    DeterminePotentialFileNameFromStartup();
+   SaveAllAsDefault();
 }
 
 //------------------------------------------------------------------------------
@@ -126,6 +127,7 @@ Planet::Planet(std::string name, const std::string &cBody) :
       rotationSrc      = Gmat::NOT_APPLICABLE;
    
    DeterminePotentialFileNameFromStartup();
+   SaveAllAsDefault();
 }
 
 //------------------------------------------------------------------------------
@@ -140,7 +142,8 @@ Planet::Planet(std::string name, const std::string &cBody) :
 //------------------------------------------------------------------------------
 Planet::Planet(const Planet &pl) :
    CelestialBody  (pl),
-   nutationUpdateInterval (pl.nutationUpdateInterval)
+   nutationUpdateInterval (pl.nutationUpdateInterval),
+   default_nutationUpdateInterval (pl.default_nutationUpdateInterval)
 {
 }
 
@@ -162,7 +165,8 @@ Planet& Planet::operator=(const Planet &pl)
       return *this;
 
    CelestialBody::operator=(pl);
-   nutationUpdateInterval = pl.nutationUpdateInterval;
+   nutationUpdateInterval          = pl.nutationUpdateInterval;
+   default_nutationUpdateInterval  = pl.default_nutationUpdateInterval;
    return *this;
 }
 
@@ -555,6 +559,44 @@ Real Planet::SetRealParameter(const std::string &label, const Real value)
    return SetRealParameter(GetParameterID(label), value);
 }
 
+bool Planet::IsParameterCloaked(const Integer id) const
+{
+   if (!cloaking) return false;
+   // if it's read-only, we'll cloak it
+   if (IsParameterReadOnly(id)) return true;
+
+   if (id >= CelestialBodyParamCount && id < PlanetParamCount)
+      return IsParameterEqualToDefault(id);
+   
+   return CelestialBody::IsParameterCloaked(id);
+}
+
+bool Planet::IsParameterEqualToDefault(const Integer id) const
+{
+   if (id == NUTATION_UPDATE_INTERVAL)
+   {
+      if (default_nutationUpdateInterval == nutationUpdateInterval)     return true;
+      else                                                              return false;
+   }
+   return CelestialBody::IsParameterEqualToDefault(id);
+}
+
+bool Planet::SaveAllAsDefault()
+{
+   CelestialBody::SaveAllAsDefault();
+   default_nutationUpdateInterval = nutationUpdateInterval;
+   return true;
+}
+
+bool Planet::SaveParameterAsDefault(const Integer id)
+{
+   if (id == NUTATION_UPDATE_INTERVAL)  
+   {
+      default_nutationUpdateInterval = nutationUpdateInterval;
+      return true;
+   }
+   return CelestialBody::SaveParameterAsDefault(id);
+}
 
 //------------------------------------------------------------------------------
 // protected methods
