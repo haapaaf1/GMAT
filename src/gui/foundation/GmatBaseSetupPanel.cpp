@@ -62,7 +62,7 @@ GmatBaseSetupPanel::GmatBaseSetupPanel(wxWindow *parent, const wxString &name)
    else
    {
       MessageInterface::PopupMessage
-         (Gmat::WARNING_, "\"%s\" does not exist\n", name.c_str());      
+         (Gmat::WARNING_, "The object named \"%s\" does not exist\n", name.c_str());      
    }
 }
 
@@ -112,17 +112,21 @@ void GmatBaseSetupPanel::Create()
       if (mObject->IsParameterReadOnly(i) == false)
       {
          propertyDescriptors.push_back(new wxStaticText(this, ID_TEXT, 
-               wxT(mObject->GetParameterText(i).c_str())));
+            wxT(mObject->GetParameterText(i).c_str())));
          
          controlMap[mObject->GetParameterText(i)] = j++;
          
          wxControl* control = BuildControl(this, i);
          propertyControls.push_back(control);
+         
+         propertyUnits.push_back(new wxStaticText(this, ID_TEXT, 
+            wxT(mObject->GetParameterUnit(i).c_str())));
       }
    }
    
-   wxFlexGridSizer *fGSMain = new wxFlexGridSizer(2);
-   wxGridSizer *gSSpecs = new wxGridSizer(2);
+   // three columns: description, control, unit
+   wxFlexGridSizer *gSSpecs = new wxFlexGridSizer(3);
+   wxGridSizer *fGSMain = new wxGridSizer(1);
    Integer border = 3;
    
    std::vector<wxStaticText*>::iterator item;
@@ -131,10 +135,11 @@ void GmatBaseSetupPanel::Create()
        item != propertyDescriptors.end(); ++item, ++j) 
    {
       gSSpecs->Add(*item, 0, wxALL|wxALIGN_RIGHT, border);
-      gSSpecs->Add(propertyControls[j], 0, wxALL|wxALIGN_LEFT, border);
+      gSSpecs->Add(propertyControls[j], 0, wxALL|wxALIGN_CENTER, border);
+      gSSpecs->Add(propertyUnits[j], 0, wxALL|wxALIGN_LEFT, border);
    }
    
-   fGSMain->Add(gSSpecs, 0, wxALL|wxALIGN_RIGHT, border*5);
+   fGSMain->Add(gSSpecs, 0, wxALL|wxALIGN_CENTER, border);
    theMiddleSizer->Add(fGSMain, 0, wxALL|wxALIGN_CENTER, 5);
 }
 

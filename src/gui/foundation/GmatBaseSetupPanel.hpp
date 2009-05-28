@@ -56,6 +56,8 @@ protected:
    std::vector<wxStaticText*>       propertyDescriptors;
    /// GUI controls that are used to configure the properties
    std::vector<wxControl*>          propertyControls;
+   /// Units used for the configurable properties
+   std::vector<wxStaticText*>       propertyUnits;
    /// Mapping between text strings and the index for the associated control
    std::map<std::string, Integer>   controlMap;
    /// Managed wxComboBox map used by GuiItemManager
