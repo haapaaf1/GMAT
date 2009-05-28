@@ -46,6 +46,7 @@
 //#define DEBUG_GENERATING_STRING
 //#define DEBUG_OWNED_OBJECT_STRINGS
 //#define DEBUG_WRITE_PARAM
+//#define DEBUG_CLOAKING
 
 /// Set the static "undefined" parameters
 const Real        GmatBase::REAL_PARAMETER_UNDEFINED = -987654321.0123e-45;
@@ -151,7 +152,8 @@ GmatBase::GmatBase(const Gmat::ObjectType typeId, const std::string &typeStr,
    commentLine       (""),
    inlineComment     (""),
    showPrefaceComment(true),
-   showInlineComment (true)
+   showInlineComment (true),
+   cloaking          (false)
 {
    attributeCommentLines.clear();
    attributeInlineComments.clear();
@@ -225,7 +227,8 @@ GmatBase::GmatBase(const GmatBase &a) :
     attributeCommentLines    (a.attributeCommentLines),
     attributeInlineComments  (a.attributeInlineComments),
     showPrefaceComment       (a.showPrefaceComment),
-    showInlineComment        (a.showInlineComment)
+    showInlineComment        (a.showInlineComment),
+    cloaking                 (a.cloaking)
 {
    // one more instance - add to the instanceCount
    ++instanceCount;
@@ -265,6 +268,7 @@ GmatBase& GmatBase::operator=(const GmatBase &a)
    attributeInlineComments  = a.attributeInlineComments;
    showPrefaceComment       = a.showPrefaceComment;
    showInlineComment        = a.showInlineComment;
+   cloaking                 = a.cloaking;
 
    return *this;
 }
@@ -327,7 +331,7 @@ Integer GmatBase::GetParameterCount() const
  * @return true is the class was derived from the type, false if not.
  */
 //---------------------------------------------------------------------------
-bool GmatBase::IsOfType(Gmat::ObjectType ofType)
+bool GmatBase::IsOfType(Gmat::ObjectType ofType) const
 {
    #ifdef DEBUG_OBJECT_TYPE_CHECKING
    MessageInterface::ShowMessage
@@ -373,7 +377,7 @@ bool GmatBase::IsOfType(Gmat::ObjectType ofType)
  * @return true is the class was derived from the type, false if not.
  */
 //---------------------------------------------------------------------------
-bool GmatBase::IsOfType(std::string typeDescription)
+bool GmatBase::IsOfType(std::string typeDescription) const
 {
    #ifdef DEBUG_OBJECT_TYPE_CHECKING
    MessageInterface::ShowMessage
@@ -803,6 +807,48 @@ bool GmatBase::GetIsGlobal() const
    return isGlobal;
 }
 
+bool GmatBase::IsObjectCloaked() const
+{
+   if (!cloaking) return false;
+   
+   #ifdef DEBUG_CLOAKING
+      MessageInterface::ShowMessage(
+            "Entering GmatBase::IsObjectCloaked for object %s - there are %d parameters\n",
+            instanceName.c_str(), parameterCount);
+   #endif
+   for (Integer ii = 0; ii < parameterCount; ii++)
+      if (!IsParameterCloaked(ii))
+      {
+         #ifdef DEBUG_CLOAKING
+            MessageInterface::ShowMessage(
+                  "in GmatBase::IsObjectCloaked for object %s - parameter %d (%s) is not cloaked\n",
+                  instanceName.c_str(), ii, (GetParameterText(ii)).c_str());
+         #endif
+         return false; 
+      }
+      #ifdef DEBUG_CLOAKING
+         MessageInterface::ShowMessage(
+               "Exiting GmatBase::IsObjectCloaked returning true, as all parameters are cloaked\n");
+      #endif
+   return true;
+}
+
+bool GmatBase::SaveAllAsDefault()
+{
+   return true;     
+}
+
+bool GmatBase::SaveParameterAsDefault(const Integer id)
+{
+   return true;
+}
+
+bool GmatBase::SaveParameterAsDefault(const std::string &label)
+{
+   return SaveParameterAsDefault(GetParameterID(label));
+}
+
+
 //------------------------------------------------------------------------------
 //  bool ExecuteCallback()
 //------------------------------------------------------------------------------
@@ -1043,8 +1089,29 @@ bool GmatBase::IsParameterReadOnly(const Integer id) const
 //---------------------------------------------------------------------------
 bool GmatBase::IsParameterReadOnly(const std::string &label) const
 {
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
+bool GmatBase::IsParameterCloaked(const Integer id) const
+{
    return false;
 }
+
+bool GmatBase::IsParameterCloaked(const std::string &label) const
+{
+   return IsParameterCloaked(GetParameterID(label));
+}
+
+bool GmatBase::IsParameterEqualToDefault(const Integer id) const
+{
+   return false;
+}
+
+bool GmatBase::IsParameterEqualToDefault(const std::string &label) const
+{
+   return IsParameterEqualToDefault(GetParameterID(label));
+}
+
 
 
 //---------------------------------------------------------------------------
@@ -2586,6 +2653,13 @@ const std::string& GmatBase::GetGeneratingString(Gmat::WriteMode mode,
        showInlineComment, inlineComment.c_str());
    #endif
 
+   // don't write anything for cloaked objects, unless we're in SHOW_SCRIPT mode
+   if ((mode != Gmat::SHOW_SCRIPT) && IsObjectCloaked())
+   {
+      generatingString = "";
+      return generatingString;
+   }
+   
    std::stringstream data;
 
    data.precision(GetDataPrecision()); // Crank up data precision so we don't lose anything
@@ -2619,7 +2693,10 @@ const std::string& GmatBase::GetGeneratingString(Gmat::WriteMode mode,
          #ifdef DEBUG_GENERATING_STRING
          MessageInterface::ShowMessage("==> Do not show comments\n");
          #endif
-         data << "Create " << tname << " " << nomme << ";\n";
+         if (!cloaking)
+            data << "Create " << tname << " " << nomme << ";\n";
+         else
+            data << "";
          preface = "GMAT ";
       }
       else
@@ -2631,8 +2708,10 @@ const std::string& GmatBase::GetGeneratingString(Gmat::WriteMode mode,
                  (mode == Gmat::SHOW_SCRIPT)))
                data << commentLine;
          }
-
-         data << "Create " << tname << " " << nomme << ";";
+         if (!cloaking)
+            data << "Create " << tname << " " << nomme << ";";
+         else
+            data << "";
 
          if (showInlineComment)
          {
@@ -2654,7 +2733,8 @@ const std::string& GmatBase::GetGeneratingString(Gmat::WriteMode mode,
 
    nomme += ".";
 
-   if (mode == Gmat::OWNED_OBJECT) {
+   if (mode == Gmat::OWNED_OBJECT) 
+   {
       preface = prefix;
       nomme = "";
    }
@@ -2952,12 +3032,19 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       
       #ifdef DEBUG_WRITE_PARAM
       MessageInterface::ShowMessage
-         ("   %2d, checking %s, type=%s, %s\n", i, GetParameterText(id).c_str(),
+         ("   %2d, checking %s, type=%s, %s    %s\n", i, GetParameterText(id).c_str(),
           PARAM_TYPE_STRING[GetParameterType(id)].c_str(),
-          (IsParameterReadOnly(id) ? "ReadOnly" : "Writable"));
+          (IsParameterReadOnly(id) ? "ReadOnly" : "Writable"),
+          (IsParameterCloaked(id) ? "Cloaked" : "Uncloaked"));
       #endif
+      
+      // in SHOW_SCRIPT, we write cloaked parameters; otherwise, we don't
+      bool parameterIsToBeWritten = !IsParameterReadOnly(id);
+      if (mode != Gmat::SHOW_SCRIPT) 
+         parameterIsToBeWritten = parameterIsToBeWritten && (!IsParameterCloaked(id));
 
-      if (IsParameterReadOnly(id) == false)
+//      if ((!IsParameterReadOnly(id)) && (!IsParameterCloaked(id)))
+      if (parameterIsToBeWritten)
       {
          parmType = GetParameterType(id);
 
@@ -3049,7 +3136,10 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       MessageInterface::ShowMessage("\"%s\" has %d owned objects\n",
          instanceName.c_str(), GetOwnedObjectCount());
    #endif
-
+      
+   // don't include the owned objects (celestial bodies) for the Solar System 
+   if (IsOfType("SolarSystem"))  return;
+   
    for (i = 0; i < GetOwnedObjectCount(); ++i)
    {
       newprefix = prefix;

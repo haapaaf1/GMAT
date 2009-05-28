@@ -78,8 +78,8 @@ public:
                                 const std::string &oldName = "");
    virtual Integer      GetParameterCount() const;
 
-   bool                 IsOfType(Gmat::ObjectType ofType);
-   bool                 IsOfType(std::string typeDescription);
+   bool                 IsOfType(Gmat::ObjectType ofType) const;
+   bool                 IsOfType(std::string typeDescription) const;
 
    void                 SetShowPrefaceComment(bool show = true);
    void                 SetShowInlineComment(bool show = true);
@@ -134,6 +134,14 @@ public:
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
    virtual bool         SetIsGlobal(bool globalFlag);
    virtual bool         GetIsGlobal() const;
+   virtual bool         IsObjectCloaked() const;
+   virtual bool         SaveAllAsDefault();
+   virtual bool         SaveParameterAsDefault(const Integer id);
+   virtual bool         SaveParameterAsDefault(const std::string &label);
+   /// method to determine if a parameter value has been changed from the default - 
+   // should be implemented in leaf classes that need to monitor changes to
+   // parameter values (currently, SolarSystem and celestial bodies)
+   
    virtual bool         ExecuteCallback();
    virtual bool         IsCallbackExecuting();
    virtual bool         PutCallbackData(std::string &data);
@@ -160,6 +168,11 @@ public:
 
    virtual bool         IsParameterReadOnly(const Integer id) const;
    virtual bool         IsParameterReadOnly(const std::string &label) const;
+
+   virtual bool         IsParameterCloaked(const Integer id) const;
+   virtual bool         IsParameterCloaked(const std::string &label) const;
+   virtual bool         IsParameterEqualToDefault(const Integer id) const;
+   virtual bool         IsParameterEqualToDefault(const std::string &label) const;
 
    virtual Gmat::ObjectType
                         GetPropertyObjectType(const Integer id) const;
@@ -423,6 +436,8 @@ protected:
    bool                showPrefaceComment;
    /// Flag to indicating whether to show inline comment
    bool                showInlineComment;
+   /// flag indicating whether or not to omit the "Create" line when writing the script
+   bool                cloaking;
 
    // Scripting interfaces
    void                CopyParameters(const GmatBase &a);
