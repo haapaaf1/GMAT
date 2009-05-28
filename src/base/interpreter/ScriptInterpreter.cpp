@@ -1008,6 +1008,70 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    GmatBase *object =  NULL;
    
    //-----------------------------------
+    // The Solar System
+    //-----------------------------------
+    #ifdef DEBUG_SCRIPT_WRITING
+    MessageInterface::ShowMessage("   Found Solar Systems In Use\n");
+    #endif
+    objs.clear();
+    objs.push_back("SolarSystem");
+    WriteObjects(objs, "Solar System User-Modified Values", mode);
+    
+     //-----------------------------------
+   // Celestial Bodies (for now, only user-defined or modified ones)
+   //-----------------------------------
+   objs = theModerator->GetListOfObjects(Gmat::CELESTIAL_BODY);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d CelestialBodys\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+   {
+      bool        foundUserDefinedBodies = false;
+      bool        foundModifiedBodies    = false;
+      StringArray userDefinedBodies;
+      StringArray modifiedBodies;
+      for (current = objs.begin(); current != objs.end(); ++current)
+      {
+         #ifdef DEBUG_SCRIPT_WRITING
+         MessageInterface::ShowMessage("      body name = '%s'\n", (*current).c_str());
+         #endif
+         
+         object = FindObject(*current);
+         if (object == NULL)
+            throw InterpreterException("Cannot write NULL object \"" + (*current) + "\"");
+         
+         if (!(object->IsOfType("CelestialBody")))
+            throw InterpreterException("Error writing invalid celestial body \"" + (*current) + "\"");
+         CelestialBody *theBody = (CelestialBody*) object;
+         if (theBody->IsUserDefined())
+         {
+            foundUserDefinedBodies = true;
+            userDefinedBodies.push_back(*current);
+         }
+         else if (!theBody->IsObjectCloaked())
+         {
+            foundModifiedBodies = true;
+            modifiedBodies.push_back(*current);
+         }
+      }
+      if (foundModifiedBodies)  
+         WriteObjects(modifiedBodies, "User-Modified Default Celestial Bodies", mode);
+      if (foundUserDefinedBodies) 
+         WriteObjects(userDefinedBodies, "User-Defined Celestial Bodies", mode);
+   }
+   
+   //-----------------------------------
+    // Libration Points and Barycenters
+    //-----------------------------------
+    objs = theModerator->GetListOfObjects(Gmat::CALCULATED_POINT);
+    #ifdef DEBUG_SCRIPT_WRITING
+    MessageInterface::ShowMessage("   Found %d Calculated Points\n", objs.size());
+    #endif
+    if (objs.size() > 0)
+       WriteObjects(objs, "Calculated Points", mode);
+    
+
+    //-----------------------------------
    // Spacecraft
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::SPACECRAFT);
@@ -1057,58 +1121,6 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    if (objs.size() > 0)
       WriteObjects(objs, "Propagators", mode);
    
-   //-----------------------------------
-   // Libration Points and Barycenters
-   //-----------------------------------
-   objs = theModerator->GetListOfObjects(Gmat::CALCULATED_POINT);
-   #ifdef DEBUG_SCRIPT_WRITING
-   MessageInterface::ShowMessage("   Found %d Calculated Points\n", objs.size());
-   #endif
-   if (objs.size() > 0)
-      WriteObjects(objs, "Calculated Points", mode);
-   
-   //-----------------------------------
-   // Celestial Bodies (for now, only user-defined ones)
-   //-----------------------------------
-   objs = theModerator->GetListOfObjects(Gmat::CELESTIAL_BODY);
-   #ifdef DEBUG_SCRIPT_WRITING
-   MessageInterface::ShowMessage("   Found %d CelestialBodys\n", objs.size());
-   #endif
-   if (objs.size() > 0)
-   {
-      bool        foundUserDefinedBodies = false;
-      bool        foundModifiedBodies    = false;
-      StringArray userDefinedBodies;
-      StringArray modifiedBodies;
-      for (current = objs.begin(); current != objs.end(); ++current)
-      {
-         #ifdef DEBUG_SCRIPT_WRITING
-         MessageInterface::ShowMessage("      body name = '%s'\n", (*current).c_str());
-         #endif
-         
-         object = FindObject(*current);
-         if (object == NULL)
-            throw InterpreterException("Cannot write NULL object \"" + (*current) + "\"");
-         
-         if (!(object->IsOfType("CelestialBody")))
-            throw InterpreterException("Error writing invalid celestial body \"" + (*current) + "\"");
-         CelestialBody *theBody = (CelestialBody*) object;
-         if (theBody->IsUserDefined())
-         {
-            foundUserDefinedBodies = true;
-            userDefinedBodies.push_back(*current);
-         }
-         else if (theBody->HasBeenModified())
-         {
-            foundModifiedBodies = true;
-            modifiedBodies.push_back(*current);
-         }
-      }
-//      if (foundModifiedBodies)  // wcs 2009.02.17 not currently working  @todo - fix writing of modified default bodies
-//         WriteObjects(modifiedBodies, "User-Modified Default Celestial Bodies", mode);
-      if (foundUserDefinedBodies) 
-         WriteObjects(userDefinedBodies, "User-Defined Celestial Bodies", mode);
-   }
    
    //-----------------------------------
    // Burn
@@ -1840,7 +1852,7 @@ void ScriptInterpreter::WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mode
    StringArray::iterator current;
    GmatBase *object =  NULL;
    
-   WriteSectionDelimiter(objs[0], "Spacecrafts");
+   WriteSectionDelimiter(objs[0], "Spacecraft");
    
    // Setup the coordinate systems on Spacecraft so they can perform conversions
    CoordinateSystem *ics = theModerator->GetInternalCoordinateSystem(), *sccs;
@@ -2275,7 +2287,7 @@ void ScriptInterpreter::WriteOtherParameters(StringArray &objs,
             {
                if (isFirstTime)
                {
-                  WriteSectionDelimiter(objs[0], "Other Paraemters");
+                  WriteSectionDelimiter(objs[0], "Other Parameters");
                   isFirstTime = false;
                }
                
