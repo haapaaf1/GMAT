@@ -149,7 +149,7 @@ void UniversePanel::Create()
    // ephemeris file
    //-------------------------------------------------------
    wxStaticText *fileNameLabel =
-      new wxStaticText(this, ID_TEXT, wxT("Ephemeris Name"),
+      new wxStaticText(this, ID_TEXT, wxT("Ephemeris Filename"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    
    mFileNameTextCtrl =
