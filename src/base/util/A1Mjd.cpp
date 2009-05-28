@@ -23,6 +23,7 @@
 #include "UtcDate.hpp"
 #include "A1Date.hpp"
 #include "TimeTypes.hpp"     // for TimeConst::, UtcMjd
+#include "RealTypes.hpp"
 #include "RealUtilities.hpp" // for Round(), IsEqual(), Floor()
 
 using namespace GmatTimeUtil;
@@ -36,7 +37,9 @@ const std::string A1Mjd::DATA_DESCRIPTIONS[NUM_DATA] =
    "A1 Modified Julian Date"
 };
 
-const A1Mjd A1Mjd::J2000 = A1Mjd(A1MJD_OF_J2000);
+const A1Mjd A1Mjd::J2000      = A1Mjd(A1MJD_OF_J2000);
+const Real  A1Mjd::mTolerance = GmatRealConst::REAL_EPSILON;
+
 
 //------------------------------------------------------------------------------
 // A1Mjd()

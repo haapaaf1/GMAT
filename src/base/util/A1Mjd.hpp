@@ -94,7 +94,7 @@ private:
 //                                       MinuteOfHour minute, Real second);
 
    Real mMjd;
-   Real mTolerance;
+   static const Real mTolerance;
 
    static const Integer NUM_DATA = 1;
    static const std::string DATA_DESCRIPTIONS[NUM_DATA];
