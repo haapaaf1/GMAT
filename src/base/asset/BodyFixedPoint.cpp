@@ -341,7 +341,7 @@ Gmat::ObjectType BodyFixedPoint::GetPropertyObjectType(const Integer id) const
 
 
 //---------------------------------------------------------------------------
-// StringArray& GetPropertyEnumStrings(const Integer id) const
+// const StringArray& GetPropertyEnumStrings(const Integer id) const
 //---------------------------------------------------------------------------
 /**
  * Retrieves eumeration symbols of parameter of given id.
@@ -351,7 +351,7 @@ Gmat::ObjectType BodyFixedPoint::GetPropertyObjectType(const Integer id) const
  * @return list of enumeration symbols
  */
 //---------------------------------------------------------------------------
-StringArray& BodyFixedPoint::GetPropertyEnumStrings(const Integer id) const
+const StringArray& BodyFixedPoint::GetPropertyEnumStrings(const Integer id) const
 {
    static StringArray enumStrings;
    switch (id)

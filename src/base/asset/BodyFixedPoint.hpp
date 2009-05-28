@@ -47,7 +47,8 @@ public:
    
    virtual Gmat::ObjectType
                            GetPropertyObjectType(const Integer id) const;
-   virtual StringArray&    GetPropertyEnumStrings(const Integer id) const;
+   virtual const StringArray&
+                           GetPropertyEnumStrings(const Integer id) const;
    
    virtual std::string     GetStringParameter(const Integer id) const;
    virtual bool            SetStringParameter(const Integer id, 
