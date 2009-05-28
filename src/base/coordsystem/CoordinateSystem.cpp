@@ -26,6 +26,7 @@
 #include "CoordinateSystem.hpp"
 #include "CoordinateSystemException.hpp"
 #include "CoordinateBase.hpp"
+#include "ObjectReferencedAxes.hpp"
 #include "Rmatrix33.hpp"
 #include "MessageInterface.hpp"
 
@@ -46,7 +47,7 @@
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
- 
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -1298,6 +1299,131 @@ bool CoordinateSystem::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    // Not handled here -- invoke the next higher SetRefObject call
    return CoordinateBase::SetRefObject(obj, type, name);
 }
+
+
+//----------------------------
+// public static methods
+//----------------------------
+//------------------------------------------------------------------------------
+// static CoordinateSystem* CreateLocalCoordinateSystem(
+//                     const std::string &csName, const std::string &axesType,
+//                     SpacePoint *origin, SpacePoint *primary,
+//                     SpacePoint *secondary, SpacePoint *j2000Body,
+//                     SolarSystem *solarSystem)
+//------------------------------------------------------------------------------
+/**
+ * Creates CoordinateSystem with VNB, LVLH, MJ2000Eq, and SpacecraftBody axis.
+ *
+ * @param  csName      Name of the cooridnate system
+ * @param  axesType    Axes system type name
+ * @param  origin      Axes system origin body pointer
+ * @param  primary     Axes system primary body pointer
+ * @param  secondary   Axes system secondary body pointer
+ * @param  j2000Body   Axes system J2000 body pointer
+ * @param  solarSystem Solar system pointer
+ *
+ * @return new CoordinateSystem pointer if successful, NULL otherwise
+ */
+//------------------------------------------------------------------------------
+CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
+                     const std::string &csName, const std::string &axesType,
+                     SpacePoint *origin, SpacePoint *primary,
+                     SpacePoint *secondary, SpacePoint *j2000Body,
+                     SolarSystem *solarSystem)
+{
+   #ifdef DEBUG_CS_CREATE
+   MessageInterface::ShowMessage
+      ("CoordinateSystem::CreateLocalCoordinateSystem() entered\n   csName='%s', "
+       "axesType='%s', origin=<%p>, primary=<%p>, secondary=<%p>\n   j2000Body=<%p>, "
+       "solarSystem=<%p>\n", csName.c_str(), axesType.c_str(), origin, primary,
+       secondary, j2000Body, solarSystem);
+   #endif
+   
+   // check for NULL pointers
+   if (origin == NULL || primary == NULL || secondary == NULL ||
+       j2000Body == NULL || solarSystem == NULL)
+      return NULL;
+   
+   // check for supported axes name
+   if (axesType != "VNB" && axesType != "LVLH" && axesType != "MJ2000Eq" &&
+       axesType != "SpacecraftBody")
+   {
+      MessageInterface::ShowMessage
+         ("**** ERROR **** CoordinateSystem::CreateLocalCoordinateSystem() cannot "
+          "create CoordinateSystem, axes name \"%s\" is not supported\n", axesType.c_str());
+      return NULL;
+   }
+   
+   CoordinateSystem *localCS = new CoordinateSystem(csName);
+   AxisSystem *orAxes = new ObjectReferencedAxes(csName);
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (localCS, "localCS", "Burn::CreateLocalCoordinateSystem()",
+       "new CoordinateSystem()");
+   MemoryTracker::Instance()->Add
+      (orAxes, "localAxes", "Burn::CreateLocalCoordinateSystem()",
+       "new ObjectReferencedAxes()");
+   #endif
+   
+   orAxes->SetStringParameter("Primary", primary->GetName());
+   orAxes->SetStringParameter("Secondary", secondary->GetName());
+   orAxes->SetRefObject(origin, Gmat::SPACE_POINT, origin->GetName());
+   orAxes->SetRefObject(primary, Gmat::SPACE_POINT, primary->GetName());
+   orAxes->SetRefObject(secondary, Gmat::SPACE_POINT, secondary->GetName());
+   
+   if (axesType == "VNB")
+   {
+      orAxes->SetStringParameter("XAxis", "V");
+      orAxes->SetStringParameter("YAxis", "N");
+      localCS->SetStringParameter("Origin", secondary->GetName());
+      localCS->SetRefObject(secondary, Gmat::SPACE_POINT, secondary->GetName());
+   }
+   else if (axesType == "LVLH")
+   {
+      orAxes->SetStringParameter("XAxis", "-R");
+      orAxes->SetStringParameter("YAxis", "-N");
+      localCS->SetStringParameter("Origin", secondary->GetName());
+      localCS->SetRefObject(secondary, Gmat::SPACE_POINT, secondary->GetName());
+   }
+   else if (axesType == "MJ2000Eq")
+   {
+      localCS->SetStringParameter("Origin", j2000Body->GetName());
+   }
+   else if (axesType == "SpacecraftBody")
+   {
+      localCS->SetStringParameter("Origin", j2000Body->GetName());
+   }
+   
+   localCS->SetRefObject(orAxes, Gmat::AXIS_SYSTEM, orAxes->GetName());
+   localCS->SetRefObject(j2000Body, Gmat::SPACE_POINT, j2000Body->GetName());
+   localCS->SetSolarSystem(solarSystem);
+   localCS->Initialize();
+   
+   #ifdef DEBUG_CS_CREATE
+   MessageInterface::ShowMessage
+      ("   Local CS <%p> created with AxisSystem <%p>:\n"
+       "      axesType    = '%s'\n      Origin      = <%p>'%s'\n"
+       "      Primary     = <%p>'%s'\n      Secondary   = <%p>'%s'\n"
+       "      j2000body   = <%p>'%s'\n", localCS, orAxes, axesType.c_str(),
+       localCS->GetOrigin(), localCS->GetOriginName().c_str(), localCS->GetPrimaryObject(),
+       localCS->GetPrimaryObject() ? localCS->GetPrimaryObject()->GetName().c_str() : "NULL",
+       localCS->GetSecondaryObject(),
+       localCS->GetSecondaryObject() ? localCS->GetSecondaryObject()->GetName().c_str() : "NULL",
+       localCS->GetJ2000Body(),
+       localCS->GetJ2000Body() ? localCS->GetJ2000Body()->GetName().c_str() : "NULL");
+   #endif
+   
+   // Since CoordinateSystem clones AxisSystem, delete it from here
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Remove
+      (orAxes, "orAxes", "Burn::CreateLocalCoordinateSystem()", "deleting localAxes");
+   delete orAxes;
+   #endif
+   
+   return localCS;
+}
+
 
 //------------------------------------------------------------------------------
 // protected methods

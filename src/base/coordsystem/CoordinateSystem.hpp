@@ -28,6 +28,7 @@
 #include "Rvector.hpp"
 #include "A1Mjd.hpp"
 
+
 class GMAT_API CoordinateSystem : public CoordinateBase
 {
 public:
@@ -144,6 +145,12 @@ public:
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name = "");
+   
+   static CoordinateSystem* CreateLocalCoordinateSystem(
+                            const std::string &csName, const std::string &axesType,
+                            SpacePoint *origin, SpacePoint *primary,
+                            SpacePoint *secondary, SpacePoint *j2000Body,
+                            SolarSystem *solarSystem);
    
 protected:
 
