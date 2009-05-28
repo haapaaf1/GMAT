@@ -64,8 +64,12 @@ public:
    virtual bool         SetStringParameter(const Integer id,
                                            const std::string &value,
                                            const Integer index);
+   
+   // for enumerated strings
    virtual const StringArray&
-                        GetStringArrayParameter(const Integer id) const;
+                        GetPropertyEnumStrings(const Integer id) const;
+   virtual const StringArray&
+                        GetPropertyEnumStrings(const std::string &label) const;
    
    // for Ref. objects
    virtual const ObjectTypeArray&

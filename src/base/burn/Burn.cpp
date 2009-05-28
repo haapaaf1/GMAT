@@ -56,7 +56,7 @@ Burn::PARAMETER_TEXT[BurnParamCount - GmatBaseParamCount] =
    "CoordinateSystem",
    "Origin",
    "Axes",
-   "VectorFormat",
+   "VectorFormat", // deprecated
    "Element1",
    "Element2",
    "Element3",
@@ -67,10 +67,10 @@ Burn::PARAMETER_TEXT[BurnParamCount - GmatBaseParamCount] =
 const Gmat::ParameterType
 Burn::PARAMETER_TYPE[BurnParamCount - GmatBaseParamCount] =
 {
-   Gmat::OBJECT_TYPE,         // "CoordinateSystem", (Not ready to switch to OBJECT_TYPE)
+   Gmat::OBJECT_TYPE,         // "CoordinateSystem",
    Gmat::OBJECT_TYPE,         // "Origin",
    Gmat::ENUMERATION_TYPE,    // "Axes",
-   Gmat::ENUMERATION_TYPE,    // "VectorFormat",
+   Gmat::ENUMERATION_TYPE,    // "VectorFormat", // deprecated
    Gmat::REAL_TYPE,           // "Element1",
    Gmat::REAL_TYPE,           // "Element2",
    Gmat::REAL_TYPE,           // "Element3",
@@ -622,7 +622,7 @@ bool Burn::SetStringParameter(const Integer id, const std::string &value)
          
          // Burns know the frame options, so use that to detect if there is 
          // an issue with the input
-         StringArray frames = GetStringArrayParameter(BURNAXES);
+         StringArray frames = GetPropertyEnumStrings(BURNAXES);
          if (find(frames.begin(), frames.end(), value) == frames.end())
          { 
             // For now, keep "Inertial" as a deprecated option
@@ -679,18 +679,18 @@ bool Burn::SetStringParameter(const Integer id, const std::string &value)
                framelist += ", " + localAxesLabels[n];
             
             std::string msg =
-               "*** WARNING *** The value of \"" + value + "\" for field \"Axes\""
+               "The value of \"" + value + "\" for field \"Axes\""
                " on object \"" + instanceName + "\" is not an allowed value.\n"
                "The allowed values are: [ " + framelist + " ]. ";
             
             if (firstTimeWarning)
             {
+               firstTimeWarning = false;
+               
                if (value == "Inertial")
-                  MessageInterface::ShowMessage(msg + "\n");
+                  MessageInterface::ShowMessage("*** WARNING *** " + msg + "\n");
                else
                   throw BurnException(msg);
-               
-               firstTimeWarning = false;
             }
             
             if (value == "Inertial")
@@ -741,10 +741,10 @@ bool Burn::SetStringParameter(const Integer id, const std::string &value,
 
 
 //------------------------------------------------------------------------------
-//  const StringArray& GetStringArrayParameter(const Integer id) const
+//  const StringArray& GetPropertyEnumStrings(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * Access an array of string data.
+ * Access an array of enumerated string data.
  *
  * @param <id> The integer ID for the parameter.
  *
@@ -752,12 +752,29 @@ bool Burn::SetStringParameter(const Integer id, const std::string &value,
  *         StringArray.
  */
 //------------------------------------------------------------------------------
-const StringArray& Burn::GetStringArrayParameter(const Integer id) const
+const StringArray& Burn::GetPropertyEnumStrings(const Integer id) const
 {
    if (id == BURNAXES)
       return localAxesLabels;
    
-   return GmatBase::GetStringArrayParameter(id);
+   return GmatBase::GetPropertyEnumStrings(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  const StringArray& GetPropertyEnumStrings(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Access an array of enumerated string data.
+ *
+ * @param <label> The parameter name.
+ *
+ * @return The requested StringArray
+ */
+//------------------------------------------------------------------------------
+const StringArray& Burn::GetPropertyEnumStrings(const std::string &label) const
+{
+   return GetPropertyEnumStrings(GetParameterID(label));
 }
 
 
@@ -1070,87 +1087,20 @@ CoordinateSystem* Burn::CreateLocalCoordinateSystem()
          //   instanceName + " " + satName + " was not set for the burn.");
       }
       
-      satName = spacecraft->GetName();
+      // Call CoordinateSystem static method to create a local coordinate system
+      localOrigin = solarSystem->GetBody(localOriginName);
+      localCS = CoordinateSystem::CreateLocalCoordinateSystem
+         ("Local", localAxesName, spacecraft, localOrigin, spacecraft,
+          j2000Body, solarSystem);
       
-      localCS = new CoordinateSystem("Local");
-      AxisSystem *orAxes = new ObjectReferencedAxes("Local");
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (localCS, "localCS", "Burn::CreateLocalCoordinateSystem()",
-          "new CoordinateSystem()");
-      MemoryTracker::Instance()->Add
-         (orAxes, "localAxes", "Burn::CreateLocalCoordinateSystem()",
-          "new ObjectReferencedAxes()");
-      #endif
+      if (localCS == NULL)
+         return NULL;
       
-      #ifdef DEBUG_BURN_INIT
-      CelestialBody *tempCb = solarSystem->GetBody(localOriginName);
-      MessageInterface::ShowMessage
-         ("   Setting <%p>'%s' as Primary, <%p>'%s' as Secondary to orAxes <%p>\n",
-          tempCb, tempCb->GetName().c_str(), spacecraft,
-          spacecraft->GetName().c_str(), orAxes);
-      #endif
-      
-      orAxes->SetStringParameter("Primary", localOriginName);
-      orAxes->SetStringParameter("Secondary", satName);
-      orAxes->SetRefObject(solarSystem->GetBody(localOriginName),
-                           Gmat::SPACE_POINT, localOriginName);
-      orAxes->SetRefObject(spacecraft, Gmat::SPACE_POINT, satName);
-      if (localAxesName == "VNB")
-      {
-         orAxes->SetStringParameter("XAxis", "V");
-         orAxes->SetStringParameter("YAxis", "N");
-      }
-      else if (localAxesName == "LVLH")
-      {
-         orAxes->SetStringParameter("XAxis", "-R");
-         orAxes->SetStringParameter("YAxis", "-N");
-      }
-      else if (localAxesName == "MJ2000Eq")
-      {
+      if (localAxesName == "MJ2000Eq")
          isMJ2000EqAxes = true;
-      }
       else if (localAxesName == "SpacecraftBody")
-      {
          isSpacecraftBodyAxes = true;
-         //throw BurnException("ImpulsiveBurn cannot use SpacecraftBody yet.");
-      }
       
-      #ifdef DEBUG_BURN_INIT
-      MessageInterface::ShowMessage
-         ("   Setting <%p>'%s' as Origin, <%p> as SolarSystem to localCS <%p>\n",
-          j2000Body, j2000Body->GetName().c_str(), solarSystem);
-      #endif
-      
-      // If I set origin same as the primary body, it doesn't work correctly
-      // for origin other than Earth. GMAT LOI.Origin = Luna in APT_Ex_LunarTransfer.script
-      // so set Earth as origin
-      //localCS->SetStringParameter("Origin", localOriginName);
-      localCS->SetStringParameter("Origin", j2000BodyName);
-      localCS->SetRefObject(orAxes, Gmat::AXIS_SYSTEM, orAxes->GetName());
-      localCS->SetRefObject(j2000Body, Gmat::SPACE_POINT, j2000BodyName);
-      localCS->SetSolarSystem(solarSystem);
-      localCS->Initialize();
-      
-      #ifdef DEBUG_BURN_INIT
-      MessageInterface::ShowMessage
-         ("   Local CS <%p> created with AxisSystem <%p>:\n"
-          "      localAxesName = '%s'\n      Origin        = <%p>'%s'\n"
-          "      Primary       = <%p>'%s'\n      Secondary     = <%p>'%s'\n"
-          "      j2000body     = <%p>'%s'\n", localCS, orAxes, localAxesName.c_str(),
-          localCS->GetOrigin(), localCS->GetOriginName().c_str(), localCS->GetPrimaryObject(),
-          localCS->GetPrimaryObject() ? localCS->GetPrimaryObject()->GetName().c_str() : "NULL",
-          localCS->GetSecondaryObject(),
-          localCS->GetSecondaryObject() ? localCS->GetSecondaryObject()->GetName().c_str() : "NULL",
-          localCS->GetJ2000Body(),
-          localCS->GetJ2000Body() ? localCS->GetJ2000Body()->GetName().c_str() : "NULL");
-      #endif
-      
-      // Since CoordinateSystem clones AxisSystem, delete it from here
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         (orAxes, "localAxes", "Burn::CreateLocalCoordinateSystem()", "deleting localAxes");
-      #endif
    }
    else
    {
@@ -1199,17 +1149,24 @@ void Burn::ConvertDeltaVToInertial(Real *dv, Real *dvInertial, Real epoch)
           "System has not been set");      
    }
    
+   Real inDeltaV[6], outDeltaV[6];
+   for (Integer i=0; i<3; i++)
+      inDeltaV[i] = dv[i];
+   for (Integer i=3; i<6; i++)
+      inDeltaV[i] = 0.0;
+   
    // if not using local CS, use ref CoordinateSystem
    if (!usingLocalCoordSys)
-   {
-      Real inDeltaV[6], outDeltaV[6];
-      for (Integer i=0; i<3; i++)
-         inDeltaV[i] = dv[i];
-      for (Integer i=3; i<6; i++)
-         inDeltaV[i] = 0.0;
+   {     
+      // Now rotate to MJ2000Eq axes, we don't want to translate so
+      // set coincident to true
+      coordSystem->ToMJ2000Eq(epoch, inDeltaV, outDeltaV, true);
       
-      // Now rotate to MJ2000Eq axes
-      coordSystem->ToMJ2000Eq(epoch, inDeltaV, outDeltaV);
+      #ifdef DEBUG_BURN_CONVERT_ROTMAT
+      Rmatrix33 rotMat = coordSystem->GetLastRotationMatrix();
+      MessageInterface::ShowMessage
+         ("rotMat=\n%s\n", rotMat.ToString(16, 20).c_str());
+      #endif
       
       dvInertial[0] = outDeltaV[0];
       dvInertial[1] = outDeltaV[1];
@@ -1238,15 +1195,9 @@ void Burn::ConvertDeltaVToInertial(Real *dv, Real *dvInertial, Real epoch)
             dvInertial[i] = outDeltaV[i];
       }
       else
-      {
-         Real inDeltaV[6], outDeltaV[6];   
-         for (Integer i=0; i<3; i++)
-            inDeltaV[i] = dv[i];
-         for (Integer i=3; i<6; i++)
-            inDeltaV[i] = 0.0;
-         
+      {         
          // Now rotate to MJ2000Eq axes
-         localCoordSystem->ToMJ2000Eq(epoch, inDeltaV, outDeltaV);
+         localCoordSystem->ToMJ2000Eq(epoch, inDeltaV, outDeltaV, true);
          
          dvInertial[0] = outDeltaV[0];
          dvInertial[1] = outDeltaV[1];
