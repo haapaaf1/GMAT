@@ -1,0 +1,178 @@
+%  Script Mission - Finite Burn Examples  
+%
+%  This script demonstrates how to set up tanks and thrusters, and use them
+%  in a finite maneuver sequence.  
+
+% -------------------------------------------------------------------------
+% --------------------------- Create Spacecraft  --------------------------
+% -------------------------------------------------------------------------
+
+%-----  Create the spacecraft
+Create Spacecraft Sc1;
+GMAT Sc1.DateFormat = TAIModJulian;
+GMAT Sc1.Epoch = '21545.000000000';
+GMAT Sc1.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sc1.DisplayStateType = Cartesian;
+GMAT Sc1.X = 7100;
+GMAT Sc1.Y = 0;
+GMAT Sc1.Z = 1300;
+GMAT Sc1.VX = 0;
+GMAT Sc1.VY = 7.35;
+GMAT Sc1.VZ = 1;
+GMAT Sc1.DryMass = 850;
+GMAT Sc1.Cd = 2.2;
+GMAT Sc1.Cr = 1.8;
+GMAT Sc1.DragArea = 15;
+GMAT Sc1.SRPArea = 1;
+GMAT Sc1.Tanks = {tank1}
+GMAT Sc1.Thrusters = {engine1};
+GMAT Sc1.Attitude = CoordinateSystemFixed;
+GMAT Sc1.AttitudeDisplayStateType = 'Quaternion';
+GMAT Sc1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Sc1.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT Sc1.Q1 = 0;
+GMAT Sc1.Q2 = 0;
+GMAT Sc1.Q3 = 0;
+GMAT Sc1.Q4 = 1;
+GMAT Sc1.EulerAngleSequence = '312';
+GMAT Sc1.AngularVelocityX = 0;
+GMAT Sc1.AngularVelocityY = 0;
+GMAT Sc1.AngularVelocityZ = 0;
+
+Create Spacecraft Sc2;
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+
+%-----  Create a fuel tank 
+Create FuelTank tank1;
+GMAT tank1.FuelMass = 725;
+GMAT tank1.Pressure = 1200;
+GMAT tank1.Temperature = 20;
+GMAT tank1.RefTemperature = 12;
+GMAT tank1.Volume = 0.8;
+GMAT tank1.FuelDensity = 1029;
+GMAT tank1.PressureRegulated = true;
+
+%-----  Create a thruster
+Create Thruster engine1;
+GMAT engine1.CoordinateSystem = Local;
+GMAT engine1.Origin = Earth;
+GMAT engine1.Axes = VNB;
+GMAT engine1.Element1 = 1;
+GMAT engine1.Element2 = 0;
+GMAT engine1.Element3 = 0;
+GMAT engine1.DutyCycle = 1;
+GMAT engine1.ThrustScaleFactor = 1;
+GMAT engine1.DecrementMass = false;
+GMAT engine1.Tank = {tank1};
+GMAT engine1.GravitationalAccel = 9.81;
+GMAT engine1.C1 = 10;
+GMAT engine1.C2 = 0;
+GMAT engine1.C3 = 0;
+GMAT engine1.C4 = 0;
+GMAT engine1.C5 = 0;
+GMAT engine1.C6 = 0;
+GMAT engine1.C7 = 0;
+GMAT engine1.C8 = 0;
+GMAT engine1.C9 = 0;
+GMAT engine1.C10 = 0;
+GMAT engine1.C11 = 0;
+GMAT engine1.C12 = 0;
+GMAT engine1.C13 = 1;
+GMAT engine1.C14 = 0;
+GMAT engine1.C15 = 0;
+GMAT engine1.C16 = 0;
+GMAT engine1.K1 = 300;
+GMAT engine1.K2 = 0;
+GMAT engine1.K3 = 0;
+GMAT engine1.K4 = 0;
+GMAT engine1.K5 = 0;
+GMAT engine1.K6 = 0;
+GMAT engine1.K7 = 0;
+GMAT engine1.K8 = 0;
+GMAT engine1.K9 = 0;
+GMAT engine1.K10 = 0;
+GMAT engine1.K11 = 0;
+GMAT engine1.K12 = 0;
+GMAT engine1.K13 = 1;
+GMAT engine1.K14 = 0;
+GMAT engine1.K15 = 0;
+GMAT engine1.K16 = 0;
+
+% -------------------------------------------------------------------------
+% --------------------------- Create Finite Burn  -------------------------
+% -------------------------------------------------------------------------
+Create FiniteBurn fb;
+GMAT fb.Thrusters = {engine1};
+
+%  Create a force model
+Create ForceModel fm;
+GMAT fm.CentralBody = Earth;
+GMAT fm.PointMasses = {Earth};
+GMAT fm.Drag = None;
+GMAT fm.SRP = Off;
+GMAT fm.ErrorControl = RSSStep;
+
+%  Create a propagator
+Create Propagator prop;
+GMAT prop.FM = fm;
+GMAT prop.Type = RungeKutta89;
+GMAT prop.InitialStepSize = 60;
+GMAT prop.Accuracy = 9.999999999999999e-12;
+GMAT prop.MinStep = 0.001;
+GMAT prop.MaxStep = 2700;
+GMAT prop.MaxStepAttempts = 50;
+
+%  Create a report file
+Create ReportFile rf;
+GMAT rf.Filename = Bug1458-FiniteBurnInLoopTest.report;
+GMAT rf.Precision = 16;
+Create Variable i;
+
+%  Create an OpenGL Plot  
+Create OpenGLPlot SatInNoLoop
+GMAT SatInNoLoop.Add = {Sc1, Earth};
+GMAT SatInNoLoop.ViewScaleFactor = 4;
+GMAT SatInNoLoop.XYPlane = On;
+GMAT SatInNoLoop.ViewPointVector = [ 10000 10000 10000];
+
+Create OpenGLPlot SatInLoop
+GMAT SatInLoop.Add = {Sc2, Earth};
+GMAT SatInLoop.ViewScaleFactor = 4;
+GMAT SatInLoop.XYPlane = On;
+GMAT SatInLoop.ViewPointVector = [ 10000 10000 10000];
+
+
+% -------------------------------------------------------------------------
+% --------------------------- Mission Sequence ----------------------------
+% -------------------------------------------------------------------------
+GMAT Sc2 = Sc1;
+
+%%----- Test FiniteBurn in No loop
+
+%  Propagate for 1/10 of a day, without thrusters on.
+For i = 1:1:144;
+   Propagate prop(Sc1, {Sc1.ElapsedSecs = 60});
+EndFor;
+
+BeginFiniteBurn fb(Sc1);
+Propagate prop(Sc1, {Sc1.ElapsedDays = 5});
+EndFiniteBurn fb(Sc1);
+
+%%----- Test FiniteBurn in loop
+
+%  Propagate for 1/10 of a day, without thrusters on.
+For i = 1:1:144;
+   Propagate prop(Sc2, {Sc2.ElapsedSecs = 60});
+EndFor;
+
+BeginFiniteBurn fb(Sc2);
+For i=1:5
+   Propagate prop(Sc2, {Sc2.ElapsedDays = 1});
+EndFor;
+EndFiniteBurn fb(Sc2);
+
+GMAT Report rf Sc1.ElapsedSecs Sc1.X Sc1.Y Sc1.Z Sc1.SMA Sc1.Energy;
+GMAT Report rf Sc2.ElapsedSecs Sc2.X Sc2.Y Sc2.Z Sc2.SMA Sc2.Energy;

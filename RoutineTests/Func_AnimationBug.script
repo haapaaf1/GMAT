@@ -1,0 +1,22 @@
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create String reportFile1, targetFile1, reportFile2, targetFile2;
+
+GMAT reportFile1 = 'Func_AnimationBug.report';
+GMAT targetFile1 = 'Func_AnimationBug_Target.data';
+
+GMAT reportFile2 = 'Func_AnimationBug_Nested.report';
+GMAT targetFile2 = 'Func_AnimationBug_Nested_Target.data';
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginScript;
+EndScript;
+
+Func_AnimationBug(reportFile1, targetFile1)
+%%Func_AnimationBug_Nested(reportFile2, targetFile2);
+

@@ -1,0 +1,457 @@
+
+%% GMAT System Test Script File
+%
+% This test script is designed to test the following elements:
+%
+% 1. Different variations of VNB coordinate systems for the Impulsive Burn Object
+% 2. Equivalent setups with different script syntax for the Impulsive Burn Object
+%
+% External dependencies: None
+%
+% Output data generated should adhere to the following guidelines:
+% 1. The [BodyName]Orig line corresponds to initial state for each case
+% 2. All the [Bodyname]Case# lines should have the same values
+%    An easy way to check to see if the burn was applied correctly is to look at the last three
+%    columns of the report and verify that Orig[Bodyname]SC.[Bodyname]OrigVNB.V* values changed 
+%    by 0.1 when compared to the [BodyName]Orig line.
+%
+%   Modification History
+%   ---------------------------------------------------------------------------------
+%   05/08/2009 - E.Dove:  Created the first version.
+%   05/12/2009 - E.Dove:  Changed Impulsive Burn object Axes to VNB from MJ2000Eq
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft OrigEarthSC;
+GMAT OrigEarthSC.DateFormat = TAIModJulian;
+GMAT OrigEarthSC.Epoch = 21545.000000000;
+GMAT OrigEarthSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT OrigEarthSC.DisplayStateType = Cartesian;
+GMAT OrigEarthSC.X = 7378;
+GMAT OrigEarthSC.Y = 0;
+GMAT OrigEarthSC.Z = 0;
+GMAT OrigEarthSC.VX = 0;
+GMAT OrigEarthSC.VY = 5.1973811193846027;
+GMAT OrigEarthSC.VZ = 5.1973811193846018;
+GMAT OrigEarthSC.DryMass = 850;
+GMAT OrigEarthSC.Cd = 2.2;
+GMAT OrigEarthSC.Cr = 1.8;
+GMAT OrigEarthSC.DragArea = 15;
+GMAT OrigEarthSC.SRPArea = 1;
+
+Create Spacecraft OrigSunSC;
+GMAT OrigSunSC.DateFormat = TAIModJulian;
+GMAT OrigSunSC.Epoch = 21545.000000000;
+GMAT OrigSunSC.CoordinateSystem = SunMJ2000Eq;
+GMAT OrigSunSC.DisplayStateType = Cartesian;
+GMAT OrigSunSC.X = 1000000.0;
+GMAT OrigSunSC.Y = 0;
+GMAT OrigSunSC.Z = 0;
+GMAT OrigSunSC.VX = 0;
+GMAT OrigSunSC.VY = 257.597010870;
+GMAT OrigSunSC.VZ = 257.597010870;
+GMAT OrigSunSC.DryMass = 850;
+GMAT OrigSunSC.Cd = 2.2;
+GMAT OrigSunSC.Cr = 1.8;
+GMAT OrigSunSC.DragArea = 15;
+GMAT OrigSunSC.SRPArea = 1;
+
+Create Spacecraft OrigMarsSC;
+GMAT OrigMarsSC.DateFormat = TAIModJulian;
+GMAT OrigMarsSC.Epoch = 21545;
+GMAT OrigMarsSC.CoordinateSystem = MarsMJ2000Eq;
+GMAT OrigMarsSC.DisplayStateType = Cartesian;
+GMAT OrigMarsSC.X = 4500;
+GMAT OrigMarsSC.Y = 0;
+GMAT OrigMarsSC.Z = 0;
+GMAT OrigMarsSC.VX = 0;
+GMAT OrigMarsSC.VY = 2.1814448386859766;
+GMAT OrigMarsSC.VZ = 2.1814448386859713;
+GMAT OrigMarsSC.DryMass = 850;
+GMAT OrigMarsSC.Cd = 2.2;
+GMAT OrigMarsSC.Cr = 1.8;
+GMAT OrigMarsSC.DragArea = 15;
+GMAT OrigMarsSC.SRPArea = 1;
+
+Create Spacecraft OrigMoonSC;
+GMAT OrigMoonSC.DateFormat = TAIModJulian;
+GMAT OrigMoonSC.Epoch = 21545;
+GMAT OrigMoonSC.CoordinateSystem = MoonMJ2000Eq;
+GMAT OrigMoonSC.DisplayStateType = Cartesian;
+GMAT OrigMoonSC.X = 2050.0;
+GMAT OrigMoonSC.Y = 0;
+GMAT OrigMoonSC.Z = 0;
+GMAT OrigMoonSC.VX = 0;
+GMAT OrigMoonSC.VY = 1.093528701;
+GMAT OrigMoonSC.VZ = 1.093528701;
+GMAT OrigMoonSC.DryMass = 850;
+GMAT OrigMoonSC.Cd = 2.2;
+GMAT OrigMoonSC.Cr = 1.8;
+GMAT OrigMoonSC.DragArea = 15;
+GMAT OrigMoonSC.SRPArea = 1;
+
+Create Spacecraft BurnSC1Earth;
+Create Spacecraft BurnSC2Earth;
+Create Spacecraft BurnSC3Earth;
+Create Spacecraft BurnSC4Earth;
+Create Spacecraft BurnSC5Earth;
+
+Create Spacecraft BurnSC1Sun;
+Create Spacecraft BurnSC2Sun;
+Create Spacecraft BurnSC3Sun;
+Create Spacecraft BurnSC4Sun;
+Create Spacecraft BurnSC5Sun;
+
+Create Spacecraft BurnSC1Mars;
+Create Spacecraft BurnSC2Mars;
+Create Spacecraft BurnSC3Mars;
+Create Spacecraft BurnSC4Mars;
+Create Spacecraft BurnSC5Mars;
+
+Create Spacecraft BurnSC1Moon;
+Create Spacecraft BurnSC2Moon;
+Create Spacecraft BurnSC3Moon;
+Create Spacecraft BurnSC4Moon;
+Create Spacecraft BurnSC5Moon;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PointMasses = {Earth};
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-12;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn EarthBurn1;
+GMAT EarthBurn1.Origin   = Earth;
+GMAT EarthBurn1.Axes     = VNB;
+GMAT EarthBurn1.Element1 = 0.1;
+GMAT EarthBurn1.Element2 = 0.1;
+GMAT EarthBurn1.Element3 = 0.1;
+
+Create ImpulsiveBurn EarthBurn3;
+GMAT EarthBurn3.Origin       = Earth;
+GMAT EarthBurn3.Axes         = VNB;
+GMAT EarthBurn3.VectorFormat = Cartesian;
+GMAT EarthBurn3.Element1     = 0.1;
+GMAT EarthBurn3.Element2     = 0.1;
+GMAT EarthBurn3.Element3     = 0.1;
+
+Create ImpulsiveBurn EarthBurn5;
+GMAT EarthBurn5.CoordinateSystem = EarthOrigVNB;
+GMAT EarthBurn5.Element1         = 0.1;
+GMAT EarthBurn5.Element2         = 0.1;
+GMAT EarthBurn5.Element3         = 0.1;
+
+
+Create ImpulsiveBurn SunBurn1;
+GMAT SunBurn1.Origin   = Sun;
+GMAT SunBurn1.Axes     = VNB;
+GMAT SunBurn1.Element1 = 0.1;
+GMAT SunBurn1.Element2 = 0.1;
+GMAT SunBurn1.Element3 = 0.1;
+
+Create ImpulsiveBurn SunBurn3;
+GMAT SunBurn3.Origin       = Sun;
+GMAT SunBurn3.Axes         = VNB;
+GMAT SunBurn3.VectorFormat = Cartesian;
+GMAT SunBurn3.Element1     = 0.1;
+GMAT SunBurn3.Element2     = 0.1;
+GMAT SunBurn3.Element3     = 0.1;
+
+Create ImpulsiveBurn SunBurn5;
+GMAT SunBurn5.CoordinateSystem = SunOrigVNB;
+GMAT SunBurn5.Element1         = 0.1;
+GMAT SunBurn5.Element2         = 0.1;
+GMAT SunBurn5.Element3         = 0.1;
+
+
+Create ImpulsiveBurn MarsBurn1;
+GMAT MarsBurn1.Origin   = Mars;
+GMAT MarsBurn1.Axes     = VNB;
+GMAT MarsBurn1.Element1 = 0.1;
+GMAT MarsBurn1.Element2 = 0.1;
+GMAT MarsBurn1.Element3 = 0.1;
+
+Create ImpulsiveBurn MarsBurn3;
+GMAT MarsBurn3.Origin       = Mars;
+GMAT MarsBurn3.Axes         = VNB;
+GMAT MarsBurn3.VectorFormat = Cartesian;
+GMAT MarsBurn3.Element1     = 0.1;
+GMAT MarsBurn3.Element2     = 0.1;
+GMAT MarsBurn3.Element3     = 0.1;
+
+Create ImpulsiveBurn MarsBurn5;
+GMAT MarsBurn5.CoordinateSystem = MarsOrigVNB;
+GMAT MarsBurn5.Element1         = 0.1;
+GMAT MarsBurn5.Element2         = 0.1;
+GMAT MarsBurn5.Element3         = 0.1;
+
+
+Create ImpulsiveBurn MoonBurn1;
+GMAT MoonBurn1.Origin   = Luna;
+GMAT MoonBurn1.Axes     = VNB;
+GMAT MoonBurn1.Element1 = 0.1;
+GMAT MoonBurn1.Element2 = 0.1;
+GMAT MoonBurn1.Element3 = 0.1;
+
+Create ImpulsiveBurn MoonBurn3;
+GMAT MoonBurn3.Origin       = Luna;
+GMAT MoonBurn3.Axes         = VNB;
+GMAT MoonBurn3.VectorFormat = Cartesian;
+GMAT MoonBurn3.Element1     = 0.1;
+GMAT MoonBurn3.Element2     = 0.1;
+GMAT MoonBurn3.Element3     = 0.1;
+
+Create ImpulsiveBurn MoonBurn5;
+GMAT MoonBurn5.CoordinateSystem = MoonOrigVNB;
+GMAT MoonBurn5.Element1         = 0.1;
+GMAT MoonBurn5.Element2         = 0.1;
+GMAT MoonBurn5.Element3         = 0.1;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem SunMJ2000Eq;
+GMAT SunMJ2000Eq.Origin = Sun;
+GMAT SunMJ2000Eq.Axes   = MJ2000Eq;
+
+Create CoordinateSystem MoonMJ2000Eq;
+GMAT MoonMJ2000Eq.Origin = Luna;
+GMAT MoonMJ2000Eq.Axes   = MJ2000Eq;
+
+Create CoordinateSystem MarsMJ2000Eq;
+GMAT MarsMJ2000Eq.Origin = Mars;
+GMAT MarsMJ2000Eq.Axes   = MJ2000Eq;
+
+Create CoordinateSystem EarthOrigVNB;
+GMAT EarthOrigVNB.Origin = OrigEarthSC;
+GMAT EarthOrigVNB.Axes = ObjectReferenced;
+GMAT EarthOrigVNB.XAxis = V;
+GMAT EarthOrigVNB.YAxis = N;
+GMAT EarthOrigVNB.Primary = Earth;
+GMAT EarthOrigVNB.Secondary = OrigEarthSC;
+
+Create CoordinateSystem SunOrigVNB;
+GMAT SunOrigVNB.Origin = OrigSunSC;
+GMAT SunOrigVNB.Axes = ObjectReferenced;
+GMAT SunOrigVNB.XAxis = V;
+GMAT SunOrigVNB.YAxis = N;
+GMAT SunOrigVNB.Primary = Sun;
+GMAT SunOrigVNB.Secondary = OrigSunSC;
+
+Create CoordinateSystem MarsOrigVNB;
+GMAT MarsOrigVNB.Origin = OrigMarsSC;
+GMAT MarsOrigVNB.Axes = ObjectReferenced;
+GMAT MarsOrigVNB.XAxis = V;
+GMAT MarsOrigVNB.YAxis = N;
+GMAT MarsOrigVNB.Primary = Mars;
+GMAT MarsOrigVNB.Secondary = OrigMarsSC;
+
+Create CoordinateSystem MoonOrigVNB;
+GMAT MoonOrigVNB.Origin = OrigMoonSC;
+GMAT MoonOrigVNB.Axes = ObjectReferenced;
+GMAT MoonOrigVNB.XAxis = V;
+GMAT MoonOrigVNB.YAxis = N;
+GMAT MoonOrigVNB.Primary = Luna;
+GMAT MoonOrigVNB.Secondary = OrigMoonSC;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+Create String CaseDesc;
+Create String EarthCase1, EarthCase2, EarthCase3, EarthCase4, EarthCase5;
+Create String SunCase1, SunCase2, SunCase3, SunCase4, SunCase5;
+Create String MarsCase1, MarsCase2, MarsCase3, MarsCase4, MarsCase5;
+Create String MoonCase1, MoonCase2, MoonCase3, MoonCase4, MoonCase5;
+
+CaseDesc   = 'EarthOrig';
+EarthCase1 = 'EarthCase1';
+EarthCase2 = 'EarthCase2';
+EarthCase3 = 'EarthCase3';
+EarthCase4 = 'EarthCase4';
+EarthCase5 = 'EarthCase5';
+SunCase1   = 'SunCase1';
+SunCase2   = 'SunCase2';
+SunCase3   = 'SunCase3';
+SunCase4   = 'SunCase4';
+SunCase5   = 'SunCase5';
+MarsCase1  = 'MarsCase1';
+MarsCase2  = 'MarsCase2';
+MarsCase3  = 'MarsCase3';
+MarsCase4  = 'MarsCase4';
+MarsCase5  = 'MarsCase5';
+MoonCase1  = 'MoonCase1';
+MoonCase2  = 'MoonCase2';
+MoonCase3  = 'MoonCase3';
+MoonCase4  = 'MoonCase4';
+MoonCase5  = 'MoonCase5';
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile EarthReport;
+GMAT EarthReport.SolverIterations = Current;
+GMAT EarthReport.Filename = 'Bug1466-IBurnEarthCStest4VNB.report';
+GMAT EarthReport.Precision = 16;
+GMAT EarthReport.WriteHeaders = On;
+GMAT EarthReport.LeftJustify = On;
+GMAT EarthReport.ZeroFill = Off;
+GMAT EarthReport.ColumnWidth = 30;
+
+Create ReportFile SunReport;
+GMAT SunReport.SolverIterations = Current;
+GMAT SunReport.Filename = 'Bug1466-IBurnSunCStest4VNB.report';
+GMAT SunReport.Precision = 16;
+GMAT SunReport.WriteHeaders = On;
+GMAT SunReport.LeftJustify = On;
+GMAT SunReport.ZeroFill = Off;
+GMAT SunReport.ColumnWidth = 30;
+
+Create ReportFile MarsReport;
+GMAT MarsReport.SolverIterations = Current;
+GMAT MarsReport.Filename = 'Bug1466-IBurnMarsCStest4VNB.report';
+GMAT MarsReport.Precision = 16;
+GMAT MarsReport.WriteHeaders = On;
+GMAT MarsReport.LeftJustify = On;
+GMAT MarsReport.ZeroFill = Off;
+GMAT MarsReport.ColumnWidth = 30;
+
+Create ReportFile MoonReport;
+GMAT MoonReport.SolverIterations = Current;
+GMAT MoonReport.Filename = 'Bug1466-IBurnMoonCStest4VNB.report';
+GMAT MoonReport.Precision = 16;
+GMAT MoonReport.WriteHeaders = On;
+GMAT MoonReport.LeftJustify = On;
+GMAT MoonReport.ZeroFill = Off;
+GMAT MoonReport.ColumnWidth = 30;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+% ==============
+% Earth
+% ==============
+Report EarthReport CaseDesc OrigEarthSC.A1ModJulian OrigEarthSC.EarthMJ2000Eq.VX OrigEarthSC.EarthMJ2000Eq.VY OrigEarthSC.EarthMJ2000Eq.VZ OrigEarthSC.EarthOrigVNB.VX OrigEarthSC.EarthOrigVNB.VY OrigEarthSC.EarthOrigVNB.VZ;
+GMAT EarthReport.WriteHeaders = Off;
+% ==============
+% Earth Case 1
+% ==============
+BurnSC1Earth = OrigEarthSC;
+Maneuver EarthBurn1(BurnSC1Earth);
+Report EarthReport EarthCase1 BurnSC1Earth.A1ModJulian BurnSC1Earth.EarthMJ2000Eq.VX BurnSC1Earth.EarthMJ2000Eq.VY BurnSC1Earth.EarthMJ2000Eq.VZ BurnSC1Earth.EarthOrigVNB.VX BurnSC1Earth.EarthOrigVNB.VY BurnSC1Earth.EarthOrigVNB.VZ;
+% ==============
+% Earth Case 3
+% ==============
+BurnSC3Earth = OrigEarthSC;
+Maneuver EarthBurn3(BurnSC3Earth);
+Report EarthReport EarthCase3 BurnSC3Earth.A1ModJulian BurnSC3Earth.EarthMJ2000Eq.VX BurnSC3Earth.EarthMJ2000Eq.VY BurnSC3Earth.EarthMJ2000Eq.VZ BurnSC3Earth.EarthOrigVNB.VX BurnSC3Earth.EarthOrigVNB.VY BurnSC3Earth.EarthOrigVNB.VZ;
+% ==============
+% Earth Case 5
+% ==============
+BurnSC5Earth = OrigEarthSC;
+Maneuver EarthBurn5(BurnSC5Earth);
+Report EarthReport EarthCase5 BurnSC5Earth.A1ModJulian BurnSC5Earth.EarthMJ2000Eq.VX BurnSC5Earth.EarthMJ2000Eq.VY BurnSC5Earth.EarthMJ2000Eq.VZ BurnSC5Earth.EarthOrigVNB.VX BurnSC5Earth.EarthOrigVNB.VY BurnSC5Earth.EarthOrigVNB.VZ;
+
+
+% ==============
+% Sun
+% ==============
+GMAT SunReport.WriteHeaders = On;
+CaseDesc   = 'SunOrig';
+Report SunReport CaseDesc OrigSunSC.A1ModJulian OrigSunSC.SunMJ2000Eq.VX OrigSunSC.SunMJ2000Eq.VY OrigSunSC.SunMJ2000Eq.VZ OrigSunSC.SunOrigVNB.VX OrigSunSC.SunOrigVNB.VY OrigSunSC.SunOrigVNB.VZ;
+GMAT SunReport.WriteHeaders = Off;
+% ==============
+% Sun Case 1
+% ==============
+BurnSC1Sun = OrigSunSC;
+Maneuver SunBurn1(BurnSC1Sun);
+Report SunReport SunCase1 BurnSC1Sun.A1ModJulian BurnSC1Sun.SunMJ2000Eq.VX BurnSC1Sun.SunMJ2000Eq.VY BurnSC1Sun.SunMJ2000Eq.VZ BurnSC1Sun.SunOrigVNB.VX BurnSC1Sun.SunOrigVNB.VY BurnSC1Sun.SunOrigVNB.VZ;
+% ==============
+% Sun Case 3
+% ==============
+BurnSC3Sun = OrigSunSC;
+Maneuver SunBurn3(BurnSC3Sun);
+Report SunReport SunCase3 BurnSC3Sun.A1ModJulian BurnSC3Sun.SunMJ2000Eq.VX BurnSC3Sun.SunMJ2000Eq.VY BurnSC3Sun.SunMJ2000Eq.VZ BurnSC3Sun.SunOrigVNB.VX BurnSC3Sun.SunOrigVNB.VY BurnSC3Sun.SunOrigVNB.VZ;
+% ==============
+% Sun Case 5
+% ==============
+BurnSC5Sun = OrigSunSC;
+Maneuver SunBurn5(BurnSC5Sun);
+Report SunReport SunCase5 BurnSC5Sun.A1ModJulian BurnSC5Sun.SunMJ2000Eq.VX BurnSC5Sun.SunMJ2000Eq.VY BurnSC5Sun.SunMJ2000Eq.VZ BurnSC5Sun.SunOrigVNB.VX BurnSC5Sun.SunOrigVNB.VY BurnSC5Sun.SunOrigVNB.VZ;
+
+
+% ==============
+% Mars
+% ==============
+GMAT MarsReport.WriteHeaders = On;
+CaseDesc   = 'MarsOrig';
+Report MarsReport CaseDesc OrigMarsSC.A1ModJulian OrigMarsSC.MarsMJ2000Eq.VX OrigMarsSC.MarsMJ2000Eq.VY OrigMarsSC.MarsMJ2000Eq.VZ OrigMarsSC.MarsOrigVNB.VX OrigMarsSC.MarsOrigVNB.VY OrigMarsSC.MarsOrigVNB.VZ;
+GMAT MarsReport.WriteHeaders = Off;
+% ==============
+% Mars Case 1
+% ==============
+BurnSC1Mars = OrigMarsSC;
+Maneuver MarsBurn1(BurnSC1Mars);
+Report MarsReport MarsCase1 BurnSC1Mars.A1ModJulian BurnSC1Mars.MarsMJ2000Eq.VX BurnSC1Mars.MarsMJ2000Eq.VY BurnSC1Mars.MarsMJ2000Eq.VZ BurnSC1Mars.MarsOrigVNB.VX BurnSC1Mars.MarsOrigVNB.VY BurnSC1Mars.MarsOrigVNB.VZ;
+% ==============
+% Mars Case 3
+% ==============
+BurnSC3Mars = OrigMarsSC;
+Maneuver MarsBurn3(BurnSC3Mars);
+Report MarsReport MarsCase3 BurnSC3Mars.A1ModJulian BurnSC3Mars.MarsMJ2000Eq.VX BurnSC3Mars.MarsMJ2000Eq.VY BurnSC3Mars.MarsMJ2000Eq.VZ BurnSC3Mars.MarsOrigVNB.VX BurnSC3Mars.MarsOrigVNB.VY BurnSC3Mars.MarsOrigVNB.VZ;
+% ==============
+% Mars Case 5
+% ==============
+BurnSC5Mars = OrigMarsSC;
+Maneuver MarsBurn5(BurnSC5Mars);
+Report MarsReport MarsCase5 BurnSC5Mars.A1ModJulian BurnSC5Mars.MarsMJ2000Eq.VX BurnSC5Mars.MarsMJ2000Eq.VY BurnSC5Mars.MarsMJ2000Eq.VZ BurnSC5Mars.MarsOrigVNB.VX BurnSC5Mars.MarsOrigVNB.VY BurnSC5Mars.MarsOrigVNB.VZ;
+
+
+% ==============
+% Moon
+% ==============
+GMAT MoonReport.WriteHeaders = On;
+CaseDesc   = 'MoonOrig';
+Report MoonReport CaseDesc OrigMoonSC.A1ModJulian OrigMoonSC.MoonMJ2000Eq.VX OrigMoonSC.MoonMJ2000Eq.VY OrigMoonSC.MoonMJ2000Eq.VZ OrigMoonSC.MoonOrigVNB.VX OrigMoonSC.MoonOrigVNB.VY OrigMoonSC.MoonOrigVNB.VZ;
+GMAT MoonReport.WriteHeaders = Off;
+% ==============
+% Moon Case 1
+% ==============
+BurnSC1Moon = OrigMoonSC;
+Maneuver MoonBurn1(BurnSC1Moon);
+Report MoonReport MoonCase1 BurnSC1Moon.A1ModJulian BurnSC1Moon.MoonMJ2000Eq.VX BurnSC1Moon.MoonMJ2000Eq.VY BurnSC1Moon.MoonMJ2000Eq.VZ BurnSC1Moon.MoonOrigVNB.VX BurnSC1Moon.MoonOrigVNB.VY BurnSC1Moon.MoonOrigVNB.VZ;
+% ==============
+% Moon Case 3
+% ==============
+BurnSC3Moon = OrigMoonSC;
+Maneuver MoonBurn3(BurnSC3Moon);
+Report MoonReport MoonCase3 BurnSC3Moon.A1ModJulian BurnSC3Moon.MoonMJ2000Eq.VX BurnSC3Moon.MoonMJ2000Eq.VY BurnSC3Moon.MoonMJ2000Eq.VZ BurnSC3Moon.MoonOrigVNB.VX BurnSC3Moon.MoonOrigVNB.VY BurnSC3Moon.MoonOrigVNB.VZ;
+% ==============
+% Moon Case 5
+% ==============
+BurnSC5Moon = OrigMoonSC;
+Maneuver MoonBurn5(BurnSC5Moon);
+Report MoonReport MoonCase5 BurnSC5Moon.A1ModJulian BurnSC5Moon.MoonMJ2000Eq.VX BurnSC5Moon.MoonMJ2000Eq.VY BurnSC5Moon.MoonMJ2000Eq.VZ BurnSC5Moon.MoonOrigVNB.VX BurnSC5Moon.MoonOrigVNB.VY BurnSC5Moon.MoonOrigVNB.VZ;
