@@ -121,8 +121,7 @@ void BurnThrusterPanel::Create()
                                               wxSize(150,-1));
    
    // Axes 
-   ///@todo Needs to be implemented in the base code
-   StringArray axesLabels = theObject->GetStringArrayParameter("Axes");
+   StringArray axesLabels = theObject->GetPropertyEnumStrings("Axes");
    wxArrayString wxAxesLabels = ToWxArrayString(axesLabels);
    
    axisLabel = new wxStaticText(this, ID_TEXT, wxT("Axes"));
