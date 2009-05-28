@@ -328,7 +328,7 @@ void GmatPanel::OnSummary(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 // bool CheckReal(Real &rvalue, const std::string &str,
 //                const std::string &field, const std::string &expRange,
-//                bool onlyMsg = false, bool positive = false, bool zeroOk = false)
+//                bool onlyMsg, bool checkRange, bool positive bool zeroOk)
 //------------------------------------------------------------------------------
 /*
  * This method checks if input string is valid real number. It uses
@@ -336,22 +336,23 @@ void GmatPanel::OnSummary(wxCommandEvent &event)
  * pops up the error message and sets canClose to false if input string is
  * not a real number.
  *
- * @param  rvalue   Real value to be set if input string is valid
- * @param  str      Input string value
- * @param  field    Field name should be used in the error message
- * @param  expRange Expected value range to be used in the error message
- * @param  onlyMsg  if true, it only shows error message (default is false)
- * @param  positive if true, the value must be positive (default is false)
- * @param  zeroOk   if true, zero is allowed (default is false)
+ * @param  rvalue     Real value to be set if input string is valid
+ * @param  str        Input string value
+ * @param  field      Field name should be used in the error message
+ * @param  expRange   Expected value range to be used in the error message
+ * @param  onlyMsg    if true, it only shows error message (false)
+ * @param  checkRange if true, it will check for positive and zero (false)
+ * @param  positive   if true, the value must be positive (false)
+ * @param  zeroOk     if true, zero is allowed (false)
  */
 //------------------------------------------------------------------------------
 bool GmatPanel::CheckReal(Real &rvalue, const std::string &str,
                           const std::string &field, const std::string &expRange,
-                          bool onlyMsg, bool positive, bool zeroOk)
+                          bool onlyMsg, bool checkRange, bool positive, bool zeroOk)
 {
    #ifdef DEBUG_CHECK_REAL
    MessageInterface::ShowMessage
-      ("GmatPanel::CheckReal() str=%s, field=%s, expRange=%s\n", str.c_str(),
+      ("GmatPanel::CheckReal() str='%s', field='%s', expRange='%s'\n", str.c_str(),
        field.c_str(), expRange.c_str());
    #endif
    
@@ -371,16 +372,19 @@ bool GmatPanel::CheckReal(Real &rvalue, const std::string &str,
    {
       rvalue = rval;
       
-      if (!positive ||
-          (positive && rval > 0) ||
-          (zeroOk && rval >= 0))
+      if (checkRange)
+      {
+         if (!positive || (positive && rval > 0) || (zeroOk && rval >= 0))
+            return true;
+      }
+      else
          return true;
    }
    
    MessageInterface::PopupMessage
       (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
        expRange.c_str());
-      
+   
    canClose = false;
    return false;
 }
@@ -397,18 +401,19 @@ bool GmatPanel::CheckReal(Real &rvalue, const std::string &str,
  * pops up the error message and sets canClose to false if input string is
  * not an integer number.
  *
- * @param  ivalue   Integer value to be set if input string is valid
- * @param  str      Input string value
- * @param  field    Field name should be used in the error message
- * @param  expRange Expected value range to be used in the error message
- * @param  onlyMsg  if true, it only shows error message (default is false)
- * @param  positive if true, the value must be positive (default is false)
- * @param  zeroOk   if true, zero is allowed (default is false)
+ * @param  ivalue     Integer value to be set if input string is valid
+ * @param  str        Input string value
+ * @param  field      Field name should be used in the error message
+ * @param  expRange   Expected value range to be used in the error message
+ * @param  onlyMsg    if true, it only shows error message (false)
+ * @param  checkRange if true, it will check for positive and zero (false)
+ * @param  positive   if true, the value must be positive (false)
+ * @param  zeroOk     if true, zero is allowed (false)
  */
 //------------------------------------------------------------------------------
 bool GmatPanel::CheckInteger(Integer &ivalue, const std::string &str,
                              const std::string &field, const std::string &expRange,
-                             bool onlyMsg, bool positive, bool zeroOk)
+                             bool checkRange, bool onlyMsg, bool positive, bool zeroOk)
 {
    if (onlyMsg)
    {
@@ -425,10 +430,13 @@ bool GmatPanel::CheckInteger(Integer &ivalue, const std::string &str,
    if (GmatStringUtil::ToInteger(str, &ival))
    {
       ivalue = ival;
-      
-      if (!positive ||
-          (positive && ival > 0) ||
-          (zeroOk && ival >= 0))
+
+      if (checkRange)
+      {
+         if (!positive || (positive && ival > 0) || (zeroOk && ival >= 0))
+            return true;
+      }
+      else
          return true;
    }
    
@@ -631,3 +639,5 @@ wxString GmatPanel::ToWxString(const wxArrayString &names)
    
    return str;
 }
+
+

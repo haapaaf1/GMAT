@@ -52,13 +52,13 @@ public:
    
    bool CheckReal(Real &rvalue, const std::string &str,
                   const std::string &field, const std::string &expRange,
-                  bool onlyMsg = false, bool positive = false,
-                  bool zeroOk = false);
+                  bool onlyMsg = false, bool checkRange = false, 
+                  bool positive = false, bool zeroOk = false);
    
    bool CheckInteger(Integer &ivalue, const std::string &str,
                      const std::string &field, const std::string &expRange,
-                     bool onlyMsg = false, bool positive = false,
-                     bool zeroOk = false);
+                     bool onlyMsg = false, bool checkRange = false,
+                     bool positive = false, bool zeroOk = false);
    
    bool CheckVariable(const std::string &varName, Gmat::ObjectType ownerType,
                       const std::string &field, const std::string &expRange,
@@ -118,7 +118,7 @@ protected:
       ID_BUTTON_SCRIPT,
       ID_BUTTON_SUMMARY,
    };
-
+   
 };
 
 #endif // GmatPanel_hpp
