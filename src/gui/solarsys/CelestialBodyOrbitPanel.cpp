@@ -643,10 +643,11 @@ void CelestialBodyOrbitPanel::Create()
       mainBoxSizer->Add(boxSizer2, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize); 
    }
    
-   // disable ephem source, ephem file, and central body for default bodies
+   // disable ephem source, ephem file, and central body for default bodies, since
+   // those need to be set on the SolarSystem panel
    if (!userDef)
    {
-//      ephemSourceComboBox->Disable();
+      ephemSourceComboBox->Disable();
       ephemFileTextCtrl->Disable();
       ephemFileBrowseButton->Disable();
    }
