@@ -1,3 +1,4 @@
+%Id%
 % GMAT Script File
 % GMAT Release Build 4.1, May 2005
 
@@ -63,14 +64,6 @@ GMAT TOI.VectorFormat = Cartesian;
 GMAT TOI.Element1 = 1.432982502463442;
 GMAT TOI.Element2 = 0;
 GMAT TOI.Element3 = 0;
-
-Create ImpulsiveBurn GOI;
-GMAT GOI.Origin = Earth;
-GMAT GOI.Axes = VNB;
-GMAT GOI.VectorFormat = Cartesian;
-GMAT GOI.Element1 = 0;
-GMAT GOI.Element2 = 0;
-GMAT GOI.Element3 = 0;
 
 
 %----------------------------------------

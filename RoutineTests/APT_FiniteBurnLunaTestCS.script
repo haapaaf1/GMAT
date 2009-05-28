@@ -1,3 +1,4 @@
+%Id%
 % GMAT Script File
 % GMAT Release Build 5, August 2005
 
@@ -44,6 +45,7 @@ GMAT thruster.Element2 = 0;
 GMAT thruster.Element3 = 0;
 GMAT thruster.Tank = {tank};
 %% Notes: There were some coeff changes by Darrel on 2009.02.17
+GMAT thruster.C1 = 0;
 GMAT thruster.C3 = 1;
 GMAT thruster.C13 = 1;
 %%GMAT thruster.CoordinateSystem = MJ2000EarthEquator;
