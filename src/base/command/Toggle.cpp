@@ -175,9 +175,10 @@ bool Toggle::Initialize()
       }
    }
    
-   if (publisher == NULL)
-      publisher = Publisher::Instance();
-   streamID = publisher->RegisterPublishedData(subNames, subNames);
+   //@todo Do we need this code? Ccommented out for now (LOJ: 2009.06.01)
+   //if (publisher == NULL)
+   //   publisher = Publisher::Instance();
+   //streamID = publisher->RegisterPublishedData(this, subNames, subNames);
    
    return true;
 }
@@ -446,17 +447,7 @@ bool Toggle::SetStringParameter(const Integer id, const std::string &value)
    if (id == subscriberID)
    {
       if (find(subNames.begin(), subNames.end(), value) == subNames.end())
-      {
          subNames.push_back(value);
-         
-         // Register with the publisher
-         if (publisher == NULL)
-            publisher = Publisher::Instance();
-         
-         // loj: 2007.10.05 - We need to register in Initialize()
-         //streamID = publisher->RegisterPublishedData(subNames, subNames);
-         //MessageInterface::ShowMessage("===> streamID=%d\n", streamID);
-      }
       
       return true;
    }
@@ -510,10 +501,10 @@ bool Toggle::SetStringParameter(const Integer id,
          if (index == (Integer) subNames.size())  subNames.push_back(value);
          else                   subNames.at(index) = value;
          
-         if (publisher == NULL)
-            publisher = Publisher::Instance();
-         
-         streamID = publisher->RegisterPublishedData(subNames, subNames);
+         //@todo Do we need this code? Commented out for now (LOJ: 2009.06.01)
+         //if (publisher == NULL)
+         //   publisher = Publisher::Instance();         
+         //streamID = publisher->RegisterPublishedData(this, subNames, subNames);
       }
       
       return true;
