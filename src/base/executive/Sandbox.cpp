@@ -858,7 +858,6 @@ bool Sandbox::Interrupt()
 }
 
 
-
 //------------------------------------------------------------------------------
 // void Clear()
 //------------------------------------------------------------------------------
@@ -967,9 +966,11 @@ void Sandbox::Clear()
       ("--- Sandbox::Clear() deleting objects from globalObjectMap done\n");
    #endif
    
-   // delete subscribers
+   // Clear published data
+   if (publisher)
+      publisher->ClearPublishedData();
    publisher = NULL;
-
+   
 #ifndef DISABLE_SOLAR_SYSTEM_CLONING
    if (solarSys != NULL)
    {
