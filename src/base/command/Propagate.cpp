@@ -31,6 +31,11 @@
 #include <sstream>
 #include <cmath>
 
+// The old Publisher code keep incrementing the provider id whenever
+// Publisher::RegisterPublishedData() is called, which causes OpenGL
+// plot to fail if it is used in the nested GmatFunction.
+//#define __USE_OLD_PUB_CODE__
+
 //#define DEBUG_PROPAGATE_ASSEMBLE 1
 //#define DEBUG_PROPAGATE_OBJ 1
 //#define DEBUG_PROPAGATE_INIT 1
@@ -2430,7 +2435,7 @@ bool Propagate::Initialize()
           GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       
-      streamID = publisher->RegisterPublishedData(owners, elements);
+      streamID = publisher->RegisterPublishedData(this, streamID, owners, elements);
       
       p->SetPhysicalModel(odem);
       p->SetRealParameter("InitialStepSize", 
@@ -3013,7 +3018,12 @@ void Propagate::PrepareToPropagate()
           "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
           dim+1, streamID, pubdata[0]);
    #endif
-   publisher->Publish(streamID, pubdata, dim+1);
+   
+   #ifdef __USE_OLD_PUB_CODE__
+      publisher->Publish(streamID, pubdata, dim+1);
+   #else
+      publisher->Publish(this, streamID, pubdata, dim+1);
+   #endif
 }
 
 
@@ -3166,7 +3176,12 @@ bool Propagate::Execute()
                 "1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
                 dim+1, streamID, pubdata[0]);
             #endif
-            publisher->Publish(streamID, pubdata, dim+1);
+            
+            #ifdef __USE_OLD_PUB_CODE__
+               publisher->Publish(streamID, pubdata, dim+1);
+            #else
+               publisher->Publish(this, streamID, pubdata, dim+1);
+            #endif
          }
          else
          {  
@@ -3822,7 +3837,12 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
           "1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
           dim+1, streamID, pubdata[0]);
       #endif
-      publisher->Publish(streamID, pubdata, dim+1);
+      
+      #ifdef __USE_OLD_PUB_CODE__
+         publisher->Publish(streamID, pubdata, dim+1);
+      #else
+         publisher->Publish(this, streamID, pubdata, dim+1);
+      #endif
       
       #if DEBUG_PROPAGATE_EXE
          MessageInterface::ShowMessage
@@ -4401,11 +4421,14 @@ Real Propagate::BisectToStop(StopCondition *stopper)
 void Propagate::RunComplete()
 {
    if (inProgress)
+   {
       publisher->FlushBuffers();
-      
+      publisher->UnregisterPublishedData(this);
+   }
+   
    inProgress = false;
    hasFired = false;
-
+   
    #ifdef DEBUG_FIRST_CALL
       firstStepFired = false;
    #endif
