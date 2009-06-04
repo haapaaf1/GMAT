@@ -27,9 +27,14 @@
 #include "CoordinateConverter.hpp" // for Convert()
 #include <algorithm>               // for find(), distance()
 
+// The old code keep incrementing the provider id whenever
+// Publisher::RegisterPublishedData() is called, which causes OpenGL
+// plot to fail if it is used in the nested GmatFunction.
+//#define __USE_OLD_PUB_CODE__
+
 #define __REMOVE_OBJ_BY_SETTING_FLAG__
 
-//#define DBGLVL_OPENGL_INIT 2
+//#define DBGLVL_OPENGL_INIT 1
 //#define DBGLVL_OPENGL_DATA 1
 //#define DBGLVL_OPENGL_DATA_LABELS 1
 //#define DBGLVL_OPENGL_ADD 1
@@ -898,11 +903,6 @@ void OpenGlPlot::Activate(bool state)
    #endif
    
    Subscriber::Activate(state);
-   
-//    if (state == true && !isInitialized)
-//    {
-//       Initialize();
-//    }
 }
 
 
@@ -2882,16 +2882,39 @@ bool OpenGlPlot::Distribute(const Real *dat, Integer len)
           currentProvider, theDataLabels.size());
       #endif
       
+      //==============================================================
+      #ifdef __USE_OLD_PUB_CODE__
+      //==============================================================
+      
       if (currentProvider >= (Integer)theDataLabels.size())
       {
-         SubscriberException se;
-         se.SetDetails
-            ("The provider id %d is invalid in OpenGL plot, expected id is "
-             "between 0 and %d\n", currentProvider, theDataLabels.size());
+         char msg[128];
+         sprintf(msg, "The provider id %d is invalid in OpenGL plot, expected id is "
+                 "between 0 and %d\n", currentProvider, theDataLabels.size());
+         SubscriberException se(msg);
          throw se;
       }
       
       StringArray dataLabels = theDataLabels[currentProvider];
+      //==============================================================
+      #else
+      //==============================================================
+      
+      #if DBGLVL_OPENGL_UPDATE > 2
+      MessageInterface::ShowMessage
+         ("OpenGlPlot::Distribute() Using new Publisher code\n");
+      #endif
+      
+      // @note
+      // New Publisher code doesn't assign currentProvider anymore,
+      // it just copies current labels. There was an issue with
+      // provider id keep incrementing if data is regisgered and
+      // published inside a GmatFunction
+      StringArray dataLabels = theDataLabels[0];
+      
+      //==============================================================
+      #endif
+      //==============================================================
       
       #if DBGLVL_OPENGL_DATA_LABELS
       MessageInterface::ShowMessage("   Data labels for %s =\n   ", GetName().c_str());

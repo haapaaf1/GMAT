@@ -38,6 +38,11 @@
 #include "StringUtil.hpp"          // for Replace()
 #include "MessageInterface.hpp"
 
+// The old Publisher code keep incrementing the provider id whenever
+// Publisher::RegisterPublishedData() is called, which causes OpenGL
+// plot to fail if it is used in the nested GmatFunction.
+//#define __USE_OLD_PUB_CODE__
+
 // Cloning wrapper is not ready
 //#define __ENABLE_CLONING_WRAPPERS__
 
@@ -267,21 +272,40 @@ bool Subscriber::ReceiveData(const char *datastream,  const int len)
 {
    #ifdef DEBUG_RECEIVE_DATA
    MessageInterface::ShowMessage
-      ("Subscriber::ReceiveData() active=%d, data='%s', len=%d\n",
-       active, datastream, len);
+      ("Subscriber::ReceiveData(char*, int) <%p>'%s' entered, active=%d, len=%d\n"
+       "data='%s'\n", this, GetName().c_str(), active, len, datastream);
    #endif
    
    if (!active)        // Not currently processing data
+   {
+      #ifdef DEBUG_RECEIVE_DATA
+      MessageInterface::ShowMessage
+         ("Subscriber::ReceiveData() '%s' is not active, so just returning true\n",
+          GetName().c_str());
+      #endif
       return true;
+   }
    
    data = datastream;
    if (!Distribute(len))
    {
       data = NULL;
+      #ifdef DEBUG_RECEIVE_DATA
+      MessageInterface::ShowMessage
+         ("Subscriber::ReceiveData() '%s' failed to distribute, so just returning false\n",
+          GetName().c_str());
+      #endif
       return false;
    }
    
    data = NULL;
+   
+   #ifdef DEBUG_RECEIVE_DATA
+   MessageInterface::ShowMessage
+      ("Subscriber::ReceiveData() '%s' was successful, returning true\n",
+       GetName().c_str());
+   #endif
+   
    return true;
 }
 
@@ -291,12 +315,27 @@ bool Subscriber::ReceiveData(const char *datastream,  const int len)
 //------------------------------------------------------------------------------
 bool Subscriber::ReceiveData(const double *datastream, const int len)
 {
+   #ifdef DEBUG_RECEIVE_DATA
+   MessageInterface::ShowMessage
+      ("Subscriber::ReceiveData(double*) <%p>'%s' entered, active=%d, len=%d\n",
+       this, GetName().c_str(), active, len);
+   if (len > 0)
+      MessageInterface::ShowMessage("   data[0]=%f\n", datastream[0]);
+   #endif
+   
    if (!active)        // Not currently processing data
+   {
+      #ifdef DEBUG_RECEIVE_DATA
+      MessageInterface::ShowMessage
+         ("Subscriber::ReceiveData() '%s' is not active, so just returning true\n",
+          GetName().c_str());
+      #endif
       return true;
-
+   }
+   
    if (len == 0)
       return true;
-
+   
    if (!Distribute(datastream, len))
    {
       return false;
@@ -441,11 +480,34 @@ Integer Subscriber::GetProviderId()
 //------------------------------------------------------------------------------
 void Subscriber::SetDataLabels(const StringArray& elements)
 {
+   //=================================================================
+   #ifdef __USE_OLD_PUB_CODE__
+   //=================================================================
+   
    theDataLabels.push_back(elements);
+   
+   //=================================================================
+   #else
+   //=================================================================
+
+   #ifdef DEBUG_SUBSCRIBER_SET_LABELS
+   MessageInterface::ShowMessage
+      ("==> Subscriber::SetDataLabels() Using new Publisher code\n");
+   #endif
+   
+   // Publisher new code always sets current labels
+   if (theDataLabels.empty())
+      theDataLabels.push_back(elements);
+   else
+      theDataLabels[0] = elements;
+   
+   //=================================================================
+   #endif
+   //=================================================================
    
    #ifdef DEBUG_SUBSCRIBER_DATA
    MessageInterface::ShowMessage
-      ("Subscriber::SetDataLabels() <%s> entered, theDataLabels.size()=%d, "
+      ("Subscriber::SetDataLabels() <%s> leaving, theDataLabels.size()=%d, "
        "first label is '%s'\n", GetName().c_str(), theDataLabels.size(),
        elements[0].c_str());
    #endif
