@@ -559,9 +559,11 @@ bool SolarRadiationPressure::Initialize()
    
       forceVector = new Real[dimension];
       
-      if (!cbSunVector)
-         cbSunVector = new Real[3];
-
+      if (cbSunVector)
+         delete [] cbSunVector;
+      
+      cbSunVector = new Real[3];
+      
       initialized = true;
    }
    
