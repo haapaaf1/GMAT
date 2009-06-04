@@ -1658,6 +1658,10 @@ void GmatCommand::RunComplete()
       ("GmatCommand::RunComplete for (%p)%s\n", this, typeName.c_str());
    #endif
    
+   // Reset stream ID and initialized flag
+   streamID = -1;
+   initialized = false;
+   
    if (this->IsOfType("BranchEnd"))
       return;
    
