@@ -917,9 +917,27 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    bool reinitialize = false;
    if (callingFunction != NULL)
       reinitialize = true;
-   if (!f->Execute(objInit, reinitialize))
+
+   // If function sequence failed or threw an exception, finalize the function
+   try
    {
+      if (!f->Execute(objInit, reinitialize))
+      {
+         f->Finalize();
+         if (publisher)
+            publisher->ClearPublishedData();
+         
+         return false;
+      }
+   }
+   catch (BaseException &e)
+   {
+      MessageInterface::ShowMessage
+         ("*** ERROR *** FunctionManager finializing... due to \n%s\n",
+          e.GetFullMessage().c_str());
       f->Finalize();
+      if (publisher)
+         publisher->ClearPublishedData();
       return false;
    }
    
