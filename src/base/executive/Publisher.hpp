@@ -34,17 +34,20 @@ public:
    bool Unsubscribe(Subscriber *s);
    bool UnsubscribeAll();
    
+   bool Publish(GmatBase *provider, Integer id, Real *data, Integer count);
    bool Publish(Integer id, Real *data, Integer count);
    bool Publish(Integer id, char *data, Integer count = 0);
    bool Publish(Integer id, Integer *data, Integer count);
-
+   
    bool FlushBuffers();
    bool NotifyEndOfRun();
    
    // Interface methods used to identify the data sent to the publisher and
    // subscribers
-   Integer              RegisterPublishedData(const StringArray& owners, 
+   Integer              RegisterPublishedData(GmatBase *provider, Integer id,
+                                              const StringArray& owners, 
                                               const StringArray& elements);
+   void                 UnregisterPublishedData(GmatBase *provider);
    void                 ClearPublishedData();
    const StringArray&   GetStringArrayParameter(const std::string& type);
    void                 SetInternalCoordSystem(CoordinateSystem *cs);
@@ -69,9 +72,10 @@ private:
    /// ID for the current data provider
    Integer                  currentProvider;
    /// Arrays used to track objects for published data
-   std::vector<StringArray> objectMap;
+   std::vector<StringArray> objectArray;
    /// Arrays used to track elements for published data
-   std::vector<StringArray> elementMap;
+   std::vector<StringArray> elementArray;
+   
    /// State of the system (used to track data for display or suppression)
    Gmat::RunState           runState;
    /// Internal coordinate system
@@ -82,6 +86,21 @@ private:
    CelestialBody            *dataMJ2000EqOrigin;
    /// Map of coordinate system of data
    std::map<std::string, CoordinateSystem*> coordSysMap;
+   
+   /// published data info
+   struct DataType
+   {
+      StringArray    labels;
+      Integer        id;
+      DataType(StringArray labs, Integer pos)
+      {
+         labels = labs;
+         id = pos;
+      };
+   };
+   
+   /// published data map
+   std::map<GmatBase*, std::vector<DataType>* > providerMap;
    
    void                 UpdateProviderID(Integer newId);
    
