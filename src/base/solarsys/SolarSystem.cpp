@@ -2888,29 +2888,42 @@ void SolarSystem::CloneBodiesInUse(const SolarSystem &ss)
    }
    
    // set references to cloned bodies
-   CelestialBody *sun = FindBody(SolarSystem::SUN_NAME);
-   CelestialBody *earth = FindBody(SolarSystem::EARTH_NAME);
-   #ifdef DEBUG_SS_CLONING
-      if (!sun) MessageInterface::ShowMessage("SUN not found!\n");
-      if (!earth) MessageInterface::ShowMessage("EARTH not found!\n");
-      MessageInterface::ShowMessage("   there are now %d cloned celestial bodies\n",
-                        ((Integer) bodiesInUse.size()));
-   #endif
-   
-   if (sun != NULL && earth != NULL)
+   //   CelestialBody *sun = FindBody(SolarSystem::SUN_NAME);
+   //   CelestialBody *earth = FindBody(SolarSystem::EARTH_NAME);
+      #ifdef DEBUG_SS_CLONING
+   //      if (!sun) MessageInterface::ShowMessage("SUN not found!\n");
+   //      if (!earth) MessageInterface::ShowMessage("EARTH not found!\n");
+         MessageInterface::ShowMessage("   there are now %d cloned celestial bodies\n",
+                           ((Integer) bodiesInUse.size()));
+      #endif
+      
+   //   if (sun != NULL && earth != NULL)
+   //   {
+   std::string   cbName   = "";
+   CelestialBody *cb      = NULL;
+   CelestialBody *central = NULL;
+   for (std::vector<CelestialBody*>::const_iterator cbi = bodiesInUse.begin();
+        cbi != bodiesInUse.end(); ++cbi)
    {
-      for (std::vector<CelestialBody*>::const_iterator cbi = bodiesInUse.begin();
-           cbi != bodiesInUse.end(); ++cbi)
+      cb = (*cbi);
+      cbName  = cb->GetCentralBody();
+      central = FindBody(cbName);
+      if (central == NULL)
       {
-         CelestialBody *cb = (*cbi);
-         #ifdef DEBUG_SS_CLONING
-         MessageInterface::ShowMessage("   setting reference objects on %s\n",
-                           (cb->GetName()).c_str());
-         #endif
-         cb->SetRefObject(sun, Gmat::CELESTIAL_BODY, sun->GetName());
-         cb->SetRefObject(earth, Gmat::CELESTIAL_BODY, earth->GetName());
+         std::string errmsg = "Central Body \"" + cbName;
+         errmsg += "\" for body \"" + cb->GetName();
+         errmsg += "\" cannot be found.";
+         throw SolarSystemException(errmsg);
       }
+      #ifdef DEBUG_SS_CLONING
+      MessageInterface::ShowMessage("   setting reference objects on %s\n",
+                        (cb->GetName()).c_str());
+      #endif
+      cb->SetRefObject(central, Gmat::CELESTIAL_BODY, cbName);
+//         cb->SetRefObject(sun, Gmat::CELESTIAL_BODY, sun->GetName());
+//         cb->SetRefObject(earth, Gmat::CELESTIAL_BODY, earth->GetName());
    }
+   //   }
 }
 
 
