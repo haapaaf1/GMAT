@@ -22,6 +22,7 @@ ODSat.Cd      = 1.8;
 MauiData                = Create('GroundStationRange','MauiData');
 MauiData.Filename       = 'LEOMaui.mat';
 MauiData.AddDataType{1} = {'Range','ODSat','Maui'};
+MauiData.BiasCovariance = .20;
 
 %------  Define the batch least squares solver
 BLS = Create('BatchEstimator','BLS');
@@ -31,6 +32,7 @@ BLS.AbsTolerance    = 1e-5;
 BLS.Measurements    = {'MauiData'};
 BLS.SolveFor        = {'ODSat.CartesianState','MauiData.Bias'};
 BLS.Propagator      = 'ODProp';
+BLS.UseAprioriCovariance = 1;
  
 %-----  Define the ground station properties    
 Maui = Create('GroundStation','Maui');
