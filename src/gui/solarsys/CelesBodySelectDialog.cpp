@@ -58,6 +58,20 @@ CelesBodySelectDialog::CelesBodySelectDialog(wxWindow *parent,
 
 
 //------------------------------------------------------------------------------
+// ~CelesBodySelectDialog()
+//------------------------------------------------------------------------------
+CelesBodySelectDialog::~CelesBodySelectDialog()
+{
+   #if DEBUG_GUI_ITEM_UNREG
+   MessageInterface::ShowMessage
+      ("CelesBodySelectDialog::~CelesBodySelectDialog() Unregistering GUI items\n");
+   #endif
+   
+   // Unregister GUI components
+}
+
+
+//------------------------------------------------------------------------------
 // void SetBodyColors(const wxArrayString &bodyNames,
 //                    const UnsignedIntArray &bodyColors)
 //------------------------------------------------------------------------------
@@ -116,8 +130,8 @@ void CelesBodySelectDialog::Create()
    else
    {
       mBodyListBox =
-         theGuiManager->GetConfigBodyListBox(this, -1, wxSize(150, 200),
-                                             mBodiesToExclude);
+         theGuiManager->GetCelestialBodyListBox(this, -1, wxSize(150, 200),
+                                                mBodiesToExclude);
    }
    
    // arrow buttons

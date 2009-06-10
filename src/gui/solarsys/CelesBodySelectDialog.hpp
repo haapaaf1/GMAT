@@ -28,6 +28,7 @@ public:
     
    CelesBodySelectDialog(wxWindow *parent, wxArrayString &bodiesToExclude,
                          wxArrayString &bodiesToHide, bool showCalPoints = false);
+   ~CelesBodySelectDialog();
    
    wxArrayString& GetBodyNames()
       { return mBodyNames; }

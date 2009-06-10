@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              BarycenterPanel
 //------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void BarycenterPanel::Create()
 
    // wxListBox
    bodyListBox =
-      theGuiManager->GetConfigBodyListBox(this, -1, wxSize(150, 200), tmpArrayString);
+      theGuiManager->GetCelestialBodyListBox(this, -1, wxSize(150, 200), tmpArrayString);
 
    bodySelectedListBox = new wxListBox
       (this, ID_BODY_SEL_LISTBOX, wxDefaultPosition, wxSize(150, 200), //0,
