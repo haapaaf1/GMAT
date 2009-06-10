@@ -4293,19 +4293,23 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetPropertyObjectValue() obj=<%s> '%s', id=%d, type=%d, value=%s, "
+      ("Interpreter::SetPropertyObjectValue() obj=<%s> '%s', id=%d, type=%d, value='%s', "
        "index=%d\n", obj->GetTypeName().c_str(), obj->GetName().c_str(), id, type,
        value.c_str(), index);
    #endif
    
    debugMsg = "In SetPropertyObjectValue()";
    Parameter *param = NULL;
+
+   // Remove enclosing single quotes first (LOJ: 2009.06.08)
+   std::string valueToUse = value;
+   valueToUse = GmatStringUtil::RemoveEnclosingString(valueToUse, "'");
    
    // Try creating Parameter first if it is not ObjectType
-   if (!IsObjectType(value))
+   if (!IsObjectType(valueToUse))
    {
       // It is not a one of object types, so create parameter
-      param = CreateSystemParameter(value);
+      param = CreateSystemParameter(valueToUse);
       
       #ifdef DEBUG_SET
       if (param)
@@ -4318,7 +4322,7 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
    else
    {
       // It is object type so get parameter (Bug 743 fix)
-      param = theModerator->GetParameter(value);
+      param = theModerator->GetParameter(valueToUse);
       #ifdef DEBUG_SET
       MessageInterface::ShowMessage
          ("   theModerator->GetParameter() returned %p\n", param);
@@ -4336,15 +4340,15 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage
                ("   Calling '%s'->SetStringParameter(%d, %s)\n",
-                obj->GetName().c_str(), id, value.c_str());
+                obj->GetName().c_str(), id, valueToUse.c_str());
             #endif
             
             // Let base code check for the invalid values
-            obj->SetStringParameter(id, value);
+            obj->SetStringParameter(id, valueToUse);
          }
          else
          {
-            errorMsg1 = errorMsg1 + "The value of \"" + value + "\" for ";
+            errorMsg1 = errorMsg1 + "The value of \"" + valueToUse + "\" for ";
             errorMsg2 = "  The allowed value is Object Name";
             return false;
          }
@@ -4354,8 +4358,8 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
          // check if value is a number
          Real rval;
          Integer ival;
-         if (GmatStringUtil::ToReal(value, rval, true) ||
-             GmatStringUtil::ToInteger(value, ival, true))
+         if (GmatStringUtil::ToReal(valueToUse, rval, true) ||
+             GmatStringUtil::ToInteger(valueToUse, ival, true))
          {
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage("   It is a Real or Integer value\n");
@@ -4366,18 +4370,18 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
             // both vector and object name.
             if (obj->GetTypeName() == "OpenGLPlot")
             {
-               obj->SetStringParameter(id, value, index);
+               obj->SetStringParameter(id, valueToUse, index);
             }
             else
             {
-               errorMsg1 = errorMsg1 + "The value of \"" + value + "\" for ";
+               errorMsg1 = errorMsg1 + "The value of \"" + valueToUse + "\" for ";
                errorMsg2 = "  The allowed value is Object Name";
                return false;
             }
          }
          
          // check if value is an object name
-         GmatBase *configObj = FindObject(value);
+         GmatBase *configObj = FindObject(valueToUse);
 
          // check if object name is the same as property type name (loj: 2008.11.06)
          // if so, we need to set configObj to NULL so that owned object can be
@@ -4405,10 +4409,10 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                #ifdef DEBUG_SET
                MessageInterface::ShowMessage
                   ("   Calling '%s'->SetStringParameter(%d, %s, %d)\n",
-                   obj->GetName().c_str(), id, value.c_str(), index);
+                   obj->GetName().c_str(), id, valueToUse.c_str(), index);
                #endif
                
-               retval = obj->SetStringParameter(id, value, index);
+               retval = obj->SetStringParameter(id, valueToUse, index);
             }
             
             // if it has no index or failed setting with index, try without index
@@ -4417,10 +4421,10 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                #ifdef DEBUG_SET
                MessageInterface::ShowMessage
                   ("   Calling '%s'->SetStringParameter(%d, %s)\n",
-                   obj->GetName().c_str(), id, value.c_str());
+                   obj->GetName().c_str(), id, valueToUse.c_str());
                #endif
                
-               obj->SetStringParameter(id, value);
+               obj->SetStringParameter(id, valueToUse);
             }
          }
          else
@@ -4438,8 +4442,8 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                // since Propagator is not created by Create command
                std::string ownedName = "";
                if (obj->IsOfType(Gmat::PROP_SETUP))
-                  ownedName = value;
-               ownedObj = CreateObject(value, ownedName, 0);
+                  ownedName = valueToUse;
+               ownedObj = CreateObject(valueToUse, ownedName, 0);
             }
             
             #ifdef DEBUG_SET
@@ -4480,10 +4484,10 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                // Special case of InternalODEModel in script
                // Since PropSetup no longer creates InternalODEModel
                // create it here (loj: 2008.11.06)
-               if (value == "InternalODEModel")
+               if (valueToUse == "InternalODEModel")
                {
-                  ownedObj = CreateObject("ForceModel", value);
-                  obj->SetRefObject(ownedObj, ownedObj->GetType(), value);
+                  ownedObj = CreateObject("ForceModel", valueToUse);
+                  obj->SetRefObject(ownedObj, ownedObj->GetType(), valueToUse);
                }
                else
                {
@@ -4491,10 +4495,10 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                   #ifdef DEBUG_SET
                   MessageInterface::ShowMessage
                      ("   Calling '%s'->SetStringParameter(%d, %s)\n",
-                      obj->GetName().c_str(), id, value.c_str());
+                      obj->GetName().c_str(), id, valueToUse.c_str());
                   #endif
                   
-                  obj->SetStringParameter(id, value);
+                  obj->SetStringParameter(id, valueToUse);
                }
             }
          }
