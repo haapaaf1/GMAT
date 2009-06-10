@@ -248,8 +248,10 @@ void UniversePanel::LoadData()
 //   
 //   // set defaults
 //   mAnalyticModelComboBox->SetSelection(0);
-   
-   mFileTypeComboBox->SetStringSelection(fileTypesInUse[0].c_str());
+   std::string currentSource = theSolarSystem->GetStringParameter(
+         theSolarSystem->GetParameterID("EphemerisSource"));
+   mFileTypeComboBox->SetStringSelection(currentSource.c_str());
+//   mFileTypeComboBox->SetStringSelection(fileTypesInUse[0].c_str());
 //   if (mFileTypeComboBox->GetStringSelection() == "Analytic")
    if (mFileTypeComboBox->GetStringSelection() == "TwoBodyPropagation")
    {
@@ -316,7 +318,10 @@ void UniversePanel::SaveData()
       if (mHasFileTypesInUseChanged)
       {
          mFileTypesInUse.clear();
-         mFileTypesInUse.push_back(std::string(mFileTypeComboBox->GetStringSelection().c_str()));
+         std::string srcSelection = std::string(mFileTypeComboBox->GetStringSelection().c_str());
+         mFileTypesInUse.push_back(srcSelection);
+         theSolarSystem->SetStringParameter(theSolarSystem->GetParameterID("EphemerisSource"),
+               srcSelection);
          #if DEBUG_UNIV_PANEL
          MessageInterface::ShowMessage
             ("UniversePanel::SaveData() types=%s\n",

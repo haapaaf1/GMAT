@@ -157,11 +157,8 @@ public:
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
 
    virtual bool         IsParameterReadOnly(const Integer id) const;
-//   virtual bool         IsParameterReadOnly(const std::string &label) const;
    virtual bool         IsParameterCloaked(const Integer id) const;
-//   virtual bool         IsParameterCloaked(const std::string &label) const;
    virtual bool         IsParameterEqualToDefault(const Integer id) const;
-//   virtual bool         IsParameterEqualToDefault(const std::string &label);
    virtual bool         SaveAllAsDefault();
    virtual bool         SaveParameterAsDefault(const Integer id);
 
@@ -251,7 +248,7 @@ protected:
    {
       BODIES_IN_USE = GmatBaseParamCount,
       NUMBER_OF_BODIES,
-      EPHEMERIS,
+      EPHEMERIS,   // deprecated!!!!!!
       EPHEMERIS_SOURCE, 
       DE_FILE_NAME,
       SPK_FILE_NAME,
@@ -302,7 +299,7 @@ private:
    std::string theSPKFilename;
    
    // default values for parameters
-   StringArray default_planetarySourceTypesInUse;
+   StringArray default_planetarySourceTypesInUse;  // deprecated!!
    std::string default_ephemerisSource;
    std::string default_DEFilename;
    std::string default_SPKFilename;

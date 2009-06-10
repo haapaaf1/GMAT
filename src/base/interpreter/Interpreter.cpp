@@ -5039,24 +5039,24 @@ bool Interpreter::SetSolarSystemProperty(GmatBase *obj, const std::string &prop,
    
    if (count == 1)
    {
-      if (prop == "Ephemeris")
-      {
-         StringArray ephems = theTextParser.SeparateBrackets(value, "{}", " ,");
-      
-         #ifdef DEBUG_SET_SOLAR_SYS
-         for (StringArray::iterator i = ephems.begin(); i != ephems.end(); ++i)
-            MessageInterface::ShowMessage("   Source = %s\n", i->c_str());
-         #endif
-         
-         theModerator->SetPlanetarySourceTypesInUse(ephems);
-         retval = true;
-      }
-      else
-      {
+//      if (prop == "Ephemeris")
+//      {
+//         StringArray ephems = theTextParser.SeparateBrackets(value, "{}", " ,");
+//      
+//         #ifdef DEBUG_SET_SOLAR_SYS
+//         for (StringArray::iterator i = ephems.begin(); i != ephems.end(); ++i)
+//            MessageInterface::ShowMessage("   Source = %s\n", i->c_str());
+//         #endif
+//         
+//         theModerator->SetPlanetarySourceTypesInUse(ephems);
+//         retval = true;
+//      }
+//      else
+//      {
          Integer id = obj->GetParameterID(prop);
          Gmat::ParameterType type = obj->GetParameterType(id);
          retval = SetPropertyValue(obj, id, type, value);
-      }
+//      }
    }
    else
    {
