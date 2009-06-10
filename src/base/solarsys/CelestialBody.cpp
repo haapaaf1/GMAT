@@ -734,8 +734,8 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
          }
          #ifdef DEBUG_GET_STATE
          MessageInterface::ShowMessage
-            ("   In <%p> '%s', Calling theSourceFile->GetPosVel(%d, %f, %s)\n",
-             this, GetName().c_str(), bodyNumber, atTime.GetReal(),
+            ("   In <%p> '%s', Calling theSourceFile(%s)->GetPosVel(%d, %f, %s)\n",
+             this, GetName().c_str(), (theSourceFile->GetName()).c_str(), bodyNumber, atTime.GetReal(),
              overrideTime ? "true" : "false");
          #endif
          posVel     = theSourceFile->GetPosVel(bodyNumber, atTime, overrideTime);
@@ -839,6 +839,12 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
                   "DE 405 file requested, but no file specified");
 //                 "SLP or DE file requested, but no file specified");
          }
+         #ifdef DEBUG_GET_STATE
+         MessageInterface::ShowMessage
+            ("   In <%p> '%s', Calling theSourceFile(%s)->GetPosVel(%d, %f, %s)\n",
+             this, GetName().c_str(), (theSourceFile->GetName()).c_str(), bodyNumber, atTime.GetReal(),
+             overrideTime ? "true" : "false");
+         #endif
          outState     = theSourceFile->GetPosVel(bodyNumber,atTime, overrideTime);
          break;
       case Gmat::SPICE :
@@ -3532,7 +3538,10 @@ bool CelestialBody::IsParameterEqualToDefault(const Integer id) const
             MessageInterface::ShowMessage("In IsPEqual ... posVelSrc = %s & default = %s\n",
                   (Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc]).c_str(), default_posVelSrc.c_str());
       #endif
-      return (default_posVelSrc == Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc]);
+      if (userDefined)
+         return (default_posVelSrc == Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc]);
+      else  // for default, mods are made at the SolarSystem level
+         return true;
    }
    if (id == CENTRAL_BODY)
    {
@@ -3544,7 +3553,10 @@ bool CelestialBody::IsParameterEqualToDefault(const Integer id) const
 //   }
    if (id == SOURCE_FILENAME)
    {
-      return (default_sourceFilename == sourceFilename);
+      if (userDefined)
+         return (default_sourceFilename == sourceFilename);
+      else  // for default, mods are made at the SolarSystem level
+         return true;
    }
    if (id == SPICE_KERNEL_NAME)
    {
