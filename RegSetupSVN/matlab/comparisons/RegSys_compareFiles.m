@@ -8,6 +8,7 @@ function [] = RegSys_compareFiles(Build1,Build2,Folder1,Folder2,mainDir,What2Com
 %       code to seperate function.
 %   04/22/2009 - E.Dove:  Corrected bug that was applying AcceptTest data to all other test-types.
 %   05/06/2009 - E.Dove:  Added error checking for when a folder selected does not exist.
+%   06/10/2009 - E.Dove:  Added text in summary that tells the tester the folder missing files are in.
 
 % Initialize Variables
 if isempty(Build1)
@@ -76,11 +77,11 @@ for testLoop = find(sharedTestLoc)'; % Loop of tests in common
     % Report files that don't exist in both folders and send details to regression summary
     for scriptDiffLoopA = 1:numel(diffIA)
         eval(['Folder1FilesAll.',folder1Tests{testLoop,1},'{',num2str(diffIA(scriptDiffLoopA)),',2} = [''DNE''];']); % File Does Not Exist (DNE)
-        fprintf(fid,[eval(['Folder1FilesAll.',folder1Tests{testLoop,1},'{',num2str(diffIA(scriptDiffLoopA)),',1};']),' - Does not exist in both folders\n']);
+        fprintf(fid,[eval(['Folder1FilesAll.',folder1Tests{testLoop,1},'{',num2str(diffIA(scriptDiffLoopA)),',1};']),' - Does not exist in both folders. Exists in ',Folder1,' but not in ',Folder2,'. \n']);
     end
     for scriptDiffLoopB = 1:numel(diffIB)
         eval(['Folder2FilesAll.',folder1Tests{testLoop,1},'{',num2str(diffIB(scriptDiffLoopB)),',2} = [''DNE''];']); % File Does Not Exist (DNE)
-        fprintf(fid,[eval(['Folder2FilesAll.',folder1Tests{testLoop,1},'{',num2str(diffIB(scriptDiffLoopB)),',1};']),' - Does not exist in both folders\n']);
+        fprintf(fid,[eval(['Folder2FilesAll.',folder1Tests{testLoop,1},'{',num2str(diffIB(scriptDiffLoopB)),',1};']),' - Does not exist in both folders. Exists in ',Folder2,' but not in ',Folder1,'. \n']);
     end    
     
     % Determine if the files exist in both folders and their contents match
