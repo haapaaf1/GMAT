@@ -250,9 +250,9 @@ public:
    wxListBox* GetUserParameterListBox(wxWindow *parent, wxWindowID id,
                                       const wxSize &size);
    
-   wxListBox* GetConfigBodyListBox(wxWindow *parent, wxWindowID id,
-                                   const wxSize &size,
-                                   wxArrayString &excList);
+   wxListBox* GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
+                                      const wxSize &size,
+                                      wxArrayString &excList);
    wxListBox* GetFuelTankListBox(wxWindow *parent, wxWindowID id,
                                  const wxSize &size,
                                  wxArrayString *excList = NULL);

@@ -2335,18 +2335,17 @@ wxListBox* GuiItemManager::GetUserParameterListBox(wxWindow *parent, wxWindowID 
 
 
 //------------------------------------------------------------------------------
-// wxListBox* GetConfigBodyListBox(wxWindow *parent, wxWindowID id,
-//                                 const wxSize &size,
-//                                 wxArrayString &excList)
+// wxListBox* GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
+//                                    const wxSize &size, wxArrayString &excList)
 //------------------------------------------------------------------------------
 /**
- * @return Configured ConfigBodyListBox pointer
+ * @return  Celestial body ListBox pointer
  */
 //------------------------------------------------------------------------------
-wxListBox* GuiItemManager::GetConfigBodyListBox(wxWindow *parent, wxWindowID id,
-                                                const wxSize &size,
-                                                wxArrayString &excList)
-{    
+wxListBox* GuiItemManager::GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
+                                                   const wxSize &size,
+                                                   wxArrayString &excList)
+{
    wxArrayString emptyList;
    wxListBox *celesBodyListBox =
       new wxListBox(parent, id, wxDefaultPosition, size, emptyList, wxLB_SINGLE);
