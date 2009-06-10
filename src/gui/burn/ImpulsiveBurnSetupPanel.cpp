@@ -45,7 +45,8 @@ ImpulsiveBurnSetupPanel::ImpulsiveBurnSetupPanel(wxWindow *parent,
        theObject, theObject->GetTypeName().c_str());
    #endif
    
-   if (theObject != NULL)
+   // To set panel object and show warning if object is NULL
+   if (SetObject(theObject))
    {
       Create();
       Show();
