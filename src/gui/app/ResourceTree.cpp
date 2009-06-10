@@ -1437,10 +1437,10 @@ void ResourceTree::OnRename(wxCommandEvent &event)
    MessageInterface::ShowMessage("ResourceTree::OnRename() entered\n");
    #endif
    
-   wxTreeItemId item = GetSelection();
-   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString oldName = selItem->GetName();
-   GmatTree::ItemType itemType = selItem->GetItemType();
+   wxTreeItemId itemId = GetSelection();
+   GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(itemId);
+   wxString oldName = selItemData->GetName();
+   GmatTree::ItemType itemType = selItemData->GetItemType();
    
    wxString newName = oldName;
    newName = wxGetTextFromUser(wxT("New name: "), wxT("Input Text"),
@@ -1498,10 +1498,14 @@ void ResourceTree::OnRename(wxCommandEvent &event)
       if (theGuiInterpreter->
           RenameObject(objType, oldName.c_str(), newName.c_str()))
       {
-         SetItemText(item, newName);
-         theMainFrame->RenameChild(selItem, newName);
-         GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-         selItem->SetTitle(newName);
+         SetItemText(itemId, newName);
+         theMainFrame->RenameChild(selItemData, newName);
+         GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(itemId);
+         
+         // Set item name to new name and title to "" so that GmatMainFrame::CreateChild()
+         // can append object type name to title (loj: 2009.06.08, Bug fix: 1478, 1479)
+         selItemData->SetTitle("");
+         selItemData->SetName(newName);
          
          // notify object name changed to panels which listens to resource update
          UpdateGuiItem(itemType);
@@ -1513,6 +1517,9 @@ void ResourceTree::OnRename(wxCommandEvent &event)
             Collapse(mSpacecraftItem);
             DeleteChildren(mSpacecraftItem);
             AddDefaultSpacecraft(mSpacecraftItem);
+
+            //@todo Select the item just renamed, currently it selects Spacecraft folder
+            //SelectItem(itemId);
             
             Collapse(mFormationItem);
             DeleteChildren(mFormationItem);
@@ -1536,7 +1543,7 @@ void ResourceTree::OnRename(wxCommandEvent &event)
    }
    
    #ifdef DEBUG_RENAME
-   MessageInterface::ShowMessage("ResourceTree::OnRename() rename completed\n");
+   MessageInterface::ShowMessage("ResourceTree::OnRename() rename leavinig\n");
    #endif
 }
 
@@ -1556,14 +1563,14 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    event.Skip();
    
    wxTreeItemId itemId = GetSelection();
-   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(itemId);
-   GmatTree::ItemType itemType = selItem->GetItemType();
+   GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(itemId);
+   GmatTree::ItemType itemType = selItemData->GetItemType();
    
    // if panel is currently opened give warning and return
    // Bug 547 fix (loj: 2008.11.25)
-   if (theMainFrame->IsChildOpen(selItem))
+   if (theMainFrame->IsChildOpen(selItemData))
    {
-      wxLogWarning(selItem->GetName() + " cannot be deleted "
+      wxLogWarning(selItemData->GetName() + " cannot be deleted "
                    "while panel is opened");
       wxLog::FlushActive();
       return;
@@ -1575,10 +1582,10 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    
    #if DEBUG_DELETE
    MessageInterface::ShowMessage
-      ("ResourceTree::OnDelete() name=%s\n", selItem->GetName().c_str());
+      ("ResourceTree::OnDelete() name=%s\n", selItemData->GetName().c_str());
    #endif
    
-   wxString itemName = selItem->GetName();
+   wxString itemName = selItemData->GetName();
    // delete item if object successfully deleted
    if (theGuiInterpreter->RemoveObjectIfNotUsed(objType, itemName.c_str()))
    {
@@ -1592,7 +1599,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    }
    else
    {
-      wxLogWarning(selItem->GetName() + " cannot be deleted.\n"
+      wxLogWarning(selItemData->GetName() + " cannot be deleted.\n"
                    "It is currently used in other resource or command sequence");
       wxLog::FlushActive();
    }
@@ -1612,9 +1619,9 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
 void ResourceTree::OnClone(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString name = selItem->GetName();
-   GmatTree::ItemType itemType = selItem->GetItemType();
+   GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(item);
+   wxString name = selItemData->GetName();
+   GmatTree::ItemType itemType = selItemData->GetItemType();
    
    if ( (itemType == GmatTree::SPACECRAFT) ||
         (itemType == GmatTree::FUELTANK) ||
@@ -1665,10 +1672,10 @@ void ResourceTree::OnClone(wxCommandEvent &event)
 void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
 {
   
-   GmatTreeItemData *selItem = (GmatTreeItemData *)
+   GmatTreeItemData *selItemData = (GmatTreeItemData *)
       GetItemData(event.GetItem());
                                
-   int itemType = selItem->GetItemType();
+   int itemType = selItemData->GetItemType();
    bool isDefaultFolder = ((itemType == GmatTree::RESOURCES_FOLDER)     ||
                            (itemType == GmatTree::GROUND_STATION_FOLDER)||
                            (itemType == GmatTree::SPACECRAFT_FOLDER)    ||
@@ -1677,7 +1684,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
                            (itemType == GmatTree::CONSTELLATION_FOLDER) ||
                            (itemType == GmatTree::BURN_FOLDER)          ||
                            (itemType == GmatTree::PROPAGATOR_FOLDER)    ||
-                           (itemType == GmatTree::SOLAR_SYSTEM)      ||
+                           (itemType == GmatTree::SOLAR_SYSTEM)         ||
                            (itemType == GmatTree::SOLVER_FOLDER)        ||
                            (itemType == GmatTree::SUBSCRIBER_FOLDER)    ||
                            (itemType == GmatTree::INTERFACE_FOLDER)     ||
@@ -1693,8 +1700,8 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
    
    //kind of redundant because OpenPage returns false for some
    //of the default folders
-   if ((theMainFrame->IsChildOpen(selItem))  ||
-       (isDefaultFolder)                     ||
+   if ((theMainFrame->IsChildOpen(selItemData))  ||
+       (isDefaultFolder)                         ||
        (isDefaultItem))
    {
       event.Veto();
@@ -1717,13 +1724,13 @@ void ResourceTree::OnEndLabelEdit(wxTreeEvent &event)
    // check to see if label is a single word
    if (newLabel.IsWord())
    {
-      GmatTreeItemData *selItem = (GmatTreeItemData *)
+      GmatTreeItemData *selItemData = (GmatTreeItemData *)
          GetItemData(GetSelection());
 
-      wxString oldLabel = selItem->GetName();
-      int itemType = selItem->GetItemType();
+      wxString oldLabel = selItemData->GetName();
+      int itemType = selItemData->GetItemType();
 
-      selItem->SetTitle(newLabel);
+      selItemData->SetTitle(newLabel);
        
       // if label refers to an object reset the object name
       if (itemType == GmatTree::SPACECRAFT)
@@ -1739,9 +1746,9 @@ void ResourceTree::OnEndLabelEdit(wxTreeEvent &event)
          theSpacecraft->SetName(stdNewLabel);
 
          // if (resetName)
-         //     selItem->SetTitle(label);
+         //     selItemData->SetTitle(label);
          //  else
-         //     selItem->SetTitle(oldLabel);
+         //     selItemData->SetTitle(oldLabel);
       
       }
      
@@ -2629,12 +2636,16 @@ void ResourceTree::OnAddLibration(wxCommandEvent &event)
    }
 }
 
+
+//------------------------------------------------------------------------------
+// void OnAddPlanet(wxCommandEvent &event)
+//------------------------------------------------------------------------------
 void ResourceTree::OnAddPlanet(wxCommandEvent &event)
 {
    // get the central body name
    wxTreeItemId item = GetSelection();
-   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString cBodyName = selItem->GetName();
+   GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(item);
+   wxString cBodyName = selItemData->GetName();
    std::string cBody  = cBodyName.c_str();
    wxString name;
    
@@ -2665,12 +2676,16 @@ void ResourceTree::OnAddPlanet(wxCommandEvent &event)
    }
 }
 
+
+//------------------------------------------------------------------------------
+// void OnAddMoon(wxCommandEvent &event)
+//------------------------------------------------------------------------------
 void ResourceTree::OnAddMoon(wxCommandEvent &event)
 {
    // get the central body name
    wxTreeItemId item = GetSelection();
-   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString cBodyName = selItem->GetName();
+   GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(item);
+   wxString cBodyName = selItemData->GetName();
    std::string cBody  = cBodyName.c_str();
    wxString name;
    
@@ -2702,12 +2717,16 @@ void ResourceTree::OnAddMoon(wxCommandEvent &event)
    }
 }
 
+
+//------------------------------------------------------------------------------
+// void OnAddComet(wxCommandEvent &event)
+//------------------------------------------------------------------------------
 void ResourceTree::OnAddComet(wxCommandEvent &event)
 {
    // get the central body name
    wxTreeItemId item = GetSelection();
-   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString cBodyName = selItem->GetName();
+   GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(item);
+   wxString cBodyName = selItemData->GetName();
    std::string cBody  = cBodyName.c_str();
    wxString name;
    
@@ -2738,12 +2757,16 @@ void ResourceTree::OnAddComet(wxCommandEvent &event)
    }
 }
 
+
+//------------------------------------------------------------------------------
+// void OnAddAsteroid(wxCommandEvent &event)
+//------------------------------------------------------------------------------
 void ResourceTree::OnAddAsteroid(wxCommandEvent &event)
 {
    // get the central body name
    wxTreeItemId item = GetSelection();
-   GmatTreeItemData *selItem = (GmatTreeItemData *) GetItemData(item);
-   wxString cBodyName = selItem->GetName();
+   GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(item);
+   wxString cBodyName = selItemData->GetName();
    std::string cBody  = cBodyName.c_str();
    wxString name;
    
@@ -2989,10 +3012,10 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
       return;
    }
    
-   wxTreeItemId item = GetSelection();
+   wxTreeItemId itemId = GetSelection();
    wxString filename;
    wxTreeItemIdValue cookie;
-   wxTreeItemId scriptId = GetFirstChild(item, cookie);
+   wxTreeItemId scriptId = GetFirstChild(itemId, cookie);
    int numScripts = 0;
    
    // find only script file, exclude script folder
@@ -3007,7 +3030,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
       if (GetItemImage(scriptId) != GmatTree::ICON_FOLDER)
          numScripts++;
       
-      scriptId = GetNextChild(item, cookie);
+      scriptId = GetNextChild(itemId, cookie);
    }
    
    int startNum = 1;
@@ -3015,7 +3038,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    int repeatCount = 1;
    
    Real absTol = GmatFileUtil::CompareAbsTol;
-   wxString compareDir1  = ((GmatTreeItemData*)GetItemData(item))->GetName();
+   wxString compareDir1  = ((GmatTreeItemData*)GetItemData(itemId))->GetName();
    
    RunScriptFolderDialog dlg(this, numScripts, absTol, compareDir1);
    dlg.ShowModal();
@@ -3048,7 +3071,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    
    int count = 0;
    mHasUserInterrupted = false;
-   scriptId = GetFirstChild(item, cookie);
+   scriptId = GetFirstChild(itemId, cookie);
    
    wxTextCtrl *textCtrl = NULL;
    wxString tempStr;
@@ -3110,7 +3133,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    {     
       if (GetItemImage(scriptId) == GmatTree::ICON_FOLDER)
       {
-         scriptId = GetNextChild(item, cookie);
+         scriptId = GetNextChild(itemId, cookie);
          continue;
       }
       
@@ -3121,7 +3144,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
       
       if (count < startNum)
       {
-         scriptId = GetNextChild(item, cookie);
+         scriptId = GetNextChild(itemId, cookie);
          continue;
       }
       
@@ -3226,7 +3249,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
          }
       }
       
-      scriptId = GetNextChild(item, cookie);
+      scriptId = GetNextChild(itemId, cookie);
       appendLog = true;
    }
    
@@ -3345,11 +3368,11 @@ void ResourceTree::OnQuitRunScriptsFromFolder(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnRemoveScriptFolder(wxCommandEvent &event)
 {
-   wxTreeItemId item = GetSelection();
+   wxTreeItemId itemId = GetSelection();
    
    OnRemoveAllScripts(event);
    
-   Delete(item);
+   Delete(itemId);
    Collapse(mScriptItem);
 }
 
@@ -3431,9 +3454,9 @@ bool ResourceTree::BuildScript(const wxString &filename, Integer scriptOpenOpt,
 //------------------------------------------------------------------------------
 void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
 {
-   GmatTreeItemData *selItem = (GmatTreeItemData *)GetItemData(itemId);
-   wxString title = selItem->GetName();
-   GmatTree::ItemType itemType = selItem->GetItemType();
+   GmatTreeItemData *selItemData = (GmatTreeItemData *)GetItemData(itemId);
+   wxString title = selItemData->GetName();
+   GmatTree::ItemType itemType = selItemData->GetItemType();
    bool showRemoveDelete = true;
    
    // We don't want to show Remove and Delete menu if any non-plot panel is open
