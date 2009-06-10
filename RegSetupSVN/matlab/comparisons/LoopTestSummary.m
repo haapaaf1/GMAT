@@ -4,6 +4,7 @@
 %               (MM/DD/YYYY)
 %   E.Dove      07/26/2006      Original
 %   E.Dove      05/04/2007      Last Modified
+%   E.Dove      05/06/2009      Changed location folder to save Latex files
 
 clc
 error = 1;
@@ -29,7 +30,7 @@ while size(rerunScript,1) ~= 0
     mainDir = cd;
     cd('..');
     cvsRootDir = cd;
-    AcceptTestDir = [cvsRootDir,'/GMATDocuments/AcceptTest'];
+    AcceptTestDir = [cvsRootDir,'/docs/AcceptTest'];
     cd(compareDir);
     
     % ===================  Initialize variables ========================

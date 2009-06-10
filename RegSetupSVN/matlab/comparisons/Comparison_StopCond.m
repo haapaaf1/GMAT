@@ -53,7 +53,7 @@ while size(rerunScript,1) ~= 0
     mainDir = cd;
     cd('..');
     cvsRootDir = cd;
-    AcceptTestDir = [cvsRootDir,'/GMATDocuments/AcceptTest'];
+    AcceptTestDir = [cvsRootDir,'/docs/AcceptTest'];
     
     addpath(genpath([mainDir,'/matlab']));
     inputDir = [mainDir,'/input'];

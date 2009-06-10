@@ -39,6 +39,7 @@
 %               (MM/DD/YYYY)
 %   E.Dove      09/01/2005      Original
 %   E.Dove      05/04/2007      Last Modified
+%   E.Dove      05/06/2009      Changed folder to save Latex files to
 %
 %   See also BUILDRUN_SCRIPT_GMAT, AUTOMATION_GMAT, COMPARISON_TOOL1_TOOL2_PV, COMPARISON_TOOL1_TOOL2_CB
 
@@ -66,7 +67,7 @@ while size(rerunScript,1) ~= 0
     mainDir = cd;
     cd('..');
     cvsRootDir = cd;
-    AcceptTestDir = [cvsRootDir,'/GMATDocuments/AcceptTest'];
+    AcceptTestDir = [cvsRootDir,'/docs/AcceptTest'];
     
     addpath(genpath([mainDir,'/matlab']));
     inputDir = [mainDir,'/input'];
