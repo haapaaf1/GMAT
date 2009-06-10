@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                           PropagationConfigPanel
 //------------------------------------------------------------------------------
@@ -294,7 +294,6 @@ private:
    Integer FindPointMassBody(const wxString& bodyName);
    
    void Initialize();
-   void Setup(wxWindow *parent);
    void DisplayIntegratorData(bool integratorChanged);
    void DisplayPrimaryBodyData();
    void DisplayForceData();
