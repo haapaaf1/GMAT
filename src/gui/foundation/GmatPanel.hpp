@@ -67,8 +67,9 @@ public:
 protected:
    
    // member functions
-   virtual void Create() = 0;
+   virtual bool SetObject(GmatBase *obj);
    virtual void Show();
+   virtual void Create() = 0;
    virtual void LoadData() = 0;
    virtual void SaveData() = 0;
    
@@ -103,6 +104,7 @@ protected:
    wxButton *theScriptButton;
    wxButton *theSummaryButton;
    
+   std::string mObjectName;
    GmatBase *mObject;
    
    // any class wishing to process wxWindows events must use this macro

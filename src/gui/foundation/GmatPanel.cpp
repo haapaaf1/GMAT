@@ -530,6 +530,26 @@ bool GmatPanel::CheckVariable(const std::string &varName, Gmat::ObjectType owner
 //-------------------------------
 
 //------------------------------------------------------------------------------
+// bool SetObject(GmatBase *obj)
+//------------------------------------------------------------------------------
+bool GmatPanel::SetObject(GmatBase *obj)
+{
+   if (obj == NULL)
+   {
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "The panel cannot be populated, the object named \"" +
+          mObjectName + "\" is NULL\n");
+      return false;
+   }
+   else
+   {
+      mObject = obj;
+      return true;
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // void Show()
 //------------------------------------------------------------------------------
 /**
