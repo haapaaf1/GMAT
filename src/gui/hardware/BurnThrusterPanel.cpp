@@ -57,8 +57,9 @@ END_EVENT_TABLE()
 BurnThrusterPanel::BurnThrusterPanel(wxWindow *parent, const wxString &name)
    : GmatPanel(parent, true, true)
 {
+   mObjectName = name.c_str();
    theObject = theGuiInterpreter->GetConfiguredObject(name.c_str());
-
+   
    #ifdef DEBUG_BURNPANEL_CREATE
    MessageInterface::ShowMessage
       ("BurnThrusterPanel() constructor entered, theObject=<%p>'%s'\n",
