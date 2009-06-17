@@ -423,6 +423,8 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    else
       attitude = NULL;
    
+   //@todo - How about tanks and thrusters?
+   
    BuildElementLabelMap();
    
    #ifdef DEBUG_SPACECRAFT
@@ -512,19 +514,20 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
    
+   // delete attitude first
+   if (attitude)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (attitude, "attitude", "Spacecraft::operator=()",
+          "deleting attitude of " + GetName(), this);
+      #endif
+      delete attitude;
+   }
+   
    // clone the attitude
    if (a.attitude)
-   {
-      if (attitude)
-      {
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Remove
-            (attitude, "attitude", "Spacecraft::operator=()",
-             "deleting attitude of " + GetName(), this);
-         #endif
-         delete attitude;
-      }
-      
+   {      
       attitude = (Attitude*) a.attitude->Clone();
       attitude->SetEpoch(state.GetEpoch());
       #ifdef DEBUG_MEMORY
