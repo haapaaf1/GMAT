@@ -38,6 +38,14 @@
 //#define DEBUG_BUFFER_FILLING
 //#define DEBUG_CYCLIC_PARAMETERS
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 
 using namespace GmatMathUtil;
 
@@ -138,7 +146,14 @@ StopCondition::StopCondition(const std::string &name, const std::string &desc,
    
    // Create default Interpolator
    if (mInterpolator == NULL)
+   {
       mInterpolator = new NotAKnotInterpolator("InternalInterpolator");
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (mInterpolator, mInterpolator->GetName(), "StopCondition::StopCondition()",
+          "mInterpolator = (new NotAKnotInterpolator()");
+      #endif
+   }
 }
 
 
@@ -188,12 +203,34 @@ StopCondition::StopCondition(const StopCondition &copy)
 
    if (copy.mInterpolator != NULL)
       if (copy.mInterpolator->GetName() == "InternalInterpolator")
+      {
          mInterpolator = (Interpolator*)copy.mInterpolator->Clone();
-
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (mInterpolator, mInterpolator->GetName(), "StopCondition::StopCondition(copy)",
+             "mInterpolator = (Interpolator*)copy.mInterpolator->Clone()");
+         #endif
+      }
+   
    if (copy.mEccParam != NULL)
+   {
       mEccParam = (Parameter*)copy.mEccParam->Clone();
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (mEccParam, mEccParam->GetName(), "StopCondition::StopCondition(copy)",
+          "mEccParam = (Parameter*)copy.mEccParam->Clone()");
+      #endif
+   }
+   
    if (copy.mRmagParam != NULL)
+   {
       mRmagParam = (Parameter*)copy.mRmagParam->Clone();
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (mRmagParam, mRmagParam->GetName(), "StopCondition::StopCondition(copy)",
+          "mRmagParam = (Parameter*)copy.mRmagParam->Clone()");
+      #endif
+   }
    
    CopyDynamicData(copy);
 }
@@ -218,11 +255,28 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
       mEpoch = right.mEpoch;
       mGoal = right.mGoal;
       mRepeatCount = right.mRepeatCount;
-   
+      
+      if (mInterpolator != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (mInterpolator, mInterpolator->GetName(), "StopCondition::operator=",
+             "deleting mInterpolator");
+         #endif
+         delete mInterpolator;
+      }
+      
       if (right.mInterpolator != NULL)
          if (right.mInterpolator->GetName() == "InternalInterpolator")
+         {
             mInterpolator = (Interpolator*)right.mInterpolator->Clone();
-   
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (mInterpolator, mInterpolator->GetName(), "StopCondition::operator=",
+                "mInterpolator = (Interpolator*)right.mInterpolator->Clone()");
+            #endif
+         }
+      
       mSolarSystem = right.mSolarSystem;
       mDescription = right.mDescription;
       mStopParamType = right.mStopParamType;
@@ -235,14 +289,48 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
       mEpochParam = right.mEpochParam;
       
       mGoalParam = (Parameter*)right.mGoalParam;
-         
+      
+      if (mEccParam != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (mEccParam, mEccParam->GetName(), "StopCondition::operator=",
+             "deleting mEccParam");
+         #endif
+         delete mEccParam;
+      }
+      
       if (right.mEccParam != NULL)
+      {
          mEccParam = (Parameter*)right.mEccParam->Clone();
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (mEccParam, mEccParam->GetName(), "StopCondition::operator=",
+             "mEccParam = (Parameter*)right.mEccParam->Clone()");
+         #endif
+      }
       else
          mEccParam = NULL;
-         
+      
+      if (mRmagParam != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (mRmagParam, mRmagParam->GetName(), "StopCondition::operator=",
+             "deleting mRmagParam");
+         #endif
+         delete mRmagParam;
+      }
+      
       if (right.mRmagParam != NULL)
+      {
          mRmagParam = (Parameter*)right.mRmagParam->Clone();
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (mRmagParam, mRmagParam->GetName(), "StopCondition::operator=",
+             "mRmagParam = (Parameter*)right.mRmagParam->Clone()");
+         #endif
+      }
       else
          mRmagParam = NULL;
       
@@ -263,7 +351,7 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
       
       CopyDynamicData(right);
    }
-
+   
    return *this;
 }
 
@@ -278,15 +366,34 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
 StopCondition::~StopCondition()
 {
    if (mEccParam != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (mEccParam, mEccParam->GetName(), "StopCondition::~StopCondition()",
+          "deleting mEccParam");
+      #endif
       delete mEccParam;
-
+   }
+   
    if (mRmagParam != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (mRmagParam, mRmagParam->GetName(), "StopCondition::~StopCondition()",
+          "deleting mRmagParam");
+      #endif
       delete mRmagParam;
-
+   }
+   
    if (mInterpolator != NULL)
    {
       if (mInterpolator->GetName() == "InternalInterpolator")
       {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (mInterpolator, mInterpolator->GetName(), "StopCondition::~StopCondition()",
+             "deleting mInterpolator");
+         #endif
          delete mInterpolator;
       }
    }
@@ -869,14 +976,28 @@ bool StopCondition::Initialize()
    
    // clear local parameters
    if (mEccParam != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (mEccParam, mEccParam->GetName(), "StopCondition::Initialize()",
+          "deleting mEccParam");
+      #endif
       delete mEccParam;
-
+   }
+   
    if (mRmagParam != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (mRmagParam, mRmagParam->GetName(), "StopCondition::Initialize()",
+          "deleting mRmagParam");
+      #endif
       delete mRmagParam;
-
+   }
+   
    mEccParam = NULL;
    mRmagParam = NULL;
-
+   
    if (Validate())
    {
       if (mStopParamType == "Apoapsis" ||
@@ -889,9 +1010,9 @@ bool StopCondition::Initialize()
          if (mStopParamType == "Periapsis")
             isPeriapse = true;
       }
-            
+      
       std::string paramTypeName = mStopParam->GetTypeName();
-
+      
       if (paramTypeName == "TA" || paramTypeName == "MA" ||
           paramTypeName == "EA" || paramTypeName == "Longitude")
       {
@@ -1021,6 +1142,11 @@ bool StopCondition::Validate()
          #endif
          
          mEccParam = new KepEcc("");
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (mEccParam, mEccParam->GetName(), "StopCondition::Validate()",
+             "mEccParam = new KepEcc("")");
+         #endif
          
          mEccParam->AddRefObject
             (mStopParam->GetRefObject(Gmat::SPACECRAFT, 
@@ -1058,6 +1184,12 @@ bool StopCondition::Validate()
             #endif
             
             mRmagParam = new SphRMag("");
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (mRmagParam, mRmagParam->GetName(), "StopCondition::Validate()",
+                "mRmagParam = new SphRMag("")");
+            #endif
+            
             mRmagParam->SetStringParameter("DepObject", depObjName);
             
             mRmagParam->AddRefObject
