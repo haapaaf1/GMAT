@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            CubicSplineInterpolator
 //------------------------------------------------------------------------------
@@ -63,6 +63,7 @@ CubicSplineInterpolator::CubicSplineInterpolator(const std::string &name,
 //------------------------------------------------------------------------------
 CubicSplineInterpolator::~CubicSplineInterpolator()
 {
+   CleanupArrays();
 }
 
 
@@ -106,7 +107,9 @@ CubicSplineInterpolator& CubicSplineInterpolator::operator=
 {
    if (&csi == this)
       return *this;
-        
+
+   CleanupArrays();
+   
    CopyArrays(csi);
    lastX = csi.lastX;
    return *this;
