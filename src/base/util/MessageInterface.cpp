@@ -82,7 +82,7 @@ MessageReceiver* MessageInterface::GetMessageReceiver()
 void MessageInterface::ShowMessage(const std::string &msgString)
 {
    if (theMessageReceiver != NULL)
-      theMessageReceiver->ShowMessage(msgString.c_str());
+      theMessageReceiver->ShowMessage(msgString);
 }
 
 
