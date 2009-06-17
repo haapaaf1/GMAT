@@ -99,7 +99,7 @@ void RunScriptInterpreter(std::string script, int verbosity, bool batchmode)
    MessageInterface::SetMessageReceiver(theMessageReceiver);
    
    Moderator *mod = Moderator::Instance();
-    
+   
    if (!moderatorInitialized) {
       if (!mod->Initialize()) {
          throw ConsoleAppException("Moderator failed to initialize!");
@@ -107,7 +107,7 @@ void RunScriptInterpreter(std::string script, int verbosity, bool batchmode)
       
       moderatorInitialized = true;
    }
-    
+   
    try
    {
       if (!mod->InterpretScript(script)) {
@@ -135,7 +135,7 @@ void RunScriptInterpreter(std::string script, int verbosity, bool batchmode)
    // And now run it
    if (mod->RunMission() != 1)
       throw ConsoleAppException("Moderator::RunMission failed");
-
+   
    // Success!
    if (!batchmode)
       std::cout << "\n\n*** GMAT Integration test "
@@ -505,7 +505,9 @@ int main(int argc, char *argv[])
       std::cout << ex.GetFullMessage() << std::endl;
       exit(0);
    }
-
+   
+   Moderator::Instance()->Finalize();
+   
    return 0;
 }
 
