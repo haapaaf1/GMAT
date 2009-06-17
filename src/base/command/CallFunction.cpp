@@ -50,14 +50,14 @@
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
-//#ifndef DEBUG_PERFORMANCE
-//#define DEBUG_PERFORMANCE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE
 //#endif
 
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
-#ifdef DEBUG_PERFORMANCE
+#ifdef DEBUG_TRACE
 #include <ctime>                 // for clock()
 #endif
 
@@ -1058,7 +1058,7 @@ bool CallFunction::Execute()
    if (mFunction == NULL)
       throw CommandException("Function is not defined for CallFunction");
    
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
@@ -1122,7 +1122,7 @@ bool CallFunction::Execute()
       #endif
    #endif
       
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    clock_t t2 = clock();
    MessageInterface::ShowMessage
       ("=== CallFunction::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",

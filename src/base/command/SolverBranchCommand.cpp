@@ -240,6 +240,11 @@ void SolverBranchCommand::StoreLoopData()
       {
          Spacecraft *orig = (Spacecraft*)(obj);
          Spacecraft *sc = new Spacecraft(*orig);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            ((GmatBase*)sc, "cloned local sc", "SolverBranchCommand::StoreLoopData()",
+             "Spacecraft *sc = new Spacecraft(*orig)");
+         #endif
          // Handle CoordinateSystems
          if (orig->GetInternalCoordSystem() == NULL)
             MessageInterface::ShowMessage(
@@ -259,6 +264,11 @@ void SolverBranchCommand::StoreLoopData()
       {
          Formation *orig = (Formation*)(obj);
          Formation *form  = new Formation(*orig);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            ((GmatBase*)form, "cloned local form", "SolverBranchCommand::StoreLoopData()",
+             "Formation *form  = new Formation(*orig)");
+         #endif
          localStore.push_back(form);
       }
       ++globalPair;
