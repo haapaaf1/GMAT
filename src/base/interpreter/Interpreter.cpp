@@ -4474,9 +4474,9 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                   MemoryTracker::Instance()->Remove
                      (ownedObj, ownedObj->GetName(), "Interpreter::SetPropertyObjectValue()",
                       "deleting oldOwnedObject");
+                  #endif
                   delete ownedObj;
                   ownedObj = NULL;
-                  #endif
                }
             }
             else
