@@ -261,6 +261,7 @@ protected:
    void                UpdateTransientForces();
    
    std::string         BuildForceNameString(PhysicalModel *force);
+   void                ClearForceList(bool deleteTransient = false);
    void                ClearInternalCoordinateSystems();
    void                SetInternalCoordinateSystem(const std::string csId,
                                                    PhysicalModel *currentPm);
@@ -273,7 +274,7 @@ protected:
    
    /// Locally defined coordinate systems, if needed
    std::vector <CoordinateSystem*>
-                             InternalCoordinateSystems;
+                             internalCoordinateSystems;
    
    /// EarthMJ2000Eq pointer, so that it can be cloned to make other Eq systems 
    CoordinateSystem          *earthEq;

@@ -197,33 +197,8 @@ ODEModel::~ODEModel()
 //   if (previousState)
 //      delete [] previousState;
    
-   // Delete the owned forces
-   std::vector<PhysicalModel *>::iterator ppm = forceList.begin();
-   PhysicalModel *pm;
-   while (ppm != forceList.end())
-   {
-      pm = *ppm;
-      forceList.erase(ppm);
-      
-      #ifdef DEBUG_ODEMODEL
-      MessageInterface::ShowMessage
-         ("   Checking if pm<%p> is transient\n", pm);
-      #endif
-      
-      // Transient forces are managed in the Sandbox.
-      if (!pm->IsTransient())
-      {
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Remove
-            (pm, pm->GetName(), "ODEModel::~ODEModel()",
-             "deleting non-transient \"" + pm->GetTypeName() +
-             "\" PhysicalModel", this);
-         #endif
-         delete pm;
-      }
-      ppm = forceList.begin();
-   }
-   
+   // Delete the owned objects
+   ClearForceList();
    ClearInternalCoordinateSystems();
 
    #ifdef DEBUG_FORCE_EPOCHS
@@ -288,7 +263,7 @@ ODEModel::ODEModel(const ODEModel& fdf) :
    
 //   spacecraft.clear();
    forceList.clear();
-   InternalCoordinateSystems.clear();
+   internalCoordinateSystems.clear();
    
    // Copy the forces.  May not work -- the copy constructors need to be checked
    for (std::vector<PhysicalModel *>::const_iterator pm = fdf.forceList.begin();
@@ -359,10 +334,13 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    earthEq             = fdf.earthEq;
    earthFixed          = fdf.earthFixed; 
    forceMembersNotInitialized = fdf.forceMembersNotInitialized;
+
+   // Clear owned objects before clone
+   ClearForceList();
+   ClearInternalCoordinateSystems();
    
 //   spacecraft.clear();
    forceList.clear();
-   InternalCoordinateSystems.clear();
    
    // Copy the forces.  May not work -- the copy constructors need to be checked
    for (std::vector<PhysicalModel *>::const_iterator pm = fdf.forceList.begin();
@@ -1101,6 +1079,12 @@ bool ODEModel::Initialize()
       
    // rawState deallocated in PhysicalModel::Initialize() method so reallocate
    rawState = new Real[dimension];
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (rawState, "rawState", "ODEModel::Initialize()",
+       "rawState = new Real[dimension]", this);
+   #endif
+   
    memcpy(rawState, state->GetState(), dimension * sizeof(Real));
 
    MoveToOrigin();
@@ -1185,6 +1169,45 @@ bool ODEModel::Initialize()
 
 
 //------------------------------------------------------------------------------
+// void ClearForceList()
+//------------------------------------------------------------------------------
+void ODEModel::ClearForceList(bool deleteTransient)
+{
+   #ifdef DEBUG_ODEMODEL_CLEAR
+   MessageInterface::ShowMessage
+      ("ODEModel::ClearForceList() entered, there are %d forces\n", forceList.size());
+   #endif
+   
+   // Delete the owned forces
+   std::vector<PhysicalModel *>::iterator ppm = forceList.begin();
+   PhysicalModel *pm;
+   while (ppm != forceList.end())
+   {
+      pm = *ppm;
+      forceList.erase(ppm);
+      
+      #ifdef DEBUG_ODEMODEL_CLEAR
+      MessageInterface::ShowMessage("   Checking if pm<%p> is transient\n", pm);
+      #endif
+      
+      // Transient forces are managed in the Sandbox.
+      if (!pm->IsTransient() || deleteTransient && pm->IsTransient())
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (pm, pm->GetName(), "ODEModel::~ODEModel()",
+             "deleting non-transient \"" + pm->GetTypeName() +
+             "\" PhysicalModel", this);
+         #endif
+         delete pm;
+      }
+      ppm = forceList.begin();
+   }
+   
+}
+
+
+//------------------------------------------------------------------------------
 // void ClearInternalCoordinateSystems()
 //------------------------------------------------------------------------------
 /**
@@ -1194,8 +1217,8 @@ bool ODEModel::Initialize()
 void ODEModel::ClearInternalCoordinateSystems()
 {
    for (std::vector<CoordinateSystem*>::iterator i = 
-           InternalCoordinateSystems.begin();
-        i != InternalCoordinateSystems.end(); ++i)
+           internalCoordinateSystems.begin();
+        i != internalCoordinateSystems.end(); ++i)
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
@@ -1204,7 +1227,7 @@ void ODEModel::ClearInternalCoordinateSystems()
       #endif
       delete (*i);
    }
-   InternalCoordinateSystems.clear();
+   internalCoordinateSystems.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -1219,7 +1242,7 @@ void ODEModel::ClearInternalCoordinateSystems()
  */
 //------------------------------------------------------------------------------
 void ODEModel::SetInternalCoordinateSystem(const std::string csId,
-                                             PhysicalModel *currentPm)
+                                           PhysicalModel *currentPm)
 {
    std::string csName;
    CoordinateSystem *cs = NULL;
@@ -1244,8 +1267,8 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
       #endif
       
       for (std::vector<CoordinateSystem*>::iterator i =
-              InternalCoordinateSystems.begin();
-           i != InternalCoordinateSystems.end(); ++i)
+              internalCoordinateSystems.begin();
+           i != internalCoordinateSystems.end(); ++i)
          if ((*i)->GetName() == csName)
             cs = *i;
       
@@ -1284,7 +1307,7 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
          cs->SetStringParameter("Origin", centralBodyName);
          cs->SetRefObject(forceOrigin, Gmat::CELESTIAL_BODY, 
             centralBodyName);
-         InternalCoordinateSystems.push_back(cs);
+         internalCoordinateSystems.push_back(cs);
 
          #ifdef DEBUG_ODEMODEL_INIT
             MessageInterface::ShowMessage("Created %s with description\n\n%s\n", 
