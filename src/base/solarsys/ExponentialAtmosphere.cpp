@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                           ExponentialAtmosphere
 //------------------------------------------------------------------------------
@@ -170,9 +170,17 @@ bool ExponentialAtmosphere::Density(Real *position, Real *density, Real epoch, I
 //------------------------------------------------------------------------------
 void ExponentialAtmosphere::SetConstants(void)
 {
+   // Delete old array first
+   if (scaleHeight)
+      delete [] scaleHeight;
+   
    scaleHeight = new Real[altitudeBands];
    if (!scaleHeight)
       throw AtmosphereException("Unable to allocate scaleHeight array for ExponentialAtmosphere model");
+   
+   // Delete old array first
+   if (refHeight)
+      delete [] refHeight;
    
    refHeight   = new Real[altitudeBands];
    if (!refHeight) {
@@ -180,6 +188,10 @@ void ExponentialAtmosphere::SetConstants(void)
       scaleHeight = NULL;
       throw AtmosphereException("Unable to allocate refHeight array for ExponentialAtmosphere model");
    }
+   
+   // Delete old array first
+   if (refDensity)
+      delete [] refDensity;
    
    refDensity  = new Real[altitudeBands];
    if (!refDensity) {
