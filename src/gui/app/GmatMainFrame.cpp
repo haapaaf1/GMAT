@@ -529,8 +529,7 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
    
    #ifdef DEBUG_CREATE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CreateChild() name=%s, itemType=%d\n",
-       item->GetName().c_str(), itemType);
+      ("   itemName='%s', itemType=%d\n", item->GetName().c_str(), itemType);
    #endif
    
    //----------------------------------------------------------------------
@@ -1210,6 +1209,7 @@ void GmatMainFrame::CloseCurrentProject()
    #endif
    
    // clear command sequence before resource (loj: 2008.07.10)
+   theGuiInterpreter->ClearAllSandboxes();
    theGuiInterpreter->ClearCommandSeq();
    theGuiInterpreter->ClearResource();
    MessageInterface::ClearMessage();
@@ -2131,7 +2131,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
 {
    #ifdef DEBUG_CREATE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CreateNewResource() title=%s, name=%s, itemType=%d\n",
+      ("GmatMainFrame::CreateNewResource() title='%s', name='%s', itemType=%d\n",
        title.c_str(), name.c_str(), itemType);
    #endif
    
