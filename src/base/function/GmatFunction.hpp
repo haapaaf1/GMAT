@@ -53,6 +53,10 @@ public:
 protected:
    
    bool mIsNewFunction;
+
+   // for debug
+   void                 ShowTrace(Integer count, Integer t1, const std::string &label = "",
+                                  bool showMemoryTracks = false, bool addEol = false);
    
    enum
    {

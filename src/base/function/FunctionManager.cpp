@@ -48,14 +48,14 @@
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
-//#ifndef DEBUG_PERFORMANCE
-//#define DEBUG_PERFORMANCE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE
 //#endif
 
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
-#ifdef DEBUG_PERFORMANCE
+#ifdef DEBUG_TRACE
 #include <ctime>                 // for clock()
 #endif
 
@@ -736,6 +736,13 @@ bool FunctionManager::PrepareObjectMap()
 //------------------------------------------------------------------------------
 bool FunctionManager::Initialize()
 {
+   #ifdef DEBUG_TRACE
+   static Integer callCount = 0;
+   callCount++;
+   clock_t t1 = clock();
+   ShowTrace(callCount, t1, "FunctionManager::Initialize() entered");
+   #endif
+   
    #ifdef DEBUG_FM_INIT
    MessageInterface::ShowMessage
       ("=======================================================================\n"
@@ -773,6 +780,11 @@ bool FunctionManager::Initialize()
    
    firstExecution = false;
    isFinalized = false;
+   
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "FunctionManager::Initialize() exiting", true);
+   #endif
+   
    return true;
 }
 
@@ -784,14 +796,12 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    if (f == NULL)
       throw FunctionException("FunctionManager: Function pointer is NULL");
    
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
-   MessageInterface::ShowMessage
-      ("=== FunctionManager::Execute() entered, '%s' Count = %d\n",
-       fName.c_str(), callCount);
-   MessageInterface::ShowMessage("=== firstExecution=%d\n", firstExecution);
+   ShowTrace(callCount, t1, "FunctionManager::Execute() entered");
+   //MessageInterface::ShowMessage("   === firstExecution=%d\n", firstExecution);
    #endif
    
    #ifdef DEBUG_FM_EXECUTE
@@ -923,10 +933,14 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    {
       if (!f->Execute(objInit, reinitialize))
       {
+         MessageInterface::ShowMessage
+            ("*** ERROR *** FunctionManager finializing... due to false returned "
+             "from f->Execute()\n");
          f->Finalize();
          if (publisher)
             publisher->ClearPublishedData();
          
+         Cleanup();
          return false;
       }
    }
@@ -938,6 +952,8 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
       f->Finalize();
       if (publisher)
          publisher->ClearPublishedData();
+      
+      Cleanup();
       return false;
    }
    
@@ -951,13 +967,13 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    
    // Now deal with the calling function here
    if (!HandleCallStack())
+   {
+      Cleanup();
       return false;
+   }
    
-   #ifdef DEBUG_PERFORMANCE
-   clock_t t2 = clock();
-   MessageInterface::ShowMessage
-      ("=== FunctionManager::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",
-       fName.c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "FunctionManager::Execute() exiting", true);
    #endif
    
    return true;
@@ -1027,13 +1043,11 @@ Rmatrix FunctionManager::MatrixEvaluate(FunctionManager *callingFM)
 //------------------------------------------------------------------------------
 void FunctionManager::Finalize()
 {
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
-   MessageInterface::ShowMessage
-      ("=== FunctionManager::Finalize() entered, '%s' Count = %d\n",
-       fName.c_str(), callCount);
+   ShowTrace(callCount, t1, "FunctionManager::Finalize() entered");
    #endif
    
    #ifdef DEBUG_FM_FINALIZE
@@ -1051,6 +1065,12 @@ void FunctionManager::Finalize()
    #endif
    #endif
    
+   Cleanup();
+   
+   // replaced with Cleanup()
+   //=================================================================
+   #if 0
+   //=================================================================
    if (f != NULL)
       if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
       {
@@ -1059,6 +1079,7 @@ void FunctionManager::Finalize()
          ////f->ClearAutomaticObjects();
          f->Finalize();
       }
+   
    // now delete all of the items/entries in the FOS - we can do this since they 
    // are all either locally-created or clones of reference objects or automatic objects
    if (functionObjectStore)
@@ -1074,17 +1095,16 @@ void FunctionManager::Finalize()
       clonedObjectStores[i] = NULL;
    }
    clonedObjectStores.clear();
+   //=================================================================
+   #endif
+   //=================================================================
    
    firstExecution = true;
    isFinalized = true;
    
-   #ifdef DEBUG_PERFORMANCE
-   clock_t t2 = clock();
-   MessageInterface::ShowMessage
-      ("=== FunctionManager::Finalize() exiting, '%s' Count = %d, Run Time: %f seconds\n",
-       fName.c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "FunctionManager::Finalize() exiting", true, true);
    #endif
-   
 }
 
 //------------------------------------------------------------------------------
@@ -2148,6 +2168,39 @@ bool FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// void Cleanup()
+//------------------------------------------------------------------------------
+void FunctionManager::Cleanup()
+{
+   if (f != NULL)
+      if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
+      {
+         ////Edwin's MMS script failed, so commented out (loj: 2008.12.03)
+         ////We need to delete this somewhere though.
+         ////f->ClearAutomaticObjects();
+         f->Finalize();
+      }
+   
+   // now delete all of the items/entries in the FOS - we can do this since they 
+   // are all either locally-created or clones of reference objects or automatic objects
+   if (functionObjectStore)
+   {
+      DeleteObjectMap(functionObjectStore, "FOS in Finalize");
+      functionObjectStore = NULL;
+   }
+   
+   Integer numClones = clonedObjectStores.size();
+   for (Integer i=0; i<numClones; i++)
+   {
+      DeleteObjectMap(clonedObjectStores[i], "clonedOS in Finalize");
+      clonedObjectStores[i] = NULL;
+   }
+   clonedObjectStores.clear();
+}
+
+
 //------------------------------------------------------------------------------
 // bool EmptyObjectMap(ObjectMap *om, const std::string &mapID)
 //------------------------------------------------------------------------------
@@ -2494,5 +2547,47 @@ void FunctionManager::ShowCallers(const std::string &label)
       temp.pop();
    }
    MessageInterface::ShowMessage("===============================\n");
+}
+
+
+//------------------------------------------------------------------------------
+// void ShowTrace(Integer count, Integer t1, const std::string &label = "",
+//                bool showMemoryTracks = false, bool addEol = false)
+//------------------------------------------------------------------------------
+void FunctionManager::ShowTrace(Integer count, Integer t1, const std::string &label,
+                                bool showMemoryTracks, bool addEol)
+{
+   // To locally control debug output
+   bool showTrace = false;
+   bool showTracks = true;
+   
+   showTracks = showTracks & showMemoryTracks;
+   
+   if (showTrace)
+   {
+      #ifdef DEBUG_TRACE
+      clock_t t2 = clock();
+      MessageInterface::ShowMessage
+         ("=== %s, '%s' Count = %d, elapsed time: %f sec\n", label.c_str(),
+          fName.c_str(), count, (Real)(t2-t1)/CLOCKS_PER_SEC);
+      #endif
+   }
+   
+   if (showTracks)
+   {
+      #ifdef DEBUG_MEMORY
+      StringArray tracks = MemoryTracker::Instance()->GetTracks(false, false);
+      if (showTrace)
+         MessageInterface::ShowMessage
+            ("    ==> There are %d memory tracks\n", tracks.size());
+      else
+         MessageInterface::ShowMessage
+            ("=== There are %d memory tracks when %s, '%s'\n", tracks.size(),
+             label.c_str(), fName.c_str());
+      
+      if (addEol)
+         MessageInterface::ShowMessage("\n");
+      #endif
+   }
 }
 

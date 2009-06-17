@@ -34,14 +34,14 @@
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
-//#ifndef DEBUG_PERFORMANCE
-//#define DEBUG_PERFORMANCE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE
 //#endif
 
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
-#ifdef DEBUG_PERFORMANCE
+#ifdef DEBUG_TRACE
 #include <ctime>                 // for clock()
 #endif
 
@@ -222,6 +222,13 @@ void GmatFunction::SetNewFunction(bool flag)
 //------------------------------------------------------------------------------
 bool GmatFunction::Initialize()
 {
+   #ifdef DEBUG_TRACE
+   static Integer callCount = 0;
+   callCount++;      
+   clock_t t1 = clock();
+   ShowTrace(callCount, t1, "GmatFunction::Initialize() entered");
+   #endif
+   
    #ifdef DEBUG_FUNCTION_INIT
       MessageInterface::ShowMessage
          ("======================================================================\n"
@@ -348,6 +355,11 @@ bool GmatFunction::Initialize()
       ("GmatFunction::Initialize() exiting for function '%s' with true\n",
        functionName.c_str());
    #endif
+   
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "GmatFunction::Initialize() exiting", true);
+   #endif
+   
    return true;
 }
 
@@ -360,13 +372,11 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
    if (!fcs) return false;
    if (!objInit) return false;
    
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
-   MessageInterface::ShowMessage
-      ("=== GmatFunction::Execute() entered, '%s' Count = %d\n",
-       functionName.c_str(), callCount);
+   ShowTrace(callCount, t1, "GmatFunction::Execute() entered");
    #endif
    
    #ifdef DEBUG_FUNCTION_EXEC
@@ -580,11 +590,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
       ("GmatFunction::Execute() exiting true for '%s'\n", functionName.c_str());
    #endif
    
-   #ifdef DEBUG_PERFORMANCE
-   clock_t t2 = clock();
-   MessageInterface::ShowMessage
-      ("=== GmatFunction::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",
-       functionName.c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "GmatFunction::Execute() exiting", true);
    #endif
    
    return true; 
@@ -596,13 +603,11 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
 //------------------------------------------------------------------------------
 void GmatFunction::Finalize()
 {
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
-   MessageInterface::ShowMessage
-      ("=== GmatFunction::Finalize() entered, '%s' Count = %d\n",
-       functionName.c_str(), callCount);
+   ShowTrace(callCount, t1, "GmatFunction::Finalize() entered");
    #endif
    
    #ifdef DEBUG_FUNCTION_FINALIZE
@@ -635,11 +640,8 @@ void GmatFunction::Finalize()
    
    Function::Finalize();
    
-   #ifdef DEBUG_PERFORMANCE
-   clock_t t2 = clock();
-   MessageInterface::ShowMessage
-      ("=== GmatFunction::Finalize() exiting, '%s' Count = %d, Run Time: %f seconds\n",
-       functionName.c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "GmatFunction::Finalize() exiting", true, true);
    #endif
    
 }
@@ -762,5 +764,47 @@ bool GmatFunction::SetStringParameter(const std::string &label,
                                       const std::string &value)
 {
    return SetStringParameter(GetParameterID(label), value);
+}
+
+
+//------------------------------------------------------------------------------
+// void ShowTrace(Integer count, Integer t1, const std::string &label = "",
+//                bool showMemoryTracks = false, bool addEol = false)
+//------------------------------------------------------------------------------
+void GmatFunction::ShowTrace(Integer count, Integer t1, const std::string &label,
+                             bool showMemoryTracks, bool addEol)
+{
+   // To locally control debug output
+   bool showTrace = false;
+   bool showTracks = true;
+   
+   showTracks = showTracks & showMemoryTracks;
+   
+   if (showTrace)
+   {
+      #ifdef DEBUG_TRACE
+      clock_t t2 = clock();
+      MessageInterface::ShowMessage
+         ("=== %s, '%s' Count = %d, elapsed time: %f sec\n", label.c_str(),
+          functionName.c_str(), count, (Real)(t2-t1)/CLOCKS_PER_SEC);
+      #endif
+   }
+   
+   if (showTracks)
+   {
+      #ifdef DEBUG_MEMORY
+      StringArray tracks = MemoryTracker::Instance()->GetTracks(false, false);
+      if (showTrace)
+         MessageInterface::ShowMessage
+            ("    ==> There are %d memory tracks\n", tracks.size());
+      else
+         MessageInterface::ShowMessage
+            ("=== There are %d memory tracks when %s, '%s'\n", tracks.size(),
+             label.c_str(), functionName.c_str());
+      
+      if (addEol)
+         MessageInterface::ShowMessage("\n");
+      #endif
+   }
 }
 

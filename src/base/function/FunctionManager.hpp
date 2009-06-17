@@ -173,6 +173,7 @@ protected:
    bool                 HandleCallStack();
    void                 SaveLastResult();
    
+   void                 Cleanup();
    bool                 EmptyObjectMap(ObjectMap *om, const std::string &mapID = "");  
    bool                 DeleteObjectMap(ObjectMap *om, const std::string &mapID = "");
    bool                 ClearInOutWrappers();
@@ -180,9 +181,12 @@ protected:
    bool                 CopyObjectMap(ObjectMap *from, ObjectMap *to);
    bool                 IsOnStack(ObjectMap *om);
    
+   // for debug
    void                 ShowObjectMap(ObjectMap *om, const std::string &mapID = "");
    void                 ShowStackContents(ObjectMapStack omStack, const std::string &stackID = "");
    void                 ShowCallers(const std::string &label = "");
+   void                 ShowTrace(Integer count, Integer t1, const std::string &label = "",
+                                  bool showMemoryTracks = false, bool addEol = false);
 };
 
 #endif // FunctionManager_hpp
