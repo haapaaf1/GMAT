@@ -1418,8 +1418,8 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Remove
       (orAxes, "orAxes", "Burn::CreateLocalCoordinateSystem()", "deleting localAxes");
-   delete orAxes;
    #endif
+   delete orAxes;
    
    return localCS;
 }
