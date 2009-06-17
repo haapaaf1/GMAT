@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  AxisSystem
 //------------------------------------------------------------------------------
@@ -50,6 +50,13 @@ using namespace GmatTimeUtil;      // for SECS_PER_DAY
 //#define DEBUG_CALCS
 //#define DEBUG_DESTRUCTION
 
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 #ifdef DEBUG_FIRST_CALL
    static bool firstCallFired = false;
@@ -225,6 +232,25 @@ const AxisSystem& AxisSystem::operator=(const AxisSystem &axisSys)
    lastDPsi          = axisSys.lastDPsi;
    nutationSrc       = axisSys.nutationSrc;
    planetarySrc      = axisSys.planetarySrc;
+   
+   aVals             = NULL; 
+   apVals            = NULL;
+   precData          = NULL;
+   nutData           = NULL;
+   stData            = NULL;
+   stDerivData       = NULL;
+   pmData            = NULL;
+   AVals             = NULL;
+   BVals             = NULL;
+   CVals             = NULL;
+   DVals             = NULL;
+   EVals             = NULL;
+   FVals             = NULL;
+   ApVals            = NULL;
+   BpVals            = NULL;
+   CpVals            = NULL;
+   DpVals            = NULL;
+   
    Initialize();
    
    return *this;
@@ -238,22 +264,28 @@ const AxisSystem& AxisSystem::operator=(const AxisSystem &axisSys)
 //---------------------------------------------------------------------------
 AxisSystem::~AxisSystem()
 {
-//    for (Integer i = 0; i < 5; i++)
-//       delete aVals[i];
-//    for (Integer i = 0; i < 10; i++)
-//       delete apVals[i];
    #ifdef DEBUG_DESTRUCTION
    MessageInterface::ShowMessage("---> Entering AxisSystem destructor for %s\n",
    instanceName.c_str());
    #endif
-
+   
    if (aVals != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (aVals, "aVals", "AxisSystem::~AxisSystem()", "deleting aVals");
+      #endif
       delete [] aVals;
+   }
    if (apVals != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (apVals, "apVals", "AxisSystem::~AxisSystem()", "deleting apVals");
+      #endif
       delete [] apVals;
-  
-//   aVals = NULL;
-//   apVals = NULL;
+   }
+   
    #ifdef DEBUG_DESTRUCTION
    MessageInterface::ShowMessage("---> LEAVING AxisSystem destructor for %s\n",
    instanceName.c_str());
@@ -1083,11 +1115,17 @@ bool AxisSystem::GetBooleanParameter(const Integer id) const
    return CoordinateBase::GetBooleanParameter(id); 
 }
 
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const std::string &label) const
+//------------------------------------------------------------------------------
 bool AxisSystem::GetBooleanParameter(const std::string &label) const
 {
    return GetBooleanParameter(GetParameterID(label));
 }
 
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const Integer id, const bool value)
+//------------------------------------------------------------------------------
 bool AxisSystem::SetBooleanParameter(const Integer id,
                                      const bool value)
 {
@@ -1099,13 +1137,18 @@ bool AxisSystem::SetBooleanParameter(const Integer id,
    return CoordinateBase::SetBooleanParameter(id, value);
 }
 
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const std::string &label, const bool value)
+//------------------------------------------------------------------------------
 bool AxisSystem::SetBooleanParameter(const std::string &label,
                                      const bool value)
 {
    return SetBooleanParameter(GetParameterID(label), value);
 }
 
-
+//------------------------------------------------------------------------------
+// void InitializeFK5()
+//------------------------------------------------------------------------------
 void AxisSystem::InitializeFK5()
 {
    //if (originName == SolarSystem::EARTH_NAME)
@@ -1146,7 +1189,21 @@ void AxisSystem::InitializeFK5()
          MessageInterface::ShowMessage("In AxisSystem, after getting nutation data, A(%d) = %f\n", ii, A(ii));
       #endif
       
+      if (aVals)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (aVals, "aVals", "AxisSystem::InitializeFK5()", "deleting aVals");
+         #endif
+         delete [] aVals;
+      }
+      
       aVals = new Integer[numNut * 5];
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (aVals, "aVals", "AxisSystem::InitializeFK5()", "aVals = new Integer[numNut * 5]");
+      #endif
+      
       for (Integer i = 0; i < 5; i++)
       {
          for (Integer j=0; j< numNut; j++)
@@ -1169,8 +1226,22 @@ void AxisSystem::InitializeFK5()
       {
          OK      = itrf->GetPlanetaryTerms(ap, Ap, Bp, Cp, Dp);
          if (!OK) throw CoordinateSystemException("Error getting planetary data.");
-      
+
+         if (apVals)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (apVals, "apVals", "AxisSystem::InitializeFK5()", "deleting apVals");
+            #endif
+            delete [] apVals;
+         }
+         
          apVals = new Integer[numPlan*10];
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (apVals, "apVals", "AxisSystem::InitializeFK5()", "apVals = new Integer[numPlan*10]");
+         #endif
+         
          for (Integer i = 0; i < 10; i++)
          {
             for (Integer j=0; j< numPlan; j++)
@@ -1899,5 +1970,4 @@ void AxisSystem::ComputePolarMotionRotation(const Real mjdUTC, A1Mjd atEpoch,
 
 //   return PM;
 }
-
 
