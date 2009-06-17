@@ -96,6 +96,13 @@
 //#define PHYSICAL_MODEL_DEBUG_INIT
 //#define DEBUG_INITIALIZATION
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //---------------------------------
 // static data
@@ -171,13 +178,34 @@ PhysicalModel::~PhysicalModel()
 {
    if (rawState != modelState)
       if (rawState)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (rawState, "rawState", "PhysicalModel::~PhysicalModel()",
+             "deleting rawState", this);
+         #endif
          delete [] rawState;
+      }
    
    if (modelState)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (modelState, "modelState", "PhysicalModel::~PhysicalModel()",
+          "deleting modelState", this);
+      #endif
       delete [] modelState;
+   }
    
    if (deriv)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (deriv, "deriv", "PhysicalModel::~PhysicalModel()",
+          "deleting deriv", this);
+      #endif
       delete [] deriv;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -211,6 +239,11 @@ PhysicalModel::PhysicalModel(const PhysicalModel& pm) :
    if (pm.modelState != NULL) 
    {
       modelState = new Real[dimension];
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (modelState, "modelState", "PhysicalModel::PhysicalModel(copy)",
+          "modelState = new Real[dimension]", this);
+      #endif
       if (modelState != NULL) 
          memcpy(modelState, pm.modelState, dimension * sizeof(Real));
       else
@@ -219,10 +252,15 @@ PhysicalModel::PhysicalModel(const PhysicalModel& pm) :
    else
       modelState = NULL;
    rawState = modelState;
-
+   
    if (pm.deriv != NULL) 
    {
       deriv = new Real[dimension];
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (deriv, "deriv", "PhysicalModel::PhysicalModel(copy)",
+          "deriv = new Real[dimension]", this);
+      #endif
       if (deriv != NULL) 
          memcpy(deriv, pm.deriv, dimension * sizeof(Real));
       else
@@ -230,7 +268,7 @@ PhysicalModel::PhysicalModel(const PhysicalModel& pm) :
    }
    else
       deriv = NULL;
-
+   
    parameterCount = PhysicalModelParamCount;
 }
 
@@ -267,10 +305,22 @@ PhysicalModel& PhysicalModel::operator=(const PhysicalModel& pm)
    {
       if (modelState) 
       {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (modelState, "modelState", "PhysicalModel::operator=()",
+             "deleting modelState", this);
+         #endif
          delete [] modelState;
          modelState = NULL;
       }
+      
       modelState = new Real[dimension];
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (modelState, "modelState", "ODEModel::operator=()",
+          "modelState = new Real[dimension]", this);
+      #endif
+      
       if (modelState != NULL) 
          memcpy(modelState, pm.modelState, dimension * sizeof(Real));
       else
@@ -285,10 +335,22 @@ PhysicalModel& PhysicalModel::operator=(const PhysicalModel& pm)
    {
       if (deriv)
       {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (deriv, "deriv", "PhysicalModel::operator=()",
+             "deleting deriv", this);
+         #endif
          delete [] deriv;
          deriv = NULL;
       }
+      
       deriv = new Real[dimension];
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (deriv, "deriv", "ODEModel::operator=()",
+          "deriv = new Real[dimension]", this);
+      #endif
+      
       if (deriv != NULL) 
          memcpy(deriv, pm.deriv, dimension * sizeof(Real));
       else
@@ -335,10 +397,15 @@ void PhysicalModel::SetBody(CelestialBody *theBody)
    {
       if (body != NULL)
       {
-            delete body;
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (deriv, "deriv", "PhysicalModel::SetBody()",
+             "deleting deriv", this);
+         #endif
+         delete body;
       }
    }
-      
+   
    body = theBody;
    bodyName = body->GetName();
 //    mu = theBody->GetGravitationalConstant();
@@ -373,21 +440,36 @@ bool PhysicalModel::Initialize()
       
    if ((rawState != NULL) && (rawState != modelState))
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (rawState, "rawState", "PhysicalModel::Initialize()",
+          "deleting rawState", this);
+      #endif
       delete [] rawState;
       rawState = NULL;
    }
-
+   
    if (modelState) 
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (modelState, "modelState", "PhysicalModel::Initialize()",
+          "deleting modelState", this);
+      #endif
       delete [] modelState;
       modelState = NULL;
       rawState = NULL;
-
+      
       initialized = false;
    }
-
+   
    if (deriv)
    {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (deriv, "deriv", "PhysicalModel::Initialize()",
+          "deleting deriv", this);
+      #endif
       delete [] deriv;
       deriv = NULL;
    }
@@ -395,16 +477,27 @@ bool PhysicalModel::Initialize()
    // MessageInterface::ShowMessage("PMInitialize setting dim = %d\n", dimension);   
    
    modelState = new Real[dimension];
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (modelState, "modelState", "PhysicalModel::Initialize()",
+       "modelState = new Real[dimension]", this);
+   #endif
+   
    if (modelState != NULL)
    {
       deriv = new Real[dimension];
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (deriv, "deriv", "PhysicalModel::Initialize()",
+          "deriv = new Real[dimension]", this);
+      #endif
       if (deriv)
          initialized = true;
       else
          initialized = false;
    }
    rawState = modelState;
-  
+   
    return initialized;
 }
 
