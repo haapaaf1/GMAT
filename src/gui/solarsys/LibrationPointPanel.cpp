@@ -69,6 +69,9 @@ LibrationPointPanel::LibrationPointPanel(wxWindow *parent, const wxString &name)
 //------------------------------------------------------------------------------
 LibrationPointPanel::~LibrationPointPanel()
 {
+   // Unregister GUI components
+   theGuiManager->UnregisterComboBox("CelestialBody", primaryBodyCB);
+   theGuiManager->UnregisterComboBox("CelestialBody", secondaryBodyCB);
 }
 
 //-------------------------------
