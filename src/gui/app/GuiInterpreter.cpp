@@ -624,6 +624,15 @@ bool GuiInterpreter::ClearCommandSeq(Integer sandboxNum)
 
 
 //------------------------------------------------------------------------------
+// void ClearAllSandboxes()
+//------------------------------------------------------------------------------
+void GuiInterpreter::ClearAllSandboxes()
+{
+   theModerator->ClearAllSandboxes();
+}
+
+
+//------------------------------------------------------------------------------
 // Integer RunMission(Integer sandboxNum)
 //------------------------------------------------------------------------------
 /**
