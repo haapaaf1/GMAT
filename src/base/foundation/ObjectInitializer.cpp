@@ -793,6 +793,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
                (axes, "localAxes", "ObjectInitializer::BuildReferences()",
                 "deleting localAxes");
             #endif
+            delete axes;
             
             fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);
             
