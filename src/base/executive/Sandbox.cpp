@@ -88,7 +88,7 @@ Sandbox::Sandbox() :
       clonable.push_back(Gmat::FINITE_BURN);
       clonable.push_back(Gmat::COMMAND);
       clonable.push_back(Gmat::PROPAGATOR);
-      clonable.push_back(Gmat::FORCE_MODEL);
+      clonable.push_back(Gmat::ODE_MODEL);
       clonable.push_back(Gmat::PHYSICAL_MODEL);
       clonable.push_back(Gmat::TRANSIENT_FORCE);
       clonable.push_back(Gmat::INTERPOLATOR);
@@ -109,6 +109,9 @@ Sandbox::Sandbox() :
       clonable.push_back(Gmat::HARDWARE);
       clonable.push_back(Gmat::COORDINATE_SYSTEM);
       clonable.push_back(Gmat::AXIS_SYSTEM);
+      clonable.push_back(Gmat::DATA_FILE);
+      clonable.push_back(Gmat::MEASUREMENT_MODEL);
+      clonable.push_back(Gmat::ESTIMATOR);
    #endif
 
    // SolarSystem instances are handled separately from the other objects

@@ -67,7 +67,7 @@ const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
 const std::string
 GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 {
-   "Integer",     "UnsignedInt", "UnsignedIntArray", "Real",
+   "Integer",     "UnsignedInt", "UnsignedIntArray", "IntegerArray", "Real",
    "RealElement", "String",      "StringArray",      "Boolean",
    "Rvector",     "Rmatrix",     "Time",             "Object",
    "ObjectArray", "OnOff",       "Enumeration",
@@ -82,27 +82,18 @@ GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 const std::string
 GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
 {
-   "Spacecraft",       "Formation",       "SpaceObject",    "GroundStation",
-   "Burn",             "ImpulsiveBurn",   "FiniteBurn",     "Command",
-   "Propagator",       "ODEModel",        "PhysicalModel",  "TransientForce",
-   "Interpolator",     "SolarSystem",     "SpacePoint",     "CelestialBody",
-   "CalculatedPoint",  "LibrationPoint",  "Barycenter",     "Atmosphere",
-   "Parameter",        "Variable",        "Array",          "String",
-   "StopCondition",    "Solver",          "Subscriber",     "ReportFile",
-   "XYPlot",           "OpenGLPlot",      "PropSetup",      "Function",
-   "FuelTank",         "Thruster",        "Hardware",       "CoordinateSystem",
-   "AxisSystem",       "Attitude",        "MathNode",       "MathTree",
-   "BodyFixedPoint",   "UnknownObject"
+   "Spacecraft",      "Formation",        "SpaceObject",   "GroundStation",
+   "Burn",            "ImpulsiveBurn",    "FiniteBurn",    "Command",
+   "Propagator",      "ODEModel",         "PhysicalModel", "TransientForce",
+   "Interpolator",    "SolarSystem",      "SpacePoint",    "CelestialBody",
+   "CalculatedPoint", "LibrationPoint",   "Barycenter",    "Atmosphere",
+   "Parameter",       "StopCondition",    "Solver",        "Subscriber",
+   "PropSetup",       "Function",         "FuelTank",      "Thruster",
+   "Hardware",        "CoordinateSystem", "AxisSystem",    "Attitude",
+   "MathNode",        "MathTree",         "Estimator",     "MeasurementModel",
+   "BodyFixedPoint",  "DataFile",         "UnknownObject"
 };
-/**
- * Build the list of automatic global settings
- *
- * This list needs to be synchronized with the Gmat::ObjectType list found in
- * base/include/gmatdefs.hpp
- *
- * Current automatic global objects: CoordinateSystem, Function, PropSetup
- */
-// There is some propblem if we make ForceModel global, so turned it off (loj: 2008.11.10)
+
 const bool
 GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
 {
@@ -785,8 +776,8 @@ GmatBase* GmatBase::GetOwnedObject(Integer whichOne)
 //------------------------------------------------------------------------------
 bool GmatBase::SetIsGlobal(bool globalFlag)
 {
-   isGlobal = globalFlag;
-   return isGlobal;
+        isGlobal = globalFlag;
+        return isGlobal;
 }
 
 //------------------------------------------------------------------------------
@@ -800,7 +791,7 @@ bool GmatBase::SetIsGlobal(bool globalFlag)
 //------------------------------------------------------------------------------
 bool GmatBase::GetIsGlobal() const
 {
-   return isGlobal;
+        return isGlobal;
 }
 
 //------------------------------------------------------------------------------
@@ -982,6 +973,25 @@ std::string GmatBase::GetParameterText(const Integer id) const
                            " not defined on object " + instanceName);
 }
 
+//---------------------------------------------------------------------------
+//  std::string GetParameterUnits(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the description for the parameter units.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return String description for the requested parameter units.
+ *
+ * @note The parameter strings should not include any white space
+ */
+std::string GmatBase::GetParameterUnits(const Integer id) const
+{
+   std::stringstream indexString;
+   indexString << id;
+   throw GmatBaseException("Parameter id = " + indexString.str() +
+                           " Units not defined on object " + instanceName);
+}
 
 //---------------------------------------------------------------------------
 //  Integer GetParameterID(const std::string &str) const
@@ -1437,6 +1447,49 @@ const UnsignedIntArray& GmatBase::GetUnsignedIntArrayParameter(const Integer id)
                            " on " + typeName + " named " + instanceName);
 }
 
+//---------------------------------------------------------------------------
+//  const IntegerArray& GetIntegerArrayParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Access an array of integer data.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The requested IntegerArray; throws if the parameter is not a
+ *         IntegerArray.
+ */
+const IntegerArray& GmatBase::GetIntegerArrayParameter(const Integer id) const
+{
+   std::stringstream idString;
+   idString << id << ": \"" << GetParameterText(id) << "\"";
+   throw GmatBaseException("Cannot get integer array parameter with "
+                           " ID " + idString.str() +
+                           " on " + typeName + " named " + instanceName);
+}
+
+//---------------------------------------------------------------------------
+//  const IntegerArray& GetIntegerArrayParameter(const Integer id,
+//                                             const Integer index) const
+//---------------------------------------------------------------------------
+/**
+ * Access an array of integer data.
+ *
+ * @param id The integer ID for the parameter.
+ * @param index The index when multiple IntegerArrays are supported.
+ *
+ * @return The requested IntegerArray; throws if the parameter is not a
+ *         IntegerArray.
+ */
+const IntegerArray& GmatBase::GetIntegerArrayParameter(const Integer id,
+                                               const Integer index) const
+{
+   std::stringstream indexString, idString;
+   idString << id << ": \"" << GetParameterText(id) << "\"";
+   indexString << index;
+   throw GmatBaseException("Cannot get integer array parameter with ID " +
+                           idString.str() + " and index " + indexString.str() +
+                           " on " + typeName + " named " + instanceName);
+}
 
 //---------------------------------------------------------------------------
 //  const Rvector& GetRvectorParameter(const Integer id) const
@@ -2941,15 +2994,15 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
    // Create parameter write order if it is empty (LOJ: 2009.02.13)
    if (parameterWriteOrder.empty())
    {
-      for (i = 0; i < parameterCount; ++i)
+   for (i = 0; i < parameterCount; ++i)
          parameterWriteOrder.push_back(i);
    }
-   
+
    Integer id;
    for (i = 0; i < parameterCount; ++i)
    {
       id = parameterWriteOrder[i];
-      
+
       #ifdef DEBUG_WRITE_PARAM
       MessageInterface::ShowMessage
          ("   %2d, checking %s, type=%s, %s\n", i, GetParameterText(id).c_str(),

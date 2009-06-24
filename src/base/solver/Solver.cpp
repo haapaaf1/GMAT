@@ -13,7 +13,7 @@
 // Created: 2003/12/29
 //
 /**
- * Base class for Targeters, Optimizers, and other parametric scanning tools. 
+ * Base class for Targeters, Optimizers, and other parametric scanning tools.
  */
 //------------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ Solver::PARAMETER_TYPE[SolverParamCount - GmatBaseParamCount] =
    Gmat::INTEGER_TYPE
 };
 
-const std::string    
+const std::string
 Solver::STYLE_TEXT[MaxStyle - NORMAL_STYLE] =
 {
    "Normal",
@@ -90,15 +90,15 @@ Solver::STYLE_TEXT[MaxStyle - NORMAL_STYLE] =
 //------------------------------------------------------------------------------
 /**
  * Core constructor for Solver objects.
- * 
- * @param type Text description of the type of solver constructed 
+ *
+ * @param type Text description of the type of solver constructed
  *             (e.g. "DifferentialCorrector")
  * @param name The solver's name
  */
 //------------------------------------------------------------------------------
 Solver::Solver(const std::string &type, const std::string &name) :
    GmatBase                (Gmat::SOLVER, type, name),
-   isInternal              (true),   
+   isInternal              (true),
    currentState            (INITIALIZING),
    nestedState             (INITIALIZING),
    textFileMode            ("Normal"),
@@ -127,12 +127,14 @@ Solver::Solver(const std::string &type, const std::string &name) :
    exitMode                (DISCARD),
    status                  (CREATED)
 {
+MessageInterface::ShowMessage("Constructing Solver...");
    objectTypes.push_back(Gmat::SOLVER);
    objectTypeNames.push_back("Solver");
    //solverTextFile = "solver_";
    solverTextFile  = type;
    solverTextFile += instanceName;
    solverTextFile += ".data";
+MessageInterface::ShowMessage("...Constructed\n");
 }
 
 
@@ -145,6 +147,7 @@ Solver::Solver(const std::string &type, const std::string &name) :
 //------------------------------------------------------------------------------
 Solver::~Solver()
 {
+   // Added per Linda, 2/7/07
    if (textFile.is_open())
       textFile.close();
 }
@@ -155,13 +158,13 @@ Solver::~Solver()
 //------------------------------------------------------------------------------
 /**
  * Copy constructor for Solver objects.
- * 
+ *
  * @param sol The solver that is copied
  */
 //------------------------------------------------------------------------------
 Solver::Solver(const Solver &sol) :
    GmatBase                (sol),
-   isInternal              (sol.isInternal),   
+   isInternal              (sol.isInternal),
    currentState            (sol.currentState),
    nestedState             (sol.currentState),
    textFileMode            (sol.textFileMode),
@@ -208,7 +211,7 @@ Solver::Solver(const Solver &sol) :
 //------------------------------------------------------------------------------
 /**
  * Assignment operator for solvers
- * 
+ *
  * @return this Solver, set to the same parameters as the input solver.
  */
 //------------------------------------------------------------------------------
@@ -224,14 +227,14 @@ Solver& Solver::operator=(const Solver &sol)
    maxIterations            = sol.maxIterations;
    initialized              = false;
    solverTextFile           = sol.solverTextFile;
-   
+
    variableNames.clear();
    //variable.clear();
    //perturbation.clear();
    //variableMinimum.clear();
    //variableMaximum.clear();
    //variableMaximumStep.clear();
-   
+
    currentState          = sol.currentState;
    nestedState           = sol.currentState;
    textFileMode          = sol.textFileMode;
@@ -253,7 +256,7 @@ Solver& Solver::operator=(const Solver &sol)
 /**
  * Derived classes implement this method to set object pointers and validate
  * internal data structures.
- * 
+ *
  *  @return true on success, false (or throws a SolverException) on failure
  */
 //------------------------------------------------------------------------------
@@ -261,10 +264,10 @@ bool Solver::Initialize()
 {
    // Setup the variable data structures
    Integer localVariableCount = variableNames.size();
-   
+
    #ifdef DEBUG_SOLVER_INIT
       MessageInterface::ShowMessage(
-         "In Solver::Initialize with localVariableCount = %d\n", 
+         "In Solver::Initialize with localVariableCount = %d\n",
          localVariableCount);
    #endif
 
@@ -290,16 +293,42 @@ bool Solver::Initialize()
       throw SolverException("Range error initializing Solver object %s\n",
             instanceName.c_str());
    }
-   
-   initialized = true; 
+
+   #ifdef DEBUG_SOLVER_INIT
+      MessageInterface::ShowMessage(
+         "In Solver::Initialize - about to prepare text file for output\n");
+   #endif
+   // Prepare the text file for output
+   if (solverTextFile != "")
+   {
+      // Added per Linda, 2/7/07
+      FileManager *fm;
+      fm = FileManager::Instance();
+      std::string outPath = fm->GetFullPathname(FileManager::OUTPUT_PATH);
+      std::string fullSolverTextFile = outPath + solverTextFile;
+
+      if (textFile.is_open())
+         textFile.close();
+
+      if (instanceNumber == 1)
+         textFile.open(fullSolverTextFile.c_str());
+      else
+         textFile.open(fullSolverTextFile.c_str(), std::ios::app);
+      if (!textFile.is_open())
+         throw SolverException("Error opening targeter text file " +
+                               solverTextFile);
+      textFile.precision(16);
+      WriteToTextFile();
+   }
+   initialized = true;
    iterationsTaken = 0;
    #ifdef DEBUG_SOLVER_INIT
       MessageInterface::ShowMessage(
          "In Solver::Initialize completed\n");
    #endif
-      
+
    status = INITIALIZED;
-   
+
    return true;
 }
 
@@ -322,12 +351,12 @@ bool Solver::Finalize()
 /**
  * Derived classes use this method to pass in parameter data specific to
  * the algorithm implemented.
- * 
+ *
  * @param <data> An array of data appropriate to the variables used in the
  *               algorithm.
  * @param <name> A label for the data parameter.  Defaults to the empty
  *               string.
- * 
+ *
  * @return The ID used for the variable.
  */
 //------------------------------------------------------------------------------
@@ -380,7 +409,7 @@ Integer Solver::SetSolverVariables(Real *data, const std::string &name)
       throw SolverException(
             "Range error setting variable min/max in SetSolverVariables\n");
    }
-   
+
    ++variableCount;
 
    return variableCount-1;
@@ -392,9 +421,9 @@ Integer Solver::SetSolverVariables(Real *data, const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * Interface used to access Variable values.
- * 
+ *
  * @param <id> The ID used for the variable.
- * 
+ *
  * @return The value used for this variable
  */
 //------------------------------------------------------------------------------
@@ -407,11 +436,11 @@ Real Solver::GetSolverVariable(Integer id)
 
    #ifdef DEBUG_STATE_MACHINE
       MessageInterface::ShowMessage(
-            "   State %d setting variable %d    to value = %.12lf\n", 
+            "   State %d setting variable %d    to value = %.12lf\n",
             currentState, id, variable.at(id));
    #endif
 
-   return variable.at(id); 
+   return variable.at(id);
 }
 
 //------------------------------------------------------------------------------
@@ -420,7 +449,7 @@ Real Solver::GetSolverVariable(Integer id)
 /**
  * Determine the state-machine state of this instance of the Solver.
  *
- * @return current state 
+ * @return current state
  */
 //------------------------------------------------------------------------------
 Solver::SolverState Solver::GetState()
@@ -446,9 +475,9 @@ Solver::SolverState Solver::GetNestedState()
 //  Solver::SolverState AdvanceState()
 //------------------------------------------------------------------------------
 /**
- * The method used to iterate until a solution is found.  Derived classes 
+ * The method used to iterate until a solution is found.  Derived classes
  * use this method to implement their solution technique.
- * 
+ *
  * @return solver state at the end of the process.
  */
 //------------------------------------------------------------------------------
@@ -458,50 +487,50 @@ Solver::SolverState Solver::AdvanceState()
       case INITIALIZING:
          CompleteInitialization();
          break;
-        
+
       case NOMINAL:
          RunNominal();
          break;
-        
+
       case PERTURBING:
          RunPerturbation();
          break;
-        
+
       case ITERATING:
          RunIteration();
          break;
-        
+
       case CALCULATING:
          CalculateParameters();
          break;
-        
+
       case CHECKINGRUN:
          CheckCompletion();
          break;
-        
+
       case RUNEXTERNAL:
          RunExternal();
          break;
-        
+
       case FINISHED:
          RunComplete();
          break;
-        
+
       default:
          throw SolverException("Undefined Solver state");
     };
-    
+
     ReportProgress();
-    return currentState; 
+    return currentState;
 }
 
 //------------------------------------------------------------------------------
 //  StringArray AdvanceNestedState(std::vector<Real> vars)
 //------------------------------------------------------------------------------
 /**
- * The method used to iterate until a solution is found.  Derived classes 
+ * The method used to iterate until a solution is found.  Derived classes
  * must implement this method (this default method throws an exception).
- * 
+ *
  * @return TBD
  */
 //------------------------------------------------------------------------------
@@ -517,12 +546,12 @@ StringArray Solver::AdvanceNestedState(std::vector<Real> vars)
 //------------------------------------------------------------------------------
 /**
  * Updates the targeter goals, for floating end point problems.
- * 
+ *
  * This default method just returns false.
- * 
+ *
  * @param id Id for the goal that is being reset.
  * @param newValue The new goal value.
- * 
+ *
  * @return The ID used for this variable.
  */
 //------------------------------------------------------------------------------
@@ -549,7 +578,7 @@ std::string Solver::GetParameterText(const Integer id) const
 {
    if ((id >= GmatBaseParamCount) && (id < SolverParamCount))
    {
-      //MessageInterface::ShowMessage("'%s':\n", 
+      //MessageInterface::ShowMessage("'%s':\n",
       //   PARAMETER_TEXT[id - GmatBaseParamCount].c_str());
       return PARAMETER_TEXT[id - GmatBaseParamCount];
    }
@@ -684,7 +713,7 @@ Integer Solver::GetIntegerParameter(const Integer id) const
       return variableCount;
    if (id == SolverStatusID)
       return status;
-        
+
    return GmatBase::GetIntegerParameter(id);
 }
 
@@ -715,19 +744,19 @@ Integer Solver::SetIntegerParameter(const Integer id,
             " is not an allowed value. The allowed value is: [Integer > 0].");
       return maxIterations;
    }
-   
+
    if (id == RegisteredVariables)
    {
       registeredVariableCount = value;
       return registeredVariableCount;
    }
-   
+
    if (id == RegisteredComponents)
    {
       registeredComponentCount = value;
       return registeredComponentCount;
    }
-    
+
    return GmatBase::SetIntegerParameter(id, value);
 }
 
@@ -750,19 +779,19 @@ bool Solver::GetBooleanParameter(const Integer id) const
 {
    if (id == ShowProgressID)
        return showProgress;
-   
+
    if (id == AllowScaleSetting)
       return AllowScaleFactors;
-    
+
    if (id == AllowRangeSettings)
       return AllowRangeLimits;
-   
+
    if (id == AllowStepsizeSetting)
       return AllowStepsizeLimit;
-   
+
    if (id == AllowVariablePertSetting)
       return AllowIndependentPerts;
-   
+
    return GmatBase::GetBooleanParameter(id);
 }
 
@@ -800,7 +829,7 @@ bool Solver::SetBooleanParameter(const Integer id, const bool value)
  *
  * @param <id> The integer ID for the parameter.
  *
- * @return The string stored for this parameter, or throw ab=n exception if 
+ * @return The string stored for this parameter, or throw ab=n exception if
  *         there is no string association.
  */
 //---------------------------------------------------------------------------
@@ -823,7 +852,7 @@ std::string Solver::GetStringParameter(const Integer id) const
  *
  * @param <id> The integer ID for the parameter.
  *
- * @return The string stored for this parameter, or throw ab=n exception if 
+ * @return The string stored for this parameter, or throw ab=n exception if
  *         there is no string association.
  */
 //---------------------------------------------------------------------------
@@ -863,20 +892,20 @@ bool Solver::SetStringParameter(const Integer id, const std::string &value)
          " on object \"" + instanceName + "\" is not an allowed value.\n"
          "The allowed values are: [Normal, Concise, Verbose, Debug].");
    }
-   
-   if (id == solverTextFileID) 
+
+   if (id == solverTextFileID)
    {
       solverTextFile = value;
       return true;
    }
 
-   if (id == variableNamesID) 
+   if (id == variableNamesID)
    {
       variableNames.push_back(value);
       return true;
    }
 
-   if (id == SolverModeID) 
+   if (id == SolverModeID)
    {
       if (value == "Solve")
          currentMode = SOLVE;
@@ -892,7 +921,7 @@ bool Solver::SetStringParameter(const Integer id, const std::string &value)
       return true;
    }
 
-   if (id == ExitModeID) 
+   if (id == ExitModeID)
    {
       if (value == "DiscardAndContinue")
          exitMode = DISCARD;
@@ -923,7 +952,7 @@ bool Solver::SetStringParameter(const Integer id, const std::string &value)
  *
  * @return true if the string is stored, throw if the parameter is not stored.
  */
-bool Solver::SetStringParameter(const std::string &label, 
+bool Solver::SetStringParameter(const std::string &label,
                                 const std::string &value)
 {
    return SetStringParameter(GetParameterID(label), value);
@@ -936,7 +965,7 @@ std::string Solver::GetStringParameter(const Integer id,
    return GmatBase::GetStringParameter(id, index);
 }
 
-bool Solver::SetStringParameter(const Integer id, 
+bool Solver::SetStringParameter(const Integer id,
                                            const std::string &value,
                                            const Integer index)
 {
@@ -949,7 +978,7 @@ std::string Solver::GetStringParameter(const std::string &label,
    return GmatBase::GetStringParameter(label, index);
 }
 
-bool Solver::SetStringParameter(const std::string &label, 
+bool Solver::SetStringParameter(const std::string &label,
                                            const std::string &value,
                                            const Integer index)
 {
@@ -972,8 +1001,8 @@ const StringArray& Solver::GetStringArrayParameter(const Integer id) const
 {
     if (id == variableNamesID)
         return variableNames;
-        
-        
+
+
     return GmatBase::GetStringArrayParameter(id);
 }
 
@@ -1024,14 +1053,14 @@ void Solver::CompleteInitialization()
 {
    OpenSolverTextFile();
    WriteToTextFile();
-   
-   currentState = NOMINAL;
-   
-   // Reset initial values if in DiscardAndContinue mode
-   if (exitMode == DISCARD)
-   {
-      ResetVariables();
-   }
+
+    currentState = NOMINAL;
+
+    // Reset initial values if in DiscardAndContinue mode
+    if (exitMode == DISCARD)
+    {
+       ResetVariables();
+    }
 }
 
 
@@ -1040,7 +1069,7 @@ void Solver::CompleteInitialization()
 //------------------------------------------------------------------------------
 /**
  * Executes a nominal run and then advances the state machine to the next state.
- * 
+ *
  * This default method just advances the state.
  */
 //------------------------------------------------------------------------------
@@ -1054,9 +1083,9 @@ void Solver::RunNominal()
 //  void RunPerturbation()
 //------------------------------------------------------------------------------
 /**
- * Executes a perturbation run and then advances the state machine to the next 
+ * Executes a perturbation run and then advances the state machine to the next
  * state.
- * 
+ *
  * This default method just advances the state.
  */
 //------------------------------------------------------------------------------
@@ -1070,13 +1099,28 @@ void Solver::RunPerturbation()
 //  void RunIteration()
 //------------------------------------------------------------------------------
 /**
- * Executes an iteration run and then advances the state machine to the next 
+ * Executes an iteration run and then advances the state machine to the next
  * state.
- * 
+ *
  * This default method just advances the state.
  */
 //------------------------------------------------------------------------------
 void Solver::RunIteration()
+{
+    currentState = (SolverState)(currentState+1);
+}
+
+//------------------------------------------------------------------------------
+//  void Estimate()
+//------------------------------------------------------------------------------
+/**
+ * Executes an iteration run and then advances the state machine to the next
+ * state.
+ *
+ * This default method just advances the state.
+ */
+//------------------------------------------------------------------------------
+void Solver::Estimate()
 {
     currentState = (SolverState)(currentState+1);
 }
@@ -1088,7 +1132,7 @@ void Solver::RunIteration()
 /**
  * Executes a Calculates parameters needed by the state machine for the next
  * nominal run, and then advances the state machine to the next state.
- * 
+ *
  * This default method just advances the state.
  */
 //------------------------------------------------------------------------------
@@ -1103,7 +1147,7 @@ void Solver::CalculateParameters()
 //------------------------------------------------------------------------------
 /**
  * Checks to see if the Solver has converged.
- * 
+ *
  * This default method just advances the state.
  */
 //------------------------------------------------------------------------------
@@ -1117,7 +1161,7 @@ void Solver::CheckCompletion()
 //------------------------------------------------------------------------------
 /**
  * Launhes an external process that drives the Solver.
- * 
+ *
  * This default method just ???? (not a clue).
  */
 //------------------------------------------------------------------------------
@@ -1133,7 +1177,7 @@ void Solver::RunExternal()
 //------------------------------------------------------------------------------
 /**
  * Finalized the data at the end of a run.
- * 
+ *
  * This default method just sets the state to FINISHED.
  */
 //------------------------------------------------------------------------------
@@ -1172,8 +1216,8 @@ std::string Solver::GetProgressString()
 //  void FreeArrays()
 //------------------------------------------------------------------------------
 /**
- * Frees the memory used by the targeter, so it can be reused later in the 
- * sequence.  This method is also called by the destructor when the script is 
+ * Frees the memory used by the targeter, so it can be reused later in the
+ * sequence.  This method is also called by the destructor when the script is
  * cleared.
  */
 //------------------------------------------------------------------------------
@@ -1199,33 +1243,33 @@ void Solver::OpenSolverTextFile()
       ("Solver::OpenSolverTextFile() entered, showProgress=%d, solverTextFile='%s', "
        "textFileOpen=%d", showProgress, solverTextFile.c_str(), textFile.is_open());
    #endif
-   
+
    if (!showProgress)
       return;
-   
+
    FileManager *fm;
    fm = FileManager::Instance();
    std::string outPath = fm->GetFullPathname(FileManager::OUTPUT_PATH);
    std::string fullSolverTextFile = outPath + solverTextFile;
-   
+
    if (textFile.is_open())
       textFile.close();
-   
+
    #ifdef DEBUG_SOLVER_INIT
    MessageInterface::ShowMessage("   instanceNumber=%d\n", instanceNumber);
    #endif
-   
+
    if (instanceNumber == 1)
       textFile.open(fullSolverTextFile.c_str());
    else
       textFile.open(fullSolverTextFile.c_str(), std::ios::app);
-   
+
    if (!textFile.is_open())
       throw SolverException("Error opening targeter text file " +
                             solverTextFile);
-   
+
    textFile.precision(16);
-   
+
    #ifdef DEBUG_SOLVER_INIT
    MessageInterface::ShowMessage("Solver::OpenSolverTextFile() leaving\n");
    #endif

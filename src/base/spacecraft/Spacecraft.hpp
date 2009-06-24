@@ -53,7 +53,16 @@ public:
    void                 SetState(const std::string &elementType, Real *instate);
    void                 SetState(const Real s1, const Real s2, const Real s3, 
                                  const Real s4, const Real s5, const Real s6);
+
+   //void	SetCovariance(const Rvector6 &diagCovar);
+   //void	SetCovariance(const Real &c11, const Real &c22, const Real &c33,
+   //		      const Real &c44, const Real &c55, const Real &c66);
+   //void	SetCovariance(const LaGenMatDouble &cov);
+   //void	SetCovariance(Real* &cov, const Integer &m, const Integer &n);
+ 
    
+   //virtual PropCovar&   GetCovariance();
+      
    virtual GmatState&   GetState();
    virtual Rvector6     GetState(std::string rep);
    virtual Rvector6     GetState(Integer rep);
@@ -111,7 +120,7 @@ public:
    virtual bool         SetStringParameter(const std::string &label, 
                                            const std::string &value,
                                            const Integer index);
-
+   
    virtual const Rmatrix&
                         GetRmatrixParameter(const Integer id) const;
    virtual const Rmatrix&
@@ -124,8 +133,8 @@ public:
                                             const Rmatrix &value);
    virtual Real         GetRealParameter(const Integer id, const Integer row,
                                          const Integer col) const;
-   virtual Real         GetRealParameter(const std::string &label, 
-                                         const Integer row, 
+   virtual Real         GetRealParameter(const std::string &label,
+                                         const Integer row,
                                          const Integer col) const;
    virtual Real         SetRealParameter(const Integer id, const Real value,
                                          const Integer row, const Integer col);
@@ -165,7 +174,7 @@ public:
    virtual Real*           GetPropItem(Integer item);
    virtual Integer         GetPropItemSize(Integer item);
 
-   
+
 protected:
    enum SC_Param_ID 
    {
@@ -194,10 +203,10 @@ protected:
       SRP_AREA_ID,
       FUEL_TANK_ID, 
       THRUSTER_ID, 
-      TOTAL_MASS_ID,
+      TOTAL_MASS_ID, 
       ATTITUDE,
       ORBIT_STM,
-      
+
       // special parameter to handle in GmatFunction
       UTC_GREGORIAN,
 
@@ -208,6 +217,28 @@ protected:
       CARTESIAN_VX,
       CARTESIAN_VY,
       CARTESIAN_VZ,
+
+      COVARIANCE11_ID,
+      COVARIANCE22_ID,
+      COVARIANCE33_ID,
+      COVARIANCE44_ID,
+      COVARIANCE55_ID,
+      COVARIANCE66_ID,
+      COVARIANCE12_ID,
+      COVARIANCE13_ID,
+      COVARIANCE14_ID,
+      COVARIANCE15_ID,
+      COVARIANCE16_ID,
+      COVARIANCE23_ID,
+      COVARIANCE24_ID,
+      COVARIANCE25_ID,
+      COVARIANCE26_ID,
+      COVARIANCE34_ID,
+      COVARIANCE35_ID,
+      COVARIANCE36_ID,
+      COVARIANCE45_ID,
+      COVARIANCE46_ID,
+      COVARIANCE56_ID,
 
       SpacecraftParamCount
    };
@@ -244,7 +275,7 @@ protected:
       EQ_PNY,
       EQ_PNX,
       EQ_MLONG, 
-      EndMultipleReps
+      EndMultipleReps    
    };
    // these are the corresponding strings
    static const std::string MULT_REP_STRINGS[EndMultipleReps - CART_X];
@@ -322,7 +353,7 @@ protected:
    
    // New constructs needed to preserve interfaces
    Rvector6          rvState;
-   
+
    bool              initialDisplay;
    bool              csSet;
 

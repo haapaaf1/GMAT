@@ -12,6 +12,10 @@
 // Author: Wendy Shoan
 // Created: 2003/08/28
 //
+// Modified:    2008/07/28
+//              Matthew P. Wilkins, Schafer Corporation
+//              Added Estimator, Observer, and Measurement model factories
+//
 /**
  *  This class is the base class for the factories.  Derived classes will be
  *  responsible for creating objects of a specific type.
@@ -46,7 +50,11 @@ class AxisSystem;
 class CoordinateSystem;
 class MathNode;
 class Attitude;
+class MeasurementModel;
+//class Observer;
+class Estimator;
 class SpacePoint;
+class DataFile;
 
 class GMAT_API Factory
 {
@@ -101,6 +109,12 @@ public:
    virtual MathNode*        CreateMathNode(const std::string &ofType,
                                            const std::string &withName = "");
    virtual Attitude*        CreateAttitude(const std::string &ofType,
+                                           const std::string &withName = "");
+   virtual MeasurementModel*  CreateMeasurementModel(const std::string &ofType,
+                                           const std::string &withName = "");
+   virtual Estimator*        CreateEstimator(const std::string &ofType,
+                                           const std::string &withName = "");
+   virtual DataFile*  CreateDataFile(const std::string &ofType,
                                            const std::string &withName = "");
 
    

@@ -86,7 +86,6 @@ typedef struct geoparms
 
 /// GMAT's epoch representation; eventually a struct holding MJ day & sec of day
 typedef double GmatEpoch;
-typedef std::vector<Integer> IntegerArray;
 
 
 namespace Gmat
@@ -140,7 +139,10 @@ namespace Gmat
       ATTITUDE,
       MATH_NODE,
       MATH_TREE,
+      ESTIMATOR,
+      MEASUREMENT_MODEL,
       BODY_FIXED_POINT,
+      DATA_FILE,
       UNKNOWN_OBJECT
    };
 
@@ -156,6 +158,7 @@ namespace Gmat
       INTEGER_TYPE,
       UNSIGNED_INT_TYPE,
       UNSIGNED_INTARRAY_TYPE,
+      INTARRAY_TYPE,
       REAL_TYPE,
       REAL_ELEMENT_TYPE,
       STRING_TYPE,
@@ -213,8 +216,8 @@ namespace Gmat
       NO_COMMENTS,
       GUI_EDITOR,
    };
-   
-   enum StateElementId 
+
+   enum StateElementId
    {
       UNKNOWN_STATE = -1,
       CARTESIAN_STATE = 3700,          // Integrable state representations

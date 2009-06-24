@@ -56,7 +56,7 @@
 // constructor
 //------------------------------------------------------------------------------
 ObjectInitializer::ObjectInitializer(SolarSystem *solSys, ObjectMap *objMap,
-                                     ObjectMap *globalObjMap, CoordinateSystem *intCS, 
+                                     ObjectMap *globalObjMap, CoordinateSystem *intCS,
                                      bool useGOS) :
 
    ss         (solSys),
@@ -139,13 +139,13 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
 {
    #ifdef DEBUG_PERFORMANCE
    static Integer callCount = 0;
-   callCount++;      
+   callCount++;
    clock_t t1 = clock();
    MessageInterface::ShowMessage
       ("=== ObjectInitializer::InitializeObjects() entered, Count = %d\n",
        callCount);
    #endif
-   
+
    std::map<std::string, GmatBase *>::iterator omIter;
    std::map<std::string, GmatBase *>::iterator omi;
    GmatBase *obj = NULL;
@@ -334,21 +334,29 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
                obj->Initialize();
             }
             //continue;
+            if (obj->IsOfType(Gmat::DATA_FILE))
+            {
+               BuildReferences(obj);
+               /// @todo  Can initilization happen here in all cases?
+               obj->Initialize();
+            }
+            continue;
+
          }
          else
          {
             // PropSetup initialization is handled by the commands, since the
             // state that is propagated may change as spacecraft are added or
             // removed.
-            #ifdef DEBUG_OBJECT_INITIALIZER
+         #ifdef DEBUG_OBJECT_INITIALIZER
                //else
-                  MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
+               MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
                   obj->GetName().c_str());
-            #endif
-            //********************** END OF TEMPORARY *****************************
+         #endif
+         //********************** END OF TEMPORARY *****************************
 
 
-            BuildReferences(obj);
+         BuildReferences(obj);
          }
 //         if (obj->GetType() != Gmat::PROP_SETUP)
 //            obj->Initialize();
@@ -384,7 +392,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
                {
                   BuildReferences(obj);
                   obj->Initialize();
-               }
+            }
                //continue;
             }
             else
@@ -392,18 +400,18 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
                // PropSetup initialization is handled by the commands, since the
                // state that is propagated may change as spacecraft are added or
                // removed.
-              #ifdef DEBUG_OBJECT_INITIALIZER
+            #ifdef DEBUG_OBJECT_INITIALIZER
                   //else
-                     MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
-                        obj->GetName().c_str());
-               #endif
+                  MessageInterface::ShowMessage("Initializing PropSetup '%s'\n",
+                     obj->GetName().c_str());
+            #endif
             //********************** END OF TEMPORARY *****************************
-               BuildReferences(obj);
-            }
+            BuildReferences(obj);
+         }
 //            if (obj->GetType() != Gmat::PROP_SETUP)
 //               obj->Initialize();
-         }
       }
+   }
    }
 
 
@@ -582,7 +590,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
       ("=== ObjectInitializer::InitializeObjects() Count = %d, Run Time: %f seconds\n",
        callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
    #endif
-   
+
    return true;
    
 }
@@ -601,15 +609,15 @@ void ObjectInitializer::InitializeInternalObjects()
    #endif
    SpacePoint *sp, *j2kBod;
    std::string j2kName, oName;
-   
+
    if (ss == NULL)
       throw GmatBaseException("ObjectInitializer::InitializeInternalObjects() "
                               "The Solar System pointer is NULL");
-   
+
    if (internalCS == NULL)
       throw GmatBaseException("ObjectInitializer::InitializeInternalObjects() "
                               "The Internal Coordinate System pointer is NULL");
-   
+
    //#ifdef DEBUG_OBJECT_INITIALIZER
    //if (!ss)
    //   MessageInterface::ShowMessage("Solar System pointer is NULL!!!!!! ...\n");
@@ -637,7 +645,7 @@ void ObjectInitializer::InitializeInternalObjects()
       MessageInterface::ShowMessage(" ... solar system about to be set on coordinate system  ...\n");
       //if (!internalCS) MessageInterface::ShowMessage(" but solar system is NULL!!!!!!\n");
    #endif
-   
+
    internalCS->SetSolarSystem(ss);
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage(" ... and solar system is set on coordinate system  ...\n");
@@ -793,9 +801,9 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
                (axes, "localAxes", "ObjectInitializer::BuildReferences()",
                 "deleting localAxes");
             #endif
-            
-            fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);
-            
+
+            fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);         
+
             fixedCS->SetSolarSystem(ss);
             BuildReferences(fixedCS); 
             InitializeCoordinateSystem(fixedCS);
@@ -1015,16 +1023,16 @@ void ObjectInitializer::SetRefFromName(GmatBase *obj, const std::string &oName)
       MessageInterface::ShowMessage("Setting reference '%s' on '%s'\n", 
          oName.c_str(), obj->GetName().c_str());
    #endif
-      
-   GmatBase *refObj = NULL;
    
+   GmatBase *refObj = NULL;
+
    if ((refObj = FindObject(oName)) != NULL)
       obj->SetRefObject(refObj, refObj->GetType(), refObj->GetName());
    else
    {
       // look in the SolarSystem
       refObj = FindSpacePoint(oName);
-      
+
       if (refObj == NULL)
          throw GmatBaseException("Unknown object " + oName + " requested by " +
                                   obj->GetName());
@@ -1060,14 +1068,15 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
    if (obj->IsOfType(Gmat::SPACECRAFT))
    {
       StringArray hw = obj->GetRefObjectNameArray(Gmat::HARDWARE);
-      for (StringArray::iterator i = hw.begin(); i < hw.end(); ++i) {
+      for (StringArray::iterator i = hw.begin(); i < hw.end(); ++i)
+      {
 
          #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage
                ("ObjectInitializer::BuildAssociations() setting \"%s\" on \"%s\"\n",
                 i->c_str(), obj->GetName().c_str());
          #endif
-         
+
          GmatBase *elem = NULL;
          if ((elem = FindObject(*i)) == NULL)
             throw GmatBaseException("ObjectInitializer::BuildAssociations: Cannot find "
@@ -1079,7 +1088,7 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
             (newElem, newElem->GetName(), "ObjectInitializer::BuildAssociations()",
              "newElem = elem->Clone()");
          #endif
-         
+
          #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage
                ("ObjectInitializer::BuildAssociations() created clone \"%s\" of type \"%s\"\n",
@@ -1089,7 +1098,7 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
             MessageInterface::ShowMessage
                ("ObjectInitializer::BuildAssociations() failed to set %s\n",
                 newElem->GetName().c_str());
-         
+
          // Set SolarSystem and Spacecraft to Thruster since it needs coordinate
          // conversion during Thruster initialization (LOJ: 2009.03.05)
          if (newElem->IsOfType(Gmat::THRUSTER))
@@ -1099,7 +1108,7 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
             newElem->Initialize();
          }
       }
-      
+
       obj->TakeAction("SetupHardware");
    }
 }

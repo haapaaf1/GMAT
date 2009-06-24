@@ -97,6 +97,7 @@ SpaceObject::~SpaceObject()
 SpaceObject::SpaceObject(const SpaceObject& so) :
    SpacePoint        (so),
    state             (so.state),
+   //covariance        (so.covariance),
    isManeuvering     (so.isManeuvering),
    originName        (so.originName),
    origin            (so.origin),
@@ -125,6 +126,7 @@ SpaceObject& SpaceObject::operator=(const SpaceObject& so)
       
    SpacePoint::operator=(so);
    state         = so.state;
+   //covariance    = so.covariance;
    isManeuvering = so.isManeuvering;
    originName    = so.originName;
    origin        = so.origin;
@@ -148,6 +150,20 @@ GmatState& SpaceObject::GetState()
    return state;
 }
 
+
+//------------------------------------------------------------------------------
+// PropCovar& GetCovariance()
+//------------------------------------------------------------------------------
+/**
+ * Accessor for the PropCovar of the object.
+ *
+ * @return The embedded PropCovar.
+ */
+//------------------------------------------------------------------------------
+//PropCovar& SpaceObject::GetCovariance()
+//{
+//  return covariance;
+//}
 
 //------------------------------------------------------------------------------
 // Real GetEpoch()
@@ -548,8 +564,8 @@ Real SpaceObject::GetRealParameter(const Integer id, const Integer row,
    return SpacePoint::GetRealParameter(id, row, col);
 }
 
-Real SpaceObject::GetRealParameter(const std::string &label, 
-                                      const Integer row, 
+Real SpaceObject::GetRealParameter(const std::string &label,
+                                      const Integer row,
                                       const Integer col) const
 {
    return GetRealParameter(GetParameterID(label), row, col);

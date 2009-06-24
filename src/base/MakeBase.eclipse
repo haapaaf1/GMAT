@@ -15,7 +15,7 @@ ifeq ($(LINUX_MAC), 1)
 ifdef MAC_SPECIFIC
 SHARED_EXTENSION = .dylib
 else
-SHARED_EXTENSION = .so
+SHARED_EXTENSION = .sowww
 endif
 
 SHARED_LIB_FLAGS = -shared -Wl --out-implib
@@ -248,7 +248,6 @@ OBJECTS = \
     executive/Sandbox.o \
     factory/AssetFactory.o \
     factory/AtmosphereFactory.o \
-    factory/AssetFactory.o \
     factory/AttitudeFactory.o \
     factory/AxisSystemFactory.o \
     factory/BurnFactory.o \
@@ -350,7 +349,6 @@ OBJECTS = \
     measurement/MeasurementModel.o \
     measurement/MeasurementModelException.o \
     measurement/GeometricRangeMeasurementModel.o \
-    measurement/GeometricRangeAzElMeasurementModel.o \
     measurement/DataFile.o \
     measurement/DataFileException.o \
     measurement/ProcessTLEData.o \
@@ -461,8 +459,6 @@ OBJECTS = \
     spacecraft/FuelTank.o \
     spacecraft/HardwareException.o \
     spacecraft/Hardware.o \
-    spacecraft/PropCovar.o \
-    spacecraft/PropState.o \
     spacecraft/Spacecraft.o \
     spacecraft/SpaceObject.o \
     spacecraft/StateConverter.o \
@@ -522,7 +518,7 @@ OBJECTS = \
     util/UtcDate.o \
     $(TCPIP_OBJECTS) \
     $(SPICE_OBJECTS)
-
+    
 
 #    $(BRIDGEOBJECTS)
 
@@ -532,6 +528,7 @@ OBJECTS = \
 #    environment/Msise00Atmosphere.o \
 #    propagator/Cowell.o \
 #    measurement/SimMeasurementModel.o \
+#    measurement/GeometricRangeAzElMeasurementModel.o \
 #    measurement/GeometricAzElMeasurementModel.o \
 #    measurement/GeometricRangeRaDecMeasurementModel.o \
 #    measurement/GeometricRaDecMeasurementModel.o \
@@ -541,7 +538,13 @@ OBJECTS = \
 #    environment/msise00_sub.o
 
 
+
 FORTRAN_OBJECTS = environment/msise90_sub.o 
+
+# environment/msise00_sub.o
+
+    # parameter/EquinoctialParameters.o \
+    # stopcond/BaseStopCondition.o \
 
 ifeq ($(SHARED_BASE), 1)
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)

@@ -22,6 +22,9 @@
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
 #include "PropagationStateManager.hpp"
+#include "Propagator.hpp"
+#include "ODEModel.hpp"
+#include "PhysicalModel.hpp"
 
 // Forward references
 class PhysicalModel;

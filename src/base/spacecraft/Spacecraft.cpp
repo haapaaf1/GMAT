@@ -104,6 +104,29 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // CartesianVX
       Gmat::REAL_TYPE,        // CartesianVY
       Gmat::REAL_TYPE,        // CartesianVZ
+/*
+      Gmat::REAL_TYPE,        // Covariance11
+      Gmat::REAL_TYPE,        // Covariance22
+      Gmat::REAL_TYPE,        // Covariance33
+      Gmat::REAL_TYPE,        // Covariance44
+      Gmat::REAL_TYPE,        // Covariance55
+      Gmat::REAL_TYPE,        // Covariance66
+      Gmat::REAL_TYPE,        // Covariance12
+      Gmat::REAL_TYPE,        // Covariance13
+      Gmat::REAL_TYPE,        // Covariance14
+      Gmat::REAL_TYPE,        // Covariance15
+      Gmat::REAL_TYPE,        // Covariance16
+      Gmat::REAL_TYPE,        // Covariance23
+      Gmat::REAL_TYPE,        // Covariance24
+      Gmat::REAL_TYPE,        // Covariance25
+      Gmat::REAL_TYPE,        // Covariance26
+      Gmat::REAL_TYPE,        // Covariance34
+      Gmat::REAL_TYPE,        // Covariance35
+      Gmat::REAL_TYPE,        // Covariance36
+      Gmat::REAL_TYPE,        // Covariance45
+      Gmat::REAL_TYPE,        // Covariance46
+      Gmat::REAL_TYPE,        // Covariance56
+*/
    };
    
 const std::string 
@@ -144,6 +167,29 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "CartesianVX",
       "CartesianVY",
       "CartesianVZ",
+/*
+      "Covariance11", 
+      "Covariance22", 
+      "Covariance33", 
+      "Covariance44", 
+      "Covariance55", 
+      "Covariance66", 
+      "Covariance12", 
+      "Covariance13", 
+      "Covariance14", 
+      "Covariance15", 
+      "Covariance16", 
+      "Covariance23", 
+      "Covariance24", 
+      "Covariance25", 
+      "Covariance26", 
+      "Covariance34", 
+      "Covariance35", 
+      "Covariance36", 
+      "Covariance45", 
+      "Covariance46", 
+      "Covariance56",
+*/
    };
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] = 
@@ -250,6 +296,9 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    state[3] = 0.0;
    state[4] = 7.35;
    state[5] = 1.0;
+   
+   // Initialize covariance to identity matrix of rank 6
+   //covariance.GetTheMatrix().eye(6,6);
 
    stateElementLabel.push_back("X");
    stateElementLabel.push_back("Y");
@@ -278,19 +327,19 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    attitude = new CSFixed("");
    attitude->SetEpoch(state.GetEpoch());
    ownedObjectCount++;
-   
+
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
       (attitude, "new attitude", "Spacecraft constructor()",
        "attitude = new CSFixed("")");
    #endif
-   
+
    BuildElementLabelMap();
    
    // Initialize the STM to the identity matrix
-   orbitSTM(0,0) = orbitSTM(1,1) = orbitSTM(2,2) = 
-   orbitSTM(3,3) = orbitSTM(4,4) = orbitSTM(5,5) = 1.0; 
-   
+   orbitSTM(0,0) = orbitSTM(1,1) = orbitSTM(2,2) =
+   orbitSTM(3,3) = orbitSTM(4,4) = orbitSTM(5,5) = 1.0;
+
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft() <%p>'%s' exiting\n", this, name.c_str());
@@ -311,7 +360,7 @@ Spacecraft::~Spacecraft()
       ("Spacecraft::~Spacecraft() <%p>'%s' entered, attitude=<%p>\n",
        this, GetName().c_str(), attitude);
    #endif
-   
+
    // Delete the attached hardware (it was set as clones in the Sandbox)
    for (ObjectArray::iterator i = tanks.begin(); i < tanks.end(); ++i)
    {
@@ -330,7 +379,7 @@ Spacecraft::~Spacecraft()
           "deleting cloned Thruster");
       #endif
       delete *i;
-   }
+}
    if (attitude)
    {
       #ifdef DEBUG_MEMORY
@@ -341,13 +390,12 @@ Spacecraft::~Spacecraft()
       delete attitude;
       ownedObjectCount--;
    }
-   
+
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft() <%p>'%s' exiting\n", this, GetName().c_str());
    #endif
 }
-
 
 //---------------------------------------------------------------------------
 //  Spacecraft(const Spacecraft &a)
@@ -389,7 +437,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(copy) <%p>'%s' entered\n", this, GetName().c_str());
    #endif
-   
+
    objectTypes.push_back(Gmat::SPACECRAFT);
    objectTypeNames.push_back("Spacecraft");
    parameterCount = a.parameterCount;
@@ -403,12 +451,14 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    state[5] = a.state[5];
    trueAnomaly = a.trueAnomaly;
    
+   //covariance = a.covariance;
+   
    stateElementLabel = a.stateElementLabel;
    stateElementUnits = a.stateElementUnits;
    representations   = a.representations;
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
-   
+
    // clone the attitude
    if (a.attitude)
    {
@@ -422,9 +472,9 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    }
    else
       attitude = NULL;
-   
+
    BuildElementLabelMap();
-   
+
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(copy) <%p>'%s' exiting\n", this, GetName().c_str());
@@ -457,7 +507,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) <%p>'%s' entered\n", this, GetName().c_str());
    #endif
-   
+
    SpaceObject::operator=(a);
 
    scEpochStr           = a.scEpochStr;
@@ -485,7 +535,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    trueAnomaly          = a.trueAnomaly;
 //   tanks                = a.tanks;
 //   thrusters            = a.thrusters;
-   
+
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Anomaly has type %s, copied from %s\n", trueAnomaly.GetTypeString().c_str(),
@@ -500,6 +550,8 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    state[4] = a.state[4];
    state[5] = a.state[5];
    
+   //covariance = a.covariance;
+  
    if (a.csSet)
    {
       coordinateSystem = a.coordinateSystem;
@@ -524,7 +576,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
          #endif
          delete attitude;
       }
-      
+
       attitude = (Attitude*) a.attitude->Clone();
       attitude->SetEpoch(state.GetEpoch());
       #ifdef DEBUG_MEMORY
@@ -535,16 +587,16 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    }
    else
       attitude = NULL;
-   
+
    BuildElementLabelMap();
    
    orbitSTM = a.orbitSTM;
-   
+
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) <%p>'%s' exiting\n", this, GetName().c_str());
    #endif
-   
+
    return *this;
 }
 
@@ -564,7 +616,7 @@ CoordinateSystem* Spacecraft::GetInternalCoordSystem()
 void Spacecraft::SetInternalCoordSystem(CoordinateSystem *cs)
 {
    #if DEBUG_SPACECRAFT_CS
-   MessageInterface::ShowMessage
+      MessageInterface::ShowMessage
       ("Spacecraft::SetInternalCoordSystem() this=<%p> '%s', setting %s <%p>\n",
        this, GetName().c_str(), cs->GetName().c_str(), cs);
    #endif
@@ -667,13 +719,117 @@ void Spacecraft::SetState(const Real s1, const Real s2, const Real s3,
 }
 
 
+
+//---------------------------------------------------------------------------
+//  void SetSCovariance(const LaGenMatDouble &cov)
+//---------------------------------------------------------------------------
+/**
+ * Set the covariance matrix to a desired value.
+ * 
+ * @param <cov> LaGenMatDouble matrix containing desired covariance data
+ *
+ */
+//---------------------------------------------------------------------------
+//void Spacecraft::SetCovariance(const LaGenMatDouble &cov)
+//{
+//    covariance.GetTheMatrix().copy(cov);
+//}
+
+//---------------------------------------------------------------------------
+//  void SetSCovariance(const Rvector6 &diagCovar)
+//---------------------------------------------------------------------------
+/**
+ * Set the elements to covariance of specified cartesian or orbit element states.
+ * 
+ * @param <diagCovar> Diagonal vector corresponding to variance of states
+ *
+ */
+//---------------------------------------------------------------------------
+//void Spacecraft::SetCovariance(const Rvector6 &diagCovar)
+//{
+//   Real cov[36] = {0.0};
+//   cov[0] = diagCovar.Get(0);
+//   cov[7] = diagCovar.Get(1);
+//   cov[14] = diagCovar.Get(2);
+//   cov[21] = diagCovar.Get(3);
+//   cov[28] = diagCovar.Get(4);
+//   cov[35] = diagCovar.Get(5);
+   
+//   LaGenMatDouble ctemp(cov,6,6);
+         
+//   SetCovariance(ctemp);
+//}
+
 //------------------------------------------------------------------------------
-//  GmatState& GetState() 
+//  void SetCovariance(const Real &c11, const Real &c22, const Real &c33,
+//		       const Real &c44, const Real &c55, const Real &c66)
+//------------------------------------------------------------------------------
+/**
+ * Set the elements of a covariance matrix.
+ * 
+ * @param <c11>  First diagonal covariance element
+ * @param <c22>  Second diagonal covariance element
+ * @param <c33>  Third diagonal covariance element
+ * @param <c44>  Fourth diagonal covariance element
+ * @param <c55>  Fifth diagonal covariance element
+ * @param <c66>  Sixth diagonal covariance element  
+ */
+//------------------------------------------------------------------------------
+//void Spacecraft::SetCovariance(const Real &c11, const Real &c22, const Real &c33,
+//		   const Real &c44, const Real &c55, const Real &c66)
+//{
+//   Real cov[36] = {0.0};
+//   cov[0] = c11;
+//   cov[7] = c22;
+//   cov[14] = c33;
+//   cov[21] = c44;
+//   cov[28] = c55;
+//   cov[35] = c66;
+//
+//   LaGenMatDouble ctemp(cov,6,6);
+//
+//   SetCovariance(ctemp);
+//
+//}
+
+//------------------------------------------------------------------------------
+//  void SetCovariance(Real* &cov, const Integer &m, const Integer &n)
+//------------------------------------------------------------------------------
+/**
+ * Set the elements of a covariance matrix.
+ * 
+ * @param <cov>  Rvector containing desired elements of the covariance matrix 
+ * @param <m> Number of rows in desired covariance matrix
+ * @param <n> Number of columns in desired covariance matrix
+ */
+//------------------------------------------------------------------------------
+//void Spacecraft::SetCovariance(Real* &cov, const Integer &m, const Integer &n)
+//{
+//   LaGenMatDouble ctemp(cov,m,n);
+//   SetCovariance(ctemp);
+//}
+
+//------------------------------------------------------------------------------
+//  PropState& GetCovariance() 
 //------------------------------------------------------------------------------
 /**
  * "Unhide" the SpaceObject method.
  * 
- * @return the core GmatState.   
+ * @return the core PropCovar.   
+ */
+//------------------------------------------------------------------------------
+//PropCovar& Spacecraft::GetCovariance()
+//{
+//   return SpaceObject::GetCovariance();
+//}
+
+//------------------------------------------------------------------------------
+//  GmatState& GetState()
+//------------------------------------------------------------------------------
+/**
+ * "Unhide" the SpaceObject method.
+ * 
+ * @return the core GmatState.
  */
 //------------------------------------------------------------------------------
 GmatState& Spacecraft::GetState()
@@ -709,7 +865,7 @@ Rvector6 Spacecraft::GetState(std::string rep)
 
 
 //------------------------------------------------------------------------------
-//  Rvector6 GetState(std::string &rep) 
+//  Rvector6 GetState(std::string &rep)
 //------------------------------------------------------------------------------
 /**
  * Get the converted Cartesian states from states in different coordinate type.
@@ -1160,19 +1316,19 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          // saved the old CS and added try/catch block to set to old CS
          // in case of exception thrown (loj: 2008.10.23)
          CoordinateSystem *oldCS = coordinateSystem;
-         coordinateSystem = cs;
-         
+         coordinateSystem = cs;         
+
          try
          {
-            TakeAction("ApplyCoordinateSystem");
-            
-            #if DEBUG_SPACECRAFT_CS
-            MessageInterface::ShowMessage
-               ("Spacecraft::SetRefObject() coordinateSystem applied ----------\n");
+         TakeAction("ApplyCoordinateSystem");
+         
+         #if DEBUG_SPACECRAFT_CS
+         MessageInterface::ShowMessage
+            ("Spacecraft::SetRefObject() coordinateSystem applied ----------\n");
             Rvector6 vec6(state.GetState());
             MessageInterface::ShowMessage("   %s\n", vec6.ToString().c_str());
-            #endif
-         }
+         #endif
+      }
          catch (BaseException &e)
          {
             #if DEBUG_SPACECRAFT_CS
@@ -1332,7 +1488,50 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
        str == "EA" || str == "HA" || str == "FPA" || str == "DECV" || str == "MLONG") 
       retval =  ELEMENT6_ID;
       //return ELEMENT6_ID;
-
+/*
+   else if (str == "Covariance11" || str == "CovarianceXX")
+       retval = COVARIANCE11_ID;
+   else if (str == "Covariance12" || str == "CovarianceXY")
+       retval = COVARIANCE12_ID;
+   else if (str == "Covariance13" || str == "CovarianceXZ")
+       retval = COVARIANCE13_ID;
+   else if (str == "Covariance14" || str == "CovarianceXVX" || str == "CovarianceXDX")
+       retval = COVARIANCE14_ID;
+   else if (str == "Covariance15" || str == "CovarianceXVY" || str == "CovarianceXDY")
+       retval = COVARIANCE15_ID;
+   else if (str == "Covariance16" || str == "CovarianceXVZ" || str == "CovarianceXDZ")
+       retval = COVARIANCE16_ID;
+   else if (str == "Covariance22" || str == "CovarianceYY")
+       retval = COVARIANCE22_ID;
+   else if (str == "Covariance23" || str == "CovarianceYZ")
+       retval = COVARIANCE23_ID;
+   else if (str == "Covariance24" || str == "CovarianceYVX" || str == "CovarianceYDX")
+       retval = COVARIANCE24_ID;
+   else if (str == "Covariance25" || str == "CovarianceYVY" || str == "CovarianceYDY")
+       retval = COVARIANCE25_ID;
+   else if (str == "Covariance26" || str == "CovarianceYVZ" || str == "CovarianceYDZ")
+       retval = COVARIANCE26_ID;
+   else if (str == "Covariance33" || str == "CovarianceZZ")
+       retval = COVARIANCE33_ID;
+   else if (str == "Covariance34" || str == "CovarianceZVX" || str == "CovarianceZDX")
+       retval = COVARIANCE34_ID;
+   else if (str == "Covariance35" || str == "CovarianceZVY" || str == "CovarianceZDY")
+       retval = COVARIANCE35_ID;
+   else if (str == "Covariance36" || str == "CovarianceZVZ" || str == "CovarianceZDZ")
+       retval = COVARIANCE36_ID;
+   else if (str == "Covariance44" || str == "CovarianceVXVX" || str == "CovarianceDXDX")
+       retval = COVARIANCE44_ID;
+   else if (str == "Covariance45" || str == "CovarianceVXVY" || str == "CovarianceDXDY")
+       retval = COVARIANCE45_ID;
+   else if (str == "Covariance46" || str == "CovarianceVXVZ" || str == "CovarianceDXDZ")
+       retval = COVARIANCE46_ID;
+   else if (str == "Covariance55" || str == "CovarianceVYVY" || str == "CovarianceDYDY")
+       retval = COVARIANCE55_ID;
+   else if (str == "Covariance56" || str == "CovarianceVYVZ" || str == "CovarianceDYDZ")
+       retval = COVARIANCE56_ID;
+   else if (str == "Covariance66" || str == "CovarianceVZVZ" || str == "CovarianceDZDZ")
+       retval = COVARIANCE66_ID;
+*/
    #ifdef DEBUG_GET_REAL
    MessageInterface::ShowMessage(
    "In SC::GetParameterID, after checking for elements, id = %d\n ",
@@ -1374,7 +1573,7 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
       }
       
    }
-   
+
    if ((str == "CartesianState") || (str == "CartesianX")) return CARTESIAN_X;
    if (str == "CartesianY" )  return CARTESIAN_Y;
    if (str == "CartesianZ" )  return CARTESIAN_Z;
@@ -1414,7 +1613,7 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
    {
       return true;
    }
-   
+
    if (id == TOTAL_MASS_ID)
    {
       return true;
@@ -1436,7 +1635,7 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
    {
       return true;
    }
-   
+
    // if (id == STATE_TYPE) return true;   when deprecated stuff goes away
    
    return SpaceObject::IsParameterReadOnly(id);
@@ -1580,7 +1779,113 @@ Real Spacecraft::GetRealParameter(const Integer id) const
       #endif
       return (const_cast<Spacecraft*>(this))->GetElement(GetParameterText(id));
    }
-   
+/*
+   if (id == COVARIANCE11_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,1);
+   }
+   if (id == COVARIANCE12_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,2);
+   }
+   if (id == COVARIANCE13_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,3);
+   }
+   if (id == COVARIANCE14_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,4);
+   }
+   if (id == COVARIANCE15_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,5);
+   }
+   if (id == COVARIANCE16_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(1,6);
+   }
+   if (id == COVARIANCE22_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,2);
+   }
+   if (id == COVARIANCE23_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,3);
+   }
+   if (id == COVARIANCE24_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,4);
+   }
+   if (id == COVARIANCE25_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,5);
+   }
+   if (id == COVARIANCE26_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(2,6);
+   }
+   if (id == COVARIANCE33_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(3,3);
+   }
+   if (id == COVARIANCE34_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(3,4);
+   }
+   if (id == COVARIANCE35_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(3,5);
+   }
+   if (id == COVARIANCE36_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(3,6);
+   }
+   if (id == COVARIANCE44_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(4,4);
+   }
+   if (id == COVARIANCE45_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(4,5);
+   }
+   if (id == COVARIANCE46_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(4,6);
+   }
+   if (id == COVARIANCE55_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(5,5);
+   }
+   if (id == COVARIANCE56_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(5,6);
+   }
+   if (id == COVARIANCE66_ID) 
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      return cov(6,6);
+   }
+*/
    if (id == DRY_MASS_ID) return dryMass;
    if (id == CD_ID) return coeffDrag;
    if (id == CR_ID) return reflectCoeff;
@@ -1667,7 +1972,92 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value)
    if (id == ELEMENT4_ID) return SetRealParameter(stateElementLabel[3],value); 
    if (id == ELEMENT5_ID) return SetRealParameter(stateElementLabel[4],value); 
    if (id == ELEMENT6_ID) return SetRealParameter(stateElementLabel[5],value); 
-
+/*
+   if (id == COVARIANCE11_ID)
+   {
+      return SetRealParameter("Covariance11", value); 
+   }
+   if (id == COVARIANCE12_ID)
+   {
+      return SetRealParameter("Covariance12", value); 
+   }
+   if (id == COVARIANCE13_ID)
+   {
+      return SetRealParameter("Covariance13", value); 
+   }
+   if (id == COVARIANCE14_ID)
+   {
+      return SetRealParameter("Covariance14", value); 
+   }
+   if (id == COVARIANCE15_ID)
+   {
+      return SetRealParameter("Covariance15", value); 
+   }
+   if (id == COVARIANCE16_ID)
+   {
+      return SetRealParameter("Covariance16", value); 
+   }
+   if (id == COVARIANCE22_ID)
+   {
+      return SetRealParameter("Covariance22", value); 
+   }
+   if (id == COVARIANCE23_ID)
+   {
+      return SetRealParameter("Covariance23", value); 
+   }
+   if (id == COVARIANCE24_ID)
+   {
+      return SetRealParameter("Covariance24", value); 
+   }
+   if (id == COVARIANCE25_ID)
+   {
+      return SetRealParameter("Covariance25", value); 
+   }
+   if (id == COVARIANCE26_ID)
+   {
+      return SetRealParameter("Covariance26", value); 
+   }
+   if (id == COVARIANCE33_ID)
+   {
+      return SetRealParameter("Covariance33", value); 
+   }
+   if (id == COVARIANCE34_ID)
+   {
+      return SetRealParameter("Covariance34", value); 
+   }
+   if (id == COVARIANCE35_ID)
+   {
+      return SetRealParameter("Covariance35", value); 
+   }
+   if (id == COVARIANCE36_ID)
+   {
+      return SetRealParameter("Covariance36", value); 
+   }
+   if (id == COVARIANCE44_ID)
+   {
+      return SetRealParameter("Covariance44", value); 
+   }
+   if (id == COVARIANCE45_ID)
+   {
+      return SetRealParameter("Covariance45", value); 
+   }
+   if (id == COVARIANCE46_ID)
+   {
+      return SetRealParameter("Covariance46", value); 
+   }
+   if (id == COVARIANCE55_ID)
+   {
+      return SetRealParameter("Covariance55", value); 
+   }
+   if (id == COVARIANCE56_ID)
+   {
+      return SetRealParameter("Covariance56", value); 
+   }
+   if (id == COVARIANCE66_ID)
+   {
+      return SetRealParameter("Covariance66", value); 
+   }
+*/
    if (id == DRY_MASS_ID)
    {
       parmsChanged = true;
@@ -1701,43 +2091,43 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value)
    if (id >= ATTITUDE_ID_OFFSET)
       if (attitude) 
          return attitude->SetRealParameter(id - ATTITUDE_ID_OFFSET,value);
-
+   
    if (id == CARTESIAN_X )
    {
       state[0] = value;
       return state[0];
    }
-   
+
    if (id == CARTESIAN_Y )
    {
       state[1] = value;
       return state[1];
    }
-   
+
    if (id == CARTESIAN_Z )
    {
       state[2] = value;
       return state[2];
    }
-   
+
    if (id == CARTESIAN_VX)
    {
       state[3] = value;
       return state[3];
    }
-   
+
    if (id == CARTESIAN_VY)
    {
       state[4] = value;
       return state[4];
    }
-   
+
    if (id == CARTESIAN_VZ)
    {
       state[5] = value;
       return state[5];
    }
-   
+
    return SpaceObject::SetRealParameter(id, value);
 }
 
@@ -1760,16 +2150,144 @@ Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
    #ifdef DEBUG_SPACECRAFT_SET
    MessageInterface::ShowMessage
       ("In SC::SetRealParameter(label), label = %s and value = %.12f\n",
-       label.c_str(), value);
+   label.c_str(), value);
    #endif
    // first (really) see if it's a parameter for an owned object (i.e. attitude)
    if (GetParameterID(label) >= ATTITUDE_ID_OFFSET)
       if (attitude)
          return attitude->SetRealParameter(label, value);
-   
+         
    // First try to set as a state element
    if (SetElement(label, value))
       return value;
+/*
+   if (label == "Covariance11" || label == "CovarianceXX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,1) = value;
+      return value;
+   }
+   if (label == "Covariance12" || label == "CovarianceXY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,2) = value;
+      return value;
+   }
+   if (label == "Covariance13" || label == "CovarianceXZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,3) = value;
+      return value;
+   }
+   if (label == "Covariance14" || label == "CovarianceXVX" || label == "CovarianceXDX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,4) = value;
+      return value;
+   }
+   if (label == "Covariance15" || label == "CovarianceXVY" || label == "CovarianceXDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,5) = value;
+      return value;
+   }
+   if (label == "Covariance16" || label == "CovarianceXVZ" || label == "CovarianceXDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(1,6) = value;
+      return value;
+   }
+   if (label == "Covariance22" || label == "CovarianceYY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,2) = value;
+      return value;
+   }
+   if (label == "Covariance23" || label == "CovarianceYZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,3) = value;
+      return value;
+   }
+   if (label == "Covariance24" || label == "CovarianceYVX" || label == "CovarianceYDX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,4) = value;
+      return value;
+   }
+   if (label == "Covariance25" || label == "CovarianceYVY" || label == "CovarianceYDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,5) = value;
+      return value;
+   }
+   if (label == "Covariance26" || label == "CovarianceYVZ" || label == "CovarianceYDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(2,6) = value;
+      return value;
+   }
+   if (label == "Covariance33" || label == "CovarianceZZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(3,3) = value;
+      return value;
+   }
+   if (label == "Covariance34" || label == "CovarianceZVX" || label == "CovarianceZDX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(3,4) = value;
+      return value;
+   }
+   if (label == "Covariance35" || label == "CovarianceZVY" || label == "CovarianceZDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(3,5) = value;
+      return value;
+   }
+   if (label == "Covariance36" || label == "CovarianceZVZ" || label == "CovarianceZDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(3,6) = value;
+      return value;
+   }
+   if (label == "Covariance44" || label == "CovarianceVXVX" || label == "CovarianceDXDX")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(4,4) = value;
+      return value;
+   }
+   if (label == "Covariance45" || label == "CovarianceVXVY" || label == "CovarianceDXDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(4,5) = value;
+      return value;
+   }
+   if (label == "Covariance46" || label == "CovarianceVXVZ" || label == "CovarianceDXDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(4,6) = value;
+      return value;
+   }
+   if (label == "Covariance55" || label == "CovarianceVYVY" || label == "CovarianceDYDY")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(5,5) = value;
+      return value;
+   }
+   if (label == "Covariance56" || label == "CovarianceVYVZ" || label == "CovarianceDYDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(5,6) = value;
+      return value;
+   }
+   if (label == "Covariance66" || label == "CovarianceVZVZ" || label == "CovarianceDZDZ")
+   {
+      LaGenMatDouble cov = covariance.GetTheMatrix();
+      cov(6,6) = value;
+      return value;
+   }
+*/
    
    if (label == "A1Epoch")
    {
@@ -2230,7 +2748,7 @@ const Rmatrix& Spacecraft::GetRmatrixParameter(const Integer id) const
 {
    if (id == ORBIT_STM)
       return orbitSTM;
-   
+
    return SpaceObject::GetRmatrixParameter(id);
 }
 
@@ -2242,18 +2760,18 @@ const Rmatrix& Spacecraft::SetRmatrixParameter(const Integer id,
       orbitSTM = value;
       return orbitSTM;
    }
-   
+
    return SpaceObject::SetRmatrixParameter(id, value);
 }
 
 const Rmatrix& Spacecraft::GetRmatrixParameter(const std::string &label) const
-{   
+{
    return GetRmatrixParameter(GetParameterID(label));
 }
 
 const Rmatrix& Spacecraft::SetRmatrixParameter(const std::string &label,
                                          const Rmatrix &value)
-{   
+{
    return SetRmatrixParameter(GetParameterID(label), value);
 }
 
@@ -2262,12 +2780,12 @@ Real Spacecraft::GetRealParameter(const Integer id, const Integer row,
 {
    if (id == ORBIT_STM)
       return orbitSTM(row, col);
-   
+
    return SpaceObject::GetRealParameter(id, row, col);
 }
 
-Real Spacecraft::GetRealParameter(const std::string &label, 
-                                      const Integer row, 
+Real Spacecraft::GetRealParameter(const std::string &label,
+                                      const Integer row,
                                       const Integer col) const
 {
    return GetRealParameter(GetParameterID(label), row, col);
@@ -2281,7 +2799,7 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value,
       orbitSTM(row, col) = value;
       return orbitSTM(row, col);
    }
-   
+
    return SpaceObject::SetRealParameter(id, value, row, col);
 }
 
@@ -2504,16 +3022,16 @@ GmatBase* Spacecraft::GetOwnedObject(Integer whichOne)
 bool Spacecraft::Initialize()
 {
    #if DEBUG_SPACECRAFT_CS
-   MessageInterface::ShowMessage
+      MessageInterface::ShowMessage
       ("Spacecraft::Initialize() entered ---------- this=<%p> '%s'\n   "
        "internalCoordSystem=<%p> '%s', coordinateSystem=<%p> '%s'\n", this,
        GetName().c_str(), internalCoordSystem,
        internalCoordSystem ? internalCoordSystem->GetName().c_str() : "NULL",
        coordinateSystem, coordinateSystem ? coordinateSystem->GetName().c_str() : "NULL");
    MessageInterface::ShowMessage
-      ("   stateType=%s, state=\n   %.9f, %.9f, %.9f, %.14f, %.14f, %f.14\n",
-       stateType.c_str(), state[0], state[1], state[2], state[3],
-       state[4], state[5]);
+         ("   stateType=%s, state=\n   %.9f, %.9f, %.9f, %.14f, %.14f, %f.14\n",
+          stateType.c_str(), state[0], state[1], state[2], state[3],
+          state[4], state[5]);
    #endif
    
    // Set the mu if CelestialBody is there through coordinate system's origin;   
@@ -2709,7 +3227,7 @@ void Spacecraft::SetAnomaly(const std::string &type, const Anomaly &ta)
       ("Spacecraft::SetAnomaly() anomalyType=%s, value=%f\n", anomalyType.c_str(),
        trueAnomaly.GetValue());
    MessageInterface::ShowMessage
-      ("Spacecraft::SetAnomaly() stateElementLabel[5] = %s\n", 
+      ("Spacecraft::SetAnomaly() stateElementLabel[5] = %s\n",
       stateElementLabel[5].c_str());
    #endif
 }
@@ -2721,7 +3239,7 @@ Integer Spacecraft::SetPropItem(std::string propItem)
       return Gmat::CARTESIAN_STATE;
    if (propItem == "STM")
       return Gmat::ORBIT_STATE_TRANSITION_MATRIX;
-   
+
    return SpaceObject::SetPropItem(propItem);
 }
 
@@ -2742,20 +3260,20 @@ Real* Spacecraft::GetPropItem(Integer item)
       case Gmat::CARTESIAN_STATE:
          retval = state.GetState();
          break;
-         
+
       case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
 //         retval = stm;
          break;
-         
+
       case Gmat::MASS_FLOW:
          // todo: Access tanks for mass information to handle mass flow
          break;
-         
+
       // All other values call up the class heirarchy
       default:
          retval = SpaceObject::GetPropItem(item);
    }
-   
+
    return retval;
 }
 
@@ -2767,20 +3285,20 @@ Integer Spacecraft::GetPropItemSize(Integer item)
       case Gmat::CARTESIAN_STATE:
          retval = state.GetSize();
          break;
-         
+
       case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
          retval = 36;
          break;
-         
+
       case Gmat::MASS_FLOW:
          // todo: Access tanks for mass information to handle mass flow
          break;
-         
+
       // All other values call up the heirarchy
       default:
          retval = SpaceObject::GetPropItemSize(item);
    }
-   
+
    return retval;
 }
 
@@ -2879,7 +3397,7 @@ const std::string& Spacecraft::GetGeneratingString(Gmat::WriteMode mode,
    
    nomme += ".";
    
-   if (mode == Gmat::OWNED_OBJECT) 
+   if (mode == Gmat::OWNED_OBJECT)
    {
       preface = prefix;
       nomme = "";
@@ -3087,10 +3605,10 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
             if (inMatlabMode)
                stream << prefix << "Attitude = '" << attitude->GetAttitudeModelName() << "';\n";
             else
-               stream << prefix << "Attitude = " << attitude->GetAttitudeModelName() << ";\n";
+            stream << prefix << "Attitude = " << attitude->GetAttitudeModelName() << ";\n";
          else 
             ;// ignore
-      }
+      }      
       
    }
 
@@ -3392,7 +3910,7 @@ void Spacecraft::SetStateFromRepresentation(std::string rep, Rvector6 &st)
       #endif
       csState = stateConverter.Convert(st, rep, "Cartesian", anomalyType);
    }
-   
+
    #ifdef DEBUG_STATE_INTERFACE
       MessageInterface::ShowMessage(
          "Spacecraft::SetStateFromRepresentation: state has been converted\n");
@@ -3532,7 +4050,7 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
       }
       else  stateType = rep;
    }
-   
+
    #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
    if (id >= 0)
       MessageInterface::ShowMessage
@@ -3540,7 +4058,7 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
           "string = \"%s\",  and rep = \"%s\"\n", id+ELEMENT1_ID,
           (GetParameterText(id+ELEMENT1_ID)).c_str(), rep.c_str());
    #endif
-   
+
    // parabolic and hyperbolic orbits not yet supported
    if ((label == "ECC") && value == 1.0)
    {
@@ -3550,7 +4068,7 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
                     "Eccentricity", "Real Number != 1.0");
       throw se;
    }
-   
+
    if ((id == 5) && (!trueAnomaly.IsInvalid(label)))
       trueAnomaly.SetType(label);
    
@@ -3721,4 +4239,4 @@ void Spacecraft::BuildElementLabelMap()
 
    
 // Additions for the propagation rework
-   
+

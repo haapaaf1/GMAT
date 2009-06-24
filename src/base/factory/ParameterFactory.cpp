@@ -295,7 +295,7 @@ Parameter* ParameterFactory::CreateParameter(const std::string &ofType,
       return new SRPArea(withName);
    if (ofType == "TotalMass")
       return new TotalMass(withName);
-   
+
    // orbit STM parameters
    if (ofType == "OrbitSTM")
       return new OrbitStm(withName);
@@ -307,7 +307,7 @@ Parameter* ParameterFactory::CreateParameter(const std::string &ofType,
       return new OrbitStmC(withName);
    if (ofType == "OrbitSTMD")
       return new OrbitStmD(withName);
-   
+
    // add others here
    
    else
@@ -460,7 +460,7 @@ ParameterFactory::ParameterFactory()
       creatables.push_back("EulerAngleRate1");
       creatables.push_back("EulerAngleRate2");
       creatables.push_back("EulerAngleRate3");
-      
+
       // Ballistic/Mass parameters
       creatables.push_back("DryMass");
       creatables.push_back("Cd");
@@ -468,7 +468,7 @@ ParameterFactory::ParameterFactory()
       creatables.push_back("DragArea");
       creatables.push_back("SRPArea");
       creatables.push_back("TotalMass");
-      
+
       // Orbit STM parameters
       creatables.push_back("OrbitSTM");
       creatables.push_back("OrbitSTMA");

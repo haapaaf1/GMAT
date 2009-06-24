@@ -123,7 +123,7 @@ public:
 //   virtual void IncrementTime(Real dt);
 //   virtual void SetTime(Real t);
    
-   // Parameter definitio0n and accessor methods inherited from GmatBase
+   // Parameter definition and accessor methods inherited from GmatBase
    virtual Integer      GetParameterCount() const;
    virtual bool         RenameRefObject(const Gmat::ObjectType type,
                                         const std::string &oldName,

@@ -56,7 +56,7 @@ public:
                                Gmat::UNKNOWN_STATE);
 
    virtual bool SetObject(GmatBase* theObject);
-	virtual bool SetProperty(std::string propName);
+   virtual bool SetProperty(std::string propName);
    virtual bool BuildState();
    virtual bool MapObjectsToVector();
    virtual bool MapVectorToObjects();

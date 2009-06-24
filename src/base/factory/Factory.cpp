@@ -675,6 +675,90 @@ Attitude* Factory::CreateAttitude(const std::string &ofType,
    ("Factory::CreateAttitude() must be implemented by the AttitudeFactory\n");
 }
 
+//------------------------------------------------------------------------------
+//  MeasurementModel* CreateMeasurementModel(const std::string &ofType,
+//                           const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates a MeasurementModel object.
+ * 
+ * Must be implemented by derived classes that create MeasurementModel objects -
+ * in that case, it returns a new MeasurementModel object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type MeasurementModel.
+ *
+ * @param <ofType>   specific type of MeasurementModel object to create.
+ * @param <withName> name to give to the newly created MeasurementModel object.
+ *
+ * @return pointer to a new MeasurementModel object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type MeasurementModel.
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* Factory::CreateMeasurementModel(const std::string &ofType,
+                                  const std::string &withName)
+{
+   throw FactoryException
+   ("Factory::CreateMeasurementModel() must be implemented by the MeasurementModelFactory\n");
+}
+
+//------------------------------------------------------------------------------
+//  Estimator* CreateEstimator(const std::string &ofType,
+//                           const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates an Estimator object.
+ * 
+ * Must be implemented by derived classes that create Estimator objects -
+ * in that case, it returns a new Estimator object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Estimator.
+ *
+ * @param <ofType>   specific type of Estimator object to create.
+ * @param <withName> name to give to the newly created Estimator object.
+ *
+ * @return pointer to a new Estimator object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type Estimator.
+ */
+//------------------------------------------------------------------------------
+Estimator* Factory::CreateEstimator(const std::string &ofType,
+                                  const std::string &withName)
+{
+   throw FactoryException
+   ("Factory::CreateEstimator() must be implemented by the EstimatorFactory\n");
+}
+
+//------------------------------------------------------------------------------
+//  DataFile* CreateDataFile(const std::string &ofType,
+//                           const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates an Estimator object.
+ * 
+ * Must be implemented by derived classes that create Estimator objects -
+ * in that case, it returns a new Estimator object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Estimator.
+ *
+ * @param <ofType>   specific type of Estimator object to create.
+ * @param <withName> name to give to the newly created Estimator object.
+ *
+ * @return pointer to a new Estimator object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type Estimator.
+ */
+//------------------------------------------------------------------------------
+DataFile* Factory::CreateDataFile(const std::string &ofType,
+                                         const std::string &withName)
+{
+   throw FactoryException
+   ("Factory::CreateDataFile() must be implemented by the DataFileFactory\n");
+}
+
 
 //------------------------------------------------------------------------------
 //  StringArray GetListOfCreatableObjects(void) const

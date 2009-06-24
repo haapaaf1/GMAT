@@ -53,6 +53,8 @@
 #include "Interpolator.hpp"
 #include "CalculatedPoint.hpp"
 #include "MathNode.hpp"
+#include "DataFile.hpp"
+#include "MeasurementModel.hpp"
 // files
 #include "EopFile.hpp"
 #include "ItrfCoefficientsFile.hpp"
@@ -74,35 +76,35 @@ public:
    void Finalize();
    void SetRunReady(bool flag = true);
    void SetShowFinalState(bool flag = true);
-   
+
    //----- Plug-in code
    void LoadPlugins();
    void LoadAPlugin(std::string pluginName);
    DynamicLibrary *LoadLibrary(const std::string &libraryName);
    bool IsLibraryLoaded(const std::string &libName);
-   void (*GetDynamicFunction(const std::string &funName, 
+   void (*GetDynamicFunction(const std::string &funName,
                              const std::string &libraryName))();
-   
+
    //----- ObjectType
-   std::string GetObjectTypeString(Gmat::ObjectType type);  
-   
+   std::string GetObjectTypeString(Gmat::ObjectType type);
+
    //----- interpreter
    static ScriptInterpreter* GetUiInterpreter();
    static ScriptInterpreter* GetScriptInterpreter();
    static void SetUiInterpreter(ScriptInterpreter *uiInterp);
    static void SetScriptInterpreter(ScriptInterpreter *scriptInterp);
-   
+
    void SetInterpreterMapAndSS(Interpreter *interp);
-   
+
    //----- object map
    void SetObjectMap(ObjectMap *objMap);
    void SetObjectManageOption(Integer option);
    Integer GetObjectManageOption();
-   
+
    //----- factory
    const StringArray& GetListOfFactoryItems(Gmat::ObjectType type);
    const StringArray& GetListOfAllFactoryItems();
-   
+
    //----- configuration
    ObjectMap* GetConfiguredObjectMap();
    const StringArray& GetListOfObjects(Gmat::ObjectType type,
@@ -119,7 +121,7 @@ public:
    void ResetConfigurationChanged(bool resetResource = true,
                                   bool resetCommands = true,
                                   Integer sandboxNum = 1);
-   
+
    // SolarSystem
    SolarSystem* GetDefaultSolarSystem();
    SolarSystem* CreateSolarSystem(const std::string &name);
@@ -127,13 +129,13 @@ public:
    void SetSolarSystemInUse(SolarSystem *ss);
    void SetInternalSolarSystem(SolarSystem *ss);
    bool SetSolarSystemInUse(const std::string &name);
-   
+
    // CalculatedPoint
    CalculatedPoint* CreateCalculatedPoint(const std::string &type,
                                           const std::string &name,
                                           bool addDefaultBodies = true);
    CalculatedPoint* GetCalculatedPoint(const std::string &name);
-   
+
    // CelestialBody
    CelestialBody* CreateCelestialBody(const std::string &type,
                                       const std::string &name);
@@ -144,38 +146,38 @@ public:
                                  const std::string &name);
    SpaceObject* GetSpacecraft(const std::string &name);
    std::string GetSpacecraftNotInFormation();
-   
+
    // Other SpacePoints
    SpacePoint* CreateSpacePoint(const std::string &type,
                                  const std::string &name);
    SpacePoint* GetSpacePoint(const std::string &name);
-   
+
    // Hardware
    Hardware* CreateHardware(const std::string &type,
                             const std::string &name);
    Hardware* GetHardware(const std::string &name);
-   
+
    // Propagator
    Propagator* CreatePropagator(const std::string &type,
                                 const std::string &name);
    Propagator* GetPropagator(const std::string &name);
-   
+
    // PhysicalModel
    PhysicalModel* CreatePhysicalModel(const std::string &type,
                                       const std::string &name);
    PhysicalModel* GetPhysicalModel(const std::string &name);
-   
+
    // AtmosphereModel
    AtmosphereModel* CreateAtmosphereModel(const std::string &type,
                                           const std::string &name,
                                           const std::string &body = "Earth");
    AtmosphereModel* GetAtmosphereModel(const std::string &name);
-   
+
    // Burn
    Burn* CreateBurn(const std::string &type,
                     const std::string &name, bool createDefault = false);
    Burn* GetBurn(const std::string &name);
-   
+
    // Parameter
    bool IsParameter(const std::string &type);
    Parameter* CreateAutoParameter(const std::string &type,
@@ -194,67 +196,77 @@ public:
                               const std::string &name,
                               const std::string &ownerName,
                               const std::string &depName, Integer manage);
-   
+
    // ODEModel
    ODEModel* CreateODEModel(const std::string &type, const std::string &name);
    ODEModel* GetODEModel(const std::string &name);
    bool AddToODEModel(const std::string &odeModelName,
                         const std::string &forceName);
    bool ReconfigureItem(GmatBase *newobj, const std::string &name);
-   
+
    // Solver
    Solver* CreateSolver(const std::string &type,
                         const std::string &name);
    Solver* GetSolver(const std::string &name);
-   
+
+   // MeasurementModel
+   MeasurementModel* CreateMeasurementModel(const std::string &type,
+                        const std::string &name);
+   MeasurementModel* GetMeasurementModel(const std::string &name);
+
+   // DataFile
+   DataFile* CreateDataFile(const std::string &type,
+                        const std::string &name);
+   DataFile* GetDataFile(const std::string &name);
+
    // PropSetup
    PropSetup* CreateDefaultPropSetup(const std::string &name);
    PropSetup* CreatePropSetup(const std::string &name);
    PropSetup* GetPropSetup(const std::string &name);
-   
+
    // Interpolator
    Interpolator* CreateInterpolator(const std::string &type,
                                     const std::string &name);
    Interpolator* GetInterpolator(const std::string &name);
-   
+
    // CoordinateSystem
    CoordinateSystem* CreateCoordinateSystem(const std::string &name,
                                             bool createDefault = false,
                                             bool internal = false,
                                             Integer manage = 1);
    CoordinateSystem* GetCoordinateSystem(const std::string &name);
-   
+
    // Subscriber
    Subscriber* CreateSubscriber(const std::string &type,
                                 const std::string &name,
                                 const std::string &fileName = "",
                                 bool createDefault = false);
    Subscriber* GetSubscriber(const std::string &name);
-   
+
    // Function
    Function* CreateFunction(const std::string &type,
                             const std::string &name,
                             Integer manage = 1);
    Function* GetFunction(const std::string &name);
-   
+
    //----- Non-Configurable Items
    // StopCondition
    StopCondition* CreateStopCondition(const std::string &type,
                                       const std::string &name);
-   
+
    // AxisSystem
    AxisSystem* CreateAxisSystem(const std::string &type,
                                 const std::string &name,
                                 Integer manage = 1);
-   
+
    // MathNode
    MathNode* CreateMathNode(const std::string &type,
                             const std::string &name = "");
-   
+
    // AxisSystem
    Attitude* CreateAttitude(const std::string &type,
                             const std::string &name);
-   
+
    // GmatCommand
    GmatCommand* InterpretGmatFunction(const std::string &fileName);
    GmatCommand* InterpretGmatFunction(Function *funct,
@@ -273,11 +285,11 @@ public:
    bool AppendCommand(GmatCommand *cmd, Integer sandboxNum = 1);
    bool InsertCommand(GmatCommand *cmd, GmatCommand *prevCmd,
                       Integer sandboxNum = 1);
-   void SetCommandsUnchanged(Integer whichList = 0); 
-   
+   void SetCommandsUnchanged(Integer whichList = 0);
+
    // CoordinateSystem
    CoordinateSystem* GetInternalCoordinateSystem();
-   
+
    // Planetary files
    const StringArray& GetPlanetarySourceTypes();
    const StringArray& GetPlanetarySourceNames();
@@ -286,27 +298,27 @@ public:
 //   bool SetAnalyticModelToUse(const std::string &modelName);
    bool SetPlanetarySourceName(const std::string &sourceType,
                                const std::string &fileName);
-   Integer SetPlanetarySourceTypesInUse(const StringArray &sourceTypes); 
+   Integer SetPlanetarySourceTypesInUse(const StringArray &sourceTypes);
    Integer GetPlanetarySourceId(const std::string &sourceType);
    std::string GetPlanetarySourceName(const std::string &sourceType);
    std::string GetCurrentPlanetarySource();
-   
+
    // Potential field files
    std::string GetPotentialFileName(const std::string &fileType);
-   
+
    // Getting file names
    // This will eventually replace Get*FileName() above (loj: 7/7/05)
    std::string GetFileName(const std::string &fileType);
-   
+
    // Mission
    bool LoadDefaultMission();
-   
+
    // Resource
    bool ClearResource();
-   
+
    // Mission sequence
    bool ClearCommandSeq(Integer sandboxNum = 1);
-   
+
    // Sandbox
    void ClearAllSandboxes();
    GmatBase* GetInternalObject(const std::string &name, Integer sandboxNum = 1);
@@ -314,7 +326,7 @@ public:
    Integer ChangeRunState(const std::string &state, Integer sandboxNum = 1);
    Gmat::RunState GetUserInterrupt();
    Gmat::RunState GetRunState();
-   
+
    // Script
    bool InterpretScript(const std::string &filename, bool readBack = false,
                         const std::string &newPath = "");
@@ -323,36 +335,36 @@ public:
                    Gmat::WriteMode mode = Gmat::SCRIPTING);
    std::string GetScript(Gmat::WriteMode mode = Gmat::SCRIPTING);
    Integer RunScript(Integer sandboxNum = 1);
-   
+
    // MATLAB Server Startup Interface
    bool StartServer();
-   
+
 private:
-   
+
    // initialization
    void CreatePlanetaryCoeffFile();
    void CreateTimeFile();
-   
+
    // prepare next script reading
    void PrepareNextScriptReading(bool clearObjs = true);
-   
+
    // create default objects
    void CreateSolarSystemInUse();
    void CreateInternalCoordSystem();
    void CreateDefaultCoordSystems();
    void CreateDefaultMission();
-   
+
    // Parameter reference object setting
    void CheckParameterType(Parameter *param, const std::string &type,
                            const std::string &ownerName);
-   
+
    // object map
    GmatBase* FindObject(const std::string &name);
    bool AddObject(GmatBase *obj);
    void SetSolarSystemAndObjectMap(SolarSystem *ss, ObjectMap *objMap,
                                    bool forFunction,
                                    const std::string &callFrom = "");
-   
+
    // default objects
    Spacecraft* GetDefaultSpacecraft();
    PropSetup*  GetDefaultPropSetup();
@@ -364,7 +376,7 @@ private:
    Parameter*  GetDefaultX();
    Parameter*  GetDefaultY();
    StopCondition* CreateDefaultStopCondition();
-   
+
    // sandbox
    void AddSolarSystemToSandbox(Integer index);
    void AddInternalCoordSystemToSandbox(Integer index);
@@ -378,21 +390,24 @@ private:
    void AddODEModelToSandbox(Integer index);
    void AddBurnToSandbox(Integer index);
    void AddSolverToSandbox(Integer index);
+   // @TODO: Should these be separate from the AddSolverToSandbox method?
+   //void AddDataFileToSandbox(Integer index);
+   //void AddMeasurementModelToSandbox(Integer index);
    void AddSubscriberToSandbox(Integer index);
    void AddParameterToSandbox(Integer index);
    void AddFunctionToSandbox(Integer index);
    void AddCommandToSandbox(Integer index);
    void InitializeSandbox(Integer index);
    void ExecuteSandbox(Integer index);
-   
+
    // for Debug
    void ShowCommand(const std::string &title1, GmatCommand *cmd1,
                     const std::string &title2 = "", GmatCommand *cmd2 = NULL);
    void ShowObjectMap(const std::string &title);
-   
+
    Moderator();
    virtual ~Moderator();
-   
+
    // member data
    bool isSlpAlreadyInUse;
    bool isRunReady;
@@ -402,11 +417,11 @@ private:
    Integer objectManageOption;
    std::vector<Sandbox*> sandboxes;
    std::vector<GmatCommand*> commands;
-   
+
    ObjectMap *objectMapInUse;
    Function *currentFunction;
    ObjectArray unmanagedFunctions;
-   
+
    static Moderator *instance;
    static ScriptInterpreter *theUiInterpreter;
    static ScriptInterpreter *theScriptInterpreter;
@@ -414,7 +429,7 @@ private:
    FactoryManager *theFactoryManager;
    FileManager *theFileManager;
    Publisher *thePublisher;
-   
+
    SolarSystem *theDefaultSolarSystem;
    SolarSystem *theSolarSystemInUse;
    SolarSystem *theInternalSolarSystem;
