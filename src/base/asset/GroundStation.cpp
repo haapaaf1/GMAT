@@ -149,6 +149,26 @@ bool GroundStation::Initialize()
       throw GmatBaseException("Unable to initialize ground station" + 
             instanceName + "; its origin is not set\n");
    
+   // Get the body spin rate
+   std::string cBodyName = GetStringParameter(GetParameterID("CentralBody"));
+   CelestialBody*cBody = (CelestialBody*)(GetRefObject(Gmat::SPACE_POINT,cBodyName));
+   bodySpinRate = cBody->GetAngularVelocity().GetMagnitude();
+   // TODO: Is this possible?
+   //bodySpinRate = theBody->GetRealParameter("AngularRate");
+
+   equatorialRadius = theBody->GetRealParameter("EquatorialRadius");
+
+   // If the horizon reference is a sphere, then the flattening is zero
+   // and the geocentric and geodectic latitude angles are coincident
+   if (horizon == "Ellipsoid")
+   {
+     flattening = theBody->GetRealParameter("Flattening");
+   }
+   else
+   {
+     flattening = 0.0;
+   }
+
    // Calculate the body-fixed Cartesian position
    if (stateType == "Cartesian")
    {
@@ -158,26 +178,17 @@ bool GroundStation::Initialize()
    }
    else if (stateType == "Geographical")
    {
-      sphType = "Geodetic";
-      if (horizon == "Sphere")
-         sphType = "Geocentric";
-      // What key goes with "Reduced"?
-      
-      llh.SetLatitude(location[0], sphType);
+      llh.SetLatitude(location[0], latitudeGeometry);
       llh.SetLongitude(location[1]);
       llh.SetHeight(location[2]);
-      
-      Real equatorialRadius, flattening;
-      equatorialRadius = theBody->GetRealParameter("EquatorialRadius");
-      flattening = theBody->GetRealParameter("Flattening");
-      
+
       Rvector3 loc = llh.GetSitePosition(equatorialRadius, flattening);
       bfLocation[0] = loc[0];
       bfLocation[1] = loc[1];
       bfLocation[2] = loc[2];
    }
    else
-      throw GmatBaseException("Unable to initialize ground station \"" + 
+      throw GmatBaseException("Unable to initialize ground station \"" +
             instanceName + "\"; stateType is not a recognized type (known "
                   "types are either \"Cartesian\" or \"Geographical\")");
 
@@ -339,3 +350,120 @@ void GroundStation::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       }
    }
 }
+
+//------------------------------------------------------------------------------
+// void SetMeasurementModel(Measurement* mm)
+//------------------------------------------------------------------------------
+/**
+ * Set the measurement model for this ground station.
+ *
+ * @param mm The measurement model that is assigned.
+ */
+//------------------------------------------------------------------------------
+void GroundStation::SetMeasurementModel(MeasurementModel* mm)
+{
+    measModel = mm;
+}
+
+//------------------------------------------------------------------------------
+// MeasurementModel* GetMeasurementModel()
+//------------------------------------------------------------------------------
+/**
+ * Return the measurement model for this ground station.
+ *
+ * @return A pointer to the measurement model.
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* GroundStation::GetMeasurementModel()
+{
+    return measModel;
+}
+
+
+
+//------------------------------------------------------------------------------
+// void SetSpinRate(Real &sr)
+//------------------------------------------------------------------------------
+/**
+ * Set the body spin rate for this instance of the measurement model.
+ *
+ * @param sr The body spin rate.
+ */
+//------------------------------------------------------------------------------
+void GroundStation::SetSpinRate(Real &sr)
+{
+    bodySpinRate = sr;
+}
+
+//------------------------------------------------------------------------------
+// Real GetSpinRate()
+//------------------------------------------------------------------------------
+/**
+ * Return the body spin rate for this instance of the measurement model.
+ *
+ * @return The body spin rate.
+ */
+//------------------------------------------------------------------------------
+Real GroundStation::GetSpinRate()
+{
+    return bodySpinRate;
+}
+
+//------------------------------------------------------------------------------
+// void SetEquatorialRadius(Real &er)
+//------------------------------------------------------------------------------
+/**
+ * Set the body equatorial radius for this instance of the measurement model.
+ *
+ * @param sr The body equatorial radius.
+ */
+//------------------------------------------------------------------------------
+void GroundStation::SetEquatorialRadius(Real &er)
+{
+    equatorialRadius = er;
+}
+
+//------------------------------------------------------------------------------
+// Real GetEquatorialRadius()
+//------------------------------------------------------------------------------
+/**
+ * Return the body equatorial radius for this instance of the measurement model.
+ *
+ * @return The body equatorial radius.
+ */
+//------------------------------------------------------------------------------
+Real GroundStation::GetEquatorialRadius()
+{
+    return equatorialRadius;
+}
+
+//------------------------------------------------------------------------------
+// void SetFlattening(Real &sr)
+//------------------------------------------------------------------------------
+/**
+ * Set the body flattening for this instance of the measurement model.
+ *
+ * @param sr The body flattening.
+ */
+//------------------------------------------------------------------------------
+void GroundStation::SetFlattening(Real &flat)
+{
+    flattening = flat;
+}
+
+//------------------------------------------------------------------------------
+// Real GetFlattening()
+//------------------------------------------------------------------------------
+/**
+ * Return the body flattening for this instance of the measurement model.
+ *
+ * @return The body flattening.
+ */
+//------------------------------------------------------------------------------
+Real GroundStation::GetFlattening()
+{
+    return flattening;
+}
+
+
+
