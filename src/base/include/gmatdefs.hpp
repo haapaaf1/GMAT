@@ -141,6 +141,8 @@ namespace Gmat
       MATH_NODE,
       MATH_TREE,
       BODY_FIXED_POINT,
+      // Estimation types
+      MEASUREMENT_MODEL,
       UNKNOWN_OBJECT
    };
 
