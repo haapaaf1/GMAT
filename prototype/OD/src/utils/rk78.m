@@ -64,11 +64,11 @@ yout = y.';
 tau = tol * max(norm(y, 'inf'), 1);
 
 %  Initialize root detector
-eventFunc = 'MagnitudeEvent';
+eventFunc = 'EclipseEvent';
 desiredValue  = 6890;
 numPoints = 5;
 rootOrder = 3;
-oldEventValue = feval(eventFunc,y0,desiredValue);
+oldEventValue = feval(eventFunc,t,y0,desiredValue);
 E              = oldEventValue;
 time(1,1) = t0;
 bracketTimes = [];
@@ -103,15 +103,15 @@ while (t < tfinal) & (h >= hmin) &~done
         yout = [yout; y.'];
         step = step + 1;
         
-        E = [E; feval(eventFunc,y,desiredValue)];
+        E = [E; feval(eventFunc,t,y,desiredValue)];
         
         
         %----- Update function value data
         if step == 1
-            newEventValue = feval(eventFunc,y,desiredValue);
+            newEventValue = feval(eventFunc,t,y,desiredValue);
         else
             oldEventValue = newEventValue;
-            newEventValue = feval(eventFunc,y,desiredValue);
+            newEventValue = feval(eventFunc,t,y,desiredValue);
         end
         
         %----- Update interpolation data
@@ -126,7 +126,7 @@ while (t < tfinal) & (h >= hmin) &~done
         %-----  Perform root detection
         if oldEventValue*newEventValue < 0
             %  Check to see if the function changes sign
-            bracketTimes  = [bracketTimes;  tout(step-1)  tout(step)];
+            bracketTimes  = [bracketTimes;  tout(step)  tout(step+1)];
             bracketValues = [bracketValues; oldEventValue newEventValue];
         else
             %  Check roots of interpolating polyomial to see if a root may have
