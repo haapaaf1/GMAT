@@ -35,6 +35,7 @@
 
 // Forward references for GMAT core objects
 class Moderator;
+class GroundStation;
 
 class GMAT_API MeasurementModel : public GmatBase
 {

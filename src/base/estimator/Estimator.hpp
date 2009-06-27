@@ -42,6 +42,8 @@
 #include "laslv.h"
 // Singular value decomposition
 #include "lasvd.h"
+// Ground Station class
+#include "GroundStation.hpp"
 
 using namespace la;
 
@@ -397,8 +399,7 @@ protected:
    std::vector<Integer> solveForLengths;
 
    /// Measurement models used in the estimation
-   std::vector<MeasurementModel*>
-                        measModels;
+   //std::vector<MeasurementModel*>  measModels;
 
    /// Generic estimator parameters.
    enum
@@ -409,7 +410,7 @@ protected:
       // DJC additions
       PropagatorName,
       ParticipantNames,
-      MeasurementModels,
+      //MeasurementModels,
       SolveForParameters,
       variableNamesID,
       maxIterationsID,

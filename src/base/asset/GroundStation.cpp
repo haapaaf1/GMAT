@@ -26,21 +26,22 @@
 //#define DEBUG_INIT
 //#define TEST_GROUNDSTATION
 
-
 //---------------------------------
 // static data
 //---------------------------------
 
 /// Labels used for the ground station parameters.
-//const std::string 
-//GroundStation::PARAMETER_TEXT[GroundStationParamCount - BodyFixedPointParamCount] =
-//   {
-//   };
-//
-//const Gmat::ParameterType 
-//GroundStation::PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount] =
-//   {
-//   };
+const std::string 
+GroundStation::PARAMETER_TEXT[GroundStationParamCount - BodyFixedPointParamCount] =
+{
+    "MeasurementModel"
+};
+
+const Gmat::ParameterType 
+GroundStation::PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount] =
+{
+    Gmat::OBJECT_TYPE,
+};
 
 
 
@@ -132,6 +133,67 @@ GmatBase* GroundStation::Clone() const
    return new GroundStation(*this);
 }
 
+//------------------------------------------------------------------------------
+//  GmatBase* GetRefObject(const Gmat::ObjectType type,
+//                                  const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * This method returns a pointer to a desired GmatBase object.
+ *
+ * @param <type> Object type of the requested object.
+ * @param <name> String name of the requested object.
+ *
+ * @return  A pointer to a GmatBase object.
+ */
+//------------------------------------------------------------------------------
+GmatBase* GroundStation::GetRefObject(const Gmat::ObjectType type,
+                                  const std::string &name)
+{
+   GmatBase* retval = NULL;
+
+   if (type == Gmat::MEASUREMENT_MODEL)
+   {
+         if (measModel->GetName() == name)
+         {
+            retval = (GmatBase*)measModel;
+         }
+   }
+
+   if (retval != NULL)
+      return retval;
+   return BodyFixedPoint::GetRefObject(type, name);
+}
+
+//------------------------------------------------------------------------------
+//  bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//                                     const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * This method returns a pointer to a desired GmatBase object.
+ *
+ * @param <obj>  Pointer to object
+ * @param <type> Object type of the object.
+ * @param <name> String name of the object.
+ *
+ * @return  A pointer to a GmatBase object.
+ */
+//------------------------------------------------------------------------------
+bool GroundStation::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name)
+{
+    bool retval = false;
+
+    // @TODO: This will overrite the measurement model object pointer
+    // if there is more than one measurement model assigned in the
+    // user script
+    if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+    {
+        measModel = (MeasurementModel*)obj;
+        retval = true;
+    }
+
+   return retval;
+}
 
 ///------------------------------------------------------------------------------
 /**
@@ -259,7 +321,7 @@ const std::string& GroundStation::GetGeneratingString(Gmat::WriteMode mode,
 
    // Crank up data precision so we don't lose anything
    data.precision(GetDataPrecision());   
-   std::string preface = "", nomme;
+   std::string preface = "", nomeasModele;
    
    if ((mode == Gmat::SCRIPTING) || (mode == Gmat::OWNED_OBJECT) ||
        (mode == Gmat::SHOW_SCRIPT))
@@ -268,36 +330,36 @@ const std::string& GroundStation::GetGeneratingString(Gmat::WriteMode mode,
       inMatlabMode = true;
    
    if (useName != "")
-      nomme = useName;
+      nomeasModele = useName;
    else
-      nomme = instanceName;
+      nomeasModele = instanceName;
    
    if ((mode == Gmat::SCRIPTING) || (mode == Gmat::SHOW_SCRIPT))
    {
       std::string tname = typeName;
-      data << "Create " << tname << " " << nomme << ";\n";
+      data << "Create " << tname << " " << nomeasModele << ";\n";
       preface = "GMAT ";
    }
    else if (mode == Gmat::EPHEM_HEADER)
    {
-      data << typeName << " = " << "'" << nomme << "';\n";
+      data << typeName << " = " << "'" << nomeasModele << "';\n";
       preface = "";
    }
    
-   nomme += ".";
+   nomeasModele += ".";
    
    if (mode == Gmat::OWNED_OBJECT) 
    {
       preface = prefix;
-      nomme = "";
+      nomeasModele = "";
    }
    
-   preface += nomme;
+   preface += nomeasModele;
    WriteParameters(mode, preface, data);
    
    generatingString = data.str();
    
-   // Then call the parent class method for preface and inline comments
+   // Then call the parent class method for preface and inline comeasModelents
    return BodyFixedPoint::GetGeneratingString(mode, prefix, useName);
 }
 
@@ -352,17 +414,17 @@ void GroundStation::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
 }
 
 //------------------------------------------------------------------------------
-// void SetMeasurementModel(Measurement* mm)
+// void SetMeasurementModel(Measurement* measModel)
 //------------------------------------------------------------------------------
 /**
  * Set the measurement model for this ground station.
  *
- * @param mm The measurement model that is assigned.
+ * @param measModel The measurement model that is assigned.
  */
 //------------------------------------------------------------------------------
-void GroundStation::SetMeasurementModel(MeasurementModel* mm)
+void GroundStation::SetMeasurementModel(MeasurementModel* measModel)
 {
-    measModel = mm;
+    measModel = measModel;
 }
 
 //------------------------------------------------------------------------------
@@ -463,6 +525,44 @@ void GroundStation::SetFlattening(Real &flat)
 Real GroundStation::GetFlattening()
 {
     return flattening;
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetTheMeasurements(const SpacePoint* theSpacePoint, const A1Mjd &atTime)
+//------------------------------------------------------------------------------
+bool GroundStation::GetTheMeasurements(SpacePoint* theSpacePoint,
+                                          const A1Mjd &atTime,
+                                          LaGenMatDouble &theMeasurements)
+{
+    return (measModel)->GetTheMeasurements(theSpacePoint,atTime,
+                                           theMeasurements);
+}
+
+//------------------------------------------------------------------------------
+// bool GetThePartials(const std::string &param, const Integer &size,
+//                     const SpacePoint* theSpacePoint, const A1Mjd &atTime)
+//------------------------------------------------------------------------------
+bool GroundStation::GetThePartials(const std::string &param,
+                                      SpacePoint* theSpacePoint,
+                                      const A1Mjd &atTime,
+                                      LaGenMatDouble &theDerivatives)
+{
+    return (measModel)->GetThePartials((measModel)->GetDependentParamID(param), theSpacePoint,
+                                       atTime, theDerivatives);
+}
+
+//------------------------------------------------------------------------------
+// bool GetThePartials(const Integer paramID, const Integer &size,
+//                     const SpacePoint* theSpacePoint, const A1Mjd &atTime)
+//------------------------------------------------------------------------------
+bool GroundStation::GetThePartials(const Integer &paramID,
+                                   SpacePoint* theSpacePoint,
+                                   const A1Mjd &atTime,
+                                   LaGenMatDouble &theDerivatives)
+{
+    return (measModel)->GetThePartials(paramID,theSpacePoint,atTime,
+                                     theDerivatives);
 }
 
 

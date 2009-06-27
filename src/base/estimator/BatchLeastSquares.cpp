@@ -658,9 +658,9 @@ void BatchLeastSquares::Accumulate()
    Integer m = 0;
     
    // Compute observed minus computed measurement
-   for (std::vector<MeasurementModel*>::iterator i = measModels.begin(); i != measModels.end(); ++i)
-   {
-       MeasurementModel *currentMM = *i;
+   //for (std::vector<MeasurementModel*>::iterator i = measModels.begin(); i != measModels.end(); ++i)
+   //{
+       MeasurementModel *currentMM = theGroundStation->GetMeasurementModel();
        m = currentMM->GetNumMeasurements();
        LaVectorDouble ycomputed(m);
 
@@ -698,11 +698,10 @@ void BatchLeastSquares::Accumulate()
 	{
 	    obIndex = 0;
 	    moreData = false;
-	    break;
 	}	
    
    
-    }
+    //}
 
    if (moreData == true)
        currentState = PROPAGATING;

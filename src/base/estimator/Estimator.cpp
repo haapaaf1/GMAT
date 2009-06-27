@@ -41,7 +41,7 @@ Estimator::PARAMETER_TEXT[EstimatorParamCount - GmatBaseParamCount] =
    "EstimatorTextFile",
    "Propagator",
    "Participants",
-   "Measurements",
+   //"Measurements",
    "SolveFor",
    // What is needed here?
    "Variables",
@@ -58,7 +58,7 @@ Estimator::PARAMETER_TYPE[EstimatorParamCount - GmatBaseParamCount] =
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
    Gmat::STRINGARRAY_TYPE,
-   Gmat::STRINGARRAY_TYPE,
+   //Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::INTEGER_TYPE,
@@ -164,9 +164,9 @@ Estimator::Estimator(const Estimator &est) :
    propagator              (NULL),
    participantNames        (est.participantNames),
    participants            (est.participants),
-   measModelNames          (est.measModelNames),
-   solveForParms           (est.solveForParms),
-   measModels              (est.measModels)
+//   measModelNames          (est.measModelNames),
+   solveForParms           (est.solveForParms)
+   //measModels              (est.measModels)
 {
    #ifdef DEBUG_ESTIMATOR_INIT
       MessageInterface::ShowMessage(
@@ -321,15 +321,15 @@ bool Estimator::Initialize()
 	    // TODO: Make this work for any number of ground stations
 	    // We found an observer so increment observerCount
 	    observerCount++;
-	    //theGroundStation = (GroundStation*)*j;
+	    GroundStation *theGroundStation = (GroundStation*)*j;
 
 	    // TODO: Somewhere in the script when ground stations are set up
 	    // a pointer to a measurement model needs to be instantiated and
 	    // assigned. Here, I assume this pointer exists and I assign the
 	    // ground station pointer to that measurement model so it can be
 	    // initialized.
-	    // theGroundStation->GetMeasurementModel()->SetGroundStation(theGroundStation);
-	    // theGroundStation->GetMeasurementModel()->Initialize();
+	    theGroundStation->GetMeasurementModel()->SetGroundStation(theGroundStation);
+	    theGroundStation->GetMeasurementModel()->Initialize();
 	}
    }
 
@@ -350,7 +350,7 @@ bool Estimator::Initialize()
       else
          textFile.open(estimatorTextFile.c_str(), std::ios::app);
       if (!textFile.is_open())
-         throw EstimatorException("Error opening targeter text file " +
+         throw EstimatorException("Error opening estimator text file " +
                                estimatorTextFile);
       textFile.precision(16);
       WriteToTextFile();
@@ -878,11 +878,11 @@ bool Estimator::SetStringParameter(const Integer id, const std::string &value)
       return true;
    }
 
-   if (id == MeasurementModels)
-   {
-      measModelNames.push_back(value);
-      return true;
-   }
+   //if (id == MeasurementModels)
+   //{
+   //   measModelNames.push_back(value);
+   //   return true;
+   //}
 
    if (id == SolveForParameters)
    {
@@ -982,8 +982,8 @@ const StringArray& Estimator::GetStringArrayParameter(const Integer id) const
       return participantNames;
    }
 
-   if (id == MeasurementModels)
-      return measModelNames;
+   //if (id == MeasurementModels)
+   //   return measModelNames;
 
    return GmatBase::GetStringArrayParameter(id);
 }
@@ -1051,14 +1051,15 @@ GmatBase* Estimator::GetRefObject(const Gmat::ObjectType type,
 
 
 //------------------------------------------------------------------------------
-//  GmatBase* GetRefObject(const Gmat::ObjectType type,
-//                                  const std::string &name)
+//  bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//                                     const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * This method returns a pointer to a desired GmatBase object.
  *
- * @param <type> Object type of the requested object.
- * @param <name> String name of the requested object.
+ * @param <obj>  Pointer to object
+ * @param <type> Object type of the object.
+ * @param <name> String name of the object.
  *
  * @return  A pointer to a GmatBase object.
  */
