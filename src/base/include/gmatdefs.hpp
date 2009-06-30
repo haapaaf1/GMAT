@@ -143,6 +143,7 @@ namespace Gmat
       BODY_FIXED_POINT,
       // Estimation types
       MEASUREMENT_MODEL,
+      CORE_MEASUREMENT,    // For the measurement primitives
       UNKNOWN_OBJECT
    };
 

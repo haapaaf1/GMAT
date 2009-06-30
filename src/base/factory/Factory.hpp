@@ -21,6 +21,7 @@
 #define Factory_hpp
 
 #include "gmatdefs.hpp"
+#include "EstimationDefs.hpp"
 #include "GmatBase.hpp"
 
 // Forward references
@@ -47,6 +48,9 @@ class CoordinateSystem;
 class MathNode;
 class Attitude;
 class SpacePoint;
+
+class MeasurementModel;
+class CoreMeasurement;
 
 class GMAT_API Factory
 {
@@ -101,6 +105,11 @@ public:
    virtual MathNode*        CreateMathNode(const std::string &ofType,
                                            const std::string &withName = "");
    virtual Attitude*        CreateAttitude(const std::string &ofType,
+                                           const std::string &withName = "");
+   virtual MeasurementModel*
+                            CreateMeasurementModel(const std::string &ofType,
+                                           const std::string &withName = "");
+   virtual CoreMeasurement* CreateMeasurement(const std::string &ofType,
                                            const std::string &withName = "");
 
    

@@ -46,3 +46,16 @@ MeasurementModel& MeasurementModel::operator=(const MeasurementModel &mm)
 
    return *this;
 }
+
+const MeasurementData & MeasurementModel::CalculateMeasurement()
+{
+
+}
+
+
+
+const MeasurementData & MeasurementModel::CalculateMeasurementDerivatives()
+{
+}
+
+

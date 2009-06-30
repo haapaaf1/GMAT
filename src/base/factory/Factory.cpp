@@ -677,6 +677,65 @@ Attitude* Factory::CreateAttitude(const std::string &ofType,
 
 
 //------------------------------------------------------------------------------
+// MeasurementModel *CreateMeasurementModel(const std::string & ofType,
+//    const std::string & withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates a MeasurementModel object.
+ *
+ * Must be implemented by derived classes that create MeasurementModel objects -
+ * in that case, it returns a new MeasurementModel object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type MeasurementModel.
+ *
+ * @param <ofType>   specific type of MeasurementModel object to create.
+ * @param <withName> name to give to the newly created MeasurementModel object.
+ *
+ * @return pointer to a new MeasurementModel object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type MeasurementModel.
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* Factory::CreateMeasurementModel(const std::string & ofType,
+                                         const std::string & withName)
+{
+   throw FactoryException
+   ("Factory::CreateMeasurementModel() must be implemented by a "
+         "MeasurementModelFactory\n");
+}
+
+
+//------------------------------------------------------------------------------
+// CoreMeasurement* Factory::CreateMeasurement(const std::string & ofType,
+//    const std::string & withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates a fundamental measurement object.
+ *
+ * Must be implemented by derived classes that create CoreMeasurement objects -
+ * in that case, it returns a new CoreMeasurement object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type CoreMeasurement.
+ *
+ * @param <ofType>   specific type of CoreMeasurement object to create.
+ * @param <withName> name to give to the newly created CoreMeasurement object.
+ *
+ * @return pointer to a new CoreMeasurement object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type CoreMeasurement.
+ */
+//------------------------------------------------------------------------------
+CoreMeasurement* Factory::CreateMeasurement(const std::string & ofType,
+                                        const std::string & withName)
+{
+   throw FactoryException
+   ("Factory::CreateMeasurement() must be implemented by a MeasurementFactory\n");
+}
+
+
+//------------------------------------------------------------------------------
 //  StringArray GetListOfCreatableObjects(void) const
 //------------------------------------------------------------------------------
 /**

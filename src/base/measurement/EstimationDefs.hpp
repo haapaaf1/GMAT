@@ -27,6 +27,9 @@
 
 #include "gmatdefs.hpp"
 
+// Temporary while we figure out the measurement model classes
+#define CoreMeasurement GeometricMeasurement
+
 namespace Gmat
 {
    /// Identifiers for the known measurement data types

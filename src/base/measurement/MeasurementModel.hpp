@@ -21,6 +21,8 @@
 #define MeasurementModel_hpp
 
 #include "GmatBase.hpp"
+#include "EstimationDefs.hpp"
+#include "GeometricMeasurement.hpp"
 
 class MeasurementModel : public GmatBase
 {
@@ -30,9 +32,14 @@ public:
    MeasurementModel(const MeasurementModel &mm);
    MeasurementModel& operator=(const MeasurementModel &mm);
 
+   virtual const MeasurementData &CalculateMeasurement();
+   virtual const MeasurementData &CalculateMeasurementDerivatives();
+
 protected:
-   // Accumulated list of participants used in the contained measurements
+   /// Accumulated list of participants used in the contained measurement
    StringArray          participants;
+   /// The core measurement component
+   CoreMeasurement      *measurement;
 };
 
 #endif /* MeasurementModel_hpp */

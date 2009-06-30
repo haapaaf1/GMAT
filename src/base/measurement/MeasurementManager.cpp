@@ -19,6 +19,10 @@
 
 #include "MeasurementManager.hpp"
 
+Integer MeasurementManager::AddMeasurement(CoreMeasurement *meas)
+{
+}
+
 //------------------------------------------------------------------------------
 // MeasurementManager()
 //------------------------------------------------------------------------------

@@ -24,6 +24,11 @@
 #include "EstimationDefs.hpp"
 #include "MeasurementModel.hpp"
 
+// We'll want something like this eventually:
+//#include "MeasurementBase.hpp"
+// But for now we go with this:
+#include "GeometricMeasurement.hpp"
+
 /**
  * The mediator between the estimators/simulator and measurement models. 
  */
@@ -36,6 +41,7 @@ public:
    MeasurementManager& operator=(const MeasurementManager &mm);
    
    Integer Calculate(const Integer measurementToCalc);
+   Integer AddMeasurement(CoreMeasurement *meas);
    const MeasurementData* GetMeasurement(const Integer measurementToGet);
    bool WriteMeasurement(const Integer measurementToWrite);
 

@@ -335,6 +335,8 @@ OBJECTS = \
     math/Transpose.o \
     measurement/MeasurementManager.o \
     measurement/MeasurementModel.o \
+    measurement/GeometricMeasurement.o \
+    measurement/RangeMeasurement.o \
     parameter/AngularParameters.o \
     parameter/Array.o \
     parameter/ArrayWrapper.o \

@@ -116,6 +116,8 @@ HEADERS = -I../base/include \
           -I../base/math \
           -I../base/coordsystem \
           -I../base/plugin \
+          -I../base/measurement \
+          -I../base/estimator \
           -Iinclude \
           -Iinclude/bitmaps \
           -Iinclude/il \
