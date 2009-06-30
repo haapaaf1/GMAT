@@ -254,6 +254,7 @@ OBJECTS = \
     factory/FunctionFactory.o \
     factory/HardwareFactory.o \
     factory/MathFactory.o \
+    factory/MeasurementModelFactory.o \
     factory/ParameterFactory.o \
     factory/PhysicalModelFactory.o \
     factory/PropagatorFactory.o \

@@ -26,11 +26,18 @@
 
 
 /// Descriptor here
-class MeasurementModelFactory : Factory
+class MeasurementModelFactory : public Factory
 {
 public:
    MeasurementModelFactory();
    virtual ~MeasurementModelFactory();
+
+   MeasurementModelFactory(StringArray createList);
+   MeasurementModelFactory(const MeasurementModelFactory& fact);
+   MeasurementModelFactory& operator= (const MeasurementModelFactory& fact);
+
+   MeasurementModel *CreateMeasurementModel(const std::string &ofType,
+         const std::string &withName = "");
 };
 
 #endif /* MeasurementModelFactory_hpp */

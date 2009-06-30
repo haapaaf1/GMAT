@@ -32,6 +32,8 @@ public:
    MeasurementModel(const MeasurementModel &mm);
    MeasurementModel& operator=(const MeasurementModel &mm);
 
+   virtual GmatBase* Clone() const;
+
    virtual const MeasurementData &CalculateMeasurement();
    virtual const MeasurementData &CalculateMeasurementDerivatives();
 
@@ -40,6 +42,24 @@ protected:
    StringArray          participants;
    /// The core measurement component
    CoreMeasurement      *measurement;
+   ///
+
+   enum
+   {
+       MeasurementType = GmatBaseParamCount,
+       ParticipantNames,
+       Bias,
+       NoiseSigma,
+       TimeConstant,
+       MeasurementModelParamCount
+   };
+
+   // Start with the parameter IDs and associates strings
+   static const std::string
+                PARAMETER_TEXT[MeasurementModelParamCount - GmatBaseParamCount];
+   static const Gmat::ParameterType
+                PARAMETER_TYPE[MeasurementModelParamCount - GmatBaseParamCount];
+
 };
 
 #endif /* MeasurementModel_hpp */

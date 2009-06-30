@@ -19,6 +19,25 @@
 
 #include "MeasurementModel.hpp"
 
+const std::string MeasurementModel::PARAMETER_TEXT[] =
+{
+   "Type",
+   "Participants",
+   "Bias",
+   "NoiseSigma",
+   "TimeConstant"
+};
+
+
+const Gmat::ParameterType MeasurementModel::PARAMETER_TYPE[] =
+{
+   Gmat::STRING_TYPE,
+   Gmat::OBJECT_TYPE,
+   Gmat::REAL_TYPE,
+   Gmat::REAL_TYPE,
+   Gmat::REAL_TYPE
+};
+
 MeasurementModel::MeasurementModel(const std::string &nomme) :
    GmatBase       (Gmat::MEASUREMENT_MODEL, "MeasurementModel", nomme)
 {
@@ -59,3 +78,7 @@ const MeasurementData & MeasurementModel::CalculateMeasurementDerivatives()
 }
 
 
+GmatBase *MeasurementModel::Clone() const
+{
+   return new MeasurementModel(*this);
+}

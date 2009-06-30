@@ -43,6 +43,9 @@
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
 
+#include "MeasurementModelFactory.hpp"
+
+
 #include "NoOp.hpp"
 #include "GravityField.hpp"
 #include "TimeSystemConverter.hpp" // for SetLeapSecsFileReader(), SetEopFile()
@@ -184,7 +187,13 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 
       theFactoryManager->RegisterFactory(new CelestialBodyFactory());
       theFactoryManager->RegisterFactory(new AssetFactory());
-      
+
+      // Estimator factory classes
+      theFactoryManager->RegisterFactory(new MeasurementModelFactory());
+//      theFactoryManager->RegisterFactory(new MeasurementFactory());
+//      theFactoryManager->RegisterFactory(new EstimatorModelFactory());
+//      theFactoryManager->RegisterFactory(new EstimatorCommandModelFactory());
+
       // Create publisher
       
       thePublisher = Publisher::Instance();
