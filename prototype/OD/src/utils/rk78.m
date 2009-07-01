@@ -1,4 +1,4 @@
-function [tout, yout, E, bracketTimes,bracketValues] = rk78(F, t0, tfinal, y0, tol)
+function [tout, yout, E, bracketTimes,bracketValues,dyout] = rk78(F, t0, tfinal, y0, tol)
 
 
 % ODE78  Integrates a system of ordinary differential equations using
@@ -72,6 +72,7 @@ oldEventValue = feval(eventFunc,t,y0,desiredValue);
 E              = oldEventValue;
 time(1,1) = t0;
 bracketTimes = [];
+dyout        = 0;
 bracketValues = [];
 interpTimes   = time(1,1);
 interpVals    = oldEventValue;
@@ -101,10 +102,10 @@ while (t < tfinal) & (h >= hmin) &~done
         y = y + h*f*chi;
         tout = [tout; t];
         yout = [yout; y.'];
+        acc   = feval(F, t, y)
+        dyout = [dyout; norm(acc(1:3,1)) ];
         step = step + 1;
-        
         E = [E; feval(eventFunc,t,y,desiredValue)];
-        
         
         %----- Update function value data
         if step == 1
@@ -128,30 +129,13 @@ while (t < tfinal) & (h >= hmin) &~done
             %  Check to see if the function changes sign
             bracketTimes  = [bracketTimes;  tout(step)  tout(step+1)];
             bracketValues = [bracketValues; oldEventValue newEventValue];
-        else
-            %  Check roots of interpolating polyomial to see if a root may have
-            %  been skipped.
-            
-%             if size(interpTimes,1) > rootOrder + 1;
-%                 meanTime = mean(interpTimes);
-%                 coeff  = polyfit(interpTimes-meanTime,interpVals/max(interpVals),rootOrder);
-%                 croots = roots(coeff) + meanTime;
-%                 for j = 1:rootOrder
-%                     if ~imag(croots(j))
-%                         if croots(j) > tout(step-1) & croots(j) < tout(step)
-%                             bracketTimes  = [bracketTimes; tout(step-1) tout(step)];
-%                             bracketValues = [bracketValues; oldEventValue newEventValue];
-%                         end
-%                     end
-%                 end
-%             end
-         end
+        end
         
     end
     
     % Update the step size
     if delta ~= 0.0
-        h = min(hmax, 0.8*h*(tau/delta)^pow);
+        h = min(hmax, 0.95*h*(tau/delta)^pow);
     end
     
 end;
