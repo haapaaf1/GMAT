@@ -44,6 +44,8 @@
 #include "MathFactory.hpp"
 
 #include "MeasurementModelFactory.hpp"
+#include "EstimatorFactory.hpp"
+#include "EstimatorCommandFactory.hpp"
 
 
 #include "NoOp.hpp"
@@ -191,8 +193,8 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       // Estimator factory classes
       theFactoryManager->RegisterFactory(new MeasurementModelFactory());
 //      theFactoryManager->RegisterFactory(new MeasurementFactory());
-//      theFactoryManager->RegisterFactory(new EstimatorModelFactory());
-//      theFactoryManager->RegisterFactory(new EstimatorCommandModelFactory());
+      theFactoryManager->RegisterFactory(new EstimatorFactory());
+      theFactoryManager->RegisterFactory(new EstimatorCommandFactory());
 
       // Create publisher
       

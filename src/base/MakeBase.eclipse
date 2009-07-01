@@ -195,6 +195,8 @@ OBJECTS = \
     command/PenUp.o \
     command/Propagate.o \
     command/Report.o \
+    command/RunSolver.o \
+    command/RunSimulator.o \
     command/Save.o \
     command/SolverBranchCommand.o \
     command/Stop.o \
@@ -231,6 +233,9 @@ OBJECTS = \
     coordsystem/TOEEqAxes.o \
     coordsystem/TopocentricAxes.o \
     coordsystem/TrueOfDateAxes.o \
+    estimator/Simulator.o \
+    estimator/EstimatorCommandFactory.o \
+    estimator/EstimatorFactory.o \
     executive/Moderator.o \
     executive/PlotInterface.o \
     executive/PlotReceiver.o \

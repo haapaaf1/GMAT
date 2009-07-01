@@ -48,6 +48,10 @@ public:
       PERTURBING,
       ITERATING,
       CALCULATING,
+      ESTIMATING,
+      SIMULATING,
+      PROPAGATING,
+      LOCATING,
       CHECKINGRUN,
       RUNEXTERNAL,
       RUNSPECIAL,             // Run initial state or solution w/o solving

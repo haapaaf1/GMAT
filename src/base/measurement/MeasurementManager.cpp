@@ -19,10 +19,6 @@
 
 #include "MeasurementManager.hpp"
 
-Integer MeasurementManager::AddMeasurement(CoreMeasurement *meas)
-{
-}
-
 //------------------------------------------------------------------------------
 // MeasurementManager()
 //------------------------------------------------------------------------------
@@ -137,4 +133,27 @@ bool MeasurementManager::WriteMeasurement(const Integer measurementToWrite)
    bool wasWritten = false;
 
    return wasWritten;
+}
+
+
+Integer MeasurementManager::AddMeasurement(CoreMeasurement *meas)
+{
+   Integer measurementIndex = -1;
+   return measurementIndex;
+}
+
+
+bool MeasurementManager::CalculateMeasurements()
+{
+   return false;
+}
+
+bool MeasurementManager::CalculateMeasurementsAndDerivatives()
+{
+   return false;
+}
+
+bool MeasurementManager::WriteMeasurements()
+{
+   return false;
 }

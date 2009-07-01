@@ -40,6 +40,10 @@ public:
    MeasurementManager(const MeasurementManager &mm);
    MeasurementManager& operator=(const MeasurementManager &mm);
    
+   bool CalculateMeasurements();
+   bool CalculateMeasurementsAndDerivatives();
+   bool WriteMeasurements();
+
    Integer Calculate(const Integer measurementToCalc);
    Integer AddMeasurement(CoreMeasurement *meas);
    const MeasurementData* GetMeasurement(const Integer measurementToGet);
