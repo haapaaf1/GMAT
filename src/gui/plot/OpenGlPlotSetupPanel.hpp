@@ -24,6 +24,7 @@
 #include "GuiItemManager.hpp"
 #include "OpenGlPlot.hpp"
 #include "RgbColor.hpp"
+#include "ColorTypes.hpp"
 
 class OpenGlPlotSetupPanel: public GmatPanel
 {
