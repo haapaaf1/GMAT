@@ -27,20 +27,6 @@ classdef GroundStationRange < GroundStationMeasurement
 
         end % Spacecraft
              
-        %----- Get the data type Id, given the string representation.
-        function Id = GetDataTypeId(Sat,name);
-           
-            switch name
-                case 'Range'
-                    Id = 1001;
-                case 'STM'
-                    Id = 1002;
-                otherwise
-                    Id = [];
-            end
-
-        end % GetParamId
-        
         %----- CheckFeasiblity
         function [isFeasible] = CheckFeasibility(Meas)
                          

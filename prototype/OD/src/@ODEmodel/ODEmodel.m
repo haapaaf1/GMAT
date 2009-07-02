@@ -141,7 +141,7 @@ classdef ODEmodel < handle
             %  Calulate terms associated with point mass perturbations
             if size(propagator.FM.PointMassIndeces,2) > 1
                 xdot_PM = zeros(3,1);
-                not working yet!
+                %not working yet!
                 C_PM    = zeros(3,3);
                 [DeltaAT] = MJD2TimeCoeff(jd_ref);
                 DeltaTT   = DeltaAT + 32.184;

@@ -21,7 +21,7 @@ ODSat.Cd      = 1.8;
 
 %------  Define the batch least squares solver
 MauiData                = Create('GroundStationRaDec','MauiData');
-MauiData.Filename       = 'c:\LEOMauiRADec.mat';
+MauiData.Filename       = 'LEOMauiRADec.mat';
 MauiData.AddDataType{1} = {'Range','ODSat','Maui'};
 
 %------  Define the batch least squares solver

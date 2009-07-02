@@ -46,9 +46,7 @@ classdef MeasurementSimulator < handle
             %  Calculate vector of measurement times
             dt = Simulator.MeasurementTimeStep/86400;
             Simulator.SimulationEpochs = [Simulator.InitialEpoch:dt:Simulator.FinalEpoch]';
-            
-            
-            
+                      
         end % Initialize
         
     end % methods

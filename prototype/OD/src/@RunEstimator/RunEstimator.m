@@ -109,7 +109,7 @@ classdef RunEstimator < handle
                         invaprioriCov       = inv(aprioriCov);
                         x0bar = Estimator.ESV;
                     else
-                       %f x0bar = x0bar - Estimator.ESV;
+                        x0bar = x0bar - Estimator.ESV;
                     end
                     infoMat  = invaprioriCov;
                     residMat = invaprioriCov*x0bar;
@@ -122,6 +122,7 @@ classdef RunEstimator < handle
                 %----- Perform the accumulation
                 %------------------------------------------------------
                 residCount = 0;
+
                 resid      = [];
                 for i = 1:numObs
 
@@ -136,7 +137,6 @@ classdef RunEstimator < handle
                     residMat    = residMat + Hi'*newResid;
 
                 end
-
                 %------------------------------------------------------
                 %  Solve the normal equations and update the ESV
                 %------------------------------------------------------

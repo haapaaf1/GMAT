@@ -76,6 +76,8 @@ dyout        = 0;
 bracketValues = [];
 interpTimes   = time(1,1);
 interpVals    = oldEventValue;
+attempt = 0;
+maxattempt = 1;
 
 % The main loop
 done = 0; step = 0; 
@@ -98,11 +100,12 @@ while (t < tfinal) & (h >= hmin) &~done
     
     % Update the solution only if the error is acceptable
     if delta <= tau
+
         t = t + h;
         y = y + h*f*chi;
         tout = [tout; t];
         yout = [yout; y.'];
-        acc   = feval(F, t, y)
+        acc   = feval(F, t, y);
         dyout = [dyout; norm(acc(1:3,1)) ];
         step = step + 1;
         E = [E; feval(eventFunc,t,y,desiredValue)];
@@ -130,6 +133,10 @@ while (t < tfinal) & (h >= hmin) &~done
             bracketTimes  = [bracketTimes;  tout(step)  tout(step+1)];
             bracketValues = [bracketValues; oldEventValue newEventValue];
         end
+        attempt = 0;
+    else
+        
+        attempt = attempt + 1;
         
     end
     
@@ -138,5 +145,9 @@ while (t < tfinal) & (h >= hmin) &~done
         h = min(hmax, 0.95*h*(tau/delta)^pow);
     end
     
+    if attempt > maxattempt
+        maxattempt = attempt;
+    end
+    
 end;
-
+maxattempt
