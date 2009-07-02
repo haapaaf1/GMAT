@@ -17,6 +17,7 @@
 
 #include "GmatPanel.hpp"
 #include "Parameter.hpp"
+#include "MissionTreeItemData.hpp"
 
 #ifdef __USE_STC_EDITOR__
 #include "Editor.hpp"
