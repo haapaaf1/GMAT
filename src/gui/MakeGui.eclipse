@@ -219,6 +219,7 @@ OBJECTS = \
     foundation/ShowScriptDialog.o \
     foundation/ShowSummaryDialog.o \
     foundation/SinglePathSetupPanel.o \
+    foundation/UserInputValidator.o \
     function/FunctionSetupPanel.o \
     function/MatlabFunctionSetupPanel.o \
     hardware/BurnThrusterPanel.o \
