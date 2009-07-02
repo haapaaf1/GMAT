@@ -68,13 +68,14 @@ MeasurementModel& MeasurementModel::operator=(const MeasurementModel &mm)
 
 const MeasurementData & MeasurementModel::CalculateMeasurement()
 {
-
+   return currentMeasurement;
 }
 
 
 
 const MeasurementData & MeasurementModel::CalculateMeasurementDerivatives()
 {
+   return currentMeasurement;
 }
 
 

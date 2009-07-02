@@ -42,7 +42,8 @@ protected:
    StringArray          participants;
    /// The core measurement component
    CoreMeasurement      *measurement;
-   ///
+   /// Current measurement data
+   MeasurementData      currentMeasurement;
 
    enum
    {
