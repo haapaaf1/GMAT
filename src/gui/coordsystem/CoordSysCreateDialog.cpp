@@ -118,7 +118,7 @@ void CoordSysCreateDialog::SaveData()
    #endif
    
    canClose = true;
-
+   
    std::string coordName = std::string(nameTextCtrl->GetValue().Trim().c_str());
    if (coordName == "")
    {
@@ -127,6 +127,9 @@ void CoordSysCreateDialog::SaveData()
       canClose = false;
       return;
    }
+   
+   if (!IsValidName(coordName))
+      return;
    
    //-----------------------------------------------------------------
    // check values from text field
