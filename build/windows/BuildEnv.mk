@@ -3,7 +3,7 @@
 
 # Flags used to control the build
 USE_MATLAB = 1
-USE_SPICE = 0
+USE_SPICE = 1
 USE_DEVIL = 0
 CONSOLE_APP = 0
 DEBUG_BUILD = 0
@@ -15,8 +15,9 @@ USE_STC_EDITOR = 1
 
 # GMAT application icon for Windows only
 # location of GmatIcon
-GMAT_ICON_RC = D:/Projects/GmatDev/src/gui/resource/GmatIcon.rc
-GMAT_ICON_O  = D:/Projects/GmatDev/src/gui/resource/GmatIcon.o
+GMAT_ICON_DIR = D:/Projects/GmatDev/src/gui/resource
+GMAT_ICON_RC = $(GMAT_ICON_DIR)/GmatIcon.rc
+GMAT_ICON_O  = $(GMAT_ICON_DIR)/GmatIcon.o
 
 # The Console app does not support MATLAB linkage or shared base libraries for now
 ifeq ($(CONSOLE_APP), 1)
@@ -43,7 +44,7 @@ endif
 ifeq ($(USE_SPICE), 1)
 SPICE_DIR = d:/cspice
 SPICE_INCLUDE = -I$(SPICE_DIR)/include
-SPICE_CPP_FLAGS = -D__cplusplus -D__USE_CSPICE__ $(SPICE_INCLUDE)
+SPICE_CPP_FLAGS = -D__USE_SPICE__ $(SPICE_INCLUDE)
 SPICE_LIB_DIR = $(SPICE_DIR)/lib
 SPICE_LIBRARIES = $(SPICE_LIB_DIR)/cspice.a
 else
@@ -67,7 +68,7 @@ endif
 # location of STC headers and libraries
 ifeq ($(USE_STC_EDITOR), 1)
 STC_CPP_FLAGS = -D__USE_STC_EDITOR__
-STC_LIBRARIES = -LD:/wxWidgets-2.8.9/lib -lwx_msw_stc-2.8
+STC_LIBRARIES = -LD:/wxWidgets-2.8.10/lib -lwx_msw_stc-2.8
 else
 STC_CPP_FLAGS =
 STC_LIBRARIES =
@@ -87,7 +88,11 @@ endif
 CPP = g++
 C = gcc
 FORTRAN = g77
+ifeq ($(USE_SPICE), 1)
+FORTRAN_LIB =
+else
 FORTRAN_LIB = -LC:/MinGW/lib -lg2c
+endif
 
 ifeq ($(PROFILE_BUILD), 1)
 PROFILE_FLAGS = -pg
