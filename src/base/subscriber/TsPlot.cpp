@@ -1180,24 +1180,28 @@ bool TsPlot::Distribute(const Real * dat, Integer len)
          MessageInterface::ShowMessage("TsPlot::Distribute() xval = %f\n", xval);
          #endif
          
-         //xval = dat[0]; // loj: temp code to test XY plot dat[0] is time
-         //MessageInterface::ShowMessage("TsPlot::Distribute() xval = %f\n", xval);
-         
          // get y params
          Rvector yvals = Rvector(mNumYParams);
          
          // put yvals in the order of parameters added
          for (int i=0; i<mNumYParams; i++)
          {
+            if (mYParams[i] == NULL)
+            {
+               MessageInterface::PopupMessage
+                  (Gmat::WARNING_,
+                   "*** WARNING *** The XYPlot named \"%s\" will not be shown.\n"
+                   "The parameter selected for Y Axis is NULL\n",
+                   GetName().c_str());
+               return true;
+            }
+            
             yvals[i] = mYParams[i]->EvaluateReal();
             
             #if DEBUG_TSPLOT_UPDATE
             MessageInterface::ShowMessage
                ("TsPlot::Distribute() yvals[%d] = %f\n", i, yvals[i]);
             #endif
-            
-            //yvals[i] = dat[1]; //loj: temp code to test XY plot dat[1] is pos X
-            //MessageInterface::ShowMessage("TsPlot::Distribute() yvals = %f\n", yvals[i]);
          }
          
          // update xy plot
@@ -1205,15 +1209,17 @@ bool TsPlot::Distribute(const Real * dat, Integer len)
          if (mIsTsPlotWindowSet)
          {
             mNumDataPoints++;
-                
+            
             if ((mNumDataPoints % mDataCollectFrequency) == 0)
             {
                mNumDataPoints = 0;
                mNumCollected++;
                bool update = (mNumCollected % mUpdatePlotFrequency) == 0;
                
-               //MessageInterface::ShowMessage
-               //   ("TsPlot::Distribute() calling PlotInterface::UpdateTsPlot()\n");
+               #if DEBUG_TSPLOT_UPDATE > 1
+               MessageInterface::ShowMessage
+                  ("TsPlot::Distribute() calling PlotInterface::UpdateTsPlot()\n");
+               #endif
                
                return PlotInterface::UpdateTsPlot(instanceName, mOldName, xval, yvals,
                                                   mPlotTitle, mXAxisTitle, mYAxisTitle,
