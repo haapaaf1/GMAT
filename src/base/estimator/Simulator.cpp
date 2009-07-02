@@ -34,6 +34,12 @@ Simulator::~Simulator()
 
 Simulator* Simulator::operator =(const Simulator & sim)
 {
+   if (&sim != this)
+   {
+
+   }
+   
+   return this;
 }
 
 
