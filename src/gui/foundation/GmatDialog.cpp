@@ -56,6 +56,8 @@ GmatDialog::GmatDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    : wxDialog(parent, id, title, pos, size, style, title)
 {
    mObject = obj;
+   UserInputValidator::SetObject(obj);
+   UserInputValidator::SetWindow(this);
    
    canClose = true;
    mDataChanged = false;
@@ -64,9 +66,10 @@ GmatDialog::GmatDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
+   UserInputValidator::SetGuiManager(theGuiManager);
    
    theParent = parent;
-    
+   
    theDialogSizer = new wxBoxSizer(wxVERTICAL);
    theButtonSizer = new wxBoxSizer(wxHORIZONTAL);
    
@@ -122,6 +125,15 @@ void GmatDialog::EnableUpdate(bool enable)
 bool GmatDialog::HasDataUpdated()
 {
    return mDataUpdated;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetCanClose(bool flag)
+//------------------------------------------------------------------------------
+void GmatDialog::SetCanClose(bool flag)
+{
+   canClose = flag;
 }
 
 
@@ -200,113 +212,6 @@ void GmatDialog::OnClose(wxCloseEvent &event)
    event.Skip();
 }
 
-
-//------------------------------------------------------------------------------
-// bool CheckReal(Real &rvalue, const std::string &str,
-//                const std::string &field, const std::string &expRange,
-//                bool onlyMsg = false)
-//------------------------------------------------------------------------------
-/*
- * This method checks if input string is valid real number. It uses
- * GmatStringUtil::ToReal() to convert string to Real value. This method
- * pops up the error message and sets canClose to false if input string is
- * invaid real number.
- *
- * @param  rvalue   Real value to be set if input string is valid
- * @param  str      Input string value
- * @param  field    Field name should used in the error message
- * @param  expRange Expected value range to be used in the error message
- * @param  onlyMsg  if true, it only shows error message
- */
-//------------------------------------------------------------------------------
-bool GmatDialog::CheckReal(Real &rvalue, const std::string &str,
-                          const std::string &field, const std::string &expRange,
-                          bool onlyMsg)
-{
-   //MessageInterface::ShowMessage
-   //   ("===> CheckReal() str=%s, field=%s, expRange=%s\n", str.c_str(),
-   //    field.c_str(), expRange.c_str());
-   
-   if (onlyMsg)
-   {
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
-          expRange.c_str());
-      
-      canClose = false;
-      return false;
-   }
-   
-   // check for real value
-   Real rval;
-   if (GmatStringUtil::ToReal(str, &rval))
-   {
-      rvalue = rval;
-      return true;
-   }
-   else
-   {
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
-          expRange.c_str());
-      
-      canClose = false;
-      return false;
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// bool CheckInteger(Integer &ivalue, const std::string &str,
-//                   const std::string &field, const std::string &expRange,
-//                   bool onlyMsg = false)
-//------------------------------------------------------------------------------
-/*
- * This method checks if input string is valid integer number. It uses
- * GmatStringUtil::ToInteger() to convert string to Integer value. This method
- * pops up the error message and sets canClose to false if input string is
- * invaid integer number.
- *
- * @param  ivalue   Integer value to be set if input string is valid
- * @param  str      Input string value
- * @param  field    Field name should used in the error message
- * @param  expRange Expected value range to be used in the error message
- * @param  onlyMsg  if true, it only shows error message
- */
-//------------------------------------------------------------------------------
-bool GmatDialog::CheckInteger(Integer &ivalue, const std::string &str,
-                             const std::string &field, const std::string &expRange,
-                             bool onlyMsg)
-{
-   if (onlyMsg)
-   {
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
-          expRange.c_str());
-      
-      canClose = false;
-      return false;
-   }
-   
-   // check for integer value
-   Integer ival;
-   if (GmatStringUtil::ToInteger(str, &ival))
-   {
-      ivalue = ival;
-      return true;
-   }
-   else
-   {
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
-          expRange.c_str());
-      
-      canClose = false;
-      return false;
-   }
-}
-
-
 //-------------------------------
 // protected methods
 //-------------------------------
@@ -354,20 +259,6 @@ void GmatDialog::ShowData()
    // We want always enable OK button
    //theOkButton->Disable();
    //theHelpButton->Disable(); //loj: for future build
-   
-   if (mObject == NULL)
-   {
-      mMsgFormat =
-         "The value of \"%s\" for field \"%s\" is not an allowed value. \n"
-         "The allowed values are: [%s].";
-   }
-   else
-   {
-      mMsgFormat =
-         "The value of \"%s\" for field \"%s\" on object \""
-         + mObject->GetName() +  "\" is not an allowed value. \n"
-         "The allowed values are: [%s].";
-   }
    
    LoadData();
    
