@@ -943,6 +943,9 @@ SolarSystem::SolarSystem(std::string withName)
    if (!theEarth)
       throw SolarSystemException("The Earth not defined.\n");
 
+   // Set j2000body (LOJ: 2009.06.18)
+   SetJ2000Body();
+   
    // at least for now, give each body a pointer to its central body
    theSun->SetRefObject(theEarth, Gmat::CELESTIAL_BODY, SolarSystem::EARTH_NAME); // for reference!!!
    theDefaultDeFile    = NULL;
@@ -1026,6 +1029,7 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
    SetPlanetarySourceTypesInUse(thePlanetarySourceTypesInUse);
 
    CloneBodiesInUse(ss);
+   SetJ2000Body();
 }
 
 
@@ -1073,7 +1077,10 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    // set current planetary source
    SetPlanetarySourceTypesInUse(thePlanetarySourceTypesInUse);
 
+   // delete old bodies and clone bodies
+   DeleteBodiesInUse();
    CloneBodiesInUse(ss);
+   SetJ2000Body();
 
    return *this;
 }
