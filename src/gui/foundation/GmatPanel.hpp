@@ -26,11 +26,11 @@
 #include <wx/grid.h>
 #include "wx/radiobut.h"
 
-#include "GmatAppData.hpp"
+#include "UserInputValidator.hpp"
 #include "GuiInterpreter.hpp"
 #include "GuiItemManager.hpp"
 
-class GmatPanel : public wxPanel
+class GmatPanel : public wxPanel, public UserInputValidator
 {
 public:
    
@@ -43,26 +43,14 @@ public:
                                   const wxString &oldName,
                                   const wxString &newName);
    virtual void EnableUpdate(bool enable = true);
+   virtual void SetCanClose(bool flag);
+   
    virtual void OnApply(wxCommandEvent &event);
    virtual void OnOK(wxCommandEvent &event);
    virtual void OnCancel(wxCommandEvent &event);
    virtual void OnHelp(wxCommandEvent &event);
    virtual void OnScript(wxCommandEvent &event);
    virtual void OnSummary(wxCommandEvent &event);
-   
-   bool CheckReal(Real &rvalue, const std::string &str,
-                  const std::string &field, const std::string &expRange,
-                  bool onlyMsg = false, bool checkRange = false, 
-                  bool positive = false, bool zeroOk = false);
-   
-   bool CheckInteger(Integer &ivalue, const std::string &str,
-                     const std::string &field, const std::string &expRange,
-                     bool onlyMsg = false, bool checkRange = false,
-                     bool positive = false, bool zeroOk = false);
-   
-   bool CheckVariable(const std::string &varName, Gmat::ObjectType ownerType,
-                      const std::string &field, const std::string &expRange,
-                      bool allowNumber = true, bool allowNonPlottable = false);
    
 protected:
    
@@ -73,9 +61,6 @@ protected:
    virtual void LoadData() = 0;
    virtual void SaveData() = 0;
    
-   wxArrayString ToWxArrayString(const StringArray &array);
-   wxString ToWxString(const wxArrayString &names);
-   
    // member data
    GuiInterpreter *theGuiInterpreter;
    GuiItemManager *theGuiManager;
@@ -83,7 +68,6 @@ protected:
    bool mShowBottomSizer;
    bool mShowScriptButton;
    bool mDataChanged;
-   std::string mMsgFormat;
    
    wxWindow *theParent;
    

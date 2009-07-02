@@ -55,6 +55,9 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
 {
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
+   UserInputValidator::SetGuiManager(theGuiManager);
+   UserInputValidator::SetWindow(this);
+   
    canClose = true;
    mDataChanged = false;
    
@@ -199,6 +202,15 @@ void GmatPanel::ObjectNameChanged(Gmat::ObjectType type, const wxString &oldName
 
 
 //------------------------------------------------------------------------------
+// void SetCanClose(bool flag)
+//------------------------------------------------------------------------------
+void GmatPanel::SetCanClose(bool flag)
+{
+   canClose = flag;
+}
+
+
+//------------------------------------------------------------------------------
 // virtual void OnApply()
 //------------------------------------------------------------------------------
 /**
@@ -325,205 +337,6 @@ void GmatPanel::OnSummary(wxCommandEvent &event)
 }
 
 
-//------------------------------------------------------------------------------
-// bool CheckReal(Real &rvalue, const std::string &str,
-//                const std::string &field, const std::string &expRange,
-//                bool onlyMsg, bool checkRange, bool positive bool zeroOk)
-//------------------------------------------------------------------------------
-/*
- * This method checks if input string is valid real number. It uses
- * GmatStringUtil::ToReal() to convert string to Real value. This method
- * pops up the error message and sets canClose to false if input string is
- * not a real number.
- *
- * @param  rvalue     Real value to be set if input string is valid
- * @param  str        Input string value
- * @param  field      Field name should be used in the error message
- * @param  expRange   Expected value range to be used in the error message
- * @param  onlyMsg    if true, it only shows error message (false)
- * @param  checkRange if true, it will check for positive and zero (false)
- * @param  positive   if true, the value must be positive (false)
- * @param  zeroOk     if true, zero is allowed (false)
- */
-//------------------------------------------------------------------------------
-bool GmatPanel::CheckReal(Real &rvalue, const std::string &str,
-                          const std::string &field, const std::string &expRange,
-                          bool onlyMsg, bool checkRange, bool positive, bool zeroOk)
-{
-   #ifdef DEBUG_CHECK_REAL
-   MessageInterface::ShowMessage
-      ("GmatPanel::CheckReal() str='%s', field='%s', expRange='%s'\n", str.c_str(),
-       field.c_str(), expRange.c_str());
-   #endif
-   
-   if (onlyMsg)
-   {
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
-          expRange.c_str());
-      
-      canClose = false;
-      return false;
-   }
-   
-   // check for real value
-   Real rval;
-   if (GmatStringUtil::ToReal(str, &rval))
-   {
-      rvalue = rval;
-      
-      if (checkRange)
-      {
-         if (!positive || (positive && rval > 0) || (zeroOk && rval >= 0))
-            return true;
-      }
-      else
-         return true;
-   }
-   
-   MessageInterface::PopupMessage
-      (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
-       expRange.c_str());
-   
-   canClose = false;
-   return false;
-}
-
-
-//------------------------------------------------------------------------------
-// bool CheckInteger(Integer &ivalue, const std::string &str,
-//                   const std::string &field, const std::string &expRange,
-//                   bool onlyMsg = false, bool positive, bool zeroOk)
-//------------------------------------------------------------------------------
-/*
- * This method checks if input string is valid integer number. It uses
- * GmatStringUtil::ToInteger() to convert string to Integer value. This method
- * pops up the error message and sets canClose to false if input string is
- * not an integer number.
- *
- * @param  ivalue     Integer value to be set if input string is valid
- * @param  str        Input string value
- * @param  field      Field name should be used in the error message
- * @param  expRange   Expected value range to be used in the error message
- * @param  onlyMsg    if true, it only shows error message (false)
- * @param  checkRange if true, it will check for positive and zero (false)
- * @param  positive   if true, the value must be positive (false)
- * @param  zeroOk     if true, zero is allowed (false)
- */
-//------------------------------------------------------------------------------
-bool GmatPanel::CheckInteger(Integer &ivalue, const std::string &str,
-                             const std::string &field, const std::string &expRange,
-                             bool checkRange, bool onlyMsg, bool positive, bool zeroOk)
-{
-   if (onlyMsg)
-   {
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
-          expRange.c_str());
-      
-      canClose = false;
-      return false;
-   }
-   
-   // check for integer value
-   Integer ival;
-   if (GmatStringUtil::ToInteger(str, &ival))
-   {
-      ivalue = ival;
-
-      if (checkRange)
-      {
-         if (!positive || (positive && ival > 0) || (zeroOk && ival >= 0))
-            return true;
-      }
-      else
-         return true;
-   }
-   
-   MessageInterface::PopupMessage
-      (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
-       expRange.c_str());
-   
-   canClose = false;
-   return false;
-}
-
-
-//------------------------------------------------------------------------------
-// bool CheckVariable(const std::string &varName, Gmat::ObjectType ownerType,
-//                    const std::string &field, const std::string &expRange,
-//                    bool allowNumber  = true, bool allowNonPlottable = false)
-//------------------------------------------------------------------------------
-/*
- * Checks if input variable is a Number, Variable, Array element, or parameter of
- * input owner type.
- *
- * @param  varName    Input variable name to be checked
- * @param  ownerType  Input owner type (such as Gmat::SPACECRAFT)
- * @param  field      Field name should be used in the error message
- * @param  expRange   Expected value range to be used in the error message
- * @param  allowNumber  true if varName can be a Real number 
- * @param  allowNonPlottable  true if varName can be a non-plottable
- *
- * @return true if varName is valid
- */
-//------------------------------------------------------------------------------
-bool GmatPanel::CheckVariable(const std::string &varName, Gmat::ObjectType ownerType,
-                              const std::string &field, const std::string &expRange,
-                              bool allowNumber, bool allowNonPlottable)
-{
-   int retval = theGuiManager->
-      IsValidVariable(varName.c_str(), Gmat::SPACECRAFT, allowNumber,
-                      allowNonPlottable);
-   
-   if (retval == -1)
-   {
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, "The variable \"%s\" for field \"%s\" "
-          "does not exist.\nPlease create it first from the ParameterSelectDialog or "
-          "from the Resource Tree.\n", varName.c_str(), field.c_str());
-      
-      canClose = false;
-      return false;
-   }
-   else if (retval == 3)
-   {
-      std::string type, ownerName, depObj;
-      GmatStringUtil::ParseParameter(varName, type, ownerName, depObj);
-      
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, "The Parameter \"%s\" for field \"%s\" "
-          "has undefined object \"%s\".\nPlease create proper object first "
-          "from the Resource Tree.\n", varName.c_str(), field.c_str(), ownerName.c_str());
-      
-      canClose = false;
-      return false;
-   }
-   else if (retval == 4)
-   {
-      std::string type, ownerName, depObj;
-      GmatStringUtil::ParseParameter(varName, type, ownerName, depObj);
-      
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, "The Parameter \"%s\" for field \"%s\" "
-          "has unknown Parameter type \"%s\".\n", varName.c_str(), field.c_str(),
-          type.c_str());
-      
-      canClose = false;
-      return false;
-   }
-   else if (retval == 0)
-   {
-      MessageInterface::PopupMessage
-         (Gmat::ERROR_, mMsgFormat.c_str(), varName.c_str(), field.c_str(),
-          expRange.c_str());
-      
-      canClose = false;
-      return false;
-   }
-   
-   return true;
-}
 
 //-------------------------------
 // protected methods
@@ -544,6 +357,7 @@ bool GmatPanel::SetObject(GmatBase *obj)
    else
    {
       mObject = obj;
+      UserInputValidator::SetObject(obj);
       return true;
    }
 }
@@ -580,36 +394,11 @@ void GmatPanel::Show()
    // tells the enclosing window to adjust to the size of the sizer
    SetAutoLayout( TRUE );
    SetSizer(thePanelSizer); //use the sizer for layout
-   thePanelSizer->Fit(this); //loj: if theParent is used it doesn't show the scroll bar
+   thePanelSizer->Fit(this);
    thePanelSizer->SetSizeHints(this); //set size hints to honour minimum size
    
    LoadData();
-   
-   if (mObject == NULL)
-   {
-      MessageInterface::ShowMessage("*** WARNING *** GmatPanel object not set\n");
-      mMsgFormat =
-         "The value of \"%s\" for field \"%s\" is not an allowed value. \n"
-         "The allowed values are: [%s].";
-   }
-   else
-   {
-      if (mObject->IsOfType(Gmat::COMMAND))
-      {
-         mMsgFormat =
-            "The value of \"%s\" for field \"%s\" on command \""
-            + mObject->GetTypeName() +  "\" is not an allowed value. \n"
-            "The allowed values are: [%s].";
-      }
-      else
-      {
-         mMsgFormat =
-            "The value of \"%s\" for field \"%s\" on object \""
-            + mObject->GetName() +  "\" is not an allowed value. \n"
-            "The allowed values are: [%s].";
-      }
-   }
-   
+      
    EnableUpdate(false);
    
    if (mShowBottomSizer)
@@ -618,46 +407,6 @@ void GmatPanel::Show()
    
    // call Layout() to force layout of the children anew
    thePanelSizer->Layout();
-}
-
-
-//------------------------------------------------------------------------------
-// wxArrayString ToWxArrayString(const StringArray &array)
-//------------------------------------------------------------------------------
-/**
- * Converts std::string array to wxString array.
- */
-//------------------------------------------------------------------------------
-wxArrayString GmatPanel::ToWxArrayString(const StringArray &array)
-{
-   wxArrayString newArray;
-   for (UnsignedInt i=0; i<array.size(); i++)
-      newArray.Add(array[i].c_str());
-   
-   return newArray;
-}
-
-
-//------------------------------------------------------------------------------
-// wxString ToWxString(const wxArrayString &names)
-//------------------------------------------------------------------------------
-/**
- * Converts wxString array to wxString separated by comma.
- */
-//------------------------------------------------------------------------------
-wxString GmatPanel::ToWxString(const wxArrayString &names)
-{
-   wxString str = "";
-   wxString delimiter = ", ";
-   if (names.Count() > 0)
-   {
-      str = names[0];
-      
-      for (unsigned int i=1; i<names.Count(); i++)
-         str = str + delimiter + names[i];
-   }
-   
-   return str;
 }
 
 
