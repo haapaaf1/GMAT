@@ -1455,8 +1455,13 @@ void ResourceTree::OnRename(wxCommandEvent &event)
    
    if (!GmatStringUtil::IsValidName(newName.c_str()))
    {
-      wxMessageBox(wxT("\"" + newName + "\" is invalid name. Please enter different name."),
-                   wxT("GMAT Warning"));
+      //wxMessageBox(wxT("\"" + newName + "\" is invalid name. Please enter different name."),
+      //             wxT("GMAT Warning"));
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "\"%s\" is not a valid name. Please reenter a valid name.\n\n"
+          "[Name cannot be a GMAT keyword, such as \"GMAT\", \"Create\", \"function\" and \n"
+          "must begin with a letter, which may be followed by any combination "
+          "of letters, \ndigits, and underscores.]", newName.c_str());
       return;
    }
    
@@ -1517,7 +1522,7 @@ void ResourceTree::OnRename(wxCommandEvent &event)
             Collapse(mSpacecraftItem);
             DeleteChildren(mSpacecraftItem);
             AddDefaultSpacecraft(mSpacecraftItem);
-
+            
             //@todo Select the item just renamed, currently it selects Spacecraft folder
             //SelectItem(itemId);
             
