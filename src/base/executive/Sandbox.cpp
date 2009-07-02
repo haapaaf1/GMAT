@@ -615,16 +615,13 @@ bool Sandbox::Initialize()
       #endif
       
       #ifdef DEBUG_SANDBOX_GMATFUNCTION
-         MessageInterface::ShowMessage(
-               "Initializing %s command\n",
-               current->GetTypeName().c_str());
+         MessageInterface::ShowMessage("Initializing %s command\n",
+            current->GetTypeName().c_str());
       #endif
          
       current->SetObjectMap(&objectMap);
       current->SetGlobalObjectMap(&globalObjectMap);
-      current->SetSolarSystem(solarSys);
-      current->SetTransientForces(&transientForces);
-      current->SetPublisher(publisher); //Added LOJ: 2009.04.08
+      SetGlobalRefObject(current);
       
       // Handle GmatFunctions
       if ((current->IsOfType("CallFunction")) ||
@@ -635,7 +632,6 @@ bool Sandbox::Initialize()
                "CallFunction or Assignment found in MCS: calling HandleGmatFunction \n");
          #endif
          HandleGmatFunction(current, &combinedObjectMap);
-         current->SetInternalCoordSystem(internalCoordSys);
       }
       if (current->IsOfType("BranchCommand"))
       {
@@ -1156,8 +1152,8 @@ bool Sandbox::SetObjectByNameInMap(const std::string &name,
  *  @return true if successful; flase otherwise
  */
 //------------------------------------------------------------------------------
-bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
-              std::map<std::string, GmatBase *> *usingMap)
+bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
+                                 GmatBase *> *usingMap)
 {
    #ifdef DEBUG_SANDBOX_GMATFUNCTION
       MessageInterface::ShowMessage(
@@ -1170,6 +1166,9 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
    std::string matlabExt = global->GetMatlabFuncNameExt();
    StringArray gfList;
    bool        isMatlabFunction = false;
+   
+   SetGlobalRefObject(cmd);
+   
    if (cmd->GetTypeName() == "CallFunction") 
    {
       std::string cfName = cmd->GetStringParameter("FunctionName");
@@ -1217,7 +1216,7 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
       }
       else // it's already in the GOS, so just grab it
          f = (Function*) globalObjectMap[fName];
-
+      
       if (cmd->GetTypeName() == "CallFunction")  
       {
          ((CallFunction*)cmd)->SetRefObject(f,Gmat::FUNCTION,fName);
@@ -1262,6 +1261,7 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
                throw SandboxException(errMsg);
             }
             #endif
+            
             if ((fcsCmd->GetTypeName() == "CallFunction") ||
                 (fcsCmd->IsOfType("Assignment")))
             {
@@ -1277,20 +1277,6 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
                // do not set the non-global object map here; it will need to be
                // setup by the FunctionManager at execution
                fcsCmd->SetGlobalObjectMap(&globalObjectMap);
-               fcsCmd->SetSolarSystem(solarSys);
-               fcsCmd->SetTransientForces(&transientForces);
-               //if (fcsCmd->GetTypeName() == "CallFunction")
-               //{
-                  #ifdef DEBUG_SANDBOX_GMATFUNCTION
-                  MessageInterface::ShowMessage
-                     ("   Setting publisher <%p> to '%s'\n", publisher,
-                      fcsCmd->GetTypeName().c_str());
-                  #endif
-                  // Need to pass publisher to fcs commands (LOJ: 2009.04.08)
-                  fcsCmd->SetPublisher(publisher);
-                  fcsCmd->SetInternalCoordSystem(internalCoordSys);
-                  //((CallFunction *)fcsCmd)->SetInternalCoordSystem(internalCoordSys);
-                  //}
             }
             if (fcsCmd->IsOfType("BranchCommand"))
             {
@@ -1301,21 +1287,6 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
                {
                   GmatCommand *childCmd = cmdList.at(jj);
                   HandleGmatFunction(childCmd, &globalObjectMap);
-                  //if ((cmdList.at(jj))->GetTypeName() == "CallFunction")
-                  if ((childCmd->GetTypeName() == "CallFunction") ||
-                      (childCmd->IsOfType("Assignment")))
-                  {
-                     #ifdef DEBUG_SANDBOX_GMATFUNCTION
-                     MessageInterface::ShowMessage
-                        ("   Setting publisher <%p> to '%s' inside '%s'\n",
-                         publisher, childCmd->GetTypeName().c_str(),
-                         fcsCmd->GetTypeName().c_str());
-                     #endif
-                     // Need to pass publisher to child commands (LOJ: 2009.04.08)
-                     childCmd->SetPublisher(publisher);
-                     childCmd->SetInternalCoordSystem(internalCoordSys);
-                     //((CallFunction *)cmdList.at(jj))->SetInternalCoordSystem(internalCoordSys);
-                  }
                }
             }
             fcsCmd = fcsCmd->GetNext();
@@ -1324,3 +1295,28 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd,
    }
    return OK;
 }
+
+
+//------------------------------------------------------------------------------
+// void SetGlobalRefObject(GmatCommand *cmd)
+//------------------------------------------------------------------------------
+/*
+ * Sets globally used object pointers to command
+ *
+ * @param cmd The command to set global object pointers to
+ */
+//------------------------------------------------------------------------------
+void Sandbox::SetGlobalRefObject(GmatCommand *cmd)
+{
+   #ifdef DEBUG_SANDBOX_GLOBAL_REF_OBJ
+   MessageInterface::ShowMessage
+      ("Sandbox::SetGlobalRefObject() Setting solarSystem <%p>, transientForces <%p>\n   "
+       "internalCoordSystem <%p>, publisher <%p>, to <%p>'%s'\n", solarSys,
+       &transientForces, internalCoordSys, publisher, cmd, cmd->GetTypeName().c_str());
+   #endif
+   cmd->SetSolarSystem(solarSys);
+   cmd->SetTransientForces(&transientForces);
+   cmd->SetInternalCoordSystem(internalCoordSys);
+   cmd->SetPublisher(publisher);
+}
+
