@@ -61,7 +61,14 @@ const Gmat::ParameterType MeasurementModel::PARAMETER_TYPE[] =
  */
 //------------------------------------------------------------------------------
 MeasurementModel::MeasurementModel(const std::string &nomme) :
-   GmatBase       (Gmat::MEASUREMENT_MODEL, "MeasurementModel", nomme)
+   GmatBase             (Gmat::MEASUREMENT_MODEL, "MeasurementModel", nomme),
+   measurementType      ("NoTypeSet"),
+   measurement          (NULL),
+   theData              (NULL),
+   theDataDerivatives   (NULL),
+   measurementBias      (0.0),
+   noiseSigma           (1.0e-5),
+   timeConstant         (6000.0)
 {
    objectTypes.push_back(Gmat::MEASUREMENT_MODEL);
    objectTypeNames.push_back("MeasurementModel");
@@ -89,9 +96,16 @@ MeasurementModel::~MeasurementModel()
  */
 //------------------------------------------------------------------------------
 MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
-   GmatBase       (mm)
+   GmatBase             (mm),
+   measurementType      (mm.measurementType),
+   theData              (NULL),
+   theDataDerivatives   (NULL),
+   measurementBias      (mm.measurementBias),
+   noiseSigma           (mm.noiseSigma),
+   timeConstant         (mm.timeConstant)
 {
-
+   if (mm.measurement != NULL)
+      measurement = (CoreMeasurement*)mm.measurement->Clone();
 }
 
 //------------------------------------------------------------------------------
@@ -109,7 +123,16 @@ MeasurementModel& MeasurementModel::operator=(const MeasurementModel &mm)
 {
    if (&mm != this)
    {
+      GmatBase::operator=(mm);
+      measurementType      = mm.measurementType;
+      theData              = NULL;
+      theDataDerivatives   = NULL;
+      measurementBias      = mm.measurementBias;
+      noiseSigma           = mm.noiseSigma;
+      timeConstant         = mm.timeConstant;
 
+      if (mm.measurement != NULL)
+         measurement = (CoreMeasurement*)mm.measurement->Clone();
    }
 
    return *this;

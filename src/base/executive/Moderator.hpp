@@ -392,6 +392,7 @@ private:
    void AddBurnToSandbox(Integer index);
    void AddSolverToSandbox(Integer index);
    void AddSubscriberToSandbox(Integer index);
+   void AddMeasurementToSandbox(Integer index);
    void AddParameterToSandbox(Integer index);
    void AddFunctionToSandbox(Integer index);
    void AddCommandToSandbox(Integer index);

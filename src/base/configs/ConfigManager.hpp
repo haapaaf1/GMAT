@@ -114,6 +114,7 @@ public:
    Function*           GetFunction(const std::string &name);
    CoordinateSystem*   GetCoordinateSystem(const std::string &name);
    CalculatedPoint*    GetCalculatedPoint(const std::string &name);
+   MeasurementModel*   GetMeasurementModel(const std::string &name);
    
    bool                HasConfigurationChanged();
    void                ConfigurationChanged(bool tf);

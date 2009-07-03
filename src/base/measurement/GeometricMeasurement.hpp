@@ -26,7 +26,7 @@
 #include "SpacePoint.hpp"
 
 
-class GeometricMeasurement : /*CoreMeasurement*/ GmatBase
+class GeometricMeasurement : public /*CoreMeasurement*/ GmatBase
 {
 public:
    GeometricMeasurement(const std::string &nomme = "");

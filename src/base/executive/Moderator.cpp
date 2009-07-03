@@ -4753,7 +4753,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
          AddPropSetupToSandbox(sandboxNum-1);
          AddBurnToSandbox(sandboxNum-1);
          AddSolverToSandbox(sandboxNum-1);
-         
+         AddMeasurementToSandbox(sandboxNum-1);
          // Note:
          // Add Subscriber after Publisher.
          // AddPublisherToSandbox() clears subscribers
@@ -6997,6 +6997,39 @@ void Moderator::AddSubscriberToSandbox(Integer index)
       #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
          ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
+          obj->GetName().c_str());
+      #endif
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void AddMeasurementToSandbox(Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Passes each configured MeasurementModel into the Sandbox
+ *
+ * @param index The Sandbox that receives the MeasurementModel
+ */
+//------------------------------------------------------------------------------
+void Moderator::AddMeasurementToSandbox(Integer index)
+{
+   MeasurementModel *obj;
+   StringArray names = theConfigManager->GetListOfItems(Gmat::MEASUREMENT_MODEL);
+
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage
+      ("Moderator::AddMeasurementToSandbox() count = %d\n", names.size());
+   #endif
+
+   for (Integer i=0; i<(Integer)names.size(); i++)
+   {
+      obj = theConfigManager->GetMeasurementModel(names[i]);
+      sandboxes[index]->AddObject(obj);
+
+      #if DEBUG_RUN > 1
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
           obj->GetName().c_str());
       #endif
    }

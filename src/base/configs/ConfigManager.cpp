@@ -1578,6 +1578,31 @@ CalculatedPoint* ConfigManager::GetCalculatedPoint(const std::string &name)
 
 
 //------------------------------------------------------------------------------
+// MeasurementModel* GetMeasurementModel(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a MeasurementModel from the configuration
+ *
+ * @param name The name of the MeasurementModel
+ *
+ * @return A pointer to the MeasurementModel, or NULL if it was not found
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* ConfigManager::GetMeasurementModel(const std::string &name)
+{
+   MeasurementModel *mm = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::MEASUREMENT_MODEL))
+      {
+         mm = (MeasurementModel *)mapping[name];
+      }
+   }
+   return mm;
+}
+
+
+//------------------------------------------------------------------------------
 // bool HasConfigurationChanged()
 //------------------------------------------------------------------------------
 bool ConfigManager::HasConfigurationChanged()
