@@ -18,6 +18,7 @@
 //------------------------------------------------------------------------------
 
 #include "MeasurementModel.hpp"
+#include "MeasurementException.hpp"
 
 //------------------------------------------------------------------------------
 // Static data initialization
@@ -97,6 +98,7 @@ MeasurementModel::~MeasurementModel()
 //------------------------------------------------------------------------------
 MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
    GmatBase             (mm),
+   participantNames     (mm.participantNames),
    measurementType      (mm.measurementType),
    theData              (NULL),
    theDataDerivatives   (NULL),
@@ -124,6 +126,7 @@ MeasurementModel& MeasurementModel::operator=(const MeasurementModel &mm)
    if (&mm != this)
    {
       GmatBase::operator=(mm);
+      participantNames     = mm.participantNames;
       measurementType      = mm.measurementType;
       theData              = NULL;
       theDataDerivatives   = NULL;
@@ -586,7 +589,7 @@ std::string MeasurementModel::GetStringParameter(const std::string & label) cons
 // bool SetStringParameter(const std::string & label, const std::string & value)
 //------------------------------------------------------------------------------
 /**
- * This method retrieves a string parameter
+ * This method sets a string parameter
  *
  * @param label The string label for the parameter
  * @param value The new string value
@@ -601,12 +604,36 @@ bool MeasurementModel::SetStringParameter(const std::string & label,
 }
 
 //------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * This method retrieves a string parameter from a StringArray
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The parameter
+ */
+//------------------------------------------------------------------------------
+std::string MeasurementModel::GetStringParameter(const Integer id,
+      const Integer index) const
+{
+   if (id == Participants)
+      return participantNames[index];
+
+   return GmatBase::GetStringParameter(id, index);
+}
+
+//------------------------------------------------------------------------------
 // std::string MeasurementModel::GetStringParameter(const std::string & label,
 //       const Integer index) const
 //------------------------------------------------------------------------------
 /**
- * This method calls the base class method.  It is provided for overload
- * compatibility.  See the base class description for a full description.
+ * This method retrieves a string parameter from a StringArray
+ *
+ * @param label The string label for the parameter
+ *
+ * @return The parameter
  */
 //------------------------------------------------------------------------------
 std::string MeasurementModel::GetStringParameter(const std::string & label,
@@ -631,33 +658,53 @@ bool MeasurementModel::SetStringParameter(const std::string & label,
 }
 
 //------------------------------------------------------------------------------
-// std::string GetStringParameter(const Integer id,
-//       const Integer index) const
-//------------------------------------------------------------------------------
-/**
- * This method calls the base class method.  It is provided for overload
- * compatibility.  See the base class description for a full description.
- */
-//------------------------------------------------------------------------------
-std::string MeasurementModel::GetStringParameter(const Integer id,
-      const Integer index) const
-{
-   return GmatBase::GetStringParameter(id, index);
-}
-
-//------------------------------------------------------------------------------
 // bool SetStringParameter(const Integer id,
 //       const std::string & value, const Integer index)
 //------------------------------------------------------------------------------
 /**
- * This method calls the base class method.  It is provided for overload
- * compatibility.  See the base class description for a full description.
+ * Sets a specific string in a StringArray
+ *
+ * This method changes a specific string in a StringArray if a string has been
+ * set at the location selected by the index value.  If the index exceeds the
+ * size of the name array, the participant name is added to the end of the list.
+ *
+ * @param id The ID for the StringArray parameter that is being changed
+ * @param value The string that needs to be placed in the StringArray
+ * @param index The location for the string in the list.  If index exceeds the
+ *              size of the StringArray, the string is added to the end of the
+ *              array
+ *
+ * @return true If the string was processed
  */
 //------------------------------------------------------------------------------
 bool MeasurementModel::SetStringParameter(const Integer id,
       const std::string & value, const Integer index)
 {
-   return GmatBase::SetStringParameter(id, value, index);
+   if (index < 0)
+   {
+      MeasurementException ex;
+      ex.SetDetails("The index %d is out-of-range for field \"%s\"", index,
+                    GetParameterText(id).c_str());
+      throw ex;
+   }
+
+   switch (id)
+   {
+   case Participants:
+      {
+         if (index < (Integer)participantNames.size())
+            participantNames[index] = value;
+         else
+            // Only add the tank if it is not in the list already
+            if (find(participantNames.begin(), participantNames.end(), value) ==
+                  participantNames.end())
+               participantNames.push_back(value);
+
+         return true;
+      }
+   default:
+      return GmatBase::SetStringParameter(id, value, index);
+   }
 }
 
 //------------------------------------------------------------------------------
