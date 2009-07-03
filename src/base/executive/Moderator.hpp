@@ -13,7 +13,7 @@
 // Created: 2003/08/25
 //
 /**
- * Declares opeartions of the GMAT executive. It is a singleton class -
+ * Declares operations of the GMAT executive. It is a singleton class -
  * only one instance of this class can be created.
  */
 //------------------------------------------------------------------------------
@@ -53,6 +53,9 @@
 #include "Interpolator.hpp"
 #include "CalculatedPoint.hpp"
 #include "MathNode.hpp"
+// estimation
+#include "MeasurementModel.hpp"
+#include "GeometricMeasurement.hpp"   // Change to "CoreMeasurement.hpp" when ready
 // files
 #include "EopFile.hpp"
 #include "ItrfCoefficientsFile.hpp"
@@ -211,6 +214,16 @@ public:
    PropSetup* CreateDefaultPropSetup(const std::string &name);
    PropSetup* CreatePropSetup(const std::string &name);
    PropSetup* GetPropSetup(const std::string &name);
+
+   // MeasurementModel
+   MeasurementModel* CreateMeasurementModel(const std::string &name);
+   MeasurementModel* GetMeasurementModel(const std::string &name);
+
+   // Core Measurement
+   CoreMeasurement* CreateMeasurement(const std::string &type,
+         const std::string &name);
+   CoreMeasurement* GetMeasurement(const std::string &type,
+         const std::string &name);
    
    // Interpolator
    Interpolator* CreateInterpolator(const std::string &type,

@@ -45,11 +45,15 @@ public:
    bool WriteMeasurements();
 
    Integer Calculate(const Integer measurementToCalc);
-   Integer AddMeasurement(CoreMeasurement *meas);
+   Integer AddMeasurement(MeasurementModel *meas);
    const MeasurementData* GetMeasurement(const Integer measurementToGet);
    bool WriteMeasurement(const Integer measurementToWrite);
 
 protected:
+   /// List of the managed measurement models
+   StringArray                      modelNames;
+   /// Pointers to the measurements
+   std::vector<MeasurementModel*>   models;
 
 };
 

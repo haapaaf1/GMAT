@@ -568,6 +568,31 @@ PropSetup* FactoryManager::CreatePropSetup(const std::string &withName)
 }
 
 
+CoreMeasurement* FactoryManager::CreateMeasurement(const std::string &ofType,
+                                         const std::string &withName)
+{
+   return NULL;
+}
+
+//------------------------------------------------------------------------------
+// MeasurementModel* CreateMeasurementModel(const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Create an object of type MeasurementModel, with the name withName.
+ *
+ * @param withName name of the new MeasurementModel object.
+ *
+ * @return pointer to the newly-created MeasurementModel object
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* FactoryManager::CreateMeasurementModel(const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::MEASUREMENT_MODEL, "MeasurementModel");
+   if (f != NULL)
+      return f->CreateMeasurementModel("MeasurementModel", withName);
+   return NULL;
+}
+
 //------------------------------------------------------------------------------
 //  ODEModel* CreateODEModel(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------

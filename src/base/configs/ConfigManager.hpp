@@ -40,6 +40,8 @@
 #include "CoordinateSystem.hpp"
 #include "CalculatedPoint.hpp"
 
+#include "MeasurementModel.hpp"
+
 
 /**
  * Class used to manage configured objects prior to cloning into the Sandbox.
@@ -73,7 +75,9 @@ public:
    void                SetDefaultSolarSystem(SolarSystem *ss);
    void                SetSolarSystemInUse(SolarSystem *ss);
    bool                SetSolarSystemInUse(const std::string &name);
-   
+
+   void                AddMeasurementModel(MeasurementModel *mModel);
+
    const StringArray&  GetListOfAllItems();
    const StringArray&  GetListOfItems(Gmat::ObjectType itemType);
    const StringArray&  GetListOfItemsHas(Gmat::ObjectType type,

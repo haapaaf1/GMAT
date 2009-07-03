@@ -46,6 +46,9 @@
 #include "MathNode.hpp"
 #include "Attitude.hpp"
 
+#include "MeasurementModel.hpp"
+#include "GeometricMeasurement.hpp"  // Change to "CoreMeasurement.hpp" when ready
+
 /**
  * GMAT Factory Manager Class, the interface between the Moderator and the
  * factories.
@@ -109,13 +112,18 @@ public:
    SpacePoint*            CreateSpacePoint(const std::string &ofType,
                                            const std::string &withName = "");
 
+   CoreMeasurement*       CreateMeasurement(const std::string &ofType,
+                                            const std::string &withName = "");
+
    //----- Just container
    SolarSystem*           CreateSolarSystem(const std::string &withName = "");
    PropSetup*             CreatePropSetup(const std::string &withName = "");
    ODEModel*              CreateODEModel(const std::string &ofType,
                                          const std::string &withName = "");
    CoordinateSystem*      CreateCoordinateSystem(const std::string &withName = "");
-   
+
+   MeasurementModel*      CreateMeasurementModel(const std::string &withName);
+
    // method to return a list of strings representing the objects of the input
    // type that may be created in the system
    const StringArray&     GetListOfItems(Gmat::ObjectType byType);

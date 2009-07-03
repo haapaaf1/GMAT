@@ -3023,6 +3023,104 @@ PropSetup* Moderator::GetPropSetup(const std::string &name)
 }
 
 
+// MeasurementModel
+//------------------------------------------------------------------------------
+// MeasurementModel* CreateMeasurementModel(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a new named MeasurementModel and adds it to the configuration
+ *
+ * @param name The name of the new MeasurementModel
+ *
+ * @return The new MeasurementModel
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* Moderator::CreateMeasurementModel(const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage("====================\n");
+   MessageInterface::ShowMessage("Moderator::GetMeasurementModel() name='%s'\n",
+                                 name.c_str());
+   #endif
+
+   if (GetMeasurementModel(name) == NULL)
+   {
+      MeasurementModel *mModel = theFactoryManager->CreateMeasurementModel(name);
+
+      if (mModel == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a MeasurementModel.\n"
+             "Make sure MeasurementModel is correct type and registered to "
+             "MeasurementModelFactory.\n");
+         return NULL;
+      }
+
+      #ifdef DEBUG_MEMORY
+      if (mModel)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (propSetup, name, "Moderator::CreateMeasurementModel()", funcName);
+      }
+      #endif
+
+      theConfigManager->AddMeasurementModel(mModel);
+
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateMeasurementModel() returning new MeasurementModel "
+               "<%p>\n", mModel);
+      #endif
+
+      return mModel;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateMeasurementModel() Unable to create "
+          "MeasurementModel name: %s already exist\n", name.c_str());
+      #endif
+      return GetMeasurementModel(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// MeasurementModel* GetMeasurementModel(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a measurement model from the configuration
+ *
+ * @param name The name of the MeasurementModel object
+ *
+ * @return The named MeasurementModel
+ */
+//------------------------------------------------------------------------------
+MeasurementModel* Moderator::GetMeasurementModel(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (MeasurementModel*)FindObject(name);
+}
+
+
+// Core Measurement -- Not yet coded
+CoreMeasurement* Moderator::CreateMeasurement(const std::string &type,
+      const std::string &name)
+{
+   return NULL;
+}
+
+CoreMeasurement* Moderator::GetMeasurement(const std::string &type,
+      const std::string &name)
+{
+   return NULL;
+}
+
+
 //------------------------------------------------------------------------------
 // Interpolator* CreateInterpolator(const std::string &type,
 //                                  const std::string &name)

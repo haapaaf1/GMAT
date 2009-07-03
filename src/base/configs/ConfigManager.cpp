@@ -535,6 +535,28 @@ void ConfigManager::AddCalculatedPoint(CalculatedPoint *cs)
 }
 
 //------------------------------------------------------------------------------
+// void AddMeasurementModel(MeasurementModel *mModel)
+//------------------------------------------------------------------------------
+/**
+ * Adds a MeasurementModel to the configuration.
+ *
+ * @param mModel Pointer to the MeasurementModel instance.
+ */
+//------------------------------------------------------------------------------
+void ConfigManager::AddMeasurementModel(MeasurementModel *mModel)
+{
+   std::string name = mModel->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!mModel->IsOfType(Gmat::MEASUREMENT_MODEL))
+      throw ConfigManagerException(name + " is not a MeasurementModel");
+
+   AddObject(mModel);
+}
+
+
+//------------------------------------------------------------------------------
 // void AddObject(GmatBase *obj)
 //------------------------------------------------------------------------------
 /**

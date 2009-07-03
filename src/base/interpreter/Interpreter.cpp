@@ -714,6 +714,9 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    else if (type == "PropSetup") 
       obj = (GmatBase*)theModerator->CreatePropSetup(name);
    
+   else if (type == "MeasurementModel")
+      obj = (GmatBase*)theModerator->CreateMeasurementModel(name);
+
 //   else if (type == "ForceModel") 
 //      obj = (GmatBase*)theModerator->CreateODEModel(type, name);
    

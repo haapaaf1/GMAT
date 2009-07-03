@@ -79,6 +79,8 @@ struct MeasurementData
    IntegerArray      participantIDs;
    /// The measured value.  Array to handle more than one value, like AZ_EL
    RealArray         value;
+   /// Flag indicating if the measurement could be made when it was attempted
+   bool              isFeasible;
 };
 
 

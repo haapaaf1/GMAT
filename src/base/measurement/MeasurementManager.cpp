@@ -136,9 +136,10 @@ bool MeasurementManager::WriteMeasurement(const Integer measurementToWrite)
 }
 
 
-Integer MeasurementManager::AddMeasurement(CoreMeasurement *meas)
+Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 {
    Integer measurementIndex = -1;
+
    return measurementIndex;
 }
 
