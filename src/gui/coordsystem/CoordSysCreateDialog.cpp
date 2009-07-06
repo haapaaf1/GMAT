@@ -128,7 +128,7 @@ void CoordSysCreateDialog::SaveData()
       return;
    }
    
-   if (!IsValidName(coordName))
+   if (!IsValidName(coordName.c_str()))
       return;
    
    //-----------------------------------------------------------------
