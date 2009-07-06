@@ -683,28 +683,17 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       Real W              = Rad(cartC[2]);
       Real Wdot           = Rad(cartC[3]) / SECS_PER_DAY; 
       // Convert Wdot from deg/day to rad/sec
-      //R3left.Set( Cos(rot1),  Sin(rot1),  0.0, 
-      //           -Sin(rot1),  Cos(rot1),  0.0,
-      //                  0.0,        0.0,  1.0);
       Real R3leftT[9] =  {Cos(rot1),-Sin(rot1),0.0,
                           Sin(rot1), Cos(rot1),0.0,
                                 0.0,       0.0,1.0};
-      //R1middle.Set(     1.0,        0.0,       0.0,
-      //                  0.0,  Cos(rot2), Sin(rot2),
-      //                  0.0, -Sin(rot2), Cos(rot2));
       Real R1middleT[9] =  {1.0,      0.0,       0.0,
                             0.0,Cos(rot2),-Sin(rot2),
                             0.0,Sin(rot2), Cos(rot2)};
       
-      //R3right.Set(   Cos(W),  Sin(W),  0.0,
-      //              -Sin(W),  Cos(W),  0.0,
-      //                  0.0,     0.0,  1.0);
       Real R3rightT[9] =  {Cos(W),-Sin(W),0.0,
                            Sin(W), Cos(W),0.0,
                               0.0,    0.0,1.0};
       
-      //rotMatrix = R3left.Transpose() * 
-      //           (R1middle.Transpose() * R3right.Transpose());
       Integer p3 = 0;
       for (Integer p = 0; p < 3; ++p)
       {
@@ -730,9 +719,6 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                     rotResult[1][0],rotResult[1][1],rotResult[1][2],
                     rotResult[2][0],rotResult[2][1],rotResult[2][2]); 
                     
-      //Wderiv.Set(-Wdot*Sin(W), -Wdot*Cos(W), 0.0,
-      //            Wdot*Cos(W), -Wdot*Sin(W), 0.0,
-      //                    0.0,          0.0, 0.0);
       Wderiv[0] = -Wdot*Sin(W);
       Wderiv[1] = -Wdot*Cos(W);
       Wderiv[2] =  0.0;
@@ -743,8 +729,6 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       Wderiv[7] =  0.0;
       Wderiv[8] =  0.0;  
          
-      //rotDotMatrix = R3left.Transpose() * 
-      //   (R1middle.Transpose() * Wderiv);
       for (Integer p = 0; p < 3; ++p)
       {
          p3 = 3*p;

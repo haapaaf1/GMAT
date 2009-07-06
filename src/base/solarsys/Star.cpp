@@ -109,7 +109,7 @@ CelestialBody       ("Star",name)
    bodyType            = Gmat::STAR;
    bodyNumber          = 3;
    referenceBodyNumber = 3;
-   rotationSrc         = Gmat::NOT_APPLICABLE;
+   rotationSrc         = Gmat::IAU_SIMPLIFIED;  // ??
    
    // defaults for now ...
    Rmatrix s(5,5,

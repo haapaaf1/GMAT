@@ -75,9 +75,11 @@ Planet::Planet(std::string name) :
    bodyType            = Gmat::PLANET;
    bodyNumber          = 1;
    referenceBodyNumber = 3;
-   rotationSrc         = Gmat::IAU_DATA;
+   rotationSrc         = Gmat::IAU_SIMPLIFIED;
    if (name == SolarSystem::EARTH_NAME) 
-      rotationSrc      = Gmat::NOT_APPLICABLE;
+      rotationSrc      = Gmat::FK5_IAU_1980;
+   else if (name == SolarSystem::NEPTUNE_NAME)
+      rotationSrc      = Gmat::IAU_2002;
 
    // defaults for now ...
    Rmatrix s(5,5,
@@ -122,9 +124,11 @@ Planet::Planet(std::string name, const std::string &cBody) :
    bodyType            = Gmat::PLANET;
    bodyNumber          = 1;
    referenceBodyNumber = 3;
-   rotationSrc         = Gmat::IAU_DATA;
+   rotationSrc         = Gmat::IAU_SIMPLIFIED;
    if (name == SolarSystem::EARTH_NAME) 
-      rotationSrc      = Gmat::NOT_APPLICABLE;
+      rotationSrc      = Gmat::FK5_IAU_1980;
+   else if (name == SolarSystem::NEPTUNE_NAME)
+      rotationSrc      = Gmat::IAU_2002;
    
    DeterminePotentialFileNameFromStartup();
    SaveAllAsDefault();
@@ -202,6 +206,8 @@ Rvector Planet::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
    // Neptune is the special case for the planets
    if (instanceName == SolarSystem::NEPTUNE_NAME)
    {
+      if (rotationSrc == Gmat::IAU_2002)
+      {
       Real d = GetJulianDaysFromTCBEpoch(forTime); // interval in Julian days
       Real T = d / 36525;                        // interval in Julian centuries
       Real N    = 357.85 + 52.316 * T;
@@ -212,8 +218,26 @@ Rvector Planet::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
       Real W         = orientation[4] + orientation[5] * d - 0.48 * Sin(Rad(N));
       Real Wdot      = orientation[5] * CelestialBody::dDot - 0.48 * NDot * Cos(Rad(N));
       return Rvector(4, alpha, delta, W, Wdot);
+      }
+      else if (rotationSrc == Gmat::IAU_SIMPLIFIED)
+      {
+         return CelestialBody::GetBodyCartographicCoordinates(forTime);
+      }
+      else
+      {
+         std::string errmsg = "Error computing cartographic coordinates for Neptune - ";
+         errmsg += "unknown or invalid rotation data source\n";
+         throw SolarSystemException(errmsg);
+      }
+   }
+   else if (instanceName == SolarSystem::EARTH_NAME)
+   {
+      // TBD - actually, the FK5 stuff is handled in the AxesSystem class(es) for 
+      // which it is appropriate (e.g. BodyFixedAxes)
+      return CelestialBody::GetBodyCartographicCoordinates(forTime);
    }
 
+   // by default, call the method that handles the IAU_SIMPLIFIED method
    return CelestialBody::GetBodyCartographicCoordinates(forTime);
    
 }

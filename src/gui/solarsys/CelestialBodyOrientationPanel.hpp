@@ -75,6 +75,7 @@ private:
    bool           isLuna;
    
    GmatPanel      *theCBPanel;
+   bool           userDef;
    
   
    void     Create();

@@ -119,19 +119,21 @@ namespace Gmat
    
    enum RotationDataSource
    {
-      DE_FILE = 0,
-      IAU_DATA,
+      DE_405_FILE = 0,
+      IAU_2002,
 //      IAU_FILE,   // TBD
-      NOT_APPLICABLE,
+      FK5_IAU_1980,
+      IAU_SIMPLIFIED,
       RotationDataSrcCount
    };
    
    const std::string ROTATION_DATA_SOURCE_STRINGS[RotationDataSrcCount] = 
    {
-      "DE405",
+      "DE405File",
       "IAU2002",
 //      "IAUFile",  // TBD
-      "NotApplicable",
+      "FK5IAU1980",
+      "IAUSimplified",
    };
 };
 
@@ -202,7 +204,6 @@ public:
                                 GetRotationDataSource() const;
    virtual StringArray          GetRotationDataSourceList() const;
    virtual bool                 IsUserDefined() const;
-//   virtual bool                 HasBeenModified() const;
    virtual StringArray          GetEphemSourceList() const;
    virtual Rvector6             GetOrientationParameters() const;
    
@@ -240,7 +241,6 @@ public:
    virtual bool           SetECC(Real value);   
    virtual bool           SetRotationDataSource(Gmat::RotationDataSource src);
    virtual bool           SetUserDefined(bool userDefinedBody);
-//   virtual void           ClearModifiedFlag();
    
    // methods inherited from SpacePoint, that must be implemented here (and/or
    // in the derived classes
@@ -338,16 +338,6 @@ public:
    // required method for all subclasses that can be copied in a script
    virtual void         Copy(const GmatBase* orig);
    
-   //------------------------------------------------------------------------------
-   // virtual CelestialBody* Clone(void) const
-   //------------------------------------------------------------------------------
-   /**
-     * Method used to create a copy of the object
-     * Each class that can be instantiated provides an implementation of this
-     * method so that copies can be made from a base class pointer.
-     */
-   //------------------------------------------------------------------------------
-   //virtual CelestialBody* Clone(void) const = 0;
    
    // strings representing the possible celestial body types
    //static const std::string BODY_TYPE_STRINGS[Gmat::BodyTypeCount];
@@ -580,10 +570,6 @@ protected:
    /// flag indicating whether or not SPICE is allowed as position/velocity source
    /// for this (default) body
    bool                   allowSpice;
-   /// flag indicating whether or not data for this celestial body has been modified (particularly
-   /// important for the user bodies, as this determines whether or not the data
-   /// willbe written to the saved script file)
-//   bool                   hasBeenModified;
    
    /// date format for the orientation epoch
    std::string            orientationDateFormat;

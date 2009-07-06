@@ -71,7 +71,8 @@ CelestialBodyOrientationPanel::CelestialBodyOrientationPanel(GmatPanel *cbPanel,
    rotationRateChanged           (false),
    isEarth                       (false),
    isLuna                        (false),
-   theCBPanel                    (cbPanel)
+   theCBPanel                    (cbPanel),
+   userDef                       (false)
 {
    guiManager     = GuiItemManager::GetInstance();
 //   guiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
@@ -103,7 +104,8 @@ void CelestialBodyOrientationPanel::SaveData()
    
    canClose    = true;
    
-   if (isLuna && rotationDataSourceChanged)
+//   if (isLuna && rotationDataSourceChanged)
+   if (rotationDataSourceChanged)
    {
       strval = rotationDataSourceComboBox->GetValue();
       if (strval != rotationDataSource) reallyChanged = true;
@@ -196,7 +198,9 @@ void CelestialBodyOrientationPanel::SaveData()
 
    if (realsOK && stringsOK && reallyChanged)
    {
-      if (isLuna) theBody->SetStringParameter(theBody->GetParameterID("RotationDataSource"), 
+//      if (isLuna) theBody->SetStringParameter(theBody->GetParameterID("RotationDataSource"), 
+//                                  rotationDataSource);
+      theBody->SetStringParameter(theBody->GetParameterID("RotationDataSource"), 
                                   rotationDataSource);
       if (isEarth)
       {
@@ -222,11 +226,11 @@ void CelestialBodyOrientationPanel::LoadData()
 //      for (unsigned int ii = 0; ii < ephemSourceList.size(); ii++)
 //         ephemSourceComboBox-Append((ephemSourceList.at[ii]).c_str());
 
-      if (isLuna)
-      {
+//      if (isLuna)
+//      {
          rotationDataSource = theBody->GetStringParameter(theBody->GetParameterID("RotationDataSource"));
          rotationDataSourceComboBox->SetValue(rotationDataSource.c_str());
-      }
+//      }
           
       if (isEarth)
       {
@@ -279,6 +283,7 @@ void CelestialBodyOrientationPanel::Create()
    int bSize     = 2;
    isEarth       = false;
    isLuna        = false;
+   userDef       = theBody->IsUserDefined();
    
    GmatStaticBoxSizer  *boxSizer1 = new GmatStaticBoxSizer(wxVERTICAL, this, "Orientation Data");
 //   GmatStaticBoxSizer  *boxSizer2 = new GmatStaticBoxSizer(wxVERTICAL, this, "");
@@ -358,45 +363,7 @@ void CelestialBodyOrientationPanel::Create()
    
 // sizers
    if (theBody->GetName() == SolarSystem::EARTH_NAME) isEarth = true;
-//   {
-////      bodySpecificDataFlexGridSizer = new wxFlexGridSizer(3,0,0);
-//      // nutation update interval
-//      nutationUpdateIntervalStaticText =  new wxStaticText(this, ID_TEXT, wxT("Nutation Update Interval"),
-//                                          wxDefaultPosition, wxSize(-1,-1), 0);
-//      nutationUpdateIntervalTextCtrl   = new wxTextCtrl(this, ID_TEXT_CTRL_NUTATION_UPDATE_INTERVAL, wxT(""),
-//                                          wxDefaultPosition, wxSize(60,-1), 0);
-//      nutationUpdateIntervalUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("sec"),
-//                                              wxDefaultPosition, wxSize(-1,-1), 0);
-//      bodySpecificDataFlexGridSizer->Add(nutationUpdateIntervalStaticText, 0,
-//                                         wxGROW|wxALIGN_LEFT|wxALL, bSize);
-//      bodySpecificDataFlexGridSizer->Add(nutationUpdateIntervalTextCtrl, 0, 
-//                                         wxGROW|wxALIGN_LEFT|wxALL, bSize);
-//      bodySpecificDataFlexGridSizer->Add(nutationUpdateIntervalUnitsStaticText, 0,
-//                                         wxALIGN_LEFT|wxALL, bSize);
-//      isEarth = true;
-//   }
    else if (theBody->GetName() == SolarSystem::MOON_NAME) isLuna = true;
-//   {
-//      bodySpecificDataFlexGridSizer = new wxFlexGridSizer(3,0,0);
-//      // rotation data source combo box
-//      sourceArray              = theBody->GetRotationDataSourceList();
-//      unsigned int ephemListSz = sourceArray.size();
-//      sourceArrayWX            = new wxString[ephemListSz];
-//      for (unsigned int jj = 0; jj < ephemListSz; jj++)
-//         sourceArrayWX[jj] = wxT(sourceArray[jj].c_str());
-//      rotationDataSourceStaticText = new wxStaticText(this, ID_TEXT, wxT("Rotation Data Source"),
-//                                     wxDefaultPosition, wxSize(-1,-1), 0);
-//      rotationDataSourceComboBox   = new wxComboBox(this, ID_COMBO_BOX_ROTATION_DATA_SOURCE, wxT(sourceArrayWX[0]),
-//                                     wxDefaultPosition, wxDefaultSize, ephemListSz, sourceArrayWX,
-//                                     wxCB_DROPDOWN|wxCB_READONLY);
-//      bodySpecificDataFlexGridSizer->Add(rotationDataSourceStaticText, 0,
-//                                         wxGROW|wxALIGN_LEFT|wxALL, bSize);
-//      bodySpecificDataFlexGridSizer->Add(rotationDataSourceComboBox, 0, 
-//                                         wxGROW|wxALIGN_LEFT|wxALL, bSize);
-//      bodySpecificDataFlexGridSizer->Add(20,20, 0,
-//                                         wxALIGN_LEFT|wxALL, bSize);
-//      isLuna = true;
-//   }
 
    wxFlexGridSizer *oneFlexGridSizer = new wxFlexGridSizer(3,0,0);
 
@@ -440,8 +407,8 @@ void CelestialBodyOrientationPanel::Create()
       oneFlexGridSizer->Add(nutationUpdateIntervalUnitsStaticText, 0,
                                          wxALIGN_LEFT|wxALL, bSize);
    }
-   else if (isLuna)
-   {
+//   else if (isLuna)
+//   {
       // add rotation data source combo box for Luna
       sourceArray              = theBody->GetRotationDataSourceList();
       unsigned int ephemListSz = sourceArray.size();
@@ -459,6 +426,18 @@ void CelestialBodyOrientationPanel::Create()
                                          wxGROW|wxALIGN_LEFT|wxALL, bSize);
       oneFlexGridSizer->Add(20,20, 0,
                                          wxALIGN_LEFT|wxALL, bSize);
+      rotationDataSourceComboBox->Disable();
+//   }
+      
+   // for now, don't let user modify any values for default bodies
+   if (!userDef)
+   {
+      spinAxisRAConstantTextCtrl->Disable();
+      spinAxisRARateTextCtrl->Disable();
+      spinAxisDECConstantTextCtrl->Disable();
+      spinAxisDECRateTextCtrl->Disable();
+      rotationConstantTextCtrl->Disable();
+      rotationRateTextCtrl->Disable();
    }
 
    boxSizer1->Add(oneFlexGridSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
