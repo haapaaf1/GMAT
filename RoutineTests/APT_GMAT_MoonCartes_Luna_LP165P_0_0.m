@@ -24,8 +24,7 @@ GMAT MoonLP165P.PrimaryBodies = {Luna};
 GMAT MoonLP165P.Drag = None;
 GMAT MoonLP165P.SRP = Off;
 GMAT MoonLP165P.ErrorControl = RSSStep;
-%GMAT MoonLP165P.Gravity.Luna.PotentialFile = ./files/gravity/luna/LP165P.grv;
-GMAT MoonLP165P.Gravity.Luna.PotentialFile = LP165P.grv;
+GMAT MoonLP165P.Gravity.Luna.PotentialFile = LP165P.cof;
 GMAT MoonLP165P.Gravity.Luna.Degree = 20;
 GMAT MoonLP165P.Gravity.Luna.Order = 20;
 

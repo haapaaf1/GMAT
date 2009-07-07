@@ -26,8 +26,7 @@ GMAT MARS50C.Drag = None;
 GMAT MARS50C.SRP = On;
 GMAT MARS50C.SRP.Flux_Pressure = 4.53443218374393e-006;
 GMAT MARS50C.ErrorControl = RSSStep;
-%GMAT MARS50C.Gravity.Mars.PotentialFile = ./files/gravity/mars/Mars50c.grv;
-GMAT MARS50C.Gravity.Mars.PotentialFile = Mars50c.grv;
+GMAT MARS50C.Gravity.Mars.PotentialFile = Mars50c.cof;
 GMAT MARS50C.Gravity.Mars.Degree = 20;
 GMAT MARS50C.Gravity.Mars.Order = 20;
 
