@@ -88,26 +88,57 @@ protected:
    static const Gmat::ParameterType
                                PARAMETER_TYPE[SimulatorParamCount -
                                               SolverParamCount];
-   
-   Solver::SolverState currentState;
+
+/**
+ * Commented out by DJC
+ *
+ * Shouldn't we just use currentState from the Solver base class?
+ *
+ *  /// The state of the finite state machine
+ *  Solver::SolverState currentState;
+ */
+
+   /// The propagator configured for simulation
    PropSetup           *propagator;
+   /// Name of the propagator
    std::string         propagatorName;
 
-   GmatState           *simState;
+   /// The state vector, used to buffer state information during event location
+   GmatState           *simState;   // (This piece is stuill in flux -- do we do
+                                    // it ike this, or differently?)
+   /// The initial epoch for the simulation
    GmatEpoch           simulationStart;
+   /// The target epoch for the end of the simulation
    GmatEpoch           simulationEnd;
+   /// The epoch of the next measurement calculation
    GmatEpoch           nextSimulationEpoch;
+   /// The current epoch (typically as determined via propagation)
    GmatEpoch           currentEpoch;
    
+   /// Format of the scripted simulation start time
    std::string         initialEpochFormat;
+   /// The string specifying the simulation start time
    std::string         initialEpoch;      // ??? is this simulationStart
+   /// Format of the scripted simulation end time
    std::string         finalEpochFormat;
+   /// The string specifying the simulation end time
    std::string         finalEpoch;      // ??? is this simulationEnd
 
+   /// Timestep from current measurement epoch to the epoch of the next measurement
    Real                simulationStep;
+   /**
+    *  The timestep that gets returned for the next propagation
+    *
+    *  timestep will be the same as simulationStep when the state machine is in
+    *  the PROPAGATING state.  When in the LOCATING state, timestep is the time
+    *  from the base epoch to the next attempt at finding the event that is
+    *  being located.
+    */
    Real                timestep;
 
+   /// The simulator's measurement manager
    MeasurementManager  measManager;
+   /// The list of measurement models that the measurement manager is managing
    StringArray         measList;   // temporary - may get list from MeasManager;
 
    // State machine methods
