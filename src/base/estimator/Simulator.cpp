@@ -409,13 +409,17 @@ bool Simulator::SetStringParameter(const Integer id, const std::string &value,
 {
    if (id == MEASUREMENTS)
    {
-      if (index < 0 || index >= (Integer) measList.size())
+      Integer sz = (Integer) measList.size();
+      if (index == sz) // needs to be added to the end of the list
+         measList.push_back(value);
+      else if ((index) < 0 || (index > sz)) // out of bounds
       {
-            std::string errmsg = "CelestialBody::GetStringParameter - Index into measurement names ";
-            errmsg += instanceName + " is out of range.\n";
-            throw SolverException(errmsg);
+         std::string errmsg = "Simulator::SetStringParameter error - index into measurement ";
+         errmsg += "array is out of bounds.\n";
+         throw SolverException(errmsg);
       }
-      measList.at(index) = value;
+      else // is in bounds 
+         measList.at(index) = value;
       return true;
    }
    return Solver::SetStringParameter(id, value, index);
