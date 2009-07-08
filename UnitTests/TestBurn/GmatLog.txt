@@ -1,0 +1,26 @@
+GMAT Build Date: Jun 18 2009 15:45:16
+
+GuiMessageReceiver::SetLogFile() Log file set to ../../TestBurn/GmatLog.txt
+The log file mode is create
+For body Sun, not using potential file, so using default mu (132712440017.990010000000000000)
+SolarSystem initializing planetary source...
+SS::CreatePlanetarySource ... setting to defaults from file manager...
+ ... thePlanetarySourceNames are ... 
+ ... 0    N/A
+ ... 1    
+SS::CreatePlanetarySource ... about to call SetDefaultPlanetarySource...
+SolarSystem setting default planetary source...
+SolarSystem::SetPlanetarySourceTypesInUse() num source types=2
+   'DE405'
+   'TwoBodyPropagation'
+SolarSystem::SetPlanetarySourceTypesInUse() create DE405 ()
+SolarSystem::CreateDeFile() creating DeFile. type=0,
+   fileName=, format=1
+Error opening DE file:. 
+Please check file path. The next filetype in the list will be used.
+
+SolarSystem::SetPlanetarySourceTypesInUse() Set Planetary Source to use:0
+Setting Solar System ephem source to 0 (TwoBodyPropagation)
+thePlanetarySourceTypesInUse[0]=TwoBodyPropagation
+Successfully set Planetary Source to use: TwoBodyPropagation
+SolarSystem::SetPlanetarySourceTypesInUse() returning 1, theCurrentPlanetarySource is set to 'TwoBodyPropagation'
