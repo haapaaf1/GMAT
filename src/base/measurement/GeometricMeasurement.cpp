@@ -19,10 +19,31 @@
 
 #include "GeometricMeasurement.hpp"
 
-GeometricMeasurement::GeometricMeasurement(const std::string &nomme) :
-   GmatBase          (Gmat::MEASUREMENT_MODEL, "MeasurementPrimitive", nomme)
-{
 
+const std::string
+GeometricMeasurement::PARAMETER_TEXT[GeometricMeasurementParamCount -
+                                     GmatBaseParamCount] =
+{
+   "Participants",
+};
+
+
+const Gmat::ParameterType
+GeometricMeasurement::PARAMETER_TYPE[GeometricMeasurementParamCount -
+                                     GmatBaseParamCount] =
+{
+   Gmat::OBJECTARRAY_TYPE,
+};
+
+
+GeometricMeasurement::GeometricMeasurement(const std::string &nomme) :
+   GmatBase          (Gmat::CORE_MEASUREMENT, "CoreMeasurement", nomme)
+{
+   objectTypes.push_back(Gmat::CORE_MEASUREMENT);
+   objectTypeNames.push_back("CoreMeasurement");      // Move to CoreMeas when built
+   objectTypeNames.push_back("GeometricMeasurement");
+
+   parameterCount = GeometricMeasurementParamCount;
 }
 
 GeometricMeasurement::~GeometricMeasurement()
@@ -43,6 +64,49 @@ GeometricMeasurement& GeometricMeasurement::operator=(const GeometricMeasurement
 
    return *this;
 }
+
+std::string GeometricMeasurement::GetParameterText(const Integer id) const
+{
+   if (id >= GmatBaseParamCount && id < GeometricMeasurementParamCount)
+      return PARAMETER_TEXT[id - GmatBaseParamCount];
+   return GmatBase::GetParameterText(id);
+}
+
+Integer GeometricMeasurement::GetParameterID(const std::string &str) const
+{
+   for (Integer i = GmatBaseParamCount; i < GeometricMeasurementParamCount; i++)
+   {
+      if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
+         return i;
+   }
+
+   return GmatBase::GetParameterID(str);
+}
+
+Gmat::ParameterType GeometricMeasurement::GetParameterType(const Integer id) const
+{
+   if (id >= GmatBaseParamCount && id < GeometricMeasurementParamCount)
+      return PARAMETER_TYPE[id - GmatBaseParamCount];
+
+   return GmatBase::GetParameterType(id);
+}
+
+std::string GeometricMeasurement::GetParameterTypeString(const Integer id) const
+{
+   return GmatBase::PARAM_TYPE_STRING[GetParameterType(id)];
+}
+
+MeasurementData* GeometricMeasurement::GetMeasurementDataPointer()
+{
+   return &currentMeasurement;
+}
+
+Rmatrix* GeometricMeasurement::GetDerivativePointer()
+{
+   return &currentDerivatives;
+}
+
+
 const MeasurementData & GeometricMeasurement::CalculateMeasurement()
 {
    if (Evaluate(true) == false)

@@ -119,6 +119,9 @@ public:
    bool SetForceModelProperty(GmatBase *obj, const std::string &prop,
                               const std::string &value, GmatBase *fromObj);
    
+   bool SetMeasurementModelProperty(GmatBase *obj, const std::string &prop,
+                              const std::string &value);
+
    bool FindOwnedObject(GmatBase *owner, const std::string toProp,
                         GmatBase **ownedObj, Integer &id, Gmat::ParameterType &type);
    
@@ -304,6 +307,7 @@ private:
    StringArray   calculatedPointList;
    StringArray   functionList;
    StringArray   hardwareList;
+   StringArray   measurementList;
    StringArray   odeModelList;
    StringArray   parameterList;
    StringArray   physicalModelList;

@@ -847,6 +847,20 @@ ObjectArray & MeasurementModel::GetRefObjectArray(const Gmat::ObjectType type)
    return GmatBase::GetRefObjectArray(type);
 }
 
+
+bool MeasurementModel::SetMeasurement(CoreMeasurement *meas)
+{
+   bool retval = false;
+
+   if (meas->IsOfType(Gmat::CORE_MEASUREMENT))
+   {
+      measurement = meas;
+      retval = true;
+   }
+
+   return retval;
+}
+
 bool MeasurementModel::IsOwnedObject(Integer id) const
 {
    return GmatBase::IsOwnedObject(id);
@@ -914,4 +928,17 @@ const Rmatrix & MeasurementModel::CalculateMeasurementDerivatives()
    // todo:  Put in the call to calculate the measurement and derivatives
 
    return *theDataDerivatives;
+}
+
+
+// Currently a place holder for data file writes
+bool MeasurementModel::WriteMeasurements()
+{
+   return false;
+}
+
+// Currently a place holder for data file writes
+bool MeasurementModel::WriteMeasurement(Integer id)
+{
+   return false;
 }

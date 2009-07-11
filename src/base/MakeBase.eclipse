@@ -260,6 +260,7 @@ OBJECTS = \
     factory/HardwareFactory.o \
     factory/MathFactory.o \
     factory/MeasurementModelFactory.o \
+    factory/MeasurementFactory.o \
     factory/ParameterFactory.o \
     factory/PhysicalModelFactory.o \
     factory/PropagatorFactory.o \

@@ -25,19 +25,23 @@
 RangeMeasurement::RangeMeasurement(const std::string &name) :
    GeometricMeasurement          (name)
 {
+   objectTypeNames.push_back("RangeMeasurement");
 
+//   parameterCount = GeometricRangeMeasurementParamCount;
 }
+
 
 RangeMeasurement::~RangeMeasurement()
 {
-   // TODO Auto-generated destructor stub
 }
+
 
 RangeMeasurement::RangeMeasurement(const RangeMeasurement &rm) :
    GeometricMeasurement          (rm)
 {
 
 }
+
 
 RangeMeasurement& RangeMeasurement::operator=(const RangeMeasurement &rm)
 {
@@ -49,9 +53,14 @@ RangeMeasurement& RangeMeasurement::operator=(const RangeMeasurement &rm)
    return *this;
 }
 
+
+GmatBase* RangeMeasurement::Clone() const
+{
+   return new RangeMeasurement(*this);
+}
+
+
 bool RangeMeasurement::Evaluate(bool withDerivatives)
 {
    return false;
 }
-
-

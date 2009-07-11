@@ -30,6 +30,8 @@ public:
    RangeMeasurement(const RangeMeasurement &rm);
    RangeMeasurement& operator=(const RangeMeasurement &rm);
 
+   virtual GmatBase* Clone() const;
+
 protected:
    bool                       Evaluate(bool withDerivatives = false);
 };

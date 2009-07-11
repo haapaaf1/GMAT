@@ -127,6 +127,7 @@ public:
    virtual ObjectArray& GetRefObjectArray(const Gmat::ObjectType type);
    virtual ObjectArray& GetRefObjectArray(const std::string& typeString);
 
+   virtual bool         SetMeasurement(CoreMeasurement *meas);
    virtual bool         IsOwnedObject(Integer id) const;
    virtual Integer      GetOwnedObjectCount();
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
@@ -135,8 +136,10 @@ public:
                         CalculateMeasurement();
    virtual const Rmatrix&
                         CalculateMeasurementDerivatives();
-   const MeasurementData&
+   virtual const MeasurementData&
                         GetMeasurement();
+   virtual bool         WriteMeasurements();
+   virtual bool         WriteMeasurement(Integer id);
 
 protected:
    /// List of participants used in the contained measurement

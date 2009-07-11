@@ -41,6 +41,7 @@
 #include "CalculatedPoint.hpp"
 
 #include "MeasurementModel.hpp"
+#include "GeometricMeasurement.hpp"  // Will be "CoreMeasurement.hpp"
 
 
 /**
@@ -77,6 +78,7 @@ public:
    bool                SetSolarSystemInUse(const std::string &name);
 
    void                AddMeasurementModel(MeasurementModel *mModel);
+   void                AddMeasurement(CoreMeasurement *meas);
 
    const StringArray&  GetListOfAllItems();
    const StringArray&  GetListOfItems(Gmat::ObjectType itemType);

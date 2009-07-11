@@ -88,8 +88,7 @@ MeasurementModelFactory::~MeasurementModelFactory()
  * @param <createList> initial list of creatable objects for this factory.
  */
 //------------------------------------------------------------------------------
-MeasurementModelFactory::MeasurementModelFactory(
-      StringArray createList) :
+MeasurementModelFactory::MeasurementModelFactory(StringArray createList) :
    Factory(createList,Gmat::MEASUREMENT_MODEL)
 {
    if (creatables.empty())

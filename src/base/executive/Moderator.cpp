@@ -44,6 +44,7 @@
 #include "MathFactory.hpp"
 
 #include "MeasurementModelFactory.hpp"
+#include "MeasurementFactory.hpp"
 #include "EstimatorFactory.hpp"
 #include "EstimatorCommandFactory.hpp"
 
@@ -192,7 +193,7 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 
       // Estimator factory classes
       theFactoryManager->RegisterFactory(new MeasurementModelFactory());
-//      theFactoryManager->RegisterFactory(new MeasurementFactory());
+      theFactoryManager->RegisterFactory(new MeasurementFactory());
       theFactoryManager->RegisterFactory(new EstimatorFactory());
       theFactoryManager->RegisterFactory(new EstimatorCommandFactory());
 
@@ -3107,17 +3108,93 @@ MeasurementModel* Moderator::GetMeasurementModel(const std::string &name)
 }
 
 
-// Core Measurement -- Not yet coded
+//------------------------------------------------------------------------------
+// CoreMeasurement* CreateMeasurement(const std::string &type,
+//       const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * This method calls the FactoryManager to create a new CoreMeasurement object
+ *
+ * @param type The type of measurement object needed
+ * @param name The new object's name, is it is to be configured
+ *
+ * @return The new object's pointer
+ */
+//------------------------------------------------------------------------------
 CoreMeasurement* Moderator::CreateMeasurement(const std::string &type,
       const std::string &name)
 {
-   return NULL;
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage("====================\n");
+   MessageInterface::ShowMessage("Moderator::CreateMeasurement() name='%s'\n",
+                                 name.c_str());
+   #endif
+
+   if (GetMeasurement(type, name) == NULL)
+   {
+      CoreMeasurement *mModel = theFactoryManager->CreateMeasurement(type, name);
+
+      if (mModel == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a Measurement.\n"
+             "Make sure Measurement %s is correct type and registered to "
+             "MeasurementFactory.\n", type.c_str());
+         return NULL;
+      }
+
+      #ifdef DEBUG_MEMORY
+      if (mModel)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (propSetup, name, "Moderator::CreateMeasurementModel()", funcName);
+      }
+      #endif
+
+      if (name != "")
+         theConfigManager->AddMeasurement(mModel);
+
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateMeasurement() returning new Measurement "
+               "<%p>\n", mModel);
+      #endif
+
+      return mModel;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateMeasurement() Unable to create "
+          "Measurement name: %s already exist\n", name.c_str());
+      #endif
+      return GetMeasurement(type, name);
+   }
 }
 
+//------------------------------------------------------------------------------
+// CoreMeasurement* GetMeasurement(const std::string &type,
+//       const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * This method finds a configured CoreMeasurement
+ *
+ * @param type The type of measurement object needed
+ * @param name The new object's name, is it is to be configured
+ *
+ * @return The object's pointer; NULL if the object is not in the configuration
+ */
+//------------------------------------------------------------------------------
 CoreMeasurement* Moderator::GetMeasurement(const std::string &type,
       const std::string &name)
 {
-   return NULL;
+   if (name == "")
+      return NULL;
+   else
+      return (CoreMeasurement*)FindObject(name);
 }
 
 

@@ -557,6 +557,30 @@ void ConfigManager::AddMeasurementModel(MeasurementModel *mModel)
 
 
 //------------------------------------------------------------------------------
+// void AddMeasurementModel(MeasurementModel *mModel)
+//------------------------------------------------------------------------------
+/**
+ * Adds a MeasurementModel to the configuration.
+ *
+ * @param mModel Pointer to the MeasurementModel instance.
+ */
+//------------------------------------------------------------------------------
+void ConfigManager::AddMeasurement(CoreMeasurement *meas)
+{
+   std::string name = meas->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!meas->IsOfType(Gmat::CORE_MEASUREMENT))
+      throw ConfigManagerException(name + " is not a Measurement");
+
+   MessageInterface::ShowMessage("Warning: Core measurement %s configured; it "
+         "should be hidden inside of a MeasurementModel", name.c_str());
+   AddObject(meas);
+}
+
+
+//------------------------------------------------------------------------------
 // void AddObject(GmatBase *obj)
 //------------------------------------------------------------------------------
 /**

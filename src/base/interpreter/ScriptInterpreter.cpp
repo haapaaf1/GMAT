@@ -1180,6 +1180,16 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
       WriteObjects(objs, "Coordinate Systems", mode);
    
    //-----------------------------------
+   // Measurement Models
+   //-----------------------------------
+   objs = theModerator->GetListOfObjects(Gmat::MEASUREMENT_MODEL);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d Measurement Models\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteObjects(objs, "MeasurementModels", mode);
+
+   //-----------------------------------
    // Solver
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::SOLVER);

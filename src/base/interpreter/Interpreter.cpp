@@ -69,6 +69,7 @@
 //#define DBGLVL_FUNCTION_DEF 2
 //#define DBGLVL_FINAL_PASS 1
 //#define DEBUG_AXIS_SYSTEM
+//#define DEBUG_SET_MEASUREMENT_MODEL
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -255,6 +256,10 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray hws = theModerator->GetListOfFactoryItems(Gmat::HARDWARE);
    copy(hws.begin(), hws.end(), back_inserter(hardwareList));
    
+   measurementList.clear();
+   StringArray measurements = theModerator->GetListOfFactoryItems(Gmat::CORE_MEASUREMENT);
+   copy(measurements.begin(), measurements.end(), back_inserter(measurementList));
+
    odeModelList.clear();
    StringArray odes = theModerator->GetListOfFactoryItems(Gmat::ODE_MODEL);
    copy(odes.begin(), odes.end(), back_inserter(odeModelList));
@@ -334,6 +339,11 @@ void Interpreter::BuildCreatableObjectMaps()
       MessageInterface::ShowMessage("\nPropagators:\n   ");
       for (std::vector<std::string>::iterator pos = props.begin();
            pos != props.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+
+      MessageInterface::ShowMessage("\nMeasurements:\n   ");
+      for (pos = mmIndex = measurements.begin();
+            pos != measurements.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
 
       MessageInterface::ShowMessage("\nSolvers:\n   ");
@@ -423,6 +433,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          clist = hardwareList;
          break;
          
+      case Gmat::CORE_MEASUREMENT:
+         clist = measurementList;
+         break;
+
       case Gmat::ODE_MODEL:
          clist = odeModelList;
          break;
@@ -474,6 +488,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::COORDINATE_SYSTEM:
       case Gmat::MATH_NODE:
       case Gmat::MATH_TREE:
+      case Gmat::MEASUREMENT_MODEL:
       case Gmat::UNKNOWN_OBJECT:
       default:
          break;
@@ -782,6 +797,11 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
                hardwareList.end())
          obj = (GmatBase*)theModerator->CreateHardware(type, name);
       
+      // Handle Measurements
+      else if (find(measurementList.begin(), measurementList.end(), type) !=
+               measurementList.end())
+         obj = (GmatBase*)theModerator->CreateMeasurement(type, name);
+
       // Handle Parameters
       else if (find(parameterList.begin(), parameterList.end(), type) != 
                parameterList.end())
@@ -3815,6 +3835,10 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
    {
       retval = SetForceModelProperty(toOwner, toProp, value, NULL);
    }
+   else if (toOwner->GetType() == Gmat::MEASUREMENT_MODEL)
+   {
+      retval = SetMeasurementModelProperty(toOwner, toProp, value);
+   }
    else if (toOwner->GetType() == Gmat::SOLAR_SYSTEM)
    {
       retval = SetSolarSystemProperty(toOwner, toProp, value);
@@ -4783,8 +4807,24 @@ bool Interpreter::SetComplexProperty(GmatBase *obj, const std::string &prop,
 // bool SetForceModelProperty(GmatBase *obj, const std::string &prop,
 //                            const std::string &value, GmatBase *fromObj)
 //------------------------------------------------------------------------------
+/**
+ * Configures properties for an ODEModel
+ *
+ * ODEModel configuration is performed through calls to this method.  The method
+ * sets general ODEModel parameters, and includes constructor calls for the
+ * PhysicalModels that constitute the contributors, through superposition, to
+ * the total derivative data at a given state.
+ *
+ * @param obj     The ODEModel that receives the setting
+ * @param prop    The property that is being set
+ * @param value   The value for the property
+ * @param fromObj Object supplying the value, if used
+ *
+ * @return true if the property is set, false if not set
+ */
+//------------------------------------------------------------------------------
 bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
-                                        const std::string &value, GmatBase *fromObj)
+                                  const std::string &value, GmatBase *fromObj)
 {
    debugMsg = "In SetForceModelProperty()";
    bool retval = false;
@@ -5023,6 +5063,68 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
    #endif
    return retval;
 }
+
+
+
+//------------------------------------------------------------------------------
+// bool Interpreter::SetMeasurementModelProperty(GmatBase *obj,
+//          const std::string &property, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * This method configures properties on a MeasurementModel
+ *
+ * The method creates CoreMeasurements as needed, and passes the remaining
+ * parameters to the SteProperty() method.
+ *
+ * @param obj        The MeasurementModel that is being configured
+ * @param property   The property that is being set
+ * @param value      The property's value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool Interpreter::SetMeasurementModelProperty(GmatBase *obj,
+         const std::string &property, const std::string &value)
+{
+   debugMsg = "In SetMeasurementModelProperty()";
+   bool retval = false;
+   StringArray parts = theTextParser.SeparateDots(property);
+   Integer count = parts.size();
+   std::string propName = parts[count-1];
+
+   #ifdef DEBUG_SET_MEASUREMENT_MODEL
+      MessageInterface::ShowMessage
+         ("Interpreter::SetMeasurementModelProperty() mModel=%s, prop=%s, "
+          "value=%s\n", obj->GetName().c_str(), propName.c_str(),
+          value.c_str());
+   #endif
+
+   if (propName == "Type")
+   {
+      MeasurementModel *mModel = (MeasurementModel*)obj;
+      GmatBase* model = CreateObject(value, "", 0, false);
+      if (model != NULL)
+      {
+         if (model->IsOfType(Gmat::CORE_MEASUREMENT))
+            retval = mModel->SetMeasurement((CoreMeasurement*)model);
+      }
+      else
+         throw InterpreterException("Failed to create a " + value +
+               " core measurement");
+   }
+   else
+   {
+      Integer id;
+      Gmat::ParameterType type;
+
+      id = obj->GetParameterID(property);
+      type = obj->GetParameterType(id);
+      retval = SetProperty(obj, id, type, value);
+   }
+
+   return retval;
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -5988,6 +6090,10 @@ bool Interpreter::IsObjectType(const std::string &type)
    
    if (find(hardwareList.begin(), hardwareList.end(), type) != 
        hardwareList.end())
+      return true;
+
+   if (find(measurementList.begin(), measurementList.end(), type) !=
+       measurementList.end())
       return true;
 
    if (find(parameterList.begin(), parameterList.end(), type) != 

@@ -568,9 +568,26 @@ PropSetup* FactoryManager::CreatePropSetup(const std::string &withName)
 }
 
 
+//------------------------------------------------------------------------------
+// CoreMeasurement* FactoryManager::CreateMeasurement(const std::string &ofType,
+//                                          const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * This method creates the measurement primitive used in a MeasurementModel
+ *
+ * @param ofType The type of measuremetn primitive
+ * @param withName The name of the measurement prinitive.  This should be an
+ *                 empty string in the current implementation.
+ *
+ * @return The pointer to the new object
+ */
+//------------------------------------------------------------------------------
 CoreMeasurement* FactoryManager::CreateMeasurement(const std::string &ofType,
                                          const std::string &withName)
 {
+   Factory* f = FindFactory(Gmat::CORE_MEASUREMENT, ofType);
+   if (f != NULL)
+      return f->CreateMeasurement(ofType, withName);
    return NULL;
 }
 
