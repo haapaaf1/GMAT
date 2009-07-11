@@ -26,31 +26,31 @@ namespace GmatTree
    // creates icons by the order in ResourceIconType
    enum ResourceIconType
    {
-      ICON_FOLDER,      
+      ICON_FOLDER,
       ICON_FILE,
       ICON_OPENFOLDER,
       ICON_GROUND_STATION,
       ICON_SPACECRAFT,
-      
-      ICON_TANK,      
-      ICON_THRUSTER,      
+
+      ICON_TANK,
+      ICON_THRUSTER,
       ICON_SUN,
       ICON_MERCURY,
       ICON_VENUS,
-      
-      ICON_EARTH,      
+
+      ICON_EARTH,
       ICON_MARS,
       ICON_JUPITER,
       ICON_SATURN,
       ICON_URANUS,
-      
+
       ICON_NEPTUNE,
       ICON_PLUTO,
       ICON_REPORT,
       ICON_NETWORK,
       ICON_BURN,
-      
-      ICON_MOON,  
+
+      ICON_MOON,
       ICON_MOON_GENERIC,
       ICON_PLANET_GENERIC,
       ICON_COMET,
@@ -59,20 +59,20 @@ namespace GmatTree
       ICON_FUNCTION,
       ICON_COORDINATE_SYSTEM,
       ICON_OPEN_GL_PLOT,
-      
+
       ICON_PROPAGATOR,
       ICON_VARIABLE,
       ICON_ARRAY,
       ICON_STRING,
       ICON_XY_PLOT,
-      
+
       ICON_SCRIPT,
       ICON_DEFAULT,
-      
+
       // ICON_COUNT should be the last one, it is used in ResourceTree::AddIcons()
-      ICON_COUNT, 
+      ICON_COUNT,
    };
-   
+
    // MISSION_ICON_PROPAGATE should start from 0 since MissionTree::AddIcons()
    // creates icons by the order in MissionIconType
    enum MissionIconType
@@ -82,31 +82,31 @@ namespace GmatTree
       MISSION_ICON_FOLDER,
       MISSION_ICON_FILE,
       MISSION_ICON_OPENFOLDER,
-      
+
       MISSION_ICON_WHILE,
       MISSION_ICON_FOR,
       MISSION_ICON_IF,
       MISSION_ICON_SCRIPTEVENT,
       MISSION_ICON_VARY,
-      
+
       MISSION_ICON_ACHIEVE,
       MISSION_ICON_DELTA_V,
       MISSION_ICON_FUNCTION,
       MISSION_ICON_NEST_RETURN,
       MISSION_ICON_SAVE,
-      
+
       MISSION_ICON_ASSIGNMENT,
       MISSION_ICON_TOGGLE,
       MISSION_ICON_BEGIN_FB,
       MISSION_ICON_END_FB,
       MISSION_ICON_REPORT,
-      
+
       MISSION_ICON_STOP,
-      
+
       MISSION_ICON_COUNT,
       MISSION_NO_ICON,
    };
-   
+
    //----------------------------------------------------------------------
    // Note: Do not change the order of ItemType. The wrong order of dataType
    // will not work propery in GmatMainFrame::CreateChild()
@@ -114,7 +114,7 @@ namespace GmatTree
    enum ItemType
    {
       UNKNOWN_ITEM = -1,
-      
+
       //---------- Resource Tree
       RESOURCES_FOLDER = 40000,
       GROUND_STATION_FOLDER,
@@ -136,64 +136,65 @@ namespace GmatTree
       SCRIPT_FOLDER,
       CONSTELLATION_FOLDER,
       END_OF_RESOURCE_FOLDER,
-      
+
       // not openable
       INTERFACE,
       MATLAB_INTERFACE,
       MATLAB_SERVER,
-      
+
       VIEW_SOLVER_VARIABLES,
       VIEW_SOLVER_GOALS,
-      
+
       // openable resource
       BEGIN_OF_RESOURCE = 41000,
       GROUND_STATION,
       SPACECRAFT,
       FUELTANK,
       THRUSTER,
-      
+
       FORMATION,
       FORMATION_SPACECRAFT,
       CONSTELLATION_SATELLITE,
-      
+
       PROPAGATOR = 41100,
-      
+
       IMPULSIVE_BURN = 41200,
       FINITE_BURN,
-      
+
       SOLAR_SYSTEM = 41300,
       CELESTIAL_BODY,
-      CELESTIAL_BODY_STAR,    // need to differentiate these because they will have different 
+      CELESTIAL_BODY_STAR,    // need to differentiate these because they will have different
       CELESTIAL_BODY_PLANET,  // submenus for adding orbiting body(ies)
       CELESTIAL_BODY_MOON,    //
       CELESTIAL_BODY_COMET,   // wcs 2009.01.09
       CELESTIAL_BODY_ASTEROID,//
       BARYCENTER,
       LIBRATION_POINT,
-      
+
       SOLVER = 41400,
       DIFF_CORR,
       BROYDEN,
       QUASI_NEWTON,
       SQP,
-      
-      REPORT_FILE = 41500,
+
+      SUBSCRIBER = 41500,
+      REPORT_FILE,
       XY_PLOT,
       OPENGL_PLOT,
-      
+
       VARIABLE = 41600,
       ARRAY,
       STRING,
-      
+
       MATLAB_FUNCTION = 41700,
       GMAT_FUNCTION,
       COORD_SYSTEM,
       USER_COORD_SYSTEM,
-      
+
       // scripts
       SCRIPT_FILE = 41800,
       END_OF_RESOURCE,
-      
+
       //------------------------------------------
       // Note: MissionTree uses EVT_MENU_RANGE
       //------------------------------------------
@@ -202,7 +203,7 @@ namespace GmatTree
       MISSION_SEQ_TOP_FOLDER,
       MISSION_SEQ_SUB_FOLDER,
       MISSION_SEQ_COMMAND,
-      
+
       // command
       BEGIN_OF_COMMAND = 43000,
       PROPAGATE,
@@ -224,7 +225,7 @@ namespace GmatTree
       FREE_FORM_SCRIPT,
       SCRIPT_EVENT,
       END_OF_COMMAND,
-      
+
       // control logic
       BEGIN_OF_CONTROL = 44000,
       IF_CONTROL,
@@ -234,13 +235,13 @@ namespace GmatTree
       DO_CONTROL,
       SWITCH_CONTROL,
       END_OF_CONTROL,
-      
+
       //---------- Output Tree
       OUTPUT_FOLDER = 45000,
       REPORTS_FOLDER,
       OPENGL_PLOTS_FOLDER,
       XY_PLOTS_FOLDER,
-      
+
       // for output
       BEGIN_OF_OUTPUT = 46000,
       OUTPUT_REPORT,
@@ -248,7 +249,7 @@ namespace GmatTree
       OUTPUT_XY_PLOT,
       COMPARE_REPORT,
       END_OF_OUTPUT,
-      
+
       //---------- NO panels will be created
       BEGIN_NO_PANEL = 47000,
       STOP,
@@ -272,17 +273,17 @@ class GmatTreeItemData : public wxTreeItemData
 public:
    GmatTreeItemData(const wxString &name, GmatTree::ItemType type,
                     const wxString &title = "");
-   
+
    wxString GetName();
    wxString GetTitle();
    GmatTree::ItemType GetItemType();
-   
+
    void SetName(const wxString &objName);
    void SetTitle(const wxString &title);
    void SetItemType(GmatTree::ItemType type);
-   
+
    virtual GmatCommand* GetCommand();
-   
+
 protected:
    wxString mItemTitle;
    wxString mItemName;

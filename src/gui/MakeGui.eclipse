@@ -238,6 +238,7 @@ OBJECTS = \
     plot/OpenGlOptionDialog.o \
     plot/OpenGlPlotSetupPanel.o \
     plot/ReportFileSetupPanel.o \
+    plot/SubscriberSetupPanel.o \
     plot/TrajPlotCanvas.o \
     plot/TsPlotCanvas.o \
     plot/TsPlotXYCanvas.o \
