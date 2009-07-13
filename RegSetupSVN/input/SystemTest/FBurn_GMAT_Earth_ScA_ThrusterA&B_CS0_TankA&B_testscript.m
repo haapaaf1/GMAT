@@ -168,7 +168,7 @@ GMAT prop.MaxStepAttempts = 50;
  
 %  Create a report file
 Create ReportFile rf;
-GMAT rf.Filename = '.\output\SystemTest\FBurn_GMAT_Earth_ScA_ThrusterA&B_CS0_TankA&B_output.txt';
+GMAT rf.Filename = '.\output\SystemTest\FBurn_GMAT_Earth_ScA_ThrusterA&B_CS0_TankA&B_output.report';
 GMAT rf.Precision = 16;
 GMAT rf.Add = {Sc.TAIModJulian, Sc.X, Sc.Y, Sc.Z, Sc.VX, Sc.VY, Sc.VZ, Sc.TotalMass};
 GMAT rf.WriteHeaders = Off;
