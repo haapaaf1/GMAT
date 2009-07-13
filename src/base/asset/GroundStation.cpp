@@ -61,7 +61,8 @@ GroundStation::PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount
  */
 //---------------------------------------------------------------------------
 GroundStation::GroundStation(const std::string &itsName) :
-   BodyFixedPoint    ("GroundStation", itsName)
+   BodyFixedPoint    ("GroundStation", itsName),
+   stationId         ("StationId")
 {
    objectTypes.push_back(Gmat::GROUND_STATION);
    objectTypeNames.push_back("GroundStation");
@@ -93,7 +94,8 @@ GroundStation::~GroundStation()
  */
 //---------------------------------------------------------------------------
 GroundStation::GroundStation(const GroundStation& gs) :
-   BodyFixedPoint        (gs)
+   BodyFixedPoint        (gs),
+   stationId             (gs.stationId)
 {
 }
 
@@ -114,6 +116,8 @@ GroundStation& GroundStation::operator=(const GroundStation& gs)
    if (&gs != this)
    {
       BodyFixedPoint::operator=(*this);
+
+      stationId = gs.stationId;
    }
    
    return *this;
