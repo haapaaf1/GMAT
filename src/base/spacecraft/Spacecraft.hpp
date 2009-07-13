@@ -196,6 +196,7 @@ protected:
       FUEL_TANK_ID, 
       THRUSTER_ID, 
       TOTAL_MASS_ID,
+      SPACECRAFT_ID,
       ATTITUDE,
       ORBIT_STM,
       
@@ -301,6 +302,9 @@ protected:
    CoordinateSystem  *coordinateSystem;
    
    std::string       coordSysName;
+
+   /// Spacecraft ID Used in estimation, measuremetn data files, etc
+   std::string       spacecraftId;
    
    /// Pointer to the object that manages the attitude of the spacecraft
    Attitude          *attitude;

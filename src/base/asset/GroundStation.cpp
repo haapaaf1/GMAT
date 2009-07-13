@@ -32,15 +32,17 @@
 //---------------------------------
 
 /// Labels used for the ground station parameters.
-//const std::string 
-//GroundStation::PARAMETER_TEXT[GroundStationParamCount - BodyFixedPointParamCount] =
-//   {
-//   };
-//
-//const Gmat::ParameterType 
-//GroundStation::PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount] =
-//   {
-//   };
+const std::string
+GroundStation::PARAMETER_TEXT[GroundStationParamCount - BodyFixedPointParamCount] =
+   {
+      "Id",
+   };
+
+const Gmat::ParameterType
+GroundStation::PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount] =
+   {
+      Gmat::STRING_TYPE,
+   };
 
 
 
@@ -131,6 +133,295 @@ GmatBase* GroundStation::Clone() const
 {
    return new GroundStation(*this);
 }
+
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter ID, given the input parameter string.
+ *
+ * @param str string for the requested parameter.
+ *
+ * @return ID for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+Integer GroundStation::GetParameterID(const std::string & str) const
+{
+   for (Integer i = BodyFixedPointParamCount; i < GroundStationParamCount; i++)
+   {
+      if (str == PARAMETER_TEXT[i - BodyFixedPointParamCount])
+         return i;
+   }
+
+   return BodyFixedPoint::GetParameterID(str);
+}
+
+//------------------------------------------------------------------------------
+// public methods inherited from GmatBase
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//  std::string  GetParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested parameter text.
+ *
+ * @return parameter text for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string GroundStation::GetParameterText(const Integer id) const
+{
+   if (id >= BodyFixedPointParamCount && id < GroundStationParamCount)
+      return PARAMETER_TEXT[id - BodyFixedPointParamCount];
+   return BodyFixedPoint::GetParameterText(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  std::string  GetParameterTypeString(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the parameter type string, given the input parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return parameter type string of the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string GroundStation::GetParameterTypeString(const Integer id) const
+{
+   return BodyFixedPoint::PARAM_TYPE_STRING[GetParameterType(id)];
+}
+
+//---------------------------------------------------------------------------
+//  std::string GetParameterUnit(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the unit for the parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return unit for the requested parameter.
+ */
+//------------------------------------------------------------------------------
+std::string GroundStation::GetParameterUnit(const Integer id) const
+{
+   return BodyFixedPoint::GetParameterUnit(id);
+}
+
+//---------------------------------------------------------------------------
+//  Gmat::ParameterType GetParameterType(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the enumerated type of the object.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The enumeration for the type of the parameter, or
+ *         UNKNOWN_PARAMETER_TYPE.
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType GroundStation::GetParameterType(const Integer id) const
+{
+   if (id >= BodyFixedPointParamCount && id < GroundStationParamCount)
+      return PARAMETER_TYPE[id - BodyFixedPointParamCount];
+
+   return BodyFixedPoint::GetParameterType(id);
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not,
+ *         throws if the parameter is out of the valid range of values.
+ */
+//---------------------------------------------------------------------------
+bool GroundStation::IsParameterReadOnly(const Integer id) const
+{
+   return BodyFixedPoint::IsParameterReadOnly(id);
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not.
+ */
+//---------------------------------------------------------------------------
+bool GroundStation::IsParameterReadOnly(const std::string & label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method retrieves a string parameter
+ *
+ * @param id The ID for the parameter
+ *
+ * @return The string parameter
+ */
+//------------------------------------------------------------------------------
+std::string GroundStation::GetStringParameter(const Integer id) const
+{
+   if (id == STATION_ID)
+      return stationId;
+
+   return BodyFixedPoint::GetStringParameter(id);
+}
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string & value)
+//------------------------------------------------------------------------------
+/**
+ * This method sets a string parameter
+ *
+ * @param id The ID for the parameter
+ * @param value The new string value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool GroundStation::SetStringParameter(const Integer id,
+      const std::string & value)
+{
+   if (id == STATION_ID)
+   {
+      stationId = value;
+      return true;
+   }
+
+   return BodyFixedPoint::SetStringParameter(id, value);
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string & label) const
+//------------------------------------------------------------------------------
+/**
+ * This method retrieves a string parameter
+ *
+ * @param label The string label for the parameter
+ *
+ * @return The parameter
+ */
+//------------------------------------------------------------------------------
+std::string GroundStation::GetStringParameter(const std::string & label) const
+{
+   return GetStringParameter(GetParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string & label, const std::string & value)
+//------------------------------------------------------------------------------
+/**
+ * This method sets a string parameter
+ *
+ * @param label The string label for the parameter
+ * @param value The new string value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool GroundStation::SetStringParameter(const std::string & label,
+      const std::string & value)
+{
+   return SetStringParameter(GetParameterID(label), value);
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * This method retrieves a string parameter from a StringArray
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The parameter
+ */
+//------------------------------------------------------------------------------
+std::string GroundStation::GetStringParameter(const Integer id,
+      const Integer index) const
+{
+   return BodyFixedPoint::GetStringParameter(id, index);
+}
+
+//------------------------------------------------------------------------------
+// std::string MeasurementModel::GetStringParameter(const std::string & label,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * This method retrieves a string parameter from a StringArray
+ *
+ * @param label The string label for the parameter
+ *
+ * @return The parameter
+ */
+//------------------------------------------------------------------------------
+std::string GroundStation::GetStringParameter(const std::string & label,
+      const Integer index) const
+{
+   return GetStringParameter(GetParameterID(label), index);
+}
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string & label,
+//       const std::string & value, const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * This method calls the base class method.  It is provided for overload
+ * compatibility.  See the base class description for a full description.
+ */
+//------------------------------------------------------------------------------
+bool GroundStation::SetStringParameter(const std::string & label,
+      const std::string & value, const Integer index)
+{
+   return SetStringParameter(GetParameterID(label), value, index);
+}
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id,
+//       const std::string & value, const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a specific string in a StringArray
+ *
+ * This method changes a specific string in a StringArray if a string has been
+ * set at the location selected by the index value.  If the index exceeds the
+ * size of the name array, the participant name is added to the end of the list.
+ *
+ * @param id The ID for the StringArray parameter that is being changed
+ * @param value The string that needs to be placed in the StringArray
+ * @param index The location for the string in the list.  If index exceeds the
+ *              size of the StringArray, the string is added to the end of the
+ *              array
+ *
+ * @return true If the string was processed
+ */
+//------------------------------------------------------------------------------
+bool GroundStation::SetStringParameter(const Integer id,
+      const std::string & value, const Integer index)
+{
+   return BodyFixedPoint::SetStringParameter(id, value, index);
+}
+
+
+
+
 
 
 ///------------------------------------------------------------------------------

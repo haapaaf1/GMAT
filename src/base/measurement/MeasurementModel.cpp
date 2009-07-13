@@ -26,6 +26,7 @@
 
 const std::string MeasurementModel::PARAMETER_TEXT[] =
 {
+   "ObservationData",
    "Type",
    "Participants",
    "Bias",
@@ -36,6 +37,7 @@ const std::string MeasurementModel::PARAMETER_TEXT[] =
 
 const Gmat::ParameterType MeasurementModel::PARAMETER_TYPE[] =
 {
+   Gmat::OBJECTARRAY_TYPE,
    Gmat::STRING_TYPE,
    Gmat::OBJECTARRAY_TYPE,
    Gmat::REAL_TYPE,
@@ -549,6 +551,16 @@ std::string MeasurementModel::GetStringParameter(const Integer id) const
 bool MeasurementModel::SetStringParameter(const Integer id,
       const std::string & value)
 {
+   if (id == ObservationData)
+   {
+      // Only add the obs data if it is not in the list already
+      if (find(observationStreamName.begin(), observationStreamName.end(),
+            value) == observationStreamName.end())
+      {
+         observationStreamName.push_back(value);
+         return true;
+      }
+   }
    if (id == MeasurementType)
    {
       measurementType = value;
@@ -620,6 +632,8 @@ std::string MeasurementModel::GetStringParameter(const Integer id,
 {
    if (id == Participants)
       return participantNames[index];
+   if (id == ObservationData)
+      return observationStreamName[index];
 
    return GmatBase::GetStringParameter(id, index);
 }
@@ -695,10 +709,20 @@ bool MeasurementModel::SetStringParameter(const Integer id,
          if (index < (Integer)participantNames.size())
             participantNames[index] = value;
          else
-            // Only add the tank if it is not in the list already
             if (find(participantNames.begin(), participantNames.end(), value) ==
                   participantNames.end())
                participantNames.push_back(value);
+
+         return true;
+      }
+   case ObservationData:
+      {
+         if (index < (Integer)observationStreamName.size())
+            observationStreamName[index] = value;
+         else
+            if (find(observationStreamName.begin(), observationStreamName.end(),
+                  value) == observationStreamName.end())
+               observationStreamName.push_back(value);
 
          return true;
       }
@@ -724,6 +748,8 @@ const StringArray& MeasurementModel::GetStringArrayParameter(
 {
    if (id == Participants)
       return participantNames;
+   if (id == ObservationData)
+      return observationStreamName;
 
    return GmatBase::GetStringArrayParameter(id);
 }

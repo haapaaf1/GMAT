@@ -89,7 +89,6 @@ public:
                                            const std::string &value,
                                            const Integer index);
 
-
    virtual const StringArray&
                         GetStringArrayParameter(const Integer id) const;
    virtual const StringArray&
@@ -142,6 +141,10 @@ public:
    virtual bool         WriteMeasurement(Integer id);
 
 protected:
+   /// Name of the observation stream that supplied or receives data
+   StringArray          observationStreamName;
+   /// The observation stream
+//   std::vector<DataFile*> observationStream;
    /// List of participants used in the contained measurement
    StringArray          participantNames;
    /// Pointers to the participants
@@ -165,7 +168,8 @@ protected:
 
    enum
    {
-       MeasurementType = GmatBaseParamCount,
+       ObservationData = GmatBaseParamCount,
+       MeasurementType,
        Participants,
        Bias,
        NoiseSigma,

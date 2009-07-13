@@ -95,6 +95,7 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::OBJECTARRAY_TYPE, // Tanks
       Gmat::OBJECTARRAY_TYPE, // Thrusters
       Gmat::REAL_TYPE,        // TotalMass
+      Gmat::STRING_TYPE,      // Id
       Gmat::OBJECT_TYPE,      // Attitude
       Gmat::RMATRIX_TYPE,     // OrbitSTM
       Gmat::STRING_TYPE,      // UTCGregorian
@@ -134,7 +135,8 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "SRPArea",
       "Tanks", 
       "Thrusters", 
-      "TotalMass", 
+      "TotalMass",
+      "Id",
       "Attitude",
       "OrbitSTM",
       "UTCGregorian",
@@ -219,6 +221,7 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    internalCoordSystem  (NULL),
    coordinateSystem     (NULL),
    coordSysName         ("EarthMJ2000Eq"),
+   spacecraftId         ("SatId"),
    attitude             (NULL),
    totalMass            (850.0),
    initialDisplay       (false),
@@ -378,6 +381,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    internalCoordSystem  (a.internalCoordSystem),   // need to copy
    coordinateSystem     (a.coordinateSystem),      // need to copy
    coordSysName         (a.coordSysName),
+   spacecraftId         (a.spacecraftId),
    stateConverter       (a.stateConverter),
    coordConverter       (a.coordConverter),
    totalMass            (a.totalMass),
@@ -475,6 +479,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    displayStateType     = a.displayStateType;
    anomalyType          = a.anomalyType;
    coordSysName         = a.coordSysName;
+   spacecraftId         = a.spacecraftId;
    internalCoordSystem  = a.internalCoordSystem; // need to copy
    coordinateSystem     = NULL;
    //attitude             = a.attitude,        // correct?
@@ -1929,6 +1934,9 @@ std::string Spacecraft::GetStringParameter(const Integer id) const
     if ((id >= ELEMENT1UNIT_ID) && (id <= ELEMENT6UNIT_ID))
        return stateElementUnits[id - ELEMENT1UNIT_ID];
        
+    if (id == SPACECRAFT_ID)
+       return spacecraftId;
+
     if (id >= ATTITUDE_ID_OFFSET)
        if (attitude)
        {
@@ -2118,6 +2126,10 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
    {
       parmsChanged = true;
       coordSysName = value;
+   }
+   else if (id == SPACECRAFT_ID)
+   {
+      spacecraftId = value;
    }
    else if (id == FUEL_TANK_ID) 
    {
