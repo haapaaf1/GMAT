@@ -1,0 +1,199 @@
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+// Begin Object Creation Section
+Create ForceModel AllPlanets_FM;
+Get AllPlanets_FM from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create RK89 AllPlanets_prop using AllPlanets_FM;
+Get AllPlanets_prop from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create Spacecraft AllPlanets using AllPlanets_prop;
+Get AllPlanets from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create ForceModel AllPlanets_SRP_FM;
+Get AllPlanets_SRP_FM from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create RK89 AllPlanets_SRP_prop using AllPlanets_SRP_FM;
+Get AllPlanets_SRP_prop from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create Spacecraft AllPlanets_SRP using AllPlanets_SRP_prop;
+Get AllPlanets_SRP from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create ForceModel ESM_JGM_FM;
+Get ESM_JGM_FM from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create RK89 ESM_JGM_prop using ESM_JGM_FM;
+Get ESM_JGM_prop from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create Spacecraft ESM_JGM using ESM_JGM_prop;
+Get ESM_JGM from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create ForceModel ESM_FM;
+Get ESM_FM from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create RK89 ESM_prop using ESM_FM;
+Get ESM_prop from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create Spacecraft ESM using ESM_prop;
+Get ESM from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Jupiter1_SpiceEphem;
+Get Jupiter1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Jupiter1_IAUIAGAttitudeAdvancer;
+Get Jupiter1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Jupiter1 using Jupiter1_SpiceEphem and Jupiter1_IAUIAGAttitudeAdvancer;
+Get Jupiter1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Mercury1_SpiceEphem;
+Get Mercury1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Mercury1_IAUIAGAttitudeAdvancer;
+Get Mercury1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Mercury1 using Mercury1_SpiceEphem and Mercury1_IAUIAGAttitudeAdvancer;
+Get Mercury1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Venus1_SpiceEphem;
+Get Venus1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Venus1_IAUIAGAttitudeAdvancer;
+Get Venus1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Venus1 using Venus1_SpiceEphem and Venus1_IAUIAGAttitudeAdvancer;
+Get Venus1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Neptune1_SpiceEphem;
+Get Neptune1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Neptune1_IAUIAGAttitudeAdvancer;
+Get Neptune1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Neptune1 using Neptune1_SpiceEphem and Neptune1_IAUIAGAttitudeAdvancer;
+Get Neptune1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Pluto1_SpiceEphem;
+Get Pluto1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Pluto1_IAUIAGAttitudeAdvancer;
+Get Pluto1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Pluto1 using Pluto1_SpiceEphem and Pluto1_IAUIAGAttitudeAdvancer;
+Get Pluto1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Saturn1_SpiceEphem;
+Get Saturn1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Saturn1_IAUIAGAttitudeAdvancer;
+Get Saturn1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Saturn1 using Saturn1_SpiceEphem and Saturn1_IAUIAGAttitudeAdvancer;
+Get Saturn1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Uranus1_SpiceEphem;
+Get Uranus1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Uranus1_IAUIAGAttitudeAdvancer;
+Get Uranus1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Uranus1 using Uranus1_SpiceEphem and Uranus1_IAUIAGAttitudeAdvancer;
+Get Uranus1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Mars1_SpiceEphem;
+Get Mars1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Mars1_IAUIAGAttitudeAdvancer;
+Get Mars1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Mars1 using Mars1_SpiceEphem and Mars1_IAUIAGAttitudeAdvancer;
+Get Mars1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Moon1_SpiceEphem;
+Get Moon1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Moon1_IAUIAGAttitudeAdvancer;
+Get Moon1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Moon1 using Moon1_SpiceEphem and Moon1_IAUIAGAttitudeAdvancer;
+Get Moon1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Sun1_SpiceEphem;
+Get Sun1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Sun1_IAUIAGAttitudeAdvancer;
+Get Sun1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Sun1 using Sun1_SpiceEphem and Sun1_IAUIAGAttitudeAdvancer;
+Get Sun1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create SpiceEphemeris Earth1_SpiceEphem;
+Get Earth1_SpiceEphem from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create IAUIAGAttitudeAdvancer Earth1_IAUIAGAttitudeAdvancer;
+Get Earth1_IAUIAGAttitudeAdvancer from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create CelestialObject Earth1 using Earth1_SpiceEphem and Earth1_IAUIAGAttitudeAdvancer;
+Get Earth1 from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+Create Variable I;
+Get I from "C:\GMAT_results\TruthFiles\FF\EarthMoonL2\EarthMoonL2.Object";
+
+
+// Begin Command Section;
+FF_SolarSystem.COUpdateInterval = 0;
+FF_SolarSystem.NPUpdateInterval = 60;
+FF_SolarSystem.ComputePolarMotion = 1;
+
+AllPlanets.X = 406326.22661300009;
+AllPlanets.Y = 177458.38761599999;
+AllPlanets.Z = 145838.58078999998;
+AllPlanets.VX = -0.517274673822;
+AllPlanets.VY = 0.774650366561;
+AllPlanets.VZ = 0.331416602654;
+
+AllPlanets_SRP.X = 406326.22661300009;
+AllPlanets_SRP.Y = 177458.38761599999;
+AllPlanets_SRP.Z = 145838.58078999998;
+AllPlanets_SRP.VX = -0.517274673822;
+AllPlanets_SRP.VY = 0.774650366561;
+AllPlanets_SRP.VZ = 0.331416602654;
+
+ESM.X = 406326.22661300009;
+ESM.Y = 177458.38761599999;
+ESM.Z = 145838.58078999998;
+ESM.VX = -0.517274673822;
+ESM.VY = 0.774650366561;
+ESM.VZ = 0.331416602654;
+
+ESM_JGM.X = 406326.22661300009;
+ESM_JGM.Y = 177458.38761599999;
+ESM_JGM.Z = 145838.580789999980;
+ESM_JGM.VX = -0.517274673822;
+ESM_JGM.VY = 0.774650366561;
+ESM_JGM.VZ = 0.331416602654;
+While (AllPlanets.ElapsedDays <= 14);
+  Report AllPlanets.ElapsedMinutes<15,9>, AllPlanets.X<15,9>, AllPlanets.Y<15,9>, AllPlanets.Z<15,9>, AllPlanets.VX<15,9>, AllPlanets.VY<15,9>, AllPlanets.VZ<15,9> to "FF_EML2_AllPlanets_0_0_0.report";
+  Report AllPlanets.ElapsedMinutes<15,9>, AllPlanets.X<15,9>, AllPlanets.Y<15,9>, AllPlanets.Z<15,9>, AllPlanets.VX<15,9>, AllPlanets.VY<15,9>, AllPlanets.VZ<15,9> to "FF_EML2HPOP_AllPlanets_0_0_0.report";
+  For I = 1 to 2 step 1;
+    Step AllPlanets;
+  End;
+End;
+While (AllPlanets_SRP.ElapsedDays <= 14);
+  Report AllPlanets_SRP.ElapsedMinutes<15,9>, AllPlanets_SRP.X<15,9>, AllPlanets_SRP.Y<15,9>, AllPlanets_SRP.Z<15,9>, AllPlanets_SRP.VX<15,9>, AllPlanets_SRP.VY<15,9>, AllPlanets_SRP.VZ<15,9> to "FF_EML2_AllPlanets_0_0_SRP.report";
+  For I = 1 to 2 step 1;
+    Step AllPlanets_SRP;
+  End;
+End;
+While (ESM_JGM.ElapsedDays <= 14);
+  Report ESM_JGM.ElapsedMinutes<15,9>, ESM_JGM.X<15,9>, ESM_JGM.Y<15,9>, ESM_JGM.Z<15,9>, ESM_JGM.VX<15,9>, ESM_JGM.VY<15,9>, ESM_JGM.VZ<15,9> to "FF_EML2_EarthSunLuna_JGM2_0_0.report";
+  For I = 1 to 2 step 1;
+    Step ESM_JGM;
+  End;
+End;
+While (ESM.ElapsedDays <= 14);
+  Report ESM.ElapsedMinutes<15,9>, ESM.X<15,9>, ESM.Y<15,9>, ESM.Z<15,9>, ESM.VX<15,9>, ESM.VY<15,9>, ESM.VZ<15,9> to "FF_EML2_EarthSunLuna_0_0_0.report";
+  For I = 1 to 2 step 1;
+    Step ESM;
+  End;
+End;
+// End Control Sequence;

@@ -1,0 +1,68 @@
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+// Begin Object Creation Section
+Create ForceModel AllForces4by4JR_10Day_FM;
+Get AllForces4by4JR_10Day_FM from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create RK89 AllForces4by4JR_10Day_prop using AllForces4by4JR_10Day_FM;
+Get AllForces4by4JR_10Day_prop from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create Spacecraft AllForces4by4JR_10Day using AllForces4by4JR_10Day_prop;
+Get AllForces4by4JR_10Day from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create ForceModel Earth00_10Day_FM;
+Get Earth00_10Day_FM from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create RK89 Earth00_10Day_prop using Earth00_10Day_FM;
+Get Earth00_10Day_prop from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create Spacecraft Earth00_10Day using Earth00_10Day_prop;
+Get Earth00_10Day from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create ForceModel Earth00JRDrag_10Day_FM;
+Get Earth00JRDrag_10Day_FM from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create RK89 Earth00JRDrag_10Day_prop using Earth00JRDrag_10Day_FM;
+Get Earth00JRDrag_10Day_prop from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create Spacecraft Earth00JRDrag_10Day using Earth00JRDrag_10Day_prop;
+Get Earth00JRDrag_10Day from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create ForceModel Earth20by20_10Day_FM;
+Get Earth20by20_10Day_FM from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create RK89 Earth20by20_10Day_prop using Earth20by20_10Day_FM;
+Get Earth20by20_10Day_prop from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create Spacecraft Earth20by20_10Day using Earth20by20_10Day_prop;
+Get Earth20by20_10Day from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create ForceModel EarthJ2_10Day_FM;
+Get EarthJ2_10Day_FM from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create RK89 EarthJ2_10Day_prop using EarthJ2_10Day_FM;
+Get EarthJ2_10Day_prop from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create Spacecraft EarthJ2_10Day using EarthJ2_10Day_prop;
+Get EarthJ2_10Day from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create ForceModel SEMPointMass10Day_FM;
+Get SEMPointMass10Day_FM from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create RK89 SEMPointMass10Day_prop using SEMPointMass10Day_FM;
+Get SEMPointMass10Day_prop from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create Spacecraft SEMPointMass10Day using SEMPointMass10Day_prop;
+Get SEMPointMass10Day from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create ForceModel SRP_ESMPointMass_10Day_FM;
+Get SRP_ESMPointMass_10Day_FM from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create RK89 SRP_ESMPointMass_10Day_prop using SRP_ESMPointMass_10Day_FM;
+Get SRP_ESMPointMass_10Day_prop from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+Create Spacecraft SRP_ESMPointMass_10Day using SRP_ESMPointMass_10Day_prop;
+Get SRP_ESMPointMass_10Day from "C:\GMAT_results\TruthFiles\FF\PerformanceTests\PerformanceTests.Object";
+
+
+// Begin Command Section;
+// End Control Sequence;

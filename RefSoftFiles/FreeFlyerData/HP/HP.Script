@@ -1,0 +1,86 @@
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+// Begin Object Creation Section
+Create ForceModel ISS_FM;
+Get ISS_FM from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create RK89 ISS_prop using ISS_FM;
+Get ISS_prop from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create Spacecraft ISS using ISS_prop;
+Get ISS from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create ForceModel GEO_FM;
+Get GEO_FM from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create RK89 GEO_prop using GEO_FM;
+Get GEO_prop from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create Spacecraft GEO using GEO_prop;
+Get GEO from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create ForceModel GPS_FM;
+Get GPS_FM from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create RK89 GPS_prop using GPS_FM;
+Get GPS_prop from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create Spacecraft GPS using GPS_prop;
+Get GPS from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create ForceModel SunSync_FM;
+Get SunSync_FM from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create RK89 SunSync_prop using SunSync_FM;
+Get SunSync_prop from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create Spacecraft SunSync using SunSync_prop;
+Get SunSync from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create ForceModel Molniya_FM;
+Get Molniya_FM from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create RK89 Molniya_prop using Molniya_FM;
+Get Molniya_prop from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create Spacecraft Molniya using Molniya_prop;
+Get Molniya from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+Create Variable I;
+Get I from "C:\GMAT_results\TruthFiles\FF\HP\HP.Object";
+
+
+// Begin Command Section;
+FF_SolarSystem.COUpdateInterval = 0;
+FF_SolarSystem.NPUpdateInterval = 60;
+FF_SolarSystem.ComputePolarMotion = 1;
+While (ISS.ElapsedDays <= 1);
+  Report ISS.ElapsedMinutes<15,9>, ISS.X<15,9>, ISS.Y<15,9>, ISS.Z<15,9>, ISS.VX<15,9>, ISS.VY<15,9>, ISS.VZ<15,9> to "FF_ISS_Earth_0_HP_0.report";
+  For I = 1 to 12 step 1;
+    Step ISS;
+  End;
+End;
+While (GEO.ElapsedDays <= 7);
+  Report GEO.ElapsedMinutes<15,9>, GEO.X<15,9>, GEO.Y<15,9>, GEO.Z<15,9>, GEO.VX<15,9>, GEO.VY<15,9>, GEO.VZ<15,9> to "FF_GEO_Earth_0_HP_0.report";
+  For I = 1 to 10 step 1;
+    Step GEO;
+  End;
+End;
+While (GPS.ElapsedDays <= 2);
+  Report GPS.ElapsedMinutes<15,9>, GPS.X<15,9>, GPS.Y<15,9>, GPS.Z<15,9>, GPS.VX<15,9>, GPS.VY<15,9>, GPS.VZ<15,9> to "FF_GPS_Earth_0_HP_0.report";
+  For I = 1 to 2 step 1;
+    Step GPS;
+  End;
+End;
+While (SunSync.ElapsedDays <= 1);
+  Report SunSync.ElapsedDays<15,9>, SunSync.X<15,9>, SunSync.Y<15,9>, SunSync.Z<15,9>, SunSync.VX<15,9>, SunSync.VY<15,9>, SunSync.VZ<15,9> to "FF_SunSync_Earth_0_HP_0.report";
+  For I = 1 to 12 step 1;
+    Step SunSync;
+  End;
+End;
+While (Molniya.ElapsedDays <= 3);
+  Report Molniya.ElapsedMinutes<15,9>, Molniya.X<15,9>, Molniya.Y<15,9>, Molniya.Z<15,9>, Molniya.VX<15,9>, Molniya.VY<15,9>, Molniya.VZ<15,9> to "FF_Molniya_Earth_0_HP_0.report";
+  For I = 1 to 60 step 1;
+    Step Molniya;
+  End;
+End;
+// End Control Sequence;

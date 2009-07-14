@@ -1,0 +1,233 @@
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+// Begin Object Creation Section
+Create ForceModel ISS_2Body_FM;
+Get ISS_2Body_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 ISS_2Body_prop using ISS_2Body_FM;
+Get ISS_2Body_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft ISS_2Body using ISS_2Body_prop;
+Get ISS_2Body from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel ISS_AllPlanets_FM;
+Get ISS_AllPlanets_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 ISS_AllPlanets_prop using ISS_AllPlanets_FM;
+Get ISS_AllPlanets_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft ISS_AllPlanets using ISS_AllPlanets_prop;
+Get ISS_AllPlanets from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel ISS_NSG_FM;
+Get ISS_NSG_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 ISS_NSG_prop using ISS_NSG_FM;
+Get ISS_NSG_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft ISS_NSG using ISS_NSG_prop;
+Get ISS_NSG from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel ISS_SRP_FM;
+Get ISS_SRP_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 ISS_SRP_prop using ISS_SRP_FM;
+Get ISS_SRP_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft ISS_SRP using ISS_SRP_prop;
+Get ISS_SRP from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel ISS_Drag_FM;
+Get ISS_Drag_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 ISS_Drag_prop using ISS_Drag_FM;
+Get ISS_Drag_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft ISS_Drag using ISS_Drag_prop;
+Get ISS_Drag from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GEO_2Body_FM;
+Get GEO_2Body_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GEO_2Body_prop using GEO_2Body_FM;
+Get GEO_2Body_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GEO_2Body using GEO_2Body_prop;
+Get GEO_2Body from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GEO_AllPlanets_FM;
+Get GEO_AllPlanets_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GEO_AllPlanets_prop using GEO_AllPlanets_FM;
+Get GEO_AllPlanets_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GEO_AllPlanets using GEO_AllPlanets_prop;
+Get GEO_AllPlanets from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GEO_NSG_FM;
+Get GEO_NSG_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GEO_NSG_prop using GEO_NSG_FM;
+Get GEO_NSG_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GEO_NSG using GEO_NSG_prop;
+Get GEO_NSG from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GEO_Drag_FM;
+Get GEO_Drag_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GEO_Drag_prop using GEO_Drag_FM;
+Get GEO_Drag_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GEO_Drag using GEO_Drag_prop;
+Get GEO_Drag from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GEO_SRP_FM;
+Get GEO_SRP_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GEO_SRP_prop using GEO_SRP_FM;
+Get GEO_SRP_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GEO_SRP using GEO_SRP_prop;
+Get GEO_SRP from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GPS_2Body_FM;
+Get GPS_2Body_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GPS_2Body_prop using GPS_2Body_FM;
+Get GPS_2Body_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GPS_2Body using GPS_2Body_prop;
+Get GPS_2Body from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GPS_AllPlanets_FM;
+Get GPS_AllPlanets_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GPS_AllPlanets_prop using GPS_AllPlanets_FM;
+Get GPS_AllPlanets_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GPS_AllPlanets using GPS_AllPlanets_prop;
+Get GPS_AllPlanets from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GPS_Drag_FM;
+Get GPS_Drag_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GPS_Drag_prop using GPS_Drag_FM;
+Get GPS_Drag_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GPS_Drag using GPS_Drag_prop;
+Get GPS_Drag from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GPS_NSG_FM;
+Get GPS_NSG_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GPS_NSG_prop using GPS_NSG_FM;
+Get GPS_NSG_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GPS_NSG using GPS_NSG_prop;
+Get GPS_NSG from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel GPS_SRP_FM;
+Get GPS_SRP_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 GPS_SRP_prop using GPS_SRP_FM;
+Get GPS_SRP_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft GPS_SRP using GPS_SRP_prop;
+Get GPS_SRP from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel Molniya_2Body_FM;
+Get Molniya_2Body_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 Molniya_2Body_prop using Molniya_2Body_FM;
+Get Molniya_2Body_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft Molniya_2Body using Molniya_2Body_prop;
+Get Molniya_2Body from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel Molniya_AllPlanets_FM;
+Get Molniya_AllPlanets_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 Molniya_AllPlanets_prop using Molniya_AllPlanets_FM;
+Get Molniya_AllPlanets_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft Molniya_AllPlanets using Molniya_AllPlanets_prop;
+Get Molniya_AllPlanets from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel Molniya_NSG_FM;
+Get Molniya_NSG_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 Molniya_NSG_prop using Molniya_NSG_FM;
+Get Molniya_NSG_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft Molniya_NSG using Molniya_NSG_prop;
+Get Molniya_NSG from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel Molniya_Drag_FM;
+Get Molniya_Drag_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 Molniya_Drag_prop using Molniya_Drag_FM;
+Get Molniya_Drag_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft Molniya_Drag using Molniya_Drag_prop;
+Get Molniya_Drag from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel Molniya_SRP_FM;
+Get Molniya_SRP_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 Molniya_SRP_prop using Molniya_SRP_FM;
+Get Molniya_SRP_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft Molniya_SRP using Molniya_SRP_prop;
+Get Molniya_SRP from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel SunSync_2Body_FM;
+Get SunSync_2Body_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 SunSync_2Body_prop using SunSync_2Body_FM;
+Get SunSync_2Body_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft SunSync_2Body using SunSync_2Body_prop;
+Get SunSync_2Body from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel SunSync_AllPlanets_FM;
+Get SunSync_AllPlanets_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 SunSync_AllPlanets_prop using SunSync_AllPlanets_FM;
+Get SunSync_AllPlanets_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft SunSync_AllPlanets using SunSync_AllPlanets_prop;
+Get SunSync_AllPlanets from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel SunSync_NSG_FM;
+Get SunSync_NSG_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 SunSync_NSG_prop using SunSync_NSG_FM;
+Get SunSync_NSG_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft SunSync_NSG using SunSync_NSG_prop;
+Get SunSync_NSG from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel SunSync_Drag_FM;
+Get SunSync_Drag_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 SunSync_Drag_prop using SunSync_Drag_FM;
+Get SunSync_Drag_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft SunSync_Drag using SunSync_Drag_prop;
+Get SunSync_Drag from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create ForceModel SunSync_SRP_FM;
+Get SunSync_SRP_FM from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create RK89 SunSync_SRP_prop using SunSync_SRP_FM;
+Get SunSync_SRP_prop from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+Create Spacecraft SunSync_SRP using SunSync_SRP_prop;
+Get SunSync_SRP from "C:\GMAT_results\TruthFiles\FF\Performance\Performance.Object";
+
+
+// Begin Command Section;
+FF_SolarSystem.COUpdateInterval = 0;
+FF_SolarSystem.NPUpdateInterval = 60;
+FF_SolarSystem.ComputePolarMotion = 1;
+// End Control Sequence;

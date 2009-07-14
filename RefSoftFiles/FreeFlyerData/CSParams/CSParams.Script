@@ -1,0 +1,29 @@
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+// Begin Object Creation Section
+Create ForceModel ISS_FM;
+Get ISS_FM from "C:\GMAT_results\TruthFiles\FF\CSParams\CSParams.Object";
+
+Create RK89 ISS_prop using ISS_FM;
+Get ISS_prop from "C:\GMAT_results\TruthFiles\FF\CSParams\CSParams.Object";
+
+Create Spacecraft ISS using ISS_prop;
+Get ISS from "C:\GMAT_results\TruthFiles\FF\CSParams\CSParams.Object";
+
+Create Variable I;
+Get I from "C:\GMAT_results\TruthFiles\FF\CSParams\CSParams.Object";
+
+Create Variable SS;
+Get SS from "C:\GMAT_results\TruthFiles\FF\CSParams\CSParams.Object";
+
+
+// Begin Command Section;
+FF_SolarSystem.COUpdateInterval = 0;
+FF_SolarSystem.NPUpdateInterval = 60;
+FF_SolarSystem.ComputePolarMotion = 1;
+While (ISS.ElapsedDays <= 1);
+  Report ISS.ElapsedDays<15,9>, ISS.Position<15,9>, ISS.Velocity<15,9>, ISS.VMag<15,9>, ISS.RA<15,9>, ISS.Momentum<15,9>, ISS.W<15,9>, ISS.DEC<15,9>, ISS.DEC<15,9>, ISS.I<15,9>, ISS.RA<15,9>, ISS.RAAN<15,9> to "CSParams_FF_ISS_2Body_EarthMJ2000Eq.report";
+  For I = 1 to 120 step 1;
+    Step ISS;
+  End;
+End;
+// End Control Sequence;

@@ -1,0 +1,14 @@
+FreeFlyer 5.5 ProjectFile;
+SCSFileAdvanced = JGM2.Script;
+ObjectFile = JGM2.Object;
+LayoutFile = New.Layout;
+[PROJECT PREFS]
+AtmosphereModel=C:\Program Files\FreeFlyer5.6.5.35\jacchia.dat
+Geopotential=C:\Program Files\FreeFlyer5.6.5.35\jgm2.potential
+De200=C:\Program Files\FreeFlyer5.6.5.35\De405.dat
+UT1UTC=C:\Program Files\FreeFlyer5.6.5.35\ut1utc.dat
+UTCTAI=C:\Program Files\FreeFlyer5.6.5.35\utctai.dat
+HPDrag=C:\Program Files\FreeFlyer5.6.5.35\atmosden.dat
+StationGeodetics=C:\Program Files\FreeFlyer5.6.5.35\fdfstatn.dat
+MagneticField=C:\Program Files\FreeFlyer5.6.5.35\igrf2000.dat
+GenCof=C:\Program Files\FreeFlyer5.6.5.35\gencof.dat

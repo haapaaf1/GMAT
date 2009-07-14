@@ -1,0 +1,59 @@
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+// Begin Object Creation Section
+Create ForceModel AllPlanets_FM;
+Get AllPlanets_FM from "C:\GMAT_CVSdocs\RefSoftFiles\FreeFlyerData\EarthSunL2\EarthSunL2.Object";
+
+Create RK89 AllPlanets_prop using AllPlanets_FM;
+Get AllPlanets_prop from "C:\GMAT_CVSdocs\RefSoftFiles\FreeFlyerData\EarthSunL2\EarthSunL2.Object";
+
+Create Spacecraft AllPlanets using AllPlanets_prop;
+Get AllPlanets from "C:\GMAT_CVSdocs\RefSoftFiles\FreeFlyerData\EarthSunL2\EarthSunL2.Object";
+
+Create ForceModel AllPlanets_SRP_FM;
+Get AllPlanets_SRP_FM from "C:\GMAT_CVSdocs\RefSoftFiles\FreeFlyerData\EarthSunL2\EarthSunL2.Object";
+
+Create RK89 AllPlanets_SRP_prop using AllPlanets_SRP_FM;
+Get AllPlanets_SRP_prop from "C:\GMAT_CVSdocs\RefSoftFiles\FreeFlyerData\EarthSunL2\EarthSunL2.Object";
+
+Create Spacecraft AllPlanets_SRP using AllPlanets_SRP_prop;
+Get AllPlanets_SRP from "C:\GMAT_CVSdocs\RefSoftFiles\FreeFlyerData\EarthSunL2\EarthSunL2.Object";
+
+Create Variable I;
+Get I from "C:\GMAT_CVSdocs\RefSoftFiles\FreeFlyerData\EarthSunL2\EarthSunL2.Object";
+
+
+// Begin Command Section;
+FF_SolarSystem.COUpdateInterval = 0;
+FF_SolarSystem.NPUpdateInterval = 60;
+FF_SolarSystem.ComputePolarMotion = 1;
+
+AllPlanets.ElementType = "Cartesian";
+AllPlanets.Epoch = 23772.212370046; //"Feb 05 2006 17:05:48.772" UTC
+AllPlanets.X = 1010800.968074728;     
+AllPlanets.Y = -910963.5377102628;
+AllPlanets.Z = -295145.6311353027;
+AllPlanets.VX = 0.2642852647102676;
+AllPlanets.VY = 0.286744175490658;
+AllPlanets.VZ = 0.07338744995264675;
+
+AllPlanets_SRP.ElementType = "Cartesian";
+AllPlanets_SRP.Epoch = 23772.212370046; //"Feb 05 2006 17:05:48.772" UTC
+AllPlanets_SRP.X = 1010800.968074728;     
+AllPlanets_SRP.Y = -910963.5377102628;
+AllPlanets_SRP.Z = -295145.6311353027;
+AllPlanets_SRP.VX = 0.2642852647102676;
+AllPlanets_SRP.VY = 0.286744175490658;
+AllPlanets_SRP.VZ = 0.07338744995264675;
+While (AllPlanets.ElapsedDays <= 180.5);
+  Report AllPlanets.ElapsedMinutes<15,9>, AllPlanets.X<15,9>, AllPlanets.Y<15,9>, AllPlanets.Z<15,9>, AllPlanets.VX<15,9>, AllPlanets.VY<15,9>, AllPlanets.VZ<15,9> to "FF_ESL2_AllPlanets_0_0_0.report";
+  For I = 1 to 3 step 1;
+    Step AllPlanets;
+  End;
+End;
+While (AllPlanets_SRP.ElapsedDays <= 180.5);
+  Report AllPlanets_SRP.ElapsedMinutes<15,9>, AllPlanets_SRP.X<15,9>, AllPlanets_SRP.Y<15,9>, AllPlanets_SRP.Z<15,9>, AllPlanets_SRP.VX<15,9>, AllPlanets_SRP.VY<15,9>, AllPlanets_SRP.VZ<15,9> to "FF_ESL2_AllPlanets_0_0_SRP.report";
+  For I = 1 to 3 step 1;
+    Step AllPlanets_SRP;
+  End;
+End;
+// End Control Sequence;
