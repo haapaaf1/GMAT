@@ -36,8 +36,8 @@ GeometricMeasurement::PARAMETER_TYPE[GeometricMeasurementParamCount -
 };
 
 
-GeometricMeasurement::GeometricMeasurement(const std::string &nomme) :
-   GmatBase          (Gmat::CORE_MEASUREMENT, "CoreMeasurement", nomme)
+GeometricMeasurement::GeometricMeasurement(const std::string &type, const std::string &nomme) :
+   GmatBase          (Gmat::CORE_MEASUREMENT, type, nomme)
 {
    objectTypes.push_back(Gmat::CORE_MEASUREMENT);
    objectTypeNames.push_back("CoreMeasurement");      // Move to CoreMeas when built
@@ -107,9 +107,9 @@ Rmatrix* GeometricMeasurement::GetDerivativePointer()
 }
 
 
-const MeasurementData & GeometricMeasurement::CalculateMeasurement()
+const MeasurementData& GeometricMeasurement::CalculateMeasurement(bool withDerivatives)
 {
-   if (Evaluate(true) == false)
+   if (Evaluate(withDerivatives) == false)
       // throw here
       ;
 

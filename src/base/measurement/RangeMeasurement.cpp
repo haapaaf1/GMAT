@@ -19,11 +19,12 @@
 
 
 #include "RangeMeasurement.hpp"
-
+#include "MessageInterface.hpp"
+#include "MeasurementException.hpp"
 
 
 RangeMeasurement::RangeMeasurement(const std::string &name) :
-   GeometricMeasurement          (name)
+   GeometricMeasurement          ("Range", name)
 {
    objectTypeNames.push_back("RangeMeasurement");
 
@@ -62,5 +63,11 @@ GmatBase* RangeMeasurement::Clone() const
 
 bool RangeMeasurement::Evaluate(bool withDerivatives)
 {
-   return false;
+   MessageInterface::ShowMessage("Range?  I'll give you range!\n");
+
+   if (this->participants.size() != 2)
+      throw MeasurementException("Range measurements require exactly 2 "
+            "participants");
+
+   return true;
 }

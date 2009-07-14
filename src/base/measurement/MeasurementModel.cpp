@@ -19,6 +19,12 @@
 
 #include "MeasurementModel.hpp"
 #include "MeasurementException.hpp"
+#include "MessageInterface.hpp"
+
+
+//#define TEST_FIRE_MEASUREMENT
+//#define TEST_MEASUREMENT_INITIALIZATION
+
 
 //------------------------------------------------------------------------------
 // Static data initialization
@@ -38,7 +44,7 @@ const std::string MeasurementModel::PARAMETER_TEXT[] =
 const Gmat::ParameterType MeasurementModel::PARAMETER_TYPE[] =
 {
    Gmat::OBJECTARRAY_TYPE,
-   Gmat::STRING_TYPE,
+   Gmat::OBJECT_TYPE,
    Gmat::OBJECTARRAY_TYPE,
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
@@ -804,9 +810,23 @@ const StringArray& MeasurementModel::GetStringArrayParameter(
 
 
 
+//------------------------------------------------------------------------------
+// bool RenameRefObject(const Gmat::ObjectType type,
+//------------------------------------------------------------------------------
+/**
+ * Renames references objects
+ *
+ * @param type The type of object that is renamed
+ * @param oldName The name of the object that is changing
+ * @param newName the new object name
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool MeasurementModel::RenameRefObject(const Gmat::ObjectType type,
       const std::string & oldName, const std::string & newName)
 {
+   /// @todo MeasurementModel rename code needs to be implemented
    return GmatBase::RenameRefObject(type, oldName, newName);
 }
 
@@ -820,9 +840,38 @@ const ObjectTypeArray & MeasurementModel::GetRefObjectTypeArray()
    return GmatBase::GetRefObjectTypeArray();
 }
 
-const StringArray & MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
+const StringArray& MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   return GmatBase::GetRefObjectNameArray(type);
+   #ifdef TEST_MEASUREMENT_INITIALIZATION
+      MessageInterface::ShowMessage(
+            "MeasurementModel::GetRefObjectNameArray(%d) entered\n", type);
+   #endif
+
+   refObjectList.clear();
+
+   // UNKNOWN_OBJECT means get all ref objects
+   if (type == Gmat::UNKNOWN_OBJECT)
+      refObjectList = GmatBase::GetRefObjectNameArray(type);
+
+   if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::SPACE_POINT))
+   {
+      // Add the participants this model needs
+      for (StringArray::iterator i = participantNames.begin();
+            i != participantNames.end(); ++i)
+      {
+         #ifdef TEST_MEASUREMENT_INITIALIZATION
+            MessageInterface::ShowMessage(
+                  "   Adding: %s\n", i->c_str());
+         #endif
+         if (find(refObjectList.begin(), refObjectList.end(), *i) ==
+               refObjectList.end())
+            refObjectList.push_back(*i);
+      }
+   }
+   else
+      refObjectList = GmatBase::GetRefObjectNameArray(type);
+
+   return refObjectList;
 }
 
 std::string MeasurementModel::GetRefObjectName(const Gmat::ObjectType type) const
@@ -858,12 +907,13 @@ Integer MeasurementModel::GetOwnedObjectCount()
    return GmatBase::GetOwnedObjectCount();
 }
 
-ObjectArray & MeasurementModel::GetRefObjectArray(const std::string & typeString)
+ObjectArray& MeasurementModel::GetRefObjectArray(const std::string & typeString)
 {
    return GmatBase::GetRefObjectArray(typeString);
 }
 
-bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type, const std::string & name, const Integer index)
+bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+      const std::string & name, const Integer index)
 {
    return GmatBase::SetRefObject(obj, type, name, index);
 }
@@ -874,6 +924,21 @@ ObjectArray & MeasurementModel::GetRefObjectArray(const Gmat::ObjectType type)
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetMeasurement(CoreMeasurement *meas)
+//------------------------------------------------------------------------------
+/**
+ * Sets the core measurement for the measurement model
+ *
+ * The core measurement is identified by the "Type" parameter on the measurement
+ * model.  The interpreter uses this identifier to pass a CoreMeasurement
+ * instance that the model uses when computing the (expected) measurement value.
+ *
+ * @param meas The CoreMeasurement
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool MeasurementModel::SetMeasurement(CoreMeasurement *meas)
 {
    bool retval = false;
@@ -881,11 +946,28 @@ bool MeasurementModel::SetMeasurement(CoreMeasurement *meas)
    if (meas->IsOfType(Gmat::CORE_MEASUREMENT))
    {
       measurement = meas;
+      measurementType = measurement->GetTypeName();
       retval = true;
+
+      theData = measurement->GetMeasurementDataPointer();
+      theDataDerivatives = measurement->GetDerivativePointer();
+
+
+      #ifdef TEST_FIRE_MEASUREMENT
+         try
+         {
+            measurement->CalculateMeasurement(true);
+         }
+         catch (BaseException &ex)
+         {
+            MessageInterface::ShowMessage(ex.GetFullMessage());
+         }
+      #endif
    }
 
    return retval;
 }
+
 
 bool MeasurementModel::IsOwnedObject(Integer id) const
 {
@@ -911,7 +993,7 @@ bool MeasurementModel::IsOwnedObject(Integer id) const
 const MeasurementData & MeasurementModel::CalculateMeasurement()
 {
    // todo:  Put in the call to calculate the measurement
-
+   measurement->CalculateMeasurement(false);
    return *theData;
 }
 
@@ -951,8 +1033,7 @@ const MeasurementData & MeasurementModel::GetMeasurement()
 //------------------------------------------------------------------------------
 const Rmatrix & MeasurementModel::CalculateMeasurementDerivatives()
 {
-   // todo:  Put in the call to calculate the measurement and derivatives
-
+   measurement->CalculateMeasurement(true);
    return *theDataDerivatives;
 }
 

@@ -1102,6 +1102,16 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
       WriteObjects(objs, "Formation", mode);
    
    //-----------------------------------
+   // Ground stations
+   //-----------------------------------
+   objs = theModerator->GetListOfObjects(Gmat::GROUND_STATION);
+   #ifdef DEBUG_SCRIPT_WRITING
+     MessageInterface::ShowMessage("   Found %d GroundStations\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteObjects(objs, "GroundStations", mode);
+
+   //-----------------------------------
    // Force Model
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::ODE_MODEL);

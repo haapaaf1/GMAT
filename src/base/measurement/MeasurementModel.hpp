@@ -158,6 +158,9 @@ protected:
    /// And derivatives
    Rmatrix              *theDataDerivatives;
 
+   /// Local storage element for ref objects
+   StringArray          refObjectList;
+
    // Noise model parameters
    /// Measurement bias
    Real  measurementBias;

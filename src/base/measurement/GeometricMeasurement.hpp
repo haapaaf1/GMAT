@@ -29,7 +29,7 @@
 class GeometricMeasurement : public /*CoreMeasurement*/ GmatBase
 {
 public:
-   GeometricMeasurement(const std::string &nomme = "");
+   GeometricMeasurement(const std::string &type, const std::string &nomme = "");
    virtual ~GeometricMeasurement();
    GeometricMeasurement(const GeometricMeasurement& gm);
    GeometricMeasurement&      operator=(const GeometricMeasurement& gm);
@@ -45,7 +45,7 @@ public:
    Rmatrix*                   GetDerivativePointer();
 
    virtual const MeasurementData&
-                              CalculateMeasurement();
+                              CalculateMeasurement(bool withDerivatives = true);
    virtual const Rmatrix&     CalculateMeasurementDerivatives();
 
 protected:
