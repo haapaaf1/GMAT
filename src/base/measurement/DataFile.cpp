@@ -21,11 +21,6 @@
 //------------------------------------------------------------------------------
 
 #include <DataFile.hpp>
-#include "gmatdefs.hpp"
-#include "iostream"
-#include "fstream"
-#include <pcrecpp.h>
-#include "StringUtil.hpp"           // for ToString()
 
 //---------------------------------
 //  static data
@@ -35,7 +30,9 @@ const std::string DataFile::FILEFORMAT_DESCRIPTIONS[EndFileFormatReps] =
     "B3 Data",
     "SLR Data",
     "TLE Data",
-    "SP3c Data"
+    "SP3c Data",
+    "RINEX Data",
+    "UTDF Data"
 };
 
 const std::string
@@ -43,7 +40,8 @@ DataFile::PARAMETER_TEXT[DataFileParamCount - GmatBaseParamCount] =
 {
    "FileName",
    "FileFormat",
-   "NumLines"
+   "NumLines",
+   "ReadWriteMode"
 };
 
 
@@ -52,7 +50,8 @@ DataFile::PARAMETER_TYPE[DataFileParamCount - GmatBaseParamCount] =
 {
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
-   Gmat::INTEGER_TYPE
+   Gmat::INTEGER_TYPE,
+   Gmat::STRING_TYPE
 };
 
 //---------------------------------
@@ -187,6 +186,9 @@ std::string DataFile::GetStringParameter(const Integer id) const
    if (id == FILENAME_ID)
       return dataFileName;
 
+   if (id == READWRITEMODE_ID)
+      return readWriteMode;
+
    if (id == FILEFORMAT_ID)
       return fileFormatName;
           
@@ -211,6 +213,12 @@ bool DataFile::SetStringParameter(const Integer id, const std::string &value)
    if (id == FILENAME_ID)
    {
       dataFileName = value;
+      return true;
+   }
+
+   if (id == READWRITEMODE_ID)
+   {
+      readWriteMode = value;
       return true;
    }
 
@@ -359,7 +367,7 @@ bool DataFile::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 bool DataFile::Initialize()
 {
-     return true;
+    return OpenFile();
 }
 
 //------------------------------------------------------------------------------
@@ -387,10 +395,12 @@ DataFile::DataFile(const std::string &itsType,
 //    lineFromFile (""),
 //    dataFileName (""),
     isOpen (false),
-    isSorted (false)
+    isSorted (false),
+    readWriteMode ("read")
 {
    objectTypes.push_back(Gmat::DATA_FILE);
    objectTypeNames.push_back("DataFile");
+   theFile = new fstream;
 }
 
 //------------------------------------------------------------------------------
@@ -408,7 +418,9 @@ DataFile::DataFile(const DataFile &pdf) :
     numMeasurements (pdf.numMeasurements),
 //    lineFromFile (pdf.lineFromFile),
     isOpen (pdf.isOpen),
-    isSorted (pdf.isSorted)
+    isSorted (pdf.isSorted),
+    readWriteMode(pdf.readWriteMode),
+    theFile (pdf.theFile)
 {
 }
 
@@ -423,27 +435,44 @@ DataFile::~DataFile()
 }
 
 //------------------------------------------------------------------------------
-//  bool DataFile::OpenFile(std::ifstream &theFile)
+//  bool DataFile::OpenFile()
 //------------------------------------------------------------------------------
 /**
  * Opens a physical file and creates a file handle pointing to it.
  *
  * @return Boolean success or failure
  */
-bool DataFile::OpenFile(std::ifstream &theFile)
+//------------------------------------------------------------------------------
+bool DataFile::OpenFile()
 {
-    theFile.open(dataFileName.c_str());
-
-    if(theFile.is_open())
+    
+    if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
-	isOpen = true;
-	return true;
+        theFile->open(dataFileName.c_str(),ios::in);
+    }
+    else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
+    {
+        theFile->open(dataFileName.c_str(),ios::out);
     }
     else
     {
-	isOpen = false;
-	return false;
+        throw DataFileException("Invalid Read/Write mode: " + readWriteMode);
+        MessageInterface::ShowMessage("Invalid Read/Write mode: " + readWriteMode);
     }
+
+    if(theFile->is_open())
+    {
+        isOpen = true;
+        return true;
+    }
+    else
+    {
+        isOpen = false;
+	throw DataFileException("Unable to open data file: " + dataFileName);
+	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
+        return false;
+    }
+    
 }
 
 //------------------------------------------------------------------------------
@@ -454,11 +483,12 @@ bool DataFile::OpenFile(std::ifstream &theFile)
  *
  * @return Boolean success or failure
  */
-bool DataFile::CloseFile(std::ifstream &theFile)
+//------------------------------------------------------------------------------
+bool DataFile::CloseFile()
 {
-    theFile.close();
+    theFile->close();
 
-    if(theFile.is_open())
+    if(theFile->is_open())
     {
 	isOpen = false;
 	return false;
@@ -519,6 +549,18 @@ Integer DataFile::GetFileFormatID(const std::string &label)
     {
        return TLE_ID;
     }
+    else if (label == "SP3C")
+    {
+       return SP3C_ID;
+    }
+    else if (label == "RINEX")
+    {
+       return RINEX_ID;
+    }
+    else if (label == "UTDF")
+    {
+       return UTDF_ID;
+    }
     else
      return retval;
 
@@ -545,6 +587,18 @@ void DataFile::SetFileFormatID(const std::string &label)
     else if (label == "TLE")
     {
        fileFormatID = TLE_ID;
+    }
+    else if (label == "SP3C")
+    {
+       fileFormatID = SP3C_ID;
+    }
+    else if (label == "RINEX")
+    {
+       fileFormatID = RINEX_ID;
+    }
+    else if (label == "UTDF")
+    {
+       fileFormatID = UTDF_ID;
     }
 
 }
@@ -704,30 +758,32 @@ std::string DataFile::GetFileFormatName() const
 }
 
 //------------------------------------------------------------------------------
-//  bool DataFile::IsEOF(std::ifstream &theFile)
+//  bool DataFile::IsEOF()
 //------------------------------------------------------------------------------
 /**
  * Check to see if the end of the file has been reached.
  *
  * @return True if end of file, False otherwise
  */
-bool DataFile::IsEOF(std::ifstream &theFile)
+//------------------------------------------------------------------------------
+bool DataFile::IsEOF()
 {
-    return theFile.eof();
+    return theFile->eof();
 }
 
 //------------------------------------------------------------------------------
-// std::string DataFile::ReadLineFromFile(std::ifstream &theFile)
+// std::string DataFile::ReadLineFromFile()
 //------------------------------------------------------------------------------
 /**
  * Read a single line from a file.
  *
  * @return Line from file
  */
-std::string DataFile::ReadLineFromFile(std::ifstream &theFile)
+//------------------------------------------------------------------------------
+std::string DataFile::ReadLineFromFile()
 {
     std::string lff;
-    getline(theFile,lff);
+    getline((*theFile),lff);
     return lff;
 }
 
@@ -819,93 +875,250 @@ std::string DataFile::Trim(std::string str)
 }
 
 //------------------------------------------------------------------------------
-// bool DataFile::Overpunch(const char &code, Integer &digit, Integer &sign )
+// std::string Overpunch(const Real &number )
+//------------------------------------------------------------------------------
+/**
+ * Converts numeric value to overpunch code version for output in text file.
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::Overpunch(const Real &number )
+{
+    ostringstream numstr;
+    int digit;
+
+    if (number < 0)
+    {
+
+        // convert number to stringstream
+        // making sure to strip the negative sign
+        numstr << -number << flush;
+
+        // extract last digit to determine which overpunch value to use
+        if (!from_string<int>(digit,numstr.str().substr(numstr.str().length()-1,1),std::dec))
+        {
+            return "";
+        };
+
+        // Remove last digit to be replaced with overpunched character
+        numstr.str().erase(numstr.str().length() - 1, 1);
+
+        if (digit == 0)
+        {
+            numstr << "}";
+        }
+        else if (digit == 1)
+        {
+            numstr << "J";
+        }
+        else if (digit == 2)
+        {
+            numstr << "K";
+        }
+        else if (digit == 3)
+        {
+            numstr << "L";
+        }
+        else if (digit == 4)
+        {
+            numstr << "M";
+        }
+        else if (digit == 5)
+        {
+            numstr << "N";
+        }
+        else if (digit == 6)
+        {
+            numstr << "O";
+        }
+        else if (digit == 7)
+        {
+            numstr << "P";
+        }
+        else if (digit == 8)
+        {
+            numstr << "Q";
+        }
+        else if (digit == 9)
+        {
+            numstr << "R";
+        }
+        else
+        {
+            return "";
+        }
+    }
+    else
+    {
+
+        // conver number to stringstream
+        numstr << number << flush;
+
+        // extract last digit to determine which overpunch value to use
+        if (!from_string<int>(digit,numstr.str().substr(numstr.str().length()-1,1),std::dec))
+        {
+            return "";
+        };
+
+        // Remove last digit to be replaced with overpunched character
+        numstr.str().erase(numstr.str().length() - 1, 1);
+
+        if (digit == 0)
+        {
+            numstr << "{";
+        }
+        else if (digit == 1)
+        {
+            numstr << "A";
+        }
+        else if (digit == 2)
+        {
+            numstr << "B";
+        }
+        else if (digit == 3)
+        {
+            numstr << "C";
+        }
+        else if (digit == 4)
+        {
+            numstr << "D";
+        }
+        else if (digit == 5)
+        {
+            numstr << "E";
+        }
+        else if (digit == 6)
+        {
+            numstr << "F";
+        }
+        else if (digit == 7)
+        {
+            numstr << "G";
+        }
+        else if (digit == 8)
+        {
+            numstr << "H";
+        }
+        else if (digit == 9)
+        {
+            numstr << "I";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    return numstr.str();
+}
+
+//------------------------------------------------------------------------------
+// bool ReverseOverpunch(const char &code, Integer &digit, Integer &sign )
 //------------------------------------------------------------------------------
 /**
  * Converts overpunch code to numeric value and determines appropriate sign
  */
 //------------------------------------------------------------------------------
-bool DataFile::Overpunch(std::string code, Integer &digit, Integer &sign )
+bool DataFile::ReverseOverpunch(std::string code, Integer &digit, Integer &sign )
 {
-    if (!strcmp(code.c_str(), "}"))
+    if (!pcrecpp::RE("}").FullMatch(code))
     {
-	digit = 0; sign = -1;
+	digit = 0;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "J"))
+    else if (!pcrecpp::RE("J").FullMatch(code))
     {
-	digit = 1; sign = -1;
+	digit = 1;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "K"))
+    else if (!pcrecpp::RE("K").FullMatch(code))
     {
-	digit = 2; sign = -1;
+	digit = 2;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "L"))
+    else if (!pcrecpp::RE("L").FullMatch(code))
     {
-	digit = 3; sign = -1;
+	digit = 3;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "M"))
+    else if (!pcrecpp::RE("M").FullMatch(code))
     {
-	digit = 4; sign = -1;
+	digit = 4;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "N"))
+    else if (!pcrecpp::RE("N").FullMatch(code))
     {
-	digit = 5; sign = -1;
+	digit = 5;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "O"))
+    else if (!pcrecpp::RE("O").FullMatch(code))
     {
-	digit = 6; sign = -1;
+	digit = 6;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "P"))
+    else if (!pcrecpp::RE("P").FullMatch(code))
     {
-	digit = 7; sign = -1;
+	digit = 7;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "Q"))
+    else if (!pcrecpp::RE("Q").FullMatch(code))
     {
-	digit = 8; sign = -1;
+	digit = 8;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "R"))
+    else if (!pcrecpp::RE("R").FullMatch(code))
     {
-	digit = 9; sign = -1;
+	digit = 9;
+        sign = -1;
     }
-    else if (!strcmp(code.c_str(), "{"))
+    else if (!pcrecpp::RE("{").FullMatch(code))
     {
-	digit = 0; sign = +1;
+	digit = 0;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "A"))
+    else if (!pcrecpp::RE("A").FullMatch(code))
     {
-	digit = 1; sign = +1;
+	digit = 1;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "B"))
+    else if (!pcrecpp::RE("B").FullMatch(code))
     {
-	digit = 2; sign = +1;
+	digit = 2;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "C"))
+    else if (!pcrecpp::RE("C").FullMatch(code))
     {
-	digit = 3; sign = +1;
+	digit = 3;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "D"))
+    else if (!pcrecpp::RE("D").FullMatch(code))
     {
-	digit = 4; sign = +1;
+	digit = 4;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "E"))
+    else if (!pcrecpp::RE("E").FullMatch(code))
     {
-	digit = 5; sign = +1;
+	digit = 5;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "F"))
+    else if (!pcrecpp::RE("F").FullMatch(code))
     {
-	digit = 6; sign = +1;
+	digit = 6;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "G"))
+    else if (!pcrecpp::RE("G").FullMatch(code))
     {
-	digit = 7; sign = +1;
+	digit = 7;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "H"))
+    else if (!pcrecpp::RE("H").FullMatch(code))
     {
-	digit = 8; sign = +1;
+	digit = 8;
+        sign = +1;
     }
-    else if (!strcmp(code.c_str(), "I"))
+    else if (!pcrecpp::RE("I").FullMatch(code))
     {
-	digit = 9; sign = +1;
+	digit = 9;
+        sign = +1;
     }
     else
     {
@@ -915,6 +1128,7 @@ bool DataFile::Overpunch(std::string code, Integer &digit, Integer &sign )
 
     return true;
 }
+
 //------------------------------------------------------------------------------
 // Measurement Data Access functions
 //------------------------------------------------------------------------------

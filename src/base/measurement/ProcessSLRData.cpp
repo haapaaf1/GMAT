@@ -19,9 +19,8 @@
 //------------------------------------------------------------------------------
 
 #include <ProcessSLRData.hpp>
-#include "gmatdefs.hpp"
-#include "StringUtil.hpp"           // for ToString()
-#include "pcrecpp.h"
+
+//#define DEBUG_SLR_DATA
 
 //---------------------------------
 //  static data
@@ -42,117 +41,128 @@ bool ProcessSLRData::Initialize()
 {
     DataFile::Initialize();
 
-    std::ifstream myFile;
-    if(!OpenFile(myFile))
-    {
-	throw DataFileException("Unable to open data file: " + dataFileName);
-	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
-    }
-
-    // Make sure that the b3Data vector has space reserved for
-    // a minimum number of observations. This ensures that the
-    // compiler does not unnecessarily reallocate the vector storage too-often.
-    // The function reserve() will ensure that we have room for at least 1000
-    // elemnts. If the vector already has room for the required number of elements,
-    // reserve() does nothing. In other words, reserve() will grow the allocated
-    // storage of the vector, if necessary, but will never shrink it.
-    slrData.reserve(1000);
-    slrHeader.reserve(1000);
-    
-    // Initialize individual data struct
-    // This needs new memory allocation because
-    // we are storing pointers to this data
-    slr_header *mySLRheader = new slr_header;
-    slr_obtype *mySLR = new slr_obtype;
-
-    // Locate the start of the first header record
-    // The flag indicates whether the marker line containing
-    // 88888 for engineering data or 99999 for real data
-    // has been encountered. For the first read, the flag is set to 0
-    // afterwards, flag is set to either 88888 or 99999 depending
-    // upon which marker line was found while reading in data.
-    Integer flag = 0;
-    FindSLRHeaderLine(myFile,mySLRheader,flag);
-    
-    while (!IsEOF(myFile))
+    if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
-        if (GetData(myFile,mySLRheader,mySLR))
+        // Make sure that the b3Data vector has space reserved for
+        // a minimum number of observations. This ensures that the
+        // compiler does not unnecessarily reallocate the vector storage too-often.
+        // The function reserve() will ensure that we have room for at least 1000
+        // elements. If the vector already has room for the required number of elements,
+        // reserve() does nothing. In other words, reserve() will grow the allocated
+        // storage of the vector, if necessary, but will never shrink it.
+        slrData.reserve(1000);
+        slrHeader.reserve(1000);
+    
+        // Initialize individual data struct
+        // This needs new memory allocation because
+        // we are storing pointers to this data
+        slr_header *mySLRheader = new slr_header;
+        slr_obtype *mySLR = new slr_obtype;
+
+        // Locate the start of the first header record
+        // The flag indicates whether the marker line containing
+        // 88888 for engineering data or 99999 for real data
+        // has been encountered. For the first read, the flag is set to 0
+        // afterwards, flag is set to either 88888 or 99999 depending
+        // upon which marker line was found while reading in data.
+        Integer flag = 0;
+        FindSLRHeaderLine(mySLRheader,flag);
+    
+        while (!IsEOF())
         {
-            // Associate this data point with the current header index
-            mySLR->headerVectorIndex = i_h;
 
-            // Push this data point onto the stack.
-            slrData.push_back(mySLR);
+            if (GetData(mySLRheader,mySLR))
+            {
+                // Associate this data point with the current header index
+                mySLR->headerVectorIndex = i_h;
+
+                // Push this data point onto the stack.
+                slrData.push_back(mySLR);
+            }
+        
+            // Allocate another struct in memory
+            mySLR = new slr_obtype;
+
         }
+
+        // Set data iterator to beginning of vector container
+        i = slrData.begin();
+
+        // Reset the header iterator to the beginning of the vector container
+        i_h = slrHeader.begin();
+
+        #ifdef DEBUG_SLR_DATA
+
+            FILE * outFile;
+            outFile = fopen("slr.output","w");
+
+            // Output to file to make sure all the data is properly stored
+            for (std::vector<slr_obtype*>::const_iterator j=slrData.begin(); j!=slrData.end(); ++j)
+            {
+
+                // Output resulting struct data to file
         
-        // Allocate another struct in memory
-        mySLR = new slr_obtype;
+                fprintf(outFile,"Time of Firing = %16.12g\n",(*j)->timeOfLaserFiring);
+                fprintf(outFile,"Two Way Time of Flight = %16.12g\n",(*j)->twoWayTimeOfFlight);
+                fprintf(outFile,"RMS Range = %d\n",(*j)->binRMSRange);
+                fprintf(outFile,"Surface Pressure = %16.8g\n",(*j)->surfacePressure);
+                fprintf(outFile,"Surface Temp = %16.8g\n",(*j)->surfaceTemp);
+                fprintf(outFile,"Relative Humidity = %d\n",(*j)->relativeHumidity);
+                fprintf(outFile,"Num Raw Ranges = %d\n",(*j)->numRawRanges);
+                fprintf(outFile,"Data Release Flag = %d\n",(*j)->dataReleaseFlag);
+                fprintf(outFile,"Raw Range Factor = %d\n",(*j)->rawRangeFactor);
+                fprintf(outFile,"NPD Window Indicator 2 = %d\n",(*j)->normalPointWindowIndicator2);
+                fprintf(outFile,"Signal to Noise Ratio = %16.8g\n",(*j)->signalToNoiseRatio);
+                fprintf(outFile,"Burst Cal Sys Delay = %d\n",(*j)->burstCalSysDelay);
+                fprintf(outFile,"Signal Strength Indicator = %d\n",(*j)->signalStrength);
+                fprintf(outFile,"Angle Origin Indicator = %d\n",(*j)->angleOriginIndicator);
+                fprintf(outFile,"Azimuth = %16.8g\n",(*j)->az);
+                fprintf(outFile,"Elevation = %16.8g\n",(*j)->el);
+                fprintf(outFile,"\n-----------------------------\n");
+                fprintf(outFile,"SLR Type = %d\n",(*(*j)->headerVectorIndex)->slrType);
+                fprintf(outFile,"ILRS Satnum = %s\n",(*(*j)->headerVectorIndex)->ilrsSatnum.c_str());
+                std::string intlDesignator = Ilrs2Cospar((*(*j)->headerVectorIndex)->ilrsSatnum);
+                fprintf(outFile,"COSPAR Satnum = %s\n",intlDesignator.c_str());
+                fprintf(outFile,"Year = %d\n",(*(*j)->headerVectorIndex)->year);
+                fprintf(outFile,"DOY = %d\n",(*(*j)->headerVectorIndex)->dayOfYear);
+                fprintf(outFile,"CDP Pad ID = %d\n",(*(*j)->headerVectorIndex)->cdpPadID);
+                fprintf(outFile,"CDP Sys Num = %d\n",(*(*j)->headerVectorIndex)->cdpSysNum);
+                fprintf(outFile,"CDP Occupancy Num = %d\n",(*(*j)->headerVectorIndex)->cdpOccupancySequenceNum);
+                fprintf(outFile,"Wavelength = %16.8g\n",(*(*j)->headerVectorIndex)->wavelength);
+                fprintf(outFile,"Cal Sys Delay = %d\n",(*(*j)->headerVectorIndex)->calSysDelay);
+                fprintf(outFile,"Cal Delay Shift = %d\n",(*(*j)->headerVectorIndex)->calDelayShift);
+                fprintf(outFile,"NPD Window Indicator = %d\n",(*(*j)->headerVectorIndex)->normalPointWindowIndicator);
+                fprintf(outFile,"Sys Delay = %d\n",(*(*j)->headerVectorIndex)->rmsSysDelay);
+                fprintf(outFile,"Epoch Scale Indicator = %d\n",(*(*j)->headerVectorIndex)->epochTimeScaleIndicator);
+                fprintf(outFile,"SysCal Indicator = %d\n",(*(*j)->headerVectorIndex)->sysCalMethodIndicator);
+                fprintf(outFile,"SCH Indicator = %d\n",(*(*j)->headerVectorIndex)->schIndicator);
+                fprintf(outFile,"SCI Indicator = %d\n",(*(*j)->headerVectorIndex)->sciIndicator);
+                fprintf(outFile,"Pass RMS = %d\n",(*(*j)->headerVectorIndex)->passRMS);
+                fprintf(outFile,"Data Quality Indicator = %d\n",(*(*j)->headerVectorIndex)->dataQualAssessmentIndicator);
+                fprintf(outFile,"Format Revision Num = %d\n",(*(*j)->headerVectorIndex)->formatRevisionNum);
+                fprintf(outFile,"\n******************************************************\n");
 
-    }
+            }
 
-    // Set data iterator to beginning of vector container
-    i = slrData.begin();
+            fclose(outFile);
 
-    // Reset the header iterator to the beginning of the vector container
-    i_h = slrHeader.begin();
-
-    /*
-    FILE * outFile;
-    outFile = fopen("slr.output","w");
-
-    // Output to file to make sure all the data is properly stored
-    for (std::vector<slr_obtype*>::const_iterator j=slrData.begin(); j!=slrData.end(); ++j)
-    {
-
-	    // Output resulting struct data to file
-        
-	    fprintf(outFile,"Time of Firing = %16.12g\n",(*j)->timeOfLaserFiring);
-	    fprintf(outFile,"Two Way Time of Flight = %16.12g\n",(*j)->twoWayTimeOfFlight);
-	    fprintf(outFile,"RMS Range = %d\n",(*j)->binRMSRange);
-	    fprintf(outFile,"Surface Pressure = %16.8g\n",(*j)->surfacePressure);
-	    fprintf(outFile,"Surface Temp = %16.8g\n",(*j)->surfaceTemp);
-	    fprintf(outFile,"Relative Humidity = %d\n",(*j)->relativeHumidity);
-	    fprintf(outFile,"Num Raw Ranges = %d\n",(*j)->numRawRanges);
-	    fprintf(outFile,"Data Release Flag = %d\n",(*j)->dataReleaseFlag);
-	    fprintf(outFile,"Raw Range Factor = %d\n",(*j)->rawRangeFactor);
-	    fprintf(outFile,"NPD Window Indicator 2 = %d\n",(*j)->normalPointWindowIndicator2);
-	    fprintf(outFile,"Signal to Noise Ratio = %16.8g\n",(*j)->signalToNoiseRatio);
-	    fprintf(outFile,"Burst Cal Sys Delay = %d\n",(*j)->burstCalSysDelay);
-	    fprintf(outFile,"Signal Strength Indicator = %d\n",(*j)->signalStrength);
-	    fprintf(outFile,"Angle Origin Indicator = %d\n",(*j)->angleOriginIndicator);
-	    fprintf(outFile,"Azimuth = %16.8g\n",(*j)->az);
-	    fprintf(outFile,"Elevation = %16.8g\n",(*j)->el);
-	    fprintf(outFile,"\n-----------------------------\n");
-            fprintf(outFile,"SLR Type = %d\n",(*(*j)->headerVectorIndex)->slrType);
-	    fprintf(outFile,"ILRS Satnum = %s\n",(*(*j)->headerVectorIndex)->ilrsSatnum.c_str());
-	    std::string intlDesignator = Ilrs2Cospar((*(*j)->headerVectorIndex)->ilrsSatnum);
-	    fprintf(outFile,"COSPAR Satnum = %s\n",intlDesignator.c_str());
-	    fprintf(outFile,"Year = %d\n",(*(*j)->headerVectorIndex)->year);
-	    fprintf(outFile,"DOY = %d\n",(*(*j)->headerVectorIndex)->dayOfYear);
-	    fprintf(outFile,"CDP Pad ID = %d\n",(*(*j)->headerVectorIndex)->cdpPadID);
-	    fprintf(outFile,"CDP Sys Num = %d\n",(*(*j)->headerVectorIndex)->cdpSysNum);
-	    fprintf(outFile,"CDP Occupancy Num = %d\n",(*(*j)->headerVectorIndex)->cdpOccupancySequenceNum);
-	    fprintf(outFile,"Wavelength = %16.8g\n",(*(*j)->headerVectorIndex)->wavelength);
-	    fprintf(outFile,"Cal Sys Delay = %d\n",(*(*j)->headerVectorIndex)->calSysDelay);
-	    fprintf(outFile,"Cal Delay Shift = %d\n",(*(*j)->headerVectorIndex)->calDelayShift);
-	    fprintf(outFile,"NPD Window Indicator = %d\n",(*(*j)->headerVectorIndex)->normalPointWindowIndicator);
-	    fprintf(outFile,"Sys Delay = %d\n",(*(*j)->headerVectorIndex)->rmsSysDelay);
-	    fprintf(outFile,"Epoch Scale Indicator = %d\n",(*(*j)->headerVectorIndex)->epochTimeScaleIndicator);
-	    fprintf(outFile,"SysCal Indicator = %d\n",(*(*j)->headerVectorIndex)->sysCalMethodIndicator);
-	    fprintf(outFile,"SCH Indicator = %d\n",(*(*j)->headerVectorIndex)->schIndicator);
-	    fprintf(outFile,"SCI Indicator = %d\n",(*(*j)->headerVectorIndex)->sciIndicator);
-	    fprintf(outFile,"Pass RMS = %d\n",(*(*j)->headerVectorIndex)->passRMS);
-	    fprintf(outFile,"Data Quality Indicator = %d\n",(*(*j)->headerVectorIndex)->dataQualAssessmentIndicator);
-	    fprintf(outFile,"Format Revision Num = %d\n",(*(*j)->headerVectorIndex)->formatRevisionNum);
-	    fprintf(outFile,"\n******************************************************\n");
-
-
-    }
-    */
+        #endif
     
-    if (!CloseFile(myFile))
-        return false;
+        if (!CloseFile()) return false;
+
+    }
+    else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
+    {
+        // Currently do nothing if writing
+        // wait to write stuff
+
+    }
+    else
+    {
+        throw DataFileException("Invalid Read/Write mode: " + readWriteMode);
+        MessageInterface::ShowMessage("Invalid Read/Write mode: " + readWriteMode);
+    }
 
     return true;
 
@@ -389,17 +399,17 @@ bool ProcessSLRData::BackUpToPreviousOb() {
 }
  
 //------------------------------------------------------------------------------
-// bool GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
+// bool GetData(slr_header *mySLRheader, slr_obtype *mySLRdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the header line of SLR data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header *mySLRheader, slr_obtype *mySLRdata)
+bool ProcessSLRData::GetData(slr_header *mySLRheader, slr_obtype *mySLRdata)
 {
 
     // Read a line from file
-    std::string line = ReadLineFromFile(theFile);
+    std::string line = ReadLineFromFile();
     line = Trim(line);
 
     // Check to see if we encountered a new header record.
@@ -411,7 +421,7 @@ bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header *mySLRheader, sl
         // create a new header struct in memory
         slr_header *mySLRheader = new slr_header;
 
-        FindSLRHeaderLine(theFile,mySLRheader,flag);
+        FindSLRHeaderLine(mySLRheader,flag);
 
     }
     else if (line.size() <= 5 && pcrecpp::RE("^8+$").FullMatch(line))
@@ -421,7 +431,7 @@ bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header *mySLRheader, sl
         // create a new header struct in memory
         slr_header *mySLRheader = new slr_header;
 
-        FindSLRHeaderLine(theFile,mySLRheader,flag);
+        FindSLRHeaderLine(mySLRheader,flag);
 
     }
     
@@ -434,16 +444,14 @@ bool ProcessSLRData::GetData(std::ifstream &theFile, slr_header *mySLRheader, sl
 }
 
 //------------------------------------------------------------------------------
-// bool FindSLRHeaderLine(std::ifstream &theFile, slr_header *mySLRheader,
-//                          bool &flag)
+// bool FindSLRHeaderLine(slr_header *mySLRheader, bool &flag)
 //------------------------------------------------------------------------------
 /** 
  * The routine locates the start of an SLR data block and then obtains the 
  * header line of SLR data.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile, 
-                                       slr_header *mySLRheader, Integer &flag )
+bool ProcessSLRData::FindSLRHeaderLine(slr_header *mySLRheader, Integer &flag )
 {
 
     // Initialize headerType variable to 0
@@ -461,7 +469,7 @@ bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile,
         do
         {
             // Read in a line
-            std::string line = ReadLineFromFile(theFile);
+            std::string line = ReadLineFromFile();
             line = Trim(line);
     
             // This is supposed to be five digits but sometimes it is less
@@ -474,7 +482,7 @@ bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile,
                 headerType = 88888;
             }
         
-        } while ( headerType != 99999 && headerType != 88888 && !IsEOF(theFile) );
+        } while ( headerType != 99999 && headerType != 88888 && !IsEOF() );
 
     }
     else
@@ -503,7 +511,7 @@ bool ProcessSLRData::FindSLRHeaderLine(std::ifstream &theFile,
         }
 	
 	// read header line
-	std::string headerline = ReadLineFromFile(theFile);
+	std::string headerline = ReadLineFromFile();
 
 	return GetSLRHeader(headerline,mySLRheader);
 

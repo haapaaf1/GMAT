@@ -65,7 +65,7 @@ private:
 			       tle_obtype *myTLEdata);
 
     // Specific data type processing functions
-    bool GetData(std::ifstream &theFile, tle_obtype *myTLEdata);
+    bool GetData(tle_obtype *myTLEdata);
 
     // Vector container of observations
     std::vector<tle_obtype*> tleData;

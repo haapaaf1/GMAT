@@ -19,10 +19,8 @@
 //------------------------------------------------------------------------------
 
 #include <ProcessSP3cData.hpp>
-#include "RealUtilities.hpp"
-#include "gmatdefs.hpp"
-#include "StringUtil.hpp"           // for ToString()
-#include "pcrecpp.h"
+
+//#define DEBUG_SP3C_DATA
 
 //---------------------------------
 //  static data
@@ -42,145 +40,157 @@
 bool ProcessSP3cData::Initialize()
 {
     DataFile::Initialize();
-
-    std::ifstream myFile;
-    if(!OpenFile(myFile))
-    {
-	throw DataFileException("Unable to open data file: " + dataFileName);
-	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
-    }
-
-    // Make sure that the sp3cData vector has space reserved for
-    // a minimum number of observations. This ensures that the
-    // compiler does not unnecessarily reallocate the vector storage too-often.
-    // The function reserve() will ensure that we have room for at least 1000
-    // elements. If the vector already has room for the required number of elements,
-    // reserve() does nothing. In other words, reserve() will grow the allocated
-    // storage of the vector, if necessary, but will never shrink it.
-    SP3cData.reserve(1000);
-    SP3cHeader.reserve(5);
-
-    // Parse the data file
-    if (!GetData(myFile)) return false;
-
-    // Set data iterator to beginning of vector container
-    i = SP3cData.begin();
-
-    // Set data iterator to beginning of vector container
-    // We have to use i+1 to get past the begin marker but we don't want
-    // to officially advance the pointer by using ++i
-    i_p = (*(i+1))->position.begin();
-    i_v = (*(i+1))->velocity.begin();
-    i_ep = (*(i+1))->posClockCorrelation.begin();
-    i_ev = (*(i+1))->velClockRateCorrelation.begin();
-
-    // Reset the header iterator to the beginning of the vector container
-    i_h = SP3cHeader.begin();
-
-    FILE * outFile;
-    outFile = fopen("SP3c.output","w");
-
-    // Output to file to make sure all the data is properly stored
-    for (std::vector<sp3c_obtype*>::const_iterator j=SP3cData.begin(); j!=SP3cData.end(); ++j)
+    if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
-        // Output header record once because it's the same for everything
-        if (j == SP3cData.begin())
-        {
-	    fprintf(outFile,"Velocity Data Flag = %s\n",(*(*j)->headerVectorIndex)->velFlag ? "true":"false");
-	    fprintf(outFile,"Epoch Start Year = %d\n",(*(*j)->headerVectorIndex)->startYear);
-	    fprintf(outFile,"Epoch Start Month = %d\n",(*(*j)->headerVectorIndex)->startMonth);
-	    fprintf(outFile,"Epoch Start Day = %d\n",(*(*j)->headerVectorIndex)->startDay);
-	    fprintf(outFile,"Epoch Start Hour = %d\n",(*(*j)->headerVectorIndex)->startHour);
-	    fprintf(outFile,"Epoch Start Minute = %d\n",(*(*j)->headerVectorIndex)->startMinute);
-	    fprintf(outFile,"Epoch Start Seconds = %16.8g\n",(*(*j)->headerVectorIndex)->startSeconds);
-	    fprintf(outFile,"Number of Epochs = %ld\n",(*(*j)->headerVectorIndex)->numEpochs);
-	    fprintf(outFile,"Data Used Indicator = %s\n",(*(*j)->headerVectorIndex)->dataUsed.c_str());
-	    fprintf(outFile,"Coordinate System = %s\n",(*(*j)->headerVectorIndex)->coordSystem.c_str());
-	    fprintf(outFile,"Orbit Type = %s\n",(*(*j)->headerVectorIndex)->orbitType.c_str());
-	    fprintf(outFile,"Agency = %s\n",(*(*j)->headerVectorIndex)->agency.c_str());
-	    fprintf(outFile,"GPS Week = %d\n",(*(*j)->headerVectorIndex)->gpsWeek);
-	    fprintf(outFile,"Seconds of Week = %16.8g\n",(*(*j)->headerVectorIndex)->secondsOfWeek);
-	    fprintf(outFile,"Epoch Interval = %16.8g\n",(*(*j)->headerVectorIndex)->epochInterval);
-	    fprintf(outFile,"Modified Julian Day = %d\n",(*(*j)->headerVectorIndex)->modJulianDay);
-	    fprintf(outFile,"Fraction of Day = %16.8g\n",(*(*j)->headerVectorIndex)->fractionOfDay);
-	    fprintf(outFile,"Number of Sats = %d\n",(*(*j)->headerVectorIndex)->numSats);
-            std::vector<std::string>::iterator iter;
-            for( iter = (*(*j)->headerVectorIndex)->satIdList.begin(); iter != (*(*j)->headerVectorIndex)->satIdList.end(); iter++ )
+        // Make sure that the sp3cData vector has space reserved for
+        // a minimum number of observations. This ensures that the
+        // compiler does not unnecessarily reallocate the vector storage too-often.
+        // The function reserve() will ensure that we have room for at least 1000
+        // elements. If the vector already has room for the required number of elements,
+        // reserve() does nothing. In other words, reserve() will grow the allocated
+        // storage of the vector, if necessary, but will never shrink it.
+        SP3cData.reserve(1000);
+        SP3cHeader.reserve(5);
+
+        // Parse the data file
+        if (!GetData()) return false;
+
+        // Set data iterator to beginning of vector container
+        i = SP3cData.begin();
+
+        // Set data iterator to beginning of vector container
+        // We have to use i+1 to get past the begin marker but we don't want
+        // to officially advance the pointer by using ++i
+        i_p = (*(i+1))->position.begin();
+        i_v = (*(i+1))->velocity.begin();
+        i_ep = (*(i+1))->posClockCorrelation.begin();
+        i_ev = (*(i+1))->velClockRateCorrelation.begin();
+
+        // Reset the header iterator to the beginning of the vector container
+        i_h = SP3cHeader.begin();
+
+        #ifdef DEBUG_SP3C_DATA
+
+            FILE * outFile;
+            outFile = fopen("SP3c.output","w");
+
+            // Output to file to make sure all the data is properly stored
+            for (std::vector<sp3c_obtype*>::const_iterator j=SP3cData.begin(); j!=SP3cData.end(); ++j)
             {
-                fprintf(outFile,"Sat Id List = %s\n",(*iter).c_str());
+
+                // Output header record once because it's the same for everything
+                if (j == SP3cData.begin())
+                {
+                    fprintf(outFile,"Velocity Data Flag = %s\n",(*(*j)->headerVectorIndex)->velFlag ? "true":"false");
+                    fprintf(outFile,"Epoch Start Year = %d\n",(*(*j)->headerVectorIndex)->startYear);
+                    fprintf(outFile,"Epoch Start Month = %d\n",(*(*j)->headerVectorIndex)->startMonth);
+                    fprintf(outFile,"Epoch Start Day = %d\n",(*(*j)->headerVectorIndex)->startDay);
+                    fprintf(outFile,"Epoch Start Hour = %d\n",(*(*j)->headerVectorIndex)->startHour);
+                    fprintf(outFile,"Epoch Start Minute = %d\n",(*(*j)->headerVectorIndex)->startMinute);
+                    fprintf(outFile,"Epoch Start Seconds = %16.8g\n",(*(*j)->headerVectorIndex)->startSeconds);
+                    fprintf(outFile,"Number of Epochs = %ld\n",(*(*j)->headerVectorIndex)->numEpochs);
+                    fprintf(outFile,"Data Used Indicator = %s\n",(*(*j)->headerVectorIndex)->dataUsed.c_str());
+                    fprintf(outFile,"Coordinate System = %s\n",(*(*j)->headerVectorIndex)->coordSystem.c_str());
+                    fprintf(outFile,"Orbit Type = %s\n",(*(*j)->headerVectorIndex)->orbitType.c_str());
+                    fprintf(outFile,"Agency = %s\n",(*(*j)->headerVectorIndex)->agency.c_str());
+                    fprintf(outFile,"GPS Week = %d\n",(*(*j)->headerVectorIndex)->gpsWeek);
+                    fprintf(outFile,"Seconds of Week = %16.8g\n",(*(*j)->headerVectorIndex)->secondsOfWeek);
+                    fprintf(outFile,"Epoch Interval = %16.8g\n",(*(*j)->headerVectorIndex)->epochInterval);
+                    fprintf(outFile,"Modified Julian Day = %d\n",(*(*j)->headerVectorIndex)->modJulianDay);
+                    fprintf(outFile,"Fraction of Day = %16.8g\n",(*(*j)->headerVectorIndex)->fractionOfDay);
+                    fprintf(outFile,"Number of Sats = %d\n",(*(*j)->headerVectorIndex)->numSats);
+                    std::vector<std::string>::iterator iter;
+                    for( iter = (*(*j)->headerVectorIndex)->satIdList.begin(); iter != (*(*j)->headerVectorIndex)->satIdList.end(); iter++ )
+                    {
+                        fprintf(outFile,"Sat Id List = %s\n",(*iter).c_str());
+                    }
+                    std::vector<Integer>::iterator iter2;
+                    for( iter2 = (*(*j)->headerVectorIndex)->satAccuracyList.begin(); iter2 != (*(*j)->headerVectorIndex)->satAccuracyList.end(); iter2++ )
+                    {
+                        fprintf(outFile,"Sat Accuracy List = %d\n",(*iter2));
+                    }
+                    fprintf(outFile,"File Type = %d\n",(*(*j)->headerVectorIndex)->fileType);
+                    fprintf(outFile,"Time System = %d\n",(*(*j)->headerVectorIndex)->timeSystem);
+                    fprintf(outFile,"Base PosVel Std Dev = %16.8g\n",(*(*j)->headerVectorIndex)->basePosVelStdDev);
+                    fprintf(outFile,"Base Clock Rate Std Dev = %16.8g\n",(*(*j)->headerVectorIndex)->baseClkRateStdDev);
+                    std::vector<std::string>::iterator iter3;
+                    for( iter3 = (*(*j)->headerVectorIndex)->comments.begin(); iter3 != (*(*j)->headerVectorIndex)->comments.end(); iter3++ )
+                    {
+                        fprintf(outFile,"Comments = %s\n",(*iter3).c_str());
+                    }
+                    fprintf(outFile,"\n-----------------------------\n");
+                }
+
+                // Output Epoch Data for this set of pos/vel data
+
+                fprintf(outFile,"Epoch Year = %d\n",(*j)->year);
+                fprintf(outFile,"Epoch Month = %d\n",(*j)->month);
+                fprintf(outFile,"Epoch Day = %d\n",(*j)->day);
+                fprintf(outFile,"Epoch Hour = %d\n",(*j)->hour);
+                fprintf(outFile,"Epoch Minute = %d\n",(*j)->minute);
+                fprintf(outFile,"Epoch Second = %16.8g\n",(*j)->seconds);
+
+                fprintf(outFile,"\n*****************\n");
+
+                // Output position data
+                for (std::vector<sp3c_position*>::const_iterator k=(*j)->position.begin(); k!=(*j)->position.end(); ++k)
+                {
+
+                    fprintf(outFile,"Vehicle ID = %s\n",(*k)->vehicleID.c_str());
+                    fprintf(outFile,"X = %16.8g\n",(*k)->x);
+                    fprintf(outFile,"Y = %16.8g\n",(*k)->y);
+                    fprintf(outFile,"Z = %16.8g\n",(*k)->z);
+                    fprintf(outFile,"Clock Value = %16.8g\n",(*k)->clockValue);
+                    fprintf(outFile,"Std Dev X = %16.8g\n",(*k)->stdDevX);
+                    fprintf(outFile,"Std Dev Y = %16.8g\n",(*k)->stdDevY);
+                    fprintf(outFile,"Std Dev Z = %16.8g\n",(*k)->stdDevZ);
+                    fprintf(outFile,"Std Dev Clock = %16.8g\n",(*k)->stdDevClock);
+                    fprintf(outFile,"Clock Event Flag = %s\n",(*k)->clockEventFlag ? "true":"false");
+                    fprintf(outFile,"Clock Prediction Flag = %s\n",(*k)->clockPredictionFlag ? "true":"false");
+                    fprintf(outFile,"Maneuver Flag = %s\n",(*k)->maneuverFlag ? "true":"false");
+                    fprintf(outFile,"Orbit Prediction Flag = %s\n",(*k)->orbitPredictFlag ? "true":"false");
+
+                }
+
+                // Output velocity data
+                for (std::vector<sp3c_velocity*>::const_iterator k=(*j)->velocity.begin(); k!=(*j)->velocity.end(); ++k)
+                {
+
+                    fprintf(outFile,"Vehicle ID = %s\n",(*k)->vehicleID.c_str());
+                    fprintf(outFile,"VX = %16.8g\n",(*k)->vx);
+                    fprintf(outFile,"VY = %16.8g\n",(*k)->vy);
+                    fprintf(outFile,"VZ = %16.8g\n",(*k)->vz);
+                    fprintf(outFile,"Clock Rate of Change = %16.8g\n",(*k)->clockRateOfChange);
+                    fprintf(outFile,"Std Dev VX = %16.8g\n",(*k)->stdDevVX);
+                    fprintf(outFile,"Std Dev VY = %16.8g\n",(*k)->stdDevVY);
+                    fprintf(outFile,"Std Dev VZ = %16.8g\n",(*k)->stdDevVZ);
+                    fprintf(outFile,"Std Dev Clock Rate = %16.8g\n",(*k)->stdDevClockRate);
+
+                }
+
+                fprintf(outFile,"\n******************************************************\n");
+
             }
-            std::vector<Integer>::iterator iter2;
-            for( iter2 = (*(*j)->headerVectorIndex)->satAccuracyList.begin(); iter2 != (*(*j)->headerVectorIndex)->satAccuracyList.end(); iter2++ )
-            {
-                fprintf(outFile,"Sat Accuracy List = %d\n",(*iter2));
-            }
-	    fprintf(outFile,"File Type = %d\n",(*(*j)->headerVectorIndex)->fileType);
-	    fprintf(outFile,"Time System = %d\n",(*(*j)->headerVectorIndex)->timeSystem);
-	    fprintf(outFile,"Base PosVel Std Dev = %16.8g\n",(*(*j)->headerVectorIndex)->basePosVelStdDev);
-	    fprintf(outFile,"Base Clock Rate Std Dev = %16.8g\n",(*(*j)->headerVectorIndex)->baseClkRateStdDev);
-            std::vector<std::string>::iterator iter3;
-            for( iter3 = (*(*j)->headerVectorIndex)->comments.begin(); iter3 != (*(*j)->headerVectorIndex)->comments.end(); iter3++ )
-            {
-                fprintf(outFile,"Comments = %s\n",(*iter3).c_str());
-            }
-	    fprintf(outFile,"\n-----------------------------\n");
-        }
 
-        // Output Epoch Data for this set of pos/vel data
+            fclose(outFile);
 
-        fprintf(outFile,"Epoch Year = %d\n",(*j)->year);
-        fprintf(outFile,"Epoch Month = %d\n",(*j)->month);
-        fprintf(outFile,"Epoch Day = %d\n",(*j)->day);
-        fprintf(outFile,"Epoch Hour = %d\n",(*j)->hour);
-        fprintf(outFile,"Epoch Minute = %d\n",(*j)->minute);
-        fprintf(outFile,"Epoch Second = %16.8g\n",(*j)->seconds);
+        #endif
 
-        fprintf(outFile,"\n*****************\n");
-
-        // Output position data
-        for (std::vector<sp3c_position*>::const_iterator k=(*j)->position.begin(); k!=(*j)->position.end(); ++k)
-        {
-
-            fprintf(outFile,"Vehicle ID = %s\n",(*k)->vehicleID.c_str());
-            fprintf(outFile,"X = %16.8g\n",(*k)->x);
-            fprintf(outFile,"Y = %16.8g\n",(*k)->y);
-            fprintf(outFile,"Z = %16.8g\n",(*k)->z);
-            fprintf(outFile,"Clock Value = %16.8g\n",(*k)->clockValue);
-            fprintf(outFile,"Std Dev X = %16.8g\n",(*k)->stdDevX);
-            fprintf(outFile,"Std Dev Y = %16.8g\n",(*k)->stdDevY);
-            fprintf(outFile,"Std Dev Z = %16.8g\n",(*k)->stdDevZ);
-            fprintf(outFile,"Std Dev Clock = %16.8g\n",(*k)->stdDevClock);
-            fprintf(outFile,"Clock Event Flag = %s\n",(*k)->clockEventFlag ? "true":"false");
-            fprintf(outFile,"Clock Prediction Flag = %s\n",(*k)->clockPredictionFlag ? "true":"false");
-            fprintf(outFile,"Maneuver Flag = %s\n",(*k)->maneuverFlag ? "true":"false");
-            fprintf(outFile,"Orbit Prediction Flag = %s\n",(*k)->orbitPredictFlag ? "true":"false");
-
-        }
-
-        // Output velocity data
-        for (std::vector<sp3c_velocity*>::const_iterator k=(*j)->velocity.begin(); k!=(*j)->velocity.end(); ++k)
-        {
-
-            fprintf(outFile,"Vehicle ID = %s\n",(*k)->vehicleID.c_str());
-            fprintf(outFile,"VX = %16.8g\n",(*k)->vx);
-            fprintf(outFile,"VY = %16.8g\n",(*k)->vy);
-            fprintf(outFile,"VZ = %16.8g\n",(*k)->vz);
-            fprintf(outFile,"Clock Rate of Change = %16.8g\n",(*k)->clockRateOfChange);
-            fprintf(outFile,"Std Dev VX = %16.8g\n",(*k)->stdDevVX);
-            fprintf(outFile,"Std Dev VY = %16.8g\n",(*k)->stdDevVY);
-            fprintf(outFile,"Std Dev VZ = %16.8g\n",(*k)->stdDevVZ);
-            fprintf(outFile,"Std Dev Clock Rate = %16.8g\n",(*k)->stdDevClockRate);
-
-        }
-
-
-        fprintf(outFile,"\n******************************************************\n");
+        if (!CloseFile()) return false;
 
     }
+    else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
+    {
+        // Currently do nothing if writing
+        // wait to write stuff
 
-    if (!CloseFile(myFile))
-        return false;
+    }
+    else
+    {
+        throw DataFileException("Invalid Read/Write mode: " + readWriteMode);
+        MessageInterface::ShowMessage("Invalid Read/Write mode: " + readWriteMode);
+    }
 
     return true;
     
@@ -375,20 +385,20 @@ bool ProcessSP3cData::CheckDataAvailability(const std::string str) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(std::ifstream &theFile, sp3c_header *mySP3cheader, sp3c_obtype *mySP3cdata)
+// bool GetData()
 //------------------------------------------------------------------------------
 /**
  * Obtains the header line of SP3c data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessSP3cData::GetData(std::ifstream &theFile)
+bool ProcessSP3cData::GetData()
 {
 
     // Read a line from file
-    std::string firstline = Trim(ReadLineFromFile(theFile));
+    std::string firstline = Trim(ReadLineFromFile());
 
     // Check to see if we encountered a new header record.
-    while (!IsEOF(theFile) && pcrecpp::RE("^#c.*").FullMatch(firstline))
+    while (!IsEOF() && pcrecpp::RE("^#c.*").FullMatch(firstline))
     {
 
         // Initialize individual data struct
@@ -409,12 +419,12 @@ bool ProcessSP3cData::GetData(std::ifstream &theFile)
         }
 
         // Parse the header lines
-        if (!GetSP3cHeader(firstline, theFile)) return false;
+        if (!GetSP3cHeader(firstline)) return false;
 
         // Parse the data records
         // firstline now contains the first epoch header record
         // which was encountered in GetSP3cHeader
-        if (!GetSP3cData(firstline, theFile)) return false;
+        if (!GetSP3cData(firstline)) return false;
 
     }
 
@@ -423,7 +433,7 @@ bool ProcessSP3cData::GetData(std::ifstream &theFile)
 }
 
 //------------------------------------------------------------------------------
-// bool GetSP3cHeader(std::string firstline, std::ifstream &theFile)
+// bool GetSP3cHeader(std::string firstline)
 //------------------------------------------------------------------------------
 /**
  * Extracts header information from the compact SP3c data format.
@@ -431,7 +441,7 @@ bool ProcessSP3cData::GetData(std::ifstream &theFile)
  * Each data file has one header record (up to 22 lines) associated with it.
  */
 //------------------------------------------------------------------------------
-bool ProcessSP3cData::GetSP3cHeader(std::string firstline, std::ifstream &theFile)
+bool ProcessSP3cData::GetSP3cHeader(std::string firstline)
 {
 
     // set SP3c type variable so that we know how
@@ -485,7 +495,7 @@ bool ProcessSP3cData::GetSP3cHeader(std::string firstline, std::ifstream &theFil
     (*i_h)->agency = firstline.substr(56,4);
 
     // Read in another line
-    std::string nextline = Trim(ReadLineFromFile(theFile));
+    std::string nextline = Trim(ReadLineFromFile());
 
     // Read lines until we have encountered the first epoch data indicator "* "
 
@@ -604,7 +614,7 @@ bool ProcessSP3cData::GetSP3cHeader(std::string firstline, std::ifstream &theFil
         }
 
         // Read in another line
-        nextline = Trim(ReadLineFromFile(theFile));
+        nextline = Trim(ReadLineFromFile());
 
     }
 
@@ -616,7 +626,7 @@ bool ProcessSP3cData::GetSP3cHeader(std::string firstline, std::ifstream &theFil
 }
 
 //------------------------------------------------------------------------------
-// bool GetSP3cData(std::string lff, SP3c_header, std::ifstream &theFile )
+// bool GetSP3cData(std::string lff, SP3c_header )
 //------------------------------------------------------------------------------
 /**
  * Converts the compact SP3c Normal Point Data format into usable numbers.
@@ -625,15 +635,14 @@ bool ProcessSP3cData::GetSP3cHeader(std::string firstline, std::ifstream &theFil
  */
 //
 //------------------------------------------------------------------------------
-
-bool ProcessSP3cData::GetSP3cData(std::string &lff, std::ifstream &theFile)
+bool ProcessSP3cData::GetSP3cData(std::string &lff)
 {
     // Construct a pointer to the SP3c data struct
     sp3c_obtype *mySP3cdata;
 
     // Test for end of file and whether we encounter another header
     // record (unlikely since most sp3c files only contain one header)
-    while (!IsEOF(theFile) && pcrecpp::RE("^#c.*").FullMatch(lff))
+    while (!IsEOF() && pcrecpp::RE("^#c.*").FullMatch(lff))
     {
 
         // Remove any leading or trailing whitespace

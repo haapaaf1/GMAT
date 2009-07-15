@@ -21,8 +21,6 @@
 #ifndef ProcessSLRData_hpp
 #define	ProcessSLRData_hpp
 
-#include "gmatdefs.hpp"
-#include "RealUtilities.hpp"
 #include "DataFile.hpp"
 
 class ProcessSLRData : public DataFile
@@ -64,10 +62,8 @@ public:
 private:
 
     // Specific data type processing functions
-    bool FindSLRHeaderLine( std::ifstream &theFile,
-                            slr_header *mySLRheader, Integer &flag );
-    bool GetData(std::ifstream &theFile, slr_header *mySLRheader,
-                 slr_obtype *mySLRdata);
+    bool FindSLRHeaderLine(slr_header *mySLRheader, Integer &flag);
+    bool GetData(slr_header *mySLRheader,slr_obtype *mySLRdata);
 
 
     bool GetSLRHeader(std::string &lff, slr_header *mySLRheader);

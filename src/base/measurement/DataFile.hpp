@@ -27,13 +27,18 @@
 #include "gmatdefs.hpp"
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include "sstream"
 #include "DataFormats.hpp"
 #include "DataFileException.hpp"
 #include "MessageInterface.hpp"
 #include <pcrecpp.h>
+#include <math.h>
+#include "StringUtil.hpp"           // for ToString()
+
 
 using namespace DataFormats; // for data type variable definitions
+using namespace std; // so we don't have to type std::cout and std::endl
 
 class DataFile : public GmatBase
 {
@@ -61,7 +66,6 @@ public:
     virtual bool        IsParameterReadOnly(const std::string &label) const;
     virtual std::string GetStringParameter(const Integer id) const;
     virtual bool SetStringParameter(const Integer id, const std::string &value);
-
     virtual Integer GetIntegerParameter(const Integer id) const;
     virtual Integer GetIntegerParameter(const std::string &label) const;
     virtual Integer SetIntegerParameter(const Integer id, const Integer value);
@@ -99,14 +103,15 @@ public:
     std::string Trim(std::string s);
     template <class T> bool from_string(T& t, const std::string& s,
                  std::ios_base& (*f)(std::ios_base&));
-    bool Overpunch(std::string code, Integer &digit, Integer &sign );
+    bool ReverseOverpunch(std::string code, Integer &digit, Integer &sign );
+    std::string Overpunch(const Real &number );
 
     // functions to sort the data
     //bool SortData();
 
     // functions to extract a line from file
-    bool ReadLineFromFile(std::ifstream &theFile, std::string &line );
-    std::string ReadLineFromFile(std::ifstream &theFile);
+    bool ReadLineFromFile(std::string &line );
+    std::string ReadLineFromFile();
     
     const std::string* GetFileFormatDescriptions() const;
     std::string GetFileFormatDescriptionText(const Integer &id) const;
@@ -138,10 +143,10 @@ public:
     void SetFileName(std::string &myFileName);
     void SetFileName(const char* myFileName);
 
-    bool OpenFile(std::ifstream &theFile);
-    bool CloseFile(std::ifstream &theFile);
+    bool OpenFile();
+    bool CloseFile();
 
-    bool IsEOF(std::ifstream &theFile);
+    bool IsEOF();
     
     enum OBSERVATION_TYPE_REPS
     {
@@ -179,6 +184,8 @@ public:
 	SLR_ID,
 	TLE_ID,
         SP3C_ID,
+        RINEX_ID,
+        UTDF_ID,
 	EndFileFormatReps
     };
 
@@ -194,6 +201,7 @@ protected:
       FILENAME_ID   = GmatBaseParamCount,
       FILEFORMAT_ID,
       NUMLINES_ID,
+      READWRITEMODE_ID,
       DataFileParamCount
    };
 
@@ -220,6 +228,11 @@ protected:
     
     // Flag to indicate if the data has been chronologically sorted
     bool isSorted;
+
+    // Flag to indicate if the file is open for reading or writing
+    std::string readWriteMode;
+
+    fstream *theFile;
 
 };
 

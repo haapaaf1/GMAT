@@ -21,10 +21,6 @@
 #ifndef ProcessSP3cData_hpp
 #define	ProcessSP3cData_hpp
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <pcrecpp.h>
-#include "RealUtilities.hpp"
 #include "DataFile.hpp"
 
 class ProcessSP3cData : public DataFile
@@ -95,10 +91,10 @@ private:
     static const std::string SP3c_TIME_DESCRIPTIONS[EndSP3cTimeReps];
 
     // Specific data type processing functions
-    bool GetData(std::ifstream &theFile);
+    bool GetData(fstream &theFile);
 
-    bool GetSP3cHeader(std::string firstline, std::ifstream &theFile);
-    bool GetSP3cData(std::string &lff, std::ifstream &theFile);
+    bool GetSP3cHeader(std::string firstline, fstream &theFile);
+    bool GetSP3cData(std::string &lff, fstream &theFile);
 
     // Vector containers for the measurement data
     std::vector<sp3c_header*> SP3cHeader;

@@ -21,10 +21,6 @@
 #ifndef ProcessB3Data_hpp
 #define	ProcessB3Data_hpp
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <pcrecpp.h>
-#include "RealUtilities.hpp"
 #include "DataFile.hpp"
 
 class ProcessB3Data : public DataFile
@@ -78,7 +74,8 @@ public:
 
 private:
 
-    bool GetData(std::ifstream &theFile, b3_obtype *myB3data);
+    bool GetData(b3_obtype *myB3data);
+    bool WriteMeasurement(b3_obtype *myB3data);
 
     // Specific data type processing functions
     bool ExtractB3Data(std::string &lff, b3_obtype *myB3data);

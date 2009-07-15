@@ -22,6 +22,8 @@
 #include "StringUtil.hpp"           // for ToString()
 #include "math.h"
 
+//#define DEBUG_TLE_DATA
+
 //---------------------------------
 //  static data
 //---------------------------------
@@ -48,74 +50,86 @@ bool ProcessTLEData::Initialize()
         numLines = 2;
     }
 
-    std::ifstream myFile;
-    if(!OpenFile(myFile))
+    if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
-	throw DataFileException("Unable to open data file: " + dataFileName);
-	MessageInterface::ShowMessage("Unable to open data file: " + dataFileName);
-    }
 
-    // Make sure that the b3Data vector has space reserved for
-    // a minimum number of observations. This ensures that the
-    // compiler does not unnecessarily reallocate the vector storage too-often.
-    // The function reserve() will ensure that we have room for at least 50
-    // elemnts. If the vector already has room for the required number of elements,
-    // reserve() does nothing. In other words, reserve() will grow the allocated
-    // storage of the vector, if necessary, but will never shrink it.
-    tleData.reserve(50);
+        // Make sure that the b3Data vector has space reserved for
+        // a minimum number of observations. This ensures that the
+        // compiler does not unnecessarily reallocate the vector storage too-often.
+        // The function reserve() will ensure that we have room for at least 50
+        // elements. If the vector already has room for the required number of elements,
+        // reserve() does nothing. In other words, reserve() will grow the allocated
+        // storage of the vector, if necessary, but will never shrink it.
+        tleData.reserve(50);
 
-    // Initialize individual data struct
-    // This needs new memory allocation because
-    // we are storing pointers to this data
-    tle_obtype *myTLE = new tle_obtype;
+        // Initialize individual data struct
+        // This needs new memory allocation because
+        // we are storing pointers to this data
+        tle_obtype *myTLE = new tle_obtype;
 
-    while (!IsEOF(myFile))
-    {
-        if (GetData(myFile,myTLE))
+        while (!IsEOF())
         {
-            tleData.push_back(myTLE);
-        }
+            if (GetData(myTLE))
+            {
+                tleData.push_back(myTLE);
+            }
         
-        // Allocate another struct in memory
-        myTLE = new tle_obtype;
+            // Allocate another struct in memory
+            myTLE = new tle_obtype;
+
+        }
+
+        #ifdef DEBUG_TLE_DATA
+
+            FILE * outFile;
+            outFile = fopen("tle.output","w");
+
+            // Output to file to make sure all the data is properly stored
+            for (std::vector<tle_obtype*>::const_iterator j=tleData.begin(); j!=tleData.end(); ++j)
+            {
+
+                fprintf(outFile,"Satnum = %d\n",(*j)->satnum);
+                fprintf(outFile,"Class = %s\n",(*j)->securityClassification.c_str());
+                fprintf(outFile,"IntlDesignator = %s\n",(*j)->intlDesignator.c_str());
+                fprintf(outFile,"Year = %d\n",(*j)->epochYear);
+                fprintf(outFile,"Day Of Year = %16.8f\n",(*j)->epochDayOfYear);
+                fprintf(outFile,"Ndotby2 = %16.8f\n",(*j)->ndotby2);
+                fprintf(outFile,"Bstar = %16.8g\n",(*j)->bstar);
+                fprintf(outFile,"Ndotby6 = %16.8g\n",(*j)->nddotby6);
+                fprintf(outFile,"EphemType = %d\n",(*j)->ephemerisType);
+                fprintf(outFile,"ElementNum = %d\n",(*j)->elementNum);
+                fprintf(outFile,"Inclination = %16.8f\n",(*j)->inclination);
+                fprintf(outFile,"Eccentricity = %16.8f\n",(*j)->eccentricity);
+                fprintf(outFile,"RAAN = %16.8f\n",(*j)->raan);
+                fprintf(outFile,"Argument of Perigee = %16.8f\n",(*j)->argPerigee);
+                fprintf(outFile,"Mean Anomaly = %16.8f\n",(*j)->meanAnomaly);
+                fprintf(outFile,"Mean Motion = %17.14f\n",(*j)->meanMotion);
+                fprintf(outFile,"Rev Num = %d\n",(*j)->revolutionNum);
+                fprintf(outFile,"\n******************************************************\n");
+
+            }
+
+            fcose(outFile);
+
+        #endif
+    
+        // Set iterator to beginning of vector container
+        i = tleData.begin();
+    
+        if (!CloseFile()) return false;
 
     }
-
-    /*
-    FILE * outFile;
-    outFile = fopen("tle.output","w");
-
-    // Output to file to make sure all the data is properly stored
-    for (std::vector<tle_obtype*>::const_iterator j=tleData.begin(); j!=tleData.end(); ++j)
+    else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {
-
-    	    fprintf(outFile,"Satnum = %d\n",(*j)->satnum);
-	    fprintf(outFile,"Class = %s\n",(*j)->securityClassification.c_str());
-	    fprintf(outFile,"IntlDesignator = %s\n",(*j)->intlDesignator.c_str());
-	    fprintf(outFile,"Year = %d\n",(*j)->epochYear);
-	    fprintf(outFile,"Day Of Year = %16.8f\n",(*j)->epochDayOfYear);
-	    fprintf(outFile,"Ndotby2 = %16.8f\n",(*j)->ndotby2);
-	    fprintf(outFile,"Bstar = %16.8g\n",(*j)->bstar);
-	    fprintf(outFile,"Ndotby6 = %16.8g\n",(*j)->nddotby6);
-	    fprintf(outFile,"EphemType = %d\n",(*j)->ephemerisType);
-	    fprintf(outFile,"ElementNum = %d\n",(*j)->elementNum);
-	    fprintf(outFile,"Inclination = %16.8f\n",(*j)->inclination);
-	    fprintf(outFile,"Eccentricity = %16.8f\n",(*j)->eccentricity);
-	    fprintf(outFile,"RAAN = %16.8f\n",(*j)->raan);
-	    fprintf(outFile,"Argument of Perigee = %16.8f\n",(*j)->argPerigee);
-	    fprintf(outFile,"Mean Anomaly = %16.8f\n",(*j)->meanAnomaly);
-	    fprintf(outFile,"Mean Motion = %17.14f\n",(*j)->meanMotion);
-	    fprintf(outFile,"Rev Num = %d\n",(*j)->revolutionNum);
-	    fprintf(outFile,"\n******************************************************\n");
+        // Currently do nothing if writing
+        // wait to write stuff
 
     }
-    */
-    
-    // Set iterator to beginning of vector container
-    i = tleData.begin();
-    
-    if (!CloseFile(myFile))
-        return false;
+    else
+    {
+        throw DataFileException("Invalid Read/Write mode: " + readWriteMode);
+        MessageInterface::ShowMessage("Invalid Read/Write mode: " + readWriteMode);
+    }
 
     return true;
 
@@ -267,14 +281,14 @@ bool ProcessTLEData::BackUpToPreviousOb() {
  * Obtains the next line of Two Line Element Set data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEData::GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
+bool ProcessTLEData::GetData(tle_obtype *myTLEdata)
 {
 
     if (numLines == 2)
     {
         // Read in two lines
-        std::string line1 = ReadLineFromFile(theFile);
-        std::string line2 = ReadLineFromFile(theFile);
+        std::string line1 = ReadLineFromFile();
+        std::string line2 = ReadLineFromFile();
         return GetTLEData(line1,line2,myTLEdata);
 
     }
@@ -286,9 +300,9 @@ bool ProcessTLEData::GetData(std::ifstream &theFile, tle_obtype *myTLEdata)
         // set is the comment line
         // most likely need to use checksum feature to do this for certain
         // also adding the checksum would add a measure or data reliability
-        std::string line1 = ReadLineFromFile(theFile);
-        std::string line2 = ReadLineFromFile(theFile);
-        std::string line3 = ReadLineFromFile(theFile);
+        std::string line1 = ReadLineFromFile();
+        std::string line2 = ReadLineFromFile();
+        std::string line3 = ReadLineFromFile();
         return GetTLEData(line1,line2,myTLEdata);
 
     }
