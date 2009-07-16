@@ -22,6 +22,7 @@
 
 #include "gmatdefs.hpp"
 #include "EstimationDefs.hpp"
+#include "MeasurementData.hpp"
 #include "MeasurementModel.hpp"
 
 // We'll want something like this eventually:
@@ -54,7 +55,12 @@ protected:
    StringArray                      modelNames;
    /// Pointers to the measurements
    std::vector<MeasurementModel*>   models;
-
+   /// Current measurement epoch, ignoring event searching
+   GmatEpoch                        anchorEpoch;
+   /// Current measurement epoch, including event searching
+   GmatEpoch                        currentEpoch;
+   /// Measurement calculations
+   std::vector<MeasurementData>     measurements;
 };
 
 #endif /*MeasurementManager_hpp*/

@@ -22,8 +22,8 @@
 #include "MessageInterface.hpp"
 
 
-//#define TEST_FIRE_MEASUREMENT
-//#define TEST_MEASUREMENT_INITIALIZATION
+#define TEST_FIRE_MEASUREMENT
+#define TEST_MEASUREMENT_INITIALIZATION
 
 
 //------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ const std::string MeasurementModel::PARAMETER_TEXT[] =
    "Participants",
    "Bias",
    "NoiseSigma",
-   "TimeConstant"
+   "TimeConstant",
 };
 
 
@@ -48,7 +48,7 @@ const Gmat::ParameterType MeasurementModel::PARAMETER_TYPE[] =
    Gmat::OBJECTARRAY_TYPE,
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE
+   Gmat::REAL_TYPE,
 };
 
 //------------------------------------------------------------------------------
@@ -77,7 +77,8 @@ MeasurementModel::MeasurementModel(const std::string &nomme) :
    theDataDerivatives   (NULL),
    measurementBias      (0.0),
    noiseSigma           (1.0e-5),
-   timeConstant         (6000.0)
+   timeConstant         (6000.0),
+   modelID              (-1)
 {
    objectTypes.push_back(Gmat::MEASUREMENT_MODEL);
    objectTypeNames.push_back("MeasurementModel");
@@ -517,12 +518,6 @@ Real MeasurementModel::GetRealParameter(const Integer id, const Integer index) c
 }
 
 
-
-
-
-
-
-
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
@@ -541,6 +536,7 @@ std::string MeasurementModel::GetStringParameter(const Integer id) const
 
    return GmatBase::GetStringParameter(id);
 }
+
 
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const Integer id, const std::string & value)
@@ -840,6 +836,17 @@ const ObjectTypeArray & MeasurementModel::GetRefObjectTypeArray()
    return GmatBase::GetRefObjectTypeArray();
 }
 
+//------------------------------------------------------------------------------
+// const StringArray& MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+/**
+ * Initialization method that identifies the reference objects needed
+ *
+ * @param type The ObjectType for the references; UNKNOWN_OBJECT retrieves all
+ *
+ * @return A StringArray with all of the object names.
+ */
+//------------------------------------------------------------------------------
 const StringArray& MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    #ifdef TEST_MEASUREMENT_INITIALIZATION
@@ -848,10 +855,6 @@ const StringArray& MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectTyp
    #endif
 
    refObjectList.clear();
-
-   // UNKNOWN_OBJECT means get all ref objects
-   if (type == Gmat::UNKNOWN_OBJECT)
-      refObjectList = GmatBase::GetRefObjectNameArray(type);
 
    if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::SPACE_POINT))
    {
@@ -896,6 +899,23 @@ GmatBase* MeasurementModel::GetOwnedObject(Integer whichOne)
 
 bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type, const std::string & name)
 {
+   #ifdef TEST_MEASUREMENT_INITIALIZATION
+      MessageInterface::ShowMessage("Setting ref object %s with type %s\n",
+            name.c_str(), obj->GetTypeName().c_str());
+   #endif
+
+   if (find(participantNames.begin(), participantNames.end(), name) !=
+         participantNames.end())
+   {
+      if (find(participants.begin(), participants.end(), obj) ==
+            participants.end())
+      {
+         participants.push_back(obj);
+         if (measurement != NULL)
+            measurement->SetRefObject(obj, type, name);
+      }
+   }
+
    return GmatBase::SetRefObject(obj, type, name);
 }
 
@@ -915,6 +935,12 @@ ObjectArray& MeasurementModel::GetRefObjectArray(const std::string & typeString)
 bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       const std::string & name, const Integer index)
 {
+   #ifdef TEST_MEASUREMENT_INITIALIZATION
+      MessageInterface::ShowMessage(""
+            "Setting indexed ref object %s with type %s\n", name.c_str(),
+            obj->GetTypeName().c_str());
+   #endif
+
    return GmatBase::SetRefObject(obj, type, name, index);
 }
 
@@ -975,6 +1001,16 @@ bool MeasurementModel::IsOwnedObject(Integer id) const
 }
 
 
+Integer MeasurementModel::GetModelID()
+{
+   return modelID;
+}
+
+
+void MeasurementModel::SetModelID(Integer newID)
+{
+   modelID = newID;
+}
 
 //------------------------------------------------------------------------------
 // const MeasurementData & CalculateMeasurement()

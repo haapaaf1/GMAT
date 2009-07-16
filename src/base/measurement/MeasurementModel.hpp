@@ -22,6 +22,7 @@
 
 #include "GmatBase.hpp"
 #include "EstimationDefs.hpp"
+#include "MeasurementData.hpp"
 #include "GeometricMeasurement.hpp"
 
 class MeasurementModel : public GmatBase
@@ -131,6 +132,9 @@ public:
    virtual Integer      GetOwnedObjectCount();
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
 
+   Integer              GetModelID();
+   void                 SetModelID(Integer newID);
+
    virtual const MeasurementData&
                         CalculateMeasurement();
    virtual const Rmatrix&
@@ -168,6 +172,9 @@ protected:
    Real noiseSigma;
    /// Time constant
    Real timeConstant;
+
+   /// Internal ID used for this measurement model
+   Integer modelID;
 
    enum
    {

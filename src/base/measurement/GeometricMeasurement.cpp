@@ -18,22 +18,25 @@
 
 
 #include "GeometricMeasurement.hpp"
+#include "MessageInterface.hpp"
 
 
-const std::string
-GeometricMeasurement::PARAMETER_TEXT[GeometricMeasurementParamCount -
-                                     GmatBaseParamCount] =
-{
-   "Participants",
-};
+#define DEBUG_MEASUREMENT_INITIALIZATION
 
-
-const Gmat::ParameterType
-GeometricMeasurement::PARAMETER_TYPE[GeometricMeasurementParamCount -
-                                     GmatBaseParamCount] =
-{
-   Gmat::OBJECTARRAY_TYPE,
-};
+//const std::string
+//GeometricMeasurement::PARAMETER_TEXT[GeometricMeasurementParamCount -
+//                                     GmatBaseParamCount] =
+//{
+//   "Participants",
+//};
+//
+//
+//const Gmat::ParameterType
+//GeometricMeasurement::PARAMETER_TYPE[GeometricMeasurementParamCount -
+//                                     GmatBaseParamCount] =
+//{
+//   Gmat::OBJECTARRAY_TYPE,
+//};
 
 
 GeometricMeasurement::GeometricMeasurement(const std::string &type, const std::string &nomme) :
@@ -51,49 +54,96 @@ GeometricMeasurement::~GeometricMeasurement()
 }
 
 GeometricMeasurement::GeometricMeasurement(const GeometricMeasurement& gm) :
-   GmatBase          (gm)
+   GmatBase          (gm),
+   participants      (gm.participants)
 {
 }
 
-GeometricMeasurement& GeometricMeasurement::operator=(const GeometricMeasurement& gm)
+GeometricMeasurement& GeometricMeasurement::operator=(
+      const GeometricMeasurement& gm)
 {
    if (&gm != this)
    {
-
+      participants = gm.participants;
    }
 
    return *this;
 }
 
-std::string GeometricMeasurement::GetParameterText(const Integer id) const
+// Here are the parameter access shells in case we need them later
+//
+//std::string GeometricMeasurement::GetParameterText(const Integer id) const
+//{
+//   if (id >= GmatBaseParamCount && id < GeometricMeasurementParamCount)
+//      return PARAMETER_TEXT[id - GmatBaseParamCount];
+//   return GmatBase::GetParameterText(id);
+//}
+//
+//Integer GeometricMeasurement::GetParameterID(const std::string &str) const
+//{
+//   for (Integer i = GmatBaseParamCount; i < GeometricMeasurementParamCount; i++)
+//   {
+//      if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
+//         return i;
+//   }
+//
+//   return GmatBase::GetParameterID(str);
+//}
+//
+//Gmat::ParameterType GeometricMeasurement::GetParameterType(const Integer id) const
+//{
+//   if (id >= GmatBaseParamCount && id < GeometricMeasurementParamCount)
+//      return PARAMETER_TYPE[id - GmatBaseParamCount];
+//
+//   return GmatBase::GetParameterType(id);
+//}
+//
+//std::string GeometricMeasurement::GetParameterTypeString(const Integer id) const
+//{
+//   return GmatBase::PARAM_TYPE_STRING[GetParameterType(id)];
+//}
+
+
+bool GeometricMeasurement::SetRefObject(GmatBase *obj,
+      const Gmat::ObjectType type, const std::string &name)
 {
-   if (id >= GmatBaseParamCount && id < GeometricMeasurementParamCount)
-      return PARAMETER_TEXT[id - GmatBaseParamCount];
-   return GmatBase::GetParameterText(id);
+   if (obj->IsOfType(Gmat::SPACE_POINT))
+      if (find(participants.begin(), participants.end(), obj) == participants.end())
+      {
+         // Cheating here for the moment to be sure GroundStation is 1st object
+         if (obj->IsOfType(Gmat::GROUND_STATION))
+            participants.insert(participants.begin(), (SpacePoint*)obj);
+         else
+            participants.push_back((SpacePoint*)obj);
+
+         // Set IDs
+         currentMeasurement.participantIDs.clear();
+         for (std::vector<SpacePoint*>::iterator i = participants.begin();
+               i != participants.end(); ++i)
+         {
+            currentMeasurement.participantIDs.push_back((*i)->
+                  GetStringParameter("Id"));
+         }
+
+         #ifdef DEBUG_MEASUREMENT_INITIALIZATION
+            MessageInterface::ShowMessage(
+                  "Added %s named %s to a %s GeometricMeasurement\n",
+                  obj->GetTypeName().c_str(), obj->GetName().c_str(),
+                  typeName.c_str());
+
+            if (participants.size() == 2)
+               CalculateMeasurement(false);
+         #endif
+      }
+
+   return true;
 }
 
-Integer GeometricMeasurement::GetParameterID(const std::string &str) const
+bool GeometricMeasurement::SetRefObject(GmatBase *obj,
+      const Gmat::ObjectType type, const std::string &name, const Integer index)
 {
-   for (Integer i = GmatBaseParamCount; i < GeometricMeasurementParamCount; i++)
-   {
-      if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
-         return i;
-   }
-
-   return GmatBase::GetParameterID(str);
-}
-
-Gmat::ParameterType GeometricMeasurement::GetParameterType(const Integer id) const
-{
-   if (id >= GmatBaseParamCount && id < GeometricMeasurementParamCount)
-      return PARAMETER_TYPE[id - GmatBaseParamCount];
-
-   return GmatBase::GetParameterType(id);
-}
-
-std::string GeometricMeasurement::GetParameterTypeString(const Integer id) const
-{
-   return GmatBase::PARAM_TYPE_STRING[GetParameterType(id)];
+   // todo: Manage anchor participant
+   return true;
 }
 
 MeasurementData* GeometricMeasurement::GetMeasurementDataPointer()
@@ -124,6 +174,3 @@ const Rmatrix & GeometricMeasurement::CalculateMeasurementDerivatives()
 
    return currentDerivatives;
 }
-
-
-

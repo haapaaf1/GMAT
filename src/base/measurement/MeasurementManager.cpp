@@ -26,7 +26,9 @@
  * Constructor for the measurement manager
  */
 //------------------------------------------------------------------------------
-MeasurementManager::MeasurementManager()
+MeasurementManager::MeasurementManager() :
+   anchorEpoch       (21545.0),
+   currentEpoch      (21545.0)
 {
 }
 
@@ -50,9 +52,10 @@ MeasurementManager::~MeasurementManager()
  * @param mm The manager that gets copied
  */
 //------------------------------------------------------------------------------
-MeasurementManager::MeasurementManager(const MeasurementManager &mm)
+MeasurementManager::MeasurementManager(const MeasurementManager &mm) :
+   anchorEpoch       (mm.anchorEpoch),
+   currentEpoch      (mm.currentEpoch)
 {
-   
 }
 
 //------------------------------------------------------------------------------
@@ -70,7 +73,18 @@ MeasurementManager& MeasurementManager::operator=(const MeasurementManager &mm)
 {
    if (&mm != this)
    {
+      anchorEpoch  = mm.anchorEpoch;
+      currentEpoch = mm.currentEpoch;
+      modelNames   = mm.modelNames;
       
+      // Clone the measurements
+      for (std::vector<MeasurementModel*>::iterator i = models.begin();
+            i != models.end(); ++i)
+         delete (*i);
+      models.clear();
+      for (std::vector<MeasurementModel*>::const_iterator i = mm.models.begin();
+            i != mm.models.end(); ++i)
+         models.push_back((MeasurementModel*)(*i)->Clone());
    }
    
    return *this;
@@ -138,7 +152,11 @@ bool MeasurementManager::WriteMeasurement(const Integer measurementToWrite)
 
 Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 {
-   Integer measurementIndex = -1;
+   MeasurementData md;
+
+   models.push_back((MeasurementModel*)meas->Clone());
+   measurements.push_back(md);
+   Integer measurementIndex = models.size() - 1;
 
    return measurementIndex;
 }
@@ -146,7 +164,20 @@ Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 
 bool MeasurementManager::CalculateMeasurements()
 {
-   return false;
+   bool retval = false;
+   MeasurementData theData;
+
+   for (std::vector<MeasurementModel*>::iterator i = models.begin();
+         i != models.end(); ++i)
+   {
+      theData = (*i)->CalculateMeasurement(false);
+      if (theData.isFeasible)
+      {
+         retval = true;
+      }
+   }
+
+   return retval;
 }
 
 bool MeasurementManager::CalculateMeasurementsAndDerivatives()

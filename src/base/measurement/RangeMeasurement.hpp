@@ -33,7 +33,9 @@ public:
    virtual GmatBase* Clone() const;
 
 protected:
-   bool                       Evaluate(bool withDerivatives = false);
+   Real           theRange;
+
+   bool           Evaluate(bool withDerivatives = false);
 };
 
 #endif /* RANGEMEASUREMENT_HPP_ */

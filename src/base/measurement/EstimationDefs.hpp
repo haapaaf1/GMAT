@@ -62,27 +62,6 @@ namespace Gmat
 
 }
 
-/**
- *  The measurement data structure
- *
- *  This structure provides the core set of information used for measurement
- *  data.  Each measurement -- observed or calculated -- can be captured in
- *  this structure.
- */
-struct MeasurementData
-{
-   /// The type of measurement in this record
-   Gmat::MeasurementType   type;
-   /// The epoch of the measurement
-   GmatEpoch         epoch;
-   /// Who is involved in the measurement.  First one is the "anchor" node
-   IntegerArray      participantIDs;
-   /// The measured value.  Array to handle more than one value, like AZ_EL
-   RealArray         value;
-   /// Flag indicating if the measurement could be made when it was attempted
-   bool              isFeasible;
-};
-
 
 // TBD: Do we want this gorp or not for the early builds?
 //// Forward reference to allow for a typedef
