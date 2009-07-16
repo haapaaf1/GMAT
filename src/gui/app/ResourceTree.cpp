@@ -1143,7 +1143,7 @@ void ResourceTree::AddDefaultSubscribers(wxTreeItemId itemId, bool restartCounte
          // User subscribers
          AppendItem(itemId, wxT(objName), GmatTree::ICON_REPORT, -1,
                     new GmatTreeItemData(wxT(objName),
-                                         GmatTree::REPORT_FILE));
+                                         GmatTree::SUBSCRIBER));
       }
    }
 

@@ -76,7 +76,7 @@ MeasurementManager& MeasurementManager::operator=(const MeasurementManager &mm)
       anchorEpoch  = mm.anchorEpoch;
       currentEpoch = mm.currentEpoch;
       modelNames   = mm.modelNames;
-      
+
       // Clone the measurements
       for (std::vector<MeasurementModel*>::iterator i = models.begin();
             i != models.end(); ++i)
@@ -86,7 +86,7 @@ MeasurementManager& MeasurementManager::operator=(const MeasurementManager &mm)
             i != mm.models.end(); ++i)
          models.push_back((MeasurementModel*)(*i)->Clone());
    }
-   
+
    return *this;
 }
 
@@ -170,7 +170,7 @@ bool MeasurementManager::CalculateMeasurements()
    for (std::vector<MeasurementModel*>::iterator i = models.begin();
          i != models.end(); ++i)
    {
-      theData = (*i)->CalculateMeasurement(false);
+      theData = (*i)->CalculateMeasurement();
       if (theData.isFeasible)
       {
          retval = true;
