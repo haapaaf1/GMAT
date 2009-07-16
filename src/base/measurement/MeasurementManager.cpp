@@ -56,6 +56,15 @@ MeasurementManager::MeasurementManager(const MeasurementManager &mm) :
    anchorEpoch       (mm.anchorEpoch),
    currentEpoch      (mm.currentEpoch)
 {
+   modelNames = mm.modelNames;
+
+   for (std::vector<MeasurementModel*>::const_iterator i = mm.models.begin();
+         i != mm.models.end(); ++i)
+   {
+      models.push_back((MeasurementModel*)((*i)->Clone()));
+      MeasurementData md;
+      measurements.push_back(md);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -81,13 +90,38 @@ MeasurementManager& MeasurementManager::operator=(const MeasurementManager &mm)
       for (std::vector<MeasurementModel*>::iterator i = models.begin();
             i != models.end(); ++i)
          delete (*i);
+
       models.clear();
+      measurements.clear();
+
       for (std::vector<MeasurementModel*>::const_iterator i = mm.models.begin();
             i != mm.models.end(); ++i)
+      {
          models.push_back((MeasurementModel*)(*i)->Clone());
+         MeasurementData md;
+         measurements.push_back(md);
+      }
    }
 
    return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Verifies that the measuremetn models are ready to calculate measuremetns,
+ * and builds internal data structures needed to manage these calculations.
+ *
+ * @return true is ready to go, false if not
+ */
+//------------------------------------------------------------------------------
+bool MeasurementManager::Initialize()
+{
+   bool retval = true;
+
+   return retval;
 }
 
 //------------------------------------------------------------------------------
@@ -108,15 +142,21 @@ Integer MeasurementManager::Calculate(const Integer measurementToCalc)
 
    if (measurementToCalc == -1)
    {
-
+      for (UnsignedInt j = 0; j < models.size(); ++j)
+      {
+         measurements[j] = models[j]->CalculateMeasurement();
+         if (measurements[j].isFeasible)
+            ++successCount;
+      }
    }
    else
    {
-      measurements[measurementToCalc] =
-         models[measurementToCalc]->CalculateMeasurement();
-      if (measurements[measurementToCalc].isFeasible)
+      if ((measurementToCalc < (Integer)models.size()) && measurementToCalc >= 0)
       {
-         successCount = 1;
+         measurements[measurementToCalc] =
+               models[measurementToCalc]->CalculateMeasurement();
+         if (measurements[measurementToCalc].isFeasible)
+            successCount = 1;
       }
    }
 
@@ -206,17 +246,12 @@ Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 bool MeasurementManager::CalculateMeasurements()
 {
    bool retval = false;
-   Integer j = 0;
 
-   for (std::vector<MeasurementModel*>::iterator i = models.begin();
-          i != models.end(); ++i)
+   for (UnsignedInt j = 0; j < models.size(); ++j)
    {
-      measurements[j] = (*i)->CalculateMeasurement();
+      measurements[j] = models[j]->CalculateMeasurement();
       if (measurements[j].isFeasible)
-      {
          retval = true;
-      }
-      ++j;
    }
 
    return retval;

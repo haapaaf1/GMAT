@@ -40,6 +40,8 @@ public:
    virtual ~MeasurementManager();
    MeasurementManager(const MeasurementManager &mm);
    MeasurementManager& operator=(const MeasurementManager &mm);
+
+   bool Initialize();
    
    bool CalculateMeasurements();
    bool CalculateMeasurementsAndDerivatives();
