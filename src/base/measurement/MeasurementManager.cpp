@@ -106,6 +106,20 @@ Integer MeasurementManager::Calculate(const Integer measurementToCalc)
 {
    Integer successCount = 0;
 
+   if (measurementToCalc == -1)
+   {
+
+   }
+   else
+   {
+      measurements[measurementToCalc] =
+         models[measurementToCalc]->CalculateMeasurement();
+      if (measurements[measurementToCalc].isFeasible)
+      {
+         successCount = 1;
+      }
+   }
+
    return successCount;
 }
 
@@ -121,9 +135,14 @@ Integer MeasurementManager::Calculate(const Integer measurementToCalc)
  *         available
  */
 //------------------------------------------------------------------------------
-const MeasurementData* MeasurementManager::GetMeasurement(const Integer measurementToGet)
+const MeasurementData* MeasurementManager::GetMeasurement(
+         const Integer measurementToGet)
 {
+
    MeasurementData *theMeasurement = NULL;
+   if ( (measurementToGet >= 0) &&
+        (measurementToGet < (Integer)measurements.size()))
+      theMeasurement = &measurements[measurementToGet];
 
    return theMeasurement;
 }
@@ -150,8 +169,20 @@ bool MeasurementManager::WriteMeasurement(const Integer measurementToWrite)
 }
 
 
+//------------------------------------------------------------------------------
+// Integer AddMeasurement(MeasurementModel *meas)
+//------------------------------------------------------------------------------
+/**
+ * Sets a new MeasurementModel on the MeasurementManager
+ *
+ * @param meas The new MeasurementModel
+ *
+ * @return The ID for the model during this run
+ */
+//------------------------------------------------------------------------------
 Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 {
+   // Local resource used to prepare the data array
    MeasurementData md;
 
    models.push_back((MeasurementModel*)meas->Clone());
@@ -162,19 +193,30 @@ Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 }
 
 
+//------------------------------------------------------------------------------
+// bool CalculateMeasurements()
+//------------------------------------------------------------------------------
+/**
+ * Fires the calculation method of each owned MeasurementModel
+ *
+ * @return True if at least one measurement is feasible and calculated; false
+ *         otherwise
+ */
+//------------------------------------------------------------------------------
 bool MeasurementManager::CalculateMeasurements()
 {
    bool retval = false;
-   MeasurementData theData;
+   Integer j = 0;
 
    for (std::vector<MeasurementModel*>::iterator i = models.begin();
-         i != models.end(); ++i)
+          i != models.end(); ++i)
    {
-      theData = (*i)->CalculateMeasurement();
-      if (theData.isFeasible)
+      measurements[j] = (*i)->CalculateMeasurement();
+      if (measurements[j].isFeasible)
       {
          retval = true;
       }
+      ++j;
    }
 
    return retval;
