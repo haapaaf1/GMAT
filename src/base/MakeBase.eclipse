@@ -340,6 +340,7 @@ OBJECTS = \
     math/Tan.o \
     math/Tanh.o \
     math/Transpose.o \
+    measurement/MeasurementData.o \
     measurement/MeasurementManager.o \
     measurement/MeasurementModel.o \
     measurement/GeometricMeasurement.o \
