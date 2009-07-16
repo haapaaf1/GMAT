@@ -1,0 +1,147 @@
+
+================================= Build 0.1 ==============================
+
+Goal:  Simulate Exact Range Measurements between a spacecraft and groundstation
+	
+MeasurementModel 
+    Shell and parsing
+	Measurement Model class
+	Geometric base class
+	Range measurement class
+	ComputeMeasurement() complete
+	IsFeasible() method complete  (Simple above horizon check)
+   	Range checking
+
+ObservationFile
+    Shell
+	Read/Write
+	Range checking
+    Check in to Bugzilla
+	
+Simulator
+    Shell and parsing
+    INITIALIZING
+    PROPAGATING
+    CALCULATING
+    SIMULATING 
+    FINISHING
+	Range checking
+	
+RunSimulator Command 
+   Shell and parsing
+   Initialization and PreparetoSimulate 
+   Propagation (prop to requested epoch)
+   Finalize command data
+   Range checking
+   
+Measurement Manager
+    Shell
+	Interface to measurement
+	Interface to simulator
+	Manage calculated data
+	Crude file output
+   	Range checking
+
+Particpants
+   Spacecraft Set ID
+   Groundstation Set ID
+   Range checking
+   
+Measurement Data Structure (This is in the build 0.1 plan)
+	particant ID list
+	computed value
+	epoch
+	data type enumeration
+	isFeasible flag
+	Feasibility value
+
+================================= Build 0.2 ==============================
+
+Goal:  Simulate Range, RangeRate, and Angles  Measurements (with errors)
+       between a spacecraft and groundstation
+
+Noise Class
+    Code Checkin to Bugzilla
+	Code read
+	Code updates
+	Checkin to dev
+	Range/Validation checking
+	
+MeasurementModel 
+	Interpreter updates for noise settings via script
+	Integration of noise class and measurement model
+	RangeRate Measurement class
+	RA/Dec Measurement class
+	Az/El Measurement class
+
+ObservationFile
+    Code review
+	Code updates
+	Integration
+	
+RunSimulator Command 
+    Modifications to handle mulitple measurements
+   
+Measurement Manager
+    Modifications to handle mulitple measurements
+	
+Simulator
+    None?	
+
+Participants
+    None?
+   
+Measurement Data Structure (This is in the build 0.1 plan)
+    None?
+	
+Integration/Integration Testing
+
+================================= Build 0.3 ==============================
+
+Goal:  Process Range and Angles Data using Batch Least Squares.  Solver for
+       Cartesian State.
+
+MeasurementModel 
+	Measurement Type Id
+	GetPartial()
+	GetCartesianPartial()
+	GetBiasPartial()
+	GetStationLocationPartial()
+	GetStates (for bias/error solve-fors)
+	SetStates (for bias/error solve-fors)
+
+ObservationFile
+    UTDF Reader
+	UTDF Writer
+	
+EstimationStateManager	
+	
+BatchEstiamtor
+    Shell Code and parsing
+	INITIALIZING
+    PROPAGATING
+    CALCULATING
+    ESTIMATING 
+	CHECKING RUN
+    FINISHING
+	Range/Validation
+	
+RunEstimator Command 
+   Shell and parsing (start from RunSimulator)
+   Initialization and PreparetoEstimate
+   Propagation (prop to requested epoch)
+   Finalize command data
+   Range checking
+   
+Measurement Manager
+    GetPartials() 
+	GetNoiseData()
+	
+Participants
+    GetStates() (for bias/error solve-fors)
+	SetStates() (for bias/error solve-fors)
+   
+Measurement Data Structure  
+    None?
+	
+Integration/Integration Testing	
