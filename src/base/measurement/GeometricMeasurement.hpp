@@ -50,6 +50,8 @@ public:
    GeometricMeasurement(const GeometricMeasurement& gm);
    GeometricMeasurement&      operator=(const GeometricMeasurement& gm);
 
+   virtual bool               Initialize() = 0;
+
    // Here are the parameter access shells in case we need them later
 //   virtual std::string        GetParameterText(const Integer id) const;
 //   virtual Integer            GetParameterID(const std::string &str) const;

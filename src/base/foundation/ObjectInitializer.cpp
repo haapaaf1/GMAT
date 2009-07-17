@@ -313,11 +313,11 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
           (obj->GetType() != Gmat::PARAMETER) &&
           (obj->GetType() != Gmat::SUBSCRIBER))
       {
-         #ifdef DEBUG_OBJECT_INITIALIZER
+//         #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage(
                "ObjectInitializer::Initialize objTypeName = %s, objName = %s\n",
                obj->GetTypeName().c_str(), obj->GetName().c_str());
-         #endif
+//         #endif
 
 
          //*************************** TEMPORARY ******* why?  2008.10.21 wcs
@@ -329,6 +329,12 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             // Added BURN and HARDWARE(LOJ: 2009.03.03)
             if (obj->IsOfType(Gmat::SPACE_POINT) || obj->IsOfType(Gmat::BURN) ||
                 obj->IsOfType(Gmat::HARDWARE))
+            {
+               BuildReferences(obj);
+               obj->Initialize();
+            }
+// Test code for MM
+            if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
             {
                BuildReferences(obj);
                obj->Initialize();

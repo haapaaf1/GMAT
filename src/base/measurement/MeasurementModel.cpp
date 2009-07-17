@@ -166,6 +166,35 @@ GmatBase *MeasurementModel::Clone() const
 
 
 //------------------------------------------------------------------------------
+// bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Initializes the measurement model and its owned objects
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool MeasurementModel::Initialize()
+{
+   bool retval = false;
+
+   if (measurement != NULL)
+   {
+      // Validate CoreMeasurement member
+      if (measurement->Initialize())
+      {
+         // Set calculated data pointers
+         theData              = measurement->GetMeasurementDataPointer();
+         theDataDerivatives   = measurement->GetDerivativePointer();
+         retval = true;
+      }
+   }
+
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
 // Parameter handling code
 //------------------------------------------------------------------------------
 
@@ -982,7 +1011,8 @@ bool MeasurementModel::SetMeasurement(CoreMeasurement *meas)
       #ifdef TEST_FIRE_MEASUREMENT
          try
          {
-            measurement->CalculateMeasurement(true);
+            if (Initialize())
+               measurement->CalculateMeasurement(true);
          }
          catch (BaseException &ex)
          {

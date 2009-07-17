@@ -23,10 +23,11 @@
 #include "gmatdefs.hpp"
 #include "EstimationDefs.hpp"
 #include "MeasurementData.hpp"
+#include "Rmatrix.hpp"
 #include "MeasurementModel.hpp"
 
 // We'll want something like this eventually:
-//#include "MeasurementBase.hpp"
+//#include "CoreMeasurement.hpp"
 // But for now we go with this:
 #include "GeometricMeasurement.hpp"
 
@@ -63,6 +64,8 @@ protected:
    GmatEpoch                        currentEpoch;
    /// Measurement calculations
    std::vector<MeasurementData>     measurements;
+   /// Measurement derivatives
+   std::vector<Rmatrix>             derivatives;
 };
 
 #endif /*MeasurementManager_hpp*/

@@ -34,6 +34,7 @@ public:
    MeasurementModel& operator=(const MeasurementModel &mm);
 
    virtual GmatBase* Clone() const;
+   virtual bool Initialize();
 
    // Access methods derived classes can override
    virtual std::string  GetParameterText(const Integer id) const;

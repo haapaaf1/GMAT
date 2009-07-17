@@ -29,7 +29,8 @@
 
 
 RangeMeasurement::RangeMeasurement(const std::string &name) :
-   GeometricMeasurement          ("Range", name)
+   GeometricMeasurement          ("Range", name),
+   satEpochID                    (-1)
 {
    objectTypeNames.push_back("RangeMeasurement");
 
@@ -46,7 +47,8 @@ RangeMeasurement::~RangeMeasurement()
 
 
 RangeMeasurement::RangeMeasurement(const RangeMeasurement &rm) :
-   GeometricMeasurement          (rm)
+   GeometricMeasurement          (rm),
+   satEpochID                    (rm.satEpochID)
 {
    currentMeasurement.value.push_back(0.0);
    currentMeasurement.participantIDs.push_back("NotSet");
@@ -59,6 +61,7 @@ RangeMeasurement& RangeMeasurement::operator=(const RangeMeasurement &rm)
    if (&rm != this)
    {
       currentMeasurement.value.push_back(0.0);
+      satEpochID = rm.satEpochID;
    }
 
    return *this;
@@ -71,14 +74,41 @@ GmatBase* RangeMeasurement::Clone() const
 }
 
 
+bool RangeMeasurement::Initialize()
+{
+   bool retval = false;
+
+   // Todo: should this call GeometricMeasurement::Initialize()?
+   if (GmatBase::Initialize())
+   {
+      if (participants.size() != 2)
+         MessageInterface::ShowMessage("Range measurements require exactly 2 "
+               "participants; cannot initialize\n");
+      else
+      {
+         if ((participants[0]->IsOfType(Gmat::SPACE_POINT)) &&
+             (participants[1]->IsOfType(Gmat::SPACECRAFT)))
+         {
+            satEpochID = participants[1]->GetParameterID("A1Epoch");
+            retval = true;
+         }
+         else
+         {
+            MessageInterface::ShowMessage("Participant mismatch in Range "
+                  "measurement: Current code requires one Spacecraft and one other"
+                  " SpacePoint participant; cannot initialize\n");
+         }
+      }
+   }
+
+   return retval;
+}
+
+
 bool RangeMeasurement::Evaluate(bool withDerivatives)
 {
-   if (this->participants.size() != 2)
-      throw MeasurementException("Range measurements require exactly 2 "
-            "participants");
-
    // todo: Replace with parameter ID set at initialization
-   currentMeasurement.epoch = participants[1]->GetRealParameter("A1Epoch");
+   currentMeasurement.epoch = participants[1]->GetRealParameter(satEpochID);
 
 
    Rvector3 p1Loc = participants[0]->GetMJ2000Position(currentMeasurement.epoch);

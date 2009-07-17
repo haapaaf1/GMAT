@@ -30,12 +30,13 @@ public:
    RangeMeasurement(const RangeMeasurement &rm);
    RangeMeasurement& operator=(const RangeMeasurement &rm);
 
-   virtual GmatBase* Clone() const;
+   virtual GmatBase*       Clone() const;
+   virtual bool            Initialize();
 
 protected:
-   Real           theRange;
+   Integer                 satEpochID;
 
-   bool           Evaluate(bool withDerivatives = false);
+   bool                    Evaluate(bool withDerivatives = false);
 };
 
 #endif /* RANGEMEASUREMENT_HPP_ */

@@ -96,11 +96,7 @@ MeasurementManager& MeasurementManager::operator=(const MeasurementManager &mm)
 
       for (std::vector<MeasurementModel*>::const_iterator i = mm.models.begin();
             i != mm.models.end(); ++i)
-      {
          models.push_back((MeasurementModel*)(*i)->Clone());
-         MeasurementData md;
-         measurements.push_back(md);
-      }
    }
 
    return *this;
@@ -120,6 +116,13 @@ MeasurementManager& MeasurementManager::operator=(const MeasurementManager &mm)
 bool MeasurementManager::Initialize()
 {
    bool retval = true;
+
+   measurements.clear();
+   for (UnsignedInt i = 0; i < models.size(); ++i)
+   {
+      MeasurementData md;
+      measurements.push_back(md);
+   }
 
    return retval;
 }
@@ -222,11 +225,7 @@ bool MeasurementManager::WriteMeasurement(const Integer measurementToWrite)
 //------------------------------------------------------------------------------
 Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 {
-   // Local resource used to prepare the data array
-   MeasurementData md;
-
    models.push_back((MeasurementModel*)meas->Clone());
-   measurements.push_back(md);
    Integer measurementIndex = models.size() - 1;
 
    return measurementIndex;
@@ -257,11 +256,47 @@ bool MeasurementManager::CalculateMeasurements()
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// bool MeasurementManager::CalculateMeasurementsAndDerivatives()
+//------------------------------------------------------------------------------
+/**
+ * Fires the calculation method of each owned MeasurementModel, and on success
+ * (i.e. if the measurement was feasible) then fires the derivative calculator.
+ *
+ * @return True if at least one measurement is feasible and calculated; false
+ *         otherwise
+ */
+//------------------------------------------------------------------------------
 bool MeasurementManager::CalculateMeasurementsAndDerivatives()
 {
-   return false;
+   bool retval = false;
+
+   for (UnsignedInt j = 0; j < models.size(); ++j)
+   {
+      measurements[j] = models[j]->CalculateMeasurement();
+      if (measurements[j].isFeasible)
+      {
+         derivatives[j] = models[j]->CalculateMeasurementDerivatives();
+         retval = true;
+      }
+   }
+
+   return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// bool MeasurementManager::WriteMeasurements()
+//------------------------------------------------------------------------------
+/**
+ * Writes the calculated data to a file.
+ *
+ * This method is used during measurement simulation to generate simulated data.
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool MeasurementManager::WriteMeasurements()
 {
    return false;
