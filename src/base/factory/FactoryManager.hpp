@@ -48,6 +48,9 @@
 
 #include "MeasurementModel.hpp"
 #include "GeometricMeasurement.hpp"  // Change to "CoreMeasurement.hpp" when ready
+#include "Datafile.hpp"
+#include "Obtype.hpp"
+
 
 /**
  * GMAT Factory Manager Class, the interface between the Moderator and the
@@ -115,6 +118,9 @@ public:
    CoreMeasurement*       CreateMeasurement(const std::string &ofType,
                                             const std::string &withName = "");
 
+   Obtype*                CreateObtype(const std::string &ofType,
+                                            const std::string &withName = "");
+
    //----- Just container
    SolarSystem*           CreateSolarSystem(const std::string &withName = "");
    PropSetup*             CreatePropSetup(const std::string &withName = "");
@@ -123,6 +129,7 @@ public:
    CoordinateSystem*      CreateCoordinateSystem(const std::string &withName = "");
 
    MeasurementModel*      CreateMeasurementModel(const std::string &withName);
+   Datafile*              CreateDatafile(const std::string &withName);
 
    // method to return a list of strings representing the objects of the input
    // type that may be created in the system

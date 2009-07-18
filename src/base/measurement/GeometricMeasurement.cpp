@@ -21,7 +21,7 @@
 #include "MessageInterface.hpp"
 
 
-#define DEBUG_MEASUREMENT_INITIALIZATION
+//#define DEBUG_MEASUREMENT_INITIALIZATION
 
 //const std::string
 //GeometricMeasurement::PARAMETER_TEXT[GeometricMeasurementParamCount -

@@ -149,7 +149,7 @@ protected:
    /// Name of the observation stream that supplied or receives data
    StringArray          observationStreamName;
    /// The observation stream
-//   std::vector<DataFile*> observationStream;
+//   std::vector<Datafile*> observationStream;
    /// List of participants used in the contained measurement
    StringArray          participantNames;
    /// Pointers to the participants
@@ -193,7 +193,6 @@ protected:
                 PARAMETER_TEXT[MeasurementModelParamCount - GmatBaseParamCount];
    static const Gmat::ParameterType
                 PARAMETER_TYPE[MeasurementModelParamCount - GmatBaseParamCount];
-
 };
 
 #endif /* MeasurementModel_hpp */

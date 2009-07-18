@@ -144,6 +144,8 @@ namespace Gmat
       // Estimation types
       MEASUREMENT_MODEL,
       CORE_MEASUREMENT,    // For the measurement primitives
+      DATASTREAM,          // For Datafle container objects
+      OBTYPE,              // For the specific observation types
       UNKNOWN_OBJECT
    };
 

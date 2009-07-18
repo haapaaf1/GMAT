@@ -102,6 +102,7 @@ HEADERS = -Iinclude \
           -Iplugin \
           -Iestimator \
           -Imeasurement \
+          -Imeasurementfile \
           -I../gui/include \
           -I../gui/include/bitmaps \
           -I../gui/app \
@@ -252,6 +253,7 @@ OBJECTS = \
     factory/CelestialBodyFactory.o \
     factory/CommandFactory.o \
     factory/CoordinateSystemFactory.o \
+    factory/DatafileFactory.o \
     factory/FactoryException.o \
     factory/FactoryManager.o \
     factory/Factory.o \
@@ -261,6 +263,7 @@ OBJECTS = \
     factory/MathFactory.o \
     factory/MeasurementModelFactory.o \
     factory/MeasurementFactory.o \
+    factory/ObtypeFactory.o \
     factory/ParameterFactory.o \
     factory/PhysicalModelFactory.o \
     factory/PropagatorFactory.o \
@@ -345,6 +348,9 @@ OBJECTS = \
     measurement/MeasurementModel.o \
     measurement/GeometricMeasurement.o \
     measurement/RangeMeasurement.o \
+    measurementfile/Datafile.o \
+    measurementfile/Obtype.o \
+    measurementfile/GmatObtype.o \
     parameter/AngularParameters.o \
     parameter/Array.o \
     parameter/ArrayWrapper.o \

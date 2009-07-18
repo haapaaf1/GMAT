@@ -65,9 +65,9 @@ namespace Gmat
 
 // TBD: Do we want this gorp or not for the early builds?
 //// Forward reference to allow for a typedef
-//class DataFile;
+//class Datafile;
 //
 //// Type definitions
-//typedef DataFile MeasurementStream;
+//typedef Datafile MeasurementStream;
 
 #endif /* EstimationDefs_hpp */

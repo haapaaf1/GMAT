@@ -22,8 +22,8 @@
 #include "MessageInterface.hpp"
 
 
-#define TEST_FIRE_MEASUREMENT
-#define TEST_MEASUREMENT_INITIALIZATION
+//#define TEST_FIRE_MEASUREMENT
+//#define TEST_MEASUREMENT_INITIALIZATION
 
 
 //------------------------------------------------------------------------------
@@ -187,6 +187,32 @@ bool MeasurementModel::Initialize()
          theData              = measurement->GetMeasurementDataPointer();
          theDataDerivatives   = measurement->GetDerivativePointer();
          retval = true;
+
+         #ifdef TEST_MEASUREMENT_INITIALIZATION
+            MessageInterface::ShowMessage(
+                  "Initialization complete for measurement model %s\n",
+                  instanceName.c_str());
+         #endif
+
+         #ifdef TEST_FIRE_MEASUREMENT
+            MessageInterface::ShowMessage("Test firing measurement model %s\n",
+                  instanceName.c_str());
+
+            CalculateMeasurement();
+
+            MessageInterface::ShowMessage("   Calculated %s at epoch %.12lf\n",
+                  measurement->GetTypeName().c_str(), theData->epoch);
+            MessageInterface::ShowMessage("   FeasibilityValue = %lf\n",
+                  theData->feasibilityValue);
+            MessageInterface::ShowMessage("   Feasibility:  %s\n",
+                  (theData->isFeasible ? "true" : "false"));
+            MessageInterface::ShowMessage("   Measurement = [");
+            for (RealArray::iterator i = theData->value.begin();
+                  i != theData->value.end(); ++i)
+               MessageInterface::ShowMessage(" %.12lf ", (*i));
+            MessageInterface::ShowMessage("]\n");
+         #endif
+
       }
    }
 
@@ -1006,19 +1032,6 @@ bool MeasurementModel::SetMeasurement(CoreMeasurement *meas)
 
       theData = measurement->GetMeasurementDataPointer();
       theDataDerivatives = measurement->GetDerivativePointer();
-
-
-      #ifdef TEST_FIRE_MEASUREMENT
-         try
-         {
-            if (Initialize())
-               measurement->CalculateMeasurement(true);
-         }
-         catch (BaseException &ex)
-         {
-            MessageInterface::ShowMessage(ex.GetFullMessage());
-         }
-      #endif
    }
 
    return retval;
@@ -1058,7 +1071,6 @@ void MeasurementModel::SetModelID(Integer newID)
 //------------------------------------------------------------------------------
 const MeasurementData & MeasurementModel::CalculateMeasurement()
 {
-   // todo:  Put in the call to calculate the measurement
    measurement->CalculateMeasurement(false);
    return *theData;
 }

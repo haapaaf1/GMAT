@@ -580,6 +580,34 @@ void ConfigManager::AddMeasurement(CoreMeasurement *meas)
 }
 
 
+void ConfigManager::AddDatafile(Datafile *df)
+{
+   std::string name = df->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!df->IsOfType(Gmat::DATASTREAM))
+      throw ConfigManagerException(name + " is not a Datafile");
+
+   AddObject(df);
+}
+
+
+void ConfigManager::AddObtype(Obtype *ot)
+{
+   std::string name = ot->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!ot->IsOfType(Gmat::OBTYPE))
+      throw ConfigManagerException(name + " is not an Obtype");
+
+   MessageInterface::ShowMessage("Warning: Obtype %s configured; it "
+         "should be hidden inside of a Datafile", name.c_str());
+   AddObject(ot);
+}
+
+
 //------------------------------------------------------------------------------
 // void AddObject(GmatBase *obj)
 //------------------------------------------------------------------------------
@@ -1623,6 +1651,20 @@ MeasurementModel* ConfigManager::GetMeasurementModel(const std::string &name)
       }
    }
    return mm;
+}
+
+
+Datafile* ConfigManager::GetDatafile(const std::string &name)
+{
+   Datafile *df = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::DATASTREAM))
+      {
+         df = (Datafile *)mapping[name];
+      }
+   }
+   return df;
 }
 
 

@@ -489,6 +489,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::MATH_NODE:
       case Gmat::MATH_TREE:
       case Gmat::MEASUREMENT_MODEL:
+      case Gmat::DATASTREAM:
       case Gmat::UNKNOWN_OBJECT:
       default:
          break;
@@ -731,6 +732,9 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    
    else if (type == "MeasurementModel")
       obj = (GmatBase*)theModerator->CreateMeasurementModel(name);
+
+   else if (type == "Datafile")
+      obj = (GmatBase*)theModerator->CreateDatafile(name);
 
 //   else if (type == "ForceModel") 
 //      obj = (GmatBase*)theModerator->CreateODEModel(type, name);

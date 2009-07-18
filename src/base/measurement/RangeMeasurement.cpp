@@ -25,7 +25,7 @@
 #include "Rvector3.hpp"
 
 
-#define DEBUG_RANGE_CALC
+// #define DEBUG_RANGE_CALC
 
 
 RangeMeasurement::RangeMeasurement(const std::string &name) :
@@ -95,8 +95,8 @@ bool RangeMeasurement::Initialize()
          else
          {
             MessageInterface::ShowMessage("Participant mismatch in Range "
-                  "measurement: Current code requires one Spacecraft and one other"
-                  " SpacePoint participant; cannot initialize\n");
+                  "measurement: Current code requires one Spacecraft and one "
+                  "other SpacePoint participant; cannot initialize\n");
          }
       }
    }
@@ -107,7 +107,6 @@ bool RangeMeasurement::Initialize()
 
 bool RangeMeasurement::Evaluate(bool withDerivatives)
 {
-   // todo: Replace with parameter ID set at initialization
    currentMeasurement.epoch = participants[1]->GetRealParameter(satEpochID);
 
 
@@ -130,21 +129,23 @@ bool RangeMeasurement::Evaluate(bool withDerivatives)
    }
 
    #ifdef DEBUG_RANGE_CALC
-      MessageInterface::ShowMessage("Location of %s, id = '%s':  %s\n",
+      MessageInterface::ShowMessage("Calculating Range at epoch %.12lf\n",
+            currentMeasurement.epoch);
+      MessageInterface::ShowMessage("   Location of %s, id = '%s':  %s\n",
             participants[0]->GetName().c_str(),
             currentMeasurement.participantIDs[0].c_str(),
             p1Loc.ToString().c_str());
-      MessageInterface::ShowMessage("Location of %s, id = '%s':  %s\n",
+      MessageInterface::ShowMessage("   Location of %s, id = '%s':  %s\n",
             participants[1]->GetName().c_str(),
             currentMeasurement.participantIDs[1].c_str(),
             p2Loc.ToString().c_str());
-      MessageInterface::ShowMessage("Range Vector:  %s\n",
+      MessageInterface::ShowMessage("   Range Vector:  %s\n",
             rangeVec.ToString().c_str());
-      MessageInterface::ShowMessage("R(Groundstation) dot RangeVec =  %lf\n",
+      MessageInterface::ShowMessage("   R(Groundstation) dot RangeVec =  %lf\n",
             currentMeasurement.feasibilityValue);
-      MessageInterface::ShowMessage("Feasibility:  %s\n",
+      MessageInterface::ShowMessage("   Feasibility:  %s\n",
             (currentMeasurement.isFeasible ? "true" : "false"));
-      MessageInterface::ShowMessage("Range is %.12lf\n",
+      MessageInterface::ShowMessage("   Range is %.12lf\n",
             currentMeasurement.value[0]);
    #endif
    return true;

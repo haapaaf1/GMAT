@@ -592,6 +592,29 @@ CoreMeasurement* FactoryManager::CreateMeasurement(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
+// Obtype* FactoryManager::CreateObtype(const std::string &ofType,
+//                                      const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * This method creates the Obtype used in a Datafile
+ *
+ * @param ofType The type of Obtype
+ * @param withName The name of the Obtype.  This should be an
+ *                 empty string in the current implementation.
+ *
+ * @return The pointer to the new object
+ */
+//------------------------------------------------------------------------------
+Obtype* FactoryManager::CreateObtype(const std::string &ofType,
+                                     const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::OBTYPE, ofType);
+   if (f != NULL)
+      return f->CreateObtype(ofType, withName);
+   return NULL;
+}
+
+//------------------------------------------------------------------------------
 // MeasurementModel* CreateMeasurementModel(const std::string &withName)
 //------------------------------------------------------------------------------
 /**
@@ -609,6 +632,26 @@ MeasurementModel* FactoryManager::CreateMeasurementModel(const std::string &with
       return f->CreateMeasurementModel("MeasurementModel", withName);
    return NULL;
 }
+
+//------------------------------------------------------------------------------
+// Datafile* FactoryManager::CreateDatafile(const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Create an object of type Datafile, with the name withName.
+ *
+ * @param withName name of the new Datafile object.
+ *
+ * @return pointer to the newly-created Datafile object
+ */
+//------------------------------------------------------------------------------
+Datafile* FactoryManager::CreateDatafile(const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::DATASTREAM, "Datafile");
+   if (f != NULL)
+      return f->CreateDatafile("Datafile", withName);
+   return NULL;
+}
+
 
 //------------------------------------------------------------------------------
 //  ODEModel* CreateODEModel(const std::string &ofType, const std::string &withName)

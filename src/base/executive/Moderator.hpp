@@ -225,6 +225,14 @@ public:
    CoreMeasurement* GetMeasurement(const std::string &type,
          const std::string &name);
    
+   // Datafile
+   Datafile* CreateDatafile(const std::string &name);
+   Datafile* GetDatafile(const std::string &name);
+
+   // Obtype
+   Obtype* CreateObtype(const std::string &name);
+   Obtype* GetObtype(const std::string &name);
+
    // Interpolator
    Interpolator* CreateInterpolator(const std::string &type,
                                     const std::string &name);
@@ -393,6 +401,7 @@ private:
    void AddSolverToSandbox(Integer index);
    void AddSubscriberToSandbox(Integer index);
    void AddMeasurementToSandbox(Integer index);
+   void AddDatafileToSandbox(Integer index);
    void AddParameterToSandbox(Integer index);
    void AddFunctionToSandbox(Integer index);
    void AddCommandToSandbox(Integer index);

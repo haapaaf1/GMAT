@@ -51,6 +51,8 @@ class SpacePoint;
 
 class MeasurementModel;
 class CoreMeasurement;
+class Datafile;
+class Obtype;
 
 class GMAT_API Factory
 {
@@ -111,7 +113,10 @@ public:
                                            const std::string &withName = "");
    virtual CoreMeasurement* CreateMeasurement(const std::string &ofType,
                                            const std::string &withName = "");
-
+   virtual Datafile*        CreateDatafile(const std::string &ofType,
+                                           const std::string &withName = "");
+   virtual Obtype*          CreateObtype(const std::string &ofType,
+                                         const std::string &withName = "");
    
    // method to return list of types of objects that this factory can create
    StringArray              GetListOfCreatableObjects(void) const;

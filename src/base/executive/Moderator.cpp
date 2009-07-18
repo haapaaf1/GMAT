@@ -45,6 +45,8 @@
 
 #include "MeasurementModelFactory.hpp"
 #include "MeasurementFactory.hpp"
+#include "DatafileFactory.hpp"
+#include "ObtypeFactory.hpp"
 #include "EstimatorFactory.hpp"
 #include "EstimatorCommandFactory.hpp"
 
@@ -196,6 +198,8 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       theFactoryManager->RegisterFactory(new MeasurementFactory());
       theFactoryManager->RegisterFactory(new EstimatorFactory());
       theFactoryManager->RegisterFactory(new EstimatorCommandFactory());
+      theFactoryManager->RegisterFactory(new DatafileFactory());
+      theFactoryManager->RegisterFactory(new ObtypeFactory());
 
       // Create publisher
       
@@ -3197,6 +3201,164 @@ CoreMeasurement* Moderator::GetMeasurement(const std::string &type,
       return (CoreMeasurement*)FindObject(name);
 }
 
+
+// Datafile
+//------------------------------------------------------------------------------
+// Datafile* CreateDatafile(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a new named Datafile and adds it to the configuration
+ *
+ * @param name The name of the new Datafile
+ *
+ * @return The new Datafile
+ */
+//------------------------------------------------------------------------------
+Datafile* Moderator::CreateDatafile(const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage("====================\n");
+   MessageInterface::ShowMessage("Moderator::CreateDatafile() name='%s'\n",
+                                 name.c_str());
+   #endif
+
+   if (GetDatafile(name) == NULL)
+   {
+      Datafile *df = theFactoryManager->CreateDatafile(name);
+
+      if (df == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a Datafile.\n"
+             "Make sure Datafile is correct type and registered to "
+             "DatafileFactory.\n");
+         return NULL;
+      }
+
+      #ifdef DEBUG_MEMORY
+      if (df)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (propSetup, name, "Moderator::CreateDatafile()", funcName);
+      }
+      #endif
+
+      theConfigManager->AddDatafile(df);
+
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateDatafile() returning new Datafile "
+               "<%p>\n", df);
+      #endif
+
+      return df;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateDatafile() Unable to create "
+          "Datafile name: %s already exists\n", name.c_str());
+      #endif
+      return GetDatafile(name);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// Datafile* GetDatafile(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a measurement Datafile from the configuration
+ *
+ * @param name The name of the Datafile object
+ *
+ * @return The named Datafile
+ */
+//------------------------------------------------------------------------------
+Datafile* Moderator::GetDatafile(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (Datafile*)FindObject(name);
+}
+
+
+// Obtype
+Obtype* Moderator::CreateObtype(const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage("====================\n");
+   MessageInterface::ShowMessage("Moderator::CreateObtype() name='%s'\n",
+                                 name.c_str());
+   #endif
+
+   if (GetObtype(name) == NULL)
+   {
+      Obtype *ot = theFactoryManager->CreateObtype(name);
+
+      if (ot == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a Obtype.\n"
+             "Make sure Obtype is correct type and registered to a "
+             "ObtypeFactory.\n");
+         return NULL;
+      }
+
+      #ifdef DEBUG_MEMORY
+      if (ot)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (propSetup, name, "Moderator::CreateObtype()", funcName);
+      }
+      #endif
+
+      if (name != "")
+         theConfigManager->AddObtype(ot);
+
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateObtype() returning new Obtype "
+               "<%p>\n", df);
+      #endif
+
+      return ot;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateDatafile() Unable to create "
+          "Datafile name: %s already exists\n", name.c_str());
+      #endif
+      return GetObtype(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// Obtype* GetObtype(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a Obtype from the configuration
+ *
+ * @param name The name of the Obtype object
+ *
+ * @return The named Obtype  (Should always return NULL)
+ */
+//------------------------------------------------------------------------------
+Obtype* Moderator::GetObtype(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (Obtype*)FindObject(name);
+}
 
 //------------------------------------------------------------------------------
 // Interpolator* CreateInterpolator(const std::string &type,

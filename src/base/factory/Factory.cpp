@@ -707,7 +707,7 @@ MeasurementModel* Factory::CreateMeasurementModel(const std::string & ofType,
 
 
 //------------------------------------------------------------------------------
-// CoreMeasurement* Factory::CreateMeasurement(const std::string & ofType,
+// CoreMeasurement* CreateMeasurement(const std::string & ofType,
 //    const std::string & withName)
 //------------------------------------------------------------------------------
 /**
@@ -732,6 +732,63 @@ CoreMeasurement* Factory::CreateMeasurement(const std::string & ofType,
 {
    throw FactoryException
    ("Factory::CreateMeasurement() must be implemented by a MeasurementFactory\n");
+}
+
+
+//------------------------------------------------------------------------------
+// Datafile* Factory::CreateDatafile(const std::string & ofType,
+//                                   const std::string & withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates a Datafile object.
+ *
+ * Must be implemented by derived classes that create Datafile objects -
+ * in that case, it returns a new Datafile object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Datafile.
+ *
+ * @param <ofType>   specific type of Datafile object to create.
+ * @param <withName> name to give to the newly created Datafile object.
+ *
+ * @return pointer to a new Datafile object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type Datafile.
+ */
+//------------------------------------------------------------------------------
+Datafile* Factory::CreateDatafile(const std::string & ofType,
+                                  const std::string & withName)
+{
+   throw FactoryException
+      ("Factory::CreateDatafile() must be implemented by a DatafileFactory\n");
+}
+
+
+//------------------------------------------------------------------------------
+// Obtype* Measurement(const std::string & ofType, const std::string & withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates an Obtype object.
+ *
+ * Must be implemented by derived classes that create Obtype objects -
+ * in that case, it returns a new Obtype object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Obtype.
+ *
+ * @param <ofType>   specific type of Obtype object to create.
+ * @param <withName> name to give to the newly created Obtype object.
+ *
+ * @return pointer to a new Obtype object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type Obtype.
+ */
+//------------------------------------------------------------------------------
+Obtype* Factory::CreateObtype(const std::string & ofType,
+      const std::string & withName)
+{
+   throw FactoryException
+   ("Factory::CreateObtype() must be implemented by a ObtypeFactory\n");
 }
 
 

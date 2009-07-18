@@ -42,6 +42,8 @@
 
 #include "MeasurementModel.hpp"
 #include "GeometricMeasurement.hpp"  // Will be "CoreMeasurement.hpp"
+#include "Datafile.hpp"
+#include "Obtype.hpp"
 
 
 /**
@@ -79,6 +81,8 @@ public:
 
    void                AddMeasurementModel(MeasurementModel *mModel);
    void                AddMeasurement(CoreMeasurement *meas);
+   void                AddDatafile(Datafile *meas);
+   void                AddObtype(Obtype *meas);
 
    const StringArray&  GetListOfAllItems();
    const StringArray&  GetListOfItems(Gmat::ObjectType itemType);
@@ -117,7 +121,8 @@ public:
    CoordinateSystem*   GetCoordinateSystem(const std::string &name);
    CalculatedPoint*    GetCalculatedPoint(const std::string &name);
    MeasurementModel*   GetMeasurementModel(const std::string &name);
-   
+   Datafile *          GetDatafile(const std::string &name);
+
    bool                HasConfigurationChanged();
    void                ConfigurationChanged(bool tf);
    ObjectMap*          GetObjectMap();

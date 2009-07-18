@@ -1278,7 +1278,7 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
           InterpretScript(filename.c_str(), readBack, savePath.c_str()))
       {
          #ifdef DEBUG_INTERPRET
-         MessageInterface::ShowMessage("   Successfully interpreated the script\n");
+         MessageInterface::ShowMessage("   Successfully interpreted the script\n");
          #endif
          success = true;
       }

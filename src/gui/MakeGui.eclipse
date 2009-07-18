@@ -117,6 +117,7 @@ HEADERS = -I../base/include \
           -I../base/coordsystem \
           -I../base/plugin \
           -I../base/measurement \
+          -I../base/measurementfile \
           -I../base/estimator \
           -Iinclude \
           -Iinclude/bitmaps \
