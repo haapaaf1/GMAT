@@ -27,8 +27,10 @@
 class GmatObtype: public Obtype
 {
 public:
-   GmatObtype();
+   GmatObtype(const std::string withName = "");
    virtual ~GmatObtype();
+
+   GmatBase*         Clone() const;
 };
 
 #endif /* GMATOBTYPE_HPP_ */

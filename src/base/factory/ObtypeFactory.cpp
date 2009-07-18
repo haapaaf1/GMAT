@@ -20,6 +20,10 @@
 
 #include "ObtypeFactory.hpp"
 
+// Supported Obtypes
+#include "GmatObtype.hpp"
+
+
 ObtypeFactory::ObtypeFactory() :
    Factory     (Gmat::OBTYPE)
 {
@@ -71,8 +75,8 @@ Obtype* ObtypeFactory::CreateObtype(const std::string &ofType,
 {
    Obtype *retval = NULL;
 
-//   if (ofType == "GMATInternal")
-//      retval = new GmatObtype(withName);
+   if (ofType == "GMATInternal")
+      retval = new GmatObtype(withName);
 
    return retval;
 }

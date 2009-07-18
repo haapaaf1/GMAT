@@ -20,7 +20,8 @@
 
 #include "GmatObtype.hpp"
 
-GmatObtype::GmatObtype()
+GmatObtype::GmatObtype(const std::string withName) :
+   Obtype         ("GMATInternal", withName)
 {
    // TODO Auto-generated constructor stub
 
@@ -29,4 +30,10 @@ GmatObtype::GmatObtype()
 GmatObtype::~GmatObtype()
 {
    // TODO Auto-generated destructor stub
+}
+
+
+GmatBase* GmatObtype::Clone() const
+{
+   return new GmatObtype(*this);
 }
