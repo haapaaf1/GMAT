@@ -9,7 +9,7 @@
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CA54C
 //
-// Author: Darrel J. Conway, Thinking Systems, Inc.
+// Author: Darrel J. Conway, Thinking Systems, Inc. & Wendy Shoan/GSFC/GSSB
 // Created: 2009/06/30
 //
 /**
@@ -31,20 +31,20 @@ class Simulator : public Solver
 {
 public:
    Simulator(const std::string &name);
-   virtual ~Simulator();
    Simulator(const Simulator& sim);
-   Simulator* operator=(const Simulator& sim);
+   Simulator& operator=(const Simulator& sim);
+   virtual ~Simulator();
 
    virtual GmatBase* Clone() const;
    virtual Integer SetSolverResults(Real*, const std::string&, const std::string&); // noop
    virtual void SetResultValue(Integer, Real, const std::string&);                  // noop
-   virtual void WriteToTextFile(Solver::SolverState);
-
+   virtual void WriteToTextFile(SolverState stateToUse = UNDEFINED_STATE);
+   
    virtual bool        Initialize();
    virtual SolverState AdvanceState();
    virtual bool        Finalize();
 
-   Real GetTimeStep();
+   Real                GetTimeStep();
    
    // methods overridden from GmatBase
    virtual std::string  GetParameterText(const Integer id) const;
@@ -69,6 +69,9 @@ public:
    virtual const StringArray&
                         GetStringArrayParameter(const Integer id) const;
 
+   virtual bool         TakeAction(const std::string &action,
+                                   const std::string &actionData = "");
+
 protected:
    
    enum
@@ -88,16 +91,6 @@ protected:
    static const Gmat::ParameterType
                                PARAMETER_TYPE[SimulatorParamCount -
                                               SolverParamCount];
-
-/**
- * Commented out by DJC
- *
- * Shouldn't we just use currentState from the Solver base class?
- *
- *  /// The state of the finite state machine
- *  Solver::SolverState currentState;
- */
-
    /// The propagator configured for simulation
    PropSetup           *propagator;
    /// Name of the propagator
@@ -105,7 +98,7 @@ protected:
 
    /// The state vector, used to buffer state information during event location
    GmatState           *simState;   // (This piece is stuill in flux -- do we do
-                                    // it ike this, or differently?)
+                                    // it like this, or differently?)
    /// The initial epoch for the simulation
    GmatEpoch           simulationStart;
    /// The target epoch for the end of the simulation
@@ -129,12 +122,12 @@ protected:
    /**
     *  The timestep that gets returned for the next propagation
     *
-    *  timestep will be the same as simulationStep when the state machine is in
-    *  the PROPAGATING state.  When in the LOCATING state, timestep is the time
+    *  timeStep will be the same as simulationStep when the state machine is in
+    *  the PROPAGATING state.  When in the LOCATING state, timeStep is the time
     *  from the base epoch to the next attempt at finding the event that is
     *  being located.
     */
-   Real                timestep;
+   Real                timeStep;
 
    /// The simulator's measurement manager
    MeasurementManager  measManager;
@@ -142,18 +135,17 @@ protected:
    StringArray         measList;   // temporary - may get list from MeasManager;
 
    // State machine methods
-   void CompleteInitialization();
-   void FindTimeStep();
-   void CalculateData();
+   void                   CompleteInitialization();
+   void                   FindTimeStep();
+   void                   CalculateData();
    // void ProcessEvent();
-   void SimulateData();
-   void RunComplete();
+   void                   SimulateData();
+   void                   RunComplete();
 
    // Helper methods
-   void FindNextSimulationEpoch();
-
-   // Reporting method
-   void ReportProgress();
+   void                   FindNextSimulationEpoch();
+   // progress string for reporting
+   virtual std::string    GetProgressString();
 };
 
 #endif /* Simulator_hpp */

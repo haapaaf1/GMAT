@@ -9,7 +9,7 @@
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CA54C
 //
-// Author: Darrel J. Conway, Thinking Systems, Inc.
+// Author: Darrel J. Conway, Thinking Systems, Inc. & Wendy Shoan/GSFC/GSSB
 // Created: 2009/ /
 //
 /**
@@ -18,7 +18,16 @@
 //------------------------------------------------------------------------------
 
 #include "Simulator.hpp"
+#include "GmatState.hpp"
+#include "PropagationStateManager.hpp"
 #include "SolverException.hpp"
+#include "RealUtilities.hpp"
+#include "TimeTypes.hpp"
+#include "MessageInterface.hpp"
+#include <sstream>
+
+#define DEBUG_STATE_MACHINE
+#define DEBUG_SIMULATOR_WRITE
 
 //------------------------------------------------------------------------------
 // static data
@@ -53,36 +62,121 @@ Simulator::PARAMETER_TYPE[SimulatorParamCount - SolverParamCount] =
 //------------------------------------------------------------------------------
 
 
-Simulator::Simulator(const std::string &name) :
-   Solver         ("Simulator", name)
+//------------------------------------------------------------------------------
+//  Simulator()
+// <default constructor>
+//------------------------------------------------------------------------------
+/**
+ * This is the default cosntructor for the Simulator class.
+ *
+ */
+//------------------------------------------------------------------------------
+Simulator::Simulator(const std::string& name) :
+   Solver              ("Simulator", name),
+   propagator          (NULL),
+   simState            (NULL),
+   simulationStart     (21545.0000000),
+   simulationEnd       (21545.0000000),
+   nextSimulationEpoch (21545.0000000),
+   currentEpoch        (21545.0000000),
+   initialEpochFormat  ("TAIModJulian"),
+   initialEpoch        ("21545.0000000"),
+   finalEpochFormat    ("TAIModJulian"),
+   finalEpoch          ("21545.0000000"),
+   simulationStep      (60.0),
+   timeStep            (60.0)
 {
-   // TODO Auto-generated constructor stub
 
 }
 
-Simulator::~Simulator()
-{
-   // TODO Auto-generated destructor stub
+//------------------------------------------------------------------------------
+//  Simulator(const Simulator &sim)
+//------------------------------------------------------------------------------
+/**
+ * This method creates an object of the Simulator class as a copy of the
+ * specified Simulator class (copy constructor).
+ *
+ * @param <sim> Simulator object to copy.
+ */
+//------------------------------------------------------------------------------
+Simulator::Simulator(const Simulator& sim) :
+   Solver              (sim),
+   simState            (NULL),   // should this be cloned?
+   simulationStart     (sim.simulationStart),
+   simulationEnd       (sim.simulationEnd),
+   nextSimulationEpoch (sim.nextSimulationEpoch),
+   currentEpoch        (sim.currentEpoch),
+   initialEpochFormat  (sim.initialEpochFormat),
+   initialEpoch        (sim.initialEpoch),
+   finalEpochFormat    (sim.finalEpochFormat),
+   finalEpoch          (sim.finalEpoch),
+   simulationStep      (sim.simulationStep),
+   timeStep            (sim.timeStep),
+   measManager         (sim.measManager),
+   measList            (sim.measList)
+{  
+   propagator = ((PropSetup*) (sim.propagator)->Clone());
 }
 
-Simulator* Simulator::operator =(const Simulator & sim)
+//------------------------------------------------------------------------------
+//  Simulator& operator= (const Simulator& sim)
+//------------------------------------------------------------------------------
+/**
+ * Assignment operator for the Simulator class.
+ *
+ * @param <sim> the Simulator object whose data to assign to "this"
+ *            solar system.
+ *
+ * @return "this" Simulator with data of input Simulator sim.
+ */
+//------------------------------------------------------------------------------
+Simulator& Simulator::operator =(const Simulator& sim)
 {
    if (&sim != this)
    {
-
+      Solver::operator=(sim);
+      propagator          = ((PropSetup*) (sim.propagator)->Clone());
+      simState            = NULL;   // or clone it here??
+      simulationStart     = sim.simulationStart;
+      simulationEnd       = sim.simulationEnd;
+      nextSimulationEpoch = sim.nextSimulationEpoch;
+      currentEpoch        = sim.currentEpoch;
+      initialEpochFormat  = sim.initialEpochFormat;
+      initialEpoch        = sim.initialEpoch;
+      finalEpochFormat    = sim.finalEpochFormat;
+      finalEpoch          = sim.finalEpoch;
+      simulationStep      = sim.simulationStep;
+      timeStep            = sim.timeStep;
+      measManager         = sim.measManager;
+      measList            = sim.measList;
    }
    
-   return this;
+   return *this;
 }
 
-
-
-Simulator::Simulator(const Simulator & sim) :
-   Solver         (sim)
+//------------------------------------------------------------------------------
+//  ~Simulator()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the Simulator class.
+ */
+//------------------------------------------------------------------------------
+Simulator::~Simulator()
 {
+   // do I need to delete the simState here?? TBD
+   delete propagator;  // is this correct?
 }
 
 
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the Simulator.
+ *
+ * @return clone of the Simulator.
+ */
+//------------------------------------------------------------------------------
 GmatBase* Simulator::Clone() const
 {
    return new Simulator(*this);
@@ -90,17 +184,130 @@ GmatBase* Simulator::Clone() const
 
 
 
-void Simulator::WriteToTextFile(Solver::SolverState)
+//------------------------------------------------------------------------------
+//  void WriteToTextFile(SolverState stateToUse)
+//------------------------------------------------------------------------------
+/**
+ * Writes state data to the simulator text file.
+ * 
+ * @param stateToUse  sate to use for writing the information to the text file.
+ */
+//------------------------------------------------------------------------------
+void Simulator::WriteToTextFile(SolverState stateToUse)
 {
-   // This is where the simulator text file gets written
+   #ifdef DEBUG_SIMULATOR_WRITE
+   MessageInterface::ShowMessage
+      ("Sim::WriteToTextFile() entered, stateToUse=%d, solverTextFile='%s', "
+       "textFileOpen=%d, initialized=%d\n", stateToUse, solverTextFile.c_str(),
+       textFile.is_open(), initialized);
+   #endif
+   
+   if (!showProgress)
+      return;
+   
+   if (!textFile.is_open())
+      OpenSolverTextFile();
+   
+   StringArray::iterator current;
+//   Integer i, j;
+   if (initialized)
+   {
+      switch (currentState)
+      {
+      case INITIALIZING:
+         // This state is basically a "paused state" used for the Target
+         // command to finalize the initial data for the variables and
+         // goals.  All that is written here is the header information.
+         {
+            textFile << "************************************************"
+                     << "********\n"
+                     << "*** Performing Simulation "
+                     << "(using \"" << instanceName << "\")\n";
+
+            // Write out the setup data
+            textFile << "*** " ;
+
+            // Iterate through TBD, writing them to
+            // the file
+//               for (current = variableNames.begin(), i = 0;
+//                    current != variableNames.end(); ++current)
+//               {
+//                  if (current != variableNames.begin())
+//                     progress << ", ";
+//                  progress << *current;
+//               }
+
+            textFile << "\n****************************"
+                     << "****************************";
+         }
+         break;
+
+      case PROPAGATING:
+         textFile << "\n";
+         break;
+
+      case CALCULATING:
+         textFile << "\n";
+         // Iterate through the TBD variables, writing them to the string
+//            for (current = variableNames.begin(), i = 0;
+//                 current != variableNames.end(); ++current)
+//            {
+//               if (current != variableNames.begin())
+//                  progress << ", ";
+//               progress << *current << " = " << variable.at(i++);
+//            }
+         break;
+
+      case SIMULATING:
+         // TBD
+         textFile << "\n";
+
+         break;
+
+      case FINISHED:
+         // TBD
+         textFile << "\n";
+
+         break;
+
+      default:
+         throw SolverException(
+            "Solver state not supported for the simulator");
+      }
+   }
 }
 
-
+//------------------------------------------------------------------------------
+//  bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Initializes the simulator - checks for unset references and does some
+ * validation checking.
+ */
+//------------------------------------------------------------------------------
 bool Simulator::Initialize()
 {
-   return false;
+   // check the validity of the input start and end times
+   if (simulationEnd < simulationStart)
+      throw SolverException(
+            "Simulator error - simulation end time is before simulation start time.\n");
+   // Check to make sure required objects have been set
+   if (!propagator)
+      throw SolverException(
+            "Simulator error - no propagator set for simulator object.\n");
+   if (measList.empty())
+      throw SolverException("Simulator error - no measurements set.\n");
+   
+   return true;
 }
 
+//------------------------------------------------------------------------------
+//  Solver::SolverState AdvanceState()
+//------------------------------------------------------------------------------
+/**
+ * Advances the simulator to the next state.
+ */
+//------------------------------------------------------------------------------
 Solver::SolverState Simulator::AdvanceState()
 {
    switch (currentState)
@@ -157,7 +364,7 @@ Solver::SolverState Simulator::AdvanceState()
       default:
          #ifdef DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage("Entered Simulator state machine: "
-               "Bad state for a differential corrector.\n");
+               "Bad state for a simulator.\n");
          #endif
          /* throw EstimatorException("Solver state not supported for the simulator")*/;
    }
@@ -166,15 +373,29 @@ Solver::SolverState Simulator::AdvanceState()
 
 }
 
+//------------------------------------------------------------------------------
+//  bool Finalize()
+//------------------------------------------------------------------------------
+/**
+ * Finalizes the simulator.
+ */
+//------------------------------------------------------------------------------
 bool Simulator::Finalize()
 {
    return false;
 }
 
 
+//------------------------------------------------------------------------------
+//  Real GetTimeStep()
+//------------------------------------------------------------------------------
+/**
+ * Returns the time step of the simulator.
+ */
+//------------------------------------------------------------------------------
 Real Simulator::GetTimeStep()
 {
-   return timestep;
+   return timeStep;
 }
 
 //------------------------------------------------------------------------------
@@ -286,7 +507,7 @@ std::string Simulator::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 Real        Simulator::GetRealParameter(const Integer id) const
 {
-   if (id == MEASUREMENT_TIME_STEP)               return timestep;
+   if (id == MEASUREMENT_TIME_STEP)               return timeStep;
 
    return Solver::GetRealParameter(id);
 }
@@ -308,7 +529,7 @@ Real Simulator::SetRealParameter(const Integer id, const Real value)
 {
    if (id == MEASUREMENT_TIME_STEP)
    {
-      timestep = value;
+      timeStep = value;
       return true;
    }
    
@@ -357,7 +578,7 @@ std::string Simulator::GetStringParameter(const Integer id,
 
 
 //------------------------------------------------------------------------------
-//  bool  SetStringParameter(const Integer id, const std::string value)
+//  bool  SetStringParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
 /**
  * This method sets the string parameter value, given the input
@@ -404,6 +625,24 @@ bool Simulator::SetStringParameter(const Integer id,
    return Solver::SetStringParameter(id, value);
 }
    
+//------------------------------------------------------------------------------
+//  bool  SetStringParameter(const Integer id, const std::string &value,
+//                           const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * This method sets the string parameter value, given the input
+ * parameter ID and the index.
+ *
+ * @param <id> ID for the requested parameter.
+ * @param <value> string value for the requested parameter.
+ * @param <index> index into the StringArray.
+ *
+ * @exception <SolverException> thrown if value is out of range
+ *
+ * @return  success flag.
+ *
+ */
+//------------------------------------------------------------------------------
 bool Simulator::SetStringParameter(const Integer id, const std::string &value,
                                    const Integer index)
 {
@@ -445,47 +684,111 @@ const StringArray& Simulator::GetStringArrayParameter(const Integer id) const
    return Solver::GetStringArrayParameter(id);
 }
 
+//------------------------------------------------------------------------------
+//  bool TakeAction(const std::string &action, const std::string &actionData)
+//------------------------------------------------------------------------------
+/**
+ * This method performs an action on the instance.
+ *
+ * TakeAction is a method overridden from GmatBase.  The only action defined for
+ * a Simulator is "Reset" which resets the state to INITIALIZING
+ *
+ * @param <action>      Text label for the action.
+ * @param <actionData>  Related action data, if needed.
+ *
+ * @return  flag indicating successful completion or not.
+ */
+//------------------------------------------------------------------------------
+bool Simulator::TakeAction(const std::string &action,
+                           const std::string &actionData)
+{
+   // @todo  Complete Reset action (?) and add others if needed
+   if (action == "Reset")
+   {
+      currentState = INITIALIZING;
+      initialized = false;
+      return true;
+   }
+
+   return Solver::TakeAction(action, actionData);
+}
 
 
 //------------------------------------------------------------------------------
 // protected methods
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+//  void CompleteInitialization()
+//------------------------------------------------------------------------------
+/**
+ * This method completes initialization for the Simulator object, initializing
+ * its MeasurementManager, retrieving the epoch and setting the state.
+ *
+ */
+//------------------------------------------------------------------------------
 void Simulator::CompleteInitialization()
 {
-   // Initialize all here; set up the MeasurementManager and get simState from it
-
-   currentEpoch = simState->GetEpoch();
+   PropagationStateManager *psm = propagator->GetPropStateManager();
+   GmatState               *gs  = psm->GetState();
+   
+   currentEpoch        = gs->GetEpoch(); 
    nextSimulationEpoch = simulationStart;
+   
+   // tell the measManager to complete its initialization
+   bool measOK = measManager.Initialize();
+   if (!measOK)
+      throw SolverException(
+            "Simulator::CompleteInitialization - error initializing MeasurementManager.\n");
 
-   if (currentEpoch == nextSimulationEpoch)
-      currentState = SIMULATING;
+   if (GmatMathUtil::IsEqual(currentEpoch,nextSimulationEpoch))
+      currentState = CALCULATING;
    else
    {
-      timestep = (nextSimulationEpoch - currentEpoch) * 86400.0;
+      timeStep = (nextSimulationEpoch - currentEpoch) * GmatTimeUtil::SECS_PER_DAY;
       currentState = PROPAGATING;
    }
+   initialized = true;
 }
 
 
+//------------------------------------------------------------------------------
+//  void FindTimeStep()
+//------------------------------------------------------------------------------
+/**
+ * This method determines whether the simulation is finished or still 
+ * calculating, and if neither, computes the timeStep.
+ *
+ */
+//------------------------------------------------------------------------------
 void Simulator::FindTimeStep()
 {
    if (currentEpoch > simulationEnd)
    {
       currentState = FINISHED;
    }
-   else if (currentEpoch == nextSimulationEpoch)
+   else if (GmatMathUtil::IsEqual(currentEpoch,nextSimulationEpoch))
    {
-      currentState = SIMULATING;
+      currentState = CALCULATING;
    }
    else
    {
-      // Calculate the time step in seconds and stay in the PROPAGATING state
-      timestep = (nextSimulationEpoch - currentEpoch) * 86400.0;
+      // Calculate the time step in seconds and stay in the PROPAGATING state;
+      // timeStep could be positive or negative
+      timeStep = (nextSimulationEpoch - currentEpoch) * GmatTimeUtil::SECS_PER_DAY;
    }
 }
 
 
+//------------------------------------------------------------------------------
+//  void CalculateData()
+//------------------------------------------------------------------------------
+/**
+ * This method determines whether or not measurements are possible, and advances
+ * the state.
+ *
+ */
+//------------------------------------------------------------------------------
 void Simulator::CalculateData()
 {
    // Tell the measurement manager to calculate the simulation data
@@ -513,12 +816,29 @@ void Simulator::CalculateData()
 
 
 // Placeholder for the event calculation code
+//------------------------------------------------------------------------------
+//  void ProcessEvent()
+//------------------------------------------------------------------------------
+/**
+ * This method processes an event.     TBD
+ *
+ */
+//------------------------------------------------------------------------------
 // void Simulator::ProcessEvent()
 //{
 //
 //}
 
 
+//------------------------------------------------------------------------------
+//  void CalculateData()
+//------------------------------------------------------------------------------
+/**
+ * This method tells its MeasurementManager to add noise and write the data,
+ * finds the nextSimulationEpoch, and advances the state.
+ *
+ */
+//------------------------------------------------------------------------------
 void Simulator::SimulateData()
 {
    // Tell the measurement manager to add noise and write the measurements
@@ -535,23 +855,124 @@ void Simulator::SimulateData()
 }
 
 
+//------------------------------------------------------------------------------
+//  void RunComplete()
+//------------------------------------------------------------------------------
+/**
+ * This method updates the simulator text file at the end of a simulator run.
+ */
+//------------------------------------------------------------------------------
 void Simulator::RunComplete()
 {
-   // Do the cleanup stuff here
+   WriteToTextFile();
+   // @todo Do other cleanup stuff here?
 }
 
 
-// This might become more complicated down the road
+//------------------------------------------------------------------------------
+//  void FindNextSimulationEpoch()
+//------------------------------------------------------------------------------
+/**
+ * This method computes the nextSimulationEpoch.
+ * 
+ * @note This might become more complicated down the road.
+ */
+//------------------------------------------------------------------------------
 void Simulator::FindNextSimulationEpoch()
 {
+   // we are assuming that the simulationStep is always non-negative
    nextSimulationEpoch = currentEpoch + simulationStep;
 }
 
 
-void Simulator::ReportProgress()
+//------------------------------------------------------------------------------
+//  std::string GetProgressString()
+//------------------------------------------------------------------------------
+/**
+ * Generates a string for reporting the current simulator state.
+ */
+//------------------------------------------------------------------------------
+std::string Simulator::GetProgressString()
 {
-   // Writes to the message window and sends data to WriteToTextFile().
+   StringArray::iterator current;
+//   Integer i;
+   std::stringstream progress;
+   progress.str("");
+   progress.precision(12);
+
+   if (initialized)
+   {
+      switch (currentState)
+      {
+         case INITIALIZING:
+            // This state is basically a "paused state" used for the Target
+            // command to finalize the initial data for the variables and
+            // goals.  All that is written here is the header information.
+            {
+               progress << "************************************************"
+                        << "********\n"
+                        << "*** Performing Simulation "
+                        << "(using \"" << instanceName << "\")\n";
+
+               // Write out the setup data
+               progress << "*** " ;
+
+               // Iterate through TBD, writing them to
+               // the file
+//               for (current = variableNames.begin(), i = 0;
+//                    current != variableNames.end(); ++current)
+//               {
+//                  if (current != variableNames.begin())
+//                     progress << ", ";
+//                  progress << *current;
+//               }
+
+               progress << "\n****************************"
+                        << "****************************";
+            }
+            break;
+
+         case PROPAGATING:
+            progress << "\n";
+            break;
+
+         case CALCULATING:
+            progress << "\n";
+            // Iterate through the TBD variables, writing them to the string
+//            for (current = variableNames.begin(), i = 0;
+//                 current != variableNames.end(); ++current)
+//            {
+//               if (current != variableNames.begin())
+//                  progress << ", ";
+//               progress << *current << " = " << variable.at(i++);
+//            }
+            break;
+
+         case SIMULATING:
+            // TBD
+            progress << "\n";
+
+            break;
+
+         case FINISHED:
+            // TBD
+            progress << "\n";
+
+            break;
+
+         default:
+            throw SolverException(
+               "Solver state not supported for the simulator");
+      }
+   }
+   else
+      return Solver::GetProgressString();
+
+   return progress.str();
 }
+
+
+
 
 //------------------------------------------------------------------------------
 // unused methods
