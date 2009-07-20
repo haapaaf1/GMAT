@@ -23,14 +23,20 @@
 
 /// Descriptor here
 #include "Obtype.hpp"
+#include <fstream>
 
 class GmatObtype: public Obtype
 {
 public:
    GmatObtype(const std::string withName = "");
    virtual ~GmatObtype();
+   GmatObtype(const GmatObtype& ot);
+   GmatObtype& operator=(const Obtype& ot);
 
    GmatBase*         Clone() const;
+
+private:
+   std::fstream      theStream;
 };
 
 #endif /* GMATOBTYPE_HPP_ */

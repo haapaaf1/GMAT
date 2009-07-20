@@ -190,3 +190,10 @@ bool Datafile::SetStringParameter(const std::string &label, const std::string &v
 {
    return SetStringParameter(GetParameterID(label), value, index);
 }
+
+
+bool Datafile::SetStream(Obtype *thisStream)
+{
+   theDatastream = thisStream;
+   return true;
+}

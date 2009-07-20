@@ -35,8 +35,10 @@ class Obtype : public GmatBase
 public:
    Obtype(const std::string &obType = "NotSet", const std::string &name = "");
    virtual ~Obtype();
+   Obtype(const Obtype& ot);
+   Obtype&           operator=(const Obtype& ot);
 
-   virtual GmatBase* Clone();
+
 };
 
 #endif /* Obtype_hpp */

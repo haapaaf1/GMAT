@@ -260,6 +260,10 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray measurements = theModerator->GetListOfFactoryItems(Gmat::CORE_MEASUREMENT);
    copy(measurements.begin(), measurements.end(), back_inserter(measurementList));
 
+   obtypeList.clear();
+   StringArray obs = theModerator->GetListOfFactoryItems(Gmat::OBTYPE);
+   copy(obs.begin(), obs.end(), back_inserter(obtypeList));
+
    odeModelList.clear();
    StringArray odes = theModerator->GetListOfFactoryItems(Gmat::ODE_MODEL);
    copy(odes.begin(), odes.end(), back_inserter(odeModelList));
@@ -344,6 +348,11 @@ void Interpreter::BuildCreatableObjectMaps()
       MessageInterface::ShowMessage("\nMeasurements:\n   ");
       for (pos = mmIndex = measurements.begin();
             pos != measurements.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+
+      MessageInterface::ShowMessage("\nObservations:\n   ");
+      for (pos = mmIndex = obs.begin();
+            pos != obs.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
 
       MessageInterface::ShowMessage("\nSolvers:\n   ");
@@ -435,6 +444,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          
       case Gmat::CORE_MEASUREMENT:
          clist = measurementList;
+         break;
+
+      case Gmat::OBTYPE:
+         clist = obtypeList;
          break;
 
       case Gmat::ODE_MODEL:
@@ -805,6 +818,11 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       else if (find(measurementList.begin(), measurementList.end(), type) !=
                measurementList.end())
          obj = (GmatBase*)theModerator->CreateMeasurement(type, name);
+
+      // Handle Observations
+      else if (find(obtypeList.begin(), obtypeList.end(), type) !=
+            obtypeList.end())
+         obj = (GmatBase*)theModerator->CreateObtype(type, name);
 
       // Handle Parameters
       else if (find(parameterList.begin(), parameterList.end(), type) != 
@@ -3843,6 +3861,10 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
    {
       retval = SetMeasurementModelProperty(toOwner, toProp, value);
    }
+   else if (toOwner->GetType() == Gmat::DATASTREAM)
+   {
+      retval = SetDataStreamProperty(toOwner, toProp, value);
+   }
    else if (toOwner->GetType() == Gmat::SOLAR_SYSTEM)
    {
       retval = SetSolarSystemProperty(toOwner, toProp, value);
@@ -5078,7 +5100,7 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
  * This method configures properties on a MeasurementModel
  *
  * The method creates CoreMeasurements as needed, and passes the remaining
- * parameters to the SteProperty() method.
+ * parameters to the SetProperty() method.
  *
  * @param obj        The MeasurementModel that is being configured
  * @param property   The property that is being set
@@ -5115,6 +5137,67 @@ bool Interpreter::SetMeasurementModelProperty(GmatBase *obj,
       else
          throw InterpreterException("Failed to create a " + value +
                " core measurement");
+   }
+   else
+   {
+      Integer id;
+      Gmat::ParameterType type;
+
+      id = obj->GetParameterID(property);
+      type = obj->GetParameterType(id);
+      retval = SetProperty(obj, id, type, value);
+   }
+
+   return retval;
+}
+
+
+
+//------------------------------------------------------------------------------
+// bool Interpreter::SetDataStreamProperty(GmatBase *obj,
+//          const std::string &property, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * This method configures properties on a DataStream
+ *
+ * The method creates Obtypes as needed, and passes the remaining
+ * parameters to the SetProperty() method.
+ *
+ * @param obj        The DataStream that is being configured
+ * @param property   The property that is being set
+ * @param value      The property's value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool Interpreter::SetDataStreamProperty(GmatBase *obj,
+         const std::string &property, const std::string &value)
+{
+   debugMsg = "In SetDataStreamProperty()";
+   bool retval = false;
+   StringArray parts = theTextParser.SeparateDots(property);
+   Integer count = parts.size();
+   std::string propName = parts[count-1];
+
+   #ifdef DEBUG_SET_MEASUREMENT_MODEL
+      MessageInterface::ShowMessage
+         ("Interpreter::SetDataStreamProperty() mModel=%s, prop=%s, "
+          "value=%s\n", obj->GetName().c_str(), propName.c_str(),
+          value.c_str());
+   #endif
+
+   if (propName == "Format")
+   {
+      Datafile *dFile = (Datafile*)obj;
+      GmatBase* obs = CreateObject(value, "", 0, false);
+      if (obs != NULL)
+      {
+         if (obs->IsOfType(Gmat::OBTYPE))
+            retval = dFile->SetStream((Obtype*)obs);
+      }
+      else
+         throw InterpreterException("Failed to create a " + value +
+               " observation type");
    }
    else
    {

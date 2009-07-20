@@ -230,7 +230,8 @@ public:
    Datafile* GetDatafile(const std::string &name);
 
    // Obtype
-   Obtype* CreateObtype(const std::string &name);
+   Obtype* CreateObtype(const std::string &type,
+                        const std::string &name);
    Obtype* GetObtype(const std::string &name);
 
    // Interpolator

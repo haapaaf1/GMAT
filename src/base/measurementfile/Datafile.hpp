@@ -62,6 +62,8 @@ public:
    virtual bool         SetStringParameter(const std::string &label,
                                            const std::string &value,
                                            const Integer index);
+
+   virtual bool         SetStream(Obtype *thisStream);
 protected:
    /// The stream for this Datafile
    Obtype         *theDatastream;
@@ -71,8 +73,8 @@ protected:
 
    enum
    {
-       ObsType = GmatBaseParamCount,
-       StreamName,
+       StreamName = GmatBaseParamCount,
+       ObsType,
        DatafileParamCount
    };
 

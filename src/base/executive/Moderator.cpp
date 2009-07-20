@@ -3288,7 +3288,8 @@ Datafile* Moderator::GetDatafile(const std::string &name)
 
 
 // Obtype
-Obtype* Moderator::CreateObtype(const std::string &name)
+Obtype* Moderator::CreateObtype(const std::string &type,
+      const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage("====================\n");
@@ -3298,7 +3299,7 @@ Obtype* Moderator::CreateObtype(const std::string &name)
 
    if (GetObtype(name) == NULL)
    {
-      Obtype *ot = theFactoryManager->CreateObtype(name);
+      Obtype *ot = theFactoryManager->CreateObtype(type, name);
 
       if (ot == NULL)
       {

@@ -19,21 +19,42 @@
 
 
 #include "GmatObtype.hpp"
+#include "MessageInterface.hpp"
+
 
 GmatObtype::GmatObtype(const std::string withName) :
    Obtype         ("GMATInternal", withName)
 {
-   // TODO Auto-generated constructor stub
-
+   MessageInterface::ShowMessage("Creating a GMATInternal obtype\n");
 }
 
 GmatObtype::~GmatObtype()
 {
-   // TODO Auto-generated destructor stub
+}
+
+
+GmatObtype::GmatObtype(const GmatObtype& ot) :
+   Obtype         (ot)
+{
+   MessageInterface::ShowMessage("Copying a GMATInternal obtype\n");
+}
+
+
+GmatObtype& GmatObtype::operator=(const Obtype& ot)
+{
+   MessageInterface::ShowMessage("Assigning one GMATInternal obtype to another\n");
+
+   if (this != &ot)
+   {
+
+   }
+
+   return *this;
 }
 
 
 GmatBase* GmatObtype::Clone() const
 {
+   MessageInterface::ShowMessage("Cloning a GMATInternal obtype\n");
    return new GmatObtype(*this);
 }

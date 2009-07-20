@@ -121,7 +121,8 @@ public:
    
    bool SetMeasurementModelProperty(GmatBase *obj, const std::string &prop,
                               const std::string &value);
-
+   bool SetDataStreamProperty(GmatBase *obj, const std::string &property,
+                              const std::string &value);
    bool FindOwnedObject(GmatBase *owner, const std::string toProp,
                         GmatBase **ownedObj, Integer &id, Gmat::ParameterType &type);
    
@@ -308,6 +309,7 @@ private:
    StringArray   functionList;
    StringArray   hardwareList;
    StringArray   measurementList;
+   StringArray   obtypeList;
    StringArray   odeModelList;
    StringArray   parameterList;
    StringArray   physicalModelList;

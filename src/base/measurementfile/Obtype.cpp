@@ -32,11 +32,21 @@ Obtype::Obtype(const std::string &obType, const std::string &name) :
 
 Obtype::~Obtype()
 {
-   // TODO Auto-generated destructor stub
 }
 
 
-GmatBase *Obtype::Clone()
+Obtype::Obtype(const Obtype& ot) :
+   GmatBase       (ot)
 {
-   return NULL;
+}
+
+
+Obtype& Obtype::operator=(const Obtype& ot)
+{
+   if (this != &ot)
+   {
+
+   }
+
+   return *this;
 }
