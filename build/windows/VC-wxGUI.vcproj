@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\estimator;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\measurement;..\..\..\base\math;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util;..\..\..\gui\app;..\..\..\gui\burn;..\..\..\gui\command;..\..\..\gui\controllogic;..\..\..\gui\coordsystem;..\..\..\gui\forcemodel;..\..\..\gui\foundation;..\..\..\gui\function;..\..\..\gui\hardware;..\..\..\gui\include;..\..\..\gui\mission;..\..\..\gui\output;..\..\..\gui\plot;..\..\..\gui\propagator;..\..\..\gui\resource;..\..\..\gui\solarsys;..\..\..\gui\solver;..\..\..\gui\spacecraft;..\..\..\gui\view;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\include\msvc&quot;;&quot;C:\Program Files\MATLAB\R2007b\extern\include&quot;"
+				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\estimator;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\measurement;..\..\..\base\measurementfile;..\..\..\base\math;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util;..\..\..\gui\app;..\..\..\gui\burn;..\..\..\gui\command;..\..\..\gui\controllogic;..\..\..\gui\coordsystem;..\..\..\gui\forcemodel;..\..\..\gui\foundation;..\..\..\gui\function;..\..\..\gui\hardware;..\..\..\gui\include;..\..\..\gui\mission;..\..\..\gui\output;..\..\..\gui\plot;..\..\..\gui\propagator;..\..\..\gui\resource;..\..\..\gui\solarsys;..\..\..\gui\solver;..\..\..\gui\spacecraft;..\..\..\gui\view;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\include\msvc&quot;;&quot;C:\Program Files\MATLAB\R2007b\extern\include&quot;"
 				PreprocessorDefinitions="__WIN32__;__WXMSW__;wxUSE_GLCANVAS;__USE_WX280__;__USE_MATLAB__;__USE_WX280_GL__;SKIP_DEVIL;__SKIP_MSISE90__"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28.lib wxmsw28_core.lib wxmsw28_adv.lib wxmsw28_gl.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib opengl32.lib vcf2c.lib libeng.lib libmx.lib libmat.lib"
+				AdditionalDependencies="wxbase28.lib wxmsw28_core.lib wxmsw28_adv.lib wxmsw28_gl.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib opengl32.lib libeng.lib libmx.lib libmat.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(WXWIN)\lib\vc_lib&quot;;$(F2CWIN)\libf2c;$(DEVILWIN);&quot;C:\Program Files\MATLAB\R2007b\extern\lib\win32\microsoft&quot;;&quot;C:\Program Files\MATLAB\R2007b\bin\win32&quot;"
 				GenerateDebugInformation="true"
@@ -383,6 +383,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\base\command\PropagationEnabledCommand.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\command\Report.cpp"
 						>
 					</File>
@@ -619,6 +623,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\base\factory\DatafileFactory.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\factory\Factory.cpp"
 						>
 					</File>
@@ -643,7 +651,15 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\base\factory\MeasurementFactory.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\factory\MeasurementModelFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\factory\ObtypeFactory.cpp"
 						>
 					</File>
 					<File
@@ -1723,11 +1739,39 @@
 					Name="measurement"
 					>
 					<File
+						RelativePath="..\..\..\base\measurement\GeometricMeasurement.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\measurement\MeasurementData.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\measurement\MeasurementManager.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\..\..\base\measurement\MeasurementModel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\measurement\RangeMeasurement.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="measurementfile"
+					>
+					<File
+						RelativePath="..\..\..\base\measurementfile\Datafile.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\measurementfile\GmatObtype.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\measurementfile\Obtype.cpp"
 						>
 					</File>
 				</Filter>
@@ -2108,6 +2152,10 @@
 					</File>
 					<File
 						RelativePath="..\..\..\gui\plot\ReportFileSetupPanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\gui\plot\SubscriberSetupPanel.cpp"
 						>
 					</File>
 					<File

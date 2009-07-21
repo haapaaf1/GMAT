@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\estimator;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\math;..\..\..\base\measurement;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util"
+				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\estimator;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\math;..\..\..\base\measurement;..\..\..\base\measurementfile;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util"
 				PreprocessorDefinitions="__WIN32__;__WXMSW__;wxUSE_GLCANVAS;__USE_WX280__;__USE_WX280_GL__;SKIP_DEVIL;__SKIP_MSISE90__;__CONSOLE_APP__"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
@@ -386,6 +386,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\base\command\PropagationEnabledCommand.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\command\Report.cpp"
 						>
 					</File>
@@ -622,6 +626,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\base\factory\DatafileFactory.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\factory\Factory.cpp"
 						>
 					</File>
@@ -646,7 +654,15 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\base\factory\MeasurementFactory.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\factory\MeasurementModelFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\factory\ObtypeFactory.cpp"
 						>
 					</File>
 					<File
@@ -1722,11 +1738,35 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\base\measurement\MeasurementData.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\measurement\MeasurementManager.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\..\..\base\measurement\MeasurementModel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\measurement\RangeMeasurement.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="measurementfile"
+					>
+					<File
+						RelativePath="..\..\..\base\measurementfile\Datafile.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\measurementfile\GmatObtype.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\measurementfile\Obtype.cpp"
 						>
 					</File>
 				</Filter>
