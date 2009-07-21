@@ -37,11 +37,19 @@ public:
 
    virtual GmatBase* Clone() const;
 
+   virtual std::string GetRefObjectName(const Gmat::ObjectType type) const;
+   virtual bool SetRefObjectName(const Gmat::ObjectType type,
+         const std::string &name);
+   virtual bool RenameRefObject(const Gmat::ObjectType type,
+         const std::string &oldName, const std::string &newName);
+   virtual const std::string& GetGeneratingString(Gmat::WriteMode mode,
+         const std::string &prefix, const std::string &useName);
+
    virtual bool Initialize();
    virtual bool Execute();
 
 protected:
-   PropSetup      *thePropagator;
+   /// The simulator that drives this process
    Simulator      *theSimulator;
 
    void PrepareToEstimate();

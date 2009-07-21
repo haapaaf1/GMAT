@@ -52,6 +52,132 @@ GmatBase *RunSimulator::Clone() const
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetRefObjectName(const Gmat::ObjectType type) const
+//------------------------------------------------------------------------------
+/**
+ * Accesses names for referenced objects.
+ *
+ * @param <type> Type of object requested.
+ *
+ * @return the referenced object's name.
+ */
+//------------------------------------------------------------------------------
+std::string RunSimulator::GetRefObjectName(const Gmat::ObjectType type) const
+{
+   switch (type)
+   {
+      case Gmat::SOLVER:
+         #ifdef DEBUG_RUN_SIMULATOR
+            MessageInterface::ShowMessage
+               ("Getting EndFiniteBurn reference burn names\n");
+         #endif
+         return solverName;
+
+      default:
+         ;
+   }
+
+   return RunSolver::GetRefObjectName(type);
+}
+
+
+
+//------------------------------------------------------------------------------
+// bool SetRefObjectName(const Gmat::ObjectType type, const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Sets names for referenced objects.
+ *
+ * @param <type> Type of the object.
+ * @param <name> Name of the object.
+ *
+ * @return true if the name was set, false if not.
+ */
+//------------------------------------------------------------------------------
+bool RunSimulator::SetRefObjectName(const Gmat::ObjectType type,
+                                     const std::string &name)
+{
+   if (type == Gmat::SOLVER)
+   {
+      solverName = name;
+      return true;
+   }
+
+   return RunSolver::SetRefObjectName(type, name);
+}
+
+
+
+//------------------------------------------------------------------------------
+//  bool RenameRefObject(const Gmat::ObjectType type,
+//                       const std::string &oldName, const std::string &newName)
+//------------------------------------------------------------------------------
+/**
+ * Renames referenced objects.
+ *
+ * @param type Type of the object that is renamed.
+ * @param oldName The current name for the object.
+ * @param newName The name the object has when this operation is complete.
+ *
+ * @return true on success.
+ */
+//------------------------------------------------------------------------------
+bool RunSimulator::RenameRefObject(const Gmat::ObjectType type,
+                                    const std::string &oldName,
+                                    const std::string &newName)
+{
+   // EndFiniteBurn needs to know about Burn and Spacecraft only
+   if (type != Gmat::SOLVER)
+      return RunSolver::RenameRefObject(type, oldName, newName);
+
+   if (solverName == oldName)
+   {
+      solverName = newName;
+      return true;
+   }
+
+   return false;
+}
+
+
+//------------------------------------------------------------------------------
+//  const std::string GetGeneratingString()
+//------------------------------------------------------------------------------
+/**
+ * Method used to retrieve the string that was parsed to build this GmatCommand.
+ *
+ * This method is used to retrieve the GmatCommand string from the script that
+ * was parsed to build the GmatCommand.  It is used to save the script line, so
+ * that the script can be written to a file without inverting the steps taken to
+ * set up the internal object data.  As a side benefit, the script line is
+ * available in the GmatCommand structure for debugging purposes.
+ *
+ * @param <mode>    Specifies the type of serialization requested.
+ * @param <prefix>  Optional prefix appended to the object's name. (Used for
+ *                  indentation)
+ * @param <useName> Name that replaces the object's name (Not yet used
+ *                  in commands).
+ *
+ * @return The script line that defines this GmatCommand.
+ */
+//------------------------------------------------------------------------------
+const std::string& RunSimulator::GetGeneratingString(Gmat::WriteMode mode,
+                                                    const std::string &prefix,
+                                                    const std::string &useName)
+{
+   generatingString = prefix + "RunSimulator " + solverName + ";";
+
+   return RunSolver::GetGeneratingString(mode, prefix, useName);
+}
+
+
+bool RunSimulator::Initialize()
+{
+   return false;
+}
+
+
 bool RunSimulator::Execute()
 {
    #ifdef DEBUG_SIMULATOR_EXECUTION
@@ -106,10 +232,7 @@ bool RunSimulator::Execute()
 
 
 
-bool RunSimulator::Initialize()
-{
-   return false;
-}
+// Methods triggered by the finite state machine
 
 
 void RunSimulator::PrepareToEstimate()
