@@ -22,10 +22,14 @@
 #include "MessageInterface.hpp"
 
 
+//#define DEBUG_OBTYPE_CREATION_INITIALIZATION
+
 GmatObtype::GmatObtype(const std::string withName) :
    Obtype         ("GMATInternal", withName)
 {
-   MessageInterface::ShowMessage("Creating a GMATInternal obtype\n");
+   #ifdef DEBUG_OBTYPE_CREATION_INITIALIZATION
+      MessageInterface::ShowMessage("Creating a GMATInternal obtype\n");
+   #endif
 }
 
 GmatObtype::~GmatObtype()
@@ -36,13 +40,17 @@ GmatObtype::~GmatObtype()
 GmatObtype::GmatObtype(const GmatObtype& ot) :
    Obtype         (ot)
 {
-   MessageInterface::ShowMessage("Copying a GMATInternal obtype\n");
+   #ifdef DEBUG_OBTYPE_CREATION_INITIALIZATION
+      MessageInterface::ShowMessage("Copying a GMATInternal obtype\n");
+   #endif
 }
 
 
 GmatObtype& GmatObtype::operator=(const Obtype& ot)
 {
-   MessageInterface::ShowMessage("Assigning one GMATInternal obtype to another\n");
+   #ifdef DEBUG_OBTYPE_CREATION_INITIALIZATION
+      MessageInterface::ShowMessage("Assigning one GMATInternal obtype to another\n");
+   #endif
 
    if (this != &ot)
    {
@@ -55,6 +63,28 @@ GmatObtype& GmatObtype::operator=(const Obtype& ot)
 
 GmatBase* GmatObtype::Clone() const
 {
-   MessageInterface::ShowMessage("Cloning a GMATInternal obtype\n");
+   #ifdef DEBUG_OBTYPE_CREATION_INITIALIZATION
+      MessageInterface::ShowMessage("Cloning a GMATInternal obtype\n");
+   #endif
+
    return new GmatObtype(*this);
+}
+
+
+bool GmatObtype::Initialize()
+{
+   bool retval = false;
+   return retval;
+}
+
+bool GmatObtype::AddMeasurement(MeasurementData *md)
+{
+   bool retval = false;
+   return retval;
+}
+
+bool GmatObtype::Finalize()
+{
+   bool retval = false;
+   return retval;
 }

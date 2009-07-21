@@ -23,7 +23,7 @@
 
 /// Descriptor here
 #include "Obtype.hpp"
-#include <fstream>
+#include <fstream>         // Should we have a file specific intermediate class?
 
 class GmatObtype: public Obtype
 {
@@ -34,6 +34,10 @@ public:
    GmatObtype& operator=(const Obtype& ot);
 
    GmatBase*         Clone() const;
+
+   virtual bool      Initialize();
+   virtual bool      AddMeasurement(MeasurementData *md);
+   virtual bool      Finalize();
 
 private:
    std::fstream      theStream;

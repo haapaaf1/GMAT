@@ -23,6 +23,8 @@
 #define Obtype_hpp
 
 #include "GmatBase.hpp"
+#include "MeasurementData.hpp"
+
 
 /**
  * The Obtype classes are structures designed to contain observation data --
@@ -37,6 +39,10 @@ public:
    virtual ~Obtype();
    Obtype(const Obtype& ot);
    Obtype&           operator=(const Obtype& ot);
+
+   virtual bool      Initialize();
+   virtual bool      AddMeasurement(MeasurementData *md) = 0;
+   virtual bool      Finalize();
 
 
 };

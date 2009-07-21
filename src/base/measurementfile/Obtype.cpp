@@ -21,6 +21,7 @@
 
 #include "Obtype.hpp"
 
+
 Obtype::Obtype(const std::string &obType, const std::string &name) :
    GmatBase          (Gmat::OBTYPE, obType, name)
 {
@@ -49,4 +50,18 @@ Obtype& Obtype::operator=(const Obtype& ot)
    }
 
    return *this;
+}
+
+
+bool Obtype::Initialize()
+{
+   bool retval = false;
+   return retval;
+}
+
+
+bool Obtype::Finalize()
+{
+   bool retval = false;
+   return retval;
 }
