@@ -45,6 +45,7 @@ public:
    virtual bool        Finalize();
 
    Real                GetTimeStep();
+   PropSetup*          GetPropagator();
    
    // methods overridden from GmatBase
    virtual std::string  GetParameterText(const Integer id) const;
