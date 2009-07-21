@@ -148,8 +148,6 @@ bool ProcessSLRData::Initialize()
             fclose(outFile);
 
         #endif
-    
-        if (!CloseFile()) return false;
 
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))

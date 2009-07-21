@@ -128,8 +128,6 @@ bool ProcessB3Data::Initialize()
 
         #endif
 
-        if (!CloseFile()) return false;
-
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {
@@ -153,6 +151,7 @@ bool ProcessB3Data::Initialize()
 /**
  * Constructs base ProcessB3Data structures 
  */
+//------------------------------------------------------------------------------
 ProcessB3Data::ProcessB3Data(const std::string &itsName) :
 	DataFile ("B3DataFile", itsName)
 {
@@ -168,6 +167,7 @@ ProcessB3Data::ProcessB3Data(const std::string &itsName) :
 /**
  * Class destructor
  */
+//------------------------------------------------------------------------------
 ProcessB3Data::~ProcessB3Data() 
 {
 }
@@ -228,6 +228,7 @@ bool ProcessB3Data::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
  * Returns the next observation from the vector container.
+ * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
 bool ProcessB3Data::AdvanceToNextOb()
@@ -243,6 +244,7 @@ bool ProcessB3Data::AdvanceToNextOb()
 //------------------------------------------------------------------------------
 /**
  * Returns the previous observation from the vector container.
+ * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
 bool ProcessB3Data::BackUpToPreviousOb()
@@ -287,6 +289,9 @@ bool ProcessB3Data::BackUpToPreviousOb()
 //------------------------------------------------------------------------------
 /** 
  * Obtains the next line of b3 data from file.
+ *
+ * @param <myB3Data> Output pointer to B3 data struct containing data from file
+ * @return Boolean success or failure to store data in B3 data struct
  */
 //------------------------------------------------------------------------------
 bool ProcessB3Data::GetData(b3_obtype *myB3Data)
@@ -301,6 +306,8 @@ bool ProcessB3Data::GetData(b3_obtype *myB3Data)
 //------------------------------------------------------------------------------
 /** 
  * Converts the compact b3 data format into usable numbers.
+ * @param <myB3Data> Output pointer to B3 data struct containing data from file
+ * @return Boolean success or failure to store data in B3 data struct
  */
 //------------------------------------------------------------------------------
 bool ProcessB3Data::ExtractB3Data(std::string &lff, b3_obtype *myb3Data)
@@ -821,10 +828,12 @@ bool ProcessB3Data::ExtractB3Data(std::string &lff, b3_obtype *myb3Data)
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(b3_obtype *myB3Data)
+// bool WriteMeasurement(b3_obtype *myB3Data)
 //------------------------------------------------------------------------------
 /**
- * Obtains the next line of b3 data from file.
+ * Writes B3 data to file
+ * @param <myB3Data> Input pointer to B3 data struct containing data from file
+ * @return Boolean success or failure to write data in B3 data struct to file
  */
 //------------------------------------------------------------------------------
 bool ProcessB3Data::WriteMeasurement(b3_obtype *myB3Data)
@@ -1412,11 +1421,7 @@ bool ProcessB3Data::WriteMeasurement(b3_obtype *myB3Data)
 //  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * This method returns the parameter text, given the input parameter ID.
- *
- * @param <id> Id for the requested parameter text.
- *
- * @return parameter text for the requested parameter.
+ * @see DataFile
  */
 //------------------------------------------------------------------------------
 std::string ProcessB3Data::GetDataParameterText(const Integer id) const
@@ -1432,11 +1437,7 @@ std::string ProcessB3Data::GetDataParameterText(const Integer id) const
 //  std::string  GetDataUnits(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * This method returns the unit text, given the input parameter ID.
- *
- * @param <id> Id for the requested unit text.
- *
- * @return unit text for the requested parameter.
+ * @see DataFile
  */
 //------------------------------------------------------------------------------
 std::string ProcessB3Data::GetDataUnits(const Integer id) const
@@ -1453,11 +1454,7 @@ std::string ProcessB3Data::GetDataUnits(const Integer id) const
 //  Integer  GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 /**
- * This method returns the parameter ID, given the input parameter string.
- *
- * @param <str> string for the requested parameter.
- *
- * @return ID for the requested parameter.
+ * @see DataFile
  */
 //------------------------------------------------------------------------------
 Integer ProcessB3Data::GetDataParameterID(const std::string &str) const
@@ -1476,11 +1473,7 @@ Integer ProcessB3Data::GetDataParameterID(const std::string &str) const
 //  Gmat::ParameterType  GetDataParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * This method returns the parameter type, given the input parameter ID.
- *
- * @param <id> ID for the requested parameter.
- *
- * @return parameter type of the requested parameter.
+ * @see DataFile
  */
 //------------------------------------------------------------------------------
 Gmat::ParameterType ProcessB3Data::GetDataParameterType(const Integer id) const
@@ -1497,12 +1490,7 @@ Gmat::ParameterType ProcessB3Data::GetDataParameterType(const Integer id) const
 //  std::string GetDataParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 /**
- * Retrieve the string associated with a parameter.
- *
- * @param <id> The integer ID for the parameter.
- *
- * @return Text description for the type of the parameter, or the empty
- *         string ("").
+ * @see DataFile
  */
 //---------------------------------------------------------------------------
 std::string ProcessB3Data::GetDataParameterTypeString(const Integer id) const
@@ -1513,6 +1501,10 @@ std::string ProcessB3Data::GetDataParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * @see DataFile
+ */
+//---------------------------------------------------------------------------
 Integer ProcessB3Data::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
@@ -1558,7 +1550,7 @@ Integer ProcessB3Data::GetIntegerDataParameter(const Integer id) const
 // virtual Integer GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * @see DataFile
  */
 //------------------------------------------------------------------------------
 Integer ProcessB3Data::GetIntegerDataParameter(const std::string &label) const
@@ -1568,6 +1560,10 @@ Integer ProcessB3Data::GetIntegerDataParameter(const std::string &label) const
 
 //------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see DataFile
+ */
 //------------------------------------------------------------------------------
 std::string ProcessB3Data::GetStringDataParameter(const Integer id) const
 {
@@ -1585,12 +1581,11 @@ std::string ProcessB3Data::GetStringDataParameter(const Integer id) const
 
 }
 
-
 //------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * @see DataFile
  */
 //------------------------------------------------------------------------------
 std::string ProcessB3Data::GetStringDataParameter(const std::string &label) const
@@ -1600,6 +1595,10 @@ std::string ProcessB3Data::GetStringDataParameter(const std::string &label) cons
 
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see DataFile
+ */
 //------------------------------------------------------------------------------
 Real ProcessB3Data::GetRealDataParameter(const Integer id) const
 {
@@ -1654,12 +1653,11 @@ Real ProcessB3Data::GetRealDataParameter(const Integer id) const
 
 }
 
-
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * @see DataFile
  */
 //------------------------------------------------------------------------------
 Real ProcessB3Data::GetRealDataParameter(const std::string &label) const

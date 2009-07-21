@@ -177,8 +177,6 @@ bool ProcessSP3cData::Initialize()
 
         #endif
 
-        if (!CloseFile()) return false;
-
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {

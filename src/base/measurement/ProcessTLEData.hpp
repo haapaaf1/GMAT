@@ -58,6 +58,8 @@ public:
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
 
+    Integer TLECheckSum(const std::string &str);
+
 private:
 
 
@@ -66,6 +68,9 @@ private:
 
     // Specific data type processing functions
     bool GetData(tle_obtype *myTLEdata);
+
+    // Function to write TLE to file
+    bool WriteMeasurement(tle_obtype *myTLEdata);
 
     // Vector container of observations
     std::vector<tle_obtype*> tleData;

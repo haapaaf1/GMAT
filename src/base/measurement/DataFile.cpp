@@ -174,11 +174,7 @@ std::string DataFile::GetParameterTypeString(const Integer id) const
 //  std::string GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * Gets the value for a std::string parameter.
- * 
- * @param <id> Integer ID of the parameter.
- * 
- * @return The value of the parameter.
+ * @see GmatBase
  */
 //------------------------------------------------------------------------------
 std::string DataFile::GetStringParameter(const Integer id) const
@@ -200,12 +196,7 @@ std::string DataFile::GetStringParameter(const Integer id) const
 //  bool SetStringParameter(const Integer id, const Real value)
 //------------------------------------------------------------------------------
 /**
- * Sets the value for a std::string parameter.
- * 
- * @param <id>    Integer ID of the parameter.
- * @param <value> New value for the parameter.
- * 
- * @return The value of the parameter.
+ * @see GmatBase
  */
 //------------------------------------------------------------------------------
 bool DataFile::SetStringParameter(const Integer id, const std::string &value)
@@ -235,6 +226,10 @@ bool DataFile::SetStringParameter(const Integer id, const std::string &value)
 
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
 //------------------------------------------------------------------------------
 Integer DataFile::GetIntegerParameter(const Integer id) const
 {
@@ -432,6 +427,7 @@ DataFile::DataFile(const DataFile &pdf) :
  */
 DataFile::~DataFile()
 {
+    CloseFile();
 }
 
 //------------------------------------------------------------------------------
@@ -504,6 +500,13 @@ bool DataFile::CloseFile()
 //------------------------------------------------------------------------------
 // const std::string* GetFileFormatDescriptions() const
 //------------------------------------------------------------------------------
+/**
+ * Returns the string array of allowable file formats.
+ *
+ * @return String array of all file format descriptions
+ *
+ */
+//------------------------------------------------------------------------------
 const std::string* DataFile::GetFileFormatDescriptions() const
 {
    return FILEFORMAT_DESCRIPTIONS;
@@ -514,6 +517,10 @@ const std::string* DataFile::GetFileFormatDescriptions() const
 //------------------------------------------------------------------------------
 /**
  * Code used to obtain the data format name text corresponding to a ID
+ *
+ * @param <id> Integer ID associated with the file format
+ * @return The string description of the file format
+ *
  */
 //------------------------------------------------------------------------------
 std::string DataFile::GetFileFormatDescriptionText(const Integer &id) const
@@ -531,6 +538,10 @@ std::string DataFile::GetFileFormatDescriptionText(const Integer &id) const
 //------------------------------------------------------------------------------
 /**
  * Code used to obtain the data format ID
+ *
+ * @param <label> The string label associated with the file format
+ * @return The integer file format ID
+ *
  */
 //------------------------------------------------------------------------------
 Integer DataFile::GetFileFormatID(const std::string &label)
@@ -562,15 +573,19 @@ Integer DataFile::GetFileFormatID(const std::string &label)
        return UTDF_ID;
     }
     else
-     return retval;
+
+    return retval;
 
 }
 
 //------------------------------------------------------------------------------
-// Integer SetFileFormatID(const std::string &label)
+// void SetFileFormatID(const std::string &label)
 //------------------------------------------------------------------------------
 /**
  * Sets the name of the process data file object.
+ *
+ * @param <label> The string label associated with the file format
+ * 
  */
 //------------------------------------------------------------------------------
 void DataFile::SetFileFormatID(const std::string &label)
@@ -795,6 +810,7 @@ std::string DataFile::ReadLineFromFile()
  *
   * @return dataFileName
  */
+//------------------------------------------------------------------------------
 std::string DataFile::GetFileName()
 {
     return dataFileName;
@@ -803,12 +819,13 @@ std::string DataFile::GetFileName()
 //------------------------------------------------------------------------------
 // void DataFile::SetFileName(std::string &myFileName)
 //------------------------------------------------------------------------------
-void DataFile::SetFileName(std::string &myFileName)
 /**
  * Set the dataFileName parameter using strings.
  *
  * @param <myFileName> Desired file name
  */
+//------------------------------------------------------------------------------
+void DataFile::SetFileName(std::string &myFileName)
 {
     dataFileName = myFileName;
 }
@@ -821,6 +838,7 @@ void DataFile::SetFileName(std::string &myFileName)
  *
  * @param <myFileName> Desired file name
  */
+//------------------------------------------------------------------------------
 void DataFile::SetFileName(const char* myFileName)
 {
     dataFileName = myFileName;
@@ -860,7 +878,7 @@ void DataFile::SetIsSorted(const bool &flag)
 }
 
 //------------------------------------------------------------------------------
-// std::string DataFile::Trim() const
+// std::string DataFile::Trim(std::string str) const
 //------------------------------------------------------------------------------
 /**
  * Removes leading and trailing blanks from a string
@@ -1016,6 +1034,12 @@ std::string DataFile::Overpunch(const Real &number )
 //------------------------------------------------------------------------------
 /**
  * Converts overpunch code to numeric value and determines appropriate sign
+ *
+ * @param <code> Input overpunch code
+ * @param <digit> Output Integer corresponding to overpunch code
+ * @param <sign> Output sign (+/-1) corresponding to overpunch code
+ *
+ * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
 bool DataFile::ReverseOverpunch(std::string code, Integer &digit, Integer &sign )
@@ -1125,7 +1149,6 @@ bool DataFile::ReverseOverpunch(std::string code, Integer &digit, Integer &sign 
 	return false;
     }
 
-
     return true;
 }
 
@@ -1181,7 +1204,6 @@ Integer DataFile::GetDataParameterID(const std::string &str) const
    return -1;
 }
 
-
 //------------------------------------------------------------------------------
 //  Gmat::ParameterType  GetDataParameterType(const Integer id) const
 //------------------------------------------------------------------------------
@@ -1197,8 +1219,6 @@ Gmat::ParameterType DataFile::GetDataParameterType(const Integer id) const
 {
    return GmatBase::GetParameterType(id);
 }
-
-
 
 //---------------------------------------------------------------------------
 //  std::string GetDataParameterTypeString(const Integer id) const
@@ -1220,6 +1240,15 @@ std::string DataFile::GetDataParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * Retrieves Integer data parameter
+ *
+ * @param <id> Integer ID associated with data parameter
+ *
+ * @return The Integer data parameter
+ *
+ */
+//------------------------------------------------------------------------------
 Integer DataFile::GetIntegerDataParameter(const Integer id) const
 {
     return -123456789;
@@ -1229,7 +1258,12 @@ Integer DataFile::GetIntegerDataParameter(const Integer id) const
 // virtual Integer GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * Retrieves Integer data parameter
+ *
+ * @param <label> String associated with data parameter
+ *
+ * @return The Integer data parameter
+ *
  */
 //------------------------------------------------------------------------------
 Integer DataFile::GetIntegerDataParameter(const std::string &label) const
@@ -1240,6 +1274,15 @@ Integer DataFile::GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * Retrieves Real data parameter
+ *
+ * @param <id> Integer ID associated with data parameter
+ *
+ * @return The Real data parameter
+ *
+ */
+//------------------------------------------------------------------------------
 Real DataFile::GetRealDataParameter(const Integer id) const
 {
     return -1234567.89;
@@ -1249,7 +1292,12 @@ Real DataFile::GetRealDataParameter(const Integer id) const
 // virtual Real GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * Retrieves Real data parameter
+ *
+ * @param <label> String associated with data parameter
+ *
+ * @return The Real data parameter
+ *
  */
 //------------------------------------------------------------------------------
 Real DataFile::GetRealDataParameter(const std::string &label) const
@@ -1260,6 +1308,15 @@ Real DataFile::GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual bool GetBoolDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * Retrieves boolean data parameter
+ *
+ * @param <id> Integer ID associated with data parameter
+ *
+ * @return The boolean data parameter
+ *
+ */
+//------------------------------------------------------------------------------
 bool DataFile::GetBoolDataParameter(const Integer id) const
 {
     return false;
@@ -1269,7 +1326,12 @@ bool DataFile::GetBoolDataParameter(const Integer id) const
 // virtual bool GetBoolDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * Retrieves boolean data parameter
+ *
+ * @param <label> String associated with data parameter
+ *
+ * @return The boolean data parameter
+ *
  */
 //------------------------------------------------------------------------------
 bool DataFile::GetBoolDataParameter(const std::string &label) const
@@ -1280,6 +1342,15 @@ bool DataFile::GetBoolDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * Retrieves string data parameter
+ *
+ * @param <id> Integer ID associated with data parameter
+ *
+ * @return The string data parameter
+ *
+ */
+//------------------------------------------------------------------------------
 std::string DataFile::GetStringDataParameter(const Integer id) const
 {
     return "";
@@ -1289,7 +1360,12 @@ std::string DataFile::GetStringDataParameter(const Integer id) const
 // virtual std::string GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * Retrieves string data parameter
+ *
+ * @param <label> String associated with data parameter
+ *
+ * @return The string data parameter
+ *
  */
 //------------------------------------------------------------------------------
 std::string DataFile::GetStringDataParameter(const std::string &label) const
@@ -1299,6 +1375,15 @@ std::string DataFile::GetStringDataParameter(const std::string &label) const
 
 //------------------------------------------------------------------------------
 // virtual StringArray GetStringArrayDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves string array data parameter
+ *
+ * @param <id> Integer ID associated with data parameter
+ *
+ * @return The string array data parameter
+ *
+ */
 //------------------------------------------------------------------------------
 StringArray DataFile::GetStringArrayDataParameter(const Integer id) const
 {
@@ -1310,10 +1395,39 @@ StringArray DataFile::GetStringArrayDataParameter(const Integer id) const
 // virtual StringArray GetStringArrayDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see GmatBase
+ * Retrieves string array data parameter
+ *
+ * @param <label> String associated with data parameter
+ *
+ * @return The string array data parameter
+ *
  */
 //------------------------------------------------------------------------------
 StringArray DataFile::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual bool GetData()
+//------------------------------------------------------------------------------
+/**
+ * Obtains data from file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::GetData()
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteMeasurement()
+//------------------------------------------------------------------------------
+/**
+ * Writes data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteMeasurement()
+{
+    return false;
 }

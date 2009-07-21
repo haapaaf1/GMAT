@@ -98,6 +98,11 @@ public:
     // Functions to verify data availability
     virtual bool CheckDataAvailability(const std::string str) const;
 
+    // Method to obtain data from the file
+    virtual bool GetData();
+
+    // Method to write data to file
+    virtual bool WriteMeasurement();
 
     // String processing utility functions
     std::string Trim(std::string s);
@@ -110,14 +115,10 @@ public:
     //bool SortData();
 
     // functions to extract a line from file
-    bool ReadLineFromFile(std::string &line );
+    bool ReadLineFromFile(std::string &line);
     std::string ReadLineFromFile();
     
-    const std::string* GetFileFormatDescriptions() const;
-    std::string GetFileFormatDescriptionText(const Integer &id) const;
-    Integer GetFileFormatID(const std::string &label);
-    void SetFileFormatID(const std::string &label);
-
+    // methods to get/set DataFile object parameters
     void SetNumLines(const Integer &nl);
     Integer GetNumLines() const;
 
@@ -130,24 +131,31 @@ public:
     void SetFileFormatName(const std::string &fName);
     std::string GetFileFormatName() const;
   
-    // Get/Set isOpen variable
     bool GetIsOpen() const;
     void SetIsOpen(const bool &flag);
 
-    // Get/Set isSorted variable
     bool GetIsSorted() const;
     void SetIsSorted(const bool &flag);
 
-    // File name functions
     std::string GetFileName();
     void SetFileName(std::string &myFileName);
     void SetFileName(const char* myFileName);
 
+    // Open/Close file methods
     bool OpenFile();
     bool CloseFile();
 
+    // Test to see if we are at end of file
     bool IsEOF();
-    
+
+    // methods to get/set descriptions of allowable file formats
+    const std::string* GetFileFormatDescriptions() const;
+    std::string GetFileFormatDescriptionText(const Integer &id) const;
+    Integer GetFileFormatID(const std::string &label);
+    void SetFileFormatID(const std::string &label);
+
+
+
     enum OBSERVATION_TYPE_REPS
     {
 	RANGE_ID = 0,
