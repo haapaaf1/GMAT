@@ -195,6 +195,7 @@ OBJECTS = \
     command/PenDown.o \
     command/PenUp.o \
     command/Propagate.o \
+    command/PropagationEnabledCommand.o \
     command/Report.o \
     command/RunSolver.o \
     command/RunSimulator.o \
