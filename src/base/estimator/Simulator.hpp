@@ -35,17 +35,18 @@ public:
    Simulator& operator=(const Simulator& sim);
    virtual ~Simulator();
 
-   virtual GmatBase* Clone() const;
-   virtual Integer SetSolverResults(Real*, const std::string&, const std::string&); // noop
-   virtual void SetResultValue(Integer, Real, const std::string&);                  // noop
-   virtual void WriteToTextFile(SolverState stateToUse = UNDEFINED_STATE);
+   virtual GmatBase*    Clone() const;
+   virtual Integer      SetSolverResults(Real*, const std::string&, const std::string&); // noop
+   virtual void         SetResultValue(Integer, Real, const std::string&);                  // noop
+   virtual void         WriteToTextFile(SolverState stateToUse = UNDEFINED_STATE);
    
-   virtual bool        Initialize();
-   virtual SolverState AdvanceState();
-   virtual bool        Finalize();
+   virtual bool         Initialize();
+   virtual SolverState  AdvanceState();
+   virtual bool         Finalize();
 
-   Real                GetTimeStep();
-   PropSetup*          GetPropagator();
+   Real                 GetTimeStep();
+   PropSetup*           GetPropagator();
+   MeasurementManager*  GetMeasurementManager();
    
    // methods overridden from GmatBase
    virtual std::string  GetParameterText(const Integer id) const;

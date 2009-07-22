@@ -410,6 +410,18 @@ PropSetup* Simulator::GetPropagator()
    return propagator;
 }
 
+//------------------------------------------------------------------------------
+//  MeasurementManager* GetMeasurementManager()
+//------------------------------------------------------------------------------
+/**
+ * Returns a pointer to the MeasurmentMabager object.
+ */
+//------------------------------------------------------------------------------
+MeasurementManager*  Simulator::GetMeasurementManager()
+{
+   return &measManager;
+}
+
 
 //------------------------------------------------------------------------------
 //  std::string  GetParameterText(const Integer id) const
