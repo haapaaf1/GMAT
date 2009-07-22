@@ -136,7 +136,9 @@ Simulator& Simulator::operator =(const Simulator& sim)
    if (&sim != this)
    {
       Solver::operator=(sim);
-      
+
+      if (propagator != NULL)
+         delete propagator;
       if (sim.propagator) propagator          = ((PropSetup*) (sim.propagator)->Clone());
       else                propagator          = NULL;
       simState            = NULL;   // or clone it here??
