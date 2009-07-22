@@ -115,7 +115,8 @@ Simulator::Simulator(const Simulator& sim) :
    measManager         (sim.measManager),
    measList            (sim.measList)
 {  
-   propagator = ((PropSetup*) (sim.propagator)->Clone());
+   propagator = NULL;
+   if (sim.propagator) propagator = ((PropSetup*) (sim.propagator)->Clone());
 }
 
 //------------------------------------------------------------------------------
@@ -135,7 +136,9 @@ Simulator& Simulator::operator =(const Simulator& sim)
    if (&sim != this)
    {
       Solver::operator=(sim);
-      propagator          = ((PropSetup*) (sim.propagator)->Clone());
+      
+      if (sim.propagator) propagator          = ((PropSetup*) (sim.propagator)->Clone());
+      else                propagator          = NULL;
       simState            = NULL;   // or clone it here??
       simulationStart     = sim.simulationStart;
       simulationEnd       = sim.simulationEnd;
