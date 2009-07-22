@@ -127,6 +127,14 @@ bool MeasurementManager::Initialize()
    return retval;
 }
 
+
+bool MeasurementManager::Finalize()
+{
+   bool retval = true;
+   return retval;
+}
+
+
 //------------------------------------------------------------------------------
 // Integer Calculate(const Integer measurementToCalc)
 //------------------------------------------------------------------------------
@@ -230,6 +238,39 @@ Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 
    return measurementIndex;
 }
+
+
+//------------------------------------------------------------------------------
+// const StringArray& GetParticipantList()
+//------------------------------------------------------------------------------
+/**
+ * Accesses the complete list of measuremetn participants, avoiding duplicates.
+ *
+ * @return The list.
+ */
+//------------------------------------------------------------------------------
+const StringArray& MeasurementManager::GetParticipantList()
+{
+   participants.clear();
+
+   // Walk through the collection of measurement models...
+   for (std::vector<MeasurementModel*>::iterator i =  models.begin();
+         i !=  models.end(); ++i)
+   {
+      // Walk through the participant list for the model
+      StringArray parts = (*i)->GetStringArrayParameter("Participants");
+      for (StringArray::iterator j = parts.begin(); j != parts.end(); ++j)
+      {
+         // If the participant is not in the list yet, add it
+         if (find(participants.begin(), participants.end(), (*j)) ==
+               participants.end())
+            participants.push_back(*j);
+      }
+   }
+
+   return participants;
+}
+
 
 
 //------------------------------------------------------------------------------

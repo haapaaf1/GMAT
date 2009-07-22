@@ -42,20 +42,24 @@ public:
    MeasurementManager(const MeasurementManager &mm);
    MeasurementManager& operator=(const MeasurementManager &mm);
 
-   bool Initialize();
+   bool                    Initialize();
+   bool                    Finalize();
    
-   bool CalculateMeasurements();
-   bool CalculateMeasurementsAndDerivatives();
-   bool WriteMeasurements();
+   bool                    CalculateMeasurements();
+   bool                    CalculateMeasurementsAndDerivatives();
+   bool                    WriteMeasurements();
 
-   Integer Calculate(const Integer measurementToCalc);
-   Integer AddMeasurement(MeasurementModel *meas);
-   const MeasurementData* GetMeasurement(const Integer measurementToGet);
-   bool WriteMeasurement(const Integer measurementToWrite);
+   Integer                 AddMeasurement(MeasurementModel *meas);
+   const StringArray&      GetParticipantList();
+   Integer                 Calculate(const Integer measurementToCalc);
+   const MeasurementData*  GetMeasurement(const Integer measurementToGet);
+   bool                    WriteMeasurement(const Integer measurementToWrite);
 
 protected:
    /// List of the managed measurement models
    StringArray                      modelNames;
+   /// List of all participants referenced in the measurement models
+   StringArray                      participants;
    /// Pointers to the measurements
    std::vector<MeasurementModel*>   models;
    /// Current measurement epoch, ignoring event searching
