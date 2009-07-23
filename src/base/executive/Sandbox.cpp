@@ -649,7 +649,10 @@ bool Sandbox::Initialize()
       
       rv = current->Initialize();
       if (!rv)
-         return false;
+         throw SandboxException("The Mission Control Sequence command\n\n" +
+               current->GetGeneratingString(Gmat::SCRIPTING, "   ") +
+               "\n\nfailed to initialize correctly.  Please correct the error "
+               "and try again.");
       
       // Check to see if the command needs a server startup
       if (current->NeedsServerStartup())
