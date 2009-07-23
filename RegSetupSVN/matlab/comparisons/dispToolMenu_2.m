@@ -3,14 +3,22 @@ function [Tool1Folder,Tool2Folder] = dispToolMenu_2
 % ############### Display the menu for Tool1 #######################
 disp(' ');
 disp('Choose the first tool for comparison from the menu below:');
-availTooltemp1 = dir('./Good_reports/*Exact');
-availTooltemp2 = dir('*GMAT*_reports');
-availTool = struct('name', {availTooltemp1(:).name, availTooltemp2(:).name}');
+availFolderstemp1 = dir('./Good_reports/*Exact');
+availFolderstemp2 = dir('*GMAT*_reports');
+availFolders = struct('name', {availFolderstemp1(:).name, availFolderstemp2(:).name}');
+
+availFoldersCell = {availFolders.name}';
+removeRow1       = strmatch('YYYYMMDDGMAT_reports',availFoldersCell);
+removeRow2       = strmatch('Good_reports',availFoldersCell);
+
+rows2keep = setdiff(1:numel(availFoldersCell),[removeRow1,removeRow2]);
+
+availTool = struct('name', availFoldersCell(rows2keep));
 toolMenu = size(availTool,1); % Total number of options user can choose from
 for toolLoop = 1:toolMenu
     if strcmp(availTool(toolLoop).name,'Exact');
         disp([num2str(toolLoop), '. ', availTool(toolLoop).name]);
-    else;
+    else
         chars(toolLoop) = findstr(availTool(toolLoop).name,'_report') - 1;
         disp([num2str(toolLoop), '. ', availTool(toolLoop).name(1:chars(toolLoop))]);
     end;
@@ -44,7 +52,7 @@ end
 
 if strcmp(availTool(toolChoice).name,'Exact');
     Tool1Folder = availTool(toolChoice).name;
-else;
+else
     Tool1Folder = availTool(toolChoice).name(1:chars(toolChoice));
 end;
 
@@ -55,7 +63,7 @@ for loop = 1:toolMenu
     if toolChoice ~= loop
         if strcmp(availTool(loop).name,'Exact');
             availTool2{count,1} = availTool(loop).name;
-        else;
+        else
             availTool2{count,1} = availTool(loop).name(1:chars(loop));
         end;
         count = count + 1;
