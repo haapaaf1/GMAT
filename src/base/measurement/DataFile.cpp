@@ -1431,3 +1431,15 @@ bool DataFile::WriteMeasurement()
 {
     return false;
 }
+
+//------------------------------------------------------------------------------
+// virtual bool WriteMeasurementHeader()
+//------------------------------------------------------------------------------
+/**
+ * Writes header data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteMeasurementHeader()
+{
+    return false;
+}

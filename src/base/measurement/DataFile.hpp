@@ -103,6 +103,7 @@ public:
 
     // Method to write data to file
     virtual bool WriteMeasurement();
+    virtual bool WriteMeasurementHeader();
 
     // String processing utility functions
     std::string Trim(std::string s);

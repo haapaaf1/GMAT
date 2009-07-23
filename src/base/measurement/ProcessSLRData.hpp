@@ -58,7 +58,9 @@ public:
 
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
-    
+
+    Integer SLRCheckSum(const std::string &str);
+
 private:
 
     // Specific data type processing functions
@@ -70,6 +72,9 @@ private:
     bool GetSLRData(std::string &lff, slr_header *mySLRheader,
                     slr_obtype *mySLRdata);
 
+    bool WriteMeasurementHeader(slr_header *mySLRheader);
+    bool WriteMeasurement(slr_obtype *mySLRdata);
+
     // Vector containers for the measurement data
     std::vector<slr_header*> slrHeader;
     std::vector<slr_obtype*> slrData;
@@ -79,9 +84,7 @@ private:
 
     //Current iteratory pointing at header
     std::vector<slr_header*>::iterator i_h;
-
-
+    
 };
 
 #endif	/* _ProcessSLRData_hpp */
-
