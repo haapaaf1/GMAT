@@ -328,9 +328,11 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
             // Why aren't we building references other than SpacePoint here?
             // Added BURN and HARDWARE(LOJ: 2009.03.03)
             // and MEASUREMENT_MODEL (DJC 2009.07.17)
+            // and "Simulator", by typename (DJC 2009.07.23)
             if (obj->IsOfType(Gmat::SPACE_POINT) || obj->IsOfType(Gmat::BURN) ||
                 obj->IsOfType(Gmat::HARDWARE)    ||
-                obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+                obj->IsOfType(Gmat::MEASUREMENT_MODEL) ||
+                obj->IsOfType("Simulator"))
             {
                BuildReferences(obj);
                obj->Initialize();
