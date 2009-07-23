@@ -41,6 +41,8 @@
 %   E.Dove      09/07/2005      Original
 %   E.Dove      09/14/2007      Last Modified
 %   E.Dove      05/06/2009      Changed folder to save Latex files to
+%   E.Dove      07/23/2009      Fixed bug that causes script to crash when one report has no data. 
+%        Added syntax to allow comparisons to continue to next report once there is a mismatch in amount of lines.
 %
 % See also BUILDRUN_SCRIPT_GMAT, AUTOMATION_GMAT, COMPARISON_TOOL1_TOOL2_PV, COMPARISON_TOOL1_TOOL2_CS
 
@@ -88,12 +90,12 @@ while size(rerunScript,1) ~= 0
     % ===================  Initialize variables ========================
     if strcmp(Tool1Folder,'STK') | strcmp(Tool1Folder,'FF') | strcmp(Tool1Folder,'Exact');
         Tool1Dir    = [outputTestDir,'/Good_reports/',Tool1Folder];
-    else;
+    else
         Tool1Dir    = [outputTestDir,'/',Tool1Folder,'_reports'];
     end;
     if strcmp(Tool2Folder,'STK') | strcmp(Tool2Folder,'FF') | strcmp(Tool2Folder,'Exact');
         Tool2Dir    = [outputTestDir,'/Good_reports/',Tool2Folder];
-    else;
+    else
         Tool2Dir    = [outputTestDir,'/',Tool2Folder,'_reports'];
     end;
     nameFile        = 'CbParams';
@@ -116,14 +118,14 @@ while size(rerunScript,1) ~= 0
 
     if exist(AcceptTestDir,'dir')==7;
         saveDir = uigetdir(AcceptTestDir,'Select Directory to save Latex files to');
-    else;
+    else
         saveDir = uigetdir(cd,'Select Directory to save Latex files to');
     end;
     
     while saveDir == 0; % Makes sure the user selects a directory
         if exist(AcceptTestDir,'dir')==7;
             saveDir = uigetdir(AcceptTestDir,'Select Directory to save Latex files to');
-        else;
+        else
             saveDir = uigetdir(cd,'Select Directory to save Latex files to');
         end;
     end;    
@@ -170,8 +172,35 @@ while size(rerunScript,1) ~= 0
                 mat_Tool11       = dlmread(file_Tool11,'\s',rowStartTool1,0);
                 warning on;
                 Tool11_rows      = size(mat_Tool11,1);
+                
+                % Read Tool2 output file
+                file_Tool21     = [Tool2Dir,'/',reportFilesTool2{reportChoiceTool2}];
+                mat_Tool21      = zeros(10000,columnSize);
+                warning off;
+                mat_Tool21      = dlmread(file_Tool21,'\s',rowStartTool2,0);
+                warning on;
+                Tool21_rows     = size(mat_Tool21,1);
+
+                if Tool11_rows == 0
+                    disp(' ')
+                    disp('(WARNING) No data exists for the following file: (WARNING) ')
+                    disp([Tool1Dir,'/',reportFilesTool1{reportChoiceTool1}])
+                    matchFound = 0;
+                    continue % Go to next report
+                elseif Tool21_rows == 0
+                    disp(' ')
+                    disp('(WARNING) No data exists for the following file: (WARNING) ')
+                    disp([Tool2Dir,'/',reportFilesTool2{reportChoiceTool2}])
+                    matchFound = 0;
+                    continue % Go to next report
+                end
+                
+                % Convert first Time column to seconds
                 mat_Tool11(2:Tool11_rows,1) = round((mat_Tool11(2:Tool11_rows,1) - mat_Tool11(1,1))*86400); % Convert first column from Days to Seconds
                 mat_Tool11(1,1)  = 0;
+                
+                mat_Tool21(2:Tool21_rows,1) = round((mat_Tool21(2:Tool21_rows,1) - mat_Tool21(1,1))*86400); % Convert first column from Days to Seconds
+                mat_Tool21(1,1)  = 0;
                 
                 % Tool1 exceptions due to the differences in outputing data
                 if isempty(findstr(lower(Tool1),'stk')) == 0
@@ -229,16 +258,6 @@ while size(rerunScript,1) ~= 0
                 elseif isempty(findstr(lower(Tool1),'gmat')) == 0
                     mat_Tool11(:,3) = 90 - mat_Tool11(:,3);
                 end
-
-                % Read Tool2 output file
-                file_Tool21     = [Tool2Dir,'/',reportFilesTool2{reportChoiceTool2}];
-                mat_Tool21      = zeros(10000,columnSize);
-                warning off;
-                mat_Tool21      = dlmread(file_Tool21,'\s',rowStartTool2,0);
-                warning on;
-                Tool21_rows     = size(mat_Tool21,1);
-                mat_Tool21(2:Tool21_rows,1) = round((mat_Tool21(2:Tool21_rows,1) - mat_Tool21(1,1))*86400); % Convert first column from Days to Seconds
-                mat_Tool21(1,1)  = 0;
     
                 % Tool2 exceptions due to the differences in outputing data
                 if isempty(findstr(lower(Tool2),'stk')) == 0
@@ -297,7 +316,7 @@ while size(rerunScript,1) ~= 0
                     mat_Tool21(:,3) = 90 - mat_Tool21(:,3);   
                 end
                 
-                % ============== Determine Diferences for Tool1/Tool2 Comparison =================
+                % ============== Determine Differences for Tool1/Tool2 Comparison =================
                 if Tool21_rows == Tool11_rows
                     diffMat_Tool1_Tool2 = zeros(Tool21_rows,columnSize);
                     diffMat_Tool1_Tool2(:,1) = mat_Tool21(:,1);
@@ -305,11 +324,11 @@ while size(rerunScript,1) ~= 0
                     matchChoicesT2 = [matchChoicesT2, reportChoiceTool2];
                 else
                     disp(' ');
-                    disp(['Report data between a ',Tool2Folder,' and ',Tool1Folder,' file do not match.']);
-                    disp('Solve this problem and then rerun this script');
-                    disp('Check the following file: ');
+                    disp(['(WARNING) Report data between a ',Tool2Folder,' and ',Tool1Folder,' file do not match. (WARNING)']);
+                    disp('Check the following file in each folder: ');
                     disp(file_Tool21);
-                    return
+                    matchFound = 0;
+                    continue
                 end
                 diffMat_Tool1_Tool2(:,2:columnSize) = mat_Tool21(:,2:columnSize) - mat_Tool11(:,2:columnSize);
                 
