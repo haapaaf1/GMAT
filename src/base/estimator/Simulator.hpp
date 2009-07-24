@@ -71,6 +71,31 @@ public:
    virtual const StringArray&
                         GetStringArrayParameter(const Integer id) const;
 
+   // Access methods for the reference objects
+   virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
+   virtual const ObjectTypeArray&
+                        GetRefObjectTypeArray();
+   virtual const StringArray&
+                        GetRefObjectNameArray(const Gmat::ObjectType type);
+   virtual bool         SetRefObjectName(const Gmat::ObjectType type,
+                                         const std::string &name);
+   virtual bool         RenameRefObject(const Gmat::ObjectType type,
+                                        const std::string &oldName,
+                                        const std::string &newName);
+   virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
+                                     const std::string &name);
+   virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
+                                     const std::string &name,
+                                     const Integer index);
+   virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name = "");
+   virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name,
+                                     const Integer index);
+   virtual ObjectArray& GetRefObjectArray(const Gmat::ObjectType type);
+   virtual ObjectArray& GetRefObjectArray(const std::string& typeString);
+
+
    virtual bool         TakeAction(const std::string &action,
                                    const std::string &actionData = "");
 
@@ -135,6 +160,9 @@ protected:
    MeasurementManager  measManager;
    /// The list of measurement models that the measurement manager is managing
    StringArray         measList;   // temporary - may get list from MeasManager;
+
+   /// Local storage element for ref object names
+   StringArray          refObjectList;
 
    // State machine methods
    void                   CompleteInitialization();

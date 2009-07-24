@@ -28,6 +28,7 @@
 
 #define DEBUG_STATE_MACHINE
 #define DEBUG_SIMULATOR_WRITE
+//#define DEBUG_SIMULATOR_INITIALIZATION
 
 //------------------------------------------------------------------------------
 // static data
@@ -74,9 +75,10 @@ Simulator::PARAMETER_TYPE[SimulatorParamCount - SolverParamCount] =
 Simulator::Simulator(const std::string& name) :
    Solver              ("Simulator", name),
    propagator          (NULL),
+   propagatorName      (""),
    simState            (NULL),
    simulationStart     (21545.0000000),
-   simulationEnd       (21545.0000000),
+   simulationEnd       (21546.0000000),
    nextSimulationEpoch (21545.0000000),
    currentEpoch        (21545.0000000),
    initialEpochFormat  ("TAIModJulian"),
@@ -86,7 +88,8 @@ Simulator::Simulator(const std::string& name) :
    simulationStep      (60.0),
    timeStep            (60.0)
 {
-
+   objectTypeNames.push_back("Simulator");
+   parameterCount = SimulatorParamCount;
 }
 
 //------------------------------------------------------------------------------
@@ -101,6 +104,7 @@ Simulator::Simulator(const std::string& name) :
 //------------------------------------------------------------------------------
 Simulator::Simulator(const Simulator& sim) :
    Solver              (sim),
+   propagatorName      (sim.propagatorName),
    simState            (NULL),   // should this be cloned?
    simulationStart     (sim.simulationStart),
    simulationEnd       (sim.simulationEnd),
@@ -141,6 +145,7 @@ Simulator& Simulator::operator =(const Simulator& sim)
          delete propagator;
       if (sim.propagator) propagator          = ((PropSetup*) (sim.propagator)->Clone());
       else                propagator          = NULL;
+      propagatorName      = sim.propagatorName;
       simState            = NULL;   // or clone it here??
       simulationStart     = sim.simulationStart;
       simulationEnd       = sim.simulationEnd;
@@ -169,7 +174,8 @@ Simulator& Simulator::operator =(const Simulator& sim)
 Simulator::~Simulator()
 {
    // do I need to delete the simState here?? TBD
-   delete propagator;  // is this correct?
+   if (propagator)
+      delete propagator;  // is this correct?
 }
 
 
@@ -595,6 +601,7 @@ std::string Simulator::GetStringParameter(const Integer id,
 {   
    if (id == MEASUREMENTS)
    {
+      StringArray measList = measManager.GetMeasurementNames();
       if (index < 0 || (index >= (Integer) (measList.size())))
       {
          std::string errmsg = "Simulator::GetStringParameter - Index into measurement names ";
@@ -680,7 +687,10 @@ bool Simulator::SetStringParameter(const Integer id, const std::string &value,
    {
       Integer sz = (Integer) measList.size();
       if (index == sz) // needs to be added to the end of the list
+      {
          measList.push_back(value);
+         measManager.AddMeasurementName(value);
+      }
       else if ((index) < 0 || (index > sz)) // out of bounds
       {
          std::string errmsg = "Simulator::SetStringParameter error - index into measurement ";
@@ -688,7 +698,10 @@ bool Simulator::SetStringParameter(const Integer id, const std::string &value,
          throw SolverException(errmsg);
       }
       else // is in bounds 
+      {
          measList.at(index) = value;
+         measManager.AddMeasurementName(value);
+      }
       return true;
    }
    return Solver::SetStringParameter(id, value, index);
@@ -710,9 +723,187 @@ bool Simulator::SetStringParameter(const Integer id, const std::string &value,
 const StringArray& Simulator::GetStringArrayParameter(const Integer id) const
 {
    if (id == MEASUREMENTS)
+   {
       return measList; // temporary
+   }
    return Solver::GetStringArrayParameter(id);
 }
+
+
+
+//------------------------------------------------------------------------------
+// Ref object gorp added by DJC
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// bool RenameRefObject(const Gmat::ObjectType type,
+//------------------------------------------------------------------------------
+/**
+ * Renames references objects
+ *
+ * @param type The type of object that is renamed
+ * @param oldName The name of the object that is changing
+ * @param newName the new object name
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool Simulator::RenameRefObject(const Gmat::ObjectType type,
+      const std::string & oldName, const std::string & newName)
+{
+   /// @todo Simulator rename code needs to be implemented
+   return Solver::RenameRefObject(type, oldName, newName);
+}
+
+bool Simulator::SetRefObjectName(const Gmat::ObjectType type, const std::string & name)
+{
+   return Solver::SetRefObjectName(type, name);
+}
+
+const ObjectTypeArray & Simulator::GetRefObjectTypeArray()
+{
+   return Solver::GetRefObjectTypeArray();
+}
+
+//------------------------------------------------------------------------------
+// const StringArray& MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+/**
+ * Initialization method that identifies the reference objects needed
+ *
+ * @param type The ObjectType for the references; UNKNOWN_OBJECT retrieves all
+ *
+ * @return A StringArray with all of the object names.
+ */
+//------------------------------------------------------------------------------
+const StringArray& Simulator::GetRefObjectNameArray(const Gmat::ObjectType type)
+{
+   #ifdef DEBUG_SIMULATOR_INITIALIZATION
+      MessageInterface::ShowMessage(
+            "Simulator::GetRefObjectNameArray(%d) entered\n", type);
+   #endif
+
+   refObjectList.clear();
+
+   if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::PROP_SETUP) ||
+       (type == Gmat::MEASUREMENT_MODEL))
+   {
+      if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::PROP_SETUP))
+      {
+         #ifdef DEBUG_SIMULATOR_INITIALIZATION
+            MessageInterface::ShowMessage(
+                  "   Adding propagator: %s\n", propagatorName.c_str());
+         #endif
+            if (find(refObjectList.begin(), refObjectList.end(),
+                  propagatorName) == refObjectList.end())
+               refObjectList.push_back(propagatorName);
+      }
+
+      if ((type == Gmat::UNKNOWN_OBJECT) || (type == Gmat::MEASUREMENT_MODEL))
+      {
+         // Add the measurements this simulator needs
+
+//         // Wendy: Here you could do this:
+//         StringArray measList = measManager.GetMeasurementNames();
+
+         for (StringArray::iterator i = measList.begin();
+               i != measList.end(); ++i)
+         {
+            #ifdef DEBUG_SIMULATOR_INITIALIZATION
+               MessageInterface::ShowMessage(
+                     "   Adding measurement: %s\n", i->c_str());
+            #endif
+            if (find(refObjectList.begin(), refObjectList.end(), *i) ==
+                  refObjectList.end())
+               refObjectList.push_back(*i);
+         }
+      }
+   }
+   else
+   {
+      // Fill in any base class needs
+      refObjectList = Solver::GetRefObjectNameArray(type);
+   }
+
+   return refObjectList;
+}
+
+std::string Simulator::GetRefObjectName(const Gmat::ObjectType type) const
+{
+   return Solver::GetRefObjectName(type);
+}
+
+GmatBase* Simulator::GetRefObject(const Gmat::ObjectType type, const std::string & name)
+{
+   return Solver::GetRefObject(type, name);
+}
+
+GmatBase* Simulator::GetRefObject(const Gmat::ObjectType type, const std::string & name, const Integer index)
+{
+   return Solver::GetRefObject(type, name, index);
+}
+
+bool Simulator::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+      const std::string & name)
+{
+   #ifdef DEBUG_SIMULATOR_INITIALIZATION
+      MessageInterface::ShowMessage("Setting ref object %s with type %s\n",
+            name.c_str(), obj->GetTypeName().c_str());
+   #endif
+
+   if (name == propagatorName)
+   {
+      if (type == Gmat::PROP_SETUP)
+      {
+         if (propagator != NULL)
+            delete propagator;
+         propagator = (PropSetup*)obj->Clone();
+         return true;
+      }
+   }
+
+   StringArray measList = measManager.GetMeasurementNames();
+
+   if (find(measList.begin(), measList.end(), name) != measList.end())
+   {
+      if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+      {
+         measManager.AddMeasurement((MeasurementModel *)obj);
+         return true;
+      }
+   }
+
+   return Solver::SetRefObject(obj, type, name);
+}
+
+ObjectArray& Simulator::GetRefObjectArray(const std::string & typeString)
+{
+   return Solver::GetRefObjectArray(typeString);
+}
+
+bool Simulator::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+      const std::string & name, const Integer index)
+{
+   #ifdef DEBUG_SIMULATOR_INITIALIZATION
+      MessageInterface::ShowMessage(""
+            "Setting indexed ref object %s with type %s\n", name.c_str(),
+            obj->GetTypeName().c_str());
+   #endif
+
+   return Solver::SetRefObject(obj, type, name, index);
+}
+
+ObjectArray & Simulator::GetRefObjectArray(const Gmat::ObjectType type)
+{
+   return Solver::GetRefObjectArray(type);
+}
+
+
+//------------------------------------------------------------------------------
+// End of ref object gorp added by DJC
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //  bool TakeAction(const std::string &action, const std::string &actionData)
