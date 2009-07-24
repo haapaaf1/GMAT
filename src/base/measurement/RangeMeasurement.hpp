@@ -34,8 +34,6 @@ public:
    virtual bool            Initialize();
 
 protected:
-   Integer                 satEpochID;
-
    bool                    Evaluate(bool withDerivatives = false);
 };
 

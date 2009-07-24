@@ -161,6 +161,10 @@ MeasurementModel& MeasurementModel::operator=(const MeasurementModel &mm)
 //------------------------------------------------------------------------------
 GmatBase *MeasurementModel::Clone() const
 {
+   #ifdef DEBUG_MEASUREMENT_INITIALIZATION
+      MessageInterface::ShowMessage("Entered MeasurementModel::Clone()\n");
+   #endif
+
    return new MeasurementModel(*this);
 }
 
@@ -176,6 +180,10 @@ GmatBase *MeasurementModel::Clone() const
 //------------------------------------------------------------------------------
 bool MeasurementModel::Initialize()
 {
+   #ifdef DEBUG_MEASUREMENT_INITIALIZATION
+      MessageInterface::ShowMessage("Entered MeasurementModel::Initialize()\n");
+   #endif
+
    bool retval = false;
 
    if (measurement != NULL)
@@ -183,6 +191,10 @@ bool MeasurementModel::Initialize()
       // Validate CoreMeasurement member
       if (measurement->Initialize())
       {
+         #ifdef DEBUG_MEASUREMENT_INITIALIZATION
+            MessageInterface::ShowMessage("   Core measurement initialized\n");
+         #endif
+
          // Set calculated data pointers
          theData              = measurement->GetMeasurementDataPointer();
          theDataDerivatives   = measurement->GetDerivativePointer();

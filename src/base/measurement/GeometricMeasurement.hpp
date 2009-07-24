@@ -46,11 +46,12 @@ class GeometricMeasurement : public /*CoreMeasurement*/ GmatBase
 {
 public:
    GeometricMeasurement(const std::string &type, const std::string &nomme = "");
-   virtual ~GeometricMeasurement();
+   // Abstract to prevent instantiation
+   virtual ~GeometricMeasurement() = 0;
    GeometricMeasurement(const GeometricMeasurement& gm);
    GeometricMeasurement&      operator=(const GeometricMeasurement& gm);
 
-   virtual bool               Initialize() = 0;
+   virtual bool               Initialize();
 
    // Here are the parameter access shells in case we need them later
 //   virtual std::string        GetParameterText(const Integer id) const;
@@ -81,8 +82,14 @@ protected:
    SpacePoint                 *anchorPoint;
    std::vector<SpacePoint*>   participants;
 
-   virtual bool               Evaluate(bool withDerivatives = false) = 0;
+   /// Support members for the range vector calculation
+   Rvector3                   p1Loc;
+   Rvector3                   p2Loc;
+   Rvector3                   rangeVec;
+   Integer                    satEpochID;
 
+   virtual bool               Evaluate(bool withDerivatives = false) = 0;
+   void                       CalculateRangeVector();
 
    /// Enumerated parameter IDs
    enum

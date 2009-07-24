@@ -39,11 +39,13 @@
 //};
 
 
-GeometricMeasurement::GeometricMeasurement(const std::string &type, const std::string &nomme) :
-   GmatBase          (Gmat::CORE_MEASUREMENT, type, nomme)
+GeometricMeasurement::GeometricMeasurement(const std::string &type,
+      const std::string &nomme) :
+   GmatBase          (Gmat::CORE_MEASUREMENT, type, nomme),
+   satEpochID        (-1)
 {
    objectTypes.push_back(Gmat::CORE_MEASUREMENT);
-   objectTypeNames.push_back("CoreMeasurement");      // Move to CoreMeas when built
+   objectTypeNames.push_back("CoreMeasurement");  // Move to CoreMeas when built
    objectTypeNames.push_back("GeometricMeasurement");
 
    parameterCount = GeometricMeasurementParamCount;
@@ -55,7 +57,8 @@ GeometricMeasurement::~GeometricMeasurement()
 
 GeometricMeasurement::GeometricMeasurement(const GeometricMeasurement& gm) :
    GmatBase          (gm),
-   participants      (gm.participants)
+   participants      (gm.participants),
+   satEpochID        (gm.satEpochID)
 {
 }
 
@@ -65,9 +68,42 @@ GeometricMeasurement& GeometricMeasurement::operator=(
    if (&gm != this)
    {
       participants = gm.participants;
+      satEpochID   = gm.satEpochID;
    }
 
    return *this;
+}
+
+bool GeometricMeasurement::Initialize()
+{
+   bool retval = false;
+
+   // todo Switch to CoreMeasurement::Initialize() here
+   if (GmatBase::Initialize())
+   {
+      if (participants.size() < 2)
+         MessageInterface::ShowMessage("Range vector calcs require 2 "
+               "participants; cannot initialize\n");
+      else
+      {
+         // For now, require specific order for the participants
+         // todo: Allow arbitrary participant ordering
+         if ((participants[0]->IsOfType(Gmat::SPACE_POINT)) &&
+             (participants[1]->IsOfType(Gmat::SPACECRAFT)))
+         {
+            satEpochID = participants[1]->GetParameterID("A1Epoch");
+            retval = true;
+         }
+         else
+         {
+            MessageInterface::ShowMessage("Participant mismatch in Range "
+                  "measurement: Current code requires one Spacecraft and one "
+                  "other SpacePoint participant; cannot initialize\n");
+         }
+      }
+   }
+
+   return retval;
 }
 
 // Here are the parameter access shells in case we need them later
@@ -167,10 +203,19 @@ const MeasurementData& GeometricMeasurement::CalculateMeasurement(bool withDeriv
 }
 
 
-
 const Rmatrix & GeometricMeasurement::CalculateMeasurementDerivatives()
 {
    // Add a check to see if current data has been evaluated
 
    return currentDerivatives;
+}
+
+
+void GeometricMeasurement::CalculateRangeVector()
+{
+   currentMeasurement.epoch = participants[1]->GetRealParameter(satEpochID);
+
+   p1Loc = participants[0]->GetMJ2000Position(currentMeasurement.epoch);
+   p2Loc = participants[1]->GetMJ2000Position(currentMeasurement.epoch);
+   rangeVec = p2Loc - p1Loc;
 }

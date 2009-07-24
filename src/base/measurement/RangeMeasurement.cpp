@@ -25,12 +25,11 @@
 #include "Rvector3.hpp"
 
 
-// #define DEBUG_RANGE_CALC
+#define DEBUG_RANGE_CALC
 
 
 RangeMeasurement::RangeMeasurement(const std::string &name) :
-   GeometricMeasurement          ("Range", name),
-   satEpochID                    (-1)
+   GeometricMeasurement          ("Range", name)
 {
    objectTypeNames.push_back("RangeMeasurement");
 
@@ -47,8 +46,7 @@ RangeMeasurement::~RangeMeasurement()
 
 
 RangeMeasurement::RangeMeasurement(const RangeMeasurement &rm) :
-   GeometricMeasurement          (rm),
-   satEpochID                    (rm.satEpochID)
+   GeometricMeasurement          (rm)
 {
    currentMeasurement.value.push_back(0.0);
    currentMeasurement.participantIDs.push_back("NotSet");
@@ -60,8 +58,11 @@ RangeMeasurement& RangeMeasurement::operator=(const RangeMeasurement &rm)
 {
    if (&rm != this)
    {
+      GeometricMeasurement::operator=(rm);
+
+      // Allocate exactly one value in current measurement for range
+      currentMeasurement.value.clear();
       currentMeasurement.value.push_back(0.0);
-      satEpochID = rm.satEpochID;
    }
 
    return *this;
@@ -70,36 +71,30 @@ RangeMeasurement& RangeMeasurement::operator=(const RangeMeasurement &rm)
 
 GmatBase* RangeMeasurement::Clone() const
 {
+   #ifdef DEBUG_RANGE_CALC
+      MessageInterface::ShowMessage("Entered RangeMeasurement::Clone() "
+            "with %d participants\n", participants.size());
+   #endif
    return new RangeMeasurement(*this);
 }
 
 
 bool RangeMeasurement::Initialize()
 {
+   #ifdef DEBUG_RANGE_CALC
+      MessageInterface::ShowMessage("Entered RangeMeasurement::Initialize()\n");
+   #endif
+
    bool retval = false;
 
-   // Todo: should this call GeometricMeasurement::Initialize()?
-   if (GmatBase::Initialize())
-   {
-      if (participants.size() != 2)
-         MessageInterface::ShowMessage("Range measurements require exactly 2 "
-               "participants; cannot initialize\n");
-      else
-      {
-         if ((participants[0]->IsOfType(Gmat::SPACE_POINT)) &&
-             (participants[1]->IsOfType(Gmat::SPACECRAFT)))
-         {
-            satEpochID = participants[1]->GetParameterID("A1Epoch");
-            retval = true;
-         }
-         else
-         {
-            MessageInterface::ShowMessage("Participant mismatch in Range "
-                  "measurement: Current code requires one Spacecraft and one "
-                  "other SpacePoint participant; cannot initialize\n");
-         }
-      }
-   }
+   if (GeometricMeasurement::Initialize())
+      retval = true;
+
+   #ifdef DEBUG_RANGE_CALC
+      MessageInterface::ShowMessage("   Initialization %s with %d "
+            "participants\n", (retval ? "succeeded" : "failed"),
+            participants.size());
+   #endif
 
    return retval;
 }
@@ -107,13 +102,14 @@ bool RangeMeasurement::Initialize()
 
 bool RangeMeasurement::Evaluate(bool withDerivatives)
 {
-   currentMeasurement.epoch = participants[1]->GetRealParameter(satEpochID);
+   #ifdef DEBUG_RANGE_CALC
+      MessageInterface::ShowMessage("Entered RangeMeasurement::Evaluate(%s)\n",
+            (withDerivatives ? "true" : "false"));
+      MessageInterface::ShowMessage("  ParticipantCount: %d\n",
+            participants.size());
+   #endif
 
-
-   Rvector3 p1Loc = participants[0]->GetMJ2000Position(currentMeasurement.epoch);
-   Rvector3 p2Loc = participants[1]->GetMJ2000Position(currentMeasurement.epoch);
-
-   Rvector3 rangeVec = p2Loc - p1Loc;
+   CalculateRangeVector();
 
    currentMeasurement.feasibilityValue = rangeVec * p1Loc;
 

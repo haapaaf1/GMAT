@@ -21,7 +21,7 @@
 #include "MessageInterface.hpp"
 
 
-//#define TEST_INITIALIZATION
+#define DEBUG_INITIALIZATION
 
 
 //------------------------------------------------------------------------------
@@ -120,6 +120,11 @@ MeasurementManager& MeasurementManager::operator=(const MeasurementManager &mm)
 //------------------------------------------------------------------------------
 bool MeasurementManager::Initialize()
 {
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage(
+            "Entered MeasurementManager::Initialize()\n");
+   #endif
+
    bool retval = true;
 
    measurements.clear();
@@ -258,7 +263,7 @@ const StringArray& MeasurementManager::GetParticipantList()
 {
    participants.clear();
 
-#ifdef TEST_INITIALIZATION
+#ifdef DEBUG_INITIALIZATION
    MessageInterface::ShowMessage("MeasurementManager knows about %d "
          "measurement models\n", models.size());
    MessageInterface::ShowMessage("MeasurementManager knows about %d "
