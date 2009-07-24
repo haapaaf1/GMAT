@@ -25,18 +25,32 @@
 #include "PropSetup.hpp"
 
 
+typedef std::vector<SpaceObject*> PropObjectArray;
+
+
 class PropagationEnabledCommand : public GmatCommand
 {
 public:
    PropagationEnabledCommand(const std::string &typeStr);
-   virtual ~PropagationEnabledCommand();
+   // Abstract to force a derived class to instantiate
+   virtual ~PropagationEnabledCommand() = 0;
    PropagationEnabledCommand(const PropagationEnabledCommand& pec);
    PropagationEnabledCommand& operator=(const PropagationEnabledCommand& pec);
 
-protected:
-   /// The PropSetup used by this command
-   PropSetup      *thePropagator;
+   virtual bool         Initialize();
 
+protected:
+   /// The PropSetup used by this command, as set in a derived class
+   std::vector<PropSetup*>       propagators;
+   /// The objects that are propagated; one StringArray per PropSetup
+   std::vector<StringArray>      propObjectNames;
+   /// The objects that are propagated; one PropObjectArray per PropSetup
+   std::vector<PropObjectArray*> propObjects;
+
+
+   bool                 PrepareToPropagate();
+   bool                 AssemblePropagators();
+   bool                 Step(Real dt);
 };
 
 #endif /* PropagationEnabledCommand_hpp */

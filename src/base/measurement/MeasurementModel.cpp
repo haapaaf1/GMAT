@@ -23,7 +23,7 @@
 
 
 //#define TEST_FIRE_MEASUREMENT
-//#define TEST_MEASUREMENT_INITIALIZATION
+//#define DEBUG_MEASUREMENT_INITIALIZATION
 
 
 //------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ bool MeasurementModel::Initialize()
          theDataDerivatives   = measurement->GetDerivativePointer();
          retval = true;
 
-         #ifdef TEST_MEASUREMENT_INITIALIZATION
+         #ifdef DEBUG_MEASUREMENT_INITIALIZATION
             MessageInterface::ShowMessage(
                   "Initialization complete for measurement model %s\n",
                   instanceName.c_str());
@@ -804,7 +804,13 @@ const StringArray& MeasurementModel::GetStringArrayParameter(
       const Integer id) const
 {
    if (id == Participants)
+   {
+      #ifdef DEBUG_MEASUREMENT_INITIALIZATION
+         MessageInterface::ShowMessage("Reporting %d participant names\n",
+               participantNames.size());
+      #endif
       return participantNames;
+   }
    if (id == ObservationData)
       return observationStreamName;
 
@@ -904,7 +910,7 @@ const ObjectTypeArray & MeasurementModel::GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 const StringArray& MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   #ifdef TEST_MEASUREMENT_INITIALIZATION
+   #ifdef DEBUG_MEASUREMENT_INITIALIZATION
       MessageInterface::ShowMessage(
             "MeasurementModel::GetRefObjectNameArray(%d) entered\n", type);
    #endif
@@ -917,7 +923,7 @@ const StringArray& MeasurementModel::GetRefObjectNameArray(const Gmat::ObjectTyp
       for (StringArray::iterator i = participantNames.begin();
             i != participantNames.end(); ++i)
       {
-         #ifdef TEST_MEASUREMENT_INITIALIZATION
+         #ifdef DEBUG_MEASUREMENT_INITIALIZATION
             MessageInterface::ShowMessage(
                   "   Adding: %s\n", i->c_str());
          #endif
@@ -952,9 +958,10 @@ GmatBase* MeasurementModel::GetOwnedObject(Integer whichOne)
    return GmatBase::GetOwnedObject(whichOne);
 }
 
-bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type, const std::string & name)
+bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+      const std::string & name)
 {
-   #ifdef TEST_MEASUREMENT_INITIALIZATION
+   #ifdef DEBUG_MEASUREMENT_INITIALIZATION
       MessageInterface::ShowMessage("Setting ref object %s with type %s\n",
             name.c_str(), obj->GetTypeName().c_str());
    #endif
@@ -967,7 +974,7 @@ bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type, 
       {
          participants.push_back(obj);
          if (measurement != NULL)
-            measurement->SetRefObject(obj, type, name);
+            return measurement->SetRefObject(obj, type, name);
       }
    }
 
@@ -990,7 +997,7 @@ ObjectArray& MeasurementModel::GetRefObjectArray(const std::string & typeString)
 bool MeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       const std::string & name, const Integer index)
 {
-   #ifdef TEST_MEASUREMENT_INITIALIZATION
+   #ifdef DEBUG_MEASUREMENT_INITIALIZATION
       MessageInterface::ShowMessage(""
             "Setting indexed ref object %s with type %s\n", name.c_str(),
             obj->GetTypeName().c_str());

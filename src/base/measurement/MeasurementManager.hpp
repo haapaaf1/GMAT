@@ -50,6 +50,8 @@ public:
    bool                    WriteMeasurements();
 
    Integer                 AddMeasurement(MeasurementModel *meas);
+   void                    AddMeasurementName(std::string measName);
+   const StringArray&      GetMeasurementNames() const;
    const StringArray&      GetParticipantList();
    Integer                 Calculate(const Integer measurementToCalc);
    const MeasurementData*  GetMeasurement(const Integer measurementToGet);

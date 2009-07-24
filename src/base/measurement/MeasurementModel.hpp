@@ -102,8 +102,6 @@ public:
                         GetStringArrayParameter(const std::string &label,
                                                 const Integer index) const;
 
-
-
    // Access methods derived classes can override on reference objects
    virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
    virtual const ObjectTypeArray&
@@ -163,7 +161,7 @@ protected:
    /// And derivatives
    Rmatrix              *theDataDerivatives;
 
-   /// Local storage element for ref objects
+   /// Local storage element for ref object names
    StringArray          refObjectList;
 
    // Noise model parameters

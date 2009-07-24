@@ -52,7 +52,7 @@ protected:
    /// The simulator that drives this process
    Simulator      *theSimulator;
 
-   void PrepareToEstimate();
+   void PrepareToSimulate();
    void Propagate();
    void Calculate();
    void LocateEvent();

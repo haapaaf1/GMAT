@@ -112,5 +112,10 @@ bool RunSolver::Initialize()
 {
    bool retval = PropagationEnabledCommand::Initialize();
 
+   #ifdef DEBUG_RUNSOLVER_INITIALIZATION
+      MessageInterface::ShowMessage("   PEC returned \"%s\"\n",
+            (retval ? "true" : "false"));
+   #endif
+
    return retval;
 }

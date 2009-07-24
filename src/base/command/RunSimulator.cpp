@@ -20,8 +20,16 @@
 
 #include "RunSimulator.hpp"
 
+#include "MessageInterface.hpp"
+
+#define DEBUG_INITIALIZATION
+#define DEBUG_SIMULATOR_EXECUTION
+
+//#define USE_HACK
+
 RunSimulator::RunSimulator() :
-   RunSolver("RunSimulator")
+   RunSolver               ("RunSimulator"),
+   theSimulator            (NULL)
 {
 
 }
@@ -32,7 +40,8 @@ RunSimulator::~RunSimulator()
 }
 
 RunSimulator::RunSimulator(const RunSimulator & rs) :
-   RunSolver(rs)
+   RunSolver               (rs),
+   theSimulator            (NULL)
 {
 }
 
@@ -174,7 +183,106 @@ const std::string& RunSimulator::GetGeneratingString(Gmat::WriteMode mode,
 
 bool RunSimulator::Initialize()
 {
-   return false;
+   bool retval = false;
+
+   // First set the simulator object
+   if (solverName == "")
+      throw CommandException("Cannot initialize RunSimulator command -- the "
+            "simulator name is not specified.");
+
+   // Clear the old clone if it was set
+   if (theSimulator != NULL)
+      delete theSimulator;
+
+   if (objectMap->find(solverName) != objectMap->end())
+   {
+      theSimulator = (Simulator*)((*objectMap)[solverName]->Clone());
+   }
+   else if (globalObjectMap->find(solverName) != objectMap->end())
+   {
+      theSimulator = (Simulator*)((*globalObjectMap)[solverName]->Clone());
+   }
+   else
+      throw CommandException("Cannot initialize RunSimulator command -- the "
+            "simulator named " + solverName + " cannot be found.");
+
+   // Next comes the propagator
+   PropSetup *obj = theSimulator->GetPropagator();
+
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("Propagator at address %p ", obj);
+      if (obj != NULL)
+         MessageInterface::ShowMessage("is named %s\n",
+               obj->GetName().c_str());
+      else
+         MessageInterface::ShowMessage("is not yet set\n");
+   #endif
+
+   #ifdef USE_HACK
+      MessageInterface::ShowMessage("WARNING!!!  Running with a code hack in "
+            "place -- NOT production code!!!\n", obj);
+      if (obj == NULL)
+      {
+         if (objectMap->find("ODProp") != objectMap->end())
+         {
+            obj = (PropSetup*)((*objectMap)["ODProp"]->Clone());
+         }
+         else if (globalObjectMap->find("ODProp") != objectMap->end())
+         {
+            obj = (PropSetup*)((*globalObjectMap)["ODProp"]->Clone());
+         }
+      }
+   #endif
+
+   if (obj != NULL)
+   {
+      if (obj->IsOfType(Gmat::PROP_SETUP))
+      {
+         PropSetup *ps = (PropSetup*)obj->Clone();
+
+         // RunSimulator only manages one PropSetup.  If that changes, so
+         // does this code
+         if (propagators.size() > 0)
+         {
+            for (std::vector<PropSetup*>::iterator p = propagators.begin();
+                  p != propagators.end(); ++p)
+            {
+               delete (*p);
+            }
+            propagators.clear();
+         }
+         propagators.push_back(ps);
+         retval = true;
+      }
+   }
+   else
+      throw CommandException("Cannot initialize RunSimulator command; the "
+            "propagator pointer in the Simulator " +
+            theSimulator->GetName() + " is NULL.");
+
+   // Now set the participant list
+   MeasurementManager *mm = theSimulator->GetMeasurementManager();
+   StringArray participants = mm->GetParticipantList();
+
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("RunSimulator command found %d "
+            "participants\n", participants.size());
+   #endif
+
+   propObjectNames.clear();
+   propObjectNames.push_back(participants);
+
+   // Now we can initialize the propagation subsystem by calling up the
+   // inheritance tree.
+   retval = RunSolver::Initialize();
+
+   #ifdef DEBUG_INITIALIZATION
+      if (retval == false)
+         MessageInterface::ShowMessage("RunSimulator command failed to "
+               "initialize; RunSolver::Initialize() call failed.\n");
+   #endif
+
+   return retval;
 }
 
 
@@ -195,7 +303,7 @@ bool RunSimulator::Execute()
       switch (state)
       {
          case Solver::INITIALIZING:
-            PrepareToEstimate();
+            PrepareToSimulate();
             break;
 
          case Solver::PROPAGATING:
@@ -235,7 +343,7 @@ bool RunSimulator::Execute()
 // Methods triggered by the finite state machine
 
 
-void RunSimulator::PrepareToEstimate()
+void RunSimulator::PrepareToSimulate()
 {
    // This is like "PrepareToPropagate()" in the Propagate command, but simpler
    // because we don't need to worry about stopping conditions and lots of
@@ -244,9 +352,8 @@ void RunSimulator::PrepareToEstimate()
 
 void RunSimulator::Propagate()
 {
-   // Here we get the prop step from the simulator and call Step on the
-   // propagator.  We might need to put in interrupt processing here so the
-   // user can pause or stop the simulation with the toolbar buttons.
+   Real dt = theSimulator->GetTimeStep();
+   Step(dt);
 }
 
 void RunSimulator::Calculate()

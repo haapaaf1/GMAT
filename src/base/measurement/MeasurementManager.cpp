@@ -18,6 +18,11 @@
 //------------------------------------------------------------------------------
 
 #include "MeasurementManager.hpp"
+#include "MessageInterface.hpp"
+
+
+//#define TEST_INITIALIZATION
+
 
 //------------------------------------------------------------------------------
 // MeasurementManager()
@@ -244,7 +249,7 @@ Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 // const StringArray& GetParticipantList()
 //------------------------------------------------------------------------------
 /**
- * Accesses the complete list of measuremetn participants, avoiding duplicates.
+ * Accesses the complete list of measurement participants, avoiding duplicates.
  *
  * @return The list.
  */
@@ -252,6 +257,13 @@ Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 const StringArray& MeasurementManager::GetParticipantList()
 {
    participants.clear();
+
+#ifdef TEST_INITIALIZATION
+   MessageInterface::ShowMessage("MeasurementManager knows about %d "
+         "measurement models\n", models.size());
+   MessageInterface::ShowMessage("MeasurementManager knows about %d "
+         "measurement model names\n", modelNames.size());
+#endif
 
    // Walk through the collection of measurement models...
    for (std::vector<MeasurementModel*>::iterator i =  models.begin();
@@ -272,6 +284,16 @@ const StringArray& MeasurementManager::GetParticipantList()
 }
 
 
+void MeasurementManager::AddMeasurementName(std::string measName)
+{
+   if (find(modelNames.begin(), modelNames.end(), measName) == modelNames.end())
+      modelNames.push_back(measName);
+}
+
+const StringArray& MeasurementManager::GetMeasurementNames() const
+{
+   return modelNames;
+}
 
 //------------------------------------------------------------------------------
 // bool CalculateMeasurements()
