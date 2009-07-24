@@ -2,8 +2,9 @@ classdef Event < handle
    
    properties  (SetAccess = 'public')
         isTerminal;
-        direction;
-        value;
+        Mode;
+        eventValue;
+        eventRate;
         type;
         funcHandles;
         rootValues;
