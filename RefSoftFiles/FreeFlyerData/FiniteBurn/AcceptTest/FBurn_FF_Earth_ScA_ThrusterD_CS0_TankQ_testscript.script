@@ -1,0 +1,168 @@
+Define Procedure FF_Match_GMAT_Report(Spacecraft SC, ReportInterface File);
+Variable i;
+Variable ColumnWidth = 30;
+StringArray ScState[8];
+String space = '                                                         ';
+String tmpString;
+ 
+ 
+ 
+ScState[0] = SC.Epoch.Format('%16.16f');
+ScState[1] = SC.X.Format('%16.16f');
+ScState[2] = SC.Y.Format('%16.16f');
+ScState[3] = SC.Z.Format('%16.16f');
+ScState[4] = SC.VX.Format('%16.16f');
+ScState[5] = SC.VY.Format('%16.16f');
+ScState[6] = SC.VZ.Format('%16.16f');
+ScState[7] = SC.MassTotal.Format('%16.16f');
+ 
+For i = 0 to ScState.Dimension - 1 step 1;
+tmpString = ScState[i];
+ScState[i] = StringConcat(SubString(ScState[i],0,18),SubString(space,0,ColumnWidth - 18));
+End;
+ 
+Report StringConcat(ScState[0],ScState[1],ScState[2],ScState[3],ScState[4],ScState[5],ScState[6],ScState[7])
+		to File without headers without pad;
+ 
+EndProcedure;
+ 
+StringArray splitted[20];
+FF_Preferences.MissionPlanFilename.Split('.',splitted);
+Report splitted[0];
+ 
+ReportInterface FF_GMAT_Report;
+FF_GMAT_Report.Filename = 'C:\Documents and Settings\DCrockett\Desktop\GMAT Repository\RegSetupSVN\output\AcceptTest\Good_reports\FF\FBurn_FF_Earth_ScA_ThrusterD_CS0_TankQ_output.report';
+FF_GMAT_Report.Append = 0;
+ 
+Create ForceModel fm;
+fm.Sun 	 = 0;
+fm.Mercury = 0;
+fm.Venus = 0;
+fm.Earth = 1;
+fm.Moon  = 0;
+fm.Mars  = 0;
+fm.Jupiter = 0;
+fm.Saturn = 0;
+fm.Uranus = 0;
+fm.Neptune= 0;
+fm.Pluto = 0;
+ 
+fm.Drag  = 0;
+fm.SRP   = 0;
+fm.Lift  = 0;
+ 
+fm.PlanetFieldType[2] = 0; //Earth is index 2, Mars 3, Venus 1 , bla bla bla
+ 
+Create RK89 prop(fm);
+prop.FixedStep = 1;
+prop.StepSize  = 60;
+prop.Tolerance = 1e-12;
+ 
+Create Spacecraft Sc(prop);
+Sc.CentralBody = 'Earth'; //Must match prop fm.PlanetFieldType['CentralBody'] = 0;
+ 
+//State information
+Sc.Epoch 		= 21545.000000000;
+Sc.X 			= 7100;
+Sc.Y 			= 0;
+Sc.Z 			= 1300;
+Sc.VX 			= 0;
+Sc.VY 			= 7.35;
+Sc.VZ 			= 1;
+ 
+//Physical Information
+Sc.VehicleDryMass 	= 850;
+Sc.Cd 				= 2.2;
+Sc.Cr				= 1.8;
+Sc.DragArea 		= 15;
+Sc.SRPArea 		= 1;
+ 
+//Attitude
+Sc.Q1 = 0;
+Sc.Q2 = 0;
+Sc.Q3 = 0;
+Sc.Q4 = 1;
+ 
+Create SphericalTank tank1; //Tank Q
+tank1.TankMass 			= 725;
+tank1.TankPressure		= 1200;
+tank1.TankTemperature 	= 2;
+tank1.TankRefTemperature= 12;
+tank1.TankVolume 		= 0.8;
+tank1.TankFuelDensity	= 1029;
+tank1.TankPressureControl = 0;
+Attach tank1 to Sc; 
+//Define ThrusterD
+Create Thruster engine1(tank1);
+ 
+// Do not change thruster orientation, thrust direction is defined in finite burn
+engine1.ThrusterRefX = 0;
+engine1.ThrusterRefY = 0;
+engine1.ThrusterRefZ = 1;
+engine1.ThrusterOrientX = 1; //Don't change
+engine1.ThrusterOrientY = 0; //Don't change
+engine1.ThrusterOrientZ = 0; //Don't change
+ 
+//Thruster Properties
+engine1.DutyCycle 	= 1;
+engine1.ScaleFactor	= 0.1;
+engine1.ThrusterGravityConst = 9.81;
+engine1.IspScaleFactor = 1;
+ 
+engine1.ThrusterC1 = 10;
+engine1.ThrusterC2 = 0;
+engine1.ThrusterC3 = 0;
+engine1.ThrusterC4 = 0;
+engine1.ThrusterC5 = 0;
+engine1.ThrusterC6 = 0;
+engine1.ThrusterC7 = 0;
+engine1.ThrusterC8 = 0;
+engine1.ThrusterC9 = 0;
+engine1.ThrusterC10 = 0;
+engine1.ThrusterC11 = 0;
+engine1.ThrusterC12 = 0;
+engine1.ThrusterC13 = 0;
+engine1.ThrusterC14 = 0;
+engine1.ThrusterC15 = 0;
+engine1.ThrusterC16 = 0;
+engine1.ThrusterK1 = 300;
+engine1.ThrusterK2 = 0;
+engine1.ThrusterK3 = 0;
+engine1.ThrusterK4 = 0;
+engine1.ThrusterK5 = 0;
+engine1.ThrusterK6 = 0;
+engine1.ThrusterK7 = 0;
+engine1.ThrusterK8 = 0;
+engine1.ThrusterK9 = 0;
+engine1.ThrusterK10 = 0;
+engine1.ThrusterK11 = 0;
+engine1.ThrusterK12 = 0;
+engine1.ThrusterK13 = 0;
+engine1.ThrusterK14 = 0;
+engine1.ThrusterK15 = 0;
+engine1.ThrusterK16 = 0;
+engine1.ThrusterPC1 = 0;
+engine1.ThrusterPC2 = 1;
+ 
+engine1.ThrusterOn = 1;
+ 
+Attach engine1 to Sc;
+ 
+ 
+ 
+Create FiniteBurn fb;
+fb.AttitudeSystem 	= 0;
+fb.X_Component 		= 1; 
+fb.Y_Component 		= 0;
+fb.Z_Component 		= 0;
+ 
+ 
+fb.BurnDuration = prop.StepSize;  //Matches the fact that GMAT uses its propagator for maneuvering
+ 
+ 
+Variable i;
+For i = 0 to 7200 step fb.BurnDuration;
+Call FF_Match_GMAT_Report(Sc,FF_GMAT_Report);
+Maneuver Sc using fb;
+End;
+ 
