@@ -30,6 +30,8 @@ elseif strcmp(type,'ObservationDataFile');
     obj = ObservationDataFile;
 elseif strcmp(type,'MeasurementGroup');
     obj = MeasurementGroup;
+elseif strcmp(type,'EclipseLocator');
+    obj = EclipseLocator;
 end
 
 theSandbox.AddObject(obj,name);

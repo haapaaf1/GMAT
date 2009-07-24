@@ -142,7 +142,7 @@ while (t < tfinal) & (h >= hmin) &~done
     
     % Update the step size
     if delta ~= 0.0
-        h = min(hmax, 0.95*h*(tau/delta)^pow);
+        h = min(hmax, 0.9*h*(tau/delta)^pow);
     end
     
     if attempt > maxattempt

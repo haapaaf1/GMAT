@@ -28,4 +28,4 @@ c1 = 0;
 c2 = 1;
 c3 = 2;
 eventValue = Delta - gamma;
-eventRate  = 50*tanh(30*eventValue) ;
+eventRate  = 150*tanh(50*eventValue) ;

@@ -7,13 +7,12 @@ oe = [35534.1780347861  0.657613848385035  .43  ...
       3.77740093585571+3*pi/2+pi  5.61809265381935   0.036546482369827];
   
 cart = stateconv(oe,2,1);
-x0 =   [666.0831742637661800 ; -12276.4344163123 ;-4241.67995889738720 ;...
-    6.882418728239305; -0.36373513957208; 1.816667870608269; 0];
+x0 =   [cart;0];
 
 frhs          = 'orbitODE';
 eventFunction = 'MagnitudeEvent';
 desiredValue  = 6900;
-[tout, yout, E,bracketTimes,bracketValues,acc] = rk78(frhs, 0, 180000, x0, 1e-14);
+[tout, yout, E,bracketTimes,bracketValues,acc] = rk78(frhs, 0, 180000, x0, 1e-9);
 
 c = 0;
 for i = 1:size(bracketTimes,1)
@@ -79,7 +78,7 @@ for i = 1:size(tout)
 
     plot3([0 rv_sunvec(1,1)],[0 rv_sunvec(1,2)], [0 rv_sunvec(1,3)],'k-','LineWidth',3)
     view(rv_sunvec(i,:)); axis off;
-     %view([0 0 1]);
+     view([0 0 1]);
 
    %  Draw this 
    hold on
