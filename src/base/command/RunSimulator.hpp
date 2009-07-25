@@ -47,10 +47,17 @@ public:
 
    virtual bool Initialize();
    virtual bool Execute();
+   virtual GmatCommand* GetNext();
 
 protected:
    /// The simulator that drives this process
    Simulator      *theSimulator;
+   /// Flag indicating if command execution is started
+   bool commandRunning;
+//   /// Flag indicating if propagation is running an needs reentrance
+//   bool commandPropagating;
+   /// Flag indicating if command execution is done
+   bool commandComplete;
 
    void PrepareToSimulate();
    void Propagate();

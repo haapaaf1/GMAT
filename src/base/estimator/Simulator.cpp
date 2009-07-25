@@ -312,6 +312,7 @@ bool Simulator::Initialize()
    return true;
 }
 
+
 //------------------------------------------------------------------------------
 //  Solver::SolverState AdvanceState()
 //------------------------------------------------------------------------------
@@ -341,7 +342,7 @@ Solver::SolverState Simulator::AdvanceState()
 
       case CALCULATING:
          #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered Simulator state machine: SIMULATING\n");
+            MessageInterface::ShowMessage("Entered Simulator state machine: CALCULATING\n");
          #endif
          ReportProgress();
          CalculateData();
@@ -358,7 +359,7 @@ Solver::SolverState Simulator::AdvanceState()
 
       case SIMULATING:
          #ifdef DEBUG_STATE_MACHINE
-            MessageInterface::ShowMessage("Entered Simulator state machine: CALCULATING\n");
+            MessageInterface::ShowMessage("Entered Simulator state machine: SIMULATING\n");
          #endif
          ReportProgress();
          SimulateData();

@@ -4992,8 +4992,8 @@ Integer Moderator::RunMission(Integer sandboxNum)
          AddPropagatorToSandbox(sandboxNum-1);
          AddPropSetupToSandbox(sandboxNum-1);
          AddBurnToSandbox(sandboxNum-1);
-         AddSolverToSandbox(sandboxNum-1);
          AddMeasurementToSandbox(sandboxNum-1);
+         AddSolverToSandbox(sandboxNum-1);
          // Note:
          // Add Subscriber after Publisher.
          // AddPublisherToSandbox() clears subscribers

@@ -66,6 +66,10 @@ MeasurementManager::MeasurementManager(const MeasurementManager &mm) :
    for (std::vector<MeasurementModel*>::const_iterator i = mm.models.begin();
          i != mm.models.end(); ++i)
    {
+      #ifdef DEBUG_INITIALIZATION
+         MessageInterface::ShowMessage("Cloning %s MeasurementModel\n",
+               (*i)->GetStringParameter("Type").c_str());
+      #endif
       models.push_back((MeasurementModel*)((*i)->Clone()));
       MeasurementData md;
       measurements.push_back(md);
@@ -130,6 +134,8 @@ bool MeasurementManager::Initialize()
    measurements.clear();
    for (UnsignedInt i = 0; i < models.size(); ++i)
    {
+      if (models[i]->Initialize() == false)
+         return false;
       MeasurementData md;
       measurements.push_back(md);
    }

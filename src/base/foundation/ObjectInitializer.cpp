@@ -222,10 +222,11 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    //
    //  1. CoordinateSystem
    //  2. Spacecraft
-   //  3. PropSetup and others
-   //  4. System Parameters
-   //  5. Other Parameters
-   //  6. Subscribers.
+   //  3. Measurement Models
+   //  4. PropSetup and others
+   //  5. System Parameters
+   //  6. Other Parameters
+   //  7. Subscribers.
 
    // Set reference objects
 
@@ -304,12 +305,52 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    }
 
 
+   // Measurement Models must init before the Estimators/Simulator, so do next
+   for (omi = LOS->begin(); omi != LOS->end(); ++omi)
+   {
+      obj = omi->second;
+      if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+      {
+         obj->SetSolarSystem(ss);
+         ((MeasurementModel *)obj)->SetInternalCoordSystem(internalCS);
+
+         BuildReferences(obj);
+
+         // Setup spacecraft hardware
+         BuildAssociations(obj);
+
+         obj->Initialize();
+      }
+   }
+
+   if (includeGOS)
+   {
+      for (omi = GOS->begin(); omi != GOS->end(); ++omi)
+      {
+         obj = omi->second;
+         if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+         {
+            obj->SetSolarSystem(ss);
+            ((MeasurementModel *)obj)->SetInternalCoordSystem(internalCS);
+
+            BuildReferences(obj);
+
+            // Setup spacecraft hardware
+            BuildAssociations(obj);
+
+            obj->Initialize();
+         }
+      }
+   }
+
+
    // All others except CoordinateSystem, Spacecraft, Parameters and Subscribers
    for (omi = LOS->begin(); omi != LOS->end(); ++omi)
    {
       obj = omi->second;
       if ((obj->GetType() != Gmat::COORDINATE_SYSTEM) &&
           (obj->GetType() != Gmat::SPACECRAFT) &&
+          (obj->GetType() != Gmat::MEASUREMENT_MODEL) &&
           (obj->GetType() != Gmat::PARAMETER) &&
           (obj->GetType() != Gmat::SUBSCRIBER))
       {

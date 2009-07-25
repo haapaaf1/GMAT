@@ -21,7 +21,9 @@
 #include "PropagationEnabledCommand.hpp"
 #include "MessageInterface.hpp"
 
-#define DEBUG_INITIALIZATION
+#include "ODEModel.hpp"
+
+//#define DEBUG_INITIALIZATION
 
 
 PropagationEnabledCommand::PropagationEnabledCommand(const std::string &typeStr) :
@@ -145,15 +147,17 @@ bool PropagationEnabledCommand::Initialize()
       // Now we have everything we need to init the prop subsystem
       retval = AssemblePropagators();
 
-      if (retval == true)
-      {
-         retval = false;
-         MessageInterface::ShowMessage("PEC Initialize() succeeded, but reporting "
-               "failure for now\n");
-      }
-      else
-         MessageInterface::ShowMessage(
-               "PEC Initialize() failed to initialize the PropSetups\n");
+      #ifdef DEBUG_INITIALIZATION
+         if (retval == true)
+         {
+            retval = false;
+            MessageInterface::ShowMessage("PEC Initialize() succeeded, but "
+                  "reporting failure for now\n");
+         }
+         else
+            MessageInterface::ShowMessage(
+                  "PEC Initialize() failed to initialize the PropSetups\n");
+      #endif
 
    }
 
@@ -206,22 +210,22 @@ bool PropagationEnabledCommand::Step(Real dt)
 {
    bool retval = true;
 
-//   ODEModel* fm = thePropagator->GetODEModel();
-//   Real baseEpoch = 21545.0;
+   ODEModel *fm = propagators[0]->GetODEModel();
+   Real baseEpoch = (*(propObjects[0]))[0]->GetEpoch();
 //   if (dt != 0.0)
 //   {
 //      retval = thePropagator->GetPropagator()->Step(dt);
-//      fm->UpdateSpaceObject(dt/GmatTimeUtil::SECS_PER_DAY);
+      fm->UpdateSpaceObject(dt/GmatTimeUtil::SECS_PER_DAY);
 //
 //      // orbit related parameters use spacecraft for data
-//      Real elapsedTime = fm->GetTime();
-//      Real currEpoch = baseEpoch + elapsedTime /
-//            GmatTimeUtil::SECS_PER_DAY;
+      Real elapsedTime = 100.0;//fm->GetTime();
+      Real currEpoch = baseEpoch + elapsedTime /
+            GmatTimeUtil::SECS_PER_DAY;
 //
 //      // Update spacecraft epoch, without argument the spacecraft epoch
 //      // won't get updated for consecutive Propagate command
-//      fm->UpdateSpaceObject(currEpoch);
-//      baseEpoch = currEpoch;
+      fm->UpdateSpaceObject(currEpoch);
+      baseEpoch = currEpoch;
 //   }
 
    return retval;

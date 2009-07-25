@@ -29,7 +29,9 @@
 
 RunSimulator::RunSimulator() :
    RunSolver               ("RunSimulator"),
-   theSimulator            (NULL)
+   theSimulator            (NULL),
+   commandRunning          (false),
+   commandComplete         (false)
 {
 
 }
@@ -41,7 +43,10 @@ RunSimulator::~RunSimulator()
 
 RunSimulator::RunSimulator(const RunSimulator & rs) :
    RunSolver               (rs),
-   theSimulator            (NULL)
+   theSimulator            (NULL),
+   commandRunning          (false),
+   commandComplete         (false)
+
 {
 }
 
@@ -49,7 +54,9 @@ RunSimulator & RunSimulator::operator=(const RunSimulator & rs)
 {
    if (&rs != this)
    {
-
+      theSimulator    = NULL;
+      commandRunning  = false;
+      commandComplete = false;
    }
 
    return *this;
@@ -339,39 +346,71 @@ bool RunSimulator::Execute()
 }
 
 
+GmatCommand* RunSimulator::GetNext()
+{
+   if (commandRunning)
+      return this;
+   return next;
+}
+
 
 // Methods triggered by the finite state machine
 
 
 void RunSimulator::PrepareToSimulate()
 {
+#ifdef DEBUG_SIMULATOR_EXECUTION
+   MessageInterface::ShowMessage("Entered RunSimulator::PrepareToSimulate()\n");
+#endif
    // This is like "PrepareToPropagate()" in the Propagate command, but simpler
    // because we don't need to worry about stopping conditions and lots of
    // potential propagation methods
+
+   commandRunning  = true;
+   commandComplete = false;
 }
 
 void RunSimulator::Propagate()
 {
+#ifdef DEBUG_SIMULATOR_EXECUTION
+   MessageInterface::ShowMessage("Entered RunSimulator::Propagate()\n");
+#endif
    Real dt = theSimulator->GetTimeStep();
    Step(dt);
+
+
 }
 
 void RunSimulator::Calculate()
 {
+#ifdef DEBUG_SIMULATOR_EXECUTION
+   MessageInterface::ShowMessage("Entered RunSimulator::Calculate()\n");
+#endif
    // We might not need anything here -- it's all Simulator side work
 }
 
 void RunSimulator::LocateEvent()
 {
+#ifdef DEBUG_SIMULATOR_EXECUTION
+   MessageInterface::ShowMessage("Entered RunSimulator::LocateEvent()\n");
+#endif
    // We'll figure this out later
 }
 
 void RunSimulator::Simulate()
 {
+#ifdef DEBUG_SIMULATOR_EXECUTION
+   MessageInterface::ShowMessage("Entered RunSimulator::Simulate()\n");
+#endif
    // We might not need anything here -- it's all Simulator side work
 }
 
 void RunSimulator::Finalize()
 {
+#ifdef DEBUG_SIMULATOR_EXECUTION
+   MessageInterface::ShowMessage("Entered RunSimulator::Finalize()\n");
+#endif
    // Do cleanup here
+   commandComplete = true;
+   commandRunning  = false;
 }

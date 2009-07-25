@@ -73,16 +73,21 @@ GmatBase* RangeMeasurement::Clone() const
 {
    #ifdef DEBUG_RANGE_CALC
       MessageInterface::ShowMessage("Entered RangeMeasurement::Clone() "
-            "with %d participants\n", participants.size());
+            "with %d participants; this = %p\n", participants.size(), this);
    #endif
-   return new RangeMeasurement(*this);
+   GmatBase *retval =  new RangeMeasurement(*this);
+   #ifdef DEBUG_RANGE_CALC
+      MessageInterface::ShowMessage("   clone address is %p\n", retval);
+   #endif
+   return retval;
 }
 
 
 bool RangeMeasurement::Initialize()
 {
    #ifdef DEBUG_RANGE_CALC
-      MessageInterface::ShowMessage("Entered RangeMeasurement::Initialize()\n");
+      MessageInterface::ShowMessage("Entered RangeMeasurement::Initialize()"
+            "; this = %p\n", this);
    #endif
 
    bool retval = false;
@@ -127,11 +132,11 @@ bool RangeMeasurement::Evaluate(bool withDerivatives)
    #ifdef DEBUG_RANGE_CALC
       MessageInterface::ShowMessage("Calculating Range at epoch %.12lf\n",
             currentMeasurement.epoch);
-      MessageInterface::ShowMessage("   Location of %s, id = '%s':  %s\n",
+      MessageInterface::ShowMessage("   Location of %s, id = '%s':  %s",
             participants[0]->GetName().c_str(),
             currentMeasurement.participantIDs[0].c_str(),
             p1Loc.ToString().c_str());
-      MessageInterface::ShowMessage("   Location of %s, id = '%s':  %s\n",
+      MessageInterface::ShowMessage("   Location of %s, id = '%s':  %s",
             participants[1]->GetName().c_str(),
             currentMeasurement.participantIDs[1].c_str(),
             p2Loc.ToString().c_str());

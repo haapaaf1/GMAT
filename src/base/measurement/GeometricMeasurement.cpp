@@ -92,6 +92,11 @@ bool GeometricMeasurement::Initialize()
              (participants[1]->IsOfType(Gmat::SPACECRAFT)))
          {
             satEpochID = participants[1]->GetParameterID("A1Epoch");
+
+            for (UnsignedInt i = 0; i < participants.size(); ++i)
+               currentMeasurement.participantIDs[i] =
+                     participants[i]->GetStringParameter("Id");
+
             retval = true;
          }
          else
