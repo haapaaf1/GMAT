@@ -733,11 +733,6 @@ const StringArray& Simulator::GetStringArrayParameter(const Integer id) const
 
 
 //------------------------------------------------------------------------------
-// Ref object gorp added by DJC
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
 // bool RenameRefObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 /**
@@ -899,11 +894,6 @@ ObjectArray & Simulator::GetRefObjectArray(const Gmat::ObjectType type)
 {
    return Solver::GetRefObjectArray(type);
 }
-
-
-//------------------------------------------------------------------------------
-// End of ref object gorp added by DJC
-//------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
@@ -1087,7 +1077,8 @@ void Simulator::SimulateData()
 void Simulator::RunComplete()
 {
    WriteToTextFile();
-   // @todo Do other cleanup stuff here?
+   // tell the MeasurementManager to close files and finalize
+   measManager.Finalize();
 }
 
 
