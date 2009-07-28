@@ -296,7 +296,7 @@ bool RunSimulator::Initialize()
 bool RunSimulator::Execute()
 {
    #ifdef DEBUG_SIMULATOR_EXECUTION
-      MessageInterface::ShowMessage("The \"%s\" command is running...\n",
+      MessageInterface::ShowMessage("\n\nThe \"%s\" command is running...\n",
             GetTypeName().c_str());
    #endif
 
@@ -305,8 +305,11 @@ bool RunSimulator::Execute()
 
    // Respond to the state in the state machine
    Solver::SolverState state = theSimulator->GetState();
-   while (state != Solver::FINISHED)
+//   while (state != Solver::FINISHED)
    {
+      #ifdef DEBUG_SIMULATOR_EXECUTION
+         MessageInterface::ShowMessage("\nSimulator state is %d\n", state);
+      #endif
       switch (state)
       {
          case Solver::INITIALIZING:
@@ -336,7 +339,8 @@ bool RunSimulator::Execute()
             break;
 
          default:
-            break;
+            throw CommandException("Unknown state "
+                  " encountered in the RunSimulator command");
       }
 
       state = theSimulator->AdvanceState();
@@ -362,10 +366,8 @@ void RunSimulator::PrepareToSimulate()
 #ifdef DEBUG_SIMULATOR_EXECUTION
    MessageInterface::ShowMessage("Entered RunSimulator::PrepareToSimulate()\n");
 #endif
-   // This is like "PrepareToPropagate()" in the Propagate command, but simpler
-   // because we don't need to worry about stopping conditions and lots of
-   // potential propagation methods
 
+   PrepareToPropagate();
    commandRunning  = true;
    commandComplete = false;
 }

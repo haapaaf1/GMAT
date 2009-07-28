@@ -23,7 +23,8 @@
 
 #include "ODEModel.hpp"
 
-//#define DEBUG_INITIALIZATION
+#define DEBUG_INITIALIZATION
+//#define DEBUG_EXECUTION
 
 
 PropagationEnabledCommand::PropagationEnabledCommand(const std::string &typeStr) :
@@ -149,11 +150,7 @@ bool PropagationEnabledCommand::Initialize()
 
       #ifdef DEBUG_INITIALIZATION
          if (retval == true)
-         {
-            retval = false;
-            MessageInterface::ShowMessage("PEC Initialize() succeeded, but "
-                  "reporting failure for now\n");
-         }
+            MessageInterface::ShowMessage("PEC Initialize() succeeded\n");
          else
             MessageInterface::ShowMessage(
                   "PEC Initialize() failed to initialize the PropSetups\n");
@@ -169,7 +166,171 @@ bool PropagationEnabledCommand::Initialize()
 //------------------------------------------------------------------------------
 bool PropagationEnabledCommand::PrepareToPropagate()
 {
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage(
+            "PropagationEnabledCommand::PrepareToPropagate() entered\n");
+   #endif
    bool retval = false;
+
+   dim = 0;
+
+   if (hasFired == true)
+   {
+      // Handle the transient forces
+      for (std::vector<PropObjectArray*>::iterator poa = propObjects.begin();
+           poa != propObjects.end(); ++poa)
+      {
+         for (PropObjectArray::iterator sc = (*poa)->begin();
+               sc != (*poa)->end(); ++sc)
+         {
+            if (((SpaceObject*)(*sc))->IsManeuvering())
+            {
+               #ifdef DEBUG_FINITE_MANEUVER
+                  MessageInterface::ShowMessage(
+                     "SpaceObject %s is maneuvering\n", (*sc)->GetName().c_str());
+               #endif
+
+// todo: Transient forces here
+//               // Add the force
+//               for (UnsignedInt index = 0; index < propagators.size(); ++index)
+//               {
+//                  for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
+//                       i != transientForces->end(); ++i)
+//                  {
+//                     #ifdef DEBUG_TRANSIENT_FORCES
+//                     MessageInterface::ShowMessage
+//                        ("Propagate::PrepareToPropagate() Adding transientForce<%p>'%s'\n",
+//                         *i, (*i)->GetName().c_str());
+//                     #endif
+//                     prop[index]->GetODEModel()->AddForce(*i);
+//
+//                     // todo: Rebuild ODEModel by calling BuildModelFromMap()
+//                  }
+//               }
+            }
+         }
+      }
+
+      for (Integer n = 0; n < (Integer)propagators.size(); ++n)
+      {
+         elapsedTime[n] = 0.0;
+         currEpoch[n]   = 0.0;
+         fm[n]->SetTime(0.0);
+         fm[n]->SetPropStateManager(propagators[n]->GetPropStateManager());
+         fm[n]->UpdateInitialData();
+         dim += fm[n]->GetDimension();
+
+         p[n]->Initialize();
+         p[n]->Update(true /*direction > 0.0*/);
+//         state = fm[n]->GetState();
+         j2kState = fm[n]->GetJ2KState();
+      }
+
+      baseEpoch.clear();
+
+      for (Integer n = 0; n < (Integer)propagators.size(); ++n)
+      {
+         if (propObjectNames[n].empty())
+            throw CommandException(
+               "Propagator has no associated space objects.");
+
+         GmatBase* sat1 = FindObject(*(propObjectNames[n].begin()));
+         baseEpoch.push_back(sat1->GetRealParameter(epochID));
+         elapsedTime[n] = fm[n]->GetTime();
+         currEpoch[n] = baseEpoch[n] + elapsedTime[n] /
+            GmatTimeUtil::SECS_PER_DAY;
+      }
+
+      inProgress = true;
+   }
+   else
+   {
+      // Set the prop state managers for the PropSetup ODEModels
+      for (std::vector<PropSetup*>::iterator i=propagators.begin(); i != propagators.end(); ++i)
+      {
+         ODEModel *ode = (*i)->GetODEModel();
+         if (ode != NULL)    // Only do this for the PropSetups that integrate
+            ode->SetPropStateManager((*i)->GetPropStateManager());
+      }
+
+      // Initialize the subsystem
+      Initialize();
+
+      // Loop through the PropSetups and build the models
+      for (std::vector<PropSetup*>::iterator i=propagators.begin(); i != propagators.end(); ++i)
+      {
+         ODEModel *ode = (*i)->GetODEModel();
+         if (ode != NULL)    // Only do this for the PropSetups that integrate
+         {
+            // Build the ODE model
+            ode->SetPropStateManager((*i)->GetPropStateManager());
+            if (ode->BuildModelFromMap() == false)
+               throw CommandException("Unable to assemble the ODE model for " +
+                     (*i)->GetName());
+         }
+      }
+
+      p.clear();
+      fm.clear();
+      psm.clear();
+      baseEpoch.clear();
+
+      for (Integer n = 0; n < (Integer)propagators.size(); ++n)
+      {
+         elapsedTime.push_back(0.0);
+
+         p.push_back(propagators[n]->GetPropagator());
+         fm.push_back(propagators[n]->GetODEModel());
+         dim += fm[n]->GetDimension();
+
+         psm.push_back(propagators[n]->GetPropStateManager());
+         currEpoch.push_back(psm[n]->GetState()->GetEpoch());
+
+         p[n]->Initialize();
+         psm[n]->MapObjectsToVector();
+
+         p[n]->Update(true/*direction > 0.0*/);
+//         state = fm[n]->GetState();
+         j2kState = fm[n]->GetJ2KState();
+         baseEpoch.push_back(psm[n]->GetState()->GetEpoch());
+
+         hasFired = true;
+         inProgress = true;
+      }
+   }
+
+   if (pubdata)
+   {
+      #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+             "deleting pub data");
+      #endif
+      delete [] pubdata;
+   }
+   pubdata = new Real[dim+1];
+   #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+          "pubdata = new Real[dim+1]");
+   #endif
+
+   // Publish the data
+   pubdata[0] = currEpoch[0];
+   memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
+
+   #ifdef DEBUG_PUBLISH_DATA
+      MessageInterface::ShowMessage
+         ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
+          "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+          dim+1, streamID, pubdata[0]);
+   #endif
+
+   #ifdef __USE_OLD_PUB_CODE__
+      publisher->Publish(streamID, pubdata, dim+1);
+   #else
+      publisher->Publish(this, streamID, pubdata, dim+1);
+   #endif
 
    return retval;
 }
@@ -177,6 +338,10 @@ bool PropagationEnabledCommand::PrepareToPropagate()
 
 bool PropagationEnabledCommand::AssemblePropagators()
 {
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage(
+            "PropagationEnabledCommand::AssemblePropagators() entered\n");
+   #endif
    bool retval = true;
 
    PropObjectArray *currentObjects;
@@ -208,10 +373,19 @@ bool PropagationEnabledCommand::AssemblePropagators()
 
 bool PropagationEnabledCommand::Step(Real dt)
 {
-   bool retval = true;
+   #ifdef DEBUG_EXECUTION
+      MessageInterface::ShowMessage(
+            "PropagationEnabledCommand::Step() entered\n");
+   #endif
+   bool retval = false;
+
+   MessageInterface::ShowMessage("Taking a step; ");
 
    ODEModel *fm = propagators[0]->GetODEModel();
    Real baseEpoch = (*(propObjects[0]))[0]->GetEpoch();
+
+   MessageInterface::ShowMessage("Epoch = %.12lf...", baseEpoch);
+
 //   if (dt != 0.0)
 //   {
 //      retval = thePropagator->GetPropagator()->Step(dt);
@@ -227,6 +401,8 @@ bool PropagationEnabledCommand::Step(Real dt)
       fm->UpdateSpaceObject(currEpoch);
       baseEpoch = currEpoch;
 //   }
+
+   MessageInterface::ShowMessage("Stepped to epoch %.12lf\n", currEpoch);
 
    return retval;
 }

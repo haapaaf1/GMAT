@@ -1103,7 +1103,14 @@ void Simulator::RunComplete()
 void Simulator::FindNextSimulationEpoch()
 {
    // we are assuming that the simulationStep is always non-negative
-   nextSimulationEpoch = currentEpoch + simulationStep;
+   nextSimulationEpoch = currentEpoch +
+         simulationStep / GmatTimeUtil::SECS_PER_DAY;
+
+   #ifdef DEBUG_STATE_MACHINE
+      MessageInterface::ShowMessage("Current epoch = %.12lf; "
+            "next sim epoch = %.12lf, sim end = %.12lf\n", currentEpoch,
+            nextSimulationEpoch, simulationEnd);
+   #endif
 }
 
 

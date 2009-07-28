@@ -844,7 +844,8 @@ bool ODEModel::BuildModelFromMap()
 
    if (psm == NULL)
    {
-      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot build the model: PropStateManager is NULL\n");
+      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot "
+            "build the model: PropStateManager is NULL\n");
       return retval;
    }
 
@@ -852,7 +853,8 @@ bool ODEModel::BuildModelFromMap()
 
    if (map == NULL)
    {
-      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot build the model: the map is NULL\n");
+      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot "
+            "build the model: the map is NULL\n");
       return retval;
    }
 
@@ -861,6 +863,10 @@ bool ODEModel::BuildModelFromMap()
    GmatBase *currentObject = NULL;
 
    // Loop through the state map, counting objects for each type needed
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("ODEModel map has %d entries\n",
+            map->size());
+   #endif
    for (Integer index = 0; index < (Integer)map->size(); ++index)
    {
 

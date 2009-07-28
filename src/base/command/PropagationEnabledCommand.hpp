@@ -23,7 +23,7 @@
 
 #include "GmatCommand.hpp"
 #include "PropSetup.hpp"
-
+#include "Propagator.hpp"
 
 typedef std::vector<SpaceObject*> PropObjectArray;
 
@@ -46,6 +46,31 @@ protected:
    std::vector<StringArray>      propObjectNames;
    /// The objects that are propagated; one PropObjectArray per PropSetup
    std::vector<PropObjectArray*> propObjects;
+
+   bool hasFired;
+   bool inProgress;
+
+   Integer dim;
+
+   /// ID for the spacecraft epoch parameter
+   Integer                      epochID;
+   /// Starting epoch for the propagation
+   std::vector<Real>            baseEpoch;
+
+   /// Time elapsed during this Propagate
+   RealArray                    elapsedTime;
+   /// Start epoch for the step
+   RealArray                    currEpoch;
+   /// The Propagator
+   std::vector<Propagator*>     p;
+   /// The ForceModel
+   std::vector<ODEModel*>       fm;
+   /// The Propagation State Managers
+   std::vector<PropagationStateManager*>  psm;
+
+   Real                         *j2kState;
+   /// Data sent to the Publisher
+   Real                    *pubdata;
 
 
    bool                 PrepareToPropagate();
