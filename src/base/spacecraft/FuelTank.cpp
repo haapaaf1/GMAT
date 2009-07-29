@@ -390,12 +390,11 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
             pressure = value;
          else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"Pressure\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            HardwareException hwe("");
+            hwe.SetDetails(errorMessageFormat.c_str(),
+                           GmatStringUtil::ToString(value, 16).c_str(),
+                           "Pressure", "Real Number >= 0.0");
+            throw hwe;
          }
          initialized = false;
          return pressure;
@@ -416,12 +415,11 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
             volume = value;
          else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"Volume\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            HardwareException hwe("");
+            hwe.SetDetails(errorMessageFormat.c_str(),
+                           GmatStringUtil::ToString(value, 16).c_str(),
+                           "Volume", "Real Number >= 0.0");
+            throw hwe;
          }
          initialized = false;
          return volume;
@@ -432,12 +430,11 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
             density = value;
          else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"Fuel Density\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            HardwareException hwe("");
+            hwe.SetDetails(errorMessageFormat.c_str(),
+                           GmatStringUtil::ToString(value, 16).c_str(),
+                           "FuelDensity", "Real Number >= 0.0");
+            throw hwe;
          }
          initialized = false;
          return density;
