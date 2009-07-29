@@ -30,7 +30,7 @@ public:
    RefData(const RefData &copy);
    RefData& operator= (const RefData &right);
    virtual ~RefData();
-
+   
    Integer GetNumRefObjects() const;
    
    std::string GetRefObjectName(const Gmat::ObjectType type) const;
@@ -52,8 +52,6 @@ public:
 
 protected:
 
-   ///static const int MAX_OBJ_COUNT = 5;
-   
    struct RefObjType
    {
       Gmat::ObjectType objType;
@@ -64,7 +62,7 @@ protected:
             objType = refType;
             objName = refName;
             obj     = ref;
-         }
+         };
       RefObjType& operator= (const RefObjType& right)
          {
             if (this == &right)
@@ -72,10 +70,10 @@ protected:
             objType = right.objType;
             objName = right.objName;
             obj     = right.obj;
-         }
+            return *this;
+         };
    };
    
-   ///RefObjType mRefObjList[MAX_OBJ_COUNT];
    std::vector<RefObjType> mRefObjList;
    
    StringArray mObjectTypeNames;
