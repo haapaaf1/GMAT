@@ -40,8 +40,12 @@ public:
    virtual bool         Initialize();
 
 protected:
+   /// Names of the PropSetups used by this command, as set in a derived class
+   StringArray                   propagatorNames;
    /// The PropSetup used by this command, as set in a derived class
    std::vector<PropSetup*>       propagators;
+   /// Flag used to indicate that the PropSetups were built in a derived class
+   bool                          overridePropInit;
    /// The objects that are propagated; one StringArray per PropSetup
    std::vector<StringArray>      propObjectNames;
    /// The objects that are propagated; one PropObjectArray per PropSetup

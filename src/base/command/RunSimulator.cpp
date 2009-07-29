@@ -33,7 +33,7 @@ RunSimulator::RunSimulator() :
    commandRunning          (false),
    commandComplete         (false)
 {
-
+   overridePropInit = true;
 }
 
 RunSimulator::~RunSimulator()
@@ -46,8 +46,8 @@ RunSimulator::RunSimulator(const RunSimulator & rs) :
    theSimulator            (NULL),
    commandRunning          (false),
    commandComplete         (false)
-
 {
+   overridePropInit = true;
 }
 
 RunSimulator & RunSimulator::operator=(const RunSimulator & rs)
@@ -57,6 +57,7 @@ RunSimulator & RunSimulator::operator=(const RunSimulator & rs)
       theSimulator    = NULL;
       commandRunning  = false;
       commandComplete = false;
+      overridePropInit = true;
    }
 
    return *this;
@@ -257,8 +258,12 @@ bool RunSimulator::Initialize()
                delete (*p);
             }
             propagators.clear();
+            p.clear();
+            fm.clear();
          }
          propagators.push_back(ps);
+         p.push_back(ps->GetPropagator());
+         fm.push_back(ps->GetODEModel());
          retval = true;
       }
    }
