@@ -24,6 +24,7 @@
 
 //#define DEBUG_THRUSTER
 //#define DEBUG_THRUSTER_SET
+//#define DEBUG_THRUSTER_REF_OBJ
 //#define DEBUG_THRUSTER_INIT
 //#define DEBUG_THRUSTER_CONVERT
 //#define DEBUG_THRUSTER_CONVERT_ROTMAT
@@ -255,12 +256,18 @@ Thruster::~Thruster()
 //------------------------------------------------------------------------------
 Thruster::Thruster(const Thruster& th) :
    Hardware             (th),
-   solarSystem          (th.solarSystem),
-   localCoordSystem     (th.localCoordSystem),
-   coordSystem          (th.coordSystem),
-   localOrigin          (th.localOrigin),
-   j2000Body            (th.j2000Body),
-   spacecraft           (th.spacecraft),
+//    solarSystem          (th.solarSystem),
+//    localCoordSystem     (th.localCoordSystem),
+//    coordSystem          (th.coordSystem),
+//    localOrigin          (th.localOrigin),
+//    j2000Body            (th.j2000Body),
+//    spacecraft           (th.spacecraft),
+   solarSystem          (NULL),
+   localCoordSystem     (NULL),
+   coordSystem          (NULL),
+   localOrigin          (NULL),
+   j2000Body            (NULL),
+   spacecraft           (NULL),
    coordSystemName      (th.coordSystemName),
    localOriginName      (th.localOriginName),
    localAxesName        (th.localAxesName),
@@ -293,7 +300,12 @@ Thruster::Thruster(const Thruster& th) :
    
    memcpy(cCoefficients, th.cCoefficients, COEFFICIENT_COUNT * sizeof(Real));
    memcpy(kCoefficients, th.kCoefficients, COEFFICIENT_COUNT * sizeof(Real));
-   
+
+   // Handle CoordinateSystem
+   if (!usingLocalCoordSys && th.coordSystem != NULL)
+   {
+      
+   }
    tanks.clear();
 }
 
@@ -321,12 +333,17 @@ Thruster& Thruster::operator=(const Thruster& th)
    
    Hardware::operator=(th);
    
-   solarSystem         = th.solarSystem;
-   localCoordSystem    = th.localCoordSystem;
-   coordSystem         = th.coordSystem;
-   localOrigin         = th.localOrigin;
-   j2000Body           = th.j2000Body;
-   spacecraft          = th.spacecraft;
+//    solarSystem         = th.solarSystem;
+//    localCoordSystem    = th.localCoordSystem;
+//    coordSystem         = th.coordSystem;
+//    localOrigin         = th.localOrigin;
+//    j2000Body           = th.j2000Body;
+//    spacecraft          = th.spacecraft;
+   localCoordSystem    = NULL;
+   coordSystem         = NULL;
+   localOrigin         = NULL;
+   j2000Body           = NULL;
+   spacecraft          = NULL;
    
    coordSystemName     = th.coordSystemName;
    localOriginName     = th.localOriginName;
@@ -1202,7 +1219,7 @@ bool Thruster::RenameRefObject(const Gmat::ObjectType type,
 bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                             const std::string &name)
 {
-   #ifdef DEBUG_THRUSET_SET
+   #ifdef DEBUG_THRUSTER_REF_OBJ
    MessageInterface::ShowMessage
       ("Thruster::SetRefObject() entered, obj=<%p>, type=%d, name='%s'\n",
        obj, type, name.c_str());
@@ -1215,6 +1232,11 @@ bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
        coordSystemName == name)
    {
       coordSystem = (CoordinateSystem*)obj;
+      #ifdef DEBUG_THRUSTER_REF_OBJ
+      MessageInterface::ShowMessage
+         ("Thruster::SetRefObject() leaving, the CoordinateSystem set to <%p>\n",
+          coordSystem);
+      #endif
       return true;
    }
    
@@ -1239,7 +1261,7 @@ bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    
    if (obj->GetTypeName() == "FuelTank")
    {
-      #ifdef DEBUG_THRUSTER
+      #ifdef DEBUG_THRUSTER_REF_OBJ
          MessageInterface::ShowMessage("Setting tank \"%s\" on thruster \"%s\"\n",
                                        name.c_str(), instanceName.c_str());
       #endif
@@ -1401,14 +1423,14 @@ bool Thruster::Initialize()
    {
       if (solarSystem == NULL)
          throw HardwareException
-            ("Unable to initialize the Thruster object " + 
-             instanceName + " " + "\"SolarSystem\" was not set for the thruster.");
+            ("Unable to initialize the Thruster object \"" + 
+             instanceName + "\"; " + "\"SolarSystem\" was not set.");
       
       if ((!localOrigin) || (!j2000Body))
          throw HardwareException
-            ("Unable to initialize the thruster object " + 
-             instanceName + "; either \"" + j2000BodyName + "\" or \"" + 
-             localOriginName + "\" was not set for the thruster.");
+            ("Unable to initialize the thruster object \"" + 
+             instanceName + "\"; either \"" + j2000BodyName + "\" or \"" + 
+             localOriginName + "\" was not set.");
       
       // delete old local coordinate system
       if (localCoordSystem != NULL)
@@ -1763,15 +1785,20 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
    
    if (usingLocalCoordSys && localCoordSystem == NULL)
    {      
-      throw HardwareException
-         ("Unable to convert burn elements to Inertial, the local Coordinate "
-          "System has not been created");
+      // try creating localCoordSystem
+      //localCoordSystem = CreateLocalCoordinateSystem();
+      // try Initialize again (LOJ: 2009.07.28)
+      Initialize();
+      if (!localCoordSystem)
+         throw HardwareException
+            ("Unable to convert thrust direction to Inertial, the local Coordinate "
+             "System has not been created");
    }
    else if (!usingLocalCoordSys && coordSystem == NULL)
    {
       throw HardwareException
-         ("Unable to convert burn elements to Inertial, the Coordinate "
-          "System has not been set");      
+         ("Unable to convert thrust direction to Inertial, the Coordinate "
+          "System \"" + coordSystemName + "\" has not been set");      
    }
    
    Real inDir[6], outDir[6];

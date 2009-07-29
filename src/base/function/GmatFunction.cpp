@@ -489,7 +489,13 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
          // For now just find the phrase "interrupted by Stop command"
          std::string msg = e.GetFullMessage();
          if (msg.find("interrupted by Stop command") != msg.npos)
+         {
+            #ifdef DEBUG_FUNCTION_EXEC
+            MessageInterface::ShowMessage
+               ("*** Interrupted by Stop commaned, so re-throwing...\n");
+            #endif
             throw;
+         }
          
          // Let's try initialzing local objects here again (2008.10.14)
          // We need to add subscribers to publisher, so pass true               

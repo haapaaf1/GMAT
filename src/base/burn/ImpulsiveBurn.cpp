@@ -344,12 +344,19 @@ bool ImpulsiveBurn::Initialize()
 {
    #ifdef DEBUG_IMPBURN_INIT
    MessageInterface::ShowMessage
-      ("ImpulsiveBurn::Initialize() '%s' entered, localCoordSystem=<%p>\n",
-       GetName().c_str(), localCoordSystem);
+      ("ImpulsiveBurn::Initialize() '%s' entered, localCoordSystem=<%p>, "
+       "decrementMass=%d, tankNames.size()=%d\n", GetName().c_str(),
+       localCoordSystem, decrementMass, tankNames.size());
    #endif
    
    if (!Burn::Initialize())
+   {
+      #ifdef DEBUG_IMPBURN_INIT
+      MessageInterface::ShowMessage
+         ("ImpulsiveBurn::Initialize() '%s' returning false\n", GetName().c_str());
+      #endif
       return false;
+   }
    
    bool retval = false;
    
@@ -897,9 +904,10 @@ bool ImpulsiveBurn::SetTankFromSpacecraft()
 //------------------------------------------------------------------------------
 void ImpulsiveBurn::DecrementMass()
 {
-   #ifdef DEBUG_IMPBURN_FIRE
+   #ifdef DEBUG_IMPBURN_DECMASS
    MessageInterface::ShowMessage
-      ("ImpulsiveBurn::DecrementMass() <%p>'%s' entered\n", this, instanceName.c_str());
+      ("ImpulsiveBurn::DecrementMass() <%p>'%s' entered. There are %d tank(s)\n",
+       this, instanceName.c_str(), tankMap.size());
    #endif
    
    totalTankMass = spacecraft->GetRealParameter("TotalMass");

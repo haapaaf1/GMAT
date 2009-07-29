@@ -496,9 +496,9 @@ void Moderator::Finalize()
    }
    
    #ifdef DEBUG_MEMORY
-   StringArray tracks = MemoryTracker::Instance()->GetTracks(true, true);
+   StringArray tracks = MemoryTracker::Instance()->GetTracks(true, false);
    MessageInterface::ShowMessage
-      ("===> There are %d memory tracks\n", tracks.size());
+      ("===> There are %d memory tracks after Finalize\n", tracks.size());
    for (UnsignedInt i=0; i<tracks.size(); i++)
       MessageInterface::ShowMessage("%s\n", tracks[i].c_str());
    #endif
@@ -2598,7 +2598,7 @@ Parameter* Moderator::CreateParameter(const std::string &type,
    // set Parameter reference object
    SetParameterRefObject(param, type, name, ownerName, depName, manage);
    
-   // Adding to configuration it if manage flag is true and it is a named parameter
+   // Add to configuration if manage flag is true and it is a named parameter
    try
    {
       // check if object is to be managed in configuration(loj: 2008.03.18)
@@ -3067,7 +3067,7 @@ MeasurementModel* Moderator::CreateMeasurementModel(const std::string &name)
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (propSetup, name, "Moderator::CreateMeasurementModel()", funcName);
+            (mModel, name, "Moderator::CreateMeasurementModel()", funcName);
       }
       #endif
 
@@ -3153,7 +3153,7 @@ CoreMeasurement* Moderator::CreateMeasurement(const std::string &type,
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (propSetup, name, "Moderator::CreateMeasurementModel()", funcName);
+            (mModel, name, "Moderator::CreateMeasurementModel()", funcName);
       }
       #endif
 
@@ -3241,7 +3241,7 @@ Datafile* Moderator::CreateDatafile(const std::string &name)
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (propSetup, name, "Moderator::CreateDatafile()", funcName);
+            (df, name, "Moderator::CreateDatafile()", funcName);
       }
       #endif
 
@@ -3316,7 +3316,7 @@ Obtype* Moderator::CreateObtype(const std::string &type,
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (propSetup, name, "Moderator::CreateObtype()", funcName);
+            (ot, name, "Moderator::CreateObtype()", funcName);
       }
       #endif
 
@@ -4911,6 +4911,12 @@ void Moderator::ClearAllSandboxes()
    for (UnsignedInt i=0; i<sandboxes.size(); i++)
       if (sandboxes[i])
          sandboxes[i]->Clear();
+   
+   #ifdef DEBUG_MEMORY
+   StringArray tracks = MemoryTracker::Instance()->GetTracks(false, false);
+   MessageInterface::ShowMessage
+      ("===> There are %d memory tracks after Sandbox clear\n", tracks.size());
+   #endif
 }
 
 
@@ -5082,6 +5088,12 @@ Integer Moderator::RunMission(Integer sandboxNum)
    clock_t t2 = clock();
    MessageInterface::ShowMessage
       ("===> Total Run Time: %f seconds\n", (Real)(t2-t1)/CLOCKS_PER_SEC);
+   
+   #ifdef DEBUG_MEMORY
+   StringArray tracks = MemoryTracker::Instance()->GetTracks(false, false);
+   MessageInterface::ShowMessage
+      ("===> There are %d memory tracks after MissionRun\n", tracks.size());
+   #endif
    
    // show final state
    #ifdef __SHOW_FINAL_STATE__

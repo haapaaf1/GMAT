@@ -44,6 +44,7 @@
 //#define DEBUG_FM_STACK
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_WRAPPERS
+//#define DEBUG_CLEANUP
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -223,7 +224,7 @@ void FunctionManager::SetPublisher(Publisher *pub)
 {
    #ifdef DEBUG_PUBLISHER
    MessageInterface::ShowMessage
-      ("FunctionManager::SetPublisher() '%s' setting publiser <%p>\n",
+      ("FunctionManager::SetPublisher() '%s' setting publisher <%p>\n",
        fName.c_str(), pub);
    #endif
    publisher = pub;
@@ -1067,38 +1068,6 @@ void FunctionManager::Finalize()
    
    Cleanup();
    
-   // replaced with Cleanup()
-   //=================================================================
-   #if 0
-   //=================================================================
-   if (f != NULL)
-      if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
-      {
-         ////Edwin's MMS script failed, so commented out (loj: 2008.12.03)
-         ////We need to delete this somewhere though.
-         ////f->ClearAutomaticObjects();
-         f->Finalize();
-      }
-   
-   // now delete all of the items/entries in the FOS - we can do this since they 
-   // are all either locally-created or clones of reference objects or automatic objects
-   if (functionObjectStore)
-   {
-      DeleteObjectMap(functionObjectStore, "FOS in Finalize");
-      functionObjectStore = NULL;
-   }
-   
-   Integer numClones = clonedObjectStores.size();
-   for (Integer i=0; i<numClones; i++)
-   {
-      DeleteObjectMap(clonedObjectStores[i], "clonedOS in Finalize");
-      clonedObjectStores[i] = NULL;
-   }
-   clonedObjectStores.clear();
-   //=================================================================
-   #endif
-   //=================================================================
-   
    firstExecution = true;
    isFinalized = true;
    
@@ -1358,7 +1327,6 @@ bool FunctionManager::CreatePassingArgWrappers()
       #endif // -------------------------------------------------------------- end debug ---
    }
    
-   
    // Outputs cannot be numeric or string literals or array elements, etc.
    // They must be found in the object store; and we do not need to clone them
    // Handle the case with one blank output (called from FunctionRunner) first   
@@ -1534,7 +1502,7 @@ void FunctionManager::RefreshFormalInputObjects()
       
       // Now find the corresponding input object
       // if passed name not found in LOS or GOS, it may be a number, string literal,
-      // array element, or automatic object suc
+      // array element, or automatic object such as sat.X
       if (!(obj = FindObject(passedName)))
       {
          #ifdef DEBUG_FM_EXECUTE
@@ -2174,8 +2142,12 @@ bool FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
 //------------------------------------------------------------------------------
 void FunctionManager::Cleanup()
 {
+   #ifdef DEBUG_CLEANUP
+   MessageInterface::ShowMessage("==> FunctionManager::Cleanup() entered\n");
+   #endif
+   
    if (f != NULL)
-      if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
+      if (f->IsOfType("GmatFunction"))
       {
          ////Edwin's MMS script failed, so commented out (loj: 2008.12.03)
          ////We need to delete this somewhere though.
@@ -2198,6 +2170,10 @@ void FunctionManager::Cleanup()
       clonedObjectStores[i] = NULL;
    }
    clonedObjectStores.clear();
+   
+   #ifdef DEBUG_CLEANUP
+   MessageInterface::ShowMessage("==> FunctionManager::Cleanup() exiting\n");
+   #endif
 }
 
 
@@ -2215,7 +2191,7 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
       return true;
    }
    
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_CLEANUP
    MessageInterface::ShowMessage
       ("in FM::EmptyObjectMap(), object map '%s' <%p> had %u objects\n", mapID.c_str(),
        om, om->size());
@@ -2257,7 +2233,7 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
             //@todo This causes Func_AssigningWholeObjects crash
             //sub->ClearWrappers();
             
-            #ifdef DEBUG_OBJECT_MAP
+            #ifdef DEBUG_CLEANUP
             MessageInterface::ShowMessage
                ("   '%s' Unsubscribe <%p>'%s' from the publisher <%p>\n",
                 fName.c_str(), sub, (omi->second)->GetName().c_str(), publisher);
@@ -2269,7 +2245,7 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
             }
             else
             {
-               #ifdef DEBUG_OBJECT_MAP
+               #ifdef DEBUG_CLEANUP
                MessageInterface::ShowMessage
                   ("   '%s' Cannot unsubscribe, the publisher is NULL\n", fName.c_str());
                #endif
@@ -2301,7 +2277,7 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
    }
    for (unsigned int kk = 0; kk < toDelete.size(); kk++)
    {
-      #ifdef DEBUG_OBJECT_MAP
+      #ifdef DEBUG_CLEANUP
       MessageInterface::ShowMessage
          ("   Erasing element with name '%s'\n", (toDelete.at(kk)).c_str());
       #endif
@@ -2318,14 +2294,14 @@ bool FunctionManager::DeleteObjectMap(ObjectMap *om, const std::string &mapID)
 {
    if (om == NULL)
    {
-      #ifdef DEBUG_OBJECT_MAP
+      #ifdef DEBUG_CLEANUP
       MessageInterface::ShowMessage
          ("in FM::DeleteObjectMap(), object map %s is NULL\n", mapID.c_str());
       #endif
       return true;
    }
    
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_CLEANUP
    MessageInterface::ShowMessage
       ("in FM::DeleteObjectMap(), object map %s <%p> had %u objects\n", mapID.c_str(),
        om, om->size());
