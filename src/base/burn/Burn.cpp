@@ -1031,7 +1031,7 @@ bool Burn::Initialize()
    if (usingLocalCoordSys && spacecraft != NULL)
       localCoordSystem = CreateLocalCoordinateSystem();
    
-   if (localCoordSystem == NULL)
+   if (usingLocalCoordSys && localCoordSystem == NULL)
       retval = false;
    
    #ifdef DEBUG_BURN_INIT
