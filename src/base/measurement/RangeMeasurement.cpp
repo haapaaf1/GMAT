@@ -25,7 +25,8 @@
 #include "Rvector3.hpp"
 
 
-#define DEBUG_RANGE_CALC
+//#define DEBUG_RANGE_CALC
+#define SHOW_RANGE_CALC
 
 
 RangeMeasurement::RangeMeasurement(const std::string &name) :
@@ -149,5 +150,16 @@ bool RangeMeasurement::Evaluate(bool withDerivatives)
       MessageInterface::ShowMessage("   Range is %.12lf\n",
             currentMeasurement.value[0]);
    #endif
+
+   #ifdef SHOW_RANGE_CALC
+      MessageInterface::ShowMessage("Range at epoch %.12lf is ",
+            currentMeasurement.epoch);
+      if (currentMeasurement.isFeasible)
+         MessageInterface::ShowMessage("feasible, value = %.12lf\n",
+            currentMeasurement.value[0]);
+      else
+         MessageInterface::ShowMessage("not feasible\n");
+   #endif
+
    return true;
 }

@@ -1192,7 +1192,10 @@ std::string Simulator::GetProgressString()
 }
 
 
-
+void Simulator::UpdateCurrentEpoch(GmatEpoch newEpoch)
+{
+   currentEpoch = newEpoch;
+}
 
 //------------------------------------------------------------------------------
 // unused methods

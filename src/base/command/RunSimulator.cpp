@@ -22,8 +22,8 @@
 
 #include "MessageInterface.hpp"
 
-#define DEBUG_INITIALIZATION
-#define DEBUG_SIMULATOR_EXECUTION
+//#define DEBUG_INITIALIZATION
+//#define DEBUG_SIMULATOR_EXECUTION
 
 //#define USE_HACK
 
@@ -395,7 +395,7 @@ void RunSimulator::Propagate()
    Real dt = theSimulator->GetTimeStep();
    Step(dt);
 
-
+   theSimulator->UpdateCurrentEpoch(currEpoch[0]);
 }
 
 void RunSimulator::Calculate()

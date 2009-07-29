@@ -21,7 +21,7 @@
 #include "MessageInterface.hpp"
 
 
-#define DEBUG_INITIALIZATION
+//#define DEBUG_INITIALIZATION
 
 
 //------------------------------------------------------------------------------

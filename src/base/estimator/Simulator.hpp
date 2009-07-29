@@ -99,6 +99,8 @@ public:
    virtual bool         TakeAction(const std::string &action,
                                    const std::string &actionData = "");
 
+   virtual void         UpdateCurrentEpoch(GmatEpoch newEpoch);
+
 protected:
    
    enum

@@ -24,7 +24,7 @@
 #include "ODEModel.hpp"
 #include "PropagationStateManager.hpp"
 
-#define DEBUG_INITIALIZATION
+//#define DEBUG_INITIALIZATION
 //#define DEBUG_EXECUTION
 
 
