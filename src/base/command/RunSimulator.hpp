@@ -47,6 +47,7 @@ public:
 
    virtual bool Initialize();
    virtual bool Execute();
+   virtual void RunComplete();
    virtual GmatCommand* GetNext();
 
 protected:

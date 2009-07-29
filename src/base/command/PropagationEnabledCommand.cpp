@@ -43,10 +43,24 @@ PropagationEnabledCommand::PropagationEnabledCommand(const std::string &typeStr)
 
 PropagationEnabledCommand::~PropagationEnabledCommand()
 {
-   for (std::vector<PropSetup*>::iterator i = propagators.begin();
-         i != propagators.end(); ++i)
-      if (*i)
-         delete (*i);
+   if (!overridePropInit)
+   {
+      for (std::vector<PropSetup*>::iterator i = propagators.begin();
+            i != propagators.end(); ++i)
+      {
+         if (*i)
+            delete (*i);
+      }
+      propagators.clear();
+   }
+
+   for (std::vector<PropObjectArray*>::iterator i = propObjects.begin();
+         i != propObjects.end(); ++i)
+      delete (*i);
+   propObjects.clear();
+
+   if (pubdata)
+      delete [] pubdata;
 }
 
 
@@ -78,8 +92,6 @@ PropagationEnabledCommand& PropagationEnabledCommand::operator=(const Propagatio
       epochID             = pec.epochID;
       initialized         = false;
 
-      if (j2kState)
-         delete [] j2kState;
       j2kState            = NULL;
       if (pubdata)
          delete [] pubdata;

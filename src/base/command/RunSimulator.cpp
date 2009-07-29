@@ -38,7 +38,8 @@ RunSimulator::RunSimulator() :
 
 RunSimulator::~RunSimulator()
 {
-
+   if (theSimulator)
+      delete theSimulator;
 }
 
 RunSimulator::RunSimulator(const RunSimulator & rs) :
@@ -202,17 +203,16 @@ bool RunSimulator::Initialize()
    if (theSimulator != NULL)
       delete theSimulator;
 
-   if (objectMap->find(solverName) != objectMap->end())
-   {
-      theSimulator = (Simulator*)((*objectMap)[solverName]->Clone());
-   }
-   else if (globalObjectMap->find(solverName) != objectMap->end())
-   {
-      theSimulator = (Simulator*)((*globalObjectMap)[solverName]->Clone());
-   }
-   else
+   GmatBase *simObj = FindObject(solverName);
+   if (simObj == NULL)
       throw CommandException("Cannot initialize RunSimulator command -- the "
             "simulator named " + solverName + " cannot be found.");
+
+   if (!simObj->IsOfType("Simulator"))
+      throw CommandException("Cannot initialize RunSimulator command -- the "
+            "object named " + solverName + " is not a simulator.");
+
+   theSimulator = (Simulator*)(simObj->Clone());
 
    // Next comes the propagator
    PropSetup *obj = theSimulator->GetPropagator();
@@ -252,10 +252,10 @@ bool RunSimulator::Initialize()
          // does this code
          if (propagators.size() > 0)
          {
-            for (std::vector<PropSetup*>::iterator p = propagators.begin();
-                  p != propagators.end(); ++p)
+            for (std::vector<PropSetup*>::iterator pp = propagators.begin();
+                  pp != propagators.end(); ++pp)
             {
-               delete (*p);
+               delete (*pp);
             }
             propagators.clear();
             p.clear();
@@ -352,6 +352,16 @@ bool RunSimulator::Execute()
    }
 
    return true;
+}
+
+void RunSimulator::RunComplete()
+{
+   #ifdef DEBUG_SIMULATOR_EXECUTION
+      MessageInterface::ShowMessage("Entered RunSimulator::RunComplete()\n");
+   #endif
+   commandRunning = false;
+
+   RunSolver::RunComplete();
 }
 
 
