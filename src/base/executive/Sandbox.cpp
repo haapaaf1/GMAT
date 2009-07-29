@@ -43,6 +43,7 @@
 //#define DEBUG_SANDBOX_OBJ_ADD
 //#define DEBUG_SANDBOX_OBJECT_MAPS
 //#define DBGLVL_SANDBOX_RUN 1
+//#define DEBUG_MORE_MEMORY
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -574,8 +575,8 @@ bool Sandbox::Initialize()
       {
          #ifdef DEBUG_SANDBOX_INIT
             MessageInterface::ShowMessage(
-               "Sandbox::moving object %s to the Global Object Store\n",
-               (omi->first).c_str());
+               "Sandbox::moving object <%p>'%s' to the Global Object Store\n",
+               omi->second, (omi->first).c_str());
          #endif
          globalObjectMap.insert(*omi);
          movedObjects.push_back(omi->first);
@@ -890,19 +891,19 @@ void Sandbox::Clear()
    #endif
    
    #ifdef DEBUG_MORE_MEMORY
-   MessageInterface::ShowMessage
-      ("--- Sandbox::Clear() deleting %d objects from objectMap\n", objectMap.size());
+   ShowObjectMap(objectMap, "Sandbox::Clear() clearing objectMap\n");
    #endif
    
    for (omi = objectMap.begin(); omi != objectMap.end(); omi++)
    {
-      if ((omi->second)->GetType() == Gmat::SUBSCRIBER)
-         publisher->Unsubscribe((Subscriber*)(omi->second));
-      
       #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-         MessageInterface::ShowMessage("Sandbox clearing %s\n",
+         MessageInterface::ShowMessage("Sandbox clearing <%p>'%s'\n", omi->second,
             (omi->first).c_str());
       #endif
+
+      // if object is a SUBSCRIBER, let's unsubscribe it first
+      if ((omi->second != NULL) && (omi->second)->GetType() == Gmat::SUBSCRIBER)
+         publisher->Unsubscribe((Subscriber*)(omi->second));
       
       #ifdef DEBUG_SANDBOX_CLONING
          if (find(clonable.begin(), clonable.end(),
@@ -910,7 +911,7 @@ void Sandbox::Clear()
       #endif
       {
          #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-            MessageInterface::ShowMessage("   Deleting '%s'\n",
+            MessageInterface::ShowMessage("   Deleting <%p>'%s'\n", omi->second,
                (omi->second)->GetName().c_str());
          #endif
          #ifdef DEBUG_MEMORY
@@ -926,27 +927,26 @@ void Sandbox::Clear()
    #ifdef DEBUG_MORE_MEMORY
    MessageInterface::ShowMessage
       ("--- Sandbox::Clear() deleting objects from objectMap done\n");
-   MessageInterface::ShowMessage
-      ("--- Sandbox::Clear() deleting %d objects from globalObjectMap\n",
-       globalObjectMap.size());
+   ShowObjectMap(globalObjectMap, "Sandbox::Clear() clearing globalObjectMap\n");
    #endif
    for (omi = globalObjectMap.begin(); omi != globalObjectMap.end(); omi++)
    {
-      if ((omi->second)->GetType() == Gmat::SUBSCRIBER)
-         publisher->Unsubscribe((Subscriber*)(omi->second));
-      
       #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-         MessageInterface::ShowMessage("Sandbox clearing %s\n",
+         MessageInterface::ShowMessage("Sandbox clearing <%p>%s\n", omi->second,
             (omi->first).c_str());
       #endif
 
+      // if object is a SUBSCRIBER, let's unsubscribe it first
+      if ((omi->second != NULL) && (omi->second)->GetType() == Gmat::SUBSCRIBER)
+         publisher->Unsubscribe((Subscriber*)(omi->second));
+      
       #ifdef DEBUG_SANDBOX_CLONING
          if (find(clonable.begin(), clonable.end(),
              (omi->second)->GetType()) != clonable.end())
       #endif
       {
          #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-            MessageInterface::ShowMessage("   Deleting '%s'\n",
+            MessageInterface::ShowMessage("   Deleting <%p>'%s'\n", omi->second,
                (omi->second)->GetName().c_str());
          #endif
          #ifdef DEBUG_MEMORY
@@ -1215,6 +1215,10 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
             f = moderator->CreateFunction("GmatFunction",fName, 0);
          if (!f) 
             throw SandboxException("Sandbox::HandleGmatFunction - error creating new function\n");
+         #ifdef DEBUG_SANDBOX_GMATFUNCTION
+         MessageInterface::ShowMessage
+            ("Adding function <%p>'%s' to the Global Object Store\n", f, fName.c_str());
+         #endif
          globalObjectMap.insert(std::make_pair(fName,f));
       }
       else // it's already in the GOS, so just grab it
@@ -1276,7 +1280,7 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
                #endif
                
                //Let's handle GmatFunction first
-               OK += HandleGmatFunction(fcsCmd, &globalObjectMap);
+               OK += HandleGmatFunction(fcsCmd, &combinedObjectMap);
                // do not set the non-global object map here; it will need to be
                // setup by the FunctionManager at execution
                fcsCmd->SetGlobalObjectMap(&globalObjectMap);
@@ -1289,7 +1293,7 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
                for (Integer jj = 0; jj < sz; jj++)
                {
                   GmatCommand *childCmd = cmdList.at(jj);
-                  HandleGmatFunction(childCmd, &globalObjectMap);
+                  HandleGmatFunction(childCmd, &combinedObjectMap);
                }
             }
             fcsCmd = fcsCmd->GetNext();
@@ -1321,5 +1325,26 @@ void Sandbox::SetGlobalRefObject(GmatCommand *cmd)
    cmd->SetTransientForces(&transientForces);
    cmd->SetInternalCoordSystem(internalCoordSys);
    cmd->SetPublisher(publisher);
+}
+
+
+//------------------------------------------------------------------------------
+// void ShowObjectMap(ObjectMap &om, const std::string &title)
+//------------------------------------------------------------------------------
+void Sandbox::ShowObjectMap(ObjectMap &om, const std::string &title)
+{   
+   MessageInterface::ShowMessage(title);
+   MessageInterface::ShowMessage("object map = <%p>\n", &om);
+   if (om.size() > 0)
+   {
+      for (ObjectMap::iterator i = om.begin(); i != om.end(); ++i)
+      MessageInterface::ShowMessage
+         ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+          i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+   }
+   else
+   {
+      MessageInterface::ShowMessage("The object map is empty\n");
+   }
 }
 
