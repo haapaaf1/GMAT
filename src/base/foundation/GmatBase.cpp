@@ -225,6 +225,8 @@ GmatBase::GmatBase(const GmatBase &a) :
     objectTypeNames (a.objectTypeNames),
     isGlobal        (a.isGlobal),
     callbackExecuting (false),
+    errorMessageFormat (a. errorMessageFormat),
+    errorMessageFormatUnnamed (a. errorMessageFormatUnnamed),
     commentLine     (a.commentLine),
     inlineComment   (a.inlineComment),
     attributeCommentLines    (a.attributeCommentLines),
@@ -266,6 +268,8 @@ GmatBase& GmatBase::operator=(const GmatBase &a)
    objectTypeNames  = a.objectTypeNames;
    // don't want to modify isGlobal here
    callbackExecuting = false;
+   errorMessageFormat = a. errorMessageFormat;
+   errorMessageFormatUnnamed = a. errorMessageFormatUnnamed;
    commentLine      = a.commentLine;
    inlineComment    = a.inlineComment;
    attributeCommentLines    = a.attributeCommentLines;
