@@ -60,25 +60,27 @@ protected:
    Publisher        *publisher;
    
    bool            includeGOS;
-
-   void            InitializeInternalObjects();
-
-   //*********************  TEMPORARY  *****************************************
-   void  InitializeCoordinateSystem(CoordinateSystem *cs);
-   //*********************  END OF TEMPORARY  **********************************
-
-   void            BuildReferences(GmatBase *obj);
-   void            SetRefFromName(GmatBase *obj,
-                                  const std::string &oName);
-   void            BuildAssociations(GmatBase * obj);
-   SpacePoint *    FindSpacePoint(const std::string &spName);
+   bool            registerSubscribers;
    
+   void            SetObjectJ2000Body(ObjectMap *objMap);
+   void            InitializeObjectsInTheMap(ObjectMap *objMap, Gmat::ObjectType objType,
+                                             const std::string objTypeName = "");
+   void            InitializeSystemParamters(ObjectMap *objMap);
+   void            InitializeAllOtherObjects(ObjectMap *objMap);
+   void            InitializeInternalObjects();
+   void            InitializeCoordinateSystem(GmatBase *obj);
+   void            BuildReferencesAndInitialize(GmatBase *obj);
+   void            BuildReferences(GmatBase *obj);
+   void            SetRefFromName(GmatBase *obj, const std::string &oName);
+   void            BuildAssociations(GmatBase * obj);
+   
+   SpacePoint*     FindSpacePoint(const std::string &spName);   
    GmatBase*       FindObject(const std::string &name);
    
 private:
    
    ObjectInitializer();
-
+   
 };
 
 #endif // ObjectInitializer_hpp
