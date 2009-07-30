@@ -109,7 +109,7 @@ HEADERS = -Iinclude \
           -I../gui/view \
           -I../gui/output \
           -I../gui/foundation \
-          -I../gui/plot \
+          -I../gui/subscriber \
           -I../gui/mission
 
 
