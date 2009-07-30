@@ -133,7 +133,7 @@ HEADERS = -I../base/include \
           -Ihardware \
           -Imission \
           -Ioutput \
-          -Iplot \
+          -Isubscriber \
           -Ipropagator \
           -Isolarsys \
           -Isolver \
@@ -232,20 +232,20 @@ OBJECTS = \
     output/CompareReportPanel.o \
     output/OutputTree.o \
     output/ReportFilePanel.o \
-    plot/MdiChildTrajFrame.o \
-    plot/MdiChildTsFrame.o \
-    plot/MdiGlPlotData.o \
-    plot/MdiTsPlotData.o \
-    plot/OpenGlOptionDialog.o \
-    plot/OpenGlPlotSetupPanel.o \
-    plot/ReportFileSetupPanel.o \
-    plot/SubscriberSetupPanel.o \
-    plot/TrajPlotCanvas.o \
-    plot/TsPlotCanvas.o \
-    plot/TsPlotXYCanvas.o \
-    plot/TsPlotCurve.o \
-    plot/TsPlotOptionsDialog.o \
-    plot/XyPlotSetupPanel.o \
+    subscriber/MdiChildTrajFrame.o \
+    subscriber/MdiChildTsFrame.o \
+    subscriber/MdiGlPlotData.o \
+    subscriber/MdiTsPlotData.o \
+    subscriber/OpenGlOptionDialog.o \
+    subscriber/OpenGlPlotSetupPanel.o \
+    subscriber/ReportFileSetupPanel.o \
+    subscriber/SubscriberSetupPanel.o \
+    subscriber/TrajPlotCanvas.o \
+    subscriber/TsPlotCanvas.o \
+    subscriber/TsPlotXYCanvas.o \
+    subscriber/TsPlotCurve.o \
+    subscriber/TsPlotOptionsDialog.o \
+    subscriber/XyPlotSetupPanel.o \
     propagator/PropagationConfigPanel.o \
     propagator/PropagatorSelectDialog.o \
     solarsys/BarycenterPanel.o \
