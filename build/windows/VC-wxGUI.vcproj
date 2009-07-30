@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\estimator;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\measurement;..\..\..\base\measurementfile;..\..\..\base\math;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util;..\..\..\gui\app;..\..\..\gui\burn;..\..\..\gui\command;..\..\..\gui\controllogic;..\..\..\gui\coordsystem;..\..\..\gui\forcemodel;..\..\..\gui\foundation;..\..\..\gui\function;..\..\..\gui\hardware;..\..\..\gui\include;..\..\..\gui\mission;..\..\..\gui\output;..\..\..\gui\plot;..\..\..\gui\propagator;..\..\..\gui\resource;..\..\..\gui\solarsys;..\..\..\gui\solver;..\..\..\gui\spacecraft;..\..\..\gui\view;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\include\msvc&quot;;&quot;C:\Program Files\MATLAB\R2007b\extern\include&quot;"
+				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\estimator;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\measurement;..\..\..\base\measurementfile;..\..\..\base\math;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util;..\..\..\gui\app;..\..\..\gui\burn;..\..\..\gui\command;..\..\..\gui\controllogic;..\..\..\gui\coordsystem;..\..\..\gui\forcemodel;..\..\..\gui\foundation;..\..\..\gui\function;..\..\..\gui\hardware;..\..\..\gui\include;..\..\..\gui\mission;..\..\..\gui\output;..\..\..\gui\propagator;..\..\..\gui\resource;..\..\..\gui\solarsys;..\..\..\gui\solver;..\..\..\gui\spacecraft;..\..\..\gui\subscriber;..\..\..\gui\view;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\include\msvc&quot;;&quot;C:\Program Files\MATLAB\R2007b\extern\include&quot;"
 				PreprocessorDefinitions="__WIN32__;__WXMSW__;wxUSE_GLCANVAS;__USE_WX280__;__USE_MATLAB__;__USE_WX280_GL__;SKIP_DEVIL;__SKIP_MSISE90__"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
@@ -119,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\math;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util;..\..\..\gui\app;..\..\..\gui\burn;..\..\..\gui\command;..\..\..\gui\controllogic;..\..\..\gui\coordsystem;..\..\..\gui\forcemodel;..\..\..\gui\foundation;..\..\..\gui\function;..\..\..\gui\hardware;..\..\..\gui\include;..\..\..\gui\mission;..\..\..\gui\output;..\..\..\gui\plot;..\..\..\gui\propagator;..\..\..\gui\resource;..\..\..\gui\solarsys;..\..\..\gui\solver;..\..\..\gui\spacecraft;..\..\..\gui\view;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\lib\vc_dll\msw&quot;;&quot;C:\Program Files\MATLAB\R2007b\extern\include&quot;"
+				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\math;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util;..\..\..\gui\app;..\..\..\gui\burn;..\..\..\gui\command;..\..\..\gui\controllogic;..\..\..\gui\coordsystem;..\..\..\gui\forcemodel;..\..\..\gui\foundation;..\..\..\gui\function;..\..\..\gui\hardware;..\..\..\gui\include;..\..\..\gui\mission;..\..\..\gui\output;..\..\..\gui\subscriber;..\..\..\gui\propagator;..\..\..\gui\resource;..\..\..\gui\solarsys;..\..\..\gui\solver;..\..\..\gui\spacecraft;..\..\..\gui\view;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\lib\vc_dll\msw&quot;;&quot;C:\Program Files\MATLAB\R2007b\extern\include&quot;"
 				PreprocessorDefinitions="__WXMSW__;wxUSE_GLCANVAS;__USE_WX280__;__USE_MATLAB__;__USE_WX280_GL__;SKIP_DEVIL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -2127,59 +2127,59 @@
 					Name="plot"
 					>
 					<File
-						RelativePath="..\..\..\gui\plot\MdiChildTrajFrame.cpp"
+						RelativePath="..\..\..\gui\subscriber\MdiChildTrajFrame.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\MdiChildTsFrame.cpp"
+						RelativePath="..\..\..\gui\subscriber\MdiChildTsFrame.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\MdiGlPlotData.cpp"
+						RelativePath="..\..\..\gui\subscriber\MdiGlPlotData.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\MdiTsPlotData.cpp"
+						RelativePath="..\..\..\gui\subscriber\MdiTsPlotData.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\OpenGlOptionDialog.cpp"
+						RelativePath="..\..\..\gui\subscriber\OpenGlOptionDialog.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\OpenGlPlotSetupPanel.cpp"
+						RelativePath="..\..\..\gui\subscriber\OpenGlPlotSetupPanel.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\ReportFileSetupPanel.cpp"
+						RelativePath="..\..\..\gui\subscriber\ReportFileSetupPanel.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\SubscriberSetupPanel.cpp"
+						RelativePath="..\..\..\gui\subscriber\SubscriberSetupPanel.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\TrajPlotCanvas.cpp"
+						RelativePath="..\..\..\gui\subscriber\TrajPlotCanvas.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\TsPlotCanvas.cpp"
+						RelativePath="..\..\..\gui\subscriber\TsPlotCanvas.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\TsPlotCurve.cpp"
+						RelativePath="..\..\..\gui\subscriber\TsPlotCurve.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\TsPlotOptionsDialog.cpp"
+						RelativePath="..\..\..\gui\subscriber\TsPlotOptionsDialog.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\TsPlotXYCanvas.cpp"
+						RelativePath="..\..\..\gui\subscriber\TsPlotXYCanvas.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\gui\plot\XyPlotSetupPanel.cpp"
+						RelativePath="..\..\..\gui\subscriber\XyPlotSetupPanel.cpp"
 						>
 					</File>
 				</Filter>
