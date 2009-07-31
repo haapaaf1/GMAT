@@ -126,7 +126,7 @@ bool GmatObtype::Open(bool forRead, bool forWrite, bool append)
    {
       // todo: Clean up the path for the measurement file
       FileManager *fm = FileManager::Instance();
-      std::string outputPath = fm->GetPathname(FileManager::OUTPUT_PATH);
+      std::string outputPath = fm->GetPathname(FileManager::MEASUREMENT_PATH);
       outputPath += streamName;
 
       theStream.open(outputPath.c_str(), mode);
