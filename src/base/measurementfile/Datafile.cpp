@@ -25,6 +25,9 @@
 
 //#define DEBUG_FILE_WRITE
 
+//------------------------------------------------------------------------------
+// static data
+//------------------------------------------------------------------------------
 
 const std::string Datafile::PARAMETER_TEXT[] =
 {
@@ -40,6 +43,15 @@ const Gmat::ParameterType Datafile::PARAMETER_TYPE[] =
 
 
 
+//------------------------------------------------------------------------------
+// Datafile(const std::string name)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for Datafile objects
+ *
+ * @param name The name of the object
+ */
+//------------------------------------------------------------------------------
 Datafile::Datafile(const std::string name) :
    GmatBase          (Gmat::DATASTREAM, "Datafile", name),
    theDatastream     (NULL),
@@ -53,6 +65,13 @@ Datafile::Datafile(const std::string name) :
 }
 
 
+//------------------------------------------------------------------------------
+// ~Datafile()
+//------------------------------------------------------------------------------
+/**
+ * Datafile destructor
+ */
+//------------------------------------------------------------------------------
 Datafile::~Datafile()
 {
    if (theDatastream)
@@ -60,6 +79,15 @@ Datafile::~Datafile()
 }
 
 
+//------------------------------------------------------------------------------
+// Datafile(const Datafile& df)
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor for a Datafile
+ *
+ * @param df The Datafile object that provides data for the new one
+ */
+//------------------------------------------------------------------------------
 Datafile::Datafile(const Datafile& df) :
    GmatBase          (df),
    streamName        (df.streamName),
@@ -72,6 +100,17 @@ Datafile::Datafile(const Datafile& df) :
 }
 
 
+//------------------------------------------------------------------------------
+// Datafile& operator=(const Datafile& df)
+//------------------------------------------------------------------------------
+/**
+ * Datafile assignment operator
+ *
+ * @param df The Datafile object that provides data for the this one
+ *
+ * @return This object, configured to match df
+ */
+//------------------------------------------------------------------------------
 Datafile& Datafile::operator=(const Datafile& df)
 {
    if (this != &df)
@@ -81,7 +120,6 @@ Datafile& Datafile::operator=(const Datafile& df)
       streamName = df.streamName;
       obsType    = df.obsType;
 
-      // todo: the stream management here
       if (df.theDatastream)
          theDatastream = (Obtype*)df.theDatastream->Clone();
       else
@@ -92,11 +130,30 @@ Datafile& Datafile::operator=(const Datafile& df)
 }
 
 
+//------------------------------------------------------------------------------
+// GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * Clone method for Datafiles
+ *
+ * @return A clone of this object.
+ */
+//------------------------------------------------------------------------------
 GmatBase* Datafile::Clone() const
 {
    return new Datafile(*this);
 }
 
+
+//------------------------------------------------------------------------------
+// bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Code fired in the Sandbox when the Sandbox initializes objects prior to a run
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool Datafile::Initialize()
 {
    bool retval = false;
@@ -109,6 +166,16 @@ bool Datafile::Initialize()
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// bool Finalize()
+//------------------------------------------------------------------------------
+/**
+ * Code that executes after a run completes
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool Datafile::Finalize()
 {
    bool retval = false;
@@ -121,6 +188,18 @@ bool Datafile::Finalize()
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// std::string GetParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the text string used to script a Datafile property
+ *
+ * @param id The ID of the property
+ *
+ * @return The string
+ */
+//------------------------------------------------------------------------------
 std::string Datafile::GetParameterText(const Integer id) const
 {
    if (id >= GmatBaseParamCount && id < DatafileParamCount)
@@ -128,11 +207,35 @@ std::string Datafile::GetParameterText(const Integer id) const
    return GmatBase::GetParameterText(id);
 }
 
+
+//------------------------------------------------------------------------------
+// std::string GetParameterUnit(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the units used for a property
+ *
+ * @param id The ID of the property
+ *
+ * @return The text string specifying the property's units
+ */
+//------------------------------------------------------------------------------
 std::string Datafile::GetParameterUnit(const Integer id) const
 {
    return GmatBase::GetParameterUnit(id);
 }
 
+
+//------------------------------------------------------------------------------
+// Integer GetParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the ID associated with a scripted property string
+ *
+ * @param str The scripted string used for the property
+ *
+ * @return The associated ID
+ */
+//------------------------------------------------------------------------------
 Integer Datafile::GetParameterID(const std::string &str) const
 {
    for (Integer i = GmatBaseParamCount; i < DatafileParamCount; i++)
@@ -144,6 +247,18 @@ Integer Datafile::GetParameterID(const std::string &str) const
    return GmatBase::GetParameterID(str);
 }
 
+
+//------------------------------------------------------------------------------
+// Gmat::ParameterType GetParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the parameter type for a Datafile property
+ *
+ * @param id The ID of the property
+ *
+ * @return The ParameterType of the property
+ */
+//------------------------------------------------------------------------------
 Gmat::ParameterType Datafile::GetParameterType(const Integer id) const
 {
    if (id >= GmatBaseParamCount && id < DatafileParamCount)
@@ -152,11 +267,34 @@ Gmat::ParameterType Datafile::GetParameterType(const Integer id) const
    return GmatBase::GetParameterType(id);
 }
 
+
+//------------------------------------------------------------------------------
+// std::string GetParameterTypeString(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string describing the type of a property
+ *
+ * @param id The ID of the property
+ *
+ * @return The text description of the property type
+ */
+//------------------------------------------------------------------------------
 std::string Datafile::GetParameterTypeString(const Integer id) const
 {
    return GmatBase::PARAM_TYPE_STRING[GetParameterType(id)];
 }
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string property of a Datafile
+ *
+ * @param id The ID of the property
+ *
+ * @return The property value
+ */
+//------------------------------------------------------------------------------
 std::string Datafile::GetStringParameter(const Integer id) const
 {
    if (id == ObsType)
@@ -168,6 +306,18 @@ std::string Datafile::GetStringParameter(const Integer id) const
    return GmatBase::GetStringParameter(id);
 }
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string property
+ *
+ * @param id The ID of the property
+ * @param value The new value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool Datafile::SetStringParameter(const Integer id, const std::string &value)
 {
    if (id == ObsType)
@@ -185,37 +335,147 @@ bool Datafile::SetStringParameter(const Integer id, const std::string &value)
    return GmatBase::SetStringParameter(id, value);
 }
 
-std::string Datafile::GetStringParameter(const Integer id, const Integer index) const
+
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id, const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string property of a Datafile contained in an array
+ *
+ * @note This method is provided to keep the base class version visible to the
+ *       compiler.
+ *
+ * @param id The ID of the property
+ * @param index The array index for the property
+ *
+ * @return The property value
+ */
+//------------------------------------------------------------------------------
+std::string Datafile::GetStringParameter(const Integer id,
+      const Integer index) const
 {
    return GmatBase::GetStringParameter(id, index);
 }
 
-bool Datafile::SetStringParameter(const Integer id, const std::string &value, const Integer index)
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value,
+//                         const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string property of a Datafile contained in an array
+ *
+ * @note This method is provided to keep the base class version visible to the
+ *       compiler.
+ *
+ * @param id The ID of the property
+ * @param value The new property value
+ * @param index The array index for the property
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool Datafile::SetStringParameter(const Integer id, const std::string &value,
+      const Integer index)
 {
    return GmatBase::SetStringParameter(id, value, index);
 }
 
+
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string property of a Datafile
+ *
+ * @param label The text description of the property
+ *
+ * @return The property value
+ */
+//------------------------------------------------------------------------------
 std::string Datafile::GetStringParameter(const std::string &label) const
 {
    return GetStringParameter(GetParameterID(label));
 }
 
-bool Datafile::SetStringParameter(const std::string &label, const std::string &value)
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string property
+ *
+ * @param label The text description of the property
+ * @param value The new value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool Datafile::SetStringParameter(const std::string &label,
+      const std::string &value)
 {
    return SetStringParameter(GetParameterID(label), value);
 }
 
-std::string Datafile::GetStringParameter(const std::string &label, const Integer index) const
+
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string &label,
+//                                const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string property of a Datafile contained in an array
+ *
+ * @note This method is provided to keep the base class version visible to the
+ *       compiler.
+ *
+ * @param label The text description of the property
+ * @param index The array index for the property
+ *
+ * @return The property value
+ */
+//------------------------------------------------------------------------------
+std::string Datafile::GetStringParameter(const std::string &label,
+      const Integer index) const
 {
    return GetStringParameter(GetParameterID(label), index);
 }
 
-bool Datafile::SetStringParameter(const std::string &label, const std::string &value, const Integer index)
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value,
+//                         const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string property of a Datafile contained in an array
+ *
+ * @note This method is provided to keep the base class version visible to the
+ *       compiler.
+ *
+ * @param label The text description of the property
+ * @param value The new property value
+ * @param index The array index for the property
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool Datafile::SetStringParameter(const std::string &label,
+      const std::string &value, const Integer index)
 {
    return SetStringParameter(GetParameterID(label), value, index);
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStream(Obtype *thisStream)
+//------------------------------------------------------------------------------
+/**
+ * Sets the data stream used for the measurement data
+ *
+ * @param thisStream The Obtype that provides the stream interfaces
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool Datafile::SetStream(Obtype *thisStream)
 {
    #ifdef DEBUG_FILE_WRITE
@@ -223,10 +483,29 @@ bool Datafile::SetStream(Obtype *thisStream)
             thisStream->GetTypeName().c_str());
    #endif
 
-   theDatastream = thisStream;
-   return true;
+   bool retval = false;
+
+   if (thisStream->IsOfType(Gmat::DATASTREAM))
+   {
+      theDatastream = thisStream;
+      retval = true;
+   }
+   return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// bool OpenStream(bool simulate)
+//------------------------------------------------------------------------------
+/**
+ * Opens the data stream used for the measurement data
+ *
+ * @param simulate A flag indicating if the stream should be opened to receive
+ *                 simulated data
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool Datafile::OpenStream(bool simulate)
 {
    bool retval = false;
@@ -236,7 +515,7 @@ bool Datafile::OpenStream(bool simulate)
       theDatastream->SetStreamName(streamName);
 
       // todo: Currently opens either to simulate or to estimate, but not both
-      // at the same time
+      // at the same time.
       if (simulate)
          retval = theDatastream->Open(false, true);
       else
@@ -246,12 +525,39 @@ bool Datafile::OpenStream(bool simulate)
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// void WriteMeasurement(MeasurementData* theMeas)
+//------------------------------------------------------------------------------
+/**
+ * Sends a measurement to a data stream so it can be written
+ *
+ * This method is used during simulation to pass a calculated measurement to
+ * the measurement stream.
+ *
+ * @param theMeas The measurement that needs to be written
+ */
+//------------------------------------------------------------------------------
 void Datafile::WriteMeasurement(MeasurementData* theMeas)
 {
    if (theDatastream)
       theDatastream->AddMeasurement(theMeas);
 }
 
+
+//------------------------------------------------------------------------------
+// MeasurementData* ReadMeasurement()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves an observation from a data stream so it can be processed
+ *
+ * This method is used during estimation to retrieve the next measurement
+ * observation from the measurement stream.
+ *
+ * @return The measurement observation from the file, or NULL if no more
+ *         observations are available
+ */
+//------------------------------------------------------------------------------
 MeasurementData* Datafile::ReadMeasurement()
 {
    // todo: Currently set for simulation; needs to be implemented for estimation
@@ -259,6 +565,15 @@ MeasurementData* Datafile::ReadMeasurement()
 }
 
 
+//------------------------------------------------------------------------------
+// bool CloseStream()
+//------------------------------------------------------------------------------
+/**
+ * Closes the data stream
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool Datafile::CloseStream()
 {
    bool retval = false;

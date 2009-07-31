@@ -27,7 +27,13 @@
 #include "MeasurementData.hpp"
 
 
-/// Descriptor here
+/**
+ * Datafile is the container class for measurement data streams.
+ *
+ * The Datafile class provides the interfaces needed to script observation data
+ * into GMAT.  Instances of the class identify the type of data stream used and
+ * the identifier for that stream.
+ */
 class Datafile : public GmatBase
 {
 public:
