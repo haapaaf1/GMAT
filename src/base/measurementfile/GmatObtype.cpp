@@ -124,12 +124,18 @@ bool GmatObtype::Open(bool forRead, bool forWrite, bool append)
 
    if (streamName != "")
    {
-      // todo: Clean up the path for the measurement file
-      FileManager *fm = FileManager::Instance();
-      std::string outputPath = fm->GetPathname(FileManager::MEASUREMENT_PATH);
-      outputPath += streamName;
+      std::string fullPath = "";
 
-      theStream.open(outputPath.c_str(), mode);
+      // If no path designation slash character is found, add the default path
+      if ((streamName.find('/') == std::string::npos) &&
+          (streamName.find('\\') == std::string::npos))
+      {
+         FileManager *fm = FileManager::Instance();
+         fullPath = fm->GetPathname(FileManager::MEASUREMENT_PATH);
+      }
+      fullPath += streamName;
+
+      theStream.open(fullPath.c_str(), mode);
    }
 
    retval = theStream.is_open();
