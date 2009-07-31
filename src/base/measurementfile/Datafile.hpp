@@ -24,6 +24,7 @@
 
 #include "GmatBase.hpp"
 #include "Obtype.hpp"
+#include "MeasurementData.hpp"
 
 
 /// Descriptor here
@@ -37,6 +38,7 @@ public:
 
    virtual GmatBase* Clone() const;
    virtual bool Initialize();
+   virtual bool Finalize();
 
    // Access methods derived classes can override
    virtual std::string  GetParameterText(const Integer id) const;
@@ -64,6 +66,12 @@ public:
                                            const Integer index);
 
    virtual bool         SetStream(Obtype *thisStream);
+   virtual bool         OpenStream(bool simulate = false);
+   virtual void         WriteMeasurement(MeasurementData* theMeas);
+   virtual MeasurementData*
+                        ReadMeasurement();
+   virtual bool         CloseStream();
+
 protected:
    /// The stream for this Datafile
    Obtype         *theDatastream;

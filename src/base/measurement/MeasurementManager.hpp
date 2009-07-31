@@ -30,6 +30,7 @@
 //#include "CoreMeasurement.hpp"
 // But for now we go with this:
 #include "GeometricMeasurement.hpp"
+#include "Datafile.hpp"
 
 /**
  * The mediator between the estimators/simulator and measurement models. 
@@ -43,6 +44,8 @@ public:
    MeasurementManager& operator=(const MeasurementManager &mm);
 
    bool                    Initialize();
+   bool                    PrepareForProcessing(bool simulating = false);
+   bool                    ProcessingComplete();
    bool                    Finalize();
    
    bool                    CalculateMeasurements();
@@ -55,6 +58,8 @@ public:
    const StringArray&      GetParticipantList();
    Integer                 Calculate(const Integer measurementToCalc);
    const MeasurementData*  GetMeasurement(const Integer measurementToGet);
+   const StringArray&      GetStreamList();
+   void                    SetStreamObject(Datafile *newStream);
    bool                    WriteMeasurement(const Integer measurementToWrite);
 
 protected:
@@ -72,6 +77,16 @@ protected:
    std::vector<MeasurementData>     measurements;
    /// Measurement derivatives
    std::vector<Rmatrix>             derivatives;
+   /// Measurement stream objects
+   StringArray                      streamNames;
+   /// Measurement stream objects
+   std::vector<Datafile*>           streamList;
+
+   ///
+   Integer                          idBase;
+   Integer                          largestId;
+
+   std::map<Integer,Datafile*>      idToStreamMap;
 };
 
 #endif /*MeasurementManager_hpp*/

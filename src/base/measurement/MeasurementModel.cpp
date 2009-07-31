@@ -107,13 +107,15 @@ MeasurementModel::~MeasurementModel()
 //------------------------------------------------------------------------------
 MeasurementModel::MeasurementModel(const MeasurementModel &mm) :
    GmatBase             (mm),
+   observationStreamName(mm.observationStreamName),
    participantNames     (mm.participantNames),
    measurementType      (mm.measurementType),
    theData              (NULL),
    theDataDerivatives   (NULL),
    measurementBias      (mm.measurementBias),
    noiseSigma           (mm.noiseSigma),
-   timeConstant         (mm.timeConstant)
+   timeConstant         (mm.timeConstant),
+   modelID              (mm.modelID)
 {
    if (mm.measurement != NULL)
       measurement = (CoreMeasurement*)mm.measurement->Clone();
@@ -135,13 +137,15 @@ MeasurementModel& MeasurementModel::operator=(const MeasurementModel &mm)
    if (&mm != this)
    {
       GmatBase::operator=(mm);
-      participantNames     = mm.participantNames;
-      measurementType      = mm.measurementType;
-      theData              = NULL;
-      theDataDerivatives   = NULL;
-      measurementBias      = mm.measurementBias;
-      noiseSigma           = mm.noiseSigma;
-      timeConstant         = mm.timeConstant;
+      observationStreamName   = mm.observationStreamName;
+      participantNames        = mm.participantNames;
+      measurementType         = mm.measurementType;
+      theData                 = NULL;
+      theDataDerivatives      = NULL;
+      measurementBias         = mm.measurementBias;
+      noiseSigma              = mm.noiseSigma;
+      timeConstant            = mm.timeConstant;
+      modelID                 = mm.modelID;
 
       if (mm.measurement != NULL)
          measurement = (CoreMeasurement*)mm.measurement->Clone();
@@ -824,7 +828,13 @@ const StringArray& MeasurementModel::GetStringArrayParameter(
       return participantNames;
    }
    if (id == ObservationData)
+   {
+      #ifdef DEBUG_MEASUREMENT_INITIALIZATION
+         MessageInterface::ShowMessage("Reporting %d observation streams\n",
+               observationStreamName.size());
+      #endif
       return observationStreamName;
+   }
 
    return GmatBase::GetStringArrayParameter(id);
 }
@@ -1072,6 +1082,7 @@ Integer MeasurementModel::GetModelID()
 void MeasurementModel::SetModelID(Integer newID)
 {
    modelID = newID;
+   measurement->SetUniqueId(newID);
 }
 
 //------------------------------------------------------------------------------

@@ -41,10 +41,20 @@ public:
    Obtype&           operator=(const Obtype& ot);
 
    virtual bool      Initialize();
+   virtual bool      Open(bool forRead = true, bool forWrite= false,
+                          bool append = false);
+   virtual bool      IsOpen();
    virtual bool      AddMeasurement(MeasurementData *md) = 0;
+   virtual bool      Close();
    virtual bool      Finalize();
 
+   void              SetStreamName(std::string name);
 
+protected:
+   std::string       streamName;
+   std::string       header;
+   bool              openForRead;
+   bool              openForWrite;
 };
 
 #endif /* Obtype_hpp */

@@ -214,6 +214,25 @@ bool RunSimulator::Initialize()
 
    theSimulator = (Simulator*)(simObj->Clone());
 
+   // Set the streams for the measurement manager
+   MeasurementManager *measman = theSimulator->GetMeasurementManager();
+   StringArray streamList = measman->GetStreamList();
+   for (UnsignedInt ms = 0; ms < streamList.size(); ++ms)
+   {
+      GmatBase *obj = FindObject(streamList[ms]);
+      if (obj != NULL)
+      {
+         if (obj->IsOfType(Gmat::DATASTREAM))
+         {
+            Datafile *df = (Datafile*)obj;
+            measman->SetStreamObject(df);
+         }
+      }
+      else
+         throw CommandException("Did not find the object named " +
+               streamList[ms]);
+   }
+
    // Next comes the propagator
    PropSetup *obj = theSimulator->GetPropagator();
 
@@ -381,6 +400,11 @@ void RunSimulator::PrepareToSimulate()
 #ifdef DEBUG_SIMULATOR_EXECUTION
    MessageInterface::ShowMessage("Entered RunSimulator::PrepareToSimulate()\n");
 #endif
+   // Prep the measurement manager
+   MeasurementManager *measman = theSimulator->GetMeasurementManager();
+   if (measman->PrepareForProcessing(true) == false)
+      throw CommandException(
+            "Measurement Manager was unable to prepare for processing");
 
    PrepareToPropagate();
    commandRunning  = true;
@@ -428,6 +452,12 @@ void RunSimulator::Finalize()
    MessageInterface::ShowMessage("Entered RunSimulator::Finalize()\n");
 #endif
    // Do cleanup here
+   // Prep the measurement manager
+   MeasurementManager *measman = theSimulator->GetMeasurementManager();
+   if (measman->ProcessingComplete() == false)
+      MessageInterface::ShowMessage(
+            "Measurement Manager reported a problem completing processing\n");
+
    commandComplete = true;
    commandRunning  = false;
 }

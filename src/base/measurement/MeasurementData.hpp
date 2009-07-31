@@ -48,6 +48,10 @@ public:
 public:
    /// The type of measurement in this record
    Gmat::MeasurementType   type;
+   /// String value for type of measurement in this record
+   std::string       typeName;
+   /// Unique ID for associated model.  This number can change from run to run.
+   Integer           uniqueID;
    /// The epoch of the measurement
    GmatEpoch         epoch;
    /// Who is involved in the measurement.  First one is the "anchor" node

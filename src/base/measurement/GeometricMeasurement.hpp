@@ -74,6 +74,8 @@ public:
                               CalculateMeasurement(bool withDerivatives = true);
    virtual const Rmatrix&     CalculateMeasurementDerivatives();
 
+   void                       SetUniqueId(Integer id);
+
 protected:
    MeasurementData            currentMeasurement;
    Rmatrix                    currentDerivatives;
@@ -81,6 +83,8 @@ protected:
    StringArray                participantNames;
    SpacePoint                 *anchorPoint;
    std::vector<SpacePoint*>   participants;
+
+   Integer                    uniqueId;
 
    /// Support members for the range vector calculation
    Rvector3                   p1Loc;

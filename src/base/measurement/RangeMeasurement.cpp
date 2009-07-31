@@ -26,7 +26,7 @@
 
 
 //#define DEBUG_RANGE_CALC
-#define SHOW_RANGE_CALC
+//#define SHOW_RANGE_CALC
 
 
 RangeMeasurement::RangeMeasurement(const std::string &name) :
@@ -36,7 +36,8 @@ RangeMeasurement::RangeMeasurement(const std::string &name) :
 
    // Prep value array in measurement
    currentMeasurement.value.push_back(0.0);
-
+   currentMeasurement.typeName = "Range";
+   currentMeasurement.type = Gmat::RANGE;
 //   parameterCount = GeometricRangeMeasurementParamCount;
 }
 
@@ -50,6 +51,9 @@ RangeMeasurement::RangeMeasurement(const RangeMeasurement &rm) :
    GeometricMeasurement          (rm)
 {
    currentMeasurement.value.push_back(0.0);
+   currentMeasurement.typeName = "Range";
+   currentMeasurement.type = Gmat::RANGE;
+   currentMeasurement.uniqueID = rm.currentMeasurement.uniqueID;
    currentMeasurement.participantIDs.push_back("NotSet");
    currentMeasurement.participantIDs.push_back("NotSet");
 }
@@ -64,6 +68,9 @@ RangeMeasurement& RangeMeasurement::operator=(const RangeMeasurement &rm)
       // Allocate exactly one value in current measurement for range
       currentMeasurement.value.clear();
       currentMeasurement.value.push_back(0.0);
+      currentMeasurement.typeName = "Range";
+      currentMeasurement.type = Gmat::RANGE;
+      currentMeasurement.uniqueID = rm.currentMeasurement.uniqueID;
    }
 
    return *this;

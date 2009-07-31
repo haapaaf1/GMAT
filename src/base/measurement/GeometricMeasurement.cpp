@@ -224,3 +224,9 @@ void GeometricMeasurement::CalculateRangeVector()
    p2Loc = participants[1]->GetMJ2000Position(currentMeasurement.epoch);
    rangeVec = p2Loc - p1Loc;
 }
+
+
+void GeometricMeasurement::SetUniqueId(Integer id)
+{
+   currentMeasurement.uniqueID = id;
+}

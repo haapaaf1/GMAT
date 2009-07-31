@@ -1654,7 +1654,7 @@ MeasurementModel* ConfigManager::GetMeasurementModel(const std::string &name)
 }
 
 
-Datafile* ConfigManager::GetDatafile(const std::string &name)
+Datafile* ConfigManager::GetDataStream(const std::string &name)
 {
    Datafile *df = NULL;
    if (mapping.find(name) != mapping.end())

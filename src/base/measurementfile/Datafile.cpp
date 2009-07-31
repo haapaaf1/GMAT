@@ -20,7 +20,10 @@
 
 #include "Datafile.hpp"
 #include "GmatBase.hpp"
+#include "MessageInterface.hpp"
+#include <sstream>
 
+//#define DEBUG_FILE_WRITE
 
 
 const std::string Datafile::PARAMETER_TEXT[] =
@@ -40,14 +43,13 @@ const Gmat::ParameterType Datafile::PARAMETER_TYPE[] =
 Datafile::Datafile(const std::string name) :
    GmatBase          (Gmat::DATASTREAM, "Datafile", name),
    theDatastream     (NULL),
-   streamName        ("ObsData.gmatObs"),
+   streamName        ("ObsData.gmd"),
    obsType           ("GMATInternal")
 {
    objectTypes.push_back(Gmat::DATASTREAM);
    objectTypeNames.push_back("Datafile");
 
    parameterCount = DatafileParamCount;
-
 }
 
 
@@ -63,10 +65,10 @@ Datafile::Datafile(const Datafile& df) :
    streamName        (df.streamName),
    obsType           (df.obsType)
 {
-   // todo: the stream management here
-//   if (df.theDatastream != NULL)
-//      theDatastream = df.theDatastream;
-   theDatastream = NULL;
+   if (df.theDatastream != NULL)
+      theDatastream = (Obtype*)df.theDatastream->Clone();
+   else
+      theDatastream = NULL;
 }
 
 
@@ -80,7 +82,10 @@ Datafile& Datafile::operator=(const Datafile& df)
       obsType    = df.obsType;
 
       // todo: the stream management here
-      theDatastream = NULL;
+      if (df.theDatastream)
+         theDatastream = (Obtype*)df.theDatastream->Clone();
+      else
+         theDatastream = NULL;
    }
 
    return *this;
@@ -94,7 +99,26 @@ GmatBase* Datafile::Clone() const
 
 bool Datafile::Initialize()
 {
-   return true;
+   bool retval = false;
+
+   if (theDatastream)
+   {
+      retval = theDatastream->Initialize();
+   }
+
+   return retval;
+}
+
+bool Datafile::Finalize()
+{
+   bool retval = false;
+
+   if (theDatastream)
+   {
+      retval = theDatastream->Finalize();
+   }
+
+   return retval;
 }
 
 std::string Datafile::GetParameterText(const Integer id) const
@@ -194,6 +218,53 @@ bool Datafile::SetStringParameter(const std::string &label, const std::string &v
 
 bool Datafile::SetStream(Obtype *thisStream)
 {
+   #ifdef DEBUG_FILE_WRITE
+      MessageInterface::ShowMessage("Setting Obtype to a %s object\n",
+            thisStream->GetTypeName().c_str());
+   #endif
+
    theDatastream = thisStream;
    return true;
+}
+
+bool Datafile::OpenStream(bool simulate)
+{
+   bool retval = false;
+
+   if (theDatastream)
+   {
+      theDatastream->SetStreamName(streamName);
+
+      // todo: Currently opens either to simulate or to estimate, but not both
+      // at the same time
+      if (simulate)
+         retval = theDatastream->Open(false, true);
+      else
+         retval = theDatastream->Open(true, false);
+   }
+
+   return retval;
+}
+
+void Datafile::WriteMeasurement(MeasurementData* theMeas)
+{
+   if (theDatastream)
+      theDatastream->AddMeasurement(theMeas);
+}
+
+MeasurementData* Datafile::ReadMeasurement()
+{
+   // todo: Currently set for simulation; needs to be implemented for estimation
+   return NULL;
+}
+
+
+bool Datafile::CloseStream()
+{
+   bool retval = false;
+
+   if (theDatastream)
+      retval = theDatastream->Close();
+
+   return retval;
 }

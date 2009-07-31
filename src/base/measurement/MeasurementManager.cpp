@@ -22,6 +22,7 @@
 
 
 //#define DEBUG_INITIALIZATION
+//#define DEBUG_FILE_WRITE
 
 
 //------------------------------------------------------------------------------
@@ -33,7 +34,9 @@
 //------------------------------------------------------------------------------
 MeasurementManager::MeasurementManager() :
    anchorEpoch       (21545.0),
-   currentEpoch      (21545.0)
+   currentEpoch      (21545.0),
+   idBase            (10000),
+   largestId         (10000)
 {
 }
 
@@ -59,7 +62,9 @@ MeasurementManager::~MeasurementManager()
 //------------------------------------------------------------------------------
 MeasurementManager::MeasurementManager(const MeasurementManager &mm) :
    anchorEpoch       (mm.anchorEpoch),
-   currentEpoch      (mm.currentEpoch)
+   currentEpoch      (mm.currentEpoch),
+   idBase            (mm.idBase),
+   largestId         (mm.largestId)
 {
    modelNames = mm.modelNames;
 
@@ -138,6 +143,34 @@ bool MeasurementManager::Initialize()
          return false;
       MeasurementData md;
       measurements.push_back(md);
+   }
+
+   return retval;
+}
+
+
+bool MeasurementManager::PrepareForProcessing(bool simulating)
+{
+   bool retval = true;
+
+   for (UnsignedInt i = 0; i < streamList.size(); ++i)
+   {
+      if (streamList[i]->OpenStream(simulating) == false)
+         retval = false;
+   }
+
+   return retval;
+}
+
+
+bool MeasurementManager::ProcessingComplete()
+{
+   bool retval = true;
+
+   for (UnsignedInt i = 0; i < streamList.size(); ++i)
+   {
+      if (streamList[i]->CloseStream() == false)
+         retval = false;
    }
 
    return retval;
@@ -249,10 +282,18 @@ bool MeasurementManager::WriteMeasurement(const Integer measurementToWrite)
 //------------------------------------------------------------------------------
 Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 {
-   models.push_back((MeasurementModel*)meas->Clone());
-   Integer measurementIndex = models.size() - 1;
+   MeasurementModel *measClone = (MeasurementModel*)meas->Clone();
+   measClone->SetModelID(largestId++);
+   models.push_back(measClone);
 
-   return measurementIndex;
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage(
+            "Added measurement of type %s with unique ID %d\n",
+            measClone->GetStringParameter("Type").c_str(),
+            measClone->GetModelID());
+   #endif
+
+   return measClone->GetModelID();
 }
 
 
@@ -373,5 +414,82 @@ bool MeasurementManager::CalculateMeasurementsAndDerivatives()
 //------------------------------------------------------------------------------
 bool MeasurementManager::WriteMeasurements()
 {
-   return false;
+   #ifdef DEBUG_FILE_WRITE
+      MessageInterface::ShowMessage("Entered MeasurementManager::"
+            "WriteMeasurements()\n");
+   #endif
+
+   bool retval = false;
+
+   for (UnsignedInt i = 0; i < measurements.size(); ++i)
+   {
+      if (measurements[i].isFeasible)
+      {
+         #ifdef DEBUG_FILE_WRITE
+            MessageInterface::ShowMessage("Feasible\n   id = %d\n",
+                  measurements[i].uniqueID);
+            MessageInterface::ShowMessage("   Stream at <%p>\n",
+                  idToStreamMap[measurements[i].uniqueID]);
+         #endif
+         idToStreamMap[measurements[i].uniqueID]->
+               WriteMeasurement(&(measurements[i]));
+         retval = true;
+      }
+   }
+
+   return retval;
+}
+
+
+const StringArray& MeasurementManager::GetStreamList()
+{
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("MeasurementManager::GetStreamList() "
+            "Entered\n   %d models registered\n", models.size());
+   #endif
+
+   // Run through the measurements and build the list
+   streamNames.clear();
+   for (UnsignedInt i = 0; i < models.size(); ++i)
+   {
+      StringArray names = models[i]->GetStringArrayParameter("ObservationData");
+      for (UnsignedInt j = 0; j < names.size(); ++j)
+      {
+         if(find(streamNames.begin(), streamNames.end(), names[j]) ==
+               streamNames.end())
+            streamNames.push_back(names[j]);
+      }
+   }
+
+   return streamNames;
+}
+
+
+void MeasurementManager::SetStreamObject(Datafile *newStream)
+{
+   if (find(streamList.begin(), streamList.end(), newStream) ==
+         streamList.end())
+   {
+      streamList.push_back(newStream);
+      std::string streamName = newStream->GetName();
+
+      // Walk through the models and set each model's index that refs the new
+      // stream to point to it.
+      for (UnsignedInt i = 0; i < models.size(); ++i)
+      {
+         StringArray od = models[i]->GetStringArrayParameter("ObservationData");
+         for (UnsignedInt j = 0; j < od.size(); ++j)
+         {
+            // todo: Each model feeds only one stream with this code
+            if (streamName == od[j])
+            {
+               idToStreamMap[models[i]->GetModelID()] = newStream;
+               #ifdef DEBUG_INITIALIZATION
+                  MessageInterface::ShowMessage("Stream id %d -> %s\n",
+                        models[i]->GetModelID(), newStream->GetName().c_str());
+               #endif
+            }
+         }
+      }
+   }
 }

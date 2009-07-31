@@ -22,10 +22,25 @@ GMAT Maui.X  = -4450.8;
 GMAT Maui.Y  =  2676.1;
 GMAT Maui.Z  = -3691.38;
 
+%----- Create another ground station
+Create GroundStation gs2;
+GMAT gs2.CentralBody = Earth;
+GMAT gs2.StateType = Cartesian;
+GMAT gs2.HorizonReference = Sphere;
+GMAT gs2.Id = GS2ID;
+GMAT gs2.X  = 6378.14;
+GMAT gs2.Y  = 0.00;
+GMAT gs2.Z  = 0.00;
+
 %----- Create the data file
 Create Datafile MauiMeasData
 MauiMeasData.Filename = MauiData.gmd
 MauiMeasData.Format  = GMATInternal
+
+%----- Create another data file
+Create Datafile gs2MeasData
+gs2MeasData.Filename = GS2Data.gmd
+gs2MeasData.Format  = GMATInternal
 
 %----- Create the propagator
 Create ForceModel ODProp_ForceModel;
@@ -41,14 +56,20 @@ RangeMeasurement.ObservationData = MauiMeasData;
 RangeMeasurement.Type   = Range;
 RangeMeasurement.Participants = { Maui, ODSat };
 
+%----- Create a range measurement between GS2 and ODSat
+Create MeasurementModel RangeMeasurement2
+RangeMeasurement2.ObservationData = gs2MeasData;
+RangeMeasurement2.Type   = Range;
+RangeMeasurement2.Participants = { gs2, ODSat };
+
 %------ Create the measurement simulator
 Create Simulator MeasSim
-MeasSim.Measurements    = {RangeMeasurement}; 
+MeasSim.Measurements    = {RangeMeasurement, RangeMeasurement2};
 MeasSim.Propagator      = ODProp;
 MeasSim.InitialEpochFormat = UTCGregorian;
 MeasSim.InitialEpoch       = '01 Jan 2000 11:59:28.000';
 MeasSim.FinalEpochFormat   = UTCGregorian;
-MeasSim.FinalEpoch         = '02 Jan 2000 11:59:28.000';
+MeasSim.FinalEpoch         = '06 Jan 2000 11:59:28.000';
 MeasSim.MeasurementTimeStep = 100;
 
 %------ Make sure we propagate
@@ -62,4 +83,4 @@ GMAT XYPlot1.ShowPlot = true;
 
 %------ Run the measurement simulator
 RunSimulator MeasSim
- 
+

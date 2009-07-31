@@ -23,6 +23,8 @@
 
 MeasurementData::MeasurementData() :
    type        (Gmat::UNKNOWN_MEASUREMENT),
+   typeName    ("Unknown"),
+   uniqueID    (-1),
    epoch       (0.0),
    isFeasible  (false)
 {
@@ -34,6 +36,8 @@ MeasurementData::~MeasurementData()
 
 MeasurementData::MeasurementData(const MeasurementData& md) :
    type           (md.type),
+   typeName       (md.typeName),
+   uniqueID       (md.uniqueID),
    epoch          (md.epoch),
    participantIDs (md.participantIDs),
    value          (md.value),
@@ -47,6 +51,8 @@ MeasurementData MeasurementData::operator=(const MeasurementData& md)
    if (&md != this)
    {
       type           = md.type;
+      typeName       = md.typeName;
+      uniqueID       = md.uniqueID;
       epoch          = md.epoch;
       participantIDs = md.participantIDs;
       value          = md.value;

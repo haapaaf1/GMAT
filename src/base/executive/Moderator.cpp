@@ -4999,6 +4999,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
          AddPropSetupToSandbox(sandboxNum-1);
          AddBurnToSandbox(sandboxNum-1);
          AddMeasurementToSandbox(sandboxNum-1);
+         AddDataStreamToSandbox(sandboxNum-1);
          AddSolverToSandbox(sandboxNum-1);
          // Note:
          // Add Subscriber after Publisher.
@@ -7277,6 +7278,39 @@ void Moderator::AddMeasurementToSandbox(Integer index)
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = theConfigManager->GetMeasurementModel(names[i]);
+      sandboxes[index]->AddObject(obj);
+
+      #if DEBUG_RUN > 1
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
+          obj->GetName().c_str());
+      #endif
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void AddDataStreamToSandbox(Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Passes each configured DataStream into the Sandbox
+ *
+ * @param index The Sandbox that receives the DataStream
+ */
+//------------------------------------------------------------------------------
+void Moderator::AddDataStreamToSandbox(Integer index)
+{
+   Datafile *obj;
+   StringArray names = theConfigManager->GetListOfItems(Gmat::DATASTREAM);
+
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage
+      ("Moderator::AddDataStreamToSandbox() count = %d\n", names.size());
+   #endif
+
+   for (Integer i=0; i<(Integer)names.size(); i++)
+   {
+      obj = theConfigManager->GetDataStream(names[i]);
       sandboxes[index]->AddObject(obj);
 
       #if DEBUG_RUN > 1

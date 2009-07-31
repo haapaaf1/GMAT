@@ -20,10 +20,15 @@
 
 
 #include "Obtype.hpp"
+#include "MessageInterface.hpp"
 
 
 Obtype::Obtype(const std::string &obType, const std::string &name) :
-   GmatBase          (Gmat::OBTYPE, obType, name)
+   GmatBase          (Gmat::OBTYPE, obType, name),
+   streamName        (""),
+   header            (""),
+   openForRead       (true),
+   openForWrite      (false)
 {
    objectTypes.push_back(Gmat::OBTYPE);
    objectTypeNames.push_back("Obtype");
@@ -37,7 +42,11 @@ Obtype::~Obtype()
 
 
 Obtype::Obtype(const Obtype& ot) :
-   GmatBase       (ot)
+   GmatBase          (ot),
+   streamName        (ot.streamName),
+   header            (ot.header),
+   openForRead       (ot.openForRead),
+   openForWrite      (ot.openForWrite)
 {
 }
 
@@ -46,22 +55,41 @@ Obtype& Obtype::operator=(const Obtype& ot)
 {
    if (this != &ot)
    {
-
+      streamName   = ot.streamName;
+      header       = ot.header;
+      openForRead  = ot.openForRead;
+      openForWrite = ot.openForWrite;
    }
 
    return *this;
 }
 
+void Obtype::SetStreamName(std::string name)
+{
+   streamName = name;
+}
 
 bool Obtype::Initialize()
 {
-   bool retval = false;
-   return retval;
+   return false;
 }
 
+bool Obtype::Open(bool forRead, bool forWrite, bool append)
+{
+   return false;
+}
+
+bool Obtype::IsOpen()
+{
+   return false;
+}
+
+bool Obtype::Close()
+{
+   return false;
+}
 
 bool Obtype::Finalize()
 {
-   bool retval = false;
-   return retval;
+   return false;
 }

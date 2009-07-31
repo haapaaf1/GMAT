@@ -121,7 +121,7 @@ public:
    CoordinateSystem*   GetCoordinateSystem(const std::string &name);
    CalculatedPoint*    GetCalculatedPoint(const std::string &name);
    MeasurementModel*   GetMeasurementModel(const std::string &name);
-   Datafile *          GetDatafile(const std::string &name);
+   Datafile *          GetDataStream(const std::string &name);
 
    bool                HasConfigurationChanged();
    void                ConfigurationChanged(bool tf);

@@ -31,16 +31,22 @@ public:
    GmatObtype(const std::string withName = "");
    virtual ~GmatObtype();
    GmatObtype(const GmatObtype& ot);
-   GmatObtype& operator=(const Obtype& ot);
+   GmatObtype& operator=(const GmatObtype& ot);
 
    GmatBase*         Clone() const;
 
    virtual bool      Initialize();
+   virtual bool      Open(bool forRead = true, bool forWrite= false,
+                          bool append = false);
+   virtual bool      IsOpen();
    virtual bool      AddMeasurement(MeasurementData *md);
+   virtual bool      Close();
    virtual bool      Finalize();
 
 private:
    std::fstream      theStream;
+   Integer           epochPrecision;
+   Integer           dataPrecision;
 };
 
 #endif /* GMATOBTYPE_HPP_ */
