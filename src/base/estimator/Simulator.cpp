@@ -26,8 +26,8 @@
 #include "MessageInterface.hpp"
 #include <sstream>
 
-#define DEBUG_STATE_MACHINE
-#define DEBUG_SIMULATOR_WRITE
+//#define DEBUG_STATE_MACHINE
+//#define DEBUG_SIMULATOR_WRITE
 //#define DEBUG_SIMULATOR_INITIALIZATION
 
 //------------------------------------------------------------------------------
