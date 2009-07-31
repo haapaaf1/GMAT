@@ -23,6 +23,7 @@
 #include "SolverException.hpp"
 #include "RealUtilities.hpp"
 #include "TimeTypes.hpp"
+#include "TimeSystemConverter.hpp"
 #include "MessageInterface.hpp"
 #include <sstream>
 
@@ -328,7 +329,8 @@ Solver::SolverState Simulator::AdvanceState()
          #ifdef DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage("Entered Simulator state machine: INITIALIZING\n");
          #endif
-         ReportProgress();
+         // ReportProgress() writes nonsense here, so removed for now
+         // ReportProgress();
          CompleteInitialization();
          break;
 
@@ -336,7 +338,8 @@ Solver::SolverState Simulator::AdvanceState()
          #ifdef DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage("Entered Simulator state machine: PROPAGATING\n");
          #endif
-         ReportProgress();
+         // ReportProgress() writes blank lines here, so removed for now
+         // ReportProgress();
          FindTimeStep();
          break;
 
@@ -344,7 +347,8 @@ Solver::SolverState Simulator::AdvanceState()
          #ifdef DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage("Entered Simulator state machine: CALCULATING\n");
          #endif
-         ReportProgress();
+         // ReportProgress() writes blank lines here, so removed for now
+         // ReportProgress();
          CalculateData();
          break;
 
@@ -361,7 +365,8 @@ Solver::SolverState Simulator::AdvanceState()
          #ifdef DEBUG_STATE_MACHINE
             MessageInterface::ShowMessage("Entered Simulator state machine: SIMULATING\n");
          #endif
-         ReportProgress();
+         // ReportProgress() writes blank lines here, so removed for now
+         // ReportProgress();
          SimulateData();
          break;
 
@@ -370,7 +375,8 @@ Solver::SolverState Simulator::AdvanceState()
             MessageInterface::ShowMessage("Entered Simulator state machine: FINISHED\n");
          #endif
          RunComplete();
-         ReportProgress();
+         // ReportProgress() writes blank lines here, so removed for now
+         // ReportProgress();
          break;
 
       default:
@@ -647,6 +653,8 @@ bool Simulator::SetStringParameter(const Integer id,
    if (id == INITIAL_EPOCH)
    {
       initialEpoch = value;
+      // Convert to a.1 time for internal processing
+      simulationStart = ConvertToRealEpoch(initialEpoch, initialEpochFormat);
       return true;
    }
    if (id == FINAL_EPOCH_FORMAT)
@@ -657,10 +665,41 @@ bool Simulator::SetStringParameter(const Integer id,
    if (id == FINAL_EPOCH)   
    {
       finalEpoch = value;
+      // Convert to a.1 time for internal processing
+      simulationEnd = ConvertToRealEpoch(finalEpoch, finalEpochFormat);
       return true;
    }
 
    return Solver::SetStringParameter(id, value);
+}
+
+//------------------------------------------------------------------------------
+// Real ConvertToRealEpoch(const std::string &theEpoch,
+//                         const std::string &theFormat)
+//------------------------------------------------------------------------------
+/**
+ * Converts an epoch string is a specified format into
+ *
+ * @param theEpoch The input epoch
+ * @param theFormat The format of the input epoch
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+Real Simulator::ConvertToRealEpoch(const std::string &theEpoch,
+                                   const std::string &theFormat)
+{
+   Real fromMjd = -999.999;
+   Real retval = -999.999;
+   std::string outStr;
+
+   TimeConverterUtil::Convert(theFormat, fromMjd, theEpoch, "A1ModJulian",
+         retval, outStr);
+
+   if (retval == -999.999)
+      throw SolverException("Error converting the time string \"" + theEpoch +
+            "\"; please check the format for the input string.");
+   return retval;
 }
    
 //------------------------------------------------------------------------------

@@ -175,6 +175,8 @@ protected:
    void                   RunComplete();
 
    // Helper methods
+   Real                   ConvertToRealEpoch(const std::string &theEpoch,
+                                              const std::string &theFormat);
    void                   FindNextSimulationEpoch();
    // progress string for reporting
    virtual std::string    GetProgressString();

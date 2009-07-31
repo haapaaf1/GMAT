@@ -20,7 +20,7 @@
 
 #include "GmatObtype.hpp"
 #include "MessageInterface.hpp"
-
+#include "FileManager.hpp"
 
 //#define DEBUG_OBTYPE_CREATION_INITIALIZATION
 //#define DEBUG_FILE_WRITE
@@ -124,8 +124,12 @@ bool GmatObtype::Open(bool forRead, bool forWrite, bool append)
 
    if (streamName != "")
    {
-      // todo: Set the path for the measurement file
-      theStream.open(streamName.c_str(), mode);
+      // todo: Clean up the path for the measurement file
+      FileManager *fm = FileManager::Instance();
+      std::string outputPath = fm->GetPathname(FileManager::OUTPUT_PATH);
+      outputPath += streamName;
+
+      theStream.open(outputPath.c_str(), mode);
    }
 
    retval = theStream.is_open();
