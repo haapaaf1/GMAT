@@ -485,7 +485,7 @@ bool Datafile::SetStream(Obtype *thisStream)
 
    bool retval = false;
 
-   if (thisStream->IsOfType(Gmat::DATASTREAM))
+   if (thisStream->IsOfType(Gmat::OBTYPE))
    {
       theDatastream = thisStream;
       retval = true;
