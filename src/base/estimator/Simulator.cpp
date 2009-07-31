@@ -566,7 +566,7 @@ Real Simulator::SetRealParameter(const Integer id, const Real value)
 {
    if (id == MEASUREMENT_TIME_STEP)
    {
-      timeStep = value;
+      simulationStep = value;
       return true;
    }
    
@@ -1153,11 +1153,11 @@ std::string Simulator::GetProgressString()
             break;
 
          case PROPAGATING:
-            progress << "\n";
+//            progress << "\n";
             break;
 
          case CALCULATING:
-            progress << "\n";
+//            progress << "\n";
             // Iterate through the TBD variables, writing them to the string
 //            for (current = variableNames.begin(), i = 0;
 //                 current != variableNames.end(); ++current)
@@ -1170,13 +1170,13 @@ std::string Simulator::GetProgressString()
 
          case SIMULATING:
             // TBD
-            progress << "\n";
+//            progress << "\n";
 
             break;
 
          case FINISHED:
             // TBD
-            progress << "\n";
+//            progress << "\n";
 
             break;
 
