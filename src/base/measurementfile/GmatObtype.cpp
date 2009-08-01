@@ -135,12 +135,29 @@ bool GmatObtype::Open(bool forRead, bool forWrite, bool append)
       }
       fullPath += streamName;
 
+      // Add the .gmd extension if there is no extension in the file
+      UnsignedInt dotLoc = fullPath.find_last_of('.');
+      UnsignedInt slashLoc = fullPath.find_last_of('/');
+      if (slashLoc == std::string::npos)
+         slashLoc = fullPath.find_last_of('\\');
+
+      if ((dotLoc == std::string::npos) ||
+          (dotLoc < slashLoc))
+      {
+         fullPath += ".gmd";
+      }
+
       theStream.open(fullPath.c_str(), mode);
    }
 
    retval = theStream.is_open();
    if (retval && forWrite)
       theStream << header;
+
+   if (retval == false)
+      MessageInterface::ShowMessage(
+            "GMATInternal Data File %s could not be opened\n",
+            streamName.c_str());
    return retval;
 }
 

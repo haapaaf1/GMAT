@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                         ClassName
+//                       PropagationEnabledCommand
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -10,10 +10,10 @@
 // number NNG06CA54C
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
-// Created: 2009/ /
+// Created: 2009/07/20
 //
 /**
- * File description here.
+ * Implementation of the PropagationEnabledCommand base class
  */
 //------------------------------------------------------------------------------
 
@@ -28,7 +28,21 @@
 //#define DEBUG_EXECUTION
 
 
-PropagationEnabledCommand::PropagationEnabledCommand(const std::string &typeStr) :
+//------------------------------------------------------------------------------
+// PropagationEnabledCommand(const std::string &typeStr)
+//------------------------------------------------------------------------------
+/**
+ * Constructor
+ *
+ * @param typeStr The type string describing the subclass
+ *
+ * PropagationEnabledCommand is the abstract base class used for commands that
+ * can propagate.  The class is made abstract through the destructor; all class
+ * methods are implemented.
+ */
+//------------------------------------------------------------------------------
+PropagationEnabledCommand::PropagationEnabledCommand(const std::string &typeStr)
+:
    GmatCommand          (typeStr),
    overridePropInit     (false),
    hasFired             (false),
@@ -41,6 +55,13 @@ PropagationEnabledCommand::PropagationEnabledCommand(const std::string &typeStr)
 }
 
 
+//------------------------------------------------------------------------------
+// ~PropagationEnabledCommand()
+//------------------------------------------------------------------------------
+/**
+ * Destructor
+ */
+//------------------------------------------------------------------------------
 PropagationEnabledCommand::~PropagationEnabledCommand()
 {
    if (!overridePropInit)
@@ -64,7 +85,17 @@ PropagationEnabledCommand::~PropagationEnabledCommand()
 }
 
 
-PropagationEnabledCommand::PropagationEnabledCommand(const PropagationEnabledCommand& pec) :
+//------------------------------------------------------------------------------
+// PropagationEnabledCommand(const PropagationEnabledCommand& pec)
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor
+ *
+ * @param pec The PropagationEnabledCommand that is copied into a new instance
+ */
+//------------------------------------------------------------------------------
+PropagationEnabledCommand::PropagationEnabledCommand(
+      const PropagationEnabledCommand& pec) :
    GmatCommand          (pec),
    overridePropInit     (pec.overridePropInit),
    hasFired             (false),
@@ -81,7 +112,20 @@ PropagationEnabledCommand::PropagationEnabledCommand(const PropagationEnabledCom
 }
 
 
-PropagationEnabledCommand& PropagationEnabledCommand::operator=(const PropagationEnabledCommand& pec)
+//------------------------------------------------------------------------------
+// PropagationEnabledCommand& operator=(const PropagationEnabledCommand& pec)
+//------------------------------------------------------------------------------
+/**
+ * Assignment operator
+ *
+ * @param pec The PropagationEnabledCommand that is copied into this instance
+ *
+ * @return A reference to this instance, configured to match pec but not yet
+ *         initialized.
+ */
+//------------------------------------------------------------------------------
+PropagationEnabledCommand& PropagationEnabledCommand::operator=(
+      const PropagationEnabledCommand& pec)
 {
    if (this == &pec)
    {
@@ -109,6 +153,20 @@ PropagationEnabledCommand& PropagationEnabledCommand::operator=(const Propagatio
    return *this;
 }
 
+//------------------------------------------------------------------------------
+// bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Initialization method for the command
+ *
+ * This method clones all of the objects that need cloned for a propagation
+ * enabled command and sets up the corresponding data structures.  The data
+ * is not filled in this method; PrepareToPropagate() performs that final piece
+ * of preparation.
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool PropagationEnabledCommand::Initialize()
 {
    bool retval = false;
@@ -284,271 +342,25 @@ bool PropagationEnabledCommand::Initialize()
 }
 
 
-
-//for (StringArray::iterator i = propName.begin(); i != propName.end(); ++i)
-//{
-//   if (satName.size() <= index)
-//      throw CommandException("Size mismatch for SpaceObject names\n");
-//
-//   if ((*i)[0] == '-')
-//      pName = i->substr(1);
-//   else
-//     pName = *i;
-//
-//   if ((mapObj = FindObject(pName)) == NULL)
-//      throw CommandException(
-//         "Propagate command cannot find Propagator Setup \"" + (pName) +
-//         "\"\n");
-//
-//   if (satName[index]->empty())
-//      throw CommandException(
-//         "Propagate command does not have a SpaceObject for " + (pName) +
-//         " in \n\"" + generatingString + "\"\n");
-//
-//   if (stopWhen.empty())
-//      singleStepMode = true;
-//   else
-//      singleStepMode = false;
-//
-//   PropSetup *clonedProp = (PropSetup *)(mapObj->Clone());
-//   #ifdef DEBUG_MEMORY
-//   MemoryTracker::Instance()->Add
-//      (clonedProp, clonedProp->GetName(), "Propagate::Initialize()",
-//       "(PropSetup *)(mapObj->Clone())");
-//   #endif
-//   //prop.push_back((PropSetup *)(mapObj->Clone()));
-//   prop.push_back(clonedProp);
-//   if (!prop[index])
-//      return false;
-//
-//   Propagator *p = prop[index]->GetPropagator();
-//   if (!p)
-//      throw CommandException("Propagator not set in PropSetup\n");
-//
-//   // Toss the spacecraft into the prop state manager
-//
-//   ODEModel *odem = prop[index]->GetODEModel();
-//   if (!odem)
-//      throw CommandException("ForceModel not set in PropSetup\n");
-//
-//   PropagationStateManager *psm = prop[index]->GetPropStateManager();
-//   StringArray::iterator scName;
-//   StringArray owners, elements;
-//
-//   /// @todo Check to see if All and All.Epoch belong in place for all modes.
-//   owners.push_back("All");
-//   elements.push_back("All.epoch");
-   //
-   //   bool finiteBurnActive = false;
-   //
-//   for (scName = satName[index]->begin(); scName != satName[index]->end();
-//        ++scName)
-//   {
-//      #if DEBUG_PROPAGATE_INIT
-//         MessageInterface::ShowMessage(
-//               "   Adding '%s' to prop state manager '%s'\n",
-//            scName->c_str(), i->c_str());
-//      #endif
-//      if ((mapObj = FindObject(*scName)) == NULL)
-//      {
-//         #if DEBUG_PROPAGATE_INIT
-//            MessageInterface::ShowMessage("   '%s' is not an object; "
-//                  "attempting to set as a prop property\n",
-//                  scName->c_str());
-//         #endif
-//         if (psm->SetProperty(*scName) == false)
-//         {
-//            std::string errmsg = "Unknown SpaceObject property \"";
-//         errmsg += *scName;
-//         errmsg += "\"";
-//         throw CommandException(errmsg);
-//         }
-//      }
-//      else
-//      {
-//         psm->SetObject(mapObj);
-//
-//         so = (SpaceObject*)mapObj;
-//         if (epochID == -1)
-//            epochID = so->GetParameterID("A1Epoch");
-//         if (so->IsManeuvering())
-//            finiteBurnActive = true;
-//         sats.push_back(so);
-//         AddToBuffer(so);
-//
-//         if (so->GetType() == Gmat::FORMATION)
-//            FillFormation(so, owners, elements);
-//         else
-//         {
-//            SetNames(so->GetName(), owners, elements);
-//         }
-//      }
-//   }
-//
-//   if (psm->BuildState() == false)
-//      throw CommandException("Could not build the state for the command \n" +
-//            generatingString);
-//   if (psm->MapObjectsToVector() == false)
-//      throw CommandException("Could not map state objects for the command\n" +
-//            generatingString);
-//
-//   odem->SetState(psm->GetState());
-//
-//   // Set solar system to ForceModel for Propagate inside a GmatFunction(loj: 2008.06.06)
-//   odem->SetSolarSystem(solarSys);
-//
-//   // Check for finite thrusts and update the force model if there are any
-//   if (finiteBurnActive == true)
-//      AddTransientForce(satName[index], odem);
-
-
-
-//
-//   #ifdef DEBUG_PUBLISH_DATA
-//   MessageInterface::ShowMessage
-//      ("Propagate::Initialize() '%s' registering published data\n",
-//       GetGeneratingString(Gmat::NO_COMMENTS).c_str());
-//   #endif
-//
-//   streamID = publisher->RegisterPublishedData(this, streamID, owners, elements);
-//
-//   p->SetPhysicalModel(odem);
-//   p->SetRealParameter("InitialStepSize",
-//      fabs(p->GetRealParameter("InitialStepSize")) * direction);
-//   p->Initialize();
-//
-//   // Set spacecraft parameters for forces that need them
-//   if (odem->SetupSpacecraftData(&sats, 0) <= 0)
-//      throw PropagatorException("Propagate::Initialize -- "
-//            "ODE model cannot set spacecraft parameters");
-//
-//
-//   ++index;
-//} // End of loop through PropSetups
-//
-//initialized = true;
-//
-//stopSats.clear();
-//// Setup spacecraft array used for stopping conditions
-//for (StringArray::iterator sc = stopSatNames.begin();
-//     sc != stopSatNames.end(); ++sc)
-//{
-//   if ((mapObj = FindObject(*sc)) == NULL)
-//   {
-//      std::string errmsg = "Unknown SpaceObject \"";
-//      errmsg += *sc;
-//      errmsg += "\" used in stopping conditions";
-//      throw CommandException(errmsg);
-//   }
-//   so = (SpaceObject*)mapObj;
-//   stopSats.push_back(so);
-//}
-//
-//#if DEBUG_PROPAGATE_INIT
-//   for (UnsignedInt i=0; i<stopSats.size(); i++)
-//      MessageInterface::ShowMessage(
-//         "Propagate::Initialize() stopSats[%d]=%s\n", i,
-//         stopSats[i]->GetName().c_str());
-//#endif
-//
-//if ((stopWhen.size() == 0) && !singleStepMode)
-//   throw CommandException("No stopping conditions specified!");
-//
-//if (solarSys != NULL)
-//{
-//   StringArray refNames;
-//
-//   for (UnsignedInt i=0; i<stopWhen.size(); i++)
-//   {
-//      stopWhen[i]->SetSolarSystem(solarSys);
-//
-//      //Set StopCondition parameters
-//      refNames = stopWhen[i]->GetRefObjectNameArray(Gmat::PARAMETER);
-//
-//      for (UnsignedInt j=0; j<refNames.size(); j++)
-//      {
-//         #if DEBUG_PROPAGATE_INIT
-//            MessageInterface::ShowMessage("===> refNames=<%s>\n",
-//               refNames[j].c_str());
-//         #endif
-//         mapObj = FindObject(refNames[j]);
-//         stopWhen[i]->SetRefObject(mapObj,
-//                                   Gmat::PARAMETER, refNames[j]);
-//      }
-//
-//      stopWhen[i]->Initialize();
-//      stopWhen[i]->SetSpacecraft((SpaceObject*)sats[0]);
-//
-//      if (!stopWhen[i]->IsInitialized())
-//      {
-//         initialized = false;
-//         MessageInterface::ShowMessage(
-//            "Propagate::Initialize() StopCondition %s is not initialized.\n",
-//            stopWhen[i]->GetName().c_str());
-//         break;
-//      }
-//   }
-//}
-//else
-//{
-//   initialized = false;
-//   MessageInterface::ShowMessage
-//      ("Propagate::Initialize() SolarSystem not set in StopCondition");
-//}
-//
-//#if DEBUG_PROPAGATE_EXE
-//   MessageInterface::ShowMessage("Propagate::Initialize() complete.\n");
-//#endif
-//
-//#ifdef DEBUG_PROPAGATE_DIRECTION
-//   MessageInterface::ShowMessage("Propagate::Initialize():"
-//                                 " Propagators Identified:\n");
-//   for (StringArray::iterator i = propName.begin(); i != propName.end();
-//        ++i)
-//      MessageInterface::ShowMessage("   \"%s\" running %s\n", i->c_str(),
-//      (direction > 0.0 ? "forwards" : "backwards"));
-//#endif
-//
-//if (singleStepMode)
-//{
-//   commandSummary = "Command Summary: ";
-//   commandSummary += typeName;
-//   commandSummary += " Command\nSummary not available in single step mode\n";
-//}
-//
-//#ifdef DUMP_PLANET_DATA
-//   if (body[0] == NULL)
-//      body[0] = solarSys->GetBody("Earth");
-//   if (body[1] == NULL)
-//      body[1] = solarSys->GetBody("Sun");
-//   if (body[2] == NULL)
-//      body[2] = solarSys->GetBody("Luna");
-//   if (body[3] == NULL)
-//      body[3] = solarSys->GetBody("Mercury");
-//   if (body[4] == NULL)
-//      body[4] = solarSys->GetBody("Venus");
-//   if (body[5] == NULL)
-//      body[5] = solarSys->GetBody("Mars");
-//   if (body[6] == NULL)
-//      body[6] = solarSys->GetBody("Jupiter");
-//   if (body[7] == NULL)
-//      body[7] = solarSys->GetBody("Saturn");
-//   if (body[8] == NULL)
-//      body[8] = solarSys->GetBody("Uranus");
-//   if (body[9] == NULL)
-//      body[9] = solarSys->GetBody("Neptune");
-//   if (body[10] == NULL)
-//      body[10] = solarSys->GetBody("Pluto");
-//
-//   bodiesDefined = 11;
-//#endif
-//
-//return initialized;
-
+//------------------------------------------------------------------------------
+// protected methods
+//------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
-// protected methods
+// bool PrepareToPropagate()
+//------------------------------------------------------------------------------
+/**
+ * Fills in the data structures needed to start propagation
+ *
+ * This method completes the setup of the ODEModel, prepares the publisher data
+ * array, fills in the data needed to propagate, and completes the steps needed
+ * to propagate the objects selected for propagation by the user.
+ *
+ * @return true on success, false on failure
+ *
+ * todo The current implementation does not yet incorporate transient forces
+ */
 //------------------------------------------------------------------------------
 bool PropagationEnabledCommand::PrepareToPropagate()
 {
@@ -764,6 +576,17 @@ bool PropagationEnabledCommand::PrepareToPropagate()
 }
 
 
+//------------------------------------------------------------------------------
+// bool PropagationEnabledCommand::AssemblePropagators()
+//------------------------------------------------------------------------------
+/**
+ * Prepares all of the propagators for propagation by setting the object
+ * pointers to the objects that need to be propagated and then initializing the
+ * PropSetups
+ *
+ * @return true on success, false if a PropSetup failed to initialize
+ */
+//------------------------------------------------------------------------------
 bool PropagationEnabledCommand::AssemblePropagators()
 {
    #ifdef DEBUG_INITIALIZATION
@@ -799,6 +622,20 @@ bool PropagationEnabledCommand::AssemblePropagators()
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// bool PropagationEnabledCommand::Step(Real dt)
+//------------------------------------------------------------------------------
+/**
+ * Steps each PropSetup by a specified amount
+ *
+ * todo: This is the method that needs to be adapted to handle large input time
+ * steps
+ *
+ * @param dt The desired time step
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool PropagationEnabledCommand::Step(Real dt)
 {
    bool retval = true;

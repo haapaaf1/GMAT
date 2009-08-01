@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                         ClassName
+//                       PropagationEnabledCommand
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -10,10 +10,10 @@
 // number NNG06CA54C
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
-// Created: 2009/ /
+// Created: 2009/07/20
 //
 /**
- * File description here.
+ * Definition of the PropagationEnabledCommand base class
  */
 //------------------------------------------------------------------------------
 
@@ -25,9 +25,16 @@
 #include "PropSetup.hpp"
 #include "Propagator.hpp"
 
+/// A convenient typedef used in this code
 typedef std::vector<SpaceObject*> PropObjectArray;
 
 
+/**
+ * PropagationEnabledCommand is a base class used for commands that perform
+ * propagation.  It provides the methods and interfaces needed perform basic
+ * time-based propagation.  It does not provide interfaces for more complicated
+ * stopping conditions; derived classes provide those interfaces.
+ */
 class PropagationEnabledCommand : public GmatCommand
 {
 public:
@@ -51,9 +58,13 @@ protected:
    /// The objects that are propagated; one PropObjectArray per PropSetup
    std::vector<PropObjectArray*> propObjects;
 
+   /// Flag indicating that the command has been executed once, so that some
+   /// pieces of initialization can be skipped
    bool hasFired;
+   /// Flag indicating the command is currently executing; used for reentrance
    bool inProgress;
 
+   /// The size of the propagation state vector
    Integer dim;
 
    /// ID for the spacecraft epoch parameter
@@ -72,10 +83,10 @@ protected:
    /// The Propagation State Managers
    std::vector<PropagationStateManager*>  psm;
 
+   /// The Mean-of-J2000 propagation state vector data
    Real                         *j2kState;
    /// Data sent to the Publisher
    Real                    *pubdata;
-
 
    bool                 PrepareToPropagate();
    bool                 AssemblePropagators();

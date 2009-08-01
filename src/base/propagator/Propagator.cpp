@@ -456,7 +456,7 @@ Integer Propagator::GetPropagatorOrder() const
 /**
  * Evolves the physical model over the specified time
  * This method sets the default timestep to the input value, and then advances 
- * the system by one timestep.  If the ssytem has not been initialized, then
+ * the system by one timestep.  If the system has not been initialized, then
  * no action is taken.  
  * If the step is taken successfully, the method returns true; otherwise, it 
  * returns false.

@@ -25,8 +25,14 @@
 //#define DEBUG_INITIALIZATION
 //#define DEBUG_SIMULATOR_EXECUTION
 
-//#define USE_HACK
 
+//------------------------------------------------------------------------------
+// RunSimulator()
+//------------------------------------------------------------------------------
+/**
+ * Default constructor
+ */
+//------------------------------------------------------------------------------
 RunSimulator::RunSimulator() :
    RunSolver               ("RunSimulator"),
    theSimulator            (NULL),
@@ -36,12 +42,30 @@ RunSimulator::RunSimulator() :
    overridePropInit = true;
 }
 
+
+//------------------------------------------------------------------------------
+// ~RunSimulator()
+//------------------------------------------------------------------------------
+/**
+ * Destructor
+ */
+//------------------------------------------------------------------------------
 RunSimulator::~RunSimulator()
 {
    if (theSimulator)
       delete theSimulator;
 }
 
+
+//------------------------------------------------------------------------------
+// RunSimulator::RunSimulator(const RunSimulator & rs)
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor
+ *
+ * @param rs The command that is copied into the new one
+ */
+//------------------------------------------------------------------------------
 RunSimulator::RunSimulator(const RunSimulator & rs) :
    RunSolver               (rs),
    theSimulator            (NULL),
@@ -51,6 +75,17 @@ RunSimulator::RunSimulator(const RunSimulator & rs) :
    overridePropInit = true;
 }
 
+//------------------------------------------------------------------------------
+// RunSimulator & operator=(const RunSimulator & rs)
+//------------------------------------------------------------------------------
+/**
+ * Assignment operator
+ *
+ * @param rs The RunSimulator object that supplies properties this one needs
+ *
+ * @return A reference to this instance
+ */
+//------------------------------------------------------------------------------
 RunSimulator & RunSimulator::operator=(const RunSimulator & rs)
 {
    if (&rs != this)
@@ -64,6 +99,15 @@ RunSimulator & RunSimulator::operator=(const RunSimulator & rs)
    return *this;
 }
 
+//------------------------------------------------------------------------------
+// GmatBase *RunSimulator::Clone() const
+//------------------------------------------------------------------------------
+/**
+ * Cleates a duplicate of a RunSimulator object
+ *
+ * @return a clone of the object
+ */
+//------------------------------------------------------------------------------
 GmatBase *RunSimulator::Clone() const
 {
    return new RunSimulator(*this);
@@ -190,6 +234,24 @@ const std::string& RunSimulator::GetGeneratingString(Gmat::WriteMode mode,
 }
 
 
+//------------------------------------------------------------------------------
+// bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Prepares the command for execution
+ *
+ * This method prepares the simulator and associated measurement manager and
+ * measurements for the simulation process.  Referenced objects are cloned or
+ * set as needed in this method.
+ *
+ * The propagation subsystem is prepared in the base class components of the
+ * command.  RunSimulator generaqtes teh PropSetup clones at this level, but
+ * leaves the rest of the initialization process for the PropSetups in the base
+ * class method, which is called from this method.
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool RunSimulator::Initialize()
 {
    bool retval = false;
@@ -243,22 +305,6 @@ bool RunSimulator::Initialize()
                obj->GetName().c_str());
       else
          MessageInterface::ShowMessage("is not yet set\n");
-   #endif
-
-   #ifdef USE_HACK
-      MessageInterface::ShowMessage("WARNING!!!  Running with a code hack in "
-            "place -- NOT production code!!!\n", obj);
-      if (obj == NULL)
-      {
-         if (objectMap->find("ODProp") != objectMap->end())
-         {
-            obj = (PropSetup*)((*objectMap)["ODProp"]->Clone());
-         }
-         else if (globalObjectMap->find("ODProp") != objectMap->end())
-         {
-            obj = (PropSetup*)((*globalObjectMap)["ODProp"]->Clone());
-         }
-      }
    #endif
 
    if (obj != NULL)
@@ -317,6 +363,20 @@ bool RunSimulator::Initialize()
 }
 
 
+//------------------------------------------------------------------------------
+// bool Execute()
+//------------------------------------------------------------------------------
+/**
+ * Performs the command side processing for the Simulation
+ *
+ * This method calls the Simulator to determine the state of the Simulation
+ * state machine and responds to that state as needed.  Typical command side
+ * responses are to propagate as needed, to clean up memory, or to reset flags
+ * based on the state machine.
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool RunSimulator::Execute()
 {
    #ifdef DEBUG_SIMULATOR_EXECUTION
@@ -324,55 +384,67 @@ bool RunSimulator::Execute()
             GetTypeName().c_str());
    #endif
 
+   // Reset the command if called after it has completed execution
+   // todo: Debug this piece; reentrance in a For loop doesn't work yet
+//   if (commandComplete)
+//      TakeAction("Reset");
+
+
    // Here we should check to see if the command is currently propagating and
    // finish that first...
 
    // Respond to the state in the state machine
    Solver::SolverState state = theSimulator->GetState();
-//   while (state != Solver::FINISHED)
+
+   #ifdef DEBUG_SIMULATOR_EXECUTION
+      MessageInterface::ShowMessage("\nSimulator state is %d\n", state);
+   #endif
+   switch (state)
    {
-      #ifdef DEBUG_SIMULATOR_EXECUTION
-         MessageInterface::ShowMessage("\nSimulator state is %d\n", state);
-      #endif
-      switch (state)
-      {
-         case Solver::INITIALIZING:
-            PrepareToSimulate();
-            break;
+      case Solver::INITIALIZING:
+         PrepareToSimulate();
+         break;
 
-         case Solver::PROPAGATING:
-            Propagate();
-            break;
+      case Solver::PROPAGATING:
+         Propagate();
+         break;
 
-         case Solver::CALCULATING:
-            Calculate();
-            break;
+      case Solver::CALCULATING:
+         Calculate();
+         break;
 
-         case Solver::LOCATING:
-            // The LOCATING state shouldn't trigger until we have event location
-            // implemented, so this case should not fire.
-            LocateEvent();
-            break;
+      case Solver::LOCATING:
+         // The LOCATING state shouldn't trigger until we have event location
+         // implemented, so this case should not fire.
+         LocateEvent();
+         break;
 
-         case Solver::SIMULATING:
-            Simulate();
-            break;
+      case Solver::SIMULATING:
+         Simulate();
+         break;
 
-         case Solver::FINISHED:
-            Finalize();
-            break;
+      case Solver::FINISHED:
+         Finalize();
+         break;
 
-         default:
-            throw CommandException("Unknown state "
-                  " encountered in the RunSimulator command");
-      }
-
-      state = theSimulator->AdvanceState();
+      default:
+         throw CommandException("Unknown state "
+               " encountered in the RunSimulator command");
    }
+
+   state = theSimulator->AdvanceState();
 
    return true;
 }
 
+
+//------------------------------------------------------------------------------
+// void RunComplete()
+//------------------------------------------------------------------------------
+/**
+ * Completes processing so that subsequent commands can be run.
+ */
+//------------------------------------------------------------------------------
 void RunSimulator::RunComplete()
 {
    #ifdef DEBUG_SIMULATOR_EXECUTION
@@ -384,6 +456,46 @@ void RunSimulator::RunComplete()
 }
 
 
+//------------------------------------------------------------------------------
+// bool TakeAction(const std::string &action, const std::string &actionData)
+//------------------------------------------------------------------------------
+/**
+ * Performs actions at prompting from higher level structures
+ *
+ * @param action The action that needs to be taken
+ * @param actionData Optional additional data the action needs
+ *
+ * @return true if an action was taken, false if not
+ */
+//------------------------------------------------------------------------------
+bool RunSimulator::TakeAction(const std::string &action,
+                              const std::string &actionData)
+{
+   if (action == "Reset")
+   {
+      theSimulator->TakeAction("Reset");
+      commandRunning = false;
+      commandComplete = false;
+      return true;
+   }
+
+   return RunSolver::TakeAction(action, actionData);
+}
+
+
+//------------------------------------------------------------------------------
+// GmatCommand* GetNext()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the pointer to the next command that the Sandbox needs to run
+ *
+ * This method returns a pointer to the current RunSimulator command while the
+ * simulation state machine is running.  It returns the next pointer after the
+ * simulation has finished execution.
+ *
+ * @return The next comamnd that should Execute()
+ */
+//------------------------------------------------------------------------------
 GmatCommand* RunSimulator::GetNext()
 {
    if (commandRunning)
@@ -392,9 +504,22 @@ GmatCommand* RunSimulator::GetNext()
 }
 
 
+//------------------------------------------------------------------------------
 // Methods triggered by the finite state machine
+//------------------------------------------------------------------------------
 
 
+//------------------------------------------------------------------------------
+// void PrepareToSimulate()
+//------------------------------------------------------------------------------
+/**
+ * Responds to the CALCULATING state of the finite state machine
+ *
+ * Performs the final stages of initialization that need to be performed prior
+ * to running the simulation.  This includes the final ODEModel preparation and
+ * the setting for the flags that indicate that a simulation is in process.
+ */
+//------------------------------------------------------------------------------
 void RunSimulator::PrepareToSimulate()
 {
 #ifdef DEBUG_SIMULATOR_EXECUTION
@@ -411,17 +536,42 @@ void RunSimulator::PrepareToSimulate()
    commandComplete = false;
 }
 
+
+//------------------------------------------------------------------------------
+// void Propagate()
+//------------------------------------------------------------------------------
+/**
+ * Responds to the PROPAGATING state of the finite state machine.
+ *
+ * Propagation from the current epoch to the next simulation epoch is performed
+ * in this method.
+ */
+//------------------------------------------------------------------------------
 void RunSimulator::Propagate()
 {
-#ifdef DEBUG_SIMULATOR_EXECUTION
-   MessageInterface::ShowMessage("Entered RunSimulator::Propagate()\n");
-#endif
+   #ifdef DEBUG_SIMULATOR_EXECUTION
+      MessageInterface::ShowMessage("Entered RunSimulator::Propagate()\n");
+   #endif
    Real dt = theSimulator->GetTimeStep();
+
+   // todo: This is a temporary fix; need to evaluate to find a more elegant
+   //       solution here
+   Real maxStep = 600.0;
+   if (dt > maxStep)
+      dt = maxStep;
    Step(dt);
 
    theSimulator->UpdateCurrentEpoch(currEpoch[0]);
 }
 
+
+//------------------------------------------------------------------------------
+// void Calculate()
+//------------------------------------------------------------------------------
+/**
+ * Responds to the CALCULATING state of the finite state machine
+ */
+//------------------------------------------------------------------------------
 void RunSimulator::Calculate()
 {
 #ifdef DEBUG_SIMULATOR_EXECUTION
@@ -430,6 +580,14 @@ void RunSimulator::Calculate()
    // We might not need anything here -- it's all Simulator side work
 }
 
+
+//------------------------------------------------------------------------------
+// void LocateEvent()
+//------------------------------------------------------------------------------
+/**
+ * Responds to the LOCATING state of the finite state machine
+ */
+//------------------------------------------------------------------------------
 void RunSimulator::LocateEvent()
 {
 #ifdef DEBUG_SIMULATOR_EXECUTION
@@ -438,6 +596,14 @@ void RunSimulator::LocateEvent()
    // We'll figure this out later
 }
 
+
+//------------------------------------------------------------------------------
+// void Simulate()
+//------------------------------------------------------------------------------
+/**
+ * Responds to the SIMULATING state of the finite state machine
+ */
+//------------------------------------------------------------------------------
 void RunSimulator::Simulate()
 {
 #ifdef DEBUG_SIMULATOR_EXECUTION
@@ -446,13 +612,22 @@ void RunSimulator::Simulate()
    // We might not need anything here -- it's all Simulator side work
 }
 
+
+//------------------------------------------------------------------------------
+// void RunSimulator::Finalize()
+//------------------------------------------------------------------------------
+/**
+ * Responds to the FINALIZING state of the finite state machine
+ */
+//------------------------------------------------------------------------------
 void RunSimulator::Finalize()
 {
 #ifdef DEBUG_SIMULATOR_EXECUTION
    MessageInterface::ShowMessage("Entered RunSimulator::Finalize()\n");
 #endif
    // Do cleanup here
-   // Prep the measurement manager
+
+   // Finalize the measurement manager
    MeasurementManager *measman = theSimulator->GetMeasurementManager();
    if (measman->ProcessingComplete() == false)
       MessageInterface::ShowMessage(
