@@ -41,7 +41,7 @@ RangeMeasurement.ObservationData = MauiMeasData;
 RangeMeasurement.Type            = Range;
 RangeMeasurement.Participants    = { Maui, ODSat };
 
-%----- Create the measurement simulator
+%----- Create the estimator
 Create BatchLeastSquaresEstimator BatchEst
 BatchEst.Measurements  = {RangeMeasurement};
 BatchEst.AddSolveFor   = {ODSat.CartesianState,RangeMeasurement.Bias};
@@ -49,6 +49,6 @@ BatchEst.AbsoluteTol   = 1e-5;
 BatchEst.RelativeTol   = 1e-6;
 BatchEst.MaxIterations = 30;
 
-%----- Run the measurement simulator
+%----- Run the estimator
 RunEstimator BatchEst;
 
