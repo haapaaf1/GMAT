@@ -50,5 +50,5 @@ BatchEst.RelativeTol   = 1e-6;
 BatchEst.MaxIterations = 30;
 
 %----- Run the measurement simulator
-RunSimulator BatchEst;
+RunEstimator BatchEst;
 
