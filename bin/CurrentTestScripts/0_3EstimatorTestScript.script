@@ -48,6 +48,7 @@ BatchEst.AddSolveFor   = {ODSat.CartesianState,RangeMeasurement.Bias};
 BatchEst.AbsoluteTol   = 1e-5;
 BatchEst.RelativeTol   = 1e-6;
 BatchEst.MaximumIterations = 30;
+BatchEst.Propagator    = ODProp;
 
 %----- Toss in a plot
 Create XYPlot XYPlot1;
