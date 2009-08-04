@@ -47,7 +47,15 @@ BatchEst.Measurements  = {RangeMeasurement};
 BatchEst.AddSolveFor   = {ODSat.CartesianState,RangeMeasurement.Bias};
 BatchEst.AbsoluteTol   = 1e-5;
 BatchEst.RelativeTol   = 1e-6;
-BatchEst.MaxIterations = 30;
+BatchEst.MaximumIterations = 30;
+
+%----- Toss in a plot
+Create XYPlot XYPlot1;
+GMAT XYPlot1.SolverIterations = Current;
+GMAT XYPlot1.IndVar = ODSat.A1ModJulian;
+GMAT XYPlot1.Add = {ODSat.EarthMJ2000Eq.X, ODSat.EarthMJ2000Eq.Y, ODSat.EarthMJ2000Eq.Z};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.ShowPlot = true;
 
 %----- Run the estimator
 RunEstimator BatchEst;
