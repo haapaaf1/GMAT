@@ -88,7 +88,7 @@
 //#define DEBUG_SOLAR_SYSTEM 1
 //#define DEBUG_SOLAR_SYSTEM_IN_USE 1
 //#define DEBUG_CREATE_BODY
-// #define DEBUG_PLUGIN_REGISTRATION
+//#define DEBUG_PLUGIN_REGISTRATION
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -610,6 +610,15 @@ void Moderator::LoadAPlugin(std::string pluginName)
                      MessageInterface::ShowMessage(
                         "Factory %d in library %s is now registered with the "
                         "Factory Manager!\n", i, pluginName.c_str());
+
+                     StringArray facts = newFactory->GetListOfCreatableObjects();
+
+                     MessageInterface::ShowMessage(
+                           "The new factory creates these objects types:\n");
+
+                     for (UnsignedInt f = 0; f < facts.size(); ++f)
+                        MessageInterface::ShowMessage("   %s\n",
+                              facts[f].c_str());
                   #endif
                   
                   if (theUiInterpreter != NULL)

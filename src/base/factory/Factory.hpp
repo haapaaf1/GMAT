@@ -21,8 +21,10 @@
 #define Factory_hpp
 
 #include "gmatdefs.hpp"
-#include "EstimationDefs.hpp"
 #include "GmatBase.hpp"
+
+// Temporarily here; remove when CoreMeasurement is added to the code
+#include "EstimationDefs.hpp"
 
 // Forward references
 class Spacecraft;
