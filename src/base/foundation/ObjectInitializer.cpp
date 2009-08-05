@@ -516,6 +516,7 @@ void ObjectInitializer::InitializeAllOtherObjects(ObjectMap *objMap)
             if (obj->IsOfType(Gmat::SPACE_POINT)       ||
                 obj->IsOfType(Gmat::BURN)              ||
                 obj->IsOfType(Gmat::HARDWARE)          ||
+                obj->IsOfType("Estimator")             ||
                 obj->IsOfType("Simulator"))
             {
                BuildReferences(obj);
