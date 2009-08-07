@@ -43,10 +43,10 @@ SHARED_EXTENSION = .so
 endif
 
 ifeq ($(USE_MATLAB),1)
-LIBS = -L../base/lib -lGmatBase
+LIBS = -L../base -L../base/lib -lGmatBase
 LIBNAME = ../base/lib/libGmatBase$(SHARED_EXTENSION)
 else
-LIBS = -L../base/lib -lGmatBaseNoMatlab
+LIBS = -L../base -L../base/lib -lGmatBaseNoMatlab
 LIBNAME = ../base/lib/libGmatBaseNoMatlab$(SHARED_EXTENSION)
 endif
 
@@ -279,8 +279,9 @@ ifeq ($(SHARED_BASE), 1)
 
 ifdef MAC_SPECIFIC
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
-   $(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-   cp -f $(WXTARGET) ../../bin/.
+	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
+	cp -f $(WXTARGET) ../../bin/.
+	cp -f $(LIBNAME) ../../bin/.
 else
 
 ifeq ($(LINUX_MAC), 1)
@@ -333,6 +334,7 @@ macosx:
 	mkdir -p $(MACOS_DIR)
 	mkdir -p $(RES_DIR)
 	mkdir -p $(LIBS_DIR)
+
 #  echo -n "APPL????" > $(MAC_PKGINFO)
 #  ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 #  cp -f $(GMAT_ICONS) $(MAC_ICONS) 
@@ -345,7 +347,7 @@ macmatlab:
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMATML $(MAC_SCRIPT_DIR)/RunGMATML
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMAT $(SPICE_LIBRARIES)
+	./$(INSTALL_WX_LIBS) GMAT ../base/lib
 
 macnomatlab:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
@@ -354,7 +356,7 @@ macnomatlab:
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMATNoML $(MAC_SCRIPT_DIR)/RunGMATNoML
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMATNoMatlab $(SPICE_LIBRARIES)
+	./$(INSTALL_WX_LIBS) GMATNoMatlab ../base/lib
 
 macstacksize:
 	echo "setting stack size needed for SPICE"
