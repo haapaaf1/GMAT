@@ -94,8 +94,11 @@ bool GmatObtype::Initialize()
 
 bool GmatObtype::Open(bool forRead, bool forWrite, bool append)
 {
-   #ifdef DEBUG_FILE_WRITE
-      MessageInterface::ShowMessage("GmatObtype::Open() Executing\n");
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("GmatObtype::Open(%s, %s, %s) Executing\n",
+            (forRead ? "true" : "false"),
+            (forWrite ? "true" : "false"),
+            (append ? "true" : "false") );
    #endif
    bool retval = false;
 
@@ -117,7 +120,7 @@ bool GmatObtype::Open(bool forRead, bool forWrite, bool append)
    if (append)
       mode = mode | std::fstream::app;
 
-   #ifdef DEBUG_FILE_WRITE
+   #ifdef DEBUG_FILE_ACCESS
       MessageInterface::ShowMessage("   Opening the stream %s, mode = %d\n",
             streamName.c_str(), mode);
    #endif
@@ -147,6 +150,10 @@ bool GmatObtype::Open(bool forRead, bool forWrite, bool append)
          fullPath += ".gmd";
       }
 
+      #ifdef DEBUG_FILE_ACCESS
+         MessageInterface::ShowMessage("   Full path is %s, mode = %d\n",
+               fullPath.c_str(), mode);
+      #endif
       theStream.open(fullPath.c_str(), mode);
    }
 
@@ -211,6 +218,69 @@ bool GmatObtype::AddMeasurement(MeasurementData *md)
 }
 
 
+ObservationData* GmatObtype::ReadObservation()
+{
+   std::string str;
+   std::stringstream theLine;
+
+   Integer participantSize;
+   Integer dataSize;
+
+   // Skip header and comment lines
+   std::getline (theStream, str);
+
+   while ((str[0] == '%') || (!theStream.eof() && (str == "")))
+   {
+      std::getline(theStream, str);
+   }
+
+   if (theStream.eof())
+   {
+      return NULL;
+   }
+
+   theLine << str;
+   currentObs.Clear();
+
+   // format: 21545.05439854615    Range    7000    GS2ID    ODSatID    2713.73185
+   Real value;
+
+   theLine >> currentObs.epoch;
+   theLine >> currentObs.typeName;
+
+   Integer type;
+   theLine >> type;
+   currentObs.type = (Gmat::MeasurementType)type;
+
+   switch (currentObs.type)
+   {
+      case Gmat::RANGE:
+         participantSize = 2;
+         dataSize = 1;
+         break;
+
+      default:
+         participantSize = 0;
+         dataSize = 0;
+         break;
+   }
+
+   for (Integer i = 0; i < participantSize; ++i)
+   {
+      theLine >> str;
+      currentObs.participantIDs.push_back(str);
+   }
+
+   for (Integer i = 0; i < dataSize; ++i)
+   {
+      theLine >> value;
+      currentObs.value.push_back(value);
+   }
+
+   return &currentObs;
+}
+
+
 bool GmatObtype::Close()
 {
    #ifdef DEBUG_FILE_WRITE
@@ -218,9 +288,12 @@ bool GmatObtype::Close()
    #endif
    bool retval = false;
 
-   theStream.flush();
-   theStream.close();
-   retval = !(theStream.is_open());
+   if (theStream.is_open())
+   {
+      theStream.flush();
+      theStream.close();
+      retval = !(theStream.is_open());
+   }
 
    return retval;
 }

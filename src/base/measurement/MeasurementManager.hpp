@@ -23,6 +23,7 @@
 #include "gmatdefs.hpp"
 #include "EstimationDefs.hpp"
 #include "MeasurementData.hpp"
+#include "ObservationData.hpp"
 #include "Rmatrix.hpp"
 #include "MeasurementModel.hpp"
 
@@ -62,6 +63,13 @@ public:
    void                    SetStreamObject(Datafile *newStream);
    bool                    WriteMeasurement(const Integer measurementToWrite);
 
+   // Observation reader methods needed for estimation
+   void                    LoadObservations();
+   GmatEpoch               GetEpoch();
+   GmatEpoch               GetNextEpoch();
+   const ObservationData * GetObsData(const Integer observationToGet = -1);
+   void                    AdvanceObservation();
+
 protected:
    /// List of the managed measurement models
    StringArray                      modelNames;
@@ -75,6 +83,13 @@ protected:
    GmatEpoch                        currentEpoch;
    /// Measurement calculations
    std::vector<MeasurementData>     measurements;
+
+   /// Observation data from all of the input observation data files
+   std::vector<ObservationData>     observations;
+   /// The current observation from the vector of observations
+   std::vector<ObservationData>::iterator
+                                    currentObs;
+
    /// Measurement derivatives
    std::vector<Rmatrix>             derivatives;
    /// Measurement stream objects

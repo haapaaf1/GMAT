@@ -25,6 +25,7 @@
 #include "GmatBase.hpp"
 #include "Obtype.hpp"
 #include "MeasurementData.hpp"
+#include "ObservationData.hpp"
 
 
 /**
@@ -73,9 +74,10 @@ public:
 
    virtual bool         SetStream(Obtype *thisStream);
    virtual bool         OpenStream(bool simulate = false);
+   virtual bool         IsOpen();
    virtual void         WriteMeasurement(MeasurementData* theMeas);
-   virtual MeasurementData*
-                        ReadMeasurement();
+   virtual ObservationData*
+                        ReadObservation();
    virtual bool         CloseStream();
 
 protected:

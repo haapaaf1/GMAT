@@ -24,6 +24,8 @@
 #include <sstream>
 
 //#define DEBUG_FILE_WRITE
+#define DEBUG_OBSERVATION_READ
+
 
 //------------------------------------------------------------------------------
 // static data
@@ -508,6 +510,12 @@ bool Datafile::SetStream(Obtype *thisStream)
 //------------------------------------------------------------------------------
 bool Datafile::OpenStream(bool simulate)
 {
+   //#ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage(
+            "Entered Datafile::OpenStream(%s)\n",
+            (simulate ? "true" : "false"));
+   //#endif
+
    bool retval = false;
 
    if (theDatastream)
@@ -525,6 +533,22 @@ bool Datafile::OpenStream(bool simulate)
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// bool IsOpen()
+//------------------------------------------------------------------------------
+/**
+ * Reports the status of a datastream
+ *
+ * @return true if the stream is open, false if not
+ */
+//------------------------------------------------------------------------------
+bool Datafile::IsOpen()
+{
+   if (theDatastream)
+      return theDatastream->IsOpen();
+
+   return false;
+}
 
 //------------------------------------------------------------------------------
 // void WriteMeasurement(MeasurementData* theMeas)
@@ -551,17 +575,51 @@ void Datafile::WriteMeasurement(MeasurementData* theMeas)
 /**
  * Retrieves an observation from a data stream so it can be processed
  *
- * This method is used during estimation to retrieve the next measurement
- * observation from the measurement stream.
+ * This method is used during estimation to retrieve the measurement
+ * observations from the measurement stream.
  *
  * @return The measurement observation from the file, or NULL if no more
  *         observations are available
  */
 //------------------------------------------------------------------------------
-MeasurementData* Datafile::ReadMeasurement()
+ObservationData* Datafile::ReadObservation()
 {
-   // todo: Currently set for simulation; needs to be implemented for estimation
-   return NULL;
+   ObservationData *theObs = NULL;
+   if (theDatastream)
+   {
+      theObs = theDatastream->ReadObservation();
+
+      #ifdef DEBUG_OBSERVATION_READ
+         if (theObs)
+         {
+            MessageInterface::ShowMessage("Observation:\n");
+            MessageInterface::ShowMessage("   Epoch:          %.12lf\n",
+                  theObs->epoch);
+            MessageInterface::ShowMessage("   Type:           %s\n",
+                  theObs->typeName.c_str());
+            MessageInterface::ShowMessage("   TypeID:         %d\n",
+                  theObs->type);
+            for (UnsignedInt i = 0; i < theObs->participantIDs.size(); ++i)
+               MessageInterface::ShowMessage("   Participant %d: %s\n", i,
+                     theObs->participantIDs[i].c_str());
+            for (UnsignedInt i = 0; i < theObs->value.size(); ++i)
+               MessageInterface::ShowMessage("   Value[%d]:         %.12lf\n",
+                     i, theObs->value[i]);
+
+            // Now the extra data
+            for (UnsignedInt i = 0; i < theObs->extraData.size(); ++i)
+            {
+               MessageInterface::ShowMessage("   ExtraData[%d]:   %s (type %d)"
+                     " = %s\n", i, theObs->extraDataDescriptions[i].c_str(),
+                     theObs->extraTypes[i], theObs->extraData[i].c_str());
+            }
+         }
+         else
+            MessageInterface::ShowMessage("*** Reached End of Observations\n");
+      #endif
+   }
+
+   return theObs;
 }
 
 

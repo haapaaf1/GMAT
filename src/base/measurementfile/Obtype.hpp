@@ -24,6 +24,7 @@
 
 #include "GmatBase.hpp"
 #include "MeasurementData.hpp"
+#include "ObservationData.hpp"
 
 
 /**
@@ -45,6 +46,8 @@ public:
                           bool append = false);
    virtual bool      IsOpen();
    virtual bool      AddMeasurement(MeasurementData *md) = 0;
+   virtual ObservationData *
+                     ReadObservation() = 0;
    virtual bool      Close();
    virtual bool      Finalize();
 

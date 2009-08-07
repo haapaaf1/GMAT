@@ -151,6 +151,12 @@ bool MeasurementManager::Initialize()
 
 bool MeasurementManager::PrepareForProcessing(bool simulating)
 {
+#ifdef DEBUG_INITIALIZATION
+   MessageInterface::ShowMessage(
+         "Entered MeasurementManager::PrepareForProcessing(%s)\n",
+         (simulating ? "true" : "false"));
+#endif
+
    bool retval = true;
 
    for (UnsignedInt i = 0; i < streamList.size(); ++i)
@@ -268,6 +274,71 @@ bool MeasurementManager::WriteMeasurement(const Integer measurementToWrite)
    return wasWritten;
 }
 
+
+void MeasurementManager::LoadObservations()
+{
+   observations.clear();
+
+   for (UnsignedInt i = 0; i < streamList.size(); ++i)
+   {
+      if (streamList[i]->IsOpen())
+      {
+         ObservationData *od;
+         od = streamList[i]->ReadObservation();
+
+         while (od != NULL)
+         {
+            observations.push_back(*od);
+            od = streamList[i]->ReadObservation();
+         }
+      }
+   }
+
+   // Set the current data pointer to the first observation value
+   currentObs = observations.begin();
+}
+
+
+GmatEpoch MeasurementManager::GetEpoch()
+{
+   if (currentObs == observations.end())
+      return 0.0;
+   return currentObs->epoch;
+}
+
+
+GmatEpoch MeasurementManager::GetNextEpoch()
+{
+   std::vector<ObservationData>::iterator nextObs = observations.end();
+   if (currentObs != observations.end())
+      nextObs = currentObs + 1;
+
+   if (nextObs == observations.end())
+      return 0.0;
+   return nextObs->epoch;
+}
+
+
+const ObservationData *
+   MeasurementManager::GetObsData(const Integer observationToGet)
+{
+   if (observationToGet == -1)
+      return &(*currentObs);
+
+   if ((observationToGet < 0) ||
+       (observationToGet >= (Integer)observations.size()))
+      // Should throw here
+      return NULL;
+
+   return &(observations[observationToGet]);
+}
+
+
+void MeasurementManager::AdvanceObservation()
+{
+   if (currentObs != observations.end())
+      ++currentObs;
+}
 
 //------------------------------------------------------------------------------
 // Integer AddMeasurement(MeasurementModel *meas)

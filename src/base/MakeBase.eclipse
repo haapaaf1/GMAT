@@ -353,6 +353,7 @@ OBJECTS = \
     measurement/RangeMeasurement.o \
     measurementfile/Datafile.o \
     measurementfile/Obtype.o \
+    measurementfile/ObservationData.o \
     measurementfile/GmatObtype.o \
     parameter/AngularParameters.o \
     parameter/Array.o \

@@ -40,6 +40,8 @@ public:
                           bool append = false);
    virtual bool      IsOpen();
    virtual bool      AddMeasurement(MeasurementData *md);
+   virtual ObservationData *
+                     ReadObservation();
    virtual bool      Close();
    virtual bool      Finalize();
 
@@ -47,6 +49,7 @@ private:
    std::fstream      theStream;
    Integer           epochPrecision;
    Integer           dataPrecision;
+   ObservationData   currentObs;
 };
 
 #endif /* GMATOBTYPE_HPP_ */
