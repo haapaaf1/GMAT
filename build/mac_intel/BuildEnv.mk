@@ -20,21 +20,18 @@ USE_STC_EDITOR = 0
 USE_SHARED = 1
 
 # flag indicating whether or not to build as a shared library
-SHARED_BASE = 0
+SHARED_BASE = 1
 
-# *** EDIT THIS *** - put the top of the GMAT project directory structure here ....
+# *** EDIT THIS *** - put the top of the GMAT project directory structure here .... *** MUST BE EDITTED ***
 TOP_DIR = < put your top level directory here >
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
-WX_HOME = /Applications/wxmac-2.8.8/osx-build
-#WX_HOME = /Applications/wxmac-2.8.7/osx-build
+WX_HOME = /Applications/wxmac-2.8.10/osx-build
 # *** EDIT THIS *** - 'sudo make install' of wxMac will put things here ......
 WX_INSTALLED = /usr/local/bin
 # *** EDIT THIS *** - this is where you installed MATLAB ......
 MATLAB = /Applications/MATLAB_R2007b
 # *** EDIT THIS *** - this should match the version of wxMac you are using
-#INSTALL_WX_LIBS = install_libs_into_bundle_2_8_7
-INSTALL_WX_LIBS = install_libs_into_bundle_2_8_8
-#INSTALL_WX_LIBS = install_libs_into_bundle_2_8_10
+INSTALL_WX_LIBS = install_libs_into_bundle_2_8_10
 
 BUILD = release
 
@@ -93,6 +90,14 @@ else
 WX_28_DEFINES = 
 endif
 
+#shared base settings
+ifeq ($(SHARED_BASE), 1)
+SHARED_BASE_FLAGS = -fno-common -dynamic
+else
+SHARED_BASE_FLAGS =
+endif
+
+
 WXCPPFLAGS = `$(WX_INSTALLED)/wx-config --cppflags`
 WXLINKFLAGS = `$(WX_INSTALLED)/wx-config --libs --universal=no --static=no`
 
@@ -125,8 +130,7 @@ else
 EXECUTABLE  = $(TOP_DIR)/bin/GMATNoMatlab
 endif
 # *** EDIT THIS *** - put the version number of the wxMac that you're using here ...
-#WX_VERSION   = 2.8.10
-WX_VERSION   = 2.8.8
+WX_VERSION   = 2.8.10
 GMAT_INFO    = $(TOP_DIR)/src/gui/Info_GMAT.plist
 CONTENTS_DIR = $(EXECUTABLE).app/Contents
 MACOS_DIR    = $(CONTENTS_DIR)/MacOS
@@ -169,7 +173,7 @@ DEBUG_FLAGS =
 ifeq ($(USE_MATLAB),1)
 CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
            $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE)\
-           $(MATLAB_INCLUDE) $(IL_HEADERS) \
+           $(MATLAB_INCLUDE) $(IL_HEADERS) $(SHARED_BASE_FLAGS)\
            -fpascal-strings -I/Developer/Headers/FlatCarbon  \
            -D__WXMAC__ $(WX_28_DEFINES) -fno-strict-aliasing -fno-common
 F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
@@ -178,7 +182,7 @@ F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
 TCPIP_OBJECTS =	$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabClient.o \
 				$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabConnection.o
 else
-CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
+CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(SHARED_BASE_FLAGS) \
            $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
 F77_FLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
             $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
