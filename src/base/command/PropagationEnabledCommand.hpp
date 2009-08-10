@@ -91,6 +91,8 @@ protected:
    bool                 PrepareToPropagate();
    bool                 AssemblePropagators();
    bool                 Step(Real dt);
+
+   virtual void         SetPropagationProperties(PropagationStateManager *psm);
 };
 
 #endif /* PropagationEnabledCommand_hpp */

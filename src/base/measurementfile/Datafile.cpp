@@ -24,7 +24,7 @@
 #include <sstream>
 
 //#define DEBUG_FILE_WRITE
-#define DEBUG_OBSERVATION_READ
+//#define DEBUG_OBSERVATION_READ
 
 
 //------------------------------------------------------------------------------
@@ -510,11 +510,11 @@ bool Datafile::SetStream(Obtype *thisStream)
 //------------------------------------------------------------------------------
 bool Datafile::OpenStream(bool simulate)
 {
-   //#ifdef DEBUG_INITIALIZATION
+   #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage(
             "Entered Datafile::OpenStream(%s)\n",
             (simulate ? "true" : "false"));
-   //#endif
+   #endif
 
    bool retval = false;
 

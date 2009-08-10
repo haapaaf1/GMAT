@@ -293,6 +293,9 @@ bool PropagationEnabledCommand::Initialize()
             #endif
          }
 
+         // Provide opportunity for derived cmds to set propagation properties
+         SetPropagationProperties(currentPSM);
+
          if (currentPSM->BuildState() == false)
             throw CommandException("Could not build the state for the "
                   "command \n" + generatingString);
@@ -346,6 +349,24 @@ bool PropagationEnabledCommand::Initialize()
 // protected methods
 //------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+// void SetPropagationProperties(PropagationStateManager *psm)
+//------------------------------------------------------------------------------
+/**
+ * This method provides an interface derived commands can use to set specific
+ * propagation properties where needed.  As an examplem the orbit STM can be set
+ * using in an overridden implementation of this method for estimators that need
+ * to propagate the orbit STM.
+ *
+ * @param psm A PropagationStateManager that controls the propagation state
+ *            vector
+ */
+//------------------------------------------------------------------------------
+void PropagationEnabledCommand::SetPropagationProperties(
+      PropagationStateManager *psm)
+{
+}
 
 //------------------------------------------------------------------------------
 // bool PrepareToPropagate()
@@ -511,8 +532,6 @@ bool PropagationEnabledCommand::PrepareToPropagate()
 
          p.push_back(propagators[n]->GetPropagator());
          fm.push_back(propagators[n]->GetODEModel());
-         dim += fm[n]->GetDimension();
-
          psm.push_back(propagators[n]->GetPropStateManager());
          currEpoch.push_back(psm[n]->GetState()->GetEpoch());
 
@@ -528,6 +547,9 @@ bool PropagationEnabledCommand::PrepareToPropagate()
 //         state = fm[n]->GetState();
          j2kState = fm[n]->GetJ2KState();
          baseEpoch.push_back(psm[n]->GetState()->GetEpoch());
+
+         dim += fm[n]->GetDimension();
+MessageInterface::ShowMessage("dim updated to %d\n", dim);
 
          hasFired = true;
          inProgress = true;

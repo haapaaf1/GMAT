@@ -27,7 +27,7 @@
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
 
-//#define DEBUG_STATE_CONSTRUCTION
+#define DEBUG_STATE_CONSTRUCTION
 //#define DUMP_STATE
 //#define DEBUG_OBJECT_UPDATES
 
@@ -175,6 +175,81 @@ bool PropagationStateManager::SetProperty(std::string propName)
    
    return false;   
 }
+
+
+bool PropagationStateManager::SetProperty(std::string propName, Integer index)
+{
+   #ifdef DEBUG_STATE_CONSTRUCTION
+      MessageInterface::ShowMessage("Entered SetProperty(%s, %d)\n",
+            propName.c_str(), index);
+   #endif
+
+   if ((index < 0) || (index >= (Integer)objects.size()))
+      throw PropagatorException("Index out of bounds specifying a prop object "
+            "in a propagation state manager\n");
+
+   GmatBase *obj = objects[index];
+
+   if (obj)
+   {
+      // Validate that the property can be propagated
+      if (obj->SetPropItem(propName) == Gmat::UNKNOWN_STATE)
+         throw PropagatorException(propName
+               + " is not a known propagation parameter on "
+               + obj->GetName());
+      if (find(elements[obj]->begin(), elements[obj]->end(), propName) ==
+            elements[obj]->end())
+         elements[obj]->push_back(propName);
+
+      #ifdef DEBUG_STATE_CONSTRUCTION
+         MessageInterface::ShowMessage("Current property List:\n");
+            for (StringArray::iterator i = elements[obj]->begin();
+                  i != elements[obj]->end(); ++i)
+               MessageInterface::ShowMessage("   %s\n", i->c_str());
+      #endif
+
+      return true;
+   }
+
+   return false;
+}
+
+
+bool PropagationStateManager::SetProperty(std::string propName, GmatBase *forObject)
+{
+   #ifdef DEBUG_STATE_CONSTRUCTION
+      MessageInterface::ShowMessage("Entered SetProperty(%s, %s)\n",
+            propName.c_str(), forObject->GetName().c_str());
+   #endif
+
+   if (find(objects.begin(), objects.end(), forObject) == objects.end())
+      throw PropagatorException("Prop object not found in a propagation "
+            "state manager\n");
+
+   if (forObject)
+   {
+      // Validate that the property can be propagated
+      if (forObject->SetPropItem(propName) == Gmat::UNKNOWN_STATE)
+         throw PropagatorException(propName
+               + " is not a known propagation parameter on "
+               + forObject->GetName());
+      if (find(elements[forObject]->begin(), elements[forObject]->end(),
+            propName) == elements[forObject]->end())
+         elements[forObject]->push_back(propName);
+
+      #ifdef DEBUG_STATE_CONSTRUCTION
+         MessageInterface::ShowMessage("Current property List:\n");
+            for (StringArray::iterator i = elements[forObject]->begin();
+                  i != elements[forObject]->end(); ++i)
+               MessageInterface::ShowMessage("   %s\n", i->c_str());
+      #endif
+
+      return true;
+   }
+
+   return false;
+}
+
 
 
 bool PropagationStateManager::BuildState()
