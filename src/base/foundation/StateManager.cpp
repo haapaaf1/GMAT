@@ -23,7 +23,7 @@
 #include "GmatBase.hpp"
 
 
-#define DEBUG_STATE_ACCESS
+//#define DEBUG_STATE_ACCESS
 
 
 //------------------------------------------------------------------------------
