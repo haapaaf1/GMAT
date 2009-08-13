@@ -353,18 +353,17 @@ void MeasurementManager::AdvanceObservation()
 //------------------------------------------------------------------------------
 Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 {
-   MeasurementModel *measClone = meas;//(MeasurementModel*)meas->Clone();
-   measClone->SetModelID(largestId++);
-   models.push_back(measClone);
+   meas->SetModelID(largestId++);
+   models.push_back(meas);
 
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage(
             "Added measurement of type %s with unique ID %d\n",
-            measClone->GetStringParameter("Type").c_str(),
-            measClone->GetModelID());
+            meas->GetStringParameter("Type").c_str(),
+            meas->GetModelID());
    #endif
 
-   return measClone->GetModelID();
+   return meas->GetModelID();
 }
 
 
