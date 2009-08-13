@@ -1101,7 +1101,7 @@ void MeasurementModel::SetModelID(Integer newID)
 //------------------------------------------------------------------------------
 const MeasurementData & MeasurementModel::CalculateMeasurement()
 {
-   measurement->CalculateMeasurement(false);
+   measurement->CalculateMeasurement();
    return *theData;
 }
 
@@ -1140,8 +1140,9 @@ const MeasurementData & MeasurementModel::GetMeasurement()
  */
 //------------------------------------------------------------------------------
 const Rmatrix & MeasurementModel::CalculateMeasurementDerivatives()
+// todo:Fix derivative caculations in measMan for the new paradigm
 {
-   measurement->CalculateMeasurement(true);
+//   measurement->CalculateMeasurementDerivatives();
    return *theDataDerivatives;
 }
 
