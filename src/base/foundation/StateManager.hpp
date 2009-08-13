@@ -55,12 +55,16 @@ public:
    virtual bool GetStateObjects(ObjectArray& pObjects, 
          Gmat::ObjectType type = Gmat::UNKNOWN_OBJECT);
    
+   virtual const StringArray& GetObjectList(std::string ofType = "");
+
 protected:
    /// Size of the managed state vector
    Integer                    stateSize;
    GmatState                  state;
    
    ObjectArray                objects;
+   StringArray                objectNames;
+
    std::vector<Integer>       epochIDs;
    std::map<GmatBase*, StringArray*>  elements;
    GmatBase*                  current;

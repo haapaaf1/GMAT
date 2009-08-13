@@ -32,9 +32,11 @@ public:
 
    virtual GmatBase*       Clone() const;
    virtual bool            Initialize();
+   virtual const Rmatrix&  CalculateMeasurementDerivatives(GmatBase *obj,
+                                 Integer id);
 
 protected:
-   bool                    Evaluate(bool withDerivatives = false);
+   bool                    Evaluate();
 };
 
 #endif /* RANGEMEASUREMENT_HPP_ */

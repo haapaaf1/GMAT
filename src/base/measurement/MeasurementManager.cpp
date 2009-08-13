@@ -353,7 +353,7 @@ void MeasurementManager::AdvanceObservation()
 //------------------------------------------------------------------------------
 Integer MeasurementManager::AddMeasurement(MeasurementModel *meas)
 {
-   MeasurementModel *measClone = (MeasurementModel*)meas->Clone();
+   MeasurementModel *measClone = meas;//(MeasurementModel*)meas->Clone();
    measClone->SetModelID(largestId++);
    models.push_back(measClone);
 

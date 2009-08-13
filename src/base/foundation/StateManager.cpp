@@ -188,3 +188,9 @@ bool StateManager::GetStateObjects(ObjectArray& pObjects,
    
    return retval;
 }
+
+
+const StringArray& StateManager::GetObjectList(std::string ofType)
+{
+   return objectNames;
+}

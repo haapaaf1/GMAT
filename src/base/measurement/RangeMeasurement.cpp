@@ -113,7 +113,7 @@ bool RangeMeasurement::Initialize()
 }
 
 
-bool RangeMeasurement::Evaluate(bool withDerivatives)
+bool RangeMeasurement::Evaluate()
 {
    #ifdef DEBUG_RANGE_CALC
       MessageInterface::ShowMessage("Entered RangeMeasurement::Evaluate(%s)\n",
@@ -170,3 +170,88 @@ bool RangeMeasurement::Evaluate(bool withDerivatives)
 
    return true;
 }
+
+
+const Rmatrix& RangeMeasurement::CalculateMeasurementDerivatives(
+                     GmatBase *obj, Integer id)
+{
+   GmatBase *objPtr = NULL;
+
+   Integer itemSize = obj->GetPropItemSize(id);
+   if (itemSize <= 0)
+      throw MeasurementException("The derivative parameter on derivative "
+            "object " + obj->GetName() + "is not recognized");
+
+   // Check to see if obj is a participant
+   for (UnsignedInt i = 0; i < this->participants.size(); ++i)
+   {
+      if (participants[i] == obj)
+      {
+         objPtr = participants[i];
+         break;
+      }
+   }
+
+   currentDerivatives.SetSize(1, itemSize);
+
+   if (objPtr != NULL)
+   {
+      // The only non-zero derivatives are w.r.t. CartesianState
+      if (objPtr->GetParameterText(id) == "CartesianState")
+      {
+         CalculateRangeVector();
+         Real range = rangeVec.GetMagnitude();
+         if (objPtr->IsOfType(Gmat::SPACECRAFT))
+         {
+            for (UnsignedInt i = 0; i < 3; ++i)
+            {
+               currentDerivatives(0, i) = rangeVec[i] / range;
+               currentDerivatives(0, i+3) = 0.0;
+            }
+         }
+         else if (objPtr->IsOfType(Gmat::GROUND_STATION))
+         {
+            for (UnsignedInt i = 0; i < 3; ++i)
+            {
+               currentDerivatives(0, i) = - rangeVec[i] / range;
+               currentDerivatives(0, i+3) = 0.0;
+            }
+         }
+      }
+      else if (objPtr->GetParameterText(id) == "StationLocation")
+      {
+         CalculateRangeVector();
+         Real range = rangeVec.GetMagnitude();
+         if (objPtr->IsOfType(Gmat::SPACECRAFT))
+         {
+            for (UnsignedInt i = 0; i < 3; ++i)
+            {
+               currentDerivatives(0, i) = 0.0;
+            }
+         }
+         else if (objPtr->IsOfType(Gmat::GROUND_STATION))
+         {
+            for (UnsignedInt i = 0; i < 3; ++i)
+            {
+               currentDerivatives(0, i) = - rangeVec[i] / range;
+            }
+         }
+      }
+      else
+      {
+         // Derivatives all zeros here
+         for (Integer i = 0; i < itemSize; ++i)
+            currentDerivatives(0, i) = 0.0;
+      }
+   }
+   else
+   {
+      // For everything else, the derivatives are all zeros here
+      for (Integer i = 0; i < itemSize; ++i)
+         currentDerivatives(0, i) = 0.0;
+   }
+
+   return currentDerivatives;
+}
+
+

@@ -198,21 +198,13 @@ Rmatrix* GeometricMeasurement::GetDerivativePointer()
 }
 
 
-const MeasurementData& GeometricMeasurement::CalculateMeasurement(bool withDerivatives)
+const MeasurementData& GeometricMeasurement::CalculateMeasurement()
 {
-   if (Evaluate(withDerivatives) == false)
+   if (Evaluate() == false)
       // throw here
       ;
 
    return currentMeasurement;
-}
-
-
-const Rmatrix & GeometricMeasurement::CalculateMeasurementDerivatives()
-{
-   // Add a check to see if current data has been evaluated
-
-   return currentDerivatives;
 }
 
 

@@ -71,14 +71,18 @@ public:
    Rmatrix*                   GetDerivativePointer();
 
    virtual const MeasurementData&
-                              CalculateMeasurement(bool withDerivatives = true);
-   virtual const Rmatrix&     CalculateMeasurementDerivatives();
+                              CalculateMeasurement();
+   virtual const Rmatrix&     CalculateMeasurementDerivatives(GmatBase *obj,
+                                                              Integer id) = 0;
 
    void                       SetUniqueId(Integer id);
 
 protected:
+   // These go on CoreMeasurement
    MeasurementData            currentMeasurement;
    Rmatrix                    currentDerivatives;
+   Rmatrix                    stm;
+   Rmatrix                    covariance;
 
    StringArray                participantNames;
    SpacePoint                 *anchorPoint;
@@ -92,7 +96,7 @@ protected:
    Rvector3                   rangeVec;
    Integer                    satEpochID;
 
-   virtual bool               Evaluate(bool withDerivatives = false) = 0;
+   virtual bool               Evaluate() = 0;
    void                       CalculateRangeVector();
 
    /// Enumerated parameter IDs
