@@ -1,8 +1,9 @@
 # copy all of the necessary dynamic wx libraries into the Frameworks directory
 LOC=$1
 BASE_LOC=$2
+BASE_LIB_NAME=$3
 cp /usr/local/lib/libwx*.dylib ../../bin/$LOC.app/Contents/Frameworks
-cp $BASE_LOC/libGmatBase.dylib ../../bin/$LOC.app/Contents/Frameworks
+cp $BASE_LOC/$BASE_LIB_NAME.dylib ../../bin/$LOC.app/Contents/Frameworks
 
 # tell the libraries they are now inside the bundle
 install_name_tool -id @executable_path/../Frameworks/libwx_base_carbon-2.8.dylib ../../bin/$LOC.app/Contents/Frameworks/libwx_base_carbon-2.8.dylib
@@ -39,7 +40,7 @@ install_name_tool -id @executable_path/../Frameworks/libwx_mac_xrc-2.8.dylib ../
 install_name_tool -id @executable_path/../Frameworks/libwx_mac_xrc-2.8.0.dylib ../../bin/$LOC.app/Contents/Frameworks/libwx_mac_xrc-2.8.0.dylib
 install_name_tool -id @executable_path/../Frameworks/libwx_mac_xrc-2.8.0.6.0.dylib ../../bin/$LOC.app/Contents/Frameworks/libwx_mac_xrc-2.8.0.6.0.dylib
 
-install_name_tool -id @executable_path/../Frameworks/libGmatBase.dylib ../../bin/$LOC.app/Contents/Frameworks/libGmatBase.dylib
+install_name_tool -id @executable_path/../Frameworks/$BASE_LIB_NAME.dylib ../../bin/$LOC.app/Contents/Frameworks/$BASE_LIB_NAME.dylib
 
 # tell the application that the libraries are now inside the bundle
 install_name_tool -change /usr/local/lib/libwx_base_carbon-2.8.dylib @executable_path/../Frameworks/libwx_base_carbon-2.8.dylib ../../bin/$LOC.app/Contents/MacOS/GMAT
@@ -76,7 +77,7 @@ install_name_tool -change /usr/local/lib/libwx_mac_xrc-2.8.dylib @executable_pat
 install_name_tool -change /usr/local/lib/libwx_mac_xrc-2.8.0.dylib @executable_path/../Frameworks/libwx_mac_xrc-2.8.0.dylib ../../bin/$LOC.app/Contents/MacOS/GMAT
 install_name_tool -change /usr/local/lib/libwx_mac_xrc-2.8.0.6.0.dylib @executable_path/../Frameworks/libwx_mac_xrc-2.8.0.6.0.dylib ../../bin/$LOC.app/Contents/MacOS/GMAT
 
-install_name_tool -change lib/libGmatBase.dylib @executable_path/../Frameworks/libGmatBase.dylib ../../bin/$LOC.app/Contents/MacOS/GMAT
+install_name_tool -change lib/$BASE_LIB_NAME.dylib @executable_path/../Frameworks/$BASE_LIB_NAME.dylib ../../bin/$LOC.app/Contents/MacOS/GMAT
 
 # tell the libraries where to find the other libraries they need
 install_name_tool -change /usr/local/lib/libwx_base_carbon-2.8.0.dylib @executable_path/../Frameworks/libwx_base_carbon-2.8.0.dylib "../../bin/$LOC.app/Contents/Frameworks/libwx_base_carbon_net-2.8.dylib"

@@ -42,6 +42,7 @@ else
 SHARED_EXTENSION = .so
 endif
 
+BASELIBNAME = libGmatBase
 ifeq ($(USE_MATLAB),1)
 LIBS = -L../base -L../base/lib -lGmatBase
 LIBNAME = ../base/lib/libGmatBase$(SHARED_EXTENSION)
@@ -347,7 +348,7 @@ macmatlab:
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMATML $(MAC_SCRIPT_DIR)/RunGMATML
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMAT ../base/lib
+	./$(INSTALL_WX_LIBS) GMAT ../base/lib $(BASELIBNAME)
 
 macnomatlab:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
@@ -356,7 +357,7 @@ macnomatlab:
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMATNoML $(MAC_SCRIPT_DIR)/RunGMATNoML
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMATNoMatlab ../base/lib
+	./$(INSTALL_WX_LIBS) GMATNoMatlab ../base/lib $(BASELIBNAME)NoMatlab
 
 macstacksize:
 	echo "setting stack size needed for SPICE"
