@@ -1,4 +1,25 @@
 
+FY09
+   Simulation of Geometric Measurements: range, range rate, az/el ra/dec
+   Batch Estimation with Geometric Measurements:  solver for cartersian state and measurement bias
+   Read/Write B3 and UTDF tracking data format
+   Variational equations for spherical harmonics
+   Variational equations for cannonball SRP
+   Variational equations for drag
+FY10 
+   Solvers
+    	Kalman filter with smoother
+    	Sigma point filter with smoother
+		Initial orbit determination solver
+	Measurement models
+	    TLE measurement model
+	    TDRSS measurement models
+	Dynamics
+	    Earth tides
+		Hi Fi SRP
+		Updated density models
+	
+
 ================================= Build 0.1 ==============================
 
 Goal:  Simulate Exact Range Measurements between a spacecraft and groundstation
@@ -140,6 +161,8 @@ Measurement Manager
 Participants
     GetStates() (for bias/error solve-fors)
 	SetStates() (for bias/error solve-fors)
+	GetSTM()
+	SetSTM()
    
 Measurement Data Structure  
     None?
