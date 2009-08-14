@@ -211,8 +211,8 @@ Rvector Moon::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
    // Compute for Earth's Moon
    if (theCentralBodyName == SolarSystem::EARTH_NAME) 
    {
-      if (rotationSrc == Gmat::IAU_2002)
-      {
+//      if (rotationSrc == Gmat::IAU_2002)
+//      {
          p1  = Rad(125.045 -  0.0529921 * d);
          p2  = Rad(250.089 -  0.1059842 * d);
          p3  = Rad(260.008 + 13.0120009 * d);
@@ -247,22 +247,22 @@ Rvector Moon::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
                 +  0.0248  * Cos(p5)  -  0.17    * Cos(p6) -  0.061   * Cos(p7)
                 -  0.0015  * Cos(p8)  +  0.0049  * Cos(p9) -  0.00083 * Cos(p10)
                 +  0.00001 * Cos(p11) +  0.00031 * Cos(p12) - 0.057 * Cos(p13);
-      }
-      else if (rotationSrc == Gmat::DE_405_FILE)
-      {
-         DeFile *deFile = (DeFile*) theSourceFile;
-         if (!deFile) // assuming no SLP any more here, only DE405
-         {
-            throw  SolarSystemException(
-               "No DE file specified - cannot get/compute Moon data");
-         }
-         Real librationAngles[3], andRates[3];
-         deFile->GetAnglesAndRates(forTime, librationAngles, andRates, overrideTime);
-          // TBD ****************** how to use librationAngles & andRates
-         std::string errmsg = "Unable to compute cartographic coordinates for ";
-         errmsg += instanceName + " - DE_405_FILE not implemented in Moon class.\n";
-         throw SolarSystemException(errmsg);
-      }
+//      }
+//      else if (rotationSrc == Gmat::DE_405_FILE)
+//      {
+//         DeFile *deFile = (DeFile*) theSourceFile;
+//         if (!deFile) // assuming no SLP any more here, only DE405
+//         {
+//            throw  SolarSystemException(
+//               "No DE file specified - cannot get/compute Moon data");
+//         }
+//         Real librationAngles[3], andRates[3];
+//         deFile->GetAnglesAndRates(forTime, librationAngles, andRates, overrideTime);
+//          // TBD ****************** how to use librationAngles & andRates
+//         std::string errmsg = "Unable to compute cartographic coordinates for ";
+//         errmsg += instanceName + " - DE_405_FILE not implemented in Moon class.\n";
+//         throw SolarSystemException(errmsg);
+//      }
    }
    // Compute for Mars' moons
    else if (theCentralBodyName == SolarSystem::MARS_NAME)
