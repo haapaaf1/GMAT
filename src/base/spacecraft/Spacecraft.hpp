@@ -161,6 +161,7 @@ public:
    void SetState(const std::string &type, const Rvector6 &cartState);
    void SetAnomaly(const std::string &type, const Anomaly &ta);
    
+   virtual Integer         GetPropItemID(std::string whichItem);
    virtual Integer         SetPropItem(std::string propItem);
    virtual StringArray     GetDefaultPropItems();
    virtual Real*           GetPropItem(Integer item);

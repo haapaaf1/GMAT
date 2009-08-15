@@ -376,10 +376,17 @@ public:
    /// Method for getting time precision
    static Integer          GetTimePrecision();
 
+   virtual Integer         GetPropItemID(std::string whichItem);
    virtual Integer         SetPropItem(std::string propItem);
    virtual StringArray     GetDefaultPropItems();
    virtual Real*           GetPropItem(Integer item);
    virtual Integer         GetPropItemSize(Integer item);
+
+   virtual Integer         GetEstimationParameterID(const std::string &param);
+   virtual bool            IsEstimationParameterValid(Integer id);
+   virtual Integer         GetEstimationParameterSize(Integer id);
+   virtual Real*           GetEstimationParameterValue(Integer id);
+
 
 protected:
    /// Parameter IDs

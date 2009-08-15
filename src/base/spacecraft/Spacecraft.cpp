@@ -2742,6 +2742,16 @@ void Spacecraft::SetAnomaly(const std::string &type, const Anomaly &ta)
 }
 
 // todo: comment methods
+Integer Spacecraft::GetPropItemID(std::string whichItem)
+{
+   if (whichItem == "CartesianState")
+      return Gmat::CARTESIAN_STATE;
+   if (whichItem == "STM")
+      return Gmat::ORBIT_STATE_TRANSITION_MATRIX;
+
+   return SpaceObject::GetPropItemID(whichItem);
+}
+
 Integer Spacecraft::SetPropItem(std::string propItem)
 {
    if (propItem == "CartesianState")

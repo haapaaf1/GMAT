@@ -99,7 +99,7 @@ namespace Gmat
     */
    enum ObjectType
    {
-      SPACECRAFT= 1001,
+      SPACECRAFT= 101,
       FORMATION,
       SPACEOBJECT,
       GROUND_STATION,

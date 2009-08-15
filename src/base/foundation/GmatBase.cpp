@@ -58,6 +58,9 @@ const Rvector     GmatBase::RVECTOR_PARAMETER_UNDEFINED = Rvector(1,
 const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
                   GmatBase::REAL_PARAMETER_UNDEFINED);
 
+// The allocation size for estimation object parameter IDs
+#define TYPE_ALLOCATION  250
+
 
 /**
  * Build the list of type names
@@ -3044,6 +3047,12 @@ Integer GmatBase::GetTimePrecision()
 
 
 // todo: comments
+Integer GmatBase::GetPropItemID(std::string whichItem)
+{
+   return -1;
+}
+
+
 Integer GmatBase::SetPropItem(std::string propItem)
 {
    return Gmat::UNKNOWN_STATE;
@@ -3064,6 +3073,67 @@ Integer GmatBase::GetPropItemSize(Integer item)
 {
    return -1;
 }
+
+
+//------------------------------------------------------------------------------
+// Integer GmatBase::GetEstimationParameterID(const std::string &param)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param param The text name of the estimation parameter
+ *
+ * @return The ID used in estimation for the parameter
+ */
+//------------------------------------------------------------------------------
+Integer GmatBase::GetEstimationParameterID(const std::string &param)
+{
+   Integer id = type * 250;      // Base for the estimation ID
+
+   try
+   {
+      id += GetParameterID(param);
+   }
+   catch (BaseException &ex)
+   {
+      return -1;
+   }
+
+   return id;
+}
+
+
+//------------------------------------------------------------------------------
+// bool GmatBase::IsEstimationParameterValid(Integer id)
+//------------------------------------------------------------------------------
+/**
+ * Derived classes override this method when they provide the methods used by
+ * the estimators to build the elements needed for estimation.
+ *
+ * @param id The estimation parameter ID for the parameter
+ *
+ * @return true if estimation can proceed with the input parameter in the
+ *         estimation state and related matrices, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::IsEstimationParameterValid(Integer id)
+{
+   return false;
+}
+
+
+Integer GmatBase::GetEstimationParameterSize(Integer id)
+{
+   Integer retval = 1;
+
+   return retval;
+}
+
+Real* GmatBase::GetEstimationParameterValue(Integer id)
+{
+   return NULL;
+}
+
 
 //-------------------------------------
 // protected methods
