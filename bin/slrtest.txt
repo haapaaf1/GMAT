@@ -1,0 +1,3 @@
+Create SLRDataFile SLRData
+SLRData.FileName = /Users/mwilkins/GMAT/SVN/odTools/src/base/DataTest/SLR.txt;
+Save SLRData

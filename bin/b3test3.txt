@@ -1,0 +1,8 @@
+Create B3DataFile B3Data
+B3Data.FileName = /Users/mwilkins/Desktop/b3test.txt;
+B3Data.ReadWriteMode = read;
+
+Create B3DataFile B3Out
+B3Out.FileName = b3out.txt;
+B3Out.ReadWriteMode = write;
+Save B3Data
