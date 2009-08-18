@@ -14,12 +14,9 @@
 /**
  * GMAT's Random Number Class
  *
- * This class implements the random number generator routines found in:
- * 1) Park and Miller, "Random Number Generator: Good Ones are Hard to Find."
- * Communications of the ACM 31 (10), pp 1192-1201.
- * 2) L'Ecuyer, P. 1988, Communications of the ACM, vol 31, pp 742-774.
- * 3) Knuth, D.E. 1981, Seminumerical Algorithms, 2nd ed., vol 2 of "The
- * Art of Computer Programming", Sections 3.2-3.3.
+ * This class implements the random number generator routines found in
+ * the GNU Scientific Library(GSL). This software is freely disributable
+ * under the standard GNU General Public license.
  *
  */
 //------------------------------------------------------------------------------
@@ -27,7 +24,17 @@
 #ifndef _RandomNumber_hpp
 #define _RandomNumber_hpp
 
+// This is for the GSL libraries so that
+// extern C will be used
+//#define __cplusplus
+
 #include "gmatdefs.hpp"
+#include "RealUtilities.hpp"
+#include "UtilityException.hpp"
+#include <pcrecpp.h>
+#include <gsl_rng.h>
+#include <gsl_randist.h>
+#include <gsl_cdf.h>
 
 class RandomNumber
 {
@@ -35,105 +42,181 @@ class RandomNumber
 public:
 
     RandomNumber();
+    RandomNumber(const std::string myGenerator);
+    RandomNumber(unsigned long int mySeed);
+    RandomNumber(const std::string myGenerator, unsigned long int mySeed);
     ~RandomNumber();
 
-    // Uniform Random Number
-    // ----------------------------
-    // -           -   Relative   -
-    // - Generator -   Execution  -
-    // -           -     Time     -
-    // ----------------------------
-    // -   Ran0    -  defined 1.0 -
-    // -   Ran1    -     ~1.3     -
-    // -   Ran2    -     ~2.0     -
-    // -   Ran3    -     ~0.6     -
-    // ----------------------------
+    //unsigned int Bernoulli(Real p);
+    //Real BernoulliPDF(const unsigned int k, Real p);
 
-    // Note: Use Ran1 for general use.
-    // If you are using more than 100,000,000
-    // random numbers then use Ran2.
-    // Ran3 is the fastest routine but is not
-    // as well studied as Ran1 and Ran2, and
-    // is not considered a standard yet. Use
-    // Ran3 when you suspect Ran1 or Ran2 of
-    // introducing unwanted correlations into
-    // a calculation.
+    //Real Beta(const Real a, const Real b);
+    //Real BetaPDF(const Real x, const Real a, const Real b);
 
-    // Uniform distribution between 0.0 and 1.0
-    Real Ran0();
-    Real Ran1();
-    Real Ran2();
-    Real Ran3();
+    //unsigned int Binomial(Real p, unsigned int n);
+    //unsigned int BinomialKnuth(Real p, unsigned int n);
+    //unsigned int BinomialTpe(Real p, unsigned int n);
+    //Real BinomialPDF(const unsigned int k, const Real p, const unsigned int n);
 
-    // Uniform distribution between a and b
-    // Mean = (a+b)/2
-    // Var = (b-a)^2/12
-    Real UniformRand(Real a, Real b);
-    Real UniformRand2(Real a, Real b);
-    Real UniformRand3(Real a, Real b);
+    //Real Exponential(const Real mu);
+    //Real ExponentialPDF(const Real x, const Real mu);
 
-    // Exponential Random Number
-    // Unit mean
-    Real ExponentialRand();
-    Real ExponentialRand2();
-    Real ExponentialRand3();
+    //Real ExpPow(const Real a, const Real b);
+    //Real ExpPowPDF(const Real x, const Real a, const Real b);
 
-    // Gaussian Random Number
-    // 0 mean, unit variance
-    Real GaussianRand();
-    Real GaussianRand(Real mean, Real stdev);
-    Real GaussianRand2();
-    Real GaussianRand2(Real mean, Real stdev);
-    Real GaussianRand3();
-    Real GaussianRand3(Real mean, Real stdev);
+    //Real Cauchy(const Real a);
+    //Real CauchyPDF(const Real x, const Real a);
 
-    // Get/Set/Re Seed
-    long int* GetSeed();
-    void SetSeed(long int *idum2);
+    //Real Chisq(const Real nu);
+    //Real ChisqPDF(const Real x, const Real nu);
+
+    //void Dirichlet(const sizeT K, const Real alpha[], Real theta[]);
+    //Real DirichletPDF(const sizeT K, const Real alpha[], const Real theta[]);
+    //Real Dirichlet_lnpdf(const sizeT K, const Real alpha[], const Real theta[]);
+
+    //Real Erlang(const Real a, const Real n);
+    //Real ErlangPDF(const Real x, const Real a, const Real n);
+
+    //Real Fdist(const Real nu1, const Real nu2);
+    //Real FdistPDF(const Real x, const Real nu1, const Real nu2);
+
+    //Real Flat(const Real a, const Real b);
+    //Real FlatPDF(Real x, const Real a, const Real b);
+
+    //Real Gamma(const Real a, const Real b);
+    //Real GammaInt(const unsigned int a);
+    //Real GammaPDF(const Real x, const Real a, const Real b);
+    //Real GammaMT(const Real a, const Real b);
+    //Real GammaKnuth(const Real a, const Real b);
+
+    Real Gaussian();
+    Real Gaussian(const Real mean, const Real stdev);
+    Real GaussianRatioMethod();
+    Real GaussianRatioMethod(const Real mean, const Real stdev);
+    Real GaussianZiggurat();
+    Real GaussianZiggurat(const Real mean, const Real stdev);
+    Real GaussianPDF(const Real x);
+    Real GaussianPDF(const Real x, const Real stdev);
+    Real GaussianCDF_P(const Real x);
+    Real GaussianCDF_P(const Real x, const Real stdev);
+    Real GaussianCDF_Q(const Real x);
+    Real GaussianCDF_Q(const Real x, const Real stdev);
+    Real GaussianCDF_Pinv(const Real P);
+    Real GaussianCDF_Pinv(const Real P, const Real stdev);
+    Real GaussianCDF_Qinv(const Real Q);
+    Real GaussianCDF_Qinv(const Real Q, const Real stdev);
+
+    Real GaussianTail(const Real a);
+    Real GaussianTail(const Real a, const Real stdev);
+    Real GaussianTailPDF(const Real x, const Real a);
+    Real GaussianTailPDF(const Real x, const Real a, const Real stdev);
+
+    //void BivariateGaussian(Real stdev_x, Real stdev_y, Real rho, Real *x, Real *y);
+    //Real BivariateGaussianPDF(const Real x, const Real y, const Real stdev_x, const Real stdev_y, const Real rho);
+
+    //Real Landau();
+    //Real LandauPDF(const Real x);
+
+    //unsigned int Geometric(const Real p);
+    //Real GeometricPDF(const unsigned int k, const Real p);
+
+    //unsigned int Hypergeometric(unsigned int n1, unsigned int n2, unsigned int t);
+    //Real HypergeometricPDF(const unsigned int k, const unsigned int n1, const unsigned int n2, unsigned int t);
+
+    //Real Gumbel1(const Real a, const Real b);
+    //Real Gumbel1PDF(const Real x, const Real a, const Real b);
+
+    //Real Gumbel2(const Real a, const Real b);
+    //Real Gumbel2PDF(const Real x, const Real a, const Real b);
+
+    //Real Logistic(const Real a);
+    //Real LogisticPDF(const Real x, const Real a);
+
+    //Real LogNormal(const Real zeta, const Real stdev);
+    //Real LogNormalPDF(const Real x, const Real zeta, const Real stdev);
+
+    //unsigned int Logarithmic(const Real p);
+    //Real LogarithmicPDF(const unsigned int k, const Real p);
+
+    //void Multinomial(const sizeT K,
+    //                      const unsigned int N, const Real p[],
+    //                      unsigned int n[] );
+    //Real MultinomialPDF(const sizeT K,
+    //                            const Real p[], const unsigned int n[] );
+    //Real MultinomialLnPDF(const sizeT K,
+    //                       const Real p[], const unsigned int n[] );
+
+    //unsigned int NegativeBinomial(Real p, Real n);
+    //Real NegativeBinomialPDF(const unsigned int k, const Real p, Real n);
+
+    //unsigned int pascal(Real p, unsigned int n);
+    //Real PascalPDF(const unsigned int k, const Real p, unsigned int n);
+
+    //Real Pareto(Real a, const Real b);
+    //Real ParetoPDF(const Real x, const Real a, const Real b);
+
+    //unsigned int Poisson(Real mu);
+    //void PoissonArray(sizeT n, unsigned int array[],
+    //                        Real mu);
+    //Real PoissonPDF(const unsigned int k, const Real mu);
+
+    //Real Rayleigh(const Real stdev);
+    //Real RayleighPDF(const Real x, const Real stdev);
+
+    //Real RayleighTail(const Real a, const Real stdev);
+    //Real RayleighTailPDF(const Real x, const Real a, const Real stdev);
+
+    //Real TDist(const Real nu);
+    //Real TDistPDF(const Real x, const Real nu);
+
+    Real Uniform();
+    Real UniformPositive();
+    Real Uniform(const Real a, const Real b);
+    
+    //Real Laplace(const Real a);
+    //Real LaplacePDF(const Real x, const Real a);
+
+    //Real Levy(const Real c, const Real alpha);
+    //Real LevySkew(const Real c, const Real alpha, const Real beta);
+
+    //Real Weibull(const Real a, const Real b);
+    //Real WeibullPDF(const Real x, const Real a, const Real b);
+
+    // Set and/or Re-set the seed for the random number generator
+    void Seed(unsigned long int s);
     void ClockSeed();
+
+    // Methods to select the generator type
+    const gsl_rng_type* GetGenerator(const std::string &myGeneratorString);
+    const gsl_rng_type* GetGenerator(const Integer myGeneratorID);
+    std::string GetGeneratorText(const Integer id) const;
+    Integer GetGeneratorID(const std::string &str) const;
+
+    enum GENERATOR_TYPE_REPS
+    {
+	MT19937_ID = 0,
+	RANLXS0_ID,
+	RANLXS1_ID,
+	RANLXS2_ID,
+	RANLXD1_ID,
+	RANLXD2_ID,
+	RANLUX_ID,
+	RANLUX389_ID,
+        CMRG_ID,
+        MRG_ID,
+        TAUS_ID,
+        TAUS2_ID,
+        GFSR4_ID,
+	EndGeneratorTypeReps
+    };
 
 private:
 
-    // Seed to initialize random number generators
-    long int *idum;
+    const gsl_rng_type *T;
+    gsl_rng *r;
+    long int idum;
 
-    // These are defined values for Ran0 and Ran1
-    // DO NOT MODIFY IN ANY WAY SHAPE OR FORM
-    const UnsignedInt IA = 16807;
-    const unsigned long int IM = 2147483647;
-    const Real AM = 1.0/(Real)IM;
-    const long int IQ = 127773;
-    const Integer IR = 2836;
-    const unsigned long int MASK = 123459876;
-
-    // NTAB, NDIV, EPS, and RNMX are common between Ran1 and Ran2
-    // DO NOT MODIFY IN ANY WAY SHAPE OR FORM
-    const Integer NTAB = 32;
-    const Real NDIV = (1.0+(Real)(IM-1.0)/(Real)NTAB);
-    const Real EPS = 0.00000012;
-    const Real RNMX = (1.0-EPS);
-
-    // These are defined values for Ran2
-    // DO NOT MODIFY IN ANY WAY SHAPE OR FORM
-    const unsigned long int IM1 = 2147483563;
-    const unsigned long int IM2 = 2147483399;
-    const Real AM2 = 1.0/(Real)IM1;
-    const unsigned long int IMM1 = IM1-1;
-    const UnsignedInt IA1 = 40014;
-    const UnsignedInt IA2 = 40692;
-    const UnsignedInt IQ1 = 53668;
-    const UnsignedInt IQ2 = 52774;
-    const UnsignedInt IR1 = 12211;
-    const UnsignedInt IR2 = 3791;
-    const Real NDIV2 = 1.0+(Real)IMM1/(Real)NTAB;
-
-    // These are defined values for Ran3
-    // Any large MBIG and any smaller (but still large) MSEED
-    // can be sustituted for the following values.
-    const unsigned long int MBIG = 100000000;
-    const unsigned long int MSEED = 161803398;
-    const Integer MZ = 0;
-    const Real FAC = 1.0/(Real)MBIG;
+    static const std::string GENERATOR_TEXT[EndGeneratorTypeReps];
 
 };
 
