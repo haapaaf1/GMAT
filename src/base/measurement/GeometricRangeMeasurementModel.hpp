@@ -43,10 +43,10 @@ public:
                             LaGenMatDouble &theMeasurements);
 
     // Obtain the partials
-    bool GetThePartials(const std::string &param,
-                        SpacePoint* theSpacePoint,
-                        const A1Mjd &atTime,
-                        LaGenMatDouble &theDerivatives);
+    //bool GetThePartials(const std::string &param,
+    //                    SpacePoint* theSpacePoint,
+    //                    const A1Mjd &atTime,
+    //                    LaGenMatDouble &theDerivatives);
     bool GetThePartials(const Integer &paramID,
                         SpacePoint* theSpacePoint,
                         const A1Mjd &atTime,

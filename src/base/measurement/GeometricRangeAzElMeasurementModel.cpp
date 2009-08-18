@@ -24,6 +24,39 @@
 
 //#define DEBUG_PARAMETER_CALCULATIONS
 
+//---------------------------------
+//  static data
+//---------------------------------
+const std::string GeometricRangeAzElMeasurementModel::DEPENDENT_PARAMETER_TEXT[EndDependentParams - MMDependentParamCount] =
+{
+    "Cartesian",
+};
+
+//------------------------------------------------------------------------------
+//  Integer  GetDependentParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the dependent parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested dependent parameter.
+ *
+ * @return ID for the requested dependent parameter or -1 for no associated ID.
+ */
+//------------------------------------------------------------------------------
+Integer GeometricRangeAzElMeasurementModel::GetDependentParamID(const std::string &param) const
+{
+
+   for (Integer i = 0; i < EndDependentParams; i++)
+   {
+      if (param == DEPENDENT_PARAMETER_TEXT[i])
+         return i;
+   }
+
+   // Return -1 indicating not found
+   return -1;
+
+}
+
 
 GeometricRangeAzElMeasurementModel::GeometricRangeAzElMeasurementModel(const std::string name) :
    MeasurementModel  ("GeometricRangeAzEl", name),
@@ -83,7 +116,9 @@ bool GeometricRangeAzElMeasurementModel::Initialize()
 }
 
 //------------------------------------------------------------------------------
-// Integer ComputeMeasurement( const Spacecraft &theSat );
+//    bool GetTheMeasurements(SpacePoint* theSpacePoint,
+//                                  const A1Mjd &atTime,
+//                                  LaGenMatDouble &theMeasurements);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurements between a ground station and a
@@ -91,21 +126,20 @@ bool GeometricRangeAzElMeasurementModel::Initialize()
  * the time of the spacecraft state was surotMatessfully computed.
  */
 //------------------------------------------------------------------------------
-bool GeometricRangeAzElMeasurementModel::ComputeMeasurement(Spacecraft *theSat)
-{
+   bool GeometricRangeAzElMeasurementModel::GetTheMeasurements(SpacePoint* theSpacePoint,
+                                  const A1Mjd &atTime,
+                                  LaGenMatDouble &theMeasurements)
+   {
 
-   // GMAT's A.1 modified Julian epoch
-    Real epoch = theSat->GetEpoch();
-
-    // The satellite state in MJ2000 Cartesian coordinates
-    Rvector6 satState = theSat->GetMJ2000State(epoch);
+    // The target object state in MJ2000 Cartesian coordinates
+    Rvector6 targetState = theSpacePoint->GetMJ2000State(atTime);
 
     // The groundstation position and velocity in MJ2000 Cartesian coordinates
-    Rvector6 gsState = theStation->GetMJ2000State(epoch);
-    Rvector3 gsPos = theStation->GetBodyFixedLocation(epoch);
+    Rvector6 gsState = theStation->GetMJ2000State(atTime);
+    Rvector3 gsPos = theStation->GetBodyFixedLocation(atTime);
 
     // The range vector in MJ2000 coordinates
-    Rvector6 rangeMJ2000 = satState-gsState;
+    Rvector6 rangeMJ2000 = targetState-gsState;
 
     Real rangeMag = rangeMJ2000.GetMagnitude();
 
@@ -131,9 +165,9 @@ bool GeometricRangeAzElMeasurementModel::ComputeMeasurement(Spacecraft *theSat)
     vsens(2) = 0.0;
 
     Rvector3 vrel;
-    vrel(0) = satState(3) - vsens(1);
-    vrel(1) = satState(4) - vsens(2);
-    vrel(2) = satState(5);
+    vrel(0) = targetState(3) - vsens(1);
+    vrel(1) = targetState(4) - vsens(2);
+    vrel(2) = targetState(5);
 
     // Compute Range Rate
     // Real rangeRate = vrel(0)*myCartDerivatives(0,0) +
@@ -186,17 +220,42 @@ bool GeometricRangeAzElMeasurementModel::ComputeMeasurement(Spacecraft *theSat)
 		   rangeSEZ(1)+rangeSEZ(2)*rangeSEZ(2)));
     }
 
-    theMeasurements(0) = rangeMag;
-    theMeasurements(1) = az;
-    theMeasurements(2) = el;
+    theMeasurements(0,0) = rangeMag;
+    theMeasurements(1,0) = az;
+    theMeasurements(2,0) = el;
 
     return true;
 
   }
 
 //------------------------------------------------------------------------------
-// bool ComputeCartesianPartialDerivative(const GroundStation &theStation,
-//		const Spacecraft &theSat, const LaGenMatDouble &myMeasurements);
+// bool GetThePartials(const Integer &paramID,
+//                     const SpacePoint* theSpacePoint,
+//                     const A1Mjd &atTime,
+//                     LaGenMatDouble &theDerivatives)
+//------------------------------------------------------------------------------
+bool GeometricRangeAzElMeasurementModel::GetThePartials(const Integer &paramID,
+                                      SpacePoint* theSpacePoint,
+                                      const A1Mjd &atTime,
+                                      LaGenMatDouble &theDerivatives)
+{
+    switch (paramID)
+    {
+        case CARTESIAN_ID:
+            return ComputeCartesianPartialDerivative(theSpacePoint,
+                                                     atTime,theDerivatives);
+            break;
+        default:
+            return false;
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool ComputeCartesianPartialDerivative(
+//                              SpacePoint* theSpacePoint,
+//                              const A1Mjd &atTime,
+//                              LaGenMatDouble &theDerivatives);
 //------------------------------------------------------------------------------
 /**
  * Code used to simulate measurement derivatives with respect to the estimator
@@ -205,37 +264,36 @@ bool GeometricRangeAzElMeasurementModel::ComputeMeasurement(Spacecraft *theSat)
  */
 //------------------------------------------------------------------------------
   bool GeometricRangeAzElMeasurementModel::ComputeCartesianPartialDerivative(
-                                                            Spacecraft *theSat)
+                              SpacePoint* theSpacePoint,
+                              const A1Mjd &atTime,
+                              LaGenMatDouble &theDerivatives)
   {
 
     // Make sure derivative matrix is properly dimensioned
-    if (theCartDerivatives.rows() < numMeasurements &&
-	  theCartDerivatives.cols() < 6)
+    if (theDerivatives.rows() < numMeasurements &&
+	  theDerivatives.cols() < 6)
 	  return false;
 
-    // GMAT's A.1 modified Julian epoch
-    Real epoch = theSat->GetEpoch();
-
     // The satellite state in MJ2000 Cartesian coordinates
-    Rvector6 satState = theSat->GetMJ2000State(epoch);
+    Rvector6 targetState = theSpacePoint->GetMJ2000State(atTime);
 
     // The groundstation position and velocity in MJ2000 Cartesian coordinates
-    Rvector6 gsState = theStation->GetMJ2000State(epoch);
-    Rvector3 gsPos = theStation->GetBodyFixedLocation(epoch);
+    Rvector6 gsState = theStation->GetMJ2000State(atTime);
+    Rvector3 gsPos = theStation->GetBodyFixedLocation(atTime);
 
     // The range vector in MJ2000 coordinates
-    Rvector6 rangeMJ2000 = satState-gsState;
+    Rvector6 rangeMJ2000 = targetState-gsState;
 
     Real rangeMag = rangeMJ2000.GetMagnitude();
 
     // Partials of range w.r.t. cartesian state
     if (rangeMag > 0) {
-        theCartDerivatives(0,0) = rangeMJ2000(0) / rangeMag;
-        theCartDerivatives(0,1) = rangeMJ2000(1) / rangeMag;
-	theCartDerivatives(0,2) = rangeMJ2000(2) / rangeMag;
-	theCartDerivatives(0,3) = 0;
-	theCartDerivatives(0,4) = 0;
-	theCartDerivatives(0,5) = 0;
+        theDerivatives(0,0) = rangeMJ2000(0) / rangeMag;
+        theDerivatives(0,1) = rangeMJ2000(1) / rangeMag;
+	theDerivatives(0,2) = rangeMJ2000(2) / rangeMag;
+	theDerivatives(0,3) = 0;
+	theDerivatives(0,4) = 0;
+	theDerivatives(0,5) = 0;
     }
     else
     {
@@ -249,9 +307,9 @@ bool GeometricRangeAzElMeasurementModel::ComputeMeasurement(Spacecraft *theSat)
     vsens(2) = 0.0;
 
     Rvector3 vrel;
-    vrel(0) = satState(3) - vsens(1);
-    vrel(1) = satState(4) - vsens(2);
-    vrel(2) = satState(5);
+    vrel(0) = targetState(3) - vsens(1);
+    vrel(1) = targetState(4) - vsens(2);
+    vrel(2) = targetState(5);
 
     // Compute Range Rate
     // Real rangeRate = vrel(0)*theCartDerivatives(0,0) +
@@ -301,18 +359,18 @@ bool GeometricRangeAzElMeasurementModel::ComputeMeasurement(Spacecraft *theSat)
      		   rangeRateSEZ(1)+rangeRateSEZ(2)*rangeRateSEZ(2)));
 
 
-	theCartDerivatives(1,0) = 0.0;
-	theCartDerivatives(1,1) = 0.0;
-	theCartDerivatives(1,2) = 0.0;
-	theCartDerivatives(1,3) = rotMat(1,0)/GmatMathUtil::Sqrt(squared2) -
+	theDerivatives(1,0) = 0.0;
+	theDerivatives(1,1) = 0.0;
+	theDerivatives(1,2) = 0.0;
+	theDerivatives(1,3) = rotMat(1,0)/GmatMathUtil::Sqrt(squared2) -
 		(rangeRateSEZ(0)*rotMat(0,0) + rangeRateSEZ(1)*rotMat(1,0))*
 		rangeRateSEZ(1)/GmatMathUtil::Pow(GmatMathUtil::Sqrt(squared2),3)/
 		GmatMathUtil::Cos(az);
-	theCartDerivatives(1,4) = rotMat(1,1)/GmatMathUtil::Sqrt(squared2) -
+	theDerivatives(1,4) = rotMat(1,1)/GmatMathUtil::Sqrt(squared2) -
 		(rangeRateSEZ(0)*rotMat(0,1) + rangeRateSEZ(1)*rotMat(1,1))*
 		rangeRateSEZ(1)/GmatMathUtil::Pow(GmatMathUtil::Sqrt(squared2),3)/
 		GmatMathUtil::Cos(az);
-	theCartDerivatives(1,5) = -rangeRateSEZ(0)*rotMat(0,2)*rangeRateSEZ(1)/
+	theDerivatives(1,5) = -rangeRateSEZ(0)*rotMat(0,2)*rangeRateSEZ(1)/
 		(GmatMathUtil::Pow(GmatMathUtil::Sqrt(squared2),3)*
 		GmatMathUtil::Cos(az));
     }
@@ -324,35 +382,35 @@ bool GeometricRangeAzElMeasurementModel::ComputeMeasurement(Spacecraft *theSat)
 
 	Real squared = rangeSEZ(0)*rangeSEZ(0) + rangeSEZ(1)*rangeSEZ(1);
 
-	theCartDerivatives(1,0) = rotMat(1,0)/GmatMathUtil::Sqrt(squared) -
+	theDerivatives(1,0) = rotMat(1,0)/GmatMathUtil::Sqrt(squared) -
 		(rangeSEZ(0)*rotMat(0,0)+rangeSEZ(1)*rotMat(1,0))*rangeSEZ(1)/
 		GmatMathUtil::Pow(GmatMathUtil::Sqrt(squared),3)/
 		GmatMathUtil::Cos(az);
-        theCartDerivatives(1,1) = rotMat(1,1)/GmatMathUtil::Sqrt(squared) -
+        theDerivatives(1,1) = rotMat(1,1)/GmatMathUtil::Sqrt(squared) -
 		(rangeSEZ(0)*rotMat(0,1)+rangeSEZ(2)*rotMat(1,1))*rangeSEZ(1)/
 		GmatMathUtil::Pow(GmatMathUtil::Sqrt(squared),3)/
 		GmatMathUtil::Cos(az);
-	theCartDerivatives(1,2) = -rangeSEZ(0)*rotMat(0,2)*rangeSEZ(1)/
+	theDerivatives(1,2) = -rangeSEZ(0)*rotMat(0,2)*rangeSEZ(1)/
 		GmatMathUtil::Pow(GmatMathUtil::Sqrt(squared),3)*
 		GmatMathUtil::Cos(az);
-	theCartDerivatives(1,3) = 0.0;
-	theCartDerivatives(1,4) = 0.0;
-	theCartDerivatives(1,5) = 0.0;
+	theDerivatives(1,3) = 0.0;
+	theDerivatives(1,4) = 0.0;
+	theDerivatives(1,5) = 0.0;
     }
 
     // Partials of elevation w.r.t. cartesian state
-    theCartDerivatives(2,0) = rotMat(3,1)/rangeMag -
+    theDerivatives(2,0) = rotMat(3,1)/rangeMag -
 	    rangeSEZ(3)*rangeMJ2000(1)/GmatMathUtil::Pow(rangeMag,3)/
 	    GmatMathUtil::Cos(el);
-    theCartDerivatives(2,1) = rotMat(3,2)/rangeMag -
+    theDerivatives(2,1) = rotMat(3,2)/rangeMag -
 	    rangeSEZ(3)*rangeMJ2000(2)/GmatMathUtil::Pow(rangeMag,3)/
 	    GmatMathUtil::Cos(el);
-    theCartDerivatives(2,2) = rotMat(3,3)/rangeMag -
+    theDerivatives(2,2) = rotMat(3,3)/rangeMag -
 	    rangeSEZ(3)*rangeMJ2000(3)/GmatMathUtil::Pow(rangeMag,3)/
 	    GmatMathUtil::Cos(el);
-    theCartDerivatives(2,3) = 0.0;
-    theCartDerivatives(2,4) = 0.0;
-    theCartDerivatives(2,5) = 0.0;
+    theDerivatives(2,3) = 0.0;
+    theDerivatives(2,4) = 0.0;
+    theDerivatives(2,5) = 0.0;
 
     return true;
 

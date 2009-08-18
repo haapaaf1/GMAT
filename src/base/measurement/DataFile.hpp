@@ -155,8 +155,6 @@ public:
     Integer GetFileFormatID(const std::string &label);
     void SetFileFormatID(const std::string &label);
 
-
-
     enum OBSERVATION_TYPE_REPS
     {
 	RANGE_ID = 0,

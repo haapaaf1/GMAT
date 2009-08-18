@@ -37,15 +37,44 @@ public:
    virtual bool Initialize();
    
    GmatBase *Clone() const;
-   
-   bool ComputeMeasurement(Spacecraft *theSat);
-   bool ComputeCartesianPartialDerivative(Spacecraft *theSat);
+
+   Integer     GetDependentParamID(const std::string &str) const;
+
+
+   // This function takes a spacecraft and computes a measurement
+   // between the associated ground station a space point
+   bool GetTheMeasurements(SpacePoint* theSpacePoint,
+                                  const A1Mjd &atTime,
+                                  LaGenMatDouble &theMeasurements);
+
+   // Obtain the partials
+   //bool GetThePartials(const std::string &param,
+   //                           SpacePoint* theSpacePoint,
+   //                           const A1Mjd &atTime,
+   //                           LaGenMatDouble &theDerivatives);
+   bool GetThePartials(const Integer &paramID,
+                              SpacePoint* theSpacePoint,
+                              const A1Mjd &atTime,
+                              LaGenMatDouble &theDerivatives);
+
+   bool ComputeCartesianPartialDerivative(SpacePoint* theSpacePoint,
+                                          const A1Mjd &atTime,
+                                          LaGenMatDouble &theDerivatives);
 
 private:
 
 protected:
-    
+
+   enum DEPENDENT_PARAMS
+   {
+      CARTESIAN_ID = MMDependentParamCount,
+      EndDependentParams
+   };
+
+
    Real           bodySpinRate;
+
+   static const std::string  DEPENDENT_PARAMETER_TEXT[EndDependentParams-MMDependentParamCount];
    
 
 };

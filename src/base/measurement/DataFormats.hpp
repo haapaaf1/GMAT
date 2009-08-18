@@ -883,8 +883,7 @@ namespace DataFormats
 	// Elevation angle in units of degree,
 	// using local reference system (zenith = 90)
         Real el;
-
-	
+        
     };
 
     enum SLR_DATA_REPS

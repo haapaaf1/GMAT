@@ -389,7 +389,7 @@ bool ProcessSLRData::BackUpToPreviousOb() {
     for (Integer i = 0; i < EndSLRDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
+                                                   .set_extended(true)
                        ).FullMatch(SLR_FILEFORMAT_DESCRIPTIONS[i]))
         {
             return true;
