@@ -349,6 +349,7 @@ OBJECTS = \
     measurement/MeasurementModel.o \
     measurement/MeasurementModelException.o \
     measurement/GeometricRangeMeasurementModel.o \
+    measurement/GeometricRangeAzElMeasurementModel.o \
     measurement/DataFile.o \
     measurement/DataFileException.o \
     measurement/ProcessTLEData.o \
@@ -499,6 +500,7 @@ OBJECTS = \
     util/MessageInterface.o \
     util/MessageReceiver.o \
     util/ModKeplerian.o \
+    util/RandomNumber.o \
     util/RealUtilities.o \
     util/RgbColor.o \
     util/Rmatrix33.o \
@@ -528,7 +530,6 @@ OBJECTS = \
 #    environment/Msise00Atmosphere.o \
 #    propagator/Cowell.o \
 #    measurement/SimMeasurementModel.o \
-#    measurement/GeometricRangeAzElMeasurementModel.o \
 #    measurement/GeometricAzElMeasurementModel.o \
 #    measurement/GeometricRangeRaDecMeasurementModel.o \
 #    measurement/GeometricRaDecMeasurementModel.o \
