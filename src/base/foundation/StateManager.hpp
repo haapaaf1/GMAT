@@ -26,6 +26,24 @@
 #include <map>
 #include <vector>
 
+struct ListItem
+{
+   std::string objectName;
+   std::string elementName;
+   GmatBase*   object;
+   // Gmat::StateElementId
+   Integer     elementID;
+   Integer     subelement;
+   Integer     parameterID;
+   Gmat::ParameterType
+               parameterType;
+   Integer     rowIndex;      // Used for vectors and arrays
+   Integer     rowLength;     // Used for vectors and arrays
+   Integer     colIndex;      // Used for arrays
+   Integer     length;
+};
+
+
 /**
  * The state manager base class.
  */

@@ -2742,7 +2742,7 @@ void Spacecraft::SetAnomaly(const std::string &type, const Anomaly &ta)
 }
 
 // todo: comment methods
-Integer Spacecraft::GetPropItemID(std::string whichItem)
+Integer Spacecraft::GetPropItemID(const std::string &whichItem)
 {
    if (whichItem == "CartesianState")
       return Gmat::CARTESIAN_STATE;
@@ -2752,7 +2752,7 @@ Integer Spacecraft::GetPropItemID(std::string whichItem)
    return SpaceObject::GetPropItemID(whichItem);
 }
 
-Integer Spacecraft::SetPropItem(std::string propItem)
+Integer Spacecraft::SetPropItem(const std::string &propItem)
 {
    if (propItem == "CartesianState")
       return Gmat::CARTESIAN_STATE;
@@ -2771,7 +2771,7 @@ StringArray Spacecraft::GetDefaultPropItems()
 }
 
 
-Real* Spacecraft::GetPropItem(Integer item)
+Real* Spacecraft::GetPropItem(const Integer item)
 {
    Real* retval = NULL;
    switch (item)
@@ -2796,7 +2796,7 @@ Real* Spacecraft::GetPropItem(Integer item)
    return retval;
 }
 
-Integer Spacecraft::GetPropItemSize(Integer item)
+Integer Spacecraft::GetPropItemSize(const Integer item)
 {
    Integer retval = -1;
    switch (item)
@@ -2813,13 +2813,89 @@ Integer Spacecraft::GetPropItemSize(Integer item)
          // todo: Access tanks for mass information to handle mass flow
          break;
          
-      // All other values call up the heirarchy
+      // All other values call up the hierarchy
       default:
          retval = SpaceObject::GetPropItemSize(item);
    }
    
    return retval;
 }
+
+bool Spacecraft::IsEstimationParameterValid(const Integer item)
+{
+   bool retval = false;
+
+   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
+
+   switch (id)
+   {
+      case Gmat::CARTESIAN_STATE:
+         retval = true;
+         break;
+
+      case Gmat::MASS_FLOW:
+         // todo: Access tanks for mass information to handle mass flow
+         break;
+
+      // All other values call up the hierarchy
+      default:
+         retval = SpaceObject::IsEstimationParameterValid(item);
+   }
+
+   return retval;
+}
+
+Integer Spacecraft::GetEstimationParameterSize(const Integer item)
+{
+   Integer retval = 1;
+
+
+   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
+   MessageInterface::ShowMessage("Spacecraft::GetEstimationParameterSize(%d) "
+         "called; parameter ID is %d\n", item, id);
+
+   switch (id)
+   {
+      case CARTESIAN_X:
+         retval = 6;
+         break;
+
+      case Gmat::MASS_FLOW:
+         // todo: Access tanks for mass information to handle mass flow
+         break;
+
+      // All other values call up the hierarchy
+      default:
+         retval = SpaceObject::GetEstimationParameterSize(item);
+   }
+
+   return retval;
+}
+
+Real* Spacecraft::GetEstimationParameterValue(const Integer item)
+{
+   Real* retval = NULL;
+
+   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
+
+   switch (id)
+   {
+      case Gmat::CARTESIAN_STATE:
+         retval = state.GetState();
+         break;
+
+      case Gmat::MASS_FLOW:
+         // todo: Access tanks for mass information to handle mass flow
+         break;
+
+      // All other values call up the class heirarchy
+      default:
+         retval = SpaceObject::GetEstimationParameterValue(item);
+   }
+
+   return retval;
+}
+
 
 //-------------------------------------
 // protected methods

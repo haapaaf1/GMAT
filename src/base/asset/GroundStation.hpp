@@ -67,6 +67,12 @@ public:
                                            const Integer index);
 
    virtual bool         Initialize();
+
+//   virtual Integer         GetEstimationParameterID(const std::string &param);
+//   virtual Integer         SetEstimationParameter(const std::string &param);
+   virtual bool            IsEstimationParameterValid(const Integer id);
+   virtual Integer         GetEstimationParameterSize(const Integer id);
+   virtual Real*           GetEstimationParameterValue(const Integer id);
    
 protected:
    /// Ground station ID

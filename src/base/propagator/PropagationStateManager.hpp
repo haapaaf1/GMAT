@@ -23,24 +23,6 @@
 
 #include "StateManager.hpp"
 
-struct ListItem
-{
-   std::string objectName;
-   std::string elementName;
-   GmatBase*   object;
-   Gmat::StateElementId
-               elementID;
-   Integer     subelement;
-   Integer     parameterID;
-   Gmat::ParameterType
-               parameterType;
-   Integer     rowIndex;      // Used for vectors and arrays
-   Integer     rowLength;     // Used for vectors and arrays
-   Integer     colIndex;      // Used for arrays
-   Integer     length;
-};
-
-
 /**
  * The state manager used in the propagation subsystem.
  */

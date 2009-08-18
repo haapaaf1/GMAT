@@ -39,6 +39,10 @@
 class SolarSystem;
 class CoordinateSystem;
 
+// The allocation size used to construct estimation object parameter IDs
+#define ESTIMATION_TYPE_ALLOCATION  250
+
+
 //------------------------------------------------------------------------------
 /**
  * Definition for the base class for all GMAT extensible objects
@@ -376,16 +380,17 @@ public:
    /// Method for getting time precision
    static Integer          GetTimePrecision();
 
-   virtual Integer         GetPropItemID(std::string whichItem);
-   virtual Integer         SetPropItem(std::string propItem);
+   virtual Integer         GetPropItemID(const std::string &whichItem);
+   virtual Integer         SetPropItem(const std::string &propItem);
    virtual StringArray     GetDefaultPropItems();
-   virtual Real*           GetPropItem(Integer item);
-   virtual Integer         GetPropItemSize(Integer item);
+   virtual Real*           GetPropItem(const Integer item);
+   virtual Integer         GetPropItemSize(const Integer item);
 
    virtual Integer         GetEstimationParameterID(const std::string &param);
-   virtual bool            IsEstimationParameterValid(Integer id);
-   virtual Integer         GetEstimationParameterSize(Integer id);
-   virtual Real*           GetEstimationParameterValue(Integer id);
+   virtual Integer         SetEstimationParameter(const std::string &param);
+   virtual bool            IsEstimationParameterValid(const Integer id);
+   virtual Integer         GetEstimationParameterSize(const Integer id);
+   virtual Real*           GetEstimationParameterValue(const Integer id);
 
 
 protected:

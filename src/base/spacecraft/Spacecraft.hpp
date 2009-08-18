@@ -161,13 +161,16 @@ public:
    void SetState(const std::string &type, const Rvector6 &cartState);
    void SetAnomaly(const std::string &type, const Anomaly &ta);
    
-   virtual Integer         GetPropItemID(std::string whichItem);
-   virtual Integer         SetPropItem(std::string propItem);
+   virtual Integer         GetPropItemID(const std::string &whichItem);
+   virtual Integer         SetPropItem(const std::string &propItem);
    virtual StringArray     GetDefaultPropItems();
-   virtual Real*           GetPropItem(Integer item);
-   virtual Integer         GetPropItemSize(Integer item);
+   virtual Real*           GetPropItem(const Integer item);
+   virtual Integer         GetPropItemSize(const Integer item);
 
-   
+   virtual bool            IsEstimationParameterValid(const Integer id);
+   virtual Integer         GetEstimationParameterSize(const Integer id);
+   virtual Real*           GetEstimationParameterValue(const Integer id);
+
 protected:
    enum SC_Param_ID 
    {

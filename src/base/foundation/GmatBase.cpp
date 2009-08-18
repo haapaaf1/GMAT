@@ -58,9 +58,6 @@ const Rvector     GmatBase::RVECTOR_PARAMETER_UNDEFINED = Rvector(1,
 const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
                   GmatBase::REAL_PARAMETER_UNDEFINED);
 
-// The allocation size for estimation object parameter IDs
-#define TYPE_ALLOCATION  250
-
 
 /**
  * Build the list of type names
@@ -3047,13 +3044,13 @@ Integer GmatBase::GetTimePrecision()
 
 
 // todo: comments
-Integer GmatBase::GetPropItemID(std::string whichItem)
+Integer GmatBase::GetPropItemID(const std::string &whichItem)
 {
    return -1;
 }
 
 
-Integer GmatBase::SetPropItem(std::string propItem)
+Integer GmatBase::SetPropItem(const std::string &propItem)
 {
    return Gmat::UNKNOWN_STATE;
 }
@@ -3064,16 +3061,20 @@ StringArray GmatBase::GetDefaultPropItems()
    return empty;
 }
 
-Real* GmatBase::GetPropItem(Integer item)
+Real* GmatBase::GetPropItem(const Integer item)
 {
    return NULL;
 }
 
-Integer GmatBase::GetPropItemSize(Integer item)
+Integer GmatBase::GetPropItemSize(const Integer item)
 {
    return -1;
 }
 
+Integer GmatBase::SetEstimationParameter(const std::string &param)
+{
+   return -1;
+}
 
 //------------------------------------------------------------------------------
 // Integer GmatBase::GetEstimationParameterID(const std::string &param)
@@ -3088,7 +3089,7 @@ Integer GmatBase::GetPropItemSize(Integer item)
 //------------------------------------------------------------------------------
 Integer GmatBase::GetEstimationParameterID(const std::string &param)
 {
-   Integer id = type * 250;      // Base for the estimation ID
+   Integer id = type * ESTIMATION_TYPE_ALLOCATION; // Base for estimation ID
 
    try
    {

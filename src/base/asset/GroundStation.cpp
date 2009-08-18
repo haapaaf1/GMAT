@@ -519,6 +519,54 @@ bool GroundStation::Initialize()
 
 
 
+bool GroundStation::IsEstimationParameterValid(const Integer id)
+{
+   bool retval = false;
+
+   return retval;
+}
+
+Integer GroundStation::GetEstimationParameterSize(const Integer item)
+{
+   Integer retval = 1;
+
+   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
+
+   switch (id)
+   {
+//      case Gmat::STATION_LOCATION:
+//         retval = 6;
+//         break;
+
+      // All other values call up the hierarchy
+      default:
+         retval = BodyFixedPoint::GetEstimationParameterSize(item);
+   }
+
+   return retval;
+}
+
+Real* GroundStation::GetEstimationParameterValue(const Integer item)
+{
+   Real *retval = NULL;
+
+   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
+
+   switch (id)
+   {
+//      case Gmat::STATION_LOCATION:
+//         retval = 6;
+//         break;
+
+      // All other values call up the hierarchy
+      default:
+         retval = BodyFixedPoint::GetEstimationParameterValue(item);
+   }
+
+   return retval;
+}
+
+
 //------------------------------------------------------------------------------
 // const std::string&  GetGeneratingString(Gmat::WriteMode mode,
 //                const std::string &prefix, const std::string &useName)
