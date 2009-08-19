@@ -2880,13 +2880,13 @@ Real* Spacecraft::GetEstimationParameterValue(const Integer item)
 
    switch (id)
    {
-      case Gmat::CARTESIAN_STATE:
+      case CARTESIAN_X:
          retval = state.GetState();
          break;
 
-      case Gmat::MASS_FLOW:
-         // todo: Access tanks for mass information to handle mass flow
-         break;
+//      case Gmat::MASS_FLOW:
+//         // todo: Access tanks for mass information to handle mass flow
+//         break;
 
       // All other values call up the class heirarchy
       default:
