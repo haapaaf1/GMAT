@@ -867,11 +867,11 @@ bool ODEModel::BuildModelFromMap()
       MessageInterface::ShowMessage("ODEModel map has %d entries\n",
             map->size());
    #endif
-   for (Integer index = 0; index < (Integer)map->size(); ++index)
+   for (UnsignedInt index = 0; index < map->size(); ++index)
    {
 
       // When the elementID changes, act on the previous data processed
-      if (id != (*map)[index]->elementID)
+      if (id != (Gmat::StateElementId)((*map)[index]->elementID))
       {
          // Only build elements if an object needs them
          if (objectCount > 0)
@@ -888,7 +888,7 @@ bool ODEModel::BuildModelFromMap()
             }
          }
          // A new element type was encountered, so reset the pointers & counters
-         id = (*map)[index]->elementID;
+         id = (Gmat::StateElementId)((*map)[index]->elementID);
          objectCount = 0;
          start = index;
          currentObject = NULL;
