@@ -967,6 +967,8 @@ std::string MeasurementModel::GetRefObjectName(const Gmat::ObjectType type) cons
 
 GmatBase* MeasurementModel::GetRefObject(const Gmat::ObjectType type, const std::string & name)
 {
+   if (type == Gmat::CORE_MEASUREMENT)
+      return measurement;
    return GmatBase::GetRefObject(type, name);
 }
 
@@ -1139,11 +1141,18 @@ const MeasurementData & MeasurementModel::GetMeasurement()
  * @return A pointer to the calculated derivatives.
  */
 //------------------------------------------------------------------------------
-const Rmatrix & MeasurementModel::CalculateMeasurementDerivatives()
-// todo:Fix derivative caculations in measMan for the new paradigm
+//const Rmatrix & MeasurementModel::CalculateMeasurementDerivatives()
+const std::vector<RealArray>& MeasurementModel::CalculateMeasurementDerivatives(
+                                             GmatBase *obj, Integer id)
 {
-//   measurement->CalculateMeasurementDerivatives();
-   return *theDataDerivatives;
+   #ifdef DEBUG_DERIVATIVES
+      MessageInterface::ShowMessage("MeasurementModel::CalculateMeasurement"
+            "Derivatives(%s, %d) called; this = %p, obj = %p\n",
+            obj->GetName().c_str(), id, this, obj);
+      if (obj == this)
+         MessageInterface::ShowMessage("This MM is the object\n");
+   #endif
+   return measurement->CalculateMeasurementDerivatives(obj, id);
 }
 
 

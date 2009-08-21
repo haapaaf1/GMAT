@@ -68,11 +68,12 @@ public:
 
    // Move to CoreMeasurement when it is created
    MeasurementData*           GetMeasurementDataPointer();
-   Rmatrix*                   GetDerivativePointer();
+   std::vector<RealArray>*    GetDerivativePointer();
 
    virtual const MeasurementData&
                               CalculateMeasurement();
-   virtual const Rmatrix&     CalculateMeasurementDerivatives(GmatBase *obj,
+   virtual const std::vector<RealArray>&
+                              CalculateMeasurementDerivatives(GmatBase *obj,
                                                               Integer id) = 0;
 
    void                       SetUniqueId(Integer id);
@@ -80,7 +81,7 @@ public:
 protected:
    // These go on CoreMeasurement
    MeasurementData            currentMeasurement;
-   Rmatrix                    currentDerivatives;
+   std::vector<RealArray>     currentDerivatives;
    Rmatrix                    stm;
    Rmatrix                    covariance;
 
@@ -89,6 +90,8 @@ protected:
    std::vector<SpacePoint*>   participants;
 
    Integer                    uniqueId;
+
+   Integer                    GetParmIdFromEstID(Integer id, GmatBase *obj);
 
    /// Support members for the range vector calculation
    Rvector3                   p1Loc;

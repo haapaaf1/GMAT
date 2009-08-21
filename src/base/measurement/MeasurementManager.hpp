@@ -50,11 +50,14 @@ public:
    bool                    Finalize();
    
    bool                    CalculateMeasurements();
-   bool                    CalculateMeasurementsAndDerivatives();
+   const std::vector<RealArray>&
+                           CalculateDerivatives(GmatBase *obj, Integer wrt,
+                                                Integer forMeasurement);
    bool                    WriteMeasurements();
 
    Integer                 AddMeasurement(MeasurementModel *meas);
    void                    AddMeasurementName(std::string measName);
+   GmatBase*               GetClone(GmatBase *obj);
    const StringArray&      GetMeasurementNames() const;
    const StringArray&      GetParticipantList();
    Integer                 Calculate(const Integer measurementToCalc);
@@ -62,6 +65,8 @@ public:
    const StringArray&      GetStreamList();
    void                    SetStreamObject(Datafile *newStream);
    bool                    WriteMeasurement(const Integer measurementToWrite);
+
+   IntegerArray&           GetValidMeasurementList();
 
    // Observation reader methods needed for estimation
    void                    LoadObservations();
@@ -102,6 +107,11 @@ protected:
    Integer                          largestId;
 
    std::map<Integer,Datafile*>      idToStreamMap;
+
+   /// Indices of measurement models that match observations at current epoch
+   IntegerArray                     activeMeasurements;
+
+   Integer                          FindModelForObservation();
 };
 
 #endif /*MeasurementManager_hpp*/

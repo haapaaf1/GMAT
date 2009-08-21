@@ -412,12 +412,6 @@ bool PropagationStateManager::MapVectorToObjects()
 }
 
 
-const std::vector<ListItem*>* PropagationStateManager::GetStateMap()
-{
-   return &stateMap;
-}
-
-
 Integer PropagationStateManager::SortVector()
 {
    StringArray *propList;

@@ -32,7 +32,8 @@ public:
 
    virtual GmatBase*       Clone() const;
    virtual bool            Initialize();
-   virtual const Rmatrix&  CalculateMeasurementDerivatives(GmatBase *obj,
+   virtual const std::vector<RealArray>&
+                           CalculateMeasurementDerivatives(GmatBase *obj,
                                  Integer id);
 
 protected:

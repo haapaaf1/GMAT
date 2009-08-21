@@ -61,7 +61,9 @@ StateManager::~StateManager()
 StateManager::StateManager(const StateManager& sm) :
    stateSize   (sm.stateSize),
    state       (sm.state),
-   current     (NULL)
+   objectNames (sm.objectNames),
+   current     (NULL),
+   stateMap    (sm.stateMap)
 {
    objects.clear();
    epochIDs.clear();
@@ -85,7 +87,10 @@ StateManager& StateManager::operator=(const StateManager& sm)
       objects.clear();
       epochIDs.clear();
       elements.clear();
-      current = NULL;
+
+      current     = NULL;
+      objectNames = sm.objectNames;
+      stateMap    = sm.stateMap;
    }
    
    return *this;
@@ -149,6 +154,12 @@ GmatState* StateManager::GetState()
 }
 
 
+Integer StateManager::GetStateSize()
+{
+   return state.GetSize();
+}
+
+
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
@@ -194,3 +205,10 @@ const StringArray& StateManager::GetObjectList(std::string ofType)
 {
    return objectNames;
 }
+
+
+const std::vector<ListItem*>* StateManager::GetStateMap()
+{
+   return &stateMap;
+}
+

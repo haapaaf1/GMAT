@@ -417,6 +417,27 @@ const StringArray& MeasurementManager::GetMeasurementNames() const
    return modelNames;
 }
 
+
+GmatBase* MeasurementManager::GetClone(GmatBase *obj)
+{
+   GmatBase *retval = NULL;
+   // Look for an object named same as obj
+   std::string objname = obj->GetName();
+
+   if (objname != "")
+   {
+      // Check the models
+      for (UnsignedInt i = 0; i < models.size(); ++i)
+         if (models[i]->GetName() == objname)
+         {
+            retval = models[i];
+            break;
+         }
+   }
+
+   return retval;
+}
+
 //------------------------------------------------------------------------------
 // bool CalculateMeasurements()
 //------------------------------------------------------------------------------
@@ -443,31 +464,24 @@ bool MeasurementManager::CalculateMeasurements()
 
 
 //------------------------------------------------------------------------------
-// bool MeasurementManager::CalculateMeasurementsAndDerivatives()
+// const std::vector<RealArray>& MeasurementManager::CalculateDerivatives(
+//                         GmatBase *obj, Integer wrt, Integer forMeasurement)
 //------------------------------------------------------------------------------
 /**
  * Fires the calculation method of each owned MeasurementModel, and on success
  * (i.e. if the measurement was feasible) then fires the derivative calculator.
  *
- * @return True if at least one measurement is feasible and calculated; false
- *         otherwise
+ * @param obj The object holding the with-respect-to parameters
+ * @param wrt The with-respect-to parameters
+ * @param forMeasurement Indix of the measurement that is being differentiated
+ * 
+ * @return The derivative data
  */
 //------------------------------------------------------------------------------
-bool MeasurementManager::CalculateMeasurementsAndDerivatives()
+const std::vector<RealArray>& MeasurementManager::CalculateDerivatives(
+                           GmatBase *obj, Integer wrt, Integer forMeasurement)
 {
-   bool retval = false;
-
-   for (UnsignedInt j = 0; j < models.size(); ++j)
-   {
-      measurements[j] = models[j]->CalculateMeasurement();
-      if (measurements[j].isFeasible)
-      {
-         derivatives[j] = models[j]->CalculateMeasurementDerivatives();
-         retval = true;
-      }
-   }
-
-   return retval;
+   return models[forMeasurement]->CalculateMeasurementDerivatives(obj, wrt);
 }
 
 
@@ -562,4 +576,44 @@ void MeasurementManager::SetStreamObject(Datafile *newStream)
          }
       }
    }
+}
+
+IntegerArray& MeasurementManager::GetValidMeasurementList()
+{
+   activeMeasurements.clear();
+   Integer count = FindModelForObservation();
+   #ifdef DEBUG_MODEL_MAPPING
+      MessageInterface::ShowMessage("Found %d potential models for the current "
+            "observation\n", count);
+   #endif
+   return activeMeasurements;
+}
+
+Integer MeasurementManager::FindModelForObservation()
+{
+   Integer retval = 0;
+
+   Gmat::MeasurementType type =  currentObs->type;
+
+   for (UnsignedInt i = 0; i < models.size(); ++i)
+   {
+      MeasurementData theMeas = models[i]->GetMeasurement();
+      if (theMeas.type == type)
+      {
+         StringArray parts = currentObs->participantIDs;
+         StringArray measParts = theMeas.participantIDs;
+         bool missingParticipant = false;
+         for (UnsignedInt j = 0; j < parts.size(); ++j)
+            if (find(measParts.begin(), measParts.end(), parts[j]) == measParts.end())
+               missingParticipant = true;
+
+         if (!missingParticipant)
+         {
+            activeMeasurements.push_back(i);
+            ++retval;
+         }
+      }
+   }
+
+   return retval;
 }

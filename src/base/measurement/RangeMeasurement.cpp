@@ -172,13 +172,21 @@ bool RangeMeasurement::Evaluate()
 }
 
 
-const Rmatrix& RangeMeasurement::CalculateMeasurementDerivatives(
+const std::vector<RealArray>& RangeMeasurement::CalculateMeasurementDerivatives(
                      GmatBase *obj, Integer id)
 {
+   #ifdef DEBUG_DERIVATIVES
+      MessageInterface::ShowMessage("RangeMeasurement::CalculateMeasurement"
+            "Derivatives(%s, %d) called\n", obj->GetName().c_str(), id);
+   #endif
    GmatBase *objPtr = NULL;
 
-   Integer itemSize = obj->GetPropItemSize(id);
-   if (itemSize <= 0)
+   Integer size = obj->GetEstimationParameterSize(id);
+   #ifdef DEBUG_DERIVATIVES
+      MessageInterface::ShowMessage("   ParameterSize = %d\n", size);
+   #endif
+   
+   if (size <= 0)
       throw MeasurementException("The derivative parameter on derivative "
             "object " + obj->GetName() + "is not recognized");
 
@@ -188,16 +196,39 @@ const Rmatrix& RangeMeasurement::CalculateMeasurementDerivatives(
       if (participants[i] == obj)
       {
          objPtr = participants[i];
+         #ifdef DEBUG_DERIVATIVES
+            MessageInterface::ShowMessage("   Participant %s found\n",
+                  objPtr->GetName().c_str());
+         #endif
          break;
       }
    }
 
-   currentDerivatives.SetSize(1, itemSize);
+   // Or if it is the measurement model for this object
+   if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+      if (obj->GetRefObject(Gmat::CORE_MEASUREMENT, "") == this)
+      {
+         objPtr = obj;
+         #ifdef DEBUG_DERIVATIVES
+            MessageInterface::ShowMessage("   The measurement is the object\n",
+                  objPtr->GetName().c_str());
+         #endif
+      }
 
+   RealArray oneRow;
+   oneRow.assign(size, 0.0);
+   currentDerivatives.clear();
+   currentDerivatives.push_back(oneRow);
+
+   Integer parameterID = GetParmIdFromEstID(id, obj);
+   
+   #ifdef DEBUG_DERIVATIVES
+      MessageInterface::ShowMessage("   Looking up id %d\n", parameterID);
+   #endif
+   
    if (objPtr != NULL)
    {
-      // The only non-zero derivatives are w.r.t. CartesianState
-      if (objPtr->GetParameterText(id) == "CartesianState")
+      if (objPtr->GetParameterText(parameterID) == "CartesianX")
       {
          CalculateRangeVector();
          Real range = rangeVec.GetMagnitude();
@@ -205,20 +236,20 @@ const Rmatrix& RangeMeasurement::CalculateMeasurementDerivatives(
          {
             for (UnsignedInt i = 0; i < 3; ++i)
             {
-               currentDerivatives(0, i) = rangeVec[i] / range;
-               currentDerivatives(0, i+3) = 0.0;
+               currentDerivatives[0][i] = rangeVec[i] / range;
+//               currentDerivatives[0][i+3] = 0.0;
             }
          }
          else if (objPtr->IsOfType(Gmat::GROUND_STATION))
          {
             for (UnsignedInt i = 0; i < 3; ++i)
             {
-               currentDerivatives(0, i) = - rangeVec[i] / range;
-               currentDerivatives(0, i+3) = 0.0;
+               currentDerivatives[0][i] = - rangeVec[i] / range;
+//               currentDerivatives[0][i+3] = 0.0;
             }
          }
       }
-      else if (objPtr->GetParameterText(id) == "StationLocation")
+      else if (objPtr->GetParameterText(parameterID) == "StationLocation")
       {
          CalculateRangeVector();
          Real range = rangeVec.GetMagnitude();
@@ -226,32 +257,31 @@ const Rmatrix& RangeMeasurement::CalculateMeasurementDerivatives(
          {
             for (UnsignedInt i = 0; i < 3; ++i)
             {
-               currentDerivatives(0, i) = 0.0;
+               currentDerivatives[0][i] = 0.0;
             }
          }
          else if (objPtr->IsOfType(Gmat::GROUND_STATION))
          {
             for (UnsignedInt i = 0; i < 3; ++i)
             {
-               currentDerivatives(0, i) = - rangeVec[i] / range;
+               currentDerivatives[0][i] = - rangeVec[i] / range;
             }
          }
       }
       else
       {
-         // Derivatives all zeros here
-         for (Integer i = 0; i < itemSize; ++i)
-            currentDerivatives(0, i) = 0.0;
+         for (Integer i = 0; i < size; ++i)
+            currentDerivatives[0][i] = 1.0;
       }
    }
-   else
-   {
-      // For everything else, the derivatives are all zeros here
-      for (Integer i = 0; i < itemSize; ++i)
-         currentDerivatives(0, i) = 0.0;
-   }
+
+   // Already zeroed at initialization above, so this isn't needed:
+//   else
+//   {
+//      // For everything else, the derivatives are all zeros here
+//      for (Integer i = 0; i < size; ++i)
+//         currentDerivatives[0][i] = 0.0;
+//   }
 
    return currentDerivatives;
 }
-
-

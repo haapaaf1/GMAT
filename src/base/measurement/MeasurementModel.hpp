@@ -136,8 +136,9 @@ public:
 
    virtual const MeasurementData&
                         CalculateMeasurement();
-   virtual const Rmatrix&
-                        CalculateMeasurementDerivatives();
+   virtual const std::vector<RealArray>&
+                        CalculateMeasurementDerivatives(GmatBase *obj,
+                                                        Integer id);
    virtual const MeasurementData&
                         GetMeasurement();
    virtual bool         WriteMeasurements();
@@ -154,12 +155,14 @@ protected:
    ObjectArray          participants;
    /// The type of measurement
    std::string          measurementType;
+   /// An integer representing the type of measurement
+   Integer              measurementTypeID;
    /// The core measurement component
    CoreMeasurement      *measurement;
    /// Measurement data
    MeasurementData      *theData;
    /// And derivatives
-   Rmatrix              *theDataDerivatives;
+   std::vector<RealArray> *theDataDerivatives;
 
    /// Local storage element for ref object names
    StringArray          refObjectList;

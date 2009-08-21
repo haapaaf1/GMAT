@@ -44,10 +44,8 @@ public:
    virtual bool BuildState();
    virtual bool MapObjectsToVector();
    virtual bool MapVectorToObjects();
-   virtual const std::vector<ListItem*>* GetStateMap();
 
 protected:
-   std::vector<ListItem*> stateMap;
 
    Integer        SortVector();
 };

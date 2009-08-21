@@ -192,7 +192,7 @@ MeasurementData* GeometricMeasurement::GetMeasurementDataPointer()
    return &currentMeasurement;
 }
 
-Rmatrix* GeometricMeasurement::GetDerivativePointer()
+std::vector<RealArray>* GeometricMeasurement::GetDerivativePointer()
 {
    return &currentDerivatives;
 }
@@ -221,4 +221,10 @@ void GeometricMeasurement::CalculateRangeVector()
 void GeometricMeasurement::SetUniqueId(Integer id)
 {
    currentMeasurement.uniqueID = id;
+}
+
+
+Integer GeometricMeasurement::GetParmIdFromEstID(Integer id, GmatBase *obj)
+{
+   return id - obj->GetType() * 250;
 }
