@@ -59,5 +59,6 @@ GMAT XYPlot1.Grid = On;
 GMAT XYPlot1.ShowPlot = true;
 
 %----- Run the estimator
+Save BatchEst;
 RunEstimator BatchEst;
 

@@ -2851,8 +2851,12 @@ Integer Spacecraft::GetEstimationParameterSize(const Integer item)
 
 
    Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
-   MessageInterface::ShowMessage("Spacecraft::GetEstimationParameterSize(%d) "
-         "called; parameter ID is %d\n", item, id);
+
+   #ifdef DEBUG_ESTIMATION
+      MessageInterface::ShowMessage("Spacecraft::GetEstimationParameterSize(%d)"
+            " called; parameter ID is %d\n", item, id);
+   #endif
+
 
    switch (id)
    {
