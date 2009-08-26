@@ -1,5 +1,5 @@
-% GMAT Script File
-% GMAT Release Build 5, August 2005
+%$Id$
+% GMAT Routine Test Script File
 
 %----------------------------------------
 %---------- Spacecraft
@@ -45,11 +45,12 @@ GMAT thruster.Element3 = 0;
 GMAT thruster.Tank = {tank};
 
 %% Notes: There were some coeff changes by Darrel on 2009.02.17
+GMAT thruster.C1 = 0;
 GMAT thruster.C3 = 1;
 GMAT thruster.C13 = 1;
-
-GMAT thruster.CoordinateSystem = EarthMJ2000Eq;
 GMAT thruster.ThrustScaleFactor = 1;
+
+GMAT thruster.CoordinateSystem = MoonMJ2000Eq;
 
 
 %----------------------------------------
@@ -83,9 +84,9 @@ GMAT ATM_Prop.MaxStepAttempts = 50;
 %----------------------------------------
 
 Create ImpulsiveBurn moonBurn;
+%GMAT moonBurn.CoordinateSystem = MoonMJ2000Eq;
 GMAT moonBurn.Origin = Luna;
 GMAT moonBurn.Axes = VNB;
-%GMAT moonBurn.CoordinateSystem = MoonMJ2000Eq;
 GMAT moonBurn.VectorFormat = Cartesian;
 GMAT moonBurn.Element1 = 0.296;  % Circularizes the lunar orbit
 GMAT moonBurn.Element2 = 0;

@@ -1,6 +1,5 @@
-%Id%
-% GMAT Script File
-% GMAT Release Build 5, August 2005
+%$Id$
+% GMAT Routine Test Script File
 
 %----------------------------------------
 %---------- Spacecraft
@@ -44,12 +43,13 @@ GMAT thruster.Element1 = -1;
 GMAT thruster.Element2 = 0;
 GMAT thruster.Element3 = 0;
 GMAT thruster.Tank = {tank};
+
 %% Notes: There were some coeff changes by Darrel on 2009.02.17
 GMAT thruster.C1 = 0;
 GMAT thruster.C3 = 1;
 GMAT thruster.C13 = 1;
-%%GMAT thruster.CoordinateSystem = MJ2000EarthEquator;
 GMAT thruster.ThrustScaleFactor = 1;
+
 %% Note: Origin, Axes, Tanks and BurnScaleFactor are no longer valid FiniteBurn fields 
 %%       Instead set these to thruster (2009.03.05)
 GMAT thruster.CoordinateSystem = Local;
