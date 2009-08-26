@@ -37,10 +37,12 @@
 //#define DEBUG_INITIALIZE_CS
 //#define DEBUG_BUILD_ASSOCIATIONS
 
-// cloning the hardware in the spacecraft is not ready yet
-#ifndef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-#define __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-#endif
+// Cloning the hardware in the spacecraft is now good to go (LOJ: 2009.08.25)
+// But if we want to have the old code, just uncomment the lines here and in
+// the Spacecraft
+//#ifndef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
+//#define __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
+//#endif
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -510,17 +512,13 @@ void ObjectInitializer::InitializeAllOtherObjects(ObjectMap *objMap)
          }
          else
          {
-            obj->SetSolarSystem(ss);
-            obj->SetInternalCoordSystem(internalCS);
-            
             if (obj->IsOfType(Gmat::SPACE_POINT)       ||
                 obj->IsOfType(Gmat::BURN)              ||
                 obj->IsOfType(Gmat::HARDWARE)          ||
                 obj->IsOfType("Estimator")             ||
                 obj->IsOfType("Simulator"))
             {
-               BuildReferences(obj);
-               obj->Initialize();
+               BuildReferencesAndInitialize(obj);
             }
          }
       }
@@ -1044,10 +1042,13 @@ void ObjectInitializer::SetRefFromName(GmatBase *obj, const std::string &oName)
 //------------------------------------------------------------------------------
 void ObjectInitializer::BuildAssociations(GmatBase * obj)
 {
+   std::string objName = obj->GetName();
+   std::string objType = obj->GetTypeName();
+   
    #ifdef DEBUG_BUILD_ASSOCIATIONS
    MessageInterface::ShowMessage
       ("ObjectInitializer::BuildAssociations() entered, obj=<%p><%s>'%s'\n",
-       obj, obj->GetTypeName().c_str(), obj->GetName().c_str());
+       obj, objType.c_str(), objName.c_str());
    #endif
    // Spacecraft receive clones of the associated hardware objects
    if (obj->IsOfType(Gmat::SPACECRAFT))
@@ -1058,7 +1059,7 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
          #ifdef DEBUG_BUILD_ASSOCIATIONS
             MessageInterface::ShowMessage
                ("ObjectInitializer::BuildAssociations() setting \"%s\" on \"%s\"\n",
-                i->c_str(), obj->GetName().c_str());
+                i->c_str(), objName.c_str());
          #endif
          
          GmatBase *elem = NULL;
@@ -1066,18 +1067,26 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
             throw GmatBaseException("ObjectInitializer::BuildAssociations: Cannot find "
                                     "hardware element \"" + (*i) + "\"\n");
          
-         GmatBase *newElem = elem->Clone();
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Add
-            (newElem, newElem->GetName(), "ObjectInitializer::BuildAssociations()",
-             "newElem = elem->Clone()");
+         // To handle Spacecraft hardware setting inside the function,
+         // all hardware are cloned in the SetRefObject() method. (LOJ: 2009.07.24)
+         #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
+            GmatBase *newElem = elem->Clone();
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (newElem, newElem->GetName(), "ObjectInitializer::BuildAssociations()",
+                "newElem = elem->Clone()");
+            #endif         
+            #ifdef DEBUG_BUILD_ASSOCIATIONS
+               MessageInterface::ShowMessage
+                  ("ObjectInitializer::BuildAssociations() created clone \"%s\" of type \"%s\"\n",
+                  newElem->GetName().c_str(), newElem->GetTypeName().c_str());
+            #endif
+         #else
+            // Spacecraft will clone the hardware in SetRefObject()
+            GmatBase *newElem = elem;
          #endif
          
-         #ifdef DEBUG_BUILD_ASSOCIATIONS
-            MessageInterface::ShowMessage
-               ("ObjectInitializer::BuildAssociations() created clone \"%s\" of type \"%s\"\n",
-               newElem->GetName().c_str(), newElem->GetTypeName().c_str());
-         #endif
+         // now set Hardware to Spacecraft
          if (!obj->SetRefObject(newElem, newElem->GetType(), newElem->GetName()))
          {
             MessageInterface::ShowMessage
@@ -1087,26 +1096,48 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
          }
          else
          {
+            #ifdef DEBUG_BUILD_ASSOCIATIONS
+            MessageInterface::ShowMessage
+               ("ObjectInitializer::BuildAssociations() successfully set <%p>'%s' to '%s'\n",
+                newElem, newElem->GetName().c_str(), objName.c_str());
+            #endif
+            
             // Set SolarSystem and Spacecraft to Thruster since it needs coordinate
             // conversion during Thruster initialization (LOJ: 2009.03.05)
             // Set CoordinateSystem (LOJ: 2009.05.05)
             if (newElem->IsOfType(Gmat::THRUSTER))
             {
                newElem->SetSolarSystem(ss);
-               newElem->SetRefObject(obj, Gmat::SPACECRAFT, obj->GetName());
+               newElem->SetRefObject(obj, Gmat::SPACECRAFT, objName);
                std::string csName = newElem->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
                if (csName != "")
                   newElem->SetRefObject(FindObject(csName), Gmat::COORDINATE_SYSTEM, csName);
                newElem->Initialize();
+               
+               // Now add Thruster's CoordinateSystem to Spacecraft so that it can set it
+               // to cloned Thruster
+               StringArray objRefs = obj->GetRefObjectNameArray(Gmat::COORDINATE_SYSTEM);
+               for (StringArray::iterator i = objRefs.begin(); i != objRefs.end(); ++i)
+               {
+                  csName = *i;
+                  GmatBase *refObj = FindObject(csName);
+                  if (refObj == NULL)
+                     throw GmatBaseException("Unknown object " + csName + " requested by " +
+                                             obj->GetName());
+                  obj->TakeAction("ThrusterSettingMode", "On");
+                  obj->SetRefObject(refObj, refObj->GetType(), refObj->GetName());                  
+                  obj->TakeAction("ThrusterSettingMode", "Off");
+               }
             }
+            
+            #ifdef DEBUG_BUILD_ASSOCIATIONS
+            MessageInterface::ShowMessage
+               ("ObjectInitializer::BuildAssociations() Calling <%p>'%s'->"
+                "TakeAction(SetupHardware)\n", obj, objName.c_str());
+            #endif
+            obj->TakeAction("SetupHardware");
+            
          }
-         
-         #ifdef DEBUG_BUILD_ASSOCIATIONS
-         MessageInterface::ShowMessage
-            ("ObjectInitializer::BuildAssociations() Calling <%p>'%s'->TakeAction(SetupHardware)\n",
-             obj, obj->GetName().c_str());
-         #endif
-         obj->TakeAction("SetupHardware");
       }
    }
    
