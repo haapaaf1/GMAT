@@ -24,6 +24,8 @@
 #include "GuiItemManager.hpp"
 #include "GuiInterpreter.hpp"
 
+#include <map>
+
 #ifdef __TEST_MISSION_TREE_ACTIONS__
 #include <fstream>            // for ofstream for saving actions
 #endif
@@ -153,10 +155,13 @@ private:
    wxMenu* CreateControlLogicPopupMenu(int type, ActionType action);
    
    wxString GetCommandString(GmatCommand *cmd, const wxString &currStr);
-   int GetMenuId(const wxString &cmd, ActionType action);
-   GmatTree::MissionIconType GetIconId(const wxString &cmd);
    GmatTree::ItemType GetCommandId(const wxString &cmd);
    int* GetCommandCounter(const wxString &cmd);
+   
+   void CreateMenuIds();
+   int GetMenuId(const wxString &cmd, ActionType action);
+   
+   GmatTree::MissionIconType GetIconId(const wxString &cmd);
    wxTreeItemId FindChild(wxTreeItemId parentId, const wxString &cmd);
    bool IsInsideSolver(wxTreeItemId itemId, GmatTree::ItemType &itemType);
    
@@ -216,6 +221,7 @@ private:
       POPUP_INSERT_AFTER,
       
       //----- begin of MENU_EVT_RANGE of OnAppend()
+      POPUP_APPEND_COMMAND = 25100,
       POPUP_APPEND_PROPAGATE,
       POPUP_APPEND_MANEUVER,
       POPUP_APPEND_BEGIN_FINITE_BURN,
@@ -227,7 +233,7 @@ private:
       POPUP_APPEND_MINIMIZE,
       POPUP_APPEND_NON_LINEAR_CONSTRAINT,
       POPUP_APPEND_REPORT,
-      POPUP_APPEND_FUNCTION,
+      POPUP_APPEND_CALL_FUNCTION,
       POPUP_APPEND_ASSIGNMENT,
       POPUP_APPEND_TOGGLE,
       POPUP_APPEND_SAVE,
@@ -242,9 +248,11 @@ private:
       POPUP_APPEND_WHILE,
       POPUP_APPEND_D0_WHILE,
       POPUP_APPEND_SWITCH,
+      POPUP_APPEND_UNKNOWN,
       //----- end of MENU_EVT_RANGE
       
       //----- begin of MENU_EVT_RANGE of OnInsertBefore()
+      POPUP_INSERT_BEFORE_COMMAND = 25200,
       POPUP_INSERT_BEFORE_PROPAGATE, 
       POPUP_INSERT_BEFORE_MANEUVER,
       POPUP_INSERT_BEFORE_BEGIN_FINITE_BURN,
@@ -256,7 +264,7 @@ private:
       POPUP_INSERT_BEFORE_MINIMIZE,
       POPUP_INSERT_BEFORE_NON_LINEAR_CONSTRAINT,
       POPUP_INSERT_BEFORE_REPORT,
-      POPUP_INSERT_BEFORE_FUNCTION,
+      POPUP_INSERT_BEFORE_CALL_FUNCTION,
       POPUP_INSERT_BEFORE_ASSIGNMENT,
       POPUP_INSERT_BEFORE_TOGGLE,
       POPUP_INSERT_BEFORE_SAVE,
@@ -271,9 +279,11 @@ private:
       POPUP_INSERT_BEFORE_WHILE,
       POPUP_INSERT_BEFORE_D0_WHILE,
       POPUP_INSERT_BEFORE_SWITCH,
+      POPUP_INSERT_BEFORE_UNKNOWN,
       //----- end of MENU_EVT_RANGE
       
       //----- begin of MENU_EVT_RANGE of OnInsertAfter()
+      POPUP_INSERT_AFTER_COMMAND = 25300,
       POPUP_INSERT_AFTER_PROPAGATE, 
       POPUP_INSERT_AFTER_MANEUVER,
       POPUP_INSERT_AFTER_BEGIN_FINITE_BURN,
@@ -285,7 +295,7 @@ private:
       POPUP_INSERT_AFTER_MINIMIZE,
       POPUP_INSERT_AFTER_NON_LINEAR_CONSTRAINT,
       POPUP_INSERT_AFTER_REPORT,
-      POPUP_INSERT_AFTER_FUNCTION,
+      POPUP_INSERT_AFTER_CALL_FUNCTION,
       POPUP_INSERT_AFTER_ASSIGNMENT,
       POPUP_INSERT_AFTER_TOGGLE,
       POPUP_INSERT_AFTER_SAVE,
@@ -300,6 +310,7 @@ private:
       POPUP_INSERT_AFTER_WHILE,
       POPUP_INSERT_AFTER_D0_WHILE,
       POPUP_INSERT_AFTER_SWITCH,
+      POPUP_INSERT_AFTER_UNKNOWN,
       //----- end of MENU_EVT_RANGE
       
       POPUP_VIEW_VARIABLES,
@@ -314,6 +325,8 @@ private:
       POPUP_STOP_SAVE_ACTIONS,
       POPUP_READ_ACTIONS,
    };
+   
+   std::map<wxString, int> commandIdMap;
 };
 
 #endif // MissionTree_hpp

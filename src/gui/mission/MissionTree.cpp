@@ -45,6 +45,10 @@
 #include "MessageInterface.hpp"
 #include "CommandUtil.hpp"         // for GetNextCommand()
 
+// For testing new code for adding commands in a generic way
+// has not fully implemented yet (LOJ: 2009.08.26)
+//#define __AUTO_ADD_NEW_COMMANDS__
+
 // Should we sort the command list?
 #define __SORT_COMMAND_LIST__
 
@@ -162,6 +166,13 @@ MissionTree::MissionTree(wxWindow *parent, const wxWindowID id,
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
    
+   //-----------------------------------------------------------------
+   #ifdef __AUTO_ADD_NEW_COMMANDS__
+   //-----------------------------------------------------------------
+   
+   //StringArray cmdList = theGuiInterpreter->GetCreatableList(Gmat::COMMAND);
+   //mCommandList = theGuiManager->ToWxArrayString(cmdList);
+   
    mCommandList.Clear();
    mCommandList.Add("Propagate");
    mCommandList.Add("Maneuver");
@@ -177,6 +188,32 @@ MissionTree::MissionTree(wxWindow *parent, const wxWindowID id,
    //mCommandList.Add("GMAT");
    mCommandList.Add("Equation");
    mCommandList.Add("ScriptEvent");
+   
+   CreateMenuIds();
+   
+   //-----------------------------------------------------------------
+   #else
+   //-----------------------------------------------------------------
+   
+   mCommandList.Clear();
+   mCommandList.Add("Propagate");
+   mCommandList.Add("Maneuver");
+   mCommandList.Add("BeginFiniteBurn");
+   mCommandList.Add("EndFiniteBurn");
+   mCommandList.Add("Target");
+   mCommandList.Add("Optimize");
+   mCommandList.Add("CallFunction");
+   mCommandList.Add("Report");
+   mCommandList.Add("Toggle");
+   mCommandList.Add("Save");
+   mCommandList.Add("Stop");
+   //mCommandList.Add("GMAT");
+   mCommandList.Add("Equation");
+   mCommandList.Add("ScriptEvent");
+   
+   //-----------------------------------------------------------------
+   #endif
+   //-----------------------------------------------------------------
    
    // Should we sort the command list?
    #ifdef __SORT_COMMAND_LIST__
@@ -2011,6 +2048,11 @@ void MissionTree::OnAddMissionSeq(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void MissionTree::OnAppend(wxCommandEvent &event)
 {
+   #ifdef DEBUG_MISSION_TREE_APPEND
+   MessageInterface::ShowMessage
+      ("MissionTree::OnAppend() entered, event id = %d\n", event.GetId());
+   #endif
+   
    switch (event.GetId())
    {
    case POPUP_APPEND_PROPAGATE:
@@ -2043,7 +2085,7 @@ void MissionTree::OnAppend(wxCommandEvent &event)
    case POPUP_APPEND_NON_LINEAR_CONSTRAINT:
       Append("NonlinearConstraint");
       break;
-   case POPUP_APPEND_FUNCTION:
+   case POPUP_APPEND_CALL_FUNCTION:
       Append("CallFunction");
       break;
    case POPUP_APPEND_ASSIGNMENT:
@@ -2092,6 +2134,10 @@ void MissionTree::OnAppend(wxCommandEvent &event)
    default:
       break;
    }
+   
+   #ifdef DEBUG_MISSION_TREE_APPEND
+   MessageInterface::ShowMessage("==> MissionTree::OnAppend() leaving\n");
+   #endif
 }
 
 
@@ -2132,7 +2178,7 @@ void MissionTree::OnInsertBefore(wxCommandEvent &event)
    case POPUP_INSERT_BEFORE_NON_LINEAR_CONSTRAINT:
       InsertBefore("NonlinearConstraint");
       break;
-   case POPUP_INSERT_BEFORE_FUNCTION:
+   case POPUP_INSERT_BEFORE_CALL_FUNCTION:
       InsertBefore("CallFunction");
       break;
    case POPUP_INSERT_BEFORE_ASSIGNMENT:
@@ -2221,7 +2267,7 @@ void MissionTree::OnInsertAfter(wxCommandEvent &event)
    case POPUP_INSERT_AFTER_NON_LINEAR_CONSTRAINT:
       InsertAfter("NonlinearConstraint");
       break;
-   case POPUP_INSERT_AFTER_FUNCTION:
+   case POPUP_INSERT_AFTER_CALL_FUNCTION:
       InsertAfter("CallFunction");
       break;
    case POPUP_INSERT_AFTER_ASSIGNMENT:
@@ -2292,7 +2338,7 @@ wxMenu* MissionTree::CreatePopupMenu(int type, ActionType action)
 {
    #if DEBUG_MISSION_TREE_MENU
    MessageInterface::ShowMessage
-      ("MissionTree::CreatePopupMenu() type=%d, insert=%d\n", type, action);
+      ("MissionTree::CreatePopupMenu() type=%d, action=%d\n", type, action);
    #endif
    
    unsigned int i;
@@ -2746,128 +2792,6 @@ void MissionTree::OnClose(wxCommandEvent &event)
 
 
 //------------------------------------------------------------------------------
-// int GetMenuId(const wxString &cmd, ActionType action)
-//------------------------------------------------------------------------------
-int MissionTree::GetMenuId(const wxString &cmd, ActionType action)
-{
-   #if DEBUG_MISSION_TREE_MENU
-   MessageInterface::ShowMessage("MissionTree::GetMenuId() cmd=%s, insert=%d\n",
-                                 cmd.c_str(), insert);
-   #endif
-   
-   int id = 0;
-   
-   for (unsigned int i=0; i<mCommandList.Count(); i++)
-   {
-      if (action == APPEND)
-      {
-         if (cmd == "Propagate")
-            return POPUP_APPEND_PROPAGATE;
-         else if (cmd == "Maneuver")
-            return POPUP_APPEND_MANEUVER;
-         else if (cmd == "BeginFiniteBurn")
-            return POPUP_APPEND_BEGIN_FINITE_BURN;
-         else if (cmd == "EndFiniteBurn")
-            return POPUP_APPEND_END_FINITE_BURN;
-         else if (cmd == "Target")
-            return POPUP_APPEND_TARGET;
-         else if (cmd == "Optimize")
-            return POPUP_APPEND_OPTIMIZE;
-         else if (cmd == "CallFunction")
-            return POPUP_APPEND_FUNCTION;
-         else if (cmd == "GMAT")
-            return POPUP_APPEND_ASSIGNMENT;
-         else if (cmd == "Equation")
-            return POPUP_APPEND_ASSIGNMENT;
-         else if (cmd == "Report")
-            return POPUP_APPEND_REPORT;
-         else if (cmd == "Toggle")
-            return POPUP_APPEND_TOGGLE;
-         else if (cmd == "Save")
-            return POPUP_APPEND_SAVE;
-         else if (cmd == "Stop")
-            return POPUP_APPEND_STOP;
-         else if (cmd == "ScriptEvent")
-            return POPUP_APPEND_SCRIPT_EVENT;
-         else
-            MessageInterface::ShowMessage
-               ("MissionTree::GetMenuId() Unknown command:%s\n", cmd.c_str());
-      }
-      else if (action == INSERT_BEFORE)
-      {
-         if (cmd == "Propagate")
-            return POPUP_INSERT_BEFORE_PROPAGATE;
-         else if (cmd == "Maneuver")
-            return POPUP_INSERT_BEFORE_MANEUVER;
-         else if (cmd == "BeginFiniteBurn")
-            return POPUP_INSERT_BEFORE_BEGIN_FINITE_BURN;
-         else if (cmd == "EndFiniteBurn")
-            return POPUP_INSERT_BEFORE_END_FINITE_BURN;
-         else if (cmd == "Target")
-            return POPUP_INSERT_BEFORE_TARGET;
-         else if (cmd == "Optimize")
-            return POPUP_INSERT_BEFORE_OPTIMIZE;
-         else if (cmd == "CallFunction")
-            return POPUP_INSERT_BEFORE_FUNCTION;
-         else if (cmd == "GMAT")
-            return POPUP_INSERT_BEFORE_ASSIGNMENT;
-         else if (cmd == "Equation")
-            return POPUP_INSERT_BEFORE_ASSIGNMENT;
-         else if (cmd == "Report")
-            return POPUP_INSERT_BEFORE_REPORT;
-         else if (cmd == "Toggle")
-            return POPUP_INSERT_BEFORE_TOGGLE;
-         else if (cmd == "Save")
-            return POPUP_INSERT_BEFORE_SAVE;
-         else if (cmd == "Stop")
-            return POPUP_INSERT_BEFORE_STOP;
-         else if (cmd == "ScriptEvent")
-            return POPUP_INSERT_BEFORE_SCRIPT_EVENT;
-         else
-            MessageInterface::ShowMessage
-               ("MissionTree::GetMenuId() Unknown command:%s\n", cmd.c_str());
-      }
-      else if (action == INSERT_AFTER)
-      {
-         if (cmd == "Propagate")
-            return POPUP_INSERT_AFTER_PROPAGATE;
-         else if (cmd == "Maneuver")
-            return POPUP_INSERT_AFTER_MANEUVER;
-         else if (cmd == "BeginFiniteBurn")
-            return POPUP_INSERT_AFTER_BEGIN_FINITE_BURN;
-         else if (cmd == "EndFiniteBurn")
-            return POPUP_INSERT_AFTER_END_FINITE_BURN;
-         else if (cmd == "Target")
-            return POPUP_INSERT_AFTER_TARGET;
-         else if (cmd == "Optimize")
-            return POPUP_INSERT_AFTER_OPTIMIZE;
-         else if (cmd == "CallFunction")
-            return POPUP_INSERT_AFTER_FUNCTION;
-         else if (cmd == "GMAT")
-            return POPUP_INSERT_AFTER_ASSIGNMENT;
-         else if (cmd == "Equation")
-            return POPUP_INSERT_AFTER_ASSIGNMENT;
-         else if (cmd == "Report")
-            return POPUP_INSERT_AFTER_REPORT;
-         else if (cmd == "Toggle")
-            return POPUP_INSERT_AFTER_TOGGLE;
-         else if (cmd == "Save")
-            return POPUP_INSERT_AFTER_SAVE;
-         else if (cmd == "Stop")
-            return POPUP_INSERT_AFTER_STOP;
-         else if (cmd == "ScriptEvent")
-            return POPUP_INSERT_AFTER_SCRIPT_EVENT;
-         else
-            MessageInterface::ShowMessage
-               ("MissionTree::GetMenuId() Unknown command:%s\n", cmd.c_str());
-      }
-   }
-   
-   return id;
-}
-
-
-//------------------------------------------------------------------------------
 // GmatTree::MissionIconType GetIconId(const wxString &cmd)
 //------------------------------------------------------------------------------
 GmatTree::MissionIconType MissionTree::GetIconId(const wxString &cmd)
@@ -2923,7 +2847,7 @@ GmatTree::MissionIconType MissionTree::GetIconId(const wxString &cmd)
    if (cmd == "EndWhile")
       return GmatTree::MISSION_ICON_NEST_RETURN;
    if (cmd == "CallFunction")
-      return GmatTree::MISSION_ICON_FUNCTION;
+      return GmatTree::MISSION_ICON_CALL_FUNCTION;
    if (cmd == "Stop")
       return GmatTree::MISSION_ICON_STOP;
    if (cmd == "BeginScript")
@@ -3021,6 +2945,192 @@ GmatTree::ItemType MissionTree::GetCommandId(const wxString &cmd)
       return GmatTree::ASSIGNMENT;
    
    return GmatTree::SCRIPT_EVENT;
+}
+
+
+//------------------------------------------------------------------------------
+// void CreateMenuIds()
+//------------------------------------------------------------------------------
+void MissionTree::CreateMenuIds()
+{
+   for (unsigned int i=0; i<mCommandList.size(); i++)
+      commandIdMap.insert(std::make_pair(mCommandList[i], i + POPUP_APPEND_COMMAND + 1));
+}
+
+
+//------------------------------------------------------------------------------
+// int GetMenuId(const wxString &cmd, ActionType action)
+//------------------------------------------------------------------------------
+int MissionTree::GetMenuId(const wxString &cmd, ActionType action)
+{
+   #if DEBUG_MISSION_TREE_MENU
+   MessageInterface::ShowMessage
+      ("MissionTree::GetMenuId() cmd='%s', action=%d\n", cmd.c_str(), action);
+   #endif
+   
+   int id = 0;
+   
+   //-----------------------------------------------------------------
+   #ifdef __AUTO_ADD_NEW_COMMANDS__
+   //-----------------------------------------------------------------
+   std::string cmdStr = cmd.c_str();
+   
+   // check if command string is valid
+   if (commandIdMap.find(cmdStr) == commandIdMap.end())
+   {
+      #if DEBUG_MISSION_TREE_MENU
+      MessageInterface::ShowMessage
+         ("MissionTree::GetMenuId() The '%s' is not recognized command\n", cmd.c_str());
+      #endif
+      return id;
+   }
+   
+   // @note Command menu id is created based on APPEND action.
+   // need to add appropriate offset to get id
+   if (action == APPEND)
+   {
+      id = commandIdMap[cmdStr];
+   }
+   else if (action == INSERT_BEFORE)
+   {
+      id = commandIdMap[cmdStr] + 100;
+   }
+   else if (action == INSERT_AFTER)
+   {
+      id = commandIdMap[cmdStr] + 200;
+   }
+   
+   #if DEBUG_MISSION_TREE_MENU
+   MessageInterface::ShowMessage("MissionTree::GetMenuId() returning %d\n", id);
+   #endif
+   
+   return id;
+   
+   //-----------------------------------------------------------------
+   #else
+   //-----------------------------------------------------------------
+   
+   for (unsigned int i=0; i<mCommandList.Count(); i++)
+   {
+      if (action == APPEND)
+      {
+         if (cmd == "Propagate")
+            return POPUP_APPEND_PROPAGATE;
+         else if (cmd == "Maneuver")
+            return POPUP_APPEND_MANEUVER;
+         else if (cmd == "BeginFiniteBurn")
+            return POPUP_APPEND_BEGIN_FINITE_BURN;
+         else if (cmd == "EndFiniteBurn")
+            return POPUP_APPEND_END_FINITE_BURN;
+         else if (cmd == "Target")
+            return POPUP_APPEND_TARGET;
+         else if (cmd == "Optimize")
+            return POPUP_APPEND_OPTIMIZE;
+         else if (cmd == "CallFunction")
+            return POPUP_APPEND_CALL_FUNCTION;
+         else if (cmd == "GMAT")
+            return POPUP_APPEND_ASSIGNMENT;
+         else if (cmd == "Equation")
+            return POPUP_APPEND_ASSIGNMENT;
+         else if (cmd == "Report")
+            return POPUP_APPEND_REPORT;
+         else if (cmd == "Toggle")
+            return POPUP_APPEND_TOGGLE;
+         else if (cmd == "Save")
+            return POPUP_APPEND_SAVE;
+         else if (cmd == "Stop")
+            return POPUP_APPEND_STOP;
+         else if (cmd == "ScriptEvent")
+            return POPUP_APPEND_SCRIPT_EVENT;
+         else
+         {
+            MessageInterface::ShowMessage
+               ("MissionTree::GetMenuId() Unknown append command: %s\n", cmd.c_str());
+            return POPUP_APPEND_UNKNOWN;
+         }
+      }
+      else if (action == INSERT_BEFORE)
+      {
+         if (cmd == "Propagate")
+            return POPUP_INSERT_BEFORE_PROPAGATE;
+         else if (cmd == "Maneuver")
+            return POPUP_INSERT_BEFORE_MANEUVER;
+         else if (cmd == "BeginFiniteBurn")
+            return POPUP_INSERT_BEFORE_BEGIN_FINITE_BURN;
+         else if (cmd == "EndFiniteBurn")
+            return POPUP_INSERT_BEFORE_END_FINITE_BURN;
+         else if (cmd == "Target")
+            return POPUP_INSERT_BEFORE_TARGET;
+         else if (cmd == "Optimize")
+            return POPUP_INSERT_BEFORE_OPTIMIZE;
+         else if (cmd == "CallFunction")
+            return POPUP_INSERT_BEFORE_CALL_FUNCTION;
+         else if (cmd == "GMAT")
+            return POPUP_INSERT_BEFORE_ASSIGNMENT;
+         else if (cmd == "Equation")
+            return POPUP_INSERT_BEFORE_ASSIGNMENT;
+         else if (cmd == "Report")
+            return POPUP_INSERT_BEFORE_REPORT;
+         else if (cmd == "Toggle")
+            return POPUP_INSERT_BEFORE_TOGGLE;
+         else if (cmd == "Save")
+            return POPUP_INSERT_BEFORE_SAVE;
+         else if (cmd == "Stop")
+            return POPUP_INSERT_BEFORE_STOP;
+         else if (cmd == "ScriptEvent")
+            return POPUP_INSERT_BEFORE_SCRIPT_EVENT;
+         else
+         {
+            MessageInterface::ShowMessage
+               ("MissionTree::GetMenuId() Unknown command:%s\n", cmd.c_str());
+            return POPUP_INSERT_BEFORE_UNKNOWN;
+         }
+      }
+      else if (action == INSERT_AFTER)
+      {
+         if (cmd == "Propagate")
+            return POPUP_INSERT_AFTER_PROPAGATE;
+         else if (cmd == "Maneuver")
+            return POPUP_INSERT_AFTER_MANEUVER;
+         else if (cmd == "BeginFiniteBurn")
+            return POPUP_INSERT_AFTER_BEGIN_FINITE_BURN;
+         else if (cmd == "EndFiniteBurn")
+            return POPUP_INSERT_AFTER_END_FINITE_BURN;
+         else if (cmd == "Target")
+            return POPUP_INSERT_AFTER_TARGET;
+         else if (cmd == "Optimize")
+            return POPUP_INSERT_AFTER_OPTIMIZE;
+         else if (cmd == "CallFunction")
+            return POPUP_INSERT_AFTER_CALL_FUNCTION;
+         else if (cmd == "GMAT")
+            return POPUP_INSERT_AFTER_ASSIGNMENT;
+         else if (cmd == "Equation")
+            return POPUP_INSERT_AFTER_ASSIGNMENT;
+         else if (cmd == "Report")
+            return POPUP_INSERT_AFTER_REPORT;
+         else if (cmd == "Toggle")
+            return POPUP_INSERT_AFTER_TOGGLE;
+         else if (cmd == "Save")
+            return POPUP_INSERT_AFTER_SAVE;
+         else if (cmd == "Stop")
+            return POPUP_INSERT_AFTER_STOP;
+         else if (cmd == "ScriptEvent")
+            return POPUP_INSERT_AFTER_SCRIPT_EVENT;
+         else
+         {
+            MessageInterface::ShowMessage
+               ("MissionTree::GetMenuId() Unknown command:%s\n", cmd.c_str());
+            return POPUP_INSERT_AFTER_UNKNOWN;
+         }
+      }
+   }
+   
+   return id;
+   
+   //-----------------------------------------------------------------
+   #endif
+   //-----------------------------------------------------------------
+   
 }
 
 
