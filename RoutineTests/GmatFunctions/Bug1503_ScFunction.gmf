@@ -1,0 +1,9 @@
+function [scOut] = Bug1503_ScFunction(scIn, tankIn);
+Global ReportMass;
+
+Create Spacecraft scOut;
+scOut = scIn;
+
+scOut.Tanks = {tankIn};
+
+Report ReportMass scOut.TotalMass scOut.DryMass;

@@ -1,0 +1,90 @@
+function [sc,in_reg] = Bug1502_bisect_func(sc, prop, fm, my_output, Boundaries, stopDiff, EMBary, L2RLP, SEML2);
+
+Create Spacecraft       sc;
+Create Propagator       prop;
+Create ForceModel       fm;
+Create Array            Boundaries[1,2];
+Create Variable         stopDiff;
+Create Barycenter       EMBary;
+Create CoordinateSystem L2RLP;
+Create LibrationPoint   SEML2;
+
+Global LView;
+Global       my_output;
+
+Create ReportFile                         reg_prop_output;
+reg_prop_output.SolverIterations        = Current;
+%%reg_prop_output.Filename                = 'C:\GMAT\gmat-win-i586-2008-09-30\output\my_output.txt';
+reg_prop_output.Filename                = Bug1502-bisect_func.report;
+reg_prop_output.Precision               = 16;
+reg_prop_output.WriteHeaders            = On;
+reg_prop_output.LeftJustify             = On;
+reg_prop_output.ZeroFill                = Off;
+reg_prop_output.ColumnWidth             = 30;
+
+Create Variable   in_reg;
+Create Variable   currentTime;
+Create Variable   timeDiff;
+Create Variable   startTime;
+Create Variable   LBoundary;
+Create Variable   RBoundary;
+Create Variable   stop_cond;
+Create Variable   stop_prop;
+
+startTime = sc.UTCModJulian;
+LBoundary = Boundaries(1, 1);
+RBoundary = Boundaries(1, 2);
+
+
+
+Report reg_prop_output sc.UTCModJulian sc.X sc.Y sc.Z sc.VX sc.VY sc.VZ LBoundary RBoundary stopDiff;
+stop_cond = 99;
+Propagate    prop(sc,{sc.ElapsedDays = 600});
+While in_reg == 1;
+   Propagate prop(sc);
+   timeDiff = sc.UTCModJulian - startTime;  
+   If sc.L2RLP.X > RBoundary;
+     burnBaby.Element1 = burnBaby_B;
+   EndIf;
+   If sc.L2RLP.X < LBoundary;
+     burnBaby.Element1 = burnBaby_A;
+	 [sc,in_reg] = in_reg3_func(sc, prop, fm, Boundaries, stopDiff, EMBary, L2RLP, SEML2);
+   EndIf;
+     STOP;
+   If timeDiff > T;
+   EndIf;
+EndWhile;
+
+   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Now test to see what the spacecraft does in region two
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+While in_reg == 0;
+   startTime = sc.UTCModJulian;
+   stopTime = startTime + 100;
+   Propagate prop(sc,{sc.UTCModJulian = stopTime});
+   If sc.L2RLP.X > 400000;
+     in_reg = 0;
+     stop_cond = 1;
+   EndIf;
+   If sc.L2RLP.X < -400000;
+     in_reg = 0;
+     stop_cond = 2;
+     burnBaby_A = burnBaby.Element1;
+   EndIf;
+   If sc.ElapsedDays > 300;
+     in_reg = 1;
+     stop_cond = 3;
+   EndIf;
+   If stop_cond == 2;
+     burnBaby_B = burnBaby_T;
+   EndIf;
+   If stop_cond == 1;
+     burnBaby_A = burnBaby_T;
+   EndIf;
+   If stop_cond == 3;
+     in_reg = 1;
+   EndIf;
+EndWhile;
+  
+  %Report Velocity burnBaby.Element1 sc.L2RLP.X stop_cond burnBaby_A burnBaby_B burnBaby_T;

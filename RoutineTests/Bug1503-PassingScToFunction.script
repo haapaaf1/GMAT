@@ -1,0 +1,55 @@
+%-------------------------------------------------------------------------------
+% Bug 1503 script
+%-------------------------------------------------------------------------------
+
+Create Spacecraft Spacecraft1;
+GMAT Spacecraft1.DateFormat = TAIModJulian;
+GMAT Spacecraft1.Epoch = '21545.000000000';
+GMAT Spacecraft1.CoordinateSystem = EarthMJ2000Eq;
+GMAT Spacecraft1.DisplayStateType = Cartesian;
+GMAT Spacecraft1.X = 7100;
+GMAT Spacecraft1.Y = 0;
+GMAT Spacecraft1.Z = 1300;
+GMAT Spacecraft1.VX = 0;
+GMAT Spacecraft1.VY = 7.35;
+GMAT Spacecraft1.VZ = 1;
+GMAT Spacecraft1.DryMass = 850;
+GMAT Spacecraft1.Cd = 2.2;
+GMAT Spacecraft1.Cr = 1.8;
+GMAT Spacecraft1.DragArea = 15;
+GMAT Spacecraft1.SRPArea = 1;
+GMAT Spacecraft1.Tanks = {'Tank1'};
+GMAT Spacecraft1.Attitude = CoordinateSystemFixed;
+GMAT Spacecraft1.AttitudeDisplayStateType = 'Quaternion';
+GMAT Spacecraft1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Spacecraft1.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT Spacecraft1.Q1 = 0;
+GMAT Spacecraft1.Q2 = 0;
+GMAT Spacecraft1.Q3 = 0;
+GMAT Spacecraft1.Q4 = 1;
+GMAT Spacecraft1.EulerAngleSequence = '312';
+GMAT Spacecraft1.AngularVelocityX = 0;
+GMAT Spacecraft1.AngularVelocityY = 0;
+GMAT Spacecraft1.AngularVelocityZ = 0;
+
+Create Spacecraft Spacecraft2;
+
+Create FuelTank Tank1;
+GMAT Tank1.FuelMass = 750;
+GMAT Tank1.Pressure = 1500;
+GMAT Tank1.Temperature = 20;
+GMAT Tank1.RefTemperature = 20;
+GMAT Tank1.Volume = 0.75;
+GMAT Tank1.FuelDensity = 1260;
+GMAT Tank1.PressureModel = PressureRegulated;
+
+Create ReportFile ReportMass;
+GMAT ReportMass.Filename = Bug1503-Mass.report
+
+Global ReportMass;
+
+Report ReportMass Spacecraft1.TotalMass Spacecraft1.DryMass;
+
+[Spacecraft2] = Bug1503_ScFunction(Spacecraft1, Tank1);
+
+Report ReportMass Spacecraft2.TotalMass Spacecraft2.DryMass;

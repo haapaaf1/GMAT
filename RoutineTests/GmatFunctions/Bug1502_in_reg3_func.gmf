@@ -1,0 +1,61 @@
+function [sc,in_reg] = Bug1502_in_reg3_func(sc, prop, fm, my_output, Boundaries, stopDiff, EMBary, L2RLP, SEML2);
+
+Create Spacecraft       sc;
+Create Propagator       prop;
+Create ForceModel       fm;
+Create Array            Boundaries[1,2];
+Create Variable         stopDiff;
+Create Barycenter       EMBary;
+Create CoordinateSystem L2RLP;
+Create LibrationPoint   SEML2;
+
+Global LView;
+Global       my_output;
+
+Create ReportFile                         reg_prop_output;
+reg_prop_output.SolverIterations        = Current;
+%%reg_prop_output.Filename                = 'C:\GMAT\gmat-win-i586-2008-09-30\output\my_output.txt';
+reg_prop_output.Filename                = 'Bug1502-in_reg3_func.report';
+reg_prop_output.Precision               = 16;
+reg_prop_output.WriteHeaders            = On;
+reg_prop_output.LeftJustify             = On;
+reg_prop_output.ZeroFill                = Off;
+reg_prop_output.ColumnWidth             = 30;
+
+Create Variable   in_reg;
+Create Variable   currentTime;
+Create Variable   timeDiff;
+Create Variable   startTime;
+Create Variable   LBoundary;
+Create Variable   RBoundary;
+Create Variable   stop_cond;
+Create Variable   stop_prop;
+Create Variable   new_prop;
+
+startTime = sc.UTCModJulian;
+LBoundary = Boundaries(1, 1);
+RBoundary = Boundaries(1, 2);
+
+
+
+Report reg_prop_output sc.UTCModJulian sc.X sc.Y sc.Z sc.VX sc.VY sc.VZ LBoundary RBoundary stopDiff;
+stop_cond = 99;
+Propagate    prop(sc,{sc.ElapsedDays = 600});
+While in_reg == 1;
+   Propagate prop(sc);
+   timeDiff = sc.UTCModJulian - startTime;  
+   If sc.L2RLP.X > RBoundary;
+     in_reg = 0;
+     [sc,in_reg] = Bug1502_in_reg2_func(sc, prop, fm, Boundaries, stopDiff, EMBary, L2RLP, SEML2);
+   EndIf;
+   If sc.L2RLP.X < LBoundary;
+     in_reg = 1;
+	 Stop;
+   EndIf;
+   If timeDiff > stopDiff;
+     in_reg = 1;
+     new_prop = 1.3 * prop;
+     prop = new_prop;
+     %prop = prop + ( 0.30 * prop );
+   EndIf;
+EndWhile;

@@ -1,0 +1,187 @@
+Create Array            Boundaries[1,2];
+Create Barycenter       EMBary;
+Create CoordinateSystem L2RLP;
+Create GmatFunction     Bug1502_in_reg2_func;
+Create GmatFunction     Bug1502_in_reg3_func;
+Create GmatFunction     Bug1502_bisect_func;
+Create ForceModel       fm;
+Create ImpulsiveBurn    burnBaby;
+Create LibrationPoint   SEML2;
+Create OpenGLPlot       LView;
+Create Propagator       prop;
+Create ReportFile       my_output;
+Create ReportFile       reg_prop_output;
+Create ReportFile       DebugReport;
+Create Spacecraft       sc;
+Create Spacecraft       dummy_sc;
+Create String           reg3_stop_cond;
+Create Variable         BA;
+Create Variable         BB;
+Create Variable         BC;
+Create Variable         T;
+Create Variable         burnBaby_A;
+Create Variable         burnBaby_B;
+Create Variable         burnBaby_T;
+Create Variable         in_reg;
+Create Variable         stop_prop;
+Create Variable         stop_cond;
+Create Variable         startTime;
+Create Variable         stopTime;
+Create Variable         stopDiff;
+Create Variable         timeDiff;
+Create Variable         LBoundary;
+Create Variable         RBoundary;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the spacecraft, force model, and propagator
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sc.DateFormat                     = UTCGregorian;
+sc.CoordinateSystem               = EarthMJ2000Eq;
+sc.DisplayStateType               = Keplerian;
+sc.Epoch                          = '01 Jan 2010 12:00:00.000';
+sc.SMA                            = 7000;
+sc.ECC                            = 0.001;
+sc.INC                            = 28.5;
+sc.RAAN                           = 280;
+sc.AOP                            = 0;
+sc.TA                             = 0;
+
+fm.CentralBody                    = Earth;
+fm.PrimaryBodies                  = {Earth};
+fm.Gravity.Earth.Model            = JGM2;
+fm.Gravity.Earth.Degree           = 0;
+fm.Gravity.Earth.Order            = 0;
+fm.PointMasses                    = {Sun, Luna};
+fm.ErrorControl = RSSState;
+
+prop.FM                           = fm;
+prop.Type                         = RungeKutta89;
+prop.InitialStepSize              = 0.001;
+prop.MaxStep                      = 86400;
+prop.Accuracy                     = 9.999999999999999e-10;
+prop.MinStep                      = 0.001;
+prop.MaxStep                      = 86400;
+prop.MaxStepAttempts              = 50;
+
+
+dummy_sc                          = sc;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the L2 environment - Earth/Moon Barycenter,
+%%% SEML2 Libration Point, and SEML2-centered RLP coords
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+EMBary.BodyNames                  = {Earth,Luna};
+
+SEML2.Primary                     = Sun;
+SEML2.Secondary                   = EMBary;
+SEML2.Point                       = L2;
+
+L2RLP.Origin                      = SEML2;
+L2RLP.Axes                        = ObjectReferenced;
+L2RLP.Primary                     = Sun;
+L2RLP.Secondary                   = EMBary;
+L2RLP.XAxis                       = R;
+L2RLP.ZAxis                       = N;
+L2RLP.UpdateInterval              = 60;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the maneuver used to hurl our spacecraft about
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+burnBaby.Origin                   = Earth;
+burnBaby.Axes                     = VNB;
+burnBaby.VectorFormat             = Cartesian;
+burnBaby.Element1                 = 3.0928009196;
+burnBaby.Element2                 = 0;
+burnBaby.Element3                 = 0;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define SEML2-centered three-D view and the output file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+LView.Add                         = {sc, Earth, Luna};
+LView.OrbitColor                  = [ 255 32768 12632256 ];
+LView.TargetColor                 = [ 8421440 0 0 ];
+LView.CoordinateSystem            = L2RLP;
+LView.ViewPointReference          = SEML2;
+LView.ViewDirection               = SEML2;
+LView.ViewScaleFactor             = 100;
+LView.FixedFovAngle               = 45;
+LView.ViewUpCoordinateSystem      = L2RLP;
+LView.ViewUpAxis                  = Y;
+LView.CelestialPlane              = Off;
+LView.XYPlane                     = Off;
+LView.WireFrame                   = Off;
+LView.SolverIterations            = None;
+LView.Axes                        = On;
+LView.Grid                        = Off;
+LView.SunLine                     = Off;
+LView.UseInitialView              = On;
+LView.PerspectiveMode             = Off;
+LView.UseFixedFov                 = Off;
+LView.DataCollectFrequency        = 1;
+LView.UpdatePlotFrequency         = 50;
+LView.NumPointsToRedraw           = 0;
+LView.ShowPlot                    = true;
+LView.ViewPointVector             = [ 0 0 30000 ];
+
+my_output.SolverIterations        = Current;
+%%my_output.Filename                = 'C:\GMAT\gmat-win-i586-2008-09-30\output\my_output.txt';
+my_output.Filename                = Bug1502-algorithm.report;
+my_output.Precision               = 16;
+my_output.WriteHeaders            = On;
+my_output.LeftJustify             = On;
+my_output.ZeroFill                = Off;
+my_output.ColumnWidth             = 30;
+
+reg_prop_output.SolverIterations        = Current;
+%%reg_prop_output.Filename                = 'C:\GMAT\gmat-win-i586-2008-09-30\output\my_output.txt';
+reg_prop_output.Filename                = Bug1502-algorithm.report;
+reg_prop_output.Precision               = 16;
+reg_prop_output.WriteHeaders            = On;
+reg_prop_output.LeftJustify             = On;
+reg_prop_output.ZeroFill                = Off;
+reg_prop_output.ColumnWidth             = 30;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the function
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Bug1502_in_reg2_func.FunctionPath = 'C:\GMAT\Scripts\Bug1502_in_reg2_func.gmf';
+%%Bug1502_in_reg3_func.FunctionPath = 'C:\GMAT\Scripts\Bug1502_in_reg3_func.gmf';
+%%Bug1502_bisect_func.FunctionPath = 'C:\GMAT\Scripts\Bug1502_bisect_func.gmf';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the Boundaries
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+burnBaby_A                        = 3.0925;
+burnBaby_B                        = 4;
+BA                                =   400000;
+BB                                =  -400000;
+BC                                = -2000000;
+T                                 = 20;
+stopDiff                          = T;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the array
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Boundaries(1, 1) = BC;
+Boundaries(1, 2) = BB;
+LBoundary = Boundaries(1, 1);
+RBoundary = Boundaries(1, 2);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Lets get started
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Report my_output sc.UTCGregorian burnBaby.Element1 in_reg sc.L2RLP.X burnBaby_A burnBaby_B burnBaby_T;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%First propagate our spacecraft to the injection point
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Global       LView;
+Global       my_output;
+Propagate    prop(dummy_sc,{dummy_sc.ElapsedSecs = 60});
+sc         = dummy_sc;
+Maneuver     burnBaby(sc);
+startTime = sc.UTCModJulian;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Now test to see what the spacecraft does in region three
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[sc,in_reg] = Bug1502_in_reg3_func(sc, prop, fm, my_output, Boundaries, stopDiff, EMBary, L2RLP, SEML2);
