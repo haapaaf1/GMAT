@@ -28,10 +28,10 @@
 //#define __USE_MANEUVER_FRAME__
 //#endif
 
-#define DEBUG_IMPBURN_INIT
-#define DEBUG_IMPBURN_SET
-#define DEBUG_IMPBURN_FIRE
-#define DEBUG_IMPBURN_DECMASS
+//#define DEBUG_IMPBURN_INIT
+//#define DEBUG_IMPBURN_SET
+//#define DEBUG_IMPBURN_FIRE
+//#define DEBUG_IMPBURN_DECMASS
 
 //---------------------------------
 // static data
