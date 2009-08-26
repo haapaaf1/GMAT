@@ -33,6 +33,7 @@
 //#define DBGLVL_PUBLISHER_REGISTER 1
 //#define DBGLVL_PUBLISHER_PUBLISH 1
 //#define DBGLVL_PUBLISHER_CLEAR 1
+//#define DEBUG_PUBLISHER_RUN_STATE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -84,11 +85,20 @@ bool Publisher::Subscribe(Subscriber *s)
 {
    #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage
-      ("Publisher::Subscribe() sub = <%p>'%s'\n", s, s->GetName().c_str());
+      ("Publisher::Subscribe() sub = <%p><%s>'%s'\n", s, s->GetTypeName().c_str(),
+       s->GetName().c_str());
    #endif
    
    if (!s)
       return false;
+
+   if (s->GetType() != Gmat::SUBSCRIBER)
+   {
+      MessageInterface::ShowMessage
+         ("**** ERROR **** Publisher::Subscribe() Cannot add non-Subscriber object "
+          "'%s'. It is type of '%s'\n", s->GetName().c_str(), s->GetTypeName().c_str());
+      return false;
+   }
    
    // Add if subscriber is already not in the list (LOJ: 2009.04.08)
    if (find(subscriberList.begin(), subscriberList.end(), s) == subscriberList.end())
@@ -664,7 +674,7 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
       #if DBGLVL_PUBLISHER_REGISTER
       MessageInterface::ShowMessage("==> provider found\n");
       #endif
-            
+      
       std::vector<DataType>* oldList = iter->second;
       actualId = oldList->size();
       DataType newData(elements, actualId);
@@ -906,6 +916,10 @@ void Publisher::SetRunState(const Gmat::RunState state)
       (*current)->SetRunState(runState);
       current++;
    }
+   
+   #ifdef DEBUG_PUBLISHER_RUN_STATE
+   MessageInterface::ShowMessage("Publisher::SetRunState() exiting\n");
+   #endif
 }
 
 
