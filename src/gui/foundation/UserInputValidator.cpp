@@ -184,8 +184,9 @@ bool UserInputValidator::CheckReal(Real &rvalue, const std::string &str,
  */
 //------------------------------------------------------------------------------
 bool UserInputValidator::CheckInteger(Integer &ivalue, const std::string &str,
-                             const std::string &field, const std::string &expRange,
-                             bool checkRange, bool onlyMsg, bool positive, bool zeroOk)
+                                      const std::string &field,
+                                      const std::string &expRange, bool onlyMsg,
+                                      bool checkRange, bool positive, bool zeroOk)
 {
    if (onlyMsg)
    {
