@@ -516,11 +516,18 @@ bool BeginFiniteBurn::Initialize()
                                       " does not have a thruster named \"" +
                                       (*i) + "\"");
             }
-      
+            
             Thruster* th = 
                (Thruster*)((*current)->GetRefObject(Gmat::THRUSTER, *i));
             if (th)
+            {
+               #ifdef DEBUG_BEGIN_MANEUVER
+               MessageInterface::ShowMessage
+                  ("BeginFiniteBurn::Initialize() addding the Thruster <%p>'%s' "
+                   "to thrusters\n", th, th->GetName().c_str());
+               #endif
                thrusters.push_back(th);
+            }
             else
             {
                thrusters.clear();
@@ -556,6 +563,11 @@ bool BeginFiniteBurn::Initialize()
          burnForce->SetRefObjectName(type, *iter);
       }
    }
+   
+   #ifdef DEBUG_BEGIN_MANEUVER
+   MessageInterface::ShowMessage
+      ("BeginFiniteBurn::Initialize() returning %d\n", initialized);
+   #endif
    
    return initialized;
 }

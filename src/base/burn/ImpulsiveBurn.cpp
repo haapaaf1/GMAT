@@ -28,10 +28,10 @@
 //#define __USE_MANEUVER_FRAME__
 //#endif
 
-//#define DEBUG_IMPBURN_INIT
-//#define DEBUG_IMPBURN_SET
-//#define DEBUG_IMPBURN_FIRE
-//#define DEBUG_IMPBURN_DECMASS
+#define DEBUG_IMPBURN_INIT
+#define DEBUG_IMPBURN_SET
+#define DEBUG_IMPBURN_FIRE
+#define DEBUG_IMPBURN_DECMASS
 
 //---------------------------------
 // static data
@@ -939,11 +939,12 @@ void ImpulsiveBurn::DecrementMass()
       for (ObjectMap::iterator tankPos = tankMap.begin();
            tankPos != tankMap.end(); ++tankPos)
       {
+         GmatBase *currTank = tankPos->second;
          #ifdef DEBUG_IMPBURN_DECMASS
          MessageInterface::ShowMessage
-            ("       Decrementing tank mass for '%s'\n", (tankPos->first).c_str());
+            ("       Decrementing tank mass for <%p>'%s'\n", currTank,
+             (tankPos->first).c_str());
          #endif
-         GmatBase *currTank = tankPos->second;
          Integer paramID = currTank->GetParameterID("FuelMass");
          Real oldTankMass = currTank->GetRealParameter(paramID);
          Real currTankMass = oldTankMass + deltaTankMass;

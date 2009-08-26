@@ -509,7 +509,6 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       case Gmat::STRING_TYPE:
       case Gmat::ENUMERATION_TYPE:
          sval = rhsWrapper->EvaluateString();
-         // Remove enclosing quotes (loj: 2008.03.26)
          sval = GmatStringUtil::RemoveEnclosingString(sval, "'");
          break;
       case Gmat::ON_OFF_TYPE:
@@ -639,7 +638,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          }
          else
          {            
-            // check if ref object can be set to lhs (loj: 2008.10.24)
+            // check if ref object can be set to lhs
             if (setRefObj)
             {
                #ifdef DEBUG_EW_SET_VALUE
@@ -678,7 +677,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          {
             bool errorCond = true;
             
-            // Handle case like "GMAT XYPlot1.Add = {sat.X sat.Y};" (loj: 2008.06.20)
+            // Handle case like "GMAT XYPlot1.Add = {sat.X sat.Y};"
             // Set individually if RHS has more than one object
             StringArray rhsValues;
             TextParser tp;
@@ -688,6 +687,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             MessageInterface::ShowMessage("   rhs {} has %d items\n", rhsValues.size());
             #endif
             
+            std::string firstTypeStr, currTypeStr;
             for (UnsignedInt i=0; i<rhsValues.size(); i++)
             {
                #ifdef DEBUG_EW_SET_VALUE
@@ -697,7 +697,8 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                GmatBase *obj = FindObject(rhsValues[i], solarSys, objMap, globalObjMap);
                
                #ifdef DEBUG_EW_SET_VALUE
-               MessageInterface::ShowMessage("   obj=<%p>\n", obj);
+               MessageInterface::ShowMessage
+                  ("   obj=<%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), obj->GetName().c_str());
                #endif
                
                if (obj == NULL)
@@ -716,7 +717,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                errorCond = false;
             }
             
-            // To handle Earth2Body.PointMasses = {}, check for empty items (loj: 2008.10.14)
+            // To handle Earth2Body.PointMasses = {}, check for empty items
             if (errorCond && rhsValues.size() > 0)
             {
                GmatBaseException ex;
