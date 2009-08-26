@@ -96,11 +96,27 @@ wxString GuiItemManager::ToWxString(Integer ival)
 {
    wxString str;
    std::stringstream ss;
-//   ss.precision(theDataPrecision);
    
    ss << ival;
    str.Printf("%s", ss.str().c_str());
    return str;
+}
+
+
+//------------------------------------------------------------------------------
+// wxArrayString ToWxArrayString(const StringArray &array)
+//------------------------------------------------------------------------------
+/**
+ * Converts std::string array to wxString array.
+ */
+//------------------------------------------------------------------------------
+wxArrayString GuiItemManager::ToWxArrayString(const StringArray &array)
+{
+   wxArrayString newArray;
+   for (UnsignedInt i=0; i<array.size(); i++)
+      newArray.Add(array[i].c_str());
+   
+   return newArray;
 }
 
 

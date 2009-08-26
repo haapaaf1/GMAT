@@ -48,6 +48,7 @@ public:
    
    wxString ToWxString(Real rval);
    wxString ToWxString(Integer ival);
+   wxArrayString ToWxArrayString(const StringArray &array);
    int IsValidVariable(const std::string &varName, Gmat::ObjectType ownerType,
                        bool allowNumber = false, bool allowNonPlottable = false);
    
