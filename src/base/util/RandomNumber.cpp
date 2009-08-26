@@ -14,108 +14,107 @@
 /**
  * GMAT's Random Number Class
  *
- * This class implements the random number generator routines found in
- * Numerical Recipes in C++, The Art of Scientifice Computing, 2nd Edition.
- * The specific technical references are:
- * 1) Park and Miller, "Random Number Generator: Good Ones are Hard to Find."
- *    Communications of the ACM 31 (10), pp 1192-1201.
- * 2) L'Ecuyer, P. 1988, Communications of the ACM, vol 31, pp 742-774.
- * 3) Knuth, D.E. 1981, Seminumerical Algorithms, 2nd ed., vol 2 of "The
- *    Art of Computer Programming", Sections 3.2-3.3.
+ * This class implements the double precision SIMD oriented Fast 
+ * Mersenne Twister pseudorandom number generator (dSFMT) version 2.1. 
+ *
+ * SFMT is a new variant of Mersenne Twister (MT) introduced by Mutsuo Saito and 
+ * Makoto Matsumoto in 2006. The algorithm was reported at MCQMC 2006 
+ * (http://mcqmc.uni-ulm.de/). The article was published in the proceedings of 
+ * MCQMC2006. (see Prof. Matsumoto's Papers on random number generation.)
+ *
+ * SFMT is a Linear Feedbacked Shift Register (LFSR) generator that generates 
+ * a 128-bit pseudorandom integer at one step. SFMT is designed with recent 
+ * parallelism of modern CPUs, such as multi-stage pipelining and SIMD 
+ * (e.g. 128-bit integer) instructions. It supports 32-bit and 64-bit integers, 
+ * as well as double precision floating point as output.
+ * 
+ * SFMT is much faster than MT, in most platforms. Not only the speed, but also 
+ * the dimensions of equidistributions at v-bit precision are improved. 
+ * In addition, recovery from 0-excess initial state is much faster. See 
+ * Master's Thesis of Mutsuo Saito for detail.
+ *
+ * This program is based on the IEEE Standard for Binary Floating-Point 
+ * Arithmetic (ANSI/IEEE Std 754-1985) format. dSFMT ver. 2.xx is completely 
+ * different from dSFMT ver. 1.xx. The recursion formula is changed and the 
+ * output sequences are changed. This version uses structure of C language. 
+ * Don't use different DSFMT_MEXP for compiling dSFMT.c and your program. 
+ * This Project provides pseudorandom number generators of various 
+ * Mersenne Prime Period: from 2521-1 to 2216091-1.
+ *
+ * The purpose of dSFMT is to speed up the generation by avoiding the expensive 
+ * conversion of integer to double (floating point). dSFMT directly generates 
+ * double precision floating point pseudorandom numbers which have the IEEE 
+ * Standard for Binary Floating-Point Arithmetic (ANSI/IEEE Std 754-1985) format. 
+ * dSFMT is only available on the CPUs which use IEEE 754 format double precision 
+ * floating point numbers.
+ * 
+ * dSFMT doesn't support integer outputs. dSFMT supports the output of double 
+ * precision floating point pseudorandom numbers which distribute in the range 
+ * of [1, 2), [0, 1), (0, 1] and (0, 1). And it also supports the various 
+ * periods form 2607-1 to 2132049-1. (dSFMT ver. 2.1 supports the periods 
+ * from 2521-1 to 2216091-1.)
+ *
+ * References
+ *
+ * Mutsuo Saito and Makoto Matsumoto, "SIMD-oriented Fast Mersenne Twister: a 
+ * 128-bit Pseudorandom Number Generator", Monte Carlo and Quasi-Monte Carlo 
+ * Methods 2006, Springer, 2008, pp. 607--622. DOI:10.1007/978-3-540-74496-2_36
+ *
+ * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/sfmt.pdf
+ * 
+ * M. Matsumoto and T. Nishimura, "Mersenne Twister: A 623-dimensionally 
+ * equidistributed uniform pseudorandom number generator", ACM Trans. on 
+ * Modeling and Computer Simulation Vol. 8, No. 1, January pp.3-30 (1998) 
+ * DOI:10.1145/272991.272995
+ * 
+ * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf
  *
  */
 //------------------------------------------------------------------------------
 
 #include "RandomNumber.hpp"
 
-//---------------------------------
-// static data
-//---------------------------------
-
-/// Labels used for the ground station parameters.
-const std::string RandomNumber::GENERATOR_TEXT[EndGeneratorTypeReps] =
-   {
-         "MT19937",
-         "RANLXS0",
-         "RANLXS1",
-         "RANLXS2",
-         "RANLXD1",
-         "RANLXD2",
-         "RANLUX",
-         "RANLUX389",
-         "CMRG",
-         "MRG",
-         "TAUS",
-         "TAUS2",
-         "GFSR4"
-   };
-
 //------------------------------------------------------------------------------
 // RandomNumber()
 //------------------------------------------------------------------------------
 /**
- * Class constructor using default generator type and default seed.
- * The default generator is gsl_rng_mt19937 and the default seed is 0.
+ * Class constructor that seeds the generator using the clock.
  *
  */
 //------------------------------------------------------------------------------
 RandomNumber::RandomNumber()
 {
 
-    T = gsl_rng_default;
-    r = gsl_rng_alloc(T);
+    unsigned int clockSeed = time(NULL);
+
+    dsfmt_init_gen_rand(&dsfmt, clockSeed);
     
 }
 
 //------------------------------------------------------------------------------
-// RandomNumber(const unsigned long int mySeed)
+// RandomNumber(const unsigned int mySeed)
 //------------------------------------------------------------------------------
 /**
- * Class constructor using default generator type and specified seed value.
+ * Class constructor that seeds the generator using a specified seed value.
  *
  */
 //------------------------------------------------------------------------------
-RandomNumber::RandomNumber(unsigned long int mySeed)
+RandomNumber::RandomNumber(unsigned int mySeed)
 {
-
-    T = gsl_rng_default;
-    r = gsl_rng_alloc(T);
-    gsl_rng_set(r,mySeed);
-
+    dsfmt_init_gen_rand(&dsfmt, mySeed);
 }
 
 //------------------------------------------------------------------------------
-// RandomNumber(const gsl_rng_type *myGenerator)
+// RandomNumber(const unsigned int *mySeed)
 //------------------------------------------------------------------------------
 /**
- * Class constructor using specified generator type and default seed value.
+ * Class constructor that seeds the generator using an array of seed values.
  *
  */
 //------------------------------------------------------------------------------
-RandomNumber::RandomNumber(const std::string myGenerator)
+RandomNumber::RandomNumber(unsigned int *mySeed, Integer arraySize)
 {
-
-    T = GetGenerator(myGenerator);
-    r = gsl_rng_alloc(T);
-
-}
-
-//------------------------------------------------------------------------------
-// RandomNumber(const std::string myGenerator, unsigned long int mySeed)
-//------------------------------------------------------------------------------
-/**
- * Class constructor using specified generator type and specified seed value.
- *
- */
-//------------------------------------------------------------------------------
-RandomNumber::RandomNumber(const std::string myGenerator,
-                           unsigned long int mySeed)
-{
-
-    T = GetGenerator(myGenerator);
-    r = gsl_rng_alloc(T);
-    gsl_rng_set(r,mySeed);
-
+    dsfmt_init_by_array(&dsfmt, mySeed, arraySize);
 }
 
 //------------------------------------------------------------------------------
@@ -128,22 +127,36 @@ RandomNumber::RandomNumber(const std::string myGenerator,
 //------------------------------------------------------------------------------
 RandomNumber::~RandomNumber()
 {
-    gsl_rng_free(r);
 }
 
 
 //------------------------------------------------------------------------------
-//  void Seed(unsigned long int s)
+//  void Seed(unsigned int s)
 //------------------------------------------------------------------------------
 /**
- *  Set the seed for the random number generators.
+ *  Set the seed for the random number generator using a specified value.
  *
  *  @param <idum2> input seed
  */
 //------------------------------------------------------------------------------
-void RandomNumber::Seed(unsigned long int s)
+void RandomNumber::Seed(unsigned int s)
 {
-    gsl_rng_set(r,s);
+    dsfmt_init_gen_rand(&dsfmt, s);
+}
+
+
+//------------------------------------------------------------------------------
+//  void SeedByArray(unsigned int s)
+//------------------------------------------------------------------------------
+/**
+ *  Set the seed for the random number generator using a specified value.
+ *
+ *  @param <idum2> input seed
+ */
+//------------------------------------------------------------------------------
+void RandomNumber::SeedByArray(unsigned int *mySeed, Integer arraySize)
+{
+    dsfmt_init_by_array(&dsfmt, mySeed, arraySize);
 }
 
 //------------------------------------------------------------------------------
@@ -156,136 +169,25 @@ void RandomNumber::Seed(unsigned long int s)
 void RandomNumber::ClockSeed()
 {
 
-    unsigned long int clockSeed = time(NULL);
+    unsigned int clockSeed = time(NULL);
 
-    gsl_rng_set(r,clockSeed);
-
-}
-
-//------------------------------------------------------------------------------
-//  const gsl_rng_type* GetGenerator(const std::string &myGeneratorString)
-//------------------------------------------------------------------------------
-/**
- * This method returns a pointer of type gsl_rng_type that indicates the
- * type of random number generator to be used.
- *
- * @param <myGeneratorString> string name of the requested generator.
- *
- * @return pointer of type gsl_rng_type.
- */
-//------------------------------------------------------------------------------
-const gsl_rng_type* RandomNumber::GetGenerator(const std::string &myGeneratorString)
-{
-    return GetGenerator(GetGeneratorID(myGeneratorString));
-}
-
-//------------------------------------------------------------------------------
-//  const gsl_rng_type* GetGenerator(const Integer myGeneratorID)
-//------------------------------------------------------------------------------
-/**
- * This method returns a pointer of type gsl_rng_type that indicates the
- * type of random number generator to be used.
- *
- * @param <myGeneratorID> ID for the requested generator.
- *
- * @return pointer of type gsl_rng_type.
- */
-//------------------------------------------------------------------------------
-const gsl_rng_type* RandomNumber::GetGenerator(const Integer myGeneratorID)
-{
-
-    switch(myGeneratorID)
-    {
-        case MT19937_ID:
-            return gsl_rng_mt19937;
-            break;
-	case RANLXS0_ID:
-            return gsl_rng_ranlxs0;
-            break;
-	case RANLXS1_ID:
-            return gsl_rng_ranlxs1;
-            break;
-	case RANLXS2_ID:
-            return gsl_rng_ranlxs2;
-            break;
-	case RANLXD1_ID:
-            return gsl_rng_ranlxd1;
-            break;
-	case RANLXD2_ID:
-            return gsl_rng_ranlxd2;
-            break;
-	case RANLUX_ID:
-            return gsl_rng_ranlux;
-            break;
-	case RANLUX389_ID:
-            return gsl_rng_ranlux389;
-            break;
-        case CMRG_ID:
-            return gsl_rng_cmrg;
-            break;
-        case MRG_ID:
-            return gsl_rng_mrg;
-            break;
-        case TAUS_ID:
-            return gsl_rng_taus;
-            break;
-        case TAUS2_ID:
-            return gsl_rng_taus2;
-            break;
-        case GFSR4_ID:
-            return gsl_rng_gfsr4;
-            break;
-        default:
-            return gsl_rng_default;
-    }
-
-    return gsl_rng_default;
+    dsfmt_init_gen_rand(&dsfmt, clockSeed);
 
 }
 
 //------------------------------------------------------------------------------
-//  std::string  GetGeneratorText(const Integer id) const
+//  unsigned int UniformInt()
 //------------------------------------------------------------------------------
 /**
- * This method returns the generator text, given the input generator ID.
+ *  Returns an unsigned 32-bit integer. This should only be used to seed.
  *
- * @param id Id for the requested generator text.
+ *  @return The random deviate.
  *
- * @return parameter text for the requested generator.
  */
 //------------------------------------------------------------------------------
-std::string RandomNumber::GetGeneratorText(const Integer id) const
+unsigned int RandomNumber::UniformInt()
 {
-   if (id >= 0 && id < EndGeneratorTypeReps)
-      return GENERATOR_TEXT[id];
-   return std::string("");
-}
-
-//------------------------------------------------------------------------------
-//  Integer  GetGeneratorID(const std::string &str) const
-//------------------------------------------------------------------------------
-/**
- * This method returns the generator ID, given the input parameter string.
- *
- * @param str string for the requested generator.
- *
- * @return ID for the requested generator.
- */
-//------------------------------------------------------------------------------
-Integer RandomNumber::GetGeneratorID(const std::string &str) const
-{
-
-   std::string regex = "^" + str + "$";
-   
-   for (Integer i = 0; i < EndGeneratorTypeReps; i++)
-   {
-      if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                                 .set_extended(true)
-                     ).FullMatch(GENERATOR_TEXT[i]))
-         return i;
-   }
-
-   return -1;
+     return dsfmt_genrand_uint32(&dsfmt);
 }
 
 //------------------------------------------------------------------------------
@@ -299,34 +201,68 @@ Integer RandomNumber::GetGeneratorID(const std::string &str) const
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::Uniform()
- {
-     return gsl_rng_uniform(r);
- }
+Real RandomNumber::Uniform()
+{
+     return dsfmt_genrand_close_open(&dsfmt);
+}
 
- //------------------------------------------------------------------------------
-//  Real UniformPositive()
+//------------------------------------------------------------------------------
+//  Real UniformPrimitive()
+//------------------------------------------------------------------------------
+/**
+ *  Returns an uniformly distributed random deviate in the range [1,2).
+ *  The range includes 1.0 but excludes 2.0. This is the primitive MT generator
+ *  that all other function calls are based upon. This is the fastest method
+ *  for generating a random variate.
+ *
+ *  @return The random deviate.
+ *
+ */
+//------------------------------------------------------------------------------
+Real RandomNumber::UniformPrimitive()
+{
+     return dsfmt_genrand_close1_open2(&dsfmt);
+}
+
+//------------------------------------------------------------------------------
+//  Real UniformOpenOpen()
 //------------------------------------------------------------------------------
 /**
  *  Returns an uniformly distributed random deviate in the range (0,1)
  *  The range excludes both 0.0 and 1.0. This is useful when you need to
+ *  avoid a singularity at 0 or 1.
+ *
+ *  @return The random deviate.
+ *
+ */
+//------------------------------------------------------------------------------
+Real RandomNumber::UniformOpenOpen()
+{
+     return dsfmt_genrand_open_open(&dsfmt);
+}
+
+ //------------------------------------------------------------------------------
+//  Real UniformOpenClosed()
+//------------------------------------------------------------------------------
+/**
+ *  Returns an uniformly distributed random deviate in the range (0,1]
+ *  The range excludes 0.0 but includes 1.0. This is useful when you need to
  *  avoid a singularity at 0.
  *
  *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::UniformPositive()
- {
-     return gsl_rng_uniform_pos(r);
- }
-
+Real RandomNumber::UniformOpenClosed()
+{
+     return dsfmt_genrand_open_close(&dsfmt);
+}
 
 //------------------------------------------------------------------------------
 //  Real Uniform(Real a, Real b)
 //------------------------------------------------------------------------------
 /**
- *  Returns an uniformly distributed random deviate between a and b using Ran1.
+ *  Returns an uniformly distributed random deviate in the range [a,b)
  *  The mean of this distribution is (a+b)/2.
  *  The variance of this distribution is (b-a)^2/12.
  *
@@ -336,18 +272,23 @@ Integer RandomNumber::GetGeneratorID(const std::string &str) const
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::Uniform(const Real a, const Real b)
- {
+Real RandomNumber::Uniform(const Real a, const Real b)
+{
 
-     return a + (b - a)*gsl_rng_uniform(r);
+     return a + (b - a)*dsfmt_genrand_close_open(&dsfmt);
 
- }
+}
 
 //------------------------------------------------------------------------------
 //  Real Gaussian()
 //------------------------------------------------------------------------------
 /**
  *  Returns a normally distributed Gaussian random deviate (zero mean, unit var)
+ *  using the polar form transformation. This method is considered to be faster
+ *  and more numerically robust than the Box-Mueller transformation.
+ *
+ *  See L. Devroye: 'Non-Uniform Random Variate Generation', Springer-Verlag, 
+ *                  New York, 1986.
  *
  *  @return The random deviate.
  *
@@ -355,15 +296,33 @@ Integer RandomNumber::GetGeneratorID(const std::string &str) const
 //------------------------------------------------------------------------------
 Real RandomNumber::Gaussian()
 {
-    return gsl_ran_gaussian(r,1.0);
+    
+    Real u,v,s;
+    
+    do
+    {
+        u = Uniform(-1.0, 1.0);
+	v = Uniform(-1.0, 1.0);
+	s = u*u + v*v;
+    }
+    while ( s < 0 || s > 1);
+
+    // This method produces two independent random deviates but we
+    // only return one of them. Here is the formula for the seconde deviate.
+    // Real z1 = v * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s)/s);
+    return u * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s)/s);
 }
 
 //------------------------------------------------------------------------------
 //  Real Gaussian(const Real mean, const Real stdev)
 //------------------------------------------------------------------------------
 /**
- *  Returns a normally distributed Gaussian random deviate with a
- *  prescribed mean and standard deviation.
+ *  Returns a normally distributed Gaussian random deviate (zero mean, unit var)
+ *  using the polar form transformation. This method is considered to be faster
+ *  and more numerically robust than the Box-Mueller transformation.
+ *
+ *  See L. Devroye: 'Non-Uniform Random Variate Generation', Springer-Verlag, 
+ *                  New York, 1986.
  *
  *  @param <mean> Mean of Gaussian distribution
  *  @param <stdev> Standard deviation of Gaussian distribution
@@ -371,389 +330,265 @@ Real RandomNumber::Gaussian()
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::Gaussian(const Real mean, const Real stdev)
- {
-
-     return gsl_ran_gaussian(r,(double)stdev) + mean;
-
- }
-
-//------------------------------------------------------------------------------
-//  Real GaussianPDF(const Real x)
-//------------------------------------------------------------------------------
-/**
- *  Returns the probability density p(x) at x for a Gaussian distribution
- *  with unit standard deviation.
- *
- *  p(x) dx = {1 \over \sqrt{2 \pi \sigma^2}} \exp (-x^2 / 2\sigma^2) dx
- *
- *  @param <x> The value at which to evaluate the pdf
- *  @return p(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianPDF(const Real x)
+Real RandomNumber::Gaussian(const Real mean, const Real stdev)
 {
-    return gsl_ran_gaussian_pdf((double)x,1.0);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianPDF(const Real x, const Real stdev)
-//------------------------------------------------------------------------------
-/**
- *  Returns the probability density p(x) at x for a Gaussian distribution
- *  with standard deviation sigma.
- *
- *  p(x) dx = {1 \over \sqrt{2 \pi \sigma^2}} \exp (-x^2 / 2\sigma^2) dx
- *
- *  @param <x> The value at which to evaluate the pdf
- *  @param <stdev> The standard deviation of the Gaussian distribution
- *  @return p(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianPDF(const Real x, const Real stdev)
-{
-    return gsl_ran_gaussian_pdf((double)x, (double)stdev);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianZiggurat()
-//------------------------------------------------------------------------------
-/**
- *  Returns a normally distributed Gaussian random deviate with zero mean
- *  and unit standard deviation using the alternative
- *  Marsaglia-Tsang ziggurat method. The Ziggurat algorithm is the fastest
- *  available algorithm in most cases.
- *
- *  @return The random deviate.
- *
- */
-//------------------------------------------------------------------------------
- Real RandomNumber::GaussianZiggurat()
- {
-     return gsl_ran_gaussian_ziggurat(r,1.0);
- }
-
-//------------------------------------------------------------------------------
-//  Real GaussianZiggurat(const Real mean, const Real stdev)
-//------------------------------------------------------------------------------
-/**
- *  Returns a normally distributed Gaussian random deviate with a
- *  prescribed mean and standard deviation using the alternative
- *  Marsaglia-Tsang ziggurat method. The Ziggurat algorithm is the fastest
- *  available algorithm in most cases.
- *
- *  @param <mean> Mean of Gaussian distribution
- *  @param <stdev> Standard deviation of Gaussian distribution
- *  @return The random deviate.
- *
- */
-//------------------------------------------------------------------------------
- Real RandomNumber::GaussianZiggurat(const Real mean, const Real stdev)
- {
-     return gsl_ran_gaussian_ziggurat(r,(double)stdev) + mean;
- }
-
-//------------------------------------------------------------------------------
-//  Real GaussianRatioMethod()
-//------------------------------------------------------------------------------
-/**
- *  Returns a normally distributed Gaussian random deviate with zero mean
- *  and unit standard deviation using the alternative
- *  Kinderman-Monahan-Leva ratio methods.
- *
- *  @return The random deviate.
- *
- */
-//------------------------------------------------------------------------------
- Real RandomNumber::GaussianRatioMethod()
- {
-     return gsl_ran_gaussian_ratio_method(r,1.0);
- }
-
-//------------------------------------------------------------------------------
-//  Real GaussianRatioMethod(const Real mean, const Real stdev)
-//------------------------------------------------------------------------------
-/**
- *  Returns a normally distributed Gaussian random deviate with a
- *  prescribed mean and standard deviation using the alternative
- *  Kinderman-Monahan-Leva ratio methods.
- *
- *  @param <mean> Mean of Gaussian distribution
- *  @param <stdev> Standard deviation of Gaussian distribution
- *  @return The random deviate.
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianRatioMethod(const Real mean, const Real stdev)
-{
-     return gsl_ran_gaussian_ratio_method(r,(double)stdev) + mean;
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianCDF_P(const Real x)
-//------------------------------------------------------------------------------
-/**
- *  Returns the cumulative distribution function P(x) at x
- *  for a Gaussian distribution with unit standard deviation.
- *
- *  @param <x> The value at which to evaluate the cdf
- *  @return P(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianCDF_P(const Real x)
-{
-    return gsl_cdf_gaussian_P((double)x,1.0);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianCDF_P(const Real x, const Real stdev)
-//------------------------------------------------------------------------------
-/**
- *  Returns the cumulative distribution function P(x) at x
- *  for a Gaussian distribution with standard deviation sigma.
- *
- *  @param <x> The value at which to evaluate the cdf
- *  @param <stdev> The standard deviation of the Gaussian distribution
- *  @return P(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianCDF_P(const Real x, const Real stdev)
-{
-    return gsl_cdf_gaussian_P((double)x, (double)stdev);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianCDF_Q(const Real x)
-//------------------------------------------------------------------------------
-/**
- *  Returns the cumulative distribution function Q(x) at x
- *  for a Gaussian distribution with unit standard deviation.
- *
- *  @param <x> The value at which to evaluate the cdf
- *  @return Q(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianCDF_Q(const Real x)
-{
-    return gsl_cdf_gaussian_Q((double)x,1.0);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianCDF_Q(const Real x, const Real stdev)
-//------------------------------------------------------------------------------
-/**
- *  Returns the cumulative distribution function Q(x) at x
- *  for a Gaussian distribution with standard deviation sigma.
- *
- *  @param <x> The value at which to evaluate the cdf
- *  @param <stdev> The standard deviation of the Gaussian distribution
- *  @return Q(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianCDF_Q(const Real x, const Real stdev)
-{
-    return gsl_cdf_gaussian_Q((double)x, (double)stdev);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianCDF_Pinv(const Real x)
-//------------------------------------------------------------------------------
-/**
- *  Returns the inverse of the cumulative distribution function P(x) at x
- *  for a Gaussian distribution with unit standard deviation.
- *
- *  @param <x> The value at which to evaluate the cdf
- *  @return Pinv(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianCDF_Pinv(const Real x)
-{
-    return gsl_cdf_gaussian_Pinv((double)x,1.0);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianCDF_Pinv(const Real x, const Real stdev)
-//------------------------------------------------------------------------------
-/**
- *  Returns the inverse of the the cumulative distribution function P(x) at x
- *  for a Gaussian distribution with standard deviation sigma.
- *
- *  @param <x> The value at which to evaluate the cdf
- *  @param <stdev> The standard deviation of the Gaussian distribution
- *  @return Pinv(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianCDF_Pinv(const Real x, const Real stdev)
-{
-    return gsl_cdf_gaussian_Pinv((double)x, (double)stdev);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianCDF_Qinv(const Real x)
-//------------------------------------------------------------------------------
-/**
- *  Returns the inverse of the the cumulative distribution function Q(x) at x
- *  for a Gaussian distribution with unit standard deviation.
- *
- *  @param <x> The value at which to evaluate the cdf
- *  @return Qinv(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianCDF_Qinv(const Real x)
-{
-    return gsl_cdf_gaussian_Qinv((double)x,1.0);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianCDF_Qinv(const Real x, const Real stdev)
-//------------------------------------------------------------------------------
-/**
- *  Returns the inverse of the the cumulative distribution function Q(x) at x
- *  for a Gaussian distribution with standard deviation sigma.
- *
- *  @param <x> The value at which to evaluate the cdf
- *  @param <stdev> The standard deviation of the Gaussian distribution
- *  @return Qinv(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianCDF_Qinv(const Real x, const Real stdev)
-{
-    return gsl_cdf_gaussian_Qinv((double)x, (double)stdev);
-}
-
-//------------------------------------------------------------------------------
-//  Real GaussianTail(const Real a)
-//------------------------------------------------------------------------------
-/**
- *  This function provides random variates from the upper tail of a Gaussian
- *  distribution with unit standard deviation. The values returned are
- *  larger than the lower limit a, which must be positive. The method is based
- *  on Marsaglia's famous rectangle-wedge-tail algorithm
- *  (Ann. Math. Stat. 32, 894–899 (1961)), with this aspect explained in
- *  Knuth, v2, 3rd ed, p139,586 (exercise 11).
- *
- *  The probability distribution for Gaussian tail random variates is,
- *
- *  p(x) dx = {1 \over N(a;\sigma) \sqrt{2 \pi \sigma^2}} \exp (- x^2/(2 \sigma^2)) dx
- *
- *  for x > a where N(a;\sigma) is the normalization constant,
- *
- *  N(a;\sigma) = (1/2) erfc(a / sqrt(2 sigma^2)).
- *
- *  @return The random deviate.
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianTail(const Real a)
-{
-    if (a > 0) return gsl_ran_gaussian_tail(r, (double)a, 1.0);
-    else
+    Real u,v,s;
+    
+    do
     {
-      UtilityException ex;
-      ex.SetDetails("GaussianTail: Lower limit 'a' must be positive!");
-      throw ex;
+        u = Uniform(-1.0, 1.0);
+	v = Uniform(-1.0, 1.0);
+	s = u*u + v*v;
+    }
+    while ( s < 0 || s > 1);
+
+    // This method produces two independent random deviates but we
+    // only return one of them. Here is the formula for the seconde deviate.
+    // Real z1 = v * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s)/s);
+    return u * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s)/s) * stdev + mean;
+}
+
+//------------------------------------------------------------------------------
+//  void UniformArray(unsigned int *myArray, const Integer size)
+//------------------------------------------------------------------------------
+/**
+ *  Returns an array of uniformly distributed unsigned 32bit integers.
+ *  This method is significantly slower than the double precision methods
+ *  and should only be used in conjunction with the SeedByArray method.
+ *
+ *  @param <myArray> Pointer to array where random deviates will be stored
+ *  @param <size> size of the array of deviates
+ *
+ */
+//------------------------------------------------------------------------------
+void RandomNumber::UniformArray(unsigned int *myArray, const Integer size)
+{
+    for (Integer i = 0; i < size; i++)
+	myArray[i] = dsfmt_genrand_uint32(&dsfmt);
+}
+
+//------------------------------------------------------------------------------
+//  void UniformArray(Real *myArray, const Integer size)
+//------------------------------------------------------------------------------
+/**
+ *  Returns a uniformly distributed random deviate in the range [0,1)
+ *  The range includes 0.0 but excludes 1.0;
+ *
+ *  @param <myArray> Pointer to array where random deviates will be stored
+ *  @param <size> size of the array of deviates
+ *
+ */
+//------------------------------------------------------------------------------
+void RandomNumber::UniformArray(Real *myArray, const Integer size)
+{
+     dsfmt_fill_array_close_open(&dsfmt,(double*)myArray,size);
+}
+
+//------------------------------------------------------------------------------
+//  void UniformPrimitiveArray(Real *myArray, const Integer size)
+//------------------------------------------------------------------------------
+/**
+ *  Returns an uniformly distributed random deviate in the range [1,2).
+ *  The range includes 1.0 but excludes 2.0. This is the primitive MT generator
+ *  that all other function calls are based upon. This is the fastest method
+ *  for generating a random variate.
+ *
+ *  @param <myArray> Pointer to array where random deviates will be stored
+ *  @param <size> size of the array of deviates
+ *
+ */
+//------------------------------------------------------------------------------
+void RandomNumber::UniformPrimitiveArray(Real *myArray, const Integer size)
+{
+     dsfmt_fill_array_close1_open2(&dsfmt,(double*)myArray,size);
+}
+
+//------------------------------------------------------------------------------
+//  void UniformOpenOpenArray(Real *myArray, const Integer size)
+//------------------------------------------------------------------------------
+/**
+ *  Returns an uniformly distributed random deviate in the range (0,1)
+ *  The range excludes both 0.0 and 1.0. This is useful when you need to
+ *  avoid a singularity at 0 or 1.
+ *
+ *  @param <myArray> Pointer to array where random deviates will be stored
+ *  @param <size> size of the array of deviates
+ *
+ */
+//------------------------------------------------------------------------------
+void RandomNumber::UniformOpenOpenArray(Real *myArray, const Integer size)
+{
+     dsfmt_fill_array_open_open(&dsfmt,(double*)myArray,size);
+}
+
+//------------------------------------------------------------------------------
+//  void UniformOpenClosedArray(Real *myArray, const Integer size)
+//------------------------------------------------------------------------------
+/**
+ *  Returns an uniformly distributed random deviate in the range (0,1]
+ *  The range excludes 0.0 but includes 1.0. This is useful when you need to
+ *  avoid a singularity at 0.
+ *
+ *  @param <myArray> Pointer to array where random deviates will be stored
+ *  @param <size> size of the array of deviates
+ *
+ */
+//------------------------------------------------------------------------------
+void RandomNumber::UniformOpenClosedArray(Real *myArray, const Integer size)
+{
+     dsfmt_fill_array_open_close(&dsfmt,(double*)myArray,size);
+}
+
+//------------------------------------------------------------------------------
+//  void UniformArray(Real *myArray, Real a, Real b, const Integer size)
+//------------------------------------------------------------------------------
+/**
+ *  Returns an uniformly distributed random deviate in the range [a,b)
+ *  The mean of this distribution is (a+b)/2.
+ *  The variance of this distribution is (b-a)^2/12.
+ *
+ *  @param <myArray> Pointer to array where random deviates will be stored
+ *  @param <size> size of the array of deviates
+ *  @param <a> Distribution start
+ *  @param <b> Distribution end
+ *
+ */
+//------------------------------------------------------------------------------
+void RandomNumber::UniformArray(Real *myArray, const Integer size, 
+	                         const Real a, const Real b)
+{
+
+     dsfmt_fill_array_close_open(&dsfmt,(double*)myArray,size);
+     for (Integer i=0; i < size; i++)
+     {
+         myArray[i] = a + (b - a)*myArray[i];
+     }
+}
+
+//------------------------------------------------------------------------------
+//  void GaussianArray(Real *myArray, const Integer size)
+//------------------------------------------------------------------------------
+/**
+ *  Returns a normally distributed Gaussian random deviate (zero mean, unit var)
+ *  using the polar form transformation. This method is considered to be faster
+ *  and more numerically robust than the Box-Mueller transformation.
+ *
+ *  See L. Devroye: 'Non-Uniform Random Variate Generation', Springer-Verlag, 
+ *                  New York, 1986.
+ *
+ *  @param <myArray> Pointer to array where random deviates will be stored
+ *  @param <size> size of the array of deviates
+ *
+ */
+//------------------------------------------------------------------------------
+void RandomNumber::GaussianArray(Real *myArray, const Integer size)
+{
+    
+    Real u[size],v[size],s;
+
+    UniformArray(u,size,-1.0,1.0);
+    UniformArray(v,size,-1.0,1.0);
+
+    for (Integer i=0; i<size; i++)
+    {
+	s = u[i]*u[i]+v[i]*v[i];
+	
+	if ( s < 0 || s > 1)
+	{
+	    // rejected, find another pair
+
+	    Real u1, v1, s1;
+
+	    do
+	    {
+		u1 = Uniform(-1.0,1.0);
+		v1 = Uniform(-1.0,1.0);
+		s1 = u1*u1 + v1*v1;
+	    }
+	    while ( s1 < 0 || s1 > 1);
+
+	    myArray[i++] = u1 * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s1)/s1);	
+	    
+	    if(i < size-1)
+	    {
+		myArray[i++] = v1 * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s1)/s1);
+	    }
+	    
+	}
+	else
+	{
+	    // accepted, assign to output array
+	    myArray[i] = u[i] * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s)/s);
+	    if(++i < size)
+	    {
+		myArray[i] = v[i] * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s)/s);
+	    }   
+	}
     }
 }
 
 //------------------------------------------------------------------------------
-//  Real GaussianTail(const Real a, const Real stdev)
+//  void GaussianArray(Real *myArray, const Integer size,
+//	                         const Real mean, const Real stdev)
 //------------------------------------------------------------------------------
 /**
- *  This function provides random variates from the upper tail of a Gaussian
- *  distribution with standard deviation sigma. The values returned are
- *  larger than the lower limit a, which must be positive. The method is based
- *  on Marsaglia's famous rectangle-wedge-tail algorithm
- *  (Ann. Math. Stat. 32, 894–899 (1961)), with this aspect explained in
- *  Knuth, v2, 3rd ed, p139,586 (exercise 11).
+ *  Returns a normally distributed Gaussian random deviate (zero mean, unit var)
+ *  using the polar form transformation. This method is considered to be faster
+ *  and more numerically robust than the Box-Mueller transformation.
  *
+ *  See L. Devroye: 'Non-Uniform Random Variate Generation', Springer-Verlag, 
+ *                  New York, 1986.
+ *
+ *  @param <myArray> Pointer to array where random deviates will be stored
+ *  @param <size> size of the array of deviates
+ *  @param <mean> Mean of Gaussian distribution
  *  @param <stdev> Standard deviation of Gaussian distribution
- *  @return The random deviate.
  *
  */
 //------------------------------------------------------------------------------
- Real RandomNumber::GaussianTail(const Real a, const Real stdev)
- {
-    if (a > 0)
-        return gsl_ran_gaussian_tail(r, (double)a, (double)stdev);
-    else
-    {
-      UtilityException ex;
-      ex.SetDetails("GaussianTail: Lower limit 'a' must be positive!");
-      throw ex;
-    }    
- }
-
-//------------------------------------------------------------------------------
-//  Real GaussianTailPDF(const Real x, const Real a)
-//------------------------------------------------------------------------------
-/**
- *  Returns the probability density p(x) at x for a Gaussian tail distribution
- *  with unit standard deviation and lower limit a.
- *
- *  The probability distribution for Gaussian tail random variates is,
- *
- *  p(x) dx = {1 \over N(a;\sigma) \sqrt{2 \pi \sigma^2}} \exp (- x^2/(2 \sigma^2)) dx
- *
- *  for x > a where N(a;\sigma) is the normalization constant,
- *
- *  N(a;\sigma) = (1/2) erfc(a / sqrt(2 sigma^2)).
- *
- *  @param <a> The value at which to evaluate the pdf
- *  @return p(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianTailPDF(const Real x, const Real a)
+void RandomNumber::GaussianArray(Real *myArray, const Integer size,
+	                         const Real mean, const Real stdev)
 {
-    if (a > 0)
-        return gsl_ran_gaussian_tail_pdf((double)x, (double)a, 1.0);
-    else
-    {
-      UtilityException ex;
-      ex.SetDetails("GaussianTail: Lower limit 'a' must be positive!");
-      throw ex;
-    }
-}
+   
+    Real u[size],v[size],s;
 
-//------------------------------------------------------------------------------
-//  Real GaussianTailPDF(const Real x, const Real a, const Real stdev)
-//------------------------------------------------------------------------------
-/**
- *  Returns the probability density p(x) at x for a Gaussian tail distribution
- *  with specified standard deviation stdev and lower limit a.
- *
- *  The probability distribution for Gaussian tail random variates is,
- *
- *  p(x) dx = {1 \over N(a;\sigma) \sqrt{2 \pi \sigma^2}} \exp (- x^2/(2 \sigma^2)) dx
- *
- *  for x > a where N(a;\sigma) is the normalization constant,
- *
- *  N(a;\sigma) = (1/2) erfc(a / sqrt(2 sigma^2)).
- *
- *  @param <a> The value at which to evaluate the pdf
- *  @param <stdev> The standard deviation of the Gaussian distribution
- *  @return p(x)
- *
- */
-//------------------------------------------------------------------------------
-Real RandomNumber::GaussianTailPDF(const Real x, const Real a, const Real stdev)
-{
-    if (a > 0)
-        return gsl_ran_gaussian_tail_pdf((double)x, (double)a, (double)stdev);
-    else
+    UniformArray(u,size);
+    UniformArray(v,size);
+
+    for (Integer i=0; i<size; i++)
     {
-      UtilityException ex;
-      ex.SetDetails("GaussianTail: Lower limit 'a' must be positive!");
-      throw ex;
+	s = u[i]*u[i]+v[i]*v[i];
+	
+	if ( s < 0 || s > 1)
+	{
+	    // rejected, find another pair
+
+	    Real u1, v1, s1;
+
+	    do
+	    {
+		u1 = Uniform();
+		v1 = Uniform();
+		s1 = u1*u1 + v1*v1;
+	    }
+	    while ( s1 < 0 || s1 > 1);
+
+	    myArray[i++] = u1 * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s1)/s1) * stdev + mean;	
+	    
+	    if(i < size-1)
+	    {
+		myArray[i++] = v1 * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s1)/s1) * stdev + mean;
+	    }
+	    
+	}
+	else
+	{
+	    // accepted, assign to output array
+	    myArray[i] = u[i] * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s)/s) * stdev + mean;
+	    if(++i < size)
+	    {
+		myArray[i] = v[i] * GmatMathUtil::Sqrt(-2.0*GmatMathUtil::Ln(s)/s) * stdev + mean;
+	    }   
+	}
     }
 }

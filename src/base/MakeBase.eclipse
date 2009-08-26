@@ -112,6 +112,7 @@ HEADERS = -Iinclude \
           -I../gui/foundation \
           -I../gui/plot \
           -I../gui/mission \
+          -IdSFMT \
           -I/usr/local/include/lapackpp \
           -I/usr/local/include/unicode \
 
@@ -538,7 +539,7 @@ OBJECTS = \
 #    stopcond/BaseStopCondition.o \
 #    environment/msise00_sub.o
 
-
+MT_OBJECTS = dSFMT/dSFMT.o
 
 FORTRAN_OBJECTS = environment/msise90_sub.o 
 
@@ -548,13 +549,13 @@ FORTRAN_OBJECTS = environment/msise90_sub.o
     # stopcond/BaseStopCondition.o \
 
 ifeq ($(SHARED_BASE), 1)
-$(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
+$(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(MT_OBJECTS)
 	mkdir -p lib
-	$(CPP) -o $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(SHARED_LIB_FLAGS)
+	$(CPP) -o $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(SHARED_LIB_FLAGS) $(MT_OBJECTS)
 else
-$(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
+$(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(MT_OBJECTS)
 	mkdir -p lib
-	ar rs $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS)
+	ar rs $(TARGET) $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(MT_OBJECTS)
 	ranlib $(TARGET)
 endif	
 
@@ -567,6 +568,10 @@ $(BRIDGEOBJECTS): %.o: %.cpp %.hpp
 	$(CPP) $(CPPFLAGS) $(HEADERS) -c -o $@ $<
 endif
 
+# Specific instructions for the Mersenne Twister code
+dSFMT/dSFMT.o: dSFMT/dSFMT.c
+	    $(C) $(MT_DEFINES) $(MT_SSE2) $(MT_GCC) -c dSFMT/dSFMT.c \
+						     -o dSFMT/dSFMT.o
 
 # Specific instructions for the fortran code
 environment/msise90_sub.o: environment/msise90_sub.for

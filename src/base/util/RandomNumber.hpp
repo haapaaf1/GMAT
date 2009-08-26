@@ -14,10 +14,60 @@
 /**
  * GMAT's Random Number Class
  *
- * This class implements the random number generator routines found in
- * the GNU Scientific Library(GSL). This software is freely disributable
- * under the standard GNU General Public license.
+ * This class implements the double precision SIMD oriented Fast 
+ * Mersenne Twister pseudorandom number generator (dSFMT) version 2.1. 
  *
+ * SFMT is a new variant of Mersenne Twister (MT) introduced by Mutsuo Saito and 
+ * Makoto Matsumoto in 2006. The algorithm was reported at MCQMC 2006 
+ * (http://mcqmc.uni-ulm.de/). The article was published in the proceedings of 
+ * MCQMC2006. (see Prof. Matsumoto's Papers on random number generation.)
+ *
+ * SFMT is a Linear Feedbacked Shift Register (LFSR) generator that generates 
+ * a 128-bit pseudorandom integer at one step. SFMT is designed with recent 
+ * parallelism of modern CPUs, such as multi-stage pipelining and SIMD 
+ * (e.g. 128-bit integer) instructions. It supports 32-bit and 64-bit integers, 
+ * as well as double precision floating point as output.
+ * 
+ * SFMT is much faster than MT, in most platforms. Not only the speed, but also 
+ * the dimensions of equidistributions at v-bit precision are improved. 
+ * In addition, recovery from 0-excess initial state is much faster. See 
+ * Master's Thesis of Mutsuo Saito for detail.
+ *
+ * This program is based on the IEEE Standard for Binary Floating-Point 
+ * Arithmetic (ANSI/IEEE Std 754-1985) format. dSFMT ver. 2.xx is completely 
+ * different from dSFMT ver. 1.xx. The recursion formula is changed and the 
+ * output sequences are changed. This version uses structure of C language. 
+ * Don't use different DSFMT_MEXP for compiling dSFMT.c and your program. 
+ * This Project provides pseudorandom number generators of various 
+ * Mersenne Prime Period: from 2521-1 to 2216091-1.
+ *
+ * The purpose of dSFMT is to speed up the generation by avoiding the expensive 
+ * conversion of integer to double (floating point). dSFMT directly generates 
+ * double precision floating point pseudorandom numbers which have the IEEE 
+ * Standard for Binary Floating-Point Arithmetic (ANSI/IEEE Std 754-1985) format. 
+ * dSFMT is only available on the CPUs which use IEEE 754 format double precision 
+ * floating point numbers.
+ * 
+ * dSFMT doesn't support integer outputs. dSFMT supports the output of double 
+ * precision floating point pseudorandom numbers which distribute in the range 
+ * of [1, 2), [0, 1), (0, 1] and (0, 1). And it also supports the various 
+ * periods form 2607-1 to 2132049-1. (dSFMT ver. 2.1 supports the periods 
+ * from 2521-1 to 2216091-1.)
+ *
+ * References
+ *
+ * Mutsuo Saito and Makoto Matsumoto, "SIMD-oriented Fast Mersenne Twister: a 
+ * 128-bit Pseudorandom Number Generator", Monte Carlo and Quasi-Monte Carlo 
+ * Methods 2006, Springer, 2008, pp. 607--622. DOI:10.1007/978-3-540-74496-2_36
+ *
+ * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/sfmt.pdf
+ * 
+ * M. Matsumoto and T. Nishimura, "Mersenne Twister: A 623-dimensionally 
+ * equidistributed uniform pseudorandom number generator", ACM Trans. on 
+ * Modeling and Computer Simulation Vol. 8, No. 1, January pp.3-30 (1998) 
+ * DOI:10.1145/272991.272995
+ * 
+ * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf
  */
 //------------------------------------------------------------------------------
 
@@ -31,10 +81,7 @@
 #include "gmatdefs.hpp"
 #include "RealUtilities.hpp"
 #include "UtilityException.hpp"
-#include <pcrecpp.h>
-#include <gsl_rng.h>
-#include <gsl_randist.h>
-#include <gsl_cdf.h>
+#include <dSFMT.h>
 
 class RandomNumber
 {
@@ -42,181 +89,41 @@ class RandomNumber
 public:
 
     RandomNumber();
-    RandomNumber(const std::string myGenerator);
-    RandomNumber(unsigned long int mySeed);
-    RandomNumber(const std::string myGenerator, unsigned long int mySeed);
+    RandomNumber(unsigned int mySeed);
+    RandomNumber(unsigned int *mySeed, Integer arraySize);
     ~RandomNumber();
-
-    //unsigned int Bernoulli(Real p);
-    //Real BernoulliPDF(const unsigned int k, Real p);
-
-    //Real Beta(const Real a, const Real b);
-    //Real BetaPDF(const Real x, const Real a, const Real b);
-
-    //unsigned int Binomial(Real p, unsigned int n);
-    //unsigned int BinomialKnuth(Real p, unsigned int n);
-    //unsigned int BinomialTpe(Real p, unsigned int n);
-    //Real BinomialPDF(const unsigned int k, const Real p, const unsigned int n);
-
-    //Real Exponential(const Real mu);
-    //Real ExponentialPDF(const Real x, const Real mu);
-
-    //Real ExpPow(const Real a, const Real b);
-    //Real ExpPowPDF(const Real x, const Real a, const Real b);
-
-    //Real Cauchy(const Real a);
-    //Real CauchyPDF(const Real x, const Real a);
-
-    //Real Chisq(const Real nu);
-    //Real ChisqPDF(const Real x, const Real nu);
-
-    //void Dirichlet(const sizeT K, const Real alpha[], Real theta[]);
-    //Real DirichletPDF(const sizeT K, const Real alpha[], const Real theta[]);
-    //Real Dirichlet_lnpdf(const sizeT K, const Real alpha[], const Real theta[]);
-
-    //Real Erlang(const Real a, const Real n);
-    //Real ErlangPDF(const Real x, const Real a, const Real n);
-
-    //Real Fdist(const Real nu1, const Real nu2);
-    //Real FdistPDF(const Real x, const Real nu1, const Real nu2);
-
-    //Real Flat(const Real a, const Real b);
-    //Real FlatPDF(Real x, const Real a, const Real b);
-
-    //Real Gamma(const Real a, const Real b);
-    //Real GammaInt(const unsigned int a);
-    //Real GammaPDF(const Real x, const Real a, const Real b);
-    //Real GammaMT(const Real a, const Real b);
-    //Real GammaKnuth(const Real a, const Real b);
 
     Real Gaussian();
     Real Gaussian(const Real mean, const Real stdev);
-    Real GaussianRatioMethod();
-    Real GaussianRatioMethod(const Real mean, const Real stdev);
-    Real GaussianZiggurat();
-    Real GaussianZiggurat(const Real mean, const Real stdev);
-    Real GaussianPDF(const Real x);
-    Real GaussianPDF(const Real x, const Real stdev);
-    Real GaussianCDF_P(const Real x);
-    Real GaussianCDF_P(const Real x, const Real stdev);
-    Real GaussianCDF_Q(const Real x);
-    Real GaussianCDF_Q(const Real x, const Real stdev);
-    Real GaussianCDF_Pinv(const Real P);
-    Real GaussianCDF_Pinv(const Real P, const Real stdev);
-    Real GaussianCDF_Qinv(const Real Q);
-    Real GaussianCDF_Qinv(const Real Q, const Real stdev);
 
-    Real GaussianTail(const Real a);
-    Real GaussianTail(const Real a, const Real stdev);
-    Real GaussianTailPDF(const Real x, const Real a);
-    Real GaussianTailPDF(const Real x, const Real a, const Real stdev);
+    void GaussianArray(Real *myArray, const Integer size);
+    void GaussianArray(Real *myArray, const Integer size,  
+	               const Real mean, const Real stdev);
 
-    //void BivariateGaussian(Real stdev_x, Real stdev_y, Real rho, Real *x, Real *y);
-    //Real BivariateGaussianPDF(const Real x, const Real y, const Real stdev_x, const Real stdev_y, const Real rho);
-
-    //Real Landau();
-    //Real LandauPDF(const Real x);
-
-    //unsigned int Geometric(const Real p);
-    //Real GeometricPDF(const unsigned int k, const Real p);
-
-    //unsigned int Hypergeometric(unsigned int n1, unsigned int n2, unsigned int t);
-    //Real HypergeometricPDF(const unsigned int k, const unsigned int n1, const unsigned int n2, unsigned int t);
-
-    //Real Gumbel1(const Real a, const Real b);
-    //Real Gumbel1PDF(const Real x, const Real a, const Real b);
-
-    //Real Gumbel2(const Real a, const Real b);
-    //Real Gumbel2PDF(const Real x, const Real a, const Real b);
-
-    //Real Logistic(const Real a);
-    //Real LogisticPDF(const Real x, const Real a);
-
-    //Real LogNormal(const Real zeta, const Real stdev);
-    //Real LogNormalPDF(const Real x, const Real zeta, const Real stdev);
-
-    //unsigned int Logarithmic(const Real p);
-    //Real LogarithmicPDF(const unsigned int k, const Real p);
-
-    //void Multinomial(const sizeT K,
-    //                      const unsigned int N, const Real p[],
-    //                      unsigned int n[] );
-    //Real MultinomialPDF(const sizeT K,
-    //                            const Real p[], const unsigned int n[] );
-    //Real MultinomialLnPDF(const sizeT K,
-    //                       const Real p[], const unsigned int n[] );
-
-    //unsigned int NegativeBinomial(Real p, Real n);
-    //Real NegativeBinomialPDF(const unsigned int k, const Real p, Real n);
-
-    //unsigned int pascal(Real p, unsigned int n);
-    //Real PascalPDF(const unsigned int k, const Real p, unsigned int n);
-
-    //Real Pareto(Real a, const Real b);
-    //Real ParetoPDF(const Real x, const Real a, const Real b);
-
-    //unsigned int Poisson(Real mu);
-    //void PoissonArray(sizeT n, unsigned int array[],
-    //                        Real mu);
-    //Real PoissonPDF(const unsigned int k, const Real mu);
-
-    //Real Rayleigh(const Real stdev);
-    //Real RayleighPDF(const Real x, const Real stdev);
-
-    //Real RayleighTail(const Real a, const Real stdev);
-    //Real RayleighTailPDF(const Real x, const Real a, const Real stdev);
-
-    //Real TDist(const Real nu);
-    //Real TDistPDF(const Real x, const Real nu);
-
+    unsigned int UniformInt();
     Real Uniform();
-    Real UniformPositive();
+    Real UniformPrimitive();
+    Real UniformOpenOpen();
+    Real UniformOpenClosed();
     Real Uniform(const Real a, const Real b);
+
+    void UniformArray(unsigned int *myArray, const Integer size);
+    void UniformArray(Real *myArray, const Integer size);
+    void UniformPrimitiveArray(Real *myArray, const Integer size);
+    void UniformOpenOpenArray(Real *myArray, const Integer size);
+    void UniformOpenClosedArray(Real *myArray, const Integer size);
+    void UniformArray(Real *myArray, const Integer size, 
+	              const Real a, const Real b);
+
     
-    //Real Laplace(const Real a);
-    //Real LaplacePDF(const Real x, const Real a);
-
-    //Real Levy(const Real c, const Real alpha);
-    //Real LevySkew(const Real c, const Real alpha, const Real beta);
-
-    //Real Weibull(const Real a, const Real b);
-    //Real WeibullPDF(const Real x, const Real a, const Real b);
-
     // Set and/or Re-set the seed for the random number generator
-    void Seed(unsigned long int s);
+    void Seed(unsigned int s);
+    void SeedByArray(unsigned int *mySeed, Integer arraySize);
     void ClockSeed();
-
-    // Methods to select the generator type
-    const gsl_rng_type* GetGenerator(const std::string &myGeneratorString);
-    const gsl_rng_type* GetGenerator(const Integer myGeneratorID);
-    std::string GetGeneratorText(const Integer id) const;
-    Integer GetGeneratorID(const std::string &str) const;
-
-    enum GENERATOR_TYPE_REPS
-    {
-	MT19937_ID = 0,
-	RANLXS0_ID,
-	RANLXS1_ID,
-	RANLXS2_ID,
-	RANLXD1_ID,
-	RANLXD2_ID,
-	RANLUX_ID,
-	RANLUX389_ID,
-        CMRG_ID,
-        MRG_ID,
-        TAUS_ID,
-        TAUS2_ID,
-        GFSR4_ID,
-	EndGeneratorTypeReps
-    };
 
 private:
 
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    long int idum;
-
-    static const std::string GENERATOR_TEXT[EndGeneratorTypeReps];
+    dsfmt_t dsfmt;
 
 };
 
