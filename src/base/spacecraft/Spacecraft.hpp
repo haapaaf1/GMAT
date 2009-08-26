@@ -45,9 +45,10 @@ public:
    
    // Destructor
    virtual              ~Spacecraft();
-
-   CoordinateSystem*    GetInternalCoordSystem();
+   
+   virtual void         SetSolarSystem(SolarSystem *ss);
    void                 SetInternalCoordSystem(CoordinateSystem *cs);
+   CoordinateSystem*    GetInternalCoordSystem();
    
    void                 SetState(const Rvector6 &cartState);
    void                 SetState(const std::string &elementType, Real *instate);
@@ -300,13 +301,18 @@ protected:
    std::string       anomalyType;
    Anomaly           trueAnomaly;
    
+   /// Solar system now needed to set to cloned Thruster
+   SolarSystem       *solarSystem;
    /// Base coordinate system for the Spacecraft
    CoordinateSystem  *internalCoordSystem;
    /// Coordinate system used for the input and output to the GUI
    CoordinateSystem  *coordinateSystem;
    
    std::string       coordSysName;
-
+   
+   /// coordinate sytem map to be used for Thrusters for now
+   std::map<std::string, CoordinateSystem*> coordSysMap;
+   
    /// Spacecraft ID Used in estimation, measuremetn data files, etc
    std::string       spacecraftId;
    
@@ -329,22 +335,29 @@ protected:
    /// Dry mass plus fuel masses, a calculated parameter
    Real              totalMass;
    
-   // New constructs needed to preserve interfaces
+   /// New constructs needed to preserve interfaces
    Rvector6          rvState;
    
    bool              initialDisplay;
    bool              csSet;
-
+   bool              isThrusterSettingMode;
+   
    /// The orbit State Transition Matrix
    Rmatrix           orbitSTM;
-
-   // protected methods
+   
+   // Hardware 
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
-   
+   void              DeleteOwnedObjects(bool deleteAttitude, bool deleteTanks,
+                                        bool deleteThrusters);
+   void              CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,
+                                       const ObjectArray &thrs);
+   void              AttachTanksToThrusters();
+   bool              SetHardware(GmatBase *obj, StringArray &hwNames,
+                                 ObjectArray &hwArray);
    virtual void      WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
                         std::stringstream &stream);
-                                
+   
    virtual void      UpdateElementLabels();
    Rvector6          GetStateInRepresentation(std::string rep = "");
    Rvector6          GetStateInRepresentation(Integer rep = CARTESIAN_ID);
