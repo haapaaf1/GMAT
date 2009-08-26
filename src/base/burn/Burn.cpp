@@ -189,11 +189,11 @@ Burn::~Burn()
 //------------------------------------------------------------------------------
 Burn::Burn(const Burn &b) :
    GmatBase             (b),
-   solarSystem         (NULL),
+   solarSystem          (b.solarSystem),
    localCoordSystem     (NULL),
-   coordSystem          (NULL),
-   localOrigin          (NULL),
-   j2000Body            (NULL),
+   coordSystem          (b.coordSystem),
+   localOrigin          (b.localOrigin),
+   j2000Body            (b.j2000Body),
    spacecraft           (NULL),
    coordSystemName      (b.coordSystemName),
    localOriginName      (b.localOriginName),
@@ -247,11 +247,11 @@ Burn& Burn::operator=(const Burn &b)
    
    GmatBase::operator=(b);
    
-   solarSystem        = NULL;
+   solarSystem        = b.solarSystem;
    localCoordSystem   = NULL;
-   coordSystem        = NULL;
-   localOrigin        = NULL;
-   j2000Body          = NULL;
+   coordSystem        = b.coordSystem;
+   localOrigin        = b.localOrigin;
+   j2000Body          = b.j2000Body;
    spacecraft         = NULL;
    coordSystemName    = b.coordSystemName;
    localOriginName    = b.localOriginName;
