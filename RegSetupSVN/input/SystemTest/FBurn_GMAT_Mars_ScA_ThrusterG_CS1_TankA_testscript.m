@@ -31,17 +31,17 @@ GMAT Sc.AngularVelocityY = 0;
 GMAT Sc.AngularVelocityZ = 0;
  
  
-Create CoordinateSystem MarsVNB;
-MarsVNB.Axes = ObjectReferenced;
-MarsVNB.Origin = Sc;
-MarsVNB.Primary = Mars;
-MarsVNB.Secondary = Sc;
-MarsVNB.XAxis = V;
-MarsVNB.YAxis = N;
+Create CoordinateSystem ScVNB;
+ScVNB.Axes = ObjectReferenced;
+ScVNB.Origin = Sc;
+ScVNB.Primary = Earth;
+ScVNB.Secondary = Sc;
+ScVNB.XAxis = V;
+ScVNB.YAxis = N;
  
 %-----  Thruster G;
 Create Thruster engine1;
-GMAT engine1.CoordinateSystem = MarsVNB;
+GMAT engine1.CoordinateSystem = ScVNB;
  
 GMAT engine1.Element1 = 1;
 GMAT engine1.Element2 = 0;
@@ -52,8 +52,8 @@ GMAT engine1.DecrementMass = true;
 GMAT engine1.Tank = {tank1};
 GMAT engine1.GravitationalAccel = 9.81;
 GMAT engine1.C1 = 10;
-GMAT engine1.C2 = 0;
-GMAT engine1.C3 = 0;
+GMAT engine1.C2 = 0.25;
+GMAT engine1.C3 = 0.25;
 GMAT engine1.C4 = 0;
 GMAT engine1.C5 = 0;
 GMAT engine1.C6 = 0;
