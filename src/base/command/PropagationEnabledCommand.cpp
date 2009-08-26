@@ -27,6 +27,13 @@
 //#define DEBUG_INITIALIZATION
 //#define DEBUG_EXECUTION
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //------------------------------------------------------------------------------
 // PropagationEnabledCommand(const std::string &typeStr)
@@ -201,8 +208,8 @@ bool PropagationEnabledCommand::Initialize()
             {
                #ifdef DEBUG_MEMORY
                MemoryTracker::Instance()->Remove
-                  (oldPs, oldPs->GetName(), "PropagationEnabledCommand::"
-                        "Initialize()", "deleting oldPs");
+                  ((*ps), (*ps)->GetName(), "PropagationEnabledCommand::"
+                   "Initialize()", "deleting oldPs");
                #endif
                delete (*ps);
             }
