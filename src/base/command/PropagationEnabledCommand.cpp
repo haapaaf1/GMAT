@@ -209,7 +209,7 @@ bool PropagationEnabledCommand::Initialize()
                #ifdef DEBUG_MEMORY
                MemoryTracker::Instance()->Remove
                   ((*ps), (*ps)->GetName(), "PropagationEnabledCommand::"
-                   "Initialize()", "deleting oldPs");
+                        "Initialize()", "deleting oldPs");
                #endif
                delete (*ps);
             }
@@ -556,7 +556,6 @@ bool PropagationEnabledCommand::PrepareToPropagate()
          baseEpoch.push_back(psm[n]->GetState()->GetEpoch());
 
          dim += fm[n]->GetDimension();
-MessageInterface::ShowMessage("dim updated to %d\n", dim);
 
          hasFired = true;
          inProgress = true;

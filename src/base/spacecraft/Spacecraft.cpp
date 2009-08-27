@@ -33,6 +33,7 @@
 // Do we want to write anomaly type?
 //#define __WRITE_ANOMALY_TYPE__
 
+
 //#define DEBUG_SPACECRAFT 1 
 //#define DEBUG_SPACECRAFT_SET 1 
 //#define DEBUG_SPACECRAFT_SET_ELEMENT
@@ -304,7 +305,13 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    
    // Initialize the STM to the identity matrix
    orbitSTM(0,0) = orbitSTM(1,1) = orbitSTM(2,2) = 
-   orbitSTM(3,3) = orbitSTM(4,4) = orbitSTM(5,5) = 1.0; 
+   orbitSTM(3,3) = orbitSTM(4,4) = orbitSTM(5,5) = 1.0;
+
+   // Initialize the covariance matrix
+   covariance.SetSize(6,6);
+   covariance(0,0) = covariance(1,1) = covariance(2,2) = 1.0e10;
+   covariance(3,3) = covariance(4,4) = covariance(5,5) = 1.0e6;
+
    
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -434,14 +441,14 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    // Don't do anything if copying self
    if (&a == this)
       return *this;
-   
+
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) <%p>'%s' entered\n", this, GetName().c_str());
    #endif
    
    SpaceObject::operator=(a);
-   
+
    scEpochStr           = a.scEpochStr;
    dryMass              = a.dryMass;
    coeffDrag            = a.coeffDrag;
@@ -492,14 +499,14 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) about to delete all owned objects\n");
-   #endif
+      #endif
    DeleteOwnedObjects(true, true, true);  
    
    // then cloned owned objects
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) about to clone all owned objects\n");
-   #endif
+      #endif
    CloneOwnedObjects(a.attitude, a.tanks, a.thrusters);
    
    BuildElementLabelMap();
@@ -990,7 +997,7 @@ const StringArray&
       for (UnsignedInt i=0; i<fullList.size(); i++)
          MessageInterface::ShowMessage("   '%s'\n", fullList[i].c_str());
       #endif
-      return fullList;
+      return fullList;      
    }
    else
    {
@@ -1113,7 +1120,7 @@ GmatBase* Spacecraft::GetRefObject(const Gmat::ObjectType type,
                    name.c_str(), (*i));
                #endif
                return *i;
-            }
+         }
          }
          
          // Other Hardware cases go here...
@@ -1171,7 +1178,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          #endif
       }
    }
-   
+    
    // now work on hardware
    if (type == Gmat::HARDWARE)
    {
@@ -1189,7 +1196,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                tanks.push_back(obj);
                return true;
             }
-            return false;
+         return false;
          #else         
             return SetHardware(obj, tankNames, tanks);
          #endif
@@ -1201,10 +1208,10 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
             if (find(thrusters.begin(), thrusters.end(), obj) == thrusters.end())
             {
-               thrusters.push_back(obj);
-               return true;
-            }
-            return false;
+            thrusters.push_back(obj);
+            return true;
+         }
+         return false;
          #else
             return SetHardware(obj, thrusterNames, thrusters);
          #endif
@@ -2098,7 +2105,7 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
    
    if ((id < SpaceObjectParamCount) || (id >= SpacecraftParamCount))
       return SpaceObject::SetStringParameter(id, value);
-      
+   
    if (id == SC_EPOCH_ID)
    {
       // Validate first...
@@ -2324,7 +2331,7 @@ const Rmatrix& Spacecraft::GetRmatrixParameter(const Integer id) const
 // const Rmatrix& SetRmatrixParameter(const Integer id, const Rmatrix &value)
 //---------------------------------------------------------------------------
 const Rmatrix& Spacecraft::SetRmatrixParameter(const Integer id,
-                                               const Rmatrix &value)
+                                         const Rmatrix &value)
 {
    if (id == ORBIT_STM)
    {
@@ -2348,7 +2355,7 @@ const Rmatrix& Spacecraft::GetRmatrixParameter(const std::string &label) const
 //                                    const Rmatrix &value)
 //---------------------------------------------------------------------------
 const Rmatrix& Spacecraft::SetRmatrixParameter(const std::string &label,
-                                               const Rmatrix &value)
+                                         const Rmatrix &value)
 {   
    return SetRmatrixParameter(GetParameterID(label), value);
 }
@@ -2358,7 +2365,7 @@ const Rmatrix& Spacecraft::SetRmatrixParameter(const std::string &label,
 //                       const Integer col) const
 //---------------------------------------------------------------------------
 Real Spacecraft::GetRealParameter(const Integer id, const Integer row,
-                                  const Integer col) const
+                                       const Integer col) const
 {
    if (id == ORBIT_STM)
       return orbitSTM(row, col);
@@ -2371,8 +2378,8 @@ Real Spacecraft::GetRealParameter(const Integer id, const Integer row,
 //                       const Integer col) const
 //---------------------------------------------------------------------------
 Real Spacecraft::GetRealParameter(const std::string &label, 
-                                  const Integer row, 
-                                  const Integer col) const
+                                      const Integer row, 
+                                      const Integer col) const
 {
    return GetRealParameter(GetParameterID(label), row, col);
 }
@@ -2382,7 +2389,7 @@ Real Spacecraft::GetRealParameter(const std::string &label,
 //                       const Integer row, const Integer col)
 //---------------------------------------------------------------------------
 Real Spacecraft::SetRealParameter(const Integer id, const Real value,
-                                  const Integer row, const Integer col)
+                                      const Integer row, const Integer col)
 {
    if (id == ORBIT_STM)
    {
@@ -2398,8 +2405,8 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value,
 //                       const Integer col)
 //---------------------------------------------------------------------------
 Real Spacecraft::SetRealParameter(const std::string &label,
-                                  const Real value, const Integer row,
-                                  const Integer col)
+                                      const Real value, const Integer row,
+                                      const Integer col)
 {
    return SetRealParameter(GetParameterID(label), value, row, col);
 }
@@ -2440,7 +2447,7 @@ bool Spacecraft::TakeAction(const std::string &action,
          removeTank = false;
       if (actionData == "")
          removeAll = true;
-      
+         
       if (removeThruster) 
       {
          if (removeAll) 
@@ -2467,10 +2474,10 @@ bool Spacecraft::TakeAction(const std::string &action,
                       "deleting cloned Thruster", this);
                   #endif
                   delete thr;
-               }
          }
       }
-      
+      }
+
       if (removeTank) 
       {
          if (removeAll) 
@@ -2587,6 +2594,20 @@ bool Spacecraft::TakeAction(const std::string &action,
       return true;
    }
    
+   if (action == "ResetSTM")
+   {
+      orbitSTM(0,0) = orbitSTM(1,1) = orbitSTM(2,2) =
+      orbitSTM(3,3) = orbitSTM(4,4) = orbitSTM(5,5) = 1.0;
+
+      orbitSTM(0,1)=orbitSTM(0,2)=orbitSTM(0,3)=orbitSTM(0,4)=orbitSTM(0,5)=
+      orbitSTM(1,0)=orbitSTM(1,2)=orbitSTM(1,3)=orbitSTM(1,4)=orbitSTM(1,5)=
+      orbitSTM(2,0)=orbitSTM(2,1)=orbitSTM(2,3)=orbitSTM(2,4)=orbitSTM(2,5)=
+      orbitSTM(3,0)=orbitSTM(3,1)=orbitSTM(3,2)=orbitSTM(3,4)=orbitSTM(3,5)=
+      orbitSTM(4,0)=orbitSTM(4,1)=orbitSTM(4,2)=orbitSTM(4,3)=orbitSTM(4,5)=
+      orbitSTM(5,0)=orbitSTM(5,1)=orbitSTM(5,2)=orbitSTM(5,3)=orbitSTM(5,4)
+            = 0.0;
+   }
+
    return SpaceObject::TakeAction(action, actionData);
 }
 
@@ -4337,6 +4358,31 @@ void Spacecraft::BuildElementLabelMap()
    }
 }
 
+bool Spacecraft::HasDynamicParameterSTM(Integer parameterId)
+{
+   if (parameterId == CARTESIAN_X)
+      return true;
+   return SpaceObject::HasDynamicParameterSTM(parameterId);
+}
+
+Rmatrix* Spacecraft::GetParameterSTM(Integer parameterId)
+{
+   if (parameterId == CARTESIAN_X)
+      return &orbitSTM;
+   return SpaceObject::GetParameterSTM(parameterId);
+}
+
+Integer Spacecraft::HasParameterCovariances(Integer parameterId)
+{
+   if (parameterId == CARTESIAN_X)
+      return 0;
+   return SpaceObject::HasParameterCovariances(parameterId);
+}
+
+//Rmatrix* Spacecraft::GetParameterCovariances(Integer parameterId)
+//{
+//
+//}
    
 // Additions for the propagation rework
    

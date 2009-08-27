@@ -3535,3 +3535,24 @@ void GmatBase::PrepCommentTables()
       attributeInlineComments[i] = "";
    }
 }
+
+
+bool GmatBase::HasDynamicParameterSTM(Integer parameterId)
+{
+   return false;
+}
+
+Rmatrix* GmatBase::GetParameterSTM(Integer parameterId)
+{
+   return NULL;
+}
+
+Integer GmatBase::HasParameterCovariances(Integer parameterId)
+{
+   return -1;
+}
+
+Rmatrix* GmatBase::GetParameterCovariances(Integer parameterId)
+{
+   return &covariance;
+}

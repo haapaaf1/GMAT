@@ -617,3 +617,9 @@ Integer MeasurementManager::FindModelForObservation()
 
    return retval;
 }
+
+
+void  MeasurementManager::Reset()
+{
+   currentObs = observations.begin();
+}

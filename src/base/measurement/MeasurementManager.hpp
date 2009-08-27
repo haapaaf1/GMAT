@@ -74,6 +74,7 @@ public:
    GmatEpoch               GetNextEpoch();
    const ObservationData * GetObsData(const Integer observationToGet = -1);
    void                    AdvanceObservation();
+   void                    Reset();
 
 protected:
    /// List of the managed measurement models

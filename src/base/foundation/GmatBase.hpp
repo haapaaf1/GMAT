@@ -392,6 +392,11 @@ public:
    virtual Integer         GetEstimationParameterSize(const Integer id);
    virtual Real*           GetEstimationParameterValue(const Integer id);
 
+   virtual bool            HasDynamicParameterSTM(Integer parameterId);
+   virtual Rmatrix*        GetParameterSTM(Integer parameterId);
+   virtual Integer         HasParameterCovariances(Integer parameterId);
+   virtual Rmatrix*        GetParameterCovariances(Integer parameterId = -1);
+
 
 protected:
    /// Parameter IDs
@@ -454,6 +459,8 @@ protected:
    bool                showInlineComment;
    /// flag indicating whether or not to omit the "Create" line when writing the script
    bool                cloaking;
+
+   Rmatrix             covariance;
 
    // Scripting interfaces
    void                CopyParameters(const GmatBase &a);

@@ -45,7 +45,7 @@ public:
    
    // Destructor
    virtual              ~Spacecraft();
-   
+
    virtual void         SetSolarSystem(SolarSystem *ss);
    void                 SetInternalCoordSystem(CoordinateSystem *cs);
    CoordinateSystem*    GetInternalCoordSystem();
@@ -171,6 +171,11 @@ public:
    virtual bool            IsEstimationParameterValid(const Integer id);
    virtual Integer         GetEstimationParameterSize(const Integer id);
    virtual Real*           GetEstimationParameterValue(const Integer id);
+
+   virtual bool            HasDynamicParameterSTM(Integer parameterId);
+   virtual Rmatrix*        GetParameterSTM(Integer parameterId);
+   virtual Integer         HasParameterCovariances(Integer parameterId);
+//   virtual Rmatrix*        GetParameterCovariances(Integer parameterId);
 
 protected:
    enum SC_Param_ID 
@@ -309,7 +314,7 @@ protected:
    CoordinateSystem  *coordinateSystem;
    
    std::string       coordSysName;
-   
+
    /// coordinate sytem map to be used for Thrusters for now
    std::map<std::string, CoordinateSystem*> coordSysMap;
    
@@ -341,10 +346,10 @@ protected:
    bool              initialDisplay;
    bool              csSet;
    bool              isThrusterSettingMode;
-   
+
    /// The orbit State Transition Matrix
    Rmatrix           orbitSTM;
-   
+
    // Hardware 
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
@@ -357,7 +362,7 @@ protected:
                                  ObjectArray &hwArray);
    virtual void      WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
                         std::stringstream &stream);
-   
+                                
    virtual void      UpdateElementLabels();
    Rvector6          GetStateInRepresentation(std::string rep = "");
    Rvector6          GetStateInRepresentation(Integer rep = CARTESIAN_ID);
