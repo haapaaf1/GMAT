@@ -119,10 +119,6 @@ public:
     RandomNumber(unsigned int *mySeedArray, Integer arraySize);
     ~RandomNumber();
 
-    // Cauchy distribution not ready for prime time
-    //Real Cauchy(Real x);
-    //Real Cauchy(Real x, Real x0, Real gamma);
-
     Real Gaussian();
     Real Gaussian(const Real mean, const Real stdev);
 
@@ -130,9 +126,6 @@ public:
     void GaussianArray(Real *myArray, const Integer size,  
 	               const Real mean, const Real stdev);
     
-    // Poisson distribution not ready for prime time
-    // Real Poisson(Real mu);
-
     unsigned int UniformInt();
     Real Uniform();
     Real UniformPrimitive();
@@ -165,8 +158,7 @@ private:
     dsfmt_t dsfmt;
     
     Real G(Real x, Real a, Real b);
-    // Factorial needed for Poisson distribution
-    // Real Factorial(Integer n);
+
 };
 
 #endif	/* _RandomNumber_hpp */
