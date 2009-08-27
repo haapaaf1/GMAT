@@ -33,7 +33,7 @@ GMAT Sc.AngularVelocityZ = 0;
  
 %-----  Thruster F;
 Create Thruster engine1;
-GMAT engine1.CoordinateSystem = NeptuneMJ2000Eq;
+GMAT engine1.CoordinateSystem = EarthMJ2000Eq;
  
 GMAT engine1.Element1 = 1;
 GMAT engine1.Element2 = 0;
@@ -60,8 +60,8 @@ GMAT engine1.C14 = 1.26666006242687;
 GMAT engine1.C15 = 1.09502172813843;
 GMAT engine1.C16 = -0.702022868622232;
 GMAT engine1.K1 = 300;
-GMAT engine1.K2 = 0;
-GMAT engine1.K3 = 0;
+GMAT engine1.K2 = 0.25;
+GMAT engine1.K3 = 0.25;
 GMAT engine1.K4 = 0;
 GMAT engine1.K5 = 0;
 GMAT engine1.K6 = 0;
