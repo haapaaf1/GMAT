@@ -42,7 +42,7 @@ RangeMeasurement.Type            = Range;
 RangeMeasurement.Participants    = { Maui, ODSat };
 
 %----- Create the estimator
-Create BatchLeastSquaresEstimator BatchEst
+Create BatchEstimatorInv BatchEst
 BatchEst.Measurements  = {RangeMeasurement};
 BatchEst.AddSolveFor   = {ODSat.CartesianState,RangeMeasurement.Bias};
 BatchEst.AbsoluteTol   = 1e-5;

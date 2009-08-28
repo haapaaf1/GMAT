@@ -48,6 +48,7 @@ public:
       PERTURBING,
       ITERATING,
       CALCULATING,
+      ACCUMULATING,
       ESTIMATING,
       SIMULATING,
       PROPAGATING,

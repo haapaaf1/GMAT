@@ -203,6 +203,7 @@ namespace Gmat
       PAUSED,
       TARGETING,
       OPTIMIZING,
+      ESTIMATING,
       SOLVING,
       SOLVEDPASS,
       WAITING
