@@ -373,7 +373,7 @@ Real RandomNumber::UniformOpenClosed(const Real a, const Real b)
  *  using transformed rejection with decomposition by Wolfgang Hormann.
  *
  *  Hormann, Wolfgang and Derflinger, Gerhard. "The Tranformed Rejection Method
- *  for Generating Random Variables, an Alternative to the Ration of Uniforms
+ *  for Generating Random Variables, an Alternative to the Ratio of Uniforms
  *  Method." Communications in Statistics: Simulation and Computation 23, 3, 1994.
  *
  *  @return The random deviate.
@@ -497,7 +497,7 @@ void RandomNumber::UniformArray(unsigned int *myArray, const Integer size)
 //  void UniformArray(Real *myArray, const Integer size)
 //------------------------------------------------------------------------------
 /**
- *  Returns a uniformly distributed random deviate in the range [0,1)
+ *  Returns an array of uniformly distributed random deviates in the range [0,1)
  *  The range includes 0.0 but excludes 1.0;
  *
  *  @param <myArray> Pointer to array where random deviates will be stored
@@ -514,7 +514,7 @@ void RandomNumber::UniformArray(Real *myArray, const Integer size)
 //  void UniformPrimitiveArray(Real *myArray, const Integer size)
 //------------------------------------------------------------------------------
 /**
- *  Returns an uniformly distributed random deviate in the range [1,2).
+ *  Returns an array of uniformly distributed random deviates in the range [1,2)
  *  The range includes 1.0 but excludes 2.0. This is the primitive MT generator
  *  that all other function calls are based upon. This is the fastest method
  *  for generating a random variate.
@@ -533,7 +533,7 @@ void RandomNumber::UniformPrimitiveArray(Real *myArray, const Integer size)
 //  void UniformOpenOpenArray(Real *myArray, const Integer size)
 //------------------------------------------------------------------------------
 /**
- *  Returns an uniformly distributed random deviate in the range (0,1)
+ *  Returns an array of uniformly distributed random deviates in the range (0,1)
  *  The range excludes both 0.0 and 1.0. This is useful when you need to
  *  avoid a singularity at 0 or 1.
  *
@@ -551,7 +551,7 @@ void RandomNumber::UniformOpenOpenArray(Real *myArray, const Integer size)
 //  void UniformOpenClosedArray(Real *myArray, const Integer size)
 //------------------------------------------------------------------------------
 /**
- *  Returns an uniformly distributed random deviate in the range (0,1]
+ *  Returns an array of uniformly distributed random deviates in the range (0,1]
  *  The range excludes 0.0 but includes 1.0. This is useful when you need to
  *  avoid a singularity at 0.
  *
@@ -569,7 +569,7 @@ void RandomNumber::UniformOpenClosedArray(Real *myArray, const Integer size)
 //  void UniformArray(Real *myArray, Real a, Real b, const Integer size)
 //------------------------------------------------------------------------------
 /**
- *  Returns an uniformly distributed random deviate in the range [a,b)
+ *  Returns an array of uniformly distributed random deviates in the range [a,b)
  *  The mean of this distribution is (a+b)/2.
  *  The variance of this distribution is (b-a)^2/12.
  *
@@ -595,7 +595,7 @@ void RandomNumber::UniformArray(Real *myArray, const Integer size,
 //  void UniformOpenOpenArray(Real *myArray, const Integer size, Real a, Real b)
 //------------------------------------------------------------------------------
 /**
- *  Returns an uniformly distributed random deviate in the range (a,b)
+ *  Returns an array of uniformly distributed random deviates in the range (a,b)
  *  The mean of this distribution is (a+b)/2.
  *  The variance of this distribution is (b-a)^2/12.
  *
@@ -621,7 +621,7 @@ void RandomNumber::UniformOpenOpenArray(Real *myArray, const Integer size,
 //			       Real a, Real b)
 //------------------------------------------------------------------------------
 /**
- *  Returns an uniformly distributed random deviate in the range (a,b]
+ *  Returns an array of uniformly distributed random deviates in the range (a,b]
  *  The mean of this distribution is (a+b)/2.
  *  The variance of this distribution is (b-a)^2/12.
  *
