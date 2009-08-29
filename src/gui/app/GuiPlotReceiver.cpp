@@ -157,12 +157,13 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
 
       Integer x,y, w, h;
       #ifdef __WXMAC__
-         Integer plotCount = MdiGlPlot::numChildren + MdiTsPlot::numChildren + 1;
-         w = 500;
+         wxSize size = wxGetDisplaySize();
+         Integer plotCount = MdiGlPlot::numChildren + MdiTsPlot::numChildren;
+         w = (size.GetWidth() - 239) / 2;
          h = 350;
-         Integer hLoc = (plotCount - 1) % 2;
-         Integer vLoc = (Integer)((plotCount-1) / 2);
-         x = 240 + hLoc * (w+10);
+         Integer hLoc = plotCount % 2;
+         Integer vLoc = (Integer)((plotCount) / 2);
+         x = 238 + hLoc * w + 1;
          y = 20  + vLoc * (h+10);
       #else
          x = -1;
@@ -184,7 +185,7 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
          return false;
 
       #if __WXMAC__
-         frame->SetSize(499, 349);
+         frame->SetSize(w-1, h-1);
       #endif
 
       #if DEBUG_PLOTIF_GL_CREATE
@@ -724,13 +725,13 @@ bool GuiPlotReceiver::CreateTsPlotWindow(const std::string &plotName,
 
       Integer x,y, w, h;
       #ifdef __WXMAC__
-         Integer plotCount = MdiGlPlot::numChildren + MdiTsPlot::numChildren + 1;
-
-         w = 500;
+         wxSize size = wxGetDisplaySize();
+         Integer plotCount = MdiGlPlot::numChildren + MdiTsPlot::numChildren;
+         w = (size.GetWidth() - 239) / 2;
          h = 350;
-         Integer hLoc = (plotCount - 1) % 2;
-         Integer vLoc = (Integer)((plotCount-1) / 2);
-         x = 240 + hLoc * (w+10);
+         Integer hLoc = plotCount % 2;
+         Integer vLoc = (Integer)((plotCount) / 2);
+         x = 238 + hLoc * w + 1;
          y = 20  + vLoc * (h+10);
       #else
          x = -1;
