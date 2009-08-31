@@ -786,7 +786,6 @@ namespace DataFormats
 
         // Iterator Pointer to the header record
         std::vector<slr_header*>::iterator headerVectorIndex;
-
 	
 	// Time of day of laser firing, from 0 hours UTC in units of seconds
 	// Value is given module 86400 if pass crosses 24 hours UTC
@@ -1439,13 +1438,11 @@ namespace DataFormats
         // This needs to be fixed... numObs should be a mxn matrix
         StringArray satPRNlist;
         IntegerArray numObs;
-
     };
 
     struct rinex_gpsob_obtype
     {
         std::vector<rinex_gpsob_header*>::iterator headerVectorIndex;
-
         Integer epochYear,epochMonth,epochDay,epochHour,epochMinute;
         Real epochSeconds;
         Integer epochFlag;
@@ -1455,12 +1452,10 @@ namespace DataFormats
         RealArray observation;
         IntegerArray lli;
         IntegerArray signalStrength;
-
     };
 
     struct rinex_gpsnav_header
     {
-
         std::string rinexVersion;
         std::string fileType;
         std::string programName;
@@ -1473,12 +1468,10 @@ namespace DataFormats
         Real T;
         Integer W;
         Integer leapSeconds;
-
     };
 
     struct rinex_gpsnav_obtype
     {
-
         Integer satPRN;
         Integer epochYear,epochMonth,epochDay,epochHour,epochMinute;
         Real epochSeconds;
@@ -1490,12 +1483,10 @@ namespace DataFormats
         Real iDot,codesOnL2Channel,gpsWeek,l2PDataFlag;
         Real svAccuracy, svHealth, tgd, iodcIssueOfData;
         Real transmissionTimeOfMessage, fitInterval;
-
     };
 
     struct rinex_met_header
     {
-
         std::string rinexVersion;
         std::string fileType;
         std::string programName;
@@ -1511,21 +1502,17 @@ namespace DataFormats
         Real sensorGeocentricX, sensorGeocentricY, sensorGeocentricZ;
         Real sensorEllipsoidalHeight;
         std::string sensorObType2;
-
     };
 
     struct rinex_met_obtype
     {
-
         Integer epochYear,epochMonth,epochDay,epochHour,epochMinute;
         Real epochSeconds;
         RealArray metData;
-
     };
 
     struct rinex_glonassnav_header
     {
-
         std::string rinexVersion;
         std::string fileType;
         std::string programName;
@@ -1535,12 +1522,10 @@ namespace DataFormats
         Integer refYear, refMonth, refDay;
         Real sysTimeCorrection;
         Real numLeapSecondsSince6JAN1980;
-
     };
 
     struct rinex_glonassnav_obtype
     {
-
         Integer satNum;
         Integer epochYear,epochMonth,epochDay,epochHour,epochMinute;
         Real epochSeconds;
@@ -1549,12 +1534,10 @@ namespace DataFormats
         Real x, xDot, xAcc, health;
         Real y, yDot, yAcc, frequencyNum;
         Real z, zDot, zAcc, ageOfOperInfo;
-
     };
 
     struct rinex_geonav_header
     {
-
         std::string rinexVersion;
         std::string fileType;
         std::string programName;
@@ -1568,13 +1551,10 @@ namespace DataFormats
         Integer W,U;
         std::string S;
         Integer numLeapSecondsSince6JAN1980;
-
-
     };
 
     struct rinex_geonav_obtype
     {
-
         Integer satNum;
         Integer epochYear,epochMonth,epochDay,epochHour,epochMinute;
         Real epochSeconds;
@@ -1583,7 +1563,6 @@ namespace DataFormats
         Real x, xDot, xAcc, health;
         Real y, yDot, yAcc, accuracyCode;
         Real z, zDot, zAcc, IODN;
-
     };
 
     enum RINEX_2_11_DATA_REPS
@@ -1658,7 +1637,743 @@ namespace DataFormats
     {
 
     };
+    
+    // The CCSDS Tracking Data Message specification
+    struct ccsds_header
+    {
+	Real ccsdsVersion;
+	std::string creationDate;
+	std::string originator;
+	StringArray comments;
+    };
+    
+    struct ccsds_tdm_metadata
+    {
+	StringArray comments;
+	std::string timeSystem;
+	std::string startTime;
+	std::string stopTime;
+	std::string *participants[5];
+	std::string mode;
+	std::string *path[3];
+	std::string transmitBand;
+	std::string receiveBand;
+	Integer turnaroundNumerator;
+	Integer turnaroundDenominator;
+	std::string timetagRef;
+	Real integrationInterval;
+	std::string integrationRef;
+	Real frequencyOffset;
+	std::string rangeMode;
+	Real rangeModulus;
+	std::string rangeUnits;
+	std::string angleType;
+	std::string referenceFrame;
+	Real *transmitDelay[5];
+	Real *receiveDelay[5];
+	std::string dataQuality;
+	Real correctionAngle1;
+	Real correctionAngle2;
+	Real correctionDoppler;
+	Real correctionRange;
+	Real correctionReceive;
+	Real correctionTransmit;
+	bool correctionsApplied;
+    };
+    
+    struct ccsds_tdm_data
+    {
+	std::string timeTag;
+	Real measurement;
+	std::string units;
+    };
 
+    struct ccsds_tdm_obtype
+    {
+	// Iterator Pointer to the header record
+        std::vector<ccsds_header*>::iterator headerVectorIndex;
+	// Iterator Pointer to the metadata record
+        std::vector<ccsds_apm_metadata*>::iterator metadataVectorIndex;	
+        std::vector<ccsds_tdm_data*> angle1;
+        std::vector<ccsds_tdm_data*> angle2;
+        std::vector<ccsds_tdm_data*> carrierPower;
+        std::vector<ccsds_tdm_data*> clockBias;
+        std::vector<ccsds_tdm_data*> clockDrift;
+        std::vector<ccsds_tdm_data*> comment;
+        std::vector<ccsds_tdm_data*> dopplerInstanteous;
+        std::vector<ccsds_tdm_data*> dopplerIntegrated;
+        std::vector<ccsds_tdm_data*> dor;
+        std::vector<ccsds_tdm_data*> pcN0;
+        std::vector<ccsds_tdm_data*> prN0;
+        std::vector<ccsds_tdm_data*> pressure;
+        std::vector<ccsds_tdm_data*> range;
+        std::vector<ccsds_tdm_data*> receiveFrequency;
+        std::vector<ccsds_tdm_data*> receiveFrequency1;
+        std::vector<ccsds_tdm_data*> receiveFrequency2;
+        std::vector<ccsds_tdm_data*> receiveFrequency3;
+        std::vector<ccsds_tdm_data*> receiveFrequency4;
+        std::vector<ccsds_tdm_data*> receiveFrequency5;
+        std::vector<ccsds_tdm_data*> rHumidity;
+        std::vector<ccsds_tdm_data*> stec;
+        std::vector<ccsds_tdm_data*> temperature;
+        std::vector<ccsds_tdm_data*> transmitFrequency1;
+        std::vector<ccsds_tdm_data*> transmitFrequency2;
+        std::vector<ccsds_tdm_data*> transmitFrequency3;
+        std::vector<ccsds_tdm_data*> transmitFrequency4;
+        std::vector<ccsds_tdm_data*> transmitFrequency5;
+        std::vector<ccsds_tdm_data*> transmitFrequencyRate1;
+        std::vector<ccsds_tdm_data*> transmitFrequencyRate2;
+        std::vector<ccsds_tdm_data*> transmitFrequencyRate3;
+        std::vector<ccsds_tdm_data*> transmitFrequencyRate4;
+        std::vector<ccsds_tdm_data*> transmitFrequencyRate5;
+        std::vector<ccsds_tdm_data*> tropoDry;
+        std::vector<ccsds_tdm_data*> tropoWet;
+        std::vector<ccsds_tdm_data*> vlbiDelay;
+    };
+    
+    enum CCSDS_TDM_DATA_REPS
+    {
+	CCSDS_TDM_VERSION_ID,
+	CCSDS_TDM_CREATIONDATE_ID,
+	CCSDS_TDM_ORIGINATOR_ID,
+	CCSDS_TDM_TIMESYSTEM_ID,
+	CCSDS_TDM_STARTTIME_ID,
+	CCSDS_TDM_STOPTIME_ID,
+	CCSDS_TDM_PARTICIPANT1_ID,
+	CCSDS_TDM_PARTICIPANT2_ID,
+	CCSDS_TDM_PARTICIPANT3_ID,
+	CCSDS_TDM_PARTICIPANT4_ID,
+	CCSDS_TDM_PARTICIPANT5_ID,
+	CCSDS_TDM_MODE_ID,
+	CCSDS_TDM_PATH_ID,
+	CCSDS_TDM_TRANSMITBAND_ID,
+	CCSDS_TDM_RECEIVEBAND_ID,
+	CCSDS_TDM_TURNAROUNDNUMERATOR_ID,
+	CCSDS_TDM_TURNAROUNDDENOMINATOR_ID,
+	CCSDS_TDM_TIMETAGREF_ID,
+	CCSDS_TDM_INTEGRATIONINTERVAL_ID,
+	CCSDS_TDM_INTEGRATIONREF_ID,
+	CCSDS_TDM_FREQUENCYOFFSET_ID,
+	CCSDS_TDM_RANGEMODE_ID,
+	CCSDS_TDM_RANGEMODULUS_ID,
+	CCSDS_TDM_RANGEUNITS_ID,
+	CCSDS_TDM_ANGLETYPE_ID,	
+	CCSDS_TDM_REFERENCEFRAME_ID,
+	CCSDS_TDM_TRANSMITDELAY1_ID,
+	CCSDS_TDM_TRANSMITDELAY2_ID,
+	CCSDS_TDM_TRANSMITDELAY3_ID,
+	CCSDS_TDM_TRANSMITDELAY4_ID,
+	CCSDS_TDM_TRANSMITDELAY5_ID,
+	CCSDS_TDM_RECEIVEDELAY1_ID,
+	CCSDS_TDM_RECEIVEDELAY2_ID,
+	CCSDS_TDM_RECEIVEDELAY3_ID,
+	CCSDS_TDM_RECEIVEDELAY4_ID,
+	CCSDS_TDM_RECEIVEDELAY5_ID,
+	CCSDS_TDM_DATAQUALITY_ID,
+	CCSDS_TDM_CORRECTIONANGLE1_ID,
+	CCSDS_TDM_CORRECTIONANGLE2_ID,
+	CCSDS_TDM_CORRECTIONDOPPLER_ID,
+	CCSDS_TDM_CORRECTIONRANGE_ID,
+	CCSDS_TDM_CORRECTIONRECEIVE_ID,
+	CCSDS_TDM_CORRECTIONTRANSMIT_ID,
+	CCSDS_TDM_CORRECTIONAPPLIED_ID,	
+	CCSDS_TDM_ANGLE1_TIMETAG_ID,
+	CCSDS_TDM_ANGLE1_MEASUREMENT_ID,
+	CCSDS_TDM_ANGLE1_UNITS_ID,
+	CCSDS_TDM_ANGLE2_TIMETAG_ID,
+	CCSDS_TDM_ANGLE2_MEASUREMENT_ID,
+	CCSDS_TDM_ANGLE2_UNITS_ID,
+	CCSDS_TDM_CARRIERPOWER_TIMETAG_ID,
+	CCSDS_TDM_CARRIERPOWER_MEASUREMENT_ID,
+	CCSDS_TDM_CARRIERPOWER_UNITS_ID,
+	CCSDS_TDM_CLOCKBIAS_TIMETAG_ID,
+	CCSDS_TDM_CLOCKBIAS_MEASUREMENT_ID,
+	CCSDS_TDM_CLOCKBIAS_UNITS_ID,
+	CCSDS_TDM_CLOCKDRIFT_TIMETAG_ID,
+	CCSDS_TDM_CLOCKDRIFT_MEASUREMENT_ID,
+	CCSDS_TDM_CLOCKDRIFT_UNITS_ID,
+	CCSDS_TDM_DOPPLERINSTANTANEOUS_TIMETAG_ID,
+	CCSDS_TDM_DOPPLERINSTANTANEOUS_MEASUREMENT_ID,
+	CCSDS_TDM_DOPPLERINSTANTANEOUS_UNITS_ID,
+	CCSDS_TDM_DOPPLERINTEGRATED_TIMETAG_ID,
+	CCSDS_TDM_DOPPLERINTEGRATED_MEASUREMENT_ID,
+	CCSDS_TDM_DOPPLERINTEGRATED_UNITS_ID,
+	CCSDS_TDM_DOR_TIMETAG_ID,
+	CCSDS_TDM_DOR_MEASUREMENT_ID,
+	CCSDS_TDM_DOR_UNITS_ID,
+	CCSDS_TDM_PCN0_TIMETAG_ID,
+	CCSDS_TDM_PCN0_MEASUREMENT_ID,
+	CCSDS_TDM_PCN0_UNITS_ID,
+	CCSDS_TDM_PRN0_TIMETAG_ID,
+	CCSDS_TDM_PRN0_MEASUREMENT_ID,
+	CCSDS_TDM_PRN0_UNITS_ID,
+	CCSDS_TDM_PRESSURE_TIMETAG_ID,
+	CCSDS_TDM_PRESSURE_MEASUREMENT_ID,
+	CCSDS_TDM_PRESSURE_UNITS_ID,
+	CCSDS_TDM_RANGE_TIMETAG_ID,
+	CCSDS_TDM_RANGE_MEASUREMENT_ID,
+	CCSDS_TDM_RANGE_UNITS_ID,
+	CCSDS_TDM_RECEIVEFREQ_TIMETAG_ID,
+	CCSDS_TDM_RECEIVEFREQ_MEASUREMENT_ID,
+	CCSDS_TDM_RECEIVEFREQ_UNITS_ID,
+	CCSDS_TDM_RECEIVEFREQ1_TIMETAG_ID,
+	CCSDS_TDM_RECEIVEFREQ1_MEASUREMENT_ID,
+	CCSDS_TDM_RECEIVEFREQ1_UNITS_ID,
+	CCSDS_TDM_RECEIVEFREQ2_TIMETAG_ID,
+	CCSDS_TDM_RECEIVEFREQ2_MEASUREMENT_ID,
+	CCSDS_TDM_RECEIVEFREQ2_UNITS_ID,
+	CCSDS_TDM_RECEIVEFREQ3_TIMETAG_ID,
+	CCSDS_TDM_RECEIVEFREQ3_MEASUREMENT_ID,
+	CCSDS_TDM_RECEIVEFREQ3_UNITS_ID,
+	CCSDS_TDM_RECEIVEFREQ4_TIMETAG_ID,
+	CCSDS_TDM_RECEIVEFREQ4_MEASUREMENT_ID,
+	CCSDS_TDM_RECEIVEFREQ4_UNITS_ID,
+	CCSDS_TDM_RECEIVEFREQ5_TIMETAG_ID,
+	CCSDS_TDM_RECEIVEFREQ5_MEASUREMENT_ID,
+	CCSDS_TDM_RECEIVEFREQ5_UNITS_ID,
+	CCSDS_TDM_RHUMIDITY_TIMETAG_ID,
+	CCSDS_TDM_RHUMIDITY_MEASUREMENT_ID,
+	CCSDS_TDM_RHUMIDITY_UNITS_ID,
+	CCSDS_TDM_STEC_TIMETAG_ID,
+	CCSDS_TDM_STEC_MEASUREMENT_ID,
+	CCSDS_TDM_STEC_UNITS_ID,
+	CCSDS_TDM_TEMPERATURE_TIMETAG_ID,
+	CCSDS_TDM_TEMPERATURE_MEASUREMENT_ID,
+	CCSDS_TDM_TEMPERATURE_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQ1_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQ1_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQ1_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQ2_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQ2_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQ2_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQ3_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQ3_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQ3_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQ4_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQ4_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQ4_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQ5_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQ5_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQ5_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQRATE1_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQRATE1_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQRATE1_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQRATE2_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQRATE2_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQRATE2_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQRATE3_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQRATE3_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQRATE3_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQRATE4_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQRATE4_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQRATE4_UNITS_ID,
+	CCSDS_TDM_TRANSMITFREQRATE5_TIMETAG_ID,
+	CCSDS_TDM_TRANSMITFREQRATE5_MEASUREMENT_ID,
+	CCSDS_TDM_TRANSMITFREQRATE5_UNITS_ID,
+	CCSDS_TDM_TROPODRY_TIMETAG_ID,
+	CCSDS_TDM_TROPODRY_MEASUREMENT_ID,
+	CCSDS_TDM_TROPODRY_UNITS_ID,
+	CCSDS_TDM_TROPOWET_TIMETAG_ID,
+	CCSDS_TDM_TROPOWET_MEASUREMENT_ID,
+	CCSDS_TDM_TROPOWET_UNITS_ID,
+	CCSDS_TDM_VLBIDELAY_TIMETAG_ID,
+	CCSDS_TDM_VLBIDELAY_MEASUREMENT_ID,
+	CCSDS_TDM_VLBIDELAY_UNITS_ID,
+	EndCCSDSTDMDataReps
+    };
+
+    static const std::string CCSDS_TDM_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps] =
+    {
+	"CCSDS Version",
+	"Creation Date",
+	"Originator",
+	"Time System",
+	"Start Time",
+	"Stop Time",
+	"Participant 1",
+	"Participant 2",
+	"Participant 3",
+	"Participant 4",
+	"Participant 5",
+	"Mode",
+	"Path",
+	"Transmit Band",
+	"Receive Band",
+	"Turnaround Numerator",
+	"Turnaround Denominator",
+	"Time Tag Reference",
+	"Integration Interval",
+	"Integration Reference",
+	"Frequency Offset",
+	"Range Mode",
+	"Range Modulus",
+	"Range Units",
+	"Angle Type",
+	"Reference Frame",
+	"Transmit Delay 1",
+	"Transmit Delay 2",
+	"Transmit Delay 3",
+	"Transmit Delay 4",
+	"Transmit Delay 5",
+	"Receive Delay 1",
+	"Receive Delay 2",
+	"Receive Delay 3",
+	"Receive Delay 4",
+	"Receive Delay 5",
+	"Data Quality",
+	"Correction Angle1",
+	"Correction Angle2",
+	"Correction Doppler",
+	"Correction Range",
+	"Correction Receive",
+	"Correction Transmit",
+	"Correction Applied",
+	"Angle1 Time Tag",
+	"Angle1 Measurement",
+	"Angle1 Units",
+	"Angle2 Time Tag",
+	"Angle2 Measurement",
+	"Angle2 Units",
+	"Carrier Power Time Tag",
+	"Carrier Power Measurement",
+	"Carrier Power Units",
+	"Angle1 Time Tag",
+	"Angle1 Measurement",
+	"Angle1 Units",
+	"Angle1 Time Tag",
+	"Angle1 Measurement",
+	"Angle1 Units",
+	"Doppler Instantaneous Time Tag",
+	"Doppler Instantaneous Measurement",
+	"Doppler Instantaneous Units",
+	"Doppler Integrated Time Tag",
+	"Doppler Integrated Measurement",
+	"Doppler Integrated Units",
+	"DOR Time Tag",
+	"DOR Measurement",
+	"DOR Units",
+	"PCN0 Time Tag",
+	"PCN0 Measurement",
+	"PCN0 Units",
+	"PRN0 Time Tag",
+	"PRN0 Measurement",
+	"PRN0 Units",
+	"Pressure Time Tag",
+	"Pressure Measurement",
+	"Pressure Units",
+	"Range Time Tag",
+	"Range Measurement",
+	"Range Units",
+	"Receive Frequency Time Tag",
+	"Receive Frequency Measurement",
+	"Receive Frequency Units",
+	"Receive Frequency 1 Time Tag",
+	"Receive Frequency 1 Measurement",
+	"Receive Frequency 1 Units",
+	"Receive Frequency 2 Time Tag",
+	"Receive Frequency 2 Measurement",
+	"Receive Frequency 2 Units",
+ 	"Receive Frequency 3 Time Tag",
+	"Receive Frequency 3 Measurement",
+	"Receive Frequency 3 Units",
+	"Receive Frequency 4 Time Tag",
+	"Receive Frequency 4 Measurement",
+	"Receive Frequency 4 Units",
+	"Receive Frequency 5 Time Tag",
+	"Receive Frequency 5 Measurement",
+	"Receive Frequency 5 Units",
+	"Relative Humidity Time Tag",
+	"Relative Humidity Measurement",
+	"Relative Humidity Units",
+	"STEC Time Tag",
+	"STEC Measurement",
+	"STEC Units",
+	"Temperature Time Tag",
+	"Temperature Measurement",
+	"Temperature Units",
+	"Transmit Frequency 1 Time Tag",
+	"Transmit Frequency 1 Measurement",
+	"Transmit Frequency 1 Units",
+	"Transmit Frequency 2 Time Tag",
+	"Transmit Frequency 2 Measurement",
+	"Transmit Frequency 2 Units",
+	"Transmit Frequency 3 Time Tag",
+	"Transmit Frequency 3 Measurement",
+	"Transmit Frequency 3 Units",
+	"Transmit Frequency 4 Time Tag",
+	"Transmit Frequency 4 Measurement",
+	"Transmit Frequency 4 Units",
+	"Transmit Frequency 5 Time Tag",
+	"Transmit Frequency 5 Measurement",
+	"Transmit Frequency 5 Units",
+	"Transmit Frequency Rate 1 Time Tag",
+	"Transmit Frequency Rate 1 Measurement",
+	"Transmit Frequency Rate 1 Units",
+	"Transmit Frequency Rate 2 Time Tag",
+	"Transmit Frequency Rate 2 Measurement",
+	"Transmit Frequency Rate 2 Units",
+	"Transmit Frequency Rate 3 Time Tag",
+	"Transmit Frequency Rate 3 Measurement",
+	"Transmit Frequency Rate 3 Units",
+	"Transmit Frequency Rate 4 Time Tag",
+	"Transmit Frequency Rate 4 Measurement",
+	"Transmit Frequency Rate 4 Units",
+	"Transmit Frequency Rate 5 Time Tag",
+	"Transmit Frequency Rate 5 Measurement",
+	"Transmit Frequency Rate 5 Units",
+	"Tropo Dry Time Tag",
+	"Tropo Dry Measurement",
+	"Tropo Dry Units",
+	"Tropo Wet Time Tag",
+	"Tropo Wet Measurement",
+	"Tropo Wet Units",
+	"VLBI Time Tag",
+	"VLBI Measurement",
+	"VLBI Units",
+	EndCCSDSTDMDataReps
+    };
+
+
+    static const Gmat::ParameterType CCSDS_TDM_PARAMETER_TYPE[EndCCSDSTDMDataReps] =
+    {
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::BOOLEAN_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	EndCCSDSTDMDataReps
+    };
+    
+    struct ccsds_opm_metadata
+    {
+	std::string objectName;
+	std::string objectID;
+	std::string refFrameOrigin;
+	std::string refFrame;
+	std::string timeSystem;
+	StringArray comments;
+    };
+    
+    struct ccsds_stateVector
+    {
+	std::string epoch;
+	Real X, Y, Z;
+	Real xDot, yDot, zDot;
+    };
+    
+    struct ccsds_keplerianElements
+    {
+	Real semiMajorAxis;
+	Real eccentricity;
+	Real inclination;
+	Real raan;
+	Real argumentOfPericenter;
+	Real trueAnomaly;
+	Real meanAnomaly;
+	Real gravitationalCoefficient;
+    };
+    
+    struct ccsds_opm_maneuverParameters
+    {
+	std::string ignitionEpoch;
+	Real duration;
+	Real deltaMass;
+	Real refFrame;
+	Real deltaV1, deltaV2, deltaV3;
+	StringArray comments;
+    };
+    
+    struct ccsds_spacecraftParameters
+    {
+	StringArray comments;
+	Real mass;
+	Real solarRadiationArea;
+	Real solarRadiationCoefficient;
+	Real dragArea;
+	Real dragCoefficient;
+	std::string intertiaRefFrame;
+	Real i11, i22, i33, i12, i13, i23;
+    };
+
+    struct ccsds_opm_obtype
+    {
+	// Iterator Pointer to the header record
+        std::vector<ccsds_header*>::iterator headerVectorIndex;
+	// Iterator Pointer to the metadata record
+        std::vector<ccsds_opm_metadata*>::iterator metadataVectorIndex;
+	std::vector<ccsds_stateVector*> stateVector;
+	std::vector<ccsds_keplerianElements*> keplerianElements;
+	std::vector<ccsds_spacecraftParamters*> spacecraftParameters;
+	std::vector<ccsds_opm_maneuverParameters*> maneuverParameters;
+	StringArray comments;
+    };
+
+    struct ccsds_oem_metadata
+    {
+	std::string objectName;
+	std::string objectID;
+	std::string refFrameOrigin;
+	std::string refFrame;
+	std::string timeSystem;
+	std::string startTime;
+	std::string stopTime;
+	std::string useableStartTime;
+	std::string useableStopTime;
+	std::string interpolationMethod;
+	Integer interpolationDegree;
+	StringArray comments;
+    };
+    
+    struct ccsds_oem_data
+    {
+	// Iterator Pointer to the header record
+        std::vector<ccsds_header*>::iterator headerVectorIndex;
+	// Iterator Pointer to the metadata record
+        std::vector<ccsds_oem_metadata*>::iterator metadataVectorIndex;	
+        std::vector<ccsds_stateVector*> stateVector;
+    };
+    
+    struct ccsds_apm_metadata
+    {
+	std::string objectName;
+	std::string objectID;
+	std::string refFrameOrigin;
+	std::string timeSystem;	
+    };
+
+    struct ccsds_quaternion
+    {
+	std::string quarternionType;
+	std::string frameA;
+	std::string frameB;
+	std::string direction;
+	Real q1, q2, q3, qC;
+	Real q1Dot, q2Dot, q3Dot, qcDot;
+	Real xRate, yRate, zRate;
+    };
+    
+    struct ccsds_eulerAngle
+    {
+	std::string eulerAngleType;
+	StringArray comments;
+	std::string frameA;
+	std::string frameB;
+	std::string direction;
+	std::string rotationSequence;
+	std::string rateFrame;
+	Real xAngle, yAngle, zAngle;
+	Real xRate, yRate, zRate;
+    };
+    
+    struct ccsds_spinStabilized
+    {
+	std::string attitudeType;
+	StringArray comments;
+	std::string frameA;
+	std::string frameB;
+	std::string direction;
+	Real spinAlpha;
+	Real spinDelta;
+	Real spinAngle;
+	Real spinAngleVelocity;
+	Real nutation;
+	Real nutationPeriod;
+	Real nutationPhase;
+    };
+    
+    struct ccsds_adm_maneuverParameters
+    {
+	StringArray comments;
+	std::string epochStart;
+	Real duration;
+	std::string refFrame;
+	Real torqueVector1, torqueVector2, torqueVector3;
+    };
+    
+    struct ccsds_adm_obtype
+    {
+	// Iterator Pointer to the header record
+        std::vector<ccsds_header*>::iterator headerVectorIndex;
+	// Iterator Pointer to the metadata record
+        std::vector<ccsds_apm_metadata*>::iterator metadataVectorIndex;
+	std::vector<ccsds_quaternion*> quaternions;
+	std::vector<ccsds_eulerAngle*> eulerAngles;
+	std::vector<ccsds_spinStabilized*> spinStabilized;
+	std::vector<ccsds_spacecraftParameters*> spacecraftParameters;
+	std::vector<ccsds_adm_maneuverParameters*> maneuverParameters;
+    };
+    
+    struct ccsds_aem_metadata
+    {
+	std::string objectName;
+	std::string objectID;
+	std::string refFrameOrigin;
+	std::string frameA;
+	std::string frameB;
+	std::string direction;
+	std::string timeSystem;
+	std::string startTime;
+	std::string stopTime;
+	std::string useableStartTime;
+	std::string useableStopTime;
+	std::string attitudeType;
+	std::string quaternionType;
+	std::string eulerRotationSequence;
+	std::string rateFrame;
+	std::string interpolationMethod;
+	Integer interpolationDegree;
+	StringArray comments;
+    };
+
+    struct ccsds_aem_obtype
+    {
+	// Iterator Pointer to the header record
+        std::vector<ccsds_header*>::iterator headerVectorIndex;
+	// Iterator Pointer to the metadata record
+        std::vector<ccsds_aem_metadata*>::iterator metadataVectorIndex;
+	std::vector<ccsds_quaternion*> quaternions;
+	std::vector<ccsds_eulerAngle*> eulerAngles;
+	std::vector<ccsds_spinStabilized*> spinStabilized;
+    };
+    
+    
 }
 
 #endif	/* _Dataformats_hpp */
