@@ -1083,8 +1083,9 @@ GmatBase* Spacecraft::GetRefObject(const Gmat::ObjectType type,
 {
    #ifdef DEBUG_GET_REF_OBJECT
    MessageInterface::ShowMessage
-      ("Spacecraft::GetRefObject() <%p>'%s' entered, type=%d, name='%s'\n",
-       this, GetName().c_str(), type, name.c_str());
+      ("Spacecraft::GetRefObject() <%p>'%s' entered, type=%d, name='%s'\n"
+       "tanks.size()=%d, thrusters.size()=%d\n", this, GetName().c_str(), type,
+       name.c_str(), tanks.size(), thrusters.size());
    #endif
    
    // This switch statement intentionally drops through without breaks, so that
@@ -1120,7 +1121,7 @@ GmatBase* Spacecraft::GetRefObject(const Gmat::ObjectType type,
                    name.c_str(), (*i));
                #endif
                return *i;
-         }
+            }
          }
          
          // Other Hardware cases go here...
@@ -1178,9 +1179,9 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          #endif
       }
    }
-    
+   
    // now work on hardware
-   if (type == Gmat::HARDWARE)
+   if (type == Gmat::HARDWARE || type == Gmat::FUEL_TANK || type == Gmat::THRUSTER)
    {
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
@@ -1235,7 +1236,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       coordSysMap[objName] = (CoordinateSystem*)obj;
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
-         ("Spacecraft::SetRefObject() <%p>'%s' was set to coordSysMap, "
+         ("Spacecraft::SetRefObject() Assigned <%p>'%s' to coordSysMap, "
           "coordSysMap.size()=%d, isThrusterSettingMode=%d\n", obj, objName.c_str(),
           coordSysMap.size(), isThrusterSettingMode);
       #endif
@@ -2424,8 +2425,8 @@ bool Spacecraft::TakeAction(const std::string &action,
 {
    #ifdef DEBUG_SC_REF_OBJECT
    MessageInterface::ShowMessage
-      ("Entering SC<%p>'%s'::TakeAction with action = %s, and actionData = %s\n",
-       this, GetName().c_str(), action.c_str(), actionData.c_str());
+      ("Entering SC<%p>'%s'::TakeAction with action = '%s', and actionData = "
+       "'%s'\n", this, GetName().c_str(), action.c_str(), actionData.c_str());
    #endif
    if (action == "SetupHardware") 
    {
@@ -2474,10 +2475,10 @@ bool Spacecraft::TakeAction(const std::string &action,
                       "deleting cloned Thruster", this);
                   #endif
                   delete thr;
+               }
          }
       }
-      }
-
+      
       if (removeTank) 
       {
          if (removeAll) 
@@ -3263,7 +3264,8 @@ void Spacecraft::AttachTanksToThrusters()
 {
    #ifdef DEBUG_SC_REF_OBJECT
    MessageInterface::ShowMessage
-      ("Spacecraft::AttachTanksToThrusters() entered\n");
+      ("Spacecraft::AttachTanksToThrusters() this=<%p>'%s' entered\n",
+       this, GetName().c_str());
    #endif
    
    // Attach tanks to thrusters
@@ -3276,19 +3278,24 @@ void Spacecraft::AttachTanksToThrusters()
    #endif
    
    for (ObjectArray::iterator i = thrusters.begin(); i < thrusters.end(); ++i)
-   {      
+   {
       tankNommes = (*i)->GetStringArrayParameter("Tank");
       
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
-         ("   go through %d tank(s) in the thruster <%p>\n", tankNommes.size(),
-          (*i));
+         ("   go through %d tank(s) in the thruster <%p>'%s'\n", tankNommes.size(),
+          (*i), (*i)->GetName().c_str());
       #endif
       
       for (StringArray::iterator j = tankNommes.begin();
            j < tankNommes.end(); ++j)
-      {            
+      {
          // Look up the tank in the hardware list
+         #ifdef DEBUG_SC_REF_OBJECT
+         MessageInterface::ShowMessage
+            ("   Checking to see if '%s' is in the spacecraft tank list\n",
+             (*j).c_str());
+         #endif
          tank = NULL;
          for (ObjectArray::iterator k = tanks.begin(); k < tanks.end(); ++k)
             if ((*k)->GetName() == *j)
@@ -3346,7 +3353,7 @@ bool Spacecraft::SetHardware(GmatBase *obj, StringArray &hwNames,
    {
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
-         ("   Now checking for the hardware name '%s' found\n", objName.c_str());
+         ("   Now checking for the hardware name '%s'\n", objName.c_str());
       #endif
       
       // if hardware name found
@@ -3367,10 +3374,6 @@ bool Spacecraft::SetHardware(GmatBase *obj, StringArray &hwNames,
             // check if same name found, delete it first since it was cloned
             if ((*i)->GetName() == objName)
             {
-               //================================================
-               #ifdef __REPLACE_HARDWARE__
-               //#if 1
-               //================================================
                // delete the old one
                GmatBase *old = (*i);
                hwArray.erase(i);
@@ -3380,17 +3383,8 @@ bool Spacecraft::SetHardware(GmatBase *obj, StringArray &hwNames,
                    "deleting old cloned " + objType, this);
                #endif
                delete old;
+               old = NULL;
                break;
-               //================================================
-               #else
-               //================================================
-               // throw an exception (This is what SPH suggests)
-               throw SpaceObjectException
-                  ("The tank named \"" + objName + "\" already attached "
-                   "to the spacecraft \"" + instanceName);
-               //================================================
-               #endif
-               //================================================
             }
          }
          
@@ -3406,20 +3400,21 @@ bool Spacecraft::SetHardware(GmatBase *obj, StringArray &hwNames,
          
          #ifdef DEBUG_SC_REF_OBJECT
          MessageInterface::ShowMessage
-            ("      Added cloned hardware <%p><%s>'%s' to list\n", clonedObj,
-             clonedObj->GetTypeName().c_str(), clonedObj->GetName().c_str());
+            ("      Added cloned hardware <%p><%s>'%s' to list, "
+             "hwArray.size()=%d\n", clonedObj, clonedObj->GetTypeName().c_str(),
+             clonedObj->GetName().c_str(), hwArray.size());
          #endif
          
          if (clonedObj->IsOfType("Thruster"))
          {
             #ifdef DEBUG_SC_REF_OBJECT
             MessageInterface::ShowMessage
-               ("Spacecraft::SetHardware() Setting ref objects to thruster<%p>'%s'\n",
+               ("   Setting ref objects to thruster<%p>'%s'\n",
                 clonedObj, clonedObj->GetName().c_str());
             #endif
             
             // Set SolarSystem and Spacecraft
-            clonedObj->SetSolarSystem(internalCoordSystem->GetSolarSystem());
+            clonedObj->SetSolarSystem(solarSystem);
             clonedObj->SetRefObject(this, Gmat::SPACECRAFT, GetName());
             // Set CoordinateSystem
             std::string csName;
@@ -3428,24 +3423,18 @@ bool Spacecraft::SetHardware(GmatBase *obj, StringArray &hwNames,
             {
                #ifdef DEBUG_SC_REF_OBJECT
                MessageInterface::ShowMessage
-                  ("   Setting the CoordinateSystem <%p>'%s' to cloned thruster\n");
+                  ("   Setting the CoordinateSystem <%p>'%s' to cloned thruster\n",
+                  coordSysMap[csName], csName.c_str() );
                #endif
                clonedObj->SetRefObject(coordSysMap[csName], Gmat::COORDINATE_SYSTEM, csName);
             }
          }
-         
-         #ifdef DEBUG_SC_REF_OBJECT
-         MessageInterface::ShowMessage
-            ("Spacecraft::SetHardware() The cloned obj <%p><%s>'%s' added to the list. "
-             " hwArray.size()=%d\n", clonedObj, clonedObj->GetTypeName().c_str(),
-             clonedObj->GetName().c_str(), hwArray.size());
-         #endif
       }
       else
       {
          #ifdef DEBUG_SC_REF_OBJECT
          MessageInterface::ShowMessage
-            ("   the name '%s' not found in %s list\n", objName.c_str(),
+            ("   The name '%s' not found in %s list\n", objName.c_str(),
              objType.c_str());
          #endif
       }
@@ -3454,7 +3443,7 @@ bool Spacecraft::SetHardware(GmatBase *obj, StringArray &hwNames,
    {
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
-         (" the same %s <%p> found in %s pointer list\n", objType.c_str(),
+         ("   The same %s <%p> found in %s pointer list\n", objType.c_str(),
           obj, objType.c_str());
       #endif
    }
