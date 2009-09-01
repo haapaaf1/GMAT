@@ -84,6 +84,9 @@ protected:
    /// The thrusters that get deactivated
    std::vector<Thruster *>
                         thrusters;
+   bool                 firstTimeExecution;
+   
+   void ValidateThrusters();
 };
 
 #endif // EndFiniteBurn_hpp

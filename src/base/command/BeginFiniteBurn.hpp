@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            BeginFiniteBurn
 //------------------------------------------------------------------------------
@@ -39,11 +39,11 @@ public:
    BeginFiniteBurn(const BeginFiniteBurn& begman);
    BeginFiniteBurn&       operator=(const BeginFiniteBurn& begman);
    
-   virtual bool TakeAction(const std::string &action,  
+   virtual bool         TakeAction(const std::string &action,  
                            const std::string &actionData = "");
    virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
    virtual const ObjectTypeArray&
-                       GetRefObjectTypeArray();
+                        GetRefObjectTypeArray();
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool         SetRefObjectName(const Gmat::ObjectType type,
@@ -53,9 +53,9 @@ public:
                                   const std::string objName = "");
 
    virtual GmatBase*    Clone() const;
-   virtual bool        RenameRefObject(const Gmat::ObjectType type,
-                                       const std::string &oldName,
-                                       const std::string &newName);
+   virtual bool         RenameRefObject(const Gmat::ObjectType type,
+                                        const std::string &oldName,
+                                        const std::string &newName);
    virtual const std::string&
                         GetGeneratingString(Gmat::WriteMode mode,
                                             const std::string &prefix,
@@ -84,6 +84,10 @@ protected:
    /// The thrusters that get activated
    std::vector<Thruster *>
                         thrusters;
+   bool                 firstTimeExecution;
+   
+   void ValidateThrusters();
+   
 };
 
 #endif // BeginFiniteBurn_hpp

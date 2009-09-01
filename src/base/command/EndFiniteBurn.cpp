@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            EndFiniteBurn
 //------------------------------------------------------------------------------
@@ -36,12 +36,13 @@
  */
 //------------------------------------------------------------------------------
 EndFiniteBurn::EndFiniteBurn() :
-   GmatCommand       ("EndFiniteBurn"),
-   thrustName        (""),
-   burnForce         (NULL),
-   burnName          (""),
-   maneuver          (NULL),
-   transientForces   (NULL)
+   GmatCommand        ("EndFiniteBurn"),
+   thrustName         (""),
+   burnForce          (NULL),
+   burnName           (""),
+   maneuver           (NULL),
+   transientForces    (NULL),
+   firstTimeExecution (true)
 {
    if (instanceName == "")
       instanceName = "EndFiniteBurn";
@@ -70,16 +71,17 @@ EndFiniteBurn::~EndFiniteBurn()
  */
 //------------------------------------------------------------------------------
 EndFiniteBurn::EndFiniteBurn(const EndFiniteBurn& endman) :
-   GmatCommand       (endman),
-   thrustName        (endman.thrustName),
-   burnForce         (NULL),
-   burnName          (endman.burnName),
-   maneuver          (NULL),
-   transientForces   (NULL),
-   satNames          (endman.satNames)
+   GmatCommand        (endman),
+   thrustName         (endman.thrustName),
+   burnForce          (NULL),
+   burnName           (endman.burnName),
+   maneuver           (NULL),
+   transientForces    (NULL),
+   satNames           (endman.satNames),
+   firstTimeExecution (true)
 {
-        sats.clear();
-        thrusters.clear();
+   sats.clear();
+   thrusters.clear();
 }
 
 
@@ -107,6 +109,8 @@ EndFiniteBurn& EndFiniteBurn::operator=(const EndFiniteBurn& endman)
    maneuver = NULL;
    transientForces = NULL;
    satNames = endman.satNames;
+   firstTimeExecution = true;
+   
    sats.clear();
    thrusters.clear();
    
@@ -404,6 +408,7 @@ void EndFiniteBurn::SetTransientForces(std::vector<PhysicalModel*> *tf)
 bool EndFiniteBurn::Initialize()
 {
    bool retval = GmatCommand::Initialize();
+   firstTimeExecution = true;
    
    GmatBase *mapObj;
    if (retval)
@@ -431,6 +436,10 @@ bool EndFiniteBurn::Initialize()
          sats.push_back(sc);
       }
       
+      
+      ValidateThrusters();
+      
+      #if 0
       // Validate that the spacecraft have the thrusters they need
       thrusters.clear();
       for (std::vector<Spacecraft*>::iterator current = sats.begin(); 
@@ -460,11 +469,12 @@ bool EndFiniteBurn::Initialize()
                thrusters.clear();
                throw CommandException("Thruster object \"" + (*i) +
                                       "\" was not set on Spacecraft \"" 
-                                      + (*current)->GetName() +
-                                      "\"");
+                                      + (*current)->GetName() + "\"");
             }
          }
       }
+      #endif
+      
    }
    
    thrustName = burnName + "_FiniteThrust";
@@ -490,13 +500,21 @@ bool EndFiniteBurn::Initialize()
 //------------------------------------------------------------------------------
 bool EndFiniteBurn::Execute()
 {
+   if (firstTimeExecution)
+   {
+      // Get updated thruster pointers from the spacecraft since spacecraft
+      // clones them
+      ValidateThrusters();
+      firstTimeExecution = false;
+   }
+   
    // Turn off all of the referenced thrusters
    for (std::vector<Thruster*>::iterator i = thrusters.begin(); 
         i != thrusters.end(); ++i)
    {
       #ifdef DEBUG_END_MANEUVER_EXE
          MessageInterface::ShowMessage
-            ("Deactivating engine %s\n", 
+            ("EndFiniteBurn::Execute() Deactivating engine %s\n", 
              (*i)->GetName().c_str());
       #endif
       (*i)->SetBooleanParameter((*i)->GetParameterID("IsFiring"), false);
@@ -534,7 +552,7 @@ bool EndFiniteBurn::Execute()
    }
    
    #ifdef DEBUG_END_MANEUVER_EXE
-      MessageInterface::ShowMessage("Current TransientForces list:\n");
+      MessageInterface::ShowMessage("EndFiniteBurn::Execute() Current TransientForces list:\n");
       for (std::vector<PhysicalModel*>::iterator j = transientForces->begin();
            j != transientForces->end(); ++j)
          MessageInterface::ShowMessage("   %s\n", (*j)->GetName().c_str());
@@ -543,3 +561,74 @@ bool EndFiniteBurn::Execute()
    BuildCommandSummary(true);
    return true;
 }
+
+
+//------------------------------------------------------------------------------
+// void ValidateThrusters()
+//------------------------------------------------------------------------------
+/**
+ * Validate that the spacecrafts have the thrusters they need.
+ */
+//------------------------------------------------------------------------------
+void EndFiniteBurn::ValidateThrusters()
+{
+   thrusters.clear();
+   for (std::vector<Spacecraft*>::iterator current = sats.begin(); 
+        current != sats.end(); ++current)
+   {
+      #ifdef DEBUG_EFB_THRUSTER
+      MessageInterface::ShowMessage
+         ("EndFiniteBurn::ValidateThrusters() entered, checking Spacecraft "
+          "<%p>'%s' for Thrusters\n", *current, (*current)->GetName().c_str());
+      #endif
+      
+      StringArray thrusterNames = (*current)->GetStringArrayParameter(
+                                  (*current)->GetParameterID("Thrusters"));
+      StringArray engines = (maneuver)->GetStringArrayParameter(
+                            (maneuver)->GetParameterID("Thrusters"));
+      
+      #ifdef DEBUG_EFB_THRUSTER
+      MessageInterface::ShowMessage
+         ("   Spacecraft has %d Thrusters and FiniteBurn has %d thrusters\n",
+          thrusterNames.size(), engines.size());
+      #endif
+      
+      for (StringArray::iterator i = engines.begin(); i != engines.end(); ++i)
+      {
+         if (find(thrusterNames.begin(), thrusterNames.end(), *i) == 
+             thrusterNames.end())
+         {
+            thrusters.clear();
+            throw CommandException("Spacecraft " + (*current)->GetName() +
+                                   " does not have a thruster named \"" +
+                                   (*i) + "\"");
+         }
+         
+         Thruster* th = 
+            (Thruster*)((*current)->GetRefObject(Gmat::THRUSTER, *i));
+         
+         if (th)
+         {
+            #ifdef DEBUG_EFB_THRUSTER
+            MessageInterface::ShowMessage
+               ("EndFiniteBurn::ValidateThrusters() addding the Thruster <%p>'%s' "
+                "to thrusters\n", th, th->GetName().c_str());
+            #endif
+            thrusters.push_back(th);
+         }
+         else
+         {
+            thrusters.clear();
+            throw CommandException("Thruster object \"" + (*i) +
+                                   "\" was not set on Spacecraft \"" 
+                                   + (*current)->GetName() + "\"");
+         }
+      }
+   }
+   
+   #ifdef DEBUG_EFB_THRUSTER
+   MessageInterface::ShowMessage
+      ("EndFiniteBurn::ValidateThrusters() leaving\n");
+   #endif
+}
+
