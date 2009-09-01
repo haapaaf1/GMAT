@@ -18,6 +18,7 @@
 
 #include "Thruster.hpp"
 #include "ObjectReferencedAxes.hpp"
+#include "StringUtil.hpp"
 #include "MessageInterface.hpp"
 #include <sstream>
 #include <math.h>          // for pow(real, real)
@@ -74,15 +75,15 @@ Thruster::PARAMETER_TEXT[ThrusterParamCount - HardwareParamCount] =
 const Gmat::ParameterType
 Thruster::PARAMETER_TYPE[ThrusterParamCount - HardwareParamCount] =
 {
-   Gmat::BOOLEAN_TYPE,
-   Gmat::OBJECT_TYPE,
-   Gmat::OBJECT_TYPE,
-   Gmat::ENUMERATION_TYPE,
-   Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE,
-   Gmat::BOOLEAN_TYPE,
-   Gmat::STRINGARRAY_TYPE,
-   Gmat::REAL_TYPE,
+   Gmat::BOOLEAN_TYPE,     // "IsFiring"
+   Gmat::OBJECT_TYPE,      // "CoordinateSystem"
+   Gmat::OBJECT_TYPE,      // "Origin"
+   Gmat::ENUMERATION_TYPE, // "Axes"
+   Gmat::REAL_TYPE,        // "DutyCycle"
+   Gmat::REAL_TYPE,        // "ThrustScaleFactor"
+   Gmat::BOOLEAN_TYPE,     // "DecrementMass"
+   Gmat::OBJECTARRAY_TYPE, // "Tank"
+   Gmat::REAL_TYPE,        // "GravitationalAccel"
    // C's
    Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
    Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE, Gmat::REAL_TYPE,
@@ -113,7 +114,7 @@ Thruster::PARAMETER_TYPE[ThrusterParamCount - HardwareParamCount] =
  */
 //------------------------------------------------------------------------------
 Thruster::Thruster(std::string nomme) :
-   Hardware             (Gmat::HARDWARE, "Thruster", nomme),
+   Hardware             (Gmat::THRUSTER, "Thruster", nomme),
    solarSystem          (NULL),
    localCoordSystem     (NULL),
    coordSystem          (NULL),
@@ -980,6 +981,63 @@ bool Thruster::SetStringParameter(const Integer id, const std::string &value)
       return true;
    default:
       return Hardware::SetStringParameter(id, value);
+   }
+}
+
+
+//---------------------------------------------------------------------------
+//  std::string GetStringParameter(const Integer id, const Integer index) const
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+std::string Thruster::GetStringParameter(const Integer id,
+                                         const Integer index) const
+{
+   switch (id)
+   {
+   case TANK:
+      {
+         if (index >= 0 && index < (Integer)tankNames.size())
+            return tankNames[index];
+         else
+            throw HardwareException
+               ("Thruster::GetStringParameter() \"" + instanceName + ", " + 
+                GmatStringUtil::ToString(index) +  " is invalid Tank index");
+      }
+   default:
+      return Hardware::GetStringParameter(id, index);
+   }
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetStringParameter(const Integer id, const std::string &value,
+//                          const Integer index)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool Thruster::SetStringParameter(const Integer id, const std::string &value,
+                                  const Integer index)
+{
+   switch (id)
+   {
+   case TANK:
+      {
+         if (index < (Integer)tankNames.size())
+            tankNames[index] = value;
+         else
+            // Only add the tank if it is not in the list already
+            if (find(tankNames.begin(), tankNames.end(), value) == tankNames.end()) 
+               tankNames.push_back(value);
+         
+         return true;
+      }
+   default:
+      return Hardware::SetStringParameter(id, value, index);
    }
 }
 

@@ -61,6 +61,11 @@ public:
    virtual std::string  GetStringParameter(const Integer id) const;
    virtual bool         SetStringParameter(const Integer id, 
                                            const std::string &value);
+   virtual std::string  GetStringParameter(const Integer id,
+                                           const Integer index) const;
+   virtual bool         SetStringParameter(const Integer id,
+                                           const std::string &value,
+                                           const Integer index);
    virtual bool         GetBooleanParameter(const Integer id) const;
    virtual bool         SetBooleanParameter(const Integer id,
                                             const bool value);
