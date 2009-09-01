@@ -997,7 +997,7 @@ bool OpenGlPlot::TakeAction(const std::string &action,
    {
       return RemoveSpacePoint(actionData);
    }
-   else if (action == "DeletePlot")
+   else if (action == "Finalize")
    {
       PlotInterface::DeleteGlPlot(instanceName);
    }
