@@ -34,7 +34,7 @@ GMAT gs2.Z  = 0.00;
 
 %----- Create the data file
 Create Datafile AllMeasData
-AllMeasData.Filename = MauiData.gmd
+AllMeasData.Filename = 2StationData.gmd
 AllMeasData.Format  = GMATInternal
 
 
@@ -65,7 +65,7 @@ MeasSim.Propagator      = ODProp;
 MeasSim.InitialEpochFormat = UTCGregorian;
 MeasSim.InitialEpoch       = '01 Jan 2000 11:59:28.000';
 MeasSim.FinalEpochFormat   = UTCGregorian;
-MeasSim.FinalEpoch         = '06 Jan 2000 11:59:28.000';
+MeasSim.FinalEpoch         = '02 Jan 2000 11:59:28.000';
 MeasSim.MeasurementTimeStep = 100;
 
 %------ Make sure we propagate

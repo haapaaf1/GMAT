@@ -299,7 +299,8 @@ bool RungeKutta::Step()
     do
     {
         if (!RawStep())
-            return false;
+           return false;
+        }
 
         maxerror = EstimateError();
         stepTaken = stepSize;
@@ -316,7 +317,11 @@ bool RungeKutta::Step()
         }
 
         if (stepAttempts >= maxStepAttempts)
-            return false;
+        {
+           MessageInterface::ShowMessage("%d step attempts taken; max is %d\n",
+                 stepAttempts, maxStepAttempts);
+           return false;
+        }
     } while (!goodStepTaken);
 
     physicalModel->IncrementTime(stepTaken);
@@ -436,7 +441,8 @@ bool RungeKutta::Step(Real dt)
         if (attemptsTaken > maxStepAttempts)
         {
            MessageInterface::ShowMessage(
-              "Integrator attempted too many steps!\n");
+              "   Integrator attempted too many steps! (%d attempts taken)\n",
+              attemptsTaken);
            return false;
         }
         if (!Propagator::Step(timeleft))
