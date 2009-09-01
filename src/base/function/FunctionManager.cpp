@@ -1925,7 +1925,14 @@ bool FunctionManager::HandleCallStack()
    {
       // We need to finalize all commands in FCS here (loj: 2008.10.08)
       // Do not call Finalize() it will delete LOS and nested function will not work
+      #ifdef DEBUG_FM_EXECUTE
+      MessageInterface::ShowMessage
+         ("   calling function <%p>'%s'->Finalize()\n", f, f->GetName().c_str());
+      #endif
       f->Finalize();
+      
+      // Unsubscribe subscribers since function run is completed
+      UnsubscribeSubscribers(functionObjectStore);
       
       // delete cloned object store
       Integer numClones = clonedObjectStores.size();
@@ -1942,10 +1949,12 @@ bool FunctionManager::HandleCallStack()
       // remove the caller from the stack of callers      
       callingFunction = callers.top();
       callers.pop();
+      #ifdef DEBUG_FM_EXECUTE
+      ShowCallers("After pop");
+      #endif
    }
    
    #ifdef DEBUG_FM_EXECUTE
-   ShowCallers("After pop");
    MessageInterface::ShowMessage("Exiting  FM::HandleCallStack()\n");
    #endif
    
@@ -2178,6 +2187,46 @@ void FunctionManager::Cleanup()
 
 
 //------------------------------------------------------------------------------
+// void UnsubscribeSubscribers(ObjectMap *om)
+//------------------------------------------------------------------------------
+void FunctionManager::UnsubscribeSubscribers(ObjectMap *om)
+{
+   std::map<std::string, GmatBase *>::iterator omi;
+   for (omi = om->begin(); omi != om->end(); ++omi)
+   {
+      if (omi->second != NULL)
+      {
+         if ((omi->second)->IsOfType(Gmat::SUBSCRIBER))
+         {
+            // Finalize subscriber
+            Subscriber *sub = (Subscriber*)omi->second;
+            sub->TakeAction("Finalize");
+            
+            #ifdef DEBUG_FM_SUBSCRIBER
+            MessageInterface::ShowMessage
+               ("   '%s' Unsubscribe <%p>'%s' from the publisher <%p>\n",
+                fName.c_str(), sub, (omi->second)->GetName().c_str(), publisher);
+            #endif
+            
+            // Unsubscribe subscriber
+            if (publisher)
+            {
+               publisher->Unsubscribe(sub);
+            }
+            else
+            {
+               #ifdef DEBUG_FM_SUBSCRIBER
+               MessageInterface::ShowMessage
+                  ("   '%s' Cannot unsubscribe, the publisher is NULL\n", fName.c_str());
+               #endif
+            }
+         }
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // bool EmptyObjectMap(ObjectMap *om, const std::string &mapID)
 //------------------------------------------------------------------------------
 bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
@@ -2229,8 +2278,9 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
             Subscriber *sub = (Subscriber*)omi->second;
             // Instead of deleting OpenGL plot from the OpenGlPlot destructor
             // call TakeAction() to delete it (LOJ:2009.04.22)
-            sub->TakeAction("DeletePlot");
+            sub->TakeAction("Finalize");
             //@todo This causes Func_AssigningWholeObjects crash
+            // in Subscriber::ClearWrappers() due to stale wrapper pointers
             //sub->ClearWrappers();
             
             #ifdef DEBUG_CLEANUP

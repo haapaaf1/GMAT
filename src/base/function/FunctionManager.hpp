@@ -174,6 +174,7 @@ protected:
    void                 SaveLastResult();
    
    void                 Cleanup();
+   void                 UnsubscribeSubscribers(ObjectMap *om);
    bool                 EmptyObjectMap(ObjectMap *om, const std::string &mapID = "");  
    bool                 DeleteObjectMap(ObjectMap *om, const std::string &mapID = "");
    bool                 ClearInOutWrappers();
