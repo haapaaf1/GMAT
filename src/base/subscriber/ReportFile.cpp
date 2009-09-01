@@ -35,11 +35,11 @@
 //#define DEBUG_REPORTFILE_SET
 //#define DEBUG_REPORTFILE_GET
 //#define DEBUG_REPORTFILE_INIT
-//#define DEBUG_REPORTFILE_REF_OBJ
 //#define DEBUG_RENAME
 //#define DEBUG_WRAPPER_CODE
+//#define DBGLVL_REPORTFILE_REF_OBJ 1
 //#define DBGLVL_REPORTFILE_DATA 2
-//#define DEBUG_WRITE_DATA
+//#define DBGLVL_WRITE_DATA 1
 
 //---------------------------------
 // static data
@@ -326,7 +326,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
    StringArray *output = new StringArray[numData];
    Integer *colWidths = new Integer[numData];
    
-   #ifdef DEBUG_WRITE_DATA
+   #if DBGLVL_WRITE_DATA > 0
    MessageInterface::ShowMessage("ReportFile::WriteData() has %d wrappers\n", numData);
    MessageInterface::ShowMessage("   ==> Now start buffering data\n");
    #endif
@@ -336,12 +336,12 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
    {
       desc = wrapperArray[i]->GetDescription();
       
-      #ifdef DEBUG_WRITE_DATA
+      #if DBGLVL_WRITE_DATA > 1
       MessageInterface::ShowMessage("   desc is '%s'\n", desc.c_str());
       #endif
       
       Gmat::WrapperDataType wrapperType = wrapperArray[i]->GetWrapperType();
-      #ifdef DEBUG_WRITE_DATA
+      #if DBGLVL_WRITE_DATA > 1
       MessageInterface::ShowMessage
          ("      It's wrapper type is %d\n", wrapperType);
       #endif
@@ -370,7 +370,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
       case Gmat::PARAMETER_WT:
          {
             Gmat::ParameterType dataType = wrapperArray[i]->GetDataType();
-            #ifdef DEBUG_WRITE_DATA
+            #if DBGLVL_WRITE_DATA > 1
             MessageInterface::ShowMessage
                ("      It's data type is %d\n", dataType);
             #endif
@@ -411,7 +411,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
          {
             sval = wrapperArray[i]->EvaluateString();
             output[i].push_back(sval);
-            #ifdef DEBUG_WRITE_DATA
+            #if DBGLVL_WRITE_DATA > 1
             MessageInterface::ShowMessage
                ("      Got string value of '%s'\n", sval.c_str());
             #endif
@@ -422,9 +422,10 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
       }
    }
    
-   #ifdef DEBUG_WRITE_DATA
+   #if DBGLVL_WRITE_DATA > 0
    MessageInterface::ShowMessage
-      ("   ==> Now write data to stream, maxRow is %d\n", maxRow);
+      ("   ==> Now write data to stream, maxRow is %d, first item = '%s'\n",
+       maxRow, output[0][0].c_str());
    #endif
    
    // write to datastream
@@ -457,7 +458,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
          dstream.close();
    }
    
-   #ifdef DEBUG_WRITE_DATA
+   #if DBGLVL_WRITE_DATA > 0
    MessageInterface::ShowMessage("ReportFile::WriteData() returning true\n");
    #endif
    
@@ -591,6 +592,12 @@ bool ReportFile::TakeAction(const std::string &action,
    if (action == "ActivateForReport")
    {
       calledByReport = ((actionData == "On") ? true : false);
+   }
+   
+   if (action == "Finalize")
+   {
+      if (dstream.is_open())
+         dstream.close();
    }
    
    return false;
@@ -1005,7 +1012,7 @@ GmatBase* ReportFile::GetRefObject(const Gmat::ObjectType type,
 bool ReportFile::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                               const std::string &name)
 {
-   #ifdef DEBUG_REPORTFILE_REF_OBJ
+   #if DBGLVL_REPORTFILE_REF_OBJ
    MessageInterface::ShowMessage
       ("ReportFile::SetRefObject() <%p>'%s' entered, obj=%p, name=%s, objtype=%s, "
        "objname=%s\n", this, GetName().c_str(), obj, name.c_str(), obj->GetTypeName().c_str(),
@@ -1023,7 +1030,7 @@ bool ReportFile::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          std::string realName;
          GmatStringUtil::GetArrayIndex(mParamNames[i], row, col, realName);
          
-         #ifdef DEBUG_REPORTFILE_SET
+         #if DBGLVL_REPORTFILE_REF_OBJ > 1
          MessageInterface::ShowMessage("   realName=%s\n", realName.c_str());
          #endif
          
@@ -1260,7 +1267,7 @@ Integer ReportFile::WriteMatrix(StringArray *output, Integer param,
 //------------------------------------------------------------------------------
 bool ReportFile::Distribute(int len)
 {
-   #if DBGLVL_REPORTFILE_DATA
+   #if DBGLVL_REPORTFILE_DATA > 0
       MessageInterface::ShowMessage("ReportFile::Distribute called len=%d\n", len);
       MessageInterface::ShowMessage("   data = '%s'\n", data);
       MessageInterface::ShowMessage(
@@ -1277,7 +1284,7 @@ bool ReportFile::Distribute(int len)
          if (!dstream.is_open())
             if (!OpenReportFile())
             {
-               #if DBGLVL_REPORTFILE_DATA
+               #if DBGLVL_REPORTFILE_DATA > 0
                MessageInterface::ShowMessage
                   ("*** WARNING *** ReportFile::Distribute() failed to open "
                    "report file '%s', so returning false\n");
@@ -1288,7 +1295,7 @@ bool ReportFile::Distribute(int len)
          if (!dstream.good())
             dstream.clear();
          
-         #if DBGLVL_REPORTFILE_DATA
+         #if DBGLVL_REPORTFILE_DATA > 0
          MessageInterface::ShowMessage("   Writing data to '%s'\n", filename.c_str());
          #endif
          
@@ -1313,9 +1320,10 @@ bool ReportFile::Distribute(int len)
 //------------------------------------------------------------------------------
 bool ReportFile::Distribute(const Real * dat, Integer len)
 {
-   #if DBGLVL_REPORTFILE_DATA
+   #if DBGLVL_REPORTFILE_DATA > 0
    MessageInterface::ShowMessage
-      ("ReportFile::Distribute()<%s> called len=%d\n", GetName().c_str(), len);
+      ("ReportFile::Distribute() this=<%p>'%s' called len=%d\n""   filename='%s'\n",
+       this, GetName().c_str(), len, filename.c_str());
    MessageInterface::ShowMessage
       ("   active=%d, isEndOfReceive=%d, mSolverIterOption=%d, runstate=%d\n",
        active, isEndOfReceive, mSolverIterOption, runstate);
@@ -1330,7 +1338,7 @@ bool ReportFile::Distribute(const Real * dat, Integer len)
    //------------------------------------------------------------
    if (mSolverIterOption == SI_CURRENT && runstate == Gmat::SOLVING)
    {
-      #if DBGLVL_REPORTFILE_DATA
+      #if DBGLVL_REPORTFILE_DATA > 0
       MessageInterface::ShowMessage
          ("   ===> Just returning; writing current iteration only and solver "
           "is not finished\n");
@@ -1347,7 +1355,7 @@ bool ReportFile::Distribute(const Real * dat, Integer len)
    if ((mSolverIterOption == SI_NONE) &&
        (runstate == Gmat::SOLVING || runstate == Gmat::SOLVEDPASS))
    {
-      #if DBGLVL_REPORTFILE_DATA
+      #if DBGLVL_REPORTFILE_DATA > 0
       MessageInterface::ShowMessage
          ("   ===> Just returning; not writing solver data and solver is running\n");
       #endif
@@ -1355,7 +1363,7 @@ bool ReportFile::Distribute(const Real * dat, Integer len)
       return true;
    }
    
-   #if DBGLVL_REPORTFILE_DATA
+   #if DBGLVL_REPORTFILE_DATA > 0
    MessageInterface::ShowMessage("   Start writing data\n");
    #endif
    
@@ -1511,7 +1519,7 @@ bool ReportFile::Distribute(const Real * dat, Integer len)
             dstream.close();
       }
       
-      #if DBGLVL_REPORTFILE_DATA > 1
+      #if DBGLVL_REPORTFILE_DATA > 0
       MessageInterface::ShowMessage
          ("ReportFile::Distribute() dat=%f %f %f %f %g %g %g\n", dat[0], dat[1],
           dat[2], dat[3], dat[4], dat[5], dat[6]);
