@@ -1,0 +1,39 @@
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create String reportLoc1;
+GMAT reportLoc1 = 'Bug1501_FbInFunction.report';
+
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = 'Bug1501_FbInFunctionNested.report';
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+
+BeginScript;
+EndScript;
+
+% Call function
+Bug1501_Function(reportLoc1)
+Bug1501_FunctionNested(reportLoc1_nested)

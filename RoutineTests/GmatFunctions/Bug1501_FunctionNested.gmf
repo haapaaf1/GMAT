@@ -1,0 +1,4 @@
+function Bug1501_FunctionNested(reportLoc1)
+ 
+% Call function
+Bug1501_Function(reportLoc1)
