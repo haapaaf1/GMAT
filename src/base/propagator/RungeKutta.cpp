@@ -133,15 +133,15 @@ RungeKutta& RungeKutta::operator=(const RungeKutta& rk)
 {
     if (this == &rk)
         return *this;
-    
+
     Integrator::operator=(rk);
     stages = rk.stages;
     sigma = rk.sigma;
     incPower = rk.incPower;
     decPower = rk.decPower;
-    
+
     ClearArrays();
-    
+
     ki = NULL;
     ai = NULL;
     bij = NULL;
@@ -300,7 +300,6 @@ bool RungeKutta::Step()
     {
         if (!RawStep())
            return false;
-        }
 
         maxerror = EstimateError();
         stepTaken = stepSize;
@@ -353,7 +352,7 @@ bool RungeKutta::RawStep()
         MessageInterface::ShowMessage("%le, ", inState[q]);
       MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
    #endif
-   
+
    // Calculate the stages
    for (i = 0; i < stages; i++)
    {
@@ -395,7 +394,7 @@ bool RungeKutta::RawStep()
             MessageInterface::ShowMessage("%le, ", stageState[q]);
          MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
       #endif
-         
+
       for (j = 0; j < dimension; j++)
          ki[i][j] = stepSize * ddt[j];
    }
@@ -409,14 +408,14 @@ bool RungeKutta::RawStep()
          candidateState[j] += cj[i] * ki[i][j];
       }
    }
-    
+
    #ifdef DEBUG_RAW_STEP_STATE
       MessageInterface::ShowMessage("candidateState: [");
       for (Integer q = 0; q < dimension-1; ++q)
          MessageInterface::ShowMessage("%le, ", candidateState[q]);
       MessageInterface::ShowMessage("%le]\n", candidateState[dimension-1]);
-   #endif 
-   
+   #endif
+
 //   delete [] inState;
 
    return true;
