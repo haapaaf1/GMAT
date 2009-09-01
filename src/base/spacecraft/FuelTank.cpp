@@ -67,7 +67,7 @@ FuelTank::PARAMETER_TYPE[FuelTankParamCount - HardwareParamCount] =
  */
 //------------------------------------------------------------------------------
 FuelTank::FuelTank(std::string nomme) :
-   Hardware             (Gmat::HARDWARE, "FuelTank", nomme),
+   Hardware             (Gmat::FUEL_TANK, "FuelTank", nomme),
    fuelMass             (756.0),       // 0.6 m^3 of fuel
    pressure             (1500.0),
    temperature          (20.0),
