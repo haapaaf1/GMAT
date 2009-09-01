@@ -51,8 +51,8 @@ FiniteBurn::PARAMETER_TEXT[FiniteBurnParamCount - BurnParamCount] =
 const Gmat::ParameterType
 FiniteBurn::PARAMETER_TYPE[FiniteBurnParamCount - BurnParamCount] =
 {
-   Gmat::STRINGARRAY_TYPE,
-   Gmat::STRINGARRAY_TYPE,
+   Gmat::OBJECTARRAY_TYPE,
+   Gmat::OBJECTARRAY_TYPE,
    Gmat::REAL_TYPE,
 };
 
@@ -352,14 +352,18 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
         i != thrusterNames.end(); ++i)
    {
       #ifdef DEBUG_FINITE_BURN
-         MessageInterface::ShowMessage("   Accessing thruster '%s'\n", 
-            (*i).c_str());
+         MessageInterface::ShowMessage
+            ("   Accessing thruster '%s' from spacecraft <%p>'%s'\n", (*i).c_str(),
+             spacecraft, spacecraft->GetName().c_str());
       #endif
       
       current = (Thruster *)spacecraft->GetRefObject(Gmat::THRUSTER, *i);
       if (!current)
          throw BurnException("FiniteBurn::Fire requires thruster named \"" +
             (*i) + "\" on spacecraft " + spacecraft->GetName());
+      
+      // Save current thruster so that GetRefObject() can return it (LOJ: 2009.08.28)
+      thrusterMap[current->GetName()] = current;
       
       // FiniteBurn class is friend of Thruster class, so we can access
       // member data directly
@@ -789,6 +793,51 @@ const StringArray& FiniteBurn::GetRefObjectNameArray(const Gmat::ObjectType type
    }
    
    return refObjectNames;
+}
+
+
+//---------------------------------------------------------------------------
+// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+GmatBase* FiniteBurn::GetRefObject(const Gmat::ObjectType type,
+                                   const std::string &name)
+{
+   if (type == Gmat::THRUSTER)
+   {
+      if (thrusterMap.find(name) != thrusterMap.end())
+         return thrusterMap[name];
+      else
+         return NULL;
+   }
+   
+   return Burn::GetRefObject(type, name);
+}
+
+
+//---------------------------------------------------------------------------
+// bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//                   const std::string &name)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool FiniteBurn::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                              const std::string &name)
+{
+   if (type == Gmat::THRUSTER)
+   {
+      if (thrusterMap.find(name) != thrusterMap.end())
+         thrusterMap[name] = obj;
+      
+      return true;
+   }
+   
+   return Burn::SetRefObject(obj, type, name);
 }
 
 
