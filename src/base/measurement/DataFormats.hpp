@@ -1083,9 +1083,9 @@ namespace DataFormats
 	// fields in the element set are referenced. How is the epoch time 
 	// format interpreted? This question is best answered by using an 
 	// example. An epoch of 98001.00000000 corresponds to 0000 UT on 
-	// 1998 January 01—in other words, midnight between 1997 December 31 
+	// 1998 January 01‚Äîin other words, midnight between 1997 December 31 
 	// and 1998 January 01. An epoch of 98000.00000000 would actually 
-	// correspond to the beginning of 1997 December 31—strange as that might 
+	// correspond to the beginning of 1997 December 31‚Äîstrange as that might 
 	// seem. Note that the epoch day starts at UT midnight (not noon) and 
 	// that all times are measured mean solar rather than sidereal time units.
 	Integer epochYear;
@@ -1105,9 +1105,9 @@ namespace DataFormats
 	// A, divided by its mass, m.
 	//                         B = CD A/m 
 	// The ballistic coefficient represents how susceptible an object is to 
-	// drag—the higher the number, the more susceptible. B* is an adjusted 
-	// value of B using the reference value of atmospheric density, ρo.
-	//		           B* = B ρo/2
+	// drag‚Äîthe higher the number, the more susceptible. B* is an adjusted 
+	// value of B using the reference value of atmospheric density, œÅo.
+	//		           B* = B œÅo/2
 	// B* has units of (earth radii)-1
 	Real bstar;
 	
@@ -1118,7 +1118,7 @@ namespace DataFormats
 	//	3=SDP4, 
 	//	4=SGP8, 
 	//	5=SDP8. 
-	// However, this value is used for internal analysis only—all 
+	// However, this value is used for internal analysis only‚Äîall 
 	// distributed element sets have a value of zero and are generated 
 	// using the SGP4/SDP4 orbital model (as appropriate).
 	Integer ephemerisType;
@@ -1194,7 +1194,7 @@ namespace DataFormats
 	"Eccentricity",
 	"ArgPerigee",
 	"MeanAnomaly",
-	"MeanMotion",
+	"KozaiMeanMotion",
 	"RevolutionNum"
     };
 
@@ -1644,12 +1644,12 @@ namespace DataFormats
 	Real ccsdsVersion;
 	std::string creationDate;
 	std::string originator;
-	StringArray comments;
+	std::vector<std::string*> headerComments;
     };
     
     struct ccsds_tdm_metadata
     {
-	StringArray comments;
+	std::vector<std::string*> metadataComments;
 	std::string timeSystem;
 	std::string startTime;
 	std::string stopTime;
@@ -1693,7 +1693,7 @@ namespace DataFormats
 	// Iterator Pointer to the header record
         std::vector<ccsds_header*>::iterator headerVectorIndex;
 	// Iterator Pointer to the metadata record
-        std::vector<ccsds_apm_metadata*>::iterator metadataVectorIndex;	
+        std::vector<ccsds_tdm_metadata*>::iterator metadataVectorIndex;	
         std::vector<ccsds_tdm_data*> angle1;
         std::vector<ccsds_tdm_data*> angle2;
         std::vector<ccsds_tdm_data*> carrierPower;
@@ -1736,6 +1736,8 @@ namespace DataFormats
 	CCSDS_TDM_VERSION_ID,
 	CCSDS_TDM_CREATIONDATE_ID,
 	CCSDS_TDM_ORIGINATOR_ID,
+	CCSDS_TDM_HEADERCOMMENTS_ID,
+	CCSDS_TDM_METADATACOMMENTS_ID,
 	CCSDS_TDM_TIMESYSTEM_ID,
 	CCSDS_TDM_STARTTIME_ID,
 	CCSDS_TDM_STOPTIME_ID,
@@ -1746,6 +1748,8 @@ namespace DataFormats
 	CCSDS_TDM_PARTICIPANT5_ID,
 	CCSDS_TDM_MODE_ID,
 	CCSDS_TDM_PATH_ID,
+	CCSDS_TDM_PATH1_ID,
+	CCSDS_TDM_PATH2_ID,
 	CCSDS_TDM_TRANSMITBAND_ID,
 	CCSDS_TDM_RECEIVEBAND_ID,
 	CCSDS_TDM_TURNAROUNDNUMERATOR_ID,
@@ -1887,6 +1891,8 @@ namespace DataFormats
 	"CCSDS Version",
 	"Creation Date",
 	"Originator",
+	"Header Comments",
+	"Metadata Comments",
 	"Time System",
 	"Start Time",
 	"Stop Time",
@@ -1897,6 +1903,8 @@ namespace DataFormats
 	"Participant 5",
 	"Mode",
 	"Path",
+	"Path 1",
+	"Path 2",
 	"Transmit Band",
 	"Receive Band",
 	"Turnaround Numerator",
@@ -2029,13 +2037,169 @@ namespace DataFormats
 	"Tropo Wet Units",
 	"VLBI Time Tag",
 	"VLBI Measurement",
-	"VLBI Units",
-	EndCCSDSTDMDataReps
+	"VLBI Units"
     };
 
+    static const bool CCSDS_TDM_IS_REQUIRED[EndCCSDSTDMDataReps] =
+    {
+	true,
+	true,
+	true,
+	false,
+	false,
+	true,
+	false,
+	false,
+	true,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false,
+	true,
+	true,
+	false
+    };
 
     static const Gmat::ParameterType CCSDS_TDM_PARAMETER_TYPE[EndCCSDSTDMDataReps] =
     {
+	Gmat::REAL_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
 	Gmat::STRING_TYPE,
 	Gmat::STRING_TYPE,
 	Gmat::STRING_TYPE,
@@ -2177,8 +2341,7 @@ namespace DataFormats
 	Gmat::STRING_TYPE,
 	Gmat::STRING_TYPE,
 	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	EndCCSDSTDMDataReps
+	Gmat::STRING_TYPE
     };
     
     struct ccsds_opm_metadata
@@ -2240,7 +2403,7 @@ namespace DataFormats
         std::vector<ccsds_opm_metadata*>::iterator metadataVectorIndex;
 	std::vector<ccsds_stateVector*> stateVector;
 	std::vector<ccsds_keplerianElements*> keplerianElements;
-	std::vector<ccsds_spacecraftParamters*> spacecraftParameters;
+	std::vector<ccsds_spacecraftParameters*> spacecraftParameters;
 	std::vector<ccsds_opm_maneuverParameters*> maneuverParameters;
 	StringArray comments;
     };
