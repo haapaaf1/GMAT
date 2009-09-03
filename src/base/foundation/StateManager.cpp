@@ -50,6 +50,11 @@ StateManager::StateManager(Integer size) :
 //------------------------------------------------------------------------------
 StateManager::~StateManager()
 {
+   // Delete the string arrays in elements
+   for (std::map<GmatBase*, StringArray*>::iterator i = elements.begin();
+         i != elements.end(); ++i)
+      delete i->second;
+
 }
 
 //------------------------------------------------------------------------------
