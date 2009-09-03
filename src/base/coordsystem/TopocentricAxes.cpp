@@ -301,12 +301,14 @@ void TopocentricAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
             RIFDot(2,0), RIFDot(2,1), RIFDot(2,2));
    #endif
    
+   rotMatrix        = RIF    * RFT;
+   rotDotMatrix     = RIFDot * RFT;
 //   rotMatrix        = RIF * RFT;
 //   rotDotMatrix     = (RIFDot * RFT) +
 //                      (RIF * RFT);
-   rotMatrix        = RIF * (RFT * RIF.Transpose());
-   rotDotMatrix     = (RIFDot * (RFT * RIF.Transpose())) +
-                      (RIF * (RFT * RIFDot.Transpose()));
+//   rotMatrix        = RIF * (RFT * RIF.Transpose());
+//   rotDotMatrix     = (RIFDot * (RFT * RIF.Transpose())) +
+//                      (RIF * (RFT * RIFDot.Transpose()));
    #ifdef DEBUG_TOPOCENTRIC_AXES
       MessageInterface::ShowMessage("rotMatrix:\n");
       MessageInterface::ShowMessage("%12.17f  %12.17f  %12.17f \n",
