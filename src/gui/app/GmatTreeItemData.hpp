@@ -46,7 +46,7 @@ namespace GmatTree
 
       ICON_NEPTUNE,
       ICON_PLUTO,
-      ICON_REPORT,
+      ICON_REPORT_FILE,
       ICON_NETWORK,
       ICON_BURN,
 
@@ -181,7 +181,8 @@ namespace GmatTree
       REPORT_FILE,
       XY_PLOT,
       OPENGL_PLOT,
-
+      EPHEMERIS_FILE,
+      
       VARIABLE = 41600,
       ARRAY,
       STRING,
