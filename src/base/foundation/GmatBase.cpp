@@ -83,17 +83,16 @@ GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 const std::string
 GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
 {
-   "Spacecraft",       "Formation",       "SpaceObject",    "GroundStation",
-   "Burn",             "ImpulsiveBurn",   "FiniteBurn",     "Command",
-   "Propagator",       "ODEModel",        "PhysicalModel",  "TransientForce",
-   "Interpolator",     "SolarSystem",     "SpacePoint",     "CelestialBody",
-   "CalculatedPoint",  "LibrationPoint",  "Barycenter",     "Atmosphere",
-   "Parameter",        "Variable",        "Array",          "String",
-   "StopCondition",    "Solver",          "Subscriber",     "ReportFile",
-   "XYPlot",           "OpenGLPlot",      "PropSetup",      "Function",
-   "FuelTank",         "Thruster",        "Hardware",       "CoordinateSystem",
-   "AxisSystem",       "Attitude",        "MathNode",       "MathTree",
-   "BodyFixedPoint",   "UnknownObject"
+   "Spacecraft",    "Formation",        "SpaceObject",      "GroundStation",   "Burn",
+   "ImpulsiveBurn", "FiniteBurn",       "Command",          "Propagator",      "ODEModel",
+   "PhysicalModel", "TransientForce",   "Interpolator",     "SolarSystem",     "SpacePoint",
+   "CelestialBody", "CalculatedPoint",  "LibrationPoint",   "Barycenter",      "Atmosphere",
+   "Parameter",     "Variable",         "Array",            "String",          "StopCondition",
+   "Solver",        "Subscriber",       "ReportFile",       "XYPlot",          "OpenGLPlot",
+   "EphemerisFile", "PropSetup",        "Function",         "FuelTank",        "Thruster",
+   "Hardware",      "CoordinateSystem", "AxisSystem",       "Attitude",        "MathNode",
+   "MathTree",      "BodyFixedPoint",   "MeasurementModel", "CoreMeasurement", "DataStream",
+   "ObType",        "UnknownObject"
 };
 /**
  * Build the list of automatic global settings
@@ -101,23 +100,22 @@ GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
  * This list needs to be synchronized with the Gmat::ObjectType list found in
  * base/include/gmatdefs.hpp
  *
- * Current automatic global objects: CoordinateSystem, Function, PropSetup
+ * Current automatic global objects: Propagator, CoordinateSystem, Function, PropSetup
  */
-// There is some propblem if we make ForceModel global, so turned it off (loj: 2008.11.10)
+// There is some propblem if we make ODEModel global, so turned it off (loj: 2008.11.10)
 const bool
 GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
 {
-   false,             false,              false,           false,
-   false,             false,              false,           false,
-   true ,             false,              false,           false,
-   false,             false,              false,           false,
-   false,             false,              false,           false,
-   false,             false,              false,           false,
-   false,             false,              false,           false,
-   false,             false,              true,            true,
-   false,             false,              false,           true,
-   false,             false,              false,           false,
-   false,             false
+   false,     false,     false,     false,     false,
+   false,     false,     false,     true ,     false,
+   false,     false,     false,     false,     false,
+   false,     false,     false,     false,     false,
+   false,     false,     false,     false,     false,
+   false,     false,     false,     false,     false,
+   false,     true,      true,      false,     false,
+   false,     true,      false,     false,     false,
+   false,     false,     false,     false,     false,
+   false,     false
 };
 
 
