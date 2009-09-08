@@ -551,7 +551,7 @@ void OutputTree::OnAddReportFile(wxCommandEvent &event)
    if (theGuiInterpreter->CreateSubscriber
        ("ReportFile", std::string(name.c_str())) != NULL)
    {
-      AppendItem(item, name, GmatTree::ICON_REPORT, -1,
+      AppendItem(item, name, GmatTree::ICON_REPORT_FILE, -1,
                  new GmatTreeItemData(name, GmatTree::REPORT_FILE));
 
       Expand(item);
