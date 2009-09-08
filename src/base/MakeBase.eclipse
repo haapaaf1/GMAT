@@ -467,6 +467,7 @@ OBJECTS = \
     spacecraft/Thruster.o \
     spacecraft/TimeConverter.o \
     stopcond/StopCondition.o \
+    subscriber/EphemerisFile.o \
     subscriber/MatlabWs.o \
     subscriber/MessageWindow.o \
     subscriber/TextEphemFile.o \
