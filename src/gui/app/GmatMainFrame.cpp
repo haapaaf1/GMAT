@@ -2195,6 +2195,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::OPENGL_PLOT:
       sizer->Add(new OpenGlPlotSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
+   case GmatTree::EPHEMERIS_FILE:
+      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      break;
    case GmatTree::SUBSCRIBER:
       sizer->Add(new SubscriberSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
