@@ -844,10 +844,11 @@ GmatBase* Spacecraft::Clone() const
    Spacecraft *clone = new Spacecraft(*this);
    
    #ifdef DEBUG_SPACECRAFT
-      MessageInterface::ShowMessage("Cloning %s (%x) to %x\n", 
-         instanceName.c_str(), this, clone);
+      MessageInterface::ShowMessage
+         ("Spacecraft::Clone() cloned <%p>'%s' to <%p>'%s'\n", this,
+         instanceName.c_str(), clone, clone->GetName().c_str());
    #endif
-
+      
    return (clone);
 }
 
@@ -1233,13 +1234,30 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       
       // Assign CoordinateSystem to map, so that spacecraft can set
       // CoordinateSystem pointer to cloned thruster in SetHardware()(LOJ: 2009.08.25)
-      coordSysMap[objName] = (CoordinateSystem*)obj;
+      coordSysMap[objName] = cs;
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
          ("Spacecraft::SetRefObject() Assigned <%p>'%s' to coordSysMap, "
           "coordSysMap.size()=%d, isThrusterSettingMode=%d\n", obj, objName.c_str(),
           coordSysMap.size(), isThrusterSettingMode);
       #endif
+      
+      // Set Thruster's CoordinateSystem
+      for (ObjectArray::iterator i = thrusters.begin(); i != thrusters.end(); ++i)
+      {
+         GmatBase *thr = *i;
+         std::string thrCsName = thr->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
+         
+         if (thrCsName == name)
+         {
+            #ifdef DEBUG_SC_REF_OBJECT
+            MessageInterface::ShowMessage
+               ("   Setting CoordinateSystem <%p>'%s' to thruster<%p>'%s'\n",
+                cs, name.c_str(), thr, thr->GetName().c_str());
+            #endif
+            thr->SetRefObject(cs, Gmat::COORDINATE_SYSTEM, thrCsName);
+         }
+      }
       
       if (isThrusterSettingMode)
          return true;
