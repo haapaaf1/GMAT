@@ -31,6 +31,7 @@ const wxString GmatBaseSetupPanel::TF_SCHEMES[2] =
 /// wxWidget event mappings for the panel
 BEGIN_EVENT_TABLE(GmatBaseSetupPanel, GmatPanel)
    EVT_COMBOBOX(ID_COMBOBOX, GmatBaseSetupPanel::OnComboBoxChange)
+   EVT_TEXT(ID_COMBOBOX, GmatBaseSetupPanel::OnComboBoxTextChange)
    EVT_TEXT(ID_TEXTCTRL, GmatBaseSetupPanel::OnTextChange)
 END_EVENT_TABLE()
 
@@ -125,8 +126,8 @@ void GmatBaseSetupPanel::Create()
    }
    
    // three columns: description, control, unit
-   wxFlexGridSizer *gSSpecs = new wxFlexGridSizer(3);
-   wxGridSizer *fGSMain = new wxGridSizer(1);
+   wxFlexGridSizer *itemSizer = new wxFlexGridSizer(3);
+   wxGridSizer *mainSizer = new wxGridSizer(1);
    Integer border = 3;
    
    std::vector<wxStaticText*>::iterator item;
@@ -134,13 +135,13 @@ void GmatBaseSetupPanel::Create()
    for(item = propertyDescriptors.begin(), j = 0; 
        item != propertyDescriptors.end(); ++item, ++j) 
    {
-      gSSpecs->Add(*item, 0, wxALL|wxALIGN_RIGHT, border);
-      gSSpecs->Add(propertyControls[j], 0, wxALL|wxALIGN_CENTER, border);
-      gSSpecs->Add(propertyUnits[j], 0, wxALL|wxALIGN_LEFT, border);
+      itemSizer->Add(*item, 0, wxALL|wxALIGN_RIGHT, border);
+      itemSizer->Add(propertyControls[j], 0, wxALL|wxALIGN_CENTER, border);
+      itemSizer->Add(propertyUnits[j], 0, wxALL|wxALIGN_LEFT, border);
    }
    
-   fGSMain->Add(gSSpecs, 0, wxALL|wxALIGN_CENTER, border);
-   theMiddleSizer->Add(fGSMain, 0, wxALL|wxALIGN_CENTER, 5);
+   mainSizer->Add(itemSizer, 0, wxALL|wxALIGN_CENTER, border);
+   theMiddleSizer->Add(mainSizer, 0, wxALL|wxALIGN_CENTER, 5);
 }
 
 
@@ -252,14 +253,38 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index)
             // in the destructor
             wxComboBox *cbControl =
                theGuiManager->GetSpacePointComboBox(this, ID_COMBOBOX,
-                                                    wxSize(150,-1), false);
+                                                    wxSize(180,-1), false);
             managedComboBoxMap.insert(std::make_pair("SpacePoint", cbControl));
+            control = cbControl;
+         }
+         else if (type == Gmat::SPACECRAFT)
+         {
+            // The GuiItemManager automatically registers wxComboBox in order to
+            // listen for any SpacePoint updates, so need to unregister
+            // in the destructor
+            wxComboBox *cbControl =
+               theGuiManager->GetSpacecraftComboBox(this, ID_COMBOBOX,
+                                                    wxSize(180,-1));
+            managedComboBoxMap.insert(std::make_pair("Spacecraft", cbControl));
+            control = cbControl;
+         }
+         else if (type == Gmat::COORDINATE_SYSTEM)
+         {
+            // The GuiItemManager automatically registers wxComboBox in order to
+            // listen for any SpacePoint updates, so need to unregister
+            // in the destructor
+            wxComboBox *cbControl =
+               theGuiManager->GetCoordSysComboBox(this, ID_COMBOBOX,
+                                                  wxSize(180,-1));
+            managedComboBoxMap.insert(std::make_pair("CoordinateSystem", cbControl));
             control = cbControl;
          }
          else
          {
-            control = new wxTextCtrl(parent, ID_COMBOBOX, 
-                                     wxT(""), wxDefaultPosition, wxSize(150,-1));
+            wxArrayString emptyList;
+            control = new wxComboBox(parent, ID_COMBOBOX, wxT(""),
+                                     wxDefaultPosition, wxSize(180,-1), emptyList,
+                                     wxCB_READONLY);
          }
       }
       break;
@@ -270,9 +295,21 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index)
          for (UnsignedInt i=0; i<enumStrings.size(); i++)
             enumList.Add(enumStrings[i].c_str());
          
-         wxComboBox *cbControl =
-            new wxComboBox(parent, ID_COMBOBOX, "", wxDefaultPosition,
-                           wxSize(150,-1), enumList, wxCB_READONLY);
+         wxComboBox *cbControl = NULL;
+         if (enumStrings.size() == 1)
+         {
+            // Show the value even if value is not in the list
+            cbControl =
+               new wxComboBox(parent, ID_COMBOBOX, "", wxDefaultPosition,
+                              wxSize(180,-1), enumList, 0);
+         }
+         else
+         {
+            // Do not show the value if value is not in the list
+            cbControl =
+               new wxComboBox(parent, ID_COMBOBOX, "", wxDefaultPosition,
+                              wxSize(180,-1), enumList, wxCB_READONLY);
+         }
          
          control = cbControl;
       }
@@ -281,7 +318,7 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index)
    case Gmat::STRING_TYPE:
    default:
       control = new wxTextCtrl(parent, ID_TEXTCTRL, 
-                               wxT(""), wxDefaultPosition, wxSize(150,-1));
+                               wxT(""), wxDefaultPosition, wxSize(180,-1));
       break;
    }
    
@@ -344,11 +381,20 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
          break;
          
       case Gmat::OBJECT_TYPE:
-      case Gmat::ENUMERATION_TYPE:
          valueString = (mObject->GetStringParameter(mObject->GetParameterID(label))).c_str();
-         ((wxComboBox*)(theControl))->SetValue(valueString);
-         break;
+         ((wxComboBox*)theControl)->Append(valueString);
          
+      case Gmat::ENUMERATION_TYPE:
+         {
+            valueString = (mObject->GetStringParameter(mObject->GetParameterID(label))).c_str();
+            wxComboBox *cb = (wxComboBox*)theControl;
+            cb->SetValue(valueString);
+            
+            // if ComboBox is not read only, add value to list
+            if (cb->GetWindowStyleFlag() != wxCB_READONLY)
+               cb->Append(valueString);
+            break;
+         }
       default:
          break;
    }
@@ -434,6 +480,24 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
  */
 //------------------------------------------------------------------------------
 void GmatBaseSetupPanel::OnComboBoxChange(wxCommandEvent& event)
+{
+   if (theApplyButton != NULL)
+      EnableUpdate(true);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnComboBoxTextChange(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+/**
+ * Event handler for ComboBox text change
+ * 
+ * Activates the Apply button when selection is changed.
+ * 
+ * @param event The triggering event.
+ */
+//------------------------------------------------------------------------------
+void GmatBaseSetupPanel::OnComboBoxTextChange(wxCommandEvent& event)
 {
    if (theApplyButton != NULL)
       EnableUpdate(true);

@@ -50,6 +50,7 @@ protected:
    DECLARE_EVENT_TABLE();
    
    void OnComboBoxChange(wxCommandEvent& event);
+   void OnComboBoxTextChange(wxCommandEvent& event);
    void OnTextChange(wxCommandEvent& event);
    
    /// Labels used for the configurable properties
