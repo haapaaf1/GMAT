@@ -104,47 +104,56 @@ namespace Gmat
       SPACEOBJECT,
       GROUND_STATION,
       BURN,
+      
       IMPULSIVE_BURN,
       FINITE_BURN,
       COMMAND,
       PROPAGATOR,
       ODE_MODEL,
-//      FORCE_MODEL = ODE_MODEL,
+      
       PHYSICAL_MODEL,
       TRANSIENT_FORCE,
       INTERPOLATOR,
       SOLAR_SYSTEM,
       SPACE_POINT,
+      
       CELESTIAL_BODY,
       CALCULATED_POINT,
       LIBRATION_POINT,
       BARYCENTER,
       ATMOSPHERE,
+      
       PARAMETER,
       VARIABLE,
       ARRAY,
       STRING,
       STOP_CONDITION,
+      
       SOLVER,
       SUBSCRIBER,
       REPORT_FILE,
       XY_PLOT,
       OPENGL_PLOT,
+      
+      EPHEMERIS_FILE,
       PROP_SETUP,
       FUNCTION,
       FUEL_TANK,
       THRUSTER,
+      
       HARDWARE,            // Tanks, Thrusters, Antennae, Sensors, etc.
       COORDINATE_SYSTEM,
       AXIS_SYSTEM,
       ATTITUDE,
       MATH_NODE,
+      
       MATH_TREE,
       BODY_FIXED_POINT,
       // Estimation types
       MEASUREMENT_MODEL,
       CORE_MEASUREMENT,    // For the measurement primitives
       DATASTREAM,          // For Datafle container objects
+      
       OBTYPE,              // For the specific observation types
       UNKNOWN_OBJECT
    };
