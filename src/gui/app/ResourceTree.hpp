@@ -136,6 +136,7 @@ private:
    void OnAddReportFile(wxCommandEvent &event);
    void OnAddXyPlot(wxCommandEvent &event);
    void OnAddOpenGlPlot(wxCommandEvent &event);
+   void OnAddEphemerisFile(wxCommandEvent &event);
    void OnAddSubscriber(wxCommandEvent &event);
    void OnAddDiffCorr(wxCommandEvent &event);
    void OnAddSqp(wxCommandEvent &event);
@@ -219,6 +220,8 @@ private:
       POPUP_ADD_REPORT_FILE,
       POPUP_ADD_XY_PLOT,
       POPUP_ADD_OPENGL_PLOT,
+      POPUP_ADD_EPHEMERIS_FILE,
+      
       POPUP_ADD_VARIABLE,
       POPUP_ADD_ARRAY,
       POPUP_ADD_STRING,

@@ -128,15 +128,14 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_BODY, ResourceTree::OnAddBody)
    EVT_MENU(POPUP_ADD_DIFF_CORR, ResourceTree::OnAddDiffCorr)
    EVT_MENU(POPUP_ADD_SQP, ResourceTree::OnAddSqp)
-   EVT_MENU_RANGE(POPUP_ADD_SOLVER + SOLVER_BEGIN, \
-         POPUP_ADD_SOLVER + SOLVER_END, ResourceTree::OnAddSolver)
-//   EVT_MENU(POPUP_ADD_SOLVER, ResourceTree::OnAddSolver)
+   EVT_MENU_RANGE(POPUP_ADD_SOLVER + SOLVER_BEGIN,        // Other Solvers
+                  POPUP_ADD_SOLVER + SOLVER_END, ResourceTree::OnAddSolver)
    EVT_MENU(POPUP_ADD_REPORT_FILE, ResourceTree::OnAddReportFile)
    EVT_MENU(POPUP_ADD_XY_PLOT, ResourceTree::OnAddXyPlot)
    EVT_MENU(POPUP_ADD_OPENGL_PLOT, ResourceTree::OnAddOpenGlPlot)
-//   EVT_MENU(POPUP_ADD_SUBSCRIBER, ResourceTree::OnAddSubscriber)      // Other subscribers
-   EVT_MENU_RANGE(POPUP_ADD_SUBSCRIBER + SUBSCRIBER_BEGIN, \
-      POPUP_ADD_SUBSCRIBER + SUBSCRIBER_END, ResourceTree::OnAddSubscriber)
+   EVT_MENU(POPUP_ADD_EPHEMERIS_FILE, ResourceTree::OnAddEphemerisFile)
+   EVT_MENU_RANGE(POPUP_ADD_SUBSCRIBER + SUBSCRIBER_BEGIN, // Other Subscribers
+                  POPUP_ADD_SUBSCRIBER + SUBSCRIBER_END, ResourceTree::OnAddSubscriber)
    EVT_MENU(POPUP_ADD_VARIABLE, ResourceTree::OnAddVariable)
    EVT_MENU(POPUP_ADD_ARRAY, ResourceTree::OnAddArray)
    EVT_MENU(POPUP_ADD_STRING, ResourceTree::OnAddString)
@@ -476,6 +475,7 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
    case GmatTree::REPORT_FILE:
    case GmatTree::XY_PLOT:
    case GmatTree::OPENGL_PLOT:
+   case GmatTree::EPHEMERIS_FILE:
       theGuiManager->UpdateSubscriber();
       break;
    case GmatTree::DIFF_CORR:
@@ -615,8 +615,8 @@ void ResourceTree::AddDefaultResources()
 
    //----- Subscribers
    mSubscriberItem =
-      AppendItem(resource, wxT("Plots/Reports"), GmatTree::ICON_FOLDER,
-                 -1, new GmatTreeItemData(wxT("Plots/Reports"),
+      AppendItem(resource, wxT("Subscribers"), GmatTree::ICON_FOLDER,
+                 -1, new GmatTreeItemData(wxT("Subscribers"),
                                           GmatTree::SUBSCRIBER_FOLDER));
 
    SetItemImage(mSubscriberItem, GmatTree::ICON_OPENFOLDER,
@@ -1122,7 +1122,7 @@ void ResourceTree::AddDefaultSubscribers(wxTreeItemId itemId, bool restartCounte
 
       if (objTypeName == "ReportFile")
       {
-         AppendItem(itemId, wxT(objName), GmatTree::ICON_REPORT, -1,
+         AppendItem(itemId, wxT(objName), GmatTree::ICON_REPORT_FILE, -1,
                     new GmatTreeItemData(wxT(objName),
                                          GmatTree::REPORT_FILE));
       }
@@ -1138,10 +1138,16 @@ void ResourceTree::AddDefaultSubscribers(wxTreeItemId itemId, bool restartCounte
                     new GmatTreeItemData(wxT(objName),
                                          GmatTree::OPENGL_PLOT));
       }
+      else if (objTypeName == "EphemerisFile")
+      {
+         AppendItem(itemId, wxT(objName), GmatTree::ICON_REPORT_FILE, -1,
+                    new GmatTreeItemData(wxT(objName),
+                                         GmatTree::EPHEMERIS_FILE));
+      }
       else
       {
          // User subscribers
-         AppendItem(itemId, wxT(objName), GmatTree::ICON_REPORT, -1,
+         AppendItem(itemId, wxT(objName), GmatTree::ICON_REPORT_FILE, -1,
                     new GmatTreeItemData(wxT(objName),
                                          GmatTree::SUBSCRIBER));
       }
@@ -1651,6 +1657,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
         (itemType == GmatTree::REPORT_FILE) ||
         (itemType == GmatTree::XY_PLOT) ||
         (itemType == GmatTree::OPENGL_PLOT) ||
+        (itemType == GmatTree::EPHEMERIS_FILE) ||
         (itemType == GmatTree::DIFF_CORR) ||
         (itemType == GmatTree::SQP) ||
         (itemType == GmatTree::SOLVER) ||
@@ -1715,6 +1722,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
                          (itemType == GmatTree::REPORT_FILE)     ||
                          (itemType == GmatTree::XY_PLOT)         ||
                          (itemType == GmatTree::OPENGL_PLOT)     ||
+                         (itemType == GmatTree::EPHEMERIS_FILE)  ||
                          (itemType == GmatTree::INTERFACE));
 
    //kind of redundant because OpenPage returns false for some
@@ -2335,7 +2343,7 @@ void ResourceTree::OnAddReportFile(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_REPORT, -1,
+      AppendItem(item, name, GmatTree::ICON_REPORT_FILE, -1,
                  new GmatTreeItemData(name, GmatTree::REPORT_FILE));
       Expand(item);
 
@@ -2392,6 +2400,33 @@ void ResourceTree::OnAddOpenGlPlot(wxCommandEvent &event)
                  new GmatTreeItemData(name, GmatTree::OPENGL_PLOT));
       Expand(item);
 
+      theGuiManager->UpdateSubscriber();
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnAddEphemerisFile(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+/**
+ * Add an opengl plot to plots folder
+ *
+ * @param <event> command event
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::OnAddEphemerisFile(wxCommandEvent &event)
+{
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName("EphemerisFile", 1);
+   GmatBase *obj = theGuiInterpreter->CreateSubscriber("EphemerisFile", newName);
+   
+   if (obj != NULL)
+   {
+      wxString name = newName.c_str();
+      AppendItem(item, name, GmatTree::ICON_REPORT_FILE, -1,
+                 new GmatTreeItemData(name, GmatTree::EPHEMERIS_FILE));
+      Expand(item);
+      
       theGuiManager->UpdateSubscriber();
    }
 }
@@ -3718,6 +3753,7 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
       menu->Append(POPUP_ADD_REPORT_FILE, wxT("ReportFile"));
       menu->Append(POPUP_ADD_XY_PLOT, wxT("XYPlot"));
       menu->Append(POPUP_ADD_OPENGL_PLOT, wxT("OpenGLPlot"));
+      menu->Append(POPUP_ADD_EPHEMERIS_FILE, wxT("EphemerisFile"));
 
       listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SUBSCRIBER);
       newId = SUBSCRIBER_BEGIN;
@@ -3729,6 +3765,7 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
          if ((subscriberType != "ReportFile") &&
              (subscriberType != "XYPlot") &&
              (subscriberType != "OpenGLPlot") &&
+             (subscriberType != "EphemerisFile") &&
              (subscriberType != "TextEphemFile") &&
              (subscriberType != "MessageWindow") &&
              (subscriberType != "MatlabWS"))
@@ -3820,6 +3857,7 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
    case GmatTree::REPORT_FILE:
    case GmatTree::XY_PLOT:
    case GmatTree::OPENGL_PLOT:
+   case GmatTree::EPHEMERIS_FILE:
       objType = Gmat::SUBSCRIBER;
       break;
    case GmatTree::VARIABLE:
@@ -3878,6 +3916,7 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
    case GmatTree::REPORT_FILE:
    case GmatTree::XY_PLOT:
    case GmatTree::OPENGL_PLOT:
+   case GmatTree::EPHEMERIS_FILE:
       return mSubscriberItem;
    case GmatTree::VARIABLE:
       return mVariableItem;
@@ -3922,11 +3961,13 @@ GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType item
    case GmatTree::PROPAGATOR:
       return GmatTree::ICON_PROPAGATOR;
    case GmatTree::REPORT_FILE:
-      return GmatTree::ICON_REPORT;
+      return GmatTree::ICON_REPORT_FILE;
    case GmatTree::XY_PLOT:
       return GmatTree::ICON_XY_PLOT;
    case GmatTree::OPENGL_PLOT:
       return GmatTree::ICON_OPEN_GL_PLOT;
+   case GmatTree::EPHEMERIS_FILE:
+      return GmatTree::ICON_REPORT_FILE;
    case GmatTree::VARIABLE:
       return GmatTree::ICON_VARIABLE;
    case GmatTree::ARRAY:
