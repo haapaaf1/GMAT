@@ -3610,7 +3610,7 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
       {
          if (sub->GetName() != "")
             theConfigManager->AddSubscriber(sub);
-      
+         
          #if DEBUG_CREATE_RESOURCE
          MessageInterface::ShowMessage
             ("Moderator::CreateSubscriber() Creating default subscriber...\n");
@@ -3642,6 +3642,11 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
                
                // To validate and create element wrappers
                theScriptInterpreter->ValidateSubscriber(sub);
+            }
+            else if (type == "EphemerisFile")
+            {
+               // add default spacecraft and coordinate system
+               sub->SetStringParameter("Spacecraft", GetDefaultSpacecraft()->GetName());
             }
          }
       }
