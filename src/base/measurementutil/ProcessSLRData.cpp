@@ -23,23 +23,6 @@
 //#define DEBUG_SLR_DATA
 
 //---------------------------------
-//  static data
-//---------------------------------
-
-const std::string ProcessSLRData::DATATYPE_DESCRIPTIONS[EndSLRTypeReps] =
-{
-    "TwoWayTimeOfFlight"
-};
-    
-const std::string ProcessSLRData::TIMESYSTEM_DESCRIPTIONS[EndSLRTimeReps] =
-{
-    "UTC",
-    "GPS",
-    "BIPM",
-    "BIH"
-};
-
-//---------------------------------
 //  public methods
 //---------------------------------
 
@@ -70,7 +53,7 @@ bool ProcessSLRData::Initialize()
         // Initialize individual data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        slr_header *mySLRheader = new slr_header;
+        SLRHeader *mySLRheader = new SLRHeader;
         SLRObtype *mySLR = new SLRObtype;
 
         // Locate the start of the first header record
@@ -293,41 +276,13 @@ bool ProcessSLRData::BackUpToPreviousOb() {
 }
 
 //------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
- bool ProcessSLRData::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndSLRDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                                   .set_extended(true)
-                       ).FullMatch(SLR_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
- 
-//------------------------------------------------------------------------------
-// bool GetData(slr_header *mySLRheader, SLRObtype *mySLRdata)
+// bool GetData(SLRHeader *mySLRheader, SLRObtype *mySLRdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the header line of SLR data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetData(slr_header *mySLRheader, SLRObtype *mySLRdata)
+bool ProcessSLRData::GetData(SLRHeader *mySLRheader, SLRObtype *mySLRdata)
 {
 
     // Read a line from file
@@ -343,7 +298,7 @@ bool ProcessSLRData::GetData(slr_header *mySLRheader, SLRObtype *mySLRdata)
         Integer flag = 99999;
 
         // create a new header struct in memory
-        slr_header *mySLRheader = new slr_header;
+        SLRHeader *mySLRheader = new SLRHeader;
 
         FindSLRHeaderLine(mySLRheader,flag);
 
@@ -353,7 +308,7 @@ bool ProcessSLRData::GetData(slr_header *mySLRheader, SLRObtype *mySLRdata)
         Integer flag = 88888;
 
         // create a new header struct in memory
-        slr_header *mySLRheader = new slr_header;
+        SLRHeader *mySLRheader = new SLRHeader;
 
         FindSLRHeaderLine(mySLRheader,flag);
 
@@ -368,14 +323,14 @@ bool ProcessSLRData::GetData(slr_header *mySLRheader, SLRObtype *mySLRdata)
 }
 
 //------------------------------------------------------------------------------
-// bool FindSLRHeaderLine(slr_header *mySLRheader, bool &flag)
+// bool FindSLRHeaderLine(SLRHeader *mySLRheader, bool &flag)
 //------------------------------------------------------------------------------
 /** 
  * The routine locates the start of an SLR data block and then obtains the 
  * header line of SLR data.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::FindSLRHeaderLine(slr_header *mySLRheader, Integer &flag )
+bool ProcessSLRData::FindSLRHeaderLine(SLRHeader *mySLRheader, Integer &flag )
 {
 
     // Initialize headerType variable to 0
@@ -452,7 +407,7 @@ bool ProcessSLRData::FindSLRHeaderLine(slr_header *mySLRheader, Integer &flag )
 }
 
 //------------------------------------------------------------------------------
-// bool GetSLRHeader(std::string lff, slr_header *mySLRheader)
+// bool GetSLRHeader(std::string lff, SLRHeader *mySLRheader)
 //------------------------------------------------------------------------------
 /** 
  * Extracts header information from the compact SLR Normal Point Data format.
@@ -462,7 +417,7 @@ bool ProcessSLRData::FindSLRHeaderLine(slr_header *mySLRheader, Integer &flag )
  * calibration information, and the date.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetSLRHeader(std::string &lff, slr_header *mySLRheader)
+bool ProcessSLRData::GetSLRHeader(std::string &lff, SLRHeader *mySLRheader)
 {
 
     // Temporary variables for string to number conversion.
@@ -557,7 +512,7 @@ bool ProcessSLRData::GetSLRHeader(std::string &lff, slr_header *mySLRheader)
 }
 
 //------------------------------------------------------------------------------
-// bool GetSLRData(std::string lff, slr_header *mySLRheader,
+// bool GetSLRData(std::string lff, SLRHeader *mySLRheader,
 //                     SLRObtype *mySLRdata)
 //------------------------------------------------------------------------------
 /** 
@@ -567,7 +522,7 @@ bool ProcessSLRData::GetSLRHeader(std::string &lff, slr_header *mySLRheader)
  */
 //
 //------------------------------------------------------------------------------
-bool ProcessSLRData::GetSLRData(std::string &lff, slr_header *mySLRheader,
+bool ProcessSLRData::GetSLRData(std::string &lff, SLRHeader *mySLRheader,
 				     SLRObtype *mySLRdata)
 {
 
@@ -721,336 +676,7 @@ bool ProcessSLRData::GetSLRData(std::string &lff, slr_header *mySLRheader,
     
 }
 
-//------------------------------------------------------------------------------
-// Measurement Data Access functions
-//------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//  std::string  GetDataParameterText(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * This method returns the parameter text, given the input parameter ID.
- *
- * @param <id> Id for the requested parameter text.
- *
- * @return parameter text for the requested parameter.
- */
-//------------------------------------------------------------------------------
-std::string ProcessSLRData::GetDataParameterText(const Integer id) const
-{
-   if ((id >= 0) && (id < EndSLRDataReps))
-   {
-      return SLR_FILEFORMAT_DESCRIPTIONS[id];
-   }
-   return "";
-}
-
-//------------------------------------------------------------------------------
-//  std::string  GetDataUnits(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * This method returns the unit text, given the input parameter ID.
- *
- * @param <id> Id for the requested unit text.
- *
- * @return unit text for the requested parameter.
- */
-//------------------------------------------------------------------------------
-std::string ProcessSLRData::GetDataUnits(const Integer id) const
-{
-   if ((id >= 0) && (id < EndSLRDataReps))
-   {
-      return SLR_UNIT_DESCRIPTIONS[id];
-   }
-   return "";
-}
-
-
-//------------------------------------------------------------------------------
-//  Integer  GetDataParameterID(const std::string &str) const
-//------------------------------------------------------------------------------
-/**
- * This method returns the parameter ID, given the input parameter string.
- *
- * @param <str> string for the requested parameter.
- *
- * @return ID for the requested parameter.
- */
-//------------------------------------------------------------------------------
-Integer ProcessSLRData::GetDataParameterID(const std::string &str) const
-{
-   for (Integer i = 0; i < EndSLRDataReps; i++)
-   {
-      if (str == SLR_FILEFORMAT_DESCRIPTIONS[i])
-         return i;
-   }
-
-   return -1;
-}
-
-
-//------------------------------------------------------------------------------
-//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * This method returns the parameter type, given the input parameter ID.
- *
- * @param <id> ID for the requested parameter.
- *
- * @return parameter type of the requested parameter.
- */
-//------------------------------------------------------------------------------
-Gmat::ParameterType ProcessSLRData::GetDataParameterType(const Integer id) const
-{
-   if ((id >= 0) && (id < EndSLRDataReps))
-      return SLR_PARAMETER_TYPE[id];
-
-   return GmatBase::GetParameterType(id);
-}
-
-
-
-//---------------------------------------------------------------------------
-//  std::string GetDataParameterTypeString(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * Retrieve the string associated with a parameter.
- *
- * @param <id> The integer ID for the parameter.
- *
- * @return Text description for the type of the parameter, or the empty
- *         string ("").
- */
-//---------------------------------------------------------------------------
-std::string ProcessSLRData::GetDataParameterTypeString(const Integer id) const
-{
-   return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
-}
-
-//------------------------------------------------------------------------------
-// virtual Integer GetIntegerDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-Integer ProcessSLRData::GetIntegerDataParameter(const Integer id) const
-{
-
-    switch (id)
-    {
-        case SLR_TYPE_ID:
-
-            return (*(*i)->headerVectorIndex)->slrType;
-
-        case SLR_YEAR_ID:
-
-            return (*(*i)->headerVectorIndex)->year;
-
-        case SLR_DAYOFYEAR_ID:
-
-            return (*(*i)->headerVectorIndex)->dayOfYear;
-
-        case SLR_CDPPADID_ID:
-
-            return (*(*i)->headerVectorIndex)->cdpPadID;
-
-        case SLR_CDPSYSNUM_ID:
-
-            return (*(*i)->headerVectorIndex)->cdpSysNum;
-
-        case SLR_CDPOCCUPANCYSEQUENCENUM_ID:
-
-            return (*(*i)->headerVectorIndex)->cdpOccupancySequenceNum;
-
-        case SLR_CALSYSDELAY_ID:
-
-            return (*(*i)->headerVectorIndex)->calSysDelay;
-
-        case SLR_CALDELAYSHIFT_ID:
-
-            return (*(*i)->headerVectorIndex)->calDelayShift;
-
-        case SLR_RMSSYSDELAY_ID:
-
-            return (*(*i)->headerVectorIndex)->rmsSysDelay;
-
-        case SLR_NORMALPOINTWINDOWINDICATOR_ID:
-
-            return (*(*i)->headerVectorIndex)->normalPointWindowIndicator;
-
-        case SLR_EPOCHTIMESCALEINDICATOR_ID:
-
-            return (*(*i)->headerVectorIndex)->epochTimeScaleIndicator;
-
-        case SLR_SYSCALMETHODINDICATOR_ID:
-
-            return (*(*i)->headerVectorIndex)->sysCalMethodIndicator;
-
-        case SLR_SCHINDICATOR_ID:
-
-            return (*(*i)->headerVectorIndex)->schIndicator;
-
-        case SLR_SCIINDICATOR_ID:
-
-            return (*(*i)->headerVectorIndex)->sciIndicator;
-
-        case SLR_PASSRMS_ID:
-
-            return (*(*i)->headerVectorIndex)->passRMS;
-
-        case SLR_DATAQUALASSESSMENTINDICATOR_ID:
-
-            return (*(*i)->headerVectorIndex)->dataQualAssessmentIndicator;
-
-        case SLR_FORMATREVISIONNUM_ID:
-
-            return (*(*i)->headerVectorIndex)->formatRevisionNum;
-
-        case SLR_BINRMSRANGE_ID:
-
-            return (*i)->binRMSRange;
-
-        case SLR_RELATIVEHUMIDITY_ID:
-
-            return (*i)->relativeHumidity;
-
-        case SLR_NUMRAWRANGES_ID:
-
-            return (*i)->numRawRanges;
-
-        case SLR_DATARELEASEFLAG_ID:
-
-            return (*i)->dataReleaseFlag;
-
-        case SLR_RAWRANGEFACTOR_ID:
-
-            return (*i)->rawRangeFactor;
-
-        case SLR_NORMALPOINTWINDOWINDICATOR2_ID:
-
-            return (*i)->normalPointWindowIndicator2;
-
-        case SLR_BURSTCALSYSDELAY_ID:
-
-            return (*i)->burstCalSysDelay;
-
-        case SLR_SIGNALSTRENGTH_ID:
-
-            return (*i)->signalStrength;
-
-        case SLR_ANGLEORIGININDICATOR_ID:
-
-            return (*i)->angleOriginIndicator;
-
-       default:
-
-            return -123456789;
-
-    }
-
-}
-
-
-//------------------------------------------------------------------------------
-// virtual Integer GetIntegerDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see GmatBase
- */
-//------------------------------------------------------------------------------
-Integer ProcessSLRData::GetIntegerDataParameter(const std::string &label) const
-{
-   return GetIntegerDataParameter(GetDataParameterID(label));
-}
-
-//------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-std::string ProcessSLRData::GetStringDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-        case SLR_ILRSSATNUM_ID:
-
-            return (*(*i)->headerVectorIndex)->ilrsSatnum;
-
-        default:
-
-            return "";
-
-    }
-}
-
-
-//------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see GmatBase
- */
-//------------------------------------------------------------------------------
-std::string ProcessSLRData::GetStringDataParameter(const std::string &label) const
-{
-   return GetStringDataParameter(GetDataParameterID(label));
-}
-
-//------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-Real ProcessSLRData::GetRealDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-
-        case SLR_WAVELENGTH_ID:
-
-            return (*(*i)->headerVectorIndex)->wavelength;
-
-        case SLR_TIMEOFLASERFIRING_ID:
-
-            return (*i)->timeOfLaserFiring;
-
-        case SLR_TWOWAYTIMEOFFLIGHT_ID:
-
-            return (*i)->twoWayTimeOfFlight;
-
-        case SLR_SURFACEPRESSURE_ID:
-
-            return (*i)->surfacePressure;
-
-        case SLR_SURFACETEMP_ID:
-
-            return (*i)->surfaceTemp;
-
-        case SLR_SIGNALTONOISERATIO_ID:
-
-            return (*i)->signalToNoiseRatio;
-
-        case SLR_AZIMUTH_ID:
-
-            return (*i)->az;
-
-        case SLR_ELEVATION_ID:
-
-            return (*i)->el;
-            
-        default:
-
-            return -1234567.89;
-
-    }
-
-}
-
-
-//------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see GmatBase
- */
-//------------------------------------------------------------------------------
-Real ProcessSLRData::GetRealDataParameter(const std::string &label) const
-{
-   return GetRealDataParameter(GetDataParameterID(label));
-}
 
 //------------------------------------------------------------------------------
 // bool WriteDataHeader(SLRObtype *mySLRheader)
@@ -1062,7 +688,7 @@ Real ProcessSLRData::GetRealDataParameter(const std::string &label) const
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRData::WriteDataHeader(slr_header *mySLRheader)
+bool ProcessSLRData::WriteDataHeader(SLRHeader *mySLRheader)
 {
 
     // TLE's have a maximum length of 68 characters plus a 1 character checksum
@@ -1239,108 +865,4 @@ Integer ProcessSLRData::SLRCheckSum(const std::string &str)
 
     return GmatMathUtil::Mod(checksum,100);
 
-}
-
-//------------------------------------------------------------------------------
-// const std::string* GetDataTypes() const
-//------------------------------------------------------------------------------
-/**
- * Returns the string array of allowable data types.
- *
- * @return String array of all data types.
- *
- */
-//------------------------------------------------------------------------------
-const std::string* ProcessSLRData::GetDataTypes() const
-{
-   return DATATYPE_DESCRIPTIONS;
-}
-
-//------------------------------------------------------------------------------
-// std::string GetDataTypeText(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * Code used to obtain the data type text corresponding to a ID
- *
- * @param <id> Integer ID associated with the data type
- * @return The string description of the data type
- *
- */
-//------------------------------------------------------------------------------
-std::string ProcessSLRData::GetDataTypeText(const Integer &id) const
-{
-   if ((id >= 0) && (id < EndSLRTypeReps))
-   {
-      return DATATYPE_DESCRIPTIONS[id];
-   }
-
-   return "INVALID";
-}
-
-//------------------------------------------------------------------------------
-// Integer GetDataTypeID(const std::string &label)
-//------------------------------------------------------------------------------
-/**
- * Code used to obtain the data type ID
- *
- * @param <label> The string label associated with the data type
- * @return The integer data type ID
- *
- */
-//------------------------------------------------------------------------------
-Integer ProcessSLRData::GetDataTypeID(const std::string &label)
-{
-    return -1;
-}
-
-//------------------------------------------------------------------------------
-// const StringArray GetTimeSystems() const
-//------------------------------------------------------------------------------
-/**
- * Returns the string array of allowable time systems.
- *
- * @return String array of all time systems
- *
- */
-//------------------------------------------------------------------------------
-const std::string* ProcessSLRData::GetTimeSystems() const
-{
-   return TIMESYSTEM_DESCRIPTIONS;
-}
-
-//------------------------------------------------------------------------------
-// std::string GetTimeSystemText(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * Code used to obtain the time system text corresponding to a ID
- *
- * @param <id> Integer ID associated with the time system
- * @return The string description of the time system
- *
- */
-//------------------------------------------------------------------------------
-std::string ProcessSLRData::GetTimeSystemText(const Integer &id) const
-{
-   if ((id >= 0) && (id < EndSLRTimeReps))
-   {
-      return TIMESYSTEM_DESCRIPTIONS[id];
-   }
-
-   return "INVALID";
-}
-
-//------------------------------------------------------------------------------
-// Integer GetTimeSystemID(const std::string &label)
-//------------------------------------------------------------------------------
-/**
- * Code used to obtain the time system ID
- *
- * @param <label> The string label associated with the time system
- * @return The integer time system ID
- *
- */
-//------------------------------------------------------------------------------
-Integer ProcessSLRData::GetTimeSystemID(const std::string &label)
-{
-    return -1;
 }

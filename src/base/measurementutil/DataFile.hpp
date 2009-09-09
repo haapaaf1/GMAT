@@ -13,9 +13,8 @@
 //
 /**
  *
- * Implements LatLonHgt Base class to contain the associated elements
- * Latitude, Longitude, Height, and a flag to determine geocentric versus
- * geodetic angles.
+ * Implements the DataFile base class that allows a local file to be processed
+ * according to a specified ASCII and/or binary data file format.
  *
  */
 //------------------------------------------------------------------------------
@@ -36,8 +35,6 @@
 #include <math.h>
 #include "StringUtil.hpp"           // for ToString()
 
-
-using namespace DataFormats; // for data type variable definitions
 using namespace std; // so we don't have to type std::cout and std::endl
 
 class DataFile : public GmatBase
@@ -65,33 +62,6 @@ public:
     virtual Integer GetIntegerParameter(const std::string &label) const;
     virtual Integer SetIntegerParameter(const Integer id, const Integer value);
     virtual Integer SetIntegerParameter(const std::string &label, const Integer value);
-
-
-    // Measurement Data Access function
-    virtual bool AdvanceToNextOb();
-    virtual bool BackUpToPreviousOb();
-    virtual std::string GetDataParameterText(const Integer id) const;
-    virtual std::string GetDataUnits(const Integer id) const;
-    virtual Integer     GetDataParameterID(const std::string &str) const;
-    virtual Gmat::ParameterType
-                        GetDataParameterType(const Integer id) const;
-    virtual std::string GetDataParameterTypeString(const Integer id) const;
-
-    virtual Integer     GetIntegerDataParameter(const Integer id) const;
-    virtual Integer     GetIntegerDataParameter(const std::string &label) const;
-    virtual IntegerArray     GetIntegerArrayDataParameter(const Integer id) const;
-    virtual IntegerArray     GetIntegerArrayDataParameter(const std::string &label) const;
-    virtual Real        GetRealDataParameter(const Integer id) const;
-    virtual Real        GetRealDataParameter(const std::string &label) const;
-    virtual bool        GetBoolDataParameter(const Integer id) const;
-    virtual bool        GetBoolDataParameter(const std::string &label) const;
-    virtual std::string GetStringDataParameter(const Integer id) const;
-    virtual std::string GetStringDataParameter(const std::string &label) const;
-    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
-    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
-
-    // Functions to verify data availability
-    virtual bool CheckDataAvailability(const std::string str) const;
 
     // Method to obtain data from the file
     virtual bool GetData();
@@ -151,7 +121,16 @@ public:
     std::string GetFileFormatDescriptionText(const Integer &id) const;
     Integer GetFileFormatID(const std::string &label);
     void SetFileFormatID(const std::string &label);
-
+    
+    virtual std::string GetParameterText(const Integer id) const;
+    virtual Integer GetParameterID(const std::string &str) const;
+    virtual Gmat::ParameterType GetParameterType(const Integer id) const;
+    virtual std::string GetParameterTypeString(const Integer id) const;
+    
+    // Measurement Data Access functions
+    bool AdvanceToNextOb();
+    bool BackUpToPreviousOb();    
+ 
     enum DATATYPE_REPS
     {
 	EndDataTypeReps = 0,

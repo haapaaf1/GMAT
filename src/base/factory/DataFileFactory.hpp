@@ -27,6 +27,11 @@
 class ProcessB3Data;
 class ProcessTLEData;
 class ProcessSLRData;
+//class ProcessCCSDSTDM;
+//class ProcessCCSDSOPM;
+//class ProcessCCSDSOEM;
+//class ProcessCCSDSAPM;
+//class ProcessCCSDSAEM;
 
 class DataFileFactory : public Factory
 {

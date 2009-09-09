@@ -25,12 +25,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string ProcessB3Data::TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps] =
-{
-    "UTC"
-};
-
-const std::string ProcessB3Data::DATATYPE_DESCRIPTIONS[EndB3TypeReps] =
+const std::string ProcessB3Data::B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps] =
 {
     "Range rate only",
     "Azimuth & elevation",
@@ -257,35 +252,6 @@ bool ProcessB3Data::BackUpToPreviousOb()
     --i;
     if (i==b3Data.begin()) return false;
     return true;
-
-}
-
-
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
- bool ProcessB3Data::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndB3DataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(B3_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
 
 }
 

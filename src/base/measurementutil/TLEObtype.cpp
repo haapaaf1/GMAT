@@ -1,83 +1,92 @@
-#include "B3Obtype.hpp"
+#include "TLEObtype.hpp"
 
 //---------------------------------
-//  static data
+//   data
 //---------------------------------
-const std::string B3Obtype::B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
+const std::string TLEObtype::DATATYPE_DESCRIPTIONS[EndTLETypeReps] =
 {
-    "B3Type",
-    "SecurityClassification",
-    "SatelliteID",
-    "SensorID",
-    "Year",
-    "DayOfYear",
-    "Hour",
-    "Minute",
-    "Seconds",
-    "Elevation",
-    "Declination",
-    "RightAscension",
-    "Azimuth",
-    "Range",
-    "RangeRate",
-    "Ecf_X",
-    "Ecf_Y",
-    "Ecf_Z"
+    "Bstar",
+    "Inclination",
+    "RAAN",
+    "Eccentricity",
+    "ArgumentOfPerigee",
+    "MeanAnomaly",
+    "KozaiMeanMotion"
+};
+    
+const std::string TLEObtype::TIMESYSTEM_DESCRIPTIONS[EndTLETimeReps] =
+{
+    "UT"
 };
 
-const std::string B3Obtype::B3_UNIT_DESCRIPTIONS[EndB3DataReps] =
+const std::string TLEObtype::TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
 {
-    "",
-    "",
-    "",
-    "",
-    "year",
-    "DayOfYear",
-    "hrs",
-    "min",
-    "sec",
-    "deg",
-    "deg",
-    "deg",
-    "deg",
-    "km",
-    "km/sec",
-    "km",
-    "km",
-    "km"
+	"Satnum",
+	"SecurityClassification",
+	"IntlDesignator",
+	"EpochYear",
+	"EpochDayOfYear",
+	"Ndotby2",
+	"Nddotby6",
+	"Bstar",
+	"EphemerisType",
+	"ElementNum",
+	"Inclination",
+	"Raan",
+	"Eccentricity",
+	"ArgPerigee",
+	"MeanAnomaly",
+	"KozaiMeanMotion",
+	"RevolutionNum"
 };
 
-const Gmat::ParameterType B3Obtype::B3_PARAMETER_TYPE[EndB3DataReps] =
+const std::string TLEObtype::TLE_UNIT_DESCRIPTIONS[EndTLEDataReps] =
 {
-    Gmat::INTEGER_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE
+	"",
+	"",
+	"",
+	"years",
+	"DayOfYear",
+	"rev/sec^2",
+	"rad/sec^3",
+	"1/EarthRadii",
+	"",
+	"",
+	"deg",
+	"deg",
+	"",
+	"deg",
+	"deg",
+	"rev/day",
+	""
 };
 
-const bool B3Obtype::B3_IS_REQUIRED[EndB3DataReps] =
+const Gmat::ParameterType TLEObtype::TLE_PARAMETER_TYPE[EndTLEDataReps] =
+{
+	Gmat::INTEGER_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::STRING_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::INTEGER_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::REAL_TYPE,
+	Gmat::INTEGER_TYPE
+};
+
+const bool TLEObtype::TLE_IS_REQUIRED[EndTLEDataReps] =
 {
     true,
     true,
-    true,
-    true,
-    true,
-    true,
-    true,
+    false,
     true,
     true,
     false,
@@ -85,65 +94,51 @@ const bool B3Obtype::B3_IS_REQUIRED[EndB3DataReps] =
     false,
     false,
     false,
-    false,
-    false,
-    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
     false
 };
 
-const std::string B3Obtype::B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps] =
-{
-    "Range",
-    "RangeRate",
-    "Azimuth",
-    "Elevation",
-    "RightAscension",
-    "Declination"
-    
-};
-    
-const std::string B3Obtype::B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps] =
-{
-    "UTC"
-};
-
 //------------------------------------------------------------------------------
-//  B3Obtype()
+//  TLEObtype()
 //------------------------------------------------------------------------------
 /**
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-B3Obtype::B3Obtype() :
-    b3Type(-1),
-    securityClassification("U"),
-    satID(0),
-    sensorID(0),
-    year(0),
-    dayOfYear(0),
-    hour(0),
-    minute(0),
-    seconds(0),
-    elevation(0),
-    declination(0),
-    rightAscension(0),
-    azimuth(0),
-    range(0),
-    rangeRate(0),
-    ecf_X(0),
-    ecf_Y(0),
-    ecf_Z(0)
+TLEObtype::TLEObtype() :
+	satnum(0),
+	securityClassification("U"),
+	intlDesignator(GmatBase::STRING_PARAMETER_UNDEFINED),
+	epochYear(0),
+	epochDayOfYear(0),
+	ndotby2(0),
+	nddotby6(0),
+	bstar(0),
+	ephemerisType(0),
+	elementNum(0),
+	inclination(0),
+	raan(0),
+	eccentricity(0),
+	argPerigee(0),
+	meanAnomaly(0),
+	meanMotion(0),
+	revolutionNum(0)
 {
 }
 
 //------------------------------------------------------------------------------
-//  ~B3Obtype()
+//  ~TLEObtype()
 //------------------------------------------------------------------------------
 /**
  * Destructor for the obtype class
  */
 //------------------------------------------------------------------------------
-B3Obtype::~B3Obtype()
+TLEObtype::~TLEObtype()
 {
 }
 
@@ -152,17 +147,49 @@ B3Obtype::~B3Obtype()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+ bool TLEObtype::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+    
+    for (Integer i = 0; i < EndTLEDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(TLE_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return false;
+
+}
+ 
+//------------------------------------------------------------------------------
 //  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * This method returns the parameter text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested parameter text.
+ *
+ * @return parameter text for the requested parameter.
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetDataParameterText(const Integer id) const
+std::string TLEObtype::GetDataParameterText(const Integer id) const
 {
-   if ((id >= 0) && (id < EndB3DataReps))
+   if ((id >= 0) && (id < EndTLEDataReps))
    {
-      return B3_FILEFORMAT_DESCRIPTIONS[id];
+      return TLE_FILEFORMAT_DESCRIPTIONS[id];
    }
    return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
@@ -171,40 +198,41 @@ std::string B3Obtype::GetDataParameterText(const Integer id) const
 //  std::string  GetDataUnits(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * This method returns the unit text, given the input parameter ID.
+ *
+ * @param <id> Id for the requested unit text.
+ *
+ * @return unit text for the requested parameter.
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetDataUnits(const Integer id) const
+std::string TLEObtype::GetDataUnits(const Integer id) const
 {
-   if ((id >= 0) && (id < EndB3DataReps))
+   if ((id >= 0) && (id < EndTLEDataReps))
    {
-      return B3_UNIT_DESCRIPTIONS[id];
+      return TLE_UNIT_DESCRIPTIONS[id];
    }
    return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
-
 
 //------------------------------------------------------------------------------
 //  Integer  GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * This method returns the parameter ID, given the input parameter string.
+ *
+ * @param <str> string for the requested parameter.
+ *
+ * @return ID for the requested parameter.
  */
 //------------------------------------------------------------------------------
-Integer B3Obtype::GetDataParameterID(const std::string &str) const
+Integer TLEObtype::GetDataParameterID(const std::string &str) const
 {
-    std::string regex = "^" + str + "$";
-    
-    for (Integer i = 0; i < EndB3DataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(B3_FILEFORMAT_DESCRIPTIONS[i]))
-	{
-	    return i;
-	}
+   for (Integer i = 0; i < EndTLEDataReps; i++)
+   {
+      if (str == TLE_FILEFORMAT_DESCRIPTIONS[i])
+         return i;
    }
-      
+
    return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
@@ -213,25 +241,36 @@ Integer B3Obtype::GetDataParameterID(const std::string &str) const
 //  Gmat::ParameterType  GetDataParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * This method returns the parameter type, given the input parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return parameter type of the requested parameter.
  */
 //------------------------------------------------------------------------------
-Gmat::ParameterType B3Obtype::GetDataParameterType(const Integer id) const
+Gmat::ParameterType TLEObtype::GetDataParameterType(const Integer id) const
 {
-   if ((id >= 0) && (id < EndB3DataReps))
-      return B3_PARAMETER_TYPE[id];
+   if ((id >= 0) && (id < EndTLEDataReps))
+      return TLE_PARAMETER_TYPE[id];
 
    return Gmat::UNKNOWN_PARAMETER_TYPE;
 }
+
+
 
 //---------------------------------------------------------------------------
 //  std::string GetDataParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 /**
- * @see Obtype
+ * Retrieve the string associated with a parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return Text description for the type of the parameter, or the empty
+ *         string ("").
  */
 //---------------------------------------------------------------------------
-std::string B3Obtype::GetDataParameterTypeString(const Integer id) const
+std::string TLEObtype::GetDataParameterTypeString(const Integer id) const
 {
    return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
 }
@@ -239,58 +278,46 @@ std::string B3Obtype::GetDataParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-/**
- * @see Obtype
- */
-//---------------------------------------------------------------------------
-Integer B3Obtype::GetIntegerDataParameter(const Integer id) const
+Integer TLEObtype::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case B3_TYPE_ID:
+        case TLE_SATNUM_ID:
 
-            return b3Type;
+            return satnum;
 
-        case B3_SATELLITE_ID:
+        case TLE_EPOCHYEAR_ID:
 
-            return satelliteID;
+            return epochYear;
 
-        case B3_SENSORID_ID:
+        case TLE_EPHEMERISTYPE_ID:
 
-            return sensorID;
+            return ephemerisType;
 
-        case B3_YEAR_ID:
+        case TLE_ELEMENTNUM_ID:
 
-            return year;
+            return elementNum;
 
-        case B3_DAYOFYEAR_ID:
+        case TLE_REVOLUTIONNUM_ID:
 
-            return dayOfYear;
-
-        case B3_HOUR_ID:
-
-            return hour;
-
-        case B3_MINUTE_ID:
-
-            return minute;
+            return revolutionNum;
 
         default:
 
             return GmatBase::INTEGER_PARAMETER_UNDEFINED;
-
     }
-
+   
 }
+
 
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see GmatBase
  */
 //------------------------------------------------------------------------------
-Integer B3Obtype::GetIntegerDataParameter(const std::string &label) const
+Integer TLEObtype::GetIntegerDataParameter(const std::string &label) const
 {
    return GetIntegerDataParameter(GetDataParameterID(label));
 }
@@ -298,17 +325,17 @@ Integer B3Obtype::GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-/**
- * @see Obtype
- */
-//------------------------------------------------------------------------------
-std::string B3Obtype::GetStringDataParameter(const Integer id) const
+std::string TLEObtype::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case B3_SECURITYCLASSIFICATION_ID:
+        case TLE_SECURITYCLASSIFICATION_ID:
 
             return securityClassification;
+
+        case TLE_INTLDESIGNATOR_ID:
+
+            return intlDesignator;
 
         default:
 
@@ -322,10 +349,10 @@ std::string B3Obtype::GetStringDataParameter(const Integer id) const
 // virtual std::string GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see GmatBase
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetStringDataParameter(const std::string &label) const
+std::string TLEObtype::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
 }
@@ -333,54 +360,50 @@ std::string B3Obtype::GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-/**
- * @see Obtype
- */
-//------------------------------------------------------------------------------
-Real B3Obtype::GetRealDataParameter(const Integer id) const
+Real TLEObtype::GetRealDataParameter(const Integer id) const
 {
     switch (id)
     {
 
-       case B3_SECONDS_ID:
+       case TLE_EPOCHDAYOFYEAR_ID:
 
-            return seconds;
+            return epochDayOfYear;
 
-        case B3_ELEVATION_ID:
+        case TLE_NDOTBY2_ID:
 
-            return elevation;
+            return ndotby2;
 
-        case B3_DECLINATION_ID:
+        case TLE_NDDOTBY6_ID:
 
-            return declination;
+            return nddotby6;
 
-        case B3_RIGHTASCENSION_ID:
+        case TLE_BSTAR_ID:
 
-            return rightAscension;
+            return bstar;
 
-        case B3_AZIMUTH_ID:
+        case TLE_INCLINATION_ID:
 
-            return azimuth;
+            return inclination;
 
-        case B3_RANGE_ID:
+        case TLE_RAAN_ID:
 
-            return range;
+            return raan;
 
-        case B3_RANGERATE_ID:
+        case TLE_ECCENTRICITY_ID:
 
-            return rangeRate;
+            return eccentricity;
 
-        case B3_ECFX_ID:
+        case TLE_ARGPERIGEE_ID:
 
-            return ecf_X;
+            return argPerigee;
 
-        case B3_ECFY_ID:
+        case TLE_MEANANOMALY_ID:
 
-            return ecf_Y;
+            return meanAnomaly;
 
-        case B3_ECFZ_ID:
+        case TLE_MEANMOTION_ID:
 
-            return ecf_Z;
+            return meanMotion;
 
         default:
 
@@ -390,14 +413,15 @@ Real B3Obtype::GetRealDataParameter(const Integer id) const
 
 }
 
+
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see GmatBase
  */
 //------------------------------------------------------------------------------
-Real B3Obtype::GetRealDataParameter(const std::string &label) const
+Real TLEObtype::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
@@ -412,9 +436,9 @@ Real B3Obtype::GetRealDataParameter(const std::string &label) const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* B3Obtype::GetDataTypes() const
+const std::string* TLEObtype::GetDataTypes() const
 {
-   return B3_DATATYPE_DESCRIPTIONS;
+   return DATATYPE_DESCRIPTIONS;
 }
 
 //------------------------------------------------------------------------------
@@ -428,11 +452,11 @@ const std::string* B3Obtype::GetDataTypes() const
  *
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetDataTypeText(const Integer &id) const
+std::string TLEObtype::GetDataTypeText(const Integer &id) const
 {
-   if ((id >= 0) && (id < EndB3TypeReps))
+   if ((id >= 0) && (id < EndTLETypeReps))
    {
-      return B3_DATATYPE_DESCRIPTIONS[id];
+      return DATATYPE_DESCRIPTIONS[id];
    }
 
    return GmatBase::STRING_PARAMETER_UNDEFINED;
@@ -449,7 +473,7 @@ std::string B3Obtype::GetDataTypeText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer B3Obtype::GetDataTypeID(const std::string &label)
+Integer TLEObtype::GetDataTypeID(const std::string &label)
 {
     return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
@@ -464,9 +488,9 @@ Integer B3Obtype::GetDataTypeID(const std::string &label)
  *
  */
 //------------------------------------------------------------------------------
-const std::string* B3Obtype::GetTimeSystems() const
+const std::string* TLEObtype::GetTimeSystems() const
 {
-   return B3_TIMESYSTEM_DESCRIPTIONS;
+   return TIMESYSTEM_DESCRIPTIONS;
 }
 
 //------------------------------------------------------------------------------
@@ -480,11 +504,11 @@ const std::string* B3Obtype::GetTimeSystems() const
  *
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetTimeSystemText(const Integer &id) const
+std::string TLEObtype::GetTimeSystemText(const Integer &id) const
 {
-   if ((id >= 0) && (id < EndB3TimeReps))
+   if ((id >= 0) && (id < EndTLETimeReps))
    {
-      return B3_TIMESYSTEM_DESCRIPTIONS[id];
+      return TIMESYSTEM_DESCRIPTIONS[id];
    }
 
    return GmatBase::STRING_PARAMETER_UNDEFINED;
@@ -501,69 +525,7 @@ std::string B3Obtype::GetTimeSystemText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer B3Obtype::GetTimeSystemID(const std::string &label)
+Integer TLEObtype::GetTimeSystemID(const std::string &label)
 {
-
-    std::string regex = "^" + label + "$";
-    
-    for (Integer i = 0; i < EndB3TimeReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(B3_TIMESYSTEM_DESCRIPTIONS[i]))
-        {
-	    return i;
-	}
-    
-    }
-      
     return GmatBase::INTEGER_PARAMETER_UNDEFINED;
- 
-}
-
-//---------------------------------------------------------------------------
-//  bool IsParameterRequired(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the requested parameter is required by the data format.
- *
- * @param <id> Description for the parameter.
- *
- * @return true if the parameter is read only, false (the default)
- */
-//---------------------------------------------------------------------------
-bool B3Obtype::IsParameterRequired(const Integer id) const
-{
-    if (id > 0 && id <= EndB3DataReps)
-	return B3_IS_REQUIRED[id];
-    else
-	return false;
-}
-
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool B3Obtype::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndB3DataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(B3_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
 }

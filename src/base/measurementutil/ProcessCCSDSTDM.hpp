@@ -25,9 +25,11 @@
 #include "DataFile.hpp"
 #include "Obtype.hpp"
 
+using namespace CCSDSObtype;
+
 class ProcessCCSDSTDM : public DataFile
 {
-
+    
 public:
     
     ProcessCCSDSTDM(const std::string &itsName);

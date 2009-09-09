@@ -5,16 +5,19 @@
  * Created on September 3, 2009, 5:00 AM
  */
 
-#ifndef _B3FORMATDESCIPTION_HPP
-#define	_B3FORMATDESCIPTION_HPP
+#ifndef _B3OBTYPE_HPP
+#define	_B3OBTYPE_HPP
 
-namespace DataFormats
+#include "Obtype.hpp"
+
+// The B3 observation type specification
+class B3Obtype : public Obtype
 {
-    // The B3 observation type specification
-    class B3Obtype : public Obtype
-    {
     
-    public :
+public :
+    	
+    B3Obtype();
+    ~B3Obtype();
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
@@ -31,6 +34,7 @@ namespace DataFormats
 
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
+
     const std::string* GetDataTypes() const;
     std::string GetDataTypeText(const Integer &id) const;
     Integer GetDataTypeID(const std::string &label);
@@ -38,9 +42,49 @@ namespace DataFormats
     const std::string* GetTimeSystems() const;
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
-	
+        
     bool IsParameterRequired(const Integer id) const;
-	
+    
+    enum B3_DATA_REPS
+    {
+	B3_TYPE_ID,
+	B3_SECURITYCLASSIFICATION_ID,
+	B3_SATELLITE_ID,
+	B3_SENSORID_ID,
+	B3_YEAR_ID,
+	B3_DAYOFYEAR_ID,
+	B3_HOUR_ID,
+	B3_MINUTE_ID,
+	B3_SECONDS_ID,
+	B3_ELEVATION_ID,
+	B3_DECLINATION_ID,
+	B3_RIGHTASCENSION_ID,
+	B3_AZIMUTH_ID,
+	B3_RANGE_ID,
+	B3_RANGERATE_ID,
+	B3_ECFX_ID,
+	B3_ECFY_ID,
+	B3_ECFZ_ID,
+	EndB3DataReps
+    };
+    
+    enum B3_DATATYPE_REPS
+    {
+	RANGE_ID,
+	RANGERATE_ID,
+	AZIMUTH_ID,
+	ELEVATION_ID,
+	RIGHTASCENSION_ID,
+	DECLINATION_ID,
+	EndB3TypeReps    
+    };
+    
+    enum B3_TIMESYSTEM_REPS
+    {
+	UTC_ID,
+	EndB3TimeReps
+    };
+
     // Possible obtype values and their meaning
     // 0 - Range rate only
     // 1 - Azimuth and elevation
@@ -83,7 +127,7 @@ namespace DataFormats
     Real elevation;
     Real declination;
 	
-	// Right Ascension specified in hours
+    // Right Ascension specified in hours
     Real rightAscension;
     
     // Azimuth is specified in degrees and is always positive.
@@ -100,35 +144,17 @@ namespace DataFormats
     Real ecf_Y;
     Real ecf_Z;
 
-    enum B3_DATA_REPS
-    {
-	B3_TYPE_ID,
-	B3_SECURITYCLASSIFICATION_ID,
-	B3_SATELLITE_ID,
-	B3_SENSORID_ID,
-	B3_YEAR_ID,
-	B3_DAYOFYEAR_ID,
-	B3_HOUR_ID,
-	B3_MINUTE_ID,
-	B3_SECONDS_ID,
-	B3_ELEVATION_ID,
-	B3_DECLINATION_ID,
-	B3_RIGHTASCENSION_ID,
-	B3_AZIMUTH_ID,
-	B3_RANGE_ID,
-	B3_RANGERATE_ID,
-	B3_ECFX_ID,
-	B3_ECFY_ID,
-	B3_ECFZ_ID,
-	EndB3DataReps
-    };
-    
+protected:
+
+    static const std::string B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps];
+    static const std::string B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps];
     static const bool B3_IS_REQUIRED[EndB3DataReps];
     static const Gmat::ParameterType B3_PARAMETER_TYPE[EndB3DataReps];
     static const std::string B3_UNIT_DESCRIPTIONS[EndB3DataReps];
     static const std::string B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps];
+    	
 
-}
+};
 
-#endif	/* _B3FORMATDESCIPTION_HPP */
+#endif	/* _B3OBTYPE_HPP */
 

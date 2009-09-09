@@ -33,6 +33,32 @@ const std::string Obtype::OBTYPE_KEYWORDS[EndObtypeReps] =
 };
 
 //------------------------------------------------------------------------------
+//  Obtype()
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the obtype class
+ */
+//------------------------------------------------------------------------------
+Obtype::Obtype() :
+    epoch(0),
+    satelliteID(0),
+    internationalDesignator(std::string("")),
+    sensorID(0)
+{
+}
+
+//------------------------------------------------------------------------------
+//  ~Obtype()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the obtype class
+ */
+//------------------------------------------------------------------------------
+Obtype::~Obtype()
+{
+}
+
+//------------------------------------------------------------------------------
 // A1Date GetEpoch()
 //------------------------------------------------------------------------------
 /**
@@ -130,7 +156,7 @@ Integer Obtype::GetObtypeID(const std::string keyword)
         }
     }
 
-   return -1;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
 }
 
 //------------------------------------------------------------------------------
@@ -151,7 +177,7 @@ std::string Obtype::GetObtypeKeyword(Integer myID)
     }
     else
     {
-	return "";
+	return GmatBase::STRING_PARAMETER_UNDEFINED;;
     }
 }
 
@@ -336,7 +362,7 @@ std::string Obtype::Cospar2Ilrs(std::string cosparSatnum)
 //------------------------------------------------------------------------------
 std::string Obtype::GetDataParameterText(const Integer id) const
 {
-   return "";
+   return GmatBase::STRING_PARAMETER_UNDEFINED;;
 }
 
 //------------------------------------------------------------------------------
@@ -352,7 +378,7 @@ std::string Obtype::GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 std::string Obtype::GetDataUnits(const Integer id) const
 {
-   return "";
+   return GmatBase::STRING_PARAMETER_UNDEFINED;;
 }
 
 //------------------------------------------------------------------------------
@@ -368,7 +394,7 @@ std::string Obtype::GetDataUnits(const Integer id) const
 //------------------------------------------------------------------------------
 Integer Obtype::GetDataParameterID(const std::string &str) const
 {
-   return -1;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
 }
 
 //------------------------------------------------------------------------------
@@ -384,7 +410,7 @@ Integer Obtype::GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType Obtype::GetDataParameterType(const Integer id) const
 {
-   return GmatBase::GetParameterType(id);
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
 }
 
 //---------------------------------------------------------------------------
@@ -401,7 +427,7 @@ Gmat::ParameterType Obtype::GetDataParameterType(const Integer id) const
 //---------------------------------------------------------------------------
 std::string Obtype::GetDataParameterTypeString(const Integer id) const
 {
-   return "";
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -418,7 +444,7 @@ std::string Obtype::GetDataParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 Integer Obtype::GetIntegerDataParameter(const Integer id) const
 {
-    return -123456789;
+    return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
 }
 
 //------------------------------------------------------------------------------
@@ -439,6 +465,28 @@ Integer Obtype::GetIntegerDataParameter(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
+// virtual IntegerArray GetIntegerArrayParameter(const Integer id) const
+//------------------------------------------------------------------------------
+IntegerArray Obtype::GetIntegerArrayDataParameter(const Integer id) const
+{
+
+    return IntegerArray(1,GmatBase::INTEGER_PARAMETER_UNDEFINED);
+}
+
+
+//------------------------------------------------------------------------------
+// virtual IntegerArray GetIntegerArrayParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+IntegerArray Obtype::GetIntegerArrayDataParameter(const std::string &label) const
+{
+   return GetIntegerArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
@@ -452,7 +500,7 @@ Integer Obtype::GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 Real Obtype::GetRealDataParameter(const Integer id) const
 {
-    return -1234567.89;
+    return GmatBase::REAL_PARAMETER_UNDEFINED;;
 }
 
 //------------------------------------------------------------------------------
@@ -520,7 +568,7 @@ bool Obtype::GetBoolDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 std::string Obtype::GetStringDataParameter(const Integer id) const
 {
-    return "";
+    return GmatBase::STRING_PARAMETER_UNDEFINED;;
 }
 
 //------------------------------------------------------------------------------
@@ -592,7 +640,6 @@ bool Obtype::IsParameterRequired(const Integer id) const
    return false;
 }
 
-
 //---------------------------------------------------------------------------
 //  bool IsParameterRequired(const std::string &label) const
 //---------------------------------------------------------------------------
@@ -606,5 +653,19 @@ bool Obtype::IsParameterRequired(const Integer id) const
 //---------------------------------------------------------------------------
 bool Obtype::IsParameterRequired(const std::string &label) const
 {
-   return IsParameterRequired(GetParameterID(label));
+   return IsParameterRequired(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+ bool Obtype::CheckDataAvailability(const std::string str) const
+{
+   return false;
 }

@@ -8,8 +8,7 @@
 #ifndef _SP3CFORMATDESCRIPTION_HPP
 #define	_SP3CFORMATDESCRIPTION_HPP
 
-namespace DataFormats
-{
+#include "Obtype.hpp"
 
     // See the following website for a complete description of the SP3c
     // data format. Comments below are taken directly from the format
@@ -294,30 +293,10 @@ namespace DataFormats
 
     };
 
-    class SP3cObtype : public Obtype
-    {
+class SP3cObtype : public Obtype
+{
     
-    public :
-
-        // Iterator Pointer to the header record
-        std::vector<sp3c_header*>::iterator headerVectorIndex;
-
-        // Start Year, Month, Day of Month, Hour, Minute, Second
-        // This is the Gregorian date and time of day of the first
-        // epoch of the orbit.
-        Integer year;
-        Integer month;
-        Integer day;
-        Integer hour;
-        Integer minute;
-        Real seconds;
-        
-        std::vector<sp3c_position*> position;
-        std::vector<sp3c_posClockCorrelation*> posClockCorrelation;
-        std::vector<sp3c_velocity*> velocity;
-        std::vector<sp3c_velClockRateCorrelation*> velClockRateCorrelation;
-        
-    };
+public :
 
     enum SP3c_DATA_REPS
     {
@@ -395,228 +374,82 @@ namespace DataFormats
         EndSP3cDataReps
     };
 
-    static const Gmat::ParameterType SP3c_PARAMETER_TYPE[EndSP3cDataReps] =
-    {
-        Gmat::BOOLEAN_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::STRING_TYPE,
-        Gmat::STRING_TYPE,
-        Gmat::STRING_TYPE,
-        Gmat::STRING_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::STRINGARRAY_TYPE,
-        Gmat::INTARRAY_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::STRINGARRAY_TYPE,
-        Gmat::STRING_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::BOOLEAN_TYPE,
-        Gmat::BOOLEAN_TYPE,
-        Gmat::BOOLEAN_TYPE,
-        Gmat::BOOLEAN_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::REAL_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::INTEGER_TYPE,
-        Gmat::REAL_TYPE,
-    };
+    const std::string* GetDataTypes() const;
+    std::string GetDataTypeText(const Integer &id) const;
+    Integer GetDataTypeID(const std::string &label);
 
-    static const std::string SP3c_FILEFORMAT_DESCRIPTIONS[EndSP3cDataReps] =
-    {
-        "PosVelFlag",
-        "StartYear",
-        "StartMonth",
-        "StartHour",
-        "StartMinute",
-        "StartSecond",
-        "NumEpochs",
-        "DataUsed",
-        "CoordSys",
-        "OrbitType",
-        "Agency",
-        "GpsWeek",
-        "SecondsOfWeek",
-        "EpochInterval",
-        "ModJulianDay",
-        "FractionOfDay",
-        "NumSats",
-        "SatIdList",
-        "satAccuracyList",
-        "FileType",
-        "TimeSystem",
-        "BasePosVelStdDev",
-        "BaseClkRateStdDev",
-        "Comments",
-        "VehicleID",
-        "X",
-        "Y",
-        "Z",
-        "VX",
-        "VY",
-        "VZ",
-        "ClockValue",
-        "StdDevX",
-        "StdDevY",
-        "StdDevZ",
-        "StdDevVX",
-        "StdDevVY",
-        "StdDevVZ",
-        "StdDevClock",
-        "StdDevClockRate",
-        "ClockEventFlag",
-        "ClockPredictionFlag",
-        "ManeuverFlag",
-        "OrbitPredictFlag",
-        "XYCorrelation",
-        "XZCorrelation",
-        "XCCorrelation",
-        "YZCorrelation",
-        "YCCorrelation",
-        "ZCCorrelation",
-        "VXVYCorrelation",
-        "VXVZCorrelation",
-        "VXCCorrelation",
-        "VYVZCorrelation",
-        "VYCCorrelation",
-        "VZCCorrelation",
-        "HighResolutionStdDevX",
-        "HighResolutionStdDevY",
-        "HighResolutionStdDevZ",
-        "HighResolutionStdDevVX",
-        "HighResolutionStdDevVY",
-        "HighResolutionStdDevVZ",
-        "HighResolutionStdDevClock",
-        "HighResolutionStdDevClockRate",
-        "Year",
-        "Month",
-        "Hour",
-        "Minute",
-        "Second"
-    };
-
-    static const std::string SP3c_UNIT_DESCRIPTIONS[EndSP3cDataReps] =
-    {
-        "",
-        "years",
-        "months",
-        "hrs",
-        "min",
-        "sec",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "sec",
-        "sec",
-        "",
-        "FractionOfDay",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "km",
-        "km",
-        "km",
-        "dm/sec",
-        "dm/sec",
-        "dm/sec",
-        "microsec",
-        "mm",
-        "mm",
-        "mm",
-        "mm/sec",
-        "mm/sec",
-        "mm/sec",
-        "picosec",
-        "picosec/sec",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "years",
-        "months",
-        "hrs",
-        "min",
-        "sec"
-    };
+    const std::string* GetTimeSystems() const;
+    std::string GetTimeSystemText(const Integer &id) const;
+    Integer GetTimeSystemID(const std::string &label);    
     
-}
+    // Measurement Data Access functions
+    std::string GetDataParameterText(const Integer id) const;
+    Integer     GetDataParameterID(const std::string &str) const;
+    Integer     GetFileTypeID(const std::string &str) const;
+    Integer     GetTimeSystemID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+    std::string GetDataUnits(const Integer id) const;
+
+    bool     GetBoolDataParameter(const Integer id) const;
+    bool     GetBoolDataParameter(const std::string &label) const;
+    Real     GetRealDataParameter(const Integer id) const;
+    Real     GetRealDataParameter(const std::string &label) const;
+    Integer     GetIntegerDataParameter(const Integer id) const;
+    Integer     GetIntegerDataParameter(const std::string &label) const;
+    IntegerArray     GetIntegerArrayDataParameter(const Integer id) const;
+    IntegerArray     GetIntegerArrayDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+
+    enum DATATYPE_REPS
+    {
+	GPSONLY_ID = EndDataTypeReps,
+        MIXED_ID,
+        GLONASSONLY_ID,
+	LEOONLY_ID,
+	GALILEOONLY_ID,
+	EndSP3cTypeReps
+    };
+
+    enum TIMESYSTEM_REPS
+    {
+	GPSTIME_ID = EndTimeReps,
+        GLONASSUTC_ID,
+        GALILEOSYSTEMTIME_ID,
+	TAI_ID,
+	UTC_ID,
+	EndSP3cTimeReps
+    };
+
+protected:
+
+    static const std::string SP3c_DATATYPE_DESCRIPTIONS[EndSP3cTypeReps];
+    static const std::string SP3c_TIME_DESCRIPTIONS[EndSP3cTimeReps];
+    
+        // Iterator Pointer to the header record
+        std::vector<sp3c_header*>::iterator headerVectorIndex;
+
+        // Start Year, Month, Day of Month, Hour, Minute, Second
+        // This is the Gregorian date and time of day of the first
+        // epoch of the orbit.
+        Integer year;
+        Integer month;
+        Integer day;
+        Integer hour;
+        Integer minute;
+        Real seconds;
+        
+        std::vector<sp3c_position*> position;
+        std::vector<sp3c_posClockCorrelation*> posClockCorrelation;
+        std::vector<sp3c_velocity*> velocity;
+        std::vector<sp3c_velClockRateCorrelation*> velClockRateCorrelation;    
+};
 
 #endif	/* _SP3CFORMATDESCRIPTION_HPP */
 

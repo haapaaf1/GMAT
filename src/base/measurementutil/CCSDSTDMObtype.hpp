@@ -5,103 +5,24 @@
  * Created on September 3, 2009, 4:58 AM
  */
 
-#ifndef _CCSDSFORMATDESCRIPTION_HPP
-#define	_CCSDSFORMATDESCRIPTION_HPP
+#ifndef _CCSDSOBTYPE_HPP
+#define	_CCSDSOBTYPE_HPP
 
+#include "Obtype.hpp"
 #include "CCSDSObtype.hpp"
 
-namespace DataFormats
-{
+using namespace CCSDSObtype;
 
-    struct ccsds_tdm_metadata
-    {
-	std::vector<std::string*> metadataComments;
-	std::string timeSystem;
-	std::string startTime;
-	std::string stopTime;
-	std::string *participants[5];
-	std::string mode;
-	std::string *path[3];
-	std::string transmitBand;
-	std::string receiveBand;
-	Integer turnaroundNumerator;
-	Integer turnaroundDenominator;
-	std::string timetagRef;
-	Real integrationInterval;
-	std::string integrationRef;
-	Real frequencyOffset;
-	std::string rangeMode;
-	Real rangeModulus;
-	std::string rangeUnits;
-	std::string angleType;
-	std::string referenceFrame;
-	Real *transmitDelay[5];
-	Real *receiveDelay[5];
-	std::string dataQuality;
-	Real correctionAngle1;
-	Real correctionAngle2;
-	Real correctionDoppler;
-	Real correctionRange;
-	Real correctionReceive;
-	Real correctionTransmit;
-	bool correctionsApplied;
-    };
+class CCSDSTDMObtype : public Obtype
+{   
     
-    struct ccsds_tdm_data
-    {
-	std::string timeTag;
-	Real measurement;
-	std::string units;
-    };
-
-    class CCSDSTDMObtype : public Obtype
-    {
+public :
     
-    public :
+    CCSDSTDMObtype();
+    ~CCSDSTDMObtype();
+    	
+    bool IsParameterRequired(const Integer id) const;    
 	
-	bool IsParameterRequired(const Integer id) const;
-	
-	// Iterator Pointer to the header record
-        std::vector<ccsds_header*>::iterator headerVectorIndex;
-	// Iterator Pointer to the metadata record
-        std::vector<ccsds_tdm_metadata*>::iterator metadataVectorIndex;	
-        std::vector<ccsds_tdm_data*> angle1;
-        std::vector<ccsds_tdm_data*> angle2;
-        std::vector<ccsds_tdm_data*> carrierPower;
-        std::vector<ccsds_tdm_data*> clockBias;
-        std::vector<ccsds_tdm_data*> clockDrift;
-        std::vector<ccsds_tdm_data*> comment;
-        std::vector<ccsds_tdm_data*> dopplerInstanteous;
-        std::vector<ccsds_tdm_data*> dopplerIntegrated;
-        std::vector<ccsds_tdm_data*> dor;
-        std::vector<ccsds_tdm_data*> pcN0;
-        std::vector<ccsds_tdm_data*> prN0;
-        std::vector<ccsds_tdm_data*> pressure;
-        std::vector<ccsds_tdm_data*> range;
-        std::vector<ccsds_tdm_data*> receiveFrequency;
-        std::vector<ccsds_tdm_data*> receiveFrequency1;
-        std::vector<ccsds_tdm_data*> receiveFrequency2;
-        std::vector<ccsds_tdm_data*> receiveFrequency3;
-        std::vector<ccsds_tdm_data*> receiveFrequency4;
-        std::vector<ccsds_tdm_data*> receiveFrequency5;
-        std::vector<ccsds_tdm_data*> rHumidity;
-        std::vector<ccsds_tdm_data*> stec;
-        std::vector<ccsds_tdm_data*> temperature;
-        std::vector<ccsds_tdm_data*> transmitFrequency1;
-        std::vector<ccsds_tdm_data*> transmitFrequency2;
-        std::vector<ccsds_tdm_data*> transmitFrequency3;
-        std::vector<ccsds_tdm_data*> transmitFrequency4;
-        std::vector<ccsds_tdm_data*> transmitFrequency5;
-        std::vector<ccsds_tdm_data*> transmitFrequencyRate1;
-        std::vector<ccsds_tdm_data*> transmitFrequencyRate2;
-        std::vector<ccsds_tdm_data*> transmitFrequencyRate3;
-        std::vector<ccsds_tdm_data*> transmitFrequencyRate4;
-        std::vector<ccsds_tdm_data*> transmitFrequencyRate5;
-        std::vector<ccsds_tdm_data*> tropoDry;
-        std::vector<ccsds_tdm_data*> tropoWet;
-        std::vector<ccsds_tdm_data*> vlbiDelay;
-    };
-    
     enum CCSDS_TDM_DATA_REPS
     {
 	CCSDS_TDM_VERSION_ID,
@@ -256,466 +177,95 @@ namespace DataFormats
 	CCSDS_TDM_VLBIDELAY_UNITS_ID,
 	EndCCSDSTDMDataReps
     };
+    
+protected:
 
-    static const std::string CCSDS_TDM_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps] =
+    static const bool CCSDS_TDM_IS_REQUIRED[EndCCSDSTDMDataReps];
+    static const Gmat::ParameterType CCSDS_TDM_PARAMETER_TYPE[EndCCSDSTDMDataReps];
+    static const std::string CCSDS_TDM_UNIT_DESCRIPTIONS[EndCCSDSTDMDataReps];
+    static const std::string CCSDS_TDM_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps];
+    
+    struct ccsds_tdm_metadata
     {
-	"CCSDS Version",
-	"Creation Date",
-	"Originator",
-	"HeaderComments",
-	"MetadataComments",
-	"TimeSystem",
-	"StartTime",
-	"StopTime",
-	"Participant1",
-	"Participant2",
-	"Participant3",
-	"Participant4",
-	"Participant5",
-	"Mode",
-	"Path",
-	"Path1",
-	"Path2",
-	"TransmitBand",
-	"ReceiveBand",
-	"TurnaroundNumerator",
-	"TurnaroundDenominator",
-	"TimeTagReference",
-	"IntegrationInterval",
-	"IntegrationReference",
-	"FrequencyOffset",
-	"RangeMode",
-	"RangeModulus",
-	"RangeUnits",
-	"AngleType",
-	"ReferenceFrame",
-	"TransmitDelay1",
-	"TransmitDelay2",
-	"TransmitDelay3",
-	"TransmitDelay4",
-	"TransmitDelay5",
-	"ReceiveDelay1",
-	"ReceiveDelay2",
-	"ReceiveDelay3",
-	"ReceiveDelay4",
-	"ReceiveDelay5",
-	"DataQuality",
-	"CorrectionAngle1",
-	"CorrectionAngle2",
-	"CorrectionDoppler",
-	"CorrectionRange",
-	"CorrectionReceive",
-	"CorrectionTransmit",
-	"CorrectionApplied",
-	"Angle1TimeTag",
-	"Angle1",
-	"Angle1Units",
-	"Angle2TimeTag",
-	"Angle2",
-	"Angle2Units",
-	"CarrierPowerTimeTag",
-	"CarrierPower",
-	"CarrierPowerUnits",
-	"ClockBiasTimeTag",
-	"ClockBias",
-	"ClockBiasUnits",
-	"ClockDriftTimeTag",
-	"ClockDrift",
-	"ClockDriftUnits",
-	"DopplerInstantaneousTimeTag",
-	"DopplerInstantaneous",
-	"DopplerInstantaneousUnits",
-	"DopplerIntegratedTimeTag",
-	"DopplerIntegrated",
-	"DopplerIntegratedUnits",
-	"DORTimeTag",
-	"DOR",
-	"DORUnits",
-	"PCN0TimeTag",
-	"PCN0",
-	"PCN0Units",
-	"PRN0TimeTag",
-	"PRN0",
-	"PRN0Units",
-	"PressureTimeTag",
-	"Pressure",
-	"PressureUnits",
-	"RangeTimeTag",
-	"Range",
-	"RangeUnits",
-	"ReceiveFrequencyTimeTag",
-	"ReceiveFrequency",
-	"ReceiveFrequencyUnits",
-	"ReceiveFrequency1TimeTag",
-	"ReceiveFrequency1",
-	"ReceiveFrequency1Units",
-	"ReceiveFrequency2TimeTag",
-	"ReceiveFrequency2",
-	"ReceiveFrequency2Units",
- 	"ReceiveFrequency3TimeTag",
-	"ReceiveFrequency3",
-	"ReceiveFrequency3Units",
-	"ReceiveFrequency4TimeTag",
-	"ReceiveFrequency4",
-	"ReceiveFrequency4Units",
-	"ReceiveFrequency5TimeTag",
-	"ReceiveFrequency5",
-	"ReceiveFrequency5Units",
-	"RelativeHumidityTimeTag",
-	"RelativeHumidity",
-	"RelativeHumidityUnits",
-	"STECTimeTag",
-	"STEC",
-	"STECUnits",
-	"TemperatureTimeTag",
-	"Temperature",
-	"TemperatureUnits",
-	"TransmitFrequency1TimeTag",
-	"TransmitFrequency1",
-	"TransmitFrequency1Units",
-	"TransmitFrequency2TimeTag",
-	"TransmitFrequency2",
-	"TransmitFrequency2Units",
-	"TransmitFrequency3TimeTag",
-	"TransmitFrequency3",
-	"TransmitFrequency3Units",
-	"TransmitFrequency4TimeTag",
-	"TransmitFrequency4",
-	"TransmitFrequency4Units",
-	"TransmitFrequency5TimeTag",
-	"TransmitFrequency5",
-	"TransmitFrequency5Units",
-	"TransmitFrequencyRate1TimeTag",
-	"TransmitFrequencyRate1",
-	"TransmitFrequencyRate1Units",
-	"TransmitFrequencyRate2TimeTag",
-	"TransmitFrequencyRate2",
-	"TransmitFrequencyRate2Units",
-	"TransmitFrequencyRate3TimeTag",
-	"TransmitFrequencyRate3",
-	"TransmitFrequencyRate3Units",
-	"TransmitFrequencyRate4TimeTag",
-	"TransmitFrequencyRate4",
-	"TransmitFrequencyRate4Units",
-	"TransmitFrequencyRate5TimeTag",
-	"TransmitFrequencyRate5",
-	"TransmitFrequencyRate5Units",
-	"TropoDryTimeTag",
-	"TropoDry",
-	"TropoDryUnits",
-	"TropoWetTimeTag",
-	"TropoWet",
-	"TropoWetUnits",
-	"VLBITimeTag",
-	"VLBI",
-	"VLBIUnits"
+	std::vector<std::string*> metadataComments;
+	std::string timeSystem;
+	std::string startTime;
+	std::string stopTime;
+	std::string *participants[5];
+	std::string mode;
+	std::string *path[3];
+	std::string transmitBand;
+	std::string receiveBand;
+	Integer turnaroundNumerator;
+	Integer turnaroundDenominator;
+	std::string timetagRef;
+	Real integrationInterval;
+	std::string integrationRef;
+	Real frequencyOffset;
+	std::string rangeMode;
+	Real rangeModulus;
+	std::string rangeUnits;
+	std::string angleType;
+	std::string referenceFrame;
+	Real *transmitDelay[5];
+	Real *receiveDelay[5];
+	std::string dataQuality;
+	Real correctionAngle1;
+	Real correctionAngle2;
+	Real correctionDoppler;
+	Real correctionRange;
+	Real correctionReceive;
+	Real correctionTransmit;
+	bool correctionsApplied;
     };
-
-    static const bool CCSDS_TDM_IS_REQUIRED[EndCCSDSTDMDataReps] =
+    
+    struct ccsds_tdm_data
     {
-	true,
-	true,
-	true,
-	false,
-	false,
-	true,
-	false,
-	false,
-	true,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false,
-	true,
-	true,
-	false
+	std::string timeTag;
+	Real measurement;
+	std::string units;
     };
+    
+    // Iterator Pointer to the header record
+    std::vector<ccsds_header*>::iterator headerVectorIndex;
+    // Iterator Pointer to the metadata record
+    std::vector<ccsds_tdm_metadata*>::iterator metadataVectorIndex;	
+    std::vector<ccsds_tdm_data*> angle1;
+    std::vector<ccsds_tdm_data*> angle2;
+    std::vector<ccsds_tdm_data*> carrierPower;
+    std::vector<ccsds_tdm_data*> clockBias;
+    std::vector<ccsds_tdm_data*> clockDrift;
+    std::vector<ccsds_tdm_data*> comment;
+    std::vector<ccsds_tdm_data*> dopplerInstanteous;
+    std::vector<ccsds_tdm_data*> dopplerIntegrated;
+    std::vector<ccsds_tdm_data*> dor;
+    std::vector<ccsds_tdm_data*> pcN0;
+    std::vector<ccsds_tdm_data*> prN0;
+    std::vector<ccsds_tdm_data*> pressure;
+    std::vector<ccsds_tdm_data*> range;
+    std::vector<ccsds_tdm_data*> receiveFrequency;
+    std::vector<ccsds_tdm_data*> receiveFrequency1;
+    std::vector<ccsds_tdm_data*> receiveFrequency2;
+    std::vector<ccsds_tdm_data*> receiveFrequency3;
+    std::vector<ccsds_tdm_data*> receiveFrequency4;
+    std::vector<ccsds_tdm_data*> receiveFrequency5;
+    std::vector<ccsds_tdm_data*> rHumidity;
+    std::vector<ccsds_tdm_data*> stec;
+    std::vector<ccsds_tdm_data*> temperature;
+    std::vector<ccsds_tdm_data*> transmitFrequency1;
+    std::vector<ccsds_tdm_data*> transmitFrequency2;
+    std::vector<ccsds_tdm_data*> transmitFrequency3;
+    std::vector<ccsds_tdm_data*> transmitFrequency4;
+    std::vector<ccsds_tdm_data*> transmitFrequency5;
+    std::vector<ccsds_tdm_data*> transmitFrequencyRate1;
+    std::vector<ccsds_tdm_data*> transmitFrequencyRate2;
+    std::vector<ccsds_tdm_data*> transmitFrequencyRate3;
+    std::vector<ccsds_tdm_data*> transmitFrequencyRate4;
+    std::vector<ccsds_tdm_data*> transmitFrequencyRate5;
+    std::vector<ccsds_tdm_data*> tropoDry;
+    std::vector<ccsds_tdm_data*> tropoWet;
+    std::vector<ccsds_tdm_data*> vlbiDelay;
+};
 
-    static const Gmat::ParameterType CCSDS_TDM_PARAMETER_TYPE[EndCCSDSTDMDataReps] =
-    {
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::BOOLEAN_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::STRING_TYPE
-    };
-
-}
-
-#endif	/* _CCSDSFORMATDESCRIPTION_HPP */
+#endif	/* _CCSDSOBTYPE_HPP */
 

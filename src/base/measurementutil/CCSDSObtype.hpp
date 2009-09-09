@@ -5,12 +5,9 @@
  * Created on September 4, 2009, 5:29 AM
  */
 
-#ifndef _CCSDSOBTYPE_HPP
-#define	_CCSDSOBTYPE_HPP
-
-namespace DataFormats
+namespace CCSDSObtype
 {
-
+    
     // The CCSDS header specification that is common to all CCSDS formats
     struct ccsds_header
     {
@@ -19,7 +16,7 @@ namespace DataFormats
 	std::string originator;
 	std::vector<std::string*> headerComments;
     };
-    
+
     // The CCSDS quaternion specification. Some formats do not use
     // all the parameters such as the rates.
     struct ccsds_quaternion
@@ -32,7 +29,7 @@ namespace DataFormats
 	Real q1Dot, q2Dot, q3Dot, qcDot;
 	Real xRate, yRate, zRate;
     };
-    
+
     // The CCSDS Euler angle specification. Some formats do not use
     // all the parameters such as the rates.
     struct ccsds_eulerAngle
@@ -47,8 +44,8 @@ namespace DataFormats
 	Real xAngle, yAngle, zAngle;
 	Real xRate, yRate, zRate;
     };
-    
-    // The CCSDS spin stabilized attitude specification.    
+
+    // The CCSDS spin stabilized attitude specification.
     struct ccsds_spinStabilized
     {
 	std::string attitudeType;
@@ -66,7 +63,3 @@ namespace DataFormats
     };
     
 }
-
-
-#endif	/* _CCSDSOBTYPE_HPP */
-

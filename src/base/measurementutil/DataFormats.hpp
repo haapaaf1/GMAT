@@ -24,19 +24,18 @@
 #ifndef DataFormats_hpp
 #define	DataFormats_hpp
 
-#include "Obtype.hpp"
 #include "gmatdefs.hpp"
 #include "RealUtilities.hpp"
-#include "TLEObtype.hpp"
 #include "B3Obtype.hpp"
-#include "CCSDSTDMObtype.hpp"
-#include "CCSDSOPMObtype.hpp"
-#include "CCSDSOEMObtype.hpp"
-#include "CCSDSAPMObtype.hpp"
-#include "CCSDSAEMObtype.hpp"
+#include "TLEObtype.hpp"
 #include "SLRObtype.hpp"
-#include "SP3cObtype.hpp"
-#include "RINEXObtype.hpp"
+#include "CCSDSTDMObtype.hpp"
+//#include "CCSDSOPMObtype.hpp"
+//#include "CCSDSOEMObtype.hpp"
+//#include "CCSDSAPMObtype.hpp"
+//#include "CCSDSAEMObtype.hpp"
+//#include "SP3cObtype.hpp"
+//#include "RINEXObtype.hpp"
 
 #endif	/* _Dataformats_hpp */
 

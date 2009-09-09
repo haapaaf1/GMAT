@@ -55,23 +55,17 @@ public:
 	EndB3TypeReps    
     };
     
-    enum TIMESYSTEM_REPS
-    {
-	UTC_ID = EndTimeReps,
-	EndB3TimeReps
-    };
- 
+    bool WriteData(B3Obtype *myB3data);
+        
     // Measurement Data Access functions
     bool AdvanceToNextOb();
     bool BackUpToPreviousOb();
-    
+
 private:
+    
+    static const std::string B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps];
 
     bool GetData(B3Obtype *myB3data);
-    bool WriteData(B3Obtype *myB3data);
-    
-    static const std::string DATATYPE_DESCRIPTIONS[EndB3TypeReps];
-    static const std::string TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps];
     
     std::vector<B3Obtype*> b3Data;
 

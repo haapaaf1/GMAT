@@ -8,6 +8,7 @@
 #ifndef _OBTYPE_HPP
 #define	_OBTYPE_HPP
 
+#include "GmatBase.hpp"
 #include "gmatdefs.hpp"
 #include <pcrecpp.h>
 #include "StringUtil.hpp"
@@ -21,7 +22,10 @@ class Obtype
 {
     
 public:
-
+    
+    Obtype();
+    virtual ~Obtype();
+    
     enum OBTYPE_REPS
     {
 	RANGE_ID = 0,
@@ -51,12 +55,32 @@ public:
 	TRUEANOM_ID,
 	EndObtypeReps
     };
-    
-    virtual std::string GetParameterText(const Integer id) const;
-    virtual Integer GetParameterID(const std::string &str) const;
-    virtual Gmat::ParameterType GetParameterType(const Integer id) const;
-    virtual std::string GetParameterTypeString(const Integer id) const;    
-    
+
+    // Measurement Data Access function
+
+    virtual std::string GetDataParameterText(const Integer id) const;
+    virtual std::string GetDataUnits(const Integer id) const;
+    virtual Integer     GetDataParameterID(const std::string &str) const;
+    virtual Gmat::ParameterType
+                        GetDataParameterType(const Integer id) const;
+    virtual std::string GetDataParameterTypeString(const Integer id) const;
+
+    virtual Integer     GetIntegerDataParameter(const Integer id) const;
+    virtual Integer     GetIntegerDataParameter(const std::string &label) const;
+    virtual IntegerArray     GetIntegerArrayDataParameter(const Integer id) const;
+    virtual IntegerArray     GetIntegerArrayDataParameter(const std::string &label) const;
+    virtual Real        GetRealDataParameter(const Integer id) const;
+    virtual Real        GetRealDataParameter(const std::string &label) const;
+    virtual bool        GetBoolDataParameter(const Integer id) const;
+    virtual bool        GetBoolDataParameter(const std::string &label) const;
+    virtual std::string GetStringDataParameter(const Integer id) const;
+    virtual std::string GetStringDataParameter(const std::string &label) const;
+    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
+    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    virtual bool CheckDataAvailability(const std::string str) const;
+           
     // Test if data format requires this parameter to be
     // defined in order to have a valid data record
     virtual bool IsParameterRequired(const Integer id) const;

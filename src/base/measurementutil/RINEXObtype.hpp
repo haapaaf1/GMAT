@@ -9,8 +9,6 @@
 #define	_RINEXFORMATDESCRIPTION_HPP
 
 
-namespace DataFormats
-{
     struct rinex_gpsob_header
     {
         std::string rinexVersion;
@@ -55,8 +53,8 @@ namespace DataFormats
         IntegerArray numObs;
     };
 
-    class rinex_gpsob_obtype : public Obtype
-    {
+class rinex_gpsob_obtype : public Obtype
+{
     
     public :
         std::vector<rinex_gpsob_header*>::iterator headerVectorIndex;
@@ -69,7 +67,7 @@ namespace DataFormats
         RealArray observation;
         IntegerArray lli;
         IntegerArray signalStrength;
-    };
+};
 
     struct rinex_gpsnav_header
     {
@@ -262,7 +260,6 @@ namespace DataFormats
     {
 
     };
-}
 
 #endif	/* _RINEXFORMATDESCRIPTION_HPP */
 

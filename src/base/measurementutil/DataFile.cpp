@@ -13,9 +13,8 @@
 //
 /**
  *
- * Implements LatLonHgt Base class to contain the associated elements
- * Latitude, Longitude, Height, and a flag to determine geocentric versus
- * geodetic angles.
+ * Implements the DataFile base class that allows a local file to be processed
+ * according to a specified ASCII and/or binary data file format.
  *
  */
 //------------------------------------------------------------------------------
@@ -263,28 +262,6 @@ Integer DataFile::GetIntegerParameter(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// virtual IntegerArray GetIntegerArrayParameter(const Integer id) const
-//------------------------------------------------------------------------------
-IntegerArray DataFile::GetIntegerArrayDataParameter(const Integer id) const
-{
-
-    return GmatBase::GetIntegerArrayParameter(id);
-}
-
-
-//------------------------------------------------------------------------------
-// virtual IntegerArray GetIntegerArrayParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see GmatBase
- */
-//------------------------------------------------------------------------------
-IntegerArray DataFile::GetIntegerArrayDataParameter(const std::string &label) const
-{
-   return GetIntegerArrayParameter(GetParameterID(label));
-}
-
-//------------------------------------------------------------------------------
 // virtual Integer SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------
 /**
@@ -516,7 +493,7 @@ bool DataFile::CloseFile()
 //------------------------------------------------------------------------------
 Integer DataFile::GetFileFormatID(const std::string &label)
 {
-    Integer retval = -1;
+    Integer retval = GmatBase::INTEGER_PARAMETER_UNDEFINED;
     
     if (label == "B3")
     {
@@ -542,6 +519,31 @@ Integer DataFile::GetFileFormatID(const std::string &label)
     {
        return UTDF_ID;
     }
+    else if (label == "TRK234")
+    {
+       return TRK234_ID;
+    }
+    else if (label == "CCSDSTDM")
+    {
+       return CCSDS_TDM_ID;
+    }
+    else if (label == "CCSDSOPM")
+    {
+       return CCSDS_OPM_ID;
+    }
+    else if (label == "CCSDSOEM")
+    {
+       return CCSDS_OEM_ID;
+    }
+    else if (label == "CCSDSAPM")
+    {
+       return CCSDS_APM_ID;
+    }
+    else if (label == "CCSDSAEM")
+    {
+       return CCSDS_AEM_ID;
+    }
+
     else
 
     return retval;
@@ -584,6 +586,30 @@ void DataFile::SetFileFormatID(const std::string &label)
     else if (label == "UTDF")
     {
        fileFormatID = UTDF_ID;
+    }
+    else if (label == "TRK234")
+    {
+       fileFormatID = TRK234_ID;
+    }
+    else if (label == "CCSDSTDM")
+    {
+       fileFormatID = CCSDS_TDM_ID;
+    }
+    else if (label == "CCSDSOPM")
+    {
+       fileFormatID = CCSDS_OPM_ID;
+    }
+    else if (label == "CCSDSOEM")
+    {
+       fileFormatID = CCSDS_OEM_ID;
+    }
+    else if (label == "CCSDSAPM")
+    {
+       fileFormatID = CCSDS_APM_ID;
+    }
+    else if (label == "CCSDSAEM")
+    {
+       fileFormatID = CCSDS_AEM_ID;
     }
 
 }
@@ -724,20 +750,6 @@ std::string DataFile::GetFileFormatName() const
  */
 //------------------------------------------------------------------------------
  bool DataFile::BackUpToPreviousOb()
-{
-   return false;
-}
-
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
- bool DataFile::CheckDataAvailability(const std::string str) const
 {
    return false;
 }
