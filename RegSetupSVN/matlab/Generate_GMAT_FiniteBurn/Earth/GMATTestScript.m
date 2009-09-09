@@ -1,5 +1,5 @@
 function varargout = GMATTestScript(Sc,Thrst,CSnum,Tnk);
-inputfolder = 'C:\Documents and Settings\DCrockett\Desktop\GMAT Repository\RegSetupSVN\input\AcceptTest\';
+inputfolder = 'D:\GMAT Repository\RegSetupSVN\input\AcceptTest\';
 outputfolder = '.\output\AcceptTest\';
 fname = ['FBurn_GMAT_','Earth_',Sc,'_',Thrst,'_CS',num2str(CSnum),'_',Tnk];
 

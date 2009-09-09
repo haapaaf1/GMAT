@@ -1,6 +1,6 @@
 function varargout = FFTestScript(Sc,Thrst,CSnum,Tnk);
-inputfolder = 'C:\Documents and Settings\DCrockett\Desktop\GMAT Repository\RefSoftFiles\FreeFlyerData\FiniteBurn\AcceptTest\';
-outputfolder = 'C:\Documents and Settings\DCrockett\Desktop\GMAT Repository\RegSetupSVN\output\AcceptTest\Good_reports\FF\';
+inputfolder = 'D:\GMAT Repository\RefSoftFiles\FreeFlyerData\FiniteBurn\AcceptTest\';
+outputfolder = 'D:\GMAT Repository\RegSetupSVN\output\AcceptTest\Good_reports\FF\';
 fname = ['FBurn_FF_','Uranus_',Sc,'_',Thrst,'_CS',num2str(CSnum),'_',Tnk];
 
 
