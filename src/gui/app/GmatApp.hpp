@@ -46,11 +46,13 @@ public:
    int FilterEvent(wxEvent& event);
    
 protected:
-
+   
 private:
    
    Moderator *theModerator;
    GmatMainFrame *theMainFrame;
+   
+   void ProcessCommandLineOptions();
 };
 
 DECLARE_APP(GmatApp)

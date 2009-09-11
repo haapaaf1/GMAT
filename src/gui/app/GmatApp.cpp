@@ -98,7 +98,7 @@ bool GmatApp::OnInit()
       
       // continue work on this (loj: 2008.12.04)
       //@todo: add all files contains gmat_startup_file in
-      // startup up directory
+      // startup up directory, and show user to select one
       //---------------------------------------------------------
       #ifdef __GET_STARTUP_FILE_FROM_USER__
       //---------------------------------------------------------
@@ -137,7 +137,7 @@ bool GmatApp::OnInit()
          theModerator->SetUiInterpreter(guiInterp);
          theModerator->SetInterpreterMapAndSS(guiInterp);
          guiInterp->BuildCreatableObjectMaps();
-
+         
          // get GuiInterpreter
          gmatAppData->SetGuiInterpreter(
                (GuiInterpreter *)theModerator->GetUiInterpreter());
@@ -200,6 +200,8 @@ bool GmatApp::OnInit()
 #endif
          
          theMainFrame->Show(true);
+         
+         ProcessCommandLineOptions();
          
          status = true;
       }
@@ -316,3 +318,46 @@ int GmatApp::FilterEvent(wxEvent& event)
    
    return -1;
 }
+
+
+//------------------------------------------------------------------------------
+// void ProcessCommandLineOptions()
+//------------------------------------------------------------------------------
+void GmatApp::ProcessCommandLineOptions()
+{
+   wxString commandLineOptions =
+      "Valid command line options are:\n"
+      "   -help        Shows available options\n"
+      "   -date        Shows GMAT build date\n"
+      "   -ms          Starts MATLAB server when GMAT launches\n";
+   
+   // Handle any command line arguments
+   if (argc > 1)
+   {
+      for (int i = 1; i < argc; ++i)
+      {
+         std::string arg = argv[i];
+         if (arg == "-ms")
+         {
+            theMainFrame->StartMatlabServer();
+         }
+         else if (arg == "-date")
+         {
+            wxString buildDate;
+            buildDate.Printf("Build Date: %s %s\n", __DATE__, __TIME__);
+            MessageInterface::ShowMessage(buildDate.c_str());
+         }
+         else if (arg == "-help")
+         {
+            MessageInterface::ShowMessage(commandLineOptions.c_str());
+         }
+         else
+         {
+            MessageInterface::ShowMessage("The option \"%s\" is not valid.\n", arg.c_str());
+            MessageInterface::ShowMessage(commandLineOptions.c_str());
+         }
+      }
+   }
+}
+
+
