@@ -5508,17 +5508,17 @@ Integer Moderator::RunScript(Integer sandboxNum)
 }
 
 //------------------------------------------------------------------------------
-// bool StartServer()
+// bool StartMatlabServer()
 //------------------------------------------------------------------------------
 /**
  * Interface used to tell an Interpreter to start the MATLAB server.
  */
 //------------------------------------------------------------------------------
-bool Moderator::StartServer()
+bool Moderator::StartMatlabServer()
 {
    if (theUiInterpreter != NULL)
    {
-      theUiInterpreter->StartServer();
+      theUiInterpreter->StartMatlabServer();
       return true;
    }
    return false;

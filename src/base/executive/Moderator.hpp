@@ -347,7 +347,7 @@ public:
    Integer RunScript(Integer sandboxNum = 1);
    
    // MATLAB Server Startup Interface
-   bool StartServer();
+   bool StartMatlabServer();
    
 private:
    
