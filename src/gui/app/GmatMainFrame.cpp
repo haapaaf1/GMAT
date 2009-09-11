@@ -194,12 +194,12 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU (MENU_EDIT_LINE_NUMBER, GmatMainFrame::OnLineNumber)
    EVT_MENU (MENU_EDIT_INDENT_MORE, GmatMainFrame::OnIndentMore)
    EVT_MENU (MENU_EDIT_INDENT_LESS, GmatMainFrame::OnIndentLess)
-
-   EVT_MENU (MENU_START_SERVER, GmatMainFrame::OnStartServer)
-   EVT_MENU (MENU_STOP_SERVER, GmatMainFrame::OnStopServer)
-
+   
    EVT_MENU (MENU_MATLAB_OPEN, GmatMainFrame::OnOpenMatlab)
    EVT_MENU (MENU_MATLAB_CLOSE, GmatMainFrame::OnCloseMatlab)
+   EVT_MENU (MENU_MATLAB_SERVER_START, GmatMainFrame::OnMatlabServerStart)
+   EVT_MENU (MENU_MATLAB_SERVER_STOP, GmatMainFrame::OnMatlabServerStop)
+   
    EVT_MENU (MENU_TOOLS_FILE_COMPARE_NUMERIC, GmatMainFrame::OnFileCompareNumeric)
    EVT_MENU (MENU_TOOLS_FILE_COMPARE_TEXT, GmatMainFrame::OnFileCompareText)
    EVT_MENU (MENU_TOOLS_GEN_TEXT_EPHEM_FILE, GmatMainFrame::OnGenerateTextEphemFile)
@@ -432,7 +432,7 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    gmatAppData->GetResourceTree()->SetMainFrame(this);
    gmatAppData->GetMissionTree()->SetMainFrame(this);
 
-   mServer = NULL;
+   mMatlabServer = NULL;
    mRunPaused = false;
    mRunCompleted = true;
 
@@ -467,15 +467,15 @@ GmatMainFrame::~GmatMainFrame()
 {
    #ifdef DEBUG_MAINFRAME_CLOSE
    MessageInterface::ShowMessage
-      ("GmatMainFrame::~GmatMainFrame() entered. mServer=%p, theGuiInterpreter=%p\n",
-       mServer, theGuiInterpreter);
+      ("GmatMainFrame::~GmatMainFrame() entered. mMatlabServer=%p, theGuiInterpreter=%p\n",
+       mMatlabServer, theGuiInterpreter);
    #endif
 
    // Close MATLAB connection
    MatlabInterface::Instance()->Close();
 
-   if (mServer)
-      delete mServer;
+   if (mMatlabServer)
+      delete mMatlabServer;
 
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
@@ -1395,9 +1395,9 @@ Integer GmatMainFrame::RunCurrentMission()
 
       // always stop server after run (loj: 2008.02.06) - to investigate Bug 1133
       // stop server after user interrupt (loj: 2008.03.05)
-      //if (mServer)
-      if (retval != 1 && mServer)
-         StopServer(); // stop server if running to avoid getting callback staus
+      //if (mMatlabServer)
+      if (retval != 1 && mMatlabServer)
+         StopMatlabServer(); // stop server if running to avoid getting callback staus
                        // when run stopped by user
 
       EnableMenuAndToolBar(true, true);
@@ -1461,32 +1461,32 @@ void GmatMainFrame::ProcessPendingEvent()
 
 
 //------------------------------------------------------------------------------
-// void StartServer()
+// void StartMatlabServer()
 //------------------------------------------------------------------------------
-void GmatMainFrame::StartServer()
+void GmatMainFrame::StartMatlabServer()
 {
    #ifdef DEBUG_SERVER
-   MessageInterface::ShowMessage("GmatMainFrame::StartServer() entered.\n");
+   MessageInterface::ShowMessage("GmatMainFrame::StartMatlabServer() entered.\n");
    #endif
-
-   if (!mServer)
+   
+   if (!mMatlabServer)
    {
       // service name (DDE classes) or port number (TCP/IP based classes)
       wxString service = IPC_SERVICE;
-
+      
       // Create a new server
-      mServer = new GmatServer;
-      mServer->Create(service);
-
+      mMatlabServer = new GmatServer;
+      mMatlabServer->Create(service);
+      
       MessageInterface::ShowMessage("Server started.\n");
-
+      
       #ifdef DEBUG_SERVER
       MessageInterface::ShowMessage
-         ("   service='%s', mServer=%p\n", service.c_str(), mServer);
+         ("   service='%s', mMatlabServer=%p\n", service.c_str(), mMatlabServer);
       #endif
-
-      //mServerMenu->Enable(MENU_START_SERVER, false);
-      //mServerMenu->Enable(MENU_STOP_SERVER, true);
+      
+      // Disable ResourceTree Matlab Server Start popup menu
+      GmatAppData::Instance()->GetResourceTree()->UpdateMatlabServerItem(true);
    }
    else
    {
@@ -1496,23 +1496,23 @@ void GmatMainFrame::StartServer()
 
 
 //------------------------------------------------------------------------------
-// void StopServer()
+// void StopMatlabServer()
 //------------------------------------------------------------------------------
-void GmatMainFrame::StopServer()
+void GmatMainFrame::StopMatlabServer()
 {
    #ifdef DEBUG_SERVER
    MessageInterface::ShowMessage
-      ("GmatMainFrame::StopServer() entered. mServer=%p\n", mServer);
+      ("GmatMainFrame::StopMatlabServer() entered. mMatlabServer=%p\n", mMatlabServer);
    #endif
 
-   if (mServer)
+   if (mMatlabServer)
    {
-      mServer->Disconnect();
-      delete mServer;
+      mMatlabServer->Disconnect();
+      delete mMatlabServer;
 
       MessageInterface::ShowMessage("Server terminated.\n");
 
-      mServer = NULL;
+      mMatlabServer = NULL;
 
       //==============================================================
       #ifdef __WAIT_BEFORE_RERUN__
@@ -1529,6 +1529,9 @@ void GmatMainFrame::StopServer()
       }
       #endif
       //==============================================================
+      
+      // Disable ResourceTree Matlab Server Stop popup menu
+      GmatAppData::Instance()->GetResourceTree()->UpdateMatlabServerItem(false);
    }
    else
    {
@@ -1544,7 +1547,7 @@ void GmatMainFrame::OnClose(wxCloseEvent& event)
 {
    #ifdef DEBUG_MAINFRAME_CLOSE
    MessageInterface::ShowMessage
-      ("GmatMainFrame::OnClose() entered. mServer=%p\n", mServer);
+      ("GmatMainFrame::OnClose() entered. mMatlabServer=%p\n", mMatlabServer);
    #endif
 
    if (!mRunCompleted)
@@ -1569,10 +1572,10 @@ void GmatMainFrame::OnClose(wxCloseEvent& event)
    {
       event.Veto();
    }
-
-   // stop server if running (loj: 2008.02.06)
-   if (mServer)
-      StopServer();
+   
+   // stop server if running
+   if (mMatlabServer)
+      StopMatlabServer();
 }
 
 
@@ -2645,34 +2648,6 @@ void GmatMainFrame::OnSetPath(wxCommandEvent& event)
 
 
 //------------------------------------------------------------------------------
-// void OnStartServer(wxCommandEvent& event)
-//------------------------------------------------------------------------------
-/**
- * Handles starting server from the menu bar.
- *
- * @param <event> input event.
- */
-//------------------------------------------------------------------------------
-void GmatMainFrame::OnStartServer(wxCommandEvent& event)
-{
-   StartServer();
-}
-
-//------------------------------------------------------------------------------
-// void OnStopServer(wxCommandEvent& WXUNUSED(event))
-//------------------------------------------------------------------------------
-/**
- * Handles terminating server from the menu bar.
- *
- * @param <event> input event.
- */
-//------------------------------------------------------------------------------
-void GmatMainFrame::OnStopServer(wxCommandEvent& event)
-{
-   StopServer();
-}
-
-//------------------------------------------------------------------------------
 // void OnOpenMatlab(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 /**
@@ -2701,6 +2676,36 @@ void GmatMainFrame::OnOpenMatlab(wxCommandEvent& event)
 void GmatMainFrame::OnCloseMatlab(wxCommandEvent& event)
 {
    MatlabInterface::Instance()->Close();
+}
+
+
+//------------------------------------------------------------------------------
+// void OnMatlabServerStart(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+/**
+ * Handles starting server from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnMatlabServerStart(wxCommandEvent& event)
+{
+   StartMatlabServer();
+}
+
+
+//------------------------------------------------------------------------------
+// void OnMatlabServerStop(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles terminating server from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnMatlabServerStop(wxCommandEvent& event)
+{
+   StopMatlabServer();
 }
 
 

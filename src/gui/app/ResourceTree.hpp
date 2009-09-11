@@ -40,8 +40,9 @@ public:
    void UpdateFormation();
    void UpdateVariable();
    void OnAddScript(wxCommandEvent &event);
+   void UpdateMatlabServerItem(bool start);
    bool WasScriptAdded() { return mScriptAdded; }
-
+   
 private:
    GmatMainFrame  *theMainFrame;
    GuiInterpreter *theGuiInterpreter;
@@ -49,11 +50,12 @@ private:
    bool mScriptFolderRunning;
    bool mHasUserInterrupted;
    bool mScriptAdded;
-
+   bool mMatlabServerStarted;
+   
    // for script error log
    int mBuildErrorCount;
    wxArrayString mFailedScriptsList;
-
+   
    wxTreeItemId mDraggedItem;
    wxTreeItemId mGroundStationItem;
    wxTreeItemId mSpacecraftItem;
@@ -227,12 +229,6 @@ private:
       POPUP_ADD_STRING,
 
       POPUP_ADD_COORD_SYS,
-
-      POPUP_OPEN_MATLAB,
-      POPUP_CLOSE_MATLAB,
-
-      POPUP_START_SERVER,
-      POPUP_STOP_SERVER,
 
       POPUP_ADD_FUNCTION,
       POPUP_ADD_MATLAB_FUNCTION,

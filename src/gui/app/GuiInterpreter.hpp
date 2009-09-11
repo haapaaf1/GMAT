@@ -138,7 +138,7 @@ public:
    void UpdateResourceTree();
    void UpdateMissionTree();
    void UpdateOutputTree();
-   virtual void StartServer();
+   virtual void StartMatlabServer();
    
 private:
 

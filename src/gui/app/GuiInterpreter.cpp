@@ -824,15 +824,15 @@ void GuiInterpreter::CloseCurrentProject()
 
 
 //------------------------------------------------------------------------------
-// void StartServer()
+// void StartMatlabServer()
 //------------------------------------------------------------------------------
 /*
  * Starts the MATLAB server.
  */
 //------------------------------------------------------------------------------
-void GuiInterpreter::StartServer()
+void GuiInterpreter::StartMatlabServer()
 {
-   GmatAppData::Instance()->GetMainFrame()->StartServer();   
+   GmatAppData::Instance()->GetMainFrame()->StartMatlabServer();   
 }
 
 

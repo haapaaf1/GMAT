@@ -87,8 +87,8 @@ public:
    void StopRunningMission();
    void NotifyRunCompleted();
    void ProcessPendingEvent();
-   void StartServer();
-   void StopServer();
+   void StartMatlabServer();
+   void StopMatlabServer();
    wxToolBar* GetMainFrameToolBar();
    wxStatusBar* GetMainFrameStatusBar();
    
@@ -133,11 +133,11 @@ public:
    
    void OnFont(wxCommandEvent& event);
    
-   void OnStartServer(wxCommandEvent& event);
-   void OnStopServer(wxCommandEvent& event);
-   
    void OnOpenMatlab(wxCommandEvent& event);
    void OnCloseMatlab(wxCommandEvent& event);
+   
+   void OnMatlabServerStart(wxCommandEvent& event);
+   void OnMatlabServerStop(wxCommandEvent& event);
    
    void OnFileCompareNumeric(wxCommandEvent& event);
    void OnFileCompareText(wxCommandEvent& event);
@@ -177,7 +177,7 @@ private:
    bool mExitWithoutConfirm;
    Integer mRunStatus;
    
-   GmatServer *mServer;
+   GmatServer *mMatlabServer;
    std::string mScriptFilename;
    std::string mTempScriptName;
    GuiInterpreter *theGuiInterpreter;
@@ -186,7 +186,6 @@ private:
    wxSashLayoutWindow* theMessageWin;
    
    ViewTextFrame *mTextFrame;
-   wxMenu *mServerMenu;
    wxStatusBar *theStatusBar;
    wxMenuBar *theMenuBar;
    wxToolBar *theToolBar;

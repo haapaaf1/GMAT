@@ -190,7 +190,8 @@ ResourceTree::ResourceTree(wxWindow *parent, const wxWindowID id,
    mScriptFolderRunning = false;
    mHasUserInterrupted = false;
    mScriptAdded = false;
-
+   mMatlabServerStarted = false;
+   
    AddIcons();
    AddDefaultResources();
 
@@ -2881,7 +2882,6 @@ void ResourceTree::OnAddAsteroid(wxCommandEvent &event)
 }
 
 
-
 //------------------------------------------------------------------------------
 // void OnAddScript()
 //------------------------------------------------------------------------------
@@ -2922,6 +2922,15 @@ void ResourceTree::OnAddScript(wxCommandEvent &event)
          theMainFrame->SetScriptFileName(path.c_str());
       }
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void UpdateMatlabServerItem(bool start)
+//------------------------------------------------------------------------------
+void ResourceTree::UpdateMatlabServerItem(bool started)
+{
+   mMatlabServerStarted = started;
 }
 
 
@@ -3598,13 +3607,24 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
       break;
 
    #ifdef __USE_MATLAB__
+   // Matlab needs GmatMainFrame interface, so use GmatMenu::
    case GmatTree::MATLAB_INTERFACE:
       menu.Append(GmatMenu::MENU_MATLAB_OPEN, wxT("Open"));
       menu.Append(GmatMenu::MENU_MATLAB_CLOSE, wxT("Close"));
       break;
    case GmatTree::MATLAB_SERVER:
-      menu.Append(GmatMenu::MENU_START_SERVER, wxT("Start"));
-      menu.Append(GmatMenu::MENU_STOP_SERVER, wxT("Stop"));
+      menu.Append(GmatMenu::MENU_MATLAB_SERVER_START, wxT("Start"));
+      menu.Append(GmatMenu::MENU_MATLAB_SERVER_STOP, wxT("Stop"));
+      if (mMatlabServerStarted)
+      {
+         menu.Enable(GmatMenu::MENU_MATLAB_SERVER_START, false);
+         menu.Enable(GmatMenu::MENU_MATLAB_SERVER_STOP, true);
+      }
+      else
+      {
+         menu.Enable(GmatMenu::MENU_MATLAB_SERVER_START, true);
+         menu.Enable(GmatMenu::MENU_MATLAB_SERVER_STOP, false);
+      }
       break;
    #endif
 
