@@ -343,7 +343,7 @@ bool GmatFunction::Initialize()
       
       // Check to see if the command needs a server startup (loj: 2008.07.25)
       if (current->NeedsServerStartup())
-         if (validator->StartServer(current) == false)
+         if (validator->StartMatlabServer(current) == false)
             throw FunctionException("Unable to start the server needed by the " +
                                    (current->GetTypeName()) + " command");
       
