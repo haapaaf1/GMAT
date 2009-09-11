@@ -57,14 +57,14 @@
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
-//#ifndef DEBUG_PERFORMANCE
-//#define DEBUG_PERFORMANCE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE
 //#endif
 
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
-#ifdef DEBUG_PERFORMANCE
+#ifdef DEBUG_TRACE
 #include <ctime>                 // for clock()
 #endif
 
@@ -156,7 +156,7 @@ void Validator::SetFunction(Function *func)
 
 
 //------------------------------------------------------------------------------
-// bool StartServer(GmatCommand *cmd)
+// bool StartMatlabServer(GmatCommand *cmd)
 //------------------------------------------------------------------------------
 /*
  * This method starts GmatServer through the Moderator
@@ -164,18 +164,18 @@ void Validator::SetFunction(Function *func)
  * @param cmd  The command pointer requesting the server starup
  *             (currently not used but it may be useful for debugging)
  *
- * @return the result of Moderator::StartServer()
+ * @return the result of Moderator::StartMatlabServer()
  */
 //------------------------------------------------------------------------------
-bool Validator::StartServer(GmatCommand *cmd)
+bool Validator::StartMatlabServer(GmatCommand *cmd)
 {
    #ifdef DEBUG_SERVER
    MessageInterface::ShowMessage
-      ("Validator::StartServer() the command <%p>'%s' requested Server startup\n",
+      ("Validator::StartMatlabServer() the command <%p>'%s' requested Server startup\n",
        cmd, cmd->GetTypeName().c_str());
    #endif
    
-   return theModerator->StartServer();
+   return theModerator->StartMatlabServer();
 }
 
 
@@ -342,7 +342,7 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
 //------------------------------------------------------------------------------
 bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer manage)
 {
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
@@ -481,7 +481,7 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
        cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str(), retval);
    #endif
    
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    clock_t t2 = clock();
    MessageInterface::ShowMessage
       ("=== Validator::ValidateCommand() Count = %d, Run Time: %f seconds\n",

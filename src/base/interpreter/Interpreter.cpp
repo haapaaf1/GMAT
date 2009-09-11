@@ -569,14 +569,14 @@ void Interpreter::CloseCurrentProject()
 {}
 
 //------------------------------------------------------------------------------
-// void StartServer()
+// void StartMatlabServer()
 //------------------------------------------------------------------------------
 /*
  * Some GMAT Interpreters can start external servers -- for example, the MATLAB
  * server.  This method is overridden to perform that startup.
  */
 //------------------------------------------------------------------------------
-void Interpreter::StartServer()
+void Interpreter::StartMatlabServer()
 {
    throw InterpreterException(
          "This Interpreter cannot start the external server");

@@ -136,7 +136,7 @@ public:
    virtual void NotifyRunCompleted();
    virtual void UpdateView(Integer type = 7);
    virtual void CloseCurrentProject();
-   virtual void StartServer();
+   virtual void StartMatlabServer();
    
 protected:
    
