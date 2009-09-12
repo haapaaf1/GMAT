@@ -17,7 +17,7 @@ class B3Obtype : public Obtype
 public :
     	
     B3Obtype();
-    ~B3Obtype();
+    virtual ~B3Obtype();
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
@@ -43,7 +43,8 @@ public :
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
         
-    bool IsParameterRequired(const Integer id) const;
+    bool        IsParameterRequired(const Integer id) const;
+    bool        IsParameterRequired(const std::string &label) const;
     
     enum B3_DATA_REPS
     {
@@ -70,12 +71,15 @@ public :
     
     enum B3_DATATYPE_REPS
     {
-	RANGE_ID,
-	RANGERATE_ID,
-	AZIMUTH_ID,
-	ELEVATION_ID,
-	RIGHTASCENSION_ID,
-	DECLINATION_ID,
+	RANGERATEONLY_ID = 0,
+        AZEL_ID,
+	RAZEL_ID,
+	RAZELRR_ID,
+	RAZELRR2_ID,
+	RADEC_ID,
+	RANGEONLY_ID,
+	AZELSENSORPOS_ID = 8,
+	RADECSENSORPOS_ID,
 	EndB3TypeReps    
     };
     
@@ -84,6 +88,21 @@ public :
 	UTC_ID,
 	EndB3TimeReps
     };
+
+    friend std::ostream& operator<< (std::ostream &output, const B3Obtype *myB3);
+    
+    // Declare DataFile a friend class so that we have access
+    // directly to variables instead of having to use Get/Set
+    friend class ProcessB3DataFile;    
+
+protected:
+
+    static const std::string B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps];
+    static const std::string B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps];
+    static const bool B3_IS_REQUIRED[EndB3DataReps];
+    static const Gmat::ParameterType B3_PARAMETER_TYPE[EndB3DataReps];
+    static const std::string B3_UNIT_DESCRIPTIONS[EndB3DataReps];
+    static const std::string B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps];
 
     // Possible obtype values and their meaning
     // 0 - Range rate only
@@ -110,7 +129,7 @@ public :
     Integer satID;
     
     // sss integer sensor ID
-    Integer sensorID;
+    Integer sensID;
     
     // YY year (assumes 20YY if Y <= 50, 19YY if YY > 50)
     Integer year;
@@ -143,16 +162,7 @@ public :
     Real ecf_X;
     Real ecf_Y;
     Real ecf_Z;
-
-protected:
-
-    static const std::string B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps];
-    static const std::string B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps];
-    static const bool B3_IS_REQUIRED[EndB3DataReps];
-    static const Gmat::ParameterType B3_PARAMETER_TYPE[EndB3DataReps];
-    static const std::string B3_UNIT_DESCRIPTIONS[EndB3DataReps];
-    static const std::string B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps];
-    	
+    
 
 };
 

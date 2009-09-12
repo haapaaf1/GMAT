@@ -3,7 +3,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string Obtype::OBTYPE_KEYWORDS[EndObtypeReps] =
+const std::string Obtype::OBTYPES[EndObtypeReps] =
 {
 	"Range",
 	"RangeRate",
@@ -59,7 +59,7 @@ Obtype::~Obtype()
 }
 
 //------------------------------------------------------------------------------
-// A1Date GetEpoch()
+// A1Date& GetEpoch()
 //------------------------------------------------------------------------------
 /**
  * Code used to obtain the epoch
@@ -68,13 +68,13 @@ Obtype::~Obtype()
  *
  */
 //------------------------------------------------------------------------------
-A1Date Obtype::GetEpoch()
+A1Date& Obtype::GetEpoch()
 {
    return epoch;
 }
 
 //------------------------------------------------------------------------------
-// Integer GetSatelliteID()
+// Integer GetSatID()
 //------------------------------------------------------------------------------
 /**
  * Code used to obtain the satellite ID
@@ -83,7 +83,7 @@ A1Date Obtype::GetEpoch()
  *
  */
 //------------------------------------------------------------------------------
-Integer Obtype::GetSatelliteID()
+Integer Obtype::GetSatID()
 {
    return satelliteID;
 }
@@ -119,7 +119,7 @@ Integer Obtype::GetSensorID()
 }
 
 //------------------------------------------------------------------------------
-//  const std::string* GetObtypeKeywords()
+//  const std::string* GetObtypes()
 //------------------------------------------------------------------------------
 /**
  * Returns the list of valid obtype keywords
@@ -127,9 +127,9 @@ Integer Obtype::GetSensorID()
  * @return String array of obtype keywords
  */
 //------------------------------------------------------------------------------
-const std::string* Obtype::GetObtypeKeywords()
+const std::string* Obtype::GetObtypes()
 {
-    return OBTYPE_KEYWORDS;
+    return OBTYPES;
 }
 
 //------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ Integer Obtype::GetObtypeID(const std::string keyword)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
-                       ).FullMatch(OBTYPE_KEYWORDS[i]))
+                       ).FullMatch(OBTYPES[i]))
         {
             return i;
         }
@@ -160,7 +160,7 @@ Integer Obtype::GetObtypeID(const std::string keyword)
 }
 
 //------------------------------------------------------------------------------
-//  std::string GetObtypeKeyword(Integer myID)
+//  std::string GetObtype(Integer myID)
 //------------------------------------------------------------------------------
 /**
  * Obtains the obtype keyword associated with a given ID.
@@ -169,11 +169,11 @@ Integer Obtype::GetObtypeID(const std::string keyword)
  * @return String keyword corresponding to desired obtype; "" if not found
  */
 //------------------------------------------------------------------------------
-std::string Obtype::GetObtypeKeyword(Integer myID)
+std::string Obtype::GetObtype(Integer myID)
 {
     if(myID >= 0 && myID < EndObtypeReps)
     {
-        return OBTYPE_KEYWORDS[myID];
+        return OBTYPES[myID];
     }
     else
     {
@@ -669,3 +669,31 @@ bool Obtype::IsParameterRequired(const std::string &label) const
 {
    return false;
 }
+ 
+//------------------------------------------------------------------------------
+//  bool AdvanceToNextOb()
+//------------------------------------------------------------------------------
+/**
+ * Increments the vector container index
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+// bool DataFile::AdvanceToNextOb()
+//{
+//   return false;
+//}
+
+//------------------------------------------------------------------------------
+//  bool BackUpToPreviousOb()
+//------------------------------------------------------------------------------
+/**
+ * Decrements the vector container index
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+// bool DataFile::BackUpToPreviousOb()
+//{
+//   return false;
+//}

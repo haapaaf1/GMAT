@@ -5,15 +5,12 @@
  * Created on September 3, 2009, 4:58 AM
  */
 
-#ifndef _CCSDSOBTYPE_HPP
-#define	_CCSDSOBTYPE_HPP
+#ifndef _CCSDSTDMOBTYPE_HPP
+#define	_CCSDSTDMOBTYPE_HPP
 
-#include "Obtype.hpp"
 #include "CCSDSObtype.hpp"
 
-using namespace CCSDSObtype;
-
-class CCSDSTDMObtype : public Obtype
+class CCSDSTDMObtype : public CCSDSObtype
 {   
     
 public :
@@ -21,15 +18,143 @@ public :
     CCSDSTDMObtype();
     ~CCSDSTDMObtype();
     	
-    bool IsParameterRequired(const Integer id) const;    
-	
-    enum CCSDS_TDM_DATA_REPS
+    std::string GetDataParameterText(const Integer id) const;
+    Integer    GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+    std::string GetDataUnits(const Integer id) const;
+
+    const std::string* GetKeywords() const;
+
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    Integer	GetIntegerDataParameter(const Integer id) const;
+    Integer	GetIntegerDataParameter(const std::string &label) const;
+    bool        GetBoolDataParameter(const Integer id) const;
+    bool        GetBoolDataParameter(const std::string &label) const;    
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+
+    const std::string* GetDataTypes() const;
+    std::string GetDataTypeText(const Integer &id) const;
+    Integer GetDataTypeID(const std::string &label);
+
+    const std::string* GetTimeSystems() const;
+    std::string GetTimeSystemText(const Integer &id) const;
+    Integer GetTimeSystemID(const std::string &label);
+        
+    bool IsParameterRequired(const Integer id) const;
+ 
+    enum DATATYPE_REPS
     {
-	CCSDS_TDM_VERSION_ID,
-	CCSDS_TDM_CREATIONDATE_ID,
-	CCSDS_TDM_ORIGINATOR_ID,
-	CCSDS_TDM_HEADERCOMMENTS_ID,
-	CCSDS_TDM_METADATACOMMENTS_ID,
+	ANGLE1_ID = EndCCSDSTypeReps,
+	ANGLE2_ID,
+	CARRIERPOWER_ID,
+	CLOCKBIAS_ID,
+	CLOCKDRIFT_ID,
+	COMMENT_ID,
+	DOPPLERINSTANTANEOUS_ID,
+	DOPPLERINTEGRATED_ID,
+	DOR_ID,
+	PCN0_ID,
+	PRN0_ID,
+	PRESSURE_ID,
+	RANGE_ID,
+	RECEIVEFREQUENCY_ID,
+	RECEIVEFREQUENCY1_ID,
+	RECEIVEFREQUENCY2_ID,
+	RECEIVEFREQUENCY3_ID,
+	RECEIVEFREQUENCY4_ID,
+	RECEIVEFREQUENCY5_ID,
+	RHUMIDITY_ID,
+	STEC_ID,
+	TEMPERATURE_ID,
+	TRANSMITFREQUENCY1_ID,
+	TRANSMITFREQUENCY2_ID,
+	TRANSMITFREQUENCY3_ID,
+	TRANSMITFREQUENCY4_ID,
+	TRANSMITFREQUENCY5_ID,
+	TRANSMITFREQUENCYRate1_ID,
+	TRANSMITFREQUENCYRate2_ID,
+	TRANSMITFREQUENCYRate3_ID,
+	TRANSMITFREQUENCYRate4_ID,
+	TRANSMITFREQUENCYRate5_ID,
+	TROPODRY_ID,
+	TROPOWET_ID,
+	VLBIDELAY_ID,
+        EndCCSDSTDMTypeReps
+    };
+    
+    enum TIME_REPS
+    {
+	UTC_ID = EndCCSDSTimeReps,
+        TAI_ID,
+        GPS_ID,
+	SCLK_ID,
+	EndCCSDSTDMTimeReps
+    };
+    
+    enum TDM_MODE_REPS
+    {
+	SEQUENTIAL_ID,
+	SINGLE_DIFF_ID,
+	EndCCSDSTDMModeReps
+    };
+    
+    enum TDM_TIMETAG_REPS
+    {
+	TRANSMIT_ID,
+	RECEIVE_ID,
+	EndCCSDSTDMTimetagReps
+    };
+    
+    enum TDM_INTEGRATION_REPS
+    {
+	START_ID,
+	MIDDLE_ID,
+	END_ID,
+	EndCCSDSTDMIntegrationReps
+    };
+    
+    enum TDM_RANGEMODE_REPS
+    {
+	COHERENT_ID,
+	CONSTANT_ID,
+	ONE_WAY_ID,
+	EndCCSDSTDMRangeModeReps
+    };
+    
+    enum TDM_RANGEUNIT_REPS
+    {
+	KM_ID,
+	S_ID,
+	RU_ID,
+	EndCCSDSTDMRangeUnitReps
+    };
+    
+    enum TDM_ANGLETYPE_REPS
+    {
+	AZEL_ID,
+	RADEC_ID,
+	XEYN_ID,
+	XSYE_ID,
+	EndCCSDSTDMAngleTypeReps
+    };
+    
+    enum TDM_DATAQUALITY_REPS
+    {
+	RAW_ID,
+	VALIDATED_ID,
+	DEGRADED_ID,
+	EndCCSDSTDMDataQualityReps
+    };
+     	
+    enum CCSDS_DATA_REPS
+    {
+	CCSDS_TDM_METADATACOMMENTS_ID = EndCCSDSDataReps,
 	CCSDS_TDM_TIMESYSTEM_ID,
 	CCSDS_TDM_STARTTIME_ID,
 	CCSDS_TDM_STOPTIME_ID,
@@ -73,132 +198,27 @@ public :
 	CCSDS_TDM_CORRECTIONRECEIVE_ID,
 	CCSDS_TDM_CORRECTIONTRANSMIT_ID,
 	CCSDS_TDM_CORRECTIONAPPLIED_ID,	
-	CCSDS_TDM_ANGLE1_TIMETAG_ID,
-	CCSDS_TDM_ANGLE1_MEASUREMENT_ID,
-	CCSDS_TDM_ANGLE1_UNITS_ID,
-	CCSDS_TDM_ANGLE2_TIMETAG_ID,
-	CCSDS_TDM_ANGLE2_MEASUREMENT_ID,
-	CCSDS_TDM_ANGLE2_UNITS_ID,
-	CCSDS_TDM_CARRIERPOWER_TIMETAG_ID,
-	CCSDS_TDM_CARRIERPOWER_MEASUREMENT_ID,
-	CCSDS_TDM_CARRIERPOWER_UNITS_ID,
-	CCSDS_TDM_CLOCKBIAS_TIMETAG_ID,
-	CCSDS_TDM_CLOCKBIAS_MEASUREMENT_ID,
-	CCSDS_TDM_CLOCKBIAS_UNITS_ID,
-	CCSDS_TDM_CLOCKDRIFT_TIMETAG_ID,
-	CCSDS_TDM_CLOCKDRIFT_MEASUREMENT_ID,
-	CCSDS_TDM_CLOCKDRIFT_UNITS_ID,
-	CCSDS_TDM_DOPPLERINSTANTANEOUS_TIMETAG_ID,
-	CCSDS_TDM_DOPPLERINSTANTANEOUS_MEASUREMENT_ID,
-	CCSDS_TDM_DOPPLERINSTANTANEOUS_UNITS_ID,
-	CCSDS_TDM_DOPPLERINTEGRATED_TIMETAG_ID,
-	CCSDS_TDM_DOPPLERINTEGRATED_MEASUREMENT_ID,
-	CCSDS_TDM_DOPPLERINTEGRATED_UNITS_ID,
-	CCSDS_TDM_DOR_TIMETAG_ID,
-	CCSDS_TDM_DOR_MEASUREMENT_ID,
-	CCSDS_TDM_DOR_UNITS_ID,
-	CCSDS_TDM_PCN0_TIMETAG_ID,
-	CCSDS_TDM_PCN0_MEASUREMENT_ID,
-	CCSDS_TDM_PCN0_UNITS_ID,
-	CCSDS_TDM_PRN0_TIMETAG_ID,
-	CCSDS_TDM_PRN0_MEASUREMENT_ID,
-	CCSDS_TDM_PRN0_UNITS_ID,
-	CCSDS_TDM_PRESSURE_TIMETAG_ID,
-	CCSDS_TDM_PRESSURE_MEASUREMENT_ID,
-	CCSDS_TDM_PRESSURE_UNITS_ID,
-	CCSDS_TDM_RANGE_TIMETAG_ID,
-	CCSDS_TDM_RANGE_MEASUREMENT_ID,
-	CCSDS_TDM_RANGE_UNITS_ID,
-	CCSDS_TDM_RECEIVEFREQ_TIMETAG_ID,
-	CCSDS_TDM_RECEIVEFREQ_MEASUREMENT_ID,
-	CCSDS_TDM_RECEIVEFREQ_UNITS_ID,
-	CCSDS_TDM_RECEIVEFREQ1_TIMETAG_ID,
-	CCSDS_TDM_RECEIVEFREQ1_MEASUREMENT_ID,
-	CCSDS_TDM_RECEIVEFREQ1_UNITS_ID,
-	CCSDS_TDM_RECEIVEFREQ2_TIMETAG_ID,
-	CCSDS_TDM_RECEIVEFREQ2_MEASUREMENT_ID,
-	CCSDS_TDM_RECEIVEFREQ2_UNITS_ID,
-	CCSDS_TDM_RECEIVEFREQ3_TIMETAG_ID,
-	CCSDS_TDM_RECEIVEFREQ3_MEASUREMENT_ID,
-	CCSDS_TDM_RECEIVEFREQ3_UNITS_ID,
-	CCSDS_TDM_RECEIVEFREQ4_TIMETAG_ID,
-	CCSDS_TDM_RECEIVEFREQ4_MEASUREMENT_ID,
-	CCSDS_TDM_RECEIVEFREQ4_UNITS_ID,
-	CCSDS_TDM_RECEIVEFREQ5_TIMETAG_ID,
-	CCSDS_TDM_RECEIVEFREQ5_MEASUREMENT_ID,
-	CCSDS_TDM_RECEIVEFREQ5_UNITS_ID,
-	CCSDS_TDM_RHUMIDITY_TIMETAG_ID,
-	CCSDS_TDM_RHUMIDITY_MEASUREMENT_ID,
-	CCSDS_TDM_RHUMIDITY_UNITS_ID,
-	CCSDS_TDM_STEC_TIMETAG_ID,
-	CCSDS_TDM_STEC_MEASUREMENT_ID,
-	CCSDS_TDM_STEC_UNITS_ID,
-	CCSDS_TDM_TEMPERATURE_TIMETAG_ID,
-	CCSDS_TDM_TEMPERATURE_MEASUREMENT_ID,
-	CCSDS_TDM_TEMPERATURE_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQ1_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQ1_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQ1_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQ2_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQ2_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQ2_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQ3_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQ3_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQ3_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQ4_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQ4_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQ4_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQ5_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQ5_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQ5_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQRATE1_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQRATE1_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQRATE1_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQRATE2_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQRATE2_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQRATE2_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQRATE3_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQRATE3_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQRATE3_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQRATE4_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQRATE4_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQRATE4_UNITS_ID,
-	CCSDS_TDM_TRANSMITFREQRATE5_TIMETAG_ID,
-	CCSDS_TDM_TRANSMITFREQRATE5_MEASUREMENT_ID,
-	CCSDS_TDM_TRANSMITFREQRATE5_UNITS_ID,
-	CCSDS_TDM_TROPODRY_TIMETAG_ID,
-	CCSDS_TDM_TROPODRY_MEASUREMENT_ID,
-	CCSDS_TDM_TROPODRY_UNITS_ID,
-	CCSDS_TDM_TROPOWET_TIMETAG_ID,
-	CCSDS_TDM_TROPOWET_MEASUREMENT_ID,
-	CCSDS_TDM_TROPOWET_UNITS_ID,
-	CCSDS_TDM_VLBIDELAY_TIMETAG_ID,
-	CCSDS_TDM_VLBIDELAY_MEASUREMENT_ID,
-	CCSDS_TDM_VLBIDELAY_UNITS_ID,
+	CCSDS_TDM_TIMETAG_ID,
+	CCSDS_TDM_MEASUREMENT_ID,
+	CCSDS_TDM_UNITS_ID,
+	CCSDS_TDM_KEYWORD_ID,
 	EndCCSDSTDMDataReps
     };
     
-protected:
-
-    static const bool CCSDS_TDM_IS_REQUIRED[EndCCSDSTDMDataReps];
-    static const Gmat::ParameterType CCSDS_TDM_PARAMETER_TYPE[EndCCSDSTDMDataReps];
-    static const std::string CCSDS_TDM_UNIT_DESCRIPTIONS[EndCCSDSTDMDataReps];
-    static const std::string CCSDS_TDM_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps];
-    
     struct ccsds_tdm_metadata
     {
-	std::vector<std::string*> metadataComments;
+	StringArray metadataComments;
 	std::string timeSystem;
 	std::string startTime;
 	std::string stopTime;
-	std::string *participants[5];
+	std::string participants[5];
 	std::string mode;
-	std::string *path[3];
+	std::string path[3];
 	std::string transmitBand;
 	std::string receiveBand;
 	Integer turnaroundNumerator;
 	Integer turnaroundDenominator;
-	std::string timetagRef;
+	std::string timeTagRef;
 	Real integrationInterval;
 	std::string integrationRef;
 	Real frequencyOffset;
@@ -207,8 +227,8 @@ protected:
 	std::string rangeUnits;
 	std::string angleType;
 	std::string referenceFrame;
-	Real *transmitDelay[5];
-	Real *receiveDelay[5];
+	Real transmitDelay[5];
+	Real receiveDelay[5];
 	std::string dataQuality;
 	Real correctionAngle1;
 	Real correctionAngle2;
@@ -219,53 +239,32 @@ protected:
 	bool correctionsApplied;
     };
     
-    struct ccsds_tdm_data
-    {
-	std::string timeTag;
-	Real measurement;
-	std::string units;
-    };
+    friend class ProcessCCSDSTDMDataFile;
     
-    // Iterator Pointer to the header record
-    std::vector<ccsds_header*>::iterator headerVectorIndex;
-    // Iterator Pointer to the metadata record
-    std::vector<ccsds_tdm_metadata*>::iterator metadataVectorIndex;	
-    std::vector<ccsds_tdm_data*> angle1;
-    std::vector<ccsds_tdm_data*> angle2;
-    std::vector<ccsds_tdm_data*> carrierPower;
-    std::vector<ccsds_tdm_data*> clockBias;
-    std::vector<ccsds_tdm_data*> clockDrift;
-    std::vector<ccsds_tdm_data*> comment;
-    std::vector<ccsds_tdm_data*> dopplerInstanteous;
-    std::vector<ccsds_tdm_data*> dopplerIntegrated;
-    std::vector<ccsds_tdm_data*> dor;
-    std::vector<ccsds_tdm_data*> pcN0;
-    std::vector<ccsds_tdm_data*> prN0;
-    std::vector<ccsds_tdm_data*> pressure;
-    std::vector<ccsds_tdm_data*> range;
-    std::vector<ccsds_tdm_data*> receiveFrequency;
-    std::vector<ccsds_tdm_data*> receiveFrequency1;
-    std::vector<ccsds_tdm_data*> receiveFrequency2;
-    std::vector<ccsds_tdm_data*> receiveFrequency3;
-    std::vector<ccsds_tdm_data*> receiveFrequency4;
-    std::vector<ccsds_tdm_data*> receiveFrequency5;
-    std::vector<ccsds_tdm_data*> rHumidity;
-    std::vector<ccsds_tdm_data*> stec;
-    std::vector<ccsds_tdm_data*> temperature;
-    std::vector<ccsds_tdm_data*> transmitFrequency1;
-    std::vector<ccsds_tdm_data*> transmitFrequency2;
-    std::vector<ccsds_tdm_data*> transmitFrequency3;
-    std::vector<ccsds_tdm_data*> transmitFrequency4;
-    std::vector<ccsds_tdm_data*> transmitFrequency5;
-    std::vector<ccsds_tdm_data*> transmitFrequencyRate1;
-    std::vector<ccsds_tdm_data*> transmitFrequencyRate2;
-    std::vector<ccsds_tdm_data*> transmitFrequencyRate3;
-    std::vector<ccsds_tdm_data*> transmitFrequencyRate4;
-    std::vector<ccsds_tdm_data*> transmitFrequencyRate5;
-    std::vector<ccsds_tdm_data*> tropoDry;
-    std::vector<ccsds_tdm_data*> tropoWet;
-    std::vector<ccsds_tdm_data*> vlbiDelay;
+protected:
+
+    static const std::string MODE_DESCRIPTIONS[EndCCSDSTDMModeReps];
+    static const std::string TIMETAG_DESCRIPTIONS[EndCCSDSTDMTimetagReps];
+    static const std::string INTEGRATION_DESCRIPTIONS[EndCCSDSTDMIntegrationReps];
+    static const std::string RANGEMODE_DESCRIPTIONS[EndCCSDSTDMRangeModeReps];
+    static const std::string RANGEUNIT_DESCRIPTIONS[EndCCSDSTDMRangeUnitReps];
+    static const std::string ANGLETYPE_DESCRIPTIONS[EndCCSDSTDMAngleTypeReps];
+    static const std::string DATAQUALITY_DESCRIPTIONS[EndCCSDSTDMDataQualityReps];
+    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps - EndCCSDSTypeReps];
+    static const std::string CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps];    
+    static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeReps - EndCCSDSTimeReps];
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSTDMDataReps - EndCCSDSDataReps];
+    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataReps - EndCCSDSDataReps];
+    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMDataReps - EndCCSDSDataReps];
+    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps - EndCCSDSDataReps];
+
+    // Pointer to the metadata record associated with this data point
+    ccsds_tdm_metadata *ccsdsTDMMetaData;
+    
+    // Pointer to the data record associated with this data point
+    ccsds_data *ccsdsTDMData;
+    
 };
 
-#endif	/* _CCSDSOBTYPE_HPP */
+#endif	/* _CCSDSTDMOBTYPE_HPP */
 

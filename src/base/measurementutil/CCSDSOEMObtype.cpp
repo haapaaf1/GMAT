@@ -1,4 +1,135 @@
 #include "CCSDSOEMObtype.hpp"
+//---------------------------------
+//  static data
+//---------------------------------
+const std::string CCSDSOEM::CCSDS_OEM_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
+{
+    "B3Type",
+    "SecurityClassification",
+    "SatelliteID",
+    "SensorID",
+    "Year",
+    "DayOfYear",
+    "Hour",
+    "Minute",
+    "Seconds",
+    "Elevation",
+    "Declination",
+    "RightAscension",
+    "Azimuth",
+    "Range",
+    "RangeRate",
+    "Ecf_X",
+    "Ecf_Y",
+    "Ecf_Z"
+};
+
+const std::string CCSDSOEM::CCSDS_OEM_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
+{
+    "",
+    "",
+    "",
+    "",
+    "year",
+    "DayOfYear",
+    "hrs",
+    "min",
+    "sec",
+    "deg",
+    "deg",
+    "deg",
+    "deg",
+    "km",
+    "km/sec",
+    "km",
+    "km",
+    "km"
+};
+
+const Gmat::ParameterType CCSDSOEM::CCSDS_OEM_PARAMETER_TYPE[EndCCSDSOEMDataReps] =
+{
+    Gmat::INTEGER_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE
+};
+
+const bool CCSDSOEM::CCSDS_OEM_IS_REQUIRED[EndCCSDSOEMDataReps] =
+{
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+};
+
+const std::string CCSDSOEM::CCSDS_OEM_DATATYPE_DESCRIPTIONS[EndCCSDSOEMTypeReps] =
+{
+    "Range",
+    "RangeRate",
+    "Azimuth",
+    "Elevation",
+    "RightAscension",
+    "Declination"
+    
+};
+    
+const std::string CCSDSOEM::CCSDS_OEM_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps] =
+{
+    "UTC"
+};
+
+
+//------------------------------------------------------------------------------
+//  CCSDSOEMObtype()
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the obtype class
+ */
+//------------------------------------------------------------------------------
+CCSDSOEMObtype::CCSDSOEMObtype() : CCSDSObtype(),
+	ccsdsOEMMetaData(NULL),
+	ccsdsOEMData(NULL)
+{
+}
+
+//------------------------------------------------------------------------------
+//  ~CCSDSOEMObtype()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the obtype class
+ */
+//------------------------------------------------------------------------------
+CCSDSOEMObtype::~CCSDSOEMObtype()
+{
+}
 
 //---------------------------------------------------------------------------
 //  bool IsParameterRequired(const Integer id) const

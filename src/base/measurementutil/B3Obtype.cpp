@@ -3,6 +3,19 @@
 //---------------------------------
 //  static data
 //---------------------------------
+const std::string B3Obtype::B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps] =
+{
+    "Range rate only",
+    "Azimuth & elevation",
+    "Range, azimuth, & elevation",
+    "Range, azimuth, elevation, & range rate",
+    "Range, azimuth, elevation, & range rate (extra measurements for azimuth rate, elevation rate, etc are ignored)",
+    "Right Ascension & Declination",
+    "Range only",
+    "Azimuth, elevation, sometimes range and ECF position of the sensor",
+    "Right ascension, declination, sometimes range and ECF position of the sensor",
+};
+
 const std::string B3Obtype::B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
 {
     "B3Type",
@@ -90,17 +103,6 @@ const bool B3Obtype::B3_IS_REQUIRED[EndB3DataReps] =
     false,
     false
 };
-
-const std::string B3Obtype::B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps] =
-{
-    "Range",
-    "RangeRate",
-    "Azimuth",
-    "Elevation",
-    "RightAscension",
-    "Declination"
-    
-};
     
 const std::string B3Obtype::B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps] =
 {
@@ -114,11 +116,11 @@ const std::string B3Obtype::B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps] =
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-B3Obtype::B3Obtype() :
-    b3Type(-1),
+B3Obtype::B3Obtype() : Obtype(),
+    b3Type(0),
     securityClassification("U"),
     satID(0),
-    sensorID(0),
+    sensID(0),
     year(0),
     dayOfYear(0),
     hour(0),
@@ -566,4 +568,55 @@ bool B3Obtype::CheckDataAvailability(const std::string str) const
 
    return false;
 
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const B3Obtype &myB3)
+//------------------------------------------------------------------------------
+/**
+ * Formats B3Obtype value and sends to output stream.
+ *
+ * @param  output  Output stream
+ * @param  myB3    B3 observation to write out
+ *
+ * return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const B3Obtype *myB3) 
+{
+   using namespace std;
+   
+   output.setf(std::ios::showpoint);
+   output.setf(std::ios::scientific);
+
+   output << "Class = " << myB3->securityClassification << std::endl;
+   output << "Satnum = " << myB3->satelliteID << std::endl;
+   output << "Sensor ID = " << myB3->sensorID << std::endl;
+   Real year;
+   if (myB3->year < 57)
+   {
+       year = myB3->year+2000;
+   }
+   else
+   {
+       year = myB3->year+1900;   
+   }
+   output << "Year = " << year << std::endl;   
+   output << "Day of Year = " << myB3->dayOfYear << std::endl;
+   output << "Hour = " << myB3->hour << std::endl;
+   output << "Minutes = " << myB3->minute << std::endl;
+   output << "Seconds = " << myB3->seconds << std::endl;
+   output << "Elevation = " << myB3->elevation << std::endl;
+   output << "Azimuth = " << myB3->azimuth << std::endl;
+   output << "Declination = " << myB3->declination << std::endl;
+   output << "Right Ascension = " << myB3->rightAscension << std::endl;
+   output << "Range = " << myB3->range << std::endl;
+   output << "Range Rate = " << myB3->rangeRate << std::endl;
+   output << "ECF X = " << myB3->ecf_X << std::endl;
+   output << "ECF Y = " << myB3->ecf_Y << std::endl;
+   output << "ECF Z = " << myB3->ecf_Z << std::endl;
+   output << "******************************************************" << std::endl;
+   //output << setw(w) << setprecision(p) << prefix << a[i];
+   
+   return output;
 }

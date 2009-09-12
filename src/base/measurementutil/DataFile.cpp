@@ -344,7 +344,18 @@ bool DataFile::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 bool DataFile::Initialize()
 {
+
+    // Make sure that the data vector has space reserved for a minimum number 
+    // of observations. This ensures that the compiler does not unnecessarily  
+    // reallocate the vector storage too-often. In this case, the function 
+    // reserve() will ensure that we have room for at least 100 elements. 
+    // If the vector already has room for the required number of elements,
+    // reserve() does nothing. In other words, reserve() will grow the allocated
+    // storage of the vector, if necessary, but will never shrink it.
+    theData.reserve(100);    
+    
     return OpenFile();
+
 }
 
 //------------------------------------------------------------------------------
@@ -368,11 +379,13 @@ DataFile::DataFile(const std::string &itsType,
     GmatBase(Gmat::DATA_FILE,itsType,itsName),
     fileFormatName (""),
 //    numLines (0),
-        numMeasurements (0),
 //    lineFromFile (""),
 //    dataFileName (""),
     isOpen (false),
-    isSorted (false),
+    isSortedByEpoch (false),
+    isSortedBySatID (false),
+    isSortedBySensorID (false),
+    isSortedByInternationalDesignator (false),
     readWriteMode ("read")
 {
    objectTypes.push_back(Gmat::DATA_FILE);
@@ -392,10 +405,12 @@ DataFile::DataFile(const DataFile &pdf) :
     fileFormatName (pdf.fileFormatName),
     dataFileName (pdf.dataFileName),
     numLines (pdf.numLines),
-    numMeasurements (pdf.numMeasurements),
 //    lineFromFile (pdf.lineFromFile),
     isOpen (pdf.isOpen),
-    isSorted (pdf.isSorted),
+    isSortedByEpoch (pdf.isSortedByEpoch),
+    isSortedBySatID (pdf.isSortedBySatID),
+    isSortedBySensorID (pdf.isSortedBySensorID),
+    isSortedByInternationalDesignator (pdf.isSortedByInternationalDesignator),
     readWriteMode(pdf.readWriteMode),
     theFile (pdf.theFile)
 {
@@ -671,20 +686,6 @@ Integer DataFile::GetNumLines() const
 }
 
 //------------------------------------------------------------------------------
-// Integer SetNumMeasurements(const Integer &nm)
-//------------------------------------------------------------------------------
-/**
- * Sets the number of measurements of the data file object.
- *
- * @param <pdfId> The desired number of measurements to be set.
- */
-//------------------------------------------------------------------------------
-void DataFile::SetNumMeasurements(const Integer &nm)
-{
-   numMeasurements = nm;
-}
-
-//------------------------------------------------------------------------------
 // Integer GetNumMeasurements() const
 //------------------------------------------------------------------------------
 /**
@@ -695,7 +696,7 @@ void DataFile::SetNumMeasurements(const Integer &nm)
 //------------------------------------------------------------------------------
 Integer DataFile::GetNumMeasurements() const
 {
-   return numMeasurements;
+   return theData.size();
 }
 
 //------------------------------------------------------------------------------
@@ -737,7 +738,12 @@ std::string DataFile::GetFileFormatName() const
 //------------------------------------------------------------------------------
  bool DataFile::AdvanceToNextOb()
 {
-   return false;
+   i_theData++;
+   
+   if (i_theData == theData.end()) 
+       return false;
+   else
+       return true;
 }
 
 //------------------------------------------------------------------------------
@@ -751,7 +757,12 @@ std::string DataFile::GetFileFormatName() const
 //------------------------------------------------------------------------------
  bool DataFile::BackUpToPreviousOb()
 {
-   return false;
+   i_theData++;
+   
+   if (i_theData == theData.begin()) 
+       return false;
+   else
+       return true;
 }
 
 //------------------------------------------------------------------------------
@@ -844,19 +855,35 @@ void DataFile::SetIsOpen(const bool &flag)
 }
 
 //------------------------------------------------------------------------------
-// bool GetIsSorted() const
+// bool GetIsSortedByEpoch() const
 //------------------------------------------------------------------------------
-bool DataFile::GetIsSorted() const
+bool DataFile::GetIsSortedByEpoch() const
 {
-        return isSorted;
+        return isSortedByEpoch;
 }
 
 //------------------------------------------------------------------------------
-// void SetIsSorted(const bool flag)
+// bool GetIsSortedBySatID() const
 //------------------------------------------------------------------------------
-void DataFile::SetIsSorted(const bool &flag)
+bool DataFile::GetIsSortedBySatID() const
 {
-        isSorted = flag;
+        return isSortedBySatID;
+}
+
+//------------------------------------------------------------------------------
+// bool GetIsSortedBySensorID() const
+//------------------------------------------------------------------------------
+bool DataFile::GetIsSortedBySensorID() const
+{
+        return isSortedBySensorID;
+}
+
+//------------------------------------------------------------------------------
+// bool GetIsSortedByInternationalDesignator() const
+//------------------------------------------------------------------------------
+bool DataFile::GetIsSortedByInternationalDesignator() const
+{
+        return isSortedByInternationalDesignator;
 }
 
 //------------------------------------------------------------------------------
@@ -1191,4 +1218,145 @@ bool DataFile::WriteDataSubHeader()
 bool DataFile::WriteMetadata()
 {
     return false;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteData(fstream *myFile)
+//------------------------------------------------------------------------------
+/**
+ * Writes data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteData(fstream *myFile)
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteDataHeader(fstream *myFile)
+//------------------------------------------------------------------------------
+/**
+ * Writes header data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteDataHeader(fstream *myFile)
+{
+    return false;
+}
+//------------------------------------------------------------------------------
+// virtual bool WriteDataSubHeader(fstream *myFile)
+//------------------------------------------------------------------------------
+/**
+ * Writes header data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteDataSubHeader(fstream *myFile)
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteMetadata(fstream *myFile)
+//------------------------------------------------------------------------------
+/**
+ * Writes header data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteMetadata(fstream *myFile)
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// void SortByEpoch(bool sortOrder)
+//------------------------------------------------------------------------------
+/**
+ * Sorts the vector of data by epoch
+ *
+ * @param <sortOrder> Desired sort order (DESCENDING=true, ASCENDING=false)
+ */
+//------------------------------------------------------------------------------
+void DataFile::SortByEpoch(bool sortOrder)
+{
+    if (sortOrder)
+	std::sort(theData.begin(), theData.end(), DescendingEpochSort());
+    else
+	std::sort(theData.begin(), theData.end(), AscendingEpochSort());
+    
+    isSortedByEpoch = true;
+    isSortedBySatID = false;
+    isSortedBySensorID = false;
+    isSortedByInternationalDesignator = false;
+
+}
+
+//------------------------------------------------------------------------------
+// void SortBySatID(bool sortOrder)
+//------------------------------------------------------------------------------
+/**
+ * Sorts the vector of data by satellite ID
+ *
+ * @param <sortOrder> Desired sort order (DESCENDING=true, ASCENDING=false)
+ */
+//------------------------------------------------------------------------------
+void DataFile::SortBySatID(bool sortOrder)
+{
+    if (sortOrder)
+	std::sort(theData.begin(), theData.end(), DescendingSatIDSort());
+    else
+	std::sort(theData.begin(), theData.end(), AscendingSatIDSort());
+
+    isSortedByEpoch = false;
+    isSortedBySatID = true;
+    isSortedBySensorID = false;
+    isSortedByInternationalDesignator = false;
+
+}
+
+//------------------------------------------------------------------------------
+// void SortBySensorID(bool sortOrder)
+//------------------------------------------------------------------------------
+/**
+ * Sorts the vector of data by sensor ID
+ *
+ * @param <sortOrder> Desired sort order (DESCENDING=true, ASCENDING=false)
+ */
+//------------------------------------------------------------------------------
+void DataFile::SortBySensorID(bool sortOrder)
+{
+    if (sortOrder)
+	std::sort(theData.begin(), theData.end(), DescendingSensorIDSort());
+    else
+	std::sort(theData.begin(), theData.end(), AscendingSensorIDSort());
+
+    isSortedByEpoch = false;
+    isSortedBySatID = false;
+    isSortedBySensorID = true;
+    isSortedByInternationalDesignator = false;
+
+}
+
+//------------------------------------------------------------------------------
+// void SortByInternationalDesignator(bool sortOrder)
+//------------------------------------------------------------------------------
+/**
+ * Sorts the vector of data by international designator
+ *
+ * @param <sortOrder> Desired sort order (DESCENDING=true, ASCENDING=false)
+ */
+//------------------------------------------------------------------------------
+void DataFile::SortByInternationalDesignator(bool sortOrder)
+{
+    if (sortOrder)
+	std::sort(theData.begin(), theData.end(), 
+		  DescendingInternationalDesignatorSort());
+    else
+	std::sort(theData.begin(), theData.end(), 
+		  AscendingInternationalDesignatorSort());
+
+    isSortedByEpoch = false;
+    isSortedBySatID = false;
+    isSortedBySensorID = false;
+    isSortedByInternationalDesignator = true;
+
 }

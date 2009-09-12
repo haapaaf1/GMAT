@@ -42,6 +42,8 @@ public:
     A1Date (const std::string &dateString);      // "YYYYMMDD.hhmmssnnn"
     A1Date (const A1Date &a1date);               // copy constructor
     A1Date  operator=  (const A1Date &a1date);
+    bool  operator>  (const A1Date &a1date) const;
+    bool  operator<  (const A1Date &a1date) const;
     ~A1Date ();
 
 //loj: Do this later if we need.
@@ -50,7 +52,8 @@ public:
 //      A1Date& operator+= (const Real seconds);
 //      A1Date  operator-  (const Real seconds) const;
 //      A1Date& operator-= (const Real seconds);
-   
+
+    
 //     GmatTimeUtil::CalDate ToUtcDate() const;
 
 protected:

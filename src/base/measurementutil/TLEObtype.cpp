@@ -529,3 +529,31 @@ Integer TLEObtype::GetTimeSystemID(const std::string &label)
 {
     return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
+
+//------------------------------------------------------------------------------
+// bool AdvanceToNextOb()
+//------------------------------------------------------------------------------
+/**
+ * Returns the next observation from the vector container.
+ */
+//------------------------------------------------------------------------------
+//bool ProcessTLEData::AdvanceToNextOb() 
+//{
+//    ++i;
+//    if ( i == tleData.end() ) return false;
+//    return true;
+//}
+
+//------------------------------------------------------------------------------
+// bool BackUpToPreviousOb()
+//------------------------------------------------------------------------------
+/**
+ * Returns the previous observation from the vector container.
+ */
+//------------------------------------------------------------------------------
+//bool ProcessTLEData::BackUpToPreviousOb() 
+//{
+//    --i;
+//    if ( i == tleData.begin() ) return false;
+//    return true;
+//}

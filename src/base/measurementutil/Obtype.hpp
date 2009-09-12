@@ -86,18 +86,27 @@ public:
     virtual bool IsParameterRequired(const Integer id) const;
     bool IsParameterRequired(const std::string &label) const;
      
-    const std::string* GetObtypeKeywords();
-    std::string GetObtypeKeyword(Integer myID);
+    const std::string* GetObtypes();
+    std::string GetObtype(Integer myID);
     Integer GetObtypeID(std::string keyword);
     
-    A1Date GetEpoch();
-    Integer GetSatelliteID();
+    A1Date& GetEpoch();
+    Integer GetSatID();
     std::string GetInternationalDesignator();
     Integer GetSensorID();
     
     std::string Ilrs2Cospar(std::string ilrsSatnum);
     std::string Cospar2Ilrs(std::string cosparSatnum);
 
+private:
+
+    static const std::string Obtype::OBTYPES[EndObtypeReps];
+    
+    template <class T> bool from_string(T& t, const std::string& s,
+                 std::ios_base& (*f)(std::ios_base&));
+    
+protected:
+    
     // This is the GMAT epoch time in the Goddard A1 time system
     A1Date epoch;
     
@@ -110,15 +119,6 @@ public:
     // This is the sensor ID
     Integer sensorID;
 
-
-private:
-
-    
-    static const std::string Obtype::OBTYPE_KEYWORDS[EndObtypeReps];
-    
-    template <class T> bool from_string(T& t, const std::string& s,
-                 std::ios_base& (*f)(std::ios_base&));
-    
 };
 
 //------------------------------------------------------------------------------
@@ -135,6 +135,24 @@ template <class T> bool Obtype::from_string(T& t, const std::string& s,
   std::istringstream iss(s);
   return !(iss >> f >> t).fail();
 }
+
+
+//------------------------------------------------------------------------------
+/**
+ * A vector based class to contain our Obtype items
+ */
+//------------------------------------------------------------------------------
+class ObtypeVector : public std::vector<Obtype*>
+{
+public:
+     // Make sure that the vector items are de-allocated so we don't leak
+
+     ~ObtypeVector()
+     {
+          for (iterator pItem=begin(); pItem != end(); ++pItem)
+               delete *pItem;
+     }
+};    
 
 #endif	/* _OBTYPE_HPP */
 

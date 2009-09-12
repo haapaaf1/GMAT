@@ -94,6 +94,7 @@ HEADERS = -Iinclude \
           -Iinterpolator \
           -Iinterface \
           -Imeasurement \
+          -Imeasurementutil \
           -Iparameter \
           -Iconfigs \
           -Iburn \
@@ -351,11 +352,20 @@ OBJECTS = \
     measurement/MeasurementModelException.o \
     measurement/GeometricRangeMeasurementModel.o \
     measurement/GeometricRangeAzElMeasurementModel.o \
-    measurement/DataFile.o \
-    measurement/DataFileException.o \
-    measurement/ProcessTLEData.o \
-    measurement/ProcessB3Data.o \
-    measurement/ProcessSLRData.o \
+    measurementutil/Obtype.o \
+    measurementutil/B3Obtype.o \
+    measurementutil/CCSDSObtype.o \
+    measurementutil/CCSDSTDMObtype.o \
+    measurementutil/SLRObtype.o \
+    measurementutil/TLEObtype.o \
+    measurementutil/DataFile.o \
+    measurementutil/DataFileException.o \
+    measurementutil/ProcessB3DataFile.o \
+    measurementutil/ProcessCCSDSDataFile.o \
+    measurementutil/ProcessCCSDSTDMDataFile.o \
+    measurementutil/ProcessCCSDSOEMDataFile.o \
+    measurementutil/ProcessSLRDataFile.o \
+    measurementutil/ProcessTLEDataFile.o \
     parameter/AngularParameters.o \
     parameter/Array.o \
     parameter/ArrayWrapper.o \
@@ -485,6 +495,7 @@ OBJECTS = \
     util/CoordUtil.o \
     util/Date.o \
     util/DateUtil.o \
+    util/DataParameterConverter.o \
     util/ElapsedTime.o \
     util/EopFile.o \
     util/Equinoctial.o \

@@ -668,4 +668,33 @@ Integer SLRObtype::GetTimeSystemID(const std::string &label)
 {
     return -1;
 }
+
+//------------------------------------------------------------------------------
+// bool AdvanceToNextOb()
+//------------------------------------------------------------------------------
+/**
+ * Returns the next observation from the vector container.
+ */
+//------------------------------------------------------------------------------
+//bool ProcessSLRData::AdvanceToNextOb() 
+//{
+//    ++i;
+//    if (i==slrData.end()) return false;
+//    return true;
+//}
+
+//------------------------------------------------------------------------------
+// bool BackUpToPreviousOb()
+//------------------------------------------------------------------------------
+/**
+ * Returns the previous observation from the vector container.
+ */
+//------------------------------------------------------------------------------
+//bool ProcessSLRData::BackUpToPreviousOb() 
+//{
+//    --i;
+//    if (i==slrData.begin()) return false;
+//    return true;
+//}
+
  

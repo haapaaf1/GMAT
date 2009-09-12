@@ -121,14 +121,7 @@ namespace GmatMathUtil
    Real    Log10(Real x);          // Base 10 Logarithm of x
    Real    Log(Real x, Real base); // Base <base> Logarithm of x
    Real    Log(Real x, Integer base);
-   
-   void    SetSeed(Integer initialSeed1, Integer initialSeed2); 
-   void    GetSeed(Integer& initialSeed1, Integer& initialSeed2);
-   //loj:void    SetSeedByClock();
-   Real    Number(Real lowerBound=0.0, Real upperBound=1.0); 
-   Real    GaussianNumber(Real mu= 0.0, Real sigma=1.0); 
-   Real    Ran();
-   void    SetRanKey(Real k=0.0); 
+    
    //loj:Real    Cot(Real x);
    Real    Cbrt(Real x);
    Real    Sqrt(Real x);

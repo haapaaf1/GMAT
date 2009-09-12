@@ -9,10 +9,14 @@
 #define	_CCSDSAPMOBTYPE_HPP
 
 #include "CCSDSObtype.hpp"
-
-namespace DataFormats
+    
+class CCSDSAPMObtype : public CCSDSObtype
 {
-      
+    
+public :
+	
+    bool IsParameterRequired(const Integer id) const;	
+    
     struct ccsds_apm_metadata
     {
 	std::string objectName;
@@ -29,26 +33,20 @@ namespace DataFormats
 	std::string refFrame;
 	Real torqueVector1, torqueVector2, torqueVector3;
     };
-    
-    class CCSDSAPMObtype : public Obtype
-    {
-    
-	public :
 	
-	bool IsParameterRequired(const Integer id) const;	
-	
-	// Iterator Pointer to the header record
-        std::vector<ccsds_header*>::iterator headerVectorIndex;
-	// Iterator Pointer to the metadata record
-        std::vector<ccsds_apm_metadata*>::iterator metadataVectorIndex;
-	std::vector<ccsds_quaternion*> quaternions;
-	std::vector<ccsds_eulerAngle*> eulerAngles;
-	std::vector<ccsds_spinStabilized*> spinStabilized;
-	std::vector<ccsds_spacecraftParameters*> spacecraftParameters;
-	std::vector<ccsds_adm_maneuverParameters*> maneuverParameters;
-    };
+protected:
     
-}
+    // Iterator Pointer to the header record
+    std::vector<ccsds_header*>::iterator headerVectorIndex;
+    // Iterator Pointer to the metadata record
+    std::vector<ccsds_apm_metadata*>::iterator metadataVectorIndex;
+    std::vector<ccsds_quaternion*> quaternions;
+    std::vector<ccsds_eulerAngle*> eulerAngles;
+    std::vector<ccsds_spinStabilized*> spinStabilized;
+    std::vector<ccsds_spacecraftParameters*> spacecraftParameters;
+    std::vector<ccsds_adm_maneuverParameters*> maneuverParameters;
+    
+};
 
 #endif	/* _CCSDSAPMOBTYPE_HPP */
 

@@ -9,10 +9,14 @@
 #define	_CCSDSAEMOBTYPE_HPP
 
 #include "CCSDSObtype.hpp"
-
-namespace DataFormats
+    
+class CCSDSAEMObtype : public CCSDSObtype
 {
     
+public :
+	
+    bool IsParameterRequired(const Integer id) const;	
+
     struct ccsds_aem_metadata
     {
 	std::string objectName;
@@ -32,26 +36,18 @@ namespace DataFormats
 	std::string rateFrame;
 	std::string interpolationMethod;
 	Integer interpolationDegree;
-	StringArray comments;
+	StringArray comments;    
     };
-
-    class CCSDSAEMObtype : public Obtype
-    {
     
-        public :
-	
-	bool IsParameterRequired(const Integer id) const;	
-	
-	// Iterator Pointer to the header record
-        std::vector<ccsds_header*>::iterator headerVectorIndex;
-	// Iterator Pointer to the metadata record
-        std::vector<ccsds_aem_metadata*>::iterator metadataVectorIndex;
-	std::vector<ccsds_quaternion*> quaternions;
-	std::vector<ccsds_eulerAngle*> eulerAngles;
-	std::vector<ccsds_spinStabilized*> spinStabilized;
-    };
- 
+protected:
+    
+    // Iterator Pointer to the header record
+    std::vector<ccsds_header*>::iterator headerVectorIndex;
+    // Iterator Pointer to the metadata record
+    std::vector<ccsds_aem_metadata*>::iterator metadataVectorIndex;
+    std::vector<ccsds_quaternion*> quaternions;
+    std::vector<ccsds_eulerAngle*> eulerAngles;
+    std::vector<ccsds_spinStabilized*> spinStabilized;
 }
-
 #endif	/* _CCSDSAEMOBTYPE_HPP */
 

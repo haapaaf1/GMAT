@@ -52,6 +52,8 @@ const Real        GmatBase::REAL_PARAMETER_UNDEFINED = -987654321.0123e-45;
 const Integer     GmatBase::INTEGER_PARAMETER_UNDEFINED = -987654321;
 const UnsignedInt GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED = 987654321;
 const std::string GmatBase::STRING_PARAMETER_UNDEFINED = "STRING_PARAMETER_UNDEFINED";
+const StringArray GmatBase::STRINGARRAY_PARAMETER_UNDEFINED = StringArray(1,
+		  GmatBase::STRING_PARAMETER_UNDEFINED);
 const Rvector     GmatBase::RVECTOR_PARAMETER_UNDEFINED = Rvector(1,
                   GmatBase::REAL_PARAMETER_UNDEFINED);
 const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,

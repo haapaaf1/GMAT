@@ -29,6 +29,7 @@
 #include <iomanip>
 #include "sstream"
 #include "DataFormats.hpp"
+#include "Obtype.hpp"
 #include "DataFileException.hpp"
 #include "MessageInterface.hpp"
 #include <pcrecpp.h>
@@ -66,11 +67,17 @@ public:
     // Method to obtain data from the file
     virtual bool GetData();
 
-    // Method to write data to file
+    // Methods to write data to the file defined on this object
     virtual bool WriteData();
     virtual bool WriteDataHeader();
     virtual bool WriteDataSubHeader();
     virtual bool WriteMetadata();
+    
+    // Methods to write data to external files
+    virtual bool WriteData(fstream *myFile);
+    virtual bool WriteDataHeader(fstream *myFile);
+    virtual bool WriteDataSubHeader(fstream *myFile);
+    virtual bool WriteMetadata(fstream *myFile);
 
     // String processing utility functions
     std::string Trim(std::string s);
@@ -90,7 +97,6 @@ public:
     void SetNumLines(const Integer &nl);
     Integer GetNumLines() const;
 
-    void SetNumMeasurements(const Integer &nm);
     Integer GetNumMeasurements() const;
     
     void SetFileFormatID(const Integer &mName);
@@ -101,9 +107,6 @@ public:
   
     bool GetIsOpen() const;
     void SetIsOpen(const bool &flag);
-
-    bool GetIsSorted() const;
-    void SetIsSorted(const bool &flag);
 
     std::string GetFileName();
     void SetFileName(std::string &myFileName);
@@ -126,20 +129,109 @@ public:
     virtual Integer GetParameterID(const std::string &str) const;
     virtual Gmat::ParameterType GetParameterType(const Integer id) const;
     virtual std::string GetParameterTypeString(const Integer id) const;
+
+    // Sorting Functions
+    void SortByEpoch(bool sortOrder = DESCENDING);
+    void SortBySatID(bool sortOrder = DESCENDING);
+    void SortBySensorID(bool sortOrder = DESCENDING);
+    void SortByInternationalDesignator(bool sortOrder = DESCENDING);
+
+    bool GetIsSortedByEpoch() const;
+    bool GetIsSortedBySatID() const;
+    bool GetIsSortedBySensorID() const;
+    bool GetIsSortedByInternationalDesignator() const;
+   
+    enum SORTORDER
+    {
+	ASCENDING = 0,
+	DESCENDING
+    };
+    
+    // Ascending epoch sorting function
+
+    struct AscendingEpochSort
+    {
+	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	{
+	    return rpStart->GetEpoch() < rpEnd->GetEpoch();
+	}
+    };
+
+    // Descending epoch sorting function
+
+    struct DescendingEpochSort
+    {
+	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	{
+	    return rpStart->GetEpoch() > rpEnd->GetEpoch();
+	}
+    };
+
+    // Ascending satellite ID sorting function
+
+    struct AscendingSatIDSort
+    {
+	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	{
+	    return rpStart->GetSatID() < rpEnd->GetSatID();
+	}
+    };
+
+    // Descending satellite ID sorting function
+
+    struct DescendingSatIDSort
+    {
+	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	{
+	    return rpStart->GetSatID() > rpEnd->GetSatID();
+	}
+    };
+    
+    // Ascending sensor ID sorting function
+
+    struct AscendingSensorIDSort
+    {
+	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	{
+	    return rpStart->GetSensorID() < rpEnd->GetSensorID();
+	}
+    };
+
+    // Descending sensor ID sorting function
+
+    struct DescendingSensorIDSort
+    {
+	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	{
+	    return rpStart->GetSensorID() > rpEnd->GetSensorID();
+	}
+    };
+    
+    // Ascending sensor ID sorting function
+
+    struct AscendingInternationalDesignatorSort
+    {
+	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	{
+	    return rpStart->GetInternationalDesignator() < 
+		     rpEnd->GetInternationalDesignator();
+	}
+    };
+
+    // Descending sensor ID sorting function
+
+    struct DescendingInternationalDesignatorSort
+    {
+	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	{
+	    return rpStart->GetInternationalDesignator() > 
+		     rpEnd->GetInternationalDesignator();
+	}
+    };
     
     // Measurement Data Access functions
     bool AdvanceToNextOb();
-    bool BackUpToPreviousOb();    
- 
-    enum DATATYPE_REPS
-    {
-	EndDataTypeReps = 0,
-    };
-
-    enum TIMESYSTEM_REPS
-    {
-	EndTimeReps = 0,
-    };
+    bool BackUpToPreviousOb();
     
     enum DATAFILE_REPS
     {
@@ -190,13 +282,20 @@ protected:
     // depending if a comment line is included for each TLE
     Integer numLines;
 
-    Integer numMeasurements;
+    // The vector container of data
+    ObtypeVector theData;
+            
+    //Current iterators pointing at data
+    ObtypeVector::const_iterator i_theData;
 
     // Flag to indicate if the file is opened
     bool isOpen;
     
-    // Flag to indicate if the data has been chronologically sorted
-    bool isSorted;
+    // Flag to indicate if the data has been sorted
+    bool isSortedByEpoch;
+    bool isSortedBySatID;
+    bool isSortedBySensorID;
+    bool isSortedByInternationalDesignator;
 
     // Flag to indicate if the file is open for reading or writing
     std::string readWriteMode;
@@ -204,7 +303,6 @@ protected:
     fstream *theFile;
 
 };
-
 
 //------------------------------------------------------------------------------
 // template <class T> bool from_string(T& t, const std::string& s,

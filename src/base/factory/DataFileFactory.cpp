@@ -23,9 +23,14 @@
 
 // Here are the supported classes
 #include "DataFile.hpp"
-#include "ProcessB3Data.hpp"
-#include "ProcessSLRData.hpp"
-#include "ProcessTLEData.hpp"
+#include "ProcessB3DataFile.hpp"
+#include "ProcessSLRDataFile.hpp"
+#include "ProcessTLEDataFile.hpp"
+#include "ProcessCCSDSTDMDataFile.hpp"
+//#include "ProcessCCSDSOPMDataFile.hpp"
+#include "ProcessCCSDSOEMDataFile.hpp"
+//#include "ProcessCCSDSAPMDataFile.hpp"
+//#include "ProcessCCSDSAEMDataFile.hpp"
 
 //---------------------------------
 //  public methods
@@ -49,12 +54,21 @@ DataFile* DataFileFactory::CreateDataFile(const std::string &ofType,
 MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
       ofType.c_str(), withName.c_str());
    if (ofType == "B3DataFile")
-      return new ProcessB3Data(withName);
+      return new ProcessB3DataFile(withName);
    if (ofType == "SLRDataFile")
-      return new ProcessSLRData(withName);
+      return new ProcessSLRDataFile(withName);
    if (ofType == "TLEDataFile")
-      return new ProcessTLEData(withName);
-
+      return new ProcessTLEDataFile(withName);
+   if (ofType == "CCSDSTDMDataFile")
+      return new ProcessCCSDSTDMDataFile(withName);
+//   if (ofType == "CCSDSOPMDataFile")
+//      return new ProcessCCSDSOPMDataFile(withName);
+   if (ofType == "CCSDSOEMDataFile")
+      return new ProcessCCSDSOEMDataFile(withName);
+//   if (ofType == "CCSDSAPMDataFile")
+//      return new ProcessCCSDSAPMDataFile(withName);
+//   if (ofType == "CCSDSAEMDataFile")
+//      return new ProcessCCSDSAEMDataFile(withName);
 
    return NULL;
 }
@@ -77,6 +91,11 @@ DataFileFactory::DataFileFactory() :
       creatables.push_back("B3DataFile");
       creatables.push_back("SLRDataFile");
       creatables.push_back("TLEDataFile");
+      creatables.push_back("CCSDSTDMDataFile");
+//      creatables.push_back("CCSDSOPMDataFile");
+      creatables.push_back("CCSDSOEMDataFile");
+//      creatables.push_back("CCSDSAPMDataFile");
+//      creatables.push_back("CCSDSAEMDataFile");
    }
 }
 
@@ -113,6 +132,11 @@ DataFileFactory::DataFileFactory(const DataFileFactory& fact) :
       creatables.push_back("B3DataFile");
       creatables.push_back("SLRDataFile");
       creatables.push_back("TLEDataFile");
+      creatables.push_back("CCSDSTDMDataFile");
+//      creatables.push_back("CCSDSOPMDataFile");
+      creatables.push_back("CCSDSOEMDataFile");
+//      creatables.push_back("CCSDSAPMDataFile");
+//      creatables.push_back("CCSDSAEMDataFile");
    }
 }
 

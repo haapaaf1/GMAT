@@ -9,13 +9,68 @@
 #define	_CCSDSOEMOBTYPE_HPP
 
 #include "CCSDSObtype.hpp"
-
-namespace DataFormats
+    
+class CCSDSOEMObtype : public CCSDSObtype
 {
+
+public:
+
+    std::string GetDataParameterText(const Integer id) const;
+    Integer    GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+    std::string GetDataUnits(const Integer id) const;
+
+    bool     GetBoolDataParameter(const Integer id) const;
+    bool     GetBoolDataParameter(const std::string &label) const;
+    Real     GetRealDataParameter(const Integer id) const;
+    Real     GetRealDataParameter(const std::string &label) const;
+    Integer     GetIntegerDataParameter(const Integer id) const;
+    Integer     GetIntegerDataParameter(const std::string &label) const;
+    IntegerArray     GetIntegerArrayDataParameter(const Integer id) const;
+    IntegerArray     GetIntegerArrayDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+
+    const std::string* GetDataTypes() const;
+    std::string GetDataTypeText(const Integer &id) const;
+    Integer GetDataTypeID(const std::string &label);
+
+    const std::string* GetTimeSystems() const;
+    std::string GetTimeSystemText(const Integer &id) const;
+    Integer GetTimeSystemID(const std::string &label);
+        
+    bool IsParameterRequired(const Integer id) const;
+
+    enum OEM_TYPE_REPS
+    {
+	GPSONLY_ID,
+        MIXED_ID,
+        GLONASSONLY_ID,
+	LEOONLY_ID,
+	GALILEOONLY_ID,
+	EndOEMTypeReps
+    };
+
+    enum OEM_TIME_REPS
+    {
+	GPSTIME_ID,
+        GLONASSUTC_ID,
+        GALILEOSYSTEMTIME_ID,
+	TAI_ID,
+	UTC_ID,
+	EndOEMTimeReps
+    };
+
     struct ccsds_oem_metadata
     {
 	std::string objectName;
-	std::string objectID;
+	std::string internationalDesignator;
 	std::string refFrameOrigin;
 	std::string refFrame;
 	std::string timeSystem;
@@ -25,24 +80,17 @@ namespace DataFormats
 	std::string useableStopTime;
 	std::string interpolationMethod;
 	Integer interpolationDegree;
-	StringArray comments;
+	StringArray metadataComments;
     };
-    
-    class CCSDSOEMObtype : public Obtype
-    {
-        public:
 
-	bool IsParameterRequired(const Integer id) const;
-		
-	// Iterator Pointer to the header record
-        std::vector<ccsds_header*>::iterator headerVectorIndex;
-	// Iterator Pointer to the metadata record
-        std::vector<ccsds_oem_metadata*>::iterator metadataVectorIndex;	
-        std::vector<ccsds_stateVector*> stateVector;
-    };   
+protected:
 
-}
-
+    static const std::string CCSDS_TYPE_DESCRIPTIONS[EndOEMTypeReps-EndCCSDSTypeReps];
+    static const std::string CCSDS_TIME_DESCRIPTIONS[EndOEMTimeReps-EndCCSDSTimeReps];
+   
+    // Iterator Pointer to the metadata record
+    ccsds_oem_metadata* oemMetaData;    
+};   
 
 #endif	/* _CCSDSOEMOBTYPE_HPP */
 
