@@ -248,6 +248,7 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    
    objectTypes.push_back(Gmat::SPACECRAFT);
    objectTypeNames.push_back("Spacecraft");
+   ownedObjectCount = 0;
    
    Real a1mjd = -999.999;
    std::string outStr;
@@ -294,6 +295,12 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    attitude = new CSFixed("");
    attitude->SetEpoch(state.GetEpoch());
    ownedObjectCount++;
+
+   #ifdef DEBUG_SC_OWNED_OBJECT
+   MessageInterface::ShowMessage
+      ("Spacecraft::Spacecraft() <%p>'%s' ownedObjectCount=%d\n",
+       this, GetName().c_str(), ownedObjectCount);
+   #endif
    
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
@@ -395,6 +402,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    objectTypes.push_back(Gmat::SPACECRAFT);
    objectTypeNames.push_back("Spacecraft");
    parameterCount = a.parameterCount;
+   ownedObjectCount = 0;
    
    state.SetEpoch(a.state.GetEpoch());
    state[0] = a.state[0];
@@ -448,7 +456,9 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    #endif
    
    SpaceObject::operator=(a);
-
+   
+   ownedObjectCount     = a.ownedObjectCount;
+   
    scEpochStr           = a.scEpochStr;
    dryMass              = a.dryMass;
    coeffDrag            = a.coeffDrag;
@@ -499,14 +509,14 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) about to delete all owned objects\n");
-      #endif
+   #endif
    DeleteOwnedObjects(true, true, true);  
    
    // then cloned owned objects
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) about to clone all owned objects\n");
-      #endif
+   #endif
    CloneOwnedObjects(a.attitude, a.tanks, a.thrusters);
    
    BuildElementLabelMap();
@@ -1315,6 +1325,11 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          #endif
          delete attitude;
          ownedObjectCount--;
+         #ifdef DEBUG_SC_OWNED_OBJECT
+         MessageInterface::ShowMessage
+            ("Spacecraft::SetRefObject() <%p>'%s' ownedObjectCount=%d\n",
+             this, GetName().c_str(), ownedObjectCount);
+         #endif
       }
       attitude = (Attitude*) obj;
       // set epoch ...
@@ -1326,7 +1341,6 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          instanceName.c_str());
       #endif
       attitude->SetEpoch(state.GetEpoch());
-      ownedObjectCount++;
       return true;
    }
    
@@ -3140,6 +3154,11 @@ void Spacecraft::DeleteOwnedObjects(bool deleteAttitude, bool deleteTanks,
          #endif
          delete attitude;
          ownedObjectCount--;
+         #ifdef DEBUG_SC_OWNED_OBJECT
+         MessageInterface::ShowMessage
+            ("Spacecraft::DeleteOwnedObjects() <%p>'%s' ownedObjectCount=%d\n",
+             this, GetName().c_str(), ownedObjectCount);
+         #endif
       }
    }
    
@@ -3197,11 +3216,19 @@ void Spacecraft::CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,
        " thruster count = %d\n", this, GetName().c_str(), att, tnks.size(), thrs.size());
    #endif
    
+   attitude = NULL;
+   
    // clone the attitude
    if (att)
    {
       attitude = (Attitude*) att->Clone();
       attitude->SetEpoch(state.GetEpoch());
+      ownedObjectCount++;
+      #ifdef DEBUG_SC_OWNED_OBJECT
+      MessageInterface::ShowMessage
+         ("Spacecraft::CloneOwnedObjects() <%p>'%s' ownedObjectCount=%d\n",
+          this, GetName().c_str(), ownedObjectCount);
+      #endif
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (attitude, "cloned attitude", "Spacecraft::CloneOwnedObjects()",
@@ -3536,6 +3563,11 @@ const std::string& Spacecraft::GetGeneratingString(Gmat::WriteMode mode,
    
    generatingString = data.str();
    
+   #ifdef DEBUG_GEN_STRING
+   MessageInterface::ShowMessage
+      ("==========> <%p>'%s'\n%s\n", this, GetName().c_str(), generatingString.c_str());
+   #endif
+   
    // Then call the parent class method for preface and inline comments
    return SpaceObject::GetGeneratingString(mode, prefix, useName);
 }
@@ -3614,7 +3646,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       if (!registered) 
          parmOrder[parmIndex++] = i;
    }
-      
+   
    Rvector6 repState = GetStateInRepresentation(displayStateType);
    
    #if DEBUG_SPACECRAFT_GEN_STRING
@@ -3656,7 +3688,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
                    (parmOrder[i] <= ELEMENT6_ID))
                {
                   #ifdef DEBUG_WRITE_PARAMETERS
-                   MessageInterface::ShowMessage("--- parmOrder[i] = %d\n",
+                  MessageInterface::ShowMessage("--- parmOrder[i] = %d,",
                   (Integer) parmOrder[i]);
                   MessageInterface::ShowMessage(" --- and that is for element %s\n",
                   (GetParameterText(parmOrder[i])).c_str());
@@ -3730,16 +3762,20 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       else if (parmOrder[i] == ATTITUDE)
       {
          if (attitude)
+         {
             if (inMatlabMode)
                stream << prefix << "Attitude = '" << attitude->GetAttitudeModelName() << "';\n";
             else
                stream << prefix << "Attitude = " << attitude->GetAttitudeModelName() << ";\n";
-         else 
-            ;// ignore
+         }
+         else
+         {
+            MessageInterface::ShowMessage
+               ("*** INTERNAL ERROR *** attitude is NULL\n");
+         }
       }
-      
    }
-
+   
    // Prep in case spacecraft "own" the attached hardware
    GmatBase *ownedObject;
    std::string nomme, newprefix;
@@ -3749,6 +3785,9 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
          instanceName.c_str(), GetOwnedObjectCount());
    #endif
 
+   // @note Currently only attitude is considered owned object.
+   // The properties of hardware such as tanks and thrusters are
+   // not written out (LOJ: 2009.09.14)
    for (i = 0; i < GetOwnedObjectCount(); ++i)
    {
       newprefix = prefix;
@@ -3757,8 +3796,8 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       
       #ifdef DEBUG_OWNED_OBJECT_STRINGS
           MessageInterface::ShowMessage(
-             "   id %d has type %s and name \"%s\"\n",
-             i, ownedObject->GetTypeName().c_str(),
+             "   index %d <%p> has type %s and name \"%s\"\n",
+             i, ownedObject, ownedObject->GetTypeName().c_str(),
              ownedObject->GetName().c_str());
       #endif
           
