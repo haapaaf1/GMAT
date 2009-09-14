@@ -29,6 +29,8 @@ class ProcessB3DataFile : public DataFile
 public:
     
     ProcessB3DataFile(const std::string &itsName);
+    ProcessB3DataFile(const ProcessB3DataFile &B3df);
+    const ProcessB3DataFile& operator=(const ProcessB3DataFile &B3df);
     ~ProcessB3DataFile();
 
     // Initialization happens here

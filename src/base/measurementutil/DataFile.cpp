@@ -405,7 +405,6 @@ DataFile::DataFile(const DataFile &pdf) :
     fileFormatName (pdf.fileFormatName),
     dataFileName (pdf.dataFileName),
     numLines (pdf.numLines),
-//    lineFromFile (pdf.lineFromFile),
     isOpen (pdf.isOpen),
     isSortedByEpoch (pdf.isSortedByEpoch),
     isSortedBySatID (pdf.isSortedBySatID),
@@ -414,6 +413,34 @@ DataFile::DataFile(const DataFile &pdf) :
     readWriteMode(pdf.readWriteMode),
     theFile (pdf.theFile)
 {
+}
+
+
+//------------------------------------------------------------------------------
+//  DataFile::DataFile()
+//------------------------------------------------------------------------------
+/**
+ * Operator = constructor for DataFile objects
+ */
+//------------------------------------------------------------------------------
+const DataFile& DataFile::operator=(const DataFile &pdf)
+{
+    if (&pdf == this)
+	return *this;
+
+    fileFormatName = pdf.fileFormatName;
+    dataFileName = pdf.dataFileName;
+    numLines = pdf.numLines;
+    isOpen = pdf.isOpen;
+    isSortedByEpoch = pdf.isSortedByEpoch;
+    isSortedBySatID = pdf.isSortedBySatID;
+    isSortedBySensorID = pdf.isSortedBySensorID;
+    isSortedByInternationalDesignator = pdf.isSortedByInternationalDesignator;
+    readWriteMode = pdf.readWriteMode;
+    theFile = pdf.theFile;
+    
+    return *this;
+	    
 }
 
 //------------------------------------------------------------------------------

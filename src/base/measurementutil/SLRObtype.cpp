@@ -181,8 +181,8 @@ const bool SLRObtype::SLR_IS_REQUIRED[EndSLRDataReps] =
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-SLRObtype::SLRObtype() :
-        headerVectorIndex(NULL),
+SLRObtype::SLRObtype() : Obtype(),
+        slrHeader(NULL),
 	timeOfLaserFiring(0),
 	twoWayTimeOfFlight(0),
 	binRMSRange(0),
@@ -200,6 +200,72 @@ SLRObtype::SLRObtype() :
         az(0),
         el(0)
 {
+}
+
+//------------------------------------------------------------------------------
+//  SLRObtype(const SLRObtype &slrOb)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the obtype class
+ */
+//------------------------------------------------------------------------------
+SLRObtype::SLRObtype(const SLRObtype &slrOb) :
+    Obtype(slrOb),
+    slrHeader(slrOb.slrHeader),
+    timeOfLaserFiring(slrOb.timeOfLaserFiring),   
+    twoWayTimeOfFlight(slrOb.twoWayTimeOfFlight),
+    binRMSRange(slrOb.binRMSRange), 
+    surfacePressure(slrOb.surfacePressure),
+    surfaceTemp(slrOb.surfaceTemp),
+    relativeHumidity(slrOb.relativeHumidity),
+    numRawRanges(slrOb.numRawRanges),
+    dataReleaseFlag(slrOb.dataReleaseFlag),
+    rawRangeFactor(slrOb.rawRangeFactor),
+    normalPointWindowIndicator2(slrOb.normalPointWindowIndicator2),
+    signalToNoiseRatio(slrOb.signalToNoiseRatio),
+    burstCalSysDelay(slrOb.burstCalSysDelay),
+    signalStrength(slrOb.signalStrength),
+    angleOriginIndicator(slrOb.angleOriginIndicator),
+    az(slrOb.az),
+    el(slrOb.el)
+{
+}
+
+//---------------------------------------------------------------------------
+//  SLRObtype& operator=(const SLRObtype &slrOb)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for Obtype structures.
+ *
+ * @param <tleOb> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const SLRObtype& SLRObtype::operator=(const SLRObtype &slrOb)
+{
+   if (&slrOb == this)
+      return *this;
+
+    slrHeader = slrOb.slrHeader;
+    timeOfLaserFiring = slrOb.timeOfLaserFiring;   
+    twoWayTimeOfFlight = slrOb.twoWayTimeOfFlight;
+    binRMSRange = slrOb.binRMSRange; 
+    surfacePressure = slrOb.surfacePressure;
+    surfaceTemp = slrOb.surfaceTemp;
+    relativeHumidity = slrOb.relativeHumidity;
+    numRawRanges = slrOb.numRawRanges;
+    dataReleaseFlag = slrOb.dataReleaseFlag;
+    rawRangeFactor = slrOb.rawRangeFactor;
+    normalPointWindowIndicator2 = slrOb.normalPointWindowIndicator2;
+    signalToNoiseRatio = slrOb.signalToNoiseRatio;
+    burstCalSysDelay = slrOb.burstCalSysDelay;
+    signalStrength = slrOb.signalStrength;
+    angleOriginIndicator = slrOb.angleOriginIndicator;
+    az = slrOb.az;
+    el = slrOb.el;
+    
+   return *this;
 }
 
 //------------------------------------------------------------------------------
@@ -325,71 +391,71 @@ Integer SLRObtype::GetIntegerDataParameter(const Integer id) const
     {
         case SLR_TYPE_ID:
 
-            return (*headerVectorIndex)->slrType;
+            return slrHeader->slrType;
 
         case SLR_YEAR_ID:
 
-            return (*headerVectorIndex)->year;
+            return slrHeader->year;
 
         case SLR_DAYOFYEAR_ID:
 
-            return (*headerVectorIndex)->dayOfYear;
+            return slrHeader->dayOfYear;
 
         case SLR_CDPPADID_ID:
 
-            return (*headerVectorIndex)->cdpPadID;
+            return slrHeader->cdpPadID;
 
         case SLR_CDPSYSNUM_ID:
 
-            return (*headerVectorIndex)->cdpSysNum;
+            return slrHeader->cdpSysNum;
 
         case SLR_CDPOCCUPANCYSEQUENCENUM_ID:
 
-            return (*headerVectorIndex)->cdpOccupancySequenceNum;
+            return slrHeader->cdpOccupancySequenceNum;
 
         case SLR_CALSYSDELAY_ID:
 
-            return (*headerVectorIndex)->calSysDelay;
+            return slrHeader->calSysDelay;
 
         case SLR_CALDELAYSHIFT_ID:
 
-            return (*headerVectorIndex)->calDelayShift;
+            return slrHeader->calDelayShift;
 
         case SLR_RMSSYSDELAY_ID:
 
-            return (*headerVectorIndex)->rmsSysDelay;
+            return slrHeader->rmsSysDelay;
 
         case SLR_NORMALPOINTWINDOWINDICATOR_ID:
 
-            return (*headerVectorIndex)->normalPointWindowIndicator;
+            return slrHeader->normalPointWindowIndicator;
 
         case SLR_EPOCHTIMESCALEINDICATOR_ID:
 
-            return (*headerVectorIndex)->epochTimeScaleIndicator;
+            return slrHeader->epochTimeScaleIndicator;
 
         case SLR_SYSCALMETHODINDICATOR_ID:
 
-            return (*headerVectorIndex)->sysCalMethodIndicator;
+            return slrHeader->sysCalMethodIndicator;
 
         case SLR_SCHINDICATOR_ID:
 
-            return (*headerVectorIndex)->schIndicator;
+            return slrHeader->schIndicator;
 
         case SLR_SCIINDICATOR_ID:
 
-            return (*headerVectorIndex)->sciIndicator;
+            return slrHeader->sciIndicator;
 
         case SLR_PASSRMS_ID:
 
-            return (*headerVectorIndex)->passRMS;
+            return slrHeader->passRMS;
 
         case SLR_DATAQUALASSESSMENTINDICATOR_ID:
 
-            return (*headerVectorIndex)->dataQualAssessmentIndicator;
+            return slrHeader->dataQualAssessmentIndicator;
 
         case SLR_FORMATREVISIONNUM_ID:
 
-            return (*headerVectorIndex)->formatRevisionNum;
+            return slrHeader->formatRevisionNum;
 
         case SLR_BINRMSRANGE_ID:
 
@@ -456,7 +522,7 @@ std::string SLRObtype::GetStringDataParameter(const Integer id) const
     {
         case SLR_ILRSSATNUM_ID:
 
-            return (*headerVectorIndex)->ilrsSatnum;
+            return slrHeader->ilrsSatnum;
 
         default:
 
@@ -487,7 +553,7 @@ Real SLRObtype::GetRealDataParameter(const Integer id) const
 
         case SLR_WAVELENGTH_ID:
 
-            return (*headerVectorIndex)->wavelength;
+            return slrHeader->wavelength;
 
         case SLR_TIMEOFLASERFIRING_ID:
 
@@ -670,31 +736,63 @@ Integer SLRObtype::GetTimeSystemID(const std::string &label)
 }
 
 //------------------------------------------------------------------------------
-// bool AdvanceToNextOb()
+// std::ostream& operator<< (std::ostream &output, const SLRObtype &myB3)
 //------------------------------------------------------------------------------
 /**
- * Returns the next observation from the vector container.
+ * Formats SLRObtype value and sends to output stream.
+ *
+ * @param  output  Output stream
+ * @param  mySLR   SLR observation to write out
+ *
+ * return  Output stream
  */
 //------------------------------------------------------------------------------
-//bool ProcessSLRData::AdvanceToNextOb() 
-//{
-//    ++i;
-//    if (i==slrData.end()) return false;
-//    return true;
-//}
+std::ostream& operator<< (std::ostream &output, const SLRObtype *mySLR) 
+{
+   using namespace std;
+   
+   output.setf(std::ios::showpoint);
+   output.setf(std::ios::scientific);
 
-//------------------------------------------------------------------------------
-// bool BackUpToPreviousOb()
-//------------------------------------------------------------------------------
-/**
- * Returns the previous observation from the vector container.
- */
-//------------------------------------------------------------------------------
-//bool ProcessSLRData::BackUpToPreviousOb() 
-//{
-//    --i;
-//    if (i==slrData.begin()) return false;
-//    return true;
-//}
+   output << "Time of Firing = " << mySLR->timeOfLaserFiring << std::endl;
+   output << "Two Way Time of Flight = " << mySLR->twoWayTimeOfFlight << std::endl;
+   output << "RMS Range = " << mySLR->binRMSRange << std::endl;
+   output << "Surface Pressure = " << mySLR->surfacePressure << std::endl;
+   output << "Surface Temp = " << mySLR->surfaceTemp << std::endl;
+   output << "Relative Humidity = " << mySLR->relativeHumidity << std::endl;
+   output << "Num Raw Ranges = " << mySLR->numRawRanges << std::endl;
+   output << "Data Release Flag = " << mySLR->dataReleaseFlag << std::endl;
+   output << "Raw Range Factor = " << mySLR->rawRangeFactor << std::endl;
+   output << "NPD Window Indicator 2 = " << mySLR->normalPointWindowIndicator2 << std::endl;
+   output << "Signal to Noise Ratio = " << mySLR->signalToNoiseRatio << std::endl;
+   output << "Burst Cal Sys Delay = " << mySLR->burstCalSysDelay << std::endl;
+   output << "Signal Strength Indicator = " << mySLR->signalStrength << std::endl;
+   output << "Angle Origin Indicator = " << mySLR->angleOriginIndicator << std::endl;
+   output << "Azimuth = " << mySLR->az << std::endl;
+   output << "Elevation = " << mySLR->el << std::endl;
+   output << "-----------------------------" << std::endl;
+   output << "SLR Type = " << (mySLR->slrHeader)->slrType << std::endl;
+   output << "ILRS Satnum = " << (mySLR->slrHeader)->ilrsSatnum << std::endl;
+   output << "Year = " << (mySLR->slrHeader)->year << std::endl;
+   output << "DOY = " << (mySLR->slrHeader)->dayOfYear << std::endl;
+   output << "CDP Pad ID = " << (mySLR->slrHeader)->cdpPadID << std::endl;
+   output << "CDP Sys Num = " << (mySLR->slrHeader)->cdpSysNum << std::endl;
+   output << "CDP Occupancy Num = " << (mySLR->slrHeader)->cdpOccupancySequenceNum << std::endl;
+   output << "Wavelength = " << (mySLR->slrHeader)->wavelength << std::endl;
+   output << "Cal Sys Delay = " << (mySLR->slrHeader)->calSysDelay << std::endl;
+   output << "Cal Delay Shift = " << (mySLR->slrHeader)->calDelayShift << std::endl;
+   output << "Sys Delay = " << (mySLR->slrHeader)->rmsSysDelay << std::endl;
+   output << "NPD Window Indicator = " << (mySLR->slrHeader)->normalPointWindowIndicator << std::endl;
+   output << "Epoch Scale Indicator = " << (mySLR->slrHeader)->epochTimeScaleIndicator << std::endl;
+   output << "SysCal Indicator = " << (mySLR->slrHeader)->sysCalMethodIndicator << std::endl;
+   output << "SCH Indicator = " << (mySLR->slrHeader)->schIndicator << std::endl;
+   output << "SCI Indicator = " << (mySLR->slrHeader)->sciIndicator << std::endl;
+   output << "Pass RMS = " << (mySLR->slrHeader)->passRMS << std::endl;
+   output << "Data Quality Indicator = " << (mySLR->slrHeader)->dataQualAssessmentIndicator << std::endl;
+   output << "Format Revision Num = " << (mySLR->slrHeader)->formatRevisionNum << std::endl;   
+   output << "******************************************************" << std::endl;
 
- 
+   //output << setw(w) << setprecision(p) << prefix << a[i];
+   
+   return output;
+}

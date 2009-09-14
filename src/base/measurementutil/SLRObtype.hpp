@@ -5,14 +5,115 @@
  * Created on September 3, 2009, 5:00 AM
  */
 
+    // See the following website for a complete description of the SLR
+    // data format. The comments below are taken directly from the ILRS website.
+    // http://ilrs.gsfc.nasa.gov/products_formats_procedures/normal_point/np_format.html
+
 #ifndef _SLROBTYPE_HPP
 #define _SLROBTYPE_HPP
 
 #include "Obtype.hpp"
+	
+class SLRObtype : public Obtype
+{
+    
+public :
 
-    // See the following website for a complete description of the SLR
-    // data format. The comments below are taken directly from the ILRS website.
-    // http://ilrs.gsfc.nasa.gov/products_formats_procedures/normal_point/np_format.html
+    // default constructor
+    SLRObtype();
+    // copy constructor
+    SLRObtype(const SLRObtype &slrOb);
+    // operator =
+    const SLRObtype& operator=(const SLRObtype &slrOb);
+    // destructor
+    virtual ~SLRObtype();
+    
+    enum SLR_DATA_REPS
+    {
+	SLR_TYPE_ID,
+	SLR_ILRSSATNUM_ID,
+	SLR_YEAR_ID,
+	SLR_DAYOFYEAR_ID,
+	SLR_CDPPADID_ID,
+	SLR_CDPSYSNUM_ID,
+	SLR_CDPOCCUPANCYSEQUENCENUM_ID,
+	SLR_WAVELENGTH_ID,
+	SLR_CALSYSDELAY_ID,
+	SLR_CALDELAYSHIFT_ID,
+	SLR_RMSSYSDELAY_ID,
+	SLR_NORMALPOINTWINDOWINDICATOR_ID,
+	SLR_EPOCHTIMESCALEINDICATOR_ID,
+	SLR_SYSCALMETHODINDICATOR_ID,
+	SLR_SCHINDICATOR_ID,
+	SLR_SCIINDICATOR_ID,
+	SLR_PASSRMS_ID,
+	SLR_DATAQUALASSESSMENTINDICATOR_ID,
+	SLR_FORMATREVISIONNUM_ID,
+	SLR_TIMEOFLASERFIRING_ID,
+	SLR_TWOWAYTIMEOFFLIGHT_ID,
+	SLR_BINRMSRANGE_ID,
+	SLR_SURFACEPRESSURE_ID,
+	SLR_SURFACETEMP_ID,
+	SLR_RELATIVEHUMIDITY_ID,
+	SLR_NUMRAWRANGES_ID,
+	SLR_DATARELEASEFLAG_ID,
+	SLR_RAWRANGEFACTOR_ID,
+	SLR_NORMALPOINTWINDOWINDICATOR2_ID,
+	SLR_SIGNALTONOISERATIO_ID,
+	SLR_BURSTCALSYSDELAY_ID,
+	SLR_SIGNALSTRENGTH_ID,
+	SLR_ANGLEORIGININDICATOR_ID,
+	SLR_AZIMUTH_ID,
+	SLR_ELEVATION_ID,
+	EndSLRDataReps
+    };
+
+    // Data access functions
+    std::string GetDataParameterText(const Integer id) const;
+    Integer     GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+    std::string GetDataUnits(const Integer id) const;
+
+    Real     GetRealDataParameter(const Integer id) const;
+    Real     GetRealDataParameter(const std::string &label) const;
+    Integer     GetIntegerDataParameter(const Integer id) const;
+    Integer     GetIntegerDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    
+    const std::string* GetDataTypes() const;
+    std::string GetDataTypeText(const Integer &id) const;
+    Integer GetDataTypeID(const std::string &label);
+    
+    const std::string* GetTimeSystems() const;
+    std::string GetTimeSystemText(const Integer &id) const;
+    Integer GetTimeSystemID(const std::string &label);    
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+
+    enum DATATYPE_REPS
+    {
+	TWOWAYTIMEOFFLIGHT_ID,
+	EndSLRTypeReps    
+    };
+    
+    enum TIMESYSTEM_REPS
+    {
+	UTC_ID,
+	GPS_ID,
+	BIPM_ID,
+	BIH_ID,
+	EndSLRTimeReps
+    };
+    
+    friend std::ostream& operator<< (std::ostream &output, const SLRObtype *mySLR);
+
+    // Declare DataFile a friend class so that we have access
+    // directly to variables instead of having to use Get/Set
+    friend class ProcessSLRDataFile;
+
     struct SLRHeader
     {
     
@@ -139,19 +240,21 @@
 	// bytes 44-47 of data record.
 	Integer formatRevisionNum;
     
-    };	
-
-class SLRObtype : public Obtype
-{
+    };
+          
+protected:
     
-public :
+    static const std::string SLR_DATATYPE_DESCRIPTIONS[EndSLRTypeReps];
+    static const std::string SLR_TIMESYSTEM_DESCRIPTIONS[EndSLRTimeReps];
 
-    SLRObtype();
-    ~SLRObtype();
+    static const bool SLR_IS_REQUIRED[EndSLRDataReps];
+    static const Gmat::ParameterType SLR_PARAMETER_TYPE[EndSLRDataReps];
+    static const std::string SLR_UNIT_DESCRIPTIONS[EndSLRDataReps];
+    static const std::string SLR_FILEFORMAT_DESCRIPTIONS[EndSLRDataReps];
 
     // Iterator Pointer to the header record
-    std::vector<SLRHeader*>::iterator headerVectorIndex;
-    
+    SLRHeader *slrHeader;
+            
     // Time of day of laser firing, from 0 hours UTC in units of seconds
     // Value is given module 86400 if pass crosses 24 hours UTC
     // Note that the data spec provides this in units of 0.1 microseconds
@@ -247,96 +350,6 @@ public :
     // Elevation angle in units of degree,
     // using local reference system (zenith = 90)
     Real el;
-
-    enum SLR_DATA_REPS
-    {
-	SLR_TYPE_ID,
-	SLR_ILRSSATNUM_ID,
-	SLR_YEAR_ID,
-	SLR_DAYOFYEAR_ID,
-	SLR_CDPPADID_ID,
-	SLR_CDPSYSNUM_ID,
-	SLR_CDPOCCUPANCYSEQUENCENUM_ID,
-	SLR_WAVELENGTH_ID,
-	SLR_CALSYSDELAY_ID,
-	SLR_CALDELAYSHIFT_ID,
-	SLR_RMSSYSDELAY_ID,
-	SLR_NORMALPOINTWINDOWINDICATOR_ID,
-	SLR_EPOCHTIMESCALEINDICATOR_ID,
-	SLR_SYSCALMETHODINDICATOR_ID,
-	SLR_SCHINDICATOR_ID,
-	SLR_SCIINDICATOR_ID,
-	SLR_PASSRMS_ID,
-	SLR_DATAQUALASSESSMENTINDICATOR_ID,
-	SLR_FORMATREVISIONNUM_ID,
-	SLR_TIMEOFLASERFIRING_ID,
-	SLR_TWOWAYTIMEOFFLIGHT_ID,
-	SLR_BINRMSRANGE_ID,
-	SLR_SURFACEPRESSURE_ID,
-	SLR_SURFACETEMP_ID,
-	SLR_RELATIVEHUMIDITY_ID,
-	SLR_NUMRAWRANGES_ID,
-	SLR_DATARELEASEFLAG_ID,
-	SLR_RAWRANGEFACTOR_ID,
-	SLR_NORMALPOINTWINDOWINDICATOR2_ID,
-	SLR_SIGNALTONOISERATIO_ID,
-	SLR_BURSTCALSYSDELAY_ID,
-	SLR_SIGNALSTRENGTH_ID,
-	SLR_ANGLEORIGININDICATOR_ID,
-	SLR_AZIMUTH_ID,
-	SLR_ELEVATION_ID,
-	EndSLRDataReps
-    };
-
-    // Data access functions
-    std::string GetDataParameterText(const Integer id) const;
-    Integer     GetDataParameterID(const std::string &str) const;
-    Gmat::ParameterType GetDataParameterType(const Integer id) const;
-    std::string GetDataParameterTypeString(const Integer id) const;
-    std::string GetDataUnits(const Integer id) const;
-
-    Real     GetRealDataParameter(const Integer id) const;
-    Real     GetRealDataParameter(const std::string &label) const;
-    Integer     GetIntegerDataParameter(const Integer id) const;
-    Integer     GetIntegerDataParameter(const std::string &label) const;
-    std::string GetStringDataParameter(const Integer id) const;
-    std::string GetStringDataParameter(const std::string &label) const;
-    
-    const std::string* GetDataTypes() const;
-    std::string GetDataTypeText(const Integer &id) const;
-    Integer GetDataTypeID(const std::string &label);
-    
-    const std::string* GetTimeSystems() const;
-    std::string GetTimeSystemText(const Integer &id) const;
-    Integer GetTimeSystemID(const std::string &label);    
-
-    // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
-
-    enum DATATYPE_REPS
-    {
-	TWOWAYTIMEOFFLIGHT_ID,
-	EndSLRTypeReps    
-    };
-    
-    enum TIMESYSTEM_REPS
-    {
-	UTC_ID,
-	GPS_ID,
-	BIPM_ID,
-	BIH_ID,
-	EndSLRTimeReps
-    };
-    
-protected:
-    
-    static const std::string SLR_DATATYPE_DESCRIPTIONS[EndSLRTypeReps];
-    static const std::string SLR_TIMESYSTEM_DESCRIPTIONS[EndSLRTimeReps];
-
-    static const bool SLR_IS_REQUIRED[EndSLRDataReps];
-    static const Gmat::ParameterType SLR_PARAMETER_TYPE[EndSLRDataReps];
-    static const std::string SLR_UNIT_DESCRIPTIONS[EndSLRDataReps];
-    static const std::string SLR_FILEFORMAT_DESCRIPTIONS[EndSLRDataReps];
 
 };
 

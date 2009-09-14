@@ -113,7 +113,7 @@ const std::string B3Obtype::B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps] =
 //  B3Obtype()
 //------------------------------------------------------------------------------
 /**
- * Constructor for the obtype class
+ * Constructor for the B3Obtype class
  */
 //------------------------------------------------------------------------------
 B3Obtype::B3Obtype() : Obtype(),
@@ -142,11 +142,82 @@ B3Obtype::B3Obtype() : Obtype(),
 //  ~B3Obtype()
 //------------------------------------------------------------------------------
 /**
- * Destructor for the obtype class
+ * Destructor for the B3Obtype class
  */
 //------------------------------------------------------------------------------
 B3Obtype::~B3Obtype()
 {
+}
+
+//---------------------------------------------------------------------------
+//  B3Obtype(const B3Obtype &b3Ob);
+//---------------------------------------------------------------------------
+/**
+ * Constructs base Obtype structures used in derived classes, by copying
+ * the input instance (copy constructor).
+ *
+ * @param <b3Ob>  Obtype instance to copy to create "this" instance.
+ */
+//---------------------------------------------------------------------------
+B3Obtype::B3Obtype(const B3Obtype &b3Ob) :
+    Obtype(b3Ob),
+    b3Type(b3Ob.b3Type),
+    securityClassification(b3Ob.securityClassification),
+    satID(b3Ob.satID),
+    sensID(b3Ob.sensID),
+    year(b3Ob.year),
+    dayOfYear(b3Ob.dayOfYear),
+    hour(b3Ob.hour),
+    minute(b3Ob.minute),
+    seconds(b3Ob.seconds),
+    elevation(b3Ob.elevation),
+    declination(b3Ob.declination),
+    rightAscension(b3Ob.rightAscension),
+    azimuth(b3Ob.azimuth),
+    range(b3Ob.range),
+    rangeRate(b3Ob.rangeRate),
+    ecf_X(b3Ob.ecf_X),
+    ecf_Y(b3Ob.ecf_Y),
+    ecf_Z(b3Ob.ecf_Z)
+{
+}
+
+//---------------------------------------------------------------------------
+//  B3Obtype& operator=(const B3Obtype &ob)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for Obtype structures.
+ *
+ * @param <b3Ob> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const B3Obtype& B3Obtype::operator=(const B3Obtype &b3Ob)
+{
+   if (&b3Ob == this)
+      return *this;
+
+    b3Type = b3Ob.b3Type;
+    securityClassification = b3Ob.securityClassification;
+    satID = b3Ob.satID;
+    sensID = b3Ob.sensID;
+    year = b3Ob.year;
+    dayOfYear = b3Ob.dayOfYear;
+    hour = b3Ob.hour;
+    minute = b3Ob.minute;
+    seconds = b3Ob.seconds;
+    elevation = b3Ob.elevation;
+    declination = b3Ob.declination;
+    rightAscension = b3Ob.rightAscension;
+    azimuth = b3Ob.azimuth;
+    range = b3Ob.range;
+    rangeRate = b3Ob.rangeRate;
+    ecf_X = b3Ob.ecf_X;
+    ecf_Y = b3Ob.ecf_Y;
+    ecf_Z = b3Ob.ecf_Z;
+    
+   return *this;
 }
 
 //------------------------------------------------------------------------------
@@ -592,7 +663,7 @@ std::ostream& operator<< (std::ostream &output, const B3Obtype *myB3)
    output << "Class = " << myB3->securityClassification << std::endl;
    output << "Satnum = " << myB3->satelliteID << std::endl;
    output << "Sensor ID = " << myB3->sensorID << std::endl;
-   Real year;
+   Integer year;
    if (myB3->year < 57)
    {
        year = myB3->year+2000;

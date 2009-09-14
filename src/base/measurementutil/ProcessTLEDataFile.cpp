@@ -22,7 +22,7 @@
 #include "StringUtil.hpp"           // for ToString()
 #include "math.h"
 
-//#define DEBUG_TLE_DATA
+#define DEBUG_TLE_DATA
 
 //---------------------------------
 //  public methods
@@ -42,21 +42,15 @@ bool ProcessTLEDataFile::Initialize()
     // check to make sure numLines is set
     if (numLines != 2 && numLines != 3)
     {
-	MessageInterface::ShowMessage("\nThe number of lines in the TLE data format was not set!\n GMAT will assume that each TLE has no comment line.\n If this is not correct, set NumLines to the appropriate value and re-run the script.\n");
+	MessageInterface::ShowMessage("\nThe number of lines in the TLE data ",
+		"format was not set!\n GMAT will assume that each TLE has no ",
+		"comment line.\n If this is not correct, set NumLines to the ",
+		"appropriate value and re-run the script.\n");
         numLines = 2;
     }
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
-
-        // Make sure that the b3Data vector has space reserved for
-        // a minimum number of observations. This ensures that the
-        // compiler does not unnecessarily reallocate the vector storage too-often.
-        // The function reserve() will ensure that we have room for at least 50
-        // elements. If the vector already has room for the required number of elements,
-        // reserve() does nothing. In other words, reserve() will grow the allocated
-        // storage of the vector, if necessary, but will never shrink it.
-        tleData.reserve(50);
 
         // Initialize individual data struct
         // This needs new memory allocation because
@@ -67,7 +61,7 @@ bool ProcessTLEDataFile::Initialize()
         {
             if (GetData(myTLE))
             {
-                tleData.push_back(myTLE);
+                theData.push_back(myTLE);
             }
         
             // Allocate another struct in memory
@@ -77,40 +71,21 @@ bool ProcessTLEDataFile::Initialize()
 
         #ifdef DEBUG_TLE_DATA
 
-            FILE * outFile;
-            outFile = fopen("tle.output","w");
+            fstream *outFile = new fstream;
+            outFile->open("tle.output",ios::out);
 
             // Output to file to make sure all the data is properly stored
-            for (std::vector<TLEObtype*>::const_iterator j=tleData.begin(); j!=tleData.end(); ++j)
+            for (ObtypeVector::const_iterator j=theData.begin(); j!=theData.end(); ++j)
             {
-
-                fprintf(outFile,"Satnum = %d\n",(*j)->satnum);
-                fprintf(outFile,"Class = %s\n",(*j)->securityClassification.c_str());
-                fprintf(outFile,"IntlDesignator = %s\n",(*j)->intlDesignator.c_str());
-                fprintf(outFile,"Year = %d\n",(*j)->epochYear);
-                fprintf(outFile,"Day Of Year = %16.8f\n",(*j)->epochDayOfYear);
-                fprintf(outFile,"Ndotby2 = %16.8f\n",(*j)->ndotby2);
-                fprintf(outFile,"Bstar = %16.8g\n",(*j)->bstar);
-                fprintf(outFile,"Ndotby6 = %16.8g\n",(*j)->nddotby6);
-                fprintf(outFile,"EphemType = %d\n",(*j)->ephemerisType);
-                fprintf(outFile,"ElementNum = %d\n",(*j)->elementNum);
-                fprintf(outFile,"Inclination = %16.8f\n",(*j)->inclination);
-                fprintf(outFile,"Eccentricity = %16.8f\n",(*j)->eccentricity);
-                fprintf(outFile,"RAAN = %16.8f\n",(*j)->raan);
-                fprintf(outFile,"Argument of Perigee = %16.8f\n",(*j)->argPerigee);
-                fprintf(outFile,"Mean Anomaly = %16.8f\n",(*j)->meanAnomaly);
-                fprintf(outFile,"Mean Motion = %17.14f\n",(*j)->meanMotion);
-                fprintf(outFile,"Rev Num = %d\n",(*j)->revolutionNum);
-                fprintf(outFile,"\n******************************************************\n");
-
+		*outFile << (TLEObtype*)(*j) << std::endl;
             }
 
-            fclose(outFile);
+            outFile->close();
 
         #endif
     
         // Set iterator to beginning of vector container
-        i = tleData.begin();
+        i_theData = theData.begin();
 
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))

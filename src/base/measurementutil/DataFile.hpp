@@ -45,6 +45,8 @@ public:
 
     DataFile(const std::string &itsType, const std::string &itsName);
     DataFile(const DataFile &pdf);
+    const DataFile& operator=(const DataFile &pdf);
+    
     virtual ~DataFile();
 
     // Initialization happens here

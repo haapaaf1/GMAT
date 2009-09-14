@@ -41,32 +41,21 @@ public:
             
     Integer SLRCheckSum(const std::string &str);
 
-    bool WriteDataHeader(SLRHeader *mySLRheader);
+    bool WriteDataHeader(SLRObtype::SLRHeader *mySLRheader);
     bool WriteData(SLRObtype *mySLRdata);
-    bool WriteDataHeader(SLRHeader *mySLRheader, fstream *myFile);
+    bool WriteDataHeader(SLRObtype::SLRHeader *mySLRheader, fstream *myFile);
     bool WriteData(SLRObtype *mySLRdata, fstream *myFile);
 
 private:
     
+    bool GetData(std::string lff, SLRObtype *mySLRdata);
+
     // Specific data type processing functions
-    bool FindSLRHeaderLine(SLRHeader *mySLRheader, Integer &flag);
-    bool GetData(SLRHeader *mySLRheader,SLRObtype *mySLRdata);
-
-
-    bool GetSLRHeader(std::string &lff, SLRHeader *mySLRheader);
-    bool GetSLRData(std::string &lff, SLRHeader *mySLRheader,
-                    SLRObtype *mySLRdata);
+    bool GetSLRHeader(std::string lff, SLRObtype::SLRHeader *mySLRheader);
+    bool GetSLRData(std::string lff, SLRObtype *mySLRdata);
     
-    // Vector containers for the measurement data
-    std::vector<SLRHeader*> slrHeader;
-    std::vector<SLRObtype*> slrData;
+    SLRObtype::SLRHeader *currentHeader;
 
-    //Current iterator pointing at data
-    std::vector<SLRObtype*>::iterator i;
-
-    //Current iteratory pointing at header
-    std::vector<SLRHeader*>::iterator i_h;
-    
 };
 
 #endif	/* _ProcessSLRDataFile_hpp */

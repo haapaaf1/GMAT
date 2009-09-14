@@ -20,152 +20,11 @@
 
 #include <ProcessSLRDataFile.hpp>
 
-//#define DEBUG_SLR_DATA
+#define DEBUG_SLR_DATA
 
 //---------------------------------
 //  public methods
 //---------------------------------
-
-//------------------------------------------------------------------------------
-// bool Initialize()
-//------------------------------------------------------------------------------
-/**
- * Initializes the datafile object.
- */
-//------------------------------------------------------------------------------
-bool ProcessSLRDataFile::Initialize()
-{
-    DataFile::Initialize();
-
-    if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
-    {
-
-        // Make sure that the slrData vector has space reserved for
-        // a minimum number of observations. This ensures that the
-        // compiler does not unnecessarily reallocate the vector storage too-often.
-        // The function reserve() will ensure that we have room for at least 1000
-        // elements. If the vector already has room for the required number of elements,
-        // reserve() does nothing. In other words, reserve() will grow the allocated
-        // storage of the vector, if necessary, but will never shrink it.
-        slrData.reserve(1000);
-        slrHeader.reserve(1000);
-    
-        // Initialize individual data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        SLRHeader *mySLRheader = new SLRHeader;
-        SLRObtype *mySLR = new SLRObtype;
-
-        // Locate the start of the first header record
-        // The flag indicates whether the marker line containing
-        // 88888 for engineering data or 99999 for real data
-        // has been encountered. For the first read, the flag is set to 0
-        // afterwards, flag is set to either 88888 or 99999 depending
-        // upon which marker line was found while reading in data.
-        Integer flag = 0;
-        FindSLRHeaderLine(mySLRheader,flag);
-    
-        while (!IsEOF())
-        {
-
-            // We now have the first header record stored in mySLRheader
-            // Call the GetData function to populate mySLR
-            // We pass the header record so that we know how to process
-            // the data records as there are two different formats
-            if (GetData(mySLRheader,mySLR))
-            {
-                // Associate this data point with the current header index
-                mySLR->headerVectorIndex = i_h;
-
-                // Push this data point onto the stack.
-                slrData.push_back(mySLR);
-            }
-        
-            // Allocate another struct in memory
-            mySLR = new SLRObtype;
-
-        }
-
-        // Set data iterator to beginning of vector container
-        i = slrData.begin();
-
-        // Reset the header iterator to the beginning of the vector container
-        i_h = slrHeader.begin();
-
-        #ifdef DEBUG_SLR_DATA
-
-            FILE * outFile;
-            outFile = fopen("slr.output","w");
-
-            // Output to file to make sure all the data is properly stored
-            for (std::vector<SLRObtype*>::const_iterator j=slrData.begin(); j!=slrData.end(); ++j)
-            {
-
-                // Output resulting struct data to file
-        
-                fprintf(outFile,"Time of Firing = %16.12g\n",(*j)->timeOfLaserFiring);
-                fprintf(outFile,"Two Way Time of Flight = %16.12g\n",(*j)->twoWayTimeOfFlight);
-                fprintf(outFile,"RMS Range = %d\n",(*j)->binRMSRange);
-                fprintf(outFile,"Surface Pressure = %16.8g\n",(*j)->surfacePressure);
-                fprintf(outFile,"Surface Temp = %16.8g\n",(*j)->surfaceTemp);
-                fprintf(outFile,"Relative Humidity = %d\n",(*j)->relativeHumidity);
-                fprintf(outFile,"Num Raw Ranges = %d\n",(*j)->numRawRanges);
-                fprintf(outFile,"Data Release Flag = %d\n",(*j)->dataReleaseFlag);
-                fprintf(outFile,"Raw Range Factor = %d\n",(*j)->rawRangeFactor);
-                fprintf(outFile,"NPD Window Indicator 2 = %d\n",(*j)->normalPointWindowIndicator2);
-                fprintf(outFile,"Signal to Noise Ratio = %16.8g\n",(*j)->signalToNoiseRatio);
-                fprintf(outFile,"Burst Cal Sys Delay = %d\n",(*j)->burstCalSysDelay);
-                fprintf(outFile,"Signal Strength Indicator = %d\n",(*j)->signalStrength);
-                fprintf(outFile,"Angle Origin Indicator = %d\n",(*j)->angleOriginIndicator);
-                fprintf(outFile,"Azimuth = %16.8g\n",(*j)->az);
-                fprintf(outFile,"Elevation = %16.8g\n",(*j)->el);
-                fprintf(outFile,"\n-----------------------------\n");
-                fprintf(outFile,"SLR Type = %d\n",(*(*j)->headerVectorIndex)->slrType);
-                fprintf(outFile,"ILRS Satnum = %s\n",(*(*j)->headerVectorIndex)->ilrsSatnum.c_str());
-                std::string intlDesignator = Ilrs2Cospar((*(*j)->headerVectorIndex)->ilrsSatnum);
-                fprintf(outFile,"COSPAR Satnum = %s\n",intlDesignator.c_str());
-                fprintf(outFile,"Year = %d\n",(*(*j)->headerVectorIndex)->year);
-                fprintf(outFile,"DOY = %d\n",(*(*j)->headerVectorIndex)->dayOfYear);
-                fprintf(outFile,"CDP Pad ID = %d\n",(*(*j)->headerVectorIndex)->cdpPadID);
-                fprintf(outFile,"CDP Sys Num = %d\n",(*(*j)->headerVectorIndex)->cdpSysNum);
-                fprintf(outFile,"CDP Occupancy Num = %d\n",(*(*j)->headerVectorIndex)->cdpOccupancySequenceNum);
-                fprintf(outFile,"Wavelength = %16.8g\n",(*(*j)->headerVectorIndex)->wavelength);
-                fprintf(outFile,"Cal Sys Delay = %d\n",(*(*j)->headerVectorIndex)->calSysDelay);
-                fprintf(outFile,"Cal Delay Shift = %d\n",(*(*j)->headerVectorIndex)->calDelayShift);
-                fprintf(outFile,"Sys Delay = %d\n",(*(*j)->headerVectorIndex)->rmsSysDelay);
-                fprintf(outFile,"NPD Window Indicator = %d\n",(*(*j)->headerVectorIndex)->normalPointWindowIndicator);
-                fprintf(outFile,"Epoch Scale Indicator = %d\n",(*(*j)->headerVectorIndex)->epochTimeScaleIndicator);
-                fprintf(outFile,"SysCal Indicator = %d\n",(*(*j)->headerVectorIndex)->sysCalMethodIndicator);
-                fprintf(outFile,"SCH Indicator = %d\n",(*(*j)->headerVectorIndex)->schIndicator);
-                fprintf(outFile,"SCI Indicator = %d\n",(*(*j)->headerVectorIndex)->sciIndicator);
-                fprintf(outFile,"Pass RMS = %d\n",(*(*j)->headerVectorIndex)->passRMS);
-                fprintf(outFile,"Data Quality Indicator = %d\n",(*(*j)->headerVectorIndex)->dataQualAssessmentIndicator);
-                fprintf(outFile,"Format Revision Num = %d\n",(*(*j)->headerVectorIndex)->formatRevisionNum);
-                fprintf(outFile,"\n******************************************************\n");
-
-            }
-
-            fclose(outFile);
-
-        #endif
-
-    }
-    else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
-    {
-        // Currently do nothing if writing
-        // wait to write stuff
-
-    }
-    else
-    {
-        throw DataFileException("Invalid Read/Write mode: " + readWriteMode);
-        MessageInterface::ShowMessage("Invalid Read/Write mode: " + readWriteMode);
-    }
-
-    return true;
-
-}
-
 
 //------------------------------------------------------------------------------
 //  ProcessSLRDataFile() 
@@ -226,7 +85,6 @@ bool ProcessSLRDataFile::IsParameterReadOnly(const Integer id) const
    return GmatBase::IsParameterReadOnly(id);
 }
 
-
 //---------------------------------------------------------------------------
 //  bool IsParameterReadOnly(const std::string &label) const
 //---------------------------------------------------------------------------
@@ -244,138 +102,162 @@ bool ProcessSLRDataFile::IsParameterReadOnly(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(SLRHeader *mySLRheader, SLRObtype *mySLRdata)
+// bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Initializes the datafile object.
+ */
+//------------------------------------------------------------------------------
+bool ProcessSLRDataFile::Initialize()
+{
+    DataFile::Initialize();
+
+    if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
+    {
+    
+        SLRObtype *mySLR = new SLRObtype;
+		
+        // Read the first line from file
+	std::string line = Trim(ReadLineFromFile());
+
+        while (!IsEOF())
+        {
+
+	    // Now check for headers and process data accordingly
+            if (GetData(line,mySLR))
+            {
+                // Push this data point onto the stack.
+                theData.push_back(mySLR);
+
+            }
+        
+            // Allocate another struct in memory
+            mySLR = new SLRObtype;
+
+	    // Read a line from file
+	    line = Trim(ReadLineFromFile());
+
+        }
+
+        // Set data iterator to beginning of vector container
+        i_theData = theData.begin();
+
+
+        #ifdef DEBUG_SLR_DATA
+
+            fstream *outFile = new fstream;
+            outFile->open("slr.output",ios::out);
+
+            // Output to file to make sure all the data is properly stored
+            for (ObtypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
+            {
+		*outFile << (SLRObtype*)(*j) << std::endl;		
+            }
+
+            outFile->close();
+
+        #endif
+
+    }
+    else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
+    {
+        // Currently do nothing if writing
+        // wait to write stuff
+
+    }
+    else
+    {
+        throw DataFileException("Invalid Read/Write mode: " + readWriteMode);
+        MessageInterface::ShowMessage("Invalid Read/Write mode: " + readWriteMode);
+    }
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetData(std::string line, SLRObtype *mySLRdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the header line of SLR data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRDataFile::GetData(SLRHeader *mySLRheader, SLRObtype *mySLRdata)
-{
-
-    // Read a line from file
-    std::string line = ReadLineFromFile();
-    line = Trim(line);
-
-    // On the first pass through, we have already discovered the first
-    // header record, but we must still check each line to see when/if
-    // we encounter a new header record
+bool ProcessSLRDataFile::GetData(std::string line, SLRObtype *mySLRdata)
+{    
+    // We must first check each line to see when/if
+    // we encounter a new header record.
     // This is supposed to be five digits but sometimes it is less
     if (line.size() <= 5 && pcrecpp::RE("^9+$").FullMatch(line))
     {
-        Integer flag = 99999;
-
         // create a new header struct in memory
-        SLRHeader *mySLRheader = new SLRHeader;
+	SLRObtype::SLRHeader *mySLRHeader = new SLRObtype::SLRHeader;
 
-        FindSLRHeaderLine(mySLRheader,flag);
+	// set SLR type variable so that we know how
+	// to process the rest of the data.
+	mySLRHeader->slrType = 99999;
 
+	// Now get the data from the header record itself
+	// Read the header line from file
+	line = Trim(ReadLineFromFile());
+	
+	if (GetSLRHeader(line,mySLRHeader))
+	{
+	    // success so set currentHeader pointer to the
+	    // one just processed
+	    currentHeader = mySLRHeader;
+	    
+	    // Read the following data line from file
+	    line = Trim(ReadLineFromFile());	    
+	}
+	else
+	{
+	    // failure to read header line, abort
+	    currentHeader = NULL;
+	    return false;
+	}
     }
     else if (line.size() <= 5 && pcrecpp::RE("^8+$").FullMatch(line))
     {
-        Integer flag = 88888;
-
         // create a new header struct in memory
-        SLRHeader *mySLRheader = new SLRHeader;
+	SLRObtype::SLRHeader *mySLRHeader = new SLRObtype::SLRHeader;
 
-        FindSLRHeaderLine(mySLRheader,flag);
-
-    }
-
-    // Parse the data record
-    // We pass the header record so that we know wether the data records
-    // are real data or sampled engineering data. These two kinds of data
-    // records have slightly different formats.
-    return GetSLRData(line,mySLRheader,mySLRdata);
-    
-}
-
-//------------------------------------------------------------------------------
-// bool FindSLRHeaderLine(SLRHeader *mySLRheader, bool &flag)
-//------------------------------------------------------------------------------
-/** 
- * The routine locates the start of an SLR data block and then obtains the 
- * header line of SLR data.
- */
-//------------------------------------------------------------------------------
-bool ProcessSLRDataFile::FindSLRHeaderLine(SLRHeader *mySLRheader, Integer &flag )
-{
-
-    // Initialize headerType variable to 0
-    // The header type discriminates between real SLR data
-    // and so-called "engineering" or simulated SLR data records.
-    Integer headerType = 0;
-    
-    // Now we must read in lines from the SLR data file until we
-    // encounter the data markers 99999 for real SLR data or 88888
-    // for sampled engineering data. The data header line will be the
-    // line immediately following.
-
-    // In some cases, we have already encountered the data record flag
-    // 88888 or 99999. In this case, we can skip over checking for the flag.
-
-    if (flag == 0)
-    {
-        do
-        {
-            // Read in a line
-            std::string line = ReadLineFromFile();
-            line = Trim(line);
-    
-            // This is supposed to be five digits but sometimes it is less
-            if (line.size() <= 5 && pcrecpp::RE("^9+$").FullMatch(line))
-            {
-                headerType = 99999;
-            }
-            else if (line.size() <= 5 && pcrecpp::RE("^8+$").FullMatch(line))
-            {
-                headerType = 88888;
-            }
-        
-        } while ( headerType != 99999 && headerType != 88888 && !IsEOF() );
-
-    }
-    else
-    {
-        headerType = flag;
-    }
-
-    // Now we can process the header record
-    if (headerType == 99999 || headerType == 88888) 
-    {
-	    
 	// set SLR type variable so that we know how
 	// to process the rest of the data.
-	mySLRheader->slrType = headerType;
+	mySLRHeader->slrType = 88888;
 
-        // Push a pointer to the header record onto the stack
-        slrHeader.push_back(mySLRheader);
-
-        // Set the header vector container index
-        if (flag == 0)
-        {
-            i_h = slrHeader.begin();
-        }
-        else
-        {
-            i_h++;
-        }
+	// Read the header line from file
+	line = Trim(ReadLineFromFile());
 	
-	// read header line
-	std::string headerline = ReadLineFromFile();
-
-	return GetSLRHeader(headerline,mySLRheader);
-
-    } 
+	if (GetSLRHeader(line,mySLRHeader))
+	{
+	    // success so set currentHeader pointer to the
+	    // one just processed
+	    currentHeader = mySLRHeader;
+	    
+	    // Read the following data line from file
+	    line = Trim(ReadLineFromFile());
+	}
+	else
+	{
+	    // failure to read header line, abort
+	    currentHeader = NULL;
+	    return false;
+	}
+    }
+    
+    // Parse the data record making sure that we have identified
+    // a header record previously
+    if (currentHeader == NULL)
+	return false;
     else
     {
-	return false;
-    }
-
+	mySLRdata->slrHeader = currentHeader;
+	return GetSLRData(line,mySLRdata);
+    }    
 }
 
 //------------------------------------------------------------------------------
-// bool GetSLRHeader(std::string lff, SLRHeader *mySLRheader)
+// bool GetSLRHeader(std::string lff, SLRObtype::SLRHeader *mySLRheader)
 //------------------------------------------------------------------------------
 /** 
  * Extracts header information from the compact SLR Normal Point Data format.
@@ -385,9 +267,9 @@ bool ProcessSLRDataFile::FindSLRHeaderLine(SLRHeader *mySLRheader, Integer &flag
  * calibration information, and the date.
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRDataFile::GetSLRHeader(std::string &lff, SLRHeader *mySLRheader)
-{
-
+bool ProcessSLRDataFile::GetSLRHeader(std::string lff, 
+				      SLRObtype::SLRHeader *mySLRheader)
+{   
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
     // only supports the standard C++ types and does not 
@@ -396,21 +278,18 @@ bool ProcessSLRDataFile::GetSLRHeader(std::string &lff, SLRHeader *mySLRheader)
     // assigned to the GMAT type via casting.
     int itemp;
     
-    // Remove any leading or trailing whitespace
-    std::string lff2 = Trim(lff);    
-    
     // Check to make sure that the line length is at
     // least 54 characters long
-    if (lff2.size() < 54) 
+    if (lff.size() < 54) 
     {
 	return false;
     }
 
     // Replace extraneous "-" with the number 0
-    pcrecpp::RE("-").GlobalReplace("0",&lff2);
+    pcrecpp::RE("-").GlobalReplace("0",&lff);
 
     // If line contains anything but numbers skip
-    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) 
+    if (!pcrecpp::RE("^\\d+$").FullMatch(lff)) 
     {
 	return false;
     }
@@ -418,10 +297,10 @@ bool ProcessSLRDataFile::GetSLRHeader(std::string &lff, SLRHeader *mySLRheader)
     // Extract ILRS Satellite Number which is different
     // from the International Designator and the U.S.
     // Space Catalog number
-    mySLRheader->ilrsSatnum = Trim(lff2.substr(0,7));
+    mySLRheader->ilrsSatnum = Trim(lff.substr(0,7));
 
     // Extract two digit year
-    if (!from_string<int>(mySLRheader->year,lff2.substr(7,2),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->year,lff.substr(7,2),std::dec)) return false;
     
     // Put year in four digit format
     if ( mySLRheader->year < 50 )
@@ -433,11 +312,11 @@ bool ProcessSLRDataFile::GetSLRHeader(std::string &lff, SLRHeader *mySLRheader)
 	mySLRheader->year += + 1900;
     }
     
-    if (!from_string<int>(mySLRheader->dayOfYear,lff2.substr(9,3),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->cdpPadID,lff2.substr(12,4),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->cdpSysNum,lff2.substr(16,2),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->cdpOccupancySequenceNum,lff2.substr(18,2),std::dec)) return false;
-    if (!from_string<int>(itemp,lff2.substr(20,4),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->dayOfYear,lff.substr(9,3),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->cdpPadID,lff.substr(12,4),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->cdpSysNum,lff.substr(16,2),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->cdpOccupancySequenceNum,lff.substr(18,2),std::dec)) return false;
+    if (!from_string<int>(itemp,lff.substr(20,4),std::dec)) return false;
     mySLRheader->wavelength = itemp;
     // Convert wavelength to nanometers.
     // 3000 - 9999 is units of 0.1 nanometers
@@ -447,32 +326,32 @@ bool ProcessSLRDataFile::GetSLRHeader(std::string &lff, SLRHeader *mySLRheader)
 	mySLRheader->wavelength *= 0.1;
     }
     
-    if (!from_string<int>(mySLRheader->calSysDelay,lff2.substr(24,8),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->calDelayShift,lff2.substr(32,6),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->rmsSysDelay,lff2.substr(38,4),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->normalPointWindowIndicator,lff2.substr(42,1),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->epochTimeScaleIndicator,lff2.substr(43,1),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->sysCalMethodIndicator,lff2.substr(44,1),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->schIndicator,lff2.substr(45,1),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->sciIndicator,lff2.substr(46,1),std::dec)) return false;
-    if (!from_string<int>(mySLRheader->passRMS,lff2.substr(47,4),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->calSysDelay,lff.substr(24,8),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->calDelayShift,lff.substr(32,6),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->rmsSysDelay,lff.substr(38,4),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->normalPointWindowIndicator,lff.substr(42,1),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->epochTimeScaleIndicator,lff.substr(43,1),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->sysCalMethodIndicator,lff.substr(44,1),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->schIndicator,lff.substr(45,1),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->sciIndicator,lff.substr(46,1),std::dec)) return false;
+    if (!from_string<int>(mySLRheader->passRMS,lff.substr(47,4),std::dec)) return false;
 
-    if (pcrecpp::RE("^\\s+$").FullMatch(lff2.substr(51,1))) 
+    if (pcrecpp::RE("^\\s+$").FullMatch(lff.substr(51,1))) 
     {    
 	mySLRheader->dataQualAssessmentIndicator = 0;
     }
     else
     {
-	if (!from_string<int>(mySLRheader->dataQualAssessmentIndicator,lff2.substr(51,1),std::dec)) return false;
+	if (!from_string<int>(mySLRheader->dataQualAssessmentIndicator,lff.substr(51,1),std::dec)) return false;
     }
     
-    if (pcrecpp::RE("^\\s+$").FullMatch(lff2.substr(54,1))) 
+    if (pcrecpp::RE("^\\s+$").FullMatch(lff.substr(54,1))) 
     {
 	mySLRheader->formatRevisionNum = 0;
     }
     else
     {
-        if (!from_string<int>(mySLRheader->formatRevisionNum,lff2.substr(54,1),std::dec)) return false;
+        if (!from_string<int>(mySLRheader->formatRevisionNum,lff.substr(54,1),std::dec)) return false;
     }
 
     return true;    
@@ -480,8 +359,7 @@ bool ProcessSLRDataFile::GetSLRHeader(std::string &lff, SLRHeader *mySLRheader)
 }
 
 //------------------------------------------------------------------------------
-// bool GetSLRData(std::string lff, SLRHeader *mySLRheader,
-//                     SLRObtype *mySLRdata)
+// bool GetSLRData(std::string lff, SLRObtype *mySLRdata)
 //------------------------------------------------------------------------------
 /** 
  * Converts the compact SLR Normal Point Data format into usable numbers.
@@ -490,13 +368,8 @@ bool ProcessSLRDataFile::GetSLRHeader(std::string &lff, SLRHeader *mySLRheader)
  */
 //
 //------------------------------------------------------------------------------
-bool ProcessSLRDataFile::GetSLRData(std::string &lff, SLRHeader *mySLRheader,
-				     SLRObtype *mySLRdata)
+bool ProcessSLRDataFile::GetSLRData(std::string lff, SLRObtype *mySLRdata)
 {
-
-    // Remove any leading or trailing whitespace
-    std::string lff2 = Trim(lff);
-
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
     // only supports the standard C++ types and does not 
@@ -506,80 +379,58 @@ bool ProcessSLRDataFile::GetSLRData(std::string &lff, SLRHeader *mySLRheader,
     int itemp;
     double dtemp;
 
-    // First keep track of which header record this data point
-    // is associated with. This way we only have to store the header
-    // record once and not have to keep two lists synced up.
-    //mySLRdata->slrHeader = mySLRheader;
-
-    // Initialize variables
-    mySLRdata->timeOfLaserFiring = 0.0;
-    mySLRdata->twoWayTimeOfFlight = 0.0;
-    mySLRdata->surfacePressure = 0.0;
-    mySLRdata->surfaceTemp = 0.0;
-    mySLRdata->relativeHumidity = 0;
-    mySLRdata->numRawRanges = 0;
-    mySLRdata->dataReleaseFlag = 0;
-    mySLRdata->rawRangeFactor = 0;
-    mySLRdata->normalPointWindowIndicator2 = 0;
-    mySLRdata->signalToNoiseRatio = 0;
-    mySLRdata->burstCalSysDelay = 0;
-    mySLRdata->signalStrength = 0;
-    mySLRdata->angleOriginIndicator = 0;
-    mySLRdata->az = 0.0;
-    mySLRdata->el = 0.0;
-    
-    switch(mySLRheader->slrType)
+    switch((mySLRdata->slrHeader)->slrType)
     {
 	
 	case 99999:
     
 	    // Check to make sure that the line length is at
 	    // least 54 characters long
-	    if (lff2.size() < 54) 
+	    if (lff.size() < 54) 
 	    {
 		return false;	
 	    }
 	    
 	    // Replace extraneous "-" with the number 0
-	    pcrecpp::RE("-").GlobalReplace("0",&lff2);
+	    pcrecpp::RE("-").GlobalReplace("0",&lff);
 
 	    // If line contains anything but numbers skip
-	    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) 
+	    if (!pcrecpp::RE("^\\d+$").FullMatch(lff)) 
 	    {
 		return false;
 	    }
 
-	    if (!from_string<double>(dtemp,lff2.substr(0,12),std::dec)) return false;
+	    if (!from_string<double>(dtemp,lff.substr(0,12),std::dec)) return false;
 	    // The data spec provides an integer in 0.1 microseconds that
 	    // is too large to store efficiently. Here we convert to
 	    // a real valued time in units of seconds
 	    mySLRdata->timeOfLaserFiring = dtemp * 1.0e-7;
 	    
-	    if (!from_string<double>(dtemp,lff2.substr(12,12),std::dec)) return false;
+	    if (!from_string<double>(dtemp,lff.substr(12,12),std::dec)) return false;
 	    // The data spec provides an integer in picoseconds that
 	    // is too large to store efficiently. Here we convert to
 	    // a real valued time in units of seconds
 	    mySLRdata->twoWayTimeOfFlight = dtemp * 1.0e-12;
 
-	    if (!from_string<int>(mySLRdata->binRMSRange,lff2.substr(24,7),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata->binRMSRange,lff.substr(24,7),std::dec)) return false;
 	    
 	    // Convert surface pressure to units of millibar
-	    if (!from_string<int>(itemp,lff2.substr(31,5),std::dec)) return false;
+	    if (!from_string<int>(itemp,lff.substr(31,5),std::dec)) return false;
 	    mySLRdata->surfacePressure = itemp * 0.1;
 	    
 	    // Convert surface temp to units of degrees Kelvin
-	    if (!from_string<int>(itemp,lff2.substr(36,4),std::dec)) return false;
+	    if (!from_string<int>(itemp,lff.substr(36,4),std::dec)) return false;
 	    mySLRdata->surfaceTemp = itemp * 0.1;
 	    
-	    if (!from_string<int>(mySLRdata->relativeHumidity,lff2.substr(40,3),std::dec)) return false;
-	    if (!from_string<int>(mySLRdata->numRawRanges,lff2.substr(43,4),std::dec)) return false;
-	    if (!from_string<int>(mySLRdata->dataReleaseFlag,lff2.substr(47,1),std::dec)) return false;
-	    if (!from_string<int>(mySLRdata->rawRangeFactor,lff2.substr(48,1),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata->relativeHumidity,lff.substr(40,3),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata->numRawRanges,lff.substr(43,4),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata->dataReleaseFlag,lff.substr(47,1),std::dec)) return false;
+	    if (!from_string<int>(mySLRdata->rawRangeFactor,lff.substr(48,1),std::dec)) return false;
 	    // The Normal Point Window Indicator and the Signal to Noise Ratio
 	    // are only used for LLR data
-	    if (!from_string<int>(itemp,lff2.substr(49,1),std::dec)) return false;
+	    if (!from_string<int>(itemp,lff.substr(49,1),std::dec)) return false;
 	    mySLRdata->normalPointWindowIndicator2 = itemp;
-	    if (!from_string<int>(itemp,lff2.substr(50,2),std::dec)) return false;
+	    if (!from_string<int>(itemp,lff.substr(50,2),std::dec)) return false;
 	    mySLRdata->signalToNoiseRatio =  itemp * 0.1;
 
 	    break;
@@ -588,47 +439,47 @@ bool ProcessSLRDataFile::GetSLRData(std::string &lff, SLRHeader *mySLRheader,
 
 	    // Check to make sure that the line length is at
 	    // least 69 characters long
-	    if (lff2.size() < 69) 
+	    if (lff.size() < 69) 
 	    {
 	        return false;
 	    }	
 	    // Replace extraneous "-" with the number 0
-	    pcrecpp::RE("-").GlobalReplace("0",&lff2);
+	    pcrecpp::RE("-").GlobalReplace("0",&lff);
 
 	    // If line contains anything but numbers skip
-	    if (!pcrecpp::RE("^\\d+$").FullMatch(lff2)) 
+	    if (!pcrecpp::RE("^\\d+$").FullMatch(lff)) 
 	    {
 		return false;
 	    }
 
-	    if (!from_string<double>(dtemp,lff2.substr(0,12),std::dec)) return false;
+	    if (!from_string<double>(dtemp,lff.substr(0,12),std::dec)) return false;
 	    // The data spec provides an integer in 0.1 microseconds that
 	    // is too large to store efficiently. Here we convert to
 	    // a real valued time in seconds.
 	    mySLRdata->timeOfLaserFiring = dtemp * 1.0e-7;
 
-	    if (!from_string<double>(dtemp,lff2.substr(12,12),std::dec)) return false;
+	    if (!from_string<double>(dtemp,lff.substr(12,12),std::dec)) return false;
 	    // The data spec provides an integer in picoseconds that
 	    // is too large to store efficiently. Here we convert to
 	    // a real valued time
 	    mySLRdata->twoWayTimeOfFlight = dtemp * 1.0e-12;
 	    
 	    // Convert surface pressure to units of millibar
-            if (!from_string<int>(itemp,lff2.substr(24,5),std::dec)) return false;
+            if (!from_string<int>(itemp,lff.substr(24,5),std::dec)) return false;
 	    mySLRdata->surfacePressure = itemp * 0.1;
 	    
 	    // Convert surface temp to units of degrees Kelvin
-            if (!from_string<int>(itemp,lff2.substr(29,4),std::dec)) return false;
+            if (!from_string<int>(itemp,lff.substr(29,4),std::dec)) return false;
 	    mySLRdata->surfaceTemp = itemp * 0.1;
 
-            if (!from_string<int>(mySLRdata->relativeHumidity,lff2.substr(33,3),std::dec)) return false;
-            if (!from_string<int>(mySLRdata->burstCalSysDelay,lff2.substr(36,8),std::dec)) return false;
-            if (!from_string<int>(mySLRdata->signalStrength,lff2.substr(44,4),std::dec)) return false;
-            if (!from_string<int>(mySLRdata->angleOriginIndicator,lff2.substr(48,1),std::dec)) return false;
-            if (!from_string<int>(itemp,lff2.substr(49,7),std::dec)) return false;
+            if (!from_string<int>(mySLRdata->relativeHumidity,lff.substr(33,3),std::dec)) return false;
+            if (!from_string<int>(mySLRdata->burstCalSysDelay,lff.substr(36,8),std::dec)) return false;
+            if (!from_string<int>(mySLRdata->signalStrength,lff.substr(44,4),std::dec)) return false;
+            if (!from_string<int>(mySLRdata->angleOriginIndicator,lff.substr(48,1),std::dec)) return false;
+            if (!from_string<int>(itemp,lff.substr(49,7),std::dec)) return false;
 	    // Convert az to degrees
 	    mySLRdata->az = itemp * 1e-4;
-            if (!from_string<int>(itemp,lff2.substr(56,6),std::dec)) return false;
+            if (!from_string<int>(itemp,lff.substr(56,6),std::dec)) return false;
 	    // Convert el to degrees
 	    mySLRdata->el = itemp * 1e-4;
                                                                                                                                                                                                                                                                                     
@@ -645,16 +496,16 @@ bool ProcessSLRDataFile::GetSLRData(std::string &lff, SLRHeader *mySLRheader,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteDataHeader(SLRObtype *mySLRheader)
+// bool WriteDataHeader(SLRObtype::SLRHeader *mySLRheader)
 //------------------------------------------------------------------------------
 /**
- * Writes a SLR normal point to file
+ * Writes a SLR normal point header to file
  *
- * @param <myTLEdata> the SLR struct to be written to file
+ * @param <mySLRheader> the SLR header struct to be written to file
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRDataFile::WriteDataHeader(SLRHeader *mySLRheader)
+bool ProcessSLRDataFile::WriteDataHeader(SLRObtype::SLRHeader *mySLRheader)
 {
 
     // TLE's have a maximum length of 68 characters plus a 1 character checksum
@@ -718,7 +569,7 @@ bool ProcessSLRDataFile::WriteDataHeader(SLRHeader *mySLRheader)
 /**
  * Writes a SLR normal point to file
  *
- * @param <myTLEdata> the SLR struct to be written to file
+ * @param <mySLRdata> the SLR struct to be written to file
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
@@ -729,7 +580,7 @@ bool ProcessSLRDataFile::WriteData(SLRObtype *mySLRdata)
     ostringstream buffer;
 
     // Output either standard data record or engineering data record
-    if ((*mySLRdata->headerVectorIndex)->slrType == 99999)
+    if ((mySLRdata->slrHeader)->slrType == 99999)
     {
         // The time of laser firing and the two way time of flight
         // is too large of an integer to store in an INT or even a LONG INT
@@ -758,7 +609,7 @@ bool ProcessSLRDataFile::WriteData(SLRObtype *mySLRdata)
         *theFile << buffer.str();
         *theFile << setw(2) << SLRCheckSum(buffer.str()) << endl;
     }
-    else if ((*mySLRdata->headerVectorIndex)->slrType == 88888)
+    else if ((mySLRdata->slrHeader)->slrType == 88888)
     {
 
         // The time of laser firing and the two way time of flight
@@ -802,17 +653,17 @@ bool ProcessSLRDataFile::WriteData(SLRObtype *mySLRdata)
 }
 
 //------------------------------------------------------------------------------
-// bool WriteDataHeader(SLRObtype *mySLRheader, fstream *myFile)
+// bool WriteDataHeader(SLRObtype::SLRHeader *mySLRheader, fstream *myFile)
 //------------------------------------------------------------------------------
 /**
  * Writes a SLR normal point to file
  *
- * @param <myTLEdata> the SLR struct to be written to file
+ * @param <mySLRHeader> the SLR header struct to be written to file
  * @param <myFile> Fstream pointer to desired output file
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRDataFile::WriteDataHeader(SLRHeader *mySLRheader, fstream *myFile)
+bool ProcessSLRDataFile::WriteDataHeader(SLRObtype::SLRHeader *mySLRheader, fstream *myFile)
 {
 
     // TLE's have a maximum length of 68 characters plus a 1 character checksum
@@ -876,7 +727,7 @@ bool ProcessSLRDataFile::WriteDataHeader(SLRHeader *mySLRheader, fstream *myFile
 /**
  * Writes a SLR normal point to file
  *
- * @param <myTLEdata> the SLR struct to be written to file
+ * @param <mySLRdata> the SLR struct to be written to file
  * @param <myFile> Fstream pointer to desired output file
  * @return Boolean success or failure
  */
@@ -888,7 +739,7 @@ bool ProcessSLRDataFile::WriteData(SLRObtype *mySLRdata, fstream *myFile)
     ostringstream buffer;
 
     // Output either standard data record or engineering data record
-    if ((*mySLRdata->headerVectorIndex)->slrType == 99999)
+    if ((mySLRdata->slrHeader)->slrType == 99999)
     {
         // The time of laser firing and the two way time of flight
         // is too large of an integer to store in an INT or even a LONG INT
@@ -917,7 +768,7 @@ bool ProcessSLRDataFile::WriteData(SLRObtype *mySLRdata, fstream *myFile)
         *myFile << buffer.str();
         *myFile << setw(2) << SLRCheckSum(buffer.str()) << endl;
     }
-    else if ((*mySLRdata->headerVectorIndex)->slrType == 88888)
+    else if ((mySLRdata->slrHeader)->slrType == 88888)
     {
 
         // The time of laser firing and the two way time of flight

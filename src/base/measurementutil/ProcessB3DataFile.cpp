@@ -20,7 +20,7 @@
 
 #include <ProcessB3DataFile.hpp>
 
-//#define DEBUG_B3_DATA
+#define DEBUG_B3_DATA
 
 //---------------------------------
 //  static data
@@ -47,21 +47,25 @@ bool ProcessB3DataFile::Initialize()
         // Initialize individual data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        B3Obtype myB3;
+        B3Obtype *myB3 = new B3Obtype;
+
+	// read a line from file
+	std::string lff = Trim(ReadLineFromFile());
 
         while (!IsEOF())
         {
 
-	    std::string lff = Trim(ReadLineFromFile());
-
-            //if (GetData(lff,myB3))
-            //{
-	    //	theData.push_back((Obtype*)myB3);
-            //}
+            if (GetData(lff,myB3))
+            {
+	    	theData.push_back(myB3);
+            }
 
             // Allocate another struct in memory
-            //myB3 = new B3Obtype;
-
+            myB3 = new B3Obtype;
+	    
+	    // read another line from file
+	    lff = Trim(ReadLineFromFile());
+	   
         }
 
         // Set iterator to beginning of vector container
@@ -71,11 +75,11 @@ bool ProcessB3DataFile::Initialize()
 
             fstream *outFile2 = new fstream;
             outFile2->open("test.output",ios::out);
-
+	    
             // Output to file to make sure all the data is properly stored
             for (ObtypeVector::const_iterator j=theData.begin(); j!=theData.end(); ++j)
             {
-		*outFile2 << (*j) << std::endl;
+		*outFile2 << (B3Obtype*)(*j) << std::endl;
             }
         
             outFile2->close();
@@ -116,6 +120,47 @@ ProcessB3DataFile::ProcessB3DataFile(const std::string &itsName) :
    fileFormatName = "B3";
    fileFormatID = 0;
    numLines = 1;
+}
+
+
+//------------------------------------------------------------------------------
+//  ProcessB3DataFile::ProcessB3DataFile()
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor for ProcessB3DataFile objects
+ */
+//------------------------------------------------------------------------------
+ProcessB3DataFile::ProcessB3DataFile(const ProcessB3DataFile &B3df) :
+    DataFile      (B3df)
+{
+}
+
+
+//------------------------------------------------------------------------------
+//  ProcessB3DataFile::ProcessB3DataFile()
+//------------------------------------------------------------------------------
+/**
+ * Operator = constructor for ProcessB3DataFile objects
+ */
+//------------------------------------------------------------------------------
+const ProcessB3DataFile& ProcessB3DataFile::operator=(const ProcessB3DataFile &B3df)
+{
+    if (&B3df == this)
+	return *this;
+
+    fileFormatName = B3df.fileFormatName;
+    dataFileName = B3df.dataFileName;
+    numLines = B3df.numLines;
+    isOpen = B3df.isOpen;
+    isSortedByEpoch = B3df.isSortedByEpoch;
+    isSortedBySatID = B3df.isSortedBySatID;
+    isSortedBySensorID = B3df.isSortedBySensorID;
+    isSortedByInternationalDesignator = B3df.isSortedByInternationalDesignator;
+    readWriteMode = B3df.readWriteMode;
+    theFile = B3df.theFile;
+    
+    return *this;
+	    
 }
 
 //------------------------------------------------------------------------------

@@ -23,7 +23,13 @@ class Obtype
     
 public:
     
+    // default constructor
     Obtype();
+    // copy constructor
+    Obtype(const Obtype &ob);
+    // operator =
+    const Obtype& operator=(const Obtype &ob);
+    // destructor
     virtual ~Obtype();
     
     enum OBTYPE_REPS

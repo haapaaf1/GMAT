@@ -40,9 +40,9 @@ const std::string Obtype::OBTYPES[EndObtypeReps] =
  */
 //------------------------------------------------------------------------------
 Obtype::Obtype() :
-    epoch(0),
+    epoch(1900,1,1,0,0),
     satelliteID(0),
-    internationalDesignator(std::string("")),
+    internationalDesignator(GmatBase::STRING_PARAMETER_UNDEFINED),
     sensorID(0)
 {
 }
@@ -56,6 +56,48 @@ Obtype::Obtype() :
 //------------------------------------------------------------------------------
 Obtype::~Obtype()
 {
+}
+
+//---------------------------------------------------------------------------
+//  Obtype(const Obtype &ob);
+//---------------------------------------------------------------------------
+/**
+ * Constructs base Obtype structures used in derived classes, by copying
+ * the input instance (copy constructor).
+ *
+ * @param <ob>  Obtype instance to copy to create "this" instance.
+ */
+//---------------------------------------------------------------------------
+Obtype::Obtype(const Obtype &ob) :
+    epoch(ob.epoch),
+    satelliteID(ob.satelliteID),
+    internationalDesignator(ob.internationalDesignator),
+    sensorID(ob.sensorID)
+{
+}
+
+//---------------------------------------------------------------------------
+//  Obtype& operator=(const Obtype &ob)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for Obtype structures.
+ *
+ * @param <ob> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const Obtype& Obtype::operator=(const Obtype &ob)
+{
+   if (&ob == this)
+      return *this;
+
+   epoch = ob.epoch;
+   satelliteID = ob.satelliteID;
+   internationalDesignator = ob.internationalDesignator;
+   sensorID = ob.sensorID;
+    
+   return *this;
 }
 
 //------------------------------------------------------------------------------

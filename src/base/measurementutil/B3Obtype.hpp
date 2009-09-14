@@ -16,7 +16,13 @@ class B3Obtype : public Obtype
     
 public :
     	
+    // default constructor
     B3Obtype();
+    // copy constructor
+    B3Obtype(const B3Obtype &b3Ob);
+    // operator =
+    const B3Obtype& operator=(const B3Obtype &b3Ob);
+    // destructor
     virtual ~B3Obtype();
 
     std::string GetDataParameterText(const Integer id) const;

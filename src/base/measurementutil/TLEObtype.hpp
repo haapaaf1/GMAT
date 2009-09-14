@@ -17,8 +17,14 @@ class TLEObtype : public Obtype
 
 public :
 
+    // default constructor
     TLEObtype();
-    ~TLEObtype();
+    // copy constructor
+    TLEObtype(const TLEObtype &tleOb);
+    // operator =
+    const TLEObtype& operator=(const TLEObtype &tleOb);
+    // destructor
+    virtual ~TLEObtype();
 
     enum TLE_DATA_REPS
     {
@@ -85,7 +91,23 @@ public :
 
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
-    	
+
+    friend std::ostream& operator<< (std::ostream &output, const TLEObtype *myTLE);
+    
+    // Declare DataFile a friend class so that we have access
+    // directly to variables instead of having to use Get/Set
+    friend class ProcessTLEDataFile;      
+    
+protected:
+    
+    static const std::string DATATYPE_DESCRIPTIONS[EndTLETypeReps];
+    static const std::string TIMESYSTEM_DESCRIPTIONS[EndTLETimeReps];
+    
+    static const bool TLE_IS_REQUIRED[EndTLEDataReps];
+    static const Gmat::ParameterType TLE_PARAMETER_TYPE[EndTLEDataReps];
+    static const std::string TLE_UNIT_DESCRIPTIONS[EndTLEDataReps];
+    static const std::string TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps];    
+
     // The NORAD satellite Catalog number is a unique idenitifier
     // assigned by NORAD for each earth-orbiting satellite. This
     // number must be identical on each line of a TLE to be valid.
@@ -191,16 +213,6 @@ public :
 
     // The revolution number at epoch
     Integer revolutionNum;
-
-protected:
-    
-    static const std::string DATATYPE_DESCRIPTIONS[EndTLETypeReps];
-    static const std::string TIMESYSTEM_DESCRIPTIONS[EndTLETimeReps];
-    
-    static const bool TLE_IS_REQUIRED[EndTLEDataReps];
-    static const Gmat::ParameterType TLE_PARAMETER_TYPE[EndTLEDataReps];
-    static const std::string TLE_UNIT_DESCRIPTIONS[EndTLEDataReps];
-    static const std::string TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps];    
     
 };
 

@@ -110,7 +110,7 @@ const bool TLEObtype::TLE_IS_REQUIRED[EndTLEDataReps] =
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-TLEObtype::TLEObtype() :
+TLEObtype::TLEObtype() : Obtype(),
 	satnum(0),
 	securityClassification("U"),
 	intlDesignator(GmatBase::STRING_PARAMETER_UNDEFINED),
@@ -129,6 +129,75 @@ TLEObtype::TLEObtype() :
 	meanMotion(0),
 	revolutionNum(0)
 {
+}
+
+//---------------------------------------------------------------------------
+//  TLEObtype(const TLEObtype &tleOb);
+//---------------------------------------------------------------------------
+/**
+ * Constructs base Obtype structures used in derived classes, by copying
+ * the input instance (copy constructor).
+ *
+ * @param <B3ob>  Obtype instance to copy to create "this" instance.
+ */
+//---------------------------------------------------------------------------
+TLEObtype::TLEObtype(const TLEObtype &tleOb) :
+    Obtype(tleOb),
+    satnum(tleOb.satnum),
+    securityClassification(tleOb.securityClassification),
+    intlDesignator(tleOb.intlDesignator),
+    epochYear(tleOb.epochYear),
+    epochDayOfYear(tleOb.epochDayOfYear),
+    ndotby2(tleOb.ndotby2),
+    nddotby6(tleOb.nddotby6),
+    bstar(tleOb.bstar),
+    ephemerisType(tleOb.ephemerisType),
+    elementNum(tleOb.elementNum),
+    inclination(tleOb.inclination),
+    raan(tleOb.raan),
+    eccentricity(tleOb.eccentricity),
+    argPerigee(tleOb.argPerigee),
+    meanAnomaly(tleOb.meanAnomaly),
+    meanMotion(tleOb.meanMotion),
+    revolutionNum(tleOb.revolutionNum)
+{
+}
+
+//---------------------------------------------------------------------------
+//  TLEObtype& operator=(const TLEObtype &tleOb)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for Obtype structures.
+ *
+ * @param <tleOb> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const TLEObtype& TLEObtype::operator=(const TLEObtype &tleOb)
+{
+   if (&tleOb == this)
+      return *this;
+
+    satnum = tleOb.satnum;
+    securityClassification = tleOb.securityClassification;
+    intlDesignator = tleOb.intlDesignator;
+    epochYear = tleOb.epochYear;
+    epochDayOfYear = tleOb.epochDayOfYear;
+    ndotby2 = tleOb.ndotby2;
+    nddotby6 = tleOb.nddotby6;
+    bstar = tleOb.bstar;
+    ephemerisType = tleOb.ephemerisType;
+    elementNum = tleOb.elementNum;
+    inclination = tleOb.inclination;
+    raan = tleOb.raan;
+    eccentricity = tleOb.eccentricity;
+    argPerigee = tleOb.argPerigee;
+    meanAnomaly = tleOb.meanAnomaly;
+    meanMotion = tleOb.meanMotion;
+    revolutionNum = tleOb.revolutionNum;
+    
+   return *this;
 }
 
 //------------------------------------------------------------------------------
@@ -531,29 +600,44 @@ Integer TLEObtype::GetTimeSystemID(const std::string &label)
 }
 
 //------------------------------------------------------------------------------
-// bool AdvanceToNextOb()
+// std::ostream& operator<< (std::ostream &output, const TLEObtype &myB3)
 //------------------------------------------------------------------------------
 /**
- * Returns the next observation from the vector container.
+ * Formats TLEObtype value and sends to output stream.
+ *
+ * @param  output  Output stream
+ * @param  myTLE   TLE observation to write out
+ *
+ * return  Output stream
  */
 //------------------------------------------------------------------------------
-//bool ProcessTLEData::AdvanceToNextOb() 
-//{
-//    ++i;
-//    if ( i == tleData.end() ) return false;
-//    return true;
-//}
+std::ostream& operator<< (std::ostream &output, const TLEObtype *myTLE) 
+{
+   using namespace std;
+   
+   output.setf(std::ios::showpoint);
+   output.setf(std::ios::scientific);
 
-//------------------------------------------------------------------------------
-// bool BackUpToPreviousOb()
-//------------------------------------------------------------------------------
-/**
- * Returns the previous observation from the vector container.
- */
-//------------------------------------------------------------------------------
-//bool ProcessTLEData::BackUpToPreviousOb() 
-//{
-//    --i;
-//    if ( i == tleData.begin() ) return false;
-//    return true;
-//}
+   output << "Satnum =" << myTLE->satnum << std::endl;
+   output << "Class =" << myTLE->securityClassification << std::endl;
+   output << "IntlDesignator =" << myTLE->intlDesignator << std::endl;
+   output << "Year =" << myTLE->epochYear << std::endl;
+   output << "Day Of Year =" << myTLE->epochDayOfYear << std::endl;
+   output << "Ndotby2 =" << myTLE->ndotby2 << std::endl;
+   output << "Bstar =" << myTLE->bstar << std::endl;
+   output << "Ndotby6 =" << myTLE->nddotby6 << std::endl;
+   output << "EphemType =" << myTLE->ephemerisType << std::endl;
+   output << "ElementNum =" << myTLE->elementNum << std::endl;
+   output << "Inclination =" << myTLE->inclination << std::endl;
+   output << "Eccentricity =" << myTLE->eccentricity << std::endl;
+   output << "RAAN =" << myTLE->raan << std::endl;
+   output << "Argument of Perigee =" << myTLE->argPerigee << std::endl;
+   output << "Mean Anomaly =" << myTLE->meanAnomaly << std::endl;
+   output << "Mean Motion =" << myTLE->meanMotion << std::endl;
+   output << "Rev Num =" << myTLE->revolutionNum << std::endl;
+   output << "******************************************************" << std::endl;
+
+   //output << setw(w) << setprecision(p) << prefix << a[i];
+   
+   return output;
+}

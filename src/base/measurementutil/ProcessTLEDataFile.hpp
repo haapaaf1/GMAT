@@ -53,13 +53,6 @@ private:
     // Specific data type processing functions
     bool GetData(TLEObtype *myTLEdata);
 
-    // Vector container of observations
-    std::vector<TLEObtype*> tleData;
-
-    //Current iterator pointing at data
-    std::vector<TLEObtype*>::iterator i;
-
-
 };
 
 #endif	/* _ProcessTLEDataFile_hpp */
