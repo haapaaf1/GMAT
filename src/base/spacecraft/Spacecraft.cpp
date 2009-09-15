@@ -295,7 +295,7 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    attitude = new CSFixed("");
    attitude->SetEpoch(state.GetEpoch());
    ownedObjectCount++;
-
+   
    #ifdef DEBUG_SC_OWNED_OBJECT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft() <%p>'%s' ownedObjectCount=%d\n",
@@ -456,7 +456,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    #endif
    
    SpaceObject::operator=(a);
-   
+
    ownedObjectCount     = a.ownedObjectCount;
    
    scEpochStr           = a.scEpochStr;
@@ -509,14 +509,14 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) about to delete all owned objects\n");
-   #endif
+      #endif
    DeleteOwnedObjects(true, true, true);  
    
    // then cloned owned objects
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) about to clone all owned objects\n");
-   #endif
+      #endif
    CloneOwnedObjects(a.attitude, a.tanks, a.thrusters);
    
    BuildElementLabelMap();
@@ -858,7 +858,7 @@ GmatBase* Spacecraft::Clone() const
          ("Spacecraft::Clone() cloned <%p>'%s' to <%p>'%s'\n", this,
          instanceName.c_str(), clone, clone->GetName().c_str());
    #endif
-      
+
    return (clone);
 }
 
@@ -980,6 +980,9 @@ const StringArray&
    // Other objects are handled separately in the ObjectInitializer
    if (type == Gmat::UNKNOWN_OBJECT)
    {
+      // Put in the SpaceObject origin
+      fullList.push_back(originName);
+
       // Add Spacecraft CS name
       fullList.push_back(coordSysName);
       for (ObjectArray::iterator i = thrusters.begin(); i < thrusters.end(); ++i)
@@ -1167,6 +1170,14 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    std::string objType = obj->GetTypeName();
    std::string objName = obj->GetName();
    
+   if (objName == originName)
+   {
+      if (obj->IsOfType(Gmat::SPACE_POINT))
+      {
+         origin = (SpacePoint*)obj;
+      }
+   }
+
    // first, try setting it on the attitude (owned object)
    if (attitude)
    {
@@ -2909,6 +2920,8 @@ Integer Spacecraft::SetPropItem(const std::string &propItem)
       return Gmat::CARTESIAN_STATE;
    if (propItem == "STM")
       return Gmat::ORBIT_STATE_TRANSITION_MATRIX;
+//   if (propItem == "MassFlow")
+//      return Gmat::MASS_FLOW;
    
    return SpaceObject::SetPropItem(propItem);
 }
@@ -3646,7 +3659,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       if (!registered) 
          parmOrder[parmIndex++] = i;
    }
-   
+      
    Rvector6 repState = GetStateInRepresentation(displayStateType);
    
    #if DEBUG_SPACECRAFT_GEN_STRING
@@ -3768,14 +3781,15 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
             else
                stream << prefix << "Attitude = " << attitude->GetAttitudeModelName() << ";\n";
          }
-         else
+         else 
          {
             MessageInterface::ShowMessage
                ("*** INTERNAL ERROR *** attitude is NULL\n");
          }
       }
+      
    }
-   
+
    // Prep in case spacecraft "own" the attached hardware
    GmatBase *ownedObject;
    std::string nomme, newprefix;

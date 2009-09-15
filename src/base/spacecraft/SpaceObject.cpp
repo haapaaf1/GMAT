@@ -311,25 +311,28 @@ const Rvector6 SpaceObject::GetMJ2000State(const A1Mjd &atTime)
    // If origin is NULL, assume it is set at the J2000 origin.
    if (origin)
    {
-      #ifdef DEBUG_J2000_STATE
-         MessageInterface::ShowMessage("   Accessing origin state for %s\n",
-            origin->GetName().c_str());
-      #endif
-      
-      Rvector6 offset = origin->GetMJ2000State(atTime);
-      
-      #ifdef DEBUG_J2000_STATE
-         MessageInterface::ShowMessage("   origin: [%lf %lf %lf %lf %lf %lf]\n",
-            offset[0], offset[1], offset[2], offset[3], offset[4], offset[5]);
-      #endif
-      
-      bodyState -= offset;
-      
-      #ifdef DEBUG_J2000_STATE
-         MessageInterface::ShowMessage("   Diff: [%lf %lf %lf %lf %lf %lf]\n",
-            bodyState[0], bodyState[1], bodyState[2], bodyState[3], bodyState[4], 
-            bodyState[5]);
-      #endif
+      if (origin != j2000Body)
+      {
+         #ifdef DEBUG_J2000_STATE
+            MessageInterface::ShowMessage("   Accessing origin state for %s\n",
+               origin->GetName().c_str());
+         #endif
+
+         Rvector6 offset = origin->GetMJ2000State(atTime);
+
+         #ifdef DEBUG_J2000_STATE
+            MessageInterface::ShowMessage("   origin: [%lf %lf %lf %lf %lf %lf]\n",
+               offset[0], offset[1], offset[2], offset[3], offset[4], offset[5]);
+         #endif
+
+         bodyState -= offset;
+
+         #ifdef DEBUG_J2000_STATE
+            MessageInterface::ShowMessage("   Diff: [%lf %lf %lf %lf %lf %lf]\n",
+               bodyState[0], bodyState[1], bodyState[2], bodyState[3], bodyState[4],
+               bodyState[5]);
+         #endif
+      }
    }
    
    Rvector6 j2kState;
