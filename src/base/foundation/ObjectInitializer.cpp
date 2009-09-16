@@ -154,19 +154,22 @@ void ObjectInitializer::SetInternalCoordinateSystem(CoordinateSystem* intCS)
 }
 
 //------------------------------------------------------------------------------
-// bool ObjectInitializer::InitializeObjects(bool registerSubs)
+// bool InitializeObjects(bool registerSubs, Gmat::ObjectType objType)
 //------------------------------------------------------------------------------
 /*
  * Initializes objects
  *
- * @param  registerSubs  registers subscribers if set to true (false)
+ * @param  registerSubs  Registers subscribers if set to true (false)
+ * @param  objType       Initializes only this object type, if objType is
+ *                       UNKNOWN_OBJECT it initializes all objects (UNKNOWN_OBJECT) 
  */
 //------------------------------------------------------------------------------
-bool ObjectInitializer::InitializeObjects(bool registerSubs)
-{   
+bool ObjectInitializer::InitializeObjects(bool registerSubs,
+                                          Gmat::ObjectType objType)
+{
    #ifdef DEBUG_TRACE
    static Integer callCount = 0;
-   callCount++;      
+   callCount++;
    clock_t t1 = clock();
    MessageInterface::ShowMessage
       ("=== ObjectInitializer::InitializeObjects() entered, Count = %d\n",
@@ -179,13 +182,25 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    std::string oName;
    std::string j2kName;
    
-   #ifdef DEBUG_OBJECT_INITIALIZER
+   #ifdef DEBUG_INITIALIZE_OBJ
+   MessageInterface::ShowMessage
+      ("ObjectInitializer::InitializeObjects() entered, registerSubs = %s\n",
+       registerSubs ? "true" : "false");
+   #endif
+   
+   if (objType == Gmat::UNKNOWN_OBJECT)
+   {
+      #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage("About to Initialize Internal Objects ...\n");
-   #endif
-   InitializeInternalObjects();
-   #ifdef DEBUG_OBJECT_INITIALIZER
+      #endif
+      
+      InitializeInternalObjects();
+      
+      #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage("Internal Objects Initialized ...\n");
-   #endif
+      #endif
+   }
+   
    // Set J2000 Body for all SpacePoint derivatives before anything else
    // NOTE - at this point, everything should be in the SandboxObjectMap,
    // and the GlobalObjectMap should be empty
@@ -205,11 +220,11 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    
    if (includeGOS)
       SetObjectJ2000Body(LOS);
-                                 
+   
    #ifdef DEBUG_OBJECT_INITIALIZER
       MessageInterface::ShowMessage("J2000 Body set ...\n");
    #endif
-   
+      
    // The initialization order is:
    //
    //  1. CoordinateSystems
@@ -219,104 +234,142 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs)
    //  5. Parameters.
    //  6. Subscribers
    //  7. Remaining Objects
-   
+      
    // Coordinate Systems
-   #ifdef DEBUG_INITIALIZE_OBJ
-   MessageInterface::ShowMessage("--- Initialize CoordinateSystems in LOS\n");
-   #endif
-   InitializeObjectsInTheMap(LOS, Gmat::COORDINATE_SYSTEM, "");
-   
-   if (includeGOS)
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::COORDINATE_SYSTEM)
    {
       #ifdef DEBUG_INITIALIZE_OBJ
-      MessageInterface::ShowMessage("--- Initialize CoordinateSystems in GOS\n");
+      MessageInterface::ShowMessage("--- Initialize CoordinateSystems in LOS\n");
       #endif
-      InitializeObjectsInTheMap(GOS, Gmat::COORDINATE_SYSTEM, "");
+      InitializeObjectsInTheMap(LOS, Gmat::COORDINATE_SYSTEM, "");
+   
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize CoordinateSystems in GOS\n");
+         #endif
+         InitializeObjectsInTheMap(GOS, Gmat::COORDINATE_SYSTEM, "");
+      }
    }
    
    // Spacecraft
-   #ifdef DEBUG_INITIALIZE_OBJ
-   MessageInterface::ShowMessage("--- Initialize Spacecrafts in LOS\n");
-   #endif
-   InitializeObjectsInTheMap(LOS, Gmat::SPACECRAFT, "");
-   
-   if (includeGOS)
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::SPACECRAFT)
    {
       #ifdef DEBUG_INITIALIZE_OBJ
-      MessageInterface::ShowMessage("--- Initialize Spacecrafts in GOS\n");
+      MessageInterface::ShowMessage("--- Initialize Spacecrafts in LOS\n");
       #endif
-      InitializeObjectsInTheMap(GOS, Gmat::SPACECRAFT, "");
+      InitializeObjectsInTheMap(LOS, Gmat::SPACECRAFT, "");
+   
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize Spacecrafts in GOS\n");
+         #endif
+         InitializeObjectsInTheMap(GOS, Gmat::SPACECRAFT, "");
+      }
    }
    
    // MeasurementModel
    // Measurement Models must init before the Estimators/Simulator, so do next
-   #ifdef DEBUG_INITIALIZE_OBJ
-   MessageInterface::ShowMessage("--- Initialize MeasurementModels in LOS\n");
-   #endif
-   InitializeObjectsInTheMap(LOS, Gmat::MEASUREMENT_MODEL, "");
-   
-   if (includeGOS)
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::MEASUREMENT_MODEL)
    {
       #ifdef DEBUG_INITIALIZE_OBJ
-      MessageInterface::ShowMessage("--- Initialize MeasurementModels in GOS\n");
+      MessageInterface::ShowMessage("--- Initialize MeasurementModels in LOS\n");
       #endif
-      InitializeObjectsInTheMap(GOS, Gmat::MEASUREMENT_MODEL, "");
+      InitializeObjectsInTheMap(LOS, Gmat::MEASUREMENT_MODEL, "");
+      
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize MeasurementModels in GOS\n");
+         #endif
+         InitializeObjectsInTheMap(GOS, Gmat::MEASUREMENT_MODEL, "");
+      }
    }
    
-   // System Parameters
-   #ifdef DEBUG_INITIALIZE_OBJ
-   MessageInterface::ShowMessage("--- Initialize Sytem Parameters in LOS\n");
-   #endif
-   InitializeSystemParamters(LOS);
-   
-   if (includeGOS)
+   // System Parameters, such as sat.X
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::PARAMETER)
    {
       #ifdef DEBUG_INITIALIZE_OBJ
       MessageInterface::ShowMessage("--- Initialize Sytem Parameters in LOS\n");
       #endif
-      InitializeSystemParamters(GOS);
+      InitializeSystemParamters(LOS);
+      
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize Sytem Parameters in LOS\n");
+         #endif
+         InitializeSystemParamters(GOS);
+      }
    }
    
-   // Parameters
-   #ifdef DEBUG_INITIALIZE_OBJ
-   MessageInterface::ShowMessage("--- Initialize Parameters in LOS\n");
-   #endif
-   InitializeObjectsInTheMap(LOS, Gmat::PARAMETER, "");
-   
-   if (includeGOS)
+   // Variables
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::VARIABLE )
    {
       #ifdef DEBUG_INITIALIZE_OBJ
-      MessageInterface::ShowMessage("--- Initialize Parameters in GOS\n");
+      MessageInterface::ShowMessage("--- Initialize Variables in LOS\n");
       #endif
-      InitializeObjectsInTheMap(GOS, Gmat::PARAMETER, "");
+      InitializeObjectsInTheMap(LOS, Gmat::VARIABLE, "");
+      
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize Variables in GOS\n");
+         #endif
+         InitializeObjectsInTheMap(GOS, Gmat::VARIABLE, "");
+      }
+   }
+   
+   // Strings
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::STRING)
+   {
+      #ifdef DEBUG_INITIALIZE_OBJ
+      MessageInterface::ShowMessage("--- Initialize Strings in LOS\n");
+      #endif
+      InitializeObjectsInTheMap(LOS, Gmat::STRING, "");
+      
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize String in GOS\n");
+         #endif
+         InitializeObjectsInTheMap(GOS, Gmat::STRING, "");
+      }
    }
    
    // Subscribers
-   #ifdef DEBUG_INITIALIZE_OBJ
-   MessageInterface::ShowMessage("--- Initialize Subscriber in LOS\n");
-   #endif
-   InitializeObjectsInTheMap(LOS, Gmat::SUBSCRIBER, "");
-   
-   if (includeGOS)
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::SUBSCRIBER)
    {
       #ifdef DEBUG_INITIALIZE_OBJ
-      MessageInterface::ShowMessage("--- Initialize Subscriber in GOS\n");
+      MessageInterface::ShowMessage("--- Initialize Subscriber in LOS\n");
       #endif
-      InitializeObjectsInTheMap(GOS, Gmat::SUBSCRIBER, "");
+      InitializeObjectsInTheMap(LOS, Gmat::SUBSCRIBER, "");
+      
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize Subscriber in GOS\n");
+         #endif
+         InitializeObjectsInTheMap(GOS, Gmat::SUBSCRIBER, "");
+      }
    }
    
    // All other objects
-   #ifdef DEBUG_INITIALIZE_OBJ
-   MessageInterface::ShowMessage("--- Initialize All other objects in LOS\n");
-   #endif
-   InitializeAllOtherObjects(LOS);
-   
-   if (includeGOS)
+   if (objType == Gmat::UNKNOWN_OBJECT)
    {
       #ifdef DEBUG_INITIALIZE_OBJ
-      MessageInterface::ShowMessage("--- Initialize All other objects in GOS\n");
+      MessageInterface::ShowMessage("--- Initialize All other objects in LOS\n");
       #endif
-      InitializeAllOtherObjects(GOS);
+      InitializeAllOtherObjects(LOS);
+      
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize All other objects in GOS\n");
+         #endif
+         InitializeAllOtherObjects(GOS);
+      }
    }
    
    #ifdef DEBUG_OBJECT_INITIALIZER
@@ -384,8 +437,9 @@ void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
 {
    #ifdef DEBUG_INITIALIZE_OBJ
    MessageInterface::ShowMessage
-      ("InitializeObjectsInTheMap() entered, objMap=<%p>, objType=%d, objTypeName='%s'\n"
-       "   registerSubs=%d\n", objMap, objType, objTypeName.c_str(), registerSubscribers);
+      ("InitializeObjectsInTheMap() entered, objMap=<%p>, objType=%d, objTypeName='%s', "
+       "objTypeStr='%s'\n", objMap, objType, objTypeName.c_str(),
+       GmatBase::GetObjectTypeString(objType).c_str());
    #endif
    
    std::map<std::string, GmatBase *>::iterator omi;

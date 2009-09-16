@@ -48,7 +48,8 @@ public:
    void SetSolarSystem(SolarSystem *solSys);
    void SetObjectMap(ObjectMap *objMap);
    void SetInternalCoordinateSystem(CoordinateSystem* cs);
-   bool InitializeObjects(bool registerSubs = false);
+   bool InitializeObjects(bool registerSubs = false,
+                          Gmat::ObjectType objType = Gmat::UNKNOWN_OBJECT);
    
 protected:
    
