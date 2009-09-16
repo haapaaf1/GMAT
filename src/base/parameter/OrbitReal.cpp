@@ -51,7 +51,8 @@ OrbitReal::OrbitReal(const std::string &name, const std::string &typeStr,
                      const std::string &unit, GmatParam::DepObject depObj,
                      bool isSettable)
    : RealVar(name, "", typeStr, GmatParam::SYSTEM_PARAM, obj, desc, unit,
-             depObj, Gmat::SPACECRAFT, false, isSettable)
+             depObj, Gmat::SPACECRAFT, false, isSettable),
+     OrbitData(name)
 {
    mNeedCoordSystem = true;
    AddRefObject(obj);

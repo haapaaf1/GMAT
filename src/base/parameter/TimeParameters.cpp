@@ -192,6 +192,13 @@ A1ModJulian::~A1ModJulian()
 bool A1ModJulian::Evaluate()
 {
    mRealValue = GetCurrentTimeReal(A1_MJD);
+
+   #ifdef DEBUG_TIMEPARAM_EVAL
+   MessageInterface::ShowMessage
+      ("A1ModJulian::Evaluate() <%p>'%s' evaluated to %f, spacecraft=<%p>'%s'\n",
+       this, GetName().c_str(), mRealValue, GetSpacecraft(),
+       GetSpacecraft()->GetName().c_str());
+   #endif
    
    if (mRealValue == TIME_REAL_UNDEFINED)
       return false;

@@ -65,14 +65,14 @@ OrbitData::VALID_OBJECT_TYPE_LIST[OrbitDataObjectCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// OrbitData()
+// OrbitData(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  * Constructor.
  */
 //------------------------------------------------------------------------------
-OrbitData::OrbitData()
-   : RefData(),
+OrbitData::OrbitData(const std::string &name)
+   : RefData(name),
    stateTypeId (-1)
 {
    mCartState = Rvector6::RVECTOR6_UNDEFINED;

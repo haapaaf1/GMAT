@@ -26,10 +26,12 @@ class GMAT_API RefData
 {
 public:
 
-   RefData();
-   RefData(const RefData &copy);
-   RefData& operator= (const RefData &right);
+   RefData(const std::string &name = "");
+   RefData(const RefData &rd);
+   RefData& operator= (const RefData &rd);
    virtual ~RefData();
+   
+   GmatBase* GetSpacecraft();
    
    Integer GetNumRefObjects() const;
    
@@ -74,6 +76,7 @@ protected:
          };
    };
    
+   std::string mName;
    std::vector<RefObjType> mRefObjList;
    
    StringArray mObjectTypeNames;

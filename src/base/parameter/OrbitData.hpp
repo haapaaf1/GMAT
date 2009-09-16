@@ -34,7 +34,7 @@ class GMAT_API OrbitData : public RefData
 {
 public:
 
-   OrbitData();
+   OrbitData(const std::string &name = "");
    OrbitData(const OrbitData &data);
    OrbitData& operator= (const OrbitData& right);
    virtual ~OrbitData();

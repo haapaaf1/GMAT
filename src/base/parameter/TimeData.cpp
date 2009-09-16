@@ -46,14 +46,14 @@ TimeData::VALID_OBJECT_TYPE_LIST[TimeDataObjectCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// TimeData()
+// TimeData(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  * Constructor.
  */
 //------------------------------------------------------------------------------
-TimeData::TimeData()
-   : RefData()
+TimeData::TimeData(const std::string &name)
+   : RefData(name)
 {
    mInitialEpoch = 0.0;
    mIsInitialEpochSet = false;
@@ -179,9 +179,15 @@ Real TimeData::GetCurrentTimeReal(Integer id)
    // Get current time from Spacecraft
    if (mSpacecraft == NULL)
       InitializeRefObjects();
-
+   
    Real a1mjd = mSpacecraft->GetEpoch();
 
+   #ifdef DEBUG_TIMEDATA_GET
+   MessageInterface::ShowMessage
+      ("TimeData::GetCurrentTimeReal() mSpacecraft=<%p>'%s', a1mjd=%f\n",
+       mSpacecraft, mSpacecraft->GetName().c_str(), a1mjd);
+   #endif
+   
    Real time = -9999.999;
    
    switch (id)
@@ -221,8 +227,8 @@ Real TimeData::GetCurrentTimeReal(Integer id)
       throw ParameterException("TimeData::GetCurrentTimeReal() Unknown parameter id: " +
                                GmatRealUtil::ToString(id));
    }
-
-   #ifdef DEBUG_TIMEDATA
+   
+   #ifdef DEBUG_TIMEDATA_GET
    MessageInterface::ShowMessage
       ("TimeData::GetCurrentTimeReal() id=%d, a1mjd=%.10f, return time=%.10f\n",
        id, a1mjd, time);
