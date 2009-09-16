@@ -251,18 +251,18 @@ bool GmatFunction::Initialize()
    // add automatic objects to the FOS (well, actually, clones of them)
    for (omi = automaticObjectMap.begin(); omi != automaticObjectMap.end(); ++omi)
    {
-      std::string objName = omi->first;
+      std::string autoObjName = omi->first;
       
       // if name not found, clone it and add to map (loj: 2008.12.15)
-      if (objectStore->find(omi->first) == objectStore->end())
+      if (objectStore->find(autoObjName) == objectStore->end())
       {
          GmatBase *autoObj = (omi->second)->Clone();
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Add
-            (autoObj, objName, "GmatFunction::Initialize()",
+            (autoObj, autoObjName, "GmatFunction::Initialize()",
              "autoObj = (omi->second)->Clone()");
          #endif
-         objectStore->insert(std::make_pair(objName, autoObj));
+         objectStore->insert(std::make_pair(autoObjName, autoObj));
       }
    }
    
@@ -382,8 +382,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
    #ifdef DEBUG_FUNCTION_EXEC
    MessageInterface::ShowMessage
       ("======================================================================\n"
-       "GmatFunction::Execute() entered for '%s'\n   internalCS is %p\n",
-       functionName.c_str(), internalCoordSys);
+       "GmatFunction::Execute() entered for '%s'\n   internalCS is <%p>, "
+       "reinitialize = %d\n", functionName.c_str(), internalCoordSys, reinitialize);
    #endif
    
    GmatCommand *current = fcs;
@@ -395,6 +395,18 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
    if (reinitialize)
       objectsInitialized = false;
    
+   // Reinitialize Parameters only to fix bug 1519 (LOJ: 2009.09.16)
+   if (objectsInitialized)
+   {
+      if (!objInit->InitializeObjects(true, Gmat::PARAMETER))
+      {
+         throw FunctionException
+            ("Failed to re-initialize Parameters in the \"" + functionName + "\"");
+      }
+   }
+   
+   // Go through each command in the sequence and execute.
+   // Once it gets to a real command, initialize local and automatic objects.
    while (current)
    {
       // Call to IsNextAFunction is necessary for branch commands in particular
@@ -407,19 +419,19 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
       
       last = current;
       
-      // Since we don't know where actual mission squence start, just check for command
-      // that is not NoOp, Create, Global, and GMAT with equation.
-      // Can we have simple command indicating beginning of the sequence,
-      // such as BeginMission? (loj: 2008.06.19)
-      Function *func = current->GetCurrentFunction();
-      bool isEquation = false;
-      std::string cmdType = current->GetTypeName();
-      if (func && cmdType == "GMAT")
-         if (((Assignment*)current)->GetMathTree() != NULL)
-            isEquation = true;
-      
       if (!objectsInitialized)
       {
+         // Since we don't know where actual mission squence start, just check for command
+         // that is not NoOp, Create, Global, and GMAT with equation.
+         // Can we have simple command indicating beginning of the sequence,
+         // such as BeginSequence? (loj: 2008.06.19)
+         Function *func = current->GetCurrentFunction();
+         bool isEquation = false;
+         std::string cmdType = current->GetTypeName();
+         if (func && cmdType == "GMAT")
+            if (((Assignment*)current)->GetMathTree() != NULL)
+               isEquation = true;
+         
          if (cmdType != "NoOp" && cmdType != "Create" && cmdType != "Global")
          {
             bool beginInit = true;            
@@ -471,6 +483,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
          }
       }
       
+      // Now execute the function sequence
       try
       {
          #ifdef DEBUG_FUNCTION_EXEC
