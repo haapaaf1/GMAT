@@ -2,13 +2,22 @@
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
-
+const std::string CCSDSObtype::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];
+const std::string CCSDSObtype::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
 const std::string CCSDSObtype::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSDataReps] =
 {
     "CCSDS Version",
     "Creation Date",
     "Originator",
     "HeaderComments"
+};
+
+const std::string CCSDSObtype::CCSDS_KEYWORDS[EndCCSDSDataReps] =
+{
+    "CCSDS_VERSION",
+    "CREATION_DATE",
+    "ORIGINATOR",
+    "COMMENTS"
 };
 
 const bool CCSDSObtype::CCSDS_IS_REQUIRED[EndCCSDSDataReps] =
@@ -43,8 +52,62 @@ const std::string CCSDSObtype::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSDataReps] =
  */
 //------------------------------------------------------------------------------
 CCSDSObtype::CCSDSObtype() : Obtype(),
-    ccsdsHeader(NULL)
+    ccsdsHeader(NULL),
+    ccsdsData(NULL),
+    ccsdsQuaternion(NULL),
+    ccsdsEulerAngle(NULL),
+    ccsdsSpinStabilized(NULL),
+    ccsdsStateVector(NULL),
+    ccsdsKeplerianElements(NULL),
+    ccsdsSpacecraftParameters(NULL)
 {
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSObtype(const CCSDSObtype &ob)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the obtype class
+ */
+//------------------------------------------------------------------------------
+CCSDSObtype::CCSDSObtype(const CCSDSObtype &ob) : Obtype(ob),
+    ccsdsHeader(ob.ccsdsHeader),
+    ccsdsData(ob.ccsdsData),
+    ccsdsQuaternion(ob.ccsdsQuaternion),
+    ccsdsEulerAngle(ob.ccsdsEulerAngle),
+    ccsdsSpinStabilized(ob.ccsdsSpinStabilized),
+    ccsdsStateVector(ob.ccsdsStateVector),
+    ccsdsKeplerianElements(ob.ccsdsKeplerianElements),
+    ccsdsSpacecraftParameters(ob.ccsdsSpacecraftParameters)
+{
+}
+
+//---------------------------------------------------------------------------
+//  CCSDSObtype& operator=(const CCSDSObtype &ob)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for Obtype structures.
+ *
+ * @param <ob> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const CCSDSObtype& CCSDSObtype::operator=(const CCSDSObtype &ob)
+{
+   if (&ob == this)
+      return *this;
+
+    ccsdsHeader = ob.ccsdsHeader;
+    ccsdsData = ob.ccsdsData;
+    ccsdsQuaternion = ob.ccsdsQuaternion;
+    ccsdsEulerAngle = ob.ccsdsEulerAngle;
+    ccsdsSpinStabilized = ob.ccsdsSpinStabilized;
+    ccsdsStateVector = ob.ccsdsStateVector;
+    ccsdsKeplerianElements = ob.ccsdsKeplerianElements;
+    ccsdsSpacecraftParameters = ob.ccsdsSpacecraftParameters;
+    
+   return *this;
 }
 
 //------------------------------------------------------------------------------
@@ -480,3 +543,47 @@ bool CCSDSObtype::CheckDataAvailability(const std::string str) const
    return false;
 
 }
+
+//------------------------------------------------------------------------------
+// const std::string* GetKeywords() const
+//------------------------------------------------------------------------------
+/**
+ * Returns the string array of allowable CCSDS TDM keywords
+ *
+ * @return String array of keywords.
+ *
+ */
+//------------------------------------------------------------------------------
+const std::string* CCSDSObtype::GetKeywords() const
+{
+   return CCSDS_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+//  const Integer GetKeywordID(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+const Integer CCSDSObtype::GetKeywordID(const std::string str) const
+{
+   return -1;
+}
+
+//------------------------------------------------------------------------------
+//  std::string GetUnits(const Integer &id) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSObtype::GetUnits(const Integer &id) const
+{
+   return std::string("");
+}
+

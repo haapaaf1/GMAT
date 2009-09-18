@@ -2,7 +2,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSOEM::CCSDS_OEM_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
+const std::string CCSDSOEMObtype::CCSDS_OEM_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
 {
     "B3Type",
     "SecurityClassification",
@@ -24,7 +24,7 @@ const std::string CCSDSOEM::CCSDS_OEM_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataRep
     "Ecf_Z"
 };
 
-const std::string CCSDSOEM::CCSDS_OEM_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
+const std::string CCSDSOEMObtype::CCSDS_OEM_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
 {
     "",
     "",
@@ -46,7 +46,7 @@ const std::string CCSDSOEM::CCSDS_OEM_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
     "km"
 };
 
-const Gmat::ParameterType CCSDSOEM::CCSDS_OEM_PARAMETER_TYPE[EndCCSDSOEMDataReps] =
+const Gmat::ParameterType CCSDSOEMObtype::CCSDS_OEM_PARAMETER_TYPE[EndCCSDSOEMDataReps] =
 {
     Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
@@ -68,7 +68,7 @@ const Gmat::ParameterType CCSDSOEM::CCSDS_OEM_PARAMETER_TYPE[EndCCSDSOEMDataReps
     Gmat::REAL_TYPE
 };
 
-const bool CCSDSOEM::CCSDS_OEM_IS_REQUIRED[EndCCSDSOEMDataReps] =
+const bool CCSDSOEMObtype::CCSDS_OEM_IS_REQUIRED[EndCCSDSOEMDataReps] =
 {
     true,
     true,
@@ -90,7 +90,7 @@ const bool CCSDSOEM::CCSDS_OEM_IS_REQUIRED[EndCCSDSOEMDataReps] =
     false
 };
 
-const std::string CCSDSOEM::CCSDS_OEM_DATATYPE_DESCRIPTIONS[EndCCSDSOEMTypeReps] =
+const std::string CCSDSOEMObtype::CCSDS_OEM_DATATYPE_DESCRIPTIONS[EndCCSDSOEMTypeReps] =
 {
     "Range",
     "RangeRate",
@@ -101,7 +101,7 @@ const std::string CCSDSOEM::CCSDS_OEM_DATATYPE_DESCRIPTIONS[EndCCSDSOEMTypeReps]
     
 };
     
-const std::string CCSDSOEM::CCSDS_OEM_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps] =
+const std::string CCSDSOEMObtype::CCSDS_OEM_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps] =
 {
     "UTC"
 };

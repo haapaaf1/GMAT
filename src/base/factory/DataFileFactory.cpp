@@ -28,7 +28,7 @@
 #include "ProcessTLEDataFile.hpp"
 #include "ProcessCCSDSTDMDataFile.hpp"
 //#include "ProcessCCSDSOPMDataFile.hpp"
-#include "ProcessCCSDSOEMDataFile.hpp"
+//#include "ProcessCCSDSOEMDataFile.hpp"
 //#include "ProcessCCSDSAPMDataFile.hpp"
 //#include "ProcessCCSDSAEMDataFile.hpp"
 
@@ -63,8 +63,8 @@ MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
       return new ProcessCCSDSTDMDataFile(withName);
 //   if (ofType == "CCSDSOPMDataFile")
 //      return new ProcessCCSDSOPMDataFile(withName);
-   if (ofType == "CCSDSOEMDataFile")
-      return new ProcessCCSDSOEMDataFile(withName);
+//   if (ofType == "CCSDSOEMDataFile")
+//      return new ProcessCCSDSOEMDataFile(withName);
 //   if (ofType == "CCSDSAPMDataFile")
 //      return new ProcessCCSDSAPMDataFile(withName);
 //   if (ofType == "CCSDSAEMDataFile")

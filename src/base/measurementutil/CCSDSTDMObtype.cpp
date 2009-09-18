@@ -81,6 +81,44 @@ const std::string CCSDSTDMObtype::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSD
     "VLBI_DELAY"
 };
 
+const std::string CCSDSTDMObtype::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
+{
+    "deg",
+    "deg",
+    "dBW",
+    "s",
+    "s/s",
+    "n/a",
+    "km/s",
+    "km/s",
+    "s",
+    "dBHz",
+    "dBHz",
+    "hPa",
+    "km, s, or RU",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "%",
+    "TECU",
+    "K",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz/s",
+    "Hz/s",
+    "Hz/s",
+    "Hz/s",
+    "Hz/s",
+    "m",
+    "m",
+    "s"
+};
 
 const std::string CCSDSTDMObtype::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeReps-EndCCSDSTimeReps] =
 {
@@ -298,9 +336,41 @@ const Gmat::ParameterType CCSDSTDMObtype::CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataRe
  */
 //------------------------------------------------------------------------------
 CCSDSTDMObtype::CCSDSTDMObtype() : CCSDSObtype(),
-	ccsdsTDMMetaData(NULL),
-	ccsdsTDMData(NULL)
+	ccsdsTDMMetaData(NULL)
 {
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSTDMObtype(const CCSDSTDMObtype &tdm)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the obtype class
+ */
+//------------------------------------------------------------------------------
+CCSDSTDMObtype::CCSDSTDMObtype(const CCSDSTDMObtype &tdm) : CCSDSObtype(tdm),
+	ccsdsTDMMetaData(tdm.ccsdsTDMMetaData)
+{
+}
+
+//---------------------------------------------------------------------------
+//  CCSDSTDMObtype& operator=(const CCSDSTDMObtype &tdm)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for Obtype structures.
+ *
+ * @param <tdm> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const CCSDSTDMObtype& CCSDSTDMObtype::operator=(const CCSDSTDMObtype &tdm)
+{
+   if (&tdm == this)
+      return *this;
+
+    ccsdsTDMMetaData = tdm.ccsdsTDMMetaData;
+
+   return *this;
 }
 
 //------------------------------------------------------------------------------
@@ -421,7 +491,11 @@ Integer CCSDSTDMObtype::GetIntegerDataParameter(const Integer id) const
 	case CCSDS_TDM_TURNAROUNDDENOMINATOR_ID:
 
 	    return ccsdsTDMMetaData->turnaroundDenominator;
- 
+
+	case CCSDS_TDM_KEYWORD_ID:
+
+            return ccsdsData->keywordID;
+
         default:
 
             return CCSDSObtype::GetIntegerDataParameter(id);
@@ -584,16 +658,8 @@ std::string CCSDSTDMObtype::GetStringDataParameter(const Integer id) const
 	    
 	case CCSDS_TDM_TIMETAG_ID:
 	    
-            return ccsdsTDMData->timeTag;
-	
-	case CCSDS_TDM_UNITS_ID:
-	    
-            return ccsdsTDMData->units;
-	
-	case CCSDS_TDM_KEYWORD_ID:
-	    
-            return ccsdsTDMData->keyword;
-
+            return ccsdsData->timeTag;
+		
         default:
 
             return CCSDSObtype::GetStringDataParameter(id);
@@ -704,7 +770,7 @@ Real CCSDSTDMObtype::GetRealDataParameter(const Integer id) const
 	
 	case CCSDS_TDM_MEASUREMENT_ID:
 	    
-	    return ccsdsTDMData->measurement;
+	    return ccsdsData->measurement;
 	
 	default:
 
@@ -755,6 +821,44 @@ const std::string* CCSDSTDMObtype::GetDataTypes() const
 const std::string* CCSDSTDMObtype::GetKeywords() const
 {
    return CCSDS_TDM_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+//  const Integer GetKeywordID(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+const Integer CCSDSTDMObtype::GetKeywordID(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = EndCCSDSDataReps; i < EndCCSDSTDMDataReps; i++)
+    {
+        if (pcrecpp::RE(regex).FullMatch(CCSDS_TDM_KEYWORDS[i]))
+            return i;
+    }
+
+   return -1;
+
+}
+
+//------------------------------------------------------------------------------
+//  std::string GetUnits(const Integer &id) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSTDMObtype::GetUnits(const Integer &id) const
+{
+   return CCSDS_UNIT_DESCRIPTIONS[id];
 }
 
 //------------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 //
 /**
  *
- * Implements DataFile base class to read files written in the B3 format.
+ * Implements DataFile base class to read files written in the SLR format.
  *
  */
 //------------------------------------------------------------------------------
@@ -30,6 +30,8 @@ class ProcessSLRDataFile : public DataFile
 public:
     
     ProcessSLRDataFile(const std::string &itsName);
+    ProcessSLRDataFile(const ProcessSLRDataFile &SLRdf);
+    const ProcessSLRDataFile& operator=(const ProcessSLRDataFile &SLRdf);
     ~ProcessSLRDataFile();
 
     // Initialization happens here

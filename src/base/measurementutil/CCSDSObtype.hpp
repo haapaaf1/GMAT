@@ -16,6 +16,8 @@ class CCSDSObtype : public Obtype
 public :
     
     CCSDSObtype();
+    CCSDSObtype(const CCSDSObtype &ob);
+    const CCSDSObtype& operator=(const CCSDSObtype &ob);
     virtual ~CCSDSObtype();
     	
     virtual std::string GetDataParameterText(const Integer id) const;
@@ -34,6 +36,10 @@ public :
     virtual std::string GetStringDataParameter(const std::string &label) const;
     virtual StringArray GetStringArrayDataParameter(const Integer id) const;
     virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    virtual const std::string* GetKeywords() const;
+    virtual const Integer GetKeywordID(const std::string str) const;
+    virtual std::string GetUnits(const Integer &id) const;
 
     // Functions to verify data availability
     virtual bool CheckDataAvailability(const std::string str) const;
@@ -133,10 +139,9 @@ public :
     
     struct ccsds_data
     {
-	std::string keyword;
+	Integer keywordID;
 	std::string timeTag;
 	Real measurement;
-	std::string units;
     };        
 
     enum CCSDS_DATATYPE_REPS
@@ -158,16 +163,17 @@ public :
 	EndCCSDSDataReps
     };
 
-    friend class ProcessCCSDSData;
-    friend class ProcessCCSDSTDMData;
-    friend class ProcessCCSDSOPMData;
-    friend class ProcessCCSDSOEMData;
-    friend class ProcessCCSDSAPMData;
-    friend class ProcessCCSDSAEMData;
+    friend class ProcessCCSDSDataFile;
+    friend class ProcessCCSDSTDMDataFile;
+//    friend class ProcessCCSDSOPMDataFile;
+//    friend class ProcessCCSDSOEMDataFile;
+//    friend class ProcessCCSDSAPMDataFile;
+//    friend class ProcessCCSDSAEMDataFile;
     
 protected:
 
     static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];
+    static const std::string CCSDSObtype::CCSDS_KEYWORDS[EndCCSDSDataReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
     static const bool CCSDS_IS_REQUIRED[EndCCSDSDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSDataReps];
@@ -176,6 +182,18 @@ protected:
 
     // Pointer to the header record associated with this data point
     ccsds_header *ccsdsHeader;
+
+    // Pointers to the various kinds of data that the CCSDS format supports
+    // Only one of these pointers should be not null after reading in
+    // a particular observation.
+
+    ccsds_data *ccsdsData;
+    ccsds_quaternion *ccsdsQuaternion;
+    ccsds_eulerAngle *ccsdsEulerAngle;
+    ccsds_spinStabilized *ccsdsSpinStabilized;
+    ccsds_stateVector *ccsdsStateVector;
+    ccsds_keplerianElements *ccsdsKeplerianElements;
+    ccsds_spacecraftParameters *ccsdsSpacecraftParameters;
     
 };
 

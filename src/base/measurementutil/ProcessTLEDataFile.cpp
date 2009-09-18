@@ -132,6 +132,37 @@ ProcessTLEDataFile::~ProcessTLEDataFile()
 }
 
 //------------------------------------------------------------------------------
+//  ProcessTLEDataFile::ProcessTLEDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor for ProcessTLEDataFile objects
+ */
+//------------------------------------------------------------------------------
+ProcessTLEDataFile::ProcessTLEDataFile(const ProcessTLEDataFile &TLEdf) :
+    DataFile      (TLEdf)
+{
+}
+
+
+//------------------------------------------------------------------------------
+//  ProcessTLEDataFile::ProcessTLEDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Operator = constructor for ProcessTLEDataFile objects
+ */
+//------------------------------------------------------------------------------
+const ProcessTLEDataFile& ProcessTLEDataFile::operator=(const ProcessTLEDataFile &TLEdf)
+{
+    if (&TLEdf == this)
+	return *this;
+
+    DataFile::operator=(TLEdf);
+
+    return *this;
+
+}
+
+//------------------------------------------------------------------------------
 //  GmatBase* Clone() const
 //------------------------------------------------------------------------------
 /**

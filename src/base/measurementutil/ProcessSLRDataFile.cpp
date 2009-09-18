@@ -42,6 +42,37 @@ ProcessSLRDataFile::ProcessSLRDataFile(const std::string &itsName) :
 }
 
 //------------------------------------------------------------------------------
+//  ProcessSLRDataFile::ProcessSLRDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor for ProcessSLRDataFile objects
+ */
+//------------------------------------------------------------------------------
+ProcessSLRDataFile::ProcessSLRDataFile(const ProcessSLRDataFile &SLRdf) :
+    DataFile      (SLRdf)
+{
+}
+
+
+//------------------------------------------------------------------------------
+//  ProcessSLRDataFile::ProcessSLRDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Operator = constructor for ProcessSLRDataFile objects
+ */
+//------------------------------------------------------------------------------
+const ProcessSLRDataFile& ProcessSLRDataFile::operator=(const ProcessSLRDataFile &SLRdf)
+{
+    if (&SLRdf == this)
+	return *this;
+
+    DataFile::operator=(SLRdf);
+
+    return *this;
+
+}
+
+//------------------------------------------------------------------------------
 //  ProcessSLRDataFile::~ProcessSLRDataFile() 
 //------------------------------------------------------------------------------
 /**

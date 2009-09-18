@@ -31,6 +31,8 @@ class ProcessCCSDSOEMDataFile : public ProcessCCSDSDataFile
 public:
     
     ProcessCCSDSOEMDataFile(const std::string &itsName);
+    ProcessCCSDSOEMDataFile(const ProcessCCSDSOEMDataFile &CCSDSOEMdf);
+    const ProcessCCSDSOEMDataFile& operator=(const ProcessCCSDSOEMDataFile &CCSDSOEMdf);
     ~ProcessCCSDSOEMDataFile();
 
     // Initialization happens here
@@ -45,9 +47,9 @@ public:
 private:
     
     // Specific data type processing functions
-    bool GetData();
-    
-    bool GetCCSDSMetadata(std::string &nextline);
+    bool GetData(std::string line, CCSDSOEMObtype *myOEM);
+    bool GetCCSDSMetadata(std::string &nextline,
+                          CCSDSOEMObtype::ccsds_oem_metadata *myMetaData);
     
     CCSDSOEMObtype::ccsds_oem_metadata *currentCCSDSMetadata;
     

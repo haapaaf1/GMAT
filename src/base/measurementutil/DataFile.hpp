@@ -70,13 +70,13 @@ public:
     virtual bool GetData();
 
     // Methods to write data to the file defined on this object
-    virtual bool WriteData();
+    virtual bool WriteData(Obtype *myObtype);
     virtual bool WriteDataHeader();
     virtual bool WriteDataSubHeader();
     virtual bool WriteMetadata();
     
     // Methods to write data to external files
-    virtual bool WriteData(fstream *myFile);
+    virtual bool WriteData(fstream *myFile, Obtype *myObtype);
     virtual bool WriteDataHeader(fstream *myFile);
     virtual bool WriteDataSubHeader(fstream *myFile);
     virtual bool WriteMetadata(fstream *myFile);
@@ -114,6 +114,9 @@ public:
     void SetFileName(std::string &myFileName);
     void SetFileName(const char* myFileName);
 
+    fstream* GetFstream() const;
+    void SetFstream(fstream *myFstream);
+
     // Open/Close file methods
     bool OpenFile();
     bool CloseFile();
@@ -138,10 +141,12 @@ public:
     void SortBySensorID(bool sortOrder = DESCENDING);
     void SortByInternationalDesignator(bool sortOrder = DESCENDING);
 
-    bool GetIsSortedByEpoch() const;
-    bool GetIsSortedBySatID() const;
-    bool GetIsSortedBySensorID() const;
-    bool GetIsSortedByInternationalDesignator() const;
+    Integer GetSortedBy() const;
+    void SetSortedBy(const Integer sortID);
+    bool IsSortedByEpoch() const;
+    bool IsSortedBySatID() const;
+    bool IsSortedBySensorID() const;
+    bool IsSortedByInternationalDesignator() const;
    
     enum SORTORDER
     {
@@ -274,6 +279,19 @@ protected:
                                PARAMETER_TYPE[DataFileParamCount -
                                               GmatBaseParamCount];
    
+    static const std::string DataFile::OPTIONAL_SIGN;
+    static const std::string DataFile::MANDATORY_DIGITS;
+    static const std::string DataFile::DECIMAL_POINT;
+    static const std::string DataFile::OPTIONAL_DIGITS;
+    static const std::string DataFile::OPTIONAL_EXPONENT;
+
+    static const std::string DataFile::REGEX_NUMBER;
+    static const std::string DataFile::REGEX_LETTER;
+    static const std::string DataFile::REGEX_DATE;
+    static const std::string DataFile::REGEX_SCINUMBER;
+    static const std::string DataFile::REGEX_CCSDS_DATE;
+    static const std::string DataFile::REGEX_CCSDS_KEYWORD;
+
     // File format and filename of the data being used
     std::string fileFormatName;
     Integer fileFormatID;
@@ -293,16 +311,28 @@ protected:
     // Flag to indicate if the file is opened
     bool isOpen;
     
-    // Flag to indicate if the data has been sorted
-    bool isSortedByEpoch;
-    bool isSortedBySatID;
-    bool isSortedBySensorID;
-    bool isSortedByInternationalDesignator;
+    // Enumeration to indicate if the data has been sorted
+    Integer sortedBy;
+
+    enum FILESORT_REPS
+    {
+        NOT_SORTED = 0,
+        SORTED_BY_EPOCH,
+        SORTED_BY_SATID,
+        SORTED_BY_SENSORID,
+        SORTED_BY_INTERNATIONALDESIGNATOR,
+        EndFileSortReps
+    };
 
     // Flag to indicate if the file is open for reading or writing
     std::string readWriteMode;
 
+    // This is the pointer to the input/output file stream
+    // A new fstream is created at construction but the actual
+    // file is associated using OpenFile()
     fstream *theFile;
+
+
 
 };
 

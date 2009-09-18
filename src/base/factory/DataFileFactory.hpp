@@ -29,7 +29,7 @@ class ProcessTLEDataFile;
 class ProcessSLRDataFile;
 class ProcessCCSDSTDMDataFile;
 //class ProcessCCSDSOPMDataFile;
-class ProcessCCSDSOEMDataFile;
+//class ProcessCCSDSOEMDataFile;
 //class ProcessCCSDSAPMDataFile;
 //class ProcessCCSDSAEMDataFile;
 

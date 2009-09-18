@@ -13,7 +13,7 @@
 //
 /**
  *
- * Implements DataFile base class to read files written in the B3 format.
+ * Implements DataFile base class to read files written in the TLE format.
  *
  */
 //------------------------------------------------------------------------------
@@ -30,6 +30,8 @@ class ProcessTLEDataFile : public DataFile
 public:
     
     ProcessTLEDataFile(const std::string &itsName);
+    ProcessTLEDataFile(const ProcessTLEDataFile &TLEdf);
+    const ProcessTLEDataFile& operator=(const ProcessTLEDataFile &TLEdf);
     ~ProcessTLEDataFile();
 
     // Initialization happens here

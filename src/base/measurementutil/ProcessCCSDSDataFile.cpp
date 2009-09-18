@@ -15,6 +15,37 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const std::string &itsType,
 }
 
 //------------------------------------------------------------------------------
+//  ProcessCCSDSDataFile::ProcessCCSDSDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor for ProcessCCSDSDataFile objects
+ */
+//------------------------------------------------------------------------------
+ProcessCCSDSDataFile::ProcessCCSDSDataFile(const ProcessCCSDSDataFile &CCSDSdf) :
+    DataFile      (CCSDSdf),
+    currentCCSDSHeader(CCSDSdf.currentCCSDSHeader)
+{
+}
+
+
+//------------------------------------------------------------------------------
+//  ProcessCCSDSDataFile::ProcessCCSDSDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Operator = constructor for ProcessCCSDSDataFile objects
+ */
+//------------------------------------------------------------------------------
+const ProcessCCSDSDataFile& ProcessCCSDSDataFile::operator=(const ProcessCCSDSDataFile &CCSDSdf)
+{
+    if (&CCSDSdf == this)
+	return *this;
+
+    DataFile::operator=(CCSDSdf);
+    currentCCSDSHeader = CCSDSdf.currentCCSDSHeader;
+    return *this;
+}
+
+//------------------------------------------------------------------------------
 //  ProcessCCSDSDataFile::~ProcessCCSDSDataFile()
 //------------------------------------------------------------------------------
 /**
@@ -56,14 +87,15 @@ void ProcessCCSDSDataFile::SetHeader(CCSDSObtype::ccsds_header *myHeader)
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSHeader(std::string firstline)
+// bool GetCCSDSHeader(std::string line, CCSDSObtype::ccsds_header* myHeader)
 //------------------------------------------------------------------------------
 /**
  * Extracts header information from the CCSDS data file
  *
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string firstline)
+bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
+                                          CCSDSObtype::ccsds_header* myHeader)
 {
     
     // Temporary variables for string to number conversion.
@@ -75,9 +107,9 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string firstline)
     double dtemp;
     std::string stemp;
 
-    if (pcrecpp::RE("^CCSDS_TDM_VERS\\s*=\\s*(\\d*[\\.\\d+]?)").FullMatch(firstline,&dtemp))
+    if (pcrecpp::RE("^CCSDS_TDM_VERS\\s*=\\s*(\\d*[\\.\\d+]?)").FullMatch(line,&dtemp))
     {
-	currentCCSDSHeader->ccsdsVersion = dtemp;
+	myHeader->ccsdsVersion = dtemp;
     }
     else
     {
@@ -94,15 +126,15 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string firstline)
     {
         if (pcrecpp::RE("^CREATION_DATE\\s*=(.*)").FullMatch(nextline,&stemp))
         {
-	    currentCCSDSHeader->creationDate = Trim(stemp);
+	    myHeader->creationDate = Trim(stemp);
         }
         else if (pcrecpp::RE("^ORIGINATOR\\s*=(.*)").FullMatch(nextline,&stemp))
         {
-	    currentCCSDSHeader->originator = Trim(stemp);
+	    myHeader->originator = Trim(stemp);
         }
         else if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(nextline,&stemp))
         {
-	    currentCCSDSHeader->headerComments.push_back(Trim(stemp));
+	    myHeader->headerComments.push_back(Trim(stemp));
         }
 	else
 	{
@@ -117,21 +149,48 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string firstline)
     }
 
     // pass the first epoch header to the next subroutine
-    firstline = nextline;
+    line = nextline;
 
     return true;
 
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSMetadata(std::string &lff)
+// bool GetCCSDSData(std::string &lff, CCSDSObtype::ccsds_data *myData,
+//                CCSDSObtype *myOb)
 //------------------------------------------------------------------------------
 /**
- * Extracts metadata information from the CCSDS data file
- *
+ * Extracts the data from the tracking data message.
  */
+//
 //------------------------------------------------------------------------------
-bool ProcessCCSDSDataFile::GetCCSDSMetadata(std::string &lff)
+bool ProcessCCSDSDataFile::GetCCSDSData(std::string &lff,
+                                     CCSDSObtype::ccsds_data *myData,
+                                     CCSDSObtype *myOb)
 {
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    double dtemp;
+    std::string stemp, stemp2;
+
+    std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
+            REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ")$";
+
+    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&stemp2,&dtemp))
+    {
+       myData->keywordID = myOb->GetKeywordID(Trim(stemp));
+       if(myData->keywordID >= 0)
+       {
+           myData->timeTag = stemp;
+           myData->measurement = dtemp;
+           myOb->ccsdsData =  myData;
+           return true;
+       }
+    }
+
     return false;
 }

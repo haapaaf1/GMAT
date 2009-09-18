@@ -54,7 +54,7 @@ public:
         GLONASSONLY_ID,
 	LEOONLY_ID,
 	GALILEOONLY_ID,
-	EndOEMTypeReps
+	EndCCSDSOEMTypeReps
     };
 
     enum OEM_TIME_REPS
@@ -64,7 +64,7 @@ public:
         GALILEOSYSTEMTIME_ID,
 	TAI_ID,
 	UTC_ID,
-	EndOEMTimeReps
+	EndCCSDSOEMTimeReps
     };
 
     struct ccsds_oem_metadata
@@ -83,13 +83,15 @@ public:
 	StringArray metadataComments;
     };
 
+    friend class ProcessCCSDSOEMDataFile;
+
 protected:
 
-    static const std::string CCSDS_TYPE_DESCRIPTIONS[EndOEMTypeReps-EndCCSDSTypeReps];
-    static const std::string CCSDS_TIME_DESCRIPTIONS[EndOEMTimeReps-EndCCSDSTimeReps];
+    static const std::string CCSDS_TYPE_DESCRIPTIONS[EndCCSDSOEMTypeReps-EndCCSDSTypeReps];
+    static const std::string CCSDS_TIME_DESCRIPTIONS[EndCCSDSOEMTimeReps-EndCCSDSTimeReps];
    
     // Iterator Pointer to the metadata record
-    ccsds_oem_metadata* oemMetaData;    
+    ccsds_oem_metadata* ccsdsOEMMetaData;
 };   
 
 #endif	/* _CCSDSOEMOBTYPE_HPP */

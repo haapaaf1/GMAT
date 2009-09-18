@@ -16,6 +16,8 @@ class CCSDSTDMObtype : public CCSDSObtype
 public :
     
     CCSDSTDMObtype();
+    CCSDSTDMObtype(const CCSDSTDMObtype &tdm);
+    const CCSDSTDMObtype& CCSDSTDMObtype::operator=(const CCSDSTDMObtype &tdm);
     ~CCSDSTDMObtype();
     	
     std::string GetDataParameterText(const Integer id) const;
@@ -25,6 +27,8 @@ public :
     std::string GetDataUnits(const Integer id) const;
 
     const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
 
     Real	GetRealDataParameter(const Integer id) const;
     Real	GetRealDataParameter(const std::string &label) const;
@@ -252,17 +256,14 @@ protected:
     static const std::string DATAQUALITY_DESCRIPTIONS[EndCCSDSTDMDataQualityReps];
     static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps - EndCCSDSTypeReps];
     static const std::string CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps];    
+    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeReps - EndCCSDSTimeReps];
     static const bool CCSDS_IS_REQUIRED[EndCCSDSTDMDataReps - EndCCSDSDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataReps - EndCCSDSDataReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMDataReps - EndCCSDSDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps - EndCCSDSDataReps];
 
     // Pointer to the metadata record associated with this data point
     ccsds_tdm_metadata *ccsdsTDMMetaData;
-    
-    // Pointer to the data record associated with this data point
-    ccsds_data *ccsdsTDMData;
     
 };
 

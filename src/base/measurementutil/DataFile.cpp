@@ -24,6 +24,25 @@
 //---------------------------------
 //  static data
 //---------------------------------
+
+
+const std::string DataFile::OPTIONAL_SIGN = "[-+]?";
+const std::string DataFile::MANDATORY_DIGITS = "\\d+";
+const std::string DataFile::DECIMAL_POINT = "\\.";
+const std::string DataFile::OPTIONAL_DIGITS = "\\d*";
+const std::string DataFile::OPTIONAL_EXPONENT = "[Ee]?" + OPTIONAL_SIGN +
+                                                OPTIONAL_DIGITS;
+
+const std::string DataFile::REGEX_NUMBER = "(?:" + OPTIONAL_SIGN +
+                    MANDATORY_DIGITS + DECIMAL_POINT + OPTIONAL_DIGITS + ")";
+const std::string DataFile::REGEX_LETTER = "[a-zA-Z]";
+const std::string DataFile::REGEX_DATE = "\\d{2}.\\d{2}.\\d{4}";
+const std::string DataFile::REGEX_SCINUMBER = "(?:" + OPTIONAL_SIGN +
+                    MANDATORY_DIGITS + DECIMAL_POINT + OPTIONAL_DIGITS +
+                    OPTIONAL_EXPONENT + ")";
+const std::string DataFile::REGEX_CCSDS_DATE = "[\\d{4}-\\d{2,3}[-\\d\\d]?T\\d{2}:\\d{2}:\\d{2}[.\\d+]?[Z]?";
+const std::string DataFile::REGEX_CCSDS_KEYWORD = "(\\w*[_]?\\w+)";
+
 const std::string DataFile::FILEFORMAT_DESCRIPTIONS[EndFileFormatReps] =
 {
     "B3 Data",
@@ -382,10 +401,7 @@ DataFile::DataFile(const std::string &itsType,
 //    lineFromFile (""),
 //    dataFileName (""),
     isOpen (false),
-    isSortedByEpoch (false),
-    isSortedBySatID (false),
-    isSortedBySensorID (false),
-    isSortedByInternationalDesignator (false),
+    sortedBy (0),
     readWriteMode ("read")
 {
    objectTypes.push_back(Gmat::DATA_FILE);
@@ -406,10 +422,7 @@ DataFile::DataFile(const DataFile &pdf) :
     dataFileName (pdf.dataFileName),
     numLines (pdf.numLines),
     isOpen (pdf.isOpen),
-    isSortedByEpoch (pdf.isSortedByEpoch),
-    isSortedBySatID (pdf.isSortedBySatID),
-    isSortedBySensorID (pdf.isSortedBySensorID),
-    isSortedByInternationalDesignator (pdf.isSortedByInternationalDesignator),
+    sortedBy (pdf.sortedBy),
     readWriteMode(pdf.readWriteMode),
     theFile (pdf.theFile)
 {
@@ -432,10 +445,7 @@ const DataFile& DataFile::operator=(const DataFile &pdf)
     dataFileName = pdf.dataFileName;
     numLines = pdf.numLines;
     isOpen = pdf.isOpen;
-    isSortedByEpoch = pdf.isSortedByEpoch;
-    isSortedBySatID = pdf.isSortedBySatID;
-    isSortedBySensorID = pdf.isSortedBySensorID;
-    isSortedByInternationalDesignator = pdf.isSortedByInternationalDesignator;
+    sortedBy = pdf.sortedBy;
     readWriteMode = pdf.readWriteMode;
     theFile = pdf.theFile;
     
@@ -755,6 +765,62 @@ std::string DataFile::GetFileFormatName() const
 }
 
 //------------------------------------------------------------------------------
+// void SetFstream(fstream *myFstream)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the fstream
+ *
+ * @param <myFstream> The desired pointer to the fstream.
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetFstream(fstream *myFstream)
+{
+   theFile = myFstream;
+}
+
+//------------------------------------------------------------------------------
+// fstream* GetFstream() const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the pointer to the fstream
+ *
+ * @return The fstream pointer.
+ */
+//------------------------------------------------------------------------------
+fstream* DataFile::GetFstream() const
+{
+   return theFile;
+}
+
+//------------------------------------------------------------------------------
+// void SetSortedBy(const Integer sortID)
+//------------------------------------------------------------------------------
+/**
+ * Sets the sorted by enumeration ID
+ *
+ * @param <sortID> Desired integer ID corresponding to sorted by enumeration.
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetSortedBy(const Integer sortID)
+{
+   sortedBy = sortID;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetSortedBy() const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the sorted by enumeration ID
+ *
+ * @return Integer ID of sorted by enumeration.
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::GetSortedBy() const
+{
+   return sortedBy;
+}
+
+//------------------------------------------------------------------------------
 //  bool AdvanceToNextOb()
 //------------------------------------------------------------------------------
 /**
@@ -882,35 +948,50 @@ void DataFile::SetIsOpen(const bool &flag)
 }
 
 //------------------------------------------------------------------------------
-// bool GetIsSortedByEpoch() const
+// bool IsSortedByEpoch() const
 //------------------------------------------------------------------------------
-bool DataFile::GetIsSortedByEpoch() const
+bool DataFile::IsSortedByEpoch() const
 {
-        return isSortedByEpoch;
+    if (sortedBy == SORTED_BY_EPOCH)
+        return true;
+    else
+        return false;
 }
 
 //------------------------------------------------------------------------------
-// bool GetIsSortedBySatID() const
+// bool IsSortedBySatID() const
 //------------------------------------------------------------------------------
-bool DataFile::GetIsSortedBySatID() const
+bool DataFile::IsSortedBySatID() const
 {
-        return isSortedBySatID;
+    if (sortedBy == SORTED_BY_SATID)
+        return true;
+    else
+        return false;
+
 }
 
 //------------------------------------------------------------------------------
-// bool GetIsSortedBySensorID() const
+// bool IsSortedBySensorID() const
 //------------------------------------------------------------------------------
-bool DataFile::GetIsSortedBySensorID() const
+bool DataFile::IsSortedBySensorID() const
 {
-        return isSortedBySensorID;
+    if (sortedBy == SORTED_BY_SENSORID)
+        return true;
+    else
+        return false;
+
 }
 
 //------------------------------------------------------------------------------
-// bool GetIsSortedByInternationalDesignator() const
+// bool IsSortedByInternationalDesignator() const
 //------------------------------------------------------------------------------
-bool DataFile::GetIsSortedByInternationalDesignator() const
+bool DataFile::IsSortedByInternationalDesignator() const
 {
-        return isSortedByInternationalDesignator;
+    if (sortedBy == SORTED_BY_INTERNATIONALDESIGNATOR)
+        return true;
+    else
+        return false;
+
 }
 
 //------------------------------------------------------------------------------
@@ -1201,13 +1282,13 @@ bool DataFile::GetData()
 }
 
 //------------------------------------------------------------------------------
-// virtual bool WriteData()
+// virtual bool WriteData(Obtype *myObtype)
 //------------------------------------------------------------------------------
 /**
  * Writes data to file
  */
 //------------------------------------------------------------------------------
-bool DataFile::WriteData()
+bool DataFile::WriteData(Obtype *myObtype)
 {
     return false;
 }
@@ -1248,13 +1329,13 @@ bool DataFile::WriteMetadata()
 }
 
 //------------------------------------------------------------------------------
-// virtual bool WriteData(fstream *myFile)
+// virtual bool WriteData(fstream *myFile, Obtype *myObtype)
 //------------------------------------------------------------------------------
 /**
  * Writes data to file
  */
 //------------------------------------------------------------------------------
-bool DataFile::WriteData(fstream *myFile)
+bool DataFile::WriteData(fstream *myFile, Obtype *myObtype)
 {
     return false;
 }
@@ -1310,11 +1391,7 @@ void DataFile::SortByEpoch(bool sortOrder)
     else
 	std::sort(theData.begin(), theData.end(), AscendingEpochSort());
     
-    isSortedByEpoch = true;
-    isSortedBySatID = false;
-    isSortedBySensorID = false;
-    isSortedByInternationalDesignator = false;
-
+    sortedBy = SORTED_BY_EPOCH;
 }
 
 //------------------------------------------------------------------------------
@@ -1333,11 +1410,7 @@ void DataFile::SortBySatID(bool sortOrder)
     else
 	std::sort(theData.begin(), theData.end(), AscendingSatIDSort());
 
-    isSortedByEpoch = false;
-    isSortedBySatID = true;
-    isSortedBySensorID = false;
-    isSortedByInternationalDesignator = false;
-
+    sortedBy = SORTED_BY_SATID;
 }
 
 //------------------------------------------------------------------------------
@@ -1356,11 +1429,7 @@ void DataFile::SortBySensorID(bool sortOrder)
     else
 	std::sort(theData.begin(), theData.end(), AscendingSensorIDSort());
 
-    isSortedByEpoch = false;
-    isSortedBySatID = false;
-    isSortedBySensorID = true;
-    isSortedByInternationalDesignator = false;
-
+    sortedBy = SORTED_BY_SENSORID;
 }
 
 //------------------------------------------------------------------------------
@@ -1381,9 +1450,5 @@ void DataFile::SortByInternationalDesignator(bool sortOrder)
 	std::sort(theData.begin(), theData.end(), 
 		  AscendingInternationalDesignatorSort());
 
-    isSortedByEpoch = false;
-    isSortedBySatID = false;
-    isSortedBySensorID = false;
-    isSortedByInternationalDesignator = true;
-
+    sortedBy = SORTED_BY_INTERNATIONALDESIGNATOR;
 }

@@ -30,6 +30,8 @@ class ProcessCCSDSTDMDataFile : public ProcessCCSDSDataFile
 public:
     
     ProcessCCSDSTDMDataFile(const std::string &itsName);
+    ProcessCCSDSTDMDataFile(const ProcessCCSDSTDMDataFile &CCSDSTDMdf);
+    const ProcessCCSDSTDMDataFile& operator=(const ProcessCCSDSTDMDataFile &CCSDSTDMdf);
     ~ProcessCCSDSTDMDataFile();
 
     // Initialization happens here
@@ -42,9 +44,9 @@ public:
 private:
 
     // Specific data type processing functions
-    bool GetData();
-    
-    bool GetCCSDSMetadata(std::string &nextline);
+    bool GetData(std::string line, CCSDSTDMObtype *myTDM);  
+    bool GetCCSDSMetadata(std::string &nextline, 
+                          CCSDSTDMObtype::ccsds_tdm_metadata *myMetaData);
 
     CCSDSTDMObtype::ccsds_tdm_metadata *currentCCSDSMetadata;
 

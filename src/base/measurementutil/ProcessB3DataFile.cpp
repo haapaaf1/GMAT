@@ -85,10 +85,10 @@ bool ProcessB3DataFile::Initialize()
             outFile2->close();
 
         #endif
-/*	
+	
 	// This function will sort the data vector by epoch    
 	SortByEpoch();
-*/	
+	
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {
@@ -148,16 +148,7 @@ const ProcessB3DataFile& ProcessB3DataFile::operator=(const ProcessB3DataFile &B
     if (&B3df == this)
 	return *this;
 
-    fileFormatName = B3df.fileFormatName;
-    dataFileName = B3df.dataFileName;
-    numLines = B3df.numLines;
-    isOpen = B3df.isOpen;
-    isSortedByEpoch = B3df.isSortedByEpoch;
-    isSortedBySatID = B3df.isSortedBySatID;
-    isSortedBySensorID = B3df.isSortedBySensorID;
-    isSortedByInternationalDesignator = B3df.isSortedByInternationalDesignator;
-    readWriteMode = B3df.readWriteMode;
-    theFile = B3df.theFile;
+    DataFile::operator=(B3df);
     
     return *this;
 	    
