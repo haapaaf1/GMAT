@@ -51,8 +51,8 @@ END_EVENT_TABLE()
 // GmatMdiChildFrame::GmatMdiChildFrame(...)
 //------------------------------------------------------------------------------
 GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent, 
-                                     const wxString &title, 
                                      const wxString &name,
+                                     const wxString &title, 
                                      const GmatTree::ItemType type,
                                      wxWindowID id, 
                                      const wxPoint &pos, 
@@ -62,8 +62,8 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
 {
    #ifdef DEBUG_MDI_CHILD_FRAME
    MessageInterface::ShowMessage
-      ("GmatMdiChildFrame::GmatMdiChildFrame() entered, title='%s', name='%s', "
-       "type=%d\n", title.c_str(), name.c_str(), type);
+      ("GmatMdiChildFrame::GmatMdiChildFrame() entered, name='%s', title='%s', "
+       "type=%d\n", name.c_str(), title.c_str(), type);
    #endif
    
    theParent = parent;
@@ -135,6 +135,12 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
 //------------------------------------------------------------------------------
 GmatMdiChildFrame::~GmatMdiChildFrame()
 {
+   #ifdef DEBUG_MDI_CHILD_FRAME
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame::~GmatMdiChildFrame() name='%s', title='%s' entered\n",
+       GetName().c_str(), GetTitle().c_str());
+   #endif
+   
    #ifdef __CREATE_CHILD_MENU_BAR__
       delete theMenuBar;
    #else
@@ -146,6 +152,12 @@ GmatMdiChildFrame::~GmatMdiChildFrame()
          ("GmatMdiChildFrame() destructor calling UpdateGuiItem()\n");
       #endif
       UpdateGuiItem(2, 0);
+   #endif
+      
+   #ifdef DEBUG_MDI_CHILD_FRAME
+   MessageInterface::ShowMessage
+      ("GmatMdiChildFrame::~GmatMdiChildFrame() name='%s', title='%s' exiting\n",
+       GetName().c_str(), GetTitle().c_str());
    #endif
 }
 
