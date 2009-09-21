@@ -23,8 +23,8 @@
 #include "ColorTypes.hpp"         // for namespace GmatColor::
 #include "MessageInterface.hpp"
 
-//#define DEBUG_TRAJ_FRAME 1
-//#define DEBUG_MDI_CHILD_FRAME_CLOSE 1
+//#define DEBUG_TRAJ_FRAME
+//#define DEBUG_MDI_CHILD_FRAME_CLOSE
 
 BEGIN_EVENT_TABLE(MdiChildTrajFrame, GmatMdiChildFrame)
    EVT_MENU(GmatPlot::MDI_GL_CHILD_QUIT, MdiChildTrajFrame::OnQuit)
@@ -97,7 +97,7 @@ MdiChildTrajFrame::~MdiChildTrajFrame()
    
    mOptionDialog = (OpenGlOptionDialog*)NULL;
    
-   #if DEBUG_MDI_CHILD_FRAME_CLOSE
+   #ifdef DEBUG_MDI_CHILD_FRAME_CLOSE
    MessageInterface::ShowMessage
       ("~MdiChildTrajFrame() mPlotName=%s\n", mPlotName.c_str());
    #endif
@@ -105,7 +105,7 @@ MdiChildTrajFrame::~MdiChildTrajFrame()
    MdiGlPlot::mdiChildren.DeleteObject(this);
    MdiGlPlot::numChildren--;
    
-   #if DEBUG_MDI_CHILD_FRAME_CLOSE
+   #ifdef DEBUG_MDI_CHILD_FRAME_CLOSE
    MessageInterface::ShowMessage
       ("~MdiChildTrajFrame() exiting MdiGlPlot::numChildren=%d\n",
        MdiGlPlot::numChildren);
@@ -278,7 +278,7 @@ void MdiChildTrajFrame::SetUserInterrupt()
 //------------------------------------------------------------------------------
 void MdiChildTrajFrame::SetPlotName(const wxString &name)
 {
-   #if DEBUG_TRAJ_FRAME
+   #ifdef DEBUG_TRAJ_FRAME
       MessageInterface::ShowMessage
          ("MdiChildTrajFrame::SetPlotName() name=%s\n", name.c_str());
    #endif
@@ -294,7 +294,7 @@ void MdiChildTrajFrame::SetPlotName(const wxString &name)
 //------------------------------------------------------------------------------
 void MdiChildTrajFrame::ResetShowViewOption()
 {
-   #if DEBUG_TRAJ_FRAME
+   #ifdef DEBUG_TRAJ_FRAME
    MessageInterface::ShowMessage
       ("MdiChildTrajFrame::ResetShowViewOption()\n");
    #endif
@@ -555,7 +555,7 @@ void MdiChildTrajFrame::OnShowDefaultView(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void MdiChildTrajFrame::OnShowOptionDialog(wxCommandEvent& event)
 {
-   #if DEBUG_TRAJ_FRAME
+   #ifdef DEBUG_TRAJ_FRAME
    MessageInterface::ShowMessage
       ("MdiChildTrajFrame::OnShowOptionDialog() entered\n");
    #endif
@@ -683,7 +683,7 @@ void MdiChildTrajFrame::OnPlotClose(wxCloseEvent &event)
    if (mCanClose)
    {
       // remove from list of frames but do not delete
-      GmatAppData::Instance()->GetMainFrame()->RemoveChild(GetTitle(), mItemType, false);   
+      GmatAppData::Instance()->GetMainFrame()->RemoveChild(GetName(), mItemType, false);   
       event.Skip();
    }
    else
@@ -761,7 +761,7 @@ void MdiChildTrajFrame::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecO
 {
    if (mCanvas)
    {
-      #if DEBUG_TRAJ_FRAME
+      #ifdef DEBUG_TRAJ_FRAME
          MessageInterface::ShowMessage
             ("MdiChildTrajFrame::SetGlViewOption() vsFactor=%f\n", vsFactor);
       #endif
@@ -920,7 +920,7 @@ void MdiChildTrajFrame::CheckFrame()
 
       #ifdef DEBUG_MDI_CHILD_FRAME_CLOSE
       MessageInterface::ShowMessage
-         ("MdiChildTrajFrame::OnClose() IsAnimationRunning=%d\n",
+         ("MdiChildTrajFrame::CheckFrame() IsAnimationRunning=%d\n",
           mCanvas->IsAnimationRunning());
       #endif
       

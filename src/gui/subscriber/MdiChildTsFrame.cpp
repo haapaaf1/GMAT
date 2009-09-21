@@ -32,8 +32,8 @@
 #include "RgbColor.hpp"
 #include "MessageInterface.hpp"
 
-//#define DEBUG_MDI_TS_FRAME 1
-//#define DEBUG_RENAME 1
+//#define DEBUG_MDI_TS_FRAME
+//#define DEBUG_RENAME
 
 BEGIN_EVENT_TABLE(MdiChildTsFrame, GmatMdiChildFrame)
    EVT_MENU(GmatPlot::MDI_TS_OPEN_PLOT_FILE, MdiChildTsFrame::OnOpenXyPlotFile)
@@ -62,9 +62,6 @@ MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
                                  const wxString &plotName, const wxString& plotTitle,
                                  const wxString& xAxisTitle, const wxString& yAxisTitle,
                                  const wxPoint& pos, const wxSize& size, const long style)
-//    : GmatMdiChildFrame(parent, -1, plotTitle, pos, size,
-//                        style | wxNO_FULL_REPAINT_ON_RESIZE, plotName,
-//                        GmatTree::OUTPUT_XY_PLOT)
    : GmatMdiChildFrame(parent, plotName, plotTitle, GmatTree::OUTPUT_XY_PLOT, -1,
                        pos, size, style | wxNO_FULL_REPAINT_ON_RESIZE)
 {
@@ -78,10 +75,10 @@ MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
    for (int i=0; i<MAX_NUM_CURVE; i++)
       mHasFirstXSet[i] = false;
    
-   #if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage
-      ("MdiChildTsFrame::MdiChildTsFrame()\n   X Axis Title = %s\n"
-       "   Y Axis Title = %s\n   isMainFrame = %d\n", xAxisTitle.c_str(),
+      ("MdiChildTsFrame::MdiChildTsFrame()\n   X Axis Title = '%s'\n"
+       "   Y Axis Title = '%s'\n   isMainFrame = %d\n", xAxisTitle.c_str(),
        yAxisTitle.c_str(), isMainFrame);
    #endif
    
@@ -98,7 +95,7 @@ MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
    int width, height;
    GetClientSize(&width, &height);
    
-   #if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage("   Creating TsPlotCanvas\n");
    #endif
    
@@ -120,7 +117,7 @@ MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
    SetSizeHints(100, 100);
    GmatAppData::Instance()->GetMainFrame()->theMdiChildren->Append(this);
    
-   #if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage("MdiChildTsFrame::MdiChildTsFrame() leaving\n");
    #endif
 }
@@ -131,7 +128,7 @@ MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
 //------------------------------------------------------------------------------
 MdiChildTsFrame::~MdiChildTsFrame()
 {
-   #if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage
       ("~MdiChildTsFrame() mPlotName=%s\n", mPlotName.c_str());
    #endif
@@ -139,7 +136,7 @@ MdiChildTsFrame::~MdiChildTsFrame()
    MdiTsPlot::mdiChildren.DeleteObject(this);
    MdiTsPlot::numChildren--;
    
-   #if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage("~MdiChildTsFrame() exiting\n");
    #endif
 }
@@ -213,15 +210,15 @@ bool MdiChildTsFrame::DeletePlot()
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::SetPlotTitle(const wxString &title)
 {
-#if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage("MdiChildTsFrame::SetPlotTitle() title = %s\n",
                                  title.c_str());
-#endif
+   #endif
    
    mPlotTitle = title;
-
+   
    if (mXyPlot)
-      mXyPlot->SetLabel(title.c_str(), TsPlotCanvas::PLOT_TITLE); //SetPlotTitle(title);
+      mXyPlot->SetLabel(title.c_str(), TsPlotCanvas::PLOT_TITLE);
 }
 
 //------------------------------------------------------------------------------
@@ -229,7 +226,7 @@ void MdiChildTsFrame::SetPlotTitle(const wxString &title)
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::ShowPlotLegend()
 {
-   #if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
       MessageInterface::ShowMessage("MdiChildTsFrame::ShowLegend() entered\n");
    #endif
       
@@ -246,7 +243,7 @@ void MdiChildTsFrame::AddPlotCurve(int curveIndex, int yOffset, double yMin,
                                    double yMax, const wxString &curveTitle,
                                    UnsignedInt penColor)
 {
-   #if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
       MessageInterface::ShowMessage
          ("MdiChildTsFrame::AddPlotCurve() yMin = %f, yMax = %f\n", yMin, yMax);
    #endif
@@ -258,7 +255,7 @@ void MdiChildTsFrame::AddPlotCurve(int curveIndex, int yOffset, double yMin,
       // Create XyPlotCurve
       TsPlotCurve *curve = new TsPlotCurve(yOffset, yMin, yMax, curveTitle);
       
-      #if DEBUG_MDI_TS_FRAME
+      #ifdef DEBUG_MDI_TS_FRAME
          MessageInterface::ShowMessage(
             "MdiChildTsFrame::AddPlotCurve() curve title = %s\n",
             curveTitle.c_str());
@@ -267,7 +264,7 @@ void MdiChildTsFrame::AddPlotCurve(int curveIndex, int yOffset, double yMin,
       mXyPlot->AddData(curve, penColor);
       mXyPlot->SetDataName(curveTitle.c_str());
       
-      #if DEBUG_MDI_TS_FRAME
+      #ifdef DEBUG_MDI_TS_FRAME
             MessageInterface::ShowMessage
                ("MdiChildTsFrame::AddPlotCurve() curve count = %d added\n",
                 mXyPlot->GetCurveCount());
@@ -286,7 +283,7 @@ void MdiChildTsFrame::DeleteAllPlotCurves()
 {
    if (mXyPlot != NULL)
    {
-      #if DEBUG_MDI_TS_FRAME
+      #ifdef DEBUG_MDI_TS_FRAME
       MessageInterface::ShowMessage
          ("MdiChildTsFrame::DeleteAllPlotCurve() curve count=%d \n",
           mXyPlot->GetCurveCount());
@@ -306,7 +303,7 @@ void MdiChildTsFrame::DeleteAllPlotCurves()
 //------------------------------------------------------------------------------   
 void MdiChildTsFrame::DeletePlotCurve(int curveIndex)
 {
-   #if DEBUG_MDI_TS_FRAME
+   #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage
       ("MdiChildTsFrame::DeletePlotCurve() curveIndex = %d\n", curveIndex);
    #endif
@@ -429,7 +426,7 @@ void MdiChildTsFrame::RedrawCurve()
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::SetPlotName(const wxString &name)
 {
-   #if DEBUG_RENAME
+   #ifdef DEBUG_RENAME
       MessageInterface::ShowMessage("MdiChildTsFrame::SetPlotName() name=%s\n",
                                     name.c_str());
    #endif
@@ -630,11 +627,29 @@ void MdiChildTsFrame::OnSize(wxSizeEvent& event)
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::OnPlotClose(wxCloseEvent& event)
 {
+   #ifdef DEBUG_PLOT_CLOSE
+   MessageInterface::ShowMessage
+      ("MdiChildTsFrame::OnPlotClose() mPlotName='%s' entered\n", mPlotName.c_str());
+   #endif
+   
    // Add any check before closing
    
-   // remove from list of frames but do not delte
-   GmatAppData::Instance()->GetMainFrame()->RemoveChild(GetTitle(), mItemType, false);   
-   event.Skip();
+   // remove from list of frames but do not delete
+   if (GmatAppData::Instance()->GetMainFrame()->RemoveChild(GetName(), mItemType, false))
+   {
+      event.Skip();
+   }
+   else
+   {
+      event.Veto();
+      MessageInterface::PopupMessage
+         (Gmat::ERROR_, "**** Internal error occurred, Please close from the ToolBar");
+   }
+   
+   #ifdef DEBUG_PLOT_CLOSE
+   MessageInterface::ShowMessage
+      ("MdiChildTsFrame::OnPlotClose() mPlotName='%s' exiting\n", mPlotName.c_str());
+   #endif
 }
 
 
@@ -645,8 +660,18 @@ void MdiChildTsFrame::OnClose(wxCloseEvent& event)
 {
    // Add any check before closing
    
+   #ifdef DEBUG_PLOT_CLOSE
+   MessageInterface::ShowMessage
+      ("MdiChildTsFrame::OnClose() mPlotName='%s' entered\n", mPlotName.c_str());
+   #endif
+   
    GmatMdiChildFrame::OnClose(event);
    event.Skip();
+   
+   #ifdef DEBUG_PLOT_CLOSE
+   MessageInterface::ShowMessage
+      ("MdiChildTsFrame::OnClose() mPlotName='%s' exiting\n", mPlotName.c_str());
+   #endif
 }
 
 
@@ -670,7 +695,7 @@ void MdiChildTsFrame::AdjustYScale()
 //   double yMaxScale = Max(Abs(ymin), Abs(ymax));
 //   double yMargin = yMaxScale * 0.1;
    
-// #if DEBUG_MDI_TS_FRAME
+// #ifdef DEBUG_MDI_TS_FRAME
 //    MessageInterface::ShowMessage
 //       ("MdiChildTsFrame::AdjustYScale() ymin=%f ymax=%f yMaxScale=%f yMargin=%f\n",
 //        ymin, ymax, yMaxScale, yMargin);
@@ -699,7 +724,7 @@ double MdiChildTsFrame::GetYMin()
       std::vector<double> yMinVals;
       std::vector<double>::iterator pos;
    
-      #if DEBUG_MDI_TS_FRAME
+      #ifdef DEBUG_MDI_TS_FRAME
          MessageInterface::ShowMessage
             ("MdiChildTsFrame::GetYMin() yMinVals.size()=%d\n",
              yMinVals.size());;
@@ -734,8 +759,8 @@ double MdiChildTsFrame::GetYMax()
    {
       std::vector<double> yMaxVals;
       std::vector<double>::iterator pos;
-   
-      #if DEBUG_MDI_TS_FRAME
+      
+      #ifdef DEBUG_MDI_TS_FRAME
          MessageInterface::ShowMessage
             ("MdiChildTsFrame::GetYMax() yMaxVals.size()=%d\n",
             yMaxVals.size());;
