@@ -69,7 +69,7 @@ public:
    bool RenameChild(GmatTreeItemData *item, wxString newName);
    bool RenameChild(const wxString &oldName, const wxString &newName);
    bool RenameActiveChild(const wxString &newName);
-   void RemoveChild(const wxString &name, GmatTree::ItemType itemType,
+   bool RemoveChild(const wxString &name, GmatTree::ItemType itemType,
                     bool deleteChild = true);
    void CloseChild(const wxString &name, GmatTree::ItemType itemType);
    void CloseChild(GmatMdiChildFrame *child);

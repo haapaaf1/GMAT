@@ -784,7 +784,7 @@ bool GmatMainFrame::RenameActiveChild(const wxString &newName)
 
 
 //------------------------------------------------------------------------------
-// void RemoveChild(const wxString &name, GmatTree::ItemType itemType,
+// bool RemoveChild(const wxString &name, GmatTree::ItemType itemType,
 //                  bool deleteChild = true)
 //------------------------------------------------------------------------------
 /*
@@ -797,7 +797,7 @@ bool GmatMainFrame::RenameActiveChild(const wxString &newName)
  *                      clicking X in the upper right corner.
  */
 //------------------------------------------------------------------------------
-void GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemType,
+bool GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemType,
                                 bool deleteChild)
 {
    #ifdef DEBUG_REMOVE_CHILD
@@ -808,15 +808,25 @@ void GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemTyp
 
    wxNode *node = theMdiChildren->GetFirst();
    bool childRemoved = false;
-   wxString childTitle;
+   wxString childName, childTitle;
+   GmatTree::ItemType childItemType;
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
    while (node)
    {
       GmatMdiChildFrame *child = (GmatMdiChildFrame *)node->GetData();
 
-      if ((child->GetName().IsSameAs(name.c_str())) &&
-          (child->GetItemType() == itemType))
+      childName = child->GetName();
+      childTitle = child->GetTitle();
+      childItemType = child->GetItemType();
+      
+      #ifdef DEBUG_REMOVE_CHILD_DETAIL
+      MessageInterface::ShowMessage
+         ("   childName='%s', childTitle='%s', childItemType=%d\n",
+          childName.c_str(), childTitle.c_str(), childItemType);
+      #endif
+      
+      if ((childItemType == itemType) && (childName.IsSameAs(name)))
       {
          //------------------------------------------------------
          // Notes:
@@ -828,11 +838,11 @@ void GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemTyp
          // destructors
          //------------------------------------------------------
 
-         childTitle = child->GetName();
+         //childName = child->GetName();
 
          #ifdef DEBUG_REMOVE_CHILD
          MessageInterface::ShowMessage
-            ("   removing title:%s\n   name: %s\n", childTitle.c_str(),
+            ("   removing title:%s\n   name: %s\n", childName.c_str(),
              name.c_str());
          #endif
 
@@ -866,12 +876,15 @@ void GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemTyp
       }
 
       // Change MissionTree node label (loj: 2007.11.15)
-      gmatAppData->GetMissionTree()->ChangeNodeLabel(childTitle);
+      gmatAppData->GetMissionTree()->ChangeNodeLabel(childName);
    }
-
+   
    #ifdef DEBUG_REMOVE_CHILD
-   MessageInterface::ShowMessage("GmatMainFrame::RemoveChild() exiting\n");
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::RemoveChild() returning %d\n", childRemoved);
    #endif
+
+   return childRemoved;
 }
 
 
@@ -1031,9 +1044,9 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
             canDelete = true;
          }
       }
-
+      
       bool childDeleted = false;
-
+      
       //--------------------------------------------------------------
       // delete chilren by child->OnClose() on Windows
       //--------------------------------------------------------------
@@ -1078,9 +1091,10 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       // Note: The node is deleted from RemoveChild()
       //-------------------------------------------------
       wxNode *nextNode = NULL;
-      //if (canDelete)
       if (childDeleted)
+      {
          nextNode = theMdiChildren->GetFirst();
+      }
       else
       {
          nextNode = node->GetNext();
@@ -2140,7 +2154,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    #endif
 
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
-   GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, title, name, itemType);
+   GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
 
    switch (itemType)
@@ -2303,7 +2317,7 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
 
    GmatMdiChildFrame *newChild =
-      new GmatMdiChildFrame(this, title, name, itemType);
+      new GmatMdiChildFrame(this, name, title, itemType);
 
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
 
@@ -2425,7 +2439,7 @@ GmatMainFrame::CreateNewControl(const wxString &title, const wxString &name,
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
 
    GmatMdiChildFrame *newChild =
-      new GmatMdiChildFrame(this, title, name, itemType);
+      new GmatMdiChildFrame(this, name, title, itemType);
 
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
 
@@ -2495,7 +2509,7 @@ GmatMainFrame::CreateNewOutput(const wxString &title, const wxString &name,
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
 
    GmatMdiChildFrame *newChild =
-      new GmatMdiChildFrame(this, title, name, itemType);
+      new GmatMdiChildFrame(this, name, title, itemType);
 
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
 
