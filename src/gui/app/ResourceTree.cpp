@@ -216,6 +216,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
    // ag: collapse, so folder icon is closed
    // djc: Under Linux, this crashes so it only applies to Windows
    #ifdef __WXMSW__
+      Collapse(mGroundStationItem);
       Collapse(mSpacecraftItem);
       Collapse(mFormationItem);
       Collapse(mPropagatorItem);
@@ -228,6 +229,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
       Collapse(mSpecialPointsItem);
    #endif
 
+   DeleteChildren(mGroundStationItem);
    DeleteChildren(mSpacecraftItem);
    DeleteChildren(mUniverseItem);
    DeleteChildren(mFormationItem);
@@ -302,7 +304,7 @@ void ResourceTree::UpdateResource(bool restartCounter)
 
    AddDefaultBodies(mUniverseItem);
    AddDefaultSpecialPoints(mSpecialPointsItem);
-   AddDefaultGroundStation(mSpacecraftItem, restartCounter);
+   AddDefaultGroundStation(mGroundStationItem, restartCounter);
    AddDefaultSpacecraft(mSpacecraftItem, restartCounter);
    AddDefaultHardware(mHardwareItem, restartCounter);
    AddDefaultFormations(mFormationItem, restartCounter);
@@ -539,14 +541,14 @@ void ResourceTree::AddDefaultResources()
               new GmatTreeItemData(wxT("Resources"), GmatTree::RESOURCES_FOLDER));
 
    //----- GroundStation
-   mSpacecraftItem =
+   mGroundStationItem =
       AppendItem(resource, wxT("Ground Station"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Ground Station"),
                                       GmatTree::GROUND_STATION_FOLDER));
 
-   SetItemImage(mSpacecraftItem, GmatTree::ICON_OPENFOLDER,
+   SetItemImage(mGroundStationItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
-
+   
    //----- Spacecraft
    mSpacecraftItem =
       AppendItem(resource, wxT("Spacecraft"), GmatTree::ICON_FOLDER, -1,
@@ -668,7 +670,7 @@ void ResourceTree::AddDefaultResources()
 
    AddDefaultBodies(mUniverseItem);
    AddDefaultSpecialPoints(mSpecialPointsItem);
-   AddDefaultGroundStation(mSpacecraftItem);
+   AddDefaultGroundStation(mGroundStationItem);
    AddDefaultSpacecraft(mSpacecraftItem);
    AddDefaultHardware(mHardwareItem);
    AddDefaultFormations(mFormationItem);
@@ -1476,8 +1478,6 @@ void ResourceTree::OnRename(wxCommandEvent &event)
 
    if (!GmatStringUtil::IsValidName(newName.c_str()))
    {
-      //wxMessageBox(wxT("\"" + newName + "\" is invalid name. Please enter different name."),
-      //             wxT("GMAT Warning"));
       MessageInterface::PopupMessage
          (Gmat::WARNING_, "\"%s\" is not a valid name. Please reenter a valid name.\n\n"
           "[Name cannot be a GMAT keyword, such as \"GMAT\", \"Create\", \"function\" and \n"
@@ -3854,6 +3854,9 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
 
    switch (itemType)
    {
+   case GmatTree::GROUND_STATION:
+      objType = Gmat::GROUND_STATION;
+      break;
    case GmatTree::SPACECRAFT:
       objType = Gmat::SPACECRAFT;
       break;
