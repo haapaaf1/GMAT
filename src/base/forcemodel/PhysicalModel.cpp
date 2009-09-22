@@ -486,6 +486,10 @@ bool PhysicalModel::Initialize()
    if (modelState != NULL)
    {
       deriv = new Real[dimension];
+
+      for (Integer i = 0; i < dimension; ++i)
+         deriv[i] = 0.0;
+
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (deriv, "deriv", "PhysicalModel::Initialize()",
@@ -920,6 +924,13 @@ void PhysicalModel::SetSolarSystem(SolarSystem *ss)
 //------------------------------------------------------------------------------
 void PhysicalModel::SetSatelliteParameter(const Integer i, 
                                           const std::string parmName, 
+                                          const Real parm,
+                                          const Integer parmID)
+{
+}
+
+void PhysicalModel::SetSatelliteParameter(const Integer i,
+                                          Integer parmID,
                                           const Real parm)
 {
 }
@@ -987,6 +998,21 @@ bool PhysicalModel::StateChanged(bool reset)
  */
 //------------------------------------------------------------------------------
 bool PhysicalModel::IsTransient()
+{
+   return false;
+}
+
+
+//------------------------------------------------------------------------------
+// bool DepeletesMass()
+//------------------------------------------------------------------------------
+/**
+ * Detects mass depletion ffrom a PhysicalModel
+ *
+ * @return true if the model depletes mass, false if it does not
+ */
+//------------------------------------------------------------------------------
+bool PhysicalModel::DepeletesMass()
 {
    return false;
 }

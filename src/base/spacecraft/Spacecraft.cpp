@@ -116,6 +116,7 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // CartesianVX
       Gmat::REAL_TYPE,        // CartesianVY
       Gmat::REAL_TYPE,        // CartesianVZ
+      Gmat::REAL_TYPE,        // MASS_FLOW,
    };
    
 const std::string 
@@ -157,6 +158,7 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "CartesianVX",
       "CartesianVY",
       "CartesianVZ",
+      "MassFlow",
    };
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] = 
@@ -1131,8 +1133,8 @@ GmatBase* Spacecraft::GetRefObject(const Gmat::ObjectType type,
             {
                #ifdef DEBUG_GET_REF_OBJECT
                MessageInterface::ShowMessage
-                  ("Spacecraft::GetRefObject() Found Thruster named '%s', so returning <%p>\n",
-                   name.c_str(), (*i));
+                  ("Spacecraft::GetRefObject() Found Thruster named '%s', so "
+                   "returning <%p>\n", name.c_str(), (*i));
                #endif
                return *i;
             }
@@ -1579,6 +1581,11 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
       return true;
    }
    
+   if (id == MASS_FLOW)
+   {
+      return true;
+   }
+
    // if (id == STATE_TYPE) return true;   when deprecated stuff goes away
    
    return SpaceObject::IsParameterReadOnly(id);
@@ -1599,6 +1606,33 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
 bool Spacecraft::IsParameterReadOnly(const std::string &label) const
 {
    return IsParameterReadOnly(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+// bool ParameterAffectsDynamics(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Determines if a parameter update affects propagation, and therfore forces a
+ * reload of parameters used in propagation
+ *
+ * @param id The ID of the parameter
+ *
+ * @return true if the parameter affects propagation, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool Spacecraft::ParameterAffectsDynamics(const Integer id) const
+{
+   if (id == MASS_FLOW)
+      return true;
+
+   if (id == SRP_AREA_ID)
+      return true;
+
+   if (id == DRAG_AREA_ID)
+      return true;
+
+   return SpaceObject::ParameterAffectsDynamics(id);
 }
 
 
@@ -1736,6 +1770,8 @@ Real Spacecraft::GetRealParameter(const Integer id) const
    if (id == CARTESIAN_VX)  return state[3];
    if (id == CARTESIAN_VY)  return state[4];
    if (id == CARTESIAN_VZ)  return state[5];
+
+   if (id == MASS_FLOW)  return UpdateTotalMass();
 
    if (id >= ATTITUDE_ID_OFFSET)
       if (attitude)
@@ -1880,6 +1916,13 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value)
       return state[5];
    }
    
+
+   if (id == MASS_FLOW)
+   {
+      return ApplyTotalMass(value);
+   }
+
+
    return SpaceObject::SetRealParameter(id, value);
 }
 
@@ -2920,8 +2963,9 @@ Integer Spacecraft::SetPropItem(const std::string &propItem)
       return Gmat::CARTESIAN_STATE;
    if (propItem == "STM")
       return Gmat::ORBIT_STATE_TRANSITION_MATRIX;
-//   if (propItem == "MassFlow")
-//      return Gmat::MASS_FLOW;
+   if (propItem == "MassFlow")
+      if (tanks.size() > 0)
+         return Gmat::MASS_FLOW;
    
    return SpaceObject::SetPropItem(propItem);
 }
@@ -2975,6 +3019,9 @@ Integer Spacecraft::GetPropItemSize(const Integer item)
          
       case Gmat::MASS_FLOW:
          // todo: Access tanks for mass information to handle mass flow
+
+         // For now, only allow one tank
+         retval = 1;
          break;
          
       // All other values call up the hierarchy
@@ -3135,6 +3182,66 @@ Real Spacecraft::UpdateTotalMass() const
    #endif
    
    return tmass;
+}
+
+
+
+//------------------------------------------------------------------------------
+// bool ApplyTotalMass(Real newMass)
+//------------------------------------------------------------------------------
+/**
+ * Adjusts the mass in the fuel tanks, based on the active thrusters, to a new
+ * value
+ *
+ * @param newMass The new total mass
+ *
+ * @return true if the mass was adjusted to the new value
+ *
+ * @note This method applies a new total mass after propagating through a
+ * maneuver.  This aspect of the design will need to change once multiple tanks
+ * are used in maneuvers so that hte proportionate draw on the tanks is modeled
+ * correctly.
+ */
+//------------------------------------------------------------------------------
+bool Spacecraft::ApplyTotalMass(Real newMass)
+{
+   bool retval = true;
+   Real massChange = newMass - UpdateTotalMass();
+
+   #ifdef DEBUG_MASS_FLOW
+      MessageInterface::ShowMessage("Changing fuel mass by %.12le kg\n",
+            massChange);
+   #endif
+
+   // Find the active thruster(s)
+   ObjectArray active;
+   for (ObjectArray::iterator i = thrusters.begin(); i != thrusters.end(); ++i)
+   {
+      if ((*i)->GetBooleanParameter("IsFiring"))
+         active.push_back(*i);
+   }
+
+   // Divide the mass flow evenly between the tanks on each active thruster
+   Real numberFiring = active.size();
+   if ((numberFiring <= 0) && (massChange != 0.0))
+      throw SpaceObjectException("Mass update requested but there are no active"
+            " thrusters");
+
+   Real dm = massChange / numberFiring;
+   for (ObjectArray::iterator i = active.begin(); i != active.end(); ++i)
+   {
+      // Change the mass in each attached tank
+      ObjectArray usedTanks = (*i)->GetRefObjectArray(Gmat::HARDWARE);
+      Real dmt = dm / usedTanks.size();
+      for (ObjectArray::iterator j = usedTanks.begin();
+            j != usedTanks.end(); ++j)
+      {
+         (*j)->SetRealParameter("FuelMass",
+               (*j)->GetRealParameter("FuelMass") + dmt);
+      }
+   }
+
+   return retval;
 }
 
 

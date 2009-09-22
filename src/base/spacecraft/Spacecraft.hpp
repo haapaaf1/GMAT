@@ -96,6 +96,7 @@ public:
    
    virtual bool         IsParameterReadOnly(const Integer id) const;
    virtual bool         IsParameterReadOnly(const std::string &label) const;
+   virtual bool         ParameterAffectsDynamics(const Integer id) const;
    
    virtual Real         GetRealParameter(const Integer id) const;
    virtual Real         GetRealParameter(const std::string &label) const;
@@ -220,6 +221,7 @@ protected:
       CARTESIAN_VX,
       CARTESIAN_VY,
       CARTESIAN_VZ,
+      MASS_FLOW,
 
       SpacecraftParamCount
    };
@@ -353,6 +355,7 @@ protected:
    // Hardware 
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
+   bool              ApplyTotalMass(Real newMass);
    void              DeleteOwnedObjects(bool deleteAttitude, bool deleteTanks,
                                         bool deleteThrusters);
    void              CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,

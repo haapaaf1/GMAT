@@ -2413,6 +2413,10 @@ bool Propagate::Initialize()
          }
       }
 
+      // Check for finite thrusts and update the force model if there are any
+      if (finiteBurnActive == true)
+         AddTransientForce(satName[index], odem, psm);
+
       if (psm->BuildState() == false)
          throw CommandException("Could not build the state for the command \n" +
                generatingString);
@@ -2425,10 +2429,10 @@ bool Propagate::Initialize()
       // Set solar system to ForceModel for Propagate inside a GmatFunction(loj: 2008.06.06)
       odem->SetSolarSystem(solarSys);
       
-      // Check for finite thrusts and update the force model if there are any
-      if (finiteBurnActive == true)
-         AddTransientForce(satName[index], odem);
-      
+//      // Check for finite thrusts and update the force model if there are any
+//      if (finiteBurnActive == true)
+//         AddTransientForce(satName[index], odem, psm);
+//
       #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
          ("Propagate::Initialize() '%s' registering published data\n",
@@ -4441,16 +4445,19 @@ void Propagate::RunComplete()
 
 
 //------------------------------------------------------------------------------
-// void AddTransientForce(StringArray *sats, ForceModel *p)
+// void AddTransientForce(StringArray *sats, ForceModel *p,
+//       PropagationStateManager *propMan)
 //------------------------------------------------------------------------------
 /**
  * Passes transient forces into the ForceModel(s).
  *
- * @param <sats> The array of satellites used in the ForceModel.
- * @param <p>    The current ForceModel that is receiving the forces.
+ * @param sats The array of satellites used in the ForceModel.
+ * @param p    The current ForceModel that is receiving the forces.
+ * @param propMan PropagationStateManager for this PropSetup
  */
 //------------------------------------------------------------------------------
-void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
+void Propagate::AddTransientForce(StringArray *sats, ODEModel *p,
+      PropagationStateManager *propMan)
 {
    #ifdef DEBUG_TRANSIENT_FORCES
    MessageInterface::ShowMessage
@@ -4476,6 +4483,14 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
                 (*i)->GetName().c_str());
             #endif
             p->AddForce(*i);
+            if ((*i)->DepeletesMass())
+            {
+               propMan->SetProperty("MassFlow");
+               #ifdef DEBUG_TRANSIENT_FORCES
+                  MessageInterface::ShowMessage("   %s depletes mass\n",
+                        (*i)->GetName().c_str());
+               #endif
+            }
             break;      // Avoid multiple adds
          }
       }

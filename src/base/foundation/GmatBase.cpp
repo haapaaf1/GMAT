@@ -1150,6 +1150,22 @@ bool GmatBase::IsParameterEqualToDefault(const std::string &label) const
    return IsParameterEqualToDefault(GetParameterID(label));
 }
 
+//------------------------------------------------------------------------------
+// bool GmatBase::ParameterAffectsDynamics(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Determines if a parameter update affects propagation, and therfore forces a
+ * reload of parameters used in propagation
+ *
+ * @param id The ID of the parameter
+ *
+ * @return true if the parameter affects propagation, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::ParameterAffectsDynamics(const Integer id) const
+{
+   return false;
+}
 
 
 //---------------------------------------------------------------------------

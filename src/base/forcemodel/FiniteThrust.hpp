@@ -52,6 +52,7 @@ public:
 //                              const Gmat::ObjectType type,
 //                              const std::string &name, const Integer index);
    virtual bool            IsTransient();
+   virtual bool            DepeletesMass();
    virtual void            SetPropList(ObjectArray *soList);
    virtual bool            Initialize();
    virtual bool            GetDerivatives(Real * state, Real dt, Integer order, 
@@ -64,7 +65,7 @@ public:
 
 protected:
    // Pieces needed for bookkeeping
-   /// Not sure if this is needed yet
+   /// The finite burn objects this model uses
    std::vector <FiniteBurn *>    burns;
    /// Names for the FiniteBurn objects used for this force 
    StringArray                   burnNames;
@@ -80,6 +81,13 @@ protected:
    Integer                       cartIndex;
    /// Flag indicating if the Cartesian state should be populated
    bool                          fillCartesian;
+
+   /// Number of spacecraft in the state vector that deplete mass
+   Integer                       satThrustCount;
+   /// Start index for the dm/dt data
+   Integer                       mDotIndex;
+   /// Flag indicating if any thrusters are set to deplete mass
+   bool                          depleteMass;
 };
 
 #endif // FiniteThrust_hpp

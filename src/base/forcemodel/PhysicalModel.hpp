@@ -166,6 +166,10 @@ public:
    virtual void SetSolarSystem(SolarSystem *ss);
    virtual void SetSatelliteParameter(const Integer i, 
                                       const std::string parmName, 
+                                      const Real parm,
+                                      const Integer parmID = -1);
+   virtual void SetSatelliteParameter(const Integer i,
+                                      Integer parmID,
                                       const Real parm);
    virtual void SetSatelliteParameter(const Integer i, 
                                       const std::string parmName, 
@@ -174,6 +178,7 @@ public:
    virtual bool StateChanged(bool reset = true);
    
    virtual bool IsTransient();
+   virtual bool DepeletesMass();
    virtual bool IsUserForce();
    virtual void SetPropList(ObjectArray *soList);
    

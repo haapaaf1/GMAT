@@ -41,6 +41,7 @@ struct ListItem
    Integer     rowLength;     // Used for vectors and arrays
    Integer     colIndex;      // Used for arrays
    Integer     length;
+   bool        dynamicObjectProperty;  // Set if property forces object updates
 };
 
 

@@ -1415,8 +1415,13 @@ bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //---------------------------------------------------------------------------
 ObjectArray& Thruster::GetRefObjectArray(const Gmat::ObjectType type)
 {
-//   if (type == Gmat::HARDWARE)
-//      return tanks;
+   if (type == Gmat::HARDWARE)
+   {
+      tempArray.clear();
+      for (UnsignedInt i = 0; i < tanks.size(); ++i)
+         tempArray.push_back(tanks[i]);
+      return tempArray;
+   }
 
    return Hardware::GetRefObjectArray(type);
 }
@@ -1733,7 +1738,9 @@ Real Thruster::CalculateMassFlow()
          if (impulse == 0.0)
             throw HardwareException("Thruster \"" + instanceName +
                                     "\" has specific impulse == 0.0");
-         mDot = (thrust/thrustScaleFactor) / (gravityAccel * impulse);
+
+         // Mass flows out, so need a negative value here
+         mDot = -(thrust/thrustScaleFactor) / (gravityAccel * impulse);
       //}
    }
 

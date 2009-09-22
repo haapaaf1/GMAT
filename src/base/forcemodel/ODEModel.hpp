@@ -116,6 +116,9 @@ public:
    void BufferState();
    Integer SetupSpacecraftData(ObjectArray *sats, Integer i);
 
+   Integer UpdateDynamicSpacecraftData(ObjectArray *sats, Integer i);
+
+
    // Methods that were removed
 //   void ClearSpacecraft();
 //   bool AddSpaceObject(SpaceObject *so);
@@ -191,7 +194,7 @@ public:
                        const std::string &useName = "");
    #endif
    
-   void                 UpdateInitialData();
+   void                 UpdateInitialData(bool dynamicOnly = false);
    void                 ReportEpochData();
    
    void                 SetPropStateManager(PropagationStateManager *sm);
@@ -248,7 +251,21 @@ protected:
    Integer satIds[7];
 //   /// ID for the "Epoch" parameter  -- NOT NEEDED, THIS IS A PHYSICAL MODEL ALREADY!!!
 //   Integer modelEpochId;
+
+   /// Number of objects providing Cartesian state data
+   Integer cartObjCount;
+   /// Starting index for Cartesian state data
+   Integer cartStateStart;
+   /// Number of elements in the Cartesian state data
+   Integer cartStateSize;
+   /// If spacecraft properties are dynamic, update at every call
+   bool dynamicProperties;
    
+   IntegerArray dynamicsIndex;
+   ObjectArray  dynamicObjects;
+   IntegerArray dynamicIDs;
+
+
    /// Mapping between script descriptions and force names.
    static std::map<std::string, std::string> scriptAliases;
    

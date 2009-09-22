@@ -168,6 +168,8 @@ protected:
    StringArray                tankNames;
    /// The tanks
    std::vector<FuelTank *>    tanks;
+   /// Temporary buffer used to get ref objects
+   ObjectArray                tempArray;
    
    /// Available local axes labels
    static  StringArray        localAxesLabels;

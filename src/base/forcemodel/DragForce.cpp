@@ -93,6 +93,9 @@ DragForce::DragForce(const std::string &name) :
    satCount               (1),
    orbitDimension         (0),
    dragState              (NULL),
+   massID                 (-1),
+   cdID                   (-1),
+   areaID                 (-1),
    //bodyName               ("Earth"),
    dataType               ("Constant"),
    fluxFile               (""),
@@ -210,6 +213,9 @@ DragForce::DragForce(const DragForce& df) :
    satCount                (df.satCount),
    dragBody                (df.dragBody),
    dragState               (NULL),
+   massID                  (df.massID),
+   cdID                    (df.cdID),
+   areaID                  (df.areaID),
    //bodyName                (df.bodyName),
    dataType                (df.dataType),
    fluxFile                (df.fluxFile),
@@ -283,6 +289,10 @@ DragForce& DragForce::operator=(const DragForce& df)
    useExternalAtmosphere = df.useExternalAtmosphere;
    atmosphereType        = df.atmosphereType;
    
+   massID                = df.massID;
+   cdID                  = df.cdID;
+   areaID                = df.areaID;
+
    if (internalAtmos != NULL)
    {
       #ifdef DEBUG_MEMORY
@@ -423,7 +433,8 @@ bool DragForce::GetComponentMap(Integer * map, Integer order) const
 //------------------------------------------------------------------------------
 void DragForce::SetSatelliteParameter(const Integer i, 
                                       const std::string parmName, 
-                                      const Real parm)
+                                      const Real parm,
+                                      const Integer parmID)
 {
    unsigned parmNumber = (unsigned)(i+1);
 
@@ -432,21 +443,82 @@ void DragForce::SetSatelliteParameter(const Integer i,
                << " for Spacecraft " << i << " to " << parm << "\n";
    #endif
     
-   if (parmName == "DryMass")
+   if (parmName == "Mass")
+   {
       if (parmNumber < mass.size())
          mass[i] = parm;
       else
          mass.push_back(parm);
+      if (parmID >= 0)
+         massID = parmID;
+   }
    if (parmName == "Cd")
+   {
       if (parmNumber < dragCoeff.size())
          dragCoeff[i] = parm;
       else
          dragCoeff.push_back(parm);
+      if (parmID >= 0)
+         cdID = parmID;
+   }
    if (parmName == "DragArea")
+   {
       if (parmNumber < area.size())
          area[i] = parm;
       else
          area.push_back(parm);
+      if (parmID >= 0)
+         areaID = parmID;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void SetSatelliteParameter(const Integer i, const Integer parmID,
+//                            const Real parm)
+//------------------------------------------------------------------------------
+/**
+ * Passes spacecraft parameters to the force model.
+ *
+ * For drag modeling, this method is used to set or update C_d, area, and mass.
+ *
+ * @param i ID for the spacecraft
+ * @param parmID id of the Spacecraft parameter
+ * @param parm Parameter value
+ */
+//------------------------------------------------------------------------------
+void DragForce::SetSatelliteParameter(const Integer i,
+                                      const Integer parmID,
+                                      const Real parm)
+{
+   unsigned parmNumber = (unsigned)(i+1);
+
+   #ifdef DEBUG_DRAGFORCE_DENSITY
+      dragdata << "Setting satellite parameter " << parmName
+               << " for Spacecraft " << i << " to " << parm << "\n";
+   #endif
+
+   if (parmID == massID)
+   {
+      if (parmNumber < mass.size())
+         mass[i] = parm;
+      else
+         mass.push_back(parm);
+   }
+   if (parmID == cdID)
+   {
+      if (parmNumber < dragCoeff.size())
+         dragCoeff[i] = parm;
+      else
+         dragCoeff.push_back(parm);
+   }
+   if (parmID == areaID)
+   {
+      if (parmNumber < area.size())
+         area[i] = parm;
+      else
+         area.push_back(parm);
+   }
 }
 
 

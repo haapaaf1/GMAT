@@ -128,8 +128,10 @@ SolarRadiationPressure::SolarRadiationPressure(const std::string &name) :
    fillCartesian       (false),
    stmCount            (0),
    stmIndex            (0),
-   fillSTM             (false)
-
+   fillSTM             (false),
+   massID              (-1),
+   crID                (-1),
+   areaID              (-1)
 {
    parameterCount = SRPParamCount;
    derivativeIds.push_back(Gmat::CARTESIAN_STATE);
@@ -170,7 +172,10 @@ SolarRadiationPressure::SolarRadiationPressure(const SolarRadiationPressure &srp
    fillCartesian       (srp.fillCartesian),
    stmCount            (srp.stmCount),
    stmIndex            (srp.stmIndex),
-   fillSTM             (srp.fillSTM)
+   fillSTM             (srp.fillSTM),
+   massID              (srp.massID),
+   crID                (srp.crID),
+   areaID              (srp.areaID)
 {
    parameterCount = SRPParamCount;
 }
@@ -215,6 +220,9 @@ SolarRadiationPressure& SolarRadiationPressure::operator=(const SolarRadiationPr
       stmCount      = srp.stmCount;
       stmIndex      = srp.stmIndex;
       fillSTM       = srp.fillSTM;
+      massID        = srp.massID;
+      crID          = srp.crID;
+      areaID        = srp.areaID;
    }
    
    return *this;
@@ -1071,7 +1079,8 @@ Real SolarRadiationPressure::ShadowFunction(Real * state)
 //------------------------------------------------------------------------------
 void SolarRadiationPressure::SetSatelliteParameter(const Integer i, 
                                           const std::string parmName, 
-                                          const Real parm)
+                                          const Real parm,
+                                          const Integer parmID)
 {
     unsigned parmNumber = (unsigned)(i);
 
@@ -1082,21 +1091,62 @@ void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
          MessageInterface::ShowMessage(msg.str());
     #endif
     
-    if (parmName == "DryMass")
+    if (parmName == "Mass")
+    {
         if (parmNumber < mass.size())
             mass[i] = parm;
         else
             mass.push_back(parm);
+        if (parmID >= 0)
+           massID = parmID;
+    }
     if (parmName == "Cr")
+    {
         if (parmNumber < cr.size())
             cr[i] = parm;
         else
             cr.push_back(parm);
+        if (parmID >= 0)
+           crID = parmID;
+    }
     if (parmName == "SRPArea")
-        if (parmNumber < area.size())
+    {
+       if (parmNumber < area.size())
             area[i] = parm;
         else
             area.push_back(parm);
+        if (parmID >= 0)
+            areaID = parmID;
+    }
+}
+
+void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
+                                   Integer parmID, const Real parm)
+{
+   unsigned parmNumber = (unsigned)(i);
+
+   #ifdef DEBUG_SOLAR_RADIATION_PRESSURE
+        std::stringstream msg;
+        msg << "Setting satellite parameter " << parmName << " for Spacecraft "
+            << i << " to " << parm << "\n";
+        MessageInterface::ShowMessage(msg.str());
+   #endif
+
+   if (parmID == massID)
+       if (parmNumber < mass.size())
+           mass[i] = parm;
+       else
+           mass.push_back(parm);
+   if (parmID == crID)
+       if (parmNumber < cr.size())
+           cr[i] = parm;
+       else
+           cr.push_back(parm);
+   if (parmID == areaID)
+       if (parmNumber < area.size())
+           area[i] = parm;
+       else
+           area.push_back(parm);
 }
 
 

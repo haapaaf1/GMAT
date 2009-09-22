@@ -382,7 +382,7 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
                              " on spacecraft " + spacecraft->GetName() +
                              " has no direction.");
       
-      dm = current->CalculateMassFlow();
+      dm += current->CalculateMassFlow();
       //tOverM = current->thrust / (tMass * norm * 1000.0); //old code
       tOverM = current->thrust * current->thrustScaleFactor *
                current->dutyCycle / (tMass * norm * 1000.0);
@@ -903,6 +903,31 @@ bool FiniteBurn::RenameRefObject(const Gmat::ObjectType type,
    }
    
    return Burn::RenameRefObject(type, oldName, newName);
+}
+
+
+bool FiniteBurn::DepletesMass()
+{
+   bool retval = false;
+
+   ObjectArray thrusterArray = spacecraft->GetRefObjectArray(Gmat::THRUSTER);
+
+   // Check each the thruster
+   for (ObjectArray::iterator th = thrusterArray.begin();
+        th != thrusterArray.end(); ++th)
+   {
+      if ((*th)->GetBooleanParameter("DecrementMass"))
+      {
+         retval = true;
+         #ifdef DEBUG_MASS_FLOW
+            MessageInterface::ShowMessage("Thruster %s decrements mass\n",
+                  (*th)->GetName().c_str());
+         #endif
+         // Save the mass depleting thruster pointer(s) for later access?
+      }
+   }
+
+   return retval;
 }
 
 

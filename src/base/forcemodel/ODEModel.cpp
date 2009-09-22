@@ -71,6 +71,7 @@
 //#define DEBUG_BUILDING_MODELS
 //#define DEBUG_STATE
 //#define DEBUG_REORIGIN
+//#define DEBUG_ERROR_ESTIMATE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -157,6 +158,10 @@ ODEModel::ODEModel(const std::string &modelName, const std::string typeName) :
    centralBodyName   ("Earth"),
    forceMembersNotInitialized (true),
    satCount          (0),
+   cartObjCount      (0),
+   cartStateStart    (-1),
+   cartStateSize     (0),
+   dynamicProperties (false),
    j2kBodyName       ("Earth"),
    j2kBody           (NULL),
    earthEq           (NULL),
@@ -236,6 +241,10 @@ ODEModel::ODEModel(const ODEModel& fdf) :
    centralBodyName            (fdf.centralBodyName),
    forceMembersNotInitialized (true),
    satCount                   (0),
+   cartObjCount               (0),
+   cartStateStart             (-1),
+   cartStateSize              (0),
+   dynamicProperties          (false),
    j2kBodyName                (fdf.j2kBodyName),
    /// @note: Since the next three are global objects or reset by the Sandbox, 
    ///assignment works
@@ -309,6 +318,10 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    state = NULL;
    psm   = NULL;
    satCount = 0;
+   cartObjCount      = 0;
+   cartStateStart    = -1;
+   cartStateSize     =  0;
+   dynamicProperties = false;
 
    numForces           = fdf.numForces;
    stateSize           = fdf.stateSize;
@@ -862,6 +875,11 @@ bool ODEModel::BuildModelFromMap()
    Gmat::StateElementId id = Gmat::UNKNOWN_STATE;
    GmatBase *currentObject = NULL;
 
+   dynamicProperties = false;
+   dynamicsIndex.clear();
+   dynamicObjects.clear();
+   dynamicIDs.clear();
+
    // Loop through the state map, counting objects for each type needed
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("ODEModel map has %d entries\n",
@@ -869,6 +887,14 @@ bool ODEModel::BuildModelFromMap()
    #endif
    for (UnsignedInt index = 0; index < map->size(); ++index)
    {
+      if ((*map)[index]->dynamicObjectProperty)
+      {
+         dynamicProperties = true;
+
+         dynamicsIndex.push_back(index);
+         dynamicObjects.push_back((*map)[index]->object);
+         dynamicIDs.push_back((*map)[index]->parameterID);
+      }
 
       // When the elementID changes, act on the previous data processed
       if (id != (Gmat::StateElementId)((*map)[index]->elementID))
@@ -1017,6 +1043,15 @@ bool ODEModel::BuildModelElement(Gmat::StateElementId id, Integer start,
    newStruct.count = objectCount;
    // newStruct.size = ??;
    sstruct.push_back(newStruct);
+
+   // Cartesian state as a special case so error control can do RSS tests
+   /// @todo Check this piece again for 6DoF
+   if (id == Gmat::CARTESIAN_STATE)
+   {
+      cartObjCount   = objectCount;
+      cartStateStart = start;
+      cartStateSize  = objectCount * 6;
+   }
 
    #ifdef DEBUG_BUILDING_MODELS
       MessageInterface::ShowMessage(
@@ -1392,7 +1427,7 @@ std::string ODEModel::BuildPropertyName(GmatBase *ownedObj)
  * Updates model and all contained models to catch changes in Spacecraft, etc.
  */
 //------------------------------------------------------------------------------
-void ODEModel::UpdateInitialData()
+void ODEModel::UpdateInitialData(bool dynamicOnly)
 {
    PhysicalModel *current; // = forceList[cf];  // waw: added 06/04/04
 
@@ -1403,18 +1438,24 @@ void ODEModel::UpdateInitialData()
    for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
         i != forceList.end(); ++i)
    {
-      current = (*i);
-      if (!parametersSetOnce)
-      {
-         current->ClearSatelliteParameters();
-      }
       stateObjects.clear();
       psm->GetStateObjects(stateObjects, Gmat::SPACEOBJECT);
       
-      SetupSpacecraftData(&stateObjects, 0);
+      if (dynamicOnly)
+         UpdateDynamicSpacecraftData(&stateObjects, 0);
+      else
+      {
+         current = (*i);
+         if (!parametersSetOnce)
+         {
+            current->ClearSatelliteParameters();
+         }
+
+         SetupSpacecraftData(&stateObjects, 0);
+      }
    }
-   
-   psm->MapObjectsToVector();
+   if (!dynamicOnly)
+      psm->MapObjectsToVector();
 
    parametersSetOnce = true;
 }
@@ -1525,10 +1566,9 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
             throw ODEModelException(
                "CoordinateSystem parameter undefined on object " + sat->GetName());
          
-         // Should this be total mass?
-         satIds[2] = sat->GetParameterID("DryMass");
+         satIds[2] = sat->GetParameterID("TotalMass");
          if (satIds[2] < 0)
-            throw ODEModelException("DryMass parameter undefined on object " +
+            throw ODEModelException("TotalMass parameter undefined on object " +
                                     sat->GetName());
          
          satIds[3] = sat->GetParameterID("Cd");
@@ -1612,35 +1652,35 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
                if (parm <= 0)
                   throw ODEModelException("Mass parameter unphysical on object " + 
                      sat->GetName());
-               pm->SetSatelliteParameter(i, "DryMass", parm);
+               pm->SetSatelliteParameter(i, "Mass", parm, satIds[2]);
                
                // ... Coefficient of drag ...
                parm = sat->GetRealParameter(satIds[3]);
                if (parm < 0)
                   throw ODEModelException("Cd parameter unphysical on object " + 
                      sat->GetName());
-               pm->SetSatelliteParameter(i, "Cd", parm);
+               pm->SetSatelliteParameter(i, "Cd", parm, satIds[3]);
                
                // ... Drag area ...
                parm = sat->GetRealParameter(satIds[4]);
                if (parm < 0)
                   throw ODEModelException("Drag Area parameter unphysical on object " + 
                      sat->GetName());
-               pm->SetSatelliteParameter(i, "DragArea", parm);
+               pm->SetSatelliteParameter(i, "DragArea", parm, satIds[4]);
                
                // ... SRP area ...
                parm = sat->GetRealParameter(satIds[5]);
                if (parm < 0)
                   throw ODEModelException("SRP Area parameter unphysical on object " + 
                      sat->GetName());
-               pm->SetSatelliteParameter(i, "SRPArea", parm);
+               pm->SetSatelliteParameter(i, "SRPArea", parm, satIds[5]);
                
                // ... and Coefficient of reflectivity
                parm = sat->GetRealParameter(satIds[6]);
                if (parm < 0)
                   throw ODEModelException("Cr parameter unphysical on object " + 
                      sat->GetName());
-               pm->SetSatelliteParameter(i, "Cr", parm);
+               pm->SetSatelliteParameter(i, "Cr", parm, satIds[6]);
                
                ((SpaceObject*)sat)->ParametersHaveChanged(false);
             }
@@ -1661,13 +1701,98 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
             SetupSpacecraftData(&formSats, i);
          }
          else
-            throw ODEModelException(
-                                    "Setting SpaceObject parameters on unknown type for " + 
-                                    sat->GetName());
+            throw ODEModelException("Setting SpaceObject parameters on unknown "
+                  "type for " + sat->GetName());
       }
       ++i;
    }
    
+   return i;
+}
+
+
+
+
+
+Integer ODEModel::UpdateDynamicSpacecraftData(ObjectArray *sats, Integer i)
+{
+   Real parm;
+   std::string stringParm;
+
+   GmatBase* sat;
+
+   for (ObjectArray::iterator j = sats->begin();
+        j != sats->end(); ++j)
+   {
+      sat = *j;
+
+      // Only retrieve the parameter IDs once
+      if (satIds[1] < 0)
+         throw ODEModelException("Epoch parameter undefined on object " +
+                                    sat->GetName());
+
+      PhysicalModel *pm;
+      for (std::vector<PhysicalModel *>::iterator current = forceList.begin();
+           current != forceList.end(); ++current)
+      {
+         pm = *current;
+
+         if (sat->GetType() == Gmat::SPACECRAFT)
+         {
+            #ifdef DEBUG_SATELLITE_PARAMETER_UPDATES
+               MessageInterface::ShowMessage(
+                   "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
+                   "parametersSetOnce = %s\n",
+                   GetName().c_str(), pm->GetTypeName().c_str(),
+                   sat->GetName().c_str(),
+                   (((SpaceObject*)sat)->ParametersHaveChanged() ? "true" : "false"),
+                   (parametersSetOnce ? "true" : "false"));
+            #endif
+
+               // ... Mass ...
+               parm = sat->GetRealParameter(satIds[2]);
+               if (parm <= 0)
+                  throw ODEModelException("Mass parameter unphysical on object " +
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, satIds[2], parm);
+
+               // ... Drag area ...
+               parm = sat->GetRealParameter(satIds[4]);
+               if (parm < 0)
+                  throw ODEModelException("Drag Area parameter unphysical on object " +
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, satIds[4], parm);
+
+               // ... SRP area ...
+               parm = sat->GetRealParameter(satIds[5]);
+               if (parm < 0)
+                  throw ODEModelException("SRP Area parameter unphysical on object " +
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, satIds[5], parm);
+         }
+         else if (sat->GetType() == Gmat::FORMATION)
+         {
+            ObjectArray formSats;
+            ObjectArray elements = sat->GetRefObjectArray("SpaceObject");
+            for (ObjectArray::iterator n = elements.begin(); n != elements.end();
+                 ++n)
+            {
+               if ((*n)->IsOfType(Gmat::SPACEOBJECT))
+                  formSats.push_back((SpaceObject *)(*n));
+               else
+                  throw ODEModelException("Object \"" + sat->GetName() +
+                                          "\" is not a SpaceObject.");
+            }
+            UpdateDynamicSpacecraftData(&formSats, i);
+         }
+         else
+            throw ODEModelException(
+                                    "Setting SpaceObject parameters on unknown type for " +
+                                    sat->GetName());
+      }
+      ++i;
+   }
+
    return i;
 }
 
@@ -1718,6 +1843,23 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
    if (!initialized)
       return false;
 
+   if (dynamicProperties)
+   {
+      for (UnsignedInt i = 0; i < dynamicsIndex.size(); ++i)
+      {
+         #ifdef DEBUG_MASS_FLOW
+            MessageInterface::ShowMessage("Updating %s on %s to %.12le\n",
+                  dynamicObjects[i]->GetParameterText(dynamicIDs[i]).c_str(),
+                  dynamicObjects[i]->GetName().c_str(),
+                  state[dynamicsIndex[i]]);
+         #endif
+
+         dynamicObjects[i]->
+               SetRealParameter(dynamicIDs[i], state[dynamicsIndex[i]]);
+      }
+      UpdateInitialData(true);
+   }
+
    #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage("Initializing derivative array\n");
    #endif
@@ -1725,9 +1867,9 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
    #ifdef DEBUG_STATE
       MessageInterface::ShowMessage(
          "Top of GetDeriv; State with dimension %d = [", dimension);
-      for (Integer i = 0; i < dimension; ++i) //< state->GetSize()-1; ++i)
-         MessageInterface::ShowMessage("%le, ", state[i]); //(*state)[i]);
-      MessageInterface::ShowMessage("%le]\n", state[dimension-1]); //(*state)[state->GetSize()-1]);
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%le, ", state[i]);
+      MessageInterface::ShowMessage("%le]\n", state[dimension-1]);
    #endif
   
    // Initialize the derivative array
@@ -1853,81 +1995,130 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
 //------------------------------------------------------------------------------
 Real ODEModel::EstimateError(Real *diffs, Real *answer) const
 {
-    if (estimationMethod == ESTIMATE_IN_BASE)
-        return PhysicalModel::EstimateError(diffs, answer);
+   if (estimationMethod == ESTIMATE_IN_BASE)
+      return PhysicalModel::EstimateError(diffs, answer);
 
-    Real retval = 0.0, err, mag, vec[3];
+   Real retval = 0.0, err, mag, vec[3];
 
-//MessageInterface::ShowMessage("normType == %d\n", normType);
+   #ifdef DEBUG_ERROR_ESTIMATE
+      MessageInterface::ShowMessage("ODEModel::EstimateError normType == %d; "
+            "dimension = %d\n", normType, dimension);
+   #endif
 
-    for (int i = 0; i < dimension; i += 3) 
-    {
-        switch (normType) 
-        {
+   // Handle non-Cartesian state elements as an L1 norm
+   for (int i = 0; i < cartStateStart; ++i)
+   {
+      // L1 norm
+      mag = fabs(answer[ i ] - modelState[ i ]);
+      err = fabs(diffs[i]);
+      if (mag >relativeErrorThreshold)
+         err = err / mag;
 
-            case -2:
-                // Code for the L2 norm, based on sep from central body
-                vec[0] = 0.5 * (answer[ i ] + modelState[ i ]); 
-                vec[1] = 0.5 * (answer[i+1] + modelState[i+1]); 
-                vec[2] = 0.5 * (answer[i+2] + modelState[i+2]);
+      #ifdef DEBUG_ERROR_ESTIMATE
+         MessageInterface::ShowMessage("   {%d EstErr = %le} ", i, err);
+      #endif
 
-                mag = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];        
-                err = diffs[i]*diffs[i] + diffs[i+1]*diffs[i+1] + diffs[i+2]*diffs[i+2];
-                if (mag >relativeErrorThreshold) 
-                    err = sqrt(err / mag);
-                else
-                    err = sqrt(err);
-                break;
+      if (err > retval)
+      {
+         retval = err;
+      }
+   }
 
-            case -1:
-                // L1 norm, based on sep from central body
-                vec[0] = fabs(0.5 * (answer[ i ] + modelState[ i ])); 
-                vec[1] = fabs(0.5 * (answer[i+1] + modelState[i+1])); 
-                vec[2] = fabs(0.5 * (answer[i+2] + modelState[i+2]));
+   // Handle the Cartesian piece
+   for (int i = cartStateStart; i < cartStateStart + cartStateSize; i += 3)
+   {
+      switch (normType)
+      {
+         case -2:
+            // Code for the L2 norm, based on sep from central body
+            vec[0] = 0.5 * (answer[ i ] + modelState[ i ]);
+            vec[1] = 0.5 * (answer[i+1] + modelState[i+1]);
+            vec[2] = 0.5 * (answer[i+2] + modelState[i+2]);
 
-                mag = vec[0] + vec[1] + vec[2];        
-                err = fabs(diffs[i]) + fabs(diffs[i+1]) + fabs(diffs[i+2]);
-                if (mag >relativeErrorThreshold) 
-                    err = err / mag;
-                break;
+            mag = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];
+            err = diffs[i]*diffs[i] + diffs[i+1]*diffs[i+1] + diffs[i+2]*diffs[i+2];
+            if (mag >relativeErrorThreshold)
+               err = sqrt(err / mag);
+            else
+               err = sqrt(err);
+            break;
 
-            case 0:         // Report no error here
-                return 0.0;
+         case -1:
+            // L1 norm, based on sep from central body
+            vec[0] = fabs(0.5 * (answer[ i ] + modelState[ i ]));
+            vec[1] = fabs(0.5 * (answer[i+1] + modelState[i+1]));
+            vec[2] = fabs(0.5 * (answer[i+2] + modelState[i+2]));
 
-            case 1:
-                // L1 norm
-                vec[0] = fabs(answer[ i ] - modelState[ i ]); 
-                vec[1] = fabs(answer[i+1] - modelState[i+1]); 
-                vec[2] = fabs(answer[i+2] - modelState[i+2]);
+            mag = vec[0] + vec[1] + vec[2];
+            err = fabs(diffs[i]) + fabs(diffs[i+1]) + fabs(diffs[i+2]);
+            if (mag >relativeErrorThreshold)
+               err = err / mag;
+            break;
 
-                mag = vec[0] + vec[1] + vec[2];        
-                err = fabs(diffs[i]) + fabs(diffs[i+1]) + fabs(diffs[i+2]);
-                if (mag >relativeErrorThreshold) 
-                    err = err / mag;
-                break;
+         case 0:         // Report no error here
+            return 0.0;
 
-            case 2:
-            default:
-                // Code for the L2 norm
-                vec[0] = answer[ i ] - modelState[ i ]; 
-                vec[1] = answer[i+1] - modelState[i+1]; 
-                vec[2] = answer[i+2] - modelState[i+2];
+         case 1:
+            // L1 norm
+            vec[0] = fabs(answer[ i ] - modelState[ i ]);
+            vec[1] = fabs(answer[i+1] - modelState[i+1]);
+            vec[2] = fabs(answer[i+2] - modelState[i+2]);
 
-                mag = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];        
-                err = diffs[i]*diffs[i] + diffs[i+1]*diffs[i+1] + diffs[i+2]*diffs[i+2];
-                if (mag > relativeErrorThreshold) 
-                    err = sqrt(err / mag);
-                else
-                    err = sqrt(err);
-        }
+            mag = vec[0] + vec[1] + vec[2];
+            err = fabs(diffs[i]) + fabs(diffs[i+1]) + fabs(diffs[i+2]);
+            if (mag >relativeErrorThreshold)
+               err = err / mag;
+            break;
 
-        if (err > retval)
-        {
-            retval = err;
-        }
-    }
+         case 2:
+         default:
+            // Code for the L2 norm
+            vec[0] = answer[ i ] - modelState[ i ];
+            vec[1] = answer[i+1] - modelState[i+1];
+            vec[2] = answer[i+2] - modelState[i+2];
 
-    return retval;
+            mag = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];
+            err = diffs[i]*diffs[i] + diffs[i+1]*diffs[i+1] + diffs[i+2]*diffs[i+2];
+            if (mag > relativeErrorThreshold)
+               err = sqrt(err / mag);
+            else
+               err = sqrt(err);
+      }
+
+      #ifdef DEBUG_ERROR_ESTIMATE
+         MessageInterface::ShowMessage("   {%d EstErr = %le} ", i, err);
+      #endif
+
+      if (err > retval)
+      {
+         retval = err;
+      }
+   }
+
+//   // Handle non-Cartesian state elements as an L1 norm
+//   for (int i = cartStateStart + cartStateSize; i < dimension; ++i)
+//   {
+//      // L1 norm
+//      mag = fabs(answer[ i ] - modelState[ i ]);
+//      err = fabs(diffs[i]);
+//      if (mag >relativeErrorThreshold)
+//         err = err / mag;
+//
+//      #ifdef DEBUG_ERROR_ESTIMATE
+//         MessageInterface::ShowMessage("   {%d EstErr = %le} ", i, err);
+//      #endif
+//
+//      if (err > retval)
+//      {
+//         retval = err;
+//      }
+//   }
+
+   #ifdef DEBUG_ERROR_ESTIMATE
+      MessageInterface::ShowMessage("   >>> Estimated Error = %le\n", retval);
+   #endif
+
+   return retval;
 }
 
 
@@ -3130,12 +3321,9 @@ void ODEModel::MoveToOrigin(Real newEpoch)
    MessageInterface::ShowMessage("ODEModel::MoveToOrigin entered\n");
 #endif
    
-   satCount = dimension / stateSize;   // psm->GetSatCount();
-   Integer currentScState = 0;
-
 #ifdef DEBUG_REORIGIN
    MessageInterface::ShowMessage(
-         "SatCount = %d, dimension = %d, stateSize = %d\n",satCount, 
+         "SatCount = %d, dimension = %d, stateSize = %d\n",cartObjCount,
          dimension, stateSize);
    MessageInterface::ShowMessage(
          "StatePointers: rawState = %p, modelState = %p\n", rawState, 
@@ -3150,9 +3338,9 @@ void ODEModel::MoveToOrigin(Real newEpoch)
    MessageInterface::ShowMessage("]\n\n");
         #endif
     
-   if (centralBodyName == j2kBodyName)
-      memcpy(modelState, rawState, dimension*sizeof(Real));
-   else
+   memcpy(modelState, rawState, dimension*sizeof(Real));
+
+   if (centralBodyName != j2kBodyName)
    {
       Rvector6 cbState, j2kState, delta;
       Real now = ((newEpoch < 0.0) ? epoch : newEpoch);
@@ -3161,53 +3349,47 @@ void ODEModel::MoveToOrigin(Real newEpoch)
 
       delta = cbState - j2kState;
       
-      for (Integer i = 0; i < satCount; ++i)
+      for (Integer i = 0; i < cartObjCount; ++i)
       {
+         Integer i6 = cartStateStart + i * 6;
          for (int j = 0; j < 6; ++j)
-            modelState[currentScState+j] = rawState[currentScState+j] - delta[j];
+            modelState[i6+j] = rawState[i6+j] - delta[j];
 
-#ifdef DEBUG_REORIGIN
-   MessageInterface::ShowMessage(
-       "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
-       "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
-       "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
-       "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
-       "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-       rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
-       rawState[5],
-       j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
-       j2kState[5],
-       cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
-       cbState[5],
-       delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
-       modelState[0], modelState[1], modelState[2], modelState[3],
-       modelState[4], modelState[5]);
-#endif
+         #ifdef DEBUG_REORIGIN
+            MessageInterface::ShowMessage(
+                "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf"
+                " %lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+                "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+                "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+                "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
+                rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
+                rawState[5],
+                j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
+                j2kState[5],
+                cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+                cbState[5],
+                delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+                modelState[0], modelState[1], modelState[2], modelState[3],
+                modelState[4], modelState[5]);
+         #endif
             
-         // Copy any remaining state elements
-         if (stateSize > 6)
-            memcpy(&modelState[currentScState+6], &rawState[currentScState+6], 
-                (stateSize-6)*sizeof(Real));
-         // Move to the next state
-         currentScState += stateSize;
-         
-#ifdef DEBUG_REORIGIN
-   MessageInterface::ShowMessage(
-       "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
-       "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
-       "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
-       "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
-       "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-       rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
-       rawState[5],
-       j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
-       j2kState[5],
-       cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
-       cbState[5],
-       delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
-       modelState[0], modelState[1], modelState[2], modelState[3],
-       modelState[4], modelState[5]);
-#endif
+         #ifdef DEBUG_REORIGIN
+            MessageInterface::ShowMessage(
+                "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf"
+                " %lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+                "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+                "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+                "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
+                rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
+                rawState[5],
+                j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
+                j2kState[5],
+                cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+                cbState[5],
+                delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+                modelState[0], modelState[1], modelState[2], modelState[3],
+                modelState[4], modelState[5]);
+         #endif
       }
       #ifdef DEBUG_REORIGIN
          MessageInterface::ShowMessage(
@@ -3253,12 +3435,8 @@ void ODEModel::MoveToOrigin(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::ReturnFromOrigin(Real newEpoch)
 {
-   Integer satCount = dimension / stateSize;
-   Integer currentScState = 0;
-    
-   if (centralBodyName == j2kBodyName)
-      memcpy(rawState, modelState, dimension*sizeof(Real));
-   else
+   memcpy(rawState, modelState, dimension*sizeof(Real));
+   if (centralBodyName != j2kBodyName)
    {
       Rvector6 cbState, j2kState, delta;
       Real now = ((newEpoch < 0.0) ? epoch : newEpoch);
@@ -3266,18 +3444,13 @@ void ODEModel::ReturnFromOrigin(Real newEpoch)
       j2kState = j2kBody->GetState(now);
       
       delta = j2kState - cbState;
-      
-      for (Integer i = 0; i < satCount; ++i)
+
+
+      for (Integer i = 0; i < cartObjCount; ++i)
       {
+         Integer i6 = cartStateStart + i * 6;
          for (int j = 0; j < 6; ++j)
-            rawState[currentScState+j] = modelState[currentScState+j] - delta[j];
-            
-         // Copy any remaining state elements
-         if (stateSize > 6)
-            memcpy(&rawState[currentScState+6], &modelState[currentScState+6], 
-                (stateSize-6)*sizeof(Real));
-         // Move to the next state
-         currentScState += stateSize;
+            rawState[i6+j] = modelState[i6+j] - delta[j];
       }
    }
 }

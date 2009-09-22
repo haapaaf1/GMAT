@@ -97,6 +97,10 @@ public:
    
    virtual void SetSatelliteParameter(const Integer i, 
                                       const std::string parmName, 
+                                      const Real parm,
+                                      const Integer parmID = -1);
+   virtual void SetSatelliteParameter(const Integer i,
+                                      Integer parmID,
                                       const Real parm);
    virtual void ClearSatelliteParameters(const std::string parmName = "");
    
@@ -191,6 +195,11 @@ protected:
    Integer              stmIndex;
    /// Flag indicating if the OrbitSTM should be populated
    bool                 fillSTM;
+
+   Integer massID;
+   Integer crID;
+   Integer areaID;
+
 
    void FindShadowState(bool &lit, bool &dark, Real *state);
    Real ShadowFunction(Real *state);

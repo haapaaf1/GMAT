@@ -179,6 +179,8 @@ public:
    virtual bool         IsParameterEqualToDefault(const Integer id) const;
    virtual bool         IsParameterEqualToDefault(const std::string &label) const;
 
+   virtual bool         ParameterAffectsDynamics(const Integer id) const;
+
    virtual Gmat::ObjectType
                         GetPropertyObjectType(const Integer id) const;
    virtual const StringArray&

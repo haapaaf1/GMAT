@@ -78,6 +78,8 @@ public:
                                         const std::string &oldName,
                                         const std::string &newName);
    
+   virtual bool         DepletesMass();
+
 protected:
 
    /// List of thrusters used in the maneuver

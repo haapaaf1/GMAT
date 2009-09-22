@@ -322,7 +322,8 @@ protected:
    virtual bool            TakeAStep(Real propStep = 0.0);
    
    
-   void                    AddTransientForce(StringArray *sats, ODEModel *p);
+   void                    AddTransientForce(StringArray *sats, ODEModel *p,
+                                 PropagationStateManager *propMan);
    void                    ClearTransientForces();
    
    void                    AddToBuffer(SpaceObject *so);
