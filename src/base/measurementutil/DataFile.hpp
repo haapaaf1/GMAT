@@ -35,6 +35,9 @@
 #include <pcrecpp.h>
 #include <math.h>
 #include "StringUtil.hpp"           // for ToString()
+#include "A1Date.hpp"
+#include "A1MJD.hpp"
+#include "UtcDate.hpp"
 
 using namespace std; // so we don't have to type std::cout and std::endl
 
@@ -290,6 +293,8 @@ protected:
     static const std::string DataFile::REGEX_DATE;
     static const std::string DataFile::REGEX_SCINUMBER;
     static const std::string DataFile::REGEX_CCSDS_DATE;
+    static const std::string DataFile::REGEX_CCSDS_SAVETHEDATE1;
+    static const std::string DataFile::REGEX_CCSDS_SAVETHEDATE2;
     static const std::string DataFile::REGEX_CCSDS_KEYWORD;
 
     // File format and filename of the data being used

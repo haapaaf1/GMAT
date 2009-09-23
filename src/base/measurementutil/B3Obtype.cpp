@@ -647,10 +647,10 @@ bool B3Obtype::CheckDataAvailability(const std::string str) const
 /**
  * Formats B3Obtype value and sends to output stream.
  *
- * @param  output  Output stream
- * @param  myB3    B3 observation to write out
+ * @param  <output>  Output stream
+ * @param  <myB3>    B3 observation to write out
  *
- * return  Output stream
+ * @return  Output stream
  */
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const B3Obtype *myB3) 

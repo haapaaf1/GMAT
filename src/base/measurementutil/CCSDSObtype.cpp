@@ -2,8 +2,19 @@
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
-const std::string CCSDSObtype::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];
+const std::string CCSDSObtype::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps] =
+{
+"Quaternion",
+"Euler Angle",
+"Spin Stabilized",
+"State Vector",
+"Keplerian Elements",
+"Spacecraft Parameters",
+"Generic Data Type"
+};
+
 const std::string CCSDSObtype::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
+
 const std::string CCSDSObtype::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSDataReps] =
 {
     "CCSDS Version",
@@ -586,4 +597,147 @@ std::string CCSDSObtype::GetUnits(const Integer &id) const
 {
    return std::string("");
 }
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSObtype *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObtype data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myOb>    CCSDS data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSObtype *myOb)
+{
+   using namespace std;
+
+   output.setf(std::ios::showpoint);
+   output.setf(std::ios::scientific);
+
+   if (myOb->ccsdsHeader != NULL)
+   {
+        output << "CCSDS Version = " << myOb->ccsdsHeader->ccsdsVersion << std::endl;
+        output << "Creation Date = " << myOb->ccsdsHeader->creationDate << std::endl;
+        output << "Originator = " << myOb->ccsdsHeader->originator << std::endl;
+        for (Integer i = 0; i < myOb->ccsdsHeader->headerComments.size(); i++)
+        {
+            output << "Comments = " << myOb->ccsdsHeader->headerComments[i] << std::endl;
+        }
+        output << "******************************************************" << std::endl;
+   }
+
+   if (myOb->ccsdsData != NULL)
+   {
+        output << "Keyword = " << myOb->ccsdsData->keywordID << std::endl;
+        output << "Time Tag = " << myOb->ccsdsData->timeTag << std::endl;
+        output << "Measurement = " << myOb->ccsdsData->measurement << std::endl;
+        output << "******************************************************" << std::endl;
+   }
+
+   if (myOb->ccsdsSpacecraftParameters != NULL)
+   {
+        output << "Mass = " << myOb->ccsdsSpacecraftParameters->mass << std::endl;
+        output << "Solar Radiation Area = " << myOb->ccsdsSpacecraftParameters->solarRadiationArea << std::endl;
+        output << "Solar Radiation Coefficient = " << myOb->ccsdsSpacecraftParameters->solarRadiationCoefficient << std::endl;
+        output << "Drag Area = " << myOb->ccsdsSpacecraftParameters->dragArea << std::endl;
+        output << "Drag Coefficient = " << myOb->ccsdsSpacecraftParameters->dragCoefficient << std::endl;
+        output << "Intertial Reference Frame = " << myOb->ccsdsSpacecraftParameters->intertiaRefFrame << std::endl;
+        output << "I(1,1) = " << myOb->ccsdsSpacecraftParameters->i11 << std::endl;
+        output << "I(2,2) = " << myOb->ccsdsSpacecraftParameters->i22 << std::endl;
+        output << "I(3,3) = " << myOb->ccsdsSpacecraftParameters->i33 << std::endl;
+        output << "I(1,2) = " << myOb->ccsdsSpacecraftParameters->i12 << std::endl;
+        output << "I(1,3) = " << myOb->ccsdsSpacecraftParameters->i13 << std::endl;
+        output << "I(2,3) = " << myOb->ccsdsSpacecraftParameters->i23 << std::endl;
+        output << "******************************************************" << std::endl;
+   }
+
+   if (myOb->ccsdsKeplerianElements != NULL)
+   {
+        output << "Semimajor Axis = " << myOb->ccsdsKeplerianElements->semiMajorAxis << std::endl;
+        output << "Eccentricity = " << myOb->ccsdsKeplerianElements->eccentricity << std::endl;
+        output << "Inclination = " << myOb->ccsdsKeplerianElements->inclination << std::endl;
+        output << "RAAN = " << myOb->ccsdsKeplerianElements->raan << std::endl;
+        output << "Argument of Pericenter = " << myOb->ccsdsKeplerianElements->argumentOfPericenter << std::endl;
+        output << "True Anomaly = " << myOb->ccsdsKeplerianElements->trueAnomaly << std::endl;
+        output << "Mean Anomaly = " << myOb->ccsdsKeplerianElements->meanAnomaly << std::endl;
+        output << "Gravitational Coefficient = " << myOb->ccsdsKeplerianElements->gravitationalCoefficient << std::endl;
+        output << "******************************************************" << std::endl;
+   }
+ 
+   if (myOb->ccsdsStateVector != NULL)
+   {
+        output << "Epoch = " << myOb->ccsdsStateVector->epoch << std::endl;
+        output << "X = " << myOb->ccsdsStateVector->X << std::endl;
+        output << "Y = " << myOb->ccsdsStateVector->Y << std::endl;
+        output << "Z = " << myOb->ccsdsStateVector->Z << std::endl;
+        output << "X dot = " << myOb->ccsdsStateVector->xDot << std::endl;
+        output << "Y dot = " << myOb->ccsdsStateVector->yDot << std::endl;
+        output << "Z dot = " << myOb->ccsdsStateVector->zDot << std::endl;
+        output << "******************************************************" << std::endl;
+   }
+
+   if (myOb->ccsdsSpinStabilized != NULL)
+   {
+       output << "Attitude type = " << myOb->ccsdsSpinStabilized->attitudeType << std::endl;
+        for (Integer i = 0; i < myOb->ccsdsSpinStabilized->comments.size(); i++)
+        {
+           output << "Comments = " << myOb->ccsdsSpinStabilized->comments[i] << std::endl;
+        }
+       output << "Ref Frame A = " << myOb->ccsdsSpinStabilized->frameA << std::endl;
+       output << "Ref Frame B = " << myOb->ccsdsSpinStabilized->frameB << std::endl;
+       output << "Direction = " << myOb->ccsdsSpinStabilized->direction << std::endl;
+       output << "Spin Alpha = " << myOb->ccsdsSpinStabilized->spinAlpha << std::endl;
+       output << "Spin Delta = " << myOb->ccsdsSpinStabilized->spinDelta << std::endl;
+       output << "Spin Angle = " << myOb->ccsdsSpinStabilized->spinAngle << std::endl;
+       output << "Spin Angle Velocity = " << myOb->ccsdsSpinStabilized->spinAngleVelocity << std::endl;
+       output << "Nutation = " << myOb->ccsdsSpinStabilized->nutation << std::endl;
+       output << "Nutation Period = " << myOb->ccsdsSpinStabilized->nutationPeriod << std::endl;
+       output << "Nutation Phase = " << myOb->ccsdsSpinStabilized->nutationPhase << std::endl;
+       output << "******************************************************" << std::endl;
+   }
+
+   if (myOb->ccsdsEulerAngle != NULL)
+   {
+       output << "Euler Angle Type = " << myOb->ccsdsEulerAngle->eulerAngleType << std::endl;
+       output << "Ref Frame A = " << myOb->ccsdsEulerAngle->frameA << std::endl;
+       output << "Ref Frame B = " << myOb->ccsdsEulerAngle->frameB << std::endl;
+       output << "Direction = " << myOb->ccsdsEulerAngle->direction << std::endl;
+       output << "Rotation Sequence = " << myOb->ccsdsEulerAngle->rotationSequence << std::endl;
+       output << "Rate Frame = " << myOb->ccsdsEulerAngle->rateFrame << std::endl;
+       output << "X Angle = " << myOb->ccsdsEulerAngle->xAngle << std::endl;
+       output << "Y Angle = " << myOb->ccsdsEulerAngle->yAngle << std::endl;
+       output << "Z Angle = " << myOb->ccsdsEulerAngle->zAngle << std::endl;
+       output << "X Rate = " << myOb->ccsdsEulerAngle->xRate << std::endl;
+       output << "Y Rate = " << myOb->ccsdsEulerAngle->yRate << std::endl;
+       output << "Z Rate = " << myOb->ccsdsEulerAngle->zRate << std::endl;
+       output << "******************************************************" << std::endl;
+   }
+    
+   if (myOb->ccsdsQuaternion != NULL)
+   {
+        output << "Quaternion Type = " << myOb->ccsdsQuaternion->quarternionType << std::endl;
+        output << "Ref Frame A = " << myOb->ccsdsQuaternion->frameA << std::endl;
+        output << "Ref Frame B = " << myOb->ccsdsQuaternion->frameB << std::endl;
+        output << "Direction = " << myOb->ccsdsQuaternion->direction << std::endl;
+        output << "Q1 = " << myOb->ccsdsQuaternion->q1 << std::endl;
+        output << "Q2 = " << myOb->ccsdsQuaternion->q2 << std::endl;
+        output << "Q3 = " << myOb->ccsdsQuaternion->q3 << std::endl;
+        output << "QC = " << myOb->ccsdsQuaternion->qC << std::endl;
+        output << "Q1 dot = " << myOb->ccsdsQuaternion->q1Dot << std::endl;
+        output << "Q2 dot = " << myOb->ccsdsQuaternion->q2Dot << std::endl;
+        output << "Q3 dot = " << myOb->ccsdsQuaternion->q3Dot << std::endl;
+        output << "QC dot = " << myOb->ccsdsQuaternion->qcDot << std::endl;
+        output << "X Rate = " << myOb->ccsdsQuaternion->xRate << std::endl;
+        output << "Y Rate = " << myOb->ccsdsQuaternion->yRate << std::endl;
+        output << "Z Rate = " << myOb->ccsdsQuaternion->zRate << std::endl;
+        output << "******************************************************" << std::endl;
+   }
+
+   return output;
+}
+
+
 

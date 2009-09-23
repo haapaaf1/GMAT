@@ -24,11 +24,59 @@ public:
     CCSDSObtype::ccsds_header* GetHeader();
     void SetHeader(CCSDSObtype::ccsds_header *myHeader);
     
-    bool GetCCSDSHeader(std::string firstline, CCSDSObtype::ccsds_header* myHeader);
+    bool GetCCSDSHeader(std::string firstline,
+                        CCSDSObtype::ccsds_header* myHeader);
     bool GetCCSDSData(std::string &lff, CCSDSObtype::ccsds_data *myData,
                       CCSDSObtype *myOb);
-    
+
+    // Utility functions
+    bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date);
+
+    // methods to get descriptions of allowable CCSDS time system
+    // and reference frame values
+    const std::string* GetCCSDSTimeSystemDescriptions() const;
+    std::string GetCCSDSTimeSystemRep(const Integer &id) const;
+    std::string GetCCSDSTimeSystemDescription(const Integer &id) const;
+    Integer GetCCSDSTimeSystemID(const std::string &label);
+
+    const std::string* GetCCSDSRefFrameDescriptions() const;
+    std::string GetCCSDSRefFrameRep(const Integer &id) const;
+    std::string GetCCSDSRefFrameDescription(const Integer &id) const;
+    Integer GetCCSDSRefFrameID(const std::string &label);
+
+
+    // This is coordinated with TimeSystemConverter
+    enum TimeSystemValues
+    {
+        TAI_ID = 8,
+        UTC_ID,
+        UT1_ID,
+        TDB_ID,
+        TCB_ID,
+        TT_ID,
+        GMST_ID,
+        GPS_ID,
+        SCLK_ID,
+        EndCCSDSTimeSystemReps
+    };
+
+    enum ReferenceFrameValues
+    {
+        EME2000_ID,
+        ICRF_ID,
+        ITRF2000_ID,
+        ITRF93_ID,
+        ITRF97_ID,
+        TOD_ID,
+        EndCCSDSRefFrameReps
+    };
+
 protected:
+
+    static const std::string CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8];
+    static const std::string CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDSTimeSystemReps-8];
+    static const std::string CCSDS_REF_FRAME_REPS[EndCCSDSRefFrameReps];
+    static const std::string CCSDS_REF_FRAME_DESCRIPTIONS[EndCCSDSRefFrameReps];
 
     // Pointer to current header
     CCSDSObtype::ccsds_header *currentCCSDSHeader;

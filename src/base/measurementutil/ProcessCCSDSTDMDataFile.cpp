@@ -21,7 +21,7 @@
 
 #include <ProcessCCSDSTDMDataFile.hpp>
 
-//#define DEBUG_CCSDSTDM_DATA
+#define DEBUG_CCSDSTDM_DATA
 
 //---------------------------------
 //  public methods
@@ -295,7 +295,7 @@ bool ProcessCCSDSTDMDataFile::GetData(std::string line, CCSDSTDMObtype *myTDM)
     if (currentCCSDSHeader == NULL || currentCCSDSMetadata == NULL)
 	return false;
 
-    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line))
+    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
         CCSDSTDMObtype::ccsds_data *myTDMData = new CCSDSTDMObtype::ccsds_data;
 	myTDM->ccsdsHeader = currentCCSDSHeader;
@@ -521,4 +521,3 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetadata(std::string &lff,
     return true;
 
 }
-

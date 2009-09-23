@@ -49,7 +49,7 @@ public:
 
     enum OEM_TYPE_REPS
     {
-	GPSONLY_ID,
+	GPSONLY_ID = EndCCSDSTypeReps,
         MIXED_ID,
         GLONASSONLY_ID,
 	LEOONLY_ID,
@@ -59,7 +59,7 @@ public:
 
     enum OEM_TIME_REPS
     {
-	GPSTIME_ID,
+	GPSTIME_ID = EndCCSDSTimeReps,
         GLONASSUTC_ID,
         GALILEOSYSTEMTIME_ID,
 	TAI_ID,

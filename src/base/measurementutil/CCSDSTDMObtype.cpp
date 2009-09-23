@@ -1011,3 +1011,74 @@ bool CCSDSTDMObtype::CheckDataAvailability(const std::string str) const
    return CCSDSObtype::CheckDataAvailability(str);
 
 }
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSTDMObtype *myTDM)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSTDMObtype value and sends to output stream.
+ *
+ * @param  output  Output stream
+ * @param  myTDM    CCSDS TDM observation to write out
+ *
+ * return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSTDMObtype *myTDM)
+{
+   using namespace std;
+
+   output.setf(std::ios::showpoint);
+   output.setf(std::ios::scientific);
+
+   output << (CCSDSObtype*)myTDM << std::endl;
+   for (Integer i = 0; i < myTDM->ccsdsTDMMetaData->metadataComments.size(); i++ )
+   {
+       output << "Metadata Comments = " << myTDM->ccsdsTDMMetaData->metadataComments[i] << std::endl;
+   }
+   output << "Time System = " << myTDM->ccsdsTDMMetaData->timeSystem << std::endl;
+   output << "Start Time = " << myTDM->ccsdsTDMMetaData->startTime << std::endl;
+   output << "Stop Time = " << myTDM->ccsdsTDMMetaData->stopTime << std::endl;
+   output << "Participant 1 = " << myTDM->ccsdsTDMMetaData->participants[0] << std::endl;
+   output << "Participant 2 = " << myTDM->ccsdsTDMMetaData->participants[1] << std::endl;
+   output << "Participant 3 = " << myTDM->ccsdsTDMMetaData->participants[2] << std::endl;
+   output << "Participant 4 = " << myTDM->ccsdsTDMMetaData->participants[3] << std::endl;
+   output << "Participant 5 = " << myTDM->ccsdsTDMMetaData->participants[4] << std::endl;
+   output << "Mode = " << myTDM->ccsdsTDMMetaData->mode << std::endl;
+   output << "Path = " << myTDM->ccsdsTDMMetaData->path[0] << std::endl;
+   output << "Path 1 = " << myTDM->ccsdsTDMMetaData->path[1] << std::endl;
+   output << "Path 2 = " << myTDM->ccsdsTDMMetaData->path[2] << std::endl;
+   output << "Transmit Band = " << myTDM->ccsdsTDMMetaData->transmitBand << std::endl;
+   output << "Receive Band = " << myTDM->ccsdsTDMMetaData->receiveBand << std::endl;
+   output << "Turnaround Numerator = " << myTDM->ccsdsTDMMetaData->turnaroundNumerator << std::endl;
+   output << "Turnaround Denominator = " << myTDM->ccsdsTDMMetaData->turnaroundDenominator << std::endl;
+   output << "Time Tag Ref = " << myTDM->ccsdsTDMMetaData->timeTagRef << std::endl;
+   output << "Integration Interval = " << myTDM->ccsdsTDMMetaData->integrationInterval << std::endl;
+   output << "Integration Ref = " << myTDM->ccsdsTDMMetaData->integrationRef << std::endl;
+   output << "Frequency Offset = " << myTDM->ccsdsTDMMetaData->frequencyOffset << std::endl;
+   output << "Range Mode = " << myTDM->ccsdsTDMMetaData->rangeMode << std::endl;
+   output << "Range Modulus = " << myTDM->ccsdsTDMMetaData->rangeModulus << std::endl;
+   output << "Range Units = " << myTDM->ccsdsTDMMetaData->rangeUnits << std::endl;
+   output << "Angle Type = " << myTDM->ccsdsTDMMetaData->angleType << std::endl;
+   output << "Transmit Delay 1 = " << myTDM->ccsdsTDMMetaData->transmitDelay[0] << std::endl;
+   output << "Transmit Delay 2 = " << myTDM->ccsdsTDMMetaData->transmitDelay[1] << std::endl;
+   output << "Transmit Delay 3 = " << myTDM->ccsdsTDMMetaData->transmitDelay[2] << std::endl;
+   output << "Transmit Delay 4 = " << myTDM->ccsdsTDMMetaData->transmitDelay[3] << std::endl;
+   output << "Transmit Delay 5 = " << myTDM->ccsdsTDMMetaData->transmitDelay[4] << std::endl;
+   output << "Receive Delay 1 = " << myTDM->ccsdsTDMMetaData->receiveDelay[0] << std::endl;
+   output << "Receive Delay 2 = " << myTDM->ccsdsTDMMetaData->receiveDelay[1] << std::endl;
+   output << "Receive Delay 3 = " << myTDM->ccsdsTDMMetaData->receiveDelay[2] << std::endl;
+   output << "Receive Delay 4 = " << myTDM->ccsdsTDMMetaData->receiveDelay[3] << std::endl;
+   output << "Receive Delay 5 = " << myTDM->ccsdsTDMMetaData->receiveDelay[4] << std::endl;
+   output << "Data Quality = " << myTDM->ccsdsTDMMetaData->dataQuality << std::endl;
+   output << "Correction Angle 1 = " << myTDM->ccsdsTDMMetaData->correctionAngle1 << std::endl;
+   output << "Correction Angle 2 = " << myTDM->ccsdsTDMMetaData->correctionAngle2 << std::endl;
+   output << "Correction Doppler = " << myTDM->ccsdsTDMMetaData->correctionDoppler << std::endl;
+   output << "Correction Range = " << myTDM->ccsdsTDMMetaData->correctionRange << std::endl;
+   output << "Correction Receive = " << myTDM->ccsdsTDMMetaData->correctionReceive << std::endl;
+   output << "Correction Transmit = " << myTDM->ccsdsTDMMetaData->correctionTransmit << std::endl;
+   output << "Corrections Applied = " << myTDM->ccsdsTDMMetaData->correctionsApplied << std::endl;
+   output << "******************************************************" << std::endl;
+
+   return output;
+}

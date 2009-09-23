@@ -19,7 +19,10 @@ public :
     CCSDSObtype(const CCSDSObtype &ob);
     const CCSDSObtype& operator=(const CCSDSObtype &ob);
     virtual ~CCSDSObtype();
-    	
+
+    friend std::ostream& operator<< (std::ostream &output, const CCSDSObtype *myOb);
+
+
     virtual std::string GetDataParameterText(const Integer id) const;
     virtual Integer    GetDataParameterID(const std::string &str) const;
     virtual Gmat::ParameterType GetDataParameterType(const Integer id) const;
@@ -146,6 +149,13 @@ public :
 
     enum CCSDS_DATATYPE_REPS
     {
+        QUATERNION_ID,
+        EULERANGLE_ID,
+        SPINSTABILIZED_ID,
+        STATEVECTOR_ID,
+        KEPLERIANELEMENTS_ID,
+        SPACECRAFTPARAMETERS_ID,
+        GENERICDATA_ID,
 	EndCCSDSTypeReps    
     };
     

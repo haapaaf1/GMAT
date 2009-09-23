@@ -19,6 +19,9 @@ public :
     CCSDSTDMObtype(const CCSDSTDMObtype &tdm);
     const CCSDSTDMObtype& CCSDSTDMObtype::operator=(const CCSDSTDMObtype &tdm);
     ~CCSDSTDMObtype();
+
+    friend std::ostream& operator<< (std::ostream &output, 
+                                     const CCSDSTDMObtype *myTDM);
     	
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
