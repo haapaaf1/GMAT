@@ -24,6 +24,7 @@
 #include <math.h>          // for pow(real, real)
 
 //#define DEBUG_THRUSTER
+//#define DEBUG_THRUSTER_CONSTRUCTOR
 //#define DEBUG_THRUSTER_SET
 //#define DEBUG_THRUSTER_REF_OBJ
 //#define DEBUG_THRUSTER_INIT
@@ -288,7 +289,9 @@ Thruster::Thruster(const Thruster& th) :
    tankNames            (th.tankNames)
 {
    #ifdef DEBUG_THRUSTER_CONSTRUCTOR
-   MessageInterface::ShowMessage("Thruster::Thruster(copy) entered\n");
+   MessageInterface::ShowMessage
+      ("Thruster::Thruster(copy) entered, this = <%p>'%s', copying from <%p>'%s'\n",
+       this, GetName().c_str(), &th, th.GetName().c_str());
    #endif
    
    parameterCount = th.parameterCount;
@@ -1355,7 +1358,7 @@ bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    if (obj->GetTypeName() == "FuelTank")
    {
       #ifdef DEBUG_THRUSTER_REF_OBJ
-         MessageInterface::ShowMessage("Setting tank \"%s\" on thruster \"%s\"\n",
+         MessageInterface::ShowMessage("   Setting tank \"%s\" on thruster \"%s\"\n",
                                        name.c_str(), instanceName.c_str());
       #endif
       
@@ -1395,6 +1398,10 @@ bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          thrusterFiring = temp;
       #endif
       
+      #ifdef DEBUG_THRUSTER_REF_OBJ
+      MessageInterface::ShowMessage
+         ("Thruster::SetRefObject() <%p>'%s' returning true\n", this, GetName().c_str());
+      #endif
       return true;
    }
    
@@ -1906,6 +1913,14 @@ CoordinateSystem* Thruster::CreateLocalCoordinateSystem()
 //------------------------------------------------------------------------------
 // void ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epoch)
 //------------------------------------------------------------------------------
+/*
+ * Converts thruster direction to inertial frame
+ *
+ * @param dir  Thruster direction in thruster frame
+ * @param dirInertial  Thruster direction in inertial frame
+ * @param epoch  Epoch to be used for conversion
+ */
+//------------------------------------------------------------------------------
 void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epoch)
 {
    #ifdef DEBUG_THRUSTER_CONVERT
@@ -1941,11 +1956,6 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
       inDir[i] = dir[i];
    for (Integer i=3; i<6; i++)
       inDir[i] = 0.0;
-   
-   //=================================================================
-   #if 1
-   //=================================================================
-   
    
    // if not using local CS, use ref CoordinateSystem
    if (!usingLocalCoordSys)
@@ -1996,53 +2006,6 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
          dirInertial[2] = outDir[2];
       }
    }
-   
-   
-   //=================================================================
-   #else
-   //=================================================================
-
-   
-   CoordinateSystem *csToUse = NULL;
-   
-   if (!usingLocalCoordSys)
-      csToUse = coordSystem;
-   else
-      csToUse = localCoordSystem;
-   
-   #ifdef DEBUG_THRUSTER_CONVERT
-   MessageInterface::ShowMessage
-      ("   csToUse=<%p>'%s'\n", csToUse, csToUse->GetName().c_str());
-   #endif
-   
-   #ifdef DEBUG_THRUSTER_CONVERT_ROTMAT
-   if (usingLocalCoordSys)
-   {
-      Rvector6 rv = csToUse->GetSecondaryObject()->GetMJ2000State(epoch) -
-         csToUse->GetPrimaryObject()->GetMJ2000State(epoch);
-      MessageInterface::ShowMessage
-         ("   >> rv Primary to Secondary = %s\n", rv.ToString(16).c_str());
-   }
-   #endif
-   
-   // Now rotate to MJ2000Eq axes, we don't want to translate so
-   // set coincident to true
-   csToUse->ToMJ2000Eq(epoch, inDir, outDir, true);
-   
-   #ifdef DEBUG_THRUSTER_CONVERT_ROTMAT
-   Rmatrix33 rotMat = csToUse->GetLastRotationMatrix();
-   MessageInterface::ShowMessage
-      ("rotMat=\n%s\n", rotMat.ToString(16, 20).c_str());
-   #endif
-
-   //=================================================================
-   #endif
-   //=================================================================
-
-   
-   dirInertial[0] = outDir[0];
-   dirInertial[1] = outDir[1];
-   dirInertial[2] = outDir[2];
    
    #ifdef DEBUG_THRUSTER_CONVERT
    MessageInterface::ShowMessage
