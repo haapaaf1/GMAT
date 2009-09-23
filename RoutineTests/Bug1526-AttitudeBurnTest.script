@@ -1,0 +1,193 @@
+
+%----------------------------------------
+%---------- Solar System User-Modified Values
+%----------------------------------------
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft AttitudeSat;
+GMAT AttitudeSat.DateFormat = TAIModJulian;
+GMAT AttitudeSat.Epoch = '21545.000000000';
+GMAT AttitudeSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT AttitudeSat.DisplayStateType = Cartesian;
+GMAT AttitudeSat.Thrusters = {AttitudeThruster};
+GMAT AttitudeSat.Tanks  = {FuelTank1};
+GMAT AttitudeSat.X = 7100;
+GMAT AttitudeSat.Y = 0;
+GMAT AttitudeSat.Z = 1300;
+GMAT AttitudeSat.VX = 0;
+GMAT AttitudeSat.VY = 7.35;
+GMAT AttitudeSat.VZ = 1;
+GMAT AttitudeSat.DryMass = 850;
+GMAT AttitudeSat.Cd = 2.2;
+GMAT AttitudeSat.Cr = 1.8;
+GMAT AttitudeSat.DragArea = 15;
+GMAT AttitudeSat.SRPArea = 1;
+GMAT AttitudeSat.Attitude = CoordinateSystemFixed;
+GMAT AttitudeSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT AttitudeSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT AttitudeSat.AttitudeCoordinateSystem = 'VNBCS';
+GMAT AttitudeSat.Q1 = 0;
+GMAT AttitudeSat.Q2 = 0;
+GMAT AttitudeSat.Q3 = 0;
+GMAT AttitudeSat.Q4 = 1;
+GMAT AttitudeSat.EulerAngleSequence = '312';
+GMAT AttitudeSat.AngularVelocityX = 0;
+GMAT AttitudeSat.AngularVelocityY = 0;
+GMAT AttitudeSat.AngularVelocityZ = 0;
+
+Create Spacecraft VNBSat;
+GMAT VNBSat.DateFormat = TAIModJulian;
+GMAT VNBSat.Epoch = '21545.000000000';
+GMAT VNBSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT VNBSat.DisplayStateType = Cartesian;
+GMAT VNBSat.Thrusters  = {VNBThruster};
+GMAT VNBSat.Tanks  = {FuelTank2};
+GMAT VNBSat.X = 7100;
+GMAT VNBSat.Y = 0;
+GMAT VNBSat.Z = 1300;
+GMAT VNBSat.VX = 0;
+GMAT VNBSat.VY = 7.35;
+GMAT VNBSat.VZ = 1;
+GMAT VNBSat.DryMass = 850;
+GMAT VNBSat.Cd = 2.2;
+GMAT VNBSat.Cr = 1.8;
+GMAT VNBSat.DragArea = 15;
+GMAT VNBSat.SRPArea = 1;
+GMAT VNBSat.Attitude = CoordinateSystemFixed;
+GMAT VNBSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT VNBSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT VNBSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT VNBSat.Q1 = 0;
+GMAT VNBSat.Q2 = 0;
+GMAT VNBSat.Q3 = 0;
+GMAT VNBSat.Q4 = 1;
+GMAT VNBSat.EulerAngleSequence = '312';
+GMAT VNBSat.AngularVelocityX = 0;
+GMAT VNBSat.AngularVelocityY = 0;
+GMAT VNBSat.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+Create Thruster AttitudeThruster;
+GMAT AttitudeThruster.CoordinateSystem = Local;
+GMAT AttitudeThruster.Origin = Earth;
+GMAT AttitudeThruster.Axes = SpacecraftBody;
+GMAT AttitudeThruster.Tank = {FuelTank1};
+GMAT AttitudeThruster.Element1 = 1;
+GMAT AttitudeThruster.Element2 = 0;
+GMAT AttitudeThruster.Element3 = 0;
+GMAT AttitudeThruster.DutyCycle = 1;
+GMAT AttitudeThruster.ThrustScaleFactor = 1;
+GMAT AttitudeThruster.DecrementMass = false;
+GMAT AttitudeThruster.GravitationalAccel = 9.81;
+
+Create Thruster VNBThruster;
+GMAT VNBThruster.CoordinateSystem = Local;
+GMAT VNBThruster.Origin = Earth;
+GMAT VNBThruster.Axes = VNB;
+GMAT VNBThruster.Tank = {FuelTank2};
+GMAT VNBThruster.Element1 = 1;
+GMAT VNBThruster.Element2 = 0;
+GMAT VNBThruster.Element3 = 0;
+GMAT VNBThruster.DutyCycle = 1;
+GMAT VNBThruster.ThrustScaleFactor = 1;
+GMAT VNBThruster.DecrementMass = false;
+GMAT VNBThruster.GravitationalAccel = 9.81;
+
+Create FuelTank FuelTank1 FuelTank2
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-12;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create FiniteBurn AttitudeBurn;
+GMAT AttitudeBurn.Thrusters = {AttitudeThruster};
+
+Create FiniteBurn VNBBurn;
+GMAT VNBBurn.Thrusters = {VNBThruster};
+
+Create CoordinateSystem VNBCS;
+GMAT VNBCS.Origin = AttitudeSat;
+GMAT VNBCS.Axes = ObjectReferenced;
+GMAT VNBCS.UpdateInterval = 60;
+GMAT VNBCS.OverrideOriginInterval = false;
+GMAT VNBCS.XAxis = V;
+GMAT VNBCS.YAxis = N;
+GMAT VNBCS.Primary = Earth;
+GMAT VNBCS.Secondary = AttitudeSat;
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create OpenGLPlot DefaultOpenGL;
+GMAT DefaultOpenGL.SolverIterations = Current;
+GMAT DefaultOpenGL.Add = {AttitudeSat, Earth};
+GMAT DefaultOpenGL.OrbitColor = [ 255 32768 ];
+GMAT DefaultOpenGL.TargetColor = [ 8421440 0 ];
+GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewPointReference = Earth;
+GMAT DefaultOpenGL.ViewPointVector = [ 0 0 30000 ];
+GMAT DefaultOpenGL.ViewDirection = Earth;
+GMAT DefaultOpenGL.ViewScaleFactor = 1;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewUpAxis = Z;
+GMAT DefaultOpenGL.CelestialPlane = Off;
+GMAT DefaultOpenGL.XYPlane = On;
+GMAT DefaultOpenGL.WireFrame = Off;
+GMAT DefaultOpenGL.Axes = On;
+GMAT DefaultOpenGL.Grid = Off;
+GMAT DefaultOpenGL.SunLine = Off;
+GMAT DefaultOpenGL.UseInitialView = On;
+GMAT DefaultOpenGL.DataCollectFrequency = 1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
+GMAT DefaultOpenGL.NumPointsToRedraw = 0;
+GMAT DefaultOpenGL.ShowPlot = true;
+
+Create ReportFile EphemData
+GMAT EphemData.Filename = Bug1526_AttitudeBurnTest.report;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginFiniteBurn AttitudeBurn(AttitudeSat);
+BeginFiniteBurn VNBBurn(VNBSat);
+
+%%Propagate DefaultProp(AttitudeSat,VNBSat) {AttitudeSat.ElapsedSecs = 8640.0};
+Propagate DefaultProp(AttitudeSat,VNBSat) {AttitudeSat.ElapsedSecs = 864.0};
+
+Report EphemData AttitudeSat.X AttitudeSat.Y AttitudeSat.Z
+Report EphemData VNBSat.X VNBSat.Y VNBSat.Z

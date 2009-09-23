@@ -1,0 +1,206 @@
+%Id%
+Create Array            Boundaries[1,2];
+Create Barycenter       EMBary;
+Create CoordinateSystem L2RLP;
+Create GmatFunction     Bug1519_Function;
+Create ForceModel       fm;
+Create ImpulsiveBurn    burnBaby;
+Create LibrationPoint   SEML2;
+Create Propagator       prop;
+Create ReportFile       DebugReport;
+Create Spacecraft       sc;
+Create Spacecraft       dummy_sc;
+Create String           reg3_stop_cond;
+Create Variable         BA;
+Create Variable         BB;
+Create Variable         BC;
+Create Variable         BD;
+Create Variable         T;
+Create Variable         burnBaby_A;
+Create Variable         burnBaby_B;
+Create Variable         burnBaby_T;
+Create Variable         in_reg;
+Create Variable         stop_prop;
+Create Variable         stop_cond;
+Create Variable         startTime;
+Create Variable         stopTime;
+Create Variable         stopDiff;
+Create Variable         timeDiff;
+Create Variable         LBoundary;
+Create Variable         RBoundary;
+Create Variable         looptime;
+Create Variable         iter 
+Create Variable         region_test;
+Create String           labelA, labelB, dummyLabel;
+
+GMAT labelA = '===============> In Main: Before FunctionCall iter in_reg';
+GMAT labelB = '===============> In Main: After  FunctionCall iter in_reg';
+GMAT dummyLabel = '===============> In Main: dummy_sc.A1ModJulian = ';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the spacecraft, force model, and propagator
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sc.DateFormat                     = UTCGregorian;
+sc.CoordinateSystem               = EarthMJ2000Eq;
+sc.DisplayStateType               = Keplerian;
+sc.Epoch                          = '01 Jan 2010 12:00:00.000';
+sc.SMA                            = 7000;
+sc.ECC                            = 0.001;
+sc.INC                            = 28.5;
+sc.RAAN                           = 280;
+sc.AOP                            = 0;
+sc.TA                             = 0;
+
+fm.CentralBody                    = Earth;
+fm.PrimaryBodies                  = {Earth};
+fm.Gravity.Earth.Model            = JGM2;
+fm.Gravity.Earth.Degree           = 0;
+fm.Gravity.Earth.Order            = 0;
+fm.PointMasses                    = {Sun, Luna};
+fm.ErrorControl                   = RSSState;
+
+prop.FM                           = fm;
+prop.Type                         = RungeKutta89;
+prop.InitialStepSize              = 60;
+prop.Accuracy                     = 1e-10;
+prop.MinStep                      = 0.001;
+prop.MaxStep                      = 86400;
+prop.MaxStepAttempts              = 50;
+
+dummy_sc                          = sc;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the L2 environment - Earth/Moon Barycenter,
+%%% SEML2 Libration Point, and SEML2-centered RLP coords
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+EMBary.BodyNames                  = {Earth,Luna};
+
+SEML2.Primary                     = Sun;
+SEML2.Secondary                   = EMBary;
+SEML2.Point                       = L2;
+
+L2RLP.Origin                      = SEML2;
+L2RLP.Axes                        = ObjectReferenced;
+L2RLP.Primary                     = Sun;
+L2RLP.Secondary                   = EMBary;
+L2RLP.XAxis                       = R;
+L2RLP.ZAxis                       = N;
+L2RLP.UpdateInterval              = 60;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the maneuver used to hurl our spacecraft about
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+burnBaby.Origin                   = Earth;
+burnBaby.Axes                     = VNB;
+burnBaby.VectorFormat             = Cartesian;
+burnBaby.Element1                 = 3.03;
+%burnBaby.Element1                 = 3.0928009196;
+burnBaby.Element2                 = 0;
+burnBaby.Element3                 = 0;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define SEML2-centered three-D view and the output file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+DebugReport.SolverIterations        = All;
+%%DebugReport.Filename                = '.\output\skippy.txt';
+DebugReport.Filename                = Bug1519_UtcModJulianIssue.report
+DebugReport.Precision               = 16;
+DebugReport.WriteHeaders            = Off;
+DebugReport.LeftJustify             = On;
+DebugReport.ZeroFill                = Off;
+DebugReport.ColumnWidth             = 30;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the Boundaries
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+burnBaby_A                        = 3.0925;
+burnBaby_B                        = 4;
+BA                                =  400000;
+BB                                = -400000;
+BC                                = -2000000;
+BD                                = BA +1;
+T                                 = 25;
+stopDiff                          = T;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Define the array
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Boundaries(1, 1) = BC;
+Boundaries(1, 2) = BB;
+LBoundary = Boundaries(1, 1);
+RBoundary = Boundaries(1, 2);
+looptime = 99;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Lets get started
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%First propagate our spacecraft to the injection point
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Global       DebugReport;
+Propagate    prop(dummy_sc,{dummy_sc.ElapsedSecs = 60});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Now test to see what the spacecraft does in region three
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+iter    = 0;
+in_reg  = 0;
+
+While in_reg == 0 & iter < 10  
+    sc = dummy_sc;
+    Maneuver burnBaby(sc);
+    
+    LBoundary = Boundaries(1, 1);
+    RBoundary = Boundaries(1, 2);
+    in_reg    = 99;
+    stop_prop = 0;
+    startTime = sc.UTCModJulian;
+    timeDiff  = 0;
+    
+    Report DebugReport labelA
+    Report DebugReport iter in_reg;
+    Report DebugReport dummyLabel dummy_sc.A1ModJulian
+    Report DebugReport sc.A1ModJulian sc.TAIModJulian sc.UTCModJulian;
+
+    [sc, in_reg] = Bug1519_Function(sc, prop, fm, burnBaby, stopDiff, EMBary, L2RLP, SEML2, LBoundary, RBoundary, in_reg, stop_prop, startTime, timeDiff, iter)
+ 
+    Report DebugReport labelB;
+    Report DebugReport iter in_reg;
+    Report DebugReport sc.A1ModJulian sc.TAIModJulian sc.UTCModJulian;
+
+%    While stop_prop == 0;
+%           Propagate prop(sc);
+%	       Report DebugReport sc.UTCModJulian timeDiff startTime;
+%	       timeDiff = sc.UTCModJulian - startTime;  
+%          If sc.L2RLP.X > RBoundary;
+%              stop_prop = 1;
+%              in_reg    = 2;
+%           EndIf;
+%           If sc.L2RLP.X < LBoundary;
+%              stop_prop = 1;
+%              in_reg    = 4;
+%           EndIf;
+%           If timeDiff > stopDiff;
+%              stop_prop = 1;
+%             in_reg    = 3;
+%           EndIf;
+%    EndWhile;
+
+    If in_reg == 4
+        Stop;
+    EndIf
+
+    If  in_reg == 2
+        Stop;
+    EndIf
+
+    If in_reg == 3
+        burnBaby_A = 1.008 * burnBaby.Element1;
+        burnBaby.Element1 = burnBaby_A;
+        in_reg = 0;
+    EndIf;
+    iter = iter +1;
+EndWhile;

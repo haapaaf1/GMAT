@@ -1,0 +1,93 @@
+%Id%
+function [sc, in_reg] = Bug1519_Function(sc, prop, fm, burnBaby, stopDiff, EMBary, L2RLP, SEML2, LBoundary, RBoundary, in_reg, stop_prop, startTime, timeDiff, iter)
+
+Create Spacecraft sc;
+Create Spacecraft sc_clone;
+Create Spacecraft sc4prop;
+Create Variable   in_reg;
+Create Propagator propFunc;
+Create ForceModel fmFunc;
+Create String     iterGT0, iterLE0, labelA, labelB, beforeProp, afterProp;
+
+Global DebugReport;
+
+GMAT iterGT0  = '==========> In Func: iter > 0 ';
+GMAT iterLE0  = '==========> In Func: iter <= 0 ';
+GMAT labelA   = '==> In Func: timeDiff stopDiff =';
+GMAT labelB   = '==> In Func: stop_prop in_reg = ';
+GMAT beforeProp  = '==========> In Func: before Propagate ';
+GMAT afterProp   = '==========> In Func: after  Propagate ';
+
+sc4prop      = sc;
+sc_clone     = sc;
+sc           = sc_clone;
+
+%%====================================================
+%% Uncommentning the following block works as expected
+%%====================================================
+%%propFunc     = prop;
+%%fmFunc       = fm;
+%%propFunc.FM  = fmFunc;
+%%prop         = propFunc;
+%%====================================================
+
+
+While stop_prop == 0;
+   If iter > 0
+
+       Report DebugReport iterGT0;
+       Report DebugReport beforeProp;
+       Report DebugReport sc.A1ModJulian;
+
+       Propagate prop(sc);
+       Propagate prop(sc4prop);
+
+       sc_clone = sc;
+       timeDiff = sc.UTCModJulian - startTime;
+
+       Report DebugReport afterProp;
+       Report DebugReport sc.A1ModJulian  sc_clone.A1ModJulian  sc4prop.A1ModJulian;
+       Report DebugReport sc.UTCModJulian sc_clone.UTCModJulian sc4prop.UTCModJulian;
+
+       stop_prop = 1;
+       in_reg = 4;
+
+   Else
+
+       Report DebugReport iterLE0;
+       Report DebugReport beforeProp;
+       Report DebugReport sc.A1ModJulian;
+
+       Propagate prop(sc);
+       Propagate prop(sc4prop);
+
+       sc_clone = sc;
+       timeDiff = sc.UTCModJulian - startTime;
+
+       Report DebugReport afterProp;
+       Report DebugReport sc.A1ModJulian  sc_clone.A1ModJulian  sc4prop.A1ModJulian;
+       Report DebugReport sc.UTCModJulian sc_clone.UTCModJulian sc4prop.UTCModJulian;
+
+       stop_prop = 1;
+       in_reg = 3;
+
+       %%If sc.L2RLP.X > RBoundary;
+       %%   stop_prop = 1;
+       %%   in_reg    = 2;
+       %%EndIf;
+       %%If sc.L2RLP.X < LBoundary;
+       %%   stop_prop = 1;
+       %%   in_reg    = 4;
+       %%EndIf;
+
+       %%Report DebugReport labelA timeDiff stopDiff;
+
+       %%If timeDiff > stopDiff;
+       %%   stop_prop = 1;
+       %%   in_reg    = 3;
+       %%EndIf;
+   EndIf;
+   
+   Report DebugReport labelB stop_prop in_reg;
+   
+EndWhile;
