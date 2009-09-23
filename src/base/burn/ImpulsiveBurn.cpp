@@ -53,7 +53,7 @@ const Gmat::ParameterType
 ImpulsiveBurn::PARAMETER_TYPE[ImpulsiveBurnParamCount - BurnParamCount] =
 {
    Gmat::BOOLEAN_TYPE,
-   Gmat::STRINGARRAY_TYPE,
+   Gmat::OBJECTARRAY_TYPE,
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
@@ -163,8 +163,9 @@ void ImpulsiveBurn::SetSpacecraftToManeuver(Spacecraft *sat)
 {
    #ifdef DEBUG_IMPBURN_SET
    MessageInterface::ShowMessage
-      ("ImpulsiveBurn::SetSpacecraftToManeuver() sat=<%p>'%s'\n", sat,
-       sat->GetName().c_str());
+      ("ImpulsiveBurn::SetSpacecraftToManeuver() sat=<%p>'%s', spacecraft=<%p>'%s'\n",
+       sat, sat->GetName().c_str(), spacecraft,
+       spacecraft ? spacecraft->GetName().c_str() : "NULL");
    #endif
    
    if (sat == NULL)
@@ -707,6 +708,36 @@ bool ImpulsiveBurn::SetStringParameter(const Integer id, const std::string &valu
 
 
 //---------------------------------------------------------------------------
+//  bool SetStringParameter(const Integer id, const std::string &value,
+//                          const Integer index)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool ImpulsiveBurn::SetStringParameter(const Integer id, const std::string &value,
+                                       const Integer index)
+{
+   switch (id)
+   {
+   case FUEL_TANK:
+      {
+         if (index < (Integer)tankNames.size())
+            tankNames[index] = value;
+         else
+            // Add the tank only if it is not in the list already
+            if (find(tankNames.begin(), tankNames.end(), value) == tankNames.end()) 
+               tankNames.push_back(value);
+         
+         return true;
+      }
+   default:
+      return Burn::SetStringParameter(id, value, index);
+   }
+}
+
+
+//---------------------------------------------------------------------------
 //  const StringArray& GetStringArrayParameter(const Integer id) const
 //---------------------------------------------------------------------------
 /**
@@ -872,6 +903,13 @@ bool ImpulsiveBurn::SetTankFromSpacecraft()
       {
          while (scTank != tankArray.end())
          {
+            #ifdef DEBUG_IMPBURN_SET
+            MessageInterface::ShowMessage
+               ("   The tank '%s' associated with spacecraft is <%p>'%s'\n",
+                (*tankName).c_str(), (*scTank),
+                (*scTank) ? (*scTank)->GetName().c_str() : "NULL");
+            #endif
+            
             // Just in case, check for NULL tank pointer
             if (*scTank == NULL)
                continue;
