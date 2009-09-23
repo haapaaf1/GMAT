@@ -45,7 +45,7 @@ Procedure:
 
    Fuel Density Text Field                   [ ] Pass  [ ] Fail  Bug# ______
 
-   Pressure Regulated Radio Button           [ ] Pass  [ ] Fail  Bug# ______
+   Pressure Model Drop Down Field            [ ] Pass  [ ] Fail  Bug# ______
    
 
 4. Evaluate panel-specific functionality.
