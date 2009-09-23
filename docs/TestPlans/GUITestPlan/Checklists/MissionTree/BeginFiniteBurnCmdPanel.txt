@@ -33,9 +33,9 @@ Procedure:
 
 3. Evaluate the individual panel elements.
 
-   Finite Burn Combo Box                     [ ] Pass  [ ] Fail  Bug# ______
+   Finite Burn Drop Down List                [ ] Pass  [ ] Fail  Bug# ______
 
-   Spacecraft Check Box(es)                  [ ] Pass  [ ] Fail  Bug# ______
+   Spacecraft Box                            [ ] Pass  [ ] Fail  Bug# ______
 
 
 4. Evaluate panel-specific functionality.
