@@ -99,6 +99,7 @@ public:
                                    const std::string &actionData = "");
    virtual void         SetSolarSystem(SolarSystem *ss);
    virtual bool         Initialize();
+   Real                 CalculateMassFlow();
    
 protected:
    /// Finite burn instances access thruster data directly
@@ -207,8 +208,6 @@ protected:
                         PARAMETER_TYPE[ThrusterParamCount - HardwareParamCount];
    
    bool                 CalculateThrustAndIsp();
-   Real                 CalculateMassFlow();
-   
    bool                 SetSpacecraft(Spacecraft *sat);
    
    CoordinateSystem*    CreateLocalCoordinateSystem();

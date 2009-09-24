@@ -1787,8 +1787,8 @@ Integer ODEModel::UpdateDynamicSpacecraftData(ObjectArray *sats, Integer i)
          }
          else
             throw ODEModelException(
-                                    "Setting SpaceObject parameters on unknown type for " +
-                                    sat->GetName());
+                                    "Setting SpaceObject parameters on unknown "
+                                    "type for " + sat->GetName());
       }
       ++i;
    }

@@ -241,7 +241,8 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    initialDisplay       (false),
    csSet                (false),
    isThrusterSettingMode(false),
-   orbitSTM             (6,6)
+   orbitSTM             (6,6),
+   includeCartesianState(0)
 {
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -394,7 +395,8 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    initialDisplay       (false),
    csSet                (a.csSet),
    isThrusterSettingMode(a.isThrusterSettingMode),
-   orbitSTM             (a.orbitSTM)
+   orbitSTM             (a.orbitSTM),
+   includeCartesianState(a.includeCartesianState)
 {
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -524,6 +526,8 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    BuildElementLabelMap();
    
    orbitSTM = a.orbitSTM;
+   includeCartesianState = a.includeCartesianState;
+
    
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -1626,6 +1630,23 @@ bool Spacecraft::ParameterAffectsDynamics(const Integer id) const
    if (id == MASS_FLOW)
       return true;
 
+   //if (includeCartesianState > 0)
+   if (isManeuvering)
+   {
+      if (id == CARTESIAN_X)
+         return true;
+      if (id == CARTESIAN_Y)
+         return true;
+      if (id == CARTESIAN_Z)
+         return true;
+      if (id == CARTESIAN_VX)
+         return true;
+      if (id == CARTESIAN_VY)
+         return true;
+      if (id == CARTESIAN_VZ)
+         return true;
+   }
+
    if (id == SRP_AREA_ID)
       return true;
 
@@ -2524,6 +2545,20 @@ bool Spacecraft::TakeAction(const std::string &action,
       return true;
    }
    
+   if (action == "RequireCartesianStateDynamics")
+   {
+      ++includeCartesianState;
+      return true;
+   }
+
+   if (action == "ReleaseCartesianStateDynamics")
+   {
+      --includeCartesianState;
+      if (includeCartesianState < 0)
+         includeCartesianState = 0;
+      return true;
+   }
+
    if ((action == "RemoveHardware") || (action == "RemoveTank") ||
        (action == "RemoveThruster")) 
    {
@@ -3209,16 +3244,22 @@ bool Spacecraft::ApplyTotalMass(Real newMass)
    Real massChange = newMass - UpdateTotalMass();
 
    #ifdef DEBUG_MASS_FLOW
-      MessageInterface::ShowMessage("Changing fuel mass by %.12le kg\n",
-            massChange);
+      MessageInterface::ShowMessage("Mass change = %.12le; depeting ", massChange);
    #endif
 
    // Find the active thruster(s)
    ObjectArray active;
+   RealArray   flowrate;
+   Real        totalFlow = 0.0, rate;
    for (ObjectArray::iterator i = thrusters.begin(); i != thrusters.end(); ++i)
    {
       if ((*i)->GetBooleanParameter("IsFiring"))
+      {
          active.push_back(*i);
+         rate = ((Thruster*)(*i))->CalculateMassFlow();
+         flowrate.push_back(rate);
+         totalFlow += rate;
+      }
    }
 
    // Divide the mass flow evenly between the tanks on each active thruster
@@ -3227,19 +3268,34 @@ bool Spacecraft::ApplyTotalMass(Real newMass)
       throw SpaceObjectException("Mass update requested but there are no active"
             " thrusters");
 
-   Real dm = massChange / numberFiring;
-   for (ObjectArray::iterator i = active.begin(); i != active.end(); ++i)
+   Real dm;  // = massChange / numberFiring;
+   for (UnsignedInt i = 0; i < active.size(); ++i)
    {
       // Change the mass in each attached tank
-      ObjectArray usedTanks = (*i)->GetRefObjectArray(Gmat::HARDWARE);
+      ObjectArray usedTanks = active[i]->GetRefObjectArray(Gmat::HARDWARE);
+      dm = massChange * flowrate[i] / totalFlow;
+
+      #ifdef DEBUG_MASS_FLOW
+         MessageInterface::ShowMessage("%.12le from %s = [ ", dm, active[i]->GetName().c_str());
+      #endif
+
       Real dmt = dm / usedTanks.size();
       for (ObjectArray::iterator j = usedTanks.begin();
             j != usedTanks.end(); ++j)
       {
+         #ifdef DEBUG_MASS_FLOW
+            MessageInterface::ShowMessage(" %.12le ", dmt);
+         #endif
          (*j)->SetRealParameter("FuelMass",
                (*j)->GetRealParameter("FuelMass") + dmt);
       }
+      #ifdef DEBUG_MASS_FLOW
+               MessageInterface::ShowMessage(" ] ");
+      #endif
    }
+   #ifdef DEBUG_MASS_FLOW
+      MessageInterface::ShowMessage("\n");
+   #endif
 
    return retval;
 }

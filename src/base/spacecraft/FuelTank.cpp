@@ -371,7 +371,8 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
             if (value >= 0.0)
             {
                fuelMass = value;
-               initialized = false;
+               UpdateTank();
+               // initialized = false;
                return fuelMass;
             }
             else
@@ -706,8 +707,21 @@ void FuelTank::UpdateTank()
 {
    if (pressureModel != TPM_PRESSURE_REGULATED)
    {
+      #ifdef DEBUG_MASS_FLOW
+         MessageInterface::ShowMessage("Vol = %.12lf, fuelMass = %.12lf, "
+               "density = %.12lf, P0 = %.12lf, PV = %.12lf", volume, fuelMass,
+               density, pressure, pvBase);
+      #endif
+      if (!initialized)
+         Initialize();
+
       gasVolume = volume - fuelMass / density;
       pressure = pvBase / gasVolume;
+
+      #ifdef DEBUG_MASS_FLOW
+         MessageInterface::ShowMessage("Gas Vol = %.12lf, Pf = %.12lf\n",
+               gasVolume, pvBase);
+      #endif
    }
 }
 

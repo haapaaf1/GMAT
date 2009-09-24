@@ -533,6 +533,7 @@ bool EndFiniteBurn::Execute()
    {
       /// todo: Be sure that no other maneuver has the spacecraft maneuvering
       (*s)->IsManeuvering(false);
+//      (*current)->TakeAction("ReleaseCartesianStateDynamics");
    }
    
    // Remove the force from the list of transient forces

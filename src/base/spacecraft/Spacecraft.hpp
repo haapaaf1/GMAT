@@ -352,6 +352,9 @@ protected:
    /// The orbit State Transition Matrix
    Rmatrix           orbitSTM;
 
+   /// Toggle to making Cart state dynamic; Integer to handle multiple includes
+   Integer           includeCartesianState;
+
    // Hardware 
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
