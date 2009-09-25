@@ -1,3 +1,4 @@
+%$Id$
 %**************************************************************************
 %************ Create Objects for Use in Mission Sequence ******************
 %**************************************************************************
@@ -114,7 +115,7 @@ Create MatlabFunction MultiInput1Output;
 Create MatlabFunction num2str;
 
 Create ReportFile RF;
-GMAT RF.Filename = 'Bug1331-UnknownMatlabCallCrash.report';
+GMAT RF.Filename = 'ZMATLAB_Bug1331-UnknownMatlabCallCrash.report';
 
 % %**************************************************************************
 % %**************************The Mission Sequence****************************

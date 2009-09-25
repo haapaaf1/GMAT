@@ -3,7 +3,7 @@
 %  This script demonstrates how to use an Optimize sequence
 %
 %  REVSION HISTORY
-%  $Id: Ex_Optimization1.script,v 1.4 2007/11/20 22:37:15 edove Exp $
+%  $Id$
 
 %-----------------------------------------------------------------
 %------------------Create The Spacecraft--------------------------
@@ -76,7 +76,7 @@ GMAT DefaultOpenGL.ShowPlot = true;
 
 Create ReportFile Data;
 %%GMAT Data.Filename = ./output/SampleMissions/Ex_Optimization1.report;
-GMAT Data.Filename = APT_Ex_Optimization1.report;
+GMAT Data.Filename = ZMATLAB_APT_Ex_Optimization1.report;
 GMAT Data.Precision = 16;
 GMAT Data.WriteHeaders = On;
 GMAT Data.ColumnWidth = 20;

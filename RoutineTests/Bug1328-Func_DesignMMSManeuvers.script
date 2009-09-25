@@ -1,3 +1,4 @@
+%$Id$
 %**************************************************************************
 %************ Create Objects for Use in Mission Sequence ******************
 %**************************************************************************
@@ -306,7 +307,7 @@ GMAT CartPos.ShowPlot = true;
 %  Generic report file for debugging and testing
 Create ReportFile Data;
 GMAT Data.SolverIterations = Current;
-GMAT Data.Filename = 'Bug1328-DesignMMSManeuvers.report';
+GMAT Data.Filename = 'ZMATLAB_Bug1328-DesignMMSManeuvers.report';
 GMAT Data.Precision = 16;
 GMAT Data.WriteHeaders = On;
 GMAT Data.LeftJustify = On; 

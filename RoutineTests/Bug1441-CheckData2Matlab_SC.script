@@ -1,4 +1,4 @@
-% $Id: CheckData2Matlab_SC.script,v 1.1 2008/10/31 18:21:53 edove Exp $
+%$Id$
 
 
 %----------------------------------------
@@ -64,14 +64,14 @@ GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile DataGreg
-GMAT DataGreg.Filename = Bug1441-CheckData2Matlab_SCgreg.report;
+GMAT DataGreg.Filename = ZMATLAB_Bug1441-CheckData2Matlab_SCgreg.report;
 GMAT DataGreg.Precision = 16;
 GMAT DataGreg.WriteHeaders = On;
 GMAT DataGreg.ZeroFill = On;
 GMAT DataGreg.ColumnWidth = 28;
 
 Create ReportFile DataModJul
-GMAT DataModJul.Filename = Bug1441-CheckData2Matlab_SCmodJul.report;
+GMAT DataModJul.Filename = ZMATLAB_Bug1441-CheckData2Matlab_SCmodJul.report;
 GMAT DataModJul.Precision = 16;
 GMAT DataModJul.WriteHeaders = On;
 GMAT DataModJul.ZeroFill = On;
