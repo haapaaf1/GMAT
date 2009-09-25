@@ -477,6 +477,11 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
                   accel[0] += burnData[0];
                   accel[1] += burnData[1];
                   accel[2] += burnData[2];
+                  #ifdef DEBUG_MASS_FLOW
+                     MessageInterface::ShowMessage(
+                           "   --> direction = [%.12lf %.12lf %.12lf]",
+                           accel[0], accel[1], accel[2]);
+                  #endif
                   if ((*fb)->DepletesMass())
                   {
                      if (order != 1)
@@ -484,10 +489,15 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
                               "performed with the selected propagator.");
                      mDot += burnData[3];
                      #ifdef DEBUG_MASS_FLOW
-                        MessageInterface::ShowMessage("   --> Adding mDot =  "
-                              "%.12lf\n", mDot);
+                        MessageInterface::ShowMessage("  mDot =  %.12lf\n",
+                              mDot);
                      #endif
                   }
+                  #ifdef DEBUG_MASS_FLOW
+                  else
+                     MessageInterface::ShowMessage("  mDot =  0.0\n");
+                  #endif
+
                }
                #ifdef DEBUG_FINITETHRUST_EXE
                   MessageInterface::ShowMessage(

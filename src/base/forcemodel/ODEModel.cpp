@@ -1726,7 +1726,6 @@ Integer ODEModel::UpdateDynamicSpacecraftData(ObjectArray *sats, Integer i)
    {
       sat = *j;
 
-      // Only retrieve the parameter IDs once
       if (satIds[1] < 0)
          throw ODEModelException("Epoch parameter undefined on object " +
                                     sat->GetName());
@@ -3336,7 +3335,7 @@ void ODEModel::MoveToOrigin(Real newEpoch)
    for (Integer i = 0; i < dimension; ++i)
       MessageInterface::ShowMessage("%lf ", modelState[i]);
    MessageInterface::ShowMessage("]\n\n");
-        #endif
+#endif
     
    memcpy(modelState, rawState, dimension*sizeof(Real));
 
@@ -3348,7 +3347,7 @@ void ODEModel::MoveToOrigin(Real newEpoch)
       j2kState = j2kBody->GetState(now);
 
       delta = cbState - j2kState;
-      
+
       for (Integer i = 0; i < cartObjCount; ++i)
       {
          Integer i6 = cartStateStart + i * 6;
@@ -3357,71 +3356,37 @@ void ODEModel::MoveToOrigin(Real newEpoch)
 
          #ifdef DEBUG_REORIGIN
             MessageInterface::ShowMessage(
-                "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf"
-                " %lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+                "ODEModel::MoveToOrigin()\n"
+                "   Input state: [%lf %lf %lf %lf %lf %lf]\n"
+                "   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
                 "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
                 "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
                 "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-                rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
-                rawState[5],
+                rawState[i6], rawState[i6+1], rawState[i6+2], rawState[i6+3],
+                rawState[i6+4], rawState[i6+5],
                 j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
                 j2kState[5],
                 cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
                 cbState[5],
                 delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
-                modelState[0], modelState[1], modelState[2], modelState[3],
-                modelState[4], modelState[5]);
-         #endif
-            
-         #ifdef DEBUG_REORIGIN
-            MessageInterface::ShowMessage(
-                "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf"
-                " %lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
-                "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
-                "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
-                "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-                rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
-                rawState[5],
-                j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
-                j2kState[5],
-                cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
-                cbState[5],
-                delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
-                modelState[0], modelState[1], modelState[2], modelState[3],
-                modelState[4], modelState[5]);
+                modelState[i6], modelState[i6+1], modelState[i6+2],
+                modelState[i6+3], modelState[i6+4], modelState[i6+5]);
          #endif
       }
-      #ifdef DEBUG_REORIGIN
-         MessageInterface::ShowMessage(
-             "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
-             "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
-             "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
-             "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
-             "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-             rawState[0], rawState[1], rawState[2], rawState[3], rawState[4], 
-             rawState[5],    
-             j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4], 
-             j2kState[5],    
-             cbState[0], cbState[1], cbState[2], cbState[3], cbState[4], 
-             cbState[5],    
-             delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],    
-             modelState[0], modelState[1], modelState[2], modelState[3], 
-             modelState[4], modelState[5]);    
-      #endif
    }
    
-#ifdef DEBUG_REORIGIN
-   MessageInterface::ShowMessage(
-       "   Move Complete\n   Input state: [ ");
-   for (Integer i = 0; i < dimension; ++i)
-      MessageInterface::ShowMessage("%lf ", rawState[i]); 
-   MessageInterface::ShowMessage("]\n   model state: [ ");
-   for (Integer i = 0; i < dimension; ++i)
-      MessageInterface::ShowMessage("%lf ", modelState[i]);
-   MessageInterface::ShowMessage("]\n\n");
+   #ifdef DEBUG_REORIGIN
+      MessageInterface::ShowMessage(
+          "   Move Complete\n   Input state: [ ");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%lf ", rawState[i]);
+      MessageInterface::ShowMessage("]\n   model state: [ ");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%lf ", modelState[i]);
+      MessageInterface::ShowMessage("]\n\n");
 
-   MessageInterface::ShowMessage("ODEModel::MoveToOrigin Finished\n");
-#endif
+      MessageInterface::ShowMessage("ODEModel::MoveToOrigin Finished\n");
+   #endif
 }
 
 
@@ -3435,6 +3400,10 @@ void ODEModel::MoveToOrigin(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::ReturnFromOrigin(Real newEpoch)
 {
+   #ifdef DEBUG_REORIGIN
+      MessageInterface::ShowMessage("ODEModel::ReturnFromOrigin entered\n");
+   #endif
+
    memcpy(rawState, modelState, dimension*sizeof(Real));
    if (centralBodyName != j2kBodyName)
    {
@@ -3442,7 +3411,7 @@ void ODEModel::ReturnFromOrigin(Real newEpoch)
       Real now = ((newEpoch < 0.0) ? epoch : newEpoch);
       cbState = forceOrigin->GetState(now);
       j2kState = j2kBody->GetState(now);
-      
+
       delta = j2kState - cbState;
 
 
@@ -3451,6 +3420,23 @@ void ODEModel::ReturnFromOrigin(Real newEpoch)
          Integer i6 = cartStateStart + i * 6;
          for (int j = 0; j < 6; ++j)
             rawState[i6+j] = modelState[i6+j] - delta[j];
+            #ifdef DEBUG_REORIGIN
+               MessageInterface::ShowMessage(
+                   "ODEModel::ReturnFromOrigin()\n   Input (model) state: [%lf %lf %lf %lf %lf"
+                   " %lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+                   "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+                   "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+                   "   raw state: [%lf %lf %lf %lf %lf %lf]\n\n",
+                   modelState[0], modelState[1], modelState[2], modelState[3], modelState[4],
+                   modelState[5],
+                   j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
+                   j2kState[5],
+                   cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+                   cbState[5],
+                   delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+                   rawState[0], rawState[1], rawState[2], rawState[3],
+                   rawState[4], rawState[5]);
+         #endif
       }
    }
 }
