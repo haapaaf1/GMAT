@@ -1884,20 +1884,31 @@ void ScriptInterpreter::WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mode
    
    WriteSectionDelimiter(objs[0], "Spacecraft");
    
-   // Setup the coordinate systems on Spacecraft so they can perform conversions
-   CoordinateSystem *ics = theModerator->GetInternalCoordinateSystem(), *sccs;
-   
    for (current = objs.begin(); current != objs.end(); ++current)
    {
-      Spacecraft *sc = (Spacecraft*)(FindObject(*current));
-      sc->SetInternalCoordSystem(ics);
-      sccs = (CoordinateSystem*)
-         FindObject(sc->GetRefObjectName(Gmat::COORDINATE_SYSTEM));
-      
-      if (sccs)
-         sc->SetRefObject(sccs, Gmat::COORDINATE_SYSTEM);
-      
-      sc->Initialize();
+      // I cannot recall why we need to initialize spacecraft here.
+      // We may not need this any more, so set to 0 for now (LOJ: 2009.09.24)
+      //==============================================================
+      #if 0
+      //==============================================================
+      // Setup the coordinate systems on Spacecraft so they can perform conversions
+      CoordinateSystem *ics = theModerator->GetInternalCoordinateSystem();
+      CoordinateSystem *sccs = NULL;
+      object = FindObject(*current);
+      if (object != NULL)
+      {
+         object->SetInternalCoordSystem(ics);
+         sccs = (CoordinateSystem*)
+            FindObject(object->GetRefObjectName(Gmat::COORDINATE_SYSTEM));
+         
+         if (sccs)
+            object->SetRefObject(sccs, Gmat::COORDINATE_SYSTEM);
+         
+         object->Initialize();
+      }
+      //==============================================================
+      #endif
+      //==============================================================
       
       object = FindObject(*current);
       if (object != NULL)
