@@ -6067,41 +6067,49 @@ bool Interpreter::FinalPass()
    {
       obj = FindObject(*i);
       
-      std::string csName = obj->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
-      GmatBase *csObj = FindObject(csName);
-      
-      // To catch as many errors we can, continue with next object
-      if (csObj == NULL)
-         continue;
-      
-      #if DBGLVL_FINAL_PASS > 1
-      MessageInterface::ShowMessage
-         ("   Calling '%s'->SetRefObject(%s(%p), %d)\n", obj->GetName().c_str(),
-          csObj->GetName().c_str(), csObj, csObj->GetType());
-      #endif
-      
-      if (csObj->GetType() != Gmat::COORDINATE_SYSTEM)
+      // Now we have more than one CoordinateSystem from Spacecraft.
+      // In additions to Spacecraft's CS, it has to handle CS from Thrusters
+      // and Attitude. (LOJ: 2009.09.24)
+      //std::string csName = obj->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
+      StringArray csNames = obj->GetRefObjectNameArray(Gmat::COORDINATE_SYSTEM);
+      for (StringArray::iterator csName = csNames.begin();
+           csName != csNames.end(); ++csName)
       {
-         InterpreterException ex
-            ("The Spacecraft \"" + obj->GetName() + "\" failed to set "
-             "\"CoordinateSystem\" to \"" + csName + "\"");
-         HandleError(ex, false);
-         retval = false;
-         continue;
-      }
-      
-      try
-      {
-         obj->SetRefObject(csObj, Gmat::COORDINATE_SYSTEM, csObj->GetName());
-      }
-      catch (BaseException &e)
-      {
-         InterpreterException ex
-            ("The Spacecraft \"" + obj->GetName() + "\" failed to set "
-             "CoordinateSystem: " + e.GetFullMessage());
-         HandleError(ex, false);
-         retval = false;
-         continue;
+         GmatBase *csObj = FindObject(*csName);
+         
+         // To catch as many errors we can, continue with next object
+         if (csObj == NULL)
+            continue;
+         
+         #if DBGLVL_FINAL_PASS > 1
+         MessageInterface::ShowMessage
+            ("   Calling '%s'->SetRefObject(%s(%p), %d)\n", obj->GetName().c_str(),
+             csObj->GetName().c_str(), csObj, csObj->GetType());
+         #endif
+         
+         if (csObj->GetType() != Gmat::COORDINATE_SYSTEM)
+         {
+            InterpreterException ex
+               ("The Spacecraft \"" + obj->GetName() + "\" failed to set "
+                "\"CoordinateSystem\" to \"" + *csName + "\"");
+            HandleError(ex, false);
+            retval = false;
+            continue;
+         }
+         
+         try
+         {
+            obj->SetRefObject(csObj, Gmat::COORDINATE_SYSTEM, csObj->GetName());
+         }
+         catch (BaseException &e)
+         {
+            InterpreterException ex
+               ("The Spacecraft \"" + obj->GetName() + "\" failed to set "
+                "CoordinateSystem: " + e.GetFullMessage());
+            HandleError(ex, false);
+            retval = false;
+            continue;
+         }
       }
    }
    
