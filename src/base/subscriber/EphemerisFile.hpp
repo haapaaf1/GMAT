@@ -20,7 +20,9 @@
 #include "Subscriber.hpp"
 #include "Spacecraft.hpp"
 #include "CoordinateSystem.hpp"
+#include "CoordinateConverter.hpp"
 #include "Interpolator.hpp"
+#include <iostream>
 
 class EphemerisFile : public Subscriber
 {
@@ -32,6 +34,7 @@ public:
    
    // methods for this class
    std::string          GetFileName();
+   virtual void         ValidateParameters();
    
    // methods inherited from Subscriber
    virtual bool         Initialize();
@@ -46,7 +49,6 @@ public:
    virtual bool         RenameRefObject(const Gmat::ObjectType type,
                                         const std::string &oldName,
                                         const std::string &newName);
-   
    virtual std::string  GetParameterText(const Integer id) const;
    virtual Integer      GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType
@@ -55,9 +57,9 @@ public:
    virtual bool         IsParameterReadOnly(const Integer id) const;
    
    virtual Gmat::ObjectType
-                           GetPropertyObjectType(const Integer id) const;
+                        GetPropertyObjectType(const Integer id) const;
    virtual const StringArray&
-                           GetPropertyEnumStrings(const Integer id) const;
+                        GetPropertyEnumStrings(const Integer id) const;
    
    virtual Integer      GetIntegerParameter(const Integer id) const;
    virtual Integer      SetIntegerParameter(const Integer id,
@@ -69,7 +71,7 @@ public:
                                            const std::string &value);
    virtual bool         SetStringParameter(const std::string &label,
                                            const std::string &value);
-         
+   
    virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
                                      const std::string &name);
    virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
@@ -80,10 +82,10 @@ public:
    
    
 protected:
-   
+
    Spacecraft       *spacecraft;
    CoordinateSystem *coordSystem;
-   Interpolator     *interpolator;
+   Interpolator     *interpolator; // owned object
    
    /// ephemeris output path from the startup file
    std::string oututPath;
@@ -103,8 +105,17 @@ protected:
    Integer     interpolationOrder;
    
    Real        stepSizeReal;
-   Real        initialEpochReal;
-   Real        finalEpochReal;
+   Real        initialEpochA1Mjd;
+   Real        finalEpochA1Mjd;
+   
+   bool        writeOrbit;
+   bool        writeAttitude;
+   bool        writeDataInDataCS;
+   
+   CoordinateConverter coordConverter;
+   
+   /// output data stream
+   std::ofstream      dstream;
    
    /// Available file format list
    static StringArray fileFormatList;   
@@ -144,6 +155,8 @@ protected:
       PARAMETER_TYPE[EphemerisFileParamCount - SubscriberParamCount];
    
    bool        OpenEphemerisFile();
+   void        WriteOrbit();
+   void        WriteAttitude();
    bool        SetEpoch(Integer id, const std::string &value,
                         const StringArray &allowedValues);
    bool        SetStepSize(Integer id, const std::string &value,
