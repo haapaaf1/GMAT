@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Attitude
 //------------------------------------------------------------------------------
@@ -1106,7 +1106,7 @@ Attitude::Attitude(const Attitude& att) :
    eulerSequenceList       (att.eulerSequenceList),
    epoch                   (att.epoch),
    refCSName               (att.refCSName),
-   refCS                   (NULL),
+   refCS                   (att.refCS),
    eulerSequence           (att.eulerSequence),
    eulerSequenceArray      (att.eulerSequenceArray),
    RBi                     (att.RBi),
@@ -1188,10 +1188,16 @@ Attitude::~Attitude()
  * 
  * @return Success flag.
  *
-  */
+ */
 //---------------------------------------------------------------------------
 bool Attitude::Initialize()
-{ 
+{
+   #ifdef DEBUG_ATTITUDE_INIT
+   MessageInterface::ShowMessage
+      ("Attitude::Initialize() this=<%p>'%s' entered, refCS=<%p>\n",
+       this, GetName().c_str(), refCS);
+   #endif
+   
    if (isInitialized) return true;
    GmatBase::Initialize();
    std::string attEx  = "Reference coordinate system not defined for attitude of type \"";
@@ -1649,8 +1655,9 @@ bool Attitude::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 {
    #ifdef DEBUG_REF_SETTING
    MessageInterface::ShowMessage
-      ("Attitude::SetRefObject() entered, refCSName='%s', name='%s', obj=<%p><%s>'%s'\n",
-       refCSName.c_str(), name.c_str(), obj, obj ? obj->GetTypeName().c_str() : "NULL",
+      ("Attitude::SetRefObject() this=<%p>'%s' entered, refCSName='%s', name='%s', "
+       "obj=<%p><%s>'%s'\n", this, GetName().c_str(), refCSName.c_str(),
+       name.c_str(), obj, obj ? obj->GetTypeName().c_str() : "NULL",
        obj ? obj->GetName().c_str() : "NULL");
    #endif
    
@@ -1661,25 +1668,30 @@ bool Attitude::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    {
       if (name == refCSName)
       {
-            #ifdef DEBUG_REF_SETTING
-            if (refCS != NULL)
-               MessageInterface::ShowMessage(
-                  "The reference coordinate system for attitude is %s\n",
-                  (refCS->GetName()).c_str());
-            else
-               MessageInterface::ShowMessage("   refCS == NULL!\n");
-            #endif
+         #ifdef DEBUG_REF_SETTING
+         if (refCS != NULL)
+            MessageInterface::ShowMessage(
+               "   The reference coordinate system for attitude is %s\n",
+               (refCS->GetName()).c_str());
+         else
+            MessageInterface::ShowMessage("   refCS == NULL!\n");
+         #endif
          if (refCS != (CoordinateSystem*) obj)
          {
             #ifdef DEBUG_REF_SETTING
                MessageInterface::ShowMessage(
-                  "Setting %s as reference coordinate system for attitude %s\n",
-                  name.c_str(), instanceName.c_str());
+                  "   Setting <%p>'%s' as reference coordinate system for attitude '%s'\n",
+                  obj, name.c_str(), instanceName.c_str());
             #endif
             isInitialized = false;
             refCS = (CoordinateSystem*) obj;
          }
       }
+      #ifdef DEBUG_REF_SETTING
+      MessageInterface::ShowMessage
+         ("Attitude::SetRefObject() this=<%p>'%s' returning true\n", this,
+          GetName().c_str());
+      #endif
       return true;
    }
    
@@ -1687,7 +1699,7 @@ bool Attitude::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    return GmatBase::SetRefObject(obj, type, name);
 }
 
-                                    
+
 // methods to get/set parameter values
 //------------------------------------------------------------------------------
 //  std::string  GetParameterText(const Integer id) const
