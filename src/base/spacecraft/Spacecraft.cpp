@@ -34,11 +34,11 @@
 //#define __WRITE_ANOMALY_TYPE__
 
 
-//#define DEBUG_SPACECRAFT 1 
-//#define DEBUG_SPACECRAFT_SET 1 
+//#define DEBUG_SPACECRAFT
+//#define DEBUG_SPACECRAFT_SET
 //#define DEBUG_SPACECRAFT_SET_ELEMENT
-//#define DEBUG_SPACECRAFT_CS 1 
-//#define DEBUG_RENAME 1
+//#define DEBUG_SPACECRAFT_CS
+//#define DEBUG_RENAME
 //#define DEBUG_DATE_FORMAT
 //#define DEBUG_STATE_INTERFACE
 //#define DEBUG_SC_ATTITUDE
@@ -52,8 +52,9 @@
 //#define DEBUG_SC_SET_STRING
 //#define DEBUG_WRITE_PARAMETERS
 //#define DEBUG_OWNED_OBJECT_STRINGS
+//#define DEBUG_SC_OWNED_OBJECT
 
-#if DEBUG_SPACECRAFT
+#ifdef DEBUG_SPACECRAFT
 #include <iostream>
 #include <sstream> 
 #endif
@@ -557,7 +558,7 @@ void Spacecraft::SetSolarSystem(SolarSystem *ss)
 //---------------------------------------------------------------------------
 void Spacecraft::SetInternalCoordSystem(CoordinateSystem *cs)
 {
-   #if DEBUG_SPACECRAFT_CS
+   #ifdef DEBUG_SPACECRAFT_CS
    MessageInterface::ShowMessage
       ("Spacecraft::SetInternalCoordSystem() this=<%p> '%s', setting %s <%p>\n",
        this, GetName().c_str(), cs->GetName().c_str(), cs);
@@ -593,7 +594,7 @@ CoordinateSystem* Spacecraft::GetInternalCoordSystem()
 //---------------------------------------------------------------------------
 void Spacecraft::SetState(const Rvector6 &cartState)
 {
-   #if DEBUG_SPACECRAFT_SET
+   #ifdef DEBUG_SPACECRAFT_SET
       MessageInterface::ShowMessage("Spacecraft::SetState(Rvector6)\n");
       MessageInterface::ShowMessage(
       "Spacecraft::SetState(Rvector6) cartesianState=%s\n",
@@ -618,7 +619,7 @@ void Spacecraft::SetState(const Rvector6 &cartState)
 //---------------------------------------------------------------------------
 void Spacecraft::SetState(const std::string &elementType, Real *instate)
 {
-   #if DEBUG_SPACECRAFT_SET
+   #ifdef DEBUG_SPACECRAFT_SET
       MessageInterface::ShowMessage(
          "Spacecraft::SetState() elementType = %s, instate =\n"
          "   %.9lf, %.9lf, %.9lf, %.14lf, %.14lf, %.14lf\n",
@@ -892,7 +893,7 @@ bool Spacecraft::RenameRefObject(const Gmat::ObjectType type,
                                  const std::string &oldName,
                                  const std::string &newName)
 {
-   #if DEBUG_RENAME
+   #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage
       ("Spacecraft::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
@@ -957,7 +958,8 @@ const ObjectTypeArray& Spacecraft::GetRefObjectTypeArray()
 {
    refObjectTypes.clear();
    refObjectTypes.push_back(Gmat::COORDINATE_SYSTEM);
-   refObjectTypes.push_back(Gmat::ATTITUDE);
+   // Now Attitude is local object it will be created all the time (LOJ:2009.09.24)
+   //refObjectTypes.push_back(Gmat::ATTITUDE);
    return refObjectTypes;
 }
 
@@ -976,8 +978,8 @@ const StringArray&
 {
    #ifdef DEBUG_SC_REF_OBJECT
    MessageInterface::ShowMessage
-      ("Spacecraft::GetRefObjectNameArray() <%p>'%s' entered, type=%d\n",
-       this, GetName().c_str(), type);
+      ("Spacecraft::GetRefObjectNameArray() <%p>'%s' entered, type='%s'\n",
+       this, GetName().c_str(), GmatBase::GetObjectTypeString(type).c_str());
    #endif
    static StringArray fullList;  // Maintain scope if the full list is requested
    fullList.clear();
@@ -1006,14 +1008,14 @@ const StringArray&
          }
       }
       
-      std::string attRefObjName = attitude->GetRefObjectName(type);
+      std::string attRefObjName = attitude->GetRefObjectName(type);      
       if (find(fullList.begin(), fullList.end(), attRefObjName) == fullList.end())
          fullList.push_back(attRefObjName);
       
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
-         ("Spacecraft::GetRefObjectNameArray() thrusters.size()=%d, fullList.size()=%d, returning\n",
-          thrusters.size(), fullList.size());
+         ("Spacecraft::GetRefObjectNameArray() ALL, thrusters.size()=%d, "
+          "fullList.size()=%d, returning\n", thrusters.size(), fullList.size());
       for (UnsignedInt i=0; i<fullList.size(); i++)
          MessageInterface::ShowMessage("   '%s'\n", fullList[i].c_str());
       #endif
@@ -1043,9 +1045,10 @@ const StringArray&
       {
          // Add Spacecraft's CoordinateSystem name
          fullList.push_back(coordSysName);
+         
+         // Add Thruster's CoordinateSystem name
          for (ObjectArray::iterator i = thrusters.begin(); i < thrusters.end(); ++i)
          {
-            // Add Thruster's CoordinateSystem name
             StringArray refObjNames = (*i)->GetRefObjectNameArray(type);
             for (StringArray::iterator j = refObjNames.begin(); j != refObjNames.end(); ++j)
             {
@@ -1054,10 +1057,16 @@ const StringArray&
             }
          }
          
+         // Add Attitude's CoordinateSystem name
+         std::string attRefObjName = attitude->GetRefObjectName(type);
+         
+         if (find(fullList.begin(), fullList.end(), attRefObjName) == fullList.end())
+            fullList.push_back(attRefObjName);
+         
          #ifdef DEBUG_SC_REF_OBJECT
          MessageInterface::ShowMessage
-            ("Spacecraft::GetRefObjectNameArray() CS, thrusters.size()=%d, fullList.size()=%d, returning\n",
-             thrusters.size(), fullList.size());
+            ("Spacecraft::GetRefObjectNameArray() CS, thrusters.size()=%d, "
+             "fullList.size()=%d, returning\n", thrusters.size(), fullList.size());
          for (UnsignedInt i=0; i<fullList.size(); i++)
             MessageInterface::ShowMessage("   '%s'\n", fullList[i].c_str());
          #endif
@@ -1076,8 +1085,19 @@ const StringArray&
 //------------------------------------------------------------------------------
 bool Spacecraft::SetRefObjectName(const Gmat::ObjectType type, const std::string &name)
 {
+   #ifdef DEBUG_SC_REF_OBJECT
+   MessageInterface::ShowMessage
+      ("Spacecraft::SetRefObjectName() this=<%p>'%s' entered, type=%d, name='%s'\n",
+       this, GetName().c_str(), type, name.c_str());
+   #endif
+   
    if (type == Gmat::COORDINATE_SYSTEM)
    {
+      #ifdef DEBUG_SPACECRAFT_CS
+      MessageInterface::ShowMessage
+         ("Spacecraft::SetRefObjectName() About to change CoordSysName "
+          "'%s' to '%s'\n", coordSysName.c_str(), name.c_str());
+      #endif
       coordSysName = name;
       return true;
    }
@@ -1183,30 +1203,6 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          origin = (SpacePoint*)obj;
       }
    }
-
-   // first, try setting it on the attitude (owned object)
-   if (attitude)
-   {
-      try
-      {
-         #ifdef DEBUG_SC_ATTITUDE
-         MessageInterface::ShowMessage
-            ("   Setting <%p><%s>'%s' to attitude <%p>\n", obj,
-             objType().c_str(), objName.c_str(), attitude);
-         #endif
-         // Pass objName as name since name can be blank.
-         // Attitude::SetRefObject() checks names before setting
-         attitude->SetRefObject(obj, type, objName);
-      }
-      catch (BaseException &be)
-      {
-         #ifdef DEBUG_SC_ATTITUDE
-         MessageInterface::ShowMessage(
-         "------ error setting ref object %s on attitude\n",
-         name.c_str());
-         #endif
-      }
-   }
    
    // now work on hardware
    if (type == Gmat::HARDWARE || type == Gmat::FUEL_TANK || type == Gmat::THRUSTER)
@@ -1252,7 +1248,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    {
       CoordinateSystem *cs = (CoordinateSystem*)obj;
       
-      #if DEBUG_SPACECRAFT_CS
+      #ifdef DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage
          ("Spacecraft::SetRefObject() '%s', coordinateSystem=%s<%p>, cs=%s<%p>\n",
           instanceName.c_str(), coordinateSystem->GetName().c_str(), coordinateSystem,
@@ -1268,6 +1264,30 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
           "coordSysMap.size()=%d, isThrusterSettingMode=%d\n", obj, objName.c_str(),
           coordSysMap.size(), isThrusterSettingMode);
       #endif
+      
+      // first, try setting it on the attitude (owned object)
+      if (attitude)
+      {
+         try
+         {
+            #ifdef DEBUG_SC_ATTITUDE
+            MessageInterface::ShowMessage
+               ("   Setting <%p><%s>'%s' to attitude <%p>\n", obj,
+                objType.c_str(), objName.c_str(), attitude);
+            #endif
+            // Pass objName as name since name can be blank.
+            // Attitude::SetRefObject() checks names before setting
+            attitude->SetRefObject(obj, type, objName);
+         }
+         catch (BaseException &be)
+         {
+            #ifdef DEBUG_SC_ATTITUDE
+            MessageInterface::ShowMessage(
+               "------ error setting ref object %s on attitude\n",
+               name.c_str());
+            #endif
+         }
+      }
       
       // Set Thruster's CoordinateSystem
       for (ObjectArray::iterator i = thrusters.begin(); i != thrusters.end(); ++i)
@@ -1286,18 +1306,29 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          }
       }
       
+      // If thruster setting mode, we are done.
       if (isThrusterSettingMode)
          return true;
+
+      // If CS name is not the spacecraft CS name, we are done.
+      if (objName != coordSysName)
+         return true;
       
+      // Otherwise, convert initial state to to new CS
       if (coordinateSystem == cs)
       {
-         #if DEBUG_SPACECRAFT_CS
+         #ifdef DEBUG_SPACECRAFT_CS
          MessageInterface::ShowMessage
-            ("   input coordinateSystem is the same as current one, so ignoring\n");
+            ("   Input coordinateSystem is the same as current one, so ignoring\n");
          #endif
       }
       else
       {
+         #ifdef DEBUG_SPACECRAFT_CS
+         MessageInterface::ShowMessage
+            ("   About to convert to new CS '%s'\n", coordSysName.c_str());
+         #endif
+         
          // saved the old CS and added try/catch block to set to old CS
          // in case of exception thrown (loj: 2008.10.23)
          CoordinateSystem *oldCS = coordinateSystem;
@@ -1307,7 +1338,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          {
             TakeAction("ApplyCoordinateSystem");
             
-            #if DEBUG_SPACECRAFT_CS
+            #ifdef DEBUG_SPACECRAFT_CS
             MessageInterface::ShowMessage
                ("Spacecraft::SetRefObject() coordinateSystem applied ----------\n");
             Rvector6 vec6(state.GetState());
@@ -1316,7 +1347,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          }
          catch (BaseException &e)
          {
-            #if DEBUG_SPACECRAFT_CS
+            #ifdef DEBUG_SPACECRAFT_CS
             MessageInterface::ShowMessage
                ("Exception thrown: '%s', so setting back to old CS\n", e.GetFullMessage().c_str());
             #endif
@@ -1349,6 +1380,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          #endif
       }
       attitude = (Attitude*) obj;
+      ownedObjectCount++;
       // set epoch ...
       #ifdef DEBUG_SC_ATTITUDE
          MessageInterface::ShowMessage("Setting attitude object on spacecraft %s\n",
@@ -2295,6 +2327,11 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
    }
    else if (id == COORD_SYS_ID) 
    {
+      #ifdef DEBUG_SPACECRAFT_CS
+      MessageInterface::ShowMessage
+         ("Spacecraft::SetStringParameter() About to change CoordSysName "
+          "'%s' to '%s'\n", coordSysName.c_str(), value.c_str());
+      #endif
       parmsChanged = true;
       coordSysName = value;
    }
@@ -2343,7 +2380,7 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
 bool Spacecraft::SetStringParameter(const std::string &label, 
                                     const std::string &value)
 {
-   #if DEBUG_SPACECRAFT_SET
+   #ifdef DEBUG_SPACECRAFT_SET
        MessageInterface::ShowMessage
           ("\nSpacecraft::SetStringParameter(\"%s\", \"%s\") enters\n",
            label.c_str(), value.c_str() ); 
@@ -2638,7 +2675,7 @@ bool Spacecraft::TakeAction(const std::string &action,
    
    if (action == "ApplyCoordinateSystem")
    {
-      #if DEBUG_SPACECRAFT_CS
+      #ifdef DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage
          ("Spacecraft::TakeAction() Calling StateConverter::SetMu(%p)\n", coordinateSystem);
       #endif
@@ -2651,7 +2688,7 @@ bool Spacecraft::TakeAction(const std::string &action,
       
       if (csSet == false)
       {
-         #if DEBUG_SPACECRAFT_CS
+         #ifdef DEBUG_SPACECRAFT_CS
          MessageInterface::ShowMessage
             ("Spacecraft::TakeAction() Calling SetStateFromRepresentation, "
              "since CS was not set()\n");
@@ -2662,7 +2699,7 @@ bool Spacecraft::TakeAction(const std::string &action,
          csSet = true;
       }
       
-      #if DEBUG_SPACECRAFT_CS
+      #ifdef DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage("Spacecraft::TakeAction() returning true\n");
       #endif
       return true;
@@ -2766,11 +2803,11 @@ GmatBase* Spacecraft::GetOwnedObject(Integer whichOne)
  * Initialize the default values of spacecraft information. 
  * 
  * @return always success unless the coordinate system is empty 
- * 
  */
+//---------------------------------------------------------------------------
 bool Spacecraft::Initialize()
 {
-   #if DEBUG_SPACECRAFT_CS
+   #ifdef DEBUG_SPACECRAFT_CS
    MessageInterface::ShowMessage
       ("Spacecraft::Initialize() entered ---------- this=<%p> '%s'\n   "
        "internalCoordSystem=<%p> '%s', coordinateSystem=<%p> '%s'\n", this,
@@ -2811,7 +2848,7 @@ bool Spacecraft::Initialize()
          instanceName.c_str());
       #endif
    }
-   #if DEBUG_SPACECRAFT_CS
+   #ifdef DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage("Spacecraft::Initialize() exiting ----------\n");
    #endif
    
@@ -2939,7 +2976,7 @@ void Spacecraft::SetEpoch(const std::string &type, const std::string &ep, Real a
 //------------------------------------------------------------------------------
 void Spacecraft::SetState(const std::string &type, const Rvector6 &cartState)
 {
-   #if DEBUG_SPACECRAFT_SET
+   #ifdef DEBUG_SPACECRAFT_SET
    MessageInterface::ShowMessage
       ("Spacecraft::SetState() type=%s, cartState=\n   %s\n", type.c_str(),
        cartState.ToString().c_str());
@@ -2971,7 +3008,7 @@ void Spacecraft::SetAnomaly(const std::string &type, const Anomaly &ta)
    if (displayStateType == "Keplerian" || displayStateType == "ModifiedKeplerian")
    stateElementLabel[5] = anomalyType;     // this assumes current display type is Keplerian/ModKep??
 
-   #if DEBUG_SPACECRAFT_SET
+   #ifdef DEBUG_SPACECRAFT_SET
    MessageInterface::ShowMessage
       ("Spacecraft::SetAnomaly() anomalyType=%s, value=%f\n", anomalyType.c_str(),
        trueAnomaly.GetValue());
@@ -3825,7 +3862,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       
    Rvector6 repState = GetStateInRepresentation(displayStateType);
    
-   #if DEBUG_SPACECRAFT_GEN_STRING
+   #ifdef DEBUG_SPACECRAFT_GEN_STRING
    MessageInterface::ShowMessage
       ("   trueAnomaly=%s\n", trueAnomaly.ToString().c_str());
    MessageInterface::ShowMessage
