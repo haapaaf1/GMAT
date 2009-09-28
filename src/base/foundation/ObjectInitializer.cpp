@@ -457,15 +457,12 @@ void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
             #endif
             if (obj->IsOfType(Gmat::COORDINATE_SYSTEM))
             {
-               obj->SetSolarSystem(ss);
                BuildReferences(obj);
                InitializeCoordinateSystem((CoordinateSystem *)obj);
                obj->Initialize();
             }
             else if (obj->IsOfType(Gmat::SPACECRAFT))
             {
-               obj->SetSolarSystem(ss);
-               ((Spacecraft *)obj)->SetInternalCoordSystem(internalCS);
                BuildReferences(obj);
                
                // Setup spacecraft hardware
@@ -871,8 +868,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
             for (unsigned int ii=0; ii < fmRefs.size(); ii++)
                MessageInterface::ShowMessage(" --- %s\n", (fmRefs.at(ii)).c_str());
          #endif
-         for (StringArray::iterator i = fmRefs.begin();
-              i != fmRefs.end(); ++i)
+         for (StringArray::iterator i = fmRefs.begin(); i != fmRefs.end(); ++i)
          {
             oName = *i;
             try
