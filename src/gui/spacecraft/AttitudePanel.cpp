@@ -171,7 +171,8 @@ void AttitudePanel::Create()
    
    q = Rvector(4);
    
-   // gt list of models and put them into the combo box
+   // get list of models and put them into the combo box
+   
    modelArray = theGuiInterpreter->GetListOfFactoryItems(Gmat::ATTITUDE);
    unsigned int modelSz = modelArray.size();
    attitudeModelArray = new wxString[modelSz];
@@ -221,63 +222,54 @@ void AttitudePanel::Create()
    stateArray = new wxString[StateTypeCount];
    for (ii=0; ii<StateTypeCount; ii++)
       stateArray[ii] = stateTypeArray[ii].c_str();
-
+   
    stateTypeComboBox = 
       new wxComboBox( this, ID_CB_STATE, wxT(stateArray[STARTUP_STATE_TYPE_SELECTION]),
          wxDefaultPosition, wxSize(180,20), StateTypeCount, stateArray, 
          wxCB_DROPDOWN|wxCB_READONLY );
-
+   
    st1StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("String 1"),
-                        wxDefaultPosition, wxSize(80,20), 0);
+      new wxStaticText( this, ID_TEXT, wxT(""),
+                        wxDefaultPosition, wxDefaultSize, 0);
    st2StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("String 2"),
-                        wxDefaultPosition, wxSize(80,20), 0);
+      new wxStaticText( this, ID_TEXT, wxT(""),
+                        wxDefaultPosition, wxDefaultSize, 0);
    st3StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("String 3"),
-                        wxDefaultPosition, wxSize(80,20), 0);
+      new wxStaticText( this, ID_TEXT, wxT(""),
+                        wxDefaultPosition, wxDefaultSize, 0);
    st4StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("String 4"),
-                        wxDefaultPosition, wxSize(80,20), 0);
-   //col1StaticText =
-   //   new wxStaticText( this, ID_TEXT, wxT(""),              // was "Column 1"
-   //                     wxDefaultPosition, wxSize(80,20), 0);
-   //col2StaticText =
-   //   new wxStaticText( this, ID_TEXT, wxT(""),              // was "Column 2"
-   //                     wxDefaultPosition, wxSize(80,20), 0);
-   //col3StaticText =
-   //   new wxStaticText( this, ID_TEXT, wxT(""),              // was "Column 3"
-   //                     wxDefaultPosition, wxSize(80,20), 0);
+      new wxStaticText( this, ID_TEXT, wxT(""),
+                        wxDefaultPosition, wxDefaultSize, 0);
    st1TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st2TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st3TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st4TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st5TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st6TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st7TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st8TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st9TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0 );
    st10TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(60,-1), 0 );  
+                      wxDefaultPosition, wxSize(80,-1), 0 );  
 
    // Rate State Type
    stateTypeRate4StaticText =
@@ -296,35 +288,28 @@ void AttitudePanel::Create()
          wxT(stateRateArray[STARTUP_RATE_STATE_TYPE_SELECTION]), wxDefaultPosition, 
          wxSize(180,20), StateRateTypeCount, stateRateArray, 
          wxCB_DROPDOWN|wxCB_READONLY );                  
-
+   
    str1StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("String 1"), wxDefaultPosition, 
-         wxSize(125,20), 0);
+      new wxStaticText( this, ID_TEXT, wxT(""), wxDefaultPosition, wxDefaultSize, 0);
    str2StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("String 2"), wxDefaultPosition, 
-         wxSize(125,20), 0);
+      new wxStaticText( this, ID_TEXT, wxT(""), wxDefaultPosition, wxDefaultSize, 0);
    str3StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("String 3"), wxDefaultPosition, 
-         wxSize(125,20), 0);
-
+      new wxStaticText( this, ID_TEXT, wxT(""), wxDefaultPosition, wxDefaultSize, 0);
+   
    str1TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(100,-1), 0 );
+         wxSize(80,-1), 0 );
    str2TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(100,-1), 0 );
+         wxSize(80,-1), 0 );
    str3TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(100,-1), 0 );                
+         wxSize(80,-1), 0 );                
 
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage
          ("AttitudePanel::Create() Creating wxTextCtrl objects\n");
    #endif
-
-   //attUnits1 = new wxStaticText(this,ID_TEXT,wxT("deg"));
-   //attUnits2 = new wxStaticText(this,ID_TEXT,wxT("deg"));
-   //attUnits3 = new wxStaticText(this,ID_TEXT,wxT("deg"));
 
    rateUnits1 = new wxStaticText( this, ID_TEXT, wxT("deg/sec"));
    rateUnits2 = new wxStaticText( this, ID_TEXT, wxT("deg/sec"));
@@ -343,16 +328,22 @@ void AttitudePanel::Create()
    
    Integer bsize = 2; // border size
    // wx*Sizers   
-   GmatStaticBoxSizer *boxSizer1 = new GmatStaticBoxSizer( wxHORIZONTAL, this, "" );
+   wxBoxSizer *boxSizer1 = new wxBoxSizer(wxHORIZONTAL);
+   //GmatStaticBoxSizer *boxSizer1 = new GmatStaticBoxSizer( wxHORIZONTAL, this, "" );
    GmatStaticBoxSizer *boxSizer2 = new GmatStaticBoxSizer( wxVERTICAL, this, "" );
    GmatStaticBoxSizer *boxSizer3 = new GmatStaticBoxSizer( wxVERTICAL, this, "" );
-   GmatStaticBoxSizer *boxSizer4 = new GmatStaticBoxSizer( wxVERTICAL, this, "Attitude Initial Conditions" );
-   GmatStaticBoxSizer *boxSizer5 = new GmatStaticBoxSizer( wxVERTICAL, this, "Attitude Rate Initial Conditions" );
+   attitudeSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Attitude Initial Conditions" );
+   attRateSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Attitude Rate Initial Conditions" );
    
    wxFlexGridSizer *flexGridSizer1 = new wxFlexGridSizer( 2, 0, 0 );
    wxFlexGridSizer *flexGridSizer2 = new wxFlexGridSizer( 4, 0, 0 );
-   wxFlexGridSizer *flexGridSizer3 = new wxFlexGridSizer( 3, 0, 0 );        
-                                  
+   wxFlexGridSizer *flexGridSizer3 = new wxFlexGridSizer( 3, 0, 0 );
+   // Let's make TextCtrl growable, so we can see more numbers when expand
+   flexGridSizer2->AddGrowableCol( 1 );
+   flexGridSizer2->AddGrowableCol( 2 );
+   flexGridSizer2->AddGrowableCol( 3 );
+   flexGridSizer3->AddGrowableCol( 1 );
+   
    // Add to wx*Sizers
    flexGridSizer1->Add(config1StaticText, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );
    flexGridSizer1->Add(config1ComboBox, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );        
@@ -361,63 +352,58 @@ void AttitudePanel::Create()
    flexGridSizer1->Add(config4StaticText, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );
    flexGridSizer1->Add(config4ComboBox, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );         
    
-   //flexGridSizer2->Add(20, 20, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
-   //flexGridSizer2->Add(col1StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
-   //flexGridSizer2->Add(col2StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
-   //flexGridSizer2->Add(col3StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );         
-      
-   flexGridSizer2->Add(st1StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer2->Add(st1StaticText, 0, wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st1TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st5TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st8TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );          
    
-   flexGridSizer2->Add(st2StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer2->Add(st2StaticText, 0, wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st2TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st6TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st9TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );        
    
-   flexGridSizer2->Add(st3StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer2->Add(st3StaticText, 0, wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st3TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st7TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st10TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );       
    
-   flexGridSizer2->Add(st4StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer2->Add(st4StaticText, 0, wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st4TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(20, 20, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
    flexGridSizer2->Add(20, 20, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);        
    
-   flexGridSizer3->Add(str1StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer3->Add(str1StaticText, 0, wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer3->Add(str1TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
-   flexGridSizer3->Add(rateUnits1, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
-   flexGridSizer3->Add(str2StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer3->Add(rateUnits1, 0, wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer3->Add(str2StaticText, 0, wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer3->Add(str2TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
-   flexGridSizer3->Add(rateUnits2, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
-   flexGridSizer3->Add(str3StaticText, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer3->Add(rateUnits2, 0, wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer3->Add(str3StaticText, 0, wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer3->Add(str3TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );        
-   flexGridSizer3->Add(rateUnits3, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   flexGridSizer3->Add(rateUnits3, 0, wxALIGN_CENTER|wxALL, bsize );
    
-   boxSizer4->Add(stateTypeStaticText , 0, wxGROW|wxALIGN_CENTER|wxALL, bsize);
-   boxSizer4->Add(stateTypeComboBox , 0, wxALIGN_LEFT|wxALL, bsize);  
-   boxSizer4->Add(flexGridSizer2, 0, wxGROW|wxALIGN_RIGHT|wxALL, bsize);            
+   attitudeSizer->Add(stateTypeStaticText , 0, wxALIGN_LEFT|wxALL, bsize);
+   attitudeSizer->Add(stateTypeComboBox , 0, wxALIGN_LEFT|wxALL, bsize);  
+   attitudeSizer->Add(flexGridSizer2, 0, wxGROW|wxALIGN_RIGHT|wxALL, bsize);            
    
-   boxSizer5->Add(stateTypeRate4StaticText , 0, wxGROW|wxALIGN_CENTER|wxALL, bsize);
-   boxSizer5->Add(stateRateTypeComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-   boxSizer5->Add(flexGridSizer3, 0, wxGROW|wxALIGN_RIGHT|wxALL, bsize);         
+   attRateSizer->Add(stateTypeRate4StaticText , 0, wxALIGN_LEFT|wxALL, bsize);
+   attRateSizer->Add(stateRateTypeComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
+   attRateSizer->Add(flexGridSizer3, 0, wxGROW|wxALIGN_RIGHT|wxALL, bsize);         
    
    boxSizer2->Add(flexGridSizer1, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    
-   boxSizer3->Add(boxSizer4, 0,wxGROW| wxALIGN_CENTER|wxALL, bsize);
-   boxSizer3->Add(boxSizer5, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize);
+   boxSizer3->Add(attitudeSizer, 0, wxGROW| wxALIGN_CENTER|wxALL, bsize);
+   boxSizer3->Add(attRateSizer, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize);
    
-   boxSizer1->Add( boxSizer2, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   boxSizer1->Add( boxSizer3, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-        
+   boxSizer1->Add( boxSizer2, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize);
+   boxSizer1->Add( boxSizer3, 1, wxGROW|wxALIGN_CENTER|wxALL, bsize);
+   
    
    this->SetAutoLayout( true );  
-   this->SetSizer( boxSizer1 );
+   this->SetSizerAndFit( boxSizer1 );
    boxSizer1->Fit( this );
    boxSizer1->SetSizeHints( this );  
-         
+   
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::Create() exiting\n");
    #endif
@@ -1207,9 +1193,6 @@ void AttitudePanel::DisplayEulerAngles()
    stateTypeComboBox->
       SetValue(wxT("Euler Angles"));
    attStateType = STATE_TEXT[EULER_ANGLES];
-   //col1StaticText->Show(false);
-   //col2StaticText->Show(false);
-   //col3StaticText->Show(false);
    
    st1StaticText->Show(true);
    st2StaticText->Show(true);
@@ -1236,7 +1219,9 @@ void AttitudePanel::DisplayEulerAngles()
    st1TextCtrl->SetValue(*eulerAngles[0]);
    st2TextCtrl->SetValue(*eulerAngles[1]);
    st3TextCtrl->SetValue(*eulerAngles[2]);
-   
+
+   attitudeSizer->Layout();
+   Refresh();
    ResetStateFlags("State", true);
 }
 
@@ -1252,9 +1237,6 @@ void AttitudePanel::DisplayQuaternion()
    stateTypeComboBox->
       SetValue(wxT("Quaternion"));
    attStateType = "Quaternion";
-   //col1StaticText->Show(false);
-   //col2StaticText->Show(false);
-   //col3StaticText->Show(false);
    
    st1StaticText->Show(true);
    st2StaticText->Show(true);
@@ -1284,6 +1266,8 @@ void AttitudePanel::DisplayQuaternion()
    st3TextCtrl->SetValue(*quaternion[2]);
    st4TextCtrl->SetValue(*quaternion[3]);
 
+   attitudeSizer->Layout();
+   Refresh();
    ResetStateFlags("State", true);
 }
 
@@ -1299,13 +1283,7 @@ void AttitudePanel::DisplayDCM()
    stateTypeComboBox->
       SetValue(wxT("DirectionCosineMatrix"));
    attStateType = "DirectionCosineMatrix";
-   //col1StaticText->Show(true);
-   //col2StaticText->Show(true);
-   //col3StaticText->Show(true);
    
-   st1StaticText->Show(true);
-   st2StaticText->Show(true);
-   st3StaticText->Show(true);
    st1StaticText->Show(false);
    st2StaticText->Show(false);
    st3StaticText->Show(false);
@@ -1324,12 +1302,10 @@ void AttitudePanel::DisplayDCM()
    st9TextCtrl->Show(true);
    st10TextCtrl->Show(true);
    
-   //st1StaticText->SetLabel(wxT("Row 1"));
-   //st2StaticText->SetLabel(wxT("Row 2"));
-   //st3StaticText->SetLabel(wxT("Row 3"));
-   st1StaticText->SetLabel(wxT("     "));
-   st2StaticText->SetLabel(wxT("     "));
-   st3StaticText->SetLabel(wxT("     "));
+   st1StaticText->SetLabel(wxT(""));
+   st2StaticText->SetLabel(wxT(""));
+   st3StaticText->SetLabel(wxT(""));
+   st4StaticText->SetLabel(wxT(""));
 
    st1TextCtrl->SetValue(*cosineMatrix[0]);
    st2TextCtrl->SetValue(*cosineMatrix[3]);
@@ -1340,7 +1316,9 @@ void AttitudePanel::DisplayDCM()
    st8TextCtrl->SetValue(*cosineMatrix[2]);
    st9TextCtrl->SetValue(*cosineMatrix[5]);
    st10TextCtrl->SetValue(*cosineMatrix[8]);
-   
+
+   attitudeSizer->Layout();
+   Refresh();
    ResetStateFlags("State", true);
 }
 
@@ -1365,6 +1343,8 @@ void AttitudePanel::DisplayEulerAngleRates()
    str2TextCtrl->SetValue(*eulerAngleRates[1]);
    str3TextCtrl->SetValue(*eulerAngleRates[2]);
 
+   attRateSizer->Layout();
+   Refresh();
    ResetStateFlags("Rate", true);
 
 }
@@ -1389,6 +1369,8 @@ void AttitudePanel::DisplayAngularVelocity()
    str2TextCtrl->SetValue(*angVel[1]);
    str3TextCtrl->SetValue(*angVel[2]);
 
+   attRateSizer->Layout();
+   Refresh();
    ResetStateFlags("Rate", true);
 }
 

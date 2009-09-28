@@ -31,7 +31,7 @@
 #include "gmatwxdefs.hpp"
 #include "GuiItemManager.hpp"
 #include "GmatPanel.hpp"
-#include "MessageInterface.hpp"  // *************
+#include "GmatStaticBoxSizer.hpp"
 
 class AttitudePanel: public wxPanel
 {
@@ -46,6 +46,9 @@ public:
    
 private:    
 
+   GmatStaticBoxSizer *attitudeSizer;
+   GmatStaticBoxSizer *attRateSizer;
+   
    wxStaticText *config1StaticText;
    wxStaticText *config2StaticText;
    wxStaticText *config3StaticText;
@@ -54,9 +57,6 @@ private:
    wxStaticText *stateTypeStaticText;
    wxStaticText *stateTypeRate4StaticText;
    
-   wxStaticText *col1StaticText;
-   wxStaticText *col2StaticText;
-   wxStaticText *col3StaticText;
    wxStaticText *st1StaticText;
    wxStaticText *st2StaticText;
    wxStaticText *st3StaticText;
@@ -235,7 +235,7 @@ private:
       ANGULAR_VELOCITY,
       StateRateTypeCount,
    };
-      
+   
    static const std::string STATE_TEXT[StateTypeCount];
    static const std::string STATE_RATE_TEXT[StateRateTypeCount];
    

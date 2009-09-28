@@ -259,6 +259,7 @@ void OrbitPanel::LoadData()
          
          // Set the CS's on the spacecraft
          theSpacecraft->SetInternalCoordSystem(mInternalCoord);
+         theSpacecraft->SetRefObjectName(Gmat::COORDINATE_SYSTEM, mOutCoord->GetName());
          theSpacecraft->SetRefObject(mOutCoord, Gmat::COORDINATE_SYSTEM);
       }
       
@@ -273,7 +274,6 @@ void OrbitPanel::LoadData()
          
       mFromStateTypeStr = "Cartesian";
       if (origin->IsOfType(Gmat::CELESTIAL_BODY))
-         //mFromStateTypeStr = theSpacecraft->GetStringParameter("StateType");
          mFromStateTypeStr = theSpacecraft->GetStringParameter("DisplayStateType");
       
       #ifdef DEBUG_ORBIT_PANEL_LOAD
@@ -469,8 +469,8 @@ void OrbitPanel::SaveData()
       {
          wxString coordSysStr  = mCoordSysComboBox->GetValue();
          mIsCoordSysChanged = false;
-         theSpacecraft->SetStringParameter("CoordinateSystem", 
-                                           coordSysStr.c_str());
+         theSpacecraft->
+            SetRefObjectName(Gmat::COORDINATE_SYSTEM, coordSysStr.c_str());
       }
       
       if (canClose)
@@ -520,16 +520,17 @@ void OrbitPanel::Create()
    //-----------------------------------------------------------------
    // sizer for orbit tab
    wxBoxSizer *orbitSizer = new wxBoxSizer(wxHORIZONTAL);
-      
-   //flex grid sizer for the epoch format, coordinate system and state type
-   wxFlexGridSizer *pageSizer = new wxFlexGridSizer(5, 2, bsize, bsize);
    
-   // static box for the elements
-   wxStaticBox *elementBox =
-      new wxStaticBox(this, ID_STATIC_ELEMENT, wxT("Elements"));
+   //flex grid sizer for the epoch format, coordinate system and state type
+   //wxFlexGridSizer *epochSizer = new wxFlexGridSizer(5, 2, bsize, bsize);
+   wxFlexGridSizer *epochSizer = new wxFlexGridSizer(2);
+   
+   // static box for the orbit def and elements
+   wxStaticBoxSizer *orbitDefSizer =
+      new wxStaticBoxSizer(wxVERTICAL, this, "");
    wxStaticBoxSizer *elementSizer =
-      new wxStaticBoxSizer(elementBox, wxVERTICAL);
-
+      new wxStaticBoxSizer(wxVERTICAL, this, "Elements");
+   
    //-----------------------------------------------------------------
    // epoch 
    //-----------------------------------------------------------------
@@ -570,7 +571,7 @@ void OrbitPanel::Create()
 
    // combo box for the state
    stateTypeComboBox = new wxComboBox
-      ( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(150,-1), //0,
+      ( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(150,-1),
         emptyList, wxCB_DROPDOWN | wxCB_READONLY);
    
    //-----------------------------------------------------------------
@@ -582,28 +583,34 @@ void OrbitPanel::Create()
 
    // combo box for the anomaly type
    anomalyComboBox = new wxComboBox
-      ( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(150,-1), //0,
+      ( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(150,-1),
         emptyList, wxCB_DROPDOWN | wxCB_READONLY );
    
-   // add to page sizer
-   pageSizer->Add( epochFormatStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( epochFormatComboBox, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( epochStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( epochValue, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( coordSysStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( mCoordSysComboBox, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( stateTypeStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( stateTypeComboBox, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( anomalyStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
-   pageSizer->Add( anomalyComboBox, 0, wxALIGN_LEFT | wxALL, bsize );
-
+   // add to epoch sizer
+   epochSizer->AddGrowableCol( 1 );
+   epochSizer->Add( epochFormatStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
+   epochSizer->Add( epochFormatComboBox, 0, wxGROW|wxALIGN_LEFT | wxALL, bsize );
+   
+   epochSizer->Add( epochStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
+   epochSizer->Add( epochValue, 0, wxGROW|wxALIGN_LEFT | wxALL, bsize );
+   
+   epochSizer->Add( coordSysStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
+   epochSizer->Add( mCoordSysComboBox, 0, wxGROW|wxALIGN_LEFT | wxALL, bsize );
+   
+   epochSizer->Add( stateTypeStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
+   epochSizer->Add( stateTypeComboBox, 0, wxGROW|wxALIGN_LEFT | wxALL, bsize );
+   
+   epochSizer->Add( anomalyStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
+   epochSizer->Add( anomalyComboBox, 0, wxGROW|wxALIGN_LEFT | wxALL, bsize );
+   
    // panel that has the labels and text fields for the elements
    // adds default descriptors/labels
    AddElements(this);
-   elementSizer->Add(elementsPanel, 0, wxALIGN_CENTER, bsize);
+   orbitDefSizer->Add( epochSizer, 1, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   elementSizer->Add( elementsPanel, 1, wxGROW|wxALIGN_CENTER|wxALL, bsize);
    
-   orbitSizer->Add( pageSizer, 1, wxGROW|wxALIGN_CENTER, bsize );
-   orbitSizer->Add( elementSizer, 1, wxGROW|wxALIGN_CENTER, bsize );
+   orbitSizer->Add( orbitDefSizer, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
+   orbitSizer->Add( elementSizer, 1, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    
    this->SetSizer( orbitSizer );
 }
@@ -625,23 +632,21 @@ void OrbitPanel::AddElements(wxWindow *parent)
    wxGridSizer *item0 = new wxGridSizer( 1, 0, 0 );
 
    wxFlexGridSizer *item3 = new wxFlexGridSizer( 6, 3, 0, 0 );
-   item3->AddGrowableCol( 0 );
+   //item3->AddGrowableCol( 0 );
    item3->AddGrowableCol( 1 );
-   item3->AddGrowableCol( 2 );
-
+   //item3->AddGrowableCol( 2 );
+   
    // Element 1
    description1 = new wxStaticText( elementsPanel, ID_TEXT, 
-                      wxT("Descriptor1     "), wxDefaultPosition, 
-                      wxDefaultSize, 0 );
+                      wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[0] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, 
                      wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
    unit1 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit1"), 
                wxDefaultPosition, wxDefaultSize, 0 );
-
+   
    // Element 2
    description2 = new wxStaticText( elementsPanel, ID_TEXT, 
-                      wxT("Descriptor2    "), wxDefaultPosition, 
-                      wxDefaultSize, 0 );
+                      wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[1] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
                      wxDefaultPosition, wxSize(150,-1), 0 );
    unit2 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit2"), 
@@ -649,58 +654,59 @@ void OrbitPanel::AddElements(wxWindow *parent)
    
    // Element 3
    description3 = new wxStaticText( elementsPanel, ID_TEXT, 
-                      wxT("Descriptor3    "), wxDefaultPosition, 
-                      wxDefaultSize, 0 );
+                      wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[2] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
                    wxDefaultPosition, wxSize(150,-1), 0 );
    unit3 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit3"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
-    
+   
    // Element 4
    description4 = new wxStaticText( elementsPanel, ID_TEXT, 
-                      wxT("Descriptor4    "), wxDefaultPosition, 
-                      wxDefaultSize, 0 );
+                      wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[3] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
                    wxDefaultPosition, wxSize(150,-1), 0 );
    unit4 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit4"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
-
+   
    // Element 5    
    description5 = new wxStaticText( elementsPanel, ID_TEXT, 
-                      wxT("Descriptor5    "), wxDefaultPosition, 
-                      wxDefaultSize, 0 );
+                      wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[4] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
                                  wxDefaultPosition, wxSize(150,-1), 0 );
    unit5 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit5"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
-    
+   
    // Element 6
    description6 = new wxStaticText( elementsPanel, ID_TEXT, 
-                      wxT("Descriptor6    "), wxDefaultPosition, 
-                      wxDefaultSize, 0 );
+                      wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[5] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""),
                                 wxDefaultPosition, wxSize(150,-1), 0 );
    unit6 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit6"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
-
+   
    // Add to wx*Sizers 
    item3->Add( description1, 0, wxALIGN_LEFT|wxALL, bsize );
-   item3->Add( textCtrl[0], 0, wxALIGN_CENTER|wxALL, bsize );
+   item3->Add( textCtrl[0], 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    item3->Add( unit1, 0, wxALIGN_LEFT|wxALL, bsize );
+   
    item3->Add( description2, 0, wxALIGN_LEFT|wxALL, bsize );
-   item3->Add( textCtrl[1], 0, wxALIGN_CENTER|wxALL, bsize );
+   item3->Add( textCtrl[1], 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    item3->Add( unit2, 0, wxALIGN_LEFT|wxALL, bsize );
+   
    item3->Add( description3, 0, wxALIGN_LEFT|wxALL, bsize );
-   item3->Add( textCtrl[2], 0, wxALIGN_CENTER|wxALL, bsize );
+   item3->Add( textCtrl[2], 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    item3->Add( unit3, 0, wxALIGN_LEFT|wxALL, bsize );
+   
    item3->Add( description4, 0, wxALIGN_LEFT|wxALL, bsize );
-   item3->Add( textCtrl[3], 0, wxALIGN_CENTER|wxALL, bsize );
+   item3->Add( textCtrl[3], 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    item3->Add( unit4, 0, wxALIGN_LEFT|wxALL, bsize );
+   
    item3->Add( description5, 0, wxALIGN_LEFT|wxALL, bsize );
-   item3->Add( textCtrl[4], 0, wxALIGN_CENTER|wxALL, bsize );
+   item3->Add( textCtrl[4], 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    item3->Add( unit5, 0, wxALIGN_LEFT|wxALL, bsize );
+   
    item3->Add( description6, 0, wxALIGN_LEFT|wxALL, bsize );
-   item3->Add( textCtrl[5], 0, wxALIGN_CENTER|wxALL, bsize );
+   item3->Add( textCtrl[5], 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
    item3->Add( unit6, 0, wxALIGN_LEFT|wxALL, bsize );
 
    item0->Add( item3, 0, wxGROW|wxALL|wxALIGN_CENTER, bsize );
@@ -857,6 +863,7 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
             mFromStateTypeStr = stateTypeComboBox->GetValue().c_str();
          
          mFromCoord = mOutCoord;
+         theSpacecraft->SetRefObjectName(Gmat::COORDINATE_SYSTEM, mOutCoord->GetName());
          theSpacecraft->SetRefObject(mOutCoord, Gmat::COORDINATE_SYSTEM);
       }
       catch (BaseException &e)
@@ -977,8 +984,6 @@ void OrbitPanel::SetLabelsUnits(const std::string &stateType)
    Integer baseLabel = theSpacecraft->GetParameterID("Element1");
    Integer baseUnit  = theSpacecraft->GetParameterID("Element1Units");
    
-   //std::string st = theSpacecraft->GetStringParameter("StateType");
-   //theSpacecraft->SetStringParameter("StateType", stateType);   
    std::string st = theSpacecraft->GetStringParameter("DisplayStateType");
    theSpacecraft->SetStringParameter("DisplayStateType", stateType);
    
@@ -1014,8 +1019,7 @@ void OrbitPanel::SetLabelsUnits(const std::string &stateType)
       anomalyStaticText->Show(false);
       anomalyComboBox->Show(false);
    }
-
-   //theSpacecraft->SetStringParameter("StateType", st);
+   
    theSpacecraft->SetStringParameter("DisplayStateType", st);
 }
 
@@ -1128,7 +1132,7 @@ void OrbitPanel::DisplayState()
    // labels for elements, anomaly and units
    SetLabelsUnits(stateTypeStr);
    ResetStateFlags(true);
-   
+
    #ifdef DEBUG_ORBIT_PANEL_CONVERT
    MessageInterface::ShowMessage
       ("OrbitPanel::DisplayState() leaving\n");
