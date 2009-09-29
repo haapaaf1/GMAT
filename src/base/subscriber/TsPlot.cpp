@@ -45,6 +45,10 @@ TsPlot::PARAMETER_TEXT[TsPlotParamCount - SubscriberParamCount] =
    "DataCollectFrequency",
    "UpdatePlotFrequency",
    "ShowPlot",
+   "UseLines",
+   "LineWidth",
+   "UseMarkers",
+   "MarkerSize",
 }; 
 
 const Gmat::ParameterType
@@ -59,6 +63,10 @@ TsPlot::PARAMETER_TYPE[TsPlotParamCount - SubscriberParamCount] =
    Gmat::INTEGER_TYPE,     // "DataCollectFrequency",
    Gmat::INTEGER_TYPE,     // "UpdatePlotFrequency",
    Gmat::BOOLEAN_TYPE,     // "ShowPlot",
+   Gmat::BOOLEAN_TYPE,     // "UseLines",
+   Gmat::INTEGER_TYPE,     // "LineWidth",
+   Gmat::BOOLEAN_TYPE,     // "UseMarkers",
+   Gmat::INTEGER_TYPE,     // "MarkerSize",
 };
 
 //---------------------------------
@@ -99,6 +107,11 @@ TsPlot::TsPlot(const std::string &name, Parameter *xParam,
    mIsTsPlotWindowSet = false;
    mDataCollectFrequency = 1;
    mUpdatePlotFrequency = 10;
+
+   useLines = true;
+   lineWidth = 1;
+   useMarkers = false;
+   markerSize = 3;
 }
 
 
@@ -131,6 +144,11 @@ TsPlot::TsPlot(const TsPlot &orig) :
    
    mNumDataPoints = orig.mNumDataPoints;
    mNumCollected = orig.mNumCollected;
+
+   useLines   = orig.useLines;
+   lineWidth  = orig.lineWidth;
+   useMarkers = orig.useMarkers;
+   markerSize = orig.markerSize;
 }
 
 
@@ -172,6 +190,8 @@ TsPlot& TsPlot::operator=(const TsPlot& orig)
    mNumDataPoints = orig.mNumDataPoints;
    mNumCollected = orig.mNumCollected;
    
+   useMarkers = orig.useMarkers;
+
    return *this;
 }
 
@@ -320,6 +340,8 @@ bool TsPlot::Initialize()
       #endif
       
       PlotInterface::ClearTsPlotData(instanceName);
+      PlotInterface::TsPlotCurveSettings(instanceName, useLines, lineWidth,
+            useMarkers, markerSize);
    }
    else
    {
@@ -328,7 +350,6 @@ bool TsPlot::Initialize()
       #endif
       
       status =  PlotInterface::DeleteTsPlot(instanceName);
-      
    }
    
    #if DEBUG_TSPLOT_INIT
@@ -559,8 +580,17 @@ std::string TsPlot::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool TsPlot::IsParameterReadOnly(const Integer id) const
 {
-   if ((id == PLOT_TITLE) || (id == X_AXIS_TITLE) || (id == Y_AXIS_TITLE) ||
-       (id == DATA_COLLECT_FREQUENCY) || (id == UPDATE_PLOT_FREQUENCY))
+   if (
+       (id == PLOT_TITLE)             ||
+       (id == X_AXIS_TITLE)           ||
+       (id == Y_AXIS_TITLE)           ||
+       (id == DATA_COLLECT_FREQUENCY) ||
+       (id == UPDATE_PLOT_FREQUENCY)  ||
+       (id == USE_LINES)              ||
+       (id == LINE_WIDTH)             ||
+       (id == USE_MARKERS)            ||
+       (id == MARKER_SIZE)
+      )
       return true;
    
    return Subscriber::IsParameterReadOnly(id);
@@ -577,6 +607,10 @@ Integer TsPlot::GetIntegerParameter(const Integer id) const
       return mDataCollectFrequency;
    case UPDATE_PLOT_FREQUENCY:
       return mUpdatePlotFrequency;
+   case LINE_WIDTH:
+      return lineWidth;
+   case MARKER_SIZE:
+      return markerSize;
    default:
       return Subscriber::GetIntegerParameter(id);
    }
@@ -603,6 +637,12 @@ Integer TsPlot::SetIntegerParameter(const Integer id, const Integer value)
       return value;
    case UPDATE_PLOT_FREQUENCY:
       mUpdatePlotFrequency = value;
+      return value;
+   case LINE_WIDTH:
+      lineWidth = value;
+      return value;
+   case MARKER_SIZE:
+      markerSize = value;
       return value;
    default:
       return Subscriber::SetIntegerParameter(id, value);
@@ -816,6 +856,10 @@ bool TsPlot::GetBooleanParameter(const Integer id) const
 {
    if (id == SHOW_PLOT)
       return active;
+   if (id == USE_MARKERS)
+      return useMarkers;
+   if (id == USE_LINES)
+      return useLines;
    return Subscriber::GetBooleanParameter(id);
 }
 
@@ -835,6 +879,21 @@ bool TsPlot::SetBooleanParameter(const Integer id, const bool value)
    {
       active = value;
       return active;
+   }
+   if (id == USE_MARKERS)
+   {
+      useMarkers = value;
+      // Always have to have either markers or lines
+      if (useMarkers == false)
+         useLines = true;
+      return useMarkers;
+   }
+   if (id == USE_LINES)
+   {
+      useLines = value;
+      if (useLines == false)
+         useMarkers = true;
+      return useLines;
    }
    return Subscriber::SetBooleanParameter(id, value);
 }

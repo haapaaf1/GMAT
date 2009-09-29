@@ -61,6 +61,9 @@ public:
    void ClearPlotData();
    void PenUp();
    void PenDown();
+   void CurveSettings(const std::string &plotName, bool useLines,
+         Integer lineWidth, bool useMarkers, Integer markerSize,
+         Integer forCurve = -1);
    void RedrawCurve();
     
    // getter

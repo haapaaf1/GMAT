@@ -996,6 +996,24 @@ void GuiPlotReceiver::TsPlotPenDown(const std::string &plotName)
    }
 }
 
+
+void GuiPlotReceiver::TsPlotCurveSettings(const std::string &plotName,
+      bool useLines, Integer lineWidth, bool useMarkers, Integer markerSize)
+{
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->CurveSettings(plotName, useLines, lineWidth, useMarkers,
+               markerSize);
+      }
+   }
+}
+
 //------------------------------------------------------------------------------
 // void SetTsPlotTitle(const std::string &plotName, const std::string &plotTitle)
 //------------------------------------------------------------------------------

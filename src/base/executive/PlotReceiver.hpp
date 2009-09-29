@@ -105,7 +105,12 @@ public:
    virtual void ClearTsPlotData(const std::string &plotName) = 0;
    virtual void TsPlotPenUp(const std::string &plotName) = 0;
    virtual void TsPlotPenDown(const std::string &plotName) = 0;
-   
+   virtual void TsPlotCurveSettings(const std::string &plotName,
+                                   bool useLines = true,
+                                   Integer lineWidth = 1,
+                                   bool useMarkers = false,
+                                   Integer markerSize = 3) = 0;
+
    virtual void SetTsPlotTitle(const std::string &plotName,
                        const std::string &plotTitle) = 0;
    virtual void ShowTsPlotLegend(const std::string &plotName) = 0;

@@ -142,6 +142,11 @@ protected:
    Integer mNumDataPoints;
    Integer mNumCollected;
    
+   bool useLines;
+   Integer lineWidth;
+   bool useMarkers;
+   Integer markerSize;
+
    enum
    {
       IND_VAR = SubscriberParamCount,
@@ -153,6 +158,10 @@ protected:
       DATA_COLLECT_FREQUENCY,
       UPDATE_PLOT_FREQUENCY,
       SHOW_PLOT,
+      USE_LINES,
+      LINE_WIDTH,
+      USE_MARKERS,
+      MARKER_SIZE,
       TsPlotParamCount
    };
    

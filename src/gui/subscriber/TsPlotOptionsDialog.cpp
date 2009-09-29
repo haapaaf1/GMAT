@@ -1,4 +1,4 @@
-// $Header$
+// $Id$
 //------------------------------------------------------------------------------
 //                           TsPlotOptionsDialog
 //------------------------------------------------------------------------------
@@ -12,7 +12,7 @@
  * Implements the TsPlotOptionsDialog window.
  */
 //------------------------------------------------------------------------------
-
+ 
 
 #include "TsPlotOptionsDialog.hpp"
 #include <sstream>
@@ -37,6 +37,13 @@ TsPlotOptionsDialog::TsPlotOptionsDialog(const std::string xLabel,
 {
    wxBoxSizer *topSizer = new wxBoxSizer(wxVERTICAL);
    
+//   theControls = new wxNotebook();
+//   globalPage  = new wxNotebookPage();
+//   curvePage   = new wxNotebookPage();
+
+//   theControls->AddPage(globalPage, "Global Settings", true);
+//   theControls->AddPage(curvePage, "Curves", false);
+
    // Lay out the three columns that appear in the top portion of the dialog
    wxBoxSizer *sideSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -242,6 +249,7 @@ TsPlotOptionsDialog::TsPlotOptionsDialog(const std::string xLabel,
    buttons->Add(CreateButtonSizer(wxCANCEL), 0, wxALL | wxALIGN_CENTER, 5);
    buttons->AddStretchSpacer();
 
+//   topSizer->Add(theControls, 1, wxALL | wxGROW, 5);
    topSizer->Add(sideSizer, 1, wxALL | wxGROW, 5);
    topSizer->Add(buttons, 0, wxALL | wxGROW, 5);
 

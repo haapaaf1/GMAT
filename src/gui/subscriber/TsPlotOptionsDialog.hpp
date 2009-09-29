@@ -1,4 +1,4 @@
-// $Header$
+// $Id$
 //------------------------------------------------------------------------------
 //                           TsPlotOptionsDialog
 //------------------------------------------------------------------------------
@@ -20,6 +20,7 @@
 #include <wx/wx.h>
 #include <wx/spinctrl.h>
 #include <wx/checkbox.h>
+#include <wx/notebook.h>
 
 #include <string>
 
@@ -88,6 +89,10 @@ public:
 protected:
 //   wxBoxSizer           *labels;
    
+//   wxNotebook           *theControls;
+//   wxNotebookPage       *globalPage;
+//   wxNotebookPage       *curvePage;
+
    // Controls that are accessed to set plot properties
    wxTextCtrl           *plotTitle;
    wxTextCtrl           *xAxisLabel;

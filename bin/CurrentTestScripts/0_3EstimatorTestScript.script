@@ -5,7 +5,7 @@ Create Spacecraft ODSat;
 GMAT ODSat.DateFormat = UTCGregorian;
 GMAT ODSat.Epoch = '01 Jan 2000 11:59:28.000';
 GMAT ODSat.Id = ODSatID;
-GMAT ODSat.X = 6648.137;
+GMAT ODSat.X = 6648.237;
 GMAT ODSat.Y = -335.169;
 GMAT ODSat.Z = 2789.137;
 GMAT ODSat.VX = -0.34697109;
@@ -44,13 +44,19 @@ RangeMeasurement.Type            = Range;
 RangeMeasurement.Participants    = { Maui, ODSat };
 
 %----- Create the estimator
-Create BatchEstimatorInv BatchEst
-BatchEst.Measurements  = {RangeMeasurement};
-BatchEst.AddSolveFor   = {ODSat.CartesianState,RangeMeasurement.Bias};
-BatchEst.AbsoluteTol   = 1e-5;
-BatchEst.RelativeTol   = 1e-6;
-BatchEst.MaximumIterations = 15;
-BatchEst.Propagator    = ODProp;
+Create BatchEstimatorInv BatchEst;
+GMAT BatchEst.ShowProgress = true;
+GMAT BatchEst.ReportStyle = 'Normal';
+GMAT BatchEst.TargeterTextFile = 'BatchEstimatorInvBatchEst.data';
+GMAT BatchEst.MaximumIterations = 15;
+GMAT BatchEst.Measurements = {RangeMeasurement};
+GMAT BatchEst.AddSolveFor = {ODSat.CartesianState, RangeMeasurement.Bias};
+GMAT BatchEst.AbsoluteTol = 1e-05;
+GMAT BatchEst.RelativeTol = 1e-06;
+GMAT BatchEst.Propagator = ODProp;
+GMAT BatchEst.EstimationEpochFormat = 'FromParticipants';
+GMAT BatchEst.EstimationEpoch = '';
+
 
 %----- Toss in a plot
 Create XYPlot XYPlot1;

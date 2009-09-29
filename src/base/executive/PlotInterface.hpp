@@ -104,6 +104,12 @@ public:
    static void ClearTsPlotData(const std::string &plotName);
    static void TsPlotPenUp(const std::string &plotName);
    static void TsPlotPenDown(const std::string &plotName);
+
+   static void TsPlotCurveSettings(const std::string &plotName,
+                                   bool useLines = true,
+                                   Integer lineWidth = 1,
+                                   bool useMarkers = false,
+                                   Integer markerSize = 3);
    
    static void SetTsPlotTitle(const std::string &plotName,
                               const std::string &plotTitle);

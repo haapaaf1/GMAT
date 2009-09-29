@@ -431,6 +431,15 @@ void PlotInterface::TsPlotPenDown(const std::string &plotName)
       thePlotReceiver->TsPlotPenDown(plotName);
 }
 
+
+void PlotInterface::TsPlotCurveSettings(const std::string &plotName,
+      bool useLines, Integer lineWidth, bool useMarkers, Integer markerSize)
+{
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->TsPlotCurveSettings(plotName, useLines, lineWidth,
+            useMarkers, markerSize);
+}
+
 //------------------------------------------------------------------------------
 // void SetTsPlotTitle(const std::string &plotName, const std::string &plotTitle)
 //------------------------------------------------------------------------------

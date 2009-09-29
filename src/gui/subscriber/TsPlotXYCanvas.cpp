@@ -1,4 +1,4 @@
-// $Header$
+// $Id$
 //------------------------------------------------------------------------------
 //                            TsPlotXYCanvas
 //------------------------------------------------------------------------------
@@ -287,15 +287,58 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
             }
             
             int j;
+            int x0, y0, x1, y1;
+
+            bool UseMarker();
+            int  GetMarker();
+
+            bool drawLines   = (*curve)->UseLine();
+            bool drawMarker  = (*curve)->UseMarker();
+            int  markerStyle = (*curve)->GetMarker();
+            int  markerSize  = (*curve)->GetMarkerSize();
+
             for (j = (*curve)->lastPointPlotted;
                  j < (int)((*curve)->abscissa.size())-1; ++j)
             {
                if (j != pupLoc)
-                  dc.DrawLine(
-                     int(left+((*curve)->abscissa[j]-currentXMin)*xScale + 0.5),
-                     int(top + (currentYMax-(*curve)->ordinate[j])*yScale + 0.5),
-                     int(left+((*curve)->abscissa[j+1]-currentXMin)*xScale + 0.5),
-                     int(top + (currentYMax-(*curve)->ordinate[j+1])*yScale+0.5));
+               {
+                  x0 = int(left +
+                        ((*curve)->abscissa[j]-currentXMin) * xScale + 0.5);
+                  y0 = int(top +
+                        (currentYMax-(*curve)->ordinate[j]) * yScale + 0.5);
+
+                  if (drawLines)
+                  {
+                     x1 = int(left +
+                           ((*curve)->abscissa[j+1]-currentXMin)*xScale + 0.5);
+                     y1 = int(top +
+                           (currentYMax-(*curve)->ordinate[j+1])*yScale + 0.5);
+
+                     dc.DrawLine(x0, y0, x1, y1);
+                  }
+
+                  if (drawMarker)
+                  {
+                     switch (markerStyle)
+                     {
+                        case 0:
+                           dc.DrawLine(x0-markerSize, y0-markerSize,
+                                 x0+markerSize, y0+markerSize);
+                           dc.DrawLine(x0+markerSize, y0-markerSize,
+                                 x0-markerSize, y0+markerSize);
+                           break;
+
+                        case 1:
+                           dc.DrawCircle(x0, y0, markerSize);
+                           break;
+
+                        case 2:
+                           dc.DrawLine(x0-markerSize, y0, x0+markerSize, y0);
+                           dc.DrawLine(x0, y0-markerSize, x0, y0+markerSize);
+                           break;
+                     }
+                  }
+               }
                else
                {
                   // Get the next penup
@@ -304,6 +347,37 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                      pupLoc = (*pups)[pupIndex];
                }
             }
+
+            // Catch the marker for the last point
+            if (drawMarker)
+            {
+               int k = (*curve)->abscissa.size() - 1;
+               x1 = int(left +
+                     ((*curve)->abscissa[k]-currentXMin)*xScale + 0.5);
+               y1 = int(top +
+                     (currentYMax-(*curve)->ordinate[k])*yScale + 0.5);
+
+               switch (markerStyle)
+               {
+                  case xMarker:  // x marks the spot
+                     dc.DrawLine(x1-markerSize, y1-markerSize,
+                           x1+markerSize, y1+markerSize);
+                     dc.DrawLine(x1+markerSize, y1-markerSize,
+                           x1-markerSize, y1+markerSize);
+                     break;
+
+                  case circleMarker:  // Put an o there
+                     dc.DrawCircle(x1, y1, markerSize);
+                     break;
+
+                  case plusMarker:  // + mark here
+                  default:
+                     dc.DrawLine(x1-markerSize, y1, x1+markerSize+1, y1);
+                     dc.DrawLine(x1, y1-markerSize, x1, y1+markerSize+1);
+                     break;
+               }
+            }
+
             (*curve)->lastPointPlotted = j-1;
          }
          ++n;

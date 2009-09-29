@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              TsPlotCurve
 //------------------------------------------------------------------------------
@@ -33,6 +33,10 @@ TsPlotCurve::TsPlotCurve(int offsetY, double startY, double endY,
    maxY              (-1e99),
    rangeChanged      (false),
    domainChanged     (false),
+   useLines          (true),
+   useMarkers        (false),
+   markerStyle       (unsetMarker),
+   markerSize        (3),
    lineWidth         (1),
    lineStyle         (wxSOLID),
    penIsDown         (true),
@@ -295,4 +299,52 @@ void TsPlotCurve::SetStyle(int ls)
 int TsPlotCurve::GetStyle()
 {
    return lineStyle;
+}
+
+
+bool TsPlotCurve::UseLine()
+{
+   return useLines;
+}
+
+bool TsPlotCurve::UseLine(bool tf)
+{
+   return useLines = tf;
+}
+
+
+bool TsPlotCurve::UseMarker()
+{
+   return useMarkers;
+}
+
+
+bool TsPlotCurve::UseMarker(bool tf)
+{
+   return useMarkers = tf;
+}
+
+
+int TsPlotCurve::GetMarker()
+{
+   return markerStyle;
+}
+
+void TsPlotCurve::SetMarker(MarkerType newType)
+{
+   markerStyle = newType;
+}
+
+int TsPlotCurve::GetMarkerSize()
+{
+   return markerSize;
+}
+
+void TsPlotCurve::SetMarkerSize(int newSize)
+{
+   if (newSize > 0)
+      markerSize = newSize;
+
+   if (newSize > 12)
+      markerSize = 12;
 }

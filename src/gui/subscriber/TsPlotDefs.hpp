@@ -1,4 +1,4 @@
-// $Header$
+// $Id$
 //------------------------------------------------------------------------------
 //                           MessageInterface
 //------------------------------------------------------------------------------
@@ -43,5 +43,15 @@
 #ifndef M_PI_2
 #define M_PI_2 M_PI/2.0
 #endif
+
+// Enumeration that defines the implemented marker styles
+enum MarkerType
+{
+   unsetMarker = -1,
+   xMarker,
+   circleMarker,
+   plusMarker,
+   MarkerCount
+};
 
 #endif /*TSPLOTDEFS_HPP_*/

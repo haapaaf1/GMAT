@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              TSPlotCurve
 //------------------------------------------------------------------------------
@@ -24,6 +24,7 @@ class TsPlotCanvas;
 //#include "Interpolator.hpp"
 
 #include <vector>
+#include "TsPlotDefs.hpp"
 
 
 class TsPlotCurve
@@ -40,6 +41,15 @@ public:
    void SetStyle(int ls);
    int  GetStyle();
    
+   bool UseLine();
+   bool UseLine(bool tf);
+   bool UseMarker();
+   bool UseMarker(bool tf);
+   int  GetMarker();
+   void SetMarker(MarkerType newType);
+   int  GetMarkerSize();
+   void SetMarkerSize(int newSize);
+
    virtual void   Clear();
 
    virtual double GetMinX();
@@ -62,6 +72,11 @@ protected:
    bool   rangeChanged;
    bool   domainChanged;
    
+   bool   useLines;
+   bool   useMarkers;
+   int    markerStyle;
+   int    markerSize;
+
    // Interpolator *mInterp;
    
    /// Independent data

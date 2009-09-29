@@ -396,6 +396,35 @@ void MdiChildTsFrame::PenDown()
 }
 
 
+void MdiChildTsFrame::CurveSettings(const std::string &plotName, bool useLines,
+      Integer lineWidth, bool useMarkers, Integer markerSize, Integer forCurve)
+{
+   if (mXyPlot)
+   {
+      Integer count = mXyPlot->GetCurveCount();
+      if (forCurve == -1)
+      {
+         for (Integer i = 0; i < count; ++i)
+         {
+            TsPlotCurve *curve = mXyPlot->GetPlotCurve(i);
+            curve->UseLine(useLines);
+            curve->SetWidth(lineWidth);
+            curve->UseMarker(useMarkers);
+            curve->SetMarkerSize(markerSize);
+         }
+      }
+      else
+         if (forCurve < count)
+         {
+            TsPlotCurve *curve = mXyPlot->GetPlotCurve(forCurve);
+            curve->UseLine(useLines);
+            curve->SetWidth(lineWidth);
+            curve->UseMarker(useMarkers);
+            curve->SetMarkerSize(markerSize);
+         }
+   }
+}
+
 //------------------------------------------------------------------------------
 // void RedrawCurve()
 //------------------------------------------------------------------------------
