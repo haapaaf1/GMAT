@@ -1,4 +1,4 @@
-// $Header$
+// $Id$
 //------------------------------------------------------------------------------
 //                            TsPlotXYCanvas
 //------------------------------------------------------------------------------
@@ -21,14 +21,14 @@
 class TsPlotXYCanvas : public TsPlotCanvas
 {
 public:
-	TsPlotXYCanvas(wxWindow* parent, wxWindowID id = -1, 
+	TsPlotXYCanvas(wxWindow* parent, wxWindowID id = -1,
                   const wxPoint& pos = wxPoint(1,1),
-                  const wxSize& size = wxDefaultSize, 
+                  const wxSize& size = wxDefaultSize,
                   long style = wxTAB_TRAVERSAL,
                   const wxString& name = "");
 	virtual    ~TsPlotXYCanvas();
 
-protected:   
+protected:
    virtual void DrawAxes(wxDC &dc);
    virtual void DrawLabels(wxDC &dc);
    virtual void PlotData(wxDC &dc);
