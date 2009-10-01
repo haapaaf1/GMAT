@@ -19,11 +19,23 @@ This test validates the functionality of the EndFiniteBurn Command panel.
 
 Procedure:
 
-1. Create and open the appropriate object panel.
+1. Add and open the appropriate object panel.
                                                                                 
-   Create EndFiniteBurn Command              [ ] Pass  [ ] Fail  Bug# ______
+   Add EndFiniteBurn Command                 [ ] Pass  [ ] Fail  Bug# ______
 
    Open EndFiniteBurn Command                [ ] Pass  [ ] Fail  Bug# ______
+   
+   Close EndFiniteBurn Command               [ ] Pass  [ ] Fail  Bug# ______
+     
+   Clone EndFiniteBurn Command               [ ] Pass  [ ] Fail  Bug# ______
+   
+   Rename EndFiniteBurn Command              [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete EndFiniteBurn Command              [ ] Pass  [ ] Fail  Bug# ______
+
+   Insert After Command (17 options)         [ ] Pass  [ ] Fail  Bug# ______
+
+   Insert Before Command (17 options)        [ ] Pass  [ ] Fail  Bug# ______
 
 
 2. Evaluate the aesthetic qualities of the panel.
