@@ -19,11 +19,9 @@ This test validates the functionality of the Spacecraft Actuators panel.
 
 Procedure:
 
-1. Create and open the appropriate object panel.
+1. Add and open the appropriate object panel.
                                                                                 
-   Create Spacecraft Resource                [ ] Pass  [ ] Fail  Bug# ______
-
-   Create Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
+   Add Spacecraft Resource                   [ ] Pass  [ ] Fail  Bug# ______
 
    Create Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
 
@@ -83,7 +81,13 @@ Procedure:
    Maximize                                  [ ] Pass  [ ] Fail  Bug# ______
 
    Close                                     [ ] Pass  [ ] Fail  Bug# ______
-   
+
+   Open                                      [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Clone                                     [ ] Pass  [ ] Fail  Bug# ______
+
 
 7. Evaluate rename functionality.
 
