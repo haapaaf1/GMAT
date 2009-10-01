@@ -19,14 +19,22 @@ This test validates the functionality of the Thruster panel.
 
 Procedure:
 
-1. Create and open the appropriate object panel.
+1. Add and open the appropriate object panel.
                                                                                 
-   Create Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
+   Add Thruster Resource                     [ ] Pass  [ ] Fail  Bug# ______
 
-   Create Tank Resource(s)                   [ ] Pass  [ ] Fail  Bug# ______
+   Add Tank Resource(s)                      [ ] Pass  [ ] Fail  Bug# ______
 
    Open Thruster Resource                    [ ] Pass  [ ] Fail  Bug# ______
    
+   Close Thruster Resource                   [ ] Pass  [ ] Fail  Bug# ______
+   
+   Clone Thruster Resource                   [ ] Pass  [ ] Fail  Bug# ______
+   
+   Rename Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
+
 
 2. Evaluate the aesthetic qualities of the panel.
 
@@ -46,6 +54,8 @@ Procedure:
    Element2 Field                            [ ] Pass  [ ] Fail  Bug# ______
 
    Element3 Field                            [ ] Pass  [ ] Fail  Bug# ______
+
+   Duty Cycle                                [ ] Pass  [ ] Fail  Bug# ______
 
    Thruster Scale Factor Field               [ ] Pass  [ ] Fail  Bug# ______
 
