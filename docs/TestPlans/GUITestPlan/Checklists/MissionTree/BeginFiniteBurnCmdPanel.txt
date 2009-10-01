@@ -19,11 +19,23 @@ This test validates the functionality of the BeginFiniteBurn Command panel.
 
 Procedure:
 
-1. Create and open the appropriate object panel.
+1. Add and open the appropriate object panel.
                                                                                 
-   Create BeginFiniteBurn Command            [ ] Pass  [ ] Fail  Bug# ______
+   Add BeginFiniteBurn Command               [ ] Pass  [ ] Fail  Bug# ______
 
    Open BeginFiniteBurn Command              [ ] Pass  [ ] Fail  Bug# ______
+   
+   Close BeginFiniteBurn Command             [ ] Pass  [ ] Fail  Bug# ______
+   
+   Clone BeginFiniteBurn Command             [ ] Pass  [ ] Fail  Bug# ______
+   
+   Rename BeginFiniteBurn Command            [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete BeginFiniteBurn Command            [ ] Pass  [ ] Fail  Bug# ______
+
+   Insert After Command (17 options)         [ ] Pass  [ ] Fail  Bug# ______
+
+   Insert Before Command (17 options)        [ ] Pass  [ ] Fail  Bug# ______
 
 
 2. Evaluate the aesthetic qualities of the panel.
