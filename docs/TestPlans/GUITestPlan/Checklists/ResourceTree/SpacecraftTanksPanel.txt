@@ -19,13 +19,11 @@ This test validates the functionality of the Spacecraft Tanks panel.
 
 Procedure:
 
-1. Create and open the appropriate object panel.
+1. Add and open the appropriate object panel.
                                                                                 
-   Create Spacecraft Resource                [ ] Pass  [ ] Fail  Bug# ______
+   Add Spacecraft Resource                   [ ] Pass  [ ] Fail  Bug# ______
 
-   Create Tank Resource                      [ ] Pass  [ ] Fail  Bug# ______
-
-   Create Tank Resource                      [ ] Pass  [ ] Fail  Bug# ______
+   Add Tank Resource                         [ ] Pass  [ ] Fail  Bug# ______
 
    Open Spacecraft Resource                  [ ] Pass  [ ] Fail  Bug# ______
    
@@ -84,6 +82,10 @@ Procedure:
 
    Close                                     [ ] Pass  [ ] Fail  Bug# ______
    
+   Open                                      [ ] Pass  [ ] Fail  Bug# ______
+   
+   Clone                                     [ ] Pass  [ ] Fail  Bug# ______
+
 
 7. Evaluate rename functionality.
 
