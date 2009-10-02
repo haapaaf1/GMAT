@@ -23,7 +23,7 @@
 //#define DEBUG_CONFIG 1
 //#define DEBUG_CONFIG_SS 1
 //#define DEBUG_CONFIG_ADD_CLONE 1
-//#define DEBUG_CONFIG_MEMORY
+//#define DEBUG_CONFIG_REMOVE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -834,6 +834,61 @@ const StringArray& ConfigManager::GetListOfItems(Gmat::ObjectType itemType)
 
 
 //------------------------------------------------------------------------------
+// GmatBase* GetFirstItemUsing(Gmat::ObjectType type, const std::string &name,
+//                            bool includeSysParam = true);
+//------------------------------------------------------------------------------
+/**
+ * Retrives first object that uses given object type and name.
+ *
+ * @param type The type of the object that is being checked.
+ * @param name The name of the object.
+ * @param includeSysParam True if system parameter to be included
+ *
+ * @return A pointer to the object.
+ */
+//------------------------------------------------------------------------------
+GmatBase* ConfigManager::GetFirstItemUsing(Gmat::ObjectType type,
+                                           const std::string &name,
+                                           bool includeSysParam)
+{
+   #ifdef DEBUG_CONFIG_OBJ_USING
+   MessageInterface::ShowMessage
+      ("ConfigManager::GetFirstItemUsing() name='%s'\n", name.c_str());
+   #endif
+   
+   StringArray objList = GetListOfItemsHas(type, name, includeSysParam);
+   
+   #ifdef DEBUG_CONFIG_OBJ_USING
+   MessageInterface::ShowMessage
+      ("   There are %d objects using '%s'\n", objList.size(), name.c_str());
+   #endif
+   
+   GmatBase *obj = NULL;
+   
+   for (UnsignedInt i = 0; i < objList.size(); i++)
+   {
+      obj = GetItem(objList[i]);
+      
+      #ifdef DEBUG_CONFIG_OBJ_USING
+      MessageInterface::ShowMessage
+         ("      obj = <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
+          obj->GetName().c_str());
+      #endif
+      
+      if (obj->GetName() != name)
+         break;
+   }
+   
+   #ifdef DEBUG_CONFIG_OBJ_USING
+   MessageInterface::ShowMessage
+      ("ConfigManager::GetFirstItemUsing() returning <%p>\n", obj);
+   #endif
+   
+   return obj;
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* GetItem(const std::string &name)
 //------------------------------------------------------------------------------
 /**
@@ -846,7 +901,9 @@ const StringArray& ConfigManager::GetListOfItems(Gmat::ObjectType itemType)
 //------------------------------------------------------------------------------
 GmatBase* ConfigManager::GetItem(const std::string &name)
 {
-   //MessageInterface::ShowMessage("===> ConfigManager::GetItem() name='%s'\n", name.c_str());
+   #ifdef DEBUG_CONFIG_GET_ITEM
+   MessageInterface::ShowMessage("ConfigManager::GetItem() name='%s'\n", name.c_str());
+   #endif
    
    GmatBase *obj = NULL;
    
@@ -858,7 +915,10 @@ GmatBase* ConfigManager::GetItem(const std::string &name)
       }
    }
    
-   //MessageInterface::ShowMessage("===> ConfigManager::GetItem() returning <%p>\n", obj);
+   #ifdef DEBUG_CONFIG_GET_ITEM
+   MessageInterface::ShowMessage("===> ConfigManager::GetItem() returning <%p>\n", obj);
+   #endif
+   
    return obj;
 }
 
@@ -896,7 +956,8 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    if (mapping.find(oldName) != mapping.end())
    {
       GmatBase *obj = mapping[oldName];
-      if (obj->GetType() == type)
+      //if (obj->GetType() == type)
+      if (obj->IsOfType(type))
       {
          // if newName does not exist, change name
          if (mapping.find(newName) == mapping.end())
@@ -906,7 +967,8 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
             obj->SetName(newName);
             renamed = true;
             #if DEBUG_RENAME
-            MessageInterface::ShowMessage("===> Rename mapping obj=%s\n", obj->GetName().c_str());
+            MessageInterface::ShowMessage
+               ("===> Rename mapping obj=%s\n", obj->GetName().c_str());
             #endif
          }
          else
@@ -1049,7 +1111,7 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
 bool ConfigManager::RemoveAllItems()
 {
    // delete objects
-   #ifdef DEBUG_CONFIG_MEMORY
+   #ifdef DEBUG_CONFIG_REMOVE
    MessageInterface::ShowMessage
       ("ConfigManager::RemoveAllItems() Deleting %d objects\n", objects.size());
    #endif
@@ -1089,9 +1151,10 @@ bool ConfigManager::RemoveAllItems()
 //------------------------------------------------------------------------------
 bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
 {
-   #ifdef DEBUG_CONFIG_MEMORY
+   #ifdef DEBUG_CONFIG_REMOVE
    MessageInterface::ShowMessage
-      ("ConfigManager::RemoveItem() entered, type=%d, name='%s'\n", type,
+      ("ConfigManager::RemoveItem() entered, type=%d, typeString='%s', "
+       "name='%s'\n", type, GmatBase::GetObjectTypeString(type).c_str(),
        name.c_str());
    #endif
    
@@ -1101,12 +1164,22 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
    std::vector<GmatBase*>::iterator currentIter =
       (std::vector<GmatBase*>::iterator)(objects.begin());
    
+   #ifdef DEBUG_CONFIG_REMOVE
+   MessageInterface::ShowMessage("   There are %d objects\n", objects.size());
+   #endif
+   
    while (currentIter != (std::vector<GmatBase*>::iterator)(objects.end()))
    {
-      if ((*currentIter)->GetType() == type)
+      GmatBase *obj = (*currentIter);
+      //if (obj->GetType() == type)
+      if (obj->IsOfType(type))
       {
-         if ((*currentIter)->GetName() == name)
+         if (obj->GetName() == name)
          {
+            #ifdef DEBUG_CONFIG_REMOVE
+            MessageInterface::ShowMessage
+               ("   Removing '%s' from objects\n", name.c_str());
+            #endif
             objects.erase(currentIter);
             break;
          }
@@ -1115,22 +1188,44 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
    }
    
    // remove from mapping
+   #ifdef DEBUG_CONFIG_REMOVE
+   MessageInterface::ShowMessage("   There are %d objects in the mapping\n", mapping.size());
+   #endif
+   
    if (mapping.find(name) != mapping.end())
    {
       GmatBase *obj = mapping[name];
-      if (obj->GetType() == type)
+      if (obj != NULL)
       {
-         mapping.erase(name);
-         #ifdef DEBUG_CONFIG_MEMORY
+         //if (obj->GetType() == type)
+         if (obj->IsOfType(type))
+         {
+            mapping.erase(name);
+            #ifdef DEBUG_CONFIG_REMOVE
+            MessageInterface::ShowMessage
+               ("   Deleting '%s' from mapping\n", name.c_str());
+            #endif
+            delete obj;
+            obj = NULL;
+            status = true;
+         }
+      }
+      else
+      {
+         #ifdef DEBUG_CONFIG_REMOVE
          MessageInterface::ShowMessage
-            ("  Deleting %s\n", obj->GetName().c_str());
+            ("   The obj from the mapping is NULL\n");
          #endif
-         delete obj;
-         status = true;
       }
    }
-    
+   
    objectChanged = true;
+   
+   #ifdef DEBUG_CONFIG_REMOVE
+   MessageInterface::ShowMessage
+      ("ConfigManager::RemoveItem() exiting, '%s' %s removed\n", name.c_str(),
+       status ? "was" : "was not");
+   #endif
    return status;
 }
 

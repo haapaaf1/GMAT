@@ -89,7 +89,9 @@ public:
    const StringArray&  GetListOfItemsHas(Gmat::ObjectType type,
                                          const std::string &name,
                                          bool includeSysParam = true);
-   
+   GmatBase*           GetFirstItemUsing(Gmat::ObjectType type,
+                                         const std::string &name,
+                                         bool includeSysParam = true);
    GmatBase*           GetItem(const std::string &name);
    
    bool                RenameItem(Gmat::ObjectType itemType,
