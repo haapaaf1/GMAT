@@ -300,11 +300,13 @@ OBJECTS = \
     interface/InterfaceException.o \
     interface/GmatInterface.o \
     interface/MatlabInterface.o \
+    interpolator/InterpolatorException.o \
+    interpolator/Interpolator.o \
     interpolator/BrentDekkerZero.o \
     interpolator/CubicSplineInterpolator.o \
-    interpolator/Interpolator.o \
     interpolator/LinearInterpolator.o \
     interpolator/NotAKnotInterpolator.o \
+    interpolator/LagrangeInterpolator.o \
     interpreter/InterpreterException.o \
     interpreter/Interpreter.o \
     interpreter/MathParser.o \
