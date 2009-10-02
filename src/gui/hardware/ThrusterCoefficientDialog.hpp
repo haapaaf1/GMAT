@@ -28,10 +28,10 @@ public:
    
 private:
    
-   GmatBase *theObject;
-   
-   StringArray coefName;
-   RealArray coefValue;
+   GmatBase    *theObject;
+   Integer     coefCount;
+   StringArray coefNames;
+   RealArray   coefValues;
    
    wxString coefType;
    
@@ -45,7 +45,6 @@ private:
    
    // event handling   
    DECLARE_EVENT_TABLE();
-   void OnCellValueChange(wxGridEvent &event);
    
    // IDs for the controls and the menu commands
    enum
@@ -55,6 +54,3 @@ private:
 };
 
 #endif
-
-
-
