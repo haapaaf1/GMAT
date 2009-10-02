@@ -231,87 +231,147 @@ int GuiItemManager::IsValidVariable(const std::string &varName,
 
 
 //------------------------------------------------------------------------------
-//  void UpdateAll()
+//  void UpdateAll(Gmat::ObjectType objType = UNKNOWN_OBJECT)
 //------------------------------------------------------------------------------
 /**
  * Updates all objects.
  */
 //------------------------------------------------------------------------------
-void GuiItemManager::UpdateAll()
+void GuiItemManager::UpdateAll(Gmat::ObjectType objType)
 {
    #if DBGLVL_GUI_ITEM_UPDATE
    MessageInterface::ShowMessage
-      ("==================> GuiItemManager::UpdateAll() entered\n");
+      ("==================> GuiItemManager::UpdateAll() entered, objType=%d\n",
+       objType);
    #endif
    
+   // Handle specific object type
+   if (objType != Gmat::UNKNOWN_OBJECT)
+   {
+      switch (objType)
+      {
+      case Gmat::GROUND_STATION:
+         UpdateGroundStation(false);
+         break;
+      case Gmat::SPACECRAFT:
+         UpdateSpacecraft(false);
+         break;
+      case Gmat::FORMATION:
+         UpdateFormation(false);
+         break;
+      case Gmat::HARDWARE:
+      case Gmat::FUEL_TANK:
+      case Gmat::THRUSTER:
+         UpdateFuelTank(false);
+         UpdateThruster(false);
+         break;
+      case Gmat::BURN:
+      case Gmat::IMPULSIVE_BURN:
+      case Gmat::FINITE_BURN:
+         UpdateBurn(false);
+         break;
+      case Gmat::PARAMETER:
+         UpdateParameter(false);
+         break;
+      case Gmat::CALCULATED_POINT:
+      case Gmat::SOLAR_SYSTEM:
+         UpdateSolarSystem(false);
+         break;
+      case Gmat::COORDINATE_SYSTEM:
+         UpdateCoordSystem(false);
+         break;
+      case Gmat::PROP_SETUP:
+      case Gmat::PROPAGATOR:
+         UpdatePropagator(false);
+         break;
+      case Gmat::FUNCTION:
+         UpdateFunction(false);
+         break;
+      case Gmat::SUBSCRIBER:
+         UpdateSubscriber(false);
+         break;
+      case Gmat::SOLVER:
+         UpdateSolver(false);
+         break;
+      default:
+         MessageInterface::ShowMessage
+            ("*** INTERNAL ERROR *** GuiItemManager::UpdateAll() the object type "
+             "%d ('%s') has not been implemented yet.\n", objType,
+             GmatBase::GetObjectTypeString(objType).c_str());
+         break;
+      }
+      return;
+   }
+   
+   // Handle all object types
    UpdateCelestialPoint(false); // All CelestialBodies and CalculatedPoints
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateCelestialPoint()\n");
+   MessageInterface::ShowMessage("======> after UpdateCelestialPoint()\n");
    #endif
    
    UpdateFormation(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateFormation()\n");
+   MessageInterface::ShowMessage("======> after UpdateFormation()\n");
    #endif
    
    UpdateSpacecraft(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateSpacecraft()\n");
+   MessageInterface::ShowMessage("======> after UpdateSpacecraft()\n");
    #endif
    
    UpdateBurn(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateBurn()\n");
+   MessageInterface::ShowMessage("======> after UpdateBurn()\n");
    #endif
    
    UpdateParameter(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateParameter()\n");
+   MessageInterface::ShowMessage("======> after UpdateParameter()\n");
    #endif
    
    UpdateSolarSystem(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateSolarSystem()\n");
+   MessageInterface::ShowMessage("======> after UpdateSolarSystem()\n");
    #endif
    
    UpdateCoordSystem(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateCoordSystem()\n");
+   MessageInterface::ShowMessage("======> after UpdateCoordSystem()\n");
    #endif
    
    UpdatePropagator(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdatePropagator()\n");
+   MessageInterface::ShowMessage("======> after UpdatePropagator()\n");
    #endif
    
    UpdateForceModel(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateForceModel()\n");
+   MessageInterface::ShowMessage("======> after UpdateForceModel()\n");
    #endif
    
    UpdateFuelTank(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateFuelTank()\n");
+   MessageInterface::ShowMessage("======> after UpdateFuelTank()\n");
    #endif
    
    UpdateThruster(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateThruster()\n");
+   MessageInterface::ShowMessage("======> after UpdateThruster()\n");
    #endif
    
    UpdateFunction(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateFunction()\n");
+   MessageInterface::ShowMessage("======> after UpdateFunction()\n");
    #endif
    
    UpdateSubscriber(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateSubscriber()\n");
+   MessageInterface::ShowMessage("======> after UpdateSubscriber()\n");
    #endif
    
    UpdateSolver(false);
    #if DBGLVL_GUI_ITEM_UPDATE
-   MessageInterface::ShowMessage("===> after UpdateSolver()\n");
+   MessageInterface::ShowMessage("======> after UpdateSolver()\n");
    #endif
    
    AddToAllObjectArray();
@@ -320,6 +380,26 @@ void GuiItemManager::UpdateAll()
    MessageInterface::ShowMessage
       ("==================> GuiItemManager::UpdateAll() exiting\n");
    #endif
+}
+
+
+//------------------------------------------------------------------------------
+//  void UpdateGroundStation(bool updateObjectArray = true)
+//------------------------------------------------------------------------------
+/**
+ * Updates GroundStation gui components.
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::UpdateGroundStation(bool updateObjectArray)
+{
+   #if DBGLVL_GUI_ITEM_UPDATE
+   MessageInterface::ShowMessage("===> UpdateGroundStation\n");
+   #endif
+   
+   UpdateGroundStationList();
+   UpdateSpacePointList();
+   if (updateObjectArray)
+      AddToAllObjectArray();
 }
 
 
@@ -3193,6 +3273,42 @@ void GuiItemManager::UpdateParameterList()
        theNumUserArray, theNumUserParam);
    #endif
 }
+
+
+//------------------------------------------------------------------------------
+// void UpdateGroundStationList()
+//------------------------------------------------------------------------------
+/**
+ * Updates configured GroundStation list.
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::UpdateGroundStationList()
+{
+   StringArray items =
+      theGuiInterpreter->GetListOfObjects(Gmat::GROUND_STATION);
+   int numGroundStation = items.size();
+   
+   #if DBGLVL_GUI_ITEM_HW
+   MessageInterface::ShowMessage
+      ("GuiItemManager::UpdateGroundStationList() numGroundStation=%d\n", numGroundStation);
+   #endif
+   
+   theNumGroundStation = 0;
+   theGroundStationList.Clear();
+   
+   for (int i=0; i<numGroundStation; i++)
+   {
+      theGroundStationList.Add(items[i].c_str());
+      
+      #if DBGLVL_GUI_ITEM_HW > 1
+      MessageInterface::ShowMessage
+         ("GuiItemManager::UpdateGroundStationList() " + items[i] + "\n");
+      #endif
+   }
+   
+   theNumGroundStation = theGroundStationList.GetCount();
+   
+} // end UpdateGroundStationList()
 
 
 //------------------------------------------------------------------------------

@@ -52,7 +52,8 @@ public:
    int IsValidVariable(const std::string &varName, Gmat::ObjectType ownerType,
                        bool allowNumber = false, bool allowNonPlottable = false);
    
-   void UpdateAll();
+   void UpdateAll(Gmat::ObjectType objType = Gmat::UNKNOWN_OBJECT);
+   void UpdateGroundStation(bool updateObjectArray = true);
    void UpdateBurn(bool updateObjectArray = true);
    void UpdateCelestialPoint(bool updateObjectArray = true);
    void UpdateCoordSystem(bool updateObjectArray = true);
@@ -83,6 +84,7 @@ public:
    void UnregisterComboBox(const wxString &type, wxComboBox *cb);
    
    // For resource counters
+   int GetNumGroundStation() { return theNumGroundStation; }
    int GetNumSpacecraft() { return theNumSpacecraft; }
    int GetNumImpulsiveBurn() { return theNumImpBurn; }
    int GetNumFiniteBurn() { return theNumFiniteBurn; }
@@ -318,6 +320,7 @@ private:
    void UpdatePropertyList();
    void UpdateParameterList();
    
+   void UpdateGroundStationList();
    void UpdateSpacecraftList();
    void UpdateFormationList();
    void UpdateSpaceObjectList();
@@ -394,6 +397,7 @@ private:
    int theNumCoordSys;
    int theNumFunction;
    int theNumFuelTank;
+   int theNumGroundStation;
    int theNumThruster;
    int theNumSubscriber;
    int theNumReportFile;
@@ -446,6 +450,7 @@ private:
    wxArrayString theSpacecraftList;
    wxArrayString theSpaceObjectList;
    wxArrayString theFormationList;
+   wxArrayString theGroundStationList;
    
    // Subscriber
    wxArrayString theSubscriberList;
