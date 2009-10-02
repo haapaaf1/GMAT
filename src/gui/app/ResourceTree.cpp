@@ -1621,11 +1621,16 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
       // We don't want to delete all children (bug 547 fix, loj: 2008.11.25)
       //theMainFrame->CloseAllChildren(false, true);
 
-      theGuiManager->UpdateAll();
+      #if DEBUG_DELETE
+      MessageInterface::ShowMessage
+         ("ResourceTree::OnDelete() now calling theGuiManager->UpdateAll(%d)\n",
+          objType);
+      #endif
+      theGuiManager->UpdateAll(objType);
    }
    else
    {
-      wxLogWarning(selItemData->GetName() + " cannot be deleted.\n"
+      wxLogWarning("\"" + selItemData->GetName() + "\" cannot be deleted.\n"
                    "It is currently used in other resource or command sequence");
       wxLog::FlushActive();
    }
@@ -2000,7 +2005,7 @@ void ResourceTree::OnAddGroundStation(wxCommandEvent &event)
                  new GmatTreeItemData(name, GmatTree::GROUND_STATION));
       Expand(item);
 
-      theGuiManager->UpdateSpacePoint();
+      theGuiManager->UpdateGroundStation();
    }
 }
 
