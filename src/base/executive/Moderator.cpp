@@ -1226,18 +1226,31 @@ bool Moderator::RemoveObject(Gmat::ObjectType type, const std::string &name,
    }
    else
    {
-      // remove if object is not used in the command sequence
-      std::string cmdName;
-      if (GmatCommandUtil::FindObject(cmd, type, name, cmdName))
+      // remove if object is not used in other resource
+      GmatBase *obj = theConfigManager->GetFirstItemUsing(type, name);
+      if (obj != NULL)
       {
          MessageInterface::ShowMessage
-            ("*** WARNING *** Cannot remove \"%s.\"  It is used in the %s command.\n",
-             name.c_str(), cmdName.c_str());
+            ("*** WARNING *** Cannot remove \"%s.\"  It is used in the %s "
+             "object named \"%s\"\n", name.c_str(), obj->GetTypeName().c_str(),
+             obj->GetName().c_str());
          return false;
       }
       else
       {
-         return theConfigManager->RemoveItem(type, name);
+         // remove if object is not used in the command sequence
+         std::string cmdName;
+         if (GmatCommandUtil::FindObject(cmd, type, name, cmdName))
+         {
+            MessageInterface::ShowMessage
+               ("*** WARNING *** Cannot remove \"%s.\"  It is used in the %s "
+                "command.\n",  name.c_str(), cmdName.c_str());
+            return false;
+         }
+         else
+         {
+            return theConfigManager->RemoveItem(type, name);
+         }
       }
    }
 }
