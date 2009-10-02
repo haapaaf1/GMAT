@@ -11,7 +11,7 @@
 // number NNG04CC06P.
 //
 //
-// Author: Linda Jun
+// Author: Linda Jun (NASA/GSFC)
 // Created: 2009.02.11
 /**
  * This class sets up Thruster or ImpulsiveBurn parameters.
@@ -448,7 +448,8 @@ void BurnThrusterPanel::SaveData()
       CheckReal(elem3, str, "Element3", "Real Number");
       
       str = gravityAccelTextCtrl->GetValue();
-      CheckReal(gravityAccel, str, "GravitationalAccel", "Real Number");
+      CheckReal(gravityAccel, str, "GravitationalAccel", "Real Number > 0", false,
+                true, true);
       
       realDataChanged = true;      
    }
