@@ -143,6 +143,7 @@ namespace Gmat
       MEASUREMENT_MODEL,
       BODY_FIXED_POINT,
       DATA_FILE,
+      OBTYPE,
       UNKNOWN_OBJECT
    };
 
