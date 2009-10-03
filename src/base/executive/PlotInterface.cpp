@@ -432,6 +432,16 @@ void PlotInterface::TsPlotPenDown(const std::string &plotName)
 }
 
 
+//------------------------------------------------------------------------------
+// void TsPlotPenDown(const std::string &plotName))
+//------------------------------------------------------------------------------
+void PlotInterface::TsPlotRescale(const std::string &plotName)
+{
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->TsPlotRescale(plotName);
+}
+
+
 void PlotInterface::TsPlotCurveSettings(const std::string &plotName,
       bool useLines, Integer lineWidth, bool useMarkers, Integer markerSize)
 {
@@ -509,3 +519,31 @@ bool PlotInterface::UpdateTsPlot(const std::string &plotName,
       
    return false;
 }
+
+bool PlotInterface::UpdateTsPlotData(const std::string &plotName,
+                             const Real &xval, const Rvector &yvals)
+{
+   if (thePlotReceiver != NULL)
+      return thePlotReceiver->UpdateTsPlotData(plotName, xval, yvals);
+
+   return false;
+}
+
+bool PlotInterface::DeactivateTsPlot(const std::string &plotName)
+{
+   if (thePlotReceiver != NULL)
+      return thePlotReceiver->DeactivateTsPlot(plotName);
+
+   return false;
+}
+
+
+bool PlotInterface::ActivateTsPlot(const std::string &plotName)
+{
+   if (thePlotReceiver != NULL)
+      return thePlotReceiver->ActivateTsPlot(plotName);
+
+   return false;
+}
+
+

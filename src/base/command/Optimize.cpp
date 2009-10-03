@@ -342,6 +342,11 @@ bool Optimize::Initialize()
       throw CommandException(errorString);
    }
    
+   if (mapObj->IsOfType("Optimizer") == false)
+      throw CommandException("The object " + solverName +
+            " is not an Optimizer, so the Optimize command cannot proceed "
+            "with initialization.");
+
    // Delete the old cloned solver
    if (theSolver)
    {

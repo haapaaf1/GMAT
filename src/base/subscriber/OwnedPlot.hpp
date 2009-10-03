@@ -1,36 +1,36 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                                  XyPlot
+//                                  OwnedPlot
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
-// number S-67573-G
+// number NNG06CA54C
 //
-// Author: Linda Jun
-// Created: 2004/01/22
+// Author: Darrel Conway, based on OwnedPlot Subscriber
+// Created: 2009/10/01
 //
 /**
- * Declares XyPlot class.
+ * Declares OwnedPlot class.
  */
 //------------------------------------------------------------------------------
-#ifndef TsPlot_hpp
-#define TsPlot_hpp
+#ifndef OwnedPlot_hpp
+#define OwnedPlot_hpp
 
 #include "Subscriber.hpp"
 #include "Parameter.hpp"
 
-class TsPlot : public Subscriber 
+class OwnedPlot : public Subscriber
 {
 public:
-   TsPlot(const std::string &name, Parameter *xParam = NULL,
+   OwnedPlot(const std::string &name, Parameter *xParam = NULL,
           Parameter *firstYParam = NULL, const std::string &plotTitle = "",
           const std::string &xAxisTitle = "", const std::string &yAxisTitle = "");
-   TsPlot(const TsPlot &orig);
-   TsPlot& operator=(const TsPlot& orig);
-   virtual ~TsPlot(void);
+   OwnedPlot(const OwnedPlot &orig);
+   OwnedPlot& operator=(const OwnedPlot& orig);
+   virtual ~OwnedPlot(void);
    
    // methods inherited from Subscriber
    virtual bool         Initialize();
@@ -106,6 +106,10 @@ public:
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    
+   virtual void         SetData(std::vector<RealArray*> &dataBlast);
+   bool                 Activate();
+   bool                 Deactivate();
+
 protected:
 
    bool SetXParameter(const std::string &paramName);
@@ -116,6 +120,7 @@ protected:
    bool ResetYParameters();
    bool PenUp();
    bool PenDown();
+   bool RescaleData();
    
    void DeletePlotCurves();
    
@@ -134,7 +139,7 @@ protected:
    std::string mXAxisTitle;
    std::string mYAxisTitle;
    std::string mDrawGrid;
-   bool mIsTsPlotWindowSet;
+   bool mIsOwnedPlotWindowSet;
    
    Integer mDataCollectFrequency;
    Integer mUpdatePlotFrequency;
@@ -162,13 +167,13 @@ protected:
       LINE_WIDTH,
       USE_MARKERS,
       MARKER_SIZE,
-      TsPlotParamCount
+      OwnedPlotParamCount
    };
    
    static const Gmat::ParameterType
-      PARAMETER_TYPE[TsPlotParamCount - SubscriberParamCount];
+      PARAMETER_TYPE[OwnedPlotParamCount - SubscriberParamCount];
    static const std::string
-      PARAMETER_TEXT[TsPlotParamCount - SubscriberParamCount];
+      PARAMETER_TEXT[OwnedPlotParamCount - SubscriberParamCount];
 
    // methods inherited from Subscriber
    virtual bool Distribute(Integer len);

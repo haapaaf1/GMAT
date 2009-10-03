@@ -104,6 +104,7 @@ public:
    static void ClearTsPlotData(const std::string &plotName);
    static void TsPlotPenUp(const std::string &plotName);
    static void TsPlotPenDown(const std::string &plotName);
+   static void TsPlotRescale(const std::string &plotName);
 
    static void TsPlotCurveSettings(const std::string &plotName,
                                    bool useLines = true,
@@ -122,7 +123,13 @@ public:
                             const std::string &xAxisTitle,
                             const std::string &yAxisTitle,
                             bool updateCanvas, bool drawGrid);
+   static bool UpdateTsPlotData(const std::string &plotName,
+                                const Real &xval, const Rvector &yvals);
    
+   static bool DeactivateTsPlot(const std::string &plotName);
+   static bool ActivateTsPlot(const std::string &plotName);
+
+
 private:
 
    PlotInterface();

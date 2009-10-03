@@ -1116,6 +1116,31 @@ void TsPlotCanvas::SetAxisLimit(std::string axisEnd, bool automatic,
 }
 
 
+void TsPlotCanvas::Rescale()
+{
+   overrideXMin = false;
+   overrideXMax = false;
+   overrideYMin = false;
+   overrideYMax = false;
+   plotXMin = 1e99;
+   plotXMax = -1e99;
+   plotYMin = 1e99;
+   plotYMax = -1e99;
+   xMin = 1e99;
+   xMax = -1e99;
+   yMin = 1e99;
+   yMax = -1e99;
+
+   #ifdef DEBUG_RESCALING
+      MessageInterface::ShowMessage
+         ("!!! plotXMin=%g, plotXMax=%g, plotYMin=%g, plotYMax=%g\n",
+          plotXMin, plotXMax, plotYMin, plotYMax);
+   #endif
+
+   wxClientDC dc(this);
+   Rescale(dc);
+}
+
 void TsPlotCanvas::SetTickCount(int count, bool isXAxis)
 {
    if (isXAxis)

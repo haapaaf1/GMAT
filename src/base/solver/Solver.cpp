@@ -125,7 +125,9 @@ Solver::Solver(const std::string &type, const std::string &name) :
    solverMode              (""),
    currentMode             (SOLVE),
    exitMode                (DISCARD),
-   status                  (CREATED)
+   status                  (CREATED),
+   plotCount               (0),
+   plotter                 (NULL)
 {
    objectTypes.push_back(Gmat::SOLVER);
    objectTypeNames.push_back("Solver");
@@ -188,7 +190,9 @@ Solver::Solver(const Solver &sol) :
    solverMode              (sol.solverMode),
    currentMode             (sol.currentMode),
    exitMode                (sol.exitMode),
-   status                  (CREATED)
+   status                  (CREATED),
+   plotCount               (sol.plotCount),
+   plotter                 (NULL)
 {
    #ifdef DEBUG_SOLVER_INIT
       MessageInterface::ShowMessage(
@@ -244,6 +248,9 @@ Solver& Solver::operator=(const Solver &sol)
    currentMode           = sol.currentMode;
    exitMode              = sol.exitMode;
    status                = COPIED;
+   plotCount             = sol.plotCount;
+   plotter               = NULL;
+
    return *this;
 }
 
@@ -299,6 +306,13 @@ bool Solver::Initialize()
    #endif
       
    status = INITIALIZED;
+   if (plotter)
+      delete plotter;
+   if (plotCount > 0)
+   {
+      plotter = new OwnedPlot("");
+      plotter->SetName(instanceName + "_masterPlot");
+   }
    
    return true;
 }

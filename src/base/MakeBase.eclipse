@@ -474,6 +474,7 @@ OBJECTS = \
     subscriber/MessageWindow.o \
     subscriber/TextEphemFile.o \
     subscriber/OpenGlPlot.o \
+    subscriber/OwnedPlot.o \
     subscriber/ReportFile.o \
     subscriber/Subscriber.o \
     subscriber/TsPlot.o \

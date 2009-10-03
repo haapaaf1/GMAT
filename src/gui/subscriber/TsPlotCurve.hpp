@@ -62,6 +62,7 @@ public:
    virtual void PenDown();
    
    const std::vector<int>* GetPenUpLocations();
+   virtual void Rescale();
 
 protected:
    double minX;

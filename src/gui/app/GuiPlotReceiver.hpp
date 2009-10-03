@@ -103,6 +103,7 @@ public:
    virtual void ClearTsPlotData(const std::string &plotName);
    virtual void TsPlotPenUp(const std::string &plotName);
    virtual void TsPlotPenDown(const std::string &plotName);
+   virtual void TsPlotRescale(const std::string &plotName);
    virtual void TsPlotCurveSettings(const std::string &plotName,
                                    bool useLines = true,
                                    Integer lineWidth = 1,
@@ -120,8 +121,11 @@ public:
                             const std::string &xAxisTitle,
                             const std::string &yAxisTitle,
                             bool updateCanvas, bool drawGrid);
+   virtual bool UpdateTsPlotData(const std::string &plotName, const Real &xval,
+                                 const Rvector &yvals);
    
-
+   virtual bool DeactivateTsPlot(const std::string &plotName);
+   virtual bool ActivateTsPlot(const std::string &plotName);
    
 private:
    GuiPlotReceiver();

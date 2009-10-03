@@ -261,6 +261,27 @@ const std::vector<int>* TsPlotCurve::GetPenUpLocations()
    return &penUpIndex;
 }
 
+void TsPlotCurve::Rescale()
+{
+   if (abscissa.size() > 0)
+   {
+      minX = maxX = abscissa[0];
+      minY = maxY = ordinate[0];
+
+      for (unsigned int i=1; i < abscissa.size(); i++)
+      {
+         if (abscissa[i] < minX)
+            minX = abscissa[i];
+         if (abscissa[i] > maxX)
+            maxX = abscissa[i];
+         if (ordinate[i] < minY)
+            minY = ordinate[i];
+         if (ordinate[i] > maxY)
+            maxY = ordinate[i];
+      }
+   }
+}
+
 
 void TsPlotCurve::SetColour(wxColour rgb)
 {

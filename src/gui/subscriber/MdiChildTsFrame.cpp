@@ -117,6 +117,9 @@ MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
    SetSizeHints(100, 100);
    GmatAppData::Instance()->GetMainFrame()->theMdiChildren->Append(this);
    
+   isActive = true;
+
+
    #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage("MdiChildTsFrame::MdiChildTsFrame() leaving\n");
    #endif
@@ -395,6 +398,25 @@ void MdiChildTsFrame::PenDown()
    }
 }
 
+
+void MdiChildTsFrame::Rescale()
+{
+   if (mXyPlot)
+   {
+      mXyPlot->Rescale();
+   }
+}
+
+
+bool MdiChildTsFrame::IsActive()
+{
+   return isActive;
+}
+
+void MdiChildTsFrame::IsActive(bool yesno)
+{
+   isActive = yesno;
+}
 
 void MdiChildTsFrame::CurveSettings(const std::string &plotName, bool useLines,
       Integer lineWidth, bool useMarkers, Integer markerSize, Integer forCurve)

@@ -26,6 +26,8 @@
 #include "GmatBase.hpp"
 #include "SolverException.hpp"
 
+#include "OwnedPlot.hpp"      // Need to make a Subscriber instead?
+
 
 /**
  * @brief Base class for targeters, optimizers, and parameter scanning tools.
@@ -279,6 +281,11 @@ protected:
    ExitMode             exitMode;
    /// The most recent results of using this solver
    SolverStatus         status;
+
+   /// Number of plot subscribers that are used
+   Integer              plotCount;
+   /// Plot subscriber used for graphical progress elements
+   OwnedPlot               *plotter;
       
    /// Generic solver parameters.
    enum

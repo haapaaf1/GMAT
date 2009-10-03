@@ -979,7 +979,7 @@ void GuiPlotReceiver::TsPlotPenDown(const std::string &plotName)
 {
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::TsPlotPenUp() numChildren = %d\n",
+         ("GuiPlotReceiver::TsPlotPenDown() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
 
@@ -992,6 +992,28 @@ void GuiPlotReceiver::TsPlotPenDown(const std::string &plotName)
       if (frame->GetPlotName().IsSameAs(plotName.c_str()))
       {
          frame->PenDown();
+      }
+   }
+}
+
+
+void GuiPlotReceiver::TsPlotRescale(const std::string &plotName)
+{
+   #if DEBUG_PLOTIF_XY
+      MessageInterface::ShowMessage
+         ("GuiPlotReceiver::TsPlotRescale() numChildren = %d\n",
+          MdiTsPlot::numChildren);
+   #endif
+
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->Rescale();
       }
    }
 }
@@ -1184,4 +1206,102 @@ bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
    }
 
    return updated;
+}
+
+
+bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
+      const Real &xval, const Rvector &yvals)
+{
+   bool updated = false;
+
+   wxString owner = wxString(plotName.c_str());
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame)
+      {
+         if (frame->GetPlotName().IsSameAs(owner.c_str()))
+         {
+            int numCurves = frame->GetCurveCount();
+            #if DEBUG_PLOTIF_XY_UPDATE
+               MessageInterface::ShowMessage
+               ("GuiPlotReceiver::UpdateTsPlot() numCurves = %d\n", numCurves);
+            #endif
+
+            for (int j=0; j<numCurves; j++)
+            {
+               #if DEBUG_PLOTIF_XY_UPDATE
+                  MessageInterface::ShowMessage
+                  ("GuiPlotReceiver::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
+               #endif
+
+               frame->AddDataPoints(j, xval, yvals(j));
+            }
+
+//            if (updateCanvas)
+            if (frame->IsActive())
+            {
+               frame->RedrawCurve();
+//               frame->Refresh();
+            }
+            updated = true;
+         }
+      }
+   }
+
+   return updated;
+}
+
+
+bool GuiPlotReceiver::DeactivateTsPlot(const std::string &plotName)
+{
+   bool deactivated = false;
+
+   wxString owner = wxString(plotName.c_str());
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame)
+      {
+         if (frame->GetPlotName().IsSameAs(owner.c_str()))
+         {
+            frame->IsActive(false);
+            deactivated = true;
+         }
+      }
+   }
+
+   return deactivated;
+}
+
+
+bool GuiPlotReceiver::ActivateTsPlot(const std::string &plotName)
+{
+   bool activated = false;
+
+   wxString owner = wxString(plotName.c_str());
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame)
+      {
+         if (frame->GetPlotName().IsSameAs(owner.c_str()))
+         {
+            frame->IsActive(true);
+            frame->RedrawCurve();
+            activated = true;
+         }
+      }
+   }
+
+   return activated;
 }

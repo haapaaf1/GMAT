@@ -16,6 +16,8 @@
 #include "TsPlotXYCanvas.hpp"
 #include <sstream>
 
+#include "MessageInterface.hpp"
+
 
 TsPlotXYCanvas::TsPlotXYCanvas(wxWindow* parent, wxWindowID id, 
      const wxPoint& pos, const wxSize& size, long style, const wxString& name) :
@@ -401,9 +403,16 @@ void TsPlotXYCanvas::Rescale(wxDC &dc)
 
    if (!zoomed)
    {
+      #ifdef DEBUG_RESCALING
+         MessageInterface::ShowMessage
+            ("===> no-zoom: plotXMin=%g, plotXMax=%g, plotYMin=%g, "
+             "plotYMax=%g\n", plotXMin, plotXMax, plotYMin, plotYMax);
+      #endif
       std::vector<TsPlotCurve *>::iterator i = data.begin();
       if (i != data.end())
       {
+         (*i)->Rescale();
+
          xMin = (*i)->minX;
          xMax = (*i)->maxX;
          yMin = (*i)->minY;
@@ -437,9 +446,11 @@ void TsPlotXYCanvas::Rescale(wxDC &dc)
       dely = (yMax - yMin)*0.1;
       rescaled = false;
       
-      //MessageInterface::ShowMessage
-      //   ("===> no-zoom: xMin=%g, xMax=%g, yMin=%g, yMax=%g\n",
-      //    xMin, xMax, yMin, yMax);
+      #ifdef DEBUG_RESCALING
+         MessageInterface::ShowMessage
+            ("===> no-zoom: xMin=%g, xMax=%g, yMin=%g, yMax=%g\n",
+             xMin, xMax, yMin, yMax);
+      #endif
       
       if (!overrideXMax && (xMax > plotXMax))
       {
@@ -461,6 +472,12 @@ void TsPlotXYCanvas::Rescale(wxDC &dc)
          #endif
       }
 
+      #ifdef DEBUG_RESCALING
+         MessageInterface::ShowMessage
+            ("===> no-zoom: yMin=%g, yMax=%g, plotYMin=%g, plotYMax=%g\n",
+             yMin, yMax, plotYMin, plotYMax);
+      #endif
+
       if (!overrideYMin && (yMin < plotYMin))
       {
          plotYMin = yMin - dely;
@@ -472,6 +489,15 @@ void TsPlotXYCanvas::Rescale(wxDC &dc)
          plotYMax = yMax + dely;
          rescaled = true;
       }
+
+      #ifdef DEBUG_RESCALING
+         MessageInterface::ShowMessage
+            ("===> no-zoom: Overrides = %s %s %s %s\n",
+             (overrideXMin ? "true" : "false"),
+             (overrideXMax ? "true" : "false"),
+             (overrideYMin ? "true" : "false"),
+             (overrideYMax ? "true" : "false"));
+      #endif
 
       if (rescaled)
       {
@@ -494,9 +520,12 @@ void TsPlotXYCanvas::Rescale(wxDC &dc)
       currentYMin = plotYMin;
       currentYMax = plotYMax;
       
-      //MessageInterface::ShowMessage
-      //   ("===> no-zoom: currentXMin=%g, currentXMax=%g, currentYMin=%g, "
-      //    "currentYMax=%g\n", currentXMin, currentXMax, currentYMin, currentYMax);
+      #ifdef DEBUG_RESCALING
+         MessageInterface::ShowMessage
+            ("===> no-zoom: currentXMin=%g, currentXMax=%g, currentYMin=%g, "
+             "currentYMax=%g\n", currentXMin, currentXMax, currentYMin,
+             currentYMax);
+      #endif
    }
    else
    {

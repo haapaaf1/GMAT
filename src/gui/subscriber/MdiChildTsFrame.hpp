@@ -61,6 +61,10 @@ public:
    void ClearPlotData();
    void PenUp();
    void PenDown();
+   void Rescale();
+   bool IsActive();
+   void IsActive(bool yesno);
+
    void CurveSettings(const std::string &plotName, bool useLines,
          Integer lineWidth, bool useMarkers, Integer markerSize,
          Integer forCurve = -1);
@@ -113,6 +117,7 @@ protected:
    wxString mXAxisTitle;
    wxString mYAxisTitle;
    bool mHasFirstXSet[MAX_NUM_CURVE];
+   bool isActive;
     
    DECLARE_EVENT_TABLE()
 };

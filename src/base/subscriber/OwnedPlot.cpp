@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                                  XyPlot
+//                                  OwnedPlot
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -17,15 +17,15 @@
  */
 //------------------------------------------------------------------------------
 
-#include "TsPlot.hpp"
+#include "OwnedPlot.hpp"
 #include "PlotInterface.hpp"     // for XY plot
 #include "SubscriberException.hpp"
 #include "MessageInterface.hpp"  // for ShowMessage()
 
-//#define DEBUG_TSPLOT_INIT 1
-//#define DEBUG_TSPLOT_PARAM 1
-//#define DEBUG_TSPLOT_OBJECT 1 
-//#define DEBUG_TSPLOT_UPDATE 2
+//#define DEBUG_OwnedPlot_INIT 1
+//#define DEBUG_OwnedPlot_PARAM 1
+//#define DEBUG_OwnedPlot_OBJECT 1
+//#define DEBUG_OwnedPlot_UPDATE 2
 //#define DEBUG_ACTION_REMOVE 1
 //#define DEBUG_RENAME 1
 
@@ -34,7 +34,7 @@
 //---------------------------------
 
 const std::string
-TsPlot::PARAMETER_TEXT[TsPlotParamCount - SubscriberParamCount] =
+OwnedPlot::PARAMETER_TEXT[OwnedPlotParamCount - SubscriberParamCount] =
 {
    "IndVar",
    "Add",
@@ -52,7 +52,7 @@ TsPlot::PARAMETER_TEXT[TsPlotParamCount - SubscriberParamCount] =
 }; 
 
 const Gmat::ParameterType
-TsPlot::PARAMETER_TYPE[TsPlotParamCount - SubscriberParamCount] =
+OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - SubscriberParamCount] =
 {
    Gmat::OBJECT_TYPE,      // "IndVar",
    Gmat::OBJECTARRAY_TYPE, // "Add",
@@ -74,12 +74,12 @@ TsPlot::PARAMETER_TYPE[TsPlotParamCount - SubscriberParamCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// TsPlot(const std::string &name, Parameter *xParam,
+// OwnedPlot(const std::string &name, Parameter *xParam,
 //        Parameter *firstYParam, const std::string &plotTitle,
 //        const std::string &xAxisTitle, const std::string &yAxisTitle,
 //        bool drawGrid)
 //------------------------------------------------------------------------------
-TsPlot::TsPlot(const std::string &name, Parameter *xParam,
+OwnedPlot::OwnedPlot(const std::string &name, Parameter *xParam,
                Parameter *firstYParam, const std::string &plotTitle,
                const std::string &xAxisTitle, const std::string &yAxisTitle) :
    Subscriber("XYPlot", name)
@@ -87,7 +87,7 @@ TsPlot::TsPlot(const std::string &name, Parameter *xParam,
    // GmatBase data
    objectTypes.push_back(Gmat::XY_PLOT);
    objectTypeNames.push_back("XYPlot");
-   parameterCount = TsPlotParamCount;
+   parameterCount = OwnedPlotParamCount;
    
    mDrawGrid = "On";
    mNumYParams = 0;
@@ -104,7 +104,7 @@ TsPlot::TsPlot(const std::string &name, Parameter *xParam,
    mXAxisTitle = xAxisTitle;
    mYAxisTitle = yAxisTitle;
    
-   mIsTsPlotWindowSet = false;
+   mIsOwnedPlotWindowSet = false;
    mDataCollectFrequency = 1;
    mUpdatePlotFrequency = 10;
 
@@ -116,9 +116,9 @@ TsPlot::TsPlot(const std::string &name, Parameter *xParam,
 
 
 //------------------------------------------------------------------------------
-// TsPlot(const TsPlot &orig)
+// OwnedPlot(const OwnedPlot &orig)
 //------------------------------------------------------------------------------
-TsPlot::TsPlot(const TsPlot &orig) :
+OwnedPlot::OwnedPlot(const OwnedPlot &orig) :
    Subscriber(orig)
 {
    mXParam = orig.mXParam;
@@ -137,7 +137,7 @@ TsPlot::TsPlot(const TsPlot &orig) :
    mXAxisTitle = orig.mXAxisTitle;
    mYAxisTitle = orig.mYAxisTitle;
    mDrawGrid = orig.mDrawGrid;
-   mIsTsPlotWindowSet = orig.mIsTsPlotWindowSet;
+   mIsOwnedPlotWindowSet = orig.mIsOwnedPlotWindowSet;
    
    mDataCollectFrequency = orig.mDataCollectFrequency;
    mUpdatePlotFrequency = orig.mUpdatePlotFrequency;
@@ -153,13 +153,13 @@ TsPlot::TsPlot(const TsPlot &orig) :
 
 
 //------------------------------------------------------------------------------
-// TsPlot& operator=(const TsPlot& orig)
+// OwnedPlot& operator=(const OwnedPlot& orig)
 //------------------------------------------------------------------------------
 /**
  * The assignment operator
  */
 //------------------------------------------------------------------------------
-TsPlot& TsPlot::operator=(const TsPlot& orig)
+OwnedPlot& OwnedPlot::operator=(const OwnedPlot& orig)
 {
    if (this == &orig)
       return *this;
@@ -182,7 +182,7 @@ TsPlot& TsPlot::operator=(const TsPlot& orig)
    mXAxisTitle = orig.mXAxisTitle;
    mYAxisTitle = orig.mYAxisTitle;
    mDrawGrid = orig.mDrawGrid;
-   mIsTsPlotWindowSet = orig.mIsTsPlotWindowSet;
+   mIsOwnedPlotWindowSet = orig.mIsOwnedPlotWindowSet;
    
    mDataCollectFrequency = orig.mDataCollectFrequency;
    mUpdatePlotFrequency = orig.mUpdatePlotFrequency;
@@ -197,16 +197,16 @@ TsPlot& TsPlot::operator=(const TsPlot& orig)
 
 
 //------------------------------------------------------------------------------
-// ~TsPlot(void)
+// ~OwnedPlot(void)
 //------------------------------------------------------------------------------
-TsPlot::~TsPlot()
+OwnedPlot::~OwnedPlot()
 {
 }
 
 //------------------------------------------------------------------------------
 // bool SetXParameter(const std::string &paramName)
 //------------------------------------------------------------------------------
-bool TsPlot::SetXParameter(const std::string &paramName)
+bool OwnedPlot::SetXParameter(const std::string &paramName)
 {
    if (paramName != "")
    {
@@ -222,10 +222,10 @@ bool TsPlot::SetXParameter(const std::string &paramName)
 //------------------------------------------------------------------------------
 // bool AddYParameter(const std::string &paramName, Integer index)
 //------------------------------------------------------------------------------
-bool TsPlot::AddYParameter(const std::string &paramName, Integer index)
+bool OwnedPlot::AddYParameter(const std::string &paramName, Integer index)
 {
-   #if DEBUG_TSPLOT_PARAM
-   MessageInterface::ShowMessage("TsPlot::AddYParameter() name = %s\n",
+   #if DEBUG_OwnedPlot_PARAM
+   MessageInterface::ShowMessage("OwnedPlot::AddYParameter() name = %s\n",
                                  paramName.c_str());
    #endif
    
@@ -252,14 +252,14 @@ bool TsPlot::AddYParameter(const std::string &paramName, Integer index)
 //------------------------------------------------------------------------------
 // virtual bool Initialize()
 //------------------------------------------------------------------------------
-bool TsPlot::Initialize()
+bool OwnedPlot::Initialize()
 {
-   #if DEBUG_TSPLOT_INIT
+   #if DEBUG_OwnedPlot_INIT
    MessageInterface::ShowMessage
-      ("TsPlot::Initialize() active=%d, mNumYParams=%d\n", active, mNumYParams);
+      ("OwnedPlot::Initialize() active=%d, mNumYParams=%d\n", active, mNumYParams);
    #endif
    
-   // Check if there are parameters selected for TsPlot
+   // Check if there are parameters selected for OwnedPlot
    if (active)
    {
       if (mNumXParams == 0 || mNumYParams == 0)
@@ -273,16 +273,16 @@ bool TsPlot::Initialize()
          return false;
       }
       
-      if (mXParam == NULL || mYParams[0] == NULL)
-      {
-         active = false;
-         MessageInterface::PopupMessage
-            (Gmat::WARNING_,
-             "*** WARNING *** The XYPlot named \"%s\" will not be shown.\n"
-             "The first parameter selected for X Axis or Y Axis is NULL\n",
-             GetName().c_str());
-         return false;
-      }
+//      if (mXParam == NULL || mYParams[0] == NULL)
+//      {
+//         active = false;
+//         MessageInterface::PopupMessage
+//            (Gmat::WARNING_,
+//             "*** WARNING *** The XYPlot named \"%s\" will not be shown.\n"
+//             "The first parameter selected for X Axis or Y Axis is NULL\n",
+//             GetName().c_str());
+//         return false;
+//      }
    }
    
    Subscriber::Initialize();
@@ -295,36 +295,36 @@ bool TsPlot::Initialize()
       // build plot title
       BuildPlotTitle();
       
-      // Create TsPlotWindow, if not exist
-      #if DEBUG_TSPLOT_INIT
+      // Create OwnedPlotWindow, if not exist
+      #if DEBUG_OwnedPlot_INIT
       MessageInterface::ShowMessage
-         ("TsPlot::Initialize() calling CreateTsPlotWindow()\n");
+         ("OwnedPlot::Initialize() calling CreateOwnedPlotWindow()\n");
       #endif
       
       PlotInterface::CreateTsPlotWindow(instanceName, mOldName, mPlotTitle,
                                         mXAxisTitle, mYAxisTitle, (mDrawGrid == "On"));
       
       PlotInterface::SetTsPlotTitle(instanceName, mPlotTitle);
-      mIsTsPlotWindowSet = true;
+      mIsOwnedPlotWindowSet = true;
       
-      // add to Y params to TsPlotWindow
+      // add to Y params to OwnedPlotWindow
       //loj: temp code
       int yOffset = 0; //loj: I don't know how this is used
       Real yMin = -40000.0; //loj: should parameter provide minimum value?
       Real yMax =  40000.0; //loj: should parameter provide maximum value?
       
-      #if DEBUG_TSPLOT_INIT
+      #if DEBUG_OwnedPlot_INIT
       MessageInterface::ShowMessage
-         ("TsPlot::Initialize() Get curveTitle and penColor\n");
+         ("OwnedPlot::Initialize() Get curveTitle and penColor\n");
       #endif
       
       for (int i=0; i<mNumYParams; i++)
       {
-         std::string curveTitle = mYParams[i]->GetName();
-         UnsignedInt penColor = mYParams[i]->GetUnsignedIntParameter("Color");
+         std::string curveTitle = mYParamNames[i];
+         UnsignedInt penColor   = 255;
             
-         #if DEBUG_TSPLOT_INIT
-         MessageInterface::ShowMessage("TsPlot::Initialize() curveTitle = %s\n",
+         #if DEBUG_OwnedPlot_INIT
+         MessageInterface::ShowMessage("OwnedPlot::Initialize() curveTitle = %s\n",
                                        curveTitle.c_str());
          #endif
          
@@ -335,8 +335,8 @@ bool TsPlot::Initialize()
       PlotInterface::ShowTsPlotLegend(instanceName);
       status = true;
       
-      #if DEBUG_TSPLOT_INIT
-      MessageInterface::ShowMessage("TsPlot::Initialize() calling ClearTsPlotData()\n");
+      #if DEBUG_OwnedPlot_INIT
+      MessageInterface::ShowMessage("OwnedPlot::Initialize() calling ClearOwnedPlotData()\n");
       #endif
       
       PlotInterface::ClearTsPlotData(instanceName);
@@ -345,15 +345,15 @@ bool TsPlot::Initialize()
    }
    else
    {
-      #if DEBUG_TSPLOT_INIT
-      MessageInterface::ShowMessage("TsPlot::Initialize() DeleteTsPlot()\n");
+      #if DEBUG_OwnedPlot_INIT
+      MessageInterface::ShowMessage("OwnedPlot::Initialize() DeleteOwnedPlot()\n");
       #endif
       
       status =  PlotInterface::DeleteTsPlot(instanceName);
    }
    
-   #if DEBUG_TSPLOT_INIT
-   MessageInterface::ShowMessage("TsPlot::Initialize() leaving stauts=%d\n", status);
+   #if DEBUG_OwnedPlot_INIT
+   MessageInterface::ShowMessage("OwnedPlot::Initialize() leaving stauts=%d\n", status);
    #endif
    
    return status;
@@ -367,15 +367,15 @@ bool TsPlot::Initialize()
 //  GmatBase* Clone(void) const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the TsPlot.
+ * This method returns a clone of the OwnedPlot.
  *
- * @return clone of the TsPlot.
+ * @return clone of the OwnedPlot.
  *
  */
 //------------------------------------------------------------------------------
-GmatBase* TsPlot::Clone() const
+GmatBase* OwnedPlot::Clone() const
 {
-   return (new TsPlot(*this));
+   return (new OwnedPlot(*this));
 }
 
 
@@ -388,9 +388,9 @@ GmatBase* TsPlot::Clone() const
  * @param orig The original that is being copied.
  */
 //---------------------------------------------------------------------------
-void TsPlot::Copy(const GmatBase* orig)
+void OwnedPlot::Copy(const GmatBase* orig)
 {
-   operator=(*((TsPlot *)(orig)));
+   operator=(*((OwnedPlot *)(orig)));
 }
 
 
@@ -404,10 +404,10 @@ void TsPlot::Copy(const GmatBase* orig)
  *
  */
 //------------------------------------------------------------------------------
-bool TsPlot::SetName(const std::string &who, const std::string &oldName)
+bool OwnedPlot::SetName(const std::string &who, const std::string &oldName)
 {
    #if DEBUG_RENAME
-   MessageInterface::ShowMessage("TsPlot::SetName() newName=%s\n", who.c_str());
+   MessageInterface::ShowMessage("OwnedPlot::SetName() newName=%s\n", who.c_str());
    #endif
    
    if (oldName == "")
@@ -432,11 +432,11 @@ bool TsPlot::SetName(const std::string &who, const std::string &oldName)
  *
  */
 //------------------------------------------------------------------------------
-bool TsPlot::TakeAction(const std::string &action,
+bool OwnedPlot::TakeAction(const std::string &action,
                         const std::string &actionData)
 {
    #if DEBUG_ACTION_REMOVE
-   MessageInterface::ShowMessage("TsPlot::TakeAction() action=%s, actionData=%s\n",
+   MessageInterface::ShowMessage("OwnedPlot::TakeAction() action=%s, actionData=%s\n",
                                  action.c_str(), actionData.c_str());
    #endif
    
@@ -460,6 +460,10 @@ bool TsPlot::TakeAction(const std::string &action,
    {
       return PenDown();
    }
+   else if (action == "Rescale")
+   {
+      return RescaleData();
+   }
    
    return false;
 }
@@ -469,13 +473,13 @@ bool TsPlot::TakeAction(const std::string &action,
 //  bool RenameRefObject(const Gmat::ObjectType type,
 //                       const std::string &oldName, const std::string &newName)
 //---------------------------------------------------------------------------
-bool TsPlot::RenameRefObject(const Gmat::ObjectType type,
+bool OwnedPlot::RenameRefObject(const Gmat::ObjectType type,
                              const std::string &oldName,
                              const std::string &newName)
 {
    #if DEBUG_RENAME
    MessageInterface::ShowMessage
-      ("TsPlot::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
+      ("OwnedPlot::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
    
@@ -519,9 +523,9 @@ bool TsPlot::RenameRefObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 // std::string GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
-std::string TsPlot::GetParameterText(const Integer id) const
+std::string OwnedPlot::GetParameterText(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < TsPlotParamCount)
+   if (id >= SubscriberParamCount && id < OwnedPlotParamCount)
       return PARAMETER_TEXT[id - SubscriberParamCount];
    else
       return Subscriber::GetParameterText(id);
@@ -531,9 +535,9 @@ std::string TsPlot::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 // Integer GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
-Integer TsPlot::GetParameterID(const std::string &str) const
+Integer OwnedPlot::GetParameterID(const std::string &str) const
 {
-   for (int i=SubscriberParamCount; i<TsPlotParamCount; i++)
+   for (int i=SubscriberParamCount; i<OwnedPlotParamCount; i++)
    {
       if (str == PARAMETER_TEXT[i - SubscriberParamCount])
          return i;
@@ -546,9 +550,9 @@ Integer TsPlot::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 // Gmat::ParameterType GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
-Gmat::ParameterType TsPlot::GetParameterType(const Integer id) const
+Gmat::ParameterType OwnedPlot::GetParameterType(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < TsPlotParamCount)
+   if (id >= SubscriberParamCount && id < OwnedPlotParamCount)
       return PARAMETER_TYPE[id - SubscriberParamCount];
    else
       return Subscriber::GetParameterType(id);
@@ -558,9 +562,9 @@ Gmat::ParameterType TsPlot::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
-std::string TsPlot::GetParameterTypeString(const Integer id) const
+std::string OwnedPlot::GetParameterTypeString(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < TsPlotParamCount)
+   if (id >= SubscriberParamCount && id < OwnedPlotParamCount)
       return GmatBase::PARAM_TYPE_STRING[GetParameterType(id - SubscriberParamCount)];
    else
       return Subscriber::GetParameterTypeString(id);
@@ -578,7 +582,7 @@ std::string TsPlot::GetParameterTypeString(const Integer id) const
  *         throws if the parameter is out of the valid range of values.
  */
 //---------------------------------------------------------------------------
-bool TsPlot::IsParameterReadOnly(const Integer id) const
+bool OwnedPlot::IsParameterReadOnly(const Integer id) const
 {
    if (
        (id == PLOT_TITLE)             ||
@@ -599,7 +603,7 @@ bool TsPlot::IsParameterReadOnly(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Integer TsPlot::GetIntegerParameter(const Integer id) const
+Integer OwnedPlot::GetIntegerParameter(const Integer id) const
 {
    switch (id)
    {
@@ -619,7 +623,7 @@ Integer TsPlot::GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-Integer TsPlot::GetIntegerParameter(const std::string &label) const
+Integer OwnedPlot::GetIntegerParameter(const std::string &label) const
 {
    return GetIntegerParameter(GetParameterID(label));
 }
@@ -628,7 +632,7 @@ Integer TsPlot::GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Integer SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------
-Integer TsPlot::SetIntegerParameter(const Integer id, const Integer value)
+Integer OwnedPlot::SetIntegerParameter(const Integer id, const Integer value)
 {
    switch (id)
    {
@@ -654,7 +658,7 @@ Integer TsPlot::SetIntegerParameter(const Integer id, const Integer value)
 // virtual Integer SetIntegerParameter(const std::string &label,
 //                                     const Integer value)
 //------------------------------------------------------------------------------
-Integer TsPlot::SetIntegerParameter(const std::string &label,
+Integer OwnedPlot::SetIntegerParameter(const std::string &label,
                                     const Integer value)
 {
    return SetIntegerParameter(GetParameterID(label), value);
@@ -664,7 +668,7 @@ Integer TsPlot::SetIntegerParameter(const std::string &label,
 //---------------------------------------------------------------------------
 //  std::string GetOnOffParameter(const Integer id) const
 //---------------------------------------------------------------------------
-std::string TsPlot::GetOnOffParameter(const Integer id) const
+std::string OwnedPlot::GetOnOffParameter(const Integer id) const
 {
    switch (id)
    {
@@ -677,9 +681,9 @@ std::string TsPlot::GetOnOffParameter(const Integer id) const
 
 
 //------------------------------------------------------------------------------
-// std::string TsPlot::GetOnOffParameter(const std::string &label) const
+// std::string OwnedPlot::GetOnOffParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-std::string TsPlot::GetOnOffParameter(const std::string &label) const
+std::string OwnedPlot::GetOnOffParameter(const std::string &label) const
 {
    return GetOnOffParameter(GetParameterID(label));
 }
@@ -688,7 +692,7 @@ std::string TsPlot::GetOnOffParameter(const std::string &label) const
 //---------------------------------------------------------------------------
 //  bool SetOnOffParameter(const Integer id, const std::string &value)
 //---------------------------------------------------------------------------
-bool TsPlot::SetOnOffParameter(const Integer id, const std::string &value)
+bool OwnedPlot::SetOnOffParameter(const Integer id, const std::string &value)
 {
    switch (id)
    {
@@ -704,7 +708,7 @@ bool TsPlot::SetOnOffParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
 // bool SetOnOffParameter(const std::string &label, const std::string &value)
 //------------------------------------------------------------------------------
-bool TsPlot::SetOnOffParameter(const std::string &label, const std::string &value)
+bool OwnedPlot::SetOnOffParameter(const std::string &label, const std::string &value)
 {
    return SetOnOffParameter(GetParameterID(label), value);
 }
@@ -713,7 +717,7 @@ bool TsPlot::SetOnOffParameter(const std::string &label, const std::string &valu
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
-std::string TsPlot::GetStringParameter(const Integer id) const
+std::string OwnedPlot::GetStringParameter(const Integer id) const
 {
    switch (id)
    {
@@ -734,10 +738,10 @@ std::string TsPlot::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-std::string TsPlot::GetStringParameter(const std::string &label) const
+std::string OwnedPlot::GetStringParameter(const std::string &label) const
 {
    #if DEBUG_XY_PARAM
-   MessageInterface::ShowMessage("TsPlot::GetStringParameter() label = %s\n",
+   MessageInterface::ShowMessage("OwnedPlot::GetStringParameter() label = %s\n",
                                  label.c_str());
    #endif
    
@@ -748,10 +752,10 @@ std::string TsPlot::GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
-bool TsPlot::SetStringParameter(const Integer id, const std::string &value)
+bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value)
 {
-   #if DEBUG_TSPLOT_PARAM
-   MessageInterface::ShowMessage("TsPlot::SetStringParameter() id = %d, "
+   #if DEBUG_OwnedPlot_PARAM
+   MessageInterface::ShowMessage("OwnedPlot::SetStringParameter() id = %d, "
                                  "value = %s \n", id, value.c_str());
    #endif
    
@@ -780,11 +784,11 @@ bool TsPlot::SetStringParameter(const Integer id, const std::string &value)
 // bool SetStringParameter(const std::string &label,
 //                         const std::string &value)
 //------------------------------------------------------------------------------
-bool TsPlot::SetStringParameter(const std::string &label,
+bool OwnedPlot::SetStringParameter(const std::string &label,
                                 const std::string &value)
 {
-   #if DEBUG_TSPLOT_PARAM
-   MessageInterface::ShowMessage("TsPlot::SetStringParameter() label = %s, "
+   #if DEBUG_OwnedPlot_PARAM
+   MessageInterface::ShowMessage("OwnedPlot::SetStringParameter() label = %s, "
                                  "value = %s \n", label.c_str(), value.c_str());
    #endif
    
@@ -796,7 +800,7 @@ bool TsPlot::SetStringParameter(const std::string &label,
 // virtual bool SetStringParameter(const Integer id, const std::string &value,
 //                                 const Integer index)
 //------------------------------------------------------------------------------
-bool TsPlot::SetStringParameter(const Integer id, const std::string &value,
+bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value,
                                 const Integer index)
 {
    switch (id)
@@ -814,13 +818,13 @@ bool TsPlot::SetStringParameter(const Integer id, const std::string &value,
 //                                 const std::string &value,
 //                                 const Integer index)
 //------------------------------------------------------------------------------
-bool TsPlot::SetStringParameter(const std::string &label,
+bool OwnedPlot::SetStringParameter(const std::string &label,
                                 const std::string &value,
                                 const Integer index)
 {
-   #if DEBUG_TSPLOT_PARAM
+   #if DEBUG_OwnedPlot_PARAM
    MessageInterface::ShowMessage
-      ("TsPlot::SetStringParameter() label=%s, value=%s, index=%d \n",
+      ("OwnedPlot::SetStringParameter() label=%s, value=%s, index=%d \n",
        label.c_str(), value.c_str(), index);
    #endif
    
@@ -831,7 +835,7 @@ bool TsPlot::SetStringParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // const StringArray& GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
-const StringArray& TsPlot::GetStringArrayParameter(const Integer id) const
+const StringArray& OwnedPlot::GetStringArrayParameter(const Integer id) const
 {
    switch (id)
    {
@@ -846,13 +850,13 @@ const StringArray& TsPlot::GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // StringArray& GetStringArrayParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-const StringArray& TsPlot::GetStringArrayParameter(const std::string &label) const
+const StringArray& OwnedPlot::GetStringArrayParameter(const std::string &label) const
 {
    return GetStringArrayParameter(GetParameterID(label));
 }
 
 
-bool TsPlot::GetBooleanParameter(const Integer id) const
+bool OwnedPlot::GetBooleanParameter(const Integer id) const
 {
    if (id == SHOW_PLOT)
       return active;
@@ -863,17 +867,17 @@ bool TsPlot::GetBooleanParameter(const Integer id) const
    return Subscriber::GetBooleanParameter(id);
 }
 
-bool TsPlot::GetBooleanParameter(const std::string &label) const
+bool OwnedPlot::GetBooleanParameter(const std::string &label) const
 {
    return GetBooleanParameter(GetParameterID(label));
 }
 
-bool TsPlot::SetBooleanParameter(const std::string &label, const bool value)
+bool OwnedPlot::SetBooleanParameter(const std::string &label, const bool value)
 {
    return SetBooleanParameter(GetParameterID(label), value);
 }
 
-bool TsPlot::SetBooleanParameter(const Integer id, const bool value)
+bool OwnedPlot::SetBooleanParameter(const Integer id, const bool value)
 {
    if (id == SHOW_PLOT)
    {
@@ -902,7 +906,7 @@ bool TsPlot::SetBooleanParameter(const Integer id, const bool value)
 // virtual GmatBase* GetRefObject(const Gmat::ObjectType type,
 //                                const std::string &name)
 //------------------------------------------------------------------------------
-GmatBase* TsPlot::GetRefObject(const Gmat::ObjectType type,
+GmatBase* OwnedPlot::GetRefObject(const Gmat::ObjectType type,
                                const std::string &name)
 {
    // if name is X parameter
@@ -920,7 +924,7 @@ GmatBase* TsPlot::GetRefObject(const Gmat::ObjectType type,
       }
    }
    
-   throw GmatBaseException("TsPlot::GetRefObject() the object name: " + name +
+   throw GmatBaseException("OwnedPlot::GetRefObject() the object name: " + name +
                            "not found\n");
 }
 
@@ -929,7 +933,7 @@ GmatBase* TsPlot::GetRefObject(const Gmat::ObjectType type,
 // virtual bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //                           const std::string &name = "")
 //------------------------------------------------------------------------------
-bool TsPlot::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+bool OwnedPlot::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                           const std::string &name)
 {
    if (type == Gmat::PARAMETER)
@@ -944,9 +948,9 @@ bool TsPlot::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                   ("The X parameter: " + name + " of " + instanceName +
                    " is not plottable\n");
          
-         #if DEBUG_TSPLOT_OBJECT
+         #if DEBUG_OwnedPlot_OBJECT
          MessageInterface::ShowMessage
-            ("TsPlot::SetRefObject() mXParam:%s successfully set\n",
+            ("OwnedPlot::SetRefObject() mXParam:%s successfully set\n",
              obj->GetName().c_str());
          #endif
       }
@@ -965,9 +969,9 @@ bool TsPlot::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                    " is not plottable\n");
             }
             
-            #if DEBUG_TSPLOT_OBJECT
+            #if DEBUG_OwnedPlot_OBJECT
             MessageInterface::ShowMessage
-               ("TsPlot::SetRefObject() mYParams[%s] successfully set\n",
+               ("OwnedPlot::SetRefObject() mYParams[%s] successfully set\n",
                 obj->GetName().c_str());
             #endif
             
@@ -990,7 +994,7 @@ bool TsPlot::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
  * 
  */
 //------------------------------------------------------------------------------
-const ObjectTypeArray& TsPlot::GetRefObjectTypeArray()
+const ObjectTypeArray& OwnedPlot::GetRefObjectTypeArray()
 {
    refObjectTypes.clear();
    refObjectTypes.push_back(Gmat::PARAMETER);
@@ -1001,7 +1005,7 @@ const ObjectTypeArray& TsPlot::GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 // virtual const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
-const StringArray& TsPlot::GetRefObjectNameArray(const Gmat::ObjectType type)
+const StringArray& OwnedPlot::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    mAllParamNames.clear();
    
@@ -1032,50 +1036,19 @@ const StringArray& TsPlot::GetRefObjectNameArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
 // void BuildPlotTitle()
 //------------------------------------------------------------------------------
-void TsPlot::BuildPlotTitle()
+void OwnedPlot::BuildPlotTitle()
 {
-   //set X and Y axis title
-   //if (mXAxisTitle == "")
-   //{
-      if (mXParam)
-         mXAxisTitle = mXParam->GetName();
-      else {
-         mXAxisTitle = "No X parameters";
-         mYAxisTitle = "empty";
-         mPlotTitle  = "Plot not fully initialized";
-         return;
-      }
-      //}
-      
-   #if DEBUG_TSPLOT_INIT
-   MessageInterface::ShowMessage("TsPlot::BuildPlotTitle() mXAxisTitle = %s\n",
-                                 mXAxisTitle.c_str());
-   #endif
-   
-   mYAxisTitle = "";
-   for (int i= 0; i<mNumYParams-1; i++)
-   {
-      mYAxisTitle += (mYParams[i]->GetName() + ", ");
-   }
-   mYAxisTitle += mYParams[mNumYParams-1]->GetName();
-   
-   #if DEBUG_TSPLOT_INIT
-   MessageInterface::ShowMessage("TsPlot::BuildPlotTitle() mYAxisTitle = %s\n",
-                                 mYAxisTitle.c_str());
-   #endif
-   
-   mPlotTitle = "(" + mXAxisTitle + ")" + " vs " + "(" + mYAxisTitle + ")";
-   
-   #if DEBUG_TSPLOT_INIT
-   MessageInterface::ShowMessage("TsPlot::BuildPlotTitle() mPlotTitle = %s\n",
-                                 mPlotTitle.c_str());
-   #endif
+   mXAxisTitle = "Epoch";
+   mYAxisTitle = "Residual";
+   mPlotTitle  = "Residual data";
+
+   return;
 }
 
 //------------------------------------------------------------------------------
 // bool ClearYParameters()
 //------------------------------------------------------------------------------
-bool TsPlot::ClearYParameters()
+bool OwnedPlot::ClearYParameters()
 {
    DeletePlotCurves();
    mYParams.clear();
@@ -1084,7 +1057,7 @@ bool TsPlot::ClearYParameters()
    mPlotTitle = "";
    mXAxisTitle = "";
    mYAxisTitle = "";
-   mIsTsPlotWindowSet = false;
+   mIsOwnedPlotWindowSet = false;
    return true;
 }
 
@@ -1100,11 +1073,11 @@ bool TsPlot::ClearYParameters()
  *
  */
 //------------------------------------------------------------------------------
-bool TsPlot::RemoveYParameter(const std::string &name)
+bool OwnedPlot::RemoveYParameter(const std::string &name)
 {
    #if DEBUG_ACTION_REMOVE
    MessageInterface::ShowMessage
-      ("TsPlot::RemoveYParameter() name=%s\n--- Before remove:\n", name.c_str());
+      ("OwnedPlot::RemoveYParameter() name=%s\n--- Before remove:\n", name.c_str());
    for (int i=0; i<mNumYParams; i++)
    {
       MessageInterface::ShowMessage("mYParamNames[%d]=%s\n", i,
@@ -1146,7 +1119,7 @@ bool TsPlot::RemoveYParameter(const std::string &name)
    //------------------------------------------
    
    #if DEBUG_ACTION_REMOVE
-   MessageInterface::ShowMessage("TsPlot::RemoveYParameter() name=%s not found\n");
+   MessageInterface::ShowMessage("OwnedPlot::RemoveYParameter() name=%s not found\n");
    #endif
    
    return false;
@@ -1155,7 +1128,7 @@ bool TsPlot::RemoveYParameter(const std::string &name)
 //------------------------------------------------------------------------------
 // bool ResetYParameters()
 //------------------------------------------------------------------------------
-bool TsPlot::ResetYParameters()
+bool OwnedPlot::ResetYParameters()
 {
    PlotInterface::ClearTsPlotData(instanceName);
    return true;
@@ -1164,7 +1137,7 @@ bool TsPlot::ResetYParameters()
 //------------------------------------------------------------------------------
 // bool PenUp()
 //------------------------------------------------------------------------------
-bool TsPlot::PenUp()
+bool OwnedPlot::PenUp()
 {
    PlotInterface::TsPlotPenUp(instanceName);
    return true;
@@ -1173,27 +1146,76 @@ bool TsPlot::PenUp()
 //------------------------------------------------------------------------------
 // bool PenDown()
 //------------------------------------------------------------------------------
-bool TsPlot::PenDown()
+bool OwnedPlot::PenDown()
 {
    PlotInterface::TsPlotPenDown(instanceName);
    return true;
 }
 
+
+bool OwnedPlot::RescaleData()
+{
+   PlotInterface::TsPlotRescale(instanceName);
+   return true;
+}
+
+
+bool OwnedPlot::Activate()
+{
+   PlotInterface::ActivateTsPlot(instanceName);
+   return true;
+}
+
+
+bool OwnedPlot::Deactivate()
+{
+   PlotInterface::DeactivateTsPlot(instanceName);
+   return true;
+}
+
+
 //------------------------------------------------------------------------------
 // void DeletePlotCurves()
 //------------------------------------------------------------------------------
-void TsPlot::DeletePlotCurves()
+void OwnedPlot::DeletePlotCurves()
 {
    // delete exiting curves
    PlotInterface::DeleteAllTsPlotCurves(instanceName, mOldName);
 }
 
 
+void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast)
+{
+   #if DEBUG_OwnedPlot_UPDATE > 1
+   MessageInterface::ShowMessage
+      ("OwnedPlot::SetData() entered. isEndOfReceive=%d, active=%d, runState=%d\n",
+       isEndOfReceive, active, runstate);
+   #endif
+
+   RealArray *xData = dataBlast[0];
+
+   Real xval;
+   Rvector yvals = Rvector(mNumYParams);
+
+   for (UnsignedInt i = 0; i < xData->size(); ++i)
+   {
+      xval = (*xData)[i];
+      for (Integer j = 0; j < mNumYParams; ++j)
+         yvals[j] = (*(dataBlast[j+1]))[i];
+
+//      PlotInterface::UpdateTsPlot(instanceName, mOldName, xval, yvals,
+//                                  mPlotTitle, mXAxisTitle, mYAxisTitle,
+//                                  true, true);
+      PlotInterface::UpdateTsPlotData(instanceName, xval, yvals);
+
+   }
+}
+
 // methods inherited from Subscriber
 //------------------------------------------------------------------------------
 // bool Distribute(int len)
 //------------------------------------------------------------------------------
-bool TsPlot::Distribute(int len)
+bool OwnedPlot::Distribute(int len)
 {
    //loj: How do I convert data to Real data?
    return false;
@@ -1202,11 +1224,11 @@ bool TsPlot::Distribute(int len)
 //------------------------------------------------------------------------------
 // bool Distribute(const Real * dat, Integer len)
 //------------------------------------------------------------------------------
-bool TsPlot::Distribute(const Real * dat, Integer len)
+bool OwnedPlot::Distribute(const Real * dat, Integer len)
 {
-   #if DEBUG_TSPLOT_UPDATE > 1
+   #if DEBUG_OwnedPlot_UPDATE > 1
    MessageInterface::ShowMessage
-      ("TsPlot::Distribute() entered. isEndOfReceive=%d, active=%d, runState=%d\n",
+      ("OwnedPlot::Distribute() entered. isEndOfReceive=%d, active=%d, runState=%d\n",
        isEndOfReceive, active, runstate);
    #endif
    
@@ -1235,8 +1257,8 @@ bool TsPlot::Distribute(const Real * dat, Integer len)
          // get x param
          Real xval = mXParam->EvaluateReal();
 
-         #if DEBUG_TSPLOT_UPDATE
-         MessageInterface::ShowMessage("TsPlot::Distribute() xval = %f\n", xval);
+         #if DEBUG_OwnedPlot_UPDATE
+         MessageInterface::ShowMessage("OwnedPlot::Distribute() xval = %f\n", xval);
          #endif
          
          // get y params
@@ -1257,15 +1279,15 @@ bool TsPlot::Distribute(const Real * dat, Integer len)
             
             yvals[i] = mYParams[i]->EvaluateReal();
             
-            #if DEBUG_TSPLOT_UPDATE
+            #if DEBUG_OwnedPlot_UPDATE
             MessageInterface::ShowMessage
-               ("TsPlot::Distribute() yvals[%d] = %f\n", i, yvals[i]);
+               ("OwnedPlot::Distribute() yvals[%d] = %f\n", i, yvals[i]);
             #endif
          }
          
          // update xy plot
          // X value must start from 0
-         if (mIsTsPlotWindowSet)
+         if (mIsOwnedPlotWindowSet)
          {
             mNumDataPoints++;
             
@@ -1275,9 +1297,9 @@ bool TsPlot::Distribute(const Real * dat, Integer len)
                mNumCollected++;
                bool update = (mNumCollected % mUpdatePlotFrequency) == 0;
                
-               #if DEBUG_TSPLOT_UPDATE > 1
+               #if DEBUG_OwnedPlot_UPDATE > 1
                MessageInterface::ShowMessage
-                  ("TsPlot::Distribute() calling PlotInterface::UpdateTsPlot()\n");
+                  ("OwnedPlot::Distribute() calling PlotInterface::UpdateOwnedPlot()\n");
                #endif
                
                return PlotInterface::UpdateTsPlot(instanceName, mOldName, xval, yvals,

@@ -77,6 +77,8 @@ public:
    void SetAxisLimit(std::string axisEnd, bool automatic = false, 
                      double value = 0.0);
                      
+   void Rescale();
+
    void SetTickCount(int count, bool isXAxis = true);
    int  GetTickCount(bool isXAxis = true);
    void SetMinorTickCount(int count, bool isXAxis = true);
