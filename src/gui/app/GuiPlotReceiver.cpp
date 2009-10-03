@@ -1208,7 +1208,6 @@ bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
    return updated;
 }
 
-
 bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
       const Real &xval, const Rvector &yvals)
 {
