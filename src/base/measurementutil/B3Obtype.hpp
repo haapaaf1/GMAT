@@ -8,22 +8,24 @@
 #ifndef _B3OBTYPE_HPP
 #define	_B3OBTYPE_HPP
 
-#include "Obtype.hpp"
+#include "ObType.hpp"
 
 // The B3 observation type specification
-class B3Obtype : public Obtype
+class B3ObType : public ObType
 {
     
 public :
     	
     // default constructor
-    B3Obtype();
+    B3ObType();
     // copy constructor
-    B3Obtype(const B3Obtype &b3Ob);
+    B3ObType(const B3ObType &b3Ob);
     // operator =
-    const B3Obtype& operator=(const B3Obtype &b3Ob);
+    const B3ObType& operator=(const B3ObType &b3Ob);
     // destructor
-    virtual ~B3Obtype();
+    virtual ~B3ObType();
+
+    GmatBase *Clone() const;
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
@@ -95,7 +97,7 @@ public :
 	EndB3TimeReps
     };
 
-    friend std::ostream& operator<< (std::ostream &output, const B3Obtype *myB3);
+    friend std::ostream& operator<< (std::ostream &output, const B3ObType *myB3);
     
     // Declare DataFile a friend class so that we have access
     // directly to variables instead of having to use Get/Set

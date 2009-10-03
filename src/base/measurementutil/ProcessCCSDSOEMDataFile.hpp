@@ -23,7 +23,7 @@
 #define	ProcessCCSDSOEMDATAFILE_hpp
 
 #include "ProcessCCSDSDataFile.hpp"
-#include "Obtype.hpp"
+#include "ObType.hpp"
 
 class ProcessCCSDSOEMDataFile : public ProcessCCSDSDataFile
 {
@@ -42,16 +42,16 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool WriteData(CCSDSOEMObtype *myCCSDSOEM);
+    bool WriteData(CCSDSOEMObType *myCCSDSOEM);
     
 private:
     
     // Specific data type processing functions
-    bool GetData(std::string line, CCSDSOEMObtype *myOEM);
+    bool GetData(std::string line, CCSDSOEMObType *myOEM);
     bool GetCCSDSMetadata(std::string &nextline,
-                          CCSDSOEMObtype::ccsds_oem_metadata *myMetaData);
+                          CCSDSOEMObType::ccsds_oem_metadata *myMetaData);
     
-    CCSDSOEMObtype::ccsds_oem_metadata *currentCCSDSMetadata;
+    CCSDSOEMObType::ccsds_oem_metadata *currentCCSDSMetadata;
     
 };
 #endif	/* _ProcessCCSDSOEMDATAFILE_hpp */

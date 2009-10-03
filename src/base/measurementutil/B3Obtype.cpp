@@ -1,9 +1,9 @@
-#include "B3Obtype.hpp"
+#include "B3ObType.hpp"
 
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string B3Obtype::B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps] =
+const std::string B3ObType::B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps] =
 {
     "Range rate only",
     "Azimuth & elevation",
@@ -16,7 +16,7 @@ const std::string B3Obtype::B3_DATATYPE_DESCRIPTIONS[EndB3TypeReps] =
     "Right ascension, declination, sometimes range and ECF position of the sensor",
 };
 
-const std::string B3Obtype::B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
+const std::string B3ObType::B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
 {
     "B3Type",
     "SecurityClassification",
@@ -38,7 +38,7 @@ const std::string B3Obtype::B3_FILEFORMAT_DESCRIPTIONS[EndB3DataReps] =
     "Ecf_Z"
 };
 
-const std::string B3Obtype::B3_UNIT_DESCRIPTIONS[EndB3DataReps] =
+const std::string B3ObType::B3_UNIT_DESCRIPTIONS[EndB3DataReps] =
 {
     "",
     "",
@@ -60,7 +60,7 @@ const std::string B3Obtype::B3_UNIT_DESCRIPTIONS[EndB3DataReps] =
     "km"
 };
 
-const Gmat::ParameterType B3Obtype::B3_PARAMETER_TYPE[EndB3DataReps] =
+const Gmat::ParameterType B3ObType::B3_PARAMETER_TYPE[EndB3DataReps] =
 {
     Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
@@ -82,7 +82,7 @@ const Gmat::ParameterType B3Obtype::B3_PARAMETER_TYPE[EndB3DataReps] =
     Gmat::REAL_TYPE
 };
 
-const bool B3Obtype::B3_IS_REQUIRED[EndB3DataReps] =
+const bool B3ObType::B3_IS_REQUIRED[EndB3DataReps] =
 {
     true,
     true,
@@ -104,19 +104,19 @@ const bool B3Obtype::B3_IS_REQUIRED[EndB3DataReps] =
     false
 };
     
-const std::string B3Obtype::B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps] =
+const std::string B3ObType::B3_TIMESYSTEM_DESCRIPTIONS[EndB3TimeReps] =
 {
     "UTC"
 };
 
 //------------------------------------------------------------------------------
-//  B3Obtype()
+//  B3ObType()
 //------------------------------------------------------------------------------
 /**
- * Constructor for the B3Obtype class
+ * Constructor for the B3ObType class
  */
 //------------------------------------------------------------------------------
-B3Obtype::B3Obtype() : Obtype(),
+B3ObType::B3ObType() : ObType("B3ObType",""),
     b3Type(0),
     securityClassification("U"),
     satID(0),
@@ -136,31 +136,32 @@ B3Obtype::B3Obtype() : Obtype(),
     ecf_Y(0),
     ecf_Z(0)
 {
+    objectTypeNames.push_back("B3ObType");
 }
 
 //------------------------------------------------------------------------------
-//  ~B3Obtype()
+//  ~B3ObType()
 //------------------------------------------------------------------------------
 /**
- * Destructor for the B3Obtype class
+ * Destructor for the B3ObType class
  */
 //------------------------------------------------------------------------------
-B3Obtype::~B3Obtype()
+B3ObType::~B3ObType()
 {
 }
 
 //---------------------------------------------------------------------------
-//  B3Obtype(const B3Obtype &b3Ob);
+//  B3ObType(const B3ObType &b3Ob);
 //---------------------------------------------------------------------------
 /**
- * Constructs base Obtype structures used in derived classes, by copying
+ * Constructs base ObType structures used in derived classes, by copying
  * the input instance (copy constructor).
  *
- * @param <b3Ob>  Obtype instance to copy to create "this" instance.
+ * @param <b3Ob>  ObType instance to copy to create "this" instance.
  */
 //---------------------------------------------------------------------------
-B3Obtype::B3Obtype(const B3Obtype &b3Ob) :
-    Obtype(b3Ob),
+B3ObType::B3ObType(const B3ObType &b3Ob) :
+    ObType(b3Ob),
     b3Type(b3Ob.b3Type),
     securityClassification(b3Ob.securityClassification),
     satID(b3Ob.satID),
@@ -183,17 +184,17 @@ B3Obtype::B3Obtype(const B3Obtype &b3Ob) :
 }
 
 //---------------------------------------------------------------------------
-//  B3Obtype& operator=(const B3Obtype &ob)
+//  B3ObType& operator=(const B3ObType &ob)
 //---------------------------------------------------------------------------
 /**
- * Assignment operator for Obtype structures.
+ * Assignment operator for ObType structures.
  *
  * @param <b3Ob> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const B3Obtype& B3Obtype::operator=(const B3Obtype &b3Ob)
+const B3ObType& B3ObType::operator=(const B3ObType &b3Ob)
 {
    if (&b3Ob == this)
       return *this;
@@ -221,6 +222,21 @@ const B3Obtype& B3Obtype::operator=(const B3Obtype &b3Ob)
 }
 
 //------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the ProcessB3DataFile.
+ *
+ * @return clone of the ProcessB3DataFile.
+ */
+//------------------------------------------------------------------------------
+GmatBase* B3ObType::Clone() const
+{
+   GmatBase *clone = new B3ObType(*this);
+   return (clone);
+}
+
+//------------------------------------------------------------------------------
 // Measurement Data Access functions
 //------------------------------------------------------------------------------
 
@@ -228,10 +244,10 @@ const B3Obtype& B3Obtype::operator=(const B3Obtype &b3Ob)
 //  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetDataParameterText(const Integer id) const
+std::string B3ObType::GetDataParameterText(const Integer id) const
 {
    if ((id >= 0) && (id < EndB3DataReps))
    {
@@ -244,10 +260,10 @@ std::string B3Obtype::GetDataParameterText(const Integer id) const
 //  std::string  GetDataUnits(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetDataUnits(const Integer id) const
+std::string B3ObType::GetDataUnits(const Integer id) const
 {
    if ((id >= 0) && (id < EndB3DataReps))
    {
@@ -261,10 +277,10 @@ std::string B3Obtype::GetDataUnits(const Integer id) const
 //  Integer  GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Integer B3Obtype::GetDataParameterID(const std::string &str) const
+Integer B3ObType::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
     
@@ -286,10 +302,10 @@ Integer B3Obtype::GetDataParameterID(const std::string &str) const
 //  Gmat::ParameterType  GetDataParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Gmat::ParameterType B3Obtype::GetDataParameterType(const Integer id) const
+Gmat::ParameterType B3ObType::GetDataParameterType(const Integer id) const
 {
    if ((id >= 0) && (id < EndB3DataReps))
       return B3_PARAMETER_TYPE[id];
@@ -301,10 +317,10 @@ Gmat::ParameterType B3Obtype::GetDataParameterType(const Integer id) const
 //  std::string GetDataParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //---------------------------------------------------------------------------
-std::string B3Obtype::GetDataParameterTypeString(const Integer id) const
+std::string B3ObType::GetDataParameterTypeString(const Integer id) const
 {
    return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
 }
@@ -313,10 +329,10 @@ std::string B3Obtype::GetDataParameterTypeString(const Integer id) const
 // virtual Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //---------------------------------------------------------------------------
-Integer B3Obtype::GetIntegerDataParameter(const Integer id) const
+Integer B3ObType::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -360,10 +376,10 @@ Integer B3Obtype::GetIntegerDataParameter(const Integer id) const
 // virtual Integer GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Integer B3Obtype::GetIntegerDataParameter(const std::string &label) const
+Integer B3ObType::GetIntegerDataParameter(const std::string &label) const
 {
    return GetIntegerDataParameter(GetDataParameterID(label));
 }
@@ -372,10 +388,10 @@ Integer B3Obtype::GetIntegerDataParameter(const std::string &label) const
 // virtual std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetStringDataParameter(const Integer id) const
+std::string B3ObType::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -395,10 +411,10 @@ std::string B3Obtype::GetStringDataParameter(const Integer id) const
 // virtual std::string GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetStringDataParameter(const std::string &label) const
+std::string B3ObType::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
 }
@@ -407,10 +423,10 @@ std::string B3Obtype::GetStringDataParameter(const std::string &label) const
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Real B3Obtype::GetRealDataParameter(const Integer id) const
+Real B3ObType::GetRealDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -467,10 +483,10 @@ Real B3Obtype::GetRealDataParameter(const Integer id) const
 // virtual Real GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Real B3Obtype::GetRealDataParameter(const std::string &label) const
+Real B3ObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
@@ -485,7 +501,7 @@ Real B3Obtype::GetRealDataParameter(const std::string &label) const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* B3Obtype::GetDataTypes() const
+const std::string* B3ObType::GetDataTypes() const
 {
    return B3_DATATYPE_DESCRIPTIONS;
 }
@@ -501,7 +517,7 @@ const std::string* B3Obtype::GetDataTypes() const
  *
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetDataTypeText(const Integer &id) const
+std::string B3ObType::GetDataTypeText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndB3TypeReps))
    {
@@ -522,7 +538,7 @@ std::string B3Obtype::GetDataTypeText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer B3Obtype::GetDataTypeID(const std::string &label)
+Integer B3ObType::GetDataTypeID(const std::string &label)
 {
     return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
@@ -537,7 +553,7 @@ Integer B3Obtype::GetDataTypeID(const std::string &label)
  *
  */
 //------------------------------------------------------------------------------
-const std::string* B3Obtype::GetTimeSystems() const
+const std::string* B3ObType::GetTimeSystems() const
 {
    return B3_TIMESYSTEM_DESCRIPTIONS;
 }
@@ -553,7 +569,7 @@ const std::string* B3Obtype::GetTimeSystems() const
  *
  */
 //------------------------------------------------------------------------------
-std::string B3Obtype::GetTimeSystemText(const Integer &id) const
+std::string B3ObType::GetTimeSystemText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndB3TimeReps))
    {
@@ -574,7 +590,7 @@ std::string B3Obtype::GetTimeSystemText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer B3Obtype::GetTimeSystemID(const std::string &label)
+Integer B3ObType::GetTimeSystemID(const std::string &label)
 {
 
     std::string regex = "^" + label + "$";
@@ -605,7 +621,7 @@ Integer B3Obtype::GetTimeSystemID(const std::string &label)
  * @return true if the parameter is read only, false (the default)
  */
 //---------------------------------------------------------------------------
-bool B3Obtype::IsParameterRequired(const Integer id) const
+bool B3ObType::IsParameterRequired(const Integer id) const
 {
     if (id > 0 && id <= EndB3DataReps)
 	return B3_IS_REQUIRED[id];
@@ -622,7 +638,7 @@ bool B3Obtype::IsParameterRequired(const Integer id) const
  * @return true if successfull
  */
 //------------------------------------------------------------------------------
-bool B3Obtype::CheckDataAvailability(const std::string str) const
+bool B3ObType::CheckDataAvailability(const std::string str) const
 {
 
     std::string regex = "^" + str + "$";
@@ -642,10 +658,10 @@ bool B3Obtype::CheckDataAvailability(const std::string str) const
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const B3Obtype &myB3)
+// std::ostream& operator<< (std::ostream &output, const B3ObType &myB3)
 //------------------------------------------------------------------------------
 /**
- * Formats B3Obtype value and sends to output stream.
+ * Formats B3ObType value and sends to output stream.
  *
  * @param  <output>  Output stream
  * @param  <myB3>    B3 observation to write out
@@ -653,41 +669,584 @@ bool B3Obtype::CheckDataAvailability(const std::string str) const
  * @return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const B3Obtype *myB3) 
+std::ostream& operator<< (std::ostream &output, const B3ObType *myB3)
 {
    using namespace std;
    
    output.setf(std::ios::showpoint);
    output.setf(std::ios::scientific);
 
-   output << "Class = " << myB3->securityClassification << std::endl;
-   output << "Satnum = " << myB3->satelliteID << std::endl;
-   output << "Sensor ID = " << myB3->sensorID << std::endl;
-   Integer year;
-   if (myB3->year < 57)
-   {
-       year = myB3->year+2000;
-   }
-   else
-   {
-       year = myB3->year+1900;   
-   }
-   output << "Year = " << year << std::endl;   
-   output << "Day of Year = " << myB3->dayOfYear << std::endl;
-   output << "Hour = " << myB3->hour << std::endl;
-   output << "Minutes = " << myB3->minute << std::endl;
-   output << "Seconds = " << myB3->seconds << std::endl;
-   output << "Elevation = " << myB3->elevation << std::endl;
-   output << "Azimuth = " << myB3->azimuth << std::endl;
-   output << "Declination = " << myB3->declination << std::endl;
-   output << "Right Ascension = " << myB3->rightAscension << std::endl;
-   output << "Range = " << myB3->range << std::endl;
-   output << "Range Rate = " << myB3->rangeRate << std::endl;
-   output << "ECF X = " << myB3->ecf_X << std::endl;
-   output << "ECF Y = " << myB3->ecf_Y << std::endl;
-   output << "ECF Z = " << myB3->ecf_Z << std::endl;
-   output << "******************************************************" << std::endl;
-   //output << setw(w) << setprecision(p) << prefix << a[i];
+
+    // Verify the type of the b3 observation
+    // Possible ObType values and their meaning
+    // 0 - Range rate only
+    // 1 - Azimuth and elevation
+    // 2 - Range, azimuth and elevation
+    // 3 - Range, azimuth, elevation, and range rate
+    // 4 - Range, azimuth, eelcation, and range rate
+    //    (extra measurements for azimuth rate, elevation rate, etc are ignored)
+    // 5 - Right Ascension and Declination
+    // 6 - Range only
+    // 8 - Azimuth, elevation, sometimes range and ECF position of the sensor
+    // 9 - Right ascension, declination, sometimes range and
+    //     ECF position of the sensor
+
+    output << setw(1) << myB3->securityClassification;
+    output << setw(5) << right << myB3->satelliteID;
+    output << setw(3) << right << myB3->sensorID;
+    output << setw(2) << setfill('0') << myB3->year;
+    output << setw(3) << setfill('0') << myB3->dayOfYear;
+    output << setw(2) << setfill('0') << myB3->hour;
+    output << setw(2) << setfill('0') << myB3->minute;
+    int sec = myB3->seconds*1e3 + 0.5;
+    output << setw(5) << setfill('0') << sec;
+
+    switch (myB3->b3Type)
+    {
+	case B3ObType::RANGERATEONLY_ID:
+        {
+
+            output << setw(23) << setfill(' ') << right << " ";
+
+            if (myB3->rangeRate > 0)
+            {
+                int rangeRate = myB3->rangeRate*1e5 + 0.5;
+                output << " " << setw(7) << right << setfill('0') << rangeRate;
+            }
+            else
+            {
+                int rangeRate = -myB3->rangeRate*1e5;
+                output << " -" << setw(6) << right << setfill('0') << rangeRate;
+            }
+
+            output << setw(21) << right << setfill(' ') << myB3->b3Type;
+
+            break;
+        }
+	case B3ObType::AZEL_ID:
+        {
+	    // Negative elevation values are formatted as Overpunched values
+	    if (myB3->elevation > 0)
+	    {
+                int elevation = myB3->elevation*1e4 + 0.5;
+		output << setw(6) << right << setfill('0') << elevation;
+	    }
+	    else
+	    {
+		// Figure out the Overpunch code and output to file
+                int elevation = myB3->elevation*1e4;
+		output << setw(6) << right << setfill('0') << Overpunch(elevation);
+            }
+
+	    // Find azimuth
+            // account for extra blank space between el and az
+            int azimuth = myB3->azimuth*1e4 + 0.5;
+	    output << " " << setw(7) << right << setfill('0') << azimuth;
+
+            output << setw(38) << right << setfill(' ') << myB3->b3Type;
+
+	    break;
+        }
+	case B3ObType::RAZEL_ID:
+        {
+	    // Negative elevation values are formatted as Overpunched values
+	    if (myB3->elevation > 0)
+	    {
+                int elevation = myB3->elevation*1e4 + 0.5;
+		output << setw(6) << right << setfill('0') << elevation;
+	    }
+	    else
+	    {
+		// Figure out the Overpunch code and output to file
+                int elevation = myB3->elevation*1e4;
+		output << setw(6) << right << setfill('0') << Overpunch(elevation);
+            }
+
+	    // Find azimuth
+            // account for extra blank space between el and az
+            int azimuth = myB3->azimuth*1e4 + 0.5;
+	    output << " " << setw(7) << right << setfill('0') << azimuth;
+
+	    // Decompose range into RRRRRRR*10^E
+            // ouptut integer range and range exponent separately
+            ostringstream temp;
+            char buffer[25];
+            sprintf(buffer,"%010.7E",myB3->range);
+            temp << buffer;
+            int found = temp.str().find("E");
+            std::string mantemp = temp.str().substr(0,found);
+            std::string exptemp = temp.str().substr(found+1,temp.str().length());
+
+	    // Find range mantissa
+            double mantissa1;
+	    if (!from_string<double>(mantissa1,mantemp,std::dec))
+            {
+                output << endl;
+                return output;
+            }
+            int mantissa = mantissa1*1e6+0.5;
+
+	    // Find range exponent
+            int exponent;
+	    if (!from_string<int>(exponent,exptemp,std::dec))
+            {
+                output << endl;
+                return output;
+            }
+            if (exponent < 0 || exponent >= 5)
+            {
+                output << endl;
+                return output;
+            }
+
+            // Range is formated RR.RRRRRR*10^E
+            // traditional scientific notation is R.RRRRRRR*10^E
+            // So we must account for the movement of the decimal place
+            // to display to correct exponent according to the B3 format
+            exponent -= 1;
+
+            output << " " << setw(7) << right << mantissa;
+            output << setw(1) << exponent;
+
+            output << setw(29) << right << setfill(' ') << myB3->b3Type;
+
+	    break;
+        }
+	case B3ObType::B3ObType::RAZELRR_ID:
+        {
+	    // Negative elevation values are formatted as Overpunched values
+	    if (myB3->elevation > 0)
+	    {
+                int elevation = myB3->elevation*1e4 + 0.5;
+		output << setw(6) << right << setfill('0') << elevation;
+	    }
+	    else
+	    {
+		// Figure out the Overpunch code and output to file
+                int elevation = myB3->elevation*1e4;
+		output << setw(6) << right << setfill('0') << Overpunch(elevation);
+            }
+
+	    // Find azimuth
+            // account for extra blank space between el and az
+            int azimuth = myB3->azimuth*1e4 + 0.5;
+	    output << " " << setw(7) << right << setfill('0') << azimuth;
+
+	    // Decompose range into RRRRRRR*10^E
+            // ouptut integer range and range exponent separately
+            ostringstream temp;
+            char buffer[25];
+            sprintf(buffer,"%010.7E",myB3->range);
+            temp << buffer;
+            int found = temp.str().find("E");
+            std::string mantemp = temp.str().substr(0,found);
+            std::string exptemp = temp.str().substr(found+1,temp.str().length());
+
+	    // Find range mantissa
+            double mantissa1;
+	    if (!from_string<double>(mantissa1,mantemp,std::dec))
+            {
+                output << endl;
+                return output;
+            }
+            int mantissa = mantissa1*1e6+0.5;
+
+	    // Find range exponent
+            int exponent;
+	    if (!from_string<int>(exponent,exptemp,std::dec))
+            {
+                output << endl;
+                return output;
+            }
+            if (exponent < 0 || exponent >= 5)
+            {
+                output << endl;
+                return output;
+            }
+
+            // Range is formated RR.RRRRRR*10^E
+            // traditional scientific notation is R.RRRRRRR*10^E
+            // So we must account for the movement of the decimal place
+            // to display to correct exponent according to the B3 format
+            exponent -= 1;
+
+            output << " " << setw(7) << right << mantissa;
+            output << setw(1) << exponent;
+
+	    // For a negative range rate value, there is one less
+	    // decimal place of precision
+            // width is actually 7 but have to place at position 47
+
+            if (myB3->rangeRate > 0)
+            {
+                int rangeRate = myB3->rangeRate*1e5 + 0.5;
+                output << " " << setw(7) << right << setfill('0') << rangeRate;
+            }
+            else
+            {
+                int rangeRate = -myB3->rangeRate*1e5;
+                output << " -" << setw(6) << right << setfill('0') << rangeRate;
+            }
+
+            output << setw(21) << right << setfill(' ') << myB3->b3Type;
+
+	    break;
+        }
+	case B3ObType::B3ObType::RAZELRR2_ID:
+        {
+	    // Negative elevation values are formatted as Overpunched values
+	    if (myB3->elevation > 0)
+	    {
+                int elevation = myB3->elevation*1e4 + 0.5;
+		output << setw(6) << right << setfill('0') << elevation;
+	    }
+	    else
+	    {
+		// Figure out the Overpunch code and output to file
+                int elevation = myB3->elevation*1e4;
+		output << setw(6) << right << setfill('0') << Overpunch(elevation);
+            }
+
+	    // Find azimuth
+            // account for extra blank space between el and az
+            int azimuth = myB3->azimuth*1e4 + 0.5;
+	    output << " " << setw(7) << right << setfill('0') << azimuth;
+
+	    // Decompose range into RRRRRRR*10^E
+            // ouptut integer range and range exponent separately
+            ostringstream temp;
+            char buffer[25];
+            sprintf(buffer,"%010.7E",myB3->range);
+            temp << buffer;
+            int found = temp.str().find("E");
+            std::string mantemp = temp.str().substr(0,found);
+            std::string exptemp = temp.str().substr(found+1,temp.str().length());
+
+	    // Find range mantissa
+            double mantissa1;
+	    if (!from_string<double>(mantissa1,mantemp,std::dec))
+            {
+                output << endl;
+                return output;
+            }
+            int mantissa = mantissa1*1e6+0.5;
+
+	    // Find range exponent
+            int exponent;
+	    if (!from_string<int>(exponent,exptemp,std::dec))
+            {
+                output << endl;
+                return output;
+            }
+            if (exponent < 0 || exponent >= 5)
+            {
+                output << endl;
+                return output;
+            }
+
+            // Range is formated RR.RRRRRR*10^E
+            // traditional scientific notation is R.RRRRRRR*10^E
+            // So we must account for the movement of the decimal place
+            // to display to correct exponent according to the B3 format
+            exponent -= 1;
+
+            output << " " << setw(7) << right << mantissa;
+            output << setw(1) << exponent;
+
+	    // For a negative range rate value, there is one less
+	    // decimal place of precision
+            // width is actually 7 but have to place at position 47
+            if (myB3->rangeRate > 0)
+            {
+                int rangeRate = myB3->rangeRate*1e5 + 0.5;
+                output << " " << setw(7) << right << setfill('0') << rangeRate;
+            }
+            else
+            {
+                int rangeRate = -myB3->rangeRate*1e5;
+                output << " -" << setw(6) << right << setfill('0') << rangeRate;
+            }
+
+            output << setw(21) << right << setfill(' ') << myB3->b3Type;
+
+	    break;
+        }
+        case B3ObType::RADEC_ID:
+        {
+	    // Negative elevation values are formatted as Overpunched values
+	    if (myB3->declination > 0)
+	    {
+                int declination = myB3->declination*1e4 + 0.5;
+		output << setw(6) << right << setfill('0') << declination;
+	    }
+	    else
+	    {
+		// Figure out the Overpunch code and output to file
+                int declination = myB3->declination*1e4;
+                output << setw(6) << right << setfill('0') << Overpunch(declination);
+            }
+
+	    // Find right ascension in hours, minutes, and seconds
+            int hr = myB3->rightAscension;
+            double minutes = (myB3->rightAscension - hr)*60.0;
+            int mn = minutes;
+            double seconds = (minutes-mn)*60.0;
+            // we want SSS but have SS.SSSSSS
+            // so mutiply by 10 and truncate
+            int sec = seconds*10 + 0.5;
+
+            output << " " << setw(2) << right << setfill('0') << hr;
+            output << setw(2) << right << setfill('0') << mn;
+            output << setw(3) << right << setfill('0') << sec;
+
+            output << setw(38) << right << setfill(' ') << myB3->b3Type;
+
+	    break;
+        }
+	case B3ObType::RANGEONLY_ID:
+        {
+            output << setw(14) << right << setfill(' ') << " ";
+
+	    // Decompose range into RRRRRRR*10^E
+            // ouptut integer range and range exponent separately
+            ostringstream temp;
+            char buffer[25];
+            sprintf(buffer,"%010.7E",myB3->range);
+            temp << buffer;
+            int found = temp.str().find("E");
+            std::string mantemp = temp.str().substr(0,found);
+            std::string exptemp = temp.str().substr(found+1,temp.str().length());
+
+	    // Find range mantissa
+            double mantissa1;
+	    if (!from_string<double>(mantissa1,mantemp,std::dec))
+            {
+                output << endl;
+                return output;
+            }
+            int mantissa = mantissa1*1e6+0.5;
+
+	    // Find range exponent
+            int exponent;
+	    if (!from_string<int>(exponent,exptemp,std::dec))
+            {
+                output << endl;
+                return output;
+            }
+            if (exponent < 0 || exponent >= 5)
+            {
+                output << endl;
+                return output;
+            }
+
+            // Range is formated RR.RRRRRR*10^E
+            // traditional scientific notation is R.RRRRRRR*10^E
+            // So we must account for the movement of the decimal place
+            // to display to correct exponent according to the B3 format
+            exponent -= 1;
+
+            output << " " << setw(7) << right << mantissa;
+            output << setw(1) << exponent;
+
+            output << setw(29) << right << setfill(' ') << myB3->b3Type;
+
+	    break;
+        }
+	case B3ObType::AZELSENSORPOS_ID:
+        {
+	    // Negative elevation values are formatted as Overpunched values
+	    if (myB3->elevation > 0)
+	    {
+                int elevation = myB3->elevation*1e4 + 0.5;
+		output << setw(6) << right << setfill('0') << elevation;
+	    }
+	    else
+	    {
+		// Figure out the Overpunch code and output to file
+                int elevation = myB3->elevation*1e4;
+		output << setw(6) << right << setfill('0') << Overpunch(elevation);
+            }
+
+	    // Find azimuth
+            // account for extra blank space between el and az
+            int azimuth = myB3->azimuth*1e4 + 0.5;
+	    output << " " << setw(7) << right << setfill('0') << azimuth;
+
+            // If range is defined, then output range
+            if (myB3->range > 0)
+            {
+                // Decompose range into RRRRRRR*10^E
+                // ouptut integer range and range exponent separately
+                ostringstream temp;
+                char buffer[25];
+                sprintf(buffer,"%010.7E",myB3->range);
+                temp << buffer;
+                int found = temp.str().find("E");
+                std::string mantemp = temp.str().substr(0,found);
+                std::string exptemp = temp.str().substr(found+1,temp.str().length());
+
+                // Find range mantissa
+                double mantissa1;
+                if (!from_string<double>(mantissa1,mantemp,std::dec))
+                {
+                    output << endl;
+                    return output;
+                }
+                int mantissa = mantissa1*1e6+0.5;
+
+                // Find range exponent
+                int exponent;
+                if (!from_string<int>(exponent,exptemp,std::dec))
+                {
+                    output << endl;
+                    return output;
+                }
+                if (exponent < 0 || exponent >= 5)
+                {
+                    output << endl;
+                    return output;
+                }
+
+                // Range is formated RR.RRRRRR*10^E
+                // traditional scientific notation is R.RRRRRRR*10^E
+                // So we must account for the movement of the decimal place
+                // to display to correct exponent according to the B3 format
+                exponent -= 1;
+
+                output << " " << setw(7) << right << mantissa;
+                output << setw(1) << exponent;
+
+                // Find sensor position in meters
+                int ecf_X = myB3->ecf_X * 1e3 + 0.5;
+                output << setw(9) << right << ecf_X;
+                int ecf_Y = myB3->ecf_Y * 1e3 + 0.5;
+                output << setw(9) << right << ecf_Y;
+                int ecf_Z = myB3->ecf_Z * 1e3 + 0.5;
+                output << setw(9) << right << ecf_Z;
+
+            }
+            else
+            {
+
+                // Find sensor position in meters
+                int ecf_X = myB3->ecf_X * 1e3 + 0.5;
+                output << setw(18) << right << ecf_X;
+                int ecf_Y = myB3->ecf_Y * 1e3 + 0.5;
+                output << setw(9) << right << ecf_Y;
+                int ecf_Z = myB3->ecf_Z * 1e3 + 0.5;
+                output << setw(9) << right << ecf_Z;
+
+            }
+
+            output << " " << setw(1) << right << setfill(' ') << myB3->b3Type;
+
+	    break;
+        }
+	case B3ObType::RADECSENSORPOS_ID:
+        {
+	    // Negative elevation values are formatted as Overpunched values
+	    if (myB3->declination > 0)
+	    {
+                int declination = myB3->declination*1e4 + 0.5;
+		output << setw(6) << right << setfill('0') << declination;
+	    }
+	    else
+	    {
+		// Figure out the Overpunch code and output to file
+                int declination = myB3->declination*1e4;
+                output << setw(6) << right << setfill('0') << Overpunch(declination);
+            }
+
+	    // Find right ascension in hours, minutes, and seconds
+            int hr = myB3->rightAscension;
+            double minutes = (myB3->rightAscension - hr)*60.0;
+            int mn = minutes;
+            double seconds = (minutes-mn)*60.0;
+            // we want SSS but have SS.SSSSSS
+            // so mutiply by 10 and truncate
+            int sec = seconds*10 + 0.5;
+
+            output << " " << setw(2) << right << setfill('0') << hr;
+            output << setw(2) << right << setfill('0') << mn;
+            output << setw(3) << right << setfill('0') << sec;
+
+            // If range is defined, then output range
+            // in addition to the sensor coordinates
+            if (myB3->range > 0)
+            {
+                // Decompose range into RRRRRRR*10^E
+                // ouptut integer range and range exponent separately
+                ostringstream temp;
+                char buffer[25];
+                sprintf(buffer,"%010.7E",myB3->range);
+                temp << buffer;
+                int found = temp.str().find("E");
+                std::string mantemp = temp.str().substr(0,found);
+                std::string exptemp = temp.str().substr(found+1,temp.str().length());
+
+                // Find range mantissa
+                double mantissa1;
+                if (!from_string<double>(mantissa1,mantemp,std::dec))
+                {
+                    output << endl;
+                    return output;
+                }
+                int mantissa = mantissa1*1e6+0.5;
+
+                // Find range exponent
+                int exponent;
+                if (!from_string<int>(exponent,exptemp,std::dec))
+                {
+                    output << endl;
+                    return output;
+                }
+                if (exponent < 0 || exponent >= 5)
+                {
+                    output << endl;
+                    return output;
+                }
+
+                // Range is formated RR.RRRRRR*10^E
+                // traditional scientific notation is R.RRRRRRR*10^E
+                // So we must account for the movement of the decimal place
+                // to display to correct exponent according to the B3 format
+                exponent -= 1;
+
+                output << " " << setw(7) << right << mantissa;
+                output << setw(1) << exponent;
+
+                // Find sensor position in meters
+                int ecf_X = myB3->ecf_X * 1e3 + 0.5;
+                output << setw(9) << right << ecf_X;
+                int ecf_Y = myB3->ecf_Y * 1e3 + 0.5;
+                output << setw(9) << right << ecf_Y;
+                int ecf_Z = myB3->ecf_Z * 1e3 + 0.5;
+                output << setw(9) << right << ecf_Z;
+            }
+            else
+            {
+
+                // Find sensor position in meters
+                int ecf_X = myB3->ecf_X * 1e3 + 0.5;
+                output << setw(18) << right << ecf_X;
+                int ecf_Y = myB3->ecf_Y * 1e3 + 0.5;
+                output << setw(9) << right << ecf_Y;
+                int ecf_Z = myB3->ecf_Z * 1e3 + 0.5;
+                output << setw(9) << right << ecf_Z;
+            }
+
+            output << " " << setw(1) << right << setfill(' ') << myB3->b3Type;
+
+	    break;
+        }
+	default:
+
+	    // Not a recognized B3 data format. All stop.
+	    return output;
+
+    }
+
+    output << endl;
    
    return output;
 }

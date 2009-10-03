@@ -55,7 +55,7 @@ bool ProcessTLEDataFile::Initialize()
         // Initialize individual data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        TLEObtype *myTLE = new TLEObtype;
+        TLEObType *myTLE = new TLEObType;
 
         while (!IsEOF())
         {
@@ -65,7 +65,7 @@ bool ProcessTLEDataFile::Initialize()
             }
         
             // Allocate another struct in memory
-            myTLE = new TLEObtype;
+            myTLE = new TLEObType;
 
         }
 
@@ -75,9 +75,9 @@ bool ProcessTLEDataFile::Initialize()
             outFile->open("tle.output",ios::out);
 
             // Output to file to make sure all the data is properly stored
-            for (ObtypeVector::const_iterator j=theData.begin(); j!=theData.end(); ++j)
+            for (ObTypeVector::const_iterator j=theData.begin(); j!=theData.end(); ++j)
             {
-		*outFile << (TLEObtype*)(*j) << std::endl;
+		*outFile << (TLEObType*)(*j) << std::endl;
             }
 
             outFile->close();
@@ -213,36 +213,47 @@ bool ProcessTLEDataFile::IsParameterReadOnly(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(TLEObtype &myTLEdata)
+// bool GetData(ObType *myTLEdata)
 //------------------------------------------------------------------------------
 /** 
  * Obtains the next line of Two Line Element Set data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEDataFile::GetData(TLEObtype *myTLEdata)
+bool ProcessTLEDataFile::GetData(ObType *myTLEData)
 {
 
-    if (numLines == 2)
+    if (myTLEData->GetTypeName() != "TLEObType") return false;
+
+    // Re-cast the generic ObType pointer as a B3Obtype pointer
+    TLEObType *myTLE = (TLEObType*)myTLEData;
+
+    if (numLines == 2 || myTLE->tleType == 2)
     {
+        // This needs to be set again for the DataFile class since
+        // we are going off of the value of numLines
+        myTLE->tleType = 2;
+
         // Read in two lines
         std::string line1 = ReadLineFromFile();
         std::string line2 = ReadLineFromFile();
-        return GetTLEData(line1,line2,myTLEdata);
+        return GetTLEData(line1,line2,myTLE);
 
     }
-    else if (numLines == 3)
+    else if (numLines == 3 || myTLE->tleType == 3)
     {
 
-        // Read in three lines
-        // TODO check to see whether 1st or 3rd line of 3 line element
-        // set is the comment line
-        // most likely need to use checksum feature to do this for certain
-        // also adding the checksum would add a measure or data reliability
+        // This needs to be set again for the DataFile class since
+        // we are going off of the value of numLines
+        myTLE->tleType = 3;
+
+        // In this case, line 0 is a 24 character name to be consistent
+        // with the name length in the NORAD SATCAT
+        myTLE->tleCommentLine = Trim(ReadLineFromFile());
+        if (myTLE->tleCommentLine.size() > 24) return false;
         std::string line1 = ReadLineFromFile();
         std::string line2 = ReadLineFromFile();
-        std::string line3 = ReadLineFromFile();
-        return GetTLEData(line1,line2,myTLEdata);
-
+        return GetTLEData(line1,line2,myTLE);
+ 
     }
     else
         return false;
@@ -251,7 +262,7 @@ bool ProcessTLEDataFile::GetData(TLEObtype *myTLEdata)
 }
 
 //------------------------------------------------------------------------------
-// bool GetTLEData(std::string lff, std::string lff2, TLEObtype *myTLEdata)
+// bool GetTLEData(std::string lff, std::string lff2, TLEObType *myTLEdata)
 //------------------------------------------------------------------------------
 /** 
  * Converts the compact Two Line Element Set data into usable numbers
@@ -262,7 +273,7 @@ bool ProcessTLEDataFile::GetData(TLEObtype *myTLEdata)
  */
 //------------------------------------------------------------------------------
 bool ProcessTLEDataFile::GetTLEData(std::string &lff, std::string &lff2,
-				TLEObtype *myTLEdata)
+				TLEObType *myTLEdata)
 {
         
     // initialize variables for later use
@@ -701,7 +712,7 @@ bool ProcessTLEDataFile::GetTLEData(std::string &lff, std::string &lff2,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteData(TLEObtype *myTLEdata)
+// bool WriteData(TLEObType *myTLEData)
 //------------------------------------------------------------------------------
 /**
  * Writes a Two Line Element Set to file
@@ -710,277 +721,16 @@ bool ProcessTLEDataFile::GetTLEData(std::string &lff, std::string &lff2,
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEDataFile::WriteData(TLEObtype *myTLEdata)
+bool ProcessTLEDataFile::WriteData(ObType *myTLEData)
 {
-
-    // TLE's have a maximum length of 68 characters plus a 1 character checksum
-    ostringstream buffer;
-
-    // junk variable
-    ostringstream temp;
-
-    buffer << setw(2) << "1 ";
-    buffer << setw(5) << setfill('0') << right << myTLEdata->satnum;
-    buffer << setw(1) << myTLEdata->securityClassification;
-    buffer << " " << setw(8) << left << setfill(' ') << myTLEdata->intlDesignator;
-    buffer << " " << setw(2) << right << setfill('0') << myTLEdata->epochYear;
-    buffer.precision(11);
-    buffer << setw(12) << left << setfill(' ') << myTLEdata->epochDayOfYear;
-
-    // Format first time derivative of the mean motion
-    if (myTLEdata->ndotby2 == 0)
+    if (myTLEData->GetTypeName() == "TLEObType")
     {
-        buffer << " " << setw(10) << "+.00000000";
+        WriteDataHeader(myTLEData);
+        *theFile << (TLEObType*)myTLEData;
+        return true;
     }
     else
-    {
-        char buffer2[15];
-        sprintf(buffer2,"%.8f",myTLEdata->ndotby2);
-        string str = buffer2;
-        pcrecpp::RE("0\\.").GlobalReplace(".", &str);
-        temp.str(std::string());
-        temp << str;
-        if (pcrecpp::RE("^-.*").FullMatch(temp.str()))
-        {
-            buffer << " " << setw(10) << setfill(' ') << right << temp.str();
-        }
-        else
-        {
-            buffer << " +" << setw(9) << left << temp.str();
-        }
-    }
+        return false;
 
-    if (myTLEdata->nddotby6 == 0)
-    {
-        buffer << " " << setw(8) << "+00000-0";
-    }
-    else
-    {
-        char buffer2[15];
-        // TODO: Find a better way to move decimal point
-        // The multiplication by 10 is a lazy way
-        sprintf(buffer2,"%+.4E",myTLEdata->nddotby6*10);
-        string str = buffer2;
-        pcrecpp::RE("\\.").GlobalReplace("", &str);
-        pcrecpp::RE("E").GlobalReplace("", &str);
-        pcrecpp::RE("-0").GlobalReplace("-", &str);
-        pcrecpp::RE("+0").GlobalReplace("+", &str);
-        temp.str(std::string());
-        temp << str;
-        buffer << " " << setw(8) << right << temp.str();
-    }
-
-    if (myTLEdata->bstar == 0)
-    {
-        buffer << " " << setw(8) << "+00000-0";
-    }
-    else
-    {
-        char buffer2[15];
-        // TODO: Find a better way to move decimal point
-        // The multiplication by 10 is a lazy way
-        sprintf(buffer2,"%+.4E",myTLEdata->bstar*10);
-        string str = buffer2;
-        pcrecpp::RE("\\.").GlobalReplace("", &str);
-        pcrecpp::RE("E").GlobalReplace("", &str);
-        pcrecpp::RE("-0").GlobalReplace("-", &str);
-        pcrecpp::RE("+0").GlobalReplace("+", &str);
-        temp.str(std::string());
-        temp << str;
-        buffer << " " << setw(8) << right << temp.str();
-    }
-
-    buffer << " " << setw(1) << myTLEdata->ephemerisType;
-    buffer << " " << setw(4) << right << myTLEdata->elementNum;
-
-    *theFile << buffer.str();
-    *theFile << setw(1) << TLECheckSum(buffer.str()) << endl;
-
-    // Start output of line 2
-    buffer.str(std::string());
-    buffer << setw(2) << "2 ";
-    buffer << setw(5) << setfill('0') << right << myTLEdata->satnum;
-    char buffer3[15];
-    sprintf(buffer3,"%08.4f",myTLEdata->inclination);
-    buffer << " " << setw(8) << right << buffer3;
-    sprintf(buffer3,"%08.4f",myTLEdata->raan);
-    buffer << " " << setw(8) << right << buffer3;
-    sprintf(buffer3,"%.7f",myTLEdata->eccentricity);
-    string str = buffer3;
-    pcrecpp::RE("0\\.").GlobalReplace("", &str);
-    buffer << " " << setw(7) << right << str;
-    sprintf(buffer3,"%08.4f",myTLEdata->argPerigee);
-    buffer << " " << setw(8) << right << buffer3;
-    sprintf(buffer3,"%08.4f",myTLEdata->meanAnomaly);
-    buffer << " " << setw(8) << right << buffer3;
-    sprintf(buffer3,"%011.8f",myTLEdata->meanMotion);
-    buffer << " " << setw(11) << right << buffer3;
-    buffer << setw(5) << setfill(' ') << right << myTLEdata->revolutionNum;
-
-    *theFile << buffer.str();
-    *theFile << setw(1) << TLECheckSum(buffer.str()) << endl;
-
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// bool WriteData(TLEObtype *myTLEdata, fstream *myFile)
-//------------------------------------------------------------------------------
-/**
- * Writes a Two Line Element Set to file
- *
- * @param <myTLEdata> the TLE struct to be written to file
- * @param <myFile> Fstream pointer to external file
- * @return Boolean success or failure
- */
-//------------------------------------------------------------------------------
-bool ProcessTLEDataFile::WriteData(TLEObtype *myTLEdata, fstream *myFile)
-{
-
-    // TLE's have a maximum length of 68 characters plus a 1 character checksum
-    ostringstream buffer;
-
-    // junk variable
-    ostringstream temp;
-
-    buffer << setw(2) << "1 ";
-    buffer << setw(5) << setfill('0') << right << myTLEdata->satnum;
-    buffer << setw(1) << myTLEdata->securityClassification;
-    buffer << " " << setw(8) << left << setfill(' ') << myTLEdata->intlDesignator;
-    buffer << " " << setw(2) << right << setfill('0') << myTLEdata->epochYear;
-    buffer.precision(11);
-    buffer << setw(12) << left << setfill(' ') << myTLEdata->epochDayOfYear;
-
-    // Format first time derivative of the mean motion
-    if (myTLEdata->ndotby2 == 0)
-    {
-        buffer << " " << setw(10) << "+.00000000";
-    }
-    else
-    {
-        char buffer2[15];
-        sprintf(buffer2,"%.8f",myTLEdata->ndotby2);
-        string str = buffer2;
-        pcrecpp::RE("0\\.").GlobalReplace(".", &str);
-        temp.str(std::string());
-        temp << str;
-        if (pcrecpp::RE("^-.*").FullMatch(temp.str()))
-        {
-            buffer << " " << setw(10) << setfill(' ') << right << temp.str();
-        }
-        else
-        {
-            buffer << " +" << setw(9) << left << temp.str();
-        }
-    }
-
-    if (myTLEdata->nddotby6 == 0)
-    {
-        buffer << " " << setw(8) << "+00000-0";
-    }
-    else
-    {
-        char buffer2[15];
-        // TODO: Find a better way to move decimal point
-        // The multiplication by 10 is a lazy way
-        sprintf(buffer2,"%+.4E",myTLEdata->nddotby6*10);
-        string str = buffer2;
-        pcrecpp::RE("\\.").GlobalReplace("", &str);
-        pcrecpp::RE("E").GlobalReplace("", &str);
-        pcrecpp::RE("-0").GlobalReplace("-", &str);
-        pcrecpp::RE("+0").GlobalReplace("+", &str);
-        temp.str(std::string());
-        temp << str;
-        buffer << " " << setw(8) << right << temp.str();
-    }
-
-    if (myTLEdata->bstar == 0)
-    {
-        buffer << " " << setw(8) << "+00000-0";
-    }
-    else
-    {
-        char buffer2[15];
-        // TODO: Find a better way to move decimal point
-        // The multiplication by 10 is a lazy way
-        sprintf(buffer2,"%+.4E",myTLEdata->bstar*10);
-        string str = buffer2;
-        pcrecpp::RE("\\.").GlobalReplace("", &str);
-        pcrecpp::RE("E").GlobalReplace("", &str);
-        pcrecpp::RE("-0").GlobalReplace("-", &str);
-        pcrecpp::RE("+0").GlobalReplace("+", &str);
-        temp.str(std::string());
-        temp << str;
-        buffer << " " << setw(8) << right << temp.str();
-    }
-
-    buffer << " " << setw(1) << myTLEdata->ephemerisType;
-    buffer << " " << setw(4) << right << myTLEdata->elementNum;
-
-    *myFile << buffer.str();
-    *myFile << setw(1) << TLECheckSum(buffer.str()) << endl;
-
-    // Start output of line 2
-    buffer.str(std::string());
-    buffer << setw(2) << "2 ";
-    buffer << setw(5) << setfill('0') << right << myTLEdata->satnum;
-    char buffer3[15];
-    sprintf(buffer3,"%08.4f",myTLEdata->inclination);
-    buffer << " " << setw(8) << right << buffer3;
-    sprintf(buffer3,"%08.4f",myTLEdata->raan);
-    buffer << " " << setw(8) << right << buffer3;
-    sprintf(buffer3,"%.7f",myTLEdata->eccentricity);
-    string str = buffer3;
-    pcrecpp::RE("0\\.").GlobalReplace("", &str);
-    buffer << " " << setw(7) << right << str;
-    sprintf(buffer3,"%08.4f",myTLEdata->argPerigee);
-    buffer << " " << setw(8) << right << buffer3;
-    sprintf(buffer3,"%08.4f",myTLEdata->meanAnomaly);
-    buffer << " " << setw(8) << right << buffer3;
-    sprintf(buffer3,"%011.8f",myTLEdata->meanMotion);
-    buffer << " " << setw(11) << right << buffer3;
-    buffer << setw(5) << setfill(' ') << right << myTLEdata->revolutionNum;
-
-    *myFile << buffer.str();
-    *myFile << setw(1) << TLECheckSum(buffer.str()) << endl;
-
-    return true;
-}
-
-//------------------------------------------------------------------------------
-//  Integer  TLECheckSum(const std::string &str)
-//------------------------------------------------------------------------------
-/**
- * This method computes the checksum for a string of TLE data
- *
- * @param <str> String of data
- *
- * @return Integer checksum modulo 10
- */
-//------------------------------------------------------------------------------
-Integer ProcessTLEDataFile::TLECheckSum(const std::string &str)
-{
-
-    Integer checksum = 0;
-    int num = 0 ;
-
-    for ( Integer pos = 0; pos < (Integer)str.length(); ++pos )
-    {
-        // If it's a number, add the number to the checksum
-        // if it's a minus sign, add +1
-        // ignore everything else
-        if (pcrecpp::RE("(\\d)").FullMatch(str.substr(pos,1),&num))
-        {
-            checksum += num;
-            num = 0;
-        }
-        else if (pcrecpp::RE("-").FullMatch(str.substr(pos,1)))
-        {
-            checksum += 1;
-        }
-    }
-
-    return GmatMathUtil::Mod(checksum,10);
 
 }
-

@@ -42,12 +42,12 @@ public:
     bool        IsParameterRequired(const Integer id) const;
     bool        IsParameterRequired(const std::string &label) const;
     
-    bool WriteData(B3Obtype *myB3data);
-    bool WriteData(B3Obtype *myB3data, fstream *myFile);
+    bool GetData(ObType *myB3data);
+    bool WriteData(ObType *myB3data);
 
 private:
-    
-    bool GetData(std::string lff, B3Obtype *myB3data);
+
+    //bool GetData(std::string lff, B3ObType *myB3data);
     
 };
 

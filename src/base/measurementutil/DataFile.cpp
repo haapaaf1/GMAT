@@ -84,21 +84,6 @@ DataFile::PARAMETER_TYPE[DataFileParamCount - GmatBaseParamCount] =
 // methods overridden from GMAT base
 //---------------------------------
 
-//------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the DataFile.
- *
- * @return clone of the DataFile.
- */
-//------------------------------------------------------------------------------
-GmatBase* DataFile::Clone() const
-{
-   GmatBase *clone = new DataFile(*this);
-   return (clone);
-}
-
 //---------------------------------------------------------------------------
 //  void Copy(const GmatBase* orig)
 //---------------------------------------------------------------------------
@@ -767,34 +752,6 @@ std::string DataFile::GetFileFormatName() const
 }
 
 //------------------------------------------------------------------------------
-// void SetFstream(fstream *myFstream)
-//------------------------------------------------------------------------------
-/**
- * Sets the pointer to the fstream
- *
- * @param <myFstream> The desired pointer to the fstream.
- */
-//------------------------------------------------------------------------------
-void DataFile::SetFstream(fstream *myFstream)
-{
-   theFile = myFstream;
-}
-
-//------------------------------------------------------------------------------
-// fstream* GetFstream() const
-//------------------------------------------------------------------------------
-/**
- * Retrieves the pointer to the fstream
- *
- * @return The fstream pointer.
- */
-//------------------------------------------------------------------------------
-fstream* DataFile::GetFstream() const
-{
-   return theFile;
-}
-
-//------------------------------------------------------------------------------
 // void SetSortedBy(const Integer sortID)
 //------------------------------------------------------------------------------
 /**
@@ -936,6 +893,10 @@ void DataFile::SetFileName(const char* myFileName)
 //------------------------------------------------------------------------------
 // bool GetIsOpen() const
 //------------------------------------------------------------------------------
+/**
+ * Get the isOpen parameter
+ */
+//------------------------------------------------------------------------------
 bool DataFile::GetIsOpen() const
 {
         return isOpen;
@@ -944,6 +905,10 @@ bool DataFile::GetIsOpen() const
 //------------------------------------------------------------------------------
 // void SetIsOpen(const bool flag)
 //------------------------------------------------------------------------------
+/**
+ * Set the isOpen parameter
+ */
+//------------------------------------------------------------------------------
 void DataFile::SetIsOpen(const bool &flag)
 {
         isOpen = flag;
@@ -951,6 +916,10 @@ void DataFile::SetIsOpen(const bool &flag)
 
 //------------------------------------------------------------------------------
 // bool IsSortedByEpoch() const
+//------------------------------------------------------------------------------
+/**
+ * Get the isSortedByEpoch parameter
+ */
 //------------------------------------------------------------------------------
 bool DataFile::IsSortedByEpoch() const
 {
@@ -962,6 +931,10 @@ bool DataFile::IsSortedByEpoch() const
 
 //------------------------------------------------------------------------------
 // bool IsSortedBySatID() const
+//------------------------------------------------------------------------------
+/**
+ * Get the isSortedBySatID parameter
+ */
 //------------------------------------------------------------------------------
 bool DataFile::IsSortedBySatID() const
 {
@@ -975,6 +948,10 @@ bool DataFile::IsSortedBySatID() const
 //------------------------------------------------------------------------------
 // bool IsSortedBySensorID() const
 //------------------------------------------------------------------------------
+/**
+ * Get the isSortedBySensorID parameter
+ */
+//------------------------------------------------------------------------------
 bool DataFile::IsSortedBySensorID() const
 {
     if (sortedBy == SORTED_BY_SENSORID)
@@ -986,6 +963,10 @@ bool DataFile::IsSortedBySensorID() const
 
 //------------------------------------------------------------------------------
 // bool IsSortedByInternationalDesignator() const
+//------------------------------------------------------------------------------
+/**
+ * Get the isSortedByInternationalDesignator parameter
+ */
 //------------------------------------------------------------------------------
 bool DataFile::IsSortedByInternationalDesignator() const
 {
@@ -1009,143 +990,6 @@ std::string DataFile::Trim(std::string str)
     pcrecpp::RE("\\s+$").GlobalReplace("", &str);
 
     return str;
-}
-
-//------------------------------------------------------------------------------
-// std::string Overpunch(const Real &number )
-//------------------------------------------------------------------------------
-/**
- * Converts numeric value to overpunch code version for output in text file.
- */
-//------------------------------------------------------------------------------
-std::string DataFile::Overpunch(const Real &number )
-{
-    ostringstream numstr;
-    int digit;
-
-    if (number < 0)
-    {
-
-        // convert number to stringstream
-        // making sure to strip the negative sign
-        numstr << -number << flush;
-
-        // extract last digit to determine which overpunch value to use
-        if (!from_string<int>(digit,numstr.str().substr(numstr.str().length()-1,1),std::dec))
-        {
-            return "";
-        };
-
-        // Remove last digit to be replaced with overpunched character
-        numstr.str().erase(numstr.str().length() - 1, 1);
-
-        if (digit == 0)
-        {
-            numstr << "}";
-        }
-        else if (digit == 1)
-        {
-            numstr << "J";
-        }
-        else if (digit == 2)
-        {
-            numstr << "K";
-        }
-        else if (digit == 3)
-        {
-            numstr << "L";
-        }
-        else if (digit == 4)
-        {
-            numstr << "M";
-        }
-        else if (digit == 5)
-        {
-            numstr << "N";
-        }
-        else if (digit == 6)
-        {
-            numstr << "O";
-        }
-        else if (digit == 7)
-        {
-            numstr << "P";
-        }
-        else if (digit == 8)
-        {
-            numstr << "Q";
-        }
-        else if (digit == 9)
-        {
-            numstr << "R";
-        }
-        else
-        {
-            return "";
-        }
-    }
-    else
-    {
-
-        // conver number to stringstream
-        numstr << number << flush;
-
-        // extract last digit to determine which overpunch value to use
-        if (!from_string<int>(digit,numstr.str().substr(numstr.str().length()-1,1),std::dec))
-        {
-            return "";
-        };
-
-        // Remove last digit to be replaced with overpunched character
-        numstr.str().erase(numstr.str().length() - 1, 1);
-
-        if (digit == 0)
-        {
-            numstr << "{";
-        }
-        else if (digit == 1)
-        {
-            numstr << "A";
-        }
-        else if (digit == 2)
-        {
-            numstr << "B";
-        }
-        else if (digit == 3)
-        {
-            numstr << "C";
-        }
-        else if (digit == 4)
-        {
-            numstr << "D";
-        }
-        else if (digit == 5)
-        {
-            numstr << "E";
-        }
-        else if (digit == 6)
-        {
-            numstr << "F";
-        }
-        else if (digit == 7)
-        {
-            numstr << "G";
-        }
-        else if (digit == 8)
-        {
-            numstr << "H";
-        }
-        else if (digit == 9)
-        {
-            numstr << "I";
-        }
-        else
-        {
-            return "";
-        }
-    }
-
-    return numstr.str();
 }
 
 //------------------------------------------------------------------------------
@@ -1272,112 +1116,6 @@ bool DataFile::ReverseOverpunch(std::string code, Integer &digit, Integer &sign 
 }
 
 //------------------------------------------------------------------------------
-// virtual bool GetData()
-//------------------------------------------------------------------------------
-/**
- * Obtains data from file
- */
-//------------------------------------------------------------------------------
-bool DataFile::GetData()
-{
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// virtual bool WriteData(Obtype *myObtype)
-//------------------------------------------------------------------------------
-/**
- * Writes data to file
- */
-//------------------------------------------------------------------------------
-bool DataFile::WriteData(Obtype *myObtype)
-{
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// virtual bool WriteDataHeader()
-//------------------------------------------------------------------------------
-/**
- * Writes header data to file
- */
-//------------------------------------------------------------------------------
-bool DataFile::WriteDataHeader()
-{
-    return false;
-}
-//------------------------------------------------------------------------------
-// virtual bool WriteDataSubHeader()
-//------------------------------------------------------------------------------
-/**
- * Writes header data to file
- */
-//------------------------------------------------------------------------------
-bool DataFile::WriteDataSubHeader()
-{
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// virtual bool WriteMetadata()
-//------------------------------------------------------------------------------
-/**
- * Writes header data to file
- */
-//------------------------------------------------------------------------------
-bool DataFile::WriteMetadata()
-{
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// virtual bool WriteData(fstream *myFile, Obtype *myObtype)
-//------------------------------------------------------------------------------
-/**
- * Writes data to file
- */
-//------------------------------------------------------------------------------
-bool DataFile::WriteData(fstream *myFile, Obtype *myObtype)
-{
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// virtual bool WriteDataHeader(fstream *myFile)
-//------------------------------------------------------------------------------
-/**
- * Writes header data to file
- */
-//------------------------------------------------------------------------------
-bool DataFile::WriteDataHeader(fstream *myFile)
-{
-    return false;
-}
-//------------------------------------------------------------------------------
-// virtual bool WriteDataSubHeader(fstream *myFile)
-//------------------------------------------------------------------------------
-/**
- * Writes header data to file
- */
-//------------------------------------------------------------------------------
-bool DataFile::WriteDataSubHeader(fstream *myFile)
-{
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// virtual bool WriteMetadata(fstream *myFile)
-//------------------------------------------------------------------------------
-/**
- * Writes header data to file
- */
-//------------------------------------------------------------------------------
-bool DataFile::WriteMetadata(fstream *myFile)
-{
-    return false;
-}
-
-//------------------------------------------------------------------------------
 // void SortByEpoch(bool sortOrder)
 //------------------------------------------------------------------------------
 /**
@@ -1453,4 +1191,39 @@ void DataFile::SortByInternationalDesignator(bool sortOrder)
 		  AscendingInternationalDesignatorSort());
 
     sortedBy = SORTED_BY_INTERNATIONALDESIGNATOR;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteDataHeader(ObType *myObType)
+//------------------------------------------------------------------------------
+/**
+ * Writes header data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteDataHeader(ObType *myObType)
+{
+    return false;
+}
+//------------------------------------------------------------------------------
+// virtual bool WriteDataSubHeader(ObType *myObType)
+//------------------------------------------------------------------------------
+/**
+ * Writes header data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteDataSubHeader(ObType *myObType)
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteMetadata(ObType *myObType)
+//------------------------------------------------------------------------------
+/**
+ * Writes header data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteMetaData(ObType *myObType)
+{
+    return false;
 }

@@ -29,7 +29,7 @@
 #include <iomanip>
 #include "sstream"
 #include "DataFormats.hpp"
-#include "Obtype.hpp"
+#include "ObType.hpp"
 #include "DataFileException.hpp"
 #include "MessageInterface.hpp"
 #include <pcrecpp.h>
@@ -56,12 +56,12 @@ public:
     virtual bool Initialize();
        
     // Methods overridden from the GmatBase clase
-    virtual GmatBase *Clone() const;
     virtual void        Copy(const GmatBase* orig);      
 
     virtual bool        IsParameterReadOnly(const Integer id) const;
     virtual bool        IsParameterReadOnly(const std::string &label) const;
-    
+
+    // Functions for getting/setting DataFile parameters from the script
     virtual std::string GetStringParameter(const Integer id) const;
     virtual bool SetStringParameter(const Integer id, const std::string &value);
     virtual Integer GetIntegerParameter(const Integer id) const;
@@ -69,30 +69,9 @@ public:
     virtual Integer SetIntegerParameter(const Integer id, const Integer value);
     virtual Integer SetIntegerParameter(const std::string &label, const Integer value);
 
-    // Method to obtain data from the file
-    virtual bool GetData();
-
-    // Methods to write data to the file defined on this object
-    virtual bool WriteData(Obtype *myObtype);
-    virtual bool WriteDataHeader();
-    virtual bool WriteDataSubHeader();
-    virtual bool WriteMetadata();
-    
-    // Methods to write data to external files
-    virtual bool WriteData(fstream *myFile, Obtype *myObtype);
-    virtual bool WriteDataHeader(fstream *myFile);
-    virtual bool WriteDataSubHeader(fstream *myFile);
-    virtual bool WriteMetadata(fstream *myFile);
-
-    // String processing utility functions
+    // String processing utility functions for reading/writing
     std::string Trim(std::string s);
-    template <class T> bool from_string(T& t, const std::string& s,
-                 std::ios_base& (*f)(std::ios_base&));
     bool ReverseOverpunch(std::string code, Integer &digit, Integer &sign );
-    std::string Overpunch(const Real &number );
-
-    // functions to sort the data
-    //bool SortData();
 
     // functions to extract a line from file
     bool ReadLineFromFile(std::string &line);
@@ -102,6 +81,8 @@ public:
     void SetNumLines(const Integer &nl);
     Integer GetNumLines() const;
 
+    // Method to retrieve number of observations available after
+    // the file has been processed
     Integer GetNumMeasurements() const;
     
     void SetFileFormatID(const Integer &mName);
@@ -116,9 +97,6 @@ public:
     std::string GetFileName();
     void SetFileName(std::string &myFileName);
     void SetFileName(const char* myFileName);
-
-    fstream* GetFstream() const;
-    void SetFstream(fstream *myFstream);
 
     // Open/Close file methods
     bool OpenFile();
@@ -161,7 +139,7 @@ public:
 
     struct AscendingEpochSort
     {
-	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	bool operator()(ObType* rpStart, ObType* rpEnd)
 	{
 	    return rpStart->GetEpoch() < rpEnd->GetEpoch();
 	}
@@ -171,7 +149,7 @@ public:
 
     struct DescendingEpochSort
     {
-	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	bool operator()(ObType* rpStart, ObType* rpEnd)
 	{
 	    return rpStart->GetEpoch() > rpEnd->GetEpoch();
 	}
@@ -181,7 +159,7 @@ public:
 
     struct AscendingSatIDSort
     {
-	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	bool operator()(ObType* rpStart, ObType* rpEnd)
 	{
 	    return rpStart->GetSatID() < rpEnd->GetSatID();
 	}
@@ -191,7 +169,7 @@ public:
 
     struct DescendingSatIDSort
     {
-	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	bool operator()(ObType* rpStart, ObType* rpEnd)
 	{
 	    return rpStart->GetSatID() > rpEnd->GetSatID();
 	}
@@ -201,7 +179,7 @@ public:
 
     struct AscendingSensorIDSort
     {
-	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	bool operator()(ObType* rpStart, ObType* rpEnd)
 	{
 	    return rpStart->GetSensorID() < rpEnd->GetSensorID();
 	}
@@ -211,7 +189,7 @@ public:
 
     struct DescendingSensorIDSort
     {
-	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	bool operator()(ObType* rpStart, ObType* rpEnd)
 	{
 	    return rpStart->GetSensorID() > rpEnd->GetSensorID();
 	}
@@ -221,7 +199,7 @@ public:
 
     struct AscendingInternationalDesignatorSort
     {
-	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	bool operator()(ObType* rpStart, ObType* rpEnd)
 	{
 	    return rpStart->GetInternationalDesignator() < 
 		     rpEnd->GetInternationalDesignator();
@@ -232,7 +210,7 @@ public:
 
     struct DescendingInternationalDesignatorSort
     {
-	bool operator()(Obtype* rpStart, Obtype* rpEnd)
+	bool operator()(ObType* rpStart, ObType* rpEnd)
 	{
 	    return rpStart->GetInternationalDesignator() > 
 		     rpEnd->GetInternationalDesignator();
@@ -263,7 +241,7 @@ public:
 private:
     
     static const std::string FILEFORMAT_DESCRIPTIONS[EndFileFormatReps];
-
+    
 protected:
 
   /// Published parameters for data files
@@ -308,10 +286,10 @@ protected:
     Integer numLines;
 
     // The vector container of data
-    ObtypeVector theData;
+    ObTypeVector theData;
             
     //Current iterators pointing at data
-    ObtypeVector::const_iterator i_theData;
+    ObTypeVector::const_iterator i_theData;
 
     // Flag to indicate if the file is opened
     bool isOpen;
@@ -337,25 +315,18 @@ protected:
     // file is associated using OpenFile()
     fstream *theFile;
 
+public:
 
-
+    // Method to obtain a data point from the fstream pointer to file
+    virtual bool GetData(ObType *myObType) = 0;
+    
+    // Methods to write data to the file defined on this object
+    virtual bool WriteData(ObType *myObType) = 0;
+    virtual bool WriteDataHeader(ObType *myObType);
+    virtual bool WriteDataSubHeader(ObType *myObType);
+    virtual bool WriteMetaData(ObType *myObType);
+    
 };
-
-//------------------------------------------------------------------------------
-// template <class T> bool from_string(T& t, const std::string& s,
-//                 std::ios_base& (*f)(std::ios_base&))
-//------------------------------------------------------------------------------
-/**
- * Typesafe conversion from string to integer, float, etc
- */
-//------------------------------------------------------------------------------
-template <class T> bool DataFile::from_string(T& t, const std::string& s,
-                 std::ios_base& (*f)(std::ios_base&))
-{
-  std::istringstream iss(s);
-  return !(iss >> f >> t).fail();
-}
-
 
 #endif	/* _DataFile_hpp */
 

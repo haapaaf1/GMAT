@@ -1,9 +1,9 @@
-#include "TLEObtype.hpp"
+#include "TLEObType.hpp"
 
 //---------------------------------
 //   data
 //---------------------------------
-const std::string TLEObtype::DATATYPE_DESCRIPTIONS[EndTLETypeReps] =
+const std::string TLEObType::DATATYPE_DESCRIPTIONS[EndTLETypeReps] =
 {
     "Bstar",
     "Inclination",
@@ -14,12 +14,12 @@ const std::string TLEObtype::DATATYPE_DESCRIPTIONS[EndTLETypeReps] =
     "KozaiMeanMotion"
 };
     
-const std::string TLEObtype::TIMESYSTEM_DESCRIPTIONS[EndTLETimeReps] =
+const std::string TLEObType::TIMESYSTEM_DESCRIPTIONS[EndTLETimeReps] =
 {
     "UT"
 };
 
-const std::string TLEObtype::TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
+const std::string TLEObType::TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
 {
 	"Satnum",
 	"SecurityClassification",
@@ -40,7 +40,7 @@ const std::string TLEObtype::TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps] =
 	"RevolutionNum"
 };
 
-const std::string TLEObtype::TLE_UNIT_DESCRIPTIONS[EndTLEDataReps] =
+const std::string TLEObType::TLE_UNIT_DESCRIPTIONS[EndTLEDataReps] =
 {
 	"",
 	"",
@@ -61,7 +61,7 @@ const std::string TLEObtype::TLE_UNIT_DESCRIPTIONS[EndTLEDataReps] =
 	""
 };
 
-const Gmat::ParameterType TLEObtype::TLE_PARAMETER_TYPE[EndTLEDataReps] =
+const Gmat::ParameterType TLEObType::TLE_PARAMETER_TYPE[EndTLEDataReps] =
 {
 	Gmat::INTEGER_TYPE,
 	Gmat::STRING_TYPE,
@@ -82,7 +82,7 @@ const Gmat::ParameterType TLEObtype::TLE_PARAMETER_TYPE[EndTLEDataReps] =
 	Gmat::INTEGER_TYPE
 };
 
-const bool TLEObtype::TLE_IS_REQUIRED[EndTLEDataReps] =
+const bool TLEObType::TLE_IS_REQUIRED[EndTLEDataReps] =
 {
     true,
     true,
@@ -104,13 +104,13 @@ const bool TLEObtype::TLE_IS_REQUIRED[EndTLEDataReps] =
 };
 
 //------------------------------------------------------------------------------
-//  TLEObtype()
+//  TLEObType()
 //------------------------------------------------------------------------------
 /**
- * Constructor for the obtype class
+ * Constructor for the ObType class
  */
 //------------------------------------------------------------------------------
-TLEObtype::TLEObtype() : Obtype(),
+TLEObType::TLEObType() : ObType("TLEObType",""),
 	satnum(0),
 	securityClassification("U"),
 	intlDesignator(GmatBase::STRING_PARAMETER_UNDEFINED),
@@ -129,20 +129,21 @@ TLEObtype::TLEObtype() : Obtype(),
 	meanMotion(0),
 	revolutionNum(0)
 {
+    objectTypeNames.push_back("TLEObType");
 }
 
 //---------------------------------------------------------------------------
-//  TLEObtype(const TLEObtype &tleOb);
+//  TLEObType(const TLEObType &tleOb);
 //---------------------------------------------------------------------------
 /**
- * Constructs base Obtype structures used in derived classes, by copying
+ * Constructs base ObType structures used in derived classes, by copying
  * the input instance (copy constructor).
  *
- * @param <B3ob>  Obtype instance to copy to create "this" instance.
+ * @param <TLEob>  ObType instance to copy to create "this" instance.
  */
 //---------------------------------------------------------------------------
-TLEObtype::TLEObtype(const TLEObtype &tleOb) :
-    Obtype(tleOb),
+TLEObType::TLEObType(const TLEObType &tleOb) :
+    ObType(tleOb),
     satnum(tleOb.satnum),
     securityClassification(tleOb.securityClassification),
     intlDesignator(tleOb.intlDesignator),
@@ -164,17 +165,17 @@ TLEObtype::TLEObtype(const TLEObtype &tleOb) :
 }
 
 //---------------------------------------------------------------------------
-//  TLEObtype& operator=(const TLEObtype &tleOb)
+//  TLEObType& operator=(const TLEObType &tleOb)
 //---------------------------------------------------------------------------
 /**
- * Assignment operator for Obtype structures.
+ * Assignment operator for ObType structures.
  *
  * @param <tleOb> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const TLEObtype& TLEObtype::operator=(const TLEObtype &tleOb)
+const TLEObType& TLEObType::operator=(const TLEObType &tleOb)
 {
    if (&tleOb == this)
       return *this;
@@ -201,14 +202,29 @@ const TLEObtype& TLEObtype::operator=(const TLEObtype &tleOb)
 }
 
 //------------------------------------------------------------------------------
-//  ~TLEObtype()
+//  ~TLEObType()
 //------------------------------------------------------------------------------
 /**
- * Destructor for the obtype class
+ * Destructor for the ObType class
  */
 //------------------------------------------------------------------------------
-TLEObtype::~TLEObtype()
+TLEObType::~TLEObType()
 {
+}
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the ProcessTLEDataFile.
+ *
+ * @return clone of the ProcessTLEDataFile.
+ */
+//------------------------------------------------------------------------------
+GmatBase* TLEObType::Clone() const
+{
+   GmatBase *clone = new TLEObType(*this);
+   return (clone);
 }
 
 //------------------------------------------------------------------------------
@@ -224,7 +240,7 @@ TLEObtype::~TLEObtype()
  * @return true if successfull
  */
 //------------------------------------------------------------------------------
- bool TLEObtype::CheckDataAvailability(const std::string str) const
+ bool TLEObType::CheckDataAvailability(const std::string str) const
 {
 
     std::string regex = "^" + str + "$";
@@ -254,7 +270,7 @@ TLEObtype::~TLEObtype()
  * @return parameter text for the requested parameter.
  */
 //------------------------------------------------------------------------------
-std::string TLEObtype::GetDataParameterText(const Integer id) const
+std::string TLEObType::GetDataParameterText(const Integer id) const
 {
    if ((id >= 0) && (id < EndTLEDataReps))
    {
@@ -274,7 +290,7 @@ std::string TLEObtype::GetDataParameterText(const Integer id) const
  * @return unit text for the requested parameter.
  */
 //------------------------------------------------------------------------------
-std::string TLEObtype::GetDataUnits(const Integer id) const
+std::string TLEObType::GetDataUnits(const Integer id) const
 {
    if ((id >= 0) && (id < EndTLEDataReps))
    {
@@ -294,7 +310,7 @@ std::string TLEObtype::GetDataUnits(const Integer id) const
  * @return ID for the requested parameter.
  */
 //------------------------------------------------------------------------------
-Integer TLEObtype::GetDataParameterID(const std::string &str) const
+Integer TLEObType::GetDataParameterID(const std::string &str) const
 {
    for (Integer i = 0; i < EndTLEDataReps; i++)
    {
@@ -317,7 +333,7 @@ Integer TLEObtype::GetDataParameterID(const std::string &str) const
  * @return parameter type of the requested parameter.
  */
 //------------------------------------------------------------------------------
-Gmat::ParameterType TLEObtype::GetDataParameterType(const Integer id) const
+Gmat::ParameterType TLEObType::GetDataParameterType(const Integer id) const
 {
    if ((id >= 0) && (id < EndTLEDataReps))
       return TLE_PARAMETER_TYPE[id];
@@ -339,7 +355,7 @@ Gmat::ParameterType TLEObtype::GetDataParameterType(const Integer id) const
  *         string ("").
  */
 //---------------------------------------------------------------------------
-std::string TLEObtype::GetDataParameterTypeString(const Integer id) const
+std::string TLEObType::GetDataParameterTypeString(const Integer id) const
 {
    return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
 }
@@ -347,7 +363,7 @@ std::string TLEObtype::GetDataParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Integer TLEObtype::GetIntegerDataParameter(const Integer id) const
+Integer TLEObType::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -386,7 +402,7 @@ Integer TLEObtype::GetIntegerDataParameter(const Integer id) const
  * @see GmatBase
  */
 //------------------------------------------------------------------------------
-Integer TLEObtype::GetIntegerDataParameter(const std::string &label) const
+Integer TLEObType::GetIntegerDataParameter(const std::string &label) const
 {
    return GetIntegerDataParameter(GetDataParameterID(label));
 }
@@ -394,7 +410,7 @@ Integer TLEObtype::GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-std::string TLEObtype::GetStringDataParameter(const Integer id) const
+std::string TLEObType::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -421,7 +437,7 @@ std::string TLEObtype::GetStringDataParameter(const Integer id) const
  * @see GmatBase
  */
 //------------------------------------------------------------------------------
-std::string TLEObtype::GetStringDataParameter(const std::string &label) const
+std::string TLEObType::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
 }
@@ -429,7 +445,7 @@ std::string TLEObtype::GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Real TLEObtype::GetRealDataParameter(const Integer id) const
+Real TLEObType::GetRealDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -490,7 +506,7 @@ Real TLEObtype::GetRealDataParameter(const Integer id) const
  * @see GmatBase
  */
 //------------------------------------------------------------------------------
-Real TLEObtype::GetRealDataParameter(const std::string &label) const
+Real TLEObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
@@ -505,7 +521,7 @@ Real TLEObtype::GetRealDataParameter(const std::string &label) const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* TLEObtype::GetDataTypes() const
+const std::string* TLEObType::GetDataTypes() const
 {
    return DATATYPE_DESCRIPTIONS;
 }
@@ -521,7 +537,7 @@ const std::string* TLEObtype::GetDataTypes() const
  *
  */
 //------------------------------------------------------------------------------
-std::string TLEObtype::GetDataTypeText(const Integer &id) const
+std::string TLEObType::GetDataTypeText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndTLETypeReps))
    {
@@ -542,7 +558,7 @@ std::string TLEObtype::GetDataTypeText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer TLEObtype::GetDataTypeID(const std::string &label)
+Integer TLEObType::GetDataTypeID(const std::string &label)
 {
     return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
@@ -557,7 +573,7 @@ Integer TLEObtype::GetDataTypeID(const std::string &label)
  *
  */
 //------------------------------------------------------------------------------
-const std::string* TLEObtype::GetTimeSystems() const
+const std::string* TLEObType::GetTimeSystems() const
 {
    return TIMESYSTEM_DESCRIPTIONS;
 }
@@ -573,7 +589,7 @@ const std::string* TLEObtype::GetTimeSystems() const
  *
  */
 //------------------------------------------------------------------------------
-std::string TLEObtype::GetTimeSystemText(const Integer &id) const
+std::string TLEObType::GetTimeSystemText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndTLETimeReps))
    {
@@ -594,16 +610,16 @@ std::string TLEObtype::GetTimeSystemText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer TLEObtype::GetTimeSystemID(const std::string &label)
+Integer TLEObType::GetTimeSystemID(const std::string &label)
 {
     return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const TLEObtype &myB3)
+// std::ostream& operator<< (std::ostream &output, const TLEObType &myTLE)
 //------------------------------------------------------------------------------
 /**
- * Formats TLEObtype value and sends to output stream.
+ * Formats TLEObType value and sends to output stream.
  *
  * @param  output  Output stream
  * @param  myTLE   TLE observation to write out
@@ -611,33 +627,153 @@ Integer TLEObtype::GetTimeSystemID(const std::string &label)
  * return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const TLEObtype *myTLE) 
+std::ostream& operator<< (std::ostream &output, const TLEObType *myTLE)
 {
-   using namespace std;
-   
-   output.setf(std::ios::showpoint);
-   output.setf(std::ios::scientific);
+    // TLE's have a maximum length of 68 characters plus a 1 character checksum
+    ostringstream buffer;
 
-   output << "Satnum =" << myTLE->satnum << std::endl;
-   output << "Class =" << myTLE->securityClassification << std::endl;
-   output << "IntlDesignator =" << myTLE->intlDesignator << std::endl;
-   output << "Year =" << myTLE->epochYear << std::endl;
-   output << "Day Of Year =" << myTLE->epochDayOfYear << std::endl;
-   output << "Ndotby2 =" << myTLE->ndotby2 << std::endl;
-   output << "Bstar =" << myTLE->bstar << std::endl;
-   output << "Ndotby6 =" << myTLE->nddotby6 << std::endl;
-   output << "EphemType =" << myTLE->ephemerisType << std::endl;
-   output << "ElementNum =" << myTLE->elementNum << std::endl;
-   output << "Inclination =" << myTLE->inclination << std::endl;
-   output << "Eccentricity =" << myTLE->eccentricity << std::endl;
-   output << "RAAN =" << myTLE->raan << std::endl;
-   output << "Argument of Perigee =" << myTLE->argPerigee << std::endl;
-   output << "Mean Anomaly =" << myTLE->meanAnomaly << std::endl;
-   output << "Mean Motion =" << myTLE->meanMotion << std::endl;
-   output << "Rev Num =" << myTLE->revolutionNum << std::endl;
-   output << "******************************************************" << std::endl;
+    // junk variable
+    ostringstream temp;
 
-   //output << setw(w) << setprecision(p) << prefix << a[i];
+    buffer << setw(2) << "1 ";
+    buffer << setw(5) << setfill('0') << right << myTLE->satnum;
+    buffer << setw(1) << myTLE->securityClassification;
+    buffer << " " << setw(8) << left << setfill(' ') << myTLE->intlDesignator;
+    buffer << " " << setw(2) << right << setfill('0') << myTLE->epochYear;
+    buffer.precision(11);
+    buffer << setw(12) << left << setfill(' ') << myTLE->epochDayOfYear;
+
+    // Format first time derivative of the mean motion
+    if (myTLE->ndotby2 == 0)
+    {
+        buffer << " " << setw(10) << "+.00000000";
+    }
+    else
+    {
+        char buffer2[15];
+        sprintf(buffer2,"%.8f",myTLE->ndotby2);
+        string str = buffer2;
+        pcrecpp::RE("0\\.").GlobalReplace(".", &str);
+        temp.str(std::string());
+        temp << str;
+        if (pcrecpp::RE("^-.*").FullMatch(temp.str()))
+        {
+            buffer << " " << setw(10) << setfill(' ') << right << temp.str();
+        }
+        else
+        {
+            buffer << " +" << setw(9) << left << temp.str();
+        }
+    }
+
+    if (myTLE->nddotby6 == 0)
+    {
+        buffer << " " << setw(8) << "+00000-0";
+    }
+    else
+    {
+        char buffer2[15];
+        // TODO: Find a better way to move decimal point
+        // The multiplication by 10 is a lazy way
+        sprintf(buffer2,"%+.4E",myTLE->nddotby6*10);
+        string str = buffer2;
+        pcrecpp::RE("\\.").GlobalReplace("", &str);
+        pcrecpp::RE("E").GlobalReplace("", &str);
+        pcrecpp::RE("-0").GlobalReplace("-", &str);
+        pcrecpp::RE("+0").GlobalReplace("+", &str);
+        temp.str(std::string());
+        temp << str;
+        buffer << " " << setw(8) << right << temp.str();
+    }
+
+    if (myTLE->bstar == 0)
+    {
+        buffer << " " << setw(8) << "+00000-0";
+    }
+    else
+    {
+        char buffer2[15];
+        // TODO: Find a better way to move decimal point
+        // The multiplication by 10 is a lazy way
+        sprintf(buffer2,"%+.4E",myTLE->bstar*10);
+        string str = buffer2;
+        pcrecpp::RE("\\.").GlobalReplace("", &str);
+        pcrecpp::RE("E").GlobalReplace("", &str);
+        pcrecpp::RE("-0").GlobalReplace("-", &str);
+        pcrecpp::RE("+0").GlobalReplace("+", &str);
+        temp.str(std::string());
+        temp << str;
+        buffer << " " << setw(8) << right << temp.str();
+    }
+
+    buffer << " " << setw(1) << myTLE->ephemerisType;
+    buffer << " " << setw(4) << right << myTLE->elementNum;
+
+    output << buffer.str();
+    output << setw(1) << TLECheckSum(buffer.str()) << endl;
+
+    // Start output of line 2
+    buffer.str(std::string());
+    buffer << setw(2) << "2 ";
+    buffer << setw(5) << setfill('0') << right << myTLE->satnum;
+    char buffer3[15];
+    sprintf(buffer3,"%08.4f",myTLE->inclination);
+    buffer << " " << setw(8) << right << buffer3;
+    sprintf(buffer3,"%08.4f",myTLE->raan);
+    buffer << " " << setw(8) << right << buffer3;
+    sprintf(buffer3,"%.7f",myTLE->eccentricity);
+    string str = buffer3;
+    pcrecpp::RE("0\\.").GlobalReplace("", &str);
+    buffer << " " << setw(7) << right << str;
+    sprintf(buffer3,"%08.4f",myTLE->argPerigee);
+    buffer << " " << setw(8) << right << buffer3;
+    sprintf(buffer3,"%08.4f",myTLE->meanAnomaly);
+    buffer << " " << setw(8) << right << buffer3;
+    sprintf(buffer3,"%011.8f",myTLE->meanMotion);
+    buffer << " " << setw(11) << right << buffer3;
+    buffer << setw(5) << setfill(' ') << right << myTLE->revolutionNum;
+
+    output << buffer.str();
+    output << setw(1) << TLECheckSum(buffer.str()) << endl;
+
+    output << myTLE->tleCommentLine << endl;
    
    return output;
+}
+
+//------------------------------------------------------------------------------
+//  Integer  TLECheckSum(const std::string &str)
+//------------------------------------------------------------------------------
+/**
+ * This method computes the checksum for a string of TLE data
+ *
+ * @param <str> String of data
+ *
+ * @return Integer checksum modulo 10
+ */
+//------------------------------------------------------------------------------
+Integer TLECheckSum(const std::string &str)
+{
+
+    Integer checksum = 0;
+    int num = 0 ;
+
+    for ( Integer pos = 0; pos < (Integer)str.length(); ++pos )
+    {
+        // If it's a number, add the number to the checksum
+        // if it's a minus sign, add +1
+        // ignore everything else
+        if (pcrecpp::RE("(\\d)").FullMatch(str.substr(pos,1),&num))
+        {
+            checksum += num;
+            num = 0;
+        }
+        else if (pcrecpp::RE("-").FullMatch(str.substr(pos,1)))
+        {
+            checksum += 1;
+        }
+    }
+
+    return GmatMathUtil::Mod(checksum,10);
+
 }

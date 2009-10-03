@@ -1,15 +1,15 @@
-#include "SLRObtype.hpp"
+#include "SLRObType.hpp"
 
 //---------------------------------
 //  static data
 //---------------------------------
 
-const std::string SLRObtype::SLR_DATATYPE_DESCRIPTIONS[EndSLRTypeReps] =
+const std::string SLRObType::SLR_DATATYPE_DESCRIPTIONS[EndSLRTypeReps] =
 {
     "TwoWayTimeOfFlight"
 };
     
-const std::string SLRObtype::SLR_TIMESYSTEM_DESCRIPTIONS[EndSLRTimeReps] =
+const std::string SLRObType::SLR_TIMESYSTEM_DESCRIPTIONS[EndSLRTimeReps] =
 {
     "UTC",
     "GPS",
@@ -17,7 +17,7 @@ const std::string SLRObtype::SLR_TIMESYSTEM_DESCRIPTIONS[EndSLRTimeReps] =
     "BIH"
 };
 
-const std::string SLRObtype::SLR_FILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
+const std::string SLRObType::SLR_FILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
 {
 	"SlrType",
 	"IlrsSatnum",
@@ -56,7 +56,7 @@ const std::string SLRObtype::SLR_FILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
         "Elevation"
 };
 
-const std::string SLRObtype::SLR_UNIT_DESCRIPTIONS[EndSLRDataReps] =
+const std::string SLRObType::SLR_UNIT_DESCRIPTIONS[EndSLRDataReps] =
 {
 	"",
 	"",
@@ -95,7 +95,7 @@ const std::string SLRObtype::SLR_UNIT_DESCRIPTIONS[EndSLRDataReps] =
         "deg"
 };
 
-const Gmat::ParameterType SLRObtype::SLR_PARAMETER_TYPE[EndSLRDataReps] =
+const Gmat::ParameterType SLRObType::SLR_PARAMETER_TYPE[EndSLRDataReps] =
 {
 	Gmat::INTEGER_TYPE,
 	Gmat::STRING_TYPE,
@@ -134,7 +134,7 @@ const Gmat::ParameterType SLRObtype::SLR_PARAMETER_TYPE[EndSLRDataReps] =
         Gmat::REAL_TYPE
 };
 
-const bool SLRObtype::SLR_IS_REQUIRED[EndSLRDataReps] =
+const bool SLRObType::SLR_IS_REQUIRED[EndSLRDataReps] =
 {
     true,
     true,
@@ -175,13 +175,13 @@ const bool SLRObtype::SLR_IS_REQUIRED[EndSLRDataReps] =
     
     
 //------------------------------------------------------------------------------
-//  SLRObtype()
+//  SLRObType()
 //------------------------------------------------------------------------------
 /**
- * Constructor for the obtype class
+ * Constructor for the ObType class
  */
 //------------------------------------------------------------------------------
-SLRObtype::SLRObtype() : Obtype(),
+SLRObType::SLRObType() : ObType("SLRObType",""),
         slrHeader(NULL),
 	timeOfLaserFiring(0),
 	twoWayTimeOfFlight(0),
@@ -200,17 +200,18 @@ SLRObtype::SLRObtype() : Obtype(),
         az(0),
         el(0)
 {
+    objectTypeNames.push_back("SLRObType");
 }
 
 //------------------------------------------------------------------------------
-//  SLRObtype(const SLRObtype &slrOb)
+//  SLRObType(const SLRObType &slrOb)
 //------------------------------------------------------------------------------
 /**
- * Constructor for the obtype class
+ * Constructor for the ObType class
  */
 //------------------------------------------------------------------------------
-SLRObtype::SLRObtype(const SLRObtype &slrOb) :
-    Obtype(slrOb),
+SLRObType::SLRObType(const SLRObType &slrOb) :
+    ObType(slrOb),
     slrHeader(slrOb.slrHeader),
     timeOfLaserFiring(slrOb.timeOfLaserFiring),   
     twoWayTimeOfFlight(slrOb.twoWayTimeOfFlight),
@@ -232,17 +233,17 @@ SLRObtype::SLRObtype(const SLRObtype &slrOb) :
 }
 
 //---------------------------------------------------------------------------
-//  SLRObtype& operator=(const SLRObtype &slrOb)
+//  SLRObType& operator=(const SLRObType &slrOb)
 //---------------------------------------------------------------------------
 /**
- * Assignment operator for Obtype structures.
+ * Assignment operator for ObType structures.
  *
  * @param <tleOb> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const SLRObtype& SLRObtype::operator=(const SLRObtype &slrOb)
+const SLRObType& SLRObType::operator=(const SLRObType &slrOb)
 {
    if (&slrOb == this)
       return *this;
@@ -269,14 +270,29 @@ const SLRObtype& SLRObtype::operator=(const SLRObtype &slrOb)
 }
 
 //------------------------------------------------------------------------------
-//  ~SLRObtype()
+//  ~SLRObType()
 //------------------------------------------------------------------------------
 /**
- * Destructor for the obtype class
+ * Destructor for the ObType class
  */
 //------------------------------------------------------------------------------
-SLRObtype::~SLRObtype()
+SLRObType::~SLRObType()
 {
+}
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the ProcessSLRDataFile.
+ *
+ * @return clone of the ProcessSLRDataFile.
+ */
+//------------------------------------------------------------------------------
+GmatBase* SLRObType::Clone() const
+{
+   GmatBase *clone = new SLRObType(*this);
+   return (clone);
 }
 
 //------------------------------------------------------------------------------
@@ -294,7 +310,7 @@ SLRObtype::~SLRObtype()
  * @return parameter text for the requested parameter.
  */
 //------------------------------------------------------------------------------
-std::string SLRObtype::GetDataParameterText(const Integer id) const
+std::string SLRObType::GetDataParameterText(const Integer id) const
 {
    if ((id >= 0) && (id < EndSLRDataReps))
    {
@@ -314,7 +330,7 @@ std::string SLRObtype::GetDataParameterText(const Integer id) const
  * @return unit text for the requested parameter.
  */
 //------------------------------------------------------------------------------
-std::string SLRObtype::GetDataUnits(const Integer id) const
+std::string SLRObType::GetDataUnits(const Integer id) const
 {
    if ((id >= 0) && (id < EndSLRDataReps))
    {
@@ -334,7 +350,7 @@ std::string SLRObtype::GetDataUnits(const Integer id) const
  * @return ID for the requested parameter.
  */
 //------------------------------------------------------------------------------
-Integer SLRObtype::GetDataParameterID(const std::string &str) const
+Integer SLRObType::GetDataParameterID(const std::string &str) const
 {
    for (Integer i = 0; i < EndSLRDataReps; i++)
    {
@@ -356,7 +372,7 @@ Integer SLRObtype::GetDataParameterID(const std::string &str) const
  * @return parameter type of the requested parameter.
  */
 //------------------------------------------------------------------------------
-Gmat::ParameterType SLRObtype::GetDataParameterType(const Integer id) const
+Gmat::ParameterType SLRObType::GetDataParameterType(const Integer id) const
 {
    if ((id >= 0) && (id < EndSLRDataReps))
       return SLR_PARAMETER_TYPE[id];
@@ -376,7 +392,7 @@ Gmat::ParameterType SLRObtype::GetDataParameterType(const Integer id) const
  *         string ("").
  */
 //---------------------------------------------------------------------------
-std::string SLRObtype::GetDataParameterTypeString(const Integer id) const
+std::string SLRObType::GetDataParameterTypeString(const Integer id) const
 {
    return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
 }
@@ -384,7 +400,7 @@ std::string SLRObtype::GetDataParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Integer SLRObtype::GetIntegerDataParameter(const Integer id) const
+Integer SLRObType::GetIntegerDataParameter(const Integer id) const
 {
 
     switch (id)
@@ -508,7 +524,7 @@ Integer SLRObtype::GetIntegerDataParameter(const Integer id) const
  * @see GmatBase
  */
 //------------------------------------------------------------------------------
-Integer SLRObtype::GetIntegerDataParameter(const std::string &label) const
+Integer SLRObType::GetIntegerDataParameter(const std::string &label) const
 {
    return GetIntegerDataParameter(GetDataParameterID(label));
 }
@@ -516,7 +532,7 @@ Integer SLRObtype::GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-std::string SLRObtype::GetStringDataParameter(const Integer id) const
+std::string SLRObType::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -538,7 +554,7 @@ std::string SLRObtype::GetStringDataParameter(const Integer id) const
  * @see GmatBase
  */
 //------------------------------------------------------------------------------
-std::string SLRObtype::GetStringDataParameter(const std::string &label) const
+std::string SLRObType::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
 }
@@ -546,7 +562,7 @@ std::string SLRObtype::GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Real SLRObtype::GetRealDataParameter(const Integer id) const
+Real SLRObType::GetRealDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -598,7 +614,7 @@ Real SLRObtype::GetRealDataParameter(const Integer id) const
  * @see GmatBase
  */
 //------------------------------------------------------------------------------
-Real SLRObtype::GetRealDataParameter(const std::string &label) const
+Real SLRObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
@@ -612,7 +628,7 @@ Real SLRObtype::GetRealDataParameter(const std::string &label) const
  * @return true if successfull
  */
 //------------------------------------------------------------------------------
- bool SLRObtype::CheckDataAvailability(const std::string str) const
+ bool SLRObType::CheckDataAvailability(const std::string str) const
 {
 
     std::string regex = "^" + str + "$";
@@ -641,7 +657,7 @@ Real SLRObtype::GetRealDataParameter(const std::string &label) const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* SLRObtype::GetDataTypes() const
+const std::string* SLRObType::GetDataTypes() const
 {
    return SLR_DATATYPE_DESCRIPTIONS;
 }
@@ -657,7 +673,7 @@ const std::string* SLRObtype::GetDataTypes() const
  *
  */
 //------------------------------------------------------------------------------
-std::string SLRObtype::GetDataTypeText(const Integer &id) const
+std::string SLRObType::GetDataTypeText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndSLRTypeReps))
    {
@@ -678,7 +694,7 @@ std::string SLRObtype::GetDataTypeText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer SLRObtype::GetDataTypeID(const std::string &label)
+Integer SLRObType::GetDataTypeID(const std::string &label)
 {
     return -1;
 }
@@ -693,7 +709,7 @@ Integer SLRObtype::GetDataTypeID(const std::string &label)
  *
  */
 //------------------------------------------------------------------------------
-const std::string* SLRObtype::GetTimeSystems() const
+const std::string* SLRObType::GetTimeSystems() const
 {
    return SLR_TIMESYSTEM_DESCRIPTIONS;
 }
@@ -709,7 +725,7 @@ const std::string* SLRObtype::GetTimeSystems() const
  *
  */
 //------------------------------------------------------------------------------
-std::string SLRObtype::GetTimeSystemText(const Integer &id) const
+std::string SLRObType::GetTimeSystemText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndSLRTimeReps))
    {
@@ -730,16 +746,48 @@ std::string SLRObtype::GetTimeSystemText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer SLRObtype::GetTimeSystemID(const std::string &label)
+Integer SLRObType::GetTimeSystemID(const std::string &label)
 {
     return -1;
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const SLRObtype &myB3)
+//  Integer  SLRCheckSum(const std::string &str)
 //------------------------------------------------------------------------------
 /**
- * Formats SLRObtype value and sends to output stream.
+ * This method computes the checksum for a string of SLR data
+ *
+ * @param <str> String of data
+ *
+ * @return Integer checksum modulo 10
+ */
+//------------------------------------------------------------------------------
+Integer SLRCheckSum(const std::string &str)
+{
+
+    Integer checksum = 0;
+    int num = 0 ;
+
+    for ( Integer pos = 0; pos < (Integer)str.length(); ++pos )
+    {
+        // If it's a number, add the number to the checksum
+        // ignore everything else
+        if (pcrecpp::RE("(\\d)").FullMatch(str.substr(pos,1),&num))
+        {
+            checksum += num;
+            num = 0;
+        }
+    }
+
+    return GmatMathUtil::Mod(checksum,100);
+
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const SLRObType &mySLR)
+//------------------------------------------------------------------------------
+/**
+ * Formats SLRObType value and sends to output stream.
  *
  * @param  output  Output stream
  * @param  mySLR   SLR observation to write out
@@ -747,52 +795,143 @@ Integer SLRObtype::GetTimeSystemID(const std::string &label)
  * return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const SLRObtype *mySLR) 
+std::ostream& operator<< (std::ostream &output, const SLRObType *mySLR)
 {
-   using namespace std;
-   
-   output.setf(std::ios::showpoint);
-   output.setf(std::ios::scientific);
+    // TLE's have a maximum length of 68 characters plus a 1 character checksum
+    ostringstream buffer;
 
-   output << "Time of Firing = " << mySLR->timeOfLaserFiring << std::endl;
-   output << "Two Way Time of Flight = " << mySLR->twoWayTimeOfFlight << std::endl;
-   output << "RMS Range = " << mySLR->binRMSRange << std::endl;
-   output << "Surface Pressure = " << mySLR->surfacePressure << std::endl;
-   output << "Surface Temp = " << mySLR->surfaceTemp << std::endl;
-   output << "Relative Humidity = " << mySLR->relativeHumidity << std::endl;
-   output << "Num Raw Ranges = " << mySLR->numRawRanges << std::endl;
-   output << "Data Release Flag = " << mySLR->dataReleaseFlag << std::endl;
-   output << "Raw Range Factor = " << mySLR->rawRangeFactor << std::endl;
-   output << "NPD Window Indicator 2 = " << mySLR->normalPointWindowIndicator2 << std::endl;
-   output << "Signal to Noise Ratio = " << mySLR->signalToNoiseRatio << std::endl;
-   output << "Burst Cal Sys Delay = " << mySLR->burstCalSysDelay << std::endl;
-   output << "Signal Strength Indicator = " << mySLR->signalStrength << std::endl;
-   output << "Angle Origin Indicator = " << mySLR->angleOriginIndicator << std::endl;
-   output << "Azimuth = " << mySLR->az << std::endl;
-   output << "Elevation = " << mySLR->el << std::endl;
-   output << "-----------------------------" << std::endl;
-   output << "SLR Type = " << (mySLR->slrHeader)->slrType << std::endl;
-   output << "ILRS Satnum = " << (mySLR->slrHeader)->ilrsSatnum << std::endl;
-   output << "Year = " << (mySLR->slrHeader)->year << std::endl;
-   output << "DOY = " << (mySLR->slrHeader)->dayOfYear << std::endl;
-   output << "CDP Pad ID = " << (mySLR->slrHeader)->cdpPadID << std::endl;
-   output << "CDP Sys Num = " << (mySLR->slrHeader)->cdpSysNum << std::endl;
-   output << "CDP Occupancy Num = " << (mySLR->slrHeader)->cdpOccupancySequenceNum << std::endl;
-   output << "Wavelength = " << (mySLR->slrHeader)->wavelength << std::endl;
-   output << "Cal Sys Delay = " << (mySLR->slrHeader)->calSysDelay << std::endl;
-   output << "Cal Delay Shift = " << (mySLR->slrHeader)->calDelayShift << std::endl;
-   output << "Sys Delay = " << (mySLR->slrHeader)->rmsSysDelay << std::endl;
-   output << "NPD Window Indicator = " << (mySLR->slrHeader)->normalPointWindowIndicator << std::endl;
-   output << "Epoch Scale Indicator = " << (mySLR->slrHeader)->epochTimeScaleIndicator << std::endl;
-   output << "SysCal Indicator = " << (mySLR->slrHeader)->sysCalMethodIndicator << std::endl;
-   output << "SCH Indicator = " << (mySLR->slrHeader)->schIndicator << std::endl;
-   output << "SCI Indicator = " << (mySLR->slrHeader)->sciIndicator << std::endl;
-   output << "Pass RMS = " << (mySLR->slrHeader)->passRMS << std::endl;
-   output << "Data Quality Indicator = " << (mySLR->slrHeader)->dataQualAssessmentIndicator << std::endl;
-   output << "Format Revision Num = " << (mySLR->slrHeader)->formatRevisionNum << std::endl;   
-   output << "******************************************************" << std::endl;
+    // Output either standard data record or engineering data record
+    if ((mySLR->slrHeader)->slrType == 99999)
+    {
+        // The time of laser firing and the two way time of flight
+        // is too large of an integer to store in an INT or even a LONG INT
+        // So we break them up into real and fractional parts ( minus the period
+        // of course ) for output purposes
+        int tOLF = mySLR->timeOfLaserFiring;
+        int tOLF2 = (mySLR->timeOfLaserFiring - tOLF) * 1e7 + 0.5;
+        buffer << setw(5) << setfill('0') << right << tOLF;
+        buffer << setw(7) << setfill('0') << right << tOLF2;
+        int tWTOF = mySLR->twoWayTimeOfFlight * 1e7;
+        int tWTOF2 = (mySLR->twoWayTimeOfFlight * 1e7 - tWTOF) * 1e5 + 0.5;
+        buffer << setw(7) << setfill('0') << right << tWTOF;
+        buffer << setw(5) << setfill('0') << right << tWTOF2;
+        buffer << setw(7) << setfill('0') << right << mySLR->binRMSRange;
+        int sP = mySLR->surfacePressure*10 + 0.5;
+        buffer << setw(5) << setfill('0') << right << sP;
+        int sT = mySLR->surfaceTemp*10 + 0.5;
+        buffer << setw(4) << setfill('0') << right << sT;
+        buffer << setw(3) << setfill('0') << right << mySLR->relativeHumidity;
+        buffer << setw(4) << setfill('0') << right << mySLR->numRawRanges;
+        buffer << setw(1) << mySLR->dataReleaseFlag;
+	buffer << setw(1) << mySLR->rawRangeFactor;
+	buffer << setw(1) << mySLR->normalPointWindowIndicator2;
+	buffer << setw(2) << setfill('0') << right << mySLR->signalToNoiseRatio;
 
-   //output << setw(w) << setprecision(p) << prefix << a[i];
-   
-   return output;
+        output << buffer.str();
+        output << setw(2) << SLRCheckSum(buffer.str()) << endl;
+    }
+    else if ((mySLR->slrHeader)->slrType == 88888)
+    {
+
+        // The time of laser firing and the two way time of flight
+        // is too large of an integer to store in an INT or even a LONG INT
+        // So we break them up into real and fractional parts ( minus the period
+        // of course ) for output purposes
+        int tOLF = mySLR->timeOfLaserFiring;
+        int tOLF2 = (mySLR->timeOfLaserFiring - tOLF) * 1e7 + 0.5;
+        buffer << setw(5) << setfill('0') << right << tOLF;
+        buffer << setw(7) << setfill('0') << right << tOLF2;
+        int tWTOF = mySLR->twoWayTimeOfFlight * 1e7;
+        int tWTOF2 = (mySLR->twoWayTimeOfFlight * 1e7 - tWTOF) * 1e5 + 0.5;
+        buffer << setw(7) << setfill('0') << right << tWTOF;
+        buffer << setw(5) << setfill('0') << right << tWTOF2;
+        int sP = mySLR->surfacePressure*10 + 0.5;
+        buffer << setw(5) << setfill('0') << right << sP;
+        int sT = mySLR->surfaceTemp*10 + 0.5;
+        buffer << setw(4) << setfill('0') << right << sT;
+        buffer << setw(3) << setfill('0') << right << mySLR->relativeHumidity;
+        buffer << setw(8) << setfill('0') << right << mySLR->burstCalSysDelay;
+	buffer << setw(4) << setfill('0') << right << mySLR->signalStrength;
+        buffer << setw(1) << mySLR->angleOriginIndicator;
+        int az = mySLR->az*1e4 + 0.5;
+        buffer << setw(6) << setfill('0') << right << az;
+        int el = mySLR->el*1e4 + 0.5;
+        buffer << setw(5) << setfill('0') << right << el;
+
+        // unused zero filled columns
+        buffer << "00000";
+
+        output << buffer.str();
+        output << setw(2) << SLRCheckSum(buffer.str()) << endl;
+    }
+
+    return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, SLRHeader *mySLRheader)
+//------------------------------------------------------------------------------
+/**
+ * Formats SLRObType value and sends to output stream.
+ *
+ * @param  output  Output stream
+ * @param  mySLR   SLR observation to write out
+ *
+ * return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const SLRHeader *mySLRheader)
+{
+    // TLE's have a maximum length of 68 characters plus a 1 character checksum
+    ostringstream buffer;
+
+    // Write the record type
+    // 99999 for regular data
+    // 88888 for engineering data
+    output << mySLRheader->slrType << endl;
+
+    // Write the header record itself
+    buffer << setw(7) << mySLRheader->ilrsSatnum;
+    // Put year in two digit format
+    if ( mySLRheader->year >= 2000 )
+    {
+        buffer << setw(2) << setfill('0') << right << mySLRheader->year-2000;
+    }
+    else
+    {
+        buffer << setw(2) << setfill('0') << right << mySLRheader->year-1900;
+    }
+
+    buffer << setw(3) << setfill('0') << right << mySLRheader->dayOfYear;
+    buffer << setw(4) << mySLRheader->cdpPadID;
+    buffer << setw(2) << mySLRheader->cdpSysNum;
+    buffer << setw(2) << mySLRheader->cdpOccupancySequenceNum;
+    if (mySLRheader->wavelength >= 300 && mySLRheader->wavelength < 1000)
+    {
+        int wv = mySLRheader->wavelength*10 + 0.5;
+        buffer << setw(4) << setfill('0') << left << wv;
+    }
+    else if (mySLRheader->wavelength >= 1000 && mySLRheader->wavelength < 3000)
+    {
+        int wv = mySLRheader->wavelength + 0.5;
+        buffer << setw(4) << setfill('0') << left << wv;
+    }
+
+    buffer << setw(8) << setfill('0') << right << mySLRheader->calSysDelay;
+    buffer << setw(6) << setfill('0') << right << mySLRheader->calDelayShift;
+    buffer << setw(4) << setfill('0') << right << mySLRheader->rmsSysDelay;
+    buffer << setw(1) << mySLRheader->normalPointWindowIndicator;
+    buffer << setw(1) << mySLRheader->epochTimeScaleIndicator;
+    buffer << setw(1) << mySLRheader->sysCalMethodIndicator;
+    buffer << setw(1) << mySLRheader->schIndicator;
+    buffer << setw(1) << mySLRheader->sciIndicator;
+    buffer << setw(4) << setfill('0') << right << mySLRheader->passRMS;
+    buffer << setw(1) << mySLRheader->dataQualAssessmentIndicator;
+
+    // Output buffer string to file along with checksum and format revision number
+    output << buffer.str();
+    output << setw(2) << SLRCheckSum(buffer.str());
+    output << setw(1) << mySLRheader->formatRevisionNum << endl;
+
+    return output;
 }

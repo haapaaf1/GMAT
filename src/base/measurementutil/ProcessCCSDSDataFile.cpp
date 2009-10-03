@@ -14,7 +14,7 @@ const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSyste
     "GMST",
     "GPS",
     "SCLK"
-}
+};
 
 const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDSTimeSystemReps-8] =
 {
@@ -27,9 +27,9 @@ const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDST
     "Greenwich Mean Sidereal Time",
     "Global Positioning System",
     "Spacecraft Clock (receiver)"
-}
+};
 
-const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps] =
+const std::string ProcessCCSDSDataFile::CCSDS_REF_FRAME_REPS[EndCCSDSRefFrameReps] =
 {
     "EME2000",
     "ICRF",
@@ -37,9 +37,9 @@ const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSyste
     "ITRF-93",
     "ITRF-97",
     "TOD"
-}
+};
 
-const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDSTimeSystemReps] =
+const std::string ProcessCCSDSDataFile::CCSDS_REF_FRAME_DESCRIPTIONS[EndCCSDSRefFrameReps] =
 {
     "Earth Mean Equator and Equinox of J2000",
     "International Celestial Reference Frame",
@@ -47,7 +47,7 @@ const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDST
     "Interantional Terrestrial Reference Frame 1993",
     "Interantional Terrestrial Reference Frame 1997",
     "True of Date"
-}
+};
 
 //------------------------------------------------------------------------------
 //  ProcessCCSDSDataFile()
@@ -59,7 +59,9 @@ const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDST
 ProcessCCSDSDataFile::ProcessCCSDSDataFile(const std::string &itsType, 
 			  	   const std::string &itsName) :
 	DataFile (itsType, itsName),
-	currentCCSDSHeader(NULL)
+	currentCCSDSHeader(NULL),
+	lastHeaderWritten(NULL),
+        isHeaderWritten(false)
 {
 }
 
@@ -72,7 +74,9 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const std::string &itsType,
 //------------------------------------------------------------------------------
 ProcessCCSDSDataFile::ProcessCCSDSDataFile(const ProcessCCSDSDataFile &CCSDSdf) :
     DataFile      (CCSDSdf),
-    currentCCSDSHeader(CCSDSdf.currentCCSDSHeader)
+    currentCCSDSHeader(CCSDSdf.currentCCSDSHeader),
+    lastHeaderWritten(CCSDSdf.lastHeaderWritten),
+    isHeaderWritten(CCSDSdf.isHeaderWritten)
 {
 }
 
@@ -91,6 +95,8 @@ const ProcessCCSDSDataFile& ProcessCCSDSDataFile::operator=(const ProcessCCSDSDa
 
     DataFile::operator=(CCSDSdf);
     currentCCSDSHeader = CCSDSdf.currentCCSDSHeader;
+    lastHeaderWritten = CCSDSdf.lastHeaderWritten;
+    isHeaderWritten = CCSDSdf.isHeaderWritten;
     return *this;
 }
 
@@ -106,7 +112,7 @@ ProcessCCSDSDataFile::~ProcessCCSDSDataFile()
 }
 
 //------------------------------------------------------------------------------
-//  ccsds_header* GetHeader()
+//  CCSDSHeader* GetHeader()
 //------------------------------------------------------------------------------
 /**
  * Obtains the pointer to the current header.
@@ -115,13 +121,13 @@ ProcessCCSDSDataFile::~ProcessCCSDSDataFile()
  *
  */
 //------------------------------------------------------------------------------
-CCSDSObtype::ccsds_header* ProcessCCSDSDataFile::GetHeader()
+CCSDSHeader* ProcessCCSDSDataFile::GetHeader()
 {
     return currentCCSDSHeader;
 }
 
 //------------------------------------------------------------------------------
-//  void SetHeader(CCSDSObtype::ccsds_header *myHeader)
+//  void SetHeader(CCSDSHeader *myHeader)
 //------------------------------------------------------------------------------
 /**
  * Sets the pointer to the current header 
@@ -130,13 +136,13 @@ CCSDSObtype::ccsds_header* ProcessCCSDSDataFile::GetHeader()
  *
  */
 //------------------------------------------------------------------------------
-void ProcessCCSDSDataFile::SetHeader(CCSDSObtype::ccsds_header *myHeader)
+void ProcessCCSDSDataFile::SetHeader(CCSDSHeader *myHeader)
 {
     currentCCSDSHeader = myHeader;
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSHeader(std::string line, CCSDSObtype::ccsds_header* myHeader)
+// bool GetCCSDSHeader(std::string line, CCSDSHeader* myHeader)
 //------------------------------------------------------------------------------
 /**
  * Extracts header information from the CCSDS data file
@@ -144,7 +150,7 @@ void ProcessCCSDSDataFile::SetHeader(CCSDSObtype::ccsds_header *myHeader)
  */
 //------------------------------------------------------------------------------
 bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
-                                          CCSDSObtype::ccsds_header* myHeader)
+                                          CCSDSHeader* myHeader)
 {
     
     // Temporary variables for string to number conversion.
@@ -156,8 +162,9 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
     double dtemp;
     std::string stemp;
 
-    if (pcrecpp::RE("^CCSDS_TDM_VERS\\s*=\\s*(\\d*[\\.\\d+]?)").FullMatch(line,&dtemp))
+    if (pcrecpp::RE("^CCSDS_([A-Z]{3})_VERS\\s*=\\s*(\\d*[\\.\\d+]?)").FullMatch(line,&stemp,&dtemp))
     {
+        myHeader->fileType = stemp;
 	myHeader->ccsdsVersion = dtemp;
     }
     else
@@ -205,8 +212,8 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSData(std::string &lff, CCSDSObtype::ccsds_data *myData,
-//                CCSDSObtype *myOb)
+// bool GetCCSDSData(std::string &lff, CCSDSData *myData,
+//                CCSDSObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts the data from the tracking data message.
@@ -214,8 +221,8 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
 //
 //------------------------------------------------------------------------------
 bool ProcessCCSDSDataFile::GetCCSDSData(std::string &lff,
-                                     CCSDSObtype::ccsds_data *myData,
-                                     CCSDSObtype *myOb)
+                                     CCSDSData *myData,
+                                     CCSDSObType *myOb)
 {
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -317,4 +324,40 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
 
     return false;
 
+}
+
+//------------------------------------------------------------------------------
+// bool WriteDataHeader(CCSDSHeader *myHeader)
+//------------------------------------------------------------------------------
+/**
+ * Writes CCSDS header data to file
+ *
+ * @param <myHeader> the CCSDS header struct to be written to file
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::WriteDataHeader(ObType *myOb)
+{
+    if (!pcrecpp::RE("^CCSDS[A-Z]{3}ObType.*").FullMatch(myOb->GetTypeName()))
+        return false;
+
+    CCSDSHeader *myHeader = ((CCSDSObType*)myOb)->ccsdsHeader;
+
+    if (!isHeaderWritten)
+    {
+        *theFile << myHeader;
+        lastHeaderWritten = myHeader;
+        isHeaderWritten = true;
+    }
+    else if (isHeaderWritten && myHeader != lastHeaderWritten)
+    {
+        isHeaderWritten = false;
+        lastHeaderWritten = NULL;
+
+        *theFile << myHeader;
+
+        lastHeaderWritten = myHeader;
+        isHeaderWritten = true;
+    }
+    return true;
 }

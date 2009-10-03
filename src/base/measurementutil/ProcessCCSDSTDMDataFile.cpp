@@ -41,35 +41,24 @@ bool ProcessCCSDSTDMDataFile::Initialize()
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
-        CCSDSTDMObtype *myTDM = new CCSDSTDMObtype;
-
-        // Read the first line from file
-	std::string line = Trim(ReadLineFromFile());
+        CCSDSTDMObType *myTDM = new CCSDSTDMObType;
 
         while (!IsEOF())
         {
-            if (line != "")
+            // Now check for headers and process data accordingly
+            if (GetData(myTDM))
             {
-                // Now check for headers and process data accordingly
-                if (GetData(line,myTDM))
-                {
-                    // Push this data point onto the stack.
-                    theData.push_back(myTDM);
-                }
-                else
-                {
-                    delete myTDM;
-                }
-
-                // Allocate another struct in memory
-                myTDM = new CCSDSTDMObtype;
+                // Push this data point onto the stack.
+                theData.push_back(myTDM);
+            }
+            else
+            {
+                delete myTDM;
             }
 
-	    // Read a line from file
-            // After grabbing the header and metadata information
-            // This call to read a line from file should be grabbing
-            // rows of data between DATA_START and DATA_STOP
-	    line = Trim(ReadLineFromFile());
+            // Allocate another struct in memory
+            myTDM = new CCSDSTDMObType;
+
         }
 
         // Set data iterator to beginning of vector container
@@ -81,9 +70,9 @@ bool ProcessCCSDSTDMDataFile::Initialize()
             outFile->open("tdm.output",ios::out);
 
             // Output to file to make sure all the data is properly stored
-            for (ObtypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
+            for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
             {
-		*outFile << (CCSDSTDMObtype*)(*j) << std::endl;
+		*outFile << (CCSDSTDMObType*)(*j) << std::endl;
             }
 
             outFile->close();
@@ -116,7 +105,9 @@ bool ProcessCCSDSTDMDataFile::Initialize()
 //------------------------------------------------------------------------------
 ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const std::string &itsName) :
 	ProcessCCSDSDataFile ("CCSDSTDMDataFile", itsName),
-	currentCCSDSMetadata(NULL)
+	currentCCSDSMetaData(NULL),
+	lastMetaDataWritten(NULL),
+        isMetaDataWritten(false)
 {
    objectTypeNames.push_back("CCSDSTDMDataFile");
    fileFormatName = "CCSDSTDM";
@@ -133,7 +124,9 @@ ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const std::string &itsName) :
 //------------------------------------------------------------------------------
 ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const ProcessCCSDSTDMDataFile &CCSDSTDMdf) :
     ProcessCCSDSDataFile(CCSDSTDMdf),
-    currentCCSDSMetadata(CCSDSTDMdf.currentCCSDSMetadata)
+    currentCCSDSMetaData(CCSDSTDMdf.currentCCSDSMetaData),
+    lastMetaDataWritten(CCSDSTDMdf.lastMetaDataWritten),
+    isMetaDataWritten(CCSDSTDMdf.isMetaDataWritten)
 {
 }
 
@@ -151,7 +144,9 @@ const ProcessCCSDSTDMDataFile& ProcessCCSDSTDMDataFile::operator=(const ProcessC
 	return *this;
 
     ProcessCCSDSDataFile::operator=(CCSDSTDMdf);
-    currentCCSDSMetadata = CCSDSTDMdf.currentCCSDSMetadata;
+    currentCCSDSMetaData = CCSDSTDMdf.currentCCSDSMetaData;
+    lastMetaDataWritten = CCSDSTDMdf.lastMetaDataWritten;
+    isMetaDataWritten = CCSDSTDMdf.isMetaDataWritten;
     return *this;
 }
 
@@ -218,14 +213,22 @@ bool ProcessCCSDSTDMDataFile::IsParameterReadOnly(const std::string &label) cons
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(std::string line, CCSDSTDMObtype *myTDM)
+// bool GetCCSDSData(ObType *myTDM)
 //------------------------------------------------------------------------------
 /**
  * Obtains the header line of TDM data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSTDMDataFile::GetData(std::string line, CCSDSTDMObtype *myTDM)
+bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 {
+    
+    if (myTDMData->GetTypeName() != "CCSDSTDMObType") return false;
+
+    // Re-cast the generic ObType pointer as a CCSDSTDMObtype pointer
+    CCSDSTDMObType *myTDM = (CCSDSTDMObType*)myTDMData;
+
+    // Read the first line from file
+    std::string line = Trim(ReadLineFromFile());
 
     // Check to see if we encountered a new header record.
     while (!IsEOF() && pcrecpp::RE("^CCSDS_TDM_VERS.*").FullMatch(line))
@@ -233,8 +236,7 @@ bool ProcessCCSDSTDMDataFile::GetData(std::string line, CCSDSTDMObtype *myTDM)
         // Initialize the header data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        CCSDSTDMObtype::ccsds_header *myCCSDSHeader =
-                                            new CCSDSTDMObtype::ccsds_header;
+        CCSDSHeader *myCCSDSHeader = new CCSDSHeader;
 	
 	if (GetCCSDSHeader(line,myCCSDSHeader))
 	{
@@ -258,17 +260,16 @@ bool ProcessCCSDSTDMDataFile::GetData(std::string line, CCSDSTDMObtype *myTDM)
         // Initialize individual data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        CCSDSTDMObtype::ccsds_tdm_metadata *myMetaData =
-                                        new CCSDSTDMObtype::ccsds_tdm_metadata;
+        CCSDSTDMMetaData *myMetaData = new CCSDSTDMMetaData;
         
 	// Read the next metadata line from file
 	line = Trim(ReadLineFromFile());
 
-	if (GetCCSDSMetadata(line,myMetaData))
+	if (GetCCSDSMetaData(line,myMetaData))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSMetadata = myMetaData;
+	    currentCCSDSMetaData = myMetaData;
 
 	    // Read the following data line from file
 	    line = Trim(ReadLineFromFile());
@@ -276,7 +277,7 @@ bool ProcessCCSDSTDMDataFile::GetData(std::string line, CCSDSTDMObtype *myTDM)
 	else
 	{
 	    // failure to read header line, abort
-	    currentCCSDSMetadata = NULL;
+	    currentCCSDSMetaData = NULL;
 	    return false;
 	}
     }
@@ -292,14 +293,14 @@ bool ProcessCCSDSTDMDataFile::GetData(std::string line, CCSDSTDMObtype *myTDM)
 
     // Parse the data record making sure that we have identified
     // a header record and a metadata record previously
-    if (currentCCSDSHeader == NULL || currentCCSDSMetadata == NULL)
+    if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
 	return false;
 
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
-        CCSDSTDMObtype::ccsds_data *myTDMData = new CCSDSTDMObtype::ccsds_data;
+        CCSDSData *myTDMData = new CCSDSData;
 	myTDM->ccsdsHeader = currentCCSDSHeader;
-        myTDM->ccsdsTDMMetaData = currentCCSDSMetadata;
+        myTDM->ccsdsTDMMetaData = currentCCSDSMetaData;
 	return GetCCSDSData(line,myTDMData,myTDM);
     }
 
@@ -307,16 +308,16 @@ bool ProcessCCSDSTDMDataFile::GetData(std::string line, CCSDSTDMObtype *myTDM)
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSMetadata(std::string &lff,
-//                       CCSDSTDMObtype::ccsds_tdm_metadata *myMetaData)
+// bool GetCCSDSMetaData(std::string &lff,
+//                       CCSDSTDMMetaData *myMetaData)
 //------------------------------------------------------------------------------
 /**
  * Extracts the metadata information from the tracking data message.
  */
 //
 //------------------------------------------------------------------------------
-bool ProcessCCSDSTDMDataFile::GetCCSDSMetadata(std::string &lff,
-                                CCSDSTDMObtype::ccsds_tdm_metadata *myMetaData)
+bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
+                                CCSDSTDMMetaData *myMetaData)
 {
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -521,3 +522,23 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetadata(std::string &lff,
     return true;
 
 }
+
+//------------------------------------------------------------------------------
+// bool WriteData(ObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Writes a CCSDS tracking data message to file
+ *
+ * @param <myTDM> the TDM data to be written to file
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSTDMDataFile::WriteData(ObType *myOb)
+{
+    CCSDSTDMObType *theTDM = (CCSDSTDMObType*)myOb;
+    WriteDataHeader(theTDM);
+    WriteMetaData(theTDM);
+    *theFile << theTDM;
+    return true;
+}
+

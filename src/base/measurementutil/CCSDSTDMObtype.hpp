@@ -8,20 +8,60 @@
 #ifndef _CCSDSTDMOBTYPE_HPP
 #define	_CCSDSTDMOBTYPE_HPP
 
-#include "CCSDSObtype.hpp"
+#include "CCSDSObType.hpp"
 
-class CCSDSTDMObtype : public CCSDSObtype
+class CCSDSTDMMetaData
+{
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                     const CCSDSTDMMetaData *myMetadata);
+    StringArray metadataComments;
+    std::string timeSystem;
+    std::string startTime;
+    std::string stopTime;
+    std::string participants[5];
+    std::string mode;
+    std::string path[3];
+    std::string transmitBand;
+    std::string receiveBand;
+    Integer turnaroundNumerator;
+    Integer turnaroundDenominator;
+    std::string timeTagRef;
+    Real integrationInterval;
+    std::string integrationRef;
+    Real frequencyOffset;
+    std::string rangeMode;
+    Real rangeModulus;
+    std::string rangeUnits;
+    std::string angleType;
+    std::string referenceFrame;
+    Real transmitDelay[5];
+    Real receiveDelay[5];
+    std::string dataQuality;
+    Real correctionAngle1;
+    Real correctionAngle2;
+    Real correctionDoppler;
+    Real correctionRange;
+    Real correctionReceive;
+    Real correctionTransmit;
+    bool correctionsApplied;
+};
+
+class CCSDSTDMObType : public CCSDSObType
 {   
     
 public :
     
-    CCSDSTDMObtype();
-    CCSDSTDMObtype(const CCSDSTDMObtype &tdm);
-    const CCSDSTDMObtype& CCSDSTDMObtype::operator=(const CCSDSTDMObtype &tdm);
-    ~CCSDSTDMObtype();
+    CCSDSTDMObType();
+    CCSDSTDMObType(const CCSDSTDMObType &tdm);
+    const CCSDSTDMObType& CCSDSTDMObType::operator=(const CCSDSTDMObType &tdm);
+    ~CCSDSTDMObType();
+
+    GmatBase *Clone() const;
 
     friend std::ostream& operator<< (std::ostream &output, 
-                                     const CCSDSTDMObtype *myTDM);
+                                     const CCSDSTDMObType *myTDM);
     	
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
@@ -211,41 +251,7 @@ public :
 	CCSDS_TDM_KEYWORD_ID,
 	EndCCSDSTDMDataReps
     };
-    
-    struct ccsds_tdm_metadata
-    {
-	StringArray metadataComments;
-	std::string timeSystem;
-	std::string startTime;
-	std::string stopTime;
-	std::string participants[5];
-	std::string mode;
-	std::string path[3];
-	std::string transmitBand;
-	std::string receiveBand;
-	Integer turnaroundNumerator;
-	Integer turnaroundDenominator;
-	std::string timeTagRef;
-	Real integrationInterval;
-	std::string integrationRef;
-	Real frequencyOffset;
-	std::string rangeMode;
-	Real rangeModulus;
-	std::string rangeUnits;
-	std::string angleType;
-	std::string referenceFrame;
-	Real transmitDelay[5];
-	Real receiveDelay[5];
-	std::string dataQuality;
-	Real correctionAngle1;
-	Real correctionAngle2;
-	Real correctionDoppler;
-	Real correctionRange;
-	Real correctionReceive;
-	Real correctionTransmit;
-	bool correctionsApplied;
-    };
-    
+        
     friend class ProcessCCSDSTDMDataFile;
     
 protected:
@@ -266,7 +272,7 @@ protected:
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps - EndCCSDSDataReps];
 
     // Pointer to the metadata record associated with this data point
-    ccsds_tdm_metadata *ccsdsTDMMetaData;
+    CCSDSTDMMetaData *ccsdsTDMMetaData;
     
 };
 

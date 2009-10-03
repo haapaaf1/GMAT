@@ -1,5 +1,5 @@
 /* 
- * File:   CCSDSOEMObtype.hpp
+ * File:   CCSDSOEMObType.hpp
  * Author: matthewwilkins
  *
  * Created on September 4, 2009, 5:22 AM
@@ -8,13 +8,45 @@
 #ifndef _CCSDSOEMOBTYPE_HPP
 #define	_CCSDSOEMOBTYPE_HPP
 
-#include "CCSDSObtype.hpp"
-    
-class CCSDSOEMObtype : public CCSDSObtype
+#include "CCSDSObType.hpp"
+
+class CCSDSOEMMetaData
 {
 
 public:
 
+    friend std::ostream& operator<< (std::ostream &output,
+                                     const CCSDSOEMMetaData *myMetaData);
+
+    std::string objectName;
+    std::string internationalDesignator;
+    std::string refFrameOrigin;
+    std::string refFrame;
+    std::string timeSystem;
+    std::string startTime;
+    std::string stopTime;
+    std::string useableStartTime;
+    std::string useableStopTime;
+    std::string interpolationMethod;
+    Integer interpolationDegree;
+    StringArray metadataComments;
+};
+    
+class CCSDSOEMObType : public CCSDSObType
+{
+
+public:
+
+    CCSDSOEMObType();
+    CCSDSOEMObType(const CCSDSOEMObType &tdm);
+    const CCSDSOEMObType& CCSDSOEMObType::operator=(const CCSDSOEMObType &tdm);
+    ~CCSDSOEMObType();
+
+    GmatBase *Clone() const;
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                     const CCSDSOEMObType *myOEM);
+    
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
@@ -67,22 +99,6 @@ public:
 	EndCCSDSOEMTimeReps
     };
 
-    struct ccsds_oem_metadata
-    {
-	std::string objectName;
-	std::string internationalDesignator;
-	std::string refFrameOrigin;
-	std::string refFrame;
-	std::string timeSystem;
-	std::string startTime;
-	std::string stopTime;
-	std::string useableStartTime;
-	std::string useableStopTime;
-	std::string interpolationMethod;
-	Integer interpolationDegree;
-	StringArray metadataComments;
-    };
-
     friend class ProcessCCSDSOEMDataFile;
 
 protected:
@@ -91,7 +107,7 @@ protected:
     static const std::string CCSDS_TIME_DESCRIPTIONS[EndCCSDSOEMTimeReps-EndCCSDSTimeReps];
    
     // Iterator Pointer to the metadata record
-    ccsds_oem_metadata* ccsdsOEMMetaData;
+    CCSDSOEMMetaData* ccsdsOEMMetaData;
 };   
 
 #endif	/* _CCSDSOEMOBTYPE_HPP */

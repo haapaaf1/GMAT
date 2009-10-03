@@ -21,14 +21,9 @@ public:
     const ProcessCCSDSDataFile& operator=(const ProcessCCSDSDataFile &CCSDSdf);
     virtual ~ProcessCCSDSDataFile();
     
-    CCSDSObtype::ccsds_header* GetHeader();
-    void SetHeader(CCSDSObtype::ccsds_header *myHeader);
+    CCSDSHeader* GetHeader();
+    void SetHeader(CCSDSHeader *myHeader);
     
-    bool GetCCSDSHeader(std::string firstline,
-                        CCSDSObtype::ccsds_header* myHeader);
-    bool GetCCSDSData(std::string &lff, CCSDSObtype::ccsds_data *myData,
-                      CCSDSObtype *myOb);
-
     // Utility functions
     bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date);
 
@@ -43,7 +38,6 @@ public:
     std::string GetCCSDSRefFrameRep(const Integer &id) const;
     std::string GetCCSDSRefFrameDescription(const Integer &id) const;
     Integer GetCCSDSRefFrameID(const std::string &label);
-
 
     // This is coordinated with TimeSystemConverter
     enum TimeSystemValues
@@ -71,7 +65,12 @@ public:
         EndCCSDSRefFrameReps
     };
 
+    bool WriteDataHeader(ObType *myOb);
+
 protected:
+
+    bool GetCCSDSHeader(std::string firstline, CCSDSHeader *myHeader);
+    bool GetCCSDSData(std::string &lff, CCSDSData *myData, CCSDSObType *myOb);
 
     static const std::string CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8];
     static const std::string CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDSTimeSystemReps-8];
@@ -79,8 +78,9 @@ protected:
     static const std::string CCSDS_REF_FRAME_DESCRIPTIONS[EndCCSDSRefFrameReps];
 
     // Pointer to current header
-    CCSDSObtype::ccsds_header *currentCCSDSHeader;
-
+    CCSDSHeader *currentCCSDSHeader;
+    CCSDSHeader *lastHeaderWritten;
+    bool isHeaderWritten;
 };
 
 #endif	/* _ProcessCCSDSDATAFILE_HPP */

@@ -40,15 +40,19 @@ public:
     GmatBase *Clone() const;
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
+
+    bool WriteData(ObType *myOb);
+    bool GetData(ObType *myOb);
     
 private:
 
     // Specific data type processing functions
-    bool GetData(std::string line, CCSDSTDMObtype *myTDM);  
-    bool GetCCSDSMetadata(std::string &nextline, 
-                          CCSDSTDMObtype::ccsds_tdm_metadata *myMetaData);
+    bool GetCCSDSMetaData(std::string &nextline,
+                          CCSDSTDMMetaData *myMetaData);
 
-    CCSDSTDMObtype::ccsds_tdm_metadata *currentCCSDSMetadata;
+    CCSDSTDMMetaData *currentCCSDSMetaData;
+    CCSDSTDMMetaData *lastMetaDataWritten;
+    bool isMetaDataWritten;
 
 };
 #endif	/* _ProcessCCSDSTDMDataFileData_hpp */

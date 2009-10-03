@@ -1,5 +1,5 @@
 /* 
- * File:   Obtype.hpp
+ * File:   ObType.hpp
  * Author: matthewwilkins
  *
  * Created on September 2, 2009, 7:33 AM
@@ -10,27 +10,29 @@
 
 #include "GmatBase.hpp"
 #include "gmatdefs.hpp"
-#include <pcrecpp.h>
-#include "StringUtil.hpp"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include "sstream"
+#include <pcrecpp.h>
+#include "StringUtil.hpp"
 #include "A1Date.hpp"
 
-class Obtype
+using namespace std; // so we don't have to type std::cout and std::endl
+
+class ObType : public GmatBase
 {
     
 public:
     
     // default constructor
-    Obtype();
+    ObType(const std::string &type, const std::string &name);
     // copy constructor
-    Obtype(const Obtype &ob);
+    ObType(const ObType &ob);
     // operator =
-    const Obtype& operator=(const Obtype &ob);
+    const ObType& operator=(const ObType &ob);
     // destructor
-    virtual ~Obtype();
+    virtual ~ObType();
     
     enum OBTYPE_REPS
     {
@@ -59,7 +61,7 @@ public:
 	ARGPER_ID,
 	RAAN_ID,
 	TRUEANOM_ID,
-	EndObtypeReps
+	EndObTypeReps
     };
 
     // Measurement Data Access function
@@ -92,27 +94,28 @@ public:
     virtual bool IsParameterRequired(const Integer id) const;
     bool IsParameterRequired(const std::string &label) const;
      
-    const std::string* GetObtypes();
-    std::string GetObtype(Integer myID);
-    Integer GetObtypeID(std::string keyword);
+    const std::string* GetObTypes();
+    std::string GetObType(Integer myID);
+    Integer GetObTypeID(std::string keyword);
     
     A1Date& GetEpoch();
     Integer GetSatID();
     std::string GetInternationalDesignator();
     Integer GetSensorID();
     
-    std::string Ilrs2Cospar(std::string ilrsSatnum);
-    std::string Cospar2Ilrs(std::string cosparSatnum);
+    friend std::string Ilrs2Cospar(std::string ilrsSatnum);
+    friend std::string Cospar2Ilrs(std::string cosparSatnum);
+    friend std::string Overpunch(const Real &number );
 
-private:
-
-    static const std::string Obtype::OBTYPES[EndObtypeReps];
-    
     template <class T> bool from_string(T& t, const std::string& s,
                  std::ios_base& (*f)(std::ios_base&));
-    
+
+
 protected:
-    
+
+    static const std::string ObType::OBTYPES[EndObTypeReps];
+
+
     // This is the GMAT epoch time in the Goddard A1 time system
     A1Date epoch;
     
@@ -135,25 +138,24 @@ protected:
  * Typesafe conversion from string to integer, float, etc
  */
 //------------------------------------------------------------------------------
-template <class T> bool Obtype::from_string(T& t, const std::string& s,
+template <class T> bool from_string(T& t, const std::string& s,
                  std::ios_base& (*f)(std::ios_base&))
 {
   std::istringstream iss(s);
   return !(iss >> f >> t).fail();
 }
 
-
 //------------------------------------------------------------------------------
 /**
- * A vector based class to contain our Obtype items
+ * A vector based class to contain our ObType items
  */
 //------------------------------------------------------------------------------
-class ObtypeVector : public std::vector<Obtype*>
+class ObTypeVector : public std::vector<ObType*>
 {
 public:
      // Make sure that the vector items are de-allocated so we don't leak
 
-     ~ObtypeVector()
+     ~ObTypeVector()
      {
           for (iterator pItem=begin(); pItem != end(); ++pItem)
                delete *pItem;

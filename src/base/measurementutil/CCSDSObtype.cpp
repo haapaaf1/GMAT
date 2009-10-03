@@ -1,21 +1,22 @@
-#include "CCSDSObtype.hpp";
+#include "CCSDSObType.hpp";
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
-const std::string CCSDSObtype::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps] =
+const std::string CCSDSObType::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps] =
 {
-"Quaternion",
-"Euler Angle",
-"Spin Stabilized",
-"State Vector",
-"Keplerian Elements",
-"Spacecraft Parameters",
-"Generic Data Type"
+    "Quaternion",
+    "Euler Angle",
+    "Spin Stabilized",
+    "State Vector",
+    "Keplerian Elements",
+    "Spacecraft Parameters",
+    "Maneuver",
+    "Generic Data Type"
 };
 
-const std::string CCSDSObtype::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
+const std::string CCSDSObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
 
-const std::string CCSDSObtype::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSDataReps] =
+const std::string CCSDSObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSDataReps] =
 {
     "CCSDS Version",
     "Creation Date",
@@ -23,7 +24,7 @@ const std::string CCSDSObtype::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSDataReps] =
     "HeaderComments"
 };
 
-const std::string CCSDSObtype::CCSDS_KEYWORDS[EndCCSDSDataReps] =
+const std::string CCSDSObType::CCSDS_KEYWORDS[EndCCSDSDataReps] =
 {
     "CCSDS_VERSION",
     "CREATION_DATE",
@@ -31,7 +32,7 @@ const std::string CCSDSObtype::CCSDS_KEYWORDS[EndCCSDSDataReps] =
     "COMMENTS"
 };
 
-const bool CCSDSObtype::CCSDS_IS_REQUIRED[EndCCSDSDataReps] =
+const bool CCSDSObType::CCSDS_IS_REQUIRED[EndCCSDSDataReps] =
 {
     true,
     true,
@@ -39,7 +40,7 @@ const bool CCSDSObtype::CCSDS_IS_REQUIRED[EndCCSDSDataReps] =
     false
 };
 
-const Gmat::ParameterType CCSDSObtype::CCSDS_PARAMETER_TYPE[EndCCSDSDataReps] =
+const Gmat::ParameterType CCSDSObType::CCSDS_PARAMETER_TYPE[EndCCSDSDataReps] =
 {
     Gmat::REAL_TYPE,
     Gmat::STRING_TYPE,
@@ -47,7 +48,7 @@ const Gmat::ParameterType CCSDSObtype::CCSDS_PARAMETER_TYPE[EndCCSDSDataReps] =
     Gmat::STRING_TYPE
 };
 
-const std::string CCSDSObtype::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSDataReps] =
+const std::string CCSDSObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSDataReps] =
 {
     "",
     "",
@@ -56,13 +57,14 @@ const std::string CCSDSObtype::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSDataReps] =
 };
 
 //------------------------------------------------------------------------------
-//  CCSDSObtype()
+//  CCSDSObType(const std::string &type, const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSObtype::CCSDSObtype() : Obtype(),
+CCSDSObType::CCSDSObType(const std::string &type, const std::string &name) :
+   ObType(type, name),
     ccsdsHeader(NULL),
     ccsdsData(NULL),
     ccsdsQuaternion(NULL),
@@ -70,18 +72,19 @@ CCSDSObtype::CCSDSObtype() : Obtype(),
     ccsdsSpinStabilized(NULL),
     ccsdsStateVector(NULL),
     ccsdsKeplerianElements(NULL),
-    ccsdsSpacecraftParameters(NULL)
+    ccsdsSpacecraftParameters(NULL),
+    ccsdsManeuver(NULL)
 {
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSObtype(const CCSDSObtype &ob)
+//  CCSDSObType(const CCSDSObType &ob)
 //------------------------------------------------------------------------------
 /**
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSObtype::CCSDSObtype(const CCSDSObtype &ob) : Obtype(ob),
+CCSDSObType::CCSDSObType(const CCSDSObType &ob) : ObType(ob),
     ccsdsHeader(ob.ccsdsHeader),
     ccsdsData(ob.ccsdsData),
     ccsdsQuaternion(ob.ccsdsQuaternion),
@@ -89,22 +92,23 @@ CCSDSObtype::CCSDSObtype(const CCSDSObtype &ob) : Obtype(ob),
     ccsdsSpinStabilized(ob.ccsdsSpinStabilized),
     ccsdsStateVector(ob.ccsdsStateVector),
     ccsdsKeplerianElements(ob.ccsdsKeplerianElements),
-    ccsdsSpacecraftParameters(ob.ccsdsSpacecraftParameters)
+    ccsdsSpacecraftParameters(ob.ccsdsSpacecraftParameters),
+    ccsdsManeuver(ob.ccsdsManeuver)
 {
 }
 
 //---------------------------------------------------------------------------
-//  CCSDSObtype& operator=(const CCSDSObtype &ob)
+//  CCSDSObType& operator=(const CCSDSObType &ob)
 //---------------------------------------------------------------------------
 /**
- * Assignment operator for Obtype structures.
+ * Assignment operator for ObType structures.
  *
  * @param <ob> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSObtype& CCSDSObtype::operator=(const CCSDSObtype &ob)
+const CCSDSObType& CCSDSObType::operator=(const CCSDSObType &ob)
 {
    if (&ob == this)
       return *this;
@@ -117,18 +121,19 @@ const CCSDSObtype& CCSDSObtype::operator=(const CCSDSObtype &ob)
     ccsdsStateVector = ob.ccsdsStateVector;
     ccsdsKeplerianElements = ob.ccsdsKeplerianElements;
     ccsdsSpacecraftParameters = ob.ccsdsSpacecraftParameters;
+    ccsdsManeuver = ob.ccsdsManeuver;
     
    return *this;
 }
 
 //------------------------------------------------------------------------------
-//  ~CCSDSObtype()
+//  ~CCSDSObType()
 //------------------------------------------------------------------------------
 /**
  * Destructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSObtype::~CCSDSObtype()
+CCSDSObType::~CCSDSObType()
 {
 }
 
@@ -140,10 +145,10 @@ CCSDSObtype::~CCSDSObtype()
 //  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSObtype::GetDataParameterText(const Integer id) const
+std::string CCSDSObType::GetDataParameterText(const Integer id) const
 {
    if ((id >= 0) && (id < EndCCSDSDataReps))
    {
@@ -156,10 +161,10 @@ std::string CCSDSObtype::GetDataParameterText(const Integer id) const
 //  std::string  GetDataUnits(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSObtype::GetDataUnits(const Integer id) const
+std::string CCSDSObType::GetDataUnits(const Integer id) const
 {
    if ((id >= 0) && (id < EndCCSDSDataReps))
    {
@@ -173,10 +178,10 @@ std::string CCSDSObtype::GetDataUnits(const Integer id) const
 //  Integer  GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Integer CCSDSObtype::GetDataParameterID(const std::string &str) const
+Integer CCSDSObType::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
     
@@ -198,10 +203,10 @@ Integer CCSDSObtype::GetDataParameterID(const std::string &str) const
 //  Gmat::ParameterType  GetDataParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Gmat::ParameterType CCSDSObtype::GetDataParameterType(const Integer id) const
+Gmat::ParameterType CCSDSObType::GetDataParameterType(const Integer id) const
 {
    if ((id >= 0) && (id < EndCCSDSDataReps))
       return CCSDS_PARAMETER_TYPE[id];
@@ -213,10 +218,10 @@ Gmat::ParameterType CCSDSObtype::GetDataParameterType(const Integer id) const
 //  std::string GetDataParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //---------------------------------------------------------------------------
-std::string CCSDSObtype::GetDataParameterTypeString(const Integer id) const
+std::string CCSDSObType::GetDataParameterTypeString(const Integer id) const
 {
    return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
 }
@@ -225,10 +230,10 @@ std::string CCSDSObtype::GetDataParameterTypeString(const Integer id) const
 // Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //---------------------------------------------------------------------------
-Integer CCSDSObtype::GetIntegerDataParameter(const Integer id) const
+Integer CCSDSObType::GetIntegerDataParameter(const Integer id) const
 {
     return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
@@ -237,10 +242,10 @@ Integer CCSDSObtype::GetIntegerDataParameter(const Integer id) const
 // Integer GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Integer CCSDSObtype::GetIntegerDataParameter(const std::string &label) const
+Integer CCSDSObType::GetIntegerDataParameter(const std::string &label) const
 {
    return GetIntegerDataParameter(GetDataParameterID(label));
 }
@@ -257,7 +262,7 @@ Integer CCSDSObtype::GetIntegerDataParameter(const std::string &label) const
  *
  */
 //------------------------------------------------------------------------------
-bool CCSDSObtype::GetBoolDataParameter(const Integer id) const
+bool CCSDSObType::GetBoolDataParameter(const Integer id) const
 {
     return false;
 }
@@ -274,7 +279,7 @@ bool CCSDSObtype::GetBoolDataParameter(const Integer id) const
  *
  */
 //------------------------------------------------------------------------------
-bool CCSDSObtype::GetBoolDataParameter(const std::string &label) const
+bool CCSDSObType::GetBoolDataParameter(const std::string &label) const
 {
    return GetBoolDataParameter(GetDataParameterID(label));
 }
@@ -283,10 +288,10 @@ bool CCSDSObtype::GetBoolDataParameter(const std::string &label) const
 // std::string GetStringArrayDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-StringArray CCSDSObtype::GetStringArrayDataParameter(const Integer id) const
+StringArray CCSDSObType::GetStringArrayDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -306,10 +311,10 @@ StringArray CCSDSObtype::GetStringArrayDataParameter(const Integer id) const
 // StringArray GetStringArrayDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-StringArray CCSDSObtype::GetStringArrayDataParameter(const std::string &label) const
+StringArray CCSDSObType::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
 }
@@ -318,10 +323,10 @@ StringArray CCSDSObtype::GetStringArrayDataParameter(const std::string &label) c
 // std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSObtype::GetStringDataParameter(const Integer id) const
+std::string CCSDSObType::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -345,10 +350,10 @@ std::string CCSDSObtype::GetStringDataParameter(const Integer id) const
 // std::string GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSObtype::GetStringDataParameter(const std::string &label) const
+std::string CCSDSObType::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
 }
@@ -357,10 +362,10 @@ std::string CCSDSObtype::GetStringDataParameter(const std::string &label) const
 // Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Real CCSDSObtype::GetRealDataParameter(const Integer id) const
+Real CCSDSObType::GetRealDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -381,10 +386,10 @@ Real CCSDSObtype::GetRealDataParameter(const Integer id) const
 // Real GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Real CCSDSObtype::GetRealDataParameter(const std::string &label) const
+Real CCSDSObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
@@ -399,7 +404,7 @@ Real CCSDSObtype::GetRealDataParameter(const std::string &label) const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* CCSDSObtype::GetDataTypes() const
+const std::string* CCSDSObType::GetDataTypes() const
 {
    return CCSDS_DATATYPE_DESCRIPTIONS;
 }
@@ -415,7 +420,7 @@ const std::string* CCSDSObtype::GetDataTypes() const
  *
  */
 //------------------------------------------------------------------------------
-std::string CCSDSObtype::GetDataTypeText(const Integer &id) const
+std::string CCSDSObType::GetDataTypeText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndCCSDSTypeReps))
    {
@@ -436,7 +441,7 @@ std::string CCSDSObtype::GetDataTypeText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer CCSDSObtype::GetDataTypeID(const std::string &label)
+Integer CCSDSObType::GetDataTypeID(const std::string &label)
 {
     return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
@@ -451,7 +456,7 @@ Integer CCSDSObtype::GetDataTypeID(const std::string &label)
  *
  */
 //------------------------------------------------------------------------------
-const std::string* CCSDSObtype::GetTimeSystems() const
+const std::string* CCSDSObType::GetTimeSystems() const
 {
    return CCSDS_TIMESYSTEM_DESCRIPTIONS;
 }
@@ -467,7 +472,7 @@ const std::string* CCSDSObtype::GetTimeSystems() const
  *
  */
 //------------------------------------------------------------------------------
-std::string CCSDSObtype::GetTimeSystemText(const Integer &id) const
+std::string CCSDSObType::GetTimeSystemText(const Integer &id) const
 {
    if ((id >= 0) && (id < EndCCSDSTimeReps))
    {
@@ -488,7 +493,7 @@ std::string CCSDSObtype::GetTimeSystemText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer CCSDSObtype::GetTimeSystemID(const std::string &label)
+Integer CCSDSObType::GetTimeSystemID(const std::string &label)
 {
 
     std::string regex = "^" + label + "$";
@@ -519,7 +524,7 @@ Integer CCSDSObtype::GetTimeSystemID(const std::string &label)
  * @return true if the parameter is read only, false (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSObtype::IsParameterRequired(const Integer id) const
+bool CCSDSObType::IsParameterRequired(const Integer id) const
 {
 if (id > 0 && id <= EndCCSDSDataReps)
     return CCSDS_IS_REQUIRED[id];
@@ -536,7 +541,7 @@ else
  * @return true if successfull
  */
 //------------------------------------------------------------------------------
-bool CCSDSObtype::CheckDataAvailability(const std::string str) const
+bool CCSDSObType::CheckDataAvailability(const std::string str) const
 {
 
     std::string regex = "^" + str + "$";
@@ -565,7 +570,7 @@ bool CCSDSObtype::CheckDataAvailability(const std::string str) const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* CCSDSObtype::GetKeywords() const
+const std::string* CCSDSObType::GetKeywords() const
 {
    return CCSDS_KEYWORDS;
 }
@@ -579,7 +584,7 @@ const std::string* CCSDSObtype::GetKeywords() const
  * @return ID associated with a keyword
  */
 //------------------------------------------------------------------------------
-const Integer CCSDSObtype::GetKeywordID(const std::string str) const
+const Integer CCSDSObType::GetKeywordID(const std::string str) const
 {
    return -1;
 }
@@ -593,16 +598,145 @@ const Integer CCSDSObtype::GetKeywordID(const std::string str) const
  * @return ID associated with a keyword
  */
 //------------------------------------------------------------------------------
-std::string CCSDSObtype::GetUnits(const Integer &id) const
+std::string CCSDSObType::GetUnits(const Integer &id) const
 {
    return std::string("");
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSObtype *myOb)
+// std::ostream& operator<< (std::ostream &output, const CCSDSQuaternion *myQuaternion)
 //------------------------------------------------------------------------------
 /**
- * Formats CCCSDSObtype data and sends to output stream.
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myQuaternion>    CCSDS quaternion data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSQuaternion *myQuaternion)
+{
+   using namespace std;
+
+   output << "Quaternion Type = " << myQuaternion->quarternionType << endl;
+   output << "Q_FRAME_A = " << myQuaternion->frameA << endl;
+   output << "Q_FRAME_B = " << myQuaternion->frameB << endl;
+   output << "Q_DIR = " << myQuaternion->direction << endl;
+   output << "Q1 = " << myQuaternion->q1 << endl;
+   output << "Q2 = " << myQuaternion->q2 << endl;
+   output << "Q3 = " << myQuaternion->q3 << endl;
+   output << "QC = " << myQuaternion->qC << endl;
+   output << "Q1_DOT = " << myQuaternion->q1Dot << endl;
+   output << "Q2_DOT = " << myQuaternion->q2Dot << endl;
+   output << "Q3_DOT = " << myQuaternion->q3Dot << endl;
+   output << "QC_DOT = " << myQuaternion->qcDot << endl;
+   output << "X_RATE = " << myQuaternion->xRate << endl;
+   output << "Y_RATE = " << myQuaternion->yRate << endl;
+   output << "Z_RATE = " << myQuaternion->zRate << endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSEulerAngle *myEulerAngle)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myEulerAngle>    CCSDS Euler angle data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSEulerAngle *myEulerAngle)
+{
+   using namespace std;
+
+   output << "Euler Angle Type = " << myEulerAngle->eulerAngleType << endl;
+   output << "EULER_FRAME_A = " << myEulerAngle->frameA << endl;
+   output << "EULER_FRAME_B = " << myEulerAngle->frameB << endl;
+   output << "EULER_DIR = " << myEulerAngle->direction << endl;
+   output << "EULER_ROT_SEQ = " << myEulerAngle->rotationSequence << endl;
+   output << "RATE_FRAME = " << myEulerAngle->rateFrame << endl;
+   output << "X_ANGLE = " << myEulerAngle->xAngle << endl;
+   output << "Y_ANGLE = " << myEulerAngle->yAngle << endl;
+   output << "Z_ANGLE = " << myEulerAngle->zAngle << endl;
+   output << "X_RATE = " << myEulerAngle->xRate << endl;
+   output << "Y_RATE = " << myEulerAngle->yRate << endl;
+   output << "Z_RATE = " << myEulerAngle->zRate << endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSSpinStabilized *mySpinStabilized)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <mySpinStabilized>    CCSDS spin stabilized data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSSpinStabilized *mySpinStabilized)
+{
+   using namespace std;
+
+   output << "Attitude type = " << mySpinStabilized->attitudeType << endl;
+   for (Integer i = 0; i < mySpinStabilized->comments.size(); i++)
+   {
+       output << "COMMENT " << mySpinStabilized->comments[i] << endl;
+   }
+   output << "SPIN_FRAME_A = " << mySpinStabilized->frameA << endl;
+   output << "SPIN_FRAME_B = " << mySpinStabilized->frameB << endl;
+   output << "SPIN_DIR = " << mySpinStabilized->direction << endl;
+   output << "SPIN_ALPHA = " << mySpinStabilized->spinAlpha << endl;
+   output << "SPIN_DELTA = " << mySpinStabilized->spinDelta << endl;
+   output << "SPIN_ANGLE = " << mySpinStabilized->spinAngle << endl;
+   output << "SPIN_ANGLE_VEL = " << mySpinStabilized->spinAngleVelocity << endl;
+   output << "NUTATION = " << mySpinStabilized->nutation << endl;
+   output << "NUTATION_PER = " << mySpinStabilized->nutationPeriod << endl;
+   output << "NUTATION_PHASE = " << mySpinStabilized->nutationPhase << endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSStateVector *myStateVector)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myStateVector>    CCSDS state vector data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSStateVector *myStateVector)
+{
+   using namespace std;
+
+   output << "EPOCH = " << myStateVector->epoch << endl;
+   output << "X = " << myStateVector->X << endl;
+   output << "Y = " << myStateVector->Y << endl;
+   output << "Z = " << myStateVector->Z << endl;
+   output << "X_DOT = " << myStateVector->xDot << endl;
+   output << "Y_DOT = " << myStateVector->yDot << endl;
+   output << "Z_DOT = " << myStateVector->zDot << endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
  *
  * @param  <output>  Output stream
  * @param  <myOb>    CCSDS data to write out
@@ -610,134 +744,153 @@ std::string CCSDSObtype::GetUnits(const Integer &id) const
  * @return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSObtype *myOb)
+std::ostream& operator<< (std::ostream &output, const CCSDSKeplerianElements *myKeplerianElements)
 {
    using namespace std;
 
-   output.setf(std::ios::showpoint);
-   output.setf(std::ios::scientific);
-
-   if (myOb->ccsdsHeader != NULL)
-   {
-        output << "CCSDS Version = " << myOb->ccsdsHeader->ccsdsVersion << std::endl;
-        output << "Creation Date = " << myOb->ccsdsHeader->creationDate << std::endl;
-        output << "Originator = " << myOb->ccsdsHeader->originator << std::endl;
-        for (Integer i = 0; i < myOb->ccsdsHeader->headerComments.size(); i++)
-        {
-            output << "Comments = " << myOb->ccsdsHeader->headerComments[i] << std::endl;
-        }
-        output << "******************************************************" << std::endl;
-   }
-
-   if (myOb->ccsdsData != NULL)
-   {
-        output << "Keyword = " << myOb->ccsdsData->keywordID << std::endl;
-        output << "Time Tag = " << myOb->ccsdsData->timeTag << std::endl;
-        output << "Measurement = " << myOb->ccsdsData->measurement << std::endl;
-        output << "******************************************************" << std::endl;
-   }
-
-   if (myOb->ccsdsSpacecraftParameters != NULL)
-   {
-        output << "Mass = " << myOb->ccsdsSpacecraftParameters->mass << std::endl;
-        output << "Solar Radiation Area = " << myOb->ccsdsSpacecraftParameters->solarRadiationArea << std::endl;
-        output << "Solar Radiation Coefficient = " << myOb->ccsdsSpacecraftParameters->solarRadiationCoefficient << std::endl;
-        output << "Drag Area = " << myOb->ccsdsSpacecraftParameters->dragArea << std::endl;
-        output << "Drag Coefficient = " << myOb->ccsdsSpacecraftParameters->dragCoefficient << std::endl;
-        output << "Intertial Reference Frame = " << myOb->ccsdsSpacecraftParameters->intertiaRefFrame << std::endl;
-        output << "I(1,1) = " << myOb->ccsdsSpacecraftParameters->i11 << std::endl;
-        output << "I(2,2) = " << myOb->ccsdsSpacecraftParameters->i22 << std::endl;
-        output << "I(3,3) = " << myOb->ccsdsSpacecraftParameters->i33 << std::endl;
-        output << "I(1,2) = " << myOb->ccsdsSpacecraftParameters->i12 << std::endl;
-        output << "I(1,3) = " << myOb->ccsdsSpacecraftParameters->i13 << std::endl;
-        output << "I(2,3) = " << myOb->ccsdsSpacecraftParameters->i23 << std::endl;
-        output << "******************************************************" << std::endl;
-   }
-
-   if (myOb->ccsdsKeplerianElements != NULL)
-   {
-        output << "Semimajor Axis = " << myOb->ccsdsKeplerianElements->semiMajorAxis << std::endl;
-        output << "Eccentricity = " << myOb->ccsdsKeplerianElements->eccentricity << std::endl;
-        output << "Inclination = " << myOb->ccsdsKeplerianElements->inclination << std::endl;
-        output << "RAAN = " << myOb->ccsdsKeplerianElements->raan << std::endl;
-        output << "Argument of Pericenter = " << myOb->ccsdsKeplerianElements->argumentOfPericenter << std::endl;
-        output << "True Anomaly = " << myOb->ccsdsKeplerianElements->trueAnomaly << std::endl;
-        output << "Mean Anomaly = " << myOb->ccsdsKeplerianElements->meanAnomaly << std::endl;
-        output << "Gravitational Coefficient = " << myOb->ccsdsKeplerianElements->gravitationalCoefficient << std::endl;
-        output << "******************************************************" << std::endl;
-   }
- 
-   if (myOb->ccsdsStateVector != NULL)
-   {
-        output << "Epoch = " << myOb->ccsdsStateVector->epoch << std::endl;
-        output << "X = " << myOb->ccsdsStateVector->X << std::endl;
-        output << "Y = " << myOb->ccsdsStateVector->Y << std::endl;
-        output << "Z = " << myOb->ccsdsStateVector->Z << std::endl;
-        output << "X dot = " << myOb->ccsdsStateVector->xDot << std::endl;
-        output << "Y dot = " << myOb->ccsdsStateVector->yDot << std::endl;
-        output << "Z dot = " << myOb->ccsdsStateVector->zDot << std::endl;
-        output << "******************************************************" << std::endl;
-   }
-
-   if (myOb->ccsdsSpinStabilized != NULL)
-   {
-       output << "Attitude type = " << myOb->ccsdsSpinStabilized->attitudeType << std::endl;
-        for (Integer i = 0; i < myOb->ccsdsSpinStabilized->comments.size(); i++)
-        {
-           output << "Comments = " << myOb->ccsdsSpinStabilized->comments[i] << std::endl;
-        }
-       output << "Ref Frame A = " << myOb->ccsdsSpinStabilized->frameA << std::endl;
-       output << "Ref Frame B = " << myOb->ccsdsSpinStabilized->frameB << std::endl;
-       output << "Direction = " << myOb->ccsdsSpinStabilized->direction << std::endl;
-       output << "Spin Alpha = " << myOb->ccsdsSpinStabilized->spinAlpha << std::endl;
-       output << "Spin Delta = " << myOb->ccsdsSpinStabilized->spinDelta << std::endl;
-       output << "Spin Angle = " << myOb->ccsdsSpinStabilized->spinAngle << std::endl;
-       output << "Spin Angle Velocity = " << myOb->ccsdsSpinStabilized->spinAngleVelocity << std::endl;
-       output << "Nutation = " << myOb->ccsdsSpinStabilized->nutation << std::endl;
-       output << "Nutation Period = " << myOb->ccsdsSpinStabilized->nutationPeriod << std::endl;
-       output << "Nutation Phase = " << myOb->ccsdsSpinStabilized->nutationPhase << std::endl;
-       output << "******************************************************" << std::endl;
-   }
-
-   if (myOb->ccsdsEulerAngle != NULL)
-   {
-       output << "Euler Angle Type = " << myOb->ccsdsEulerAngle->eulerAngleType << std::endl;
-       output << "Ref Frame A = " << myOb->ccsdsEulerAngle->frameA << std::endl;
-       output << "Ref Frame B = " << myOb->ccsdsEulerAngle->frameB << std::endl;
-       output << "Direction = " << myOb->ccsdsEulerAngle->direction << std::endl;
-       output << "Rotation Sequence = " << myOb->ccsdsEulerAngle->rotationSequence << std::endl;
-       output << "Rate Frame = " << myOb->ccsdsEulerAngle->rateFrame << std::endl;
-       output << "X Angle = " << myOb->ccsdsEulerAngle->xAngle << std::endl;
-       output << "Y Angle = " << myOb->ccsdsEulerAngle->yAngle << std::endl;
-       output << "Z Angle = " << myOb->ccsdsEulerAngle->zAngle << std::endl;
-       output << "X Rate = " << myOb->ccsdsEulerAngle->xRate << std::endl;
-       output << "Y Rate = " << myOb->ccsdsEulerAngle->yRate << std::endl;
-       output << "Z Rate = " << myOb->ccsdsEulerAngle->zRate << std::endl;
-       output << "******************************************************" << std::endl;
-   }
-    
-   if (myOb->ccsdsQuaternion != NULL)
-   {
-        output << "Quaternion Type = " << myOb->ccsdsQuaternion->quarternionType << std::endl;
-        output << "Ref Frame A = " << myOb->ccsdsQuaternion->frameA << std::endl;
-        output << "Ref Frame B = " << myOb->ccsdsQuaternion->frameB << std::endl;
-        output << "Direction = " << myOb->ccsdsQuaternion->direction << std::endl;
-        output << "Q1 = " << myOb->ccsdsQuaternion->q1 << std::endl;
-        output << "Q2 = " << myOb->ccsdsQuaternion->q2 << std::endl;
-        output << "Q3 = " << myOb->ccsdsQuaternion->q3 << std::endl;
-        output << "QC = " << myOb->ccsdsQuaternion->qC << std::endl;
-        output << "Q1 dot = " << myOb->ccsdsQuaternion->q1Dot << std::endl;
-        output << "Q2 dot = " << myOb->ccsdsQuaternion->q2Dot << std::endl;
-        output << "Q3 dot = " << myOb->ccsdsQuaternion->q3Dot << std::endl;
-        output << "QC dot = " << myOb->ccsdsQuaternion->qcDot << std::endl;
-        output << "X Rate = " << myOb->ccsdsQuaternion->xRate << std::endl;
-        output << "Y Rate = " << myOb->ccsdsQuaternion->yRate << std::endl;
-        output << "Z Rate = " << myOb->ccsdsQuaternion->zRate << std::endl;
-        output << "******************************************************" << std::endl;
-   }
+   output << "SEMI_MAJOR_AXIS = " << myKeplerianElements->semiMajorAxis << endl;
+   output << "ECCENTRICITY = " << myKeplerianElements->eccentricity << endl;
+   output << "INCLINATION = " << myKeplerianElements->inclination << endl;
+   output << "RA_OF_ASC_NODE = " << myKeplerianElements->raan << endl;
+   output << "ARG_OF_PERICENTER = " << myKeplerianElements->argumentOfPericenter << endl;
+   output << "TRUE_ANOMALY = " << myKeplerianElements->trueAnomaly << endl;
+   output << "MEAN_ANOMALY = " << myKeplerianElements->meanAnomaly << endl;
+   output << "GM = " << myKeplerianElements->gravitationalCoefficient << endl;
 
    return output;
 }
 
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSSpacecraftParameters *mySpacecraftParameters)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <mySpacecraftParameters>    CCSDS spacecraft parameter data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSSpacecraftParameters *mySpacecraftParameters)
+{
+   using namespace std;
 
+   output << "MASS = " << mySpacecraftParameters->mass << endl;
+   output << "SOLAR_RAD_AREA = " << mySpacecraftParameters->solarRadiationArea << endl;
+   output << "SOLAR_RAD_COEFF = " << mySpacecraftParameters->solarRadiationCoefficient << endl;
+   output << "DRAG_AREA = " << mySpacecraftParameters->dragArea << endl;
+   output << "DRAG_COEFF = " << mySpacecraftParameters->dragCoefficient << endl;
+   output << "INERTIA_REF_FRAME = " << mySpacecraftParameters->intertiaRefFrame << endl;
+   output << "I11 = " << mySpacecraftParameters->i11 << endl;
+   output << "I22 = " << mySpacecraftParameters->i22 << endl;
+   output << "I33 = " << mySpacecraftParameters->i33 << endl;
+   output << "I12 = " << mySpacecraftParameters->i12 << endl;
+   output << "I13 = " << mySpacecraftParameters->i13 << endl;
+   output << "I23 = " << mySpacecraftParameters->i23 << endl;
 
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSData *myData)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myData>    CCSDS data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSData *myData)
+{
+    using namespace std;
+
+   output << myData->keywordID << " = " << myData->timeTag << " " << myData->measurement << endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myHeader>    CCSDS header data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
+{
+    using namespace std;
+
+    output << "CCSDS_" << myHeader->fileType << "_VERS = " << myHeader->ccsdsVersion << endl;
+    for (Integer i = 0; i < myHeader->headerComments.size(); i++)
+    {
+        output << "COMMENT " << myHeader->headerComments[i] << endl;
+    }
+    output << "CREATION_DATE = " << myHeader->creationDate << endl;
+    output << "ORIGINATOR = " << myHeader->originator << endl;
+
+    return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSManeuver *myManeuver)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <mymyManeuver>    CCSDS maneuver data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSManeuver *myManeuver)
+{
+    using namespace std;
+
+    output << "MAN_EPOCH_IGNITION = " << myManeuver->ignitionEpoch << endl;
+    output << "MAN_DURATION = " << myManeuver->duration << endl;
+    output << "MAN_DELTA_MASS = " << myManeuver->deltaMass << endl;
+    output << "MAN_REF_FRAME = " << myManeuver->refFrame << endl;
+    output << "MAN_DV_1 = " << myManeuver->deltaV1 << endl;
+    output << "MAN_DV_2 = " << myManeuver->deltaV2 << endl;
+    output << "MAN_DV_3 = " << myManeuver->deltaV3 << endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, 
+//                           const CCSDSAttitudeManeuver *myAttitudeManeuver)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <mymyManeuver>    CCSDS maneuver data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output,
+                          const CCSDSAttitudeManeuver *myAttitudeManeuver)
+{
+    using namespace std;
+
+    output << "MAN_EPOCH_START = " << myAttitudeManeuver->epochStart << endl;
+    output << "MAN_DURATION = " << myAttitudeManeuver->duration << endl;
+    output << "MAN_REF_FRAME = " << myAttitudeManeuver->refFrame << endl;
+    output << "MAN_TOR_1 = " << myAttitudeManeuver->tor1 << endl;
+    output << "MAN_TOR_2 = " << myAttitudeManeuver->tor2 << endl;
+    output << "MAN_TOR_3 = " << myAttitudeManeuver->tor3 << endl;
+
+    return output;
+}

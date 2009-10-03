@@ -1,9 +1,9 @@
-#include "CCSDSTDMObtype.hpp"
+#include "CCSDSTDMObType.hpp"
 
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSTDMObtype::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
+const std::string CCSDSTDMObType::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
 {
     "Angle1",
     "Angle2",
@@ -42,7 +42,7 @@ const std::string CCSDSTDMObtype::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeRep
     "VLBIDelay"
 };
 
-const std::string CCSDSTDMObtype::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
+const std::string CCSDSTDMObType::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
 {
     "ANGLE_1",
     "ANGLE_2",
@@ -81,7 +81,7 @@ const std::string CCSDSTDMObtype::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSD
     "VLBI_DELAY"
 };
 
-const std::string CCSDSTDMObtype::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
+const std::string CCSDSTDMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
 {
     "deg",
     "deg",
@@ -120,7 +120,7 @@ const std::string CCSDSTDMObtype::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps-En
     "s"
 };
 
-const std::string CCSDSTDMObtype::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeReps-EndCCSDSTimeReps] =
+const std::string CCSDSTDMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeReps-EndCCSDSTimeReps] =
 {
     "UTC",
     "TAI",
@@ -128,40 +128,40 @@ const std::string CCSDSTDMObtype::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeR
     "SCLK"
 };
 
-const std::string CCSDSTDMObtype::MODE_DESCRIPTIONS[EndCCSDSTDMModeReps] =
+const std::string CCSDSTDMObType::MODE_DESCRIPTIONS[EndCCSDSTDMModeReps] =
 {
     "SEQUENTIAL",
     "SINGLE_DIFF"
 };
 
-const std::string CCSDSTDMObtype::TIMETAG_DESCRIPTIONS[EndCCSDSTDMTimetagReps] =
+const std::string CCSDSTDMObType::TIMETAG_DESCRIPTIONS[EndCCSDSTDMTimetagReps] =
 {
     "TRANSMIT",
     "RECEIVE"
 };
 
-const std::string CCSDSTDMObtype::INTEGRATION_DESCRIPTIONS[EndCCSDSTDMIntegrationReps] =
+const std::string CCSDSTDMObType::INTEGRATION_DESCRIPTIONS[EndCCSDSTDMIntegrationReps] =
 {
     "START",
     "MIDDLE",
     "END"
 };
 
-const std::string CCSDSTDMObtype::RANGEMODE_DESCRIPTIONS[EndCCSDSTDMRangeModeReps] =
+const std::string CCSDSTDMObType::RANGEMODE_DESCRIPTIONS[EndCCSDSTDMRangeModeReps] =
 {
     "COHERENT",
     "CONSTANT",
     "ONE_WAY"
 };
 
-const std::string CCSDSTDMObtype::RANGEUNIT_DESCRIPTIONS[EndCCSDSTDMRangeUnitReps] =
+const std::string CCSDSTDMObType::RANGEUNIT_DESCRIPTIONS[EndCCSDSTDMRangeUnitReps] =
 {
     "km",
     "s",
     "RU"
 };
 
-const std::string CCSDSTDMObtype::ANGLETYPE_DESCRIPTIONS[EndCCSDSTDMAngleTypeReps] =
+const std::string CCSDSTDMObType::ANGLETYPE_DESCRIPTIONS[EndCCSDSTDMAngleTypeReps] =
 {
     "AZEL",
     "RADEC",
@@ -169,14 +169,14 @@ const std::string CCSDSTDMObtype::ANGLETYPE_DESCRIPTIONS[EndCCSDSTDMAngleTypeRep
     "XSYE"
 };
 
-const std::string CCSDSTDMObtype::DATAQUALITY_DESCRIPTIONS[EndCCSDSTDMDataQualityReps] =
+const std::string CCSDSTDMObType::DATAQUALITY_DESCRIPTIONS[EndCCSDSTDMDataQualityReps] =
 {
     "RAW",
     "VALIDATED",
     "DEGRADED"
 };
 
-const std::string CCSDSTDMObtype::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSTDMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps-EndCCSDSDataReps] =
 {
     "MetadataComments",
     "TimeSystem",
@@ -228,7 +228,7 @@ const std::string CCSDSTDMObtype::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataR
     "Keyword"
 };
 
-const bool CCSDSTDMObtype::CCSDS_IS_REQUIRED[EndCCSDSTDMDataReps-EndCCSDSDataReps] =
+const bool CCSDSTDMObType::CCSDS_IS_REQUIRED[EndCCSDSTDMDataReps-EndCCSDSDataReps] =
 {
     false,
     true,
@@ -280,7 +280,7 @@ const bool CCSDSTDMObtype::CCSDS_IS_REQUIRED[EndCCSDSTDMDataReps-EndCCSDSDataRep
     true
 };
 
-const Gmat::ParameterType CCSDSTDMObtype::CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataReps-EndCCSDSDataReps] =
+const Gmat::ParameterType CCSDSTDMObType::CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataReps-EndCCSDSDataReps] =
 {
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
@@ -329,41 +329,41 @@ const Gmat::ParameterType CCSDSTDMObtype::CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataRe
 };
 
 //------------------------------------------------------------------------------
-//  CCSDSTDMObtype()
+//  CCSDSTDMObType()
 //------------------------------------------------------------------------------
 /**
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSTDMObtype::CCSDSTDMObtype() : CCSDSObtype(),
+CCSDSTDMObType::CCSDSTDMObType() : CCSDSObType("CCSDSTDMObType", ""),
 	ccsdsTDMMetaData(NULL)
 {
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSTDMObtype(const CCSDSTDMObtype &tdm)
+//  CCSDSTDMObType(const CCSDSTDMObType &tdm)
 //------------------------------------------------------------------------------
 /**
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSTDMObtype::CCSDSTDMObtype(const CCSDSTDMObtype &tdm) : CCSDSObtype(tdm),
+CCSDSTDMObType::CCSDSTDMObType(const CCSDSTDMObType &tdm) : CCSDSObType(tdm),
 	ccsdsTDMMetaData(tdm.ccsdsTDMMetaData)
 {
 }
 
 //---------------------------------------------------------------------------
-//  CCSDSTDMObtype& operator=(const CCSDSTDMObtype &tdm)
+//  CCSDSTDMObType& operator=(const CCSDSTDMObType &tdm)
 //---------------------------------------------------------------------------
 /**
- * Assignment operator for Obtype structures.
+ * Assignment operator for ObType structures.
  *
  * @param <tdm> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSTDMObtype& CCSDSTDMObtype::operator=(const CCSDSTDMObtype &tdm)
+const CCSDSTDMObType& CCSDSTDMObType::operator=(const CCSDSTDMObType &tdm)
 {
    if (&tdm == this)
       return *this;
@@ -374,14 +374,29 @@ const CCSDSTDMObtype& CCSDSTDMObtype::operator=(const CCSDSTDMObtype &tdm)
 }
 
 //------------------------------------------------------------------------------
-//  ~CCSDSTDMObtype()
+//  ~CCSDSTDMObType()
 //------------------------------------------------------------------------------
 /**
  * Destructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSTDMObtype::~CCSDSTDMObtype()
+CCSDSTDMObType::~CCSDSTDMObType()
 {
+}
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the ProcessCCSDSTDMDataFile.
+ *
+ * @return clone of the ProcessCCSDSTDMDataFile.
+ */
+//------------------------------------------------------------------------------
+GmatBase* CCSDSTDMObType::Clone() const
+{
+   GmatBase *clone = new CCSDSTDMObType(*this);
+   return (clone);
 }
 
 //------------------------------------------------------------------------------
@@ -392,32 +407,32 @@ CCSDSTDMObtype::~CCSDSTDMObtype()
 //  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSTDMObtype::GetDataParameterText(const Integer id) const
+std::string CCSDSTDMObType::GetDataParameterText(const Integer id) const
 {
    if ((id >= EndCCSDSDataReps) && (id < EndCCSDSTDMDataReps))
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
-   return CCSDSObtype::GetDataParameterText(id);
+   return CCSDSObType::GetDataParameterText(id);
 }
 
 //------------------------------------------------------------------------------
 //  std::string  GetDataUnits(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSTDMObtype::GetDataUnits(const Integer id) const
+std::string CCSDSTDMObType::GetDataUnits(const Integer id) const
 {
    if ((id >= EndCCSDSDataReps) && (id < EndCCSDSTDMDataReps))
    {
       return CCSDS_UNIT_DESCRIPTIONS[id];
    }
-   return CCSDSObtype::GetDataUnits(id);
+   return CCSDSObType::GetDataUnits(id);
 }
 
 
@@ -425,10 +440,10 @@ std::string CCSDSTDMObtype::GetDataUnits(const Integer id) const
 //  Integer  GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Integer CCSDSTDMObtype::GetDataParameterID(const std::string &str) const
+Integer CCSDSTDMObType::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
     
@@ -442,7 +457,7 @@ Integer CCSDSTDMObtype::GetDataParameterID(const std::string &str) const
 	}
    }
       
-   return CCSDSObtype::GetDataParameterID(str);
+   return CCSDSObType::GetDataParameterID(str);
 }
 
 
@@ -450,37 +465,37 @@ Integer CCSDSTDMObtype::GetDataParameterID(const std::string &str) const
 //  Gmat::ParameterType  GetDataParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Gmat::ParameterType CCSDSTDMObtype::GetDataParameterType(const Integer id) const
+Gmat::ParameterType CCSDSTDMObType::GetDataParameterType(const Integer id) const
 {
    if ((id >= EndCCSDSDataReps) && (id < EndCCSDSTDMDataReps))
       return CCSDS_PARAMETER_TYPE[id];
 
-   return CCSDSObtype::GetDataParameterType(id);
+   return CCSDSObType::GetDataParameterType(id);
 }
 
 //---------------------------------------------------------------------------
 //  std::string GetDataParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //---------------------------------------------------------------------------
-std::string CCSDSTDMObtype::GetDataParameterTypeString(const Integer id) const
+std::string CCSDSTDMObType::GetDataParameterTypeString(const Integer id) const
 {
-   return CCSDSObtype::GetDataParameterTypeString(id);
+   return CCSDSObType::GetDataParameterTypeString(id);
 }
 
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //---------------------------------------------------------------------------
-Integer CCSDSTDMObtype::GetIntegerDataParameter(const Integer id) const
+Integer CCSDSTDMObType::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -498,7 +513,7 @@ Integer CCSDSTDMObtype::GetIntegerDataParameter(const Integer id) const
 
         default:
 
-            return CCSDSObtype::GetIntegerDataParameter(id);
+            return CCSDSObType::GetIntegerDataParameter(id);
 
     }
 
@@ -508,10 +523,10 @@ Integer CCSDSTDMObtype::GetIntegerDataParameter(const Integer id) const
 // virtual Integer GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Integer CCSDSTDMObtype::GetIntegerDataParameter(const std::string &label) const
+Integer CCSDSTDMObType::GetIntegerDataParameter(const std::string &label) const
 {
    return GetIntegerDataParameter(GetDataParameterID(label));
 }
@@ -528,7 +543,7 @@ Integer CCSDSTDMObtype::GetIntegerDataParameter(const std::string &label) const
  *
  */
 //------------------------------------------------------------------------------
-bool CCSDSTDMObtype::GetBoolDataParameter(const Integer id) const
+bool CCSDSTDMObType::GetBoolDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -538,7 +553,7 @@ bool CCSDSTDMObtype::GetBoolDataParameter(const Integer id) const
 	    
 	default:
 	    
-	    return CCSDSObtype::GetBoolDataParameter(id);
+	    return CCSDSObType::GetBoolDataParameter(id);
 	    
     }
 }
@@ -555,7 +570,7 @@ bool CCSDSTDMObtype::GetBoolDataParameter(const Integer id) const
  *
  */
 //------------------------------------------------------------------------------
-bool CCSDSTDMObtype::GetBoolDataParameter(const std::string &label) const
+bool CCSDSTDMObType::GetBoolDataParameter(const std::string &label) const
 {
    return GetBoolDataParameter(GetDataParameterID(label));
 }
@@ -564,10 +579,10 @@ bool CCSDSTDMObtype::GetBoolDataParameter(const std::string &label) const
 // virtual std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSTDMObtype::GetStringDataParameter(const Integer id) const
+std::string CCSDSTDMObType::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -662,7 +677,7 @@ std::string CCSDSTDMObtype::GetStringDataParameter(const Integer id) const
 		
         default:
 
-            return CCSDSObtype::GetStringDataParameter(id);
+            return CCSDSObType::GetStringDataParameter(id);
 
     }
 
@@ -672,10 +687,10 @@ std::string CCSDSTDMObtype::GetStringDataParameter(const Integer id) const
 // virtual std::string GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSTDMObtype::GetStringDataParameter(const std::string &label) const
+std::string CCSDSTDMObType::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
 }
@@ -684,10 +699,10 @@ std::string CCSDSTDMObtype::GetStringDataParameter(const std::string &label) con
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Real CCSDSTDMObtype::GetRealDataParameter(const Integer id) const
+Real CCSDSTDMObType::GetRealDataParameter(const Integer id) const
 {
     switch (id)
     {
@@ -774,7 +789,7 @@ Real CCSDSTDMObtype::GetRealDataParameter(const Integer id) const
 	
 	default:
 
-	    return CCSDSObtype::GetRealDataParameter(id);
+	    return CCSDSObType::GetRealDataParameter(id);
 
     }
 
@@ -784,10 +799,10 @@ Real CCSDSTDMObtype::GetRealDataParameter(const Integer id) const
 // virtual Real GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
- * @see Obtype
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-Real CCSDSTDMObtype::GetRealDataParameter(const std::string &label) const
+Real CCSDSTDMObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
@@ -802,7 +817,7 @@ Real CCSDSTDMObtype::GetRealDataParameter(const std::string &label) const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* CCSDSTDMObtype::GetDataTypes() const
+const std::string* CCSDSTDMObType::GetDataTypes() const
 {
    return CCSDS_DATATYPE_DESCRIPTIONS;
 }
@@ -818,7 +833,7 @@ const std::string* CCSDSTDMObtype::GetDataTypes() const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* CCSDSTDMObtype::GetKeywords() const
+const std::string* CCSDSTDMObType::GetKeywords() const
 {
    return CCSDS_TDM_KEYWORDS;
 }
@@ -832,7 +847,7 @@ const std::string* CCSDSTDMObtype::GetKeywords() const
  * @return ID associated with a keyword
  */
 //------------------------------------------------------------------------------
-const Integer CCSDSTDMObtype::GetKeywordID(const std::string str) const
+const Integer CCSDSTDMObType::GetKeywordID(const std::string str) const
 {
 
     std::string regex = "^" + str + "$";
@@ -856,7 +871,7 @@ const Integer CCSDSTDMObtype::GetKeywordID(const std::string str) const
  * @return ID associated with a keyword
  */
 //------------------------------------------------------------------------------
-std::string CCSDSTDMObtype::GetUnits(const Integer &id) const
+std::string CCSDSTDMObType::GetUnits(const Integer &id) const
 {
    return CCSDS_UNIT_DESCRIPTIONS[id];
 }
@@ -872,14 +887,14 @@ std::string CCSDSTDMObtype::GetUnits(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-std::string CCSDSTDMObtype::GetDataTypeText(const Integer &id) const
+std::string CCSDSTDMObType::GetDataTypeText(const Integer &id) const
 {
    if ((id >= EndCCSDSDataReps) && (id < EndCCSDSTDMTypeReps))
    {
       return CCSDS_DATATYPE_DESCRIPTIONS[id];
    }
 
-   return CCSDSObtype::GetDataTypeText(id);
+   return CCSDSObType::GetDataTypeText(id);
 }
 
 //------------------------------------------------------------------------------
@@ -893,9 +908,9 @@ std::string CCSDSTDMObtype::GetDataTypeText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer CCSDSTDMObtype::GetDataTypeID(const std::string &label)
+Integer CCSDSTDMObType::GetDataTypeID(const std::string &label)
 {
-    return CCSDSObtype::GetDataTypeID(label);
+    return CCSDSObType::GetDataTypeID(label);
 }
 
 //------------------------------------------------------------------------------
@@ -908,7 +923,7 @@ Integer CCSDSTDMObtype::GetDataTypeID(const std::string &label)
  *
  */
 //------------------------------------------------------------------------------
-const std::string* CCSDSTDMObtype::GetTimeSystems() const
+const std::string* CCSDSTDMObType::GetTimeSystems() const
 {
    return CCSDS_TIMESYSTEM_DESCRIPTIONS;
 }
@@ -924,14 +939,14 @@ const std::string* CCSDSTDMObtype::GetTimeSystems() const
  *
  */
 //------------------------------------------------------------------------------
-std::string CCSDSTDMObtype::GetTimeSystemText(const Integer &id) const
+std::string CCSDSTDMObType::GetTimeSystemText(const Integer &id) const
 {
    if ((id >= EndCCSDSTimeReps) && (id < EndCCSDSTDMTimeReps))
    {
       return CCSDS_TIMESYSTEM_DESCRIPTIONS[id];
    }
 
-   return CCSDSObtype::GetTimeSystemText(id);
+   return CCSDSObType::GetTimeSystemText(id);
 }
 
 //------------------------------------------------------------------------------
@@ -945,7 +960,7 @@ std::string CCSDSTDMObtype::GetTimeSystemText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer CCSDSTDMObtype::GetTimeSystemID(const std::string &label)
+Integer CCSDSTDMObType::GetTimeSystemID(const std::string &label)
 {
 
     std::string regex = "^" + label + "$";
@@ -961,7 +976,7 @@ Integer CCSDSTDMObtype::GetTimeSystemID(const std::string &label)
     
     }
       
-    return CCSDSObtype::GetTimeSystemID(label);
+    return CCSDSObType::GetTimeSystemID(label);
  
 }
 
@@ -976,12 +991,12 @@ Integer CCSDSTDMObtype::GetTimeSystemID(const std::string &label)
  * @return true if the parameter is read only, false (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSTDMObtype::IsParameterRequired(const Integer id) const
+bool CCSDSTDMObType::IsParameterRequired(const Integer id) const
 {
 if (id > EndCCSDSDataReps && id <= EndCCSDSTDMDataReps)
     return CCSDS_IS_REQUIRED[id];
 else
-    return CCSDSObtype::IsParameterRequired(id);
+    return CCSDSObType::IsParameterRequired(id);
 }
 
 //------------------------------------------------------------------------------
@@ -993,7 +1008,7 @@ else
  * @return true if successfull
  */
 //------------------------------------------------------------------------------
-bool CCSDSTDMObtype::CheckDataAvailability(const std::string str) const
+bool CCSDSTDMObType::CheckDataAvailability(const std::string str) const
 {
 
     std::string regex = "^" + str + "$";
@@ -1008,77 +1023,141 @@ bool CCSDSTDMObtype::CheckDataAvailability(const std::string str) const
         }
     }
 
-   return CCSDSObtype::CheckDataAvailability(str);
+   return CCSDSObType::CheckDataAvailability(str);
 
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSTDMObtype *myTDM)
+// std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 //------------------------------------------------------------------------------
 /**
- * Formats CCCSDSTDMObtype value and sends to output stream.
+ * Formats CCCSDSTDMObType value and sends to output stream.
  *
- * @param  output  Output stream
- * @param  myTDM    CCSDS TDM observation to write out
+ * @param  <output>  Output stream
+ * @param  <myMetadata>    CCSDS TDM metadata to write out
  *
  * return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSTDMObtype *myTDM)
+std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 {
-   using namespace std;
 
-   output.setf(std::ios::showpoint);
-   output.setf(std::ios::scientific);
-
-   output << (CCSDSObtype*)myTDM << std::endl;
-   for (Integer i = 0; i < myTDM->ccsdsTDMMetaData->metadataComments.size(); i++ )
+   if (myTDM->ccsdsData != NULL)
    {
-       output << "Metadata Comments = " << myTDM->ccsdsTDMMetaData->metadataComments[i] << std::endl;
+       output << myTDM->ccsdsData;
    }
-   output << "Time System = " << myTDM->ccsdsTDMMetaData->timeSystem << std::endl;
-   output << "Start Time = " << myTDM->ccsdsTDMMetaData->startTime << std::endl;
-   output << "Stop Time = " << myTDM->ccsdsTDMMetaData->stopTime << std::endl;
-   output << "Participant 1 = " << myTDM->ccsdsTDMMetaData->participants[0] << std::endl;
-   output << "Participant 2 = " << myTDM->ccsdsTDMMetaData->participants[1] << std::endl;
-   output << "Participant 3 = " << myTDM->ccsdsTDMMetaData->participants[2] << std::endl;
-   output << "Participant 4 = " << myTDM->ccsdsTDMMetaData->participants[3] << std::endl;
-   output << "Participant 5 = " << myTDM->ccsdsTDMMetaData->participants[4] << std::endl;
-   output << "Mode = " << myTDM->ccsdsTDMMetaData->mode << std::endl;
-   output << "Path = " << myTDM->ccsdsTDMMetaData->path[0] << std::endl;
-   output << "Path 1 = " << myTDM->ccsdsTDMMetaData->path[1] << std::endl;
-   output << "Path 2 = " << myTDM->ccsdsTDMMetaData->path[2] << std::endl;
-   output << "Transmit Band = " << myTDM->ccsdsTDMMetaData->transmitBand << std::endl;
-   output << "Receive Band = " << myTDM->ccsdsTDMMetaData->receiveBand << std::endl;
-   output << "Turnaround Numerator = " << myTDM->ccsdsTDMMetaData->turnaroundNumerator << std::endl;
-   output << "Turnaround Denominator = " << myTDM->ccsdsTDMMetaData->turnaroundDenominator << std::endl;
-   output << "Time Tag Ref = " << myTDM->ccsdsTDMMetaData->timeTagRef << std::endl;
-   output << "Integration Interval = " << myTDM->ccsdsTDMMetaData->integrationInterval << std::endl;
-   output << "Integration Ref = " << myTDM->ccsdsTDMMetaData->integrationRef << std::endl;
-   output << "Frequency Offset = " << myTDM->ccsdsTDMMetaData->frequencyOffset << std::endl;
-   output << "Range Mode = " << myTDM->ccsdsTDMMetaData->rangeMode << std::endl;
-   output << "Range Modulus = " << myTDM->ccsdsTDMMetaData->rangeModulus << std::endl;
-   output << "Range Units = " << myTDM->ccsdsTDMMetaData->rangeUnits << std::endl;
-   output << "Angle Type = " << myTDM->ccsdsTDMMetaData->angleType << std::endl;
-   output << "Transmit Delay 1 = " << myTDM->ccsdsTDMMetaData->transmitDelay[0] << std::endl;
-   output << "Transmit Delay 2 = " << myTDM->ccsdsTDMMetaData->transmitDelay[1] << std::endl;
-   output << "Transmit Delay 3 = " << myTDM->ccsdsTDMMetaData->transmitDelay[2] << std::endl;
-   output << "Transmit Delay 4 = " << myTDM->ccsdsTDMMetaData->transmitDelay[3] << std::endl;
-   output << "Transmit Delay 5 = " << myTDM->ccsdsTDMMetaData->transmitDelay[4] << std::endl;
-   output << "Receive Delay 1 = " << myTDM->ccsdsTDMMetaData->receiveDelay[0] << std::endl;
-   output << "Receive Delay 2 = " << myTDM->ccsdsTDMMetaData->receiveDelay[1] << std::endl;
-   output << "Receive Delay 3 = " << myTDM->ccsdsTDMMetaData->receiveDelay[2] << std::endl;
-   output << "Receive Delay 4 = " << myTDM->ccsdsTDMMetaData->receiveDelay[3] << std::endl;
-   output << "Receive Delay 5 = " << myTDM->ccsdsTDMMetaData->receiveDelay[4] << std::endl;
-   output << "Data Quality = " << myTDM->ccsdsTDMMetaData->dataQuality << std::endl;
-   output << "Correction Angle 1 = " << myTDM->ccsdsTDMMetaData->correctionAngle1 << std::endl;
-   output << "Correction Angle 2 = " << myTDM->ccsdsTDMMetaData->correctionAngle2 << std::endl;
-   output << "Correction Doppler = " << myTDM->ccsdsTDMMetaData->correctionDoppler << std::endl;
-   output << "Correction Range = " << myTDM->ccsdsTDMMetaData->correctionRange << std::endl;
-   output << "Correction Receive = " << myTDM->ccsdsTDMMetaData->correctionReceive << std::endl;
-   output << "Correction Transmit = " << myTDM->ccsdsTDMMetaData->correctionTransmit << std::endl;
-   output << "Corrections Applied = " << myTDM->ccsdsTDMMetaData->correctionsApplied << std::endl;
-   output << "******************************************************" << std::endl;
+
+   if (myTDM->ccsdsSpacecraftParameters != NULL)
+   {
+       output << myTDM->ccsdsSpacecraftParameters;
+   }
+
+   if (myTDM->ccsdsKeplerianElements != NULL)
+   {
+       output << myTDM->ccsdsKeplerianElements;
+   }
+
+   if (myTDM->ccsdsStateVector != NULL)
+   {
+       output << myTDM->ccsdsStateVector;
+   }
+
+   if (myTDM->ccsdsSpinStabilized != NULL)
+   {
+       output << myTDM->ccsdsSpinStabilized;
+   }
+
+   if (myTDM->ccsdsEulerAngle != NULL)
+   {
+       output << myTDM->ccsdsEulerAngle;
+   }
+
+   if (myTDM->ccsdsQuaternion != NULL)
+   {
+       output << myTDM->ccsdsQuaternion;
+   }
+
+   if (myTDM->ccsdsManeuver != NULL)
+   {
+       output << myTDM->ccsdsManeuver;
+   }
+
+   return output;
+
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output,
+//                           const CCSDSTDMMetaData *myMetadata)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSTDMObType value and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myMetadata>    CCSDS TDM metadata to write out
+ *
+ * return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output,
+                          const CCSDSTDMMetaData *myMetadata)
+{
+
+    using namespace std;
+
+   //output.setf(std::ios::showpoint);
+   //output.setf(std::ios::scientific);
+
+    output << "META_START" << endl;
+   for (Integer i = 0; i < myMetadata->metadataComments.size(); i++ )
+   {
+       output << "COMMENT " << myMetadata->metadataComments[i] << endl;
+   }
+   output << "TIME_SYSTEM = " << myMetadata->timeSystem << endl;
+   output << "START_TIME = " << myMetadata->startTime << endl;
+   output << "STOP_TIME = " << myMetadata->stopTime << endl;
+   output << "PARTICIPANT_1 = " << myMetadata->participants[0] << endl;
+   output << "PARTICIPANT_2 = " << myMetadata->participants[1] << endl;
+   output << "PARTICIPANT_3 = " << myMetadata->participants[2] << endl;
+   output << "PARTICIPANT_4 = " << myMetadata->participants[3] << endl;
+   output << "PARTICIPANT_5 = " << myMetadata->participants[4] << endl;
+   output << "MODE = " << myMetadata->mode << endl;
+   output << "PATH = " << myMetadata->path[0] << endl;
+   output << "PATH_1 = " << myMetadata->path[1] << endl;
+   output << "PATH_2 = " << myMetadata->path[2] << endl;
+   output << "TRANSMIT_BAND = " << myMetadata->transmitBand << endl;
+   output << "RECEIVE_BAND = " << myMetadata->receiveBand << endl;
+   output << "TURNAROUND_NUMERATOR = " << myMetadata->turnaroundNumerator << endl;
+   output << "TURNAROUND_DENOMINATOR = " << myMetadata->turnaroundDenominator << endl;
+   output << "TIMETAG_REF = " << myMetadata->timeTagRef << endl;
+   output << "INTEGRATION_INTERVAL = " << myMetadata->integrationInterval << endl;
+   output << "INTEGRATION_REF = " << myMetadata->integrationRef << endl;
+   output << "FREQ_OFFSET = " << myMetadata->frequencyOffset << endl;
+   output << "RANGE_MODE = " << myMetadata->rangeMode << endl;
+   output << "RANGE_MODULUS = " << myMetadata->rangeModulus << endl;
+   output << "RANGE_UNITS = " << myMetadata->rangeUnits << endl;
+   output << "ANGLE_TYPE = " << myMetadata->angleType << endl;
+   output << "REFERENCE_FRAME = " << myMetadata->referenceFrame << endl;
+   output << "TRANSMIT_DELAY_1 = " << myMetadata->transmitDelay[0] << endl;
+   output << "TRANSMIT_DELAY_2 = " << myMetadata->transmitDelay[1] << endl;
+   output << "TRANSMIT_DELAY_3 = " << myMetadata->transmitDelay[2] << endl;
+   output << "TRANSMIT_DELAY_4 = " << myMetadata->transmitDelay[3] << endl;
+   output << "TRANSMIT_DELAY_5 = " << myMetadata->transmitDelay[4] << endl;
+   output << "RECEIVE_DELAY_1 = " << myMetadata->receiveDelay[0] << endl;
+   output << "RECEIVE_DELAY_2 = " << myMetadata->receiveDelay[1] << endl;
+   output << "RECEIVE_DELAY_3 = " << myMetadata->receiveDelay[2] << endl;
+   output << "RECEIVE_DELAY_4 = " << myMetadata->receiveDelay[3] << endl;
+   output << "RECEIVE_DELAY_5 = " << myMetadata->receiveDelay[4] << endl;
+   output << "DATA_QUALITY = " << myMetadata->dataQuality << endl;
+   output << "CORRECTION_ANGLE_1 = " << myMetadata->correctionAngle1 << endl;
+   output << "CORRECTION_ANGLE_2 = " << myMetadata->correctionAngle2 << endl;
+   output << "CORRECTION_DOPPLER = " << myMetadata->correctionDoppler << endl;
+   output << "CORRECTION_RANGE = " << myMetadata->correctionRange << endl;
+   output << "CORRECTION_RECEIVE = " << myMetadata->correctionReceive << endl;
+   output << "CORRECTION_TRANSMIT = " << myMetadata->correctionTransmit << endl;
+   output << "CORRECTIONS_APPLIED = " << myMetadata->correctionsApplied << endl;
+
+   output << "META_STOP" << std::endl << endl;
 
    return output;
 }

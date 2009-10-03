@@ -22,7 +22,7 @@
 #define	ProcessTLEDataFile_hpp
 
 #include "DataFile.hpp"
-#include "Obtype.hpp"
+#include "ObType.hpp"
 
 class ProcessTLEDataFile : public DataFile
 {
@@ -40,20 +40,19 @@ public:
     GmatBase *Clone() const;
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
-    
-    Integer TLECheckSum(const std::string &str);
 
-    // Function to write TLE to file
-    bool WriteData(TLEObtype *myTLEdata);
-    bool WriteData(TLEObtype *myTLEdata, fstream *myFile);
+    // Method to obtain a TLE data point
+    bool GetData(ObType *myTLEdata);
+    
+    // Method to write TLE to file
+    bool WriteData(ObType *myTLEdata);
     
 private:
 
     bool GetTLEData(std::string &lff, std::string &lff2,
-			       TLEObtype *myTLEdata);
+			       TLEObType *myTLEdata);
 
-    // Specific data type processing functions
-    bool GetData(TLEObtype *myTLEdata);
+
 
 };
 

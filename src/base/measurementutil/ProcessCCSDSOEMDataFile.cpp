@@ -41,7 +41,7 @@ bool ProcessCCSDSOEMDataFile::Initialize()
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
-        CCSDSOEMObtype *myOEM = new CCSDSOEMObtype;
+        CCSDSOEMObType *myOEM = new CCSDSOEMObType;
 
         // Read the first line from file
 	std::string line = Trim(ReadLineFromFile());
@@ -62,7 +62,7 @@ bool ProcessCCSDSOEMDataFile::Initialize()
                 }
 
                 // Allocate another struct in memory
-                myOEM = new CCSDSOEMObtype;
+                myOEM = new CCSDSOEMObType;
             }
 
 	    // Read a line from file
@@ -81,9 +81,9 @@ bool ProcessCCSDSOEMDataFile::Initialize()
             outFile->open("oem.output",ios::out);
 
             // Output to file to make sure all the data is properly stored
-            for (ObtypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
+            for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
             {
-		*outFile << (CCSDSOEMObtype*)(*j) << std::endl;
+		*outFile << (CCSDSOEMObType*)(*j) << std::endl;
             }
 
             outFile->close();
@@ -218,13 +218,13 @@ bool ProcessCCSDSOEMDataFile::IsParameterReadOnly(const std::string &label) cons
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(std::string line, CCSDSOEMObtype *myOEM)
+// bool GetData(std::string line, CCSDSOEMObType *myOEM)
 //------------------------------------------------------------------------------
 /**
  * Obtains the header line of OEM data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObtype *myOEM)
+bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObType *myOEM)
 {
 
     // Check to see if we encountered a new header record.
@@ -233,8 +233,8 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObtype *myOEM)
         // Initialize the header data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        CCSDSOEMObtype::ccsds_header *myCCSDSHeader =
-                                            new CCSDSOEMObtype::ccsds_header;
+        CCSDSOEMObType::ccsds_header *myCCSDSHeader =
+                                            new CCSDSOEMObType::ccsds_header;
 
 	if (GetCCSDSHeader(line,myCCSDSHeader))
 	{
@@ -258,8 +258,8 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObtype *myOEM)
         // Initialize individual data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        CCSDSOEMObtype::ccsds_oem_metadata *myMetaData =
-                                        new CCSDSOEMObtype::ccsds_oem_metadata;
+        CCSDSOEMObType::ccsds_oem_metadata *myMetaData =
+                                        new CCSDSOEMObType::ccsds_oem_metadata;
 
 	// Read the next metadata line from file
 	line = Trim(ReadLineFromFile());
@@ -297,7 +297,7 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObtype *myOEM)
 
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line))
     {
-        CCSDSOEMObtype::ccsds_data *myOEMData = new CCSDSOEMObtype::ccsds_data;
+        CCSDSOEMObType::ccsds_data *myOEMData = new CCSDSOEMObType::ccsds_data;
 	myOEM->ccsdsHeader = currentCCSDSHeader;
         myOEM->ccsdsOEMMetaData = currentCCSDSMetadata;
 	return GetCCSDSData(line,myOEMData,myOEM);
@@ -308,7 +308,7 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObtype *myOEM)
 
 //------------------------------------------------------------------------------
 // bool GetCCSDSMetadata(std::string &lff,
-//                       CCSDSOEMObtype::ccsds_oem_metadata *myMetaData)
+//                       CCSDSOEMObType::ccsds_oem_metadata *myMetaData)
 //------------------------------------------------------------------------------
 /**
  * Extracts the metadata information from the tracking data message.
@@ -316,7 +316,7 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObtype *myOEM)
 //
 //------------------------------------------------------------------------------
 bool ProcessCCSDSOEMDataFile::GetCCSDSMetadata(std::string &lff,
-                                CCSDSOEMObtype::ccsds_oem_metadata *myMetaData)
+                                CCSDSOEMObType::ccsds_oem_metadata *myMetaData)
 {
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function

@@ -8,23 +8,25 @@
 #ifndef _TLEFORMATDESCRIPTION_HPP
 #define	_TLEFORMATDESCRIPTION_HPP
 
-#include "Obtype.hpp"
+#include "ObType.hpp"
 
 // The description and background info for the TLE variables come 
 // from Tom Kelecy's website http://www.celestrak.com
-class TLEObtype : public Obtype
+class TLEObType : public ObType
 {
 
 public :
 
     // default constructor
-    TLEObtype();
+    TLEObType();
     // copy constructor
-    TLEObtype(const TLEObtype &tleOb);
+    TLEObType(const TLEObType &tleOb);
     // operator =
-    const TLEObtype& operator=(const TLEObtype &tleOb);
+    const TLEObType& operator=(const TLEObType &tleOb);
     // destructor
-    virtual ~TLEObtype();
+    virtual ~TLEObType();
+
+    GmatBase *Clone() const;
 
     enum TLE_DATA_REPS
     {
@@ -92,7 +94,9 @@ public :
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
 
-    friend std::ostream& operator<< (std::ostream &output, const TLEObtype *myTLE);
+    friend Integer TLECheckSum(const std::string &str);
+
+    friend std::ostream& operator<< (std::ostream &output, const TLEObType *myTLE);
     
     // Declare DataFile a friend class so that we have access
     // directly to variables instead of having to use Get/Set
@@ -106,7 +110,14 @@ protected:
     static const bool TLE_IS_REQUIRED[EndTLEDataReps];
     static const Gmat::ParameterType TLE_PARAMETER_TYPE[EndTLEDataReps];
     static const std::string TLE_UNIT_DESCRIPTIONS[EndTLEDataReps];
-    static const std::string TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps];    
+    static const std::string TLE_FILEFORMAT_DESCRIPTIONS[EndTLEDataReps];
+
+    // This is a GMAT variable to help determine if this is a two-line
+    // or three-line TLE. A three line TLE is an extension of the two-line
+    // with an additional comment line.
+    // tleType = 2 for two-line
+    // tleType = 3 for two-line with extra comment line
+    Integer tleType;
 
     // The NORAD satellite Catalog number is a unique idenitifier
     // assigned by NORAD for each earth-orbiting satellite. This
@@ -213,6 +224,9 @@ protected:
 
     // The revolution number at epoch
     Integer revolutionNum;
+
+    // Three-line TLE comment line
+    std::string tleCommentLine;
     
 };
 
