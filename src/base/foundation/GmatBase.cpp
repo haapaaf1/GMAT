@@ -93,7 +93,7 @@ GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    "PropSetup",       "Function",         "FuelTank",      "Thruster",
    "Hardware",        "CoordinateSystem", "AxisSystem",    "Attitude",
    "MathNode",        "MathTree",         "Estimator",     "MeasurementModel",
-   "BodyFixedPoint",  "DataFile",         "UnknownObject"
+   "BodyFixedPoint",  "DataFile",         "Obtype",        "UnknownObject"
 };
 
 const bool
