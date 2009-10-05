@@ -1592,7 +1592,7 @@ void FileManager::RefreshFiles()
 
    // spk files
    AddFileType("SPK_PATH", "./files/planetary_ephem/spk/");
-   AddFileType("PLANETARY_SPK_FILE", "DE_PATH/de421.bsp");
+   AddFileType("PLANETARY_SPK_FILE", "SPK_PATH/de421.bsp");
 
    // earth gravity files
    AddFileType("EARTH_POT_PATH", "./files/gravity/earth/");

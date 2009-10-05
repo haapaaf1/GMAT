@@ -1633,6 +1633,10 @@ bool SolarSystem::AddBody(CelestialBody* cb)
             if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
       }
    }
+   else // set main SPICE file for all added bodies
+   {
+      if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
+   }
    if (!cb->SetOverrideTimeSystem(overrideTimeForAll))  return false;
 
    return true;
@@ -2445,6 +2449,7 @@ bool SolarSystem::SetStringParameter(const Integer id,
       bool isOK = SetSPKFile(value);
       if (!isOK)
          throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
+      return true;
    }
 
    return GmatBase::SetStringParameter(id, value);

@@ -4640,9 +4640,11 @@ bool Interpreter::SetPropertyStringValue(GmatBase *obj, const Integer id,
       {         
          try
          {
+            // remove enclosing quotes if used
+            valueToUse = GmatStringUtil::RemoveEnclosingString(valueToUse, "'");
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage
-               ("   Calling %s->SetStringParameter(%d, %s)\n",
+               ("   Calling %s->SetStringParameter(%d, %s) (for StringArray)\n",
                 obj->GetName().c_str(), id, valueToUse.c_str());
             #endif
             
@@ -4652,8 +4654,9 @@ bool Interpreter::SetPropertyStringValue(GmatBase *obj, const Integer id,
          {
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage
-               ("   Calling %s->SetStringParameter(%d, %s, %d)\n", id,
-                valueToUse.c_str(), index);
+               ("   Calling %s->SetStringParameter(%d, %s, %d) (for StringArray)\n", 
+                     obj->GetName().c_str(), id,
+                     valueToUse.c_str(), index);
             #endif
             
             // try with index
