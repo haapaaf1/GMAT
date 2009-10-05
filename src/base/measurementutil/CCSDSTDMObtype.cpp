@@ -1041,49 +1041,16 @@ bool CCSDSTDMObType::CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 {
+    switch (myTDM->ccsdsHeader->dataType)
+    {
+        case GENERICDATA_ID:
+            output << myTDM->ccsdsData;
+            break;
+        default:
+            break;
+    }
 
-   if (myTDM->ccsdsData != NULL)
-   {
-       output << myTDM->ccsdsData;
-   }
-
-   if (myTDM->ccsdsSpacecraftParameters != NULL)
-   {
-       output << myTDM->ccsdsSpacecraftParameters;
-   }
-
-   if (myTDM->ccsdsKeplerianElements != NULL)
-   {
-       output << myTDM->ccsdsKeplerianElements;
-   }
-
-   if (myTDM->ccsdsStateVector != NULL)
-   {
-       output << myTDM->ccsdsStateVector;
-   }
-
-   if (myTDM->ccsdsSpinStabilized != NULL)
-   {
-       output << myTDM->ccsdsSpinStabilized;
-   }
-
-   if (myTDM->ccsdsEulerAngle != NULL)
-   {
-       output << myTDM->ccsdsEulerAngle;
-   }
-
-   if (myTDM->ccsdsQuaternion != NULL)
-   {
-       output << myTDM->ccsdsQuaternion;
-   }
-
-   if (myTDM->ccsdsManeuver != NULL)
-   {
-       output << myTDM->ccsdsManeuver;
-   }
-
-   return output;
-
+    return output;
 }
 
 //------------------------------------------------------------------------------

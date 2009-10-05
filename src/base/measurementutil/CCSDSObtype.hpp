@@ -23,6 +23,7 @@ public:
     std::string creationDate;
     std::string originator;
     StringArray headerComments;
+    Integer dataType;
 };
 
 // The CCSDS quaternion specification. Some formats do not use
