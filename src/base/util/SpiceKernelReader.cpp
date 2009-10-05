@@ -127,6 +127,13 @@ bool SpiceKernelReader::LoadKernel(const std::string &fileName)
       errmsg += errStr + "\n";
       throw UtilityException(errmsg);
    }
+#ifdef DEBUG_SPK_LOADING
+   else
+   {
+      MessageInterface::ShowMessage("SpiceKernelReader Successfully loaded kernel %s <---------\n",
+            fileName.c_str());
+   }
+#endif
    loadedKernels.push_back(fileName);
    
    return true;
@@ -210,7 +217,7 @@ bool SpiceKernelReader::UnloadAllKernels()
 bool SpiceKernelReader::IsLoaded(const std::string &fileName) 
 {
    #ifdef DEBUG_SPK_LOADING
-      MessageInterface::ShowMessage("IsLoaded::Now attempting to find lernel name %s\n", fileName.c_str());
+      MessageInterface::ShowMessage("IsLoaded::Now attempting to find kernel name %s\n", fileName.c_str());
    #endif
    for (StringArray::iterator jj = loadedKernels.begin();
         jj != loadedKernels.end(); ++jj)

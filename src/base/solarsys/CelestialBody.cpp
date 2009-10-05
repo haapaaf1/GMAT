@@ -2814,6 +2814,10 @@ bool CelestialBody::SetStringParameter(const Integer id,
    }
    if (id == SPICE_KERNEL_NAME)
    {
+#ifdef DEBUG_CB_SPICE
+      MessageInterface::ShowMessage("----> CB::SetStringP with kernel name %s\n", 
+            value.c_str());
+#endif
       bool alreadyInList = false;
       StringArray::iterator i;
       for (i = spiceKernelNames.begin(); i != spiceKernelNames.end(); ++i)
