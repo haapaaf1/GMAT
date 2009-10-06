@@ -35,7 +35,7 @@ TsPlotCurve::TsPlotCurve(int offsetY, double startY, double endY,
    domainChanged     (false),
    useLines          (true),
    useMarkers        (false),
-   markerStyle       (unsetMarker),
+   currentMarkerStyle(unsetMarker),
    markerSize        (3),
    lineWidth         (1),
    lineStyle         (wxSOLID),
@@ -206,8 +206,17 @@ void TsPlotCurve::Clear()
    abscissa.clear();
    ordinate.clear();
    penUpIndex.clear();
+   colorIndex.clear();
+   markerIndex.clear();
+
+   wxColour def = linecolor[0];
    linecolor.clear();
-   colorChange.clear();
+   linecolor.push_back(def);
+
+   MarkerType mark = markerStyles[0];
+   markerStyles.clear();
+   markerStyles.push_back(mark);
+
 }
 
 
@@ -261,6 +270,16 @@ const std::vector<int>* TsPlotCurve::GetPenUpLocations()
    return &penUpIndex;
 }
 
+const std::vector<int>* TsPlotCurve::GetColorChangeLocations()
+{
+   return &colorIndex;
+}
+
+const std::vector<int>* TsPlotCurve::GetMarkerChangeLocations()
+{
+   return &markerIndex;
+}
+
 void TsPlotCurve::Rescale()
 {
    if (abscissa.size() > 0)
@@ -286,8 +305,34 @@ void TsPlotCurve::Rescale()
 void TsPlotCurve::SetColour(wxColour rgb)
 {
    linecolor.push_back(rgb);
-   colorChange.push_back((int)abscissa.size());
+   colorIndex.push_back((int)abscissa.size());
 }
+
+wxColour TsPlotCurve::GetColour(int whichOne)
+{
+   if (((int)(linecolor.size()) > whichOne) && (whichOne >= 0))
+   {
+      wxColour thisOne = linecolor[whichOne];
+   }
+//   else
+//   {
+//      MessageInterface::ShowMessage("Getting color %d unavailable on %p\n",
+//            whichOne, this);
+//      MessageInterface::ShowMessage("   linecolor size = %d\n", linecolor.size());
+//   }
+
+   if (linecolor.size() == 0)
+      return *wxRED;
+
+   if (whichOne == 0)
+      return linecolor[0];
+
+   if (whichOne < (int)linecolor.size())
+      return linecolor[whichOne];
+
+   return linecolor[0];
+}
+
 
 void TsPlotCurve::SetWidth(int w)
 {
@@ -346,14 +391,39 @@ bool TsPlotCurve::UseMarker(bool tf)
 }
 
 
-int TsPlotCurve::GetMarker()
+int TsPlotCurve::GetMarker(int whichOne)
 {
-   return markerStyle;
+   if (markerStyles.size() == 0)
+      return unsetMarker;
+
+   if (whichOne == 0)
+      return markerStyles[0];
+
+   if (whichOne < (int)markerStyles.size())
+      currentMarkerStyle = markerStyles[whichOne];
+   return currentMarkerStyle;
 }
 
-void TsPlotCurve::SetMarker(MarkerType newType)
+void TsPlotCurve::SetMarker(MarkerType newType, int where)
 {
-   markerStyle = newType;
+   if (where > 0)
+   {
+      markerIndex.push_back(where);
+      markerStyles.push_back(newType);
+   }
+   else
+   {
+      if (markerIndex.size() == 0)
+      {
+         markerIndex.push_back(0);
+         markerStyles.push_back(newType);
+      }
+      else
+      {
+         markerIndex[0]  = 0;
+         markerStyles[0] = newType;
+      }
+   }
 }
 
 int TsPlotCurve::GetMarkerSize()

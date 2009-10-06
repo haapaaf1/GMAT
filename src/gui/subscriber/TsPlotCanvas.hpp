@@ -175,6 +175,9 @@ protected:
    virtual void PlotData(wxDC &dc) = 0;
    virtual void Rescale(wxDC &dc) = 0;
    
+   virtual void DrawMarker(wxDC &dc, int style, int markerSize, int x0, int y0,
+         wxPen &thePen);
+
    virtual void DrawGrid(wxDC &dc);
    virtual void ToggleGrid(wxCommandEvent& event);
    virtual void DrawLegend(wxDC &dc);

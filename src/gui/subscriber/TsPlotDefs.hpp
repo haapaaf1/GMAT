@@ -51,6 +51,12 @@ enum MarkerType
    xMarker,
    circleMarker,
    plusMarker,
+   starMarker,
+   squareMarker,
+   diamondMarker,
+   xsquareMarker,
+   triangleMarker,
+   nablaMarker,
    MarkerCount
 };
 

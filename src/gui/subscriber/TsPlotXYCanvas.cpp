@@ -261,12 +261,19 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
    {
       int n = 0;
       int pupLoc = -1, pupIndex = -1, locCount = 0;
+      int ccLoc = -1, ccIndex = -1, ccCount = 0;
+      int mcLoc = -1, mcIndex = -1, mcCount = 0;
       const std::vector<int> *pups;
+      const std::vector<int> *ccs;
+      const std::vector<int> *mcs;
       
       for (std::vector<TsPlotCurve *>::iterator curve = data.begin(); 
            curve != data.end(); ++curve)
       {
          pups = (*curve)->GetPenUpLocations(); // penUpLocations(n);
+         ccs =  (*curve)->GetColorChangeLocations();
+         mcs =  (*curve)->GetMarkerChangeLocations();
+
          locCount = (int)pups->size();
          if (locCount > 0)
          {
@@ -274,8 +281,23 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
             pupLoc = (*pups)[pupIndex];
          }
          
+         ccCount = (int)ccs->size();
+         if (ccCount > 0)
+         {
+            ccIndex = 0;
+            ccLoc = (*ccs)[ccIndex];
+         }
+
+         mcCount = (int)mcs->size();
+         if (mcCount > 0)
+         {
+            mcIndex = 0;
+            mcLoc = (*ccs)[ccIndex];
+         }
+
          if ((*curve)->abscissa.size() > 0)
          {
+            plotPens[n].SetColour((*curve)->GetColour(0));
             plotPens[n].SetWidth((*curve)->GetWidth());
             plotPens[n].SetStyle((*curve)->GetStyle());
             dc.SetPen(plotPens[n]);
@@ -288,11 +310,24 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                   pupLoc = (*pups)[pupIndex];
             }
             
+            if ((unsigned int)ccLoc < (*curve)->lastPointPlotted)
+            {
+               // Get the next color
+               ++ccIndex;
+               if (ccIndex < ccCount)
+                  ccLoc = (*ccs)[ccIndex];
+            }
+
+            if ((unsigned int)mcLoc < (*curve)->lastPointPlotted)
+            {
+               // Get the next marker
+               ++mcIndex;
+               if (mcIndex < mcCount)
+                  mcLoc = (*mcs)[mcIndex];
+            }
+
             int j;
             int x0, y0, x1, y1;
-
-            bool UseMarker();
-            int  GetMarker();
 
             bool drawLines   = (*curve)->UseLine();
             bool drawMarker  = (*curve)->UseMarker();
@@ -302,6 +337,24 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
             for (j = (*curve)->lastPointPlotted;
                  j < (int)((*curve)->abscissa.size())-1; ++j)
             {
+               if (j == ccLoc)
+               {
+                  plotPens[n].SetColour((*curve)->GetColour(ccIndex));
+                  // Get the next color
+                  ++ccIndex;
+                  if (ccIndex < ccCount)
+                     ccLoc = (*ccs)[ccIndex];
+               }
+
+               if (j == mcLoc)
+               {
+                  markerStyle = (*curve)->GetMarker(mcIndex);
+                  // Get the next marker
+                  ++mcIndex;
+                  if (mcIndex < mcCount)
+                     mcLoc = (*mcs)[mcIndex];
+               }
+
                if (j != pupLoc)
                {
                   x0 = int(left +
@@ -320,26 +373,7 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                   }
 
                   if (drawMarker)
-                  {
-                     switch (markerStyle)
-                     {
-                        case 0:
-                           dc.DrawLine(x0-markerSize, y0-markerSize,
-                                 x0+markerSize, y0+markerSize);
-                           dc.DrawLine(x0+markerSize, y0-markerSize,
-                                 x0-markerSize, y0+markerSize);
-                           break;
-
-                        case 1:
-                           dc.DrawCircle(x0, y0, markerSize);
-                           break;
-
-                        case 2:
-                           dc.DrawLine(x0-markerSize, y0, x0+markerSize, y0);
-                           dc.DrawLine(x0, y0-markerSize, x0, y0+markerSize);
-                           break;
-                     }
-                  }
+                     DrawMarker(dc, markerStyle, markerSize, x0, y0, plotPens[n]);
                }
                else
                {
@@ -359,25 +393,7 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                y1 = int(top +
                      (currentYMax-(*curve)->ordinate[k])*yScale + 0.5);
 
-               switch (markerStyle)
-               {
-                  case xMarker:  // x marks the spot
-                     dc.DrawLine(x1-markerSize, y1-markerSize,
-                           x1+markerSize, y1+markerSize);
-                     dc.DrawLine(x1+markerSize, y1-markerSize,
-                           x1-markerSize, y1+markerSize);
-                     break;
-
-                  case circleMarker:  // Put an o there
-                     dc.DrawCircle(x1, y1, markerSize);
-                     break;
-
-                  case plusMarker:  // + mark here
-                  default:
-                     dc.DrawLine(x1-markerSize, y1, x1+markerSize+1, y1);
-                     dc.DrawLine(x1, y1-markerSize, x1, y1+markerSize+1);
-                     break;
-               }
+               DrawMarker(dc, markerStyle, markerSize, x1, y1, plotPens[n]);
             }
 
             (*curve)->lastPointPlotted = j-1;

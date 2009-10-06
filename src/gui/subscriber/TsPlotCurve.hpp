@@ -36,6 +36,7 @@ public:
    
    void AddData(double x, double y);
    void SetColour(wxColour rgb);
+   wxColour GetColour(int whichOne = 0);
    void SetWidth(int w);
    int  GetWidth();
    void SetStyle(int ls);
@@ -45,8 +46,8 @@ public:
    bool UseLine(bool tf);
    bool UseMarker();
    bool UseMarker(bool tf);
-   int  GetMarker();
-   void SetMarker(MarkerType newType);
+   int  GetMarker(int whichOne = 0);
+   void SetMarker(MarkerType newType, int where = 0);
    int  GetMarkerSize();
    void SetMarkerSize(int newSize);
 
@@ -62,6 +63,8 @@ public:
    virtual void PenDown();
    
    const std::vector<int>* GetPenUpLocations();
+   const std::vector<int>* GetColorChangeLocations();
+   const std::vector<int>* GetMarkerChangeLocations();
    virtual void Rescale();
 
 protected:
@@ -75,7 +78,7 @@ protected:
    
    bool   useLines;
    bool   useMarkers;
-   int    markerStyle;
+   int    currentMarkerStyle;
    int    markerSize;
 
    // Interpolator *mInterp;
@@ -89,7 +92,11 @@ protected:
    /// vector of line colors
    std::vector<wxColour> linecolor;
    /// Location for color changes
-   std::vector<int>     colorChange;
+   std::vector<int>     colorIndex;
+   /// List of marker styles used; first entry is style on the legend
+   std::vector<MarkerType> markerStyles;
+   /// Location for marker style changes
+   std::vector<int>     markerIndex;
    /// Line width.  This parameter is set for the entire line
    int                  lineWidth;
    /// Line style.  This parameter is set for the entire line

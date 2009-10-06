@@ -416,6 +416,95 @@ void TsPlotCanvas::Refresh(wxDC &dc, bool drawAll)
 }
 
 
+void TsPlotCanvas::DrawMarker(wxDC &dc, int style, int markerSize, int x0,
+      int y0, wxPen &thePen)
+{
+   wxPen currentPen = dc.GetPen();
+   dc.SetPen(thePen);
+   switch (style)
+   {
+      case xMarker:
+         dc.DrawLine(x0-markerSize, y0-markerSize,
+               x0+markerSize, y0+markerSize);
+         dc.DrawLine(x0+markerSize, y0-markerSize,
+               x0-markerSize, y0+markerSize);
+         break;
+
+      case circleMarker:
+         dc.DrawCircle(x0, y0, markerSize);
+         break;
+
+      case plusMarker:
+         dc.DrawLine(x0-markerSize, y0, x0+markerSize, y0);
+         dc.DrawLine(x0, y0-markerSize, x0, y0+markerSize);
+         break;
+
+      case starMarker:
+         dc.DrawLine(x0-markerSize, y0, x0+markerSize, y0);
+         dc.DrawLine(x0, y0-markerSize, x0, y0+markerSize);
+         dc.DrawLine(x0-markerSize, y0-markerSize,
+               x0+markerSize, y0+markerSize);
+         dc.DrawLine(x0-markerSize, y0+markerSize,
+               x0+markerSize, y0-markerSize);
+         break;
+
+      case squareMarker:
+         dc.DrawLine(x0-markerSize, y0-markerSize,
+               x0+markerSize, y0-markerSize);
+         dc.DrawLine(x0-markerSize, y0-markerSize,
+               x0-markerSize, y0+markerSize);
+         dc.DrawLine(x0+markerSize, y0-markerSize,
+               x0+markerSize, y0+markerSize);
+         dc.DrawLine(x0-markerSize, y0+markerSize,
+               x0+markerSize, y0+markerSize);
+         break;
+
+      case diamondMarker:
+         dc.DrawLine(x0-markerSize, y0, x0, y0-markerSize);
+         dc.DrawLine(x0, y0-markerSize, x0+markerSize, y0);
+         dc.DrawLine(x0+markerSize, y0, x0, y0+markerSize);
+         dc.DrawLine(x0, y0+markerSize, x0-markerSize, y0);
+         break;
+
+      case xsquareMarker:
+         dc.DrawLine(x0-markerSize, y0-markerSize,
+               x0+markerSize, y0-markerSize);
+         dc.DrawLine(x0-markerSize, y0-markerSize,
+               x0+markerSize, y0+markerSize);
+         dc.DrawLine(x0+markerSize, y0-markerSize,
+               x0-markerSize, y0+markerSize);
+         dc.DrawLine(x0-markerSize, y0+markerSize,
+               x0+markerSize, y0+markerSize);
+         break;
+
+      case triangleMarker:
+         dc.DrawLine(x0-markerSize, y0+markerSize,
+               x0+markerSize, y0+markerSize);
+         dc.DrawLine(x0-markerSize, y0+markerSize, x0,
+               y0-markerSize);
+         dc.DrawLine(x0+markerSize, y0+markerSize, x0,
+               y0-markerSize);
+         break;
+
+      case nablaMarker:
+         dc.DrawLine(x0-markerSize, y0-markerSize,
+               x0+markerSize, y0-markerSize);
+         dc.DrawLine(x0-markerSize, y0-markerSize, x0,
+               y0+markerSize);
+         dc.DrawLine(x0+markerSize, y0-markerSize, x0,
+               y0+markerSize);
+         break;
+
+      default: // Same as xMarker
+         dc.DrawLine(x0-markerSize, y0-markerSize,
+               x0+markerSize, y0+markerSize);
+         dc.DrawLine(x0+markerSize, y0-markerSize,
+               x0-markerSize, y0+markerSize);
+         break;
+   }
+
+}
+
 void TsPlotCanvas::DrawGrid(wxDC &dc)
 {
    wxCoord w, h;
@@ -452,7 +541,7 @@ void TsPlotCanvas::DrawLegend(wxDC &dc)
 
    int j = 0, h = 16, w = 16, labelCount = (int)names.size();
    wxString label;
-   int xloc, yloc, rowCount = 1, colCount;
+   int xloc, yloc, rowCount = 1, colCount, markerReserve = 0;
 
    if (legendColumns > 0)
    {
@@ -462,21 +551,30 @@ void TsPlotCanvas::DrawLegend(wxDC &dc)
    else
       colCount = labelCount;
 
+   for (unsigned int j = 0; j < data.size(); ++j)
+      if (data[j]->UseMarker())
+      {
+         markerReserve = 8;
+         break;
+      }
+
    wxColour textFore = dc.GetTextForeground();
 
    dc.SetFont(legendFont);
 
    // Find widest text extent
-   int maxw = 0;
+   int maxw = 0, maxh = 0;
    for (j = 0; j < labelCount; ++j)
    {
       dc.GetTextExtent(names[j].c_str(), &w, &h);
       if (w > maxw)
          maxw = w;
+      if (h > maxh)
+         maxh = h;
    }
 
    legendRect.height = (h+1)*rowCount + 8;
-   legendRect.width = (maxw + 10) * colCount;
+   legendRect.width = (maxw + markerReserve + 10) * colCount;
 
    if ((maxw > 0) && (initializeLegendLoc))
    {
@@ -505,9 +603,15 @@ void TsPlotCanvas::DrawLegend(wxDC &dc)
    {
       dc.SetTextForeground(plotPens[j].GetColour());
       label = _T(names[j].c_str());
-      xloc = legendRect.x + 6;
+      xloc = legendRect.x + markerReserve + 6;
       yloc = legendRect.y + (h+1)*j + 4;
       dc.DrawText(label, xloc, yloc);
+
+      if (data[j]->UseMarker())
+      {
+         int markerStyle = data[j]->GetMarker();
+         DrawMarker(dc, markerStyle, 3, xloc - markerReserve + 2, yloc + maxh/2, plotPens[j]);
+      }
    }
 
    dc.SetTextForeground(textFore);
@@ -1139,6 +1243,7 @@ void TsPlotCanvas::Rescale()
 
    wxClientDC dc(this);
    Rescale(dc);
+   wxWindow::Refresh(true);
 }
 
 void TsPlotCanvas::SetTickCount(int count, bool isXAxis)
