@@ -22,14 +22,25 @@ USE_SHARED = 1
 # flag indicating whether or not to build as a shared library
 SHARED_BASE = 1
 
-# *** EDIT THIS *** - put the top of the GMAT project directory structure here .... *** MUST BE EDITTED ***
-TOP_DIR = < put your top level directory here >
+# *** EDIT THIS *** - put the top of the GMAT project directory structure here ....  *** MUST BE EDITED ****
+TOP_DIR = <<<<<put your top level directory here!!!!!!>>>>>   
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
 WX_HOME = /Applications/wxmac-2.8.10/osx-build
 # *** EDIT THIS *** - 'sudo make install' of wxMac will put things here ......
 WX_INSTALLED = /usr/local/bin
 # *** EDIT THIS *** - this is where you installed MATLAB ......
-MATLAB = /Applications/MATLAB_R2007b
+# NOTE! for later versions of MATLAB, this needs to be the actual application bundle
+# and you must also provide the name of the hdf dylib
+MATLAB = /Applications/MATLAB_R2009b/MATLAB_R2009a.app
+#MATLAB = /Applications/MATLAB_R2007b
+MATLAB_LIB_DIR = $(MATLAB)/bin/maci
+MATLAB_HDF = -lhdf5.5
+MATLAB_ICUDATA = $(MATLAB_LIB_DIR)/libicudata.dylib.38 $(MATLAB_LIB_DIR)/libicui18n.dylib.38 \
+   $(MATLAB_LIB_DIR)/libicuio.dylib.38 $(MATLAB_LIB_DIR)/libicuuc.dylib.38
+#MATLAB_HDF = -lhdf5.0  
+#MATLAB_ICUDATA = $(MATLAB_LIB_DIR)/libicudata.dylib.36 $(MATLAB_LIB_DIR)/libicui18n.dylib.36 \
+#   $(MATLAB_LIB_DIR)/libicuio.dylib.36 $(MATLAB_LIB_DIR)/libicuuc.dylib.36
+
 # *** EDIT THIS *** - this should match the version of wxMac you are using
 INSTALL_WX_LIBS = install_libs_into_bundle_2_8_10
 
@@ -72,7 +83,7 @@ MATLAB_LIB = -L${MATLAB}/bin/maci \
              -L${MATLAB}/sys/os/maci
 MATLAB_LIBRARIES = -leng -lmx -lut -lmat \
                    -lz -lstdc++ -lc \
-                   -licudata -licuuc -licui18n -licuio -lz.1 -lxerces-c.27 -lhdf5.0
+                   $(MATLAB_ICUDATA) -lz.1 -lxerces-c.27 $(MATLAB_HDF)
 
 # DevIL data
 ifeq ($(USE_DEVIL), 1)
