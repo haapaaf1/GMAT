@@ -481,20 +481,22 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
 
 
 //------------------------------------------------------------------------------
-// std::string ToString(const Real &val, Integer precision, bool showPoint)
+// std::string ToString(const Real &val, Integer precision, bool showPoint,
+//                      Integer width)
 //------------------------------------------------------------------------------
 /*
  * Formats Real value to String.
  *
- * @param  val  Real value
+ * @param  val        Real value
  * @param  precision  Precision to be used in formatting
  * @param  showPoint  Formats using ios::showpoint if true (false)
+ * @param  width      Width to be used in formatting (1)
  */
 //------------------------------------------------------------------------------
 std::string GmatStringUtil::ToString(const Real &val, Integer precision,
-                                     bool showPoint)
+                                     bool showPoint, Integer width)
 {
-   return GmatRealUtil::ToString(val, false, false, showPoint, precision, 1);
+   return GmatRealUtil::ToString(val, false, false, showPoint, precision, width);
 }
 
 
