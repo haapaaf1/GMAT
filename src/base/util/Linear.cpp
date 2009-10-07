@@ -454,6 +454,7 @@ std::string GmatRealUtil::ToString(const Real &rval, bool useCurrentFormat,
    std::stringstream ss("");
    ss.width(w);
    ss.precision(p);
+   ss.setf(std::ios::left);
    
    if (isShowPointSet)
       ss.setf(std::ios::showpoint);
