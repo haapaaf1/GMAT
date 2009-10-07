@@ -1976,8 +1976,8 @@ void ScriptInterpreter::WriteSubscribers(StringArray &objs, Gmat::WriteMode mode
    StringArray::iterator current;
    GmatBase *object =  NULL;
    
-   WriteSectionDelimiter(objs[0], "Plots and Reports");
-      
+   WriteSectionDelimiter(objs[0], "Subscribers");
+   
    for (current = objs.begin(); current != objs.end(); ++current)
    {
       object = FindObject(*current);
