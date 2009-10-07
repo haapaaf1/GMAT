@@ -330,6 +330,9 @@ void TsPlotCurve::Rescale()
 
 void TsPlotCurve::SetColour(wxColour rgb, int where)
 {
+//   MessageInterface::ShowMessage("Color %s starts at %d",
+//		   rgb.GetAsString(wxC2S_CSS_SYNTAX).c_str(), where);
+
    if (where == -1)
       where = abscissa.size();
    if ((where != 0) || (linecolor.size() == 0))
@@ -460,6 +463,7 @@ void TsPlotCurve::SetMarker(MarkerType newType, int where)
       {
          markerIndex.push_back(0);
          markerStyles.push_back(newType);
+         currentMarkerStyle = newType;
       }
       else
       {

@@ -618,7 +618,7 @@ void TsPlotCanvas::DrawLegend(wxDC &dc)
 
    for (j = 0; j < labelCount; ++j)
    {
-      dc.SetTextForeground(plotPens[j].GetColour());
+	  dc.SetTextForeground(data[j]->GetColour(0));
       label = _T(names[j].c_str());
       xloc = legendRect.x + markerReserve + 6;
       yloc = legendRect.y + (h+1)*j + 4;
@@ -626,8 +626,10 @@ void TsPlotCanvas::DrawLegend(wxDC &dc)
 
       if (data[j]->UseMarker())
       {
-         int markerStyle = data[j]->GetMarker();
-         DrawMarker(dc, markerStyle, 3, xloc - markerReserve + 2, yloc + maxh/2, plotPens[j]);
+         int markerStyle = data[j]->GetMarker(0);
+         wxPen mPen = plotPens[j];
+         mPen.SetColour(data[j]->GetColour(0));
+         DrawMarker(dc, markerStyle, 3, xloc - markerReserve + 2, yloc + maxh/2, mPen);
       }
    }
 
@@ -742,9 +744,6 @@ void TsPlotCanvas::AddData(TsPlotCurve *curve, wxColour startColor)
    curve->SetColour(plotPens[penID].GetColour());
    if (curve->GetMarker() == unsetMarker)
       curve->SetMarker((MarkerType)(data.size() % MarkerCount));
-
-   curve->SetMarker((MarkerType)((data.size() + 2) % MarkerCount), 25);
-//   curve->SetColour(, 125);
 }
 
 
