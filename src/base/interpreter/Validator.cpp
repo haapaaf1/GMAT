@@ -1804,7 +1804,8 @@ AxisSystem* Validator::CreateAxisSystem(std::string type, GmatBase *owner)
 {
    #ifdef DEBUG_AXIS_SYSTEM
    MessageInterface::ShowMessage
-      ("Validator::CreateAxisSystem() type = '%s'\n", type.c_str());
+      ("Validator::CreateAxisSystem() type = '%s', owner='%s'\n",
+       type.c_str(), owner->GetName().c_str());
    #endif
    
    if (owner == NULL)
@@ -1824,9 +1825,41 @@ AxisSystem* Validator::CreateAxisSystem(std::string type, GmatBase *owner)
       return NULL;
    }
    
-   AxisSystem* axis = (AxisSystem *)(theModerator->CreateAxisSystem(type, ""));
-   // Moved setting ref object to CreateCoordSystemProperty()
-   //owner->SetRefObject(axis, axis->GetType(), axis->GetName());
+   AxisSystem *axis = NULL;
+   
+   // Clone the axis if it is not NULL and has the same type(LOJ: 2009.10.06)
+   // So primary and secondary names can be copied
+   // This will fix bug 1386 (using ObjectReferenced CoordinateSystem inside a function)
+   // Before this fix: we used to get
+   // CoordinateSystem exception: Primary "" is not yet set in object referenced!
+   
+   // Get AxisSystem from the CoordinateSystem
+   AxisSystem *ownedAxis = (AxisSystem *)(owner->GetRefObject(Gmat::AXIS_SYSTEM, ""));
+   if (ownedAxis != NULL)
+   {
+      #ifdef DEBUG_AXIS_SYSTEM
+      MessageInterface::ShowMessage
+         ("   ownedAxis=<%p><%s>'%s', usingPrimary=%d\n", ownedAxis,
+          ownedAxis->GetTypeName().c_str(), 
+          ownedAxis->GetName().c_str(), ownedAxis->UsesPrimary());
+      #endif
+      
+      if (type == ownedAxis->GetTypeName())
+      {
+         axis = (AxisSystem *)(ownedAxis->Clone());
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (axis, axis->GetName(), "Validator::CreateAxisSystem()",
+             "axis = (AxisSystem *)(ownedAxis->Clone()");
+         #endif
+      }
+      else
+         axis = (AxisSystem *)(theModerator->CreateAxisSystem(type, ""));
+   }
+   else
+   {
+      axis = (AxisSystem *)(theModerator->CreateAxisSystem(type, ""));
+   }
    
    #ifdef DEBUG_AXIS_SYSTEM
    MessageInterface::ShowMessage
