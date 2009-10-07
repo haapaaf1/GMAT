@@ -16,19 +16,27 @@
 //------------------------------------------------------------------------------
 
 #include "EphemerisFile.hpp"
-#include "Publisher.hpp"           // for Instance()
-#include "FileManager.hpp"         // for GetPathname()
-#include "SubscriberException.hpp" // for exception
-#include "StringUtil.hpp"          // for ToString()
-#include "TimeSystemConverter.hpp" // for ValidateTimeFormat()
+#include "Publisher.hpp"             // for Instance()
+#include "FileManager.hpp"           // for GetPathname()
+#include "SubscriberException.hpp"   // for exception
+#include "StringUtil.hpp"            // for ToString()
+#include "TimeSystemConverter.hpp"   // for ValidateTimeFormat()
+#include "LagrangeInterpolator.hpp" 
 #include "MessageInterface.hpp"
-#include <iomanip>
-#include <sstream>
 
 //#define DEBUG_EPHEMFILE_SET
 //#define DEBUG_EPHEMFILE_INIT
 //#define DEBUG_EPHEMFILE_OPEN
+//#define DEBUG_EPHEMFILE_TIME
 //#define DBGLVL_EPHEMFILE_DATA 1
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //---------------------------------
 // static data
@@ -98,9 +106,11 @@ EphemerisFile::EphemerisFile(const std::string &name) :
    coordSystemName    ("EarthMJ2000Eq"),
    writeEphemeris     ("Yes"),
    interpolationOrder (7),
-   stepSizeReal       (-999.999),
+   stepSizeInA1Mjd    (-999.999),
    initialEpochA1Mjd  (-999.999),
    finalEpochA1Mjd    (-999.999),
+   firstTimeWriting   (true),
+   useStepSize        (false),
    writeOrbit         (false),
    writeAttitude      (false),
    writeDataInDataCS  (true)
@@ -149,12 +159,14 @@ EphemerisFile::EphemerisFile(const std::string &name) :
 
 
 //------------------------------------------------------------------------------
-// ~EphemerisFile(void)
+// ~EphemerisFile()
 //------------------------------------------------------------------------------
-EphemerisFile::~EphemerisFile(void)
+EphemerisFile::~EphemerisFile()
 {
    dstream.flush();
    dstream.close();
+   if (interpolator != NULL)
+      delete interpolator;
 }
 
 
@@ -165,7 +177,7 @@ EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    Subscriber         (ef),
    spacecraft         (ef.spacecraft),
    coordSystem        (ef.coordSystem),
-   interpolator       (ef.interpolator),
+   interpolator       (NULL),
    oututPath          (ef.oututPath),
    filePath           (ef.filePath),
    spacecraftName     (ef.spacecraftName),
@@ -180,9 +192,11 @@ EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    coordSystemName    (ef.coordSystemName),
    writeEphemeris     (ef.writeEphemeris),
    interpolationOrder (ef.interpolationOrder),
-   stepSizeReal       (ef.stepSizeReal),
+   stepSizeInA1Mjd    (ef.stepSizeInA1Mjd),
    initialEpochA1Mjd  (ef.initialEpochA1Mjd),
    finalEpochA1Mjd    (ef.finalEpochA1Mjd),
+   firstTimeWriting   (ef.firstTimeWriting),
+   useStepSize        (ef.useStepSize),
    writeOrbit         (ef.writeOrbit),
    writeAttitude      (ef.writeAttitude),
    writeDataInDataCS  (ef.writeDataInDataCS)
@@ -222,9 +236,11 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    coordSystemName    = ef.coordSystemName;
    writeEphemeris     = ef.writeEphemeris;
    interpolationOrder = ef.interpolationOrder;
-   stepSizeReal       = ef.stepSizeReal;
+   stepSizeInA1Mjd    = ef.stepSizeInA1Mjd;
    initialEpochA1Mjd  = ef.initialEpochA1Mjd;
    finalEpochA1Mjd    = ef.finalEpochA1Mjd;
+   firstTimeWriting   = ef.firstTimeWriting;
+   useStepSize        = ef.useStepSize;
    writeOrbit         = ef.writeOrbit;
    writeAttitude      = ef.writeAttitude;
    writeDataInDataCS  = ef.writeDataInDataCS;
@@ -352,22 +368,17 @@ bool EphemerisFile::Initialize()
    #endif
    
    Subscriber::Initialize();
+   
+   // Do some validation, reset flags and clear buffers
    ValidateParameters();
+   
+   firstTimeWriting = true;
+   epochWaiting.clear();
    
    #ifdef DEBUG_EPHEMFILE_INIT
    MessageInterface::ShowMessage
       ("   spacecraft=<%p>'%s', coordSystem=<%p>'%s'\n", spacecraft,
        spacecraft->GetName().c_str(), coordSystem, coordSystem->GetName().c_str());
-   #endif
-   
-   // @todo
-   // If interpolator is not NULL, delete it first
-   #if 0 // Interpolator is not ready to use
-   // Create Interpolator
-   if (interpolatorName == "Lagrange")
-      interpolator = new Lagrange;
-   else if (interpolatorName == "SLERP")
-      interpolator = new SLERP;
    #endif
    
    // If active and not initialized already, open report file
@@ -385,6 +396,9 @@ bool EphemerisFile::Initialize()
       
       isInitialized = true;
    }
+   
+   // Create interpolator if needed
+   CreateInterpolator();
    
    // Determine orbit or attitude, set to boolean to avoid string comparison
    if (stateType == "Cartesian")
@@ -408,7 +422,7 @@ bool EphemerisFile::Initialize()
    if (finalEpoch != "FinalSpacecraftEpoch")
       TimeConverterUtil::Convert(epochFormat, dummyA1Mjd, finalEpoch,
                                  "A1ModJulian", finalEpochA1Mjd, epochStr);
-   
+
    // Set solver iteration option to none. We only writes solutions to a file
    mSolverIterOption = SI_NONE;
    
@@ -929,6 +943,54 @@ const StringArray& EphemerisFile::GetRefObjectNameArray(const Gmat::ObjectType t
 //--------------------------------------
 
 //------------------------------------------------------------------------------
+// void CreateInterpolator()
+//------------------------------------------------------------------------------
+void EphemerisFile::CreateInterpolator()
+{
+   #ifdef DEBUG_EPHEMFILE_INTERPOLATOR
+   MessageInterface::ShowMessage
+      ("EphemerisFile::CreateInterpolator() entered, interpolator=<%p>'%s'\n",
+       interpolator, interpolator ? interpolator->GetName().c_str() : "NULL");
+   #endif
+   
+   // If interpolator is not NULL, delete it first
+   if (interpolator != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (interpolator, interpolator->GetName(), "EphemerisFile::CreateInterpolator()",
+          "deleting local interpolator");
+      #endif
+      delete interpolator;
+      interpolator = NULL;
+   }
+   
+   // Create Interpolator
+   if (interpolatorName == "Lagrange")
+   {
+      interpolator = new LagrangeInterpolator(instanceName+"_Lagrange", 6,
+                                              interpolationOrder);
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (interpolator, interpolator->GetName(), "EphemerisFile::CreateInterpolator()",
+          "interpolator = new LagrangeInterpolator()");
+      #endif
+   }
+   else if (interpolatorName == "SLERP")
+   {
+      MessageInterface::ShowMessage("==> SLERP interpolator is not ready\n");
+      //interpolator = new SLERP;
+   }
+   
+   #ifdef DEBUG_EPHEMFILE_INTERPOLATOR
+   MessageInterface::ShowMessage
+      ("EphemerisFile::CreateInterpolator() leaving, interpolator=<%p>'%s'\n",
+       interpolator, interpolator ? interpolator->GetName().c_str() : "NULL");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
 // bool OpenEphemerisFile()
 //------------------------------------------------------------------------------
 bool EphemerisFile::OpenEphemerisFile()
@@ -961,18 +1023,69 @@ bool EphemerisFile::OpenEphemerisFile()
 
 
 //------------------------------------------------------------------------------
-// void WriteOrbit()
+// bool IsTimeToWrite(Real epoch, Real *state)
+//------------------------------------------------------------------------------
+/*
+ * Determines if it is time to write to ephemeris file based on the step size.
+ */
+//------------------------------------------------------------------------------
+bool EphemerisFile::IsTimeToWrite(Real epoch, Real *state)
+{
+   #ifdef DEBUG_EPHEMFILE_TIME
+   MessageInterface::ShowMessage
+      ("EphemerisFile::IsTimeToWrite() entered, epoch=%f\n", epoch);
+   #endif
+   bool retval = true;
+   
+   // If writing at specified interval step, do checking
+   if (useStepSize)
+   {
+      // Add data points
+      interpolator->AddPoint(epoch, state);
+      
+      if (firstTimeWriting)
+      {
+         nextOutEpoch = epoch;
+         retval = true;
+      }
+      else
+      {
+         if (epoch >= nextOutEpoch)
+         {
+            // Compute new output time
+            nextOutEpoch = nextOutEpoch + stepSizeInA1Mjd;
+            retval = true;
+         }
+         else
+            retval = false;
+      }
+   }
+   
+   #ifdef DEBUG_EPHEMFILE_TIME
+   MessageInterface::ShowMessage
+      ("EphemerisFile::IsTimeToWrite() returning %d\n", retval);
+   #endif
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteOrbit(Real epoch, Real *state)
 //------------------------------------------------------------------------------
 /**
  * Writes spacecraft orbit data to a ephemeris file
  */
 //------------------------------------------------------------------------------
-void EphemerisFile::WriteOrbit()
+void EphemerisFile::WriteOrbit(Real epoch, Real *state)
 {
-   // Get spacecraft current cartesian state
-   Real epoch = spacecraft->GetEpoch();
-   Rvector6 scState;
-   scState.Set(spacecraft->GetState().GetState());
+   #ifdef DEBUG_EPHEMFILE_WRITE
+   MessageInterface::ShowMessage
+      ("EphemerisFile::WriteOrbit() entered, epoch=%f, state[0]=%f\n",
+       epoch, state[0]);
+   #endif
+   
+   Rvector6 inState;
+   inState.Set(state);
    Rvector6 outState;
    Real toMjd;
    std::string epochStr;
@@ -983,11 +1096,11 @@ void EphemerisFile::WriteOrbit()
    // Convert orbit data to output coordinate system
    if (writeDataInDataCS)
    {
-      outState = scState;
+      outState = inState;
    }
    else
    {
-      coordConverter.Convert(A1Mjd(epoch), scState, theDataCoordSystem,
+      coordConverter.Convert(A1Mjd(epoch), inState, theDataCoordSystem,
                              outState, coordSystem, true);
    }
    
@@ -996,6 +1109,91 @@ void EphemerisFile::WriteOrbit()
            epochStr.c_str(), outState[0], outState[1], outState[2], outState[3],
            outState[4], outState[5]);
    dstream << strBuff;
+   
+   #ifdef DEBUG_EPHEMFILE_WRITE
+   MessageInterface::ShowMessage("EphemerisFile::WriteOrbit() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteOrbitAt(Real epoch, Real *state)
+//------------------------------------------------------------------------------
+/**
+ * Writes spacecraft orbit data to a ephemeris file at epoch
+ */
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteOrbitAt(Real epoch, Real *state)
+{
+   #ifdef DEBUG_EPHEMFILE_ORBIT
+   MessageInterface::ShowMessage
+      ("EphemerisFile::WriteOrbitAt() entered, epoch=%f\n", epoch);
+   #endif
+   
+   if (firstTimeWriting)
+   {
+      WriteOrbit(epoch, state);
+      firstTimeWriting = false;
+   }
+   else
+   {
+      Real estimates[6];
+      Integer retval;
+      
+      // Process any epochs on waiting
+      #ifdef DEBUG_EPHEMFILE_ORBIT
+      MessageInterface::ShowMessage
+         ("   There are %d epochs waiting to be output\n", epochWaiting.size());
+      #endif
+      
+      RealArray::iterator i = epochWaiting.begin();
+      while (i < epochWaiting.end())
+      {
+         retval =  interpolator->IsInterpolationFeasible(*i);
+         if (retval == 1)
+         {
+            // Now interpolate at current epoch
+            #ifdef DEBUG_EPHEMFILE_ORBIT
+            MessageInterface::ShowMessage
+               ("   Now interpolating at epoch %f\n", *i);
+            #endif
+            interpolator->Interpolate(*i, estimates);
+            WriteOrbit(epoch, estimates);
+            epochWaiting.erase(i);
+            ++i;
+         }
+         else
+         {
+            // @todo do more checking here
+            #ifdef DEBUG_EPHEMFILE_ORBIT
+            MessageInterface::ShowMessage
+               ("   epoch %f is not feasible so exiting the loop\n");
+            #endif
+            break;
+         }
+      }
+      
+      // Check for interpolation feasibility
+      if (interpolator->IsInterpolationFeasible(epoch) == 1)
+      {
+         interpolator->Interpolate(epoch, estimates);
+         WriteOrbit(epoch, estimates);
+      }
+      else
+      {
+         // Push to waiting list
+         #ifdef DEBUG_EPHEMFILE_ORBIT
+         MessageInterface::ShowMessage
+            ("   ==> epoch %f is not feasible so pushing it to epochWaiting\n",
+             epoch);
+         #endif
+         epochWaiting.push_back(epoch);
+      }
+   }
+   
+   #ifdef DEBUG_EPHEMFILE_ORBIT
+   MessageInterface::ShowMessage("EphemerisFile::WriteOrbitAt() leaving\n");
+   #endif
 }
 
 
@@ -1049,6 +1247,14 @@ bool EphemerisFile::SetEpoch(Integer id, const std::string &value,
 //------------------------------------------------------------------------------
 // bool SetStepSize(const std::string &value)
 //------------------------------------------------------------------------------
+/*
+ * Sets real value step size.
+ *
+ * @param value step size value string
+ *
+ * @exception SubscriberException is thrown if value not converted to real number
+ */
+//------------------------------------------------------------------------------
 bool EphemerisFile::SetStepSize(Integer id, const std::string &value,
                                 const StringArray &allowedValues)
 {
@@ -1065,7 +1271,15 @@ bool EphemerisFile::SetStepSize(Integer id, const std::string &value,
    }
    
    stepSize = value;
-   stepSizeReal = rval;
+   stepSizeInA1Mjd = rval / 86400.0;
+   useStepSize = true;
+   
+   #ifdef DEBUG_EPHEMFILE_SET
+   MessageInterface::ShowMessage
+      ("EphemerisFile::SetStepSize() leaving, stepSize='%s', stepSizeInA1Mjd=%f\n",
+       stepSize.c_str(), stepSizeInA1Mjd);
+   #endif
+   
    return true;
 }
 
@@ -1157,9 +1371,12 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
       return true;
    }
    
-   // Check initial and final epoch for writing, dat[0] is time
+   // Check initial and final epoch for writing, dat[0] is epoch
    bool writeData = false;
-   Real currTime = dat[0];
+   Real currEpoch = dat[0];
+   Real currState[6];
+   for (int i=0; i<6; i++)
+      currState[i] = dat[i+1];
    
    // From InitialSpacecraftEpoch to FinalSpacecraftEpoch
    if (initialEpochA1Mjd == -999.999 && finalEpochA1Mjd == -999.999)
@@ -1169,40 +1386,50 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
    // From InitialSpacecraftEpoch to user specified final epoch
    else if (initialEpochA1Mjd == -999.999 && finalEpochA1Mjd != -999.999)
    {
-      if (currTime <= finalEpochA1Mjd)
+      if (currEpoch <= finalEpochA1Mjd)
          writeData = true;
    }
    // From user specified initial epoch to FinalSpacecraftEpoch
    else if (initialEpochA1Mjd != -999.999 && finalEpochA1Mjd == -999.999)
    {
-      if (currTime >= initialEpochA1Mjd)
+      if (currEpoch >= initialEpochA1Mjd)
          writeData = true;
    }
    // From user specified initial epoch to user specified final epoch
    else
    {
-      if (currTime >= initialEpochA1Mjd && currTime <= finalEpochA1Mjd)
+      if (currEpoch >= initialEpochA1Mjd && currEpoch <= finalEpochA1Mjd)
          writeData = true;
    }
    
    #if DBGLVL_EPHEMFILE_DATA > 0
    MessageInterface::ShowMessage
       ("   Start writing data, time=%f, writeData=%d, writeOrbit=%d, "
-       "writeAttitude=%d\n", currTime, writeData, writeOrbit, writeAttitude);
+       "writeAttitude=%d\n", currEpoch, writeData, writeOrbit, writeAttitude);
    #endif
    
-   // Now actually write data
-   if (writeData)
-   {
-      if (writeOrbit)
-         WriteOrbit();
-      else if (writeAttitude)
-         WriteAttitude();
-   }
+   // Check if it is time to write
+   bool timeToWrite = IsTimeToWrite(currEpoch, currState);
    
    //------------------------------------------------------------
    // write data to file
    //------------------------------------------------------------
+   // Now actually write data
+   if (writeData && timeToWrite)
+   {
+      if (writeOrbit)
+      {
+         if (useStepSize)
+            WriteOrbitAt(nextOutEpoch, currState);
+         else
+            WriteOrbit(currEpoch, currState);
+      }
+      else if (writeAttitude)
+      {
+         WriteAttitude();
+      }
+   }
+   
    return true;
 }
 

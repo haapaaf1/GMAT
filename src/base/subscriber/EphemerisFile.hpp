@@ -104,10 +104,14 @@ protected:
    std::string writeEphemeris;
    Integer     interpolationOrder;
    
-   Real        stepSizeReal;
+   Real        stepSizeInA1Mjd;
    Real        initialEpochA1Mjd;
    Real        finalEpochA1Mjd;
+   Real        nextOutEpoch;
+   RealArray   epochWaiting;
    
+   bool        firstTimeWriting;
+   bool        useStepSize;
    bool        writeOrbit;
    bool        writeAttitude;
    bool        writeDataInDataCS;
@@ -132,6 +136,25 @@ protected:
    /// Available write ephemeris list
    static StringArray writeEphemerisList;
    
+   void        CreateInterpolator();
+   bool        OpenEphemerisFile();
+   bool        IsTimeToWrite(Real epoch, Real *state);
+   void        WriteOrbit(Real epoch, Real *state);
+   void        WriteOrbitAt(Real epoch, Real *state);
+   void        WriteAttitude();
+   bool        SetEpoch(Integer id, const std::string &value,
+                        const StringArray &allowedValues);
+   bool        SetStepSize(Integer id, const std::string &value,
+                           const StringArray &allowedValues);
+   void        HandleError(Integer id, const std::string &value,
+                           const StringArray &allowedValues,
+                           const std::string &additionalMsg = "");
+   std::string ToString(const StringArray &strList);
+   
+   // methods inherited from Subscriber
+   virtual bool         Distribute(Integer len);
+   virtual bool         Distribute(const Real * dat, Integer len);
+   
    enum
    {
       SPACECRAFT = SubscriberParamCount,
@@ -153,22 +176,6 @@ protected:
       PARAMETER_TEXT[EphemerisFileParamCount - SubscriberParamCount];
    static const Gmat::ParameterType
       PARAMETER_TYPE[EphemerisFileParamCount - SubscriberParamCount];
-   
-   bool        OpenEphemerisFile();
-   void        WriteOrbit();
-   void        WriteAttitude();
-   bool        SetEpoch(Integer id, const std::string &value,
-                        const StringArray &allowedValues);
-   bool        SetStepSize(Integer id, const std::string &value,
-                           const StringArray &allowedValues);
-   void        HandleError(Integer id, const std::string &value,
-                           const StringArray &allowedValues,
-                           const std::string &additionalMsg = "");
-   std::string ToString(const StringArray &strList);
-   
-   // methods inherited from Subscriber
-   virtual bool         Distribute(Integer len);
-   virtual bool         Distribute(const Real * dat, Integer len);
    
 };
 
