@@ -35,12 +35,13 @@ public:
    virtual ~TsPlotCurve();
    
    void AddData(double x, double y);
-   void SetColour(wxColour rgb);
+   void SetColour(wxColour rgb, int where = 0);
    wxColour GetColour(int whichOne = 0);
    void SetWidth(int w);
    int  GetWidth();
    void SetStyle(int ls);
    int  GetStyle();
+   void HighlightPoint(int index);
    
    bool UseLine();
    bool UseLine(bool tf);
@@ -65,6 +66,8 @@ public:
    const std::vector<int>* GetPenUpLocations();
    const std::vector<int>* GetColorChangeLocations();
    const std::vector<int>* GetMarkerChangeLocations();
+   const std::vector<int>* GetHighlightPoints();
+
    virtual void Rescale();
 
 protected:
@@ -97,6 +100,8 @@ protected:
    std::vector<MarkerType> markerStyles;
    /// Location for marker style changes
    std::vector<int>     markerIndex;
+   /// Location for highlighted points
+   std::vector<int>     highlightIndex;
    /// Line width.  This parameter is set for the entire line
    int                  lineWidth;
    /// Line style.  This parameter is set for the entire line

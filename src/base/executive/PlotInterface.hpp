@@ -104,6 +104,9 @@ public:
    static void ClearTsPlotData(const std::string &plotName);
    static void TsPlotPenUp(const std::string &plotName);
    static void TsPlotPenDown(const std::string &plotName);
+   static void TsPlotMarkPoint(const std::string &plotName, Integer index = -1,
+         Integer curveNumber = -1);
+
    static void TsPlotRescale(const std::string &plotName);
 
    static void TsPlotCurveSettings(const std::string &plotName,

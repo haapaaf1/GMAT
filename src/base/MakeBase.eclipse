@@ -190,6 +190,7 @@ OBJECTS = \
     command/If.o \
     command/ManageObject.o \
     command/Maneuver.o \
+    command/MarkPoint.o \
     command/Minimize.o \
     command/NonlinearConstraint.o \
     command/NoOp.o \

@@ -432,6 +432,14 @@ void PlotInterface::TsPlotPenDown(const std::string &plotName)
 }
 
 
+void PlotInterface::TsPlotMarkPoint(const std::string &plotName, Integer index,
+      Integer curveNumber)
+{
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->TsPlotMarkPoint(plotName, index, curveNumber);
+}
+
+
 //------------------------------------------------------------------------------
 // void TsPlotPenDown(const std::string &plotName))
 //------------------------------------------------------------------------------

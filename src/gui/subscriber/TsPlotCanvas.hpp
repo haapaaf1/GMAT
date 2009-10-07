@@ -71,6 +71,10 @@ public:
    
    void PenUp(int index = -1);
    void PenDown(int index = -1);
+   void MarkPoint(int index, int forCurve = -1);
+   void ChangeColor(int index, unsigned long newColor = 0xffffff,
+         int forCurve = -1);
+   void ChangeMarker(int index, int newMarker = -1, int forCurve = -1);
    
    void SetLineWidth(int w,  int lineId = -1);
    void SetLineStyle(int ls, int lineId = -1);

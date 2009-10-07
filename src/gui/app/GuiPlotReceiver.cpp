@@ -997,6 +997,76 @@ void GuiPlotReceiver::TsPlotPenDown(const std::string &plotName)
 }
 
 
+
+void GuiPlotReceiver::TsPlotMarkPoint(const std::string &plotName,
+      Integer index, Integer forCurve)
+{
+   #if DEBUG_PLOTIF_XY
+      MessageInterface::ShowMessage
+         ("GuiPlotReceiver::TsPlotPenDown() numChildren = %d\n",
+          MdiTsPlot::numChildren);
+   #endif
+
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->MarkPoint(index, forCurve);
+      }
+   }
+}
+
+
+void GuiPlotReceiver::TsPlotChangeColor(const std::string &plotName,
+      Integer index, UnsignedInt newColor, Integer forCurve)
+{
+   #if DEBUG_PLOTIF_XY
+      MessageInterface::ShowMessage
+         ("GuiPlotReceiver::TsPlotPenDown() numChildren = %d\n",
+          MdiTsPlot::numChildren);
+   #endif
+
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->ChangeColor(index, newColor, forCurve);
+      }
+   }
+}
+
+
+void GuiPlotReceiver::TsPlotChangeMarker(const std::string &plotName,
+      Integer index, Integer newMarker, Integer forCurve)
+{
+   #if DEBUG_PLOTIF_XY
+      MessageInterface::ShowMessage
+         ("GuiPlotReceiver::TsPlotPenDown() numChildren = %d\n",
+          MdiTsPlot::numChildren);
+   #endif
+
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->ChangeMarker(index, newMarker, forCurve);
+      }
+   }
+}
+
+
 void GuiPlotReceiver::TsPlotRescale(const std::string &plotName)
 {
    #if DEBUG_PLOTIF_XY

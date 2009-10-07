@@ -15,6 +15,7 @@
 
 #include "TsPlotXYCanvas.hpp"
 #include <sstream>
+#include <algorithm>
 
 #include "MessageInterface.hpp"
 
@@ -266,6 +267,7 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
       const std::vector<int> *pups;
       const std::vector<int> *ccs;
       const std::vector<int> *mcs;
+      const std::vector<int> *highlights;
       
       for (std::vector<TsPlotCurve *>::iterator curve = data.begin(); 
            curve != data.end(); ++curve)
@@ -273,6 +275,7 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
          pups = (*curve)->GetPenUpLocations(); // penUpLocations(n);
          ccs =  (*curve)->GetColorChangeLocations();
          mcs =  (*curve)->GetMarkerChangeLocations();
+         highlights = (*curve)->GetHighlightPoints();
 
          locCount = (int)pups->size();
          if (locCount > 0)
@@ -285,14 +288,14 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
          if (ccCount > 0)
          {
             ccIndex = 0;
-            ccLoc = (*ccs)[ccIndex];
+            ccLoc = 0;
          }
 
          mcCount = (int)mcs->size();
          if (mcCount > 0)
          {
             mcIndex = 0;
-            mcLoc = (*ccs)[ccIndex];
+            mcLoc = 0;
          }
 
          if ((*curve)->abscissa.size() > 0)
@@ -310,7 +313,7 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                   pupLoc = (*pups)[pupIndex];
             }
             
-            if ((unsigned int)ccLoc < (*curve)->lastPointPlotted)
+            if ((unsigned int)ccLoc <= (*curve)->lastPointPlotted)
             {
                // Get the next color
                ++ccIndex;
@@ -318,7 +321,7 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                   ccLoc = (*ccs)[ccIndex];
             }
 
-            if ((unsigned int)mcLoc < (*curve)->lastPointPlotted)
+            if ((unsigned int)mcLoc <= (*curve)->lastPointPlotted)
             {
                // Get the next marker
                ++mcIndex;
@@ -344,6 +347,7 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                   ++ccIndex;
                   if (ccIndex < ccCount)
                      ccLoc = (*ccs)[ccIndex];
+                  dc.SetPen(plotPens[n]);
                }
 
                if (j == mcLoc)
@@ -373,7 +377,14 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                   }
 
                   if (drawMarker)
-                     DrawMarker(dc, markerStyle, markerSize, x0, y0, plotPens[n]);
+                  {
+                     if (find(highlights->begin(), highlights->end(), j) != highlights->end())
+                        DrawMarker(dc, highlightMarker, markerSize, x0, y0, plotPens[n]);
+                     else
+                        DrawMarker(dc, markerStyle, markerSize, x0, y0, plotPens[n]);
+                  }
+                  else if (find(highlights->begin(), highlights->end(), j) != highlights->end())
+                     DrawMarker(dc, highlightMarker, markerSize, x0, y0, plotPens[n]);
                }
                else
                {

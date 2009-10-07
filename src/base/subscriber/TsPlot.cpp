@@ -460,6 +460,11 @@ bool TsPlot::TakeAction(const std::string &action,
    {
       return PenDown();
    }
+   else if (action == "MarkPoint")
+   {
+      return MarkPoint();
+   }
+   // Add color change and marker change here(?)
    
    return false;
 }
@@ -1178,6 +1183,13 @@ bool TsPlot::PenDown()
    PlotInterface::TsPlotPenDown(instanceName);
    return true;
 }
+
+bool TsPlot::MarkPoint()
+{
+   PlotInterface::TsPlotMarkPoint(instanceName);
+   return true;
+}
+
 
 //------------------------------------------------------------------------------
 // void DeletePlotCurves()

@@ -425,9 +425,9 @@ void TsPlotCanvas::DrawMarker(wxDC &dc, int style, int markerSize, int x0,
    {
       case xMarker:
          dc.DrawLine(x0-markerSize, y0-markerSize,
-               x0+markerSize, y0+markerSize);
+               x0+markerSize+1, y0+markerSize+1);
          dc.DrawLine(x0+markerSize, y0-markerSize,
-               x0-markerSize, y0+markerSize);
+               x0-markerSize-1, y0+markerSize+1);
          break;
 
       case circleMarker:
@@ -493,6 +493,23 @@ void TsPlotCanvas::DrawMarker(wxDC &dc, int style, int markerSize, int x0,
                y0+markerSize);
          dc.DrawLine(x0+markerSize, y0-markerSize, x0,
                y0+markerSize);
+         break;
+
+      case gunsightMarker:
+         dc.DrawCircle(x0, y0, markerSize);
+         dc.DrawLine(x0-markerSize, y0, x0+markerSize, y0);
+         dc.DrawLine(x0, y0-markerSize, x0, y0+markerSize);
+         break;
+
+      case highlightMarker:
+         { // Scoping
+            wxPen highlightPen = dc.GetPen();
+            highlightPen.SetWidth(highlightPen.GetWidth() + 1);
+            dc.SetPen(highlightPen);
+            dc.DrawLine(x0-markerSize-1, y0-markerSize-1, x0+markerSize+2, y0+markerSize+2);
+            dc.DrawLine(x0-markerSize-1, y0+markerSize+1, x0+markerSize+2, y0-markerSize-2);
+            dc.SetPen(thePen);
+         }
          break;
 
       default: // Same as xMarker
@@ -725,6 +742,9 @@ void TsPlotCanvas::AddData(TsPlotCurve *curve, wxColour startColor)
    curve->SetColour(plotPens[penID].GetColour());
    if (curve->GetMarker() == unsetMarker)
       curve->SetMarker((MarkerType)(data.size() % MarkerCount));
+
+   curve->SetMarker((MarkerType)((data.size() + 2) % MarkerCount), 25);
+//   curve->SetColour(, 125);
 }
 
 
@@ -1091,6 +1111,92 @@ void TsPlotCanvas::PenDown(int index)
    // Finally, refresh the display
    wxClientDC dc(this);
    Refresh(dc, true);
+}
+
+
+void TsPlotCanvas::MarkPoint(int index, int forCurve)
+{
+   if (forCurve >= 0)
+   {
+      if (forCurve < (int)data.size())
+      {
+         data[forCurve]->HighlightPoint(index);
+         data[forCurve]->lastPointPlotted = 0;
+      }
+   }
+   else // Mark the point on all curves
+   {
+      for (std::vector<TsPlotCurve *>::iterator curve = data.begin();
+           curve != data.end(); ++curve)
+      {
+         (*curve)->HighlightPoint(index);
+         (*curve)->lastPointPlotted = 0;
+      }
+   }
+}
+
+
+void TsPlotCanvas::ChangeColor(int index, unsigned long newColor, int forCurve)
+{
+   wxColour useColor;
+   if (forCurve >= 0)
+   {
+      if (forCurve < (int)data.size())
+      {
+         if (newColor == 0xffffff)
+            useColor = data[forCurve]->GetColour(0);
+         else
+            useColor.Set(newColor);
+         data[forCurve]->SetColour(useColor, index);
+         data[forCurve]->lastPointPlotted = 0;
+      }
+   }
+   else // Mark the point on all curves
+   {
+      for (std::vector<TsPlotCurve *>::iterator curve = data.begin();
+           curve != data.end(); ++curve)
+      {
+         if (newColor == 0xffffff)
+            useColor = data[forCurve]->GetColour(0);
+         else
+            useColor.Set(newColor);
+         (*curve)->SetColour(useColor, index);
+         (*curve)->lastPointPlotted = 0;
+      }
+   }
+}
+
+
+void TsPlotCanvas::ChangeMarker(int index, int newMarker, int forCurve)
+{
+   MarkerType useMarker;
+   if (forCurve >= 0)
+   {
+      if (forCurve < (int)data.size())
+      {
+         if (newMarker == -1)
+            useMarker = (MarkerType)data[forCurve]->GetMarker(0);
+         else
+            useMarker = (MarkerType)(newMarker % MarkerCount);
+
+         data[forCurve]->SetMarker(useMarker, index);
+         data[forCurve]->lastPointPlotted = 0;
+      }
+   }
+   else // Mark the point on all curves
+   {
+      for (std::vector<TsPlotCurve *>::iterator curve = data.begin();
+           curve != data.end(); ++curve)
+      {
+         if (newMarker == -1)
+            useMarker = (MarkerType)data[forCurve]->GetMarker(0);
+         else
+            useMarker = (MarkerType)(newMarker % MarkerCount);
+
+         (*curve)->SetMarker(useMarker, index);
+         (*curve)->lastPointPlotted = 0;
+      }
+   }
 }
 
 

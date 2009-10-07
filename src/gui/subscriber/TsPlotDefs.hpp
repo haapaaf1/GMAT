@@ -57,7 +57,9 @@ enum MarkerType
    xsquareMarker,
    triangleMarker,
    nablaMarker,
-   MarkerCount
+   gunsightMarker,
+   MarkerCount,
+   highlightMarker         // Special case, only used for highlighted points
 };
 
 #endif /*TSPLOTDEFS_HPP_*/

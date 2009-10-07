@@ -56,6 +56,7 @@
 #include "ClearPlot.hpp"      // for ClearPlot command
 #include "PenUp.hpp"          // for PenUp command
 #include "PenDown.hpp"        // for PenDown command
+#include "MarkPoint.hpp"      // for MarkPoint command
 #include "Global.hpp"         // for Global command
 #include "Create.hpp"         // for Create command
 
@@ -163,6 +164,8 @@ GmatCommand* CommandFactory::CreateCommand(const std::string &ofType,
         return new PenUp;
     else if (ofType == "PenDown")
         return new PenDown;
+    else if (ofType == "MarkPoint")
+        return new MarkPoint;
     else if (ofType == "Global")
         return new Global;
     else if (ofType == "Create")
@@ -228,6 +231,7 @@ CommandFactory::CommandFactory() :
       creatables.push_back("ClearPlot");
       creatables.push_back("PenUp");
       creatables.push_back("PenDown");
+      creatables.push_back("MarkPoint");
       creatables.push_back("Global");
       creatables.push_back("Create");
    }
@@ -299,6 +303,7 @@ CommandFactory::CommandFactory(const CommandFactory& fact) :
       creatables.push_back("ClearPlot");
       creatables.push_back("PenUp");
       creatables.push_back("PenDown");
+      creatables.push_back("MarkPoint");
       creatables.push_back("Global");
       creatables.push_back("Create");
    }

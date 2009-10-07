@@ -105,6 +105,14 @@ public:
    virtual void ClearTsPlotData(const std::string &plotName) = 0;
    virtual void TsPlotPenUp(const std::string &plotName) = 0;
    virtual void TsPlotPenDown(const std::string &plotName) = 0;
+   virtual void TsPlotMarkPoint(const std::string &plotName, Integer index = -1,
+         Integer forCurve = -1) = 0;
+   virtual void TsPlotChangeColor(const std::string &plotName,
+         Integer index = -1, UnsignedInt newColor = 0xffffff,
+         Integer forCurve = -1) = 0;
+   virtual void TsPlotChangeMarker(const std::string &plotName,
+         Integer index = -1, Integer newMarker = -1, int forCurve = -1) = 0;
+
    virtual void TsPlotRescale(const std::string &plotName) = 0;
    virtual void TsPlotCurveSettings(const std::string &plotName,
                                    bool useLines = true,

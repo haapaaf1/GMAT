@@ -20,7 +20,7 @@
 
 
 // #define DEBUG_PENUP_PENDOWN
-
+// #define TEST_POINT_22  // Tests curve change features starting at point 22
 
 //------------------------------------------------------------------------------
 // TsPlotCurve(int offsetY, double startY, double endY, double defaultY)
@@ -209,14 +209,35 @@ void TsPlotCurve::Clear()
    colorIndex.clear();
    markerIndex.clear();
 
+   highlightIndex.clear();
+
+
    wxColour def = linecolor[0];
    linecolor.clear();
    linecolor.push_back(def);
+   colorIndex.push_back(0);
 
-   MarkerType mark = markerStyles[0];
+   #ifdef TEST_POINT_22
+      // Go cyan from point 22 to 32
+      SetColour(*wxCYAN, 22);
+      SetColour(def, 32);
+      // Mark these points as a check
+      HighlightPoint(22);
+      HighlightPoint(32);
+   #endif
+
+   currentMarkerStyle = markerStyles[0];
    markerStyles.clear();
-   markerStyles.push_back(mark);
+   markerStyles.push_back((MarkerType)currentMarkerStyle);
+   markerIndex.push_back(0);
 
+   #ifdef TEST_POINT_22
+      // Make an x from 22 - 27
+      markerStyles.push_back(xMarker);
+      markerIndex.push_back(22);
+      markerStyles.push_back((MarkerType)currentMarkerStyle);
+      markerIndex.push_back(27);
+   #endif
 }
 
 
@@ -280,6 +301,11 @@ const std::vector<int>* TsPlotCurve::GetMarkerChangeLocations()
    return &markerIndex;
 }
 
+const std::vector<int>* TsPlotCurve::GetHighlightPoints()
+{
+   return &highlightIndex;
+}
+
 void TsPlotCurve::Rescale()
 {
    if (abscissa.size() > 0)
@@ -302,11 +328,21 @@ void TsPlotCurve::Rescale()
 }
 
 
-void TsPlotCurve::SetColour(wxColour rgb)
+void TsPlotCurve::SetColour(wxColour rgb, int where)
 {
-   linecolor.push_back(rgb);
-   colorIndex.push_back((int)abscissa.size());
+   if (where == -1)
+      where = abscissa.size();
+   if ((where != 0) || (linecolor.size() == 0))
+   {
+      linecolor.push_back(rgb);
+      colorIndex.push_back(where);
+   }
+   else
+   {
+      linecolor[0] = rgb;
+   }
 }
+
 
 wxColour TsPlotCurve::GetColour(int whichOne)
 {
@@ -365,6 +401,13 @@ void TsPlotCurve::SetStyle(int ls)
 int TsPlotCurve::GetStyle()
 {
    return lineStyle;
+}
+
+void TsPlotCurve::HighlightPoint(int index)
+{
+   if (index == -1)
+      index = abscissa.size();
+   highlightIndex.push_back(index);
 }
 
 

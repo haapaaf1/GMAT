@@ -116,6 +116,7 @@ protected:
    bool ResetYParameters();
    bool PenUp();
    bool PenDown();
+   bool MarkPoint();
    
    void DeletePlotCurves();
    

@@ -397,6 +397,30 @@ void MdiChildTsFrame::PenDown()
       mXyPlot->PenDown();
    }
 }
+void MdiChildTsFrame::MarkPoint(int index, int forCurve)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->MarkPoint(index, forCurve);
+   }
+}
+
+void MdiChildTsFrame::ChangeColor(int index, unsigned long newColor,
+      int forCurve)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->ChangeColor(index, newColor, forCurve);
+   }
+}
+
+void MdiChildTsFrame::ChangeMarker(int index, int newMarker, int forCurve)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->ChangeMarker(index, newMarker, forCurve);
+   }
+}
 
 
 void MdiChildTsFrame::Rescale()
