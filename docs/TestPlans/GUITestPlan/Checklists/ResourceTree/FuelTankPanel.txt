@@ -19,12 +19,20 @@ This test validates the functionality of the Fuel Tank panel.
 
 Procedure:
 
-1. Create and open the appropriate object panel.
+1. Add and open the appropriate object panel.
                                                                                 
-   Create FuelTank Resource                  [ ] Pass  [ ] Fail  Bug# ______
+   Add FuelTank Resource                     [ ] Pass  [ ] Fail  Bug# ______
 
    Open FuelTank Resource                    [ ] Pass  [ ] Fail  Bug# ______
    
+   Close Thruster Resource                   [ ] Pass  [ ] Fail  Bug# ______
+   
+   Clone Thruster Resource                   [ ] Pass  [ ] Fail  Bug# ______
+   
+   Rename Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
+
 
 2. Evaluate the aesthetic qualities of the panel.
 
