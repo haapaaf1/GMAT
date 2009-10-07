@@ -132,10 +132,12 @@ bool Publisher::Unsubscribe(Subscriber *s)
    
    if (subscriberList.empty())
    {
+      #if DBGLVL_PUBLISHER_SUBSCRIBE
       MessageInterface::ShowMessage
          ("Publisher::Unsubscribe() sub = <%p>'%s' returning false, "
           "the subscriber list is empty\n", s, s->GetName().c_str());
-       return false;
+      #endif
+      return false;
    }
    
    #if DBGLVL_PUBLISHER_SUBSCRIBE
@@ -567,14 +569,19 @@ void Publisher::ClearPublishedData()
 //         const StringArray& owners, const StringArray& elements)
 //------------------------------------------------------------------------------
 /*
- * Registers provider with data elements
+ * Registers provider with data elements. This method passes elements as data
+ * labels to subscribers by calling SetDataLabels(elements).
  *
  * @param  provider  Provider who calls publiser
  * @param  id        Provider id, if id is -1 it will assign new id
- * @param  owner     Object names <currently not used>
- * @param  elements  Element names
+ * @param  owner     Object names, such as spacecraft name <currently not used>
+ * @param  elements  Element names, such as Sat1.X, Sat1.Y
  *
  * @return  new provider id or existing id
+ *
+ * @note Currently only Propagate command registers and publishes orbit
+ *       trajectory data. The owner is not currently used since elements has owner
+ *       name, such as Sat1.X which Sat1 is the owner name.
  */
 //------------------------------------------------------------------------------
 Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
@@ -590,8 +597,8 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
    #endif
    
    #if DBGLVL_PUBLISHER_REGISTER > 1
-   //for (unsigned int i=0; i<owners.size(); i++)
-   //   MessageInterface::ShowMessage("   owner[%d]=%s\n", i, owners[i].c_str());
+   for (unsigned int i=0; i<owners.size(); i++)
+      MessageInterface::ShowMessage("   owner[%d]=%s\n", i, owners[i].c_str());
    for (unsigned int i=0; i<elements.size(); i++)
       MessageInterface::ShowMessage("   elements[%d]=%s\n", i, elements[i].c_str());   
    MessageInterface::ShowMessage
