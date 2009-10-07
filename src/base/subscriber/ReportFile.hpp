@@ -118,6 +118,8 @@ protected:
    std::string          outputPath;
    /// Name of the report file
    std::string          filename;
+   /// Default file name of the report file when it is not set
+   std::string          defFileName;
    /// Precision for output of real data
    Integer              precision;  
    /// Width of column

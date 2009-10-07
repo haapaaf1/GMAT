@@ -28,9 +28,6 @@
 #include <iomanip>
 #include <sstream>
 
-// To use the new method WriteData() for writing data
-#define __USE_WRITE_DATA__
-
 //#define DEBUG_REPORTFILE_OPEN
 //#define DEBUG_REPORTFILE_SET
 //#define DEBUG_REPORTFILE_GET
@@ -78,6 +75,7 @@ ReportFile::ReportFile(const std::string &type, const std::string &name,
    Subscriber      (type, name),
    outputPath      (""),
    filename        (fileName),
+   defFileName     (""),
    precision       (16),
    columnWidth     (20),
    writeHeaders    (true),
@@ -116,6 +114,7 @@ ReportFile::ReportFile(const ReportFile &rf) :
    Subscriber      (rf),
    outputPath      (rf.outputPath),
    filename        (rf.filename),
+   defFileName     (rf.defFileName),
    precision       (rf.precision),
    columnWidth     (rf.columnWidth),
    writeHeaders    (rf.writeHeaders),
@@ -125,7 +124,6 @@ ReportFile::ReportFile(const ReportFile &rf) :
    usedByReport    (rf.usedByReport),
    calledByReport  (rf.calledByReport)
 {
-   filename = rf.filename;
    mParams = rf.mParams; 
    mNumParams = rf.mNumParams;
    mParamNames = rf.mParamNames;
@@ -160,6 +158,7 @@ ReportFile& ReportFile::operator=(const ReportFile& rf)
    
    outputPath = rf.outputPath;
    filename = rf.filename;
+   defFileName = rf.defFileName;
    precision = rf.precision;
    columnWidth = rf.columnWidth;
    writeHeaders = rf.writeHeaders;
@@ -207,7 +206,7 @@ std::string ReportFile::GetFileName()
       
       if (filename == "")
       {
-         fname = outputPath + instanceName + ".txt";
+         defFileName = outputPath + instanceName + ".txt";
       }
       else
       {
@@ -346,9 +345,14 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
          ("      It's wrapper type is %d\n", wrapperType);
       #endif
       
+      Integer defWidth = columnWidth;
+      
       // set longer width of param names or columnWidth
-      Integer defWidth = (Integer)desc.length() > columnWidth ?
-         desc.length() : columnWidth;
+      if (writeHeaders)
+      {
+         defWidth = (Integer)desc.length() > columnWidth ?
+            desc.length() : columnWidth;
+      }
       
       // if writing headers or called by Report add 3 more spaces
       // since header adds 3 more spaces
@@ -428,16 +432,21 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
        maxRow, output[0][0].c_str());
    #endif
    
+   if (leftJustify)
+      dstream.setf(std::ios::left);
+   
    // write to datastream
    for (UnsignedInt row=0; row < maxRow; row++)
    {
       for (int param=0; param < numData; param++)
       {
-         std::string desc = wrapperArray[param]->GetDescription();
          dstream.width(colWidths[param]);
          
-         if (leftJustify)
-            dstream.setf(std::ios::left);
+         #if DBGLVL_WRITE_DATA > 1
+         MessageInterface::ShowMessage
+            ("leftJustify=%d, w=%2d, %s\n", leftJustify, colWidths[param],
+             output[param][row].c_str());
+         #endif
          
          UnsignedInt numRow = output[param].size();
          if (numRow >= row+1)
@@ -446,6 +455,10 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
             dstream << "  ";
       }
       dstream << std::endl;
+      
+      #if DBGLVL_WRITE_DATA > 1
+      MessageInterface::ShowMessage("\n");
+      #endif
    }
    
    // delete output buffer
@@ -513,8 +526,10 @@ bool ReportFile::Initialize()
    // if active and not initialized already, open report file (loj: 2008.08.20)
    if (active && !isInitialized)
    {
-      if (!OpenReportFile())
-         return false;
+      // We don't want to open report file here, since ReportFile inside
+      // a function can be initialized multiple times. (LOJ: 2009.10.02)
+      //if (!OpenReportFile())
+      //   return false;
       
       initial = true;
       isInitialized = true;
@@ -573,7 +588,7 @@ bool ReportFile::TakeAction(const std::string &action,
 {
    #ifdef DEBUG_REPORTFILE_ACTION
    MessageInterface::ShowMessage
-      ("ReportFile::TakeAction() action=%s, actionData=%s\n", action.c_str(),
+      ("ReportFile::TakeAction() action='%s', actionData='%s'\n", action.c_str(),
        actionData.c_str());
    #endif
    
@@ -592,6 +607,21 @@ bool ReportFile::TakeAction(const std::string &action,
    if (action == "ActivateForReport")
    {
       calledByReport = ((actionData == "On") ? true : false);
+      if (calledByReport)
+      {
+         if (!dstream.is_open())
+         {
+            if (!OpenReportFile())
+            {
+               #ifdef DEBUG_REPORTFILE_ACTION
+               MessageInterface::ShowMessage
+                  ("*** WARNING *** ReportFile::Distribute() failed to open "
+                   "report file '%s', so returning false\n");
+               #endif
+               return false;
+            }
+         }
+      }
    }
    
    if (action == "Finalize")
@@ -1104,6 +1134,10 @@ const StringArray& ReportFile::GetWrapperObjectNameArray()
 bool ReportFile::OpenReportFile(void)
 {
    filename = GetFileName();
+
+   // If file name is blank, use default file name (LOJ: 2009.10.02)
+   if (filename == "")
+      filename = defFileName;
    
    #ifdef DEBUG_REPORTFILE_OPEN
    MessageInterface::ShowMessage
@@ -1192,7 +1226,7 @@ void ReportFile::WriteHeaders()
    }
    
    initial = false;
-}
+} // WriteHeaders()
 
 
 //------------------------------------------------------------------------------
@@ -1248,15 +1282,18 @@ Integer ReportFile::WriteMatrix(StringArray *output, Integer param,
    if (writeHeaders || calledByReport)
       colWidth = colWidth + 3;
    
+   Integer newWidth = colWidth;
+   
    // set longer width of param names or columnWidth
-   Integer newWidth = defWidth > colWidth ? defWidth : colWidth;
+   if (writeHeaders)
+      newWidth = defWidth > colWidth ? defWidth : colWidth;
    
    #ifdef DEBUG_WRITE_MATRIX
    MessageInterface::ShowMessage
       ("ReportFile::WriteMatrix() returning %d\n", newWidth);
    #endif
    return newWidth;
-}
+} // WriteMatrix()
 
 //--------------------------------------
 // methods inherited from Subscriber
@@ -1268,14 +1305,12 @@ Integer ReportFile::WriteMatrix(StringArray *output, Integer param,
 bool ReportFile::Distribute(int len)
 {
    #if DBGLVL_REPORTFILE_DATA > 0
-      MessageInterface::ShowMessage("ReportFile::Distribute called len=%d\n", len);
-      MessageInterface::ShowMessage("   data = '%s'\n", data);
-      MessageInterface::ShowMessage(
-         "   usedByReport = %s, calledByReport = %s\n",
-         (usedByReport ? "true" : "false"), 
-         (calledByReport ? "true" : "false"));
+   MessageInterface::ShowMessage("ReportFile::Distribute(int len) called len=%d\n", len);
+   MessageInterface::ShowMessage("   data = '%s'\n", data);
+   MessageInterface::ShowMessage("   usedByReport = %s, calledByReport = %s\n",
+      (usedByReport ? "true" : "false"), (calledByReport ? "true" : "false"));
    #endif
-      
+   
    if (usedByReport && calledByReport)
    {
       if (len == 0)
@@ -1372,7 +1407,6 @@ bool ReportFile::Distribute(const Real * dat, Integer len)
    //------------------------------------------------------------
    if (mNumParams > 0)
    {
-      Real rval = -9999.999;
       std::string sval;
       
       if (!dstream.is_open())
@@ -1385,141 +1419,17 @@ bool ReportFile::Distribute(const Real * dat, Integer len)
       if (!dstream.good())
          dstream.clear();
       
-      std::string desc;
-      bool reportable = false;
-      
       // Write to report file using ReportFile::WriateData().
       // This method takes ElementWrapper array to write data to stream
-      //==============================================================
-      #ifdef __USE_WRITE_DATA__
-      //==============================================================
       WriteData(paramWrappers);
+      
       if (isEndOfRun)  // close file
       {
          if (dstream.is_open())
             dstream.close();
       }
+      
       #if DBGLVL_REPORTFILE_DATA > 1
-      MessageInterface::ShowMessage
-         ("ReportFile::Distribute() dat=%f %f %f %f %g %g %g\n", dat[0], dat[1],
-          dat[2], dat[3], dat[4], dat[5], dat[6]);
-      #endif
-      return true;
-      #endif
-      //==============================================================
-      
-      // Write data in ole way
-      for (int i=0; i < mNumParams; i++)
-      {
-         desc = mParamNames[i];
-         reportable = mParams[i]->IsReportable();
-         
-         #if DBGLVL_REPORTFILE_DATA > 1
-         MessageInterface::ShowMessage
-            ("   ===> \"%s\" %s reportable\n", desc.c_str(),
-             reportable ? "is" : "is not");
-         #endif
-         
-         if (!reportable)
-            continue;
-         
-         // set longer width of param names or columnWidth
-         Integer width = (Integer)desc.length() > columnWidth ?
-            desc.length() : columnWidth;
-         
-         dstream.width(width);
-         dstream.fill(' ');
-         
-         // if zero fill, show decimal point
-         // showing decimal point automatically filles zero
-         if (zeroFill)
-            dstream.setf(std::ios::showpoint);
-         
-         if (leftJustify)
-            dstream.setf(std::ios::left);
-         
-         Gmat::WrapperDataType wrapperType = paramWrappers[i]->GetWrapperType();
-         #if DBGLVL_REPORTFILE_DATA > 1
-         MessageInterface::ShowMessage
-            ("   It's wrapper type is %d\n", wrapperType);
-         #endif
-         
-         switch (wrapperType)
-         {
-         case Gmat::VARIABLE_WT:
-         case Gmat::ARRAY_ELEMENT_WT:
-         case Gmat::OBJECT_PROPERTY_WT:
-            {
-               rval = paramWrappers[i]->EvaluateReal();
-               dstream.precision(precision);
-               dstream << rval << "   ";
-               break;
-            }
-         case Gmat::PARAMETER_WT:
-            {
-               Gmat::ParameterType dataType = paramWrappers[i]->GetDataType();
-               #if DBGLVL_REPORTFILE_DATA > 1
-               MessageInterface::ShowMessage
-                  ("   It's data type is %d\n", dataType);
-               #endif
-               switch (dataType)
-               {
-               case Gmat::REAL_TYPE:
-                  {
-                     rval = paramWrappers[i]->EvaluateReal();
-                     dstream.precision(precision);
-                     dstream << rval << "   ";
-                     break;
-                  }
-               case Gmat::RMATRIX_TYPE:
-                  {
-                     Rmatrix rmat = paramWrappers[i]->EvaluateArray();
-                     dstream << rmat.ToString(16, 1, true, "", false);
-                     break;
-                  }
-               case Gmat::STRING_TYPE:
-                  {
-                     sval = paramWrappers[i]->EvaluateString();
-                     width = (Integer)sval.length() > width ? sval.length() : width;
-                     dstream.width(width);
-                     dstream << sval << "   ";
-                     break;
-                  }
-               default:
-                  throw GmatBaseException
-                     ("Cannot write \"" + desc + "\" due to unimplemented "
-                      "Parameter data type");
-               }
-               break;
-            }
-         case Gmat::ARRAY_WT:
-            {
-               Rmatrix rmat = paramWrappers[i]->EvaluateArray();
-               dstream << rmat.ToString(false, false, 16, 1, false);
-               break;
-            }
-         case Gmat::STRING_OBJECT_WT:
-            {
-               sval = paramWrappers[i]->EvaluateString();
-               width = (Integer)sval.length() > width ? sval.length() : width;
-               dstream.width(width);
-               dstream << sval << "   ";
-               break;
-            }
-         default:
-            break;
-         }
-      }
-      
-      dstream << std::endl;
-      
-      if (isEndOfRun)  // close file
-      {
-         if (dstream.is_open())
-            dstream.close();
-      }
-      
-      #if DBGLVL_REPORTFILE_DATA > 0
       MessageInterface::ShowMessage
          ("ReportFile::Distribute() dat=%f %f %f %f %g %g %g\n", dat[0], dat[1],
           dat[2], dat[3], dat[4], dat[5], dat[6]);
