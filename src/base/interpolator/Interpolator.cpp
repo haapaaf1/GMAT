@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Interpolator
 //------------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 
 
 #include "Interpolator.hpp"
-
+#include "MessageInterface.hpp"
 
 
 //------------------------------------------------------------------------------
@@ -50,7 +50,6 @@ Interpolator::Interpolator(const std::string &name, const std::string &typestr,
 {
    range[0] = range[1] = 0.0;
 }
-
 
 
 //------------------------------------------------------------------------------
@@ -172,25 +171,48 @@ Interpolator& Interpolator::operator=(const Interpolator &i)
 bool Interpolator::AddPoint(const Real ind, const Real *data)
 {
    Integer i;
-    
+   
    if (!independent)
       AllocateArrays();
-
+   
    // Reset the index into the array if at the end
    if (latestPoint == bufferSize-1)
       latestPoint = -1;
-        
+   
    dataIncreases = (ind > previousX ? true : false);
    previousX = ind;
-
+   
    independent[++latestPoint] = ind;
    for (i = 0; i < dimension; ++i)
       dependent[latestPoint][i] = data[i];
-        
+   
    ++pointCount;
    rangeCalculated = false;
-    
+   
+//    MessageInterface::ShowMessage
+//       ("===> Interpolator::AddPoint() ind=%f, data[0]=%f added, latestPoint=%d, "
+//        "pointCount=%d\n", ind, data[0], latestPoint, pointCount);
+   
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer IsInterpolationFeasible(Real ind)
+//------------------------------------------------------------------------------
+/**
+ * Checks if interpolation is feasible. Derived class should implement
+ * this method if any checking is done.
+ *
+ * @param ind The value of the independent parameter.
+ * @return  1 if feasible
+ *         -1 if there is not enough data to interpolate
+ *         -2 if requested data is not within the interpolation range
+ */
+//------------------------------------------------------------------------------
+Integer Interpolator::IsInterpolationFeasible(Real ind)
+{
+   return 1;
 }
 
 
@@ -208,6 +230,7 @@ void Interpolator::Clear()
 {
    latestPoint = -1;
    pointCount = 0;
+   previousX = -9.9999e65;
 }
 
 
@@ -291,22 +314,22 @@ void Interpolator::SetRange()
 {
    if (rangeCalculated)
       return;
-        
+   
    // Not enough points -- just continue
    if (requiredPoints > pointCount)
       return;
-        
+   
    range[0] = range[1] = independent[0];
-    
+   
    Integer i, max = (pointCount > bufferSize ? bufferSize : pointCount);
-
+   
    for (i = 1; i < max; ++i) {
       if (independent[i] < range[0])
          range[0] = independent[i];
       if (independent[i] > range[1])
          range[1] = independent[i];
    }
-    
+   
    rangeCalculated = true;
 }
 

@@ -135,6 +135,83 @@ LagrangeInterpolator::operator=(const LagrangeInterpolator &li)
 
 
 //------------------------------------------------------------------------------
+//  Integer IsInterpolationFeasible(Real ind)
+//------------------------------------------------------------------------------
+/**
+ * Checks if interpolation is feasible.
+ * (Should I also check if ind is in the center of the interpolation range?)
+ *
+ * @param ind The value of the independent parameter.
+ * @return  1 if feasible
+ *         -1 if there is not enough data to interpolate
+ *         -2 if requested data is not within the interpolation range
+ */
+//------------------------------------------------------------------------------
+Integer LagrangeInterpolator::IsInterpolationFeasible(Real ind)
+{
+   #ifdef DEBUG_LAGRANGE_FEASIBLE
+   MessageInterface::ShowMessage
+      ("LagrangeInterpolator::IsInterpolationFeasible() ind=%f, pointCount = %d, "
+       "requiredPoints = %d\n", ind, pointCount, requiredPoints);
+   #endif
+   
+   // If not enough data points, throw an exception
+   if (pointCount < requiredPoints)
+   {
+      #if 0
+      InterpolatorException ie;
+      ie.SetDetails
+         ("There is not enough data to interpolate %f, number of "
+          "required points is %d, received %d points", ind, requiredPoints,
+          pointCount);
+      throw ie;
+      #else
+      #ifdef DEBUG_LAGRANGE_FEASIBLE
+      MessageInterface::ShowMessage
+         ("Lagrange::IsInterpolationFeasible() There is not enough data to "
+          "interpolate %f, number of required points is %d, received %d points\n",
+          ind, requiredPoints, pointCount);
+      #endif
+      return -1;
+      #endif
+   }
+   
+   SetRange();
+   
+   #ifdef DEBUG_LAGRANGE_FEASIBLE
+   MessageInterface::ShowMessage
+      ("   range1 = %f, range2 = %f\n", range[0], range[1]);
+   #endif
+   
+   // If independent data not within the range, throw an exception
+   if (ind < range[0] || ind > range[1])
+   {
+      #if 0
+      InterpolatorException ie;
+      ie.SetDetails
+         ("The requested data %f is not within the data range of [%f : %f]",
+          ind, range[0],  range[1]);
+      throw ie;
+      #else
+      #ifdef DEBUG_LAGRANGE_FEASIBLE
+      MessageInterface::ShowMessage
+         ("Lagrange::IsInterpolationFeasible() The requested data %f is not "
+          "within the data range of [%f : %f]\n", ind, range[0],  range[1]);
+      #endif
+      return -2;
+      #endif
+   }
+   
+   #ifdef DEBUG_LAGRANGE_FEASIBLE
+   MessageInterface::ShowMessage
+      ("LagrangeInterpolator::IsInterpolationFeasible() returning 1\n");
+   #endif
+   
+   return 1;
+}
+
+
+//------------------------------------------------------------------------------
 //  void Clear()
 //------------------------------------------------------------------------------
 /**
@@ -144,8 +221,9 @@ LagrangeInterpolator::operator=(const LagrangeInterpolator &li)
 void LagrangeInterpolator::Clear()
 {
    Interpolator::Clear();
-   
+   previousX = -9.9999e75;
    startPoint = 0;
+   
    for (Integer i = 0; i < bufferSize; ++i)
       x[i] = -9.9999e75;
 }
@@ -162,6 +240,12 @@ void LagrangeInterpolator::Clear()
 //------------------------------------------------------------------------------
 bool LagrangeInterpolator::AddPoint(const Real ind, const Real *data)
 {
+   #ifdef DEBUG_LAGRANGE_ADD
+   MessageInterface::ShowMessage
+      ("LagrangeInterpolator::AddPoint() entered, ind=%f, previousX=%f\n",
+       ind, previousX);
+   #endif
+   
    if (ind < previousX)
    {
       InterpolatorException ie;
@@ -196,7 +280,7 @@ bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
    #endif
    
    // Check for interpolation feasibility
-   if (!IsInterpolationFeasible(ind))
+   if (IsInterpolationFeasible(ind) != 1)
       return false;
    
    // Build data points before and after independent value
@@ -331,59 +415,6 @@ void LagrangeInterpolator::CopyArrays(const LagrangeInterpolator &i)
       x[j] = i.x[j];
       memcpy( y[j],  i.y[j], dimension*sizeof(Real));
    }
-}
-
-
-//------------------------------------------------------------------------------
-//  bool IsInterpolationFeasible(Real ind)
-//------------------------------------------------------------------------------
-/**
- * Checks if interpolation is feasible.
- *
- * @param ind The value of the independent parameter.
- * @return true if feasible, false otherwise.
- */
-//------------------------------------------------------------------------------
-bool LagrangeInterpolator::IsInterpolationFeasible(Real ind)
-{
-   #ifdef DEBUG_LAGRANGE_FEASIBLE
-   MessageInterface::ShowMessage
-      ("LagrangeInterpolator::IsInterpolationFeasible() ind=%f, pointCount = %d, "
-       "requiredPoints = %d\n", ind, pointCount, requiredPoints);
-   #endif
-   
-   // If not enough data points, throw an exception
-   if (pointCount < requiredPoints)
-   {
-      InterpolatorException ie;
-      ie.SetDetails("There is not enough data to interpolate %f, number of "
-                    "required points is %d, received %d points", ind, requiredPoints,
-                    pointCount);
-      throw ie;
-   }
-   
-   SetRange();
-   
-   #ifdef DEBUG_LAGRANGE_FEASIBLE
-   MessageInterface::ShowMessage
-      ("   range1 = %f, range2 = %f\n", range[0], range[1]);
-   #endif
-   
-   // If independent data not within the range, throw an exception
-   if (ind < range[0] || ind > range[1])
-   {
-      InterpolatorException ie;
-      ie.SetDetails("The requested data %f is not within the data range of [%f : %f]",
-                    ind, range[0],  range[1]);
-      throw ie;
-   }
-   
-   #ifdef DEBUG_LAGRANGE_FEASIBLE
-   MessageInterface::ShowMessage
-      ("LagrangeInterpolator::IsInterpolationFeasible() returning true\n");
-   #endif
-   
-   return true;
 }
 
 

@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Interpolator  
 //------------------------------------------------------------------------------
@@ -31,17 +31,18 @@
 class GMAT_API Interpolator : public GmatBase
 {
 public:
-    Interpolator(const std::string &name, const std::string &typestr,
-                 Integer dim = 1);
-    virtual ~Interpolator();
-
-    Interpolator(const Interpolator &i);
-    Interpolator&   operator=(const Interpolator &i);
-
-    virtual bool    AddPoint(const Real ind, const Real *data);
-    virtual void    Clear();
-    virtual Integer GetBufferSize();
-
+   Interpolator(const std::string &name, const std::string &typestr,
+                Integer dim = 1);
+   virtual ~Interpolator();
+   
+   Interpolator(const Interpolator &i);
+   Interpolator&   operator=(const Interpolator &i);
+   
+   virtual Integer IsInterpolationFeasible(Real ind);
+   virtual bool    AddPoint(const Real ind, const Real *data);
+   virtual void    Clear();
+   virtual Integer GetBufferSize();
+   
    //---------------------------------------------------------------------------
    // bool Interpolate(const Real ind, Real *results)
    //---------------------------------------------------------------------------
@@ -59,8 +60,8 @@ public:
     * @return true on success, false (or throw) on failure.
     */
    //---------------------------------------------------------------------------
-    virtual bool    Interpolate(const Real ind, Real *results) = 0;
-
+   virtual bool    Interpolate(const Real ind, Real *results) = 0;
+   
 protected:
     /// Data array used for the independent variable
     Real *independent;

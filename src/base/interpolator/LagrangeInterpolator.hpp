@@ -32,6 +32,7 @@ public:
    LagrangeInterpolator& operator=(const LagrangeInterpolator &li);
    
    // inherited from Interpolator
+   virtual Integer      IsInterpolationFeasible(Real ind);
    virtual void         Clear();
    virtual bool         AddPoint(const Real ind, const Real *data);
    virtual bool         Interpolate(const Real ind, Real *results);
@@ -58,7 +59,6 @@ protected:
    virtual void CleanupArrays();
    virtual void CopyArrays(const LagrangeInterpolator &i);
    
-   bool IsInterpolationFeasible(Real ind);
    void BuildDataPoints(Real ind);
 };
 
