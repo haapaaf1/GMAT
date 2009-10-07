@@ -23,9 +23,6 @@
 #include "StringUtil.hpp"       // for GetArrayIndex()
 #include <sstream>
 
-// To use ReportFile::WriteData()
-#define __USE_REPORTFILE_WRITE_DATA__
-
 //#define DEBUG_REPORT_OBJ
 //#define DEBUG_REPORT_SET
 //#define DEBUG_REPORT_INIT
@@ -852,75 +849,11 @@ bool Report::Execute()
    
    // Write to report file using ReportFile::WriateData().
    // This method takes ElementWrapper array to write data to stream
-   //=================================================================
-   #ifdef __USE_REPORTFILE_WRITE_DATA__
-   //=================================================================
    reporter->TakeAction("ActivateForReport", "On");
    bool retval = reporter->WriteData(parmWrappers);
    reporter->TakeAction("ActivateForReport", "Off");
    BuildCommandSummary(true);
-   return retval;
-   #endif
-   //=================================================================
-   
-   // Added try/catch block for better error message (loj: 2008.08.06)
-   try
-   {
-      std::string desc;
-      for (std::vector<Parameter*>::iterator i = parms.begin(); i != parms.end(); ++i)
-      {
-         if (!(*i)->IsReportable())
-            continue;
-         
-         datastream.width(colWidth);
-         
-         #ifdef DEBUG_REPORT_EXEC
-         MessageInterface::ShowMessage
-            (">>>>> Report::Execute() parameter=%s, returnType=%d\n", (*i)->GetName().c_str(),
-             (*i)->GetReturnType());
-         #endif
-         
-         if ((*i)->GetReturnType() == Gmat::REAL_TYPE)
-         {
-            datastream << (*i)->EvaluateReal() << "   ";
-         }
-         else if ((*i)->GetReturnType() == Gmat::RMATRIX_TYPE)
-         {
-            Integer index = distance(parms.begin(), i);
-            if (parmRows[index] == -1 && parmCols[index] == -1)
-               datastream << (*i)->EvaluateRmatrix().ToString(prec, colWidth, false);
-            else // do array indexing
-               datastream << (*i)->EvaluateRmatrix().GetElement
-                  (parmRows[index], parmCols[index]) << "   ";
-         }
-         else if ((*i)->GetReturnType() == Gmat::STRING_TYPE)
-         {
-            datastream << (*i)->EvaluateString() << "   ";
-         }
-      }
-      
-      // Publish it
-      // This is how it should be done:
-      //reportID = reporter->GetProviderId();
-      //#ifdef DEBUG_REPORT_OBJ
-      //   MessageInterface::ShowMessage("Reporting to subscriber %d\n", reportID);
-      //#endif
-      //publisher->Publish(reportID, "Here is some data");
-      
-      // Publisher seems broken right now -- do it by hand
-      std::string data = datastream.str();
-      reporter->TakeAction("ActivateForReport", "On");
-      bool retval = reporter->ReceiveData(data.c_str(), data.length());
-      reporter->TakeAction("ActivateForReport", "Off");
-      
-      BuildCommandSummary(true);   
-      return retval;
-   }
-   catch (BaseException &e)
-   {
-      throw CommandException(e.GetFullMessage() + " in line:\n   \"" +
-                             GetGeneratingString(Gmat::NO_COMMENTS) + "\"");
-   }
+   return retval;   
 }
 
 
