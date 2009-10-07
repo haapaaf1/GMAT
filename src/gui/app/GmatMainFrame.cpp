@@ -1350,6 +1350,29 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
 
 
 //------------------------------------------------------------------------------
+// void BuildAndRunScript(const wxString &filename)
+//------------------------------------------------------------------------------
+void GmatMainFrame::BuildAndRunScript(const wxString &filename)
+{
+   CloseCurrentProject();
+   
+   // Check if file exist first
+   if (wxFileName::FileExists(filename))
+   {
+      mScriptFilename = filename.c_str();
+      
+      if (InterpretScript(filename, GmatGui::DO_NOT_OPEN_SCRIPT))
+         mRunStatus = RunCurrentMission();
+   }
+   else
+   {
+      wxMessageBox(wxT("The script file \"" + filename + "\" does not exist.\n"),
+                   wxT("GMAT Error"));
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // Integer RunCurrentMission()
 //------------------------------------------------------------------------------
 /*
@@ -3413,10 +3436,8 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnScriptBuildObject(wxCommandEvent& WXUNUSED(event))
 {
-   //MessageInterface::ShowMessage("===> GmatMainFrame::OnScriptBuildObject() entered\n");
-
-   wxString filename = ((GmatMdiChildFrame *)GetActiveChild())->GetTitle();
-
+   wxString filename = mScriptFilename.c_str();
+   
    InterpretScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT);
 }
 
@@ -3426,10 +3447,8 @@ void GmatMainFrame::OnScriptBuildObject(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnScriptBuildAndRun(wxCommandEvent& event)
 {
-   //MessageInterface::ShowMessage("===> GmatMainFrame::OnScriptBuildAndRun()\n");
-
    wxString filename = mScriptFilename.c_str();
-
+   
    if (InterpretScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT))
       mRunStatus = RunCurrentMission();
 }

@@ -80,9 +80,11 @@ public:
    void SetActiveChildDirty(bool dirty);
    void OverrideActiveChildDirty(bool override);
    void CloseCurrentProject();
-   bool InterpretScript(const wxString &filename, Integer scriptOpenOpt = 0,
+   bool InterpretScript(const wxString &filename,
+                        Integer scriptOpenOpt = GmatGui::OPEN_SCRIPT_ON_ERROR,
                         bool closeScript = false, bool readBack = false,
                         const wxString &savePath = "", bool multScripts = false);
+   void BuildAndRunScript(const wxString &filename);
    Integer RunCurrentMission();
    void StopRunningMission();
    void NotifyRunCompleted();

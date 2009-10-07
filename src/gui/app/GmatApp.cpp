@@ -168,9 +168,10 @@ bool GmatApp::OnInit()
             wxString splashFile = theModerator->GetFileName("SPLASH_FILE").c_str();
             wxBitmap *bitmap = new wxBitmap(splashFile, wxBITMAP_TYPE_TIF);
             
+            // Changed to time out in 1 sec (LOJ: 2009.10.07)
             new wxSplashScreen(*bitmap,
                                wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,
-                               6000, NULL, -1, wxDefaultPosition, wxSize(100, 100),
+                               1000, NULL, -1, wxDefaultPosition, wxSize(100, 100),
                                wxSIMPLE_BORDER|wxSTAY_ON_TOP);
          }
          catch (BaseException &e)
@@ -327,9 +328,14 @@ void GmatApp::ProcessCommandLineOptions()
 {
    wxString commandLineOptions =
       "Valid command line options are:\n"
-      "   -help        Shows available options\n"
-      "   -date        Shows GMAT build date\n"
-      "   -ms          Starts MATLAB server when GMAT launches\n";
+      "   -help            Shows available options\n"
+      "   -date            Shows GMAT build date\n"
+      "   -ms              Starts MATLAB server when GMAT launches\n"
+      "   -br 'filename'   Builds and runs the script\n\n";
+
+   #ifdef DEBUG_CMD_LINE
+   MessageInterface::ShowMessage("argc = %d\n", argc);
+   #endif
    
    // Handle any command line arguments
    if (argc > 1)
@@ -347,6 +353,22 @@ void GmatApp::ProcessCommandLineOptions()
             buildDate.Printf("Build Date: %s %s\n", __DATE__, __TIME__);
             MessageInterface::ShowMessage(buildDate.c_str());
          }
+         else if (arg == "-br")
+         {
+            if (argc < 3)
+            {
+               MessageInterface::ShowMessage
+                  ("Please enter script file name to run\n");
+            }
+            else
+            {
+               wxString script = argv[i+1];
+               // Replace single quotes
+               script.Replace("'", "", true);
+               theMainFrame->BuildAndRunScript(script);
+               ++i;
+            }
+         }
          else if (arg == "-help")
          {
             MessageInterface::ShowMessage(commandLineOptions.c_str());
@@ -355,6 +377,7 @@ void GmatApp::ProcessCommandLineOptions()
          {
             MessageInterface::ShowMessage("The option \"%s\" is not valid.\n", arg.c_str());
             MessageInterface::ShowMessage(commandLineOptions.c_str());
+            break;
          }
       }
    }
