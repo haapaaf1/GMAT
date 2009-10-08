@@ -51,7 +51,7 @@ bool ProcessCCSDSOEMDataFile::Initialize()
             if (line != "")
             {
                 // Now check for headers and process data accordingly
-                if (GetData(line,myOEM))
+                if (GetData(myOEM))
                 {
                     // Push this data point onto the stack.
                     theData.push_back(myOEM);
@@ -116,7 +116,7 @@ bool ProcessCCSDSOEMDataFile::Initialize()
 //------------------------------------------------------------------------------
 ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const std::string &itsName) :
 	ProcessCCSDSDataFile ("CCSDSOEMDataFile", itsName),
-	currentCCSDSMetadata(NULL)
+	currentCCSDSMetaData(NULL)
 {
    objectTypeNames.push_back("CCSDSOEMDataFile");
    fileFormatName = "CCSDSOEM";
@@ -133,7 +133,7 @@ ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const std::string &itsName) :
 //------------------------------------------------------------------------------
 ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const ProcessCCSDSOEMDataFile &CCSDSOEMdf) :
     ProcessCCSDSDataFile(CCSDSOEMdf),
-    currentCCSDSMetadata(CCSDSOEMdf.currentCCSDSMetadata)
+    currentCCSDSMetaData(CCSDSOEMdf.currentCCSDSMetaData)
 {
 }
 
@@ -151,7 +151,7 @@ const ProcessCCSDSOEMDataFile& ProcessCCSDSOEMDataFile::operator=(const ProcessC
 	return *this;
 
     ProcessCCSDSDataFile::operator=(CCSDSOEMdf);
-    currentCCSDSMetadata = CCSDSOEMdf.currentCCSDSMetadata;
+    currentCCSDSMetaData = CCSDSOEMdf.currentCCSDSMetaData;
     return *this;
 }
 
@@ -218,14 +218,22 @@ bool ProcessCCSDSOEMDataFile::IsParameterReadOnly(const std::string &label) cons
 }
 
 //------------------------------------------------------------------------------
-// bool GetData(std::string line, CCSDSOEMObType *myOEM)
+// bool GetCCSDSData(ObType *myOEM)
 //------------------------------------------------------------------------------
 /**
  * Obtains the header line of OEM data from file.
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObType *myOEM)
+bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 {
+
+    if (myOEMData->GetTypeName() != "CCSDSOEMObType") return false;
+
+    // Re-cast the generic ObType pointer as a CCSDSOEMObtype pointer
+    CCSDSOEMObType *myOEM = (CCSDSOEMObType*)myOEMData;
+
+    // Read the first line from file
+    std::string line = Trim(ReadLineFromFile());
 
     // Check to see if we encountered a new header record.
     while (!IsEOF() && pcrecpp::RE("^CCSDS_OEM_VERS.*").FullMatch(line))
@@ -233,8 +241,7 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObType *myOEM)
         // Initialize the header data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        CCSDSOEMObType::ccsds_header *myCCSDSHeader =
-                                            new CCSDSOEMObType::ccsds_header;
+        CCSDSHeader *myCCSDSHeader = new CCSDSHeader;
 
 	if (GetCCSDSHeader(line,myCCSDSHeader))
 	{
@@ -258,17 +265,16 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObType *myOEM)
         // Initialize individual data struct
         // This needs new memory allocation because
         // we are storing pointers to this data
-        CCSDSOEMObType::ccsds_oem_metadata *myMetaData =
-                                        new CCSDSOEMObType::ccsds_oem_metadata;
+        CCSDSOEMMetaData *myMetaData = new CCSDSOEMMetaData;
 
 	// Read the next metadata line from file
 	line = Trim(ReadLineFromFile());
 
-	if (GetCCSDSMetadata(line,myMetaData))
+	if (GetCCSDSMetaData(line,myMetaData))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSMetadata = myMetaData;
+	    currentCCSDSMetaData = myMetaData;
 
 	    // Read the following data line from file
 	    line = Trim(ReadLineFromFile());
@@ -276,7 +282,7 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObType *myOEM)
 	else
 	{
 	    // failure to read header line, abort
-	    currentCCSDSMetadata = NULL;
+	    currentCCSDSMetaData = NULL;
 	    return false;
 	}
     }
@@ -292,31 +298,30 @@ bool ProcessCCSDSOEMDataFile::GetData(std::string line, CCSDSOEMObType *myOEM)
 
     // Parse the data record making sure that we have identified
     // a header record and a metadata record previously
-    if (currentCCSDSHeader == NULL || currentCCSDSMetadata == NULL)
+    if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
 	return false;
 
-    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line))
+    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
-        CCSDSOEMObType::ccsds_data *myOEMData = new CCSDSOEMObType::ccsds_data;
+        CCSDSData *myOEMData = new CCSDSData;
 	myOEM->ccsdsHeader = currentCCSDSHeader;
-        myOEM->ccsdsOEMMetaData = currentCCSDSMetadata;
+        myOEM->ccsdsOEMMetaData = currentCCSDSMetaData;
 	return GetCCSDSData(line,myOEMData,myOEM);
     }
 
     return false;
 }
-
 //------------------------------------------------------------------------------
-// bool GetCCSDSMetadata(std::string &lff,
-//                       CCSDSOEMObType::ccsds_oem_metadata *myMetaData)
+// bool GetCCSDSMetaData(std::string &lff,
+//                       CCSDSOEMMetaData *myMetaData)
 //------------------------------------------------------------------------------
 /**
  * Extracts the metadata information from the tracking data message.
  */
 //
 //------------------------------------------------------------------------------
-bool ProcessCCSDSOEMDataFile::GetCCSDSMetadata(std::string &lff,
-                                CCSDSOEMObType::ccsds_oem_metadata *myMetaData)
+bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
+                                CCSDSOEMMetaData *myMetaData)
 {
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -333,7 +338,7 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetadata(std::string &lff,
     {
         if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->metadataComments.push_back(stemp);
+	    myMetaData->comments.push_back(stemp);
         }
         else if (pcrecpp::RE("^OBJECT_NAME\\s*=(.*)").FullMatch(lff,&stemp))
         {
@@ -357,19 +362,19 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetadata(std::string &lff,
         }
         else if (pcrecpp::RE("^START_TIME\\s*=(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->startTime = stemp;
+	    myMetaData->startEpoch = stemp;
         }
         else if (pcrecpp::RE("^STOP_TIME\\s*=(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->stopTime = stemp;
+	    myMetaData->stopEpoch = stemp;
         }
         else if (pcrecpp::RE("^USEABLE_START_TIME\\s*=(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->useableStartTime = stemp;
+	    myMetaData->useableStartEpoch = stemp;
         }
         else if (pcrecpp::RE("^USEABLE_STOP_TIME\\s*=(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->useableStopTime = stemp;
+	    myMetaData->useableStopEpoch = stemp;
         }
         else if (pcrecpp::RE("^INTERPOLATION\\s*=(.*)").FullMatch(lff,&stemp))
         {
@@ -390,5 +395,26 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetadata(std::string &lff,
         lff = Trim(ReadLineFromFile());
     }
 
+    return true;
+}
+
+//------------------------------------------------------------------------------
+// bool WriteData(ObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Writes a CCSDS orbit ephemeris message to file
+ *
+ * @param <myOEM> the OEM data to be written to file
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSOEMDataFile::WriteData(ObType *myOb)
+{
+    if (myOb->GetTypeName() != "CCSDSOEMObType") return false;
+
+    CCSDSOEMObType *theOEM = (CCSDSOEMObType*)myOb;
+    WriteDataHeader(theOEM);
+    WriteMetaData(theOEM);
+    *theFile << theOEM;
     return true;
 }

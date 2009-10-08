@@ -178,7 +178,7 @@ const std::string CCSDSTDMObType::DATAQUALITY_DESCRIPTIONS[EndCCSDSTDMDataQualit
 
 const std::string CCSDSTDMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps-EndCCSDSDataReps] =
 {
-    "MetadataComments",
+    "comments",
     "TimeSystem",
     "StartTime",
     "StopTime",
@@ -696,6 +696,41 @@ std::string CCSDSTDMObType::GetStringDataParameter(const std::string &label) con
 }
 
 //------------------------------------------------------------------------------
+// std::string GetStringArrayDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSTDMObType::GetStringArrayDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+	case CCSDS_TDM_METADATACOMMENTS_ID:
+
+	    return ccsdsTDMMetaData->comments;
+
+        default:
+
+            return CCSDSObType::GetStringArrayDataParameter(id);
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// StringArray GetStringArrayDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSTDMObType::GetStringArrayDataParameter(const std::string &label) const
+{
+   return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
@@ -1043,7 +1078,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 {
     switch (myTDM->ccsdsHeader->dataType)
     {
-        case GENERICDATA_ID:
+        case CCSDSObType::GENERICDATA_ID:
             output << myTDM->ccsdsData;
             break;
         default:
@@ -1076,9 +1111,9 @@ std::ostream& operator<< (std::ostream &output,
    //output.setf(std::ios::scientific);
 
     output << "META_START" << endl;
-   for (Integer i = 0; i < myMetadata->metadataComments.size(); i++ )
+   for (Integer i = 0; i < myMetadata->comments.size(); i++ )
    {
-       output << "COMMENT " << myMetadata->metadataComments[i] << endl;
+       output << "COMMENT " << myMetadata->comments[i] << endl;
    }
    output << "TIME_SYSTEM = " << myMetadata->timeSystem << endl;
    output << "START_TIME = " << myMetadata->startTime << endl;

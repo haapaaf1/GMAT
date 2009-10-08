@@ -31,10 +31,10 @@
 #include "SLRObtype.hpp"
 #include "CCSDSObtype.hpp"
 #include "CCSDSTDMObtype.hpp"
-//#include "CCSDSOPMObtype.hpp"
+#include "CCSDSOPMObtype.hpp"
 #include "CCSDSOEMObtype.hpp"
-//#include "CCSDSAPMObtype.hpp"
-//#include "CCSDSAEMObtype.hpp"
+#include "CCSDSAPMObtype.hpp"
+#include "CCSDSAEMObtype.hpp"
 //#include "SP3cObtype.hpp"
 //#include "RINEXObtype.hpp"
 

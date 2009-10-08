@@ -702,6 +702,21 @@ bool ObType::IsParameterRequired(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
+// Bool Validate() const
+//------------------------------------------------------------------------------
+/**
+ * Code used to determine if the data is valid
+ *
+ * @return Boolean true or false
+ *
+ */
+//------------------------------------------------------------------------------
+bool ObType::Validate() const
+{
+   return false;
+}
+
+//------------------------------------------------------------------------------
 //  bool CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------
 /**

@@ -62,6 +62,8 @@ public:
         ITRF93_ID,
         ITRF97_ID,
         TOD_ID,
+        TRD_ID,
+        GRC_ID,
         EndCCSDSRefFrameReps
     };
 

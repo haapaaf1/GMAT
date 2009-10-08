@@ -335,7 +335,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
     {
         if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(lff,&stemp))
         {
-            myMetaData->metadataComments.push_back(stemp);
+            myMetaData->comments.push_back(stemp);
         }
         else if (pcrecpp::RE("^TIME_SYSTEM\\s*=(.*)").FullMatch(lff,&stemp))
         {
@@ -535,6 +535,8 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
 //------------------------------------------------------------------------------
 bool ProcessCCSDSTDMDataFile::WriteData(ObType *myOb)
 {
+    if (myOb->GetTypeName() != "CCSDSTDMObType") return false;
+
     CCSDSTDMObType *theTDM = (CCSDSTDMObType*)myOb;
     WriteDataHeader(theTDM);
     WriteMetaData(theTDM);

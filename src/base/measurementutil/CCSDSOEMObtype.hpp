@@ -23,13 +23,13 @@ public:
     std::string refFrameOrigin;
     std::string refFrame;
     std::string timeSystem;
-    std::string startTime;
-    std::string stopTime;
-    std::string useableStartTime;
-    std::string useableStopTime;
+    std::string startEpoch;
+    std::string stopEpoch;
+    std::string useableStartEpoch;
+    std::string useableStopEpoch;
     std::string interpolationMethod;
     Integer interpolationDegree;
-    StringArray metadataComments;
+    StringArray comments;
 };
     
 class CCSDSOEMObType : public CCSDSObType
@@ -38,8 +38,8 @@ class CCSDSOEMObType : public CCSDSObType
 public:
 
     CCSDSOEMObType();
-    CCSDSOEMObType(const CCSDSOEMObType &tdm);
-    const CCSDSOEMObType& CCSDSOEMObType::operator=(const CCSDSOEMObType &tdm);
+    CCSDSOEMObType(const CCSDSOEMObType &oem);
+    const CCSDSOEMObType& CCSDSOEMObType::operator=(const CCSDSOEMObType &oem);
     ~CCSDSOEMObType();
 
     GmatBase *Clone() const;
@@ -53,14 +53,8 @@ public:
     std::string GetDataParameterTypeString(const Integer id) const;
     std::string GetDataUnits(const Integer id) const;
 
-    bool     GetBoolDataParameter(const Integer id) const;
-    bool     GetBoolDataParameter(const std::string &label) const;
-    Real     GetRealDataParameter(const Integer id) const;
-    Real     GetRealDataParameter(const std::string &label) const;
     Integer     GetIntegerDataParameter(const Integer id) const;
     Integer     GetIntegerDataParameter(const std::string &label) const;
-    IntegerArray     GetIntegerArrayDataParameter(const Integer id) const;
-    IntegerArray     GetIntegerArrayDataParameter(const std::string &label) const;
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
     StringArray GetStringArrayDataParameter(const Integer id) const;
@@ -69,44 +63,58 @@ public:
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
 
-    const std::string* GetDataTypes() const;
-    std::string GetDataTypeText(const Integer &id) const;
-    Integer GetDataTypeID(const std::string &label);
-
+    const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
+    
     const std::string* GetTimeSystems() const;
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
         
     bool IsParameterRequired(const Integer id) const;
 
-    enum OEM_TYPE_REPS
+    enum CCSDS_TIMESYSTEM_REPS
     {
-	GPSONLY_ID = EndCCSDSTypeReps,
-        MIXED_ID,
-        GLONASSONLY_ID,
-	LEOONLY_ID,
-	GALILEOONLY_ID,
-	EndCCSDSOEMTypeReps
+	UTC_ID = EndCCSDSTimeReps,
+        TAI_ID,
+        TT_ID,
+        GPS_ID,
+	TDB_ID,
+        TCB_ID,
+	EndCCSDSOEMTimeReps
     };
 
-    enum OEM_TIME_REPS
+    enum CCSDS_DATA_REPS
     {
-	GPSTIME_ID = EndCCSDSTimeReps,
-        GLONASSUTC_ID,
-        GALILEOSYSTEMTIME_ID,
-	TAI_ID,
-	UTC_ID,
-	EndCCSDSOEMTimeReps
+        CCSDS_OEM_OBJECTNAME_ID = EndCCSDSDataReps,
+        CCSDS_OEM_OBJECTID_ID,
+        CCSDS_OEM_CENTERNAME_ID,
+        CCSDS_OEM_REFFRAME_ID,
+	CCSDS_OEM_TIMESYSTEM_ID,
+	CCSDS_OEM_STARTEPOCH_ID,
+	CCSDS_OEM_USEABLE_STARTEPOCH_ID,
+	CCSDS_OEM_USEABLE_STOPEPOCH_ID,
+	CCSDS_OEM_STOPEPOCH_ID,
+        CCSDS_OEM_INTERPOLATION_ID,
+        CCSDS_OEM_INTERPOLATIONDEGREE_ID,
+        CCSDS_OEM_METADATACOMMENTS_ID,
+        EndCCSDSOEMDataReps
     };
 
     friend class ProcessCCSDSOEMDataFile;
 
 protected:
 
-    static const std::string CCSDS_TYPE_DESCRIPTIONS[EndCCSDSOEMTypeReps-EndCCSDSTypeReps];
     static const std::string CCSDS_TIME_DESCRIPTIONS[EndCCSDSOEMTimeReps-EndCCSDSTimeReps];
+    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSOEMDataReps - EndCCSDSDataReps];
+    static const std::string CCSDS_OEM_KEYWORDS[EndCCSDSOEMDataReps-EndCCSDSDataReps];
+    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps-EndCCSDSDataReps];
+    static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps - EndCCSDSTimeReps];
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSOEMDataReps - EndCCSDSDataReps];
+    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSOEMDataReps - EndCCSDSDataReps];
+    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps - EndCCSDSDataReps];
    
-    // Iterator Pointer to the metadata record
+    // Pointer to the metadata record
     CCSDSOEMMetaData* ccsdsOEMMetaData;
 };   
 

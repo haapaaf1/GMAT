@@ -16,7 +16,7 @@ public:
 
     friend std::ostream& operator<< (std::ostream &output,
                                      const CCSDSTDMMetaData *myMetadata);
-    StringArray metadataComments;
+    StringArray comments;
     std::string timeSystem;
     std::string startTime;
     std::string stopTime;
@@ -81,6 +81,8 @@ public :
     bool        GetBoolDataParameter(const std::string &label) const;    
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
@@ -135,7 +137,7 @@ public :
         EndCCSDSTDMTypeReps
     };
     
-    enum TIME_REPS
+    enum CCSDS_TIMESYSTEM_REPS
     {
 	UTC_ID = EndCCSDSTimeReps,
         TAI_ID,

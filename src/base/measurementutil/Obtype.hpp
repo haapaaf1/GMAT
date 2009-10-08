@@ -86,6 +86,9 @@ public:
     virtual StringArray GetStringArrayDataParameter(const Integer id) const;
     virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
 
+    // Function to validate data
+    virtual bool Validate() const;
+
     // Functions to verify data availability
     virtual bool CheckDataAvailability(const std::string str) const;
            

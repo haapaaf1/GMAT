@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                             ProcessCCSDSOPM
+//                             ProcessCCSDSOPMDataFile
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,24 +13,26 @@
 //
 /**
  *
- * Implements DataFile base class to read files written in CCSDS orbit
- * parameter message format.
+ * Implements DataFile base class to read files written in CCSDS tracking
+ * data message format.
  *
  */
 //------------------------------------------------------------------------------
 
-#ifndef ProcessCCSDSOPM_hpp
-#define	ProcessCCSDSOPM_hpp
+#ifndef ProcessCCSDSOPMDataFile_hpp
+#define	ProcessCCSDSOPMDataFile_hpp
 
-#include "DataFile.hpp"
+#include "ProcessCCSDSDataFile.hpp"
 
-class ProcessCCSDSOPM : public DataFile
+class ProcessCCSDSOPMDataFile : public ProcessCCSDSDataFile
 {
 
 public:
-    
-    ProcessCCSDSOPM(const std::string &itsName);
-    ~ProcessCCSDSOPM();
+
+    ProcessCCSDSOPMDataFile(const std::string &itsName);
+    ProcessCCSDSOPMDataFile(const ProcessCCSDSOPMDataFile &CCSDSOPMdf);
+    const ProcessCCSDSOPMDataFile& operator=(const ProcessCCSDSOPMDataFile &CCSDSOPMdf);
+    ~ProcessCCSDSOPMDataFile();
 
     // Initialization happens here
     bool Initialize();
@@ -39,28 +41,19 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    // Measurement Data Access functions
-    bool AdvanceToNextOb();
-    bool BackUpToPreviousOb();
+    bool WriteData(ObType *myOb);
+    bool GetData(ObType *myOb);
 
-protected:
+private:
 
     // Specific data type processing functions
-    bool GetData(fstream &theFile);
+    bool GetCCSDSMetaData(std::string &nextline,
+                          CCSDSOPMMetaData *myMetaData);
 
-    bool GetSP3cHeader(std::string firstline, fstream &theFile);
-    bool GetSP3cData(std::string &lff, fstream &theFile);
-
-    // Vector containers for the measurement data
-    std::vector<ccsds_header*> ccsdsOPMHeader;
-    std::vector<ccsds_opm_obtype*> ccsdsOPMData;
-
-    //Current iterator pointing at data
-    std::vector<ccsds_opm_obtype*>::iterator i;
-
-    //Current iteratory pointing at header
-    std::vector<ccsds_header*>::iterator i_h;
+    CCSDSOPMMetaData *currentCCSDSMetaData;
+    CCSDSOPMMetaData *lastMetaDataWritten;
+    bool isMetaDataWritten;
 
 };
-#endif	/* _ProcessCCSDSOPMData_hpp */
+#endif	/* _ProcessCCSDSOPMDataFileData_hpp */
 

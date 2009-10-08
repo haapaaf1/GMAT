@@ -11,6 +11,7 @@ const std::string CCSDSObType::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps] =
     "Keplerian Elements",
     "Spacecraft Parameters",
     "Maneuver",
+    "Attitude Maneuver",
     "Generic Data Type"
 };
 
@@ -21,7 +22,99 @@ const std::string CCSDSObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSDataReps] =
     "CCSDS Version",
     "Creation Date",
     "Originator",
-    "HeaderComments"
+    "Header Comments",
+    "Quaternion Type",
+    "Quaternion Epoch",
+    "Quaternion Frame A",
+    "Quaternion Frame B",
+    "Quaternion Direction",
+    "Quaternion Q1",
+    "Quaternion Q2",
+    "Quaternion Q3",
+    "Quaternion QC",
+    "Quaternion Q1 Dot",
+    "Quaternion Q2 Dot",
+    "Quaternion Q3 Dot",
+    "Quaternion QC Dot",
+    "Quaternion Comments",
+    "Euler Angle Type",
+    "Euler Angle Epoch",
+    "Euler Angle Frame A",
+    "Euler Angle Frame B",
+    "Euler Angle Direction",
+    "Euler Angle Rotation Sequence",
+    "Euler Angle Rate Frame",
+    "Euler Angle X Angle",
+    "Euler Angle Y Angle",
+    "Euler Angle Z Angle",
+    "Euler Angle X Rate",
+    "Euler Angle Y Rate",
+    "Euler Angle Z Rate",
+    "Euler Angle Comments",
+    "Spin Stabilized Attitude Type",
+    "Spin Stabilized Epoch",
+    "Spin Stabilized Frame A",
+    "Spin Stabilized Frame B",
+    "Spin Stabilized Direction",
+    "Spin Stabilized Spin Alpha",
+    "Spin Stabilized Spin Delta",
+    "Spin Stabilized Spin Angle",
+    "Spin Stabilized Spin Angle Velocity",
+    "Spin Stabilized Nutation",
+    "Spin Stabilized Nutation Period",
+    "Spin Stabilized Nutation Phase",
+    "Spin Stabilized Comments",
+    "State Vector Epoch",
+    "State Vector X",
+    "State Vector Y",
+    "State Vector Z",
+    "State Vector X Dot",
+    "State Vector Y Dot",
+    "State Vector Z Dot",
+    "State Vector Comments",
+    "Keplerian Elements Epoch",
+    "Keplerian Elements Semimajor Axis",
+    "Keplerian Elements Eccentricity",
+    "Keplerian Elements Inclination",
+    "Keplerian Elements Right Ascension of the Ascending Node",
+    "Keplerian Elements Argument of Pericenter",
+    "Keplerian Elements True Anomaly",
+    "Keplerian Elements Mean Anomaly",
+    "Keplerian Elements Gravitational Coefficient",
+    "Keplerian Elements Comments",
+    "Spacecraft Parameters Epoch",
+    "Spacecraft Parameters Mass",
+    "Spacecraft Parameters Solar Radiation Area",
+    "Spacecraft Parameters Solar Radiation Coefficient",
+    "Spacecraft Parameters Drag Area",
+    "Spacecraft Parameters Drag Coefficient",
+    "Spacecraft Parameters Inertia Ref Frame",
+    "Spacecraft Parameters Inertia Component (1,1)",
+    "Spacecraft Parameters Inertia Component (2,2)",
+    "Spacecraft Parameters Inertia Component (3,3)",
+    "Spacecraft Parameters Inertia Component (1,2)",
+    "Spacecraft Parameters Inertia Component (1,3)",
+    "Spacecraft Parameters Inertia Component (2,3)",
+    "Spacecraft Parameters Comments",
+    "Maneuver Ref Ignition Epoch",
+    "Maneuver Duration",
+    "Maneuver Ref Delta Mass",
+    "Maneuver Ref Frame",
+    "Maneuver Ref DeltaV1",
+    "Maneuver Ref DeltaV2",
+    "Maneuver Ref DeltaV3",
+    "Maneuver Comments",
+    "Attitude Maneuver Epoch Start",
+    "Attitude Maneuver Duration",
+    "Attitude Maneuver Ref Frame",
+    "Attitude Maneuver TOR1",
+    "Attitude Maneuver TOR2",
+    "Attitude Maneuver TOR3",
+    "Attitude Maneuver Comments",
+    "General Data Keyword",
+    "General Data TimeTag",
+    "General Data Measurement",
+    "General Data Comments"
 };
 
 const std::string CCSDSObType::CCSDS_KEYWORDS[EndCCSDSDataReps] =
@@ -29,11 +122,195 @@ const std::string CCSDSObType::CCSDS_KEYWORDS[EndCCSDSDataReps] =
     "CCSDS_VERSION",
     "CREATION_DATE",
     "ORIGINATOR",
+    "COMMENT",
+    "Quaternion Type",
+    "EPOCH",
+    "Q_FRAME_A",
+    "Q_FRAME_B",
+    "Q_DIR",
+    "Q1",
+    "Q2",
+    "Q3",
+    "QC",
+    "Q1_DOT",
+    "Q2_DOT",
+    "Q3_DOT",
+    "QC_DOT",
+    "COMMENT",
+    "Euler Angle Type",
+    "EPOCH",
+    "EULER_FRAME_A",
+    "EULER_FRAME_B",
+    "EULER_DIR",
+    "EULER_ROT_SEQ",
+    "RATE_FRAME",
+    "X_ANGLE",
+    "Y_ANGLE",
+    "Z_ANGLE",
+    "X_RATE",
+    "Y_RATE",
+    "Z_RATE",
+    "COMMENT",
+    "Spin Stabilized Attitude Type",
+    "EPOCH",
+    "SPIN_FRAME_A",
+    "SPIN_FRAME_B",
+    "SPIN_DIR",
+    "SPIN_ALPHA",
+    "SPIN_DELTA",
+    "SPIN_ANGLE",
+    "SPIN_ANGLE_VEL",
+    "NUTATION",
+    "NUTATION_PER",
+    "NUTATION_PHASE",
+    "COMMENT",
+    "EPOCH",
+    "X",
+    "Y",
+    "Z",
+    "X_DOT",
+    "Y_DOT",
+    "Z_DOT",
+    "COMMENT",
+    "EPOCH",
+    "SEMI_MAJ_AXIS",
+    "ECCENTRICITY",
+    "INCLINATION",
+    "RA_OF_ASC_NODE",
+    "ARG_OF_PERICENTER",
+    "TRUE_ANOMALY",
+    "MEAN_ANOMALY",
+    "GM",
+    "COMMENT",
+    "EPOCH",
+    "MASS",
+    "SOLAR_RAD_AREA",
+    "SOLAR_RAD_COEFF",
+    "DRAG_AREA",
+    "DRAG_COEFF",
+    "INERTIA_REF_FRAME",
+    "I11",
+    "I22",
+    "I33",
+    "I12",
+    "I13",
+    "I23",
+    "COMMENT",
+    "MAN_EPOCH_IGNITION",
+    "MAN_DURATION",
+    "MAN_DELTA_MASS",
+    "MAN_REF_FRAME",
+    "MAN_DV_1",
+    "MAN_DV_2",
+    "MAN_DV_3",
+    "COMMENT",
+    "MAN_EPOCH_START",
+    "MAN_DURATION",
+    "MAN_REF_FRAME",
+    "MAN_TOR1",
+    "MAN_TOR2",
+    "MAN_TOR3",
+    "COMMENT",
+    "",
+    "",
+    "",
     "COMMENTS"
 };
 
 const bool CCSDSObType::CCSDS_IS_REQUIRED[EndCCSDSDataReps] =
 {
+    true,
+    true,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
     true,
     true,
     true,
@@ -45,7 +322,99 @@ const Gmat::ParameterType CCSDSObType::CCSDS_PARAMETER_TYPE[EndCCSDSDataReps] =
     Gmat::REAL_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE
 };
 
 const std::string CCSDSObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSDataReps] =
@@ -53,7 +422,99 @@ const std::string CCSDSObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSDataReps] =
     "",
     "",
     "",
-    ""
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "1/s",
+    "1/s",
+    "1/s",
+    "1/s",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "deg",
+    "deg",
+    "deg",
+    "deg/s",
+    "deg/s",
+    "deg/s",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "deg",
+    "deg",
+    "deg",
+    "deg/s",
+    "deg",
+    "s",
+    "deg",
+    "",
+    "",
+    "km",
+    "km",
+    "km",
+    "km/s",
+    "km/s",
+    "km/s",
+    "",
+    "",
+    "km",
+    "",
+    "deg",
+    "deg",
+    "deg",
+    "deg",
+    "deg",
+    "km^3/s^2",
+    "",
+    "",
+    "kg",
+    "m^2",
+    "",
+    "m^2",
+    "",
+    "",
+    "kg m^2",
+    "kg m^2",
+    "kg m^2",
+    "kg m^2",
+    "kg m^2",
+    "kg m^2",
+    "",
+    "",
+    "",
+    "kg",
+    "s",
+    "km/s",
+    "km/s",
+    "km/s",
+    "",
+    "",
+    "s",
+    "",
+    "N m",
+    "N m",
+    "N m",
+    "",
+    "",
+    "",
+    "",
+    "",
 };
 
 //------------------------------------------------------------------------------
@@ -297,7 +758,43 @@ StringArray CCSDSObType::GetStringArrayDataParameter(const Integer id) const
     {
 	case CCSDS_HEADERCOMMENTS_ID:
 
-	    return ccsdsHeader->headerComments;
+	    return ccsdsHeader->comments;
+
+	case CCSDS_QUATERNION_COMMENTS_ID:
+
+	    return ccsdsQuaternion->comments;
+
+        case CCSDS_EULERANGLE_COMMENTS_ID:
+
+	    return ccsdsEulerAngle->comments;
+
+        case CCSDS_SPINSTABILIZED_COMMENTS_ID:
+
+	    return ccsdsSpinStabilized->comments;
+
+        case CCSDS_STATEVECTOR_COMMENTS_ID:
+
+	    return ccsdsStateVector->comments;
+
+        case CCSDS_KEPLERIANELEMENTS_COMMENTS_ID:
+
+	    return ccsdsKeplerianElements->comments;
+
+        case CCSDS_SPACECRAFTPARAMETERS_COMMENTS_ID:
+
+	    return ccsdsSpacecraftParameters->comments;
+
+        case CCSDS_MANUEVER_COMMENTS_ID:
+
+	    return ccsdsManeuver->comments;
+
+        case CCSDS_ATTITUDEMANUEVER_COMMENTS_ID:
+
+	    return ccsdsAttitudeManeuver->comments;
+
+        case CCSDS_GENERALDATA_COMMENTS_ID:
+
+	    return ccsdsData->comments;
 
         default:
 
@@ -330,6 +827,90 @@ std::string CCSDSObType::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
+        case CCSDS_QUATERNION_TYPE_ID:
+
+	    return ccsdsQuaternion->quarternionType;
+
+        case CCSDS_QUATERNION_FRAMEA_ID:
+
+	    return ccsdsQuaternion->frameA;
+
+	case CCSDS_QUATERNION_FRAMEB_ID:
+
+	    return ccsdsQuaternion->frameB;
+
+	case CCSDS_QUATERNION_DIRECTION_ID:
+
+	    return ccsdsQuaternion->direction;
+
+        case CCSDS_EULERANGLE_TYPE_ID:
+
+	    return ccsdsEulerAngle->eulerAngleType;
+
+	case CCSDS_EULERANGLE_FRAMEA_ID:
+
+	    return ccsdsEulerAngle->frameA;
+
+	case CCSDS_EULERANGLE_FRAMEB_ID:
+
+	    return ccsdsEulerAngle->frameB;
+
+        case CCSDS_EULERANGLE_DIRECTION_ID:
+
+	    return ccsdsEulerAngle->direction;
+
+        case CCSDS_EULERANGLE_ROTATIONSEQUENCE_ID:
+
+	    return ccsdsEulerAngle->rotationSequence;
+
+        case CCSDS_EULERANGLE_RATEFRAME_ID:
+
+	    return ccsdsEulerAngle->rateFrame;
+
+        case CCSDS_SPINSTABILIZED_ATTITUDETYPE_ID:
+
+	    return ccsdsSpinStabilized->attitudeType;
+
+	case CCSDS_SPINSTABILIZED_FRAMEA_ID:
+
+	    return ccsdsSpinStabilized->frameA;
+
+	case CCSDS_SPINSTABILIZED_FRAMEB_ID:
+
+	    return ccsdsSpinStabilized->frameB;
+
+	case CCSDS_SPINSTABILIZED_DIRECTION_ID:
+
+	    return ccsdsSpinStabilized->direction;
+
+	case CCSDS_STATEVECTOR_EPOCH_ID:
+
+	    return ccsdsStateVector->epoch;
+
+	case CCSDS_SPACECRAFTPARAMETERS_INERTIAREFFRAME_ID:
+
+	    return ccsdsSpacecraftParameters->inertiaRefFrame;
+
+        case CCSDS_MANUEVER_IGNITIONEPOCH_ID:
+
+	    return ccsdsManeuver->ignitionEpoch;
+
+        case CCSDS_MANUEVER_REFFRAME_ID:
+
+	    return ccsdsManeuver->refFrame;
+
+        case CCSDS_ATTITUDEMANUEVER_EPOCHSTART_ID:
+
+	    return ccsdsAttitudeManeuver->epochStart;
+
+        case CCSDS_ATTITUDEMANUEVER_REFFRAME_ID:
+
+	    return ccsdsAttitudeManeuver->refFrame;
+
+        case CCSDS_GENERALDATA_TIMETAG_ID:
+
+	    return ccsdsData->timeTag;
+
 	case CCSDS_CREATIONDATE_ID:
 
 	    return ccsdsHeader->creationDate;
@@ -370,7 +951,231 @@ Real CCSDSObType::GetRealDataParameter(const Integer id) const
     switch (id)
     {
 
-       case CCSDS_VERSION_ID:
+	case CCSDS_QUATERNION_Q1_ID:
+
+            return ccsdsQuaternion->q1;
+
+	case CCSDS_QUATERNION_Q2_ID:
+
+            return ccsdsQuaternion->q2;
+
+	case CCSDS_QUATERNION_Q3_ID:
+
+            return ccsdsQuaternion->q3;
+
+	case CCSDS_QUATERNION_QC_ID:
+
+            return ccsdsQuaternion->qC;
+
+	case CCSDS_QUATERNION_Q1DOT_ID:
+
+            return ccsdsQuaternion->q1Dot;
+
+        case CCSDS_QUATERNION_Q2DOT_ID:
+
+            return ccsdsQuaternion->q2Dot;
+
+        case CCSDS_QUATERNION_Q3DOT_ID:
+
+            return ccsdsQuaternion->q3Dot;
+
+        case CCSDS_QUATERNION_QCDOT_ID:
+
+            return ccsdsQuaternion->qCDot;
+
+        case CCSDS_EULERANGLE_XANGLE_ID:
+
+            return ccsdsEulerAngle->xAngle;
+
+        case CCSDS_EULERANGLE_YANGLE_ID:
+
+            return ccsdsEulerAngle->yAngle;
+
+        case CCSDS_EULERANGLE_ZANGLE_ID:
+
+            return ccsdsEulerAngle->zAngle;
+
+        case CCSDS_EULERANGLE_XRATE_ID:
+
+            return ccsdsEulerAngle->xRate;
+
+        case CCSDS_EULERANGLE_YRATE_ID:
+
+            return ccsdsEulerAngle->yRate;
+
+        case CCSDS_EULERANGLE_ZRATE_ID:
+
+            return ccsdsEulerAngle->zRate;
+
+	case CCSDS_SPINSTABILIZED_SPINALPHA_ID:
+
+            return ccsdsSpinStabilized->spinAlpha;
+
+	case CCSDS_SPINSTABILIZED_SPINDELTA_ID:
+
+            return ccsdsSpinStabilized->spinDelta;
+
+	case CCSDS_SPINSTABILIZED_SPINANGLE_ID:
+
+            return ccsdsSpinStabilized->spinAngle;
+
+	case CCSDS_SPINSTABILIZED_SPINANGLEVEOCITY_ID:
+
+            return ccsdsSpinStabilized->spinAngleVelocity;
+
+	case CCSDS_SPINSTABILIZED_NUTATION_ID:
+
+            return ccsdsSpinStabilized->nutation;
+
+	case CCSDS_SPINSTABILIZED_NUTATIONPERIOD_ID:
+
+            return ccsdsSpinStabilized->nutationPeriod;
+
+	case CCSDS_SPINSTABILIZED_NUTATIONPHASE_ID:
+
+            return ccsdsSpinStabilized->nutationPhase;
+
+	case CCSDS_STATEVECTOR_X_ID:
+
+            return ccsdsStateVector->x;
+
+	case CCSDS_STATEVECTOR_Y_ID:
+
+            return ccsdsStateVector->y;
+
+	case CCSDS_STATEVECTOR_Z_ID:
+
+            return ccsdsStateVector->z;
+
+	case CCSDS_STATEVECTOR_XDOT_ID:
+
+            return ccsdsStateVector->xDot;
+
+        case CCSDS_STATEVECTOR_YDOT_ID:
+
+            return ccsdsStateVector->yDot;
+
+	case CCSDS_STATEVECTOR_ZDOT_ID:
+
+            return ccsdsStateVector->zDot;
+
+	case CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
+
+            return ccsdsKeplerianElements->semiMajorAxis;
+
+	case CCSDS_KEPLERIANELEMENTS_ECCENTRICITY_ID:
+
+            return ccsdsKeplerianElements->eccentricity;
+
+	case CCSDS_KEPLERIANELEMENTS_INCLINATION_ID:
+
+            return ccsdsKeplerianElements->inclination;
+
+	case CCSDS_KEPLERIANELEMENTS_RAAN_ID:
+
+            return ccsdsKeplerianElements->raan;
+
+	case CCSDS_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
+
+            return ccsdsKeplerianElements->argumentOfPericenter;
+
+	case CCSDS_KEPLERIANELEMENTS_TRUEANOMALY_ID:
+
+            return ccsdsKeplerianElements->trueAnomaly;
+
+	case CCSDS_KEPLERIANELEMENTS_MEANANOMALY_ID:
+
+            return ccsdsKeplerianElements->meanAnomaly;
+
+	case CCSDS_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
+
+            return ccsdsKeplerianElements->gravitationalCoefficient;
+
+	case CCSDS_SPACECRAFTPARAMETERS_MASS_ID:
+
+            return ccsdsSpacecraftParameters->mass;
+
+	case CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID:
+
+            return ccsdsSpacecraftParameters->solarRadiationArea;
+
+	case CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID:
+
+            return ccsdsSpacecraftParameters->solarRadiationCoefficient;
+
+	case CCSDS_SPACECRAFTPARAMETERS_DRAGAREA_ID:
+
+            return ccsdsSpacecraftParameters->dragArea;
+
+	case CCSDS_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID:
+
+            return ccsdsSpacecraftParameters->dragCoefficient;
+
+	case CCSDS_SPACECRAFTPARAMETERS_I11_ID:
+
+            return ccsdsSpacecraftParameters->i11;
+
+	case CCSDS_SPACECRAFTPARAMETERS_I22_ID:
+
+            return ccsdsSpacecraftParameters->i22;
+
+	case CCSDS_SPACECRAFTPARAMETERS_I33_ID:
+
+            return ccsdsSpacecraftParameters->i33;
+
+	case CCSDS_SPACECRAFTPARAMETERS_I12_ID:
+
+            return ccsdsSpacecraftParameters->i12;
+
+	case CCSDS_SPACECRAFTPARAMETERS_I13_ID:
+
+            return ccsdsSpacecraftParameters->i13;
+
+	case CCSDS_SPACECRAFTPARAMETERS_I23_ID:
+
+            return ccsdsSpacecraftParameters->i23;
+
+        case CCSDS_MANUEVER_DURATION_ID:
+
+            return ccsdsManeuver->duration;
+
+        case CCSDS_MANUEVER_DELTAMASS_ID:
+
+            return ccsdsManeuver->deltaMass;
+
+        case CCSDS_MANUEVER_DELTAV1_ID:
+
+            return ccsdsManeuver->deltaV1;
+
+        case CCSDS_MANUEVER_DELTAV2_ID:
+
+            return ccsdsManeuver->deltaV2;
+
+        case CCSDS_MANUEVER_DELTAV3_ID:
+
+            return ccsdsManeuver->deltaV3;
+
+        case CCSDS_ATTITUDEMANUEVER_DURATION_ID:
+
+            return ccsdsAttitudeManeuver->duration;
+
+        case CCSDS_ATTITUDEMANUEVER_TOR1_ID:
+
+            return ccsdsAttitudeManeuver->tor1;
+
+        case CCSDS_ATTITUDEMANUEVER_TOR2_ID:
+
+            return ccsdsAttitudeManeuver->tor2;
+
+        case CCSDS_ATTITUDEMANUEVER_TOR3_ID:
+
+            return ccsdsAttitudeManeuver->tor3;
+
+        case CCSDS_GENERALDATA_MEASUREMENT_ID:
+
+            return ccsdsData->measurement;
+
+        case CCSDS_VERSION_ID:
 
             return ccsdsHeader->ccsdsVersion;
 
@@ -630,10 +1435,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSQuaternion *myQuatern
    output << "Q1_DOT = " << myQuaternion->q1Dot << endl;
    output << "Q2_DOT = " << myQuaternion->q2Dot << endl;
    output << "Q3_DOT = " << myQuaternion->q3Dot << endl;
-   output << "QC_DOT = " << myQuaternion->qcDot << endl;
-   output << "X_RATE = " << myQuaternion->xRate << endl;
-   output << "Y_RATE = " << myQuaternion->yRate << endl;
-   output << "Z_RATE = " << myQuaternion->zRate << endl;
+   output << "QC_DOT = " << myQuaternion->qCDot << endl;
 
    return output;
 }
@@ -722,9 +1524,9 @@ std::ostream& operator<< (std::ostream &output, const CCSDSStateVector *myStateV
    using namespace std;
 
    output << "EPOCH = " << myStateVector->epoch << endl;
-   output << "X = " << myStateVector->X << endl;
-   output << "Y = " << myStateVector->Y << endl;
-   output << "Z = " << myStateVector->Z << endl;
+   output << "X = " << myStateVector->x << endl;
+   output << "Y = " << myStateVector->y << endl;
+   output << "Z = " << myStateVector->z << endl;
    output << "X_DOT = " << myStateVector->xDot << endl;
    output << "Y_DOT = " << myStateVector->yDot << endl;
    output << "Z_DOT = " << myStateVector->zDot << endl;
@@ -781,7 +1583,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSSpacecraftParameters 
    output << "SOLAR_RAD_COEFF = " << mySpacecraftParameters->solarRadiationCoefficient << endl;
    output << "DRAG_AREA = " << mySpacecraftParameters->dragArea << endl;
    output << "DRAG_COEFF = " << mySpacecraftParameters->dragCoefficient << endl;
-   output << "INERTIA_REF_FRAME = " << mySpacecraftParameters->intertiaRefFrame << endl;
+   output << "INERTIA_REF_FRAME = " << mySpacecraftParameters->inertiaRefFrame << endl;
    output << "I11 = " << mySpacecraftParameters->i11 << endl;
    output << "I22 = " << mySpacecraftParameters->i22 << endl;
    output << "I33 = " << mySpacecraftParameters->i33 << endl;
@@ -830,9 +1632,9 @@ std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
     using namespace std;
 
     output << "CCSDS_" << myHeader->fileType << "_VERS = " << myHeader->ccsdsVersion << endl;
-    for (Integer i = 0; i < myHeader->headerComments.size(); i++)
+    for (Integer i = 0; i < myHeader->comments.size(); i++)
     {
-        output << "COMMENT " << myHeader->headerComments[i] << endl;
+        output << "COMMENT " << myHeader->comments[i] << endl;
     }
     output << "CREATION_DATE = " << myHeader->creationDate << endl;
     output << "ORIGINATOR = " << myHeader->originator << endl;

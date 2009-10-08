@@ -36,7 +36,9 @@ const std::string ProcessCCSDSDataFile::CCSDS_REF_FRAME_REPS[EndCCSDSRefFrameRep
     "ITRF2000",
     "ITRF-93",
     "ITRF-97",
-    "TOD"
+    "TOD",
+    "TRD",
+    "GRC"
 };
 
 const std::string ProcessCCSDSDataFile::CCSDS_REF_FRAME_DESCRIPTIONS[EndCCSDSRefFrameReps] =
@@ -46,7 +48,10 @@ const std::string ProcessCCSDSDataFile::CCSDS_REF_FRAME_DESCRIPTIONS[EndCCSDSRef
     "Interantional Terrestrial Reference Frame 2000",
     "Interantional Terrestrial Reference Frame 1993",
     "Interantional Terrestrial Reference Frame 1997",
-    "True of Date"
+    "True of Date",
+    "True of Date Rotating",
+    "Greenwich Rotating Coordinate Frame"
+
 };
 
 //------------------------------------------------------------------------------
@@ -190,7 +195,7 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
         }
         else if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(nextline,&stemp))
         {
-	    myHeader->headerComments.push_back(Trim(stemp));
+	    myHeader->comments.push_back(Trim(stemp));
         }
 	else
 	{

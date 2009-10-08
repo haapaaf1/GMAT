@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                             ProcessCCSDSOEM
+//                             ProcessCCSDSOEMDataFile
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,23 +13,22 @@
 //
 /**
  *
- * Implements DataFile base class to read files written in CCSDS orbit
- * ephemeris message format.
+ * Implements DataFile base class to read files written in CCSDS tracking
+ * data message format.
  *
  */
 //------------------------------------------------------------------------------
 
-#ifndef ProcessCCSDSOEMDATAFILE_hpp
-#define	ProcessCCSDSOEMDATAFILE_hpp
+#ifndef ProcessCCSDSOEMDataFile_hpp
+#define	ProcessCCSDSOEMDataFile_hpp
 
 #include "ProcessCCSDSDataFile.hpp"
-#include "ObType.hpp"
 
 class ProcessCCSDSOEMDataFile : public ProcessCCSDSDataFile
 {
 
 public:
-    
+
     ProcessCCSDSOEMDataFile(const std::string &itsName);
     ProcessCCSDSOEMDataFile(const ProcessCCSDSOEMDataFile &CCSDSOEMdf);
     const ProcessCCSDSOEMDataFile& operator=(const ProcessCCSDSOEMDataFile &CCSDSOEMdf);
@@ -42,17 +41,19 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool WriteData(CCSDSOEMObType *myCCSDSOEM);
-    
+    bool WriteData(ObType *myOb);
+    bool GetData(ObType *myOb);
+
 private:
-    
+
     // Specific data type processing functions
-    bool GetData(std::string line, CCSDSOEMObType *myOEM);
-    bool GetCCSDSMetadata(std::string &nextline,
-                          CCSDSOEMObType::ccsds_oem_metadata *myMetaData);
-    
-    CCSDSOEMObType::ccsds_oem_metadata *currentCCSDSMetadata;
-    
+    bool GetCCSDSMetaData(std::string &nextline,
+                          CCSDSOEMMetaData *myMetaData);
+
+    CCSDSOEMMetaData *currentCCSDSMetaData;
+    CCSDSOEMMetaData *lastMetaDataWritten;
+    bool isMetaDataWritten;
+
 };
-#endif	/* _ProcessCCSDSOEMDATAFILE_hpp */
+#endif	/* _ProcessCCSDSOEMDataFileData_hpp */
 
