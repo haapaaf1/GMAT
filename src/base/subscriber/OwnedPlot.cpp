@@ -34,7 +34,7 @@
 //---------------------------------
 
 const std::string
-OwnedPlot::PARAMETER_TEXT[OwnedPlotParamCount - SubscriberParamCount] =
+OwnedPlot::PARAMETER_TEXT[OwnedPlotParamCount - GmatBaseParamCount] =
 {
    "IndVar",
    "Add",
@@ -52,7 +52,7 @@ OwnedPlot::PARAMETER_TEXT[OwnedPlotParamCount - SubscriberParamCount] =
 }; 
 
 const Gmat::ParameterType
-OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - SubscriberParamCount] =
+OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - GmatBaseParamCount] =
 {
    Gmat::OBJECT_TYPE,      // "IndVar",
    Gmat::OBJECTARRAY_TYPE, // "Add",
@@ -82,7 +82,7 @@ OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - SubscriberParamCount] =
 OwnedPlot::OwnedPlot(const std::string &name, Parameter *xParam,
                Parameter *firstYParam, const std::string &plotTitle,
                const std::string &xAxisTitle, const std::string &yAxisTitle) :
-   Subscriber("XYPlot", name)
+   GmatBase(Gmat::XY_PLOT, "OwnedPlot", name)
 {
    // GmatBase data
    objectTypes.push_back(Gmat::XY_PLOT);
@@ -112,6 +112,13 @@ OwnedPlot::OwnedPlot(const std::string &name, Parameter *xParam,
    lineWidth = 1;
    useMarkers = false;
    markerSize = 3;
+
+   active = true;
+   isEndOfReceive = false;
+   isEndOfRun = false;
+   isInitialized = false;
+   mSolverIterations = "All";
+   runstate = Gmat::RUNNING;
 }
 
 
@@ -119,7 +126,7 @@ OwnedPlot::OwnedPlot(const std::string &name, Parameter *xParam,
 // OwnedPlot(const OwnedPlot &orig)
 //------------------------------------------------------------------------------
 OwnedPlot::OwnedPlot(const OwnedPlot &orig) :
-   Subscriber(orig)
+   GmatBase(orig)
 {
    mXParam = orig.mXParam;
    mYParams = orig.mYParams;
@@ -149,6 +156,13 @@ OwnedPlot::OwnedPlot(const OwnedPlot &orig) :
    lineWidth  = orig.lineWidth;
    useMarkers = orig.useMarkers;
    markerSize = orig.markerSize;
+
+   active = true;
+   isEndOfReceive = false;
+   isEndOfRun = false;
+   isInitialized = false;
+   mSolverIterations = "All";
+   runstate = Gmat::RUNNING;
 }
 
 
@@ -164,7 +178,7 @@ OwnedPlot& OwnedPlot::operator=(const OwnedPlot& orig)
    if (this == &orig)
       return *this;
    
-   Subscriber::operator=(orig);
+   GmatBase::operator=(orig);
    
    mXParam = orig.mXParam;
    mYParams = orig.mYParams;
@@ -191,6 +205,13 @@ OwnedPlot& OwnedPlot::operator=(const OwnedPlot& orig)
    mNumCollected = orig.mNumCollected;
    
    useMarkers = orig.useMarkers;
+
+   active = true;
+   isEndOfReceive = false;
+   isEndOfRun = false;
+   isInitialized = false;
+   mSolverIterations = "All";
+   runstate = Gmat::RUNNING;
 
    return *this;
 }
@@ -285,7 +306,9 @@ bool OwnedPlot::Initialize()
 //      }
    }
    
-   Subscriber::Initialize();
+   GmatBase::Initialize();
+   isEndOfReceive = false;
+   isEndOfRun = false;
    
    bool status = false;
    DeletePlotCurves();
@@ -525,10 +548,10 @@ bool OwnedPlot::RenameRefObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 std::string OwnedPlot::GetParameterText(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < OwnedPlotParamCount)
-      return PARAMETER_TEXT[id - SubscriberParamCount];
+   if (id >= GmatBaseParamCount && id < OwnedPlotParamCount)
+      return PARAMETER_TEXT[id - GmatBaseParamCount];
    else
-      return Subscriber::GetParameterText(id);
+      return GmatBase::GetParameterText(id);
     
 }
 
@@ -537,13 +560,13 @@ std::string OwnedPlot::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer OwnedPlot::GetParameterID(const std::string &str) const
 {
-   for (int i=SubscriberParamCount; i<OwnedPlotParamCount; i++)
+   for (int i=GmatBaseParamCount; i<OwnedPlotParamCount; i++)
    {
-      if (str == PARAMETER_TEXT[i - SubscriberParamCount])
+      if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
          return i;
    }
    
-   return Subscriber::GetParameterID(str);
+   return GmatBase::GetParameterID(str);
 }
 
 
@@ -552,10 +575,10 @@ Integer OwnedPlot::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType OwnedPlot::GetParameterType(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < OwnedPlotParamCount)
-      return PARAMETER_TYPE[id - SubscriberParamCount];
+   if (id >= GmatBaseParamCount && id < OwnedPlotParamCount)
+      return PARAMETER_TYPE[id - GmatBaseParamCount];
    else
-      return Subscriber::GetParameterType(id);
+      return GmatBase::GetParameterType(id);
 }
 
 
@@ -564,10 +587,10 @@ Gmat::ParameterType OwnedPlot::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 std::string OwnedPlot::GetParameterTypeString(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < OwnedPlotParamCount)
-      return GmatBase::PARAM_TYPE_STRING[GetParameterType(id - SubscriberParamCount)];
+   if (id >= GmatBaseParamCount && id < OwnedPlotParamCount)
+      return GmatBase::PARAM_TYPE_STRING[GetParameterType(id - GmatBaseParamCount)];
    else
-      return Subscriber::GetParameterTypeString(id);
+      return GmatBase::GetParameterTypeString(id);
 }
 
 //---------------------------------------------------------------------------
@@ -597,7 +620,7 @@ bool OwnedPlot::IsParameterReadOnly(const Integer id) const
       )
       return true;
    
-   return Subscriber::IsParameterReadOnly(id);
+   return GmatBase::IsParameterReadOnly(id);
 }
 
 //------------------------------------------------------------------------------
@@ -616,7 +639,7 @@ Integer OwnedPlot::GetIntegerParameter(const Integer id) const
    case MARKER_SIZE:
       return markerSize;
    default:
-      return Subscriber::GetIntegerParameter(id);
+      return GmatBase::GetIntegerParameter(id);
    }
 }
 
@@ -649,7 +672,7 @@ Integer OwnedPlot::SetIntegerParameter(const Integer id, const Integer value)
       markerSize = value;
       return value;
    default:
-      return Subscriber::SetIntegerParameter(id, value);
+      return GmatBase::SetIntegerParameter(id, value);
    }
 }
 
@@ -675,7 +698,7 @@ std::string OwnedPlot::GetOnOffParameter(const Integer id) const
    case DRAW_GRID:
       return mDrawGrid;
    default:
-      return Subscriber::GetOnOffParameter(id);
+      return GmatBase::GetOnOffParameter(id);
    }
 }
 
@@ -700,7 +723,7 @@ bool OwnedPlot::SetOnOffParameter(const Integer id, const std::string &value)
       mDrawGrid = value;
       return true;
    default:
-      return Subscriber::SetOnOffParameter(id, value);
+      return GmatBase::SetOnOffParameter(id, value);
    }
 }
 
@@ -730,7 +753,7 @@ std::string OwnedPlot::GetStringParameter(const Integer id) const
    case Y_AXIS_TITLE:
       return mYAxisTitle;
    default:
-      return Subscriber::GetStringParameter(id);
+      return GmatBase::GetStringParameter(id);
    }
 }
 
@@ -775,7 +798,7 @@ bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value)
       mYAxisTitle = value;
       return true;
    default:
-      return Subscriber::SetStringParameter(id, value);
+      return GmatBase::SetStringParameter(id, value);
    }
 }
 
@@ -808,7 +831,7 @@ bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value,
    case ADD:
       return AddYParameter(value, index);
    default:
-      return Subscriber::SetStringParameter(id, value, index);
+      return GmatBase::SetStringParameter(id, value, index);
    }
 }
 
@@ -842,7 +865,7 @@ const StringArray& OwnedPlot::GetStringArrayParameter(const Integer id) const
    case ADD:
       return mYParamNames;
    default:
-      return Subscriber::GetStringArrayParameter(id);
+      return GmatBase::GetStringArrayParameter(id);
    }
 }
 
@@ -864,7 +887,7 @@ bool OwnedPlot::GetBooleanParameter(const Integer id) const
       return useMarkers;
    if (id == USE_LINES)
       return useLines;
-   return Subscriber::GetBooleanParameter(id);
+   return GmatBase::GetBooleanParameter(id);
 }
 
 bool OwnedPlot::GetBooleanParameter(const std::string &label) const
@@ -899,7 +922,7 @@ bool OwnedPlot::SetBooleanParameter(const Integer id, const bool value)
          useMarkers = true;
       return useLines;
    }
-   return Subscriber::SetBooleanParameter(id, value);
+   return GmatBase::SetBooleanParameter(id, value);
 }
 
 //------------------------------------------------------------------------------
@@ -1038,11 +1061,12 @@ const StringArray& OwnedPlot::GetRefObjectNameArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
 void OwnedPlot::BuildPlotTitle()
 {
-   mXAxisTitle = "Epoch";
-   mYAxisTitle = "Residual";
-   mPlotTitle  = "Residual data";
-
-   return;
+   if (mXAxisTitle == "")
+      mXAxisTitle = "Epoch";
+   if (mYAxisTitle == "")
+      mYAxisTitle = "Residual";
+   if (mPlotTitle == "")
+      mPlotTitle  = "Residual data";
 }
 
 //------------------------------------------------------------------------------
@@ -1054,9 +1078,9 @@ bool OwnedPlot::ClearYParameters()
    mYParams.clear();
    mYParamNames.clear();
    mNumYParams = 0;
-   mPlotTitle = "";
-   mXAxisTitle = "";
-   mYAxisTitle = "";
+//   mPlotTitle = "";
+//   mXAxisTitle = "";
+//   mYAxisTitle = "";
    mIsOwnedPlotWindowSet = false;
    return true;
 }
@@ -1203,12 +1227,105 @@ void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast)
       for (Integer j = 0; j < mNumYParams; ++j)
          yvals[j] = (*(dataBlast[j+1]))[i];
 
-//      PlotInterface::UpdateTsPlot(instanceName, mOldName, xval, yvals,
-//                                  mPlotTitle, mXAxisTitle, mYAxisTitle,
-//                                  true, true);
       PlotInterface::UpdateTsPlotData(instanceName, xval, yvals);
-
    }
+}
+
+
+void OwnedPlot::SetCurveData(const Integer forCurve, RealArray *xData,
+           RealArray *yData)
+{
+   #if DEBUG_OwnedPlot_UPDATE > 1
+   MessageInterface::ShowMessage
+      ("OwnedPlot::SetData() entered. isEndOfReceive=%d, active=%d, runState=%d\n",
+       isEndOfReceive, active, runstate);
+   #endif
+
+   for (UnsignedInt i = 0; i < xData->size(); ++i)
+   {
+      PlotInterface::UpdateTsPlotCurve(instanceName, forCurve, (*xData)[i],
+            (*yData)[i]);
+   }
+}
+
+
+bool OwnedPlot::MarkPoint(Integer whichOne, Integer forCurve)
+{
+   bool retval = false;
+
+   return retval;
+}
+
+Integer OwnedPlot::SetUsedDataID(Integer id, Integer forCurve)
+{
+   if (forCurve < -1)
+      return -1;
+
+   Integer curveId = -1;
+
+   if (forCurve == -1)
+   {
+      curveId = (int)supportedData.size();
+      supportedData.push_back(id);
+   }
+   else
+   {
+      if (forCurve < (int)supportedData.size())
+      {
+         supportedData[forCurve] = id;
+         curveId = forCurve;
+      }
+      else if (forCurve == (int)supportedData.size())
+      {
+         curveId = (int)supportedData.size();
+         supportedData.push_back(id);
+      }
+   }
+
+   return curveId;
+}
+
+void OwnedPlot::SetUsedObjectID(Integer id)
+{
+   bool alreadyThere = false;
+
+   for (UnsignedInt i = 0; i < supportedObjects.size(); ++i)
+      if (supportedObjects[i] == id)
+      {
+         alreadyThere = true;
+         break;
+      }
+
+   if (!alreadyThere)
+      supportedObjects.push_back(id);
+}
+
+Integer OwnedPlot::UsesData(Integer id)
+{
+   Integer retval = -1;
+
+   for (UnsignedInt i = 0; i < supportedData.size(); ++i)
+      if (supportedData[i] == id)
+      {
+         retval = i;
+         break;
+      }
+
+   return retval;
+}
+
+Integer OwnedPlot::UsesObject(Integer id)
+{
+   Integer retval = -1;
+
+   for (UnsignedInt i = 0; i < supportedObjects.size(); ++i)
+      if (supportedObjects[i] == id)
+      {
+         retval = i;
+         break;
+      }
+
+   return retval;
 }
 
 // methods inherited from Subscriber

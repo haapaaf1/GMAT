@@ -19,10 +19,10 @@
 #ifndef OwnedPlot_hpp
 #define OwnedPlot_hpp
 
-#include "Subscriber.hpp"
+#include "GmatBase.hpp"
 #include "Parameter.hpp"
 
-class OwnedPlot : public Subscriber
+class OwnedPlot : public GmatBase
 {
 public:
    OwnedPlot(const std::string &name, Parameter *xParam = NULL,
@@ -106,9 +106,20 @@ public:
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    
-   virtual void         SetData(std::vector<RealArray*> &dataBlast);
    bool                 Activate();
    bool                 Deactivate();
+
+   // Methods used to access the plot
+   virtual void         SetData(std::vector<RealArray*> &dataBlast);
+   virtual void         SetCurveData(const Integer forCurve, RealArray *xData,
+                              RealArray *yData);
+
+   virtual bool         MarkPoint(Integer whichOne = -1, Integer forCurve = -1);
+
+   virtual Integer      SetUsedDataID(Integer id, Integer forCurve = -1);
+   virtual void         SetUsedObjectID(Integer id);
+   virtual Integer      UsesData(Integer id);
+   virtual Integer      UsesObject(Integer id);
 
 protected:
 
@@ -133,6 +144,7 @@ protected:
    std::string mXParamName;
    StringArray mYParamNames;
    StringArray mAllParamNames;
+   IntegerArray curveDataIDs;
    
    std::string mOldName;
    std::string mPlotTitle;
@@ -152,9 +164,20 @@ protected:
    bool useMarkers;
    Integer markerSize;
 
+   IntegerArray supportedData;
+   IntegerArray supportedObjects;
+
+   // Imported Solver pieces
+   bool                 active;
+   bool                 isEndOfReceive;
+   bool                 isEndOfRun;
+   bool                 isInitialized;
+   std::string          mSolverIterations;
+   Gmat::RunState       runstate;
+
    enum
    {
-      IND_VAR = SubscriberParamCount,
+      IND_VAR = GmatBaseParamCount,
       ADD,
       PLOT_TITLE,
       X_AXIS_TITLE,
@@ -171,9 +194,9 @@ protected:
    };
    
    static const Gmat::ParameterType
-      PARAMETER_TYPE[OwnedPlotParamCount - SubscriberParamCount];
+      PARAMETER_TYPE[OwnedPlotParamCount - GmatBaseParamCount];
    static const std::string
-      PARAMETER_TEXT[OwnedPlotParamCount - SubscriberParamCount];
+      PARAMETER_TEXT[OwnedPlotParamCount - GmatBaseParamCount];
 
    // methods inherited from Subscriber
    virtual bool Distribute(Integer len);
