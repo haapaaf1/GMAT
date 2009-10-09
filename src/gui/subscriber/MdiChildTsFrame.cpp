@@ -446,6 +446,9 @@ void MdiChildTsFrame::CurveSettings(bool useLines, Integer lineWidth,
       Integer lineStyle, bool useMarkers, Integer markerSize, Integer marker,
       bool useHiLow, Integer forCurve)
 {
+   if (forCurve < -1)
+      return;
+
    if (mXyPlot)
    {
       Integer count = mXyPlot->GetCurveCount();
@@ -459,7 +462,10 @@ void MdiChildTsFrame::CurveSettings(bool useLines, Integer lineWidth,
             curve->SetStyle(lineStyle);
             curve->UseMarker(useMarkers);
             curve->SetMarkerSize(markerSize);
-            curve->SetMarker((MarkerType)marker, 0);
+            if (marker == -1)
+               curve->SetMarker((MarkerType)(i % MarkerCount), 0);
+            else
+               curve->SetMarker((MarkerType)marker, 0);
             curve->UseHiLow(useHiLow);
          }
       }
@@ -472,7 +478,10 @@ void MdiChildTsFrame::CurveSettings(bool useLines, Integer lineWidth,
             curve->SetStyle(lineStyle);
             curve->UseMarker(useMarkers);
             curve->SetMarkerSize(markerSize);
-            curve->SetMarker((MarkerType)marker, 0);
+            if (marker == -1)
+               curve->SetMarker((MarkerType)(forCurve % MarkerCount), 0);
+            else
+               curve->SetMarker((MarkerType)marker, 0);
             curve->UseHiLow(useHiLow);
          }
    }

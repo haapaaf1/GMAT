@@ -341,7 +341,7 @@ bool TsPlot::Initialize()
       
       PlotInterface::ClearTsPlotData(instanceName);
       PlotInterface::TsPlotCurveSettings(instanceName, useLines, lineWidth, 100,
-            useMarkers, markerSize, 1);
+            useMarkers, markerSize, -1);
    }
    else
    {

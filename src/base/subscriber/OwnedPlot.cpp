@@ -52,6 +52,7 @@ OwnedPlot::PARAMETER_TEXT[OwnedPlotParamCount - GmatBaseParamCount] =
    "LineStyle",
    "UseMarkers",
    "MarkerSize",
+   "Marker",
    "UseHiLow"
 }; 
 
@@ -74,6 +75,7 @@ OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - GmatBaseParamCount] =
    Gmat::INTEGER_TYPE,     // "LineStyle",
    Gmat::BOOLEAN_TYPE,     // "UseMarkers",
    Gmat::INTEGER_TYPE,     // "MarkerSize",
+   Gmat::INTEGER_TYPE,     // "Marker",        <-- Maybe make a string
    Gmat::BOOLEAN_TYPE,     // "UseHiLow"
 };
 
@@ -100,6 +102,7 @@ OwnedPlot::OwnedPlot(const std::string &name, const std::string &plotTitle,
    mUpdatePlotFrequency    (1),
    defaultColor            (0xFF0000),
    markerSize              (3),
+   markerStyle             (-1),
    lineWidth               (1),
    lineStyle               (100),      // wxSOLID = 100, in wx/defs.h
    useLines                (true),
@@ -135,6 +138,7 @@ OwnedPlot::OwnedPlot(const OwnedPlot &orig) :
    mUpdatePlotFrequency    (orig.mUpdatePlotFrequency),
    defaultColor            (orig.defaultColor),
    markerSize              (orig.markerSize),
+   markerStyle             (orig.markerStyle),
    lineWidth               (orig.lineWidth),
    lineStyle               (orig.lineStyle),
    useLines                (orig.useLines),
@@ -179,6 +183,7 @@ OwnedPlot& OwnedPlot::operator=(const OwnedPlot& orig)
    mUpdatePlotFrequency    = orig.mUpdatePlotFrequency;
    defaultColor            = orig.defaultColor;
    markerSize              = orig.markerSize;
+   markerStyle             = orig.markerStyle;
    lineWidth               = orig.lineWidth;
    lineStyle               = orig.lineStyle;
    useLines                = orig.useLines;
@@ -545,6 +550,9 @@ Integer OwnedPlot::GetIntegerParameter(const Integer id) const
    case MARKER_SIZE:
       return markerSize;
 
+   case MARKER_STYLE:
+      return markerStyle;
+
    default:
       return GmatBase::GetIntegerParameter(id);
    }
@@ -589,6 +597,10 @@ Integer OwnedPlot::SetIntegerParameter(const Integer id, const Integer value)
       case MARKER_SIZE:
          markerSize = value;
          return value;
+
+      case MARKER_STYLE:
+         markerStyle = value;
+         return markerStyle;
 
       default:
          return GmatBase::SetIntegerParameter(id, value);
@@ -714,7 +726,10 @@ bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value)
             curveColor.push_back(defaultColor);
             curveLineWidth.push_back(lineWidth);
             curveLineStyle.push_back(lineStyle);
-            curveMarker.push_back(curveNames.size() % 10);
+            if (markerStyle == -1)
+               curveMarker.push_back(curveNames.size() % 10);
+            else
+               curveMarker.push_back(markerStyle);
             curveMarkerSize.push_back(markerSize);
             curveUseLines.push_back(useLines);
             curveUseMarkers.push_back(useMarkers);
@@ -778,7 +793,10 @@ bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value,
             curveColor.push_back(defaultColor);
             curveLineWidth.push_back(lineWidth);
             curveLineStyle.push_back(lineStyle);
-            curveMarker.push_back(curveNames.size() % 10);
+            if (markerStyle == -1)
+               curveMarker.push_back(curveNames.size() % 10);
+            else
+               curveMarker.push_back(markerStyle);
             curveMarkerSize.push_back(markerSize);
             curveUseLines.push_back(useLines);
             curveUseMarkers.push_back(useMarkers);

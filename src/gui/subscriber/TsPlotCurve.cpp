@@ -469,6 +469,7 @@ void TsPlotCurve::SetMarker(MarkerType newType, int where)
       {
          markerIndex[0]  = 0;
          markerStyles[0] = newType;
+         currentMarkerStyle = newType;
       }
    }
 }

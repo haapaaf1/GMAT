@@ -150,6 +150,8 @@ protected:
    Integer defaultColor;
    /// Default marker size; initialized to 3
    Integer markerSize;
+   /// Default marker style; initialized to -1, meaning set by curve number
+   Integer markerStyle;
    /// Default line width used to draw lines and markers; default is 1
    Integer lineWidth;
    /// Default line style; initialized to a solid line
@@ -197,6 +199,7 @@ protected:
       LINE_STYLE,
       USE_MARKERS,
       MARKER_SIZE,
+      MARKER_STYLE,
       USE_HI_LOW,
       OwnedPlotParamCount
    };
