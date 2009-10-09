@@ -1747,7 +1747,10 @@ Real Thruster::CalculateMassFlow()
                                     "\" has specific impulse == 0.0");
 
          // Mass flows out, so need a negative value here
-         mDot = -(thrust/thrustScaleFactor) / (gravityAccel * impulse);
+         mDot = -thrust / (gravityAccel * impulse);
+
+         // Old code:
+         // mDot = -(thrust/thrustScaleFactor) / (gravityAccel * impulse);
       //}
    }
 
@@ -1760,7 +1763,7 @@ Real Thruster::CalculateMassFlow()
    #endif
 
    
-   return mDot;
+   return mDot * dutyCycle;
 }
 
 
