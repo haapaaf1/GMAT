@@ -486,3 +486,13 @@ void TsPlotCurve::SetMarkerSize(int newSize)
    if (newSize > 12)
       markerSize = 12;
 }
+
+bool TsPlotCurve::UseHiLow()
+{
+   return false;
+}
+
+bool TsPlotCurve::UseHiLow(bool useHiLow)
+{
+   return false;
+}

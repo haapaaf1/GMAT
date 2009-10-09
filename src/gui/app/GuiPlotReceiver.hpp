@@ -113,10 +113,14 @@ public:
 
    virtual void TsPlotRescale(const std::string &plotName);
    virtual void TsPlotCurveSettings(const std::string &plotName,
-                                   bool useLines = true,
-                                   Integer lineWidth = 1,
-                                   bool useMarkers = false,
-                                   Integer markerSize = 3);
+         bool useLines = true,
+         Integer lineWidth = 1,
+         Integer lineStyle = 100,
+         bool useMarkers = false,
+         Integer markerSize = 3,
+         Integer marker = 1,
+         bool useHiLow = false,
+         Integer forCurve = -1);
    
    virtual void SetTsPlotTitle(const std::string &plotName,
                               const std::string &plotTitle);
@@ -131,7 +135,10 @@ public:
                             bool updateCanvas, bool drawGrid);
    virtual bool UpdateTsPlotData(const std::string &plotName, const Real &xval,
                                  const Rvector &yvals);
-   
+   virtual bool UpdateTsPlotCurve(const std::string &plotName,
+                      const Integer whichCurve, const Real xval,
+                      const Real yval);
+
    virtual bool DeactivateTsPlot(const std::string &plotName);
    virtual bool ActivateTsPlot(const std::string &plotName);
    

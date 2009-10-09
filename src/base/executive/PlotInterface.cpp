@@ -451,11 +451,12 @@ void PlotInterface::TsPlotRescale(const std::string &plotName)
 
 
 void PlotInterface::TsPlotCurveSettings(const std::string &plotName,
-      bool useLines, Integer lineWidth, bool useMarkers, Integer markerSize)
+      bool useLines, Integer lineWidth, Integer lineStyle, bool useMarkers,
+      Integer markerSize, Integer marker, bool useHiLow, Integer forCurve)
 {
    if (thePlotReceiver != NULL)
       thePlotReceiver->TsPlotCurveSettings(plotName, useLines, lineWidth,
-            useMarkers, markerSize);
+            lineStyle, useMarkers, markerSize, marker, useHiLow, forCurve);
 }
 
 //------------------------------------------------------------------------------
@@ -533,6 +534,16 @@ bool PlotInterface::UpdateTsPlotData(const std::string &plotName,
 {
    if (thePlotReceiver != NULL)
       return thePlotReceiver->UpdateTsPlotData(plotName, xval, yvals);
+
+   return false;
+}
+
+bool PlotInterface::UpdateTsPlotCurve(const std::string &plotName,
+                             Integer whichCurve, const Real &xval,
+                             const Real &yval)
+{
+   if (thePlotReceiver != NULL)
+      return thePlotReceiver->UpdateTsPlotCurve(plotName, whichCurve, xval, yval);
 
    return false;
 }

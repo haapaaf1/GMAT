@@ -112,9 +112,13 @@ public:
    static void TsPlotCurveSettings(const std::string &plotName,
                                    bool useLines = true,
                                    Integer lineWidth = 1,
+                                   Integer lineStyle = 100,
                                    bool useMarkers = false,
-                                   Integer markerSize = 3);
-   
+                                   Integer markerSize = 3,
+                                   Integer marker = 1,
+                                   bool useHiLow = false,
+                                   Integer forCurve = -1);
+
    static void SetTsPlotTitle(const std::string &plotName,
                               const std::string &plotTitle);
    static void ShowTsPlotLegend(const std::string &plotName);
@@ -129,6 +133,9 @@ public:
    static bool UpdateTsPlotData(const std::string &plotName,
                                 const Real &xval, const Rvector &yvals);
    
+   static bool UpdateTsPlotCurve(const std::string &plotName,
+                     Integer whichCurve, const Real &xval, const Real &yval);
+
    static bool DeactivateTsPlot(const std::string &plotName);
    static bool ActivateTsPlot(const std::string &plotName);
 

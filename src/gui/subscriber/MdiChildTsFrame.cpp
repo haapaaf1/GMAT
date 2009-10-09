@@ -442,8 +442,9 @@ void MdiChildTsFrame::IsActive(bool yesno)
    isActive = yesno;
 }
 
-void MdiChildTsFrame::CurveSettings(const std::string &plotName, bool useLines,
-      Integer lineWidth, bool useMarkers, Integer markerSize, Integer forCurve)
+void MdiChildTsFrame::CurveSettings(bool useLines, Integer lineWidth,
+      Integer lineStyle, bool useMarkers, Integer markerSize, Integer marker,
+      bool useHiLow, Integer forCurve)
 {
    if (mXyPlot)
    {
@@ -455,8 +456,11 @@ void MdiChildTsFrame::CurveSettings(const std::string &plotName, bool useLines,
             TsPlotCurve *curve = mXyPlot->GetPlotCurve(i);
             curve->UseLine(useLines);
             curve->SetWidth(lineWidth);
+            curve->SetStyle(lineStyle);
             curve->UseMarker(useMarkers);
             curve->SetMarkerSize(markerSize);
+            curve->SetMarker((MarkerType)marker, 0);
+            curve->UseHiLow(useHiLow);
          }
       }
       else
@@ -465,8 +469,11 @@ void MdiChildTsFrame::CurveSettings(const std::string &plotName, bool useLines,
             TsPlotCurve *curve = mXyPlot->GetPlotCurve(forCurve);
             curve->UseLine(useLines);
             curve->SetWidth(lineWidth);
+            curve->SetStyle(lineStyle);
             curve->UseMarker(useMarkers);
             curve->SetMarkerSize(markerSize);
+            curve->SetMarker((MarkerType)marker, 0);
+            curve->UseHiLow(useHiLow);
          }
    }
 }

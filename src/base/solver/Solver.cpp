@@ -306,13 +306,13 @@ bool Solver::Initialize()
    #endif
       
    status = INITIALIZED;
-   if (plotter)
-      delete plotter;
-   if (plotCount > 0)
-   {
-      plotter = new OwnedPlot("");
-      plotter->SetName(instanceName + "_masterPlot");
-   }
+//   if (plotter)
+//      delete plotter;
+//   if (plotCount > 0)
+//   {
+//      plotter = new OwnedPlot("");
+//      plotter->SetName(instanceName + "_masterPlot");
+//   }
    
    return true;
 }

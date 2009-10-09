@@ -340,8 +340,8 @@ bool TsPlot::Initialize()
       #endif
       
       PlotInterface::ClearTsPlotData(instanceName);
-      PlotInterface::TsPlotCurveSettings(instanceName, useLines, lineWidth,
-            useMarkers, markerSize);
+      PlotInterface::TsPlotCurveSettings(instanceName, useLines, lineWidth, 100,
+            useMarkers, markerSize, 1);
    }
    else
    {

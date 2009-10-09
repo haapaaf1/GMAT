@@ -52,6 +52,9 @@ public:
    int  GetMarkerSize();
    void SetMarkerSize(int newSize);
 
+   bool UseHiLow();
+   bool UseHiLow(bool useHiLow);
+
    virtual void   Clear();
 
    virtual double GetMinX();

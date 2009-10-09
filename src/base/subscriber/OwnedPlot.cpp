@@ -2,18 +2,19 @@
 //------------------------------------------------------------------------------
 //                                  OwnedPlot
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
-// number S-67573-G
+// number NNG06CA54C
 //
-// Author: Linda Jun
-// Created: 2004/01/22
+// Author: Darrel Conway, based on TsPlot code by Linda Jun
+// Created: 2009/09/28
 //
 /**
- * Implements XyPlot class.
+ * Implements XyPlot class controlled by Sandbox elements rather than
+ * Subscribers.
  */
 //------------------------------------------------------------------------------
 
@@ -36,7 +37,6 @@
 const std::string
 OwnedPlot::PARAMETER_TEXT[OwnedPlotParamCount - GmatBaseParamCount] =
 {
-   "IndVar",
    "Add",
    "PlotTitle",
    "XAxisTitle",
@@ -45,16 +45,20 @@ OwnedPlot::PARAMETER_TEXT[OwnedPlotParamCount - GmatBaseParamCount] =
    "DataCollectFrequency",
    "UpdatePlotFrequency",
    "ShowPlot",
+   "ShowLegend",
+   "DefaultColor",
    "UseLines",
    "LineWidth",
+   "LineStyle",
    "UseMarkers",
    "MarkerSize",
+   "UseHiLow"
 }; 
+
 
 const Gmat::ParameterType
 OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - GmatBaseParamCount] =
 {
-   Gmat::OBJECT_TYPE,      // "IndVar",
    Gmat::OBJECTARRAY_TYPE, // "Add",
    Gmat::STRING_TYPE,      // "PlotTitle",
    Gmat::STRING_TYPE,      // "XAxisTitle",
@@ -63,10 +67,14 @@ OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - GmatBaseParamCount] =
    Gmat::INTEGER_TYPE,     // "DataCollectFrequency",
    Gmat::INTEGER_TYPE,     // "UpdatePlotFrequency",
    Gmat::BOOLEAN_TYPE,     // "ShowPlot",
+   Gmat::BOOLEAN_TYPE,     // "ShowLegend",
+   Gmat::INTEGER_TYPE,     // "DefaultColor",  <-- May need to be unsigned
    Gmat::BOOLEAN_TYPE,     // "UseLines",
    Gmat::INTEGER_TYPE,     // "LineWidth",
+   Gmat::INTEGER_TYPE,     // "LineStyle",
    Gmat::BOOLEAN_TYPE,     // "UseMarkers",
    Gmat::INTEGER_TYPE,     // "MarkerSize",
+   Gmat::BOOLEAN_TYPE,     // "UseHiLow"
 };
 
 //---------------------------------
@@ -79,46 +87,36 @@ OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - GmatBaseParamCount] =
 //        const std::string &xAxisTitle, const std::string &yAxisTitle,
 //        bool drawGrid)
 //------------------------------------------------------------------------------
-OwnedPlot::OwnedPlot(const std::string &name, Parameter *xParam,
-               Parameter *firstYParam, const std::string &plotTitle,
+OwnedPlot::OwnedPlot(const std::string &name, const std::string &plotTitle,
                const std::string &xAxisTitle, const std::string &yAxisTitle) :
-   GmatBase(Gmat::XY_PLOT, "OwnedPlot", name)
+   GmatBase(Gmat::XY_PLOT, "OwnedPlot", name),
+   mOldName                (name),
+   mPlotTitle              (plotTitle),
+   mXAxisTitle             (xAxisTitle),
+   mYAxisTitle             (yAxisTitle),
+   mDrawGrid               ("On"),
+   mIsOwnedPlotWindowSet   (false),
+   mDataCollectFrequency   (1),
+   mUpdatePlotFrequency    (1),
+   defaultColor            (0xFF0000),
+   markerSize              (3),
+   lineWidth               (1),
+   lineStyle               (100),      // wxSOLID = 100, in wx/defs.h
+   useLines                (true),
+   useMarkers              (false),
+   useHiLow                (false),
+   active                  (true),
+   showLegend              (true),
+   isEndOfReceive          (false),
+   isEndOfRun              (false),
+   isInitialized           (false),
+   mSolverIterations       ("All"),
+   runstate                (Gmat::RUNNING)
 {
    // GmatBase data
    objectTypes.push_back(Gmat::XY_PLOT);
    objectTypeNames.push_back("XYPlot");
    parameterCount = OwnedPlotParamCount;
-   
-   mDrawGrid = "On";
-   mNumYParams = 0;
-   
-   mXParamName = "";
-   mNumXParams = 0;
-   
-   mXParam = xParam;
-   if (firstYParam != NULL)
-      AddYParameter(firstYParam->GetName(), mNumYParams);
-   
-   mOldName = instanceName;
-   mPlotTitle = plotTitle;
-   mXAxisTitle = xAxisTitle;
-   mYAxisTitle = yAxisTitle;
-   
-   mIsOwnedPlotWindowSet = false;
-   mDataCollectFrequency = 1;
-   mUpdatePlotFrequency = 10;
-
-   useLines = true;
-   lineWidth = 1;
-   useMarkers = false;
-   markerSize = 3;
-
-   active = true;
-   isEndOfReceive = false;
-   isEndOfRun = false;
-   isInitialized = false;
-   mSolverIterations = "All";
-   runstate = Gmat::RUNNING;
 }
 
 
@@ -126,43 +124,34 @@ OwnedPlot::OwnedPlot(const std::string &name, Parameter *xParam,
 // OwnedPlot(const OwnedPlot &orig)
 //------------------------------------------------------------------------------
 OwnedPlot::OwnedPlot(const OwnedPlot &orig) :
-   GmatBase(orig)
+   GmatBase(orig),
+   mOldName                (orig.mOldName),
+   mPlotTitle              (orig.mPlotTitle),
+   mXAxisTitle             (orig.mXAxisTitle),
+   mYAxisTitle             (orig.mYAxisTitle),
+   mDrawGrid               (orig.mDrawGrid),
+   mIsOwnedPlotWindowSet   (orig.mIsOwnedPlotWindowSet),
+   mDataCollectFrequency   (orig.mDataCollectFrequency),
+   mUpdatePlotFrequency    (orig.mUpdatePlotFrequency),
+   defaultColor            (orig.defaultColor),
+   markerSize              (orig.markerSize),
+   lineWidth               (orig.lineWidth),
+   lineStyle               (orig.lineStyle),
+   useLines                (orig.useLines),
+   useMarkers              (orig.useMarkers),
+   useHiLow                (orig.useHiLow),
+   active                  (true),
+   showLegend              (orig.showLegend),
+   isEndOfReceive          (false),
+   isEndOfRun              (false),
+   isInitialized           (false),
+   mSolverIterations       ("All"),
+   runstate                (Gmat::RUNNING)
 {
-   mXParam = orig.mXParam;
-   mYParams = orig.mYParams;
-   
-   mNumXParams = orig.mNumXParams;
-   mNumYParams = orig.mNumYParams;
-   
-   mXParamName = orig.mXParamName;
-   mYParamNames = orig.mYParamNames;
-   
-   mAllParamNames = orig.mAllParamNames;
-   
-   mOldName = orig.mOldName;
-   mPlotTitle = orig.mPlotTitle;
-   mXAxisTitle = orig.mXAxisTitle;
-   mYAxisTitle = orig.mYAxisTitle;
-   mDrawGrid = orig.mDrawGrid;
-   mIsOwnedPlotWindowSet = orig.mIsOwnedPlotWindowSet;
-   
-   mDataCollectFrequency = orig.mDataCollectFrequency;
-   mUpdatePlotFrequency = orig.mUpdatePlotFrequency;
-   
-   mNumDataPoints = orig.mNumDataPoints;
-   mNumCollected = orig.mNumCollected;
-
-   useLines   = orig.useLines;
-   lineWidth  = orig.lineWidth;
-   useMarkers = orig.useMarkers;
-   markerSize = orig.markerSize;
-
-   active = true;
-   isEndOfReceive = false;
-   isEndOfRun = false;
-   isInitialized = false;
-   mSolverIterations = "All";
-   runstate = Gmat::RUNNING;
+   curveNames        = orig.curveNames;
+   curveDataIDs      = orig.curveDataIDs;
+   supportedData     = orig.supportedData;
+   supportedObjects  = orig.supportedObjects;
 }
 
 
@@ -180,38 +169,33 @@ OwnedPlot& OwnedPlot::operator=(const OwnedPlot& orig)
    
    GmatBase::operator=(orig);
    
-   mXParam = orig.mXParam;
-   mYParams = orig.mYParams;
+   mOldName                = orig.mOldName;
+   mPlotTitle              = orig.mPlotTitle;
+   mXAxisTitle             = orig.mXAxisTitle;
+   mYAxisTitle             = orig.mYAxisTitle;
+   mDrawGrid               = orig.mDrawGrid;
+   mIsOwnedPlotWindowSet   = orig.mIsOwnedPlotWindowSet;
+   mDataCollectFrequency   = orig.mDataCollectFrequency;
+   mUpdatePlotFrequency    = orig.mUpdatePlotFrequency;
+   defaultColor            = orig.defaultColor;
+   markerSize              = orig.markerSize;
+   lineWidth               = orig.lineWidth;
+   lineStyle               = orig.lineStyle;
+   useLines                = orig.useLines;
+   useMarkers              = orig.useMarkers;
+   useHiLow                = orig.useHiLow;
+   active                  = true;
+   showLegend              = orig.showLegend;
+   isEndOfReceive          = false;
+   isEndOfRun              = false;
+   isInitialized           = false;
+   mSolverIterations       = "All";
+   runstate                = Gmat::RUNNING;
    
-   mNumXParams = orig.mNumXParams;
-   mNumYParams = orig.mNumYParams;
-   
-   mXParamName = orig.mXParamName;
-   mYParamNames = orig.mYParamNames;
-   
-   mAllParamNames = orig.mAllParamNames;
-   
-   mOldName = orig.mOldName;
-   mPlotTitle = orig.mPlotTitle;
-   mXAxisTitle = orig.mXAxisTitle;
-   mYAxisTitle = orig.mYAxisTitle;
-   mDrawGrid = orig.mDrawGrid;
-   mIsOwnedPlotWindowSet = orig.mIsOwnedPlotWindowSet;
-   
-   mDataCollectFrequency = orig.mDataCollectFrequency;
-   mUpdatePlotFrequency = orig.mUpdatePlotFrequency;
-   
-   mNumDataPoints = orig.mNumDataPoints;
-   mNumCollected = orig.mNumCollected;
-   
-   useMarkers = orig.useMarkers;
-
-   active = true;
-   isEndOfReceive = false;
-   isEndOfRun = false;
-   isInitialized = false;
-   mSolverIterations = "All";
-   runstate = Gmat::RUNNING;
+   curveNames              = orig.curveNames;
+   curveDataIDs            = orig.curveDataIDs;
+   supportedData           = orig.supportedData;
+   supportedObjects        = orig.supportedObjects;
 
    return *this;
 }
@@ -224,51 +208,6 @@ OwnedPlot::~OwnedPlot()
 {
 }
 
-//------------------------------------------------------------------------------
-// bool SetXParameter(const std::string &paramName)
-//------------------------------------------------------------------------------
-bool OwnedPlot::SetXParameter(const std::string &paramName)
-{
-   if (paramName != "")
-   {
-      mXParamName = paramName;
-      mNumXParams = 1; //loj: only 1 X parameter for now
-      return true;
-   }
-   
-   return false;
-}
-
-
-//------------------------------------------------------------------------------
-// bool AddYParameter(const std::string &paramName, Integer index)
-//------------------------------------------------------------------------------
-bool OwnedPlot::AddYParameter(const std::string &paramName, Integer index)
-{
-   #if DEBUG_OwnedPlot_PARAM
-   MessageInterface::ShowMessage("OwnedPlot::AddYParameter() name = %s\n",
-                                 paramName.c_str());
-   #endif
-   
-   if (paramName != "" && index == mNumYParams)
-   {
-      // if paramName not found, add (based on loj fix to XYPlot)
-      if (find(mYParamNames.begin(), mYParamNames.end(), paramName) ==
-          mYParamNames.end())
-      {
-         mYParamNames.push_back(paramName);
-         mNumYParams = mYParamNames.size();
-         mYParams.push_back(NULL);
-         return true;
-      }
-   }
-
-   return false;
-}
-
-//----------------------------------
-// methods inherited from Subscriber
-//----------------------------------
 
 //------------------------------------------------------------------------------
 // virtual bool Initialize()
@@ -276,35 +215,10 @@ bool OwnedPlot::AddYParameter(const std::string &paramName, Integer index)
 bool OwnedPlot::Initialize()
 {
    #if DEBUG_OwnedPlot_INIT
-   MessageInterface::ShowMessage
-      ("OwnedPlot::Initialize() active=%d, mNumYParams=%d\n", active, mNumYParams);
+      MessageInterface::ShowMessage
+            ("OwnedPlot::Initialize() active=%d, mNumYParams=%d\n", active,
+             mNumYParams);
    #endif
-   
-   // Check if there are parameters selected for OwnedPlot
-   if (active)
-   {
-      if (mNumXParams == 0 || mNumYParams == 0)
-      {
-         active = false;
-         MessageInterface::PopupMessage
-            (Gmat::WARNING_,
-             "*** WARNING *** The XYPlot named \"%s\" will not be shown.\n"
-             "No parameters were selected for X Axis or Y Axis.\n",
-             GetName().c_str());
-         return false;
-      }
-      
-//      if (mXParam == NULL || mYParams[0] == NULL)
-//      {
-//         active = false;
-//         MessageInterface::PopupMessage
-//            (Gmat::WARNING_,
-//             "*** WARNING *** The XYPlot named \"%s\" will not be shown.\n"
-//             "The first parameter selected for X Axis or Y Axis is NULL\n",
-//             GetName().c_str());
-//         return false;
-//      }
-   }
    
    GmatBase::Initialize();
    isEndOfReceive = false;
@@ -320,12 +234,12 @@ bool OwnedPlot::Initialize()
       
       // Create OwnedPlotWindow, if not exist
       #if DEBUG_OwnedPlot_INIT
-      MessageInterface::ShowMessage
-         ("OwnedPlot::Initialize() calling CreateOwnedPlotWindow()\n");
+         MessageInterface::ShowMessage
+               ("OwnedPlot::Initialize() calling CreateOwnedPlotWindow()\n");
       #endif
       
       PlotInterface::CreateTsPlotWindow(instanceName, mOldName, mPlotTitle,
-                                        mXAxisTitle, mYAxisTitle, (mDrawGrid == "On"));
+            mXAxisTitle, mYAxisTitle, (mDrawGrid == "On"));
       
       PlotInterface::SetTsPlotTitle(instanceName, mPlotTitle);
       mIsOwnedPlotWindowSet = true;
@@ -337,29 +251,30 @@ bool OwnedPlot::Initialize()
       Real yMax =  40000.0; //loj: should parameter provide maximum value?
       
       #if DEBUG_OwnedPlot_INIT
-      MessageInterface::ShowMessage
-         ("OwnedPlot::Initialize() Get curveTitle and penColor\n");
+         MessageInterface::ShowMessage
+               ("OwnedPlot::Initialize() Get curveTitle and penColor\n");
       #endif
       
-      for (int i=0; i<mNumYParams; i++)
+      for (UnsignedInt i = 0; i < curveNames.size(); ++i)
       {
-         std::string curveTitle = mYParamNames[i];
-         UnsignedInt penColor   = 255;
-            
          #if DEBUG_OwnedPlot_INIT
-         MessageInterface::ShowMessage("OwnedPlot::Initialize() curveTitle = %s\n",
-                                       curveTitle.c_str());
+            MessageInterface::ShowMessage("OwnedPlot::Initialize() "
+                  "curveTitle = %s\n", curveNames[i].c_str());
          #endif
          
          PlotInterface::AddTsPlotCurve(instanceName, i, yOffset, yMin, yMax,
-                                       curveTitle, penColor);
+               curveNames[i], curveColor[i]);
+         PlotInterface::TsPlotCurveSettings(instanceName, curveUseLines[i],
+               curveLineWidth[i], curveLineStyle[i], curveUseMarkers[i],
+               curveMarkerSize[i], curveMarker[i], curveUseHiLow[i], i);
       }
       
       PlotInterface::ShowTsPlotLegend(instanceName);
       status = true;
       
       #if DEBUG_OwnedPlot_INIT
-      MessageInterface::ShowMessage("OwnedPlot::Initialize() calling ClearOwnedPlotData()\n");
+         MessageInterface::ShowMessage("OwnedPlot::Initialize() calling "
+               "ClearOwnedPlotData()\n");
       #endif
       
       PlotInterface::ClearTsPlotData(instanceName);
@@ -376,7 +291,8 @@ bool OwnedPlot::Initialize()
    }
    
    #if DEBUG_OwnedPlot_INIT
-   MessageInterface::ShowMessage("OwnedPlot::Initialize() leaving stauts=%d\n", status);
+      MessageInterface::ShowMessage("OwnedPlot::Initialize() leaving "
+            "status=%d\n", status);
    #endif
    
    return status;
@@ -430,7 +346,8 @@ void OwnedPlot::Copy(const GmatBase* orig)
 bool OwnedPlot::SetName(const std::string &who, const std::string &oldName)
 {
    #if DEBUG_RENAME
-   MessageInterface::ShowMessage("OwnedPlot::SetName() newName=%s\n", who.c_str());
+      MessageInterface::ShowMessage("OwnedPlot::SetName() newName=%s\n",
+            who.c_str());
    #endif
    
    if (oldName == "")
@@ -459,8 +376,8 @@ bool OwnedPlot::TakeAction(const std::string &action,
                         const std::string &actionData)
 {
    #if DEBUG_ACTION_REMOVE
-   MessageInterface::ShowMessage("OwnedPlot::TakeAction() action=%s, actionData=%s\n",
-                                 action.c_str(), actionData.c_str());
+      MessageInterface::ShowMessage("OwnedPlot::TakeAction() action=%s, "
+            "actionData=%s\n", action.c_str(), actionData.c_str());
    #endif
    
    if (action == "Clear")
@@ -501,9 +418,9 @@ bool OwnedPlot::RenameRefObject(const Gmat::ObjectType type,
                              const std::string &newName)
 {
    #if DEBUG_RENAME
-   MessageInterface::ShowMessage
-      ("OwnedPlot::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
-       GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
+      MessageInterface::ShowMessage
+         ("OwnedPlot::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
+          GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
    
    if (type != Gmat::PARAMETER && type != Gmat::COORDINATE_SYSTEM &&
@@ -512,31 +429,10 @@ bool OwnedPlot::RenameRefObject(const Gmat::ObjectType type,
    
    if (type == Gmat::PARAMETER)
    {
-      // X parameter
-      if (mXParamName == oldName)
-         mXParamName = newName;
-   
       // Y parameters
-      for (unsigned int i=0; i<mYParamNames.size(); i++)
-      {
-         if (mYParamNames[i] == oldName)
-            mYParamNames[i] = newName;
-      }
-   }
-   else
-   {
-      std::string::size_type pos = mXParamName.find(oldName);
-      
-      if (pos != mXParamName.npos)
-         mXParamName.replace(pos, oldName.size(), newName);
-      
-      for (unsigned int i=0; i<mYParamNames.size(); i++)
-      {
-         pos = mYParamNames[i].find(oldName);
-         
-         if (pos != mYParamNames[i].npos)
-            mYParamNames[i].replace(pos, oldName.size(), newName);
-      }
+      for (UnsignedInt i = 0; i < curveNames.size(); ++i)
+         if (curveNames[i] == oldName)
+            curveNames[i] = newName;
    }
    
    return true;
@@ -588,7 +484,8 @@ Gmat::ParameterType OwnedPlot::GetParameterType(const Integer id) const
 std::string OwnedPlot::GetParameterTypeString(const Integer id) const
 {
    if (id >= GmatBaseParamCount && id < OwnedPlotParamCount)
-      return GmatBase::PARAM_TYPE_STRING[GetParameterType(id - GmatBaseParamCount)];
+      return GmatBase::PARAM_TYPE_STRING[GetParameterType(id -
+            GmatBaseParamCount)];
    else
       return GmatBase::GetParameterTypeString(id);
 }
@@ -632,12 +529,22 @@ Integer OwnedPlot::GetIntegerParameter(const Integer id) const
    {
    case DATA_COLLECT_FREQUENCY:
       return mDataCollectFrequency;
+
    case UPDATE_PLOT_FREQUENCY:
       return mUpdatePlotFrequency;
+
+   case DEFAULT_COLOR:
+      return defaultColor;
+
    case LINE_WIDTH:
       return lineWidth;
+
+   case LINE_STYLE:
+      return lineStyle;
+
    case MARKER_SIZE:
       return markerSize;
+
    default:
       return GmatBase::GetIntegerParameter(id);
    }
@@ -659,20 +566,32 @@ Integer OwnedPlot::SetIntegerParameter(const Integer id, const Integer value)
 {
    switch (id)
    {
-   case DATA_COLLECT_FREQUENCY:
-      mDataCollectFrequency = value;
-      return value;
-   case UPDATE_PLOT_FREQUENCY:
-      mUpdatePlotFrequency = value;
-      return value;
-   case LINE_WIDTH:
-      lineWidth = value;
-      return value;
-   case MARKER_SIZE:
-      markerSize = value;
-      return value;
-   default:
-      return GmatBase::SetIntegerParameter(id, value);
+      case DATA_COLLECT_FREQUENCY:
+         mDataCollectFrequency = value;
+         return value;
+
+      case UPDATE_PLOT_FREQUENCY:
+         mUpdatePlotFrequency = value;
+         return value;
+
+      case DEFAULT_COLOR:
+         defaultColor = value;
+         return defaultColor;
+
+      case LINE_WIDTH:
+         lineWidth = value;
+         return value;
+
+      case LINE_STYLE:
+         lineStyle = value;
+         return lineStyle;
+
+      case MARKER_SIZE:
+         markerSize = value;
+         return value;
+
+      default:
+         return GmatBase::SetIntegerParameter(id, value);
    }
 }
 
@@ -695,10 +614,10 @@ std::string OwnedPlot::GetOnOffParameter(const Integer id) const
 {
    switch (id)
    {
-   case DRAW_GRID:
-      return mDrawGrid;
-   default:
-      return GmatBase::GetOnOffParameter(id);
+      case DRAW_GRID:
+         return mDrawGrid;
+      default:
+         return GmatBase::GetOnOffParameter(id);
    }
 }
 
@@ -719,11 +638,12 @@ bool OwnedPlot::SetOnOffParameter(const Integer id, const std::string &value)
 {
    switch (id)
    {
-   case DRAW_GRID:
-      mDrawGrid = value;
-      return true;
-   default:
-      return GmatBase::SetOnOffParameter(id, value);
+      case DRAW_GRID:
+         mDrawGrid = value;
+         return true;
+
+      default:
+         return GmatBase::SetOnOffParameter(id, value);
    }
 }
 
@@ -731,7 +651,8 @@ bool OwnedPlot::SetOnOffParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
 // bool SetOnOffParameter(const std::string &label, const std::string &value)
 //------------------------------------------------------------------------------
-bool OwnedPlot::SetOnOffParameter(const std::string &label, const std::string &value)
+bool OwnedPlot::SetOnOffParameter(const std::string &label,
+      const std::string &value)
 {
    return SetOnOffParameter(GetParameterID(label), value);
 }
@@ -744,16 +665,17 @@ std::string OwnedPlot::GetStringParameter(const Integer id) const
 {
    switch (id)
    {
-   case IND_VAR:
-      return mXParamName;
-   case PLOT_TITLE:
-      return mPlotTitle;
-   case X_AXIS_TITLE:
-      return mXAxisTitle;
-   case Y_AXIS_TITLE:
-      return mYAxisTitle;
-   default:
-      return GmatBase::GetStringParameter(id);
+      case PLOT_TITLE:
+         return mPlotTitle;
+
+      case X_AXIS_TITLE:
+         return mXAxisTitle;
+
+      case Y_AXIS_TITLE:
+         return mYAxisTitle;
+
+      default:
+         return GmatBase::GetStringParameter(id);
    }
 }
 
@@ -764,8 +686,8 @@ std::string OwnedPlot::GetStringParameter(const Integer id) const
 std::string OwnedPlot::GetStringParameter(const std::string &label) const
 {
    #if DEBUG_XY_PARAM
-   MessageInterface::ShowMessage("OwnedPlot::GetStringParameter() label = %s\n",
-                                 label.c_str());
+      MessageInterface::ShowMessage("OwnedPlot::GetStringParameter() "
+            "label = %s\n", label.c_str());
    #endif
    
    return GetStringParameter(GetParameterID(label));
@@ -778,27 +700,42 @@ std::string OwnedPlot::GetStringParameter(const std::string &label) const
 bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value)
 {
    #if DEBUG_OwnedPlot_PARAM
-   MessageInterface::ShowMessage("OwnedPlot::SetStringParameter() id = %d, "
-                                 "value = %s \n", id, value.c_str());
+      MessageInterface::ShowMessage("OwnedPlot::SetStringParameter() id = %d, "
+                                    "value = %s \n", id, value.c_str());
    #endif
    
    switch (id)
    {
-   case IND_VAR:
-      return SetXParameter(value);
-   case ADD:
-      return AddYParameter(value, mNumYParams);
-   case PLOT_TITLE:
-      mPlotTitle = value;
-      return true;
-   case X_AXIS_TITLE:
-      mXAxisTitle = value;
-      return true;
-   case Y_AXIS_TITLE:
-      mYAxisTitle = value;
-      return true;
-   default:
-      return GmatBase::SetStringParameter(id, value);
+      case ADD:
+         if (find(curveNames.begin(), curveNames.end(), value) ==
+               curveNames.end())
+         {
+            curveNames.push_back(value);
+            curveColor.push_back(defaultColor);
+            curveLineWidth.push_back(lineWidth);
+            curveLineStyle.push_back(lineStyle);
+            curveMarker.push_back(curveNames.size() % 10);
+            curveMarkerSize.push_back(markerSize);
+            curveUseLines.push_back(useLines);
+            curveUseMarkers.push_back(useMarkers);
+            curveUseHiLow.push_back(useHiLow);
+         }
+         return true;
+
+      case PLOT_TITLE:
+         mPlotTitle = value;
+         return true;
+
+      case X_AXIS_TITLE:
+         mXAxisTitle = value;
+         return true;
+
+      case Y_AXIS_TITLE:
+         mYAxisTitle = value;
+         return true;
+
+      default:
+         return GmatBase::SetStringParameter(id, value);
    }
 }
 
@@ -811,8 +748,8 @@ bool OwnedPlot::SetStringParameter(const std::string &label,
                                 const std::string &value)
 {
    #if DEBUG_OwnedPlot_PARAM
-   MessageInterface::ShowMessage("OwnedPlot::SetStringParameter() label = %s, "
-                                 "value = %s \n", label.c_str(), value.c_str());
+      MessageInterface::ShowMessage("OwnedPlot::SetStringParameter() "
+            "label = %s, value = %s \n", label.c_str(), value.c_str());
    #endif
    
    return SetStringParameter(GetParameterID(label), value);
@@ -828,10 +765,29 @@ bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value,
 {
    switch (id)
    {
-   case ADD:
-      return AddYParameter(value, index);
-   default:
-      return GmatBase::SetStringParameter(id, value, index);
+      case ADD:
+         if ((index < 0) || (index > (Integer)curveNames.size()))
+            return false;
+         if (index < (Integer)curveNames.size())
+         {
+            curveNames[index] = value;
+         }
+         else
+         {
+            curveNames.push_back(value);
+            curveColor.push_back(defaultColor);
+            curveLineWidth.push_back(lineWidth);
+            curveLineStyle.push_back(lineStyle);
+            curveMarker.push_back(curveNames.size() % 10);
+            curveMarkerSize.push_back(markerSize);
+            curveUseLines.push_back(useLines);
+            curveUseMarkers.push_back(useMarkers);
+            curveUseHiLow.push_back(useHiLow);
+         }
+         return true;
+
+      default:
+         return GmatBase::SetStringParameter(id, value, index);
    }
 }
 
@@ -846,9 +802,9 @@ bool OwnedPlot::SetStringParameter(const std::string &label,
                                 const Integer index)
 {
    #if DEBUG_OwnedPlot_PARAM
-   MessageInterface::ShowMessage
-      ("OwnedPlot::SetStringParameter() label=%s, value=%s, index=%d \n",
-       label.c_str(), value.c_str(), index);
+      MessageInterface::ShowMessage
+         ("OwnedPlot::SetStringParameter() label=%s, value=%s, index=%d \n",
+          label.c_str(), value.c_str(), index);
    #endif
    
    return SetStringParameter(GetParameterID(label), value, index);
@@ -862,10 +818,10 @@ const StringArray& OwnedPlot::GetStringArrayParameter(const Integer id) const
 {
    switch (id)
    {
-   case ADD:
-      return mYParamNames;
-   default:
-      return GmatBase::GetStringArrayParameter(id);
+      case ADD:
+         return curveNames;
+      default:
+         return GmatBase::GetStringArrayParameter(id);
    }
 }
 
@@ -873,7 +829,8 @@ const StringArray& OwnedPlot::GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // StringArray& GetStringArrayParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-const StringArray& OwnedPlot::GetStringArrayParameter(const std::string &label) const
+const StringArray& OwnedPlot::GetStringArrayParameter(
+      const std::string &label) const
 {
    return GetStringArrayParameter(GetParameterID(label));
 }
@@ -883,10 +840,19 @@ bool OwnedPlot::GetBooleanParameter(const Integer id) const
 {
    if (id == SHOW_PLOT)
       return active;
-   if (id == USE_MARKERS)
-      return useMarkers;
+
+   if (id == SHOW_LEGEND)
+      return showLegend;
+
    if (id == USE_LINES)
       return useLines;
+
+   if (id == USE_MARKERS)
+      return useMarkers;
+
+   if (id == USE_HI_LOW)
+      return useHiLow;
+
    return GmatBase::GetBooleanParameter(id);
 }
 
@@ -907,6 +873,21 @@ bool OwnedPlot::SetBooleanParameter(const Integer id, const bool value)
       active = value;
       return active;
    }
+
+   if (id == SHOW_LEGEND)
+   {
+      showLegend = value;
+      return showLegend;
+   }
+
+   if (id == USE_LINES)
+   {
+      useLines = value;
+      if (useLines == false)
+         useMarkers = true;
+      return useLines;
+   }
+
    if (id == USE_MARKERS)
    {
       useMarkers = value;
@@ -915,272 +896,14 @@ bool OwnedPlot::SetBooleanParameter(const Integer id, const bool value)
          useLines = true;
       return useMarkers;
    }
-   if (id == USE_LINES)
+
+   if (id == USE_HI_LOW)
    {
-      useLines = value;
-      if (useLines == false)
-         useMarkers = true;
-      return useLines;
+      useHiLow = value;
+      return useHiLow;
    }
+
    return GmatBase::SetBooleanParameter(id, value);
-}
-
-//------------------------------------------------------------------------------
-// virtual GmatBase* GetRefObject(const Gmat::ObjectType type,
-//                                const std::string &name)
-//------------------------------------------------------------------------------
-GmatBase* OwnedPlot::GetRefObject(const Gmat::ObjectType type,
-                               const std::string &name)
-{
-   // if name is X parameter
-   if (name == mXParamName)
-   {
-      return mXParam;
-   }
-   else
-   {
-      // name is Y parameter
-      for (int i=0; i<mNumYParams; i++)
-      {
-         if (mYParamNames[i] == name)
-            return mYParams[i];
-      }
-   }
-   
-   throw GmatBaseException("OwnedPlot::GetRefObject() the object name: " + name +
-                           "not found\n");
-}
-
-
-//------------------------------------------------------------------------------
-// virtual bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-//                           const std::string &name = "")
-//------------------------------------------------------------------------------
-bool OwnedPlot::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                          const std::string &name)
-{
-   if (type == Gmat::PARAMETER)
-   {
-      // X parameter
-      if (name == mXParamName)
-      {
-         mXParam = (Parameter*)obj;
-         
-         if (!mXParam->IsPlottable())
-               throw SubscriberException
-                  ("The X parameter: " + name + " of " + instanceName +
-                   " is not plottable\n");
-         
-         #if DEBUG_OwnedPlot_OBJECT
-         MessageInterface::ShowMessage
-            ("OwnedPlot::SetRefObject() mXParam:%s successfully set\n",
-             obj->GetName().c_str());
-         #endif
-      }
-      
-      // Y parameters
-      for (int i=0; i<mNumYParams; i++)
-      {
-         if (mYParamNames[i] == name)
-         {
-            mYParams[i] = (Parameter*)obj;
-            
-            if (!mYParams[i]->IsPlottable())
-            {
-               throw SubscriberException
-                  ("The Y parameter: " + name + " of " + instanceName +
-                   " is not plottable\n");
-            }
-            
-            #if DEBUG_OwnedPlot_OBJECT
-            MessageInterface::ShowMessage
-               ("OwnedPlot::SetRefObject() mYParams[%s] successfully set\n",
-                obj->GetName().c_str());
-            #endif
-            
-            return true;
-         }
-      }
-   }
-   
-   return false;
-}
-
-
-//------------------------------------------------------------------------------
-// const ObjectTypeArray& GetRefObjectTypeArray()
-//------------------------------------------------------------------------------
-/**
- * Retrieves the list of ref object types used by this class.
- *
- * @return the list of object types.
- * 
- */
-//------------------------------------------------------------------------------
-const ObjectTypeArray& OwnedPlot::GetRefObjectTypeArray()
-{
-   refObjectTypes.clear();
-   refObjectTypes.push_back(Gmat::PARAMETER);
-   return refObjectTypes;
-}
-
-
-//------------------------------------------------------------------------------
-// virtual const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
-//------------------------------------------------------------------------------
-const StringArray& OwnedPlot::GetRefObjectNameArray(const Gmat::ObjectType type)
-{
-   mAllParamNames.clear();
-   
-   switch (type)
-   {
-   case Gmat::UNKNOWN_OBJECT:
-   case Gmat::PARAMETER:
-      // add x parameter
-      if (mXParamName != "")
-         mAllParamNames.push_back(mXParamName);
-      
-      // add y parameters
-      for (int i=0; i<mNumYParams; i++)
-         if (mYParamNames[i] != "")
-            mAllParamNames.push_back(mYParamNames[i]);
-      break;
-   default:
-      break;
-   }
-   
-   return mAllParamNames;
-}
-
-//---------------------------------
-// protected methods
-//---------------------------------
-
-//------------------------------------------------------------------------------
-// void BuildPlotTitle()
-//------------------------------------------------------------------------------
-void OwnedPlot::BuildPlotTitle()
-{
-   if (mXAxisTitle == "")
-      mXAxisTitle = "Epoch";
-   if (mYAxisTitle == "")
-      mYAxisTitle = "Residual";
-   if (mPlotTitle == "")
-      mPlotTitle  = "Residual data";
-}
-
-//------------------------------------------------------------------------------
-// bool ClearYParameters()
-//------------------------------------------------------------------------------
-bool OwnedPlot::ClearYParameters()
-{
-   DeletePlotCurves();
-   mYParams.clear();
-   mYParamNames.clear();
-   mNumYParams = 0;
-//   mPlotTitle = "";
-//   mXAxisTitle = "";
-//   mYAxisTitle = "";
-   mIsOwnedPlotWindowSet = false;
-   return true;
-}
-
-//------------------------------------------------------------------------------
-// bool RemoveYParameter(const std::string &name)
-//------------------------------------------------------------------------------
-/*
- * Removes parameter from the Y parameter list
- *
- * @param <name> parameter name to be removed from the Y parameter list
- *
- * @return true if parameter was removed from the Y parameter list, false otherwise
- *
- */
-//------------------------------------------------------------------------------
-bool OwnedPlot::RemoveYParameter(const std::string &name)
-{
-   #if DEBUG_ACTION_REMOVE
-   MessageInterface::ShowMessage
-      ("OwnedPlot::RemoveYParameter() name=%s\n--- Before remove:\n", name.c_str());
-   for (int i=0; i<mNumYParams; i++)
-   {
-      MessageInterface::ShowMessage("mYParamNames[%d]=%s\n", i,
-                                    mYParamNames[i].c_str());
-   }
-   #endif
-   
-   StringArray::iterator pos1;
-   std::vector<Parameter*>::iterator pos2 = mYParams.begin();
-
-   for (pos1 = mYParamNames.begin(); pos1 != mYParamNames.end(); pos1++)
-   {
-      if (*pos1 == name)
-      {
-         mYParamNames.erase(pos1);
-         mYParams.erase(pos2);
-         mNumYParams = mYParamNames.size();
-         
-         #if DEBUG_ACTION_REMOVE
-         MessageInterface::ShowMessage("---After remove\n");
-         for (int i=0; i<mNumYParams; i++)
-         {
-            MessageInterface::ShowMessage("mYParamNames[%d]=%s\n", i,
-                                          mYParamNames[i].c_str());
-         }
-         #endif
-         
-         return true;
-      }
-      else
-      {
-         advance(pos2, 1);
-      }
-   }
-   
-   //------------------------------------------
-   // loj: 9/29/04
-   // Need to remove from PlotCurves also
-   //------------------------------------------
-   
-   #if DEBUG_ACTION_REMOVE
-   MessageInterface::ShowMessage("OwnedPlot::RemoveYParameter() name=%s not found\n");
-   #endif
-   
-   return false;
-}
-
-//------------------------------------------------------------------------------
-// bool ResetYParameters()
-//------------------------------------------------------------------------------
-bool OwnedPlot::ResetYParameters()
-{
-   PlotInterface::ClearTsPlotData(instanceName);
-   return true;
-}
-
-//------------------------------------------------------------------------------
-// bool PenUp()
-//------------------------------------------------------------------------------
-bool OwnedPlot::PenUp()
-{
-   PlotInterface::TsPlotPenUp(instanceName);
-   return true;
-}
-
-//------------------------------------------------------------------------------
-// bool PenDown()
-//------------------------------------------------------------------------------
-bool OwnedPlot::PenDown()
-{
-   PlotInterface::TsPlotPenDown(instanceName);
-   return true;
-}
-
-
-bool OwnedPlot::RescaleData()
-{
-   PlotInterface::TsPlotRescale(instanceName);
-   return true;
 }
 
 
@@ -1198,33 +921,31 @@ bool OwnedPlot::Deactivate()
 }
 
 
-//------------------------------------------------------------------------------
-// void DeletePlotCurves()
-//------------------------------------------------------------------------------
-void OwnedPlot::DeletePlotCurves()
-{
-   // delete exiting curves
-   PlotInterface::DeleteAllTsPlotCurves(instanceName, mOldName);
-}
-
-
 void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast)
 {
    #if DEBUG_OwnedPlot_UPDATE > 1
-   MessageInterface::ShowMessage
-      ("OwnedPlot::SetData() entered. isEndOfReceive=%d, active=%d, runState=%d\n",
-       isEndOfReceive, active, runstate);
+      MessageInterface::ShowMessage
+         ("OwnedPlot::SetData() entered. isEndOfReceive=%d, active=%d, "
+               "runState=%d\n", isEndOfReceive, active, runstate);
    #endif
 
    RealArray *xData = dataBlast[0];
 
+   #if DEBUG_OwnedPlot_UPDATE > 1
+      RealArray *yData = dataBlast[1];
+
+      MessageInterface::ShowMessage("   Sample points: 0->[%le %le] "
+            "5->[%le %le]\n", (*xData)[0], (*yData)[0], (*xData)[5],
+            (*yData)[5]);
+   #endif
+
    Real xval;
-   Rvector yvals = Rvector(mNumYParams);
+   Rvector yvals = Rvector(curveNames.size());
 
    for (UnsignedInt i = 0; i < xData->size(); ++i)
    {
       xval = (*xData)[i];
-      for (Integer j = 0; j < mNumYParams; ++j)
+      for (UnsignedInt j = 0; j < curveNames.size(); ++j)
          yvals[j] = (*(dataBlast[j+1]))[i];
 
       PlotInterface::UpdateTsPlotData(instanceName, xval, yvals);
@@ -1236,9 +957,9 @@ void OwnedPlot::SetCurveData(const Integer forCurve, RealArray *xData,
            RealArray *yData)
 {
    #if DEBUG_OwnedPlot_UPDATE > 1
-   MessageInterface::ShowMessage
-      ("OwnedPlot::SetData() entered. isEndOfReceive=%d, active=%d, runState=%d\n",
-       isEndOfReceive, active, runstate);
+      MessageInterface::ShowMessage
+         ("OwnedPlot::SetData() entered. isEndOfReceive=%d, active=%d, "
+          "runState=%d\n", isEndOfReceive, active, runstate);
    #endif
 
    for (UnsignedInt i = 0; i < xData->size(); ++i)
@@ -1328,109 +1049,139 @@ Integer OwnedPlot::UsesObject(Integer id)
    return retval;
 }
 
-// methods inherited from Subscriber
+//---------------------------------
+// protected methods
+//---------------------------------
+
 //------------------------------------------------------------------------------
-// bool Distribute(int len)
+// void BuildPlotTitle()
 //------------------------------------------------------------------------------
-bool OwnedPlot::Distribute(int len)
+void OwnedPlot::BuildPlotTitle()
 {
-   //loj: How do I convert data to Real data?
+   if (mXAxisTitle == "")
+      mXAxisTitle = "Epoch";
+   if (mYAxisTitle == "")
+      mYAxisTitle = "Residual";
+   if (mPlotTitle == "")
+      mPlotTitle  = "Residual data";
+}
+
+//------------------------------------------------------------------------------
+// bool ClearYParameters()
+//------------------------------------------------------------------------------
+bool OwnedPlot::ClearYParameters()
+{
+   DeletePlotCurves();
+   curveNames.clear();
+   // mPlotTitle = "";
+   // mXAxisTitle = "";
+   // mYAxisTitle = "";
+   mIsOwnedPlotWindowSet = false;
+   return true;
+}
+
+//------------------------------------------------------------------------------
+// bool RemoveYParameter(const std::string &name)
+//------------------------------------------------------------------------------
+/*
+ * Removes curve from the curve list
+ *
+ * @param <name> parameter name to be removed from the Y parameter list
+ *
+ * @return true if parameter was removed from the Y parameter list, false
+ *         otherwise
+ *
+ */
+//------------------------------------------------------------------------------
+bool OwnedPlot::RemoveYParameter(const std::string &name)
+{
+   #if DEBUG_ACTION_REMOVE
+      MessageInterface::ShowMessage
+         ("OwnedPlot::RemoveYParameter() name=%s\n--- Before remove:\n",
+               name.c_str());
+      for (int i=0; i<mNumYParams; i++)
+      {
+         MessageInterface::ShowMessage("mYParamNames[%d]=%s\n", i,
+                                       mYParamNames[i].c_str());
+      }
+   #endif
+
+   StringArray::iterator pos1;
+
+   for (pos1 = curveNames.begin(); pos1 != curveNames.end(); ++pos1)
+   {
+      if (*pos1 == name)
+      {
+         curveNames.erase(pos1);
+
+         #if DEBUG_ACTION_REMOVE
+            MessageInterface::ShowMessage("---After remove\n");
+            for (UnsignedInt i = 0; i < curveNames.size(); ++i)
+            {
+               MessageInterface::ShowMessage("curveNames[%d] = %s\n", i,
+                     curveNames[i].c_str());
+            }
+         #endif
+
+         return true;
+      }
+   }
+
+   //------------------------------------------
+   // loj: 9/29/04
+   // Need to remove from PlotCurves also
+   //------------------------------------------
+
+   #if DEBUG_ACTION_REMOVE
+      MessageInterface::ShowMessage("OwnedPlot::RemoveYParameter() name = %s "
+            "not found\n", name.c_str());
+   #endif
+
    return false;
 }
 
 //------------------------------------------------------------------------------
-// bool Distribute(const Real * dat, Integer len)
+// bool ResetYParameters()
 //------------------------------------------------------------------------------
-bool OwnedPlot::Distribute(const Real * dat, Integer len)
+bool OwnedPlot::ResetYParameters()
 {
-   #if DEBUG_OwnedPlot_UPDATE > 1
-   MessageInterface::ShowMessage
-      ("OwnedPlot::Distribute() entered. isEndOfReceive=%d, active=%d, runState=%d\n",
-       isEndOfReceive, active, runstate);
-   #endif
-   
-   if (isEndOfReceive)
-   {
-      // if targetting and draw target is None, just return
-      if (mSolverIterations == "None" &&
-          ((runstate == Gmat::TARGETING) || (runstate == Gmat::OPTIMIZING) ||
-                (runstate == Gmat::SOLVING)))
-         return true;
-      
-      if (active)
-         return PlotInterface::RefreshTsPlot(instanceName);
-   }
-   
-   // if targeting and draw target is None, just return
-   if (mSolverIterations == "None" &&
-       ((runstate == Gmat::TARGETING) || (runstate == Gmat::OPTIMIZING) ||
-             (runstate == Gmat::SOLVING)))
-      return true;
-   
-   if (len > 0)
-   {
-      if (mXParam != NULL && mNumYParams > 0)
-      {
-         // get x param
-         Real xval = mXParam->EvaluateReal();
-
-         #if DEBUG_OwnedPlot_UPDATE
-         MessageInterface::ShowMessage("OwnedPlot::Distribute() xval = %f\n", xval);
-         #endif
-         
-         // get y params
-         Rvector yvals = Rvector(mNumYParams);
-         
-         // put yvals in the order of parameters added
-         for (int i=0; i<mNumYParams; i++)
-         {
-            if (mYParams[i] == NULL)
-            {
-               MessageInterface::PopupMessage
-                  (Gmat::WARNING_,
-                   "*** WARNING *** The XYPlot named \"%s\" will not be shown.\n"
-                   "The parameter selected for Y Axis is NULL\n",
-                   GetName().c_str());
-               return true;
-            }
-            
-            yvals[i] = mYParams[i]->EvaluateReal();
-            
-            #if DEBUG_OwnedPlot_UPDATE
-            MessageInterface::ShowMessage
-               ("OwnedPlot::Distribute() yvals[%d] = %f\n", i, yvals[i]);
-            #endif
-         }
-         
-         // update xy plot
-         // X value must start from 0
-         if (mIsOwnedPlotWindowSet)
-         {
-            mNumDataPoints++;
-            
-            if ((mNumDataPoints % mDataCollectFrequency) == 0)
-            {
-               mNumDataPoints = 0;
-               mNumCollected++;
-               bool update = (mNumCollected % mUpdatePlotFrequency) == 0;
-               
-               #if DEBUG_OwnedPlot_UPDATE > 1
-               MessageInterface::ShowMessage
-                  ("OwnedPlot::Distribute() calling PlotInterface::UpdateOwnedPlot()\n");
-               #endif
-               
-               return PlotInterface::UpdateTsPlot(instanceName, mOldName, xval, yvals,
-                                                  mPlotTitle, mXAxisTitle, mYAxisTitle,
-                                                  update, (mDrawGrid == "On"));
-               if (update)
-                  mNumCollected = 0;
-            }
-         }
-      }
-   }
-   
-   //loj: always return true otherwise next subscriber will not call ReceiveData()
-   //     in Publisher::Publish()
+   PlotInterface::ClearTsPlotData(instanceName);
    return true;
 }
+
+//------------------------------------------------------------------------------
+// bool PenUp()
+//------------------------------------------------------------------------------
+bool OwnedPlot::PenUp()
+{
+   PlotInterface::TsPlotPenUp(instanceName);
+   return true;
+}
+
+//------------------------------------------------------------------------------
+// bool PenDown()
+//------------------------------------------------------------------------------
+bool OwnedPlot::PenDown()
+{
+   PlotInterface::TsPlotPenDown(instanceName);
+   return true;
+}
+
+
+bool OwnedPlot::RescaleData()
+{
+   PlotInterface::TsPlotRescale(instanceName);
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
+// void DeletePlotCurves()
+//------------------------------------------------------------------------------
+void OwnedPlot::DeletePlotCurves()
+{
+   // delete exiting curves
+   PlotInterface::DeleteAllTsPlotCurves(instanceName, mOldName);
+}
+
 

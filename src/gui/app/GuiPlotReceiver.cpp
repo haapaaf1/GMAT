@@ -1090,7 +1090,8 @@ void GuiPlotReceiver::TsPlotRescale(const std::string &plotName)
 
 
 void GuiPlotReceiver::TsPlotCurveSettings(const std::string &plotName,
-      bool useLines, Integer lineWidth, bool useMarkers, Integer markerSize)
+      bool useLines, Integer lineWidth, Integer lineStyle, bool useMarkers,
+      Integer markerSize, Integer marker, bool useHiLow, Integer forCurve)
 {
    MdiChildTsFrame *frame = NULL;
 
@@ -1100,8 +1101,8 @@ void GuiPlotReceiver::TsPlotCurveSettings(const std::string &plotName,
 
       if (frame->GetPlotName().IsSameAs(plotName.c_str()))
       {
-         frame->CurveSettings(plotName, useLines, lineWidth, useMarkers,
-               markerSize);
+         frame->CurveSettings(useLines, lineWidth, lineStyle, useMarkers,
+               markerSize, marker, useHiLow, forCurve);
       }
    }
 }
@@ -1317,6 +1318,54 @@ bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
 //               frame->Refresh();
             }
             updated = true;
+         }
+      }
+   }
+
+   return updated;
+}
+
+bool GuiPlotReceiver::UpdateTsPlotCurve(const std::string &plotName,
+                      const Integer whichCurve, const Real xval,
+                      const Real yval)
+{
+   bool updated = false;
+
+   if (whichCurve >= 0)
+   {
+      wxString owner = wxString(plotName.c_str());
+      MdiChildTsFrame *frame = NULL;
+
+      for (int i=0; i<MdiTsPlot::numChildren; i++)
+      {
+         frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+         if (frame)
+         {
+            if (frame->GetPlotName().IsSameAs(owner.c_str()))
+            {
+               int numCurves = frame->GetCurveCount();
+               #if DEBUG_PLOTIF_XY_UPDATE
+                  MessageInterface::ShowMessage
+                        ("GuiPlotReceiver::UpdateTsPlotCurve() numCurves = %d\n",
+                         numCurves);
+               #endif
+
+               if (whichCurve < numCurves)
+               {
+                  #if DEBUG_PLOTIF_XY_UPDATE
+                     MessageInterface::ShowMessage
+                     ("GuiPlotReceiver::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
+                  #endif
+
+                  frame->AddDataPoints(whichCurve, xval, yval);
+               }
+               if (frame->IsActive())
+               {
+                  frame->RedrawCurve();
+               }
+               updated = true;
+            }
          }
       }
    }

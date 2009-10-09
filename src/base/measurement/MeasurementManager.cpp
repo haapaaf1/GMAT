@@ -418,6 +418,23 @@ const StringArray& MeasurementManager::GetMeasurementNames() const
 }
 
 
+const Integer MeasurementManager::GetMeasurementId(const std::string &modelName) const
+{
+   Integer foundId = -1;
+
+   for (UnsignedInt i = 0; i < models.size(); ++i)
+   {
+      if (models[i]->GetName() == modelName)
+      {
+         foundId = models[i]->GetModelID();
+         break;
+      }
+   }
+
+   return foundId;
+}
+
+
 GmatBase* MeasurementManager::GetClone(GmatBase *obj)
 {
    GmatBase *retval = NULL;

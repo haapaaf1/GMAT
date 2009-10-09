@@ -69,9 +69,10 @@ public:
    bool IsActive();
    void IsActive(bool yesno);
 
-   void CurveSettings(const std::string &plotName, bool useLines,
-         Integer lineWidth, bool useMarkers, Integer markerSize,
-         Integer forCurve = -1);
+   void CurveSettings(bool useLines = true, Integer lineWidth = 1,
+         Integer lineStyle = wxSOLID, bool useMarkers = false,
+         Integer markerSize = 3, Integer marker = circleMarker,
+         bool useHiLow = false, Integer forCurve = -1);
    void RedrawCurve();
     
    // getter
