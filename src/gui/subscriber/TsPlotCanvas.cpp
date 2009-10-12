@@ -120,11 +120,19 @@ TsPlotCanvas::TsPlotCanvas(wxWindow* parent, wxWindowID id, const wxPoint& pos,
    axisFont = *wxSWISS_FONT;
    axisFont.SetPointSize(axisLabelSize);
 
-
+#ifdef __WXMAC__
+   backgnd = 0xcfcfcf;
+#else
    backgnd = GetBackgroundColour();
+#endif
+
    plotColor.Set(0xff, 0xff, 0xff);
 
-   gridColor = backgnd;
+   #ifdef __WXMAC__
+      gridColor = 0x7f7f7f;
+   #else
+      gridColor = backgnd;
+   #endif
    gridPen.SetStyle(wxDOT);
    gridPen.SetColour(gridColor);
 
