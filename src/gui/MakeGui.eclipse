@@ -86,7 +86,7 @@ STC_EDITOR_OBJECTS =
 endif
 
 all: prep $(TARGETS) 
-	rm gmatNoMatlab
+	rm -f gmatNoMatlab
 
 gui: $(WXTARGET)
 
