@@ -368,11 +368,19 @@ void TsPlotCanvas::Refresh(wxDC &dc, bool drawAll)
    // Set region colors
    if (rescaled || drawAll)
    {
-      dc.SetBackground(wxBrush(backgnd, wxTRANSPARENT));
+      #ifdef __WXMAC__
+         dc.SetBackground(wxBrush(backgnd, wxSOLID));
+      #else
+         dc.SetBackground(wxBrush(backgnd, wxTRANSPARENT));
+      #endif
       dc.Clear();
 
       dc.SetClippingRegion(left, top, (w-(left+right)), (h-(top+bottom)));
-      dc.SetBackground(wxBrush(plotColor, wxTRANSPARENT));
+      #ifdef __WXMAC__
+         dc.SetBackground(wxBrush(plotColor, wxSOLID));
+      #else
+         dc.SetBackground(wxBrush(plotColor, wxTRANSPARENT));
+      #endif
       dc.Clear();
       dc.DestroyClippingRegion();
 
