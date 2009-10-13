@@ -43,7 +43,7 @@ public:
    void UpdateMatlabServerItem(bool start);
    bool WasScriptAdded() { return mScriptAdded; }
    
-private:
+protected:
    GmatMainFrame  *theMainFrame;
    GuiInterpreter *theGuiInterpreter;
    GuiItemManager *theGuiManager;
@@ -88,6 +88,9 @@ private:
    void UpdateGuiItem(GmatTree::ItemType itemType);
 
    // resource tree
+   void AddItemFolder(wxTreeItemId parentItemId, wxTreeItemId &itemId,
+                      const wxString &itemName, GmatTree::ItemType itemType);
+   
    void AddNode(GmatTree::ItemType, const wxString &name);
 
    void AddDefaultResources();
@@ -108,7 +111,7 @@ private:
    void AddDefaultScripts(wxTreeItemId itemId);
    void AddDefaultSpecialPoints(wxTreeItemId itemId, bool incLibCounter = true,
                                 bool resetCounter = true);
-
+   
    // event handlers
    void OnItemRightClick(wxTreeEvent& event);
    void OnItemActivated(wxTreeEvent &event);

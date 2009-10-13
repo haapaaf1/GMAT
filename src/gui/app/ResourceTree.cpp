@@ -240,45 +240,24 @@ void ResourceTree::ClearResource(bool leaveScripts)
    DeleteChildren(mVariableItem);
    DeleteChildren(mFunctionItem);
    DeleteChildren(mCoordSysItem);
-
-
+   
+   
    //----- Hardware is child of spacecraft
-   mHardwareItem =
-      AppendItem(mSpacecraftItem, wxT("Hardware"), GmatTree::ICON_FOLDER, -1,
-                 new GmatTreeItemData(wxT("Hardware"),
-                                      GmatTree::HARDWARE_FOLDER));
-
-   SetItemImage(mHardwareItem, GmatTree::ICON_OPENFOLDER,
-                wxTreeItemIcon_Expanded);
-
+   AddItemFolder(mSpacecraftItem, mHardwareItem, "Hardware",
+                 GmatTree::HARDWARE_FOLDER);
+   
    //----- SpecialPoint is child of Universe
-   mSpecialPointsItem =
-      AppendItem(mUniverseItem, wxT("Special Points"), GmatTree::ICON_FOLDER, -1,
-                 new GmatTreeItemData(wxT("Special Points"),
-                                      GmatTree::SPECIAL_POINT_FOLDER));
-
-   SetItemImage(mSpecialPointsItem, GmatTree::ICON_OPENFOLDER,
-                wxTreeItemIcon_Expanded);
-
+   AddItemFolder(mUniverseItem, mSpecialPointsItem, "Special Points",
+                 GmatTree::SPECIAL_POINT_FOLDER);
+   
    //--------------- Boundry Value Solvers is a child of solvers
-   mBoundarySolverItem =
-      AppendItem(mSolverItem, wxT("Boundary Value Solvers"), GmatTree::ICON_FOLDER, -1,
-                 new GmatTreeItemData(wxT("Boundary Value Solvers"),
-                                      GmatTree::BOUNDARY_SOLVER_FOLDER));
-
-   SetItemImage(mBoundarySolverItem, GmatTree::ICON_OPENFOLDER,
-                wxTreeItemIcon_Expanded);
-
-
+   AddItemFolder(mSolverItem, mBoundarySolverItem, "Boundary Value Solvers",
+                 GmatTree::BOUNDARY_SOLVER_FOLDER);
+   
    //--------------- Optimizers is a child of solvers
-   mOptimizerItem =
-      AppendItem(mSolverItem, wxT("Optimizers"), GmatTree::ICON_FOLDER, -1,
-                 new GmatTreeItemData(wxT("Optimizers"),
-                                      GmatTree::OPTIMIZER_FOLDER));
-
-   SetItemImage(mOptimizerItem, GmatTree::ICON_OPENFOLDER,
-                wxTreeItemIcon_Expanded);
-
+   AddItemFolder(mSolverItem, mOptimizerItem, "Optimizers",
+                 GmatTree::OPTIMIZER_FOLDER);
+   
 }
 
 
@@ -500,6 +479,29 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
    default:
       break;
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void AddItemFolder(wxTreeItemId itemId, const wxString &itemName)
+//------------------------------------------------------------------------------
+/*
+ * Adds the item folder to the tree
+ *
+ * @param parentItemId  parent tree item id
+ * @param itemId        tree item id
+ * @param itemName      name of the item to be added
+ * @param itemType      type of the item to be added
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::AddItemFolder(wxTreeItemId parentItemId, wxTreeItemId &itemId,
+                                 const wxString &itemName, GmatTree::ItemType itemType)
+{
+   itemId =
+      AppendItem(parentItemId, wxT(itemName), GmatTree::ICON_FOLDER, -1,
+                 new GmatTreeItemData(wxT(itemName), itemType));
+   
+   SetItemImage(itemId, GmatTree::ICON_OPENFOLDER, wxTreeItemIcon_Expanded);
 }
 
 
@@ -1542,11 +1544,16 @@ void ResourceTree::OnRename(wxCommandEvent &event)
          {
             Collapse(mSpacecraftItem);
             DeleteChildren(mSpacecraftItem);
-            AddDefaultSpacecraft(mSpacecraftItem);
 
+            //----- Hardware is child of spacecraft, so create a folder
+            AddItemFolder(mSpacecraftItem, mHardwareItem, "Hardware",
+                          GmatTree::HARDWARE_FOLDER);
+            AddDefaultHardware(mHardwareItem);
+            AddDefaultSpacecraft(mSpacecraftItem);
+            
             //@todo Select the item just renamed, currently it selects Spacecraft folder
             //SelectItem(itemId);
-
+            
             Collapse(mFormationItem);
             DeleteChildren(mFormationItem);
             AddDefaultFormations(mFormationItem);
