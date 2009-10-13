@@ -303,10 +303,9 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
 
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
-        CCSDSData *myAPMData = new CCSDSData;
 	myAPM->ccsdsHeader = currentCCSDSHeader;
         myAPM->ccsdsAPMMetaData = currentCCSDSMetaData;
-	return GetCCSDSData(line,myAPMData,myAPM);
+	return GetCCSDSAPMData(line,myAPM);
     }
 
     return false;
@@ -371,7 +370,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSMetaData(std::string &lff,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteData(ObType *myOb)
+// bool WriteData(const ObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Writes a CCSDS orbit ephemeris message to file
@@ -380,7 +379,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSMetaData(std::string &lff,
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSAPMDataFile::WriteData(ObType *myOb)
+bool ProcessCCSDSAPMDataFile::WriteData(const ObType *myOb)
 {
     if (myOb->GetTypeName() != "CCSDSAPMObType") return false;
 

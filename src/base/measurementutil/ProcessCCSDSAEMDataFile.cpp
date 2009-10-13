@@ -22,7 +22,6 @@
 #include <ProcessCCSDSAEMDataFile.hpp>
 
 //#define DEBUG_CCSDSAEM_DATA
-
 //---------------------------------
 //  public methods
 //---------------------------------
@@ -303,14 +302,389 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
 
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
-        CCSDSData *myAEMData = new CCSDSData;
 	myAEM->ccsdsHeader = currentCCSDSHeader;
         myAEM->ccsdsAEMMetaData = currentCCSDSMetaData;
-	return GetCCSDSData(line,myAEMData,myAEM);
+	return GetCCSDSAEMData(line,myAEM);
     }
 
     return false;
 }
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSOEMData(std::string &lff, CCSDSObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the data from the orbit ephemeris message.
+ *
+ * @param <lff> Line from file
+ * @param <myOb> Pointer to AEM data
+ * @return Boolean success or failure
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
+                                              CCSDSAEMObType *myOb)
+{
+
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    double dtemp1, dtemp2, dtemp3, dtemp4, dtemp5, dtemp6, dtemp7, dtemp8;
+    std::string stemp;
+
+    switch (myOb->ccsdsAEMMetaData->attitudeType)
+    {
+        case CCSDSObType::CCSDS_QUATERNION_ID:
+        {
+            CCSDSQuaternion *myQData = new CCSDSQuaternion;
+
+            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            {
+                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4))
+                {
+                    myQData->epoch = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->qC = dtemp1;
+                    myQData->q1 = dtemp2;
+                    myQData->q2 = dtemp3;
+                    myQData->q3 = dtemp4;
+
+                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            {
+                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4))
+                {
+                    myQData->epoch = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->q1 = dtemp1;
+                    myQData->q2 = dtemp2;
+                    myQData->q3 = dtemp3;
+                    myQData->qC = dtemp4;
+
+                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else
+                return false;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID:
+        {
+            CCSDSQuaternion *myQData = new CCSDSQuaternion;
+
+            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            {
+                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4,&dtemp5,
+                                                 &dtemp6,&dtemp7,&dtemp8))
+                {
+                    myQData->epoch = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->qC = dtemp1;
+                    myQData->q1 = dtemp2;
+                    myQData->q2 = dtemp3;
+                    myQData->q3 = dtemp4;
+                    myQData->qCDot = dtemp5;
+                    myQData->q1Dot = dtemp6;
+                    myQData->q2Dot = dtemp7;
+                    myQData->q3Dot = dtemp8;
+
+                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            {
+                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4,&dtemp5,
+                                                 &dtemp6,&dtemp7,&dtemp8))
+                {
+                    myQData->epoch = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->q1 = dtemp1;
+                    myQData->q2 = dtemp2;
+                    myQData->q3 = dtemp3;
+                    myQData->qC = dtemp4;
+                    myQData->q1Dot = dtemp5;
+                    myQData->q2Dot = dtemp6;
+                    myQData->q3Dot = dtemp7;
+                    myQData->qCDot = dtemp8;
+
+                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else
+                return false;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_QUATERNION_RATE_ID:
+        {
+            CCSDSQuaternion *myQData = new CCSDSQuaternion;
+
+            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            {
+                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4,&dtemp5,
+                                                 &dtemp6,&dtemp7))
+                {
+                    myQData->epoch = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->qC = dtemp1;
+                    myQData->q1 = dtemp2;
+                    myQData->q2 = dtemp3;
+                    myQData->q3 = dtemp4;
+                    myQData->xRate = dtemp5;
+                    myQData->yRate = dtemp6;
+                    myQData->zRate = dtemp7;
+
+                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            {
+                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4,&dtemp5,
+                                                 &dtemp6,&dtemp7))
+                {
+                    myQData->epoch = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->q1 = dtemp1;
+                    myQData->q2 = dtemp2;
+                    myQData->q3 = dtemp3;
+                    myQData->qC = dtemp4;
+                    myQData->xRate = dtemp5;
+                    myQData->yRate = dtemp6;
+                    myQData->zRate = dtemp7;
+
+                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else
+                return false;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_EULER_ANGLE_ID:
+        {
+            CCSDSEulerAngle *myEulerData = new CCSDSEulerAngle;
+
+            std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")$";
+
+
+            if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                             &dtemp3))
+            {
+                myEulerData->epoch = stemp;
+
+                if (!CCSDSTimeTag2A1Date(myEulerData->epoch,myOb->epoch)) return false;
+
+                myEulerData->xAngle = dtemp1;
+                myEulerData->yAngle = dtemp2;
+                myEulerData->zAngle = dtemp3;
+
+                myOb->ccsdsEulerAngle = myEulerData;
+                myOb->ccsdsHeader->dataType = CCSDSObType::EULERANGLE_ID;
+
+                return true;
+
+            }
+
+            return false;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID:
+        {
+            CCSDSEulerAngle *myEulerData = new CCSDSEulerAngle;
+
+            std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+
+            if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                             &dtemp3,&dtemp4,&dtemp5,
+                                             &dtemp6))
+            {
+                myEulerData->epoch = stemp;
+
+                if (!CCSDSTimeTag2A1Date(myEulerData->epoch,myOb->epoch)) return false;
+
+                myEulerData->xAngle = dtemp1;
+                myEulerData->yAngle = dtemp2;
+                myEulerData->zAngle = dtemp3;
+                myEulerData->xRate = dtemp4;
+                myEulerData->yRate = dtemp5;
+                myEulerData->zRate = dtemp6;
+
+                myOb->ccsdsEulerAngle = myEulerData;
+                myOb->ccsdsHeader->dataType = CCSDSObType::EULERANGLE_ID;
+
+                return true;
+
+            }
+
+            return false;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_SPIN_ID:
+        {
+            CCSDSSpinStabilized *mySpinData = new CCSDSSpinStabilized;
+
+            std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+
+            if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4))
+            {
+                mySpinData->epoch = stemp;
+
+                if (!CCSDSTimeTag2A1Date(mySpinData->epoch,myOb->epoch)) return false;
+
+                mySpinData->spinAlpha = dtemp1;
+                mySpinData->spinDelta = dtemp2;
+                mySpinData->spinAngle = dtemp3;
+                mySpinData->spinAngleVelocity = dtemp4;
+
+                myOb->ccsdsSpinStabilized = mySpinData;
+                myOb->ccsdsHeader->dataType = CCSDSObType::SPINSTABILIZED_ID;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_SPIN_NUTATION_ID:
+        {
+            CCSDSSpinStabilized *mySpinData = new CCSDSSpinStabilized;
+
+            std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                REGEX_SCINUMBER + ")$";
+
+            if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                             &dtemp3,&dtemp4,&dtemp5,
+                                             &dtemp6,&dtemp7))
+            {
+                mySpinData->epoch = stemp;
+
+                if (!CCSDSTimeTag2A1Date(mySpinData->epoch,myOb->epoch)) return false;
+
+                mySpinData->spinAlpha = dtemp1;
+                mySpinData->spinDelta = dtemp2;
+                mySpinData->spinAngle = dtemp3;
+                mySpinData->spinAngleVelocity = dtemp4;
+                mySpinData->nutation = dtemp5;
+                mySpinData->nutationPeriod = dtemp6;
+                mySpinData->nutationPhase = dtemp7;
+
+                myOb->ccsdsSpinStabilized = mySpinData;
+                myOb->ccsdsHeader->dataType = CCSDSObType::SPINSTABILIZED_ID;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        break;
+
+        default:
+
+            return false;
+
+            break;
+
+    }
+
+}
+
 //------------------------------------------------------------------------------
 // bool GetCCSDSMetaData(std::string &lff,
 //                       CCSDSAEMMetaData *myMetaData)
@@ -362,7 +736,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
         }
         else if (pcrecpp::RE("^ATTITUDE_DIR\\s*=(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->direction = stemp;
+	    myMetaData->direction = GetAttitudeDirID(stemp);
         }
         else if (pcrecpp::RE("^TIME_SYSTEM\\s*=(.*)").FullMatch(lff,&stemp))
         {
@@ -386,11 +760,11 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
         }
         else if (pcrecpp::RE("^ATTITUDE_TYPE\\s*=(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->attitudeType = stemp;
+	    myMetaData->attitudeType = GetAttitudeTypeID(stemp);
         }
         else if (pcrecpp::RE("^QUATERNION_TYPE\\s*=(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->quaternionType = stemp;
+	    myMetaData->quaternionType = GetQuaternionTypeID(stemp);
         }
         else if (pcrecpp::RE("^EULER_ROT_SEQ\\s*=(.*)").FullMatch(lff,&stemp))
         {
@@ -398,7 +772,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
         }
         else if (pcrecpp::RE("^RATE_FRAME\\s*=(.*)").FullMatch(lff,&stemp))
         {
-	    myMetaData->rateFrame = stemp;
+	    myMetaData->rateFrame = GetRateFrameID(stemp);
         }
         else if (pcrecpp::RE("^INTERPOLATION\\s*=(.*)").FullMatch(lff,&stemp))
         {
@@ -422,8 +796,9 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
     return true;
 }
 
+
 //------------------------------------------------------------------------------
-// bool WriteData(ObType *myOb)
+// bool WriteData(const ObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Writes a CCSDS orbit ephemeris message to file
@@ -432,7 +807,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSAEMDataFile::WriteData(ObType *myOb)
+bool ProcessCCSDSAEMDataFile::WriteData(const ObType *myOb)
 {
     if (myOb->GetTypeName() != "CCSDSAEMObType") return false;
 

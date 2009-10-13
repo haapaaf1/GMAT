@@ -10,6 +10,39 @@ const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps-EndCCSD
     "CENTER_NAME",
     "REF_FRAME",
     "TIME_SYSTEM",
+    "COMMENT",
+    "EPOCH",
+    "X",
+    "Y",
+    "Z",
+    "X_DOT",
+    "Y_DOT",
+    "Z_DOT",
+    "COMMENT",
+    "EPOCH",
+    "SEMI_MAJ_AXIS",
+    "ECCENTRICITY",
+    "INCLINATION",
+    "RA_OF_ASC_NODE",
+    "ARG_OF_PERICENTER",
+    "TRUE_ANOMALY",
+    "MEAN_ANOMALY",
+    "GM",
+    "COMMENT",
+    "EPOCH",
+    "MASS",
+    "SOLAR_RAD_AREA",
+    "SOLAR_RAD_COEFF",
+    "DRAG_AREA",
+    "DRAG_COEFF",
+    "COMMENT",
+    "MAN_EPOCH_IGNITION",
+    "MAN_DURATION",
+    "MAN_DELTA_MASS",
+    "MAN_REF_FRAME",
+    "MAN_DV_1",
+    "MAN_DV_2",
+    "MAN_DV_3",
     "COMMENT"
 };
 
@@ -20,6 +53,38 @@ const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps-En
     "",
     "",
     "",
+    "",
+    "",
+    "km",
+    "km",
+    "km",
+    "km/s",
+    "km/s",
+    "km/s",
+    "",
+    "",
+    "km",
+    "",
+    "deg",
+    "deg",
+    "deg",
+    "deg",
+    "deg",
+    "km^3/s^2",
+    "",
+    "",
+    "kg",
+    "m^2",
+    "",
+    "m^2",
+    "",
+    "",
+    "",
+    "kg",
+    "s",
+    "km/s",
+    "km/s",
+    "km/s",
     ""
 };
 
@@ -40,7 +105,40 @@ const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataR
     "Reference Frame Origin",
     "Reference Frame",
     "Time System",
-    "Comments"
+    "Comments",
+    "State Vector Epoch",
+    "State Vector X",
+    "State Vector Y",
+    "State Vector Z",
+    "State Vector X Dot",
+    "State Vector Y Dot",
+    "State Vector Z Dot",
+    "State Vector Comments",
+    "Keplerian Elements Epoch",
+    "Keplerian Elements Semimajor Axis",
+    "Keplerian Elements Eccentricity",
+    "Keplerian Elements Inclination",
+    "Keplerian Elements Right Ascension of the Ascending Node",
+    "Keplerian Elements Argument of Pericenter",
+    "Keplerian Elements True Anomaly",
+    "Keplerian Elements Mean Anomaly",
+    "Keplerian Elements Gravitational Coefficient",
+    "Keplerian Elements Comments",
+    "Spacecraft Parameters Epoch",
+    "Spacecraft Parameters Mass",
+    "Spacecraft Parameters Solar Radiation Area",
+    "Spacecraft Parameters Solar Radiation Coefficient",
+    "Spacecraft Parameters Drag Area",
+    "Spacecraft Parameters Drag Coefficient",
+    "Spacecraft Parameters Comments",
+    "Maneuver Ref Ignition Epoch",
+    "Maneuver Duration",
+    "Maneuver Ref Delta Mass",
+    "Maneuver Ref Frame",
+    "Maneuver Ref DeltaV1",
+    "Maneuver Ref DeltaV2",
+    "Maneuver Ref DeltaV3",
+    "Maneuver Comments"
 };
 
 const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps-EndCCSDSDataReps] =
@@ -60,6 +158,39 @@ const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataRe
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE
 };
 
@@ -71,7 +202,11 @@ const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataRe
  */
 //------------------------------------------------------------------------------
 CCSDSOPMObType::CCSDSOPMObType() : CCSDSObType("CCSDSOPMObType", ""),
-	ccsdsOPMMetaData(NULL)
+	ccsdsOPMMetaData(NULL),
+        ccsdsOPMStateVector(NULL),
+        ccsdsOPMKeplerianElements(NULL),
+        ccsdsOPMSpacecraftParameters(NULL),
+        ccsdsOPMManeuvers(NULL)
 {
 }
 
@@ -83,7 +218,11 @@ CCSDSOPMObType::CCSDSOPMObType() : CCSDSObType("CCSDSOPMObType", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSOPMObType::CCSDSOPMObType(const CCSDSOPMObType &opm) : CCSDSObType(opm),
-	ccsdsOPMMetaData(opm.ccsdsOPMMetaData)
+	ccsdsOPMMetaData(opm.ccsdsOPMMetaData),
+        ccsdsOPMStateVector(opm.ccsdsOPMStateVector),
+        ccsdsOPMKeplerianElements(opm.ccsdsOPMKeplerianElements),
+        ccsdsOPMSpacecraftParameters(opm.ccsdsOPMSpacecraftParameters),
+        ccsdsOPMManeuvers(opm.ccsdsOPMManeuvers)
 {
 }
 
@@ -100,12 +239,16 @@ CCSDSOPMObType::CCSDSOPMObType(const CCSDSOPMObType &opm) : CCSDSObType(opm),
 //---------------------------------------------------------------------------
 const CCSDSOPMObType& CCSDSOPMObType::operator=(const CCSDSOPMObType &opm)
 {
-   if (&opm == this)
-      return *this;
+    if (&opm == this)
+        return *this;
 
     ccsdsOPMMetaData = opm.ccsdsOPMMetaData;
+    ccsdsOPMStateVector = opm.ccsdsOPMStateVector;
+    ccsdsOPMKeplerianElements = opm.ccsdsOPMKeplerianElements;
+    ccsdsOPMSpacecraftParameters = opm.ccsdsOPMSpacecraftParameters;
+    ccsdsOPMManeuvers = opm.ccsdsOPMManeuvers;
 
-   return *this;
+    return *this;
 }
 
 //------------------------------------------------------------------------------
@@ -224,6 +367,134 @@ std::string CCSDSOPMObType::GetDataParameterTypeString(const Integer id) const
 }
 
 //------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSOPMObType::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+	case CCSDS_OPM_STATEVECTOR_X_ID:
+
+            return ccsdsOPMStateVector->x;
+
+	case CCSDS_OPM_STATEVECTOR_Y_ID:
+
+            return ccsdsOPMStateVector->y;
+
+	case CCSDS_OPM_STATEVECTOR_Z_ID:
+
+            return ccsdsOPMStateVector->z;
+
+	case CCSDS_OPM_STATEVECTOR_XDOT_ID:
+
+            return ccsdsOPMStateVector->xDot;
+
+        case CCSDS_OPM_STATEVECTOR_YDOT_ID:
+
+            return ccsdsOPMStateVector->yDot;
+
+	case CCSDS_OPM_STATEVECTOR_ZDOT_ID:
+
+            return ccsdsOPMStateVector->zDot;
+
+	case CCSDS_OPM_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
+
+            return ccsdsOPMKeplerianElements->semiMajorAxis;
+
+	case CCSDS_OPM_KEPLERIANELEMENTS_ECCENTRICITY_ID:
+
+            return ccsdsOPMKeplerianElements->eccentricity;
+
+	case CCSDS_OPM_KEPLERIANELEMENTS_INCLINATION_ID:
+
+            return ccsdsOPMKeplerianElements->inclination;
+
+	case CCSDS_OPM_KEPLERIANELEMENTS_RAAN_ID:
+
+            return ccsdsOPMKeplerianElements->raan;
+
+	case CCSDS_OPM_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
+
+            return ccsdsOPMKeplerianElements->argumentOfPericenter;
+
+	case CCSDS_OPM_KEPLERIANELEMENTS_TRUEANOMALY_ID:
+
+            return ccsdsOPMKeplerianElements->trueAnomaly;
+
+	case CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID:
+
+            return ccsdsOPMKeplerianElements->meanAnomaly;
+
+	case CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
+
+            return ccsdsOPMKeplerianElements->gravitationalCoefficient;
+
+	case CCSDS_OPM_SPACECRAFTPARAMETERS_MASS_ID:
+
+            return ccsdsOPMSpacecraftParameters->mass;
+
+	case CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID:
+
+            return ccsdsOPMSpacecraftParameters->solarRadiationArea;
+
+	case CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID:
+
+            return ccsdsOPMSpacecraftParameters->solarRadiationCoefficient;
+
+	case CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGAREA_ID:
+
+            return ccsdsOPMSpacecraftParameters->dragArea;
+
+	case CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID:
+
+            return ccsdsOPMSpacecraftParameters->dragCoefficient;
+
+        case CCSDS_OPM_MANUEVER_DURATION_ID:
+
+            return (*i_ccsdsOPMManeuvers)->duration;
+
+        case CCSDS_OPM_MANUEVER_DELTAMASS_ID:
+
+            return (*i_ccsdsOPMManeuvers)->deltaMass;
+
+        case CCSDS_OPM_MANUEVER_DELTAV1_ID:
+
+            return (*i_ccsdsOPMManeuvers)->deltaV1;
+
+        case CCSDS_OPM_MANUEVER_DELTAV2_ID:
+
+            return (*i_ccsdsOPMManeuvers)->deltaV2;
+
+        case CCSDS_OPM_MANUEVER_DELTAV3_ID:
+
+            return (*i_ccsdsOPMManeuvers)->deltaV3;
+
+        default:
+
+            return CCSDSObType::GetRealDataParameter(id);
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSOPMObType::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
@@ -235,7 +506,19 @@ std::string CCSDSOPMObType::GetStringDataParameter(const Integer id) const
     switch (id)
     {
 
-	case CCSDS_OPM_TIMESYSTEM_ID:
+        case CCSDS_OPM_STATEVECTOR_EPOCH_ID:
+
+	    return ccsdsOPMStateVector->epoch;
+
+        case CCSDS_OPM_MANUEVER_IGNITIONEPOCH_ID:
+
+	    return (*i_ccsdsOPMManeuvers)->ignitionEpoch;
+
+        case CCSDS_OPM_MANUEVER_REFFRAME_ID:
+
+	    return (*i_ccsdsOPMManeuvers)->refFrame;
+
+        case CCSDS_OPM_TIMESYSTEM_ID:
 
             return ccsdsOPMMetaData->timeSystem;
 
@@ -286,7 +569,23 @@ StringArray CCSDSOPMObType::GetStringArrayDataParameter(const Integer id) const
 {
     switch (id)
     {
-	case CCSDS_OPM_METADATACOMMENTS_ID:
+        case CCSDS_OPM_STATEVECTOR_COMMENTS_ID:
+
+	    return ccsdsOPMStateVector->comments;
+
+        case CCSDS_OPM_KEPLERIANELEMENTS_COMMENTS_ID:
+
+	    return ccsdsOPMKeplerianElements->comments;
+
+        case CCSDS_OPM_SPACECRAFTPARAMETERS_COMMENTS_ID:
+
+	    return ccsdsOPMSpacecraftParameters->comments;
+
+        case CCSDS_OPM_MANUEVER_COMMENTS_ID:
+
+	    return (*i_ccsdsOPMManeuvers)->comments;
+
+        case CCSDS_OPM_METADATACOMMENTS_ID:
 
 	    return ccsdsOPMMetaData->comments;
 
@@ -492,22 +791,23 @@ bool CCSDSOPMObType::CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const CCSDSOPMObType *myOPM)
 {
-    switch (myOPM->ccsdsHeader->dataType)
+    if(myOPM->ccsdsOPMStateVector != NULL)
+        output << myOPM->ccsdsOPMStateVector;
+    else
+        return output;
+
+    if(myOPM->ccsdsOPMKeplerianElements != NULL)
+        output << myOPM->ccsdsOPMKeplerianElements;
+
+    if(myOPM->ccsdsOPMSpacecraftParameters != NULL)
+        output << myOPM->ccsdsOPMSpacecraftParameters;
+
+    for (std::vector<CCSDSOPMManeuver*>::const_iterator
+         j=myOPM->ccsdsOPMManeuvers.begin();
+         j!=myOPM->ccsdsOPMManeuvers.end(); ++j)
     {
-        case CCSDSObType::STATEVECTOR_ID:
-            output << myOPM->ccsdsStateVector;
-            break;
-        case CCSDSObType::KEPLERIANELEMENTS_ID:
-            output << myOPM->ccsdsKeplerianElements;
-            break;
-        case CCSDSObType::SPACECRAFTPARAMETERS_ID:
-            output << myOPM->ccsdsSpacecraftParameters;
-            break;
-        case CCSDSObType::MANEUVER_ID:
-            output << myOPM->ccsdsManeuver;
-            break;
-        default:
-            break;
+        if((*j) != NULL)
+            output << (*j);
     }
 
     return output;
@@ -533,7 +833,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetada
 
    output << "META_START" << std::endl;
 
-   for (Integer i = 0; i < myMetadata->comments.size(); i++ )
+   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
    {
        output << "COMMENT " << myMetadata->comments[i] << std::endl;
    }
@@ -545,6 +845,120 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetada
 
 
    output << "META_STOP" << std::endl << std::endl;
+
+   return output;
+}
+
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSOPMManeuver *myManeuver)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <mymyManeuver>    CCSDS maneuver data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSOPMManeuver *myManeuver)
+{
+    using namespace std;
+
+    output << "MAN_EPOCH_IGNITION = " << myManeuver->ignitionEpoch << endl;
+    output << "MAN_DURATION = " << myManeuver->duration << endl;
+    output << "MAN_DELTA_MASS = " << myManeuver->deltaMass << endl;
+    output << "MAN_REF_FRAME = " << myManeuver->refFrame << endl;
+    output << "MAN_DV_1 = " << myManeuver->deltaV1 << endl;
+    output << "MAN_DV_2 = " << myManeuver->deltaV2 << endl;
+    output << "MAN_DV_3 = " << myManeuver->deltaV3 << endl;
+
+   return output;
+}
+
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output,
+//                      const CCSDSOPMSpacecraftParameters *mySpacecraftParameters)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <mySpacecraftParameters> CCSDS spacecraft parameter data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output,
+                        const CCSDSOPMSpacecraftParameters *mySpacecraftParameters)
+{
+   using namespace std;
+
+   output << "MASS = " << mySpacecraftParameters->mass << endl;
+   output << "SOLAR_RAD_AREA = " << mySpacecraftParameters->solarRadiationArea << endl;
+   output << "SOLAR_RAD_COEFF = " << mySpacecraftParameters->solarRadiationCoefficient << endl;
+   output << "DRAG_AREA = " << mySpacecraftParameters->dragArea << endl;
+   output << "DRAG_COEFF = " << mySpacecraftParameters->dragCoefficient << endl;
+
+   return output;
+}
+
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output,
+//                           const CCSDSOPMStateVector *myOPMStateVector)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myOPMStateVector>    CCSDS state vector data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output,
+                          const CCSDSOPMStateVector *myOPMStateVector)
+{
+   using namespace std;
+
+   output << "EPOCH = " << myOPMStateVector->epoch << endl;
+   output << "X = " << myOPMStateVector->x << endl;
+   output << "Y = " << myOPMStateVector->y << endl;
+   output << "Z = " << myOPMStateVector->z << endl;
+   output << "X_DOT = " << myOPMStateVector->xDot << endl;
+   output << "Y_DOT = " << myOPMStateVector->yDot << endl;
+   output << "Z_DOT = " << myOPMStateVector->zDot << endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myOb>    CCSDS data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSOPMKeplerianElements *myKeplerianElements)
+{
+   using namespace std;
+
+   output << "SEMI_MAJOR_AXIS = " << myKeplerianElements->semiMajorAxis << endl;
+   output << "ECCENTRICITY = " << myKeplerianElements->eccentricity << endl;
+   output << "INCLINATION = " << myKeplerianElements->inclination << endl;
+   output << "RA_OF_ASC_NODE = " << myKeplerianElements->raan << endl;
+   output << "ARG_OF_PERICENTER = " << myKeplerianElements->argumentOfPericenter << endl;
+   output << "TRUE_ANOMALY = " << myKeplerianElements->trueAnomaly << endl;
+   output << "MEAN_ANOMALY = " << myKeplerianElements->meanAnomaly << endl;
+   output << "GM = " << myKeplerianElements->gravitationalCoefficient << endl;
 
    return output;
 }

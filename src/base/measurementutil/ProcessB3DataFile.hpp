@@ -43,7 +43,7 @@ public:
     bool        IsParameterRequired(const std::string &label) const;
     
     bool GetData(ObType *myB3data);
-    bool WriteData(ObType *myB3data);
+    bool WriteData(const ObType *myB3data);
 
 private:
 

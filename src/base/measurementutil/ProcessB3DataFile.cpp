@@ -729,7 +729,7 @@ bool ProcessB3DataFile::GetData(ObType *myB3Data)
 }
 
 //------------------------------------------------------------------------------
-// bool WriteData(B3ObType *myB3Data)
+// bool WriteData(const ObType *myB3Data)
 //------------------------------------------------------------------------------
 /**
  * Writes B3 data to file
@@ -737,7 +737,7 @@ bool ProcessB3DataFile::GetData(ObType *myB3Data)
  * @return Boolean success or failure to write data in B3 data struct to file
  */
 //------------------------------------------------------------------------------
-bool ProcessB3DataFile::WriteData(ObType *myB3Data)
+bool ProcessB3DataFile::WriteData(const ObType *myB3Data)
 {
     if (myB3Data->GetTypeName() == "B3ObType")
     {

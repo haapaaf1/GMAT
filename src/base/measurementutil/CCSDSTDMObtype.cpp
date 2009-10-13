@@ -336,7 +336,8 @@ const Gmat::ParameterType CCSDSTDMObType::CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataRe
  */
 //------------------------------------------------------------------------------
 CCSDSTDMObType::CCSDSTDMObType() : CCSDSObType("CCSDSTDMObType", ""),
-	ccsdsTDMMetaData(NULL)
+	ccsdsTDMMetaData(NULL),
+        ccsdsTDMData(NULL)
 {
 }
 
@@ -348,7 +349,8 @@ CCSDSTDMObType::CCSDSTDMObType() : CCSDSObType("CCSDSTDMObType", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSTDMObType::CCSDSTDMObType(const CCSDSTDMObType &tdm) : CCSDSObType(tdm),
-	ccsdsTDMMetaData(tdm.ccsdsTDMMetaData)
+	ccsdsTDMMetaData(tdm.ccsdsTDMMetaData),
+        ccsdsTDMData(tdm.ccsdsTDMData)
 {
 }
 
@@ -369,6 +371,7 @@ const CCSDSTDMObType& CCSDSTDMObType::operator=(const CCSDSTDMObType &tdm)
       return *this;
 
     ccsdsTDMMetaData = tdm.ccsdsTDMMetaData;
+    ccsdsTDMData = tdm.ccsdsTDMData;
 
    return *this;
 }
@@ -509,7 +512,7 @@ Integer CCSDSTDMObType::GetIntegerDataParameter(const Integer id) const
 
 	case CCSDS_TDM_KEYWORD_ID:
 
-            return ccsdsData->keywordID;
+            return ccsdsTDMData->keywordID;
 
         default:
 
@@ -586,6 +589,10 @@ std::string CCSDSTDMObType::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
+
+        case CCSDS_GENERALDATA_TIMETAG_ID:
+
+	    return ccsdsTDMData->timeTag;
 
 	case CCSDS_TDM_TIMESYSTEM_ID:
 
@@ -673,7 +680,7 @@ std::string CCSDSTDMObType::GetStringDataParameter(const Integer id) const
 	    
 	case CCSDS_TDM_TIMETAG_ID:
 	    
-            return ccsdsData->timeTag;
+            return ccsdsTDMData->timeTag;
 		
         default:
 
@@ -706,7 +713,11 @@ StringArray CCSDSTDMObType::GetStringArrayDataParameter(const Integer id) const
 {
     switch (id)
     {
-	case CCSDS_TDM_METADATACOMMENTS_ID:
+        case CCSDS_GENERALDATA_COMMENTS_ID:
+
+	    return ccsdsTDMData->comments;
+
+        case CCSDS_TDM_METADATACOMMENTS_ID:
 
 	    return ccsdsTDMMetaData->comments;
 
@@ -741,6 +752,10 @@ Real CCSDSTDMObType::GetRealDataParameter(const Integer id) const
 {
     switch (id)
     {
+
+        case CCSDS_GENERALDATA_MEASUREMENT_ID:
+
+            return ccsdsTDMData->measurement;
 
 	case CCSDS_TDM_INTEGRATIONINTERVAL_ID:
 
@@ -820,7 +835,7 @@ Real CCSDSTDMObType::GetRealDataParameter(const Integer id) const
 	
 	case CCSDS_TDM_MEASUREMENT_ID:
 	    
-	    return ccsdsData->measurement;
+	    return ccsdsTDMData->measurement;
 	
 	default:
 
@@ -1079,7 +1094,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
     switch (myTDM->ccsdsHeader->dataType)
     {
         case CCSDSObType::GENERICDATA_ID:
-            output << myTDM->ccsdsData;
+            output << myTDM->ccsdsTDMData;
             break;
         default:
             break;
@@ -1111,7 +1126,7 @@ std::ostream& operator<< (std::ostream &output,
    //output.setf(std::ios::scientific);
 
     output << "META_START" << endl;
-   for (Integer i = 0; i < myMetadata->comments.size(); i++ )
+   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
    {
        output << "COMMENT " << myMetadata->comments[i] << endl;
    }
@@ -1160,6 +1175,27 @@ std::ostream& operator<< (std::ostream &output,
    output << "CORRECTIONS_APPLIED = " << myMetadata->correctionsApplied << endl;
 
    output << "META_STOP" << std::endl << endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output, const CCSDSData *myData)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myData>    CCSDS data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output, const CCSDSData *myData)
+{
+    using namespace std;
+
+   output << myData->keywordID << " = " << myData->timeTag << " " << myData->measurement << endl;
 
    return output;
 }

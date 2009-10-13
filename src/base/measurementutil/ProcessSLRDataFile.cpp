@@ -535,7 +535,7 @@ bool ProcessSLRDataFile::GetSLRData(std::string lff, SLRObType *mySLRdata)
 }
 
 //------------------------------------------------------------------------------
-// bool WriteDataHeader(SLRHeader *mySLRheader)
+// bool WriteDataHeader(const SLRHeader *mySLRheader)
 //------------------------------------------------------------------------------
 /**
  * Writes a SLR normal point header to file
@@ -544,7 +544,7 @@ bool ProcessSLRDataFile::GetSLRData(std::string lff, SLRObType *mySLRdata)
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRDataFile::WriteDataHeader(ObType *mySLRData)
+bool ProcessSLRDataFile::WriteDataHeader(const ObType *mySLRData)
 {
 
     if (mySLRData->GetTypeName() != "SLRObType") return false;
@@ -571,7 +571,7 @@ bool ProcessSLRDataFile::WriteDataHeader(ObType *mySLRData)
 }
 
 //------------------------------------------------------------------------------
-// bool WriteData(ObType *mySLRdata)
+// bool WriteData(const ObType *mySLRdata)
 //------------------------------------------------------------------------------
 /**
  * Writes a SLR normal point to file
@@ -580,7 +580,7 @@ bool ProcessSLRDataFile::WriteDataHeader(ObType *mySLRData)
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessSLRDataFile::WriteData(ObType *mySLRData)
+bool ProcessSLRDataFile::WriteData(const ObType *mySLRData)
 {
     if (mySLRData->GetTypeName() == "SLRObType")
     {

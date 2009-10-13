@@ -16,6 +16,14 @@ const std::string CCSDSOEMObType::CCSDS_OEM_KEYWORDS[EndCCSDSOEMDataReps-EndCCSD
     "STOP_TIME",
     "INTERPOLATION",
     "INTERPOLATION_DEGREE",
+    "COMMENT",
+    "EPOCH",
+    "X",
+    "Y",
+    "Z",
+    "X_DOT",
+    "Y_DOT",
+    "Z_DOT",
     "COMMENT"
 };
 
@@ -32,7 +40,14 @@ const std::string CCSDSOEMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps-En
     "",
     "",
     "",
-    ""
+    "",
+    "",
+    "km",
+    "km",
+    "km",
+    "km/s",
+    "km/s",
+    "km/s"
 };
 
 const std::string CCSDSOEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps-EndCCSDSTimeReps] =
@@ -42,7 +57,12 @@ const std::string CCSDSOEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeR
     "TT",
     "GPS",
     "TDB",
-    "TCB"
+    "TCB",
+    "GMST",
+    "MET",
+    "MRT",
+    "SCLK",
+    "UT1"
 };
 
 const std::string CCSDSOEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps-EndCCSDSDataReps] =
@@ -58,7 +78,15 @@ const std::string CCSDSOEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataR
     "Stop Epoch",
     "Interpolation Method",
     "Interpolation Degree",
-    "Comments"
+    "Comments",
+    "State Vector Epoch",
+    "State Vector X",
+    "State Vector Y",
+    "State Vector Z",
+    "State Vector X Dot",
+    "State Vector Y Dot",
+    "State Vector Z Dot",
+    "State Vector Comments"
 };
 
 const bool CCSDSOEMObType::CCSDS_IS_REQUIRED[EndCCSDSOEMDataReps-EndCCSDSDataReps] =
@@ -90,6 +118,14 @@ const Gmat::ParameterType CCSDSOEMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOEMDataRe
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::INTEGER_TYPE,
+    Gmat::STRINGARRAY_TYPE,
+    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE
 };
 
@@ -101,7 +137,8 @@ const Gmat::ParameterType CCSDSOEMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOEMDataRe
  */
 //------------------------------------------------------------------------------
 CCSDSOEMObType::CCSDSOEMObType() : CCSDSObType("CCSDSOEMObType", ""),
-	ccsdsOEMMetaData(NULL)
+	ccsdsOEMMetaData(NULL),
+        ccsdsOEMStateVector(NULL)
 {
 }
 
@@ -113,7 +150,8 @@ CCSDSOEMObType::CCSDSOEMObType() : CCSDSObType("CCSDSOEMObType", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSOEMObType::CCSDSOEMObType(const CCSDSOEMObType &oem) : CCSDSObType(oem),
-	ccsdsOEMMetaData(oem.ccsdsOEMMetaData)
+	ccsdsOEMMetaData(oem.ccsdsOEMMetaData),
+        ccsdsOEMStateVector(oem.ccsdsOEMStateVector)
 {
 }
 
@@ -134,6 +172,7 @@ const CCSDSOEMObType& CCSDSOEMObType::operator=(const CCSDSOEMObType &oem)
       return *this;
 
     ccsdsOEMMetaData = oem.ccsdsOEMMetaData;
+    ccsdsOEMStateVector = oem.ccsdsOEMStateVector;
 
    return *this;
 }
@@ -254,6 +293,61 @@ std::string CCSDSOEMObType::GetDataParameterTypeString(const Integer id) const
 }
 
 //------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSOEMObType::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+	case CCSDS_OEM_STATEVECTOR_X_ID:
+
+            return ccsdsOEMStateVector->x;
+
+	case CCSDS_OEM_STATEVECTOR_Y_ID:
+
+            return ccsdsOEMStateVector->y;
+
+	case CCSDS_OEM_STATEVECTOR_Z_ID:
+
+            return ccsdsOEMStateVector->z;
+
+	case CCSDS_OEM_STATEVECTOR_XDOT_ID:
+
+            return ccsdsOEMStateVector->xDot;
+
+        case CCSDS_OEM_STATEVECTOR_YDOT_ID:
+
+            return ccsdsOEMStateVector->yDot;
+
+	case CCSDS_OEM_STATEVECTOR_ZDOT_ID:
+
+            return ccsdsOEMStateVector->zDot;
+
+        default:
+
+            return CCSDSObType::GetRealDataParameter(id);
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSOEMObType::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
@@ -299,6 +393,10 @@ std::string CCSDSOEMObType::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
+
+        case CCSDS_OEM_STATEVECTOR_EPOCH_ID:
+
+	    return ccsdsOEMStateVector->epoch;
 
 	case CCSDS_OEM_TIMESYSTEM_ID:
 
@@ -371,6 +469,10 @@ StringArray CCSDSOEMObType::GetStringArrayDataParameter(const Integer id) const
 {
     switch (id)
     {
+        case CCSDS_OEM_STATEVECTOR_COMMENTS_ID:
+
+	    return ccsdsOEMStateVector->comments;
+
 	case CCSDS_OEM_METADATACOMMENTS_ID:
 
 	    return ccsdsOEMMetaData->comments;
@@ -579,7 +681,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOEMObType *myOEM)
     switch (myOEM->ccsdsHeader->dataType)
     {
         case CCSDSObType::STATEVECTOR_ID:
-            output << myOEM->ccsdsStateVector;
+            output << myOEM->ccsdsOEMStateVector;
             break;
         default:
             break;
@@ -608,7 +710,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOEMMetaData *myMetada
 
    output << "META_START" << std::endl;
 
-   for (Integer i = 0; i < myMetadata->comments.size(); i++ )
+   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
    {
        output << "COMMENT " << myMetadata->comments[i] << std::endl;
    }
@@ -626,6 +728,31 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOEMMetaData *myMetada
 
 
    output << "META_STOP" << std::endl << std::endl;
+
+   return output;
+}
+
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output,
+//                           const CCSDSOEMStateVector *myStateVector)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myStateVector>    CCSDS state vector data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output,
+                          const CCSDSOEMStateVector *myOEMStateVector)
+{
+   using namespace std;
+
+   output << myOEMStateVector->epoch << myOEMStateVector->x
+           << myOEMStateVector->y << myOEMStateVector->xDot
+           << myOEMStateVector->yDot << myOEMStateVector->zDot << endl;
 
    return output;
 }

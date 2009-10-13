@@ -33,16 +33,14 @@ class CCSDSQuaternion
 
 public:
 
-    friend std::ostream& operator<< (std::ostream &output, 
-                                     const CCSDSQuaternion *myCCSDSquaternion);
-
-    std::string quarternionType;
+    Integer quaternionType;
     std::string epoch;
     std::string frameA;
     std::string frameB;
     std::string direction;
     Real q1, q2, q3, qC;
     Real q1Dot, q2Dot, q3Dot, qCDot;
+    Real xRate, yRate, zRate;
     StringArray comments;
 };
 
@@ -52,11 +50,7 @@ class CCSDSEulerAngle
 {
 
 public:
-
-    friend std::ostream& operator<< (std::ostream &output, 
-                                     const CCSDSEulerAngle *myCCSDSeulerAngle);
-
-    std::string eulerAngleType;
+    
     std::string epoch;
     std::string frameA;
     std::string frameB;
@@ -74,10 +68,7 @@ class CCSDSSpinStabilized
 
 public:
 
-    friend std::ostream& operator<< (std::ostream &output,
-                              const CCSDSSpinStabilized *myCCSDSspinStabilized);
-
-    std::string attitudeType;
+    Integer attitudeType;
     std::string epoch;
     std::string frameA;
     std::string frameB;
@@ -97,97 +88,9 @@ class CCSDSStateVector
 
 public:
 
-    friend std::ostream& operator<< (std::ostream &output,
-                                    const CCSDSStateVector *myCCSDSstateVector);
-
     std::string epoch;
     Real x, y, z;
     Real xDot, yDot, zDot;
-    StringArray comments;
-};
-
-class CCSDSKeplerianElements
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output,
-                        const CCSDSKeplerianElements *myCCSDSkeplerianElements);
-
-    std::string epoch;
-    Real semiMajorAxis;
-    Real eccentricity;
-    Real inclination;
-    Real raan;
-    Real argumentOfPericenter;
-    Real trueAnomaly;
-    Real meanAnomaly;
-    Real gravitationalCoefficient;
-    StringArray comments;
-};
-
-class CCSDSSpacecraftParameters
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output,
-                  const CCSDSSpacecraftParameters *myCCSDSspacecraftParameters);
-
-    std::string epoch;
-    Real mass;
-    Real solarRadiationArea;
-    Real solarRadiationCoefficient;
-    Real dragArea;
-    Real dragCoefficient;
-    std::string inertiaRefFrame;
-    Real i11, i22, i33, i12, i13, i23;
-    StringArray comments;
-};
-
-class CCSDSManeuver
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output,
-                                     const CCSDSManeuver *myCCSDSmaneuver);
-
-    std::string ignitionEpoch;
-    Real duration;
-    Real deltaMass;
-    std::string refFrame;
-    Real deltaV1, deltaV2, deltaV3;
-    StringArray comments;
-};
-
-
-class CCSDSAttitudeManeuver
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output,
-                          const CCSDSAttitudeManeuver *myCCSDSAttitudemaneuver);
-
-    std::string epochStart;
-    Real duration;
-    std::string refFrame;
-    Real tor1, tor2, tor3;
-    StringArray comments;
-};
-
-class CCSDSData
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output,
-                                     const CCSDSData *myCCSDSdata);
-
-    Integer keywordID;
-    std::string timeTag;
-    Real measurement;
     StringArray comments;
 };
 
@@ -201,6 +104,15 @@ public :
     const CCSDSObType& operator=(const CCSDSObType &ob);
     virtual ~CCSDSObType();
 
+    friend std::string GetAttitudeTypeText(const Integer id);
+    friend Integer    GetAttitudeTypeID(const std::string &str);
+    friend std::string GetQuaternionTypeText(const Integer id);
+    friend Integer    GetQuaternionTypeID(const std::string &str);
+    friend std::string GetAttitudeDirText(const Integer id);
+    friend Integer    GetAttitudeDirID(const std::string &str);
+    friend std::string GetRateFrameText(const Integer id);
+    friend Integer    GetRateFrameID(const std::string &str);
+    
     virtual std::string GetDataParameterText(const Integer id) const;
     virtual Integer    GetDataParameterID(const std::string &str) const;
     virtual Gmat::ParameterType GetDataParameterType(const Integer id) const;
@@ -243,6 +155,7 @@ public :
         STATEVECTOR_ID,
         KEPLERIANELEMENTS_ID,
         SPACECRAFTPARAMETERS_ID,
+        SPACECRAFTINERTIA_ID,
         MANEUVER_ID,
         ATTITUDEMANEUVER_ID,
         GENERICDATA_ID,
@@ -260,110 +173,55 @@ public :
 	CCSDS_CREATIONDATE_ID,
 	CCSDS_ORIGINATOR_ID,
 	CCSDS_HEADERCOMMENTS_ID,
-	CCSDS_QUATERNION_TYPE_ID,
-	CCSDS_QUATERNION_EPOCH_ID,
-	CCSDS_QUATERNION_FRAMEA_ID,
-	CCSDS_QUATERNION_FRAMEB_ID,
-	CCSDS_QUATERNION_DIRECTION_ID,
-	CCSDS_QUATERNION_Q1_ID,
-	CCSDS_QUATERNION_Q2_ID,
-	CCSDS_QUATERNION_Q3_ID,
-	CCSDS_QUATERNION_QC_ID,
-	CCSDS_QUATERNION_Q1DOT_ID,
-        CCSDS_QUATERNION_Q2DOT_ID,
-        CCSDS_QUATERNION_Q3DOT_ID,
-        CCSDS_QUATERNION_QCDOT_ID,
-        CCSDS_QUATERNION_COMMENTS_ID,
-        CCSDS_EULERANGLE_TYPE_ID,
-	CCSDS_EULERANGLE_EPOCH_ID,
-	CCSDS_EULERANGLE_FRAMEA_ID,
-	CCSDS_EULERANGLE_FRAMEB_ID,
-	CCSDS_EULERANGLE_DIRECTION_ID,
-        CCSDS_EULERANGLE_ROTATIONSEQUENCE_ID,
-        CCSDS_EULERANGLE_RATEFRAME_ID,
-        CCSDS_EULERANGLE_XANGLE_ID,
-        CCSDS_EULERANGLE_YANGLE_ID,
-        CCSDS_EULERANGLE_ZANGLE_ID,
-        CCSDS_EULERANGLE_XRATE_ID,
-        CCSDS_EULERANGLE_YRATE_ID,
-        CCSDS_EULERANGLE_ZRATE_ID,
-        CCSDS_EULERANGLE_COMMENTS_ID,
-        CCSDS_SPINSTABILIZED_ATTITUDETYPE_ID,
-	CCSDS_SPINSTABILIZED_EPOCH_ID,
-	CCSDS_SPINSTABILIZED_FRAMEA_ID,
-	CCSDS_SPINSTABILIZED_FRAMEB_ID,
-	CCSDS_SPINSTABILIZED_DIRECTION_ID,
-	CCSDS_SPINSTABILIZED_SPINALPHA_ID,
-	CCSDS_SPINSTABILIZED_SPINDELTA_ID,
-	CCSDS_SPINSTABILIZED_SPINANGLE_ID,
-	CCSDS_SPINSTABILIZED_SPINANGLEVEOCITY_ID,
-	CCSDS_SPINSTABILIZED_NUTATION_ID,
-	CCSDS_SPINSTABILIZED_NUTATIONPERIOD_ID,
-	CCSDS_SPINSTABILIZED_NUTATIONPHASE_ID,
-	CCSDS_SPINSTABILIZED_COMMENTS_ID,
-	CCSDS_STATEVECTOR_EPOCH_ID,
-	CCSDS_STATEVECTOR_X_ID,
-	CCSDS_STATEVECTOR_Y_ID,
-	CCSDS_STATEVECTOR_Z_ID,
-	CCSDS_STATEVECTOR_XDOT_ID,
-        CCSDS_STATEVECTOR_YDOT_ID,
-	CCSDS_STATEVECTOR_ZDOT_ID,
-	CCSDS_STATEVECTOR_COMMENTS_ID,
-	CCSDS_KEPLERIANELEMENTS_EPOCH_ID,
-	CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID,
-	CCSDS_KEPLERIANELEMENTS_ECCENTRICITY_ID,
-	CCSDS_KEPLERIANELEMENTS_INCLINATION_ID,
-	CCSDS_KEPLERIANELEMENTS_RAAN_ID,
-	CCSDS_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID,
-	CCSDS_KEPLERIANELEMENTS_TRUEANOMALY_ID,
-	CCSDS_KEPLERIANELEMENTS_MEANANOMALY_ID,
-	CCSDS_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID,
-	CCSDS_KEPLERIANELEMENTS_COMMENTS_ID,
-	CCSDS_SPACECRAFTPARAMETERS_EPOCH_ID,
-	CCSDS_SPACECRAFTPARAMETERS_MASS_ID,
-	CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID,
-	CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID,
-	CCSDS_SPACECRAFTPARAMETERS_DRAGAREA_ID,
-	CCSDS_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID,
-	CCSDS_SPACECRAFTPARAMETERS_INERTIAREFFRAME_ID,
-	CCSDS_SPACECRAFTPARAMETERS_I11_ID,
-	CCSDS_SPACECRAFTPARAMETERS_I22_ID,
-	CCSDS_SPACECRAFTPARAMETERS_I33_ID,
-	CCSDS_SPACECRAFTPARAMETERS_I12_ID,
-	CCSDS_SPACECRAFTPARAMETERS_I13_ID,
-	CCSDS_SPACECRAFTPARAMETERS_I23_ID,
-	CCSDS_SPACECRAFTPARAMETERS_COMMENTS_ID,
-        CCSDS_MANUEVER_IGNITIONEPOCH_ID,
-        CCSDS_MANUEVER_DURATION_ID,
-        CCSDS_MANUEVER_DELTAMASS_ID,
-        CCSDS_MANUEVER_REFFRAME_ID,
-        CCSDS_MANUEVER_DELTAV1_ID,
-        CCSDS_MANUEVER_DELTAV2_ID,
-        CCSDS_MANUEVER_DELTAV3_ID,
-        CCSDS_MANUEVER_COMMENTS_ID,
-        CCSDS_ATTITUDEMANUEVER_EPOCHSTART_ID,
-        CCSDS_ATTITUDEMANUEVER_DURATION_ID,
-        CCSDS_ATTITUDEMANUEVER_REFFRAME_ID,
-        CCSDS_ATTITUDEMANUEVER_TOR1_ID,
-        CCSDS_ATTITUDEMANUEVER_TOR2_ID,
-        CCSDS_ATTITUDEMANUEVER_TOR3_ID,
-        CCSDS_ATTITUDEMANUEVER_COMMENTS_ID,
-        CCSDS_GENERALDATA_KEYWORD_ID,
-        CCSDS_GENERALDATA_TIMETAG_ID,
-        CCSDS_GENERALDATA_MEASUREMENT_ID,
-        CCSDS_GENERALDATA_COMMENTS_ID,
 	EndCCSDSDataReps
+    };
+
+    enum CCSDS_ATTITUDE_TYPE
+    {
+        CCSDS_QUATERNION_ID = 0,
+        CCSDS_QUATERNION_DERIVATIVE_ID,
+        CCSDS_QUATERNION_RATE_ID,
+        CCSDS_EULER_ANGLE_ID,
+        CCSDS_EULER_ANGLE_RATE_ID,
+        CCSDS_SPIN_ID,
+        CCSDS_SPIN_NUTATION_ID,
+        EndCCSDSAttitudeTypeReps
+    };
+
+    enum CCSDS_RATE_FRAME
+    {
+        CCSDS_RATE_FRAME_A_ID = 0,
+        CCSDS_RATE_FRAME_B_ID,
+        EndCCSDSRateFrameReps
+    };
+
+    enum CCSDS_QUATERNION_TYPE
+    {
+        CCSDS_QUATERNION_FIRST_ID = 0,
+        CCSDS_QUATERNION_LAST_ID,
+        EndCCSDSQuaternionTypeReps
+    };
+
+    enum CCSDS_ATTITUDE_DIR
+    {
+        CCSDS_ATTITUDE_A2B_ID = 0,
+        CCSDS_ATTITUDE_B2A_ID,
+        EndCCSDSAttitudeDirReps
     };
 
     friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSTDMDataFile;
     friend class ProcessCCSDSOPMDataFile;
     friend class ProcessCCSDSOEMDataFile;
-//    friend class ProcessCCSDSAPMDataFile;
-//    friend class ProcessCCSDSAEMDataFile;
+    friend class ProcessCCSDSAPMDataFile;
+    friend class ProcessCCSDSAEMDataFile;
     
 protected:
 
+    static const std::string CCSDS_RATE_FRAME[EndCCSDSRateFrameReps];
+    static const std::string CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps];
+    static const std::string CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps];
+    static const std::string CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps];
     static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];
     static const std::string CCSDSObType::CCSDS_KEYWORDS[EndCCSDSDataReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
@@ -374,20 +232,6 @@ protected:
 
     // Pointer to the header record associated with this data point
     CCSDSHeader *ccsdsHeader;
-
-    // Pointers to the various kinds of data that the CCSDS format supports
-    // Only one of these pointers should be not null after reading in
-    // a particular observation.
-
-    CCSDSData *ccsdsData;
-    CCSDSQuaternion *ccsdsQuaternion;
-    CCSDSEulerAngle *ccsdsEulerAngle;
-    CCSDSSpinStabilized *ccsdsSpinStabilized;
-    CCSDSStateVector *ccsdsStateVector;
-    CCSDSKeplerianElements *ccsdsKeplerianElements;
-    CCSDSSpacecraftParameters *ccsdsSpacecraftParameters;
-    CCSDSManeuver *ccsdsManeuver;
-    CCSDSAttitudeManeuver *ccsdsAttitudeManeuver;
     
 };
 

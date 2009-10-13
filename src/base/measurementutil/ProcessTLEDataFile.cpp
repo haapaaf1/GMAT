@@ -712,7 +712,7 @@ bool ProcessTLEDataFile::GetTLEData(std::string &lff, std::string &lff2,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteData(TLEObType *myTLEData)
+// bool WriteData(const ObType *myTLEData)
 //------------------------------------------------------------------------------
 /**
  * Writes a Two Line Element Set to file
@@ -721,7 +721,7 @@ bool ProcessTLEDataFile::GetTLEData(std::string &lff, std::string &lff2,
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessTLEDataFile::WriteData(ObType *myTLEData)
+bool ProcessTLEDataFile::WriteData(const ObType *myTLEData)
 {
     if (myTLEData->GetTypeName() == "TLEObType")
     {

@@ -67,12 +67,15 @@ public:
         EndCCSDSRefFrameReps
     };
 
-    bool WriteDataHeader(ObType *myOb);
+    bool WriteDataHeader(const ObType *myOb);
 
 protected:
 
     bool GetCCSDSHeader(std::string firstline, CCSDSHeader *myHeader);
-    bool GetCCSDSData(std::string &lff, CCSDSData *myData, CCSDSObType *myOb);
+    bool GetCCSDSKeyValueData(const std::string &lff, std::string &key,
+                              Real &value);
+    bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &epoch,
+                                   std::string &key, Real &value);
 
     static const std::string CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8];
     static const std::string CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDSTimeSystemReps-8];

@@ -45,7 +45,7 @@ public:
     bool GetData(ObType *myTLEdata);
     
     // Method to write TLE to file
-    bool WriteData(ObType *myTLEdata);
+    bool WriteData(const ObType *myTLEdata);
     
 private:
 

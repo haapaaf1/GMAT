@@ -10,6 +10,36 @@
 
 #include "CCSDSObtype.hpp"
 
+
+class CCSDSAEMQuaternion : public CCSDSQuaternion
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                     const CCSDSAEMQuaternion *myCCSDSAEMQuaternion);
+
+};
+
+class CCSDSAEMEulerAngle : public CCSDSEulerAngle
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                     const CCSDSAEMEulerAngle *myCCSDSAEMEulerAngle);
+};
+
+// The CCSDS spin stabilized attitude specification.
+class CCSDSAEMSpinStabilized : public CCSDSSpinStabilized
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                              const CCSDSAEMSpinStabilized *myCCSDSAEMSpinStabilized);
+};
+
 class CCSDSAEMMetaData
 {
 
@@ -23,16 +53,16 @@ public:
     std::string refFrameOrigin;
     std::string frameA;
     std::string frameB;
-    std::string direction;
+    Integer direction;
     std::string timeSystem;
     std::string startEpoch;
     std::string stopEpoch;
     std::string useableStartEpoch;
     std::string useableStopEpoch;
-    std::string attitudeType;
-    std::string quaternionType;
+    Integer attitudeType;
+    Integer quaternionType;
     std::string eulerRotationSequence;
-    std::string rateFrame;
+    Integer rateFrame;
     std::string interpolationMethod;
     Integer interpolationDegree;
     StringArray comments;
@@ -61,6 +91,8 @@ public:
 
     Integer     GetIntegerDataParameter(const Integer id) const;
     Integer     GetIntegerDataParameter(const std::string &label) const;
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
     StringArray GetStringArrayDataParameter(const Integer id) const;
@@ -110,6 +142,50 @@ public:
         CCSDS_AEM_INTERPOLATION_ID,
         CCSDS_AEM_INTERPOLATIONDEGREE_ID,
         CCSDS_AEM_METADATACOMMENTS_ID,
+	CCSDS_AEM_QUATERNION_TYPE_ID,
+	CCSDS_AEM_QUATERNION_EPOCH_ID,
+	CCSDS_AEM_QUATERNION_FRAMEA_ID,
+	CCSDS_AEM_QUATERNION_FRAMEB_ID,
+	CCSDS_AEM_QUATERNION_DIRECTION_ID,
+	CCSDS_AEM_QUATERNION_Q1_ID,
+	CCSDS_AEM_QUATERNION_Q2_ID,
+	CCSDS_AEM_QUATERNION_Q3_ID,
+	CCSDS_AEM_QUATERNION_QC_ID,
+	CCSDS_AEM_QUATERNION_Q1DOT_ID,
+        CCSDS_AEM_QUATERNION_Q2DOT_ID,
+        CCSDS_AEM_QUATERNION_Q3DOT_ID,
+        CCSDS_AEM_QUATERNION_QCDOT_ID,
+        CCSDS_AEM_QUATERNION_XRATE_ID,
+        CCSDS_AEM_QUATERNION_YRATE_ID,
+        CCSDS_AEM_QUATERNION_ZRATE_ID,
+        CCSDS_AEM_QUATERNION_COMMENTS_ID,
+        CCSDS_AEM_EULERANGLE_TYPE_ID,
+	CCSDS_AEM_EULERANGLE_EPOCH_ID,
+	CCSDS_AEM_EULERANGLE_FRAMEA_ID,
+	CCSDS_AEM_EULERANGLE_FRAMEB_ID,
+	CCSDS_AEM_EULERANGLE_DIRECTION_ID,
+        CCSDS_AEM_EULERANGLE_ROTATIONSEQUENCE_ID,
+        CCSDS_AEM_EULERANGLE_RATEFRAME_ID,
+        CCSDS_AEM_EULERANGLE_XANGLE_ID,
+        CCSDS_AEM_EULERANGLE_YANGLE_ID,
+        CCSDS_AEM_EULERANGLE_ZANGLE_ID,
+        CCSDS_AEM_EULERANGLE_XRATE_ID,
+        CCSDS_AEM_EULERANGLE_YRATE_ID,
+        CCSDS_AEM_EULERANGLE_ZRATE_ID,
+        CCSDS_AEM_EULERANGLE_COMMENTS_ID,
+        CCSDS_AEM_SPINSTABILIZED_ATTITUDETYPE_ID,
+	CCSDS_AEM_SPINSTABILIZED_EPOCH_ID,
+	CCSDS_AEM_SPINSTABILIZED_FRAMEA_ID,
+	CCSDS_AEM_SPINSTABILIZED_FRAMEB_ID,
+	CCSDS_AEM_SPINSTABILIZED_DIRECTION_ID,
+	CCSDS_AEM_SPINSTABILIZED_SPINALPHA_ID,
+	CCSDS_AEM_SPINSTABILIZED_SPINDELTA_ID,
+	CCSDS_AEM_SPINSTABILIZED_SPINANGLE_ID,
+	CCSDS_AEM_SPINSTABILIZED_SPINANGLEVEOCITY_ID,
+	CCSDS_AEM_SPINSTABILIZED_NUTATION_ID,
+	CCSDS_AEM_SPINSTABILIZED_NUTATIONPERIOD_ID,
+	CCSDS_AEM_SPINSTABILIZED_NUTATIONPHASE_ID,
+	CCSDS_AEM_SPINSTABILIZED_COMMENTS_ID,
         EndCCSDSAEMDataReps
     };
 
@@ -128,6 +204,10 @@ protected:
 
     // Pointer to the metadata record
     CCSDSAEMMetaData* ccsdsAEMMetaData;
+    CCSDSAEMQuaternion *ccsdsAEMQuaternion;
+    CCSDSAEMEulerAngle *ccsdsAEMEulerAngle;
+    CCSDSAEMSpinStabilized *ccsdsAEMSpinStabilized;
+
 };
 
 #endif	/* _CCSDSAEMOBTYPE_HPP */

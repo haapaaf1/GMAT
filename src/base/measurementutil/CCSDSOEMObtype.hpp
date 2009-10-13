@@ -10,6 +10,15 @@
 
 #include "CCSDSObType.hpp"
 
+class CCSDSOEMStateVector : public CCSDSStateVector
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                    const CCSDSOEMStateVector *myCCSDSOEMStateVector);
+};
+
 class CCSDSOEMMetaData
 {
 
@@ -53,6 +62,8 @@ public:
     std::string GetDataParameterTypeString(const Integer id) const;
     std::string GetDataUnits(const Integer id) const;
 
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
     Integer     GetIntegerDataParameter(const Integer id) const;
     Integer     GetIntegerDataParameter(const std::string &label) const;
     std::string GetStringDataParameter(const Integer id) const;
@@ -81,6 +92,11 @@ public:
         GPS_ID,
 	TDB_ID,
         TCB_ID,
+        GMST_ID,
+        MET_ID,
+        MRT_ID,
+        SCLK_ID,
+        UT1_ID,
 	EndCCSDSOEMTimeReps
     };
 
@@ -98,6 +114,14 @@ public:
         CCSDS_OEM_INTERPOLATION_ID,
         CCSDS_OEM_INTERPOLATIONDEGREE_ID,
         CCSDS_OEM_METADATACOMMENTS_ID,
+	CCSDS_OEM_STATEVECTOR_EPOCH_ID,
+	CCSDS_OEM_STATEVECTOR_X_ID,
+	CCSDS_OEM_STATEVECTOR_Y_ID,
+	CCSDS_OEM_STATEVECTOR_Z_ID,
+	CCSDS_OEM_STATEVECTOR_XDOT_ID,
+        CCSDS_OEM_STATEVECTOR_YDOT_ID,
+	CCSDS_OEM_STATEVECTOR_ZDOT_ID,
+	CCSDS_OEM_STATEVECTOR_COMMENTS_ID,
         EndCCSDSOEMDataReps
     };
 
@@ -114,8 +138,10 @@ protected:
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSOEMDataReps - EndCCSDSDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps - EndCCSDSDataReps];
    
-    // Pointer to the metadata record
+    // Pointer to the data records
     CCSDSOEMMetaData* ccsdsOEMMetaData;
+    CCSDSOEMStateVector *ccsdsOEMStateVector;
+
 };   
 
 #endif	/* _CCSDSOEMOBTYPE_HPP */

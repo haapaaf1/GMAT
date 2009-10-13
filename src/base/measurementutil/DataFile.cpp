@@ -388,6 +388,7 @@ DataFile::DataFile(const std::string &itsType,
 //    lineFromFile (""),
 //    dataFileName (""),
     isOpen (false),
+    commentsAllowed (false),
     sortedBy (0),
     readWriteMode ("read")
 {
@@ -409,6 +410,7 @@ DataFile::DataFile(const DataFile &pdf) :
     dataFileName (pdf.dataFileName),
     numLines (pdf.numLines),
     isOpen (pdf.isOpen),
+    commentsAllowed (pdf.commentsAllowed),
     sortedBy (pdf.sortedBy),
     readWriteMode(pdf.readWriteMode),
     theFile (pdf.theFile)
@@ -1194,36 +1196,75 @@ void DataFile::SortByInternationalDesignator(bool sortOrder)
 }
 
 //------------------------------------------------------------------------------
-// virtual bool WriteDataHeader(ObType *myObType)
+// virtual bool WriteDataHeader(const ObType *myObType)
 //------------------------------------------------------------------------------
 /**
  * Writes header data to file
  */
 //------------------------------------------------------------------------------
-bool DataFile::WriteDataHeader(ObType *myObType)
+bool DataFile::WriteDataHeader(const ObType *myObType)
 {
     return false;
 }
 //------------------------------------------------------------------------------
-// virtual bool WriteDataSubHeader(ObType *myObType)
+// virtual bool WriteDataSubHeader(const ObType *myObType)
 //------------------------------------------------------------------------------
 /**
  * Writes header data to file
  */
 //------------------------------------------------------------------------------
-bool DataFile::WriteDataSubHeader(ObType *myObType)
+bool DataFile::WriteDataSubHeader(const ObType *myObType)
 {
     return false;
 }
 
 //------------------------------------------------------------------------------
-// virtual bool WriteMetadata(ObType *myObType)
+// virtual bool WriteMetadata(const ObType *myObType)
 //------------------------------------------------------------------------------
 /**
  * Writes header data to file
  */
 //------------------------------------------------------------------------------
-bool DataFile::WriteMetaData(ObType *myObType)
+bool DataFile::WriteMetaData(const ObType *myObType)
 {
     return false;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteComment(const std::string myComment)
+//------------------------------------------------------------------------------
+/**
+ * Writes a comment line to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteComment(const std::string myComment)
+{
+    if (commentsAllowed)
+    {
+        *theFile << myComment << endl;
+        return true;
+    }
+    else
+        return false;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteComment(const StringArray myComments)
+//------------------------------------------------------------------------------
+/**
+ * Writes a comment line to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteComment(const StringArray myComments)
+{
+    if (commentsAllowed)
+    {
+        for(unsigned int i = 0; i < myComments.size(); i++)
+        {
+            *theFile << myComments[i] << endl;
+        }
+        return true;
+    }
+    else
+        return false;
 }

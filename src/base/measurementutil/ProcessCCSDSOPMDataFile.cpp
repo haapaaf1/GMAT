@@ -303,13 +303,52 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
 
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
-        CCSDSData *myOPMData = new CCSDSData;
 	myOPM->ccsdsHeader = currentCCSDSHeader;
         myOPM->ccsdsOPMMetaData = currentCCSDSMetaData;
-	return GetCCSDSData(line,myOPMData,myOPM);
+	return GetCCSDSOPMData(line,myOPM);
     }
 
     return false;
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSOPMData(std::string &lff, CCSDSObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the data from the orbit parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
+                                              CCSDSOPMObType *myOb)
+{
+
+    std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+            REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+            REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+    if (pcrecpp::RE(regex).FullMatch(lff))
+    {
+        std::string keyword, ccsdsEpoch;
+        Real value;
+
+        CCSDSData *myOPMData = new CCSDSData;
+
+        GetCCSDSKeyEpochValueData(lff,keyword,ccsdsEpoch,value);
+
+        myOPMData->keywordID = myOb->GetKeywordID(keyword);
+        if(myOPMData->keywordID >= 0)
+        {
+            myOPMData->timeTag = ccsdsEpoch;
+            if (!CCSDSTimeTag2A1Date(myOPMData->timeTag,myOb->epoch)) return false;
+            myOPMData->measurement = value;
+            myOb->ccsdsData =  myOPMData;
+            myOb->ccsdsHeader->dataType = CCSDSObType::GENERICDATA_ID;
+            return true;
+        }
+
+        return false;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -375,7 +414,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteData(ObType *myOb)
+// bool WriteData(const ObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Writes a CCSDS orbit ephemeris message to file
@@ -384,7 +423,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSOPMDataFile::WriteData(ObType *myOb)
+bool ProcessCCSDSOPMDataFile::WriteData(const ObType *myOb)
 {
     if (myOb->GetTypeName() != "CCSDSOPMObType") return false;
 

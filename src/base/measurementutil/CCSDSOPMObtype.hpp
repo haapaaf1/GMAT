@@ -9,7 +9,69 @@
 #define	_CCSDSOPMOBTYPE_HPP
 
 #include "CCSDSObType.hpp"
-        
+
+class CCSDSOPMSpacecraftParameters
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+               const CCSDSOPMSpacecraftParameters *myCCSDSspacecraftParameters);
+
+    std::string epoch;
+    Real mass;
+    Real solarRadiationArea;
+    Real solarRadiationCoefficient;
+    Real dragArea;
+    Real dragCoefficient;
+    StringArray comments;
+};
+
+class CCSDSOPMKeplerianElements
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                        const CCSDSOPMKeplerianElements *myCCSDSOPMKeplerianElements);
+
+    std::string epoch;
+    Real semiMajorAxis;
+    Real eccentricity;
+    Real inclination;
+    Real raan;
+    Real argumentOfPericenter;
+    Real trueAnomaly;
+    Real meanAnomaly;
+    Real gravitationalCoefficient;
+    StringArray comments;
+};
+
+class CCSDSOPMStateVector : public CCSDSStateVector
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                    const CCSDSOPMStateVector *myCCSDSOPMStateVector);
+};
+
+class CCSDSOPMManeuver
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                     const CCSDSOPMManeuver *myCCSDSOPMManeuver);
+
+    std::string ignitionEpoch;
+    Real duration;
+    Real deltaMass;
+    std::string refFrame;
+    Real deltaV1, deltaV2, deltaV3;
+    StringArray comments;
+};
+
 class CCSDSOPMMetaData
 {
 public:
@@ -45,6 +107,8 @@ public :
     std::string GetDataParameterTypeString(const Integer id) const;
     std::string GetDataUnits(const Integer id) const;
 
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
     StringArray GetStringArrayDataParameter(const Integer id) const;
@@ -82,6 +146,39 @@ public :
         CCSDS_OPM_REFFRAME_ID,
 	CCSDS_OPM_TIMESYSTEM_ID,
         CCSDS_OPM_METADATACOMMENTS_ID,
+	CCSDS_OPM_STATEVECTOR_EPOCH_ID,
+	CCSDS_OPM_STATEVECTOR_X_ID,
+	CCSDS_OPM_STATEVECTOR_Y_ID,
+	CCSDS_OPM_STATEVECTOR_Z_ID,
+	CCSDS_OPM_STATEVECTOR_XDOT_ID,
+        CCSDS_OPM_STATEVECTOR_YDOT_ID,
+	CCSDS_OPM_STATEVECTOR_ZDOT_ID,
+	CCSDS_OPM_STATEVECTOR_COMMENTS_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_EPOCH_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_ECCENTRICITY_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_INCLINATION_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_RAAN_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_TRUEANOMALY_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID,
+	CCSDS_OPM_KEPLERIANELEMENTS_COMMENTS_ID,
+	CCSDS_OPM_SPACECRAFTPARAMETERS_EPOCH_ID,
+	CCSDS_OPM_SPACECRAFTPARAMETERS_MASS_ID,
+	CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID,
+	CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID,
+	CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGAREA_ID,
+	CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID,
+	CCSDS_OPM_SPACECRAFTPARAMETERS_COMMENTS_ID,
+        CCSDS_OPM_MANUEVER_IGNITIONEPOCH_ID,
+        CCSDS_OPM_MANUEVER_DURATION_ID,
+        CCSDS_OPM_MANUEVER_DELTAMASS_ID,
+        CCSDS_OPM_MANUEVER_REFFRAME_ID,
+        CCSDS_OPM_MANUEVER_DELTAV1_ID,
+        CCSDS_OPM_MANUEVER_DELTAV2_ID,
+        CCSDS_OPM_MANUEVER_DELTAV3_ID,
+        CCSDS_OPM_MANUEVER_COMMENTS_ID,
         EndCCSDSOPMDataReps
     };
 
@@ -95,13 +192,15 @@ private:
     static const bool CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps - EndCCSDSDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataReps - EndCCSDSDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataReps - EndCCSDSDataReps];
-    // Pointer to the metadata record
+
+    // Pointer to the data records
     CCSDSOPMMetaData *ccsdsOPMMetaData;
-        
+    CCSDSOPMStateVector *ccsdsOPMStateVector;
+    CCSDSOPMKeplerianElements *ccsdsOPMKeplerianElements;
+    CCSDSOPMSpacecraftParameters *ccsdsOPMSpacecraftParameters;
+    std::vector<CCSDSOPMManeuver*> ccsdsOPMManeuvers;
+    std::vector<CCSDSOPMManeuver*>::const_iterator i_ccsdsOPMManeuvers;
 };
-
-    
-
 
 #endif	/* _CCSDSOPMOBTYPE_HPP */
 

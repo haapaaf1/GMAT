@@ -213,7 +213,7 @@ bool ProcessCCSDSTDMDataFile::IsParameterReadOnly(const std::string &label) cons
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSData(ObType *myTDM)
+// bool GetData(ObType *myTDMData)
 //------------------------------------------------------------------------------
 /**
  * Obtains the header line of TDM data from file.
@@ -298,10 +298,42 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
-        CCSDSData *myTDMData = new CCSDSData;
-	myTDM->ccsdsHeader = currentCCSDSHeader;
+        myTDM->ccsdsHeader = currentCCSDSHeader;
         myTDM->ccsdsTDMMetaData = currentCCSDSMetaData;
-	return GetCCSDSData(line,myTDMData,myTDM);
+	return GetCCSDSTDMData(line,myTDM);
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSTDMData(std::string &lff, CCSDSData *myData,
+//                      CCSDSObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the data from the tracking data message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
+                                              CCSDSTDMObType *myOb)
+{
+    std::string keyword, ccsdsEpoch;
+    Real value;
+
+    CCSDSData *myTDMData = new CCSDSData;
+
+    GetCCSDSKeyEpochValueData(lff,keyword,ccsdsEpoch,value);
+
+    myTDMData->keywordID = myOb->GetKeywordID(keyword);
+    if(myTDMData->keywordID >= 0)
+    {
+        myTDMData->timeTag = ccsdsEpoch;
+        if (!CCSDSTimeTag2A1Date(myTDMData->timeTag,myOb->epoch)) return false;
+        myTDMData->measurement = value;
+        myOb->ccsdsData =  myTDMData;
+        myOb->ccsdsHeader->dataType = CCSDSObType::GENERICDATA_ID;
+        return true;
     }
 
     return false;
@@ -524,7 +556,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteData(ObType *myOb)
+// bool WriteData(const ObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Writes a CCSDS tracking data message to file
@@ -533,7 +565,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSTDMDataFile::WriteData(ObType *myOb)
+bool ProcessCCSDSTDMDataFile::WriteData(const ObType *myOb)
 {
     if (myOb->GetTypeName() != "CCSDSTDMObType") return false;
 

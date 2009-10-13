@@ -68,6 +68,7 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const std::string &itsType,
 	lastHeaderWritten(NULL),
         isHeaderWritten(false)
 {
+    commentsAllowed = true;
 }
 
 //------------------------------------------------------------------------------
@@ -217,17 +218,50 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSData(std::string &lff, CCSDSData *myData,
-//                CCSDSObType *myOb)
+// bool GetCCSDSKeyValueData(const std::string &lff, std::string &key,
+//                           Real &value)
 //------------------------------------------------------------------------------
 /**
- * Extracts the data from the tracking data message.
+ * Extracts a CCSDS Key-Value pair
+ * KEYWORD = VALUE
  */
-//
 //------------------------------------------------------------------------------
-bool ProcessCCSDSDataFile::GetCCSDSData(std::string &lff,
-                                     CCSDSData *myData,
-                                     CCSDSObType *myOb)
+bool ProcessCCSDSDataFile::GetCCSDSKeyValueData(const std::string &lff,
+                                                std::string &key, Real &value)
+{
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    double dtemp;
+    std::string stemp;
+
+    std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
+                        REGEX_SCINUMBER + ")$";
+
+    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp))
+    {
+       key = Trim(stemp);
+       value = dtemp;
+       return true;
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &key,
+//                           Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Extracts a CCSDS Key-Epoch-Value pair
+ * KEYWORD = EPOCH VALUE
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
+                              std::string &epoch, std::string &key, Real &value)
 {
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -243,15 +277,10 @@ bool ProcessCCSDSDataFile::GetCCSDSData(std::string &lff,
 
     if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&stemp2,&dtemp))
     {
-       myData->keywordID = myOb->GetKeywordID(Trim(stemp));
-       if(myData->keywordID >= 0)
-       {
-           myData->timeTag = stemp;
-           if (!CCSDSTimeTag2A1Date(myData->timeTag,myOb->epoch)) return false;
-           myData->measurement = dtemp;
-           myOb->ccsdsData =  myData;
-           return true;
-       }
+       key = Trim(stemp);
+       epoch = stemp2;
+       value = dtemp;
+       return true;
     }
 
     return false;
@@ -332,7 +361,7 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteDataHeader(CCSDSHeader *myHeader)
+// bool WriteDataHeader(const CCSDSHeader *myHeader)
 //------------------------------------------------------------------------------
 /**
  * Writes CCSDS header data to file
@@ -341,7 +370,7 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSDataFile::WriteDataHeader(ObType *myOb)
+bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
 {
     if (!pcrecpp::RE("^CCSDS[A-Z]{3}ObType.*").FullMatch(myOb->GetTypeName()))
         return false;

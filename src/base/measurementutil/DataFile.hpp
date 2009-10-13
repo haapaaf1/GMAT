@@ -293,6 +293,9 @@ protected:
 
     // Flag to indicate if the file is opened
     bool isOpen;
+
+    // Flag to indicate if file format allows comments to be written
+    bool commentsAllowed;
     
     // Enumeration to indicate if the data has been sorted
     Integer sortedBy;
@@ -321,10 +324,12 @@ public:
     virtual bool GetData(ObType *myObType) = 0;
     
     // Methods to write data to the file defined on this object
-    virtual bool WriteData(ObType *myObType) = 0;
-    virtual bool WriteDataHeader(ObType *myObType);
-    virtual bool WriteDataSubHeader(ObType *myObType);
-    virtual bool WriteMetaData(ObType *myObType);
+    virtual bool WriteData(const ObType *myObType) = 0;
+    virtual bool WriteDataHeader(const ObType *myObType);
+    virtual bool WriteDataSubHeader(const ObType *myObType);
+    virtual bool WriteMetaData(const ObType *myObType);
+    virtual bool WriteComment(const std::string myComment);
+    virtual bool WriteComment(const StringArray myComments);
     
 };
 

@@ -41,7 +41,7 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool WriteData(ObType *myOb);
+    bool WriteData(const ObType *myOb);
     bool GetData(ObType *myOb);
 
 private:
@@ -49,6 +49,7 @@ private:
     // Specific data type processing functions
     bool GetCCSDSMetaData(std::string &nextline,
                           CCSDSAPMMetaData *myMetaData);
+    bool GetCCSDSAPMData(std::string &lff, CCSDSAPMObType *myOb);
 
     CCSDSAPMMetaData *currentCCSDSMetaData;
     CCSDSAPMMetaData *lastMetaDataWritten;

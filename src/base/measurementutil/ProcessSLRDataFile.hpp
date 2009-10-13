@@ -43,7 +43,7 @@ public:
 
     // The GetData function is called during initialization
     bool GetData(ObType *mySLRdata);
-    bool WriteData(ObType *mySLRdata);
+    bool WriteData(const ObType *mySLRdata);
 
 private:
 
@@ -55,7 +55,7 @@ private:
     // it is called by WriteData header to check if the header
     // line has already been written. You should not need to call
     // this function otherwise.
-    bool WriteDataHeader(ObType *mySLRdata);
+    bool WriteDataHeader(const ObType *mySLRdata);
 
     SLRHeader *currentHeader;
     SLRHeader *lastHeaderWritten;

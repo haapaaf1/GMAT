@@ -303,10 +303,9 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
-        CCSDSData *myOEMData = new CCSDSData;
 	myOEM->ccsdsHeader = currentCCSDSHeader;
         myOEM->ccsdsOEMMetaData = currentCCSDSMetaData;
-	return GetCCSDSData(line,myOEMData,myOEM);
+	return GetCCSDSOEMData(line,myOEM);
     }
 
     return false;
@@ -399,7 +398,59 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteData(ObType *myOb)
+// bool GetCCSDSOEMData(std::string &lff, CCSDSObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the data from the orbit ephemeris message.
+ *
+ * @param <lff> Line from file
+ * @param <myOb> Pointer to OEM data
+ * @return Boolean success or failure
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSOEMDataFile::GetCCSDSOEMData(std::string &lff,
+                                              CCSDSOEMObType *myOb)
+{
+    CCSDSStateVector *myOEMData = new CCSDSStateVector;
+
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    double dtemp1, dtemp2, dtemp3, dtemp4, dtemp5, dtemp6;
+    std::string stemp;
+
+    std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" + REGEX_SCINUMBER +
+            ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER +
+            ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER +
+            ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,&dtemp3,
+                                     &dtemp4,&dtemp5,&dtemp6))
+    {
+        myOEMData->epoch = stemp;
+        if (!CCSDSTimeTag2A1Date(myOEMData->epoch,myOb->epoch)) return false;
+        myOEMData->x = dtemp1;
+        myOEMData->y = dtemp2;
+        myOEMData->z = dtemp3;
+        myOEMData->xDot = dtemp4;
+        myOEMData->yDot = dtemp5;
+        myOEMData->zDot = dtemp6;
+
+        myOb->ccsdsStateVector = myOEMData;
+        myOb->ccsdsHeader->dataType = CCSDSObType::STATEVECTOR_ID;
+        
+        return true;
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// bool WriteData(const ObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Writes a CCSDS orbit ephemeris message to file
@@ -408,7 +459,7 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSOEMDataFile::WriteData(ObType *myOb)
+bool ProcessCCSDSOEMDataFile::WriteData(const ObType *myOb)
 {
     if (myOb->GetTypeName() != "CCSDSOEMObType") return false;
 

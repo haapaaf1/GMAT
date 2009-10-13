@@ -10,6 +10,20 @@
 
 #include "CCSDSObType.hpp"
 
+class CCSDSData
+{
+
+public:
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                     const CCSDSData *myCCSDSdata);
+
+    Integer keywordID;
+    std::string timeTag;
+    Real measurement;
+    StringArray comments;
+};
+
 class CCSDSTDMMetaData
 {
 public:
@@ -251,6 +265,10 @@ public :
 	CCSDS_TDM_MEASUREMENT_ID,
 	CCSDS_TDM_UNITS_ID,
 	CCSDS_TDM_KEYWORD_ID,
+        CCSDS_GENERALDATA_KEYWORD_ID,
+        CCSDS_GENERALDATA_TIMETAG_ID,
+        CCSDS_GENERALDATA_MEASUREMENT_ID,
+        CCSDS_GENERALDATA_COMMENTS_ID,
 	EndCCSDSTDMDataReps
     };
         
@@ -275,7 +293,9 @@ protected:
 
     // Pointer to the metadata record associated with this data point
     CCSDSTDMMetaData *ccsdsTDMMetaData;
-    
+
+    // Pointers to the generic key epoch value data format
+    CCSDSData *ccsdsTDMData;
 };
 
 #endif	/* _CCSDSTDMOBTYPE_HPP */
