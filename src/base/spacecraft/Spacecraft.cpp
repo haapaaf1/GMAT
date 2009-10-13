@@ -3950,7 +3950,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
          }
          else 
          {
-            bool writeQuotes = inMatlabMode || parmType == Gmat::OBJECTARRAY_TYPE;
+            bool writeQuotes = inMatlabMode || parmType == Gmat::STRINGARRAY_TYPE;
             
             // Handle StringArrays
             StringArray sar = GetStringArrayParameter(parmOrder[i]);
