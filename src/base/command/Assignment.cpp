@@ -439,6 +439,18 @@ bool Assignment::InterpretAction()
          throw CommandException("Command contains an unexpected comma on left-hand-side");
    }
    
+   // check for single quotes in rhs and remove before process further (LOJ: 2009.10.09)
+   // so that mp.IsEquation() will not think as transpose
+   if (rhs.find("{") != rhs.npos && rhs.find("'") != rhs.npos)
+   {
+      // Single quote is allowed if it is paired, such as {'FuelTank1'}
+      if (GmatStringUtil::StartsWith(rhs, "{") && GmatStringUtil::EndsWith(rhs, "}") ||
+          GmatStringUtil::IsEnclosedWith(rhs, "'"))
+      {
+         rhs = GmatStringUtil::RemoveAll(rhs, '\'');
+      }
+   }
+   
    // it there is still ; then report error since ; should have been removed
    if (rhs.find(";") != rhs.npos)
       throw CommandException("Is there a missing \"%\" for inline comment?");
