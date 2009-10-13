@@ -103,18 +103,21 @@ protected:
    std::string coordSystemName;
    std::string writeEphemeris;
    Integer     interpolationOrder;
+   Integer     waitCount;
    
    Real        stepSizeInA1Mjd;
    Real        initialEpochA1Mjd;
    Real        finalEpochA1Mjd;
    Real        nextOutEpoch;
-   RealArray   epochWaiting;
+   Real        currentEpoch;
+   RealArray   epochsOnWaiting;
    
    bool        firstTimeWriting;
    bool        useStepSize;
    bool        writeOrbit;
    bool        writeAttitude;
    bool        writeDataInDataCS;
+   bool        processingLargeStep;
    
    CoordinateConverter coordConverter;
    
@@ -142,6 +145,8 @@ protected:
    void        WriteOrbit(Real epoch, Real *state);
    void        WriteOrbitAt(Real epoch, Real *state);
    void        WriteAttitude();
+   void        FinishUpWriting();
+   void        ProcessEpochsOnWaiting(bool checkFinalEpoch = false);
    bool        SetEpoch(Integer id, const std::string &value,
                         const StringArray &allowedValues);
    bool        SetStepSize(Integer id, const std::string &value,

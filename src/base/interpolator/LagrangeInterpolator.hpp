@@ -41,10 +41,14 @@ public:
    virtual GmatBase*    Clone() const;
    
 protected:
-   static const Integer MAX_BUFFER_SIZE = 22;
+   static const Integer MAX_BUFFER_SIZE = 32;
    
    /// Order of interpolation
    Integer order;
+   /// Actual size to be used
+   Integer actualSize;
+   /// Starting index used in finding center point
+   Integer beginIndex;
    /// Starting index of interpolation range
    Integer startPoint;
    /// Value of the last point, to determine if the data buffer need updating
@@ -59,7 +63,9 @@ protected:
    virtual void CleanupArrays();
    virtual void CopyArrays(const LagrangeInterpolator &i);
    
-   void BuildDataPoints(Real ind);
+   void    BuildDataPoints(Real ind);
+   bool    IsDataNearCenter(Real ind);
+   Integer FindStartingPoint(Real ind);
 };
 
 

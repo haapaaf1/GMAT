@@ -39,6 +39,8 @@ public:
    Interpolator&   operator=(const Interpolator &i);
    
    virtual Integer IsInterpolationFeasible(Real ind);
+   virtual void    SetForceInterpolation(bool flag);
+   virtual bool    GetForceInterpolation();
    virtual bool    AddPoint(const Real ind, const Real *data);
    virtual void    Clear();
    virtual Integer GetBufferSize();
@@ -63,35 +65,37 @@ public:
    virtual bool    Interpolate(const Real ind, Real *results) = 0;
    
 protected:
-    /// Data array used for the independent variable
-    Real *independent;
-    /// The data that gets interpolated
-    Real **dependent;
-    /// Previous independent value, used to determine direction data is going
-    Real previousX; 
-
-    // Parameters
-    /// Number of dependent points to be interpolated
-    Integer dimension;
-    /// Number of points required to interpolate
-    Integer requiredPoints;
-    /// Number of points managed by the interpolator
-    Integer bufferSize;
-    /// Number of points fed to the interpolator
-    Integer pointCount;
-    /// Pointer to most recent point, for the ring buffer implementation
-    Integer latestPoint;
-    /// Valid range for the data points
-    Real range[2];
-    /// Flag used to detect if range has already been calculated
-    bool rangeCalculated;
-    /// Flag used to determine if independent variable increases or decreases
-    bool dataIncreases;
-    
-    virtual void AllocateArrays();
-    virtual void CleanupArrays();
-    virtual void CopyArrays(const Interpolator &i);
-    void SetRange();
+   /// Data array used for the independent variable
+   Real *independent;
+   /// The data that gets interpolated
+   Real **dependent;
+   /// Previous independent value, used to determine direction data is going
+   Real previousX; 
+   
+   // Parameters
+   /// Number of dependent points to be interpolated
+   Integer dimension;
+   /// Number of points required to interpolate
+   Integer requiredPoints;
+   /// Number of points managed by the interpolator
+   Integer bufferSize;
+   /// Number of points fed to the interpolator
+   Integer pointCount;
+   /// Pointer to most recent point, for the ring buffer implementation
+   Integer latestPoint;
+   /// Valid range for the data points
+   Real range[2];
+   /// Flag used to detect if range has already been calculated
+   bool rangeCalculated;
+   /// Flag used to determine if independent variable increases or decreases
+   bool dataIncreases;
+   /// Flag used for additional feasiblity checking
+   bool forceInterpolation;
+   
+   virtual void AllocateArrays();
+   virtual void CleanupArrays();
+   virtual void CopyArrays(const Interpolator &i);
+   void SetRange();
 };
 
 

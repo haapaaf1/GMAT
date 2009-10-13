@@ -22,6 +22,7 @@
 #include "RealUtilities.hpp"         // for GmatMathUtil::Abs()
 #include "MessageInterface.hpp"
 
+//#define DEBUG_LAGRANGE_FEASIBLE
 //#define DEBUG_LAGRANGE_BUILD
 //#define DEBUG_LAGRANGE_INTERPOLATE
 
@@ -44,18 +45,20 @@ LagrangeInterpolator::LagrangeInterpolator(const std::string &name, Integer dim,
                                            Integer ord) :
    Interpolator  (name, "LagrangeInterpolator", dim),
    order         (ord),
+   actualSize    (0),
+   beginIndex    (0),
    startPoint    (0),
    lastX         (-9.9999e75)
 {
-   // Made bufferSize twice bigger than dimension, so that we can collect more
+   // Made bufferSize 4 times bigger than order, so that we can collect more
    // data to place requested ind parameter in the near to the center of the
    // interpolation range.
    requiredPoints = order + 1;
-   bufferSize = requiredPoints * 2;
+   bufferSize = requiredPoints * 4;
    if (bufferSize > MAX_BUFFER_SIZE)
       bufferSize = MAX_BUFFER_SIZE;
    
-   #ifdef DEBUG_LAGRANGE
+   #ifdef DEBUG_LAGRANGE_BUILD
    MessageInterface::ShowMessage
       ("LagrangeInterpolator() order=%d, requiredPoints=%d, bufferSize=%d\n",
        order, requiredPoints, bufferSize);
@@ -94,6 +97,8 @@ LagrangeInterpolator::~LagrangeInterpolator()
 LagrangeInterpolator::LagrangeInterpolator(const LagrangeInterpolator &li) :
    Interpolator   (li),
    order          (li.order),
+   actualSize     (li.actualSize),
+   beginIndex     (li.beginIndex),
    startPoint     (li.startPoint),
    lastX          (li.lastX)
 {
@@ -127,6 +132,8 @@ LagrangeInterpolator::operator=(const LagrangeInterpolator &li)
    CopyArrays(li);
    
    order      = li.order;
+   actualSize = li.actualSize;
+   beginIndex = li.beginIndex;
    startPoint = li.startPoint;
    lastX      = li.lastX;
    
@@ -144,7 +151,8 @@ LagrangeInterpolator::operator=(const LagrangeInterpolator &li)
  * @param ind The value of the independent parameter.
  * @return  1 if feasible
  *         -1 if there is not enough data to interpolate
- *         -2 if requested data is not within the interpolation range
+ *         -2 if requested data is before the first data
+ *         -3 if requested data is after the last data
  */
 //------------------------------------------------------------------------------
 Integer LagrangeInterpolator::IsInterpolationFeasible(Real ind)
@@ -168,9 +176,11 @@ Integer LagrangeInterpolator::IsInterpolationFeasible(Real ind)
       #else
       #ifdef DEBUG_LAGRANGE_FEASIBLE
       MessageInterface::ShowMessage
-         ("Lagrange::IsInterpolationFeasible() There is not enough data to "
-          "interpolate %f, number of required points is %d, received %d points\n",
-          ind, requiredPoints, pointCount);
+         ("   *** There is not enough data to interpolate %f, number of "
+          "required points is %d, received %d points\n", ind, requiredPoints,
+          pointCount);
+      MessageInterface::ShowMessage
+         ("LagrangeInterpolator::IsInterpolationFeasible() returning -1\n");
       #endif
       return -1;
       #endif
@@ -182,9 +192,8 @@ Integer LagrangeInterpolator::IsInterpolationFeasible(Real ind)
    MessageInterface::ShowMessage
       ("   range1 = %f, range2 = %f\n", range[0], range[1]);
    #endif
-   
-   // If independent data not within the range, throw an exception
-   if (ind < range[0] || ind > range[1])
+
+   if (ind < range[0])
    {
       #if 0
       InterpolatorException ie;
@@ -195,10 +204,33 @@ Integer LagrangeInterpolator::IsInterpolationFeasible(Real ind)
       #else
       #ifdef DEBUG_LAGRANGE_FEASIBLE
       MessageInterface::ShowMessage
-         ("Lagrange::IsInterpolationFeasible() The requested data %f is not "
-          "within the data range of [%f : %f]\n", ind, range[0],  range[1]);
+         ("   *** The requested data %f is not within the data range of "
+          "[%f : %f]. It is before the first data\n", ind, range[0],  range[1]);
+      MessageInterface::ShowMessage
+         ("LagrangeInterpolator::IsInterpolationFeasible() returning -2\n");
       #endif
       return -2;
+      #endif
+   }
+   
+   // If independent data not within the range, throw an exception
+   if (ind > range[1])
+   {
+      #if 0
+      InterpolatorException ie;
+      ie.SetDetails
+         ("The requested data %f is not within the data range of [%f : %f]",
+          ind, range[0],  range[1]);
+      throw ie;
+      #else
+      #ifdef DEBUG_LAGRANGE_FEASIBLE
+      MessageInterface::ShowMessage
+         ("   *** The requested data %f is not within the data range of "
+          "[%f : %f]. It is after the last data\n", ind, range[0],  range[1]);
+      MessageInterface::ShowMessage
+         ("LagrangeInterpolator::IsInterpolationFeasible() returning -3\n");
+      #endif
+      return -3;
       #endif
    }
    
@@ -222,6 +254,8 @@ void LagrangeInterpolator::Clear()
 {
    Interpolator::Clear();
    previousX = -9.9999e75;
+   actualSize = 0;
+   beginIndex = 0;
    startPoint = 0;
    
    for (Integer i = 0; i < bufferSize; ++i)
@@ -283,8 +317,16 @@ bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
    if (IsInterpolationFeasible(ind) != 1)
       return false;
    
-   // Build data points before and after independent value
+   // Build data points
    BuildDataPoints(ind);
+   
+   // If not forcing interpolation, perfome more checking
+   if (!forceInterpolation)
+      if (!IsDataNearCenter(ind))
+         return false;
+   
+   // Find starting point that will put ind in the center
+   FindStartingPoint(ind);
    
    // Now interpolate using the alorithm in the Math Spec.
    Real *products = new Real[dimension];
@@ -297,6 +339,10 @@ bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
    {
       for (Integer dim = 0; dim < dimension; dim++)
          products[dim] = y[i][dim];
+      
+      #ifdef DEBUG_LAGRANGE_INTERPOLATE_MORE
+      MessageInterface::ShowMessage("  i=%d, products[0]=%f\n", i, products[0]);
+      #endif
       
       for (Integer j = startPoint; j < startPoint + order; j++)
       {
@@ -315,6 +361,7 @@ bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
    for (Integer dim = 0; dim < dimension; dim++)
    {
       results[dim] = estimates[dim];
+      
       #ifdef DEBUG_LAGRANGE_INTERPOLATE
       MessageInterface::ShowMessage("   results[%d] = %f\n", dim, results[dim]);
       #endif
@@ -435,23 +482,23 @@ void LagrangeInterpolator::BuildDataPoints(Real ind)
    
    Integer i, j, start = 0;
    Real sign = (dataIncreases ? 1.0 : -1.0);
-   Real temp = sign * independent[0];
+   Real indData = sign * independent[0];
    
    // Compute actual size to use since bufferSize is twice of order
-   Integer actualSize = bufferSize;
+   actualSize = bufferSize;
    if (actualSize > pointCount)
       actualSize = pointCount;
    
    #ifdef DEBUG_LAGRANGE_BUILD
-   MessageInterface::ShowMessage("   temp = %f, actualSize=%d\n", temp, actualSize);
+   MessageInterface::ShowMessage("   indData = %f, actualSize=%d\n", indData, actualSize);
    #endif
    
    for (i = 1; i < actualSize; ++i)
    {
-      if (sign*independent[i] < temp)
+      if (sign*independent[i] < indData)
       {
          start = i;
-         temp = sign*independent[i];
+         indData = sign*independent[i];
       }
    }
    
@@ -461,20 +508,91 @@ void LagrangeInterpolator::BuildDataPoints(Real ind)
          start = 0;
       x[i] = independent[start];
       
-      #ifdef DEBUG_LAGRANGE_BUILD
-      MessageInterface::ShowMessage
-         ("   start = %2d, x[%2d] = %f\n", start, i, x[i]);
-      #endif
       for (j = 0; j < dimension; j++)
          y[i][j] = dependent[start][j];
+      
+      #ifdef DEBUG_LAGRANGE_BUILD
+      MessageInterface::ShowMessage
+         ("   start = %2d, x[%2d] = %f, y[%2d][0] = %f\n", start, i, x[i],
+          i, y[i][0]);
+      #endif
    }
+   
+   #ifdef DEBUG_LAGRANGE_BUILD
+   MessageInterface::ShowMessage
+      ("LagrangeInterpolator::BuildDataPoints() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsDataNearCenter(Real ind)
+//------------------------------------------------------------------------------
+bool LagrangeInterpolator::IsDataNearCenter(Real ind)
+{
+   #ifdef DEBUG_LAGRANGE_BUILD
+   MessageInterface::ShowMessage
+      ("Lagrange::IsDataNearCenter() entered, ind=%f, actualSize=%d\n",
+       ind, actualSize);
+   #endif
+   
+   Integer dataIndex = 0;
+   
+   for (Integer i = 0; i < actualSize; i++)
+   {
+      if (x[i] >= ind)
+      {
+         dataIndex = i;
+         break;
+      }
+   }
+   
+   dataIndex = dataIndex - 1;
+   bool retval = false;
+   Integer begin = dataIndex - (order/2);
+   Integer end = dataIndex + (order/2);
+   
+   beginIndex = begin;
+   // Check if there are enough points before and after data requested
+   if (begin >= 0 && end < actualSize)
+   {
+      retval = true;
+   }
+   
+   #ifdef DEBUG_LAGRANGE_BUILD
+   MessageInterface::ShowMessage
+      ("   dataIndex=%d, begin=%d, end=%d, beginIndex=%d\n",
+       dataIndex, begin, end, beginIndex);
+   MessageInterface::ShowMessage
+      ("Lagrange::IsDataNearCenter() returning %d\n", retval);
+   #endif
+   
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer FindStartingPoint(Real ind)
+//------------------------------------------------------------------------------
+/*
+ * Finds index that places ind in the center of the interpolation range using
+ * algorithm given in the math spec.
+ */
+//------------------------------------------------------------------------------
+Integer LagrangeInterpolator::FindStartingPoint(Real ind)
+{
+   #ifdef DEBUG_LAGRANGE_BUILD
+   MessageInterface::ShowMessage("Lagrange::FindStartingPoint() entered, ind=%f\n", ind);
+   #endif
    
    // Find the data point near the requested value
    Real minDiff = 1.0e30, diff, meanX;
    Integer qMin = 0;
-   for (Integer q = 0; q < actualSize; ++q)
+   Integer qEnd = beginIndex + order;
+   
+   for (Integer q = beginIndex; q < qEnd; ++q)
    {
-      meanX = ( x[q + dimension] + x[q] ) / 2;
+      meanX = ( x[q + order] + x[q] ) / 2;
       diff = GmatMathUtil::Abs( meanX - ind );
       if (diff < minDiff)
       {
@@ -486,13 +604,21 @@ void LagrangeInterpolator::BuildDataPoints(Real ind)
    // Assign to starting point
    startPoint = qMin;
    
-   // We don't want to pass the actual data size, so adjust
-   if (qMin + order > actualSize)
-      startPoint = startPoint - abs(order - qMin);
+   // We don't want start point to pass the actual data size, so adjust
+   if (qMin + order > actualSize - 1)
+   {
+      startPoint = actualSize - order;
+      #ifdef DEBUG_LAGRANGE_BUILD
+      MessageInterface::ShowMessage
+         ("   qMin + order = %d passed the actualSize %d, so adjusted "
+          "startPoint to %d\n", qMin+order, actualSize, startPoint);
+      #endif
+   }
    
    #ifdef DEBUG_LAGRANGE_BUILD
    MessageInterface::ShowMessage
-      ("   startPoint after adjust = %d\n", startPoint);
+      ("   beginIndex=%d, qEnd=%d, qMin = %d, startPoint = %d\n", beginIndex,
+       qEnd, qMin, startPoint);
    #endif
    
    if (startPoint < 0)
@@ -500,9 +626,11 @@ void LagrangeInterpolator::BuildDataPoints(Real ind)
    
    #ifdef DEBUG_LAGRANGE_BUILD
    MessageInterface::ShowMessage
-      ("LagrangeInterpolator::BuildDataPoints() leaving, qMin = %d, startPoint = %d\n",
-       qMin, startPoint);
+      ("LagrangeInterpolator::FindStartingPoint() returning startPoint = %d\n",
+       startPoint);
    #endif
+   
+   return startPoint;
 }
 
 

@@ -36,17 +36,18 @@
 //------------------------------------------------------------------------------
 Interpolator::Interpolator(const std::string &name, const std::string &typestr,
                            Integer dim) :
-   GmatBase        (Gmat::INTERPOLATOR, typestr, name),
-   independent     (NULL),
-   dependent       (NULL),
-   previousX       (-9.9999e65),
-   dimension       (dim),
-   requiredPoints  (2),
-   bufferSize      (2),
-   pointCount      (0),
-   latestPoint     (-1),
-   rangeCalculated (false),
-   dataIncreases   (true)
+   GmatBase           (Gmat::INTERPOLATOR, typestr, name),
+   independent        (NULL),
+   dependent          (NULL),
+   previousX          (-9.9999e65),
+   dimension          (dim),
+   requiredPoints     (2),
+   bufferSize         (2),
+   pointCount         (0),
+   latestPoint        (-1),
+   rangeCalculated    (false),
+   dataIncreases      (true),
+   forceInterpolation (true)
 {
    range[0] = range[1] = 0.0;
 }
@@ -75,15 +76,16 @@ Interpolator::~Interpolator()
  */
 //------------------------------------------------------------------------------
 Interpolator::Interpolator(const Interpolator &i) :
-   GmatBase        (i),
-   previousX       (i.previousX),
-   dimension       (i.dimension),
-   requiredPoints  (i.requiredPoints),
-   bufferSize      (i.bufferSize),
-   pointCount      (i.pointCount),
-   latestPoint     (i.latestPoint),
-   rangeCalculated (i.rangeCalculated),
-   dataIncreases   (i.dataIncreases)
+   GmatBase           (i),
+   previousX          (i.previousX),
+   dimension          (i.dimension),
+   requiredPoints     (i.requiredPoints),
+   bufferSize         (i.bufferSize),
+   pointCount         (i.pointCount),
+   latestPoint        (i.latestPoint),
+   rangeCalculated    (i.rangeCalculated),
+   dataIncreases      (i.dataIncreases),
+   forceInterpolation (i.forceInterpolation)
 {
    if (i.independent)
       CopyArrays(i);
@@ -116,31 +118,34 @@ Interpolator& Interpolator::operator=(const Interpolator &i)
 {
    if (&i == this)
       return *this;
-        
+   
    GmatBase::operator=(i);
-
+   
    // Free any allocated memory
    if (independent)
       CleanupArrays();
-        
+   
    // Now set the member data to the new values
    dimension      = i.dimension;
    requiredPoints = i.requiredPoints;
    bufferSize     = i.bufferSize;
    pointCount     = i.pointCount;
    latestPoint    = i.latestPoint;
-
+   
    // Copy over the memory from i
    if (i.independent)
       CopyArrays(i);
-        
+   
    rangeCalculated = i.rangeCalculated;
    if (rangeCalculated)
    {
       range[0] = i.range[0];
       range[1] = i.range[1];
    }
-
+   
+   dataIncreases      = i.dataIncreases;
+   forceInterpolation = i.forceInterpolation;
+   
    return *this;
 }
 
@@ -213,6 +218,32 @@ bool Interpolator::AddPoint(const Real ind, const Real *data)
 Integer Interpolator::IsInterpolationFeasible(Real ind)
 {
    return 1;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetForceInterpolation(bool flag)
+//------------------------------------------------------------------------------
+/*
+ * Sets force interpolation flag.
+ */
+//------------------------------------------------------------------------------
+void Interpolator::SetForceInterpolation(bool flag)
+{
+   forceInterpolation = flag;
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetForceInterpolation();
+//------------------------------------------------------------------------------
+/*
+ * Retrieves force interpolation flag.
+ */
+//------------------------------------------------------------------------------
+bool Interpolator::GetForceInterpolation()
+{
+   return forceInterpolation;
 }
 
 
