@@ -694,6 +694,9 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                MessageInterface::ShowMessage("   rhsValues[%d]=<%s>\n", i, rhsValues[i].c_str());
                #endif
                
+               // Remove enclosing single quotes (LOJ: 2009.10.09)
+               rhsValues[i] = GmatStringUtil::RemoveEnclosingString(rhsValues[i], "'");
+               
                GmatBase *obj = FindObject(rhsValues[i], solarSys, objMap, globalObjMap);
                
                #ifdef DEBUG_EW_SET_VALUE
