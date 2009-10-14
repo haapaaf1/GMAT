@@ -1,5 +1,370 @@
 #include "CCSDSOPMObtype.hpp"
 
+//------------------------------------------------------------------------------
+//  CCSDSOPMSpacecraftParameters()
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSOPMSpacecraftParameters class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMSpacecraftParameters::CCSDSOPMSpacecraftParameters() :
+    mass(0),
+    solarRadiationArea(0),
+    solarRadiationCoefficient(0),
+    dragArea(0),
+    dragCoefficient(0),
+    comments()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMSpacecraftParameters(const CCSDSOPMSpacecraftParameters &opmSP)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSOPMSpacecraftParameters class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMSpacecraftParameters::CCSDSOPMSpacecraftParameters
+               (const CCSDSOPMSpacecraftParameters &opmSP) :
+    mass(opmSP.mass),
+    solarRadiationArea(opmSP.solarRadiationArea),
+    solarRadiationCoefficient(opmSP.solarRadiationCoefficient),
+    dragArea(opmSP.dragArea),
+    dragCoefficient(opmSP.dragCoefficient),
+    comments(opmSP.comments)
+{
+}
+
+//---------------------------------------------------------------------------
+//  CCSDSOPMSpacecraftParameters& operator=
+//                                   (const CCSDSOPMSpacecraftParameters &opmSP)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for CCSDSOPMSpacecraftParameters structures.
+ *
+ * @param <opmSP> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const CCSDSOPMSpacecraftParameters& CCSDSOPMSpacecraftParameters::operator=
+                                     (const CCSDSOPMSpacecraftParameters &opmSP)
+{
+    if (&opmSP == this)
+        return *this;
+
+    mass = opmSP.mass;
+    solarRadiationArea = opmSP.solarRadiationArea;
+    solarRadiationCoefficient = opmSP.solarRadiationCoefficient;
+    dragArea = opmSP.dragArea;
+    dragCoefficient = opmSP.dragCoefficient;
+    comments = opmSP.comments;
+
+    return *this;
+}
+
+//------------------------------------------------------------------------------
+//  ~CCSDSOPMSpacecraftParameters()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the CCSDSOPMSpacecraftParameters class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMSpacecraftParameters::~CCSDSOPMSpacecraftParameters()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMKeplerianElements()
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSOPMKeplerianElements class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMKeplerianElements::CCSDSOPMKeplerianElements() :
+    semiMajorAxis(0),
+    eccentricity(0),
+    inclination(0),
+    raan(0),
+    argumentOfPericenter(0),
+    theAnomaly(0,0,0,Anomaly::TA,false),
+    gravitationalCoefficient(0),
+    comments()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMKeplerianElements(const CCSDSOPMKeplerianElements &opmKE)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSOPMKeplerianElements class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMKeplerianElements::CCSDSOPMKeplerianElements
+               (const CCSDSOPMKeplerianElements &opmKE) :
+    semiMajorAxis(opmKE.semiMajorAxis),
+    eccentricity(opmKE.eccentricity),
+    inclination(opmKE.inclination),
+    raan(opmKE.raan),
+    argumentOfPericenter(opmKE.argumentOfPericenter),
+    theAnomaly(opmKE.theAnomaly),
+    gravitationalCoefficient(opmKE.gravitationalCoefficient),
+    comments(opmKE.comments)
+{
+}
+
+//---------------------------------------------------------------------------
+//  CCSDSOPMKeplerianElements& operator=
+//                                   (const CCSDSOPMKeplerianElements &opmKE)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for CCSDSOPMKeplerianElements structures.
+ *
+ * @param <opmKE> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const CCSDSOPMKeplerianElements& CCSDSOPMKeplerianElements::operator=
+                                     (const CCSDSOPMKeplerianElements &opmKE)
+{
+    if (&opmKE == this)
+        return *this;
+
+    semiMajorAxis = opmKE.semiMajorAxis;
+    eccentricity = opmKE.eccentricity;
+    inclination = opmKE.inclination;
+    raan = opmKE.raan;
+    argumentOfPericenter = opmKE.argumentOfPericenter;
+    theAnomaly = opmKE.theAnomaly;
+    gravitationalCoefficient = opmKE.gravitationalCoefficient;
+    comments = opmKE.comments;
+
+    return *this;
+}
+
+//------------------------------------------------------------------------------
+//  ~CCSDSOPMKeplerianElements()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the CCSDSOPMKeplerianElements class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMKeplerianElements::~CCSDSOPMKeplerianElements()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMStateVector()
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSOPMStateVector class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMStateVector::CCSDSOPMStateVector() : CCSDSStateVector()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMStateVector(const CCSDSOPMStateVector &opmSV)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the StateVector class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMStateVector::CCSDSOPMStateVector
+               (const CCSDSOPMStateVector &opmSV) :
+    CCSDSStateVector(opmSV)
+{
+}
+
+//---------------------------------------------------------------------------
+//  CCSDSOPMStateVector& operator=
+//                                   (const CCSDSOPMStateVector &opmSV)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for StateVector structures.
+ *
+ * @param <opmSV> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const CCSDSOPMStateVector& CCSDSOPMStateVector::operator=
+                                     (const CCSDSOPMStateVector &opmSV)
+    
+{
+    if (&opmSV == this)
+        return *this;
+
+    CCSDSStateVector::operator=(opmSV);
+
+    return *this;
+}
+
+//------------------------------------------------------------------------------
+//  ~CCSDSOPMStateVector()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the CCSDSOPMStateVector class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMStateVector::~CCSDSOPMStateVector()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMManeuver()
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSOPMManeuver class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMManeuver::CCSDSOPMManeuver() :
+    ignitionEpoch(std::string("")),
+    duration(0),
+    deltaMass(0),
+    refFrame(std::string("")),
+    deltaV1(0),
+    deltaV2(0),
+    deltaV3(0),
+    comments()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMManeuver(const CCSDSOPMManeuver &opmM)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the Maneuver class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMManeuver::CCSDSOPMManeuver
+               (const CCSDSOPMManeuver &opmM) :
+    ignitionEpoch(opmM.ignitionEpoch),
+    duration(opmM.duration),
+    deltaMass(opmM.deltaMass),
+    refFrame(opmM.refFrame),
+    deltaV1(opmM.deltaV1),
+    deltaV2(opmM.deltaV2),
+    deltaV3(opmM.deltaV3),
+    comments(opmM.comments)
+{
+}
+
+//---------------------------------------------------------------------------
+//  CCSDSOPMManeuver& operator= (const CCSDSOPMManeuver &opmM)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for Maneuver structures.
+ *
+ * @param <opmM> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const CCSDSOPMManeuver& CCSDSOPMManeuver::operator=
+                                     (const CCSDSOPMManeuver &opmM)
+{
+    if (&opmM == this)
+        return *this;
+
+    ignitionEpoch = opmM.ignitionEpoch;
+    duration = opmM.duration;
+    deltaMass = opmM.deltaMass;
+    refFrame = opmM.refFrame;
+    deltaV1 = opmM.deltaV1;
+    deltaV2 = opmM.deltaV2;
+    deltaV3 = opmM.deltaV3;
+    comments = opmM.comments;
+
+    return *this;
+}
+
+//------------------------------------------------------------------------------
+//  ~CCSDSOPMManeuver()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the CCSDSOPMManeuver class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMManeuver::~CCSDSOPMManeuver()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMMetaData()
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSOPMMetaData class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMMetaData::CCSDSOPMMetaData() :
+    objectName(std::string("")),
+    internationalDesignator(std::string("")),
+    refFrameOrigin(std::string("")),
+    refFrame(std::string("")),
+    timeSystem(std::string("")),
+    comments()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSOPMMetaData(const CCSDSOPMMetaData &opmMD)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSOPMMetaData class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMMetaData::CCSDSOPMMetaData
+               (const CCSDSOPMMetaData &opmMD) :
+    objectName(opmMD.objectName),
+    internationalDesignator(opmMD.internationalDesignator),
+    refFrameOrigin(opmMD.refFrameOrigin),
+    refFrame(opmMD.refFrame),
+    timeSystem(opmMD.timeSystem),
+    comments(opmMD.comments)
+{
+}
+
+//---------------------------------------------------------------------------
+//  CCSDSOPMMetaData& operator= (const CCSDSOPMMetaData &opmMD)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for CCSDSOPMMetaData structures.
+ *
+ * @param <opmMD> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const CCSDSOPMMetaData& CCSDSOPMMetaData::operator=
+                                     (const CCSDSOPMMetaData &opmMD)
+{
+    if (&opmMD == this)
+        return *this;
+
+    objectName = opmMD.objectName;
+    internationalDesignator = opmMD.internationalDesignator;
+    refFrameOrigin = opmMD.refFrameOrigin;
+    refFrame = opmMD.refFrame;
+    timeSystem = opmMD.timeSystem;
+    comments = opmMD.comments;
+
+    return *this;
+}
+
+//------------------------------------------------------------------------------
+//  ~CCSDSOPMMetaData()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the CCSDSOPMMetaData class
+ */
+//------------------------------------------------------------------------------
+CCSDSOPMMetaData::~CCSDSOPMMetaData()
+{
+}
+
 //---------------------------------
 //  static data
 //---------------------------------
@@ -18,8 +383,7 @@ const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps-EndCCSD
     "X_DOT",
     "Y_DOT",
     "Z_DOT",
-    "COMMENT",
-    "EPOCH",
+    "",
     "SEMI_MAJ_AXIS",
     "ECCENTRICITY",
     "INCLINATION",
@@ -28,14 +392,13 @@ const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps-EndCCSD
     "TRUE_ANOMALY",
     "MEAN_ANOMALY",
     "GM",
-    "COMMENT",
-    "EPOCH",
+    "",
     "MASS",
     "SOLAR_RAD_AREA",
     "SOLAR_RAD_COEFF",
     "DRAG_AREA",
     "DRAG_COEFF",
-    "COMMENT",
+    "",
     "MAN_EPOCH_IGNITION",
     "MAN_DURATION",
     "MAN_DELTA_MASS",
@@ -43,7 +406,7 @@ const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps-EndCCSD
     "MAN_DV_1",
     "MAN_DV_2",
     "MAN_DV_3",
-    "COMMENT"
+    ""
 };
 
 const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps-EndCCSDSDataReps] =
@@ -62,7 +425,6 @@ const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps-En
     "km/s",
     "km/s",
     "",
-    "",
     "km",
     "",
     "deg",
@@ -71,7 +433,6 @@ const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps-En
     "deg",
     "deg",
     "km^3/s^2",
-    "",
     "",
     "kg",
     "m^2",
@@ -114,7 +475,6 @@ const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataR
     "State Vector Y Dot",
     "State Vector Z Dot",
     "State Vector Comments",
-    "Keplerian Elements Epoch",
     "Keplerian Elements Semimajor Axis",
     "Keplerian Elements Eccentricity",
     "Keplerian Elements Inclination",
@@ -124,7 +484,6 @@ const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataR
     "Keplerian Elements Mean Anomaly",
     "Keplerian Elements Gravitational Coefficient",
     "Keplerian Elements Comments",
-    "Spacecraft Parameters Epoch",
     "Spacecraft Parameters Mass",
     "Spacecraft Parameters Solar Radiation Area",
     "Spacecraft Parameters Solar Radiation Coefficient",
@@ -143,6 +502,37 @@ const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataR
 
 const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps-EndCCSDSDataReps] =
 {
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    true,
     true,
     true,
     true,
@@ -167,7 +557,6 @@ const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataRe
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -177,7 +566,6 @@ const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataRe
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -185,7 +573,6 @@ const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataRe
     Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE,
     Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
@@ -423,11 +810,11 @@ Real CCSDSOPMObType::GetRealDataParameter(const Integer id) const
 
 	case CCSDS_OPM_KEPLERIANELEMENTS_TRUEANOMALY_ID:
 
-            return ccsdsOPMKeplerianElements->trueAnomaly;
+            return ccsdsOPMKeplerianElements->theAnomaly.GetTrueAnomaly();
 
 	case CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID:
 
-            return ccsdsOPMKeplerianElements->meanAnomaly;
+            return ccsdsOPMKeplerianElements->theAnomaly.GetMeanAnomaly();
 
 	case CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
 
@@ -956,8 +1343,8 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOPMKeplerianElements 
    output << "INCLINATION = " << myKeplerianElements->inclination << endl;
    output << "RA_OF_ASC_NODE = " << myKeplerianElements->raan << endl;
    output << "ARG_OF_PERICENTER = " << myKeplerianElements->argumentOfPericenter << endl;
-   output << "TRUE_ANOMALY = " << myKeplerianElements->trueAnomaly << endl;
-   output << "MEAN_ANOMALY = " << myKeplerianElements->meanAnomaly << endl;
+   output << "TRUE_ANOMALY = " << myKeplerianElements->theAnomaly.GetTrueAnomaly() << endl;
+   output << "MEAN_ANOMALY = " << myKeplerianElements->theAnomaly.GetMeanAnomaly() << endl;
    output << "GM = " << myKeplerianElements->gravitationalCoefficient << endl;
 
    return output;

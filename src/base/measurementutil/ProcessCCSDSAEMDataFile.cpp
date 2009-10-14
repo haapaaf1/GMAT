@@ -339,7 +339,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
     {
         case CCSDSObType::CCSDS_QUATERNION_ID:
         {
-            CCSDSQuaternion *myQData = new CCSDSQuaternion;
+            CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
             if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
             {
@@ -357,7 +357,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q2 = dtemp3;
                     myQData->q3 = dtemp4;
 
-                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
 
                     return true;
@@ -381,7 +381,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q3 = dtemp3;
                     myQData->qC = dtemp4;
 
-                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
 
                     return true;
@@ -397,7 +397,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         case CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID:
         {
-            CCSDSQuaternion *myQData = new CCSDSQuaternion;
+            CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
             if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
             {
@@ -422,7 +422,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q2Dot = dtemp7;
                     myQData->q3Dot = dtemp8;
 
-                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
 
                     return true;
@@ -453,7 +453,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q3Dot = dtemp7;
                     myQData->qCDot = dtemp8;
 
-                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
 
                     return true;
@@ -469,7 +469,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         case CCSDSObType::CCSDS_QUATERNION_RATE_ID:
         {
-            CCSDSQuaternion *myQData = new CCSDSQuaternion;
+            CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
             if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
             {
@@ -493,7 +493,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->yRate = dtemp6;
                     myQData->zRate = dtemp7;
 
-                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
 
                     return true;
@@ -523,7 +523,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->yRate = dtemp6;
                     myQData->zRate = dtemp7;
 
-                    myOb->ccsdsQuaternion = myQData;
+                    myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
 
                     return true;
@@ -539,7 +539,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         case CCSDSObType::CCSDS_EULER_ANGLE_ID:
         {
-            CCSDSEulerAngle *myEulerData = new CCSDSEulerAngle;
+            CCSDSAEMEulerAngle *myEulerData = new CCSDSAEMEulerAngle;
 
             std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -557,7 +557,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 myEulerData->yAngle = dtemp2;
                 myEulerData->zAngle = dtemp3;
 
-                myOb->ccsdsEulerAngle = myEulerData;
+                myOb->ccsdsAEMEulerAngle = myEulerData;
                 myOb->ccsdsHeader->dataType = CCSDSObType::EULERANGLE_ID;
 
                 return true;
@@ -571,7 +571,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         case CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID:
         {
-            CCSDSEulerAngle *myEulerData = new CCSDSEulerAngle;
+            CCSDSAEMEulerAngle *myEulerData = new CCSDSAEMEulerAngle;
 
             std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -594,7 +594,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 myEulerData->yRate = dtemp5;
                 myEulerData->zRate = dtemp6;
 
-                myOb->ccsdsEulerAngle = myEulerData;
+                myOb->ccsdsAEMEulerAngle = myEulerData;
                 myOb->ccsdsHeader->dataType = CCSDSObType::EULERANGLE_ID;
 
                 return true;
@@ -608,7 +608,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         case CCSDSObType::CCSDS_SPIN_ID:
         {
-            CCSDSSpinStabilized *mySpinData = new CCSDSSpinStabilized;
+            CCSDSAEMSpinStabilized *mySpinData = new CCSDSAEMSpinStabilized;
 
             std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -627,7 +627,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 mySpinData->spinAngle = dtemp3;
                 mySpinData->spinAngleVelocity = dtemp4;
 
-                myOb->ccsdsSpinStabilized = mySpinData;
+                myOb->ccsdsAEMSpinStabilized = mySpinData;
                 myOb->ccsdsHeader->dataType = CCSDSObType::SPINSTABILIZED_ID;
 
                 return true;
@@ -640,7 +640,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         case CCSDSObType::CCSDS_SPIN_NUTATION_ID:
         {
-            CCSDSSpinStabilized *mySpinData = new CCSDSSpinStabilized;
+            CCSDSAEMSpinStabilized *mySpinData = new CCSDSAEMSpinStabilized;
 
             std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                 REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -664,7 +664,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 mySpinData->nutationPeriod = dtemp6;
                 mySpinData->nutationPhase = dtemp7;
 
-                myOb->ccsdsSpinStabilized = mySpinData;
+                myOb->ccsdsAEMSpinStabilized = mySpinData;
                 myOb->ccsdsHeader->dataType = CCSDSObType::SPINSTABILIZED_ID;
 
                 return true;

@@ -844,8 +844,12 @@ bool DataFile::IsEOF()
 //------------------------------------------------------------------------------
 std::string DataFile::ReadLineFromFile()
 {
-    std::string lff;
-    getline((*theFile),lff);
+    std::string lff = "";
+    while (lff == "")
+    {
+        getline((*theFile),lff);
+        lff = Trim(lff);
+    }
     return lff;
 }
 

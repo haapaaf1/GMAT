@@ -331,7 +331,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
         myTDMData->timeTag = ccsdsEpoch;
         if (!CCSDSTimeTag2A1Date(myTDMData->timeTag,myOb->epoch)) return false;
         myTDMData->measurement = value;
-        myOb->ccsdsData =  myTDMData;
+        myOb->ccsdsTDMData =  myTDMData;
         myOb->ccsdsHeader->dataType = CCSDSObType::GENERICDATA_ID;
         return true;
     }

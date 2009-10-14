@@ -10,6 +10,17 @@
 
 #include "ObType.hpp"
 
+class CCSDSData
+{
+
+public:
+
+    Integer keywordID;
+    std::string timeTag;
+    Real measurement;
+    StringArray comments;
+};
+
 // The CCSDS header specification that is common to all CCSDS formats
 class CCSDSHeader
 {

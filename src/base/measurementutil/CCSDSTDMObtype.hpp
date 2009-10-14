@@ -9,19 +9,13 @@
 #define	_CCSDSTDMOBTYPE_HPP
 
 #include "CCSDSObType.hpp"
-
-class CCSDSData
+class CCSDSTDMData : public CCSDSData
 {
 
 public:
 
     friend std::ostream& operator<< (std::ostream &output,
-                                     const CCSDSData *myCCSDSdata);
-
-    Integer keywordID;
-    std::string timeTag;
-    Real measurement;
-    StringArray comments;
+                                    const CCSDSTDMData *myCCSDSTDMData);
 };
 
 class CCSDSTDMMetaData
@@ -295,7 +289,7 @@ protected:
     CCSDSTDMMetaData *ccsdsTDMMetaData;
 
     // Pointers to the generic key epoch value data format
-    CCSDSData *ccsdsTDMData;
+    CCSDSTDMData *ccsdsTDMData;
 };
 
 #endif	/* _CCSDSTDMOBTYPE_HPP */

@@ -1180,7 +1180,8 @@ std::ostream& operator<< (std::ostream &output,
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSData *myData)
+// std::ostream& operator<< (std::ostream &output,
+//                           const CCSDSTDMData *myCCSDSTDMData)
 //------------------------------------------------------------------------------
 /**
  * Formats CCCSDSObType data and sends to output stream.
@@ -1191,11 +1192,13 @@ std::ostream& operator<< (std::ostream &output,
  * @return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSData *myData)
+std::ostream& operator<< (std::ostream &output,
+                          const CCSDSTDMData *myCCSDSTDMData)
 {
     using namespace std;
 
-   output << myData->keywordID << " = " << myData->timeTag << " " << myData->measurement << endl;
+   output << myCCSDSTDMData->keywordID << " = " << myCCSDSTDMData->timeTag
+          << " " << myCCSDSTDMData->measurement << endl;
 
    return output;
 }

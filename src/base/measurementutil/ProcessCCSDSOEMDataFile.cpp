@@ -412,7 +412,7 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
 bool ProcessCCSDSOEMDataFile::GetCCSDSOEMData(std::string &lff,
                                               CCSDSOEMObType *myOb)
 {
-    CCSDSStateVector *myOEMData = new CCSDSStateVector;
+    CCSDSOEMStateVector *myOEMData = new CCSDSOEMStateVector;
 
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -440,7 +440,7 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSOEMData(std::string &lff,
         myOEMData->yDot = dtemp5;
         myOEMData->zDot = dtemp6;
 
-        myOb->ccsdsStateVector = myOEMData;
+        myOb->ccsdsOEMStateVector = myOEMData;
         myOb->ccsdsHeader->dataType = CCSDSObType::STATEVECTOR_ID;
         
         return true;

@@ -9,16 +9,22 @@
 #define	_CCSDSOPMOBTYPE_HPP
 
 #include "CCSDSObType.hpp"
+#include "Anomaly.hpp"
 
 class CCSDSOPMSpacecraftParameters
 {
 
 public:
 
+    CCSDSOPMSpacecraftParameters();
+    CCSDSOPMSpacecraftParameters(const CCSDSOPMSpacecraftParameters &opmSP);
+    const CCSDSOPMSpacecraftParameters& CCSDSOPMSpacecraftParameters::operator=
+                                    (const CCSDSOPMSpacecraftParameters &opmSP);
+    ~CCSDSOPMSpacecraftParameters();
+
     friend std::ostream& operator<< (std::ostream &output,
                const CCSDSOPMSpacecraftParameters *myCCSDSspacecraftParameters);
 
-    std::string epoch;
     Real mass;
     Real solarRadiationArea;
     Real solarRadiationCoefficient;
@@ -32,17 +38,21 @@ class CCSDSOPMKeplerianElements
 
 public:
 
+    CCSDSOPMKeplerianElements();
+    CCSDSOPMKeplerianElements(const CCSDSOPMKeplerianElements &opmKE);
+    const CCSDSOPMKeplerianElements& CCSDSOPMKeplerianElements::operator=
+                                       (const CCSDSOPMKeplerianElements &opmKE);
+    ~CCSDSOPMKeplerianElements();
+
     friend std::ostream& operator<< (std::ostream &output,
                         const CCSDSOPMKeplerianElements *myCCSDSOPMKeplerianElements);
 
-    std::string epoch;
     Real semiMajorAxis;
     Real eccentricity;
     Real inclination;
     Real raan;
     Real argumentOfPericenter;
-    Real trueAnomaly;
-    Real meanAnomaly;
+    Anomaly theAnomaly;
     Real gravitationalCoefficient;
     StringArray comments;
 };
@@ -52,6 +62,11 @@ class CCSDSOPMStateVector : public CCSDSStateVector
 
 public:
 
+    CCSDSOPMStateVector();
+    CCSDSOPMStateVector(const CCSDSOPMStateVector &opmSV);
+    const CCSDSOPMStateVector& CCSDSOPMStateVector::operator=(const CCSDSOPMStateVector &opmSV);
+    ~CCSDSOPMStateVector();
+
     friend std::ostream& operator<< (std::ostream &output,
                                     const CCSDSOPMStateVector *myCCSDSOPMStateVector);
 };
@@ -60,6 +75,11 @@ class CCSDSOPMManeuver
 {
 
 public:
+
+    CCSDSOPMManeuver();
+    CCSDSOPMManeuver(const CCSDSOPMManeuver &opmM);
+    const CCSDSOPMManeuver& CCSDSOPMManeuver::operator=(const CCSDSOPMManeuver &opmM);
+    ~CCSDSOPMManeuver();
 
     friend std::ostream& operator<< (std::ostream &output,
                                      const CCSDSOPMManeuver *myCCSDSOPMManeuver);
@@ -75,6 +95,11 @@ public:
 class CCSDSOPMMetaData
 {
 public:
+
+    CCSDSOPMMetaData();
+    CCSDSOPMMetaData(const CCSDSOPMMetaData &opmMD);
+    const CCSDSOPMMetaData& CCSDSOPMMetaData::operator=(const CCSDSOPMMetaData &opmMD);
+    ~CCSDSOPMMetaData();
 
     friend std::ostream& operator<< (std::ostream &output,
                                      const CCSDSOPMMetaData *myMetadata);
@@ -164,7 +189,6 @@ public :
 	CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID,
 	CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID,
 	CCSDS_OPM_KEPLERIANELEMENTS_COMMENTS_ID,
-	CCSDS_OPM_SPACECRAFTPARAMETERS_EPOCH_ID,
 	CCSDS_OPM_SPACECRAFTPARAMETERS_MASS_ID,
 	CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID,
 	CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID,
