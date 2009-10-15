@@ -42,13 +42,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\base\asset;..\..\..\base\attitude;..\..\..\base\burn;..\..\..\base\command;..\..\..\base\configs;..\..\..\base\coordsystem;..\..\..\base\estimator;..\..\..\base\executive;..\..\..\base\factory;..\..\..\base\forcemodel;..\..\..\base\foundation;..\..\..\base\function;..\..\..\base\include;..\..\..\base\interface;..\..\..\base\interpolator;..\..\..\base\interpreter;..\..\..\base\measurement;..\..\..\base\measurementfile;..\..\..\base\math;..\..\..\base\parameter;..\..\..\base\plugin;..\..\..\base\propagator;..\..\..\base\solarsys;..\..\..\base\solver;..\..\..\base\spacecraft;..\..\..\base\stopcond;..\..\..\base\subscriber;..\..\..\base\util;..\..\..\gui\app;..\..\..\gui\burn;..\..\..\gui\command;..\..\..\gui\controllogic;..\..\..\gui\coordsystem;..\..\..\gui\forcemodel;..\..\..\gui\foundation;..\..\..\gui\function;..\..\..\gui\hardware;..\..\..\gui\include;..\..\..\gui\mission;..\..\..\gui\output;..\..\..\gui\propagator;..\..\..\gui\resource;..\..\..\gui\solarsys;..\..\..\gui\solver;..\..\..\gui\spacecraft;..\..\..\gui\subscriber;..\..\..\gui\view;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\include\msvc&quot;;&quot;C:\Program Files\MATLAB\R2007b\extern\include&quot;"
-				PreprocessorDefinitions="__WIN32__;__WXMSW__;wxUSE_GLCANVAS;__USE_WX280__;__USE_MATLAB__;__USE_WX280_GL__;SKIP_DEVIL;__SKIP_MSISE90__"
+				PreprocessorDefinitions="__WIN32__;__WXMSW__;wxUSE_GLCANVAS;__USE_WX280__;__USE_MATLAB__;__USE_WX280_GL__;SKIP_DEVIL;__SKIP_MSISE90__;DEBUG_MEMORY"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4267;4996"
 			/>
@@ -352,6 +352,10 @@
 					</File>
 					<File
 						RelativePath="..\..\..\base\command\Maneuver.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\command\MarkPoint.cpp"
 						>
 					</File>
 					<File
@@ -824,6 +828,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\base\interpolator\Interpolator.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\interpolator\InterpolatorException.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\interpolator\LagrangeInterpolator.cpp"
 						>
 					</File>
 					<File
@@ -1499,6 +1511,14 @@
 					Name="subscriber"
 					>
 					<File
+						RelativePath="..\..\..\base\subscriber\EphemerisFile.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\subscriber\EphemerisFile.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\base\subscriber\MatlabWs.cpp"
 						>
 					</File>
@@ -1508,6 +1528,10 @@
 					</File>
 					<File
 						RelativePath="..\..\..\base\subscriber\OpenGlPlot.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\subscriber\OwnedPlot.cpp"
 						>
 					</File>
 					<File
@@ -1768,6 +1792,10 @@
 					</File>
 					<File
 						RelativePath="..\..\..\base\measurementfile\GmatObtype.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\base\measurementfile\ObservationData.cpp"
 						>
 					</File>
 					<File
