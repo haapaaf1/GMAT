@@ -27,7 +27,7 @@ class GMAT_API SpacecraftData : public RefData
 {
 public:
 
-   SpacecraftData();
+   SpacecraftData(const std::string &name = "");
    SpacecraftData(const SpacecraftData &data);
    SpacecraftData& operator= (const SpacecraftData& right);
    virtual ~SpacecraftData();
@@ -41,7 +41,7 @@ public:
    const static Real BALLISTIC_REAL_UNDEFINED;
    
 protected:
-   
+
    // The inherited methods from RefData
    virtual void InitializeRefObjects();
    virtual bool IsValidObjectType(Gmat::ObjectType type);
@@ -56,6 +56,18 @@ protected:
       DRAG_AREA,
       SRP_AREA,
       TOTAL_MASS,
+      
+      // for Spacecraft owned FuelTank
+      FUEL_MASS,
+      PRESSURE,
+      TEMPERATURE,
+      VOLUME,
+      FUEL_DENSITY,
+      
+      // for Spacecraft owned Thruster
+      DUTY_CYCLE,
+      THRUSTER_SCALE_FACTOR,
+      GRAVITATIONAL_ACCEL,
    };
    
    enum
@@ -65,6 +77,11 @@ protected:
    };
    
    static const std::string VALID_OBJECT_TYPE_LIST[SpacecraftDataObjectCount];
+
+private:
+
+   Real GetOwnedObjectProperty(Gmat::ObjectType objType, const std::string &name);
+   
 };
 
 #endif /*SpacecraftData_hpp*/

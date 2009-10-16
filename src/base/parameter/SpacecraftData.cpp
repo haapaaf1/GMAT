@@ -34,8 +34,8 @@ const Real SpacecraftData::BALLISTIC_REAL_UNDEFINED = -9876543210.1234;
 //------------------------------------------------------------------------------
 // SpacecraftData()
 //------------------------------------------------------------------------------
-SpacecraftData::SpacecraftData()
-   : RefData()
+SpacecraftData::SpacecraftData(const std::string &name)
+   : RefData(name)
 {
    mSpacecraft = NULL;
 }
@@ -101,6 +101,26 @@ Real SpacecraftData::GetReal(Integer item)
       return mSpacecraft->GetRealParameter("SRPArea");
    case TOTAL_MASS:
       return mSpacecraft->GetRealParameter("TotalMass");
+   
+   // for Spacecraft owned FuelTank
+   case FUEL_MASS:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "FuelMass");
+   case PRESSURE:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "Pressure");
+   case TEMPERATURE:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "Temperature");
+   case VOLUME:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "Volume");
+   case FUEL_DENSITY:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "FuelDensity");
+      
+   // for Spacecraft owned Thruster
+   case DUTY_CYCLE:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "DutyCycle");
+   case THRUSTER_SCALE_FACTOR:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "ThrustScaleFactor");
+   case GRAVITATIONAL_ACCEL:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "GravitationalAccel");
    default:
       // otherwise, there is an error   
       throw ParameterException
@@ -200,5 +220,35 @@ bool SpacecraftData::IsValidObjectType(Gmat::ObjectType type)
    
    return false;
 
+}
+
+
+//------------------------------------------------------------------------------
+// Real GetOwnedObjectProperty(Gmat::ObjectType objType, const std::string &propName)
+//------------------------------------------------------------------------------
+Real SpacecraftData::GetOwnedObjectProperty(Gmat::ObjectType objType,
+                                            const std::string &propName)
+{
+   std::string type, owner, dep;
+   GmatStringUtil::ParseParameter(mName, type, owner, dep);
+
+   #ifdef DEBUG_SC_OWNED_OBJ
+   MessageInterface::ShowMessage
+      ("SpacecraftData::GetOwnedObjectProperty() name='%s', type='%s', owner='%s', "
+       "dep='%s',\n", mName.c_str(), type.c_str(), owner.c_str(), dep.c_str());
+   #endif
+   
+   GmatBase *ownedObj = mSpacecraft->GetRefObject(objType, dep);
+   if (ownedObj == NULL)
+   {
+      ParameterException pe;
+      pe.SetDetails("SpacecraftData::GetOwnedObjectProperty() %s \"%s\" is not "
+                    "attached to Spacecraft \"%s\"",
+                    GmatBase::GetObjectTypeString(objType).c_str(), dep.c_str(),
+                    mSpacecraft->GetName().c_str());
+      throw pe;
+   }
+   else
+      return ownedObj->GetRealParameter(propName);
 }
 

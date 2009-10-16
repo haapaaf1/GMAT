@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                                  BallisticMassReal
+//                                  HardwareReal
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -16,20 +16,20 @@
  */
 //------------------------------------------------------------------------------
 
-#include "BallisticMassReal.hpp"
+#include "HardwareReal.hpp"
 #include "ParameterException.hpp"
 #include "MessageInterface.hpp"
 
 
 //------------------------------------------------------------------------------
-// BallisticMassReal(const std::string &name, const std::string &typeStr, 
+// HardwareReal(const std::string &name, const std::string &typeStr, 
 //              GmatBase *obj, const std::string &desc, const std::string &unit)
 //------------------------------------------------------------------------------
-BallisticMassReal::BallisticMassReal(const std::string &name, const std::string &typeStr, 
-                                     GmatBase *obj, const std::string &desc,
-                                     const std::string &unit)
+HardwareReal::HardwareReal(const std::string &name, const std::string &typeStr, 
+                           GmatBase *obj, const std::string &desc,
+                           const std::string &unit)
    : RealVar(name, "", typeStr, GmatParam::SYSTEM_PARAM, obj, desc, unit,
-             GmatParam::NO_DEP, Gmat::SPACECRAFT),
+             GmatParam::OWNED_OBJ, Gmat::SPACECRAFT),
      SpacecraftData(name)
 {
    AddRefObject(obj);
@@ -37,18 +37,18 @@ BallisticMassReal::BallisticMassReal(const std::string &name, const std::string 
 
 
 //------------------------------------------------------------------------------
-// BallisticMassReal(const BallisticMassReal &copy)
+// HardwareReal(const HardwareReal &copy)
 //------------------------------------------------------------------------------
-BallisticMassReal::BallisticMassReal(const BallisticMassReal &copy)
+HardwareReal::HardwareReal(const HardwareReal &copy)
    : RealVar(copy), SpacecraftData(copy)
 {
 }
 
 
 //------------------------------------------------------------------------------
-// BallisticMassReal& operator=(const BallisticMassReal &right)
+// HardwareReal& operator=(const HardwareReal &right)
 //------------------------------------------------------------------------------
-BallisticMassReal& BallisticMassReal::operator=(const BallisticMassReal &right)
+HardwareReal& HardwareReal::operator=(const HardwareReal &right)
 {
    if (this != &right)
    {
@@ -61,9 +61,9 @@ BallisticMassReal& BallisticMassReal::operator=(const BallisticMassReal &right)
 
 
 //------------------------------------------------------------------------------
-// ~BallisticMassReal()
+// ~HardwareReal()
 //------------------------------------------------------------------------------
-BallisticMassReal::~BallisticMassReal()
+HardwareReal::~HardwareReal()
 {
 }
 
@@ -71,7 +71,7 @@ BallisticMassReal::~BallisticMassReal()
 //------------------------------------------------------------------------------
 // Real EvaluateReal()
 //------------------------------------------------------------------------------
-Real BallisticMassReal::EvaluateReal()
+Real HardwareReal::EvaluateReal()
 {
    Evaluate();
    return mRealValue;
@@ -81,7 +81,7 @@ Real BallisticMassReal::EvaluateReal()
 //------------------------------------------------------------------------------
 // Integer GetNumRefObjects() const
 //------------------------------------------------------------------------------
-Integer BallisticMassReal::GetNumRefObjects() const
+Integer HardwareReal::GetNumRefObjects() const
 {
    return SpacecraftData::GetNumRefObjects();
 }
@@ -90,13 +90,13 @@ Integer BallisticMassReal::GetNumRefObjects() const
 //------------------------------------------------------------------------------
 // bool addRefObject(GmatBase *obj, bool replaceName)
 //------------------------------------------------------------------------------
-bool BallisticMassReal::AddRefObject(GmatBase *obj, bool replaceName)
+bool HardwareReal::AddRefObject(GmatBase *obj, bool replaceName)
 {
    if (obj != NULL)
    {
       #if DEBUG_ATTITUDEREAL
       MessageInterface::ShowMessage
-         ("BallisticMassReal::AddRefObject() obj->GetName()=%s, type=%d\n",
+         ("HardwareReal::AddRefObject() obj->GetName()=%s, type=%d\n",
           obj->GetName().c_str(), obj->GetType());
       #endif
       
@@ -112,7 +112,7 @@ bool BallisticMassReal::AddRefObject(GmatBase *obj, bool replaceName)
 //------------------------------------------------------------------------------
 // bool Validate()
 //------------------------------------------------------------------------------
-bool BallisticMassReal::Validate()
+bool HardwareReal::Validate()
 {
    return ValidateRefObjects(this);
 }
@@ -121,7 +121,7 @@ bool BallisticMassReal::Validate()
 //------------------------------------------------------------------------------
 // bool Initialize()
 //------------------------------------------------------------------------------
-bool BallisticMassReal::Initialize()
+bool HardwareReal::Initialize()
 {
    try
    {
@@ -130,7 +130,7 @@ bool BallisticMassReal::Initialize()
    catch(BaseException &e)
    {
       throw GmatBaseException
-         ("BallisticMassReal::Initialize() Fail to initialize Parameter:" +
+         ("HardwareReal::Initialize() Fail to initialize Parameter:" +
           this->GetTypeName() + "\n" + e.GetFullMessage());
    }
    
@@ -142,9 +142,9 @@ bool BallisticMassReal::Initialize()
 // bool RenameRefObject(const Gmat::ObjectType type, const std::string &oldName,
 //                      const std::string &newName)
 //------------------------------------------------------------------------------
-bool BallisticMassReal::RenameRefObject(const Gmat::ObjectType type,
-                                        const std::string &oldName,
-                                        const std::string &newName)
+bool HardwareReal::RenameRefObject(const Gmat::ObjectType type,
+                                   const std::string &oldName,
+                                   const std::string &newName)
 {
    return SpacecraftData::RenameRefObject(type, oldName, newName);
 }
@@ -153,14 +153,14 @@ bool BallisticMassReal::RenameRefObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 // std::string GetRefObjectName(const Gmat::ObjectType type) const
 //------------------------------------------------------------------------------
-std::string BallisticMassReal::GetRefObjectName(const Gmat::ObjectType type) const
+std::string HardwareReal::GetRefObjectName(const Gmat::ObjectType type) const
 {
    std::string objName = SpacecraftData::GetRefObjectName(type);
    
    if (objName == "INVALID_OBJECT_TYPE")
    {
       throw ParameterException
-         ("BallisticMassReal::GetRefObjectName() " + GmatBase::GetObjectTypeString(type) +
+         ("HardwareReal::GetRefObjectName() " + GmatBase::GetObjectTypeString(type) +
           " is not valid object type of " + this->GetTypeName() + "\n");
    }
    
@@ -171,7 +171,7 @@ std::string BallisticMassReal::GetRefObjectName(const Gmat::ObjectType type) con
 //------------------------------------------------------------------------------
 // const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
-const StringArray& BallisticMassReal::GetRefObjectNameArray(const Gmat::ObjectType type)
+const StringArray& HardwareReal::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    return SpacecraftData::GetRefObjectNameArray(type);
 }
@@ -180,14 +180,14 @@ const StringArray& BallisticMassReal::GetRefObjectNameArray(const Gmat::ObjectTy
 //------------------------------------------------------------------------------
 // bool SetRefObjectName(const Gmat::ObjectType type, const std::string &name)
 //------------------------------------------------------------------------------
-bool BallisticMassReal::SetRefObjectName(const Gmat::ObjectType type,
-                                         const std::string &name)
+bool HardwareReal::SetRefObjectName(const Gmat::ObjectType type,
+                                    const std::string &name)
 {
    bool ret = SpacecraftData::SetRefObjectName(type, name);
    
    if (!ret)
       MessageInterface::ShowMessage
-         ("*** Warning *** BallisticMassReal::SetRefObjectName() RefObjType:%s is not valid "
+         ("*** Warning *** HardwareReal::SetRefObjectName() RefObjType:%s is not valid "
           "for ParameterName:%s\n", GmatBase::GetObjectTypeString(type).c_str(),
           this->GetName().c_str());
    
@@ -198,15 +198,15 @@ bool BallisticMassReal::SetRefObjectName(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 // GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name)
 //------------------------------------------------------------------------------
-GmatBase* BallisticMassReal::GetRefObject(const Gmat::ObjectType type,
-                                          const std::string &name)
+GmatBase* HardwareReal::GetRefObject(const Gmat::ObjectType type,
+                                     const std::string &name)
 {
    GmatBase *obj = SpacecraftData::GetRefObject(type, name);
    
    if (obj == NULL)
    {
       throw ParameterException
-         ("BallisticMassReal::GetRefObject() Cannot find ref. object of type:" +
+         ("HardwareReal::GetRefObject() Cannot find ref. object of type:" +
           GmatBase::GetObjectTypeString(type) + ", name:" + name + " in " +
           this->GetName());
    }
@@ -219,12 +219,12 @@ GmatBase* BallisticMassReal::GetRefObject(const Gmat::ObjectType type,
 // bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //                   const std::string &name)
 //------------------------------------------------------------------------------
-bool BallisticMassReal::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                                     const std::string &name)
+bool HardwareReal::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                const std::string &name)
 {
    #if DEBUG_ATTITUDEREAL
    MessageInterface::ShowMessage
-      ("BallisticMassReal::SetRefObject() setting type=%d, name=%s to %s\n",
+      ("HardwareReal::SetRefObject() setting type=%d, name=%s to %s\n",
        type, name.c_str(), this->GetName().c_str());
    #endif
    
