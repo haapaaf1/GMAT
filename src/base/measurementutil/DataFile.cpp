@@ -43,7 +43,8 @@ const std::string DataFile::REGEX_SCINUMBER = "(?:" + OPTIONAL_SIGN +
 const std::string DataFile::REGEX_CCSDS_DATE = "[\\d{4}-\\d{2,3}[-\\d\\d]?T\\d{2}:\\d{2}:\\d{2}[.\\d+]?[Z]?";
 const std::string DataFile::REGEX_CCSDS_SAVETHEDATE1 = "[(\\d{4})-(\\d{2})-(\\d\\d)T(\\d{2}):(\\d{2}):(\\d{2}[.\\d+]?)([Z]?)";
 const std::string DataFile::REGEX_CCSDS_SAVETHEDATE2 = "[(\\d{4})-(\\d{3})T(\\d{2}):(\\d{2}):(\\d{2}[.\\d+]?)([Z]?)";
-const std::string DataFile::REGEX_CCSDS_KEYWORD = "(\\w*[_]?\\w+)";
+const std::string DataFile::REGEX_CCSDS_KEYWORD = "\\w*[_]?\\w+";
+const std::string DataFile::REGEX_CCSDS_SAVETHEKEYWORD = "(\\w*[_]?\\w+)";
 
 const std::string DataFile::FILEFORMAT_DESCRIPTIONS[EndFileFormatReps] =
 {

@@ -274,6 +274,7 @@ protected:
     static const std::string DataFile::REGEX_CCSDS_SAVETHEDATE1;
     static const std::string DataFile::REGEX_CCSDS_SAVETHEDATE2;
     static const std::string DataFile::REGEX_CCSDS_KEYWORD;
+    static const std::string DataFile::REGEX_CCSDS_SAVETHEKEYWORD;
 
     // File format and filename of the data being used
     std::string fileFormatName;

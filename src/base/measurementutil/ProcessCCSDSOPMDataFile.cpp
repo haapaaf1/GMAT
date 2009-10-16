@@ -323,235 +323,367 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
                                               CCSDSOPMObType *myOb)
 {
 
-    //std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
-    //        REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
-    //        REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
-
-    std::string regex = "^EPOCH\\s*=\\s*" + REGEX_SCINUMBER + ")$";
-    std::string keyword;
-    Real value;
-    Integer count;
-
+    std::string regex = "^EPOCH\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
-    {
-        count = 0;
-        
-        CCSDSOPMStateVector *myOPMStateVector = new CCSDSOPMStateVector;
+        GetCCSDSOPMStateVector(lff,myOb);
 
-        do
+    regex = "^SEMI_MAJOR_AXIS\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+        GetCCSDSOPMKeplerianElements(lff,myOb);
+
+    regex = "^MASS\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+        GetCCSDSOPMSpacecraftParameters(lff,myOb);
+
+    regex = "^MAN_EPOCH_IGNITION\\s*=.*";
+    while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
+        GetCCSDSOPMManeuver(lff,myOb);
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSOPMStateVector(std::string &lff, CCSDSOPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the state vector information from the orbit parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
+                                                     CCSDSOPMObType *myOb)
+{
+
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSOPMStateVector *myOPMStateVector = new CCSDSOPMStateVector;
+
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myOb->GetKeywordID(keyword))
         {
 
-            GetCCSDSKeyValueData(lff,keyword,value);
+            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_EPOCH_ID:
 
-            switch (myOb->GetKeywordID(keyword))
-            {
-                case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_EPOCH_ID:
-                    myOPMStateVector->epoch = value;
-                    if (!CCSDSTimeTag2A1Date(myOPMStateVector->epoch,
-                                             myOb->epoch)) return false;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_X_ID:
-                    myOPMStateVector->x = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_Y_ID:
-                    myOPMStateVector->y = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_Z_ID:
-                    myOPMStateVector->z = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_XDOT_ID:
-                    myOPMStateVector->xDot = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_YDOT_ID:
-                    myOPMStateVector->yDot = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_ZDOT_ID:
-                    myOPMStateVector->zDot = value;
-                    count++;
-                    break;
-                default:
-                    return false;
-                    break;
+                if (!GetCCSDSValue(lff,myOPMStateVector->epoch)) return false;
+                if (!CCSDSTimeTag2A1Date(myOPMStateVector->epoch,
+                                         myOb->epoch)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_X_ID:
+
+                if (!GetCCSDSValue(lff,myOPMStateVector->x)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_Y_ID:
+
+                if (!GetCCSDSValue(lff,myOPMStateVector->y)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_Z_ID:
+
+                if (!GetCCSDSValue(lff,myOPMStateVector->z)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_XDOT_ID:
+
+                if (!GetCCSDSValue(lff,myOPMStateVector->xDot)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_YDOT_ID:
+
+                if (!GetCCSDSValue(lff,myOPMStateVector->yDot)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_ZDOT_ID:
+
+                if (!GetCCSDSValue(lff,myOPMStateVector->zDot)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
             }
 
-            lff = Trim(ReadLineFromFile());
-        }
-        while ( count < 7 );
+        lff = Trim(ReadLineFromFile());
 
-        myOb->ccsdsOPMStateVector = myOPMStateVector;
     }
+    while ( count < 7 );
 
-    regex = "^SEMI_MAJOR_AXIS\\s*=\\s*" + REGEX_SCINUMBER + ")$";
-    if (pcrecpp::RE(regex).FullMatch(lff))
-    {
-        count = 0;
-        
-        CCSDSOPMKeplerianElements *myOPMKeplerianElements = 
+    myOb->ccsdsOPMStateVector = myOPMStateVector;
+
+    return true;
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSOPMKeplerianElements(std::string &lff, CCSDSOPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the Keplerian element information from the orbit parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSOPMDataFile::GetCCSDSOPMKeplerianElements(std::string &lff,
+                                                           CCSDSOPMObType *myOb)
+{
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSOPMKeplerianElements *myOPMKeplerianElements =
                                                   new CCSDSOPMKeplerianElements;
 
-        do
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myOb->GetKeywordID(keyword))
         {
 
-            GetCCSDSKeyValueData(lff,keyword,value);
+            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
 
-            switch (myOb->GetKeywordID(keyword))
-            {
-                case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
-                    myOPMKeplerianElements->semiMajorAxis = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_ECCENTRICITY_ID:
-                    myOPMKeplerianElements->eccentricity = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_INCLINATION_ID:
-                    myOPMKeplerianElements->inclination = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_RAAN_ID:
-                    myOPMKeplerianElements->raan = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
-                    myOPMKeplerianElements->argumentOfPericenter = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_TRUEANOMALY_ID:
-                    myOPMKeplerianElements->theAnomaly.Set(
-                                         myOPMKeplerianElements->semiMajorAxis,
-                                         myOPMKeplerianElements->eccentricity,
-                                         value, Anomaly::TA);
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID:
-                    myOPMKeplerianElements->theAnomaly.Set(
-                                                myOPMKeplerianElements->semiMajorAxis,
-                                                myOPMKeplerianElements->eccentricity,
-                                                value, Anomaly::MA);
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
-                    myOPMKeplerianElements->gravitationalCoefficient = value;
-                    count++;
-                    break;
-                default:
-                    return false;
-                    break;
-            }
+                if (!GetCCSDSValue(lff,myOPMKeplerianElements->semiMajorAxis)) return false;
+                count++;
+                break;
 
-            lff = Trim(ReadLineFromFile());
+            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_ECCENTRICITY_ID:
+
+                if (!GetCCSDSValue(lff,myOPMKeplerianElements->eccentricity)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_INCLINATION_ID:
+
+                if (!GetCCSDSValue(lff,myOPMKeplerianElements->inclination)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_RAAN_ID:
+
+                if (!GetCCSDSValue(lff,myOPMKeplerianElements->raan)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
+
+                if (!GetCCSDSValue(lff,myOPMKeplerianElements->argumentOfPericenter)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_TRUEANOMALY_ID:
+                {
+                Real value;
+                if (!GetCCSDSValue(lff,value)) return false;
+                myOPMKeplerianElements->theAnomaly.Set(
+                                          myOPMKeplerianElements->semiMajorAxis,
+                                          myOPMKeplerianElements->eccentricity,
+                                          value, Anomaly::TA);
+                count++;
+                }
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID:
+                {
+                Real value;
+                if (!GetCCSDSValue(lff,value)) return false;
+                myOPMKeplerianElements->theAnomaly.Set(
+                                          myOPMKeplerianElements->semiMajorAxis,
+                                          myOPMKeplerianElements->eccentricity,
+                                          value, Anomaly::MA);
+                count++;
+                }
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
+
+                if (!GetCCSDSValue(lff,myOPMKeplerianElements->gravitationalCoefficient)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+
         }
-        while ( count < 7 );
 
-        myOb->ccsdsOPMKeplerianElements = myOPMKeplerianElements;
+        lff = Trim(ReadLineFromFile());
 
     }
-    regex = "^MASS\\s*=\\s*" + REGEX_SCINUMBER + ")$";
-    if (pcrecpp::RE(regex).FullMatch(lff))
-    {
-        count = 0;
+    while ( count < 7 );
 
-        CCSDSOPMSpacecraftParameters *myOPMSpacecraftParameters =
+    myOb->ccsdsOPMKeplerianElements = myOPMKeplerianElements;
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSOPMSpacecraftParameters(std::string &lff, CCSDSOPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the spacecraft parameter information from the orbit parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSOPMDataFile::GetCCSDSOPMSpacecraftParameters(std::string &lff,
+                                                     CCSDSOPMObType *myOb)
+{
+
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSOPMSpacecraftParameters *myOPMSpacecraftParameters =
                                                new CCSDSOPMSpacecraftParameters;
 
-        do
-        {
-
-            GetCCSDSKeyValueData(lff,keyword,value);
-
-            switch (myOb->GetKeywordID(keyword))
-            {
-                case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_MASS_ID:
-                    myOPMSpacecraftParameters->mass = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID:
-                    myOPMSpacecraftParameters->solarRadiationArea = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID:
-                    myOPMSpacecraftParameters->solarRadiationCoefficient = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGAREA_ID:
-                    myOPMSpacecraftParameters->dragArea = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID:
-                    myOPMSpacecraftParameters->dragCoefficient = value;
-                    count++;
-                    break;
-                default:
-                    return false;
-                    break;
-            }
-
-            lff = Trim(ReadLineFromFile());
-        }
-        while ( count < 5 );
-
-        myOb->ccsdsOPMSpacecraftParameters = myOPMSpacecraftParameters;
-    }
-
-    regex = "^MAN_EPOCH_IGNITION\\s*=\\s*" + REGEX_SCINUMBER + ")$";
-    while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
+    do
     {
-        count = 0;
 
-        CCSDSOPMManeuver *myOPMManeuver = new CCSDSOPMManeuver;
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        do
+        switch (myOb->GetKeywordID(keyword))
         {
 
-            GetCCSDSKeyValueData(lff,keyword,value);
+            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_MASS_ID:
 
-            switch (myOb->GetKeywordID(keyword))
-            {
-                case CCSDSOPMObType::CCSDS_OPM_MANUEVER_IGNITIONEPOCH_ID:
-                    myOPMManeuver->ignitionEpoch = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DURATION_ID:
-                    myOPMManeuver->duration = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAMASS_ID:
-                    myOPMManeuver->deltaMass = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_MANUEVER_REFFRAME_ID:
-                    myOPMManeuver->refFrame = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV1_ID:
-                    myOPMManeuver->deltaV1 = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV2_ID:
-                    myOPMManeuver->deltaV2 = value;
-                    count++;
-                    break;
-                case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV3_ID:
-                    myOPMManeuver->deltaV3 = value;
-                    count++;
-                    break;
-                default:
-                    return false;
-                    break;
+                if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->mass)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID:
+
+                if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->solarRadiationArea)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID:
+
+                if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->solarRadiationCoefficient)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGAREA_ID:
+
+                if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->dragArea)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID:
+
+                if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->dragCoefficient)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
             }
 
-            lff = Trim(ReadLineFromFile());
-        }
-        while ( count < 5 );
+        lff = Trim(ReadLineFromFile());
 
-        myOb->ccsdsOPMManeuvers.push_back(myOPMManeuver);
     }
+    while ( count < 5 );
+
+    myOb->ccsdsOPMSpacecraftParameters = myOPMSpacecraftParameters;
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSOPMManeuver(std::string &lff, CCSDSOPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the maneuver information from the orbit parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSOPMDataFile::GetCCSDSOPMManeuver(std::string &lff,
+                                                     CCSDSOPMObType *myOb)
+{
+
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSOPMManeuver *myOPMManeuver = new CCSDSOPMManeuver;
+
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myOb->GetKeywordID(keyword))
+        {
+            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_IGNITIONEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myOPMManeuver->ignitionEpoch)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DURATION_ID:
+
+                if (!GetCCSDSValue(lff,myOPMManeuver->duration)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAMASS_ID:
+
+                if (!GetCCSDSValue(lff,myOPMManeuver->deltaMass)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_REFFRAME_ID:
+
+                if (!GetCCSDSValue(lff,myOPMManeuver->refFrame)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV1_ID:
+
+                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV1)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV2_ID:
+
+                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV2)) return false;
+                count++;
+                break;
+
+            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV3_ID:
+
+                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV3)) return false;
+                count++;
+                break;
+
+            default:
+                return false;
+                break;
+
+        }
+
+        lff = Trim(ReadLineFromFile());
+
+    }
+    while ( count < 7 );
+
+    myOb->ccsdsOPMManeuvers.push_back(myOPMManeuver);
 
     return true;
 
@@ -578,42 +710,66 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
     std::string stemp;
 
     // Read lines until we have encountered the first meta data start
-
-    while (!pcrecpp::RE("^DATA_START.*").FullMatch(lff))
+    while (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(lff,&stemp))
     {
-        if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->comments.push_back(stemp);
-        }
-        else if (pcrecpp::RE("^OBJECT_NAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->objectName = stemp;
-        }
-        else if (pcrecpp::RE("^OBJECT_ID\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->internationalDesignator = stemp;
-        }
-        else if (pcrecpp::RE("^CENTER_NAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->refFrameOrigin = stemp;
-        }
-        else if (pcrecpp::RE("^REF_FRAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->refFrame = stemp;
-        }
-        else if (pcrecpp::RE("^TIME_SYSTEM\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->timeSystem = stemp;
-        }
-        else
-        {
-            // Ill formed data - these are the only keywords
-            // allowed in the header
-            return false;
-        }
+        myMetaData->comments.push_back(stemp);
+        lff = Trim(ReadLineFromFile());
+    }
 
+    if (pcrecpp::RE("^OBJECT_NAME\\s*=(.*)").FullMatch(lff,&stemp))
+    {
+        myMetaData->objectName = stemp;
         // Read in another line
         lff = Trim(ReadLineFromFile());
+    }
+    else
+    {
+        return false;
+    }
+
+    if (pcrecpp::RE("^OBJECT_ID\\s*=(.*)").FullMatch(lff,&stemp))
+    {
+        myMetaData->internationalDesignator = stemp;
+        // Read in another line
+        lff = Trim(ReadLineFromFile());
+    }
+    else
+    {
+        return false;
+    }
+
+    if (pcrecpp::RE("^CENTER_NAME\\s*=(.*)").FullMatch(lff,&stemp))
+
+    {
+        myMetaData->refFrameOrigin = stemp;
+        // Read in another line
+        lff = Trim(ReadLineFromFile());
+    }
+    else
+    {
+        return false;
+    }
+
+    if (pcrecpp::RE("^REF_FRAME\\s*=(.*)").FullMatch(lff,&stemp))
+    {
+        myMetaData->refFrame = stemp;
+        // Read in another line
+        lff = Trim(ReadLineFromFile());
+    }
+    else
+    {
+        return false;
+    }
+
+    if (pcrecpp::RE("^TIME_SYSTEM\\s*=(.*)").FullMatch(lff,&stemp))
+    {
+        myMetaData->timeSystem = stemp;
+        // Read in another line
+        lff = Trim(ReadLineFromFile());
+    }
+    else
+    {
+        return false;
     }
 
     return true;

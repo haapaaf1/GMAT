@@ -218,16 +218,14 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSKeyValueData(const std::string &lff, std::string &key,
-//                           Real &value)
+// bool GetCCSDSValue(const std::string &lff, Real &value)
 //------------------------------------------------------------------------------
 /**
  * Extracts a CCSDS Key-Value pair
  * KEYWORD = VALUE
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSDataFile::GetCCSDSKeyValueData(const std::string &lff,
-                                                std::string &key, Real &value)
+bool ProcessCCSDSDataFile::GetCCSDSValue(const std::string &lff, Real &value)
 {
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -236,15 +234,74 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyValueData(const std::string &lff,
     // extraction is done into a temporary variable and then
     // assigned to the GMAT type via casting.
     double dtemp;
-    std::string stemp;
 
     std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
                         REGEX_SCINUMBER + ")$";
 
-    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp))
+    if (pcrecpp::RE(regex).FullMatch(lff,&dtemp))
+    {
+       value = dtemp;
+       return true;
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSValue(const std::string &lff, std::string &svalue)
+//------------------------------------------------------------------------------
+/**
+ * Extracts a CCSDS Key-Value pair
+ * KEYWORD = VALUE
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::GetCCSDSValue(const std::string &lff,
+                                                std::string &svalue)
+{
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    std::string stemp;
+
+    std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(.*)$";
+
+    if (pcrecpp::RE(regex).FullMatch(lff,&stemp))
+    {
+       svalue = Trim(stemp);
+       return true;
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSKeyValueData(const std::string &lff, std::string &key,
+//                           Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Extracts a CCSDS Key-Value pair
+ * KEYWORD = VALUE
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::GetCCSDSKeyword(const std::string &lff,
+                                          std::string &key)
+{
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    std::string stemp;
+
+    std::string regex = "^" + REGEX_CCSDS_SAVETHEKEYWORD + "\\s*=\\s*.*$";
+
+    if (pcrecpp::RE(regex).FullMatch(lff,&stemp))
     {
        key = Trim(stemp);
-       value = dtemp;
        return true;
     }
 
@@ -272,7 +329,7 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
     double dtemp;
     std::string stemp, stemp2;
 
-    std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
+    std::string regex = "^" + REGEX_CCSDS_SAVETHEKEYWORD + "\\s*=\\s*(" +
             REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ")$";
 
     if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&stemp2,&dtemp))

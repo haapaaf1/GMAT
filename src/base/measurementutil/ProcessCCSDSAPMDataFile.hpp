@@ -50,6 +50,11 @@ private:
     bool GetCCSDSMetaData(std::string &nextline,
                           CCSDSAPMMetaData *myMetaData);
     bool GetCCSDSAPMData(std::string &lff, CCSDSAPMObType *myOb);
+    bool GetCCSDSAPMQuaternion(std::string &lff, CCSDSAPMObType *myOb);
+    bool GetCCSDSAPMEulerAngle(std::string &lff, CCSDSAPMObType *myOb);
+    bool GetCCSDSAPMSpinStabilized(std::string &lff, CCSDSAPMObType *myOb);
+    bool GetCCSDSAPMSpacecraftInertia(std::string &lff, CCSDSAPMObType *myOb);
+    bool GetCCSDSAPMAttitudeManeuver(std::string &lff, CCSDSAPMObType *myOb);
 
     CCSDSAPMMetaData *currentCCSDSMetaData;
     CCSDSAPMMetaData *lastMetaDataWritten;

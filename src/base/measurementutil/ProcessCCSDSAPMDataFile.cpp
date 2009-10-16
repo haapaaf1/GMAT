@@ -312,6 +312,701 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
 }
 
 //------------------------------------------------------------------------------
+// bool GetCCSDSAPMData(std::string &lff, CCSDSAPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the data from the attitude parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
+                                              CCSDSAPMObType *myOb)
+{
+
+    std::string regex = "^EPOCH\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+        GetCCSDSAPMQuaternion(lff,myOb);
+
+    regex = "^EULER_FRAME_A\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+        GetCCSDSAPMEulerAngle(lff,myOb);
+
+    regex = "^SPIN_FRAME_A\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+        GetCCSDSAPMSpinStabilized(lff,myOb);
+
+    regex = "^INERTIA_REF_FRAME\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+        GetCCSDSAPMSpacecraftInertia(lff,myOb);
+
+    regex = "^MAN_EPOCH_START\\s*=.*";
+    while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
+        GetCCSDSAPMAttitudeManeuver(lff,myOb);
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSAPMQuaternion(std::string &lff, CCSDSAPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the quaternion information from the attitude parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSAPMDataFile::GetCCSDSAPMQuaternion(std::string &lff,
+                                                    CCSDSAPMObType *myOb)
+{
+
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSAPMQuaternion *myAPMQuaternion = new CCSDSAPMQuaternion;
+
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myOb->GetKeywordID(keyword))
+        {
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_EPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->epoch)) return false;
+                if (!CCSDSTimeTag2A1Date(myAPMQuaternion->epoch,
+                                         myOb->epoch)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_FRAMEA_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMQuaternion->frameA = GetRateFrameID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_FRAMEB_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMQuaternion->frameB = GetRateFrameID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_DIRECTION_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMQuaternion->direction = GetAttitudeDirID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_Q1_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q1)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_Q2_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q2)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_Q3_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q3)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_QC_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->qC)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+
+        }
+
+        lff = Trim(ReadLineFromFile());
+
+    }
+    while ( count < 8 );
+
+    myAPMQuaternion->quaternionType = CCSDSObType::CCSDS_QUATERNION_ID;
+
+    std::string regex = "^Q1_DOT\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+    {
+        count = 0;
+
+        do
+        {
+
+            if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+            switch (myOb->GetKeywordID(keyword))
+            {
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_Q1DOT_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q1Dot)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_Q2DOT_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q2Dot)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_Q3DOT_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q3Dot)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_QUATERNION_QCDOT_ID:
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->qCDot)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+            }
+
+            lff = Trim(ReadLineFromFile());
+        
+        }
+        while ( count < 4 );
+
+        myAPMQuaternion->quaternionType = CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID;
+
+    }
+
+    /*
+    regex = "^X_RATE\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+    {
+        count = 0;
+
+        do
+        {
+
+            if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+            switch (myOb->GetKeywordID(keyword))
+            {
+                case CCSDSAPMObType::CCSDS_APM_QUATERNION_XRATE_ID:
+
+                    if (!GetCCSDSValue(lff,myAPMQuaternion->xRate)) return false;
+                    count++;
+                    break;
+
+                case CCSDSAPMObType::CCSDS_APM_QUATERNION_YRATE_ID:
+
+                    if (!GetCCSDSValue(lff,myAPMQuaternion->yRate)) return false;
+                    count++;
+                    break;
+
+                case CCSDSAPMObType::CCSDS_APM_QUATERNION_ZRATE_ID:
+
+                    if (!GetCCSDSValue(lff,myAPMQuaternion->zRate)) return false;
+                    count++;
+                    break;
+
+                default:
+
+                    return false;
+                    break;
+            }
+
+            lff = Trim(ReadLineFromFile());
+
+        }
+        while ( count < 3 );
+
+        myAPMQuaternion->quaternionType = CCSDSObType::CCSDS_QUATERNION_RATE_ID;
+
+    }
+    */
+
+    myOb->ccsdsAPMQuaternion = myAPMQuaternion;
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSAPMEulerAngle(std::string &lff, CCSDSAPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the Euler angle information from the attitude parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSAPMDataFile::GetCCSDSAPMEulerAngle(std::string &lff,
+                                                    CCSDSAPMObType *myOb)
+{
+
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSAPMEulerAngle *myAPMEulerAngle = new CCSDSAPMEulerAngle;
+
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myOb->GetKeywordID(keyword))
+        {
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_FRAMEA_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMEulerAngle->frameA = GetRateFrameID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_FRAMEB_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMEulerAngle->frameB = GetRateFrameID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_DIRECTION_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMEulerAngle->direction = GetAttitudeDirID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_ROTATIONSEQUENCE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMEulerAngle->rotationSequence)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_RATEFRAME_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMEulerAngle->rateFrame = GetRateFrameID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_XANGLE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMEulerAngle->xAngle)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_YANGLE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMEulerAngle->yAngle)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_ZANGLE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMEulerAngle->zAngle)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+
+        }
+
+        lff = Trim(ReadLineFromFile());
+
+    }
+    while ( count < 4 );
+
+    myAPMEulerAngle->eulerAngleType = CCSDSObType::CCSDS_EULER_ANGLE_ID;
+
+    std::string regex = "^X_RATE\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+    {
+        count = 0;
+
+        do
+        {
+
+            if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+            switch (myOb->GetKeywordID(keyword))
+            {
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_XRATE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMEulerAngle->xRate)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_YRATE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMEulerAngle->yRate)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_EULERANGLE_ZRATE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMEulerAngle->zRate)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+            }
+
+        lff = Trim(ReadLineFromFile());
+
+        }
+        while ( count < 3 );
+
+        myAPMEulerAngle->eulerAngleType = CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID;
+
+
+    }
+
+    myOb->ccsdsAPMEulerAngle = myAPMEulerAngle;
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSAPMSpinStabilized(std::string &lff, CCSDSAPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the spin stabilized information from the attitude parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSAPMDataFile::GetCCSDSAPMSpinStabilized(std::string &lff,
+                                                        CCSDSAPMObType *myOb)
+{
+
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSAPMSpinStabilized *myAPMSpinStabilized = new CCSDSAPMSpinStabilized;
+
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myOb->GetKeywordID(keyword))
+        {
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_FRAMEA_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMSpinStabilized->frameA = GetRateFrameID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_FRAMEB_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMSpinStabilized->frameB = GetRateFrameID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_DIRECTION_ID:
+                {
+                std::string svalue;
+                if (!GetCCSDSValue(lff,svalue)) return false;
+                myAPMSpinStabilized->direction = GetAttitudeDirID(svalue);
+                count++;
+                }
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_SPINALPHA_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->spinAlpha)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_SPINDELTA_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->spinDelta)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_SPINANGLE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->spinAngle)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_SPINANGLEVEOCITY_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->spinAngleVelocity)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+
+        }
+
+        lff = Trim(ReadLineFromFile());
+
+    }
+    while ( count < 7 );
+
+    myAPMSpinStabilized->attitudeType = CCSDSObType::CCSDS_SPIN_ID;
+
+    std::string regex = "^NUTATION\\s*=.*";
+    if (pcrecpp::RE(regex).FullMatch(lff))
+    {
+        count = 0;
+
+        do
+        {
+
+            if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+            switch (myOb->GetKeywordID(keyword))
+            {
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_NUTATION_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutation)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_NUTATIONPERIOD_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutationPeriod)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPINSTABILIZED_NUTATIONPHASE_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutationPhase)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+            }
+
+            lff = Trim(ReadLineFromFile());
+
+        }
+        while ( count < 3 );
+
+        myAPMSpinStabilized->attitudeType = CCSDSObType::CCSDS_SPIN_NUTATION_ID;
+
+    }
+
+    myOb->ccsdsAPMSpinStabilized = myAPMSpinStabilized;
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSAPMSpacecraftInertia(std::string &lff, CCSDSAPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the spacecraft inertia information from the attitude parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSAPMDataFile::GetCCSDSAPMSpacecraftInertia(std::string &lff,
+                                                           CCSDSAPMObType *myOb)
+{
+
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSAPMSpacecraftInertia *myAPMSpacecraftInertia = new CCSDSAPMSpacecraftInertia;
+
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myOb->GetKeywordID(keyword))
+        {
+
+            case CCSDSAPMObType::CCSDS_APM_SPACECRAFTINERTIA_INERTIAREFFRAME_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->inertiaRefFrame)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPACECRAFTINERTIA_I11_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i11)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPACECRAFTINERTIA_I22_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i22)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPACECRAFTINERTIA_I33_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i33)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPACECRAFTINERTIA_I12_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i12)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPACECRAFTINERTIA_I13_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i13)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_SPACECRAFTINERTIA_I23_ID:
+
+                if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i23)) return false;
+                count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+
+        }
+
+        lff = Trim(ReadLineFromFile());
+
+    }
+    while ( count < 7 );
+
+    myOb->ccsdsAPMSpacecraftInertia = myAPMSpacecraftInertia;
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSAPMAttitudeManeuver(std::string &lff, CCSDSAPMObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the maneuver information from the attitude parameter message.
+ */
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSAPMDataFile::GetCCSDSAPMAttitudeManeuver(std::string &lff,
+                                                          CCSDSAPMObType *myOb)
+{
+
+    Integer count = 0;
+    std::string keyword;
+
+    CCSDSAPMAttitudeManeuver *myAPMManeuver = new CCSDSAPMAttitudeManeuver;
+
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myOb->GetKeywordID(keyword))
+        {
+            case CCSDSAPMObType::CCSDS_APM_ATTITUDEMANUEVER_EPOCHSTART_ID:
+
+                if (!GetCCSDSValue(lff,myAPMManeuver->epochStart)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_ATTITUDEMANUEVER_DURATION_ID:
+
+                if (!GetCCSDSValue(lff,myAPMManeuver->duration)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_ATTITUDEMANUEVER_REFFRAME_ID:
+
+                if (!GetCCSDSValue(lff,myAPMManeuver->refFrame)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_ATTITUDEMANUEVER_TOR1_ID:
+
+                if (!GetCCSDSValue(lff,myAPMManeuver->tor1)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_ATTITUDEMANUEVER_TOR2_ID:
+
+                if (!GetCCSDSValue(lff,myAPMManeuver->tor2)) return false;
+                count++;
+                break;
+
+            case CCSDSAPMObType::CCSDS_APM_ATTITUDEMANUEVER_TOR3_ID:
+
+                if (!GetCCSDSValue(lff,myAPMManeuver->tor3)) return false;
+                count++;
+                break;
+
+            default:
+                return false;
+                break;
+
+        }
+
+        lff = Trim(ReadLineFromFile());
+
+    }
+    while ( count < 6 );
+
+    myOb->ccsdsAPMAttitudeManeuvers.push_back(myAPMManeuver);
+
+    return true;
+
+}
+
+//------------------------------------------------------------------------------
 // bool GetCCSDSMetaData(std::string &lff,
 //                       CCSDSAPMMetaData *myMetaData)
 //------------------------------------------------------------------------------
@@ -381,7 +1076,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSMetaData(std::string &lff,
 //------------------------------------------------------------------------------
 bool ProcessCCSDSAPMDataFile::WriteData(const ObType *myOb)
 {
-    if (myOb->GetTypeName() != "CCSDSAPMObType") return false;
+    if (GetTypeName() != "CCSDSAPMObType") return false;
 
     CCSDSAPMObType *theAPM = (CCSDSAPMObType*)myOb;
     WriteDataHeader(theAPM);

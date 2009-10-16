@@ -72,8 +72,11 @@ public:
 protected:
 
     bool GetCCSDSHeader(std::string firstline, CCSDSHeader *myHeader);
-    bool GetCCSDSKeyValueData(const std::string &lff, std::string &key,
-                              Real &value);
+    
+    bool GetCCSDSValue(const std::string &lff, std::string &svalue);
+    bool GetCCSDSValue(const std::string &lff, Real &value);
+
+    bool GetCCSDSKeyword(const std::string &lff, std::string &keyword);
     bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &epoch,
                                    std::string &key, Real &value);
 

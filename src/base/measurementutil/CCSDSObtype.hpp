@@ -62,6 +62,7 @@ class CCSDSEulerAngle
 
 public:
     
+    Integer eulerAngleType;
     std::string epoch;
     std::string frameA;
     std::string frameB;

@@ -51,6 +51,11 @@ private:
                           CCSDSOPMMetaData *myMetaData);
     bool GetCCSDSOPMData(std::string &lff, CCSDSOPMObType *myOb);
 
+    bool GetCCSDSOPMStateVector(std::string &lff, CCSDSOPMObType *myOb);
+    bool GetCCSDSOPMKeplerianElements(std::string &lff, CCSDSOPMObType *myOb);
+    bool GetCCSDSOPMSpacecraftParameters(std::string &lff, CCSDSOPMObType *myOb);
+    bool GetCCSDSOPMManeuver(std::string &lff, CCSDSOPMObType *myOb);
+
     CCSDSOPMMetaData *currentCCSDSMetaData;
     CCSDSOPMMetaData *lastMetaDataWritten;
     bool isMetaDataWritten;
