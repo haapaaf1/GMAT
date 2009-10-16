@@ -37,6 +37,7 @@
 #include "AttitudeParameters.hpp"
 #include "BallisticMassParameters.hpp"
 #include "OrbitStmParameters.hpp"
+#include "HardwareParameters.hpp"
 
 //---------------------------------
 //  public methods
@@ -308,6 +309,26 @@ Parameter* ParameterFactory::CreateParameter(const std::string &ofType,
    if (ofType == "OrbitSTMD")
       return new OrbitStmD(withName);
    
+   // FuelTank parameters
+   if (ofType == "FuelMass")
+      return new FuelMass(withName);
+   if (ofType == "Pressure")
+      return new Pressure(withName);
+   if (ofType == "Temperature")
+      return new Temperature(withName);
+   if (ofType == "Volume")
+      return new Volume(withName);
+   if (ofType == "FuelDensity")
+      return new FuelDensity(withName);
+   
+   // Thruster parameters
+   if (ofType == "DutyCycle")
+      return new DutyCycle(withName);
+   if (ofType == "ThrustScaleFactor")
+      return new ThrustScaleFactor(withName);
+   if (ofType == "GravitationalAccel")
+      return new GravitationalAccel(withName);
+   
    // add others here
    
    else
@@ -475,6 +496,18 @@ ParameterFactory::ParameterFactory()
       creatables.push_back("OrbitSTMB");
       creatables.push_back("OrbitSTMC");
       creatables.push_back("OrbitSTMD");
+      
+      // FuelTank parameters
+      creatables.push_back("FuelMass");
+      creatables.push_back("Pressure");
+      creatables.push_back("Temperature");
+      creatables.push_back("Volume");
+      creatables.push_back("FuelDensity");
+         
+      // Thruster parameters
+      creatables.push_back("DutyCycle");
+      creatables.push_back("ThrustScaleFactor");
+      creatables.push_back("GravitationalAccel");
    }
 }
 
