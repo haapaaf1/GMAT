@@ -379,6 +379,8 @@ OBJECTS = \
     parameter/EnvParameters.o \
     parameter/EnvReal.o \
     parameter/ExpressionParser.o \
+    parameter/HardwareReal.o \
+    parameter/HardwareParameters.o \
     parameter/KeplerianParameters.o \
     parameter/NumberWrapper.o \
     parameter/ObjectWrapper.o \
