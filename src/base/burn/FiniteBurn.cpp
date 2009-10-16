@@ -22,11 +22,6 @@
 #include "BurnException.hpp"
 #include "StringUtil.hpp"     // for ToString()
 
-// This will be removed in the future
-//#ifndef __USE_MANEUVER_FRAME__
-//#define __USE_MANEUVER_FRAME__
-//#endif
-
 //#define DEBUG_RENAME
 //#define DEBUG_BURN_ORIGIN
 //#define DEBUG_FINITE_BURN
@@ -211,122 +206,6 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
    if (!spacecraft)
       throw BurnException("Maneuver initial state undefined (No spacecraft?)");
    
-   //=================================================================
-   #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
-   Real *satState = spacecraft->GetState().GetState();
-   Real state[6];
-   
-   frame = frameman->GetFrameInstance(localAxesName);
-   if (frame == NULL)
-      throw BurnException("Maneuver frame undefined");
-   
-   // Transform from J2000 body state to burn origin state
-   TransformJ2kToBurnOrigin(satState, state, epoch);
-   
-   #ifdef DEBUG_BURN_ORIGIN
-   MessageInterface::ShowMessage
-      ("FiniteBurn Vectors:\n   "
-       "Sat   = [%lf %lf %lf %lf %lf %lf]\n   "
-       "state = [%lf %lf %lf %lf %lf %lf]\n   "
-       "Frame = [%lf %lf %lf\n   " 
-       "         %lf %lf %lf\n   "
-       "         %lf %lf %lf]\n\n",
-       satState[0], satState[1], satState[2], satState[3], satState[4], satState[5],
-       state[0], state[1], state[2], state[3], state[4], state[5],
-       frameBasis[0][0], frameBasis[0][1], frameBasis[0][2],
-       frameBasis[1][0], frameBasis[1][1], frameBasis[1][2],
-       frameBasis[2][0], frameBasis[2][1], frameBasis[2][2]);
-   #endif
-   
-   // Set the state 6-vector from the associated spacecraft
-   frame->SetState(state);
-   // Calculate the maneuver basis vectors
-   frame->CalculateBasis(frameBasis);
-   
-   // Accumulate the individual accelerations from the thrusters
-   Real dm, tMass, tOverM, *dir, norm;
-   deltaV[0] = deltaV[1] = deltaV[2] = 0.0;
-   Thruster *current;
-   
-   tMass = spacecraft->GetRealParameter("TotalMass");
-   
-   #ifdef DEBUG_FINITE_BURN
-      MessageInterface::ShowMessage(
-         "   Maneuvering spacecraft %s\n",
-         spacecraft->GetName().c_str());
-      MessageInterface::ShowMessage(
-         "   Position for burn: %18le  %18le  %18le\n",
-         state[0], state[1], state[2]);
-      MessageInterface::ShowMessage(
-         "   Velocity for burn: %18le  %18le  %18le\n   Mass = %18le kg\n",
-         state[3], state[4], state[5], tMass);
-   #endif
-   
-   for (StringArray::iterator i = thrusterNames.begin(); 
-        i != thrusterNames.end(); ++i)
-   {
-      #ifdef DEBUG_FINITE_BURN
-         MessageInterface::ShowMessage("   Accessing thruster '%s'\n", 
-            (*i).c_str());
-      #endif
-      
-      current = (Thruster *)spacecraft->GetRefObject(Gmat::THRUSTER, *i);
-      if (!current)
-         throw BurnException("FiniteBurn::Fire requires thruster named \"" +
-            (*i) + "\" on spacecraft " + spacecraft->GetName());
-      
-      // FiniteBurn class is friend of Thruster class, so we can access
-      // member data directly
-      dir = current->direction;
-      norm = sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
-      
-      #ifdef DEBUG_FINITE_BURN
-         MessageInterface::ShowMessage
-         ("   Thruster Direction: %18le  %18le  %18le\n"
-          "                 norm: %18le\n", dir[0], dir[1], dir[2], norm);
-      #endif
-         
-      if (norm == 0.0)
-         throw BurnException("FiniteBurn::Fire thruster " + (*i) +
-                             " on spacecraft " + spacecraft->GetName() +
-                             " has no direction.");
-      
-      dm = current->CalculateMassFlow();
-      //tOverM = current->thrust / (tMass * norm * 1000.0);
-      tOverM = current->thrust * current->thrustScaleFactor *
-               current->dutyCycle / (tMass * norm * 1000.0);
-      deltaV[0] += dir[0] * tOverM;
-      deltaV[1] += dir[1] * tOverM;
-      deltaV[2] += dir[2] * tOverM;
-
-      #ifdef DEBUG_FINITE_BURN
-         MessageInterface::ShowMessage("   Thruster %s = %s details:\n", 
-            (*i).c_str(), current->GetName().c_str());
-         MessageInterface::ShowMessage(
-            "      dM    = %16.13le\n      Mass  = %16.13lf\n"
-            "      TSF   = %16.13lf\n      |Acc| = %16.13le\n      "
-            "Acc   = [%16.13le   %16.13le   %16.13le]\n", dm, tMass, 
-            current->thrustScaleFactor, tOverM,
-            deltaV[0], deltaV[1], deltaV[2]);
-      #endif
-   }
-   
-   // Build the acceleration
-   burnData[0] = deltaV[0]*frameBasis[0][0] +
-                 deltaV[1]*frameBasis[0][1] +
-                 deltaV[2]*frameBasis[0][2];
-   burnData[1] = deltaV[0]*frameBasis[1][0] +
-                 deltaV[1]*frameBasis[1][1] +
-                 deltaV[2]*frameBasis[1][2];
-   burnData[2] = deltaV[0]*frameBasis[2][0] +
-                 deltaV[1]*frameBasis[2][1] +
-                 deltaV[2]*frameBasis[2][2];
-   
-   //=================================================================
-   #else // #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
-   
    // Accumulate the individual accelerations from the thrusters
    Real dm = 0.0, tMass, tOverM, *dir, norm;
    deltaV[0] = deltaV[1] = deltaV[2] = 0.0;
@@ -415,10 +294,6 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
                  deltaV[1]*frameBasis[2][1] +
                  deltaV[2]*frameBasis[2][2];
    burnData[3] = dm;
-   
-   //=================================================================
-   #endif // #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
    
    #ifdef DEBUG_FINITEBURN_FIRE
       MessageInterface::ShowMessage(

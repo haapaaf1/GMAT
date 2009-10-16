@@ -22,12 +22,6 @@
 #include "BurnException.hpp"
 #include "MessageInterface.hpp"
 
-
-// This will be removed in the future
-//#ifndef __USE_MANEUVER_FRAME__
-//#define __USE_MANEUVER_FRAME__
-//#endif
-
 //#define DEBUG_IMPBURN_INIT
 //#define DEBUG_IMPBURN_SET
 //#define DEBUG_IMPBURN_FIRE
@@ -210,66 +204,6 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
       ("   deltaV: %18le  %18le  %18le\n", deltaV[0], deltaV[1], deltaV[2]);
    #endif
    
-   //=================================================================
-   #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
-   
-   frame = frameman->GetFrameInstance(localAxesName);
-   if (frame == NULL)
-      throw BurnException("Maneuver frame undefined");
-   
-   Real *satState;
-   
-   /// @todo Consolidate Finite & Impulsive burn initialization into base class
-   if (spacecraft)
-      satState = spacecraft->GetState().GetState();
-   else
-      throw BurnException("Maneuver initial state undefined (No spacecraft?)");
-   
-   Real state[6];
-   
-   if (epoch == 21545.0)
-      epoch = spacecraft->GetRealParameter("A1Epoch");
-   
-   TransformJ2kToBurnOrigin(satState, state, epoch);
-   
-   // Set the state 6-vector from the associated spacecraft
-   frame->SetState(state);
-   // Calculate the maneuver basis vectors
-   frame->CalculateBasis(frameBasis);
-   
-   #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage
-         ("   Maneuvering spacecraft %s\n",
-         spacecraft->GetName().c_str());
-      MessageInterface::ShowMessage
-         ("   Position for burn:    %18le  %18le  %18le\n",
-         state[0], state[1], state[2]);
-      MessageInterface::ShowMessage
-         ("   Velocity before burn: %18le  %18le  %18le\n",
-         state[3], state[4], state[5]);
-   #endif
-   
-   satState[3] += deltaV[0]*frameBasis[0][0] +
-                  deltaV[1]*frameBasis[0][1] +
-                  deltaV[2]*frameBasis[0][2];
-   satState[4] += deltaV[0]*frameBasis[1][0] +
-                  deltaV[1]*frameBasis[1][1] +
-                  deltaV[2]*frameBasis[1][2];
-   satState[5] += deltaV[0]*frameBasis[2][0] +
-                  deltaV[1]*frameBasis[2][1] +
-                  deltaV[2]*frameBasis[2][2];
-   
-   #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage(
-         "   Velocity after burn:  %18le  %18le  %18le\n",
-         satState[3], satState[4], satState[5]);
-   #endif
-   
-   //=================================================================
-   #else
-   //=================================================================
-   
    #ifdef DEBUG_IMPBURN_FIRE
    MessageInterface::ShowMessage
       ("   usingLocalCoordSys=%d, spacecraft=<%p>, initialized=%d, "
@@ -321,11 +255,7 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
    
    if (decrementMass)
       DecrementMass();
-   
-   //=================================================================
-   #endif // #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
-   
+      
    #ifdef DEBUG_IMPBURN_FIRE
    MessageInterface::ShowMessage("ImpulsiveBurn::Fire() returning true\n");
    #endif

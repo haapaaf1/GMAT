@@ -24,10 +24,6 @@
 #include "MessageInterface.hpp"
 #include <algorithm>                    // for find()
 
-//#ifndef __USE_MANEUVER_FRAME__
-//#define __USE_MANEUVER_FRAME__
-//#endif
-
 //#define DEBUG_BURN_PARAM
 //#define DEBUG_BURN_GET
 //#define DEBUG_BURN_SET
@@ -128,14 +124,7 @@ Burn::Burn(Gmat::ObjectType type, const std::string &typeStr,
    frameBasis[0][0] = frameBasis[1][1] = frameBasis[2][2] = 1.0;
    frameBasis[0][1] = frameBasis[1][0] = frameBasis[2][0] =
    frameBasis[0][2] = frameBasis[1][2] = frameBasis[2][1] = 0.0;
-   
-   // Since FiniteBurn still uses ManeuverFrame, commented out #ifdef
-   #ifdef __USE_MANEUVER_FRAME__
-   frameman = new ManeuverFrameManager;   
-   /// Load the default maneuver frame
-   frame = frameman->GetFrameInstance(localAxesName);
-   #endif
-   
+      
    // Available local axes labels
    // Since it is static data, clear it first
    localAxesLabels.clear();
@@ -154,12 +143,7 @@ Burn::Burn(Gmat::ObjectType type, const std::string &typeStr,
  */
 //------------------------------------------------------------------------------
 Burn::~Burn()
-{
-   // Since FiniteBurn still uses ManeuverFrame, commented out #ifdef
-   #ifdef __USE_MANEUVER_FRAME__
-   delete frameman;
-   #endif
-   
+{   
    if (usingLocalCoordSys && localCoordSystem)
    {
       #ifdef DEBUG_MEMORY
@@ -217,10 +201,6 @@ Burn::Burn(const Burn &b) :
    for (Integer i = 0; i < 3; i++)
       for (Integer j = 0; j < 3; j++)
          frameBasis[i][j]  = b.frameBasis[i][j];
-   
-   #ifdef __USE_MANEUVER_FRAME__
-   frameman = new ManeuverFrameManager;
-   #endif
 }
 
 
@@ -274,10 +254,6 @@ Burn& Burn::operator=(const Burn &b)
    for (Integer i = 0; i < 3; i++)
       for (Integer j = 0; j < 3; j++)
          frameBasis[i][j]  = b.frameBasis[i][j];
-   
-   #ifdef __USE_MANEUVER_FRAME__
-   frameman = new ManeuverFrameManager;
-   #endif
    
    return *this;
 }
@@ -613,47 +589,6 @@ bool Burn::SetStringParameter(const Integer id, const std::string &value)
       return true;
    case BURNAXES:
       {
-         //===========================================================
-         #ifdef __USE_MANEUVER_FRAME__
-         //===========================================================
-         /// @todo validate the input value when the CS code is incorporated.
-         // if (!IsValidFrame(value))
-         //    return false;
-         
-         // Burns know the frame options, so use that to detect if there is 
-         // an issue with the input
-         StringArray frames = GetPropertyEnumStrings(BURNAXES);
-         if (find(frames.begin(), frames.end(), value) == frames.end())
-         { 
-            // For now, keep "Inertial" as a deprecated option
-            if (value != "Inertial")
-            {
-               std::string framelist = frames[0];
-               for (UnsignedInt n = 1; n < frames.size(); ++n)
-                  framelist += ", " + frames[n];
-               throw BurnException
-                  ("The value of \"" + value + "\" for field \"Axes\""
-                   " on object \"" + instanceName + "\" is not an allowed value.\n"
-                   "The allowed values are: [ " + framelist + " ]. ");
-            }
-            else
-            {
-               MessageInterface::ShowMessage
-                  ("\"Inertial\" maneuver frames are "
-                   "deprecated and will be removed from a future build; please use "
-                   "\"MJ2000Eq\" instead.\n");
-               localAxesName = "MJ2000Eq";
-            }
-         }
-         else
-            localAxesName = value;
-         
-         frame = frameman->GetFrameInstance(localAxesName);
-         
-         //===========================================================
-         #else
-         //===========================================================
-         
          localAxesName = value;
          
          // Do we need to determin Local CS here?
@@ -702,9 +637,6 @@ bool Burn::SetStringParameter(const Integer id, const std::string &value)
                throw BurnException(msg);
             
          }
-         //===========================================================
-         #endif
-         //===========================================================
          
          return true;
       }

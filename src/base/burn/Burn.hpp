@@ -25,12 +25,6 @@
 #include "GmatBase.hpp"
 #include "Spacecraft.hpp"
 
-// This will be removed in the future
-#ifdef __USE_MANEUVER_FRAME__
-#include "ManeuverFrame.hpp"
-#include "ManeuverFrameManager.hpp"
-#endif
-
 /**
  * All maneuver classes are derived from this base class.
  */
@@ -107,13 +101,6 @@ public:
     
 protected:
 
-#ifdef __USE_MANEUVER_FRAME__
-   /// Maneuver frame conversion class manager
-   ManeuverFrameManager *frameman;
-   /// Current maneuver frame
-   ManeuverFrame        *frame;
-#endif
-   
    /// Solar system used to find the J2000 body, etc.
    SolarSystem          *solarSystem;
    /// Local Coordinate system
