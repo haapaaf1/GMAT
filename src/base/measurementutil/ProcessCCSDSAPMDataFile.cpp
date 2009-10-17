@@ -233,21 +233,16 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
     CCSDSAPMObType *myAPM = (CCSDSAPMObType*)myAPMData;
 
     // Read the first line from file
-    std::string line = Trim(ReadLineFromFile());
+    std::string lff = Trim(ReadLineFromFile());
 
     // Check to see if we encountered a new header record.
-    while (!IsEOF() && pcrecpp::RE("^CCSDS_APM_VERS.*").FullMatch(line))
+    while (!IsEOF() && pcrecpp::RE("^CCSDS_APM_VERS.*").FullMatch(lff))
     {
-        // Initialize the header data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSHeader *myCCSDSHeader = new CCSDSHeader;
-
-	if (GetCCSDSHeader(line,myCCSDSHeader))
+	if (GetCCSDSHeader(lff,myAPM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSHeader = myCCSDSHeader;
+	    currentCCSDSHeader = myAPM->ccsdsHeader;
 	}
 	else
 	{
@@ -260,7 +255,7 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
     // Test for the prescence of meta data
     // If the header data was just processed, line should now contain
     // the "META_START" line
-    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(line))
+    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(lff))
     {
         // Initialize individual data struct
         // This needs new memory allocation because
@@ -268,16 +263,16 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
         CCSDSAPMMetaData *myMetaData = new CCSDSAPMMetaData;
 
 	// Read the next metadata line from file
-	line = Trim(ReadLineFromFile());
+	lff = Trim(ReadLineFromFile());
 
-	if (GetCCSDSMetaData(line,myMetaData))
+	if (GetCCSDSMetaData(lff,myMetaData))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
 	    currentCCSDSMetaData = myMetaData;
 
 	    // Read the following data line from file
-	    line = Trim(ReadLineFromFile());
+	    lff = Trim(ReadLineFromFile());
 	}
 	else
 	{
@@ -287,25 +282,28 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
 	}
     }
 
-    // Test for the presence of the start data marker
-    // If the meta data was just processed, line should contain
-    // the "DATA_START" marker which we can skip over to start processing
-    // the actual data.
-    if (pcrecpp::RE("^DATA_START.*").FullMatch(line))
-    {
-        line = Trim(ReadLineFromFile());
-    }
+    // Container for any comments found before the first state vector
+    StringArray comments;
+
+    bool commentsFound = GetCCSDSComments(lff,comments);
 
     // Parse the data record making sure that we have identified
     // a header record and a metadata record previously
     if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
 	return false;
 
-    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
+    if (pcrecpp::RE("^EPOCH.*").FullMatch(lff))
     {
 	myAPM->ccsdsHeader = currentCCSDSHeader;
         myAPM->ccsdsAPMMetaData = currentCCSDSMetaData;
-	return GetCCSDSAPMData(line,myAPM);
+	if (GetCCSDSAPMData(lff,myAPM))
+        {
+            if (commentsFound)
+                myAPM->ccsdsAPMQuaternion->comments = comments;
+            return true;
+        }
+        else
+            return false;
     }
 
     return false;
@@ -322,26 +320,92 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
 bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
                                               CCSDSAPMObType *myOb)
 {
+    
+    // Container for any comments found
+    StringArray comments;
+
+    bool commentsFound = GetCCSDSComments(lff,comments);
 
     std::string regex = "^EPOCH\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSAPMQuaternion(lff,myOb);
+    {
+        if (GetCCSDSAPMQuaternion(lff,myOb))
+        {
+            if (commentsFound)
+            {
+                myOb->ccsdsAPMQuaternion->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+        else return false;
+    }
 
     regex = "^EULER_FRAME_A\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSAPMEulerAngle(lff,myOb);
+    {
+        if(GetCCSDSAPMEulerAngle(lff,myOb))
+        {
+            if (commentsFound)
+            {
+                myOb->ccsdsAPMEulerAngle->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+        else return false;
+    }
 
     regex = "^SPIN_FRAME_A\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSAPMSpinStabilized(lff,myOb);
+    {
+        if(GetCCSDSAPMSpinStabilized(lff,myOb))
+        {
+            if (commentsFound)
+            {
+                myOb->ccsdsAPMSpinStabilized->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+        else return false;
+    }
 
     regex = "^INERTIA_REF_FRAME\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSAPMSpacecraftInertia(lff,myOb);
+    {
+        if(GetCCSDSAPMSpacecraftInertia(lff,myOb))
+        {
+            if (commentsFound)
+            {
+                myOb->ccsdsAPMSpacecraftInertia->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+        else return false;
+    }
 
     regex = "^MAN_EPOCH_START\\s*=.*";
+
+    myOb->i_ccsdsAPMAttitudeManeuvers = myOb->ccsdsAPMAttitudeManeuvers.begin();
+    
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSAPMAttitudeManeuver(lff,myOb);
+    {
+        if (GetCCSDSAPMAttitudeManeuver(lff,myOb))
+        {
+            myOb->i_ccsdsAPMAttitudeManeuvers++;
+            if (commentsFound)
+            {
+                (*myOb->i_ccsdsAPMAttitudeManeuvers)->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+    }
+
+    // Reset iterator to begining again
+    myOb->i_ccsdsAPMAttitudeManeuvers = myOb->ccsdsAPMAttitudeManeuvers.begin();
 
     return true;
 

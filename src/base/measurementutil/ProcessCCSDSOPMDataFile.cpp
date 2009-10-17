@@ -233,21 +233,17 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     CCSDSOPMObType *myOPM = (CCSDSOPMObType*)myOPMData;
 
     // Read the first line from file
-    std::string line = Trim(ReadLineFromFile());
+    std::string lff = Trim(ReadLineFromFile());
 
     // Check to see if we encountered a new header record.
-    while (!IsEOF() && pcrecpp::RE("^CCSDS_OPM_VERS.*").FullMatch(line))
+    while (!IsEOF() && pcrecpp::RE("^CCSDS_OPM_VERS.*").FullMatch(lff))
     {
-        // Initialize the header data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSHeader *myCCSDSHeader = new CCSDSHeader;
 
-	if (GetCCSDSHeader(line,myCCSDSHeader))
+	if (GetCCSDSHeader(lff,myOPM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSHeader = myCCSDSHeader;
+	    currentCCSDSHeader = myOPM->ccsdsHeader;
 	}
 	else
 	{
@@ -260,7 +256,7 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     // Test for the prescence of meta data
     // If the header data was just processed, line should now contain
     // the "META_START" line
-    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(line))
+    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(lff))
     {
         // Initialize individual data struct
         // This needs new memory allocation because
@@ -268,16 +264,16 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
         CCSDSOPMMetaData *myMetaData = new CCSDSOPMMetaData;
 
 	// Read the next metadata line from file
-	line = Trim(ReadLineFromFile());
+	lff = Trim(ReadLineFromFile());
 
-	if (GetCCSDSMetaData(line,myMetaData))
+	if (GetCCSDSMetaData(lff,myMetaData))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
 	    currentCCSDSMetaData = myMetaData;
 
 	    // Read the following data line from file
-	    line = Trim(ReadLineFromFile());
+	    lff = Trim(ReadLineFromFile());
 	}
 	else
 	{
@@ -287,25 +283,28 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
 	}
     }
 
-    // Test for the presence of the start data marker
-    // If the meta data was just processed, line should contain
-    // the "DATA_START" marker which we can skip over to start processing
-    // the actual data.
-    if (pcrecpp::RE("^DATA_START.*").FullMatch(line))
-    {
-        line = Trim(ReadLineFromFile());
-    }
+    // Container for any comments found before the first state vector
+    StringArray comments;
+
+    bool commentsFound = GetCCSDSComments(lff,comments);
 
     // Parse the data record making sure that we have identified
     // a header record and a metadata record previously
     if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
 	return false;
 
-    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
+    if (pcrecpp::RE("^EPOCH.*").FullMatch(lff))
     {
 	myOPM->ccsdsHeader = currentCCSDSHeader;
         myOPM->ccsdsOPMMetaData = currentCCSDSMetaData;
-	return GetCCSDSOPMData(line,myOPM);
+	if (GetCCSDSOPMData(lff,myOPM))
+        {
+            if (commentsFound)
+                myOPM->ccsdsOPMStateVector->comments = comments;
+            return true;
+        }
+        else
+            return false;
     }
 
     return false;
@@ -322,22 +321,73 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
 bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
                                               CCSDSOPMObType *myOb)
 {
+    // Container for any comments found
+    StringArray comments;
+
+    bool commentsFound = GetCCSDSComments(lff,comments);
 
     std::string regex = "^EPOCH\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSOPMStateVector(lff,myOb);
+    {
+        if (GetCCSDSOPMStateVector(lff,myOb))
+        {
+            if (commentsFound)
+            {
+                myOb->ccsdsOPMStateVector->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+        else return false;
+    }
 
     regex = "^SEMI_MAJOR_AXIS\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSOPMKeplerianElements(lff,myOb);
+    {
+        if (GetCCSDSOPMKeplerianElements(lff,myOb))
+        {
+            if (commentsFound)
+            {
+                myOb->ccsdsOPMKeplerianElements->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+        else return false;
+    }
 
     regex = "^MASS\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSOPMSpacecraftParameters(lff,myOb);
+    {
+        if (GetCCSDSOPMSpacecraftParameters(lff,myOb))
+        {
+            if (commentsFound)
+            {
+                myOb->ccsdsOPMSpacecraftParameters->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+        else return false;
+    }
+
+    myOb->i_ccsdsOPMManeuvers = myOb->ccsdsOPMManeuvers.begin();
 
     regex = "^MAN_EPOCH_IGNITION\\s*=.*";
+
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
-        GetCCSDSOPMManeuver(lff,myOb);
+    {
+        if (GetCCSDSOPMManeuver(lff,myOb))
+        {
+            myOb->i_ccsdsOPMManeuvers++;
+            if (commentsFound)
+            {
+                (*myOb->i_ccsdsOPMManeuvers)->comments = comments;
+                comments.clear();
+            }
+            commentsFound = GetCCSDSComments(lff,comments);
+        }
+    }
 
     return true;
 

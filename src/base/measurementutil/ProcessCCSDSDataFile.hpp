@@ -71,7 +71,7 @@ public:
 
 protected:
 
-    bool GetCCSDSHeader(std::string firstline, CCSDSHeader *myHeader);
+    bool GetCCSDSHeader(std::string firstline, CCSDSObType *myOb);
     
     bool GetCCSDSValue(const std::string &lff, std::string &svalue);
     bool GetCCSDSValue(const std::string &lff, Real &value);
@@ -79,6 +79,7 @@ protected:
     bool GetCCSDSKeyword(const std::string &lff, std::string &keyword);
     bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &epoch,
                                    std::string &key, Real &value);
+    bool GetCCSDSComments(std::string &lff, StringArray &comments);
 
     static const std::string CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8];
     static const std::string CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDSTimeSystemReps-8];

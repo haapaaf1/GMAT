@@ -148,17 +148,19 @@ void ProcessCCSDSDataFile::SetHeader(CCSDSHeader *myHeader)
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSHeader(std::string line, CCSDSHeader* myHeader)
+// bool GetCCSDSHeader(std::string lff, CCSDSObType* myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts header information from the CCSDS data file
  *
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
-                                          CCSDSHeader* myHeader)
+bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
+                                          CCSDSObType *myOb)
 {
-    
+
+    CCSDSHeader *myHeader = new CCSDSHeader;
+
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
     // only supports the standard C++ types and does not
@@ -168,7 +170,9 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
     double dtemp;
     std::string stemp;
 
-    if (pcrecpp::RE("^CCSDS_([A-Z]{3})_VERS\\s*=\\s*(\\d*[\\.\\d+]?)").FullMatch(line,&stemp,&dtemp))
+    // The first line of any CCSDS data file must be the version keyword
+    if (pcrecpp::RE("^CCSDS_([A-Z]{3})_VERS\\s*=\\s*(\\d*[\\.\\d+]?)").
+                                                  FullMatch(lff,&stemp,&dtemp))
     {
         myHeader->fileType = stemp;
 	myHeader->ccsdsVersion = dtemp;
@@ -179,39 +183,47 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string line,
 	return false;	
     }
 
+    StringArray comments;
+    bool commentsFound = GetCCSDSComments(lff,comments);
+
+    if (commentsFound)
+        myHeader->comments = comments;
+
+    Integer count = 0;
+    std::string keyword;
+
     // Read in another line
-    std::string nextline = Trim(ReadLineFromFile());
+    lff = Trim(ReadLineFromFile());
 
-    // Read lines until we have encountered the first meta data start
-
-    while (!pcrecpp::RE("^META_START.*").FullMatch(nextline))
+    do
     {
-        if (pcrecpp::RE("^CREATION_DATE\\s*=(.*)").FullMatch(nextline,&stemp))
-        {
-	    myHeader->creationDate = Trim(stemp);
-        }
-        else if (pcrecpp::RE("^ORIGINATOR\\s*=(.*)").FullMatch(nextline,&stemp))
-        {
-	    myHeader->originator = Trim(stemp);
-        }
-        else if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(nextline,&stemp))
-        {
-	    myHeader->comments.push_back(Trim(stemp));
-        }
-	else
-	{
-	    // Ill formed data - these are the only keywords 
-	    // allowed in the header
-	    return false;		    
-	}
 
-        // Read in another line
-        nextline = Trim(ReadLineFromFile());
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
 
+        switch (myOb->GetKeywordID(keyword))
+        {
+
+            case CCSDSObType::CCSDS_CREATIONDATE_ID:
+
+                if (!GetCCSDSValue(lff,myHeader->creationDate)) return false;
+                count++;
+                break;
+
+            case CCSDSObType::CCSDS_ORIGINATOR_ID:
+
+                if (!GetCCSDSValue(lff,myHeader->originator)) return false;
+                count++;
+                break;
+
+            default:
+                return false;
+                break;
+        }
     }
+    while (count < 2);
 
-    // pass the first epoch header to the next subroutine
-    line = nextline;
+    
+    myOb->ccsdsHeader = myHeader;
 
     return true;
 
@@ -341,6 +353,42 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
     }
 
     return false;
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSComments(std::string &lff, StringArray &comments)
+//------------------------------------------------------------------------------
+/**
+ * Extracts a CCSDS Comment block
+ * COMMENT some text some text some text
+ * @param <lff> A line from file
+ * @param <comments> The string array of comments
+ * @return Boolean success if comments found, false if no comments found
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::GetCCSDSComments(std::string &lff,
+                                            StringArray &comments)
+{
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    std::string stemp;
+
+    bool found = false;
+
+    std::string regex = "^COMMENT\\s*(.*)$";
+
+    while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff,&stemp))
+    {
+       comments.push_back(stemp);
+       found = true;
+       lff = Trim(ReadLineFromFile());
+    }
+
+    return found;
 }
 
 //------------------------------------------------------------------------------

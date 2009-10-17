@@ -145,6 +145,21 @@ CCSDSObType::~CCSDSObType()
 }
 
 //------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the CCSDSObType.
+ *
+ * @return clone of the CCSDSObType.
+ */
+//------------------------------------------------------------------------------
+GmatBase* CCSDSObType::Clone() const
+{
+   GmatBase *clone = new CCSDSObType(*this);
+   return (clone);
+}
+
+//------------------------------------------------------------------------------
 // Measurement Data Access functions
 //------------------------------------------------------------------------------
 

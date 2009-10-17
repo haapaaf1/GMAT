@@ -116,6 +116,8 @@ public :
     const CCSDSObType& operator=(const CCSDSObType &ob);
     virtual ~CCSDSObType();
 
+    GmatBase *Clone() const;
+
     friend std::string GetAttitudeTypeText(const Integer id);
     friend Integer    GetAttitudeTypeID(const std::string &str);
     friend std::string GetQuaternionTypeText(const Integer id);
