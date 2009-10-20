@@ -258,6 +258,7 @@ GMAT EarthMoonRot.Secondary = Luna;
 
 Toggle RadApoPlot Off;
 
+Report BPlaneCoords MMSRef.TotalMass MMSRef.tank1.FuelMass MMSRef.tank1.Volume;
 
 %------------------------------
 %  Propagate to Earth periapsis
@@ -313,3 +314,5 @@ EndTarget
 Toggle RadApoPlot On;
 
 Propagate LunarSB(MMSRef, {MMSRef.ElapsedDays = 12});
+
+Report BPlaneCoords MMSRef.TotalMass MMSRef.tank1.FuelMass MMSRef.tank1.Volume;
