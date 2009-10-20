@@ -2365,6 +2365,22 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\src\base\parameter\HardwareParameters.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\parameter\HardwareParameters.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\parameter\HardwareReal.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\parameter\HardwareReal.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\base\parameter\KeplerianParameters.cpp"
 						>
 					</File>
