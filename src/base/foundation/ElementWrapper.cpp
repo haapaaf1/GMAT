@@ -452,7 +452,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
    Real rval = -99999.999;
    Integer ival = -99999;
    bool bval = false;
-   std::string sval;
+   std::string sval = "UnknownValue";
    Rmatrix rmat;
    GmatBase *rhsObj = NULL;
    
@@ -500,7 +500,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       case Gmat::REAL_TYPE:
          rval = rhsWrapper->EvaluateReal();
          #ifdef DEBUG_EW_SET_VALUE
-         MessageInterface::ShowMessage("   rhs rval=%f\n", rval);
+         MessageInterface::ShowMessage("   REAL_TYPE rhs rval=%f\n", rval);
          #endif
          break;
       case Gmat::RMATRIX_TYPE:
@@ -587,29 +587,45 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                    rhsDataType == Gmat::ENUMERATION_TYPE ||
                    rhsDataType == Gmat::ON_OFF_TYPE))
          {
-            lhsWrapper->SetString(sval);            
+            lhsWrapper->SetString(sval);
          }
-         // We don't want to allow VARIALE to STRING assignment
+         // We don't want to allow Variable or Array element to STRING assignment
          else if (rhsDataType == Gmat::REAL_TYPE &&
-                  rhsWrapperType != Gmat::VARIABLE_WT)
+                  rhsWrapperType != Gmat::VARIABLE_WT &&
+                  rhsWrapperType != Gmat::ARRAY_ELEMENT_WT)
          {
             lhsWrapper->SetString(rhs);
          }
          else
          {
-            GmatBaseException ex;
-            if (rhsObj != NULL)
-               ex.SetDetails("ElementWrapper::SetValue() Cannot set object of "
-                             "type \"%s\" to an undefined object \"%s\"",
-                             rhsObj->GetTypeName().c_str(), lhs.c_str());
-            else if (lhsWrapperType == Gmat::STRING_OBJECT_WT &&
-                     rhsWrapperType == Gmat::VARIABLE_WT)
-               ex.SetDetails("ElementWrapper::SetValue() Cannot set objet of "
-                             "type \"Variable\" to object of type \"String\"");
+            // Handle setting real value to string here
+            // This fixes Bug 1340 (LOJ: 2009.10.19)
+            if (rhsDataType == Gmat::REAL_TYPE)
+            {
+               sval = GmatStringUtil::ToString(rval, 16);
+               #ifdef DEBUG_EW_SET_VALUE
+               MessageInterface::ShowMessage
+                  ("   %f converted to string '%s'\n", rval, sval.c_str());
+               #endif
+               lhsWrapper->SetString(sval);
+               break;
+            }
             else
-               ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to "
-                             "an undefined object \"%s\"", rhs.c_str(), lhs.c_str());
-            throw ex;
+            {
+               GmatBaseException ex;
+               if (rhsObj != NULL)
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set object of "
+                                "type \"%s\" to an undefined object \"%s\"",
+                                rhsObj->GetTypeName().c_str(), lhs.c_str());
+               else if (lhsWrapperType == Gmat::STRING_OBJECT_WT &&
+                        rhsWrapperType == Gmat::VARIABLE_WT)
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set objet of "
+                                "type \"Variable\" to object of type \"String\"");
+               else
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to "
+                                "an undefined object \"%s\"", rhs.c_str(), lhs.c_str());
+               throw ex;
+            }
          }
          break;
       case Gmat::ON_OFF_TYPE:
