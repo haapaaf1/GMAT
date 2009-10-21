@@ -22,6 +22,21 @@
 #include "GmatBase.hpp"
 
 
+/**
+ * The OwnedPlot class provides access to plotting capabilities for components
+ * that need to display graphical information for that component only, without
+ * generating object to object interactions or data passing through GMAT's
+ * Publisher.  This component is wholly owned by another, which passes in data
+ * and controls plot updates using the interfaces defined here.
+ *
+ * OwnedPlot objects talk to the graphical components through the PlotInterface
+ * and PlotReceiver classes.  The standard GMAT GUI interface for this
+ * communication is the GuiPlotReceiver, which connects the plot messages to a
+ * TsPlot object displayed on the GUI.
+ *
+ * In spite of their location in GMAT's directory structure, OwnedPlots are not
+ * Subscribers.  They are derived directly from GmatBase.
+ */
 class OwnedPlot : public GmatBase
 {
 public:

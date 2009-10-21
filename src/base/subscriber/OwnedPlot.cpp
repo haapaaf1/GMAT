@@ -84,10 +84,17 @@ OwnedPlot::PARAMETER_TYPE[OwnedPlotParamCount - GmatBaseParamCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// OwnedPlot(const std::string &name, Parameter *xParam,
-//        Parameter *firstYParam, const std::string &plotTitle,
-//        const std::string &xAxisTitle, const std::string &yAxisTitle,
-//        bool drawGrid)
+// OwnedPlot(const std::string &name, const std::string &plotTitle,
+//       const std::string &xAxisTitle, const std::string &yAxisTitle)
+//------------------------------------------------------------------------------
+/**
+ * Default constructor
+ *
+ * @param name Name of the plot.  This name should be unique in the Sandbox.
+ * @param plotTitle Title of the plot
+ * @param xAxisTitle Label for the x-axis
+ * @param yAxisTitle Label for the y-axis
+ */
 //------------------------------------------------------------------------------
 OwnedPlot::OwnedPlot(const std::string &name, const std::string &plotTitle,
                const std::string &xAxisTitle, const std::string &yAxisTitle) :
@@ -125,6 +132,12 @@ OwnedPlot::OwnedPlot(const std::string &name, const std::string &plotTitle,
 
 //------------------------------------------------------------------------------
 // OwnedPlot(const OwnedPlot &orig)
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor
+ *
+ * @param orig The original owned plot getting copied here
+ */
 //------------------------------------------------------------------------------
 OwnedPlot::OwnedPlot(const OwnedPlot &orig) :
    GmatBase(orig),
@@ -164,6 +177,8 @@ OwnedPlot::OwnedPlot(const OwnedPlot &orig) :
 //------------------------------------------------------------------------------
 /**
  * The assignment operator
+ *
+ * @param orig The original owned plot providing data for this one
  */
 //------------------------------------------------------------------------------
 OwnedPlot& OwnedPlot::operator=(const OwnedPlot& orig)
@@ -207,7 +222,11 @@ OwnedPlot& OwnedPlot::operator=(const OwnedPlot& orig)
 
 
 //------------------------------------------------------------------------------
-// ~OwnedPlot(void)
+// ~OwnedPlot()
+//------------------------------------------------------------------------------
+/**
+ * Destructor
+ */
 //------------------------------------------------------------------------------
 OwnedPlot::~OwnedPlot()
 {
@@ -215,7 +234,13 @@ OwnedPlot::~OwnedPlot()
 
 
 //------------------------------------------------------------------------------
-// virtual bool Initialize()
+// bool OwnedPlot::Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Initializes the structures used for plotting
+ *
+ * @return true on success, false if initialization failed
+ */
 //------------------------------------------------------------------------------
 bool OwnedPlot::Initialize()
 {
@@ -319,7 +344,6 @@ bool OwnedPlot::Initialize()
  * This method returns a clone of the OwnedPlot.
  *
  * @return clone of the OwnedPlot.
- *
  */
 //------------------------------------------------------------------------------
 GmatBase* OwnedPlot::Clone() const
@@ -344,13 +368,15 @@ void OwnedPlot::Copy(const GmatBase* orig)
 
 
 //------------------------------------------------------------------------------
-// bool SetName(const std::string &who, const std;:string &oldName = "")
+// bool SetName(const std::string &who, const std;:string &oldName)
 //------------------------------------------------------------------------------
 /**
  * Set the name for this instance.
  *
- * @see GmatBase
+ * @param who The new name
+ * @param oldName The previous name
  *
+ * @return true on success, false if initialization failed
  */
 //------------------------------------------------------------------------------
 bool OwnedPlot::SetName(const std::string &who, const std::string &oldName)
@@ -378,8 +404,8 @@ bool OwnedPlot::SetName(const std::string &who, const std::string &oldName)
  *
  * @param <action> action to perform
  * @param <actionData> action data associated with action
- * @return true if action successfully performed
  *
+ * @return true if action successfully performed
  */
 //------------------------------------------------------------------------------
 bool OwnedPlot::TakeAction(const std::string &action,
@@ -419,13 +445,22 @@ bool OwnedPlot::TakeAction(const std::string &action,
 }
 
 
-//---------------------------------------------------------------------------
-//  bool RenameRefObject(const Gmat::ObjectType type,
-//                       const std::string &oldName, const std::string &newName)
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// bool RenameRefObject(const Gmat::ObjectType type, const std::string &oldName,
+//       const std::string &newName)
+//------------------------------------------------------------------------------
+/**
+ * Renames reference objects used by this plot
+ *
+ * @param type The type of the object getting renamed
+ * @param oldName The old object name
+ * @param newName The new name of the object
+ *
+ * @return true if no issue was detected for the rename
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::RenameRefObject(const Gmat::ObjectType type,
-                             const std::string &oldName,
-                             const std::string &newName)
+      const std::string &oldName, const std::string &newName)
 {
    #if DEBUG_RENAME
       MessageInterface::ShowMessage
@@ -452,6 +487,14 @@ bool OwnedPlot::RenameRefObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 // std::string GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * Returns the script string used for the parameter with the input ID
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The parameter's string used in GMAT scripts
+ */
+//------------------------------------------------------------------------------
 std::string OwnedPlot::GetParameterText(const Integer id) const
 {
    if (id >= GmatBaseParamCount && id < OwnedPlotParamCount)
@@ -461,8 +504,17 @@ std::string OwnedPlot::GetParameterText(const Integer id) const
     
 }
 
+
 //------------------------------------------------------------------------------
 // Integer GetParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the ID for a scriptable string
+ *
+ * @param str The string that maps to an ID
+ *
+ * @return The ID matching that string
+ */
 //------------------------------------------------------------------------------
 Integer OwnedPlot::GetParameterID(const std::string &str) const
 {
@@ -479,6 +531,14 @@ Integer OwnedPlot::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 // Gmat::ParameterType GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * Retrieves the type for a scriptable parameter
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The type of the parameter
+ */
+//------------------------------------------------------------------------------
 Gmat::ParameterType OwnedPlot::GetParameterType(const Integer id) const
 {
    if (id >= GmatBaseParamCount && id < OwnedPlotParamCount)
@@ -491,6 +551,14 @@ Gmat::ParameterType OwnedPlot::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * Retrieves a string describing the parameter type
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The string description
+ */
+//------------------------------------------------------------------------------
 std::string OwnedPlot::GetParameterTypeString(const Integer id) const
 {
    if (id >= GmatBaseParamCount && id < OwnedPlotParamCount)
@@ -500,13 +568,14 @@ std::string OwnedPlot::GetParameterTypeString(const Integer id) const
       return GmatBase::GetParameterTypeString(id);
 }
 
+
 //---------------------------------------------------------------------------
 //  bool IsParameterReadOnly(const Integer id) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is read only.
  *
- * @param <id> Description for the parameter.
+ * @param id Description for the parameter.
  *
  * @return true if the parameter is read only, false (the default) if not,
  *         throws if the parameter is out of the valid range of values.
@@ -530,8 +599,17 @@ bool OwnedPlot::IsParameterReadOnly(const Integer id) const
    return GmatBase::IsParameterReadOnly(id);
 }
 
+
 //------------------------------------------------------------------------------
-// virtual Integer GetIntegerParameter(const Integer id) const
+// Integer GetIntegerParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves an integer parameter
+ *
+ * @param id The ID of the desired parameter
+ *
+ * @return The parameter value
+ */
 //------------------------------------------------------------------------------
 Integer OwnedPlot::GetIntegerParameter(const Integer id) const
 {
@@ -563,8 +641,17 @@ Integer OwnedPlot::GetIntegerParameter(const Integer id) const
    }
 }
 
+
 //------------------------------------------------------------------------------
-// virtual Integer GetIntegerParameter(const std::string &label) const
+// Integer GetIntegerParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves an integer parameter
+ *
+ * @param label The script name of the desired parameter
+ *
+ * @return The parameter value
+ */
 //------------------------------------------------------------------------------
 Integer OwnedPlot::GetIntegerParameter(const std::string &label) const
 {
@@ -573,7 +660,16 @@ Integer OwnedPlot::GetIntegerParameter(const std::string &label) const
 
 
 //------------------------------------------------------------------------------
-// virtual Integer SetIntegerParameter(const Integer id, const Integer value)
+// Integer SetIntegerParameter(const Integer id, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * Sets an integer parameter
+ *
+ * @param id The ID of the parameter
+ * @param value The new parameter value
+ *
+ * @return The parameter value after the assignment
+ */
 //------------------------------------------------------------------------------
 Integer OwnedPlot::SetIntegerParameter(const Integer id, const Integer value)
 {
@@ -614,8 +710,16 @@ Integer OwnedPlot::SetIntegerParameter(const Integer id, const Integer value)
 
 
 //------------------------------------------------------------------------------
-// virtual Integer SetIntegerParameter(const std::string &label,
-//                                     const Integer value)
+// Integer SetIntegerParameter(const std::string &label, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * Sets an integer parameter
+ *
+ * @param label The script string used for the parameter
+ * @param value The new parameter value
+ *
+ * @return The parameter value after the assignment
+ */
 //------------------------------------------------------------------------------
 Integer OwnedPlot::SetIntegerParameter(const std::string &label,
                                     const Integer value)
@@ -624,15 +728,24 @@ Integer OwnedPlot::SetIntegerParameter(const std::string &label,
 }
 
 
-//---------------------------------------------------------------------------
-//  std::string GetOnOffParameter(const Integer id) const
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// std::string GetOnOffParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a boolean parameter scripted using the words On and Off
+ *
+ * @param id The ID for the parameter
+ *
+ * @return On if the parameter is true, Off if it is false
+ */
+//------------------------------------------------------------------------------
 std::string OwnedPlot::GetOnOffParameter(const Integer id) const
 {
    switch (id)
    {
       case DRAW_GRID:
          return mDrawGrid;
+
       default:
          return GmatBase::GetOnOffParameter(id);
    }
@@ -640,7 +753,15 @@ std::string OwnedPlot::GetOnOffParameter(const Integer id) const
 
 
 //------------------------------------------------------------------------------
-// std::string OwnedPlot::GetOnOffParameter(const std::string &label) const
+// std::string GetOnOffParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a boolean parameter scripted using the words On and Off
+ *
+ * @param label The script string for the parameter
+ *
+ * @return On if the parameter is true, Off if it is false
+ */
 //------------------------------------------------------------------------------
 std::string OwnedPlot::GetOnOffParameter(const std::string &label) const
 {
@@ -648,9 +769,18 @@ std::string OwnedPlot::GetOnOffParameter(const std::string &label) const
 }
 
 
-//---------------------------------------------------------------------------
-//  bool SetOnOffParameter(const Integer id, const std::string &value)
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// bool SetOnOffParameter(const Integer id, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a boolean parameter scripted using the words On and Off
+ *
+ * @param id The ID for the parameter
+ * @param value The new setting for the parameter
+ *
+ * @return true on success, false if the parameter could not be set
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::SetOnOffParameter(const Integer id, const std::string &value)
 {
    switch (id)
@@ -666,7 +796,17 @@ bool OwnedPlot::SetOnOffParameter(const Integer id, const std::string &value)
 
 
 //------------------------------------------------------------------------------
-// bool SetOnOffParameter(const std::string &label, const std::string &value)
+// bool OwnedPlot::SetOnOffParameter(const std::string &label,
+//       const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a boolean parameter scripted using the words On and Off
+ *
+ * @param label The script string for the parameter
+ * @param value The new setting for the parameter
+ *
+ * @return true on success, false if the parameter could not be set
+ */
 //------------------------------------------------------------------------------
 bool OwnedPlot::SetOnOffParameter(const std::string &label,
       const std::string &value)
@@ -677,6 +817,14 @@ bool OwnedPlot::SetOnOffParameter(const std::string &label,
 
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string parameter by ID
+ *
+ * @param id The parameter's ID
+ *
+ * @return The parameter
+ */
 //------------------------------------------------------------------------------
 std::string OwnedPlot::GetStringParameter(const Integer id) const
 {
@@ -700,6 +848,14 @@ std::string OwnedPlot::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
+/**
+ * Retrieves a string parameter by script string
+ *
+ * @param label The parameter's scriptable string
+ *
+ * @return The parameter
+ */
+//------------------------------------------------------------------------------
 std::string OwnedPlot::GetStringParameter(const std::string &label) const
 {
    #if DEBUG_XY_PARAM
@@ -713,6 +869,15 @@ std::string OwnedPlot::GetStringParameter(const std::string &label) const
 
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const Integer id, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string parameter
+ *
+ * @param id The ID of the parameter
+ * @param value The new parameter value
+ *
+ * @return true on success, false on failure
+ */
 //------------------------------------------------------------------------------
 bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value)
 {
@@ -761,8 +926,16 @@ bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value)
 
 
 //------------------------------------------------------------------------------
-// bool SetStringParameter(const std::string &label,
-//                         const std::string &value)
+// bool SetStringParameter(const std::string &label, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string parameter
+ *
+ * @param label The script string of the parameter
+ * @param value The new parameter value
+ *
+ * @return true on success, false on failure
+ */
 //------------------------------------------------------------------------------
 bool OwnedPlot::SetStringParameter(const std::string &label,
                                 const std::string &value)
@@ -777,8 +950,18 @@ bool OwnedPlot::SetStringParameter(const std::string &label,
 
 
 //------------------------------------------------------------------------------
-// virtual bool SetStringParameter(const Integer id, const std::string &value,
-//                                 const Integer index)
+// bool SetStringParameter(const Integer id, const std::string &value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string parameter in a StringArray
+ *
+ * @param id The ID of the parameter
+ * @param value The new parameter value
+ * @param index Location of the parameter in the array
+ *
+ * @return true on success, false on failure
+ */
 //------------------------------------------------------------------------------
 bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value,
                                 const Integer index)
@@ -816,9 +999,18 @@ bool OwnedPlot::SetStringParameter(const Integer id, const std::string &value,
 
 
 //------------------------------------------------------------------------------
-// virtual bool SetStringParameter(const std::string &label,
-//                                 const std::string &value,
-//                                 const Integer index)
+// bool SetStringParameter(const std::string &label, const std::string &value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string parameter in a StringArray
+ *
+ * @param label The script string of the parameter
+ * @param value The new parameter value
+ * @param index Location of the parameter in the array
+ *
+ * @return true on success, false on failure
+ */
 //------------------------------------------------------------------------------
 bool OwnedPlot::SetStringParameter(const std::string &label,
                                 const std::string &value,
@@ -837,6 +1029,14 @@ bool OwnedPlot::SetStringParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // const StringArray& GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
+/**
+ * Retrieves a StringArray parameter
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The StringArray
+ */
+//------------------------------------------------------------------------------
 const StringArray& OwnedPlot::GetStringArrayParameter(const Integer id) const
 {
    switch (id)
@@ -850,7 +1050,15 @@ const StringArray& OwnedPlot::GetStringArrayParameter(const Integer id) const
 
 
 //------------------------------------------------------------------------------
-// StringArray& GetStringArrayParameter(const std::string &label) const
+// const StringArray& GetStringArrayParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a StringArray parameter
+ *
+ * @param label The script string of the parameter
+ *
+ * @return The StringArray
+ */
 //------------------------------------------------------------------------------
 const StringArray& OwnedPlot::GetStringArrayParameter(
       const std::string &label) const
@@ -859,6 +1067,17 @@ const StringArray& OwnedPlot::GetStringArrayParameter(
 }
 
 
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a Boolean parameter
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The parameter value -- true or false
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::GetBooleanParameter(const Integer id) const
 {
    if (id == SHOW_PLOT)
@@ -879,16 +1098,54 @@ bool OwnedPlot::GetBooleanParameter(const Integer id) const
    return GmatBase::GetBooleanParameter(id);
 }
 
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a Boolean parameter
+ *
+ * @param label The script string of the parameter
+ *
+ * @return The parameter value -- true or false
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::GetBooleanParameter(const std::string &label) const
 {
    return GetBooleanParameter(GetParameterID(label));
 }
 
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const std::string &label, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a Boolean parameter
+ *
+ * @param label The script string of the parameter
+ * @param value The new value for the parameter
+ *
+ * @return The parameter value -- true or false
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::SetBooleanParameter(const std::string &label, const bool value)
 {
    return SetBooleanParameter(GetParameterID(label), value);
 }
 
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const Integer id, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a Boolean parameter
+ *
+ * @param id The ID of the parameter
+ * @param value The new value for the parameter
+ *
+ * @return The parameter value -- true or false
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::SetBooleanParameter(const Integer id, const bool value)
 {
    if (id == SHOW_PLOT)
@@ -930,6 +1187,19 @@ bool OwnedPlot::SetBooleanParameter(const Integer id, const bool value)
 }
 
 
+//------------------------------------------------------------------------------
+// bool Activate()
+//------------------------------------------------------------------------------
+/**
+ * Turns on the plot component on the GUI, so that it refreshes and processes
+ * data as it is received.
+ *
+ * This method helps reduce processing overhead when a large block of data is
+ * available for plotting
+ *
+ * @return true
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::Activate()
 {
    PlotInterface::ActivateTsPlot(instanceName);
@@ -937,6 +1207,19 @@ bool OwnedPlot::Activate()
 }
 
 
+//------------------------------------------------------------------------------
+// bool Deactivate()
+//------------------------------------------------------------------------------
+/**
+ * Turns off the plot component on the GUI, so that it receives and stores data,
+ * but does not refresh or process that data until the plot is activated.
+ *
+ * This method helps reduce processing overhead when a large block of data is
+ * available for plotting
+ *
+ * @return true
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::Deactivate()
 {
    PlotInterface::DeactivateTsPlot(instanceName);
@@ -944,6 +1227,28 @@ bool OwnedPlot::Deactivate()
 }
 
 
+//------------------------------------------------------------------------------
+// void SetData(std::vector<RealArray*> &dataBlast, RealArray hiErrors,
+//       RealArray lowErrors)
+//------------------------------------------------------------------------------
+/**
+ * Sends a large block of data to the plot component
+ *
+ * The dataBlast array is a vector or RealArray pointers.  The first RealArray
+ * pointer points to the independent (X-axis) data, the subsequent pointers
+ * point to dependent (Y-axis) data that corresponds to the dependent data
+ * values.
+ *
+ * Error bars can be displayed if the receiving plot component supports them.
+ * The error data is passed in in the hiErrors and lowErrors arrays.  These
+ * arrays contain the + and - error on the reported value.  If lowErrors is
+ * empty but data exists in hiErrors, hiErrors is treated as +/- error.
+ *
+ * @param dataBlast The data (x and y values) that is sent to the plot
+ * @param hiErrors (Optional) The +sigma errors used for error bars
+ * @param lowErrors (Optional) The -sigma errors used for error bars
+ */
+//------------------------------------------------------------------------------
 void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast,
       RealArray hiErrors, RealArray lowErrors)
 {
@@ -988,6 +1293,20 @@ void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast,
 }
 
 
+//------------------------------------------------------------------------------
+// void SetCurveData(const Integer forCurve, RealArray *xData, RealArray *yData,
+//       const RealArray *yhis, const RealArray *ylows)
+//------------------------------------------------------------------------------
+/**
+ * Adds data to a single curve on a plot
+ *
+ * @param forCurve The index of the curve
+ * @param xData The array of independent data for the curve
+ * @param yData The array of dependent data for the curve
+ * @param yhis The optional "+ sigma" data for error bars
+ * @param ylows The optional "- sigma" data for error bars
+ */
+//------------------------------------------------------------------------------
 void OwnedPlot::SetCurveData(const Integer forCurve, RealArray *xData,
            RealArray *yData, const RealArray *yhis, const RealArray *ylows)
 {
@@ -1020,6 +1339,21 @@ void OwnedPlot::SetCurveData(const Integer forCurve, RealArray *xData,
 }
 
 
+//------------------------------------------------------------------------------
+// bool MarkPoint(Integer whichOne, Integer forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Passes a point marker in to the plot
+ *
+ * @param whichOne Index of the point that gets marked; -1 indicates the next
+ *                 point that the curve receives
+ * @param forCurve The index of the curve that contains the marked point
+ *
+ * @return true if the mark was sent to the curve, false if not
+ *
+ * @todo: This method is not yet implemented
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::MarkPoint(Integer whichOne, Integer forCurve)
 {
    bool retval = false;
@@ -1027,6 +1361,24 @@ bool OwnedPlot::MarkPoint(Integer whichOne, Integer forCurve)
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// Integer SetUsedDataID(Integer id, Integer forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Passes in the ID of the data source used by a given curve.
+ *
+ * @param id The data source ID
+ * @param forCurve The curve that uses that data source
+ *
+ * @return The ID of the curve that supports the data.  If forCurve == -1 or if
+ *         it is the number of currently defined curves, the ID is applied to
+ *         the next curve defined for the plot and the return value is the index
+ *         that curve will receive.  Out-of-bounds cases -- that is, those not
+ *         covered here -- will generate a return value of -1, and the ID will
+ *         not be stored.
+ */
+//------------------------------------------------------------------------------
 Integer OwnedPlot::SetUsedDataID(Integer id, Integer forCurve)
 {
    if (forCurve < -1)
@@ -1056,6 +1408,15 @@ Integer OwnedPlot::SetUsedDataID(Integer id, Integer forCurve)
    return curveId;
 }
 
+//------------------------------------------------------------------------------
+// void SetUsedObjectID(Integer id)
+//------------------------------------------------------------------------------
+/**
+ * Passes in the ID of the objects used by the plot.
+ *
+ * @param id The object ID
+ */
+//------------------------------------------------------------------------------
 void OwnedPlot::SetUsedObjectID(Integer id)
 {
    bool alreadyThere = false;
@@ -1071,6 +1432,17 @@ void OwnedPlot::SetUsedObjectID(Integer id)
       supportedObjects.push_back(id);
 }
 
+//------------------------------------------------------------------------------
+// Integer UsesData(Integer id)
+//------------------------------------------------------------------------------
+/**
+ * Checks an OwnedPlot to see if a specific data source is used
+ *
+ * @param id The data source's ID
+ *
+ * @return the index of the curve plotting that data source
+ */
+//------------------------------------------------------------------------------
 Integer OwnedPlot::UsesData(Integer id)
 {
    Integer retval = -1;
@@ -1085,6 +1457,17 @@ Integer OwnedPlot::UsesData(Integer id)
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// Integer UsesObject(Integer id)
+//------------------------------------------------------------------------------
+/**
+ * Checks an OwnedPlot to see if a specific object is used
+ *
+ * @param id The object's ID
+ *
+ * @return The index of the object in the object list
+ */
+//------------------------------------------------------------------------------
 Integer OwnedPlot::UsesObject(Integer id)
 {
    Integer retval = -1;
@@ -1106,6 +1489,11 @@ Integer OwnedPlot::UsesObject(Integer id)
 //------------------------------------------------------------------------------
 // void BuildPlotTitle()
 //------------------------------------------------------------------------------
+/**
+ * Sets the plot title and axis titles to default values if no values have been
+ * set.
+ */
+//------------------------------------------------------------------------------
 void OwnedPlot::BuildPlotTitle()
 {
    if (mXAxisTitle == "")
@@ -1118,6 +1506,12 @@ void OwnedPlot::BuildPlotTitle()
 
 //------------------------------------------------------------------------------
 // bool ClearYParameters()
+//------------------------------------------------------------------------------
+/**
+ * Clears the curve data and prepares teh plot for a new set of curves
+ *
+ * @return true on success, false on failure
+ */
 //------------------------------------------------------------------------------
 bool OwnedPlot::ClearYParameters()
 {
@@ -1177,11 +1571,6 @@ bool OwnedPlot::RemoveYParameter(const std::string &name)
       }
    }
 
-   //------------------------------------------
-   // loj: 9/29/04
-   // Need to remove from PlotCurves also
-   //------------------------------------------
-
    #if DEBUG_ACTION_REMOVE
       MessageInterface::ShowMessage("OwnedPlot::RemoveYParameter() name = %s "
             "not found\n", name.c_str());
@@ -1190,8 +1579,15 @@ bool OwnedPlot::RemoveYParameter(const std::string &name)
    return false;
 }
 
+
 //------------------------------------------------------------------------------
 // bool ResetYParameters()
+//------------------------------------------------------------------------------
+/**
+ * Clears the plot data
+ *
+ * @return true on success
+ */
 //------------------------------------------------------------------------------
 bool OwnedPlot::ResetYParameters()
 {
@@ -1202,6 +1598,12 @@ bool OwnedPlot::ResetYParameters()
 //------------------------------------------------------------------------------
 // bool PenUp()
 //------------------------------------------------------------------------------
+/**
+ * Stops writing to the plot
+ *
+ * @return true on success
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::PenUp()
 {
    PlotInterface::TsPlotPenUp(instanceName);
@@ -1211,6 +1613,12 @@ bool OwnedPlot::PenUp()
 //------------------------------------------------------------------------------
 // bool PenDown()
 //------------------------------------------------------------------------------
+/**
+ * Resumes writing on the plot
+ *
+ * @return true on success
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::PenDown()
 {
    PlotInterface::TsPlotPenDown(instanceName);
@@ -1218,6 +1626,15 @@ bool OwnedPlot::PenDown()
 }
 
 
+//------------------------------------------------------------------------------
+// bool RescaleData()
+//------------------------------------------------------------------------------
+/**
+ * Resets the plot scales to match the current curve data
+ *
+ * @return true on success
+ */
+//------------------------------------------------------------------------------
 bool OwnedPlot::RescaleData()
 {
    PlotInterface::TsPlotRescale(instanceName);
@@ -1226,12 +1643,14 @@ bool OwnedPlot::RescaleData()
 
 
 //------------------------------------------------------------------------------
-// void DeletePlotCurves()
+// void OwnedPlot::DeletePlotCurves()
+//------------------------------------------------------------------------------
+/**
+ * Deletes all of the PlotCurves
+ */
 //------------------------------------------------------------------------------
 void OwnedPlot::DeletePlotCurves()
 {
-   // delete exiting curves
+   // delete existing curves
    PlotInterface::DeleteAllTsPlotCurves(instanceName, mOldName);
 }
-
-
