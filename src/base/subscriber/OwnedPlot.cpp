@@ -269,6 +269,13 @@ bool OwnedPlot::Initialize()
          
          PlotInterface::AddTsPlotCurve(instanceName, i, yOffset, yMin, yMax,
                curveNames[i], curveColor[i]);
+
+         #ifdef DEBUG_ERROR_BARS
+            MessageInterface::ShowMessage("In OwnedPlot::Initialize, "
+                  "curveUseHiLow[%d] = %s\n", i,
+                  (curveUseHiLow[i] == true ? "true" : "false"));
+         #endif
+
          PlotInterface::TsPlotCurveSettings(instanceName, curveUseLines[i],
                curveLineWidth[i], curveLineStyle[i], curveUseMarkers[i],
                curveMarkerSize[i], curveMarker[i], curveUseHiLow[i], i);
@@ -283,8 +290,6 @@ bool OwnedPlot::Initialize()
       #endif
       
       PlotInterface::ClearTsPlotData(instanceName);
-      PlotInterface::TsPlotCurveSettings(instanceName, useLines, lineWidth,
-            useMarkers, markerSize);
    }
    else
    {
@@ -939,7 +944,8 @@ bool OwnedPlot::Deactivate()
 }
 
 
-void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast)
+void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast,
+      RealArray hiErrors, RealArray lowErrors)
 {
    #if DEBUG_OwnedPlot_UPDATE > 1
       MessageInterface::ShowMessage
@@ -959,20 +965,31 @@ void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast)
 
    Real xval;
    Rvector yvals = Rvector(curveNames.size());
+   Rvector his = Rvector(curveNames.size());
+   Rvector lows = Rvector(curveNames.size());
 
    for (UnsignedInt i = 0; i < xData->size(); ++i)
    {
       xval = (*xData)[i];
       for (UnsignedInt j = 0; j < curveNames.size(); ++j)
+      {
          yvals[j] = (*(dataBlast[j+1]))[i];
+         if (hiErrors.size() > i)
+            his[j] = hiErrors[i];
+         if (lowErrors.size() > i)
+            lows[j] = lowErrors[i];
+         else
+            lows[j] = his[j];
+      }
 
-      PlotInterface::UpdateTsPlotData(instanceName, xval, yvals);
+      PlotInterface::UpdateTsPlotData(instanceName, xval, yvals, his,
+            lows);
    }
 }
 
 
 void OwnedPlot::SetCurveData(const Integer forCurve, RealArray *xData,
-           RealArray *yData)
+           RealArray *yData, const RealArray *yhis, const RealArray *ylows)
 {
    #if DEBUG_OwnedPlot_UPDATE > 1
       MessageInterface::ShowMessage
@@ -980,10 +997,25 @@ void OwnedPlot::SetCurveData(const Integer forCurve, RealArray *xData,
           "runState=%d\n", isEndOfReceive, active, runstate);
    #endif
 
+   Real hi, low;
+
    for (UnsignedInt i = 0; i < xData->size(); ++i)
    {
+      hi = low = 0.0;
+      if (yhis)
+      {
+         if (yhis->size() > i)
+         {
+            hi = (*yhis)[i];
+            if ((ylows) && (ylows->size() > i))
+               low = (*ylows)[i];
+            else
+               low = hi;
+         }
+      }
+
       PlotInterface::UpdateTsPlotCurve(instanceName, forCurve, (*xData)[i],
-            (*yData)[i]);
+            (*yData)[i], hi, low);
    }
 }
 

@@ -210,6 +210,7 @@ protected:
       SPACECRAFT_ID,
       ATTITUDE,
       ORBIT_STM,
+//      ORBIT_COVARIANCE,
       
       // special parameter to handle in GmatFunction
       UTC_GREGORIAN,

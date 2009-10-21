@@ -1280,7 +1280,8 @@ bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
 }
 
 bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
-      const Real &xval, const Rvector &yvals)
+      const Real &xval, const Rvector &yvals, const Rvector *yhis,
+      const Rvector *ylows)
 {
    bool updated = false;
 
@@ -1308,7 +1309,16 @@ bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
                   ("GuiPlotReceiver::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
                #endif
 
-               frame->AddDataPoints(j, xval, yvals(j));
+               if (yhis != NULL)
+               {
+                  if (ylows != NULL)
+                     frame->AddDataPoints(j, xval, yvals(j), (*yhis)(j),
+                           (*ylows)(j));
+                  else
+                     frame->AddDataPoints(j, xval, yvals(j), (*yhis)(j));
+               }
+               else
+                  frame->AddDataPoints(j, xval, yvals(j));
             }
 
 //            if (updateCanvas)
@@ -1327,7 +1337,7 @@ bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
 
 bool GuiPlotReceiver::UpdateTsPlotCurve(const std::string &plotName,
                       const Integer whichCurve, const Real xval,
-                      const Real yval)
+                      const Real yval, const Real yhi, const Real ylow)
 {
    bool updated = false;
 
@@ -1358,7 +1368,7 @@ bool GuiPlotReceiver::UpdateTsPlotCurve(const std::string &plotName,
                      ("GuiPlotReceiver::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
                   #endif
 
-                  frame->AddDataPoints(whichCurve, xval, yval);
+                  frame->AddDataPoints(whichCurve, xval, yval, yhi, ylow);
                }
                if (frame->IsActive())
                {

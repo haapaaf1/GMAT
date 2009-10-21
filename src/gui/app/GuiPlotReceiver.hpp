@@ -134,10 +134,12 @@ public:
                             const std::string &yAxisTitle,
                             bool updateCanvas, bool drawGrid);
    virtual bool UpdateTsPlotData(const std::string &plotName, const Real &xval,
-                                 const Rvector &yvals);
+                                 const Rvector &yvals, const Rvector *yhis = NULL,
+                                 const Rvector *ylows = NULL);
    virtual bool UpdateTsPlotCurve(const std::string &plotName,
                       const Integer whichCurve, const Real xval,
-                      const Real yval);
+                      const Real yval, const Real yhi = 0.0,
+                      const Real ylow = 0.0);
 
    virtual bool DeactivateTsPlot(const std::string &plotName);
    virtual bool ActivateTsPlot(const std::string &plotName);

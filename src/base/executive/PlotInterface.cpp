@@ -530,20 +530,23 @@ bool PlotInterface::UpdateTsPlot(const std::string &plotName,
 }
 
 bool PlotInterface::UpdateTsPlotData(const std::string &plotName,
-                             const Real &xval, const Rvector &yvals)
+                             const Real &xval, const Rvector &yvals,
+                             const Rvector &hiError, const Rvector &lowError)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->UpdateTsPlotData(plotName, xval, yvals);
+      return thePlotReceiver->UpdateTsPlotData(plotName, xval, yvals, &hiError,
+            &lowError);
 
    return false;
 }
 
 bool PlotInterface::UpdateTsPlotCurve(const std::string &plotName,
                              Integer whichCurve, const Real &xval,
-                             const Real &yval)
+                             const Real &yval, const Real hi, const Real low)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->UpdateTsPlotCurve(plotName, whichCurve, xval, yval);
+      return thePlotReceiver->UpdateTsPlotCurve(plotName, whichCurve, xval,
+            yval, hi, low);
 
    return false;
 }

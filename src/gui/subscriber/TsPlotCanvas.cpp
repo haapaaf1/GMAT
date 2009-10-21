@@ -99,6 +99,10 @@ TsPlotCanvas::TsPlotCanvas(wxWindow* parent, wxWindowID id, const wxPoint& pos,
    userXMax       (8600.0),
    userYMin       (-4000.0),
    userYMax       (7000.0),
+   showsigmaLine  (true),
+   show1sigmaTick (true),
+   show2sigmaTick (true),
+   show3sigmaTick (true),
    showTitle      (false),
    labelAxes      (false),
    hasGrid        (true),
@@ -433,10 +437,25 @@ void TsPlotCanvas::Refresh(wxDC &dc, bool drawAll)
 
 
 void TsPlotCanvas::DrawMarker(wxDC &dc, int style, int markerSize, int x0,
-      int y0, wxPen &thePen)
+      int y0, wxPen &thePen, int hi, int low)
 {
    wxPen currentPen = dc.GetPen();
    dc.SetPen(thePen);
+
+   // Manage int overflows
+   int leftX = - markerSize - 1, rightX = 32000;
+   int topY = - markerSize - 1, bottomY = 32000;
+
+   if (x0 < leftX)
+      x0 = leftX;
+   if (x0 > rightX)
+      x0 = rightX;
+
+   if (y0 < topY)
+      y0 = topY;
+   if (y0 > bottomY)
+      y0 = bottomY;
+
    switch (style)
    {
       case xMarker:
@@ -527,6 +546,67 @@ void TsPlotCanvas::DrawMarker(wxDC &dc, int style, int markerSize, int x0,
             dc.SetPen(thePen);
          }
          break;
+
+      case hilowMarker:
+         if (hi > 0)
+         { // Scoping
+            if (low < 0)
+               low = hi;
+            dc.DrawLine(x0, y0-hi, x0, y0+low);
+            dc.DrawLine(x0-markerSize, y0-hi, x0+markerSize+1, y0-hi);
+            dc.DrawLine(x0-markerSize, y0+low, x0+markerSize+1, y0+low);
+         }
+         break;
+
+      case sigma13Marker:
+         if (hi > 0)
+         { // Scoping
+            int yt, yb, y2t, y2b, y3t, y3b;
+
+            if (low < 0)
+               low = hi;
+
+            // Manage int overflows
+            yt  = y0 - hi;
+            yb  = y0 + low;
+            y2t = y0 - 2*hi;
+            y2b = y0 + 2*low;
+            y3t = y0 - 3*hi;
+            y3b = y0 + 3*low;
+            if (yt < topY)
+               yt = topY;
+            if (yb > bottomY)
+               yb = bottomY;
+            if (y2t < topY)
+               y2t = topY;
+            if (y2b > bottomY)
+               y2b = bottomY;
+            if (y3t < topY)
+               y3t = topY;
+            if (y3b > bottomY)
+               y3b = bottomY;
+
+            if (showsigmaLine)
+            {
+               dc.DrawLine(x0, yt, x0, y3t);
+               dc.DrawLine(x0, yb, x0, y3b);
+            }
+            if (show1sigmaTick)
+            {
+               dc.DrawLine(x0-markerSize, yt, x0+markerSize+1, yt);
+               dc.DrawLine(x0-markerSize, yb, x0+markerSize+1, yb);
+            }
+            if (show2sigmaTick)
+            {
+               dc.DrawLine(x0-markerSize, y2t, x0+markerSize+1, y2t);
+               dc.DrawLine(x0-markerSize, y2b, x0+markerSize+1, y2b);
+            }
+            if (show3sigmaTick)
+            {
+               dc.DrawLine(x0-markerSize, y3t, x0+markerSize+1, y3t);
+               dc.DrawLine(x0-markerSize, y3b, x0+markerSize+1, y3b);
+            }
+         }
 
       default: // Same as xMarker
          dc.DrawLine(x0-markerSize, y0-markerSize,

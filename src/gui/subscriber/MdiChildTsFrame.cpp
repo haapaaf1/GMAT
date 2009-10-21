@@ -335,7 +335,8 @@ void MdiChildTsFrame::DeletePlotCurve(int curveIndex)
  * @param <yData> y value to be updated
  */
 //------------------------------------------------------------------------------
-void MdiChildTsFrame::AddDataPoints(int curveIndex, double xData, double yData)
+void MdiChildTsFrame::AddDataPoints(int curveIndex, Real xData, Real yData,
+      Real hi, Real lo)
 {
    #ifdef DEBUG_POINT_ADD
       MessageInterface::ShowMessage(
@@ -347,7 +348,7 @@ void MdiChildTsFrame::AddDataPoints(int curveIndex, double xData, double yData)
    {
       TsPlotCurve *curve = mXyPlot->GetPlotCurve(curveIndex);
       if (curve)
-         curve->AddData(xData, yData);
+         curve->AddData(xData, yData, hi, lo);
    } 
 }
 
@@ -452,6 +453,8 @@ void MdiChildTsFrame::CurveSettings(bool useLines, Integer lineWidth,
    if (mXyPlot)
    {
       Integer count = mXyPlot->GetCurveCount();
+//      if (useHiLow)
+//         mXyPlot->
       if (forCurve == -1)
       {
          for (Integer i = 0; i < count; ++i)

@@ -110,6 +110,7 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::STRING_TYPE,      // Id
       Gmat::OBJECT_TYPE,      // Attitude
       Gmat::RMATRIX_TYPE,     // OrbitSTM
+//      Gmat::STRINGARRAY_TYPE, // Covariance,
       Gmat::STRING_TYPE,      // UTCGregorian
       Gmat::REAL_TYPE,        // CartesianX
       Gmat::REAL_TYPE,        // CartesianY
@@ -152,6 +153,7 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "Id",
       "Attitude",
       "OrbitSTM",
+//      "Covariance",
       "UTCGregorian",
       "CartesianX",
       "CartesianY",
@@ -2469,6 +2471,9 @@ const Rmatrix& Spacecraft::GetRmatrixParameter(const Integer id) const
    if (id == ORBIT_STM)
       return orbitSTM;
    
+//   if (id == ORBIT_COVARIANCE)
+//      return covariance;
+
    return SpaceObject::GetRmatrixParameter(id);
 }
 
@@ -2484,6 +2489,12 @@ const Rmatrix& Spacecraft::SetRmatrixParameter(const Integer id,
       return orbitSTM;
    }
    
+//   if (id == ORBIT_COVARIANCE)
+//   {
+//      covariance = value;
+//      return covariance;
+//   }
+
    return SpaceObject::SetRmatrixParameter(id, value);
 }
 

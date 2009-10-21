@@ -59,7 +59,9 @@ enum MarkerType
    nablaMarker,
    gunsightMarker,
    MarkerCount,
-   highlightMarker         // Special case, only used for highlighted points
+   highlightMarker,         // Special case, only used for highlighted points
+   hilowMarker,             // Special case, for showing error bars
+   sigma13Marker,           // Special case, for showing 3 sigma error bars w/ a hole
 };
 
 #endif /*TSPLOTDEFS_HPP_*/

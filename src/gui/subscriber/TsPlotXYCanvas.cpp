@@ -22,7 +22,7 @@
 
 TsPlotXYCanvas::TsPlotXYCanvas(wxWindow* parent, wxWindowID id, 
      const wxPoint& pos, const wxSize& size, long style, const wxString& name) :
-   TsPlotCanvas         (parent, id, pos, size, style,name)
+   TsPlotCanvas         (parent, id, pos, size, style, name)
 {
 }
 
@@ -330,7 +330,7 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
             }
 
             int j;
-            int x0, y0, x1, y1;
+            int x0, y0, x1, y1, hi = 0, lo = 0;
 
             bool drawLines   = (*curve)->UseLine();
             bool drawMarker  = (*curve)->UseMarker();
@@ -340,6 +340,8 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
             for (j = (*curve)->lastPointPlotted;
                  j < (int)((*curve)->abscissa.size())-1; ++j)
             {
+               bool showErrorBars = (*curve)->UseHiLow();
+
                if (j == ccLoc)
                {
                   plotPens[n].SetColour((*curve)->GetColour(ccIndex));
@@ -366,6 +368,24 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
                   y0 = int(top +
                         (currentYMax-(*curve)->ordinate[j]) * yScale + 0.5);
 
+                  if (showErrorBars)
+                  {
+                     if ((Integer)((*curve)->highError.size()) > j)
+                     {
+                        hi = int((*curve)->highError[j] * yScale + 0.5);
+                        if ((Integer)((*curve)->lowError.size()) > j)
+                           lo = int((*curve)->lowError[j] * yScale + 0.5);
+                        else
+                           lo = hi;
+
+                        #ifdef DEBUG_ERROR_BARS
+                           MessageInterface::ShowMessage("high = %lf -> "
+                                 "hi = %d, lo = %d\n", (*curve)->highError[j],
+                                 hi, lo);
+                        #endif
+                     }
+                  }
+
                   if (drawLines)
                   {
                      x1 = int(left +
@@ -378,13 +398,23 @@ void TsPlotXYCanvas::PlotData(wxDC &dc)
 
                   if (drawMarker)
                   {
-                     if (find(highlights->begin(), highlights->end(), j) != highlights->end())
-                        DrawMarker(dc, highlightMarker, markerSize, x0, y0, plotPens[n]);
+                     if (find(highlights->begin(), highlights->end(), j) !=
+                           highlights->end())
+                        DrawMarker(dc, highlightMarker, markerSize, x0, y0,
+                              plotPens[n]);
                      else
-                        DrawMarker(dc, markerStyle, markerSize, x0, y0, plotPens[n]);
+                     {
+                        if (showErrorBars)
+                           DrawMarker(dc, sigma13Marker, markerSize, x0, y0,
+                                 plotPens[n], hi, lo);
+                        DrawMarker(dc, markerStyle, markerSize, x0, y0,
+                              plotPens[n]);
+                     }
                   }
-                  else if (find(highlights->begin(), highlights->end(), j) != highlights->end())
-                     DrawMarker(dc, highlightMarker, markerSize, x0, y0, plotPens[n]);
+                  else if (find(highlights->begin(), highlights->end(), j) !=
+                        highlights->end())
+                     DrawMarker(dc, highlightMarker, markerSize, x0, y0,
+                           plotPens[n]);
                }
                else
                {
@@ -448,6 +478,8 @@ void TsPlotXYCanvas::Rescale(wxDC &dc)
          // Look through the PlotCurves for ranges
          for (++i; i != data.end(); ++i)
          {
+            (*i)->Rescale();
+
             if ((*i)->minX < xMin)
                xMin = (*i)->minX;
             if ((*i)->maxX > xMax)

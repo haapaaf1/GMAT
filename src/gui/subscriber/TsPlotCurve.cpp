@@ -37,6 +37,7 @@ TsPlotCurve::TsPlotCurve(int offsetY, double startY, double endY,
    useMarkers        (false),
    currentMarkerStyle(unsetMarker),
    markerSize        (3),
+   showHiLow         (true), //false),
    lineWidth         (1),
    lineStyle         (wxSOLID),
    penIsDown         (true),
@@ -63,7 +64,7 @@ TsPlotCurve::~TsPlotCurve()
 //------------------------------------------------------------------------------
 // void AddData(double x, double y)
 //------------------------------------------------------------------------------
-void TsPlotCurve::AddData(double x, double y)
+void TsPlotCurve::AddData(double x, double y, double high, double low)
 {
    #ifdef DEBUG_PENUP_PENDOWN
       static Integer counter = 0;
@@ -86,22 +87,35 @@ void TsPlotCurve::AddData(double x, double y)
    
    if (penIsDown)
    {
+      // Include error bars in top and bottom values
+      Real yt = y + high, yb = y - (low == 0.0 ? high : low);
+
       if (abscissa.size() == 0) 
       {
          #ifdef DEBUG_FIRST_POINT
-            MessageInterface::ShowMessage("Adding initial data: [%lf, %lf]\n", 
+            MessageInterface::ShowMessage("Adding initial data: [%lf, %lf]",
                x, y);
+            if (errorDataPresent)
+               MessageInterface::ShowMessage(" with error bars: [%le, %le]\n",
+                     high, low);
+            MessageInterface::ShowMessage("\n");
          #endif
          
          minX = maxX = x;
-         minY = maxY = y;
+         maxY = yt;
+         minY = yb;
          rangeChanged = true;
          domainChanged = true;
       }
          
       abscissa.push_back(x);
       ordinate.push_back(y);
-      
+      if (yt > y)
+      {
+         highError.push_back(high);
+         if (low > 0.0)
+            lowError.push_back(low);
+      }
    
       if (x < minX)
       {
@@ -113,14 +127,14 @@ void TsPlotCurve::AddData(double x, double y)
          maxX = x;
          domainChanged = true;
       }
-      if (y < minY)
+      if (yb < minY)
       {
-         minY = y;
+         minY = yb;
          rangeChanged = true;
       }
-      if (y > maxY)
+      if (yt > maxY)
       {
-         maxY = y;
+         maxY = yt;
          rangeChanged = true;
       }
    
@@ -308,23 +322,65 @@ const std::vector<int>* TsPlotCurve::GetHighlightPoints()
 
 void TsPlotCurve::Rescale()
 {
+   #ifdef DEBUG_RESCALING
+      MessageInterface::ShowMessage("In TsPlotCurve::Rescale, showHiLow = %s\n",
+            (showHiLow == true ? "true" : "false"));
+   #endif
    if (abscissa.size() > 0)
    {
-      minX = maxX = abscissa[0];
-      minY = maxY = ordinate[0];
-
-      for (unsigned int i=1; i < abscissa.size(); i++)
+      if ((!showHiLow) || (highError.size() == 0))
       {
-         if (abscissa[i] < minX)
-            minX = abscissa[i];
-         if (abscissa[i] > maxX)
-            maxX = abscissa[i];
-         if (ordinate[i] < minY)
-            minY = ordinate[i];
-         if (ordinate[i] > maxY)
-            maxY = ordinate[i];
+         minX = maxX = abscissa[0];
+         minY = maxY = ordinate[0];
+
+         for (unsigned int i=1; i < abscissa.size(); i++)
+         {
+            if (abscissa[i] < minX)
+               minX = abscissa[i];
+            if (abscissa[i] > maxX)
+               maxX = abscissa[i];
+            if (ordinate[i] < minY)
+               minY = ordinate[i];
+            if (ordinate[i] > maxY)
+               maxY = ordinate[i];
+         }
+      }
+      else
+      {
+         minX = maxX = abscissa[0];
+         minY = ordinate[0] - lowError[0];
+         maxY = ordinate[0] + highError[0];
+
+         Real hi, lo;
+
+         for (unsigned int i=1; i < abscissa.size(); i++)
+         {
+            if (abscissa[i] < minX)
+               minX = abscissa[i];
+            if (abscissa[i] > maxX)
+               maxX = abscissa[i];
+
+            if (lowError.size() > i)
+               lo = lowError[i];
+            else
+               lo = 0.0;
+            if (highError.size() > i)
+               hi = highError[i];
+            else
+               hi = 0.0;
+
+            if (ordinate[i] - lo < minY)
+               minY = ordinate[i] - lo;
+            if (ordinate[i] + hi > maxY)
+               maxY = ordinate[i] + hi;
+         }
       }
    }
+
+   #ifdef DEBUG_RESCALING
+      MessageInterface::ShowMessage("ShowHiLow: %s, yMin = %le, yMax = %le\n",
+            (showHiLow ? "true" : "false"), minY, maxY);
+   #endif
 }
 
 
@@ -490,10 +546,11 @@ void TsPlotCurve::SetMarkerSize(int newSize)
 
 bool TsPlotCurve::UseHiLow()
 {
-   return false;
+   return true; //showHiLow;
 }
 
 bool TsPlotCurve::UseHiLow(bool useHiLow)
 {
-   return false;
+   showHiLow = useHiLow;
+   return showHiLow;
 }

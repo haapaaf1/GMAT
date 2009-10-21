@@ -100,9 +100,11 @@ public:
    bool                 Deactivate();
 
    // Methods used to access the plot
-   virtual void         SetData(std::vector<RealArray*> &dataBlast);
+   virtual void         SetData(std::vector<RealArray*> &dataBlast,
+                              RealArray hiErrors, RealArray lowErrors);
    virtual void         SetCurveData(const Integer forCurve, RealArray *xData,
-                              RealArray *yData);
+                              RealArray *yData, const RealArray *yhis = NULL,
+                              const RealArray *ylows = NULL);
 
    virtual bool         MarkPoint(Integer whichOne = -1, Integer forCurve = -1);
 

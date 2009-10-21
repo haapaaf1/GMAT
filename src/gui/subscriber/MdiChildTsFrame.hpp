@@ -57,7 +57,8 @@ public:
                      UnsignedInt penColor);
    void DeleteAllPlotCurves();
    void DeletePlotCurve(int curveIndex);
-   void AddDataPoints(int curveIndex, double xData, double yData);
+   void AddDataPoints(int curveIndex, double xData, double yData, Real hi = 0.0,
+         Real lo = 0.0);
    void ClearPlotData();
    void PenUp();
    void PenDown();

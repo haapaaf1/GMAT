@@ -164,6 +164,12 @@ protected:
    double userYMin;
    double userYMax;
    
+   // Error bar properties for the 13sigma error bars
+   bool showsigmaLine;
+   bool show1sigmaTick;
+   bool show2sigmaTick;
+   bool show3sigmaTick;
+
    // Appearance parms
    bool showTitle;
    bool labelAxes;
@@ -180,7 +186,7 @@ protected:
    virtual void Rescale(wxDC &dc) = 0;
    
    virtual void DrawMarker(wxDC &dc, int style, int markerSize, int x0, int y0,
-         wxPen &thePen);
+         wxPen &thePen, int hi = -1, int low = -1);
 
    virtual void DrawGrid(wxDC &dc);
    virtual void ToggleGrid(wxCommandEvent& event);

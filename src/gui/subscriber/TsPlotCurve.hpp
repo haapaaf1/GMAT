@@ -34,7 +34,7 @@ public:
                const wxString &curveTitle);
    virtual ~TsPlotCurve();
    
-   void AddData(double x, double y);
+   void AddData(double x, double y, double high = 0.0, double low = 0.0);
    void SetColour(wxColour rgb, int where = 0);
    wxColour GetColour(int whichOne = 0);
    void SetWidth(int w);
@@ -86,6 +86,7 @@ protected:
    bool   useMarkers;
    int    currentMarkerStyle;
    int    markerSize;
+   bool   showHiLow;
 
    // Interpolator *mInterp;
    
@@ -93,6 +94,10 @@ protected:
    std::vector<double>  abscissa;
    /// Dependent data
    std::vector<double>  ordinate;
+   /// Data used for top of error bars
+   std::vector<double>  highError;
+   /// Data used for bottom of error bars
+   std::vector<double>  lowError;
    /// Location for "pen up" commands
    std::vector<int>     penUpIndex;
    /// vector of line colors

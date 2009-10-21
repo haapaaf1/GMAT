@@ -59,6 +59,19 @@ const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
                   GmatBase::REAL_PARAMETER_UNDEFINED);
 
 
+const Gmat::ParameterType GmatBase::PARAMETER_TYPE[GmatBaseParamCount] =
+      {
+            Gmat::STRINGARRAY_TYPE,
+      };
+
+const std::string GmatBase::PARAMETER_LABEL[GmatBaseParamCount] =
+      {
+            "Covariance",
+      };
+
+
+
+
 /**
  * Build the list of type names
  *
@@ -1110,6 +1123,14 @@ bool GmatBase::IsParameterReadOnly(const Integer id) const
              << " named \"" << instanceName <<"\"";
       throw GmatBaseException(errmsg.str());
    }
+
+   // Hide covariance if it hasn't been defined
+   if (id == COVARIANCE)
+   {
+      if (covarianceList.size() == 0)
+         return true;
+   }
+
    return false;
 }
 

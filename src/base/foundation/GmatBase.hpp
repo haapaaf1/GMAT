@@ -396,6 +396,8 @@ public:
 
    virtual bool            HasDynamicParameterSTM(Integer parameterId);
    virtual Rmatrix*        GetParameterSTM(Integer parameterId);
+
+   // Covariance handling code
    virtual Integer         HasParameterCovariances(Integer parameterId);
    virtual Rmatrix*        GetParameterCovariances(Integer parameterId = -1);
 
@@ -404,8 +406,15 @@ protected:
    /// Parameter IDs
    enum
    {
-      GmatBaseParamCount = 0,
+      COVARIANCE = 0,
+      GmatBaseParamCount,
    };
+
+   /// Spacecraft parameter types
+   static const Gmat::ParameterType PARAMETER_TYPE[GmatBaseParamCount];
+   /// Spacecraft parameter labels
+   static const std::string PARAMETER_LABEL[GmatBaseParamCount];
+
 
    /// count of the number of GmatBase objects currently instantiated
    static Integer      instanceCount;
@@ -462,6 +471,13 @@ protected:
    /// flag indicating whether or not to omit the "Create" line when writing the script
    bool                cloaking;
 
+   // Ordered list of parameters that have covariances
+   StringArray         covarianceList;
+   // Ordered list of parameter IDs that have covariances
+   IntegerArray        covarianceIds;
+   // Size of the covariance element
+   IntegerArray        covarianceSizes;
+   // Covariance matrix for parameters identified in covarianceList
    Rmatrix             covariance;
 
    // Scripting interfaces
