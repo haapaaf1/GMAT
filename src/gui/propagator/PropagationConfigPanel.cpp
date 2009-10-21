@@ -1449,7 +1449,7 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
    
    #ifdef DEBUG_PROP_INTEGRATOR
    MessageInterface::ShowMessage
-      ("DisplayIntegratorData() integratorChanged=%d, integratorString=<%s>\n",
+      ("DisplayIntegratorData() entered, integratorChanged=%d, integratorString=<%s>\n",
        integratorChanged, integratorString.c_str());
    #endif
    
@@ -1461,6 +1461,13 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
       if (thePropagator == NULL)
          thePropagator = (Propagator*)
             theGuiInterpreter->CreateObject(integratorType, thePropagatorName);
+      
+      #ifdef DEBUG_PROP_INTEGRATOR
+      MessageInterface::ShowMessage
+         ("   integratorType='%s', thePropagatorName='%s'\n   thePropagator=<%p>'%s'\n",
+          integratorType.c_str(), thePropagatorName.c_str(), thePropagator,
+          thePropagator ? thePropagator->GetName().c_str() : "NULL");
+      #endif
    }
 
    
@@ -1890,24 +1897,29 @@ bool PropagationConfigPanel::SaveIntegratorData()
    CheckReal(initStep, str, "InitialStepSize", "Real Number");
    
    str = accuracyTextCtrl->GetValue();      
-   CheckReal(accuracy, str, "Accuracy", "Real Number >= 0.0");
+   CheckReal(accuracy, str, "Accuracy", "Real Number >= 0", false, true, true, true);
    
    str = minStepTextCtrl->GetValue();            
-   CheckReal(minStep, str, "Min Step Size", "Real Number > 0.0, MinStep <= MaxStep");
+   CheckReal(minStep, str, "Min Step Size", "Real Number > 0, MinStep <= MaxStep",
+             false, true, true);
    
    str = maxStepTextCtrl->GetValue();            
-   CheckReal(maxStep, str, "Max Step Size", "Real Number > 0.0, MinStep <= MaxStep");
+   CheckReal(maxStep, str, "Max Step Size", "Real Number > 0, MinStep <= MaxStep",
+             false, true, true);
    
    str = maxStepAttemptTextCtrl->GetValue();            
-   CheckInteger(maxAttempts, str, "Max Step Attempts", "Integer Number > 0");
+   CheckInteger(maxAttempts, str, "Max Step Attempts", "Integer Number > 0",
+                false, true, true);
    
    if (integratorString.IsSameAs(integratorArray[ABM]))
    {
       str = minIntErrorTextCtrl->GetValue();            
-      CheckReal(minError, str, "Min Integration Error", "Real Number > 0");
+      CheckReal(minError, str, "Min Integration Error", "Real Number > 0",
+                false, true, true);
       
       str = nomIntErrorTextCtrl->GetValue();            
-      CheckReal(nomError, str, "Nominal Integration Error", "Real Number > 0");
+      CheckReal(nomError, str, "Nominal Integration Error", "Real Number > 0",
+                false, true, true);
    }
    
    if (!canClose)
@@ -1925,7 +1937,7 @@ bool PropagationConfigPanel::SaveIntegratorData()
       
       id = thePropagator->GetParameterID("Accuracy");
       thePropagator->SetRealParameter(id, accuracy);
-
+      
       id = thePropagator->GetParameterID("MinStep");
       thePropagator->SetRealParameter(id, minStep);
       
