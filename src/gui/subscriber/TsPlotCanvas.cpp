@@ -135,7 +135,9 @@ TsPlotCanvas::TsPlotCanvas(wxWindow* parent, wxWindowID id, const wxPoint& pos,
    #ifdef __WXMAC__
       gridColor = 0x7f7f7f;
    #else
-      gridColor = backgnd;
+      // backgnd was too light; darken it
+      // gridColor = backgnd;
+      gridColor.Set(backgnd.Red()<<2, backgnd.Green()<<2, backgnd.Blue()<<2);
    #endif
    gridPen.SetStyle(wxDOT);
    gridPen.SetColour(gridColor);
@@ -759,8 +761,8 @@ void TsPlotCanvas::SetLabel(const std::string &dataName,
                dataName.c_str());
          #endif
          plotTitle = dataName;
-         yLabel = "";
-         xLabel = "";
+         // yLabel = "";
+         // xLabel = "";
          break;
 
       case X_LABEL:

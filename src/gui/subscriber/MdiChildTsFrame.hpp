@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              MdiChildTsFrame
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -32,7 +32,10 @@
 
 #include "gmatdefs.hpp"     // for UnsignedInt
 
-//class MdiChildTsFrame: public wxMDIChildFrame
+
+/**
+ * The frame used to XY plots based on the TsPlot library
+ */
 class MdiChildTsFrame: public GmatMdiChildFrame
 {
 public:

@@ -110,7 +110,7 @@ void TsPlotCurve::AddData(double x, double y, double high, double low)
          
       abscissa.push_back(x);
       ordinate.push_back(y);
-      if (yt > y)
+      if (high > 0.0)
       {
          highError.push_back(high);
          if (low > 0.0)

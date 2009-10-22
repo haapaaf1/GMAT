@@ -1184,6 +1184,14 @@ bool TsPlot::PenDown()
    return true;
 }
 
+//------------------------------------------------------------------------------
+// bool MarkPoint()
+//------------------------------------------------------------------------------
+/**
+ * Places an X marker at the current point on all curves in a plot
+ * @return true on success
+ */
+//------------------------------------------------------------------------------
 bool TsPlot::MarkPoint()
 {
    PlotInterface::TsPlotMarkPoint(instanceName);

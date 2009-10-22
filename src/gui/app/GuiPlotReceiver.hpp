@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             GuiPlotReceiver
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -25,6 +25,10 @@
 #include "CoordinateSystem.hpp"
 #include "PlotReceiver.hpp"
 
+
+/**
+ * The PlotReceiver used in GMAT's wxWidgets based GUI
+ */
 class GuiPlotReceiver : public PlotReceiver
 {
 

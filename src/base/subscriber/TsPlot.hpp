@@ -22,6 +22,10 @@
 #include "Subscriber.hpp"
 #include "Parameter.hpp"
 
+
+/**
+ * Subscriber class used to drive the TsPlot components on the GUI
+ */
 class TsPlot : public Subscriber 
 {
 public:

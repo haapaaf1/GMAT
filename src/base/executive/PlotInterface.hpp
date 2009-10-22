@@ -25,6 +25,10 @@
 #include "CoordinateSystem.hpp"
 #include "PlotReceiver.hpp"
 
+
+/**
+ * Interface functions for the OpenGL and XY plot classes.
+ */
 class PlotInterface
 {
 

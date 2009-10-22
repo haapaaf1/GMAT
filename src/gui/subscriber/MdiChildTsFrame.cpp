@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              MdiChildTsFrame
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -40,9 +40,11 @@ BEGIN_EVENT_TABLE(MdiChildTsFrame, GmatMdiChildFrame)
    EVT_MENU(GmatPlot::MDI_TS_CHILD_QUIT, MdiChildTsFrame::OnQuit)
    EVT_MENU(GmatPlot::MDI_TS_CHANGE_TITLE, MdiChildTsFrame::OnChangeTitle)
    EVT_MENU(GmatPlot::MDI_TS_CLEAR_PLOT, MdiChildTsFrame::OnClearPlot)
-   EVT_MENU(GmatPlot::MDI_TS_SHOW_DEFAULT_VIEW, MdiChildTsFrame::OnShowDefaultView)
+   EVT_MENU(GmatPlot::MDI_TS_SHOW_DEFAULT_VIEW,
+         MdiChildTsFrame::OnShowDefaultView)
    EVT_MENU(GmatPlot::MDI_TS_DRAW_GRID, MdiChildTsFrame::OnDrawGrid)
-   EVT_MENU(GmatPlot::MDI_TS_DRAW_DOTTED_LINE, MdiChildTsFrame::OnDrawDottedLine)
+   EVT_MENU(GmatPlot::MDI_TS_DRAW_DOTTED_LINE,
+         MdiChildTsFrame::OnDrawDottedLine)
    EVT_MENU(GmatPlot::MDI_TS_HELP_VIEW, MdiChildTsFrame::OnHelpView)
 
 //   EVT_PLOT_CLICKED(-1, MdiChildTsFrame::OnPlotClick)
@@ -58,11 +60,31 @@ END_EVENT_TABLE()
 //                 const wxString& xAxisTitle, const wxString& yAxisTitle,
 //                 const wxPoint& pos, const wxSize& size, const long style)
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
+//       const wxString &plotName, const wxString& plotTitle,
+//       const wxString& xAxisTitle, const wxString& yAxisTitle,
+//       const wxPoint& pos, const wxSize& size, const long style)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the frame
+ *
+ * @param parent Window that owns this one
+ * @param isMainFrame Flag indicating if this is the main frame
+ * @param plotName Name of the plot
+ * @param plotTitle Title of the plot
+ * @param xAxisTitle X-axis label
+ * @param yAxisTitle Y-axis label
+ * @param pos Position for the frame on the screen
+ * @param size Size of the frame
+ * @param style Style used for drawing the frame
+ */
+//------------------------------------------------------------------------------
 MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
-                                 const wxString &plotName, const wxString& plotTitle,
-                                 const wxString& xAxisTitle, const wxString& yAxisTitle,
-                                 const wxPoint& pos, const wxSize& size, const long style)
-   : GmatMdiChildFrame(parent, plotName, plotTitle, GmatTree::OUTPUT_XY_PLOT, -1,
+      const wxString &plotName, const wxString& plotTitle,
+      const wxString& xAxisTitle, const wxString& yAxisTitle,
+      const wxPoint& pos, const wxSize& size, const long style) :
+   GmatMdiChildFrame(parent, plotName, plotTitle, GmatTree::OUTPUT_XY_PLOT, -1,
                        pos, size, style | wxNO_FULL_REPAINT_ON_RESIZE)
 {
    mXyPlot = (TsPlotCanvas *) NULL;
@@ -85,11 +107,11 @@ MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
    MdiTsPlot::mdiChildren.Append(this);
     
    // Give it an icon
-#ifdef __WXMSW__
-   SetIcon(wxIcon(_T("chrt_icn")));
-#else
-   SetIcon(wxIcon( mondrian_xpm ));
-#endif
+   #ifdef __WXMSW__
+      SetIcon(wxIcon(_T("chrt_icn")));
+   #else
+      SetIcon(wxIcon( mondrian_xpm ));
+   #endif
 
    // Create XyPlotFrame
    int width, height;
@@ -121,13 +143,18 @@ MdiChildTsFrame::MdiChildTsFrame(wxMDIParentFrame *parent, bool isMainFrame,
 
 
    #ifdef DEBUG_MDI_TS_FRAME
-   MessageInterface::ShowMessage("MdiChildTsFrame::MdiChildTsFrame() leaving\n");
+   MessageInterface::ShowMessage("MdiChildTsFrame::MdiChildTsFrame() "
+         "leaving\n");
    #endif
 }
 
 
 //------------------------------------------------------------------------------
 // ~MdiChildTsFrame()
+//------------------------------------------------------------------------------
+/**
+ * Destructor
+ */
 //------------------------------------------------------------------------------
 MdiChildTsFrame::~MdiChildTsFrame()
 {
@@ -145,9 +172,17 @@ MdiChildTsFrame::~MdiChildTsFrame()
 }
 
 
-//------------------------------------------------------------------------------   
+//------------------------------------------------------------------------------
 // int ReadXyPlotFile(const wxString &filename)
-//------------------------------------------------------------------------------   
+//------------------------------------------------------------------------------
+/**
+ * Reads data for an XY plot and passes those data to the plot component
+ *
+ * @param filename The file that is to be read
+ *
+ * @return The number of data points read from the file
+ */
+//------------------------------------------------------------------------------
 int MdiChildTsFrame::ReadXyPlotFile(const wxString &filename)
 {
    std::ifstream inStream;  // input data stream
@@ -160,9 +195,12 @@ int MdiChildTsFrame::ReadXyPlotFile(const wxString &filename)
       inStream.open(filename.c_str());
       if (inStream.is_open())
       {
-         TsPlotCurve *xCurve = new TsPlotCurve(0, -40000.0, 40000.0, "Position X");
-         TsPlotCurve *yCurve = new TsPlotCurve(0, -40000.0, 40000.0, "Position Y");
-         TsPlotCurve *zCurve = new TsPlotCurve(0, -40000.0, 40000.0, "Position Z");
+         TsPlotCurve *xCurve = new TsPlotCurve(0, -40000.0, 40000.0,
+               "Position X");
+         TsPlotCurve *yCurve = new TsPlotCurve(0, -40000.0, 40000.0,
+               "Position Y");
+         TsPlotCurve *zCurve = new TsPlotCurve(0, -40000.0, 40000.0,
+               "Position Z");
 
          // read 1st line to get start time
          for (int i=0; i<7; i++)
@@ -200,6 +238,12 @@ int MdiChildTsFrame::ReadXyPlotFile(const wxString &filename)
 //------------------------------------------------------------------------------
 // bool DeletePlot()
 //------------------------------------------------------------------------------
+/**
+ * Prepares teh plot frame for deletion
+ *
+ * @return true on success
+ */
+//------------------------------------------------------------------------------
 bool MdiChildTsFrame::DeletePlot()
 {
    MessageInterface::ShowMessage("MdiChildTsFrame::DeletePlot()\n");
@@ -208,8 +252,15 @@ bool MdiChildTsFrame::DeletePlot()
    return true;
 }
 
+
 //------------------------------------------------------------------------------
 // void SetPlotTitle(const wxString &title)
+//------------------------------------------------------------------------------
+/**
+ * Set the plot title
+ *
+ * @param title The plot title
+ */
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::SetPlotTitle(const wxString &title)
 {
@@ -224,8 +275,13 @@ void MdiChildTsFrame::SetPlotTitle(const wxString &title)
       mXyPlot->SetLabel(title.c_str(), TsPlotCanvas::PLOT_TITLE);
 }
 
+
 //------------------------------------------------------------------------------
 // void ShowPlotLegend()
+//------------------------------------------------------------------------------
+/**
+ * Turn on the plot legend
+ */
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::ShowPlotLegend()
 {
@@ -238,13 +294,23 @@ void MdiChildTsFrame::ShowPlotLegend()
 }
 
 
-//------------------------------------------------------------------------------   
-// void AddPlotCurve(int curveIndex, int yOffset, double yMin, double yMax,
-//                   const wxString &curveTitle, UnsignedInt penColor)
-//------------------------------------------------------------------------------   
-void MdiChildTsFrame::AddPlotCurve(int curveIndex, int yOffset, double yMin,
-                                   double yMax, const wxString &curveTitle,
-                                   UnsignedInt penColor)
+//------------------------------------------------------------------------------
+// void AddPlotCurve(Integer curveIndex, Integer yOffset, Real yMin, Real yMax,
+//       const wxString &curveTitle, UnsignedInt penColor)
+//------------------------------------------------------------------------------
+/**
+ * Adds a plot curve to XY plow window.
+ *
+ * @param curveIndex The index for the curve
+ * @param yOffset Offset used to shift the curve up or down; deprecated
+ * @param yMin Minimum Y value for the curve; deprecated
+ * @param yMax Maximum Y value for the curve; deprecated
+ * @param curveTitle Label for the curve
+ * @param penColor Default color for the curve
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::AddPlotCurve(Integer curveIndex, Integer yOffset,
+      Real yMin, Real yMax, const wxString &curveTitle, UnsignedInt penColor)
 {
    #ifdef DEBUG_MDI_TS_FRAME
       MessageInterface::ShowMessage
@@ -275,13 +341,19 @@ void MdiChildTsFrame::AddPlotCurve(int curveIndex, int yOffset, double yMin,
    }
    else
    {
-      MessageInterface::ShowMessage("MdiChildTsFrame::AddPlotCurve() mXyPlot is NULL... \n");
+      MessageInterface::ShowMessage("MdiChildTsFrame::AddPlotCurve() mXyPlot "
+            "is NULL... \n");
    }
 }
 
-//------------------------------------------------------------------------------   
+
+//------------------------------------------------------------------------------
 // void DeleteAllPlotCurves()
-//------------------------------------------------------------------------------   
+//------------------------------------------------------------------------------
+/**
+ * Deletes all plot curves in the plow window.
+ */
+//------------------------------------------------------------------------------
 void MdiChildTsFrame::DeleteAllPlotCurves()
 {
    if (mXyPlot != NULL)
@@ -297,14 +369,21 @@ void MdiChildTsFrame::DeleteAllPlotCurves()
    }
    else
    {
-      MessageInterface::ShowMessage("MdiChildTsFrame::DeletePlotCurve() mXyPlot is NULL... \n");
+      MessageInterface::ShowMessage("MdiChildTsFrame::DeletePlotCurve() "
+            "mXyPlot is NULL... \n");
    }
 }
 
-//------------------------------------------------------------------------------   
-// void DeletePlotCurve(int curveIndex)
-//------------------------------------------------------------------------------   
-void MdiChildTsFrame::DeletePlotCurve(int curveIndex)
+//------------------------------------------------------------------------------
+// void DeletePlotCurve(Integer curveIndex)
+//------------------------------------------------------------------------------
+/**
+ * Deletes a plot curve to XY plow window.
+ *
+ * @param curveIndex Index of the curve that is to be deleted
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::DeletePlotCurve(Integer curveIndex)
 {
    #ifdef DEBUG_MDI_TS_FRAME
    MessageInterface::ShowMessage
@@ -320,22 +399,26 @@ void MdiChildTsFrame::DeletePlotCurve(int curveIndex)
    }
    else
    {
-      MessageInterface::ShowMessage("MdiChildTsFrame::DeletePlotCurve() mXyPlot is NULL... \n");
+      MessageInterface::ShowMessage("MdiChildTsFrame::DeletePlotCurve() "
+            "mXyPlot is NULL... \n");
    }
 }
 
 //------------------------------------------------------------------------------
-// void AddDataPoints(int curveIndex, double xData, double yData)
+// void AddDataPoints(Integer curveIndex, Real xData, Real yData, Real hi,
+//       Real lo)
 //------------------------------------------------------------------------------
 /*
  * Updates XY plot curve.
  *
- * @param <curveIndex> curve number
- * @param <xData> x value to be updated
- * @param <yData> y value to be updated
+ * @param curveIndex curve number
+ * @param xData x value to be updated
+ * @param yData y value to be updated
+ * @param hi +sigma value used for error bars
+ * @param lo -sigma valuused for error bars
  */
 //------------------------------------------------------------------------------
-void MdiChildTsFrame::AddDataPoints(int curveIndex, Real xData, Real yData,
+void MdiChildTsFrame::AddDataPoints(Integer curveIndex, Real xData, Real yData,
       Real hi, Real lo)
 {
    #ifdef DEBUG_POINT_ADD
@@ -398,7 +481,19 @@ void MdiChildTsFrame::PenDown()
       mXyPlot->PenDown();
    }
 }
-void MdiChildTsFrame::MarkPoint(int index, int forCurve)
+
+
+//------------------------------------------------------------------------------
+// void MarkPoint(Integer index, Integer forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Marks a specific point on a specific curve with an X
+ *
+ * @param index Index for the point
+ * @param forCurve Index of the curve containing the point
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::MarkPoint(Integer index, Integer forCurve)
 {
    if (mXyPlot)
    {
@@ -406,8 +501,19 @@ void MdiChildTsFrame::MarkPoint(int index, int forCurve)
    }
 }
 
-void MdiChildTsFrame::ChangeColor(int index, unsigned long newColor,
-      int forCurve)
+//------------------------------------------------------------------------------
+// void ChangeColor(Integer index, unsigned long newColor, Integer forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Changes the color of a curve at the specified point
+ *
+ * @param index Index of the point
+ * @param newColor The new curve color
+ * @param forCurve Index of the curve that received the color change
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::ChangeColor(Integer index, unsigned long newColor,
+      Integer forCurve)
 {
    if (mXyPlot)
    {
@@ -415,7 +521,19 @@ void MdiChildTsFrame::ChangeColor(int index, unsigned long newColor,
    }
 }
 
-void MdiChildTsFrame::ChangeMarker(int index, int newMarker, int forCurve)
+//------------------------------------------------------------------------------
+// void ChangeMarker(Integer index, Integer newMarker, Integer forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Changes the marker of a curve at the specified point
+ *
+ * @param index Index of the point
+ * @param newMarker The new curve marker
+ * @param forCurve Index of the curve that received the color change
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::ChangeMarker(Integer index, Integer newMarker,
+      Integer forCurve)
 {
    if (mXyPlot)
    {
@@ -424,6 +542,13 @@ void MdiChildTsFrame::ChangeMarker(int index, int newMarker, int forCurve)
 }
 
 
+//------------------------------------------------------------------------------
+// void Rescale()
+//------------------------------------------------------------------------------
+/**
+ * Causes the plot to perform a rescale so all of the data can be displayed
+ */
+//------------------------------------------------------------------------------
 void MdiChildTsFrame::Rescale()
 {
    if (mXyPlot)
@@ -433,16 +558,57 @@ void MdiChildTsFrame::Rescale()
 }
 
 
+//------------------------------------------------------------------------------
+// bool MdiChildTsFrame::IsActive()
+//------------------------------------------------------------------------------
+/**
+ * Returns a flag indicating if the plot is active (meaning that the plot is
+ * receiving data and updating as the data comes in.
+ *
+ * @return true if the plot is active, false if not
+ */
+//------------------------------------------------------------------------------
 bool MdiChildTsFrame::IsActive()
 {
    return isActive;
 }
 
+
+//------------------------------------------------------------------------------
+// void MdiChildTsFrame::IsActive(bool yesno)
+//------------------------------------------------------------------------------
+/**
+ * Used to activate and deactivate the plot
+ *
+ * @param yesno Flag setting (true) or clearing (false) the active state of the
+ *              plot
+ */
+//------------------------------------------------------------------------------
 void MdiChildTsFrame::IsActive(bool yesno)
 {
    isActive = yesno;
 }
 
+
+//------------------------------------------------------------------------------
+// void CurveSettings(bool useLines, Integer lineWidth, Integer lineStyle,
+//       bool useMarkers, Integer markerSize, Integer marker, bool useHiLow,
+//       Integer forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Sets the default settings for a curve
+ *
+ * @param useLines Flag that is set if the curve should have lines connecting
+ *                 the curve points
+ * @param lineWidth The width, in pixels, of all drawn lines
+ * @param lineStyle The style of the lines
+ * @param useMarkers Flag used to toggle on markers at each point on the curve
+ * @param markerSize The size of the marker
+ * @param marker The marker to be used
+ * @param useHiLow Flag used to turn error bars on
+ * @param forCurve The index of the curve receiving the settings
+ */
+//------------------------------------------------------------------------------
 void MdiChildTsFrame::CurveSettings(bool useLines, Integer lineWidth,
       Integer lineStyle, bool useMarkers, Integer markerSize, Integer marker,
       bool useHiLow, Integer forCurve)
@@ -453,8 +619,7 @@ void MdiChildTsFrame::CurveSettings(bool useLines, Integer lineWidth,
    if (mXyPlot)
    {
       Integer count = mXyPlot->GetCurveCount();
-//      if (useHiLow)
-//         mXyPlot->
+
       if (forCurve == -1)
       {
          for (Integer i = 0; i < count; ++i)
@@ -494,7 +659,7 @@ void MdiChildTsFrame::CurveSettings(bool useLines, Integer lineWidth,
 // void RedrawCurve()
 //------------------------------------------------------------------------------
 /*
- * Redraws XY plot curve.
+ * Redraws the XY plot.
  */
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::RedrawCurve()
@@ -777,7 +942,9 @@ void MdiChildTsFrame::OnClose(wxCloseEvent& event)
 // void AdjustYScale()
 //------------------------------------------------------------------------------
 /*
- * Automaticlly adjusts y scale to y minimum and maximum value
+ * Automatically adjusts y scale to y minimum and maximum value
+ *
+ * @note This method currently does nothing
  */
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::AdjustYScale()
