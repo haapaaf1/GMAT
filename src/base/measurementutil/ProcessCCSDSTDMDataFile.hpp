@@ -24,6 +24,8 @@
 
 #include "ProcessCCSDSDataFile.hpp"
 
+//using namespace CCSDSTDM;
+
 class ProcessCCSDSTDMDataFile : public ProcessCCSDSDataFile
 {
     
@@ -48,12 +50,14 @@ private:
 
     // Specific data type processing functions
     bool GetCCSDSMetaData(std::string &nextline,
-                          CCSDSTDMMetaData *myMetaData);
+                          CCSDSTDMObType *myOb);
     bool GetCCSDSTDMData(std::string &lff, CCSDSTDMObType *myOb);
 
     CCSDSTDMMetaData *currentCCSDSMetaData;
     CCSDSTDMMetaData *lastMetaDataWritten;
     bool isMetaDataWritten;
+    Integer requiredNumberMetaDataParameters;
+
 
 };
 #endif	/* _ProcessCCSDSTDMDataFileData_hpp */

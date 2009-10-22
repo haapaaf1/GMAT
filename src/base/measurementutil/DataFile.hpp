@@ -267,6 +267,7 @@ protected:
     static const std::string DataFile::OPTIONAL_EXPONENT;
 
     static const std::string DataFile::REGEX_NUMBER;
+    static const std::string DataFile::REGEX_INTEGER;
     static const std::string DataFile::REGEX_LETTER;
     static const std::string DataFile::REGEX_DATE;
     static const std::string DataFile::REGEX_SCINUMBER;

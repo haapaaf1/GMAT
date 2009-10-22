@@ -66,7 +66,8 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const std::string &itsType,
 	DataFile (itsType, itsName),
 	currentCCSDSHeader(NULL),
 	lastHeaderWritten(NULL),
-        isHeaderWritten(false)
+        isHeaderWritten(false),
+        requiredNumberHeaderParameters(0)
 {
     commentsAllowed = true;
 }
@@ -82,7 +83,8 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const ProcessCCSDSDataFile &CCSDSdf) 
     DataFile      (CCSDSdf),
     currentCCSDSHeader(CCSDSdf.currentCCSDSHeader),
     lastHeaderWritten(CCSDSdf.lastHeaderWritten),
-    isHeaderWritten(CCSDSdf.isHeaderWritten)
+    isHeaderWritten(CCSDSdf.isHeaderWritten),
+    requiredNumberHeaderParameters(CCSDSdf.requiredNumberHeaderParameters)
 {
 }
 
@@ -103,8 +105,24 @@ const ProcessCCSDSDataFile& ProcessCCSDSDataFile::operator=(const ProcessCCSDSDa
     currentCCSDSHeader = CCSDSdf.currentCCSDSHeader;
     lastHeaderWritten = CCSDSdf.lastHeaderWritten;
     isHeaderWritten = CCSDSdf.isHeaderWritten;
+    requiredNumberHeaderParameters = CCSDSdf.requiredNumberHeaderParameters;
     return *this;
 }
+
+//------------------------------------------------------------------------------
+// Integer Initialize() const
+//------------------------------------------------------------------------------
+/**
+ * Initializes the CCSDSDataFile object.
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::Initialize()
+{
+    if (!DataFile::Initialize()) return false;
+    requiredNumberHeaderParameters = CountRequiredNumberHeaderDataParameters();
+    return true;
+}
+
 
 //------------------------------------------------------------------------------
 //  ProcessCCSDSDataFile::~ProcessCCSDSDataFile()
@@ -193,7 +211,7 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
     std::string keyword;
 
     // Read in another line
-    lff = Trim(ReadLineFromFile());
+    lff = ReadLineFromFile();
 
     do
     {
@@ -228,6 +246,37 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
     return true;
 
 }
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSValue(const std::string &lff, Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Extracts a CCSDS Key-Value pair
+ * KEYWORD = VALUE
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::GetCCSDSValue(const std::string &lff, Integer &value)
+{
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    int itemp;
+
+    std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
+                        REGEX_INTEGER + ")$";
+
+    if (pcrecpp::RE(regex).FullMatch(lff,&itemp))
+    {
+       value = itemp;
+       return true;
+    }
+
+    return false;
+}
+
 
 //------------------------------------------------------------------------------
 // bool GetCCSDSValue(const std::string &lff, Real &value)
@@ -385,7 +434,7 @@ bool ProcessCCSDSDataFile::GetCCSDSComments(std::string &lff,
     {
        comments.push_back(stemp);
        found = true;
-       lff = Trim(ReadLineFromFile());
+       lff = ReadLineFromFile();
     }
 
     return found;

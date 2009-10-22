@@ -36,7 +36,9 @@
 //------------------------------------------------------------------------------
 bool ProcessCCSDSOEMDataFile::Initialize()
 {
-    DataFile::Initialize();
+    if (!ProcessCCSDSDataFile::Initialize()) return false;
+
+    requiredNumberMetaDataParameters = CountRequiredNumberMetaDataParameters();
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
@@ -44,7 +46,7 @@ bool ProcessCCSDSOEMDataFile::Initialize()
         CCSDSOEMObType *myOEM = new CCSDSOEMObType;
 
         // Read the first line from file
-	std::string line = Trim(ReadLineFromFile());
+	std::string line = ReadLineFromFile();
 
         while (!IsEOF())
         {
@@ -69,7 +71,7 @@ bool ProcessCCSDSOEMDataFile::Initialize()
             // After grabbing the header and metadata information
             // This call to read a line from file should be grabbing
             // rows of data between DATA_START and DATA_STOP
-	    line = Trim(ReadLineFromFile());
+	    line = ReadLineFromFile();
         }
 
         // Set data iterator to beginning of vector container
@@ -116,7 +118,10 @@ bool ProcessCCSDSOEMDataFile::Initialize()
 //------------------------------------------------------------------------------
 ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const std::string &itsName) :
 	ProcessCCSDSDataFile ("CCSDSOEMDataFile", itsName),
-	currentCCSDSMetaData(NULL)
+	currentCCSDSMetaData(NULL),
+	lastMetaDataWritten(NULL),
+        isMetaDataWritten(false),
+        requiredNumberMetaDataParameters(0)
 {
    objectTypeNames.push_back("CCSDSOEMDataFile");
    fileFormatName = "CCSDSOEM";
@@ -133,7 +138,10 @@ ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const std::string &itsName) :
 //------------------------------------------------------------------------------
 ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const ProcessCCSDSOEMDataFile &CCSDSOEMdf) :
     ProcessCCSDSDataFile(CCSDSOEMdf),
-    currentCCSDSMetaData(CCSDSOEMdf.currentCCSDSMetaData)
+    currentCCSDSMetaData(CCSDSOEMdf.currentCCSDSMetaData),
+    lastMetaDataWritten(CCSDSOEMdf.lastMetaDataWritten),
+    isMetaDataWritten(CCSDSOEMdf.isMetaDataWritten),
+    requiredNumberMetaDataParameters(CCSDSOEMdf.requiredNumberMetaDataParameters)
 {
 }
 
@@ -152,6 +160,9 @@ const ProcessCCSDSOEMDataFile& ProcessCCSDSOEMDataFile::operator=(const ProcessC
 
     ProcessCCSDSDataFile::operator=(CCSDSOEMdf);
     currentCCSDSMetaData = CCSDSOEMdf.currentCCSDSMetaData;
+    lastMetaDataWritten = CCSDSOEMdf.lastMetaDataWritten;
+    isMetaDataWritten = CCSDSOEMdf.isMetaDataWritten;
+    requiredNumberMetaDataParameters = CCSDSOEMdf.requiredNumberMetaDataParameters;
     return *this;
 }
 
@@ -233,21 +244,16 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
     CCSDSOEMObType *myOEM = (CCSDSOEMObType*)myOEMData;
 
     // Read the first line from file
-    std::string line = Trim(ReadLineFromFile());
+    std::string line = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
     while (!IsEOF() && pcrecpp::RE("^CCSDS_OEM_VERS.*").FullMatch(line))
     {
-        // Initialize the header data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSHeader *myCCSDSHeader = new CCSDSHeader;
-
-	if (GetCCSDSHeader(line,myCCSDSHeader))
+	if (GetCCSDSHeader(line,myOEM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSHeader = myCCSDSHeader;
+	    currentCCSDSHeader = myOEM->ccsdsHeader;
 	}
 	else
 	{
@@ -262,22 +268,13 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
     // the "META_START" line
     while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(line))
     {
-        // Initialize individual data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSOEMMetaData *myMetaData = new CCSDSOEMMetaData;
 
-	// Read the next metadata line from file
-	line = Trim(ReadLineFromFile());
-
-	if (GetCCSDSMetaData(line,myMetaData))
+	if (GetCCSDSMetaData(line,myOEM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSMetaData = myMetaData;
+	    currentCCSDSMetaData = myOEM->ccsdsOEMMetaData;
 
-	    // Read the following data line from file
-	    line = Trim(ReadLineFromFile());
 	}
 	else
 	{
@@ -293,7 +290,7 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
     // the actual data.
     if (pcrecpp::RE("^DATA_START.*").FullMatch(line))
     {
-        line = Trim(ReadLineFromFile());
+        line = ReadLineFromFile();
     }
 
     // Parse the data record making sure that we have identified
@@ -311,8 +308,7 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
     return false;
 }
 //------------------------------------------------------------------------------
-// bool GetCCSDSMetaData(std::string &lff,
-//                       CCSDSOEMMetaData *myMetaData)
+// bool GetCCSDSMetaData(std::string &lff, CCSDSOEMObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts the metadata information from the tracking data message.
@@ -320,79 +316,133 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 //
 //------------------------------------------------------------------------------
 bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
-                                CCSDSOEMMetaData *myMetaData)
+                                               CCSDSOEMObType *myOb)
 {
-    // Temporary variables for string to number conversion.
-    // This is needed because the from_string utility function
-    // only supports the standard C++ types and does not
-    // support the GMAT types Real and Integer. Therefore,
-    // extraction is done into a temporary variable and then
-    // assigned to the GMAT type via casting.
-    int itemp;
-    std::string stemp;
 
-    // Read lines until we have encountered the first meta data start
+    CCSDSOEMMetaData *myMetaData = new CCSDSOEMMetaData;
 
-    while (!pcrecpp::RE("^DATA_START.*").FullMatch(lff))
+    Integer count = 0;
+    std::string keyword;
+
+    do
     {
-        if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(lff,&stemp))
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myMetaData->GetKeywordID(keyword))
         {
-	    myMetaData->comments.push_back(stemp);
-        }
-        else if (pcrecpp::RE("^OBJECT_NAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->objectName = stemp;
-        }
-        else if (pcrecpp::RE("^OBJECT_ID\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->internationalDesignator = stemp;
-        }
-        else if (pcrecpp::RE("^CENTER_NAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->refFrameOrigin = stemp;
-        }
-        else if (pcrecpp::RE("^REF_FRAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->refFrame = stemp;
-        }
-        else if (pcrecpp::RE("^TIME_SYSTEM\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->timeSystem = stemp;
-        }
-        else if (pcrecpp::RE("^START_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->startEpoch = stemp;
-        }
-        else if (pcrecpp::RE("^STOP_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->stopEpoch = stemp;
-        }
-        else if (pcrecpp::RE("^USEABLE_START_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->useableStartEpoch = stemp;
-        }
-        else if (pcrecpp::RE("^USEABLE_STOP_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->useableStopEpoch = stemp;
-        }
-        else if (pcrecpp::RE("^INTERPOLATION\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->interpolationMethod = stemp;
-        }
-        else if (pcrecpp::RE("^INTERPOLATION_DEGREE\\s*=(.*)").FullMatch(lff,&itemp))
-        {
-	    myMetaData->interpolationDegree = itemp;
-        }
-        else
-        {
-            // Ill formed data - these are the only keywords
-            // allowed in the header
-            return false;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_METADATACOMMENTS_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp)) return false;
+                myMetaData->comments.push_back(stemp);
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_METADATACOMMENTS_ID))
+                    count++;
+                }
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_OBJECTNAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->objectName))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_OBJECTNAME_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_OBJECTID_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->internationalDesignator))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_OBJECTID_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_CENTERNAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->refFrameOrigin))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_CENTERNAME_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_REFFRAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->refFrame))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_REFFRAME_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_TIMESYSTEM_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->timeSystem))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_TIMESYSTEM_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_STARTEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->startEpoch))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_STARTEPOCH_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_STOPEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->stopEpoch))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_STOPEPOCH_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_USEABLE_STARTEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->useableStartEpoch))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_USEABLE_STARTEPOCH_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_USEABLE_STOPEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->useableStopEpoch))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_USEABLE_STOPEPOCH_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_INTERPOLATION_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->interpolationMethod))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_INTERPOLATION_ID))
+                    count++;
+                break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_INTERPOLATIONDEGREE_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->interpolationDegree))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOEMMetaData::CCSDS_OEM_INTERPOLATIONDEGREE_ID))
+                    count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+
         }
 
-        // Read in another line
-        lff = Trim(ReadLineFromFile());
+        lff = ReadLineFromFile();
     }
+    while(count < requiredNumberMetaDataParameters ||
+          pcrecpp::RE("^DATA_START.*$").FullMatch(lff));
+
+    myOb->ccsdsOEMMetaData = myMetaData;
 
     return true;
 }

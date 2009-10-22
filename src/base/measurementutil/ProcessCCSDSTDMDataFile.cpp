@@ -36,7 +36,9 @@
 //------------------------------------------------------------------------------
 bool ProcessCCSDSTDMDataFile::Initialize()
 {
-    DataFile::Initialize();
+    if (!ProcessCCSDSDataFile::Initialize()) return false;
+
+    requiredNumberMetaDataParameters = CountRequiredNumberMetaDataParameters();
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
@@ -107,7 +109,8 @@ ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const std::string &itsName) :
 	ProcessCCSDSDataFile ("CCSDSTDMDataFile", itsName),
 	currentCCSDSMetaData(NULL),
 	lastMetaDataWritten(NULL),
-        isMetaDataWritten(false)
+        isMetaDataWritten(false),
+        requiredNumberMetaDataParameters(0)
 {
    objectTypeNames.push_back("CCSDSTDMDataFile");
    fileFormatName = "CCSDSTDM";
@@ -126,7 +129,8 @@ ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const ProcessCCSDSTDMDataFile &
     ProcessCCSDSDataFile(CCSDSTDMdf),
     currentCCSDSMetaData(CCSDSTDMdf.currentCCSDSMetaData),
     lastMetaDataWritten(CCSDSTDMdf.lastMetaDataWritten),
-    isMetaDataWritten(CCSDSTDMdf.isMetaDataWritten)
+    isMetaDataWritten(CCSDSTDMdf.isMetaDataWritten),
+    requiredNumberMetaDataParameters(CCSDSTDMdf.requiredNumberMetaDataParameters)
 {
 }
 
@@ -147,6 +151,7 @@ const ProcessCCSDSTDMDataFile& ProcessCCSDSTDMDataFile::operator=(const ProcessC
     currentCCSDSMetaData = CCSDSTDMdf.currentCCSDSMetaData;
     lastMetaDataWritten = CCSDSTDMdf.lastMetaDataWritten;
     isMetaDataWritten = CCSDSTDMdf.isMetaDataWritten;
+    requiredNumberMetaDataParameters = CCSDSTDMdf.requiredNumberMetaDataParameters;
     return *this;
 }
 
@@ -228,21 +233,17 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
     CCSDSTDMObType *myTDM = (CCSDSTDMObType*)myTDMData;
 
     // Read the first line from file
-    std::string line = Trim(ReadLineFromFile());
+    std::string lff = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
-    while (!IsEOF() && pcrecpp::RE("^CCSDS_TDM_VERS.*").FullMatch(line))
+    while (!IsEOF() && pcrecpp::RE("^CCSDS_TDM_VERS.*").FullMatch(lff))
     {
-        // Initialize the header data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSHeader *myCCSDSHeader = new CCSDSHeader;
-	
-	if (GetCCSDSHeader(line,myCCSDSHeader))
+    {
+	if (GetCCSDSHeader(lff,myTDM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSHeader = myCCSDSHeader;
+	    currentCCSDSHeader = myTDM->ccsdsHeader;
 	}
 	else
 	{
@@ -251,28 +252,18 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 	    return false;
 	}
     }
+    }
 
     // Test for the prescence of meta data
     // If the header data was just processed, line should now contain
     // the "META_START" line
-    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(line))
-    {
-        // Initialize individual data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSTDMMetaData *myMetaData = new CCSDSTDMMetaData;
-        
-	// Read the next metadata line from file
-	line = Trim(ReadLineFromFile());
-
-	if (GetCCSDSMetaData(line,myMetaData))
+    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(lff))
+    {       
+	if (GetCCSDSMetaData(lff,myTDM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSMetaData = myMetaData;
-
-	    // Read the following data line from file
-	    line = Trim(ReadLineFromFile());
+	    currentCCSDSMetaData = myTDM->ccsdsTDMMetaData;
 	}
 	else
 	{
@@ -286,9 +277,9 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
     // If the meta data was just processed, line should contain
     // the "DATA_START" marker which we can skip over to start processing
     // the actual data.
-    if (pcrecpp::RE("^DATA_START.*").FullMatch(line))
+    if (pcrecpp::RE("^DATA_START.*").FullMatch(lff))
     {
-        line = Trim(ReadLineFromFile());
+        lff = ReadLineFromFile();
     }
 
     // Parse the data record making sure that we have identified
@@ -296,11 +287,11 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
     if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
 	return false;
 
-    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
+    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(lff) && !pcrecpp::RE("").FullMatch(lff))
     {
         myTDM->ccsdsHeader = currentCCSDSHeader;
         myTDM->ccsdsTDMMetaData = currentCCSDSMetaData;
-	return GetCCSDSTDMData(line,myTDM);
+	return GetCCSDSTDMData(lff,myTDM);
     }
 
     return false;
@@ -321,7 +312,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
     std::string keyword, ccsdsEpoch;
     Real value;
 
-    CCSDSData *myTDMData = new CCSDSData;
+    CCSDSTDMData *myTDMData = new CCSDSTDMData;
 
     GetCCSDSKeyEpochValueData(lff,keyword,ccsdsEpoch,value);
 
@@ -349,207 +340,354 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
 //
 //------------------------------------------------------------------------------
 bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
-                                CCSDSTDMMetaData *myMetaData)
+                                CCSDSTDMObType *myOb)
 {
-    // Temporary variables for string to number conversion.
-    // This is needed because the from_string utility function
-    // only supports the standard C++ types and does not
-    // support the GMAT types Real and Integer. Therefore,
-    // extraction is done into a temporary variable and then
-    // assigned to the GMAT type via casting.
-    int itemp;
-    double dtemp;
-    std::string stemp;
 
-    // Read lines until we have encountered the first meta data start
+    // Initialize individual data struct
+    // This needs new memory allocation because
+    // we are storing pointers to this data
+    CCSDSTDMMetaData *myMetaData = new CCSDSTDMMetaData;
 
-    while (!pcrecpp::RE("^DATA_START.*").FullMatch(lff))
+    Integer count = 0;
+    std::string keyword;
+
+    do
     {
-        if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(lff,&stemp))
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myMetaData->GetKeywordID(keyword))
         {
-            myMetaData->comments.push_back(stemp);
-        }
-        else if (pcrecpp::RE("^TIME_SYSTEM\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->timeSystem = stemp;
-        }
-        else if (pcrecpp::RE("^START_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->startTime = stemp;
-        }
-        else if (pcrecpp::RE("^STOP_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->stopTime = stemp;
-        }
-        else if (pcrecpp::RE("^PARTICIPANT_1\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->participants[0] = stemp;
-        }
-        else if (pcrecpp::RE("^PARTICIPANT_2\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->participants[1] = stemp;
-        }
-        else if (pcrecpp::RE("^PARTICIPANT_3\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->participants[2] = stemp;
-        }
-        else if (pcrecpp::RE("^PARTICIPANT_4\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->participants[3] = stemp;
-        }
-        else if (pcrecpp::RE("^PARTICIPANT_5\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->participants[4] = stemp;
-        }
-        else if (pcrecpp::RE("^MODE\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->mode = stemp;
-        }
-        else if (pcrecpp::RE("^PATH\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->path[0] = stemp;
-        }
-        else if (pcrecpp::RE("^PATH_1\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->path[1] = stemp;
-        }
-        else if (pcrecpp::RE("^PATH_2\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->path[2] = stemp;
-        }
-        else if (pcrecpp::RE("^TRANSMIT_BAND\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->transmitBand = stemp;
-        }
-        else if (pcrecpp::RE("^RECEIVE_BAND\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->receiveBand = stemp;
-        }
-        else if (pcrecpp::RE("^TURNAROUND_NUMERATOR\\s*=(.*)").FullMatch(lff,&itemp))
-        {
-            myMetaData->turnaroundNumerator = itemp;
-        }
-        else if (pcrecpp::RE("^TURNAROUND_DENOMINATOR\\s*=(.*)").FullMatch(lff,&itemp))
-        {
-            myMetaData->turnaroundDenominator = itemp;
-        }
-        else if (pcrecpp::RE("^TIMETAG_REF\\s*=(.*)").FullMatch(lff,&itemp))
-        {
-            myMetaData->timeTagRef = itemp;
-        }
-        else if (pcrecpp::RE("^INTEGRATION_INTERVAL\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->integrationInterval = dtemp;
-        }
-        else if (pcrecpp::RE("^INTEGRATION_REF\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->integrationRef = stemp;
-        }
-        else if (pcrecpp::RE("^FREQ_OFFSET\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->frequencyOffset = dtemp;
-        }
-        else if (pcrecpp::RE("^RANGE_MODE\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->rangeMode = stemp;
-        }
-        else if (pcrecpp::RE("^RANGE_MODULUS\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->rangeModulus = dtemp;
-        }
-        else if (pcrecpp::RE("^RANGE_UNITS\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->rangeUnits = stemp;
-        }
-        else if (pcrecpp::RE("^ANGLE_TYPE\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->angleType = stemp;
-        }
-        else if (pcrecpp::RE("^REFERENCE_FRAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->referenceFrame = stemp;
-        }
-        else if (pcrecpp::RE("^TRANSMIT_DELAY_1\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->transmitDelay[0] = dtemp;
-        }
-        else if (pcrecpp::RE("^TRANSMIT_DELAY_2\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->transmitDelay[1] = dtemp;
-        }
-        else if (pcrecpp::RE("^TRANSMIT_DELAY_3\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->transmitDelay[2] = dtemp;
-        }
-        else if (pcrecpp::RE("^TRANSMIT_DELAY_4\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->transmitDelay[3] = dtemp;
-        }
-        else if (pcrecpp::RE("^TRANSMIT_DELAY_5\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->transmitDelay[4] = dtemp;
-        }
-        else if (pcrecpp::RE("^RECEIVE_DELAY_1\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->receiveDelay[0] = dtemp;
-        }
-        else if (pcrecpp::RE("^RECEIVE_DELAY_2\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->receiveDelay[1] = dtemp;
-        }
-        else if (pcrecpp::RE("^RECEIVE_DELAY_3\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->receiveDelay[2] = dtemp;
-        }
-        else if (pcrecpp::RE("^RECEIVE_DELAY_4\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->receiveDelay[3] = dtemp;
-        }
-        else if (pcrecpp::RE("^RECEIVE_DELAY_5\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->receiveDelay[4] = dtemp;
-        }
-        else if (pcrecpp::RE("^DATA_QUALITY\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            myMetaData->dataQuality = stemp;
-        }
-        else if (pcrecpp::RE("^CORRECTION_ANGLE_1\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->correctionAngle1 = dtemp;
-        }
-        else if (pcrecpp::RE("^CORRECTION_ANGLE_2\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->correctionAngle2 = dtemp;
-        }
-        else if (pcrecpp::RE("^CORRECTION_DOPPLER\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->correctionDoppler = dtemp;
-        }
-        else if (pcrecpp::RE("^CORRECTION_RECEIVE\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->correctionReceive = dtemp;
-        }
-        else if (pcrecpp::RE("^CORRECTION_TRANSMIT\\s*=(.*)").FullMatch(lff,&dtemp))
-        {
-            myMetaData->correctionTransmit = dtemp;
-        }
-        else if (pcrecpp::RE("^CORRECTIONS_APPLIED\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-            if (pcrecpp::RE("^YES$").FullMatch(Trim(stemp)))
-                myMetaData->correctionsApplied = true;
-            else
-                myMetaData->correctionsApplied = false;
-        }
-        else
-        {
-            // Ill formed data - these are the only keywords
-            // allowed in the header
-            return false;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_METADATACOMMENTS_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp)) return false;
+                myMetaData->comments.push_back(stemp);
+                count++;
+                }
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TIMESYSTEM_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->timeSystem))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_STARTTIME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->startTime))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_STOPTIME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->stopTime))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT1_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->participants[0]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT2_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->participants[1]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT3_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->participants[2]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT4_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->participants[3]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT5_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->participants[4]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_MODE_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->mode))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_PATH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->path[0]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_PATH1_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->path[1]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_PATH2_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->path[2]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITBAND_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->transmitBand))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEBAND_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->receiveBand))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TURNAROUNDNUMERATOR_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->turnaroundNumerator))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TURNAROUNDDENOMINATOR_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->turnaroundDenominator))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TIMETAGREF_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->timeTagRef))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_INTEGRATIONINTERVAL_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->integrationInterval))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_INTEGRATIONREF_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->integrationRef))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_FREQUENCYOFFSET_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->frequencyOffset))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RANGEMODE_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->rangeMode))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RANGEMODULUS_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->rangeModulus))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RANGEUNITS_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->rangeUnits))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_ANGLETYPE_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->angleType))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_REFERENCEFRAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->referenceFrame))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY1_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->transmitDelay[0]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY2_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->transmitDelay[1]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY3_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->transmitDelay[2]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY4_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->transmitDelay[3]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY5_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->transmitDelay[4]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY1_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->receiveDelay[0]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY2_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->receiveDelay[1]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY3_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->receiveDelay[2]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY4_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->receiveDelay[3]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY5_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->receiveDelay[4]))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_DATAQUALITY_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->dataQuality))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONANGLE1_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->correctionAngle1))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONANGLE2_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->correctionAngle2))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONDOPPLER_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->correctionDoppler))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONRANGE_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->correctionRange))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONRECEIVE_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->correctionReceive))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONTRANSMIT_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->correctionTransmit))
+                    return false;
+                count++;
+                break;
+
+            case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONAPPLIED_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp)) return false;
+                if (pcrecpp::RE("^YES$").FullMatch(Trim(stemp)))
+                    myMetaData->correctionsApplied = true;
+                else
+                    myMetaData->correctionsApplied = false;
+
+                count++;
+                }
+                break;
+
+            default:
+
+                return false;
+                break;
+
         }
 
-        // Read in another line
-        lff = Trim(ReadLineFromFile());
+        lff = ReadLineFromFile();
     }
+    while(count < requiredNumberMetaDataParameters &&
+          !pcrecpp::RE("^DATA_START$").FullMatch(lff));
+
+    myOb->ccsdsTDMMetaData = myMetaData;
 
     return true;
 

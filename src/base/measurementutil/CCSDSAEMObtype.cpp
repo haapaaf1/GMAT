@@ -3,26 +3,8 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSAEMObType::CCSDS_AEM_KEYWORDS[EndCCSDSAEMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSAEMObType::CCSDS_AEM_KEYWORDS[EndCCSDSAEMDataReps] =
 {
-    "OBJECT_NAME",
-    "OBJECT_ID",
-    "CENTER_NAME",
-    "REF_FRAME_A",
-    "REF_FRAME_B",
-    "ATTITUDE_DIR",
-    "TIME_SYSTEM",
-    "START_TIME",
-    "USEABLE_START_TIME",
-    "USEABLE_STOP_TIME",
-    "STOP_TIME",
-    "ATTITUDE_TYPE",
-    "QUATERNION_TYPE",
-    "EULER_ROT_SEQ",
-    "RATE_FRAME",
-    "INTERPOLATION",
-    "INTERPOLATION_DEGREE",
-    "COMMENT",
     "Quaternion Type",
     "EPOCH",
     "Q_FRAME_A",
@@ -69,26 +51,8 @@ const std::string CCSDSAEMObType::CCSDS_AEM_KEYWORDS[EndCCSDSAEMDataReps-EndCCSD
     "COMMENT"
 };
 
-const std::string CCSDSAEMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSAEMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSAEMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSAEMDataReps] =
 {
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
     "",
     "",
     "",
@@ -145,26 +109,8 @@ const std::string CCSDSAEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAEMTimeR
     "TCB"
 };
 
-const std::string CCSDSAEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAEMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSAEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAEMDataReps] =
 {
-    "Object Name"
-    "Object ID",
-    "Reference Frame Origin",
-    "Reference Frame A",
-    "Reference Frame B",
-    "Attitude Rotation Direction",
-    "Time System",
-    "Start Epoch",
-    "Useable Start Epoch",
-    "Useable Stop Epoch",
-    "Stop Epoch",
-    "Attitude Type",
-    "Quaternion Type",
-    "Euler Rotation Sequence",
-    "Rate Frame",
-    "Interpolation Method",
-    "Interpolation Degree",
-    "Comments",
     "Quaternion Type",
     "Quaternion Epoch",
     "Quaternion Frame A",
@@ -211,47 +157,12 @@ const std::string CCSDSAEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAEMDataR
     "Spin Stabilized Comments"
 };
 
-const bool CCSDSAEMObType::CCSDS_IS_REQUIRED[EndCCSDSAEMDataReps-EndCCSDSDataReps] =
+const bool CCSDSAEMObType::CCSDS_IS_REQUIRED[EndCCSDSAEMDataReps] =
 {
-    true,
-    true,
-    false,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
-    false,
-    true,
-    true,
-    false,
-    false,
-    false,
-    false,
-    false
 };
 
-const Gmat::ParameterType CCSDSAEMObType::CCSDS_PARAMETER_TYPE[EndCCSDSAEMDataReps-EndCCSDSDataReps] =
+const Gmat::ParameterType CCSDSAEMObType::CCSDS_PARAMETER_TYPE[EndCCSDSAEMDataReps] =
 {
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::STRINGARRAY_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
@@ -388,7 +299,7 @@ GmatBase* CCSDSAEMObType::Clone() const
 //------------------------------------------------------------------------------
 std::string CCSDSAEMObType::GetDataUnits(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSAEMDataReps))
+   if ((id >= 0) && (id < EndCCSDSAEMDataReps))
    {
       return CCSDS_UNIT_DESCRIPTIONS[id];
    }
@@ -404,7 +315,7 @@ std::string CCSDSAEMObType::GetDataUnits(const Integer id) const
 //------------------------------------------------------------------------------
 std::string CCSDSAEMObType::GetDataParameterText(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSAEMDataReps))
+   if ((id >= 0) && (id < EndCCSDSAEMDataReps))
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
@@ -422,7 +333,7 @@ Integer CCSDSAEMObType::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSAEMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSAEMDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -444,7 +355,7 @@ Integer CCSDSAEMObType::GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType CCSDSAEMObType::GetDataParameterType(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSAEMDataReps))
+   if ((id >= 0) && (id < EndCCSDSAEMDataReps))
       return CCSDS_PARAMETER_TYPE[id];
 
    return CCSDSObType::GetDataParameterType(id);
@@ -597,26 +508,6 @@ Integer CCSDSAEMObType::GetIntegerDataParameter(const Integer id) const
 
 	    return ccsdsAEMSpinStabilized->attitudeType;
 
-        case CCSDS_AEM_ATTITUDEDIR_ID:
-
-            return ccsdsAEMMetaData->direction;
-
-        case CCSDS_AEM_RATEFRAME_ID:
-
-            return ccsdsAEMMetaData->rateFrame;
-
-        case CCSDS_AEM_ATTITUDETYPE_ID:
-
-            return ccsdsAEMMetaData->attitudeType;
-
-        case CCSDS_AEM_QUATERNIONTYPE_ID:
-
-            return ccsdsAEMMetaData->quaternionType;
-
-	case CCSDS_AEM_INTERPOLATIONDEGREE_ID:
-
-	    return ccsdsAEMMetaData->interpolationDegree;
-
         default:
 
             return CCSDSObType::GetIntegerDataParameter(id);
@@ -693,54 +584,6 @@ std::string CCSDSAEMObType::GetStringDataParameter(const Integer id) const
 
 	    return ccsdsAEMSpinStabilized->direction;
 
-	case CCSDS_AEM_TIMESYSTEM_ID:
-
-            return ccsdsAEMMetaData->timeSystem;
-
-	case CCSDS_AEM_REFFRAMEA_ID:
-
-            return ccsdsAEMMetaData->frameA;
-
-	case CCSDS_AEM_REFFRAMEB_ID:
-
-            return ccsdsAEMMetaData->frameB;
-
-	case CCSDS_AEM_CENTERNAME_ID:
-
-            return ccsdsAEMMetaData->refFrameOrigin;
-
-	case CCSDS_AEM_OBJECTID_ID:
-
-            return ccsdsAEMMetaData->internationalDesignator;
-
-        case CCSDS_AEM_OBJECTNAME_ID:
-
-            return ccsdsAEMMetaData->objectName;
-
-        case CCSDS_AEM_STARTEPOCH_ID:
-
-            return ccsdsAEMMetaData->startEpoch;
-
-        case CCSDS_AEM_STOPEPOCH_ID:
-
-            return ccsdsAEMMetaData->stopEpoch;
-
-        case CCSDS_AEM_USEABLE_STARTEPOCH_ID:
-
-            return ccsdsAEMMetaData->useableStartEpoch;
-
-        case CCSDS_AEM_USEABLE_STOPEPOCH_ID:
-
-            return ccsdsAEMMetaData->useableStopEpoch;
-
-        case CCSDS_AEM_EULERROTSEQ_ID:
-
-            return ccsdsAEMMetaData->eulerRotationSequence;
-
-        case CCSDS_AEM_INTERPOLATION_ID:
-
-            return ccsdsAEMMetaData->interpolationMethod;
-
         default:
 
             return CCSDSObType::GetStringDataParameter(id);
@@ -783,10 +626,6 @@ StringArray CCSDSAEMObType::GetStringArrayDataParameter(const Integer id) const
         case CCSDS_AEM_SPINSTABILIZED_COMMENTS_ID:
 
 	    return ccsdsAEMSpinStabilized->comments;
-
-	case CCSDS_AEM_METADATACOMMENTS_ID:
-
-	    return ccsdsAEMMetaData->comments;
 
         default:
 
@@ -837,7 +676,7 @@ const Integer CCSDSAEMObType::GetKeywordID(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSAEMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSAEMDataReps; i++)
     {
         if (pcrecpp::RE(regex).FullMatch(CCSDS_AEM_KEYWORDS[i]))
             return i;
@@ -961,7 +800,7 @@ bool CCSDSAEMObType::CheckDataAvailability(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSAEMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSAEMDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -989,11 +828,11 @@ bool CCSDSAEMObType::CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 {
-    switch (myAEM->ccsdsAEMMetaData->attitudeType)
+    switch (myAEM->ccsdsAEMMetaData->GetIntegerDataParameter(CCSDSAEMMetaData::CCSDS_AEM_ATTITUDETYPE_ID))
     {
         case CCSDSObType::CCSDS_QUATERNION_ID:
         {
-            if (myAEM->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            if (myAEM->ccsdsAEMMetaData->GetIntegerDataParameter(CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID) == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEM->ccsdsAEMQuaternion->epoch 
                        << myAEM->ccsdsAEMQuaternion->qC
@@ -1003,7 +842,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 
                 return output;
             }
-            else if (myAEM->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            else if (myAEM->ccsdsAEMMetaData->GetIntegerDataParameter(CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID) == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEM->ccsdsAEMQuaternion->epoch 
                        << myAEM->ccsdsAEMQuaternion->q1
@@ -1021,7 +860,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 
         case CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID:
         {
-            if (myAEM->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            if (myAEM->ccsdsAEMMetaData->GetIntegerDataParameter(CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID) == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEM->ccsdsAEMQuaternion->epoch 
                        << myAEM->ccsdsAEMQuaternion->qC
@@ -1035,7 +874,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 
                 return output;
             }
-            else if (myAEM->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            else if (myAEM->ccsdsAEMMetaData->GetIntegerDataParameter(CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID) == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEM->ccsdsAEMQuaternion->epoch 
                        << myAEM->ccsdsAEMQuaternion->q1
@@ -1057,7 +896,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 
         case CCSDSObType::CCSDS_QUATERNION_RATE_ID:
         {
-            if (myAEM->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            if (myAEM->ccsdsAEMMetaData->GetIntegerDataParameter(CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID) == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEM->ccsdsAEMQuaternion->epoch 
                        << myAEM->ccsdsAEMQuaternion->qC
@@ -1070,7 +909,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 
                 return output;
             }
-            else if (myAEM->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            else if (myAEM->ccsdsAEMMetaData->GetIntegerDataParameter(CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID) == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEM->ccsdsAEMQuaternion->epoch 
                        << myAEM->ccsdsAEMQuaternion->q1
@@ -1155,54 +994,6 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 
     return output;
 }
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetadata)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSAEMObType value and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myMetadata>    CCSDS AEM metadata to write out
- *
- * return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetadata)
-{
-
-   //output.setf(std::ios::showpoint);
-   //output.setf(std::ios::scientific);
-
-   output << "META_START" << std::endl;
-
-   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
-   {
-       output << "COMMENT " << myMetadata->comments[i] << std::endl;
-   }
-   output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
-   output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
-   output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
-   output << "REF_FRAME_A = " << myMetadata->frameA << std::endl;
-   output << "REF_FRAME_B = " << myMetadata->frameB << std::endl;
-   output << "ATTITUDE_DIR = " << myMetadata->direction << std::endl;
-   output << "TIME_SYSTEM = " << myMetadata->timeSystem << std::endl;
-   output << "START_TIME = " << myMetadata->startEpoch << std::endl;
-   output << "USEABLE_START_TIME = " << myMetadata->useableStartEpoch << std::endl;
-   output << "USEABLE_STOP_TIME = " << myMetadata->useableStopEpoch << std::endl;
-   output << "STOP_TIME = " << myMetadata->stopEpoch << std::endl;
-   output << "ATTITUDE_TYPE = " << myMetadata->attitudeType << std::endl;
-   output << "QUATERNION_TYPE = " << myMetadata->quaternionType << std::endl;
-   output << "EULER_ROT_SEQ = " << myMetadata->eulerRotationSequence << std::endl;
-   output << "RATE_FRAME = " << myMetadata->rateFrame << std::endl;
-   output << "INTERPOLATION = " << myMetadata->interpolationMethod << std::endl;
-   output << "INTERPOLATION_DEGREE = " << myMetadata->interpolationDegree << std::endl;
-
-   output << "META_STOP" << std::endl << std::endl;
-
-   return output;
-}
-
 
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSSpinStabilized *myCCSDSAEMSpinStabilized)

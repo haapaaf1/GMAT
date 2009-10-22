@@ -36,7 +36,9 @@
 //------------------------------------------------------------------------------
 bool ProcessCCSDSOPMDataFile::Initialize()
 {
-    DataFile::Initialize();
+    if (!ProcessCCSDSDataFile::Initialize()) return false;
+
+    requiredNumberMetaDataParameters = CountRequiredNumberMetaDataParameters();
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
@@ -44,7 +46,7 @@ bool ProcessCCSDSOPMDataFile::Initialize()
         CCSDSOPMObType *myOPM = new CCSDSOPMObType;
 
         // Read the first line from file
-	std::string line = Trim(ReadLineFromFile());
+	std::string line = ReadLineFromFile();
 
         while (!IsEOF())
         {
@@ -69,7 +71,7 @@ bool ProcessCCSDSOPMDataFile::Initialize()
             // After grabbing the header and metadata information
             // This call to read a line from file should be grabbing
             // rows of data between DATA_START and DATA_STOP
-	    line = Trim(ReadLineFromFile());
+	    line = ReadLineFromFile();
         }
 
         // Set data iterator to beginning of vector container
@@ -116,7 +118,10 @@ bool ProcessCCSDSOPMDataFile::Initialize()
 //------------------------------------------------------------------------------
 ProcessCCSDSOPMDataFile::ProcessCCSDSOPMDataFile(const std::string &itsName) :
 	ProcessCCSDSDataFile ("CCSDSOPMDataFile", itsName),
-	currentCCSDSMetaData(NULL)
+	currentCCSDSMetaData(NULL),
+	lastMetaDataWritten(NULL),
+        isMetaDataWritten(false),
+        requiredNumberMetaDataParameters(0)
 {
    objectTypeNames.push_back("CCSDSOPMDataFile");
    fileFormatName = "CCSDSOPM";
@@ -133,7 +138,10 @@ ProcessCCSDSOPMDataFile::ProcessCCSDSOPMDataFile(const std::string &itsName) :
 //------------------------------------------------------------------------------
 ProcessCCSDSOPMDataFile::ProcessCCSDSOPMDataFile(const ProcessCCSDSOPMDataFile &CCSDSOPMdf) :
     ProcessCCSDSDataFile(CCSDSOPMdf),
-    currentCCSDSMetaData(CCSDSOPMdf.currentCCSDSMetaData)
+    currentCCSDSMetaData(CCSDSOPMdf.currentCCSDSMetaData),
+    lastMetaDataWritten(CCSDSOPMdf.lastMetaDataWritten),
+    isMetaDataWritten(CCSDSOPMdf.isMetaDataWritten),
+    requiredNumberMetaDataParameters(CCSDSOPMdf.requiredNumberMetaDataParameters)
 {
 }
 
@@ -152,6 +160,9 @@ const ProcessCCSDSOPMDataFile& ProcessCCSDSOPMDataFile::operator=(const ProcessC
 
     ProcessCCSDSDataFile::operator=(CCSDSOPMdf);
     currentCCSDSMetaData = CCSDSOPMdf.currentCCSDSMetaData;
+    lastMetaDataWritten = CCSDSOPMdf.lastMetaDataWritten;
+    isMetaDataWritten = CCSDSOPMdf.isMetaDataWritten;
+    requiredNumberMetaDataParameters = CCSDSOPMdf.requiredNumberMetaDataParameters;
     return *this;
 }
 
@@ -233,7 +244,7 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     CCSDSOPMObType *myOPM = (CCSDSOPMObType*)myOPMData;
 
     // Read the first line from file
-    std::string lff = Trim(ReadLineFromFile());
+    std::string lff = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
     while (!IsEOF() && pcrecpp::RE("^CCSDS_OPM_VERS.*").FullMatch(lff))
@@ -247,40 +258,23 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
 	}
 	else
 	{
-	    // failure to read header line, abort
+	    // failure to read header data, abort
 	    currentCCSDSHeader = NULL;
 	    return false;
 	}
     }
 
-    // Test for the prescence of meta data
-    // If the header data was just processed, line should now contain
-    // the "META_START" line
-    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(lff))
+    if (GetCCSDSMetaData(lff,myOPM))
     {
-        // Initialize individual data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSOPMMetaData *myMetaData = new CCSDSOPMMetaData;
-
-	// Read the next metadata line from file
-	lff = Trim(ReadLineFromFile());
-
-	if (GetCCSDSMetaData(lff,myMetaData))
-	{
-	    // success so set currentHeader pointer to the
-	    // one just processed
-	    currentCCSDSMetaData = myMetaData;
-
-	    // Read the following data line from file
-	    lff = Trim(ReadLineFromFile());
-	}
-	else
-	{
-	    // failure to read header line, abort
-	    currentCCSDSMetaData = NULL;
-	    return false;
-	}
+        // success so set currentHeader pointer to the
+        // one just processed
+        currentCCSDSMetaData = myOPM->ccsdsOPMMetaData;
+    }
+    else
+    {
+        // failure to read metadata, abort
+        currentCCSDSMetaData = NULL;
+        return false;
     }
 
     // Container for any comments found before the first state vector
@@ -468,7 +462,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
                 break;
             }
 
-        lff = Trim(ReadLineFromFile());
+        lff = ReadLineFromFile();
 
     }
     while ( count < 7 );
@@ -572,7 +566,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMKeplerianElements(std::string &lff,
 
         }
 
-        lff = Trim(ReadLineFromFile());
+        lff = ReadLineFromFile();
 
     }
     while ( count < 7 );
@@ -645,7 +639,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMSpacecraftParameters(std::string &lff,
                 break;
             }
 
-        lff = Trim(ReadLineFromFile());
+        lff = ReadLineFromFile();
 
     }
     while ( count < 5 );
@@ -682,43 +676,50 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMManeuver(std::string &lff,
         {
             case CCSDSOPMObType::CCSDS_OPM_MANUEVER_IGNITIONEPOCH_ID:
 
-                if (!GetCCSDSValue(lff,myOPMManeuver->ignitionEpoch)) return false;
+                if (!GetCCSDSValue(lff,myOPMManeuver->ignitionEpoch))
+                    return false;
                 count++;
                 break;
 
             case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DURATION_ID:
 
-                if (!GetCCSDSValue(lff,myOPMManeuver->duration)) return false;
+                if (!GetCCSDSValue(lff,myOPMManeuver->duration))
+                    return false;
                 count++;
                 break;
 
             case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAMASS_ID:
 
-                if (!GetCCSDSValue(lff,myOPMManeuver->deltaMass)) return false;
+                if (!GetCCSDSValue(lff,myOPMManeuver->deltaMass))
+                    return false;
                 count++;
                 break;
 
             case CCSDSOPMObType::CCSDS_OPM_MANUEVER_REFFRAME_ID:
 
-                if (!GetCCSDSValue(lff,myOPMManeuver->refFrame)) return false;
+                if (!GetCCSDSValue(lff,myOPMManeuver->refFrame))
+                    return false;
                 count++;
                 break;
 
             case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV1_ID:
 
-                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV1)) return false;
+                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV1))
+                    return false;
                 count++;
                 break;
 
             case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV2_ID:
 
-                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV2)) return false;
+                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV2))
+                    return false;
                 count++;
                 break;
 
             case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV3_ID:
 
-                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV3)) return false;
+                if (!GetCCSDSValue(lff,myOPMManeuver->deltaV3))
+                    return false;
                 count++;
                 break;
 
@@ -728,7 +729,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMManeuver(std::string &lff,
 
         }
 
-        lff = Trim(ReadLineFromFile());
+        lff = ReadLineFromFile();
 
     }
     while ( count < 7 );
@@ -749,78 +750,88 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMManeuver(std::string &lff,
 //
 //------------------------------------------------------------------------------
 bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
-                                CCSDSOPMMetaData *myMetaData)
+                                CCSDSOPMObType *myOb)
 {
-    // Temporary variables for string to number conversion.
-    // This is needed because the from_string utility function
-    // only supports the standard C++ types and does not
-    // support the GMAT types Real and Integer. Therefore,
-    // extraction is done into a temporary variable and then
-    // assigned to the GMAT type via casting.
-    std::string stemp;
+    
+   // Initialize individual data struct
+    // This needs new memory allocation because
+    // we are storing pointers to this data
+    CCSDSOPMMetaData *myMetaData = new CCSDSOPMMetaData;
 
-    // Read lines until we have encountered the first meta data start
-    while (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(lff,&stemp))
-    {
-        myMetaData->comments.push_back(stemp);
-        lff = Trim(ReadLineFromFile());
-    }
+    Integer count = 0;
+    std::string keyword;
 
-    if (pcrecpp::RE("^OBJECT_NAME\\s*=(.*)").FullMatch(lff,&stemp))
+    do
     {
-        myMetaData->objectName = stemp;
-        // Read in another line
-        lff = Trim(ReadLineFromFile());
-    }
-    else
-    {
-        return false;
-    }
 
-    if (pcrecpp::RE("^OBJECT_ID\\s*=(.*)").FullMatch(lff,&stemp))
-    {
-        myMetaData->internationalDesignator = stemp;
-        // Read in another line
-        lff = Trim(ReadLineFromFile());
-    }
-    else
-    {
-        return false;
-    }
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-    if (pcrecpp::RE("^CENTER_NAME\\s*=(.*)").FullMatch(lff,&stemp))
+        switch (myMetaData->GetKeywordID(keyword))
+        {
 
-    {
-        myMetaData->refFrameOrigin = stemp;
-        // Read in another line
-        lff = Trim(ReadLineFromFile());
-    }
-    else
-    {
-        return false;
-    }
+            case CCSDSOPMMetaData::CCSDS_OPM_METADATACOMMENTS_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp)) return false;
+                myMetaData->comments.push_back(stemp);
+                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_METADATACOMMENTS_ID))
+                    count++;
+                }
+                break;
 
-    if (pcrecpp::RE("^REF_FRAME\\s*=(.*)").FullMatch(lff,&stemp))
-    {
-        myMetaData->refFrame = stemp;
-        // Read in another line
-        lff = Trim(ReadLineFromFile());
-    }
-    else
-    {
-        return false;
-    }
+            case CCSDSOPMMetaData::CCSDS_OPM_OBJECTNAME_ID:
 
-    if (pcrecpp::RE("^TIME_SYSTEM\\s*=(.*)").FullMatch(lff,&stemp))
-    {
-        myMetaData->timeSystem = stemp;
-        // Read in another line
-        lff = Trim(ReadLineFromFile());
+                if (!GetCCSDSValue(lff,myMetaData->objectName))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_OBJECTNAME_ID))
+                    count++;
+                break;
+
+            case CCSDSOPMMetaData::CCSDS_OPM_OBJECTID_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->internationalDesignator))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_OBJECTID_ID))
+                    count++;
+                break;
+
+            case CCSDSOPMMetaData::CCSDS_OPM_CENTERNAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->refFrameOrigin))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_CENTERNAME_ID))
+                    count++;
+                break;
+
+            case CCSDSOPMMetaData::CCSDS_OPM_REFFRAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->refFrame))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_REFFRAME_ID))
+                    count++;
+                break;
+
+            case CCSDSOPMMetaData::CCSDS_OPM_TIMESYSTEM_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->timeSystem))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_TIMESYSTEM_ID))
+                    count++;
+                break;
+
+            default:
+
+                return false;
+                break;
+
+        }
+
+        lff = ReadLineFromFile();
     }
-    else
-    {
-        return false;
-    }
+    while(count < requiredNumberMetaDataParameters ||
+          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
+
+    myOb->ccsdsOPMMetaData = myMetaData;
 
     return true;
 }

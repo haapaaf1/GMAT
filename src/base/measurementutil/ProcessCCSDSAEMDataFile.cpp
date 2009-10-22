@@ -35,7 +35,9 @@
 //------------------------------------------------------------------------------
 bool ProcessCCSDSAEMDataFile::Initialize()
 {
-    DataFile::Initialize();
+    if (!ProcessCCSDSDataFile::Initialize()) return false;
+
+    requiredNumberMetaDataParameters = CountRequiredNumberMetaDataParameters();
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
@@ -43,7 +45,7 @@ bool ProcessCCSDSAEMDataFile::Initialize()
         CCSDSAEMObType *myAEM = new CCSDSAEMObType;
 
         // Read the first line from file
-	std::string line = Trim(ReadLineFromFile());
+	std::string line = ReadLineFromFile();
 
         while (!IsEOF())
         {
@@ -68,7 +70,7 @@ bool ProcessCCSDSAEMDataFile::Initialize()
             // After grabbing the header and metadata information
             // This call to read a line from file should be grabbing
             // rows of data between DATA_START and DATA_STOP
-	    line = Trim(ReadLineFromFile());
+	    line = ReadLineFromFile();
         }
 
         // Set data iterator to beginning of vector container
@@ -115,7 +117,10 @@ bool ProcessCCSDSAEMDataFile::Initialize()
 //------------------------------------------------------------------------------
 ProcessCCSDSAEMDataFile::ProcessCCSDSAEMDataFile(const std::string &itsName) :
 	ProcessCCSDSDataFile ("CCSDSAEMDataFile", itsName),
-	currentCCSDSMetaData(NULL)
+	currentCCSDSMetaData(NULL),
+	lastMetaDataWritten(NULL),
+        isMetaDataWritten(false),
+        requiredNumberMetaDataParameters(0)
 {
    objectTypeNames.push_back("CCSDSAEMDataFile");
    fileFormatName = "CCSDSAEM";
@@ -132,7 +137,10 @@ ProcessCCSDSAEMDataFile::ProcessCCSDSAEMDataFile(const std::string &itsName) :
 //------------------------------------------------------------------------------
 ProcessCCSDSAEMDataFile::ProcessCCSDSAEMDataFile(const ProcessCCSDSAEMDataFile &CCSDSAEMdf) :
     ProcessCCSDSDataFile(CCSDSAEMdf),
-    currentCCSDSMetaData(CCSDSAEMdf.currentCCSDSMetaData)
+    currentCCSDSMetaData(CCSDSAEMdf.currentCCSDSMetaData),
+    lastMetaDataWritten(CCSDSAEMdf.lastMetaDataWritten),
+    isMetaDataWritten(CCSDSAEMdf.isMetaDataWritten),
+    requiredNumberMetaDataParameters(CCSDSAEMdf.requiredNumberMetaDataParameters)
 {
 }
 
@@ -151,6 +159,9 @@ const ProcessCCSDSAEMDataFile& ProcessCCSDSAEMDataFile::operator=(const ProcessC
 
     ProcessCCSDSDataFile::operator=(CCSDSAEMdf);
     currentCCSDSMetaData = CCSDSAEMdf.currentCCSDSMetaData;
+    lastMetaDataWritten = CCSDSAEMdf.lastMetaDataWritten;
+    isMetaDataWritten = CCSDSAEMdf.isMetaDataWritten;
+    requiredNumberMetaDataParameters = CCSDSAEMdf.requiredNumberMetaDataParameters;
     return *this;
 }
 
@@ -232,21 +243,16 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
     CCSDSAEMObType *myAEM = (CCSDSAEMObType*)myAEMData;
 
     // Read the first line from file
-    std::string line = Trim(ReadLineFromFile());
+    std::string line = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
     while (!IsEOF() && pcrecpp::RE("^CCSDS_AEM_VERS.*").FullMatch(line))
     {
-        // Initialize the header data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSHeader *myCCSDSHeader = new CCSDSHeader;
-
-	if (GetCCSDSHeader(line,myCCSDSHeader))
+	if (GetCCSDSHeader(line,myAEM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSHeader = myCCSDSHeader;
+	    currentCCSDSHeader = myAEM->ccsdsHeader;
 	}
 	else
 	{
@@ -261,22 +267,11 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
     // the "META_START" line
     while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(line))
     {
-        // Initialize individual data struct
-        // This needs new memory allocation because
-        // we are storing pointers to this data
-        CCSDSAEMMetaData *myMetaData = new CCSDSAEMMetaData;
-
-	// Read the next metadata line from file
-	line = Trim(ReadLineFromFile());
-
-	if (GetCCSDSMetaData(line,myMetaData))
+	if (GetCCSDSMetaData(line,myAEM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSMetaData = myMetaData;
-
-	    // Read the following data line from file
-	    line = Trim(ReadLineFromFile());
+	    currentCCSDSMetaData = myAEM->ccsdsAEMMetaData;
 	}
 	else
 	{
@@ -292,7 +287,7 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
     // the actual data.
     if (pcrecpp::RE("^DATA_START.*").FullMatch(line))
     {
-        line = Trim(ReadLineFromFile());
+        line = ReadLineFromFile();
     }
 
     // Parse the data record making sure that we have identified
@@ -311,7 +306,7 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSOEMData(std::string &lff, CCSDSObType *myOb)
+// bool GetCCSDSAEMData(std::string &lff, CCSDSObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts the data from the orbit ephemeris message.
@@ -686,8 +681,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSMetaData(std::string &lff,
-//                       CCSDSAEMMetaData *myMetaData)
+// bool GetCCSDSMetaData(std::string &lff, CCSDSAEMObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts the metadata information from the tracking data message.
@@ -695,103 +689,192 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 //
 //------------------------------------------------------------------------------
 bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
-                                CCSDSAEMMetaData *myMetaData)
+                                CCSDSAEMObType *myOb)
 {
-    // Temporary variables for string to number conversion.
-    // This is needed because the from_string utility function
-    // only supports the standard C++ types and does not
-    // support the GMAT types Real and Integer. Therefore,
-    // extraction is done into a temporary variable and then
-    // assigned to the GMAT type via casting.
-    int itemp;
-    std::string stemp;
+    CCSDSAEMMetaData *myMetaData = new CCSDSAEMMetaData;
 
-    // Read lines until we have encountered the first meta data start
+    Integer count = 0;
+    std::string keyword;
 
-    while (!pcrecpp::RE("^DATA_START.*").FullMatch(lff))
+    do
     {
-        if (pcrecpp::RE("^COMMENT\\s*(.*)").FullMatch(lff,&stemp))
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        switch (myMetaData->GetKeywordID(keyword))
         {
-	    myMetaData->comments.push_back(stemp);
-        }
-        else if (pcrecpp::RE("^OBJECT_NAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->objectName = stemp;
-        }
-        else if (pcrecpp::RE("^OBJECT_ID\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->internationalDesignator = stemp;
-        }
-        else if (pcrecpp::RE("^CENTER_NAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->refFrameOrigin = stemp;
-        }
-        else if (pcrecpp::RE("^REF_FRAME_A\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->frameA = stemp;
-        }
-        else if (pcrecpp::RE("^REF_FRAME_B\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->frameB = stemp;
-        }
-        else if (pcrecpp::RE("^ATTITUDE_DIR\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->direction = GetAttitudeDirID(stemp);
-        }
-        else if (pcrecpp::RE("^TIME_SYSTEM\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->timeSystem = stemp;
-        }
-        else if (pcrecpp::RE("^START_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->startEpoch = stemp;
-        }
-        else if (pcrecpp::RE("^STOP_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->stopEpoch = stemp;
-        }
-        else if (pcrecpp::RE("^USEABLE_START_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->useableStartEpoch = stemp;
-        }
-        else if (pcrecpp::RE("^USEABLE_STOP_TIME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->useableStopEpoch = stemp;
-        }
-        else if (pcrecpp::RE("^ATTITUDE_TYPE\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->attitudeType = GetAttitudeTypeID(stemp);
-        }
-        else if (pcrecpp::RE("^QUATERNION_TYPE\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->quaternionType = GetQuaternionTypeID(stemp);
-        }
-        else if (pcrecpp::RE("^EULER_ROT_SEQ\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->eulerRotationSequence = stemp;
-        }
-        else if (pcrecpp::RE("^RATE_FRAME\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->rateFrame = GetRateFrameID(stemp);
-        }
-        else if (pcrecpp::RE("^INTERPOLATION\\s*=(.*)").FullMatch(lff,&stemp))
-        {
-	    myMetaData->interpolationMethod = stemp;
-        }
-        else if (pcrecpp::RE("^INTERPOLATION_DEGREE\\s*=(.*)").FullMatch(lff,&itemp))
-        {
-	    myMetaData->interpolationDegree = itemp;
-        }
-        else
-        {
-            // Ill formed data - these are the only keywords
-            // allowed in the header
-            return false;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_METADATACOMMENTS_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp)) return false;
+                myMetaData->comments.push_back(stemp);
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_METADATACOMMENTS_ID))
+                    count++;
+                }
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_OBJECTNAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->objectName))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_OBJECTNAME_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_OBJECTID_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->internationalDesignator))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_OBJECTID_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_CENTERNAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->refFrameOrigin))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_CENTERNAME_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_TIMESYSTEM_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->timeSystem))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_TIMESYSTEM_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_STARTEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->startEpoch))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_STARTEPOCH_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_STOPEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->stopEpoch))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_STOPEPOCH_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STARTEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->useableStartEpoch))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STARTEPOCH_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STOPEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->useableStopEpoch))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STOPEPOCH_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATION_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->interpolationMethod))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATION_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATIONDEGREE_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->interpolationDegree))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATIONDEGREE_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEA_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->frameA))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEA_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEB_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->frameB))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEB_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_ATTITUDEDIR_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                    return false;
+                myMetaData->direction = GetAttitudeDirID(stemp);
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_ATTITUDEDIR_ID))
+                    count++;
+                }
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_ATTITUDETYPE_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                    return false;
+                myMetaData->attitudeType = GetAttitudeTypeID(stemp);
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_ATTITUDETYPE_ID))
+                    count++;
+                }
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                    return false;
+                myMetaData->quaternionType = GetQuaternionTypeID(stemp);
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID))
+                    count++;
+                }
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->eulerRotationSequence))
+                    return false;
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID))
+                    count++;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_RATEFRAME_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                    return false;
+                myMetaData->rateFrame = GetRateFrameID(stemp);
+                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_RATEFRAME_ID))
+                    count++;
+                }
+                break;
+
+            default:
+
+                return false;
+                break;
+
         }
 
-        // Read in another line
-        lff = Trim(ReadLineFromFile());
+        lff = ReadLineFromFile();
     }
+    while(count < requiredNumberMetaDataParameters ||
+          pcrecpp::RE("^DATA_START.*$").FullMatch(lff));
+
+    myOb->ccsdsAEMMetaData = myMetaData;
 
     return true;
 }

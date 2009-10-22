@@ -47,8 +47,7 @@ public:
 private:
 
     // Specific data type processing functions
-    bool GetCCSDSMetaData(std::string &nextline,
-                          CCSDSAPMMetaData *myMetaData);
+    bool GetCCSDSMetaData(std::string &nextline, CCSDSAPMObType *myOb);
     bool GetCCSDSAPMData(std::string &lff, CCSDSAPMObType *myOb);
     bool GetCCSDSAPMQuaternion(std::string &lff, CCSDSAPMObType *myOb);
     bool GetCCSDSAPMEulerAngle(std::string &lff, CCSDSAPMObType *myOb);
@@ -59,6 +58,8 @@ private:
     CCSDSAPMMetaData *currentCCSDSMetaData;
     CCSDSAPMMetaData *lastMetaDataWritten;
     bool isMetaDataWritten;
+    Integer requiredNumberMetaDataParameters;
+
 
 };
 #endif	/* _ProcessCCSDSAPMDataFileData_hpp */

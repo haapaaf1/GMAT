@@ -9,7 +9,7 @@
 #define	_CCSDSAEMOBTYPE_HPP
 
 #include "CCSDSObtype.hpp"
-
+#include "CCSDSAEMMetaData.hpp"
 
 class CCSDSAEMQuaternion : public CCSDSQuaternion
 {
@@ -38,34 +38,6 @@ public:
 
     friend std::ostream& operator<< (std::ostream &output,
                               const CCSDSAEMSpinStabilized *myCCSDSAEMSpinStabilized);
-};
-
-class CCSDSAEMMetaData
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output,
-                                     const CCSDSAEMMetaData *myMetaData);
-
-    std::string objectName;
-    std::string internationalDesignator;
-    std::string refFrameOrigin;
-    std::string frameA;
-    std::string frameB;
-    Integer direction;
-    std::string timeSystem;
-    std::string startEpoch;
-    std::string stopEpoch;
-    std::string useableStartEpoch;
-    std::string useableStopEpoch;
-    Integer attitudeType;
-    Integer quaternionType;
-    std::string eulerRotationSequence;
-    Integer rateFrame;
-    std::string interpolationMethod;
-    Integer interpolationDegree;
-    StringArray comments;
 };
 
 class CCSDSAEMObType : public CCSDSObType
@@ -124,24 +96,6 @@ public:
 
     enum CCSDS_DATA_REPS
     {
-        CCSDS_AEM_OBJECTNAME_ID = EndCCSDSDataReps,
-        CCSDS_AEM_OBJECTID_ID,
-        CCSDS_AEM_CENTERNAME_ID,
-        CCSDS_AEM_REFFRAMEA_ID,
-        CCSDS_AEM_REFFRAMEB_ID,
-        CCSDS_AEM_ATTITUDEDIR_ID,
-        CCSDS_AEM_TIMESYSTEM_ID,
-	CCSDS_AEM_STARTEPOCH_ID,
-	CCSDS_AEM_USEABLE_STARTEPOCH_ID,
-	CCSDS_AEM_USEABLE_STOPEPOCH_ID,
-	CCSDS_AEM_STOPEPOCH_ID,
-        CCSDS_AEM_ATTITUDETYPE_ID,
-        CCSDS_AEM_QUATERNIONTYPE_ID,
-        CCSDS_AEM_EULERROTSEQ_ID,
-        CCSDS_AEM_RATEFRAME_ID,
-        CCSDS_AEM_INTERPOLATION_ID,
-        CCSDS_AEM_INTERPOLATIONDEGREE_ID,
-        CCSDS_AEM_METADATACOMMENTS_ID,
 	CCSDS_AEM_QUATERNION_TYPE_ID,
 	CCSDS_AEM_QUATERNION_EPOCH_ID,
 	CCSDS_AEM_QUATERNION_FRAMEA_ID,
@@ -194,13 +148,13 @@ public:
 protected:
 
     static const std::string CCSDS_TIME_DESCRIPTIONS[EndCCSDSAEMTimeReps-EndCCSDSTimeReps];
-    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSAEMDataReps - EndCCSDSDataReps];
-    static const std::string CCSDS_AEM_KEYWORDS[EndCCSDSAEMDataReps-EndCCSDSDataReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSAEMDataReps-EndCCSDSDataReps];
+    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSAEMDataReps];
+    static const std::string CCSDS_AEM_KEYWORDS[EndCCSDSAEMDataReps];
+    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSAEMDataReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAEMTimeReps - EndCCSDSTimeReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSAEMDataReps - EndCCSDSDataReps];
-    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSAEMDataReps - EndCCSDSDataReps];
-    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAEMDataReps - EndCCSDSDataReps];
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSAEMDataReps];
+    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSAEMDataReps];
+    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAEMDataReps];
 
     // Pointer to the metadata record
     CCSDSAEMMetaData* ccsdsAEMMetaData;

@@ -3,13 +3,8 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSAPMObType::CCSDS_APM_KEYWORDS[EndCCSDSAPMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSAPMObType::CCSDS_APM_KEYWORDS[EndCCSDSAPMDataReps] =
 {
-    "OBJECT_NAME",
-    "OBJECT_ID",
-    "CENTER_NAME",
-    "TIME_SYSTEM",
-    "COMMENT",
     "",
     "EPOCH",
     "Q_FRAME_A",
@@ -69,13 +64,8 @@ const std::string CCSDSAPMObType::CCSDS_APM_KEYWORDS[EndCCSDSAPMDataReps-EndCCSD
     "COMMENT"
 };
 
-const std::string CCSDSAPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSAPMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSAPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSAPMDataReps] =
 {
-    "",
-    "",
-    "",
-    "",
-    "",
     "",
     "",
     "",
@@ -144,13 +134,8 @@ const std::string CCSDSAPMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAPMTimeR
     "TCB"
 };
 
-const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAPMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAPMDataReps] =
 {
-    "Object Name"
-    "Object ID",
-    "Reference Frame Origin",
-    "Time System",
-    "Comments",
     "Quaternion Type",
     "Quaternion Epoch",
     "Quaternion Frame A",
@@ -210,13 +195,8 @@ const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAPMDataR
     "Attitude Maneuver Comments"
 };
 
-const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSAPMDataReps-EndCCSDSDataReps] =
+const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSAPMDataReps] =
 {
-    true,
-    true,
-    true,
-    true,
-    false,
     true,
     true,
     true,
@@ -276,13 +256,8 @@ const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSAPMDataReps-EndCCSDSDataRep
     false
 };
 
-const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSAPMDataReps-EndCCSDSDataReps] =
+const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSAPMDataReps] =
 {
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRINGARRAY_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
@@ -441,7 +416,7 @@ GmatBase* CCSDSAPMObType::Clone() const
 //------------------------------------------------------------------------------
 std::string CCSDSAPMObType::GetDataParameterText(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSAPMDataReps))
+   if ((id >= 0) && (id < EndCCSDSAPMDataReps))
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
@@ -457,7 +432,7 @@ std::string CCSDSAPMObType::GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 std::string CCSDSAPMObType::GetDataUnits(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSAPMDataReps))
+   if ((id >= 0) && (id < EndCCSDSAPMDataReps))
    {
       return CCSDS_UNIT_DESCRIPTIONS[id];
    }
@@ -476,7 +451,7 @@ Integer CCSDSAPMObType::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSAPMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSAPMDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -499,7 +474,7 @@ Integer CCSDSAPMObType::GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType CCSDSAPMObType::GetDataParameterType(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSAPMDataReps))
+   if ((id >= 0) && (id < EndCCSDSAPMDataReps))
       return CCSDS_PARAMETER_TYPE[id];
 
    return CCSDSObType::GetDataParameterType(id);
@@ -780,22 +755,6 @@ std::string CCSDSAPMObType::GetStringDataParameter(const Integer id) const
 
 	    return ccsdsAPMSpinStabilized->direction;
 
-	case CCSDS_APM_TIMESYSTEM_ID:
-
-            return ccsdsAPMMetaData->timeSystem;
-
-	case CCSDS_APM_CENTERNAME_ID:
-
-            return ccsdsAPMMetaData->refFrameOrigin;
-
-	case CCSDS_APM_OBJECTID_ID:
-
-            return ccsdsAPMMetaData->internationalDesignator;
-
-        case CCSDS_APM_OBJECTNAME_ID:
-
-            return ccsdsAPMMetaData->objectName;
-
         default:
 
             return CCSDSObType::GetStringDataParameter(id);
@@ -843,10 +802,6 @@ StringArray CCSDSAPMObType::GetStringArrayDataParameter(const Integer id) const
         case CCSDS_APM_ATTITUDEMANUEVER_COMMENTS_ID:
 
 	    return (*i_ccsdsAPMAttitudeManeuvers)->comments;
-
-        case CCSDS_APM_METADATACOMMENTS_ID:
-
-	    return ccsdsAPMMetaData->comments;
 
         default:
 
@@ -897,7 +852,7 @@ const Integer CCSDSAPMObType::GetKeywordID(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSAPMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSAPMDataReps; i++)
     {
         if (pcrecpp::RE(regex).FullMatch(CCSDS_APM_KEYWORDS[i]))
             return i;
@@ -1001,7 +956,7 @@ Integer CCSDSAPMObType::GetTimeSystemID(const std::string &label)
 //---------------------------------------------------------------------------
 bool CCSDSAPMObType::IsParameterRequired(const Integer id) const
 {
-if (id > EndCCSDSDataReps && id <= EndCCSDSAPMDataReps)
+if (id > 0 && id <= EndCCSDSAPMDataReps)
     return CCSDS_IS_REQUIRED[id];
 else
     return CCSDSObType::IsParameterRequired(id);
@@ -1021,7 +976,7 @@ bool CCSDSAPMObType::CheckDataAvailability(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSAPMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSAPMDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -1067,41 +1022,6 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAPMObType *myAPM)
             output << (*j);
     }
     return output;
-}
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSAPMMetaData *myMetadata)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSAPMObType value and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myMetadata>    CCSDS APM metadata to write out
- *
- * return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSAPMMetaData *myMetadata)
-{
-
-   //output.setf(std::ios::showpoint);
-   //output.setf(std::ios::scientific);
-
-   output << "META_START" << std::endl;
-
-   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
-   {
-       output << "COMMENT " << myMetadata->comments[i] << std::endl;
-   }
-   output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
-   output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
-   output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
-   output << "TIME_SYSTEM = " << myMetadata->timeSystem << std::endl;
-
-
-   output << "META_STOP" << std::endl << std::endl;
-
-   return output;
 }
 
 //------------------------------------------------------------------------------

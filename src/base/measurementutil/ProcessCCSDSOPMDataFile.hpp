@@ -47,8 +47,7 @@ public:
 private:
 
     // Specific data type processing functions
-    bool GetCCSDSMetaData(std::string &nextline,
-                          CCSDSOPMMetaData *myMetaData);
+    bool GetCCSDSMetaData(std::string &nextline, CCSDSOPMObType *myOb);
     bool GetCCSDSOPMData(std::string &lff, CCSDSOPMObType *myOb);
 
     bool GetCCSDSOPMStateVector(std::string &lff, CCSDSOPMObType *myOb);
@@ -59,6 +58,7 @@ private:
     CCSDSOPMMetaData *currentCCSDSMetaData;
     CCSDSOPMMetaData *lastMetaDataWritten;
     bool isMetaDataWritten;
+    Integer requiredNumberMetaDataParameters;
 
 };
 #endif	/* _ProcessCCSDSOPMDataFileData_hpp */

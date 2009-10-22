@@ -9,6 +9,7 @@
 #define	_CCSDSOPMOBTYPE_HPP
 
 #include "CCSDSObType.hpp"
+#include "CCSDSOPMMetaData.hpp"
 #include "Anomaly.hpp"
 
 class CCSDSOPMSpacecraftParameters
@@ -91,25 +92,6 @@ public:
     Real deltaV1, deltaV2, deltaV3;
     StringArray comments;
 };
-
-class CCSDSOPMMetaData
-{
-public:
-
-    CCSDSOPMMetaData();
-    CCSDSOPMMetaData(const CCSDSOPMMetaData &opmMD);
-    const CCSDSOPMMetaData& CCSDSOPMMetaData::operator=(const CCSDSOPMMetaData &opmMD);
-    ~CCSDSOPMMetaData();
-
-    friend std::ostream& operator<< (std::ostream &output,
-                                     const CCSDSOPMMetaData *myMetadata);
-    std::string objectName;
-    std::string internationalDesignator;
-    std::string refFrameOrigin;
-    std::string refFrame;
-    std::string timeSystem;
-    StringArray comments;
-};
     
 class CCSDSOPMObType : public CCSDSObType
 {
@@ -165,12 +147,6 @@ public :
 
     enum CCSDS_DATA_REPS
     {
-        CCSDS_OPM_OBJECTNAME_ID = EndCCSDSDataReps,
-        CCSDS_OPM_OBJECTID_ID,
-        CCSDS_OPM_CENTERNAME_ID,
-        CCSDS_OPM_REFFRAME_ID,
-	CCSDS_OPM_TIMESYSTEM_ID,
-        CCSDS_OPM_METADATACOMMENTS_ID,
 	CCSDS_OPM_STATEVECTOR_EPOCH_ID,
 	CCSDS_OPM_STATEVECTOR_X_ID,
 	CCSDS_OPM_STATEVECTOR_Y_ID,
@@ -210,12 +186,12 @@ public :
 
 private:
 
-    static const std::string CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps-EndCCSDSDataReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps-EndCCSDSDataReps];
+    static const std::string CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps];
+    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOPMTimeReps - EndCCSDSTimeReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps - EndCCSDSDataReps];
-    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataReps - EndCCSDSDataReps];
-    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataReps - EndCCSDSDataReps];
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps];
+    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataReps];
+    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataReps];
 
     // Pointer to the data records
     CCSDSOPMMetaData *ccsdsOPMMetaData;

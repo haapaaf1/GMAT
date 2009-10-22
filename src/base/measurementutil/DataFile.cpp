@@ -35,6 +35,8 @@ const std::string DataFile::OPTIONAL_EXPONENT = "[Ee]?" + OPTIONAL_SIGN +
 
 const std::string DataFile::REGEX_NUMBER = "(?:" + OPTIONAL_SIGN +
                     MANDATORY_DIGITS + DECIMAL_POINT + OPTIONAL_DIGITS + ")";
+const std::string DataFile::REGEX_INTEGER = "(?:" + OPTIONAL_SIGN +
+                    MANDATORY_DIGITS  + ")";
 const std::string DataFile::REGEX_LETTER = "[a-zA-Z]";
 const std::string DataFile::REGEX_DATE = "\\d{2}.\\d{2}.\\d{4}";
 const std::string DataFile::REGEX_SCINUMBER = "(?:" + OPTIONAL_SIGN +

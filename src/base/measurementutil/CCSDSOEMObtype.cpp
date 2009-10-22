@@ -3,20 +3,8 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSOEMObType::CCSDS_OEM_KEYWORDS[EndCCSDSOEMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSOEMObType::CCSDS_OEM_KEYWORDS[EndCCSDSOEMDataReps] =
 {
-    "OBJECT_NAME",
-    "OBJECT_ID",
-    "CENTER_NAME",
-    "REF_FRAME",
-    "TIME_SYSTEM",
-    "START_TIME",
-    "USEABLE_START_TIME",
-    "USEABLE_STOP_TIME",
-    "STOP_TIME",
-    "INTERPOLATION",
-    "INTERPOLATION_DEGREE",
-    "COMMENT",
     "EPOCH",
     "X",
     "Y",
@@ -27,27 +15,16 @@ const std::string CCSDSOEMObType::CCSDS_OEM_KEYWORDS[EndCCSDSOEMDataReps-EndCCSD
     "COMMENT"
 };
 
-const std::string CCSDSOEMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSOEMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
 {
     "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
     "km",
     "km",
     "km",
     "km/s",
     "km/s",
-    "km/s"
+    "km/s",
+    ""
 };
 
 const std::string CCSDSOEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps-EndCCSDSTimeReps] =
@@ -65,20 +42,8 @@ const std::string CCSDSOEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeR
     "UT1"
 };
 
-const std::string CCSDSOEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSOEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
 {
-    "Object Name"
-    "Object ID",
-    "Reference Frame Origin",
-    "Reference Frame",
-    "Time System",
-    "Start Epoch",
-    "Useable Start Epoch",
-    "Useable Stop Epoch",
-    "Stop Epoch",
-    "Interpolation Method",
-    "Interpolation Degree",
-    "Comments",
     "State Vector Epoch",
     "State Vector X",
     "State Vector Y",
@@ -89,7 +54,7 @@ const std::string CCSDSOEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataR
     "State Vector Comments"
 };
 
-const bool CCSDSOEMObType::CCSDS_IS_REQUIRED[EndCCSDSOEMDataReps-EndCCSDSDataReps] =
+const bool CCSDSOEMObType::CCSDS_IS_REQUIRED[EndCCSDSOEMDataReps] =
 {
     true,
     true,
@@ -97,28 +62,12 @@ const bool CCSDSOEMObType::CCSDS_IS_REQUIRED[EndCCSDSOEMDataReps-EndCCSDSDataRep
     true,
     true,
     true,
-    false,
-    false,
     true,
-    false,
-    false,
     false
 };
 
-const Gmat::ParameterType CCSDSOEMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOEMDataReps-EndCCSDSDataReps] =
+const Gmat::ParameterType CCSDSOEMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOEMDataReps] =
 {
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::INTEGER_TYPE,
-    Gmat::STRINGARRAY_TYPE,
     Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -216,7 +165,7 @@ GmatBase* CCSDSOEMObType::Clone() const
 //------------------------------------------------------------------------------
 std::string CCSDSOEMObType::GetDataParameterText(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSOEMDataReps))
+   if ((id >= 0) && (id < EndCCSDSOEMDataReps))
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
@@ -232,7 +181,7 @@ std::string CCSDSOEMObType::GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 std::string CCSDSOEMObType::GetDataUnits(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSOEMDataReps))
+   if ((id >= 0) && (id < EndCCSDSOEMDataReps))
    {
       return CCSDS_UNIT_DESCRIPTIONS[id];
    }
@@ -251,7 +200,7 @@ Integer CCSDSOEMObType::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSOEMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSOEMDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -274,7 +223,7 @@ Integer CCSDSOEMObType::GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType CCSDSOEMObType::GetDataParameterType(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSOEMDataReps))
+   if ((id >= 0) && (id < EndCCSDSOEMDataReps))
       return CCSDS_PARAMETER_TYPE[id];
 
    return CCSDSObType::GetDataParameterType(id);
@@ -348,41 +297,6 @@ Real CCSDSOEMObType::GetRealDataParameter(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
-// virtual Integer GetIntegerDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//---------------------------------------------------------------------------
-Integer CCSDSOEMObType::GetIntegerDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-	case CCSDS_OEM_INTERPOLATIONDEGREE_ID:
-
-	    return ccsdsOEMMetaData->interpolationDegree;
-
-        default:
-
-            return CCSDSObType::GetIntegerDataParameter(id);
-
-    }
-
-}
-
-//------------------------------------------------------------------------------
-// virtual Integer GetIntegerDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Integer CCSDSOEMObType::GetIntegerDataParameter(const std::string &label) const
-{
-   return GetIntegerDataParameter(GetDataParameterID(label));
-}
-
-//------------------------------------------------------------------------------
 // virtual std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
@@ -397,46 +311,6 @@ std::string CCSDSOEMObType::GetStringDataParameter(const Integer id) const
         case CCSDS_OEM_STATEVECTOR_EPOCH_ID:
 
 	    return ccsdsOEMStateVector->epoch;
-
-	case CCSDS_OEM_TIMESYSTEM_ID:
-
-            return ccsdsOEMMetaData->timeSystem;
-
-	case CCSDS_OEM_REFFRAME_ID:
-
-            return ccsdsOEMMetaData->refFrame;
-
-	case CCSDS_OEM_CENTERNAME_ID:
-
-            return ccsdsOEMMetaData->refFrameOrigin;
-
-	case CCSDS_OEM_OBJECTID_ID:
-
-            return ccsdsOEMMetaData->internationalDesignator;
-
-        case CCSDS_OEM_OBJECTNAME_ID:
-
-            return ccsdsOEMMetaData->objectName;
-
-        case CCSDS_OEM_STARTEPOCH_ID:
-
-            return ccsdsOEMMetaData->startEpoch;
-
-        case CCSDS_OEM_STOPEPOCH_ID:
-
-            return ccsdsOEMMetaData->stopEpoch;
-
-        case CCSDS_OEM_USEABLE_STARTEPOCH_ID:
-
-            return ccsdsOEMMetaData->useableStartEpoch;
-
-        case CCSDS_OEM_USEABLE_STOPEPOCH_ID:
-
-            return ccsdsOEMMetaData->useableStopEpoch;
-
-        case CCSDS_OEM_INTERPOLATION_ID:
-
-            return ccsdsOEMMetaData->interpolationMethod;
 
         default:
 
@@ -472,10 +346,6 @@ StringArray CCSDSOEMObType::GetStringArrayDataParameter(const Integer id) const
         case CCSDS_OEM_STATEVECTOR_COMMENTS_ID:
 
 	    return ccsdsOEMStateVector->comments;
-
-	case CCSDS_OEM_METADATACOMMENTS_ID:
-
-	    return ccsdsOEMMetaData->comments;
 
         default:
 
@@ -526,7 +396,7 @@ const Integer CCSDSOEMObType::GetKeywordID(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSOEMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSOEMDataReps; i++)
     {
         if (pcrecpp::RE(regex).FullMatch(CCSDS_OEM_KEYWORDS[i]))
             return i;
@@ -650,7 +520,7 @@ bool CCSDSOEMObType::CheckDataAvailability(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSOEMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSOEMDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -688,48 +558,6 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOEMObType *myOEM)
     }
 
     return output;
-}
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSOEMMetaData *myMetadata)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSOEMObType value and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myMetadata>    CCSDS OEM metadata to write out
- *
- * return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSOEMMetaData *myMetadata)
-{
-
-   //output.setf(std::ios::showpoint);
-   //output.setf(std::ios::scientific);
-
-   output << "META_START" << std::endl;
-
-   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
-   {
-       output << "COMMENT " << myMetadata->comments[i] << std::endl;
-   }
-   output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
-   output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
-   output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
-   output << "REF_FRAME = " << myMetadata->refFrame << std::endl;
-   output << "TIME_SYSTEM = " << myMetadata->timeSystem << std::endl;
-   output << "START_TIME = " << myMetadata->startEpoch << std::endl;
-   output << "USEABLE_START_TIME = " << myMetadata->useableStartEpoch << std::endl;
-   output << "USEABLE_STOP_TIME = " << myMetadata->useableStopEpoch << std::endl;
-   output << "STOP_TIME = " << myMetadata->stopEpoch << std::endl;
-   output << "INTERPOLATION = " << myMetadata->interpolationMethod << std::endl;
-   output << "INTERPOLATION_DEGREE = " << myMetadata->interpolationDegree << std::endl;
-
-
-   output << "META_STOP" << std::endl << std::endl;
-
-   return output;
 }
 
 //------------------------------------------------------------------------------

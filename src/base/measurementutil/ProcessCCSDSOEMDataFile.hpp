@@ -48,12 +48,14 @@ private:
 
     // Specific data type processing functions
     bool GetCCSDSMetaData(std::string &nextline,
-                          CCSDSOEMMetaData *myMetaData);
+                          CCSDSOEMObType *myOb);
     bool GetCCSDSOEMData(std::string &lff, CCSDSOEMObType *myOb);
 
     CCSDSOEMMetaData *currentCCSDSMetaData;
     CCSDSOEMMetaData *lastMetaDataWritten;
     bool isMetaDataWritten;
+    Integer requiredNumberMetaDataParameters;
+
 
 };
 #endif	/* _ProcessCCSDSOEMDataFileData_hpp */

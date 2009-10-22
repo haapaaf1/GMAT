@@ -127,11 +127,11 @@ public :
     friend std::string GetRateFrameText(const Integer id);
     friend Integer    GetRateFrameID(const std::string &str);
     
-    virtual std::string GetDataParameterText(const Integer id) const;
-    virtual Integer    GetDataParameterID(const std::string &str) const;
-    virtual Gmat::ParameterType GetDataParameterType(const Integer id) const;
-    virtual std::string GetDataParameterTypeString(const Integer id) const;
-    virtual std::string GetDataUnits(const Integer id) const;
+    virtual std::string GetHeaderDataParameterText(const Integer id) const;
+    virtual Integer    GetHeaderDataParameterID(const std::string &str) const;
+    virtual Gmat::ParameterType GetHeaderDataParameterType(const Integer id) const;
+    virtual std::string GetHeaderDataParameterTypeString(const Integer id) const;
+    virtual std::string GetHeaderDataUnits(const Integer id) const;
 
     virtual Real	GetRealDataParameter(const Integer id) const;
     virtual Real	GetRealDataParameter(const std::string &label) const;
@@ -149,9 +149,10 @@ public :
     virtual std::string GetUnits(const Integer &id) const;
 
     // Functions to verify data availability
-    virtual bool CheckDataAvailability(const std::string str) const;
+    virtual bool CheckHeaderDataAvailability(const std::string str) const;
     
-    virtual bool IsParameterRequired(const Integer id) const;
+    virtual bool IsHeaderParameterRequired(const Integer id) const;
+    friend Integer CountRequiredNumberHeaderDataParameters();
 
     virtual const std::string* GetDataTypes() const;
     virtual std::string GetDataTypeText(const Integer &id) const;
@@ -181,13 +182,13 @@ public :
 	EndCCSDSTimeReps
     };
     
-    enum CCSDS_DATA_REPS
+    enum CCSDS_HEADERDATA_REPS
     {
 	CCSDS_VERSION_ID,
 	CCSDS_CREATIONDATE_ID,
 	CCSDS_ORIGINATOR_ID,
 	CCSDS_HEADERCOMMENTS_ID,
-	EndCCSDSDataReps
+	EndCCSDSHeaderDataReps
     };
 
     enum CCSDS_ATTITUDE_TYPE
@@ -237,12 +238,12 @@ protected:
     static const std::string CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps];
     static const std::string CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps];
     static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];
-    static const std::string CCSDSObType::CCSDS_KEYWORDS[EndCCSDSDataReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSDataReps];
-    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSDataReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSDataReps];
-    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSDataReps];
+    static const std::string CCSDS_HEADER_KEYWORDS[EndCCSDSHeaderDataReps];
+    static const bool CCSDS_HEADER_IS_REQUIRED[EndCCSDSHeaderDataReps];
+    static const Gmat::ParameterType CCSDS_HEADER_PARAMETER_TYPE[EndCCSDSHeaderDataReps];
+    static const std::string CCSDS_HEADER_UNIT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
+    static const std::string CCSDS_HEADER_FILEFORMAT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
 
     // Pointer to the header record associated with this data point
     CCSDSHeader *ccsdsHeader;

@@ -292,90 +292,11 @@ CCSDSOPMManeuver::~CCSDSOPMManeuver()
 {
 }
 
-//------------------------------------------------------------------------------
-//  CCSDSOPMMetaData()
-//------------------------------------------------------------------------------
-/**
- * Constructor for the CCSDSOPMMetaData class
- */
-//------------------------------------------------------------------------------
-CCSDSOPMMetaData::CCSDSOPMMetaData() :
-    objectName(std::string("")),
-    internationalDesignator(std::string("")),
-    refFrameOrigin(std::string("")),
-    refFrame(std::string("")),
-    timeSystem(std::string("")),
-    comments()
-{
-}
-
-//------------------------------------------------------------------------------
-//  CCSDSOPMMetaData(const CCSDSOPMMetaData &opmMD)
-//------------------------------------------------------------------------------
-/**
- * Constructor for the CCSDSOPMMetaData class
- */
-//------------------------------------------------------------------------------
-CCSDSOPMMetaData::CCSDSOPMMetaData
-               (const CCSDSOPMMetaData &opmMD) :
-    objectName(opmMD.objectName),
-    internationalDesignator(opmMD.internationalDesignator),
-    refFrameOrigin(opmMD.refFrameOrigin),
-    refFrame(opmMD.refFrame),
-    timeSystem(opmMD.timeSystem),
-    comments(opmMD.comments)
-{
-}
-
-//---------------------------------------------------------------------------
-//  CCSDSOPMMetaData& operator= (const CCSDSOPMMetaData &opmMD)
-//---------------------------------------------------------------------------
-/**
- * Assignment operator for CCSDSOPMMetaData structures.
- *
- * @param <opmMD> The original that is being copied.
- *
- * @return Reference to this object
- */
-//---------------------------------------------------------------------------
-const CCSDSOPMMetaData& CCSDSOPMMetaData::operator=
-                                     (const CCSDSOPMMetaData &opmMD)
-{
-    if (&opmMD == this)
-        return *this;
-
-    objectName = opmMD.objectName;
-    internationalDesignator = opmMD.internationalDesignator;
-    refFrameOrigin = opmMD.refFrameOrigin;
-    refFrame = opmMD.refFrame;
-    timeSystem = opmMD.timeSystem;
-    comments = opmMD.comments;
-
-    return *this;
-}
-
-//------------------------------------------------------------------------------
-//  ~CCSDSOPMMetaData()
-//------------------------------------------------------------------------------
-/**
- * Destructor for the CCSDSOPMMetaData class
- */
-//------------------------------------------------------------------------------
-CCSDSOPMMetaData::~CCSDSOPMMetaData()
-{
-}
-
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps] =
 {
-    "OBJECT_NAME",
-    "OBJECT_ID",
-    "CENTER_NAME",
-    "REF_FRAME",
-    "TIME_SYSTEM",
-    "COMMENT",
     "EPOCH",
     "X",
     "Y",
@@ -409,14 +330,8 @@ const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps-EndCCSD
     ""
 };
 
-const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps] =
 {
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
     "",
     "km",
     "km",
@@ -459,14 +374,8 @@ const std::string CCSDSOPMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOPMTimeR
     "TCB"
 };
 
-const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataReps-EndCCSDSDataReps] =
+const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataReps] =
 {
-    "Object Name"
-    "Object ID",
-    "Reference Frame Origin",
-    "Reference Frame",
-    "Time System",
-    "Comments",
     "State Vector Epoch",
     "State Vector X",
     "State Vector Y",
@@ -500,14 +409,8 @@ const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataR
     "Maneuver Comments"
 };
 
-const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps-EndCCSDSDataReps] =
+const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps] =
 {
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
     true,
     true,
     true,
@@ -541,14 +444,8 @@ const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps-EndCCSDSDataRep
     false
 };
 
-const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataReps-EndCCSDSDataReps] =
+const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataReps] =
 {
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRINGARRAY_TYPE,
     Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -677,7 +574,7 @@ GmatBase* CCSDSOPMObType::Clone() const
 //------------------------------------------------------------------------------
 std::string CCSDSOPMObType::GetDataParameterText(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSOPMDataReps))
+   if ((id >= 0) && (id < EndCCSDSOPMDataReps))
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
@@ -693,7 +590,7 @@ std::string CCSDSOPMObType::GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 std::string CCSDSOPMObType::GetDataUnits(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSOPMDataReps))
+   if ((id >= 0) && (id < EndCCSDSOPMDataReps))
    {
       return CCSDS_UNIT_DESCRIPTIONS[id];
    }
@@ -712,7 +609,7 @@ Integer CCSDSOPMObType::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSOPMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSOPMDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -735,7 +632,7 @@ Integer CCSDSOPMObType::GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType CCSDSOPMObType::GetDataParameterType(const Integer id) const
 {
-   if ((id >= EndCCSDSDataReps) && (id < EndCCSDSOPMDataReps))
+   if ((id >= 0) && (id < EndCCSDSOPMDataReps))
       return CCSDS_PARAMETER_TYPE[id];
 
    return CCSDSObType::GetDataParameterType(id);
@@ -905,26 +802,6 @@ std::string CCSDSOPMObType::GetStringDataParameter(const Integer id) const
 
 	    return (*i_ccsdsOPMManeuvers)->refFrame;
 
-        case CCSDS_OPM_TIMESYSTEM_ID:
-
-            return ccsdsOPMMetaData->timeSystem;
-
-	case CCSDS_OPM_REFFRAME_ID:
-
-            return ccsdsOPMMetaData->refFrame;
-
-	case CCSDS_OPM_CENTERNAME_ID:
-
-            return ccsdsOPMMetaData->refFrameOrigin;
-
-	case CCSDS_OPM_OBJECTID_ID:
-
-            return ccsdsOPMMetaData->internationalDesignator;
-
-        case CCSDS_OPM_OBJECTNAME_ID:
-
-            return ccsdsOPMMetaData->objectName;
-
         default:
 
             return CCSDSObType::GetStringDataParameter(id);
@@ -971,10 +848,6 @@ StringArray CCSDSOPMObType::GetStringArrayDataParameter(const Integer id) const
         case CCSDS_OPM_MANUEVER_COMMENTS_ID:
 
 	    return (*i_ccsdsOPMManeuvers)->comments;
-
-        case CCSDS_OPM_METADATACOMMENTS_ID:
-
-	    return ccsdsOPMMetaData->comments;
 
         default:
 
@@ -1025,7 +898,7 @@ const Integer CCSDSOPMObType::GetKeywordID(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSOPMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSOPMDataReps; i++)
     {
         if (pcrecpp::RE(regex).FullMatch(CCSDS_OPM_KEYWORDS[i]))
             return i;
@@ -1129,7 +1002,7 @@ Integer CCSDSOPMObType::GetTimeSystemID(const std::string &label)
 //---------------------------------------------------------------------------
 bool CCSDSOPMObType::IsParameterRequired(const Integer id) const
 {
-if (id > EndCCSDSDataReps && id <= EndCCSDSOPMDataReps)
+if (id > 0 && id <= EndCCSDSOPMDataReps)
     return CCSDS_IS_REQUIRED[id];
 else
     return CCSDSObType::IsParameterRequired(id);
@@ -1149,7 +1022,7 @@ bool CCSDSOPMObType::CheckDataAvailability(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = EndCCSDSDataReps; i < EndCCSDSOPMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSOPMDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -1199,43 +1072,6 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOPMObType *myOPM)
 
     return output;
 }
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetadata)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSOPMObType value and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myMetadata>    CCSDS OPM metadata to write out
- *
- * return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetadata)
-{
-
-   //output.setf(std::ios::showpoint);
-   //output.setf(std::ios::scientific);
-
-   output << "META_START" << std::endl;
-
-   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
-   {
-       output << "COMMENT " << myMetadata->comments[i] << std::endl;
-   }
-   output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
-   output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
-   output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
-   output << "REF_FRAME = " << myMetadata->refFrame << std::endl;
-   output << "TIME_SYSTEM = " << myMetadata->timeSystem << std::endl;
-
-
-   output << "META_STOP" << std::endl << std::endl;
-
-   return output;
-}
-
 
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSOPMManeuver *myManeuver)

@@ -23,6 +23,9 @@ public:
     
     CCSDSHeader* GetHeader();
     void SetHeader(CCSDSHeader *myHeader);
+
+    // Initialization happens here
+    virtual bool Initialize();
     
     // Utility functions
     bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date);
@@ -75,6 +78,7 @@ protected:
     
     bool GetCCSDSValue(const std::string &lff, std::string &svalue);
     bool GetCCSDSValue(const std::string &lff, Real &value);
+    bool GetCCSDSValue(const std::string &lff, Integer &value);
 
     bool GetCCSDSKeyword(const std::string &lff, std::string &keyword);
     bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &epoch,
@@ -90,6 +94,8 @@ protected:
     CCSDSHeader *currentCCSDSHeader;
     CCSDSHeader *lastHeaderWritten;
     bool isHeaderWritten;
+    Integer requiredNumberHeaderParameters;
+
 };
 
 #endif	/* _ProcessCCSDSDATAFILE_HPP */
