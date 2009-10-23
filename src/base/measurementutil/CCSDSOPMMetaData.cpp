@@ -105,6 +105,8 @@ const CCSDSOPMMetaData& CCSDSOPMMetaData::operator=
     if (&opmMD == this)
         return *this;
 
+    CCSDSObType::operator=(opmMD);
+
     objectName = opmMD.objectName;
     internationalDesignator = opmMD.internationalDesignator;
     refFrameOrigin = opmMD.refFrameOrigin;

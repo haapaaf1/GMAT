@@ -3,31 +3,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSOEMObType::CCSDS_OEM_KEYWORDS[EndCCSDSOEMDataReps] =
-{
-    "EPOCH",
-    "X",
-    "Y",
-    "Z",
-    "X_DOT",
-    "Y_DOT",
-    "Z_DOT",
-    "COMMENT"
-};
-
-const std::string CCSDSOEMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
-{
-    "",
-    "km",
-    "km",
-    "km",
-    "km/s",
-    "km/s",
-    "km/s",
-    ""
-};
-
-const std::string CCSDSOEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps-EndCCSDSTimeReps] =
+const std::string CCSDSStateVector::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps-EndCCSDSTimeReps] =
 {
     "UTC",
     "TAI",
@@ -40,42 +16,6 @@ const std::string CCSDSOEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeR
     "MRT",
     "SCLK",
     "UT1"
-};
-
-const std::string CCSDSOEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps] =
-{
-    "State Vector Epoch",
-    "State Vector X",
-    "State Vector Y",
-    "State Vector Z",
-    "State Vector X Dot",
-    "State Vector Y Dot",
-    "State Vector Z Dot",
-    "State Vector Comments"
-};
-
-const bool CCSDSOEMObType::CCSDS_IS_REQUIRED[EndCCSDSOEMDataReps] =
-{
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false
-};
-
-const Gmat::ParameterType CCSDSOEMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOEMDataReps] =
-{
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE
 };
 
 //------------------------------------------------------------------------------
@@ -120,8 +60,9 @@ const CCSDSOEMObType& CCSDSOEMObType::operator=(const CCSDSOEMObType &oem)
    if (&oem == this)
       return *this;
 
-    ccsdsOEMMetaData = oem.ccsdsOEMMetaData;
-    ccsdsOEMStateVector = oem.ccsdsOEMStateVector;
+   CCSDSObType::operator=(oem);
+   ccsdsOEMMetaData = oem.ccsdsOEMMetaData;
+   ccsdsOEMStateVector = oem.ccsdsOEMStateVector;
 
    return *this;
 }
@@ -560,27 +501,3 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOEMObType *myOEM)
     return output;
 }
 
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output,
-//                           const CCSDSOEMStateVector *myStateVector)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSObType data and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myStateVector>    CCSDS state vector data to write out
- *
- * @return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output,
-                          const CCSDSOEMStateVector *myOEMStateVector)
-{
-   using namespace std;
-
-   output << myOEMStateVector->epoch << myOEMStateVector->x
-           << myOEMStateVector->y << myOEMStateVector->xDot
-           << myOEMStateVector->yDot << myOEMStateVector->zDot << endl;
-
-   return output;
-}

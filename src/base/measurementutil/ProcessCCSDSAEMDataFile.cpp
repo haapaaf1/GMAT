@@ -37,7 +37,7 @@ bool ProcessCCSDSAEMDataFile::Initialize()
 {
     if (!ProcessCCSDSDataFile::Initialize()) return false;
 
-    requiredNumberMetaDataParameters = CountRequiredNumberMetaDataParameters();
+    requiredNumberMetaDataParameters = CCSDSAEMCountRequiredNumberMetaDataParameters();
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {

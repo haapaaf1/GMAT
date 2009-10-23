@@ -146,6 +146,8 @@ const CCSDSOEMMetaData& CCSDSOEMMetaData::operator=
     if (&oemMD == this)
         return *this;
 
+    CCSDSObType::operator=(oemMD);
+
     objectName = oemMD.objectName;
     internationalDesignator = oemMD.internationalDesignator;
     refFrameOrigin = oemMD.refFrameOrigin;

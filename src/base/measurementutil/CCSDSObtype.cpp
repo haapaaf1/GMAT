@@ -128,7 +128,9 @@ const CCSDSObType& CCSDSObType::operator=(const CCSDSObType &ob)
    if (&ob == this)
       return *this;
 
-    ccsdsHeader = ob.ccsdsHeader;
+   ObType::operator=(ob);
+
+   ccsdsHeader = ob.ccsdsHeader;
    
    return *this;
 }

@@ -53,7 +53,7 @@ public:
     StringArray GetStringArrayDataParameter(const std::string &label) const;
     
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CountRequiredNumberMetaDataParameters();
+    friend Integer CCSDSTDMCountRequiredNumberMetaDataParameters();
     
     enum CCSDS_METADATA_REPS
     {

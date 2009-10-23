@@ -242,8 +242,10 @@ const CCSDSTDMObType& CCSDSTDMObType::operator=(const CCSDSTDMObType &tdm)
    if (&tdm == this)
       return *this;
 
-    ccsdsTDMMetaData = tdm.ccsdsTDMMetaData;
-    ccsdsTDMData = tdm.ccsdsTDMData;
+   CCSDSObType::operator=(tdm);
+
+   ccsdsTDMMetaData = tdm.ccsdsTDMMetaData;
+   ccsdsTDMData = tdm.ccsdsTDMData;
 
    return *this;
 }
@@ -272,6 +274,106 @@ GmatBase* CCSDSTDMObType::Clone() const
 {
    GmatBase *clone = new CCSDSTDMObType(*this);
    return (clone);
+}
+
+//------------------------------------------------------------------------------
+// const std::string* GetKeywords() const
+//------------------------------------------------------------------------------
+/**
+ * Returns the string array of allowable CCSDS TDM keywords
+ *
+ * @return String array of keywords.
+ *
+ */
+//------------------------------------------------------------------------------
+const std::string* CCSDSTDMObType::GetKeywords() const
+{
+   return CCSDS_TDM_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+//  const Integer GetKeywordID(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+const Integer CCSDSTDMObType::GetKeywordID(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSTDMDataReps; i++)
+    {
+        if (pcrecpp::RE(regex).FullMatch(CCSDS_TDM_KEYWORDS[i]))
+            return i;
+    }
+
+   return -1;
+
+}
+
+//------------------------------------------------------------------------------
+//  std::string GetUnits(const Integer &id) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSTDMObType::GetUnits(const Integer &id) const
+{
+   return CCSDS_UNIT_DESCRIPTIONS[id];
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterRequired(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is required by the data format.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSTDMObType::IsParameterRequired(const Integer id) const
+{
+    if (id > 0 && id <= EndCCSDSTDMDataReps)
+	return CCSDS_IS_REQUIRED[id];
+    else
+	return false;
+}
+
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+bool CCSDSTDMObType::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSTDMDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return CCSDSObType::CheckDataAvailability(str);
+
 }
 
 //------------------------------------------------------------------------------
@@ -504,7 +606,20 @@ Real CCSDSTDMObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
-
+//------------------------------------------------------------------------------
+// std::string* GetDataTypes() const
+//------------------------------------------------------------------------------
+/**
+ * Code used to obtain the list of data types
+ *
+ * @return The data types
+ *
+ */
+//------------------------------------------------------------------------------
+const std::string* CCSDSTDMObType::GetDataTypes() const
+{
+   return CCSDS_DATATYPE_DESCRIPTIONS;
+}
 //------------------------------------------------------------------------------
 // std::string GetDataTypeText(const Integer id) const
 //------------------------------------------------------------------------------

@@ -10,16 +10,7 @@
 
 #include "CCSDSObType.hpp"
 #include "CCSDSOEMMetaData.hpp"
-
-class CCSDSOEMStateVector : public CCSDSStateVector
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output,
-                                    const CCSDSOEMStateVector *myCCSDSOEMStateVector);
-};
-    
+   
 class CCSDSOEMObType : public CCSDSObType
 {
 
@@ -77,31 +68,11 @@ public:
 	EndCCSDSOEMTimeReps
     };
 
-    enum CCSDS_DATA_REPS
-    {
-	CCSDS_OEM_STATEVECTOR_EPOCH_ID,
-	CCSDS_OEM_STATEVECTOR_X_ID,
-	CCSDS_OEM_STATEVECTOR_Y_ID,
-	CCSDS_OEM_STATEVECTOR_Z_ID,
-	CCSDS_OEM_STATEVECTOR_XDOT_ID,
-        CCSDS_OEM_STATEVECTOR_YDOT_ID,
-	CCSDS_OEM_STATEVECTOR_ZDOT_ID,
-	CCSDS_OEM_STATEVECTOR_COMMENTS_ID,
-        EndCCSDSOEMDataReps
-    };
-
     friend class ProcessCCSDSOEMDataFile;
 
 protected:
 
-    static const std::string CCSDS_TIME_DESCRIPTIONS[EndCCSDSOEMTimeReps-EndCCSDSTimeReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps - EndCCSDSTimeReps];
-    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSOEMDataReps];
-    static const std::string CCSDS_OEM_KEYWORDS[EndCCSDSOEMDataReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOEMDataReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSOEMDataReps];
-    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSOEMDataReps];
-    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOEMDataReps];
    
     // Pointer to the data records
     CCSDSOEMMetaData* ccsdsOEMMetaData;

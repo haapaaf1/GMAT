@@ -189,6 +189,8 @@ const CCSDSAEMMetaData& CCSDSAEMMetaData::operator=
     if (&aemMD == this)
         return *this;
 
+    CCSDSObType::operator=(aemMD);
+
     objectName = aemMD.objectName;
     internationalDesignator = aemMD.internationalDesignator;
     refFrameOrigin = aemMD.refFrameOrigin;

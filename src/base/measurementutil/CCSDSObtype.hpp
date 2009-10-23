@@ -10,102 +10,6 @@
 
 #include "ObType.hpp"
 
-class CCSDSData
-{
-
-public:
-
-    Integer keywordID;
-    std::string timeTag;
-    Real measurement;
-    StringArray comments;
-};
-
-// The CCSDS header specification that is common to all CCSDS formats
-class CCSDSHeader
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myCCSDSheader);
-
-    std::string fileType;
-    Real ccsdsVersion;
-    std::string creationDate;
-    std::string originator;
-    StringArray comments;
-    Integer dataType;
-};
-
-// The CCSDS quaternion specification. Some formats do not use
-// all the parameters such as the rates.
-class CCSDSQuaternion
-{
-
-public:
-
-    Integer quaternionType;
-    std::string epoch;
-    std::string frameA;
-    std::string frameB;
-    std::string direction;
-    Real q1, q2, q3, qC;
-    Real q1Dot, q2Dot, q3Dot, qCDot;
-    Real xRate, yRate, zRate;
-    StringArray comments;
-};
-
-// The CCSDS Euler angle specification. Some formats do not use
-// all the parameters such as the rates.
-class CCSDSEulerAngle
-{
-
-public:
-    
-    Integer eulerAngleType;
-    std::string epoch;
-    std::string frameA;
-    std::string frameB;
-    std::string direction;
-    std::string rotationSequence;
-    std::string rateFrame;
-    Real xAngle, yAngle, zAngle;
-    Real xRate, yRate, zRate;
-    StringArray comments;
-};
-
-// The CCSDS spin stabilized attitude specification.
-class CCSDSSpinStabilized
-{
-
-public:
-
-    Integer attitudeType;
-    std::string epoch;
-    std::string frameA;
-    std::string frameB;
-    std::string direction;
-    Real spinAlpha;
-    Real spinDelta;
-    Real spinAngle;
-    Real spinAngleVelocity;
-    Real nutation;
-    Real nutationPeriod;
-    Real nutationPhase;
-    StringArray comments;
-};
-
-class CCSDSStateVector
-{
-
-public:
-
-    std::string epoch;
-    Real x, y, z;
-    Real xDot, yDot, zDot;
-    StringArray comments;
-};
-
 class CCSDSObType : public ObType
 {
     
@@ -120,8 +24,6 @@ public :
 
     friend std::string GetAttitudeTypeText(const Integer id);
     friend Integer    GetAttitudeTypeID(const std::string &str);
-    friend std::string GetQuaternionTypeText(const Integer id);
-    friend Integer    GetQuaternionTypeID(const std::string &str);
     friend std::string GetAttitudeDirText(const Integer id);
     friend Integer    GetAttitudeDirID(const std::string &str);
     friend std::string GetRateFrameText(const Integer id);
@@ -182,15 +84,6 @@ public :
 	EndCCSDSTimeReps
     };
     
-    enum CCSDS_HEADERDATA_REPS
-    {
-	CCSDS_VERSION_ID,
-	CCSDS_CREATIONDATE_ID,
-	CCSDS_ORIGINATOR_ID,
-	CCSDS_HEADERCOMMENTS_ID,
-	EndCCSDSHeaderDataReps
-    };
-
     enum CCSDS_ATTITUDE_TYPE
     {
         CCSDS_QUATERNION_ID = 0,
@@ -208,13 +101,6 @@ public :
         CCSDS_RATE_FRAME_A_ID = 0,
         CCSDS_RATE_FRAME_B_ID,
         EndCCSDSRateFrameReps
-    };
-
-    enum CCSDS_QUATERNION_TYPE
-    {
-        CCSDS_QUATERNION_FIRST_ID = 0,
-        CCSDS_QUATERNION_LAST_ID,
-        EndCCSDSQuaternionTypeReps
     };
 
     enum CCSDS_ATTITUDE_DIR

@@ -366,6 +366,8 @@ const CCSDSTDMMetaData& CCSDSTDMMetaData::operator=(const CCSDSTDMMetaData &tdmd
    if (&tdmd == this)
       return *this;
 
+    CCSDSObType::operator=(tdmd);
+
     comments = tdmd.comments;
     timeSystem = tdmd.timeSystem;
     startTime = tdmd.startTime;
@@ -513,7 +515,7 @@ bool CCSDSTDMMetaData::IsParameterRequired(const Integer id) const
 }
 
 //---------------------------------------------------------------------------
-//  bool CountRequiredNumberMetaDataParameters()
+//  bool CCSDSTDMCountRequiredNumberMetaDataParameters()
 //---------------------------------------------------------------------------
 /**
  * Count the number of required variables.
@@ -521,7 +523,7 @@ bool CCSDSTDMMetaData::IsParameterRequired(const Integer id) const
  * @return The number of required variables.
  */
 //---------------------------------------------------------------------------
-Integer CountRequiredNumberMetaDataParameters()
+Integer CCSDSTDMCountRequiredNumberMetaDataParameters()
 {
 
     Integer num = 0;

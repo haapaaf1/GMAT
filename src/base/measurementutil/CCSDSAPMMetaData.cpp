@@ -98,6 +98,8 @@ const CCSDSAPMMetaData& CCSDSAPMMetaData::operator=
     if (&apmMD == this)
         return *this;
 
+    CCSDSObType::operator=(apmMD);
+
     objectName = apmMD.objectName;
     internationalDesignator = apmMD.internationalDesignator;
     refFrameOrigin = apmMD.refFrameOrigin;

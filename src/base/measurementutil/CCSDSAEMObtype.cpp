@@ -3,102 +3,6 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSAEMObType::CCSDS_AEM_KEYWORDS[EndCCSDSAEMDataReps] =
-{
-    "Quaternion Type",
-    "EPOCH",
-    "Q_FRAME_A",
-    "Q_FRAME_B",
-    "Q_DIR",
-    "Q1",
-    "Q2",
-    "Q3",
-    "QC",
-    "Q1_DOT",
-    "Q2_DOT",
-    "Q3_DOT",
-    "QC_DOT",
-    "X_RATE",
-    "Y_RATE",
-    "Z_RATE",
-    "COMMENT",
-    "Euler Angle Type",
-    "EPOCH",
-    "EULER_FRAME_A",
-    "EULER_FRAME_B",
-    "EULER_DIR",
-    "EULER_ROT_SEQ",
-    "RATE_FRAME",
-    "X_ANGLE",
-    "Y_ANGLE",
-    "Z_ANGLE",
-    "X_RATE",
-    "Y_RATE",
-    "Z_RATE",
-    "COMMENT",
-    "Spin Stabilized Attitude Type",
-    "EPOCH",
-    "SPIN_FRAME_A",
-    "SPIN_FRAME_B",
-    "SPIN_DIR",
-    "SPIN_ALPHA",
-    "SPIN_DELTA",
-    "SPIN_ANGLE",
-    "SPIN_ANGLE_VEL",
-    "NUTATION",
-    "NUTATION_PER",
-    "NUTATION_PHASE",
-    "COMMENT"
-};
-
-const std::string CCSDSAEMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSAEMDataReps] =
-{
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "1/s",
-    "1/s",
-    "1/s",
-    "1/s",
-    "1/s",
-    "1/s",
-    "1/s",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "deg",
-    "deg",
-    "deg",
-    "deg/s",
-    "deg/s",
-    "deg/s",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "deg",
-    "deg",
-    "deg",
-    "deg/s",
-    "deg",
-    "s",
-    "deg",
-    ""
-};
-
 const std::string CCSDSAEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAEMTimeReps-EndCCSDSTimeReps] =
 {
     "UTC",
@@ -107,106 +11,6 @@ const std::string CCSDSAEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAEMTimeR
     "GPS",
     "TDB",
     "TCB"
-};
-
-const std::string CCSDSAEMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSAEMDataReps] =
-{
-    "Quaternion Type",
-    "Quaternion Epoch",
-    "Quaternion Frame A",
-    "Quaternion Frame B",
-    "Quaternion Direction",
-    "Quaternion Q1",
-    "Quaternion Q2",
-    "Quaternion Q3",
-    "Quaternion QC",
-    "Quaternion Q1 Dot",
-    "Quaternion Q2 Dot",
-    "Quaternion Q3 Dot",
-    "Quaternion QC Dot",
-    "Quaternion X Rate",
-    "Quaternion Y Rate",
-    "Quaternion Z Rate",
-    "Quaternion Comments",
-    "Euler Angle Type",
-    "Euler Angle Epoch",
-    "Euler Angle Frame A",
-    "Euler Angle Frame B",
-    "Euler Angle Direction",
-    "Euler Angle Rotation Sequence",
-    "Euler Angle Rate Frame",
-    "Euler Angle X Angle",
-    "Euler Angle Y Angle",
-    "Euler Angle Z Angle",
-    "Euler Angle X Rate",
-    "Euler Angle Y Rate",
-    "Euler Angle Z Rate",
-    "Euler Angle Comments",
-    "Spin Stabilized Attitude Type",
-    "Spin Stabilized Epoch",
-    "Spin Stabilized Frame A",
-    "Spin Stabilized Frame B",
-    "Spin Stabilized Direction",
-    "Spin Stabilized Spin Alpha",
-    "Spin Stabilized Spin Delta",
-    "Spin Stabilized Spin Angle",
-    "Spin Stabilized Spin Angle Velocity",
-    "Spin Stabilized Nutation",
-    "Spin Stabilized Nutation Period",
-    "Spin Stabilized Nutation Phase",
-    "Spin Stabilized Comments"
-};
-
-const bool CCSDSAEMObType::CCSDS_IS_REQUIRED[EndCCSDSAEMDataReps] =
-{
-};
-
-const Gmat::ParameterType CCSDSAEMObType::CCSDS_PARAMETER_TYPE[EndCCSDSAEMDataReps] =
-{
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE
 };
 
 //------------------------------------------------------------------------------
@@ -225,22 +29,22 @@ CCSDSAEMObType::CCSDSAEMObType() : CCSDSObType("CCSDSAEMObType", ""),
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSAEMObType(const CCSDSAEMObType &AEM)
+//  CCSDSAEMObType(const CCSDSAEMObType &aem)
 //------------------------------------------------------------------------------
 /**
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMObType::CCSDSAEMObType(const CCSDSAEMObType &AEM) : CCSDSObType(AEM),
-	ccsdsAEMMetaData(AEM.ccsdsAEMMetaData),
-        ccsdsAEMQuaternion(AEM.ccsdsAEMQuaternion),
-        ccsdsAEMEulerAngle(AEM.ccsdsAEMEulerAngle),
-        ccsdsAEMSpinStabilized(AEM.ccsdsAEMSpinStabilized)
+CCSDSAEMObType::CCSDSAEMObType(const CCSDSAEMObType &aem) : CCSDSObType(AEM),
+	ccsdsAEMMetaData(aem.ccsdsAEMMetaData),
+        ccsdsAEMQuaternion(aem.ccsdsAEMQuaternion),
+        ccsdsAEMEulerAngle(aem.ccsdsAEMEulerAngle),
+        ccsdsAEMSpinStabilized(aem.ccsdsAEMSpinStabilized)
 {
 }
 
 //---------------------------------------------------------------------------
-//  CCSDSAEMObType& operator=(const CCSDSAEMObType &AEM)
+//  CCSDSAEMObType& operator=(const CCSDSAEMObType &aem)
 //---------------------------------------------------------------------------
 /**
  * Assignment operator for ObType structures.
@@ -250,12 +54,14 @@ CCSDSAEMObType::CCSDSAEMObType(const CCSDSAEMObType &AEM) : CCSDSObType(AEM),
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSAEMObType& CCSDSAEMObType::operator=(const CCSDSAEMObType &AEM)
+const CCSDSAEMObType& CCSDSAEMObType::operator=(const CCSDSAEMObType &aem)
 {
-   if (&AEM == this)
+   if (&aem == this)
       return *this;
 
-    ccsdsAEMMetaData = AEM.ccsdsAEMMetaData;
+   CCSDSObType::operator=(aem);
+
+   ccsdsAEMMetaData = aem.ccsdsAEMMetaData;
 
    return *this;
 }

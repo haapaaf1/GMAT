@@ -10,89 +10,7 @@
 
 #include "CCSDSObType.hpp"
 #include "CCSDSOPMMetaData.hpp"
-#include "Anomaly.hpp"
 
-class CCSDSOPMSpacecraftParameters
-{
-
-public:
-
-    CCSDSOPMSpacecraftParameters();
-    CCSDSOPMSpacecraftParameters(const CCSDSOPMSpacecraftParameters &opmSP);
-    const CCSDSOPMSpacecraftParameters& CCSDSOPMSpacecraftParameters::operator=
-                                    (const CCSDSOPMSpacecraftParameters &opmSP);
-    ~CCSDSOPMSpacecraftParameters();
-
-    friend std::ostream& operator<< (std::ostream &output,
-               const CCSDSOPMSpacecraftParameters *myCCSDSspacecraftParameters);
-
-    Real mass;
-    Real solarRadiationArea;
-    Real solarRadiationCoefficient;
-    Real dragArea;
-    Real dragCoefficient;
-    StringArray comments;
-};
-
-class CCSDSOPMKeplerianElements
-{
-
-public:
-
-    CCSDSOPMKeplerianElements();
-    CCSDSOPMKeplerianElements(const CCSDSOPMKeplerianElements &opmKE);
-    const CCSDSOPMKeplerianElements& CCSDSOPMKeplerianElements::operator=
-                                       (const CCSDSOPMKeplerianElements &opmKE);
-    ~CCSDSOPMKeplerianElements();
-
-    friend std::ostream& operator<< (std::ostream &output,
-                        const CCSDSOPMKeplerianElements *myCCSDSOPMKeplerianElements);
-
-    Real semiMajorAxis;
-    Real eccentricity;
-    Real inclination;
-    Real raan;
-    Real argumentOfPericenter;
-    Anomaly theAnomaly;
-    Real gravitationalCoefficient;
-    StringArray comments;
-};
-
-class CCSDSOPMStateVector : public CCSDSStateVector
-{
-
-public:
-
-    CCSDSOPMStateVector();
-    CCSDSOPMStateVector(const CCSDSOPMStateVector &opmSV);
-    const CCSDSOPMStateVector& CCSDSOPMStateVector::operator=(const CCSDSOPMStateVector &opmSV);
-    ~CCSDSOPMStateVector();
-
-    friend std::ostream& operator<< (std::ostream &output,
-                                    const CCSDSOPMStateVector *myCCSDSOPMStateVector);
-};
-
-class CCSDSOPMManeuver
-{
-
-public:
-
-    CCSDSOPMManeuver();
-    CCSDSOPMManeuver(const CCSDSOPMManeuver &opmM);
-    const CCSDSOPMManeuver& CCSDSOPMManeuver::operator=(const CCSDSOPMManeuver &opmM);
-    ~CCSDSOPMManeuver();
-
-    friend std::ostream& operator<< (std::ostream &output,
-                                     const CCSDSOPMManeuver *myCCSDSOPMManeuver);
-
-    std::string ignitionEpoch;
-    Real duration;
-    Real deltaMass;
-    std::string refFrame;
-    Real deltaV1, deltaV2, deltaV3;
-    StringArray comments;
-};
-    
 class CCSDSOPMObType : public CCSDSObType
 {
 
@@ -143,43 +61,6 @@ public :
 	TDB_ID,
         TCB_ID,
 	EndCCSDSOPMTimeReps
-    };
-
-    enum CCSDS_DATA_REPS
-    {
-	CCSDS_OPM_STATEVECTOR_EPOCH_ID,
-	CCSDS_OPM_STATEVECTOR_X_ID,
-	CCSDS_OPM_STATEVECTOR_Y_ID,
-	CCSDS_OPM_STATEVECTOR_Z_ID,
-	CCSDS_OPM_STATEVECTOR_XDOT_ID,
-        CCSDS_OPM_STATEVECTOR_YDOT_ID,
-	CCSDS_OPM_STATEVECTOR_ZDOT_ID,
-	CCSDS_OPM_STATEVECTOR_COMMENTS_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_EPOCH_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_ECCENTRICITY_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_INCLINATION_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_RAAN_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_TRUEANOMALY_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_COMMENTS_ID,
-	CCSDS_OPM_SPACECRAFTPARAMETERS_MASS_ID,
-	CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID,
-	CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID,
-	CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGAREA_ID,
-	CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID,
-	CCSDS_OPM_SPACECRAFTPARAMETERS_COMMENTS_ID,
-        CCSDS_OPM_MANUEVER_IGNITIONEPOCH_ID,
-        CCSDS_OPM_MANUEVER_DURATION_ID,
-        CCSDS_OPM_MANUEVER_DELTAMASS_ID,
-        CCSDS_OPM_MANUEVER_REFFRAME_ID,
-        CCSDS_OPM_MANUEVER_DELTAV1_ID,
-        CCSDS_OPM_MANUEVER_DELTAV2_ID,
-        CCSDS_OPM_MANUEVER_DELTAV3_ID,
-        CCSDS_OPM_MANUEVER_COMMENTS_ID,
-        EndCCSDSOPMDataReps
     };
 
     friend class ProcessCCSDSOPMDataFile;
