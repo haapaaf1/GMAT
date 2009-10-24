@@ -150,54 +150,6 @@ Integer GetAttitudeTypeID(const std::string &str)
 }
 
 //------------------------------------------------------------------------------
-//  std::string  GetQuaternionTypeText(const Integer id) 
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the quaternion type keyword for a specific ID
- *
- * @param <id> The quaternion type id
- * @return The quaternion type keyword
- *
- */
-//------------------------------------------------------------------------------
-std::string GetQuaternionTypeText(const Integer id)
-{
-   if ((id >= 0) && (id < CCSDSObType::EndCCSDSQuaternionTypeReps))
-   {
-      return CCSDSObType::CCSDS_QUATERNION_TYPE[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-//  Integer  GetQuaternionTypeID(const std::string &str) 
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the ID associated with an quaternion type keyword
- *
- * @param <str> The quaternion type keyword
- * @return The quaternion type id
- *
- */
-//------------------------------------------------------------------------------
-Integer GetQuaternionTypeID(const std::string &str) 
-{
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < CCSDSObType::EndCCSDSQuaternionTypeReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDSObType::CCSDS_QUATERNION_TYPE[i]))
-	{
-	    return i;
-	}
-   }
-
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
 //  std::string  GetAttitudeDirText(const Integer id)
 //------------------------------------------------------------------------------
 /**
@@ -243,91 +195,6 @@ Integer GetAttitudeDirID(const std::string &str)
    }
 
    return GmatBase::INTEGER_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-//  std::string  GetHeaderDataParameterText(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-std::string CCSDSObType::GetHeaderDataParameterText(const Integer id) const
-{
-   if ((id >= 0) && (id < EndCCSDSHeaderDataReps))
-   {
-      return CCSDS_HEADER_FILEFORMAT_DESCRIPTIONS[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-//  std::string  GetHeaderDataUnits(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-std::string CCSDSObType::GetHeaderDataUnits(const Integer id) const
-{
-   if ((id >= 0) && (id < EndCCSDSHeaderDataReps))
-   {
-      return CCSDS_HEADER_UNIT_DESCRIPTIONS[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-
-//------------------------------------------------------------------------------
-//  Integer  GetHeaderDataParameterID(const std::string &str) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Integer CCSDSObType::GetHeaderDataParameterID(const std::string &str) const
-{
-    std::string regex = "^" + str + "$";
-    
-    for (Integer i = 0; i < EndCCSDSHeaderDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_HEADER_FILEFORMAT_DESCRIPTIONS[i]))
-	{
-	    return i;
-	}
-   }
-      
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
-}
-
-
-//------------------------------------------------------------------------------
-//  Gmat::ParameterType  GetHeaderDataParameterType(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Gmat::ParameterType CCSDSObType::GetHeaderDataParameterType(const Integer id) const
-{
-   if ((id >= 0) && (id < EndCCSDSHeaderDataReps))
-      return CCSDS_HEADER_PARAMETER_TYPE[id];
-
-   return Gmat::UNKNOWN_PARAMETER_TYPE;
-}
-
-//---------------------------------------------------------------------------
-//  std::string GetHeaderDataParameterTypeString(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//---------------------------------------------------------------------------
-std::string CCSDSObType::GetHeaderDataParameterTypeString(const Integer id) const
-{
-   return GmatBase::PARAM_TYPE_STRING[GetHeaderDataParameterType(id)];
 }
 
 //------------------------------------------------------------------------------
@@ -400,9 +267,9 @@ StringArray CCSDSObType::GetStringArrayDataParameter(const Integer id) const
     switch (id)
     {
 
-        case CCSDS_HEADERCOMMENTS_ID:
+        //case CCSDS_HEADERCOMMENTS_ID:
 
-	    return ccsdsHeader->comments;
+	    //return ccsdsHeader->comments;
 
         default:
 
@@ -436,13 +303,13 @@ std::string CCSDSObType::GetStringDataParameter(const Integer id) const
     switch (id)
     {
 
-	case CCSDS_CREATIONDATE_ID:
+	//case CCSDS_CREATIONDATE_ID:
 
-	    return ccsdsHeader->creationDate;
+	    //return ccsdsHeader->creationDate;
 
-	case CCSDS_ORIGINATOR_ID:
+	//case CCSDS_ORIGINATOR_ID:
 
-	    return ccsdsHeader->originator;
+	    //return ccsdsHeader->originator;
 	    
         default:
 
@@ -476,9 +343,9 @@ Real CCSDSObType::GetRealDataParameter(const Integer id) const
     switch (id)
     {
 
-        case CCSDS_VERSION_ID:
+        //case CCSDS_VERSION_ID:
 
-            return ccsdsHeader->ccsdsVersion;
+            //return ccsdsHeader->ccsdsVersion;
 
         default:
 
@@ -498,58 +365,6 @@ Real CCSDSObType::GetRealDataParameter(const Integer id) const
 Real CCSDSObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
-}
-
-//------------------------------------------------------------------------------
-// const std::string* GetDataTypes() const
-//------------------------------------------------------------------------------
-/**
- * Returns the string array of allowable data types.
- *
- * @return String array of all data types.
- *
- */
-//------------------------------------------------------------------------------
-const std::string* CCSDSObType::GetDataTypes() const
-{
-   return CCSDS_DATATYPE_DESCRIPTIONS;
-}
-
-//------------------------------------------------------------------------------
-// std::string GetDataTypeText(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * Code used to obtain the data type text corresponding to a ID
- *
- * @param <id> Integer ID associated with the data type
- * @return The string description of the data type
- *
- */
-//------------------------------------------------------------------------------
-std::string CCSDSObType::GetDataTypeText(const Integer &id) const
-{
-   if ((id >= 0) && (id < EndCCSDSTypeReps))
-   {
-      return CCSDS_DATATYPE_DESCRIPTIONS[id];
-   }
-
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-// Integer GetDataTypeID(const std::string &label)
-//------------------------------------------------------------------------------
-/**
- * Code used to obtain the data type ID
- *
- * @param <label> The string label associated with the data type
- * @return The integer data type ID
- *
- */
-//------------------------------------------------------------------------------
-Integer CCSDSObType::GetDataTypeID(const std::string &label)
-{
-    return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -619,141 +434,7 @@ Integer CCSDSObType::GetTimeSystemID(const std::string &label)
  
 }
 
-//---------------------------------------------------------------------------
-//  bool CountRequiredNumberMetaDataParameters()
-//---------------------------------------------------------------------------
-/**
- * Count the number of required variables.
- *
- * @return The number of required variables.
- */
-//---------------------------------------------------------------------------
-Integer CountRequiredNumberHeaderDataParameters()
-{
 
-    Integer num = 0;
 
-    for (Integer id = 0; id < CCSDSObType::EndCCSDSHeaderDataReps; id++)
-        if (CCSDSObType::CCSDS_HEADER_IS_REQUIRED[id])
-            num++;
 
-    return num;
-}
-
-//---------------------------------------------------------------------------
-//  bool IsHeaderParameterRequired(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the requested parameter is required by the data format.
- *
- * @param <id> Description for the parameter.
- *
- * @return true if the parameter is read only, false (the default)
- */
-//---------------------------------------------------------------------------
-bool CCSDSObType::IsHeaderParameterRequired(const Integer id) const
-{
-if (id > 0 && id <= EndCCSDSHeaderDataReps)
-    return CCSDS_HEADER_IS_REQUIRED[id];
-else
-    return false;
-}
-
-//------------------------------------------------------------------------------
-//  bool CheckHeaderDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool CCSDSObType::CheckHeaderDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSHeaderDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_HEADER_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
-
-//------------------------------------------------------------------------------
-// const std::string* GetKeywords() const
-//------------------------------------------------------------------------------
-/**
- * Returns the string array of allowable CCSDS TDM keywords
- *
- * @return String array of keywords.
- *
- */
-//------------------------------------------------------------------------------
-const std::string* CCSDSObType::GetKeywords() const
-{
-   return CCSDS_HEADER_KEYWORDS;
-}
-
-//------------------------------------------------------------------------------
-//  const Integer GetKeywordID(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return ID associated with a keyword
- */
-//------------------------------------------------------------------------------
-const Integer CCSDSObType::GetKeywordID(const std::string str) const
-{
-   return -1;
-}
-
-//------------------------------------------------------------------------------
-//  std::string GetUnits(const Integer &id) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return ID associated with a keyword
- */
-//------------------------------------------------------------------------------
-std::string CCSDSObType::GetUnits(const Integer &id) const
-{
-   return std::string("");
-}
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSObType data and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myHeader>    CCSDS header data to write out
- *
- * @return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
-{
-    using namespace std;
-
-    output << "CCSDS_" << myHeader->fileType << "_VERS = " << myHeader->ccsdsVersion << endl;
-    for (unsigned int i = 0; i < myHeader->comments.size(); i++)
-    {
-        output << "COMMENT " << myHeader->comments[i] << endl;
-    }
-    output << "CREATION_DATE = " << myHeader->creationDate << endl;
-    output << "ORIGINATOR = " << myHeader->originator << endl;
-
-    return output;
-}
 

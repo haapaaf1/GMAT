@@ -2,7 +2,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSObType::CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps] =
+const std::string CCSDSQuaternion::CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps] =
 {
     "FIRST",
     "LAST"
@@ -386,7 +386,7 @@ const CCSDSQuaternion& CCSDSQuaternion::operator=(const CCSDSQuaternion &myQ)
     if (&myQ == this)
         return *this;
 
-    CCSDSObType::operator=(myQ);
+    CCSDSQuaternion::operator=(myQ);
 
     quaternionType = myQ.quaternionType;
     timeTag = myQ.timeTag;
@@ -433,4 +433,52 @@ GmatBase* CCSDSQuaternion::Clone() const
 {
    GmatBase *clone = new CCSDSQuaternion(*this);
    return (clone);
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetQuaternionTypeText(const Integer id)
+//------------------------------------------------------------------------------
+/**
+ * Function to obtain the quaternion type keyword for a specific ID
+ *
+ * @param <id> The quaternion type id
+ * @return The quaternion type keyword
+ *
+ */
+//------------------------------------------------------------------------------
+std::string GetQuaternionTypeText(const Integer id)
+{
+   if ((id >= 0) && (id < CCSDSQuaternion::EndCCSDSQuaternionTypeReps))
+   {
+      return CCSDSQuaternion::CCSDS_QUATERNION_TYPE[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+//  Integer  GetQuaternionTypeID(const std::string &str)
+//------------------------------------------------------------------------------
+/**
+ * Function to obtain the ID associated with an quaternion type keyword
+ *
+ * @param <str> The quaternion type keyword
+ * @return The quaternion type id
+ *
+ */
+//------------------------------------------------------------------------------
+Integer GetQuaternionTypeID(const std::string &str)
+{
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < CCSDSQuaternion::EndCCSDSQuaternionTypeReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDSQuaternion::CCSDS_QUATERNION_TYPE[i]))
+	{
+	    return i;
+	}
+   }
+
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }

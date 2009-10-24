@@ -9,6 +9,7 @@
 #define	_CCSDSOBTYPE_HPP
 
 #include "ObType.hpp"
+#include "CCSDSHeader.hpp"
 
 class CCSDSObType : public ObType
 {
@@ -41,12 +42,6 @@ public :
     virtual const std::string* GetKeywords() const;
     virtual const Integer GetKeywordID(const std::string str) const;
     virtual std::string GetUnits(const Integer &id) const;
-
-    // Functions to verify data availability
-    virtual bool CheckHeaderDataAvailability(const std::string str) const;
-    
-    virtual bool IsHeaderParameterRequired(const Integer id) const;
-    friend Integer CountRequiredNumberHeaderDataParameters();
 
     virtual const std::string* GetTimeSystems() const;
     virtual std::string GetTimeSystemText(const Integer &id) const;

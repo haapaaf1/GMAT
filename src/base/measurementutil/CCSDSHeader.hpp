@@ -8,9 +8,16 @@
 #ifndef _CCSDSHEADER_HPP
 #define	_CCSDSHEADER_HPP
 
-#include "CCSDSObtype.hpp"
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include "sstream"
+#include <pcrecpp.h>
+#include "StringUtil.hpp"
 
-class CCSDSHeader : public CCSDSObType
+class CCSDSHeader
 {
 
 public:
@@ -18,16 +25,27 @@ public:
     CCSDSHeader();
     CCSDSHeader(const CCSDSHeader &header);
     const CCSDSHeader& CCSDSHeader::operator=(const CCSDSHeader &header);
-    ~CCSDSHeader();
-
-    GmatBase *Clone() const;
+    virtual ~CCSDSHeader();
 
     virtual const std::string* GetDataTypes() const;
     virtual std::string GetDataTypeText(const Integer &id) const;
     virtual Integer GetDataTypeID(const std::string &label);
 
+    const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
+    
+    Integer GetDataParameterID(const std::string &str) const;
+    std::string GetDataParameterText(const Integer id) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
 
-    friend std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myCCSDSheader);
+    virtual bool CheckDataAvailability(const std::string str) const;
+    virtual bool IsParameterRequired(const Integer id) const;
+    friend Integer CountRequiredNumberHeaderDataParameters();
+
+    friend std::ostream& operator<< (std::ostream &output,
+                                     const CCSDSHeader *myCCSDSheader);
 
     enum CCSDS_HEADERDATA_REPS
     {
@@ -57,11 +75,10 @@ protected:
 
     static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];
     static const std::string CCSDS_HEADER_KEYWORDS[EndCCSDSHeaderDataReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSHeaderDataReps];
-    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSHeaderDataReps];
-    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
-
+    static const std::string CCSDS_HEADER_UNIT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
+    static const bool CCSDS_HEADER_IS_REQUIRED[EndCCSDSHeaderDataReps];
+    static const Gmat::ParameterType CCSDS_HEADER_PARAMETER_TYPE[EndCCSDSHeaderDataReps];
+    static const std::string CCSDS_HEADER_FILEFORMAT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
 
     std::string fileType;
     Real ccsdsVersion;
