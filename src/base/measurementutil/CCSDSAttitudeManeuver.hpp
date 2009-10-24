@@ -8,7 +8,7 @@
 #ifndef _CCSDSATTITUDEMANEUVER_HPP
 #define	_CCSDSATTITUDEMANEUVER_HPP
 
-class CCSDSAttitudeManeuver
+class CCSDSAttitudeManeuver : public CCSDSObType
 {
 
 public:

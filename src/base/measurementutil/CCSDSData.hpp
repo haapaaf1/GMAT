@@ -8,7 +8,7 @@
 #ifndef _CCSDSDATA_HPP
 #define	_CCSDSDATA_HPP
 
-class CCSDSData
+class CCSDSData : public CCSDSObType
 {
 
 public:
@@ -20,14 +20,23 @@ public:
 
     GmatBase *Clone() const;
 
+    friend std::ostream& operator<< (std::ostream &output,
+                       const CCSDSData *myCCSDSData);
+
+    enum CCSDS_DATA_REPS
+    {
+        CCSDS_GENERICDATA_KEYWORD_ID,
+        CCSDS_GENERICDATA_EPOCH_ID,
+        CCSDS_GENERICDATA_MEASUREMENT_ID,
+        CCSDS_GENERICDATA_COMMENTS_ID,
+        EndCCSDSGenericDataReps
+    };
+
 protected:
 
-    static const std::string CCSDS_GENERICDATA_KEYWORDS[EndCCSDSGenericDataReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSGenericDataReps];
     static const bool CCSDS_IS_REQUIRED[EndCCSDSGenericDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSGenericDataReps];
-
 
     Integer keywordID;
     std::string timeTag;

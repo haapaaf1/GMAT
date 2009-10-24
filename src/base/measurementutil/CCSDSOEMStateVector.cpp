@@ -91,7 +91,7 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
-   output << myOEMStateVector->epoch << myOEMStateVector->x
+   output << myOEMStateVector->timeTag << myOEMStateVector->x
            << myOEMStateVector->y << myOEMStateVector->xDot
            << myOEMStateVector->yDot << myOEMStateVector->zDot << endl;
 

@@ -8,17 +8,20 @@
 #ifndef _CCSDSEULERANGLE_HPP
 #define	_CCSDSEULERANGLE_HPP
 
-class CCSDSEulerAngle
+class CCSDSEulerAngle : public CCSDSObType
 {
 
 public:
 
     CCSDSEulerAngle();
-    CCSDSEulerAngle(const CCSDSEulerAngle &EA);
-    const CCSDSEulerAngle& CCSDSEulerAngle::operator=(const CCSDSEulerAngle &EA);
+    CCSDSEulerAngle(const CCSDSEulerAngle &ea);
+    const CCSDSEulerAngle& CCSDSEulerAngle::operator=(const CCSDSEulerAngle &ea);
     ~CCSDSEulerAngle();
 
     GmatBase *Clone() const;
+
+    friend std::string GetRateFrameText(const Integer id);
+    friend Integer    GetRateFrameID(const std::string &str);
 
     enum CCSDS_DATA_REPS
     {
@@ -38,8 +41,16 @@ public:
         EndCCSDSEulerAngleDataReps
     };
 
+    enum CCSDS_RATE_FRAME
+    {
+        CCSDS_RATE_FRAME_A_ID = 0,
+        CCSDS_RATE_FRAME_B_ID,
+        EndCCSDSRateFrameReps
+    };
+    
 protected:
 
+    static const std::string CCSDS_RATE_FRAME[EndCCSDSRateFrameReps];
     static const std::string CCSDS_EULERANGLE_KEYWORDS[EndCCSDSEulerAngleDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSEulerAngleDataReps];
     static const bool CCSDS_IS_REQUIRED[EndCCSDSEulerAngleDataReps];
@@ -47,12 +58,12 @@ protected:
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSEulerAngleDataReps];
 
     Integer eulerAngleType;
-    std::string epoch;
+    std::string timeTag;
     std::string frameA;
     std::string frameB;
     Integer direction;
     std::string rotationSequence;
-    std::string rateFrame;
+    Integer rateFrame;
     Real xAngle, yAngle, zAngle;
     Real xRate, yRate, zRate;
     StringArray comments;

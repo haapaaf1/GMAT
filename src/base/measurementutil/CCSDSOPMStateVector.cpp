@@ -92,7 +92,7 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
-   output << "EPOCH = " << myOPMStateVector->epoch << endl;
+   output << "EPOCH = " << myOPMStateVector->timeTag << endl;
    output << "X = " << myOPMStateVector->x << endl;
    output << "Y = " << myOPMStateVector->y << endl;
    output << "Z = " << myOPMStateVector->z << endl;

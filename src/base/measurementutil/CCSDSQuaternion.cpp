@@ -1,8 +1,13 @@
 #include "CCSDSQuaternion.hpp"
-
 //---------------------------------
 //  static data
 //---------------------------------
+const std::string CCSDSObType::CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps] =
+{
+    "FIRST",
+    "LAST"
+};
+
 const std::string CCSDSAPMObType::CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDataReps] =
 {
     "",
@@ -306,3 +311,126 @@ const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternio
     Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE
 };
+
+//------------------------------------------------------------------------------
+//  CCSDSQuaternion()
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the CCSDSQuaternion class
+ */
+//------------------------------------------------------------------------------
+CCSDSQuaternion::CCSDSQuaternion() : CCSDSObType(),
+    quaternionType(0),
+    timeTag(std::string("")),
+    frameA(std::string("")),
+    frameB(std::string("")),
+    direction(0),
+    q1(0),
+    q2(0),
+    q3(0),
+    qC(0),
+    q1Dot(0),
+    q2Dot(0),
+    q3Dot(0),
+    qCDot(0),
+    xRate(0),
+    yRate(0),
+    zRate(0),
+    comments()
+{
+}
+
+//------------------------------------------------------------------------------
+//  CCSDSQuaternion(const CCSDSQuaternion &myQ)
+//------------------------------------------------------------------------------
+/**
+ * Constructor for the StateVector class
+ */
+//------------------------------------------------------------------------------
+CCSDSQuaternion::CCSDSQuaternion(const CCSDSQuaternion &myQ) : CCSDSObType(myQ),
+    quaternionType(myQ.quaternionType),
+    timeTag(myQ.timeTag),
+    frameA(myQ.frameA),
+    frameB(myQ.frameB),
+    direction(myQ.direction),
+    q1(myQ.q1),
+    q2(myQ.q2),
+    q3(myQ.q3),
+    qC(myQ.qC),
+    q1Dot(myQ.q1Dot),
+    q2Dot(myQ.q2Dot),
+    q3Dot(myQ.q3Dot),
+    qCDot(myQ.qCDot),
+    xRate(myQ.xRate),
+    yRate(myQ.yRate),
+    zRate(myQ.zRate),
+    comments(myQ.comments)
+{
+}
+
+//---------------------------------------------------------------------------
+//  CCSDSQuaternion& operator=
+//                                   (const CCSDSQuaternion &myQ)
+//---------------------------------------------------------------------------
+/**
+ * Assignment operator for StateVector structures.
+ *
+ * @param <myQ> The original that is being copied.
+ *
+ * @return Reference to this object
+ */
+//---------------------------------------------------------------------------
+const CCSDSQuaternion& CCSDSQuaternion::operator=(const CCSDSQuaternion &myQ)
+
+{
+    if (&myQ == this)
+        return *this;
+
+    CCSDSObType::operator=(myQ);
+
+    quaternionType = myQ.quaternionType;
+    timeTag = myQ.timeTag;
+    frameA = myQ.frameA;
+    frameB = myQ.frameB;
+    direction = myQ.direction;
+    q1 = myQ.q1;
+    q2 = myQ.q2;
+    q3 = myQ.q3;
+    qC = myQ.qC;
+    q1Dot = myQ.q1Dot;
+    q2Dot = myQ.q2Dot;
+    q3Dot = myQ.q3Dot;
+    qCDot = myQ.qCDot;
+    xRate = myQ.xRate;
+    yRate = myQ.yRate;
+    zRate = myQ.zRate;
+    comments = myQ.comments;
+
+    return *this;
+}
+
+//------------------------------------------------------------------------------
+//  ~CCSDSQuaternion()
+//------------------------------------------------------------------------------
+/**
+ * Destructor for the CCSDSQuaternion class
+ */
+//------------------------------------------------------------------------------
+CCSDSQuaternion::~CCSDSQuaternion()
+{
+}
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the CCSDSQuaternion.
+ *
+ * @return clone of the CCSDSQuaternion.
+ */
+//------------------------------------------------------------------------------
+GmatBase* CCSDSQuaternion::Clone() const
+{
+   GmatBase *clone = new CCSDSQuaternion(*this);
+   return (clone);
+}

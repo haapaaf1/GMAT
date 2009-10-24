@@ -13,17 +13,7 @@ const std::string CCSDSObType::CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps] =
     "SPIN/NUTATION"
 };
 
-const std::string CCSDSObType::CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps] =
-{
-    "FIRST",
-    "LAST"
-};
 
-const std::string CCSDSObType::CCSDS_RATE_FRAME[EndCCSDSRateFrameReps] =
-{
-    "REF_FRAME_A",
-    "REF_FRAME_B"
-};
 
 const std::string CCSDSObType::CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps] =
 {
@@ -31,61 +21,7 @@ const std::string CCSDSObType::CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps] =
     "B2A"
 };
 
-const std::string CCSDSObType::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps] =
-{
-    "Quaternion",
-    "Euler Angle",
-    "Spin Stabilized",
-    "State Vector",
-    "Keplerian Elements",
-    "Spacecraft Parameters",
-    "Spacecraft Inertia",
-    "Maneuver",
-    "Attitude Maneuver",
-    "Generic Data Type"
-};
-
 const std::string CCSDSObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
-
-const std::string CCSDSObType::CCSDS_HEADER_FILEFORMAT_DESCRIPTIONS[EndCCSDSHeaderDataReps] =
-{
-    "CCSDS Version",
-    "Creation Date",
-    "Originator",
-    "Header Comments"
-};
-
-const std::string CCSDSObType::CCSDS_HEADER_KEYWORDS[EndCCSDSHeaderDataReps] =
-{
-    "CCSDS_VERSION",
-    "CREATION_DATE",
-    "ORIGINATOR",
-    "COMMENT"
-};
-
-const bool CCSDSObType::CCSDS_HEADER_IS_REQUIRED[EndCCSDSHeaderDataReps] =
-{
-    true,
-    true,
-    true,
-    false
-};
-
-const Gmat::ParameterType CCSDSObType::CCSDS_HEADER_PARAMETER_TYPE[EndCCSDSHeaderDataReps] =
-{
-    Gmat::REAL_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE
-};
-
-const std::string CCSDSObType::CCSDS_HEADER_UNIT_DESCRIPTIONS[EndCCSDSHeaderDataReps] =
-{
-    "",
-    "",
-    "",
-    ""
-};
 
 //------------------------------------------------------------------------------
 //  CCSDSObType(const std::string &type, const std::string &name)
@@ -164,54 +100,6 @@ GmatBase* CCSDSObType::Clone() const
 //------------------------------------------------------------------------------
 // Measurement Data Access functions
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-//  std::string  GetRateFrameText(const Integer id)
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the attitude type keyword for a specific ID
- *
- * @param <id> The rate frame type id
- * @return The rate frame type keyword
- *
- */
-//------------------------------------------------------------------------------
-std::string GetRateFrameText(const Integer id)
-{
-   if ((id >= 0) && (id < CCSDSObType::EndCCSDSRateFrameReps))
-   {
-      return CCSDSObType::CCSDS_RATE_FRAME[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-//  Integer  GetRateFrameID(const std::string &str) 
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the ID associated with an rate frame keyword
- *
- * @param <str> The rate frame keyword
- * @return The rate frame id
- *
- */
-//------------------------------------------------------------------------------
-Integer GetRateFrameID(const std::string &str) 
-{
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < CCSDSObType::EndCCSDSRateFrameReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDSObType::CCSDS_RATE_FRAME[i]))
-	{
-	    return i;
-	}
-   }
-
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
-}
 
 //------------------------------------------------------------------------------
 //  std::string  GetAttitudeTypeText(const Integer id)

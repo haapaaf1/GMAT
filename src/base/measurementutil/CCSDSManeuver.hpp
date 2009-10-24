@@ -8,7 +8,7 @@
 #ifndef _CCSDSMANEUVER_HPP
 #define	_CCSDSMANEUVER_HPP
 
-class CCSDSManeuver
+class CCSDSManeuver : public CCSDSObType
 {
 
 public:

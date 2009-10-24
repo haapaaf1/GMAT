@@ -10,7 +10,7 @@
 
 #include "Anomaly.hpp"
 
-class CCSDSKeplerianElements
+class CCSDSKeplerianElements : public CCSDSObType
 {
 
 public:

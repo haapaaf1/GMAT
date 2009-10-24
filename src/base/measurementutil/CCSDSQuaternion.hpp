@@ -8,7 +8,7 @@
 #ifndef _CCSDSQUATERNION_HPP
 #define	_CCSDSQUATERNION_HPP
 
-class CCSDSQuaternion
+class CCSDSQuaternion : public CCSDSObType
 {
 
 public:
@@ -62,7 +62,7 @@ protected:
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaternionDataReps];
 
     Integer quaternionType;
-    std::string epoch;
+    std::string timeTag;
     std::string frameA;
     std::string frameB;
     Integer direction;

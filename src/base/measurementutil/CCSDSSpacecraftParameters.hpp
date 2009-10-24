@@ -8,7 +8,7 @@
 #ifndef _CCSDSSPACECRAFTPARAMETERS_HPP
 #define	_CCSDSSPACECRAFTPARAMETERS_HPP
 
-class CCSDSOPMSpacecraftParameters
+class CCSDSOPMSpacecraftParameters : public CCSDSObType
 {
 
 public:

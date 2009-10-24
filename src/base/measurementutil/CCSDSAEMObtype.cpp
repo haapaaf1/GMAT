@@ -787,126 +787,14 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 
             return output;
         }
-
         break;
 
         default:
 
             return output;
-
             break;
 
     }
 
     return output;
-}
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSSpinStabilized *myCCSDSAEMSpinStabilized)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSObType data and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myCCSDSAEMSpinStabilized>    CCSDS spin stabilized data to write out
- *
- * @return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output,
-                         const CCSDSAEMSpinStabilized *myCCSDSAEMSpinStabilized)
-{
-   using namespace std;
-
-   switch(myCCSDSAEMSpinStabilized->attitudeType)
-   {
-       case CCSDSObType::CCSDS_QUATERNION_ID:
-
-           break;
-       default:
-           break;
-   }
-
-   for (unsigned int i = 0; i < myCCSDSAEMSpinStabilized->comments.size(); i++)
-   {
-       output << "COMMENT " << myCCSDSAEMSpinStabilized->comments[i] << endl;
-   }
-   output << "SPIN_FRAME_A = " << myCCSDSAEMSpinStabilized->frameA << endl;
-   output << "SPIN_FRAME_B = " << myCCSDSAEMSpinStabilized->frameB << endl;
-   output << "SPIN_DIR = " << myCCSDSAEMSpinStabilized->direction << endl;
-   output << "SPIN_ALPHA = " << myCCSDSAEMSpinStabilized->spinAlpha << endl;
-   output << "SPIN_DELTA = " << myCCSDSAEMSpinStabilized->spinDelta << endl;
-   output << "SPIN_ANGLE = " << myCCSDSAEMSpinStabilized->spinAngle << endl;
-   output << "SPIN_ANGLE_VEL = " << myCCSDSAEMSpinStabilized->spinAngleVelocity << endl;
-   output << "NUTATION = " << myCCSDSAEMSpinStabilized->nutation << endl;
-   output << "NUTATION_PER = " << myCCSDSAEMSpinStabilized->nutationPeriod << endl;
-   output << "NUTATION_PHASE = " << myCCSDSAEMSpinStabilized->nutationPhase << endl;
-
-   return output;
-}
-
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output,
-//                           const CCSDSAEMEulerAngle *myAEMEulerAngle)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSObType data and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myAEMEulerAngle>    CCSDS Euler angle data to write out
- *
- * @return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output,
-                          const CCSDSAEMEulerAngle *myAEMEulerAngle)
-{
-   using namespace std;
-
-   output << "EULER_FRAME_A = " << myAEMEulerAngle->frameA << endl;
-   output << "EULER_FRAME_B = " << myAEMEulerAngle->frameB << endl;
-   output << "EULER_DIR = " << myAEMEulerAngle->direction << endl;
-   output << "EULER_ROT_SEQ = " << myAEMEulerAngle->rotationSequence << endl;
-   output << "RATE_FRAME = " << myAEMEulerAngle->rateFrame << endl;
-   output << "X_ANGLE = " << myAEMEulerAngle->xAngle << endl;
-   output << "Y_ANGLE = " << myAEMEulerAngle->yAngle << endl;
-   output << "Z_ANGLE = " << myAEMEulerAngle->zAngle << endl;
-   output << "X_RATE = " << myAEMEulerAngle->xRate << endl;
-   output << "Y_RATE = " << myAEMEulerAngle->yRate << endl;
-   output << "Z_RATE = " << myAEMEulerAngle->zRate << endl;
-
-   return output;
-}
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQuaternion)
-//------------------------------------------------------------------------------
-/**
- * Formats CCCSDSObType data and sends to output stream.
- *
- * @param  <output>  Output stream
- * @param  <myAEMQuaternion>    CCSDS quaternion data to write out
- *
- * @return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQuaternion)
-{
-   using namespace std;
-
-   output << "Quaternion Type = " << myAEMQuaternion->quaternionType << endl;
-   output << "Q_FRAME_A = " << myAEMQuaternion->frameA << endl;
-   output << "Q_FRAME_B = " << myAEMQuaternion->frameB << endl;
-   output << "Q_DIR = " << myAEMQuaternion->direction << endl;
-   output << "Q1 = " << myAEMQuaternion->q1 << endl;
-   output << "Q2 = " << myAEMQuaternion->q2 << endl;
-   output << "Q3 = " << myAEMQuaternion->q3 << endl;
-   output << "QC = " << myAEMQuaternion->qC << endl;
-   output << "Q1_DOT = " << myAEMQuaternion->q1Dot << endl;
-   output << "Q2_DOT = " << myAEMQuaternion->q2Dot << endl;
-   output << "Q3_DOT = " << myAEMQuaternion->q3Dot << endl;
-   output << "QC_DOT = " << myAEMQuaternion->qCDot << endl;
-
-   return output;
 }

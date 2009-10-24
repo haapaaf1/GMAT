@@ -8,7 +8,7 @@
 #ifndef _CCSDSHEADER_HPP
 #define	_CCSDSHEADER_HPP
 
-class CCSDSHeader
+class CCSDSHeader : public CCSDSObType
 {
 
 public:
@@ -19,6 +19,11 @@ public:
     ~CCSDSHeader();
 
     GmatBase *Clone() const;
+
+    virtual const std::string* GetDataTypes() const;
+    virtual std::string GetDataTypeText(const Integer &id) const;
+    virtual Integer GetDataTypeID(const std::string &label);
+
 
     friend std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myCCSDSheader);
 
@@ -31,8 +36,24 @@ public:
 	EndCCSDSHeaderDataReps
     };
 
+    enum CCSDS_DATATYPE_REPS
+    {
+        QUATERNION_ID,
+        EULERANGLE_ID,
+        SPINSTABILIZED_ID,
+        STATEVECTOR_ID,
+        KEPLERIANELEMENTS_ID,
+        SPACECRAFTPARAMETERS_ID,
+        SPACECRAFTINERTIA_ID,
+        MANEUVER_ID,
+        ATTITUDEMANEUVER_ID,
+        GENERICDATA_ID,
+	EndCCSDSTypeReps
+    };
+
 protected:
 
+    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];
     static const std::string CCSDS_HEADER_KEYWORDS[EndCCSDSHeaderDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
     static const bool CCSDS_IS_REQUIRED[EndCCSDSHeaderDataReps];
@@ -46,6 +67,7 @@ protected:
     std::string originator;
     StringArray comments;
     Integer dataType;
+
 };
 
 #endif	/* _CCSDSHEADER_HPP */

@@ -8,7 +8,7 @@
 #ifndef _CCSDSSPINSTABILIZED_HPP
 #define	_CCSDSSPINSTABILIZED_HPP
 
-class CCSDSSpinStabilized
+class CCSDSSpinStabilized : public CCSDSObType
 {
 
 public:

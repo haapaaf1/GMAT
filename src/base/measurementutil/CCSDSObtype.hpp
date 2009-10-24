@@ -26,15 +26,7 @@ public :
     friend Integer    GetAttitudeTypeID(const std::string &str);
     friend std::string GetAttitudeDirText(const Integer id);
     friend Integer    GetAttitudeDirID(const std::string &str);
-    friend std::string GetRateFrameText(const Integer id);
-    friend Integer    GetRateFrameID(const std::string &str);
     
-    virtual std::string GetHeaderDataParameterText(const Integer id) const;
-    virtual Integer    GetHeaderDataParameterID(const std::string &str) const;
-    virtual Gmat::ParameterType GetHeaderDataParameterType(const Integer id) const;
-    virtual std::string GetHeaderDataParameterTypeString(const Integer id) const;
-    virtual std::string GetHeaderDataUnits(const Integer id) const;
-
     virtual Real	GetRealDataParameter(const Integer id) const;
     virtual Real	GetRealDataParameter(const std::string &label) const;
     virtual Integer	GetIntegerDataParameter(const Integer id) const;
@@ -56,29 +48,10 @@ public :
     virtual bool IsHeaderParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberHeaderDataParameters();
 
-    virtual const std::string* GetDataTypes() const;
-    virtual std::string GetDataTypeText(const Integer &id) const;
-    virtual Integer GetDataTypeID(const std::string &label);
-
     virtual const std::string* GetTimeSystems() const;
     virtual std::string GetTimeSystemText(const Integer &id) const;
     virtual Integer GetTimeSystemID(const std::string &label);    
 
-    enum CCSDS_DATATYPE_REPS
-    {
-        QUATERNION_ID,
-        EULERANGLE_ID,
-        SPINSTABILIZED_ID,
-        STATEVECTOR_ID,
-        KEPLERIANELEMENTS_ID,
-        SPACECRAFTPARAMETERS_ID,
-        SPACECRAFTINERTIA_ID,
-        MANEUVER_ID,
-        ATTITUDEMANEUVER_ID,
-        GENERICDATA_ID,
-	EndCCSDSTypeReps    
-    };
-    
     enum CCSDS_TIMESYSTEM_REPS
     {
 	EndCCSDSTimeReps
@@ -94,13 +67,6 @@ public :
         CCSDS_SPIN_ID,
         CCSDS_SPIN_NUTATION_ID,
         EndCCSDSAttitudeTypeReps
-    };
-
-    enum CCSDS_RATE_FRAME
-    {
-        CCSDS_RATE_FRAME_A_ID = 0,
-        CCSDS_RATE_FRAME_B_ID,
-        EndCCSDSRateFrameReps
     };
 
     enum CCSDS_ATTITUDE_DIR
@@ -119,17 +85,9 @@ public :
     
 protected:
 
-    static const std::string CCSDS_RATE_FRAME[EndCCSDSRateFrameReps];
     static const std::string CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps];
     static const std::string CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps];
-    static const std::string CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps];
-    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
-    static const std::string CCSDS_HEADER_KEYWORDS[EndCCSDSHeaderDataReps];
-    static const bool CCSDS_HEADER_IS_REQUIRED[EndCCSDSHeaderDataReps];
-    static const Gmat::ParameterType CCSDS_HEADER_PARAMETER_TYPE[EndCCSDSHeaderDataReps];
-    static const std::string CCSDS_HEADER_UNIT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
-    static const std::string CCSDS_HEADER_FILEFORMAT_DESCRIPTIONS[EndCCSDSHeaderDataReps];
 
     // Pointer to the header record associated with this data point
     CCSDSHeader *ccsdsHeader;

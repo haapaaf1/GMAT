@@ -8,7 +8,7 @@
 #ifndef _CCSDSSPACECRAFTINERTIA_HPP
 #define	_CCSDSSPACECRAFTINERTIA_HPP
 
-class CCSDSSpacecraftInertia
+class CCSDSSpacecraftInertia : public CCSDSObType
 {
 
 public:

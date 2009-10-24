@@ -8,7 +8,7 @@
 #ifndef _CCSDSSTATEVECTOR_HPP
 #define	_CCSDSSTATEVECTOR_HPP
 
-class CCSDSStateVector
+class CCSDSStateVector : public CCSDSObType
 {
 
 public:
@@ -17,6 +17,27 @@ public:
     CCSDSStateVector(const CCSDSStateVector &sv);
     const CCSDSStateVector& CCSDSStateVector::operator=(const CCSDSStateVector &sv);
     ~CCSDSStateVector();
+
+    GmatBase *Clone() const;
+
+    std::string GetDataParameterText(const Integer id) const;
+    Integer    GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+
+    const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
 
     enum CCSDS_DATA_REPS
     {
@@ -39,7 +60,7 @@ protected:
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSStateVectorDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSStateVectorDataReps];
 
-    std::string epoch;
+    std::string timeTag;
     Real x, y, z;
     Real xDot, yDot, zDot;
     StringArray comments;
