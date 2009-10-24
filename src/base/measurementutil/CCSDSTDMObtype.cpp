@@ -606,6 +606,7 @@ Real CCSDSTDMObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
+
 //------------------------------------------------------------------------------
 // std::string* GetDataTypes() const
 //------------------------------------------------------------------------------

@@ -8,6 +8,8 @@
 #ifndef _CCSDSHEADER_HPP
 #define	_CCSDSHEADER_HPP
 
+#include "CCSDSObtype.hpp"
+
 class CCSDSHeader : public CCSDSObType
 {
 
