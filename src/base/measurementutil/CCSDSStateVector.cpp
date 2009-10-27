@@ -5,7 +5,7 @@
 //---------------------------------
 const std::string CCSDSStateVector::CCSDS_STATEVECTOR_KEYWORDS[EndCCSDSStateVectorDataReps] =
 {
-    "EPOCH",
+    "TIMETAG",
     "X",
     "Y",
     "Z",
@@ -70,7 +70,7 @@ const Gmat::ParameterType CCSDSStateVector::CCSDS_PARAMETER_TYPE[EndCCSDSStateVe
  * Constructor for the CCSDSStateVector class
  */
 //------------------------------------------------------------------------------
-CCSDSStateVector::CCSDSStateVector() : CCSDSObType().
+CCSDSStateVector::CCSDSStateVector() :
     timeTag(std::string("")),
     x(0),
     y(0),
@@ -89,7 +89,7 @@ CCSDSStateVector::CCSDSStateVector() : CCSDSObType().
  * Constructor for the StateVector class
  */
 //------------------------------------------------------------------------------
-CCSDSStateVector::CCSDSStateVector(const CCSDSStateVector &sv) : CCSDSObType(sv),
+CCSDSStateVector::CCSDSStateVector(const CCSDSStateVector &sv) :
     timeTag(sv.timeTag),
     x(sv.x),
     y(sv.y),
@@ -118,8 +118,6 @@ const CCSDSStateVector& CCSDSStateVector::operator=(const CCSDSStateVector &sv)
     if (&sv == this)
         return *this;
 
-    CCSDSObType::operator=(sv);
-
     timeTag = sv.timeTag;
     x = sv.x;
     y = sv.y;
@@ -144,21 +142,6 @@ CCSDSStateVector::~CCSDSStateVector()
 }
 
 //------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the CCSDSStateVector.
- *
- * @return clone of the CCSDSStateVector.
- */
-//------------------------------------------------------------------------------
-GmatBase* CCSDSStateVector::Clone() const
-{
-   GmatBase *clone = new CCSDSStateVector(*this);
-   return (clone);
-}
-
-//------------------------------------------------------------------------------
 // Measurement Data Access functions
 //------------------------------------------------------------------------------
 
@@ -175,23 +158,23 @@ std::string CCSDSStateVector::GetDataParameterText(const Integer id) const
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
-   return CCSDSObType::GetDataParameterText(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
-//  std::string  GetDataUnits(const Integer id) const
+//  std::string  GetUnits(const Integer &id) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSStateVector::GetDataUnits(const Integer id) const
+std::string CCSDSStateVector::GetUnits(const Integer &id) const
 {
    if ((id >= 0) && (id < EndCCSDSStateVectorDataReps))
    {
       return CCSDS_UNIT_DESCRIPTIONS[id];
    }
-   return CCSDSObType::GetDataUnits(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 
@@ -216,7 +199,7 @@ Integer CCSDSStateVector::GetDataParameterID(const std::string &str) const
 	}
    }
 
-   return CCSDSObType::GetDataParameterID(str);
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 
@@ -232,7 +215,7 @@ Gmat::ParameterType CCSDSStateVector::GetDataParameterType(const Integer id) con
    if ((id >= 0) && (id < EndCCSDSStateVectorDataReps))
       return CCSDS_PARAMETER_TYPE[id];
 
-   return CCSDSObType::GetDataParameterType(id);
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
 }
 
 //---------------------------------------------------------------------------
@@ -244,7 +227,7 @@ Gmat::ParameterType CCSDSStateVector::GetDataParameterType(const Integer id) con
 //---------------------------------------------------------------------------
 std::string CCSDSStateVector::GetDataParameterTypeString(const Integer id) const
 {
-   return CCSDSObType::GetDataParameterTypeString(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -284,7 +267,7 @@ Real CCSDSStateVector::GetRealDataParameter(const Integer id) const
 
         default:
 
-            return CCSDSObType::GetRealDataParameter(id);
+            return GmatBase::REAL_PARAMETER_UNDEFINED;
 
     }
 
@@ -314,13 +297,13 @@ std::string CCSDSStateVector::GetStringDataParameter(const Integer id) const
     switch (id)
     {
 
-        case CCSDS_STATEVECTOR_EPOCH_ID:
+        case CCSDS_STATEVECTOR_TIMETAG_ID:
 
 	    return timeTag;
 
         default:
 
-            return CCSDSObType::GetStringDataParameter(id);
+            return GmatBase::STRING_PARAMETER_UNDEFINED;
 
     }
 
@@ -355,7 +338,7 @@ StringArray CCSDSStateVector::GetStringArrayDataParameter(const Integer id) cons
 
         default:
 
-            return CCSDSObType::GetStringArrayDataParameter(id);
+            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
 
     }
 
@@ -412,20 +395,6 @@ const Integer CCSDSStateVector::GetKeywordID(const std::string str) const
 
 }
 
-//------------------------------------------------------------------------------
-//  std::string GetUnits(const Integer &id) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return ID associated with a keyword
- */
-//------------------------------------------------------------------------------
-std::string CCSDSStateVector::GetUnits(const Integer &id) const
-{
-   return CCSDS_UNIT_DESCRIPTIONS[id];
-}
-
 //---------------------------------------------------------------------------
 //  bool IsParameterRequired(const Integer id) const
 //---------------------------------------------------------------------------
@@ -443,6 +412,27 @@ bool CCSDSStateVector::IsParameterRequired(const Integer id) const
 	return CCSDS_IS_REQUIRED[id];
     else
 	return false;
+}
+
+//---------------------------------------------------------------------------
+//  bool CCSDSCountRequiredNumberDataParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CCSDSCountRequiredNumberDataParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSStateVector::EndCCSDSStateVectorDataReps; id++)
+        if (CCSDSStateVector::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
 }
 
 //------------------------------------------------------------------------------
@@ -469,7 +459,7 @@ bool CCSDSStateVector::CheckDataAvailability(const std::string str) const
         }
     }
 
-   return CCSDSObType::CheckDataAvailability(str);
+   return false;
 
 }
 

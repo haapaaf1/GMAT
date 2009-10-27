@@ -8,7 +8,16 @@
 #ifndef _CCSDSDATA_HPP
 #define	_CCSDSDATA_HPP
 
-class CCSDSData : public CCSDSObType
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
+#include "StringUtil.hpp"
+
+class CCSDSData
 {
 
 public:
@@ -17,8 +26,6 @@ public:
     CCSDSData(const CCSDSData &data);
     const CCSDSData& CCSDSData::operator=(const CCSDSData &data);
     ~CCSDSData();
-
-    GmatBase *Clone() const;
 
     friend std::ostream& operator<< (std::ostream &output,
                        const CCSDSData *myCCSDSData);
@@ -39,7 +46,7 @@ public:
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CCSDSTDMCountRequiredNumberDataParameters();
+    friend Integer CCSDSCountRequiredNumberDataParameters();
 
     enum CCSDS_DATA_REPS
     {
@@ -56,10 +63,11 @@ protected:
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSGenericDataReps];
 
-    Integer keywordID;
+    std::string keyword;
     std::string timeTag;
     Real measurement;
     StringArray comments;
+
 };
 
 #endif	/* _CCSDSDATA_HPP */

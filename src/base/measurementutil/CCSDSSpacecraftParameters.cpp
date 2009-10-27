@@ -3,17 +3,17 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps] =
+const std::string CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_KEYWORDS[EndCCSDSSpacecraftParametersDataReps] =
 {
     "MASS",
     "SOLAR_RAD_AREA",
     "SOLAR_RAD_COEFF",
     "DRAG_AREA",
     "DRAG_COEFF",
-    "",
+    "COMMENT"
 };
 
-const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps] =
+const std::string CCSDSSpacecraftParameters::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSSpacecraftParametersDataReps] =
 {
     "kg",
     "m^2",
@@ -23,7 +23,7 @@ const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps] =
     ""
 };
 
-const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataReps] =
+const std::string CCSDSSpacecraftParameters::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSSpacecraftParametersDataReps] =
 {
     "Spacecraft Parameters Mass",
     "Spacecraft Parameters Solar Radiation Area",
@@ -33,7 +33,7 @@ const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataR
     "Spacecraft Parameters Comments"
 };
 
-const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps] =
+const bool CCSDSSpacecraftParameters::CCSDS_IS_REQUIRED[EndCCSDSSpacecraftParametersDataReps] =
 {
     true,
     true,
@@ -43,7 +43,7 @@ const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps] =
     false
 };
 
-const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataReps] =
+const Gmat::ParameterType CCSDSSpacecraftParameters::CCSDS_PARAMETER_TYPE[EndCCSDSSpacecraftParametersDataReps] =
 {
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -79,12 +79,12 @@ CCSDSSpacecraftParameters::CCSDSSpacecraftParameters() :
 //------------------------------------------------------------------------------
 CCSDSSpacecraftParameters::CCSDSSpacecraftParameters
                (const CCSDSSpacecraftParameters &sp) :
-    mass(SP.mass),
-    solarRadiationArea(SP.solarRadiationArea),
-    solarRadiationCoefficient(SP.solarRadiationCoefficient),
-    dragArea(SP.dragArea),
-    dragCoefficient(SP.dragCoefficient),
-    comments(SP.comments)
+    mass(sp.mass),
+    solarRadiationArea(sp.solarRadiationArea),
+    solarRadiationCoefficient(sp.solarRadiationCoefficient),
+    dragArea(sp.dragArea),
+    dragCoefficient(sp.dragCoefficient),
+    comments(sp.comments)
 {
 }
 
@@ -106,12 +106,12 @@ const CCSDSSpacecraftParameters& CCSDSSpacecraftParameters::operator=
     if (&sp == this)
         return *this;
 
-    mass = SP.mass;
-    solarRadiationArea = SP.solarRadiationArea;
-    solarRadiationCoefficient = SP.solarRadiationCoefficient;
-    dragArea = SP.dragArea;
-    dragCoefficient = SP.dragCoefficient;
-    comments = SP.comments;
+    mass = sp.mass;
+    solarRadiationArea = sp.solarRadiationArea;
+    solarRadiationCoefficient = sp.solarRadiationCoefficient;
+    dragArea = sp.dragArea;
+    dragCoefficient = sp.dragCoefficient;
+    comments = sp.comments;
 
     return *this;
 }
@@ -128,18 +128,265 @@ CCSDSSpacecraftParameters::~CCSDSSpacecraftParameters()
 }
 
 //------------------------------------------------------------------------------
-//  GmatBase* Clone() const
+// Measurement Data Access functions
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the CCSDSSpacecraftParameters.
- *
- * @return clone of the CCSDSSpacecraftParameters.
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-GmatBase* CCSDSSpacecraftParameters::Clone() const
+std::string CCSDSSpacecraftParameters::GetDataParameterText(const Integer id) const
 {
-   GmatBase *clone = new CCSDSSpacecraftParameters(*this);
-   return (clone);
+   if ((id >= 0) && (id < EndCCSDSSpacecraftParametersDataReps))
+   {
+      return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetUnits(const Integer &id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSSpacecraftParameters::GetUnits(const Integer &id) const
+{
+   if ((id >= 0) && (id < EndCCSDSSpacecraftParametersDataReps))
+   {
+      return CCSDS_UNIT_DESCRIPTIONS[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetDataParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Integer CCSDSSpacecraftParameters::GetDataParameterID(const std::string &str) const
+{
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSSpacecraftParametersDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+	{
+	    return i;
+	}
+   }
+
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType CCSDSSpacecraftParameters::GetDataParameterType(const Integer id) const
+{
+   if ((id >= 0) && (id < EndCCSDSSpacecraftParametersDataReps))
+      return CCSDS_PARAMETER_TYPE[id];
+
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
+}
+
+//---------------------------------------------------------------------------
+//  std::string GetDataParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//---------------------------------------------------------------------------
+std::string CCSDSSpacecraftParameters::GetDataParameterTypeString(const Integer id) const
+{
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSSpacecraftParameters::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+	case CCSDS_SPACECRAFTPARAMETERS_MASS_ID:
+
+            return mass;
+
+	case CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID:
+
+            return solarRadiationArea;
+
+	case CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID:
+
+            return solarRadiationCoefficient;
+
+	case CCSDS_SPACECRAFTPARAMETERS_DRAGAREA_ID:
+
+            return dragArea;
+
+	case CCSDS_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID:
+
+            return dragCoefficient;
+
+        default:
+
+            return GmatBase::REAL_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSSpacecraftParameters::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringArrayDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSSpacecraftParameters::GetStringArrayDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+        case CCSDS_SPACECRAFTPARAMETERS_COMMENTS_ID:
+
+	    return comments;
+
+        default:
+
+            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// StringArray GetStringArrayDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSSpacecraftParameters::GetStringArrayDataParameter(const std::string &label) const
+{
+   return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// const std::string* GetKeywords() const
+//------------------------------------------------------------------------------
+/**
+ * Returns the string array of allowable CCSDS OPM keywords
+ *
+ * @return String array of keywords.
+ *
+ */
+//------------------------------------------------------------------------------
+const std::string* CCSDSSpacecraftParameters::GetKeywords() const
+{
+   return CCSDS_SPACECRAFTPARAMETERS_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+//  const Integer GetKeywordID(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+const Integer CCSDSSpacecraftParameters::GetKeywordID(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSSpacecraftParametersDataReps; i++)
+    {
+        if (pcrecpp::RE(regex).FullMatch(CCSDS_SPACECRAFTPARAMETERS_KEYWORDS[i]))
+            return i;
+    }
+
+   return -1;
+
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterRequired(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is required by the data format.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSSpacecraftParameters::IsParameterRequired(const Integer id) const
+{
+    if (id > 0 && id <= EndCCSDSSpacecraftParametersDataReps)
+        return CCSDS_IS_REQUIRED[id];
+    else
+        return false;
+}
+
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+bool CCSDSSpacecraftParameters::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSSpacecraftParametersDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return false;
+
 }
 
 //------------------------------------------------------------------------------

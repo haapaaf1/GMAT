@@ -8,7 +8,16 @@
 #ifndef _CCSDSSTATEVECTOR_HPP
 #define	_CCSDSSTATEVECTOR_HPP
 
-class CCSDSStateVector : public CCSDSObType
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
+#include "StringUtil.hpp"
+
+class CCSDSStateVector
 {
 
 public:
@@ -17,8 +26,6 @@ public:
     CCSDSStateVector(const CCSDSStateVector &sv);
     const CCSDSStateVector& CCSDSStateVector::operator=(const CCSDSStateVector &sv);
     ~CCSDSStateVector();
-
-    GmatBase *Clone() const;
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
@@ -34,6 +41,8 @@ public:
 
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CCSDSCountRequiredNumberDataParameters();
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -41,16 +50,16 @@ public:
 
     enum CCSDS_DATA_REPS
     {
-	CCSDS_OPM_STATEVECTOR_EPOCH_ID,
-	CCSDS_OPM_STATEVECTOR_X_ID,
-	CCSDS_OPM_STATEVECTOR_Y_ID,
-	CCSDS_OPM_STATEVECTOR_Z_ID,
-	CCSDS_OPM_STATEVECTOR_XDOT_ID,
-        CCSDS_OPM_STATEVECTOR_YDOT_ID,
-	CCSDS_OPM_STATEVECTOR_ZDOT_ID,
-	CCSDS_OPM_STATEVECTOR_COMMENTS_ID,
+	CCSDS_STATEVECTOR_TIMETAG_ID,
+	CCSDS_STATEVECTOR_X_ID,
+	CCSDS_STATEVECTOR_Y_ID,
+	CCSDS_STATEVECTOR_Z_ID,
+	CCSDS_STATEVECTOR_XDOT_ID,
+        CCSDS_STATEVECTOR_YDOT_ID,
+	CCSDS_STATEVECTOR_ZDOT_ID,
+	CCSDS_STATEVECTOR_COMMENTS_ID,
         EndCCSDSStateVectorDataReps
-    }
+    };
 
 protected:
 

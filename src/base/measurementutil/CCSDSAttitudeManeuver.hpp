@@ -8,7 +8,16 @@
 #ifndef _CCSDSATTITUDEMANEUVER_HPP
 #define	_CCSDSATTITUDEMANEUVER_HPP
 
-class CCSDSAttitudeManeuver : public CCSDSObType
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
+#include "StringUtil.hpp"
+
+class CCSDSAttitudeManeuver
 {
 
 public:
@@ -18,10 +27,29 @@ public:
     const CCSDSAttitudeManeuver& CCSDSAttitudeManeuver::operator=(const CCSDSAttitudeManeuver &am);
     ~CCSDSAttitudeManeuver();
 
-    GmatBase *Clone() const;
-
     friend std::ostream& operator<< (std::ostream &output,
                        const CCSDSAttitudeManeuver *myCCSDSAttitudemaneuver);
+
+    std::string GetDataParameterText(const Integer id) const;
+    Integer    GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CCSDSCountRequiredNumberDataParameters();
+
+    const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
 
     enum CCSDS_DATA_REPS
     {
@@ -32,7 +60,7 @@ public:
         CCSDS_ATTITUDEMANUEVER_TOR2_ID,
         CCSDS_ATTITUDEMANUEVER_TOR3_ID,
         CCSDS_ATTITUDEMANUEVER_COMMENTS_ID,
-        EndCCSDSAPMDataReps
+        EndCCSDSAttitudeManeuverDataReps
     };
 
 protected:

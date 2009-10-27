@@ -8,9 +8,16 @@
 #ifndef _CCSDSKEPLERIANELEMENTS_HPP
 #define	_CCSDSKEPLERIANELEMENTS_HPP
 
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
 #include "Anomaly.hpp"
 
-class CCSDSKeplerianElements : public CCSDSObType
+class CCSDSKeplerianElements
 {
 
 public:
@@ -23,18 +30,38 @@ public:
 
     friend std::ostream& operator<< (std::ostream &output,
                         const CCSDSKeplerianElements *myCCSDSKeplerianElements);
+
+    std::string GetDataParameterText(const Integer id) const;
+    Integer    GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CCSDSCountRequiredNumberDataParameters();
+
+    const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
+
     enum CCSDS_DATA_REPS
     {
-	CCSDS_OPM_KEPLERIANELEMENTS_EPOCH_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_ECCENTRICITY_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_INCLINATION_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_RAAN_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_TRUEANOMALY_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID,
-	CCSDS_OPM_KEPLERIANELEMENTS_COMMENTS_ID,
+	CCSDS_KEPLERIANELEMENTS_EPOCH_ID,
+	CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID,
+	CCSDS_KEPLERIANELEMENTS_ECCENTRICITY_ID,
+	CCSDS_KEPLERIANELEMENTS_INCLINATION_ID,
+	CCSDS_KEPLERIANELEMENTS_RAAN_ID,
+	CCSDS_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID,
+	CCSDS_KEPLERIANELEMENTS_TRUEANOMALY_ID,
+	CCSDS_KEPLERIANELEMENTS_MEANANOMALY_ID,
+	CCSDS_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID,
+	CCSDS_KEPLERIANELEMENTS_COMMENTS_ID,
         EndCCSDSKeplerianElementsDataReps
     };
 

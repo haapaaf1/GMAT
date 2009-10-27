@@ -11,15 +11,6 @@
 #include "CCSDSObType.hpp"
 #include "CCSDSTDMMetaData.hpp"
 
-class CCSDSTDMData : public CCSDSData
-{
-
-public:
-
-    friend std::ostream& operator<< (std::ostream &output,
-                                    const CCSDSTDMData *myCCSDSTDMData);
-};
-
 class CCSDSTDMObType : public CCSDSObType
 {   
     

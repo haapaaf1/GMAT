@@ -8,6 +8,8 @@
 #ifndef _CCSDSOEMStateVector_HPP
 #define	_CCSDSOEMStateVector_HPP
 
+#include "CCSDSStateVector.hpp"
+
 class CCSDSOEMStateVector : public CCSDSStateVector
 {
 

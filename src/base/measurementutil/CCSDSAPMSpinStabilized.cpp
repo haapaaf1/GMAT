@@ -7,7 +7,7 @@
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAPMSpinStabilized::CCSDSAPMSpinStabilized() : CCSDSSpinStabilized(),
+CCSDSAPMSpinStabilized::CCSDSAPMSpinStabilized() : CCSDSSpinStabilized()
 {
 }
 
@@ -18,7 +18,7 @@ CCSDSAPMSpinStabilized::CCSDSAPMSpinStabilized() : CCSDSSpinStabilized(),
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAPMSpinStabilized::CCSDSAPMSpinStabilized(const CCSDSAPMSpinStabilized &apmSS) : CCSDSSpinStabilized(apmSS),
+CCSDSAPMSpinStabilized::CCSDSAPMSpinStabilized(const CCSDSAPMSpinStabilized &apmSS) : CCSDSSpinStabilized(apmSS)
 {
 }
 
@@ -70,31 +70,48 @@ CCSDSAPMSpinStabilized::~CCSDSAPMSpinStabilized()
 std::ostream& operator<< (std::ostream &output,
                          const CCSDSAPMSpinStabilized *myCCSDSAPMSpinStabilized)
 {
-   using namespace std;
+    using namespace std;
 
-   switch(myCCSDSAPMSpinStabilized->attitudeType)
-   {
-       case CCSDSObType::CCSDS_QUATERNION_ID:
+    for (unsigned int i = 0; i < myCCSDSAPMSpinStabilized->comments.size(); i++)
+    {
+        output << "COMMENT " << myCCSDSAPMSpinStabilized->comments[i] << endl;
+    }
 
-           break;
-       default:
-           break;
-   }
+    switch (myCCSDSAPMSpinStabilized->attitudeType)
+    {
+        case CCSDSObType::CCSDS_SPIN_ID:
 
-   for (unsigned int i = 0; i < myCCSDSAPMSpinStabilized->comments.size(); i++)
-   {
-       output << "COMMENT " << myCCSDSAPMSpinStabilized->comments[i] << endl;
-   }
-   output << "SPIN_FRAME_A = " << myCCSDSAPMSpinStabilized->frameA << endl;
-   output << "SPIN_FRAME_B = " << myCCSDSAPMSpinStabilized->frameB << endl;
-   output << "SPIN_DIR = " << myCCSDSAPMSpinStabilized->direction << endl;
-   output << "SPIN_ALPHA = " << myCCSDSAPMSpinStabilized->spinAlpha << endl;
-   output << "SPIN_DELTA = " << myCCSDSAPMSpinStabilized->spinDelta << endl;
-   output << "SPIN_ANGLE = " << myCCSDSAPMSpinStabilized->spinAngle << endl;
-   output << "SPIN_ANGLE_VEL = " << myCCSDSAPMSpinStabilized->spinAngleVelocity << endl;
-   output << "NUTATION = " << myCCSDSAPMSpinStabilized->nutation << endl;
-   output << "NUTATION_PER = " << myCCSDSAPMSpinStabilized->nutationPeriod << endl;
-   output << "NUTATION_PHASE = " << myCCSDSAPMSpinStabilized->nutationPhase << endl;
+            output << "SPIN_FRAME_A = " << myCCSDSAPMSpinStabilized->frameA << endl;
+            output << "SPIN_FRAME_B = " << myCCSDSAPMSpinStabilized->frameB << endl;
+            output << "SPIN_DIR = " << myCCSDSAPMSpinStabilized->direction << endl;
+            output << "SPIN_ALPHA = " << myCCSDSAPMSpinStabilized->spinAlpha << endl;
+            output << "SPIN_DELTA = " << myCCSDSAPMSpinStabilized->spinDelta << endl;
+            output << "SPIN_ANGLE = " << myCCSDSAPMSpinStabilized->spinAngle << endl;
+            output << "SPIN_ANGLE_VEL = " << myCCSDSAPMSpinStabilized->spinAngleVelocity << endl;
 
-   return output;
+            break;
+
+        case CCSDSObType::CCSDS_SPIN_NUTATION_ID:
+
+            output << "SPIN_FRAME_A = " << myCCSDSAPMSpinStabilized->frameA << endl;
+            output << "SPIN_FRAME_B = " << myCCSDSAPMSpinStabilized->frameB << endl;
+            output << "SPIN_DIR = " << myCCSDSAPMSpinStabilized->direction << endl;
+            output << "SPIN_ALPHA = " << myCCSDSAPMSpinStabilized->spinAlpha << endl;
+            output << "SPIN_DELTA = " << myCCSDSAPMSpinStabilized->spinDelta << endl;
+            output << "SPIN_ANGLE = " << myCCSDSAPMSpinStabilized->spinAngle << endl;
+            output << "SPIN_ANGLE_VEL = " << myCCSDSAPMSpinStabilized->spinAngleVelocity << endl;
+            output << "NUTATION = " << myCCSDSAPMSpinStabilized->nutation << endl;
+            output << "NUTATION_PER = " << myCCSDSAPMSpinStabilized->nutationPeriod << endl;
+            output << "NUTATION_PHASE = " << myCCSDSAPMSpinStabilized->nutationPhase << endl;
+
+            break;
+
+        default:
+
+            break;
+
+    }
+
+    return output;
+
 }

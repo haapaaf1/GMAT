@@ -7,7 +7,7 @@
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMEulerAngle::CCSDSAEMEulerAngle() : CCSDSEulerAngle(),
+CCSDSAEMEulerAngle::CCSDSAEMEulerAngle() : CCSDSEulerAngle()
 {
 }
 
@@ -18,7 +18,7 @@ CCSDSAEMEulerAngle::CCSDSAEMEulerAngle() : CCSDSEulerAngle(),
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMEulerAngle::CCSDSAEMEulerAngle(const CCSDSAEMEulerAngle &aemEA) : CCSDSEulerAngle(aemEA),
+CCSDSAEMEulerAngle::CCSDSAEMEulerAngle(const CCSDSAEMEulerAngle &aemEA) : CCSDSEulerAngle(aemEA)
 {
 }
 
@@ -52,21 +52,6 @@ const CCSDSAEMEulerAngle& CCSDSAEMEulerAngle::operator=(const CCSDSAEMEulerAngle
 //------------------------------------------------------------------------------
 CCSDSAEMEulerAngle::~CCSDSAEMEulerAngle()
 {
-}
-
-//------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the CCSDSAEMEulerAngle.
- *
- * @return clone of the CCSDSAEMEulerAngle.
- */
-//------------------------------------------------------------------------------
-GmatBase* CCSDSAEMEulerAngle::Clone() const
-{
-   GmatBase *clone = new CCSDSAEMEulerAngle(*this);
-   return (clone);
 }
 
 //------------------------------------------------------------------------------

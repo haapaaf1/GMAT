@@ -64,14 +64,13 @@ const std::string CCSDSHeader::CCSDS_HEADER_UNIT_DESCRIPTIONS[EndCCSDSHeaderData
  * Constructor for the CCSDSHeader class
  */
 //------------------------------------------------------------------------------
-CCSDSHeader::CCSDSHeader() //: ObType(),
+CCSDSHeader::CCSDSHeader() : //ObType(),
     fileType(std::string("")),
-    ccsdsVersion(std::string("")),
+    ccsdsVersion(0),
     creationDate(std::string("")),
     originator(std::string("")),
-    comments(),
-    dataType(0)
-
+    dataType(0),
+    comments()
 {
 }
 
@@ -82,13 +81,13 @@ CCSDSHeader::CCSDSHeader() //: ObType(),
  * Constructor for the StateVector class
  */
 //------------------------------------------------------------------------------
-CCSDSHeader::CCSDSHeader(const CCSDSHeader &header) //: ObType(header).
+CCSDSHeader::CCSDSHeader(const CCSDSHeader &header) : //ObType(header).
     fileType(header.fileType),
     ccsdsVersion(header.ccsdsVersion),
     creationDate(header.creationDate),
     originator(header.originator),
-    comments(header.comments),
-    dataType(header.dataType)
+    dataType(header.dataType),
+    comments(header.comments)
 {
 }
 
@@ -115,8 +114,8 @@ const CCSDSHeader& CCSDSHeader::operator=(const CCSDSHeader &header)
     ccsdsVersion = header.ccsdsVersion;
     creationDate = header.creationDate;
     originator = header.originator;
-    comments = header.comments;
     dataType = header.dataType;
+    comments = header.comments;
 
     return *this;
 }
@@ -252,10 +251,10 @@ Integer CountRequiredNumberHeaderDataParameters()
 //---------------------------------------------------------------------------
 bool CCSDSHeader::IsParameterRequired(const Integer id) const
 {
-if (id > 0 && id <= EndCCSDSHeaderDataReps)
-    return CCSDS_HEADER_IS_REQUIRED[id];
-else
-    return false;
+    if (id > 0 && id <= EndCCSDSHeaderDataReps)
+        return CCSDS_HEADER_IS_REQUIRED[id];
+    else
+        return false;
 }
 
 //------------------------------------------------------------------------------

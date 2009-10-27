@@ -3,30 +3,6 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSTDMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps] =
-{
-    "Keyword",
-    "Time Tag",
-    "Measurement",
-    "Comment"
-};
-
-const bool CCSDSTDMObType::CCSDS_IS_REQUIRED[EndCCSDSTDMDataReps] =
-{
-    true,
-    true,
-    true,
-    false
-};
-
-const Gmat::ParameterType CCSDSTDMObType::CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataReps] =
-{
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRING_TYPE
-};
-
 const std::string CCSDSTDMObType::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
 {
     "Angle1",

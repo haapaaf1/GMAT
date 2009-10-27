@@ -8,6 +8,8 @@
 #ifndef _CCSDSAPMQUATERNION_HPP
 #define	_CCSDSAPMQUATERNION_HPP
 
+#include "CCSDSQuaternion.hpp"
+
 class CCSDSAPMQuaternion : public CCSDSQuaternion
 {
 
@@ -17,8 +19,6 @@ public:
     CCSDSAPMQuaternion(const CCSDSAPMQuaternion &apmQ);
     const CCSDSAPMQuaternion& CCSDSAPMQuaternion::operator=(const CCSDSAPMQuaternion &apmQ);
     ~CCSDSAPMQuaternion();
-
-    GmatBase *Clone() const;
     
     friend std::ostream& operator<< (std::ostream &output,
                                 const CCSDSAPMQuaternion *myCCSDSAPMQuaternion);

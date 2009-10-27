@@ -8,7 +8,15 @@
 #ifndef _CCSDSSPACECRAFTINERTIA_HPP
 #define	_CCSDSSPACECRAFTINERTIA_HPP
 
-class CCSDSSpacecraftInertia : public CCSDSObType
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
+
+class CCSDSSpacecraftInertia
 {
 
 public:
@@ -18,7 +26,26 @@ public:
     const CCSDSSpacecraftInertia& CCSDSSpacecraftInertia::operator=(const CCSDSSpacecraftInertia &si);
     ~CCSDSSpacecraftInertia();
 
-    GmatBase *Clone() const;
+    std::string GetDataParameterText(const Integer id) const;
+    Integer    GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CCSDSCountRequiredNumberDataParameters();
+
+    const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
 
     friend std::ostream& operator<< (std::ostream &output,
                      const CCSDSSpacecraftInertia *myCCSDSspacecraftInertia);
@@ -26,14 +53,14 @@ public:
     enum CCSDS_DATA_REPS
     {
 
-	CCSDS_APM_SPACECRAFTINERTIA_INERTIAREFFRAME_ID,
-	CCSDS_APM_SPACECRAFTINERTIA_I11_ID,
-	CCSDS_APM_SPACECRAFTINERTIA_I22_ID,
-	CCSDS_APM_SPACECRAFTINERTIA_I33_ID,
-	CCSDS_APM_SPACECRAFTINERTIA_I12_ID,
-	CCSDS_APM_SPACECRAFTINERTIA_I13_ID,
-	CCSDS_APM_SPACECRAFTINERTIA_I23_ID,
-	CCSDS_APM_SPACECRAFTINERTIA_COMMENTS_ID,
+	CCSDS_SPACECRAFTINERTIA_INERTIAREFFRAME_ID,
+	CCSDS_SPACECRAFTINERTIA_I11_ID,
+	CCSDS_SPACECRAFTINERTIA_I22_ID,
+	CCSDS_SPACECRAFTINERTIA_I33_ID,
+	CCSDS_SPACECRAFTINERTIA_I12_ID,
+	CCSDS_SPACECRAFTINERTIA_I13_ID,
+	CCSDS_SPACECRAFTINERTIA_I23_ID,
+	CCSDS_SPACECRAFTINERTIA_COMMENTS_ID,
         EndCCSDSSpacecraftInertiaDataReps
     };
 

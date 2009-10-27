@@ -7,7 +7,7 @@
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAPMEulerAngle::CCSDSAPMEulerAngle() : CCSDSEulerAngle(),
+CCSDSAPMEulerAngle::CCSDSAPMEulerAngle() : CCSDSEulerAngle()
 {
 }
 
@@ -18,7 +18,7 @@ CCSDSAPMEulerAngle::CCSDSAPMEulerAngle() : CCSDSEulerAngle(),
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAPMEulerAngle::CCSDSAPMEulerAngle(const CCSDSAPMEulerAngle &apmEA) : CCSDSEulerAngle(apmEA),
+CCSDSAPMEulerAngle::CCSDSAPMEulerAngle(const CCSDSAPMEulerAngle &apmEA) : CCSDSEulerAngle(apmEA)
 {
 }
 
@@ -52,21 +52,6 @@ const CCSDSAPMEulerAngle& CCSDSAPMEulerAngle::operator=(const CCSDSAPMEulerAngle
 //------------------------------------------------------------------------------
 CCSDSAPMEulerAngle::~CCSDSAPMEulerAngle()
 {
-}
-
-//------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the CCSDSAPMEulerAngle.
- *
- * @return clone of the CCSDSAPMEulerAngle.
- */
-//------------------------------------------------------------------------------
-GmatBase* CCSDSAPMEulerAngle::Clone() const
-{
-   GmatBase *clone = new CCSDSAPMEulerAngle(*this);
-   return (clone);
 }
 
 //------------------------------------------------------------------------------

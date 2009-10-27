@@ -8,7 +8,15 @@
 #ifndef _CCSDSQUATERNION_HPP
 #define	_CCSDSQUATERNION_HPP
 
-class CCSDSQuaternion : public CCSDSObType
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
+
+class CCSDSQuaternion
 {
 
 public:
@@ -18,11 +26,31 @@ public:
     const CCSDSQuaternion& CCSDSQuaternion::operator=(const CCSDSQuaternion &myQ);
     ~CCSDSQuaternion();
 
-    GmatBase *Clone() const;
-
-
     friend std::string GetQuaternionTypeText(const Integer id);
     friend Integer    GetQuaternionTypeID(const std::string &str);
+
+    std::string GetDataParameterText(const Integer id) const;
+    Integer    GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+
+    Integer	GetIntegerDataParameter(const Integer id) const;
+    Integer	GetIntegerDataParameter(const std::string &label) const;
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CCSDSCountRequiredNumberDataParameters();
+
+    const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
 
     enum CCSDS_QUATERNION_TYPE
     {
@@ -34,7 +62,7 @@ public:
     enum CCSDS_DATA_REPS
     {
 	CCSDS_QUATERNION_TYPE_ID,
-	CCSDS_QUATERNION_EPOCH_ID,
+	CCSDS_QUATERNION_TIMETAG_ID,
 	CCSDS_QUATERNION_FRAMEA_ID,
 	CCSDS_QUATERNION_FRAMEB_ID,
 	CCSDS_QUATERNION_DIRECTION_ID,
@@ -55,6 +83,7 @@ public:
 
 protected:
 
+    static const std::string CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps];
     static const std::string CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDataReps];
     static const bool CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps];

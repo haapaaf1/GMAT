@@ -59,21 +59,6 @@ CCSDSOEMStateVector::~CCSDSOEMStateVector()
 }
 
 //------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the CCSDSOEMStateVector.
- *
- * @return clone of the CCSDSOEMStateVector.
- */
-//------------------------------------------------------------------------------
-GmatBase* CCSDSOEMStateVector::Clone() const
-{
-   GmatBase *clone = new CCSDSOEMStateVector(*this);
-   return (clone);
-}
-
-//------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output,
 //                           const CCSDSOEMStateVector *myStateVector)
 //------------------------------------------------------------------------------

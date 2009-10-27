@@ -2,7 +2,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSAPMObType::CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDataReps] =
+const std::string CCSDSSpacecraftInertia::CCSDS_SPACECRAFTINERTIA_KEYWORDS[EndCCSDSSpacecraftInertiaDataReps] =
 {
     "INERTIA_REF_FRAME",
     "I11",
@@ -14,7 +14,7 @@ const std::string CCSDSAPMObType::CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDa
     "COMMENT"
 };
 
-const std::string CCSDSAPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDataReps] =
+const std::string CCSDSSpacecraftInertia::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSSpacecraftInertiaDataReps] =
 {
     "",
     "kg m^2",
@@ -26,7 +26,7 @@ const std::string CCSDSAPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionData
     "",
 };
 
-const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaternionDataReps] =
+const std::string CCSDSSpacecraftInertia::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSSpacecraftInertiaDataReps] =
 {
     "Spacecraft Inertia Ref Frame",
     "Spacecraft Inertia Component (1,1)",
@@ -38,7 +38,7 @@ const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaterni
     "Spacecraft Inertia Comments"
 };
 
-const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
+const bool CCSDSSpacecraftInertia::CCSDS_IS_REQUIRED[EndCCSDSSpacecraftInertiaDataReps] =
 {
     true,
     true,
@@ -50,7 +50,7 @@ const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
     false
 };
 
-const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternionDataReps] =
+const Gmat::ParameterType CCSDSSpacecraftInertia::CCSDS_PARAMETER_TYPE[EndCCSDSSpacecraftInertiaDataReps] =
 {
     Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
@@ -69,7 +69,15 @@ const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternio
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSSpacecraftInertia::CCSDSSpacecraftInertia() : CCSDSObtype(),
+CCSDSSpacecraftInertia::CCSDSSpacecraftInertia() :
+    inertiaRefFrame(std::string("")),
+    i11(0),
+    i22(0),
+    i33(0),
+    i12(0),
+    i13(0),
+    i23(0),
+    comments()
 {
 }
 
@@ -80,7 +88,15 @@ CCSDSSpacecraftInertia::CCSDSSpacecraftInertia() : CCSDSObtype(),
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSSpacecraftInertia::CCSDSSpacecraftInertia(const CCSDSSpacecraftInertia &si) : CCSDSObtype(si),
+CCSDSSpacecraftInertia::CCSDSSpacecraftInertia(const CCSDSSpacecraftInertia &si) :
+    inertiaRefFrame(si.inertiaRefFrame),
+    i11(si.i11),
+    i22(si.i22),
+    i33(si.i33),
+    i12(si.i12),
+    i13(si.i13),
+    i23(si.i23),
+    comments(si.comments)
 {
 }
 
@@ -100,9 +116,16 @@ const CCSDSSpacecraftInertia& CCSDSSpacecraftInertia::operator=(const CCSDSSpace
    if (&si == this)
       return *this;
 
-   CCSDSObtype::operator=(si);
+    inertiaRefFrame = si.inertiaRefFrame;
+    i11 = si.i11;
+    i22 = si.i22;
+    i33 = si.i33;
+    i12 = si.i12;
+    i13 = si.i13;
+    i23 = si.i23;
+    comments = si.comments;
 
-   return *this;
+    return *this;
 }
 
 //------------------------------------------------------------------------------
@@ -114,6 +137,310 @@ const CCSDSSpacecraftInertia& CCSDSSpacecraftInertia::operator=(const CCSDSSpace
 //------------------------------------------------------------------------------
 CCSDSSpacecraftInertia::~CCSDSSpacecraftInertia()
 {
+}
+
+//------------------------------------------------------------------------------
+// Measurement Data Access functions
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSSpacecraftInertia::GetDataParameterText(const Integer id) const
+{
+   if ((id >= 0) && (id < EndCCSDSSpacecraftInertiaDataReps))
+   {
+      return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+}
+
+//------------------------------------------------------------------------------
+//  Integer  GetDataParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Integer CCSDSSpacecraftInertia::GetDataParameterID(const std::string &str) const
+{
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSSpacecraftInertiaDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+	{
+	    return i;
+	}
+   }
+
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType CCSDSSpacecraftInertia::GetDataParameterType(const Integer id) const
+{
+   if ((id >= 0) && (id < EndCCSDSSpacecraftInertiaDataReps))
+      return CCSDS_PARAMETER_TYPE[id];
+
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
+}
+
+//---------------------------------------------------------------------------
+//  std::string GetDataParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//---------------------------------------------------------------------------
+std::string CCSDSSpacecraftInertia::GetDataParameterTypeString(const Integer id) const
+{
+   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+}
+
+//------------------------------------------------------------------------------
+// Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSSpacecraftInertia::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+	case CCSDS_SPACECRAFTINERTIA_I11_ID:
+
+            return i11;
+
+	case CCSDS_SPACECRAFTINERTIA_I22_ID:
+
+            return i22;
+
+	case CCSDS_SPACECRAFTINERTIA_I33_ID:
+
+            return i33;
+
+	case CCSDS_SPACECRAFTINERTIA_I12_ID:
+
+            return i12;
+
+	case CCSDS_SPACECRAFTINERTIA_I13_ID:
+
+            return i13;
+
+	case CCSDS_SPACECRAFTINERTIA_I23_ID:
+
+            return i23;
+
+        default:
+
+            return GmatBase::REAL_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSSpacecraftInertia::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSSpacecraftInertia::GetStringDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+	case CCSDS_SPACECRAFTINERTIA_INERTIAREFFRAME_ID:
+
+	    return inertiaRefFrame;
+
+        default:
+
+            return GmatBase::STRING_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSSpacecraftInertia::GetStringDataParameter(const std::string &label) const
+{
+   return GetStringDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringArrayDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSSpacecraftInertia::GetStringArrayDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+	case CCSDS_SPACECRAFTINERTIA_COMMENTS_ID:
+
+	    return comments;
+
+        default:
+
+            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// StringArray GetStringArrayDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSSpacecraftInertia::GetStringArrayDataParameter(const std::string &label) const
+{
+   return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// const std::string* GetKeywords() const
+//------------------------------------------------------------------------------
+/**
+ * Returns the string array of allowable CCSDS APM keywords
+ *
+ * @return String array of keywords.
+ *
+ */
+//------------------------------------------------------------------------------
+const std::string* CCSDSSpacecraftInertia::GetKeywords() const
+{
+   return CCSDS_SPACECRAFTINERTIA_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+//  const Integer GetKeywordID(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+const Integer CCSDSSpacecraftInertia::GetKeywordID(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSSpacecraftInertiaDataReps; i++)
+    {
+        if (pcrecpp::RE(regex).FullMatch(CCSDS_SPACECRAFTINERTIA_KEYWORDS[i]))
+            return i;
+    }
+
+   return -1;
+
+}
+
+//------------------------------------------------------------------------------
+//  std::string GetUnits(const Integer &id) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSSpacecraftInertia::GetUnits(const Integer &id) const
+{
+    if (id > 0 && id <= EndCCSDSSpacecraftInertiaDataReps)
+        return CCSDS_UNIT_DESCRIPTIONS[id];
+    else
+        return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+
+//---------------------------------------------------------------------------
+//  bool IsParameterRequired(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is required by the data format.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSSpacecraftInertia::IsParameterRequired(const Integer id) const
+{
+    if (id > 0 && id <= EndCCSDSSpacecraftInertiaDataReps)
+        return CCSDS_IS_REQUIRED[id];
+    else
+        return false;
+}
+
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+bool CCSDSSpacecraftInertia::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSSpacecraftInertiaDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return false;
+
 }
 
 // std::ostream& operator<< (std::ostream &output,

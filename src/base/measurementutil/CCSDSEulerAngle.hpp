@@ -8,7 +8,15 @@
 #ifndef _CCSDSEULERANGLE_HPP
 #define	_CCSDSEULERANGLE_HPP
 
-class CCSDSEulerAngle : public CCSDSObType
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
+
+class CCSDSEulerAngle
 {
 
 public:
@@ -18,10 +26,31 @@ public:
     const CCSDSEulerAngle& CCSDSEulerAngle::operator=(const CCSDSEulerAngle &ea);
     ~CCSDSEulerAngle();
 
-    GmatBase *Clone() const;
-
     friend std::string GetRateFrameText(const Integer id);
     friend Integer    GetRateFrameID(const std::string &str);
+
+    std::string GetDataParameterText(const Integer id) const;
+    Integer    GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+
+    Integer	GetIntegerDataParameter(const Integer id) const;
+    Integer	GetIntegerDataParameter(const std::string &label) const;
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    // Functions to verify data availability
+    bool CheckDataAvailability(const std::string str) const;
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CCSDSCountRequiredNumberDataParameters();
+
+    const std::string* GetKeywords() const;
+    const Integer GetKeywordID(const std::string str) const;
+    std::string GetUnits(const Integer &id) const;
 
     enum CCSDS_DATA_REPS
     {

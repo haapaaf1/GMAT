@@ -351,6 +351,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q1 = dtemp2;
                     myQData->q2 = dtemp3;
                     myQData->q3 = dtemp4;
+                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
@@ -375,6 +376,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q2 = dtemp2;
                     myQData->q3 = dtemp3;
                     myQData->qC = dtemp4;
+                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
@@ -416,6 +418,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q1Dot = dtemp6;
                     myQData->q2Dot = dtemp7;
                     myQData->q3Dot = dtemp8;
+                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
@@ -447,6 +450,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q2Dot = dtemp6;
                     myQData->q3Dot = dtemp7;
                     myQData->qCDot = dtemp8;
+                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
@@ -487,6 +491,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->xRate = dtemp5;
                     myQData->yRate = dtemp6;
                     myQData->zRate = dtemp7;
+                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
@@ -517,6 +522,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->xRate = dtemp5;
                     myQData->yRate = dtemp6;
                     myQData->zRate = dtemp7;
+                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
@@ -551,6 +557,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 myEulerData->xAngle = dtemp1;
                 myEulerData->yAngle = dtemp2;
                 myEulerData->zAngle = dtemp3;
+                myEulerData->eulerAngleType = CCSDSObType::CCSDS_EULER_ANGLE_ID;
 
                 myOb->ccsdsAEMEulerAngle = myEulerData;
                 myOb->ccsdsHeader->dataType = CCSDSObType::EULERANGLE_ID;
@@ -588,6 +595,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 myEulerData->xRate = dtemp4;
                 myEulerData->yRate = dtemp5;
                 myEulerData->zRate = dtemp6;
+                myEulerData->eulerAngleType = CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID;
 
                 myOb->ccsdsAEMEulerAngle = myEulerData;
                 myOb->ccsdsHeader->dataType = CCSDSObType::EULERANGLE_ID;
@@ -621,6 +629,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 mySpinData->spinDelta = dtemp2;
                 mySpinData->spinAngle = dtemp3;
                 mySpinData->spinAngleVelocity = dtemp4;
+                mySpinData->attitudeType = CCSDSObType::CCSDS_SPIN_ID;
 
                 myOb->ccsdsAEMSpinStabilized = mySpinData;
                 myOb->ccsdsHeader->dataType = CCSDSObType::SPINSTABILIZED_ID;
@@ -658,6 +667,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 mySpinData->nutation = dtemp5;
                 mySpinData->nutationPeriod = dtemp6;
                 mySpinData->nutationPhase = dtemp7;
+                mySpinData->attitudeType = CCSDSObType::CCSDS_SPIN_NUTATION_ID;
 
                 myOb->ccsdsAEMSpinStabilized = mySpinData;
                 myOb->ccsdsHeader->dataType = CCSDSObType::SPINSTABILIZED_ID;
@@ -834,6 +844,10 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
 
             case CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID:
                 {
+                if (myMetaData->attitudeType != CCSDSObTye::CCSDS_QUATERNION_ID
+                 || myMetaData->attitudeType != CCSDSObTye::CCSDS_QUATERNION_DERIVATIVE_ID
+                 || myMetaData->attitudeType != CCSDSObTye::CCSDS_QUATERNION_RATE_ID)
+                    return false;
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
@@ -845,6 +859,9 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
 
             case CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID:
 
+                if (myMetaData->attitudeType != CCSDSObTye::CCSDS_EULER_ANGLE_ID
+                 || myMetaData->attitudeType != CCSDSObTye::CCSDS_EULER_ANGLE_RATE_ID )
+                    return false;
                 if (!GetCCSDSValue(lff,myMetaData->eulerRotationSequence))
                     return false;
                 if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID))

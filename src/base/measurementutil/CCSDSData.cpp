@@ -1,9 +1,10 @@
 #include "CCSDSData.hpp"
+
 //---------------------------------
 //  static data
 //---------------------------------
 
-const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSGenericDataReps] =
+const std::string CCSDSData::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSGenericDataReps] =
 {
     "Keyword",
     "Epoch",
@@ -11,7 +12,7 @@ const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSGenericD
     "Comment"
 };
 
-const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSGenericDataReps] =
+const bool CCSDSData::CCSDS_IS_REQUIRED[EndCCSDSGenericDataReps] =
 {
     true,
     true,
@@ -19,7 +20,7 @@ const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSGenericDataReps] =
     false
 };
 
-const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataReps] =
+const Gmat::ParameterType CCSDSData::CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataReps] =
 {
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
@@ -34,18 +35,26 @@ const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSGenericDa
  * Constructor for the CCSDSData class
  */
 //------------------------------------------------------------------------------
-CCSDSData::CCSDSData() : CCSDSObType()
+CCSDSData::CCSDSData() :
+    keyword(std::string("")),
+    timeTag(std::string("")),
+    measurement(0),
+    comments()
 {
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSData(const CCSDSData &data) : CCSDSData(data)
+//  CCSDSData(const CCSDSData &data) : 
 //------------------------------------------------------------------------------
 /**
  * Constructor for the generic CCSDS Data class
  */
 //------------------------------------------------------------------------------
-CCSDSData::CCSDSData(const CCSDSData &data) : CCSDSObType(data)
+CCSDSData::CCSDSData(const CCSDSData &data) : 
+    keyword(data.keyword),
+    timeTag(data.timeTag),
+    measurement(data.measurement),
+    comments(data.comments)
 {
 }
 
@@ -66,7 +75,10 @@ const CCSDSData& CCSDSData::operator=(const CCSDSData &data)
     if (&data == this)
         return *this;
 
-    CCSDSObType::operator=(data);
+    keyword = data.keyword;
+    timeTag = data.timeTag;
+    measurement = data.measurement;
+    comments = data.comments;
 
     return *this;
 }
@@ -80,21 +92,6 @@ const CCSDSData& CCSDSData::operator=(const CCSDSData &data)
 //------------------------------------------------------------------------------
 CCSDSData::~CCSDSData()
 {
-}
-
-//------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the CCSDSData.
- *
- * @return clone of the CCSDSData.
- */
-//------------------------------------------------------------------------------
-GmatBase* CCSDSData::Clone() const
-{
-   GmatBase *clone = new CCSDSData(*this);
-   return (clone);
 }
 
 //---------------------------------------------------------------------------
@@ -140,7 +137,7 @@ bool CCSDSData::CheckDataAvailability(const std::string str) const
         }
     }
 
-   return CCSDSObType::CheckDataAvailability(str);
+   return false;
 
 }
 
@@ -161,7 +158,7 @@ std::string CCSDSData::GetDataParameterText(const Integer id) const
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
-   return CCSDSObType::GetDataParameterText(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -185,7 +182,7 @@ Integer CCSDSData::GetDataParameterID(const std::string &str) const
 	}
    }
 
-   return CCSDSObType::GetDataParameterID(str);
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 
@@ -201,7 +198,7 @@ Gmat::ParameterType CCSDSData::GetDataParameterType(const Integer id) const
    if ((id >= 0) && (id < EndCCSDSGenericDataReps))
       return CCSDS_PARAMETER_TYPE[id];
 
-   return CCSDSObType::GetDataParameterType(id);
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
 }
 
 //---------------------------------------------------------------------------
@@ -213,7 +210,7 @@ Gmat::ParameterType CCSDSData::GetDataParameterType(const Integer id) const
 //---------------------------------------------------------------------------
 std::string CCSDSData::GetDataParameterTypeString(const Integer id) const
 {
-   return CCSDSObType::GetDataParameterTypeString(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -238,7 +235,7 @@ std::string CCSDSData::GetStringDataParameter(const Integer id) const
 
         default:
 
-            return CCSDSObType::GetStringDataParameter(id);
+            return GmatBase::STRING_PARAMETER_UNDEFINED;
 
     }
 
@@ -273,7 +270,7 @@ StringArray CCSDSData::GetStringArrayDataParameter(const Integer id) const
 
         default:
 
-            return CCSDSObType::GetStringArrayDataParameter(id);
+            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
 
     }
 
@@ -309,7 +306,7 @@ Real CCSDSData::GetRealDataParameter(const Integer id) const
 
 	default:
 
-	    return CCSDSObType::GetRealDataParameter(id);
+	    return GmatBase::REAL_PARAMETER_UNDEFINED;
 
     }
 
@@ -325,6 +322,28 @@ Real CCSDSData::GetRealDataParameter(const Integer id) const
 Real CCSDSData::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
+}
+
+
+//---------------------------------------------------------------------------
+//  bool CCSDSCountRequiredNumberDataParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CCSDSCountRequiredNumberDataParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSData::EndCCSDSGenericDataReps; id++)
+        if (CCSDSData::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
 }
 
 //------------------------------------------------------------------------------
@@ -345,7 +364,7 @@ std::ostream& operator<< (std::ostream &output,
 {
     using namespace std;
 
-    output << myCCSDSData->keywordID << " = " << myCCSDSData->timeTag
+    output << myCCSDSData->keyword << " = " << myCCSDSData->timeTag
            << " " << myCCSDSData->measurement << endl;
 
     return output;

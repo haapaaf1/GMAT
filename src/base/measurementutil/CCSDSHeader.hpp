@@ -8,12 +8,13 @@
 #ifndef _CCSDSHEADER_HPP
 #define	_CCSDSHEADER_HPP
 
+
 #include "GmatBase.hpp"
 #include "gmatdefs.hpp"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "sstream"
+#include <sstream>
 #include <pcrecpp.h>
 #include "StringUtil.hpp"
 
@@ -84,8 +85,8 @@ protected:
     Real ccsdsVersion;
     std::string creationDate;
     std::string originator;
-    StringArray comments;
     Integer dataType;
+    StringArray comments;
 
 };
 

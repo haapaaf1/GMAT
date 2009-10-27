@@ -7,7 +7,7 @@
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMQuaternion::CCSDSAEMQuaternion() : CCSDSQuaternion(),
+CCSDSAEMQuaternion::CCSDSAEMQuaternion() : CCSDSQuaternion()
 {
 }
 
@@ -18,7 +18,7 @@ CCSDSAEMQuaternion::CCSDSAEMQuaternion() : CCSDSQuaternion(),
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMQuaternion::CCSDSAEMQuaternion(const CCSDSAEMQuaternion &aemQ) : CCSDSQuaternion(aemQ),
+CCSDSAEMQuaternion::CCSDSAEMQuaternion(const CCSDSAEMQuaternion &aemQ) : CCSDSQuaternion(aemQ)
 {
 }
 

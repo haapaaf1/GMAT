@@ -8,7 +8,7 @@ const std::string CCSDSQuaternion::CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeR
     "LAST"
 };
 
-const std::string CCSDSAPMObType::CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDataReps] =
+const std::string CCSDSQuaternion::CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDataReps] =
 {
     "",
     "EPOCH",
@@ -26,50 +26,10 @@ const std::string CCSDSAPMObType::CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDa
     "X_RATE",
     "Y_RATE",
     "Z_RATE",
-    "COMMENT",
-    "",
-    "EULER_FRAME_A",
-    "EULER_FRAME_B",
-    "EULER_DIR",
-    "EULER_ROT_SEQ",
-    "RATE_FRAME",
-    "X_ANGLE",
-    "Y_ANGLE",
-    "Z_ANGLE",
-    "X_RATE",
-    "Y_RATE",
-    "Z_RATE",
-    "COMMENT",
-    "",
-    "SPIN_FRAME_A",
-    "SPIN_FRAME_B",
-    "SPIN_DIR",
-    "SPIN_ALPHA",
-    "SPIN_DELTA",
-    "SPIN_ANGLE",
-    "SPIN_ANGLE_VEL",
-    "NUTATION",
-    "NUTATION_PER",
-    "NUTATION_PHASE",
-    "COMMENT",
-    "INERTIA_REF_FRAME",
-    "I11",
-    "I22",
-    "I33",
-    "I12",
-    "I13",
-    "I23",
-    "COMMENT",
-    "MAN_EPOCH_START",
-    "MAN_DURATION",
-    "MAN_REF_FRAME",
-    "MAN_TOR1",
-    "MAN_TOR2",
-    "MAN_TOR3",
     "COMMENT"
 };
 
-const std::string CCSDSAPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDataReps] =
+const std::string CCSDSQuaternion::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDataReps] =
 {
     "",
     "",
@@ -86,50 +46,10 @@ const std::string CCSDSAPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionData
     "1/s",
     "1/s",
     "1/s",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "deg",
-    "deg",
-    "deg",
-    "deg/s",
-    "deg/s",
-    "deg/s",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "deg",
-    "deg",
-    "deg",
-    "deg/s",
-    "deg",
-    "s",
-    "deg",
-    "",
-    "",
-    "kg m^2",
-    "kg m^2",
-    "kg m^2",
-    "kg m^2",
-    "kg m^2",
-    "kg m^2",
-    "",
-    "",
-    "s",
-    "",
-    "N m",
-    "N m",
-    "N m",
     ""
 };
 
-const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaternionDataReps] =
+const std::string CCSDSQuaternion::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaternionDataReps] =
 {
     "Quaternion Type",
     "Quaternion Epoch",
@@ -147,50 +67,10 @@ const std::string CCSDSAPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaterni
     "Quaternion X Rate",
     "Quaternion Y Rate",
     "Quaternion Z Rate",
-    "Quaternion Comments",
-    "Euler Angle Type",
-    "Euler Angle Frame A",
-    "Euler Angle Frame B",
-    "Euler Angle Direction",
-    "Euler Angle Rotation Sequence",
-    "Euler Angle Rate Frame",
-    "Euler Angle X Angle",
-    "Euler Angle Y Angle",
-    "Euler Angle Z Angle",
-    "Euler Angle X Rate",
-    "Euler Angle Y Rate",
-    "Euler Angle Z Rate",
-    "Euler Angle Comments",
-    "Spin Stabilized Attitude Type",
-    "Spin Stabilized Frame A",
-    "Spin Stabilized Frame B",
-    "Spin Stabilized Direction",
-    "Spin Stabilized Spin Alpha",
-    "Spin Stabilized Spin Delta",
-    "Spin Stabilized Spin Angle",
-    "Spin Stabilized Spin Angle Velocity",
-    "Spin Stabilized Nutation",
-    "Spin Stabilized Nutation Period",
-    "Spin Stabilized Nutation Phase",
-    "Spin Stabilized Comments",
-    "Spacecraft Inertia Ref Frame",
-    "Spacecraft Inertia Component (1,1)",
-    "Spacecraft Inertia Component (2,2)",
-    "Spacecraft Inertia Component (3,3)",
-    "Spacecraft Inertia Component (1,2)",
-    "Spacecraft Inertia Component (1,3)",
-    "Spacecraft Inertia Component (2,3)",
-    "Spacecraft Inertia Comments",
-    "Attitude Maneuver Epoch Start",
-    "Attitude Maneuver Duration",
-    "Attitude Maneuver Ref Frame",
-    "Attitude Maneuver TOR1",
-    "Attitude Maneuver TOR2",
-    "Attitude Maneuver TOR3",
-    "Attitude Maneuver Comments"
+    "Quaternion Comments"
 };
 
-const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
+const bool CCSDSQuaternion::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
 {
     true,
     true,
@@ -202,46 +82,6 @@ const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
     true,
     true,
     true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
     true,
     true,
     true,
@@ -251,41 +91,12 @@ const bool CCSDSAPMObType::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
     false
 };
 
-const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternionDataReps] =
+const Gmat::ParameterType CCSDSQuaternion::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternionDataReps] =
 {
+    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
+    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -294,18 +105,7 @@ const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternio
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -319,7 +119,7 @@ const Gmat::ParameterType CCSDSAPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternio
  * Constructor for the CCSDSQuaternion class
  */
 //------------------------------------------------------------------------------
-CCSDSQuaternion::CCSDSQuaternion() : CCSDSObType(),
+CCSDSQuaternion::CCSDSQuaternion() :
     quaternionType(0),
     timeTag(std::string("")),
     frameA(std::string("")),
@@ -347,7 +147,7 @@ CCSDSQuaternion::CCSDSQuaternion() : CCSDSObType(),
  * Constructor for the StateVector class
  */
 //------------------------------------------------------------------------------
-CCSDSQuaternion::CCSDSQuaternion(const CCSDSQuaternion &myQ) : CCSDSObType(myQ),
+CCSDSQuaternion::CCSDSQuaternion(const CCSDSQuaternion &myQ) : 
     quaternionType(myQ.quaternionType),
     timeTag(myQ.timeTag),
     frameA(myQ.frameA),
@@ -369,8 +169,7 @@ CCSDSQuaternion::CCSDSQuaternion(const CCSDSQuaternion &myQ) : CCSDSObType(myQ),
 }
 
 //---------------------------------------------------------------------------
-//  CCSDSQuaternion& operator=
-//                                   (const CCSDSQuaternion &myQ)
+//  CCSDSQuaternion& operator=(const CCSDSQuaternion &myQ)
 //---------------------------------------------------------------------------
 /**
  * Assignment operator for StateVector structures.
@@ -385,8 +184,6 @@ const CCSDSQuaternion& CCSDSQuaternion::operator=(const CCSDSQuaternion &myQ)
 {
     if (&myQ == this)
         return *this;
-
-    CCSDSQuaternion::operator=(myQ);
 
     quaternionType = myQ.quaternionType;
     timeTag = myQ.timeTag;
@@ -421,18 +218,362 @@ CCSDSQuaternion::~CCSDSQuaternion()
 }
 
 //------------------------------------------------------------------------------
-//  GmatBase* Clone() const
+// Measurement Data Access functions
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the CCSDSQuaternion.
- *
- * @return clone of the CCSDSQuaternion.
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-GmatBase* CCSDSQuaternion::Clone() const
+std::string CCSDSQuaternion::GetDataParameterText(const Integer id) const
 {
-   GmatBase *clone = new CCSDSQuaternion(*this);
-   return (clone);
+   if ((id >= 0) && (id < EndCCSDSQuaternionDataReps))
+   {
+      return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+}
+
+//------------------------------------------------------------------------------
+//  Integer  GetDataParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Integer CCSDSQuaternion::GetDataParameterID(const std::string &str) const
+{
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSQuaternionDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+	{
+	    return i;
+	}
+   }
+
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType CCSDSQuaternion::GetDataParameterType(const Integer id) const
+{
+   if ((id >= 0) && (id < EndCCSDSQuaternionDataReps))
+      return CCSDS_PARAMETER_TYPE[id];
+
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
+}
+
+//---------------------------------------------------------------------------
+//  std::string GetDataParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//---------------------------------------------------------------------------
+std::string CCSDSQuaternion::GetDataParameterTypeString(const Integer id) const
+{
+   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetIntegerDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//---------------------------------------------------------------------------
+Integer CCSDSQuaternion::GetIntegerDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+        case CCSDS_QUATERNION_TYPE_ID:
+
+	    return quaternionType;
+
+	case CCSDS_QUATERNION_DIRECTION_ID:
+
+	    return direction;
+            
+     default:
+
+        return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// Integer GetIntegerDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Integer CCSDSQuaternion::GetIntegerDataParameter(const std::string &label) const
+{
+   return GetIntegerDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSQuaternion::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+	case CCSDS_QUATERNION_Q1_ID:
+
+            return q1;
+
+	case CCSDS_QUATERNION_Q2_ID:
+
+            return q2;
+
+	case CCSDS_QUATERNION_Q3_ID:
+
+            return q3;
+
+	case CCSDS_QUATERNION_QC_ID:
+
+            return qC;
+
+	case CCSDS_QUATERNION_Q1DOT_ID:
+
+            return q1Dot;
+
+        case CCSDS_QUATERNION_Q2DOT_ID:
+
+            return q2Dot;
+
+        case CCSDS_QUATERNION_Q3DOT_ID:
+
+            return q3Dot;
+
+        case CCSDS_QUATERNION_QCDOT_ID:
+
+            return qCDot;
+
+        default:
+
+            return GmatBase::REAL_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSQuaternion::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSQuaternion::GetStringDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+        case CCSDS_QUATERNION_TIMETAG_ID:
+
+	    return timeTag;
+
+        case CCSDS_QUATERNION_FRAMEA_ID:
+
+	    return frameA;
+
+	case CCSDS_QUATERNION_FRAMEB_ID:
+
+	    return frameB;
+
+        default:
+
+            return GmatBase::STRING_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// virtual std::string GetStringDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSQuaternion::GetStringDataParameter(const std::string &label) const
+{
+   return GetStringDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringArrayDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSQuaternion::GetStringArrayDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+	case CCSDS_QUATERNION_COMMENTS_ID:
+
+	    return comments;
+
+        default:
+
+            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// StringArray GetStringArrayDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSQuaternion::GetStringArrayDataParameter(const std::string &label) const
+{
+   return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// const std::string* GetKeywords() const
+//------------------------------------------------------------------------------
+/**
+ * Returns the string array of allowable CCSDS APM keywords
+ *
+ * @return String array of keywords.
+ *
+ */
+//------------------------------------------------------------------------------
+const std::string* CCSDSQuaternion::GetKeywords() const
+{
+   return CCSDS_QUATERNION_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+//  const Integer GetKeywordID(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+const Integer CCSDSQuaternion::GetKeywordID(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSQuaternionDataReps; i++)
+    {
+        if (pcrecpp::RE(regex).FullMatch(CCSDS_QUATERNION_KEYWORDS[i]))
+            return i;
+    }
+
+   return -1;
+
+}
+
+//------------------------------------------------------------------------------
+//  std::string GetUnits(const Integer &id) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSQuaternion::GetUnits(const Integer &id) const
+{
+    if (id > 0 && id <= EndCCSDSQuaternionDataReps)
+        return CCSDS_UNIT_DESCRIPTIONS[id];
+    else
+        return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+
+//---------------------------------------------------------------------------
+//  bool IsParameterRequired(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is required by the data format.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSQuaternion::IsParameterRequired(const Integer id) const
+{
+    if (id > 0 && id <= EndCCSDSQuaternionDataReps)
+        return CCSDS_IS_REQUIRED[id];
+    else
+        return false;
+}
+
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+bool CCSDSQuaternion::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSQuaternionDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return false;
+
 }
 
 //------------------------------------------------------------------------------
@@ -449,10 +590,9 @@ GmatBase* CCSDSQuaternion::Clone() const
 std::string GetQuaternionTypeText(const Integer id)
 {
    if ((id >= 0) && (id < CCSDSQuaternion::EndCCSDSQuaternionTypeReps))
-   {
-      return CCSDSQuaternion::CCSDS_QUATERNION_TYPE[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
+       return CCSDSQuaternion::CCSDS_QUATERNION_TYPE[id];
+   else
+       return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------

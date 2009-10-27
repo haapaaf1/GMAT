@@ -3,7 +3,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps] =
+const std::string CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_KEYWORDS[EndCCSDSKeplerianElementsDataReps] =
 {
     "SEMI_MAJ_AXIS",
     "ECCENTRICITY",
@@ -13,24 +13,10 @@ const std::string CCSDSOPMObType::CCSDS_OPM_KEYWORDS[EndCCSDSOPMDataReps] =
     "TRUE_ANOMALY",
     "MEAN_ANOMALY",
     "GM",
-    "",
-    "MASS",
-    "SOLAR_RAD_AREA",
-    "SOLAR_RAD_COEFF",
-    "DRAG_AREA",
-    "DRAG_COEFF",
-    "",
-    "MAN_EPOCH_IGNITION",
-    "MAN_DURATION",
-    "MAN_DELTA_MASS",
-    "MAN_REF_FRAME",
-    "MAN_DV_1",
-    "MAN_DV_2",
-    "MAN_DV_3",
-    ""
+    "COMMENT"
 };
 
-const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps] =
+const std::string CCSDSKeplerianElements::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSKeplerianElementsDataReps] =
 {
     "km",
     "",
@@ -40,23 +26,10 @@ const std::string CCSDSOPMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSOPMDataReps] =
     "deg",
     "deg",
     "km^3/s^2",
-    "",
-    "kg",
-    "m^2",
-    "",
-    "m^2",
-    "",
-    "",
-    "",
-    "kg",
-    "s",
-    "km/s",
-    "km/s",
-    "km/s",
     ""
 };
 
-const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataReps] =
+const std::string CCSDSKeplerianElements::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSKeplerianElementsDataReps] =
 {
     "Keplerian Elements Semimajor Axis",
     "Keplerian Elements Eccentricity",
@@ -66,40 +39,12 @@ const std::string CCSDSOPMObType::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSOPMDataR
     "Keplerian Elements True Anomaly",
     "Keplerian Elements Mean Anomaly",
     "Keplerian Elements Gravitational Coefficient",
-    "Keplerian Elements Comments",
-    "Spacecraft Parameters Mass",
-    "Spacecraft Parameters Solar Radiation Area",
-    "Spacecraft Parameters Solar Radiation Coefficient",
-    "Spacecraft Parameters Drag Area",
-    "Spacecraft Parameters Drag Coefficient",
-    "Spacecraft Parameters Comments",
-    "Maneuver Ref Ignition Epoch",
-    "Maneuver Duration",
-    "Maneuver Ref Delta Mass",
-    "Maneuver Ref Frame",
-    "Maneuver Ref DeltaV1",
-    "Maneuver Ref DeltaV2",
-    "Maneuver Ref DeltaV3",
-    "Maneuver Comments"
+    "Keplerian Elements Comments"
 };
 
-const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps] =
+const bool CCSDSKeplerianElements::CCSDS_IS_REQUIRED[EndCCSDSKeplerianElementsDataReps] =
 {
     true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
     true,
     true,
     true,
@@ -110,7 +55,7 @@ const bool CCSDSOPMObType::CCSDS_IS_REQUIRED[EndCCSDSOPMDataReps] =
     false
 };
 
-const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataReps] =
+const Gmat::ParameterType CCSDSKeplerianElements::CCSDS_PARAMETER_TYPE[EndCCSDSKeplerianElementsDataReps] =
 {
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -120,30 +65,17 @@ const Gmat::ParameterType CCSDSOPMObType::CCSDS_PARAMETER_TYPE[EndCCSDSOPMDataRe
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE
 };
 
 //------------------------------------------------------------------------------
-//  CCSDSOPMKeplerianElements()
+//  CCSDSKeplerianElements()
 //------------------------------------------------------------------------------
 /**
- * Constructor for the CCSDSOPMKeplerianElements class
+ * Constructor for the CCSDSKeplerianElements class
  */
 //------------------------------------------------------------------------------
-CCSDSOPMKeplerianElements::CCSDSOPMKeplerianElements() :
+CCSDSKeplerianElements::CCSDSKeplerianElements() :
     semiMajorAxis(0),
     eccentricity(0),
     inclination(0),
@@ -156,14 +88,14 @@ CCSDSOPMKeplerianElements::CCSDSOPMKeplerianElements() :
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSOPMKeplerianElements(const CCSDSOPMKeplerianElements &opmKE)
+//  CCSDSKeplerianElements(const CCSDSKeplerianElements &opmKE)
 //------------------------------------------------------------------------------
 /**
- * Constructor for the CCSDSOPMKeplerianElements class
+ * Constructor for the CCSDSKeplerianElements class
  */
 //------------------------------------------------------------------------------
-CCSDSOPMKeplerianElements::CCSDSOPMKeplerianElements
-               (const CCSDSOPMKeplerianElements &opmKE) :
+CCSDSKeplerianElements::CCSDSKeplerianElements
+               (const CCSDSKeplerianElements &opmKE) :
     semiMajorAxis(opmKE.semiMajorAxis),
     eccentricity(opmKE.eccentricity),
     inclination(opmKE.inclination),
@@ -176,19 +108,19 @@ CCSDSOPMKeplerianElements::CCSDSOPMKeplerianElements
 }
 
 //---------------------------------------------------------------------------
-//  CCSDSOPMKeplerianElements& operator=
-//                                   (const CCSDSOPMKeplerianElements &opmKE)
+//  CCSDSKeplerianElements& operator=
+//                                   (const CCSDSKeplerianElements &opmKE)
 //---------------------------------------------------------------------------
 /**
- * Assignment operator for CCSDSOPMKeplerianElements structures.
+ * Assignment operator for CCSDSKeplerianElements structures.
  *
  * @param <opmKE> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSOPMKeplerianElements& CCSDSOPMKeplerianElements::operator=
-                                     (const CCSDSOPMKeplerianElements &opmKE)
+const CCSDSKeplerianElements& CCSDSKeplerianElements::operator=
+                                     (const CCSDSKeplerianElements &opmKE)
 {
     if (&opmKE == this)
         return *this;
@@ -206,30 +138,289 @@ const CCSDSOPMKeplerianElements& CCSDSOPMKeplerianElements::operator=
 }
 
 //------------------------------------------------------------------------------
-//  ~CCSDSOPMKeplerianElements()
+//  ~CCSDSKeplerianElements()
 //------------------------------------------------------------------------------
 /**
- * Destructor for the CCSDSOPMKeplerianElements class
+ * Destructor for the CCSDSKeplerianElements class
  */
 //------------------------------------------------------------------------------
-CCSDSOPMKeplerianElements::~CCSDSOPMKeplerianElements()
+CCSDSKeplerianElements::~CCSDSKeplerianElements()
 {
 }
 
 //------------------------------------------------------------------------------
-//  GmatBase* Clone() const
+// Measurement Data Access functions
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the CCSDSKeplerianElements.
- *
- * @return clone of the CCSDSKeplerianElements.
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-GmatBase* CCSDSKeplerianElements::Clone() const
+std::string CCSDSKeplerianElements::GetDataParameterText(const Integer id) const
 {
-   GmatBase *clone = new CCSDSKeplerianElements(*this);
-   return (clone);
+   if ((id >= 0) && (id < EndCCSDSKeplerianElementsDataReps))
+   {
+      return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
+
+//------------------------------------------------------------------------------
+//  std::string  GetUnits(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSKeplerianElements::GetUnits(const Integer &id) const
+{
+   if ((id >= 0) && (id < EndCCSDSKeplerianElementsDataReps))
+   {
+      return CCSDS_UNIT_DESCRIPTIONS[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  GetDataParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Integer CCSDSKeplerianElements::GetDataParameterID(const std::string &str) const
+{
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSKeplerianElementsDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+	{
+	    return i;
+	}
+   }
+
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
+}
+
+
+//------------------------------------------------------------------------------
+//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Gmat::ParameterType CCSDSKeplerianElements::GetDataParameterType(const Integer id) const
+{
+   if ((id >= 0) && (id < EndCCSDSKeplerianElementsDataReps))
+      return CCSDS_PARAMETER_TYPE[id];
+
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
+}
+
+//---------------------------------------------------------------------------
+//  std::string GetDataParameterTypeString(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//---------------------------------------------------------------------------
+std::string CCSDSKeplerianElements::GetDataParameterTypeString(const Integer id) const
+{
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSKeplerianElements::GetRealDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+	case CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
+
+            return semiMajorAxis;
+
+	case CCSDS_KEPLERIANELEMENTS_ECCENTRICITY_ID:
+
+            return eccentricity;
+
+	case CCSDS_KEPLERIANELEMENTS_INCLINATION_ID:
+
+            return inclination;
+
+	case CCSDS_KEPLERIANELEMENTS_RAAN_ID:
+
+            return raan;
+
+	case CCSDS_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
+
+            return argumentOfPericenter;
+
+	case CCSDS_KEPLERIANELEMENTS_TRUEANOMALY_ID:
+
+            return theAnomaly.GetTrueAnomaly();
+
+	case CCSDS_KEPLERIANELEMENTS_MEANANOMALY_ID:
+
+            return theAnomaly.GetMeanAnomaly();
+
+	case CCSDS_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
+
+            return gravitationalCoefficient;
+
+        default:
+
+            return GmatBase::REAL_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Real CCSDSKeplerianElements::GetRealDataParameter(const std::string &label) const
+{
+   return GetRealDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringArrayDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSKeplerianElements::GetStringArrayDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+        case CCSDS_KEPLERIANELEMENTS_COMMENTS_ID:
+
+	    return comments;
+
+        default:
+
+            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// StringArray GetStringArrayDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+StringArray CCSDSKeplerianElements::GetStringArrayDataParameter(const std::string &label) const
+{
+   return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// const std::string* GetKeywords() const
+//------------------------------------------------------------------------------
+/**
+ * Returns the string array of allowable CCSDS OPM keywords
+ *
+ * @return String array of keywords.
+ *
+ */
+//------------------------------------------------------------------------------
+const std::string* CCSDSKeplerianElements::GetKeywords() const
+{
+   return CCSDS_KEPLERIANELEMENTS_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+//  const Integer GetKeywordID(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+const Integer CCSDSKeplerianElements::GetKeywordID(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSKeplerianElementsDataReps; i++)
+    {
+        if (pcrecpp::RE(regex).FullMatch(CCSDS_KEPLERIANELEMENTS_KEYWORDS[i]))
+            return i;
+    }
+
+   return -1;
+
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterRequired(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is required by the data format.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSKeplerianElements::IsParameterRequired(const Integer id) const
+{
+    if (id > 0 && id <= EndCCSDSKeplerianElementsDataReps)
+        return CCSDS_IS_REQUIRED[id];
+    else
+        return false;
+}
+
+//------------------------------------------------------------------------------
+//  bool CheckDataAvailability(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return true if successfull
+ */
+//------------------------------------------------------------------------------
+bool CCSDSKeplerianElements::CheckDataAvailability(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSKeplerianElementsDataReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+        {
+            return true;
+        }
+    }
+
+   return false;
+
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSObType *myOb)
 //------------------------------------------------------------------------------
@@ -242,7 +433,7 @@ GmatBase* CCSDSKeplerianElements::Clone() const
  * @return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSOPMKeplerianElements *myKeplerianElements)
+std::ostream& operator<< (std::ostream &output, const CCSDSKeplerianElements *myKeplerianElements)
 {
    using namespace std;
 

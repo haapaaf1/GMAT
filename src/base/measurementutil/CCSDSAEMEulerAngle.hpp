@@ -8,6 +8,8 @@
 #ifndef _CCSDSAEMEULERANGLE_HPP
 #define	_CCSDSAEMEULERANGLE_HPP
 
+#include "CCSDSEulerAngle.hpp"
+
 class CCSDSAEMEulerAngle : public CCSDSEulerAngle
 {
 
@@ -17,8 +19,6 @@ public:
     CCSDSAEMEulerAngle(const CCSDSAEMEulerAngle &aemEA);
     const CCSDSAEMEulerAngle& CCSDSAEMEulerAngle::operator=(const CCSDSAEMEulerAngle &aemEA);
     ~CCSDSAEMEulerAngle();
-
-    GmatBase *Clone() const;
 
     friend std::ostream& operator<< (std::ostream &output,
                                 const CCSDSAEMEulerAngle *myCCSDSAEMEulerAngle);

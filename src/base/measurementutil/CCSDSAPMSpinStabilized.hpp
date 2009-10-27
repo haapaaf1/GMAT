@@ -8,6 +8,8 @@
 #ifndef _CCSDSAPMSPINSTABILIZED_HPP
 #define	_CCSDSAPMSPINSTABILIZED_HPP
 
+#include "CCSDSSpinStabilized.hpp"
+
 class CCSDSAPMSpinStabilized : public CCSDSSpinStabilized
 {
 
@@ -17,8 +19,6 @@ public:
     CCSDSAPMSpinStabilized(const CCSDSAPMSpinStabilized &apmSS);
     const CCSDSAPMSpinStabilized& CCSDSAPMSpinStabilized::operator=(const CCSDSAPMSpinStabilized &apmSS);
     ~CCSDSAPMSpinStabilized();
-
-    GmatBase *Clone() const;
 
     friend std::ostream& operator<< (std::ostream &output,
                         const CCSDSAPMSpinStabilized *myCCSDSAPMSpinStabilized);
