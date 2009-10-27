@@ -122,7 +122,7 @@ FORTRAN = /usr/local/bin/gfortran
 
 PROFILE_FLAGS = -pg
 
-SOME_OPTIMIZATIONS = -O3 -funroll-loops -fno-rtti
+SOME_OPTIMIZATIONS = -O3 -funroll-loops 
 
 ifeq ($(USE_PROFILING), 1)
 OPTIMIZATIONS = $(SOME_OPTIMIZATIONS) $(PROFILE_FLAGS)
@@ -135,6 +135,9 @@ MAC_SPECIFIC = 1
 
 # For MacOS application
 ifeq ($(MAC_SPECIFIC),1)
+
+MAC_CPP_FLAGS=-current_version 0.5 -compatibility_version 0.5 -fvisibility=default
+
 ifeq ($(USE_MATLAB),1)
 EXECUTABLE 	= $(TOP_DIR)/bin/GMAT
 else
@@ -184,7 +187,7 @@ DEBUG_FLAGS =
 ifeq ($(USE_MATLAB),1)
 CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
            $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE)\
-           $(MATLAB_INCLUDE) $(IL_HEADERS) $(SHARED_BASE_FLAGS)\
+           $(MATLAB_INCLUDE) $(IL_HEADERS) $(SHARED_BASE_FLAGS) $(MAC_CPP_FLAGS)\
            -fpascal-strings -I/Developer/Headers/FlatCarbon  \
            -D__WXMAC__ $(WX_28_DEFINES) -fno-strict-aliasing -fno-common
 F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
@@ -193,7 +196,7 @@ F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
 TCPIP_OBJECTS =	$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabClient.o \
 				$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabConnection.o
 else
-CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(SHARED_BASE_FLAGS) \
+CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(SHARED_BASE_FLAGS) $(MAC_CPP_FLAGS) \
            $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
 F77_FLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
             $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
@@ -209,13 +212,13 @@ LINK_FLAGS = $(WXLINKFLAGS)\
              $(SPICE_LIBRARIES) -lm\
              $(FORTRAN_LIB) -framework OpenGL -framework AGL -headerpad_max_install_names\
              -lwx_mac_gl-2.8 $(IL_LIBRARIES) $(DEBUG_FLAGS)
-#             -lwx_mac_gl-2.8 -lg2c $(IL_LIBRARIES) $(DEBUG_FLAGS)
+#             -lwx_mac_gl-2.8 -lg2c $(IL_LIBRARIES) $(DEBUG_FLAGS) $(MAC_CPP_FLAGS)
 else
 LINK_FLAGS = $(WXLINKFLAGS)\
                $(FORTRAN_LIB) -framework OpenGL -framework AGL  -headerpad_max_install_names \
                $(SPICE_LIBRARIES) -lm\
              -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) 
-#             -lwx_mac_gl-2.8 -lg2c $(DEBUG_FLAGS) $(IL_LIBRARIES) 
+#             -lwx_mac_gl-2.8 -lg2c $(DEBUG_FLAGS) $(IL_LIBRARIES) $(MAC_CPP_FLAGS) 
 endif
 
 # currently cannot use MATLAB with console version
