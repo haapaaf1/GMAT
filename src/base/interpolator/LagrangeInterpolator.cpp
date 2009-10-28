@@ -50,11 +50,11 @@ LagrangeInterpolator::LagrangeInterpolator(const std::string &name, Integer dim,
    startPoint    (0),
    lastX         (-9.9999e75)
 {
-   // Made bufferSize 4 times bigger than order, so that we can collect more
+   // Made bufferSize 10 times bigger than order, so that we can collect more
    // data to place requested ind parameter in the near to the center of the
    // interpolation range.
    requiredPoints = order + 1;
-   bufferSize = requiredPoints * 4;
+   bufferSize = requiredPoints * 10;
    if (bufferSize > MAX_BUFFER_SIZE)
       bufferSize = MAX_BUFFER_SIZE;
    
@@ -283,7 +283,7 @@ bool LagrangeInterpolator::AddPoint(const Real ind, const Real *data)
    if (ind < previousX)
    {
       InterpolatorException ie;
-      ie.SetDetails("The independent data provided is not monotonic, current dada is %f, "
+      ie.SetDetails("The independent data provided is not monotonic, current data is %f, "
                     "previous data is %f", ind, previousX);
       throw ie;
    }
@@ -315,15 +315,31 @@ bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
    
    // Check for interpolation feasibility
    if (IsInterpolationFeasible(ind) != 1)
+   {
+      #ifdef DEBUG_LAGRANGE_INTERPOLATE
+      MessageInterface::ShowMessage
+         ("Lagrange::Interpolate() returnnig false, NOT feasible to interpolate at %f\n",
+          ind);
+      #endif
       return false;
+   }
    
    // Build data points
    BuildDataPoints(ind);
    
    // If not forcing interpolation, perfome more checking
    if (!forceInterpolation)
+   {
       if (!IsDataNearCenter(ind))
+      {
+         #ifdef DEBUG_LAGRANGE_INTERPOLATE
+         MessageInterface::ShowMessage
+            ("Lagrange::Interpolate() returnnig false, %f is NOT in near center\n",
+             ind);
+         #endif
          return false;
+      }
+   }
    
    // Find starting point that will put ind in the center
    FindStartingPoint(ind);
@@ -362,7 +378,7 @@ bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
    {
       results[dim] = estimates[dim];
       
-      #ifdef DEBUG_LAGRANGE_INTERPOLATE
+      #ifdef DEBUG_LAGRANGE_INTERPOLATE_MORE
       MessageInterface::ShowMessage("   results[%d] = %f\n", dim, results[dim]);
       #endif
    }
@@ -371,7 +387,8 @@ bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
    delete [] estimates;
    
    #ifdef DEBUG_LAGRANGE_INTERPOLATE
-   MessageInterface::ShowMessage("Lagrange::Interpolate() returning true\n");
+   MessageInterface::ShowMessage
+      ("Lagrange::Interpolate() returning true, first data = %f\n", results[0]);
    #endif
    
    return true;

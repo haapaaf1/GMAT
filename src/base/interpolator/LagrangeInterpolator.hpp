@@ -41,7 +41,7 @@ public:
    virtual GmatBase*    Clone() const;
    
 protected:
-   static const Integer MAX_BUFFER_SIZE = 32;
+   static const Integer MAX_BUFFER_SIZE = 80;
    
    /// Order of interpolation
    Integer order;
