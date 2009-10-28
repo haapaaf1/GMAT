@@ -102,6 +102,7 @@ Subscriber::Subscriber(std::string typeStr, std::string nomme) :
    isEndOfReceive(false),
    isEndOfRun(false),
    isInitialized(false),
+   isFinalized(false),
    runstate(Gmat::IDLE),
    currentProvider(0)
 {
@@ -129,6 +130,7 @@ Subscriber::Subscriber(const Subscriber &copy) :
    isEndOfReceive(copy.isEndOfReceive),
    isEndOfRun(copy.isEndOfRun),
    isInitialized(copy.isInitialized),
+   isFinalized(copy.isFinalized),
    runstate(copy.runstate),
    currentProvider(copy.currentProvider),
    wrapperObjectNames(copy.wrapperObjectNames)
@@ -173,6 +175,7 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    isEndOfReceive = rhs.isEndOfReceive;
    isEndOfRun = rhs.isEndOfRun;
    isInitialized = rhs.isInitialized;
+   isFinalized = rhs.isFinalized;
    runstate = rhs.runstate;
    currentProvider = rhs.currentProvider;
    theInternalCoordSystem = NULL;
@@ -239,6 +242,8 @@ bool Subscriber::Initialize()
 {
    isEndOfReceive = false;
    isEndOfRun = false;
+   isInitialized = false;
+   isFinalized = false;
    return true;
 }
 
