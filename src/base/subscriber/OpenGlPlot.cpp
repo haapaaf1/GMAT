@@ -1196,16 +1196,47 @@ Integer OpenGlPlot::SetIntegerParameter(const Integer id, const Integer value)
    switch (id)
    {
    case DATA_COLLECT_FREQUENCY:
-      mDataCollectFrequency = value;
-      if (mDataCollectFrequency <= 0)
-         mDataCollectFrequency = 1;
-      return mDataCollectFrequency;
+      if (value > 0)
+      {
+         mDataCollectFrequency = value;
+         return value;
+      }
+      else
+      {
+         SubscriberException se;
+         se.SetDetails(errorMessageFormat.c_str(),
+                       GmatStringUtil::ToString(value, 1).c_str(),
+                       "DataCollectFrequency", "Integer Number > 0");
+         throw se;
+      }
    case UPDATE_PLOT_FREQUENCY:
-      mUpdatePlotFrequency = value;
-      return value;
+      if (value > 0)
+      {
+         mUpdatePlotFrequency = value;
+         return value;
+      }
+      else
+      {
+         SubscriberException se;
+         se.SetDetails(errorMessageFormat.c_str(),
+                       GmatStringUtil::ToString(value, 1).c_str(),
+                       "UpdatePlotFrequency", "Integer Number > 0");
+         throw se;
+      }
    case NUM_POINTS_TO_REDRAW:
-      mNumPointsToRedraw = value;
-      return value;
+      if (value >= 0)
+      {
+         mNumPointsToRedraw = value;
+         return value;
+      }
+      else
+      {
+         SubscriberException se;
+         se.SetDetails(errorMessageFormat.c_str(),
+                       GmatStringUtil::ToString(value, 1).c_str(),
+                       "NumPointsToRedraw", "Integer Number >= 0");
+         throw se;
+      }
    default:
       return Subscriber::SetIntegerParameter(id, value);
    }
