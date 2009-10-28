@@ -27,7 +27,7 @@ Procedure:
 
    Close Spacecraft Resource                 [ ] Pass  [ ] Fail  Bug# ______
 
-   Delete spacecraft Resource                [ ] Pass  [ ] Fail  Bug# ______
+   Delete Spacecraft Resource                [ ] Pass  [ ] Fail  Bug# ______
 
    Clone Spacecraft Resource                 [ ] Pass  [ ] Fail  Bug# ______
 

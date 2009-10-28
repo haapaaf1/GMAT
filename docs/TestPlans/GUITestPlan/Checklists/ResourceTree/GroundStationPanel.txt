@@ -1,0 +1,106 @@
+$Id: GroundStationPanel.txt,v 1.4 2009/10/08 08:00:00 jbez Exp $ 
+
+
+Tester: _____________  Date: ____________  Build: ____________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the GroundStation Attitude panel.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Add and open the appropriate object panel.
+                                                                                
+   Add GroundStation Resource                [ ] Pass  [ ] Fail  Bug# ______
+
+   Open GroundStation Resource               [ ] Pass  [ ] Fail  Bug# ______
+
+   Close GroundStation Resource              [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete GroundStation Resource             [ ] Pass  [ ] Fail  Bug# ______
+
+   Clone GroundStation Resource              [ ] Pass  [ ] Fail  Bug# ______
+
+   
+2. Evaluate the aesthetic qualities of the panel.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual panel elements.
+
+   Central Body Combo Box                    [ ] Pass  [ ] Fail  Bug# ______
+
+   State Type Combo Box                      [ ] Pass  [ ] Fail  Bug# ______
+
+   Horizion Reference Combo Box              [ ] Pass  [ ] Fail  Bug# ______
+
+   Location 1,2 3 Field                      [ ] Pass  [ ] Fail  Bug# ______
+
+   Id Text Field                             [ ] Pass  [ ] Fail  Bug# ______
+            
+
+4. Evaluate panel-specific functionality.
+
+   N/A
+   
+
+5. Evaluate data.
+   
+   Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Script                               [ ] Pass  [ ] Fail  Bug# ______
+
+
+6. Evaluate panel control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Cancel                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Apply                                     [ ] Pass  [ ] Fail  Bug# ______
+
+   OK (Save)                                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Help [DEFERRED]
+   
+   Restore                                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Minimize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Rename (on resource tree)                 [ ] Pass  [ ] Fail  Bug# ______
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+

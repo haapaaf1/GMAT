@@ -23,8 +23,6 @@ Procedure:
                                                                                 
    Add Thruster Resource                     [ ] Pass  [ ] Fail  Bug# ______
 
-   Add Tank Resource(s)                      [ ] Pass  [ ] Fail  Bug# ______
-
    Open Thruster Resource                    [ ] Pass  [ ] Fail  Bug# ______
    
    Close Thruster Resource                   [ ] Pass  [ ] Fail  Bug# ______

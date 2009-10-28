@@ -1,7 +1,7 @@
 $Id: FiniteBurnPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -19,14 +19,18 @@ This test validates the functionality of the Finite Burn panel.
 
 Procedure:
 
-1. Create and open the appropriate object panel.
+1. Add and open the appropriate object panel.
                                                                                 
-   Create Finite Burn Resource               [ ] Pass  [ ] Fail  Bug# ______
-
-   Create Thruster Resource(s)               [ ] Pass  [ ] Fail  Bug# ______
+   Add Finite Burn Resource                  [ ] Pass  [ ] Fail  Bug# ______
 
    Open Finite Burn Resource                 [ ] Pass  [ ] Fail  Bug# ______
    
+   Close Finite Burn Resource                [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete Finite Burn Resource               [ ] Pass  [ ] Fail  Bug# ______
+
+   Clone Finite Burn Resource                [ ] Pass  [ ] Fail  Bug# ______
+
 
 2. Evaluate the aesthetic qualities of the panel.
 
@@ -35,15 +39,9 @@ Procedure:
 
 3. Evaluate the individual panel elements.
 
-   Origin Combo Box                          [ ] Pass  [ ] Fail  Bug# ______
-
-   Axes Combo Box                            [ ] Pass  [ ] Fail  Bug# ______
-
    Use Thruster Combo Box                    [ ] Pass  [ ] Fail  Bug# ______
 
-   Burn Scale Factor Text Field              [ ] Pass  [ ] Fail  Bug# ______
    
-
 4. Evaluate panel-specific functionality.
 
    N/A

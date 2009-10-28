@@ -25,13 +25,13 @@ Procedure:
 
    Open FuelTank Resource                    [ ] Pass  [ ] Fail  Bug# ______
    
-   Close Thruster Resource                   [ ] Pass  [ ] Fail  Bug# ______
+   Close FuelTank Resource                   [ ] Pass  [ ] Fail  Bug# ______
    
-   Clone Thruster Resource                   [ ] Pass  [ ] Fail  Bug# ______
+   Clone FuelTank Resource                   [ ] Pass  [ ] Fail  Bug# ______
    
-   Rename Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
+   Rename FuelTank Resource                  [ ] Pass  [ ] Fail  Bug# ______
 
-   Delete Thruster Resource                  [ ] Pass  [ ] Fail  Bug# ______
+   Delete FuelTank Resource                  [ ] Pass  [ ] Fail  Bug# ______
 
 
 2. Evaluate the aesthetic qualities of the panel.

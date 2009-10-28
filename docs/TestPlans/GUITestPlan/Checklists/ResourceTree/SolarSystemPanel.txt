@@ -1,7 +1,7 @@
 $Id: SolarSystemPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -19,11 +19,11 @@ This test validates the functionality of the Solar System panel.
 
 Procedure:
 
-1. Create and open the appropriate object panel.
+1. Open the appropriate object panel.
                                                                                 
-   Create SolarSystem Resource               [ ] Pass  [ ] Fail  Bug# ______
+   Open SolarSystem Resource                  [ ] Pass  [ ] Fail  Bug# ______
 
-   Open SolarSystem Resource                 [ ] Pass  [ ] Fail  Bug# ______
+   Close SolarSystem Resource                 [ ] Pass  [ ] Fail  Bug# ______
    
 
 2. Evaluate the aesthetic qualities of the panel.
@@ -35,21 +35,9 @@ Procedure:
 
    Ephemeris Update Interval Text Field      [ ] Pass  [ ] Fail  Bug# ______
 
-   Available Planetary Source List           [ ] Pass  [ ] Fail  Bug# ______
+   Ephemeris Source List                     [ ] Pass  [ ] Fail  Bug# ______
 
-   Selected Planetary Source List            [ ] Pass  [ ] Fail  Bug# ______
-
-   -> (Add) Selection Button                 [ ] Pass  [ ] Fail  Bug# ______
-
-   <- (Remove) Selection Button              [ ] Pass  [ ] Fail  Bug# ______
-
-   <= (Remove All) Selection Button          [ ] Pass  [ ] Fail  Bug# ______
-
-   Prioritize Selection Button               [ ] Pass  [ ] Fail  Bug# ______
-
-   Planetary Source Combo Box                [ ] Pass  [ ] Fail  Bug# ______
-
-   File Name Text Field                      [ ] Pass  [ ] Fail  Bug# ______
+   Ephemeris File Name Text Field            [ ] Pass  [ ] Fail  Bug# ______
 
    Browse (File Select) Action Button        [ ] Pass  [ ] Fail  Bug# ______
 
@@ -91,7 +79,7 @@ Procedure:
 
 7. Evaluate rename functionality.
 
-   Rename (on resource tree)                 [ ] Pass  [ ] Fail  Bug# ______
+   n/a 
 
 
 Summary: 
