@@ -95,6 +95,7 @@ public:
    void ResetPlotInfo();
    void RedrawPlot(bool viewAnimation);
    void ShowDefaultView();
+   void RotatePlot(int width, int height, int mouseX, int mouseY);
    void ZoomIn();
    void ZoomOut();
    void DrawWireFrame(bool flag);
@@ -294,10 +295,20 @@ private:
    // data
    int  mNumData;
    int  mTotalPoints;
-   int  mBegIndex;
+   int  mCurrIndex;
+   int  mBeginIndex1;
+   int  mBeginIndex2;
+   int  mEndIndex1;
+   int  mEndIndex2;
+   int  mRealBeginIndex1;
+   int  mRealBeginIndex2;
+   int  mRealEndIndex1;
+   int  mRealEndIndex2;
+   int  mLastIndex;
    bool mIsEndOfData;
    bool mIsEndOfRun;
    bool mIsFirstRun;
+   bool mWriteWarning;
    
    // time
    Real mTime[MAX_DATA];
@@ -403,6 +414,9 @@ private:
    // initialize
    void InitializeViewPoint();
    
+   // for data buffer indexing
+   void ComputeActualIndex();
+   
    // texture
    bool LoadGLTextures();
    bool LoadBodyTextures();
@@ -415,9 +429,9 @@ private:
    void ComputeView(GLfloat fEndX, GLfloat fEndY);
    void ChangeView(float viewX, float viewY, float viewZ);
    void ChangeProjection(int width, int height, float axisLength);
-   void ComputeViewVectors(int frame);
-   void ComputeUpAngleAxis(int frame);
-   void TransformView(int frame);
+   void ComputeViewVectors();
+   void ComputeUpAngleAxis();
+   void TransformView();
    
    // drawing objects
    void DrawFrame();
@@ -425,14 +439,19 @@ private:
    void DrawSphere(GLdouble radius, GLint slices, GLint stacks, GLenum style,
                    GLenum orientation = GLU_OUTSIDE, GLenum normals = GL_SMOOTH,
                    GLenum textureCoords = GL_TRUE);
-   void DrawObject(const wxString &objName, int frame);
-   void DrawObjectOrbit(int frame);
+   void DrawObject(const wxString &objName);
+   void DrawObjectOrbit();
+   void DrawOrbit(const wxString &objName, int obj, int objId);
+   void DrawOrbitLines(int i, const wxString &objName, int obj, int objId);
+   void DrawOrbitNormal(const wxString &objName, int obj, int objId);
+   void DrawOrbitNormalLines(int i, const wxString &objName, int obj, int objId);
+   void DrawObjectTexture(const wxString &objName, int obj, int objId);
    void DrawSolverData();
    void DrawObjectOrbitNormal(int objId, int frame, UnsignedInt color);
    void DrawSpacecraft(UnsignedInt scColor);
    void DrawEquatorialPlane(UnsignedInt color);
    void DrawEclipticPlane(UnsignedInt color);
-   void DrawSunLine(int frame);
+   void DrawSunLine();
    void DrawAxes();
    void DrawStatus(const wxString &label1, int frame, const wxString &label2,
                    double time, int xpos = 0, int ypos = 0,
@@ -447,8 +466,19 @@ private:
    
    // for object
    int  GetObjectId(const wxString &name);
-   void ClearObjectArrays();
+   void ClearObjectArrays(bool deleteArrays = true);
    bool CreateObjectArrays();
+   
+   // for data update
+   void UpdateSolverData(const RealArray &posX, const RealArray &posY,
+                         const RealArray &posZ, const UnsignedIntArray &scColors,
+                         bool solving);
+   void UpdateSpacecraftData(const Real &time,
+                             const RealArray &posX, const RealArray &posY,
+                             const RealArray &posZ, const RealArray &velX,
+                             const RealArray &velY, const RealArray &velZ,
+                             const UnsignedIntArray &scColors, Integer solverOption);
+   void UpdateOtherData(const Real &time);
    
    // for coordinate system
    bool TiltOriginZAxis();

@@ -111,7 +111,7 @@ using namespace FloatAttUtil;
 //#define DEBUG_TRAJCANVAS_UPDATE_OBJECT 2
 //#define DEBUG_TRAJCANVAS_ACTION 1
 //#define DEBUG_TRAJCANVAS_CONVERT 1
-//#define DEBUG_TRAJCANVAS_DRAW 2
+//#define DEBUG_TRAJCANVAS_DRAW 1
 //#define DEBUG_TRAJCANVAS_ZOOM 1
 //#define DEBUG_TRAJCANVAS_OBJECT 2
 //#define DEBUG_TRAJCANVAS_TEXTURE 2
@@ -122,6 +122,8 @@ using namespace FloatAttUtil;
 //#define DEBUG_TRAJCANVAS_LONGITUDE 1
 //#define DEBUG_SHOW_SKIP 1
 //#define DEBUG_ROTATE 1
+//#define DEBUG_DATA_BUFFERRING
+//#define DEBUG_ORBIT_LINES
 
 BEGIN_EVENT_TABLE(TrajPlotCanvas, wxGLCanvas)
    EVT_SIZE(TrajPlotCanvas::OnTrajSize)
@@ -218,22 +220,6 @@ TrajPlotCanvas::TrajPlotCanvas(wxWindow *parent, wxWindowID id,
    // viewpoint
    InitializeViewPoint();
    
-//    mViewPointRefObjName = "UNKNOWN";
-//    pViewPointRefObj = NULL;
-//    pViewPointVectorObj = NULL;
-//    pViewDirectionObj = NULL;
-//    mViewPointRefVector.Set(0.0, 0.0, 0.0);
-//    mViewPointVector.Set(0.0, 0.0, 30000.0);
-//    mViewDirectionVector.Set(0.0, 0.0, -1.0);
-//    mVpLocVec.Set(0.0, 0.0, 30000.0);
-//    mViewScaleFactor = 1.0;
-//    mUseViewPointRefVector = true;
-//    mUseViewPointVector = true;
-//    mUseViewDirectionVector = true;
-//    mVpRefObjId = UNKNOWN_OBJ_ID;
-//    mVpVecObjId = UNKNOWN_OBJ_ID;
-//    mVdirObjId = UNKNOWN_OBJ_ID;
-   
    // devault view
    mCanvasSize = size;
    mDefaultRotXAngle = 90.0;
@@ -311,15 +297,9 @@ TrajPlotCanvas::TrajPlotCanvas(wxWindow *parent, wxWindowID id,
    
    // objects
    mObjectDefaultRadius = 200; //km: make big enough to see
-   mObjectRadius = NULL;
-   mObjMaxZoomIn = NULL;
-   mObjLastFrame = NULL;
-   mDrawOrbitFlag = NULL;
-   mObjectOrbitColor = NULL;
-   mObjectGciPos = NULL;
-   mObjectGciVel= NULL;
-   mObjectViewPos = NULL;
-   mObjectViewVel= NULL;
+
+   // Initialize arrays to NULL
+   ClearObjectArrays(false);
    
    // Zoom
    mMaxZoomIn = MAX_ZOOM_IN;
@@ -516,8 +496,10 @@ void TrajPlotCanvas::SetEndOfRun(bool flag)
             break;
       }
       
-      int index = objId * MAX_DATA * 3 + (mNumData-1) * 3;
-      Real time = mTime[mNumData-1];
+      //int index = objId * MAX_DATA * 3 + (mNumData-1) * 3;
+      int index = objId * MAX_DATA * 3 + mLastIndex * 3;
+      //Real time = mTime[mNumData-1];
+      Real time = mTime[mLastIndex];
       Real x = mObjectViewPos[index+0];
       Real y = mObjectViewPos[index+1];;
       Real lst, longitude, mha;
@@ -645,10 +627,20 @@ void TrajPlotCanvas::ResetPlotInfo()
 {
    mNumData = 0;
    mTotalPoints = 0;
-   mBegIndex = 0;
+   mCurrIndex = -1;
+   mBeginIndex1 = 0;
+   mBeginIndex2 = -1;
+   mEndIndex1 = -1;
+   mEndIndex2 = -1;
+   mRealBeginIndex1 = 0;
+   mRealBeginIndex2 = -1;
+   mRealEndIndex1 = -1;
+   mRealEndIndex2 = -1;
+   mLastIndex = 0;
    mOverCounter = 0;
    mIsEndOfData = false;
    mIsEndOfRun = false;
+   mWriteWarning = true;
    
    // Initialize view
    if (mUseInitialViewPoint)
@@ -667,6 +659,11 @@ void TrajPlotCanvas::ResetPlotInfo()
 //------------------------------------------------------------------------------
 void TrajPlotCanvas::RedrawPlot(bool viewAnimation)
 {
+   #ifdef DEBUG_REDRAW
+   MessageInterface::ShowMessage
+      ("TrajPlotCanvas::RedrawPlot() entered, viewAnimation=%d\n", viewAnimation);
+   #endif
+   
    if (mAxisLength < mMaxZoomIn)
    {
       mAxisLength = mMaxZoomIn;
@@ -674,7 +671,7 @@ void TrajPlotCanvas::RedrawPlot(bool viewAnimation)
          ("TrajPlotCanvas::RedrawPlot() distance < max zoom in. distance set to %f\n",
           mAxisLength);
    }
-
+   
    if (viewAnimation)
       ViewAnimation(mUpdateInterval, mFrameInc);
    else
@@ -699,6 +696,67 @@ void TrajPlotCanvas::ShowDefaultView()
    ChangeView(mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
    ChangeProjection(clientWidth, clientHeight, mAxisLength);
    Refresh(false);
+}
+
+
+//------------------------------------------------------------------------------
+// void RotatePlot(int width, int height, int mouseX, int mouseY)
+//------------------------------------------------------------------------------
+/**
+ * Rotates plot
+ */
+//------------------------------------------------------------------------------
+void TrajPlotCanvas::RotatePlot(int width, int height, int mouseX, int mouseY)
+{
+   //=======================================================
+   #ifdef USE_TRACKBALL
+   //=======================================================
+   
+   // drag in progress, simulate trackball
+   float spinQuat[4];
+   
+   ToQuat(spinQuat,
+          (2.0*mLastMouseX - width) / width,
+          (     height - 2.0*mLastMouseY) / height,
+          (     2.0*mouseX - width) / width,
+          (     height - 2.0*mouseY) / height);
+   
+   AddQuats(spinQuat, mQuat, mQuat);
+   
+   #if DEBUG_ROTATE
+   MessageInterface::ShowMessage
+      ("OnMouse() w=%d, h=%d, mLastMouseX=%d, mLastMouseY=%d, "
+       "mouseX=%d, mouseY=%d\n", width, height, mLastMouseX,
+       mLastMouseY, mouseX, mouseY);
+   MessageInterface::ShowMessage
+      ("OnMouse=% f, % f, % f, % f\n", mQuat[0], mQuat[1], mQuat[2],
+       mQuat[3]);
+   #endif
+   
+   //=======================================================
+   #else
+   //=======================================================
+   
+   #if DEBUG_ROTATE
+   MessageInterface::ShowMessage
+      ("   event.LeftIsDown() mCurrRotXYZAngle=%f, %f, %f\n",
+       mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
+   #endif
+   
+   // if end-of-run compute new mfCamRotXYZAngle by calling ChangeView()
+   if (mIsEndOfRun)
+      ChangeView(mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
+   
+   ComputeView(fEndX, fEndY);
+   ChangeView(mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
+   
+   //MessageInterface::ShowMessage
+   //   ("===> after ChangeView() mfCamRotXYZAngle=%f, %f, %f\n",
+   //    mfCamRotXAngle, mfCamRotYAngle, mfCamRotZAngle);
+   
+   //=======================================================
+   #endif
+   //=======================================================
 }
 
 
@@ -902,7 +960,8 @@ void TrajPlotCanvas::GotoObject(const wxString &objName)
    }
    else
    {
-      int index = objId * MAX_DATA * 3 + (mNumData-1) * 3;
+      //int index = objId * MAX_DATA * 3 + (mNumData-1) * 3;
+      int index = objId * MAX_DATA * 3 + mLastIndex * 3;
       // compute mAxisLength
       Rvector3 pos(mObjectViewPos[index+0], mObjectViewPos[index+1],
                    mObjectViewPos[index+2]);
@@ -1387,6 +1446,11 @@ void TrajPlotCanvas::SetUpdateFrequency(Integer updFreq)
  * @param <velY> velocity y array
  * @param <velZ> velocity z array
  * @param <scColors> orbit color array
+ * @param <solving> true if GMAT is running solver
+ * @param <solverOption> solver iteration drawing option can be one of following:
+ *           0 (Subscriber::SI_ALL)     = Draw all iteration
+ *           1 (Subscriber::SI_CURRENT) = Draw current iteration only
+ *           2 (Subscriber::SI_NONE)    = Draw no iteration
  */
 //------------------------------------------------------------------------------
 void TrajPlotCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
@@ -1400,11 +1464,15 @@ void TrajPlotCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
    mScNameArray = scNames;
    mTotalPoints++;
    
+   if (mNumData < MAX_DATA)
+      mNumData++;
+   
    if (mScCount > MAX_SCS)
       mScCount = MAX_SCS;
    
    #if DEBUG_TRAJCANVAS_UPDATE
-   static int sNumDebugOutput = 1000;
+   MessageInterface::ShowMessage
+      ("=====================================================\n");
    MessageInterface::ShowMessage
       ("TrajPlotCanvas::UpdatePlot() plot=%s, time=%f, posX=%f, mNumData=%d, "
        "mScCount=%d, scColor=%u, solving=%d, solverOption=%d\n", GetName().c_str(),
@@ -1419,39 +1487,7 @@ void TrajPlotCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
    // separately here since it will be shown temporarily during the run
    //-----------------------------------------------------------------
    if (solverOption == 1)
-   {
-      if (solving)
-      {
-         mDrawSolverData = true;
-         RealArray tempSolverX, tempSolverY, tempSolverZ;
-         
-         for (int sc=0; sc<mScCount; sc++)
-         {
-            int satId = GetObjectId(mScNameArray[sc].c_str());
-            if (satId != UNKNOWN_OBJ_ID)
-            {
-               // if we are not drawing this spacecraft, skip
-               if (!mDrawOrbitArray[satId])
-                  continue;
-               
-               tempSolverX.push_back(posX[sc]);
-               tempSolverY.push_back(posY[sc]);
-               tempSolverZ.push_back(posZ[sc]);
-            }
-         }
-         
-         mSolverAllPosX.push_back(tempSolverX);
-         mSolverAllPosY.push_back(tempSolverY);
-         mSolverAllPosZ.push_back(tempSolverZ);
-         mSolverIterColorArray = scColors;
-      }
-      else
-      {
-         mSolverAllPosX.clear();
-         mSolverAllPosY.clear();
-         mSolverAllPosZ.clear();
-      }
-   }
+      UpdateSolverData(posX, posY, posZ, scColors, solving);
    
    // If drawing solver's current iteration and no run data has been
    // bufferred up, save up to 2 points so that it will still go through
@@ -1463,248 +1499,91 @@ void TrajPlotCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
    // Buffer data for plot
    //-----------------------------------------------------------------
    
-   #if DEBUG_TRAJCANVAS_UPDATE
-   MessageInterface::ShowMessage("===> add to all buffer\n");
-   #endif
+   mCurrIndex++;
    
-   if (mNumData < MAX_DATA)
+   if (mCurrIndex < MAX_DATA)
    {
-      mTime[mNumData] = time;
-      Real mha, longitude, lst;
-      ComputeLongitudeLst(mTime[mNumData], posX[0], posY[0], &mha, &longitude, &lst);
-      
-      #if DEBUG_TRAJCANVAS_LONGITUDE
-      MessageInterface::ShowMessage
-         ("   time=%f, mNumData=%d, mha=%f, longitude=%f, lst = %f\n",
-          mTime[mNumData], mNumData, mha, longitude, lst);
-      #endif
-      
-      if (mNumData == 0)
+      mEndIndex1 = mNumData - 1;
+      if (mEndIndex2 != -1)
       {
-         mInitialLongitude = longitude;
-         mInitialMha = mha;
-         #if DEBUG_TRAJCANVAS_LONGITUDE
-         MessageInterface::ShowMessage
-            ("TrajPlotCanvas::UpdatePlot() mInitialLongitude = %f, mInitialMha = %f\n",
-             mInitialLongitude, mInitialMha);
-         #endif
-      }
-      
-      //-------------------------------------------------------
-      // update spacecraft position
-      //-------------------------------------------------------
-      for (int sc=0; sc<mScCount; sc++)
-      {
-         int satId = GetObjectId(mScNameArray[sc].c_str());
+         mBeginIndex1++;
+         if (mBeginIndex1 + 1 > MAX_DATA)
+            mBeginIndex1 = 0;
          
-         #if DEBUG_TRAJCANVAS_UPDATE
-         MessageInterface::ShowMessage
-            ("TrajPlotCanvas::UpdatePlot() running, satId=%d, scName=%s\n", satId,
-             mObjectNames[satId].c_str());
-         #endif
-         
-         if (satId != UNKNOWN_OBJ_ID)
-         {
-            if (!mDrawOrbitArray[satId])
-            {
-               mDrawOrbitFlag[satId*MAX_DATA+mNumData] = false;
-               MessageInterface::ShowMessage("===> mDrawOrbitArray[satId] is NULL\n");
-               continue;
-            }
-            
-            mDrawOrbitFlag[satId*MAX_DATA+mNumData] = true;
-            
-            // If drawing solver's current iteration only, we don't want to draw
-            // first 3 points since these points have solver data.
-            if (mDrawSolverData || (solverOption == 1 && mNumData == 2))
-               mDrawOrbitFlag[satId*MAX_DATA+mNumData] = false;
-            
-            mObjectOrbitColor[satId*MAX_DATA+mNumData] = scColors[sc];
-            
-            int index = satId * MAX_DATA * 3 + (mNumData*3);
-            mObjectViewPos[index+0] = posX[sc];
-            mObjectViewPos[index+1] = posY[sc];
-            mObjectViewPos[index+2] = posZ[sc];            
-            mObjectViewVel[index+0] = velX[sc];
-            mObjectViewVel[index+1] = velY[sc];
-            mObjectViewVel[index+2] = velZ[sc];
-            
-            #if DEBUG_TRAJCANVAS_UPDATE
-            if (mNumData < sNumDebugOutput)
-            {
-               int colorIndex = satId*MAX_DATA+mNumData;
-               MessageInterface::ShowMessage
-                  ("   satId=%d, object=%s, index=%u, color=%u\n", satId,
-                   mObjectNames[satId].c_str(), colorIndex, mObjectOrbitColor[colorIndex]);
-               MessageInterface::ShowMessage
-                  ("   satId:%d index=%d, gcipos = %f, %f, %f\n", satId,
-                   index, mObjectViewPos[index+0], mObjectViewPos[index+1],
-                   mObjectViewPos[index+2]);
-            }
-            #endif
-            
-            // if need to convert to internal coordiante system (EarthMJ2000Eq)
-            if (mViewCsIsInternalCs)
-            {
-               CopyVector3(&mObjectGciPos[index], &mObjectViewPos[index]);
-               CopyVector3(&mObjectGciVel[index], &mObjectViewVel[index]);
-            }
-            else
-            {
-               Rvector6 satState(posX[sc], posY[sc], posZ[sc], velX[sc], velY[sc], velZ[sc]);
-               Rvector6 outState;
-               
-               mCoordConverter.Convert(time, satState, pViewCoordSystem,
-                                       outState, pInternalCoordSystem);
-               
-               mObjectGciPos[index+0] = outState[0];
-               mObjectGciPos[index+1] = outState[1];
-               mObjectGciPos[index+2] = outState[2];                  
-               mObjectGciVel[index+0] = outState[3];
-               mObjectGciVel[index+1] = outState[4];
-               mObjectGciVel[index+2] = outState[5];
-            }
-            
-            #if DEBUG_TRAJCANVAS_UPDATE
-            if (mNumData < sNumDebugOutput)
-            {
-               MessageInterface::ShowMessage
-                  ("   satId:%d index=%d, tmppos = %f, %f, %f\n", satId, index,
-                   mObjectViewPos[index+0], mObjectViewPos[index+1],
-                   mObjectViewPos[index+2]);
-            }
-            #endif
-            
-            #if DEBUG_TRAJCANVAS_UPDATE > 1
-            if (mNumData < sNumDebugOutput)
-            {
-               MessageInterface::ShowMessage
-                  ("   satId:%d tmpvel = %f, %f, %f\n", satId,
-                   mObjectViewVel[index+0], mObjectViewVel[index+1],
-                   mObjectViewVel[index+2]);
-            }
-            #endif
-         }
-      }
-      
-      
-      //----------------------------------------------------
-      // update non-spacecraft objects position
-      //----------------------------------------------------
-      for (int obj=0; obj<mObjectCount; obj++)
-      {
-         // if object pointer is not NULL and not a spacecraft
-         if (mObjectArray[obj] && mObjectArray[obj]->GetType() != Gmat::SPACECRAFT)
-         {
-            int objId = GetObjectId(mObjectNames[obj]);
-            
-            #if DEBUG_TRAJCANVAS_UPDATE_OBJECT
-            MessageInterface::ShowMessage
-               ("TrajPlotCanvas::UpdatePlot() objId=%d, obj=%s\n", objId,
-                mObjectNames[objId].c_str());
-            #endif
-            
-            // if object id found
-            if (objId != UNKNOWN_OBJ_ID)
-            {
-               if (!mDrawOrbitArray[objId])
-               {
-                  mDrawOrbitFlag[objId*MAX_DATA+mNumData] = false;
-                  continue;
-               }
-               
-               mDrawOrbitFlag[objId*MAX_DATA+mNumData] = true;               
-               Rvector6 objState = mObjectArray[obj]->GetMJ2000State(time);               
-               int index = objId * MAX_DATA * 3 + (mNumData*3);
-               
-               mObjectGciPos[index+0] = objState[0];
-               mObjectGciPos[index+1] = objState[1];
-               mObjectGciPos[index+2] = objState[2];
-               mObjectGciVel[index+0] = objState[3];
-               mObjectGciVel[index+1] = objState[4];
-               mObjectGciVel[index+2] = objState[5];
-               
-               #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
-               MessageInterface::ShowMessage
-                  ("TrajPlotCanvas::UpdatePlot() %s, index=%d, objState=%s\n",
-                   mObjectNames[obj].c_str(), index, objState.ToString().c_str());
-               #endif
-               
-               // convert objects to view CoordinateSystem
-               if (mViewCsIsInternalCs)
-               {
-                  CopyVector3(&mObjectViewPos[index], &mObjectGciPos[index]);
-                  CopyVector3(&mObjectViewVel[index], &mObjectGciVel[index]);
-               }
-               else
-               {
-                  Rvector6 outState;
-                  
-                  mCoordConverter.Convert(time, objState, pInternalCoordSystem,
-                                          outState, pViewCoordSystem);
-                  
-                  mObjectViewPos[index+0] = outState[0];
-                  mObjectViewPos[index+1] = outState[1];
-                  mObjectViewPos[index+2] = outState[2];                  
-                  mObjectViewVel[index+0] = outState[3];
-                  mObjectViewVel[index+1] = outState[4];
-                  mObjectViewVel[index+2] = outState[5];
-               }
-               
-               #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
-               MessageInterface::ShowMessage
-                  ("    %s index=%d, tmppos = %f, %f, %f\n", mObjectNames[obj].c_str(),
-                   index, mObjectViewPos[index+0], mObjectViewPos[index+1],
-                   mObjectViewPos[index+2]);
-               #endif
-               
-            }
-            else
-            {
-               #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
-               MessageInterface::ShowMessage
-                  ("TrajPlotCanvas::UpdatePlot() Cannot Add data. Invalid objId=%d\n",
-                   objId);
-               #endif
-            }
-         }
-         else
-         {
-            #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
-            if (mObjectArray[obj] == NULL)
-            {
-               MessageInterface::ShowMessage
-                  ("TrajPlotCanvas::UpdatePlot() Cannot add data. %s is NULL\n",
-                   mObjectNames[obj].c_str());
-            }
-            #endif
-         }
-      }
-      
-      mNumData++;
-   } // if (mNumData < MAX_DATA)
-   else
-   {
-      mOverCounter++;
-      mFinalTime = time;
-      //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      glClear(GL_DEPTH_BUFFER_BIT);
-      DrawStatus("Final Frame#: ", mOverCounter+mNumData, "  Final Epoch: ",
-                 mFinalTime, 0, 25,
-                 "*** WARNING *** Data points exceeded the maximum");
-      glFlush();
-      SwapBuffers();
-      
-      if (mShowMaxWarning)
-      {
-         mShowMaxWarning = false;
-         wxString msg;
-         msg.Printf("*** WARNING *** The number of data points exceeded the "
-                    "maximum of %d.\nPlease adjust data collect frequency to "
-                    "see the whole plot.\n", MAX_DATA);
-         MessageInterface::ShowMessage(msg.c_str());
+         mEndIndex2++;
+         if (mEndIndex2 + 1 > MAX_DATA)
+            mEndIndex2 = 0;
       }
    }
+   else
+   {
+      // Write buffer maxed out message only once
+      if (mWriteWarning)
+      {
+         MessageInterface::ShowMessage
+            ("*** WARNING *** '%s' exceed the maximum data points, now "
+             "showing %d most recent data points.\n", mPlotName.c_str(), MAX_DATA);
+         mWriteWarning = false;
+      }
+      
+      mBeginIndex1++;
+      if (mBeginIndex1 + 1 > MAX_DATA)
+         mBeginIndex1 = 0;
+      
+      mEndIndex1 = MAX_DATA - 1;
+      
+      mBeginIndex2 = 0;
+      mEndIndex2++;
+      if (mEndIndex2 + 1 > MAX_DATA)
+         mEndIndex2 = 0;
+      mCurrIndex = 0;
+   }
+   
+   // find buffer index
+   mLastIndex = mEndIndex1;
+   if (mEndIndex2 != -1)
+      mLastIndex = mEndIndex2;
+   
+   #ifdef DEBUG_DATA_BUFFERRING
+   MessageInterface::ShowMessage
+      ("===> time=%f, mTotalPoints=%4d, mNumData=%3d, mCurrIndex=%3d, mLastIndex=%3d\n   "
+       "mBeginIndex1=%3d, mEndIndex1=%3d, mBeginIndex2=%3d, mEndIndex2=%3d\n",
+       time, mTotalPoints, mNumData, mCurrIndex, mLastIndex, mBeginIndex1, mEndIndex1,
+       mBeginIndex2, mEndIndex2);
+   #endif
+   
+   mTime[mLastIndex] = time;
+   Real mha, longitude, lst;
+   ComputeLongitudeLst(mTime[mLastIndex], posX[0], posY[0], &mha, &longitude, &lst);
+   
+   #if DEBUG_TRAJCANVAS_LONGITUDE
+   MessageInterface::ShowMessage
+      ("   time=%f, mLastIndex=%d, mha=%f, longitude=%f, lst = %f\n",
+       mTime[mLastIndex], mLastIndex, mha, longitude, lst);
+   #endif
+   
+   // if beginning of the plot
+   if (mNumData == 0)
+   {
+      mInitialLongitude = longitude;
+      mInitialMha = mha;
+      #if DEBUG_TRAJCANVAS_LONGITUDE
+      MessageInterface::ShowMessage
+         ("TrajPlotCanvas::UpdatePlot() mInitialLongitude = %f, mInitialMha = %f\n",
+          mInitialLongitude, mInitialMha);
+      #endif
+   }
+   
+   // update spacecraft position
+   UpdateSpacecraftData(time, posX, posY, posZ, velX, velY, velZ, scColors,
+                        solverOption);
+   
+   // update non-spacecraft objects position
+   UpdateOtherData(time);
+   
+//    if (mNumData < MAX_DATA)
+//       mNumData++;
+   
 }
 
 
@@ -2040,7 +1919,7 @@ void TrajPlotCanvas::OnMouse(wxMouseEvent& event)
          mCurrRotXAngle = rotAngle[0];
          mCurrRotYAngle = rotAngle[1];
          mCurrRotZAngle = rotAngle[2];
-
+         
          #if DEBUG_TRAJCANVAS_EULER
          MessageInterface::ShowMessage
             ("TrajPlotCanvas::OnMouse() mCurrRotXAngle=%f, %f, %f\n",
@@ -2049,7 +1928,7 @@ void TrajPlotCanvas::OnMouse(wxMouseEvent& event)
             ("TrajPlotCanvas::OnMouse() mfCamRotXYZAngle=%f, %f, %f\n",
              mfCamRotXAngle, mfCamRotYAngle, mfCamRotZAngle);
          #endif
-
+         
          if (mUsePerspectiveMode)
          {
             // always look at from Z for rotation and zooming
@@ -2072,7 +1951,7 @@ void TrajPlotCanvas::OnMouse(wxMouseEvent& event)
          GLfloat mvMat[16];//, mvQ[4];
          glGetFloatv(GL_MODELVIEW_MATRIX, mvMat);
          FloatAttUtil::ToQuat(mQuat, mvMat);
-
+         
          #if DEBUG_ROTATE
          MessageInterface::ShowMessage
             ("OnMouse() Final mvMat=\n%f, %f, %f, %f\n%f, %f, %f, %f\n"
@@ -2087,7 +1966,7 @@ void TrajPlotCanvas::OnMouse(wxMouseEvent& event)
          
       }
       #endif
-
+      
    }
    
    //if mouse dragging
@@ -2110,53 +1989,10 @@ void TrajPlotCanvas::OnMouse(wxMouseEvent& event)
       //------------------------------
       else if (event.LeftIsDown())
       {
-         #ifdef USE_TRACKBALL
-         
-            // drag in progress, simulate trackball
-            float spinQuat[4];
-            
-            ToQuat(spinQuat,
-                      (2.0*mLastMouseX - width) / width,
-                      (     height - 2.0*mLastMouseY) / height,
-                      (     2.0*mouseX - width) / width,
-                      (     height - 2.0*mouseY) / height);
-
-            AddQuats(spinQuat, mQuat, mQuat);
-
-            #if DEBUG_ROTATE
-            MessageInterface::ShowMessage
-               ("OnMouse() w=%d, h=%d, mLastMouseX=%d, mLastMouseY=%d, "
-                "mouseX=%d, mouseY=%d\n", width, height, mLastMouseX,
-                mLastMouseY, mouseX, mouseY);
-            MessageInterface::ShowMessage
-               ("OnMouse=% f, % f, % f, % f\n", mQuat[0], mQuat[1], mQuat[2],
-                mQuat[3]);
-            #endif
-            
-         #else
-         
-            #if DEBUG_ROTATE
-            MessageInterface::ShowMessage
-               ("   event.LeftIsDown() mCurrRotXYZAngle=%f, %f, %f\n",
-                mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
-            #endif
-            
-            // if end-of-run compute new mfCamRotXYZAngle by calling ChangeView()
-            if (mIsEndOfRun)
-               ChangeView(mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
-            
-            ComputeView(fEndX, fEndY);
-            ChangeView(mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
-
-            //MessageInterface::ShowMessage
-            //   ("===> after ChangeView() mfCamRotXYZAngle=%f, %f, %f\n",
-            //    mfCamRotXAngle, mfCamRotYAngle, mfCamRotZAngle);
-         
-         #endif
+         RotatePlot(width, height, mouseX, mouseY);
          
          // repaint
-         Refresh(false);
-         
+         Refresh(false); 
       }
       //------------------------------
       // zooming
@@ -2166,7 +2002,7 @@ void TrajPlotCanvas::OnMouse(wxMouseEvent& event)
          // if end-of-run compute new mfCamRotXYZAngle by calling ChangeView()
          if (mIsEndOfRun)
             ChangeView(mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
-
+         
          //VC++ error C2668: 'pow' : ambiguous call to overloaded function
          //'long double pow(long double,int)' 'float pow(float,int)' 'double pow(double,int);
          // Changed pow to GmatMathUtil::Pow();
@@ -2176,7 +2012,7 @@ void TrajPlotCanvas::OnMouse(wxMouseEvent& event)
          Real y2 = Pow(mouseY - mLastMouseY, 2);
          Real length = sqrt(x2 + y2);
          mZoomAmount = length * 100;
-
+         
          if (mouseX < mLastMouseX && mouseY > mLastMouseY)
          {
             // dragging from upper right corner to lower left corner
@@ -2355,6 +2191,58 @@ void TrajPlotCanvas::InitializeViewPoint()
 
 
 //------------------------------------------------------------------------------
+// void ComputeActualIndex()
+//------------------------------------------------------------------------------
+void TrajPlotCanvas::ComputeActualIndex()
+{
+   mRealBeginIndex1 = mBeginIndex1;
+   mRealEndIndex1   = mEndIndex1;
+   mRealBeginIndex2 = mBeginIndex2;
+   mRealEndIndex2   = mEndIndex2;
+   
+   // if re-drawing last few points only
+   if (mRedrawLastPointsOnly && !mIsEndOfRun)
+   {
+      // if ring buffer not over run
+      if (mEndIndex2 == -1)
+      {
+         mRealBeginIndex1 = mEndIndex1 - mNumPointsToRedraw;
+         if (mRealBeginIndex1 < 0)
+            mRealBeginIndex1 = 0;
+      }
+      else
+      {
+         mRealBeginIndex1 = mEndIndex2 - mNumPointsToRedraw;
+         if (mRealBeginIndex1 >= 0)
+         {
+            mRealEndIndex1 = mEndIndex2;
+            mRealBeginIndex2 = -1;
+            mRealEndIndex2 = -1;
+         }
+         else
+         {
+            mRealBeginIndex1 = MAX_DATA + mRealBeginIndex1;
+            mRealEndIndex1 = MAX_DATA - 1;
+            mRealBeginIndex2 = 0;
+            mRealEndIndex2 = mEndIndex2;
+         }
+      }
+   }
+   
+   #ifdef DEBUG_DATA_BUFFERRING
+   MessageInterface::ShowMessage
+      ("TrajPltCanvas::ComputeActualIndex()     mBeginIndex1=%3d,     mEndIndex1=%3d, "
+       "    mBeginIndex2=%3d,     mEndIndex2=%3d\n", mBeginIndex1, mEndIndex1,
+       mBeginIndex2, mEndIndex2);
+   MessageInterface::ShowMessage
+      ("TrajPltCanvas::ComputeActualIndex() mRealBeginIndex1=%3d, mRealEndIndex1=%3d, "
+       "mRealBeginIndex2=%3d, mRealEndIndex2=%3d\n", mRealBeginIndex1, mRealEndIndex1,
+       mRealBeginIndex2,  mRealEndIndex2);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
 //  bool LoadGLTextures()
 //------------------------------------------------------------------------------
 /**
@@ -2384,8 +2272,8 @@ bool TrajPlotCanvas::LoadGLTextures()
              mObjectArray[i], mObjectNames[i].c_str());
          #endif
          
-         mObjectTextureIdMap[mObjectNames[i]] = BindTexture(mObjectArray[i], mObjectNames[i]);
-//         mObjectTextureIdMap[mObjectNames[i]] = BindTexture(mObjectNames[i]);
+         mObjectTextureIdMap[mObjectNames[i]] =
+            BindTexture(mObjectArray[i], mObjectNames[i]);
       }
    }
    
@@ -2407,14 +2295,14 @@ GLuint TrajPlotCanvas::BindTexture(SpacePoint *obj, const wxString &objName)
 
    //MessageInterface::ShowMessage("===> TrajPlotCanvas::BindTexture() ret = %d\n", ret);
    // texture map file names now stored with the CelestialBody  wcs 2009.01.06
-//   FileManager *fm = FileManager::Instance();
+   //FileManager *fm = FileManager::Instance();
    std::string textureFile;  
-//   std::string name = std::string(objName.Upper().c_str());
-//   std::string filename = name + "_TEXTURE_FILE";
+   //std::string name = std::string(objName.Upper().c_str());
+   //std::string filename = name + "_TEXTURE_FILE";
    
    try
    {
-//      textureFile = fm->GetFullPathname(filename);
+      //textureFile = fm->GetFullPathname(filename);
       CelestialBody *body = (CelestialBody*) obj;
       textureFile = body->GetStringParameter(body->GetParameterID("TextureMapFileName"));
       
@@ -2438,10 +2326,10 @@ GLuint TrajPlotCanvas::BindTexture(SpacePoint *obj, const wxString &objName)
          glGenTextures(1, &ret);
          glBindTexture(GL_TEXTURE_2D, ret);
          
-//          if (textureFile == "")
-//             ret = GmatPlot::UNINIT_TEXTURE;
-//          else
-            // load image file
+         //if (textureFile == "")
+         //   ret = GmatPlot::UNINIT_TEXTURE;
+         //else
+         // load image file
          if (!LoadImage(textureFile))
             ret = GmatPlot::UNINIT_TEXTURE;
          
@@ -2483,10 +2371,7 @@ void TrajPlotCanvas::SetDefaultView()
    
    #ifdef USE_TRACKBALL
    ToQuat(mQuat, 0.0f, 0.0f, 0.0f, 0.0);
-   #endif
-   
-   //mOriginId = GetObjectId("Earth");
-   
+   #endif   
 }
 
 
@@ -2595,7 +2480,8 @@ void TrajPlotCanvas::SetupWorld()
    //camera moves opposite direction to center on object
    //this is the point of rotation
    
-   int index = mViewObjId * MAX_DATA * 3 + (mNumData-1) * 3;
+   //int index = mViewObjId * MAX_DATA * 3 + (mNumData-1) * 3;
+   int index = mViewObjId * MAX_DATA * 3 + mLastIndex * 3;
    glTranslatef(mObjectViewPos[index+0], mObjectViewPos[index+1],
                 -mObjectViewPos[index+2]);
    
@@ -2734,21 +2620,23 @@ void TrajPlotCanvas::ChangeProjection(int width, int height, float axisLength)
 
 
 //------------------------------------------------------------------------------
-//  void ComputeViewVectors(int frame)
+//  void ComputeViewVectors()
 //------------------------------------------------------------------------------
 /**
  * Computes viewing vectors using viewing options.
  */
 //------------------------------------------------------------------------------
-void TrajPlotCanvas::ComputeViewVectors(int frame)
-{
+void TrajPlotCanvas::ComputeViewVectors()
+{   
+   //int frame = mNumData - 1;
+   int frame = mLastIndex;
+   mIsFirstRun = false;
+   int index = 0;
+   
    #if DEBUG_TRAJCANVAS_PROJ
    MessageInterface::ShowMessage
       ("ComputeViewVectors() frame=%d, time=%f\n", frame, mTime[frame]);
    #endif
-
-   mIsFirstRun = false;
-   int index = 0;
    
    //-----------------------------------------------------------------
    // get viewpoint reference vector
@@ -2911,7 +2799,7 @@ void TrajPlotCanvas::ComputeViewVectors(int frame)
    mfCamRotZAxis = 0.0;
    mUseSingleRotAngle = true;
    
-   ComputeUpAngleAxis(frame);
+   ComputeUpAngleAxis();
    
    #if DEBUG_TRAJCANVAS_PROJ
    MessageInterface::ShowMessage
@@ -2924,14 +2812,14 @@ void TrajPlotCanvas::ComputeViewVectors(int frame)
 
 
 //------------------------------------------------------------------------------
-// void ComputeUpAngleAxis(int frame)
+// void ComputeUpAngleAxis()
 //------------------------------------------------------------------------------
-void TrajPlotCanvas::ComputeUpAngleAxis(int frame)
+void TrajPlotCanvas::ComputeUpAngleAxis()
 {
    // calculate view up direction
-   
+   //int frame = mNumData - 1;
+   int frame = mLastIndex;
    Rvector6 upOutState;
-   
    upOutState = mUpState;
    
    if (pViewUpCoordSystem->GetName() != pViewCoordSystem->GetName())
@@ -2987,13 +2875,10 @@ void TrajPlotCanvas::ComputeUpAngleAxis(int frame)
 
 
 //------------------------------------------------------------------------------
-// void TransformView(int frame)
+// void TransformView()
 //------------------------------------------------------------------------------
-void TrajPlotCanvas::TransformView(int frame)
+void TrajPlotCanvas::TransformView()
 {
-//    if (frame < 0)
-//       return;
-
    #if DEBUG_TRAJPLOTCANVAS_DRAW
    MessageInterface::ShowMessage
       ("==> TrajPlotCanvas::TransformView() mUseSingleRotAngle=%d, "
@@ -3071,7 +2956,7 @@ void TrajPlotCanvas::TransformView(int frame)
    #else      
       ApplyEulerAngles();      
    #endif
-         
+      
 } // end TransformView()
 
 
@@ -3136,7 +3021,7 @@ void TrajPlotCanvas::DrawFrame()
       
       // Set projection here, because DrawPlot() is called in OnPaint()
       if (mUseInitialViewPoint)
-         ComputeViewVectors(mNumData-1);
+         ComputeViewVectors();
       
       ChangeProjection(mCanvasSize.x, mCanvasSize.y, mAxisLength);
       
@@ -3164,9 +3049,19 @@ void TrajPlotCanvas::DrawPlot()
 {
    #if DEBUG_TRAJCANVAS_DRAW
    MessageInterface::ShowMessage
-      ("TrajPlotCanvas::DrawPlot() mNumData=%d, mViewCsIsInternalCs=%d\n   "
-       "mUseInitialViewPoint=%d, mAxisLength=%f\n", mNumData, mViewCsIsInternalCs,
-       mUseInitialViewPoint, mAxisLength);
+      ("===========================================================================\n");
+   MessageInterface::ShowMessage
+      ("TrajPlotCanvas::DrawPlot() mTotalPoints=%d, mNumData=%d, mTime[%d]=%f\n",
+       mTotalPoints, mNumData, mLastIndex, mTime[mLastIndex]);
+   #endif
+   #if DEBUG_TRAJCANVAS_DRAW > 1
+   MessageInterface::ShowMessage
+      ("   mRedrawLastPointsOnly=%d, mNumPointsToRedraw=%d, mViewCsIsInternalCs=%d, "
+       "mUseInitialViewPoint=%d, mAxisLength=%f\n", mRedrawLastPointsOnly, mNumPointsToRedraw,
+       mViewCsIsInternalCs, mUseInitialViewPoint, mAxisLength);
+   MessageInterface::ShowMessage
+      ("   mUseInitialViewPoint=%d, mIsEndOfData=%d, mIsEndOfRun=%d, mDrawSolverData=%d\n",
+       mUseInitialViewPoint, mIsEndOfData, mIsEndOfRun, mDrawSolverData);
    #endif
    
    if (mRedrawLastPointsOnly || mNumPointsToRedraw == 0)
@@ -3174,16 +3069,7 @@ void TrajPlotCanvas::DrawPlot()
    else
       glClear(GL_DEPTH_BUFFER_BIT);
    
-   DrawStatus("Frame#: ", mNumData-1, "  Epoch: ", mTime[mNumData-1], 0, 5);
-   if (mOverCounter > 0)
-      DrawStatus("Final Frame#: ", mOverCounter+mNumData, "  Final Epoch: ",
-                 mFinalTime, 0, 25);
-   
-   #if DEBUG_TRAJCANVAS_DRAW
-   MessageInterface::ShowMessage
-      ("TrajPlotCanvas::DrawPlot()mUseInitialViewPoint=%d, mIsEndOfData=%d, mIsEndOfRun=%d\n",
-       mUseInitialViewPoint, mIsEndOfData, mIsEndOfRun);
-   #endif
+   DrawStatus("Frame#: ", mTotalPoints, "  Epoch: ", mTime[mLastIndex], 0, 5);
    
    // Plot is not refreshed when another panel is opened, so add glFlush()
    // and SwapBuffers() (loj: 4/5/06)
@@ -3195,27 +3081,27 @@ void TrajPlotCanvas::DrawPlot()
       return;
    }
    
-   
    // compute projection if using initial viewpoint and not end of run or
    // if not using initial viewpoint and not first run.
    // We need initial values for  gulLookAt()
    if ((mUseInitialViewPoint && !mIsEndOfRun) ||
        (!mUseInitialViewPoint && mIsFirstRun && mUseGluLookAt))
-      ComputeViewVectors(mNumData-1);
+      ComputeViewVectors();
    
    ChangeProjection(mCanvasSize.x, mCanvasSize.y, mAxisLength);
    
    // change back to view projection
    SetProjection();
+   TransformView();
    
-   TransformView(mNumData-1);
-   
-//    // tilt Origin rotation axis if needed
-//    if (mNeedOriginConversion)
-//    {
-//       glPushMatrix();
-//       TiltOriginZAxis();
-//    }
+   #ifdef __TILT_ORIGIN__
+   // tilt Origin rotation axis if needed
+   if (mNeedOriginConversion)
+   {
+      glPushMatrix();
+      TiltOriginZAxis();
+   }
+   #endif
    
    // draw equatorial plane
    if (mDrawXyPlane)
@@ -3223,29 +3109,27 @@ void TrajPlotCanvas::DrawPlot()
    
    // draw axes
    if (mDrawAxes)
-   {
       if (!mCanRotateAxes)
-      {
          DrawAxes();
-      }
-   }
    
    // draw ecliptic plane
    if (mDrawEcPlane)
       DrawEclipticPlane(mEcPlaneColor);
    
-//    if (mNeedOriginConversion)
-//       glPopMatrix();
+   #ifdef __TILT_ORIGIN__
+   if (mNeedOriginConversion)
+      glPopMatrix();
+   #endif
    
    // draw object orbit
-   DrawObjectOrbit(mNumData-1);
+   DrawObjectOrbit();
    
    if (mDrawSolverData)
       DrawSolverData();
    
    // draw Earth-Sun line
    if (mDrawSunLine)
-      DrawSunLine(mNumData-1);
+      DrawSunLine();
    
    glFlush();
    SwapBuffers();
@@ -3277,14 +3161,15 @@ void TrajPlotCanvas::DrawSphere(GLdouble radius, GLint slices, GLint stacks,
 
 
 //------------------------------------------------------------------------------
-//  void DrawObject(const wxString &objName, int frame)
+//  void DrawObject(const wxString &objName)
 //------------------------------------------------------------------------------
 /**
  * Draws object sphere and maps texture image.
  */
 //------------------------------------------------------------------------------
-void TrajPlotCanvas::DrawObject(const wxString &objName, int frame)
+void TrajPlotCanvas::DrawObject(const wxString &objName)
 {
+   int frame = mLastIndex;
    int objId = GetObjectId(objName);
    
    #if DEBUG_TRAJCANVAS_DRAW > 1
@@ -3342,7 +3227,7 @@ void TrajPlotCanvas::DrawObject(const wxString &objName, int frame)
       Real earthRotAngle = 0.0;
       Real initialLong = mInitialLongitude;
       Real offset = 40.0; // need this to line up earth texture with longitude
-            
+      
       //========== #ifdef
       #ifdef USE_MHA_TO_ROTATE_EARTH
       
@@ -3352,17 +3237,18 @@ void TrajPlotCanvas::DrawObject(const wxString &objName, int frame)
          
          if (initialLong < 180.0)
             initialLong = -initialLong - offset;
-
+         
          CelestialBody *earth = pSolarSystem->GetBody("Earth");
          if (earth)
             mha = earth->GetHourAngle(mTime[frame]);
          
          earthRotAngle = mha + initialLong + offset;
-      
+         
          #if DEBUG_TRAJCANVAS_DRAW > 1
          if (!mIsEndOfRun)
             MessageInterface::ShowMessage
-               ("   mha=%f, earthRotAngle=%f\n", mha, earthRotAngle);
+               ("   frame=%3d, mha=%12.6f, initialLong=%12.6f, earthRotAngle=%12.6f\n",
+                frame, mha, initialLong, earthRotAngle);
          #endif
          
       }
@@ -3378,7 +3264,7 @@ void TrajPlotCanvas::DrawObject(const wxString &objName, int frame)
       
       #endif
       //========== #endif
-
+      
       earthRotAngle =
          AngleUtil::PutAngleInDegRange(earthRotAngle, 0.0, 360.0);
       
@@ -3458,7 +3344,7 @@ void TrajPlotCanvas::DrawObject(const wxString &objName, int frame)
 
 
 //------------------------------------------------------------------------------
-//  void DrawObjectOrbit(int frame)
+//  void DrawObjectOrbit()
 //------------------------------------------------------------------------------
 /**
  * Draws object orbit and object at the frame number. The frame is the index
@@ -3467,8 +3353,9 @@ void TrajPlotCanvas::DrawObject(const wxString &objName, int frame)
  * @param  frame  Frame number to be used for drawing
  */
 //------------------------------------------------------------------------------
-void TrajPlotCanvas::DrawObjectOrbit(int frame)
+void TrajPlotCanvas::DrawObjectOrbit()
 {
+   int endFrame = mLastIndex;
    int objId;
    wxString objName;
    
@@ -3479,6 +3366,8 @@ void TrajPlotCanvas::DrawObjectOrbit(int frame)
       glDisable(GL_LIGHTING);
    }
    #endif
+   
+   ComputeActualIndex();
    
    for (int obj=0; obj<mObjectCount; obj++)
    {
@@ -3493,205 +3382,273 @@ void TrajPlotCanvas::DrawObjectOrbit(int frame)
       #endif
       
       // If not showing orbit or object, continue to next one
-      if (!mDrawOrbitFlag[objId*MAX_DATA+frame] &&
+      if (!mDrawOrbitFlag[objId*MAX_DATA+endFrame] &&
           !mShowOrbitNormalMap[objName])
          continue;
       
-      glPushMatrix();
-      glBegin(GL_LINES);
-      
-      int beginFrame = 1;
-      
-      //---------------------------------------------------------
-      // compute begin frame
-      //---------------------------------------------------------
-      if (mRedrawLastPointsOnly && !mIsEndOfRun)
-      {
-         beginFrame = frame - mNumPointsToRedraw;
-         if (beginFrame < 1)
-            beginFrame = 1;
-      }
-      else if (!mIsEndOfRun && mNumPointsToRedraw == -1)
-      {
-         beginFrame = frame - 2;
-         if (beginFrame < 1)
-            beginFrame = 1;
-      }
-      
-      int index1 = 0;
-      int index2 = 0;
-      int index3 = 0;
-      //---------------------------------------------------------
-      // draw lines
-      //---------------------------------------------------------
-      for (int i = beginFrame; i <= frame; i++)
-      {         
-         // Draw object orbit line based on points
-         if ((mTime[i] > mTime[i-1]) ||
-             (i>2 && mTime[i] < mTime[i-1]) && mTime[i-1] < mTime[i-2]) //for backprop
-         {
-            index1 = objId * MAX_DATA * 3 + (i-1) * 3;
-            index2 = objId * MAX_DATA * 3 + i * 3;
-            
-            Rvector3 r1(mObjectViewPos[index1+0], mObjectViewPos[index1+1],
-                        mObjectViewPos[index1+2]);
-            
-            Rvector3 r2(mObjectViewPos[index2+0], mObjectViewPos[index2+1],
-                        mObjectViewPos[index2+2]);
-            
-            // if object position magnitude is 0, skip
-            if (r1.GetMagnitude() == 0.0 || r2.GetMagnitude() == 0.0)
-               continue;
-            
-            // if object position diff is over limit, skip (ScriptEx_TargetHohmann)
-            #ifdef SKIP_OVER_LIMIT_DATA
-            static Real sMaxDiffDist = 100000.0;
-            // if difference is more than sMaxDiffDist skip
-            if ((Abs(r2[0]- r1[0]) > sMaxDiffDist && (SignOf(r2[0]) != SignOf(r1[0]))) ||
-                (Abs(r2[1]- r1[1]) > sMaxDiffDist && (SignOf(r2[1]) != SignOf(r1[1]))) ||
-                (Abs(r2[2]- r1[2]) > sMaxDiffDist && (SignOf(r2[2]) != SignOf(r1[2]))))
-            {
-               #if DEBUG_SHOW_SKIP
-               MessageInterface::ShowMessage
-                  ("   plot=%s, i1=%d, i2=%d, time1=%f, time2=%f\n   r1=%s, r2=%s\n",
-                   GetName().c_str(), i-1, i, mTime[i-1], mTime[i], r1.ToString().c_str(),
-                   r2.ToString().c_str());
-               #endif
-               continue;
-            }
-            #endif
-            
-            // If drawing orbit lines
-            //if (mDrawOrbitFlag[objId*MAX_DATA+frame])
-            if (mDrawOrbitFlag[objId*MAX_DATA+i])
-            {               
-               if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
-                  *sIntColor = mObjectOrbitColor[objId*MAX_DATA+i];
-               else
-                  *sIntColor = mObjectColorMap[objName].GetIntColor();
-               
-               glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
-               
-               glVertex3f((-mObjectViewPos[index1+0]),
-                          (-mObjectViewPos[index1+1]),
-                          ( mObjectViewPos[index1+2]));
-               
-               glVertex3f((-mObjectViewPos[index2+0]),
-                          (-mObjectViewPos[index2+1]),
-                          ( mObjectViewPos[index2+2]));
-               
-//                MessageInterface::ShowMessage
-//                   ("===> index2=%d, color=%u, %f, %f, %f\n", index2, *sIntColor,
-//                    mObjectViewPos[index2+0], mObjectViewPos[index2+1],
-//                    mObjectViewPos[index2+2]);
-            }
-            
-            // save last valid frame to show object at final frame
-            mObjLastFrame[objId] = i;
-            
-         }
-      }
-      
-      glEnd();
-      glPopMatrix();
+      // always draw orbit trajectory
+      DrawOrbit(objName, obj, objId);
       
       //---------------------------------------------------------
       // draw object orbit normal vector
-      // (loj: 6/13/05 Fow now it only draws spacecraft orbit normal vector.)
+      // (loj: 6/13/05 For now it only draws spacecraft orbit normal vector.)
       //---------------------------------------------------------
       if (mShowOrbitNormalMap[objName])
       {
-         int numSkip = frame/12;
-         UnsignedInt color;
-         
-         for (int i=1; i<=frame; i++)
-         {
-            if (numSkip <= 0 || i % numSkip != 0)
-               continue;
-            
-            if ((mTime[i] > mTime[i-1]) ||
-                (i>2 && mTime[i] < mTime[i-1]) && mTime[i-1] < mTime[i-2])
-            {
-               index1 = objId * MAX_DATA * 3 + (i-1) * 3;
-               index2 = objId * MAX_DATA * 3 + i * 3;
-               
-               Rvector3 r1(mObjectViewPos[index1+0],
-                           mObjectViewPos[index1+1],
-                           mObjectViewPos[index1+2]);
-               
-               Rvector3 r2(mObjectViewPos[index2+0],
-                           mObjectViewPos[index2+1],
-                           mObjectViewPos[index2+2]);
-               
-               // if object position magnitude is 0, skip
-               if (r1.GetMagnitude() == 0.0 || r2.GetMagnitude() == 0.0)
-                  continue;
-               
-               glPushMatrix();
-               
-               // move to origin
-               index3 = mOriginId * MAX_DATA * 3 + i * 3;
-               
-               glTranslatef(-mObjectViewPos[index3+0],
-                            -mObjectViewPos[index3+1],
-                             mObjectViewPos[index3+2]);
-               
-               if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
-                  color = mObjectOrbitColor[objId*MAX_DATA+i];
-               else
-                  color = mObjectColorMap[objName].GetIntColor();
-               
-               DrawObjectOrbitNormal(objId, i, color);
-               glPopMatrix();
-            }
-         }
+         DrawOrbitNormal(objName, obj, objId);
       }
       
       //---------------------------------------------------------
       //draw object with texture
-      //---------------------------------------------------------
+      //---------------------------------------------------------      
+      if (mShowObjectMap[objName])
+      {            
+         DrawObjectTexture(objName, obj, objId);
+      }
+   }
+} // end DrawObjectOrbit()
+
+
+//------------------------------------------------------------------------------
+// void DrawOrbit(const wxString &objName, int obj, int objId)
+//------------------------------------------------------------------------------
+void TrajPlotCanvas::DrawOrbit(const wxString &objName, int obj, int objId)
+{   
+   glPushMatrix();
+   glBegin(GL_LINES);
+   
+   #ifdef DEBUG_ORBIT_LINES
+   MessageInterface::ShowMessage
+      ("==========> TrajPlotCanvas::DrawOrbit() objName='%s', drawing first part\n",
+       objName.c_str());
+   #endif
+   
+   // Draw first part from the ring buffer
+   for (int i = mRealBeginIndex1 + 1; i <= mRealEndIndex1; i++)
+   {
+      DrawOrbitLines(i, objName, obj, objId);
+   }
+   
+   // Draw second part from the ring buffer
+   if (mEndIndex2 != -1 && mBeginIndex1 != mBeginIndex2)
+   {
+      #ifdef DEBUG_ORBIT_LINES
+      MessageInterface::ShowMessage
+         ("==========> TrajPlotCanvas::DrawOrbit() objName='%s', drawing second part\n",
+          objName.c_str());
+      #endif
       
-      if (frame > 0)
+      for (int i = mRealBeginIndex2 + 1; i <= mRealEndIndex2; i++)
       {
-         if (mShowObjectMap[objName])
-         {
-            index1 = objId * MAX_DATA * 3 + mObjLastFrame[objId] * 3;
-            
-            #if DEBUG_TRAJCANVAS_DRAW
-            MessageInterface::ShowMessage
-               ("   objName=%s, objId=%d, lastFrame=%d\n", objName.c_str(), objId,
-                mObjLastFrame[objId]);
-            MessageInterface::ShowMessage
-               ("   mObjectViewPos=%f, %f, %f\n",
-                mObjectViewPos[index1+0], mObjectViewPos[index1+1],
-                mObjectViewPos[index1+2]);
-            #endif
-            
-            glPushMatrix();
-            
-            // put object at final position
-            glTranslatef(-mObjectViewPos[index1+0],
-                         -mObjectViewPos[index1+1],
-                          mObjectViewPos[index1+2]);
-            
-            // first disable GL_TEXTURE_2D to show lines clearly
-            // without this, lines are drawn dim (loj: 2007.06.11)
-            glDisable(GL_TEXTURE_2D);
-            
-            if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
-               DrawSpacecraft(mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]]);
-            else
-               DrawObject(objName, frame);
-            
-            glPopMatrix();
-            
-         }
+         DrawOrbitLines(i, objName, obj, objId);
       }
    }
    
-   //MessageInterface::ShowMessage("===> DrawObjectOrbit() exiting\n");
+   glEnd();
+   glPopMatrix();
+}
+
+
+//------------------------------------------------------------------------------
+// void DrawOrbitLines(int i, const wxString &objName, int obj, int objId)
+//------------------------------------------------------------------------------
+void TrajPlotCanvas::DrawOrbitLines(int i, const wxString &objName, int obj,
+                                    int objId)
+{
+   int index1 = 0, index2 = 0;
    
-} // end DrawObjectOrbit(int frame)
+   #ifdef DEBUG_ORBIT_LINES
+   MessageInterface::ShowMessage
+      ("==> mTime[%3d]=%f, mTime[%3d]=%f\n", i, mTime[i], i-1, mTime[i-1]);
+   #endif
+   
+   // Draw object orbit line based on points
+   if ((mTime[i] > mTime[i-1]) ||
+       (i>2 && mTime[i] < mTime[i-1]) && mTime[i-1] < mTime[i-2]) //for backprop
+   {
+      index1 = objId * MAX_DATA * 3 + (i-1) * 3;
+      index2 = objId * MAX_DATA * 3 + i * 3;
+      
+      Rvector3 r1(mObjectViewPos[index1+0], mObjectViewPos[index1+1],
+                  mObjectViewPos[index1+2]);
+      
+      Rvector3 r2(mObjectViewPos[index2+0], mObjectViewPos[index2+1],
+                  mObjectViewPos[index2+2]);
+      
+      // if object position magnitude is 0, skip
+      if (r1.GetMagnitude() == 0.0 || r2.GetMagnitude() == 0.0)
+         return;
+      
+      // if object position diff is over limit, skip (ScriptEx_TargetHohmann)
+      #ifdef SKIP_OVER_LIMIT_DATA
+      static Real sMaxDiffDist = 100000.0;
+      // if difference is more than sMaxDiffDist skip
+      if ((Abs(r2[0]- r1[0]) > sMaxDiffDist && (SignOf(r2[0]) != SignOf(r1[0]))) ||
+          (Abs(r2[1]- r1[1]) > sMaxDiffDist && (SignOf(r2[1]) != SignOf(r1[1]))) ||
+          (Abs(r2[2]- r1[2]) > sMaxDiffDist && (SignOf(r2[2]) != SignOf(r1[2]))))
+      {
+         #if DEBUG_SHOW_SKIP
+         MessageInterface::ShowMessage
+            ("   plot=%s, i1=%d, i2=%d, time1=%f, time2=%f\n   r1=%s, r2=%s\n",
+             GetName().c_str(), i-1, i, mTime[i-1], mTime[i], r1.ToString().c_str(),
+             r2.ToString().c_str());
+         #endif
+         return;
+      }
+      #endif
+      
+      // If drawing orbit lines
+      int colorIndex = objId * MAX_DATA + i;
+      if (mDrawOrbitFlag[colorIndex])
+      {
+         if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
+            *sIntColor = mObjectOrbitColor[colorIndex];
+         else
+            *sIntColor = mObjectColorMap[objName].GetIntColor();
+         
+         glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
+         
+         glVertex3f((-mObjectViewPos[index1+0]),
+                    (-mObjectViewPos[index1+1]),
+                    ( mObjectViewPos[index1+2]));
+         
+         glVertex3f((-mObjectViewPos[index2+0]),
+                    (-mObjectViewPos[index2+1]),
+                    ( mObjectViewPos[index2+2]));
+         
+         #ifdef DEBUG_ORBIT_LINES
+         MessageInterface::ShowMessage
+            ("==> index2=%d, color=%u, %f, %f, %f\n", index2, *sIntColor,
+             mObjectViewPos[index2+0], mObjectViewPos[index2+1],
+             mObjectViewPos[index2+2]);
+         #endif
+      }
+      
+      // save last valid frame to show object at final frame
+      mObjLastFrame[objId] = i;
+      
+      #ifdef DEBUG_ORBIT_LINES
+      MessageInterface::ShowMessage("==> mObjLastFrame[%d] = %d\n", objId, i);
+      #endif
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void DrawOrbitNormal(const wxString &objName, int obj, int objId)
+//------------------------------------------------------------------------------
+void TrajPlotCanvas::DrawOrbitNormal(const wxString &objName, int obj, int objId)
+{
+   int numSkip = mTotalPoints / 50;
+   
+   // Draw first part from the ring buffer
+   for (int i = mRealBeginIndex1; i <= mRealEndIndex1; i++)
+   {
+      if (numSkip <= 0 || i % numSkip != 0)
+         continue;
+      
+      DrawOrbitNormalLines(i, objName, obj, objId);
+   }
+   
+   // Draw second part from the ring buffer
+   if (mEndIndex2 != -1 && mBeginIndex1 != mBeginIndex2)
+   {
+      for (int i = mRealBeginIndex2; i <= mRealEndIndex2; i++)
+      {
+         if (numSkip <= 0 || i % numSkip != 0)
+            continue;
+         
+         DrawOrbitNormalLines(i, objName, obj, objId);
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void DrawOrbitNormalLines()
+//------------------------------------------------------------------------------
+void TrajPlotCanvas::DrawOrbitNormalLines(int i, const wxString &objName,
+                                          int obj, int objId)
+{
+   int index1 = 0, index2 = 0, index3 = 0;
+   UnsignedInt color;
+   
+   if ((mTime[i] > mTime[i-1]) ||
+       (i>2 && mTime[i] < mTime[i-1]) && mTime[i-1] < mTime[i-2])
+   {
+      index1 = objId * MAX_DATA * 3 + (i-1) * 3;
+      index2 = objId * MAX_DATA * 3 + i * 3;
+      
+      Rvector3 r1(mObjectViewPos[index1+0],
+                  mObjectViewPos[index1+1],
+                  mObjectViewPos[index1+2]);
+      
+      Rvector3 r2(mObjectViewPos[index2+0],
+                  mObjectViewPos[index2+1],
+                  mObjectViewPos[index2+2]);
+      
+      // if object position magnitude is 0, skip
+      if (r1.GetMagnitude() == 0.0 || r2.GetMagnitude() == 0.0)
+         return;
+      
+      glPushMatrix();
+      
+      // move to origin
+      index3 = mOriginId * MAX_DATA * 3 + i * 3;
+      
+      glTranslatef(-mObjectViewPos[index3+0],
+                   -mObjectViewPos[index3+1],
+                   mObjectViewPos[index3+2]);
+      
+      if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
+         color = mObjectOrbitColor[objId*MAX_DATA+i];
+      else
+         color = mObjectColorMap[objName].GetIntColor();
+      
+      DrawObjectOrbitNormal(objId, i, color);
+      glPopMatrix();
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void DrawObjectTexture(const wxString &objName, int obj, int objId)
+//------------------------------------------------------------------------------
+void TrajPlotCanvas::DrawObjectTexture(const wxString &objName, int obj, int objId)
+{
+   if (mNumData < 1)
+      return;
+   
+   int index1 = objId * MAX_DATA * 3 + mObjLastFrame[objId] * 3;
+   
+   #if DEBUG_TRAJCANVAS_DRAW
+   MessageInterface::ShowMessage
+      ("   objName=%s, objId=%d, lastFrame=%d\n", objName.c_str(), objId,
+       mObjLastFrame[objId]);
+   MessageInterface::ShowMessage
+      ("   mObjectViewPos=%f, %f, %f\n",
+       mObjectViewPos[index1+0], mObjectViewPos[index1+1],
+       mObjectViewPos[index1+2]);
+   #endif
+   
+   glPushMatrix();
+   
+   // put object at final position
+   glTranslatef(-mObjectViewPos[index1+0],
+                -mObjectViewPos[index1+1],
+                 mObjectViewPos[index1+2]);
+   
+   // first disable GL_TEXTURE_2D to show lines clearly
+   // without this, lines are drawn dim (loj: 2007.06.11)
+   glDisable(GL_TEXTURE_2D);
+   
+   if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
+      DrawSpacecraft(mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]]);
+   else
+      DrawObject(objName);
+   
+   glPopMatrix();
+}
 
 
 //------------------------------------------------------------------------------
@@ -3724,7 +3681,6 @@ void TrajPlotCanvas::DrawSolverData()
       //---------------------------------------------------------
       for (int sc=0; sc<numSc; sc++)
       {
-         
          *sIntColor = mSolverIterColorArray[sc];         
          glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
          
@@ -4016,15 +3972,16 @@ void TrajPlotCanvas::DrawEclipticPlane(UnsignedInt color)
 
 
 //------------------------------------------------------------------------------
-//  void DrawSunLine(int frame)
+//  void DrawSunLine()
 //------------------------------------------------------------------------------
 /**
  * Draws Origin to Sun lines.
  */
 //------------------------------------------------------------------------------
-void TrajPlotCanvas::DrawSunLine(int frame)
+void TrajPlotCanvas::DrawSunLine()
 {
-   
+   //int frame = mNumData - 1;
+   int frame = mLastIndex;
    if (frame <= 0)
       return;
    
@@ -4251,40 +4208,43 @@ int TrajPlotCanvas::GetObjectId(const wxString &name)
 
 
 //------------------------------------------------------------------------------
-// void TrajPlotCanvas::ClearObjectArrays()
+// void TrajPlotCanvas::ClearObjectArrays(bool deleteArrays = true)
 //------------------------------------------------------------------------------
-void TrajPlotCanvas::ClearObjectArrays()
+void TrajPlotCanvas::ClearObjectArrays(bool deleteArrays)
 {
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage("TrajPlotCanvas::ClearObjectArrays() entered\n");
    #endif
-   
-   if (mObjectRadius)
-      delete [] mObjectRadius;
-   
-   if (mObjMaxZoomIn)
-      delete [] mObjMaxZoomIn;
-   
-   if (mObjLastFrame)
-      delete [] mObjLastFrame;
-   
-   if (mDrawOrbitFlag)
-      delete [] mDrawOrbitFlag;
-   
-   if (mObjectOrbitColor)
-      delete [] mObjectOrbitColor;
 
-   if (mObjectGciPos)
-      delete [] mObjectGciPos;
-   
-   if (mObjectGciVel)
-      delete [] mObjectGciVel;
-   
-   if (mObjectViewPos)
-      delete [] mObjectViewPos;
-   
-   if (mObjectViewVel)
-      delete [] mObjectViewVel;
+   if (deleteArrays)
+   {
+      if (mObjectRadius)
+         delete [] mObjectRadius;
+      
+      if (mObjMaxZoomIn)
+         delete [] mObjMaxZoomIn;
+      
+      if (mObjLastFrame)
+         delete [] mObjLastFrame;
+      
+      if (mDrawOrbitFlag)
+         delete [] mDrawOrbitFlag;
+      
+      if (mObjectOrbitColor)
+         delete [] mObjectOrbitColor;
+      
+      if (mObjectGciPos)
+         delete [] mObjectGciPos;
+      
+      if (mObjectGciVel)
+         delete [] mObjectGciVel;
+      
+      if (mObjectViewPos)
+         delete [] mObjectViewPos;
+      
+      if (mObjectViewVel)
+         delete [] mObjectViewVel;
+   }
    
    mObjectRadius = NULL;
    mObjMaxZoomIn = NULL;
@@ -4354,6 +4314,265 @@ bool TrajPlotCanvas::CreateObjectArrays()
    #endif
    
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// void UpdateSolverData(RealArray posX, RealArray posY, RealArray posZ, ...)
+//------------------------------------------------------------------------------
+void TrajPlotCanvas
+::UpdateSolverData(const RealArray &posX, const RealArray &posY, const RealArray &posZ,
+                   const UnsignedIntArray &scColors, bool solving)
+{
+   //-----------------------------------------------------------------
+   // If showing current iteration only, handle solver iteration data
+   // separately here since it will be shown temporarily during the run
+   //-----------------------------------------------------------------
+   if (solving)
+   {
+      mDrawSolverData = true;
+      RealArray tempSolverX, tempSolverY, tempSolverZ;
+      
+      for (int sc=0; sc<mScCount; sc++)
+      {
+         int satId = GetObjectId(mScNameArray[sc].c_str());
+         if (satId != UNKNOWN_OBJ_ID)
+         {
+            // if we are not drawing this spacecraft, skip
+            if (!mDrawOrbitArray[satId])
+               continue;
+            
+            tempSolverX.push_back(posX[sc]);
+            tempSolverY.push_back(posY[sc]);
+            tempSolverZ.push_back(posZ[sc]);
+         }
+      }
+      
+      mSolverAllPosX.push_back(tempSolverX);
+      mSolverAllPosY.push_back(tempSolverY);
+      mSolverAllPosZ.push_back(tempSolverZ);
+      mSolverIterColorArray = scColors;
+   }
+   else
+   {
+      mSolverAllPosX.clear();
+      mSolverAllPosY.clear();
+      mSolverAllPosZ.clear();
+   }
+}
+
+
+//---------------------------------------------------------------------------
+// void UpdateSpacecraftData(const RealArray &posX, const RealArray &posY, ...)
+//---------------------------------------------------------------------------
+void TrajPlotCanvas
+::UpdateSpacecraftData(const Real &time,
+                       const RealArray &posX, const RealArray &posY,
+                       const RealArray &posZ, const RealArray &velX,
+                       const RealArray &velY, const RealArray &velZ,
+                       const UnsignedIntArray &scColors,
+                       Integer solverOption)
+{
+   #if DEBUG_TRAJCANVAS_UPDATE
+   static int sNumDebugOutput = 1000;
+   #endif
+   
+   //-------------------------------------------------------
+   // update spacecraft position
+   //-------------------------------------------------------
+   for (int sc=0; sc<mScCount; sc++)
+   {
+      int satId = GetObjectId(mScNameArray[sc].c_str());
+      
+      #if DEBUG_TRAJCANVAS_UPDATE
+      MessageInterface::ShowMessage
+         ("TrajPlotCanvas::UpdateSpacecraftData() satId=%d, scName=%s\n", satId,
+          mObjectNames[satId].c_str());
+      #endif
+      
+      if (satId != UNKNOWN_OBJ_ID)
+      {
+         int colorIndex = satId * MAX_DATA + mLastIndex;
+         
+         if (!mDrawOrbitArray[satId])
+         {
+            mDrawOrbitFlag[colorIndex] = false;
+            MessageInterface::ShowMessage("===> mDrawOrbitArray[satId] is NULL\n");
+            continue;
+         }
+         
+         mDrawOrbitFlag[colorIndex] = true;
+         
+         // If drawing solver's current iteration only, we don't want to draw
+         // first 3 points since these points have solver data.
+         if (mDrawSolverData || (solverOption == 1 && mNumData == 2))
+            mDrawOrbitFlag[colorIndex] = false;
+         
+         mObjectOrbitColor[colorIndex] = scColors[sc];
+         
+         int posIndex = satId * MAX_DATA * 3 + (mLastIndex*3);
+         mObjectViewPos[posIndex+0] = posX[sc];
+         mObjectViewPos[posIndex+1] = posY[sc];
+         mObjectViewPos[posIndex+2] = posZ[sc];            
+         mObjectViewVel[posIndex+0] = velX[sc];
+         mObjectViewVel[posIndex+1] = velY[sc];
+         mObjectViewVel[posIndex+2] = velZ[sc];
+         
+         #if DEBUG_TRAJCANVAS_UPDATE
+         if (mNumData < sNumDebugOutput)
+         {
+            MessageInterface::ShowMessage
+               ("   satId=%d, object=%s, colorIndex=%u, color=%u\n", satId,
+                mObjectNames[satId].c_str(), colorIndex, mObjectOrbitColor[colorIndex]);
+            MessageInterface::ShowMessage
+               ("   satId:%d posIndex=%d, gcipos = %f, %f, %f\n", satId,
+                posIndex, mObjectViewPos[posIndex+0], mObjectViewPos[posIndex+1],
+                mObjectViewPos[posIndex+2]);
+         }
+         #endif
+         
+         // if need to convert to internal coordiante system (EarthMJ2000Eq)
+         if (mViewCsIsInternalCs)
+         {
+            CopyVector3(&mObjectGciPos[posIndex], &mObjectViewPos[posIndex]);
+            CopyVector3(&mObjectGciVel[posIndex], &mObjectViewVel[posIndex]);
+         }
+         else
+         {
+            Rvector6 satState(posX[sc], posY[sc], posZ[sc], velX[sc], velY[sc], velZ[sc]);
+            Rvector6 outState;
+            
+            mCoordConverter.Convert(time, satState, pViewCoordSystem,
+                                    outState, pInternalCoordSystem);
+            
+            mObjectGciPos[posIndex+0] = outState[0];
+            mObjectGciPos[posIndex+1] = outState[1];
+            mObjectGciPos[posIndex+2] = outState[2];                  
+            mObjectGciVel[posIndex+0] = outState[3];
+            mObjectGciVel[posIndex+1] = outState[4];
+            mObjectGciVel[posIndex+2] = outState[5];
+         }
+         
+         #if DEBUG_TRAJCANVAS_UPDATE
+         if (mNumData < sNumDebugOutput)
+         {
+            MessageInterface::ShowMessage
+               ("   satId:%d posIndex=%d, tmppos = %f, %f, %f\n", satId, posIndex,
+                mObjectViewPos[posIndex+0], mObjectViewPos[posIndex+1],
+                mObjectViewPos[posIndex+2]);
+         }
+         #endif
+         
+         #if DEBUG_TRAJCANVAS_UPDATE > 1
+         if (mNumData < sNumDebugOutput)
+         {
+            MessageInterface::ShowMessage
+               ("   satId:%d tmpvel = %f, %f, %f\n", satId,
+                mObjectViewVel[posIndex+0], mObjectViewVel[posIndex+1],
+                mObjectViewVel[posIndex+2]);
+         }
+         #endif
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void UpdateOtherData(const Real &time)
+//------------------------------------------------------------------------------
+void TrajPlotCanvas::UpdateOtherData(const Real &time)
+{
+   for (int obj=0; obj<mObjectCount; obj++)
+   {
+      // if object pointer is not NULL and not a spacecraft
+      if (mObjectArray[obj] && mObjectArray[obj]->GetType() != Gmat::SPACECRAFT)
+      {
+         int objId = GetObjectId(mObjectNames[obj]);
+         
+         #if DEBUG_TRAJCANVAS_UPDATE_OBJECT
+         MessageInterface::ShowMessage
+            ("TrajPlotCanvas::UpdateOtherData() objId=%d, obj=%s\n", objId,
+             mObjectNames[objId].c_str());
+         #endif
+         
+         // if object id found
+         if (objId != UNKNOWN_OBJ_ID)
+         {
+            if (!mDrawOrbitArray[objId])
+            {
+               //mDrawOrbitFlag[objId*MAX_DATA+mNumData] = false;
+               mDrawOrbitFlag[objId * MAX_DATA + mLastIndex] = false;
+               continue;
+            }
+            
+            int colorIndex = objId * MAX_DATA + mLastIndex;
+            mDrawOrbitFlag[colorIndex] = true;               
+            Rvector6 objState = mObjectArray[obj]->GetMJ2000State(time);
+            
+            int posIndex = objId * MAX_DATA * 3 + (mLastIndex*3);
+            mObjectGciPos[posIndex+0] = objState[0];
+            mObjectGciPos[posIndex+1] = objState[1];
+            mObjectGciPos[posIndex+2] = objState[2];
+            mObjectGciVel[posIndex+0] = objState[3];
+            mObjectGciVel[posIndex+1] = objState[4];
+            mObjectGciVel[posIndex+2] = objState[5];
+               
+            #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
+            MessageInterface::ShowMessage
+               ("TrajPlotCanvas::UpdateOtherData() %s, posIndex=%d, objState=%s\n",
+                mObjectNames[obj].c_str(), posIndex, objState.ToString().c_str());
+            #endif
+            
+            // convert objects to view CoordinateSystem
+            if (mViewCsIsInternalCs)
+            {
+               CopyVector3(&mObjectViewPos[posIndex], &mObjectGciPos[posIndex]);
+               CopyVector3(&mObjectViewVel[posIndex], &mObjectGciVel[posIndex]);
+            }
+            else
+            {
+               Rvector6 outState;
+                  
+               mCoordConverter.Convert(time, objState, pInternalCoordSystem,
+                                       outState, pViewCoordSystem);
+                  
+               mObjectViewPos[posIndex+0] = outState[0];
+               mObjectViewPos[posIndex+1] = outState[1];
+               mObjectViewPos[posIndex+2] = outState[2];                  
+               mObjectViewVel[posIndex+0] = outState[3];
+               mObjectViewVel[posIndex+1] = outState[4];
+               mObjectViewVel[posIndex+2] = outState[5];
+            }
+            
+            #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
+            MessageInterface::ShowMessage
+               ("    %s posIndex=%d, tmppos = %f, %f, %f\n", mObjectNames[obj].c_str(),
+                posIndex, mObjectViewPos[posIndex+0], mObjectViewPos[posIndex+1],
+                mObjectViewPos[posIndex+2]);
+            #endif
+            
+         }
+         else
+         {
+            #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
+            MessageInterface::ShowMessage
+               ("TrajPlotCanvas::UpdateOtherData() Cannot Add data. Invalid objId=%d\n",
+                objId);
+            #endif
+         }
+      }
+      else
+      {
+         #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
+         if (mObjectArray[obj] == NULL)
+         {
+            MessageInterface::ShowMessage
+               ("TrajPlotCanvas::UpdateOtherData() Cannot add data. %s is NULL\n",
+                mObjectNames[obj].c_str());
+         }
+         #endif
+      }
+   }
 }
 
 
@@ -4469,31 +4688,51 @@ bool TrajPlotCanvas::ConvertObjectData()
          ("TrajPlotCanvas::ConvertObjectData() No conversion is needed. "
           "Just copy MJ2000 pos\n");
       #endif
-      for (int i=0; i<mObjectCount; i++)
+      for (int obj=0; obj<mObjectCount; obj++)
       {
-         int objId = GetObjectId(mObjectNames[i]);
+         int objId = GetObjectId(mObjectNames[obj]);
          int index = 0;
-         for (int i=0; i<mNumData; i++)
+         
+         // Draw first part from the ring buffer
+         for (int i = mRealBeginIndex1 + 1; i <= mRealEndIndex1; i++)
          {
             index = objId * MAX_DATA * 3 + i * 3;
             CopyVector3(&mObjectViewPos[index], &mObjectGciPos[index]);
+         }
+         
+         // Draw second part from the ring buffer
+         if (mEndIndex2 != -1 && mBeginIndex1 != mBeginIndex2)
+         {
+            for (int i = mRealBeginIndex2 + 1; i <= mRealEndIndex2; i++)
+            {
+               index = objId * MAX_DATA * 3 + i * 3;
+               CopyVector3(&mObjectViewPos[index], &mObjectGciPos[index]);
+            }
          }
       }
    }
    else
    {
-      for (int i=0; i<mObjectCount; i++)
+      for (int obj=0; obj<mObjectCount; obj++)
       {
-         int objId = GetObjectId(mObjectNames[i]);
+         int objId = GetObjectId(mObjectNames[obj]);
          
          #if DEBUG_TRAJCANVAS_CONVERT
          MessageInterface::ShowMessage
             ("TrajPlotCanvas::ConvertObjectData() mObjectNames[%d]=%s\n", objId,
              mObjectNames[i].c_str());
-         #endif
+         #endif         
          
-         for (int i=0; i<mNumData; i++)
-            ConvertObject(objId, i);              
+         // Draw first part from the ring buffer
+         for (int i = mRealBeginIndex1 + 1; i <= mRealEndIndex1; i++)
+            ConvertObject(objId, i);
+         
+         // Draw second part from the ring buffer
+         if (mEndIndex2 != -1 && mBeginIndex1 != mBeginIndex2)
+         {
+            for (int i = mRealBeginIndex2 + 1; i <= mRealEndIndex2; i++)
+               ConvertObject(objId, i);
+         }
       }
    }
    
