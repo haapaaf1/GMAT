@@ -986,13 +986,13 @@ void OpenGlPlotSetupPanel::SaveData()
    if (mHasIntegerDataChanged)
    {
       CheckInteger(collectFreq, mDataCollectFreqTextCtrl->GetValue().c_str(),
-                   "DataCollectFrequency", "Integer Number > 0", false, true);
+                   "DataCollectFrequency", "Integer Number > 0", false, true, true);
       
       CheckInteger(updateFreq, mUpdatePlotFreqTextCtrl->GetValue().c_str(),
-                   "UpdatePlotFrequency", "Integer Number > 0", false, true);
+                   "UpdatePlotFrequency", "Integer Number > 0", false, true, true);
       
       CheckInteger(pointsToRedraw, mNumPointsToRedrawTextCtrl->GetValue().c_str(),
-                   "NumPointsToRedraw", "Integer Number >= 0", false, true, true);
+                   "NumPointsToRedraw", "Integer Number >= 0", false, true, true, true);
    }
    
    if ((mViewPointRefComboBox->GetStringSelection() == "Vector")||
