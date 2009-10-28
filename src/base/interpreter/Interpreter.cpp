@@ -5872,7 +5872,8 @@ bool Interpreter::FinalPass()
             MessageInterface::ShowMessage
                ("Interpreter::FinalPass() calling CheckFunctionDefinition()\n");
             #endif
-            retval = CheckFunctionDefinition(funcPath, obj, false);
+            bool retval1 = CheckFunctionDefinition(funcPath, obj, false);
+            retval = retval && retval1;
          }
       }
       //
@@ -6313,8 +6314,8 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
 {
    #if DBGLVL_FUNCTION_DEF > 0
    MessageInterface::ShowMessage
-      ("Interpreter::CheckFunctionDefinition() function=<%p>,\n   funcPath=<%s>\n",
-       function, funcPath.c_str());
+      ("Interpreter::CheckFunctionDefinition() function=<%p>, fullCheck=%d\n   "
+       "funcPath=<%s>\n", function, fullCheck, funcPath.c_str());
    #endif
    
    debugMsg = "In CheckFunctionDefinition()";
@@ -6354,8 +6355,8 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
    {
       #if DBGLVL_FUNCTION_DEF > 0
       MessageInterface::ShowMessage
-         ("Interpreter::CheckFunctionDefinition() returning false, since it's "
-          "not full checking\n");
+         ("Interpreter::CheckFunctionDefinition() returning %d, fullCheck=%d\n",
+          retval, fullCheck);
       #endif
       return retval;
    }
