@@ -2880,7 +2880,8 @@ void Propagate::PrepareToPropagate()
       fm.clear();
       psm.clear();
       baseEpoch.clear();
-   
+      currEpoch.clear();
+      
       for (Integer n = 0; n < (Integer)prop.size(); ++n)
       {
          elapsedTime.push_back(0.0);
