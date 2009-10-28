@@ -82,7 +82,12 @@ public:
    
    
 protected:
-
+   
+   enum FileType
+   {
+      CCSDS_OEM, CCSDS_AEM, SPK_ORBIT, SPK_ATTITUDE, TEXT_FILE
+   };
+   
    Spacecraft       *spacecraft;
    CoordinateSystem *coordSystem;
    Interpolator     *interpolator; // owned object
@@ -109,7 +114,10 @@ protected:
    Real        initialEpochA1Mjd;
    Real        finalEpochA1Mjd;
    Real        nextOutEpoch;
+   Real        nextReqEpoch;
    Real        currentEpoch;
+   Real        attEpoch;
+   Real        attQuat[4];
    RealArray   epochsOnWaiting;
    
    bool        firstTimeWriting;
@@ -120,6 +128,8 @@ protected:
    bool        processingLargeStep;
    
    CoordinateConverter coordConverter;
+   
+   FileType    fileType;
    
    /// output data stream
    std::ofstream      dstream;
@@ -142,8 +152,9 @@ protected:
    void        CreateInterpolator();
    bool        OpenEphemerisFile();
    bool        IsTimeToWrite(Real epoch, Real *state);
-   void        WriteOrbit(Real epoch, Real *state);
-   void        WriteOrbitAt(Real epoch, Real *state);
+   void        WriteOrbit(Real reqEpoch, Real *state);
+   void        WriteOrbitAt(Real reqEpoch, Real *state);
+   void        GetAttitude();
    void        WriteAttitude();
    void        FinishUpWriting();
    void        ProcessEpochsOnWaiting(bool checkFinalEpoch = false);
@@ -155,6 +166,22 @@ protected:
                            const StringArray &allowedValues,
                            const std::string &additionalMsg = "");
    std::string ToString(const StringArray &strList);
+   
+   // General writing
+   void        WriteString(const std::string &str);
+   void        WriteHeader();
+   void        WriteMetadata();
+   
+   // CCSDS file writing
+   void        WriteCcsdsHeader();
+   void        WriteCcsdsOemMetadata();
+   void        WriteCcsdsAemMetadata();
+   void        WriteCcsdsOem(const std::string &epoch, Real state[6]);
+   void        WriteCcsdsAem(const std::string &epoch, Real quat[4]);
+   void        WriteCcsdsComment(const std::string &comment);
+
+   // for debugging
+   void        DebugWriteTime(const std::string &msg, Real epoch);
    
    // methods inherited from Subscriber
    virtual bool         Distribute(Integer len);
