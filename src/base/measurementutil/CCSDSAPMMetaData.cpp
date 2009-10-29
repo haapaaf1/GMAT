@@ -55,7 +55,7 @@ const Gmat::ParameterType CCSDSAPMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  * Constructor for the CCSDSAPMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSAPMMetaData::CCSDSAPMMetaData() : CCSDSObType("CCSDSAPMMetaData", ""),
+CCSDSAPMMetaData::CCSDSAPMMetaData() :
     objectName(std::string("")),
     internationalDesignator(std::string("")),
     refFrameOrigin(std::string("")),
@@ -72,7 +72,7 @@ CCSDSAPMMetaData::CCSDSAPMMetaData() : CCSDSObType("CCSDSAPMMetaData", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSAPMMetaData::CCSDSAPMMetaData
-               (const CCSDSAPMMetaData &apmMD) : CCSDSObType(apmMD),
+               (const CCSDSAPMMetaData &apmMD) :
     objectName(apmMD.objectName),
     internationalDesignator(apmMD.internationalDesignator),
     refFrameOrigin(apmMD.refFrameOrigin),
@@ -98,8 +98,6 @@ const CCSDSAPMMetaData& CCSDSAPMMetaData::operator=
     if (&apmMD == this)
         return *this;
 
-    CCSDSObType::operator=(apmMD);
-
     objectName = apmMD.objectName;
     internationalDesignator = apmMD.internationalDesignator;
     refFrameOrigin = apmMD.refFrameOrigin;
@@ -118,21 +116,6 @@ const CCSDSAPMMetaData& CCSDSAPMMetaData::operator=
 //------------------------------------------------------------------------------
 CCSDSAPMMetaData::~CCSDSAPMMetaData()
 {
-}
-
-//------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the ProcessCCSDSAPMDataFile.
- *
- * @return clone of the ProcessCCSDSAPMDataFile.
- */
-//------------------------------------------------------------------------------
-GmatBase* CCSDSAPMMetaData::Clone() const
-{
-   GmatBase *clone = new CCSDSAPMMetaData(*this);
-   return (clone);
 }
 
 //------------------------------------------------------------------------------
@@ -170,7 +153,7 @@ const Integer CCSDSAPMMetaData::GetKeywordID(const std::string str) const
             return i;
     }
 
-   return -1;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
 }
 
@@ -208,7 +191,7 @@ bool CCSDSAPMMetaData::IsParameterRequired(const Integer id) const
 }
 
 //---------------------------------------------------------------------------
-//  bool CCSDSAPMCountRequiredNumberMetaDataParameters()
+//  bool CountRequiredNumberAPMMetaDataParameters()
 //---------------------------------------------------------------------------
 /**
  * Count the number of required variables.
@@ -216,7 +199,7 @@ bool CCSDSAPMMetaData::IsParameterRequired(const Integer id) const
  * @return The number of required variables.
  */
 //---------------------------------------------------------------------------
-Integer CCSDSAPMCountRequiredNumberMetaDataParameters()
+Integer CountRequiredNumberAPMMetaDataParameters()
 {
 
     Integer num = 0;
@@ -273,7 +256,7 @@ std::string CCSDSAPMMetaData::GetDataParameterText(const Integer id) const
    {
       return CCSDS_METADATA_FILEFORMAT_DESCRIPTIONS[id];
    }
-   return CCSDSObType::GetDataParameterText(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -297,7 +280,7 @@ Integer CCSDSAPMMetaData::GetDataParameterID(const std::string &str) const
 	}
    }
 
-   return CCSDSObType::GetDataParameterID(str);
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 
@@ -313,7 +296,7 @@ Gmat::ParameterType CCSDSAPMMetaData::GetDataParameterType(const Integer id) con
    if ((id >= 0) && (id < EndCCSDSAPMMetaDataReps))
       return CCSDS_METADATA_PARAMETER_TYPE[id];
 
-   return CCSDSObType::GetDataParameterType(id);
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
 }
 
 //---------------------------------------------------------------------------
@@ -358,7 +341,7 @@ std::string CCSDSAPMMetaData::GetStringDataParameter(const Integer id) const
 
         default:
 
-            return CCSDSObType::GetStringDataParameter(id);
+            return GmatBase::STRING_PARAMETER_UNDEFINED;
 
     }
 
@@ -394,7 +377,7 @@ StringArray CCSDSAPMMetaData::GetStringArrayDataParameter(const Integer id) cons
 
         default:
 
-            return CCSDSObType::GetStringArrayDataParameter(id);
+            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
 
     }
 

@@ -56,7 +56,6 @@ private:
     bool isMetaDataWritten;
     Integer requiredNumberMetaDataParameters;
 
-
 };
 #endif	/* _ProcessCCSDSOEMDataFileData_hpp */
 

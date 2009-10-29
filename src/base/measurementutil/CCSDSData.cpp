@@ -6,6 +6,7 @@
 
 const std::string CCSDSData::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSGenericDataReps] =
 {
+    "Keyword ID",
     "Keyword",
     "Epoch",
     "Measurement",
@@ -17,11 +18,13 @@ const bool CCSDSData::CCSDS_IS_REQUIRED[EndCCSDSGenericDataReps] =
     true,
     true,
     true,
+    true,
     false
 };
 
 const Gmat::ParameterType CCSDSData::CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataReps] =
 {
+    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
@@ -36,6 +39,7 @@ const Gmat::ParameterType CCSDSData::CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataRep
  */
 //------------------------------------------------------------------------------
 CCSDSData::CCSDSData() :
+    keywordID(0),
     keyword(std::string("")),
     timeTag(std::string("")),
     measurement(0),
@@ -51,6 +55,7 @@ CCSDSData::CCSDSData() :
  */
 //------------------------------------------------------------------------------
 CCSDSData::CCSDSData(const CCSDSData &data) : 
+    keywordID(data.keywordID),
     keyword(data.keyword),
     timeTag(data.timeTag),
     measurement(data.measurement),
@@ -75,6 +80,7 @@ const CCSDSData& CCSDSData::operator=(const CCSDSData &data)
     if (&data == this)
         return *this;
 
+    keywordID = data.keywordID;
     keyword = data.keyword;
     timeTag = data.timeTag;
     measurement = data.measurement;
@@ -199,6 +205,40 @@ Gmat::ParameterType CCSDSData::GetDataParameterType(const Integer id) const
       return CCSDS_PARAMETER_TYPE[id];
 
    return Gmat::UNKNOWN_PARAMETER_TYPE;
+}
+//------------------------------------------------------------------------------
+// Integer GetIntegerDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//---------------------------------------------------------------------------
+Integer CCSDSData::GetIntegerDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+	case CCSDS_GENERICDATA_KEYWORDID_ID:
+
+            return keywordID;
+
+     default:
+
+        return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// Integer GetIntegerDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Integer CCSDSData::GetIntegerDataParameter(const std::string &label) const
+{
+   return GetIntegerDataParameter(GetDataParameterID(label));
 }
 
 //---------------------------------------------------------------------------

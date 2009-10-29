@@ -23,6 +23,8 @@ public:
     friend std::ostream& operator<< (std::ostream &output,
                                 const CCSDSAPMQuaternion *myCCSDSAPMQuaternion);
 
+    friend class ProcessCCSDSAPMDataFile;
+
 };
 
 #endif	/* _CCSDSAPMQUATERNION_HPP */

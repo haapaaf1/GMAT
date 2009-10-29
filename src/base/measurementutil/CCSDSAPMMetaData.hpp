@@ -8,9 +8,15 @@
 #ifndef _CCSDSAPMMETADATA_HPP
 #define	_CCSDSAPMMETADATA_HPP
 
-#include "CCSDSObtype.hpp"
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
 
-class CCSDSAPMMetaData : public CCSDSObType
+class CCSDSAPMMetaData
 {
 
 public:
@@ -19,8 +25,6 @@ public:
     CCSDSAPMMetaData(const CCSDSAPMMetaData &apmMD);
     const CCSDSAPMMetaData& CCSDSAPMMetaData::operator=(const CCSDSAPMMetaData &apmMD);
     ~CCSDSAPMMetaData();
-
-    GmatBase *Clone() const;
 
     friend std::ostream& operator<< (std::ostream &output,
                                      const CCSDSAPMMetaData *myMetaData);
@@ -43,7 +47,7 @@ public:
     std::string GetDataParameterTypeString(const Integer id) const;
 
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CCSDSAPMCountRequiredNumberMetaDataParameters();
+    friend Integer CountRequiredNumberAPMMetaDataParameters();
 
     enum CCSDS_METADATA_REPS
     {

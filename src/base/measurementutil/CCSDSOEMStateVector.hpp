@@ -20,6 +20,8 @@ public:
     const CCSDSOEMStateVector& CCSDSOEMStateVector::operator=(const CCSDSOEMStateVector &oemSV);
     ~CCSDSOEMStateVector();
 
+    friend class ProcessCCSDSOEMDataFile;
+
     friend std::ostream& operator<< (std::ostream &output,
                                     const CCSDSOEMStateVector *myCCSDSOEMStateVector);
 };

@@ -11,6 +11,7 @@ const std::string CCSDSQuaternion::CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeR
 const std::string CCSDSQuaternion::CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDataReps] =
 {
     "",
+    "",
     "EPOCH",
     "Q_FRAME_A",
     "Q_FRAME_B",
@@ -39,6 +40,7 @@ const std::string CCSDSQuaternion::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDat
     "",
     "",
     "",
+    "",
     "1/s",
     "1/s",
     "1/s",
@@ -51,6 +53,7 @@ const std::string CCSDSQuaternion::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDat
 
 const std::string CCSDSQuaternion::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaternionDataReps] =
 {
+    "Quaternion Attitude Type",
     "Quaternion Type",
     "Quaternion Epoch",
     "Quaternion Frame A",
@@ -88,11 +91,13 @@ const bool CCSDSQuaternion::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
     true,
     true,
     true,
+    true,
     false
 };
 
 const Gmat::ParameterType CCSDSQuaternion::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternionDataReps] =
 {
+    Gmat::INTEGER_TYPE,
     Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
@@ -120,6 +125,7 @@ const Gmat::ParameterType CCSDSQuaternion::CCSDS_PARAMETER_TYPE[EndCCSDSQuaterni
  */
 //------------------------------------------------------------------------------
 CCSDSQuaternion::CCSDSQuaternion() :
+    attitudeType(0),
     quaternionType(0),
     timeTag(std::string("")),
     frameA(std::string("")),
@@ -148,6 +154,7 @@ CCSDSQuaternion::CCSDSQuaternion() :
  */
 //------------------------------------------------------------------------------
 CCSDSQuaternion::CCSDSQuaternion(const CCSDSQuaternion &myQ) : 
+    attitudeType(myQ.attitudeType),
     quaternionType(myQ.quaternionType),
     timeTag(myQ.timeTag),
     frameA(myQ.frameA),
@@ -185,6 +192,7 @@ const CCSDSQuaternion& CCSDSQuaternion::operator=(const CCSDSQuaternion &myQ)
     if (&myQ == this)
         return *this;
 
+    attitudeType = myQ.attitudeType;
     quaternionType = myQ.quaternionType;
     timeTag = myQ.timeTag;
     frameA = myQ.frameA;
@@ -300,6 +308,10 @@ Integer CCSDSQuaternion::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
+        case CCSDS_QUATERNION_ATTITUDETYPE_ID:
+
+	    return attitudeType;
+
         case CCSDS_QUATERNION_TYPE_ID:
 
 	    return quaternionType;
@@ -546,6 +558,29 @@ bool CCSDSQuaternion::IsParameterRequired(const Integer id) const
         return CCSDS_IS_REQUIRED[id];
     else
         return false;
+}
+
+
+
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberQuaternionParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberQuaternionParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSQuaternion::EndCCSDSQuaternionDataReps; id++)
+        if (CCSDSQuaternion::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
 }
 
 //------------------------------------------------------------------------------

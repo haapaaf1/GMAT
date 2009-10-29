@@ -70,18 +70,110 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
 {
    using namespace std;
 
-   output << "Quaternion Type = " << myAEMQuaternion->quaternionType << endl;
-   output << "Q_FRAME_A = " << myAEMQuaternion->frameA << endl;
-   output << "Q_FRAME_B = " << myAEMQuaternion->frameB << endl;
-   output << "Q_DIR = " << myAEMQuaternion->direction << endl;
-   output << "Q1 = " << myAEMQuaternion->q1 << endl;
-   output << "Q2 = " << myAEMQuaternion->q2 << endl;
-   output << "Q3 = " << myAEMQuaternion->q3 << endl;
-   output << "QC = " << myAEMQuaternion->qC << endl;
-   output << "Q1_DOT = " << myAEMQuaternion->q1Dot << endl;
-   output << "Q2_DOT = " << myAEMQuaternion->q2Dot << endl;
-   output << "Q3_DOT = " << myAEMQuaternion->q3Dot << endl;
-   output << "QC_DOT = " << myAEMQuaternion->qCDot << endl;
+    switch (myAEMQuaternion->attitudeType)
+    {
+        case CCSDSObType::CCSDS_QUATERNION_ID:
+        {
+            if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            {
+                output << myAEMQuaternion->timeTag
+                       << myAEMQuaternion->qC
+                       << myAEMQuaternion->q1
+                       << myAEMQuaternion->q2
+                       << myAEMQuaternion->q3 << endl;
 
-   return output;
+                return output;
+            }
+            else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            {
+                output << myAEMQuaternion->timeTag
+                       << myAEMQuaternion->q1
+                       << myAEMQuaternion->q2
+                       << myAEMQuaternion->q3
+                       << myAEMQuaternion->qC << endl;
+
+                return output;
+            }
+            else
+                return output;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID:
+        {
+            if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            {
+                output << myAEMQuaternion->timeTag
+                       << myAEMQuaternion->qC
+                       << myAEMQuaternion->q1
+                       << myAEMQuaternion->q2
+                       << myAEMQuaternion->q3
+                       << myAEMQuaternion->qCDot
+                       << myAEMQuaternion->q1Dot
+                       << myAEMQuaternion->q2Dot
+                       << myAEMQuaternion->q3Dot << endl;
+
+                return output;
+            }
+            else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            {
+                output << myAEMQuaternion->timeTag
+                       << myAEMQuaternion->q1
+                       << myAEMQuaternion->q2
+                       << myAEMQuaternion->q3
+                       << myAEMQuaternion->qC
+                       << myAEMQuaternion->q1Dot
+                       << myAEMQuaternion->q2Dot
+                       << myAEMQuaternion->q3Dot
+                       << myAEMQuaternion->qCDot << endl;
+
+                return output;
+            }
+            else
+                return output;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_QUATERNION_RATE_ID:
+        {
+            if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            {
+                output << myAEMQuaternion->timeTag
+                       << myAEMQuaternion->qC
+                       << myAEMQuaternion->q1
+                       << myAEMQuaternion->q2
+                       << myAEMQuaternion->q3
+                       << myAEMQuaternion->xRate
+                       << myAEMQuaternion->yRate
+                       << myAEMQuaternion->zRate << endl;
+
+                return output;
+            }
+            else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            {
+                output << myAEMQuaternion->timeTag
+                       << myAEMQuaternion->q1
+                       << myAEMQuaternion->q2
+                       << myAEMQuaternion->q3
+                       << myAEMQuaternion->qC
+                       << myAEMQuaternion->xRate
+                       << myAEMQuaternion->yRate
+                       << myAEMQuaternion->zRate << endl;
+
+                return output;
+            }
+            else
+                return output;
+        }
+
+        break;
+
+        default:
+
+            break;
+    }
+
+    return output;
 }

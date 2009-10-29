@@ -38,6 +38,8 @@ public:
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
+    Integer	GetIntegerDataParameter(const Integer id) const;
+    Integer	GetIntegerDataParameter(const std::string &label) const;
     Real	GetRealDataParameter(const Integer id) const;
     Real	GetRealDataParameter(const std::string &label) const;
     std::string GetStringDataParameter(const Integer id) const;
@@ -50,6 +52,7 @@ public:
 
     enum CCSDS_DATA_REPS
     {
+        CCSDS_GENERICDATA_KEYWORDID_ID,
         CCSDS_GENERICDATA_KEYWORD_ID,
         CCSDS_GENERICDATA_TIMETAG_ID,
         CCSDS_GENERICDATA_MEASUREMENT_ID,
@@ -57,12 +60,15 @@ public:
         EndCCSDSGenericDataReps
     };
 
+    friend class ProcessCCSDSTDMDataFile;
+
 protected:
 
     static const bool CCSDS_IS_REQUIRED[EndCCSDSGenericDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSGenericDataReps];
 
+    Integer keywordID;
     std::string keyword;
     std::string timeTag;
     Real measurement;

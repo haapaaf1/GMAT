@@ -28,21 +28,6 @@ public :
     friend std::string GetAttitudeDirText(const Integer id);
     friend Integer    GetAttitudeDirID(const std::string &str);
     
-    virtual Real	GetRealDataParameter(const Integer id) const;
-    virtual Real	GetRealDataParameter(const std::string &label) const;
-    virtual Integer	GetIntegerDataParameter(const Integer id) const;
-    virtual Integer	GetIntegerDataParameter(const std::string &label) const;
-    virtual bool        GetBoolDataParameter(const Integer id) const;
-    virtual bool        GetBoolDataParameter(const std::string &label) const;    
-    virtual std::string GetStringDataParameter(const Integer id) const;
-    virtual std::string GetStringDataParameter(const std::string &label) const;
-    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
-    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
-
-    virtual const std::string* GetKeywords() const;
-    virtual const Integer GetKeywordID(const std::string str) const;
-    virtual std::string GetUnits(const Integer &id) const;
-
     virtual const std::string* GetTimeSystems() const;
     virtual std::string GetTimeSystemText(const Integer &id) const;
     virtual Integer GetTimeSystemID(const std::string &label);    

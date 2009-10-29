@@ -37,7 +37,7 @@ bool ProcessCCSDSAEMDataFile::Initialize()
 {
     if (!ProcessCCSDSDataFile::Initialize()) return false;
 
-    requiredNumberMetaDataParameters = CCSDSAEMCountRequiredNumberMetaDataParameters();
+    requiredNumberMetaDataParameters = CountRequiredNumberAEMMetaDataParameters();
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
@@ -336,7 +336,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
-            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -345,23 +345,24 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
                                                  &dtemp3,&dtemp4))
                 {
-                    myQData->epoch = stemp;
-                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
                     myQData->qC = dtemp1;
                     myQData->q1 = dtemp2;
                     myQData->q2 = dtemp3;
                     myQData->q3 = dtemp4;
                     myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
-                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
 
                     return true;
                 }
 
                 return false;
             }
-            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -370,16 +371,17 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
                                                  &dtemp3,&dtemp4))
                 {
-                    myQData->epoch = stemp;
-                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
                     myQData->q1 = dtemp1;
                     myQData->q2 = dtemp2;
                     myQData->q3 = dtemp3;
                     myQData->qC = dtemp4;
                     myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
-                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
 
                     return true;
                 }
@@ -396,7 +398,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
-            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -408,8 +410,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                                                  &dtemp3,&dtemp4,&dtemp5,
                                                  &dtemp6,&dtemp7,&dtemp8))
                 {
-                    myQData->epoch = stemp;
-                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
                     myQData->qC = dtemp1;
                     myQData->q1 = dtemp2;
                     myQData->q2 = dtemp3;
@@ -419,16 +421,17 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q2Dot = dtemp7;
                     myQData->q3Dot = dtemp8;
                     myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
-                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
 
                     return true;
                 }
 
                 return false;
             }
-            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -440,8 +443,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                                                  &dtemp3,&dtemp4,&dtemp5,
                                                  &dtemp6,&dtemp7,&dtemp8))
                 {
-                    myQData->epoch = stemp;
-                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
                     myQData->q1 = dtemp1;
                     myQData->q2 = dtemp2;
                     myQData->q3 = dtemp3;
@@ -451,9 +454,10 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q3Dot = dtemp7;
                     myQData->qCDot = dtemp8;
                     myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
-                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
 
                     return true;
                 }
@@ -470,7 +474,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
-            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_FIRST_ID)
+            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -482,8 +486,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                                                  &dtemp3,&dtemp4,&dtemp5,
                                                  &dtemp6,&dtemp7))
                 {
-                    myQData->epoch = stemp;
-                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
                     myQData->qC = dtemp1;
                     myQData->q1 = dtemp2;
                     myQData->q2 = dtemp3;
@@ -492,16 +496,17 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->yRate = dtemp6;
                     myQData->zRate = dtemp7;
                     myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
-                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
 
                     return true;
                 }
 
                 return false;
             }
-            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSObType::CCSDS_QUATERNION_LAST_ID)
+            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -513,8 +518,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                                                  &dtemp3,&dtemp4,&dtemp5,
                                                  &dtemp6,&dtemp7))
                 {
-                    myQData->epoch = stemp;
-                    if (!CCSDSTimeTag2A1Date(myQData->epoch,myOb->epoch)) return false;
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
                     myQData->q1 = dtemp1;
                     myQData->q2 = dtemp2;
                     myQData->q3 = dtemp3;
@@ -523,9 +528,10 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->yRate = dtemp6;
                     myQData->zRate = dtemp7;
                     myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
-                    myOb->ccsdsHeader->dataType = CCSDSObType::QUATERNION_ID;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
 
                     return true;
                 }
@@ -550,9 +556,9 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
             if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
                                              &dtemp3))
             {
-                myEulerData->epoch = stemp;
+                myEulerData->timeTag = stemp;
 
-                if (!CCSDSTimeTag2A1Date(myEulerData->epoch,myOb->epoch)) return false;
+                if (!CCSDSTimeTag2A1Date(myEulerData->timeTag,myOb->epoch)) return false;
 
                 myEulerData->xAngle = dtemp1;
                 myEulerData->yAngle = dtemp2;
@@ -560,7 +566,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 myEulerData->eulerAngleType = CCSDSObType::CCSDS_EULER_ANGLE_ID;
 
                 myOb->ccsdsAEMEulerAngle = myEulerData;
-                myOb->ccsdsHeader->dataType = CCSDSObType::EULERANGLE_ID;
+                myOb->ccsdsHeader->dataType = CCSDSHeader::EULERANGLE_ID;
 
                 return true;
 
@@ -585,9 +591,9 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                                              &dtemp3,&dtemp4,&dtemp5,
                                              &dtemp6))
             {
-                myEulerData->epoch = stemp;
+                myEulerData->timeTag = stemp;
 
-                if (!CCSDSTimeTag2A1Date(myEulerData->epoch,myOb->epoch)) return false;
+                if (!CCSDSTimeTag2A1Date(myEulerData->timeTag,myOb->epoch)) return false;
 
                 myEulerData->xAngle = dtemp1;
                 myEulerData->yAngle = dtemp2;
@@ -598,7 +604,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 myEulerData->eulerAngleType = CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID;
 
                 myOb->ccsdsAEMEulerAngle = myEulerData;
-                myOb->ccsdsHeader->dataType = CCSDSObType::EULERANGLE_ID;
+                myOb->ccsdsHeader->dataType = CCSDSHeader::EULERANGLE_ID;
 
                 return true;
 
@@ -621,9 +627,9 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
             if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
                                                  &dtemp3,&dtemp4))
             {
-                mySpinData->epoch = stemp;
+                mySpinData->timeTag = stemp;
 
-                if (!CCSDSTimeTag2A1Date(mySpinData->epoch,myOb->epoch)) return false;
+                if (!CCSDSTimeTag2A1Date(mySpinData->timeTag,myOb->epoch)) return false;
 
                 mySpinData->spinAlpha = dtemp1;
                 mySpinData->spinDelta = dtemp2;
@@ -632,7 +638,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 mySpinData->attitudeType = CCSDSObType::CCSDS_SPIN_ID;
 
                 myOb->ccsdsAEMSpinStabilized = mySpinData;
-                myOb->ccsdsHeader->dataType = CCSDSObType::SPINSTABILIZED_ID;
+                myOb->ccsdsHeader->dataType = CCSDSHeader::SPINSTABILIZED_ID;
 
                 return true;
             }
@@ -656,9 +662,9 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                                              &dtemp3,&dtemp4,&dtemp5,
                                              &dtemp6,&dtemp7))
             {
-                mySpinData->epoch = stemp;
+                mySpinData->timeTag = stemp;
 
-                if (!CCSDSTimeTag2A1Date(mySpinData->epoch,myOb->epoch)) return false;
+                if (!CCSDSTimeTag2A1Date(mySpinData->timeTag,myOb->epoch)) return false;
 
                 mySpinData->spinAlpha = dtemp1;
                 mySpinData->spinDelta = dtemp2;
@@ -670,7 +676,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 mySpinData->attitudeType = CCSDSObType::CCSDS_SPIN_NUTATION_ID;
 
                 myOb->ccsdsAEMSpinStabilized = mySpinData;
-                myOb->ccsdsHeader->dataType = CCSDSObType::SPINSTABILIZED_ID;
+                myOb->ccsdsHeader->dataType = CCSDSHeader::SPINSTABILIZED_ID;
 
                 return true;
             }
@@ -703,7 +709,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
 {
     CCSDSAEMMetaData *myMetaData = new CCSDSAEMMetaData;
 
-    Integer count = 0;
+    Integer requiredCount = 0;
     std::string keyword;
 
     do
@@ -711,7 +717,11 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        switch (myMetaData->GetKeywordID(keyword))
+        Integer keyID = myMetaData->GetKeywordID(keyword);
+
+        if(myMetaData->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
         {
 
             case CCSDSAEMMetaData::CCSDS_AEM_METADATACOMMENTS_ID:
@@ -719,8 +729,6 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp)) return false;
                 myMetaData->comments.push_back(stemp);
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_METADATACOMMENTS_ID))
-                    count++;
                 }
                 break;
 
@@ -728,96 +736,72 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
 
                 if (!GetCCSDSValue(lff,myMetaData->objectName))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_OBJECTNAME_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_OBJECTID_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->internationalDesignator))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_OBJECTID_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_CENTERNAME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->refFrameOrigin))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_CENTERNAME_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_TIMESYSTEM_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->timeSystem))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_TIMESYSTEM_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_STARTEPOCH_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->startEpoch))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_STARTEPOCH_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_STOPEPOCH_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->stopEpoch))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_STOPEPOCH_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STARTEPOCH_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->useableStartEpoch))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STARTEPOCH_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STOPEPOCH_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->useableStopEpoch))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STOPEPOCH_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATION_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->interpolationMethod))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATION_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATIONDEGREE_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->interpolationDegree))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATIONDEGREE_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEA_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->frameA))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEA_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEB_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->frameB))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEB_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_ATTITUDEDIR_ID:
@@ -826,8 +810,6 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
                 myMetaData->direction = GetAttitudeDirID(stemp);
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_ATTITUDEDIR_ID))
-                    count++;
                 }
                 break;
 
@@ -837,35 +819,29 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
                 myMetaData->attitudeType = GetAttitudeTypeID(stemp);
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_ATTITUDETYPE_ID))
-                    count++;
                 }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID:
                 {
-                if (myMetaData->attitudeType != CCSDSObTye::CCSDS_QUATERNION_ID
-                 || myMetaData->attitudeType != CCSDSObTye::CCSDS_QUATERNION_DERIVATIVE_ID
-                 || myMetaData->attitudeType != CCSDSObTye::CCSDS_QUATERNION_RATE_ID)
+                if (myMetaData->attitudeType != CCSDSObType::CCSDS_QUATERNION_ID
+                 || myMetaData->attitudeType != CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID
+                 || myMetaData->attitudeType != CCSDSObType::CCSDS_QUATERNION_RATE_ID)
                     return false;
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
                 myMetaData->quaternionType = GetQuaternionTypeID(stemp);
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID))
-                    count++;
                 }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID:
 
-                if (myMetaData->attitudeType != CCSDSObTye::CCSDS_EULER_ANGLE_ID
-                 || myMetaData->attitudeType != CCSDSObTye::CCSDS_EULER_ANGLE_RATE_ID )
+                if (myMetaData->attitudeType != CCSDSObType::CCSDS_EULER_ANGLE_ID
+                 || myMetaData->attitudeType != CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID )
                     return false;
                 if (!GetCCSDSValue(lff,myMetaData->eulerRotationSequence))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID))
-                    count++;
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_RATEFRAME_ID:
@@ -874,8 +850,6 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
                 myMetaData->rateFrame = GetRateFrameID(stemp);
-                if (myMetaData->IsParameterRequired(CCSDSAEMMetaData::CCSDS_AEM_RATEFRAME_ID))
-                    count++;
                 }
                 break;
 
@@ -888,7 +862,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
 
         lff = ReadLineFromFile();
     }
-    while(count < requiredNumberMetaDataParameters ||
+    while(requiredCount < requiredNumberMetaDataParameters ||
           pcrecpp::RE("^DATA_START.*$").FullMatch(lff));
 
     myOb->ccsdsAEMMetaData = myMetaData;

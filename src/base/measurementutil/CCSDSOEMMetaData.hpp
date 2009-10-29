@@ -8,9 +8,15 @@
 #ifndef _CCSDSOEMMETADATA_HPP
 #define	_CCSDSOEMMETADATA_HPP
 
-#include "CCSDSObtype.hpp"
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <pcrecpp.h>
 
-class CCSDSOEMMetaData : public CCSDSObType
+class CCSDSOEMMetaData
 {
     
 public:
@@ -46,7 +52,7 @@ public:
     std::string GetDataParameterTypeString(const Integer id) const;
 
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CCSDSOEMCountRequiredNumberMetaDataParameters();
+    friend Integer CountRequiredNumberOEMMetaDataParameters();
 
     enum CCSDS_METADATA_REPS
     {

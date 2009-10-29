@@ -10,6 +10,11 @@
 
 #include "CCSDSObtype.hpp"
 #include "CCSDSAPMMetaData.hpp"
+#include "CCSDSAPMQuaternion.hpp"
+#include "CCSDSAPMEulerAngle.hpp"
+#include "CCSDSAPMSpinStabilized.hpp"
+#include "CCSDSSpacecraftInertia.hpp"
+#include "CCSDSAttitudeManeuver.hpp"
 
 class CCSDSAPMObType : public CCSDSObType
 {
@@ -71,16 +76,15 @@ protected:
 
     static const std::string CCSDS_TIME_DESCRIPTIONS[EndCCSDSAPMTimeReps-EndCCSDSTimeReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAPMTimeReps - EndCCSDSTimeReps];
-    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSAPMDataReps];
 
     // Pointer to the data records
     CCSDSAPMMetaData *ccsdsAPMMetaData;
     CCSDSAPMQuaternion *ccsdsAPMQuaternion;
     CCSDSAPMEulerAngle *ccsdsAPMEulerAngle;
     CCSDSAPMSpinStabilized *ccsdsAPMSpinStabilized;
-    CCSDSAPMSpacecraftInertia *ccsdsAPMSpacecraftInertia;
-    std::vector<CCSDSAPMAttitudeManeuver*> ccsdsAPMAttitudeManeuvers;
-    std::vector<CCSDSAPMAttitudeManeuver*>::const_iterator i_ccsdsAPMAttitudeManeuvers;
+    CCSDSSpacecraftInertia *ccsdsAPMSpacecraftInertia;
+    std::vector<CCSDSAttitudeManeuver*> ccsdsAPMAttitudeManeuvers;
+    std::vector<CCSDSAttitudeManeuver*>::const_iterator i_ccsdsAPMAttitudeManeuvers;
 
 
 

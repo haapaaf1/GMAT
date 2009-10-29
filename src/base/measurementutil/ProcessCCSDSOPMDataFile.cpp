@@ -38,7 +38,11 @@ bool ProcessCCSDSOPMDataFile::Initialize()
 {
     if (!ProcessCCSDSDataFile::Initialize()) return false;
 
-    requiredNumberMetaDataParameters = CCSDSOPMCountRequiredNumberMetaDataParameters();
+    requiredNumberMetaDataParameters = CountRequiredNumberOPMMetaDataParameters();
+    requiredNumberStateVectorParameters = CountRequiredNumberStateVectorParameters();
+    requiredNumberKeplerianElementsParameters = CountRequiredNumberKeplerianElementsParameters();
+    requiredNumberSpacecraftParameters = CountRequiredNumberSpacecraftParameters();
+    requiredNumberManeuverParameters = CountRequiredNumberManeuverParameters();
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
@@ -121,7 +125,11 @@ ProcessCCSDSOPMDataFile::ProcessCCSDSOPMDataFile(const std::string &itsName) :
 	currentCCSDSMetaData(NULL),
 	lastMetaDataWritten(NULL),
         isMetaDataWritten(false),
-        requiredNumberMetaDataParameters(0)
+        requiredNumberMetaDataParameters(0),
+        requiredNumberStateVectorParameters(0),
+        requiredNumberKeplerianElementsParameters(0),
+        requiredNumberSpacecraftParameters(0),
+        requiredNumberManeuverParameters(0)
 {
    objectTypeNames.push_back("CCSDSOPMDataFile");
    fileFormatName = "CCSDSOPM";
@@ -141,7 +149,11 @@ ProcessCCSDSOPMDataFile::ProcessCCSDSOPMDataFile(const ProcessCCSDSOPMDataFile &
     currentCCSDSMetaData(CCSDSOPMdf.currentCCSDSMetaData),
     lastMetaDataWritten(CCSDSOPMdf.lastMetaDataWritten),
     isMetaDataWritten(CCSDSOPMdf.isMetaDataWritten),
-    requiredNumberMetaDataParameters(CCSDSOPMdf.requiredNumberMetaDataParameters)
+    requiredNumberMetaDataParameters(CCSDSOPMdf.requiredNumberMetaDataParameters),
+    requiredNumberStateVectorParameters(CCSDSOPMdf.requiredNumberStateVectorParameters),
+    requiredNumberKeplerianElementsParameters(CCSDSOPMdf.requiredNumberKeplerianElementsParameters),
+    requiredNumberSpacecraftParameters(CCSDSOPMdf.requiredNumberSpacecraftParameters),
+    requiredNumberManeuverParameters(CCSDSOPMdf.requiredNumberManeuverParameters)
 {
 }
 
@@ -163,6 +175,10 @@ const ProcessCCSDSOPMDataFile& ProcessCCSDSOPMDataFile::operator=(const ProcessC
     lastMetaDataWritten = CCSDSOPMdf.lastMetaDataWritten;
     isMetaDataWritten = CCSDSOPMdf.isMetaDataWritten;
     requiredNumberMetaDataParameters = CCSDSOPMdf.requiredNumberMetaDataParameters;
+    requiredNumberStateVectorParameters = CCSDSOPMdf.requiredNumberStateVectorParameters;
+    requiredNumberKeplerianElementsParameters = CCSDSOPMdf.requiredNumberKeplerianElementsParameters;
+    requiredNumberSpacecraftParameters = CCSDSOPMdf.requiredNumberSpacecraftParameters;
+    requiredNumberManeuverParameters = CCSDSOPMdf.requiredNumberManeuverParameters;
     return *this;
 }
 
@@ -338,7 +354,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     regex = "^SEMI_MAJOR_AXIS\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
-        if (GetCCSDSOPMKeplerianElements(lff,myOb))
+        if (GetCCSDSKeplerianElements(lff,myOb))
         {
             if (commentsFound)
             {
@@ -353,7 +369,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     regex = "^MASS\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
-        if (GetCCSDSOPMSpacecraftParameters(lff,myOb))
+        if (GetCCSDSSpacecraftParameters(lff,myOb))
         {
             if (commentsFound)
             {
@@ -371,7 +387,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
 
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
-        if (GetCCSDSOPMManeuver(lff,myOb))
+        if (GetCCSDSManeuver(lff,myOb))
         {
             myOb->i_ccsdsOPMManeuvers++;
             if (commentsFound)
@@ -399,61 +415,58 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
                                                      CCSDSOPMObType *myOb)
 {
 
-    Integer count = 0;
-    std::string keyword;
-
     CCSDSOPMStateVector *myOPMStateVector = new CCSDSOPMStateVector;
+
+    Integer requiredCount = 0;
+    std::string keyword;
 
     do
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        switch (myOb->GetKeywordID(keyword))
+        Integer keyID = myOPMStateVector->GetKeywordID(keyword);
+
+        if(myOPMStateVector->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
         {
 
-            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_EPOCH_ID:
+            case CCSDSStateVector::CCSDS_STATEVECTOR_TIMETAG_ID:
 
-                if (!GetCCSDSValue(lff,myOPMStateVector->epoch)) return false;
-                if (!CCSDSTimeTag2A1Date(myOPMStateVector->epoch,
+                if (!GetCCSDSValue(lff,myOPMStateVector->timeTag)) return false;
+                if (!CCSDSTimeTag2A1Date(myOPMStateVector->timeTag,
                                          myOb->epoch)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_X_ID:
+            case CCSDSStateVector::CCSDS_STATEVECTOR_X_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->x)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_Y_ID:
+            case CCSDSStateVector::CCSDS_STATEVECTOR_Y_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->y)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_Z_ID:
+            case CCSDSStateVector::CCSDS_STATEVECTOR_Z_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->z)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_XDOT_ID:
+            case CCSDSStateVector::CCSDS_STATEVECTOR_XDOT_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->xDot)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_YDOT_ID:
+            case CCSDSStateVector::CCSDS_STATEVECTOR_YDOT_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->yDot)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_STATEVECTOR_ZDOT_ID:
+            case CCSDSStateVector::CCSDS_STATEVECTOR_ZDOT_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->zDot)) return false;
-                count++;
                 break;
 
             default:
@@ -465,7 +478,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( count < 7 );
+    while ( requiredCount < requiredNumberStateVectorParameters );
 
     myOb->ccsdsOPMStateVector = myOPMStateVector;
 
@@ -475,61 +488,59 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
 
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSOPMKeplerianElements(std::string &lff, CCSDSOPMObType *myOb)
+// bool GetCCSDSKeplerianElements(std::string &lff, CCSDSOPMObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts the Keplerian element information from the orbit parameter message.
  */
 //
 //------------------------------------------------------------------------------
-bool ProcessCCSDSOPMDataFile::GetCCSDSOPMKeplerianElements(std::string &lff,
+bool ProcessCCSDSOPMDataFile::GetCCSDSKeplerianElements(std::string &lff,
                                                            CCSDSOPMObType *myOb)
 {
-    Integer count = 0;
-    std::string keyword;
+    CCSDSKeplerianElements *myOPMKeplerianElements = new CCSDSKeplerianElements;
 
-    CCSDSOPMKeplerianElements *myOPMKeplerianElements =
-                                                  new CCSDSOPMKeplerianElements;
+    Integer requiredCount = 0;
+    std::string keyword;
 
     do
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        switch (myOb->GetKeywordID(keyword))
+        Integer keyID = myOPMKeplerianElements->GetKeywordID(keyword);
+
+        if(myOPMKeplerianElements->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
         {
 
-            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
 
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->semiMajorAxis)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_ECCENTRICITY_ID:
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_ECCENTRICITY_ID:
 
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->eccentricity)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_INCLINATION_ID:
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_INCLINATION_ID:
 
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->inclination)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_RAAN_ID:
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_RAAN_ID:
 
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->raan)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
 
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->argumentOfPericenter)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_TRUEANOMALY_ID:
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_TRUEANOMALY_ID:
                 {
                 Real value;
                 if (!GetCCSDSValue(lff,value)) return false;
@@ -537,11 +548,10 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMKeplerianElements(std::string &lff,
                                           myOPMKeplerianElements->semiMajorAxis,
                                           myOPMKeplerianElements->eccentricity,
                                           value, Anomaly::TA);
-                count++;
                 }
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_MEANANOMALY_ID:
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_MEANANOMALY_ID:
                 {
                 Real value;
                 if (!GetCCSDSValue(lff,value)) return false;
@@ -549,14 +559,12 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMKeplerianElements(std::string &lff,
                                           myOPMKeplerianElements->semiMajorAxis,
                                           myOPMKeplerianElements->eccentricity,
                                           value, Anomaly::MA);
-                count++;
                 }
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
 
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->gravitationalCoefficient)) return false;
-                count++;
                 break;
 
             default:
@@ -569,7 +577,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMKeplerianElements(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( count < 7 );
+    while ( requiredCount < requiredNumberKeplerianElementsParameters );
 
     myOb->ccsdsOPMKeplerianElements = myOPMKeplerianElements;
 
@@ -578,59 +586,58 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMKeplerianElements(std::string &lff,
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSOPMSpacecraftParameters(std::string &lff, CCSDSOPMObType *myOb)
+// bool GetCCSDSSpacecraftParameters(std::string &lff, CCSDSOPMObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts the spacecraft parameter information from the orbit parameter message.
  */
 //
 //------------------------------------------------------------------------------
-bool ProcessCCSDSOPMDataFile::GetCCSDSOPMSpacecraftParameters(std::string &lff,
+bool ProcessCCSDSOPMDataFile::GetCCSDSSpacecraftParameters(std::string &lff,
                                                      CCSDSOPMObType *myOb)
 {
 
-    Integer count = 0;
-    std::string keyword;
+    CCSDSSpacecraftParameters *myOPMSpacecraftParameters =
+                                               new CCSDSSpacecraftParameters;
 
-    CCSDSOPMSpacecraftParameters *myOPMSpacecraftParameters =
-                                               new CCSDSOPMSpacecraftParameters;
+    Integer requiredCount = 0;
+    std::string keyword;
 
     do
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        switch (myOb->GetKeywordID(keyword))
+        Integer keyID = myOPMSpacecraftParameters->GetKeywordID(keyword);
+
+        if(myOPMSpacecraftParameters->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
         {
 
-            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_MASS_ID:
+            case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_MASS_ID:
 
                 if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->mass)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID:
+            case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID:
 
                 if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->solarRadiationArea)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID:
+            case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID:
 
                 if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->solarRadiationCoefficient)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGAREA_ID:
+            case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_DRAGAREA_ID:
 
                 if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->dragArea)) return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID:
+            case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID:
 
                 if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->dragCoefficient)) return false;
-                count++;
                 break;
 
             default:
@@ -642,7 +649,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMSpacecraftParameters(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( count < 5 );
+    while ( requiredCount < requiredNumberSpacecraftParameters );
 
     myOb->ccsdsOPMSpacecraftParameters = myOPMSpacecraftParameters;
 
@@ -651,76 +658,74 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMSpacecraftParameters(std::string &lff,
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSOPMManeuver(std::string &lff, CCSDSOPMObType *myOb)
+// bool GetCCSDSManeuver(std::string &lff, CCSDSOPMObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts the maneuver information from the orbit parameter message.
  */
 //
 //------------------------------------------------------------------------------
-bool ProcessCCSDSOPMDataFile::GetCCSDSOPMManeuver(std::string &lff,
+bool ProcessCCSDSOPMDataFile::GetCCSDSManeuver(std::string &lff,
                                                      CCSDSOPMObType *myOb)
 {
 
-    Integer count = 0;
-    std::string keyword;
+    CCSDSManeuver *myOPMManeuver = new CCSDSManeuver;
 
-    CCSDSOPMManeuver *myOPMManeuver = new CCSDSOPMManeuver;
+    Integer requiredCount = 0;
+    std::string keyword;
 
     do
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        switch (myOb->GetKeywordID(keyword))
+        Integer keyID = myOPMManeuver->GetKeywordID(keyword);
+
+        if(myOPMManeuver->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
         {
-            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_IGNITIONEPOCH_ID:
+
+            case CCSDSManeuver::CCSDS_MANUEVER_IGNITIONEPOCH_ID:
 
                 if (!GetCCSDSValue(lff,myOPMManeuver->ignitionEpoch))
                     return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DURATION_ID:
+            case CCSDSManeuver::CCSDS_MANUEVER_DURATION_ID:
 
                 if (!GetCCSDSValue(lff,myOPMManeuver->duration))
                     return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAMASS_ID:
+            case CCSDSManeuver::CCSDS_MANUEVER_DELTAMASS_ID:
 
                 if (!GetCCSDSValue(lff,myOPMManeuver->deltaMass))
                     return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_REFFRAME_ID:
+            case CCSDSManeuver::CCSDS_MANUEVER_REFFRAME_ID:
 
                 if (!GetCCSDSValue(lff,myOPMManeuver->refFrame))
                     return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV1_ID:
+            case CCSDSManeuver::CCSDS_MANUEVER_DELTAV1_ID:
 
                 if (!GetCCSDSValue(lff,myOPMManeuver->deltaV1))
                     return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV2_ID:
+            case CCSDSManeuver::CCSDS_MANUEVER_DELTAV2_ID:
 
                 if (!GetCCSDSValue(lff,myOPMManeuver->deltaV2))
                     return false;
-                count++;
                 break;
 
-            case CCSDSOPMObType::CCSDS_OPM_MANUEVER_DELTAV3_ID:
+            case CCSDSManeuver::CCSDS_MANUEVER_DELTAV3_ID:
 
                 if (!GetCCSDSValue(lff,myOPMManeuver->deltaV3))
                     return false;
-                count++;
                 break;
 
             default:
@@ -732,7 +737,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMManeuver(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( count < 7 );
+    while ( requiredCount < requiredNumberManeuverParameters );
 
     myOb->ccsdsOPMManeuvers.push_back(myOPMManeuver);
 
@@ -758,7 +763,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
     // we are storing pointers to this data
     CCSDSOPMMetaData *myMetaData = new CCSDSOPMMetaData;
 
-    Integer count = 0;
+    Integer requiredCount = 0;
     std::string keyword;
 
     do
@@ -766,7 +771,11 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        switch (myMetaData->GetKeywordID(keyword))
+        Integer keyID = myMetaData->GetKeywordID(keyword);
+
+        if(myMetaData->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
         {
 
             case CCSDSOPMMetaData::CCSDS_OPM_METADATACOMMENTS_ID:
@@ -774,8 +783,6 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp)) return false;
                 myMetaData->comments.push_back(stemp);
-                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_METADATACOMMENTS_ID))
-                    count++;
                 }
                 break;
 
@@ -783,40 +790,30 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 
                 if (!GetCCSDSValue(lff,myMetaData->objectName))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_OBJECTNAME_ID))
-                    count++;
                 break;
 
             case CCSDSOPMMetaData::CCSDS_OPM_OBJECTID_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->internationalDesignator))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_OBJECTID_ID))
-                    count++;
                 break;
 
             case CCSDSOPMMetaData::CCSDS_OPM_CENTERNAME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->refFrameOrigin))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_CENTERNAME_ID))
-                    count++;
                 break;
 
             case CCSDSOPMMetaData::CCSDS_OPM_REFFRAME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->refFrame))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_REFFRAME_ID))
-                    count++;
                 break;
 
             case CCSDSOPMMetaData::CCSDS_OPM_TIMESYSTEM_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->timeSystem))
                     return false;
-                if (myMetaData->IsParameterRequired(CCSDSOPMMetaData::CCSDS_OPM_TIMESYSTEM_ID))
-                    count++;
                 break;
 
             default:
@@ -828,7 +825,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 
         lff = ReadLineFromFile();
     }
-    while(count < requiredNumberMetaDataParameters ||
+    while(requiredCount < requiredNumberMetaDataParameters ||
           pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
 
     myOb->ccsdsOPMMetaData = myMetaData;

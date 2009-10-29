@@ -415,6 +415,28 @@ bool CCSDSSpacecraftInertia::IsParameterRequired(const Integer id) const
         return false;
 }
 
+
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberSpacecraftInertiaParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberSpacecraftInertiaParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSSpacecraftInertia::EndCCSDSSpacecraftInertiaDataReps; id++)
+        if (CCSDSSpacecraftInertia::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
+}
+
 //------------------------------------------------------------------------------
 //  bool CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------

@@ -56,55 +56,56 @@ CCSDSAEMSpinStabilized::~CCSDSAEMSpinStabilized()
 
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output,
-//                       const CCSDSAEMSpinStabilized *myCCSDSAEMSpinStabilized)
+//                       const CCSDSAEMSpinStabilized *myAEMSpinStabilized)
 //------------------------------------------------------------------------------
 /**
  * Formats CCCSDSObType data and sends to output stream.
  *
  * @param  <output>  Output stream
- * @param  <myCCSDSAEMSpinStabilized>    CCSDS spin stabilized data to write out
+ * @param  <myAEMSpinStabilized>    CCSDS spin stabilized data to write out
  *
  * @return  Output stream
  */
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output,
-                         const CCSDSAEMSpinStabilized *myCCSDSAEMSpinStabilized)
+                         const CCSDSAEMSpinStabilized *myAEMSpinStabilized)
 {
     using namespace std;
 
-    for (unsigned int i = 0; i < myCCSDSAEMSpinStabilized->comments.size(); i++)
+    for (unsigned int i = 0; i < myAEMSpinStabilized->comments.size(); i++)
     {
-        output << "COMMENT " << myCCSDSAEMSpinStabilized->comments[i] << endl;
+        output << "COMMENT " << myAEMSpinStabilized->comments[i] << endl;
     }
 
-    switch (myCCSDSAEMSpinStabilized->attitudeType)
+    switch (myAEMSpinStabilized->attitudeType)
     {
         case CCSDSObType::CCSDS_SPIN_ID:
+        {
+            output << myAEMSpinStabilized->timeTag
+                   << myAEMSpinStabilized->spinAlpha
+                   << myAEMSpinStabilized->spinDelta
+                   << myAEMSpinStabilized->spinAngle
+                   << myAEMSpinStabilized->spinAngleVelocity << endl;
+            return output;
+        }
 
-            output << "SPIN_FRAME_A = " << myCCSDSAEMSpinStabilized->frameA << endl;
-            output << "SPIN_FRAME_B = " << myCCSDSAEMSpinStabilized->frameB << endl;
-            output << "SPIN_DIR = " << myCCSDSAEMSpinStabilized->direction << endl;
-            output << "SPIN_ALPHA = " << myCCSDSAEMSpinStabilized->spinAlpha << endl;
-            output << "SPIN_DELTA = " << myCCSDSAEMSpinStabilized->spinDelta << endl;
-            output << "SPIN_ANGLE = " << myCCSDSAEMSpinStabilized->spinAngle << endl;
-            output << "SPIN_ANGLE_VEL = " << myCCSDSAEMSpinStabilized->spinAngleVelocity << endl;
-
-            break;
+        break;
 
         case CCSDSObType::CCSDS_SPIN_NUTATION_ID:
+        {
+            output << myAEMSpinStabilized->timeTag
+                   << myAEMSpinStabilized->spinAlpha
+                   << myAEMSpinStabilized->spinDelta
+                   << myAEMSpinStabilized->spinAngle
+                   << myAEMSpinStabilized->spinAngleVelocity
+                   << myAEMSpinStabilized->nutation
+                   << myAEMSpinStabilized->nutationPeriod
+                   << myAEMSpinStabilized->nutationPhase
+                   << endl;
 
-            output << "SPIN_FRAME_A = " << myCCSDSAEMSpinStabilized->frameA << endl;
-            output << "SPIN_FRAME_B = " << myCCSDSAEMSpinStabilized->frameB << endl;
-            output << "SPIN_DIR = " << myCCSDSAEMSpinStabilized->direction << endl;
-            output << "SPIN_ALPHA = " << myCCSDSAEMSpinStabilized->spinAlpha << endl;
-            output << "SPIN_DELTA = " << myCCSDSAEMSpinStabilized->spinDelta << endl;
-            output << "SPIN_ANGLE = " << myCCSDSAEMSpinStabilized->spinAngle << endl;
-            output << "SPIN_ANGLE_VEL = " << myCCSDSAEMSpinStabilized->spinAngleVelocity << endl;
-            output << "NUTATION = " << myCCSDSAEMSpinStabilized->nutation << endl;
-            output << "NUTATION_PER = " << myCCSDSAEMSpinStabilized->nutationPeriod << endl;
-            output << "NUTATION_PHASE = " << myCCSDSAEMSpinStabilized->nutationPhase << endl;
-
-            break;
+            return output;
+        }
+        break;
 
         default:
 

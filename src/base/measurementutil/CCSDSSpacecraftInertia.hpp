@@ -41,7 +41,7 @@ public:
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CCSDSCountRequiredNumberDataParameters();
+    friend Integer CountRequiredNumberSpacecraftInertiaParameters();
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -52,7 +52,6 @@ public:
 
     enum CCSDS_DATA_REPS
     {
-
 	CCSDS_SPACECRAFTINERTIA_INERTIAREFFRAME_ID,
 	CCSDS_SPACECRAFTINERTIA_I11_ID,
 	CCSDS_SPACECRAFTINERTIA_I22_ID,
@@ -63,6 +62,8 @@ public:
 	CCSDS_SPACECRAFTINERTIA_COMMENTS_ID,
         EndCCSDSSpacecraftInertiaDataReps
     };
+
+    friend class ProcessCCSDSAPMDataFile;
 
 protected:
 

@@ -22,18 +22,18 @@
 #ifndef DataFile_hpp
 #define	DataFile_hpp
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "sstream"
+#include <sstream>
+#include <pcrecpp.h>
+#include <math.h>
+#include "GmatBase.hpp"
+#include "gmatdefs.hpp"
 #include "DataFormats.hpp"
 #include "ObType.hpp"
 #include "DataFileException.hpp"
 #include "MessageInterface.hpp"
-#include <pcrecpp.h>
-#include <math.h>
 #include "StringUtil.hpp"           // for ToString()
 #include "A1Date.hpp"
 #include "A1MJD.hpp"

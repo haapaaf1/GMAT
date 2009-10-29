@@ -405,6 +405,28 @@ bool CCSDSAttitudeManeuver::IsParameterRequired(const Integer id) const
         return false;
 }
 
+
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberAttitudeManeuverParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberAttitudeManeuverParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSAttitudeManeuver::EndCCSDSAttitudeManeuverDataReps; id++)
+        if (CCSDSAttitudeManeuver::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
+}
+
 //------------------------------------------------------------------------------
 //  bool CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------

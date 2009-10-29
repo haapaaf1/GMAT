@@ -10,6 +10,7 @@
 
 #include "CCSDSObType.hpp"
 #include "CCSDSTDMMetaData.hpp"
+#include "CCSDSData.hpp"
 
 class CCSDSTDMObType : public CCSDSObType
 {   
@@ -26,21 +27,6 @@ public :
     friend std::ostream& operator<< (std::ostream &output, 
                                      const CCSDSTDMObType *myTDM);
     	
-    std::string GetDataParameterText(const Integer id) const;
-    Integer    GetDataParameterID(const std::string &str) const;
-    Gmat::ParameterType GetDataParameterType(const Integer id) const;
-    std::string GetDataParameterTypeString(const Integer id) const;
-    std::string GetDataUnits(const Integer id) const;
-
-    Real	GetRealDataParameter(const Integer id) const;
-    Real	GetRealDataParameter(const std::string &label) const;
-    Integer	GetIntegerDataParameter(const Integer id) const;
-    Integer	GetIntegerDataParameter(const std::string &label) const;
-    std::string GetStringDataParameter(const Integer id) const;
-    std::string GetStringDataParameter(const std::string &label) const;
-    StringArray GetStringArrayDataParameter(const Integer id) const;
-    StringArray GetStringArrayDataParameter(const std::string &label) const;
-
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
 
@@ -58,18 +44,9 @@ public :
         
     bool IsParameterRequired(const Integer id) const;
 
-    enum CCSDS_DATA_REPS
-    {
-        CCSDS_TDM_KEYWORD_ID,
-        CCSDS_TDM_TIMETAG_ID,
-        CCSDS_TDM_MEASUREMENT_ID,
-        CCSDS_TDM_COMMENTS_ID,
-	EndCCSDSTDMDataReps
-    };
-
     enum DATATYPE_REPS
     {
-	ANGLE1_ID = EndCCSDSTypeReps,
+	ANGLE1_ID,
 	ANGLE2_ID,
 	CARRIERPOWER_ID,
 	CLOCKBIAS_ID,
@@ -182,19 +159,16 @@ protected:
     static const std::string RANGEUNIT_DESCRIPTIONS[EndCCSDSTDMRangeUnitReps];
     static const std::string ANGLETYPE_DESCRIPTIONS[EndCCSDSTDMAngleTypeReps];
     static const std::string DATAQUALITY_DESCRIPTIONS[EndCCSDSTDMDataQualityReps];
-    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps - EndCCSDSTypeReps];
-    static const std::string CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps];    
+    static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps];
+    static const std::string CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps];    
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeReps - EndCCSDSTimeReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSTDMDataReps];
-    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSTDMDataReps];
-    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMDataReps];
-
+    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps];
+    
     // Pointer to the metadata record associated with this data point
     CCSDSTDMMetaData *ccsdsTDMMetaData;
 
     // Pointers to the generic key epoch value data format
-    CCSDSTDMData *ccsdsTDMData;
+    CCSDSData *ccsdsTDMData;
 };
 #endif	/* _CCSDSTDMOBTYPE_HPP */
 

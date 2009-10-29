@@ -201,13 +201,7 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
 	return false;	
     }
 
-    StringArray comments;
-    bool commentsFound = GetCCSDSComments(lff,comments);
-
-    if (commentsFound)
-        myHeader->comments = comments;
-
-    Integer count = 0;
+    Integer requiredCount = 0;
     std::string keyword;
 
     // Read in another line
@@ -218,19 +212,32 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        switch (myOb->GetKeywordID(keyword))
+        Integer keyID = myHeader->GetKeywordID(keyword);
+
+        if(myHeader->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
         {
 
-            case CCSDSObType::CCSDS_CREATIONDATE_ID:
+            case CCSDSHeader::CCSDS_HEADERCOMMENTS_ID:
+                {
+                std::string comment;
 
-                if (!GetCCSDSValue(lff,myHeader->creationDate)) return false;
-                count++;
+                if (GetCCSDSComment(lff,comment))
+                    myHeader->comments.push_back(comment);
+                else
+                    return false;
+                }
                 break;
 
-            case CCSDSObType::CCSDS_ORIGINATOR_ID:
+            case CCSDSHeader::CCSDS_CREATIONDATE_ID:
+
+                if (!GetCCSDSValue(lff,myHeader->creationDate)) return false;
+                break;
+
+            case CCSDSHeader::CCSDS_ORIGINATOR_ID:
 
                 if (!GetCCSDSValue(lff,myHeader->originator)) return false;
-                count++;
                 break;
 
             default:
@@ -238,9 +245,8 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
                 break;
         }
     }
-    while (count < 2);
+    while (requiredCount < requiredNumberHeaderParameters );
 
-    
     myOb->ccsdsHeader = myHeader;
 
     return true;
@@ -438,6 +444,26 @@ bool ProcessCCSDSDataFile::GetCCSDSComments(std::string &lff,
     }
 
     return found;
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSComment(std::string &lff, std::string &comment)
+//------------------------------------------------------------------------------
+/**
+ * Extracts a CCSDS Comment line
+ * COMMENT some text some text some text
+ * @param <lff> A line from file
+ * @param <comment> The string comment
+ * @return Boolean success if comment found, false if no comment found
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::GetCCSDSComment(std::string &lff,
+                                           std::string &comment)
+{
+    std::string regex = "^COMMENT\\s*(.*)$";
+
+    if(pcrecpp::RE(regex).FullMatch(lff,&comment)) return true;
+    else return false;
 }
 
 //------------------------------------------------------------------------------

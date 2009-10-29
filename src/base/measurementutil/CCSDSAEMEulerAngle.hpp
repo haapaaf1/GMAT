@@ -22,6 +22,9 @@ public:
 
     friend std::ostream& operator<< (std::ostream &output,
                                 const CCSDSAEMEulerAngle *myCCSDSAEMEulerAngle);
+
+    friend class ProcessCCSDSAEMDataFile;
+
 };
 
 #endif	/* _CCSDSAEMEULERANGLE_HPP */

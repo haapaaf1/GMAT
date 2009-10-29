@@ -22,6 +22,9 @@ public:
 
     friend std::ostream& operator<< (std::ostream &output,
                         const CCSDSAEMSpinStabilized *myCCSDSAEMSpinStabilized);
+
+    friend class ProcessCCSDSAEMDataFile;
+    
 };
 
 #endif	/* _CCSDSAEMSPINSTABILIZED_HPP */

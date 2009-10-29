@@ -89,7 +89,7 @@ const Gmat::ParameterType CCSDSOEMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  * Constructor for the CCSDSOEMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSOEMMetaData::CCSDSOEMMetaData() : CCSDSObType("CCSDSOEMMetaData", ""),
+CCSDSOEMMetaData::CCSDSOEMMetaData() :
     objectName(std::string("")),
     internationalDesignator(std::string("")),
     refFrameOrigin(std::string("")),
@@ -113,7 +113,7 @@ CCSDSOEMMetaData::CCSDSOEMMetaData() : CCSDSObType("CCSDSOEMMetaData", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSOEMMetaData::CCSDSOEMMetaData
-               (const CCSDSOEMMetaData &oemMD) : CCSDSObType(oemMD),
+               (const CCSDSOEMMetaData &oemMD) :
     objectName(oemMD.objectName),
     internationalDesignator(oemMD.internationalDesignator),
     refFrameOrigin(oemMD.refFrameOrigin),
@@ -146,8 +146,6 @@ const CCSDSOEMMetaData& CCSDSOEMMetaData::operator=
     if (&oemMD == this)
         return *this;
 
-    CCSDSObType::operator=(oemMD);
-
     objectName = oemMD.objectName;
     internationalDesignator = oemMD.internationalDesignator;
     refFrameOrigin = oemMD.refFrameOrigin;
@@ -173,21 +171,6 @@ const CCSDSOEMMetaData& CCSDSOEMMetaData::operator=
 //------------------------------------------------------------------------------
 CCSDSOEMMetaData::~CCSDSOEMMetaData()
 {
-}
-
-//------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the ProcessCCSDSOEMDataFile.
- *
- * @return clone of the ProcessCCSDSOEMDataFile.
- */
-//------------------------------------------------------------------------------
-GmatBase* CCSDSOEMMetaData::Clone() const
-{
-   GmatBase *clone = new CCSDSOEMMetaData(*this);
-   return (clone);
 }
 
 //------------------------------------------------------------------------------
@@ -225,7 +208,7 @@ const Integer CCSDSOEMMetaData::GetKeywordID(const std::string str) const
             return i;
     }
 
-   return -1;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
 }
 
@@ -263,7 +246,7 @@ bool CCSDSOEMMetaData::IsParameterRequired(const Integer id) const
 }
 
 //---------------------------------------------------------------------------
-//  bool CCSDSOEMCountRequiredNumberMetaDataParameters()
+//  bool CountRequiredNumberOEMMetaDataParameters()
 //---------------------------------------------------------------------------
 /**
  * Count the number of required variables.
@@ -271,7 +254,7 @@ bool CCSDSOEMMetaData::IsParameterRequired(const Integer id) const
  * @return The number of required variables.
  */
 //---------------------------------------------------------------------------
-Integer CCSDSOEMCountRequiredNumberMetaDataParameters()
+Integer CountRequiredNumberOEMMetaDataParameters()
 {
 
     Integer num = 0;
@@ -328,7 +311,7 @@ std::string CCSDSOEMMetaData::GetDataParameterText(const Integer id) const
    {
       return CCSDS_METADATA_FILEFORMAT_DESCRIPTIONS[id];
    }
-   return CCSDSObType::GetDataParameterText(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -352,7 +335,7 @@ Integer CCSDSOEMMetaData::GetDataParameterID(const std::string &str) const
 	}
    }
 
-   return CCSDSObType::GetDataParameterID(str);
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 
@@ -368,7 +351,7 @@ Gmat::ParameterType CCSDSOEMMetaData::GetDataParameterType(const Integer id) con
    if ((id >= 0) && (id < EndCCSDSOEMMetaDataReps))
       return CCSDS_METADATA_PARAMETER_TYPE[id];
 
-   return CCSDSObType::GetDataParameterType(id);
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
 }
 
 //---------------------------------------------------------------------------
@@ -400,7 +383,7 @@ Integer CCSDSOEMMetaData::GetIntegerDataParameter(const Integer id) const
 
         default:
 
-            return CCSDSObType::GetIntegerDataParameter(id);
+            return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
     }
 
@@ -472,7 +455,7 @@ std::string CCSDSOEMMetaData::GetStringDataParameter(const Integer id) const
 
         default:
 
-            return CCSDSObType::GetStringDataParameter(id);
+            return GmatBase::STRING_PARAMETER_UNDEFINED;
 
     }
 
@@ -507,7 +490,7 @@ StringArray CCSDSOEMMetaData::GetStringArrayDataParameter(const Integer id) cons
 
         default:
 
-            return CCSDSObType::GetStringArrayDataParameter(id);
+            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
 
     }
 

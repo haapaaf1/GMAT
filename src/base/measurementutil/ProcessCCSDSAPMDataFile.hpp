@@ -52,13 +52,19 @@ private:
     bool GetCCSDSAPMQuaternion(std::string &lff, CCSDSAPMObType *myOb);
     bool GetCCSDSAPMEulerAngle(std::string &lff, CCSDSAPMObType *myOb);
     bool GetCCSDSAPMSpinStabilized(std::string &lff, CCSDSAPMObType *myOb);
-    bool GetCCSDSAPMSpacecraftInertia(std::string &lff, CCSDSAPMObType *myOb);
-    bool GetCCSDSAPMAttitudeManeuver(std::string &lff, CCSDSAPMObType *myOb);
+    bool GetCCSDSSpacecraftInertia(std::string &lff, CCSDSAPMObType *myOb);
+    bool GetCCSDSAttitudeManeuver(std::string &lff, CCSDSAPMObType *myOb);
 
     CCSDSAPMMetaData *currentCCSDSMetaData;
     CCSDSAPMMetaData *lastMetaDataWritten;
     bool isMetaDataWritten;
+
     Integer requiredNumberMetaDataParameters;
+    Integer requiredNumberQuaternionParameters;
+    Integer requiredNumberEulerAngleParameters;
+    Integer requiredNumberSpinStabilizedParameters;
+    Integer requiredNumberSpacecraftInertiaParameters;
+    Integer requiredNumberAttitudeManeuverParameters;
 
 
 };

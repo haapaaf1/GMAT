@@ -38,7 +38,7 @@ bool ProcessCCSDSTDMDataFile::Initialize()
 {
     if (!ProcessCCSDSDataFile::Initialize()) return false;
 
-    requiredNumberMetaDataParameters = CCSDSTDMCountRequiredNumberMetaDataParameters();
+    requiredNumberMetaDataParameters = CountRequiredNumberTDMMetaDataParameters();
 
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
@@ -99,20 +99,20 @@ bool ProcessCCSDSTDMDataFile::Initialize()
 }
 
 //------------------------------------------------------------------------------
-//  ProcessCCSDSTDMDataFile()
+//  ProcessCCSDSDataFile()
 //------------------------------------------------------------------------------
 /**
- * Constructs base ProcessCCSDSTDMDataFile structures
+ * Constructs base ProcessCCSDSDataFile structures
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const std::string &itsName) :
-	ProcessCCSDSDataFile ("CCSDSTDMDataFile", itsName),
+	ProcessCCSDSDataFile ("CCSDSDataFile", itsName),
 	currentCCSDSMetaData(NULL),
 	lastMetaDataWritten(NULL),
         isMetaDataWritten(false),
         requiredNumberMetaDataParameters(0)
 {
-   objectTypeNames.push_back("CCSDSTDMDataFile");
+   objectTypeNames.push_back("CCSDSDataFile");
    fileFormatName = "CCSDSTDM";
    fileFormatID = 7;
    numLines = 1;
@@ -122,7 +122,7 @@ ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const std::string &itsName) :
 //  ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile()
 //------------------------------------------------------------------------------
 /**
- * Copy constructor for ProcessCCSDSTDMDataFile objects
+ * Copy constructor for ProcessCCSDSDataFile objects
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const ProcessCCSDSTDMDataFile &CCSDSTDMdf) :
@@ -139,7 +139,7 @@ ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const ProcessCCSDSTDMDataFile &
 //  ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile()
 //------------------------------------------------------------------------------
 /**
- * Operator = constructor for ProcessCCSDSTDMDataFile objects
+ * Operator = constructor for ProcessCCSDSDataFile objects
  */
 //------------------------------------------------------------------------------
 const ProcessCCSDSTDMDataFile& ProcessCCSDSTDMDataFile::operator=(const ProcessCCSDSTDMDataFile &CCSDSTDMdf)
@@ -170,9 +170,9 @@ ProcessCCSDSTDMDataFile::~ProcessCCSDSTDMDataFile()
 //  GmatBase* Clone() const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the ProcessCCSDSTDMDataFile.
+ * This method returns a clone of the ProcessCCSDSDataFile.
  *
- * @return clone of the ProcessCCSDSTDMDataFile.
+ * @return clone of the ProcessCCSDSDataFile.
  */
 //------------------------------------------------------------------------------
 GmatBase* ProcessCCSDSTDMDataFile::Clone() const
@@ -312,18 +312,19 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
     std::string keyword, ccsdsEpoch;
     Real value;
 
-    CCSDSTDMData *myTDMData = new CCSDSTDMData;
+    CCSDSData *myTDMData = new CCSDSData;
 
     GetCCSDSKeyEpochValueData(lff,keyword,ccsdsEpoch,value);
 
     myTDMData->keywordID = myOb->GetKeywordID(keyword);
     if(myTDMData->keywordID >= 0)
     {
+        myTDMData->keyword = keyword;
         myTDMData->timeTag = ccsdsEpoch;
         if (!CCSDSTimeTag2A1Date(myTDMData->timeTag,myOb->epoch)) return false;
         myTDMData->measurement = value;
         myOb->ccsdsTDMData =  myTDMData;
-        myOb->ccsdsHeader->dataType = CCSDSObType::GENERICDATA_ID;
+        myOb->ccsdsHeader->dataType = CCSDSHeader::GENERICDATA_ID;
         return true;
     }
 
@@ -348,7 +349,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
     // we are storing pointers to this data
     CCSDSTDMMetaData *myMetaData = new CCSDSTDMMetaData;
 
-    Integer count = 0;
+    Integer requiredCount = 0;
     std::string keyword;
 
     do
@@ -356,7 +357,11 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        switch (myMetaData->GetKeywordID(keyword))
+        Integer keyID = myMetaData->GetKeywordID(keyword);
+
+        if(myMetaData->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
         {
 
             case CCSDSTDMMetaData::CCSDS_TDM_METADATACOMMENTS_ID:
@@ -364,7 +369,6 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp)) return false;
                 myMetaData->comments.push_back(stemp);
-                count++;
                 }
                 break;
 
@@ -372,294 +376,252 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
 
                 if (!GetCCSDSValue(lff,myMetaData->timeSystem))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_STARTTIME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->startTime))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_STOPTIME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->stopTime))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[0]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[1]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT3_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[2]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT4_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[3]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT5_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[4]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_MODE_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->mode))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PATH_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->path[0]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PATH1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->path[1]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PATH2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->path[2]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITBAND_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitBand))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEBAND_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveBand))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TURNAROUNDNUMERATOR_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->turnaroundNumerator))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TURNAROUNDDENOMINATOR_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->turnaroundDenominator))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TIMETAGREF_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->timeTagRef))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_INTEGRATIONINTERVAL_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->integrationInterval))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_INTEGRATIONREF_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->integrationRef))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_FREQUENCYOFFSET_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->frequencyOffset))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RANGEMODE_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->rangeMode))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RANGEMODULUS_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->rangeModulus))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RANGEUNITS_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->rangeUnits))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_ANGLETYPE_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->angleType))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_REFERENCEFRAME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->referenceFrame))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[0]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[1]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY3_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[2]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY4_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[3]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY5_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[4]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[0]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[1]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY3_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[2]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY4_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[3]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY5_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[4]))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_DATAQUALITY_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->dataQuality))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONANGLE1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionAngle1))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONANGLE2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionAngle2))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONDOPPLER_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionDoppler))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONRANGE_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionRange))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONRECEIVE_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionReceive))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONTRANSMIT_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionTransmit))
                     return false;
-                count++;
                 break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONAPPLIED_ID:
@@ -671,7 +633,6 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
                 else
                     myMetaData->correctionsApplied = false;
 
-                count++;
                 }
                 break;
 
@@ -684,7 +645,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
 
         lff = ReadLineFromFile();
     }
-    while(count < requiredNumberMetaDataParameters &&
+    while(requiredCount < requiredNumberMetaDataParameters &&
           !pcrecpp::RE("^DATA_START$").FullMatch(lff));
 
     myOb->ccsdsTDMMetaData = myMetaData;

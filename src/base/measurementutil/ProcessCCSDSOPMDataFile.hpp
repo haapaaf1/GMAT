@@ -51,14 +51,18 @@ private:
     bool GetCCSDSOPMData(std::string &lff, CCSDSOPMObType *myOb);
 
     bool GetCCSDSOPMStateVector(std::string &lff, CCSDSOPMObType *myOb);
-    bool GetCCSDSOPMKeplerianElements(std::string &lff, CCSDSOPMObType *myOb);
-    bool GetCCSDSOPMSpacecraftParameters(std::string &lff, CCSDSOPMObType *myOb);
-    bool GetCCSDSOPMManeuver(std::string &lff, CCSDSOPMObType *myOb);
+    bool GetCCSDSKeplerianElements(std::string &lff, CCSDSOPMObType *myOb);
+    bool GetCCSDSSpacecraftParameters(std::string &lff, CCSDSOPMObType *myOb);
+    bool GetCCSDSManeuver(std::string &lff, CCSDSOPMObType *myOb);
 
     CCSDSOPMMetaData *currentCCSDSMetaData;
     CCSDSOPMMetaData *lastMetaDataWritten;
     bool isMetaDataWritten;
     Integer requiredNumberMetaDataParameters;
+    Integer requiredNumberStateVectorParameters;
+    Integer requiredNumberKeplerianElementsParameters;
+    Integer requiredNumberSpacecraftParameters;
+    Integer requiredNumberManeuverParameters;
 
 };
 #endif	/* _ProcessCCSDSOPMDataFileData_hpp */

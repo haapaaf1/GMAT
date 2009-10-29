@@ -415,7 +415,7 @@ bool CCSDSStateVector::IsParameterRequired(const Integer id) const
 }
 
 //---------------------------------------------------------------------------
-//  bool CCSDSCountRequiredNumberDataParameters()
+//  Integer CountRequiredNumberStateVectorParameters()
 //---------------------------------------------------------------------------
 /**
  * Count the number of required variables.
@@ -423,7 +423,7 @@ bool CCSDSStateVector::IsParameterRequired(const Integer id) const
  * @return The number of required variables.
  */
 //---------------------------------------------------------------------------
-Integer CCSDSCountRequiredNumberDataParameters()
+Integer CountRequiredNumberStateVectorParameters()
 {
 
     Integer num = 0;

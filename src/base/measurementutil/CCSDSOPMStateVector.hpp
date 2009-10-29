@@ -19,7 +19,9 @@ public:
     CCSDSOPMStateVector(const CCSDSOPMStateVector &opmSV);
     const CCSDSOPMStateVector& CCSDSOPMStateVector::operator=(const CCSDSOPMStateVector &opmSV);
     ~CCSDSOPMStateVector();
-    
+
+    friend class ProcessCCSDSOPMDataFile;
+
     friend std::ostream& operator<< (std::ostream &output,
                                     const CCSDSOPMStateVector *myCCSDSOPMStateVector);
 

@@ -44,7 +44,7 @@ public:
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CCSDSCountRequiredNumberDataParameters();
+    friend Integer CountRequiredNumberManeuverParameters();
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -62,6 +62,8 @@ public:
         CCSDS_MANUEVER_COMMENTS_ID,
         EndCCSDSManeuverDataReps
     };
+
+    friend class ProcessCCSDSOPMDataFile;
     
 protected:
 

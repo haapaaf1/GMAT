@@ -72,6 +72,13 @@ public:
 	EndCCSDSTypeReps
     };
 
+    friend class ProcessCCSDSDataFile;
+    friend class ProcessCCSDSAPMDataFile;
+    friend class ProcessCCSDSAEMDataFile;
+    friend class ProcessCCSDSOPMDataFile;
+    friend class ProcessCCSDSOEMDataFile;
+    friend class ProcessCCSDSTDMDataFile;
+
 protected:
 
     static const std::string CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTypeReps];

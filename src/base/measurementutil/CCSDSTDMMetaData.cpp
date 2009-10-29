@@ -247,7 +247,7 @@ const Gmat::ParameterType CCSDSTDMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSTDMMetaData::CCSDSTDMMetaData() : CCSDSObType("CCSDSTDMMetaData", ""),
+CCSDSTDMMetaData::CCSDSTDMMetaData() :
     comments(0),
     timeSystem(std::string("")),
     startTime(std::string("")),
@@ -302,7 +302,7 @@ CCSDSTDMMetaData::CCSDSTDMMetaData() : CCSDSObType("CCSDSTDMMetaData", ""),
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSTDMMetaData::CCSDSTDMMetaData(const CCSDSTDMMetaData &tdmd) : CCSDSObType(tdmd),
+CCSDSTDMMetaData::CCSDSTDMMetaData(const CCSDSTDMMetaData &tdmd) :
     comments(tdmd.comments),
     timeSystem(tdmd.timeSystem),
     startTime(tdmd.startTime),
@@ -366,8 +366,6 @@ const CCSDSTDMMetaData& CCSDSTDMMetaData::operator=(const CCSDSTDMMetaData &tdmd
    if (&tdmd == this)
       return *this;
 
-    CCSDSObType::operator=(tdmd);
-
     comments = tdmd.comments;
     timeSystem = tdmd.timeSystem;
     startTime = tdmd.startTime;
@@ -425,21 +423,6 @@ const CCSDSTDMMetaData& CCSDSTDMMetaData::operator=(const CCSDSTDMMetaData &tdmd
 //------------------------------------------------------------------------------
 CCSDSTDMMetaData::~CCSDSTDMMetaData()
 {
-}
-
-//------------------------------------------------------------------------------
-//  GmatBase* Clone() const
-//------------------------------------------------------------------------------
-/**
- * This method returns a clone of the ProcessCCSDSTDMDataFile.
- *
- * @return clone of the ProcessCCSDSTDMDataFile.
- */
-//------------------------------------------------------------------------------
-GmatBase* CCSDSTDMMetaData::Clone() const
-{
-   GmatBase *clone = new CCSDSTDMMetaData(*this);
-   return (clone);
 }
 
 //------------------------------------------------------------------------------
@@ -515,7 +498,7 @@ bool CCSDSTDMMetaData::IsParameterRequired(const Integer id) const
 }
 
 //---------------------------------------------------------------------------
-//  bool CCSDSTDMCountRequiredNumberMetaDataParameters()
+//  bool CountRequiredNumberTDMMetaDataParameters()
 //---------------------------------------------------------------------------
 /**
  * Count the number of required variables.
@@ -523,7 +506,7 @@ bool CCSDSTDMMetaData::IsParameterRequired(const Integer id) const
  * @return The number of required variables.
  */
 //---------------------------------------------------------------------------
-Integer CCSDSTDMCountRequiredNumberMetaDataParameters()
+Integer CountRequiredNumberTDMMetaDataParameters()
 {
 
     Integer num = 0;
@@ -580,7 +563,7 @@ std::string CCSDSTDMMetaData::GetDataParameterText(const Integer id) const
    {
       return CCSDS_METADATA_FILEFORMAT_DESCRIPTIONS[id];
    }
-   return CCSDSObType::GetDataParameterText(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -604,7 +587,7 @@ Integer CCSDSTDMMetaData::GetDataParameterID(const std::string &str) const
 	}
    }
 
-   return CCSDSObType::GetDataParameterID(str);
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 
@@ -620,7 +603,7 @@ Gmat::ParameterType CCSDSTDMMetaData::GetDataParameterType(const Integer id) con
    if ((id >= 0) && (id < EndCCSDSTDMMetaDataReps))
       return CCSDS_METADATA_PARAMETER_TYPE[id];
 
-   return CCSDSObType::GetDataParameterType(id);
+   return Gmat::UNKNOWN_PARAMETER_TYPE;
 }
 
 //---------------------------------------------------------------------------
@@ -632,7 +615,7 @@ Gmat::ParameterType CCSDSTDMMetaData::GetDataParameterType(const Integer id) con
 //---------------------------------------------------------------------------
 std::string CCSDSTDMMetaData::GetDataParameterTypeString(const Integer id) const
 {
-   return GmatBase::PARAM_TYPE_STRING[GetDataParameterType(id)];
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------

@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <sstream>
 #include <pcrecpp.h>
+#include "CCSDSObtype.hpp"
 
 class CCSDSEulerAngle
 {
@@ -46,7 +47,7 @@ public:
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CCSDSCountRequiredNumberDataParameters();
+    friend Integer CountRequiredNumberEulerAngleParameters();
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -76,6 +77,9 @@ public:
         CCSDS_RATE_FRAME_B_ID,
         EndCCSDSRateFrameReps
     };
+
+    friend class ProcessCCSDSAEMDataFile;
+    friend class ProcessCCSDSAPMDataFile;
     
 protected:
 

@@ -44,7 +44,7 @@ public:
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CCSDSCountRequiredNumberDataParameters();
+    friend Integer CountRequiredNumberSpinStabilizedParameters();
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -53,6 +53,7 @@ public:
     enum CCSDS_DATA_REPS
     {
         CCSDS_SPINSTABILIZED_ATTITUDETYPE_ID,
+	CCSDS_SPINSTABILIZED_TIMETAG_ID,
 	CCSDS_SPINSTABILIZED_FRAMEA_ID,
 	CCSDS_SPINSTABILIZED_FRAMEB_ID,
 	CCSDS_SPINSTABILIZED_DIRECTION_ID,
@@ -67,6 +68,8 @@ public:
         EndCCSDSSpinStabilizedDataReps
     };
 
+    friend class ProcessCCSDSAPMDataFile;
+
 protected:
 
     static const std::string CCSDS_SPINSTABILIZED_KEYWORDS[EndCCSDSSpinStabilizedDataReps];
@@ -76,6 +79,7 @@ protected:
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSSpinStabilizedDataReps];
 
     Integer attitudeType;
+    std::string timeTag;
     std::string frameA;
     std::string frameB;
     Integer direction;

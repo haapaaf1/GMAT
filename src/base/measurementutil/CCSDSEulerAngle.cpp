@@ -562,6 +562,28 @@ bool CCSDSEulerAngle::IsParameterRequired(const Integer id) const
         return false;
 }
 
+
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberEulerAngleParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberEulerAngleParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSEulerAngle::EndCCSDSEulerAngleDataReps; id++)
+        if (CCSDSEulerAngle::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
+}
+
 //------------------------------------------------------------------------------
 //  bool CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------

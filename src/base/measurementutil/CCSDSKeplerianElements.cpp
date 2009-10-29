@@ -393,6 +393,27 @@ bool CCSDSKeplerianElements::IsParameterRequired(const Integer id) const
         return false;
 }
 
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberKeplerianElementsParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberKeplerianElementsParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSKeplerianElements::EndCCSDSKeplerianElementsDataReps; id++)
+        if (CCSDSKeplerianElements::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
+}
+
 //------------------------------------------------------------------------------
 //  bool CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------

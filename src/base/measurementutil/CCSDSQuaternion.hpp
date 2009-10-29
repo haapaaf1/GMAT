@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <sstream>
 #include <pcrecpp.h>
+#include "CCSDSObtype.hpp"
 
 class CCSDSQuaternion
 {
@@ -46,7 +47,7 @@ public:
     // Functions to verify data availability
     bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
-    friend Integer CCSDSCountRequiredNumberDataParameters();
+    friend Integer CountRequiredNumberQuaternionParameters();
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -61,6 +62,7 @@ public:
 
     enum CCSDS_DATA_REPS
     {
+	CCSDS_QUATERNION_ATTITUDETYPE_ID,
 	CCSDS_QUATERNION_TYPE_ID,
 	CCSDS_QUATERNION_TIMETAG_ID,
 	CCSDS_QUATERNION_FRAMEA_ID,
@@ -90,6 +92,7 @@ protected:
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSQuaternionDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaternionDataReps];
 
+    Integer attitudeType;
     Integer quaternionType;
     std::string timeTag;
     std::string frameA;

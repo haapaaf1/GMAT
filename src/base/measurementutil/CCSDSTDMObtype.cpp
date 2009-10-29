@@ -3,7 +3,7 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSTDMObType::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
+const std::string CCSDSTDMObType::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeReps] =
 {
     "Angle1",
     "Angle2",
@@ -42,7 +42,7 @@ const std::string CCSDSTDMObType::CCSDS_DATATYPE_DESCRIPTIONS[EndCCSDSTDMTypeRep
     "VLBIDelay"
 };
 
-const std::string CCSDSTDMObType::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
+const std::string CCSDSTDMObType::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps] =
 {
     "ANGLE_1",
     "ANGLE_2",
@@ -81,7 +81,7 @@ const std::string CCSDSTDMObType::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps-EndCCSD
     "VLBI_DELAY"
 };
 
-const std::string CCSDSTDMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps-EndCCSDSTypeReps] =
+const std::string CCSDSTDMObType::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps] =
 {
     "deg",
     "deg",
@@ -281,13 +281,13 @@ const Integer CCSDSTDMObType::GetKeywordID(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = 0; i < EndCCSDSTDMDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSTDMTypeReps; i++)
     {
         if (pcrecpp::RE(regex).FullMatch(CCSDS_TDM_KEYWORDS[i]))
             return i;
     }
 
-   return -1;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
 }
 
@@ -303,284 +303,6 @@ const Integer CCSDSTDMObType::GetKeywordID(const std::string str) const
 std::string CCSDSTDMObType::GetUnits(const Integer &id) const
 {
    return CCSDS_UNIT_DESCRIPTIONS[id];
-}
-
-//---------------------------------------------------------------------------
-//  bool IsParameterRequired(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the requested parameter is required by the data format.
- *
- * @param <id> Description for the parameter.
- *
- * @return true if the parameter is read only, false (the default)
- */
-//---------------------------------------------------------------------------
-bool CCSDSTDMObType::IsParameterRequired(const Integer id) const
-{
-    if (id > 0 && id <= EndCCSDSTDMDataReps)
-	return CCSDS_IS_REQUIRED[id];
-    else
-	return false;
-}
-
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool CCSDSTDMObType::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSTDMDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return CCSDSObType::CheckDataAvailability(str);
-
-}
-
-//------------------------------------------------------------------------------
-// Measurement Data Access functions
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-//  std::string  GetDataParameterText(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-std::string CCSDSTDMObType::GetDataParameterText(const Integer id) const
-{
-   if ((id >= 0) && (id < EndCCSDSTDMDataReps))
-   {
-      return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
-   }
-   return CCSDSObType::GetDataParameterText(id);
-}
-
-//------------------------------------------------------------------------------
-//  std::string  GetDataUnits(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-std::string CCSDSTDMObType::GetDataUnits(const Integer id) const
-{
-   if ((id >= 0) && (id < EndCCSDSTDMDataReps))
-   {
-      return CCSDS_UNIT_DESCRIPTIONS[id];
-   }
-   return CCSDSObType::GetDataUnits(id);
-}
-
-
-//------------------------------------------------------------------------------
-//  Integer  GetDataParameterID(const std::string &str) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Integer CCSDSTDMObType::GetDataParameterID(const std::string &str) const
-{
-    std::string regex = "^" + str + "$";
-    
-    for (Integer i = 0; i < EndCCSDSTDMDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
-	{
-	    return i;
-	}
-   }
-      
-   return CCSDSObType::GetDataParameterID(str);
-}
-
-
-//------------------------------------------------------------------------------
-//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Gmat::ParameterType CCSDSTDMObType::GetDataParameterType(const Integer id) const
-{
-   if ((id >= 0) && (id < EndCCSDSTDMDataReps))
-      return CCSDS_PARAMETER_TYPE[id];
-
-   return CCSDSObType::GetDataParameterType(id);
-}
-
-//---------------------------------------------------------------------------
-//  std::string GetDataParameterTypeString(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//---------------------------------------------------------------------------
-std::string CCSDSTDMObType::GetDataParameterTypeString(const Integer id) const
-{
-   return CCSDSObType::GetDataParameterTypeString(id);
-}
-
-//------------------------------------------------------------------------------
-// virtual Integer GetIntegerDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//---------------------------------------------------------------------------
-Integer CCSDSTDMObType::GetIntegerDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-	case CCSDS_TDM_KEYWORD_ID:
-
-            return ccsdsTDMData->keywordID;
-
-        default:
-
-            return CCSDSObType::GetIntegerDataParameter(id);
-
-    }
-
-}
-
-//------------------------------------------------------------------------------
-// virtual Integer GetIntegerDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Integer CCSDSTDMObType::GetIntegerDataParameter(const std::string &label) const
-{
-   return GetIntegerDataParameter(GetDataParameterID(label));
-}
-
-//------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-std::string CCSDSTDMObType::GetStringDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-
-	case CCSDS_TDM_TIMETAG_ID:
-	    
-            return ccsdsTDMData->timeTag;
-		
-        default:
-
-            return CCSDSObType::GetStringDataParameter(id);
-
-    }
-
-}
-
-//------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-std::string CCSDSTDMObType::GetStringDataParameter(const std::string &label) const
-{
-   return GetStringDataParameter(GetDataParameterID(label));
-}
-
-//------------------------------------------------------------------------------
-// std::string GetStringArrayDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-StringArray CCSDSTDMObType::GetStringArrayDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-        case CCSDS_TDM_COMMENTS_ID:
-
-	    return ccsdsTDMData->comments;
-
-        default:
-
-            return CCSDSObType::GetStringArrayDataParameter(id);
-
-    }
-
-}
-
-//------------------------------------------------------------------------------
-// StringArray GetStringArrayDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-StringArray CCSDSTDMObType::GetStringArrayDataParameter(const std::string &label) const
-{
-   return GetStringArrayDataParameter(GetDataParameterID(label));
-}
-
-//------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Real CCSDSTDMObType::GetRealDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-	
-	case CCSDS_TDM_MEASUREMENT_ID:
-	    
-	    return ccsdsTDMData->measurement;
-	
-	default:
-
-	    return CCSDSObType::GetRealDataParameter(id);
-
-    }
-
-}
-
-//------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Real CCSDSTDMObType::GetRealDataParameter(const std::string &label) const
-{
-   return GetRealDataParameter(GetDataParameterID(label));
 }
 
 //------------------------------------------------------------------------------
@@ -615,7 +337,7 @@ std::string CCSDSTDMObType::GetDataTypeText(const Integer &id) const
       return CCSDS_DATATYPE_DESCRIPTIONS[id];
    }
 
-   return CCSDSObType::GetDataTypeText(id);
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -631,7 +353,14 @@ std::string CCSDSTDMObType::GetDataTypeText(const Integer &id) const
 //------------------------------------------------------------------------------
 Integer CCSDSTDMObType::GetDataTypeID(const std::string &label)
 {
-    return CCSDSObType::GetDataTypeID(label);
+    std::string regex = "^" + label + "$";
+
+    for (Integer i = 0; i < EndCCSDSTDMTypeReps; i++)
+    {
+        if (pcrecpp::RE(regex).FullMatch(CCSDS_DATATYPE_DESCRIPTIONS[i]))
+            return i;
+    }
+    return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -715,14 +444,7 @@ Integer CCSDSTDMObType::GetTimeSystemID(const std::string &label)
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 {
-    switch (myTDM->ccsdsHeader->dataType)
-    {
-        case CCSDSObType::GENERICDATA_ID:
-            output << myTDM->ccsdsTDMData;
-            break;
-        default:
-            break;
-    }
-
+    if (myTDM->ccsdsTDMData != NULL)
+        output << myTDM->ccsdsTDMData;
     return output;
 }

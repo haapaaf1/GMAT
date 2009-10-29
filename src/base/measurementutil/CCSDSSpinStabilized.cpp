@@ -92,6 +92,7 @@ const Gmat::ParameterType CCSDSSpinStabilized::CCSDS_PARAMETER_TYPE[EndCCSDSSpin
 //------------------------------------------------------------------------------
 CCSDSSpinStabilized::CCSDSSpinStabilized() :
     attitudeType(0),
+    timeTag(std::string("")),
     frameA(std::string("")),
     frameB(std::string("")),
     direction(0),
@@ -115,6 +116,7 @@ CCSDSSpinStabilized::CCSDSSpinStabilized() :
 //------------------------------------------------------------------------------
 CCSDSSpinStabilized::CCSDSSpinStabilized(const CCSDSSpinStabilized &ss) :
     attitudeType(ss.attitudeType),
+    timeTag(ss.timeTag),
     frameA(ss.frameA),
     frameB(ss.frameB),
     direction(ss.direction),
@@ -146,7 +148,7 @@ const CCSDSSpinStabilized& CCSDSSpinStabilized::operator=(const CCSDSSpinStabili
       return *this;
 
     attitudeType = ss.attitudeType;
-    //timeTag = ss.timeTag;
+    timeTag = ss.timeTag;
     frameA = ss.frameA;
     frameB = ss.frameB;
     direction = ss.direction;
@@ -356,6 +358,10 @@ std::string CCSDSSpinStabilized::GetStringDataParameter(const Integer id) const
     switch (id)
     {
 
+	case CCSDS_SPINSTABILIZED_TIMETAG_ID:
+
+	    return timeTag;
+
 	case CCSDS_SPINSTABILIZED_FRAMEA_ID:
 
 	    return frameA;
@@ -494,6 +500,28 @@ bool CCSDSSpinStabilized::IsParameterRequired(const Integer id) const
         return CCSDS_IS_REQUIRED[id];
     else
         return false;
+}
+
+
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberSpinStabilizedParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberSpinStabilizedParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSSpinStabilized::EndCCSDSSpinStabilizedDataReps; id++)
+        if (CCSDSSpinStabilized::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
 }
 
 //------------------------------------------------------------------------------

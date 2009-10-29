@@ -9,7 +9,6 @@
 #define	_ProcessCCSDSDATAFILE_HPP
 
 #include "DataFile.hpp"
-#include "DataFormats.hpp"
 
 class ProcessCCSDSDataFile : public DataFile
 {
@@ -84,6 +83,7 @@ protected:
     bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &epoch,
                                    std::string &key, Real &value);
     bool GetCCSDSComments(std::string &lff, StringArray &comments);
+    bool GetCCSDSComment(std::string &lff, std::string &comment);
 
     static const std::string CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8];
     static const std::string CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDSTimeSystemReps-8];

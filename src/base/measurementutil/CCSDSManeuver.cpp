@@ -416,6 +416,27 @@ bool CCSDSManeuver::IsParameterRequired(const Integer id) const
         return false;
 }
 
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberManeuverParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberManeuverParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSManeuver::EndCCSDSManeuverDataReps; id++)
+        if (CCSDSManeuver::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
+}
+
 //------------------------------------------------------------------------------
 //  bool CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------

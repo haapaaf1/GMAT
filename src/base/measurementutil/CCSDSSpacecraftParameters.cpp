@@ -361,6 +361,27 @@ bool CCSDSSpacecraftParameters::IsParameterRequired(const Integer id) const
         return false;
 }
 
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberSpacecraftParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberSpacecraftParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSSpacecraftParameters::EndCCSDSSpacecraftParametersDataReps; id++)
+        if (CCSDSSpacecraftParameters::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
+}
+
 //------------------------------------------------------------------------------
 //  bool CheckDataAvailability(const std::string str) const
 //------------------------------------------------------------------------------

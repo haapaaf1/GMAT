@@ -70,19 +70,47 @@ CCSDSAEMEulerAngle::~CCSDSAEMEulerAngle()
 std::ostream& operator<< (std::ostream &output,
                           const CCSDSAEMEulerAngle *myAEMEulerAngle)
 {
-   using namespace std;
+    using namespace std;
 
-   output << "EULER_FRAME_A = " << myAEMEulerAngle->frameA << endl;
-   output << "EULER_FRAME_B = " << myAEMEulerAngle->frameB << endl;
-   output << "EULER_DIR = " << myAEMEulerAngle->direction << endl;
-   output << "EULER_ROT_SEQ = " << myAEMEulerAngle->rotationSequence << endl;
-   output << "RATE_FRAME = " << myAEMEulerAngle->rateFrame << endl;
-   output << "X_ANGLE = " << myAEMEulerAngle->xAngle << endl;
-   output << "Y_ANGLE = " << myAEMEulerAngle->yAngle << endl;
-   output << "Z_ANGLE = " << myAEMEulerAngle->zAngle << endl;
-   output << "X_RATE = " << myAEMEulerAngle->xRate << endl;
-   output << "Y_RATE = " << myAEMEulerAngle->yRate << endl;
-   output << "Z_RATE = " << myAEMEulerAngle->zRate << endl;
+    for (unsigned int i = 0; i < myAEMEulerAngle->comments.size(); i++)
+    {
+        output << "COMMENT " << myAEMEulerAngle->comments[i] << endl;
+    }
+
+    switch (myAEMEulerAngle->eulerAngleType)
+    {
+
+        case CCSDSObType::CCSDS_EULER_ANGLE_ID:
+        {
+            output << myAEMEulerAngle->timeTag
+                   << myAEMEulerAngle->xAngle
+                   << myAEMEulerAngle->yAngle
+                   << myAEMEulerAngle->zAngle << endl;
+
+            return output;
+        }
+
+        break;
+
+        case CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID:
+        {
+            output << myAEMEulerAngle->timeTag
+                   << myAEMEulerAngle->xAngle
+                   << myAEMEulerAngle->yAngle
+                   << myAEMEulerAngle->zAngle
+                   << myAEMEulerAngle->xRate
+                   << myAEMEulerAngle->yRate
+                   << myAEMEulerAngle->zRate << endl;
+
+            return output;
+        }
+
+        break;
+
+        default:
+
+            break;
+    }
 
    return output;
 }
