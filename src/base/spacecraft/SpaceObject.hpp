@@ -64,6 +64,7 @@ public:
    virtual void SetOriginName(std::string cbName);
    virtual const std::string GetOriginName();
    virtual void SetOrigin(SpacePoint *cb);
+   virtual SpacePoint* GetOrigin();
    
    virtual const Rvector6 GetMJ2000State(const A1Mjd &atTime);
    virtual const Rvector3 GetMJ2000Position(const A1Mjd &atTime);

@@ -254,6 +254,11 @@ void SpaceObject::SetOriginName(std::string cbName)
    originName = cbName;
 }
 
+SpacePoint* SpaceObject::GetOrigin()
+{
+   return origin;
+}
+
 const std::string SpaceObject::GetOriginName()
 {
    return originName;
