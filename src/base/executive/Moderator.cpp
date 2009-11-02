@@ -1662,6 +1662,7 @@ CelestialBody* Moderator::CreateCelestialBody(const std::string &type,
       Integer manage = 0;
       SolarSystem *ss = GetSolarSystemInUse(manage);
       body->SetUserDefined(true);
+      body->SetSolarSystem(ss);
       ss->AddBody(body);
       #ifdef DEBUG_CREATE_BODY
       MessageInterface::ShowMessage
