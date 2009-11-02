@@ -73,7 +73,7 @@ public:
 
 protected:
 
-    bool GetCCSDSHeader(std::string firstline, CCSDSObType *myOb);
+    bool GetCCSDSHeader(std::string &lff, CCSDSObType *myOb);
     
     bool GetCCSDSValue(const std::string &lff, std::string &svalue);
     bool GetCCSDSValue(const std::string &lff, Real &value);

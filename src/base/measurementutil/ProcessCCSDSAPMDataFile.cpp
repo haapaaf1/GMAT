@@ -45,38 +45,25 @@ bool ProcessCCSDSAPMDataFile::Initialize()
     requiredNumberSpacecraftInertiaParameters = CountRequiredNumberSpacecraftInertiaParameters();
     requiredNumberAttitudeManeuverParameters = CountRequiredNumberAttitudeManeuverParameters();
 
+    // Test to see if we are reading or writing
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
+        // Construct an orbit parameter message obtype
         CCSDSAPMObType *myAPM = new CCSDSAPMObType;
-
-        // Read the first line from file
-	std::string line = ReadLineFromFile();
 
         while (!IsEOF())
         {
-            if (line != "")
-            {
-                // Now check for headers and process data accordingly
-                if (GetData(myAPM))
-                {
-                    // Push this data point onto the stack.
-                    theData.push_back(myAPM);
-                }
-                else
-                {
-                    delete myAPM;
-                }
+            // The GetData function will attempt to populate the
+            // APM obtype variables
+            if (GetData(myAPM))
+                // Push this data point onto the obtype data stack
+                theData.push_back(myAPM);
+            else
+                delete myAPM;
 
-                // Allocate another struct in memory
-                myAPM = new CCSDSAPMObType;
-            }
-
-	    // Read a line from file
-            // After grabbing the header and metadata information
-            // This call to read a line from file should be grabbing
-            // rows of data between DATA_START and DATA_STOP
-	    line = ReadLineFromFile();
+            // Allocate another struct in memory
+            myAPM = new CCSDSAPMObType;
         }
 
         // Set data iterator to beginning of vector container
@@ -85,13 +72,11 @@ bool ProcessCCSDSAPMDataFile::Initialize()
         #ifdef DEBUG_CCSDSAPM_DATA
 
             fstream *outFile = new fstream;
-            outFile->open("APM.output",ios::out);
+            outFile->open("apm.output",ios::out);
 
             // Output to file to make sure all the data is properly stored
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
 		*outFile << (CCSDSAPMObType*)(*j) << std::endl;
-            }
 
             outFile->close();
 
@@ -441,9 +426,9 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMQuaternion(std::string &lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        Integer keyID = myOb->GetKeywordID(keyword);
+        Integer keyID = myAPMQuaternion->GetKeywordID(keyword);
 
-        if(myOb->IsParameterRequired(keyID)) requiredCount++;
+        if(myAPMQuaternion->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
         {
@@ -522,9 +507,9 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMQuaternion(std::string &lff,
 
             if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-            Integer keyID = myOb->GetKeywordID(keyword);
+            Integer keyID = myAPMQuaternion->GetKeywordID(keyword);
 
-            if(myOb->IsParameterRequired(keyID)) requiredCount++;
+            if(myAPMQuaternion->IsParameterRequired(keyID)) requiredCount++;
 
             switch (keyID)
             {
@@ -639,9 +624,9 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMEulerAngle(std::string &lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        Integer keyID = myOb->GetKeywordID(keyword);
+        Integer keyID = myAPMEulerAngle->GetKeywordID(keyword);
 
-        if(myOb->IsParameterRequired(keyID)) requiredCount++;
+        if(myAPMEulerAngle->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
         {
@@ -720,9 +705,9 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMEulerAngle(std::string &lff,
 
             if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-            Integer keyID = myOb->GetKeywordID(keyword);
+            Integer keyID = myAPMEulerAngle->GetKeywordID(keyword);
 
-            if(myOb->IsParameterRequired(keyID)) requiredCount++;
+            if(myAPMEulerAngle->IsParameterRequired(keyID)) requiredCount++;
 
             switch (keyID)
             {
@@ -786,9 +771,9 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMSpinStabilized(std::string &lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        Integer keyID = myOb->GetKeywordID(keyword);
+        Integer keyID = myAPMSpinStabilized->GetKeywordID(keyword);
 
-        if(myOb->IsParameterRequired(keyID)) requiredCount++;
+        if(myAPMSpinStabilized->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
         {
@@ -859,9 +844,9 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMSpinStabilized(std::string &lff,
 
             if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-            Integer keyID = myOb->GetKeywordID(keyword);
+            Integer keyID = myAPMSpinStabilized->GetKeywordID(keyword);
 
-            if(myOb->IsParameterRequired(keyID)) requiredCount++;
+            if(myAPMSpinStabilized->IsParameterRequired(keyID)) requiredCount++;
 
             switch (keyID)
             {
@@ -924,9 +909,9 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSSpacecraftInertia(std::string &lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        Integer keyID = myOb->GetKeywordID(keyword);
+        Integer keyID = myAPMSpacecraftInertia->GetKeywordID(keyword);
 
-        if(myOb->IsParameterRequired(keyID)) requiredCount++;
+        if(myAPMSpacecraftInertia->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
         {
@@ -1006,9 +991,9 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAttitudeManeuver(std::string &lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        Integer keyID = myOb->GetKeywordID(keyword);
+        Integer keyID = myAPMManeuver->GetKeywordID(keyword);
 
-        if(myOb->IsParameterRequired(keyID)) requiredCount++;
+        if(myAPMManeuver->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
         {

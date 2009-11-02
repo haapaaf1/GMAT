@@ -166,15 +166,14 @@ void ProcessCCSDSDataFile::SetHeader(CCSDSHeader *myHeader)
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSHeader(std::string lff, CCSDSObType* myOb)
+// bool GetCCSDSHeader(std::string &lff, CCSDSObType* myOb)
 //------------------------------------------------------------------------------
 /**
  * Extracts header information from the CCSDS data file
  *
  */
 //------------------------------------------------------------------------------
-bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
-                                          CCSDSObType *myOb)
+bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
 {
 
     CCSDSHeader *myHeader = new CCSDSHeader;
@@ -189,19 +188,26 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
     std::string stemp;
 
     // The first line of any CCSDS data file must be the version keyword
-    if (pcrecpp::RE("^CCSDS_([A-Z]{3})_VERS\\s*=\\s*(\\d*[\\.\\d+]?)").
-                                                  FullMatch(lff,&stemp,&dtemp))
+
+    std::string regex = "^CCSDS_([A-Z]{3})_VERS\\s*=\\s*(" + REGEX_NUMBER + ")";
+
+    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp))
     {
+        MessageInterface::ShowMessage("\nReading " + stemp + " Data from file\n");
+
         myHeader->fileType = stemp;
 	myHeader->ccsdsVersion = dtemp;
     }
     else
     {
 	// Ill formed data
+        MessageInterface::ShowMessage("\nCould not read CCSDS Version! Abort!\n");
 	return false;	
     }
 
-    Integer requiredCount = 0;
+    // Since we already read in the first required parameter,
+    // set the required count to 1
+    Integer requiredCount = 1;
     std::string keyword;
 
     // Read in another line
@@ -212,7 +218,11 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
+        MessageInterface::ShowMessage("Keyword = " + keyword + "\n");
+
         Integer keyID = myHeader->GetKeywordID(keyword);
+
+        MessageInterface::ShowMessage("Keyword ID = %d\n",keyID);
 
         if(myHeader->IsParameterRequired(keyID)) requiredCount++;
 
@@ -224,7 +234,10 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
                 std::string comment;
 
                 if (GetCCSDSComment(lff,comment))
+                {
                     myHeader->comments.push_back(comment);
+                    MessageInterface::ShowMessage("Value = " + comment + "\n");
+                }
                 else
                     return false;
                 }
@@ -233,19 +246,25 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string lff,
             case CCSDSHeader::CCSDS_CREATIONDATE_ID:
 
                 if (!GetCCSDSValue(lff,myHeader->creationDate)) return false;
+                MessageInterface::ShowMessage("Value = " + myHeader->creationDate + "\n");
                 break;
 
             case CCSDSHeader::CCSDS_ORIGINATOR_ID:
 
                 if (!GetCCSDSValue(lff,myHeader->originator)) return false;
+                MessageInterface::ShowMessage("Value = " + myHeader->originator + "\n");
                 break;
 
             default:
-                return false;
+                //return false;
                 break;
         }
+
+        // Read in another line
+        lff = ReadLineFromFile();
+
     }
-    while (requiredCount < requiredNumberHeaderParameters );
+    while (requiredCount < requiredNumberHeaderParameters && !IsEOF());
 
     myOb->ccsdsHeader = myHeader;
 

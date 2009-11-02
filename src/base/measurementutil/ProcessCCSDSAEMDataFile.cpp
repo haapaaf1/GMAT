@@ -39,38 +39,25 @@ bool ProcessCCSDSAEMDataFile::Initialize()
 
     requiredNumberMetaDataParameters = CountRequiredNumberAEMMetaDataParameters();
 
+    // Test to see if we are reading or writing
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
+        // Construct an orbit parameter message obtype
         CCSDSAEMObType *myAEM = new CCSDSAEMObType;
-
-        // Read the first line from file
-	std::string line = ReadLineFromFile();
 
         while (!IsEOF())
         {
-            if (line != "")
-            {
-                // Now check for headers and process data accordingly
-                if (GetData(myAEM))
-                {
-                    // Push this data point onto the stack.
-                    theData.push_back(myAEM);
-                }
-                else
-                {
-                    delete myAEM;
-                }
+            // The GetData function will attempt to populate the
+            // AEM obtype variables
+            if (GetData(myAEM))
+                // Push this data point onto the obtype data stack
+                theData.push_back(myAEM);
+            else
+                delete myAEM;
 
-                // Allocate another struct in memory
-                myAEM = new CCSDSAEMObType;
-            }
-
-	    // Read a line from file
-            // After grabbing the header and metadata information
-            // This call to read a line from file should be grabbing
-            // rows of data between DATA_START and DATA_STOP
-	    line = ReadLineFromFile();
+            // Allocate another struct in memory
+            myAEM = new CCSDSAEMObType;
         }
 
         // Set data iterator to beginning of vector container
@@ -79,13 +66,11 @@ bool ProcessCCSDSAEMDataFile::Initialize()
         #ifdef DEBUG_CCSDSAEM_DATA
 
             fstream *outFile = new fstream;
-            outFile->open("AEM.output",ios::out);
+            outFile->open("aem.output",ios::out);
 
             // Output to file to make sure all the data is properly stored
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
 		*outFile << (CCSDSAEMObType*)(*j) << std::endl;
-            }
 
             outFile->close();
 
@@ -105,7 +90,6 @@ bool ProcessCCSDSAEMDataFile::Initialize()
     }
 
     return true;
-
 }
 
 //------------------------------------------------------------------------------

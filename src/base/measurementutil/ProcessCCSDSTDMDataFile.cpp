@@ -40,27 +40,25 @@ bool ProcessCCSDSTDMDataFile::Initialize()
 
     requiredNumberMetaDataParameters = CountRequiredNumberTDMMetaDataParameters();
 
+    // Test to see if we are reading or writing
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
+        // Construct an orbit parameter message obtype
         CCSDSTDMObType *myTDM = new CCSDSTDMObType;
 
         while (!IsEOF())
         {
-            // Now check for headers and process data accordingly
+            // The GetData function will attempt to populate the
+            // TDM obtype variables
             if (GetData(myTDM))
-            {
-                // Push this data point onto the stack.
+                // Push this data point onto the obtype data stack
                 theData.push_back(myTDM);
-            }
             else
-            {
                 delete myTDM;
-            }
 
             // Allocate another struct in memory
             myTDM = new CCSDSTDMObType;
-
         }
 
         // Set data iterator to beginning of vector container
@@ -73,9 +71,7 @@ bool ProcessCCSDSTDMDataFile::Initialize()
 
             // Output to file to make sure all the data is properly stored
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
 		*outFile << (CCSDSTDMObType*)(*j) << std::endl;
-            }
 
             outFile->close();
 

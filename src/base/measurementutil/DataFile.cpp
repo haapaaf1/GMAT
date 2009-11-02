@@ -823,7 +823,7 @@ Integer DataFile::GetSortedBy() const
 }
 
 //------------------------------------------------------------------------------
-//  bool DataFile::IsEOF()
+//  bool IsEOF()
 //------------------------------------------------------------------------------
 /**
  * Check to see if the end of the file has been reached.

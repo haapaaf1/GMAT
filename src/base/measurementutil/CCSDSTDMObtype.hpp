@@ -28,7 +28,7 @@ public :
                                      const CCSDSTDMObType *myTDM);
     	
     // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
+    //bool CheckDataAvailability(const std::string str) const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -42,7 +42,7 @@ public :
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
         
-    bool IsParameterRequired(const Integer id) const;
+    //bool IsParameterRequired(const Integer id) const;
 
     enum DATATYPE_REPS
     {

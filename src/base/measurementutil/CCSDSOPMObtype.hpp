@@ -34,7 +34,7 @@ public :
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
 
-    bool IsParameterRequired(const Integer id) const;
+    //bool IsParameterRequired(const Integer id) const;
 
     enum CCSDS_TIMESYSTEM_REPS
     {

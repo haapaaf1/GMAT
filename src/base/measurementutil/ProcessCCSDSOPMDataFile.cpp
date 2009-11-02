@@ -21,7 +21,7 @@
 
 #include <ProcessCCSDSOPMDataFile.hpp>
 
-//#define DEBUG_CCSDSOPM_DATA
+#define DEBUG_CCSDSOPM_DATA
 
 //---------------------------------
 //  public methods
@@ -44,38 +44,25 @@ bool ProcessCCSDSOPMDataFile::Initialize()
     requiredNumberSpacecraftParameters = CountRequiredNumberSpacecraftParameters();
     requiredNumberManeuverParameters = CountRequiredNumberManeuverParameters();
 
+    // Test to see if we are reading or writing
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
+        // Construct an orbit parameter message obtype
         CCSDSOPMObType *myOPM = new CCSDSOPMObType;
-
-        // Read the first line from file
-	std::string line = ReadLineFromFile();
 
         while (!IsEOF())
         {
-            if (line != "")
-            {
-                // Now check for headers and process data accordingly
-                if (GetData(myOPM))
-                {
-                    // Push this data point onto the stack.
-                    theData.push_back(myOPM);
-                }
-                else
-                {
-                    delete myOPM;
-                }
+            // The GetData function will attempt to populate the
+            // OPM obtype variables
+            if (GetData(myOPM))
+                // Push this data point onto the obtype data stack
+                theData.push_back(myOPM);
+            else
+                delete myOPM;
 
-                // Allocate another struct in memory
-                myOPM = new CCSDSOPMObType;
-            }
-
-	    // Read a line from file
-            // After grabbing the header and metadata information
-            // This call to read a line from file should be grabbing
-            // rows of data between DATA_START and DATA_STOP
-	    line = ReadLineFromFile();
+            // Allocate another struct in memory
+            myOPM = new CCSDSOPMObType;
         }
 
         // Set data iterator to beginning of vector container
@@ -84,13 +71,11 @@ bool ProcessCCSDSOPMDataFile::Initialize()
         #ifdef DEBUG_CCSDSOPM_DATA
 
             fstream *outFile = new fstream;
-            outFile->open("OPM.output",ios::out);
+            outFile->open("opm.output",ios::out);
 
             // Output to file to make sure all the data is properly stored
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
 		*outFile << (CCSDSOPMObType*)(*j) << std::endl;
-            }
 
             outFile->close();
 

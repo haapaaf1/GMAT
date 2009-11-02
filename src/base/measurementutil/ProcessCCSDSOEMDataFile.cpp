@@ -21,7 +21,7 @@
 
 #include <ProcessCCSDSOEMDataFile.hpp>
 
-//#define DEBUG_CCSDSOEM_DATA
+#define DEBUG_CCSDSOEM_DATA
 
 //---------------------------------
 //  public methods
@@ -40,38 +40,22 @@ bool ProcessCCSDSOEMDataFile::Initialize()
 
     requiredNumberMetaDataParameters = CountRequiredNumberOEMMetaDataParameters();
 
+    // Test to see if we are reading or writing
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
 
+        // Construct the first of many orbit ephemeris message obtypes
         CCSDSOEMObType *myOEM = new CCSDSOEMObType;
 
-        // Read the first line from file
-	std::string line = ReadLineFromFile();
-
-        while (!IsEOF())
+        if (!IsEOF())
         {
-            if (line != "")
+            // The GetData function will attempt to populate the
+            // OEM obtype variables
+            if (!GetData(myOEM))
             {
-                // Now check for headers and process data accordingly
-                if (GetData(myOEM))
-                {
-                    // Push this data point onto the stack.
-                    theData.push_back(myOEM);
-                }
-                else
-                {
-                    delete myOEM;
-                }
-
-                // Allocate another struct in memory
-                myOEM = new CCSDSOEMObType;
+                delete myOEM;
+                return false;
             }
-
-	    // Read a line from file
-            // After grabbing the header and metadata information
-            // This call to read a line from file should be grabbing
-            // rows of data between DATA_START and DATA_STOP
-	    line = ReadLineFromFile();
         }
 
         // Set data iterator to beginning of vector container
@@ -84,9 +68,7 @@ bool ProcessCCSDSOEMDataFile::Initialize()
 
             // Output to file to make sure all the data is properly stored
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
 		*outFile << (CCSDSOEMObType*)(*j) << std::endl;
-            }
 
             outFile->close();
 
@@ -232,28 +214,30 @@ bool ProcessCCSDSOEMDataFile::IsParameterReadOnly(const std::string &label) cons
 // bool GetCCSDSData(ObType *myOEM)
 //------------------------------------------------------------------------------
 /**
- * Obtains the header line of OEM data from file.
+ * Obtains the header lff of OEM data from file.
  */
 //------------------------------------------------------------------------------
 bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 {
 
-    if (myOEMData->GetTypeName() != "CCSDSOEMObType") return false;
+    if (!pcrecpp::RE("^CCSDSOEMObType").FullMatch(myOEMData->GetTypeName())) return false;
 
     // Re-cast the generic ObType pointer as a CCSDSOEMObtype pointer
     CCSDSOEMObType *myOEM = (CCSDSOEMObType*)myOEMData;
 
-    // Read the first line from file
-    std::string line = ReadLineFromFile();
+    // Read the first line from file (lff)
+    std::string lff = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
-    while (!IsEOF() && pcrecpp::RE("^CCSDS_OEM_VERS.*").FullMatch(line))
+    // The first lff of any CCSDS data file should be the version
+    if (!IsEOF() && currentCCSDSHeader == NULL && pcrecpp::RE("^CCSDS_OEM_VERS.*").FullMatch(lff))
     {
-	if (GetCCSDSHeader(line,myOEM))
+	if (GetCCSDSHeader(lff,myOEM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
 	    currentCCSDSHeader = myOEM->ccsdsHeader;
+            MessageInterface::ShowMessage("Processed complete OEM Header\n");
 	}
 	else
 	{
@@ -263,17 +247,16 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 	}
     }
 
-    // Test for the prescence of meta data
-    // If the header data was just processed, line should now contain
-    // the "META_START" line
-    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(line))
+    while (!IsEOF())
     {
 
-	if (GetCCSDSMetaData(line,myOEM))
+        // Read in metadata
+	if (GetCCSDSMetaData(lff,myOEM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
 	    currentCCSDSMetaData = myOEM->ccsdsOEMMetaData;
+            MessageInterface::ShowMessage("Processed complete OEM MetaData\n");
 
 	}
 	else
@@ -282,23 +265,34 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 	    currentCCSDSMetaData = NULL;
 	    return false;
 	}
+
+        while (!pcrecpp::RE("^META_START.*").FullMatch(lff))
+        {
+            myOEM->ccsdsHeader = currentCCSDSHeader;
+            myOEM->ccsdsOEMMetaData = currentCCSDSMetaData;
+
+            if (GetCCSDSOEMData(lff,myOEM))
+            {
+                // Push this data point onto the obtype data stack
+                MessageInterface::ShowMessage("Found OEM Data\n");
+                theData.push_back(myOEM);
+            }
+            else
+            {
+                delete myOEM;
+                return false;
+            }
+
+            // Allocate another struct in memory
+            myOEM = new CCSDSOEMObType;
+
+            // Read another line from file
+            lff = ReadLineFromFile();
+
+        }
     }
 
-    line = ReadLineFromFile();
-
-    // Parse the data record making sure that we have identified
-    // a header record and a metadata record previously
-    if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
-	return false;
-
-    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
-    {
-	myOEM->ccsdsHeader = currentCCSDSHeader;
-        myOEM->ccsdsOEMMetaData = currentCCSDSMetaData;
-	return GetCCSDSOEMData(line,myOEM);
-    }
-
-    return false;
+    return true;
 }
 //------------------------------------------------------------------------------
 // bool GetCCSDSMetaData(std::string &lff, CCSDSOEMObType *myOb)
@@ -321,6 +315,7 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
+        MessageInterface::ShowMessage("Keyword = " + keyword + "\n");
 
         Integer keyID = myMetaData->GetKeywordID(keyword);
 

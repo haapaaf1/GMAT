@@ -28,10 +28,10 @@ class ProcessB3DataFile;
 class ProcessTLEDataFile;
 class ProcessSLRDataFile;
 class ProcessCCSDSTDMDataFile;
-//class ProcessCCSDSOPMDataFile;
-//class ProcessCCSDSOEMDataFile;
-//class ProcessCCSDSAPMDataFile;
-//class ProcessCCSDSAEMDataFile;
+class ProcessCCSDSOPMDataFile;
+class ProcessCCSDSOEMDataFile;
+class ProcessCCSDSAPMDataFile;
+class ProcessCCSDSAEMDataFile;
 
 class DataFileFactory : public Factory
 {
