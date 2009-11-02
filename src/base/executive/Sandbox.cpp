@@ -89,7 +89,7 @@ Sandbox::Sandbox() :
       clonable.push_back(Gmat::FINITE_BURN);
       clonable.push_back(Gmat::COMMAND);
       clonable.push_back(Gmat::PROPAGATOR);
-      clonable.push_back(Gmat::FORCE_MODEL);
+      clonable.push_back(Gmat::ODE_MODEL);
       clonable.push_back(Gmat::PHYSICAL_MODEL);
       clonable.push_back(Gmat::TRANSIENT_FORCE);
       clonable.push_back(Gmat::INTERPOLATOR);
