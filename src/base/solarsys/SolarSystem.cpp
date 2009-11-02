@@ -779,6 +779,7 @@ SolarSystem::SolarSystem(std::string withName)
    // Assume only one Star for now : )
    Star* theSun     = new Star(SUN_NAME);
    theSun->SetCentralBody(EARTH_NAME);  // central body here is a reference body
+   theSun->SetSolarSystem(this);
    theSun->SetSource(STAR_POS_VEL_SOURCE);
    theSun->SetEquatorialRadius(STAR_EQUATORIAL_RADIUS);
    theSun->SetFlattening(STAR_FLATTENING);
@@ -827,6 +828,8 @@ SolarSystem::SolarSystem(std::string withName)
    {
       Planet *newPlanet = new Planet(PLANET_NAMES[ii], SUN_NAME);
       if (PLANET_NAMES[ii] == EARTH_NAME) theEarth = newPlanet;
+      newPlanet->SetCentralBody(SUN_NAME);
+      newPlanet->SetSolarSystem(this);
       newPlanet->SetSource(PLANET_POS_VEL_SOURCE);
       newPlanet->SetEquatorialRadius(PLANET_EQUATORIAL_RADIUS[ii]);
       newPlanet->SetFlattening(PLANET_FLATTENING[ii]);
@@ -902,6 +905,8 @@ SolarSystem::SolarSystem(std::string withName)
          errMsg += MOON_NAMES[ii] + "\n";
          throw SolarSystemException(errMsg);
       }
+      newMoon->SetCentralBody(MOON_CENTRAL_BODIES[ii]);
+      newMoon->SetSolarSystem(this);
       newMoon->SetRefObject(central, Gmat::CELESTIAL_BODY, MOON_CENTRAL_BODIES[ii]);
 
       newMoon->SetTwoBodyEpoch(MOON_TWO_BODY_EPOCH[ii]);
@@ -1191,10 +1196,13 @@ void SolarSystem::CreatePlanetarySource(bool setDefault)
       if (spiceAvailable)
       {
          std::string spkFullPath = fm->GetFullPathname("PLANETARY_SPK_FILE");
-         bool isOK = SetSPKFile(spkFullPath);
-         if (!isOK)
-            throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
-         thePlanetarySourceNames.push_back(theSPKFilename);
+         if (!(GmatStringUtil::IsBlank(spkFullPath)))
+         {
+            bool isOK = SetSPKFile(spkFullPath);
+            if (!isOK)
+               throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
+            thePlanetarySourceNames.push_back(theSPKFilename);
+         }
       }
    }
    // Set planetary ephemeris source

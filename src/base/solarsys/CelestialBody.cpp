@@ -204,8 +204,10 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
    stateTime          (21545.0),
+   theSolarSystem     (NULL),
    theCentralBodyName (""),
    theCentralBody     (NULL),
+   centralBodySet     (false),
    bodyNumber         (0),
    referenceBodyNumber(0),
    sourceFilename     (""),
@@ -291,8 +293,10 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
    stateTime          (21545.0),
+   theSolarSystem     (NULL),
    theCentralBodyName (""),
    theCentralBody     (NULL),
+   centralBodySet     (false),
    bodyNumber         (0),
    referenceBodyNumber(0),
    sourceFilename     (""),
@@ -376,8 +380,10 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    mu                  (cBody.mu),
    posVelSrc           (cBody.posVelSrc),
 //   analyticMethod      (cBody.analyticMethod),
+   theSolarSystem      (cBody.theSolarSystem),    // correct?
    theCentralBodyName  (cBody.theCentralBodyName),
-   theCentralBody      (cBody.theCentralBody),
+   theCentralBody      (cBody.theCentralBody),    // correct?
+   centralBodySet      (cBody.centralBodySet),    // correct?
    bodyNumber          (cBody.bodyNumber),
    referenceBodyNumber (cBody.referenceBodyNumber),
    sourceFilename      (cBody.sourceFilename),
@@ -501,8 +507,10 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
 //   analyticMethod      = cBody.analyticMethod;
    state               = cBody.state;
    stateTime           = cBody.stateTime;
+   theSolarSystem      = cBody.theSolarSystem;   // correct?
    theCentralBodyName  = cBody.theCentralBodyName;
-   theCentralBody      = cBody.theCentralBody;
+   theCentralBody      = cBody.theCentralBody;   // correct?
+   centralBodySet      = cBody.centralBodySet;   // correct?
    bodyNumber          = cBody.bodyNumber;
    referenceBodyNumber = cBody.referenceBodyNumber;
    sourceFilename      = cBody.sourceFilename;
@@ -654,10 +662,47 @@ bool CelestialBody::Initialize()
    stateTime = 0.0;   
    newTwoBody = true;
 
+   if (!centralBodySet)
+   {
+      std::string errmsg = "Central body \"";
+      errmsg += theCentralBodyName + "\" not set for body \"";
+      errmsg += instanceName + "\"";
+      throw SolarSystemException(errmsg);
+   }
+
    // Set up the kernel reader, if required
    SetUpSPICE();
    return true;
 }
+
+//------------------------------------------------------------------------------
+// void SetUpBody()
+//------------------------------------------------------------------------------
+void CelestialBody::SetUpBody()
+{
+   // main thing to do for now is to make sure the central body is set
+   if (!theSolarSystem)
+   {
+      std::string errmsg = "Solar System not set for body \"";
+      errmsg += instanceName + "\"\n";
+      throw SolarSystemException(errmsg);
+   }
+   if (!theCentralBody)
+   {
+      CelestialBody *cBody  = theSolarSystem->GetBody(theCentralBodyName);
+      if (!cBody)
+      {
+         std::string errmsg = "Cannot set central body for body \"";
+         errmsg += instanceName + "\" because body \"";
+         errmsg += theCentralBodyName + "\" cannot be found.\n";
+         throw SolarSystemException (errmsg);
+      }
+      SetRefObject(cBody, Gmat::CELESTIAL_BODY, theCentralBodyName);
+   }
+   // add other set-up kinds of things later?
+   return;
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -679,6 +724,8 @@ bool CelestialBody::Initialize()
 //------------------------------------------------------------------------------
 const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
 {
+   if (!theCentralBody) SetUpBody();
+
    #ifdef DEBUG_GET_STATE
    MessageInterface::ShowMessage
       ("CelestialBody::GetState() <%p> '%s' entered with time %.17f\n", this,
@@ -810,6 +857,8 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
       atTime.Get());
    #endif
       
+   if (!theCentralBody) SetUpBody();
+
    Real dt = Abs(atTime.Subtract(lastEphemTime)) * GmatTimeUtil::SECS_PER_DAY;
    if ( dt < ephemUpdateInterval)
    {
@@ -869,6 +918,11 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
    #ifdef DEBUG_GET_STATE
       MessageInterface::ShowMessage("Exiting GetState -------------f\n");
    #endif
+}
+
+void CelestialBody::SetSolarSystem(SolarSystem *ss)
+{
+   theSolarSystem = ss;
 }
 
 //------------------------------------------------------------------------------
@@ -3270,9 +3324,12 @@ const StringArray& CelestialBody::GetRefObjectNameArray(
                                   const Gmat::ObjectType type)
 {
    if ((type == Gmat::UNKNOWN_OBJECT) ||
-       (type == Gmat::CELESTIAL_BODY))
+       (type == Gmat::CELESTIAL_BODY) ||
+       (type == Gmat::SPACE_POINT) )
    {
-      static StringArray refs = SpacePoint::GetRefObjectNameArray(type);
+//      static StringArray refs = SpacePoint::GetRefObjectNameArray(type);
+      static StringArray refs;
+      refs.clear();
 
       refs.push_back(theCentralBodyName);
 
@@ -3340,6 +3397,7 @@ bool CelestialBody::SetRefObject(GmatBase *obj,
                                              name.c_str(), instanceName.c_str());
             #endif
             theCentralBody  = cb;
+            centralBodySet  = true;
             foundHere = true;
          }
      }
@@ -3906,6 +3964,7 @@ Real CelestialBody::GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const
 Rvector6 CelestialBody::ComputeTwoBody(const A1Mjd &forTime)
 {
    #ifdef DEBUG_TWO_BODY
+
    MessageInterface::ShowMessage
       ("CelestialBody::ComputeTwoBody() this=<%p> %s, "
        "theCentralBody=<%p> %s\n", this, GetName().c_str(), theCentralBody,

@@ -37,6 +37,8 @@
 #ifdef __USE_SPICE__
 #include "SpiceKernelReader.hpp"
 #endif
+// forward reference for SolarSystem
+class SolarSystem;
 
 // Add needed things to Gmat namespace
 namespace Gmat
@@ -160,12 +162,14 @@ public:
    virtual ~CelestialBody();
 
    virtual bool Initialize();
+   virtual void SetUpBody();
    
    // method to return the state (position and velocity) of the body at
    // the specified time, using the specified method
    virtual const Rvector6&      GetState(A1Mjd atTime);
    virtual const Rvector6&      GetState(Real atTime); 
    virtual void                 GetState(const A1Mjd &atTime, Real *outState);
+   virtual void                 SetSolarSystem(SolarSystem *ss);
    
    // methods to return the body type, central body, gravitational constant,
    // radius, mass, posvel source, analytic method, and userDefined flag
@@ -440,10 +444,14 @@ protected:
    // time of the state
    A1Mjd                    stateTime;
    
+   /// the solar system to which this body belongs
+   SolarSystem              *theSolarSystem;
    /// name of central body around which this body revolves
    std::string              theCentralBodyName;
    /// central body around which this body revolves
    CelestialBody            *theCentralBody;
+   /// flag indicating whether or not the central body has been set
+   bool                     centralBodySet;
    /// body number for the SLP file
    Integer                  bodyNumber;
    /// body number of origin of coordinate system for file
