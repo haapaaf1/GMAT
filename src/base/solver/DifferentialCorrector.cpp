@@ -47,10 +47,7 @@ const std::string
 DifferentialCorrector::PARAMETER_TEXT[DifferentialCorrectorParamCount -
                                       SolverParamCount] =
 {
-   //"TargeterTextFile",
-   //"Variables",
    "Goals",
-   //"MaximumIterations",
    "UseCentralDifferences"
 };
 
@@ -58,10 +55,7 @@ const Gmat::ParameterType
 DifferentialCorrector::PARAMETER_TYPE[DifferentialCorrectorParamCount -
                                       SolverParamCount] =
 {
-   //Gmat::STRING_TYPE,
-   //Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
-   // Gmat::INTEGER_TYPE,
    Gmat::BOOLEAN_TYPE
 };
 
@@ -70,17 +64,12 @@ DifferentialCorrector::PARAMETER_TYPE[DifferentialCorrectorParamCount -
 // public methods
 //---------------------------------
 
+//------------------------------------------------------------------------------
+// DifferentialCorrector(std::string name)
+//------------------------------------------------------------------------------
 DifferentialCorrector::DifferentialCorrector(std::string name) :
    Solver                  ("DifferentialCorrector", name),
-   //variableCount           (0),
    goalCount               (0),
-   //iterationsTaken         (0),
-   //maxIterations           (25),
-   //variable                (NULL),
-   //perturbation            (NULL),
-   //variableMinimum         (NULL),
-   //variableMaximum         (NULL),
-   //variableMaximumStep     (NULL),
    goal                    (NULL),
    tolerance               (NULL),
    nominal                 (NULL),
@@ -89,88 +78,70 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   useCentralDifferences   (false)  //,
-   //initialized             (false),
-   //instanceNumber          (0)       // 0 indicates 1st instance w/ this name
+   useCentralDifferences   (false)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
       ("DifferentialCorrector::DC(constructor) entered\n");
    #endif
    objectTypeNames.push_back("DifferentialCorrector");
-   objectTypeNames.push_back("Targeter");  // should go in a Targeter class ...
    parameterCount = DifferentialCorrectorParamCount;
-   // textFileMode = "Verbose";
-   //solverTextFile = "targeter_";
-   //solverTextFile += instanceName;
-   //solverTextFile += ".data";
+   
+   AllowScaleFactors = false;
 }
 
 
+//------------------------------------------------------------------------------
+// DifferentialCorrector::~DifferentialCorrector()
+//------------------------------------------------------------------------------
 DifferentialCorrector::~DifferentialCorrector()
 {
    FreeArrays();
 }
 
 
+//------------------------------------------------------------------------------
+// DifferentialCorrector(const DifferentialCorrector &dc) :
+//------------------------------------------------------------------------------
 DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
    Solver                  (dc),
-   //variableCount           (dc.variableCount),
    goalCount               (dc.goalCount),
-   //iterationsTaken         (0),
-   //maxIterations           (dc.maxIterations),
-   //variable                (NULL),
-   //perturbation            (NULL),
-   //variableMinimum         (NULL),
-   //variableMaximum         (NULL),
-   //variableMaximumStep     (NULL),
    goal                    (NULL),
    tolerance               (NULL),
    nominal                 (NULL),
    achieved                (NULL),
    jacobian                (NULL),
    inverseJacobian         (NULL),
-   //pertNumber              (dc.pertNumber),
    indx                    (NULL),
    b                       (NULL),
    useCentralDifferences   (dc.useCentralDifferences)  //,
-   //initialized             (false),
-   //solverTextFile          (dc.solverTextFile),
-   //instanceNumber          (dc.instanceNumber)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
       ("DifferentialCorrector::DC(COPY constructor) entered\n");
    #endif
-  //variableNames.clear(); -> Solver
-  goalNames.clear();
-
+   goalNames.clear();
+   
    parameterCount = dc.parameterCount;
 }
 
 
+//------------------------------------------------------------------------------
+// operator=(const DifferentialCorrector& dc)
+//------------------------------------------------------------------------------
 DifferentialCorrector&
-    DifferentialCorrector::operator=(const DifferentialCorrector& dc)
+   DifferentialCorrector::operator=(const DifferentialCorrector& dc)
 {
     if (&dc == this)
         return *this;
-
+    
    Solver::operator=(dc);
-
+   
    FreeArrays();
-
-   //variableNames.clear();
    goalNames.clear();
-
-   //variableCount         = dc.variableCount;
+   
    goalCount             = dc.goalCount;
-   //iterationsTaken       = 0;
-   //maxIterations         = dc.maxIterations;
    useCentralDifferences = dc.useCentralDifferences;
-   //initialized           = false;
-   //solverTextFile        = dc.solverTextFile;
-   //instanceNumber        = dc.instanceNumber;
-   //pertNumber            = dc.pertNumber;
 
    return *this;
 }
