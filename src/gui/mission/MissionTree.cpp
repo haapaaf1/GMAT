@@ -2004,8 +2004,8 @@ void MissionTree::ShowMenu(wxTreeItemId id, const wxPoint& pt)
          }
       }
       
-      // Delete and Rename applies to all, except End branch
-      if (itemType < GmatTree::BEGIN_NO_PANEL)
+      // Delete applies to all, except End branch
+      if (itemType < GmatTree::BEGIN_NO_PANEL || itemType == GmatTree::STOP)
       {
          menu.AppendSeparator();
          menu.Append(POPUP_DELETE, wxT("Delete"));
