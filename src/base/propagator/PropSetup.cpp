@@ -579,8 +579,13 @@ const ObjectTypeArray& PropSetup::GetRefObjectTypeArray()
    // We need to add in the property order since Interpreter querrys for
    // object type using property id
    refObjectTypes.clear();
-   refObjectTypes.push_back(Gmat::PROPAGATOR);
+   
+   // Fill with UNKNOWN_OBJECT since GmatBase no longer has 0 parameters (LOJ: 2009.11.03)
+   for (Integer i = 0; i < GmatBaseParamCount; i++)
+      refObjectTypes.push_back(Gmat::UNKNOWN_OBJECT);
+   
    refObjectTypes.push_back(Gmat::ODE_MODEL);
+   refObjectTypes.push_back(Gmat::PROPAGATOR);
    return refObjectTypes;
 }
 
