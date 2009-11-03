@@ -52,11 +52,8 @@ const std::string Vary::PARAMETER_TEXT[VaryParamCount -
    "Variable",
    "InitialValue",
    "Perturbation",
-//   "MinimumValue",
    "Lower",
-//   "MaximumValue",
    "Upper",
-//   "MaximumChange",
    "MaxStep",
    "AdditiveScaleFactor",
    "MultiplicativeScaleFactor"   
@@ -95,10 +92,10 @@ Vary::Vary() :
    currentValue                  (0.0),
    perturbationName              ("0.001"),
    perturbation                  (NULL),
-   variableMinimumName           ("-9.999999e300"),
-   variableMinimum               (NULL),
-   variableMaximumName           ("9.999999e300"),
-   variableMaximum               (NULL),
+   variableLowerName           ("-9.999999e300"),
+   variableLower               (NULL),
+   variableUpperName           ("9.999999e300"),
+   variableUpper               (NULL),
    variableMaximumStepName       ("9.999999e300"),
    variableMaximumStep           (NULL),
    additiveScaleFactorName       ("0.0"),
@@ -142,10 +139,10 @@ Vary::Vary(const Vary& t) :
    currentValue                  (0.0),
    perturbationName              (t.perturbationName),
    perturbation                  (NULL),
-   variableMinimumName           (t.variableMinimumName),
-   variableMinimum               (NULL),
-   variableMaximumName           (t.variableMaximumName),
-   variableMaximum               (NULL),
+   variableLowerName           (t.variableLowerName),
+   variableLower               (NULL),
+   variableUpperName           (t.variableUpperName),
+   variableUpper               (NULL),
    variableMaximumStepName       (t.variableMaximumStepName),
    variableMaximumStep           (NULL),
    additiveScaleFactorName       (t.additiveScaleFactorName),
@@ -178,8 +175,8 @@ Vary& Vary::operator=(const Vary& t)
    initialValueName              = t.initialValueName;
    currentValue                  = 0.0;
    perturbationName              = t.perturbationName;
-   variableMinimumName           = t.variableMinimumName;
-   variableMaximumName           = t.variableMaximumName;
+   variableLowerName           = t.variableLowerName;
+   variableUpperName           = t.variableUpperName;
    variableMaximumStepName       = t.variableMaximumStepName;
    additiveScaleFactorName       = t.additiveScaleFactorName;
    multiplicativeScaleFactorName = t.multiplicativeScaleFactorName;
@@ -249,12 +246,17 @@ const std::string& Vary::GetGeneratingString(Gmat::WriteMode mode,
                                              const std::string &prefix,
                                              const std::string &useName)
 {
+   #ifdef DEBUG_VARY_GEN_STRING
+   MessageInterface::ShowMessage
+      ("Vary::GetGeneratingString() <%p>'%s' entered\n", this);
+   #endif
+   
    // Build the local string
    std::stringstream details;
    details.precision(16);
    
    std::string gen = prefix + "Vary " + solverName + "(";
-
+   
    // loj: added check for NULL pointer to avoid crash and we can still
    // get generating string (2008.05.22)
    // Iterate through the variables
@@ -271,75 +273,156 @@ const std::string& Vary::GetGeneratingString(Gmat::WriteMode mode,
    else
       details << "Unknown-InitialValue"  <<  ", ";
    
-   // figure out if this is inside a Target or an Optimize branch command, to
-   // determine which things should be added to the generatingString
-   std::string targOpt  = "";
-   GmatCommand *prevCmd = GetPrevious();
-   while (prevCmd != NULL)
+   details << "{";
+   Integer addCount = 0;
+   
+   if (solver)
    {
-      if (prevCmd->IsOfType("Target"))
+      #ifdef DEBUG_VARY_GEN_STRING
+      MessageInterface::ShowMessage
+         ("   solver = <%p><%s>'%s'\n", solver, solver->GetTypeName().c_str(),
+          solver->GetName().c_str();
+      #endif
+      
+      Integer id = solver->GetParameterID("AllowVariablePertSetting");
+      if (solver->GetBooleanParameter(id))
       {
-         targOpt = "Target";
-         break;
+         details << "Perturbation = ";
+         if (perturbation)
+            details << perturbation->GetDescription();
+         else
+            details << "Unknown-Perturbation";
+         
+         addCount++;
       }
-      if (prevCmd->IsOfType("Optimize"))
+      
+      id = solver->GetParameterID("AllowRangeSettings");
+      if (solver->GetBooleanParameter(id))
       {
-         targOpt = "Optimize";
-         break;
+         if (addCount > 0)
+            details << ", ";
+         
+         details << "Lower = ";
+         if (variableLower)
+            details << variableLower->GetDescription();
+         else
+            details << "Unknown-VariableLower";
+         
+         details << ", Upper = ";
+         if (variableUpper)
+            details << variableUpper->GetDescription();
+         else
+            details << "Unknown-VariableUpper";
+         
+         addCount++;
       }
-      prevCmd = prevCmd->GetPrevious();
-   }
-   // add perturbation and max step for Target
-   //if (solver && (solver->IsOfType("Targeter")))
-   if (targOpt == "Target")
-   {
-      details << "{Perturbation = ";
-      if (perturbation)
-         details << perturbation->GetDescription();
-      else
-         details << "Unknown-Perturbation";
       
-      details << ", MaxStep = ";
+      id = solver->GetParameterID("AllowStepsizeSetting");
+      if (solver->GetBooleanParameter(id))
+      {
+         if (addCount > 0)
+            details << ", ";
+         
+         details << "MaxStep = ";
+         
+         if (variableMaximumStep)
+            details << variableMaximumStep->GetDescription();
+         else
+            details << "Unknown-VariableMaximumStep";
+         
+         addCount++;
+      }
       
-      if (variableMaximumStep)
-         details << variableMaximumStep->GetDescription();
-      else
-         details << "Unknown-VariableMaximumStep";
-      
-      details << ", ";
+      id = solver->GetParameterID("AllowScaleSetting");
+      if (solver->GetBooleanParameter(solver->GetParameterID("AllowScaleSetting")))
+      {
+         if (addCount > 0)
+            details << ", ";
+         
+         details << "AdditiveScaleFactor = ";
+         if (additiveScaleFactor)
+            details << additiveScaleFactor->GetDescription();
+         else
+            details << "Unknown-AdditiveScaleFactor";
+         
+         details << ", MultiplicativeScaleFactor = ";
+         if (multiplicativeScaleFactor)
+            details << multiplicativeScaleFactor->GetDescription();
+         else
+            details << "Unknown-MultiplicativeScaleFactor";
+      }
    }
-   else if (targOpt == "Optimize")
-   {
-      details << "{";
-   }
-   
-   details << "Lower = ";
-   if (variableMinimum)
-      details << variableMinimum->GetDescription();
    else
-      details << "Unknown-VariableMinimum";
-   
-   details << ", Upper = ";
-   if (variableMaximum)
-      details << variableMaximum->GetDescription();
-   else
-      details << "Unknown-VariableMaximum";
-   
-   // add the scale factors for Optimize
-   //if (solver && (solver->IsOfType("Optimizer")))
-   if (targOpt == "Optimize")
    {
-      details << ", AdditiveScaleFactor = ";
-      if (additiveScaleFactor)
-         details << additiveScaleFactor->GetDescription();
-      else
-         details << "Unknown-AdditiveScaleFactor";
+      #ifdef DEBUG_VARY_GEN_STRING
+      MessageInterface::ShowMessage("   solver is NULL\n");
+      #endif
       
-      details << ", MultiplicativeScaleFactor = ";
-      if (multiplicativeScaleFactor)
-         details << multiplicativeScaleFactor->GetDescription();
+      // figure out if this is inside a Target or an Optimize branch command, to
+      // determine which things should be added to the generatingString
+      std::string targOpt  = "";
+      GmatCommand *prevCmd = GetPrevious();
+      while (prevCmd != NULL)
+      {
+         if (prevCmd->IsOfType("Target"))
+         {
+            targOpt = "Target";
+            break;
+         }
+         if (prevCmd->IsOfType("Optimize"))
+         {
+            targOpt = "Optimize";
+            break;
+         }
+         prevCmd = prevCmd->GetPrevious();
+      }
+      
+      // add perturbation and max step for Target
+      if (targOpt == "Target")
+      {
+         details << "Perturbation = ";
+         if (perturbation)
+            details << perturbation->GetDescription();
+         else
+            details << "Unknown-Perturbation";
+         
+         details << ", MaxStep = ";
+         
+         if (variableMaximumStep)
+            details << variableMaximumStep->GetDescription();
+         else
+            details << "Unknown-VariableMaximumStep";
+         
+         details << ", ";
+      }
+      
+      details << "Lower = ";
+      if (variableLower)
+         details << variableLower->GetDescription();
       else
-         details << "Unknown-MultiplicativeScaleFactor";
+         details << "Unknown-VariableMinimum";
+      
+      details << ", Upper = ";
+      if (variableUpper)
+         details << variableUpper->GetDescription();
+      else
+         details << "Unknown-VariableMaximum";
+      
+      // add the scale factors for Optimize
+      if (targOpt == "Optimize")
+      {
+         details << ", AdditiveScaleFactor = ";
+         if (additiveScaleFactor)
+            details << additiveScaleFactor->GetDescription();
+         else
+            details << "Unknown-AdditiveScaleFactor";
+         
+         details << ", MultiplicativeScaleFactor = ";
+         if (multiplicativeScaleFactor)
+            details << multiplicativeScaleFactor->GetDescription();
+         else
+            details << "Unknown-MultiplicativeScaleFactor";
+      }
    }
    
    gen += details.str();
@@ -370,12 +453,6 @@ bool Vary::RenameRefObject(const Gmat::ObjectType type,
          solverName = newName;
    }
    
-   //else if ((type == Gmat::BURN) || (type == Gmat::PARAMETER)) // do I need this?
-   //{
-   //   if (variableName == oldName)
-    //     variableName = newName;
-   //}
-
    // make sure the wrappers know to rename any objects they may be using
    if (variable)
    {
@@ -392,15 +469,15 @@ bool Vary::RenameRefObject(const Gmat::ObjectType type,
       perturbation->RenameObject(oldName, newName);
       perturbationName       = perturbation->GetDescription();
    }
-   if (variableMinimum)     
+   if (variableLower)     
    {
-      variableMinimum->RenameObject(oldName, newName);
-      variableMinimumName    = variableMinimum->GetDescription();
+      variableLower->RenameObject(oldName, newName);
+      variableLowerName    = variableLower->GetDescription();
    }
-   if (variableMaximum)     
+   if (variableUpper)     
    {
-      variableMaximum->RenameObject(oldName, newName);
-      variableMaximumName    = variableMaximum->GetDescription();
+      variableUpper->RenameObject(oldName, newName);
+      variableUpperName    = variableUpper->GetDescription();
    }
    if (variableMaximumStep) 
    {
@@ -437,7 +514,6 @@ const ObjectTypeArray& Vary::GetRefObjectTypeArray()
 {
    refObjectTypes.clear();
    refObjectTypes.push_back(Gmat::SOLVER);
-   //refObjectTypes.push_back(Gmat::PARAMETER);
    return refObjectTypes;
 }
 
@@ -464,17 +540,7 @@ const StringArray& Vary::GetRefObjectNameArray(const Gmat::ObjectType type)
    {
       refObjectNames.push_back(solverName);
    }
-
-/**
- * The following is no longer needed with the wrapper code:   
-//   if (type == Gmat::UNKNOWN_OBJECT ||
-//       type == Gmat::PARAMETER)
-//   {
-//      refObjectNames.insert(refObjectNames.end(), variableName.begin(),
-//                            variableName.end());
-//   }
- */
- 
+   
    return refObjectNames;
 }
 
@@ -540,13 +606,13 @@ Real Vary::GetRealParameter(const Integer id) const
       if (perturbation)
          return perturbation->EvaluateReal();
         
-   if (id == VARIABLE_MINIMUM)
-      if (variableMinimum)
-         return variableMinimum->EvaluateReal();
+   if (id == VARIABLE_LOWER)
+      if (variableLower)
+         return variableLower->EvaluateReal();
         
-   if (id == VARIABLE_MAXIMUM)
-      if (variableMaximum)
-         return variableMaximum->EvaluateReal();
+   if (id == VARIABLE_UPPER)
+      if (variableUpper)
+         return variableUpper->EvaluateReal();
         
    if (id == VARIABLE_MAXIMUM_STEP)
       if (variableMaximumStep)
@@ -598,11 +664,11 @@ std::string Vary::GetStringParameter(const Integer id) const
    if (id == PERTURBATION)
       return perturbationName;
     
-   if (id == VARIABLE_MINIMUM)
-      return variableMinimumName;
+   if (id == VARIABLE_LOWER)
+      return variableLowerName;
     
-   if (id == VARIABLE_MAXIMUM)
-      return variableMaximumName;
+   if (id == VARIABLE_UPPER)
+      return variableUpperName;
     
    if (id == VARIABLE_MAXIMUM_STEP)
       return variableMaximumStepName;
@@ -618,40 +684,48 @@ std::string Vary::GetStringParameter(const Integer id) const
 
 
 //---------------------------------------------------------------------------
+//  std::string GetStringParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+std::string Vary::GetStringParameter(const std::string &label) const
+{
+   Integer id = GetParameterID(label);
+   return GetStringParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
 // bool SetStringParameter(const Integer id, const std::string &value)
 //---------------------------------------------------------------------------
 bool Vary::SetStringParameter(const Integer id, const std::string &value)
 {
-   //if (id == solverNameID) 
    if (id == SOLVER_NAME)
    {
       solverName = value;
       return true;
    }
-    
-   //if (id == variableNameID) 
+   
    if (id == VARIABLE_NAME)
    {
       variableName = value;
       return true;
    }
-
+   
    if ((id == VARIABLE_NAME) || (id == INITIAL_VALUE) || 
-       (id == PERTURBATION) || (id == VARIABLE_MINIMUM) || 
-       (id == VARIABLE_MAXIMUM) || (id == VARIABLE_MAXIMUM_STEP) || 
+       (id == PERTURBATION) || (id == VARIABLE_LOWER) || 
+       (id == VARIABLE_UPPER) || (id == VARIABLE_MAXIMUM_STEP) || 
        (id == ADDITIVE_SCALE_FACTOR) || (id == MULTIPLICATIVE_SCALE_FACTOR))
    {
       if (find(wrapperObjectNames.begin(), wrapperObjectNames.end(), value) == 
           wrapperObjectNames.end())
          wrapperObjectNames.push_back(value);
-
+      
       // Also need to store the names for later mapping
       switch (id)
       {
-         case VARIABLE_NAME:
-            variableName = value;
-            break;
-         
          case INITIAL_VALUE:
             initialValueName = value;
             break;
@@ -660,12 +734,12 @@ bool Vary::SetStringParameter(const Integer id, const std::string &value)
             perturbationName = value;
             break;
          
-         case VARIABLE_MINIMUM:
-            variableMinimumName = value;
+         case VARIABLE_LOWER:
+            variableLowerName = value;
             break;
-         
-         case VARIABLE_MAXIMUM:
-            variableMaximumName = value;
+            
+         case VARIABLE_UPPER:
+            variableUpperName = value;
             break;
          
          case VARIABLE_MAXIMUM_STEP:
@@ -691,9 +765,23 @@ bool Vary::SetStringParameter(const Integer id, const std::string &value)
 }
 
 
+//---------------------------------------------------------------------------
+//  bool SetStringParameter(const std::string &label, const std::string &value)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool Vary::SetStringParameter(const std::string &label, const std::string &value)
+{
+   Integer id = GetParameterID(label);
+   return SetStringParameter(id, value);
+}
+
+
 //------------------------------------------------------------------------------
 //  bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-//                                     const std::string &name = "")
+//                    const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  * Sets referenced objects.
@@ -708,7 +796,8 @@ bool Vary::SetStringParameter(const Integer id, const std::string &value)
 bool Vary::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                         const std::string &name)
 {
-   if (type == Gmat::SOLVER) {
+   if (type == Gmat::SOLVER)
+   {
       if (solverName == obj->GetName()) 
       {
          solver = (Solver*)obj;
@@ -880,12 +969,12 @@ const StringArray& Vary::GetWrapperObjectNameArray()
       wrapperObjectNames.push_back(perturbationName);
        
    if (find(wrapperObjectNames.begin(), wrapperObjectNames.end(), 
-       variableMinimumName) == wrapperObjectNames.end())
-      wrapperObjectNames.push_back(variableMinimumName);
+       variableLowerName) == wrapperObjectNames.end())
+      wrapperObjectNames.push_back(variableLowerName);
        
    if (find(wrapperObjectNames.begin(), wrapperObjectNames.end(), 
-       variableMaximumName) == wrapperObjectNames.end())
-      wrapperObjectNames.push_back(variableMaximumName);
+       variableUpperName) == wrapperObjectNames.end())
+      wrapperObjectNames.push_back(variableUpperName);
        
    if (find(wrapperObjectNames.begin(), wrapperObjectNames.end(), 
        variableMaximumStepName) == wrapperObjectNames.end())
@@ -908,8 +997,15 @@ const StringArray& Vary::GetWrapperObjectNameArray()
 //------------------------------------------------------------------------------
 bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withName)
 {
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("Vary::SetElementWrapper() <%p> entered, toWrapper=<%p>'%s', withName='%s'\n",
+       this, toWrapper, toWrapper ? toWrapper->GetDescription().c_str() : "NULL",
+       withName.c_str());
+   #endif
+   
    bool retval = false;
-
+   
    if (toWrapper == NULL) return false;
    
    if (toWrapper->GetWrapperType() == Gmat::ARRAY_WT)
@@ -928,7 +1024,8 @@ bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withN
    
    if (variableName == withName)
    {
-      if (variable != NULL)
+      if (variable != NULL &&
+          !IsThereSameWrapperName(VARIABLE_NAME, withName))
          CollectOldWrappers(&variable);
       
       variable = toWrapper;
@@ -937,7 +1034,8 @@ bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withN
    
    if (initialValueName == withName)
    {
-      if (initialValue != NULL)
+      if (initialValue != NULL &&
+          !IsThereSameWrapperName(INITIAL_VALUE, withName))
          CollectOldWrappers(&initialValue);
       
       initialValue = toWrapper;
@@ -946,34 +1044,38 @@ bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withN
    
    if (perturbationName == withName)
    {
-      if (perturbation != NULL)
+      if (perturbation != NULL&&
+          !IsThereSameWrapperName(PERTURBATION, withName))
          CollectOldWrappers(&perturbation);
       
       perturbation = toWrapper;
       retval = true;
    }
    
-   if (variableMinimumName == withName)
+   if (variableLowerName == withName)
    {
-      if (variableMinimum != NULL)
-         CollectOldWrappers(&variableMinimum);
+      if (variableLower != NULL &&
+          !IsThereSameWrapperName(VARIABLE_LOWER, withName))
+         CollectOldWrappers(&variableLower);
       
-      variableMinimum = toWrapper;
+      variableLower = toWrapper;
       retval = true;
    }
    
-   if (variableMaximumName == withName)
+   if (variableUpperName == withName)
    {
-      if (variableMaximum != NULL)
-         CollectOldWrappers(&variableMaximum);
+      if (variableUpper != NULL &&
+          !IsThereSameWrapperName(VARIABLE_UPPER, withName))
+         CollectOldWrappers(&variableUpper);
       
-      variableMaximum = toWrapper;
+      variableUpper = toWrapper;
       retval = true;
    }
    
    if (variableMaximumStepName == withName) 
    {
-      if (variableMaximumStep != NULL)
+      if (variableMaximumStep != NULL &&
+          !IsThereSameWrapperName(VARIABLE_MAXIMUM_STEP, withName))
          CollectOldWrappers(&variableMaximumStep);
       
       variableMaximumStep = toWrapper;
@@ -982,7 +1084,8 @@ bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withN
    
    if (additiveScaleFactorName == withName)
    {
-      if (additiveScaleFactor != NULL)
+      if (additiveScaleFactor != NULL &&
+          !IsThereSameWrapperName(ADDITIVE_SCALE_FACTOR, withName))
          CollectOldWrappers(&additiveScaleFactor);
       
       additiveScaleFactor = toWrapper;
@@ -991,7 +1094,8 @@ bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withN
    
    if (multiplicativeScaleFactorName == withName)
    {
-      if (multiplicativeScaleFactor != NULL)
+      if (multiplicativeScaleFactor != NULL &&
+          !IsThereSameWrapperName(MULTIPLICATIVE_SCALE_FACTOR, withName))
          CollectOldWrappers(&multiplicativeScaleFactor);
       
       multiplicativeScaleFactor = toWrapper;
@@ -1001,8 +1105,23 @@ bool Vary::SetElementWrapper(ElementWrapper *toWrapper, const std::string &withN
    //@todo In nested function, there are still bad wrapper pointers so until it is resolved
    // delete if not in function. (tested with Func_BasicOptimizerTest.script,
    // Func_Pic_Achieve.script)
-   if (currentFunction == NULL)
-      DeleteOldWrappers();
+   //@todo Func_BasicOptimizerTest.script still shows 6 memory leak trace (LOJ: 2009.11.03)
+   //+++ <026116C0> F Validator::CreateOtherWrapper()  ew = new VariableWrapper() 
+   //+++ <026733F8> G Validator::CreateOtherWrapper()  ew = new VariableWrapper() 
+   //+++ <02669DF8> 8 Validator::CreateElementWrapper()  ew = new NumberWrapper() 
+   //+++ <026116C0> F Validator::CreateOtherWrapper()  ew = new VariableWrapper() 
+   //+++ <026733F8> G Validator::CreateOtherWrapper()  ew = new VariableWrapper() 
+   //+++ <02669DF8> 8 Validator::CreateElementWrapper()  ew = new NumberWrapper() 
+   
+   //Commented out since old wrappers are deleted in ClearWrappers() which is called
+   // from the Validator::ValidateCommand() (LOJ: 2009.11.03)
+   //if (currentFunction == NULL)
+   //   DeleteOldWrappers();
+   
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("Vary::SetElementWrapper() <%p> returning %d\n", this, retval);
+   #endif
    
    return retval;
 }
@@ -1018,99 +1137,17 @@ void Vary::ClearWrappers()
       ("Vary::ClearWrappers() entered, has %d old wrappers\n", oldWrappers.size());
    #endif
    
-   // to use new methods
-   #if 1
-   
+   // For element wrapper cleanup
    ClearOldWrappers();
    CollectOldWrappers(&variable);
    CollectOldWrappers(&initialValue);
    CollectOldWrappers(&perturbation);
-   CollectOldWrappers(&variableMinimum);
-   CollectOldWrappers(&variableMaximum);
+   CollectOldWrappers(&variableLower);
+   CollectOldWrappers(&variableUpper);
    CollectOldWrappers(&variableMaximumStep);
    CollectOldWrappers(&additiveScaleFactor);
    CollectOldWrappers(&multiplicativeScaleFactor);
    DeleteOldWrappers();
-   
-   #else
-   
-   std::vector<ElementWrapper*> temp;
-   if (variable)
-   {
-      temp.push_back(variable);
-      variable = NULL;
-   }
-   if (initialValue)
-   {
-      if (find(temp.begin(), temp.end(), initialValue) == temp.end())
-      {
-         temp.push_back(initialValue);
-         initialValue = NULL;
-      }
-   }
-   if (perturbation)
-   {
-      if (find(temp.begin(), temp.end(), perturbation) == temp.end())
-      {
-         temp.push_back(perturbation);
-         perturbation = NULL;
-      }
-   }
-   if (variableMinimum)
-   {
-      if (find(temp.begin(), temp.end(), variableMinimum) == temp.end())
-      {
-         temp.push_back(variableMinimum);
-         variableMinimum = NULL;
-      }
-   }
-   if (variableMaximum)
-   {
-      if (find(temp.begin(), temp.end(), variableMaximum) == temp.end())
-      {
-         temp.push_back(variableMaximum);
-         variableMaximum = NULL;
-      }
-   }
-   if (variableMaximumStep)
-   {
-      if (find(temp.begin(), temp.end(), variableMaximumStep) == temp.end())
-      {
-         temp.push_back(variableMaximumStep);
-         variableMaximumStep = NULL;
-      }
-   }
-   if (additiveScaleFactor)
-   {
-      if (find(temp.begin(), temp.end(), additiveScaleFactor) == temp.end())
-      {
-         temp.push_back(additiveScaleFactor);
-         additiveScaleFactor = NULL;
-      }
-   }
-   if (multiplicativeScaleFactor)
-   {
-      if (find(temp.begin(), temp.end(), multiplicativeScaleFactor) == temp.end())
-      {
-         temp.push_back(multiplicativeScaleFactor);
-         multiplicativeScaleFactor = NULL;
-      }
-   }
-   
-   ElementWrapper *wrapper;
-   for (UnsignedInt i = 0; i < temp.size(); ++i)
-   {
-      wrapper = temp[i];
-      
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         (wrapper, wrapper->GetDescription(), "Vary::ClearWrappers()",
-          " deleting wrapper");
-      #endif
-      delete wrapper;
-   }
-   
-   #endif
 }
 
 
@@ -1159,15 +1196,15 @@ bool Vary::Initialize()
    #ifdef DEBUG_VARY_PARAMS
       MessageInterface::ShowMessage("Setting refs for minimum\n");
    #endif
-   if (SetWrapperReferences(*variableMinimum) == false)
+   if (SetWrapperReferences(*variableLower) == false)
       return false;
-   CheckDataType(variableMinimum, Gmat::REAL_TYPE, "Vary");
+   CheckDataType(variableLower, Gmat::REAL_TYPE, "Vary");
    #ifdef DEBUG_VARY_PARAMS
       MessageInterface::ShowMessage("Setting refs for maximum\n");
    #endif
-   if (SetWrapperReferences(*variableMaximum) == false)
+   if (SetWrapperReferences(*variableUpper) == false)
       return false;
-   CheckDataType(variableMaximum, Gmat::REAL_TYPE, "Vary");
+   CheckDataType(variableUpper, Gmat::REAL_TYPE, "Vary");
    #ifdef DEBUG_VARY_PARAMS
       MessageInterface::ShowMessage("Setting refs for max step\n");
    #endif
@@ -1233,11 +1270,11 @@ bool Vary::Execute()
 
       // scale by using Eq. 13.5 of Architecture document
       varData[0] = (varData[0] + asf) / msf;
-      varData[1] = (perturbation->EvaluateReal()) / msf;           // pert
-      varData[2] = (variableMinimum->EvaluateReal() + asf) / msf;  // minimum
-      varData[3] = (variableMaximum->EvaluateReal() + asf) / msf;  // maximum
-      varData[4] = (variableMaximumStep->EvaluateReal()) / msf; // largest step
-            
+      varData[1] = (perturbation->EvaluateReal()) / msf;         // pert
+      varData[2] = (variableLower->EvaluateReal() + asf) / msf;  // minimum
+      varData[3] = (variableUpper->EvaluateReal() + asf) / msf;  // maximum
+      varData[4] = (variableMaximumStep->EvaluateReal()) / msf;  // largest step
+      
       #ifdef DEBUG_VARY_EXECUTE
          MessageInterface::ShowMessage(
             "For variable \"%s\", data is [%15.9lf %15.9lf %15.9lf %15.9lf "
@@ -1260,32 +1297,34 @@ bool Vary::Execute()
       #endif
       return retval;
    }
+   
+   Real var = solver->GetSolverVariable(variableID);
+   // scale using Eq. 13.6 of Architecture document
+   var = var * multiplicativeScaleFactor->EvaluateReal() - 
+      additiveScaleFactor->EvaluateReal();
+   
+   #ifdef DEBUG_VARIABLE_RANGES
+      MessageInterface::ShowMessage(
+         "Setting %s to %.12le; allowed range is [%.12le, %.12le]\n",
+         variableName.c_str(), var, variableLower->EvaluateReal(), 
+         variableUpper->EvaluateReal());
+   #endif
 
-    Real var = solver->GetSolverVariable(variableID);
-    // scale using Eq. 13.6 of Architecture document
-    var = var * multiplicativeScaleFactor->EvaluateReal() - 
-          additiveScaleFactor->EvaluateReal();
-    
-    #ifdef DEBUG_VARIABLE_RANGES
-       MessageInterface::ShowMessage(
-          "Setting %s to %.12le; allowed range is [%.12le, %.12le]\n",
-          variableName.c_str(), var, variableMinimum->EvaluateReal(), 
-          variableMaximum->EvaluateReal());
-          //variableName[0].c_str(), var, variableMinimum[0], variableMaximum[0]);
-    #endif
-
-    variable->SetReal(var);
-
-    BuildCommandSummary(true);
-      #ifdef DEBUG_VARY_EXECUTE
-         MessageInterface::ShowMessage
-            ("Vary::Execute - exiting with retval = %s\n",
-            (retval? "true" : "False"));
-      #endif
-    return retval;
+   variable->SetReal(var);
+   
+   BuildCommandSummary(true);
+   #ifdef DEBUG_VARY_EXECUTE
+      MessageInterface::ShowMessage
+         ("Vary::Execute - exiting with retval = %s\n",
+          (retval? "true" : "False"));
+   #endif
+   return retval;
 }
 
 
+//------------------------------------------------------------------------------
+// void RunComplete()
+//------------------------------------------------------------------------------
 void Vary::RunComplete()
 {
    #ifdef DEBUG_VARY_EXECUTE
@@ -1294,7 +1333,6 @@ void Vary::RunComplete()
       (solverDataFinalized? "true" : "false"));
    #endif
    solverDataFinalized = false;
-   //ClearWrappers();
    GmatCommand::RunComplete();
 }
 
@@ -1333,3 +1371,46 @@ void Vary::SetInitialValue(Solver *theSolver)
       }
    }
 }
+
+
+//------------------------------------------------------------------------------
+// bool IsThereSameWrapperName(const std::string &wrapperName)
+//------------------------------------------------------------------------------
+/*
+ * Checks if there is the same wrapper name. Wrapper name can be a number.
+ *
+ * @return  true if the same wrapper name found, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool Vary::IsThereSameWrapperName(int param, const std::string &wrapperName)
+{
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("GmatCommand::IsThereSameWrapperName() <%p>'%s' entered, wrapperName='%s'\n",
+       this, GetTypeName().c_str(), wrapperName.c_str());
+   #endif
+   
+   bool retval = false;
+   
+   // Check for the same wrapper is used for other properties
+   for (int i = VARIABLE_NAME; i < VaryParamCount; i++)
+   {
+      if (i == param)
+         continue;
+
+      if (GetStringParameter(i) == wrapperName)
+      {
+         retval = true;
+         break;
+      }
+   }
+   
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("GmatCommand::IsThereSameWrapperName() <%p>'%s' wrapperName='%s' returning %d\n",
+       this, GetTypeName().c_str(), wrapperName.c_str(), retval);
+   #endif
+   
+   return retval;
+}
+
