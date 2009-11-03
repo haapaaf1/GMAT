@@ -275,14 +275,14 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
    catch (BaseException &e)
    {
       MessageInterface::PopupMessage
-         (Gmat::WARNING_, "Error occured during initialization: " +
+         (Gmat::WARNING_, "Error occurred during initialization: " +
           e.GetFullMessage());
       return false;
    }
    catch (...)
    {
       MessageInterface::PopupMessage
-         (Gmat::WARNING_, "Unknown Error occured during initialization");
+         (Gmat::WARNING_, "Unknown Error occurred during initialization");
       return false;
    }
    
@@ -475,7 +475,7 @@ void Moderator::Finalize()
       unmanagedFunctions.clear();
       #endif
       
-      // delete Sanbox (only 1 Sandbox for now)
+      // delete Sandbox (only 1 Sandbox for now)
       #if DEBUG_FINALIZE > 0
       MessageInterface::ShowMessage
          (".....Moderator::Finalize() deleting (%p)sandbox 1\n", sandboxes[0]);
@@ -2103,7 +2103,8 @@ Propagator* Moderator::CreatePropagator(const std::string &type,
       
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreatePropagator() returning new Propagator <%p>\n", prop);
+         ("Moderator::CreatePropagator() returning new Propagator <%p>'%s'\n",
+          prop, prop->GetName().c_str());
       #endif
       
       return prop;
@@ -4336,7 +4337,7 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
          
          // set variable parameter
          id = cmd->GetParameterID("Variable");
-         cmd->SetStringParameter(id, GetDefaultBurn("ImpulsiveBurn")->GetName() + ".V");
+         cmd->SetStringParameter(id, GetDefaultBurn("ImpulsiveBurn")->GetName() + ".Element1");
          
          id = cmd->GetParameterID("InitialValue");
          cmd->SetStringParameter(id, "0.5");
@@ -5013,12 +5014,11 @@ Integer Moderator::RunMission(Integer sandboxNum)
       
       try
       {
-         // add objects to sandbox and initialize
+         // add objects to sandbox
          AddSolarSystemToSandbox(sandboxNum-1);
          AddInternalCoordSystemToSandbox(sandboxNum-1);
-         AddPublisherToSandbox(sandboxNum-1);        
          AddCoordSystemToSandbox(sandboxNum-1);
-         // @note: AddSpacecraftToSandbox() also adds associated hardware          
+         /// @note AddSpacecraftToSandbox() also adds associated hardware          
          AddSpacecraftToSandbox(sandboxNum-1);
          AddFormationToSandbox(sandboxNum-1);
          AddSpacePointToSandbox(sandboxNum-1);
@@ -5029,12 +5029,15 @@ Integer Moderator::RunMission(Integer sandboxNum)
          AddMeasurementToSandbox(sandboxNum-1);
          AddDataStreamToSandbox(sandboxNum-1);
          AddSolverToSandbox(sandboxNum-1);
-         // Note:
-         // Add Subscriber after Publisher.
-         // AddPublisherToSandbox() clears subscribers
-         AddSubscriberToSandbox(sandboxNum-1); 
          AddParameterToSandbox(sandboxNum-1);
          AddFunctionToSandbox(sandboxNum-1);
+         
+         /// @note Add Subscriber after Publisher
+         /// since AddPublisherToSandbox() clears subscribers
+         AddPublisherToSandbox(sandboxNum-1);
+         AddSubscriberToSandbox(sandboxNum-1);
+         
+         // add command sequence to sandbox
          AddCommandToSandbox(sandboxNum-1);
          
          #if DEBUG_RUN
@@ -5042,7 +5045,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
             ("Moderator::RunMission() after AddCommandToSandbox()\n");
          #endif
          
-         //thePublisher->ClearPublishedData();
+         // initialize Sandbox
          InitializeSandbox(sandboxNum-1);
          
          #if DEBUG_RUN
