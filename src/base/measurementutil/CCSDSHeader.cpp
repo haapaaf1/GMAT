@@ -251,7 +251,7 @@ Integer CountRequiredNumberHeaderDataParameters()
 //---------------------------------------------------------------------------
 bool CCSDSHeader::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSHeaderDataReps)
+    if (id >= 0 && id <= EndCCSDSHeaderDataReps)
         return CCSDS_HEADER_IS_REQUIRED[id];
     else
         return false;
@@ -397,6 +397,8 @@ Integer CCSDSHeader::GetDataTypeID(const std::string &label)
 std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
 {
     using namespace std;
+
+    output.unsetf ( ios_base::floatfield );
 
     output << "CCSDS_" << myHeader->fileType << "_VERS = " << myHeader->ccsdsVersion << endl;
     for (unsigned int i = 0; i < myHeader->comments.size(); i++)

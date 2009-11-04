@@ -389,7 +389,7 @@ const Integer CCSDSSpacecraftInertia::GetKeywordID(const std::string str) const
 //------------------------------------------------------------------------------
 std::string CCSDSSpacecraftInertia::GetUnits(const Integer &id) const
 {
-    if (id > 0 && id <= EndCCSDSSpacecraftInertiaDataReps)
+    if (id >= 0 && id <= EndCCSDSSpacecraftInertiaDataReps)
         return CCSDS_UNIT_DESCRIPTIONS[id];
     else
         return GmatBase::STRING_PARAMETER_UNDEFINED;
@@ -409,7 +409,7 @@ std::string CCSDSSpacecraftInertia::GetUnits(const Integer &id) const
 //---------------------------------------------------------------------------
 bool CCSDSSpacecraftInertia::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSSpacecraftInertiaDataReps)
+    if (id >= 0 && id <= EndCCSDSSpacecraftInertiaDataReps)
         return CCSDS_IS_REQUIRED[id];
     else
         return false;

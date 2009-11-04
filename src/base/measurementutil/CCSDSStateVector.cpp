@@ -5,7 +5,7 @@
 //---------------------------------
 const std::string CCSDSStateVector::CCSDS_STATEVECTOR_KEYWORDS[EndCCSDSStateVectorDataReps] =
 {
-    "TIMETAG",
+    "EPOCH",
     "X",
     "Y",
     "Z",
@@ -408,7 +408,7 @@ const Integer CCSDSStateVector::GetKeywordID(const std::string str) const
 //---------------------------------------------------------------------------
 bool CCSDSStateVector::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSStateVectorDataReps)
+    if (id >= 0 && id <= EndCCSDSStateVectorDataReps)
 	return CCSDS_IS_REQUIRED[id];
     else
 	return false;

@@ -71,6 +71,8 @@ public:
 
     bool WriteDataHeader(const ObType *myOb);
 
+    friend class CCSDSHeader;
+
 protected:
 
     bool GetCCSDSHeader(std::string &lff, CCSDSObType *myOb);
@@ -84,6 +86,12 @@ protected:
                                    std::string &key, Real &value);
     bool GetCCSDSComments(std::string &lff, StringArray &comments);
     bool GetCCSDSComment(std::string &lff, std::string &comment);
+
+    static const std::string REGEX_CCSDS_DATE;
+    static const std::string REGEX_CCSDS_SAVETHEDATE1;
+    static const std::string REGEX_CCSDS_SAVETHEDATE2;
+    static const std::string REGEX_CCSDS_KEYWORD;
+    static const std::string REGEX_CCSDS_SAVETHEKEYWORD;
 
     static const std::string CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8];
     static const std::string CCSDS_TIME_SYSTEM_DESCRIPTIONS[EndCCSDSTimeSystemReps-8];

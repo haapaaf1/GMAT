@@ -534,7 +534,7 @@ const Integer CCSDSQuaternion::GetKeywordID(const std::string str) const
 //------------------------------------------------------------------------------
 std::string CCSDSQuaternion::GetUnits(const Integer &id) const
 {
-    if (id > 0 && id <= EndCCSDSQuaternionDataReps)
+    if (id >= 0 && id <= EndCCSDSQuaternionDataReps)
         return CCSDS_UNIT_DESCRIPTIONS[id];
     else
         return GmatBase::STRING_PARAMETER_UNDEFINED;
@@ -554,7 +554,7 @@ std::string CCSDSQuaternion::GetUnits(const Integer &id) const
 //---------------------------------------------------------------------------
 bool CCSDSQuaternion::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSQuaternionDataReps)
+    if (id >= 0 && id <= EndCCSDSQuaternionDataReps)
         return CCSDS_IS_REQUIRED[id];
     else
         return false;

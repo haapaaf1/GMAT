@@ -120,6 +120,9 @@ GmatBase* ProcessSLRDataFile::Clone() const
 //---------------------------------------------------------------------------
 bool ProcessSLRDataFile::IsParameterReadOnly(const Integer id) const
 {
+   if (id == SHOWPOINTMODE_ID)  return true;
+   if (id == SCIENTIFICMODE_ID)  return true;
+   if (id == PRECISION_ID)  return true;
    if (id == NUMLINES_ID)  return true;
    if (id == FILEFORMAT_ID)  return true;
    return GmatBase::IsParameterReadOnly(id);

@@ -42,11 +42,6 @@ const std::string DataFile::REGEX_DATE = "\\d{2}.\\d{2}.\\d{4}";
 const std::string DataFile::REGEX_SCINUMBER = "(?:" + OPTIONAL_SIGN +
                     MANDATORY_DIGITS + DECIMAL_POINT + OPTIONAL_DIGITS +
                     OPTIONAL_EXPONENT + ")";
-const std::string DataFile::REGEX_CCSDS_DATE = "[\\d{4}-\\d{2,3}[-\\d\\d]?T\\d{2}:\\d{2}:\\d{2}[.\\d+]?[Z]?";
-const std::string DataFile::REGEX_CCSDS_SAVETHEDATE1 = "[(\\d{4})-(\\d{2})-(\\d\\d)T(\\d{2}):(\\d{2}):(\\d{2}[.\\d+]?)([Z]?)";
-const std::string DataFile::REGEX_CCSDS_SAVETHEDATE2 = "[(\\d{4})-(\\d{3})T(\\d{2}):(\\d{2}):(\\d{2}[.\\d+]?)([Z]?)";
-const std::string DataFile::REGEX_CCSDS_KEYWORD = "\\w*[_]?\\w+";
-const std::string DataFile::REGEX_CCSDS_SAVETHEKEYWORD = "(\\w*[_]?\\w+)";
 
 const std::string DataFile::FILEFORMAT_DESCRIPTIONS[EndFileFormatReps] =
 {
@@ -70,7 +65,10 @@ DataFile::PARAMETER_TEXT[DataFileParamCount - GmatBaseParamCount] =
    "FileName",
    "FileFormat",
    "NumLines",
-   "ReadWriteMode"
+   "ReadWriteMode",
+   "ScientificMode",
+   "ShowPointMode",
+   "Precision"
 };
 
 
@@ -80,7 +78,10 @@ DataFile::PARAMETER_TYPE[DataFileParamCount - GmatBaseParamCount] =
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
    Gmat::INTEGER_TYPE,
-   Gmat::STRING_TYPE
+   Gmat::STRING_TYPE,
+   Gmat::BOOLEAN_TYPE,
+   Gmat::BOOLEAN_TYPE,
+   Gmat::INTEGER_TYPE
 };
 
 //---------------------------------
@@ -253,6 +254,8 @@ Integer DataFile::GetIntegerParameter(const Integer id) const
     if (id == FILEFORMAT_ID)
       return fileFormatID;
 
+    if (id == PRECISION_ID)
+      return precision;
     
     return GmatBase::GetIntegerParameter(id);
 }
@@ -287,6 +290,12 @@ Integer DataFile::SetIntegerParameter(const Integer id, const Integer value)
          return value;
    }
    
+   if (id == PRECISION_ID)
+   {
+         precision = value;
+         return value;
+   }
+
    return GmatBase::SetIntegerParameter(id, value);
 
 }
@@ -387,9 +396,11 @@ DataFile::DataFile(const std::string &itsType,
 				 const std::string &itsName) :
     GmatBase(Gmat::DATA_FILE,itsType,itsName),
     fileFormatName (""),
-//    numLines (0),
-//    lineFromFile (""),
 //    dataFileName (""),
+    scientific(false),
+    showPoint(false),
+    precision(5),
+//    numLines (0),
     isOpen (false),
     commentsAllowed (false),
     sortedBy (0),
@@ -411,6 +422,9 @@ DataFile::DataFile(const DataFile &pdf) :
     GmatBase       (pdf),
     fileFormatName (pdf.fileFormatName),
     dataFileName (pdf.dataFileName),
+    scientific(pdf.scientific),
+    showPoint(pdf.showPoint),
+    precision(pdf.precision),
     numLines (pdf.numLines),
     isOpen (pdf.isOpen),
     commentsAllowed (pdf.commentsAllowed),
@@ -436,6 +450,9 @@ const DataFile& DataFile::operator=(const DataFile &pdf)
     fileFormatName = pdf.fileFormatName;
     dataFileName = pdf.dataFileName;
     numLines = pdf.numLines;
+    scientific = pdf.scientific;
+    showPoint = pdf.showPoint;
+    precision = pdf.precision;
     isOpen = pdf.isOpen;
     sortedBy = pdf.sortedBy;
     readWriteMode = pdf.readWriteMode;
@@ -848,7 +865,7 @@ bool DataFile::IsEOF()
 std::string DataFile::ReadLineFromFile()
 {
     std::string lff = "";
-    while (lff == "")
+    while (!IsEOF() && lff == "")
     {
         getline((*theFile),lff);
         lff = Trim(lff);
@@ -898,6 +915,81 @@ void DataFile::SetFileName(const char* myFileName)
     dataFileName = myFileName;
 }
 
+//------------------------------------------------------------------------------
+// void SetPrecision(const Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the display precision
+ *
+ * @param <value> Desired precision
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetPrecision(const Integer &value)
+{
+    precision = value;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetPrecision() const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the display precision
+ *
+ * @return Precision
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::GetPrecision() const
+{
+    return precision;
+}
+
+//------------------------------------------------------------------------------
+// bool GetScientific() const
+//------------------------------------------------------------------------------
+/**
+ * Get the Scientific parameter
+ */
+//------------------------------------------------------------------------------
+bool DataFile::GetScientific() const
+{
+    return scientific;
+}
+
+//------------------------------------------------------------------------------
+// void SetScientific(const bool &flag)
+//------------------------------------------------------------------------------
+/**
+ * Set the Scientific parameter
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetScientific(const bool &flag)
+{
+    scientific = flag;
+}
+
+//------------------------------------------------------------------------------
+// bool GetShowPoint() const
+//------------------------------------------------------------------------------
+/**
+ * Get the ShowPoint parameter
+ */
+//------------------------------------------------------------------------------
+bool DataFile::GetShowPoint() const
+{
+    return showPoint;
+}
+
+//------------------------------------------------------------------------------
+// void SetShowPoint(const bool &flag)
+//------------------------------------------------------------------------------
+/**
+ * Set the ShowPoint parameter
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetShowPoint(const bool &flag)
+{
+    showPoint = flag;
+}
 
 //------------------------------------------------------------------------------
 // bool GetIsOpen() const
@@ -908,7 +1000,7 @@ void DataFile::SetFileName(const char* myFileName)
 //------------------------------------------------------------------------------
 bool DataFile::GetIsOpen() const
 {
-        return isOpen;
+    return isOpen;
 }
 
 //------------------------------------------------------------------------------
@@ -920,7 +1012,7 @@ bool DataFile::GetIsOpen() const
 //------------------------------------------------------------------------------
 void DataFile::SetIsOpen(const bool &flag)
 {
-        isOpen = flag;
+    isOpen = flag;
 }
 
 //------------------------------------------------------------------------------
@@ -951,7 +1043,6 @@ bool DataFile::IsSortedBySatID() const
         return true;
     else
         return false;
-
 }
 
 //------------------------------------------------------------------------------
@@ -967,7 +1058,6 @@ bool DataFile::IsSortedBySensorID() const
         return true;
     else
         return false;
-
 }
 
 //------------------------------------------------------------------------------

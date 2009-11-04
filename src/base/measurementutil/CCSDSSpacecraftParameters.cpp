@@ -355,7 +355,7 @@ const Integer CCSDSSpacecraftParameters::GetKeywordID(const std::string str) con
 //---------------------------------------------------------------------------
 bool CCSDSSpacecraftParameters::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSSpacecraftParametersDataReps)
+    if (id >= 0 && id <= EndCCSDSSpacecraftParametersDataReps)
         return CCSDS_IS_REQUIRED[id];
     else
         return false;

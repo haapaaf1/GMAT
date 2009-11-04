@@ -192,7 +192,7 @@ std::string CCSDSOPMMetaData::GetUnits(const Integer &id) const
 //---------------------------------------------------------------------------
 bool CCSDSOPMMetaData::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSOPMMetaDataReps)
+    if (id >= 0 && id <= EndCCSDSOPMMetaDataReps)
         return CCSDS_METADATA_IS_REQUIRED[id];
     else
         return false;
@@ -420,6 +420,8 @@ StringArray CCSDSOPMMetaData::GetStringArrayDataParameter(const std::string &lab
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetadata)
 {
+
+    output.unsetf ( std::ios_base::floatfield );
 
    //output.setf(std::ios::showpoint);
    //output.setf(std::ios::scientific);

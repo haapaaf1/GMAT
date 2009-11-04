@@ -288,7 +288,7 @@ std::string CCSDSAEMMetaData::GetUnits(const Integer &id) const
 //---------------------------------------------------------------------------
 bool CCSDSAEMMetaData::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSAEMMetaDataReps)
+    if (id >= 0 && id <= EndCCSDSAEMMetaDataReps)
         return CCSDS_METADATA_IS_REQUIRED[id];
     else
         return false;

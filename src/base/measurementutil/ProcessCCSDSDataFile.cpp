@@ -3,6 +3,22 @@
 //------------------------------------------------------------------------------
 //  static data
 //------------------------------------------------------------------------------
+
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_DATE = MANDATORY_DIGITS + "-"
+                             + MANDATORY_DIGITS + "[-]?" + OPTIONAL_DIGITS + "T"
+                             + MANDATORY_DIGITS + ":" + MANDATORY_DIGITS + ":"
+                             + REGEX_NUMBER + "[Z]?";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEDATE1 = "(" + MANDATORY_DIGITS + ")-("
+                             + MANDATORY_DIGITS + ")T(" + MANDATORY_DIGITS 
+                             + "):(" + MANDATORY_DIGITS + "):("
+                             + REGEX_NUMBER + ")([Z]?)";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEDATE2 = "(" + MANDATORY_DIGITS + ")-("
+                             + MANDATORY_DIGITS + ")-(" + MANDATORY_DIGITS
+                             + ")T(" + MANDATORY_DIGITS + "):("
+                             + MANDATORY_DIGITS + "):(" + REGEX_NUMBER + ")([Z]?)";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_KEYWORD = "\\w*[_]?\\w+";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEKEYWORD = "(\\w*[_]?\\w+)";
+
 const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8] =
 {
     "TAI",
@@ -218,11 +234,7 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
-        MessageInterface::ShowMessage("Keyword = " + keyword + "\n");
-
         Integer keyID = myHeader->GetKeywordID(keyword);
-
-        MessageInterface::ShowMessage("Keyword ID = %d\n",keyID);
 
         if(myHeader->IsParameterRequired(keyID)) requiredCount++;
 
@@ -234,10 +246,7 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
                 std::string comment;
 
                 if (GetCCSDSComment(lff,comment))
-                {
                     myHeader->comments.push_back(comment);
-                    MessageInterface::ShowMessage("Value = " + comment + "\n");
-                }
                 else
                     return false;
                 }
@@ -246,13 +255,11 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
             case CCSDSHeader::CCSDS_CREATIONDATE_ID:
 
                 if (!GetCCSDSValue(lff,myHeader->creationDate)) return false;
-                MessageInterface::ShowMessage("Value = " + myHeader->creationDate + "\n");
                 break;
 
             case CCSDSHeader::CCSDS_ORIGINATOR_ID:
 
                 if (!GetCCSDSValue(lff,myHeader->originator)) return false;
-                MessageInterface::ShowMessage("Value = " + myHeader->originator + "\n");
                 break;
 
             default:
@@ -264,7 +271,8 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
         lff = ReadLineFromFile();
 
     }
-    while (requiredCount < requiredNumberHeaderParameters && !IsEOF());
+    while (requiredCount < requiredNumberHeaderParameters && !IsEOF() ||
+          pcrecpp::RE("^COMMENT.*$").FullMatch(lff));
 
     myOb->ccsdsHeader = myHeader;
 
@@ -391,6 +399,14 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyword(const std::string &lff,
        return true;
     }
 
+    regex = "^(COMMENT)\\s*.*$";
+
+    if(pcrecpp::RE(regex).FullMatch(lff,&stemp))
+    {
+        key = Trim(stemp);
+        return true;
+    }
+
     return false;
 }
 
@@ -507,6 +523,7 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
     std::string stemp;
 
     // YYYY-MM-DDTHH:MM:SS.SSSSS
+
     std::string regex = "^"+REGEX_CCSDS_SAVETHEDATE1+"$";
     if (pcrecpp::RE(regex).FullMatch(timeTag,&itemp1,&itemp2,&itemp3,&itemp4,&itemp5,&dtemp,&stemp))
     {
@@ -524,8 +541,9 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
     }
 
     // YYYY-DOYTHH:MM:SS.SSSSS
+   
     regex = "^"+REGEX_CCSDS_SAVETHEDATE2+"$";
-    if (pcrecpp::RE(regex).FullMatch(timeTag,&itemp1,&itemp2,&itemp3,&itemp4,&itemp5,&dtemp,&stemp))
+    if (pcrecpp::RE(regex).FullMatch(timeTag,&itemp1,&itemp2,&itemp3,&itemp4,&dtemp,&stemp))
     {
         //std::string timeZone = stemp;
         Integer year = itemp1;
@@ -541,6 +559,7 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
 
     // Julian date
     // JJJJJJ.JJJJJJJJ
+    
     regex = "^"+REGEX_NUMBER+"$";
     if (pcrecpp::RE(regex).FullMatch(timeTag,&dtemp))
     {

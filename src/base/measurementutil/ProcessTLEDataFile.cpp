@@ -192,6 +192,9 @@ GmatBase* ProcessTLEDataFile::Clone() const
 bool ProcessTLEDataFile::IsParameterReadOnly(const Integer id) const
 {
    if (id == FILEFORMAT_ID)  return true;
+   if (id == SHOWPOINTMODE_ID)  return true;
+   if (id == SCIENTIFICMODE_ID)  return true;
+   if (id == PRECISION_ID)  return true;
    return GmatBase::IsParameterReadOnly(id);
 }
 

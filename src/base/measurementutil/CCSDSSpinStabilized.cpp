@@ -476,7 +476,7 @@ const Integer CCSDSSpinStabilized::GetKeywordID(const std::string str) const
 //------------------------------------------------------------------------------
 std::string CCSDSSpinStabilized::GetUnits(const Integer &id) const
 {
-    if (id > 0 && id <= EndCCSDSSpinStabilizedDataReps)
+    if (id >= 0 && id <= EndCCSDSSpinStabilizedDataReps)
         return CCSDS_UNIT_DESCRIPTIONS[id];
     else
         return GmatBase::STRING_PARAMETER_UNDEFINED;
@@ -496,7 +496,7 @@ std::string CCSDSSpinStabilized::GetUnits(const Integer &id) const
 //---------------------------------------------------------------------------
 bool CCSDSSpinStabilized::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSSpinStabilizedDataReps)
+    if (id >= 0 && id <= EndCCSDSSpinStabilizedDataReps)
         return CCSDS_IS_REQUIRED[id];
     else
         return false;

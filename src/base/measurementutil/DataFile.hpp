@@ -116,6 +116,13 @@ public:
     virtual Gmat::ParameterType GetParameterType(const Integer id) const;
     virtual std::string GetParameterTypeString(const Integer id) const;
 
+    void SetPrecision(const Integer &value);
+    Integer GetPrecision() const;
+    bool GetScientific() const;
+    void SetScientific(const bool &flag);
+    bool GetShowPoint() const;
+    void SetShowPoint(const bool &flag);
+
     // Sorting Functions
     void SortByEpoch(bool sortOrder = DESCENDING);
     void SortBySatID(bool sortOrder = DESCENDING);
@@ -244,43 +251,48 @@ private:
     
 protected:
 
-  /// Published parameters for data files
-   enum
-   {
-      FILENAME_ID   = GmatBaseParamCount,
-      FILEFORMAT_ID,
-      NUMLINES_ID,
-      READWRITEMODE_ID,
-      DataFileParamCount
-   };
+    /// Published parameters for data files
+    enum
+    {
+        FILENAME_ID   = GmatBaseParamCount,
+        FILEFORMAT_ID,
+        NUMLINES_ID,
+        READWRITEMODE_ID,
+        SCIENTIFICMODE_ID,
+        SHOWPOINTMODE_ID,
+        PRECISION_ID,
+        DataFileParamCount
+    };
 
-   static const std::string    PARAMETER_TEXT[DataFileParamCount -
+    static const std::string    PARAMETER_TEXT[DataFileParamCount -
                                               GmatBaseParamCount];
-   static const Gmat::ParameterType
+    static const Gmat::ParameterType
                                PARAMETER_TYPE[DataFileParamCount -
                                               GmatBaseParamCount];
    
-    static const std::string DataFile::OPTIONAL_SIGN;
-    static const std::string DataFile::MANDATORY_DIGITS;
-    static const std::string DataFile::DECIMAL_POINT;
-    static const std::string DataFile::OPTIONAL_DIGITS;
-    static const std::string DataFile::OPTIONAL_EXPONENT;
+    static const std::string OPTIONAL_SIGN;
+    static const std::string MANDATORY_DIGITS;
+    static const std::string DECIMAL_POINT;
+    static const std::string OPTIONAL_DIGITS;
+    static const std::string OPTIONAL_EXPONENT;
 
-    static const std::string DataFile::REGEX_NUMBER;
-    static const std::string DataFile::REGEX_INTEGER;
-    static const std::string DataFile::REGEX_LETTER;
-    static const std::string DataFile::REGEX_DATE;
-    static const std::string DataFile::REGEX_SCINUMBER;
-    static const std::string DataFile::REGEX_CCSDS_DATE;
-    static const std::string DataFile::REGEX_CCSDS_SAVETHEDATE1;
-    static const std::string DataFile::REGEX_CCSDS_SAVETHEDATE2;
-    static const std::string DataFile::REGEX_CCSDS_KEYWORD;
-    static const std::string DataFile::REGEX_CCSDS_SAVETHEKEYWORD;
+    static const std::string REGEX_NUMBER;
+    static const std::string REGEX_INTEGER;
+    static const std::string REGEX_LETTER;
+    static const std::string REGEX_DATE;
+    static const std::string REGEX_SCINUMBER;
 
     // File format and filename of the data being used
     std::string fileFormatName;
     Integer fileFormatID;
     std::string dataFileName;
+
+    /// Flag to set format using scientific notation
+    bool scientific;
+    /// Flag to set format showing a decimal point after real numbers
+    bool showPoint;
+    /// This variable specifies the number of decimal places of precision
+    Integer precision;  
            
     // numLines tells the file reader how many lines to read in at a time
     // This is important for TLE's that can have 2 or 3 lines of data

@@ -44,6 +44,9 @@ public:
     bool WriteData(const ObType *myOb);
     bool GetData(ObType *myOb);
 
+    friend class CCSDSOEMMetaData;
+    friend class CCSDSOEMStateVector;
+
 private:
 
     // Specific data type processing functions

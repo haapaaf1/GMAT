@@ -321,8 +321,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
             if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
-            {
-                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+            {  
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
 
@@ -348,7 +348,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
             }
             else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
-                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
 
@@ -384,7 +384,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
             if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
-                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -417,7 +417,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
             }
             else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
-                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -460,7 +460,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
             if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
-                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -492,7 +492,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
             }
             else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
-                std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -532,7 +532,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMEulerAngle *myEulerData = new CCSDSAEMEulerAngle;
 
-            std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+            std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")$";
 
@@ -565,7 +565,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMEulerAngle *myEulerData = new CCSDSAEMEulerAngle;
 
-            std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+            std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
@@ -603,7 +603,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMSpinStabilized *mySpinData = new CCSDSAEMSpinStabilized;
 
-            std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+            std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
 
@@ -636,7 +636,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMSpinStabilized *mySpinData = new CCSDSAEMSpinStabilized;
 
-            std::string regex = "^" + REGEX_CCSDS_DATE + ")\\s*(" +
+            std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                 REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                 REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                 REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +

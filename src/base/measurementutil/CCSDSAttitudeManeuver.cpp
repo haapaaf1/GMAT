@@ -379,7 +379,7 @@ const Integer CCSDSAttitudeManeuver::GetKeywordID(const std::string str) const
 //------------------------------------------------------------------------------
 std::string CCSDSAttitudeManeuver::GetUnits(const Integer &id) const
 {
-    if (id > 0 && id <= EndCCSDSAttitudeManeuverDataReps)
+    if (id >= 0 && id <= EndCCSDSAttitudeManeuverDataReps)
         return CCSDS_UNIT_DESCRIPTIONS[id];
     else
         return GmatBase::STRING_PARAMETER_UNDEFINED;
@@ -399,7 +399,7 @@ std::string CCSDSAttitudeManeuver::GetUnits(const Integer &id) const
 //---------------------------------------------------------------------------
 bool CCSDSAttitudeManeuver::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSAttitudeManeuverDataReps)
+    if (id >= 0 && id <= EndCCSDSAttitudeManeuverDataReps)
         return CCSDS_IS_REQUIRED[id];
     else
         return false;

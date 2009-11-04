@@ -51,7 +51,7 @@ bool ProcessCCSDSOPMDataFile::Initialize()
         // Construct an orbit parameter message obtype
         CCSDSOPMObType *myOPM = new CCSDSOPMObType;
 
-        while (!IsEOF())
+        if (!IsEOF())
         {
             // The GetData function will attempt to populate the
             // OPM obtype variables
@@ -60,9 +60,6 @@ bool ProcessCCSDSOPMDataFile::Initialize()
                 theData.push_back(myOPM);
             else
                 delete myOPM;
-
-            // Allocate another struct in memory
-            myOPM = new CCSDSOPMObType;
         }
 
         // Set data iterator to beginning of vector container
@@ -239,7 +236,7 @@ bool ProcessCCSDSOPMDataFile::IsParameterReadOnly(const std::string &label) cons
 bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
 {
 
-    if (myOPMData->GetTypeName() != "CCSDSOPMObType") return false;
+    if (!pcrecpp::RE("^CCSDSOPMObType").FullMatch(myOPMData->GetTypeName())) return false;
 
     // Re-cast the generic ObType pointer as a CCSDSOPMObtype pointer
     CCSDSOPMObType *myOPM = (CCSDSOPMObType*)myOPMData;
@@ -248,7 +245,7 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     std::string lff = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
-    while (!IsEOF() && pcrecpp::RE("^CCSDS_OPM_VERS.*").FullMatch(lff))
+    if (!IsEOF() && currentCCSDSHeader == NULL && pcrecpp::RE("^CCSDS_OPM_VERS.*").FullMatch(lff))
     {
 
 	if (GetCCSDSHeader(lff,myOPM))
@@ -256,16 +253,17 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
 	    // success so set currentHeader pointer to the
 	    // one just processed
 	    currentCCSDSHeader = myOPM->ccsdsHeader;
-	}
+        }
 	else
 	{
 	    // failure to read header data, abort
 	    currentCCSDSHeader = NULL;
+            MessageInterface::ShowMessage("Failed to read OPM Header! Abort!\n");
 	    return false;
 	}
     }
 
-    if (GetCCSDSMetaData(lff,myOPM))
+    if (!IsEOF() && GetCCSDSMetaData(lff,myOPM))
     {
         // success so set currentHeader pointer to the
         // one just processed
@@ -275,6 +273,7 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     {
         // failure to read metadata, abort
         currentCCSDSMetaData = NULL;
+        MessageInterface::ShowMessage("Failed to read OPM Meta Data! Abort!\n");
         return false;
     }
 
@@ -282,11 +281,6 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     StringArray comments;
 
     bool commentsFound = GetCCSDSComments(lff,comments);
-
-    // Parse the data record making sure that we have identified
-    // a header record and a metadata record previously
-    if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
-	return false;
 
     if (pcrecpp::RE("^EPOCH.*").FullMatch(lff))
     {
@@ -301,7 +295,7 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
         else
             return false;
     }
-
+    
     return false;
 }
 
@@ -322,8 +316,11 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     bool commentsFound = GetCCSDSComments(lff,comments);
 
     std::string regex = "^EPOCH\\s*=.*";
-    if (pcrecpp::RE(regex).FullMatch(lff))
+    if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
+
+        //MessageInterface::ShowMessage("Found State Vector\n");
+
         if (GetCCSDSOPMStateVector(lff,myOb))
         {
             if (commentsFound)
@@ -337,8 +334,10 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     }
 
     regex = "^SEMI_MAJOR_AXIS\\s*=.*";
-    if (pcrecpp::RE(regex).FullMatch(lff))
+    if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
+        //MessageInterface::ShowMessage("Found Keplerian Elements\n");
+
         if (GetCCSDSKeplerianElements(lff,myOb))
         {
             if (commentsFound)
@@ -352,8 +351,10 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     }
 
     regex = "^MASS\\s*=.*";
-    if (pcrecpp::RE(regex).FullMatch(lff))
+    if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
+        //MessageInterface::ShowMessage("Found Spacecraft Parameters\n");
+
         if (GetCCSDSSpacecraftParameters(lff,myOb))
         {
             if (commentsFound)
@@ -372,6 +373,8 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
 
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
+        //MessageInterface::ShowMessage("Found Maneuver\n");
+
         if (GetCCSDSManeuver(lff,myOb))
         {
             myOb->i_ccsdsOPMManeuvers++;
@@ -420,8 +423,8 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
             case CCSDSStateVector::CCSDS_STATEVECTOR_TIMETAG_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->timeTag)) return false;
-                if (!CCSDSTimeTag2A1Date(myOPMStateVector->timeTag,
-                                         myOb->epoch)) return false;
+                //if (!CCSDSTimeTag2A1Date(myOPMStateVector->timeTag,
+                //                         myOb->epoch)) return false;
                 break;
 
             case CCSDSStateVector::CCSDS_STATEVECTOR_X_ID:
@@ -743,7 +746,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
                                 CCSDSOPMObType *myOb)
 {
     
-   // Initialize individual data struct
+    // Initialize individual data struct
     // This needs new memory allocation because
     // we are storing pointers to this data
     CCSDSOPMMetaData *myMetaData = new CCSDSOPMMetaData;
@@ -766,8 +769,8 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
             case CCSDSOPMMetaData::CCSDS_OPM_METADATACOMMENTS_ID:
                 {
                 std::string stemp;
-                if (!GetCCSDSValue(lff,stemp)) return false;
-                myMetaData->comments.push_back(stemp);
+                if (!GetCCSDSComment(lff,stemp))
+                    myMetaData->comments.push_back(stemp);
                 }
                 break;
 
@@ -803,14 +806,14 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 
             default:
 
-                return false;
+                //return false;
                 break;
 
         }
 
         lff = ReadLineFromFile();
     }
-    while(requiredCount < requiredNumberMetaDataParameters ||
+    while(requiredCount < requiredNumberMetaDataParameters && !IsEOF() ||
           pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
 
     myOb->ccsdsOPMMetaData = myMetaData;
@@ -830,7 +833,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 //------------------------------------------------------------------------------
 bool ProcessCCSDSOPMDataFile::WriteData(const ObType *myOb)
 {
-    if (myOb->GetTypeName() != "CCSDSOPMObType") return false;
+    if (!pcrecpp::RE("^CCSDSOPMObType").FullMatch(myOb->GetTypeName())) return false;
 
     CCSDSOPMObType *theOPM = (CCSDSOPMObType*)myOb;
     WriteDataHeader(theOPM);

@@ -491,7 +491,7 @@ std::string CCSDSTDMMetaData::GetUnits(const Integer &id) const
 //---------------------------------------------------------------------------
 bool CCSDSTDMMetaData::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSTDMMetaDataReps)
+    if (id >= 0 && id <= EndCCSDSTDMMetaDataReps)
         return CCSDS_METADATA_IS_REQUIRED[id];
     else
         return false;

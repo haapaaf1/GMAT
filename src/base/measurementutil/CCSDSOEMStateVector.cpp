@@ -75,10 +75,34 @@ std::ostream& operator<< (std::ostream &output,
                           const CCSDSOEMStateVector *myOEMStateVector)
 {
    using namespace std;
+   
+   //if (ProcessCCSDSOEMDataFile::scientific)
+   // output.setf(std::ios::scientific);
 
-   output << myOEMStateVector->timeTag << myOEMStateVector->x
-           << myOEMStateVector->y << myOEMStateVector->xDot
-           << myOEMStateVector->yDot << myOEMStateVector->zDot << endl;
+   //if (ProcessCCSDSOEMDataFile::showPoint)
+   //    output << showpoint;
+
+   //output.precision(ProcessCCSDSOEMDataFile::precision);
+
+   for (unsigned int i = 0; i < myOEMStateVector->comments.size(); i++)
+       output << myOEMStateVector->comments[i] << endl;
+
+   output << endl;
+
+   output << myOEMStateVector->timeTag;
+   output << " " << myOEMStateVector->x;
+   output << " " << myOEMStateVector->y;
+   output << " " << myOEMStateVector->z;
+   output << " " << myOEMStateVector->xDot;
+   output << " " << myOEMStateVector->yDot;
+   output << " " << myOEMStateVector->zDot;
+   output << endl;
+
+   //if (ProcessCCSDSOEMDataFile::scientific)
+   //    output.unsetf(std::ios_base::floatfield);
+
+   //if (ProcessCCSDSOEMDataFile::showPoint)
+   //    output << noshowpoint;
 
    return output;
 }

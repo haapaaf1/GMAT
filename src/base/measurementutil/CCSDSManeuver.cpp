@@ -410,7 +410,7 @@ const Integer CCSDSManeuver::GetKeywordID(const std::string str) const
 //---------------------------------------------------------------------------
 bool CCSDSManeuver::IsParameterRequired(const Integer id) const
 {
-    if (id > 0 && id <= EndCCSDSManeuverDataReps)
+    if (id >= 0 && id <= EndCCSDSManeuverDataReps)
         return CCSDS_IS_REQUIRED[id];
     else
         return false;
