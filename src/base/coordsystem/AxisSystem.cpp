@@ -40,12 +40,12 @@ using namespace std; //***************************** for debug only
 using namespace GmatMathUtil;      // for trig functions, etc.
 using namespace GmatTimeUtil;      // for SECS_PER_DAY
 
-//#define DEBUG_ROT_MATRIX 1
 //static Integer visitCount = 0;
 
+//#define DEBUG_ROT_MATRIX 1
 //#define DEBUG_UPDATE
 //#define DEBUG_FIRST_CALL
-
+//#define DEBUG_a_MATRIX
 //#define DEBUG_ITRF_UPDATES
 //#define DEBUG_CALCS
 //#define DEBUG_DESTRUCTION
@@ -1374,10 +1374,15 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
 {
    #ifdef DEBUG_FIRST_CALL
       if (!firstCallFired)
+      {
+         MessageInterface::ShowMessage("firstCallFired set to TRUE!!!!\n");
          MessageInterface::ShowMessage(
             "   AxisSystem::ComputeNutationMatrix(%.12lf, %.12lf, %.12lf, "
             "%.12lf, %.12lf)\n", tTDB, atEpoch.Get(), dPsi, longAscNodeLunar, 
             cosEpsbar);
+      }
+      else
+         MessageInterface::ShowMessage("firstCallFired set to TRUE!!!!\n");
    #endif
 
    static const Real const125 = 125.04455501*RAD_PER_DEG;
@@ -1385,6 +1390,14 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    static const Real const357 = 357.52910918*RAD_PER_DEG;
    static const Real const93  =  93.27209062*RAD_PER_DEG;
    static const Real const297 = 297.85019547*RAD_PER_DEG;
+#ifdef DEBUG_UPDATE
+   MessageInterface::ShowMessage("static consts computed ... \n");
+   MessageInterface::ShowMessage("  const125 = %12.10f\n", const125);
+   MessageInterface::ShowMessage("  const134 = %12.10f\n", const134);
+   MessageInterface::ShowMessage("  const357 = %12.10f\n", const357);
+   MessageInterface::ShowMessage("  const93  = %12.10f\n", const93);
+   MessageInterface::ShowMessage("  const297 = %12.10f\n", const297);
+#endif
 
    register Real tTDB2   = tTDB  * tTDB;
    register Real tTDB3   = tTDB2 * tTDB;
@@ -1395,6 +1408,12 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    // floor, roll around and under the door, down the stairs and into
    // the neighbor's yard.  It can also be used, but is not tested, 
    // with the 2000 Theory.
+#ifdef DEBUG_UPDATE
+   MessageInterface::ShowMessage("registers set up\n");
+   MessageInterface::ShowMessage("  tTDB2 = %12.10f\n", tTDB2);
+   MessageInterface::ShowMessage("  tTDB3 = %12.10f\n", tTDB3);
+   MessageInterface::ShowMessage("  tTDB4 = %12.10f\n", tTDB4);
+#endif
 
    // Compute values to be passed out first ... 
    longAscNodeLunar  = const125 + (  -6962890.2665*tTDB 
@@ -1407,20 +1426,15 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    // if not enough time has passed, just return the last value
    Real dt = fabs(atEpoch.Subtract(lastNUTEpoch)) * SECS_PER_DAY;
    #ifdef DEBUG_UPDATE
-      cout.precision(30);
-      cout << "ENTERED ComputeNutation ....." << endl;
-      cout << "atEpoch = " << atEpoch.Get() << endl;
-      cout << "lastNUTEpoch = " << lastNUTEpoch.Get() << endl;
-      cout << "dt = " << dt << endl;
-      cout << "longAscNodeLunar = "  << longAscNodeLunar << endl;
-      cout << "cosEpsbar = "  << cosEpsbar << endl;
+      MessageInterface::ShowMessage("ENTERED ComputeNutation .....\n");
+      MessageInterface::ShowMessage("  longAscNodeLunar = %12.10f\n", longAscNodeLunar);
+      MessageInterface::ShowMessage("  Epsbar = %12.10f\n", Epsbar);
+      MessageInterface::ShowMessage("  cosEpsbar = %12.10f\n", cosEpsbar);
    #endif
    if (( dt < updateIntervalToUse) && (!forceComputation))
    {
       #ifdef DEBUG_UPDATE
-         cout << ">>> Using previous saved values ......" << endl;
-         cout << "lastDPsi = "  << lastDPsi << endl;
-         cout << "lastNUT = "  << lastNUT << endl;
+         MessageInterface::ShowMessage(">>> Using previously saved values ......\n");
       #endif
       dPsi = lastDPsi;
 
@@ -1436,7 +1450,7 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    }
 
    #ifdef DEBUG_UPDATE
-      cout << ">>> Computing brand new values ......" << endl;
+      MessageInterface::ShowMessage(">>> Computing brand new values ......\n");
    #endif
    // otherwise, need to recompute all the nutation data
    dPsi      = 0.0;
@@ -1460,6 +1474,10 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    Real cosAp = 0.0;
    Real sinAp = 0.0;
    Integer nut = itrf->GetNumberOfNutationTerms();
+   #ifdef DEBUG_UPDATE
+      MessageInterface::ShowMessage(">>> After call to ITRF object ......\n");
+      MessageInterface::ShowMessage("   and nut = %d\n", nut);
+   #endif
    /*
    for (i = nut-1; i >= 0; i--)
    {
@@ -1645,7 +1663,7 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    // NOTE - this part is commented out for now, per Steve Hughes
    // First, compute the mean Heliocentric longitudes of the planets, and the
    // general precession in longitude
-    Real dPsiAddend = 0.0, dEpsAddend = 0.0;
+   Real dPsiAddend = 0.0, dEpsAddend = 0.0;
    if (nutationSrc == GmatItrf::NUTATION_1996)
    {   
    
@@ -1746,11 +1764,11 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    lastDPsi     = dPsi; 
    
    #ifdef DEBUG_ROT_MATRIX
-      cout << "atEpoch = " << endl << atEpoch.Get() << endl;
-      cout << "NUT = " << endl << NUT << endl;
-      cout << "longAscNodeLunar = " << endl << longAscNodeLunar << endl;
-      cout << "cosEpsbar = " << endl << cosEpsbar << endl;
-      cout << "dPsi = " << endl << dPsi << endl;
+      MessageInterface::ShowMessage("At end of ComputeNutationmatrix ...\n");
+      MessageInterface::ShowMessage("   atEpoch   = %12.10f\n", atEpoch.Get());
+      MessageInterface::ShowMessage("   longAscNodeLunar   = %12.10f\n", longAscNodeLunar);
+      MessageInterface::ShowMessage("   cosEpsbar   = %12.10f\n", cosEpsbar);
+      MessageInterface::ShowMessage("   dPsi   = %12.10f\n", dPsi);
    #endif
 //   return NUT;
 }
