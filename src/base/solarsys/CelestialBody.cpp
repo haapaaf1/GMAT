@@ -1652,6 +1652,14 @@ bool CelestialBody::SetEquatorialRadius(Real newEqRadius)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetFlattening(Real flat) 
 {
+   if (flat < 0.0)
+   {
+      SolarSystemException sse;
+      sse.SetDetails(errorMessageFormat.c_str(),
+                     GmatStringUtil::ToString(flat, GetDataPrecision()).c_str(),
+                     "Flattening", "Real Number >= 0.0");
+      throw sse;
+   }
    flattening                          = flat;
    polarRadius                         = (1.0 - flattening) * equatorialRadius;
    return true;
@@ -2522,9 +2530,10 @@ Real CelestialBody::SetRealParameter(const Integer id, const Real value)
    }
    if (id == FLATTENING)
    {
-      flattening          = value;
-      polarRadius         = (1.0 - flattening) * equatorialRadius;
-      return true;
+//      flattening          = value;
+//      polarRadius         = (1.0 - flattening) * equatorialRadius;
+      return SetFlattening(value);
+//      return true;
    }
    //if (id == POLAR_RADIUS)      return (polarRadius        = value); // make sense?
    if (id == MU)

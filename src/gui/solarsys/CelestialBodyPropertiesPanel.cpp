@@ -89,7 +89,8 @@ void CelestialBodyPropertiesPanel::SaveData()
    if (muChanged)
    {
       strval = muTextCtrl->GetValue();
-      if (!theCBPanel->CheckReal(tmpval, strval, "Mu", "Real Number"))
+      if (!theCBPanel->CheckReal(tmpval, strval, "Mu", "Positive Real Number",
+            false, true, true, false))
          realsOK = false;
       else 
       {
@@ -100,7 +101,8 @@ void CelestialBodyPropertiesPanel::SaveData()
    if (eqRadChanged)
    {
       strval = eqRadTextCtrl->GetValue();
-      if (!theCBPanel->CheckReal(tmpval, strval, "Equatorial Radius", "Real Number"))
+      if (!theCBPanel->CheckReal(tmpval, strval, "Equatorial Radius", "Positive Real Number",
+            false, true, true, false))
          realsOK = false;
       else 
       {
@@ -111,7 +113,8 @@ void CelestialBodyPropertiesPanel::SaveData()
    if (flatChanged)
    {
       strval = flatTextCtrl->GetValue();
-      if (!theCBPanel->CheckReal(tmpval, strval, "Flattening Coefficient", "Real Number"))
+      if (!theCBPanel->CheckReal(tmpval, strval, "Flattening Coefficient", "Non-negative Real Number",
+            false, true, true, true))
          realsOK = false;
       else 
       {
