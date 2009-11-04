@@ -247,7 +247,7 @@ protected:
    bool SetPropertyValue(GmatBase *obj, const Integer id,
                          const Gmat::ParameterType type,
                          const std::string &value,
-                         const Integer index = -1);
+                         const Integer index = -1, const Integer colIndex = -1);
    bool SetPropertyObjectValue(GmatBase *obj, const Integer id,
                                const Gmat::ParameterType type,
                                const std::string &value,

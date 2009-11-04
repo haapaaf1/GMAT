@@ -1063,6 +1063,7 @@ bool MeasurementModel::SetMeasurement(CoreMeasurement *meas)
 
       theData = measurement->GetMeasurementDataPointer();
       theDataDerivatives = measurement->GetDerivativePointer();
+      covariance = *(measurement->GetCovariance());
    }
 
    return retval;

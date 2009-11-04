@@ -61,7 +61,7 @@ const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
 
 const Gmat::ParameterType GmatBase::PARAMETER_TYPE[GmatBaseParamCount] =
       {
-            Gmat::STRINGARRAY_TYPE,
+            Gmat::RMATRIX_TYPE,
       };
 
 const std::string GmatBase::PARAMETER_LABEL[GmatBaseParamCount] =
@@ -1018,6 +1018,9 @@ bool GmatBase::RequiresJ2000Body()
 //------------------------------------------------------------------------------
 Gmat::ParameterType GmatBase::GetParameterType(const Integer id) const
 {
+   if ((id < GmatBaseParamCount) && (id >= 0))
+      return PARAMETER_TYPE[id];
+
    return Gmat::UNKNOWN_PARAMETER_TYPE;
 }
 
@@ -1059,6 +1062,9 @@ std::string GmatBase::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 std::string GmatBase::GetParameterText(const Integer id) const
 {
+   if ((id < GmatBaseParamCount) && (id >= 0))
+      return PARAMETER_LABEL[id];
+
    std::stringstream indexString;
    indexString << id;
    throw GmatBaseException("Parameter id = " + indexString.str() +
@@ -1096,6 +1102,12 @@ std::string GmatBase::GetParameterUnit(const Integer id) const
 //---------------------------------------------------------------------------
 Integer GmatBase::GetParameterID(const std::string &str) const
 {
+   for (Integer i = 0; i < GmatBaseParamCount; ++i)
+      if (str == PARAMETER_LABEL[i])
+      {
+         return i;
+      }
+
    throw GmatBaseException
       ("The object named \"" + GetName() + "\" of type \"" + GetTypeName() + "\" "
        "has no parameter defined with \"" + str + "\"");
@@ -1325,6 +1337,15 @@ Real GmatBase::GetRealParameter(const Integer id, const Integer index) const
 Real GmatBase::GetRealParameter(const Integer id, const Integer row,
                                 const Integer col) const
 {
+   if (id == COVARIANCE)
+   {
+      #ifdef DEBUG_COVARIANCE
+         MessageInterface::ShowMessage("Getting covariance[%d,%d] = %le\n",
+               row, col, covariance(row,col));
+      #endif
+      return covariance(row,col);
+   }
+
    std::stringstream indexString, idString;
    idString << id << ": \"" << GetParameterText(id) << "\"";
    indexString << ", row " << row << " and column " << col;
@@ -1353,6 +1374,16 @@ Real GmatBase::GetRealParameter(const Integer id, const Integer row,
 Real GmatBase::SetRealParameter(const Integer id, const Real value,
                                 const Integer row, const Integer col)
 {
+   if (id == COVARIANCE)
+   {
+      #ifdef DEBUG_COVARIANCE
+         MessageInterface::ShowMessage("Setting covariance[%d,%d] = %le\n",
+               row, col, value);
+      #endif
+      covariance(row,col) = value;
+      return covariance(row,col);
+   }
+
    std::stringstream idString;
    idString << id << " and label " << GetParameterText(id);
    throw GmatBaseException("Cannot set real parameter with ID " +
@@ -3589,6 +3620,11 @@ Integer GmatBase::HasParameterCovariances(Integer parameterId)
 }
 
 Rmatrix* GmatBase::GetParameterCovariances(Integer parameterId)
+{
+   return NULL; //&covariance;
+}
+
+Covariance* GmatBase::GetCovariance()
 {
    return &covariance;
 }

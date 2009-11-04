@@ -28,6 +28,8 @@
 #include "MessageInterface.hpp"
 #include "FileUtil.hpp"       // for DoesFileExist()
 #include "GmatGlobal.hpp"     // for GetMatlabFuncNameExt()
+#include "Covariance.hpp"
+
 #include <stack>              // for checking matching begin/end control logic
 #include <fstream>            // for checking GmatFunction declaration
 #include <sstream>            // for checking GmatFunction declaration
@@ -4174,7 +4176,8 @@ bool Interpreter::SetValueToArray(GmatBase *array, const std::string &toArray,
 //------------------------------------------------------------------------------
 bool Interpreter::SetPropertyValue(GmatBase *obj, const Integer id,
                                    const Gmat::ParameterType type,
-                                   const std::string &value, const Integer index)
+                                   const std::string &value,
+                                   const Integer index, const Integer colIndex)
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
@@ -4278,6 +4281,20 @@ bool Interpreter::SetPropertyValue(GmatBase *obj, const Integer id,
             errorMsg1 = errorMsg1 + "The value of \"" + valueToUse + "\" for ";
             errorMsg2 = " The allowed value is Real number";
          }
+         break;
+      }
+   case Gmat::RMATRIX_TYPE:
+      {
+         #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("Setting Rmatrix[%d, %d] from the data"
+                  " \"%s\" with ID %d\n", index, colIndex, value.c_str(), id);
+         #endif
+         Real rval;
+         if (GmatStringUtil::ToReal(valueToUse, rval, true))
+         {
+            obj->SetRealParameter(id, rval, index, colIndex);
+         }
+
          break;
       }
    case Gmat::BOOLEAN_TYPE:
@@ -4805,10 +4822,12 @@ bool Interpreter::SetProperty(GmatBase *obj, const Integer id,
 bool Interpreter::SetComplexProperty(GmatBase *obj, const std::string &prop,
                                      const std::string &value)
 {
+   bool retval = true;
+
    #ifdef DEBUG_SET
-   MessageInterface::ShowMessage
-      ("Interpreter::SetComplexProperty() prop=%s, value=%s\n",
-       prop.c_str(), value.c_str());
+      MessageInterface::ShowMessage
+         ("Interpreter::SetComplexProperty() prop=%s, value=%s\n",
+          prop.c_str(), value.c_str());
    #endif
    
    StringArray parts = theTextParser.SeparateDots(prop);
@@ -4824,11 +4843,100 @@ bool Interpreter::SetComplexProperty(GmatBase *obj, const std::string &prop,
       }
       else
       {
-         return false;
+         if (parts[0] != "Covariance")
+            retval = false;
       }
    }
-   
-   return true;
+
+
+   if (parts[0] == "Covariance")
+   {
+      #ifdef DEBUG_SET
+         MessageInterface::ShowMessage("Setting covariance elements:\n");
+      #endif
+
+      Covariance* covariance = obj->GetCovariance();
+      for (UnsignedInt i = 1; i < parts.size(); ++i)
+      {
+         Integer parmID = obj->GetParameterID(parts[i]);
+         Integer covSize = obj->HasParameterCovariances(parmID);
+         #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("   %s, with size %d\n",
+                  parts[i].c_str(), covSize);
+         #endif
+
+         if (covSize >= 0)
+            covariance->AddCovarianceElement(parts[i], obj);
+      }
+
+      covariance->ConstructLHS();
+
+      // Check the size of the inputs -- MUST be a square matrix
+      StringArray rhsRows;
+      if ((value.find("[") == value.npos) || (value.find("]") == value.npos))
+         throw GmatBaseException("Covariance matrix definition is missing "
+               "square brackets");
+
+      rhsRows = theTextParser.SeparateBrackets(value, "[]", ";");
+      UnsignedInt rowCount = rhsRows.size();
+
+      StringArray cells = theTextParser.SeparateSpaces(rhsRows[0]);
+      UnsignedInt colCount = cells.size();
+
+      if ((Integer)colCount >= covariance->GetDimension())
+         throw GmatBaseException("Input covariance matrix is larger than the "
+               "matrix built from the input array");
+
+      for (UnsignedInt i = 1; i < rowCount; ++i)
+      {
+         cells = theTextParser.SeparateSpaces(rhsRows[i]);
+       #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("   Found  %d columns in row %d\n",
+                  cells.size(), i+1);
+       #endif
+
+         if (cells.size() != rowCount)
+            throw InterpreterException("Row/Column mismatch in the Covariance "
+                  "matrix for " + obj->GetName());
+      }
+
+      #ifdef DEBUG_SET
+         MessageInterface::ShowMessage("Found %d rows and %d columns\n",
+               rowCount, colCount);
+      #endif
+
+      Integer id = obj->GetParameterID(parts[0]);
+      Gmat::ParameterType type = obj->GetParameterType(id);
+
+      for (UnsignedInt i = 0; i < colCount; ++i)
+      {
+         if (rowCount != 1)
+            cells = theTextParser.SeparateSpaces(rhsRows[i]);
+         for (UnsignedInt j = 0; j < colCount; ++j)
+            if (i == j)
+               SetPropertyValue(obj, id, type, cells[j], i, j);
+            else
+               // If a single row, it's the diagonal
+               if (rowCount == 1)
+                  SetPropertyValue(obj, id, type, "0.0", i, j);
+               // Otherwise it's cell[j]
+               else
+                  SetPropertyValue(obj, id, type, cells[j], i, j);
+      }
+
+      #ifdef DEBUG_SET
+         MessageInterface::ShowMessage("Covariance matrix set to:\n");
+         for (UnsignedInt i = 0; i < colCount; ++i)
+         {
+            MessageInterface::ShowMessage("   [");
+            for (UnsignedInt j = 0; j < colCount; ++j)
+               MessageInterface::ShowMessage(" %.12lf ", (*obj->GetCovariance())(i,j));
+            MessageInterface::ShowMessage("]\n");
+         }
+      #endif
+   }
+
+   return retval;
 }
 
 
@@ -5148,7 +5256,70 @@ bool Interpreter::SetMeasurementModelProperty(GmatBase *obj,
 
       id = obj->GetParameterID(property);
       type = obj->GetParameterType(id);
-      retval = SetProperty(obj, id, type, value);
+      if (property == "Covariance")
+      {
+         // Check the size of the inputs -- MUST be a square matrix
+         StringArray rhsRows;
+         if ((value.find("[") == value.npos) || (value.find("]") == value.npos))
+            throw GmatBaseException("Covariance matrix definition is missing "
+                  "square brackets");
+
+         rhsRows = theTextParser.SeparateBrackets(value, "[]", ";");
+         UnsignedInt rowCount = rhsRows.size();
+
+         StringArray cells = theTextParser.SeparateSpaces(rhsRows[0]);
+         UnsignedInt colCount = cells.size();
+
+         Covariance *covariance = obj->GetCovariance();
+
+         #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("%s covariance has dim %d, "
+                  "row count = %d, colCount = %d\n", obj->GetName().c_str(),
+                  covariance->GetDimension(), rowCount, colCount);
+         #endif
+
+         if ((Integer)colCount > covariance->GetDimension())
+            throw GmatBaseException("Input covariance matrix is larger than the "
+                  "matrix built from the input array");
+
+         for (UnsignedInt i = 1; i < rowCount; ++i)
+         {
+            cells = theTextParser.SeparateSpaces(rhsRows[i]);
+          #ifdef DEBUG_SET
+               MessageInterface::ShowMessage("   Found  %d columns in row %d\n",
+                     cells.size(), i+1);
+          #endif
+
+            if (cells.size() != rowCount)
+               throw InterpreterException("Row/Column mismatch in the Covariance "
+                     "matrix for " + obj->GetName());
+         }
+
+         #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("Found %d rows and %d columns\n",
+                  rowCount, colCount);
+         #endif
+
+         for (UnsignedInt i = 0; i < colCount; ++i)
+         {
+            if (rowCount != 1)
+               cells = theTextParser.SeparateSpaces(rhsRows[i]);
+            for (UnsignedInt j = 0; j < colCount; ++j)
+               if (i == j)
+                  SetPropertyValue(obj, id, type, cells[j], i, j);
+               else
+                  // If a single row, it's the diagonal
+                  if (rowCount == 1)
+                     SetPropertyValue(obj, id, type, "0.0", i, j);
+                  // Otherwise it's cell[j]
+                  else
+                     SetPropertyValue(obj, id, type, cells[j], i, j);
+         }
+
+         retval = true;
+      }
+      else
+         retval = SetProperty(obj, id, type, value);
    }
 
    return retval;

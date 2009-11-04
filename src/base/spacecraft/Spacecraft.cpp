@@ -110,7 +110,6 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::STRING_TYPE,      // Id
       Gmat::OBJECT_TYPE,      // Attitude
       Gmat::RMATRIX_TYPE,     // OrbitSTM
-//      Gmat::STRINGARRAY_TYPE, // Covariance,
       Gmat::STRING_TYPE,      // UTCGregorian
       Gmat::REAL_TYPE,        // CartesianX
       Gmat::REAL_TYPE,        // CartesianY
@@ -153,7 +152,6 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "Id",
       "Attitude",
       "OrbitSTM",
-//      "Covariance",
       "UTCGregorian",
       "CartesianX",
       "CartesianY",
@@ -321,7 +319,9 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    orbitSTM(3,3) = orbitSTM(4,4) = orbitSTM(5,5) = 1.0;
 
    // Initialize the covariance matrix
-   covariance.SetSize(6,6);
+   covariance.AddCovarianceElement("CartesianState", this);
+   covariance.ConstructLHS();
+
    covariance(0,0) = covariance(1,1) = covariance(2,2) = 1.0e10;
    covariance(3,3) = covariance(4,4) = covariance(5,5) = 1.0e6;
 
@@ -1466,105 +1466,112 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
    MessageInterface::ShowMessage("In SC::GetParameterID, str = %s\n ",
    str.c_str());
    #endif
-   
-   // handle special parameter to work in GmatFunction (loj: 2008.06.27)
-   if (str == "UTCGregorian")
-      return UTC_GREGORIAN;
-   
-   // first check the multiple reps
-   Integer sz = EndMultipleReps - CART_X;
-   for (Integer ii = 0; ii < sz; ii++)
-      if (str == MULT_REP_STRINGS[ii])
-      {
-         #ifdef DEBUG_GET_REAL
-         MessageInterface::ShowMessage(
-         "In SC::GetParameterID, multiple reps found!! - str = %s and id = %d\n ",
-         str.c_str(), (ii + CART_X));
-         #endif
-         return ii + CART_X;
-      }
 
-   Integer retval = -1;
-   if (str == "Element1" || str == "X" || str == "SMA" || str == "RadPer" ||
-       str == "RMAG")  
-      retval =  ELEMENT1_ID;
-      //return ELEMENT1_ID;
-
-   else if (str == "Element2" || str == "Y" || str == "ECC" || str == "RadApo" ||
-       str == "RA" || str == "PECCY") 
-      retval =  ELEMENT2_ID;
-      //return ELEMENT2_ID;
-
-   else if (str == "Element3" || str == "Z" || str == "INC" || str == "DEC" ||
-       str == "PECCX")
-      retval =  ELEMENT3_ID;
-      //return ELEMENT3_ID;
-
-   else if (str == "Element4" || str == "VX" || str == "RAAN" || str == "VMAG" ||
-       str == "PNY") 
-      retval =  ELEMENT4_ID;
-      //return ELEMENT4_ID;
-
-   else if (str == "Element5" || str == "VY" || str == "AOP" || str == "AZI" ||
-       str == "RAV" || str == "PNX")
-      retval =  ELEMENT5_ID;
-      //return ELEMENT5_ID;
-
-   else if (str == "Element6" || str == "VZ" || str == "TA" || str == "MA" ||
-       str == "EA" || str == "HA" || str == "FPA" || str == "DECV" || str == "MLONG") 
-      retval =  ELEMENT6_ID;
-      //return ELEMENT6_ID;
-
-   #ifdef DEBUG_GET_REAL
-   MessageInterface::ShowMessage(
-   "In SC::GetParameterID, after checking for elements, id = %d\n ",
-   retval);
-   #endif
-   if (retval != -1) return retval;
-   
-   for (Integer i = SpaceObjectParamCount; i < SpacecraftParamCount; ++i)
+   try
    {
-      if (str == PARAMETER_LABEL[i - SpaceObjectParamCount])
+      // handle special parameter to work in GmatFunction (loj: 2008.06.27)
+      if (str == "UTCGregorian")
+         return UTC_GREGORIAN;
+
+      // first check the multiple reps
+      Integer sz = EndMultipleReps - CART_X;
+      for (Integer ii = 0; ii < sz; ii++)
+         if (str == MULT_REP_STRINGS[ii])
+         {
+            #ifdef DEBUG_GET_REAL
+            MessageInterface::ShowMessage(
+            "In SC::GetParameterID, multiple reps found!! - str = %s and id = %d\n ",
+            str.c_str(), (ii + CART_X));
+            #endif
+            return ii + CART_X;
+         }
+
+      Integer retval = -1;
+      if (str == "Element1" || str == "X" || str == "SMA" || str == "RadPer" ||
+          str == "RMAG")
+         retval =  ELEMENT1_ID;
+         //return ELEMENT1_ID;
+
+      else if (str == "Element2" || str == "Y" || str == "ECC" || str == "RadApo" ||
+          str == "RA" || str == "PECCY")
+         retval =  ELEMENT2_ID;
+         //return ELEMENT2_ID;
+   
+      else if (str == "Element3" || str == "Z" || str == "INC" || str == "DEC" ||
+          str == "PECCX")
+         retval =  ELEMENT3_ID;
+         //return ELEMENT3_ID;
+
+      else if (str == "Element4" || str == "VX" || str == "RAAN" || str == "VMAG" ||
+          str == "PNY")
+         retval =  ELEMENT4_ID;
+         //return ELEMENT4_ID;
+
+      else if (str == "Element5" || str == "VY" || str == "AOP" || str == "AZI" ||
+          str == "RAV" || str == "PNX")
+         retval =  ELEMENT5_ID;
+         //return ELEMENT5_ID;
+
+      else if (str == "Element6" || str == "VZ" || str == "TA" || str == "MA" ||
+          str == "EA" || str == "HA" || str == "FPA" || str == "DECV" || str == "MLONG")
+         retval =  ELEMENT6_ID;
+         //return ELEMENT6_ID;
+   
+      #ifdef DEBUG_GET_REAL
+      MessageInterface::ShowMessage(
+      "In SC::GetParameterID, after checking for elements, id = %d\n ",
+      retval);
+      #endif
+      if (retval != -1) return retval;
+
+      for (Integer i = SpaceObjectParamCount; i < SpacecraftParamCount; ++i)
       {
-         #ifdef DEBUG_SPACECRAFT_SET
-         MessageInterface::ShowMessage(
-         "In SC::GetParameterID, setting id to %d for str = %s\n ",
-         i, str.c_str());
-         #endif
-         return i;
+         if (str == PARAMETER_LABEL[i - SpaceObjectParamCount])
+         {
+            #ifdef DEBUG_SPACECRAFT_SET
+            MessageInterface::ShowMessage(
+            "In SC::GetParameterID, setting id to %d for str = %s\n ",
+            i, str.c_str());
+            #endif
+            return i;
+         }
       }
+      if (str == "STM")
+         return ORBIT_STM;
+
+
+      if ((str == "CartesianState") || (str == "CartesianX")) return CARTESIAN_X;
+      if (str == "CartesianY" )  return CARTESIAN_Y;
+      if (str == "CartesianZ" )  return CARTESIAN_Z;
+      if (str == "CartesianVX")  return CARTESIAN_VX;
+      if (str == "CartesianVY")  return CARTESIAN_VY;
+      if (str == "CartesianVZ")  return CARTESIAN_VZ;
+
+      return SpaceObject::GetParameterID(str);
    }
-   if (str == "STM")
-      return ORBIT_STM;
-
-   if (attitude)
+   catch (BaseException& be)
    {
-      try
+      // continue - could be an attitude parameter
+      if (attitude)
       {
-         Integer attId = attitude->GetParameterID(str);
-         #ifdef DEBUG_SC_ATTITUDE
-         MessageInterface::ShowMessage(
-            "------ Now calling attitude to get id for label %s\n",
-            str.c_str());
-            MessageInterface::ShowMessage(" ------ and the id = %d\n", attId);
-         #endif
-         return attId + ATTITUDE_ID_OFFSET;
+            Integer attId = attitude->GetParameterID(str);
+            #ifdef DEBUG_SC_ATTITUDE
+            MessageInterface::ShowMessage(
+               "------ Now calling attitude to get id for label %s\n",
+               str.c_str());
+               MessageInterface::ShowMessage(" ------ and the id = %d\n", attId);
+            #endif
+            return attId + ATTITUDE_ID_OFFSET;
+
       }
-      catch (BaseException& be)
-      {
-         // continue - not an attitude parameter
-      }
+      // Add other owned objects here
       
+      // Rethrow the exception
+      else
+         throw;
    }
-   
-   if ((str == "CartesianState") || (str == "CartesianX")) return CARTESIAN_X;
-   if (str == "CartesianY" )  return CARTESIAN_Y;
-   if (str == "CartesianZ" )  return CARTESIAN_Z;
-   if (str == "CartesianVX")  return CARTESIAN_VX;
-   if (str == "CartesianVY")  return CARTESIAN_VY;
-   if (str == "CartesianVZ")  return CARTESIAN_VZ;
 
-   return SpaceObject::GetParameterID(str);
+   return -1;
 }
 
 
@@ -3854,6 +3861,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
    parmOrder[parmIndex++] = ELEMENT4UNIT_ID;
    parmOrder[parmIndex++] = ELEMENT5UNIT_ID;
    parmOrder[parmIndex++] = ELEMENT6UNIT_ID;
+
    
    bool registered;
    for (i = 0; i < parameterCount; ++i)
@@ -4646,7 +4654,7 @@ Rmatrix* Spacecraft::GetParameterSTM(Integer parameterId)
 Integer Spacecraft::HasParameterCovariances(Integer parameterId)
 {
    if (parameterId == CARTESIAN_X)
-      return 0;
+      return 6;
    return SpaceObject::HasParameterCovariances(parameterId);
 }
 

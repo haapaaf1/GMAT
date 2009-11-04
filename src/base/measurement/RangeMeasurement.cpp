@@ -39,6 +39,9 @@ RangeMeasurement::RangeMeasurement(const std::string &name) :
    currentMeasurement.typeName = "Range";
    currentMeasurement.type = Gmat::RANGE;
 //   parameterCount = GeometricRangeMeasurementParamCount;
+
+   covariance.SetDimension(1);
+   covariance(0,0) = 1.0;
 }
 
 
@@ -56,6 +59,8 @@ RangeMeasurement::RangeMeasurement(const RangeMeasurement &rm) :
    currentMeasurement.uniqueID = rm.currentMeasurement.uniqueID;
    currentMeasurement.participantIDs.push_back("NotSet");
    currentMeasurement.participantIDs.push_back("NotSet");
+
+   covariance = rm.covariance;
 }
 
 
@@ -71,6 +76,8 @@ RangeMeasurement& RangeMeasurement::operator=(const RangeMeasurement &rm)
       currentMeasurement.typeName = "Range";
       currentMeasurement.type = Gmat::RANGE;
       currentMeasurement.uniqueID = rm.currentMeasurement.uniqueID;
+
+      covariance = rm.covariance;
    }
 
    return *this;

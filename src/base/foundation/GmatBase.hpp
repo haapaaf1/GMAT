@@ -31,6 +31,7 @@
 #include "GmatBaseException.hpp"
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
+#include "Covariance.hpp"
 
 #include <algorithm>                    // Required by GCC 4.3 for find
 
@@ -400,7 +401,7 @@ public:
    // Covariance handling code
    virtual Integer         HasParameterCovariances(Integer parameterId);
    virtual Rmatrix*        GetParameterCovariances(Integer parameterId = -1);
-
+   virtual Covariance*     GetCovariance();
 
 protected:
    /// Parameter IDs
@@ -478,7 +479,7 @@ protected:
    // Size of the covariance element
    IntegerArray        covarianceSizes;
    // Covariance matrix for parameters identified in covarianceList
-   Rmatrix             covariance;
+   Covariance          covariance;
 
    // Scripting interfaces
    void                CopyParameters(const GmatBase &a);

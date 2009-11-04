@@ -83,7 +83,6 @@ protected:
    MeasurementData            currentMeasurement;
    std::vector<RealArray>     currentDerivatives;
    Rmatrix                    stm;
-   Rmatrix                    covariance;
 
    StringArray                participantNames;
    SpacePoint                 *anchorPoint;

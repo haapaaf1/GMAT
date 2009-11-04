@@ -286,6 +286,7 @@ OBJECTS = \
     forcemodel/PhysicalModel.o \
     forcemodel/PointMassForce.o \
     forcemodel/SolarRadiationPressure.o \
+    foundation/Covariance.o \
     foundation/ElementWrapper.o \
     foundation/GmatBaseException.o \
     foundation/GmatBase.o \
