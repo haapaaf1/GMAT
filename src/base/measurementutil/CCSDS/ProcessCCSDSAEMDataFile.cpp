@@ -76,6 +76,8 @@ bool ProcessCCSDSAEMDataFile::Initialize()
 
         #endif
 
+        MessageInterface::ShowMessage("Completed reading AEM data\n");
+
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {

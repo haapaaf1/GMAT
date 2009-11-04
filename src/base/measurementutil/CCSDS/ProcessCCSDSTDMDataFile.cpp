@@ -77,6 +77,8 @@ bool ProcessCCSDSTDMDataFile::Initialize()
 
         #endif
 
+        MessageInterface::ShowMessage("Completed reading TDM data\n");
+
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {

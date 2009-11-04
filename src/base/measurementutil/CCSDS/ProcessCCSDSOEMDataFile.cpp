@@ -78,6 +78,8 @@ bool ProcessCCSDSOEMDataFile::Initialize()
 
         #endif
 
+        MessageInterface::ShowMessage("Completed reading OEM data\n");
+            
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {

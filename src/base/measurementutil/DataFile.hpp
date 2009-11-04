@@ -85,6 +85,9 @@ public:
     // the file has been processed
     Integer GetNumMeasurements() const;
     
+    void SetReadWriteMode(const std::string &mode);
+    std::string GetReadWriteMode() const;
+
     void SetFileFormatID(const Integer &mName);
     Integer GetFileFormatID() const;
 

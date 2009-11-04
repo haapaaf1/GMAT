@@ -66,7 +66,7 @@ bool ProcessCCSDSOPMDataFile::Initialize()
         i_theData = theData.begin();
 
         #ifdef DEBUG_CCSDSOPM_DATA
-
+/*
             fstream *outFile = new fstream;
             outFile->open("opm.output",ios::out);
 
@@ -75,8 +75,19 @@ bool ProcessCCSDSOPMDataFile::Initialize()
 		*outFile << (CCSDSOPMObType*)(*j) << std::endl;
 
             outFile->close();
+*/
+
+            ProcessCCSDSOPMDataFile myOutFile("theFile");
+            myOutFile.SetReadWriteMode("w");
+            myOutFile.SetFileName("./OPM.output");
+            //myOutFile.Initialize();
+            for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
+                myOutFile.WriteData((*j));
+            myOutFile.CloseFile();
 
         #endif
+
+        MessageInterface::ShowMessage("Completed reading OPM data\n");
 
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))

@@ -82,6 +82,8 @@ bool ProcessCCSDSAPMDataFile::Initialize()
 
         #endif
 
+        MessageInterface::ShowMessage("Completed reading APM data\n");
+
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {

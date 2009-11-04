@@ -676,7 +676,35 @@ void DataFile::SetFileFormatID(const std::string &label)
 }
 
 //------------------------------------------------------------------------------
-// Integer SetFileFormatID(Integer &pdfId)
+// void SetFileFormatID(const std::string &mode)
+//------------------------------------------------------------------------------
+/**
+ * Sets the read/write mode of the data file object.
+ *
+ * @param <mode> The desired read/write mode.
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetReadWriteMode(const std::string &mode)
+{
+   readWriteMode = mode;
+}
+
+//------------------------------------------------------------------------------
+// std::string GetReadWriteMode() const
+//------------------------------------------------------------------------------
+/**
+ * Finds the read/write mode of the data file object.
+ *
+ * @return The read/write mode.
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::GetReadWriteMode() const
+{
+   return readWriteMode;
+}
+
+//------------------------------------------------------------------------------
+// void SetFileFormatID(const Integer &pdfId)
 //------------------------------------------------------------------------------
 /**
  * Sets the format ID# of the data file object.
