@@ -682,24 +682,34 @@ bool AttitudePanel::IsStateModified(const std::string which)
    if ((which == "State")  || (which == "Both"))
    {
       if (attStateType == stateTypeArray[EULER_ANGLES])
+      {
          for (Integer ii = 0; ii<3; ii++)
             if (eaModified[ii]) return true;
+      }
       else if (attStateType == stateTypeArray[QUATERNION])
+      {
          for (Integer ii = 0; ii < 4; ii++)
             if (qModified[ii]) return true;
+      }
       else if (attStateType == stateTypeArray[DCM])
+      {
          for (Integer ii = 0; ii < 9; ii++)
             if (matModified[ii]) return true;
+      }
       return false;
    }
    if ((which == "Rate") || (which == "Both"))
    {
       if (attRateStateType == stateRateTypeArray[EULER_ANGLE_RATES])
+      {
          for (Integer ii = 0; ii<3; ii++)
             if (earModified[ii]) return true;
-      if (attRateStateType == stateRateTypeArray[ANGULAR_VELOCITY])
+      }
+      else if (attRateStateType == stateRateTypeArray[ANGULAR_VELOCITY])
+      {
          for (Integer ii = 0; ii<3; ii++)
             if (avModified[ii]) return true;
+      }
       return false;
    }
    return false;
